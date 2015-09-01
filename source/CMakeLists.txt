@@ -30,13 +30,13 @@ endif (WIN32)
 
 
 if (TINY3D_PLATFORM_WINDOWS)
-	option(TINY3D_BUILD_RENDERSYSTEM_D3D9 "Build render system useed DirectX 9" ON)
-	option(TINY3D_BUILD_RENDERSYSTEM_D3D11 "Build render system used DirectX 11" ON)
-	option(TINY3D_BUILD_RENDERSYSTEM_GL3PLUS "Build render system used OpenGL 3.0 +" ON)
-	option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" ON)
+	option(TINY3D_BUILD_RENDERSYSTEM_D3D9 "Build render system useed DirectX 9" TRUE)
+	option(TINY3D_BUILD_RENDERSYSTEM_D3D11 "Build render system used DirectX 11" TRUE)
+	option(TINY3D_BUILD_RENDERSYSTEM_GL3PLUS "Build render system used OpenGL 3.0 +" TRUE)
+	option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
 elseif (TINY3D_PLATFORM_MACOSX)
-	option(TINY3D_BUILD_RENDERSYSTEM_GL3PLUS "Build render system used OpenGL 3.0 +" ON)
-	option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" OFF)
+	option(TINY3D_BUILD_RENDERSYSTEM_GL3PLUS "Build render system used OpenGL 3.0 +" TRUE)
+	option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" FALSE)
 endif (TINY3D_PLATFORM_WINDOWS)
 
 
