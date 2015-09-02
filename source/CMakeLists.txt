@@ -22,10 +22,10 @@ if (CMAKE_BINARY_DIR MATCHES " ")
 endif()
 
 if (WIN32)
-	add_definitions(-DTINY3D_OS_WINDOWS)
+	add_definitions(-DT3D_OS_WINDOWS)
 	set(TINY3D_OS_WINDOWS TRUE CACHE STRING "Windows")
 elseif (APPLE)
-	add_definitions(-DTINY3D_OS_MACOSX)
+	add_definitions(-DT3D_OS_MACOSX)
 	set(TINY3D_OS_MACOSX TRUE CACHE STRING "Mac OSX")
 endif (WIN32)
 
