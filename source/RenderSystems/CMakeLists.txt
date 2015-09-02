@@ -6,10 +6,11 @@
 ####################################################################################################
 
 
-if (TINY3D_BUILD_RENDERSYSTEM_D3D9)
-	find_package(DirectX9)
 
-	if (NOT DirectX_FOUND)
+if (TINY3D_BUILD_RENDERSYSTEM_D3D9)
+	find_package(DirectX)
+
+	if (NOT DirectX9_FOUND)
 		message(STATUS "Could not find dependency: DirectX")
   		message(STATUS "Skipping Direct3D9 rendersystem build")
 		set(TINY3D_BUILD_RENDERSYSTEM_D3D9 FALSE)

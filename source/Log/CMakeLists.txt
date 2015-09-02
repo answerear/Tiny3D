@@ -5,7 +5,7 @@
 # you like.
 ####################################################################################################
 
-set_project_name(T3DCore)
+set_project_name(T3DLog)
 
 if (MSVC)
 	if (TINY3D_BUILD_LIBS)
@@ -14,15 +14,21 @@ if (MSVC)
 endif (MSVC)
 
 
+set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
+
+
+# Setup project include files path
 include_directories(
+	"${TINY3D_PLATFORM_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	)
+
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 
 # Setup project source files
-set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}}/Source/ .cpp)
+set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 
 
 if (TINY3D_SHARED_LIBS)
@@ -32,14 +38,7 @@ else (TINY3D_SHARED_LIBS)
 endif (TINY3D_SHARED_LIBS)
 
 
-if (TINY3D_OS_WINDOWS)
-	target_link_libraries(
-		${LIB_NAME}
-		T3DPlatform
-		T3DLog
-		)
-elseif (TINY3D_OS_MACOSX)
-elseif (TINY3D_OS_LINUX)
-elseif (TINY3D_OS_IOS)
-elseif (TINY3D_OS_ANDROID)
-endif (TINY3D_OS_WINDOWS)
+target_link_libraries(
+	${LIB_NAME}
+	T3DPlatform
+	)

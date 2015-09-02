@@ -5,7 +5,8 @@
 # you like.
 ####################################################################################################
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
+
 project(Tiny3D)
 
 if (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
@@ -21,35 +22,40 @@ if (CMAKE_BINARY_DIR MATCHES " ")
 endif()
 
 if (WIN32)
-	add_definitions(-DTINY3D_OS_WIN32)
-	set(TINY3D_PLATFORM_WINDOWS ON CACHE STRING "Windows")
+	add_definitions(-DTINY3D_OS_WINDOWS)
+	set(TINY3D_OS_WINDOWS TRUE CACHE STRING "Windows")
 elseif (APPLE)
 	add_definitions(-DTINY3D_OS_MACOSX)
-	set(TINY3D_PLATFORM_MACOSX ON CACHE STRING "Mac OSX")
+	set(TINY3D_OS_MACOSX TRUE CACHE STRING "Mac OSX")
 endif (WIN32)
 
 
-if (TINY3D_PLATFORM_WINDOWS)
+if (TINY3D_OS_WINDOWS)
 	option(TINY3D_BUILD_RENDERSYSTEM_D3D9 "Build render system useed DirectX 9" TRUE)
 	option(TINY3D_BUILD_RENDERSYSTEM_D3D11 "Build render system used DirectX 11" TRUE)
 	option(TINY3D_BUILD_RENDERSYSTEM_GL3PLUS "Build render system used OpenGL 3.0 +" TRUE)
 	option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
-elseif (TINY3D_PLATFORM_MACOSX)
+elseif (TINY3D_OS_MACOSX)
 	option(TINY3D_BUILD_RENDERSYSTEM_GL3PLUS "Build render system used OpenGL 3.0 +" TRUE)
 	option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" FALSE)
-endif (TINY3D_PLATFORM_WINDOWS)
+endif (TINY3D_OS_WINDOWS)
 
 
-set(CMAKE_MODULE_PATH 
-	"${CMAKE_SOURCE_DIR}/CMake"
-	"${CMAKE_SOURCE_DIR}/CMake/Utils"
-	"${CMAKE_SOURCE_DIR}/CMake/Packages")
+set(CMAKE_MODULE_PATH
+	"${CMAKE_CURRENT_SOURCE_DIR}/CMake"
+	"${CMAKE_CURRENT_SOURCE_DIR}/CMake/Utils"
+	"${CMAKE_CURRENT_SOURCE_DIR}/CMake/Packages"
+	)
 
 
-include(FindPkgMacro)
+include(FindPkgMacros)
+include(ProjectCMakeModule)
 
 add_subdirectory(Platform)
-add_subdirectory(RenderSystem)
+add_subdirectory(Log)
 add_subdirectory(Core)
+add_subdirectory(RenderSystems)
 
 
+add_dependencies(T3DLog T3DPlatform)
+add_dependencies(T3DCore T3DLog T3DPlatform)
