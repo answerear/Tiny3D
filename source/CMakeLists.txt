@@ -48,7 +48,7 @@ set(CMAKE_MODULE_PATH
 
 include(FindPkgMacro)
 
-
+add_subdirectory(Platform)
 add_subdirectory(RenderSystem)
 add_subdirectory(Core)
 

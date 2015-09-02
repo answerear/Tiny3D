@@ -9,38 +9,38 @@
 # Set project name
 # project_name : name of project
 # Usage : SET_PROJECT_NAME(ProjectName)
-MACRO(SET_PROJECT_NAME project_name)
-	SET(LIB_NAME ${project_name})
-	SET(BIN_NAME ${project_name})
-	STRING(TOUPPER ${LIB_NAME} LIB_NAME_TOUPPER)
-ENDMACRO(SET_PROJECT_NAME)
+macro(SET_PROJECT_NAME project_name)
+	set(LIB_NAME ${project_name})
+	set(BIN_NAME ${project_name})
+	string(TOUPPER ${LIB_NAME} LIB_NAME_TOUPPER)
+endmacro(SET_PROJECT_NAME)
 
 
-FUNCTION(ADD_PROJECT_FILES file_list group dir)
-	FOREACH(var ${ARGN})
-		LIST(APPEND temp_files ${dir}${var})
-		SOURCE_GROUP(${group} FILES ${dir}${var})
-	ENDFOREACH(var)
+function(ADD_PROJECT_FILES file_list group dir)
+	foreach(var ${ARGN})
+		list(APPEND temp_files ${dir}${var})
+		source_group(${group} FILES ${dir}${var})
+	endforeach(var)
 	
-	SET(file_list "${temp_files}" PARENT_SCOPE)
-ENDFUNCTION(ADD_PROJECT_FILES)
+	set(file_list "${temp_files}" PARENT_SCOPE)
+endfunction(ADD_PROJECT_FILES)
 
 
-FUNCTION(ADD_PROJECT_FILES_BY_EXT out_files group dir ext)
-	FILE(GLOB var ${dir}*${ext})
+function(ADD_PROJECT_FILES_BY_EXT out_files group dir ext)
+	file(GLOB var ${dir}*${ext})
 	
-	FOREACH(f ${var})
-		GET_FILENAME_COMPONENT(name ${f} NAME_WE)
+	foreach(f ${var})
+		get_filename_component(name ${f} NAME_WE)
 		ADD_PROJECT_FILES(file_list ${group} ${dir} "${name}${ext}")
-		LIST(APPEND temp_list ${file_list})
-	ENDFOREACH()
+		list(APPEND temp_list ${file_list})
+	endforeach()
 
-	SET(out_files "${temp_list}" PARENT_SCOPE)
-ENDFUNCTION(ADD_PROJECT_FILES_BY_EXT)
+	set(out_files "${temp_list}" PARENT_SCOPE)
+endfunction(ADD_PROJECT_FILES_BY_EXT)
 
 
-MACRO(SET_PROJECT_FILES group dir ext)
+macro(SET_PROJECT_FILES group dir ext)
 	ADD_PROJECT_FILES_BY_EXT(out_files ${group} ${dir} ${ext})
-	LIST(APPEND SOURCE_FILES ${out_files})
-ENDMACRO(SET_PROJECT_FILES)
+	list(APPEND SOURCE_FILES ${out_files})
+endmacro(SET_PROJECT_FILES)
 	
