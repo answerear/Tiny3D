@@ -67,17 +67,17 @@
 		T &operator =(const T &);
 
 #define T3D_SAFE_DELETE(p)	\
-	if (p != NULL)	\
+	if (p != nullptr)	\
 	{	\
 		delete p;	\
-		p = NULL;	\
+		p = nullptr;	\
 	}
 
 #define T3D_SAFE_DELETE_ARRAY(p)	\
-	if (p != NULL)	\
+	if (p != nullptr)	\
 	{	\
 		delete []p;	\
-		p = NULL;	\
+		p = nullptr;	\
 	}
 
 

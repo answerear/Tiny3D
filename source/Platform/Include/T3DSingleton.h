@@ -6,10 +6,11 @@
 
 #include "T3DType.h"
 #include "T3DMacro.h"
-#include "T3DPlatform.h"
 
 #include <vector>
-#define T3D_INIT_SINGLETON(t) template<> t *T3DSingleton<t>::m_pInstance = NULL
+
+
+#define T3D_INIT_SINGLETON(T) T3DSingleton<T>::pointer T3DSingleton<T>::m_pInstance = nullptr
 
 
 template <typename T>
@@ -21,27 +22,15 @@ public:
 	typedef typename T	value_type;
 	typedef typename T*	pointer;
 	typedef typename T&	reference;
-	
-	static pointer create()
-	{
-		if (nullptr == m_pInstance)
-		{
-			return new T();
-		}
-		
-		return m_pInstance;
-	}
 
-protected:
 	T3DSingleton()
 	{
 		m_pInstance = static_cast<pointer>(this);
 	}
 
-public:
 	virtual ~T3DSingleton()
 	{
-		m_pInstance = NULL;
+		m_pInstance = nullptr;
 	}
 
 	static reference getInstance()

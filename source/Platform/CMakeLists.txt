@@ -9,9 +9,9 @@ set_project_name(T3DPlatform)
 
 
 if (MSVC)
-	if (TINY3D_BUILD_LIBS)
+	if (TINY3D_BUILD_SHARED_LIBS)
 		add_definitions(-D${LIB_NAME_TOUPPER}_EXPORT -D_USRDLL)
-	endif (TINY3D_BUILD_LIBS)
+	endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
 # Setup project include files path
@@ -32,7 +32,7 @@ if (TINY3D_OS_WINDOWS)
 elseif (TINY3D_OS_MACOSX)
 	include_directories(
 		"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Unix"
-		"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/OSX"
+		"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/MacOSX"
 		)
 elseif (TINY3D_OS_LINUX)
 	include_directories(
@@ -102,11 +102,11 @@ elseif (TINY3D_OS_ANDROID)
 endif (TINY3D_OS_WINDOWS)
 
 
-if (TINY3D_SHARED_LIBS)
+if (TINY3D_BUILD_SHARED_LIBS)
 	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
-else (TINY3D_SHARED_LIBS)
+else (TINY3D_BUILD_SHARED_LIBS)
 	add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
-endif (TINY3D_SHARED_LIBS)
+endif (TINY3D_BUILD_SHARED_LIBS)
 
 
 if (TINY3D_OS_WINDOWS)

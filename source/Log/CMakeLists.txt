@@ -8,9 +8,9 @@
 set_project_name(T3DLog)
 
 if (MSVC)
-	if (TINY3D_BUILD_LIBS)
+	if (TINY3D_BUILD_SHARED_LIBS)
 		add_definitions(-D${LIB_NAME_TOUPPER}_EXPORT -D_USRDLL)
-	endif (TINY3D_BUILD_LIBS)
+	endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
 
@@ -31,11 +31,11 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 
 
-if (TINY3D_SHARED_LIBS)
+if (TINY3D_BUILD_SHARED_LIBS)
 	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
-else (TINY3D_SHARED_LIBS)
+else (TINY3D_BUILD_SHARED_LIBS)
 	add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
-endif (TINY3D_SHARED_LIBS)
+endif (TINY3D_BUILD_SHARED_LIBS)
 
 
 target_link_libraries(
