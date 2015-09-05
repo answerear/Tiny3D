@@ -59,3 +59,4 @@ add_subdirectory(RenderSystems)
 
 add_dependencies(T3DLog T3DPlatform)
 add_dependencies(T3DCore T3DLog T3DPlatform)
+

@@ -14,12 +14,18 @@ if (MSVC)
 endif (MSVC)
 
 
+set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
+set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
+
 include_directories(
+	"${TINY3D_PLATFORM_DIR}/Include"
+	"${TINY3D_LOG_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	)
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
+set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .inl)
 
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
