@@ -13,7 +13,7 @@ namespace Tiny3D
 	class DeviceInfoInterface;
 	class FactoryInterface;
 
-	class T3D_PLATFORM_API DeviceInfo : public T3DSingleton<DeviceInfo>
+	class T3D_PLATFORM_API DeviceInfo : public Singleton<DeviceInfo>
 	{
 		T3D_DISABLE_COPY(DeviceInfo);
 

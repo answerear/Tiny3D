@@ -2,42 +2,42 @@
 #include "T3DLogger.h"
 
 
-T3D_INIT_SINGLETON(Tiny3D::T3DLogger);
+T3D_INIT_SINGLETON(Tiny3D::Logger);
 
 
 namespace Tiny3D
 {
-	T3DLogger::T3DLogger()
+	Logger::Logger()
 	{
 
 	}
 
-	T3DLogger::~T3DLogger()
+	Logger::~Logger()
 	{
 
 	}
 
-	bool T3DLogger::startup(uint32_t unAppID, const TString &strVersion, const TString &strTag, bool bForceOutput /* = false */)
+	bool Logger::startup(uint32_t unAppID, const TString &strTag, bool bForceOutput /* = false */)
 	{
 		return true;
 	}
 
-	void T3DLogger::trace(ELevel eLevel, const char *pszFileName, int32_t nLine, const char *pszFmt, ...)
+	void Logger::trace(ELevel eLevel, const char *pszFileName, int32_t nLine, const char *pszFmt, ...)
 	{
 		
 	}
 
-	void T3DLogger::shutdown()
+	void Logger::shutdown()
 	{
 
 	}
 
-	void T3DLogger::enterBackground()
+	void Logger::enterBackground()
 	{
 
 	}
 
-	void T3DLogger::enterForeground()
+	void Logger::enterForeground()
 	{
 
 	}

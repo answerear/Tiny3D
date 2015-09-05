@@ -13,7 +13,7 @@ namespace Tiny3D
 	class ConsoleInterface;
 	class FactoryInterface;
 
-	class T3D_PLATFORM_API Console : public T3DSingleton<Console>
+	class T3D_PLATFORM_API Console : public Singleton<Console>
 	{
 		T3D_DISABLE_COPY(Console);
 

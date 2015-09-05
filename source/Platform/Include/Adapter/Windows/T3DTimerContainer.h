@@ -12,7 +12,7 @@ namespace Tiny3D
 {
 	class Timer_Windows;
 
-	class TimerContainer : public T3DSingleton<TimerContainer>
+	class TimerContainer : public Singleton<TimerContainer>
 	{
 		T3D_DISABLE_COPY(TimerContainer);
 
@@ -26,9 +26,9 @@ namespace Tiny3D
 
 	protected:
 		typedef std::pair<uint32_t, Timer_Windows*>	T3DTimerPair;
-		typedef std::map<uint32_t, Timer_Windows*>	T3DTimerMap;
+		typedef std::map<uint32_t, Timer_Windows*>	TimerMap;
 
-		T3DTimerMap	m_TimerMap;
+		TimerMap	m_TimerMap;
 	};
 }
 

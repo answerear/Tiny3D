@@ -21,7 +21,7 @@ namespace Tiny3D
 	 * @brief 系统类.
 	 * @note 该类对一些全局的单例创建和释放，为上层提供框架层和系统层统一接口.
 	 */
-	class T3D_PLATFORM_API T3DSystem : public T3DSingleton<T3DSystem>
+	class T3D_PLATFORM_API T3DSystem : public Singleton<T3DSystem>
 	{
 		T3D_DISABLE_COPY(T3DSystem);
 		

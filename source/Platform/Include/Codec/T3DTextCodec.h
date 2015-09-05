@@ -10,7 +10,7 @@
 
 namespace Tiny3D
 {
-	class T3D_PLATFORM_API TextCodec : public T3DSingleton<TextCodec>
+	class T3D_PLATFORM_API TextCodec : public Singleton<TextCodec>
 	{
 		T3D_DISABLE_COPY(TextCodec);
 		

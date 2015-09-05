@@ -10,42 +10,50 @@
 #include <vector>
 
 
-#define T3D_INIT_SINGLETON(T) T3DSingleton<T>::pointer T3DSingleton<T>::m_pInstance = nullptr
+#if defined (T3D_OS_WINDOWS)
+	#pragma warning(disable:4661)
+#endif
 
 
-template <typename T>
-class T3DSingleton
+#define T3D_INIT_SINGLETON(T) Tiny3D::Singleton<T>::pointer Tiny3D::Singleton<T>::m_pInstance = nullptr
+
+
+namespace Tiny3D
 {
-	T3D_DISABLE_COPY(T3DSingleton);
-
-public:
-	typedef typename T	value_type;
-	typedef typename T*	pointer;
-	typedef typename T&	reference;
-
-	T3DSingleton()
+	template <typename T>
+	class Singleton
 	{
-		m_pInstance = static_cast<pointer>(this);
-	}
+		T3D_DISABLE_COPY(Singleton);
 
-	virtual ~T3DSingleton()
-	{
-		m_pInstance = nullptr;
-	}
+	public:
+		typedef typename T	value_type;
+		typedef typename T*	pointer;
+		typedef typename T&	reference;
 
-	static reference getInstance()
-	{
-		return *m_pInstance;
-	}
+		Singleton()
+		{
+			m_pInstance = static_cast<pointer>(this);
+		}
 
-	static pointer getInstancePtr()
-	{
-		return m_pInstance;
-	}
+		virtual ~Singleton()
+		{
+			m_pInstance = nullptr;
+		}
 
-protected:
-	static pointer m_pInstance;
-};
+		static reference getInstance()
+		{
+			return *m_pInstance;
+		}
+
+		static pointer getInstancePtr()
+		{
+			return m_pInstance;
+		}
+
+	protected:
+		static pointer m_pInstance;
+	};
+}
 
 
 #endif	/*__T3D_SINGLETON_H__*/

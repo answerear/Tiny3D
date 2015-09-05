@@ -11,9 +11,9 @@
 
 namespace Tiny3D
 {
-	class T3D_LOG_API T3DLogger : public T3DSingleton<T3DLogger>
+	class T3D_LOG_API Logger : public Singleton<Logger>
 	{
-		T3D_DISABLE_COPY(T3DLogger);
+		T3D_DISABLE_COPY(Logger);
 
 	public:
 		enum ELevel
@@ -29,10 +29,10 @@ namespace Tiny3D
 		};
 
 	public:
-		T3DLogger();
-		virtual ~T3DLogger();
+		Logger();
+		virtual ~Logger();
 
-		bool startup(uint32_t unAppID, const TString &strVersion, const TString &strTag, bool bForceOutput = false);
+		bool startup(uint32_t unAppID, const TString &strTag, bool bForceOutput = false);
 
 		void trace(ELevel eLevel, const char *pszFileName, int32_t nLine, const char *pszFmt, ...);
 
@@ -43,6 +43,8 @@ namespace Tiny3D
 		void enterForeground();
 	};
 }
+
+#define T3D_LOGGER			Tiny3D::Logger::getInstance()
 
 
 #endif	/*__T3D_LOGGER_H__*/
