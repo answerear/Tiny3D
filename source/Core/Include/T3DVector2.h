@@ -5,6 +5,7 @@
 
 
 #include "T3DEngineMacro.h"
+#include "T3DMath.h"
 
 
 namespace Tiny3D
@@ -15,29 +16,29 @@ namespace Tiny3D
 		/// Constructor
 		Vector2();
 		/// Create a Vector2 with X, Y.
-		Vector2(float x, float y);
+		Vector2(Real x, Real y);
 		/// Copy constructor
 		Vector2(const Vector2 &other);
 
 		/// Get array of members (constant).
-		operator const float *() const;
+		operator const Real *() const;
 		/// Get array of members.
-		operator float *();
+		operator Real *();
 
 		/// Get a member (constant).
-		float operator [](int32_t i) const;
+		Real operator [](int32_t i) const;
 		/// Get a member.
-		float &operator [](int32_t i);
+		Real &operator [](int32_t i);
 
 		/// Get X (constant).
-		float x() const;
+		Real x() const;
 		/// Get X.
-		float &x();
+		Real &x();
 
 		/// Get Y (constant).
-		float y() const;
+		Real y() const;
 		/// Get Y.
-		float &y();
+		Real &y();
 
 		/// Assignment
 		Vector2 &operator =(const Vector2 &other);
@@ -60,9 +61,9 @@ namespace Tiny3D
 		/// Subtraction.
 		Vector2 operator -(const Vector2 &other) const;
 		/// Scalar multiplication.
-		Vector2 operator *(float fScalar) const;
+		Vector2 operator *(Real fScalar) const;
 		/// Scalar division.
-		Vector2 operator /(float fScalar) const;
+		Vector2 operator /(Real fScalar) const;
 
 		/// Negation.
 		Vector2 operator -() const;
@@ -77,36 +78,39 @@ namespace Tiny3D
 		Vector2 &operator /=(float fScalar);
 
 		/// Get the length of vector, sqrt(x*x + y*y). 
-		float length() const;
+		Real length() const;
 		/// Get the squared length of vector, x*x + y*y. 
-		float squaredLength() const;
+		Real squaredLength() const;
 
 		/// Get the distance to another vector.
-		float distance() const;
+		Real distance(const Vector2 &other) const;
 		/// Get the squared distance to another vector.
-		float squaredDistance() const;
+		Real squaredDistance(const Vector2 &other) const;
 
 		/// Calculate dot product.
-		float dot(const Vector2 &other) const;
+		Real dot(const Vector2 &other) const;
 
 		/// Calculate cross product.
-		float cross(const Vector2 &other) const;
+		Real cross(const Vector2 &other) const;
 
 		/// Normalize the vector.
-		float normalize();
+		Real normalize();
 
 		/// Calculate the perpendicular vector (y,-x). 
-		Vector2 perp();
+		Vector2 perp() const;
 
 		static const Vector2 ZERO;
 		static const Vector2 UNIT_X;
 		static const Vector2 UNIT_Y;
 		static const Vector2 NEGATIVE_UNIT_X;
 		static const Vector2 NEGATIVE_UNIT_Y;
-		static const Vector2 UNIT_SCALE;
 
 	private:
-		float m_afTuple[2];
+		int32_t compareArrays(const Vector2 &other) const;
+
+	private:
+		Real _x;
+		Real _y;
 	};
 
 	#include "T3DVector2.inl"

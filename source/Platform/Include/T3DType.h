@@ -6,6 +6,10 @@
 
 #include <string>
 
+
+// #define __T3D_HIGH_PERCISION_FLOAT__
+
+
 typedef signed char			char_t;
 typedef unsigned char       uchar_t;
 typedef signed short		short_t;
@@ -28,6 +32,12 @@ typedef unsigned long long	uint64_t;
 
 typedef std::string			TString;
 typedef std::wstring		TWString;
+
+#if defined (__T3D_HIGH_PERCISION_FLOAT__)
+	typedef double	Real;
+#else
+	typedef float	Real;
+#endif
 
 
 #if defined T3D_OS_WINDOWS
