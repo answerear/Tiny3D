@@ -54,9 +54,9 @@ namespace Tiny3D
 		Vector4 &operator =(const Vector4 &other);
 
 		/// Comparison (equal to).
-		bool operator ==(const Vector4 &other);
+		bool operator ==(const Vector4 &other) const;
 		/// Comparison (not equal to).
-		bool operator !=(const Vector4 &other);
+		bool operator !=(const Vector4 &other) const;
 
 		/// Addition.
 		Vector4 operator +(const Vector4 &other) const;
@@ -107,7 +107,7 @@ namespace Tiny3D
 		Real	_w;
 	};
 
-	#include "Vector4.inl"
+	#include "T3DVector4.inl"
 }
 
 
