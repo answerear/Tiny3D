@@ -1,11 +1,11 @@
 
 
-#ifndef __T3D_MATH_H__
-#define __T3D_MATH_H__
+#ifndef __T3D_DEGREE_H__
+#define __T3D_DEGREE_H__
 
 
 #include "T3DEngineMacro.h"
-#include <math.h>
+#include "T3DMath.h"
 
 
 namespace Tiny3D
@@ -61,15 +61,8 @@ namespace Tiny3D
 		Real	m_fDegree;
 	};
 
-	class Math
-	{
-	public:
-		static float Sqr(Real fValue);
-		static float Sqrt(Real fValue);
-	};
-
-	#include "T3DMath.inl"
+	#include "T3DDegree.inl"
 }
 
 
-#endif	/*__T3D_MATH_H__*/
+#endif	/*__T3D_DEGREE_H__*/
