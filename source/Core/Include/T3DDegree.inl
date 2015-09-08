@@ -1,4 +1,6 @@
 
+#include "T3DRadian.h"
+
 inline Degree::Degree(Real fDegree /* = 0.0 */)
 	: m_fDegree(fDegree)
 {
