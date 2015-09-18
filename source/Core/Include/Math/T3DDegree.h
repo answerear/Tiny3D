@@ -15,8 +15,8 @@ namespace Tiny3D
 	class Degree
 	{
 	public:
-		/// Create a degree with degree.
-		Degree(Real fDegree = 0.0);
+		/// Create a degree with float value.
+		explicit Degree(Real fDegree = 0.0);
 		/// Create a degree with radian.
 		Degree(const Radian &radian);
 		/// Copy constructor.
@@ -27,10 +27,14 @@ namespace Tiny3D
 		Degree &operator =(const Degree &other);
 		Degree &operator =(const Radian &radian);
 
+		const Degree &operator +() const;
+		Degree operator -() const;
+
 		/// Comparison (equal to).
 		bool operator ==(const Degree &other) const;
 		/// Comparison (not equal to).
 		bool operator !=(const Degree &other) const;
+		/// 
 		bool operator <(const Degree &other) const;
 		bool operator <=(const Degree &other) const;
 		bool operator >(const Degree &other) const;
@@ -54,15 +58,16 @@ namespace Tiny3D
 		Degree &operator *=(Real fScalar);
 		Degree &operator /=(Real fScalar);
 
-		Real valueDegree() const;
-		Real valueRadian() const;
+		Real valueDegrees() const;
+		Real valueRadians() const;
 
 	private:
 		Real	m_fDegree;
 	};
-
-	#include "T3DDegree.inl"
 }
+
+
+#include "T3DDegree.inl"
 
 
 #endif	/*__T3D_DEGREE_H__*/

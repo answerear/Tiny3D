@@ -27,8 +27,10 @@ include_directories(
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 
+
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
+
 
 
 if (TINY3D_BUILD_SHARED_LIBS)

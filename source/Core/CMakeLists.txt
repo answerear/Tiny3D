@@ -21,14 +21,23 @@ include_directories(
 	"${TINY3D_PLATFORM_DIR}/Include"
 	"${TINY3D_LOG_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Math"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Node"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer"
 	)
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
-set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .inl)
+set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .h)
+set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .inl)
+set_project_files(Include\\\\Node ${CMAKE_CURRENT_SOURCE_DIR}/Include/Node/ .h)
+set_project_files(Include\\\\Renderer ${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer/ .h)
 
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
+set_project_files(Source\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Source/Math/ .cpp)
+set_project_files(Source\\\\Node ${CMAKE_CURRENT_SOURCE_DIR}/Source/Node/ .cpp)
+set_project_files(Source\\\\Renderer ${CMAKE_CURRENT_SOURCE_DIR}/Source/Renderer/ .cpp)
 
 
 if (TINY3D_BUILD_SHARED_LIBS)

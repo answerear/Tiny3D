@@ -106,9 +106,10 @@ namespace Tiny3D
 		Real	_z;
 		Real	_w;
 	};
-
-	#include "T3DVector4.inl"
 }
+
+
+#include "T3DVector4.inl"
 
 
 #endif	/*__T3D_VECTOR4_H__*/
