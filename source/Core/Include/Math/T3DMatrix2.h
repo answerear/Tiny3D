@@ -28,7 +28,7 @@ namespace Tiny3D
 		/// Create a diagonal matrix.
 		Matrix2(Real fM00, Real fM11);
 		/// Create a rotation matrix.
-		
+		Matrix2(const Degree &degree);
 		
 		/// Make zero matrix.
 		void makeZero();
@@ -36,12 +36,13 @@ namespace Tiny3D
 		void makeIdentity();
 		/// Make diagonal matrix.
 		void makeDiagonal(Real fM00, Real fM11);
-
-		void fromAngle(int32_t angle);
+		/// Make rotation matrix.
+		void fromAngle(const Degree &degree);
 	};
-
-	#include "T3DMatrix2.h"
 }
+
+
+#include "T3DMatrix2.h"
 
 
 #endif	/*__T3D_MATRIX2_H__*/
