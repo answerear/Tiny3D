@@ -73,9 +73,9 @@ namespace Tiny3D
 		/// Subtract and assign.
 		Vector2 &operator -=(const Vector2 &other);
 		/// Scalar multiply and assign.
-		Vector2 &operator *=(float fScalar);
+		Vector2 &operator *=(Real fScalar);
 		/// Scalar divide and assign.
-		Vector2 &operator /=(float fScalar);
+		Vector2 &operator /=(Real fScalar);
 
 		/// Get the length of vector, sqrt(x*x + y*y). 
 		Real length() const;
