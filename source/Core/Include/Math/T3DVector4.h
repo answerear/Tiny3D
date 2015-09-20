@@ -10,7 +10,7 @@
 
 namespace Tiny3D
 {
-	class Vector4
+	class T3D_ENGINE_API Vector4
 	{
 	public:
 		/// Default constructor

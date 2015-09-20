@@ -11,7 +11,7 @@
 
 namespace Tiny3D
 {
-	class Matrix2
+	class T3D_ENGINE_API Matrix2
 	{
 	public:
 		/// Create and initialize as zero matrix or identity matrix.
