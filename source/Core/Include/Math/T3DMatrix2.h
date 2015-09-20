@@ -138,7 +138,7 @@ namespace Tiny3D
 		/// U ^ T * M * V.
 		Real qform(const Vector2 &rkU, const Vector2 &rkV) const;
 
-		/// Orthonormal
+		/// Orthonormalize
 		void orthonormalize();
 
 	public:
