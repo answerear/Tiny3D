@@ -154,7 +154,7 @@ namespace Tiny3D
 }
 
 
-#include "T3DMatrix2.h"
+#include "T3DMatrix2.inl"
 
 
 #endif	/*__T3D_MATRIX2_H__*/

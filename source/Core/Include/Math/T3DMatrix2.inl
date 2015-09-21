@@ -166,7 +166,7 @@ namespace Tiny3D
 		return m_afEntry[(nRow << 1) + nCol];
 	}
 
-	inline Real Matrix2::operator ()()(int32_t nRow, int32_t nCol)
+	inline Real &Matrix2::operator ()(int32_t nRow, int32_t nCol)
 	{
 		T3D_ASSERT(nRow >= 0 && nRow < 2 && nCol >= 0 && nCol < 2);
 		return m_afEntry[(nRow << 1) + nCol];
@@ -216,7 +216,7 @@ namespace Tiny3D
 
 	inline int32_t Matrix2::compareArrays(const Matrix2 &other) const
 	{
-		return memcpy(m_afEntry, other.m_afEntry, sizeof(m_afEntry));
+		return memcmp(m_afEntry, other.m_afEntry, sizeof(m_afEntry));
 	}
 
 	inline bool Matrix2::operator ==(const Matrix2 &other) const
