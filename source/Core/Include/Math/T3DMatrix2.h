@@ -22,14 +22,14 @@ namespace Tiny3D
 		Matrix2(Real fM00, Real fM01, Real fM10, Real fM11);
 		/// Create a matrix from an array of numbers.
 		Matrix2(Real afEntry[4], bool bRowMajor);
-		/// Create matrix based on 2 Vector inputs.
+		/// Create matrix based on 2 vector inputs.
 		Matrix2(const Vector2 &rkU, const Vector2 &rkV, bool bColumns);
-		/// Create matrix base on Vector array.
+		/// Create matrix base on vector array.
 		Matrix2(const Vector2 *akV, bool bColumns);
 		/// Create a diagonal matrix.
 		Matrix2(Real fM00, Real fM11);
 		/// Create a rotation matrix.
-		Matrix2(const Degree &degree);
+		Matrix2(const Radian &rkRadians);
 		/// Create a tensor product.
 		Matrix2(const Vector2 &rkU, const Vector2 &rkV);
 		
@@ -145,7 +145,7 @@ namespace Tiny3D
 		static const Matrix2 ZERO;
 		static const Matrix2 IDENTITY;
 
-	protected:
+	private:
 		int32_t compareArrays(const Matrix2 &other) const;
 
 	private:

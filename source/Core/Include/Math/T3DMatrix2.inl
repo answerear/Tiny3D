@@ -128,9 +128,9 @@ namespace Tiny3D
 		makeDiagonal(fM00, fM11);
 	}
 
-	inline Matrix2::Matrix2(const Degree &degree)
+	inline Matrix2::Matrix2(const Radian &rkRadians)
 	{
-		fromAngle(degree);
+		fromAngle(rkRadians);
 	}
 
 	inline Matrix2::Matrix2(const Vector2 &rkU, const Vector2 &rkV)
