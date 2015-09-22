@@ -100,4 +100,126 @@ namespace Tiny3D
 			rAxis.z() = 0.0;
 		}
 	}
+
+	Matrix3 Matrix3::adjoint() const
+	{
+		// This 3x3 matrix :
+		//          +-        -+
+		//          | A0 A1 A2 |
+		//      A = | A3 A4 A5 |
+		//          | A6 A7 A8 |
+		//          +-        -+
+		//
+		// The adjoint of this 3x3 matrix : 
+		// 
+		//          +-                                  -+
+		//          |  | A4 A5 |   | A1 A2 |   | A1 A2 | |
+		//          | +| A7 A8 |  -| A7 A8 |  +| A4 A5 | |
+		//          |                                    |
+		// adj(A) = |  | A3 A5 |   | A0 A2 |   | A0 A2 | |
+		//          | -| A6 A8 |  +| A6 A8 |  -| A3 A5 | |
+		//          |                                    |
+		//          |  | A3 A4 |   | A0 A1 |   | A0 A1 | |
+		//          | +| A6 A7 |  -| A6 A7 |  +| A3 A4 | |
+		//          +-                                  -+
+
+		Matrix3 matAdjoint;
+		Real fSum = 0.0;
+		Real fValue = 0.0;
+
+		fSum = m_afEntry[4] * m_afEntry[8];
+		fValue = m_afEntry[5] * m_afEntry[7];
+		fSum -= fValue;
+		matAdjoint[0][0] = fSum;
+
+		fSum = m_afEntry[1] * m_afEntry[8];
+		fValue = m_afEntry[2] * m_afEntry[7];
+		fSum -= fValue;
+		matAdjoint[0][1] = -fSum;
+
+		fSum = m_afEntry[1] * m_afEntry[5];
+		fValue = m_afEntry[2] * m_afEntry[4];
+		fSum -= fValue;
+		matAdjoint[0][2] = fSum;
+
+		fSum = m_afEntry[3] * m_afEntry[8];
+		fValue = m_afEntry[5] * m_afEntry[6];
+		fSum -= fValue;
+		matAdjoint[1][0] = -fSum;
+
+		fSum = m_afEntry[0] * m_afEntry[8];
+		fValue = m_afEntry[2] * m_afEntry[6];
+		fSum -= fValue;
+		matAdjoint[1][1] = fSum;
+
+		fSum = m_afEntry[0] * m_afEntry[5];
+		fValue = m_afEntry[2] * m_afEntry[3];
+		fSum -= fValue;
+		matAdjoint[1][2] = -fSum;
+
+		fSum = m_afEntry[3] * m_afEntry[7];
+		fValue = m_afEntry[4] * m_afEntry[6];
+		fSum -= fValue;
+		matAdjoint[2][0] = fSum;
+
+		fSum = m_afEntry[0] * m_afEntry[7];
+		fValue = m_afEntry[1] * m_afEntry[6];
+		fSum -= fValue;
+		matAdjoint[2][1] = -fSum;
+
+		fSum = m_afEntry[0] * m_afEntry[4];
+		fValue = m_afEntry[1] * m_afEntry[3];
+		fSum -= fValue;
+		matAdjoint[2][2] = fSum;
+
+		return matAdjoint;
+	}
+
+	void Matrix3::orthonormalize()
+	{
+		// Algorithm uses Gram-Schmidt orthogonalization.  If 'this' matrix is
+		// M = [m0|m1|m2], then orthonormal output matrix is Q = [q0|q1|q2],
+		//
+		//   q0 = m0/|m0|
+		//   q1 = (m1-(q0*m1)q0)/|m1-(q0*m1)q0|
+		//   q2 = (m2-(q0*m2)q0-(q1*m2)q1)/|m2-(q0*m2)q0-(q1*m2)q1|
+		//
+		// where |V| indicates length of vector V and A*B indicates dot
+		// product of vectors A and B.
+
+		// compute q0
+		Real fLength = Math::Sqrt(m_afEntry[0]*m_afEntry[0] + m_afEntry[3]*m_afEntry[3] + m_afEntry[6]*m_afEntry[6]);
+		
+		m_afEntry[0] /= fLength;
+		m_afEntry[3] /= fLength;
+		m_afEntry[6] /= fLength;
+		
+		// compute q1
+		Real fDot0 = m_afEntry[0]*m_afEntry[1] + m_afEntry[3]*m_afEntry[4] + m_afEntry[6]*m_afEntry[7];
+		
+		m_afEntry[1] -= fDot0*m_afEntry[0];
+		m_afEntry[4] -= fDot0*m_afEntry[3];
+		m_afEntry[7] -= fDot0*m_afEntry[6];
+		
+		fLength = Math::Sqrt(m_afEntry[1]*m_afEntry[1] + m_afEntry[4]*m_afEntry[4] + m_afEntry[7]*m_afEntry[7]);
+		
+		m_afEntry[1] /= fLength;
+		m_afEntry[4] /= fLength;
+		m_afEntry[7] /= fLength;
+		
+		// compute q2
+		Real fDot1 = m_afEntry[1]*m_afEntry[2] + m_afEntry[4]*m_afEntry[5] + m_afEntry[7]*m_afEntry[8];
+		
+		fDot0 = m_afEntry[0]*m_afEntry[2] + m_afEntry[3]*m_afEntry[5] + m_afEntry[6]*m_afEntry[8];
+		
+		m_afEntry[2] -= fDot0*m_afEntry[0] + fDot1*m_afEntry[1];
+		m_afEntry[5] -= fDot0*m_afEntry[3] + fDot1*m_afEntry[4];
+		m_afEntry[8] -= fDot0*m_afEntry[6] + fDot1*m_afEntry[7];
+		
+		fLength = Math::Sqrt(m_afEntry[2]*m_afEntry[2] + m_afEntry[5]*m_afEntry[5] + m_afEntry[8]*m_afEntry[8]);
+		
+		m_afEntry[2] /= fLength;
+		m_afEntry[5] /= fLength;
+		m_afEntry[8] /= fLength;
+	}
 }

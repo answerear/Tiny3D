@@ -150,12 +150,12 @@ namespace Tiny3D
 		/// The matrix must be orthonormal.  The decomposition is yaw*pitch*roll where yaw is 
 		/// rotation about the Up vector, pitch is rotation about the Right axis, and roll is 
 		/// rotation about the Direction axis.
-		Matrix3 &fromEulerAnglesXYZ(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
-		Matrix3 &fromEulerAnglesXZY(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
-		Matrix3 &fromEulerAnglesYXZ(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
-		Matrix3 &fromEulerAnglesYZX(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
-		Matrix3 &fromEulerAnglesZXY(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
-		Matrix3 &fromEulerAnglesZYX(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
+		void fromEulerAnglesXYZ(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
+		void fromEulerAnglesXZY(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
+		void fromEulerAnglesYXZ(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
+		void fromEulerAnglesYZX(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
+		void fromEulerAnglesZXY(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
+		void fromEulerAnglesZYX(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
 
 		bool toEulerAnglesXYZ(Radian &rYaw, Radian &rPitch, Radian &rRoll) const;
 		bool toEulerAnglesXZY(Radian &rYaw, Radian &rPitch, Radian &rRoll) const;

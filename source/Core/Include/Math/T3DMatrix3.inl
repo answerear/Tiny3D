@@ -491,15 +491,24 @@ namespace Tiny3D
 		return matInverse;
 	}
 
-	inline Matrix3 Matrix3::adjoint() const
-	{
-		return ZERO;
-// 		return Matrix3(m_afEntry[3], -m_afEntry[1], -m_afEntry[2], m_afEntry[0]);
-	}
-
 	inline Real Matrix3::determinant() const
 	{
-		return m_afEntry[0] * m_afEntry[3] - m_afEntry[1] * m_afEntry[2];
+		// This 3x3 matrix : 
+		//        +-       -+
+		//    A = | A0 A1 A2|
+		//        | A3 A4 A5|
+		//        | A6 A7 A8|
+		//        +-       -+
+		// 
+		// det(A) = A0 * A4 * A8 + A1 * A5 * A6 + A2 * A3 * A7 - A2 * A4 * A6 - A1 * A3 * A8 - A0 * A5 * A7
+		// equal to
+		// det(A) = A0 * (A4 * A8 - A5 * A7) + A1 * (A5 * A6 - A3 * A8) + A2 * (A3 * A7 - A4 * A6)
+
+		Real fCofactor00 = m_afEntry[4] * m_afEntry[8] - m_afEntry[5] * m_afEntry[7];
+		Real fCofactor01 = m_afEntry[5] * m_afEntry[6] - m_afEntry[3] * m_afEntry[8];
+		Real fCofactor02 = m_afEntry[3] * m_afEntry[7] - m_afEntry[4] * m_afEntry[6];
+
+		return m_afEntry[0] * fCofactor00 + m_afEntry[1] * fCofactor01 + m_afEntry[2] * fCofactor02;
 	}
 
 	inline Real Matrix3::qform(const Vector3 &rkU, const Vector3 &rkV) const
@@ -507,11 +516,40 @@ namespace Tiny3D
 		return rkU.dot((*this) * rkV);
 	}
 
-	inline void Matrix3::orthonormalize()
+	inline Matrix3 Matrix3::timesDiagonal(const Vector3 &rkDiag) const
 	{
-		
+		return Matrix3(
+			m_afEntry[0] * rkDiag[0], m_afEntry[1] * rkDiag[1], m_afEntry[2] * rkDiag[2],
+			m_afEntry[3] * rkDiag[0], m_afEntry[4] * rkDiag[1], m_afEntry[5] * rkDiag[2],
+			m_afEntry[6] * rkDiag[0], m_afEntry[7] * rkDiag[1], m_afEntry[8] * rkDiag[2]);
 	}
 
+	inline Matrix3 Matrix3::diagonalTimes(const Vector3 &rkDiag) const
+	{
+		return Matrix3(
+			rkDiag[0] * m_afEntry[0], rkDiag[0] * m_afEntry[1], rkDiag[0] * m_afEntry[2],
+			rkDiag[1] * m_afEntry[3], rkDiag[1] * m_afEntry[4], rkDiag[1] * m_afEntry[5],
+			rkDiag[2] * m_afEntry[6], rkDiag[2] * m_afEntry[7], rkDiag[2] * m_afEntry[8]);
+	}
+
+	inline void Matrix3::fromEulerAnglesXYZ(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll)
+	{
+		Real fCos, fSin;
+
+		fCos = Math::Cos(rkYaw);
+		fSin = Math::Sin(rkYaw);
+		Matrix3 matX(1.0, 0.0, 0.0, 0.0, fCos, -fSin, 0.0, fSin, fCos);
+
+		fCos = Math::Cos(rkPitch);
+		fSin = Math::Sin(rkPitch);
+		Matrix3 matY(fCos, 0.0, fSin, 0.0, 1.0, 0.0, -fSin, 0.0, fCos);
+
+		fCos = Math::Cos(rkRoll);
+		fSin = Math::Sin(rkRoll);
+		Matrix3 matZ(fCos, -fSin, 0.0, fSin, fCos, 0.0, 0.0, 0.0, 1.0);
+
+		*this = matX * (matY * matZ);
+	}
 
 	inline Matrix3 operator *(Real fScalar, const Matrix3 &rkM)
 	{
