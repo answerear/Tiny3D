@@ -29,7 +29,7 @@ namespace Tiny3D
 		/// Create a diagonal matrix.
 		Matrix3(Real fM00, Real fM11, Real fM22);
 		/// Create a rotation matrix.
-		Matrix3(const Vector3 &rkAxis, const Degree &rkDegree);
+		Matrix3(const Vector3 &rkAxis, const Radian &rkRadians);
 		/// Create a tensor product (U * V ^ T).
 		Matrix3(const Vector3 &rkU, const Vector3 &rkV);
 
@@ -43,9 +43,9 @@ namespace Tiny3D
 		void makeTensorProduct(const Vector3 &rkU, const Vector3 &rkV);
 
 		/// Make rotation matrix.
-		void fromAxisAngle(const const Radian &radians);
+		void fromAxisAngle(const Vector3 &rkAxis, const Radian &radians);
 		/// Get the rotation angle.
-		Radian toAxisAngle(Vector3 &rAxis, Radian &rRadians) const;
+		void toAxisAngle(Vector3 &rAxis, Radian &rRadians) const;
 
 		/// Get array of matrix members in row major (constant).
 		operator const Real *() const;
@@ -174,6 +174,10 @@ namespace Tiny3D
 	private:
 		Real	m_afEntry[9];
 	};
+
+	Matrix3 operator *(Real fScalar, const Matrix3 &rkM);
+
+	Vector3 operator *(const Vector3 &rkV, const Matrix3 &rkM);
 }
 
 

@@ -151,6 +151,10 @@ namespace Tiny3D
 	private:
 		Real	m_afEntry[4];
 	};
+
+	Matrix2 operator *(Real fScalar, const Matrix2 &rkM);
+
+	Vector2 operator *(const Vector2 &rkV, const Matrix2 &rkM);
 }
 
 
