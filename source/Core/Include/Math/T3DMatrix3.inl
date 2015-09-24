@@ -532,23 +532,172 @@ namespace Tiny3D
 			rkDiag[2] * m_afEntry[6], rkDiag[2] * m_afEntry[7], rkDiag[2] * m_afEntry[8]);
 	}
 
-	inline void Matrix3::fromEulerAnglesXYZ(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll)
+	inline void Matrix3::fromEulerAnglesXYZ(const Radian &rkPitch, const Radian &rkYaw, const Radian &rkRoll)
+	{
+		Real fCos, fSin;
+
+		fCos = Math::Cos(rkPitch);
+		fSin = Math::Sin(rkPitch);
+		Matrix3 matX(
+			1.0, 0.0, 0.0, 
+			0.0, fCos, -fSin, 
+			0.0, fSin, fCos);
+
+		fCos = Math::Cos(rkYaw);
+		fSin = Math::Sin(rkYaw);
+		Matrix3 matY(
+			fCos, 0.0, fSin, 
+			0.0, 1.0, 0.0, 
+			-fSin, 0.0, fCos);
+
+		fCos = Math::Cos(rkRoll);
+		fSin = Math::Sin(rkRoll);
+		Matrix3 matZ(
+			fCos, -fSin, 0.0, 
+			fSin, fCos, 0.0, 
+			0.0, 0.0, 1.0);
+
+		*this = matX * (matY * matZ);
+	}
+
+	inline void Matrix3::fromEulerAnglesXZY(const Radian &rkPitch, const Radian &rkRoll, const Radian &rkYaw)
+	{
+		Real fCos, fSin;
+
+		fCos = Math::Cos(rkPitch);
+		fSin = Math::Sin(rkPitch);
+		Matrix3 matX(
+			1.0, 0.0, 0.0,
+			0.0, fCos, -fSin,
+			0.0, fSin, fCos);
+
+		fCos = Math::Cos(rkRoll);
+		fSin = Math::Sin(rkRoll);
+		Matrix3 matZ(
+			fCos, -fSin, 0.0,
+			fSin, fCos, 0.0,
+			0.0, 0.0, 1.0);
+
+		fCos = Math::Cos(rkYaw);
+		fSin = Math::Sin(rkYaw);
+		Matrix3 matY(
+			fCos, 0.0, fSin,
+			0.0, 1.0, 0.0,
+			-fSin, 0.0, fCos);
+
+		*this = matX * (matZ * matY);
+	}
+
+	inline void Matrix3::fromEulerAnglesYXZ(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll)
 	{
 		Real fCos, fSin;
 
 		fCos = Math::Cos(rkYaw);
 		fSin = Math::Sin(rkYaw);
-		Matrix3 matX(1.0, 0.0, 0.0, 0.0, fCos, -fSin, 0.0, fSin, fCos);
+		Matrix3 matY(
+			fCos, 0.0, fSin,
+			0.0, 1.0, 0.0,
+			-fSin, 0.0, fCos);
 
 		fCos = Math::Cos(rkPitch);
 		fSin = Math::Sin(rkPitch);
-		Matrix3 matY(fCos, 0.0, fSin, 0.0, 1.0, 0.0, -fSin, 0.0, fCos);
+		Matrix3 matX(
+			1.0, 0.0, 0.0,
+			0.0, fCos, -fSin,
+			0.0, fSin, fCos);
 
 		fCos = Math::Cos(rkRoll);
 		fSin = Math::Sin(rkRoll);
-		Matrix3 matZ(fCos, -fSin, 0.0, fSin, fCos, 0.0, 0.0, 0.0, 1.0);
+		Matrix3 matZ(
+			fCos, -fSin, 0.0,
+			fSin, fCos, 0.0,
+			0.0, 0.0, 1.0);
 
-		*this = matX * (matY * matZ);
+		*this = matY * (matX * matZ);
+	}
+
+	inline void Matrix3::fromEulerAnglesYZX(const Radian &rkYaw, const Radian &rkRoll, const Radian &rkPitch)
+	{
+		Real fCos, fSin;
+
+		fCos = Math::Cos(rkYaw);
+		fSin = Math::Sin(rkYaw);
+		Matrix3 matY(
+			fCos, 0.0, fSin,
+			0.0, 1.0, 0.0,
+			-fSin, 0.0, fCos);
+
+		fCos = Math::Cos(rkRoll);
+		fSin = Math::Sin(rkRoll);
+		Matrix3 matZ(
+			fCos, -fSin, 0.0,
+			fSin, fCos, 0.0,
+			0.0, 0.0, 1.0);
+
+		fCos = Math::Cos(rkPitch);
+		fSin = Math::Sin(rkPitch);
+		Matrix3 matX(
+			1.0, 0.0, 0.0,
+			0.0, fCos, -fSin,
+			0.0, fSin, fCos);
+
+		*this = matY * (matZ * matX);
+	}
+
+	inline void Matrix3::fromEulerAnglesZXY(const Radian &rkRoll, const Radian &rkPitch, const Radian &rkYaw)
+	{
+		Real fCos, fSin;
+
+		fCos = Math::Cos(rkRoll);
+		fSin = Math::Sin(rkRoll);
+		Matrix3 matZ(
+			fCos, -fSin, 0.0,
+			fSin, fCos, 0.0,
+			0.0, 0.0, 1.0);
+
+		fCos = Math::Cos(rkPitch);
+		fSin = Math::Sin(rkPitch);
+		Matrix3 matX(
+			1.0, 0.0, 0.0,
+			0.0, fCos, -fSin,
+			0.0, fSin, fCos);
+
+		fCos = Math::Cos(rkYaw);
+		fSin = Math::Sin(rkYaw);
+		Matrix3 matY(
+			fCos, 0.0, fSin,
+			0.0, 1.0, 0.0,
+			-fSin, 0.0, fCos);
+
+		*this = matZ * (matX * matY);
+	}
+
+	inline void Matrix3::fromEulerAnglesZYX(const Radian &krRoll, const Radian &rkYaw, const Radian &rkPitch)
+	{
+		Real fCos, fSin;
+
+		fCos = Math::Cos(rkRoll);
+		fSin = Math::Sin(rkRoll);
+		Matrix3 matZ(
+			fCos, -fSin, 0.0,
+			fSin, fCos, 0.0,
+			0.0, 0.0, 1.0);
+
+		fCos = Math::Cos(rkYaw);
+		fSin = Math::Sin(rkYaw);
+		Matrix3 matY(
+			fCos, 0.0, fSin,
+			0.0, 1.0, 0.0,
+			-fSin, 0.0, fCos);
+
+		fCos = Math::Cos(rkPitch);
+		fSin = Math::Sin(rkPitch);
+		Matrix3 matX(
+			1.0, 0.0, 0.0,
+			0.0, fCos, -fSin,
+			0.0, fSin, fCos);
+
+		*this = matZ * (matY * matX);
 	}
 
 	inline Matrix3 operator *(Real fScalar, const Matrix3 &rkM)

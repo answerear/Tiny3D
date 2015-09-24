@@ -150,19 +150,38 @@ namespace Tiny3D
 		/// The matrix must be orthonormal.  The decomposition is yaw*pitch*roll where yaw is 
 		/// rotation about the Up vector, pitch is rotation about the Right axis, and roll is 
 		/// rotation about the Direction axis.
-		void fromEulerAnglesXYZ(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
-		void fromEulerAnglesXZY(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
+		///
+		///        +-                       -+
+		///        |    1       0       0    |
+		/// R(x) = |    0     cos(x) -sin(x) |
+		///        |    0     sin(x)  cos(x) |
+		///        +-                       -+
+		///
+		///        +-                       -+
+		///        |  cos(y)    0     sin(y) |
+		/// R(y) = |    0       1       0    |
+		///        | -sin(y)    0     cos(y) |
+		///        +-                       -+
+		///
+		///        +-                       -+
+		///        | cos(z) -sin(z)     0    |
+		/// R(z) = | sin(z)  cos(z)     0    |
+		///        |    0       0       1    |
+		///        +-                       -+
+		///
+		void fromEulerAnglesXYZ(const Radian &rkPitch, const Radian &rkYaw, const Radian &rkRoll);
+		void fromEulerAnglesXZY(const Radian &rkPitch, const Radian &rkRoll, const Radian &rkYaw);
 		void fromEulerAnglesYXZ(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
-		void fromEulerAnglesYZX(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
-		void fromEulerAnglesZXY(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
-		void fromEulerAnglesZYX(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
+		void fromEulerAnglesYZX(const Radian &rkYaw, const Radian &rkRoll, const Radian &rkPitch);
+		void fromEulerAnglesZXY(const Radian &rkRoll, const Radian &rkPitch, const Radian &rkYaw);
+		void fromEulerAnglesZYX(const Radian &krRoll, const Radian &rkYaw, const Radian &rkPitch);
 
-		bool toEulerAnglesXYZ(Radian &rYaw, Radian &rPitch, Radian &rRoll) const;
-		bool toEulerAnglesXZY(Radian &rYaw, Radian &rPitch, Radian &rRoll) const;
+		bool toEulerAnglesXYZ(Radian &rPitch, Radian &rYaw, Radian &rRoll) const;
+		bool toEulerAnglesXZY(Radian &rPitch, Radian &rRoll, Radian &rYaw) const;
 		bool toEulerAnglesYXZ(Radian &rYaw, Radian &rPitch, Radian &rRoll) const;
-		bool toEulerAnglesYZX(Radian &rYaw, Radian &rPitch, Radian &rRoll) const;
-		bool toEulerAnglesZXY(Radian &rYaw, Radian &rPitch, Radian &rRoll) const;
-		bool toEulerAnglesZYX(Radian &rYaw, Radian &rPitch, Radian &rRoll) const;
+		bool toEulerAnglesYZX(Radian &rYaw, Radian &rRoll, Radian &Pitch) const;
+		bool toEulerAnglesZXY(Radian &rRoll, Radian &rPitch, Radian &rYaw) const;
+		bool toEulerAnglesZYX(Radian &rRoll, Radian &rYaw, Radian &rPitch) const;
 
 	public:
 		static const Matrix3 ZERO;
