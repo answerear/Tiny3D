@@ -164,8 +164,8 @@ namespace Tiny3D
 		///        +-                       -+
 		///
 		///        +-                       -+
-		///        | cos(z) -sin(z)     0    |
-		/// R(z) = | sin(z)  cos(z)     0    |
+		///        |  cos(z) -sin(z)    0    |
+		/// R(z) = |  sin(z)  cos(z)    0    |
 		///        |    0       0       1    |
 		///        +-                       -+
 		///
