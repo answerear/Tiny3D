@@ -672,7 +672,7 @@ namespace Tiny3D
 		*this = matZ * (matX * matY);
 	}
 
-	inline void Matrix3::fromEulerAnglesZYX(const Radian &krRoll, const Radian &rkYaw, const Radian &rkPitch)
+	inline void Matrix3::fromEulerAnglesZYX(const Radian &rkRoll, const Radian &rkYaw, const Radian &rkPitch)
 	{
 		Real fCos, fSin;
 

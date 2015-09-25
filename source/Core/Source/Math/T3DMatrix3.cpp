@@ -222,4 +222,80 @@ namespace Tiny3D
 		m_afEntry[5] /= fLength;
 		m_afEntry[8] /= fLength;
 	}
+
+	bool Matrix3::toEulerAnglesXYZ(Radian &rPitch, Radian &rYaw, Radian &rRoll) const
+	{
+		//          +-                                      -+
+		//          |  cy*cz          -cy*sz           sy    |
+		// rot(A) = |  cz*sx*sy+cx*sz  cx*cz-sx*sy*sz -cy*sx |
+		//          | -cx*cz*sy+sx*sz  cz*sx+cx*sy*sz  cx*cy |
+		//          +-                                      -+
+		
+		rYaw = Math::ASin(m_afEntry[2]);
+
+		if (rYaw < Radian(Math::HALF_PI))
+		{
+			if (rYaw > Radian(-Math::HALF_PI))
+			{
+				rPitch = Math::ATan2(-m_afEntry[5], m_afEntry[8]);
+				rRoll = Math::ATan2(-m_afEntry[1], m_afEntry[0]);
+				return true;
+			}
+			else
+			{
+				// WARNING. Not unique
+				Radian rRmY = Math::ATan2(m_afEntry[3], m_afEntry[4]);
+				rRoll = Radian(0.0);
+				rPitch = rRoll - rRmY;
+				return false;
+			}
+		}
+		else
+		{
+			Radian rRpY = Math::ATan2(m_afEntry[3], m_afEntry[4]);
+			rRoll = Radian(0.0);
+			rPitch = rRpY - rRoll;
+			return false;
+		}
+
+		return true;
+	}
+
+	bool Matrix3::toEulerAnglesXZY(Radian &rPitch, Radian &rRoll, Radian &rYaw) const
+	{
+		//          +-                                      -+
+		//	        |  cy*cz          -sz     cz*sy          |
+		// rot(A) = |  sx*sy+cx*cy*sz  cx*cz -cy*sx+cx*sy*sz |
+		//          | -cx*sy+cy*sx*sz  cz*sx  cx*cy+sx*sy*sz |
+		//          +-                                      -+
+
+		rRoll = Math::ASin(-m_afEntry[1]);
+
+		if (rRoll < Radian(Math::HALF_PI))
+		{
+			if (rRoll > Radian(-Math::HALF_PI))
+			{
+				rPitch = Math::ATan2(m_afEntry[7], m_afEntry[4]);
+				rYaw = Math::ATan2(m_afEntry[2], m_afEntry[0]);
+			}
+			else
+			{
+				// WARNING.  Not a unique solution.
+				Radian fRmY = Math::ATan2(-m_afEntry[6], m_afEntry[8]);
+				rYaw = Radian(0.0);  // any angle works
+				rPitch = rYaw - fRmY;
+				return false;
+			}
+		}
+		else
+		{
+			// WARNING.  Not a unique solution.
+			Radian fRpY = Math::ATan2(-m_afEntry[6], m_afEntry[8]);
+			rYaw = Radian(0.0);  // any angle works
+			rPitch = fRpY - rYaw;
+			return false;
+		}
+
+		return true;
+	}
 }
