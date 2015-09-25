@@ -179,7 +179,7 @@ namespace Tiny3D
 		bool toEulerAnglesXYZ(Radian &rPitch, Radian &rYaw, Radian &rRoll) const;
 		bool toEulerAnglesXZY(Radian &rPitch, Radian &rRoll, Radian &rYaw) const;
 		bool toEulerAnglesYXZ(Radian &rYaw, Radian &rPitch, Radian &rRoll) const;
-		bool toEulerAnglesYZX(Radian &rYaw, Radian &rRoll, Radian &Pitch) const;
+		bool toEulerAnglesYZX(Radian &rYaw, Radian &rRoll, Radian &rPitch) const;
 		bool toEulerAnglesZXY(Radian &rRoll, Radian &rPitch, Radian &rYaw) const;
 		bool toEulerAnglesZYX(Radian &rRoll, Radian &rYaw, Radian &rPitch) const;
 

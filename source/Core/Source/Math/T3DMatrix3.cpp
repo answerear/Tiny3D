@@ -298,4 +298,156 @@ namespace Tiny3D
 
 		return true;
 	}
+
+	bool Matrix3::toEulerAnglesYXZ(Radian &rYaw, Radian &rPitch, Radian &rRoll) const
+	{
+		//          +-                                      -+
+		//          |  cy*cz+sx*sy*sz  cz*sx*sy-cy*sz  cx*sy |
+		// rot(A) = |  cx*sz           cx*cz          -sx    |
+		//          | -cz*sy+cy*sx*sz  cy*cz*sx+sy*sz  cx*cy |
+		//          +-                                      -+
+
+		rPitch = Math::ASin(-m_afEntry[4]);
+
+		if (rPitch < Radian(Math::HALF_PI))
+		{
+			if (rPitch > Radian(-Math::HALF_PI))
+			{
+				rYaw = Math::ATan2(m_afEntry[2], m_afEntry[8]);
+				rRoll = Math::ATan2(m_afEntry[3], m_afEntry[4]);
+			}
+			else
+			{
+				// WARNING.  Not a unique solution.
+				Radian fRmY = Math::ATan2(-m_afEntry[1], m_afEntry[0]);
+				rRoll = Radian(0.0);  // any angle works
+				rYaw = rRoll - fRmY;
+				return false;
+			}
+		}
+		else
+		{
+			// WARNING.  Not a unique solution.
+			Radian fRpY = Math::ATan2(-m_afEntry[1], m_afEntry[0]);
+			rRoll = Radian(0.0);  // any angle works
+			rYaw = fRpY - rRoll;
+			return false;
+		}
+
+		return true;
+	}
+
+	bool Matrix3::toEulerAnglesYZX(Radian &rYaw, Radian &rRoll, Radian &rPitch) const
+	{
+		//          +-                                      -+
+		//          |  cy*cz  sx*sy-cx*cy*sz  cx*sy+cy*sx*sz |
+		// rot(A) = |  sz     cx*cz          -cz*sx          |
+		//          | -cz*sy  cy*sx+cx*sy*sz  cx*cy-sx*sy*sz |
+		//          +-                                      -+
+
+		rRoll = Math::ASin(m_afEntry[3]);
+
+		if (rRoll < Radian(Math::HALF_PI))
+		{
+			if (rRoll > Radian(-Math::HALF_PI))
+			{
+				rYaw = Math::ATan2(-m_afEntry[6], m_afEntry[0]);
+				rPitch = Math::ATan2(-m_afEntry[5], m_afEntry[4]);
+				return true;
+			}
+			else
+			{
+				// WARNING.  Not a unique solution.
+				Radian fRmY = Math::ATan2(m_afEntry[7], m_afEntry[8]);
+				rPitch = Radian(0.0);  // any angle works
+				rYaw = rPitch - fRmY;
+				return false;
+			}
+		}
+		else
+		{
+			// WARNING.  Not a unique solution.
+			Radian fRpY = Math::ATan2(m_afEntry[7], m_afEntry[8]);
+			rPitch = Radian(0.0);  // any angle works
+			rYaw = fRpY - rPitch;
+			return false;
+		}
+
+		return true;
+	}
+
+	bool Matrix3::toEulerAnglesZXY(Radian &rRoll, Radian &rPitch, Radian &rYaw) const
+	{
+		//          +-                                     -+
+		//          | cy*cz-sx*sy*sz -cx*sz  cz*sy+cy*sx*sz |
+		// rot(A) = | cz*sx*sy+cy*sz  cx*cz -cy*cz*sx+sy*sz |
+		//          | -cx*sy          sx              cx*cy |
+		//          +-                                     -+
+
+		rPitch = Math::ASin(m_afEntry[7]);
+
+		if (rPitch < Radian(Math::HALF_PI))
+		{
+			if (rPitch > Radian(-Math::HALF_PI))
+			{
+				rRoll = Math::ATan2(-m_afEntry[1], m_afEntry[4]);
+				rYaw = Math::ATan2(-m_afEntry[6], m_afEntry[8]);
+			}
+			else
+			{
+				// WARNING.  Not a unique solution.
+				Radian fRmY = Math::ATan2(m_afEntry[2], m_afEntry[0]);
+				rYaw = Radian(0.0);  // any angle works
+				rRoll = rYaw - fRmY;
+				return false;
+			}
+		}
+		else
+		{
+			// WARNING.  Not a unique solution.
+			Radian fRpY = Math::ATan2(m_afEntry[2], m_afEntry[0]);
+			rYaw = Radian(0.0);  // any angle works
+			rRoll = fRpY - rYaw;
+			return false;
+		}
+
+		return true;
+	}
+
+	bool Matrix3::toEulerAnglesZYX(Radian &rRoll, Radian &rYaw, Radian &rPitch) const
+	{
+		//          +-                                     -+
+		//          | cy*cz  cz*sx*sy-cx*sz  cx*cz*sy+sx*sz |
+		// rot(A) = | cy*sz  cx*cz+sx*sy*sz -cz*sx+cx*sy*sz |
+		//          | -sy             cy*sx           cx*cy |
+		//          +-                                     -+
+
+		rYaw = Math::ASin(-m_afEntry[6]);
+		if (rYaw < Radian(Math::HALF_PI))
+		{
+			if (rYaw > Radian(-Math::HALF_PI))
+			{
+				rRoll = Math::ATan2(m_afEntry[3], m_afEntry[0]);
+				rPitch = Math::ATan2(m_afEntry[7], m_afEntry[8]);
+			}
+			else
+			{
+				// WARNING.  Not a unique solution.
+				Radian fRmY = Math::ATan2(-m_afEntry[1], m_afEntry[2]);
+				rPitch = Radian(0.0);  // any angle works
+				rRoll = rPitch - fRmY;
+				return false;
+			}
+		}
+		else
+		{
+			// WARNING.  Not a unique solution.
+			Radian fRpY = Math::ATan2(-m_afEntry[1], m_afEntry[2]);
+			rPitch = Radian(0.0);  // any angle works
+			rRoll = fRpY - rPitch;
+			return false;
+		}
+
+		return true;
+	}
 }
