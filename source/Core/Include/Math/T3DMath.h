@@ -69,6 +69,11 @@ namespace Tiny3D
 
 	#include "T3DRadian.inl"
 
+	inline Radian operator *(Real fScalar, const Radian &radians)
+	{
+		return Radian(fScalar * radians.valueRadians());
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	class T3D_ENGINE_API Degree
@@ -126,6 +131,11 @@ namespace Tiny3D
 
 	#include "T3DDegree.inl"
 
+	inline Degree operator *(Real fScalar, const Degree &degree)
+	{
+		return Degree(fScalar * degree.valueDegrees());
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	class T3D_ENGINE_API Math
@@ -135,6 +145,11 @@ namespace Tiny3D
 		static Real Sqr(Real fValue);
 		/// Square root.
 		static Real Sqrt(Real fValue);
+
+		static Real Abs (Real fValue);
+        static Degree Abs (const Degree& dValue);
+		static Radian Abs (const Radian& rValue);
+
 
 		/// Sine in degree.
 		static Real Sin(const Degree &degrees);

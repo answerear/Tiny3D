@@ -97,8 +97,13 @@ namespace Tiny3D
 		/// Calculate dot product.
 		Real dot(const Quaternion &other) const;
 
+		/// Returns the normal length of this quaternion.
+		Real norm() const;
 		/// Normalize the quaternion.
 		Real normalize();
+
+		/// Inverses this quaternion.
+		Quaternion inverse() const;
 
 		/// Create quaternion from rotation angle and axis.
 		void fromAngleAxis(const Radian &rkRadians, const Vector3 &rkAxis);
@@ -119,14 +124,11 @@ namespace Tiny3D
 		void toRotationMatrix(Matrix3 &rRot) const;
 
 		/// Calculate the local pitch element of this quaternion.
-		Radian getPitch() const;
+		Radian getPitch(bool reprojectAxis = true) const;
 		/// Calculate the local roll element of this quaternion.
-		Radian getRoll() const;
+		Radian getRoll(bool reprojectAxis = true) const;
 		/// Calculate the local yaw element of this quaternion.
-		Radian getYaw() const;
-
-		/// Inverses this quaternion.
-		Quaternion inverse() const;
+		Radian getYaw(bool reprojectAxis = true) const;
 
 		/// Returns the X orthonormal axis defining the quaternion.
 		Vector3 xAxis() const;
@@ -136,10 +138,10 @@ namespace Tiny3D
 		Vector3 zAxis() const;
 
 		/// Set this quaternion to the linear interpolation between two quaternions.
-		Quaternion &lerp(const Quaternion &);
+		Quaternion &lerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes);
 
 		/// Set this quaternion to the result of the spherical interpolation between two quaternions.
-		Quaternion &slerp(const Quaternion &);
+		Quaternion &slerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes, bool shortestPath, Real fThreshold = 0.05f);
 
 		static const Quaternion IDENTITY;
 		static const Quaternion ZERO;
@@ -150,6 +152,8 @@ namespace Tiny3D
 		Real	_y;
 		Real	_z;
 	};
+
+	Quaternion operator *(Real fScalar, const Quaternion &rkQ);
 }
 
 

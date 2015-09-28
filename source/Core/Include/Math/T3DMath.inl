@@ -110,6 +110,21 @@ namespace Tiny3D
 		return sqrt(fValue);
 	}
 
+	inline Real Math::Abs(Real fValue)
+	{ 
+		return Real(fabs(fValue)); 
+	}
+
+	inline Degree Math::Abs(const Degree &dValue)
+	{ 
+		return Degree(fabs(dValue.valueDegrees())); 
+	}
+
+	inline Radian Math::Abs(const Radian& rValue)
+	{ 
+		return Radian(fabs(rValue.valueRadians())); 
+	}
+
 	inline Real Math::Sin(const Degree &degrees)
 	{
 		return Real(sin(degrees.valueRadians()));
