@@ -141,7 +141,7 @@ namespace Tiny3D
 		Quaternion &lerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes);
 
 		/// Set this quaternion to the result of the spherical interpolation between two quaternions.
-		Quaternion &slerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes, bool shortestPath, Real fThreshold = 0.05f);
+		Quaternion &slerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes, bool shortestPath, Real fThreshold = 1e-03);
 
 		static const Quaternion IDENTITY;
 		static const Quaternion ZERO;

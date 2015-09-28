@@ -172,7 +172,7 @@ namespace Tiny3D
 		}
 	}
 
-	Quaternion &Quaternion::slerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes, bool shortestPath, Real fThreshold /* = 0.05f */)
+	Quaternion &Quaternion::slerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes, bool shortestPath, Real fThreshold /* = 1e-03 */)
 	{
 		Real fCos = rkP.dot(rkQ);
 		Quaternion rkT;
