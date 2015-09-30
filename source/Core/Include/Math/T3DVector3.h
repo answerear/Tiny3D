@@ -78,6 +78,7 @@ namespace Tiny3D
 		Vector3 &operator -=(const Vector3 &other);
 		/// Scalar multiply and assign.
 		Vector3 &operator *=(Real fScalar);
+		Vector3 &operator *=(const Vector3 &rkV);
 		/// Scalar divide and assign.
 		Vector3 &operator /=(Real fScalar);
 

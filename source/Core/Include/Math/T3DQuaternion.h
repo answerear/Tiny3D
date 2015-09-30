@@ -94,6 +94,9 @@ namespace Tiny3D
 		/// Negation.
 		Quaternion operator -() const;
 
+		/// Rotation of a vector by a quaternion
+		Vector3 operator* (const Vector3 &rkVector) const;
+
 		/// Calculate dot product.
 		Real dot(const Quaternion &other) const;
 

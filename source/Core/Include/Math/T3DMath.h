@@ -146,10 +146,14 @@ namespace Tiny3D
 		/// Square root.
 		static Real Sqrt(Real fValue);
 
+		static Real InvSqrt(Real fValue);
+
 		static Real Abs (Real fValue);
         static Degree Abs (const Degree& dValue);
 		static Radian Abs (const Radian& rValue);
 
+		/// Compare 2 reals, using tolerance for inaccuracies.
+        static bool RealEqual(Real a, Real b, Real tolerance = std::numeric_limits<Real>::epsilon());
 
 		/// Sine in degree.
 		static Real Sin(const Degree &degrees);

@@ -110,6 +110,11 @@ namespace Tiny3D
 		return sqrt(fValue);
 	}
 
+	inline Real Math::InvSqrt(Real fValue)
+	{
+		return Real(1.0) / sqrt(fValue);
+	}
+
 	inline Real Math::Abs(Real fValue)
 	{ 
 		return Real(fabs(fValue)); 
@@ -123,6 +128,14 @@ namespace Tiny3D
 	inline Radian Math::Abs(const Radian& rValue)
 	{ 
 		return Radian(fabs(rValue.valueRadians())); 
+	}
+
+	inline bool Math::RealEqual(Real a, Real b, Real tolerance /* = std::numeric_limits<Real>::epsilon() */)
+	{
+		if (fabs(b-a) <= tolerance)
+			return true;
+		else
+			return false;
 	}
 
 	inline Real Math::Sin(const Degree &degrees)

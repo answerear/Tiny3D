@@ -178,6 +178,15 @@ namespace Tiny3D
 		return *this;
 	}
 
+	inline Vector3 &Vector3::operator *=( const Vector3 &rkVector)
+	{
+		_x *= rkVector._x;
+		_y *= rkVector._y;
+		_z *= rkVector._z;
+		return *this;
+	}
+
+
 	inline Vector3 &Vector3::operator /=(Real fScalar)
 	{
 		if (fScalar != 0.0)

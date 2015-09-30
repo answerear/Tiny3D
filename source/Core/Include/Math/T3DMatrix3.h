@@ -183,6 +183,8 @@ namespace Tiny3D
 		bool toEulerAnglesZXY(Radian &rRoll, Radian &rPitch, Radian &rYaw) const;
 		bool toEulerAnglesZYX(Radian &rRoll, Radian &rYaw, Radian &rPitch) const;
 
+		void QDUDecomposition(Matrix3 &kQ, Vector3 &kD, Vector3 &kU) const;
+
 	public:
 		static const Matrix3 ZERO;
 		static const Matrix3 IDENTITY;
@@ -191,7 +193,11 @@ namespace Tiny3D
 		int32_t compareArrays(const Matrix3 &other) const;
 
 	private:
-		Real	m_afEntry[9];
+		union
+		{
+			Real	m_afEntry[9];
+			Real	_m3x3[3][3];
+		};
 	};
 
 	Matrix3 operator *(Real fScalar, const Matrix3 &rkM);

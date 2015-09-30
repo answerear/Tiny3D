@@ -53,7 +53,9 @@ namespace Tiny3D
 		Real &operator ()(int32_t nRow, int32_t nCol);
 
 		/// Assignment.
-		Matrix3 &operator =(const Matrix4 &other);
+		Matrix4 &operator =(const Matrix4 &other);
+		/// Assignment from Matrix3
+		void operator =(const Matrix3 &rkMat);
 
 		/// Comparison (equal to).
 		bool operator ==(const Matrix4 &other) const;
@@ -111,7 +113,7 @@ namespace Tiny3D
 		bool hasScale() const;
 
 		/// Adjoint matrix.
-		Matrix3 adjoint() const;
+		Matrix4 adjoint() const;
 
 		/// Calculate determinant.
 		Real determinant() const;
@@ -123,9 +125,9 @@ namespace Tiny3D
 		void decomposition(Vector3 &position, Vector3 &scale, Quaternion &orientation) const;
 
 		/// Extracts the rotation / scaling part of the matrix as a 3x3 matrix.
-		Matrix3 extractMatrix() const;
+		void extractMatrix(Matrix3 &rkMat) const;
 		/// Extracts the rotation / scaling part as a quaternion from the matrix.
-		Quaternion extraceQuaternion() const;
+		Quaternion extractQuaternion() const;
 		/// Extracts the translation transformation part of the matrix.
 		Vector3 extractTranslation() const;
 
@@ -152,6 +154,9 @@ namespace Tiny3D
 
 		static const Matrix4 ZERO;
 		static const Matrix4 IDENTITY;
+
+	protected:
+		int32_t compareArrays(const Matrix4 &other) const;
 
 	private:
 		union

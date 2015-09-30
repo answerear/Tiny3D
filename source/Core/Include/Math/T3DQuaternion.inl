@@ -273,6 +273,19 @@ namespace Tiny3D
 		return Quaternion(-_w, -_x, -_y, -_z);
 	}
 
+	inline Vector3 Quaternion::operator* (const Vector3& v) const
+	{
+		// nVidia SDK implementation
+		Vector3 uv, uuv;
+		Vector3 qvec(_x, _y, _z);
+		uv = qvec.cross(v);
+		uuv = qvec.cross(uv);
+		uv *= (2.0f * _w);
+		uuv *= 2.0f;
+
+		return v + uv + uuv;
+	}
+
 	inline Real Quaternion::dot(const Quaternion &other) const
 	{
 		return (_x * other._x + _y * other._y + _z * other._z + _w * other._w);
