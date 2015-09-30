@@ -54,7 +54,6 @@ include(ProjectCMakeModule)
 add_subdirectory(Platform)
 add_subdirectory(Log)
 add_subdirectory(Core)
-add_subdirectory(RenderSystems)
 
 
 add_dependencies(T3DLog T3DPlatform)

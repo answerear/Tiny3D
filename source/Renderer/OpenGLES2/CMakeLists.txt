@@ -5,7 +5,7 @@
 # you like.
 ####################################################################################################
 
-set_project_name(T3DRenderSystem_GLES3)
+set_project_name(T3DGLES2Renderer)
 
 if (MSVC)
 	if (TINY3D_BUILD_LIBS)
@@ -16,7 +16,7 @@ endif (MSVC)
 # Setup project include files path
 include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
-	"${OPENGLES3_INCLUDE_DIR}"
+	"${OPENGLES2_INCLUDE_DIR}"
 	)
 
 
@@ -36,6 +36,6 @@ endif (TINY3D_SHARED_LIBS)
 
 target_link_libraries(
 	${LIB_NAME}
-	${OPENGLES3_LIBRARIES}
+	${OPENGLES2_LIBRARIES}
 	T3DPlatform
 	)

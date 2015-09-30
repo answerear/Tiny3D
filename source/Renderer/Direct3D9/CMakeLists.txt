@@ -5,7 +5,7 @@
 # you like.
 ####################################################################################################
 
-set_project_name(T3DRenderSystem_GL3Plus)
+set_project_name(T3DD3D9Renderer)
 
 if (MSVC)
 	if (TINY3D_BUILD_SHARED_LIBS)
@@ -16,7 +16,7 @@ endif (MSVC)
 # Setup project include files path
 include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
-	"${DirectX11_INCLUDE_DIR}"
+	"${DirectX9_INCLUDE_DIR}"
 	)
 
 
@@ -36,6 +36,6 @@ endif (TINY3D_BUILD_SHARED_LIBS)
 
 target_link_libraries(
 	${LIB_NAME}
-	${OPENGL_LIBRARIES}
+	${DirectX9_LIBRARIES}
 	T3DPlatform
 	)
