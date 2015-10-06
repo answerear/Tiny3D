@@ -13,7 +13,7 @@ if (MSVC)
 	endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
-set (TINY3D_RENDERER_LIBRAIES "")
+set (TINY3D_Render_LIBRAIES "")
 
 # Search Direct3D 9
 if (TINY3D_BUILD_RENDERSYSTEM_D3D9)
@@ -28,15 +28,15 @@ if (TINY3D_BUILD_RENDERSYSTEM_D3D9)
 		# Find Direct3D 9 libraries.
 		# setup header files path
 		include_directories(
-			"${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer/Direct3D9"
+			"${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/Direct3D9"
 			"${DirectX9_INCLUDE_DIR}"
 			)
 		# setup project header files.
-		set_project_files(Include\\\\Renderer\\\\Direct3D9 ${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer/Direct3D9/ .h)
+		set_project_files(Include\\\\Render\\\\Direct3D9 ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/Direct3D9/ .h)
 		# setup project source files.
-		set_project_files(Source\\\\Renderer\\\\Direct3D9 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Renderer/Direct3D9/ .cpp)
+		set_project_files(Source\\\\Render\\\\Direct3D9 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/Direct3D9/ .cpp)
 		# append to link libraries list.
-		list(APPEND TINY3D_RENDERER_LIBRAIES ${DirectX9_LIBRARIES})
+		list(APPEND TINY3D_Render_LIBRAIES ${DirectX9_LIBRARIES})
 	endif ()
 endif (TINY3D_BUILD_RENDERSYSTEM_D3D9)
 
@@ -52,13 +52,13 @@ if (TINY3D_BUILD_RENDERSYSTEM_D3D11)
 		# Find Direct3D 11 libraries.
 		# setup header files path
 		include_directories(
-			"${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer/Direct3D11"
+			"${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/Direct3D11"
 			"${DirectX11_INCLUDE_DIR}"
 			)
 		# setup project header files.
-		set_project_files(Include\\\\Renderer\\\\Direct3D11 ${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer/Direct3D11/ .h)
+		set_project_files(Include\\\\Render\\\\Direct3D11 ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/Direct3D11/ .h)
 		# setup project source files.
-		set_project_files(Source\\\\Renderer\\\\Direct3D11 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Renderer/Direct3D11/ .cpp)
+		set_project_files(Source\\\\Render\\\\Direct3D11 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/Direct3D11/ .cpp)
 		# append to link libraries list.
 		list(APPEND TINY3D_RENDER_LIBRARIES ${DirectX11_LIBRARIES})
 	endif ()
@@ -77,13 +77,13 @@ if (TINY3D_BUILD_RENDERSYSTEM_GL3PLUS)
 		# Find OpenGL 3.0+ libraries.
 		# setup header files path
 		include_directories(
-			"${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer/OpenGL3Plus"
+			"${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/OpenGL3Plus"
 #			"${OPENGL_INCLUDE_DIR}"
 			)
 		# setup project header files.
-		set_project_files(Include\\\\Renderer\\\\OpenGL3Plus ${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer/OpenGL3Plus/ .h)
+		set_project_files(Include\\\\Render\\\\OpenGL3Plus ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/OpenGL3Plus/ .h)
 		# setup project source files.
-		set_project_files(Source\\\\Renderer\\\\OpenGL3Plus ${CMAKE_CURRENT_SOURCE_DIR}/Source/Renderer/OpenGL3Plus/ .cpp)
+		set_project_files(Source\\\\Render\\\\OpenGL3Plus ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/OpenGL3Plus/ .cpp)
 		# append to link libraries list.
 		list(APPEND TINY3D_RENDER_LIBRARIES ${OPENGL_LIBRARIES})
 	endif ()
@@ -101,13 +101,13 @@ if (TINY3D_BUILD_RENDERSYSTEM_GLES2)
 		# Find OpenGL ES 2.0 libraries.
 		# setup header files path
 		include_directories(
-			"${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer/OpenGLES2"
+			"${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/OpenGLES2"
 			"${OPENGLES2_INCLUDE_DIR}"
 			)
 		# setup project header files.
-		set_project_files(Include\\\\Renderer\\\\OpenGLES2 ${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer/OpenGLES2/ .h)
+		set_project_files(Include\\\\Render\\\\OpenGLES2 ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/OpenGLES2/ .h)
 		# setup project source files.
-		set_project_files(Source\\\\Renderer\\\\OpenGLES2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Renderer/OpenGLES2/ .cpp)
+		set_project_files(Source\\\\Render\\\\OpenGLES2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/OpenGLES2/ .cpp)
 		# append to link libraries list.
 		list(APPEND TINY3D_RENDER_LIBRARIES ${OPENGLES2_LIBRARIES})
 	endif ()
@@ -125,13 +125,13 @@ if (TINY3D_BUILD_RENDERSYSTEM_GLES3)
 		# Find OpenGL ES 3.0 libraries.
 		# setup header files path
 		include_directories(
-			"${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer/OpenGLES3"
+			"${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/OpenGLES3"
 			"${OPENGLES3_INCLUDE_DIR}"
 			)
 		# setup project header files.
-		set_project_files(Include\\\\Renderer\\\\OpenGLES3 ${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer/OpenGLES3/ .h)
+		set_project_files(Include\\\\Render\\\\OpenGLES3 ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/OpenGLES3/ .h)
 		# setup project source files.
-		set_project_files(Source\\\\Renderer\\\\OpenGLES3 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Renderer/OpenGLES3/ .cpp)
+		set_project_files(Source\\\\Render\\\\OpenGLES3 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/OpenGLES3/ .cpp)
 		# append to link libraries list.
 		list(APPEND TINY3D_RENDER_LIBRARIES ${OPENGLES3_LIBRARIES})
 	endif ()
@@ -145,22 +145,28 @@ include_directories(
 	"${TINY3D_LOG_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Math"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Node"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/SG"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Render"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Misc"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Listener"
 	)
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .h)
 set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .inl)
-set_project_files(Include\\\\Node ${CMAKE_CURRENT_SOURCE_DIR}/Include/Node/ .h)
-set_project_files(Include\\\\Renderer ${CMAKE_CURRENT_SOURCE_DIR}/Include/Renderer/ .h)
+set_project_files(Include\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/ .h)
+set_project_files(Include\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/ .h)
+set_project_files(Include\\\\Misc ${CMAKE_CURRENT_SOURCE_DIR}/Include/Misc/ .h)
+set_project_files(Include\\\\Listener ${CMAKE_CURRENT_SOURCE_DIR}/Include/Listener/ .h)
 
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 set_project_files(Source\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Source/Math/ .cpp)
-set_project_files(Source\\\\Node ${CMAKE_CURRENT_SOURCE_DIR}/Source/Node/ .cpp)
-set_project_files(Source\\\\Renderer ${CMAKE_CURRENT_SOURCE_DIR}/Source/Renderer/ .cpp)
+set_project_files(Source\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Source/SG/ .cpp)
+set_project_files(Source\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/ .cpp)
+set_project_files(Source\\\\Misc ${CMAKE_CURRENT_SOURCE_DIR}/Source/Misc/ .cpp)
+set_project_files(Source\\\\Listener ${CMAKE_CURRENT_SOURCE_DIR}/Source/Listener/ .cpp)
 
 
 if (TINY3D_BUILD_SHARED_LIBS)
@@ -175,7 +181,7 @@ if (TINY3D_OS_WINDOWS)
 		${LIB_NAME}
 		T3DPlatform
 		T3DLog
-		${TINY3D_RENDERER_LIBRAIES}
+		${TINY3D_Render_LIBRAIES}
 		)
 elseif (TINY3D_OS_MACOSX)
 elseif (TINY3D_OS_LINUX)

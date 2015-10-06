@@ -32,6 +32,7 @@ namespace Tiny3D
 
 		Singleton()
 		{
+			T3D_ASSERT(m_pInstance == nullptr);
 			m_pInstance = static_cast<pointer>(this);
 		}
 

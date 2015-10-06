@@ -5,7 +5,10 @@
 
 
 #include <string>
-
+#include <memory>
+#include <vector>
+#include <list>
+#include <map>
 
 // #define __T3D_HIGH_PERCISION_FLOAT__
 

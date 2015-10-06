@@ -4,7 +4,7 @@
 #define __T3D_MATRIX2_H__
 
 
-#include "T3DEngineMacro.h"
+#include "T3DPrerequisites.h"
 #include "T3DMath.h"
 #include "T3DVector2.h"
 

@@ -4,7 +4,7 @@
 #define __T3D_MATRIX4_H__
 
 
-#include "T3DEngineMacro.h"
+#include "T3DPrerequisites.h"
 #include "T3DMath.h"
 #include "T3DMatrix3.h"
 #include "T3DQuaternion.h"
