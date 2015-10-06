@@ -9,12 +9,12 @@
 
 namespace Tiny3D
 {
-	class Renderer
-	{
-	public:
+    class Renderer
+    {
+    public:
 
-	};
+    };
 }
 
 
-#endif	/*__T3D_RENDERER_H__*/
+#endif    /*__T3D_RENDERER_H__*/
