@@ -9,44 +9,44 @@
 
 namespace Tiny3D
 {
-	FactoryInterface *createAdapterFactory()
-	{
-		return new Factory_Windows();
-	}
+    FactoryInterface *createAdapterFactory()
+    {
+        return new Factory_Windows();
+    }
 
-	Factory_Windows::Factory_Windows()
-		: m_pTimerContainer(new TimerContainer())
-	{
+    Factory_Windows::Factory_Windows()
+        : m_pTimerContainer(new TimerContainer())
+    {
 
-	}
+    }
 
-	Factory_Windows::~Factory_Windows()
-	{
-		T3D_SAFE_DELETE(m_pTimerContainer);
-	}
+    Factory_Windows::~Factory_Windows()
+    {
+        T3D_SAFE_DELETE(m_pTimerContainer);
+    }
 
-	ConsoleInterface *Factory_Windows::createConsoleAdapter()
-	{
-		return new Console_Windows();
-	}
+    ConsoleInterface *Factory_Windows::createConsoleAdapter()
+    {
+        return new Console_Windows();
+    }
 
-	TimerInterface *Factory_Windows::createTimerAdapter()
-	{
-		return new Timer_Windows();
-	}
+    TimerInterface *Factory_Windows::createTimerAdapter()
+    {
+        return new Timer_Windows();
+    }
 
-	DirInterface *Factory_Windows::createDirAdapter()
-	{
-		return new Dir_Windows();
-	}
+    DirInterface *Factory_Windows::createDirAdapter()
+    {
+        return new Dir_Windows();
+    }
 
-	DeviceInfoInterface *Factory_Windows::createDeviceInfoAdapter()
-	{
-		return new DeviceInfo_Windows();
-	}
+    DeviceInfoInterface *Factory_Windows::createDeviceInfoAdapter()
+    {
+        return new DeviceInfo_Windows();
+    }
 
-	EPlatform Factory_Windows::getPlatform()
-	{
-		return E_PLATFORM_WIN32;
-	}
+    EPlatform Factory_Windows::getPlatform()
+    {
+        return E_PLATFORM_WIN32;
+    }
 }

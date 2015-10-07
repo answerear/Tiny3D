@@ -19,4 +19,4 @@
 #include <Time/T3DTimerObserver.h>
 
 
-#endif	/*__T3D_PLATFORM_H__*/
+#endif  /*__T3D_PLATFORM_H__*/

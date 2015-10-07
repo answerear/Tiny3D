@@ -1,1 +1,4 @@
 build_vs2012
+lib
+bin
+include

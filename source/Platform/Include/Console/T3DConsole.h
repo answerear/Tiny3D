@@ -10,28 +10,28 @@
 
 namespace Tiny3D
 {
-	class ConsoleInterface;
-	class FactoryInterface;
+    class ConsoleInterface;
+    class FactoryInterface;
 
-	class T3D_PLATFORM_API Console : public Singleton<Console>
-	{
-		T3D_DISABLE_COPY(Console);
+    class T3D_PLATFORM_API Console : public Singleton<Console>
+    {
+        T3D_DISABLE_COPY(Console);
 
-	public:
-		static const uint32_t MAX_CONTENT_SIZE;
+    public:
+        static const uint32_t MAX_CONTENT_SIZE;
 
-		Console(FactoryInterface *pAdatperFactory);
-		virtual ~Console();
+        Console(FactoryInterface *pAdatperFactory);
+        virtual ~Console();
 
-		void print(const char *pText, ...);
+        void print(const char *pText, ...);
 
-	protected:
-		ConsoleInterface *m_pconsoleAdapter;
-	};
+    protected:
+        ConsoleInterface *m_pconsoleAdapter;
+    };
 
 
-	#define T3D_CONSOLE		Console::getInstance()
+#define T3D_CONSOLE     Console::getInstance()
 }
 
 
-#endif	/*__T3D_CONSOLE_H__*/
+#endif  /*__T3D_CONSOLE_H__*/

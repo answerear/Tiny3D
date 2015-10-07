@@ -5,5 +5,5 @@
 
 namespace Tiny3D
 {
-	const Vector4 Vector4::ZERO(0.0, 0.0, 0.0, 0.0);
+    const Vector4 Vector4::ZERO(0.0, 0.0, 0.0, 0.0);
 }

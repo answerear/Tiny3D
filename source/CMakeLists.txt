@@ -7,6 +7,8 @@
 
 cmake_minimum_required(VERSION 2.8)
 
+set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/../" CACHE PATH "Tiny3D install prefix")
+
 project(Tiny3D)
 
 if (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
@@ -21,12 +23,13 @@ if (CMAKE_BINARY_DIR MATCHES " ")
 	message("Your Build Directory contains spaces. If you experience problems when compiling, this can be the cause.")
 endif()
 
+
 if (WIN32)
 	add_definitions(-DT3D_OS_WINDOWS)
 	set(TINY3D_OS_WINDOWS TRUE CACHE STRING "Windows")
 elseif (APPLE)
 	add_definitions(-DT3D_OS_MACOSX)
-	set(TINY3D_OS_MACOSX TRUE CACHE STRING "Mac OSX")
+	set(TINY3D_OS_MACOSX TRUE CACHE STRING "Mac OS X")
 endif (WIN32)
 
 
@@ -40,6 +43,11 @@ elseif (TINY3D_OS_MACOSX)
 	option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" FALSE)
 endif (TINY3D_OS_WINDOWS)
 
+set(TINY3D_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Tiny3D binary path")
+set(TINY3D_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Tiny3D library path")
+set(TINY3D_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Tiny3D include path")
+set(TINY3D_RES_DIR "${CMAKE_INSTALL_PREFIX}/resources" CACHE PATH "Tiny3D resourcs path")
+
 
 set(CMAKE_MODULE_PATH
 	"${CMAKE_CURRENT_SOURCE_DIR}/CMake"
@@ -50,12 +58,15 @@ set(CMAKE_MODULE_PATH
 
 include(FindPkgMacros)
 include(ProjectCMakeModule)
+	
 
 add_subdirectory(Platform)
 add_subdirectory(Log)
 add_subdirectory(Core)
+add_subdirectory(Samples)
 
 
+#add_dependencies(T3DPlatform setup_build)
 add_dependencies(T3DLog T3DPlatform)
 add_dependencies(T3DCore T3DLog T3DPlatform)
-
+add_dependencies(HelloWorld T3DCore T3DLog T3DPlatform)

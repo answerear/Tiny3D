@@ -9,28 +9,28 @@
 
 namespace Tiny3D
 {
-	class TimerContainer;
+    class TimerContainer;
 
-	class Factory_Windows : public FactoryInterface
-	{
-		T3D_DISABLE_COPY(Factory_Windows);
+    class Factory_Windows : public FactoryInterface
+    {
+        T3D_DISABLE_COPY(Factory_Windows);
 
-	public:
-		Factory_Windows();
-		virtual ~Factory_Windows();
+    public:
+        Factory_Windows();
+        virtual ~Factory_Windows();
 
-	protected:
-		virtual ConsoleInterface *createConsoleAdapter();
-		virtual TimerInterface *createTimerAdapter();
-		virtual DirInterface *createDirAdapter();
-		virtual DeviceInfoInterface *createDeviceInfoAdapter();
+    protected:
+        virtual ConsoleInterface *createConsoleAdapter();
+        virtual TimerInterface *createTimerAdapter();
+        virtual DirInterface *createDirAdapter();
+        virtual DeviceInfoInterface *createDeviceInfoAdapter();
 
-		virtual EPlatform getPlatform();
+        virtual EPlatform getPlatform();
 
-	protected:
-		TimerContainer	*m_pTimerContainer;
-	};
+    protected:
+        TimerContainer  *m_pTimerContainer;
+    };
 }
 
 
-#endif	/*__T3D_FACTORY_WINDOWS_H__*/
+#endif  /*__T3D_FACTORY_WINDOWS_H__*/

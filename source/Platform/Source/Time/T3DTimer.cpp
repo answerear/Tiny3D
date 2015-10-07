@@ -8,51 +8,51 @@
 
 namespace Tiny3D
 {
-	Timer::Timer()
-		: m_pAdapter(nullptr)
-	{
-		m_pAdapter = T3D_ADAPTER_FACTORY.createTimerAdapter();
-	}
+    Timer::Timer()
+        : m_pAdapter(nullptr)
+    {
+        m_pAdapter = T3D_ADAPTER_FACTORY.createTimerAdapter();
+    }
 
-	Timer::~Timer()
-	{
-		T3D_SAFE_DELETE(m_pAdapter);
-	}
+    Timer::~Timer()
+    {
+        T3D_SAFE_DELETE(m_pAdapter);
+    }
 
-	uint32_t Timer::start(uint32_t unInterval)
-	{
-		if (nullptr != m_pAdapter)
-		{
-			m_pAdapter->stop();
-			return m_pAdapter->start(unInterval);
-		}
+    uint32_t Timer::start(uint32_t unInterval)
+    {
+        if (nullptr != m_pAdapter)
+        {
+            m_pAdapter->stop();
+            return m_pAdapter->start(unInterval);
+        }
 
-		return T3D_INVALID_TIMER_ID;
-	}
+        return T3D_INVALID_TIMER_ID;
+    }
 
-	void Timer::stop()
-	{
-		if (nullptr != m_pAdapter)
-		{
-			return m_pAdapter->stop();
-		}
-	}
+    void Timer::stop()
+    {
+        if (nullptr != m_pAdapter)
+        {
+            return m_pAdapter->stop();
+        }
+    }
 
-	void Timer::setObserver(TimerObserver *pObserver)
-	{
-		if (nullptr != m_pAdapter)
-		{
-			m_pAdapter->setObserver(pObserver);
-		}
-	}
+    void Timer::setObserver(TimerObserver *pObserver)
+    {
+        if (nullptr != m_pAdapter)
+        {
+            m_pAdapter->setObserver(pObserver);
+        }
+    }
 
-	uint32_t Timer::getTimerID() const
-	{
-		if (nullptr != m_pAdapter)
-		{
-			return m_pAdapter->getTimerID();
-		}
+    uint32_t Timer::getTimerID() const
+    {
+        if (nullptr != m_pAdapter)
+        {
+            return m_pAdapter->getTimerID();
+        }
 
-		return T3D_INVALID_TIMER_ID;
-	}
+        return T3D_INVALID_TIMER_ID;
+    }
 }
