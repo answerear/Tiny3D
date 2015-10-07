@@ -8,14 +8,16 @@
 set_project_name(HelloWorld)
 
 
-set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Platform")
-set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Log")
+set(TINY3D_PLATFORM_INC_DIR "${TINY3D_INC_DIR}/Platform")
+set(TINY3D_LOG_INC_DIR "${TINY3D_INC_DIR}/Log")
+set(TINY3D_CORE_INC_DIR "${TINY3D_INC_DIR}/Core")
 
 # Setup project include files path
 include_directories(
-	"${TINY3D_PLATFORM_DIR}/Include"
-	"${TINY3D_LOG_DIR}/Include"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
+	"${TINY3D_PLATFORM_INC_DIR}"
+	"${TINY3D_LOG_INC_DIR}"
+	"${TINY3D_CORE_INC_DIR}"
+	"${CMAKE_CURRENT_SOURCE_DIR}"
 	)
 
 

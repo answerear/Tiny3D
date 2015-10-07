@@ -11,11 +11,6 @@
 
 namespace Tiny3D
 {
-    class RenderWindow;
-    class Renderer;
-
-    typedef std::list<Renderer*> RendererList;
-
     /**
      * @brief The starting point class of the Tiny3D system.
      * @remarks
@@ -32,25 +27,6 @@ namespace Tiny3D
     class T3D_ENGINE_API Builder : public Singleton<Builder>
     {
     public:
-        /** Enumerate all platform supported. */
-        enum EOSType
-        {
-            /** Unknown OS, Default value used if it isn't any OS type below. */
-            E_OS_UNKNOWN = 0,
-            /** Windows Desktop */
-            E_OS_WINDOWS,
-            /** Mac OS X */
-            E_OS_MACOSX,
-            /** Linux Desktop */
-            E_OS_LINUX,
-            /** iOS */
-            E_OS_IOS,
-            /** Android */
-            E_OS_ANDROID,
-            /** Not any OS, maximum value of type supported */
-            E_MAX_OS_TYPES,
-        };
-
         /** Default constructor. */
         Builder();
 
@@ -59,14 +35,24 @@ namespace Tiny3D
 
         /**
          * @brief Enumerate all available name of renderer in list.
-         * @param [out] rRendererList : list of available renderer instances.
+         * @param [out] rRendererList
+         *      list of available renderer instances.
          * @return void
          */
-        void enumerateRendererList(RendererList &rRendererList);
+        void enumerateRendererList(RendererNameList &rRendererNameList) const;
+
+        /**
+         * @brief Create renderer instance.
+         * @param [in] strRendererName
+         *      Name of renderer.
+         * @return Instance of renderer.
+         */
+        Renderer *createRenderer(const TString &strRendererName);
 
         /**
          * @brief Set active renderer.
-         * @param [in] pRenderer : pointer to an available renderer instance.
+         * @param [in] pRenderer
+         *      pointer to an available renderer instance.
          * @return void
          * @remarks
          *      The renderer must be one of all available renderer. You should
@@ -77,10 +63,12 @@ namespace Tiny3D
 
         /**
          * @brief Create render window.
-         * @param [in] rkCreatedParam : reference to RenderWindowCreateParam
-         *  instance. See RenderWindowCreateParam.
-         * @param [in] rkCreatedParamEx : reference to RenderWindowCreateParamEx
-         *  instance. See RenderWindowCreateParamEx.
+         * @param [in] rkCreatedParam 
+         *      reference to RenderWindowCreateParam instance. 
+         *      See RenderWindowCreateParam.
+         * @param [in] rkCreatedParamEx : 
+         *      reference to RenderWindowCreateParamEx instance. 
+         *      See RenderWindowCreateParamEx.
          * @return pointer to an instance for RenderWindow if create succeeded.
          * @see RenderWindowCreatedParam
          * @see RenderWindowCreatedParamEx
@@ -97,15 +85,19 @@ namespace Tiny3D
         bool run();
 
         /**
-         * @brief Retrieve current OS type
-         * @return Current OS type
-         * @see enum EOSType
+         * @brief Set application event listener.
+         * @param [in] pListener
+         *      pointer to application listener instance.
+         * @return void
          */
-        EOSType getOSType() const;
+        void setApplicationListener(ApplicationListener *pListener);
+
+    protected:
+        System  *mSystem;
     };
 
-#define T3D_BUILDER         Builder::getInstance()
-#define T3D_BUILDER_PTR     Builder::getInstancePtr()
+    #define T3D_BUILDER         Builder::getInstance()
+    #define T3D_BUILDER_PTR     Builder::getInstancePtr()
 }
 
 

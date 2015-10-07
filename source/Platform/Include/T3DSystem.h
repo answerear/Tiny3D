@@ -21,20 +21,20 @@ namespace Tiny3D
      * @brief 系统类.
      * @note 该类对一些全局的单例创建和释放，为上层提供框架层和系统层统一接口.
      */
-    class T3D_PLATFORM_API T3DSystem : public Singleton<T3DSystem>
+    class T3D_PLATFORM_API System : public Singleton<System>
     {
-        T3D_DISABLE_COPY(T3DSystem);
+        T3D_DISABLE_COPY(System);
 
     public:
         /**
          * @brief Constructor for VSystem.
          */
-        T3DSystem();
+        System();
 
         /**
          * @brief Destructor for VSystem.
          */
-        ~T3DSystem();
+        ~System();
 
         /**
          * @brief 每个程序循环调用处理.
@@ -54,15 +54,15 @@ namespace Tiny3D
 
     private:
         FactoryInterface        *m_pAdapterFactory;
-        TextCodec                   *m_pTextCodec;
-        Console                     *m_pConsole;
-        DeviceInfo                  *m_pDeviceInfo;
-        RunLoop                     *m_pMainRunLoop;
+        TextCodec               *m_pTextCodec;
+        Console                 *m_pConsole;
+        DeviceInfo              *m_pDeviceInfo;
+        RunLoop                 *m_pMainRunLoop;
     };
 
-#define T3D_SYSTEM              (T3DSystem::getInstance())
-#define T3D_ADAPTER_FACTORY     (T3D_SYSTEM.getAdapterFactory())
-#define T3D_MAIN_RUNLOOP        (T3DSystem::getInstance().getMainRunLoop())
+    #define T3D_SYSTEM              (System::getInstance())
+    #define T3D_ADAPTER_FACTORY     (T3D_SYSTEM.getAdapterFactory())
+    #define T3D_MAIN_RUNLOOP        (System::getInstance().getMainRunLoop())
 }
 
 

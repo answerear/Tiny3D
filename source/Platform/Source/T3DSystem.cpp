@@ -9,12 +9,12 @@
 #include "T3DRunLoop.h"
 
 
-T3D_INIT_SINGLETON(Tiny3D::T3DSystem);
+T3D_INIT_SINGLETON(Tiny3D::System);
 
 
 namespace Tiny3D
 {
-    T3DSystem::T3DSystem()
+    System::System()
         : m_pAdapterFactory(nullptr)
         , m_pTextCodec(nullptr)
         , m_pConsole(nullptr)
@@ -31,7 +31,7 @@ namespace Tiny3D
         m_pMainRunLoop = new RunLoop();
     }
 
-    T3DSystem::~T3DSystem()
+    System::~System()
     {
         T3D_SAFE_DELETE(m_pMainRunLoop);
         T3D_SAFE_DELETE(m_pConsole);
@@ -39,7 +39,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(m_pAdapterFactory);
     }
 
-    void T3DSystem::process()
+    void System::process()
     {
         if (m_pMainRunLoop != nullptr)
         {
@@ -47,7 +47,7 @@ namespace Tiny3D
         }
     }
 
-    RunLoop &T3DSystem::getMainRunLoop()
+    RunLoop &System::getMainRunLoop()
     {
         return *m_pMainRunLoop;
     }
