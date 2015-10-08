@@ -1,4 +1,4 @@
-build_vs2012
-bin
-include
-lib
+build_vs2012/
+bin/
+include/
+lib/
