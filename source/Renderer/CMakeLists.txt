@@ -6,6 +6,7 @@
 ####################################################################################################
 
 
+set(TINY3D_CORE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Core" CACHE PATH "Tiny3D core source path")
 
 if (TINY3D_BUILD_RENDERSYSTEM_D3D9)
 	find_package(DirectX)
@@ -16,6 +17,7 @@ if (TINY3D_BUILD_RENDERSYSTEM_D3D9)
 		set(TINY3D_BUILD_RENDERSYSTEM_D3D9 FALSE)
 	else ()
 		add_subdirectory(Direct3D9)
+		add_dependencies(T3DD3D9Renderer T3DCore T3DLog T3DPlatform)
 	endif ()
 endif (TINY3D_BUILD_RENDERSYSTEM_D3D9)
 
@@ -29,6 +31,7 @@ if (TINY3D_BUILD_RENDERSYSTEM_D3D11)
 		set(TINY3D_BUILD_RENDERSYSTEM_D3D11 FALSE)
 	else ()
 		add_subdirectory(Direct3D11)
+		add_dependencies(T3DD3D11Renderer T3DCore T3DLog T3DPlatform)
 	endif ()
 endif (TINY3D_BUILD_RENDERSYSTEM_D3D11)
 
@@ -42,6 +45,7 @@ if (TINY3D_BUILD_RENDERSYSTEM_GL3PLUS)
 		set(TINY3D_BUILD_RENDERSYSTEM_GL3PLUS FALSE)
 	else ()
 		add_subdirectory(OpenGL3Plus)
+		add_dependencies(T3DGL3PRenderer T3DCore T3DLog T3DPlatform)
 	endif ()
 endif (TINY3D_BUILD_RENDERSYSTEM_GL3PLUS)
 
@@ -55,6 +59,7 @@ if (TINY3D_BUILD_RENDERSYSTEM_GLES2)
 		set(TINY3D_BUILD_RENDERSYSTEM_GLES2 FALSE)
 	else ()
 		add_subdirectory(OpenGLES2)
+		add_dependencies(T3DGLES2Renderer T3DCore T3DLog T3DPlatform)
 	endif ()
 endif (TINY3D_BUILD_RENDERSYSTEM_GLES2)
 
@@ -68,5 +73,6 @@ if (TINY3D_BUILD_RENDERSYSTEM_GLES3)
 		set(TINY3D_BUILD_RENDERSYSTEM_GLES3 FALSE)
 	else ()
 		add_subdirectory(OpenGLES3)
+		add_dependencies(T3DGLES3Renderer T3DCore T3DLog T3DPlatform)
 	endif ()
 endif (TINY3D_BUILD_RENDERSYSTEM_GLES3)
