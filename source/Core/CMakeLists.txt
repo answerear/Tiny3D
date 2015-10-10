@@ -25,6 +25,7 @@ include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include/SG"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Render"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Misc"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Resource"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Listener"
 	)
 
@@ -35,6 +36,7 @@ set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .inl
 set_project_files(Include\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/ .h)
 set_project_files(Include\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/ .h)
 set_project_files(Include\\\\Misc ${CMAKE_CURRENT_SOURCE_DIR}/Include/Misc/ .h)
+set_project_files(Include\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Include/Resource/ .h)
 set_project_files(Include\\\\Listener ${CMAKE_CURRENT_SOURCE_DIR}/Include/Listener/ .h)
 
 # Setup project source files
@@ -43,6 +45,7 @@ set_project_files(Source\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Source/Math/ .cpp)
 set_project_files(Source\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Source/SG/ .cpp)
 set_project_files(Source\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/ .cpp)
 set_project_files(Source\\\\Misc ${CMAKE_CURRENT_SOURCE_DIR}/Source/Misc/ .cpp)
+set_project_files(Source\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Source/Resource/ .cpp)
 set_project_files(Source\\\\Listener ${CMAKE_CURRENT_SOURCE_DIR}/Source/Listener/ .cpp)
 
 
