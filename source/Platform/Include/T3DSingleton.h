@@ -15,7 +15,7 @@
 #endif
 
 
-#define T3D_INIT_SINGLETON(T) Tiny3D::Singleton<T>::pointer Tiny3D::Singleton<T>::m_pInstance = nullptr
+#define T3D_INIT_SINGLETON(T) Singleton<T>::pointer Singleton<T>::m_pInstance = nullptr
 
 
 namespace Tiny3D

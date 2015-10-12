@@ -16,14 +16,17 @@ namespace Tiny3D
         ResourceManager();
         virtual ~ResourceManager();
 
+        static uint32_t toID(const TString &strName);
+
         /**
          * @brief Load resource from file.
          */
         virtual ResourcePtr load(const TString &strName);
+
         /**
          * @brief Unload resource in memory.
          */
-        virtual void unload(ResourcePtr &pResource);
+        virtual void unload(ResourcePtr &res);
 
         /**
          * @brief Clone another new resource from source resource.
@@ -35,34 +38,53 @@ namespace Tiny3D
          *      new instance of resource. This method will call 
          *      Resource::clone() to implement this function.
          */
-        ResourcePtr clone(ResourcePtr &pSrcRes);
+        ResourcePtr clone(const ResourcePtr &rkSrcResource);
 
         /**
-         * @brief Get resource by name
+         * @brief Get resource by name.
          * @param [in] strName
          *      The name of resource.
+         * @param [in] unCloneID
+         *      0 if the resource wasn't created by clone. Default is 0.
          * @return retrieve a pointer to instance of resource.
-         * @remarks
-         *      If some resource is made by calling clone(), this instance of
-         *      resource maybe not the instance that caller want. If caller
-         *      want to the correct instance of resource, user should use
-         *      getResource(const TString &) instead of 
-         *      getResource(ulong_t, const TString &).
          */
-        ResourcePtr getResource(const TString &strName) const;
+        ResourcePtr getResource(const TString &strName, 
+            uint32_t unCloneID = 0) const;
+
+        /**
+         * @brief Get resources by name.
+         * @remarks
+         *      This method will return all resource in list 
+         *      whether the resource created or cloned.
+         */
+        bool getResources(const TString &strName, 
+            std::list<ResourcePtr> &rResList) const;
 
         void addSearchPath(const TString &strPath);
 
     protected:
         virtual Resource *create(const TString &strName) = 0;
 
+        static uint32_t hash(const char *str);
+
     protected:
-        typedef std::vector<TString> SearchPathList;
+        typedef std::list<TString> SearchPathList;
 
-        typedef std::map<TString, ResourcePtr>        ResourceMap;
+        typedef std::map<uint32_t, ResourcePtr>     Resources;
+        typedef Resources::iterator                 ResourcesItr;
+        typedef Resources::const_iterator           ResourcesConstItr;
+        typedef std::pair<uint32_t, ResourcePtr>    ResPairValue;
 
-        SearchPathList      m_SearchPathList;   /// search path list
-        ResourceMap         m_Resources;        /// resources container
+        typedef std::map<TString, Resources>        ResourcesMap;
+        typedef ResourcesMap::iterator              ResourcesMapItr;
+        typedef ResourcesMap::const_iterator        ResourcesMapConstItr;
+
+        typedef std::pair<TString, Resources>       ResMapPairValue;
+
+        SearchPathList  m_SearchPathList;   /** search path list */
+        ResourcesMap    m_ResourceCache;    /** cache all resources */
+
+        uint32_t        m_unCloneID;        /** used to clone */
     };
 }
 
