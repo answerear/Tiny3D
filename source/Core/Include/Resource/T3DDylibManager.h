@@ -10,11 +10,18 @@
 
 namespace Tiny3D
 {
+    class Dylib;
+
     class T3D_ENGINE_API DylibManager 
         : public ResourceManager
         , public Singleton<DylibManager>
     {
     public:
+        DylibManager();
+        virtual ~DylibManager();
+
+    protected:
+        virtual Resource *create(const TString &strName);
 
     };
 }
