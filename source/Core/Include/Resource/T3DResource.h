@@ -70,8 +70,6 @@ namespace Tiny3D
         bool        m_bIsLoaded;    /** loaded flag */
         TString     m_strName;      /** name of the resource */
     };
-
-    typedef std::shared_ptr<Resource>   ResourcePtr;
 }
 
 

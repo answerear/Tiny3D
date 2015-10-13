@@ -9,43 +9,43 @@
 
 #if defined T3D_OS_WINDOWS      // Win32
 
-#ifdef _DEBUG   // debug
-#define T3D_DEBUG
-#else           // release
-#undef T3D_DEBUG
-#endif
+    #ifdef _DEBUG   // debug
+        #define T3D_DEBUG
+    #else           // release
+        #undef T3D_DEBUG
+    #endif
 
-#pragma warning(disable:4996)
-#pragma warning(disable:4251)
+    #pragma warning(disable:4996)
+    #pragma warning(disable:4251)
 
-#define snprintf    _snprintf
-#define vsnprintf   _vsnprintf
+    #define snprintf    _snprintf
+    #define vsnprintf   _vsnprintf
 
 #elif defined T3D_OS_IOS || defined T3D_OS_MAC || defined T3D_OS_LINUX  // iOS or Mac OS x or Linux
 
-#ifdef DEBUG    // debug
-#define T3D_DEBUG
-#else           // release
-#undef T3D_DEBUG
-#endif
+    #ifdef DEBUG    // debug
+        #define T3D_DEBUG
+    #else           // release
+        #undef T3D_DEBUG
+    #endif
 
 #elif defined T3D_OS_ANDROID    // Android
 
-#ifdef NDK_DEBUG    // debug
-#define T3D_DEBUG
-#else               // release
-#undef T3D_DEBUG
-#endif
+    #ifdef NDK_DEBUG    // debug
+        #define T3D_DEBUG
+    #else               // release
+        #undef T3D_DEBUG
+    #endif
 
 #endif
 
 
 #ifndef T3D_ASSERT
-#ifdef T3D_DEBUG
-#define T3D_ASSERT(x)   assert(x)
-#else
-#define T3D_ASSERT(x)
-#endif
+    #ifdef T3D_DEBUG
+        #define T3D_ASSERT(x)   assert(x)
+    #else
+        #define T3D_ASSERT(x)
+    #endif
 #endif
 
 

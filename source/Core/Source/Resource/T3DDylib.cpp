@@ -5,8 +5,8 @@
     #include <windows.h>
     #define DYLIB_HANDLE           HINSTANCE
     #define DYLIB_LOAD(a)          LoadLibrary(a)
-    #define DYLIB_GETSYM(a, b)     GetProcAddress(a, b)
-    #define DYLIB_UNLOAD(a)        !FreeLibrary(a)
+    #define DYLIB_GETSYM(a, b)     GetProcAddress((HMODULE)a, b)
+    #define DYLIB_UNLOAD(a)        FreeLibrary((HMODULE)a)
     #define DYLIB_ERROR()          "Unknown Error"
 
 // struct HINSTANCE__;
@@ -22,7 +22,7 @@
 
 namespace Tiny3D
 {
-    Dylib(const TString &strName)
+    Dylib::Dylib(const TString &strName)
         : Resource(strName)
     {
 
@@ -40,17 +40,23 @@ namespace Tiny3D
 
     void *Dylib::getSymbol(const TString &strName) const
     {
-        return DYLIB_GETSYM((HMODULE)m_Handle, strName.c_str());
+        return DYLIB_GETSYM(m_Handle, strName.c_str());
     }
 
     bool Dylib::load()
     {
+        m_Handle = DYLIB_LOAD(m_strName.c_str());
+        m_bIsLoaded = true;
         return true;
     }
 
     void Dylib::unload()
     {
-
+        if (m_bIsLoaded)
+        {
+            DYLIB_UNLOAD(m_Handle);
+            m_bIsLoaded = false;
+        }
     }
 
     Resource *Dylib::clone() const
