@@ -51,7 +51,19 @@ namespace Tiny3D
     
     class Builder;
 
-    class Color;
+    class Color4;
+
+    class Plane;
+    class Sphere;
+    class Frustum;
+    class Obb;
+    class Aabb;
+
+    class Bound;
+    class SphereBound;
+    class AabbBound;
+    class ObbBound;
+    class Frustum;
 
     class Viewport;
     class RenderTarget;

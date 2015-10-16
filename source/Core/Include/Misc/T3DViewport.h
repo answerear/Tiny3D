@@ -5,8 +5,7 @@
 
 
 #include "T3DPrerequisites.h"
-
-#include "T3DColor.h"
+#include "T3DColor4.h"
 
 
 namespace Tiny3D
@@ -37,8 +36,8 @@ namespace Tiny3D
 
         void setDimensions(Real left, Real top, Real width, Real height);
 
-        void setBackgroundColor(const Color &rkColor);
-        const Color &getBackgroundColor() const;
+        void setBackgroundColor(const Color4 &rkColor);
+        const Color4 &getBackgroundColor() const;
 
     protected:
         SGCamera        *m_pCamera; /// Camera binding this camera
@@ -49,7 +48,7 @@ namespace Tiny3D
         Real    m_fWidth;
         Real    m_fHeight;
 
-        Color   m_clrBackground;
+        Color4  m_clrBackground;
     };
 }
 
