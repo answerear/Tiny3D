@@ -117,6 +117,8 @@ namespace Tiny3D
         Real    _y;
         Real    _z;
     };
+
+    Vector3 operator *(Real fScalar, const Vector3 &rkV);
 }
 
 

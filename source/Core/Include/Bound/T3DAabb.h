@@ -44,7 +44,7 @@ namespace Tiny3D
 
         const Sphere &getSphere() const;
 
-        void setWidth(Real fWidht);
+        void setWidth(Real fWidth);
         void setHeight(Real fHeight);
         void setDepth(Real fDepth);
 

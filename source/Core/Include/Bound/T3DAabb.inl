@@ -101,4 +101,151 @@ namespace Tiny3D
 
         return bRet;
     }
+
+    inline Real Aabb::getWidth() const
+    {
+        return mMaxX - mMinX;
+    }
+
+    inline Real Aabb::getHeight() const
+    {
+        return mMaxY - mMinY;
+    }
+
+    inline Real Aabb::getDepth() const
+    {
+        return mMaxZ - mMinZ;
+    }
+
+    inline Real Aabb::getMinX() const
+    {
+        return mMinX;
+    }
+
+    inline Real Aabb::getMaxX() const
+    {
+        return mMaxX;
+    }
+
+    inline Real Aabb::getMinY() const
+    {
+        return mMinY;
+    }
+
+    inline Real Aabb::getMaxY() const
+    {
+        return mMaxY;
+    }
+
+    inline Real Aabb::getMinZ() const
+    {
+        return mMinZ;
+    }
+
+    inline Real Aabb::getMaxZ() const
+    {
+        return mMaxZ;
+    }
+
+    inline const Vector3 &Aabb::getCenter() const
+    {
+        return mSphere.getCenter();
+    }
+
+    inline Real Aabb::getRadius() const
+    {
+        return mSphere.getRadius();
+    }
+
+    inline const Sphere &Aabb::getSphere() const
+    {
+        return mSphere;
+    }
+
+    inline void Aabb::setWidth(Real fWidth)
+    {
+        Real ex = fWidth * Real(0.5);
+        mMinX = mSphere.getCenter().x() - ex;
+        mMaxX = mSphere.getCenter().x() + ex;
+    }
+
+    inline void Aabb::setHeight(Real fHeight)
+    {
+        Real ex = fHeight * Real(0.5);
+        mMinY = mSphere.getCenter().y() - ex;
+        mMaxY = mSphere.getCenter().y() + ex;
+    }
+
+    inline void Aabb::setDepth(Real fDepth)
+    {
+        Real ex = fDepth * Real(0.5);
+        mMinZ = mSphere.getCenter().z() - ex;
+        mMaxZ = mSphere.getCenter().z() + ex;
+    }
+
+    inline void Aabb::setMinX(Real x)
+    {
+        mMinX = x;
+        mSphere.getCenter().x() = (mMaxX + mMinX) * Real(0.5);
+        Real fWidth = mMaxX - mMinX;
+        Real fHeight = mMaxY - mMinY;
+        Real fDepth = mMaxZ - mMinZ;
+        mSphere.getRadius() = Math::Sqrt(fWidth * fWidth + fHeight * fHeight
+            + fDepth * fDepth) * Real(0.5);
+    }
+
+    inline void Aabb::setMaxX(Real x)
+    {
+        mMaxX = x;
+        mSphere.getCenter().x() = (mMaxX + mMinX) * Real(0.5);
+        Real fWidth = mMaxX - mMinX;
+        Real fHeight = mMaxY - mMinY;
+        Real fDepth = mMaxZ - mMinZ;
+        mSphere.getRadius() = Math::Sqrt(fWidth * fWidth + fHeight * fHeight
+            + fDepth * fDepth) * Real(0.5);
+    }
+
+    inline void Aabb::setMinY(Real y)
+    {
+        mMinY = y;
+        mSphere.getCenter().y() = (mMaxY + mMinY) * Real(0.5);
+        Real fWidth = mMaxX - mMinX;
+        Real fHeight = mMaxY - mMinY;
+        Real fDepth = mMaxZ - mMinZ;
+        mSphere.getRadius() = Math::Sqrt(fWidth * fWidth + fHeight * fHeight
+            + fDepth * fDepth) * Real(0.5);
+    }
+
+    inline void Aabb::setMaxY(Real y)
+    {
+        mMaxY = y;
+        mSphere.getCenter().y() = (mMaxY + mMinY) * Real(0.5);
+        Real fWidth = mMaxX - mMinX;
+        Real fHeight = mMaxY - mMinY;
+        Real fDepth = mMaxZ - mMinZ;
+        mSphere.getRadius() = Math::Sqrt(fWidth * fWidth + fHeight * fHeight
+            + fDepth * fDepth) * Real(0.5);
+    }
+
+    inline void Aabb::setMinZ(Real z)
+    {
+        mMinZ = z;
+        mSphere.getCenter().z() = (mMaxZ + mMinZ) * Real(0.5);
+        Real fWidth = mMaxX - mMinX;
+        Real fHeight = mMaxY - mMinY;
+        Real fDepth = mMaxZ - mMinZ;
+        mSphere.getRadius() = Math::Sqrt(fWidth * fWidth + fHeight * fHeight
+            + fDepth * fDepth) * Real(0.5);
+    }
+
+    inline void Aabb::setMaxZ(Real z)
+    {
+        mMaxZ = z;
+        mSphere.getCenter().z() = (mMaxZ + mMinZ) * Real(0.5);
+        Real fWidth = mMaxX - mMinX;
+        Real fHeight = mMaxY - mMinY;
+        Real fDepth = mMaxZ - mMinZ;
+        mSphere.getRadius() = Math::Sqrt(fWidth * fWidth + fHeight * fHeight
+            + fDepth * fDepth) * Real(0.5);
+    }
 }

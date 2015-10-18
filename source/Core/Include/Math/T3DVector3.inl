@@ -257,4 +257,9 @@ namespace Tiny3D
 
 		return fLength;
 	}
+
+    inline Vector3 operator *(Real fScalar, const Vector3 &rkV)
+    {
+        return Vector3(fScalar * rkV.x(), fScalar * rkV.y(), fScalar * rkV.z());
+    }
 }
