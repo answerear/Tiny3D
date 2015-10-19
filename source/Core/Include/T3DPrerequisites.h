@@ -1,7 +1,7 @@
 
 
-#ifndef __T3D_ENGINE_MACRO_H__
-#define __T3D_ENGINE_MACRO_H__
+#ifndef __T3D_PREREQUISITES_H__
+#define __T3D_PREREQUISITES_H__
 
 
 #include "T3DMacro.h"
@@ -87,4 +87,4 @@ namespace Tiny3D
 }
 
 
-#endif    /*__T3D_ENGINE_MACRO_H__*/
+#endif    /*__T3D_PREREQUISITES_H__*/

@@ -12,13 +12,14 @@ namespace Tiny3D
     class T3D_ENGINE_API Plugin
     {
     public:
-        T3D_DECLARE_INTERFACE(Plugin);
+        Plugin()    {}
+        virtual ~Plugin()   {}
 
         virtual const TString &getName() const = 0;
         virtual bool install() = 0;
         virtual bool startup() = 0;
-        virtual void shutdown();
-        virtual void uninstall();
+        virtual void shutdown() = 0;
+        virtual void uninstall() = 0;
     };
 }
 

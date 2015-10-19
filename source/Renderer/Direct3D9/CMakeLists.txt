@@ -16,6 +16,8 @@ endif (MSVC)
 # Setup project include files path
 include_directories(
 	"${TINY3D_CORE_SOURCE_DIR}/Include"
+	"${TINY3D_PLATFORM_SOURCE_DIR}/Include"
+	"${TINY3D_LOG_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${DirectX9_INCLUDE_DIR}"
 	)
@@ -40,6 +42,7 @@ target_link_libraries(
 	${DirectX9_LIBRARIES}
 	T3DLog
 	T3DPlatform
+	T3DCore
 	)
 
 install(TARGETS ${LIB_NAME}
