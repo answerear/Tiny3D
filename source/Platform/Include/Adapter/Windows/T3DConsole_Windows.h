@@ -3,7 +3,7 @@
 #define __T3D_CONSOLE_ADAPTER_WINDOWS_H__
 
 
-#include "T3DConsoleInterface.h"
+#include "Adapter/T3DConsoleInterface.h"
 
 
 namespace Tiny3D

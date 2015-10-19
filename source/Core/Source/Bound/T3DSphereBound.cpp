@@ -1,6 +1,6 @@
 
 
-#include "T3DSphereBound.h"
+#include "Bound/T3DSphereBound.h"
 
 
 namespace Tiny3D

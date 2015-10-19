@@ -1,5 +1,5 @@
 
-#include "T3DResourceManager.h"
+#include "Resource/T3DResourceManager.h"
 
 
 namespace Tiny3D

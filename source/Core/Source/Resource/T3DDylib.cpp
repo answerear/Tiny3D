@@ -1,5 +1,5 @@
 
-#include "T3DDylib.h"
+#include "Resource/T3DDylib.h"
 
 #if defined (T3D_OS_WINDOWS)
     #include <windows.h>

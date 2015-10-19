@@ -1,15 +1,14 @@
 
 
-#include "T3DDeviceInfo.h"
-#include "T3DDeviceInfoInterface.h"
-#include "T3DFactoryInterface.h"
-
-
-T3D_INIT_SINGLETON(Tiny3D::DeviceInfo);
+#include "Device/T3DDeviceInfo.h"
+#include "Adapter/T3DDeviceInfoInterface.h"
+#include "Adapter/T3DFactoryInterface.h"
 
 
 namespace Tiny3D
 {
+    T3D_INIT_SINGLETON(DeviceInfo);
+
     const uint32_t DeviceInfo::PLATFORM_UNKNOWN = E_PLATFORM_UNKNOWN;
     const uint32_t DeviceInfo::PLATFORM_WINDOWS = E_PLATFORM_WIN32;
     const uint32_t DeviceInfo::PLATFORM_MACOSX = E_PLATFORM_MACOSX;

@@ -4,11 +4,10 @@
 #include "T3DTimer_Windows.h"
 
 
-T3D_INIT_SINGLETON(Tiny3D::TimerContainer);
-
-
 namespace Tiny3D
 {
+    T3D_INIT_SINGLETON(TimerContainer);
+
     TimerContainer::TimerContainer()
     {
 

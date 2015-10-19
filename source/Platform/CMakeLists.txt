@@ -17,12 +17,12 @@ endif (MSVC)
 # Setup project include files path
 include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Codec"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Console"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Device"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/IO"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Time"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Codec"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Console"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Device"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/IO"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Time"
 	)
 
 if (TINY3D_OS_WINDOWS)

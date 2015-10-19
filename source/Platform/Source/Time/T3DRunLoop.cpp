@@ -1,7 +1,7 @@
 
-#include "T3DRunLoop.h"
-#include "T3DDateTime.h"
-#include "T3DRunLoopObserver.h"
+#include "Time/T3DRunLoop.h"
+#include "Time/T3DDateTime.h"
+#include "Time/T3DRunLoopObserver.h"
 
 
 namespace Tiny3D

@@ -1,6 +1,6 @@
 
 
-#include "T3DQuaternion.h"
+#include "Math/T3DQuaternion.h"
 
 
 namespace Tiny3D

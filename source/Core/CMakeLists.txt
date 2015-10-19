@@ -21,13 +21,13 @@ include_directories(
 	"${TINY3D_PLATFORM_DIR}/Include"
 	"${TINY3D_LOG_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Math"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/SG"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Render"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Misc"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Resource"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Listener"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Math"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/SG"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Render"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Misc"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Resource"
+#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Listener"
 	)
 
 # Setup project header files
@@ -36,7 +36,9 @@ set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .h)
 set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .inl)
 set_project_files(Include\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/ .h)
 set_project_files(Include\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/ .h)
+set_project_files(Include\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/ .inl)
 set_project_files(Include\\\\Misc ${CMAKE_CURRENT_SOURCE_DIR}/Include/Misc/ .h)
+set_project_files(Include\\\\Misc ${CMAKE_CURRENT_SOURCE_DIR}/Include/Misc/ .inl)
 set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .h)
 set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .inl)
 set_project_files(Include\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Include/Resource/ .h)

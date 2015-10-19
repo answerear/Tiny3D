@@ -1,15 +1,14 @@
 
 
-#include "T3DTextCodec.h"
-#include "T3DDir.h"
+#include "Codec/T3DTextCodec.h"
+#include "IO/T3DDir.h"
 #include <stdio.h>
-
-
-T3D_INIT_SINGLETON(Tiny3D::TextCodec);
 
 
 namespace Tiny3D
 {
+    T3D_INIT_SINGLETON(TextCodec);
+
     TextCodec::TextCodec(const TString &strCodecFile)
     {
 

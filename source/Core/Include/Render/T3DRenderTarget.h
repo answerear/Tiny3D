@@ -15,42 +15,26 @@ namespace Tiny3D
         RenderTarget();
         virtual ~RenderTarget();
 
-        const TString &getName() const
-        {
-            return m_strName;
-        }
+        const TString &getName() const;
 
         void getMetrics(int32_t &nWidth, int32_t &nHeight,
             int32_t &nColorDepth) const;
 
-        int32_t getWidth() const
-        {
-            return m_nWidth;
-        }
+        int32_t getWidth() const;
+        int32_t getHeight() const;
 
-        int32_t getHeight() const
-        {
-            return m_nHeight;
-        }
-
-        int32_t getColorDepth() const
-        {
-            return m_nColorDepth;
-        }
+        int32_t getColorDepth() const;
 
         virtual void update();
 
-        Viewport *addViewport(SGCamera *pCamera, int32_t nZOrder, 
+        Viewport *addViewport(SGCamera *camera, int32_t nZOrder, 
             Real left, Real top, Real width, Real height);
 
         void removeViewport(int32_t nZOrder);
 
         void removeAllViewports();
 
-        uint32_t getNumViewports() const
-        {
-            return (uint32_t)m_ViewportList.size();
-        }
+        uint32_t getNumViewports() const;
 
         Viewport *getViewport(uint32_t unIndex) const;
 
@@ -64,17 +48,20 @@ namespace Tiny3D
 
         typedef std::list<RenderTargetListener*>    ListenerList;
 
-        int32_t         m_nWidth;
-        int32_t         m_nHeight;
-        int32_t         m_nColorDepth;
+        int32_t         mWidth;
+        int32_t         mHeight;
+        int32_t         mColorDepth;
 
-        TString         m_strName;
+        TString         mName;
 
-        ViewportList    m_ViewportList;
+        ViewportList    mViewportList;
 
-        ListenerList    m_ListenerList;
+        ListenerList    mListenerList;
     };
 }
+
+
+#include "T3DRenderTarget.inl"
 
 
 #endif  /*__T3D_RENDER_TARGET_H__*/

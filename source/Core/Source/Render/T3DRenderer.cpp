@@ -1,35 +1,23 @@
 
 
-#include "T3DRenderWindow.h"
+#include "Render/T3DRenderer.h"
 
 
 namespace Tiny3D
 {
-    RenderWindow::RenderWindow()
-        : m_nWidth(0)
-        , m_nHeight(0)
-        , m_nColorDepth(0)
+    const char * const Renderer::DIRECT3D9 = "Direct3D9";
+    const char * const Renderer::DIRECT3D11 = "Direct3D11";
+    const char * const Renderer::OPENGL3PLUS = "OpenGL 3+";
+    const char * const Renderer::OPENGLES2 = "OpenGL ES 2";
+    const char * const Renderer::OPENGLES3 = "OpenGL ES 3";
+
+    Renderer::Renderer()
     {
 
     }
 
-    RenderWindow::~RenderWindow()
+    Renderer::~Renderer()
     {
 
-    }
-
-    bool RenderWindow::isFullScreen() const
-    {
-        return true;
-    }
-
-    void RenderWindow::getMetrics(int32_t &nLeft, int32_t &nTop,
-                                  int32_t &nWidth, int32_t &nHeight, 
-                                  int32_t &nColorDepth)
-    {
-        nWidth = m_nWidth;
-        nHeight = m_nHeight;
-        nColorDepth = m_nColorDepth;
-        nLeft = nTop = 0;
     }
 }

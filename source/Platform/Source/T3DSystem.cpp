@@ -1,19 +1,18 @@
 
 
 #include "T3DSystem.h"
-#include "T3DFactoryInterface.h"
-#include "T3DDir.h"
-#include "T3DTextCodec.h"
-#include "T3DConsole.h"
-#include "T3DDeviceInfo.h"
-#include "T3DRunLoop.h"
-
-
-T3D_INIT_SINGLETON(Tiny3D::System);
+#include "Adapter/T3DFactoryInterface.h"
+#include "IO/T3DDir.h"
+#include "Codec/T3DTextCodec.h"
+#include "Console/T3DConsole.h"
+#include "Device/T3DDeviceInfo.h"
+#include "Time/T3DRunLoop.h"
 
 
 namespace Tiny3D
 {
+    T3D_INIT_SINGLETON(System);
+
     System::System()
         : m_pAdapterFactory(nullptr)
         , m_pTextCodec(nullptr)

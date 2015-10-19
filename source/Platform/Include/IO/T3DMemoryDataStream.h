@@ -4,7 +4,7 @@
 #define __T3D_MEMORY_DATA_STREAM_H__
 
 
-#include "T3DDataStream.h"
+#include "IO/T3DDataStream.h"
 
 
 namespace Tiny3D

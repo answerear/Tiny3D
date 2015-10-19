@@ -1,6 +1,6 @@
 
 
-#include "T3DMath.h"
+#include "Math/T3DMath.h"
 
 
 namespace Tiny3D

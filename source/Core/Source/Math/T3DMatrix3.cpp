@@ -1,6 +1,6 @@
 
 
-#include "T3DMatrix3.h"
+#include "Math/T3DMatrix3.h"
 
 
 namespace Tiny3D

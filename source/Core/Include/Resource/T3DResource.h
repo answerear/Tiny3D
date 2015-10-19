@@ -60,7 +60,7 @@ namespace Tiny3D
 
     protected:
         virtual bool load() = 0;
-        virtual void unload() = 0;
+        virtual void unload();
         virtual Resource *clone() const = 0;
 
     protected:

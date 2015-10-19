@@ -1,6 +1,6 @@
 
 
-#include "T3DVector2.h"
+#include "Math/T3DVector2.h"
 
 
 namespace Tiny3D

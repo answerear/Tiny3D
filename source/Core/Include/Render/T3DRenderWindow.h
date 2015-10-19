@@ -4,7 +4,8 @@
 
 
 #include "T3DPrerequisites.h"
-#include "T3DCommon.h"
+#include "Misc/T3DCommon.h"
+#include "Render/T3DRenderTarget.h"
 
 
 namespace Tiny3D
@@ -24,7 +25,7 @@ namespace Tiny3D
      *  viewpoints in the window for effects like rear-view mirrors and
      *  picture-in-picture views (see Viewport and Camera).
      */
-    class T3D_ENGINE_API RenderWindow
+    class T3D_ENGINE_API RenderWindow : public RenderTarget
     {
     public:
         /** Default constructor. */
@@ -59,15 +60,6 @@ namespace Tiny3D
         virtual void swapBuffers() = 0;
 
         virtual bool isFullScreen() const;
-
-        virtual void getMetrics(int32_t &nLeft, int32_t &nTop,
-                                int32_t &nWidth, int32_t &nHeight, 
-                                int32_t &nColorDepth);
-
-    protected:
-        int32_t m_nWidth;
-        int32_t m_nHeight;
-        int32_t m_nColorDepth;
     };
 }
 

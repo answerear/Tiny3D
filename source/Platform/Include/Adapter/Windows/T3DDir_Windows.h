@@ -4,7 +4,7 @@
 #define __T3D_DIR_WINDOWS_H__
 
 
-#include "T3DDirInterface.h"
+#include "Adapter/T3DDirInterface.h"
 #include <windows.h>
 
 

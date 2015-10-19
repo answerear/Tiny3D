@@ -4,7 +4,7 @@
 #define __T3D_FACTORY_WINDOWS_H__
 
 
-#include "T3DFactoryInterface.h"
+#include "Adapter/T3DFactoryInterface.h"
 
 
 namespace Tiny3D

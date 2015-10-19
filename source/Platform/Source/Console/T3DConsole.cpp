@@ -1,16 +1,20 @@
 
 
-#include "T3DConsole.h"
-#include "T3DConsoleInterface.h"
-#include "T3DFactoryInterface.h"
+#include "Console/T3DConsole.h"
+#include "Adapter/T3DConsoleInterface.h"
+#include "Adapter/T3DFactoryInterface.h"
+
+
+#if defined T3D_OS_WINDOWS
 #include <windows.h>
-
-
-T3D_INIT_SINGLETON(Tiny3D::Console);
+#else
+#endif
 
 
 namespace Tiny3D
 {
+    T3D_INIT_SINGLETON(Console);
+
     const uint32_t Console::MAX_CONTENT_SIZE = 4096;
 
     Console::Console(FactoryInterface *pAdapterFactory)

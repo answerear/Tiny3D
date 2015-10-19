@@ -3,7 +3,7 @@
 #define __T3D_TIMER_WINDOWS_H__
 
 
-#include "T3DTimerInterface.h"
+#include "Adapter/T3DTimerInterface.h"
 #include <windows.h>
 
 

@@ -1,6 +1,6 @@
 
 
-#include "T3DResource.h"
+#include "Resource/T3DResource.h"
 
 
 namespace Tiny3D
@@ -17,5 +17,10 @@ namespace Tiny3D
     {
         if (m_bIsLoaded)
             unload();
+    }
+
+    void Resource::unload()
+    {
+
     }
 }

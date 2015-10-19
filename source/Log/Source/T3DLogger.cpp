@@ -2,11 +2,10 @@
 #include "T3DLogger.h"
 
 
-T3D_INIT_SINGLETON(Tiny3D::Logger);
-
-
 namespace Tiny3D
 {
+    T3D_INIT_SINGLETON(Logger);
+
     Logger::Logger()
     {
 

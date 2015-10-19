@@ -1,14 +1,16 @@
 
 
-#include "T3DBuilder.h"
-#include "T3DRenderer.h"
-#include "T3DRenderWindow.h"
+#include "Misc/T3DBuilder.h"
+#include "Render/T3DRenderer.h"
+#include "Render/T3DRenderWindow.h"
 
 #include "T3DPlatform.h"
 
 
 namespace Tiny3D
 {
+    T3D_INIT_SINGLETON(Builder);
+
     Builder::Builder()
         : mSystem(new System())
     {
@@ -62,7 +64,7 @@ namespace Tiny3D
         const RenderWindowCreateParamEx &rkCreatedParamEx
         )
     {
-
+        return nullptr;
     }
 
     bool Builder::run()

@@ -1,6 +1,6 @@
 
 
-#include "T3DFileDataStream.h"
+#include "IO/T3DFileDataStream.h"
 
 
 namespace Tiny3D

@@ -13,14 +13,14 @@ namespace Tiny3D
     class T3D_ENGINE_API Viewport
     {
     public:
-        Viewport(SGCamera *pCamera, RenderTarget *pTarget, 
+        Viewport(SGCamera *camera, RenderTarget *target, 
             Real left, Real top, Real width, Real height, int32_t nZOrder);
         virtual ~Viewport();
 
         void update();
 
         SGCamera *getCamera() const;
-        void setCamera(SGCamera *pCamera);
+        void setCamera(SGCamera *camera);
 
         RenderTarget *getRenderTarget() const;
 
@@ -40,17 +40,28 @@ namespace Tiny3D
         const Color4 &getBackgroundColor() const;
 
     protected:
-        SGCamera        *m_pCamera; /// Camera binding this camera
-        RenderTarget    *m_pTarget; /// Render target binding this view port
+        void updateDimemsions();
 
-        Real    m_fLeft;
-        Real    m_fTop;
-        Real    m_fWidth;
-        Real    m_fHeight;
+    protected:
+        SGCamera        *mCamera; /// Camera binding this camera
+        RenderTarget    *mTarget; /// Render target binding this view port
 
-        Color4  m_clrBackground;
+        Real    mLeft;
+        Real    mTop;
+        Real    mWidth;
+        Real    mHeight;
+
+        int32_t mActualLeft;
+        int32_t mActualTop;
+        int32_t mActualWidth;
+        int32_t mActualHeight;
+
+        Color4  mBkgndColor;
     };
 }
+
+
+#include "T3DViewport.inl"
 
 
 #endif  /*__T3D_VIEWPORT_H__*/

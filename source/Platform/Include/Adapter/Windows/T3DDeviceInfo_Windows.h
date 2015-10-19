@@ -3,7 +3,7 @@
 #define __T3D_DEVICE_INFO_WINDOWS_H__
 
 
-#include "T3DDeviceInfoInterface.h"
+#include "Adapter/T3DDeviceInfoInterface.h"
 
 
 namespace Tiny3D

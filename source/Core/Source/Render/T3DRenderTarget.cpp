@@ -1,15 +1,15 @@
 
 
-#include "T3DRenderTarget.h"
-#include "T3DViewport.h"
+#include "Render/T3DRenderTarget.h"
+#include "Misc/T3DViewport.h"
 
 
 namespace Tiny3D
 {
     RenderTarget::RenderTarget()
-        : m_nWidth(0)
-        , m_nHeight(0)
-        , m_nColorDepth(0)
+        : mWidth(0)
+        , mHeight(0)
+        , mColorDepth(0)
     {
 
     }
@@ -19,28 +19,40 @@ namespace Tiny3D
 
     }
 
-    void RenderTarget::getMetrics(int32_t &nWidth, int32_t &nHeight, 
-        int32_t &nColorDepth) const
+    void RenderTarget::update()
     {
-        nWidth = m_nWidth;
-        nHeight = m_nHeight;
-        nColorDepth = m_nColorDepth;
+
     }
 
-    Viewport *RenderTarget::addViewport(SGCamera *pCamera, int32_t nZOrder, 
+    Viewport *RenderTarget::addViewport(SGCamera *camera, int32_t nZOrder, 
         Real left, Real top, Real width, Real height)
     {
-        Viewport *pViewport = nullptr;
+        Viewport *viewport = nullptr;
 
-        auto itr = m_ViewportList.find(nZOrder);
+        auto itr = mViewportList.find(nZOrder);
 
-        if (itr == m_ViewportList.end())
+        if (itr == mViewportList.end())
         {
-            pViewport = new Viewport();
-            ViewportPtr v(pViewport);
-            m_ViewportList.insert(ViewportValue(nZOrder, v));
+            viewport = new Viewport(camera, this, left, top, width, height, nZOrder);
+            ViewportPtr v(viewport);
+            mViewportList.insert(ViewportValue(nZOrder, v));
         }
 
-        return pViewport;
+        return viewport;
+    }
+
+    void RenderTarget::removeViewport(int32_t nZOrder)
+    {
+        auto itr = mViewportList.find(nZOrder);
+
+        if (itr != mViewportList.end())
+        {
+            mViewportList.erase(itr);
+        }
+    }
+
+    void RenderTarget::removeAllViewports()
+    {
+        mViewportList.clear();
     }
 }

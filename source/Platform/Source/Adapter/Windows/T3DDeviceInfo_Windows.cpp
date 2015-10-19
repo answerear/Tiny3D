@@ -1,7 +1,7 @@
 
 
 #include "T3DDeviceInfo_Windows.h"
-#include "T3DFactoryInterface.h"
+#include "Adapter/T3DFactoryInterface.h"
 
 
 namespace Tiny3D
