@@ -16,17 +16,17 @@ namespace Tiny3D
         ResourceManager();
         virtual ~ResourceManager();
 
-        static uint32_t toID(const TString &strName);
+        static uint32_t toID(const TString &name);
 
         /**
          * @brief Load resource from file.
          */
-        virtual ResourcePtr load(const TString &strName);
+        virtual Resource *load(const TString &name);
 
         /**
          * @brief Unload resource in memory.
          */
-        virtual void unload(ResourcePtr &res);
+        virtual void unload(Resource *res);
 
         /**
          * @brief Clone another new resource from source resource.
@@ -38,7 +38,7 @@ namespace Tiny3D
          *      new instance of resource. This method will call 
          *      Resource::clone() to implement this function.
          */
-        ResourcePtr clone(const ResourcePtr &rkSrcResource);
+        Resource *clone(const Resource *src);
 
         /**
          * @brief Get resource by name.
@@ -48,8 +48,7 @@ namespace Tiny3D
          *      0 if the resource wasn't created by clone. Default is 0.
          * @return retrieve a pointer to instance of resource.
          */
-        ResourcePtr getResource(const TString &strName, 
-            uint32_t unCloneID = 0) const;
+        Resource *getResource(const TString &name, uint32_t cloneID = 0) const;
 
         /**
          * @brief Get resources by name.
@@ -57,8 +56,7 @@ namespace Tiny3D
          *      This method will return all resource in list 
          *      whether the resource created or cloned.
          */
-        bool getResources(const TString &strName, 
-            std::list<ResourcePtr> &rResList) const;
+        bool getResources(const TString &name, std::list<Resource*> &rList) const;
 
         void addSearchPath(const TString &strPath);
 
@@ -70,10 +68,10 @@ namespace Tiny3D
     protected:
         typedef std::list<TString> SearchPathList;
 
-        typedef std::map<uint32_t, ResourcePtr>     Resources;
+        typedef std::map<uint32_t, Resource*>       Resources;
         typedef Resources::iterator                 ResourcesItr;
         typedef Resources::const_iterator           ResourcesConstItr;
-        typedef std::pair<uint32_t, ResourcePtr>    ResPairValue;
+        typedef std::pair<uint32_t, Resource*>      ResPairValue;
 
         typedef std::map<TString, Resources>        ResourcesMap;
         typedef ResourcesMap::iterator              ResourcesMapItr;
@@ -81,10 +79,10 @@ namespace Tiny3D
 
         typedef std::pair<TString, Resources>       ResMapPairValue;
 
-        SearchPathList  m_SearchPathList;   /** search path list */
-        ResourcesMap    m_ResourceCache;    /** cache all resources */
+        SearchPathList  mSearchPathList;    /** search path list */
+        ResourcesMap    mResourceCache;     /** cache all resources */
 
-        uint32_t        m_unCloneID;        /** used to clone */
+        uint32_t        mCloneID;           /** used to clone */
     };
 }
 

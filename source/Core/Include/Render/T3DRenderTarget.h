@@ -43,8 +43,8 @@ namespace Tiny3D
         void removeAllListener();
 
     protected:
-        typedef std::map<int32_t, ViewportPtr>      ViewportList;
-        typedef std::pair<int32_t, ViewportPtr>     ViewportValue;
+        typedef std::map<int32_t, Viewport*>      ViewportList;
+        typedef std::pair<int32_t, Viewport*>     ViewportValue;
 
         typedef std::list<RenderTargetListener*>    ListenerList;
 

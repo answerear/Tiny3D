@@ -2,7 +2,7 @@
 
 #include "T3DD3D9Prerequisites.h"
 #include "T3DD3D9Plugin.h"
-#include "Misc/T3DBuilder.h"
+#include "Misc/T3DEntrance.h"
 
 
 namespace Tiny3D

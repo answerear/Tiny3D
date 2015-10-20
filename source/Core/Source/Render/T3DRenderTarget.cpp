@@ -34,8 +34,7 @@ namespace Tiny3D
         if (itr == mViewportList.end())
         {
             viewport = new Viewport(camera, this, left, top, width, height, nZOrder);
-            ViewportPtr v(viewport);
-            mViewportList.insert(ViewportValue(nZOrder, v));
+            mViewportList.insert(ViewportValue(nZOrder, viewport));
         }
 
         return viewport;

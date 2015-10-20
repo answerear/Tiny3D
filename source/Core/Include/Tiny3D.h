@@ -25,7 +25,7 @@
 #include "Math/T3DVector3.h"
 #include "Math/T3DVector4.h"
 
-#include "Misc/T3DBuilder.h"
+#include "Misc/T3DEntrance.h"
 #include "Misc/T3DColor4.h"
 #include "Misc/T3DCommon.h"
 #include "Misc/T3DPlane.h"

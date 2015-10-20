@@ -24,42 +24,46 @@ namespace Tiny3D
      *      (as a reference) or Builder::getInstancePtr() (as a pointer).
      *      And then you should call Builder::run() for starting Tiny3D.
      */
-    class T3D_ENGINE_API Builder : public Singleton<Builder>
+    class T3D_ENGINE_API Entrance : public Singleton<Entrance>
     {
     public:
         /** Default constructor. */
-        Builder();
+        Entrance();
 
         /** Destructor. */
-        virtual ~Builder();
+        virtual ~Entrance();
+
+        void installPlugin(Plugin *plugin);
+        void uninstallPlugin(Plugin *plugin);
+
+        bool loadPlugin(const TString &name);
+        void unloadPlugin(const TString &name);
 
         /**
-         * @brief Enumerate all available name of renderer in list.
+         * @brief Enumerate all available renderer in list.
          * @param [out] rRendererList
-         *      list of available renderer instances.
+         *      list of all available renderer instances.
          * @return void
          */
-        void enumerateRendererList(RendererNameList &rRendererNameList) const;
-
-        /**
-         * @brief Create renderer instance.
-         * @param [in] strRendererName
-         *      Name of renderer.
-         * @return Instance of renderer.
-         */
-        Renderer *createRenderer(const TString &strRendererName);
+        void enumerateAvailableRenderers(RendererList &rRendererList) const;
 
         /**
          * @brief Set active renderer.
-         * @param [in] pRenderer
+         * @param [in] renderer
          *      pointer to an available renderer instance.
          * @return void
          * @remarks
          *      The renderer must be one of all available renderer. You should
-         *      call Builder::enumerateRendererList() to retrieve all available
-         *      renderer in list.
+         *      call Builder::enumerateAvailableRenderers() to retrieve all 
+         *      available renderer in list.
          */
-        void setActiveRenderer(Renderer *pRenderer);
+        void setActiveRenderer(Renderer *renderer);
+
+        Renderer *getActiveRenderer() const;
+
+        Renderer *getRenderer(const TString &name) const;
+
+        void addRenderer(Renderer *renderer);
 
         /**
          * @brief Create render window.
@@ -93,11 +97,28 @@ namespace Tiny3D
         void setApplicationListener(ApplicationListener *pListener);
 
     protected:
-        System  *mSystem;
+        typedef std::list<Plugin*>          PluginList;
+        typedef PluginList::iterator        PluginListItr;
+        typedef PluginList::const_iterator  PluginListConstItr;
+
+        typedef std::list<Dylib*>           DylibList;
+        typedef DylibList::iterator         DylibListItr;
+        typedef DylibList::const_iterator   DylibListConstItr;
+
+        System          *mSystem;
+
+        DylibManager    *mDylibMgr;
+
+        Renderer        *mActiveRenderer;
+
+        PluginList      mPluginList;
+        RendererList    mRendererList;
+
+        DylibList       mDylibList;
     };
 
-    #define T3D_BUILDER         Builder::getInstance()
-    #define T3D_BUILDER_PTR     Builder::getInstancePtr()
+    #define T3D_ENTRANCE         Entrance::getInstance()
+    #define T3D_ENTRANCE_PTR     Entrance::getInstancePtr()
 }
 
 

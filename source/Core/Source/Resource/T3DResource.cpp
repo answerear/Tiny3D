@@ -6,16 +6,16 @@
 namespace Tiny3D
 {
     Resource::Resource(const TString &strName)
-        : m_unSize(0)
-        , m_bIsLoaded(false)
-        , m_strName(strName)
+        : mSize(0)
+        , mIsLoaded(false)
+        , mName(strName)
     {
 
     }
 
     Resource::~Resource()
     {
-        if (m_bIsLoaded)
+        if (mIsLoaded)
             unload();
     }
 

@@ -49,7 +49,8 @@ namespace Tiny3D
     class Vector3;
     class Vector4;
     
-    class Builder;
+    class Entrance;
+    class Plugin;
 
     class Color4;
 
@@ -76,14 +77,6 @@ namespace Tiny3D
     class DylibManager;
 
     class SGCamera;
-
-    typedef std::shared_ptr<Viewport>       ViewportPtr;
-    typedef std::shared_ptr<RenderTarget>   RenderTargetPtr;
-    typedef std::shared_ptr<Renderer>       RendererPtr;
-
-    typedef std::shared_ptr<Resource>       ResourcePtr;
-
-    typedef std::shared_ptr<SGCamera>       SGCameraPtr;
 }
 
 

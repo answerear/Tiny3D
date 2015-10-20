@@ -22,8 +22,8 @@
 
 namespace Tiny3D
 {
-    Dylib::Dylib(const TString &strName)
-        : Resource(strName)
+    Dylib::Dylib(const TString &name)
+        : Resource(name)
     {
 
     }
@@ -38,29 +38,29 @@ namespace Tiny3D
         return E_TYPE_DYLIB;
     }
 
-    void *Dylib::getSymbol(const TString &strName) const
+    void *Dylib::getSymbol(const TString &name) const
     {
-        return DYLIB_GETSYM(m_Handle, strName.c_str());
+        return DYLIB_GETSYM(mHandle, name.c_str());
     }
 
     bool Dylib::load()
     {
-        m_Handle = DYLIB_LOAD(m_strName.c_str());
-        m_bIsLoaded = true;
+        mHandle = DYLIB_LOAD(mName.c_str());
+        mIsLoaded = true;
         return true;
     }
 
     void Dylib::unload()
     {
-        if (m_bIsLoaded)
+        if (mIsLoaded)
         {
-            DYLIB_UNLOAD(m_Handle);
-            m_bIsLoaded = false;
+            DYLIB_UNLOAD(mHandle);
+            mIsLoaded = false;
         }
     }
 
     Resource *Dylib::clone() const
     {
-        return new Dylib(m_strName);
+        return new Dylib(mName);
     }
 }

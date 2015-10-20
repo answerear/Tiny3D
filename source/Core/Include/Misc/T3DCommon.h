@@ -9,8 +9,6 @@
 
 namespace Tiny3D
 {
-    class Renderer;
-
     /** Parameter for creating render window. */
     struct RenderWindowCreateParam
     {
@@ -43,7 +41,9 @@ namespace Tiny3D
     typedef std::map<TString, TString>  NameValuePairList;
     typedef NameValuePairList           RenderWindowCreateParamEx;
 
-    typedef std::list<TString> RendererNameList;
+    typedef std::list<Renderer*>             RendererList;
+    typedef RendererList::iterator          RendererListItr;
+    typedef RendererList::const_iterator    RendererListConstItr;
 }
 
 

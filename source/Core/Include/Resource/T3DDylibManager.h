@@ -21,8 +21,7 @@ namespace Tiny3D
         virtual ~DylibManager();
 
     protected:
-        virtual Resource *create(const TString &strName);
-
+        virtual Resource *create(const TString &name);
     };
 }
 

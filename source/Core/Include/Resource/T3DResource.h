@@ -4,12 +4,12 @@
 #define __T3D_RESOURCE_H__
 
 
-#include "T3DPrerequisites.h"
+#include "Misc/T3DObject.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API Resource
+    class T3D_ENGINE_API Resource : public Object
     {
         friend class ResourceManager;
 
@@ -30,32 +30,32 @@ namespace Tiny3D
 
         uint32_t getID() const
         {
-            return m_unID;
+            return mID;
         }
 
         uint32_t getCloneID() const
         {
-            return m_unCloneID;
+            return mCloneID;
         }
 
         bool isCloned() const
         {
-            return (m_unCloneID != 0);
+            return (mCloneID != 0);
         }
 
         size_t getSize() const
         {
-            return m_unSize;
+            return mSize;
         }
 
         const TString &getName() const
         {
-            return m_strName;
+            return mName;
         }
 
         bool isLoaded() const
         {
-            return m_bIsLoaded;
+            return mIsLoaded;
         }
 
     protected:
@@ -64,11 +64,11 @@ namespace Tiny3D
         virtual Resource *clone() const = 0;
 
     protected:
-        size_t      m_unSize;       /** size of this resource */
-        int32_t     m_unID;         /** ID of this resource */
-        int32_t     m_unCloneID;    /** If this resource is cloned from another, this value is none zero */
-        bool        m_bIsLoaded;    /** loaded flag */
-        TString     m_strName;      /** name of the resource */
+        size_t      mSize;      /** size of this resource */
+        int32_t     mID;        /** ID of this resource */
+        int32_t     mCloneID;   /** If this resource is cloned from another, this value is none zero */
+        bool        mIsLoaded;  /** loaded flag */
+        TString     mName;      /** name of the resource */
     };
 }
 

@@ -5,7 +5,7 @@
 namespace Tiny3D
 {
     ResourceManager::ResourceManager()
-        : m_unCloneID(0)
+        : mCloneID(0)
     {
 
     }
@@ -15,9 +15,9 @@ namespace Tiny3D
 
     }
 
-    uint32_t ResourceManager::toID(const TString &strName)
+    uint32_t ResourceManager::toID(const TString &name)
     {
-        return hash(strName.c_str());
+        return hash(name.c_str());
     }
 
     uint32_t ResourceManager::hash(const char *str)
@@ -32,14 +32,14 @@ namespace Tiny3D
         return (value & 0x7FFFFFFF);
     }
 
-    ResourcePtr ResourceManager::load(const TString &strName)
+    Resource *ResourceManager::load(const TString &name)
     {
-        ResourcePtr res;
+        Resource *res = nullptr;
 
         // First, search cache
-        auto itr = m_ResourceCache.find(strName);
+        auto itr = mResourceCache.find(name);
 
-        if (itr != m_ResourceCache.end())
+        if (itr != mResourceCache.end())
         {
             // Found it in cache.
             Resources &resources = itr->second;
@@ -52,23 +52,21 @@ namespace Tiny3D
         else
         {
             // Found not, it should create a new instance.
-            Resource *pResource = create(strName);
+            res = create(name);
 
-            if (pResource != nullptr)
+            if (res != nullptr)
             {
-                bool bRet = pResource->load();
+                bool bRet = res->load();
 
                 if (bRet)
                 {
-                    ResourcePtr r(pResource);
-                    res = r;
                     Resources resources;
                     resources.insert(ResPairValue(0, res));
-                    m_ResourceCache.insert(ResMapPairValue(strName, resources));
+                    mResourceCache.insert(ResMapPairValue(name, resources));
                 }
                 else
                 {
-                    delete pResource;
+                    delete res;
                 }
             }
         }
@@ -76,15 +74,14 @@ namespace Tiny3D
         return res;
     }
 
-    void ResourceManager::unload(ResourcePtr &res)
+    void ResourceManager::unload(Resource *res)
     {
-        if (res.unique())
+        if (res->referCount() == 1)
         {
             // Only one instance is used. It should be deleted.
+            auto itr = mResourceCache.find(res->getName());
 
-            auto itr = m_ResourceCache.find(res->getName());
-
-            if (itr != m_ResourceCache.end())
+            if (itr != mResourceCache.end())
             {
                 // The resource is valid and in the cache.
                 Resources &resources = itr->second;
@@ -108,68 +105,67 @@ namespace Tiny3D
         else
         {
             // Only decrease reference count of the resource.
-            res.reset();
+            res->release();
         }
     }
 
-    ResourcePtr ResourceManager::clone(const ResourcePtr &rkSrcResource)
+    Resource *ResourceManager::clone(const Resource *src)
     {
-        uint32_t unCloneID = (++m_unCloneID);
+        uint32_t unCloneID = (++mCloneID);
 
-        ResourcePtr res;
-        Resource *pResource = rkSrcResource->clone();
+        Resource *res = src->clone();
 
-        if (pResource != nullptr)
+        if (res != nullptr)
         {
-            pResource->m_unCloneID = unCloneID;
+            res->mCloneID = unCloneID;
 
-            auto i = m_ResourceCache.find(rkSrcResource->getName());
+            auto i = mResourceCache.find(src->getName());
 
-            if (i != m_ResourceCache.end())
+            if (i != mResourceCache.end())
             {
-                ResourcePtr r(pResource);
-                res = r;
                 Resources &resources = i->second;
-                resources.insert(ResPairValue(unCloneID, r));
+                resources.insert(ResPairValue(unCloneID, res));
             }
         }
         
         return res;
     }
 
-    ResourcePtr ResourceManager::getResource(const TString &strName, 
-        uint32_t unCloneID /* = 0 */) const
+    Resource *ResourceManager::getResource(const TString &name, 
+        uint32_t cloneID /* = 0 */) const
     {
-        auto i = m_ResourceCache.find(strName);
+        Resource *res = nullptr;
 
-        if (i != m_ResourceCache.end())
+        auto i = mResourceCache.find(name);
+
+        if (i != mResourceCache.end())
         {
             const Resources &resources = i->second;
 
-            if (0 == unCloneID)
+            if (0 == cloneID)
             {
-                return resources.begin()->second;
+                res = resources.begin()->second;
             }
             else
             {
-                auto itr = resources.find(unCloneID);
+                auto itr = resources.find(cloneID);
                 if (itr != resources.end())
                 {
-                    return itr->second;
+                    res = itr->second;
                 }
             }
         }
 
-        return ResourcePtr();
+        return res;
     }
 
-    bool ResourceManager::getResources(const TString &strName,
-        std::list<ResourcePtr> &rResList) const
+    bool ResourceManager::getResources(const TString &name,
+        std::list<Resource*> &rList) const
     {
         bool bRet = false;
-        auto i = m_ResourceCache.find(strName);
+        auto i = mResourceCache.find(name);
 
-        if (i != m_ResourceCache.end())
+        if (i != mResourceCache.end())
         {
             const Resources &resources = i->second;
 
@@ -177,7 +173,7 @@ namespace Tiny3D
 
             while (itr != resources.end())
             {
-                rResList.push_back(itr->second);
+                rList.push_back(itr->second);
                 ++itr;
             }
 
