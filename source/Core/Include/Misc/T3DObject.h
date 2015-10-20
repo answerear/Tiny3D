@@ -15,7 +15,7 @@ namespace Tiny3D
         Object();
         virtual ~Object();
 
-        virtual uint32_t acquire();
+        virtual Object *acquire();
         virtual void release();
         
         uint32_t referCount() const

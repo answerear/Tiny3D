@@ -5,7 +5,7 @@
 namespace Tiny3D
 {
     Object::Object()
-        : mReferCount(0)
+        : mReferCount(1)
     {
 
     }
@@ -15,9 +15,10 @@ namespace Tiny3D
 
     }
 
-    uint32_t Object::acquire()
+    Object *Object::acquire()
     {
-        return ++mReferCount;
+        ++mReferCount;
+        return this;
     }
 
     void Object::release()
