@@ -21,13 +21,6 @@ include_directories(
 	"${TINY3D_PLATFORM_DIR}/Include"
 	"${TINY3D_LOG_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Math"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/SG"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Render"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Misc"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Resource"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Listener"
 	)
 
 # Setup project header files
@@ -43,6 +36,7 @@ set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .h
 set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .inl)
 set_project_files(Include\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Include/Resource/ .h)
 set_project_files(Include\\\\Listener ${CMAKE_CURRENT_SOURCE_DIR}/Include/Listener/ .h)
+set_project_files(Include\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Include/Support/tinyxml2/ .h)
 
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
@@ -53,6 +47,7 @@ set_project_files(Source\\\\Misc ${CMAKE_CURRENT_SOURCE_DIR}/Source/Misc/ .cpp)
 set_project_files(Source\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Source/Bound/ .cpp)
 set_project_files(Source\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Source/Resource/ .cpp)
 set_project_files(Source\\\\Listener ${CMAKE_CURRENT_SOURCE_DIR}/Source/Listener/ .cpp)
+set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .cpp)
 
 
 if (TINY3D_BUILD_SHARED_LIBS)

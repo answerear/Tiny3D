@@ -58,6 +58,8 @@ namespace Tiny3D
 
         if (lib->getType() == Resource::E_TYPE_DYLIB)
         {
+            mDylibList.push_back(lib);
+
             DLL_START_PLUGIN pFunc = (DLL_START_PLUGIN)lib->getSymbol("dllStartPlugin");
             if (pFunc != nullptr)
             {
@@ -70,7 +72,22 @@ namespace Tiny3D
 
     void Entrance::unloadPlugin(const TString &name)
     {
-        
+        DylibListItr itr = mDylibList.begin();
+
+        while (itr != mDylibList.end())
+        {
+            Dylib *lib = *itr;
+
+            if (lib->getName() == name)
+            {
+                DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)lib->getSymbol("dllStopPlugin");
+                pFunc();
+                DylibManager::getInstance().unload(lib);
+                break;
+            }
+
+            ++itr;
+        }
     }
 
     void Entrance::enumerateAvailableRenderers(RendererList &rRendererList) const
