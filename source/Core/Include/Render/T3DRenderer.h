@@ -21,7 +21,7 @@ namespace Tiny3D
         Renderer();
         virtual ~Renderer();
 
-        virtual TString getName() const = 0;
+        virtual String getName() const = 0;
 
         virtual RenderWindow *createRenderWindow() = 0;
     };

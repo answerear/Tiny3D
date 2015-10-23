@@ -19,14 +19,14 @@ namespace Tiny3D
         virtual ~Dir_Windows();
 
     protected:
-        virtual bool findFile(const TString &strPath);
+        virtual bool findFile(const String &strPath);
         virtual bool findNextFile();
         virtual void close();
 
-        virtual TString getRoot() const;
-        virtual TString getFileName() const;
-        virtual TString getFilePath() const;
-        virtual TString getFileTitle() const;
+        virtual String getRoot() const;
+        virtual String getFileName() const;
+        virtual String getFilePath() const;
+        virtual String getFileTitle() const;
 
         virtual uint32_t getLength() const;
 
@@ -37,18 +37,18 @@ namespace Tiny3D
         virtual long_t getLastAccessTime() const;
         virtual long_t getLastWriteTime() const;
 
-        virtual bool makeDir(const TString &strDir);
-        virtual bool removeDir(const TString &strDir);
+        virtual bool makeDir(const String &strDir);
+        virtual bool removeDir(const String &strDir);
 
-        virtual bool remove(const TString &strFileName);
-        virtual bool exists(const TString &strPath) const;
+        virtual bool remove(const String &strFileName);
+        virtual bool exists(const String &strPath) const;
 
-        virtual TString getCachePath() const;
-        virtual TString getAppPath() const;
+        virtual String getCachePath() const;
+        virtual String getAppPath() const;
         virtual char getNativeSeparator() const;
 
-        bool extractRoot(const TString &strFilePath, TString &strRoot);
-        bool extractFileName(const TString &strFilePath, TString &strName, TString &strTitle) const;
+        bool extractRoot(const String &strFilePath, String &strRoot);
+        bool extractFileName(const String &strFilePath, String &strName, String &strTitle) const;
 
     protected:
         HANDLE              m_hFindFile;
@@ -56,10 +56,10 @@ namespace Tiny3D
 
         mutable bool        m_bExtractName;
 
-        mutable TString     m_strRoot;
-        mutable TString     m_strPath;
-        mutable TString     m_strName;
-        mutable TString     m_strTitle;
+        mutable String     m_strRoot;
+        mutable String     m_strPath;
+        mutable String     m_strName;
+        mutable String     m_strTitle;
     };
 }
 

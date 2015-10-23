@@ -15,7 +15,7 @@ namespace Tiny3D
         RenderTarget();
         virtual ~RenderTarget();
 
-        const TString &getName() const;
+        const String &getName() const;
 
         void getMetrics(int32_t &nWidth, int32_t &nHeight,
             int32_t &nColorDepth) const;
@@ -52,7 +52,7 @@ namespace Tiny3D
         int32_t         mHeight;
         int32_t         mColorDepth;
 
-        TString         mName;
+        String         mName;
 
         ViewportList    mViewportList;
 

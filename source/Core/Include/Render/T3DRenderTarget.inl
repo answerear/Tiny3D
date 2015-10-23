@@ -2,7 +2,7 @@
 
 namespace Tiny3D
 {
-    inline const TString &RenderTarget::getName() const
+    inline const String &RenderTarget::getName() const
     {
         return mName;
     }

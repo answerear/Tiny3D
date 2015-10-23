@@ -15,7 +15,7 @@ namespace Tiny3D
         T3D_DISABLE_COPY(TextCodec);
 
     public:
-        TextCodec(const TString &strCodecFile);
+        TextCodec(const String &strCodecFile);
         virtual ~TextCodec();
 //
 //      /** GBK字符串有效性检查，过滤掉被截断的不完整gbk码 */

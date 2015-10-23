@@ -24,10 +24,9 @@ distribution.
 #ifndef TINYXML2_INCLUDED
 #define TINYXML2_INCLUDED
 
-#include "platform/CCPlatformConfig.h"
-#include "platform/CCPlatformMacros.h"
+#include "T3DPrerequisites.h"
 
-#if defined(ANDROID_NDK) || defined(__BORLANDC__) || (CC_TARGET_PLATFORM == CC_PLATFORM_BLACKBERRY)
+#if defined(T3D_OS_ANDROID)
 #   include <ctype.h>
 #   include <limits.h>
 #   include <stdio.h>
@@ -124,7 +123,7 @@ class XMLPrinter;
 	and entity translation if actually read. Can also store (and memory
 	manage) a traditional char[]
 */
-class CC_DLL StrPair
+class T3D_ENGINE_API StrPair
 {
 public:
     enum {
@@ -188,7 +187,7 @@ private:
 	cause a call to new/delete
 */
 template <class T, int INIT>
-class CC_DLL DynArray
+class T3D_ENGINE_API DynArray
 {
 public:
     DynArray< T, INIT >() {
@@ -279,7 +278,7 @@ private:
 	Parent virtual class of a pool for fast allocation
 	and deallocation of objects.
 */
-class CC_DLL MemPool
+class T3D_ENGINE_API MemPool
 {
 public:
     MemPool() {}
@@ -296,7 +295,7 @@ public:
 	Template child class to create pools of the correct type.
 */
 template< int SIZE >
-class CC_DLL MemPoolT : public MemPool
+class T3D_ENGINE_API MemPoolT : public MemPool
 {
 public:
     MemPoolT() : _root(0), _currentAllocs(0), _nAllocs(0), _maxAllocs(0), _nUntracked(0)	{}
@@ -402,7 +401,7 @@ private:
 
 	@sa XMLNode::Accept()
 */
-class CC_DLL XMLVisitor
+class T3D_ENGINE_API XMLVisitor
 {
 public:
     virtual ~XMLVisitor() {}
@@ -447,7 +446,7 @@ public:
 /*
 	Utility functionality.
 */
-class CC_DLL XMLUtil
+class T3D_ENGINE_API XMLUtil
 {
 public:
     // Anything in the high order range of UTF-8 is assumed to not be whitespace. This isn't
@@ -540,7 +539,7 @@ public:
 
 	@endverbatim
 */
-class CC_DLL XMLNode
+class T3D_ENGINE_API XMLNode
 {
     friend class XMLDocument;
     friend class XMLElement;
@@ -806,7 +805,7 @@ private:
 	you generally want to leave it alone, but you can change the output mode with
 	SetCDATA() and query it with CDATA().
 */
-class CC_DLL XMLText : public XMLNode
+class T3D_ENGINE_API XMLText : public XMLNode
 {
     friend class XMLBase;
     friend class XMLDocument;
@@ -845,7 +844,7 @@ private:
 
 
 /** An XML Comment. */
-class CC_DLL XMLComment : public XMLNode
+class T3D_ENGINE_API XMLComment : public XMLNode
 {
     friend class XMLDocument;
 public:
@@ -883,7 +882,7 @@ private:
 	The text of the declaration isn't interpreted. It is parsed
 	and written as a string.
 */
-class CC_DLL XMLDeclaration : public XMLNode
+class T3D_ENGINE_API XMLDeclaration : public XMLNode
 {
     friend class XMLDocument;
 public:
@@ -915,7 +914,7 @@ protected:
 
 	DTD tags get thrown into TiXmlUnknowns.
 */
-class CC_DLL XMLUnknown : public XMLNode
+class T3D_ENGINE_API XMLUnknown : public XMLNode
 {
     friend class XMLDocument;
 public:
@@ -974,7 +973,7 @@ enum XMLError {
 	@note The attributes are not XMLNodes. You may only query the
 	Next() attribute in a list.
 */
-class CC_DLL XMLAttribute
+class T3D_ENGINE_API XMLAttribute
 {
     friend class XMLElement;
 public:
@@ -1075,7 +1074,7 @@ private:
 	and can contain other elements, text, comments, and unknowns.
 	Elements also contain an arbitrary number of attributes.
 */
-class CC_DLL XMLElement : public XMLNode
+class T3D_ENGINE_API XMLElement : public XMLNode
 {
     friend class XMLBase;
     friend class XMLDocument;
@@ -1357,7 +1356,7 @@ enum Whitespace {
 	All Nodes are connected and allocated to a Document.
 	If the Document is deleted, all its Nodes are also deleted.
 */
-class CC_DLL XMLDocument : public XMLNode
+class T3D_ENGINE_API XMLDocument : public XMLNode
 {
     friend class XMLElement;
 public:
@@ -1613,7 +1612,7 @@ private:
 
 	See also XMLConstHandle, which is the same as XMLHandle, but operates on const objects.
 */
-class CC_DLL XMLHandle
+class T3D_ENGINE_API XMLHandle
 {
 public:
     /// Create a handle from any node (at any depth of the tree.) This can be a null pointer.
@@ -1697,7 +1696,7 @@ private:
 	A variant of the XMLHandle class for working with const XMLNodes and Documents. It is the
 	same in all regards, except for the 'const' qualifiers. See XMLHandle for API.
 */
-class CC_DLL XMLConstHandle
+class T3D_ENGINE_API XMLConstHandle
 {
 public:
     XMLConstHandle( const XMLNode* node )											{
@@ -1804,7 +1803,7 @@ private:
 	printer.CloseElement();
 	@endverbatim
 */
-class CC_DLL XMLPrinter : public XMLVisitor
+class T3D_ENGINE_API XMLPrinter : public XMLVisitor
 {
 public:
     /** Construct the printer. If the FILE* is specified,

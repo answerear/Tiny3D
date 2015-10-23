@@ -15,7 +15,7 @@ namespace Tiny3D
 
     }
 
-    uint32_t ResourceManager::toID(const TString &name)
+    uint32_t ResourceManager::toID(const String &name)
     {
         return hash(name.c_str());
     }
@@ -32,7 +32,7 @@ namespace Tiny3D
         return (value & 0x7FFFFFFF);
     }
 
-    Resource *ResourceManager::load(const TString &name)
+    Resource *ResourceManager::load(const String &name)
     {
         Resource *res = nullptr;
 
@@ -131,7 +131,7 @@ namespace Tiny3D
         return res;
     }
 
-    Resource *ResourceManager::getResource(const TString &name, 
+    Resource *ResourceManager::getResource(const String &name, 
         uint32_t cloneID /* = 0 */) const
     {
         Resource *res = nullptr;
@@ -159,7 +159,7 @@ namespace Tiny3D
         return res;
     }
 
-    bool ResourceManager::getResources(const TString &name,
+    bool ResourceManager::getResources(const String &name,
         std::list<Resource*> &rList) const
     {
         bool bRet = false;

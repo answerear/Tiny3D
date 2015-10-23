@@ -23,7 +23,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(m_pDirAdpater);
     }
 
-    bool Dir::findFile(const TString &strPath)
+    bool Dir::findFile(const String &strPath)
     {
         if (m_pDirAdpater != nullptr)
         {
@@ -51,7 +51,7 @@ namespace Tiny3D
         }
     }
 
-    TString Dir::getRoot() const
+    String Dir::getRoot() const
     {
         if (m_pDirAdpater != nullptr)
         {
@@ -61,7 +61,7 @@ namespace Tiny3D
         return "";
     }
 
-    TString Dir::getFileName() const
+    String Dir::getFileName() const
     {
         if (m_pDirAdpater != nullptr)
         {
@@ -71,7 +71,7 @@ namespace Tiny3D
         return "";
     }
 
-    TString Dir::getFilePath() const
+    String Dir::getFilePath() const
     {
         if (m_pDirAdpater != nullptr)
         {
@@ -81,7 +81,7 @@ namespace Tiny3D
         return "";
     }
 
-    TString Dir::getFileTitle() const
+    String Dir::getFileTitle() const
     {
         if (m_pDirAdpater != nullptr)
         {
@@ -151,7 +151,7 @@ namespace Tiny3D
         return 0;
     }
 
-    bool Dir::makeDir(const TString &strDir)
+    bool Dir::makeDir(const String &strDir)
     {
         if (nullptr == s_pDirAdapter)
             s_pDirAdapter = T3D_ADAPTER_FACTORY.createDirAdapter();
@@ -164,7 +164,7 @@ namespace Tiny3D
         return false;
     }
 
-    bool Dir::removeDir(const TString &strDir)
+    bool Dir::removeDir(const String &strDir)
     {
         if (nullptr == s_pDirAdapter)
             s_pDirAdapter = T3D_ADAPTER_FACTORY.createDirAdapter();
@@ -177,7 +177,7 @@ namespace Tiny3D
         return false;
     }
 
-    bool Dir::remove(const TString &strFileName)
+    bool Dir::remove(const String &strFileName)
     {
         if (nullptr == s_pDirAdapter)
             s_pDirAdapter = T3D_ADAPTER_FACTORY.createDirAdapter();
@@ -190,7 +190,7 @@ namespace Tiny3D
         return false;
     }
 
-    bool Dir::exists(const TString &strPath)
+    bool Dir::exists(const String &strPath)
     {
         if (nullptr == s_pDirAdapter)
             s_pDirAdapter = T3D_ADAPTER_FACTORY.createDirAdapter();
@@ -203,7 +203,7 @@ namespace Tiny3D
         return false;
     }
 
-    TString Dir::getCachePath()
+    String Dir::getCachePath()
     {
         if (nullptr == s_pDirAdapter)
             s_pDirAdapter = T3D_ADAPTER_FACTORY.createDirAdapter();
@@ -216,7 +216,7 @@ namespace Tiny3D
         return "";
     }
 
-    TString Dir::getAppPath()
+    String Dir::getAppPath()
     {
         if (nullptr == s_pDirAdapter)
             s_pDirAdapter = T3D_ADAPTER_FACTORY.createDirAdapter();

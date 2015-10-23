@@ -22,7 +22,7 @@
 
 namespace Tiny3D
 {
-    Dylib::Dylib(const TString &name)
+    Dylib::Dylib(const String &name)
         : Resource(name)
     {
 
@@ -38,7 +38,7 @@ namespace Tiny3D
         return E_TYPE_DYLIB;
     }
 
-    void *Dylib::getSymbol(const TString &name) const
+    void *Dylib::getSymbol(const String &name) const
     {
         return DYLIB_GETSYM(mHandle, name.c_str());
     }

@@ -16,7 +16,7 @@ namespace Tiny3D
 
     }
 
-    bool Logger::startup(uint32_t unAppID, const TString &strTag, bool bForceOutput /* = false */)
+    bool Logger::startup(uint32_t unAppID, const String &strTag, bool bForceOutput /* = false */)
     {
         return true;
     }

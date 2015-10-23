@@ -81,7 +81,7 @@ namespace Tiny3D
         return *this;
     }
 
-    DataStream &DataStream::operator<<(const TString &s)
+    DataStream &DataStream::operator<<(const String &s)
     {
         size_t nLength = s.length();
         if (nLength > 0)
@@ -163,7 +163,7 @@ namespace Tiny3D
     DataStream &DataStream::operator>>(char *&s)
     {
         char c;
-        TString str;
+        String str;
         size_t nNumberOfRead = 0;
         size_t nSize = 0;
 
@@ -182,7 +182,7 @@ namespace Tiny3D
         return *this;
     }
 
-    DataStream &DataStream::operator>>(TString &s)
+    DataStream &DataStream::operator>>(String &s)
     {
         char c;
         size_t nNumberOfRead = 0;

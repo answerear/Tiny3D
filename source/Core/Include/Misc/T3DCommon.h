@@ -31,14 +31,14 @@ namespace Tiny3D
          */
         int32_t     _nColorDepth;
         /** Title of the window. Ignored if full_screen is true. */
-        TString     _strWindowTitle;
+        String     _strWindowTitle;
         /** If true, the window fills the screen, with no title bar or border.
          *  Ignored if window_handle isn't 0.
          */
         bool        _bFullScreen;
     };
 
-    typedef std::map<TString, TString>  NameValuePairList;
+    typedef std::map<String, String>  NameValuePairList;
     typedef NameValuePairList           RenderWindowCreateParamEx;
 
     typedef std::list<Renderer*>             RendererList;

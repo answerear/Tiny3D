@@ -72,7 +72,7 @@ namespace Tiny3D
         DataStream &operator<<(float val);
         DataStream &operator<<(double val);
         DataStream &operator<<(const char *s);
-        DataStream &operator<<(const TString &s);
+        DataStream &operator<<(const String &s);
 
         /**
          * @brief 输入数据流到基本类型值
@@ -89,7 +89,7 @@ namespace Tiny3D
         DataStream &operator>>(float &val);
         DataStream &operator>>(double &val);
         DataStream &operator>>(char *&s);
-        DataStream &operator>>(TString &s);
+        DataStream &operator>>(String &s);
     };
 }
 

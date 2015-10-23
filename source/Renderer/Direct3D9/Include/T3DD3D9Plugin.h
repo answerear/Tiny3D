@@ -16,7 +16,7 @@ namespace Tiny3D
         D3D9Plugin();
         virtual ~D3D9Plugin();
 
-        virtual const TString &getName() const;
+        virtual const String &getName() const;
 
         virtual bool install();
         virtual bool startup();
@@ -24,7 +24,7 @@ namespace Tiny3D
         virtual void uninstall();
 
     protected:
-        TString mName;
+        String mName;
     };
 }
 

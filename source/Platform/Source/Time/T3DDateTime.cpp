@@ -46,15 +46,15 @@ namespace Tiny3D
         return time;
     }
 
-    TString DateTime::toString() const
+    String DateTime::toString() const
     {
         char text[128];
         snprintf(text, 128, "%d-%02d-%02d %02d:%02d:%02d.%03d", m_nYear, m_nMonth, m_nDay, m_nHour, m_nMinute, m_nSecond, m_nMillisecond);
-        TString s(text);
+        String s(text);
         return s;
     }
 
-    TString DateTime::timeToString(ETimeFormat eFormat /* = E_HH_MM_SS_XXX */) const
+    String DateTime::timeToString(ETimeFormat eFormat /* = E_HH_MM_SS_XXX */) const
     {
         char text[128];
         switch (eFormat)
@@ -76,11 +76,11 @@ namespace Tiny3D
             break;
         }
 
-        TString s(text);
+        String s(text);
         return s;
     }
 
-    TString DateTime::dateToString(EDateFormat eFormat /* = E_YY_MM_DD */) const
+    String DateTime::dateToString(EDateFormat eFormat /* = E_YY_MM_DD */) const
     {
         char text[128];
         switch (eFormat)
@@ -102,7 +102,7 @@ namespace Tiny3D
             break;
         }
 
-        TString s(text);
+        String s(text);
         return s;
     }
 

@@ -21,17 +21,17 @@ namespace Tiny3D
         return E_PLATFORM_WIN32;
     }
 
-    TString DeviceInfo_Windows::getSoftwareVersion() const
+    String DeviceInfo_Windows::getSoftwareVersion() const
     {
         return "3.0.0.0";
     }
 
-    TString DeviceInfo_Windows::getOSVersion() const
+    String DeviceInfo_Windows::getOSVersion() const
     {
         return "Windows 7";
     }
 
-    TString DeviceInfo_Windows::getDeviceVersion() const
+    String DeviceInfo_Windows::getDeviceVersion() const
     {
         return "PC";
     }
@@ -51,12 +51,12 @@ namespace Tiny3D
         return 0.0f;
     }
 
-    TString DeviceInfo_Windows::getMacAddress() const
+    String DeviceInfo_Windows::getMacAddress() const
     {
         return "12-34-56-78-9A-BC";
     }
 
-    TString DeviceInfo_Windows::getCPUType() const
+    String DeviceInfo_Windows::getCPUType() const
     {
         return "Intel Core i5";
     }
@@ -71,7 +71,7 @@ namespace Tiny3D
         return 0x80000000;
     }
 
-    TString DeviceInfo_Windows::getDeviceID() const
+    String DeviceInfo_Windows::getDeviceID() const
     {
         return "12-34-56-78-9A-BC";
     }

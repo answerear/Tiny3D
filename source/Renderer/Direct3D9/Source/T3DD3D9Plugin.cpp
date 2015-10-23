@@ -16,7 +16,7 @@ namespace Tiny3D
 
     }
 
-    const TString &D3D9Plugin::getName() const
+    const String &D3D9Plugin::getName() const
     {
         return mName;
     }

@@ -25,7 +25,7 @@ namespace Tiny3D
          * @param [in] strPath : 指定目录文件格式字符串
          * @return 调用成功返回true，失败返回false.
          */
-        virtual bool findFile(const TString &strPath) = 0;
+        virtual bool findFile(const String &strPath) = 0;
 
         /**
          * @brief 搜索下一个文件.
@@ -43,25 +43,25 @@ namespace Tiny3D
          * @brief 获取枚举目录的完整路径.
          * @return 返回枚举目录的路径，返回类型std::string.
          */
-        virtual TString getRoot() const = 0;
+        virtual String getRoot() const = 0;
 
         /**
          * @brief 获取当前枚举到的完整文件名.
          * @return 返回当前枚举到的完整文件名，类型std::string.
          */
-        virtual TString getFileName() const = 0;
+        virtual String getFileName() const = 0;
 
         /**
          * @brief 获取当前枚举到的文件的全路径名，包括完整文件名.
          * @return 返回当前枚举到的文件的全路径名，类型std::string.
          */
-        virtual TString getFilePath() const = 0;
+        virtual String getFilePath() const = 0;
 
         /**
          * @brief 获取当前枚举到的文件文件名，不包括扩展名.
          * @return 返回当前枚举到的文件文件名，类型std::string.
          */
-        virtual TString getFileTitle() const = 0;
+        virtual String getFileTitle() const = 0;
 
         /**
          * @brief 获取当前枚举到的文件大小.
@@ -105,7 +105,7 @@ namespace Tiny3D
          * @param [in] strDir : 文件夹路径名称
          * @return 调用成功返回true，否则返回false.
          */
-        virtual bool makeDir(const TString &strDir) = 0;
+        virtual bool makeDir(const String &strDir) = 0;
 
         /**
          * @brief 删除文件夹.
@@ -113,33 +113,33 @@ namespace Tiny3D
          * @param [in] strDir : 文件夹路径名称
          * @return 调用成功返回true，否则返回false.
          */
-        virtual bool removeDir(const TString &strDir) = 0;
+        virtual bool removeDir(const String &strDir) = 0;
 
         /**
          * @brief 删除文件.
          * @param [in] strFileName : 需要删除文件的名称.
          * @return 调用成功返回true，否则返回false.
          */
-        virtual bool remove(const TString &strFileName) = 0;
+        virtual bool remove(const String &strFileName) = 0;
 
         /**
          * @brief 判断路径对应的文件是否存在.
          * @param [in] strPath : 完整路径名
          * @return 文件存在返回true，否则返回false.
          */
-        virtual bool exists(const TString &strPath) const = 0;
+        virtual bool exists(const String &strPath) const = 0;
 
         /**
          * @brief 获取应用程序缓存数据存储路径，不同平台指定对应的路径，以对上层透明处理.
          * @return 返回应用程序缓存数据存储路径.
          */
-        virtual TString getCachePath() const = 0;
+        virtual String getCachePath() const = 0;
 
         /**
          * @brief 获取应用程序路径
          * @return 返回应用程序路径
          */
-        virtual TString getAppPath() const = 0;
+        virtual String getAppPath() const = 0;
 
         virtual char getNativeSeparator() const = 0;
     };

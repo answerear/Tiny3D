@@ -49,9 +49,9 @@ namespace Tiny3D
         return unPlatform;
     }
 
-    TString DeviceInfo::getPlatformString() const
+    String DeviceInfo::getPlatformString() const
     {
-        TString strPlatform = Unknown;
+        String strPlatform = Unknown;
 
         if (m_pDevInfoAdapter != nullptr)
         {
@@ -88,7 +88,7 @@ namespace Tiny3D
         return strPlatform;
     }
 
-    TString DeviceInfo::getSoftwareVersion() const
+    String DeviceInfo::getSoftwareVersion() const
     {
         if (m_pDevInfoAdapter != nullptr)
         {
@@ -97,7 +97,7 @@ namespace Tiny3D
         return "";
     }
 
-    TString DeviceInfo::getOSVersion() const
+    String DeviceInfo::getOSVersion() const
     {
         if (m_pDevInfoAdapter != nullptr)
         {
@@ -106,7 +106,7 @@ namespace Tiny3D
         return "";
     }
 
-    TString DeviceInfo::getDeviceVersion() const
+    String DeviceInfo::getDeviceVersion() const
     {
         if (m_pDevInfoAdapter != nullptr)
         {
@@ -142,7 +142,7 @@ namespace Tiny3D
         return 0.0f;
     }
 
-    TString DeviceInfo::getMacAddress() const
+    String DeviceInfo::getMacAddress() const
     {
         if (m_pDevInfoAdapter != nullptr)
         {
@@ -151,7 +151,7 @@ namespace Tiny3D
         return "";
     }
 
-    TString DeviceInfo::getCPUType() const
+    String DeviceInfo::getCPUType() const
     {
         if (m_pDevInfoAdapter != nullptr)
         {
@@ -178,7 +178,7 @@ namespace Tiny3D
         return 0;
     }
 
-    TString DeviceInfo::getDeviceID() const
+    String DeviceInfo::getDeviceID() const
     {
         if (m_pDevInfoAdapter != nullptr)
         {

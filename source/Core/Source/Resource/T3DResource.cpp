@@ -5,7 +5,7 @@
 
 namespace Tiny3D
 {
-    Resource::Resource(const TString &strName)
+    Resource::Resource(const String &strName)
         : mSize(0)
         , mIsLoaded(false)
         , mName(strName)

@@ -14,7 +14,7 @@ namespace Tiny3D
     public:
         T3D_DECLARE_INTERFACE(Plugin);
 
-        virtual const TString &getName() const = 0;
+        virtual const String &getName() const = 0;
         virtual bool install() = 0;
         virtual bool startup() = 0;
         virtual void shutdown() = 0;

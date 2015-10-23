@@ -36,7 +36,7 @@ namespace Tiny3D
          * @param [in] strPath : 指定目录文件格式字符串
          * @return 调用成功返回true，失败返回false.
          */
-        bool findFile(const TString &strPath);
+        bool findFile(const String &strPath);
 
         /**
          * @brief 搜索下一个文件.
@@ -54,25 +54,25 @@ namespace Tiny3D
          * @brief 获取枚举目录的完整路径.
          * @return 返回枚举目录的路径，返回类型std::string.
          */
-        TString getRoot() const;
+        String getRoot() const;
 
         /**
          * @brief 获取当前枚举到的完整文件名.
          * @return 返回当前枚举到的完整文件名，类型std::string.
          */
-        TString getFileName() const;
+        String getFileName() const;
 
         /**
          * @brief 获取当前枚举到的文件的全路径名，包括完整文件名.
          * @return 返回当前枚举到的文件的全路径名，类型std::string.
          */
-        TString getFilePath() const;
+        String getFilePath() const;
 
         /**
          * @brief 获取当前枚举到的文件文件名，不包括扩展名.
          * @return 返回当前枚举到的文件文件名，类型std::string.
          */
-        TString getFileTitle() const;
+        String getFileTitle() const;
 
         /**
          * @brief 获取当前枚举到的文件大小.
@@ -116,7 +116,7 @@ namespace Tiny3D
          * @param [in] strDir : 文件夹路径名称
          * @return 调用成功返回true，否则返回false.
          */
-        static bool makeDir(const TString &strDir);
+        static bool makeDir(const String &strDir);
 
         /**
          * @brief 删除文件夹.
@@ -124,33 +124,33 @@ namespace Tiny3D
          * @param [in] strDir : 文件夹路径名称
          * @return 调用成功返回true，否则返回false.
          */
-        static bool removeDir(const TString &strDir);
+        static bool removeDir(const String &strDir);
 
         /**
          * @brief 删除文件.
          * @param [in] strFileName : 需要删除文件的名称.
          * @return 调用成功返回true，否则返回false.
          */
-        static bool remove(const TString &strFileName);
+        static bool remove(const String &strFileName);
 
         /**
          * @brief 判断路径对应的文件是否存在.
          * @param [in] strPath : 完整路径名
          * @return 文件存在返回true，否则返回false.
          */
-        static bool exists(const TString &strPath);
+        static bool exists(const String &strPath);
 
         /**
          * @brief 获取应用程序缓存数据存储路径，不同平台指定对应的路径，以对上层透明处理.
          * @return 返回应用程序缓存数据存储路径.
          */
-        static TString getCachePath();
+        static String getCachePath();
 
         /**
          * @brief 获取应用程序路径.
          * @return 返回应用程序路径.
          */
-        static TString getAppPath();
+        static String getAppPath();
 
         /**
          * @brief 获取系统相关的路径分隔符

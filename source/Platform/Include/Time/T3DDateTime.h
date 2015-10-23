@@ -61,21 +61,21 @@ namespace Tiny3D
          * @note 字符串格式形如：YYYY-MM-DD HH:MM:SS.XXX
          * @return 返回std::string对象
          */
-        TString toString() const;
+        String toString() const;
 
         /**
          * @brief 把VDataTime中时间转成字符串.
          * @note 字符串格式形如：HH:MM:SS.XXX
          * @return 返回std::string对象
          */
-        TString timeToString(ETimeFormat eFormat = E_HH_MM_SS_XXX) const;
+        String timeToString(ETimeFormat eFormat = E_HH_MM_SS_XXX) const;
 
         /**
          * @brief 把VDataTime中时间转成字符串.
          * @note 字符串格式形如：YYYY-MM-DD
          * @return 返回std::string对象
          */
-        TString dateToString(EDateFormat eFormat = E_YY_MM_DD) const;
+        String dateToString(EDateFormat eFormat = E_YY_MM_DD) const;
 
         /**
          * @brief 判断时间是否相等

@@ -51,7 +51,7 @@ namespace Tiny3D
         }
     }
 
-    bool Entrance::loadPlugin(const TString &name)
+    bool Entrance::loadPlugin(const String &name)
     {
         bool ret = false;
         Dylib *lib = (Dylib*)DylibManager::getInstance().load(name);
@@ -70,7 +70,7 @@ namespace Tiny3D
         return ret;
     }
 
-    void Entrance::unloadPlugin(const TString &name)
+    void Entrance::unloadPlugin(const String &name)
     {
         DylibListItr itr = mDylibList.begin();
 
@@ -112,7 +112,7 @@ namespace Tiny3D
         return mActiveRenderer;
     }
 
-    Renderer *Entrance::getRenderer(const TString &name) const
+    Renderer *Entrance::getRenderer(const String &name) const
     {
         Renderer *renderer = nullptr;
         RendererListConstItr itr = mRendererList.begin();

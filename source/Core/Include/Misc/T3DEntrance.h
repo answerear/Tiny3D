@@ -36,8 +36,8 @@ namespace Tiny3D
         void installPlugin(Plugin *plugin);
         void uninstallPlugin(Plugin *plugin);
 
-        bool loadPlugin(const TString &name);
-        void unloadPlugin(const TString &name);
+        bool loadPlugin(const String &name);
+        void unloadPlugin(const String &name);
 
         /**
          * @brief Enumerate all available renderer in list.
@@ -61,7 +61,7 @@ namespace Tiny3D
 
         Renderer *getActiveRenderer() const;
 
-        Renderer *getRenderer(const TString &name) const;
+        Renderer *getRenderer(const String &name) const;
 
         void addRenderer(Renderer *renderer);
 

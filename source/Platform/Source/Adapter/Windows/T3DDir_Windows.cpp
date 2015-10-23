@@ -26,7 +26,7 @@ namespace Tiny3D
         close();
     }
 
-    bool Dir_Windows::findFile(const TString &strPath)
+    bool Dir_Windows::findFile(const String &strPath)
     {
         if (strPath.empty() || strPath == "")
             return false;
@@ -71,7 +71,7 @@ namespace Tiny3D
         }
     }
 
-    TString Dir_Windows::getRoot() const
+    String Dir_Windows::getRoot() const
     {
         if (m_hFindFile == INVALID_HANDLE_VALUE)
             return "";
@@ -79,7 +79,7 @@ namespace Tiny3D
         return m_strRoot;
     }
 
-    TString Dir_Windows::getFileName() const
+    String Dir_Windows::getFileName() const
     {
         if (m_hFindFile == INVALID_HANDLE_VALUE)
             return "";
@@ -89,9 +89,9 @@ namespace Tiny3D
 #ifdef UNICODE
             char szPath[512] = {0};
             ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szPath, sizeof(szPath), nullptr, nullptr);
-            TString strFilePath(szPath);
+            String strFilePath(szPath);
 #else
-            TString strFilePath = m_FindFileData.cFileName;
+            String strFilePath = m_FindFileData.cFileName;
 #endif
             extractFileName(strFilePath, m_strName, m_strTitle);
         }
@@ -99,7 +99,7 @@ namespace Tiny3D
         return m_strName;
     }
 
-    TString Dir_Windows::getFilePath() const
+    String Dir_Windows::getFilePath() const
     {
         if (m_hFindFile == INVALID_HANDLE_VALUE)
             return "";
@@ -107,9 +107,9 @@ namespace Tiny3D
 #ifdef UNICODE
         char szPath[512] = {0};
         ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szPath, sizeof(szPath), nullptr, nullptr);
-        TString strPath(szPath);
+        String strPath(szPath);
 #else
-        TString strPath = m_FindFileData.cFileName;
+        String strPath = m_FindFileData.cFileName;
 #endif
 
         if (!m_bExtractName)
@@ -120,7 +120,7 @@ namespace Tiny3D
         return m_strRoot + strPath;
     }
 
-    TString Dir_Windows::getFileTitle() const
+    String Dir_Windows::getFileTitle() const
     {
         if (m_hFindFile == INVALID_HANDLE_VALUE)
             return "";
@@ -130,9 +130,9 @@ namespace Tiny3D
 #ifdef UNICODE
             char szPath[512] = {0};
             ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szPath, sizeof(szPath), nullptr, nullptr);
-            TString strFilePath(szPath);
+            String strFilePath(szPath);
 #else
-            TString strFilePath = m_FindFileData.cFileName;
+            String strFilePath = m_FindFileData.cFileName;
 #endif
             extractFileName(strFilePath, m_strName, m_strTitle);
         }
@@ -158,9 +158,9 @@ namespace Tiny3D
 #ifdef UNICODE
             char szPath[512] = {0};
             ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szPath, sizeof(szPath), nullptr, nullptr);
-            TString strPath(szPath);
+            String strPath(szPath);
 #else
-            TString strPath = m_FindFileData.cFileName;
+            String strPath = m_FindFileData.cFileName;
 #endif
             extractFileName(strPath, m_strName, m_strTitle);
         }
@@ -236,7 +236,7 @@ namespace Tiny3D
         return 0;
     }
 
-    bool Dir_Windows::makeDir(const TString &strDir)
+    bool Dir_Windows::makeDir(const String &strDir)
     {
         if (strDir.empty() || strDir == "")
             return false;
@@ -244,7 +244,7 @@ namespace Tiny3D
         return (mkdir(strDir.c_str()) == 0);
     }
 
-    bool Dir_Windows::removeDir(const TString &strDir)
+    bool Dir_Windows::removeDir(const String &strDir)
     {
         if (strDir.empty() || strDir == "")
             return false;
@@ -252,7 +252,7 @@ namespace Tiny3D
         return (rmdir(strDir.c_str()) == 0);
     }
 
-    bool Dir_Windows::remove(const TString &strFileName)
+    bool Dir_Windows::remove(const String &strFileName)
     {
         if (strFileName.empty() || strFileName == "")
             return false;
@@ -260,12 +260,12 @@ namespace Tiny3D
         return (remove(strFileName.c_str()) == 0);
     }
 
-    bool Dir_Windows::exists(const TString &strPath) const
+    bool Dir_Windows::exists(const String &strPath) const
     {
         return true;
     }
 
-    TString Dir_Windows::getCachePath() const
+    String Dir_Windows::getCachePath() const
     {
         char szBuf[MAX_PATH];
 #ifdef UNICODE
@@ -283,10 +283,10 @@ namespace Tiny3D
         }
         *ptr = 0;
 
-        return TString(szBuf);
+        return String(szBuf);
     }
 
-    TString Dir_Windows::getAppPath() const
+    String Dir_Windows::getAppPath() const
     {
         return getCachePath();
     }
@@ -296,7 +296,7 @@ namespace Tiny3D
         return '\\';
     }
 
-    bool Dir_Windows::extractRoot(const TString &strFilePath, TString &strRoot)
+    bool Dir_Windows::extractRoot(const String &strFilePath, String &strRoot)
     {
         bool bResult = false;
         size_t nPos = strFilePath.rfind("/");
@@ -321,7 +321,7 @@ namespace Tiny3D
         return bResult;
     }
 
-    bool Dir_Windows::extractFileName(const TString &strFilePath, TString &strName, TString &strTitle) const
+    bool Dir_Windows::extractFileName(const String &strFilePath, String &strName, String &strTitle) const
     {
         bool bResult = false;
         size_t nLength = strFilePath.length();

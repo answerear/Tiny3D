@@ -77,6 +77,12 @@ namespace Tiny3D
     class DylibManager;
 
     class SGCamera;
+
+    class Variant;
+
+    typedef std::vector<Variant>        VariantArray;
+    typedef std::list<Variant>          VariantList;
+    typedef std::map<Variant, Variant>  VariantMap;
 }
 
 

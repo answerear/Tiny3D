@@ -44,22 +44,22 @@ namespace Tiny3D
         /**
          * @brief 获取平台类型字符串
          */
-        TString getPlatformString() const;
+        String getPlatformString() const;
 
         /**
          * @brief 获取软件版本号字符串
          */
-        TString getSoftwareVersion() const;
+        String getSoftwareVersion() const;
 
         /**
          * @brief 获取操作系统版本号字符串
          */
-        TString getOSVersion() const;
+        String getOSVersion() const;
 
         /**
          * @brief 获取设备机型版本信息字符串
          */
-        TString getDeviceVersion() const;
+        String getDeviceVersion() const;
 
         /**
          * @brief 获取屏幕宽度.
@@ -79,12 +79,12 @@ namespace Tiny3D
         /**
          * @brief 获取设备mac地址.
          */
-        TString getMacAddress() const;
+        String getMacAddress() const;
 
         /**
          * @brief 获取CPU类型信息.
          */
-        TString getCPUType() const;
+        String getCPUType() const;
 
         /**
          * @brief 获取CPU核数
@@ -99,7 +99,7 @@ namespace Tiny3D
         /**
          * @brief 获取设备ID.
          */
-        TString getDeviceID() const;
+        String getDeviceID() const;
 
     protected:
         DeviceInfoInterface *m_pDevInfoAdapter;

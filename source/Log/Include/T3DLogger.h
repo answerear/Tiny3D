@@ -32,7 +32,7 @@ namespace Tiny3D
         Logger();
         virtual ~Logger();
 
-        bool startup(uint32_t unAppID, const TString &strTag, bool bForceOutput = false);
+        bool startup(uint32_t unAppID, const String &strTag, bool bForceOutput = false);
 
         void trace(ELevel eLevel, const char *pszFileName, int32_t nLine, const char *pszFmt, ...);
 

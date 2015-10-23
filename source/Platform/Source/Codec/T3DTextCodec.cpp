@@ -9,7 +9,7 @@ namespace Tiny3D
 {
     T3D_INIT_SINGLETON(TextCodec);
 
-    TextCodec::TextCodec(const TString &strCodecFile)
+    TextCodec::TextCodec(const String &strCodecFile)
     {
 
     }
