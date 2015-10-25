@@ -94,44 +94,89 @@ namespace Tiny3D
 
     int32_t Variant::compare(const Variant &other) const
     {
-        int32_t ret = false;
-
-        if (isNumber())
+        int32_t ret = 0;
+        if (mType == other.mType)
         {
-            ret = memcmp(mValue, other.mValue, mValueSize);
+            if (mType == E_STRING)
+            {
+                int32_t size = std::max(mValueSize, other.mValueSize);
+                ret = strncmp(mStrValue, other.mStrValue, size);
+            }
+            else if (mType == E_ARRAY)
+            {
+                if (*mArrayValue < *other.mArrayValue)
+                    ret = -1;
+                else if (*mArrayValue > *other.mArrayValue)
+                    ret = 1;
+                else
+                    ret = 0;
+            }
+            else if (mType == E_LIST)
+            {
+                if (*mListValue < *other.mListValue)
+                    ret = -1;
+                else if (*mListValue > *other.mListValue)
+                    ret = 1;
+                else
+                    ret = 0;
+            }
+            else if (mType == E_MAP)
+            {
+                if (*mMapValue < *other.mMapValue)
+                    ret = -1;
+                else if (*mMapValue > *other.mMapValue)
+                    ret = 1;
+                else
+                    ret = 0;
+            }
+            else
+            {
+                ret = memcmp(mValue, other.mValue, mValueSize);
+            }
         }
-        else if (E_STRING == mType)
+        else
         {
-            strncmp(mStrValue, other.mStrValue, mValueSize);
+            ret = (mType - other.mType);
         }
-        else if (E_ARRAY == mType)
-        {
-            if (*mArrayValue == *other.mArrayValue)
-                ret = 0;
-            else if (*mArrayValue < *other.mArrayValue)
-                ret = -1;
-            else if (*mArrayValue > *other.mArrayValue)
-                ret = 1;
-        }
-        else if (E_LIST == mType)
-        {
-            if (*mListValue == *other.mListValue)
-                ret = 0;
-            else if (*mListValue < *other.mListValue)
-                ret = -1;
-            else if (*mListValue > *other.mListValue)
-                ret = 1;
-        }
-        else if (E_MAP == mType)
-        {
-            if (*mMapValue == *other.mMapValue)
-                ret = 0;
-            else if (*mMapValue < *other.mMapValue)
-                ret = -1;
-            else if (*mMapValue > *other.mMapValue)
-                ret = 1;
-        }
-
         return ret;
+//         if (isNumber())
+//         {
+//             int32_t size = 
+//                 (mValueSize > other.mValueSize ? other.mValueSize : mValueSize);
+//             ret = memcmp(mValue, other.mValue, size);
+//         }
+//         else if (E_STRING == mType)
+//         {
+//             int32_t size = 
+//                 (mValueSize > other.mValueSize ? other.mValueSize : mValueSize);
+//             strncmp(mStrValue, other.mStrValue, size);
+//         }
+//         else if (E_ARRAY == mType)
+//         {
+//             if (*mArrayValue == *other.mArrayValue)
+//                 ret = 0;
+//             else if (*mArrayValue < *other.mArrayValue)
+//                 ret = -1;
+//             else if (*mArrayValue > *other.mArrayValue)
+//                 ret = 1;
+//         }
+//         else if (E_LIST == mType)
+//         {
+//             if (*mListValue == *other.mListValue)
+//                 ret = 0;
+//             else if (*mListValue < *other.mListValue)
+//                 ret = -1;
+//             else if (*mListValue > *other.mListValue)
+//                 ret = 1;
+//         }
+//         else if (E_MAP == mType)
+//         {
+//             if (*mMapValue == *other.mMapValue)
+//                 ret = 0;
+//             else if (*mMapValue < *other.mMapValue)
+//                 ret = -1;
+//             else if (*mMapValue > *other.mMapValue)
+//                 ret = 1;
+//         }
     }
 }

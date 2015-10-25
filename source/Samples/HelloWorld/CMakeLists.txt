@@ -48,3 +48,11 @@ target_link_libraries(
 	T3DCore
 	)
 
+if (TINY3D_OS_WINDOWS)
+	install(TARGETS ${BIN_NAME}
+		RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug
+		LIBRARY DESTINATION bin/Debug CONFIGURATIONS Debug
+		ARCHIVE DESTINATION lib/Debug CONFIGURATIONS Debug
+		)
+endif ()
+

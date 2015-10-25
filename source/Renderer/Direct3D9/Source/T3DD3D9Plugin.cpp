@@ -1,6 +1,7 @@
 
 
 #include "T3DD3D9Plugin.h"
+#include "Misc/T3DEntrance.h"
 
 
 namespace Tiny3D

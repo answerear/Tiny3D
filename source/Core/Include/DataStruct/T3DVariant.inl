@@ -542,44 +542,32 @@ namespace Tiny3D
 
     inline bool Variant::operator ==(const Variant &other) const
     {
-        bool ret = (mType == other.mType);
-        ret = ret && (mValueSize == other.mValueSize);
-        return ret && (compare(other) == 0);
+        return compare(other) == 0;
     }
 
     inline bool Variant::operator !=(const Variant &other) const
     {
-        return !operator ==(other);
+        return compare(other) != 0;
     }
 
     inline bool Variant::operator <(const Variant &other) const
     {
-        return (mType < other.mType || mValueSize < other.mValueSize
-            || compare(other) < 0);
+        return compare(other) < 0;
     }
 
     inline bool Variant::operator <=(const Variant &other) const
     {
-        return ((mType == other.mType && mValueSize == other.mValueSize
-            && compare(other) <= 0)
-            ||
-            (mType <= other.mType || mValueSize <= other.mValueSize
-            || compare(other) <= 0));
+        return compare(other) <= 0;
     }
 
     inline bool Variant::operator >(const Variant &other) const
     {
-        return (mType > other.mType || mValueSize > other.mValueSize
-            || compare(other) > 0);
+        return compare(other) > 0;
     }
 
     inline bool Variant::operator >=(const Variant &other) const
     {
-        return ((mType == other.mType && mValueSize == other.mValueSize
-            && compare(other) >= 0)
-            ||
-            (mType >= other.mType || mValueSize >= other.mValueSize
-            || compare(other) >= 0));
+        return compare(other) >= 0;
     }
 }
 

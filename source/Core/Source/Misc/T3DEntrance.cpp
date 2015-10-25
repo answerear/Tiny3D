@@ -2,11 +2,13 @@
 
 #include "Misc/T3DEntrance.h"
 #include "Misc/T3DPlugin.h"
+#include "Misc/T3DConfigFile.h"
 #include "Render/T3DRenderer.h"
 #include "Render/T3DRenderWindow.h"
 #include "Resource/T3DDylibManager.h"
 #include "Resource/T3DDylib.h"
 #include "T3DPlatform.h"
+#include "T3DLogger.h"
 #include <algorithm>
 
 
@@ -17,11 +19,15 @@ namespace Tiny3D
 
     T3D_INIT_SINGLETON(Entrance);
 
-    Entrance::Entrance()
+    Entrance::Entrance(const String &config /* = "Tiny3D.cfg" */, 
+        const String &log /* = "Tiny3D.log" */)
         : mSystem(new System())
         , mDylibMgr(new DylibManager())
     {
-        
+        ConfigFile file(config);
+        file.loadXML(mSettings);
+
+        loadPlugins();
     }
 
     Entrance::~Entrance()
@@ -88,6 +94,39 @@ namespace Tiny3D
 
             ++itr;
         }
+    }
+
+    void Entrance::loadPlugins()
+    {
+        String s("PluginsPath");
+        Variant key(s);
+        Settings::const_iterator itr = mSettings.find(key);
+        if (itr == mSettings.end())
+            return;
+
+        String path = itr->second.stringValue();
+        
+        key.setString("Plugins");
+        itr = mSettings.find(key);
+
+        if (itr != mSettings.end())
+        {
+            const VariantArray &plugins = itr->second.arrayValue();
+            VariantArrayConstItr i = plugins.begin();
+
+            while (i != plugins.end())
+            {
+                String name = i->stringValue();
+                String fullpath = path + "/" + name;
+                loadPlugin(name);
+                ++i;
+            }
+        }
+    }
+
+    void Entrance::unloadPlugins()
+    {
+
     }
 
     void Entrance::enumerateAvailableRenderers(RendererList &rRendererList) const

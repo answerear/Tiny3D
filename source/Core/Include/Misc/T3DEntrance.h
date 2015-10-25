@@ -7,6 +7,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DSingleton.h"
 #include "T3DCommon.h"
+#include "DataStruct/T3DVariant.h"
 
 
 namespace Tiny3D
@@ -28,7 +29,7 @@ namespace Tiny3D
     {
     public:
         /** Default constructor. */
-        Entrance();
+        Entrance(const String &config = "Tiny3D.cfg", const String &log = "Tiny3D.log");
 
         /** Destructor. */
         virtual ~Entrance();
@@ -97,6 +98,10 @@ namespace Tiny3D
         void setApplicationListener(ApplicationListener *pListener);
 
     protected:
+        void loadPlugins();
+        void unloadPlugins();
+
+    protected:
         typedef std::list<Plugin*>          PluginList;
         typedef PluginList::iterator        PluginListItr;
         typedef PluginList::const_iterator  PluginListConstItr;
@@ -115,6 +120,8 @@ namespace Tiny3D
         RendererList    mRendererList;
 
         DylibList       mDylibList;
+
+        Settings        mSettings;
     };
 
     #define T3D_ENTRANCE         Entrance::getInstance()

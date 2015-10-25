@@ -14,11 +14,12 @@ namespace Tiny3D
         void T3D_D3D9RENDERER_API dllStartPlugin()
         {
             gPlugin = new D3D9Plugin();
-
+            Entrance::getInstance().installPlugin(gPlugin);
         }
 
         void T3D_D3D9RENDERER_API dllStopPlugin()
         {
+            Entrance::getInstance().uninstallPlugin(gPlugin);
             delete gPlugin;
         }
     }

@@ -45,7 +45,14 @@ namespace Tiny3D
 
     bool Dylib::load()
     {
-        mHandle = DYLIB_LOAD(mName.c_str());
+#if defined (T3D_OS_WINDOWS)
+        String name = mName + ".dll";
+#elif defined (T3D_OS_LINUX) || defined (T3D_OS_ANDROID)
+        String name = mName + ".so";
+#elif defined (T3D_OS_MACOSX)
+        String name = mName + ".dylib";
+#endif
+        mHandle = DYLIB_LOAD(name.c_str());
         mIsLoaded = true;
         return true;
     }

@@ -80,9 +80,21 @@ namespace Tiny3D
 
     class Variant;
 
-    typedef std::vector<Variant>        VariantArray;
-    typedef std::list<Variant>          VariantList;
-    typedef std::map<Variant, Variant>  VariantMap;
+    typedef std::vector<Variant>            VariantArray;
+    typedef VariantArray::iterator          VariantArrayItr;
+    typedef VariantArray::const_iterator    VariantArrayConstItr;
+
+    typedef std::list<Variant>              VariantList;
+    typedef VariantList::iterator           VariantListItr;
+    typedef VariantList::const_iterator     VariantListConstItr;
+
+    typedef std::map<Variant, Variant>      VariantMap;
+    typedef VariantMap::iterator            VariantMapItr;
+    typedef VariantMap::const_iterator      VariantMapConstItr;
+
+    typedef std::pair<Variant, Variant>     VariantMapValue;
+
+    typedef VariantMap Settings;
 }
 
 
