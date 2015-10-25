@@ -15,6 +15,28 @@ namespace Tiny3D
     public:
         D3D9RenderWindow();
         virtual ~D3D9RenderWindow();
+
+        virtual bool create(
+            const String &name,
+            const RenderWindowCreateParam &rkParam,
+            const RenderWindowCreateParamEx &rkParamEx);
+
+        virtual void destroy();
+
+        virtual void swapBuffers();
+
+        virtual bool isFullScreen() const;
+
+    protected:
+        static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, 
+            WPARAM wParam, LPARAM lParam);
+
+    protected:
+        HWND    mHWnd;
+        HWND    mParentHWnd;
+
+        bool    mIsFullScreen;
+        bool    mActive;
     };
 }
 

@@ -5,6 +5,7 @@
 
 
 #include "T3DPrerequisites.h"
+#include "Misc/T3DCommon.h"
 
 
 namespace Tiny3D
@@ -23,7 +24,11 @@ namespace Tiny3D
 
         virtual String getName() const = 0;
 
-        virtual RenderWindow *createRenderWindow() = 0;
+        virtual RenderWindow *createRenderWindow(
+            const RenderWindowCreateParam &rkCreateParam,
+            const RenderWindowCreateParamEx &rkCreateParamEx) = 0;
+
+        virtual void startRendering() = 0;
     };
 }
 

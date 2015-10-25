@@ -89,6 +89,8 @@ namespace Tiny3D
          */
         bool run();
 
+        void renderOneFrame();
+
         /**
          * @brief Set application event listener.
          * @param [in] pListener

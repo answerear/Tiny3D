@@ -13,8 +13,16 @@ namespace Tiny3D
     class D3D9Renderer : public Renderer
     {
     public:
-        D3D9Renderer();
+        D3D9Renderer(HINSTANCE hInstance);
         virtual ~D3D9Renderer();
+
+        virtual String getName() const;
+
+        virtual RenderWindow *createRenderWindow(
+            const RenderWindowCreateParam &rkCreateParam, 
+            const RenderWindowCreateParamEx &rkCreateParamEx);
+
+        virtual void startRendering();
     };
 }
 

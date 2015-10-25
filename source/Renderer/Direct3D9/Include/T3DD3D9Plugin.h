@@ -24,7 +24,9 @@ namespace Tiny3D
         virtual void uninstall();
 
     protected:
-        String mName;
+        String      mName;
+
+        Renderer    *mRenderer;
     };
 }
 

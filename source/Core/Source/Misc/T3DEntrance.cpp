@@ -183,6 +183,11 @@ namespace Tiny3D
 
     bool Entrance::run()
     {
+        if (mActiveRenderer != nullptr)
+        {
+            mActiveRenderer->startRendering();
+        }
+
         return true;
     }
 

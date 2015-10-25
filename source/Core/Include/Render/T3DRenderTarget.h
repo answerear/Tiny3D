@@ -52,7 +52,7 @@ namespace Tiny3D
         int32_t         mHeight;
         int32_t         mColorDepth;
 
-        String         mName;
+        String          mName;
 
         ViewportList    mViewportList;
 

@@ -41,10 +41,12 @@ namespace Tiny3D
          *      A variable number of pointers to platform-specific arguments.
          *      The actual requirements must be defined by the implementing
          *      subclasses.
-         * @return void
+         * @return return true if succeeded.
          */
-        virtual void create(const RenderWindowCreateParam &rkCreateParams,
-                            const RenderWindowCreateParamEx &rkCreateParamEx) = 0;
+        virtual bool create(
+            const String &name,
+            const RenderWindowCreateParam &rkCreateParams,
+            const RenderWindowCreateParamEx &rkCreateParamEx) = 0;
 
         /** Destroys the window. */
         virtual void destroy() = 0;
