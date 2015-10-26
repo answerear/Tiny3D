@@ -17,7 +17,7 @@ namespace Tiny3D
 
     String D3D9Renderer::getName() const
     {
-        return "D3D9Renderer";
+        return "T3DD3D9Renderer";
     }
 
     RenderWindow *D3D9Renderer::createRenderWindow(
@@ -37,6 +37,7 @@ namespace Tiny3D
         PeekMessage( &msg, NULL, 0U, 0U, PM_NOREMOVE );
 
 //         while (mRenderTargets.size())
+        while (1)
         {
             if( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
             {
