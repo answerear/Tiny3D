@@ -26,11 +26,17 @@ namespace Tiny3D
 
     bool D3D9Plugin::install()
     {
-#if defined (T3D_EXPORT_API)
-        HINSTANCE hInstance = GetModuleHandle("T3DD3D9Renderer.dll");
-#else
-        HINSTANCE hInstance = GetModuleHandle(NULL);
-#endif
+// #if defined (T3D_EXPORT_API)
+//         HINSTANCE hInstance = GetModuleHandle("T3DD3D9Renderer.dll");
+// #else
+//         HINSTANCE hInstance = GetModuleHandle(NULL);
+// #endif
+        HINSTANCE hInstance;
+        static const TCHAR staticVar;
+        GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS 
+            | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, 
+            &staticVar, &hInstance);
+
         mRenderer = new D3D9Renderer(hInstance);
 
         Entrance::getInstance().addRenderer(mRenderer);

@@ -178,7 +178,15 @@ namespace Tiny3D
         const RenderWindowCreateParamEx &rkCreatedParamEx
         )
     {
-        return nullptr;
+        RenderWindow *window = nullptr;
+
+        if (mActiveRenderer != nullptr)
+        {
+            window = mActiveRenderer->createRenderWindow(rkCreatedParam, 
+                rkCreatedParamEx);
+        }
+
+        return window;
     }
 
     bool Entrance::run()

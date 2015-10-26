@@ -23,6 +23,9 @@ namespace Tiny3D
             const RenderWindowCreateParamEx &rkCreateParamEx);
 
         virtual void startRendering();
+
+    protected:
+        HINSTANCE   mInstance;
     };
 }
 

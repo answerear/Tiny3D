@@ -22,6 +22,17 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         ++itr;
     }
 
+    Tiny3D::RenderWindowCreateParam param;
+    param._windowLeft = 100;
+    param._windowTop = 100;
+    param._windowWidth = 960;
+    param._windowHeight = 640;
+    param._fullscreen = false;
+    param._colorDepth = 32;
+    param._windowTitle = "HelloWorldApp Demo";
+    Tiny3D::RenderWindowCreateParamEx paramEx;
+    Tiny3D::Entrance::getInstance().createRenderWindow(param, paramEx);
+
     Tiny3D::Entrance::getInstance().run();
 
     return 0;

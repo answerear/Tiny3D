@@ -29,7 +29,8 @@ namespace Tiny3D
     {
     public:
         /** Default constructor. */
-        Entrance(const String &config = "Tiny3D.cfg", const String &log = "Tiny3D.log");
+        Entrance(const String &config = "Tiny3D.cfg", 
+            const String &log = "Tiny3D.log");
 
         /** Destructor. */
         virtual ~Entrance();

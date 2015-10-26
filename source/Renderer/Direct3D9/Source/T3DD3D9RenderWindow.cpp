@@ -64,7 +64,7 @@ namespace Tiny3D
             wc.hCursor = ::LoadCursor(NULL, IDC_ARROW);
             wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
             wc.lpszMenuName = NULL;
-            wc.lpszClassName = mName.c_str();
+            wc.lpszClassName = TEXT(name.c_str());
             wc.hIconSm = ::LoadIcon(NULL, IDC_ICON);
 
             ::RegisterClassEx(&wc);
@@ -84,7 +84,7 @@ namespace Tiny3D
                     WS_SYSMENU | WS_MINIMIZEBOX;
             }
 
-            mHWnd = ::CreateWindowEx(dwStyleEx, "T3DD3D9Wnd", 
+            mHWnd = ::CreateWindowEx(dwStyleEx, TEXT(name.c_str()), 
                 rkParam._windowTitle.c_str(), dwStyle, 
                 rkParam._windowLeft, rkParam._windowTop, rkParam._windowWidth,
                 rkParam._windowHeight, parentHWnd, NULL, instance, this);

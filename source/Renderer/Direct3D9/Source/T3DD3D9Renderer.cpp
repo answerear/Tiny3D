@@ -1,11 +1,13 @@
 
 
 #include "T3DD3D9Renderer.h"
+#include "T3DD3D9RenderWindow.h"
 
 
 namespace Tiny3D
 {
     D3D9Renderer::D3D9Renderer(HINSTANCE hInstance)
+        : mInstance(hInstance)
     {
 
     }
@@ -24,7 +26,15 @@ namespace Tiny3D
         const RenderWindowCreateParam &rkCreateParam, 
         const RenderWindowCreateParamEx &rkCreateParamEx)
     {
-        RenderWindow *window = nullptr;
+        RenderWindow *window = new D3D9RenderWindow();
+
+        RenderWindowCreateParamEx paramEx = rkCreateParamEx;
+        char buf[64] = {0};
+        ltoa((long_t)mInstance, buf, 10);
+        String s(buf);
+        paramEx["instance"] = s;
+
+        window->create("D3D9RenderWindow", rkCreateParam, paramEx);
 
         return window;
     }
