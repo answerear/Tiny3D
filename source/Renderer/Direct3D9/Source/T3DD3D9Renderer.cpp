@@ -2,6 +2,7 @@
 
 #include "T3DD3D9Renderer.h"
 #include "T3DD3D9RenderWindow.h"
+#include "Render/T3DRenderTarget.h"
 
 
 namespace Tiny3D
@@ -19,7 +20,7 @@ namespace Tiny3D
 
     String D3D9Renderer::getName() const
     {
-        return "T3DD3D9Renderer";
+        return DIRECT3D9;
     }
 
     RenderWindow *D3D9Renderer::createRenderWindow(
@@ -36,40 +37,33 @@ namespace Tiny3D
 
         window->create("D3D9RenderWindow", rkCreateParam, paramEx);
 
+        attachRenderTarget(window);
+
         return window;
     }
 
     void D3D9Renderer::startRendering()
     {
-        MSG  msg;
+        MSG msg;
 
         // Render this window
-        PeekMessage( &msg, NULL, 0U, 0U, PM_NOREMOVE );
+        PeekMessage(&msg, NULL, 0U, 0U, PM_NOREMOVE);
 
-//         while (mRenderTargets.size())
-        while (1)
+        while (mRenderTargets.size())
         {
-            if( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
+            if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
             {
-                TranslateMessage( &msg );
-                DispatchMessage( &msg );
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
             }
             else
             {
-//                 if(!fireFrameStarted())
-//                     return;
-
-//                 // Render a frame during idle time (no messages are waiting)
-//                 RenderTargetPriorityMap::iterator itarg, itargend;
-//                 itargend = mPrioritisedRenderTargets.end();
-//                 for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
-//                 {
-//                     if( itarg->second->isActive() )
-//                         itarg->second->update();
-//                 }
-// 
-//                 if(!fireFrameEnded())
-//                     return;
+                RenderTargetListItr itr = mRenderTargets.begin();
+                while (itr != mRenderTargets.end())
+                {
+                    itr->second->update();
+                    ++itr;
+                }
             }
         }
 

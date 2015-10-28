@@ -141,12 +141,17 @@ namespace Tiny3D
         HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         LPCREATESTRUCT lpcs;
-		D3D9RenderWindow* win;
+		D3D9RenderWindow* win = nullptr;
 
 		// look up window instance
 		if( WM_CREATE != uMsg )
+        {
 			// Get window pointer
 			win = (D3D9RenderWindow*)GetWindowLong( hWnd, 0 );
+
+            if (win == nullptr)
+                return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+        }
 
 		switch( uMsg )
 		{

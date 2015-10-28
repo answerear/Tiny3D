@@ -20,4 +20,11 @@ namespace Tiny3D
     {
         return true;
     }
+
+    void RenderWindow::update()
+    {
+        RenderTarget::update();
+
+        swapBuffers();
+    }
 }

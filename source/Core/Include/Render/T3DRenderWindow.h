@@ -33,6 +33,8 @@ namespace Tiny3D
         /** Destructor. */
         virtual ~RenderWindow();
 
+        virtual void update();
+
         /**
          * @brief Creates & displays the new window.
          * @param [in] rkCreateParam

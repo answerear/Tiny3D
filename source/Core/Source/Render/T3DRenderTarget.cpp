@@ -21,7 +21,13 @@ namespace Tiny3D
 
     void RenderTarget::update()
     {
+        auto itr = mViewportList.begin();
 
+        while (itr != mViewportList.end())
+        {
+            itr->second->update();
+            ++itr;
+        }
     }
 
     Viewport *RenderTarget::addViewport(SGCamera *camera, int32_t nZOrder, 
@@ -46,12 +52,20 @@ namespace Tiny3D
 
         if (itr != mViewportList.end())
         {
+            delete itr->second;
             mViewportList.erase(itr);
         }
     }
 
     void RenderTarget::removeAllViewports()
     {
+        auto itr = mViewportList.begin();
+        while (itr != mViewportList.end())
+        {
+            delete itr->second;
+            ++itr;
+        }
+
         mViewportList.clear();
     }
 }

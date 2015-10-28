@@ -14,7 +14,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     Tiny3D::RendererListItr itr = renderers.begin();
     while (itr != renderers.end())
     {
-        if ((*itr)->getName() == "T3DD3D9Renderer")
+        if ((*itr)->getName() == Tiny3D::Renderer::DIRECT3D9)
         {
             Tiny3D::Entrance::getInstance().setActiveRenderer(*itr);
             break;

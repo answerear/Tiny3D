@@ -29,6 +29,18 @@ namespace Tiny3D
             const RenderWindowCreateParamEx &rkCreateParamEx) = 0;
 
         virtual void startRendering() = 0;
+
+        virtual bool attachRenderTarget(RenderTarget *target);
+        virtual void detachRenderTarget(const String &name);
+        RenderTarget *getRenderTarget(const String &name);
+
+    protected:
+        typedef std::map<String, RenderTarget*>     RenderTargetList;
+        typedef RenderTargetList::iterator          RenderTargetListItr;
+        typedef RenderTargetList::const_iterator    RenderTargetListConstItr;
+        typedef RenderTargetList::value_type        RenderTargetListValue;
+
+        RenderTargetList    mRenderTargets;
     };
 }
 
