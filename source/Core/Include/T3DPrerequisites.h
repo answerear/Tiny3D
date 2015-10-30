@@ -37,6 +37,7 @@ namespace Tiny3D
     /// Core
     class ApplicationListener;
     class RenderTargetListener;
+    class FrameListener;
 
     class Degree;
     class Radian;

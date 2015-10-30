@@ -37,6 +37,8 @@ namespace Tiny3D
 
         bool    mIsFullScreen;
         bool    mActive;
+        bool    mReady;
+        bool    mClosed;
     };
 }
 

@@ -98,7 +98,12 @@ namespace Tiny3D
          *      pointer to application listener instance.
          * @return void
          */
-        void setApplicationListener(ApplicationListener *pListener);
+        void setApplicationListener(ApplicationListener *listener);
+
+        ApplicationListener *getApplicationListener();
+
+        void addFrameListener(FrameListener *listener);
+        void removeFrameListener(FrameListener *listener);
 
     protected:
         void loadPlugins();
@@ -125,6 +130,8 @@ namespace Tiny3D
         DylibList       mDylibList;
 
         Settings        mSettings;
+
+        ApplicationListener *mAppListener;
     };
 
     #define T3D_ENTRANCE         Entrance::getInstance()

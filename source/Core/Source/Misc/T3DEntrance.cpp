@@ -23,6 +23,8 @@ namespace Tiny3D
         const String &log /* = "Tiny3D.log" */)
         : mSystem(new System())
         , mDylibMgr(new DylibManager())
+        , mActiveRenderer(nullptr)
+        , mAppListener(nullptr)
     {
         ConfigFile file(config);
         file.loadXML(mSettings);
@@ -199,8 +201,26 @@ namespace Tiny3D
         return true;
     }
 
-    void Entrance::setApplicationListener(ApplicationListener *pListener)
+    void Entrance::setApplicationListener(ApplicationListener *listener)
     {
+        mAppListener = listener;
+    }
 
+    ApplicationListener *Entrance::getApplicationListener()
+    {
+        return mAppListener;
+    }
+
+    void Entrance::addFrameListener(FrameListener *listener)
+    {
+        T3D_ASSERT(mActiveRenderer != nullptr);
+
+        mActiveRenderer->addFrameListener(listener);
+    }
+
+    void Entrance::removeFrameListener(FrameListener *listener)
+    {
+        T3D_ASSERT(mActiveRenderer != nullptr);
+        mActiveRenderer->removeFrameListener(listener);
     }
 }

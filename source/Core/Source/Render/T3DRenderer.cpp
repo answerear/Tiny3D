@@ -2,6 +2,8 @@
 
 #include "Render/T3DRenderer.h"
 #include "Render/T3DRenderTarget.h"
+#include "Listener/T3DFrameListener.h"
+#include <T3DPlatform.h>
 
 
 namespace Tiny3D
@@ -46,5 +48,73 @@ namespace Tiny3D
         }
 
         return nullptr;
+    }
+
+    void Renderer::addFrameListener(FrameListener *listener)
+    {
+        mFrameListeners.insert(listener);
+    }
+
+    void Renderer::removeFrameListener(FrameListener *listener)
+    {
+        mFrameListeners.erase(listener);
+    }
+
+    bool Renderer::fireFrameStarted()
+    {
+        uint64_t timestamp = DateTime::currentMSecsSinceEpoch();
+
+        FrameEvent evt;
+        evt.timeSinceLastEvent = timestamp - mLastEndTime;
+        evt.timeSinceLastFrame = timestamp - mLastStartTime;
+
+        mLastStartTime = timestamp;
+
+        return fireFrameStarted(evt);
+    }
+
+    bool Renderer::fireFrameEnded()
+    {
+        uint64_t timestamp = DateTime::currentMSecsSinceEpoch();
+
+        FrameEvent evt;
+        evt.timeSinceLastEvent = timestamp - mLastStartTime;
+        evt.timeSinceLastFrame = timestamp - mLastEndTime;
+
+        mLastEndTime = timestamp;
+
+        return fireFrameEnded(evt);
+    }
+
+    bool Renderer::fireFrameStarted(const FrameEvent &evt)
+    {
+        bool ret = true;
+        FrameListenerListItr itr = mFrameListeners.begin();
+        
+        while (itr != mFrameListeners.end())
+        {
+            ret = (*itr)->onFrameStarted(evt);
+            if (!ret)
+                break;
+            ++itr;
+        }
+
+        return ret;
+    }
+
+    bool Renderer::fireFrameEnded(const FrameEvent &evt)
+    {
+        bool ret = true;
+        FrameListenerListItr itr = mFrameListeners.begin();
+
+        while (itr != mFrameListeners.end())
+        {
+            ret = (*itr)->onFrameEnded(evt);
+            if (!ret)
+                break;
+            ++itr;
+        }
+
+        return ret;
     }
 }

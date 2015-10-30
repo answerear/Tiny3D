@@ -7,7 +7,9 @@
 #include <Tiny3D.h>
 
 
-class HelloWorldApp : public Tiny3D::ApplicationListener
+class HelloWorldApp 
+    : public Tiny3D::ApplicationListener
+//     , public Tiny3D::FrameListener
 {
 public:
     HelloWorldApp();
@@ -19,6 +21,10 @@ protected:  /// from Tiny3D::ApplicationListener
     virtual void applicationDidEnterBackground();
 
     virtual void applicationWillEnterForeground();
+
+// protected:  /// from Tiny3D::FrameListener
+//     virtual bool onFrameStarted(const FrameEvent &evt);
+//     virtual bool onFrameEnded(const FrameEvent &evt);
 };
 
 

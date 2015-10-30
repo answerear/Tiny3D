@@ -19,6 +19,8 @@ namespace Tiny3D
         virtual void applicationDidEnterBackground() = 0;
 
         virtual void applicationWillEnterForeground() = 0;
+
+        virtual void applicationWillTerminate() = 0;
     };
 }
 

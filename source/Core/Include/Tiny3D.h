@@ -15,6 +15,7 @@
 #include "Bound/T3DSphereBound.h"
 
 #include "Listener/T3DApplicationListener.h"
+#include "Listener/T3DFrameListener.h"
 
 #include "Math/T3DMath.h"
 #include "Math/T3DMatrix2.h"

@@ -3,6 +3,8 @@
 #include "T3DD3D9Renderer.h"
 #include "T3DD3D9RenderWindow.h"
 #include "Render/T3DRenderTarget.h"
+#include "Misc/T3DEntrance.h"
+#include "Listener/T3DApplicationListener.h"
 
 
 namespace Tiny3D
@@ -44,6 +46,9 @@ namespace Tiny3D
 
     void D3D9Renderer::startRendering()
     {
+        if (Entrance::getInstance().getApplicationListener())
+            Entrance::getInstance().getApplicationListener()->applicationDidFinishLaunching();
+
         MSG msg;
 
         // Render this window
@@ -53,19 +58,29 @@ namespace Tiny3D
         {
             if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
             {
+                if (WM_QUIT == msg.message)
+                    break;
+
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             }
             else
             {
+                if (!fireFrameStarted())
+                    break;
+
                 RenderTargetListItr itr = mRenderTargets.begin();
                 while (itr != mRenderTargets.end())
                 {
                     itr->second->update();
                     ++itr;
                 }
+
+                if (!fireFrameEnded())
+                    break;
             }
         }
 
+        
     }
 }
