@@ -154,16 +154,16 @@ namespace Tiny3D
         if( WM_CREATE != uMsg )
         {
             // Get window pointer
-            win = (D3D9RenderWindow*)GetWindowLong( hWnd, 0 );
+            win = (D3D9RenderWindow*)GetWindowLongPtr(hWnd, GWL_USERDATA);
 
             if (win == nullptr)
                 return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
         }
 
-        switch( uMsg )
+        switch (uMsg)
         {
         case WM_ACTIVATE:
-            if( WA_INACTIVE == LOWORD( wParam ) )
+            if (WA_INACTIVE == LOWORD(wParam))
                 win->mActive = false;
             else
                 win->mActive = true;
@@ -175,7 +175,7 @@ namespace Tiny3D
             lpcs = (LPCREATESTRUCT)lParam;
             win = (D3D9RenderWindow*)(lpcs->lpCreateParams);
             // Store pointer in window user data area
-            SetWindowLong( hWnd, 0, (long)win );
+            SetWindowLongPtr(hWnd, GWL_USERDATA, (LONG_PTR)win);
             win->mActive = true;
 
             return 0;

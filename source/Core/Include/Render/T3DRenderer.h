@@ -20,6 +20,20 @@ namespace Tiny3D
         static const char * const OPENGLES2;
         static const char * const OPENGLES3;
 
+        enum Ability
+        {
+
+        };
+
+        enum TransformState
+        {
+            E_TS_VIEW,
+            E_TS_WORLD,
+            E_TS_PROJECTION,
+            E_TS_TEXTURE_0,
+            E_TS_MAX
+        };
+
         Renderer();
         virtual ~Renderer();
 
@@ -37,6 +51,21 @@ namespace Tiny3D
 
         void addFrameListener(FrameListener *listener);
         void removeFrameListener(FrameListener *listener);
+
+        virtual bool beginFrame() = 0;
+        virtual bool endFrame() = 0;
+
+        virtual bool queryAbility(Ability ability) = 0;
+        virtual void enableAbility(Ability ability, bool enabled = true) = 0;
+
+        virtual void setTransform(TransformState state, const Matrix4 &mat) = 0;
+        
+        void setViewTransform(const Matrix4 &mat);
+        void setWorldTransform(const Matrix4 &mat);
+        void setProjectionTransform(const Matrix4 &mat);
+        void setTextureTransform(int32_t textureIdx, const Matrix4 &mat);
+
+        virtual const Matrix4 &getTransform(TransformState state) const = 0; 
 
     protected:
         bool fireFrameStarted();
