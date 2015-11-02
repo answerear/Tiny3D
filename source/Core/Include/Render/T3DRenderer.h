@@ -65,7 +65,9 @@ namespace Tiny3D
         void setProjectionTransform(const Matrix4 &mat);
         void setTextureTransform(int32_t textureIdx, const Matrix4 &mat);
 
-        virtual const Matrix4 &getTransform(TransformState state) const = 0; 
+        virtual const Matrix4 &getTransform(TransformState state) const = 0;
+
+        virtual void setMaterial() = 0;
 
     protected:
         bool fireFrameStarted();
@@ -91,6 +93,9 @@ namespace Tiny3D
         uint64_t            mLastEndTime;
     };
 }
+
+
+#include "T3DRenderer.inl"
 
 
 #endif    /*__T3D_RENDERER_H__*/
