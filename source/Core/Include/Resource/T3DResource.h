@@ -68,7 +68,7 @@ namespace Tiny3D
         int32_t     mID;        /** ID of this resource */
         int32_t     mCloneID;   /** If this resource is cloned from another, this value is none zero */
         bool        mIsLoaded;  /** loaded flag */
-        String     mName;      /** name of the resource */
+        String      mName;      /** name of the resource */
     };
 }
 
