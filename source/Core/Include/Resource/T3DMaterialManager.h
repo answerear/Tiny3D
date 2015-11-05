@@ -14,7 +14,12 @@ namespace Tiny3D
         : public Singleton<MaterialManager>
         , public ResourceManager
     {
+    public:
+        MaterialManager();
+        virtual ~MaterialManager();
 
+    protected:
+        virtual Resource *create(const String &name);
     };
 }
 

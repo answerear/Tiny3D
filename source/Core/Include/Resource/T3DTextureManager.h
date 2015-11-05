@@ -17,7 +17,6 @@ namespace Tiny3D
     public:
         TextureManager();
         virtual ~TextureManager();
-
     };
 }
 
