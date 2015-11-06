@@ -14,6 +14,10 @@
 #endif
 
 
+#include "T3DPlatform.h"
+#include "T3DLogger.h"
+
+
 namespace Tiny3D
 {
     /// Platform

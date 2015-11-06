@@ -36,7 +36,6 @@ set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .h
 set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .inl)
 set_project_files(Include\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Include/Resource/ .h)
 set_project_files(Include\\\\Listener ${CMAKE_CURRENT_SOURCE_DIR}/Include/Listener/ .h)
-set_project_files(Include\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Include/Support/tinyxml2/ .h)
 set_project_files(Include\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Include/DataStruct/ .h)
 set_project_files(Include\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Include/DataStruct/ .inl)
 
@@ -49,8 +48,22 @@ set_project_files(Source\\\\Misc ${CMAKE_CURRENT_SOURCE_DIR}/Source/Misc/ .cpp)
 set_project_files(Source\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Source/Bound/ .cpp)
 set_project_files(Source\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Source/Resource/ .cpp)
 set_project_files(Source\\\\Listener ${CMAKE_CURRENT_SOURCE_DIR}/Source/Listener/ .cpp)
-set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .cpp)
 set_project_files(Source\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Source/DataStruct/ .cpp)
+
+set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageCodec/ .h)
+set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageCodec/ .cpp)
+
+# tinyxml2
+set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)
+set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .cpp)
+# png
+set_project_files(Source\\\\Support\\\\png ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/png/ .h)
+set_project_files(Source\\\\Support\\\\png ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/png/ .cpp)
+set_project_files(Source\\\\Support\\\\png ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/png/ .c)
+# jpeg
+set_project_files(Source\\\\Support\\\\jpeg ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/jpeg/ .h)
+set_project_files(Source\\\\Support\\\\jpeg ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/jpeg/ .cpp)
+set_project_files(Source\\\\Support\\\\jpeg ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/jpeg/ .c)
 
 
 if (TINY3D_BUILD_SHARED_LIBS)
