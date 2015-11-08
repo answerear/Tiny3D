@@ -4,7 +4,7 @@
 #define __T3D_IMAGE_CODEC_BMP_H__
 
 
-#include "T3DImageCodec.h"
+#include "ImageCodec/T3DImageCodec.h"
 
 
 namespace Tiny3D

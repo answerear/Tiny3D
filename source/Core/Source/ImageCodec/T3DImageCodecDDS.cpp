@@ -1,49 +1,53 @@
 
 
-#ifndef __TINY3D_H__
-#define __TINY3D_H__
+#include "ImageCodec/T3DImageCodecDDS.h"
 
 
-#include "Bound/T3DAabb.h"
-#include "Bound/T3DAabbBound.h"
-#include "Bound/T3DBound.h"
-#include "Bound/T3DFrustum.h"
-#include "Bound/T3DFrustumBound.h"
-#include "Bound/T3DObb.h"
-#include "Bound/T3DObbBound.h"
-#include "Bound/T3DSphere.h"
-#include "Bound/T3DSphereBound.h"
+namespace Tiny3D
+{
+    ImageCodecDDS::ImageCodecDDS()
+    {
 
-#include "Listener/T3DApplicationListener.h"
-#include "Listener/T3DFrameListener.h"
+    }
 
-#include "Math/T3DMath.h"
-#include "Math/T3DMatrix2.h"
-#include "Math/T3DMatrix3.h"
-#include "Math/T3DMatrix4.h"
-#include "Math/T3DQuaternion.h"
-#include "Math/T3DVector2.h"
-#include "Math/T3DVector3.h"
-#include "Math/T3DVector4.h"
+    ImageCodecDDS::~ImageCodecDDS()
+    {
 
-#include "Misc/T3DEntrance.h"
-#include "Misc/T3DColor4.h"
-#include "Misc/T3DCommon.h"
-#include "Misc/T3DPlane.h"
-#include "Misc/T3DPlugin.h"
-#include "Misc/T3DViewport.h"
+    }
 
-#include "Render/T3DRenderer.h"
-#include "Render/T3DRenderTarget.h"
-#include "Render/T3DRenderWindow.h"
+    ImageCodec::EType ImageCodecDDS::getType() const
+    {
+        return E_TYPE_DDS;
+    }
 
-#include "Resource/T3DDylib.h"
-#include "Resource/T3DDylibManager.h"
-#include "Resource/T3DResource.h"
-#include "Resource/T3DResourceManager.h"
+    bool ImageCodecDDS::encode(const String &name, const Image &image)
+    {
+        return true;
+    }
 
-#include "SG/T3DCamera.h"
-#include "SG/T3DNode.h"
+    bool ImageCodecDDS::encode(DataStream &stream, const Image &image)
+    {
+        return true;
+    }
 
+    bool ImageCodecDDS::encode(uint8_t *&data, size_t &size, const Image &image)
+    {
+        return true;
+    }
 
-#endif  /*__TINY3D_H__*/
+    bool ImageCodecDDS::decode(const String &name, Image &image)
+    {
+        return true;
+    }
+
+    bool ImageCodecDDS::decode(DataStream &stream, Image &image)
+    {
+        return true;
+    }
+
+    bool ImageCodecDDS::decode(const uint8_t *data, size_t size, Image &image)
+    {
+        return true;
+    }
+}
+

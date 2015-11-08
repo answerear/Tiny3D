@@ -1,6 +1,6 @@
 
 
-#include "T3DImageCodec.h"
+#include "ImageCodec/T3DImageCodec.h"
 
 
 namespace Tiny3D

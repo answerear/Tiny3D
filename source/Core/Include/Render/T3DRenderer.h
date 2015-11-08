@@ -69,6 +69,10 @@ namespace Tiny3D
 
         virtual void setMaterial() = 0;
 
+        virtual void drawVertexPrimitiveList(
+            const void *vertices, uint32_t vertexCount,
+            const void *indices, uint32_t primitiveCount) = 0;
+
     protected:
         bool fireFrameStarted();
         bool fireFrameEnded();
