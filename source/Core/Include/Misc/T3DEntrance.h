@@ -41,6 +41,8 @@ namespace Tiny3D
         bool loadPlugin(const String &name);
         void unloadPlugin(const String &name);
 
+        bool initialize(bool autoCreateWindow, RenderWindow *&renderWindow);
+
         /**
          * @brief Enumerate all available renderer in list.
          * @param [out] rRendererList

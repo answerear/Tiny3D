@@ -7,6 +7,10 @@
 #include "T3DD3D9Prerequisites.h"
 #include "Render/T3DRenderer.h"
 
+#include <d3d9.h>
+#include <d3dx9.h>
+#include <DxErr.h>
+
 
 namespace Tiny3D
 {
@@ -24,8 +28,34 @@ namespace Tiny3D
 
         virtual void startRendering();
 
+        virtual bool initialize();
+        virtual void uninitialize();
+
+        virtual bool beginRender();
+        virtual bool endRender();
+
+        virtual bool queryCapability(Capability cap);
+        virtual void enableCapability(Capability cap, bool enabled = true);
+
+        virtual void setTransform(TransformState state, const Matrix4 &mat);
+
+        virtual const Matrix4 &getTransform(TransformState state) const;
+
+        virtual void setMaterial();
+
+        virtual void drawVertexList(PrimitiveType primitiveType, 
+            const VertexList &vertices, uint32_t startIdx, 
+            uint32_t primitiveCount);
+
+        virtual void drawIndexList(PrimitiveType primitiveType, 
+            const VertexList &vertices, const IndexList *indicies, 
+            uint32_t startIdx, uint32_t pritimitiveCount);
+
     protected:
         HINSTANCE   mInstance;
+
+        LPDIRECT3D9         mD3D;
+        LPDIRECT3DDEVICE9   mD3DDevice;
     };
 }
 

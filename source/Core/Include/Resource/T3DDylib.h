@@ -14,7 +14,7 @@ namespace Tiny3D
         Dylib(const String &name);
         virtual ~Dylib();
 
-        virtual EType getType() const;
+        virtual Type getType() const;
 
         virtual void *getSymbol(const String &name) const;
 

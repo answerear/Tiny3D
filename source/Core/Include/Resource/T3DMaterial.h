@@ -13,8 +13,14 @@ namespace Tiny3D
     class T3D_ENGINE_API Material : public Resource
     {
     public:
-        Material();
+        Material(const String &name);
         virtual ~Material();
+
+        virtual Type getType() const;
+
+        virtual bool load();
+        virtual void unload();
+        virtual Resource *clone() const;
 
     private:
         String  mName;

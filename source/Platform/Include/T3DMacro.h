@@ -80,5 +80,12 @@
         p = nullptr;    \
     }
 
+#define T3D_SAFE_RELEASE(p) \
+    if (p != nullptr)   \
+    {   \
+        p->release();   \
+        p = nullptr;    \
+    }
+
 
 #endif  /*__T3D_MACRO_H__*/

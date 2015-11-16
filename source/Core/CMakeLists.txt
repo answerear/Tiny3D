@@ -16,13 +16,25 @@ endif (MSVC)
 
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
 set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
+set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
 
 include_directories(
 	"${TINY3D_PLATFORM_DIR}/Include"
 	"${TINY3D_LOG_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
+	"${TINY3D_DEP_DIR}/png/include"
 	)
+
+if (TINY3D_OS_WINDOWS)
+link_directories(
+	"${TINY3D_DEP_DIR}/png/prebuilt/win32"
+	)
+elseif (TINY3D_OS_MACOSX)
+elseif (TINY3D_OS_LINUX)
+elseif (TINY3D_OS_IOS)
+elseif (TINY3D_OS_ANDROID)
+endif (TINY3D_OS_WINDOWS)
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
@@ -65,6 +77,10 @@ set_project_files(Source\\\\Support\\\\png ${CMAKE_CURRENT_SOURCE_DIR}/Source/Su
 set_project_files(Source\\\\Support\\\\jpeg ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/jpeg/ .h)
 set_project_files(Source\\\\Support\\\\jpeg ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/jpeg/ .cpp)
 set_project_files(Source\\\\Support\\\\jpeg ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/jpeg/ .c)
+# zlib
+set_project_files(Source\\\\Support\\\\zlib ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/zlib/ .h)
+set_project_files(Source\\\\Support\\\\zlib ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/zlib/ .cpp)
+set_project_files(Source\\\\Support\\\\zlib ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/zlib/ .c)
 
 
 if (TINY3D_BUILD_SHARED_LIBS)

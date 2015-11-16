@@ -16,9 +16,9 @@ namespace Tiny3D
 
     }
 
-    Resource::EType Texture::getType() const
+    Resource::Type Texture::getType() const
     {
-        return Resource::E_TYPE_TEXTURE;
+        return E_TYPE_TEXTURE;
     }
 
     bool Texture::load()

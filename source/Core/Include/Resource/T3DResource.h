@@ -14,7 +14,7 @@ namespace Tiny3D
         friend class ResourceManager;
 
     public:
-        enum EType
+        enum Type
         {
             E_TYPE_UNKNOWN = 0,
             E_TYPE_DYLIB,
@@ -26,7 +26,7 @@ namespace Tiny3D
         Resource(const String &strName);
         virtual ~Resource();
 
-        virtual EType getType() const = 0;
+        virtual Type getType() const = 0;
 
         uint32_t getID() const
         {

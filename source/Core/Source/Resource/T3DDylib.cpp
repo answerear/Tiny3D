@@ -33,7 +33,7 @@ namespace Tiny3D
 
     }
 
-    Resource::EType Dylib::getType() const
+    Resource::Type Dylib::getType() const
     {
         return E_TYPE_DYLIB;
     }

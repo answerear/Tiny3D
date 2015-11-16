@@ -15,7 +15,7 @@ namespace Tiny3D
         Texture(const String &name);
         virtual ~Texture();
 
-        virtual EType getType() const;
+        virtual Type getType() const;
 
     protected:
         virtual bool load();

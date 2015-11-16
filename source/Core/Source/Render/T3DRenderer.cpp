@@ -65,8 +65,8 @@ namespace Tiny3D
         uint64_t timestamp = DateTime::currentMSecsSinceEpoch();
 
         FrameEvent evt;
-        evt.timeSinceLastEvent = timestamp - mLastEndTime;
-        evt.timeSinceLastFrame = timestamp - mLastStartTime;
+        evt.timeSinceLastEvent = (uint32_t)(timestamp - mLastEndTime);
+        evt.timeSinceLastFrame = (uint32_t)(timestamp - mLastStartTime);
 
         mLastStartTime = timestamp;
 
@@ -78,8 +78,8 @@ namespace Tiny3D
         uint64_t timestamp = DateTime::currentMSecsSinceEpoch();
 
         FrameEvent evt;
-        evt.timeSinceLastEvent = timestamp - mLastStartTime;
-        evt.timeSinceLastFrame = timestamp - mLastEndTime;
+        evt.timeSinceLastEvent = (uint32_t)(timestamp - mLastStartTime);
+        evt.timeSinceLastFrame = (uint32_t)(timestamp - mLastEndTime);
 
         mLastEndTime = timestamp;
 

@@ -11,6 +11,9 @@
 
 namespace Tiny3D
 {
+    class VertexList;
+    class IndexList;
+
     class T3D_ENGINE_API Renderer
     {
     public:
@@ -20,7 +23,7 @@ namespace Tiny3D
         static const char * const OPENGLES2;
         static const char * const OPENGLES3;
 
-        enum Ability
+        enum Capability
         {
 
         };
@@ -34,8 +37,20 @@ namespace Tiny3D
             E_TS_MAX
         };
 
+        enum PrimitiveType
+        {
+            E_PT_POINT,
+            E_PT_LINE,
+            E_PT_TRIANGLE_LIST,
+            E_PT_TRIANGLE_STRIP,
+            E_PT_TRIANGLE_FAN,
+        };
+
         Renderer();
         virtual ~Renderer();
+
+        virtual bool initialize() = 0;
+        virtual void uninitialize() = 0;
 
         virtual String getName() const = 0;
 
@@ -52,11 +67,11 @@ namespace Tiny3D
         void addFrameListener(FrameListener *listener);
         void removeFrameListener(FrameListener *listener);
 
-        virtual bool beginFrame() = 0;
-        virtual bool endFrame() = 0;
+        virtual bool beginRender() = 0;
+        virtual bool endRender() = 0;
 
-        virtual bool queryAbility(Ability ability) = 0;
-        virtual void enableAbility(Ability ability, bool enabled = true) = 0;
+        virtual bool queryCapability(Capability cap) = 0;
+        virtual void enableCapability(Capability cap, bool enabled = true) = 0;
 
         virtual void setTransform(TransformState state, const Matrix4 &mat) = 0;
         
@@ -69,9 +84,13 @@ namespace Tiny3D
 
         virtual void setMaterial() = 0;
 
-        virtual void drawVertexPrimitiveList(
-            const void *vertices, uint32_t vertexCount,
-            const void *indices, uint32_t primitiveCount) = 0;
+        virtual void drawVertexList(PrimitiveType primitiveType, 
+            const VertexList &vertices, uint32_t startIdx, 
+            uint32_t primitiveCount) = 0;
+
+        virtual void drawIndexList(PrimitiveType primitiveType, 
+            const VertexList &vertices, const IndexList *indicies, 
+            uint32_t startIdx, uint32_t pritimitiveCount) = 0;
 
     protected:
         bool fireFrameStarted();

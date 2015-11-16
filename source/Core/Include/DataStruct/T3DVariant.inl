@@ -78,6 +78,18 @@ namespace Tiny3D
         mCharValue = value;
     }
 
+    inline Variant::Variant(const char *value)
+        : mType(E_STRING)
+        , mValueSize(0)
+    {
+        memset(mValue, 0, sizeof(mValue));
+        size_t len = strlen(value);
+        mValueSize = (len > 0 ? len + 1 : 1);
+        mStrValue = new char[mValueSize];
+        memcpy(mStrValue, value, mValueSize-1);
+        mStrValue[mValueSize-1] = 0;
+    }
+
     inline Variant::Variant(const String &value)
         : mType(E_STRING)
         , mValueSize(0)

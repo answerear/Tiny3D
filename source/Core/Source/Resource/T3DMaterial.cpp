@@ -1,21 +1,45 @@
 
 
-#ifndef __T3D_PLANE_H__
-#define __T3D_PLANE_H__
-
-
-#include "T3DPrerequisites.h"
+#include "Resource/T3DMaterial.h"
+#include "Misc/T3DColor4.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API Plane
+    Material::Material(const String &name)
+        : Resource(name)
+        , mAmbientColor(Color4::WHITE)
+        , mDiffuseColor(Color4::WHITE)
+        , mSpecularColor(Color4::WHITE)
+        , mEmissiveColor(Color4::WHITE)
+        , mShininess(Real(20.0))
     {
-    public:
-        Plane();
-        virtual ~Plane();
-    };
+
+    }
+
+    Material::~Material()
+    {
+
+    }
+
+    Resource::Type Material::getType() const
+    {
+        return E_TYPE_MATERIAL;
+    }
+
+    bool Material::load()
+    {
+        return true;
+    }
+
+    void Material::unload()
+    {
+
+    }
+
+    Resource *Material::clone() const
+    {
+        return new Material(mName);
+    }
 }
 
-
-#endif  /*__T3D_PLANE_H__*/

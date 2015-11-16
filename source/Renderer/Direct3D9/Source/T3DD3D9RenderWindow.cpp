@@ -128,6 +128,8 @@ namespace Tiny3D
             ReleaseDC(mHWnd, hdc);
         }
 
+
+
         mReady = true;
 
         return true;

@@ -40,6 +40,7 @@ namespace Tiny3D
         Variant(long_t value);
         Variant(Real value);
         Variant(char value);
+        Variant(const char *value);
         Variant(const String &value);
         Variant(const VariantArray &value);
         Variant(const VariantList &value);

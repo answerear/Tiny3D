@@ -131,6 +131,30 @@ namespace Tiny3D
 
     }
 
+    bool Entrance::initialize(bool autoCreateWindow, RenderWindow *&renderWindow)
+    {
+        if (mActiveRenderer == nullptr)
+            return false;
+
+        bool ret = mActiveRenderer->initialize();
+        
+        if (autoCreateWindow)
+        {
+            RenderWindowCreateParam param;
+            param._windowLeft = mSettings["x"].int32Value();
+            param._windowTop = mSettings["y"].int32Value();
+            param._windowWidth = mSettings["Width"].int32Value();
+            param._windowHeight = mSettings["Height"].int32Value();
+            param._fullscreen = mSettings["FullScreen"].boolValue();
+            param._colorDepth = mSettings["ColorDepth"].int32Value();
+            param._windowTitle = mSettings["Title"].stringValue();
+            RenderWindowCreateParamEx paramEx;
+            renderWindow = mActiveRenderer->createRenderWindow(param, paramEx);
+        }
+
+        return ret;
+    }
+
     void Entrance::enumerateAvailableRenderers(RendererList &rRendererList) const
     {
         rRendererList.clear();
@@ -142,7 +166,9 @@ namespace Tiny3D
     {
         if (mActiveRenderer != renderer)
         {
-            
+            if (mActiveRenderer != nullptr)
+                mActiveRenderer->uninitialize();
+            renderer->initialize();
         }
 
         mActiveRenderer = renderer;
