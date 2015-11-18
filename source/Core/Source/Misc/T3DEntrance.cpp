@@ -149,6 +149,9 @@ namespace Tiny3D
             param._colorDepth = mSettings["ColorDepth"].int32Value();
             param._windowTitle = mSettings["Title"].stringValue();
             RenderWindowCreateParamEx paramEx;
+            paramEx["renderer"].setLong((long_t)mActiveRenderer);
+            paramEx["MultiSampleQuality"] = mSettings["MultiSampleQuality"];
+            paramEx["vsync"] = mSettings["VSync"];
             renderWindow = mActiveRenderer->createRenderWindow(param, paramEx);
         }
 

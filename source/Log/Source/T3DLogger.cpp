@@ -2,6 +2,7 @@
 #include "T3DLogger.h"
 
 
+
 namespace Tiny3D
 {
     T3D_INIT_SINGLETON(Logger);
@@ -21,7 +22,7 @@ namespace Tiny3D
         return true;
     }
 
-    void Logger::trace(ELevel level, const char *filename, int32_t line, const char *fmt, ...)
+    void Logger::trace(Level level, const char *filename, int32_t line, const char *fmt, ...)
     {
 
     }

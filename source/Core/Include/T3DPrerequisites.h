@@ -81,6 +81,8 @@ namespace Tiny3D
     class Dylib;
     class DylibManager;
 
+    class SceneGraphManager;
+    class SGNode;
     class SGCamera;
 
     class Variant;

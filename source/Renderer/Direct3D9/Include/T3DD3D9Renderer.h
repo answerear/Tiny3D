@@ -51,11 +51,12 @@ namespace Tiny3D
             const VertexList &vertices, const IndexList *indicies, 
             uint32_t startIdx, uint32_t pritimitiveCount);
 
+        LPDIRECT3D9 getD3D()  { return mD3D; }
+
     protected:
         HINSTANCE   mInstance;
 
         LPDIRECT3D9         mD3D;
-        LPDIRECT3DDEVICE9   mD3DDevice;
     };
 }
 

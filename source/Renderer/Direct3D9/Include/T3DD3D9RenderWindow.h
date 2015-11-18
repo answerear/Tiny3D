@@ -6,6 +6,7 @@
 
 #include "T3DD3D9Prerequisites.h"
 #include "Render/T3DRenderWindow.h"
+#include "T3DD3D9Renderer.h"
 
 
 namespace Tiny3D
@@ -31,14 +32,22 @@ namespace Tiny3D
         static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, 
             WPARAM wParam, LPARAM lParam);
 
+        bool checkMultiSampleQuality(LPDIRECT3D9 pD3D, D3DMULTISAMPLE_TYPE type, 
+            DWORD *outQuality, D3DFORMAT fBack, D3DFORMAT fDepth, 
+            UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen);
+
     protected:
         HWND    mHWnd;
         HWND    mParentHWnd;
+
+        DWORD   mMultiSampleQuality;
 
         bool    mIsFullScreen;
         bool    mActive;
         bool    mReady;
         bool    mClosed;
+
+        LPDIRECT3DDEVICE9   mD3DDevice;
     };
 }
 

@@ -6,6 +6,7 @@
 #include "Misc/T3DEntrance.h"
 #include "Listener/T3DApplicationListener.h"
 #include "Math/T3DMatrix4.h"
+#include <T3DLog.h>
 
 
 namespace Tiny3D
@@ -13,7 +14,6 @@ namespace Tiny3D
     D3D9Renderer::D3D9Renderer(HINSTANCE hInstance)
         : mInstance(hInstance)
         , mD3D(nullptr)
-        , mD3DDevice(nullptr)
     {
 
     }
@@ -35,10 +35,7 @@ namespace Tiny3D
         RenderWindow *window = new D3D9RenderWindow();
 
         RenderWindowCreateParamEx paramEx = rkCreateParamEx;
-        char buf[64] = {0};
-        ltoa((long_t)mInstance, buf, 10);
-        String s(buf);
-        paramEx["instance"] = s;
+        paramEx["instance"].setLong((long_t)mInstance);
 
         window->create("D3D9RenderWindow", rkCreateParam, paramEx);
 
@@ -99,7 +96,7 @@ namespace Tiny3D
             D3DDISPLAYMODE d3ddm;
             mD3D->GetAdapterIdentifier(uAdapter, 0, &d3dai);
             mD3D->GetAdapterDisplayMode(uAdapter, &d3ddm);
-            int a = 0;
+
         }
 
         return true;

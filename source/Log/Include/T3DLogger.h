@@ -7,6 +7,9 @@
 
 #include "T3DSingleton.h"
 #include "T3DLoggerMacro.h"
+#include <T3DPlatform.h>
+#include <mutex>
+#include <thread>
 
 
 namespace Tiny3D
@@ -16,7 +19,7 @@ namespace Tiny3D
         T3D_DISABLE_COPY(Logger);
 
     public:
-        enum ELevel
+        enum Level
         {
             E_LEVEL_OFF = 0,        /// None log
             E_LEVEL_FATAL,          /// Fatal error
@@ -32,15 +35,61 @@ namespace Tiny3D
         Logger();
         virtual ~Logger();
 
-        bool startup(uint32_t appID, const String &tag, bool truncate = true, bool force = false);
+        void setLevel(Level eLevel);
 
-        void trace(ELevel level, const char *filename, int32_t line, const char *fmt, ...);
+        bool startup(uint32_t appID, const String &tag, bool truncate = false, bool force = false);
+
+        void trace(Level level, const char *filename, int32_t line, const char *fmt, ...);
 
         void shutdown();
 
         void enterBackground();
 
         void enterForeground();
+
+    private:
+        String makeLogFileName(uint32_t appID, const String &tag);
+
+        bool openLogFile(const String &filename);
+        void closeLogFile();
+
+        static 
+
+        class Item
+        {
+            friend class Logger;
+
+        public:
+            Item(Level level, const char *filename, int32_t line, const char *content)
+                : mLevel(level)
+                , mLine(line)
+            {
+                int32_t len = strlen(filename);
+                len = (len > sizeof(mFilename) ? sizeof(mFilename) : len);
+                memcpy(mFilename, filename, len);
+                len = strlen(content);
+                len = (len > sizeof(mContent) ? sizeof(mContent) : len);
+                memcpy(mContent, content, len);
+            }
+
+        private:
+            Level   mLevel;
+            char    mFilename[64];
+            int32_t mLine;
+            char    mContent[2048];
+        };
+
+        typedef std::list<Item*>            ItemList;
+        typedef ItemList::iterator          ItemListItr;
+        typedef ItemList::const_iterator    ItemListConstItr;
+
+        Level               mLevel;
+
+        ItemList            mItemList[2];
+        FileDataStream      mFileStream;
+
+        std::mutex          mListMutex;
+        std::thread         mWriteThread;
     };
 }
 

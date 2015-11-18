@@ -48,8 +48,9 @@ namespace Tiny3D
         bool        _fullscreen;
     };
 
-    typedef std::map<String, String>    NameValuePairList;
-    typedef NameValuePairList           RenderWindowCreateParamEx;
+//     typedef std::map<String, String>    NameValuePairList;
+//     typedef NameValuePairList           RenderWindowCreateParamEx;
+    typedef VariantMap                  RenderWindowCreateParamEx;
 
     typedef std::list<Renderer*>            RendererList;
     typedef RendererList::iterator          RendererListItr;
