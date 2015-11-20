@@ -87,5 +87,11 @@
         p = nullptr;    \
     }
 
+#define T3D_SAFE_ACQUIRE(p) \
+    if (p != nullptr)   \
+    {   \
+        p->acquire();   \
+    }
+
 
 #endif  /*__T3D_MACRO_H__*/

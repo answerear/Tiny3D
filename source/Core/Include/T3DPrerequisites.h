@@ -102,6 +102,10 @@ namespace Tiny3D
     typedef std::pair<Variant, Variant>     VariantMapValue;
 
     typedef VariantMap Settings;
+
+    typedef std::list<SGNode*>              SGChildren;
+    typedef SGChildren::iterator            SGChildrenItr;
+    typedef SGChildren::const_iterator      SGChildrenConstItr;
 }
 
 

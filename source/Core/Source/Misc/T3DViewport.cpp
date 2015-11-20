@@ -2,6 +2,7 @@
 
 #include "Misc/T3DViewport.h"
 #include "Render/T3DRenderTarget.h"
+#include "SG/T3DSGCamera.h"
 
 
 namespace Tiny3D
@@ -30,7 +31,7 @@ namespace Tiny3D
 
     void Viewport::update()
     {
-
+        mCamera->update();
     }
 
     void Viewport::setDimensions(Real left, Real top, Real width, Real height)
