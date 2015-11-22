@@ -1,16 +1,13 @@
 
-
 #ifndef __T3D_SG_TRANSFORM_NODE_H__
 #define __T3D_SG_TRANSFORM_NODE_H__
 
 
 #include "SG/T3DSGNode.h"
-#include "Math/T3DVector3.h"
-#include "Math/T3DQuaternion.h"
 #include "Math/T3DMath.h"
+#include "Math/T3DVector3.h"
 #include "Math/T3DMatrix3.h"
 #include "Math/T3DMatrix4.h"
-#include "Bound/T3DSphereBound.h"
 
 
 namespace Tiny3D
@@ -33,22 +30,33 @@ namespace Tiny3D
         void setScale(Real x, Real y, Real z);
         const Vector3 &getScale() const;
 
-        void translate(const Vector3 &rkOffet);
+        void translate(const Vector3 &rkOffset);
         void translate(Real x, Real y, Real z);
         void translate(const Matrix3 &axis, const Vector3 &rkOffset);
         void translate(const Matrix3 &axis, Real x, Real y, Real z);
 
-        void roll(const Degree &degrees);
+        void rotate(const Quaternion &rkQ);
+        void rotate(const Vector3 &axis, const Radian &radians);
+        void rotate(const Vector3 &axis, const Degree &degrees);
+
         void pitch(const Degree &degrees);
         void yaw(const Degree &degrees);
+        void roll(const Degree &degrees);
 
-        void rotate(const Vector3 &axis, const Degree &degrees);
-        void rotate(const Quaternion &rkQ);
+        void pitch(const Radian &radians);
+        void yaw(const Radian &radians);
+        void roll(const Radian &radians);
 
         void scale(const Vector3 &rkScale);
         void scale(Real x, Real y, Real z);
 
-        virtual Bound *getBoundingBox();
+        /**
+         * @brief This method only be used by SGCamera for child.
+         * @param [in] pos : 
+         * @param [in] obj : 
+         * @param [in] up : 
+         */
+        void lookAt(const Vector3 &pos, const Vector3 &obj, const Vector3 &up);
 
         virtual const Matrix4 &getLocalToWorldTransform() const;
         Matrix4 getWorldToLocalTransform() const;
@@ -59,9 +67,8 @@ namespace Tiny3D
         bool isDirty() const;
 
     protected:
-        virtual void update();
-
         virtual void onAttachParent(SGNode *parent);
+        virtual void onDetachParent(SGNode *parent);
 
     private:
         Vector3     mPosition;
@@ -70,7 +77,7 @@ namespace Tiny3D
 
         mutable Matrix4     mWorldTransform;
 
-        bool        mIsDirty;
+        mutable bool        mIsTransformDirty;
         bool        mIsVisible;
     };
 }

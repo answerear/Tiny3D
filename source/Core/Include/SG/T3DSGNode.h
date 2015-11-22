@@ -4,6 +4,10 @@
 
 
 #include "Misc/T3DObject.h"
+#include "Math/T3DMath.h"
+#include "Math/T3DVector3.h"
+#include "Math/T3DMatrix3.h"
+#include "Math/T3DMatrix4.h"
 
 
 namespace Tiny3D
@@ -71,6 +75,7 @@ namespace Tiny3D
 
     protected:
         virtual void update();
+
 
         virtual void onAttachParent(SGNode *parent);
         virtual void onDetachParent(SGNode *parent);
