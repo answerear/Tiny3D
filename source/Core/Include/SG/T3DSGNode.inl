@@ -2,11 +2,6 @@
 
 namespace Tiny3D
 {
-    inline SGNode::Type SGNode::getNodeType() const
-    {
-        return mType;
-    }
-
     inline uint32_t SGNode::getNodeID() const
     {
         return mID;

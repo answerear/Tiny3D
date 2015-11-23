@@ -6,8 +6,7 @@
 namespace Tiny3D
 {
     SGNode::SGNode(uint32_t unID /* = E_NID_AUTOMATIC */)
-        : mType(E_NT_NODE)
-        , mID(E_NID_INVALID)
+        : mID(E_NID_INVALID)
         , mName("")
         , mUserData(0)
         , mUserObject(nullptr)
@@ -150,6 +149,25 @@ namespace Tiny3D
         {
             SGNode *&node = *itr;
             node->update();
+            ++itr;
+        }
+    }
+
+    void SGNode::cloneProperties(SGNode *node)
+    {
+        mName = node->mName;
+        mUserData = node->mUserData;
+        mUserObject = node->mUserObject;
+        T3D_SAFE_ACQUIRE(mUserObject);
+
+        SGChildrenItr itr = node->mChildren.begin();
+        while (itr != node->mChildren.end())
+        {
+            SGNode *child = *itr;
+            SGNode *newChild = child->clone();
+            newChild->cloneProperties(child);
+            node->addChild(newChild);
+            node->autorelease();
             ++itr;
         }
     }

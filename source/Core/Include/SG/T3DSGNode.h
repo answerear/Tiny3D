@@ -16,6 +16,8 @@ namespace Tiny3D
     {
         friend class SceneGraphManager;
 
+        T3D_DISABLE_COPY(SGNode);
+
     public:
         enum ID
         {
@@ -26,8 +28,11 @@ namespace Tiny3D
         enum Type
         {
             E_NT_UNKNOWN = 0,
-            E_NT_NODE,
+
+            // For SGTransformNode
             E_NT_TRANSFORM,
+
+            // All node derived from SGVisual
             E_NT_CAMERA,
             E_NT_LIGHT,
             E_NT_MESH,
@@ -36,16 +41,32 @@ namespace Tiny3D
             E_NT_SKYPLANE,
             E_NT_BILLBOARD,
             E_NT_SPRITE,
-            E_NT_SPHERE,
-            E_NT_CUBE,
             E_NT_INDICATOR,
             E_NT_TERRAIN,
+
+            // All node derived from SGRenderable
+            E_NT_TILE,
+            E_NT_PLANE,
+            E_NT_SPHERE,
+            E_NT_CUBE,
+            E_ET_AXIS,
+            E_NT_QUAD,
+            E_NT_SUBMESH,
         };
 
+    protected:
+        /**
+         * @brief Constructor.
+         * @remarks
+         *      All derived class should implement a static create() method to
+         *      create the concrete object.
+         */
         SGNode(uint32_t unID = E_NID_AUTOMATIC);
+
+    public:
         virtual ~SGNode();
 
-        Type getNodeType() const;
+        virtual Type getNodeType() const = 0;
 
         uint32_t getNodeID() const;
 
@@ -73,9 +94,12 @@ namespace Tiny3D
 
         SGNode *getParent();
 
+        virtual SGNode *clone() = 0;
+
+        virtual void cloneProperties(SGNode *node);
+
     protected:
         virtual void update();
-
 
         virtual void onAttachParent(SGNode *parent);
         virtual void onDetachParent(SGNode *parent);
@@ -83,8 +107,6 @@ namespace Tiny3D
         uint32_t makeGlobalID() const;
 
     protected:
-        Type        mType;          /// Type of this node
-
         uint32_t    mID;            /// Identify of this node
         String      mName;          /// Name of this node
 

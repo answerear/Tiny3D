@@ -14,9 +14,15 @@ namespace Tiny3D
 {
     class T3D_ENGINE_API SGTransformNode : public SGNode
     {
-    public:
+    protected:
         SGTransformNode(uint32_t unID = E_NID_AUTOMATIC);
+
+    public:
+        static SGTransformNode *create(uint32_t unID = E_NID_AUTOMATIC);
+
         virtual ~SGTransformNode();
+
+        virtual Type getNodeType() const;
 
         void setPosition(const Vector3 &rkPos);
         void setPosition(Real x, Real y, Real z);
@@ -61,14 +67,16 @@ namespace Tiny3D
         virtual const Matrix4 &getLocalToWorldTransform() const;
         Matrix4 getWorldToLocalTransform() const;
 
-        void setVisible(bool visible);
-        bool isVisible() const;
-
         bool isDirty() const;
+
+        virtual void addChild(SGNode *node);
 
     protected:
         virtual void onAttachParent(SGNode *parent);
         virtual void onDetachParent(SGNode *parent);
+
+        virtual SGNode *clone();
+        virtual void cloneProperties(SGNode *node);
 
     private:
         Vector3     mPosition;
@@ -78,7 +86,6 @@ namespace Tiny3D
         mutable Matrix4     mWorldTransform;
 
         mutable bool        mIsTransformDirty;
-        bool        mIsVisible;
     };
 }
 

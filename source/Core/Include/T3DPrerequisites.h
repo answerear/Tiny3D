@@ -69,7 +69,7 @@ namespace Tiny3D
     class SphereBound;
     class AabbBound;
     class ObbBound;
-    class Frustum;
+    class FrustumBound;
 
     class Viewport;
     class RenderTarget;
@@ -80,10 +80,17 @@ namespace Tiny3D
     class ResourceManager;
     class Dylib;
     class DylibManager;
+    class Material;
+    class MaterialManager;
+    class Texture;
+    class TextureManager;
 
     class SceneGraphManager;
     class SGNode;
+    class SGTransformNode;
     class SGCamera;
+    class SGVisual;
+    class SGRenderable;
 
     class Variant;
 

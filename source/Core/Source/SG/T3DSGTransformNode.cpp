@@ -5,6 +5,21 @@
 
 namespace Tiny3D
 {
+    SGTransformNode *SGTransformNode::create(uint32_t unID /* = E_NID_AUTOMATIC */)
+    {
+        SGTransformNode *node = new SGTransformNode(unID);
+        if (node != nullptr)
+        {
+            node->autorelease();
+        }
+        else
+        {
+            T3D_SAFE_DELETE(node);
+        }
+
+        return node;
+    }
+
     SGTransformNode::SGTransformNode(uint32_t unID /* = E_NID_AUTOMATIC */)
         : SGNode(unID)
         , mPosition(Vector3::ZERO)
@@ -12,7 +27,6 @@ namespace Tiny3D
         , mScale(Real(1.0), Real(1.0), Real(1.0))
         , mWorldTransform(false)
         , mIsTransformDirty(true)
-        , mIsVisible(true)
     {
         
     }
@@ -70,6 +84,49 @@ namespace Tiny3D
 
     void SGTransformNode::lookAt(const Vector3 &pos, const Vector3 &obj, const Vector3 &up)
     {
+        Vector3 N = obj - pos;
+        N.normalize();
+        Vector3 V = up;
+        Vector3 U = N.cross(V);
+        U.normalize();
+        V = U.cross(N);
+
         mPosition = pos;
+        Matrix3 mat;
+        mat.setColumn(0, U);
+        mat.setColumn(1, V);
+        mat.setColumn(2, -N);
+        mOrientation.fromRotationMatrix(mat);
+
+        mScale[0] = Real(1.0);
+        mScale[1] = Real(1.0);
+        mScale[2] = Real(1.0);
+
+        mIsTransformDirty = true;
+    }
+
+    void SGTransformNode::addChild(SGNode *node)
+    {
+        T3D_ASSERT(node->getNodeType() != E_NT_SUBMESH);
+        SGNode::addChild(node);
+    }
+
+    SGNode *SGTransformNode::clone()
+    {
+        SGTransformNode *node = create();
+        cloneProperties(node);
+        return node;
+    }
+
+    void SGTransformNode::cloneProperties(SGNode *node)
+    {
+        SGNode::cloneProperties(node);
+
+        SGTransformNode *src = (SGTransformNode *)node;
+        mPosition = src->mPosition;
+        mOrientation = src->mOrientation;
+        mScale = src->mScale;
+        mWorldTransform = src->mWorldTransform;
+        mIsTransformDirty = src->mIsTransformDirty;
     }
 }
