@@ -21,9 +21,9 @@ namespace Tiny3D
 
         virtual ~SGCamera();
 
-        virtual Type getNodeType() const;
-        virtual Bound *getBound();
-        virtual void cloneProperties(SGNode *node);
+        virtual Type getNodeType() const override;
+        virtual Bound *getBound() override;
+        virtual void cloneProperties(SGNode *node) override;
 
         void setAspectRatio(Real ratio);
         Real getAspectRatio() const;
@@ -43,14 +43,14 @@ namespace Tiny3D
         void setPerspective(Real fovx, Real ratio, Real near, Real far);
 
     private:    // from SGNode
-        virtual void addChild(SGNode *child);
-        virtual void removeChild(SGNode *child);
-        virtual void removeChild(uint32_t nodeID);
-        virtual void removeAllChildren();
+        virtual void addChild(SGNode *child) override;
+        virtual void removeChild(SGNode *child) override;
+        virtual void removeChild(uint32_t nodeID) override;
+        virtual void removeAllChildren() override;
 
     protected:
-        virtual void update();
-        virtual void updateBound();
+        virtual void update() override;
+        virtual void updateBound() override;
 
         FrustumBound    *mBound;
     };
