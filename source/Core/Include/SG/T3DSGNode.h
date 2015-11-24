@@ -110,7 +110,7 @@ namespace Tiny3D
 
         uint32_t makeGlobalID() const;
 
-    protected:
+    private:
         uint32_t    mID;            /// Identify of this node
         String      mName;          /// Name of this node
 

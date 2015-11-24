@@ -4,7 +4,7 @@
 #define __T3D_SG_VISUAL_H__
 
 
-#include "SG/T3DSGNode.h"
+#include "SG/T3DSGTransformNode.h"
 
 
 namespace Tiny3D
@@ -20,20 +20,28 @@ namespace Tiny3D
         virtual void setVisible(bool visible);
         bool isVisible() const;
 
-        virtual Bound *getBound() = 0;
+        Bound *getBound();
 
         void setBoundEnabled(bool enable);
         bool isBoundEnabled() const;
 
-        virtual void cloneProperties(SGNode *node);
+//         virtual void addChild(SGNode *node) final;
+//         virtual void removeChild(SGNode *node) final;
+//         virtual void removeChild(uint32_t nodeID) final;
+//         virtual void removeAllChildren() final;
+
+        virtual void cloneProperties(SGNode *node) override;
 
     protected:
-        virtual void update();
-        virtual void updateBound() = 0;
+        virtual void update() override;
+        virtual void updateBound();
 
     private:
+        Bound   *mBound;
+
+        Matrix4 mWorldTransform;
+
         bool    mIsVisible;
-        bool    mBoundEnabled;
     };
 }
 

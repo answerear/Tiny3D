@@ -85,6 +85,8 @@ namespace Tiny3D
     class Texture;
     class TextureManager;
 
+    class Object;
+
     class SceneGraphManager;
     class SGNode;
     class SGTransformNode;

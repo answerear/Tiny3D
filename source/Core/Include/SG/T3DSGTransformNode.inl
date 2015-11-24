@@ -7,7 +7,7 @@ namespace Tiny3D
         if (rkPos != mPosition)
         {
             mPosition = rkPos;
-            mIsTransformDirty = true;
+            setDirty(true, true);
         }
     }
 
@@ -27,7 +27,7 @@ namespace Tiny3D
         if (rkQ != mOrientation)
         {
             mOrientation = rkQ;
-            mIsTransformDirty = true;
+            setDirty(true, true);
         }
     }
 
@@ -47,7 +47,7 @@ namespace Tiny3D
         if (rkScale != mScale)
         {
             mScale = rkScale;
-            mIsTransformDirty = true;
+            setDirty(true, true);
         }
     }
 
@@ -67,7 +67,7 @@ namespace Tiny3D
         if (rkOffset != Vector3::ZERO)
         {
             mPosition += rkOffset;
-            mIsTransformDirty = true;
+            setDirty(true, true);
         }
     }
 
@@ -94,7 +94,7 @@ namespace Tiny3D
         if (rkQ != Quaternion::IDENTITY)
         {
             mOrientation *= rkQ;
-            mIsTransformDirty = true;
+            setDirty(true, true);
         }
     }
 
@@ -145,7 +145,7 @@ namespace Tiny3D
         if (rkScale != Vector3::ZERO)
         {
             mScale *= rkScale;
-            mIsTransformDirty = true;
+            setDirty(true, true);
         }
     }
 

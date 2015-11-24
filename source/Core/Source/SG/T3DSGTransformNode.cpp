@@ -26,7 +26,6 @@ namespace Tiny3D
         , mOrientation(Quaternion::IDENTITY)
         , mScale(Real(1.0), Real(1.0), Real(1.0))
         , mWorldTransform(false)
-        , mIsTransformDirty(true)
     {
         
     }
@@ -38,7 +37,7 @@ namespace Tiny3D
 
     void SGTransformNode::onAttachParent(SGNode *parent)
     {
-        mIsTransformDirty = true;
+        setDirty(true, true);
     }
 
     void SGTransformNode::onDetachParent(SGNode *parent)
@@ -46,11 +45,11 @@ namespace Tiny3D
 
     }
 
-    const Matrix4 &SGTransformNode::getLocalToWorldTransform() const
+    const Matrix4 &SGTransformNode::getLocalToWorldTransform()
     {
-        if (mIsTransformDirty)
+        if (isDirty())
         {
-            SGNode *parent = mParent;
+            SGNode *parent = getParent();
 
             while (parent != nullptr && parent->getNodeType() != E_NT_TRANSFORM)
                 parent = parent->getParent();
@@ -69,23 +68,15 @@ namespace Tiny3D
                 xform = R * S;
                 xform.setTranslate(mPosition);
                 mWorldTransform = mat * xform;
-
-                mIsTransformDirty = false;
             }
 
-            SGChildrenConstItr itr = mChildren.begin();
-            while (itr != mChildren.end())
-            {
-                SGNode *child = *itr;
-                child->setDirty(true, true);
-                ++itr;
-            }
+            setDirty(false);
         }
 
         return mWorldTransform;
     }
 
-    Matrix4 SGTransformNode::getWorldToLocalTransform() const
+    Matrix4 SGTransformNode::getWorldToLocalTransform()
     {
         return getLocalToWorldTransform().inverseAffine();
     }
@@ -110,7 +101,7 @@ namespace Tiny3D
         mScale[1] = Real(1.0);
         mScale[2] = Real(1.0);
 
-        mIsTransformDirty = true;
+        setDirty(true, true);
     }
 
     void SGTransformNode::addChild(SGNode *node)
@@ -135,6 +126,5 @@ namespace Tiny3D
         mOrientation = src->mOrientation;
         mScale = src->mScale;
         mWorldTransform = src->mWorldTransform;
-        mIsTransformDirty = src->mIsTransformDirty;
     }
 }

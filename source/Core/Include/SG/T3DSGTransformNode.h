@@ -64,8 +64,8 @@ namespace Tiny3D
          */
         void lookAt(const Vector3 &pos, const Vector3 &obj, const Vector3 &up);
 
-        virtual const Matrix4 &getLocalToWorldTransform() const;
-        Matrix4 getWorldToLocalTransform() const;
+        virtual const Matrix4 &getLocalToWorldTransform();
+        Matrix4 getWorldToLocalTransform();
 
         virtual void addChild(SGNode *node) override;
 
@@ -84,8 +84,6 @@ namespace Tiny3D
         Vector3     mScale;
 
         mutable Matrix4     mWorldTransform;
-
-        mutable bool        mIsTransformDirty;
     };
 }
 
