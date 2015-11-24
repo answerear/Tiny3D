@@ -26,8 +26,9 @@ namespace Tiny3D
 
     void SGVisual::update()
     {
-        SGNode::update();
         updateBound();
+
+        SGNode::update();
     }
 
     void SGVisual::cloneProperties(SGNode *node)

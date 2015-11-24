@@ -39,9 +39,6 @@ namespace Tiny3D
         const SGVisual *getNode() const;
         SGVisual *getNode();
 
-        void setMovable(bool isMovable);
-        bool isMovable() const;
-
         void setCollisionSource();
         bool isCollisionSource() const;
 

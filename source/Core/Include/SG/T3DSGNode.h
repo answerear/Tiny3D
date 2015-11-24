@@ -94,12 +94,16 @@ namespace Tiny3D
 
         SGNode *getParent();
 
+        void setDirty(bool isDirty, bool recursive = false);
+        bool isDirty() const;
+
         virtual SGNode *clone() = 0;
 
         virtual void cloneProperties(SGNode *node);
 
     protected:
         virtual void update();
+        virtual void render();
 
         virtual void onAttachParent(SGNode *parent);
         virtual void onDetachParent(SGNode *parent);
@@ -117,6 +121,8 @@ namespace Tiny3D
         SGNode      *mParent;       /// Pointer to parent scene node
 
         SGChildren  mChildren;      /// List of containing all children scene node
+
+        bool        mIsDirty;
     };
 }
 

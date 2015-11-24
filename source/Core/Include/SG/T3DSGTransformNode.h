@@ -67,16 +67,16 @@ namespace Tiny3D
         virtual const Matrix4 &getLocalToWorldTransform() const;
         Matrix4 getWorldToLocalTransform() const;
 
-        bool isDirty() const;
-
-        virtual void addChild(SGNode *node);
+        virtual void addChild(SGNode *node) override;
 
     protected:
-        virtual void onAttachParent(SGNode *parent);
-        virtual void onDetachParent(SGNode *parent);
+        virtual void onAttachParent(SGNode *parent) override;
+        virtual void onDetachParent(SGNode *parent) override;
 
-        virtual SGNode *clone();
-        virtual void cloneProperties(SGNode *node);
+        virtual void update() override;
+
+        virtual SGNode *clone() override;
+        virtual void cloneProperties(SGNode *node) override;
 
     private:
         Vector3     mPosition;

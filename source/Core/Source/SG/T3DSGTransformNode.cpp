@@ -72,6 +72,14 @@ namespace Tiny3D
 
                 mIsTransformDirty = false;
             }
+
+            SGChildrenConstItr itr = mChildren.begin();
+            while (itr != mChildren.end())
+            {
+                SGNode *child = *itr;
+                child->setDirty(true, true);
+                ++itr;
+            }
         }
 
         return mWorldTransform;

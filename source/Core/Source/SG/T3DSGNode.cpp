@@ -153,6 +153,35 @@ namespace Tiny3D
         }
     }
 
+    void SGNode::render()
+    {
+        SGChildrenItr itr = mChildren.begin();
+
+        while (itr != mChildren.end())
+        {
+            SGNode *&node = *itr;
+            node->render();
+            ++itr;
+        }
+    }
+
+    void SGNode::setDirty(bool isDirty, bool recursive /* = false */)
+    {
+        mIsDirty = isDirty;
+
+        if (recursive)
+        {
+            SGChildrenItr itr = mChildren.begin();
+
+            while (itr != mChildren.end())
+            {
+                SGNode *&node = *itr;
+                node->setDirty(isDirty, recursive);
+                ++itr;
+            }
+        }
+    }
+
     void SGNode::cloneProperties(SGNode *node)
     {
         mName = node->mName;

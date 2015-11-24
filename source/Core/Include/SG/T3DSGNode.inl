@@ -43,4 +43,9 @@ namespace Tiny3D
     {
         return mParent;
     }
+
+    inline bool SGNode::isDirty() const
+    {
+        return mIsDirty;
+    }
 }
