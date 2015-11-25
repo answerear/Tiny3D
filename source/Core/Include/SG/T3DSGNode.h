@@ -14,7 +14,7 @@ namespace Tiny3D
 {
     class T3D_ENGINE_API SGNode : public Object
     {
-        friend class SceneGraphManager;
+        friend class SceneManager;
 
         T3D_DISABLE_COPY(SGNode);
 
@@ -103,7 +103,6 @@ namespace Tiny3D
 
     protected:
         virtual void update();
-        virtual void render();
 
         virtual void onAttachParent(SGNode *parent);
         virtual void onDetachParent(SGNode *parent);

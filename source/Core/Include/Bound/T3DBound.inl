@@ -1,80 +1,54 @@
 
 
-#ifndef __T3D_BOUND_H__
-#define __T3D_BOUND_H__
-
-
-#include "T3DPrerequisites.h"
-#include "Bound/T3DSphere.h"
-
-
 namespace Tiny3D
 {
-    class T3D_ENGINE_API Bound
+    inline uint32_t Bound::getID() const
     {
-    public:
-        enum Type
-        {
-            E_BT_NONE = 0,
-            E_BT_SPHERE,
-            E_BT_AABB,
-            E_BT_OBB,
-            E_BT_FRUSTUM,
-        };
+        return mID;
+    }
 
-        Bound(uint32_t unID, SGVisual *node);
-        virtual ~Bound();
+    inline void Bound::setGroupID(uint32_t groupID)
+    {
+        mGroupID = groupID;
+    }
 
-        virtual Type getType() const = 0;
+    inline uint32_t Bound::getGroupID() const
+    {
+        return mGroupID;
+    }
 
-        uint32_t getID() const;
+    inline const Sphere &Bound::getSphere() const
+    {
+        return mSphere;
+    }
 
-        void setGroupID(uint32_t groupID);
-        uint32_t getGroupID() const;
+    inline const SGVisual *Bound::getNode() const
+    {
+        return mNode;
+    }
 
-        const Sphere &getSphere() const;
+    inline SGVisual *Bound::getNode()
+    {
+        return mNode;
+    }
 
-        virtual bool test(const Bound &bound) const;
+    inline void Bound::setCollisionSource(bool isSource)
+    {
+        mCollisionSource = isSource;
+    }
 
-        const SGVisual *getNode() const;
-        SGVisual *getNode();
+    inline bool Bound::isCollisionSource() const
+    {
+        return mCollisionSource;
+    }
 
-        void setMovable(bool isMovable);
-        bool isMovable() const;
+    inline void Bound::setEnable(bool enable)
+    {
+        mEnable = enable;
+    }
 
-        void setCollisionSource();
-        bool isCollisionSource() const;
-
-        void setEnable(bool enable);
-        bool isEnable() const;
-
-        virtual SGRenderable *getRenderable() = 0;
-
-        virtual void setTransform(const Matrix4 &m);
-
-    protected:
-        virtual bool testSphere(const SphereBound &bound) = 0;
-        virtual bool testAabb(const AabbBound &bound) = 0;
-        virtual bool testObb(const ObbBound &bound) = 0;
-        virtual bool testFrustum(const FrustumBound &bound) = 0;
-
-        virtual void updateBound(const Matrix4 &m) = 0;
-
-    protected:
-        Sphere  mSphere;
-
-    private:
-        SGVisual    *mNode;
-        uint32_t    mID;
-        uint32_t    mGroupID;
-        bool        mMovable;
-        bool        mCollisionSource;
-        bool        mEnable;
-    };
+    inline bool Bound::isEnable() const
+    {
+        return mEnable;
+    }
 }
-
-
-#include "T3DBound.inl"
-
-
-#endif  /*__T3D_BOUND_H__*/

@@ -25,6 +25,7 @@ namespace Tiny3D
         , mDylibMgr(new DylibManager())
         , mActiveRenderer(nullptr)
         , mAppListener(nullptr)
+        , mSceneMgr(nullptr)
     {
         ConfigFile file(config);
         file.loadXML(mSettings);
@@ -154,6 +155,8 @@ namespace Tiny3D
             paramEx["vsync"] = mSettings["VSync"];
             renderWindow = mActiveRenderer->createRenderWindow(param, paramEx);
         }
+
+        mSceneMgr = new SceneManager();
 
         return ret;
     }

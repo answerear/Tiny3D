@@ -32,6 +32,7 @@ namespace Tiny3D
     void Viewport::update()
     {
         mCamera->update();
+        mCamera->renderScene(this);
     }
 
     void Viewport::setDimensions(Real left, Real top, Real width, Real height)

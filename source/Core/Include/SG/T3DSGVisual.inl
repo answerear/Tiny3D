@@ -9,11 +9,24 @@ namespace Tiny3D
 
     inline void SGVisual::setBoundEnabled(bool enable)
     {
-        mBoundEnabled = enable;
+        if (mBound != nullptr)
+        {
+            mBound->setEnable(enable);
+        }
     }
 
     inline bool SGVisual::isBoundEnabled() const
     {
-        return mBoundEnabled;
+        bool isEnable = false;
+        if (mBound != nullptr)
+        {
+            isEnable = mBound->isEnable();
+        }
+        return isEnable;
+    }
+
+    inline bool SGVisual::inFrustum() const
+    {
+        return mIsInFrustum;
     }
 }

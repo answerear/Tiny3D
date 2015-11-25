@@ -25,9 +25,10 @@ namespace Tiny3D
         , mPosition(Vector3::ZERO)
         , mOrientation(Quaternion::IDENTITY)
         , mScale(Real(1.0), Real(1.0), Real(1.0))
-        , mWorldTransform(false)
     {
-        
+        mWorldTransform.setTranslate(mPosition);
+        mWorldTransform.setOrientation(mOrientation);
+        mWorldTransform.setScale(mScale);
     }
 
     SGTransformNode::~SGTransformNode()
@@ -45,7 +46,7 @@ namespace Tiny3D
 
     }
 
-    const Matrix4 &SGTransformNode::getLocalToWorldTransform()
+    const Transform &SGTransformNode::getLocalToWorldTransform()
     {
         if (isDirty())
         {
@@ -57,17 +58,32 @@ namespace Tiny3D
             if (parent != nullptr)
             {
                 SGTransformNode *node = (SGTransformNode *)parent;
-                const Matrix4 &mat = node->getLocalToWorldTransform();
-                Matrix4 xform;
-                Matrix3 R;
-                mOrientation.toRotationMatrix(R);
-                Matrix3 S;
-                S[0][0] = mScale.x();
-                S[1][1] = mScale.y();
-                S[2][2] = mScale.z();
-                xform = R * S;
-                xform.setTranslate(mPosition);
-                mWorldTransform = mat * xform;
+                const Transform &transform = node->getLocalToWorldTransform();
+                Quaternion R = transform.getOrientation() * mOrientation;
+                Vector3 S = transform.getScale() * mScale;
+                Vector3 T = transform.getOrientation() * mPosition;
+                T = T * transform.getScale();
+                T = transform.getTranslate() + mPosition;
+                mWorldTransform.setTranslate(T);
+                mWorldTransform.setOrientation(R);
+                mWorldTransform.setScale(S);
+                mWorldTransform.update();
+//                 Matrix4 xform;
+//                 Matrix3 R;
+//                 mOrientation.toRotationMatrix(R);
+//                 Matrix3 S;
+//                 S[0][0] = mScale.x();
+//                 S[1][1] = mScale.y();
+//                 S[2][2] = mScale.z();
+//                 xform = R * S;
+//                 xform.setTranslate(mPosition);
+//                 mWorldTransform = mat * xform;
+            }
+            else
+            {
+                mWorldTransform.setTranslate(mPosition);
+                mWorldTransform.setOrientation(mOrientation);
+                mWorldTransform.setScale(mScale);
             }
 
             setDirty(false);
@@ -76,10 +92,10 @@ namespace Tiny3D
         return mWorldTransform;
     }
 
-    Matrix4 SGTransformNode::getWorldToLocalTransform()
-    {
-        return getLocalToWorldTransform().inverseAffine();
-    }
+//     Transform SGTransformNode::getWorldToLocalTransform()
+//     {
+//         return getLocalToWorldTransform().inverseAffine();
+//     }
 
     void SGTransformNode::lookAt(const Vector3 &pos, const Vector3 &obj, const Vector3 &up)
     {

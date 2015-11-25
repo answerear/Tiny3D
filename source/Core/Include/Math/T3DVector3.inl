@@ -5,6 +5,7 @@ namespace Tiny3D
 	inline Vector3::Vector3()
 		: _x(0.0)
 		, _y(0.0)
+        , _z(0.0)
 	{
 
 	}
@@ -148,6 +149,15 @@ namespace Tiny3D
 
 		return result;
 	}
+
+    inline Vector3 Vector3::operator *(const Vector3 &other) const
+    {
+        Vector3 v;
+        v.x() = _x * other._x;
+        v.y() = _y * other._y;
+        v.z() = _z * other._z;
+        return v;
+    }
 
 	inline Vector3 Vector3::operator -() const
 	{

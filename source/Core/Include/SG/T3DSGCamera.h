@@ -12,6 +12,7 @@ namespace Tiny3D
     class T3D_ENGINE_API SGCamera : public SGVisual
     {
         friend class Viewport;
+        friend class SceneManager;
 
     protected:
         SGCamera(uint32_t unID = E_NID_AUTOMATIC);
@@ -22,7 +23,6 @@ namespace Tiny3D
         virtual ~SGCamera();
 
         virtual Type getNodeType() const override;
-        virtual Bound *getBound() override;
         virtual void cloneProperties(SGNode *node) override;
 
         void setAspectRatio(Real ratio);
@@ -52,7 +52,7 @@ namespace Tiny3D
         virtual void update() override;
         virtual void updateBound() override;
 
-        FrustumBound    *mBound;
+        void renderScene(Viewport *viewport);
     };
 }
 

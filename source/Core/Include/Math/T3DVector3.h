@@ -70,6 +70,8 @@ namespace Tiny3D
         /// Scalar division.
         Vector3 operator /(Real fScalar) const;
 
+        Vector3 operator *(const Vector3 &other) const;
+
         /// Negation.
         Vector3 operator -() const;
         /// Add and assign.

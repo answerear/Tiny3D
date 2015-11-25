@@ -3,6 +3,9 @@
 
 #include "SG/T3DSGVisual.h"
 #include "SG/T3DSGTransformNode.h"
+#include "SG/T3DSGCamera.h"
+#include "SG/T3DSceneManager.h"
+#include "Misc/T3DEntrance.h"
 
 
 namespace Tiny3D
@@ -27,14 +30,18 @@ namespace Tiny3D
 
     void SGVisual::updateBound()
     {
+        SGTransformNode *parent = (SGTransformNode *)getParent();
+
         if (isDirty())
         {
-            SGTransformNode *parent = (SGTransformNode *)getParent();
+            mWorldTransform = parent->getLocalToWorldTransform();
 
             if (mBound != nullptr)
             {
-                const Matrix4 &mat = parent->getLocalToWorldTransform();
+                mBound->setTransform(mWorldTransform);
             }
+
+            setDirty(false);
         }
     }
 
@@ -45,8 +52,19 @@ namespace Tiny3D
 
         updateBound();
 
-        // continue updating all children node
-        SGNode::update();
+        // check this node in frustum
+        if (getNodeType() != SGNode::E_NT_CAMERA)
+        {
+            // 不是相机结点，才需要判断是否可见，是否需要渲染
+            SGCamera *camera = T3D_SCENE_MGR.getCurCamera();
+
+            Bound *bound = camera->getBound();
+
+            mIsInFrustum = bound->test(*mBound);
+
+            // continue updating all children node
+            SGNode::update();
+        }
     }
 
     void SGVisual::cloneProperties(SGNode *node)
@@ -54,6 +72,17 @@ namespace Tiny3D
         SGNode::cloneProperties(node);
 
         SGVisual *src = (SGVisual *)node;
+        mWorldTransform = src->mWorldTransform;
+
+        if (src->mBound != nullptr)
+        {
+            mBound = src->mBound->clone();
+        }
+        else
+        {
+            mBound = nullptr;
+        }
+
         mIsVisible = src->mIsVisible;
     }
 }

@@ -53,6 +53,8 @@ namespace Tiny3D
     class Vector2;
     class Vector3;
     class Vector4;
+
+    class Transform;
     
     class Entrance;
     class Plugin;
@@ -87,12 +89,13 @@ namespace Tiny3D
 
     class Object;
 
-    class SceneGraphManager;
+    class SceneManager;
     class SGNode;
     class SGTransformNode;
     class SGCamera;
     class SGVisual;
     class SGRenderable;
+    class SGSphere;
 
     class Variant;
 

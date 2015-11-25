@@ -39,7 +39,7 @@ namespace Tiny3D
         const SGVisual *getNode() const;
         SGVisual *getNode();
 
-        void setCollisionSource();
+        void setCollisionSource(bool isSource);
         bool isCollisionSource() const;
 
         void setEnable(bool enable);
@@ -49,11 +49,13 @@ namespace Tiny3D
 
         virtual void setTransform(const Matrix4 &m);
 
+        virtual Bound *clone() = 0;
+
     protected:
-        virtual bool testSphere(const SphereBound &bound) = 0;
-        virtual bool testAabb(const AabbBound &bound) = 0;
-        virtual bool testObb(const ObbBound &bound) = 0;
-        virtual bool testFrustum(const FrustumBound &bound) = 0;
+        virtual bool testSphere(const SphereBound &bound) const = 0;
+        virtual bool testAabb(const AabbBound &bound) const = 0;
+        virtual bool testObb(const ObbBound &bound) const = 0;
+        virtual bool testFrustum(const FrustumBound &bound) const = 0;
 
         virtual void updateBound(const Matrix4 &m) = 0;
 

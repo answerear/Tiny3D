@@ -8,6 +8,7 @@
 #include "Math/T3DVector3.h"
 #include "Math/T3DMatrix3.h"
 #include "Math/T3DMatrix4.h"
+#include "Math/T3DTransform.h"
 
 
 namespace Tiny3D
@@ -64,8 +65,8 @@ namespace Tiny3D
          */
         void lookAt(const Vector3 &pos, const Vector3 &obj, const Vector3 &up);
 
-        virtual const Matrix4 &getLocalToWorldTransform();
-        Matrix4 getWorldToLocalTransform();
+        virtual const Transform &getLocalToWorldTransform();
+//         Transform getWorldToLocalTransform();
 
         virtual void addChild(SGNode *node) override;
 
@@ -83,7 +84,7 @@ namespace Tiny3D
         Quaternion  mOrientation;
         Vector3     mScale;
 
-        mutable Matrix4     mWorldTransform;
+        Transform   mWorldTransform;
     };
 }
 

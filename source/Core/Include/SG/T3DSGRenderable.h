@@ -1,5 +1,9 @@
 
 
+#ifndef __T3D_SG_RENDERABLE_H__
+#define __T3D_SG_RENDERABLE_H__
+
+
 #include "SG/T3DSGNode.h"
 
 
@@ -16,9 +20,14 @@ namespace Tiny3D
         void setMaterial(Material *material);
         Material *getMaterial();
 
+    protected:
         virtual void update();
 
     protected:
         Material *mMaterial;
     };
 }
+
+
+#endif  /*__T3D_SG_RENDERABLE_H__*/
+

@@ -8,6 +8,7 @@
 #include "T3DSingleton.h"
 #include "T3DCommon.h"
 #include "DataStruct/T3DVariant.h"
+#include "SG/T3DSceneManager.h"
 
 
 namespace Tiny3D
@@ -107,6 +108,8 @@ namespace Tiny3D
         void addFrameListener(FrameListener *listener);
         void removeFrameListener(FrameListener *listener);
 
+        SceneManager *getSceneManager() { return mSceneMgr; }
+
     protected:
         void loadPlugins();
         void unloadPlugins();
@@ -134,6 +137,8 @@ namespace Tiny3D
         Settings        mSettings;
 
         ApplicationListener *mAppListener;
+
+        SceneManager    *mSceneMgr;
     };
 
     #define T3D_ENTRANCE         Entrance::getInstance()

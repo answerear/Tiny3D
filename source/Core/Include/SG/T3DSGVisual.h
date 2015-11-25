@@ -5,6 +5,7 @@
 
 
 #include "SG/T3DSGTransformNode.h"
+#include "Bound/T3DBound.h"
 
 
 namespace Tiny3D
@@ -25,6 +26,8 @@ namespace Tiny3D
         void setBoundEnabled(bool enable);
         bool isBoundEnabled() const;
 
+        bool inFrustum() const;
+
 //         virtual void addChild(SGNode *node) final;
 //         virtual void removeChild(SGNode *node) final;
 //         virtual void removeChild(uint32_t nodeID) final;
@@ -41,6 +44,7 @@ namespace Tiny3D
 
         Matrix4 mWorldTransform;
 
+        bool    mIsInFrustum;
         bool    mIsVisible;
     };
 }
