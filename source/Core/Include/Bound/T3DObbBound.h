@@ -4,7 +4,8 @@
 #define __T3D_OBB_BOUND_H__
 
 
-#include "T3DBound.h"
+#include "Bound/T3DBound.h"
+#include "Bound/T3DAabb.h"
 
 
 namespace Tiny3D
@@ -14,6 +15,8 @@ namespace Tiny3D
     public:
         ObbBound();
         virtual ~ObbBound();
+
+        const Obb &getObb() const;
     };
 }
 

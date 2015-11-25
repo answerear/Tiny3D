@@ -17,6 +17,9 @@ namespace Tiny3D
     public:
         Transform();
         Transform(const Vector3 &rkTranslate, const Vector3 &rkScale, const Quaternion &rkOrientation);
+        Transform(const Transform &rkOther);
+
+        Transform &operator =(const Transform &rkOther);
 
         void setTranslate(const Vector3 &rkTranslate);
         const Vector3 &getTranslate() const;
@@ -47,7 +50,7 @@ namespace Tiny3D
         , mScale(Real(1.0), Real(1.0), Real(1.0))
         , mOrientation(Real(0.0), Real(0.0), Real(1.0), Real(0.0))
     {
-
+        mAffineMatrix.makeTransform(mTranslate, mScale, mOrientation);
     }
 
     inline Transform::Transform(const Vector3 &rkTranslate, const Vector3 &rkScale, const Quaternion &rkOrientation)
@@ -56,6 +59,14 @@ namespace Tiny3D
         , mOrientation(rkOrientation)
     {
 
+    }
+
+    inline Transform::Transform(const Transform &rkOther)
+    {
+        mTranslate = rkOther.mTranslate;
+        mOrientation = rkOther.mOrientation;
+        mScale = rkOther.mScale;
+        mAffineMatrix = rkOther.mAffineMatrix;
     }
 
     inline void Transform::setTranslate(const Vector3 &rkTranslate)

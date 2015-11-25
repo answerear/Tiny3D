@@ -10,6 +10,7 @@
 #include <list>
 #include <set>
 #include <map>
+#include <algorithm>
 
 // #define __T3D_HIGH_PERCISION_FLOAT__
 

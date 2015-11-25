@@ -47,7 +47,7 @@ namespace Tiny3D
 
         virtual SGRenderable *getRenderable() = 0;
 
-        virtual void setTransform(const Matrix4 &m);
+        virtual void setTransform(const Transform &transform);
 
         virtual Bound *clone() = 0;
 
@@ -57,7 +57,7 @@ namespace Tiny3D
         virtual bool testObb(const ObbBound &bound) const = 0;
         virtual bool testFrustum(const FrustumBound &bound) const = 0;
 
-        virtual void updateBound(const Matrix4 &m) = 0;
+        virtual void updateBound(const Transform &transform) = 0;
 
     protected:
         Sphere  mSphere;

@@ -6,6 +6,7 @@
 
 #include "SG/T3DSGTransformNode.h"
 #include "Bound/T3DBound.h"
+#include "Math/T3DTransform.h"
 
 
 namespace Tiny3D
@@ -42,7 +43,7 @@ namespace Tiny3D
     private:
         Bound   *mBound;
 
-        Matrix4 mWorldTransform;
+        Transform mWorldTransform;
 
         bool    mIsInFrustum;
         bool    mIsVisible;

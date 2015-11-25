@@ -28,7 +28,7 @@ namespace Tiny3D
         virtual bool testObb(const ObbBound &bound) const override;
         virtual bool testFrustum(const FrustumBound &bound) const override;
 
-        virtual void updateBound(const Matrix4 &m) override;
+        virtual void updateBound(const Transform &transform) override;
 
     private:
         Sphere      mOriginalSphere;

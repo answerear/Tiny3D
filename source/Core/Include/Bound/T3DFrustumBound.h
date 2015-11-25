@@ -4,7 +4,8 @@
 #define __T3D_FRUSTUM_BOUND_H__
 
 
-#include "T3DBound.h"
+#include "Bound/T3DBound.h"
+#include "Bound/T3DFrustum.h"
 
 
 namespace Tiny3D
@@ -14,6 +15,11 @@ namespace Tiny3D
     public:
         FrustumBound();
         virtual ~FrustumBound();
+
+        const Frustum &getFrustum() const;
+
+    private:
+        Frustum     mFrustum;
     };
 }
 

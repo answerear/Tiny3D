@@ -14,6 +14,10 @@ namespace Tiny3D
     public:
         AabbBound();
         virtual ~AabbBound();
+
+        virtual Type getType() const override;
+
+        const Aabb &getAlignAxisBox() const;
     };
 }
 
