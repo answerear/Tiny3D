@@ -180,6 +180,14 @@ namespace Tiny3D
         static Real DegreesToRadians(Real degrees);
         static Real RadiansToDegrees(Real radians);
 
+        static bool intersects(const Sphere &sphere1, const Sphere &sphere2);
+        static bool intersects(const Sphere &sphere, const Aabb &box);
+        static bool intersects(const Sphere &sphere, const Obb &box);
+        static bool intersects(const Sphere &sphere, const Plane &plane);
+        static bool intersects(const Aabb &aabb, const Obb &obb);
+        static bool intersects(const Aabb &box, const Plane &plane);
+        static bool intersects(const Obb &box, const Plane &plane);
+
     public:
         static const Real POS_INFINITY;
         static const Real NEG_INFINITY;
