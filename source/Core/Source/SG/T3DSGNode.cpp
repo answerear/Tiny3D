@@ -141,14 +141,26 @@ namespace Tiny3D
         return child;
     }
 
-    void SGNode::update()
+    void SGNode::updateTransform()
     {
         SGChildrenItr itr = mChildren.begin();
 
         while (itr != mChildren.end())
         {
             SGNode *&node = *itr;
-            node->update();
+            node->updateTransform();
+            ++itr;
+        }
+    }
+
+    void SGNode::frustumCulling(const FrustumBound &bound)
+    {
+        SGChildrenItr itr = mChildren.begin();
+
+        while (itr != mChildren.end())
+        {
+            SGNode *&node = *itr;
+            node->frustumCulling(bound);
             ++itr;
         }
     }

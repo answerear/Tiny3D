@@ -5,7 +5,7 @@
 
 
 #include "T3DPrerequisites.h"
-#include "Bound/T3DSphere.h"
+#include "Math/T3DSphere.h"
 
 
 namespace Tiny3D

@@ -102,7 +102,17 @@ namespace Tiny3D
         virtual void cloneProperties(SGNode *node);
 
     protected:
-        virtual void update();
+        /** 
+         * @brief Perform self transformation and recursively call all children
+         *      updateTransform()
+         */
+        virtual void updateTransform();
+
+        /**
+         * @brief Perform frustum culling against a frustum bound and recursively
+         *      call all children frustumCulling()
+         */
+        virtual void frustumCulling(const FrustumBound &bound);
 
         virtual void onAttachParent(SGNode *parent);
         virtual void onDetachParent(SGNode *parent);

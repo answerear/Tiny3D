@@ -38,12 +38,19 @@ namespace Tiny3D
 
     void SGTransformNode::onAttachParent(SGNode *parent)
     {
+        SGNode::onAttachParent(parent);
         setDirty(true, true);
     }
 
     void SGTransformNode::onDetachParent(SGNode *parent)
     {
+        SGNode::onDetachParent(parent);
+    }
 
+    void SGTransformNode::updateTransform()
+    {
+        getLocalToWorldTransform();
+        SGNode::updateTransform();
     }
 
     const Transform &SGTransformNode::getLocalToWorldTransform()

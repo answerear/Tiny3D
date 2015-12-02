@@ -1,6 +1,6 @@
 
 
-#include "Bound/T3DFrustum.h"
+#include "Math/T3DFrustum.h"
 
 namespace Tiny3D
 {

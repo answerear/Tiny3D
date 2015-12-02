@@ -74,7 +74,7 @@ namespace Tiny3D
         virtual void onAttachParent(SGNode *parent) override;
         virtual void onDetachParent(SGNode *parent) override;
 
-        virtual void update() override;
+        virtual void updateTransform() override;
 
         virtual SGNode *clone() override;
         virtual void cloneProperties(SGNode *node) override;
