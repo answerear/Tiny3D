@@ -25,6 +25,6 @@ namespace Tiny3D
     void SceneManager::renderScene(SGCamera *camera, Viewport *viewport)
     {
         mCurCamera = camera;
-        mRoot->update();
+        mRoot->updateTransform();
     }
 }

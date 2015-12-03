@@ -29,15 +29,10 @@ namespace Tiny3D
 
         bool inFrustum() const;
 
-//         virtual void addChild(SGNode *node) final;
-//         virtual void removeChild(SGNode *node) final;
-//         virtual void removeChild(uint32_t nodeID) final;
-//         virtual void removeAllChildren() final;
-
         virtual void cloneProperties(SGNode *node) override;
 
     protected:
-        virtual void update() override;
+        virtual void updateTransform() override;
         virtual void updateBound();
 
     private:

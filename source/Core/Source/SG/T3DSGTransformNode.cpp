@@ -36,6 +36,11 @@ namespace Tiny3D
 
     }
 
+    SGNode::Type SGTransformNode::getNodeType() const
+    {
+        return E_NT_TRANSFORM;
+    }
+
     void SGTransformNode::onAttachParent(SGNode *parent)
     {
         SGNode::onAttachParent(parent);

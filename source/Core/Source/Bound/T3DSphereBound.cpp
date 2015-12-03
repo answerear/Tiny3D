@@ -1,7 +1,6 @@
 
 
 #include "Bound/T3DSphereBound.h"
-#include "Bound/T3DAabb.h"
 #include "Bound/T3DAabbBound.h"
 #include "Bound/T3DObbBound.h"
 #include "Bound/T3DFrustumBound.h"
@@ -93,7 +92,7 @@ namespace Tiny3D
     bool SphereBound::testObb(const ObbBound &bound) const
     {
         Real distance = mOriginalSphere.getCenter().squaredDistance(bound.getSphere().getCenter());
-        Real radius = mOriginalSphere.getRadius() + bound.getSphere.getRadius();
+        Real radius = mOriginalSphere.getRadius() + bound.getSphere().getRadius();
         radius = radius * radius;
 
         bool result = (distance <= radius);
@@ -103,5 +102,11 @@ namespace Tiny3D
 
     bool SphereBound::testFrustum(const FrustumBound &bound) const
     {
+        return false;
+    }
+
+    void SphereBound::updateBound(const Transform &transform)
+    {
+
     }
 }

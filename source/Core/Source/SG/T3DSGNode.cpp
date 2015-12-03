@@ -210,4 +210,10 @@ namespace Tiny3D
     {
 
     }
+
+    uint32_t SGNode::makeGlobalID() const
+    {
+        static uint32_t unID = 0;
+        return ++unID;
+    }
 }

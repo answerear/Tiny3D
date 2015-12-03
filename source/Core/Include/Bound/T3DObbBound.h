@@ -5,7 +5,7 @@
 
 
 #include "Bound/T3DBound.h"
-#include "Bound/T3DAabb.h"
+#include "Math/T3DAabb.h"
 
 
 namespace Tiny3D
@@ -13,7 +13,7 @@ namespace Tiny3D
     class T3D_ENGINE_API ObbBound : public Bound
     {
     public:
-        ObbBound();
+        ObbBound(uint32_t unID, SGVisual *node);
         virtual ~ObbBound();
 
         const Obb &getObb() const;

@@ -16,8 +16,8 @@ namespace Tiny3D
 
     }
 
-    void SGRenderable::update()
+    void SGRenderable::updateTransform()
     {
-        SGNode::update();
+        SGNode::updateTransform();
     }
 }

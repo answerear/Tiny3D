@@ -45,7 +45,7 @@ namespace Tiny3D
         }
     }
 
-    void SGVisual::update()
+    void SGVisual::updateTransform()
     {
         // update bound
         T3D_ASSERT(getParent()->getNodeType() == SGNode::E_NT_TRANSFORM);
@@ -63,7 +63,7 @@ namespace Tiny3D
             mIsInFrustum = bound->test(*mBound);
 
             // continue updating all children node
-            SGNode::update();
+            SGNode::updateTransform();
         }
     }
 

@@ -17,7 +17,7 @@ namespace Tiny3D
 
         virtual void renderScene(SGCamera *camera, Viewport *viewport);
 
-        SGCamera *getCurCamera();
+        SGCamera *getCurCamera()    { return mCurCamera; }
 
     protected:
         SGCamera    *mCurCamera;

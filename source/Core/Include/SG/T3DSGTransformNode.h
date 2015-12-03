@@ -23,7 +23,7 @@ namespace Tiny3D
 
         virtual ~SGTransformNode();
 
-        virtual Type getNodeType() const;
+        virtual Type getNodeType() const override;
 
         void setPosition(const Vector3 &rkPos);
         void setPosition(Real x, Real y, Real z);

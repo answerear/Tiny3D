@@ -1,9 +1,9 @@
 
 
 #include "Math/T3DMath.h"
-#include "Bound/T3DSphere.h"
-#include "Bound/T3DAabb.h"
-#include "Bound/T3DObb.h"
+#include "Math/T3DSphere.h"
+#include "Math/T3DAabb.h"
+#include "Math/T3DObb.h"
 #include "Math/T3DPlane.h"
 
 

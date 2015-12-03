@@ -29,4 +29,9 @@ namespace Tiny3D
     {
         return mIsInFrustum;
     }
+
+    inline Bound *SGVisual::getBound()
+    {
+        return mBound;
+    }
 }

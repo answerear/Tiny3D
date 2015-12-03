@@ -5,7 +5,7 @@
 
 
 #include "Bound/T3DBound.h"
-#include "Bound/T3DFrustum.h"
+#include "Math/T3DFrustum.h"
 
 
 namespace Tiny3D
@@ -13,7 +13,7 @@ namespace Tiny3D
     class T3D_ENGINE_API FrustumBound : public Bound
     {
     public:
-        FrustumBound();
+        FrustumBound(uint32_t unID, SGVisual *node);
         virtual ~FrustumBound();
 
         const Frustum &getFrustum() const;

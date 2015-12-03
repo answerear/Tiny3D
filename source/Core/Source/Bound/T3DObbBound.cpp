@@ -5,7 +5,8 @@
 
 namespace Tiny3D
 {
-    ObbBound::ObbBound()
+    ObbBound::ObbBound(uint32_t unID, SGVisual *node)
+        : Bound(unID, node)
     {
 
     }

@@ -69,6 +69,15 @@ namespace Tiny3D
         mAffineMatrix = rkOther.mAffineMatrix;
     }
 
+    inline Transform &Transform::operator =(const Transform &rkOther)
+    {
+        mTranslate = rkOther.mTranslate;
+        mOrientation = rkOther.mOrientation;
+        mScale = rkOther.mScale;
+        mAffineMatrix = rkOther.mAffineMatrix;
+        return *this;
+    }
+
     inline void Transform::setTranslate(const Vector3 &rkTranslate)
     {
         mTranslate = rkTranslate;

@@ -44,12 +44,8 @@ namespace Tiny3D
 
     private:    // from SGNode
         virtual void addChild(SGNode *child) override;
-        virtual void removeChild(SGNode *child) override;
-        virtual void removeChild(uint32_t nodeID) override;
-        virtual void removeAllChildren() override;
 
     protected:
-        virtual void update() override;
         virtual void updateBound() override;
 
         void renderScene(Viewport *viewport);

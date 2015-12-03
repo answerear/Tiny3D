@@ -5,7 +5,8 @@
 
 namespace Tiny3D
 {
-    FrustumBound::FrustumBound()
+    FrustumBound::FrustumBound(uint32_t unID, SGVisual *node)
+        : Bound(unID, node)
     {
 
     }

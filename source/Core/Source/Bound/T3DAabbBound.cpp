@@ -5,7 +5,8 @@
 
 namespace Tiny3D
 {
-    AabbBound::AabbBound()
+    AabbBound::AabbBound(uint32_t unID, SGVisual *node)
+        : Bound(unID, node)
     {
 
     }
@@ -13,6 +14,11 @@ namespace Tiny3D
     AabbBound::~AabbBound()
     {
 
+    }
+
+    Bound::Type AabbBound::getType() const
+    {
+        return E_BT_AABB;
     }
 }
 

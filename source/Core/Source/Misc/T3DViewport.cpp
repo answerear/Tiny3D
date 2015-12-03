@@ -31,7 +31,7 @@ namespace Tiny3D
 
     void Viewport::update()
     {
-        mCamera->update();
+        mCamera->updateTransform();
         mCamera->renderScene(this);
     }
 

@@ -16,24 +16,33 @@ namespace Tiny3D
 
     }
 
+    SGNode::Type SGCamera::getNodeType() const
+    {
+        return E_NT_CAMERA;
+    }
+
+    void SGCamera::cloneProperties(SGNode *node)
+    {
+        SGVisual::cloneProperties(node);
+
+        SGCamera *src = (SGCamera *)node;
+
+
+    }
+
     void SGCamera::addChild(SGNode *child)
     {
         // Can't add any type node for child node.
         T3D_ASSERT(0);
     }
 
-    void SGCamera::removeChild(SGNode *child)
+    void SGCamera::updateBound()
     {
-        T3D_ASSERT(0);
+
     }
 
-    void SGCamera::removeChild(uint32_t nodeID)
+    void SGCamera::renderScene(Viewport *viewport)
     {
-        T3D_ASSERT(0);
-    }
 
-    void SGCamera::removeAllChildren()
-    {
-        T3D_ASSERT(0);
     }
 }

@@ -21,7 +21,7 @@ namespace Tiny3D
         Material *getMaterial();
 
     protected:
-        virtual void update();
+        virtual void updateTransform() override;
 
     protected:
         Material *mMaterial;
