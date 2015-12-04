@@ -4,14 +4,14 @@
 #define __TINY3D_H__
 
 
-#include "Bound/T3DAabb.h"
+#include "Math/T3DAabb.h"
 #include "Bound/T3DAabbBound.h"
 #include "Bound/T3DBound.h"
-#include "Bound/T3DFrustum.h"
+#include "Math/T3DFrustum.h"
 #include "Bound/T3DFrustumBound.h"
-#include "Bound/T3DObb.h"
+#include "Math/T3DObb.h"
 #include "Bound/T3DObbBound.h"
-#include "Bound/T3DSphere.h"
+#include "Math/T3DSphere.h"
 #include "Bound/T3DSphereBound.h"
 
 #include "Listener/T3DApplicationListener.h"
@@ -25,11 +25,11 @@
 #include "Math/T3DVector2.h"
 #include "Math/T3DVector3.h"
 #include "Math/T3DVector4.h"
+#include "Math/T3DPlane.h"
 
 #include "Misc/T3DEntrance.h"
 #include "Misc/T3DColor4.h"
 #include "Misc/T3DCommon.h"
-#include "Misc/T3DPlane.h"
 #include "Misc/T3DPlugin.h"
 #include "Misc/T3DViewport.h"
 
@@ -42,8 +42,8 @@
 #include "Resource/T3DResource.h"
 #include "Resource/T3DResourceManager.h"
 
-#include "SG/T3DCamera.h"
-#include "SG/T3DNode.h"
+#include "SG/T3DSGCamera.h"
+#include "SG/T3DSGNode.h"
 
 
 #endif  /*__TINY3D_H__*/
