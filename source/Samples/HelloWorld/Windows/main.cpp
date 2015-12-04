@@ -6,7 +6,11 @@
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                      LPSTR lpCmdLine, int nCmdShow)
 {
-    Tiny3D::Entrance *entrance = new Tiny3D::Entrance("../../media/config/Tiny3D.cfg");
+    Tiny3D::ObjectPoolManager *objPoolMgr = new Tiny3D::ObjectPoolManager();
+    Tiny3D::AutoreleasePool *pool = new Tiny3D::AutoreleasePool();
+    objPoolMgr->addObjectPool(pool);
+
+    Tiny3D::Entrance *entrance = new Tiny3D::Entrance("../../../../media/config/Tiny3D.cfg");
 
     Tiny3D::RendererList renderers;
     Tiny3D::Entrance::getInstance().enumerateAvailableRenderers(renderers);
@@ -25,6 +29,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     Tiny3D::RenderWindow *renderWindow = nullptr;
     Tiny3D::Entrance::getInstance().initialize(true, renderWindow);
     Tiny3D::Entrance::getInstance().run();
+
+    objPoolMgr->removeObjectPool(pool);
+    delete objPoolMgr;
 
     return 0;
 }
