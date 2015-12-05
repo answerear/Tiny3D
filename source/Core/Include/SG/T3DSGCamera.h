@@ -18,12 +18,21 @@ namespace Tiny3D
         SGCamera(uint32_t unID = E_NID_AUTOMATIC);
 
     public:
+        enum ProjectionType
+        {
+            E_PT_ORTHOGRAPHIC = 0,
+            E_PT_PERSPECTIVE,
+        };
+
         static SGCamera *create(uint32_t unID = E_NID_AUTOMATIC);
 
         virtual ~SGCamera();
 
         virtual Type getNodeType() const override;
         virtual void cloneProperties(SGNode *node) override;
+
+        void setProjectionType(ProjectionType eType);
+        ProjectionType getProjectionType() const;
 
         void setAspectRatio(Real ratio);
         Real getAspectRatio() const;
@@ -37,7 +46,7 @@ namespace Tiny3D
         void setFovX(Real x);
         Real getFovX() const;
 
-        void setFoxY(Real y);
+        void setFovY(Real y);
         Real getFovY() const;
 
         void setPerspective(Real fovx, Real ratio, Real near, Real far);
@@ -49,8 +58,23 @@ namespace Tiny3D
         virtual void updateBound() override;
 
         void renderScene(Viewport *viewport);
+
+    protected:
+        Real    mFovX;
+        Real    mFovY;
+        Real    mFarDistance;
+        Real    mNearDistance;
+        Real    mAspectRatio;
+
+        ProjectionType  mProjType;
+
+        Matrix4 mViewMatrix;
+        Matrix4 mProjMatrix;
     };
 }
+
+
+#include "T3DSGCamera.inl"
 
 #endif  /*__T3D_SG_CAMERA_H__*/
 
