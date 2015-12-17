@@ -123,21 +123,21 @@ namespace Tiny3D
         SGNode::addChild(node);
     }
 
-    SGNode *SGTransformNode::clone()
+    SGNode *SGTransformNode::clone() const
     {
         SGTransformNode *node = new SGTransformNode();
         cloneProperties(node);
         return node;
     }
 
-    void SGTransformNode::cloneProperties(SGNode *node)
+    void SGTransformNode::cloneProperties(SGNode *node) const
     {
         SGNode::cloneProperties(node);
 
-        SGTransformNode *src = (SGTransformNode *)node;
-        mPosition = src->mPosition;
-        mOrientation = src->mOrientation;
-        mScale = src->mScale;
-        mWorldTransform = src->mWorldTransform;
+        SGTransformNode *newNode = (SGTransformNode *)node;
+        newNode->mPosition = mPosition;
+        newNode->mOrientation = mOrientation;
+        newNode->mScale = mScale;
+        newNode->mWorldTransform = mWorldTransform;
     }
 }

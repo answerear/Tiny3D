@@ -25,7 +25,6 @@ namespace Tiny3D
         virtual ~SGCamera();
 
         virtual Type getNodeType() const override;
-        virtual void cloneProperties(SGNode *node) override;
 
         void setProjectionType(ProjectionType eType);
         ProjectionType getProjectionType() const;
@@ -52,6 +51,9 @@ namespace Tiny3D
 
     private:    // from SGNode
         virtual void addChild(SGNode *child) override;
+
+        virtual SGNode *clone() const override;
+        virtual void cloneProperties(SGNode *node) const override;
 
     protected:
         virtual void updateTransform() override;

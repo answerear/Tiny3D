@@ -21,6 +21,8 @@ namespace Tiny3D
         Material *getMaterial();
 
     protected:
+        virtual void cloneProperties(SGNode *node) const override;
+
         virtual void updateTransform() override;
 
     protected:

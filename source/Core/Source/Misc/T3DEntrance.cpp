@@ -32,8 +32,6 @@ namespace Tiny3D
 
         loadPlugins();
 
-        mSceneMgr = new SceneManager();
-
         RendererListItr itr = mRendererList.begin();
         while (itr != mRendererList.end())
         {

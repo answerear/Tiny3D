@@ -22,13 +22,26 @@ namespace Tiny3D
         return E_NT_CAMERA;
     }
 
-    void SGCamera::cloneProperties(SGNode *node)
+    SGNode *SGCamera::clone() const
+    {
+        SGCamera *node = new SGCamera();
+        cloneProperties(node);
+        return node;
+    }
+
+    void SGCamera::cloneProperties(SGNode *node) const
     {
         SGVisual::cloneProperties(node);
 
-        SGCamera *src = (SGCamera *)node;
-
-
+        SGCamera *newNode = (SGCamera *)node;
+        newNode->mFovX = mFovX;
+        newNode->mFovY = mFovY;
+        newNode->mFarDistance = mFarDistance;
+        newNode->mNearDistance = mNearDistance;
+        newNode->mAspectRatio = mAspectRatio;
+        newNode->mProjType = mProjType;
+        newNode->mViewMatrix = mViewMatrix;
+        newNode->mProjMatrix = mProjMatrix;
     }
 
     void SGCamera::addChild(SGNode *child)

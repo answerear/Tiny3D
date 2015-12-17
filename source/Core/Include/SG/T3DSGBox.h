@@ -13,6 +13,11 @@ namespace Tiny3D
     public:
         SGBox(uint32_t unID = E_NID_AUTOMATIC);
         virtual ~SGBox();
+
+        virtual SGNode::Type getNodeType() const override;
+
+    protected:
+        virtual SGNode *clone() const override;
     };
 }
 

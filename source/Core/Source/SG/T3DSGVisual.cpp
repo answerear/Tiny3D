@@ -67,22 +67,22 @@ namespace Tiny3D
         }
     }
 
-    void SGVisual::cloneProperties(SGNode *node)
+    void SGVisual::cloneProperties(SGNode *node) const
     {
         SGNode::cloneProperties(node);
 
-        SGVisual *src = (SGVisual *)node;
-        mWorldTransform = src->mWorldTransform;
+        SGVisual *newNode = (SGVisual *)node;
+        newNode->mWorldTransform = mWorldTransform;
 
-        if (src->mBound != nullptr)
+        if (mBound != nullptr)
         {
-            mBound = src->mBound->clone();
+            newNode->mBound = mBound->clone();
         }
         else
         {
-            mBound = nullptr;
+            newNode->mBound = nullptr;
         }
 
-        mIsVisible = src->mIsVisible;
+        newNode->mIsVisible = mIsVisible;
     }
 }

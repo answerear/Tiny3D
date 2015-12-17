@@ -98,9 +98,9 @@ namespace Tiny3D
         void setDirty(bool isDirty, bool recursive = false);
         bool isDirty() const;
 
-        virtual SGNode *clone() = 0;
+        virtual SGNode *clone() const = 0;
 
-        virtual void cloneProperties(SGNode *node);
+        virtual void cloneProperties(SGNode *node) const;
 
     protected:
         /** 

@@ -16,6 +16,14 @@ namespace Tiny3D
 
     }
 
+    void SGRenderable::cloneProperties(SGNode *node) const
+    {
+        SGNode::cloneProperties(node);
+
+        SGRenderable *newNode = (SGRenderable *)node;
+        newNode->mMaterial = mMaterial;
+    }
+
     void SGRenderable::updateTransform()
     {
         SGNode::updateTransform();

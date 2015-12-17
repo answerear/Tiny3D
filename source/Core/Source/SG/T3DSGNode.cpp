@@ -182,12 +182,12 @@ namespace Tiny3D
         }
     }
 
-    void SGNode::cloneProperties(SGNode *node)
+    void SGNode::cloneProperties(SGNode *node) const
     {
-        mName = node->mName;
-        mUserData = node->mUserData;
-        mUserObject = node->mUserObject;
-        T3D_SAFE_ACQUIRE(mUserObject);
+        node->mName = mName;
+        node->mUserData = mUserData;
+        node->mUserObject = mUserObject;
+        T3D_SAFE_ACQUIRE(node->mUserObject);
 
         SGChildrenItr itr = node->mChildren.begin();
         while (itr != node->mChildren.end())

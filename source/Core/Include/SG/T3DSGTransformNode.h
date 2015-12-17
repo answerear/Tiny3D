@@ -72,8 +72,8 @@ namespace Tiny3D
 
         virtual void updateTransform() override;
 
-        virtual SGNode *clone() override;
-        virtual void cloneProperties(SGNode *node) override;
+        virtual SGNode *clone() const override;
+        virtual void cloneProperties(SGNode *node) const override;
 
     private:
         Vector3     mPosition;
