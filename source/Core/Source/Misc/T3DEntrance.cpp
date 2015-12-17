@@ -31,6 +31,19 @@ namespace Tiny3D
         file.loadXML(mSettings);
 
         loadPlugins();
+
+        mSceneMgr = new SceneManager();
+
+        RendererListItr itr = mRendererList.begin();
+        while (itr != mRendererList.end())
+        {
+            if ((*itr)->getName() == Renderer::DIRECT3D9)
+            {
+                setActiveRenderer(*itr);
+                break;
+            }
+            ++itr;
+        }
     }
 
     Entrance::~Entrance()

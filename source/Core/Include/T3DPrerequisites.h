@@ -92,10 +92,12 @@ namespace Tiny3D
     class SceneManager;
     class SGNode;
     class SGTransformNode;
-    class SGCamera;
     class SGVisual;
+    class SGCamera;
+    class SGBox;
     class SGRenderable;
     class SGSphere;
+    class SGCube;
 
     class Variant;
 

@@ -13,8 +13,7 @@ namespace Tiny3D
     SceneManager::SceneManager()
         : mRoot(nullptr)
     {
-        mRoot = SGTransformNode::create();
-        T3D_SAFE_ACQUIRE(mRoot);
+        mRoot = new SGTransformNode();
     }
 
     SceneManager::~SceneManager()

@@ -36,6 +36,7 @@ namespace Tiny3D
             E_NT_CAMERA,
             E_NT_LIGHT,
             E_NT_MESH,
+            E_NT_BOX,
             E_NT_SKYBOX,
             E_NT_SKYDOOM,
             E_NT_SKYPLANE,
@@ -92,7 +93,7 @@ namespace Tiny3D
         SGNode *getChild(uint32_t unNodeID);
         SGNode *getChild(const String &name);
 
-        SGNode *getParent();
+        SGNode *getParent() const;
 
         void setDirty(bool isDirty, bool recursive = false);
         bool isDirty() const;

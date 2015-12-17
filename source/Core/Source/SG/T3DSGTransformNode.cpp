@@ -5,21 +5,6 @@
 
 namespace Tiny3D
 {
-    SGTransformNode *SGTransformNode::create(uint32_t unID /* = E_NID_AUTOMATIC */)
-    {
-        SGTransformNode *node = new SGTransformNode(unID);
-        if (node != nullptr)
-        {
-            node->autorelease();
-        }
-        else
-        {
-            T3D_SAFE_DELETE(node);
-        }
-
-        return node;
-    }
-
     SGTransformNode::SGTransformNode(uint32_t unID /* = E_NID_AUTOMATIC */)
         : SGNode(unID)
         , mPosition(Vector3::ZERO)
@@ -140,7 +125,7 @@ namespace Tiny3D
 
     SGNode *SGTransformNode::clone()
     {
-        SGTransformNode *node = create();
+        SGTransformNode *node = new SGTransformNode();
         cloneProperties(node);
         return node;
     }

@@ -15,12 +15,8 @@ namespace Tiny3D
 {
     class T3D_ENGINE_API SGTransformNode : public SGNode
     {
-    protected:
-        SGTransformNode(uint32_t unID = E_NID_AUTOMATIC);
-
     public:
-        static SGTransformNode *create(uint32_t unID = E_NID_AUTOMATIC);
-
+        SGTransformNode(uint32_t unID = E_NID_AUTOMATIC);
         virtual ~SGTransformNode();
 
         virtual Type getNodeType() const override;

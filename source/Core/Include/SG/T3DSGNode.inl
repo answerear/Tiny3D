@@ -39,7 +39,7 @@ namespace Tiny3D
         return mChildren;
     }
 
-    inline SGNode *SGNode::getParent()
+    inline SGNode *SGNode::getParent() const
     {
         return mParent;
     }

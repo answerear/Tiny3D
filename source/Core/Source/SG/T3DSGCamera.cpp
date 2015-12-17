@@ -1,6 +1,7 @@
 
 
 #include "SG/T3DSGCamera.h"
+#include "SG/T3DSGTransformNode.h"
 
 
 namespace Tiny3D
@@ -36,6 +37,12 @@ namespace Tiny3D
         T3D_ASSERT(0);
     }
 
+    void SGCamera::updateTransform()
+    {
+        getViewMatrix();
+        SGVisual::updateTransform();
+    }
+
     void SGCamera::updateBound()
     {
 
@@ -44,5 +51,19 @@ namespace Tiny3D
     void SGCamera::renderScene(Viewport *viewport)
     {
 
+    }
+
+    const Matrix4 &SGCamera::getViewMatrix() const
+    {
+        if (isDirty())
+        {
+            SGTransformNode *node = (SGTransformNode *)getParent();
+            T3D_ASSERT(node->getNodeType() == E_NT_TRANSFORM);
+
+            const Transform &transform = node->getLocalToWorldTransform();
+            mViewMatrix = transform.getAffineMatrix();
+        }
+        
+        return mViewMatrix;
     }
 }

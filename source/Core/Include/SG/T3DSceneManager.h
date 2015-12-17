@@ -19,6 +19,8 @@ namespace Tiny3D
 
         SGCamera *getCurCamera()    { return mCurCamera; }
 
+        SGNode *getRoot()  { return mRoot; }
+
     protected:
         SGCamera    *mCurCamera;
 

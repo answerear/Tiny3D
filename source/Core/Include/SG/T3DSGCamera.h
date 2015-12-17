@@ -14,9 +14,6 @@ namespace Tiny3D
         friend class Viewport;
         friend class SceneManager;
 
-    protected:
-        SGCamera(uint32_t unID = E_NID_AUTOMATIC);
-
     public:
         enum ProjectionType
         {
@@ -24,8 +21,7 @@ namespace Tiny3D
             E_PT_PERSPECTIVE,
         };
 
-        static SGCamera *create(uint32_t unID = E_NID_AUTOMATIC);
-
+        SGCamera(uint32_t unID = E_NID_AUTOMATIC);
         virtual ~SGCamera();
 
         virtual Type getNodeType() const override;
@@ -51,10 +47,14 @@ namespace Tiny3D
 
         void setPerspective(Real fovx, Real ratio, Real near, Real far);
 
+        const Matrix4 &getViewMatrix() const;
+        const Matrix4 &getProjectionMatrix() const;
+
     private:    // from SGNode
         virtual void addChild(SGNode *child) override;
 
     protected:
+        virtual void updateTransform() override;
         virtual void updateBound() override;
 
         void renderScene(Viewport *viewport);
@@ -68,7 +68,7 @@ namespace Tiny3D
 
         ProjectionType  mProjType;
 
-        Matrix4 mViewMatrix;
+        mutable Matrix4 mViewMatrix;
         Matrix4 mProjMatrix;
     };
 }

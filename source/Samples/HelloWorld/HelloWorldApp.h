@@ -9,18 +9,21 @@
 
 class HelloWorldApp 
     : public Tiny3D::ApplicationListener
-    , public Tiny3D::FrameListener
 {
 public:
     HelloWorldApp();
     virtual ~HelloWorldApp();
 
+    int32_t go();
+
 protected:  /// from Tiny3D::ApplicationListener
-    virtual bool applicationDidFinishLaunching();
+    virtual bool applicationDidFinishLaunching() override;
 
-    virtual void applicationDidEnterBackground();
+    virtual void applicationDidEnterBackground() override;
 
-    virtual void applicationWillEnterForeground();
+    virtual void applicationWillEnterForeground() override;
+
+    virtual void applicationWillTerminate() override;
 };
 
 

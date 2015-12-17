@@ -196,7 +196,7 @@ namespace Tiny3D
             SGNode *newChild = child->clone();
             newChild->cloneProperties(child);
             node->addChild(newChild);
-            node->autorelease();
+            newChild->release();
             ++itr;
         }
     }
