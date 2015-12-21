@@ -1,10 +1,18 @@
 
 
-#include "SG/T3DSGTransformNode.h"
+#include "SG/Node/T3DSGTransformNode.h"
 
 
 namespace Tiny3D
 {
+    SGNodePtr SGTransformNode::create(uint32_t unID /* = E_NID_AUTOMATIC */)
+    {
+        SGTransformNode *node = new SGTransformNode(unID);
+        SGNodePtr ptr(node);
+        node->release();
+        return ptr;
+    }
+
     SGTransformNode::SGTransformNode(uint32_t unID /* = E_NID_AUTOMATIC */)
         : SGNode(unID)
         , mPosition(Vector3::ZERO)
@@ -26,13 +34,13 @@ namespace Tiny3D
         return E_NT_TRANSFORM;
     }
 
-    void SGTransformNode::onAttachParent(SGNode *parent)
+    void SGTransformNode::onAttachParent(const SGNodePtr &parent)
     {
         SGNode::onAttachParent(parent);
         setDirty(true, true);
     }
 
-    void SGTransformNode::onDetachParent(SGNode *parent)
+    void SGTransformNode::onDetachParent(const SGNodePtr &parent)
     {
         SGNode::onDetachParent(parent);
     }
@@ -117,17 +125,19 @@ namespace Tiny3D
         setDirty(true, true);
     }
 
-    void SGTransformNode::addChild(SGNode *node)
+    void SGTransformNode::addChild(const SGNodePtr &node)
     {
         T3D_ASSERT(node->getNodeType() != E_NT_SUBMESH);
         SGNode::addChild(node);
     }
 
-    SGNode *SGTransformNode::clone() const
+    SGNodePtr SGTransformNode::clone() const
     {
         SGTransformNode *node = new SGTransformNode();
+        SGNodePtr ptr(node);
+        node->release();
         cloneProperties(node);
-        return node;
+        return ptr;
     }
 
     void SGTransformNode::cloneProperties(SGNode *node) const

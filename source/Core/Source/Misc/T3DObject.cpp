@@ -6,7 +6,6 @@ namespace Tiny3D
 {
     Object::Object()
         : mReferCount(1)
-        , mAutoReleaseCount(0)
     {
 
     }

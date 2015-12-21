@@ -42,13 +42,13 @@
 #include "Resource/T3DResource.h"
 #include "Resource/T3DResourceManager.h"
 
-#include "SG/T3DSGNode.h"
-#include "SG/T3DSGTransformNode.h"
-#include "SG/T3DSGVisual.h"
-#include "SG/T3DSGCamera.h"
-#include "SG/T3DSGBox.h"
-#include "SG/T3DSGRenderable.h"
-#include "SG/T3DSGCube.h"
+#include "SG/Node/T3DSGNode.h"
+#include "SG/Node/T3DSGTransformNode.h"
+#include "SG/Visual/T3DSGVisual.h"
+#include "SG/Visual/T3DSGCamera.h"
+#include "SG/Visual/T3DSGBox.h"
+#include "SG/Renderable/T3DSGRenderable.h"
+#include "SG/Renderable/T3DSGCube.h"
 
 
 #endif  /*__TINY3D_H__*/

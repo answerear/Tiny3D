@@ -3,20 +3,27 @@
 #define __T3D_SG_TRANSFORM_NODE_H__
 
 
-#include "SG/T3DSGNode.h"
+#include "SG/Node/T3DSGNode.h"
 #include "Math/T3DMath.h"
 #include "Math/T3DVector3.h"
 #include "Math/T3DMatrix3.h"
 #include "Math/T3DMatrix4.h"
 #include "Math/T3DTransform.h"
+#include "Misc/T3DSmartPointer.h"
 
 
 namespace Tiny3D
 {
+    typedef SmartPtr<SGTransformNode> SGTransformNodePtr;
+
     class T3D_ENGINE_API SGTransformNode : public SGNode
     {
-    public:
+    protected:
         SGTransformNode(uint32_t unID = E_NID_AUTOMATIC);
+
+    public:
+        static SGNodePtr create(uint32_t unID = E_NID_AUTOMATIC);
+
         virtual ~SGTransformNode();
 
         virtual Type getNodeType() const override;
@@ -64,15 +71,15 @@ namespace Tiny3D
         virtual const Transform &getLocalToWorldTransform();
 //         Transform getWorldToLocalTransform();
 
-        virtual void addChild(SGNode *node) override;
+        virtual void addChild(const SGNodePtr &node) override;
 
     protected:
-        virtual void onAttachParent(SGNode *parent) override;
-        virtual void onDetachParent(SGNode *parent) override;
+        virtual void onAttachParent(const SGNodePtr &parent) override;
+        virtual void onDetachParent(const SGNodePtr &parent) override;
 
         virtual void updateTransform() override;
 
-        virtual SGNode *clone() const override;
+        virtual SGNodePtr clone() const override;
         virtual void cloneProperties(SGNode *node) const override;
 
     private:

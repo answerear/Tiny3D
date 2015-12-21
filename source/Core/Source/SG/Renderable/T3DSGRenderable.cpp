@@ -1,6 +1,6 @@
 
 
-#include "SG/T3DSGRenderable.h"
+#include "SG/Renderable/T3DSGRenderable.h"
 
 
 namespace Tiny3D

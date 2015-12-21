@@ -4,15 +4,21 @@
 #define __T3D_SG_CAMERA_H__
 
 
-#include "SG/T3DSGVisual.h"
+#include "SG/Visual/T3DSGVisual.h"
+#include "Misc/T3DSmartPointer.h"
 
 
 namespace Tiny3D
 {
+    typedef SmartPtr<SGCamera> SGCameraPtr;
+
     class T3D_ENGINE_API SGCamera : public SGVisual
     {
         friend class Viewport;
         friend class SceneManager;
+
+    protected:
+        SGCamera(uint32_t unID = E_NID_AUTOMATIC);
 
     public:
         enum ProjectionType
@@ -21,7 +27,8 @@ namespace Tiny3D
             E_PT_PERSPECTIVE,
         };
 
-        SGCamera(uint32_t unID = E_NID_AUTOMATIC);
+        static SGCameraPtr create(uint32_t unID = E_NID_AUTOMATIC);
+
         virtual ~SGCamera();
 
         virtual Type getNodeType() const override;
@@ -50,9 +57,9 @@ namespace Tiny3D
         const Matrix4 &getProjectionMatrix() const;
 
     private:    // from SGNode
-        virtual void addChild(SGNode *child) override;
+        virtual void addChild(const SGNodePtr &child) override;
 
-        virtual SGNode *clone() const override;
+        virtual SGNodePtr clone() const override;
         virtual void cloneProperties(SGNode *node) const override;
 
     protected:

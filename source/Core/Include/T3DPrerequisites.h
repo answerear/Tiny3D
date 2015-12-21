@@ -16,6 +16,7 @@
 
 #include "T3DPlatform.h"
 #include "T3DLogger.h"
+#include "Misc/T3DSmartPointer.h"
 
 
 namespace Tiny3D
@@ -117,7 +118,17 @@ namespace Tiny3D
 
     typedef VariantMap Settings;
 
-    typedef std::list<SGNode*>              SGChildren;
+    typedef SmartPtr<Object>                ObjectPtr;
+    typedef SmartPtr<SGNode>                SGNodePtr;
+    typedef SmartPtr<SGTransformNode>       SGTransformPtr;
+    typedef SmartPtr<SGVisual>              SGVisualPtr;
+    typedef SmartPtr<SGCamera>              SGCameraPtr;
+    typedef SmartPtr<SGBox>                 SGBoxPtr;
+    typedef SmartPtr<SGRenderable>          SGRenderablePtr;
+
+    typedef SmartPtr<Viewport>              ViewportPtr;
+
+    typedef std::list<SGNodePtr>            SGChildren;
     typedef SGChildren::iterator            SGChildrenItr;
     typedef SGChildren::const_iterator      SGChildrenConstItr;
 }

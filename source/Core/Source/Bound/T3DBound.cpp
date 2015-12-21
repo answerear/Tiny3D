@@ -1,7 +1,7 @@
 
 
 #include "Bound/T3DBound.h"
-#include "SG/T3DSGVisual.h"
+#include "SG/Visual/T3DSGVisual.h"
 #include "Math/T3DTransform.h"
 
 

@@ -4,7 +4,7 @@
 #define __T3D_SG_VISUAL_H__
 
 
-#include "SG/T3DSGTransformNode.h"
+#include "SG/Node/T3DSGTransformNode.h"
 #include "Bound/T3DBound.h"
 #include "Math/T3DTransform.h"
 

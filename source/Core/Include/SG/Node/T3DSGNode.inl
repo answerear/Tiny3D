@@ -27,11 +27,19 @@ namespace Tiny3D
         return mUserData;
     }
 
-    inline void SGNode::setUserObject(Object *pObject)
+    inline void SGNode::setUserObject(const ObjectPtr &rkObject)
     {
-        T3D_SAFE_RELEASE(mUserObject);
-        mUserObject = pObject;
-        T3D_SAFE_ACQUIRE(mUserObject);
+        mUserObject = rkObject;
+    }
+
+    inline const ObjectPtr &SGNode::getUserObject() const
+    {
+        return mUserObject;
+    }
+
+    inline ObjectPtr SGNode::getUserObject()
+    {
+        return mUserObject;
     }
 
     inline const SGChildren &SGNode::getChildren() const
@@ -39,7 +47,12 @@ namespace Tiny3D
         return mChildren;
     }
 
-    inline SGNode *SGNode::getParent() const
+    inline const SGNodePtr &SGNode::getParent() const
+    {
+        return mParent;
+    }
+
+    inline SGNodePtr SGNode::getParent()
     {
         return mParent;
     }

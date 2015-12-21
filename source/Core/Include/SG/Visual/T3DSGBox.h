@@ -3,21 +3,25 @@
 #define __T3D_SG_BOX_H__
 
 
-#include "SG/T3DSGVisual.h"
+#include "SG/Visual/T3DSGVisual.h"
 
 
 namespace Tiny3D
 {
     class T3D_ENGINE_API SGBox : public SGVisual
     {
-    public:
+    protected:
         SGBox(uint32_t unID = E_NID_AUTOMATIC);
+
+    public:
+        static SGNodePtr create(uint32_t unID = E_NID_AUTOMATIC);
+
         virtual ~SGBox();
 
         virtual SGNode::Type getNodeType() const override;
 
     protected:
-        virtual SGNode *clone() const override;
+        virtual SGNodePtr clone() const override;
     };
 }
 

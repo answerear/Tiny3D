@@ -1,6 +1,6 @@
 
 
-#include "SG/T3DSGNode.h"
+#include "SG/Node/T3DSGNode.h"
 
 
 namespace Tiny3D
@@ -24,17 +24,18 @@ namespace Tiny3D
 
     SGNode::~SGNode()
     {
+        removeAllChildren();
     }
 
-    void SGNode::addChild(SGNode *node)
+    void SGNode::addChild(const SGNodePtr &node)
     {
-        T3D_SAFE_ACQUIRE(node);
+        T3D_ASSERT(node->getParent() == nullptr);
         mChildren.push_back(node);
         node->mParent = this;
         node->onAttachParent(this);
     }
 
-    void SGNode::removeChild(SGNode *node)
+    void SGNode::removeChild(const SGNodePtr &node)
     {
         if (node != nullptr)
         {
@@ -42,13 +43,12 @@ namespace Tiny3D
 
             while (itr != mChildren.end())
             {
-                SGNode *&child = *itr;
+                SGNodePtr &child = *itr;
 
                 if (child == node)
                 {
                     child->onDetachParent(this);
                     child->mParent = nullptr;
-                    child->release();
                     mChildren.erase(itr);
                     break;
                 }
@@ -64,13 +64,12 @@ namespace Tiny3D
 
         while (itr != mChildren.end())
         {
-            SGNode *&child = *itr;
+            SGNodePtr &child = *itr;
 
             if (child != nullptr && child->getNodeID() == nodeID)
             {
                 child->onDetachParent(this);
                 child->mParent = nullptr;
-                child->release();
                 mChildren.erase(itr);
                 break;
             }
@@ -85,11 +84,10 @@ namespace Tiny3D
 
         while (itr != mChildren.end())
         {
-            SGNode *&child = *itr;
+            SGNodePtr &child = *itr;
 
             child->onDetachParent(this);
             child->mParent = nullptr;
-            child->release();
 
             ++itr;
         }
@@ -105,17 +103,36 @@ namespace Tiny3D
         }
     }
 
-    SGNode *SGNode::getChild(uint32_t nodeID)
+    const SGNodePtr &SGNode::getChild(uint32_t nodeID) const
     {
-        SGNode *child = nullptr;
+        SGChildrenConstItr itr = mChildren.begin();
+
+        while (itr != mChildren.end())
+        {
+            const SGNodePtr &node = *itr;
+            if (node->getNodeID() == nodeID)
+            {
+                return node;
+                break;
+            }
+            ++itr;
+        }
+
+        return SGNodePtr::NULL_PTR;
+    }
+
+    SGNodePtr SGNode::getChild(uint32_t nodeID)
+    {
+        SGNodePtr child;
         SGChildrenItr itr = mChildren.begin();
 
         while (itr != mChildren.end())
         {
-            SGNode *&node = *itr;
-            if (child->getNodeID() == nodeID)
+            SGNodePtr &node = *itr;
+            if (node->getNodeID() == nodeID)
             {
                 child = node;
+                break;
             }
             ++itr;
         }
@@ -123,17 +140,36 @@ namespace Tiny3D
         return child;
     }
 
-    SGNode *SGNode::getChild(const String &name)
+    const SGNodePtr &SGNode::getChild(const String &name) const
     {
-        SGNode *child = nullptr;
+        SGChildrenConstItr itr = mChildren.begin();
+
+        while (itr != mChildren.end())
+        {
+            const SGNodePtr &node = *itr;
+            if (node->getName() == name)
+            {
+                return node;
+                break;
+            }
+            ++itr;
+        }
+
+        return SGNodePtr::NULL_PTR;
+    }
+
+    SGNodePtr SGNode::getChild(const String &name)
+    {
+        SGNodePtr child;
         SGChildrenItr itr = mChildren.begin();
 
         while (itr != mChildren.end())
         {
-            SGNode *&node = *itr;
-            if (child->getName() == name)
+            SGNodePtr &node = *itr;
+            if (node->getName() == name)
             {
                 child = node;
+                break;
             }
             ++itr;
         }
@@ -147,7 +183,7 @@ namespace Tiny3D
 
         while (itr != mChildren.end())
         {
-            SGNode *&node = *itr;
+            SGNodePtr &node = *itr;
             node->updateTransform();
             ++itr;
         }
@@ -159,7 +195,7 @@ namespace Tiny3D
 
         while (itr != mChildren.end())
         {
-            SGNode *&node = *itr;
+            SGNodePtr &node = *itr;
             node->frustumCulling(bound);
             ++itr;
         }
@@ -175,7 +211,7 @@ namespace Tiny3D
 
             while (itr != mChildren.end())
             {
-                SGNode *&node = *itr;
+                SGNodePtr &node = *itr;
                 node->setDirty(isDirty, recursive);
                 ++itr;
             }
@@ -187,26 +223,24 @@ namespace Tiny3D
         node->mName = mName;
         node->mUserData = mUserData;
         node->mUserObject = mUserObject;
-        T3D_SAFE_ACQUIRE(node->mUserObject);
 
         SGChildrenItr itr = node->mChildren.begin();
         while (itr != node->mChildren.end())
         {
-            SGNode *child = *itr;
-            SGNode *newChild = child->clone();
+            SGNodePtr &child = *itr;
+            SGNodePtr newChild = child->clone();
             newChild->cloneProperties(child);
             node->addChild(newChild);
-            newChild->release();
             ++itr;
         }
     }
 
-    void SGNode::onAttachParent(SGNode *parent)
+    void SGNode::onAttachParent(const SGNodePtr &parent)
     {
 
     }
 
-    void SGNode::onDetachParent(SGNode *parent)
+    void SGNode::onDetachParent(const SGNodePtr &parent)
     {
 
     }

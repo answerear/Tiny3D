@@ -15,16 +15,16 @@ namespace Tiny3D
         SceneManager();
         virtual ~SceneManager();
 
-        virtual void renderScene(SGCamera *camera, Viewport *viewport);
+        virtual void renderScene(const SGCameraPtr &camera, const ViewportPtr &viewport);
 
-        SGCamera *getCurCamera()    { return mCurCamera; }
+        const SGCameraPtr &getCurCamera() const { return mCurCamera; }
 
-        SGNode *getRoot()  { return mRoot; }
+        const SGNodePtr &getRoot() const { return mRoot; }
 
     protected:
-        SGCamera    *mCurCamera;
+        SGCameraPtr mCurCamera;
 
-        SGNode      *mRoot;
+        SGNodePtr   mRoot;
     };
 
     #define T3D_SCENE_MGR           SceneManager::getInstance()

@@ -1,9 +1,8 @@
 
 
 #include "SG/T3DSceneManager.h"
-#include "SG/T3DSGCamera.h"
-#include "SG/T3DSGNode.h"
-#include "SG/T3DSGTransformNode.h"
+#include "SG/Visual/T3DSGCamera.h"
+#include "SG/Node/T3DSGTransformNode.h"
 
 
 namespace Tiny3D
@@ -13,15 +12,15 @@ namespace Tiny3D
     SceneManager::SceneManager()
         : mRoot(nullptr)
     {
-        mRoot = new SGTransformNode();
+        mRoot = SGTransformNode::create();
     }
 
     SceneManager::~SceneManager()
     {
-        T3D_SAFE_RELEASE(mRoot);
+        mRoot = nullptr;
     }
 
-    void SceneManager::renderScene(SGCamera *camera, Viewport *viewport)
+    void SceneManager::renderScene(const SGCameraPtr &camera, const ViewportPtr &viewport)
     {
         mCurCamera = camera;
         mRoot->updateTransform();

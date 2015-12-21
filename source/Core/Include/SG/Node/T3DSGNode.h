@@ -8,6 +8,7 @@
 #include "Math/T3DVector3.h"
 #include "Math/T3DMatrix3.h"
 #include "Math/T3DMatrix4.h"
+#include "Misc/T3DSmartPointer.h"
 
 
 namespace Tiny3D
@@ -77,11 +78,12 @@ namespace Tiny3D
         void setUserData(long_t data);
         long_t getUserData() const;
 
-        void setUserObject(Object *pObject);
-        Object *getUserObject() const;
+        void setUserObject(const ObjectPtr &rkObject);
+        const ObjectPtr &getUserObject() const;
+        ObjectPtr getUserObject();
 
-        virtual void addChild(SGNode *node);
-        virtual void removeChild(SGNode *node);
+        virtual void addChild(const SGNodePtr &node);
+        virtual void removeChild(const SGNodePtr &node);
         virtual void removeChild(uint32_t nodeID);
 
         virtual void removeAllChildren();
@@ -90,17 +92,18 @@ namespace Tiny3D
 
         const SGChildren &getChildren() const;
 
-        SGNode *getChild(uint32_t unNodeID);
-        SGNode *getChild(const String &name);
+        const SGNodePtr &getChild(uint32_t unNodeID) const;
+        SGNodePtr getChild(uint32_t unNodeID);
+        const SGNodePtr &getChild(const String &name) const;
+        SGNodePtr getChild(const String &name);
 
-        SGNode *getParent() const;
+        const SGNodePtr &getParent() const;
+        SGNodePtr getParent();
 
         void setDirty(bool isDirty, bool recursive = false);
         bool isDirty() const;
 
-        virtual SGNode *clone() const = 0;
-
-        virtual void cloneProperties(SGNode *node) const;
+        virtual SGNodePtr clone() const = 0;
 
     protected:
         /** 
@@ -115,8 +118,10 @@ namespace Tiny3D
          */
         virtual void frustumCulling(const FrustumBound &bound);
 
-        virtual void onAttachParent(SGNode *parent);
-        virtual void onDetachParent(SGNode *parent);
+        virtual void cloneProperties(SGNode *node) const;
+
+        virtual void onAttachParent(const SGNodePtr &parent);
+        virtual void onDetachParent(const SGNodePtr &parent);
 
         uint32_t makeGlobalID() const;
 
@@ -126,9 +131,9 @@ namespace Tiny3D
 
         long_t      mUserData;      /// Store user data
 
-        Object      *mUserObject;   /// Pointer to user object
+        ObjectPtr   mUserObject;   /// Pointer to user object
 
-        SGNode      *mParent;       /// Pointer to parent scene node
+        SGNodePtr   mParent;       /// Pointer to parent scene node
 
         SGChildren  mChildren;      /// List of containing all children scene node
 

@@ -11,8 +11,6 @@ namespace Tiny3D
 {
     class T3D_ENGINE_API Object
     {
-        friend class AutoreleasePool;
-
     public:
         Object();
         virtual ~Object();
@@ -27,7 +25,6 @@ namespace Tiny3D
 
     private:
         uint32_t    mReferCount;
-        uint32_t    mAutoReleaseCount;
     };
 }
 

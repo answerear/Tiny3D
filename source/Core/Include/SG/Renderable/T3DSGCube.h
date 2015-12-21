@@ -3,7 +3,7 @@
 #define __T3D_SG_CUBE_H__
 
 
-#include "SG/T3DSGRenderable.h"
+#include "SG/Renderable/T3DSGRenderable.h"
 
 
 namespace Tiny3D
@@ -11,13 +11,16 @@ namespace Tiny3D
     class T3D_ENGINE_API SGCube : public SGRenderable
     {
     public:
-        SGCube(uint32_t unID = E_NID_AUTOMATIC);
+        static SGNodePtr create(uint32_t unID = E_NID_AUTOMATIC);
+
         virtual ~SGCube();
 
         virtual SGNode::Type getNodeType() const override;
 
     protected:
-        virtual SGNode *clone() const override;
+        SGCube(uint32_t unID = E_NID_AUTOMATIC);
+
+        virtual SGNodePtr clone() const override;
         virtual void cloneProperties(SGNode *node) const override;
 
     protected:

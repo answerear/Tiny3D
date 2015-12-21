@@ -148,6 +148,8 @@ namespace Tiny3D
         if (mActiveRenderer == nullptr)
             return false;
 
+        mSceneMgr = new SceneManager();
+
         bool ret = mActiveRenderer->initialize();
         
         if (autoCreateWindow)
@@ -166,8 +168,6 @@ namespace Tiny3D
             paramEx["vsync"] = mSettings["VSync"];
             renderWindow = mActiveRenderer->createRenderWindow(param, paramEx);
         }
-
-        mSceneMgr = new SceneManager();
 
         return ret;
     }

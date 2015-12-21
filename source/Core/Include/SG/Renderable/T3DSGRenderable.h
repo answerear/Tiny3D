@@ -4,7 +4,7 @@
 #define __T3D_SG_RENDERABLE_H__
 
 
-#include "SG/T3DSGNode.h"
+#include "SG/Node/T3DSGNode.h"
 
 
 namespace Tiny3D

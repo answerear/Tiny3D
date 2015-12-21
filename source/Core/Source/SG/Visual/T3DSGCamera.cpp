@@ -1,11 +1,19 @@
 
 
-#include "SG/T3DSGCamera.h"
-#include "SG/T3DSGTransformNode.h"
+#include "SG/Visual/T3DSGCamera.h"
+#include "SG/Node/T3DSGTransformNode.h"
 
 
 namespace Tiny3D
 {
+    SGCameraPtr SGCamera::create(uint32_t unID /* = E_NID_AUTOMATIC */)
+    {
+        SGCamera *camera = new SGCamera(unID);
+        SGCameraPtr ptr(camera);
+        camera->release();
+        return ptr;
+    }
+
     SGCamera::SGCamera(uint32_t unID /* = E_NID_AUTOMATIC */)
         : SGVisual(unID)
     {
@@ -22,11 +30,13 @@ namespace Tiny3D
         return E_NT_CAMERA;
     }
 
-    SGNode *SGCamera::clone() const
+    SGNodePtr SGCamera::clone() const
     {
         SGCamera *node = new SGCamera();
+        SGNodePtr ptr(node);
+        node->release();
         cloneProperties(node);
-        return node;
+        return ptr;
     }
 
     void SGCamera::cloneProperties(SGNode *node) const
@@ -44,7 +54,7 @@ namespace Tiny3D
         newNode->mProjMatrix = mProjMatrix;
     }
 
-    void SGCamera::addChild(SGNode *child)
+    void SGCamera::addChild(const SGNodePtr &child)
     {
         // Can't add any type node for child node.
         T3D_ASSERT(0);
@@ -70,11 +80,15 @@ namespace Tiny3D
     {
         if (isDirty())
         {
-            SGTransformNode *node = (SGTransformNode *)getParent();
+            SGNode *parent = getParent();
+            SGTransformNode *node = (SGTransformNode *)parent;
             T3D_ASSERT(node->getNodeType() == E_NT_TRANSFORM);
 
             const Transform &transform = node->getLocalToWorldTransform();
             mViewMatrix = transform.getAffineMatrix();
+            mViewMatrix[3][0] = -mViewMatrix[3][0];
+            mViewMatrix[3][1] = -mViewMatrix[3][1];
+            mViewMatrix[3][2] = -mViewMatrix[3][2];
         }
         
         return mViewMatrix;

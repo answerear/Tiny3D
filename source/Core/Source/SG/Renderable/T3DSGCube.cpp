@@ -1,10 +1,18 @@
 
 
-#include "SG/T3DSGCube.h"
+#include "SG/Renderable/T3DSGCube.h"
 
 
 namespace Tiny3D
 {
+    SGNodePtr SGCube::create(uint32_t unID /* = E_NID_AUTOMATIC */)
+    {
+        SGCube *cube = new SGCube(unID);
+        SGNodePtr ptr(cube);
+        cube->release();
+        return ptr;
+    }
+
     SGCube::SGCube(uint32_t unID /* = E_NID_AUTOMATIC */)
         : SGRenderable(unID)
     {
@@ -21,11 +29,13 @@ namespace Tiny3D
         return E_NT_CUBE;
     }
 
-    SGNode *SGCube::clone() const
+    SGNodePtr SGCube::clone() const
     {
         SGCube *node = new SGCube();
+        SGNodePtr ptr(node);
         cloneProperties(node);
-        return node;
+        node->release();
+        return ptr;
     }
 
     void SGCube::cloneProperties(SGNode *node) const

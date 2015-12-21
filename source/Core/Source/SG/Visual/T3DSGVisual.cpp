@@ -1,9 +1,9 @@
 
 
 
-#include "SG/T3DSGVisual.h"
-#include "SG/T3DSGTransformNode.h"
-#include "SG/T3DSGCamera.h"
+#include "SG/Visual/T3DSGVisual.h"
+#include "SG/Node/T3DSGTransformNode.h"
+#include "SG/Visual/T3DSGCamera.h"
 #include "SG/T3DSceneManager.h"
 #include "Misc/T3DEntrance.h"
 
@@ -30,7 +30,8 @@ namespace Tiny3D
 
     void SGVisual::updateBound()
     {
-        SGTransformNode *parent = (SGTransformNode *)getParent();
+        SGNode *node = getParent();
+        SGTransformNode *parent = (SGTransformNode *)node;
 
         if (isDirty())
         {
