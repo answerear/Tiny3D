@@ -2,6 +2,7 @@
 
 #include "SG/Visual/T3DSGCamera.h"
 #include "SG/Node/T3DSGTransformNode.h"
+#include "Math/T3DMath.h"
 
 
 namespace Tiny3D
@@ -16,6 +17,7 @@ namespace Tiny3D
 
     SGCamera::SGCamera(uint32_t unID /* = E_NID_AUTOMATIC */)
         : SGVisual(unID)
+        , mIsFrustumDirty(false)
     {
 
     }
@@ -86,11 +88,43 @@ namespace Tiny3D
 
             const Transform &transform = node->getLocalToWorldTransform();
             mViewMatrix = transform.getAffineMatrix();
-            mViewMatrix[3][0] = -mViewMatrix[3][0];
-            mViewMatrix[3][1] = -mViewMatrix[3][1];
-            mViewMatrix[3][2] = -mViewMatrix[3][2];
+            mViewMatrix[0][3] = -mViewMatrix[0][3];
+            mViewMatrix[1][3] = -mViewMatrix[1][3];
+            mViewMatrix[2][3] = -mViewMatrix[2][3];
+            mViewMatrix[3][3] = Real(1.0);
         }
         
         return mViewMatrix;
+    }
+
+    const Matrix4 &SGCamera::getProjectionMatrix() const
+    {
+        if (mIsFrustumDirty)
+        {
+            if (mProjType == E_PT_ORTHOGRAPHIC)
+            {
+                Radian thetaY = mFovY / Real(2.0);
+                Real sinThetaY = Math::Sin(thetaY);
+                Radian thetaX = thetaY * mAspectRatio;
+                Real sinThetaX = Math::Sin(thetaX);
+                Real w = 1.0 / (sinThetaX * mNearDistance);
+                Real h = 1.0 / (sinThetaY * mNearDistance);
+                Real q = 1.0 / (mFarDistance - mNearDistance);
+
+                mProjMatrix.makeZero();
+                mProjMatrix[0][0] = w;
+                mProjMatrix[1][1] = h;
+                mProjMatrix[2][2] = -q;
+                mProjMatrix[3][3] = 1.0;
+            }
+            else
+            {
+
+            }
+
+            mIsFrustumDirty = false;
+        }
+
+        return mProjMatrix;
     }
 }

@@ -45,11 +45,13 @@ namespace Tiny3D
         void setFarPlaneDistance(Real d);
         Real getFarPlaneDistance() const;
 
-        void setFovX(Real x);
-        Real getFovX() const;
+        void setFovX(const Radian &radians);
+        const Radian &getFovX() const;
+        Radian &getFovX();
 
-        void setFovY(Real y);
-        Real getFovY() const;
+        void setFovY(const Radian &radians);
+        const Radian &getFovY() const;
+        Radian &getFovY();
 
         void setPerspective(Real fovx, Real ratio, Real near, Real far);
 
@@ -69,8 +71,8 @@ namespace Tiny3D
         void renderScene(Viewport *viewport);
 
     protected:
-        Real    mFovX;
-        Real    mFovY;
+        Radian  mFovX;
+        Radian  mFovY;
         Real    mFarDistance;
         Real    mNearDistance;
         Real    mAspectRatio;
@@ -78,7 +80,9 @@ namespace Tiny3D
         ProjectionType  mProjType;
 
         mutable Matrix4 mViewMatrix;
-        Matrix4 mProjMatrix;
+        mutable Matrix4 mProjMatrix;
+
+        mutable bool    mIsFrustumDirty;
     };
 }
 
