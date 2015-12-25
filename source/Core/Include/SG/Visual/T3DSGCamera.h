@@ -5,13 +5,10 @@
 
 
 #include "SG/Visual/T3DSGVisual.h"
-#include "Misc/T3DSmartPointer.h"
 
 
 namespace Tiny3D
 {
-    typedef SmartPtr<SGCamera> SGCameraPtr;
-
     class T3D_ENGINE_API SGCamera : public SGVisual
     {
         friend class Viewport;
@@ -45,15 +42,10 @@ namespace Tiny3D
         void setFarPlaneDistance(Real d);
         Real getFarPlaneDistance() const;
 
-        void setFovX(const Radian &radians);
-        const Radian &getFovX() const;
-        Radian &getFovX();
-
         void setFovY(const Radian &radians);
         const Radian &getFovY() const;
-        Radian &getFovY();
 
-        void setPerspective(Real fovx, Real ratio, Real near, Real far);
+        void setPerspective(const Radian &fovy, Real aspect, Real nearDist, Real farDist);
 
         const Matrix4 &getViewMatrix() const;
         const Matrix4 &getProjectionMatrix() const;
@@ -68,10 +60,9 @@ namespace Tiny3D
         virtual void updateTransform() override;
         virtual void updateBound() override;
 
-        void renderScene(Viewport *viewport);
+        void renderScene(const ViewportPtr &viewport);
 
     protected:
-        Radian  mFovX;
         Radian  mFovY;
         Real    mFarDistance;
         Real    mNearDistance;

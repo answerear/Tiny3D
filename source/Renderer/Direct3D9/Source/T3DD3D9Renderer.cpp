@@ -159,4 +159,39 @@ namespace Tiny3D
     {
 
     }
+
+    void D3D9Renderer::makeProjectionMatrix(const Radian &rkFovY, Real aspect, 
+        Real nearDist, Real farDist, bool ortho, Matrix4 &mat)
+    {
+        if (ortho)
+        {
+            // 正交投影
+            Real tanThetaY = Math::Tan(rkFovY * Real(0.5));
+            Real h = Real(1.0) / (nearDist * tanThetaY);
+            Real w = h / aspect;
+            Real q = Real(1.0) / (farDist - nearDist);
+            Real qn = -nearDist * q;
+            mat.makeZero();
+            mat[0][0] = w;
+            mat[1][1] = h;
+            mat[2][2] = q;
+            mat[2][3] = qn;
+            mat[3][3] = 1.0;
+        }
+        else
+        {
+            // 透视投影
+            Real tanThetaY = Math::Tan(rkFovY * Real(0.5));
+            Real h = Real(1.0) / (tanThetaY);
+            Real w = h / aspect;            
+            Real q = farDist / (nearDist - farDist);
+            Real qn = -nearDist * q;
+            mat.makeZero();
+            mat[0][0] = w;
+            mat[1][1] = h;
+            mat[2][2] = q;
+            mat[2][3] = qn;
+            mat[3][2] = 1.0;
+        }
+    }
 }

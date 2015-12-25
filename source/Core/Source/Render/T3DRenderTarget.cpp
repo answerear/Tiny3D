@@ -6,6 +6,14 @@
 
 namespace Tiny3D
 {
+    RenderTargetPtr RenderTarget::create()
+    {
+        RenderTarget *rt = new RenderTarget();
+        RenderTargetPtr ptr(rt);
+        rt->release();
+        return ptr;
+    }
+
     RenderTarget::RenderTarget()
         : mWidth(0)
         , mHeight(0)
@@ -30,16 +38,16 @@ namespace Tiny3D
         }
     }
 
-    Viewport *RenderTarget::addViewport(SGCamera *camera, int32_t nZOrder, 
+    ViewportPtr RenderTarget::addViewport(SGCamera *camera, int32_t nZOrder, 
         Real left, Real top, Real width, Real height)
     {
-        Viewport *viewport = nullptr;
+        ViewportPtr viewport;
 
         auto itr = mViewportList.find(nZOrder);
 
         if (itr == mViewportList.end())
         {
-            viewport = new Viewport(camera, this, left, top, width, height, nZOrder);
+            viewport = Viewport::create(camera, this, left, top, width, height, nZOrder);
             mViewportList.insert(ViewportValue(nZOrder, viewport));
         }
 
@@ -52,20 +60,12 @@ namespace Tiny3D
 
         if (itr != mViewportList.end())
         {
-            delete itr->second;
             mViewportList.erase(itr);
         }
     }
 
     void RenderTarget::removeAllViewports()
     {
-        auto itr = mViewportList.begin();
-        while (itr != mViewportList.end())
-        {
-            delete itr->second;
-            ++itr;
-        }
-
         mViewportList.clear();
     }
 }

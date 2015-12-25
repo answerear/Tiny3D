@@ -7,6 +7,15 @@
 
 namespace Tiny3D
 {
+    ViewportPtr Viewport::create(SGCamera *camera, RenderTarget *target, 
+        Real left, Real top, Real width, Real height, int32_t nZOrder)
+    {
+        Viewport *vp = new Viewport(camera, target, left, top, width, height, nZOrder);
+        ViewportPtr viewport(vp);
+        vp->release();
+        return viewport;
+    }
+
     Viewport::Viewport(SGCamera *camera, RenderTarget *target, 
         Real left, Real top, Real width, Real height, int32_t nZOrder)
         : mCamera(camera)

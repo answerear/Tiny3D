@@ -3,6 +3,9 @@
 #include "SG/Visual/T3DSGCamera.h"
 #include "SG/Node/T3DSGTransformNode.h"
 #include "Math/T3DMath.h"
+#include "Math/T3DMatrix4.h"
+#include "Misc/T3DEntrance.h"
+#include "Render/T3DRenderer.h"
 
 
 namespace Tiny3D
@@ -17,6 +20,11 @@ namespace Tiny3D
 
     SGCamera::SGCamera(uint32_t unID /* = E_NID_AUTOMATIC */)
         : SGVisual(unID)
+        , mFovY(Real(45.0))
+        , mFarDistance(Real(2000.0))
+        , mNearDistance(Real(1.0))
+        , mAspectRatio(Real(4.0)/Real(3.0))
+        , mProjType(E_PT_PERSPECTIVE)
         , mIsFrustumDirty(false)
     {
 
@@ -46,7 +54,6 @@ namespace Tiny3D
         SGVisual::cloneProperties(node);
 
         SGCamera *newNode = (SGCamera *)node;
-        newNode->mFovX = mFovX;
         newNode->mFovY = mFovY;
         newNode->mFarDistance = mFarDistance;
         newNode->mNearDistance = mNearDistance;
@@ -73,9 +80,9 @@ namespace Tiny3D
 
     }
 
-    void SGCamera::renderScene(Viewport *viewport)
+    void SGCamera::renderScene(const ViewportPtr &viewport)
     {
-
+        T3D_SCENE_MGR.renderScene(this, viewport);
     }
 
     const Matrix4 &SGCamera::getViewMatrix() const
@@ -101,25 +108,15 @@ namespace Tiny3D
     {
         if (mIsFrustumDirty)
         {
+            Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
+
             if (mProjType == E_PT_ORTHOGRAPHIC)
             {
-                Radian thetaY = mFovY / Real(2.0);
-                Real sinThetaY = Math::Sin(thetaY);
-                Radian thetaX = thetaY * mAspectRatio;
-                Real sinThetaX = Math::Sin(thetaX);
-                Real w = 1.0 / (sinThetaX * mNearDistance);
-                Real h = 1.0 / (sinThetaY * mNearDistance);
-                Real q = 1.0 / (mFarDistance - mNearDistance);
-
-                mProjMatrix.makeZero();
-                mProjMatrix[0][0] = w;
-                mProjMatrix[1][1] = h;
-                mProjMatrix[2][2] = -q;
-                mProjMatrix[3][3] = 1.0;
+                renderer->makeProjectionMatrix(mFovY, mAspectRatio, mNearDistance, mFarDistance, true, mProjMatrix);
             }
             else
             {
-
+                renderer->makeProjectionMatrix(mFovY, mAspectRatio, mNearDistance, mFarDistance, false, mProjMatrix);
             }
 
             mIsFrustumDirty = false;

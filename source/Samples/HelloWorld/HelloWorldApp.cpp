@@ -24,6 +24,7 @@ int32_t HelloWorldApp::go()
 
     RenderWindow *renderWindow = nullptr;
     Entrance::getInstance().initialize(true, renderWindow);
+    mRenderWindow = renderWindow;
     Entrance::getInstance().run();
 
     delete entrance;
@@ -33,8 +34,6 @@ int32_t HelloWorldApp::go()
 
 bool HelloWorldApp::applicationDidFinishLaunching()
 {
-//     SGTransformNode *node = new SGTransformNode();
-//     T3D_SCENE_MGR.getRoot()->addChild(node);
     SGNodePtr root = T3D_SCENE_MGR.getRoot();
     SGNodePtr node = SGTransformNode::create();
     root->addChild(node);
@@ -47,6 +46,10 @@ bool HelloWorldApp::applicationDidFinishLaunching()
 
     SGNodePtr box = SGBox::create();
     node->addChild(box);
+
+    SGNode *c = camera;
+    SGCamera *cam = (SGCamera *)c;
+    mRenderWindow->addViewport(cam, 0, 0.0, 0.0, 640.0, 480.0);
 
     return true;
 }

@@ -61,7 +61,10 @@ namespace Tiny3D
 
             Bound *bound = camera->getBound();
 
-            mIsInFrustum = bound->test(*mBound);
+            if (bound != nullptr)
+            {
+                mIsInFrustum = bound->test(*mBound);
+            }
 
             // continue updating all children node
             SGNode::updateTransform();

@@ -14,7 +14,11 @@ namespace Tiny3D
 
     inline void SGCamera::setAspectRatio(Real ratio)
     {
-        mAspectRatio = ratio;
+        if (mAspectRatio != ratio)
+        {
+            mAspectRatio = ratio;
+            mIsFrustumDirty = true;
+        }
     }
 
     inline Real SGCamera::getAspectRatio() const
@@ -24,7 +28,11 @@ namespace Tiny3D
 
     inline void SGCamera::setNearPlaneDistance(Real d)
     {
-        mNearDistance = d;
+        if (mNearDistance != d)
+        {
+            mNearDistance = d;
+            mIsFrustumDirty = true;
+        }
     }
 
     inline Real SGCamera::getNearPlaneDistance() const
@@ -34,7 +42,11 @@ namespace Tiny3D
 
     inline void SGCamera::setFarPlaneDistance(Real d)
     {
-        mFarDistance = d;
+        if (mFarDistance != d)
+        {
+            mFarDistance = d;
+            mIsFrustumDirty = true;
+        }
     }
 
     inline Real SGCamera::getFarPlaneDistance() const
@@ -42,28 +54,25 @@ namespace Tiny3D
         return mFarDistance;
     }
 
-    inline void SGCamera::setFovX(Real x)
+    inline void SGCamera::setFovY(const Radian &radians)
     {
-        mFovX = x;
+        if (radians != mFovY)
+        {
+            mFovY = radians;
+            mIsFrustumDirty = true;
+        }
     }
 
-    inline Real SGCamera::getFovX() const
-    {
-        return mFovX;
-    }
-
-    inline void SGCamera::setFovY(Real y)
-    {
-        mFovY = y;
-    }
-
-    inline Real SGCamera::getFovY() const
+    inline const Radian &SGCamera::getFovY() const
     {
         return mFovY;
     }
 
-    inline void SGCamera::setPerspective(Real fovx, Real ratio, Real near, Real far)
+    inline void SGCamera::setPerspective(const Radian &fovy, Real aspect, Real nearDist, Real farDist)
     {
-        mFovX = fovx;
+        setFovY(fovy);
+        setAspectRatio(aspect);
+        setNearPlaneDistance(nearDist);
+        setFarPlaneDistance(farDist);
     }
 }

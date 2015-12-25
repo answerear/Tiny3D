@@ -128,6 +128,9 @@ namespace Tiny3D
 
     typedef SmartPtr<Viewport>              ViewportPtr;
 
+    typedef SmartPtr<RenderTarget>          RenderTargetPtr;
+    typedef SmartPtr<RenderWindow>          RenderWindowPtr;
+
     typedef std::list<SGNodePtr>            SGChildren;
     typedef SGChildren::iterator            SGChildrenItr;
     typedef SGChildren::const_iterator      SGChildrenConstItr;

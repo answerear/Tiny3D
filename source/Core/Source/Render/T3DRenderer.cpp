@@ -38,7 +38,7 @@ namespace Tiny3D
         mRenderTargets.erase(name);
     }
 
-    RenderTarget *Renderer::getRenderTarget(const String &name)
+    RenderTargetPtr Renderer::getRenderTarget(const String &name)
     {
         RenderTargetListItr itr = mRenderTargets.find(name);
 
@@ -47,7 +47,7 @@ namespace Tiny3D
             return itr->second;
         }
 
-        return nullptr;
+        return RenderTargetPtr::NULL_PTR;
     }
 
     void Renderer::addFrameListener(FrameListener *listener)

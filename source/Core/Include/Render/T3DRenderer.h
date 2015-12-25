@@ -7,6 +7,7 @@
 #include "T3DPrerequisites.h"
 #include "Misc/T3DCommon.h"
 #include "Listener/T3DFrameListener.h"
+#include "Render/T3DRenderTarget.h"
 
 
 namespace Tiny3D
@@ -62,7 +63,7 @@ namespace Tiny3D
 
         virtual bool attachRenderTarget(RenderTarget *target);
         virtual void detachRenderTarget(const String &name);
-        RenderTarget *getRenderTarget(const String &name);
+        RenderTargetPtr getRenderTarget(const String &name);
 
         void addFrameListener(FrameListener *listener);
         void removeFrameListener(FrameListener *listener);
@@ -79,6 +80,8 @@ namespace Tiny3D
         void setWorldTransform(const Matrix4 &mat);
         void setProjectionTransform(const Matrix4 &mat);
         void setTextureTransform(int32_t textureIdx, const Matrix4 &mat);
+
+        virtual void makeProjectionMatrix(const Radian &rkFovY, Real aspect, Real nearDist, Real farDist, bool ortho, Matrix4 &mat) = 0;
 
         virtual const Matrix4 &getTransform(TransformState state) const = 0;
 
@@ -100,7 +103,7 @@ namespace Tiny3D
         bool fireFrameEnded(const FrameEvent &evt);
 
     protected:
-        typedef std::map<String, RenderTarget*>     RenderTargetList;
+        typedef std::map<String, RenderTargetPtr>   RenderTargetList;
         typedef RenderTargetList::iterator          RenderTargetListItr;
         typedef RenderTargetList::const_iterator    RenderTargetListConstItr;
         typedef RenderTargetList::value_type        RenderTargetListValue;

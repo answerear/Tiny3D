@@ -6,15 +6,17 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DColor4.h"
+#include "Misc/T3DObject.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API Viewport
+    class T3D_ENGINE_API Viewport : public Object
     {
     public:
-        Viewport(SGCamera *camera, RenderTarget *target, 
+        static ViewportPtr create(SGCamera *camera, RenderTarget *target, 
             Real left, Real top, Real width, Real height, int32_t nZOrder);
+
         virtual ~Viewport();
 
         void update();
@@ -40,6 +42,9 @@ namespace Tiny3D
         const Color4 &getBackgroundColor() const;
 
     protected:
+        Viewport(SGCamera *camera, RenderTarget *target, 
+            Real left, Real top, Real width, Real height, int32_t nZOrder);
+
         void updateDimemsions();
 
     protected:

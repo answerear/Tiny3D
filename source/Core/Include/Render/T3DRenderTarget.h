@@ -5,14 +5,17 @@
 
 
 #include "T3DPrerequisites.h"
+#include "Misc/T3DViewport.h"
+#include "Misc/T3DObject.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API RenderTarget
+    class T3D_ENGINE_API RenderTarget : public Object
     {
     public:
-        RenderTarget();
+        static RenderTargetPtr create();
+
         virtual ~RenderTarget();
 
         const String &getName() const;
@@ -27,7 +30,7 @@ namespace Tiny3D
 
         virtual void update();
 
-        Viewport *addViewport(SGCamera *camera, int32_t nZOrder, 
+        ViewportPtr addViewport(SGCamera *camera, int32_t nZOrder, 
             Real left, Real top, Real width, Real height);
 
         void removeViewport(int32_t nZOrder);
@@ -43,7 +46,10 @@ namespace Tiny3D
         void removeAllListener();
 
     protected:
-        typedef std::map<int32_t, Viewport*>    ViewportList;
+        RenderTarget();
+
+    protected:
+        typedef std::map<int32_t, ViewportPtr>  ViewportList;
         typedef ViewportList::iterator          ViewportListItr;
         typedef ViewportList::const_iterator    ViewportListConstItr;
         typedef ViewportList::value_type        ViewportValue;

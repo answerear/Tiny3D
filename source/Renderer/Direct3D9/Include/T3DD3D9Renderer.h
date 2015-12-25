@@ -54,6 +54,10 @@ namespace Tiny3D
         LPDIRECT3D9 getD3D()  { return mD3D; }
 
     protected:
+        virtual void makeProjectionMatrix(const Radian &rkFovY, Real aspect, 
+            Real nearDist, Real farDist, bool ortho, Matrix4 &mat) override;
+
+    protected:
         HINSTANCE   mInstance;
 
         LPDIRECT3D9         mD3D;

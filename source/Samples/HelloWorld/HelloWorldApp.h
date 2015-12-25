@@ -24,6 +24,9 @@ protected:  /// from Tiny3D::ApplicationListener
     virtual void applicationWillEnterForeground() override;
 
     virtual void applicationWillTerminate() override;
+
+protected:
+    Tiny3D::RenderWindowPtr     mRenderWindow;
 };
 
 
