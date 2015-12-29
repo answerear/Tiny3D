@@ -6,7 +6,7 @@
 
 
 #include "T3DSingleton.h"
-#include "T3DLoggerMacro.h"
+#include "T3DLogPrerequisites.h"
 #include <T3DPlatform.h>
 #include <mutex>
 #include <thread>

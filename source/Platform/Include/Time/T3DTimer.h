@@ -5,7 +5,7 @@
 
 #include "T3DType.h"
 #include "T3DMacro.h"
-#include "T3DPlatformMacro.h"
+#include "T3DPlatformPrerequisites.h"
 
 
 namespace Tiny3D
