@@ -11,4 +11,10 @@
 #endif
 
 
+#include <T3DPlatform.h>
+#include <mutex>
+#include <thread>
+#include <condition_variable>
+
+
 #endif  /*__T3D_LOGGER_MACRO_H__*/

@@ -21,11 +21,13 @@ set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
 include_directories(
 	"${TINY3D_PLATFORM_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
 	)
 
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
+set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .h)
 
 
 # Setup project source files
