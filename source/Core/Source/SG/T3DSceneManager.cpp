@@ -3,6 +3,7 @@
 #include "SG/T3DSceneManager.h"
 #include "SG/Visual/T3DSGCamera.h"
 #include "SG/Node/T3DSGTransformNode.h"
+#include "Render/T3DRenderer.h"
 
 
 namespace Tiny3D
@@ -11,6 +12,7 @@ namespace Tiny3D
 
     SceneManager::SceneManager()
         : mRoot(nullptr)
+        , mRenderer(nullptr)
     {
         mRoot = SGTransformNode::create();
     }
@@ -24,5 +26,9 @@ namespace Tiny3D
     {
         mCurCamera = camera;
         mRoot->updateTransform();
+
+        mRenderer->beginRender();
+
+        mRenderer->endRender();
     }
 }

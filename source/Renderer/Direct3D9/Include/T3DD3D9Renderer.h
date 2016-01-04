@@ -61,6 +61,7 @@ namespace Tiny3D
         HINSTANCE   mInstance;
 
         LPDIRECT3D9         mD3D;
+        LPDIRECT3DDEVICE9   mD3DDevice;
     };
 }
 

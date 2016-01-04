@@ -38,6 +38,7 @@ namespace Tiny3D
         paramEx["instance"].setLong((long_t)mInstance);
 
         window->create("D3D9RenderWindow", rkCreateParam, paramEx);
+        mD3DDevice = ((D3D9RenderWindow *)window)->getD3DDevice();
 
         attachRenderTarget(window);
 
@@ -113,11 +114,29 @@ namespace Tiny3D
 
     bool D3D9Renderer::beginRender()
     {
+        HRESULT hr = S_OK;
+        if (FAILED(hr = mD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 0, 0, 255), 1.0f, 0)))
+        {
+
+        }
+
+        if (FAILED(hr = mD3DDevice->BeginScene()))
+        {
+
+        }
+
         return true;
     }
 
     bool D3D9Renderer::endRender()
     {
+        HRESULT hr = S_OK;
+
+        if (FAILED(hr = mD3DDevice->EndScene()))
+        {
+
+        }
+
         return true;
     }
 

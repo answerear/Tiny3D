@@ -257,7 +257,7 @@ namespace Tiny3D
         if (strFileName.empty() || strFileName == "")
             return false;
 
-        return (remove(strFileName.c_str()) == 0);
+        return (::remove(strFileName.c_str()) == 0);
     }
 
     bool Dir_Windows::exists(const String &strPath) const

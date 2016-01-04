@@ -21,10 +21,14 @@ namespace Tiny3D
 
         const SGNodePtr &getRoot() const { return mRoot; }
 
+        void setRenderer(Renderer *renderer)    { mRenderer = renderer; }
+
     protected:
         SGCameraPtr mCurCamera;
 
         SGNodePtr   mRoot;
+
+        Renderer    *mRenderer;
     };
 
     #define T3D_SCENE_MGR           SceneManager::getInstance()

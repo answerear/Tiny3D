@@ -28,6 +28,8 @@ namespace Tiny3D
 
         virtual bool isFullScreen() const;
 
+        LPDIRECT3DDEVICE9 getD3DDevice()    { return mD3DDevice; }
+
     protected:
         static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, 
             WPARAM wParam, LPARAM lParam);

@@ -148,7 +148,7 @@ namespace Tiny3D
             while (i != plugins.end())
             {
                 String name = i->stringValue();
-                String fullpath = path + "/" + name;
+                String fullpath = path + Dir::NATIVE_SEPARATOR + name;
                 loadPlugin(name);
                 ++i;
             }
@@ -166,9 +166,8 @@ namespace Tiny3D
             return false;
 
         mSceneMgr = new SceneManager();
+        mSceneMgr->setRenderer(mActiveRenderer);
 
-        bool ret = mActiveRenderer->initialize();
-        
         if (autoCreateWindow)
         {
             RenderWindowCreateParam param;
@@ -186,7 +185,7 @@ namespace Tiny3D
             renderWindow = mActiveRenderer->createRenderWindow(param, paramEx);
         }
 
-        return ret;
+        return (renderWindow != nullptr);
     }
 
     void Entrance::enumerateAvailableRenderers(RendererList &rRendererList) const
