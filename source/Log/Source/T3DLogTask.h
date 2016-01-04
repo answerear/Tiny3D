@@ -9,6 +9,8 @@
 
 namespace Tiny3D
 {
+    class LogItem;
+
     class LogTask
     {
     public:
@@ -44,7 +46,19 @@ namespace Tiny3D
     class LogTaskFlushCache : public LogTask
     {
     public:
+        LogTaskFlushCache(size_t nCacheSize)
+            : mItemCache(nCacheSize)
+        {
+
+        }
+
         virtual Type getType() const override;
+
+        typedef std::vector<LogItem *>      ItemCache;
+        typedef ItemCache::iterator         ItemCacheItr;
+        typedef ItemCache::const_iterator   ItemCacheConstItr;
+
+        ItemCache   mItemCache;
     };
 }
 

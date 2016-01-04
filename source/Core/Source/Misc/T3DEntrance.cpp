@@ -19,9 +19,9 @@ namespace Tiny3D
 
     T3D_INIT_SINGLETON(Entrance);
 
-    Entrance::Entrance(const String &config /* = "Tiny3D.cfg" */, 
-        const String &log /* = "Tiny3D.log" */)
+    Entrance::Entrance(const String &config /* = "Tiny3D.cfg" */)
         : mSystem(new System())
+        , mLogger(new Logger())
         , mDylibMgr(new DylibManager())
         , mActiveRenderer(nullptr)
         , mAppListener(nullptr)
@@ -29,6 +29,15 @@ namespace Tiny3D
     {
         ConfigFile file(config);
         file.loadXML(mSettings);
+
+        Logger::Level level = T3D_LOG_TO_LEVEL_VALUE(mSettings["LogLevel"].stringValue());
+        T3D_LOG_SET_LEVEL(level);
+        T3D_LOG_SET_EXPIRED(mSettings["LogExpired"].uint32Value());
+        T3D_LOG_SET_MAX_CACHE_SIZE(mSettings["LogMaxCacheSize"].uint32Value());
+        T3D_LOG_SET_MAX_CACHE_TIME(mSettings["LogMaxCacheTime"].uint32Value());
+        T3D_LOG_STARTUP(mSettings["LogAppID"].uint32Value(), mSettings["LogTag"].stringValue(), false);
+
+        T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "**************************** Tiny3D started *************************");
 
         loadPlugins();
 
@@ -47,6 +56,11 @@ namespace Tiny3D
     Entrance::~Entrance()
     {
         T3D_SAFE_DELETE(mDylibMgr);
+
+        T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "------------------------------- Tiny3D shutdown --------------------------");
+        T3D_LOG_SHUTDOWN();
+        T3D_SAFE_DELETE(mLogger);
+
         T3D_SAFE_DELETE(mSystem);
     }
 
@@ -56,6 +70,8 @@ namespace Tiny3D
 
         plugin->install();
         plugin->startup();
+
+        T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "install plugin %s completed !", plugin->getName().c_str());
     }
 
     void Entrance::uninstallPlugin(Plugin *plugin)
@@ -73,6 +89,7 @@ namespace Tiny3D
 
     bool Entrance::loadPlugin(const String &name)
     {
+        T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "load plugin %s ...", name.c_str());
         bool ret = false;
         Dylib *lib = (Dylib*)DylibManager::getInstance().load(name);
 

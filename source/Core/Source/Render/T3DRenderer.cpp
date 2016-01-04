@@ -62,6 +62,9 @@ namespace Tiny3D
 
     bool Renderer::fireFrameStarted()
     {
+        /// 每帧渲染开始，先让底层平台层更新一遍
+        T3D_SYSTEM.process();
+
         uint64_t timestamp = DateTime::currentMSecsSinceEpoch();
 
         FrameEvent evt;

@@ -15,7 +15,7 @@
 
 
 #include "T3DPlatform.h"
-#include "T3DLogger.h"
+#include "T3DLog.h"
 #include "Misc/T3DSmartPointer.h"
 
 

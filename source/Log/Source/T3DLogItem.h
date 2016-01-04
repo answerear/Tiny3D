@@ -18,6 +18,7 @@ namespace Tiny3D
         LogItem(Logger::Level level, const char *filename, int32_t line, const char *content)
         {
             DateTime dt = DateTime::currentDateTime();
+            mHour = dt.Hour();
             formatContent(dt, filename, line, level, content);
         }
 
@@ -35,6 +36,8 @@ namespace Tiny3D
 
         uint32_t getContentSize() const    { return mContentSize; }
 
+        int32_t getHour() const    { return mHour; }
+
     protected:
         uint32_t formatContent(const DateTime &dt, const char *filename, int32_t line, Logger::Level level, const char *content)
         {
@@ -51,6 +54,7 @@ namespace Tiny3D
 
     private:
         uint32_t        mContentSize;
+        int32_t         mHour;
         char            mContent[2048];
     };
 }

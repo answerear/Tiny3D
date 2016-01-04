@@ -6,6 +6,9 @@
 
 
 #include "T3DLogPrerequisites.h"
+#include <mutex>
+#include <thread>
+#include <condition_variable>
 
 
 namespace Tiny3D
@@ -121,6 +124,16 @@ namespace Tiny3D
          */
         void enterForeground();
 
+        /**
+         * @brief 根据日志文本获取日志级别枚举值
+         */
+        Level toLevelValue(const String &level);
+
+        /**
+         * @brief 根据日志级别枚举值获取文本
+         */
+        String toLevelString(Level eLevel);
+
     private:
         /// 获取日志文件存放路径
         String getLogPath() const;
@@ -131,7 +144,7 @@ namespace Tiny3D
         /// 打开日志文件
         bool openLogFile();
         /// 根据缓存缓冲区索引写文件
-        void writeLogFile(int32_t cacheIndex);
+        void writeLogFile(std::vector<LogItem*> &cache);
         /// 关闭日志文件
         void closeLogFile();
 
@@ -158,6 +171,8 @@ namespace Tiny3D
         void stopAsyncTask();
         /// 挂起异步任务线程
         void suspendAsyncTask();
+        /// 唤醒异步任务线程
+        void wakeAsyncTask();
 
         /// 提交检查过期日志异步任务
         void commitCheckExpiredTask();
@@ -168,11 +183,6 @@ namespace Tiny3D
         int32_t processCheckExpiredTask(LogTask *task);
         /// 处理把缓存写回文件异步任务
         int32_t processFlushCacheTask(LogTask *task);
-
-        /// 挂起异步线程
-        void suspendAsyncProcedure();
-        /// 唤醒异步线程
-        void resumeAsyncProcedure();
 
     private:
         typedef std::list<LogItem*>         ItemCache;
@@ -192,17 +202,19 @@ namespace Tiny3D
 
         DateTime            mCurLogFileTime;    /// 当前日志文件的时间，用于跨小时切换日志文件
 
-        int32_t             mCacheIndex;        /// 当前缓存日志缓冲区索引
-        ItemCache           mItemCache[2];      /// 用于异步线程交换的日志cache
+        ItemCache           mItemCache;         /// 缓存日志记录，到达一定数量或者时间时提交异步写回处理
         TaskQueue           mTaskQueue;         /// 异步任务队列
 
         FileDataStream      mFileStream;        /// 文件输出对象
 
-        std::mutex          mIndexMutex;        /// 用于异步写入线程互斥对象
         std::thread         mWorkingThread;     /// 异步工作线程，用于清除过期日志文件、写入日志文件等异步操作
 
         std::mutex              mWaitMutex;     /// 用于挂起线程互斥量
         std::condition_variable mWaitCond;      /// 异步线程条件变量
+
+        std::mutex          mTaskMutex;         /// 异步任务互斥量
+
+        int32_t             mTaskType;          /// 当前处理任务
 
         bool                mIsForced;          /// 是否强制输出
         bool                mIsRunning;         /// 日志系统是否运行中

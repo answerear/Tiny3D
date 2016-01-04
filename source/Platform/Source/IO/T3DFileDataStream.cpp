@@ -71,7 +71,8 @@ namespace Tiny3D
         }
 
         m_lSize = 0;
-        return (m_pFileHandle != nullptr);
+
+        return (m_bIsOpened = (m_pFileHandle != nullptr));
     }
 
     void FileDataStream::close()
@@ -84,6 +85,7 @@ namespace Tiny3D
         }
 
         m_lSize = 0;
+        m_bIsOpened = false;
     }
 
     size_t FileDataStream::read(void *pBuffer, size_t nSize)

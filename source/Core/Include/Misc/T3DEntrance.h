@@ -30,8 +30,7 @@ namespace Tiny3D
     {
     public:
         /** Default constructor. */
-        Entrance(const String &config = "Tiny3D.cfg", 
-            const String &log = "Tiny3D.log");
+        Entrance(const String &config = "Tiny3D.cfg");
 
         /** Destructor. */
         virtual ~Entrance();
@@ -124,7 +123,7 @@ namespace Tiny3D
         typedef DylibList::const_iterator   DylibListConstItr;
 
         System          *mSystem;
-
+        Logger          *mLogger;
         DylibManager    *mDylibMgr;
 
         Renderer        *mActiveRenderer;

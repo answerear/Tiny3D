@@ -106,9 +106,12 @@ namespace Tiny3D
          */
         bool eof() const;
 
+        bool isOpened() const   { return m_bIsOpened; }
+
     protected:
         FILE                *m_pFileHandle;     /**< 文件操作指针 */
         mutable long_t      m_lSize;            /**< 文件大小 */
+        bool                m_bIsOpened;        /**< 文件是否打开 */
     };
 }
 
