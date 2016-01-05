@@ -4,6 +4,8 @@
 
 
 #include "SG/Renderable/T3DSGRenderable.h"
+#include "DataStruct/T3DIndexList.h"
+#include "DataStruct/T3DVertexList.h"
 
 
 namespace Tiny3D
@@ -36,16 +38,6 @@ namespace Tiny3D
 
         virtual SGNodePtr clone() const override;
         virtual void cloneProperties(SGNode *node) const override;
-
-        virtual void render() override;
-
-    protected:
-        Real    mMinX;
-        Real    mMaxX;
-        Real    mMinY;
-        Real    mMaxY;
-        Real    mMinZ;
-        Real    mMaxZ;
     };
 }
 

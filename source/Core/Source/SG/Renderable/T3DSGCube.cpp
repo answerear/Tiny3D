@@ -29,6 +29,8 @@ namespace Tiny3D
         return E_NT_CUBE;
     }
 
+
+
     SGNodePtr SGCube::clone() const
     {
         SGCube *node = new SGCube();

@@ -17,10 +17,13 @@ namespace Tiny3D
     public:
         virtual ~SGRenderable();
 
-        void setMaterial(Material *material);
-        Material *getMaterial();
+        void setMaterial(const MaterialPtr &material);
+        MaterialPtr getMaterial()   { return mMaterial; }
 
-        virtual void render() = 0;
+        Transform getWorldTransform();
+
+        VertexListPtr getVertices() { return mVertices; }
+        IndexListPtr getIndices()   { return mIndices; }
 
     protected:
         virtual void cloneProperties(SGNode *node) const override;
@@ -28,7 +31,9 @@ namespace Tiny3D
         virtual void updateTransform() override;
 
     protected:
-        Material *mMaterial;
+        MaterialPtr     mMaterial;
+        VertexListPtr   mVertices;
+        IndexListPtr    mIndices;
     };
 }
 

@@ -100,6 +100,12 @@ namespace Tiny3D
     class SGSphere;
     class SGCube;
 
+    class VertexList;
+    class IndexList;
+
+    class RenderGroup;
+    class RenderQueue;
+
     class Variant;
 
     typedef std::vector<Variant>            VariantArray;
@@ -131,6 +137,15 @@ namespace Tiny3D
 
     typedef SmartPtr<RenderTarget>          RenderTargetPtr;
     typedef SmartPtr<RenderWindow>          RenderWindowPtr;
+
+    typedef SmartPtr<VertexList>            VertexListPtr;
+    typedef SmartPtr<IndexList>             IndexListPtr;
+
+    typedef SmartPtr<Material>              MaterialPtr;
+    typedef SmartPtr<Texture>               TexturePtr;
+
+    typedef SmartPtr<RenderGroup>           RenderGroupPtr;
+    typedef SmartPtr<RenderQueue>           RenderQueuePtr;
 
     typedef std::list<SGNodePtr>            SGChildren;
     typedef SGChildren::iterator            SGChildrenItr;
