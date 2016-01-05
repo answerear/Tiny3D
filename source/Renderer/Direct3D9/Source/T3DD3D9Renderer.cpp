@@ -152,7 +152,37 @@ namespace Tiny3D
 
     void D3D9Renderer::setTransform(TransformState state, const Matrix4 &mat)
     {
+        HRESULT hr;
 
+        D3DMATRIX d3dmat = toD3DMatrix(mat);
+
+        switch (state)
+        {
+        case Renderer::E_TS_VIEW:
+            {
+                if (FAILED(hr = mD3DDevice->SetTransform(D3DTS_VIEW, &d3dmat)))
+                {
+
+                }
+            }
+            break;
+        case Renderer::E_TS_WORLD:
+            {
+                if (FAILED(hr = mD3DDevice->SetTransform(D3DTS_WORLD, &d3dmat)))
+                {
+
+                }
+            }
+            break;
+        case Renderer::E_TS_PROJECTION:
+            {
+                if (FAILED(hr = mD3DDevice->SetTransform(D3DTS_PROJECTION, &d3dmat)))
+                {
+
+                }
+            }
+            break;
+        }
     }
 
     const Matrix4 &D3D9Renderer::getTransform(TransformState state) const
@@ -163,6 +193,63 @@ namespace Tiny3D
     void D3D9Renderer::setMaterial()
     {
 
+    }
+
+    void D3D9Renderer::setCullingMode(CullingMode mode)
+    {
+        DWORD d3dmode;
+
+        mCullingMode = mode;
+
+        switch (mode)
+        {
+        case CULL_NONE:
+            {
+                d3dmode = D3DCULL_NONE;
+            }
+            break;
+        case CULL_CLOCKWISE:
+            {
+                d3dmode = D3DCULL_CW;
+            }
+            break;
+        case CULL_ANTICLOCKWISE:
+            {
+                d3dmode = D3DCULL_CCW;
+            }
+            break;
+        }
+
+        HRESULT hr;
+        if (FAILED(hr = mD3DDevice->SetRenderState(D3DRS_CULLMODE, d3dmode)))
+        {
+
+        }
+    }
+
+    void D3D9Renderer::setViewport(const ViewportPtr &viewport)
+    {
+        if (viewport != mViewport)
+        {
+            mViewport = viewport;
+
+            setCullingMode(mCullingMode);
+
+            D3DVIEWPORT9 d3dvp;
+
+            d3dvp.X = viewport->getActualLeft();
+            d3dvp.Y = viewport->getActualTop();
+            d3dvp.Width = viewport->getActualWidth();
+            d3dvp.Height = viewport->getActualHeight();
+            d3dvp.MinZ = 0.0f;
+            d3dvp.MaxZ = 1.0f;
+
+            HRESULT hr;
+            if (FAILED(hr = mD3DDevice->SetViewport(&d3dvp)))
+            {
+
+            }
+        }
     }
 
     void D3D9Renderer::drawVertexList(PrimitiveType primitiveType, 
@@ -212,5 +299,60 @@ namespace Tiny3D
             mat[2][3] = qn;
             mat[3][2] = 1.0;
         }
+    }
+
+    D3DMATRIX D3D9Renderer::toD3DMatrix(const Matrix4 &mat) const
+    {
+        // 转置矩阵
+        // D3D9 使用行向量 i.e. V*M
+        // Tiny3D, OpenGL 等用列向量 i.e. M*V
+        D3DXMATRIX d3dMat;
+        d3dMat.m[0][0] = mat[0][0];
+        d3dMat.m[0][1] = mat[1][0];
+        d3dMat.m[0][2] = mat[2][0];
+        d3dMat.m[0][3] = mat[3][0];
+
+        d3dMat.m[1][0] = mat[0][1];
+        d3dMat.m[1][1] = mat[1][1];
+        d3dMat.m[1][2] = mat[2][1];
+        d3dMat.m[1][3] = mat[3][1];
+
+        d3dMat.m[2][0] = mat[0][2];
+        d3dMat.m[2][1] = mat[1][2];
+        d3dMat.m[2][2] = mat[2][2];
+        d3dMat.m[2][3] = mat[3][2];
+
+        d3dMat.m[3][0] = mat[0][3];
+        d3dMat.m[3][1] = mat[1][3];
+        d3dMat.m[3][2] = mat[2][3];
+        d3dMat.m[3][3] = mat[3][3];
+
+        return d3dMat;
+    }
+
+    Matrix4 D3D9Renderer::toT3DMatrix(const D3DMATRIX &mat) const
+    {
+        Matrix4 t3dMat;
+        t3dMat[0][0] = mat.m[0][0];
+        t3dMat[1][0] = mat.m[0][1];
+        t3dMat[2][0] = mat.m[0][2];
+        t3dMat[3][0] = mat.m[0][3];
+
+        t3dMat[0][1] = mat.m[1][0];
+        t3dMat[1][1] = mat.m[1][1];
+        t3dMat[2][1] = mat.m[1][2];
+        t3dMat[3][1] = mat.m[1][3];
+
+        t3dMat[0][2] = mat.m[2][0];
+        t3dMat[1][2] = mat.m[2][1];
+        t3dMat[2][2] = mat.m[2][2];
+        t3dMat[3][2] = mat.m[2][3];
+
+        t3dMat[0][3] = mat.m[3][0];
+        t3dMat[1][3] = mat.m[3][1];
+        t3dMat[2][3] = mat.m[3][2];
+        t3dMat[3][3] = mat.m[3][3];
+
+        return t3dMat;
     }
 }

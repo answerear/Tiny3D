@@ -72,6 +72,8 @@ namespace Tiny3D
     void SGCamera::updateTransform()
     {
         getViewMatrix();
+        getProjectionMatrix();
+
         SGVisual::updateTransform();
     }
 
@@ -99,6 +101,9 @@ namespace Tiny3D
             mViewMatrix[1][3] = -mViewMatrix[1][3];
             mViewMatrix[2][3] = -mViewMatrix[2][3];
             mViewMatrix[3][3] = Real(1.0);
+
+            Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
+            renderer->setTransform(Renderer::E_TS_VIEW, mViewMatrix);
         }
         
         return mViewMatrix;
@@ -118,6 +123,8 @@ namespace Tiny3D
             {
                 renderer->makeProjectionMatrix(mFovY, mAspectRatio, mNearDistance, mFarDistance, false, mProjMatrix);
             }
+
+            renderer->setTransform(Renderer::E_TS_PROJECTION, mProjMatrix);
 
             mIsFrustumDirty = false;
         }

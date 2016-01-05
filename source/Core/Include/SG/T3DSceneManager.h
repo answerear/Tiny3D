@@ -12,6 +12,14 @@ namespace Tiny3D
     class T3D_ENGINE_API SceneManager : public Singleton<SceneManager>
     {
     public:
+        enum RenderPriority
+        {
+            E_PRIORITY_BACKGROUND = 0,
+            E_PRIORITY_SKY = 10,
+            E_PRIORITY_NORMAL = 20,
+            E_PRIORITY_ = 50
+        };
+
         SceneManager();
         virtual ~SceneManager();
 
@@ -23,7 +31,15 @@ namespace Tiny3D
 
         void setRenderer(Renderer *renderer)    { mRenderer = renderer; }
 
+        void addRenderQueue(RenderPriority priority, const SGRenderablePtr &renderable);
+
     protected:
+        typedef std::map<int32_t, SGRenderablePtr>  RenderQueue;
+        typedef RenderQueue::iterator               RenderQueueItr;
+        typedef RenderQueue::const_iterator         RenderQueueConstItr;
+
+        RenderQueue mRenderQueue;
+
         SGCameraPtr mCurCamera;
 
         SGNodePtr   mRoot;

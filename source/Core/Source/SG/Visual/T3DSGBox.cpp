@@ -1,6 +1,7 @@
 
 
 #include "SG/Visual/T3DSGBox.h"
+#include "SG/Renderable/T3DSGCube.h"
 
 
 namespace Tiny3D
@@ -15,17 +16,31 @@ namespace Tiny3D
     SGBox::SGBox(uint32_t unID /* = E_NID_AUTOMATIC */)
         : SGVisual(unID)
     {
+        SGNodePtr node = SGCube::create();
 
+        SGNode *n = node;
+        SGCube *cube = (SGCube *)n;
+        mCube = cube;
+
+        addChild(node);
     }
 
     SGBox::~SGBox()
     {
-
+        mCube = nullptr;
     }
 
     SGNode::Type SGBox::getNodeType() const
     {
         return E_NT_BOX;
+    }
+
+    void SGBox::setMaxX(Real x)
+    {
+        if (mCube != nullptr)
+        {
+            
+        }
     }
 
     SGNodePtr SGBox::clone() const

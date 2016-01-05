@@ -125,6 +125,7 @@ namespace Tiny3D
     typedef SmartPtr<SGCamera>              SGCameraPtr;
     typedef SmartPtr<SGBox>                 SGBoxPtr;
     typedef SmartPtr<SGRenderable>          SGRenderablePtr;
+    typedef SmartPtr<SGCube>                SGCubePtr;
 
     typedef SmartPtr<Viewport>              ViewportPtr;
 

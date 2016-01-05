@@ -20,8 +20,17 @@ namespace Tiny3D
 
         virtual SGNode::Type getNodeType() const override;
 
+        void setMaxX(Real x);
+        void setMinX(Real x);
+        void setMaxY(Real y);
+        void setMinY(Real y);
+        void setMaxZ(Real z);
+        void setMinZ(Real z);
+
     protected:
         virtual SGNodePtr clone() const override;
+
+        SGCubePtr   mCube;
     };
 }
 

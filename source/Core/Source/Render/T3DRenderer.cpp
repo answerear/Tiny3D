@@ -16,7 +16,7 @@ namespace Tiny3D
 
     Renderer::Renderer()
     {
-
+        mCullingMode = CULL_CLOCKWISE;
     }
 
     Renderer::~Renderer()
@@ -119,5 +119,15 @@ namespace Tiny3D
         }
 
         return ret;
+    }
+
+    ViewportPtr Renderer::getViewport()
+    {
+        return mViewport;
+    }
+
+    Renderer::CullingMode Renderer::getCullingMode() const
+    {
+        return mCullingMode;
     }
 }

@@ -47,6 +47,13 @@ namespace Tiny3D
             E_PT_TRIANGLE_FAN,
         };
 
+        enum CullingMode
+        {
+            CULL_NONE = 1,
+            CULL_CLOCKWISE,
+            CULL_ANTICLOCKWISE,
+        };
+
         Renderer();
         virtual ~Renderer();
 
@@ -85,7 +92,13 @@ namespace Tiny3D
 
         virtual const Matrix4 &getTransform(TransformState state) const = 0;
 
+        virtual void setCullingMode(CullingMode mode) = 0;
+        virtual CullingMode getCullingMode() const;
+
         virtual void setMaterial() = 0;
+
+        virtual void setViewport(const ViewportPtr &viewport) = 0;
+        virtual ViewportPtr getViewport();
 
         virtual void drawVertexList(PrimitiveType primitiveType, 
             const VertexList &vertices, uint32_t startIdx, 
@@ -115,8 +128,12 @@ namespace Tiny3D
         RenderTargetList    mRenderTargets;
         FrameListenerList   mFrameListeners;
 
+        ViewportPtr         mViewport;
+
         uint64_t            mLastStartTime;
         uint64_t            mLastEndTime;
+
+        CullingMode         mCullingMode;
     };
 }
 

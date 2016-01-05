@@ -18,7 +18,7 @@ HelloWorldApp::~HelloWorldApp()
 
 int32_t HelloWorldApp::go()
 {
-    Entrance *entrance = new Entrance("../../media/config/Tiny3D.cfg");
+    Entrance *entrance = new Entrance("../../../../media/config/Tiny3D.cfg");
 
     entrance->setApplicationListener(this);
 
