@@ -148,6 +148,8 @@ namespace Tiny3D
     typedef SmartPtr<RenderGroup>           RenderGroupPtr;
     typedef SmartPtr<RenderQueue>           RenderQueuePtr;
 
+    typedef SmartPtr<Bound>                 BoundPtr;
+
     typedef std::list<SGNodePtr>            SGChildren;
     typedef SGChildren::iterator            SGChildrenItr;
     typedef SGChildren::const_iterator      SGChildrenConstItr;

@@ -2,6 +2,7 @@
 
 #include "SG/Renderable/T3DSGRenderable.h"
 #include "SG/Visual/T3DSGVisual.h"
+#include "SG/T3DRenderQueue.h"
 
 
 namespace Tiny3D

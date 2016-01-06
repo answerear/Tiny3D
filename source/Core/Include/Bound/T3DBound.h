@@ -4,13 +4,13 @@
 #define __T3D_BOUND_H__
 
 
-#include "T3DPrerequisites.h"
+#include "Misc/T3DObject.h"
 #include "Math/T3DSphere.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API Bound
+    class T3D_ENGINE_API Bound : public Object
     {
     public:
         enum Type

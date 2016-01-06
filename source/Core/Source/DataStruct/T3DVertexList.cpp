@@ -5,12 +5,12 @@
 
 namespace Tiny3D
 {
-    VertexList::VertexList(VertexFormat vertexFormat, uint32_t vertexCount, char *vertices /* = NULL */)
+    VertexList::VertexList(VertexFormat vertexFormat, uint32_t vertexCount, char *vertices /* = nullptr */)
         : mVertexFormat(vertexFormat)
         , mVertexSize(0)
         , mVertexCount(vertexCount)
         , mVertices(vertices)
-        , mUserBuffer(vertices != NULL)
+        , mUserBuffer(vertices != nullptr)
     {
         switch (mVertexFormat)
         {

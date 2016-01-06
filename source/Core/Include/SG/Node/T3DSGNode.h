@@ -116,7 +116,7 @@ namespace Tiny3D
          * @brief Perform frustum culling against a frustum bound and recursively
          *      call all children frustumCulling()
          */
-        virtual void frustumCulling(const FrustumBound &bound, const RenderQueuePtr &queue);
+        virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue);
 
         virtual void cloneProperties(SGNode *node) const;
 

@@ -33,7 +33,7 @@ namespace Tiny3D
         mRenderer->setViewport(viewport);
 
         mRoot->updateTransform();
-        mRoot->frustumCulling((*mCurCamera->getBound()), mRenderQueue);
+        mRoot->frustumCulling(mCurCamera->getBound(), mRenderQueue);
 
         mRenderer->beginRender();
 

@@ -71,6 +71,11 @@ namespace Tiny3D
         }
     }
 
+    void SGVisual::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
+    {
+        SGNode::frustumCulling(bound, queue);
+    }
+
     void SGVisual::cloneProperties(SGNode *node) const
     {
         SGNode::cloneProperties(node);

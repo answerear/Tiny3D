@@ -38,6 +38,12 @@ namespace Tiny3D
 
         virtual SGNodePtr clone() const override;
         virtual void cloneProperties(SGNode *node) const override;
+
+        virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;
+
+        static const uint32_t MAX_FACE_NUM;
+        static const uint32_t MAX_VERTICES_NUM;
+        static const uint32_t INDICES_PER_FACE;
     };
 }
 

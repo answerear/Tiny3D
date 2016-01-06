@@ -80,7 +80,7 @@ namespace Tiny3D
             E_VF_NTC        = E_VF_NORMAL | E_VF_TEXCOORD | E_VF_COLOR,
         };
 
-        VertexList(VertexFormat vertexFormat, uint32_t vertexCount, char *vertices = NULL);
+        VertexList(VertexFormat vertexFormat, uint32_t vertexCount, char *vertices = nullptr);
         ~VertexList();
 
         VertexFormat getVertexFormat() const;

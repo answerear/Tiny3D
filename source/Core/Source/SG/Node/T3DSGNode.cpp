@@ -1,6 +1,9 @@
 
 
 #include "SG/Node/T3DSGNode.h"
+#include "SG/T3DRenderQueue.h"
+#include "Resource/T3DMaterial.h"
+#include "SG/Renderable/T3DSGRenderable.h"
 
 
 namespace Tiny3D
@@ -189,7 +192,7 @@ namespace Tiny3D
         }
     }
 
-    void SGNode::frustumCulling(const FrustumBound &bound, const RenderQueuePtr &queue)
+    void SGNode::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
     {
         SGChildrenItr itr = mChildren.begin();
 

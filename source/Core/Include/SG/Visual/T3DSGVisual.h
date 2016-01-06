@@ -37,6 +37,8 @@ namespace Tiny3D
         virtual void updateTransform() override;
         virtual void updateBound();
 
+        virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;
+
     private:
         Bound   *mBound;
 
