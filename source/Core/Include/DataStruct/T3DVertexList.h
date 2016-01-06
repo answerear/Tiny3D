@@ -65,7 +65,7 @@ namespace Tiny3D
     };
 
 
-    class T3D_ENGINE_API VertexList : Object
+    class T3D_ENGINE_API VertexList : public Object
     {
     public:
         enum VertexFormat

@@ -190,7 +190,7 @@ namespace Tiny3D
         return Matrix4::IDENTITY;
     }
 
-    void D3D9Renderer::setMaterial()
+    void D3D9Renderer::setMaterial(const MaterialPtr &material)
     {
 
     }
@@ -253,14 +253,14 @@ namespace Tiny3D
     }
 
     void D3D9Renderer::drawVertexList(PrimitiveType primitiveType, 
-        const VertexList &vertices, uint32_t startIdx, 
+        const VertexListPtr &vertices, uint32_t startIdx, 
         uint32_t primitiveCount)
     {
 
     }
 
     void D3D9Renderer::drawIndexList(PrimitiveType primitiveType, 
-        const VertexList &vertices, const IndexList *indicies, 
+        const VertexListPtr &vertices, const IndexListPtr &indicies, 
         uint32_t startIdx, uint32_t pritimitiveCount)
     {
 

@@ -5,6 +5,9 @@
 
 
 #include "SG/Node/T3DSGNode.h"
+#include "Resource/T3DMaterial.h"
+#include "DataStruct/T3DIndexList.h"
+#include "DataStruct/T3DVertexList.h"
 
 
 namespace Tiny3D
@@ -20,7 +23,7 @@ namespace Tiny3D
         void setMaterial(const MaterialPtr &material);
         MaterialPtr getMaterial()   { return mMaterial; }
 
-        Transform getWorldTransform();
+        virtual const Matrix4 &getWorldMatrix() const;
 
         VertexListPtr getVertices() { return mVertices; }
         IndexListPtr getIndices()   { return mIndices; }

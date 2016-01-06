@@ -4,12 +4,12 @@
 #define __T3D_RENDER_QUEUE_H__
 
 
-#include "T3DPrerequisites.h"
+#include "Misc/T3DObject.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API RenderGroup
+    class T3D_ENGINE_API RenderGroup : public Object
     {
     public:
         RenderGroup();
@@ -17,17 +17,25 @@ namespace Tiny3D
 
         void addRenderable(const MaterialPtr &material, const SGRenderablePtr &renderable);
 
+        void clear();
+
+        void render(const RendererPtr &renderer);
+
     protected:
-        typedef std::map<MaterialPtr, SGRenderablePtr>  Renderables;
+        typedef std::list<SGRenderablePtr>              RenderableList;
+        typedef RenderableList::iterator                RenderableListItr;
+        typedef RenderableList::const_iterator          RenderableListConstItr;
+
+        typedef std::map<MaterialPtr, RenderableList>   Renderables;
         typedef Renderables::iterator                   RenderablesItr;
         typedef Renderables::const_iterator             RenderablesConstItr;
 
-        typedef std::pair<MaterialPtr, SGRenderablePtr> RenderablesValue;
+        typedef std::pair<MaterialPtr, RenderableList>  RenderablesValue;
 
         Renderables     mRenderables;
     };
 
-    class T3D_ENGINE_API RenderQueue
+    class T3D_ENGINE_API RenderQueue : public Object
     {
     public:
         enum GroupID
@@ -44,17 +52,25 @@ namespace Tiny3D
             E_GRPID_OVERLAY = 100
         };
 
-        RenderQueue();
+
+        static RenderQueuePtr create();
+
         virtual ~RenderQueue();
 
         void addRenderable(GroupID groupID, const SGRenderablePtr &renderable);
 
+        void clear();
+
+        void render(const RendererPtr &renderer);
+
     protected:
+        RenderQueue();
+
         typedef std::map<GroupID, RenderGroupPtr>   RenderableGroup;
         typedef RenderableGroup::iterator           RenderableGroupItr;
-        typedef RenderableGroup::const_iterator     RenderalbeGroupConstItr;
+        typedef RenderableGroup::const_iterator     RenderableGroupConstItr;
 
-        typedef std::pair<GroupID, RenderGroupPtr>  RenderalbeGroupValue;
+        typedef std::pair<GroupID, RenderGroupPtr>  RenderableGroupValue;
 
         RenderableGroup     mGroups;
     };

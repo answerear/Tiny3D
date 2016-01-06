@@ -1,6 +1,7 @@
 
 
 #include "SG/Renderable/T3DSGRenderable.h"
+#include "SG/Visual/T3DSGVisual.h"
 
 
 namespace Tiny3D
@@ -14,6 +15,18 @@ namespace Tiny3D
     SGRenderable::~SGRenderable()
     {
 
+    }
+
+    const Matrix4 &SGRenderable::getWorldMatrix() const
+    {
+        if (getParent() != nullptr)
+        {
+            SGNode *p = getParent();
+            SGVisual *parent = (SGVisual *)p;
+            return parent->getWorldTransform().getAffineMatrix();
+        }
+
+        return Matrix4::IDENTITY;
     }
 
     void SGRenderable::cloneProperties(SGNode *node) const

@@ -29,6 +29,8 @@ namespace Tiny3D
 
         bool inFrustum() const;
 
+        const Transform &getWorldTransform() const;
+
         virtual void cloneProperties(SGNode *node) const override;
 
     protected:

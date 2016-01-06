@@ -41,18 +41,18 @@ namespace Tiny3D
 
         virtual const Matrix4 &getTransform(TransformState state) const override;
 
-        virtual void setMaterial() override;
+        virtual void setMaterial(const MaterialPtr &material) override;
 
         virtual void setCullingMode(CullingMode mode) override;
 
         virtual void setViewport(const ViewportPtr &viewport) override;
 
         virtual void drawVertexList(PrimitiveType primitiveType, 
-            const VertexList &vertices, uint32_t startIdx, 
+            const VertexListPtr &vertices, uint32_t startIdx, 
             uint32_t primitiveCount) override;
 
         virtual void drawIndexList(PrimitiveType primitiveType, 
-            const VertexList &vertices, const IndexList *indicies, 
+            const VertexListPtr &vertices, const IndexListPtr &indicies, 
             uint32_t startIdx, uint32_t pritimitiveCount) override;
 
         LPDIRECT3D9 getD3D()  { return mD3D; }

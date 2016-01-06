@@ -135,6 +135,7 @@ namespace Tiny3D
 
     typedef SmartPtr<Viewport>              ViewportPtr;
 
+    typedef SmartPtr<Renderer>              RendererPtr;
     typedef SmartPtr<RenderTarget>          RenderTargetPtr;
     typedef SmartPtr<RenderWindow>          RenderWindowPtr;
 

@@ -34,4 +34,9 @@ namespace Tiny3D
     {
         return mBound;
     }
+
+    inline const Transform &SGVisual::getWorldTransform() const
+    {
+        return mWorldTransform;
+    }
 }

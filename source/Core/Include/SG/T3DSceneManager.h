@@ -25,17 +25,13 @@ namespace Tiny3D
         void setRenderer(Renderer *renderer)    { mRenderer = renderer; }
 
     protected:
-        typedef std::map<int32_t, SGRenderablePtr>  RenderQueue;
-        typedef RenderQueue::iterator               RenderQueueItr;
-        typedef RenderQueue::const_iterator         RenderQueueConstItr;
-
-        RenderQueue mRenderQueue;
-
         SGCameraPtr mCurCamera;
 
         SGNodePtr   mRoot;
 
         Renderer    *mRenderer;
+
+        RenderQueuePtr  mRenderQueue;
     };
 
     #define T3D_SCENE_MGR           SceneManager::getInstance()

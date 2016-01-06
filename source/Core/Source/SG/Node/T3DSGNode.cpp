@@ -189,14 +189,14 @@ namespace Tiny3D
         }
     }
 
-    void SGNode::frustumCulling(const FrustumBound &bound)
+    void SGNode::frustumCulling(const FrustumBound &bound, const RenderQueuePtr &queue)
     {
         SGChildrenItr itr = mChildren.begin();
 
         while (itr != mChildren.end())
         {
             SGNodePtr &node = *itr;
-            node->frustumCulling(bound);
+            node->frustumCulling(bound, queue);
             ++itr;
         }
     }

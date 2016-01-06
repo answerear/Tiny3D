@@ -4,7 +4,7 @@
 #define __T3D_RENDERER_H__
 
 
-#include "T3DPrerequisites.h"
+#include "Misc/T3DObject.h"
 #include "Misc/T3DCommon.h"
 #include "Listener/T3DFrameListener.h"
 #include "Render/T3DRenderTarget.h"
@@ -15,7 +15,7 @@ namespace Tiny3D
     class VertexList;
     class IndexList;
 
-    class T3D_ENGINE_API Renderer
+    class T3D_ENGINE_API Renderer : public Object
     {
     public:
         static const char * const DIRECT3D9;
@@ -95,17 +95,17 @@ namespace Tiny3D
         virtual void setCullingMode(CullingMode mode) = 0;
         virtual CullingMode getCullingMode() const;
 
-        virtual void setMaterial() = 0;
+        virtual void setMaterial(const MaterialPtr &material) = 0;
 
         virtual void setViewport(const ViewportPtr &viewport) = 0;
         virtual ViewportPtr getViewport();
 
         virtual void drawVertexList(PrimitiveType primitiveType, 
-            const VertexList &vertices, uint32_t startIdx, 
+            const VertexListPtr &vertices, uint32_t startIdx, 
             uint32_t primitiveCount) = 0;
 
         virtual void drawIndexList(PrimitiveType primitiveType, 
-            const VertexList &vertices, const IndexList *indicies, 
+            const VertexListPtr &vertices, const IndexListPtr &indicies, 
             uint32_t startIdx, uint32_t pritimitiveCount) = 0;
 
     protected:
