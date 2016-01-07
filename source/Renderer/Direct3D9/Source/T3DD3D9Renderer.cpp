@@ -291,13 +291,15 @@ namespace Tiny3D
             Real h = Real(1.0) / (tanThetaY);
             Real w = h / aspect;            
             Real q = farDist / (nearDist - farDist);
-            Real qn = -nearDist * q;
+            Real qn = nearDist * q;
+
+            Matrix4 mat;
             mat.makeZero();
             mat[0][0] = w;
             mat[1][1] = h;
             mat[2][2] = q;
             mat[2][3] = qn;
-            mat[3][2] = 1.0;
+            mat[3][2] = -1.0;
         }
     }
 

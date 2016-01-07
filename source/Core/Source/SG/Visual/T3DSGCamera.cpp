@@ -100,7 +100,6 @@ namespace Tiny3D
             mViewMatrix[0][3] = -mViewMatrix[0][3];
             mViewMatrix[1][3] = -mViewMatrix[1][3];
             mViewMatrix[2][3] = -mViewMatrix[2][3];
-            mViewMatrix[3][3] = Real(1.0);
 
             Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
             renderer->setTransform(Renderer::E_TS_VIEW, mViewMatrix);

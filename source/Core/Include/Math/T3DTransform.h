@@ -38,6 +38,8 @@ namespace Tiny3D
         const Matrix4 &getAffineMatrix() const;
 
     private:
+        void makeAffineMatrix();
+
         Vector3 mTranslate;
         Vector3 mScale;
         Quaternion  mOrientation;
@@ -45,12 +47,28 @@ namespace Tiny3D
         Matrix4 mAffineMatrix;
     };
 
+    inline void Transform::makeAffineMatrix()
+    {
+        Matrix3 m3;
+        mOrientation.toRotationMatrix(m3);
+        Matrix4 R(m3);
+        Matrix4 S;
+        S[0][0] = mScale.x();
+        S[1][1] = mScale.y();
+        S[2][2] = mScale.z();
+        S[3][3] = 1.0;
+        Matrix4 T;
+        T.makeTranslate(mTranslate);
+        mAffineMatrix = R * T * S;
+    }
+
     inline Transform::Transform()
         : mTranslate()
         , mScale(Real(1.0), Real(1.0), Real(1.0))
         , mOrientation(Real(0.0), Real(0.0), Real(1.0), Real(0.0))
+        , mAffineMatrix(false)
     {
-        mAffineMatrix.makeTransform(mTranslate, mScale, mOrientation);
+//         mAffineMatrix.makeTransform(mTranslate, mScale, mOrientation);
     }
 
     inline Transform::Transform(const Vector3 &rkTranslate, const Vector3 &rkScale, const Quaternion &rkOrientation)
@@ -58,7 +76,7 @@ namespace Tiny3D
         , mScale(rkScale)
         , mOrientation(rkOrientation)
     {
-
+        makeAffineMatrix();
     }
 
     inline Transform::Transform(const Transform &rkOther)
@@ -130,7 +148,7 @@ namespace Tiny3D
 
     inline void Transform::update()
     {
-        mAffineMatrix.makeTransform(mTranslate, mScale, mOrientation);
+        makeAffineMatrix();
     }
 }
 
