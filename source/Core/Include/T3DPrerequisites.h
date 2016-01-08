@@ -95,10 +95,10 @@ namespace Tiny3D
     class SGTransformNode;
     class SGVisual;
     class SGCamera;
-    class SGBox;
+    class SGMesh;
     class SGRenderable;
     class SGSphere;
-    class SGCube;
+    class SGBox;
 
     class VertexList;
     class IndexList;
@@ -129,9 +129,9 @@ namespace Tiny3D
     typedef SmartPtr<SGTransformNode>       SGTransformPtr;
     typedef SmartPtr<SGVisual>              SGVisualPtr;
     typedef SmartPtr<SGCamera>              SGCameraPtr;
-    typedef SmartPtr<SGBox>                 SGBoxPtr;
+    typedef SmartPtr<SGMesh>                SGMeshPtr;
     typedef SmartPtr<SGRenderable>          SGRenderablePtr;
-    typedef SmartPtr<SGCube>                SGCubePtr;
+    typedef SmartPtr<SGBox>                 SGBoxPtr;
 
     typedef SmartPtr<Viewport>              ViewportPtr;
 
