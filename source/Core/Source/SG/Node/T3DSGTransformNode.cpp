@@ -114,9 +114,9 @@ namespace Tiny3D
 
         mPosition = pos;
         Matrix3 mat;
-        mat.setRow(0, U);
-        mat.setRow(1, V);
-        mat.setRow(2, -N);
+        mat.setColumn(0, U);
+        mat.setColumn(1, V);
+        mat.setColumn(2, -N);
         mOrientation.fromRotationMatrix(mat);
 
         mScale[0] = Real(1.0);

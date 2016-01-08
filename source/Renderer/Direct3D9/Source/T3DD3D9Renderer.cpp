@@ -275,8 +275,9 @@ namespace Tiny3D
             Real tanThetaY = Math::Tan(rkFovY * Real(0.5));
             Real h = Real(1.0) / (nearDist * tanThetaY);
             Real w = h / aspect;
-            Real q = Real(1.0) / (farDist - nearDist);
-            Real qn = -nearDist * q;
+            Real q = Real(1.0) / (nearDist - farDist);
+            Real qn = nearDist * q;
+
             mat.makeZero();
             mat[0][0] = w;
             mat[1][1] = h;
@@ -293,7 +294,6 @@ namespace Tiny3D
             Real q = farDist / (nearDist - farDist);
             Real qn = nearDist * q;
 
-            Matrix4 mat;
             mat.makeZero();
             mat[0][0] = w;
             mat[1][1] = h;

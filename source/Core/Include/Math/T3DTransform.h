@@ -59,7 +59,7 @@ namespace Tiny3D
         S[3][3] = 1.0;
         Matrix4 T;
         T.makeTranslate(mTranslate);
-        mAffineMatrix = R * T * S;
+        mAffineMatrix = T * R * S;
     }
 
     inline Transform::Transform()
