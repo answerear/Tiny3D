@@ -1,6 +1,6 @@
 
 
-#ifndef __T3D_HARDWARE_BUFER_H__
+#ifndef __T3D_HARDWARE_BUFFER_H__
 #define __T3D_HARDWARE_BUFFER_H__
 
 
