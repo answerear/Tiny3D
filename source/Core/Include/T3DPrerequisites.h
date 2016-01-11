@@ -79,6 +79,10 @@ namespace Tiny3D
     class RenderWindow;
     class Renderer;
 
+    class HardwareBuffer;
+    class HardwareVertexBuffer;
+    class HardwareIndexBuffer;
+
     class Resource;
     class ResourceManager;
     class Dylib;
@@ -138,6 +142,10 @@ namespace Tiny3D
     typedef SmartPtr<Renderer>              RendererPtr;
     typedef SmartPtr<RenderTarget>          RenderTargetPtr;
     typedef SmartPtr<RenderWindow>          RenderWindowPtr;
+
+    typedef SmartPtr<HardwareBuffer>        HardwareBufferPtr;
+    typedef SmartPtr<HardwareVertexBuffer>  HardwareVertexBufferPtr;
+    typedef SmartPtr<HardwareIndexBuffer>   HardwareIndexBufferPtr;
 
     typedef SmartPtr<VertexList>            VertexListPtr;
     typedef SmartPtr<IndexList>             IndexListPtr;

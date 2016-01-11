@@ -1,76 +1,137 @@
 
-
-#ifndef __T3D_RENDER_TARGET_H__
-#define __T3D_RENDER_TARGET_H__
-
-
-#include "T3DPrerequisites.h"
-#include "Misc/T3DViewport.h"
-#include "Misc/T3DObject.h"
+#include "Render/T3DHardwareBuffer.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API RenderTarget : public Object
+    HardwareBuffer::HardwareBuffer(Usage usage, bool systemMemory, bool useShadowBuffer)
+        : mBufferSize(0)
+        , mLockSize(0)
+        , mLockOffset(0)
+        , mUsage(usage)
+        , mShadowBuffer(nullptr)
+        , mSystemMemory(systemMemory)
+        , mUseShadowBuffer(useShadowBuffer)
+        , mIsLocked(false)
+        , mIsShadowBufferDirty(false)
     {
-    public:
-        static RenderTargetPtr create();
+        if (useShadowBuffer && usage == E_HBU_DYNAMIC)
+        {
+            mUsage = E_HBU_DYNAMIC_WRITE_ONLY;
+        }
+        else if (useShadowBuffer && usage == E_HBU_STATIC)
+        {
+            mUsage = E_HBU_STATIC_WRITE_ONLY;
+        }
+    }
 
-        virtual ~RenderTarget();
+    HardwareBuffer::~HardwareBuffer()
+    {
+        mShadowBuffer = nullptr;
+    }
 
-        const String &getName() const;
+    void *HardwareBuffer::lock(size_t offset, size_t size, LockOptions options)
+    {
+        T3D_ASSERT(!isLocked());
 
-        void getMetrics(int32_t &nWidth, int32_t &nHeight,
-            int32_t &nColorDepth) const;
+        void *buffer = nullptr;
 
-        int32_t getWidth() const;
-        int32_t getHeight() const;
+        if ((offset + size) > mBufferSize)
+        {
+            // 越界了 :(
+        }
+        else if (mUseShadowBuffer)
+        {
+            if (options != E_HBL_READ_ONLY)
+            {
+                // 不是只读，那就可能会被改变，等会解锁时用影子buffer更新硬件buffer
+                mIsShadowBufferDirty = true;
+            }
 
-        int32_t getColorDepth() const;
+            buffer = mShadowBuffer->lock(offset, size, options);
+        }
+        else
+        {
+            // 没有影子buffer，调用实际锁接口
+            buffer = lockImpl(offset, size, options);
+        }
 
-        virtual void update();
+        if (buffer != nullptr)
+        {
+            mLockOffset = offset;
+            mLockSize = size;
+        }
 
-        ViewportPtr addViewport(SGCamera *camera, int32_t nZOrder, 
-            Real left, Real top, Real width, Real height);
+        return buffer;
+    }
 
-        void removeViewport(int32_t nZOrder);
+    void *HardwareBuffer::lock(LockOptions options)
+    {
+        return lock(0, mBufferSize, options);
+    }
 
-        void removeAllViewports();
+    void HardwareBuffer::unlock()
+    {
+        T3D_ASSERT(isLocked());
 
-        uint32_t getNumViewports() const;
+        if (mUseShadowBuffer && mShadowBuffer->isLocked())
+        {
+            mShadowBuffer->unlock();
+            updateFromShadow();
+        }
+        else
+        {
+            unlockImpl();
+            mIsLocked = false;
+        }
+    }
 
-        Viewport *getViewport(uint32_t unIndex) const;
+    bool HardwareBuffer::copyData(const HardwareBufferPtr &srcBuffer, size_t srcOffset, size_t dstOffset, size_t size, bool discardWholeBuffer /* = false */)
+    {
+        bool ret = false;
+        const void *src = srcBuffer->lock(srcOffset, size, E_HBL_READ_ONLY);
+        if (src != nullptr)
+        {
+            ret = writeData(dstOffset, size, src, true);
+            srcBuffer->unlock();
+        }
 
-        void addListener(RenderTargetListener *pListener);
-        void removeListener(RenderTargetListener *pListener);
-        void removeAllListener();
+        return ret;
+    }
 
-    protected:
-        RenderTarget();
+    bool HardwareBuffer::copyData(const HardwareBufferPtr &srcBuffer)
+    {
+        size_t size = std::min(getBufferSize(), srcBuffer->getBufferSize()); 
+        return copyData(srcBuffer, 0, 0, size, true);
+    }
 
-    protected:
-        typedef std::map<int32_t, ViewportPtr>  ViewportList;
-        typedef ViewportList::iterator          ViewportListItr;
-        typedef ViewportList::const_iterator    ViewportListConstItr;
-        typedef ViewportList::value_type        ViewportValue;
+    void HardwareBuffer::updateFromShadow()
+    {
+        if (mUseShadowBuffer && mIsShadowBufferDirty)
+        {
+            const void *src = mShadowBuffer->lock(mLockOffset, mLockSize, E_HBL_READ_ONLY);
+            if (src != nullptr)
+            {
+                LockOptions options;
+                if (mLockOffset == 0 && mLockSize == mBufferSize)
+                {
+                    options = E_HBL_DISCARD;
+                }
+                else
+                {
+                    options = E_HBL_NORMAL;
+                }
 
-        typedef std::list<RenderTargetListener*>    ListenerList;
-        typedef ListenerList::iterator              ListenerListItr;
+                void *dst = lockImpl(mLockOffset, mLockSize, options);
+                if (dst != nullptr)
+                {
+                    memcpy(dst, src, mLockSize);
+                    unlockImpl();
+                }
 
-        int32_t         mWidth;
-        int32_t         mHeight;
-        int32_t         mColorDepth;
-
-        String          mName;
-
-        ViewportList    mViewportList;
-
-        ListenerList    mListenerList;
-    };
+                mShadowBuffer->unlock();
+                mIsShadowBufferDirty = false;
+            }
+        }
+    }
 }
-
-
-#include "T3DRenderTarget.inl"
-
-
-#endif  /*__T3D_RENDER_TARGET_H__*/
