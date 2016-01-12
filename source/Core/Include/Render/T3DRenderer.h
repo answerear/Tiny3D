@@ -101,11 +101,11 @@ namespace Tiny3D
         virtual ViewportPtr getViewport();
 
         virtual void drawVertexList(PrimitiveType primitiveType, 
-            const VertexListPtr &vertices, uint32_t startIdx, 
+            const VertexDataPtr &vertices, uint32_t startIdx, 
             uint32_t primitiveCount) = 0;
 
         virtual void drawIndexList(PrimitiveType primitiveType, 
-            const VertexListPtr &vertices, const IndexListPtr &indicies, 
+            const VertexDataPtr &vertices, const IndexDataPtr &indicies, 
             uint32_t startIdx, uint32_t pritimitiveCount) = 0;
 
     protected:

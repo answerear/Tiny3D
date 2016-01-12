@@ -1,23 +1,21 @@
 
-#ifndef __T3D_SG_CUBE_H__
-#define __T3D_SG_CUBE_H__
+#ifndef __T3D_SG_BOX_H__
+#define __T3D_SG_BOX_H__
 
 
 #include "SG/Renderable/T3DSGRenderable.h"
-#include "DataStruct/T3DIndexList.h"
-#include "DataStruct/T3DVertexList.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SGCube : public SGRenderable
+    class T3D_ENGINE_API SGBox : public SGRenderable
     {
     public:
-        static SGNodePtr create(uint32_t unID = E_NID_AUTOMATIC);
+        static SGBoxPtr create(uint32_t unID = E_NID_AUTOMATIC);
 
-        virtual ~SGCube();
+        virtual ~SGBox();
 
-        virtual SGNode::Type getNodeType() const override;
+        virtual Type getNodeType() const override;
 
         void setMinX(Real x);
         void setMaxX(Real x);
@@ -34,7 +32,7 @@ namespace Tiny3D
         Real getMaxZ() const;
 
     protected:
-        SGCube(uint32_t unID = E_NID_AUTOMATIC);
+        SGBox(uint32_t unID = E_NID_AUTOMATIC);
 
         virtual SGNodePtr clone() const override;
         virtual void cloneProperties(SGNode *node) const override;
@@ -48,4 +46,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_SG_CUBE_H__*/
+#endif  /*__T3D_SG_BOX_H__*/

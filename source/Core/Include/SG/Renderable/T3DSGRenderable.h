@@ -6,8 +6,8 @@
 
 #include "SG/Node/T3DSGNode.h"
 #include "Resource/T3DMaterial.h"
-#include "DataStruct/T3DIndexList.h"
-#include "DataStruct/T3DVertexList.h"
+#include "DataStruct/T3DIndexData.h"
+#include "DataStruct/T3DVertexData.h"
 
 
 namespace Tiny3D
@@ -25,8 +25,8 @@ namespace Tiny3D
 
         virtual const Matrix4 &getWorldMatrix() const;
 
-        VertexListPtr getVertices() { return mVertices; }
-        IndexListPtr getIndices()   { return mIndices; }
+        const VertexDataPtr &getVertices() { return mVertices; }
+        const IndexDataPtr &getIndices()   { return mIndices; }
 
     protected:
         virtual void cloneProperties(SGNode *node) const override;
@@ -35,8 +35,8 @@ namespace Tiny3D
 
     protected:
         MaterialPtr     mMaterial;
-        VertexListPtr   mVertices;
-        IndexListPtr    mIndices;
+        VertexDataPtr   mVertices;
+        IndexDataPtr    mIndices;
     };
 }
 

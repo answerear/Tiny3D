@@ -5,10 +5,10 @@
 
 namespace Tiny3D
 {
-    SGNodePtr SGTransformNode::create(uint32_t unID /* = E_NID_AUTOMATIC */)
+    SGTransformNodePtr SGTransformNode::create(uint32_t unID /* = E_NID_AUTOMATIC */)
     {
         SGTransformNode *node = new SGTransformNode(unID);
-        SGNodePtr ptr(node);
+        SGTransformNodePtr ptr(node);
         node->release();
         return ptr;
     }

@@ -6,6 +6,9 @@
 
 #include "T3DMacro.h"
 #include <windows.h>
+#include <d3d9.h>
+#include <d3dx9.h>
+#include <DxErr.h>
 
 
 #if defined T3DD3D9RENDERER_EXPORT

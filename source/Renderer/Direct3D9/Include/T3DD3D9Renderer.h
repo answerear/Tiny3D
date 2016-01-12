@@ -7,10 +7,6 @@
 #include "T3DD3D9Prerequisites.h"
 #include "Render/T3DRenderer.h"
 
-#include <d3d9.h>
-#include <d3dx9.h>
-#include <DxErr.h>
-
 
 namespace Tiny3D
 {
@@ -48,11 +44,11 @@ namespace Tiny3D
         virtual void setViewport(const ViewportPtr &viewport) override;
 
         virtual void drawVertexList(PrimitiveType primitiveType, 
-            const VertexListPtr &vertices, uint32_t startIdx, 
+            const VertexDataPtr &vertices, uint32_t startIdx, 
             uint32_t primitiveCount) override;
 
         virtual void drawIndexList(PrimitiveType primitiveType, 
-            const VertexListPtr &vertices, const IndexListPtr &indicies, 
+            const VertexDataPtr &vertices, const IndexDataPtr &indicies, 
             uint32_t startIdx, uint32_t pritimitiveCount) override;
 
         LPDIRECT3D9 getD3D()  { return mD3D; }

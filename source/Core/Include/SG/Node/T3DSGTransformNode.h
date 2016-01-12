@@ -22,7 +22,7 @@ namespace Tiny3D
         SGTransformNode(uint32_t unID = E_NID_AUTOMATIC);
 
     public:
-        static SGNodePtr create(uint32_t unID = E_NID_AUTOMATIC);
+        static SGTransformNodePtr create(uint32_t unID = E_NID_AUTOMATIC);
 
         virtual ~SGTransformNode();
 

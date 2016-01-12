@@ -56,10 +56,10 @@ namespace Tiny3D
 
             while (i != renderables.end())
             {
-                VertexListPtr vertices =(*i)->getVertices();
-                IndexListPtr indices = (*i)->getIndices();
+                VertexDataPtr vertices =(*i)->getVertices();
+                IndexDataPtr indices = (*i)->getIndices();
 
-                renderer->drawIndexList(Renderer::E_PT_TRIANGLE_STRIP, vertices, indices, 0, indices->getIndexCount());
+//                 renderer->drawIndexList(Renderer::E_PT_TRIANGLE_STRIP, vertices, indices, 0, indices->getIndexCount());
                 ++i;
             }
 

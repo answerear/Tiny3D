@@ -35,21 +35,20 @@ int32_t HelloWorldApp::go()
 bool HelloWorldApp::applicationDidFinishLaunching()
 {
     SGNodePtr root = T3D_SCENE_MGR.getRoot();
-    SGNodePtr node = SGTransformNode::create();
-    root->addChild(node);
+    SGTransformNodePtr node = SGTransformNode::create();
+    root->addChild((SGNodePtr)node);
 
-    SGNodePtr camera = SGCamera::create();
-    node->addChild(camera);
+    SGCameraPtr camera = SGCamera::create();
+    node->addChild((SGNodePtr)camera);
 
     node = SGTransformNode::create();
-    root->addChild(node);
+    root->addChild((SGNodePtr)node);
 
-    SGNodePtr box = SGBox::create();
-    node->addChild(box);
+    SGMeshPtr mesh = SGMesh::create();
+    node->addChild((SGNodePtr)mesh);
+    mesh->loadBox();
 
-    SGNode *c = camera;
-    SGCamera *cam = (SGCamera *)c;
-    mRenderWindow->addViewport(cam, 0, 0.0, 0.0, 640.0, 480.0);
+    mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 640.0, 480.0);
 
     return true;
 }

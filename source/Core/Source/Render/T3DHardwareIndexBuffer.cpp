@@ -1,23 +1,19 @@
 
-
-#ifndef __T3D_HARDWARE_BUFFER_H__
-#define __T3D_HARDWARE_BUFFER_H__
-
-
-#include "Misc/T3DObject.h"
+#include "Render/T3DHardwareIndexBuffer.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API HardwareBuffer : public Object
+    HardwareIndexBuffer::HardwareIndexBuffer(Type indexType, size_t indexCount, HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        : HardwareBuffer(usage, useSystemMemory, useShadowBuffer)
+        , mType(indexType)
+        , mIndexCount(indexCount)
     {
-    public:
-        virtual ~HardwareBuffer();
 
-    protected:
-        HardwareBuffer();
-    };
+    }
+
+    HardwareIndexBuffer::~HardwareIndexBuffer()
+    {
+
+    }
 }
-
-
-#endif  /*__T3D_HARDWARE_BUFFER_H__*/

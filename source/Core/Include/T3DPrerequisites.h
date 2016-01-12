@@ -83,6 +83,12 @@ namespace Tiny3D
     class HardwareVertexBuffer;
     class HardwareIndexBuffer;
 
+    class VertexElement;
+    class VertexDeclaration;
+
+    class HardwareBufferManagerBase;
+    class HardwareBufferManager;
+
     class Resource;
     class ResourceManager;
     class Dylib;
@@ -104,8 +110,8 @@ namespace Tiny3D
     class SGSphere;
     class SGBox;
 
-    class VertexList;
-    class IndexList;
+    class VertexData;
+    class IndexData;
 
     class RenderGroup;
     class RenderQueue;
@@ -147,8 +153,13 @@ namespace Tiny3D
     typedef SmartPtr<HardwareVertexBuffer>  HardwareVertexBufferPtr;
     typedef SmartPtr<HardwareIndexBuffer>   HardwareIndexBufferPtr;
 
-    typedef SmartPtr<VertexList>            VertexListPtr;
-    typedef SmartPtr<IndexList>             IndexListPtr;
+    typedef SmartPtr<VertexElement>         VertexElementPtr;
+    typedef SmartPtr<VertexDeclaration>     VertexDeclarationPtr;
+
+    typedef SmartPtr<HardwareBufferManagerBase> HardwareBufferManagerBasePtr;
+
+    typedef SmartPtr<VertexData>            VertexDataPtr;
+    typedef SmartPtr<IndexData>             IndexDataPtr;
 
     typedef SmartPtr<Material>              MaterialPtr;
     typedef SmartPtr<Texture>               TexturePtr;

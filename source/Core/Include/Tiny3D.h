@@ -36,6 +36,13 @@
 #include "Render/T3DRenderer.h"
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DRenderWindow.h"
+#include "Render/T3DHardwareBuffer.h"
+#include "Render/T3DHardwareBufferManager.h"
+#include "Render/T3DHardwareIndexBuffer.h"
+#include "Render/T3DHardwareVertexBuffer.h"
+
+#include "DataStruct/T3DIndexData.h"
+#include "DataStruct/T3DVertexData.h"
 
 #include "Resource/T3DDylib.h"
 #include "Resource/T3DDylibManager.h"
@@ -46,9 +53,8 @@
 #include "SG/Node/T3DSGTransformNode.h"
 #include "SG/Visual/T3DSGVisual.h"
 #include "SG/Visual/T3DSGCamera.h"
-#include "SG/Visual/T3DSGBox.h"
+#include "SG/Visual/T3DSGMesh.h"
 #include "SG/Renderable/T3DSGRenderable.h"
-#include "SG/Renderable/T3DSGCube.h"
-
+#include "SG/Renderable/T3DSGBox.h"
 
 #endif  /*__TINY3D_H__*/

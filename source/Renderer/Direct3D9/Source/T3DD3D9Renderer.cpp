@@ -253,14 +253,14 @@ namespace Tiny3D
     }
 
     void D3D9Renderer::drawVertexList(PrimitiveType primitiveType, 
-        const VertexListPtr &vertices, uint32_t startIdx, 
+        const VertexDataPtr &vertices, uint32_t startIdx, 
         uint32_t primitiveCount)
     {
 
     }
 
     void D3D9Renderer::drawIndexList(PrimitiveType primitiveType, 
-        const VertexListPtr &vertices, const IndexListPtr &indicies, 
+        const VertexDataPtr &vertices, const IndexDataPtr &indicies, 
         uint32_t startIdx, uint32_t pritimitiveCount)
     {
 
