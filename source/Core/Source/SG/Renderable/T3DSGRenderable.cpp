@@ -9,13 +9,17 @@ namespace Tiny3D
 {
     SGRenderable::SGRenderable(uint32_t unID /* = E_NID_AUTOMATIC */)
         : SGNode(unID)
+        , mMaterial(nullptr)
+        , mVertexData(nullptr)
+        , mIndexData(nullptr)
     {
 
     }
 
     SGRenderable::~SGRenderable()
     {
-
+        mVertexData = nullptr;
+        mIndexData = nullptr;
     }
 
     const Matrix4 &SGRenderable::getWorldMatrix() const
@@ -36,6 +40,8 @@ namespace Tiny3D
 
         SGRenderable *newNode = (SGRenderable *)node;
         newNode->mMaterial = mMaterial;
+        newNode->mVertexData = mVertexData->clone();
+        newNode->mIndexData = mIndexData->clone();
     }
 
     void SGRenderable::updateTransform()

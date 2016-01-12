@@ -1,5 +1,6 @@
 
 #include "SG/Visual/T3DSGMesh.h"
+#include "SG/Renderable/T3DSGBox.h"
 
 
 namespace Tiny3D
@@ -30,6 +31,11 @@ namespace Tiny3D
 
     bool SGMesh::loadBox()
     {
+        removeAllChildren();
+
+        SGBoxPtr box = SGBox::create();
+        addChild((SGNodePtr)box);
+
         return true;
     }
 

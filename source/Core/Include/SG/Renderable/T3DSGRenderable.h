@@ -25,8 +25,8 @@ namespace Tiny3D
 
         virtual const Matrix4 &getWorldMatrix() const;
 
-        const VertexDataPtr &getVertices() { return mVertices; }
-        const IndexDataPtr &getIndices()   { return mIndices; }
+        const VertexDataPtr &getVertexData() { return mVertexData; }
+        const IndexDataPtr &getIndexData()   { return mIndexData; }
 
     protected:
         virtual void cloneProperties(SGNode *node) const override;
@@ -35,8 +35,8 @@ namespace Tiny3D
 
     protected:
         MaterialPtr     mMaterial;
-        VertexDataPtr   mVertices;
-        IndexDataPtr    mIndices;
+        VertexDataPtr   mVertexData;
+        IndexDataPtr    mIndexData;
     };
 }
 

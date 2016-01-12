@@ -56,8 +56,8 @@ namespace Tiny3D
 
             while (i != renderables.end())
             {
-                VertexDataPtr vertices =(*i)->getVertices();
-                IndexDataPtr indices = (*i)->getIndices();
+                VertexDataPtr vertices =(*i)->getVertexData();
+                IndexDataPtr indices = (*i)->getIndexData();
 
 //                 renderer->drawIndexList(Renderer::E_PT_TRIANGLE_STRIP, vertices, indices, 0, indices->getIndexCount());
                 ++i;
