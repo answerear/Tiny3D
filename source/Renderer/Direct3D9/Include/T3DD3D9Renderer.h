@@ -30,7 +30,7 @@ namespace Tiny3D
         virtual bool initialize() override;
         virtual void uninitialize() override;
 
-        virtual bool beginRender() override;
+        virtual bool beginRender(const Color4 &bkgndColor) override;
         virtual bool endRender() override;
 
         virtual bool queryCapability(Capability cap) override;

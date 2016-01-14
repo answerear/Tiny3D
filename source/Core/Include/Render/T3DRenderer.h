@@ -83,7 +83,7 @@ namespace Tiny3D
         void addFrameListener(FrameListener *listener);
         void removeFrameListener(FrameListener *listener);
 
-        virtual bool beginRender() = 0;
+        virtual bool beginRender(const Color4 &bkgndColor) = 0;
         virtual bool endRender() = 0;
 
         virtual bool queryCapability(Capability cap) = 0;

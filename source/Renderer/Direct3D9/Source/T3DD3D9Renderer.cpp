@@ -117,13 +117,10 @@ namespace Tiny3D
         }
     }
 
-    bool D3D9Renderer::beginRender()
+    bool D3D9Renderer::beginRender(const Color4 &bkgndColor)
     {
-//         mD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-        mD3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
-
         HRESULT hr = S_OK;
-        if (FAILED(hr = mD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0)))
+        if (FAILED(hr = mD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, bkgndColor.A8R8G8B8(), 1.0f, 0)))
         {
 
         }
@@ -239,21 +236,43 @@ namespace Tiny3D
     {
         DWORD d3dmode = D3DFILL_SOLID;
 
+        HRESULT hr;
+
         switch (mode)
         {
         case E_RM_POINT:
-            d3dmode = D3DFILL_POINT;
+            {
+                d3dmode = D3DFILL_POINT;
+                hr = mD3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+                if (FAILED(hr))
+                {
+
+                }
+            }
             break;
         case E_RM_WIREFRAME:
-            d3dmode = D3DFILL_WIREFRAME;
+            {
+                d3dmode = D3DFILL_WIREFRAME;
+                hr = mD3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+                if (FAILED(hr))
+                {
+
+                }
+            }
             break;
         case E_RM_SOLID:
         default:
-            d3dmode = D3DRS_FILLMODE;
+            {
+                d3dmode = D3DRS_FILLMODE;
+                hr = mD3DDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+                if (FAILED(hr))
+                {
+
+                }
+            }
             break;
         }
 
-        HRESULT hr;
         if (FAILED(hr = mD3DDevice->SetRenderState(D3DRS_FILLMODE, d3dmode)))
         {
 

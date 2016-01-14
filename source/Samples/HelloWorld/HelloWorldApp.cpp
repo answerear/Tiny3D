@@ -58,7 +58,8 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     node->addChild((SGNodePtr)mesh);
     mesh->loadBox();
 
-    mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
+    ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
+    viewport->setBackgroundColor(Color4::BLACK);
 
     return true;
 }

@@ -39,7 +39,7 @@ namespace Tiny3D
 
         uint32_t getNumViewports() const;
 
-        Viewport *getViewport(uint32_t unIndex) const;
+        ViewportPtr getViewport(uint32_t unIndex) const;
 
         void addListener(RenderTargetListener *pListener);
         void removeListener(RenderTargetListener *pListener);

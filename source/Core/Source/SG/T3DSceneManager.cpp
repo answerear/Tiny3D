@@ -35,7 +35,7 @@ namespace Tiny3D
         mRoot->updateTransform();
         mRoot->frustumCulling(mCurCamera->getBound(), mRenderQueue);
 
-        mRenderer->beginRender();
+        mRenderer->beginRender(viewport->getBackgroundColor());
         mRenderQueue->render(mRenderer);
         mRenderer->endRender();
     }
