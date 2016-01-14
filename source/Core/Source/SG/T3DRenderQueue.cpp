@@ -56,15 +56,55 @@ namespace Tiny3D
 
             while (i != renderables.end())
             {
-                VertexDataPtr vertices =(*i)->getVertexData();
-                IndexDataPtr indices = (*i)->getIndexData();
+                VertexDataPtr vertexData =(*i)->getVertexData();
+                IndexDataPtr indexData = (*i)->getIndexData();
 
-//                 renderer->drawIndexList(Renderer::E_PT_TRIANGLE_STRIP, vertices, indices, 0, indices->getIndexCount());
+                Renderer::PrimitiveType priType = (*i)->getPrimitiveType();
+
+                size_t primitiveCount = calcPrimitiveCount(priType, 
+                    indexData->getIndexBuffer()->getIndexCount(), 
+                    vertexData->getVertexBuffer()->getVertexCount(),
+                    true);
+
+                renderer->drawIndexList(priType, vertexData, indexData, 0, primitiveCount);
                 ++i;
             }
 
             ++itr;
         }
+    }
+
+    size_t RenderGroup::calcPrimitiveCount(Renderer::PrimitiveType priType, size_t indexCount, size_t vertexCount, bool useIndex)
+    {
+        size_t primCount = 0;
+        switch (priType)
+        {
+        case Renderer::E_PT_POINT:
+            primCount = (useIndex ? indexCount : vertexCount);
+            break;
+
+        case Renderer::E_PT_LINE:
+            primCount = (useIndex ? indexCount : vertexCount) / 2;
+            break;
+
+        case Renderer::E_PT_LINE_STRIP:
+            primCount = (useIndex ? indexCount : vertexCount) - 1;
+            break;
+
+        case Renderer::E_PT_TRIANGLE_LIST:
+            primCount = (useIndex ? indexCount : vertexCount) / 3;
+            break;
+
+        case Renderer::E_PT_TRIANGLE_STRIP:
+            primCount = (useIndex ? indexCount : vertexCount) - 2;
+            break;
+
+        case Renderer::E_PT_TRIANGLE_FAN:
+            primCount = (useIndex ? indexCount : vertexCount) - 2;
+            break;
+        }
+
+        return primCount;
     }
 
     ////////////////////////////////////////////////////////////////////////////

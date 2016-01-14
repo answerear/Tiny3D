@@ -157,6 +157,7 @@ namespace Tiny3D
     typedef SmartPtr<VertexDeclaration>     VertexDeclarationPtr;
 
     typedef SmartPtr<HardwareBufferManagerBase> HardwareBufferManagerBasePtr;
+    typedef SmartPtr<HardwareBufferManager>     HardwareBufferManagerPtr;
 
     typedef SmartPtr<VertexData>            VertexDataPtr;
     typedef SmartPtr<IndexData>             IndexDataPtr;

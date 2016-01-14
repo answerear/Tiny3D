@@ -9,7 +9,8 @@ namespace Tiny3D
         , mType(indexType)
         , mIndexCount(indexCount)
     {
-
+        mIndexSize = (indexType == E_IT_16BITS ? sizeof(uint16_t) : sizeof(uint32_t));
+        mBufferSize = mIndexSize * mIndexCount;
     }
 
     HardwareIndexBuffer::~HardwareIndexBuffer()

@@ -50,6 +50,8 @@ namespace Tiny3D
         const Matrix4 &getViewMatrix() const;
         const Matrix4 &getProjectionMatrix() const;
 
+        virtual void setDirty(bool isDirty, bool recursive /* = false */) override;
+
     private:    // from SGNode
         virtual void addChild(const SGNodePtr &child) override;
 
@@ -73,6 +75,7 @@ namespace Tiny3D
         mutable Matrix4 mViewMatrix;
         mutable Matrix4 mProjMatrix;
 
+        mutable bool    mIsViewDirty;
         mutable bool    mIsFrustumDirty;
     };
 }

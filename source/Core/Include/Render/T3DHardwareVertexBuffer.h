@@ -70,7 +70,7 @@ namespace Tiny3D
             E_VES_DIFFUSE = 4,
             E_VES_SPECULAR = 5,
             E_VES_TEXCOORD = 6,
-            E_VES_TENGENT = 7,
+            E_VES_TANGENT = 7,
             E_VES_BINORMAL = 8,
         };
 

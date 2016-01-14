@@ -93,8 +93,9 @@ namespace Tiny3D
 		Matrix3 mat;
 		rkRot.toRotationMatrix(mat);
 		operator =(mat);
-		_m4x4[3][0] = _m4x4[3][1] = _m4x4[3][2] = 0.0;
+		_m4x4[0][3] = _m4x4[1][3] = _m4x4[2][3] = 0.0;
 		_m4x4[3][3] = 1.0;
+        _m4x4[3][0] = _m4x4[3][1] = _m4x4[3][2] = 0.0;
 	}
 
 	inline Matrix4::operator const Real *() const
@@ -442,9 +443,9 @@ namespace Tiny3D
 
 	inline void Matrix4::setTranslate(const Vector3 &position)
 	{
-		_m4x4[0][0] = position.x();
-		_m4x4[0][1] = position.y();
-		_m4x4[0][2] = position.z();
+		_m4x4[0][3] = position.x();
+		_m4x4[1][3] = position.y();
+		_m4x4[2][3] = position.z();
 	}
 
 	inline Vector3 Matrix4::transformAffine(const Vector3 &v) const

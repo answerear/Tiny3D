@@ -8,6 +8,7 @@
 #include "Resource/T3DMaterial.h"
 #include "DataStruct/T3DIndexData.h"
 #include "DataStruct/T3DVertexData.h"
+#include "Render/T3DRenderer.h"
 
 
 namespace Tiny3D
@@ -25,6 +26,7 @@ namespace Tiny3D
 
         virtual const Matrix4 &getWorldMatrix() const;
 
+        Renderer::PrimitiveType getPrimitiveType() const    { return mPrimitiveType; }
         const VertexDataPtr &getVertexData() { return mVertexData; }
         const IndexDataPtr &getIndexData()   { return mIndexData; }
 
@@ -34,9 +36,10 @@ namespace Tiny3D
         virtual void updateTransform() override;
 
     protected:
-        MaterialPtr     mMaterial;
-        VertexDataPtr   mVertexData;
-        IndexDataPtr    mIndexData;
+        MaterialPtr             mMaterial;
+        Renderer::PrimitiveType mPrimitiveType;
+        VertexDataPtr           mVertexData;
+        IndexDataPtr            mIndexData;
     };
 }
 

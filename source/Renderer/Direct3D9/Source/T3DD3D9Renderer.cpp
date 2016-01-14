@@ -2,25 +2,31 @@
 
 #include "T3DD3D9Renderer.h"
 #include "T3DD3D9RenderWindow.h"
-#include "Render/T3DRenderTarget.h"
-#include "Misc/T3DEntrance.h"
-#include "Listener/T3DApplicationListener.h"
-#include "Math/T3DMatrix4.h"
-#include <T3DLog.h>
+#include "T3DD3D9HardwareBufferManager.h"
+#include "T3DD3D9HardwareVertexBuffer.h"
+#include "T3DD3D9HardwareIndexBuffer.h"
+#include "T3DD3D9VertexDeclaration.h"
+#include "T3DD3D9Mappings.h"
 
 
 namespace Tiny3D
 {
+    T3D_INIT_SINGLETON(D3D9Renderer);
+
     D3D9Renderer::D3D9Renderer(HINSTANCE hInstance)
         : mInstance(hInstance)
         , mD3D(nullptr)
+        , mD3DDevice(nullptr)
+        , mHardwareBufferMgr(nullptr)
+        , mD3DHwBufferMgr(new D3D9HardwareBufferManager())
     {
-
+        mHardwareBufferMgr = new HardwareBufferManager(mD3DHwBufferMgr);
     }
 
     D3D9Renderer::~D3D9Renderer()
     {
-
+        T3D_SAFE_DELETE(mD3DHwBufferMgr);
+        T3D_SAFE_DELETE(mHardwareBufferMgr);
     }
 
     String D3D9Renderer::getName() const
@@ -38,7 +44,6 @@ namespace Tiny3D
         paramEx["instance"].setLong((long_t)mInstance);
 
         window->create("D3D9RenderWindow", rkCreateParam, paramEx);
-        mD3DDevice = ((D3D9RenderWindow *)window)->getD3DDevice();
 
         attachRenderTarget(window);
 
@@ -114,8 +119,11 @@ namespace Tiny3D
 
     bool D3D9Renderer::beginRender()
     {
+        mD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+        mD3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+
         HRESULT hr = S_OK;
-        if (FAILED(hr = mD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 0, 0, 255), 1.0f, 0)))
+        if (FAILED(hr = mD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0)))
         {
 
         }
@@ -253,17 +261,31 @@ namespace Tiny3D
     }
 
     void D3D9Renderer::drawVertexList(PrimitiveType primitiveType, 
-        const VertexDataPtr &vertices, uint32_t startIdx, 
+        const VertexDataPtr &vertexData, uint32_t startIdx, 
         uint32_t primitiveCount)
     {
 
     }
 
     void D3D9Renderer::drawIndexList(PrimitiveType primitiveType, 
-        const VertexDataPtr &vertices, const IndexDataPtr &indicies, 
+        const VertexDataPtr &vertexData, const IndexDataPtr &indexData, 
         uint32_t startIdx, uint32_t pritimitiveCount)
     {
+        HRESULT hr;
 
+        VertexDeclarationPtr decl = vertexData->getDeclaration();
+        HardwareVertexBufferPtr vb = vertexData->getVertexBuffer();
+        D3D9HardwareVertexBuffer *vertices = (D3D9HardwareVertexBuffer *)(HardwareVertexBuffer *)vb;
+        hr = mD3DDevice->SetStreamSource(0, vertices->getD3DVertexBuffer(), 0, decl->getVertexSize());
+
+        HardwareIndexBufferPtr ib = indexData->getIndexBuffer();
+        D3D9HardwareIndexBuffer *indices = (D3D9HardwareIndexBuffer *)(HardwareIndexBuffer *)ib;
+        hr = mD3DDevice->SetIndices(indices->getD3DIndexBuffer());
+
+        D3D9VertexDeclaration *vertexDecl = (D3D9VertexDeclaration *)(VertexDeclaration *)decl;
+        hr = mD3DDevice->SetVertexDeclaration(vertexDecl->getD3D9VertexDeclaration());
+
+        hr = mD3DDevice->DrawIndexedPrimitive(D3D9Mappings::get(primitiveType), 0, 0, vertices->getVertexCount(), 0, pritimitiveCount);
     }
 
     void D3D9Renderer::makeProjectionMatrix(const Radian &rkFovY, Real aspect, 

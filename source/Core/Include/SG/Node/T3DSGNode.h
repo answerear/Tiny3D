@@ -99,7 +99,7 @@ namespace Tiny3D
         const SGNodePtr &getParent() const;
         SGNodePtr getParent();
 
-        void setDirty(bool isDirty, bool recursive = false);
+        virtual void setDirty(bool isDirty, bool recursive = false);
         bool isDirty() const;
 
         virtual SGNodePtr clone() const = 0;

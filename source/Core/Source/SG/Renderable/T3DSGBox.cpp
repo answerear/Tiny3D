@@ -22,19 +22,31 @@ namespace Tiny3D
     SGBox::SGBox(uint32_t unID /* = E_NID_AUTOMATIC */)
         : SGRenderable(unID)
     {
+        // 正方体顶点定义如下：
+        //          v6-------v4
+        //          /|       /|
+        //         / |      / |
+        //        v0-------v2 |
+        //        | v7-----|-v5
+        //        | /      | /
+        //        |/       |/
+        //        v1-------v3
+        //
+
         // 创建顶点缓存
-        const size_t vertexCount = MAX_VERTICES_NUM;
-        const Vector3 vertices[vertexCount] = 
+        const Vector3 vertices[] = 
         {
-            Vector3(1.0, 1.0, 1.0),
-            Vector3(1.0, 1.0, -1.0),
-            Vector3(1.0, -1.0, 1.0),
-            Vector3(1.0, -1.0, -1.0),
-            Vector3(-1.0, 1.0, 1.0),
-            Vector3(-1.0, 1.0, -1.0),
-            Vector3(-1.0, -1.0, 1.0),
-            Vector3(-1.0, -1.0, -1.0)
+            Vector3(-1.0, 1.0, 1.0),    // 0
+            Vector3(-1.0, -1.0, 1.0),   // 1
+            Vector3(1.0, 1.0, 1.0),     // 2
+            Vector3(1.0, -1.0, 1.0),    // 3
+            Vector3(1.0, 1.0, -1.0),    // 4
+            Vector3(1.0, -1.0, -1.0),   // 5
+            Vector3(-1.0, 1.0, -1.0),   // 6
+            Vector3(-1.0, -1.0, -1.0)   // 7
         };
+
+        size_t vertexCount = sizeof(vertices) / sizeof(Vector3);
 
         VertexDeclarationPtr vertexDecl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
         const VertexElement &vertexElem = vertexDecl->addElement(0, VertexElement::E_VET_FLOAT3, VertexElement::E_VES_POSITION);
@@ -46,22 +58,37 @@ namespace Tiny3D
         mVertexData = VertexData::create(vertexDecl, vertexBuffer);
 
         // 创建索引缓存
-        const size_t indexCount = MAX_FACE_NUM * INDICES_PER_FACE;
-        const uint16_t indices[indexCount] =
+        const uint16_t indices[] =
         {
-            0, 4, 6, 6, 0, 2,
-            0, 2, 1, 1, 3, 2,
-            1, 3, 5, 5, 7, 3,
-            5, 7, 4, 4, 6, 7,
-            0, 1, 4, 4, 5, 1,
-            2, 6, 7, 7, 2, 3
+            // front face
+            0, 1, 2,
+            1, 3, 2,
+            // right face
+            2, 3, 4,
+            3, 5, 4,
+            // back face
+            4, 5, 6,
+            5, 7, 6,
+            // left face
+            6, 7, 0,
+            7, 1, 0,
+            // top face
+            4, 6, 2,
+            6, 0, 2,
+            // bottom face
+            7, 5, 1,
+            5, 3, 1
         };
+
+        size_t indexCount = sizeof(indices) / sizeof(uint16_t);
 
         HardwareIndexBufferPtr indexBuffer = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(HardwareIndexBuffer::E_IT_16BITS, indexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
 
         indexBuffer->writeData(0, indexCount * sizeof(uint16_t), indices);
 
         mIndexData = IndexData::create(indexBuffer);
+
+        mPrimitiveType = Renderer::E_PT_TRIANGLE_LIST;
     }
 
     SGBox::~SGBox()

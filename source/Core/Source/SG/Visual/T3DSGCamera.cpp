@@ -82,6 +82,12 @@ namespace Tiny3D
 
     }
 
+    void SGCamera::setDirty(bool isDirty, bool recursive /* = false */)
+    {
+        SGVisual::setDirty(isDirty, recursive);
+        mIsViewDirty = isDirty;
+    }
+
     void SGCamera::renderScene(const ViewportPtr &viewport)
     {
         T3D_SCENE_MGR.renderScene(this, viewport);
@@ -89,7 +95,7 @@ namespace Tiny3D
 
     const Matrix4 &SGCamera::getViewMatrix() const
     {
-        if (isDirty())
+        if (mIsViewDirty)
         {
             // 视图矩阵推导：
             // 其中C是相机进行世界变换的矩阵，T是平移变换，R是旋转变换，S是缩放变换
@@ -106,7 +112,7 @@ namespace Tiny3D
             /// 旋转矩阵是正交矩阵，正交矩阵的逆矩阵是其转置矩阵
             Matrix4 invertR = R.transpose();
             // 平移矩阵
-            Matrix4 invertT;
+            Matrix4 invertT(false);
             invertT.makeTranslate(-transform.getTranslate());
             // 缩放矩阵
             Matrix4 invertS(false);
@@ -118,7 +124,9 @@ namespace Tiny3D
             mViewMatrix = invertS * invertR * invertT;
 
             Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
-            renderer->setTransform(Renderer::E_TS_VIEW, mViewMatrix);
+            renderer->setViewTransform(mViewMatrix);
+
+            mIsViewDirty = false;
         }
         
         return mViewMatrix;
@@ -139,7 +147,7 @@ namespace Tiny3D
                 renderer->makeProjectionMatrix(mFovY, mAspectRatio, mNearDistance, mFarDistance, false, mProjMatrix);
             }
 
-            renderer->setTransform(Renderer::E_TS_PROJECTION, mProjMatrix);
+            renderer->setProjectionTransform(mProjMatrix);
 
             mIsFrustumDirty = false;
         }

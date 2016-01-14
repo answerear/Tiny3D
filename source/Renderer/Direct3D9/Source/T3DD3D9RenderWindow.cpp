@@ -268,6 +268,7 @@ namespace Tiny3D
         }
 
         // TODO: make this a bit better e.g. go from pure vertex processing to software
+        D3D9_RENDERER.setD3DDevice(mD3DDevice);
 
         mReady = true;
 

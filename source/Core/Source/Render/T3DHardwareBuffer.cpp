@@ -54,6 +54,10 @@ namespace Tiny3D
         {
             // 没有影子buffer，调用实际锁接口
             buffer = lockImpl(offset, size, options);
+            if (buffer != nullptr)
+            {
+                mIsLocked = true;
+            }
         }
 
         if (buffer != nullptr)

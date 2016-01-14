@@ -6,11 +6,14 @@
 
 #include "T3DD3D9Prerequisites.h"
 #include "Render/T3DRenderer.h"
+#include "Render/T3DHardwareBufferManager.h"
 
 
 namespace Tiny3D
 {
-    class D3D9Renderer : public Renderer
+    class D3D9Renderer 
+        : public Renderer
+        , public Singleton<D3D9Renderer>
     {
     public:
         D3D9Renderer(HINSTANCE hInstance);
@@ -44,14 +47,17 @@ namespace Tiny3D
         virtual void setViewport(const ViewportPtr &viewport) override;
 
         virtual void drawVertexList(PrimitiveType primitiveType, 
-            const VertexDataPtr &vertices, uint32_t startIdx, 
+            const VertexDataPtr &vertexData, uint32_t startIdx, 
             uint32_t primitiveCount) override;
 
         virtual void drawIndexList(PrimitiveType primitiveType, 
-            const VertexDataPtr &vertices, const IndexDataPtr &indicies, 
+            const VertexDataPtr &vertexData, const IndexDataPtr &indexData, 
             uint32_t startIdx, uint32_t pritimitiveCount) override;
 
         LPDIRECT3D9 getD3D()  { return mD3D; }
+
+        LPDIRECT3DDEVICE9 getD3DDevice()    { return mD3DDevice; }
+        void setD3DDevice(LPDIRECT3DDEVICE9 d3dDevice) { mD3DDevice = d3dDevice; }
 
     protected:
         virtual void makeProjectionMatrix(const Radian &rkFovY, Real aspect, 
@@ -67,7 +73,12 @@ namespace Tiny3D
 
         LPDIRECT3D9         mD3D;
         LPDIRECT3DDEVICE9   mD3DDevice;
+
+        HardwareBufferManager       *mHardwareBufferMgr;
+        D3D9HardwareBufferManager   *mD3DHwBufferMgr;
     };
+
+    #define D3D9_RENDERER           (D3D9Renderer::getInstance())
 }
 
 

@@ -42,6 +42,7 @@ namespace Tiny3D
         {
             E_PT_POINT,
             E_PT_LINE,
+            E_PT_LINE_STRIP,
             E_PT_TRIANGLE_LIST,
             E_PT_TRIANGLE_STRIP,
             E_PT_TRIANGLE_FAN,

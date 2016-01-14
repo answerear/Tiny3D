@@ -53,7 +53,7 @@ namespace Tiny3D
         Usage getUsage() const          { return mUsage; }
         bool isSystemMemory() const     { return mSystemMemory; }
         bool hasShadowBuffer() const    { return mUseShadowBuffer; }
-        bool isLocked() const           { return mIsLocked; }
+        bool isLocked() const           { return (mUseShadowBuffer ? mShadowBuffer->isLocked() : mIsLocked); }
 
     protected:
         HardwareBuffer(Usage usage, bool systemMemory, bool useShadowBuffer);

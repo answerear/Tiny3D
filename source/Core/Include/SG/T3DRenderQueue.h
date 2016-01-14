@@ -5,6 +5,7 @@
 
 
 #include "Misc/T3DObject.h"
+#include "Render/T3DRenderer.h"
 
 
 namespace Tiny3D
@@ -20,6 +21,9 @@ namespace Tiny3D
         void clear();
 
         void render(const RendererPtr &renderer);
+
+    protected:
+        size_t calcPrimitiveCount(Renderer::PrimitiveType priType, size_t indexCount, size_t vertexCount, bool useIndex);
 
     protected:
         typedef std::list<SGRenderablePtr>              RenderableList;

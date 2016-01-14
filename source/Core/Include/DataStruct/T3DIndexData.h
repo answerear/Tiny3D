@@ -16,7 +16,7 @@ namespace Tiny3D
 
         virtual ~IndexData();
 
-        const HardwareIndexBufferPtr &getBuffer() const { return mIndexBuffer; }
+        const HardwareIndexBufferPtr &getIndexBuffer() const { return mIndexBuffer; }
 
         IndexDataPtr clone(bool copyData = true) const;
 

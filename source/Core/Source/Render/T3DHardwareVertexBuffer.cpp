@@ -10,7 +10,7 @@ namespace Tiny3D
         , mVertexCount(vertexCount)
         , mVertexSize(vertexSize)
     {
-
+        mBufferSize = mVertexSize * mVertexCount;
     }
 
     HardwareVertexBuffer::~HardwareVertexBuffer()
