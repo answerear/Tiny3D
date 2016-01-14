@@ -79,11 +79,11 @@ namespace Tiny3D
         size_t primCount = 0;
         switch (priType)
         {
-        case Renderer::E_PT_POINT:
+        case Renderer::E_PT_POINT_LIST:
             primCount = (useIndex ? indexCount : vertexCount);
             break;
 
-        case Renderer::E_PT_LINE:
+        case Renderer::E_PT_LINE_LIST:
             primCount = (useIndex ? indexCount : vertexCount) / 2;
             break;
 

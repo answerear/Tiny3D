@@ -119,7 +119,7 @@ namespace Tiny3D
 
     bool D3D9Renderer::beginRender()
     {
-        mD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+//         mD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
         mD3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
         HRESULT hr = S_OK;
@@ -211,17 +211,17 @@ namespace Tiny3D
 
         switch (mode)
         {
-        case CULL_NONE:
+        case E_CULL_NONE:
             {
                 d3dmode = D3DCULL_NONE;
             }
             break;
-        case CULL_CLOCKWISE:
+        case E_CULL_CLOCKWISE:
             {
                 d3dmode = D3DCULL_CW;
             }
             break;
-        case CULL_ANTICLOCKWISE:
+        case E_CULL_ANTICLOCKWISE:
             {
                 d3dmode = D3DCULL_CCW;
             }
@@ -230,6 +230,31 @@ namespace Tiny3D
 
         HRESULT hr;
         if (FAILED(hr = mD3DDevice->SetRenderState(D3DRS_CULLMODE, d3dmode)))
+        {
+
+        }
+    }
+
+    void D3D9Renderer::setRenderMode(RenderMode mode)
+    {
+        DWORD d3dmode = D3DFILL_SOLID;
+
+        switch (mode)
+        {
+        case E_RM_POINT:
+            d3dmode = D3DFILL_POINT;
+            break;
+        case E_RM_WIREFRAME:
+            d3dmode = D3DFILL_WIREFRAME;
+            break;
+        case E_RM_SOLID:
+        default:
+            d3dmode = D3DRS_FILLMODE;
+            break;
+        }
+
+        HRESULT hr;
+        if (FAILED(hr = mD3DDevice->SetRenderState(D3DRS_FILLMODE, d3dmode)))
         {
 
         }

@@ -43,6 +43,7 @@ namespace Tiny3D
         virtual void setMaterial(const MaterialPtr &material) override;
 
         virtual void setCullingMode(CullingMode mode) override;
+        virtual void setRenderMode(RenderMode mode) override;
 
         virtual void setViewport(const ViewportPtr &viewport) override;
 

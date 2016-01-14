@@ -40,19 +40,26 @@ namespace Tiny3D
 
         enum PrimitiveType
         {
-            E_PT_POINT,
-            E_PT_LINE,
-            E_PT_LINE_STRIP,
-            E_PT_TRIANGLE_LIST,
-            E_PT_TRIANGLE_STRIP,
-            E_PT_TRIANGLE_FAN,
+            E_PT_POINT_LIST,        // 单独点列表图元
+            E_PT_LINE_LIST,         // 单独线列表图元
+            E_PT_LINE_STRIP,        // 线带图元
+            E_PT_TRIANGLE_LIST,     // 三角列表图元
+            E_PT_TRIANGLE_STRIP,    // 三角带图元
+            E_PT_TRIANGLE_FAN,      // 三角扇形图元
         };
 
         enum CullingMode
         {
-            CULL_NONE = 1,
-            CULL_CLOCKWISE,
-            CULL_ANTICLOCKWISE,
+            E_CULL_NONE = 1,        // 不做消隐面剔除
+            E_CULL_CLOCKWISE,       // 按照顶点顺时针顺序的消隐面剔除
+            E_CULL_ANTICLOCKWISE,   // 按照顶点逆时针顺序的消隐面剔除
+        };
+
+        enum RenderMode
+        {
+            E_RM_POINT,         // 仅渲染点
+            E_RM_WIREFRAME,     // 渲染线框
+            E_RM_SOLID,         // 渲染实体，带纹理、材质的
         };
 
         Renderer();
@@ -96,6 +103,9 @@ namespace Tiny3D
         virtual void setCullingMode(CullingMode mode) = 0;
         virtual CullingMode getCullingMode() const;
 
+        virtual void setRenderMode(RenderMode mode) = 0;
+        virtual RenderMode getRenderMode() const;
+
         virtual void setMaterial(const MaterialPtr &material) = 0;
 
         virtual void setViewport(const ViewportPtr &viewport) = 0;
@@ -135,6 +145,7 @@ namespace Tiny3D
         uint64_t            mLastEndTime;
 
         CullingMode         mCullingMode;
+        RenderMode          mRenderMode;
     };
 }
 

@@ -34,6 +34,8 @@ int32_t HelloWorldApp::go()
 
 bool HelloWorldApp::applicationDidFinishLaunching()
 {
+    T3D_ENTRANCE.getActiveRenderer()->setRenderMode(Renderer::E_RM_WIREFRAME);
+
     SGNodePtr root = T3D_SCENE_MGR.getRoot();
     SGTransformNodePtr node = SGTransformNode::create();
     root->addChild((SGNodePtr)node);

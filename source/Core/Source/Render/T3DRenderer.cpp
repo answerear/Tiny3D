@@ -16,7 +16,8 @@ namespace Tiny3D
 
     Renderer::Renderer()
     {
-        mCullingMode = CULL_CLOCKWISE;
+        mCullingMode = E_CULL_CLOCKWISE;
+        mRenderMode = E_RM_SOLID;
     }
 
     Renderer::~Renderer()
@@ -129,5 +130,10 @@ namespace Tiny3D
     Renderer::CullingMode Renderer::getCullingMode() const
     {
         return mCullingMode;
+    }
+
+    Renderer::RenderMode Renderer::getRenderMode() const
+    {
+        return mRenderMode;
     }
 }

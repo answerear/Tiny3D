@@ -11,10 +11,10 @@ namespace Tiny3D
 
         switch (priType)
         {
-        case Renderer::E_PT_POINT:
+        case Renderer::E_PT_POINT_LIST:
             d3dtype = D3DPT_POINTLIST;
             break;
-        case Renderer::E_PT_LINE:
+        case Renderer::E_PT_LINE_LIST:
             d3dtype = D3DPT_LINELIST;
             break;
         case Renderer::E_PT_TRIANGLE_LIST:
