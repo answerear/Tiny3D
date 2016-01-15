@@ -69,14 +69,15 @@ namespace Tiny3D
             uint64_t            ullInterval;        /// 设定的时间间隔
             RunLoopObserver     *pObserver;         /// 回调对象
             bool                bRepeat;            /// 是否循环计时
+            bool                bAlive;             /// 是否还有效
         };
 
-        typedef std::map<uint32_t, RunLoopInfo> T3DRunLoopInfos;
-        typedef T3DRunLoopInfos::iterator       T3DRunLoopInfosItr;
+        typedef std::map<uint32_t, RunLoopInfo> RunLoopInfos;
+        typedef RunLoopInfos::iterator          RunLoopInfosItr;
 
-        typedef std::pair<uint32_t, RunLoopInfo> T3DRunLoopValue;
+        typedef std::pair<uint32_t, RunLoopInfo> RunLoopValue;
 
-        T3DRunLoopInfos m_infos;
+        RunLoopInfos    m_infos;
         static uint32_t m_unLoopID;
     };
 }

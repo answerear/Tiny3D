@@ -25,8 +25,8 @@ namespace Tiny3D
 
         uint32_t unLoopID = m_unLoopID + 1;
         uint64_t unTimestamp = DateTime::currentMSecsSinceEpoch();
-        RunLoopInfo info = {unTimestamp, unInterval, pObserver, bRepeat};
-        std::pair<T3DRunLoopInfosItr, bool> r = m_infos.insert(T3DRunLoopValue(unLoopID, info));
+        RunLoopInfo info = {unTimestamp, unInterval, pObserver, bRepeat, true};
+        std::pair<RunLoopInfosItr, bool> r = m_infos.insert(RunLoopValue(unLoopID, info));
 
         if (r.second)
         {
@@ -43,8 +43,8 @@ namespace Tiny3D
 
         uint32_t unLoopID = m_unLoopID + 1;
         uint64_t unTimestamp = DateTime::currentMSecsSinceEpoch();
-        RunLoopInfo info = {unTimestamp, 0, pObserver, true};
-        std::pair<T3DRunLoopInfosItr, bool> r = m_infos.insert(T3DRunLoopValue(unLoopID, info));
+        RunLoopInfo info = {unTimestamp, 0, pObserver, true, true};
+        std::pair<RunLoopInfosItr, bool> r = m_infos.insert(RunLoopValue(unLoopID, info));
 
         if (r.second)
         {
@@ -58,11 +58,11 @@ namespace Tiny3D
     {
         bool bRet = false;
 
-        T3DRunLoopInfosItr itr = m_infos.find(unLoopID);
+        RunLoopInfosItr itr = m_infos.find(unLoopID);
 
         if (itr != m_infos.end())
         {
-            m_infos.erase(itr);
+            itr->second.bAlive = false;
         }
 
         return bRet;
@@ -70,30 +70,47 @@ namespace Tiny3D
 
     void RunLoop::execute()
     {
-        T3DRunLoopInfosItr itr = m_infos.begin();
+        RunLoopInfosItr itr = m_infos.begin();
         uint64_t ullTimestamp = DateTime::currentMSecsSinceEpoch();
 
         while (itr != m_infos.end())
         {
             uint32_t unLoopID = itr->first;
             RunLoopInfo &info = itr->second;
-            uint64_t dt = ullTimestamp - info.ullLastTimestamp;
 
-            if (dt >= info.ullInterval)
+            if (info.bAlive)
             {
-                /// 回调
-                info.pObserver->onExecute(unLoopID, dt);
-                info.ullLastTimestamp = ullTimestamp;
+                int64_t dt = (int64_t)ullTimestamp - (int64_t)info.ullLastTimestamp;
+
+                if (dt >= (int64_t)info.ullInterval)
+                {
+                    info.ullLastTimestamp = ullTimestamp;
+
+                    if (!info.bRepeat)
+                    {
+                        /// 不循环，那么就删掉咯
+                        info.bAlive = false;
+                    }
+
+                    /// 回调
+                    info.pObserver->onExecute(unLoopID, dt);
+                }
             }
 
-            if (!info.bRepeat)
+            ++itr;
+        }
+
+        // 删除所有已经停掉的
+        itr = m_infos.begin();
+
+        while (itr != m_infos.end())
+        {
+            RunLoopInfo &info = itr->second;
+            RunLoopInfosItr itrCur = itr++;
+
+            if (!info.bAlive)
             {
-                /// 不循环，那么就删掉咯
-                m_infos.erase(itr++);
-            }
-            else
-            {
-                ++itr;
+                m_infos.erase(itrCur);
             }
         }
     }

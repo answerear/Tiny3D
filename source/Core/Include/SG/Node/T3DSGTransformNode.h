@@ -14,8 +14,6 @@
 
 namespace Tiny3D
 {
-    typedef SmartPtr<SGTransformNode> SGTransformNodePtr;
-
     class T3D_ENGINE_API SGTransformNode : public SGNode
     {
     protected:

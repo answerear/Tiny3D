@@ -136,7 +136,7 @@ namespace Tiny3D
 
     typedef SmartPtr<Object>                ObjectPtr;
     typedef SmartPtr<SGNode>                SGNodePtr;
-    typedef SmartPtr<SGTransformNode>       SGTransformPtr;
+    typedef SmartPtr<SGTransformNode>       SGTransformNodePtr;
     typedef SmartPtr<SGVisual>              SGVisualPtr;
     typedef SmartPtr<SGCamera>              SGCameraPtr;
     typedef SmartPtr<SGMesh>                SGMeshPtr;
