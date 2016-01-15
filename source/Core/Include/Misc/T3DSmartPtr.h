@@ -8,15 +8,22 @@
 
 namespace Tiny3D
 {
-    template <typename T>
-    class SmartPtr
+    class T3D_ENGINE_API SmartBasePtr
+    {
+    protected:
+        virtual ~SmartBasePtr();
+
+        Object   *mReferObject;
+    };
+
+    template <typename T, typename Base = SmartBasePtr>
+    class SmartPtr : public Base
     {
     public:
         static const SmartPtr NULL_PTR;
 
         SmartPtr(T *obj = nullptr);
         SmartPtr(const SmartPtr &rkPointer);
-        ~SmartPtr();
 
         operator T*() const;
         T &operator *() const;
@@ -38,13 +45,13 @@ namespace Tiny3D
         bool operator <=(const SmartPtr &rkPointer) const;
         bool operator >(const SmartPtr &rkPointer) const;
         bool operator >=(const SmartPtr &rkPointer) const;
-
-    private:
-        T   *m_pkObject;
     };
+
+
+    #define T3D_DECLARE_SMART_PTR(classname, baseclass) typedef SmartPtr<classname, baseclass##Ptr> classname##Ptr
 }
 
-#include "T3DSmartPointer.inl"
+#include "T3DSmartPtr.inl"
 
 
 #endif  /*__T3D_SMART_POINTER_H__*/

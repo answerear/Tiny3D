@@ -8,7 +8,8 @@
 #include "Math/T3DVector3.h"
 #include "Math/T3DMatrix3.h"
 #include "Math/T3DMatrix4.h"
-#include "Misc/T3DSmartPointer.h"
+#include "Misc/T3DSmartPtr.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D

@@ -9,7 +9,6 @@
 #include "Math/T3DMatrix3.h"
 #include "Math/T3DMatrix4.h"
 #include "Math/T3DTransform.h"
-#include "Misc/T3DSmartPointer.h"
 
 
 namespace Tiny3D

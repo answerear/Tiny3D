@@ -6,6 +6,7 @@
 
 #include "Misc/T3DObject.h"
 #include "Misc/T3DCommon.h"
+#include "T3DTypedef.h"
 #include "Listener/T3DFrameListener.h"
 #include "Render/T3DRenderTarget.h"
 

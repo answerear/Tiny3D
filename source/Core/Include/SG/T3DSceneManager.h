@@ -5,6 +5,7 @@
 
 
 #include "Misc/T3DObject.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D

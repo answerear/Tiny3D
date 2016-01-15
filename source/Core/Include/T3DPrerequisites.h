@@ -16,7 +16,6 @@
 
 #include "T3DPlatform.h"
 #include "T3DLog.h"
-#include "Misc/T3DSmartPointer.h"
 
 
 namespace Tiny3D
@@ -117,62 +116,6 @@ namespace Tiny3D
     class RenderQueue;
 
     class Variant;
-
-    typedef std::vector<Variant>            VariantArray;
-    typedef VariantArray::iterator          VariantArrayItr;
-    typedef VariantArray::const_iterator    VariantArrayConstItr;
-
-    typedef std::list<Variant>              VariantList;
-    typedef VariantList::iterator           VariantListItr;
-    typedef VariantList::const_iterator     VariantListConstItr;
-
-    typedef std::map<Variant, Variant>      VariantMap;
-    typedef VariantMap::iterator            VariantMapItr;
-    typedef VariantMap::const_iterator      VariantMapConstItr;
-
-    typedef std::pair<Variant, Variant>     VariantMapValue;
-
-    typedef VariantMap Settings;
-
-    typedef SmartPtr<Object>                ObjectPtr;
-    typedef SmartPtr<SGNode>                SGNodePtr;
-    typedef SmartPtr<SGTransformNode>       SGTransformNodePtr;
-    typedef SmartPtr<SGVisual>              SGVisualPtr;
-    typedef SmartPtr<SGCamera>              SGCameraPtr;
-    typedef SmartPtr<SGMesh>                SGMeshPtr;
-    typedef SmartPtr<SGRenderable>          SGRenderablePtr;
-    typedef SmartPtr<SGBox>                 SGBoxPtr;
-
-    typedef SmartPtr<Viewport>              ViewportPtr;
-
-    typedef SmartPtr<Renderer>              RendererPtr;
-    typedef SmartPtr<RenderTarget>          RenderTargetPtr;
-    typedef SmartPtr<RenderWindow>          RenderWindowPtr;
-
-    typedef SmartPtr<HardwareBuffer>        HardwareBufferPtr;
-    typedef SmartPtr<HardwareVertexBuffer>  HardwareVertexBufferPtr;
-    typedef SmartPtr<HardwareIndexBuffer>   HardwareIndexBufferPtr;
-
-    typedef SmartPtr<VertexElement>         VertexElementPtr;
-    typedef SmartPtr<VertexDeclaration>     VertexDeclarationPtr;
-
-    typedef SmartPtr<HardwareBufferManagerBase> HardwareBufferManagerBasePtr;
-    typedef SmartPtr<HardwareBufferManager>     HardwareBufferManagerPtr;
-
-    typedef SmartPtr<VertexData>            VertexDataPtr;
-    typedef SmartPtr<IndexData>             IndexDataPtr;
-
-    typedef SmartPtr<Material>              MaterialPtr;
-    typedef SmartPtr<Texture>               TexturePtr;
-
-    typedef SmartPtr<RenderGroup>           RenderGroupPtr;
-    typedef SmartPtr<RenderQueue>           RenderQueuePtr;
-
-    typedef SmartPtr<Bound>                 BoundPtr;
-
-    typedef std::list<SGNodePtr>            SGChildren;
-    typedef SGChildren::iterator            SGChildrenItr;
-    typedef SGChildren::const_iterator      SGChildrenConstItr;
 }
 
 

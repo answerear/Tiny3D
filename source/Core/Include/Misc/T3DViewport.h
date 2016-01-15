@@ -5,7 +5,8 @@
 
 
 #include "T3DPrerequisites.h"
-#include "T3DColor4.h"
+#include "T3DTypedef.h"
+#include "Misc/T3DColor4.h"
 #include "Misc/T3DObject.h"
 
 

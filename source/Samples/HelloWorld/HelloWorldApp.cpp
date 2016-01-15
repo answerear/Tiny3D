@@ -38,12 +38,12 @@ bool HelloWorldApp::applicationDidFinishLaunching()
 
     SGNodePtr root = T3D_SCENE_MGR.getRoot();
     SGTransformNodePtr node = SGTransformNode::create();
-    root->addChild((SGNodePtr)node);
+    root->addChild(node);
 
     node->lookAt(Vector3(2.5, 2.0, 4.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     SGCameraPtr camera = SGCamera::create();
-    node->addChild((SGNodePtr)camera);
+    node->addChild(camera);
 
     camera->setProjectionType(SGCamera::E_PT_PERSPECTIVE);
 
@@ -52,10 +52,10 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     camera->setPerspective(fovY, ratio, 1.0, 1000.0);
 
     node = SGTransformNode::create();
-    root->addChild((SGNodePtr)node);
+    root->addChild(node);
 
     SGMeshPtr mesh = SGMesh::create();
-    node->addChild((SGNodePtr)mesh);
+    node->addChild(mesh);
     mesh->loadBox();
 
     ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);

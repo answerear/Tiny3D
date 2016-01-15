@@ -50,11 +50,7 @@ namespace Tiny3D
 
 //     typedef std::map<String, String>    NameValuePairList;
 //     typedef NameValuePairList           RenderWindowCreateParamEx;
-    typedef VariantMap                  RenderWindowCreateParamEx;
 
-    typedef std::list<Renderer*>            RendererList;
-    typedef RendererList::iterator          RendererListItr;
-    typedef RendererList::const_iterator    RendererListConstItr;
 }
 
 
