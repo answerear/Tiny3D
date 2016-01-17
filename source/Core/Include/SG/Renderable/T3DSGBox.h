@@ -4,6 +4,7 @@
 
 
 #include "SG/Renderable/T3DSGRenderable.h"
+#include "Math/T3DAabb.h"
 
 
 namespace Tiny3D
@@ -39,9 +40,17 @@ namespace Tiny3D
 
         virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;
 
-        static const uint32_t MAX_FACE_NUM;
-        static const uint32_t MAX_VERTICES_NUM;
-        static const uint32_t INDICES_PER_FACE;
+        void updateVertices();
+
+    protected:
+        enum
+        {
+            MAX_FACE_NUM = 6,
+            MAX_VERTICES_NUM = 8,
+            INDICES_PER_FACE = 6
+        };
+
+        Vector3 mVertices[MAX_VERTICES_NUM];
     };
 }
 

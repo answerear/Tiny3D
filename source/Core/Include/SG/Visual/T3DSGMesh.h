@@ -31,6 +31,8 @@ namespace Tiny3D
     protected:
         SGMesh(uint32_t unID = E_NID_AUTOMATIC);
 
+        virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;
+
         virtual SGNodePtr clone() const override;
         virtual void cloneProperties(SGNode *node) const override;
     };

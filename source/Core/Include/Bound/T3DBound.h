@@ -6,6 +6,7 @@
 
 #include "Misc/T3DObject.h"
 #include "Math/T3DSphere.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
@@ -34,10 +35,10 @@ namespace Tiny3D
 
         const Sphere &getSphere() const;
 
-        virtual bool test(const Bound &bound) const;
+        virtual bool test(const BoundPtr &bound) const;
 
-        const SGVisual *getNode() const;
-        SGVisual *getNode();
+        const SGVisualPtr getNode() const;
+        SGVisualPtr getNode();
 
         void setCollisionSource(bool isSource);
         bool isCollisionSource() const;
@@ -45,17 +46,17 @@ namespace Tiny3D
         void setEnable(bool enable);
         bool isEnable() const;
 
-        virtual SGRenderable *getRenderable() = 0;
+        virtual SGRenderablePtr getRenderable() = 0;
 
         virtual void setTransform(const Transform &transform);
 
-        virtual Bound *clone() = 0;
+        virtual BoundPtr clone() = 0;
 
     protected:
-        virtual bool testSphere(const SphereBound &bound) const = 0;
-        virtual bool testAabb(const AabbBound &bound) const = 0;
-        virtual bool testObb(const ObbBound &bound) const = 0;
-        virtual bool testFrustum(const FrustumBound &bound) const = 0;
+        virtual bool testSphere(const SphereBoundPtr &bound) const = 0;
+        virtual bool testAabb(const AabbBoundPtr &bound) const = 0;
+        virtual bool testObb(const ObbBoundPtr &bound) const = 0;
+        virtual bool testFrustum(const FrustumBoundPtr &bound) const = 0;
 
         virtual void updateBound(const Transform &transform) = 0;
 

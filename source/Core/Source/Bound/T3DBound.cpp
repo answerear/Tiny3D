@@ -1,6 +1,9 @@
 
 
 #include "Bound/T3DBound.h"
+#include "Bound/T3DSphereBound.h"
+#include "Bound/T3DAabbBound.h"
+#include "Bound/T3DObbBound.h"
 #include "SG/Visual/T3DSGVisual.h"
 #include "Math/T3DTransform.h"
 
@@ -11,12 +14,12 @@ namespace Tiny3D
         : mID(unID)
         , mNode(node)
     {
-        T3D_SAFE_ACQUIRE(mNode);
+
     }
 
     Bound::~Bound()
     {
-        T3D_SAFE_RELEASE(mNode);
+        mNode = nullptr;
     }
 
     void Bound::setTransform(const Transform &transform)
@@ -39,30 +42,30 @@ namespace Tiny3D
         updateBound(transform);
     }
 
-    bool Bound::test(const Bound &bound) const
+    bool Bound::test(const BoundPtr &bound) const
     {
         bool result = false;
 
-        switch (bound.getType())
+        switch (bound->getType())
         {
         case E_BT_SPHERE:
             {
-                result = testSphere((const SphereBound &)bound);
+                result = testSphere((const SphereBoundPtr &)bound);
             }
             break;
         case E_BT_AABB:
             {
-                result = testAabb((const AabbBound &)bound);
+                result = testAabb((const AabbBoundPtr &)bound);
             }
             break;
         case E_BT_OBB:
             {
-                result = testObb((const ObbBound &)bound);
+                result = testObb((const ObbBoundPtr &)bound);
             }
             break;
         case E_BT_FRUSTUM:
             {
-                result = testFrustum((const FrustumBound &)bound);
+                result = testFrustum((const FrustumBoundPtr &)bound);
             }
             break;
         default:

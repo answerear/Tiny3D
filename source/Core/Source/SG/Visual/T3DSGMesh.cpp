@@ -1,6 +1,7 @@
 
 #include "SG/Visual/T3DSGMesh.h"
 #include "SG/Renderable/T3DSGBox.h"
+#include "Bound/T3DAabbBound.h"
 
 
 namespace Tiny3D
@@ -36,7 +37,14 @@ namespace Tiny3D
         SGBoxPtr box = SGBox::create();
         addChild((SGNodePtr)box);
 
+        mBound = new AabbBound(10, this);
+
         return true;
+    }
+
+    void SGMesh::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
+    {
+        SGVisual::frustumCulling(bound, queue);
     }
 
     SGNodePtr SGMesh::clone() const
