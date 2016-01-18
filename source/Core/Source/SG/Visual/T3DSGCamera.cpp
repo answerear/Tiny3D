@@ -49,11 +49,11 @@ namespace Tiny3D
         return ptr;
     }
 
-    void SGCamera::cloneProperties(SGNode *node) const
+    void SGCamera::cloneProperties(const SGNodePtr &node) const
     {
         SGVisual::cloneProperties(node);
 
-        SGCamera *newNode = (SGCamera *)node;
+        const SGCameraPtr &newNode = (const SGCameraPtr &)node;
         newNode->mFovY = mFovY;
         newNode->mFarDistance = mFarDistance;
         newNode->mNearDistance = mNearDistance;

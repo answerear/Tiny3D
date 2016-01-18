@@ -6,13 +6,18 @@
 #include "Bound/T3DObbBound.h"
 #include "SG/Visual/T3DSGVisual.h"
 #include "Math/T3DTransform.h"
+#include "SG/Renderable/T3DSGRenderable.h"
 
 
 namespace Tiny3D
 {
     Bound::Bound(uint32_t unID, SGVisual *node)
-        : mID(unID)
-        , mNode(node)
+        : mNode(node)
+        , mID(unID)
+        , mGroupID(0)
+        , mMovable(false)
+        , mCollisionSource(false)
+        , mEnable(true)
     {
 
     }
@@ -24,21 +29,6 @@ namespace Tiny3D
 
     void Bound::setTransform(const Transform &transform)
     {
-        const Vector3 &S = transform.getScale();
-        const Vector3 &T = transform.getTranslate();
-        const Quaternion &R = transform.getOrientation();
-
-        Vector3 center = mSphere.getCenter();
-        center = R * center;
-        center = S * center;
-        center = T + center;
-        
-        Real factor = std::max(std::max(S.x(), S.y()), S.z());
-        Real radius = factor * mSphere.getRadius();
-
-        mSphere.setCenter(center);
-        mSphere.setRadius(radius);
-
         updateBound(transform);
     }
 
@@ -73,5 +63,16 @@ namespace Tiny3D
         }
 
         return result;
+    }
+
+    void Bound::cloneProperties(const BoundPtr &bound) const
+    {
+        bound->mSphere = mSphere;
+        bound->mNode = mNode;
+        bound->mID = mID;
+        bound->mGroupID = mGroupID;
+        bound->mMovable = mMovable;
+        bound->mCollisionSource = mCollisionSource;
+        bound->mEnable = mEnable;
     }
 }

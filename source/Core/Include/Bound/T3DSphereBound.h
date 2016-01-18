@@ -16,23 +16,28 @@ namespace Tiny3D
         SphereBound(uint32_t unID, SGVisual *node);
         virtual ~SphereBound();
 
-        Type getType() const override;
+        virtual Type getType() const override;
+        virtual BoundPtr clone() const override;
 
         void setParams(const Vector3 &rkCenter, Real radius);
 
-        virtual SGRenderable *getRenderable() override;
+        const Sphere &getOriginalSphere() const { return mOriginalSphere; }
+
+        virtual SGRenderablePtr getRenderable() override;
 
     protected:
-        virtual bool testSphere(const SphereBound &bound) const override;
-        virtual bool testAabb(const AabbBound &bound) const override;
-        virtual bool testObb(const ObbBound &bound) const override;
-        virtual bool testFrustum(const FrustumBound &bound) const override;
+        virtual bool testSphere(const SphereBoundPtr &bound) const override;
+        virtual bool testAabb(const AabbBoundPtr &bound) const override;
+        virtual bool testObb(const ObbBoundPtr &bound) const override;
+        virtual bool testFrustum(const FrustumBoundPtr &bound) const override;
 
         virtual void updateBound(const Transform &transform) override;
 
+        virtual void cloneProperties(const BoundPtr &bound) const override;
+
     private:
         Sphere      mOriginalSphere;
-        SGSphere    *mRenderable;
+        SGSpherePtr mRenderable;
     };
 }
 

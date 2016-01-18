@@ -75,9 +75,24 @@ namespace Tiny3D
         return false;
     }
 
+    bool Math::intersects(const Sphere &sphere, const Frustum &frustum)
+    {
+        return false;
+    }
+
     bool Math::intersects(const Sphere &sphere, const Plane &plane)
     {
         return (Math::Abs(plane.getNormal().dot(plane.getNormal()) - plane.getDistance()) < sphere.getRadius());
+    }
+
+    bool Math::intersects(const Aabb &aabb1, const Aabb &aabb2)
+    {
+        return false;
+    }
+
+    bool Math::intersects(const Aabb &aabb, const Frustum &frustum)
+    {
+        return false;
     }
 
     bool Math::intersects(const Aabb &box, const Plane &plane)

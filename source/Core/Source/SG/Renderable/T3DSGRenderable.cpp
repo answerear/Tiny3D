@@ -34,11 +34,11 @@ namespace Tiny3D
         return Matrix4::IDENTITY;
     }
 
-    void SGRenderable::cloneProperties(SGNode *node) const
+    void SGRenderable::cloneProperties(const SGNodePtr &node) const
     {
         SGNode::cloneProperties(node);
 
-        SGRenderable *newNode = (SGRenderable *)node;
+        const SGRenderablePtr &newNode = (const SGRenderablePtr &)node;
         newNode->mMaterial = mMaterial;
         newNode->mVertexData = mVertexData->clone();
         newNode->mIndexData = mIndexData->clone();

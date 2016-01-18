@@ -23,7 +23,6 @@ namespace Tiny3D
             E_BT_FRUSTUM,
         };
 
-        Bound(uint32_t unID, SGVisual *node);
         virtual ~Bound();
 
         virtual Type getType() const = 0;
@@ -37,8 +36,8 @@ namespace Tiny3D
 
         virtual bool test(const BoundPtr &bound) const;
 
-        const SGVisualPtr getNode() const;
-        SGVisualPtr getNode();
+        const SGVisualPtr getVisualNode() const;
+        SGVisualPtr getVisualNode();
 
         void setCollisionSource(bool isSource);
         bool isCollisionSource() const;
@@ -50,9 +49,11 @@ namespace Tiny3D
 
         virtual void setTransform(const Transform &transform);
 
-        virtual BoundPtr clone() = 0;
+        virtual BoundPtr clone() const = 0;
 
     protected:
+        Bound(uint32_t unID, SGVisual *node);
+
         virtual bool testSphere(const SphereBoundPtr &bound) const = 0;
         virtual bool testAabb(const AabbBoundPtr &bound) const = 0;
         virtual bool testObb(const ObbBoundPtr &bound) const = 0;
@@ -60,11 +61,14 @@ namespace Tiny3D
 
         virtual void updateBound(const Transform &transform) = 0;
 
+        virtual void cloneProperties(const BoundPtr &bound) const;
+
     protected:
         Sphere  mSphere;
 
     private:
-        SGVisual    *mNode;
+        SGVisual        *mNode;
+
         uint32_t    mID;
         uint32_t    mGroupID;
         bool        mMovable;

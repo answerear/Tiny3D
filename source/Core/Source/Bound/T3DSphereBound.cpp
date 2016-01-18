@@ -4,6 +4,11 @@
 #include "Bound/T3DAabbBound.h"
 #include "Bound/T3DObbBound.h"
 #include "Bound/T3DFrustumBound.h"
+#include "Math/T3DTransform.h"
+#include "Math/T3DMath.h"
+#include "SG/Renderable/T3DSGRenderable.h"
+#include "SG/Visual/T3DSGVisual.h"
+#include "SG/Renderable/T3DSGShpere.h"
 
 
 namespace Tiny3D
@@ -18,7 +23,7 @@ namespace Tiny3D
 
     SphereBound::~SphereBound()
     {
-
+        mRenderable = nullptr;
     }
 
     Bound::Type SphereBound::getType() const
@@ -26,87 +31,71 @@ namespace Tiny3D
         return E_BT_SPHERE;
     }
 
+    SGRenderablePtr SphereBound::getRenderable()
+    {
+        return mRenderable;
+    }
+
+    BoundPtr SphereBound::clone() const
+    {
+        SphereBoundPtr bound = new SphereBound(getID(), getVisualNode());
+        cloneProperties(bound);
+        return bound;
+    }
+
+    void SphereBound::cloneProperties(const BoundPtr &bound) const
+    {
+        Bound::cloneProperties(bound);
+
+        const SphereBoundPtr &sphereBound = (const SphereBoundPtr &)bound;
+        sphereBound->mOriginalSphere = mOriginalSphere;
+        sphereBound->mRenderable = mRenderable->clone();
+    }
+
     void SphereBound::setParams(const Vector3 &rkCenter, Real radius)
     {
         mOriginalSphere.setCenter(rkCenter);
         mOriginalSphere.setRadius(radius);
+
+        mSphere.setCenter(rkCenter);
+        mSphere.setRadius(radius);
     }
 
-    SGRenderable *SphereBound::getRenderable()
+    bool SphereBound::testSphere(const SphereBoundPtr &bound) const
     {
-        return nullptr;
+        return Math::intersects(mSphere, bound->getOriginalSphere());
     }
 
-    bool SphereBound::testSphere(const SphereBound &bound) const
+    bool SphereBound::testAabb(const AabbBoundPtr &bound) const
     {
-        Real distance = mOriginalSphere.getCenter().squaredDistance(bound.mOriginalSphere.getCenter());
-        Real radius = mOriginalSphere.getRadius() + bound.mOriginalSphere.getRadius();
-        radius = radius * radius;
-        return (distance <= radius);
+        return Math::intersects(mSphere, bound->getAlignAxisBox());
     }
 
-    bool SphereBound::testAabb(const AabbBound &bound) const
+    bool SphereBound::testObb(const ObbBoundPtr &bound) const
     {
-        const Vector3 &center = mOriginalSphere.getCenter();
-        Real radius = mOriginalSphere.getRadius();
-
-        const Aabb &box = bound.getAlignAxisBox();
-        Real minX = bound.getAlignAxisBox().getMinX();
-        Real minY = bound.getAlignAxisBox().getMinY();
-        Real minZ = bound.getAlignAxisBox().getMinZ();
-
-        Real maxX = bound.getAlignAxisBox().getMaxX();
-        Real maxY = bound.getAlignAxisBox().getMaxY();
-        Real maxZ = bound.getAlignAxisBox().getMaxZ();
-
-        bool result = true;
-
-        if (center.x() < minX && minX - center.x() > radius)
-        {
-            result = false;
-        }
-        else if (center.x() > maxX && center.x() - maxX > radius)
-        {
-            result = false;
-        }
-        else if (center.y() < minY && minY - center.y() > radius)
-        {
-            result = false;
-        }
-        else if (center.y() > maxY && center.y() - maxY > radius)
-        {
-            result = false;
-        }
-        else if (center.z() < minZ && minZ - center.z() > radius)
-        {
-            result = false;
-        }
-        else if (center.z() > maxZ && center.z() - maxZ > radius)
-        {
-            result = false;
-        }
-
-        return result;
+        return Math::intersects(mSphere, bound->getObb());
     }
 
-    bool SphereBound::testObb(const ObbBound &bound) const
+    bool SphereBound::testFrustum(const FrustumBoundPtr &bound) const
     {
-        Real distance = mOriginalSphere.getCenter().squaredDistance(bound.getSphere().getCenter());
-        Real radius = mOriginalSphere.getRadius() + bound.getSphere().getRadius();
-        radius = radius * radius;
-
-        bool result = (distance <= radius);
-        
-        return result;
-    }
-
-    bool SphereBound::testFrustum(const FrustumBound &bound) const
-    {
-        return false;
+        return Math::intersects(mSphere, bound->getFrustum());
     }
 
     void SphereBound::updateBound(const Transform &transform)
     {
+        // 更新变换后用于碰撞检测的球体
+        const Matrix4 &M = transform.getAffineMatrix();
+        Vector3 center = M * mOriginalSphere.getCenter();
 
+        const Vector3 &S = transform.getScale();
+        Real factor = std::max(std::max(S.x(), S.y()), S.z());
+        Real radius = factor * mOriginalSphere.getRadius();
+
+        mSphere.setCenter(center);
+        mSphere.setRadius(radius);
+
+        // 原始球体，只更新球心位置，不更新半径大小
+        center = M * mOriginalSphere.getCenter();
+        mOriginalSphere.setCenter(center);
     }
 }

@@ -134,18 +134,17 @@ namespace Tiny3D
 
     SGNodePtr SGTransformNode::clone() const
     {
-        SGTransformNode *node = new SGTransformNode();
-        SGNodePtr ptr(node);
+        SGTransformNodePtr node = new SGTransformNode();
         node->release();
         cloneProperties(node);
-        return ptr;
+        return node;
     }
 
-    void SGTransformNode::cloneProperties(SGNode *node) const
+    void SGTransformNode::cloneProperties(const SGNodePtr &node) const
     {
         SGNode::cloneProperties(node);
 
-        SGTransformNode *newNode = (SGTransformNode *)node;
+        const SGTransformNodePtr &newNode = (const SGTransformNodePtr &)node;
         newNode->mPosition = mPosition;
         newNode->mOrientation = mOrientation;
         newNode->mScale = mScale;

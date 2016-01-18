@@ -221,7 +221,7 @@ namespace Tiny3D
         }
     }
 
-    void SGNode::cloneProperties(SGNode *node) const
+    void SGNode::cloneProperties(const SGNodePtr &node) const
     {
         node->mName = mName;
         node->mUserData = mUserData;

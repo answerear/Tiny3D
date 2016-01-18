@@ -31,7 +31,7 @@ namespace Tiny3D
 
         const Transform &getWorldTransform() const;
 
-        virtual void cloneProperties(SGNode *node) const override;
+        virtual void cloneProperties(const SGNodePtr &node) const override;
 
     protected:
         virtual void updateTransform() override;

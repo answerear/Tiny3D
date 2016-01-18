@@ -31,7 +31,7 @@ namespace Tiny3D
         const IndexDataPtr &getIndexData()   { return mIndexData; }
 
     protected:
-        virtual void cloneProperties(SGNode *node) const override;
+        virtual void cloneProperties(const SGNodePtr &node) const override;
 
         virtual void updateTransform() override;
 

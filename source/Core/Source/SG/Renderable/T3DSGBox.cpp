@@ -37,7 +37,16 @@ namespace Tiny3D
         mVertices[5] = Vector3(1.0, -1.0, -1.0);
         mVertices[6] = Vector3(-1.0, 1.0, -1.0);
         mVertices[7] = Vector3(-1.0, -1.0, -1.0);
+    }
 
+    SGBox::~SGBox()
+    {
+        mVertexData = nullptr;
+        mIndexData = nullptr;
+    }
+
+    bool SGBox::loadBox()
+    {
         size_t vertexCount = sizeof(mVertices) / sizeof(Vector3);
 
         VertexDeclarationPtr vertexDecl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
@@ -81,12 +90,8 @@ namespace Tiny3D
         mIndexData = IndexData::create(indexBuffer);
 
         mPrimitiveType = Renderer::E_PT_TRIANGLE_LIST;
-    }
 
-    SGBox::~SGBox()
-    {
-        mVertexData = nullptr;
-        mIndexData = nullptr;
+        return true;
     }
 
     SGNode::Type SGBox::getNodeType() const
@@ -208,16 +213,19 @@ namespace Tiny3D
 
     SGNodePtr SGBox::clone() const
     {
-        SGBox *node = new SGBox();
-        SGNodePtr ptr(node);
-        cloneProperties(node);
+        SGBoxPtr node = new SGBox();
         node->release();
-        return ptr;
+        cloneProperties(node);
+        return node;
     }
 
-    void SGBox::cloneProperties(SGNode *node) const
+    void SGBox::cloneProperties(const SGNodePtr &node) const
     {
         SGRenderable::cloneProperties(node);
+
+        const SGBoxPtr &newNode = (const SGBoxPtr &)node;
+        size_t sizeInBytes = sizeof(mVertices);
+        memcpy(newNode->mVertices, mVertices, sizeInBytes);
     }
 
     void SGBox::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)

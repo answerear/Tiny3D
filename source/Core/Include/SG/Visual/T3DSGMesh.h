@@ -34,7 +34,7 @@ namespace Tiny3D
         virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;
 
         virtual SGNodePtr clone() const override;
-        virtual void cloneProperties(SGNode *node) const override;
+        virtual void cloneProperties(const SGNodePtr &node) const override;
     };
 }
 

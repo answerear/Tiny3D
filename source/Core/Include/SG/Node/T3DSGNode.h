@@ -118,7 +118,7 @@ namespace Tiny3D
          */
         virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue);
 
-        virtual void cloneProperties(SGNode *node) const;
+        virtual void cloneProperties(const SGNodePtr &node) const;
 
         virtual void onAttachParent(const SGNodePtr &parent);
         virtual void onDetachParent(const SGNodePtr &parent);

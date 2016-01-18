@@ -59,11 +59,11 @@ namespace Tiny3D
             // 不是相机结点，才需要判断是否可见，是否需要渲染
             SGCamera *camera = T3D_SCENE_MGR.getCurCamera();
 
-            Bound *bound = camera->getBound();
+            BoundPtr bound = camera->getBound();
 
             if (bound != nullptr)
             {
-                mIsInFrustum = bound->test(*mBound);
+                mIsInFrustum = bound->test(mBound);
             }
 
             // continue updating all children node
@@ -76,11 +76,11 @@ namespace Tiny3D
         SGNode::frustumCulling(bound, queue);
     }
 
-    void SGVisual::cloneProperties(SGNode *node) const
+    void SGVisual::cloneProperties(const SGNodePtr &node) const
     {
         SGNode::cloneProperties(node);
 
-        SGVisual *newNode = (SGVisual *)node;
+        const SGVisualPtr &newNode = (const SGVisualPtr &)node;
         newNode->mWorldTransform = mWorldTransform;
 
         if (mBound != nullptr)

@@ -326,6 +326,26 @@ namespace Tiny3D
 			);
 	}
 
+    inline Vector3 Matrix4::operator *(const Vector3 &rkV) const
+    {
+        Real w = _m4x4[3][0] * rkV.x() + _m4x4[3][1] * rkV.y() + _m4x4[3][2] * rkV.z() + _m4x4[3][3] * Real(1.0);
+
+        if (w != Real(0.0))
+        {
+            return Vector3(
+                (_m4x4[0][0] * rkV.x() + _m4x4[0][1] * rkV.y() + _m4x4[0][2] * rkV.z() + _m4x4[0][3] * Real(1.0)) / w, 
+                (_m4x4[1][0] * rkV.x() + _m4x4[1][1] * rkV.y() + _m4x4[1][2] * rkV.z() + _m4x4[1][3] * Real(1.0)) / w,
+                (_m4x4[2][0] * rkV.x() + _m4x4[2][1] * rkV.y() + _m4x4[2][2] * rkV.z() + _m4x4[2][3] * Real(1.0)) / w
+                );
+        }
+        
+        return Vector3(
+            _m4x4[0][0] * rkV.x() + _m4x4[0][1] * rkV.y() + _m4x4[0][2] * rkV.z() + _m4x4[0][3] * Real(1.0),
+            _m4x4[1][0] * rkV.x() + _m4x4[1][1] * rkV.y() + _m4x4[1][2] * rkV.z() + _m4x4[1][3] * Real(1.0),
+            _m4x4[2][0] * rkV.x() + _m4x4[2][1] * rkV.y() + _m4x4[2][2] * rkV.z() + _m4x4[2][3] * Real(1.0)
+            );
+    }
+
 	inline Matrix4 Matrix4::transpose() const
 	{
 		return Matrix4(

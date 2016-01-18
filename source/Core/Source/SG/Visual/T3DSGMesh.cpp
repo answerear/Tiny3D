@@ -8,10 +8,9 @@ namespace Tiny3D
 {
     SGMeshPtr SGMesh::create(uint32_t unID /* = E_NID_AUTOMATIC */)
     {
-        SGMesh *mesh = new SGMesh(unID);
-        SGMeshPtr ptr(mesh);
+        SGMeshPtr mesh = new SGMesh(unID);
         mesh->release();
-        return ptr;
+        return mesh;
     }
 
     SGMesh::SGMesh(uint32_t unID /* = E_NID_AUTOMATIC */)
@@ -35,6 +34,7 @@ namespace Tiny3D
         removeAllChildren();
 
         SGBoxPtr box = SGBox::create();
+        box->loadBox();
         addChild((SGNodePtr)box);
 
         mBound = new AabbBound(10, this);
@@ -49,14 +49,13 @@ namespace Tiny3D
 
     SGNodePtr SGMesh::clone() const
     {
-        SGMesh *mesh = new SGMesh();
-        SGNodePtr ptr(mesh);
+        SGMeshPtr mesh = new SGMesh();
         mesh->release();
         cloneProperties(mesh);
-        return ptr;
+        return mesh;
     }
 
-    void SGMesh::cloneProperties(SGNode *node) const
+    void SGMesh::cloneProperties(const SGNodePtr &node) const
     {
         SGVisual::cloneProperties(node);
     }

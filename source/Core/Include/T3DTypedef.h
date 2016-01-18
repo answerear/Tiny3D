@@ -22,7 +22,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(SGCamera, SGVisual);
     T3D_DECLARE_SMART_PTR(SGMesh, SGVisual);
     T3D_DECLARE_SMART_PTR(SGRenderable, SGNode);
-    T3D_DECLARE_SMART_PTR(SGBox, SGNode);
+    T3D_DECLARE_SMART_PTR(SGBox, SGRenderable);
     T3D_DECLARE_SMART_PTR(SGSphere, SGRenderable);
 
     T3D_DECLARE_SMART_PTR(Bound, Object);

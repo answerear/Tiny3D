@@ -22,14 +22,14 @@ namespace Tiny3D
         return mSphere;
     }
 
-    inline const SGVisual *Bound::getNode() const
+    inline const SGVisualPtr Bound::getVisualNode() const
     {
-        return mNode;
+        return SGVisualPtr(mNode);
     }
 
-    inline SGVisual *Bound::getNode()
+    inline SGVisualPtr Bound::getVisualNode()
     {
-        return mNode;
+        return SGVisualPtr(mNode);
     }
 
     inline void Bound::setCollisionSource(bool isSource)

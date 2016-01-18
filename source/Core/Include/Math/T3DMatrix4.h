@@ -97,6 +97,7 @@ namespace Tiny3D
 
         /// Matrix times vector (M * V).
         Vector4 operator *(const Vector4 &rkV) const;
+        Vector3 operator *(const Vector3 &rkV) const;
 
         /// Transpose (M ^ T).
         Matrix4 transpose() const;
