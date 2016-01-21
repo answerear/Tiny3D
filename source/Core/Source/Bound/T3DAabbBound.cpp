@@ -6,11 +6,18 @@
 #include "Bound/T3DFrustumBound.h"
 #include "Math/T3DMath.h"
 #include "SG/Visual/T3DSGVisual.h"
-#include "SG/Renderable/T3DSGRenderable.h"
+#include "SG/Renderable/T3DSGBox.h"
 
 
 namespace Tiny3D
 {
+    AabbBoundPtr AabbBound::create(uint32_t unID, SGVisual *node)
+    {
+        AabbBoundPtr bound = new AabbBound(unID, node);
+        bound->release();
+        return bound;
+    }
+
     AabbBound::AabbBound(uint32_t unID, SGVisual *node)
         : Bound(unID, node)
     {
@@ -42,8 +49,7 @@ namespace Tiny3D
 
         aabbBound->mAabb = mAabb;
         aabbBound->mOriginalAabb = mOriginalAabb;
-
-
+        aabbBound->mRenderable = (SGBox *)((SGNode *)mRenderable->clone());
     }
 
     bool AabbBound::testSphere(const SphereBoundPtr &bound) const
@@ -144,6 +150,7 @@ namespace Tiny3D
             vMax.y() += M[1][2] * mOriginalAabb.getMinZ();
         }
 
+        // Calculate min z & max z
         if (M[2][0] > Real(0.0))
         {
             vMin.z() += M[2][0] * mOriginalAabb.getMinX();
@@ -155,19 +162,29 @@ namespace Tiny3D
             vMax.z() += M[2][0] * mOriginalAabb.getMinX();
         }
 
-        // row 1
-        if (M[1][0] > Real(0.0))
+        if (M[2][1] > Real(0.0))
         {
-            vMin.x() += M[1][0] * mOriginalAabb.getMinX();
-            vMax.x() += M[1][0] * mOriginalAabb.getMaxX();
+            vMin.z() += M[2][1] * mOriginalAabb.getMinY();
+            vMax.z() += M[2][1] * mOriginalAabb.getMaxY();
         }
         else
         {
-            vMin.x() += M[1][0] * mOriginalAabb.getMaxX();
-            vMax.x() += M[1][0] * mOriginalAabb.getMinX();
+            vMin.z() += M[2][1] * mOriginalAabb.getMaxY();
+            vMax.z() += M[2][1] * mOriginalAabb.getMinY();
         }
 
-        
+        if (M[2][2] > Real(0.0))
+        {
+            vMin.z() += M[2][2] * mOriginalAabb.getMinZ();
+            vMax.z() += M[2][2] * mOriginalAabb.getMaxZ();
+        }
+        else
+        {
+            vMin.z() += M[2][2] * mOriginalAabb.getMaxZ();
+            vMax.z() += M[2][2] * mOriginalAabb.getMinZ();
+        }
+
+        mAabb.setParam(vMin, vMax);
     }
 }
 

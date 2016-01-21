@@ -57,6 +57,8 @@ namespace Tiny3D
         void setMinZ(Real z);
         void setMaxZ(Real z);
 
+        void setParam(const Vector3 &vMin, const Vector3 &vMax);
+
     private:
         Real    mMinX;
         Real    mMaxX;

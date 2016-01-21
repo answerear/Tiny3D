@@ -13,13 +13,29 @@ namespace Tiny3D
     class T3D_ENGINE_API FrustumBound : public Bound
     {
     public:
-        FrustumBound(uint32_t unID, SGVisual *node);
+        static FrustumBoundPtr create(uint32_t unID, SGVisual *node);
+
         virtual ~FrustumBound();
 
-        const Frustum &getFrustum() const;
+        virtual Type getType() const override;
+        virtual SGRenderablePtr getRenderable() override;
+        virtual BoundPtr clone() const override;
 
-    private:
+        const Frustum &getFrustum() const;
+    protected:
+        FrustumBound(uint32_t unID, SGVisual *node);
+
+        virtual bool testSphere(const SphereBoundPtr &bound) const override;
+        virtual bool testAabb(const AabbBoundPtr &bound) const override;
+        virtual bool testObb(const ObbBoundPtr &bound) const override;
+        virtual bool testFrustum(const FrustumBoundPtr &bound) const override;
+
+        virtual void updateBound(const Transform &transform) override;
+
+        virtual void cloneProperties(const BoundPtr &bound) const;
+
         Frustum     mFrustum;
+        SGBoxPtr    mRenderable;
     };
 }
 

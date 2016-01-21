@@ -248,4 +248,20 @@ namespace Tiny3D
         mSphere.getRadius() = Math::Sqrt(fWidth * fWidth + fHeight * fHeight
             + fDepth * fDepth) * Real(0.5);
     }
+
+    inline void Aabb::setParam(const Vector3 &vMin, const Vector3 &vMax)
+    {
+        mMinX = vMin.x();
+        mMinY = vMin.y();
+        mMinZ = vMin.z();
+        mMaxX = vMax.x();
+        mMaxY = vMax.y();
+        mMaxZ = vMax.z();
+
+        Vector3 temp = vMax - vMin;
+        Vector3 center = temp * Real(0.5) + vMin;
+        Real radius = temp.length();
+        mSphere.setCenter(center);
+        mSphere.setRadius(radius);
+    }
 }

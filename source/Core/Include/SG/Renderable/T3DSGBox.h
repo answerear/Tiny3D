@@ -19,6 +19,7 @@ namespace Tiny3D
         bool loadBox();
 
         virtual Type getNodeType() const override;
+        virtual SGNodePtr clone() const override;
 
         void setMinX(Real x);
         void setMaxX(Real x);
@@ -36,8 +37,6 @@ namespace Tiny3D
 
     protected:
         SGBox(uint32_t unID = E_NID_AUTOMATIC);
-
-        virtual SGNodePtr clone() const override;
         virtual void cloneProperties(const SGNodePtr &node) const override;
 
         virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;

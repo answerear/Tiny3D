@@ -105,6 +105,16 @@ namespace Tiny3D
         return false;
     }
 
+    bool Math::intersects(const Obb &box1, const Obb &box2)
+    {
+        return false;
+    }
+
+    bool Math::intersects(const Obb &box, const Frustum &frustum)
+    {
+        return false;
+    }
+
     bool Math::intersects(const Obb &box, const Plane &plane)
     {
         return false;

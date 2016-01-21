@@ -37,7 +37,7 @@ namespace Tiny3D
         box->loadBox();
         addChild((SGNodePtr)box);
 
-        mBound = new AabbBound(10, this);
+        mBound = AabbBound::create(10, this);
 
         return true;
     }

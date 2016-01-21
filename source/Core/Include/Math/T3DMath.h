@@ -189,6 +189,8 @@ namespace Tiny3D
         static bool intersects(const Aabb &aabb, const Obb &obb);
         static bool intersects(const Aabb &aabb, const Frustum &frustum);
         static bool intersects(const Aabb &box, const Plane &plane);
+        static bool intersects(const Obb &box1, const Obb &box2);
+        static bool intersects(const Obb &obb, const Frustum &frustum);
         static bool intersects(const Obb &box, const Plane &plane);
 
     public:

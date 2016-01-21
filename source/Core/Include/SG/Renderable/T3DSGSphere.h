@@ -19,10 +19,11 @@ namespace Tiny3D
 
         virtual Type getNodeType() const override;
 
+        virtual SGNodePtr clone() const override;
+
     protected:
         SGSphere(uint32_t uID = E_NID_AUTOMATIC);
 
-        virtual SGNodePtr clone() const override;
         virtual void cloneProperties(const SGNodePtr &node) const override;
 
     };
