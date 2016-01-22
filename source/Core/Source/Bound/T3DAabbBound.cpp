@@ -34,6 +34,11 @@ namespace Tiny3D
         return E_BT_AABB;
     }
 
+    SGRenderablePtr AabbBound::getRenderable()
+    {
+        return mRenderable;
+    }
+
     BoundPtr AabbBound::clone() const
     {
         AabbBoundPtr bound = new AabbBound(getID(), getVisualNode());

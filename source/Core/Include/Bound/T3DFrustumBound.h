@@ -21,7 +21,8 @@ namespace Tiny3D
         virtual SGRenderablePtr getRenderable() override;
         virtual BoundPtr clone() const override;
 
-        const Frustum &getFrustum() const;
+        const Frustum &getFrustum() const   { return mFrustum; }
+
     protected:
         FrustumBound(uint32_t unID, SGVisual *node);
 
