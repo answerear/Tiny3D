@@ -22,6 +22,9 @@ namespace Tiny3D
         virtual BoundPtr clone() const override;
 
         const Frustum &getFrustum() const   { return mFrustum; }
+        void setFrustum(Frustum::Face face, const Plane &plane) { mFrustum.setFace(face, plane); }
+
+        void setParam(const Plane *plane, size_t planeCount);
 
     protected:
         FrustumBound(uint32_t unID, SGVisual *node);

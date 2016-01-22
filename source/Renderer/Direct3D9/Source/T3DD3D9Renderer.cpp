@@ -354,6 +354,16 @@ namespace Tiny3D
         else
         {
             // 透视投影
+            //          | w 0  0  0 |
+            //          | 0 h  0  0 |
+            //      M = | 0 0  q qn |
+            //          | 0 0 -1  0 |
+            // 其中
+            //      w = 1.0 / tan(Y/2) / aspect_ratio
+            //      h = 1.0 / tan(Y/2)
+            //      q = f / (n - f)
+            //      qn = n * f / (n - f)
+
             Real tanThetaY = Math::Tan(rkFovY * Real(0.5));
             Real h = Real(1.0) / (tanThetaY);
             Real w = h / aspect;            

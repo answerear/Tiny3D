@@ -48,6 +48,15 @@ namespace Tiny3D
         return bound;
     }
 
+    void FrustumBound::setParam(const Plane *plane, size_t planeCount)
+    {
+        size_t i = 0;
+        for (i = 0; i < planeCount; ++i)
+        {
+            mFrustum.setFace((Frustum::Face)i, plane[i]);
+        }
+    }
+
     bool FrustumBound::testSphere(const SphereBoundPtr &bound) const
     {
         return Math::intersects(bound->getSphere(), mFrustum);

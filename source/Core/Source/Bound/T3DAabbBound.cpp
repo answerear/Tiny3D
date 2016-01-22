@@ -80,7 +80,29 @@ namespace Tiny3D
     void AabbBound::updateBound(const Transform &transform)
     {
         // 这里不用传统的变换8个顶点，然后逐个比较获取最大x,y,z来重新设置AABB
-        // 这里使用快速变换的方法，减少矩阵变换带来的开销
+        // 这里使用快速变换的方法，减少矩阵变换带来的开销，原理如下：
+        // 
+        // 碰撞盒8个顶点的任意一点为P，变换后一点为P'，变换矩阵为M，则可得：
+        //      P' = M * P
+        // 其中
+        //      P' = (x' y' z' 1)
+        //
+        //      P = (x y z 1)
+        //
+        //          | m00 m01 m02 tx|
+        //      M = | m10 m11 m12 ty|
+        //          | m20 m21 m22 tz|
+        //          | 0   0   0   1 |
+        // 则
+        //      p'x' = px * m00 + py * m01 + pz * m02 + tx
+        //      p'y' = px * m10 + py * m11 + pz * m12 + ty
+        //      p'z' = px * m20 + py * m21 + pz * m22 + tz
+        // 这里只要计算最大的p'x'、p'y'和p'z'就可以得出最大和最小值了。
+        // 如此这样
+        //      如 m00 > 0时，则当px = min_x时，则px * m00最小，
+        //      如 m00 < 0时，则当px = max_x时，则px * m00最小
+        //  同理，可以根据最小值计算方法计算最大值，并且如此类推，计算p'y'和p'z'
+
         const Vector3 &translate = transform.getTranslate();
         const Matrix4 &M = transform.getAffineMatrix();
 

@@ -32,9 +32,16 @@ namespace Tiny3D
         mCurCamera = camera;
         mRenderer->setViewport(viewport);
 
+        // 优先更新相机变换
+        mCurCamera->updateTransform();
+
+        // 更新scene graph上所有结点
         mRoot->updateTransform();
+
+        // 对scene graph上所有结点做frustum culling
         mRoot->frustumCulling(mCurCamera->getBound(), mRenderQueue);
 
+        // 直接对渲染队列的对象渲染
         mRenderer->beginRender(viewport->getBackgroundColor());
         mRenderQueue->render(mRenderer);
         mRenderer->endRender();

@@ -70,13 +70,14 @@ namespace Tiny3D
 
         virtual void addChild(const SGNodePtr &node) override;
 
+        virtual SGNodePtr clone() const override;
+
     protected:
         virtual void onAttachParent(const SGNodePtr &parent) override;
         virtual void onDetachParent(const SGNodePtr &parent) override;
 
         virtual void updateTransform() override;
 
-        virtual SGNodePtr clone() const override;
         virtual void cloneProperties(const SGNodePtr &node) const override;
 
     private:

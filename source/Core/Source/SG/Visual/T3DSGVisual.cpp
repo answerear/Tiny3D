@@ -20,7 +20,7 @@ namespace Tiny3D
 
     SGVisual::~SGVisual()
     {
-
+        mBound = nullptr;
     }
 
     void SGVisual::setVisible(bool visible)

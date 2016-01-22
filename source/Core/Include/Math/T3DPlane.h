@@ -41,6 +41,8 @@ namespace Tiny3D
         Vector3 getNormal() const;
         Real getDistance() const;
 
+        void normalize();
+
     protected:
         Real    mCoeff[4];
     };

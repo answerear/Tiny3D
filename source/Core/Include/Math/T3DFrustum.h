@@ -15,8 +15,8 @@ namespace Tiny3D
     public:
         enum Face
         {
-            E_FACE_UP = 0,
-            E_FACE_DOWN,
+            E_FACE_TOP = 0,
+            E_FACE_BOTTOM,
             E_FACE_LEFT,
             E_FACE_RIGHT,
             E_FACE_NEAR,
@@ -31,16 +31,18 @@ namespace Tiny3D
         const Plane &getFace(Frustum::Face face) const;
 
     protected:
-        Plane   mFace[6];
+        Plane   mFace[E_MAX_FACE];
     };
 
     inline void Frustum::setFace(Frustum::Face face, const Plane &plane)
     {
+        T3D_ASSERT(face >= 0 && face < E_MAX_FACE);
         mFace[face] = plane;
     }
 
     inline const Plane &Frustum::getFace(Frustum::Face face) const
     {
+        T3D_ASSERT(face >= 0 && face < E_MAX_FACE);
         return mFace[face];
     }
 }

@@ -106,4 +106,13 @@ namespace Tiny3D
     {
         return mCoeff[3];
     }
+
+    inline void Plane::normalize()
+    {
+        Real length = Math::Sqrt(mCoeff[0] * mCoeff[0] + mCoeff[1] * mCoeff[1] + mCoeff[2] * mCoeff[2]);
+        mCoeff[0] /= length;
+        mCoeff[1] /= length;
+        mCoeff[2] /= length;
+        mCoeff[3] /= length;
+    }
 }
