@@ -51,41 +51,43 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     camera->setProjectionType(SGCamera::E_PT_PERSPECTIVE);
 
     Radian fovY(Math::PI * Real(0.5));
-    Real ratio = Real(960) / Real(720);
+    Real ratio = Real(960) / Real(640);
     camera->setPerspective(fovY, ratio, 1.0, 1000.0);
 
     // 立方体变换结点
     node = SGTransformNode::create();
     root->addChild(node);
     node->setPosition(1.0, 0.0, 0.0);
+//     node->setOrientation(Radian(Math::PI * Real(0.5)), Vector3(0.0, 1.0, 0.0));
 
     SGTransformNodePtr node1 = SGTransformNode::create();
     node->addChild(node1);
     node1->setPosition(2.0, 0.0, 0.0);
-//     node1->setOrientation(Radian(Math::PI / Real(6.0)).valueRadians(), 0.0, 1.0, 0.0);
+//     node1->setScale(1.2, 1.2, 1.2);
+    node1->setOrientation(Radian(Math::PI / Real(6.0)), Vector3(0.0, 1.0, 0.0));
 
     // 立方体 #1 mesh
     SGMeshPtr mesh = SGMesh::create();
     node1->addChild(mesh);
     mesh->loadBox();
 
-//     SGTransformNodePtr node2 = SGTransformNode::create();
-//     node->addChild(node2);
-//     node2->setPosition(-1.0, 0.0, 0.0);
-// 
-//     // #2 Mesh
-//     mesh = SGMesh::create();
-//     node2->addChild(mesh);
-//     mesh->loadBox();
-// 
-//     SGTransformNodePtr node3 = SGTransformNode::create();
-//     node->addChild(node3);
-//     node3->setPosition(-4.0, 0.0, 0.0);
-// 
-//     // # Mesh
-//     mesh = SGMesh::create();
-//     node3->addChild(mesh);
-//     mesh->loadBox();
+    SGTransformNodePtr node2 = SGTransformNode::create();
+    node->addChild(node2);
+    node2->setPosition(-1.0, 0.0, 0.0);
+
+    // #2 Mesh
+    mesh = SGMesh::create();
+    node2->addChild(mesh);
+    mesh->loadBox();
+
+    SGTransformNodePtr node3 = SGTransformNode::create();
+    node->addChild(node3);
+    node3->setPosition(-4.0, 0.0, 0.0);
+
+    // # Mesh
+    mesh = SGMesh::create();
+    node3->addChild(mesh);
+    mesh->loadBox();
 
     ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
     viewport->setBackgroundColor(Color4::BLACK);

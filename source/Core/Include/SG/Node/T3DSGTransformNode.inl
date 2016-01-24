@@ -37,6 +37,12 @@ namespace Tiny3D
         setOrientation(q);
     }
 
+    inline void SGTransformNode::setOrientation(const Radian &radian, const Vector3 &axis)
+    {
+        Quaternion q(radian, axis);
+        setOrientation(q);
+    }
+
     inline const Quaternion &SGTransformNode::getOrientation() const
     {
         return mOrientation;

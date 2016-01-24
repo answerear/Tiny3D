@@ -31,6 +31,7 @@ namespace Tiny3D
 
         void setOrientation(const Quaternion &rkQ);
         void setOrientation(Real w, Real x, Real y, Real z);
+        void setOrientation(const Radian &radian, const Vector3 &axis);
         const Quaternion &getOrientation() const;
 
         void setScale(const Vector3 &rkScale);

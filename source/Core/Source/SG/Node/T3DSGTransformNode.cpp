@@ -68,7 +68,7 @@ namespace Tiny3D
                 Vector3 S = transform.getScale() * mScale;
                 Vector3 T = transform.getOrientation() * mPosition;
                 T = T * transform.getScale();
-                T = transform.getTranslate() + mPosition;
+                T = transform.getTranslate() + T;
                 mWorldTransform.setTranslate(T);
                 mWorldTransform.setOrientation(R);
                 mWorldTransform.setScale(S);
