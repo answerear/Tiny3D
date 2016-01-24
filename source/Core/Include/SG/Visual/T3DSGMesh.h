@@ -25,16 +25,20 @@ namespace Tiny3D
         virtual ~SGMesh();
 
         bool loadBox();
+        bool loadSphere();
 
         virtual Type getNodeType() const override;
+
+        virtual SGNodePtr clone() const override;
 
     protected:
         SGMesh(uint32_t unID = E_NID_AUTOMATIC);
 
         virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;
 
-        virtual SGNodePtr clone() const override;
         virtual void cloneProperties(const SGNodePtr &node) const override;
+
+        MeshType    mMeshType;
     };
 }
 

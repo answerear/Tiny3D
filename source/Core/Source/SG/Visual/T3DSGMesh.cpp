@@ -1,6 +1,7 @@
 
 #include "SG/Visual/T3DSGMesh.h"
 #include "SG/Renderable/T3DSGBox.h"
+#include "SG/Renderable/T3DSGSphere.h"
 #include "Bound/T3DAabbBound.h"
 
 
@@ -35,9 +36,22 @@ namespace Tiny3D
 
         SGBoxPtr box = SGBox::create();
         box->loadBox();
-        addChild((SGNodePtr)box);
+        addChild(box);
 
-        mBound = AabbBound::create(10, this);
+        AabbBoundPtr bound = AabbBound::create(getNodeID(), this);
+        mBound = bound;
+        bound->setParam(box->getMinX(), box->getMaxX(), box->getMinY(), box->getMaxY(), box->getMinZ(), box->getMaxZ());
+
+        return true;
+    }
+
+    bool SGMesh::loadSphere()
+    {
+        removeAllChildren();
+
+        SGSpherePtr sphere = SGSphere::create();
+        sphere->loadSphere();
+        addChild(sphere);
 
         return true;
     }
@@ -58,5 +72,8 @@ namespace Tiny3D
     void SGMesh::cloneProperties(const SGNodePtr &node) const
     {
         SGVisual::cloneProperties(node);
+
+        const SGMeshPtr &newNode = (const SGMeshPtr &)node;
+        newNode->mMeshType = mMeshType;
     }
 }

@@ -47,7 +47,6 @@ namespace Tiny3D
         bool operator >=(const SmartPtr &rkPointer) const;
     };
 
-
     #define T3D_DECLARE_SMART_PTR(classname, baseclass) typedef SmartPtr<classname, baseclass##Ptr> classname##Ptr
 }
 

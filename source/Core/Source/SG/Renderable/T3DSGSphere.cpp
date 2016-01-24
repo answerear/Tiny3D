@@ -23,6 +23,11 @@ namespace Tiny3D
 
     }
 
+    bool SGSphere::loadSphere()
+    {
+        return true;
+    }
+
     SGNode::Type SGSphere::getNodeType() const
     {
         return E_NT_SPHERE;

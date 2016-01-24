@@ -56,6 +56,9 @@ namespace Tiny3D
 
             while (i != renderables.end())
             {
+                const Matrix4 &m = (*i)->getWorldMatrix();
+                renderer->setWorldTransform(m);
+
                 VertexDataPtr vertexData =(*i)->getVertexData();
                 IndexDataPtr indexData = (*i)->getIndexData();
 

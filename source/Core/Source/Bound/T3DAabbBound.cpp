@@ -29,6 +29,11 @@ namespace Tiny3D
 
     }
 
+    void AabbBound::setParam(Real minX, Real maxX, Real minY, Real maxY, Real minZ, Real maxZ)
+    {
+        mOriginalAabb.setParam(Vector3(minX, minY, minZ), Vector3(maxX, maxY, maxZ));
+    }
+
     Bound::Type AabbBound::getType() const
     {
         return E_BT_AABB;

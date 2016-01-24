@@ -67,7 +67,7 @@ namespace Tiny3D
         Real    m_fRadian;
     };
 
-#include "T3DRadian.inl"
+    #include "T3DRadian.inl"
 
     inline Radian operator *(Real fScalar, const Radian &radians)
     {
@@ -129,7 +129,7 @@ namespace Tiny3D
         Real    m_fDegree;
     };
 
-#include "T3DDegree.inl"
+    #include "T3DDegree.inl"
 
     inline Degree operator *(Real fScalar, const Degree &degree)
     {

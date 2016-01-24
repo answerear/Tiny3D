@@ -64,6 +64,8 @@ namespace Tiny3D
         virtual void makeProjectionMatrix(const Radian &rkFovY, Real aspect, 
             Real nearDist, Real farDist, bool ortho, Matrix4 &mat) override;
 
+        virtual void updateFrustum(const Matrix4 &m, Plane *plane, size_t planeCount) override;
+
         /// 转换成D3D矩阵
         D3DMATRIX toD3DMatrix(const Matrix4 &mat) const;
         /// 转换成T3D矩阵

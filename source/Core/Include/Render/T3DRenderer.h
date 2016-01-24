@@ -99,6 +99,8 @@ namespace Tiny3D
 
         virtual void makeProjectionMatrix(const Radian &rkFovY, Real aspect, Real nearDist, Real farDist, bool ortho, Matrix4 &mat) = 0;
 
+        virtual void updateFrustum(const Matrix4 &m, Plane *plane, size_t planeCount) = 0;
+
         virtual const Matrix4 &getTransform(TransformState state) const = 0;
 
         virtual void setCullingMode(CullingMode mode) = 0;

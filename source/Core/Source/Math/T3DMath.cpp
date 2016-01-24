@@ -5,6 +5,7 @@
 #include "Math/T3DAabb.h"
 #include "Math/T3DObb.h"
 #include "Math/T3DPlane.h"
+#include "Math/T3DFrustum.h"
 
 
 namespace Tiny3D
@@ -77,7 +78,21 @@ namespace Tiny3D
 
     bool Math::intersects(const Sphere &sphere, const Frustum &frustum)
     {
-        return false;
+        const Vector3 &center = sphere.getCenter();
+        const Real &radius = sphere.getRadius();
+
+        Real distance;
+
+        int32_t i = 0;
+        for (i = 0; i < Frustum::E_MAX_FACE; ++i)
+        {
+            const Plane &plane = frustum.getFace(Frustum::Face(i));
+            distance = plane[0] * center.x() + plane[1] * center.y() + plane[2] * center.z();
+            if (distance <= -radius)
+                return false;
+        }
+
+        return true;
     }
 
     bool Math::intersects(const Sphere &sphere, const Plane &plane)
@@ -92,7 +107,46 @@ namespace Tiny3D
 
     bool Math::intersects(const Aabb &aabb, const Frustum &frustum)
     {
-        return false;
+        const Real &minX = aabb.getMinX();
+        const Real &maxX = aabb.getMaxX();
+        const Real &minY = aabb.getMinY();
+        const Real &maxY = aabb.getMaxY();
+        const Real &minZ = aabb.getMinZ();
+        const Real &maxZ = aabb.getMaxZ();
+
+        int32_t i = 0;
+        for (i = 0; i < Frustum::E_MAX_FACE; ++i)
+        {
+            const Plane &plane = frustum.getFace(Frustum::Face(i));
+            
+            if (plane[0] * minX + plane[1] * minY + plane[2] * minZ + plane[3] > 0)
+                continue;
+
+            if (plane[0] * maxX + plane[1] * minY + plane[2] * minZ + plane[3] > 0)
+                continue;
+
+            if (plane[0] * minX + plane[1] * maxY + plane[2] * minZ + plane[3] > 0)
+                continue;
+
+            if (plane[0] * maxX + plane[1] * maxY + plane[2] * minZ + plane[3] > 0)
+                continue;
+
+            if (plane[0] * minX + plane[1] * minY + plane[2] * maxZ + plane[3] > 0)
+                continue;
+
+            if (plane[0] * maxX + plane[1] * minY + plane[2] * maxZ + plane[3] > 0)
+                continue;
+
+            if (plane[0] * minX + plane[1] * maxY + plane[2] * maxZ + plane[3] > 0)
+                continue;
+
+            if (plane[0] * maxX + plane[1] * maxY + plane[2] * maxZ + plane[3] > 0)
+                continue;
+
+            return false;
+        }
+
+        return true;
     }
 
     bool Math::intersects(const Aabb &box, const Plane &plane)
