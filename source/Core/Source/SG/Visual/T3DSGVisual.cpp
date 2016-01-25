@@ -54,22 +54,6 @@ namespace Tiny3D
         updateBound();
 
         SGNode::updateTransform();
-        // check this node in frustum
-//         if (getNodeType() != SGNode::E_NT_CAMERA)
-//         {
-//             // 不是相机结点，才需要判断是否可见，是否需要渲染
-//             SGCamera *camera = T3D_SCENE_MGR.getCurCamera();
-// 
-//             BoundPtr bound = camera->getBound();
-// 
-//             if (bound != nullptr)
-//             {
-//                 mIsInFrustum = bound->test(mBound);
-//             }
-// 
-//             // continue updating all children node
-//             SGNode::updateTransform();
-//         }
     }
 
     void SGVisual::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)

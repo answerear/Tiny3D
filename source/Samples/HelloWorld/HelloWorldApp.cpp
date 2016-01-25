@@ -84,9 +84,17 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     node->addChild(node3);
     node3->setPosition(-4.0, 0.0, 0.0);
 
-    // # Mesh
+    // #3 Mesh
     mesh = SGMesh::create();
     node3->addChild(mesh);
+    mesh->loadBox();
+
+    node = SGTransformNode::create();
+    root->addChild(node);
+    node->setPosition(-10.0, 0.0, 0.0);
+
+    mesh = SGMesh::create();
+    node->addChild(mesh);
     mesh->loadBox();
 
     ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
