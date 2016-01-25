@@ -38,7 +38,7 @@ namespace Tiny3D
         enum
         {
             SPLITE_PIECES_Z = 5,
-            SPLITE_PIECES_XY = 6,
+            SPLITE_PIECES_XY = 5,
             MAX_VERTICES = (SPLITE_PIECES_XY * (SPLITE_PIECES_Z - 2)) * 6 + 2 * SPLITE_PIECES_XY * 3
         };
 
