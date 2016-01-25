@@ -12,6 +12,7 @@ namespace Tiny3D
         , mMaterial(nullptr)
         , mVertexData(nullptr)
         , mIndexData(nullptr)
+        , mUseIndices(true)
     {
 
     }

@@ -87,7 +87,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     // #3 Mesh
     mesh = SGMesh::create();
     node3->addChild(mesh);
-    mesh->loadBox();
+    mesh->loadSphere();
 
     node = SGTransformNode::create();
     root->addChild(node);

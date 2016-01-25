@@ -56,20 +56,30 @@ namespace Tiny3D
 
             while (i != renderables.end())
             {
-                const Matrix4 &m = (*i)->getWorldMatrix();
+                SGRenderablePtr &renderable = *i;
+                const Matrix4 &m = renderable->getWorldMatrix();
                 renderer->setWorldTransform(m);
 
-                VertexDataPtr vertexData =(*i)->getVertexData();
-                IndexDataPtr indexData = (*i)->getIndexData();
+                VertexDataPtr vertexData =renderable->getVertexData();
+                IndexDataPtr indexData = renderable->getIndexData();
 
-                Renderer::PrimitiveType priType = (*i)->getPrimitiveType();
+                Renderer::PrimitiveType priType = renderable->getPrimitiveType();
+                bool useIndices = renderable->isIndicesUsed();
 
                 size_t primitiveCount = calcPrimitiveCount(priType, 
-                    indexData->getIndexBuffer()->getIndexCount(), 
+                    useIndices ? indexData->getIndexBuffer()->getIndexCount() : 0, 
                     vertexData->getVertexBuffer()->getVertexCount(),
-                    true);
+                    useIndices);
 
-                renderer->drawIndexList(priType, vertexData, indexData, 0, primitiveCount);
+                if (useIndices)
+                {
+                    renderer->drawIndexList(priType, vertexData, indexData, 0, primitiveCount);
+                }
+                else
+                {
+                    renderer->drawVertexList(priType, vertexData, 0, primitiveCount);
+                }
+
                 ++i;
             }
 

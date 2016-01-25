@@ -308,7 +308,17 @@ namespace Tiny3D
         const VertexDataPtr &vertexData, uint32_t startIdx, 
         uint32_t primitiveCount)
     {
+        HRESULT hr;
 
+        VertexDeclarationPtr decl = vertexData->getDeclaration();
+        HardwareVertexBufferPtr vb = vertexData->getVertexBuffer();
+        D3D9HardwareVertexBuffer *vertices = (D3D9HardwareVertexBuffer*)(HardwareVertexBuffer *)vb;
+        hr = mD3DDevice->SetStreamSource(0, vertices->getD3DVertexBuffer(), 0, decl->getVertexSize());
+
+        D3D9VertexDeclaration *vertexDecl = (D3D9VertexDeclaration *)(VertexDeclaration *)decl;
+        hr = mD3DDevice->SetVertexDeclaration(vertexDecl->getD3D9VertexDeclaration());
+
+        hr = mD3DDevice->DrawPrimitive(D3D9Mappings::get(primitiveType), 0, primitiveCount);
     }
 
     void D3D9Renderer::drawIndexList(PrimitiveType primitiveType, 

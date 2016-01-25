@@ -26,9 +26,10 @@ namespace Tiny3D
 
         virtual const Matrix4 &getWorldMatrix() const;
 
-        Renderer::PrimitiveType getPrimitiveType() const    { return mPrimitiveType; }
-        const VertexDataPtr &getVertexData() { return mVertexData; }
-        const IndexDataPtr &getIndexData()   { return mIndexData; }
+        Renderer::PrimitiveType getPrimitiveType() const { return mPrimitiveType; }
+        const VertexDataPtr &getVertexData() const { return mVertexData; }
+        const IndexDataPtr &getIndexData()const { return mIndexData; }
+        bool isIndicesUsed() const { return mUseIndices; }
 
     protected:
         virtual void cloneProperties(const SGNodePtr &node) const override;
@@ -40,6 +41,7 @@ namespace Tiny3D
         Renderer::PrimitiveType mPrimitiveType;
         VertexDataPtr           mVertexData;
         IndexDataPtr            mIndexData;
+        bool                    mUseIndices;
     };
 }
 
