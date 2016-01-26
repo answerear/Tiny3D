@@ -96,7 +96,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
 
     mesh = SGMesh::create();
     node->addChild(mesh);
-    mesh->loadBox();
+    mesh->loadSphere();
 
     ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
     viewport->setBackgroundColor(Color4::BLACK);

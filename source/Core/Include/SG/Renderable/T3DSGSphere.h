@@ -35,8 +35,6 @@ namespace Tiny3D
         void loadVertices(Vector3 *vertices, size_t vertexCount);
         void loadIndices(uint16_t *indices, size_t indexCount);
 
-        Vector3 getPoint(Real xyStep, Real zStep) const;
-
         enum
         {
             MAX_STACKS = 18,
@@ -45,7 +43,6 @@ namespace Tiny3D
             MAX_TRIANGLES = MAX_STACKS * MAX_SLICES * 2,
         };
 
-        Vector3 mVertices[MAX_VERTICES];
         Real    mRadius;
     };
 }

@@ -72,6 +72,9 @@ namespace Tiny3D
     void SGSphere::cloneProperties(const SGNodePtr &node) const
     {
         SGRenderable::cloneProperties(node);
+
+        const SGSpherePtr &newNode = (const SGSpherePtr &)node;
+        newNode->mRadius = mRadius;
     }
 
     void SGSphere::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
@@ -86,16 +89,6 @@ namespace Tiny3D
         void *vertices = mVertexData->getVertexBuffer()->lock(HardwareBuffer::E_HBL_DISCARD);
         loadVertices((Vector3*)vertices, vertexCount);
         mVertexData->getVertexBuffer()->unlock();
-    }
-
-    Vector3 SGSphere::getPoint(Real xyStep, Real zStep) const
-    {
-        Radian alpha(Math::PI * zStep);
-        Radian beta(Math::PI * Real(2.0) * xyStep);
-        Real x = mRadius * Math::Sin(alpha) * Math::Cos(beta);
-        Real y = mRadius * Math::Sin(alpha) * Math::Sin(beta);
-        Real z = mRadius * Math::Cos(alpha);
-        return Vector3(x, y, z);
     }
 
     void SGSphere::loadVertices(Vector3 *vertices, size_t vertexCount)

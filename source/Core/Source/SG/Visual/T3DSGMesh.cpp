@@ -2,6 +2,7 @@
 #include "SG/Visual/T3DSGMesh.h"
 #include "SG/Renderable/T3DSGBox.h"
 #include "SG/Renderable/T3DSGSphere.h"
+#include "Bound/T3DSphereBound.h"
 #include "Bound/T3DAabbBound.h"
 
 
@@ -42,6 +43,8 @@ namespace Tiny3D
         mBound = bound;
         bound->setParam(box->getMinX(), box->getMaxX(), box->getMinY(), box->getMaxY(), box->getMinZ(), box->getMaxZ());
 
+        mMeshType = E_TYPE_BOX;
+
         return true;
     }
 
@@ -52,6 +55,12 @@ namespace Tiny3D
         SGSpherePtr sphere = SGSphere::create();
         sphere->loadSphere();
         addChild(sphere);
+
+        SphereBoundPtr bound = SphereBound::create(getNodeID(), this);
+        mBound = bound;
+        bound->setParams(Vector3::ZERO, sphere->getRadius());
+
+        mMeshType = E_TYPE_SPHERE;
 
         return true;
     }
