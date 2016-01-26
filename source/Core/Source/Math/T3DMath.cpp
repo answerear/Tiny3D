@@ -87,7 +87,7 @@ namespace Tiny3D
         for (i = 0; i < Frustum::E_MAX_FACE; ++i)
         {
             const Plane &plane = frustum.getFace(Frustum::Face(i));
-            distance = plane[0] * center.x() + plane[1] * center.y() + plane[2] * center.z();
+            distance = plane[0] * center.x() + plane[1] * center.y() + plane[2] * center.z() + plane[3];
             if (distance <= -radius)
                 return false;
         }
