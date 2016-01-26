@@ -32,17 +32,20 @@ namespace Tiny3D
 
         virtual void cloneProperties(const SGNodePtr &node) const override;
 
-        void updateVertices(Vector3 *vertices, size_t vertexCount);
+        void loadVertices(Vector3 *vertices, size_t vertexCount);
+        void loadIndices(uint16_t *indices, size_t indexCount);
+
         Vector3 getPoint(Real xyStep, Real zStep) const;
 
         enum
         {
-            SPLITE_PIECES_Z = 5,
-            SPLITE_PIECES_XY = 5,
-            MAX_VERTICES = (SPLITE_PIECES_XY * (SPLITE_PIECES_Z - 2)) * 6 + 2 * SPLITE_PIECES_XY * 3
+            MAX_STACKS = 18,
+            MAX_SLICES = 18,
+            MAX_VERTICES = (MAX_STACKS + 1) * (MAX_SLICES + 1),
+            MAX_TRIANGLES = MAX_STACKS * MAX_SLICES * 2,
         };
 
-//         Vector3 mVertices[MAX_VERTICES];
+        Vector3 mVertices[MAX_VERTICES];
         Real    mRadius;
     };
 }

@@ -36,13 +36,22 @@ namespace Tiny3D
         HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(vertexElem.getSize(), vertexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
 
         void *vertices = vertexBuffer->lock(HardwareBuffer::E_HBL_DISCARD);
-        updateVertices((Vector3*)vertices, vertexCount);
+        loadVertices((Vector3*)vertices, vertexCount);
         vertexBuffer->unlock();
 
         mVertexData = VertexData::create(vertexDecl, vertexBuffer);
 
+        size_t indexCount = MAX_TRIANGLES * 3;
+        HardwareIndexBufferPtr indexBuffer = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(HardwareIndexBuffer::E_IT_16BITS, indexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
+
+        void *indices = indexBuffer->lock(HardwareBuffer::E_HBL_DISCARD);
+        loadIndices((uint16_t*)indices, indexCount);
+        indexBuffer->unlock();
+
+        mIndexData = IndexData::create(indexBuffer);
+
         mPrimitiveType = Renderer::E_PT_TRIANGLE_LIST;
-        mUseIndices = false;
+        mUseIndices = true;
 
         return true;
     }
@@ -75,7 +84,7 @@ namespace Tiny3D
         mRadius = radius;
         size_t vertexCount = MAX_VERTICES;
         void *vertices = mVertexData->getVertexBuffer()->lock(HardwareBuffer::E_HBL_DISCARD);
-        updateVertices((Vector3*)vertices, vertexCount);
+        loadVertices((Vector3*)vertices, vertexCount);
         mVertexData->getVertexBuffer()->unlock();
     }
 
@@ -89,52 +98,59 @@ namespace Tiny3D
         return Vector3(x, y, z);
     }
 
-    void SGSphere::updateVertices(Vector3 *vertices, size_t vertexCount)
+    void SGSphere::loadVertices(Vector3 *vertices, size_t vertexCount)
     {
-        size_t i = 0;
-        size_t j = 0;
-        size_t idx = 0;
+        Radian alphaStep(Real(2.0) * Math::PI / MAX_STACKS);
+        Radian betaStep(Math::PI / MAX_SLICES);
+        Radian alpha(0.0);
+        Radian beta;
 
-        Real zStep = Real(1.0) / Real(SPLITE_PIECES_Z);
-        Real xyStep = Real(1.0) / Real(SPLITE_PIECES_XY);
-        Real z(0.0);
-        Real xy(0.0);
+        int32_t i = 0, j = 0, idx = 0;
 
-        // 最下端顶点
-        for (i = 0; i < SPLITE_PIECES_XY; ++i)
+        for (i = 0; i <= MAX_STACKS; ++i)
         {
-            vertices[idx++] = getPoint(0, 0);
-            vertices[idx++] = getPoint(xy, zStep);
-            vertices[idx++] = getPoint(xy+xyStep, zStep);
-            xy += xyStep;
-        }
+            Real sinAlpha = Math::Sin(alpha);
+            Real cosAlpha = Math::Cos(alpha);
+            beta = -Math::PI * Real(0.5);
 
-        // 中间顶点
-        xy = 0.0;
-        z = zStep;
-        for (i = 1; i < SPLITE_PIECES_Z - 1; ++i)
-        {
-            for (j = 0; j < SPLITE_PIECES_XY; ++j)
+            for (j = 0; j <= MAX_SLICES; ++j, ++idx)
             {
-                vertices[idx++] = getPoint(xy, zStep);
-                vertices[idx++] = getPoint(xy+xyStep, z);
-                vertices[idx++] = getPoint(xy+xyStep, z+zStep);
+                Real sinBeta = Math::Sin(beta);
+                Real cosBeta = Math::Cos(beta);
 
-                vertices[idx++] = getPoint(xy, zStep);
-                vertices[idx++] = getPoint(xy+xyStep, z+zStep);
-                vertices[idx++] = getPoint(xy, z+zStep);
+                vertices[idx].x() = mRadius * cosBeta * cosAlpha;
+                vertices[idx].y() = mRadius * sinBeta;
+                vertices[idx].z() = mRadius * cosBeta * sinAlpha;
 
-                xy += xyStep;
+                beta += betaStep;
             }
-        }
 
-        // 最上端顶点
-        xy = 0.0;
-        for (j = 0; j < SPLITE_PIECES_XY; ++j)
+            alpha += alphaStep;
+        }
+    }
+
+    void SGSphere::loadIndices(uint16_t *indices, size_t indexCount)
+    {
+        uint16_t base = 0;
+        int32_t idx = 0;
+        int32_t i = 0, j = 0;
+
+        for (i = 0; i < MAX_STACKS; ++i)
         {
-            vertices[idx++] = getPoint(0.0, 1.0);
-            vertices[idx++] = getPoint(xy, Real(1.0)-zStep);
-            vertices[idx++] = getPoint(xy+xyStep, Real(1.0)-zStep);
+            for (j = 0; j < MAX_SLICES; ++j)
+            {
+                indices[idx++] = base;
+                indices[idx++] = base + 1;
+                indices[idx++] = base + MAX_SLICES + 1;
+
+                indices[idx++] = base + 1;
+                indices[idx++] = base + MAX_SLICES + 2;
+                indices[idx++] = base + MAX_SLICES + 1;
+
+                base++;
+            }
+
+            base++;
         }
     }
 }
