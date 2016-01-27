@@ -13,14 +13,18 @@ namespace Tiny3D
     class T3D_ENGINE_API Material : public Resource
     {
     public:
-        Material(const String &name);
+        static MaterialPtr create(const String &name);
+
         virtual ~Material();
 
-        virtual Type getType() const;
+        virtual Type getType() const override;
 
-        virtual bool load();
-        virtual void unload();
-        virtual Resource *clone() const;
+    protected:
+        Material(const String &name);
+
+        virtual bool load() override;
+        virtual void unload() override;
+        virtual ResourcePtr clone() const override;
 
     private:
         String  mName;

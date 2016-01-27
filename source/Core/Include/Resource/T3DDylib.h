@@ -11,17 +11,20 @@ namespace Tiny3D
     class T3D_ENGINE_API Dylib : public Resource
     {
     public:
-        Dylib(const String &name);
+        static DylibPtr create(const String &name);
+
         virtual ~Dylib();
 
-        virtual Type getType() const;
+        virtual Type getType() const override;
 
         virtual void *getSymbol(const String &name) const;
 
     protected:
-        virtual bool load();
-        virtual void unload();
-        virtual Resource *clone() const;
+        Dylib(const String &name);
+
+        virtual bool load() override;
+        virtual void unload() override;
+        virtual ResourcePtr clone() const override;
 
     protected:
         THandle   mHandle;

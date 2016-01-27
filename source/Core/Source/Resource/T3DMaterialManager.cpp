@@ -18,8 +18,8 @@ namespace Tiny3D
 
     }
 
-    Resource *MaterialManager::create(const String &name)
+    ResourcePtr MaterialManager::create(const String &name)
     {
-        return new Material(name);
+        return Material::create(name);
     }
 }

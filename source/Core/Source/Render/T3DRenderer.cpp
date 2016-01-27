@@ -48,7 +48,7 @@ namespace Tiny3D
             return itr->second;
         }
 
-        return RenderTargetPtr::NULL_PTR;
+        return nullptr;
     }
 
     void Renderer::addFrameListener(FrameListener *listener)

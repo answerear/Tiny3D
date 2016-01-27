@@ -18,8 +18,8 @@ namespace Tiny3D
 
     }
 
-    Resource *DylibManager::create(const String &name)
+    ResourcePtr DylibManager::create(const String &name)
     {
-        return new Dylib(name);
+        return Dylib::create(name);
     }
 }

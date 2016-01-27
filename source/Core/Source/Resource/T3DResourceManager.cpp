@@ -32,9 +32,9 @@ namespace Tiny3D
         return (value & 0x7FFFFFFF);
     }
 
-    Resource *ResourceManager::load(const String &name)
+    ResourcePtr ResourceManager::load(const String &name)
     {
-        Resource *res = nullptr;
+        ResourcePtr res = nullptr;
 
         // First, search cache
         auto itr = mResourceCache.find(name);
@@ -46,7 +46,32 @@ namespace Tiny3D
 
             if (resources.size() > 0)
             {
-                res = resources.begin()->second;
+                auto i = resources.find(0);
+
+                if (i != resources.end())
+                {
+                    // Found in original resource list
+                    res = i->second;
+                }
+                else
+                {
+                    // Found not in original resource list
+                    res = create(name);
+
+                    if (res != nullptr)
+                    {
+                        bool bRet = res->load();
+
+                        if (bRet)
+                        {
+                            resources.insert(ResPairValue(0, res));
+                        }
+                        else
+                        {
+                            res = nullptr;
+                        }
+                    }
+                }
             }
         }
         else
@@ -66,7 +91,7 @@ namespace Tiny3D
                 }
                 else
                 {
-                    delete res;
+                    res = nullptr;
                 }
             }
         }
@@ -74,46 +99,82 @@ namespace Tiny3D
         return res;
     }
 
-    void ResourceManager::unload(Resource *res)
+    void ResourceManager::unload(ResourcePtr &res)
     {
-        if (res->referCount() == 1)
+        if (res->referCount() > 1)
         {
-            // Only one instance is used. It should be deleted.
-            auto itr = mResourceCache.find(res->getName());
+            Resource *r = res;
+            res = nullptr;
 
-            if (itr != mResourceCache.end())
+            if (r->referCount() == 1)
             {
-                // The resource is valid and in the cache.
-                Resources &resources = itr->second;
+                // Only one instance is used. It should be deleted.
+                auto itr = mResourceCache.find(r->getName());
 
-                if (res->isCloned())
+                if (itr != mResourceCache.end())
                 {
-                    auto i = resources.find(res->getCloneID());
+                    // The resource is valid and in the cache.
+                    Resources &resources = itr->second;
 
-                    if (i != resources.end())
+                    if (res->isCloned())
                     {
-                        res->unload();
-                        resources.erase(i);
+                        // erase cloning resource
+                        resources.erase(r->getCloneID());
                     }
-                }
-                else
-                {
-                    resources.erase(resources.begin());
+                    else
+                    {
+                        // erase original resource
+                        resources.erase(0);
+                    }
                 }
             }
         }
         else
         {
-            // Only decrease reference count of the resource.
-            res->release();
+            res = nullptr;
         }
     }
 
-    Resource *ResourceManager::clone(const Resource *src)
+    void ResourceManager::unloadUnused()
+    {
+        auto itr = mResourceCache.begin();
+
+        while (itr != mResourceCache.end())
+        {
+            Resources &resources = itr->second;
+
+            auto i = resources.begin();
+
+            while (i != resources.end())
+            {
+                ResourcePtr &res = i->second;
+
+                if (res->referCount() == 1)
+                {
+                    resources.erase(i++);
+                }
+                else
+                {
+                    ++i;
+                }
+            }
+
+            if (resources.empty())
+            {
+                mResourceCache.erase(itr++);
+            }
+            else
+            {
+                ++itr;
+            }
+        }
+    }
+
+    ResourcePtr ResourceManager::clone(const ResourcePtr &src)
     {
         uint32_t unCloneID = (++mCloneID);
 
-        Resource *res = src->clone();
+        ResourcePtr res = src->clone();
 
         if (res != nullptr)
         {
@@ -126,15 +187,18 @@ namespace Tiny3D
                 Resources &resources = i->second;
                 resources.insert(ResPairValue(unCloneID, res));
             }
+            else
+            {
+                T3D_ASSERT(0);
+            }
         }
         
         return res;
     }
 
-    Resource *ResourceManager::getResource(const String &name, 
-        uint32_t cloneID /* = 0 */) const
+    ResourcePtr ResourceManager::getResource(const String &name, uint32_t cloneID /* = 0 */) const
     {
-        Resource *res = nullptr;
+        ResourcePtr res = nullptr;
 
         auto i = mResourceCache.find(name);
 
@@ -142,25 +206,18 @@ namespace Tiny3D
         {
             const Resources &resources = i->second;
 
-            if (0 == cloneID)
-            {
-                res = resources.begin()->second;
-            }
-            else
-            {
-                auto itr = resources.find(cloneID);
-                if (itr != resources.end())
-                {
-                    res = itr->second;
-                }
-            }
+           auto itr = resources.find(cloneID);
+
+           if (itr != resources.end())
+           {
+               res = itr->second;
+           }
         }
 
         return res;
     }
 
-    bool ResourceManager::getResources(const String &name,
-        std::list<Resource*> &rList) const
+    bool ResourceManager::getResources(const String &name, std::list<ResourcePtr> &rList) const
     {
         bool bRet = false;
         auto i = mResourceCache.find(name);

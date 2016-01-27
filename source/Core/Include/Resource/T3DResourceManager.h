@@ -21,12 +21,14 @@ namespace Tiny3D
         /**
          * @brief Load resource from file.
          */
-        virtual Resource *load(const String &name);
+        virtual ResourcePtr load(const String &name);
 
         /**
          * @brief Unload resource in memory.
          */
-        virtual void unload(Resource *res);
+        virtual void unload(ResourcePtr &res);
+
+        virtual void unloadUnused();
 
         /**
          * @brief Clone another new resource from source resource.
@@ -38,7 +40,7 @@ namespace Tiny3D
          *      new instance of resource. This method will call 
          *      Resource::clone() to implement this function.
          */
-        Resource *clone(const Resource *src);
+        ResourcePtr clone(const ResourcePtr &src);
 
         /**
          * @brief Get resource by name.
@@ -48,7 +50,7 @@ namespace Tiny3D
          *      0 if the resource wasn't created by clone. Default is 0.
          * @return retrieve a pointer to instance of resource.
          */
-        Resource *getResource(const String &name, uint32_t cloneID = 0) const;
+        ResourcePtr getResource(const String &name, uint32_t cloneID = 0) const;
 
         /**
          * @brief Get resources by name.
@@ -56,28 +58,28 @@ namespace Tiny3D
          *      This method will return all resource in list 
          *      whether the resource created or cloned.
          */
-        bool getResources(const String &name, std::list<Resource*> &rList) const;
+        bool getResources(const String &name, std::list<ResourcePtr> &rList) const;
 
         void addSearchPath(const String &strPath);
 
     protected:
-        virtual Resource *create(const String &strName) = 0;
+        virtual ResourcePtr create(const String &strName) = 0;
 
         static uint32_t hash(const char *str);
 
     protected:
         typedef std::list<String> SearchPathList;
 
-        typedef std::map<uint32_t, Resource*>       Resources;
+        typedef std::map<uint32_t, ResourcePtr>     Resources;
         typedef Resources::iterator                 ResourcesItr;
         typedef Resources::const_iterator           ResourcesConstItr;
-        typedef std::pair<uint32_t, Resource*>      ResPairValue;
+        typedef std::pair<uint32_t, ResourcePtr>    ResPairValue;
 
-        typedef std::map<String, Resources>        ResourcesMap;
+        typedef std::map<String, Resources>         ResourcesMap;
         typedef ResourcesMap::iterator              ResourcesMapItr;
         typedef ResourcesMap::const_iterator        ResourcesMapConstItr;
 
-        typedef std::pair<String, Resources>       ResMapPairValue;
+        typedef std::pair<String, Resources>        ResMapPairValue;
 
         SearchPathList  mSearchPathList;    /** search path list */
         ResourcesMap    mResourceCache;     /** cache all resources */

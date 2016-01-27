@@ -9,47 +9,47 @@
 
 namespace Tiny3D
 {
-    typedef SmartPtr<Object, SmartBasePtr> ObjectPtr;
+    T3D_DECLARE_SMART_PTR(Object);
 
-    T3D_DECLARE_SMART_PTR(Resource, Object);
-    T3D_DECLARE_SMART_PTR(Dylib, Resource);
-    T3D_DECLARE_SMART_PTR(Material, Resource);
-    T3D_DECLARE_SMART_PTR(Texture, Resource);
+    T3D_DECLARE_SMART_PTR(Resource);
+    T3D_DECLARE_SMART_PTR(Dylib);
+    T3D_DECLARE_SMART_PTR(Material);
+    T3D_DECLARE_SMART_PTR(Texture);
 
-    T3D_DECLARE_SMART_PTR(SGNode, Object);
-    T3D_DECLARE_SMART_PTR(SGTransformNode, SGNode);
-    T3D_DECLARE_SMART_PTR(SGVisual, SGNode);
-    T3D_DECLARE_SMART_PTR(SGCamera, SGVisual);
-    T3D_DECLARE_SMART_PTR(SGMesh, SGVisual);
-    T3D_DECLARE_SMART_PTR(SGRenderable, SGNode);
-    T3D_DECLARE_SMART_PTR(SGBox, SGRenderable);
-    T3D_DECLARE_SMART_PTR(SGSphere, SGRenderable);
+    T3D_DECLARE_SMART_PTR(SGNode);
+    T3D_DECLARE_SMART_PTR(SGTransformNode);
+    T3D_DECLARE_SMART_PTR(SGVisual);
+    T3D_DECLARE_SMART_PTR(SGCamera);
+    T3D_DECLARE_SMART_PTR(SGMesh);
+    T3D_DECLARE_SMART_PTR(SGRenderable);
+    T3D_DECLARE_SMART_PTR(SGBox);
+    T3D_DECLARE_SMART_PTR(SGSphere);
 
-    T3D_DECLARE_SMART_PTR(Bound, Object);
-    T3D_DECLARE_SMART_PTR(SphereBound, Bound);
-    T3D_DECLARE_SMART_PTR(AabbBound, Bound);
-    T3D_DECLARE_SMART_PTR(ObbBound, Bound);
-    T3D_DECLARE_SMART_PTR(FrustumBound, Bound);
+    T3D_DECLARE_SMART_PTR(Bound);
+    T3D_DECLARE_SMART_PTR(SphereBound);
+    T3D_DECLARE_SMART_PTR(AabbBound);
+    T3D_DECLARE_SMART_PTR(ObbBound);
+    T3D_DECLARE_SMART_PTR(FrustumBound);
 
-    T3D_DECLARE_SMART_PTR(Viewport, Object);
-    T3D_DECLARE_SMART_PTR(RenderTarget, Object);
-    T3D_DECLARE_SMART_PTR(RenderWindow, Object);
-    T3D_DECLARE_SMART_PTR(Renderer, Object);
+    T3D_DECLARE_SMART_PTR(Viewport);
+    T3D_DECLARE_SMART_PTR(RenderTarget);
+    T3D_DECLARE_SMART_PTR(RenderWindow);
+    T3D_DECLARE_SMART_PTR(Renderer);
 
-    T3D_DECLARE_SMART_PTR(HardwareBuffer, Object);
-    T3D_DECLARE_SMART_PTR(HardwareVertexBuffer, Object);
-    T3D_DECLARE_SMART_PTR(HardwareIndexBuffer, Object);
+    T3D_DECLARE_SMART_PTR(HardwareBuffer);
+    T3D_DECLARE_SMART_PTR(HardwareVertexBuffer);
+    T3D_DECLARE_SMART_PTR(HardwareIndexBuffer);
 
-    T3D_DECLARE_SMART_PTR(VertexElement, Object);
-    T3D_DECLARE_SMART_PTR(VertexDeclaration, Object);
-    T3D_DECLARE_SMART_PTR(HardwareBufferManagerBase, Object);
-    T3D_DECLARE_SMART_PTR(HardwareBufferManager, HardwareBufferManagerBase);
+    T3D_DECLARE_SMART_PTR(VertexElement);
+    T3D_DECLARE_SMART_PTR(VertexDeclaration);
+    T3D_DECLARE_SMART_PTR(HardwareBufferManagerBase);
+    T3D_DECLARE_SMART_PTR(HardwareBufferManager);
 
-    T3D_DECLARE_SMART_PTR(VertexData, Object);
-    T3D_DECLARE_SMART_PTR(IndexData, Object);
+    T3D_DECLARE_SMART_PTR(VertexData);
+    T3D_DECLARE_SMART_PTR(IndexData);
 
-    T3D_DECLARE_SMART_PTR(RenderGroup, Object);
-    T3D_DECLARE_SMART_PTR(RenderQueue, Object);
+    T3D_DECLARE_SMART_PTR(RenderGroup);
+    T3D_DECLARE_SMART_PTR(RenderQueue);
 
     typedef std::vector<Variant>            VariantArray;
     typedef VariantArray::iterator          VariantArrayItr;

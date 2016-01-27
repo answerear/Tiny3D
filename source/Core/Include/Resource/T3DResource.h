@@ -5,6 +5,7 @@
 
 
 #include "Misc/T3DObject.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
@@ -23,7 +24,6 @@ namespace Tiny3D
             E_TYPE_TEXTURE,
         };
 
-        Resource(const String &strName);
         virtual ~Resource();
 
         virtual Type getType() const = 0;
@@ -59,9 +59,11 @@ namespace Tiny3D
         }
 
     protected:
+        Resource(const String &strName);
+
         virtual bool load() = 0;
         virtual void unload();
-        virtual Resource *clone() const = 0;
+        virtual ResourcePtr clone() const = 0;
 
     protected:
         size_t      mSize;      /** size of this resource */

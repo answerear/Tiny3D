@@ -118,7 +118,7 @@ namespace Tiny3D
         typedef PluginList::iterator        PluginListItr;
         typedef PluginList::const_iterator  PluginListConstItr;
 
-        typedef std::list<Dylib*>           DylibList;
+        typedef std::list<DylibPtr>         DylibList;
         typedef DylibList::iterator         DylibListItr;
         typedef DylibList::const_iterator   DylibListConstItr;
 

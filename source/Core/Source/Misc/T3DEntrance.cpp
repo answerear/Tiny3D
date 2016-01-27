@@ -87,11 +87,25 @@ namespace Tiny3D
         }
     }
 
+    class Base : public Object
+    {
+    public:
+        Base() {}
+        virtual ~Base()    {}
+    };
+
+    class Derived : public Base
+    {
+    public:
+        Derived() {}
+        virtual ~Derived()    {}
+    };
+
     bool Entrance::loadPlugin(const String &name)
     {
         T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "load plugin %s ...", name.c_str());
         bool ret = false;
-        Dylib *lib = (Dylib*)DylibManager::getInstance().load(name);
+        DylibPtr lib = smart_pointer_cast<Dylib>(DylibManager::getInstance().load(name));
 
         if (lib->getType() == Resource::E_TYPE_DYLIB)
         {
@@ -113,13 +127,14 @@ namespace Tiny3D
 
         while (itr != mDylibList.end())
         {
-            Dylib *lib = *itr;
+            DylibPtr &lib = *itr;
 
             if (lib->getName() == name)
             {
                 DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)lib->getSymbol("dllStopPlugin");
                 pFunc();
-                DylibManager::getInstance().unload(lib);
+                ResourcePtr &res = (ResourcePtr)lib;
+                DylibManager::getInstance().unload(res);
                 break;
             }
 

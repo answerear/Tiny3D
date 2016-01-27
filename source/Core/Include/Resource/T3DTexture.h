@@ -12,15 +12,15 @@ namespace Tiny3D
     class T3D_ENGINE_API Texture : public Resource
     {
     public:
-        Texture(const String &name);
         virtual ~Texture();
 
-        virtual Type getType() const;
+        virtual Type getType() const override;
 
     protected:
-        virtual bool load();
-        virtual void unload();
-        virtual Resource *clone() const;
+        Texture(const String &name);
+
+        virtual bool load() override;
+        virtual void unload() override;
     };
 }
 

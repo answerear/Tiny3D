@@ -30,9 +30,4 @@ namespace Tiny3D
     {
         Resource::unload();
     }
-
-    Resource *Texture::clone() const
-    {
-        return new Texture(mName);
-    }
 }

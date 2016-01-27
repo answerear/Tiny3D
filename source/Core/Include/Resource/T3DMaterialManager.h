@@ -19,7 +19,7 @@ namespace Tiny3D
         virtual ~MaterialManager();
 
     protected:
-        virtual Resource *create(const String &name);
+        virtual ResourcePtr create(const String &name);
     };
 }
 

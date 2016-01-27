@@ -22,6 +22,13 @@
 
 namespace Tiny3D
 {
+    DylibPtr Dylib::create(const String &name)
+    {
+        DylibPtr dylib = new Dylib(name);
+        dylib->release();
+        return dylib;
+    }
+
     Dylib::Dylib(const String &name)
         : Resource(name)
     {
@@ -66,8 +73,8 @@ namespace Tiny3D
         }
     }
 
-    Resource *Dylib::clone() const
+    ResourcePtr Dylib::clone() const
     {
-        return new Dylib(mName);
+        return Dylib::create(mName);
     }
 }

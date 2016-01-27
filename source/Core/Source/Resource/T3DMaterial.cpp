@@ -6,6 +6,13 @@
 
 namespace Tiny3D
 {
+    MaterialPtr Material::create(const String &name)
+    {
+        MaterialPtr material = new Material(name);
+        material->release();
+        return material;
+    }
+
     Material::Material(const String &name)
         : Resource(name)
         , mAmbientColor(Color4::WHITE)
@@ -37,9 +44,9 @@ namespace Tiny3D
 
     }
 
-    Resource *Material::clone() const
+    ResourcePtr Material::clone() const
     {
-        return new Material(mName);
+        return Material::create(mName);
     }
 }
 
