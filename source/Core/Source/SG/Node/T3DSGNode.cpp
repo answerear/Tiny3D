@@ -27,7 +27,7 @@ namespace Tiny3D
 
     SGNode::~SGNode()
     {
-        removeAllChildren();
+        removeAllChildren(true);
     }
 
     void SGNode::addChild(const SGNodePtr &node)
@@ -38,7 +38,7 @@ namespace Tiny3D
         node->onAttachParent(this);
     }
 
-    void SGNode::removeChild(const SGNodePtr &node)
+    void SGNode::removeChild(const SGNodePtr &node, bool cleanup)
     {
         if (node != nullptr)
         {
@@ -50,6 +50,11 @@ namespace Tiny3D
 
                 if (child == node)
                 {
+                    if (cleanup)
+                    {
+                        child->removeAllChildren(cleanup);
+                    }
+
                     child->onDetachParent(this);
                     child->mParent = nullptr;
                     mChildren.erase(itr);
@@ -61,7 +66,7 @@ namespace Tiny3D
         }
     }
 
-    void SGNode::removeChild(uint32_t nodeID)
+    void SGNode::removeChild(uint32_t nodeID, bool cleanup)
     {
         SGChildrenItr itr = mChildren.begin();
 
@@ -71,6 +76,11 @@ namespace Tiny3D
 
             if (child != nullptr && child->getNodeID() == nodeID)
             {
+                if (cleanup)
+                {
+                    child->removeAllChildren(cleanup);
+                }
+
                 child->onDetachParent(this);
                 child->mParent = nullptr;
                 mChildren.erase(itr);
@@ -81,13 +91,18 @@ namespace Tiny3D
         }
     }
 
-    void SGNode::removeAllChildren()
+    void SGNode::removeAllChildren(bool cleanup)
     {
         SGChildrenItr itr = mChildren.begin();
 
         while (itr != mChildren.end())
         {
             SGNodePtr &child = *itr;
+
+            if (cleanup)
+            {
+                child->removeAllChildren(cleanup);
+            }
 
             child->onDetachParent(this);
             child->mParent = nullptr;
@@ -98,11 +113,11 @@ namespace Tiny3D
         mChildren.clear();
     }
 
-    void SGNode::removeFromParent()
+    void SGNode::removeFromParent(bool cleanup)
     {
         if (mParent != nullptr)
         {
-            mParent->removeChild(this);
+            mParent->removeChild(this, cleanup);
         }
     }
 

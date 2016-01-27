@@ -83,12 +83,12 @@ namespace Tiny3D
         ObjectPtr getUserObject();
 
         virtual void addChild(const SGNodePtr &node);
-        virtual void removeChild(const SGNodePtr &node);
-        virtual void removeChild(uint32_t nodeID);
+        virtual void removeChild(const SGNodePtr &node, bool cleanup);
+        virtual void removeChild(uint32_t nodeID, bool cleanup);
 
-        virtual void removeAllChildren();
+        virtual void removeAllChildren(bool cleanup);
 
-        void removeFromParent();
+        void removeFromParent(bool cleanup);
 
         const SGChildren &getChildren() const;
 

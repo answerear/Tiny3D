@@ -33,7 +33,7 @@ namespace Tiny3D
 
     bool SGMesh::loadBox()
     {
-        removeAllChildren();
+        removeAllChildren(true);
 
         SGBoxPtr box = SGBox::create();
         box->loadBox();
@@ -50,7 +50,7 @@ namespace Tiny3D
 
     bool SGMesh::loadSphere()
     {
-        removeAllChildren();
+        removeAllChildren(true);
 
         SGSpherePtr sphere = SGSphere::create();
         sphere->loadSphere();
