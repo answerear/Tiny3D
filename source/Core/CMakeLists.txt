@@ -28,7 +28,8 @@ include_directories(
 
 if (TINY3D_OS_WINDOWS)
 link_directories(
-	"${TINY3D_DEP_DIR}/png/prebuilt/win32"
+	"${TINY3D_DEP_DIR}/libpng/prebuilt/win32/vc110/x86"
+	"${TINY3D_DEP_DIR}/zlib/prebuilt/win32/vc110/x86"
 	)
 elseif (TINY3D_OS_MACOSX)
 elseif (TINY3D_OS_LINUX)
@@ -79,18 +80,6 @@ set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageC
 # tinyxml2
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .cpp)
-# png
-set_project_files(Source\\\\Support\\\\png ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/png/ .h)
-set_project_files(Source\\\\Support\\\\png ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/png/ .cpp)
-set_project_files(Source\\\\Support\\\\png ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/png/ .c)
-# jpeg
-set_project_files(Source\\\\Support\\\\jpeg ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/jpeg/ .h)
-set_project_files(Source\\\\Support\\\\jpeg ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/jpeg/ .cpp)
-set_project_files(Source\\\\Support\\\\jpeg ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/jpeg/ .c)
-# zlib
-set_project_files(Source\\\\Support\\\\zlib ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/zlib/ .h)
-set_project_files(Source\\\\Support\\\\zlib ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/zlib/ .cpp)
-set_project_files(Source\\\\Support\\\\zlib ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/zlib/ .c)
 
 
 if (TINY3D_BUILD_SHARED_LIBS)
@@ -103,8 +92,10 @@ endif (TINY3D_BUILD_SHARED_LIBS)
 if (TINY3D_OS_WINDOWS)
 	target_link_libraries(
 		${LIB_NAME}
-		T3DPlatform
-		T3DLog
+		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DLog
+		LINK_PRIVATE libpng
+		LINK_PRIVATE zlib
 		)
 
 	install(TARGETS ${LIB_NAME}
