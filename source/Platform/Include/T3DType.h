@@ -16,7 +16,7 @@
 
 
 typedef signed char         char_t;
-typedef unsigned char       uchar_t;
+typedef unsigned char       uchar_t;W
 typedef signed short        short_t;
 typedef unsigned short      ushort_t;
 typedef signed int          int_t;

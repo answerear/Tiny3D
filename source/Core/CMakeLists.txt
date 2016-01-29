@@ -23,7 +23,7 @@ include_directories(
 	"${TINY3D_LOG_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
-	"${TINY3D_DEP_DIR}/png/include"
+	"${TINY3D_DEP_DIR}/libpng/include"
 	)
 
 if (TINY3D_OS_WINDOWS)
