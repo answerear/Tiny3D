@@ -1,6 +1,7 @@
 
 
 #include "Resource/T3DTexture.h"
+#include "Misc/T3DImage.h"
 
 
 namespace Tiny3D
@@ -23,7 +24,15 @@ namespace Tiny3D
 
     bool Texture::load()
     {
-        return true;
+        Image image;
+        bool ret = image.load(mName);
+
+        if (ret)
+        {
+            ret = loadImage(image);
+        }
+        
+        return ret;
     }
 
     void Texture::unload()

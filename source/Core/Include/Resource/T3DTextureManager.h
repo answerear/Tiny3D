@@ -5,7 +5,8 @@
 
 
 #include "Resource/T3DResourceManager.h"
-#include "T3DPlatform.h"
+#include "Resource/T3DTexture.h"
+#include "Misc/T3DCommon.h"
 
 
 namespace Tiny3D
@@ -17,6 +18,16 @@ namespace Tiny3D
     public:
         TextureManager();
         virtual ~TextureManager();
+
+        virtual TexturePtr load(const String &name, Texture::TexType texType = Texture::E_TEX_TYPE_2D, int32_t numMipMaps = -1);
+        virtual TexturePtr load(const String &name, int32_t width, int32_t height, PixelFormat format, Texture::TexUsage usage, Texture::TexType texType = Texture::E_TEX_TYPE_2D, int32_t numMipMaps = -1);
+
+    protected:
+        virtual ResourcePtr load(const String &name) override;
+        virtual ResourcePtr create(const String &name) override;
+
+        virtual TexturePtr create(const String &name, Texture::TexType texType) = 0;
+        virtual TexturePtr create(const String &name, Texture::TexType texType, int32_t width, int32_t height, int32_t numMipMaps, PixelFormat format, Texture::TexUsage usage) = 0;
     };
 }
 

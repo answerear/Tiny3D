@@ -28,6 +28,9 @@ namespace Tiny3D
          */
         virtual void unload(ResourcePtr &res);
 
+        /**
+         * @brief Unload all resources unused from memory.
+         */
         virtual void unloadUnused();
 
         /**
