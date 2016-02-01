@@ -62,4 +62,9 @@ namespace Tiny3D
     {
         return mHasAlpha;
     }
+
+    inline bool Image::isPremultipliedAlpha() const
+    {
+        return mIsPreMulti;
+    }
 }

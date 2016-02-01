@@ -5,6 +5,13 @@
 
 namespace Tiny3D
 {
+    ImageCodecJPGPtr ImageCodecJPG::create()
+    {
+        ImageCodecJPGPtr codec = new ImageCodecJPG();
+        codec->release();
+        return codec;
+    }
+
     ImageCodecJPG::ImageCodecJPG()
     {
 
@@ -15,7 +22,7 @@ namespace Tiny3D
 
     }
 
-    ImageCodec::EType ImageCodecJPG::getType() const
+    ImageCodecBase::FileType ImageCodecJPG::getFileType() const
     {
         return E_TYPE_JPG;
     }

@@ -4,26 +4,34 @@
 #define __T3D_IMAGE_CODEC_JPG_H__
 
 
-#include "ImageCodec/T3DImageCodec.h"
+#include "ImageCodec/T3DImageCodecBase.h"
 
 
 namespace Tiny3D
 {
-    class ImageCodecJPG : public ImageCodec
+    class ImageCodecJPG;
+
+    T3D_DECLARE_SMART_PTR(ImageCodecJPG);
+
+    class ImageCodecJPG : public ImageCodecBase
     {
     public:
-        ImageCodecJPG();
+        static ImageCodecJPGPtr create();
+
         virtual ~ImageCodecJPG();
 
-        virtual EType getType() const;
+        virtual FileType getFileType() const override;
 
-        virtual bool encode(const String &name, const Image &image);
-        virtual bool encode(DataStream &stream, const Image &image);
-        virtual bool encode(uint8_t *&data, size_t &size, const Image &image);
+        virtual bool encode(const String &name, const Image &image) override;
+        virtual bool encode(DataStream &stream, const Image &image) override;
+        virtual bool encode(uint8_t *&data, size_t &size, const Image &image) override;
 
-        virtual bool decode(const String &name, Image &image);
-        virtual bool decode(DataStream &stream, Image &image);
-        virtual bool decode(const uint8_t *data, size_t size, Image &image);
+        virtual bool decode(const String &name, Image &image) override;
+        virtual bool decode(DataStream &stream, Image &image) override;
+        virtual bool decode(const uint8_t *data, size_t size, Image &image) override;
+
+    protected:
+        ImageCodecJPG();
     };
 }
 

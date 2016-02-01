@@ -5,6 +5,13 @@
 
 namespace Tiny3D
 {
+    ImageCodecTGAPtr ImageCodecTGA::create()
+    {
+        ImageCodecTGAPtr codec = new ImageCodecTGA();
+        codec->release();
+        return codec;
+    }
+
     ImageCodecTGA::ImageCodecTGA()
     {
 
@@ -15,7 +22,7 @@ namespace Tiny3D
 
     }
 
-    ImageCodec::EType ImageCodecTGA::getType() const
+    ImageCodecBase::FileType ImageCodecTGA::getFileType() const
     {
         return E_TYPE_TGA;
     }

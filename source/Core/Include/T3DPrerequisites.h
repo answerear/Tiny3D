@@ -116,6 +116,8 @@ namespace Tiny3D
     class RenderQueue;
 
     class Variant;
+
+    class Image;
 }
 
 

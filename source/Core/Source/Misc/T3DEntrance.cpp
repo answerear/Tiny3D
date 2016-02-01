@@ -7,8 +7,7 @@
 #include "Render/T3DRenderWindow.h"
 #include "Resource/T3DDylibManager.h"
 #include "Resource/T3DDylib.h"
-#include "T3DPlatform.h"
-#include "T3DLogger.h"
+#include "ImageCodec/T3DImageCodec.h"
 #include <algorithm>
 
 
@@ -26,6 +25,7 @@ namespace Tiny3D
         , mActiveRenderer(nullptr)
         , mAppListener(nullptr)
         , mSceneMgr(nullptr)
+        , mImageCodec(new ImageCodec())
     {
         ConfigFile file(config);
         file.loadXML(mSettings);

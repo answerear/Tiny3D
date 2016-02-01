@@ -5,6 +5,13 @@
 
 namespace Tiny3D
 {
+    ImageCodecBMPPtr ImageCodecBMP::create()
+    {
+        ImageCodecBMPPtr codec = new ImageCodecBMP();
+        codec->release();
+        return codec;
+    }
+
     ImageCodecBMP::ImageCodecBMP()
     {
 
@@ -15,7 +22,7 @@ namespace Tiny3D
 
     }
 
-    ImageCodec::EType ImageCodecBMP::getType() const
+    ImageCodecBase::FileType ImageCodecBMP::getFileType() const
     {
         return E_TYPE_BMP;
     }

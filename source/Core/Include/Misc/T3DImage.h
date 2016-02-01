@@ -14,9 +14,17 @@ namespace Tiny3D
 {
     class T3D_ENGINE_API Image : public Object
     {
+        friend class ImageCodecBase;
+
     public:
+        static const char * const FILETYPE_PNG;
+        static const char * const FILETYPE_JPG;
+        static const char * const FILETYPE_BMP;
+        static const char * const FILETYPE_TGA;
+        static const char * const FILETYPE_DDS;
+        
         explicit Image();
-        Image(int32_t width, int32_t height, EPixelFormat format);
+        Image(int32_t width, int32_t height);
         Image(const Image &other);
         virtual ~Image();
 
@@ -26,7 +34,7 @@ namespace Tiny3D
         bool operator !=(const Image &other) const;
 
         bool load(const String &name);
-        bool save(const String &name) const;
+        bool save(const String &name, const String &fileType = FILETYPE_PNG) const;
 
         bool flip();
         bool mirror();
@@ -46,6 +54,7 @@ namespace Tiny3D
         int32_t getBPP() const;
 
         bool hasAlpha() const;
+        bool isPremultipliedAlpha() const;
 
     protected:
         void copy(const Image &other);
@@ -56,11 +65,13 @@ namespace Tiny3D
         int32_t     mBPP;
         int32_t     mPitch;
 
-        EPixelFormat    mFormat;
+        PixelFormat mFormat;
 
         bool        mHasAlpha;
+        bool        mIsPreMulti;
 
         uint8_t     *mData;
+        size_t      mDataSize;
     };
 }
 

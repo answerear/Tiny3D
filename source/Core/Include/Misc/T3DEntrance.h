@@ -13,6 +13,8 @@
 
 namespace Tiny3D
 {
+    class ImageCodec;
+
     /**
      * @brief The starting point class of the Tiny3D system.
      * @remarks
@@ -138,6 +140,8 @@ namespace Tiny3D
         ApplicationListener *mAppListener;
 
         SceneManager    *mSceneMgr;
+
+        ImageCodec      *mImageCodec;
     };
 
     #define T3D_ENTRANCE         Entrance::getInstance()

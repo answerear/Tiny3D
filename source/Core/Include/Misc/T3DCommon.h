@@ -9,7 +9,7 @@
 
 namespace Tiny3D
 {
-    enum EPixelFormat
+    enum PixelFormat
     {
         E_PF_UNKNOWN = 0,
         E_PF_R5G6B5,

@@ -5,6 +5,13 @@
 
 namespace Tiny3D
 {
+    ImageCodecDDSPtr ImageCodecDDS::create()
+    {
+        ImageCodecDDSPtr codec = new ImageCodecDDS();
+        codec->release();
+        return codec;
+    }
+
     ImageCodecDDS::ImageCodecDDS()
     {
 
@@ -15,7 +22,7 @@ namespace Tiny3D
 
     }
 
-    ImageCodec::EType ImageCodecDDS::getType() const
+    ImageCodecBase::FileType ImageCodecDDS::getFileType() const
     {
         return E_TYPE_DDS;
     }
