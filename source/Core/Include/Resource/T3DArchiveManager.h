@@ -24,7 +24,7 @@ namespace Tiny3D
         void addArchiveCreator(const ArchiveCreator &creator);
         void removeArchiveCreator(const String &name);
 
-        bool searchArchive(const String &name, ArchivePtr &archive);
+        bool getArchive(const String &name, ArchivePtr &archive);
 
     protected:
         virtual ResourcePtr create(const String &name, int32_t argc, va_list args) override;

@@ -50,7 +50,7 @@ namespace Tiny3D
         return res;
     }
 
-    bool ArchiveManager::searchArchive(const String &name, ArchivePtr &archive)
+    bool ArchiveManager::getArchive(const String &name, ArchivePtr &archive)
     {
         bool found = false;
         auto itr = mArchives.begin();
