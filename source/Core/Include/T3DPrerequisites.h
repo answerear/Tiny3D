@@ -97,6 +97,9 @@ namespace Tiny3D
     class MaterialManager;
     class Texture;
     class TextureManager;
+    class Archive;
+    class ArchiveManager;
+    class ArchiveCreator;
 
     class Object;
 

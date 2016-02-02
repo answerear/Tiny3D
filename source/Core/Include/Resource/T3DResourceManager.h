@@ -58,7 +58,7 @@ namespace Tiny3D
         /**
          * @brief Get resources by name.
          * @remarks
-         *      This method will return all resource in list 
+         *      This method will return all resource in list
          *      whether the resource created or cloned.
          */
         bool getResources(const String &name, std::list<ResourcePtr> &rList) const;
@@ -76,13 +76,12 @@ namespace Tiny3D
         typedef std::map<uint32_t, ResourcePtr>     Resources;
         typedef Resources::iterator                 ResourcesItr;
         typedef Resources::const_iterator           ResourcesConstItr;
-        typedef std::pair<uint32_t, ResourcePtr>    ResPairValue;
+        typedef Resources::value_type               ResPairValue;
 
         typedef std::map<String, Resources>         ResourcesMap;
         typedef ResourcesMap::iterator              ResourcesMapItr;
         typedef ResourcesMap::const_iterator        ResourcesMapConstItr;
-
-        typedef std::pair<String, Resources>        ResMapPairValue;
+        typedef ResourcesMap::value_type            ResMapPairValue;
 
         SearchPathList  mSearchPathList;    /** search path list */
         ResourcesMap    mResourceCache;     /** cache all resources */

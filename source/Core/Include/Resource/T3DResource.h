@@ -22,6 +22,7 @@ namespace Tiny3D
             E_TYPE_MESH,
             E_TYPE_MATERIAL,
             E_TYPE_TEXTURE,
+            E_TYPE_ARCHIVE,
         };
 
         virtual ~Resource();

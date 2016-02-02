@@ -15,6 +15,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Dylib);
     T3D_DECLARE_SMART_PTR(Material);
     T3D_DECLARE_SMART_PTR(Texture);
+    T3D_DECLARE_SMART_PTR(Archive);
 
     T3D_DECLARE_SMART_PTR(SGNode);
     T3D_DECLARE_SMART_PTR(SGTransformNode);
