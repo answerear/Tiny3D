@@ -18,7 +18,12 @@ namespace Tiny3D
 
     }
 
-    ResourcePtr MaterialManager::create(const String &name)
+    MaterialPtr MaterialManager::loadMaterial(const String &name)
+    {
+        return smart_pointer_cast<Material>(ResourceManager::load(name, 0));
+    }
+
+    ResourcePtr MaterialManager::create(const String &name, int32_t argc, va_list args)
     {
         return Material::create(name);
     }

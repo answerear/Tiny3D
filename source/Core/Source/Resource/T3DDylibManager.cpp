@@ -18,7 +18,12 @@ namespace Tiny3D
 
     }
 
-    ResourcePtr DylibManager::create(const String &name)
+    DylibPtr DylibManager::loadDylib(const String &name)
+    {
+        return smart_pointer_cast<Dylib>(ResourceManager::load(name, 0));
+    }
+
+    ResourcePtr DylibManager::create(const String &name, int32_t argc, va_list args)
     {
         return Dylib::create(name);
     }

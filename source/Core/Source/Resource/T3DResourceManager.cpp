@@ -32,7 +32,7 @@ namespace Tiny3D
         return (value & 0x7FFFFFFF);
     }
 
-    ResourcePtr ResourceManager::load(const String &name)
+    ResourcePtr ResourceManager::load(const String &name, int32_t argc, ...)
     {
         ResourcePtr res = nullptr;
 
@@ -56,7 +56,10 @@ namespace Tiny3D
                 else
                 {
                     // Found not in original resource list
-                    res = create(name);
+                    va_list params;
+                    va_start(params, argc);
+                    res = create(name, argc, params);
+                    va_end(params);
 
                     if (res != nullptr)
                     {
@@ -77,7 +80,10 @@ namespace Tiny3D
         else
         {
             // Found not, it should create a new instance.
-            res = create(name);
+            va_list params;
+            va_start(params, argc);
+            res = create(name, argc, params);
+            va_end(params);
 
             if (res != nullptr)
             {

@@ -119,6 +119,12 @@ if (TINY3D_OS_WINDOWS)
 		PATTERN "OpenGLES2" EXCLUDE
 		PATTERN "OpenGLES3" EXCLUDE
 		)
+
+	install(DIRECTORY 
+		${TINY3D_DEP_DIR}/libpng/prebuilt/win32/vc110/x86/ DESTINATION bin/Debug 
+		CONFIGURATIONS Debug
+		PATTERN "lib" EXCLUDE
+		)
 elseif (TINY3D_OS_MACOSX)
 elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)

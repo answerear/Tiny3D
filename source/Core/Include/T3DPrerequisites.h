@@ -5,6 +5,7 @@
 
 
 #include "T3DMacro.h"
+#include <stdarg.h>
 
 
 #if defined T3DCORE_EXPORT

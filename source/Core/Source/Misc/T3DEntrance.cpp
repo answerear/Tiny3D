@@ -105,7 +105,7 @@ namespace Tiny3D
     {
         T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "load plugin %s ...", name.c_str());
         bool ret = false;
-        DylibPtr lib = smart_pointer_cast<Dylib>(DylibManager::getInstance().load(name));
+        DylibPtr lib = DylibManager::getInstance().loadDylib(name);
 
         if (lib->getType() == Resource::E_TYPE_DYLIB)
         {

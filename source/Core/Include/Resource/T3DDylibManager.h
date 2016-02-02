@@ -20,8 +20,10 @@ namespace Tiny3D
         DylibManager();
         virtual ~DylibManager();
 
+        virtual DylibPtr loadDylib(const String &name);
+
     protected:
-        virtual ResourcePtr create(const String &name);
+        virtual ResourcePtr create(const String &name, int32_t argc, va_list args) override;
     };
 }
 

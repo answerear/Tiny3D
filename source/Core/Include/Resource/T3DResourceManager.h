@@ -21,7 +21,7 @@ namespace Tiny3D
         /**
          * @brief Load resource from file.
          */
-        virtual ResourcePtr load(const String &name);
+        virtual ResourcePtr load(const String &name, int32_t argc, ...);
 
         /**
          * @brief Unload resource in memory.
@@ -66,7 +66,7 @@ namespace Tiny3D
         void addSearchPath(const String &strPath);
 
     protected:
-        virtual ResourcePtr create(const String &strName) = 0;
+        virtual ResourcePtr create(const String &strName, int32_t argc, va_list args) = 0;
 
         static uint32_t hash(const char *str);
 
