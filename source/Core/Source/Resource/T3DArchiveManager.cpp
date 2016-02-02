@@ -21,7 +21,14 @@ namespace Tiny3D
 
     ArchivePtr ArchiveManager::loadArchive(const String &name, const String &archiveType)
     {
-        return smart_pointer_cast<Archive>(ResourceManager::load(name, 1, archiveType.c_str()));
+        ArchivePtr archive = smart_pointer_cast<Archive>(ResourceManager::load(name, 1, archiveType.c_str()));
+
+        if (archive != nullptr)
+        {
+            mArchives.insert(ArchivesValue(name, archive));
+        }
+
+        return archive;
     }
 
     ResourcePtr ArchiveManager::create(const String &name, int32_t argc, va_list args)
@@ -41,6 +48,25 @@ namespace Tiny3D
         }
 
         return res;
+    }
+
+    bool ArchiveManager::searchArchive(const String &name, ArchivePtr &archive)
+    {
+        bool found = false;
+        auto itr = mArchives.begin();
+
+        while (itr != mArchives.end())
+        {
+            if (itr->second->exists(name))
+            {
+                archive = itr->second;
+                found = true;
+                break;
+            }
+            ++itr;
+        }
+
+        return found;
     }
 }
 

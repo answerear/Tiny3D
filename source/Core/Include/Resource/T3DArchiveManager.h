@@ -24,6 +24,8 @@ namespace Tiny3D
         void addArchiveCreator(const ArchiveCreator &creator);
         void removeArchiveCreator(const String &name);
 
+        bool searchArchive(const String &name, ArchivePtr &archive);
+
     protected:
         virtual ResourcePtr create(const String &name, int32_t argc, va_list args) override;
 
@@ -32,9 +34,16 @@ namespace Tiny3D
         typedef Creators::const_iterator            CreatorsConstItr;
         typedef Creators::value_type                CreatorsValue;
 
-        Creators    mCreators;
+        typedef std::map<String, ArchivePtr>        Archives;
+        typedef Archives::iterator                  ArchivesItr;
+        typedef Archives::const_iterator            ArchivesConstItr;
+        typedef Archives::value_type                ArchivesValue;
 
+        Creators    mCreators;
+        Archives    mArchives;
     };
+
+    #define T3D_ARCHIVE_MGR     ArchiveManager::getInstance()
 }
 
 

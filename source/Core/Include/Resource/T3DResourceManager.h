@@ -63,16 +63,12 @@ namespace Tiny3D
          */
         bool getResources(const String &name, std::list<ResourcePtr> &rList) const;
 
-        void addSearchPath(const String &strPath);
-
     protected:
         virtual ResourcePtr create(const String &strName, int32_t argc, va_list args) = 0;
 
         static uint32_t hash(const char *str);
 
     protected:
-        typedef std::list<String> SearchPathList;
-
         typedef std::map<uint32_t, ResourcePtr>     Resources;
         typedef Resources::iterator                 ResourcesItr;
         typedef Resources::const_iterator           ResourcesConstItr;
@@ -83,10 +79,8 @@ namespace Tiny3D
         typedef ResourcesMap::const_iterator        ResourcesMapConstItr;
         typedef ResourcesMap::value_type            ResMapPairValue;
 
-        SearchPathList  mSearchPathList;    /** search path list */
-        ResourcesMap    mResourceCache;     /** cache all resources */
-
-        uint32_t        mCloneID;           /** used to clone */
+        ResourcesMap    mResourceCache;     /// cache all resources
+        uint32_t        mCloneID;           /// used to clone
     };
 }
 

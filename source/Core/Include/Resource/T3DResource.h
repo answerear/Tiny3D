@@ -60,7 +60,7 @@ namespace Tiny3D
         }
 
     protected:
-        Resource(const String &strName);
+        Resource(const String &name);
 
         virtual bool load() = 0;
         virtual void unload();

@@ -18,10 +18,10 @@ namespace Tiny3D
 
         virtual String getArchiveType() const = 0;
 
-        virtual bool open(const String &name) = 0;
-        virtual size_t read(MemoryDataStream &stream, const String &name = "") = 0;
-        virtual size_t write(const MemoryDataStream &stream, const String &name = "") = 0;
-        virtual void close() = 0;
+        virtual String getLocation() const = 0;
+        virtual bool exists(const String &name) const = 0;
+        virtual bool read(const String &name, MemoryDataStream &stream) = 0;
+        virtual bool write(const String &name, const MemoryDataStream &stream) = 0;
 
     protected:
         Archive(const String &name);

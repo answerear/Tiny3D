@@ -1,5 +1,7 @@
 
 #include "Resource/T3DResourceManager.h"
+#include "Resource/T3DArchive.h"
+#include "Resource/T3DArchiveManager.h"
 
 
 namespace Tiny3D
@@ -63,9 +65,9 @@ namespace Tiny3D
 
                     if (res != nullptr)
                     {
-                        bool bRet = res->load();
+                        bool ret = res->load();
 
-                        if (bRet)
+                        if (ret)
                         {
                             resources.insert(ResPairValue(0, res));
                         }
@@ -87,9 +89,9 @@ namespace Tiny3D
 
             if (res != nullptr)
             {
-                bool bRet = res->load();
+                bool ret = res->load();
 
-                if (bRet)
+                if (ret)
                 {
                     Resources resources;
                     resources.insert(ResPairValue(0, res));
