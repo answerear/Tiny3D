@@ -33,11 +33,14 @@ namespace Tiny3D
     class D3D9Renderer;
     class D3D9RenderWindow;
     class D3D9Texture;
+    class D3D9TextureManager;
     class D3D9HardwareVertexBuffer;
     class D3D9HardwareIndexBuffer;
     class D3D9HardwareBufferManager;
     class D3D9Material;
     class D3D9VertexDeclaration;
+
+    T3D_DECLARE_SMART_PTR(D3D9Texture);
 }
 
 

@@ -6,8 +6,10 @@
 
 namespace Tiny3D
 {
-    Texture::Texture(const String &name)
+    Texture::Texture(const String &name, TexType texType, TexUsage texUsage)
         : Resource(name)
+        , mTexType(texType)
+        , mTexUsage(texUsage)
     {
 
     }
@@ -20,23 +22,5 @@ namespace Tiny3D
     Resource::Type Texture::getType() const
     {
         return E_TYPE_TEXTURE;
-    }
-
-    bool Texture::load()
-    {
-        Image image;
-        bool ret = image.load(mName);
-
-        if (ret)
-        {
-            ret = loadImage(image);
-        }
-        
-        return ret;
-    }
-
-    void Texture::unload()
-    {
-        Resource::unload();
     }
 }

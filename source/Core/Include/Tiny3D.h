@@ -4,14 +4,15 @@
 #define __TINY3D_H__
 
 
+#include "Math/T3DSphere.h"
 #include "Math/T3DAabb.h"
+#include "Math/T3DObb.h"
+#include "Math/T3DFrustum.h"
+
 #include "Bound/T3DAabbBound.h"
 #include "Bound/T3DBound.h"
-#include "Math/T3DFrustum.h"
 #include "Bound/T3DFrustumBound.h"
-#include "Math/T3DObb.h"
 #include "Bound/T3DObbBound.h"
-#include "Math/T3DSphere.h"
 #include "Bound/T3DSphereBound.h"
 
 #include "Listener/T3DApplicationListener.h"

@@ -4,6 +4,7 @@
 #define __T3D_TEXTURE_H__
 
 
+#include "Misc/T3DCommon.h"
 #include "T3DResource.h"
 
 
@@ -30,13 +31,33 @@ namespace Tiny3D
 
         virtual Type getType() const override;
 
-    protected:
-        Texture(const String &name);
+        TexType getTextureType() const  { return mTexType; }
+        TexUsage getTextureUsage() const    { return mTexUsage; }
 
-        virtual bool load() override;
-        virtual void unload() override;
+        int32_t getNumMipMaps() const   { return mNumMipMaps; }
+
+        int32_t getWidth() const        { return mWidth; }
+        int32_t getHeight() const       { return mHeight; }
+
+        PixelFormat getFormat() const   { return mFormat; }
+
+        bool hasAlpha() const           { return mHasAlpha; }
+
+    protected:
+        Texture(const String &name, TexType texType, TexUsage texUsage);
 
         virtual bool loadImage(const Image &src) = 0;
+
+        TexType     mTexType;
+        TexUsage    mTexUsage;
+        int32_t     mNumMipMaps;
+
+        int32_t     mWidth;
+        int32_t     mHeight;
+
+        PixelFormat mFormat;
+
+        bool        mHasAlpha;
     };
 }
 
