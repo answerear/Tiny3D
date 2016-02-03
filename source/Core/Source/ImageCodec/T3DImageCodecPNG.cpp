@@ -2,6 +2,8 @@
 
 #include "ImageCodec/T3DImageCodecPNG.h"
 #include "Misc/T3DImage.h"
+#include "Resource/T3DArchive.h"
+#include "Resource/T3DArchiveManager.h"
 #include <png.h>
 
 
@@ -60,11 +62,15 @@ namespace Tiny3D
     bool ImageCodecPNG::encode(const String &name, const Image &image)
     {
         bool ret = false;
-        FileDataStream fs;
-        if (fs.open(name.c_str(), FileDataStream::E_MODE_TRUNCATE|FileDataStream::E_MODE_WRITE_ONLY))
+        ArchivePtr archive;
+
+        if (T3D_ARCHIVE_MGR.getArchive(name, archive))
         {
-            ret = encode(fs, image);
-            fs.close();
+            MemoryDataStream stream;
+            if (encode(stream, image))
+            {
+                ret = archive->write(name, stream);
+            }
         }
 
         return ret;
@@ -91,11 +97,15 @@ namespace Tiny3D
     bool ImageCodecPNG::decode(const String &name, Image &image)
     {
         bool ret = false;
-        FileDataStream fs;
-        if (fs.open(name.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        ArchivePtr archive;
+
+        if (T3D_ARCHIVE_MGR.getArchive(name, archive))
         {
-            ret = decode(fs, image);
-            fs.close();
+            MemoryDataStream stream;
+            if (archive->read(name, stream))
+            {
+                ret = decode(stream, image);
+            }
         }
 
         return ret;

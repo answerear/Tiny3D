@@ -2,6 +2,7 @@
 
 #include "Misc/T3DImage.h"
 #include "ImageCodec/T3DImageCodec.h"
+#include "Resource/T3DArchiveManager.h"
 
 
 namespace Tiny3D

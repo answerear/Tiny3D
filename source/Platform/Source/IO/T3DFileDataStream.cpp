@@ -14,7 +14,10 @@ namespace Tiny3D
 
     FileDataStream::~FileDataStream()
     {
-        close();
+        if (isOpened())
+        {
+            close();
+        }
     }
 
     bool FileDataStream::open(const char *szFileName, uint32_t unMode)

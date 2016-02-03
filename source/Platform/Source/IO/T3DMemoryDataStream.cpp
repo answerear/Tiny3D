@@ -6,7 +6,7 @@ namespace Tiny3D
 {
     const uint32_t MemoryDataStream::MEMORY_BUFFER_SIZE = 2 * 1024;
 
-    MemoryDataStream::MemoryDataStream(uchar_t *pBuffer, size_t unSize)
+    MemoryDataStream::MemoryDataStream()
         : m_pBuffer(nullptr)
         , m_lSize(0)
         , m_lCurPos(0)
@@ -15,7 +15,21 @@ namespace Tiny3D
 
     }
 
-    MemoryDataStream::MemoryDataStream(size_t unSize/* = MEMORY_BUFFER_SIZE*/)
+    MemoryDataStream::MemoryDataStream(uchar_t *pBuffer, size_t unSize, bool reallocate /* = true */)
+        : m_pBuffer(pBuffer)
+        , m_lSize(unSize)
+        , m_lCurPos(0)
+        , m_bCreated(false)
+    {
+        if (reallocate)
+        {
+            m_pBuffer = new uint8_t[m_lSize];
+            memcpy(m_pBuffer, pBuffer, m_lSize);
+            m_bCreated = true;
+        }
+    }
+
+    MemoryDataStream::MemoryDataStream(size_t unSize)
         : m_pBuffer(nullptr)
         , m_lSize(0)
         , m_lCurPos(0)
@@ -34,7 +48,6 @@ namespace Tiny3D
         if (m_bCreated)
         {
             T3D_SAFE_DELETE_ARRAY(m_pBuffer);
-            m_pBuffer = nullptr;
         }
     }
 
@@ -82,16 +95,45 @@ namespace Tiny3D
         return (m_lCurPos == m_lSize - 1);
     }
 
+    void MemoryDataStream::setBuffer(uint8_t *buffer, size_t bufSize, bool reallocate /* = true */)
+    {
+        if (reallocate)
+        {
+            T3D_SAFE_DELETE_ARRAY(m_pBuffer);
+            m_lSize = bufSize;
+            m_pBuffer = new uint8_t[m_lSize];
+            memcpy(m_pBuffer, buffer, m_lSize);
+        }
+        else
+        {
+            m_lSize = bufSize;
+            m_pBuffer = buffer;
+        }
+
+        m_bCreated = true;
+    }
+
+    void MemoryDataStream::getBuffer(uint8_t *&buffer, size_t &bufSize) const
+    {
+        buffer = m_pBuffer;
+        bufSize = m_lSize;
+    }
+
     void MemoryDataStream::copy(const MemoryDataStream &other)
     {
-        T3D_SAFE_DELETE_ARRAY(m_pBuffer);
-
-        m_pBuffer = new uchar_t[other.m_lSize];
-        memcpy(m_pBuffer, other.m_pBuffer, other.m_lSize);
+        if (m_bCreated)
+        {
+            T3D_SAFE_DELETE_ARRAY(m_pBuffer);
+            m_pBuffer = new uchar_t[other.m_lSize];
+            memcpy(m_pBuffer, other.m_pBuffer, other.m_lSize);
+        }
+        else
+        {
+            m_pBuffer = other.m_pBuffer;
+        }
 
         m_lSize = other.m_lSize;
         m_lCurPos = other.m_lCurPos;
-
-        m_bCreated = true;
+        m_bCreated = other.m_bCreated;
     }
 }

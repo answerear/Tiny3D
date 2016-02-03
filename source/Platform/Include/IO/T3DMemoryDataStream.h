@@ -19,13 +19,16 @@ namespace Tiny3D
     public:
         static const uint32_t MEMORY_BUFFER_SIZE;   /**< 默认内存流大小 */
 
+        MemoryDataStream();
+
         /**
          * @brief Constructor for T3DMemoryDataStream.
          * @note 该构造函数内部不自动非配空间，直接对传入的缓冲区操作
          * @param [in] pBuffer : 数据缓冲
          * @param [in] unSize : 缓冲大小
+         * @param [in] reallocate : 是否内部重新分配空间，默认由类内部重新分配空间存储数据
          */
-        MemoryDataStream(uchar_t *pBuffer, size_t unSize);
+        MemoryDataStream(uchar_t *pBuffer, size_t unSize, bool reallocate = true);
 
         /**
          * @brief Constructor for T3DMemoryDataStream.
@@ -33,7 +36,7 @@ namespace Tiny3D
          * @param [in] unSize : 分配空间大小，默认为V_MEMORY_DATA_STREAM_BUFFER_SIZE.
          * @see V_MEMORY_DATA_STREAM_BUFFER_SIZE
          */
-        MemoryDataStream(size_t unSize = MEMORY_BUFFER_SIZE);
+        MemoryDataStream(size_t unSize);
 
         /**
          * @brief Constructor for T3DMemoryDataStream.
@@ -92,6 +95,10 @@ namespace Tiny3D
          * @return 到达末尾返回true，否则返回false.
          */
         bool eof() const;
+
+        void setBuffer(uint8_t *buffer, size_t bufSize, bool reallocate = true);
+
+        void getBuffer(uint8_t *&buffer, size_t &bufSize) const;
 
     protected:
         void copy(const MemoryDataStream &other);

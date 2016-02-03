@@ -6,8 +6,10 @@
 #include "Render/T3DRenderer.h"
 #include "Render/T3DRenderWindow.h"
 #include "Resource/T3DDylibManager.h"
+#include "Resource/T3DArchiveManager.h"
 #include "Resource/T3DDylib.h"
 #include "ImageCodec/T3DImageCodec.h"
+#include "Resource/T3DFileSystemArchive.h"
 #include <algorithm>
 
 
@@ -22,6 +24,7 @@ namespace Tiny3D
         : mSystem(new System())
         , mLogger(new Logger())
         , mDylibMgr(new DylibManager())
+        , mArchiveMgr(new ArchiveManager())
         , mActiveRenderer(nullptr)
         , mAppListener(nullptr)
         , mSceneMgr(nullptr)
@@ -30,15 +33,9 @@ namespace Tiny3D
         ConfigFile file(config);
         file.loadXML(mSettings);
 
-        Logger::Level level = T3D_LOG_TO_LEVEL_VALUE(mSettings["LogLevel"].stringValue());
-        T3D_LOG_SET_LEVEL(level);
-        T3D_LOG_SET_EXPIRED(mSettings["LogExpired"].uint32Value());
-        T3D_LOG_SET_MAX_CACHE_SIZE(mSettings["LogMaxCacheSize"].uint32Value());
-        T3D_LOG_SET_MAX_CACHE_TIME(mSettings["LogMaxCacheTime"].uint32Value());
-        T3D_LOG_STARTUP(mSettings["LogAppID"].uint32Value(), mSettings["LogTag"].stringValue(), false);
-
-        T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "**************************** Tiny3D started *************************");
-
+        startLogging();
+        initArchives();
+        initResources();
         loadPlugins();
 
         RendererListItr itr = mRendererList.begin();
@@ -55,12 +52,11 @@ namespace Tiny3D
 
     Entrance::~Entrance()
     {
+        T3D_SAFE_DELETE(mArchiveMgr);
         T3D_SAFE_DELETE(mDylibMgr);
 
-        T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "------------------------------- Tiny3D shutdown --------------------------");
-        T3D_LOG_SHUTDOWN();
+        stopLogging();
         T3D_SAFE_DELETE(mLogger);
-
         T3D_SAFE_DELETE(mSystem);
     }
 
@@ -86,20 +82,6 @@ namespace Tiny3D
             mPluginList.erase(itr);
         }
     }
-
-    class Base : public Object
-    {
-    public:
-        Base() {}
-        virtual ~Base()    {}
-    };
-
-    class Derived : public Base
-    {
-    public:
-        Derived() {}
-        virtual ~Derived()    {}
-    };
 
     bool Entrance::loadPlugin(const String &name)
     {
@@ -144,18 +126,19 @@ namespace Tiny3D
 
     void Entrance::loadPlugins()
     {
-        String s("PluginsPath");
+        Settings pluginSettings = mSettings["Plugins"].mapValue();
+        String s("Path");
         Variant key(s);
-        Settings::const_iterator itr = mSettings.find(key);
-        if (itr == mSettings.end())
+        Settings::const_iterator itr = pluginSettings.find(key);
+        if (itr == pluginSettings.end())
             return;
 
         String path = itr->second.stringValue();
         
-        key.setString("Plugins");
-        itr = mSettings.find(key);
+        key.setString("List");
+        itr = pluginSettings.find(key);
 
-        if (itr != mSettings.end())
+        if (itr != pluginSettings.end())
         {
             const VariantArray &plugins = itr->second.arrayValue();
             VariantArrayConstItr i = plugins.begin();
@@ -175,6 +158,52 @@ namespace Tiny3D
 
     }
 
+    void Entrance::startLogging()
+    {
+        Settings &logSettings = mSettings["Log"].mapValue();
+        Logger::Level level = T3D_LOG_TO_LEVEL_VALUE(logSettings["Level"].stringValue());
+        T3D_LOG_SET_LEVEL(level);
+        T3D_LOG_SET_EXPIRED(logSettings["Expired"].uint32Value());
+        T3D_LOG_SET_MAX_CACHE_SIZE(logSettings["MaxCacheSize"].uint32Value());
+        T3D_LOG_SET_MAX_CACHE_TIME(logSettings["MaxCacheTime"].uint32Value());
+        T3D_LOG_STARTUP(logSettings["AppID"].uint32Value(), logSettings["Tag"].stringValue(), false);
+
+        T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "**************************** Tiny3D started *************************");
+    }
+
+    void Entrance::stopLogging()
+    {
+        T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "------------------------------- Tiny3D shutdown --------------------------");
+        T3D_LOG_SHUTDOWN();
+    }
+
+    void Entrance::initArchives()
+    {
+        FileSystemArchiveCreator *creator = new FileSystemArchiveCreator();
+        mArchiveMgr->addArchiveCreator(creator);
+    }
+
+    void Entrance::initResources()
+    {
+        Settings &resSettings = mSettings["Resources"].mapValue();
+
+        String s("Path");
+        Variant key(s);
+        Settings::const_iterator itr = resSettings.find(key);
+        if (itr == resSettings.end())
+            return;
+
+        const VariantMap &pathes = itr->second.mapValue();
+        auto i = pathes.begin();
+        while (i != pathes.end())
+        {
+            const String &path = i->first.stringValue();
+            const String &type = i->second.stringValue();
+            mArchiveMgr->loadArchive(path, type);
+            ++i;
+        }
+    }
+
     bool Entrance::initialize(bool autoCreateWindow, RenderWindow *&renderWindow)
     {
         if (mActiveRenderer == nullptr)
@@ -186,17 +215,18 @@ namespace Tiny3D
         if (autoCreateWindow)
         {
             RenderWindowCreateParam param;
-            param._windowLeft = mSettings["x"].int32Value();
-            param._windowTop = mSettings["y"].int32Value();
-            param._windowWidth = mSettings["Width"].int32Value();
-            param._windowHeight = mSettings["Height"].int32Value();
-            param._fullscreen = mSettings["FullScreen"].boolValue();
-            param._colorDepth = mSettings["ColorDepth"].int32Value();
-            param._windowTitle = mSettings["Title"].stringValue();
+            Settings renderSettings = mSettings["Render"].mapValue();
+            param._windowLeft = renderSettings["x"].int32Value();
+            param._windowTop = renderSettings["y"].int32Value();
+            param._windowWidth = renderSettings["Width"].int32Value();
+            param._windowHeight = renderSettings["Height"].int32Value();
+            param._fullscreen = renderSettings["FullScreen"].boolValue();
+            param._colorDepth = renderSettings["ColorDepth"].int32Value();
+            param._windowTitle = renderSettings["Title"].stringValue();
             RenderWindowCreateParamEx paramEx;
             paramEx["renderer"].setLong((long_t)mActiveRenderer);
-            paramEx["MultiSampleQuality"] = mSettings["MultiSampleQuality"];
-            paramEx["vsync"] = mSettings["VSync"];
+            paramEx["MultiSampleQuality"] = renderSettings["MultiSampleQuality"];
+            paramEx["vsync"] = renderSettings["VSync"];
             renderWindow = mActiveRenderer->createRenderWindow(param, paramEx);
         }
 

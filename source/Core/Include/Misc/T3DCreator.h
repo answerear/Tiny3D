@@ -5,6 +5,7 @@
 
 
 #include "T3DPrerequisites.h"
+#include "Misc/T3DSmartPtr.h"
 
 
 namespace Tiny3D
@@ -14,7 +15,7 @@ namespace Tiny3D
     {
     public:
         virtual String getType() const = 0;
-        virtual T* createObject() const = 0;
+        virtual SmartPtr<T> createObject(int32_t argc, ...) const = 0;
     };
 }
 

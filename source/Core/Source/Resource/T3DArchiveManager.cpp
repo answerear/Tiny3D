@@ -43,11 +43,36 @@ namespace Tiny3D
             if (itr != mCreators.end())
             {
                 ArchiveCreator *creator = itr->second;
-                res = creator->createObject();
+                res = creator->createObject(1, name.c_str());
             }
         }
 
         return res;
+    }
+
+    void ArchiveManager::addArchiveCreator(ArchiveCreator *creator)
+    {
+        mCreators.insert(CreatorsValue(creator->getType(), creator));
+    }
+
+    void ArchiveManager::removeArchiveCreator(const String &name)
+    {
+        auto itr = mCreators.find(name);
+        T3D_SAFE_DELETE(itr->second);
+        mCreators.erase(itr);
+    }
+
+    void ArchiveManager::removeAllArchiveCreator()
+    {
+        auto itr = mCreators.begin();
+
+        while (itr != mCreators.end())
+        {
+            T3D_SAFE_DELETE(itr->second);
+            ++itr;
+        }
+
+        mCreators.clear();
     }
 
     bool ArchiveManager::getArchive(const String &name, ArchivePtr &archive)

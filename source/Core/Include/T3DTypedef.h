@@ -16,6 +16,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Material);
     T3D_DECLARE_SMART_PTR(Texture);
     T3D_DECLARE_SMART_PTR(Archive);
+    T3D_DECLARE_SMART_PTR(FileSystemArchive);
+    T3D_DECLARE_SMART_PTR(ZipArchive);
 
     T3D_DECLARE_SMART_PTR(SGNode);
     T3D_DECLARE_SMART_PTR(SGTransformNode);
@@ -51,6 +53,7 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(RenderGroup);
     T3D_DECLARE_SMART_PTR(RenderQueue);
+
 
     typedef std::vector<Variant>            VariantArray;
     typedef VariantArray::iterator          VariantArrayItr;

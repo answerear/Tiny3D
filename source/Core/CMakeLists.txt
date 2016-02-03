@@ -17,6 +17,7 @@ endif (MSVC)
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
 set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
+set(TINY3D_MEDIA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../media")
 
 include_directories(
 	"${TINY3D_PLATFORM_DIR}/Include"
@@ -124,6 +125,16 @@ if (TINY3D_OS_WINDOWS)
 		${TINY3D_DEP_DIR}/libpng/prebuilt/win32/vc110/x86/ DESTINATION bin/Debug 
 		CONFIGURATIONS Debug
 		PATTERN "lib" EXCLUDE
+		)
+
+	install(DIRECTORY
+		${TINY3D_MEDIA_DIR}/config/
+		DESTINATION bin/Debug
+		)
+
+	install(DIRECTORY
+		${TINY3D_MEDIA_DIR}/resources/
+		DESTINATION bin/Debug/resources
 		)
 elseif (TINY3D_OS_MACOSX)
 elseif (TINY3D_OS_LINUX)

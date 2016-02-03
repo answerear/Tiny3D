@@ -21,8 +21,9 @@ namespace Tiny3D
 
         virtual ArchivePtr loadArchive(const String &name, const String &archiveType);
 
-        void addArchiveCreator(const ArchiveCreator &creator);
+        void addArchiveCreator(ArchiveCreator *creator);
         void removeArchiveCreator(const String &name);
+        void removeAllArchiveCreator();
 
         bool getArchive(const String &name, ArchivePtr &archive);
 

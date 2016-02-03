@@ -101,6 +101,11 @@ namespace Tiny3D
     class ArchiveManager;
     class ArchiveCreator;
 
+    class FileSystemArchive;
+    class FileSystemArchiveCreator;
+    class ZipArchive;
+    class ZipArchiveCreator;
+
     class Object;
 
     class SceneManager;

@@ -4,7 +4,7 @@
 #define __T3D_D3D9_TEXTURE_H__
 
 
-#include "Resource/T3DTexture.h"
+#include "T3DD3D9Prerequisites.h"
 
 
 namespace Tiny3D

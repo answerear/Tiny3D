@@ -115,6 +115,12 @@ namespace Tiny3D
         void loadPlugins();
         void unloadPlugins();
 
+        void startLogging();
+        void stopLogging();
+
+        void initArchives();
+        void initResources();
+
     protected:
         typedef std::list<Plugin*>          PluginList;
         typedef PluginList::iterator        PluginListItr;
@@ -127,6 +133,7 @@ namespace Tiny3D
         System          *mSystem;
         Logger          *mLogger;
         DylibManager    *mDylibMgr;
+        ArchiveManager  *mArchiveMgr;
 
         Renderer        *mActiveRenderer;
 

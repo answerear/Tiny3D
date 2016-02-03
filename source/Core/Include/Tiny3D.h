@@ -32,6 +32,7 @@
 #include "Misc/T3DCommon.h"
 #include "Misc/T3DPlugin.h"
 #include "Misc/T3DViewport.h"
+#include "Misc/T3DImage.h"
 
 #include "Render/T3DRenderer.h"
 #include "Render/T3DRenderTarget.h"
@@ -48,6 +49,10 @@
 #include "Resource/T3DDylibManager.h"
 #include "Resource/T3DResource.h"
 #include "Resource/T3DResourceManager.h"
+#include "Resource/T3DArchive.h"
+#include "Resource/T3DArchiveManager.h"
+#include "Resource/T3DTexture.h"
+#include "Resource/T3DTextureManager.h"
 
 #include "SG/Node/T3DSGNode.h"
 #include "SG/Node/T3DSGTransformNode.h"
