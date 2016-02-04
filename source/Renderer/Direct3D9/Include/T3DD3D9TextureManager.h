@@ -16,8 +16,7 @@ namespace Tiny3D
         virtual ~D3D9TextureManager();
 
     protected:
-        virtual TexturePtr create(const String &name, Texture::TexType texType) override;
-        virtual TexturePtr create(const String &name, Texture::TexType texType, int32_t width, int32_t height, int32_t numMipMaps, PixelFormat format, Texture::TexUsage usage) override;
+        virtual TexturePtr createTexture(const String &name, int32_t width, int32_t height, int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType);
     };
 }
 

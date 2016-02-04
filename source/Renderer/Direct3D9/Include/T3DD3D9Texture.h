@@ -12,12 +12,14 @@ namespace Tiny3D
     class T3D_D3D9RENDERER_API D3D9Texture : public Texture
     {
     public:
-        static D3D9TexturePtr create(const String &name, TexType texType, TexUsage texUsage);
+        static TexturePtr create(const String &name, int32_t width, int32_t height,
+            int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType);
 
         virtual ~D3D9Texture();
 
     protected:
-        D3D9Texture(const String &name, TexType texType, TexUsage texUsage);
+        D3D9Texture(const String &name, int32_t width, int32_t height,
+            int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType);
 
         virtual bool load() override;
         virtual void unload() override;

@@ -5,15 +5,17 @@
 
 namespace Tiny3D
 {
-    D3D9TexturePtr D3D9Texture::create(const String &name, TexType texType, TexUsage texUsage)
+    TexturePtr D3D9Texture::create(const String &name, int32_t width, int32_t height,
+        int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType)
     {
-        D3D9TexturePtr texture = new D3D9Texture(name, texType, texUsage);
+        TexturePtr texture = new D3D9Texture(name, width, height, numMipMaps, format, texUsage, texType);
         texture->release();
         return texture;
     }
 
-    D3D9Texture::D3D9Texture(const String &name, TexType texType, TexUsage texUsage)
-        : Texture(name, texType, texUsage)
+    D3D9Texture::D3D9Texture(const String &name, int32_t width, int32_t height,
+        int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType)
+        : Texture(name, width, height, numMipMaps, texUsage, texType, format)
         , mD3DTexture(nullptr)
     {
 
@@ -57,7 +59,7 @@ namespace Tiny3D
 
     ResourcePtr D3D9Texture::clone() const
     {
-        TexturePtr texture = create(mName, mTexType, mTexUsage);
+        TexturePtr texture = create(mName, mTexWidth, mTexHeight, mNumMipMaps, mFormat, mTexUsage, mTexType);
         texture->release();
         return texture;
     }

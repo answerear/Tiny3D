@@ -19,14 +19,13 @@ namespace Tiny3D
         TextureManager();
         virtual ~TextureManager();
 
-        virtual TexturePtr loadTexture(const String &name, Texture::TexType texType = Texture::E_TEX_TYPE_2D, int32_t numMipMaps = -1);
-        virtual TexturePtr loadTexture(const String &name, int32_t width, int32_t height, PixelFormat format, Texture::TexUsage usage, Texture::TexType texType = Texture::E_TEX_TYPE_2D, int32_t numMipMaps = -1);
+        virtual TexturePtr loadTexture(const String &name, int32_t numMipMaps = -1, Texture::TexUsage texUsage = Texture::E_TU_DEFAULT, Texture::TexType texType = Texture::E_TEX_TYPE_2D);
+        virtual TexturePtr loadTexture(const String &name, int32_t width, int32_t height, int32_t numMipMaps = -1, PixelFormat format = E_PF_A8R8G8B8, Texture::TexUsage texUsage = Texture::E_TU_BLANK, Texture::TexType texType = Texture::E_TEX_TYPE_2D);
 
     protected:
         virtual ResourcePtr create(const String &name, int32_t argc, va_list args) override;
 
-        virtual TexturePtr create(const String &name, Texture::TexType texType) = 0;
-        virtual TexturePtr create(const String &name, Texture::TexType texType, int32_t width, int32_t height, int32_t numMipMaps, PixelFormat format, Texture::TexUsage usage) = 0;
+        virtual TexturePtr createTexture(const String &name, int32_t width, int32_t height, int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType) = 0;
     };
 }
 

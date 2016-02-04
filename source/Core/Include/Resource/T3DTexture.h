@@ -23,8 +23,9 @@ namespace Tiny3D
 
         enum TexUsage
         {
-            E_TU_DEFAULT = 0,
-            E_TU_RENDERTARGET,
+            E_TU_DEFAULT = 0,   /// 从图片加载数据填充纹理
+            E_TU_RENDERTARGET,  /// 渲染到纹理
+            E_TU_BLANK,         /// 空白纹理
         };
 
         virtual ~Texture();
@@ -36,15 +37,20 @@ namespace Tiny3D
 
         int32_t getNumMipMaps() const   { return mNumMipMaps; }
 
-        int32_t getWidth() const        { return mWidth; }
-        int32_t getHeight() const       { return mHeight; }
+        int32_t getTexWidth() const        { return mTexWidth; }
+        int32_t getTexHeight() const       { return mTexHeight; }
+
+        int32_t getOriginalWidth() const    { return mImgWidth; }
+        int32_t getOriginalHeight() const   { return mImgHeight; }
 
         PixelFormat getFormat() const   { return mFormat; }
 
         bool hasAlpha() const           { return mHasAlpha; }
 
     protected:
-        Texture(const String &name, TexType texType, TexUsage texUsage);
+        Texture(const String &name, int32_t numMipMaps, int32_t texWidth = -1, int32_t texHeight = -1, 
+            TexUsage texUsage = E_TU_DEFAULT, TexType texType = E_TEX_TYPE_2D, 
+            PixelFormat format = E_PF_A8R8G8B8);
 
         virtual bool loadImage(const Image &src) = 0;
 
@@ -52,8 +58,11 @@ namespace Tiny3D
         TexUsage    mTexUsage;
         int32_t     mNumMipMaps;
 
-        int32_t     mWidth;
-        int32_t     mHeight;
+        int32_t     mTexWidth;
+        int32_t     mTexHeight;
+
+        int32_t     mImgWidth;
+        int32_t     mImgHeight;
 
         PixelFormat mFormat;
 
