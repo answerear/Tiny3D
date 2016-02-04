@@ -57,6 +57,11 @@ namespace Tiny3D
         return true;
     }
 
+    bool  D3D9Texture::copyToTexture(const TexturePtr &texture, Rect *src /* = nullptr */, Rect *dst /* = nullptr */) const
+    {
+        return true;
+    }
+
     ResourcePtr D3D9Texture::clone() const
     {
         TexturePtr texture = create(mName, mTexWidth, mTexHeight, mNumMipMaps, mFormat, mTexUsage, mTexType);

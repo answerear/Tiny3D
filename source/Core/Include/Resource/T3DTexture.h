@@ -5,6 +5,7 @@
 
 
 #include "Misc/T3DCommon.h"
+#include "Math/T3DRect.h"
 #include "T3DResource.h"
 
 
@@ -46,6 +47,8 @@ namespace Tiny3D
         PixelFormat getFormat() const   { return mFormat; }
 
         bool hasAlpha() const           { return mHasAlpha; }
+
+        virtual bool copyToTexture(const TexturePtr &texture, Rect *src = nullptr, Rect *dst = nullptr) const = 0;
 
     protected:
         Texture(const String &name, int32_t numMipMaps, int32_t texWidth = -1, int32_t texHeight = -1, 

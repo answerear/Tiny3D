@@ -24,7 +24,11 @@ namespace Tiny3D
         virtual bool load() override;
         virtual void unload() override;
         virtual bool loadImage(const Image &src) override;
+        virtual bool copyToTexture(const TexturePtr &texture, Rect *src /* = nullptr */, Rect *dst /* = nullptr */) const override;
         virtual ResourcePtr clone() const override;
+
+        bool createTexture();
+        bool createRenderTexture();
 
         LPDIRECT3DTEXTURE9  mD3DTexture;
     };

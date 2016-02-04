@@ -8,6 +8,8 @@ namespace Tiny3D
     T3D_INIT_SINGLETON(TextureManager);
 
     TextureManager::TextureManager()
+        : ResourceManager()
+        , mDefaultNumMipMaps(1)
     {
 
     }
@@ -42,6 +44,7 @@ namespace Tiny3D
             PixelFormat format = va_arg(args, PixelFormat);
             Texture::TexUsage texUsage = va_arg(args, Texture::TexUsage);
             Texture::TexType texType = va_arg(args, Texture::TexType);
+            numMipMaps = (numMipMaps == -1 ? mDefaultNumMipMaps : numMipMaps);
             res = createTexture(name, width, height, numMipMaps, format, texUsage, texType);
         }
 

@@ -26,6 +26,8 @@ namespace Tiny3D
         virtual ResourcePtr create(const String &name, int32_t argc, va_list args) override;
 
         virtual TexturePtr createTexture(const String &name, int32_t width, int32_t height, int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType) = 0;
+
+        int32_t mDefaultNumMipMaps;
     };
 }
 
