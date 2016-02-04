@@ -1,7 +1,7 @@
 
 
 #include "T3DD3D9Texture.h"
-
+#include "T3DD3D9Renderer.h"
 
 namespace Tiny3D
 {
@@ -31,20 +31,18 @@ namespace Tiny3D
         if (isLoaded())
             return true;
 
+        bool ret = false;
+
         if (mTexUsage == E_TU_RENDERTARGET)
         {
-
+            ret = createRenderTexture();
         }
         else
         {
-            Image image;
-            if (image.load(mName))
-            {
-
-            }
+            ret = createTexture();
         }
 
-        return true;
+        return ret;
     }
 
     void D3D9Texture::unload()
@@ -67,5 +65,19 @@ namespace Tiny3D
         TexturePtr texture = create(mName, mTexWidth, mTexHeight, mNumMipMaps, mFormat, mTexUsage, mTexType);
         texture->release();
         return texture;
+    }
+
+    bool D3D9Texture::createRenderTexture()
+    {
+        return true;
+    }
+
+    bool D3D9Texture::createTexture()
+    {
+        LPDIRECT3DDEVICE9 D3DDevice = D3D9_RENDERER.getD3DDevice();
+
+
+
+        return true;
     }
 }
