@@ -114,6 +114,7 @@ namespace Tiny3D
     class SGVisual;
     class SGCamera;
     class SGMesh;
+    class SGLight;
     class SGRenderable;
     class SGSphere;
     class SGBox;

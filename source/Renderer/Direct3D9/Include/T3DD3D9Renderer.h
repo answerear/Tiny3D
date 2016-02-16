@@ -40,6 +40,12 @@ namespace Tiny3D
 
         virtual const Matrix4 &getTransform(TransformState state) const override;
 
+        virtual void setLightEnabled(bool enable) override;
+        virtual void setAmbientLight(const Color4 &ambient) override;
+        virtual void addDynamicLight(size_t index, const SGLightPtr light) override;
+        virtual void removeDynamicLight(size_t index) override;
+        virtual void removeAllDynamicLights() override;
+
         virtual void setMaterial(const MaterialPtr &material) override;
 
         virtual void setCullingMode(CullingMode mode) override;

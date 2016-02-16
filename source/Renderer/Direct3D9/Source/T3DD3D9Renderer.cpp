@@ -197,6 +197,39 @@ namespace Tiny3D
         return Matrix4::IDENTITY;
     }
 
+    void D3D9Renderer::setLightEnabled(bool enable)
+    {
+        HRESULT hr = mD3DDevice->SetRenderState(D3DRS_LIGHTING, enable);
+        if (FAILED(hr))
+        {
+
+        }
+    }
+
+    void D3D9Renderer::setAmbientLight(const Color4 &ambient)
+    {
+        HRESULT hr = mD3DDevice->SetRenderState(D3DRS_AMBIENT, ambient.A8R8G8B8());
+        if (FAILED(hr))
+        {
+
+        }
+    }
+
+    void D3D9Renderer::addDynamicLight(size_t index, const SGLightPtr light)
+    {
+
+    }
+
+    void D3D9Renderer::removeDynamicLight(size_t index)
+    {
+
+    }
+
+    void D3D9Renderer::removeAllDynamicLights()
+    {
+
+    }
+
     void D3D9Renderer::setMaterial(const MaterialPtr &material)
     {
         if (material != nullptr)
@@ -231,7 +264,6 @@ namespace Tiny3D
         }
         else
         {
-//             mD3DDevice->SetMaterial(nullptr);
             mD3DDevice->SetTexture(0, nullptr);
         }
     }

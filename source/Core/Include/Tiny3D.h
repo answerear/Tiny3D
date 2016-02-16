@@ -61,6 +61,7 @@
 #include "SG/Visual/T3DSGVisual.h"
 #include "SG/Visual/T3DSGCamera.h"
 #include "SG/Visual/T3DSGMesh.h"
+#include "SG/Visual/T3DSGLight.h"
 #include "SG/Renderable/T3DSGRenderable.h"
 #include "SG/Renderable/T3DSGBox.h"
 

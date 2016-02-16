@@ -109,6 +109,13 @@ namespace Tiny3D
         virtual void setRenderMode(RenderMode mode) = 0;
         virtual RenderMode getRenderMode() const;
 
+        virtual void setLightEnabled(bool enable) = 0;
+        virtual void setAmbientLight(const Color4 &ambient) = 0;
+
+        virtual void addDynamicLight(size_t index, const SGLightPtr light) = 0;
+        virtual void removeDynamicLight(size_t index) = 0;
+        virtual void removeAllDynamicLights() = 0;
+
         virtual void setMaterial(const MaterialPtr &material) = 0;
 
         virtual void setViewport(const ViewportPtr &viewport) = 0;
