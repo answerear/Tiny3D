@@ -6,6 +6,8 @@
 #include "T3DImageCodecJPG.h"
 #include "T3DImageCodecTGA.h"
 #include "T3DImageCodecDDS.h"
+#include "Resource/T3DArchive.h"
+#include "Resource/T3DArchiveManager.h"
 
 
 namespace Tiny3D
@@ -69,14 +71,17 @@ namespace Tiny3D
     bool ImageCodec::decode(const String &name, Image &image, ImageCodecBase::FileType eType /* = ImageCodecBase::E_TYPE_UNKNOWN */)
     {
         bool ret = false;
+        ArchivePtr archive;
 
-        FileDataStream fs;
-        if (fs.open(name.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        if (T3D_ARCHIVE_MGR.getArchive(name, archive))
         {
-            ret = decode(fs, image, eType);
-            fs.close();
+            MemoryDataStream stream;
+            if (archive->read(name, stream))
+            {
+                ret = decode(stream, image);
+            }
         }
-        
+
         return ret;
     }
 
@@ -110,8 +115,6 @@ namespace Tiny3D
         {
             ret = codec->decode(data, size, image);
         }
-
-        T3D_SAFE_DELETE_ARRAY(data);
 
         return ret;
     }

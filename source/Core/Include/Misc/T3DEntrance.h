@@ -134,6 +134,7 @@ namespace Tiny3D
         Logger          *mLogger;
         DylibManager    *mDylibMgr;
         ArchiveManager  *mArchiveMgr;
+        MaterialManager *mMaterialMgr;
 
         Renderer        *mActiveRenderer;
 

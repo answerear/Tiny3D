@@ -41,6 +41,8 @@ namespace Tiny3D
 
         bool fill(const Color4 &rkColor);
 
+        bool copyToScaling(void *dstData, int32_t dstWidth, int32_t dstHeight, PixelFormat dstFormat, int32_t dstPitch) const;
+
         int32_t compare(const Image &other, bool compareAlpha = true) const;
 
         uint8_t *getData();
@@ -53,11 +55,15 @@ namespace Tiny3D
         int32_t getPitch() const;
         int32_t getBPP() const;
 
+        PixelFormat getFormat() const;
+
         bool hasAlpha() const;
         bool isPremultipliedAlpha() const;
 
     protected:
         void copy(const Image &other);
+
+        void convertPixel(void *srcPixel, PixelFormat srcFmt, void *dstPixel, PixelFormat dstFmt) const;
 
     private:
         int32_t     mWidth;

@@ -7,6 +7,7 @@
 #include "Render/T3DRenderWindow.h"
 #include "Resource/T3DDylibManager.h"
 #include "Resource/T3DArchiveManager.h"
+#include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DDylib.h"
 #include "ImageCodec/T3DImageCodec.h"
 #include "Resource/T3DFileSystemArchive.h"
@@ -25,6 +26,7 @@ namespace Tiny3D
         , mLogger(new Logger())
         , mDylibMgr(new DylibManager())
         , mArchiveMgr(new ArchiveManager())
+        , mMaterialMgr(new MaterialManager())
         , mActiveRenderer(nullptr)
         , mAppListener(nullptr)
         , mSceneMgr(nullptr)
@@ -52,6 +54,7 @@ namespace Tiny3D
 
     Entrance::~Entrance()
     {
+        T3D_SAFE_DELETE(mMaterialMgr);
         T3D_SAFE_DELETE(mArchiveMgr);
         T3D_SAFE_DELETE(mDylibMgr);
 

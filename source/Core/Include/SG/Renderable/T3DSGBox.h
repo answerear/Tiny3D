@@ -5,6 +5,7 @@
 
 #include "SG/Renderable/T3DSGRenderable.h"
 #include "Math/T3DAabb.h"
+#include "Math/T3DVector2.h"
 
 
 namespace Tiny3D
@@ -47,11 +48,17 @@ namespace Tiny3D
         enum
         {
             MAX_FACE_NUM = 6,
-            MAX_VERTICES_NUM = 8,
+            MAX_VERTICES_NUM = 24,
             INDICES_PER_FACE = 6
         };
 
-        Vector3 mVertices[MAX_VERTICES_NUM];
+        struct Vertex
+        {
+            Vector3 position;
+            Vector2 texcoord;
+        };
+
+        Vertex mVertices[MAX_VERTICES_NUM];
     };
 }
 

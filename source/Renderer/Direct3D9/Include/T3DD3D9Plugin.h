@@ -26,7 +26,8 @@ namespace Tiny3D
     protected:
         String      mName;
 
-        Renderer    *mRenderer;
+        Renderer        *mRenderer;
+        TextureManager  *mTextureMgr;
     };
 }
 

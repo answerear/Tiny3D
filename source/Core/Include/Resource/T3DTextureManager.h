@@ -29,6 +29,8 @@ namespace Tiny3D
 
         int32_t mDefaultNumMipMaps;
     };
+
+    #define T3D_TEXTURE_MGR         (TextureManager::getInstance())
 }
 
 

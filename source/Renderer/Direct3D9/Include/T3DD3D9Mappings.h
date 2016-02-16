@@ -20,6 +20,9 @@ namespace Tiny3D
         static D3DFORMAT get(HardwareIndexBuffer::Type type);
         static D3DDECLTYPE get(VertexElement::Type type);
         static D3DDECLUSAGE get(VertexElement::Semantic semantic);
+        static D3DFORMAT get(PixelFormat format);
+        static PixelFormat get(D3DFORMAT d3dfmt);
+        static D3DCOLORVALUE get(const Color4 &color);
     };
 }
 

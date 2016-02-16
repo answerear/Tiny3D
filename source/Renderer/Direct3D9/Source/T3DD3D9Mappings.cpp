@@ -150,4 +150,84 @@ namespace Tiny3D
 
         return usage;
     }
+
+    D3DFORMAT D3D9Mappings::get(PixelFormat format)
+    {
+        D3DFORMAT d3dfmt = D3DFMT_A8B8G8R8;
+
+        switch (format)
+        {
+        case E_PF_R5G6B5:
+            d3dfmt = D3DFMT_R5G6B5;
+            break;
+        case E_PF_A1R5G5B5:
+            d3dfmt = D3DFMT_A1R5G5B5;
+            break;
+        case E_PF_A4R4G4B4:
+            d3dfmt = D3DFMT_A4R4G4B4;
+            break;
+        case E_PF_R8G8B8:
+            d3dfmt = D3DFMT_R8G8B8;
+            break;
+        case E_PF_A8R8G8B8:
+            d3dfmt = D3DFMT_A8R8G8B8;
+            break;
+        case E_PF_X8R8G8B8:
+            d3dfmt = D3DFMT_X8R8G8B8;
+            break;
+        case E_PF_X8B8G8R8:
+            d3dfmt = D3DFMT_X8B8G8R8;
+            break;
+        case E_PF_A8B8G8R8:
+            d3dfmt = D3DFMT_A8B8G8R8;
+            break;
+        }
+
+        return d3dfmt;
+    }
+
+    PixelFormat D3D9Mappings::get(D3DFORMAT d3dfmt)
+    {
+        PixelFormat format = E_PF_A8R8G8B8;
+
+        switch (d3dfmt)
+        {
+        case D3DFMT_R5G6B5:
+            format = E_PF_R5G6B5;
+            break;
+        case D3DFMT_A1R5G5B5:
+            format = E_PF_A1R5G5B5;
+            break;
+        case D3DFMT_A4R4G4B4:
+            format = E_PF_A4R4G4B4;
+            break;
+        case D3DFMT_R8G8B8:
+            format = E_PF_R8G8B8;
+            break;
+        case D3DFMT_A8R8G8B8:
+            format = E_PF_A8R8G8B8;
+            break;
+        case D3DFMT_X8R8G8B8:
+            format = E_PF_X8R8G8B8;
+            break;
+        case D3DFMT_A8B8G8R8:
+            format = E_PF_A8B8G8R8;
+            break;
+        case D3DFMT_X8B8G8R8:
+            format = E_PF_X8B8G8R8;
+            break;
+        }
+
+        return format;
+    }
+
+    D3DCOLORVALUE D3D9Mappings::get(const Color4 &color)
+    {
+        D3DCOLORVALUE d3dcolor;
+        d3dcolor.a = color.alpha();
+        d3dcolor.r = color.red();
+        d3dcolor.g = color.green();
+        d3dcolor.b = color.blue();
+        return d3dcolor;
+    }
 }

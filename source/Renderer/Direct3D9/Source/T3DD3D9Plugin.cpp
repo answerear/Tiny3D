@@ -3,6 +3,7 @@
 #include "T3DD3D9Plugin.h"
 #include "Misc/T3DEntrance.h"
 #include "T3DD3d9Renderer.h"
+#include "T3DD3D9TextureManager.h"
 
 
 namespace Tiny3D
@@ -10,6 +11,7 @@ namespace Tiny3D
     D3D9Plugin::D3D9Plugin()
         : mName("Direct3D9 Renderer Plugin")
         , mRenderer(nullptr)
+        , mTextureMgr(nullptr)
     {
 
     }
@@ -41,6 +43,8 @@ namespace Tiny3D
 
         Entrance::getInstance().addRenderer(mRenderer);
 
+        mTextureMgr = new D3D9TextureManager();
+
         return true;
     }
 
@@ -60,6 +64,12 @@ namespace Tiny3D
         {
             delete mRenderer;
             mRenderer = nullptr;
+        }
+
+        if (mTextureMgr != nullptr)
+        {
+            delete mTextureMgr;
+            mTextureMgr = nullptr;
         }
     }
 }

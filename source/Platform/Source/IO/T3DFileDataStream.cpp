@@ -8,6 +8,7 @@ namespace Tiny3D
     FileDataStream::FileDataStream()
         : m_pFileHandle(nullptr)
         , m_lSize(0)
+        , m_bIsOpened(false)
     {
 
     }

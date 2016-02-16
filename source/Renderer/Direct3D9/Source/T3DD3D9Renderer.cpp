@@ -7,6 +7,7 @@
 #include "T3DD3D9HardwareIndexBuffer.h"
 #include "T3DD3D9VertexDeclaration.h"
 #include "T3DD3D9Mappings.h"
+#include "T3DD3D9Texture.h"
 
 
 namespace Tiny3D
@@ -192,12 +193,47 @@ namespace Tiny3D
 
     const Matrix4 &D3D9Renderer::getTransform(TransformState state) const
     {
+//         mD3DDevice->GetTransform(D3DTS_WORLD, &d3dmat);
         return Matrix4::IDENTITY;
     }
 
     void D3D9Renderer::setMaterial(const MaterialPtr &material)
     {
+        if (material != nullptr)
+        {
+            const Color4 &ambient = material->getAmbientColor();
+            const Color4 &diffuse = material->getDiffuseColor();
+            const Color4 &specular = material->getSpecularColor();
+            const Color4 &emissive = material->getEmissiveColor();
+            Real shininess = material->getShininess();
 
+            D3DMATERIAL9 d3dmat;
+            d3dmat.Ambient = D3D9Mappings::get(ambient);
+            d3dmat.Diffuse = D3D9Mappings::get(diffuse);
+            d3dmat.Specular = D3D9Mappings::get(specular);
+            d3dmat.Emissive = D3D9Mappings::get(emissive);
+            d3dmat.Power = shininess;
+            HRESULT hr = mD3DDevice->SetMaterial(&d3dmat);
+
+            size_t i = 0;
+            for (i = 0; i < material->getNumTextureLayer(); ++i)
+            {
+                Texture *tex = material->getTexture(i);
+                if (tex != nullptr)
+                {
+                    D3D9Texture *texture = (D3D9Texture *)tex;
+                    mD3DDevice->SetTexture(0, texture->getD3DTexture());
+                    mD3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+                    mD3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+                    mD3DDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
+                }
+            }
+        }
+        else
+        {
+//             mD3DDevice->SetMaterial(nullptr);
+            mD3DDevice->SetTexture(0, nullptr);
+        }
     }
 
     void D3D9Renderer::setCullingMode(CullingMode mode)

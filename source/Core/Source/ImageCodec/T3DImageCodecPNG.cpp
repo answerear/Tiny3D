@@ -37,6 +37,11 @@ namespace Tiny3D
         }
     }
 
+    static void PngErrorCallback(png_structp png_ptr, png_const_charp error)
+    {
+        png_error(png_ptr, error);
+    }
+
     ImageCodecPNGPtr ImageCodecPNG::create()
     {
         ImageCodecPNGPtr codec = new ImageCodecPNG();
@@ -152,7 +157,7 @@ namespace Tiny3D
                 break;
 
             // init png_struct
-            png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
+            png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, PngErrorCallback, 0);
             if (! png_ptr)
                 break;
 
@@ -191,6 +196,7 @@ namespace Tiny3D
             {
                 png_set_expand_gray_1_2_4_to_8(png_ptr);
             }
+
             // expand any tRNS chunk data into a full alpha channel
             if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
             {
@@ -211,9 +217,11 @@ namespace Tiny3D
             // m_nBitsPerComponent will always be 8
 //             bpp = 8;
             png_uint_32 rowbytes;
-            png_bytep* row_pointers = (png_bytep*)malloc( sizeof(png_bytep) * height );
+            png_bytep* row_pointers = new png_bytep[height];
 
             png_read_update_info(png_ptr, info_ptr);
+
+            png_set_bgr(png_ptr);
 
             rowbytes = png_get_rowbytes(png_ptr, info_ptr);
 
@@ -227,6 +235,7 @@ namespace Tiny3D
             {
                 row_pointers[i] = data + i*rowbytes;
             }
+
             png_read_image(png_ptr, row_pointers);
 
             png_read_end(png_ptr, NULL);
@@ -246,6 +255,13 @@ namespace Tiny3D
                 }
 
                 isPreMulti = true;
+                eFormat = E_PF_A8R8G8B8;
+                bpp = 4;
+            }
+            else
+            {
+                eFormat = E_PF_R8G8B8;
+                bpp = 3;
             }
 
             T3D_SAFE_DELETE_ARRAY(row_pointers);

@@ -50,12 +50,12 @@ namespace Tiny3D
 
         virtual bool copyToTexture(const TexturePtr &texture, Rect *src = nullptr, Rect *dst = nullptr) const = 0;
 
+        virtual bool loadImage(const Image &src) = 0;
+
     protected:
         Texture(const String &name, int32_t numMipMaps, int32_t texWidth = -1, int32_t texHeight = -1, 
             TexUsage texUsage = E_TU_DEFAULT, TexType texType = E_TEX_TYPE_2D, 
             PixelFormat format = E_PF_A8R8G8B8);
-
-        virtual bool loadImage(const Image &src) = 0;
 
         TexType     mTexType;
         TexUsage    mTexUsage;

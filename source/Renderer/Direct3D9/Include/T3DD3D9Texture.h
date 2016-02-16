@@ -17,6 +17,8 @@ namespace Tiny3D
 
         virtual ~D3D9Texture();
 
+        LPDIRECT3DTEXTURE9 getD3DTexture()  { return mD3DTexture; }
+
     protected:
         D3D9Texture(const String &name, int32_t width, int32_t height,
             int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType);

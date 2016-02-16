@@ -17,8 +17,6 @@ namespace Tiny3D
 
     TexturePtr D3D9TextureManager::createTexture(const String &name, int32_t width, int32_t height, int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType)
     {
-        TexturePtr texture = D3D9Texture::create(name, width, height, numMipMaps, format, texUsage, texType);
-        texture->release();
-        return texture;
+        return D3D9Texture::create(name, width, height, numMipMaps, format, texUsage, texType);
     }
 }

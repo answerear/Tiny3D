@@ -58,6 +58,11 @@ namespace Tiny3D
         return mBPP;
     }
 
+    inline PixelFormat Image::getFormat() const
+    {
+        return mFormat;
+    }
+
     inline bool Image::hasAlpha() const
     {
         return mHasAlpha;

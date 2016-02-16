@@ -34,7 +34,7 @@ int32_t HelloWorldApp::go()
 
 bool HelloWorldApp::applicationDidFinishLaunching()
 {
-    T3D_ENTRANCE.getActiveRenderer()->setRenderMode(Renderer::E_RM_WIREFRAME);
+    T3D_ENTRANCE.getActiveRenderer()->setRenderMode(Renderer::E_RM_SOLID);
 //     T3D_ENTRANCE.getActiveRenderer()->setCullingMode(Renderer::E_CULL_NONE);
 
     SGNodePtr root = T3D_SCENE_MGR.getRoot();

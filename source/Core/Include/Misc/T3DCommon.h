@@ -13,15 +13,13 @@ namespace Tiny3D
     {
         E_PF_UNKNOWN = 0,
         E_PF_R5G6B5,
-        E_PF_B5G6R5,
         E_PF_A1R5G5B5,
-        E_PF_B5G5R5A1,
         E_PF_A4R4G4B4,
-        E_PF_B4G4R4A4,
         E_PF_R8G8B8,
-        E_PF_B8G8R8,
         E_PF_A8R8G8B8,
-        E_PF_B8G8R8A8,
+        E_PF_X8R8G8B8,
+        E_PF_X8B8G8R8,
+        E_PF_A8B8G8R8,
     };
 
     /** Parameter for creating render window. */

@@ -59,7 +59,7 @@ namespace Tiny3D
 
     size_t MemoryDataStream::read(void *pBuffer, size_t nSize)
     {
-        long_t lLeft = m_lSize - m_lCurPos - 1;
+        long_t lLeft = m_lSize - m_lCurPos;
         long_t lBytesOfRead = (long_t)nSize > lLeft ? lLeft : (long_t)nSize;
         memcpy(pBuffer, m_pBuffer + m_lCurPos, lBytesOfRead);
         m_lCurPos += lBytesOfRead;
