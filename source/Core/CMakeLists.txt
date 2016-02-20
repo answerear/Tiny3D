@@ -75,12 +75,11 @@ set_project_files(Source\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Source/Resource
 set_project_files(Source\\\\Listener ${CMAKE_CURRENT_SOURCE_DIR}/Source/Listener/ .cpp)
 set_project_files(Source\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Source/DataStruct/ .cpp)
 
+# Internal project header files and source files
 set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageCodec/ .h)
 set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageCodec/ .cpp)
-set_project_files(Source\\\\MeshReader ${CMAKE_CURRENT_SOURCE_DIR}/Source/MeshReader/ .h)
-set_project_files(Source\\\\MeshReader ${CMAKE_CURRENT_SOURCE_DIR}/Source/MeshReader/ .cpp)
-set_project_files(Source\\\\MeshWriter ${CMAKE_CURRENT_SOURCE_DIR}/Source/MeshWriter/ .h)
-set_project_files(Source\\\\MeshWriter ${CMAKE_CURRENT_SOURCE_DIR}/Source/MeshWriter/ .cpp)
+set_project_files(Source\\\\MeshSerializer ${CMAKE_CURRENT_SOURCE_DIR}/Source/MeshSerializer/ .h)
+set_project_files(Source\\\\MeshSerializer ${CMAKE_CURRENT_SOURCE_DIR}/Source/MeshSerializer/ .cpp)
 
 # tinyxml2
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)
