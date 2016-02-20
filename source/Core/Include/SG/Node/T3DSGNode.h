@@ -36,7 +36,6 @@ namespace Tiny3D
 
             // All node derived from SGVisual
             E_NT_CAMERA,
-            E_NT_LIGHT,
             E_NT_MESH,
             E_NT_SKYBOX,
             E_NT_SKYDOOM,
@@ -45,8 +44,10 @@ namespace Tiny3D
             E_NT_SPRITE,
             E_NT_INDICATOR,
             E_NT_TERRAIN,
+            E_NT_VIRTUAL,
 
             // All node derived from SGRenderable
+            E_NT_LIGHT,
             E_NT_TILE,
             E_NT_PLANE,
             E_NT_SPHERE,

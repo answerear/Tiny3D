@@ -4,13 +4,13 @@
 #define __T3D_SG_LIGHT_H__
 
 
-#include "SG/Visual/T3DSGVisual.h"
+#include "SG/Renderable/T3DSGRenderable.h"
 #include "Misc/T3DColor4.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SGLight : public SGVisual
+    class T3D_ENGINE_API SGLight : public SGRenderable
     {
     public:
         enum LightType
@@ -27,32 +27,33 @@ namespace Tiny3D
         virtual Type getNodeType() const override;
         virtual SGNodePtr clone() const override;
 
-        void setLightType(LightType type);
-        LightType getLightType() const;
+        void setLightType(LightType type)   { mLightType = type; }
+        LightType getLightType() const      { return mLightType; }
 
-        void setAmbientColor(const Color4 &ambient);
-        const Color4 &getAmbientColor() const;
+        void setAmbientColor(const Color4 &ambient) { mAmbientColor = ambient; }
+        const Color4 &getAmbientColor() const       { return mAmbientColor; }
 
-        void setDiffuseColor(const Color4 &diffuse);
-        const Color4 &getDiffuseColor() const;
+        void setDiffuseColor(const Color4 &diffuse) { mDiffuseColor = diffuse; }
+        const Color4 &getDiffuseColor() const       { return mDiffuseColor; }
 
-        void setSpecularColor(const Color4 &specular);
-        const Color4 &getSpecularColor() const;
+        void setSpecularColor(const Color4 &specular)   { mSpecularColor = specular; }
+        const Color4 &getSpecularColor() const          { return mSpecularColor; }
 
         void setDirection(const Vector3 &dir, bool isDerivedOrientation = false);
         Vector3 getDirection() const;
 
         void setSpotlightRangle(const Degree &inner, const Degree &outer, Real falloff = 1.0);
 
-        const Degree &getSpotlightInnerAngle() const;
-        const Real &getSpotlightOuterAngle() const;
-        Real getSpotlightFalloff() const;
+        const Degree &getSpotlightInnerAngle() const    { return mSpotInner; }
+        const Degree &getSpotlightOuterAngle() const    { return mSpotOuter; }
+        Real getSpotlightFalloff() const                { return mSpotFalloff; }
 
         void setAttenuation(Real range, Real constant, Real linear, Real quadratic);
-        Real getAttenuationRange() const;
-        Real getAttenuationConst() const;
-        Real getAttenuationLinear() const;
-        Real getAttenuationQuadric() const;
+
+        Real getAttenuationRange() const    { return mRange; }
+        Real getAttenuationConst() const    { return mAttenuationConst; }
+        Real getAttenuationLinear() const   { return mAttenuationLinear; }
+        Real getAttenuationQuadric() const  { return mAttenuationQuad; }
 
     protected:
         virtual void updateTransform() override;
@@ -71,7 +72,7 @@ namespace Tiny3D
 
         Degree      mSpotInner;
         Degree      mSpotOuter;
-        Real        mFalloff;
+        Real        mSpotFalloff;
         Real        mRange;
         Real        mAttenuationConst;
         Real        mAttenuationLinear;

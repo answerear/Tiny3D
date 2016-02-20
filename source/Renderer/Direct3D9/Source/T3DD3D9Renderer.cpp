@@ -208,7 +208,8 @@ namespace Tiny3D
 
     void D3D9Renderer::setAmbientLight(const Color4 &ambient)
     {
-        HRESULT hr = mD3DDevice->SetRenderState(D3DRS_AMBIENT, ambient.A8R8G8B8());
+        DWORD color = ambient.A8R8G8B8();
+        HRESULT hr = mD3DDevice->SetRenderState(D3DRS_AMBIENT, color);
         if (FAILED(hr))
         {
 
@@ -217,7 +218,17 @@ namespace Tiny3D
 
     void D3D9Renderer::addDynamicLight(size_t index, const SGLightPtr light)
     {
+        D3DLIGHT9 d3dlight;
+        d3dlight.Type = D3D9Mappings::get(light->getLightType());
+        d3dlight.Ambient = D3D9Mappings::get(light->getAmbientColor());
+        d3dlight.Diffuse = D3D9Mappings::get(light->getDiffuseColor());
+        d3dlight.Specular = D3D9Mappings::get(light->getSpecularColor());
 
+        HRESULT hr = mD3DDevice->SetLight(index, &d3dlight);
+        if (FAILED(hr))
+        {
+
+        }
     }
 
     void D3D9Renderer::removeDynamicLight(size_t index)

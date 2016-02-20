@@ -230,4 +230,24 @@ namespace Tiny3D
         d3dcolor.b = color.blue();
         return d3dcolor;
     }
+
+    D3DLIGHTTYPE D3D9Mappings::get(SGLight::LightType type)
+    {
+        D3DLIGHTTYPE d3dtype = D3DLIGHT_POINT;
+
+        switch (type)
+        {
+        case SGLight::E_LT_POINT:
+            d3dtype = D3DLIGHT_POINT;
+            break;
+        case SGLight::E_LT_SPOT:
+            d3dtype = D3DLIGHT_SPOT;
+            break;
+        case SGLight::E_LT_DIRECTIONNAL:
+            d3dtype = D3DLIGHT_DIRECTIONAL;
+            break;
+        }
+
+        return d3dtype;
+    }
 }

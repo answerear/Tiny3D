@@ -77,6 +77,10 @@ set_project_files(Source\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Source/DataSt
 
 set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageCodec/ .h)
 set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageCodec/ .cpp)
+set_project_files(Source\\\\MeshReader ${CMAKE_CURRENT_SOURCE_DIR}/Source/MeshReader/ .h)
+set_project_files(Source\\\\MeshReader ${CMAKE_CURRENT_SOURCE_DIR}/Source/MeshReader/ .cpp)
+set_project_files(Source\\\\MeshWriter ${CMAKE_CURRENT_SOURCE_DIR}/Source/MeshWriter/ .h)
+set_project_files(Source\\\\MeshWriter ${CMAKE_CURRENT_SOURCE_DIR}/Source/MeshWriter/ .cpp)
 
 # tinyxml2
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)

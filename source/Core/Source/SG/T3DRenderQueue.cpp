@@ -3,6 +3,7 @@
 #include "SG/T3DRenderQueue.h"
 #include "Resource/T3DMaterial.h"
 #include "SG/Renderable/T3DSGRenderable.h"
+#include "SG/Renderable/T3DSGLight.h"
 #include "Render/T3DRenderer.h"
 
 
@@ -41,49 +42,74 @@ namespace Tiny3D
         mRenderables.clear();
     }
 
-    void RenderGroup::render(const RendererPtr &renderer)
+    void RenderGroup::render(uint32_t groupID, const RendererPtr &renderer)
     {
-        RenderablesItr itr = mRenderables.begin();
-
-        while (itr != mRenderables.end())
+        if (RenderQueue::E_GRPID_LIGHT != groupID)
         {
-            const MaterialPtr material = itr->first;
-            renderer->setMaterial(material);
+            RenderablesItr itr = mRenderables.begin();
 
-            RenderableList &renderables = itr->second;
-            
-            RenderableListItr i = renderables.begin();
-
-            while (i != renderables.end())
+            while (itr != mRenderables.end())
             {
-                SGRenderablePtr &renderable = *i;
-                const Matrix4 &m = renderable->getWorldMatrix();
-                renderer->setWorldTransform(m);
+                const MaterialPtr material = itr->first;
+                renderer->setMaterial(material);
 
-                VertexDataPtr vertexData =renderable->getVertexData();
-                IndexDataPtr indexData = renderable->getIndexData();
+                RenderableList &renderables = itr->second;
 
-                Renderer::PrimitiveType priType = renderable->getPrimitiveType();
-                bool useIndices = renderable->isIndicesUsed();
+                RenderableListItr i = renderables.begin();
 
-                size_t primitiveCount = calcPrimitiveCount(priType, 
-                    useIndices ? indexData->getIndexBuffer()->getIndexCount() : 0, 
-                    vertexData->getVertexBuffer()->getVertexCount(),
-                    useIndices);
-
-                if (useIndices)
+                while (i != renderables.end())
                 {
-                    renderer->drawIndexList(priType, vertexData, indexData, 0, primitiveCount);
-                }
-                else
-                {
-                    renderer->drawVertexList(priType, vertexData, 0, primitiveCount);
+                    SGRenderablePtr &renderable = *i;
+                    const Matrix4 &m = renderable->getWorldMatrix();
+                    renderer->setWorldTransform(m);
+
+                    VertexDataPtr vertexData =renderable->getVertexData();
+                    IndexDataPtr indexData = renderable->getIndexData();
+
+                    Renderer::PrimitiveType priType = renderable->getPrimitiveType();
+                    bool useIndices = renderable->isIndicesUsed();
+
+                    size_t primitiveCount = calcPrimitiveCount(priType, 
+                        useIndices ? indexData->getIndexBuffer()->getIndexCount() : 0, 
+                        vertexData->getVertexBuffer()->getVertexCount(),
+                        useIndices);
+
+                    if (useIndices)
+                    {
+                        renderer->drawIndexList(priType, vertexData, indexData, 0, primitiveCount);
+                    }
+                    else
+                    {
+                        renderer->drawVertexList(priType, vertexData, 0, primitiveCount);
+                    }
+
+                    ++i;
                 }
 
-                ++i;
+                ++itr;
             }
+        }
+        else
+        {
+            size_t index = 0;
+            RenderablesItr itr = mRenderables.begin();
 
-            ++itr;
+            while (itr != mRenderables.end())
+            {
+                RenderableList &renderables = itr->second;
+
+                RenderableListItr i = renderables.begin();
+
+                while (i != renderables.end())
+                {
+                    SGLightPtr light = smart_pointer_cast<SGLight>(*i);
+                    renderer->addDynamicLight(index, light);
+                    ++index;
+                    ++i;
+                }
+                
+                ++itr;
+            }
         }
     }
 
@@ -173,7 +199,7 @@ namespace Tiny3D
 
         while (itr != mGroups.end())
         {
-            itr->second->render(renderer);
+            itr->second->render(itr->first, renderer);
             ++itr;
         }
     }

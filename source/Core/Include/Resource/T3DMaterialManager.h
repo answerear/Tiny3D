@@ -5,7 +5,6 @@
 
 
 #include "Resource/T3DResourceManager.h"
-#include "T3DPlatform.h"
 #include "Resource/T3DMaterial.h"
 
 

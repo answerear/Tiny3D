@@ -23,6 +23,7 @@ namespace Tiny3D
         static D3DFORMAT get(PixelFormat format);
         static PixelFormat get(D3DFORMAT d3dfmt);
         static D3DCOLORVALUE get(const Color4 &color);
+        static D3DLIGHTTYPE get(SGLight::LightType type);
     };
 }
 

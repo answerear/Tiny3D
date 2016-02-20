@@ -47,22 +47,29 @@
 #include "DataStruct/T3DIndexData.h"
 #include "DataStruct/T3DVertexData.h"
 
-#include "Resource/T3DDylib.h"
-#include "Resource/T3DDylibManager.h"
 #include "Resource/T3DResource.h"
 #include "Resource/T3DResourceManager.h"
+#include "Resource/T3DDylib.h"
+#include "Resource/T3DDylibManager.h"
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveManager.h"
 #include "Resource/T3DTexture.h"
 #include "Resource/T3DTextureManager.h"
+#include "Resource/T3DMaterial.h"
+#include "Resource/T3DMaterialManager.h"
+#include "Resource/T3DMesh.h"
+#include "Resource/T3DMeshManager.h"
 
 #include "SG/Node/T3DSGNode.h"
 #include "SG/Node/T3DSGTransformNode.h"
 #include "SG/Visual/T3DSGVisual.h"
 #include "SG/Visual/T3DSGCamera.h"
 #include "SG/Visual/T3DSGMesh.h"
-#include "SG/Visual/T3DSGLight.h"
+#include "SG/Visual/T3DSGVirtualMesh.h"
 #include "SG/Renderable/T3DSGRenderable.h"
 #include "SG/Renderable/T3DSGBox.h"
+#include "SG/Renderable/T3DSGSphere.h"
+#include "SG/Renderable/T3DSGLight.h"
+
 
 #endif  /*__TINY3D_H__*/

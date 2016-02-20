@@ -100,6 +100,8 @@ namespace Tiny3D
     class Archive;
     class ArchiveManager;
     class ArchiveCreator;
+    class Mesh;
+    class MeshManager;
 
     class FileSystemArchive;
     class FileSystemArchiveCreator;
@@ -114,10 +116,11 @@ namespace Tiny3D
     class SGVisual;
     class SGCamera;
     class SGMesh;
-    class SGLight;
+    class SGVirtualMesh;
     class SGRenderable;
     class SGSphere;
     class SGBox;
+    class SGLight;
 
     class VertexData;
     class IndexData;

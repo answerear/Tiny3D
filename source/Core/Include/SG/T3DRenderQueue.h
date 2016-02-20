@@ -20,7 +20,7 @@ namespace Tiny3D
 
         void clear();
 
-        void render(const RendererPtr &renderer);
+        void render(uint32_t groupID, const RendererPtr &renderer);
 
     protected:
         size_t calcPrimitiveCount(Renderer::PrimitiveType priType, size_t indexCount, size_t vertexCount, bool useIndex);

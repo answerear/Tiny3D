@@ -1,6 +1,7 @@
 
 
-#include "SG/Visual/T3DSGLight.h"
+#include "SG/Renderable/T3DSGLight.h"
+#include "SG/T3DRenderQueue.h"
 #include "T3DTypedef.h"
 
 
@@ -14,7 +15,7 @@ namespace Tiny3D
     }
 
     SGLight::SGLight(uint32_t uID /* = E_NID_AUTOMATIC */)
-        : SGVisual(uID)
+        : SGRenderable(uID)
         , mLightType(E_LT_POINT)
         , mAmbientColor(Color4::WHITE)
         , mDiffuseColor(Color4::WHITE)
@@ -42,14 +43,10 @@ namespace Tiny3D
 
     void SGLight::updateTransform()
     {
-        SGVisual::updateTransform();
     }
 
     void SGLight::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
     {
-        if (mIsVisible)
-        {
-            
-        }
+        queue->addRenderable(RenderQueue::E_GRPID_LIGHT, this);
     }
 }

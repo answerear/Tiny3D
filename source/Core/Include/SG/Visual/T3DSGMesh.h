@@ -26,6 +26,7 @@ namespace Tiny3D
 
         bool loadBox();
         bool loadSphere();
+        bool loadMesh(const String &name);
 
         virtual Type getNodeType() const override;
 
