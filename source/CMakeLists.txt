@@ -66,8 +66,16 @@ add_subdirectory(Core)
 add_subdirectory(Renderer)
 add_subdirectory(Samples)
 
+if (TINY3D_OS_WINDOWS)
+	add_subdirectory(Tools)
+endif (TINY3D_OS_WINDOWS)
+
 
 #add_dependencies(T3DPlatform setup_build)
 add_dependencies(T3DLog T3DPlatform)
 add_dependencies(T3DCore T3DLog T3DPlatform)
 add_dependencies(HelloWorld T3DCore T3DLog T3DPlatform)
+
+if (TINY3D_OS_WINDOWS)
+	add_dependencies(MeshConverter T3DLog T3DPlatform)
+endif (TINY3D_OS_WINDOWS)

@@ -10,12 +10,14 @@ set_project_name(MeshConverter)
 
 set(TINY3D_PLATFORM_INC_DIR "${TINY3D_INC_DIR}/Platform")
 set(TINY3D_LOG_INC_DIR "${TINY3D_INC_DIR}/Log")
-set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies")
+set(TINY3D_CORE_INC_DIR "${TINY3D_INC_DIR}/Core")
+
 
 # Setup project include files path
 include_directories(
 	"${TINY3D_PLATFORM_INC_DIR}"
 	"${TINY3D_LOG_INC_DIR}"
+	"${TINY3D_CORE_INC_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
 	)
 
@@ -26,14 +28,11 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
 
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
-set_project_files(Include\\\\Windows ${CMAKE_CURRENT_SOURCE_DIR}/Math/ .h)
-set_project_files(Include\\\\Windows ${CMAKE_CURRENT_SOURCE_DIR}/Math/ .inl)
-set_project_files(Include\\\\Windows ${CMAKE_CURRENT_SOURCE_DIR}/Math/ .cpp)
 
 
 
 add_executable(
-	${BIN_NAME} WIN32 
+	${BIN_NAME} 
 	${SOURCE_FILES}
 	)
 
