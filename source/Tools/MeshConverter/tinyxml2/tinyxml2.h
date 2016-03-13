@@ -24,7 +24,7 @@ distribution.
 #ifndef TINYXML2_INCLUDED
 #define TINYXML2_INCLUDED
 
-#include "T3DPrerequisites.h"
+#include "mconv_prerequisites.h"
 
 #if defined(T3D_OS_ANDROID)
 #   include <ctype.h>
@@ -123,7 +123,7 @@ class XMLPrinter;
 	and entity translation if actually read. Can also store (and memory
 	manage) a traditional char[]
 */
-class T3D_ENGINE_API StrPair
+class StrPair
 {
 public:
     enum {
@@ -187,7 +187,7 @@ private:
 	cause a call to new/delete
 */
 template <class T, int INIT>
-class T3D_ENGINE_API DynArray
+class DynArray
 {
 public:
     DynArray< T, INIT >() {
@@ -278,7 +278,7 @@ private:
 	Parent virtual class of a pool for fast allocation
 	and deallocation of objects.
 */
-class T3D_ENGINE_API MemPool
+class MemPool
 {
 public:
     MemPool() {}
@@ -295,7 +295,7 @@ public:
 	Template child class to create pools of the correct type.
 */
 template< int SIZE >
-class T3D_ENGINE_API MemPoolT : public MemPool
+class MemPoolT : public MemPool
 {
 public:
     MemPoolT() : _root(0), _currentAllocs(0), _nAllocs(0), _maxAllocs(0), _nUntracked(0)	{}
@@ -401,7 +401,7 @@ private:
 
 	@sa XMLNode::Accept()
 */
-class T3D_ENGINE_API XMLVisitor
+class XMLVisitor
 {
 public:
     virtual ~XMLVisitor() {}
@@ -446,7 +446,7 @@ public:
 /*
 	Utility functionality.
 */
-class T3D_ENGINE_API XMLUtil
+class XMLUtil
 {
 public:
     // Anything in the high order range of UTF-8 is assumed to not be whitespace. This isn't
@@ -539,7 +539,7 @@ public:
 
 	@endverbatim
 */
-class T3D_ENGINE_API XMLNode
+class XMLNode
 {
     friend class XMLDocument;
     friend class XMLElement;
@@ -805,7 +805,7 @@ private:
 	you generally want to leave it alone, but you can change the output mode with
 	SetCDATA() and query it with CDATA().
 */
-class T3D_ENGINE_API XMLText : public XMLNode
+class XMLText : public XMLNode
 {
     friend class XMLBase;
     friend class XMLDocument;
@@ -844,7 +844,7 @@ private:
 
 
 /** An XML Comment. */
-class T3D_ENGINE_API XMLComment : public XMLNode
+class XMLComment : public XMLNode
 {
     friend class XMLDocument;
 public:
@@ -882,7 +882,7 @@ private:
 	The text of the declaration isn't interpreted. It is parsed
 	and written as a string.
 */
-class T3D_ENGINE_API XMLDeclaration : public XMLNode
+class XMLDeclaration : public XMLNode
 {
     friend class XMLDocument;
 public:
@@ -914,7 +914,7 @@ protected:
 
 	DTD tags get thrown into TiXmlUnknowns.
 */
-class T3D_ENGINE_API XMLUnknown : public XMLNode
+class XMLUnknown : public XMLNode
 {
     friend class XMLDocument;
 public:
@@ -973,7 +973,7 @@ enum XMLError {
 	@note The attributes are not XMLNodes. You may only query the
 	Next() attribute in a list.
 */
-class T3D_ENGINE_API XMLAttribute
+class XMLAttribute
 {
     friend class XMLElement;
 public:
@@ -1074,7 +1074,7 @@ private:
 	and can contain other elements, text, comments, and unknowns.
 	Elements also contain an arbitrary number of attributes.
 */
-class T3D_ENGINE_API XMLElement : public XMLNode
+class XMLElement : public XMLNode
 {
     friend class XMLBase;
     friend class XMLDocument;
@@ -1356,7 +1356,7 @@ enum Whitespace {
 	All Nodes are connected and allocated to a Document.
 	If the Document is deleted, all its Nodes are also deleted.
 */
-class T3D_ENGINE_API XMLDocument : public XMLNode
+class XMLDocument : public XMLNode
 {
     friend class XMLElement;
 public:
@@ -1612,7 +1612,7 @@ private:
 
 	See also XMLConstHandle, which is the same as XMLHandle, but operates on const objects.
 */
-class T3D_ENGINE_API XMLHandle
+class XMLHandle
 {
 public:
     /// Create a handle from any node (at any depth of the tree.) This can be a null pointer.
@@ -1696,7 +1696,7 @@ private:
 	A variant of the XMLHandle class for working with const XMLNodes and Documents. It is the
 	same in all regards, except for the 'const' qualifiers. See XMLHandle for API.
 */
-class T3D_ENGINE_API XMLConstHandle
+class XMLConstHandle
 {
 public:
     XMLConstHandle( const XMLNode* node )											{
@@ -1803,7 +1803,7 @@ private:
 	printer.CloseElement();
 	@endverbatim
 */
-class T3D_ENGINE_API XMLPrinter : public XMLVisitor
+class XMLPrinter : public XMLVisitor
 {
 public:
     /** Construct the printer. If the FILE* is specified,

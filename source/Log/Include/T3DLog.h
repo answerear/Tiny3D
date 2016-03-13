@@ -72,12 +72,12 @@
          T3D_LOGGER.trace(level, __FILE__, __LINE__, fmt, ##__VA_ARGS__);    \
      }
 
-#define T3D_LOG_FATAL(fmt, ...)         T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_FATAL)
-#define T3D_LOG_CRITICAL(fmt, ...)      T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_CRITICAL)
-#define T3D_LOG_ERROR(fmt, ...)         T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_ERROR)
-#define T3D_LOG_WARNING(fmt, ...)       T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_WARNING)
-#define T3D_LOG_INFO(fmt, ...)          T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_INFO)
-#define T3D_LOG_DEBUG(fmt, ...)         T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_DEBUG)
+#define T3D_LOG_FATAL(fmt, ...)         T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_FATAL, fmt, ##__VA_ARGS__)
+#define T3D_LOG_CRITICAL(fmt, ...)      T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_CRITICAL, fmt, ##__VA_ARGS__)
+#define T3D_LOG_ERROR(fmt, ...)         T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_ERROR, fmt, ##__VA_ARGS__)
+#define T3D_LOG_WARNING(fmt, ...)       T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_WARNING, fmt, ##__VA_ARGS__)
+#define T3D_LOG_INFO(fmt, ...)          T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_INFO, fmt, ##__VA_ARGS__)
+#define T3D_LOG_DEBUG(fmt, ...)         T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_DEBUG, fmt, ##__VA_ARGS__)
 #else
 #define T3D_LOG_TO_LEVEL_STR(l)
 #define T3D_LOG_TO_LEVEL_VALUE(l)
