@@ -18,6 +18,8 @@ namespace mconv
     protected:
         void printCommand(int argc, char *argv[]) const;
         void printHelp() const;
+
+        FileType parseType(const char *arg) const;
     };
 }
 

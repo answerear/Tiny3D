@@ -1,6 +1,7 @@
 
 
 #include "mconv_command.h"
+#include "mconv_settings.h"
 
 
 namespace mconv
@@ -12,6 +13,57 @@ namespace mconv
         if (argc < 3)
         {
             printHelp();
+            return false;
+        }
+
+        bool bShowHelp = false;
+        settings.mVerbose = false;
+        String ext;
+
+        int i = 0;
+        for (i = 1; i < argc; ++i)
+        {
+            const char *arg = argv[i];
+            int len = strlen(arg);
+            if (len > 1 && arg[0] == '-')
+            {
+                if (arg[1] == '?')
+                {
+                    bShowHelp = true;
+                }
+                else if (arg[1] == 'v')
+                {
+                    settings.mVerbose = true;
+                }
+                else if (arg[1] == 'i')
+                {
+                    settings.mSrcType = parseType(argv[++i]);
+                }
+                else if (arg[1] == 'o')
+                {
+                    settings.mDstType = parseType(argv[++i]);
+                    ext = argv[i];
+                }
+            }
+            else if (settings.mSrcPath.length() == 0)
+            {
+                settings.mSrcPath = arg;
+            }
+            else if (settings.mDstPath.length() == 0)
+            {
+                settings.mDstPath = arg;
+            }
+        }
+
+        if (bShowHelp)
+        {
+            printHelp();
+            return false;
+        }
+
+        if (settings.mDstPath.length() == 0)
+        {
+            
         }
 
         return true;
@@ -47,5 +99,21 @@ namespace mconv
         printf("<output> : The filename of the converted file.\n");
         printf("\n");
         printf("<type>   : FBX, T3DB (binary) or T3DT (xml).\n");
+    }
+
+    FileType Command::parseType(const char *arg) const
+    {
+        FileType type = E_FILETYPE_AUTO;
+
+        if (stricmp(arg, "fbx") == 0)
+            type = E_FILETYPE_FBX;
+        else if (stricmp(arg, "t3db") == 0)
+            type = E_FILETYPE_T3DB;
+        else if (stricmp(arg, "t3dt") == 0)
+            type = E_FILETYPE_T3DT;
+        else if (stricmp(arg, "t3d") == 0)
+            type = E_FILETYPE_T3D;
+
+        return type;
     }
 }
