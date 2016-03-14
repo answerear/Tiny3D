@@ -17,7 +17,6 @@ namespace mconv
         }
 
         bool bShowHelp = false;
-        settings.mVerbose = false;
         String ext;
 
         int i = 0;
@@ -55,7 +54,7 @@ namespace mconv
             }
         }
 
-        if (bShowHelp)
+        if (bShowHelp || settings.mSrcPath.length() == 0)
         {
             printHelp();
             return false;
@@ -63,7 +62,9 @@ namespace mconv
 
         if (settings.mDstPath.length() == 0)
         {
-            
+            const String &srcPath = settings.mSrcPath;
+            int pos = srcPath.rfind('.');
+            settings.mDstPath = srcPath.substr(0, pos);
         }
 
         return true;

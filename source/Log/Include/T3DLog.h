@@ -42,10 +42,10 @@
         T3D_LOGGER.setMaxCacheTime(t); \
     }
 
-#define T3D_LOG_STARTUP(app_id, tag, force_output)  \
+#define T3D_LOG_STARTUP(app_id, tag, force_output, output_console)  \
      if (Tiny3D::Logger::getInstancePtr() != nullptr)    \
      {   \
-         T3D_LOGGER.startup(app_id, tag, force_output);  \
+         T3D_LOGGER.startup(app_id, tag, force_output, output_console);  \
      }
 
 #define T3D_LOG_SHUTDOWN()  \
@@ -85,7 +85,7 @@
 #define T3D_LOG_SET_EXPIRED(e)
 #define T3D_LOG_SET_MAX_CACHE_SIZE(s)
 #define T3D_LOG_SET_MAX_CACHE_TIME(t)
-#define T3D_LOG_STARTUP(app_id, tag, force_output)
+#define T3D_LOG_STARTUP(app_id, tag, force_output, output_console)
 #define T3D_LOG_SHUTDOWN()
 #define T3D_LOG_ENTER_BACKGROUND()
 #define T3D_LOG_ENTER_FOREGROUND()

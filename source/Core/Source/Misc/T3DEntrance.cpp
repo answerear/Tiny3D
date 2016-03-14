@@ -169,7 +169,7 @@ namespace Tiny3D
         T3D_LOG_SET_EXPIRED(logSettings["Expired"].uint32Value());
         T3D_LOG_SET_MAX_CACHE_SIZE(logSettings["MaxCacheSize"].uint32Value());
         T3D_LOG_SET_MAX_CACHE_TIME(logSettings["MaxCacheTime"].uint32Value());
-        T3D_LOG_STARTUP(logSettings["AppID"].uint32Value(), logSettings["Tag"].stringValue(), false);
+        T3D_LOG_STARTUP(logSettings["AppID"].uint32Value(), logSettings["Tag"].stringValue(), false, false);
 
         T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "**************************** Tiny3D started *************************");
     }

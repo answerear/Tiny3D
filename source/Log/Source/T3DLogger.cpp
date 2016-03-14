@@ -90,11 +90,12 @@ namespace Tiny3D
         setLevel(strategy.eLevel);
     }
 
-    bool Logger::startup(uint32_t appID, const String &tag, bool force /* = false */)
+    bool Logger::startup(uint32_t appID, const String &tag, bool force /* = false */, bool outputConsole /* = false */)
     {
         mAppID = appID;
         mTag = tag;
         mIsForced = force;
+        mIsOutputConsole = outputConsole;
 
         if (mStrategy.eLevel != E_LEVEL_OFF)
         {
@@ -132,7 +133,10 @@ namespace Tiny3D
         LogItem *item = new LogItem(level, name.c_str(), line, content);
         
         /// 输出到控制台
-        item->outputConsole();
+        if (mIsOutputConsole)
+        {
+            item->outputConsole();
+        }
 
         mItemCache.push_back(item);
 

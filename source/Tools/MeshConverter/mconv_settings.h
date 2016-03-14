@@ -12,6 +12,14 @@ namespace mconv
     class Settings
     {
     public:
+        Settings()
+            : mSrcType(E_FILETYPE_FBX)
+            , mDstType(E_FILETYPE_T3D)
+            , mVerbose(true)
+        {
+
+        }
+
         String  mSrcPath;
         String  mDstPath;
 

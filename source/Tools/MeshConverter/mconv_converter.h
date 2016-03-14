@@ -120,13 +120,13 @@ namespace mconv
         bool convertToT3D();
         bool convertToFBX();
 
-        bool processScene(FbxScene *pFbxScene);
-        bool processNode(FbxNode *pFbxNode);
+        bool processFbxScene(FbxScene *pFbxScene);
+        bool processFbxNode(FbxNode *pFbxNode);
 
-        bool processMesh(FbxNode *pFbxNode);
-        bool processSkeleton(FbxNode *pFbxNode);
-        bool processCamera(FbxNode *pFbxNode);
-        bool processLight(FbxNode *pFbxNode);
+        bool processFbxMesh(FbxNode *pFbxNode);
+        bool processFbxSkeleton(FbxNode *pFbxNode);
+        bool processFbxCamera(FbxNode *pFbxNode);
+        bool processFbxLight(FbxNode *pFbxNode);
 
         Settings    mSettings;
 

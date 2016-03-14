@@ -96,7 +96,7 @@ namespace Tiny3D
          * @note 调用该函数前，请先通过setStrategy()或者setLevel()、setMaxCacheSize()、setMaxCacheTime()设置好日志输出策略，
          *      否则会用默认策略
          */
-        bool startup(uint32_t appID, const String &tag, bool force = false);
+        bool startup(uint32_t appID, const String &tag, bool force = false, bool outputConsole = false);
 
         /**
          * @brief 输出日志
@@ -217,6 +217,7 @@ namespace Tiny3D
         int32_t             mTaskType;          /// 当前处理任务
 
         bool                mIsForced;          /// 是否强制输出
+        bool                mIsOutputConsole;   /// 是否同步输出到控制台
         bool                mIsRunning;         /// 日志系统是否运行中
         bool                mIsTerminated;      /// 异步线程是否被终止
         bool                mIsSuspended;       /// 是否被挂起

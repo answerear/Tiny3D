@@ -6,6 +6,7 @@
 #include "mconv_fbxserializer.h"
 #include "mconv_t3dSerializer.h"
 #include "mconv_node.h"
+#include "mconv_scene.h"
 
 
 namespace mconv
@@ -152,22 +153,22 @@ namespace mconv
 
         FbxScene *pFbxScene = static_cast<FbxScene *>(mSrcData);
 
-        Node *pRoot = new Node("Root");
-        mDstData = pRoot;
+        Scene *pScene = new Scene("Root");
+        mDstData = pScene;
 
-        processScene(pFbxScene);
+        processFbxScene(pFbxScene);
 
         return true;
     }
 
-    bool Converter::processScene(FbxScene *pFbxScene)
+    bool Converter::processFbxScene(FbxScene *pFbxScene)
     {
         FbxNode *pFbxRoot = pFbxScene->GetRootNode();
 
-        return processNode(pFbxRoot);
+        return processFbxNode(pFbxRoot);
     }
 
-    bool Converter::processNode(FbxNode *pFbxNode)
+    bool Converter::processFbxNode(FbxNode *pFbxNode)
     {
         bool result = false;
         if (pFbxNode->GetNodeAttribute() != nullptr)
@@ -177,22 +178,22 @@ namespace mconv
             {
             case FbxNodeAttribute::eMesh:
                 {
-                    result = processMesh(pFbxNode);
+                    result = processFbxMesh(pFbxNode);
                 }
                 break;
             case FbxNodeAttribute::eSkeleton:
                 {
-                    result = processSkeleton(pFbxNode);
+                    result = processFbxSkeleton(pFbxNode);
                 }
                 break;
             case FbxNodeAttribute::eCamera:
                 {
-                    result = processCamera(pFbxNode);
+                    result = processFbxCamera(pFbxNode);
                 }
                 break;
             case FbxNodeAttribute::eLight:
                 {
-                    result = processLight(pFbxNode);
+                    result = processFbxLight(pFbxNode);
                 }
                 break;
             }
@@ -201,28 +202,44 @@ namespace mconv
         int i = 0;
         for (i = 0; i < pFbxNode->GetChildCount(); ++i)
         {
-            processNode(pFbxNode->GetChild(i));
+            processFbxNode(pFbxNode->GetChild(i));
         }
 
         return result;
     }
 
-    bool Converter::processMesh(FbxNode *pFbxNode)
+    bool Converter::processFbxMesh(FbxNode *pFbxNode)
+    {
+        FbxMesh *pFbxMesh = pFbxNode->GetMesh();
+
+        if (pFbxMesh == nullptr)
+        {
+            T3D_LOG_ERROR("FBX mesh is invalid !");
+            return false;
+        }
+
+        if (!pFbxMesh->IsTriangleMesh())
+        {
+            // 不是三角形为面的mesh，统一转换成三角形为面的mesh
+            FbxManager *pFbxManager = pFbxNode->GetFbxManager();
+            FbxGeometryConverter converter(pFbxManager);
+            converter.Triangulate(pFbxMesh, true);
+        }
+
+        return true;
+    }
+
+    bool Converter::processFbxSkeleton(FbxNode *pFbxNode)
     {
         return true;
     }
 
-    bool Converter::processSkeleton(FbxNode *pFbxNode)
+    bool Converter::processFbxCamera(FbxNode *pFbxNode)
     {
         return true;
     }
 
-    bool Converter::processCamera(FbxNode *pFbxNode)
-    {
-        return true;
-    }
-
-    bool Converter::processLight(FbxNode *pFbxNode)
+    bool Converter::processFbxLight(FbxNode *pFbxNode)
     {
         return true;
     }

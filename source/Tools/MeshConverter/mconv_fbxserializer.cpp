@@ -43,6 +43,10 @@ namespace mconv
         // Destroy the importer
         pFbxImporter->Destroy();
 
+        // 统一切换成OpenGL的右手坐标系和以米为单位的坐标系
+        FbxAxisSystem::OpenGL.ConvertScene(mFbxScene);
+        FbxSystemUnit::m.ConvertScene(mFbxScene);
+
         pData = mFbxScene;
 
         return bStatus;
