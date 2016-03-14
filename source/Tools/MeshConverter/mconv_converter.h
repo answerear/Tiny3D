@@ -102,6 +102,7 @@
 namespace mconv
 {
     class Serializer;
+    class Node;
 
     class Converter
     {
@@ -118,6 +119,14 @@ namespace mconv
 
         bool convertToT3D();
         bool convertToFBX();
+
+        bool processScene(FbxScene *pFbxScene);
+        bool processNode(FbxNode *pFbxNode);
+
+        bool processMesh(FbxNode *pFbxNode);
+        bool processSkeleton(FbxNode *pFbxNode);
+        bool processCamera(FbxNode *pFbxNode);
+        bool processLight(FbxNode *pFbxNode);
 
         Settings    mSettings;
 

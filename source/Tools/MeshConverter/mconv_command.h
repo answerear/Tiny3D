@@ -16,8 +16,8 @@ namespace mconv
         bool parse(int argc, char *argv[], Settings &settings);
 
     protected:
-        void printCommand();
-        void printHelp();
+        void printCommand(int argc, char *argv[]) const;
+        void printHelp() const;
     };
 }
 

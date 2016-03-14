@@ -77,5 +77,5 @@ add_dependencies(T3DCore T3DLog T3DPlatform)
 add_dependencies(HelloWorld T3DCore T3DLog T3DPlatform)
 
 if (TINY3D_OS_WINDOWS)
-	add_dependencies(MeshConverter T3DLog T3DPlatform)
+	add_dependencies(mesh-conv T3DLog T3DPlatform)
 endif (TINY3D_OS_WINDOWS)

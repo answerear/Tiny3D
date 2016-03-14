@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 ################################################################################
 
-set_project_name(MeshConverter)
+set_project_name(mesh-conv)
 
 
 set(TINY3D_PLATFORM_INC_DIR "${TINY3D_INC_DIR}/Platform")

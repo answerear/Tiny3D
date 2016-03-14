@@ -5,6 +5,7 @@
 #include "mconv_settings.h"
 #include "mconv_fbxserializer.h"
 #include "mconv_t3dSerializer.h"
+#include "mconv_node.h"
 
 
 namespace mconv
@@ -136,10 +137,92 @@ namespace mconv
 
     bool Converter::convertToFBX()
     {
+        
+
         return true;
     }
 
     bool Converter::convertToT3D()
+    {
+        if (mSrcData == nullptr)
+        {
+            T3D_LOG_ERROR("Convert to T3D failed ! Because of invalid source data !");
+            return false;
+        }
+
+        FbxScene *pFbxScene = static_cast<FbxScene *>(mSrcData);
+
+        Node *pRoot = new Node("Root");
+        mDstData = pRoot;
+
+        processScene(pFbxScene);
+
+        return true;
+    }
+
+    bool Converter::processScene(FbxScene *pFbxScene)
+    {
+        FbxNode *pFbxRoot = pFbxScene->GetRootNode();
+
+        return processNode(pFbxRoot);
+    }
+
+    bool Converter::processNode(FbxNode *pFbxNode)
+    {
+        bool result = false;
+        if (pFbxNode->GetNodeAttribute() != nullptr)
+        {
+            FbxNodeAttribute::EType attribType = pFbxNode->GetNodeAttribute()->GetAttributeType();
+            switch (attribType)
+            {
+            case FbxNodeAttribute::eMesh:
+                {
+                    result = processMesh(pFbxNode);
+                }
+                break;
+            case FbxNodeAttribute::eSkeleton:
+                {
+                    result = processSkeleton(pFbxNode);
+                }
+                break;
+            case FbxNodeAttribute::eCamera:
+                {
+                    result = processCamera(pFbxNode);
+                }
+                break;
+            case FbxNodeAttribute::eLight:
+                {
+                    result = processLight(pFbxNode);
+                }
+                break;
+            }
+        }
+
+        int i = 0;
+        for (i = 0; i < pFbxNode->GetChildCount(); ++i)
+        {
+            processNode(pFbxNode->GetChild(i));
+        }
+
+        return result;
+    }
+
+    bool Converter::processMesh(FbxNode *pFbxNode)
+    {
+        return true;
+    }
+
+    bool Converter::processSkeleton(FbxNode *pFbxNode)
+    {
+        return true;
+    }
+
+    bool Converter::processCamera(FbxNode *pFbxNode)
+    {
+        return true;
+    }
+
+    bool Converter::processLight(FbxNode *pFbxNode)
     {
         return true;
     }
