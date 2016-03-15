@@ -45,7 +45,12 @@ namespace mconv
 
         // 统一切换成OpenGL的右手坐标系和以米为单位的坐标系
         FbxAxisSystem::OpenGL.ConvertScene(mFbxScene);
+        // 统一以1米为单位
         FbxSystemUnit::m.ConvertScene(mFbxScene);
+
+        // 不是三角形为面的mesh，统一转换成三角形为面的mesh
+        FbxGeometryConverter converter(mFbxManager);
+        converter.Triangulate(mFbxScene, true);
 
         pData = mFbxScene;
 

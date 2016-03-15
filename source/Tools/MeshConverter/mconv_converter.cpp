@@ -7,6 +7,7 @@
 #include "mconv_t3dSerializer.h"
 #include "mconv_node.h"
 #include "mconv_scene.h"
+#include "mconv_mesh.h"
 
 
 namespace mconv
@@ -218,15 +219,429 @@ namespace mconv
             return false;
         }
 
-        if (!pFbxMesh->IsTriangleMesh())
+        int nTriangleCount = pFbxMesh->GetPolygonCount();
+        int nVertexCount = 0;
+        int i = 0, j = 0;
+
+        Vertex vertex;
+
+        for (i = 0; i < nTriangleCount; ++i)
         {
-            // 不是三角形为面的mesh，统一转换成三角形为面的mesh
-            FbxManager *pFbxManager = pFbxNode->GetFbxManager();
-            FbxGeometryConverter converter(pFbxManager);
-            converter.Triangulate(pFbxMesh, true);
+            for (j = 0; j < 3; ++j)
+            {
+                int nControlPointIdx = pFbxMesh->GetPolygonVertex(i, j);
+
+                // 读取顶点位置信息
+                readPosition(pFbxMesh, nControlPointIdx, vertex.mPosition);
+
+                // 读取顶点颜色信息
+                FbxVector4 color;
+                int k = 0;
+                bool ret = false;
+                do 
+                {
+                    ret = readColor(pFbxMesh, nControlPointIdx, nVertexCount, k++, color);
+                    if (ret)
+                    {
+                        vertex.mColorElements.push_back(color);
+                    }
+                } while (ret);
+
+                // 读取纹理UV坐标
+                FbxVector2 uv;
+                int nTexCount = pFbxMesh->GetTextureUVCount();
+                for (k = 0; k < nTexCount; ++k)
+                {
+                    if (readUV(pFbxMesh, nControlPointIdx, pFbxMesh->GetTextureUVIndex(i, j), k, uv))
+                    {
+                        vertex.mTexElements.push_back(uv);
+                    }
+                }
+
+                // 读取顶点法线
+                FbxVector3 normal;
+                k = 0;
+                do 
+                {
+                    ret = readNormal(pFbxMesh, nControlPointIdx, nVertexCount, k++, normal);
+                    if (ret)
+                    {
+                        vertex.mNormalElements.push_back(normal);
+                    }
+                } while (ret);
+
+                // 读取副法线
+                FbxVector3 binormal;
+                k = 0;
+                do
+                {
+                    ret = readBinormal(pFbxMesh, nControlPointIdx, nVertexCount, k++, binormal);
+                    if (ret)
+                    {
+                        vertex.mBinormalElements.push_back(binormal);
+                    }
+                } while (ret);
+
+                // 读取切线
+                FbxVector3 tangent;
+                k = 0;
+                do 
+                {
+                    ret = readTangent(pFbxMesh, nControlPointIdx, nVertexCount, k++, tangent);
+                    if (ret)
+                    {
+                        vertex.mTangentElements.push_back(tangent);
+                    }
+                } while (ret);
+
+                ++nVertexCount;
+            }
         }
 
         return true;
+    }
+
+    bool Converter::readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos)
+    {
+        FbxVector4 *pControlPoint = pFbxMesh->GetControlPoints();
+        pos[0] = pControlPoint[nControlPointIdx][0];
+        pos[1] = pControlPoint[nControlPointIdx][1];
+        pos[2] = pControlPoint[nControlPointIdx][2];
+        return true;
+    }
+
+    bool Converter::readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector4 &color)
+    {
+        if (pFbxMesh->GetElementVertexColorCount() < 1)
+        {
+            return false;
+        }
+
+        bool result = false;
+
+        FbxGeometryElementVertexColor *pVertexColor = pFbxMesh->GetElementVertexColor(nLayer);
+        if (pVertexColor != nullptr)
+        {
+            result = true;
+
+            switch (pVertexColor->GetMappingMode())
+            {
+            case FbxGeometryElement::eByControlPoint:
+                {
+                    switch (pVertexColor->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            color[0] = pVertexColor->GetDirectArray().GetAt(nControlPointIdx).mBlue;
+                            color[1] = pVertexColor->GetDirectArray().GetAt(nControlPointIdx).mGreen;
+                            color[2] = pVertexColor->GetDirectArray().GetAt(nControlPointIdx).mRed;
+                            color[3] = pVertexColor->GetDirectArray().GetAt(nControlPointIdx).mAlpha;
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pVertexColor->GetIndexArray().GetAt(nControlPointIdx);
+                            color[0] = pVertexColor->GetDirectArray().GetAt(idx).mBlue;
+                            color[1] = pVertexColor->GetDirectArray().GetAt(idx).mGreen;
+                            color[2] = pVertexColor->GetDirectArray().GetAt(idx).mRed;
+                            color[3] = pVertexColor->GetDirectArray().GetAt(idx).mAlpha;
+                        }
+                        break;
+                    }
+                }
+                break;
+            case FbxGeometryElement::eByPolygonVertex:
+                {
+                    switch (pVertexColor->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            color[0] = pVertexColor->GetDirectArray().GetAt(nVertexIndex).mBlue;
+                            color[1] = pVertexColor->GetDirectArray().GetAt(nVertexIndex).mGreen;
+                            color[2] = pVertexColor->GetDirectArray().GetAt(nVertexIndex).mRed;
+                            color[3] = pVertexColor->GetDirectArray().GetAt(nVertexIndex).mAlpha;
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pVertexColor->GetIndexArray().GetAt(nVertexIndex);
+                            color[0] = pVertexColor->GetDirectArray().GetAt(idx).mBlue;
+                            color[1] = pVertexColor->GetDirectArray().GetAt(idx).mGreen;
+                            color[2] = pVertexColor->GetDirectArray().GetAt(idx).mRed;
+                            color[3] = pVertexColor->GetDirectArray().GetAt(idx).mAlpha;
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool Converter::readUV(FbxMesh *pFbxMesh, int nControlPointIdx, int nUVIndex, int nLayer, FbxVector2 &uv)
+    {
+        if (pFbxMesh->GetElementUVCount() < 1)
+        {
+            return false;
+        }
+
+        bool result = false;
+        FbxGeometryElementUV *pVertexUV = pFbxMesh->GetElementUV(nLayer);
+
+        if (pVertexUV != nullptr)
+        {
+            result = true;
+
+            switch (pVertexUV->GetMappingMode())
+            {
+            case FbxGeometryElement::eByControlPoint:
+                {
+                    switch (pVertexUV->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            uv[0] = pVertexUV->GetDirectArray().GetAt(nControlPointIdx)[0];
+                            uv[1] = pVertexUV->GetDirectArray().GetAt(nControlPointIdx)[1];
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pVertexUV->GetIndexArray().GetAt(nControlPointIdx);
+                            uv[0] = pVertexUV->GetDirectArray().GetAt(idx)[0];
+                            uv[1] = pVertexUV->GetDirectArray().GetAt(idx)[1];
+                        }
+                        break;
+                    }
+                }
+                break;
+            case FbxGeometryElement::eByPolygonVertex:
+                {
+                    switch (pVertexUV->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            uv[0] = pVertexUV->GetDirectArray().GetAt(nUVIndex)[0];
+                            uv[1] = pVertexUV->GetDirectArray().GetAt(nUVIndex)[1];
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool Converter::readNormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &normal)
+    {
+        if (pFbxMesh->GetElementNormalCount() < 1)
+        {
+            return false;
+        }
+
+        bool result = false;
+        FbxGeometryElementNormal *pNormal = pFbxMesh->GetElementNormal(nLayer);
+
+        if (pNormal != nullptr)
+        {
+            result = true;
+
+            switch (pNormal->GetMappingMode())
+            {
+            case FbxGeometryElement::eByControlPoint:
+                {
+                    switch (pNormal->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            normal[0] = pNormal->GetDirectArray().GetAt(nControlPointIdx)[0];
+                            normal[1] = pNormal->GetDirectArray().GetAt(nControlPointIdx)[1];
+                            normal[2] = pNormal->GetDirectArray().GetAt(nControlPointIdx)[2];
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pNormal->GetIndexArray().GetAt(nControlPointIdx);
+                            normal[0] = pNormal->GetDirectArray().GetAt(idx)[0];
+                            normal[1] = pNormal->GetDirectArray().GetAt(idx)[1];
+                            normal[2] = pNormal->GetDirectArray().GetAt(idx)[2];
+                        }
+                        break;
+                    }
+                }
+                break;
+            case FbxGeometryElement::eByPolygonVertex:
+                {
+                    switch (pNormal->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            normal[0] = pNormal->GetDirectArray().GetAt(nVertexIndex)[0];
+                            normal[1] = pNormal->GetDirectArray().GetAt(nVertexIndex)[1];
+                            normal[2] = pNormal->GetDirectArray().GetAt(nVertexIndex)[2];
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pNormal->GetIndexArray().GetAt(nVertexIndex);
+                            normal[0] = pNormal->GetDirectArray().GetAt(idx)[0];
+                            normal[1] = pNormal->GetDirectArray().GetAt(idx)[1];
+                            normal[2] = pNormal->GetDirectArray().GetAt(idx)[2];
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool Converter::readTangent(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &tangent)
+    {
+        if (pFbxMesh->GetElementTangentCount() < 1)
+        {
+            return false;
+        }
+
+        bool result = false;
+        FbxGeometryElementTangent *pTangent = pFbxMesh->GetElementTangent(nLayer);
+
+        if (pTangent != nullptr)
+        {
+            result = true;
+
+            switch (pTangent->GetMappingMode())
+            {
+            case FbxGeometryElement::eByControlPoint:
+                {
+                    switch (pTangent->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            tangent[0] = pTangent->GetDirectArray().GetAt(nControlPointIdx)[0];
+                            tangent[1] = pTangent->GetDirectArray().GetAt(nControlPointIdx)[1];
+                            tangent[2] = pTangent->GetDirectArray().GetAt(nControlPointIdx)[2];
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pTangent->GetIndexArray().GetAt(nControlPointIdx);
+                            tangent[0] = pTangent->GetDirectArray().GetAt(idx)[0];
+                            tangent[1] = pTangent->GetDirectArray().GetAt(idx)[1];
+                            tangent[2] = pTangent->GetDirectArray().GetAt(idx)[2];
+                        }
+                        break;
+                    }
+                }
+                break;
+            case FbxGeometryElement::eByPolygonVertex:
+                {
+                    switch (pTangent->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            tangent[0] = pTangent->GetDirectArray().GetAt(nVertexIndex)[0];
+                            tangent[1] = pTangent->GetDirectArray().GetAt(nVertexIndex)[1];
+                            tangent[2] = pTangent->GetDirectArray().GetAt(nVertexIndex)[2];
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pTangent->GetIndexArray().GetAt(nVertexIndex);
+                            tangent[0] = pTangent->GetDirectArray().GetAt(idx)[0];
+                            tangent[1] = pTangent->GetDirectArray().GetAt(idx)[1];
+                            tangent[2] = pTangent->GetDirectArray().GetAt(idx)[2];
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool Converter::readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &binormal)
+    {
+        if (pFbxMesh->GetElementBinormalCount() < 1)
+        {
+            return false;
+        }
+
+        bool result = false;
+        FbxGeometryElementBinormal *pBinormal = pFbxMesh->GetElementBinormal(nLayer);
+
+        if (pBinormal != nullptr)
+        {
+            result = true;
+
+            switch (pBinormal->GetMappingMode())
+            {
+            case FbxGeometryElement::eByControlPoint:
+                {
+                    switch (pBinormal->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            binormal[0] = pBinormal->GetDirectArray().GetAt(nControlPointIdx)[0];
+                            binormal[1] = pBinormal->GetDirectArray().GetAt(nControlPointIdx)[1];
+                            binormal[2] = pBinormal->GetDirectArray().GetAt(nControlPointIdx)[2];
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pBinormal->GetIndexArray().GetAt(nControlPointIdx);
+                            binormal[0] = pBinormal->GetDirectArray().GetAt(idx)[0];
+                            binormal[1] = pBinormal->GetDirectArray().GetAt(idx)[1];
+                            binormal[2] = pBinormal->GetDirectArray().GetAt(idx)[2];
+                        }
+                        break;
+                    }
+                }
+                break;
+            case FbxGeometryElement::eByPolygonVertex:
+                {
+                    switch (pBinormal->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            binormal[0] = pBinormal->GetDirectArray().GetAt(nVertexIndex)[0];
+                            binormal[1] = pBinormal->GetDirectArray().GetAt(nVertexIndex)[1];
+                            binormal[2] = pBinormal->GetDirectArray().GetAt(nVertexIndex)[2];
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pBinormal->GetIndexArray().GetAt(nVertexIndex);
+                            binormal[0] = pBinormal->GetDirectArray().GetAt(idx)[0];
+                            binormal[1] = pBinormal->GetDirectArray().GetAt(idx)[1];
+                            binormal[2] = pBinormal->GetDirectArray().GetAt(idx)[2];
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        return result;
     }
 
     bool Converter::processFbxSkeleton(FbxNode *pFbxNode)

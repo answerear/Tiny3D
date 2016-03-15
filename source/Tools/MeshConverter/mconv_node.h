@@ -16,6 +16,21 @@ namespace mconv
     class Node
     {
     public:
+        enum Type
+        {
+            E_TYPE_NONE = 0,
+            E_TYPE_BONE,
+            E_TYPE_CAMERA,
+            E_TYPE_LIGHT,
+            E_TYPE_MATERIAL,
+            E_TYPE_MESH,
+            E_TYPE_MODEL,
+            E_TYPE_SCENE,
+            E_TYPE_SKELETON,
+            E_TYPE_SUBMESH,
+            E_TYPE_TEXTURE,
+        };
+
         Node(const String &ID = "Node")
             : mID(ID)
             , mParent(nullptr)
@@ -32,6 +47,8 @@ namespace mconv
         {
             return mID;
         }
+
+        virtual Type getNodeType() const = 0;
 
         size_t getChildrenCount() const
         {

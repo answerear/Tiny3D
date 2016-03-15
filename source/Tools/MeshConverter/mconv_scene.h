@@ -22,6 +22,11 @@ namespace mconv
         {
 
         }
+
+        virtual Type getNodeType() const override
+        {
+            return E_TYPE_SCENE;
+        }
     };
 }
 

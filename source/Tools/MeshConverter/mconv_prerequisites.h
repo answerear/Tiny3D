@@ -27,6 +27,20 @@ namespace mconv
         E_FILETYPE_T3DT     = 0x41,     /// T3D文本XML格式
         E_FILETYPE_T3D      = E_FILETYPE_T3DB|E_FILETYPE_T3DT,  /// T3D二进制和文本格式
     };
+
+    typedef FbxDouble3 FbxVector3;
+
+    typedef std::list<FbxVector2>           VectorElements2;
+    typedef VectorElements2::iterator       VectorElements2Itr;
+    typedef VectorElements2::const_iterator VectorElements2ConstItr;
+
+    typedef std::list<FbxVector3>           VectorElements3;
+    typedef VectorElements3::iterator       VectorElements3Itr;
+    typedef VectorElements3::const_iterator VectorElements3ConstItr;
+
+    typedef std::list<FbxVector4>           VectorElements4;
+    typedef VectorElements4::iterator       VectorElements4Itr;
+    typedef VectorElements4::const_iterator VectorElements4ConstItr;
 }
 
 

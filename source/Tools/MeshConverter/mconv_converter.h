@@ -124,6 +124,13 @@ namespace mconv
         bool processFbxNode(FbxNode *pFbxNode);
 
         bool processFbxMesh(FbxNode *pFbxNode);
+        bool readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos);
+        bool readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector4 &color);
+        bool readUV(FbxMesh *pFbxMesh, int nControlPointIdx, int nUVIndex, int nLayer, FbxVector2 &uv);
+        bool readNormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &normal);
+        bool readTangent(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &tangent);
+        bool readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &binormal);
+
         bool processFbxSkeleton(FbxNode *pFbxNode);
         bool processFbxCamera(FbxNode *pFbxNode);
         bool processFbxLight(FbxNode *pFbxNode);
