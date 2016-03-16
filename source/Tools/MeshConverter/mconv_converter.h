@@ -120,10 +120,10 @@ namespace mconv
         bool convertToT3D();
         bool convertToFBX();
 
-        bool processFbxScene(FbxScene *pFbxScene);
-        bool processFbxNode(FbxNode *pFbxNode);
+        bool processFbxScene(FbxScene *pFbxScene, Node *pRoot);
+        bool processFbxNode(FbxNode *pFbxNode, Node *pParent);
 
-        bool processFbxMesh(FbxNode *pFbxNode);
+        bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode);
         bool readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos);
         bool readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector4 &color);
         bool readUV(FbxMesh *pFbxMesh, int nControlPointIdx, int nUVIndex, int nLayer, FbxVector2 &uv);
@@ -131,9 +131,9 @@ namespace mconv
         bool readTangent(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &tangent);
         bool readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &binormal);
 
-        bool processFbxSkeleton(FbxNode *pFbxNode);
-        bool processFbxCamera(FbxNode *pFbxNode);
-        bool processFbxLight(FbxNode *pFbxNode);
+        bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
+        bool processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
+        bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
 
         Settings    mSettings;
 

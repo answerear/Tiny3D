@@ -21,6 +21,10 @@ namespace mconv
         FbxVector4          mBlendWeight;
         FbxVector4          mBlendIndex;
     };
+
+    typedef std::list<Vertex>           Vertices;
+    typedef Vertices::iterator          VerticesItr;
+    typedef Vertices::const_iterator    VerticesConstItr;
 }
 
 

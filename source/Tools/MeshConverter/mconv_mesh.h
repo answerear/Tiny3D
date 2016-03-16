@@ -29,7 +29,7 @@ namespace mconv
             return E_TYPE_MESH;
         }
 
-        Vertex  mVertices;
+        Vertices    mVertices;
     };
 }
 

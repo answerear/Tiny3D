@@ -8,6 +8,7 @@
 #include "mconv_node.h"
 #include "mconv_scene.h"
 #include "mconv_mesh.h"
+#include "mconv_model.h"
 
 
 namespace mconv
@@ -153,25 +154,37 @@ namespace mconv
         }
 
         FbxScene *pFbxScene = static_cast<FbxScene *>(mSrcData);
-
-        Scene *pScene = new Scene("Root");
+        String name = pFbxScene->GetName();
+        if (name.empty())
+        {
+            name = "Scene";
+        }
+        Scene *pScene = new Scene(name);
         mDstData = pScene;
 
-        processFbxScene(pFbxScene);
+        processFbxScene(pFbxScene, pScene);
 
         return true;
     }
 
-    bool Converter::processFbxScene(FbxScene *pFbxScene)
+    bool Converter::processFbxScene(FbxScene *pFbxScene, Node *pRoot)
     {
         FbxNode *pFbxRoot = pFbxScene->GetRootNode();
+        String name = pFbxRoot->GetName();
+        if (name.empty())
+        {
+            name = "Model";
+        }
+        Model *pModel = new Model(name);
+        pRoot->addChild(pModel);
 
-        return processFbxNode(pFbxRoot);
+        return processFbxNode(pFbxRoot, pModel);
     }
 
-    bool Converter::processFbxNode(FbxNode *pFbxNode)
+    bool Converter::processFbxNode(FbxNode *pFbxNode, Node *pParent)
     {
         bool result = false;
+        Node *pNode = nullptr;
         if (pFbxNode->GetNodeAttribute() != nullptr)
         {
             FbxNodeAttribute::EType attribType = pFbxNode->GetNodeAttribute()->GetAttributeType();
@@ -179,37 +192,41 @@ namespace mconv
             {
             case FbxNodeAttribute::eMesh:
                 {
-                    result = processFbxMesh(pFbxNode);
+                    result = processFbxMesh(pFbxNode, pParent, pNode);
                 }
                 break;
             case FbxNodeAttribute::eSkeleton:
                 {
-                    result = processFbxSkeleton(pFbxNode);
+                    result = processFbxSkeleton(pFbxNode, pParent, pNode);
                 }
                 break;
             case FbxNodeAttribute::eCamera:
                 {
-                    result = processFbxCamera(pFbxNode);
+                    result = processFbxCamera(pFbxNode, pParent, pNode);
                 }
                 break;
             case FbxNodeAttribute::eLight:
                 {
-                    result = processFbxLight(pFbxNode);
+                    result = processFbxLight(pFbxNode, pParent, pNode);
                 }
                 break;
             }
+        }
+        else
+        {
+            pNode = pParent;
         }
 
         int i = 0;
         for (i = 0; i < pFbxNode->GetChildCount(); ++i)
         {
-            processFbxNode(pFbxNode->GetChild(i));
+            processFbxNode(pFbxNode->GetChild(i), pNode);
         }
 
         return result;
     }
 
-    bool Converter::processFbxMesh(FbxNode *pFbxNode)
+    bool Converter::processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode)
     {
         FbxMesh *pFbxMesh = pFbxNode->GetMesh();
 
@@ -218,6 +235,10 @@ namespace mconv
             T3D_LOG_ERROR("FBX mesh is invalid !");
             return false;
         }
+
+        Mesh *pMesh = new Mesh(pFbxMesh->GetName());
+        pParent->addChild(pMesh);
+        pNewNode = pMesh;
 
         int nTriangleCount = pFbxMesh->GetPolygonCount();
         int nVertexCount = 0;
@@ -293,6 +314,8 @@ namespace mconv
                         vertex.mTangentElements.push_back(tangent);
                     }
                 } while (ret);
+
+                pMesh->mVertices.push_back(vertex);
 
                 ++nVertexCount;
             }
@@ -644,17 +667,17 @@ namespace mconv
         return result;
     }
 
-    bool Converter::processFbxSkeleton(FbxNode *pFbxNode)
+    bool Converter::processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode)
     {
         return true;
     }
 
-    bool Converter::processFbxCamera(FbxNode *pFbxNode)
+    bool Converter::processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode)
     {
         return true;
     }
 
-    bool Converter::processFbxLight(FbxNode *pFbxNode)
+    bool Converter::processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode)
     {
         return true;
     }
