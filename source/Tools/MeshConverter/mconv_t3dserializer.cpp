@@ -1,7 +1,6 @@
 
 
 #include "mconv_t3dserializer.h"
-#include "tinyxml2/tinyxml2.h"
 
 #include "mconv_scene.h"
 #include "mconv_model.h"
@@ -96,15 +95,72 @@ namespace mconv
             XMLDeclaration *pDecl = pDoc->NewDeclaration();
             pDoc->LinkEndChild(pDecl);
 
-            XMLElement *pSceneElem = pDoc->NewElement("scene");
-            pSceneElem->SetAttribute("ID", pScene->getID().c_str());
-            pDoc->LinkEndChild(pSceneElem);
+            XMLElement *pElement = pDoc->NewElement(TAG_SCENE);
+            pElement->SetAttribute(ATTRIB_ID, pScene->getID().c_str());
+            pDoc->LinkEndChild(pElement);
+
+            populateXMLNode(pDoc, pElement, pScene);
 
             pDoc->SaveFile(path.c_str());
             delete pDoc;
         }
 
         return true;
+    }
+
+    XMLElement *T3DXMLSerializer::populateXMLNode(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pElement = nullptr;
+
+        switch (pNode->getNodeType())
+        {
+        case Node::E_TYPE_BONE:
+            break;
+        case Node::E_TYPE_CAMERA:
+            break;
+        case Node::E_TYPE_LIGHT:
+            break;
+        case Node::E_TYPE_MATERIAL:
+            break;
+        case Node::E_TYPE_MESH:
+            {
+                
+            }
+            break;
+        case Node::E_TYPE_MODEL:
+            {
+                pElement = populateXMLModel(pDoc, pParentElem, pNode);
+            }
+            break;
+        default:
+            {
+                pElement = pParentElem;
+            }
+            break;
+        }
+
+        int i = 0;
+        for (i = 0; i < pNode->getChildrenCount(); ++i)
+        {
+            Node *pChild = pNode->getChild(i);
+            populateXMLNode(pDoc, pElement, pChild);
+        }
+
+        return pElement;
+    }
+
+    XMLElement *T3DXMLSerializer::populateXMLModel(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pElement = pDoc->NewElement(TAG_MODEL);
+        pElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+        pParentElem->LinkEndChild(pElement);
+        return pElement;
+    }
+
+    XMLElement *T3DXMLSerializer::populateXMLMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pElement = pDoc->NewElement(TAG_MESH);
+        return pElement;
     }
 
     //////////////////////////////////////////////////////////////////////////

@@ -244,6 +244,7 @@ namespace mconv
         int nVertexCount = 0;
         int i = 0, j = 0;
 
+        VertexAttribute attribute;
         Vertex vertex;
 
         for (i = 0; i < nTriangleCount; ++i)

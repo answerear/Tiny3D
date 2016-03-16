@@ -5,10 +5,13 @@
 
 
 #include "mconv_serializer.h"
+#include "tinyxml2/tinyxml2.h"
 
 
 namespace mconv
 {
+    using namespace tinyxml2;
+
     class Node;
 
     class T3DBinSerializer : public Serializer
@@ -67,6 +70,12 @@ namespace mconv
 
         virtual bool load(const String &path, void *&pData) override;
         virtual bool save(const String &path, void *pData) override;
+
+    protected:
+        XMLElement *populateXMLNode(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *populateXMLModel(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *populateXMLMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *populateXMLVertexAttributes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
     };
 
     class T3DSerializer : public Serializer

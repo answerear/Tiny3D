@@ -116,7 +116,7 @@ namespace mconv
             }
         }
 
-        bool getChild(const String &ID, Node *&node)
+        bool getChild(const String &ID, Node *&node) const
         {
             bool result = false;
 
@@ -134,6 +134,26 @@ namespace mconv
             }
 
             return result;
+        }
+
+        Node *getChild(int index) const
+        {
+            int i = 0;
+            Node *pChild = nullptr;
+            NodesConstItr itr = mChildren.begin();
+
+            while (itr != mChildren.end())
+            {
+                if (i == index)
+                {
+                    pChild = *itr;
+                    break;
+                }
+
+                ++itr;
+            }
+
+            return pChild;
         }
 
         Node *getParent()
