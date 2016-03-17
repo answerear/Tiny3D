@@ -234,14 +234,6 @@ namespace mconv
             return false;
         }
 
-//         String name = pFbxNode->GetName();
-//         if (name.empty())
-//         {
-//             name = "Model";
-//         }
-//         Model *pModel = new Model(name);
-//         pParent->addChild(pModel);
-
         Mesh *pMesh = new Mesh(pFbxMesh->GetName());
         pParent->addChild(pMesh);
         pNewNode = pMesh;
@@ -325,6 +317,13 @@ namespace mconv
                         vertex.mTangentElements.push_back(tangent);
                     }
                 } while (ret);
+
+                pFbxMesh->GetElementMaterialCount();
+                for (k = 0; k < pFbxMesh->GetElementMaterialCount(); ++i)
+                {
+                    FbxGeometryElementMaterial *pFbxMaterial = pFbxMesh->GetElementMaterial(i);
+//                     pFbxMaterial->GetDirectArray();
+                }
 
                 pMesh->mVertices.push_back(vertex);
 
@@ -763,12 +762,12 @@ namespace mconv
         int nMaterialCount = pFbxNode->GetMaterialCount();
         int i = 0;
 
-//         for (i = 0; i < nMaterialCount; ++i)
-//         {
-//             FbxSurfaceMaterial *pFbxMaterial = pFbxNode->GetMaterial(i);
+        for (i = 0; i < nMaterialCount; ++i)
+        {
+            FbxSurfaceMaterial *pFbxMaterial = pFbxNode->GetMaterial(i);
 //             Material *pMaterial = new Material(pFbxMaterial->GetName());
 //             pParent->addChild(pMaterial);
-//         }
+        }
 
         return true;
     }
