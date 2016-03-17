@@ -9,7 +9,7 @@
 #include <list>
 #include <set>
 #include <map>
-
+#include <sstream>
 #include <fbxsdk.h>
 
 #include <T3DLog.h>
@@ -18,6 +18,8 @@
 
 namespace mconv
 {
+    using namespace Tiny3D;
+
     enum FileType
     {
         E_FILETYPE_AUTO     = 0,        /// 根据扩展名自动判断文件格式
@@ -41,6 +43,10 @@ namespace mconv
     typedef std::list<FbxVector4>           VectorElements4;
     typedef VectorElements4::iterator       VectorElements4Itr;
     typedef VectorElements4::const_iterator VectorElements4ConstItr;
+
+    typedef std::list<int>                  Indices;
+    typedef Indices::iterator               IndicesItr;
+    typedef Indices::const_iterator         IndicesConstItr;
 }
 
 

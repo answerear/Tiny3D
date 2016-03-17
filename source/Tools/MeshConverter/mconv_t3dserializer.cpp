@@ -101,7 +101,7 @@ namespace mconv
 
             populateXMLNode(pDoc, pElement, pScene);
 
-            pDoc->SaveFile(path.c_str());
+            pDoc->SaveFile(path.c_str());            
             delete pDoc;
         }
 
@@ -124,7 +124,7 @@ namespace mconv
             break;
         case Node::E_TYPE_MESH:
             {
-                
+                pElement = populateXMLMesh(pDoc, pParentElem, pNode);
             }
             break;
         case Node::E_TYPE_MODEL:
@@ -139,7 +139,7 @@ namespace mconv
             break;
         }
 
-        int i = 0;
+        size_t i = 0;
         for (i = 0; i < pNode->getChildrenCount(); ++i)
         {
             Node *pChild = pNode->getChild(i);
@@ -159,8 +159,121 @@ namespace mconv
 
     XMLElement *T3DXMLSerializer::populateXMLMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
-        XMLElement *pElement = pDoc->NewElement(TAG_MESH);
-        return pElement;
+        Mesh *pMesh = (Mesh *)pNode;
+        XMLElement *pMeshElement = pDoc->NewElement(TAG_MESH);
+        pParentElem->LinkEndChild(pMeshElement);
+
+        // 属性
+        XMLElement *pAttribRootElement = pDoc->NewElement(TAG_ATTRIBUTES);
+        pAttribRootElement->SetAttribute(ATTRIB_COUNT, pMesh->mAttributes.size());
+        pMeshElement->LinkEndChild(pAttribRootElement);
+
+        int nVertexSize = 0;
+        auto itrAttrib = pMesh->mAttributes.begin();
+
+        while (itrAttrib != pMesh->mAttributes.end())
+        {
+            const VertexAttribute &attribute = *itrAttrib;
+            XMLElement *pAttribElement = pDoc->NewElement(TAG_ATTRIBUTE);
+            pAttribElement->SetAttribute(ATTRIB_ID, attribute.vertexTypeStr().c_str());
+            pAttribElement->SetAttribute(ATTRIB_SIZE, attribute.mSize);
+            pAttribElement->SetAttribute(ATTRIB_TYPE, attribute.dataTypeStr().c_str());
+            pAttribRootElement->LinkEndChild(pAttribElement);
+            nVertexSize += attribute.mSize;
+            ++itrAttrib;
+        }
+
+        // 顶点数据
+        XMLElement *pVertexElement = pDoc->NewElement(TAG_VERTICES);
+        pMeshElement->LinkEndChild(pVertexElement);
+        pVertexElement->SetAttribute(ATTRIB_COUNT, pMesh->mVertices.size());
+
+        auto itrVertex = pMesh->mVertices.begin();
+
+        int count = 0;
+
+        while (itrVertex != pMesh->mVertices.end())
+        {
+            std::stringstream ss;
+            const Vertex &vertex = *itrVertex;
+
+            // POSITION
+            if (count == 0)
+                ss<<"\n"<<"\t\t\t"<<vertex.mPosition[0]<<" "<<vertex.mPosition[1]<<" "<<vertex.mPosition[2];
+            else
+                ss<<"\t\t\t"<<vertex.mPosition[0]<<" "<<vertex.mPosition[1]<<" "<<vertex.mPosition[2];
+
+            // TEXCOORD
+            auto itr2 = vertex.mTexElements.begin();
+            while (itr2 != vertex.mTexElements.end())
+            {
+                const FbxVector2 &uv = *itr2;
+                ss<<" "<<uv[0]<<" "<<uv[1];
+                ++itr2;
+            }
+
+            // NORMAL
+            auto itr3 = vertex.mNormalElements.begin();
+            while (itr3 != vertex.mNormalElements.end())
+            {
+                const FbxVector3 &normal = *itr3;
+                ss<<" "<<normal[0]<<" "<<normal[1]<<" "<<normal[2];
+                ++itr3;
+            }
+
+            // BINORMAL
+            itr3 = vertex.mBinormalElements.begin();
+            while (itr3 != vertex.mBinormalElements.end())
+            {
+                const FbxVector3 &binormal = *itr3;
+                ss<<" "<<binormal[0]<<" "<<binormal[1]<<" "<<binormal[2];
+                ++itr3;
+            }
+
+            // TANGENT
+            itr3 = vertex.mTangentElements.begin();
+            while (itr3 != vertex.mTangentElements.end())
+            {
+                const FbxVector3 &tangent = *itr3;
+                ss<<" "<<tangent[0]<<" "<<tangent[1]<<" "<<tangent[2];
+                ++itr3;
+            }
+
+            // COLOR
+            auto itr4 = vertex.mColorElements.begin();
+            while (itr4 != vertex.mColorElements.end())
+            {
+                const FbxVector4 &color = *itr4;
+                ss<<" "<<color[0]<<" "<<color[1]<<" "<<color[2]<<" "<<color[3];
+                ++itr4;
+            }
+
+            // BLEND_WEIGHT
+            if (vertex.mBlendWeight != FbxVector4(-1.0, -1.0, -1.0, -1.0))
+            {
+                ss<<" "<<vertex.mBlendWeight[0]<<" "<<vertex.mBlendWeight[1]<<" "<<vertex.mBlendWeight[2]<<" "<<vertex.mBlendWeight[3];
+            }
+
+            // BLEND_INDEX
+            if (vertex.mBlendIndex != FbxVector4(-1.0, -1.0, -1.0, -1.0))
+            {
+                ss<<" "<<vertex.mBlendIndex[0]<<" "<<vertex.mBlendIndex[1]<<" "<<vertex.mBlendIndex[2]<<" "<<vertex.mBlendIndex[3];
+            }
+
+            ss<<"\n";
+            XMLText *pText = pDoc->NewText(ss.str().c_str());
+
+            pVertexElement->LinkEndChild(pText);
+
+            ++itrVertex;
+
+            ++count;
+
+            if (count >= 5)
+                break;
+        }
+
+        return pMeshElement;
     }
 
     //////////////////////////////////////////////////////////////////////////

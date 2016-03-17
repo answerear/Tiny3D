@@ -3,17 +3,16 @@
  *      <?xml version="1.0" encoding="utf-8"?>
  *      <TINY3D xmlns="xxx" version="0.0.1">
  *      <scene>
- *          <model id="wolf">
  *              <mesh id="wolf_skin">
  *                  <attributes count="5">
- *                      <attirbute id="POSITION" size="3" type="float">
- *                      <attribute id="TEXCOORD" size="2" tpye="float">
- *                      <attribute id="NORMAL" size="3" type="float">
- *                      <attribute id="TANGENT" size="3" type="float">
- *                      <attribute id="BINORMAL" size="3" type="float">
- *                      <attribute id="COLOR" size="4" type="float">
- *                      <attribute id="BLEND_WEIGHT" size="4" type="float">
- *                      <attribute id="BLEND_INDEX" size="4" type="float">
+ *                      <attirbute id="POSITION" size="3" type="float" />
+ *                      <attribute id="TEXCOORD" size="2" tpye="float" />
+ *                      <attribute id="NORMAL" size="3" type="float" />
+ *                      <attribute id="TANGENT" size="3" type="float" />
+ *                      <attribute id="BINORMAL" size="3" type="float" />
+ *                      <attribute id="COLOR" size="4" type="float" />
+ *                      <attribute id="BLEND_WEIGHT" size="4" type="float" />
+ *                      <attribute id="BLEND_INDEX" size="4" type="float" />
  *                  </attributes>
 
  *                  <vertices count="12">
@@ -83,7 +82,6 @@
  *                  </animation>
  *              </animations>
 
- *          </model>
  *          <light>
  *          </light>
  *          <camera>
@@ -103,6 +101,7 @@ namespace mconv
 {
     class Serializer;
     class Node;
+    class Mesh;
 
     class Converter
     {
@@ -124,6 +123,7 @@ namespace mconv
         bool processFbxNode(FbxNode *pFbxNode, Node *pParent);
 
         bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode);
+        bool processVertexAttribute(FbxMesh *pFbxMesh, Mesh *pMesh);
         bool readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos);
         bool readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector4 &color);
         bool readUV(FbxMesh *pFbxMesh, int nControlPointIdx, int nUVIndex, int nLayer, FbxVector2 &uv);
@@ -134,6 +134,8 @@ namespace mconv
         bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
+
+        bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent);
 
         Settings    mSettings;
 

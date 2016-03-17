@@ -35,8 +35,8 @@ namespace mconv
             E_MAX_DATA_TYPE,
         };
 
-        String toString(VertexType eVertexType) const;
-        String toString(DataType eDataType) const;
+        String vertexTypeStr() const;
+        String dataTypeStr() const;
 
         VertexType  mVertexType;
         int         mSize;
@@ -50,12 +50,20 @@ namespace mconv
     class Vertex
     {
     public:
+        Vertex()
+            : mPosition(0.0, 0.0, 0.0)
+            , mBlendWeight(-1.0, -1.0, -1.0, -1.0)
+            , mBlendIndex(-1.0, -1.0, -1.0, 1.0)
+        {
+
+        }
+
         FbxVector3          mPosition;
-        VectorElements4     mColorElements;
         VectorElements2     mTexElements;
         VectorElements3     mNormalElements;
         VectorElements3     mBinormalElements;
         VectorElements3     mTangentElements;
+        VectorElements4     mColorElements;
         FbxVector4          mBlendWeight;
         FbxVector4          mBlendIndex;
     };

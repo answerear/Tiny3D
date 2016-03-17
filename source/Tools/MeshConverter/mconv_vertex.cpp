@@ -5,10 +5,10 @@
 
 namespace mconv
 {
-    String VertexAttribute::toString(VertexType eVertexType) const
+    String VertexAttribute::vertexTypeStr() const
     {
         String s;
-        switch (eVertexType)
+        switch (mVertexType)
         {
         case E_VT_POSITION:
             {
@@ -55,10 +55,10 @@ namespace mconv
         return s;
     }
 
-    String VertexAttribute::toString(DataType eDataType) const
+    String VertexAttribute::dataTypeStr() const
     {
         String s;
-        switch (eDataType)
+        switch (mDataType)
         {
         case E_VT_FLOAT:
             {

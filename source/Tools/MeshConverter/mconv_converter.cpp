@@ -9,6 +9,7 @@
 #include "mconv_scene.h"
 #include "mconv_mesh.h"
 #include "mconv_model.h"
+#include "mconv_material.h"
 
 
 namespace mconv
@@ -170,15 +171,9 @@ namespace mconv
     bool Converter::processFbxScene(FbxScene *pFbxScene, Node *pRoot)
     {
         FbxNode *pFbxRoot = pFbxScene->GetRootNode();
-        String name = pFbxRoot->GetName();
-        if (name.empty())
-        {
-            name = "Model";
-        }
-        Model *pModel = new Model(name);
-        pRoot->addChild(pModel);
 
-        return processFbxNode(pFbxRoot, pModel);
+        bool result = processFbxNode(pFbxRoot, pRoot);
+        return result;
     }
 
     bool Converter::processFbxNode(FbxNode *pFbxNode, Node *pParent)
@@ -217,10 +212,13 @@ namespace mconv
             pNode = pParent;
         }
 
+        processFbxMaterial(pFbxNode, pParent);
+
         int i = 0;
         for (i = 0; i < pFbxNode->GetChildCount(); ++i)
         {
             processFbxNode(pFbxNode->GetChild(i), pNode);
+            processFbxMaterial(pFbxNode->GetChild(i), pNode);
         }
 
         return result;
@@ -236,6 +234,14 @@ namespace mconv
             return false;
         }
 
+//         String name = pFbxNode->GetName();
+//         if (name.empty())
+//         {
+//             name = "Model";
+//         }
+//         Model *pModel = new Model(name);
+//         pParent->addChild(pModel);
+
         Mesh *pMesh = new Mesh(pFbxMesh->GetName());
         pParent->addChild(pMesh);
         pNewNode = pMesh;
@@ -244,14 +250,18 @@ namespace mconv
         int nVertexCount = 0;
         int i = 0, j = 0;
 
-        VertexAttribute attribute;
-        Vertex vertex;
+        // 生成顶点属性
+        processVertexAttribute(pFbxMesh, pMesh);
+
+        // 构建顶点数据
 
         for (i = 0; i < nTriangleCount; ++i)
         {
             for (j = 0; j < 3; ++j)
             {
                 int nControlPointIdx = pFbxMesh->GetPolygonVertex(i, j);
+
+                Vertex vertex;
 
                 // 读取顶点位置信息
                 readPosition(pFbxMesh, nControlPointIdx, vertex.mPosition);
@@ -320,6 +330,71 @@ namespace mconv
 
                 ++nVertexCount;
             }
+        }
+
+        return true;
+    }
+
+    bool Converter::processVertexAttribute(FbxMesh *pFbxMesh, Mesh *pMesh)
+    {
+        int i = 0;
+
+        // 位置
+        VertexAttribute attribute;
+        attribute.mVertexType = VertexAttribute::E_VT_POSITION;
+        attribute.mSize = 3;
+        attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+        pMesh->mAttributes.push_back(attribute);
+
+        int nControlPointsCount = pFbxMesh->GetControlPointsCount();
+        int nUVCount = pFbxMesh->GetElementUVCount();
+        int nNormalCount = pFbxMesh->GetElementNormalCount();
+        int nBinormalCount = pFbxMesh->GetElementBinormalCount();
+        int nTangentCount = pFbxMesh->GetElementTangentCount();
+
+        // UV
+        for (i = 0; i < pFbxMesh->GetElementUVCount(); ++i)
+        {
+            attribute.mVertexType = VertexAttribute::E_VT_TEXCOORD;
+            attribute.mSize = 2;
+            attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+            pMesh->mAttributes.push_back(attribute);
+        }
+
+        // 法线
+        for (i = 0; i < pFbxMesh->GetElementNormalCount(); ++i)
+        {
+            attribute.mVertexType = VertexAttribute::E_VT_NORMAL;
+            attribute.mSize = 3;
+            attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+            pMesh->mAttributes.push_back(attribute);
+        }
+
+        // 副法线
+        for (i = 0; i < pFbxMesh->GetElementBinormalCount(); ++i)
+        {
+            attribute.mVertexType = VertexAttribute::E_VT_BINORMAL;
+            attribute.mSize = 3;
+            attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+            pMesh->mAttributes.push_back(attribute);
+        }
+
+        // 切线
+        for (i = 0; i < pFbxMesh->GetElementTangentCount(); ++i)
+        {
+            attribute.mVertexType = VertexAttribute::E_VT_TANGENT;
+            attribute.mSize = 3;
+            attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+            pMesh->mAttributes.push_back(attribute);
+        }
+
+        // 颜色
+        for (i = 0; i < pFbxMesh->GetElementVertexColorCount(); ++i)
+        {
+            attribute.mVertexType = VertexAttribute::E_VT_COLOR;
+            attribute.mSize = 4;
+            attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+            pMesh->mAttributes.push_back(attribute);
         }
 
         return true;
@@ -680,6 +755,21 @@ namespace mconv
 
     bool Converter::processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode)
     {
+        return true;
+    }
+
+    bool Converter::processFbxMaterial(FbxNode *pFbxNode, Node *pParent)
+    {
+        int nMaterialCount = pFbxNode->GetMaterialCount();
+        int i = 0;
+
+//         for (i = 0; i < nMaterialCount; ++i)
+//         {
+//             FbxSurfaceMaterial *pFbxMaterial = pFbxNode->GetMaterial(i);
+//             Material *pMaterial = new Material(pFbxMaterial->GetName());
+//             pParent->addChild(pMaterial);
+//         }
+
         return true;
     }
 }
