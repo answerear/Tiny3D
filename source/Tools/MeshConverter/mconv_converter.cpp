@@ -318,12 +318,12 @@ namespace mconv
                     }
                 } while (ret);
 
-                pFbxMesh->GetElementMaterialCount();
-                for (k = 0; k < pFbxMesh->GetElementMaterialCount(); ++i)
-                {
-                    FbxGeometryElementMaterial *pFbxMaterial = pFbxMesh->GetElementMaterial(i);
-//                     pFbxMaterial->GetDirectArray();
-                }
+//                 pFbxMesh->GetElementMaterialCount();
+//                 for (k = 0; k < pFbxMesh->GetElementMaterialCount(); ++i)
+//                 {
+//                     FbxGeometryElementMaterial *pFbxMaterial = pFbxMesh->GetElementMaterial(i);
+// //                     pFbxMaterial->GetDirectArray();
+//                 }
 
                 pMesh->mVertices.push_back(vertex);
 

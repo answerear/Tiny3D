@@ -101,7 +101,7 @@ namespace mconv
 
             populateXMLNode(pDoc, pElement, pScene);
 
-            pDoc->SaveFile(path.c_str());            
+            pDoc->SaveFile(path.c_str());
             delete pDoc;
         }
 
@@ -268,10 +268,10 @@ namespace mconv
             ++itrVertex;
 
             ++count;
-
-            if (count >= 5)
-                break;
         }
+
+        XMLText *pText = pDoc->NewText("\t\t");
+        pVertexElement->LinkEndChild(pText);
 
         return pMeshElement;
     }
