@@ -136,6 +136,7 @@ namespace mconv
         bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
 
         bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent);
+        bool processFbxAnimation(FbxNode *pFbxNode, Node *pParent);
 
         Settings    mSettings;
 

@@ -5,6 +5,7 @@
 #include "mconv_scene.h"
 #include "mconv_model.h"
 #include "mconv_mesh.h"
+#include "mconv_animation.h"
 
 
 namespace mconv
@@ -58,8 +59,8 @@ namespace mconv
     const char * const T3DXMLSerializer::TAG_BONE = "bone";
     const char * const T3DXMLSerializer::TAG_CHILDREN = "children";
     const char * const T3DXMLSerializer::TAG_TRANSFORM = "transform";
-    const char * const T3DXMLSerializer::TAG_ANIMATIONS = "animations";
     const char * const T3DXMLSerializer::TAG_ANIMATION = "animation";
+    const char * const T3DXMLSerializer::TAG_ACTION = "action";
     const char * const T3DXMLSerializer::TAG_KEYFRAME = "keyframe";
 
     const char * const T3DXMLSerializer::ATTRIB_ID = "id";
@@ -132,6 +133,11 @@ namespace mconv
                 pElement = populateXMLModel(pDoc, pParentElem, pNode);
             }
             break;
+        case Node::E_TYPE_ANIMATION:
+            {
+                pElement = populateXMLAnimation(pDoc, pParentElem, pNode);
+            }
+            break;
         default:
             {
                 pElement = pParentElem;
@@ -162,6 +168,18 @@ namespace mconv
         Mesh *pMesh = (Mesh *)pNode;
         XMLElement *pMeshElement = pDoc->NewElement(TAG_MESH);
         pParentElem->LinkEndChild(pMeshElement);
+
+        // 世界变换
+        XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+        int i = 0;
+        std::stringstream ss;
+        ss<<"\n\t\t\t"<<pMesh->mWorldMatrix[0][0]<<" "<<pMesh->mWorldMatrix[0][1]<<" "<<pMesh->mWorldMatrix[0][2]<<" "<<pMesh->mWorldMatrix[0][3]<<"\n";
+        ss<<"\t\t\t"<<pMesh->mWorldMatrix[1][0]<<" "<<pMesh->mWorldMatrix[1][1]<<" "<<pMesh->mWorldMatrix[1][2]<<" "<<pMesh->mWorldMatrix[1][3]<<"\n";
+        ss<<"\t\t\t"<<pMesh->mWorldMatrix[2][0]<<" "<<pMesh->mWorldMatrix[2][1]<<" "<<pMesh->mWorldMatrix[2][2]<<" "<<pMesh->mWorldMatrix[2][3]<<"\n";
+        ss<<"\t\t\t"<<pMesh->mWorldMatrix[3][0]<<" "<<pMesh->mWorldMatrix[3][1]<<" "<<pMesh->mWorldMatrix[3][2]<<" "<<pMesh->mWorldMatrix[3][3]<<"\n\t\t";
+        XMLText *pValue = pDoc->NewText(ss.str().c_str());
+        pTransformElement->LinkEndChild(pValue);
+        pMeshElement->LinkEndChild(pTransformElement);
 
         // 属性
         XMLElement *pAttribRootElement = pDoc->NewElement(TAG_ATTRIBUTES);
@@ -274,6 +292,28 @@ namespace mconv
         pVertexElement->LinkEndChild(pText);
 
         return pMeshElement;
+    }
+
+    XMLElement *T3DXMLSerializer::populateXMLAnimation(XMLDocument *pDoc, XMLElement *pParentElm, Node *pNode)
+    {
+        Animation *pAnim = (Animation *)pNode;
+        XMLElement *pAnimElement = pDoc->NewElement(TAG_ANIMATION);
+        pParentElm->LinkEndChild(pAnimElement);
+
+        pAnimElement->SetAttribute(ATTRIB_ID, pAnim->getID().c_str());
+        pAnimElement->SetAttribute(ATTRIB_COUNT, pAnim->getChildrenCount());
+
+        size_t i = 0;
+        for (i = 0; i < pNode->getChildrenCount(); ++i)
+        {
+            Action *pAction = (Action *)pNode->getChild(i);
+            XMLElement *pActionElement = pDoc->NewElement(TAG_ACTION);
+            pAnimElement->LinkEndChild(pActionElement);
+
+            pActionElement->SetAttribute(ATTRIB_ID, pAction->getID().c_str());
+        }
+        
+        return pAnimElement;
     }
 
     //////////////////////////////////////////////////////////////////////////

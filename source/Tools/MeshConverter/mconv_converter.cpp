@@ -10,6 +10,7 @@
 #include "mconv_mesh.h"
 #include "mconv_model.h"
 #include "mconv_material.h"
+#include "mconv_animation.h"
 
 
 namespace mconv
@@ -188,6 +189,7 @@ namespace mconv
             case FbxNodeAttribute::eMesh:
                 {
                     result = processFbxMesh(pFbxNode, pParent, pNode);
+                    processFbxAnimation(pFbxNode, pParent);
                 }
                 break;
             case FbxNodeAttribute::eSkeleton:
@@ -218,7 +220,7 @@ namespace mconv
         for (i = 0; i < pFbxNode->GetChildCount(); ++i)
         {
             processFbxNode(pFbxNode->GetChild(i), pNode);
-            processFbxMaterial(pFbxNode->GetChild(i), pNode);
+//             processFbxMaterial(pFbxNode->GetChild(i), pNode);
         }
 
         return result;
@@ -237,6 +239,8 @@ namespace mconv
         Mesh *pMesh = new Mesh(pFbxMesh->GetName());
         pParent->addChild(pMesh);
         pNewNode = pMesh;
+
+        pMesh->mWorldMatrix = pFbxNode->EvaluateGlobalTransform();
 
         int nTriangleCount = pFbxMesh->GetPolygonCount();
         int nVertexCount = 0;
@@ -767,6 +771,65 @@ namespace mconv
             FbxSurfaceMaterial *pFbxMaterial = pFbxNode->GetMaterial(i);
 //             Material *pMaterial = new Material(pFbxMaterial->GetName());
 //             pParent->addChild(pMaterial);
+        }
+
+        return true;
+    }
+
+    bool Converter::processFbxAnimation(FbxNode *pFbxNode, Node *pParent)
+    {
+        FbxScene *pFbxScene = (FbxScene *)mSrcData;
+        int nAnimStackCount = pFbxScene->GetSrcObjectCount(FbxAnimStack::ClassId);
+        int i = 0;
+        for (i = 0; i < nAnimStackCount; ++i)
+        {
+            FbxAnimStack *pFbxAnimStack = (FbxAnimStack *)pFbxScene->GetSrcObject(FbxAnimStack::ClassId, i);
+
+            String name = pFbxAnimStack->GetName();
+            if (name.empty())
+            {
+                name = "Animation";
+            }
+            Animation *pAnimation = new Animation(name);
+            pParent->addChild(pAnimation);
+
+            int nAnimLayerCount = pFbxAnimStack->GetMemberCount();
+            int j = 0;
+            for (j = 0; j < nAnimLayerCount; ++j)
+            {
+                FbxAnimLayer *pFbxAnimLayer = (FbxAnimLayer *)pFbxAnimStack->GetMember(j);
+                String name = pFbxAnimLayer->GetName();
+                if (name.empty())
+                {
+                    name = "Action";
+                }
+                Action *pAction = new Action(name);
+                pAnimation->addChild(pAction);
+
+                FbxAnimCurve *pFbxTransCurve = pFbxNode->LclTranslation.GetCurve(pFbxAnimLayer);
+                FbxAnimCurve *pFbxRotationCurve = pFbxNode->LclRotation.GetCurve(pFbxAnimLayer);
+                FbxAnimCurve *pFbxScaleCurve = pFbxNode->LclScaling.GetCurve(pFbxAnimLayer);
+
+                if (pFbxTransCurve != nullptr)
+                {
+                    int nKeyframeCount = pFbxTransCurve->KeyGetCount();
+
+                    int k = 0;
+                    for (k = 0; k < nKeyframeCount; ++k)
+                    {
+                        FbxTime frameTime = pFbxTransCurve->KeyGetTime(k);
+                        FbxVector3 translate = pFbxNode->EvaluateLocalTranslation(frameTime);
+                        float x = translate[0];
+                        float y = translate[1];
+                        float z = translate[2];
+                        frameTime.GetMilliSeconds();
+                    }
+                }
+                else
+                {
+
+                }
+            }
         }
 
         return true;

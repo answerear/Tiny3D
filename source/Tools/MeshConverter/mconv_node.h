@@ -29,6 +29,8 @@ namespace mconv
             E_TYPE_SKELETON,
             E_TYPE_SUBMESH,
             E_TYPE_TEXTURE,
+            E_TYPE_ACTION,
+            E_TYPE_ANIMATION,
         };
 
         Node(const String &ID = "Node")

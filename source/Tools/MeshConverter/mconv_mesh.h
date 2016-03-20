@@ -29,6 +29,7 @@ namespace mconv
             return E_TYPE_MESH;
         }
 
+        FbxAMatrix          mWorldMatrix;
         VertexAttributes    mAttributes;
         Vertices            mVertices;
     };

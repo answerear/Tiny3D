@@ -54,8 +54,8 @@ namespace mconv
         static const char * const TAG_BONE;
         static const char * const TAG_CHILDREN;
         static const char * const TAG_TRANSFORM;
-        static const char * const TAG_ANIMATIONS;
         static const char * const TAG_ANIMATION;
+        static const char * const TAG_ACTION;
         static const char * const TAG_KEYFRAME;
 
         static const char * const ATTRIB_ID;
@@ -76,6 +76,7 @@ namespace mconv
         XMLElement *populateXMLModel(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *populateXMLMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *populateXMLVertexAttributes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *populateXMLAnimation(XMLDocument *pDoc, XMLElement *pParentElm, Node *pNode);
     };
 
     class T3DSerializer : public Serializer
