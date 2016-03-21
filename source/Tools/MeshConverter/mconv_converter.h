@@ -123,6 +123,9 @@ namespace mconv
         bool processFbxNode(FbxNode *pFbxNode, Node *pParent);
 
         bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode);
+        bool processFbxAnimation(FbxNode *pFbxNode, Node *pParent);
+        bool processFbxSkin(FbxNode *pFbxNode, Node *pParent);
+
         bool processVertexAttribute(FbxMesh *pFbxMesh, Mesh *pMesh);
         bool readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos);
         bool readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector4 &color);
@@ -136,7 +139,7 @@ namespace mconv
         bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
 
         bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent);
-        bool processFbxAnimation(FbxNode *pFbxNode, Node *pParent);
+        
 
         Settings    mSettings;
 

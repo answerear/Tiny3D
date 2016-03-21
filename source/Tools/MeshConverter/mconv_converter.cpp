@@ -181,42 +181,49 @@ namespace mconv
     {
         bool result = false;
         Node *pNode = nullptr;
-        if (pFbxNode->GetNodeAttribute() != nullptr)
+
+        int nAttribCount = pFbxNode->GetNodeAttributeCount();
+        int i = 0;
+        for (i = 0; i < nAttribCount; ++i)
         {
-            FbxNodeAttribute::EType attribType = pFbxNode->GetNodeAttribute()->GetAttributeType();
-            switch (attribType)
+            if (pFbxNode->GetNodeAttribute() != nullptr)
             {
-            case FbxNodeAttribute::eMesh:
+                FbxNodeAttribute::EType attribType = pFbxNode->GetNodeAttribute()->GetAttributeType();
+                switch (attribType)
                 {
-                    result = processFbxMesh(pFbxNode, pParent, pNode);
-                    processFbxAnimation(pFbxNode, pParent);
+                case FbxNodeAttribute::eMesh:
+                    {
+                        result = processFbxMesh(pFbxNode, pParent, pNode);
+                        result = result && processFbxAnimation(pFbxNode, pParent);
+                        result = result && processFbxSkin(pFbxNode, pParent);
+                    }
+                    break;
+                case FbxNodeAttribute::eSkeleton:
+                    {
+                        result = processFbxSkeleton(pFbxNode, pParent, pNode);
+                    }
+                    break;
+                case FbxNodeAttribute::eCamera:
+                    {
+                        result = processFbxCamera(pFbxNode, pParent, pNode);
+                    }
+                    break;
+                case FbxNodeAttribute::eLight:
+                    {
+                        result = processFbxLight(pFbxNode, pParent, pNode);
+                    }
+                    break;
                 }
-                break;
-            case FbxNodeAttribute::eSkeleton:
-                {
-                    result = processFbxSkeleton(pFbxNode, pParent, pNode);
-                }
-                break;
-            case FbxNodeAttribute::eCamera:
-                {
-                    result = processFbxCamera(pFbxNode, pParent, pNode);
-                }
-                break;
-            case FbxNodeAttribute::eLight:
-                {
-                    result = processFbxLight(pFbxNode, pParent, pNode);
-                }
-                break;
             }
         }
-        else
+
+        if (pNode == nullptr)
         {
             pNode = pParent;
         }
 
-        processFbxMaterial(pFbxNode, pParent);
+//         processFbxMaterial(pFbxNode, pParent);
 
-        int i = 0;
         for (i = 0; i < pFbxNode->GetChildCount(); ++i)
         {
             processFbxNode(pFbxNode->GetChild(i), pNode);
@@ -832,6 +839,11 @@ namespace mconv
             }
         }
 
+        return true;
+    }
+
+    bool Converter::processFbxSkin(FbxNode *pFbxNode, Node *pParent)
+    {
         return true;
     }
 }
