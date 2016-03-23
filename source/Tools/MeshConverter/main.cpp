@@ -11,9 +11,13 @@ int main(int argc, char *argv[])
     Tiny3D::Logger *pLogger = new Tiny3D::Logger();
     T3D_LOG_STARTUP(1001, "MeshConverter", true, false);
 
+    T3D_LOG_INFO("Begin mesh-conv --------------------------------------");
+
     mconv::Converter *pConverter = new mconv::Converter();
     bool result = pConverter->execute(argc, argv);
     delete pConverter;
+
+    T3D_LOG_INFO("End mesh-conv ----------------------------------------");
 
     T3D_LOG_SHUTDOWN();
     delete pLogger;

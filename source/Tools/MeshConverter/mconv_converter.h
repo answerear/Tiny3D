@@ -120,11 +120,15 @@ namespace mconv
         bool convertToFBX();
 
         bool processFbxScene(FbxScene *pFbxScene, Node *pRoot);
-        bool processFbxNode(FbxNode *pFbxNode, Node *pParent);
+        bool processFbxNode(FbxNode *pFbxNode, Node *pParent, int nTabCount);
 
-        bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode);
-        bool processFbxAnimation(FbxNode *pFbxNode, Node *pParent);
-        bool processFbxSkin(FbxNode *pFbxNode, Node *pParent);
+        bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode, int nTabCount);
+        bool processFbxAnimation(FbxNode *pFbxNode, Node *pParent, int nTabCount);
+        bool processFbxSkin(FbxNode *pFbxNode, Node *pParent, int nTabCount);
+        bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent, int nTabCount);
+        bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode, int nTabCount);
+        bool processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode, int nTabCount);
+        bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode, int nTabCount);
 
         bool processVertexAttribute(FbxMesh *pFbxMesh, Mesh *pMesh);
         bool readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos);
@@ -133,13 +137,6 @@ namespace mconv
         bool readNormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &normal);
         bool readTangent(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &tangent);
         bool readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &binormal);
-
-        bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
-        bool processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
-        bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
-
-        bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent);
-        
 
         Settings    mSettings;
 
