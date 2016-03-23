@@ -210,6 +210,7 @@ namespace mconv
                 case FbxNodeAttribute::eSkeleton:
                     {
                         result = processFbxSkeleton(pFbxNode, pParent, pNode, nTabCount);
+//                         result = result && processFbxAnimation(pFbxNode, pParent, nTabCount);
                     }
                     break;
                 case FbxNodeAttribute::eCamera:
@@ -777,7 +778,7 @@ namespace mconv
         {
             ssTab<<"\t";
         }
-        T3D_LOG_INFO("%sSkeleton : %s", ssTab.str().c_str(), pFbxNode->GetName());
+        T3D_LOG_INFO("%sSkeleton : %s, 0x%p", ssTab.str().c_str(), pFbxNode->GetName(), pFbxNode);
 
         FbxSkeleton *pFbxSkel = pFbxNode->GetSkeleton();
 
@@ -835,7 +836,7 @@ namespace mconv
         {
             ssTab<<"\t";
         }
-        T3D_LOG_INFO("%sAnimation : %s", ssTab.str().c_str(), pFbxNode->GetName());
+        T3D_LOG_INFO("%sAnimation : %s 0x%p", ssTab.str().c_str(), pFbxNode->GetName(), pFbxNode);
 
         FbxScene *pFbxScene = (FbxScene *)mSrcData;
         int nAnimStackCount = pFbxScene->GetSrcObjectCount(FbxAnimStack::ClassId);
@@ -876,6 +877,37 @@ namespace mconv
                 T3D_LOG_INFO("%sLayer : %s", ss.str().c_str(), name.c_str());
                 Action *pAction = new Action(name);
 //                 pAnimation->addChild(pAction);
+
+//                 int nCurveNodeCount = pFbxAnimLayer->GetSrcObjectCount<FbxAnimCurveNode>();
+//                 for (int n = 0; n < nCurveNodeCount; ++n)
+//                 {
+//                     FbxAnimCurveNode *pCurveNode = pFbxAnimLayer->GetSrcObject<FbxAnimCurveNode>(n);
+//                     int nc = pCurveNode->GetDstPropertyCount();
+//                     for (int o = 0; o < nc; ++o)
+//                     {
+//                         FbxProperty prop = pCurveNode->GetDstProperty(o);
+//                         FbxNode *node = static_cast<FbxNode *>(prop.GetFbxObject());
+//                         if (node)
+//                         {
+//                             T3D_LOG_INFO("%srelation node : %s", ss.str().c_str(), node->GetName());
+//                             FbxAnimCurve *pFbxTransCurve = node->LclTranslation.GetCurve(pFbxAnimLayer);
+//                             FbxAnimCurve *pFbxRotationCurve = node->LclRotation.GetCurve(pFbxAnimLayer);
+//                             FbxAnimCurve *pFbxScaleCurve = node->LclScaling.GetCurve(pFbxAnimLayer);
+// 
+//                             if (pFbxRotationCurve != nullptr)
+//                             {
+//                                 int nKeyframeCount = pFbxRotationCurve->KeyGetCount();
+// 
+//                                 int k = 0;
+//                                 for (k = 0; k < nKeyframeCount; ++k)
+//                                 {
+//                                     FbxTime frameTime = pFbxRotationCurve->KeyGetTime(k);
+//                                     FbxVector4 rotation = pFbxNode->EvaluateLocalRotation(frameTime);
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 }
 
                 FbxAnimCurve *pFbxTransCurve = pFbxNode->LclTranslation.GetCurve(pFbxAnimLayer);
                 FbxAnimCurve *pFbxRotationCurve = pFbxNode->LclRotation.GetCurve(pFbxAnimLayer);
