@@ -3,6 +3,7 @@
  *      <?xml version="1.0" encoding="utf-8"?>
  *      <TINY3D xmlns="xxx" version="0.0.1">
  *      <scene>
+ *          <model id="wolf">
  *              <mesh id="wolf_skin">
  *                  <attributes count="5">
  *                      <attirbute id="POSITION" size="3" type="float" />
@@ -51,39 +52,43 @@
  *              </materials>
 
  *              <skeleton id="wolf_skeleton">
- *                  <bone id="bone_head">
- *                      <transform>
- *                          1.0 0.0 0.0 0.0
- *                          0.0 1.0 0.0 0.0
- *                          0.0 0.0 1.0 0.0
- *                          0.0 0.0 0.0 1.0
- *                      </transform>
- *                      <children count="1">
- *                          <bone id="bone_body">
- *                              <transform>
- *                                  1.0 0.0 0.0 0.0
- *                                  0.0 1.0 0.0 0.0
- *                                  0.0 0.0 1.0 0.0
- *                                  0.0 0.0 0.0 1.0
- *                              </transform>
- *                          </bone>
- *                      </children>
+ *                  <bone id="bone_head" count="1">
+ *                      <translate>1.0 1.0 1.0</translate>
+ *                      <rotate>1.0 1.0 1.0 1.0</rotate>
+ <                      <scale>1.2 1.2 1.2</scale>
+ *                      <bone id="bone_body" count="1">
+ *                          <translate></translate>
+ *                          <rotate></rotate>
+ *                          <scale></scale>
+ *                      </bone>
  *                  </bone>
  *              </skeleton>
 
- *              <animations id="" count="3>
- *                  <animation id="idle">
- *                      <keyframe></keyframe>
- *                      <keyframe></keyframe>
- *                  </animation>
- *                  <animation id="walk">
- *                  </animation>
- *                  <animation id="run">
- *                  </animation>
- *              </animations>
+ *              <animation id="" count="3>
+ *                  <action id="idle" spane="4.0">
+ *                      <keyframe type="translate" count="2">
+ *                          <frame id="1" time="0.1">1.0 1.0 1.0</frame>
+ *                          <frame id="2" time="0.5">0.0 1.0 0.0</frame>
+ *                      </keyframe>
+ *                      <keyframe type="rotate" count="2">
+ *                          <frame id="2" time="1.0">1.0 1.0 1.0 1.0</frame>
+ *                          <frame id="3" time="1.2">1.0 1.0 1.0 1.0</frame>
+ *                      </keyframe>
+ *                      <keyframe type="scale" count="2">
+ *                          <frame id="4" time="1.5">1.2 1.2 1.2</frame>
+ *                          <frame id="5" time="2.0">1.2 1.2 1.2</frame>
+ *                      </keyframe>
+ *                  </action>
+ *                  <action id="walk">
+ *                  </action>
+ *                  <action id="run">
+ *                  </action>
+ *              </animation>
+ *          </model>
 
  *          <light>
  *          </light>
+
  *          <camera>
  *          </camera>
  *      </scene>
@@ -121,9 +126,9 @@ namespace mconv
 
         bool processFbxScene(FbxScene *pFbxScene, Node *pRoot);
         bool processFbxNode(FbxNode *pFbxNode, Node *pParent, int nTabCount);
+        bool processFbxAnimation(FbxNode *pFbxNode, Node *pParent, int nTabCount);
 
         bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode, int nTabCount);
-        bool processFbxAnimation(FbxNode *pFbxNode, Node *pParent, int nTabCount);
         bool processFbxSkin(FbxNode *pFbxNode, Node *pParent, int nTabCount);
         bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent, int nTabCount);
         bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode, int nTabCount);

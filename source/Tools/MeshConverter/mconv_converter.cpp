@@ -202,7 +202,7 @@ namespace mconv
                 case FbxNodeAttribute::eMesh:
                     {
                         result = processFbxMesh(pFbxNode, pParent, pNode, nTabCount);
-                        result = result && processFbxAnimation(pFbxNode, pParent, nTabCount);
+//                         result = result && processFbxAnimation(pFbxNode, pParent, nTabCount);
                         result = result && processFbxSkin(pFbxNode, pParent, nTabCount);
                         result = result && processFbxMaterial(pFbxNode, pParent, nTabCount);
                     }

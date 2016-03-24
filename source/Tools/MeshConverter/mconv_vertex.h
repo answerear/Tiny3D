@@ -58,6 +58,12 @@ namespace mconv
 
         }
 
+        bool operator <(const Vertex &other) const
+        {
+            bool ret = (memcmp(mPosition.Buffer(), other.mPosition.Buffer(), sizeof(mPosition.mData)) < 0);
+            return ret;
+        }
+
         FbxVector3          mPosition;
         VectorElements2     mTexElements;
         VectorElements3     mNormalElements;
