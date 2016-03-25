@@ -169,14 +169,16 @@ namespace mconv
         XMLElement *pMeshElement = pDoc->NewElement(TAG_MESH);
         pParentElem->LinkEndChild(pMeshElement);
 
+        pMeshElement->SetAttribute(ATTRIB_ID, pMesh->getID().c_str());
+
         // ÊÀ½ç±ä»»
         XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
         int i = 0;
         std::stringstream ss;
-        ss<<"\n\t\t\t"<<pMesh->mWorldMatrix[0][0]<<" "<<pMesh->mWorldMatrix[0][1]<<" "<<pMesh->mWorldMatrix[0][2]<<" "<<pMesh->mWorldMatrix[0][3]<<"\n";
-        ss<<"\t\t\t"<<pMesh->mWorldMatrix[1][0]<<" "<<pMesh->mWorldMatrix[1][1]<<" "<<pMesh->mWorldMatrix[1][2]<<" "<<pMesh->mWorldMatrix[1][3]<<"\n";
-        ss<<"\t\t\t"<<pMesh->mWorldMatrix[2][0]<<" "<<pMesh->mWorldMatrix[2][1]<<" "<<pMesh->mWorldMatrix[2][2]<<" "<<pMesh->mWorldMatrix[2][3]<<"\n";
-        ss<<"\t\t\t"<<pMesh->mWorldMatrix[3][0]<<" "<<pMesh->mWorldMatrix[3][1]<<" "<<pMesh->mWorldMatrix[3][2]<<" "<<pMesh->mWorldMatrix[3][3]<<"\n\t\t";
+        ss<<"\n\t\t\t\t"<<pMesh->mWorldMatrix[0][0]<<" "<<pMesh->mWorldMatrix[0][1]<<" "<<pMesh->mWorldMatrix[0][2]<<" "<<pMesh->mWorldMatrix[0][3]<<"\n";
+        ss<<"\t\t\t\t"<<pMesh->mWorldMatrix[1][0]<<" "<<pMesh->mWorldMatrix[1][1]<<" "<<pMesh->mWorldMatrix[1][2]<<" "<<pMesh->mWorldMatrix[1][3]<<"\n";
+        ss<<"\t\t\t\t"<<pMesh->mWorldMatrix[2][0]<<" "<<pMesh->mWorldMatrix[2][1]<<" "<<pMesh->mWorldMatrix[2][2]<<" "<<pMesh->mWorldMatrix[2][3]<<"\n";
+        ss<<"\t\t\t\t"<<pMesh->mWorldMatrix[3][0]<<" "<<pMesh->mWorldMatrix[3][1]<<" "<<pMesh->mWorldMatrix[3][2]<<" "<<pMesh->mWorldMatrix[3][3]<<"\n\t\t\t";
         XMLText *pValue = pDoc->NewText(ss.str().c_str());
         pTransformElement->LinkEndChild(pValue);
         pMeshElement->LinkEndChild(pTransformElement);
@@ -217,9 +219,9 @@ namespace mconv
 
             // POSITION
             if (count == 0)
-                ss<<"\n"<<"\t\t\t"<<vertex.mPosition[0]<<" "<<vertex.mPosition[1]<<" "<<vertex.mPosition[2];
+                ss<<"\n"<<"\t\t\t\t"<<vertex.mPosition[0]<<" "<<vertex.mPosition[1]<<" "<<vertex.mPosition[2];
             else
-                ss<<"\t\t\t"<<vertex.mPosition[0]<<" "<<vertex.mPosition[1]<<" "<<vertex.mPosition[2];
+                ss<<"\t\t\t\t"<<vertex.mPosition[0]<<" "<<vertex.mPosition[1]<<" "<<vertex.mPosition[2];
 
             // TEXCOORD
             auto itr2 = vertex.mTexElements.begin();
@@ -288,7 +290,7 @@ namespace mconv
             ++count;
         }
 
-        XMLText *pText = pDoc->NewText("\t\t");
+        XMLText *pText = pDoc->NewText("\t\t\t");
         pVertexElement->LinkEndChild(pText);
 
         return pMeshElement;

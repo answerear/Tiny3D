@@ -29,6 +29,11 @@ namespace mconv
             return E_TYPE_MESH;
         }
 
+        bool split()
+        {
+            return true;
+        }
+
         FbxAMatrix          mWorldMatrix;
         VertexAttributes    mAttributes;
         Vertices            mVertices;

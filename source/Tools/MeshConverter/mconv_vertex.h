@@ -53,14 +53,23 @@ namespace mconv
         Vertex()
             : mPosition(0.0, 0.0, 0.0)
             , mBlendWeight(-1.0, -1.0, -1.0, -1.0)
-            , mBlendIndex(-1.0, -1.0, -1.0, 1.0)
+            , mBlendIndex(-1.0, -1.0, -1.0, -1.0)
+            , mMaterialIdx(-1)
         {
 
         }
 
         bool operator <(const Vertex &other) const
         {
-            bool ret = (memcmp(mPosition.Buffer(), other.mPosition.Buffer(), sizeof(mPosition.mData)) < 0);
+            bool ret = mPosition < other.mPosition;
+            ret = ret && mTexElements < other.mTexElements;
+            ret = ret && mNormalElements < other.mNormalElements;
+            ret = ret && mBinormalElements < other.mNormalElements;
+            ret = ret && mTangentElements < other.mTangentElements;
+            ret = ret && mColorElements < other.mColorElements;
+            ret = ret && mBlendWeight < other.mBlendWeight;
+            ret = ret && mBlendIndex < other.mBlendIndex;
+            ret = ret && mMaterialIdx < other.mMaterialIdx;
             return ret;
         }
 
@@ -72,6 +81,7 @@ namespace mconv
         VectorElements4     mColorElements;
         FbxVector4          mBlendWeight;
         FbxVector4          mBlendIndex;
+        int32_t             mMaterialIdx;
     };
 
     typedef std::list<Vertex>           Vertices;

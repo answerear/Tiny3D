@@ -13,7 +13,7 @@
  *                      <attribute id="BINORMAL" size="3" type="float" />
  *                      <attribute id="COLOR" size="4" type="float" />
  *                      <attribute id="BLEND_WEIGHT" size="4" type="float" />
- *                      <attribute id="BLEND_INDEX" size="4" type="float" />
+ *                      <attribute id="BLEND_INDEX" size="4" type="ushort" />
  *                  </attributes>
 
  *                  <vertices count="12">
@@ -125,15 +125,15 @@ namespace mconv
         bool convertToFBX();
 
         bool processFbxScene(FbxScene *pFbxScene, Node *pRoot);
-        bool processFbxNode(FbxNode *pFbxNode, Node *pParent, int nTabCount);
-        bool processFbxAnimation(FbxNode *pFbxNode, Node *pParent, int nTabCount);
+        bool processFbxNode(FbxNode *pFbxNode, Node *pParent);
+        bool processFbxAnimation(FbxNode *pFbxNode, Node *pParent);
 
-        bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode, int nTabCount);
-        bool processFbxSkin(FbxNode *pFbxNode, Node *pParent, int nTabCount);
-        bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent, int nTabCount);
-        bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode, int nTabCount);
-        bool processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode, int nTabCount);
-        bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode, int nTabCount);
+        bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode);
+        bool processFbxSkin(FbxNode *pFbxNode, Node *pParent);
+        bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
+        bool processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
+        bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
+        bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent);
 
         bool processVertexAttribute(FbxMesh *pFbxMesh, Mesh *pMesh);
         bool readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos);
@@ -142,6 +142,9 @@ namespace mconv
         bool readNormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &normal);
         bool readTangent(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &tangent);
         bool readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &binormal);
+        bool readMaterial(FbxMesh *pFbxMesh, int nTriangleIndex, int &nMaterialIndex);
+
+        bool optimize(Node *pNode);
 
         Settings    mSettings;
 
@@ -150,6 +153,10 @@ namespace mconv
 
         void        *mSrcData;
         void        *mDstData;
+
+#ifdef _DEBUG
+        int         mTabCount;
+#endif
     };
 }
 

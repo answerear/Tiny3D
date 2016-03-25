@@ -18,6 +18,9 @@ namespace mconv
     Converter::Converter()
         : mImporter(nullptr)
         , mExporter(nullptr)
+#ifdef _DEBUG
+        , mTabCount(0)
+#endif
     {
 
     }
@@ -164,6 +167,10 @@ namespace mconv
         Scene *pScene = new Scene(name);
         mDstData = pScene;
 
+#ifdef _DEBUG
+        mTabCount = 0;
+#endif
+
         processFbxScene(pFbxScene, pScene);
 
         return true;
@@ -173,22 +180,24 @@ namespace mconv
     {
         FbxNode *pFbxRoot = pFbxScene->GetRootNode();
 
-        bool result = processFbxNode(pFbxRoot, pRoot, 0);
+        bool result = processFbxNode(pFbxRoot, pRoot);
+        result = result && optimize(pRoot);
         return result;
     }
 
-    bool Converter::processFbxNode(FbxNode *pFbxNode, Node *pParent, int nTabCount)
+    bool Converter::processFbxNode(FbxNode *pFbxNode, Node *pParent)
     {
         bool result = false;
         Node *pNode = nullptr;
 
+#ifdef _DEBUG
         std::stringstream ssTab;
-        for (int t = 0; t < nTabCount; ++t)
+        for (int t = 0; t < mTabCount; ++t)
         {
             ssTab<<"\t";
         }
-
         T3D_LOG_INFO("%sNode : %s", ssTab.str().c_str(), pFbxNode->GetName());
+#endif
 
         int nAttribCount = pFbxNode->GetNodeAttributeCount();
         int i = 0;
@@ -201,26 +210,24 @@ namespace mconv
                 {
                 case FbxNodeAttribute::eMesh:
                     {
-                        result = processFbxMesh(pFbxNode, pParent, pNode, nTabCount);
-//                         result = result && processFbxAnimation(pFbxNode, pParent, nTabCount);
-                        result = result && processFbxSkin(pFbxNode, pParent, nTabCount);
-                        result = result && processFbxMaterial(pFbxNode, pParent, nTabCount);
+                        result = processFbxMesh(pFbxNode, pParent, pNode);
+                        result = result && processFbxSkin(pFbxNode, pParent);
+                        result = result && processFbxMaterial(pFbxNode, pParent);
                     }
                     break;
                 case FbxNodeAttribute::eSkeleton:
                     {
-                        result = processFbxSkeleton(pFbxNode, pParent, pNode, nTabCount);
-//                         result = result && processFbxAnimation(pFbxNode, pParent, nTabCount);
+                        result = processFbxSkeleton(pFbxNode, pParent, pNode);
                     }
                     break;
                 case FbxNodeAttribute::eCamera:
                     {
-                        result = processFbxCamera(pFbxNode, pParent, pNode, nTabCount);
+                        result = processFbxCamera(pFbxNode, pParent, pNode);
                     }
                     break;
                 case FbxNodeAttribute::eLight:
                     {
-                        result = processFbxLight(pFbxNode, pParent, pNode, nTabCount);
+                        result = processFbxLight(pFbxNode, pParent, pNode);
                     }
                     break;
                 }
@@ -232,19 +239,23 @@ namespace mconv
             pNode = pParent;
         }
 
-//         processFbxMaterial(pFbxNode, pParent);
-        nTabCount++;
+#ifdef _DEBUG
+        mTabCount++;
+#endif
 
         for (i = 0; i < pFbxNode->GetChildCount(); ++i)
         {
-            processFbxNode(pFbxNode->GetChild(i), pNode, nTabCount);
-//             processFbxMaterial(pFbxNode->GetChild(i), pNode);
+            processFbxNode(pFbxNode->GetChild(i), pNode);
         }
+
+#ifdef _DEBUG
+        mTabCount--;
+#endif
 
         return result;
     }
 
-    bool Converter::processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode, int nTabCount)
+    bool Converter::processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode)
     {
         FbxMesh *pFbxMesh = pFbxNode->GetMesh();
 
@@ -254,16 +265,26 @@ namespace mconv
             return false;
         }
 
+#ifdef _DEBUG
         std::stringstream ssTab;
-        for (int t = 0; t < nTabCount; ++t)
+        for (int t = 0; t < mTabCount; ++t)
         {
             ssTab<<"\t";
         }
-        T3D_LOG_INFO("%sMesh : %s", ssTab.str().c_str(), pFbxMesh->GetName());
+        T3D_LOG_INFO("%sMesh : %s", ssTab.str().c_str(), pFbxNode->GetName());
+#endif
 
-        Mesh *pMesh = new Mesh(pFbxMesh->GetName());
-        pParent->addChild(pMesh);
-        pNewNode = pMesh;
+        String name = pFbxNode->GetName();
+        if (name == "")
+        {
+            name = "Model";
+        }
+        Model *pModel = new Model(name);
+        pParent->addChild(pModel);
+        pNewNode = pModel;
+
+        Mesh *pMesh = new Mesh(name);
+        pModel->addChild(pMesh);
 
         pMesh->mWorldMatrix = pFbxNode->EvaluateGlobalTransform();
 
@@ -275,7 +296,6 @@ namespace mconv
         processVertexAttribute(pFbxMesh, pMesh);
 
         // 构建顶点数据
-
         for (i = 0; i < nTriangleCount; ++i)
         {
             for (j = 0; j < 3; ++j)
@@ -347,12 +367,11 @@ namespace mconv
                     }
                 } while (ret);
 
-//                 pFbxMesh->GetElementMaterialCount();
-//                 for (k = 0; k < pFbxMesh->GetElementMaterialCount(); ++i)
-//                 {
-//                     FbxGeometryElementMaterial *pFbxMaterial = pFbxMesh->GetElementMaterial(i);
-// //                     pFbxMaterial->GetDirectArray();
-//                 }
+                int nMaterialIdx = 0;
+                if (ret = readMaterial(pFbxMesh, i, nMaterialIdx))
+                {
+                    vertex.mMaterialIdx = nMaterialIdx;
+                }
 
                 pMesh->mVertices.push_back(vertex);
 
@@ -771,72 +790,118 @@ namespace mconv
         return result;
     }
 
-    bool Converter::processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode, int nTabCount)
+    bool Converter::readMaterial(FbxMesh *pFbxMesh, int nTriangleIndex, int &nMaterialIndex)
     {
+        bool result = false;
+
+        if (pFbxMesh->GetElementMaterial() != nullptr)
+        {
+            FbxLayerElementArrayTemplate<int> &indices = pFbxMesh->GetElementMaterial()->GetIndexArray();
+            FbxGeometryElement::EMappingMode eMappingMode = pFbxMesh->GetElementMaterial()->GetMappingMode();
+
+            if (indices.GetCount() > 0)
+            {
+                result = true;
+
+                switch (eMappingMode)
+                {
+                case FbxGeometryElement::eByPolygon:
+                    {
+                        nMaterialIndex = indices.GetAt(nTriangleIndex);
+                    }
+                    break;
+                case FbxGeometryElement::eAllSame:
+                    {
+                        nMaterialIndex = indices.GetAt(0);
+                    }
+                    break;
+                }
+            }
+        }
+        
+        return result;
+    }
+
+    bool Converter::processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode)
+    {
+#ifdef _DEBUG
         std::stringstream ssTab;
-        for (int t = 0; t < nTabCount; ++t)
+        for (int t = 0; t < mTabCount; ++t)
         {
             ssTab<<"\t";
         }
         T3D_LOG_INFO("%sSkeleton : %s, 0x%p", ssTab.str().c_str(), pFbxNode->GetName(), pFbxNode);
+#endif
 
         FbxSkeleton *pFbxSkel = pFbxNode->GetSkeleton();
 
         return true;
     }
 
-    bool Converter::processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode, int nTabCount)
+    bool Converter::processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode)
     {
+#ifdef _DEBUG
         std::stringstream ssTab;
-        for (int t = 0; t < nTabCount; ++t)
+        for (int t = 0; t < mTabCount; ++t)
         {
             ssTab<<"\t";
         }
         T3D_LOG_INFO("%sCamera : %s", ssTab.str().c_str(), pFbxNode->GetName());
+#endif
+
         return true;
     }
 
-    bool Converter::processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode, int nTabCount)
+    bool Converter::processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode)
     {
+#ifdef _DEBUG
         std::stringstream ssTab;
-        for (int t = 0; t < nTabCount; ++t)
+        for (int t = 0; t < mTabCount; ++t)
         {
             ssTab<<"\t";
         }
         T3D_LOG_INFO("%sLight : %s", ssTab.str().c_str(), pFbxNode->GetName());
+#endif
+
         return true;
     }
 
-    bool Converter::processFbxMaterial(FbxNode *pFbxNode, Node *pParent, int nTabCount)
+    bool Converter::processFbxMaterial(FbxNode *pFbxNode, Node *pParent)
     {
         int nMaterialCount = pFbxNode->GetMaterialCount();
         int i = 0;
 
+#ifdef _DEBUG
         std::stringstream ssTab;
-        for (i = 0; i < nTabCount; ++i)
+        for (i = 0; i < mTabCount; ++i)
         {
             ssTab<<"\t";
         }
+#endif
 
         for (i = 0; i < nMaterialCount; ++i)
         {
             FbxSurfaceMaterial *pFbxMaterial = pFbxNode->GetMaterial(i);
 //             Material *pMaterial = new Material(pFbxMaterial->GetName());
 //             pParent->addChild(pMaterial);
+#ifdef _DEBUG
             T3D_LOG_INFO("%sMaterial : %s", ssTab.str().c_str(), pFbxMaterial->GetName());
+#endif
         }
 
         return true;
     }
 
-    bool Converter::processFbxAnimation(FbxNode *pFbxNode, Node *pParent, int nTabCount)
+    bool Converter::processFbxAnimation(FbxNode *pFbxNode, Node *pParent)
     {
+#ifdef _DEBUG
         std::stringstream ssTab;
-        for (int t = 0; t < nTabCount; ++t)
+        for (int t = 0; t < mTabCount; ++t)
         {
             ssTab<<"\t";
         }
         T3D_LOG_INFO("%sAnimation : %s 0x%p", ssTab.str().c_str(), pFbxNode->GetName(), pFbxNode);
+#endif
 
         FbxScene *pFbxScene = (FbxScene *)mSrcData;
         int nAnimStackCount = pFbxScene->GetSrcObjectCount(FbxAnimStack::ClassId);
@@ -854,16 +919,20 @@ namespace mconv
             {
                 name = "Animation";
             }
+#ifdef _DEBUG
             T3D_LOG_INFO("%sAction : %s", ssTab.str().c_str(), name.c_str());
+#endif
             Animation *pAnimation = new Animation(name);
 //             pParent->addChild(pAnimation);
 
             int nAnimLayerCount = pFbxAnimStack->GetMemberCount();
+#ifdef _DEBUG
             std::stringstream ss;
             if (nAnimLayerCount > 0)
             {
                 ss<<ssTab.str()<<"\t";
             }
+#endif
             
             int j = 0;
             for (j = 0; j < nAnimLayerCount; ++j)
@@ -874,40 +943,12 @@ namespace mconv
                 {
                     name = "Action";
                 }
-                T3D_LOG_INFO("%sLayer : %s", ss.str().c_str(), name.c_str());
-                Action *pAction = new Action(name);
-//                 pAnimation->addChild(pAction);
 
-//                 int nCurveNodeCount = pFbxAnimLayer->GetSrcObjectCount<FbxAnimCurveNode>();
-//                 for (int n = 0; n < nCurveNodeCount; ++n)
-//                 {
-//                     FbxAnimCurveNode *pCurveNode = pFbxAnimLayer->GetSrcObject<FbxAnimCurveNode>(n);
-//                     int nc = pCurveNode->GetDstPropertyCount();
-//                     for (int o = 0; o < nc; ++o)
-//                     {
-//                         FbxProperty prop = pCurveNode->GetDstProperty(o);
-//                         FbxNode *node = static_cast<FbxNode *>(prop.GetFbxObject());
-//                         if (node)
-//                         {
-//                             T3D_LOG_INFO("%srelation node : %s", ss.str().c_str(), node->GetName());
-//                             FbxAnimCurve *pFbxTransCurve = node->LclTranslation.GetCurve(pFbxAnimLayer);
-//                             FbxAnimCurve *pFbxRotationCurve = node->LclRotation.GetCurve(pFbxAnimLayer);
-//                             FbxAnimCurve *pFbxScaleCurve = node->LclScaling.GetCurve(pFbxAnimLayer);
-// 
-//                             if (pFbxRotationCurve != nullptr)
-//                             {
-//                                 int nKeyframeCount = pFbxRotationCurve->KeyGetCount();
-// 
-//                                 int k = 0;
-//                                 for (k = 0; k < nKeyframeCount; ++k)
-//                                 {
-//                                     FbxTime frameTime = pFbxRotationCurve->KeyGetTime(k);
-//                                     FbxVector4 rotation = pFbxNode->EvaluateLocalRotation(frameTime);
-//                                 }
-//                             }
-//                         }
-//                     }
-//                 }
+#ifdef _DEBUG
+                T3D_LOG_INFO("%sLayer : %s", ss.str().c_str(), name.c_str());
+#endif
+
+                Action *pAction = new Action(name);
 
                 FbxAnimCurve *pFbxTransCurve = pFbxNode->LclTranslation.GetCurve(pFbxAnimLayer);
                 FbxAnimCurve *pFbxRotationCurve = pFbxNode->LclRotation.GetCurve(pFbxAnimLayer);
@@ -921,7 +962,7 @@ namespace mconv
                     for (k = 0; k < nKeyframeCount; ++k)
                     {
                         FbxTime frameTime = pFbxTransCurve->KeyGetTime(k);
-                        FbxVector3 translate = pFbxNode->EvaluateLocalTranslation(frameTime);
+                        FbxVector4 translate = pFbxNode->EvaluateLocalTranslation(frameTime);
                         float x = translate[0];
                         float y = translate[1];
                         float z = translate[2];
@@ -954,14 +995,16 @@ namespace mconv
         return true;
     }
 
-    bool Converter::processFbxSkin(FbxNode *pFbxNode, Node *pParent, int nTabCount)
+    bool Converter::processFbxSkin(FbxNode *pFbxNode, Node *pParent)
     {
+#ifdef _DEBUG
         std::stringstream ssTab;
-        for (int t = 0; t < nTabCount; ++t)
+        for (int t = 0; t < mTabCount; ++t)
         {
             ssTab<<"\t";
         }
         T3D_LOG_INFO("%sSkin : %s", ssTab.str().c_str(), pFbxNode->GetName());
+#endif
 
         FbxMesh *pFbxMesh = pFbxNode->GetMesh();
         int nDeformerCount = pFbxMesh->GetDeformerCount();
@@ -989,18 +1032,40 @@ namespace mconv
             int j = 0;
             int nBoneCount = pFbxSkin->GetClusterCount();
 
+#ifdef _DEBUG
             std::stringstream ss;
             if (nBoneCount > 0)
             {
                 ss<<ssTab.str()<<"\t";
             }
+#endif
 
             for (j = 0; j < nBoneCount; ++j)
             {
                 FbxCluster *pFbxCluster = pFbxSkin->GetCluster(j);
                 FbxNode *pFbxLinkNode = pFbxCluster->GetLink();
+#ifdef _DEBUG
                 T3D_LOG_INFO("%sLink node : %s", ss.str().c_str(), pFbxLinkNode->GetName());
+#endif
             }
+        }
+
+        return true;
+    }
+
+    bool Converter::optimize(Node *pNode)
+    {
+        if (pNode->getNodeType() == Node::E_TYPE_MESH)
+        {
+            Mesh *pMesh = (Mesh *)pNode;
+            pMesh->split();
+        }
+
+        int i = 0;
+        for (i = 0; i < pNode->getChildrenCount(); ++i)
+        {
+            Node *pChild = pNode->getChild(i);
+            optimize(pChild);
         }
 
         return true;

@@ -30,7 +30,33 @@ namespace mconv
         E_FILETYPE_T3D      = E_FILETYPE_T3DB|E_FILETYPE_T3DT,  /// T3D二进制和文本格式
     };
 
-    typedef FbxDouble3 FbxVector3;
+//     typedef FbxDouble3 FbxVector3;
+    class FbxVector3 : public FbxDouble3
+    {
+    public:
+        FbxVector3()
+            : FbxDouble3()
+        {
+
+        }
+
+        FbxVector3(FbxDouble x, FbxDouble y, FbxDouble z)
+            : FbxDouble3(x, y, z)
+        {
+
+        }
+
+        FbxVector3(const FbxVector3 &other)
+        {
+            memcpy(mData, other.mData, sizeof(mData));
+        }
+
+        FbxVector3 &operator =(const FbxVector3 &other)
+        {
+            memcpy(mData, other.mData, sizeof(mData));
+            return *this;
+        }
+    };
 
     typedef std::list<FbxVector2>           VectorElements2;
     typedef VectorElements2::iterator       VectorElements2Itr;
@@ -47,6 +73,25 @@ namespace mconv
     typedef std::list<int>                  Indices;
     typedef Indices::iterator               IndicesItr;
     typedef Indices::const_iterator         IndicesConstItr;
+
+    typedef std::list<uint16_t>             BlendIndices;
+    typedef BlendIndices::iterator          BlendIndicesItr;
+    typedef BlendIndices::const_iterator    BlendIndicesConstItr;
+
+    inline bool operator <(const FbxVector2 &v1, const FbxVector2 &v2)
+    {
+        return (memcmp(v1.Buffer(), v2.Buffer(), sizeof(v1.mData)) < 0);
+    }
+
+    inline bool operator <(const FbxVector3 &v1, const FbxVector3 &v2)
+    {
+        return (memcmp(v1.Buffer(), v2.Buffer(), sizeof(v1.mData)) < 0);
+    }
+
+    inline bool operator <(const FbxVector4 &v1, const FbxVector4 &v2)
+    {
+        return (memcmp(v1.Buffer(), v2.Buffer(), sizeof(v1.mData)) < 0);
+    }
 }
 
 
