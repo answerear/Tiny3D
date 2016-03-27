@@ -28,9 +28,9 @@ namespace mconv
             return E_TYPE_BONE;
         }
 
-        FbxVector3      mPosition;
-        FbxQuaternion   mOrientation;
-        FbxVector3      mScale;
+        FbxVector3  mTranslation;
+        FbxVector4  mRotation;
+        FbxVector3  mScale;
     };
 }
 

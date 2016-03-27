@@ -36,6 +36,7 @@ namespace mconv
         Node(const String &ID = "Node")
             : mID(ID)
             , mParent(nullptr)
+            , mSource(nullptr)
         {
 
         }
@@ -93,6 +94,7 @@ namespace mconv
                 Node *child = *itr;
                 if (node == child)
                 {
+                    child->mParent = nullptr;
                     mChildren.erase(itr);
                     if (destroy)
                     {
@@ -106,13 +108,14 @@ namespace mconv
 
         void removeAllChildren(bool destroy = true)
         {
-            while (mChildren.empty())
+            while (!mChildren.empty())
             {
                 Node *child = mChildren.front();
                 child->mParent = nullptr;
                 mChildren.pop_front();
                 if (destroy)
                 {
+                    child->removeAllChildren(true);
                     delete child;
                 }
             }
@@ -152,6 +155,7 @@ namespace mconv
                     break;
                 }
 
+                ++i;
                 ++itr;
             }
 
@@ -167,7 +171,7 @@ namespace mconv
         {
             if (mParent != nullptr)
             {
-                mParent->removeChild(this);
+                mParent->removeChild(this, destroy);
             }
         }
 
@@ -175,6 +179,8 @@ namespace mconv
         String  mID;
         Node    *mParent;
         Nodes   mChildren;
+
+        void    *mSource;
     };
 }
 

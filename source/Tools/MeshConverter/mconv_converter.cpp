@@ -11,6 +11,8 @@
 #include "mconv_model.h"
 #include "mconv_material.h"
 #include "mconv_animation.h"
+#include "mconv_skeleton.h"
+#include "mconv_bone.h"
 
 
 namespace mconv
@@ -18,6 +20,9 @@ namespace mconv
     Converter::Converter()
         : mImporter(nullptr)
         , mExporter(nullptr)
+        , mModel(nullptr)
+        , mSkeleton(nullptr)
+        , mHasSkeleton(false)
 #ifdef _DEBUG
         , mTabCount(0)
 #endif
@@ -44,6 +49,8 @@ namespace mconv
         result = result && importScene();
         result = result && convert();
         result = result && exportScene();
+
+        cleanup();
 
         return result;
     }
@@ -181,7 +188,8 @@ namespace mconv
         FbxNode *pFbxRoot = pFbxScene->GetRootNode();
 
         bool result = processFbxNode(pFbxRoot, pRoot);
-        result = result && optimize(pRoot);
+        result = result && optimizeSkeleton();
+        result = result && optimizeMesh(pRoot);
         return result;
     }
 
@@ -210,8 +218,9 @@ namespace mconv
                 {
                 case FbxNodeAttribute::eMesh:
                     {
+                        mHasSkeleton = false;
                         result = processFbxMesh(pFbxNode, pParent, pNode);
-                        result = result && processFbxSkin(pFbxNode, pParent);
+                        result = result && processFbxSkin(pFbxNode, pParent, (Mesh *)pNode);
                         result = result && processFbxMaterial(pFbxNode, pParent);
                     }
                     break;
@@ -222,12 +231,19 @@ namespace mconv
                     break;
                 case FbxNodeAttribute::eCamera:
                     {
+                        mHasSkeleton = false;
                         result = processFbxCamera(pFbxNode, pParent, pNode);
                     }
                     break;
                 case FbxNodeAttribute::eLight:
                     {
+                        mHasSkeleton = false;
                         result = processFbxLight(pFbxNode, pParent, pNode);
+                    }
+                    break;
+                default:
+                    {
+                        mHasSkeleton = false;
                     }
                     break;
                 }
@@ -237,6 +253,7 @@ namespace mconv
         if (pNode == nullptr)
         {
             pNode = pParent;
+            result = true;
         }
 
 #ifdef _DEBUG
@@ -245,7 +262,7 @@ namespace mconv
 
         for (i = 0; i < pFbxNode->GetChildCount(); ++i)
         {
-            processFbxNode(pFbxNode->GetChild(i), pNode);
+            result = result && processFbxNode(pFbxNode->GetChild(i), pNode);
         }
 
 #ifdef _DEBUG
@@ -271,22 +288,26 @@ namespace mconv
         {
             ssTab<<"\t";
         }
-        T3D_LOG_INFO("%sMesh : %s", ssTab.str().c_str(), pFbxNode->GetName());
+        T3D_LOG_INFO("%sMesh : %s, 0x%p", ssTab.str().c_str(), pFbxNode->GetName(), pFbxMesh);
 #endif
 
         String name = pFbxNode->GetName();
-        if (name == "")
+        if (name.empty())
         {
             name = "Model";
         }
         Model *pModel = new Model(name);
         pParent->addChild(pModel);
         pNewNode = pModel;
+        mModel = pModel;
 
         Mesh *pMesh = new Mesh(name);
         pModel->addChild(pMesh);
 
-        pMesh->mWorldMatrix = pFbxNode->EvaluateGlobalTransform();
+        FbxVector4 T = pFbxNode->GetGeometricTranslation(FbxNode::eSourcePivot);
+        FbxVector4 R = pFbxNode->GetGeometricRotation(FbxNode::eSourcePivot);
+        FbxVector4 S = pFbxNode->GetGeometricScaling(FbxNode::eSourcePivot);
+        pMesh->mWorldMatrix.SetTRS(T, R, S);
 
         int nTriangleCount = pFbxMesh->GetPolygonCount();
         int nVertexCount = 0;
@@ -830,10 +851,51 @@ namespace mconv
         {
             ssTab<<"\t";
         }
+        FbxGeometry *pFbxGeometry = pFbxNode->GetGeometry();
+
         T3D_LOG_INFO("%sSkeleton : %s, 0x%p", ssTab.str().c_str(), pFbxNode->GetName(), pFbxNode);
 #endif
 
         FbxSkeleton *pFbxSkel = pFbxNode->GetSkeleton();
+        if (!mHasSkeleton)
+        {
+            String name = pFbxNode->GetName();
+            if (name.empty())
+            {
+                name = "skeleton";
+            }
+            Skeleton *pSkel = new Skeleton(name);
+            pParent->addChild(pSkel);
+            mSkeleton = pSkel;
+            pParent = pSkel;
+            mHasSkeleton = true;
+        }
+
+        String name = pFbxNode->GetName();
+        if (name.empty())
+        {
+            name = "bone";
+        }
+        Bone *pBone = new Bone(name);
+        pParent->addChild(pBone);
+        pNewNode = pBone;
+        FbxAMatrix &M = pFbxNode->EvaluateLocalTransform();
+        FbxVector4 T = M.GetT();
+        FbxQuaternion R = M.GetQ();
+        FbxVector4 S = M.GetS();
+
+        pBone->mTranslation[0] = T[0];
+        pBone->mTranslation[1] = T[1];
+        pBone->mTranslation[2] = T[2];
+
+        pBone->mRotation[0] = R[0];
+        pBone->mRotation[1] = R[1];
+        pBone->mRotation[2] = R[2];
+        pBone->mRotation[3] = R[4];
+
+        pBone->mScale[0] = S[0];
+        pBone->mScale[1] = S[1];
+        pBone->mScale[2] = S[2];
 
         return true;
     }
@@ -882,8 +944,8 @@ namespace mconv
         for (i = 0; i < nMaterialCount; ++i)
         {
             FbxSurfaceMaterial *pFbxMaterial = pFbxNode->GetMaterial(i);
-//             Material *pMaterial = new Material(pFbxMaterial->GetName());
-//             pParent->addChild(pMaterial);
+            Material *pMaterial = new Material(pFbxMaterial->GetName());
+            pParent->addChild(pMaterial);
 #ifdef _DEBUG
             T3D_LOG_INFO("%sMaterial : %s", ssTab.str().c_str(), pFbxMaterial->GetName());
 #endif
@@ -923,7 +985,7 @@ namespace mconv
             T3D_LOG_INFO("%sAction : %s", ssTab.str().c_str(), name.c_str());
 #endif
             Animation *pAnimation = new Animation(name);
-//             pParent->addChild(pAnimation);
+            pParent->addChild(pAnimation);
 
             int nAnimLayerCount = pFbxAnimStack->GetMemberCount();
 #ifdef _DEBUG
@@ -949,6 +1011,7 @@ namespace mconv
 #endif
 
                 Action *pAction = new Action(name);
+                pAnimation->addChild(pAction);
 
                 FbxAnimCurve *pFbxTransCurve = pFbxNode->LclTranslation.GetCurve(pFbxAnimLayer);
                 FbxAnimCurve *pFbxRotationCurve = pFbxNode->LclRotation.GetCurve(pFbxAnimLayer);
@@ -995,7 +1058,7 @@ namespace mconv
         return true;
     }
 
-    bool Converter::processFbxSkin(FbxNode *pFbxNode, Node *pParent)
+    bool Converter::processFbxSkin(FbxNode *pFbxNode, Node *pParent, Mesh *pMesh)
     {
 #ifdef _DEBUG
         std::stringstream ssTab;
@@ -1045,15 +1108,16 @@ namespace mconv
                 FbxCluster *pFbxCluster = pFbxSkin->GetCluster(j);
                 FbxNode *pFbxLinkNode = pFbxCluster->GetLink();
 #ifdef _DEBUG
-                T3D_LOG_INFO("%sLink node : %s", ss.str().c_str(), pFbxLinkNode->GetName());
+                T3D_LOG_INFO("%sLink node : %s, 0x%p", ss.str().c_str(), pFbxLinkNode->GetName(), pFbxLinkNode);
 #endif
+                pFbxCluster;
             }
         }
 
         return true;
     }
 
-    bool Converter::optimize(Node *pNode)
+    bool Converter::optimizeMesh(Node *pNode)
     {
         if (pNode->getNodeType() == Node::E_TYPE_MESH)
         {
@@ -1061,13 +1125,29 @@ namespace mconv
             pMesh->split();
         }
 
-        int i = 0;
+        size_t i = 0;
         for (i = 0; i < pNode->getChildrenCount(); ++i)
         {
             Node *pChild = pNode->getChild(i);
-            optimize(pChild);
+            optimizeMesh(pChild);
         }
 
         return true;
+    }
+
+    bool Converter::optimizeSkeleton()
+    {
+        if (mModel != nullptr)
+        {
+            mSkeleton->removeFromParent(false);
+            mModel->addChild(mSkeleton);
+        }
+        return true;
+    }
+
+    void Converter::cleanup()
+    {
+        Node *pNode = (Node *)mDstData;
+        pNode->removeAllChildren();
     }
 }

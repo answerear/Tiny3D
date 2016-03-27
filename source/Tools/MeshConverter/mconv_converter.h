@@ -107,6 +107,9 @@ namespace mconv
     class Serializer;
     class Node;
     class Mesh;
+    class Model;
+    class Skeleton;
+    class Bone;
 
     class Converter
     {
@@ -117,6 +120,19 @@ namespace mconv
         bool execute(int argc, char *argv[]);
 
     protected:
+        struct BindingNode
+        {
+            BindingNode()
+                : pSkel(nullptr)
+                , pMesh(nullptr)
+            {
+
+            }
+
+            Skeleton    *pSkel;
+            Mesh        *pMesh;
+        };
+
         bool importScene();
         bool convert();
         bool exportScene();
@@ -129,7 +145,7 @@ namespace mconv
         bool processFbxAnimation(FbxNode *pFbxNode, Node *pParent);
 
         bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode);
-        bool processFbxSkin(FbxNode *pFbxNode, Node *pParent);
+        bool processFbxSkin(FbxNode *pFbxNode, Node *pParent, Mesh *pMesh);
         bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
@@ -144,7 +160,10 @@ namespace mconv
         bool readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &binormal);
         bool readMaterial(FbxMesh *pFbxMesh, int nTriangleIndex, int &nMaterialIndex);
 
-        bool optimize(Node *pNode);
+        bool optimizeMesh(Node *pRoot);
+        bool optimizeSkeleton();
+
+        void cleanup();
 
         Settings    mSettings;
 
@@ -153,6 +172,11 @@ namespace mconv
 
         void        *mSrcData;
         void        *mDstData;
+
+        Model       *mModel;
+        Skeleton    *mSkeleton;
+
+        bool        mHasSkeleton;
 
 #ifdef _DEBUG
         int         mTabCount;
