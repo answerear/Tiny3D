@@ -51,7 +51,8 @@ namespace mconv
     {
     public:
         Vertex()
-            : mPosition(0.0, 0.0, 0.0)
+            : mCtrlPointIdx(0)
+            , mPosition(0.0, 0.0, 0.0)
             , mBlendWeight(-1.0, -1.0, -1.0, -1.0)
             , mBlendIndex(-1.0, -1.0, -1.0, -1.0)
             , mMaterialIdx(-1)
@@ -73,6 +74,7 @@ namespace mconv
             return ret;
         }
 
+        int                 mCtrlPointIdx;
         FbxVector3          mPosition;
         VectorElements2     mTexElements;
         VectorElements3     mNormalElements;
@@ -81,7 +83,7 @@ namespace mconv
         VectorElements4     mColorElements;
         FbxVector4          mBlendWeight;
         FbxVector4          mBlendIndex;
-        int32_t             mMaterialIdx;
+        int                 mMaterialIdx;
     };
 
     typedef std::list<Vertex>           Vertices;

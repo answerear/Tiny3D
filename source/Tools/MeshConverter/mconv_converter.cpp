@@ -13,6 +13,7 @@
 #include "mconv_animation.h"
 #include "mconv_skeleton.h"
 #include "mconv_bone.h"
+#include "mconv_skin.h"
 
 
 namespace mconv
@@ -214,9 +215,19 @@ namespace mconv
                 {
                 case FbxNodeAttribute::eMesh:
                     {
-                        result = processFbxMesh(pFbxNode, pParent, pNode);
+                        String name = pFbxNode->GetName();
+                        if (name.empty())
+                        {
+                            name = "Model";
+                        }
+                        Model *pModel = new Model(name);
+                        pParent->addChild(pModel);
+
+                        result = processFbxMesh(pFbxNode, pModel, pNode);
                         result = result && processFbxSkin(pFbxNode, pParent, (Mesh *)pNode);
                         result = result && processFbxMaterial(pFbxNode, pParent);
+
+                        pNode = pModel;
                     }
                     break;
                 case FbxNodeAttribute::eSkeleton:
@@ -282,18 +293,14 @@ namespace mconv
         }
         T3D_LOG_INFO("%sMesh : %s, 0x%p", ssTab.str().c_str(), pFbxNode->GetName(), pFbxMesh);
 #endif
-
         String name = pFbxNode->GetName();
         if (name.empty())
         {
-            name = "Model";
+            name = "Mesh";
         }
-        Model *pModel = new Model(name);
-        pParent->addChild(pModel);
-        pNewNode = pModel;
-
         Mesh *pMesh = new Mesh(name);
-        pModel->addChild(pMesh);
+        pParent->addChild(pMesh);
+        pNewNode = pMesh;
 
         FbxVector4 T = pFbxNode->GetGeometricTranslation(FbxNode::eSourcePivot);
         FbxVector4 R = pFbxNode->GetGeometricRotation(FbxNode::eSourcePivot);
@@ -315,6 +322,7 @@ namespace mconv
                 int nControlPointIdx = pFbxMesh->GetPolygonVertex(i, j);
 
                 Vertex vertex;
+                vertex.mCtrlPointIdx = nControlPointIdx;
 
                 // 读取顶点位置信息
                 readPosition(pFbxMesh, nControlPointIdx, vertex.mPosition);
@@ -872,22 +880,7 @@ namespace mconv
         pParent->addChild(pBone);
 
         FbxAMatrix &M = pFbxNode->EvaluateLocalTransform();
-        FbxVector4 T = M.GetT();
-        FbxQuaternion R = M.GetQ();
-        FbxVector4 S = M.GetS();
-
-        pBone->mTranslation[0] = T[0];
-        pBone->mTranslation[1] = T[1];
-        pBone->mTranslation[2] = T[2];
-
-        pBone->mRotation[0] = R[0];
-        pBone->mRotation[1] = R[1];
-        pBone->mRotation[2] = R[2];
-        pBone->mRotation[3] = R[4];
-
-        pBone->mScale[0] = S[0];
-        pBone->mScale[1] = S[1];
-        pBone->mScale[2] = S[2];
+        pBone->mLocalTransform = M;
 
         mTabCount++;
 
@@ -1073,6 +1066,7 @@ namespace mconv
 #endif
 
         FbxMesh *pFbxMesh = pFbxNode->GetMesh();
+        Model *pModel = (Model *)pMesh->getParent();
         int nDeformerCount = pFbxMesh->GetDeformerCount();
 
         int i = 0;
@@ -1105,6 +1099,8 @@ namespace mconv
                 ss<<ssTab.str()<<"\t";
             }
 #endif
+            Skin *pSkin = new Skin(pFbxSkin->GetName());
+            pModel->addChild(pSkin);
 
             for (j = 0; j < nBoneCount; ++j)
             {
@@ -1119,7 +1115,7 @@ namespace mconv
                     FbxNode *pFbxSkelRoot = nullptr;
                     if (searchSkeletonRoot(pFbxLinkNode, pFbxSkelRoot) && !searchSkeleton(pFbxSkelRoot))
                     {
-                        Model *pModel = (Model *)pMesh->getParent();
+                        
                         mHasSkeleton = false;
                         processFbxSkeleton(pFbxSkelRoot, pModel);
                     }
@@ -1129,7 +1125,26 @@ namespace mconv
                 pFbxCluster->GetTransformLinkMatrix(matLink);
                 FbxAMatrix mat;
                 pFbxCluster->GetTransformMatrix(mat);
-                int a = 0;
+                FbxVector4 T = pFbxLinkNode->GetGeometricTranslation(FbxNode::eSourcePivot);
+                FbxVector4 R = pFbxLinkNode->GetGeometricRotation(FbxNode::eSourcePivot);
+                FbxVector4 S = pFbxLinkNode->GetGeometricScaling(FbxNode::eSourcePivot);
+                FbxAMatrix matGeometry(T, R, S);
+                FbxAMatrix matOffset = matLink.Inverse() * mat * matGeometry;
+
+                Bone *pBone = new Bone(pFbxLinkNode->GetName());
+                pBone->mLocalTransform = matOffset;
+                pSkin->addChild(pBone);
+
+                int nCtrlPointCount = pFbxCluster->GetControlPointIndicesCount();
+                int *pCtrlPointIndices = pFbxCluster->GetControlPointIndices();
+                double *pCtrlPointWeights = pFbxCluster->GetControlPointWeights();
+                int k = 0;
+                for (k = 0; k < nCtrlPointCount; ++k)
+                {
+                    int nCtrlPointIdx = pCtrlPointIndices[k];
+                    double fCtrlPointWeight = pCtrlPointWeights[k];
+                    updateVertexBlendIndexAndWeight(pMesh, nCtrlPointIdx, j, fCtrlPointWeight);
+                }
             }
         }
 
@@ -1189,6 +1204,69 @@ namespace mconv
             result = true;
         }
         return result;
+    }
+
+    bool Converter::updateVertexBlendIndexAndWeight(Mesh *pMesh, int nCtrlPointIdx, int nBlendIndex, double fBlendWeight)
+    {
+        VerticesItr itr = pMesh->mVertices.begin();
+
+        while (itr != pMesh->mVertices.end())
+        {
+            if (itr->mCtrlPointIdx == nCtrlPointIdx)
+            {
+                Vertex &vertex = *itr;
+
+                // 更新骨骼索引
+                if (vertex.mBlendIndex.mData[0] == -1)
+                {
+                    vertex.mBlendIndex.mData[0] = nBlendIndex;
+                }
+                else if (vertex.mBlendIndex.mData[1] == -1)
+                {
+                    vertex.mBlendIndex.mData[1] = nBlendIndex;
+                }
+                else if (vertex.mBlendIndex.mData[2] == -1)
+                {
+                    vertex.mBlendIndex.mData[2] = nBlendIndex;
+                }
+                else if (vertex.mBlendIndex.mData[3] == -1)
+                {
+                    vertex.mBlendIndex.mData[3] = nBlendIndex;
+                }
+                else
+                {
+                    // 超过4根骨骼影响一个顶点，出错了，本格式最多只支持4个骨骼影响一个顶点
+//                     T3D_ASSERT(0);
+                }
+
+                // 更新骨骼权重
+                if (vertex.mBlendWeight.mData[0] == -1)
+                {
+                    vertex.mBlendWeight.mData[0] = fBlendWeight;
+                }
+                else if (vertex.mBlendWeight.mData[1] == -1)
+                {
+                    vertex.mBlendWeight.mData[1] = fBlendWeight;
+                }
+                else if (vertex.mBlendWeight.mData[2] == -1)
+                {
+                    vertex.mBlendWeight.mData[2] = fBlendWeight;
+                }
+                else if (vertex.mBlendWeight.mData[3] == -1)
+                {
+                    vertex.mBlendWeight.mData[3] = fBlendWeight;
+                }
+                else
+                {
+                    // 超过4根骨骼影响一个顶点，出错了，本格式最多只支持4个骨骼影响一个顶点
+//                     T3D_ASSERT(0);
+                }
+            }
+
+            ++itr;
+        }
+
+        return true;
     }
 
     void Converter::cleanup()

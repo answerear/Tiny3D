@@ -1,7 +1,7 @@
 
 
-#ifndef __MCONV_BONE_H__
-#define __MCONV_BONE_H__
+#ifndef __MCONV_SKIN_H__
+#define __MCONV_SKIN_H__
 
 
 #include "mconv_node.h"
@@ -9,28 +9,26 @@
 
 namespace mconv
 {
-    class Bone : public Node
+    class Skin : public Node
     {
     public:
-        Bone(const String &ID)
+        Skin(const String &ID)
             : Node(ID)
         {
 
         }
 
-        virtual ~Bone()
+        virtual ~Skin()
         {
 
         }
 
         virtual Type getNodeType() const override
         {
-            return E_TYPE_BONE;
+            return E_TYPE_SKIN;
         }
-
-        FbxAMatrix  mLocalTransform;
     };
 }
 
 
-#endif
+#endif  /*__MCONV_SKIN_H__*/

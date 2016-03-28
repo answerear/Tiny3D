@@ -51,7 +51,7 @@
  *                  </material>
  *              </materials>
 
- *              <skin id="">
+ *              <skin id="wolf_skin">
  *                  <bone id="bone_head">
  *                      <transform>
  *                          1.0 0.0 0.0 0.0
@@ -166,6 +166,9 @@ namespace mconv
         bool searchSkeletonRoot(FbxNode *pFbxNode, FbxNode *&pFbxRootNode);
         // 根据骨骼根节点，搜索看是否已经生成过对应的骨骼数据
         bool searchSkeleton(FbxNode *pFbxNode);
+
+        // 更新顶点中的骨骼索引和骨骼权重值
+        bool updateVertexBlendIndexAndWeight(Mesh *pMesh, int nCtrlPointIdx, int nBlendIndex, double fBlendWeight);
 
         void cleanup();
 
