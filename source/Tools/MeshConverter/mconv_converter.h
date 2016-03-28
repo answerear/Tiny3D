@@ -51,15 +51,28 @@
  *                  </material>
  *              </materials>
 
+ *              <skin id="">
+ *                  <bone id="bone_head">
+ *                      <transform>
+ *                          1.0 0.0 0.0 0.0
+ *                          0.0 1.0 0.0 0.0
+ *                          0.0 0.0 1.0 0.0
+ *                          0.0 0.0 0.0 1.0
+ *                      </transform>
+ *                  </bone>
+ *              </skin>
+
  *              <skeleton id="wolf_skeleton">
  *                  <bone id="bone_head" count="1">
- *                      <translate>1.0 1.0 1.0</translate>
- *                      <rotate>1.0 1.0 1.0 1.0</rotate>
- <                      <scale>1.2 1.2 1.2</scale>
+ *                      <transform>
+ *                          1.0 0.0 0.0 0.0
+ *                          0.0 1.0 0.0 0.0
+ *                          0.0 0.0 1.0 0.0
+ *                          0.0 0.0 0.0 1.0
+ *                      </transform>
  *                      <bone id="bone_body" count="1">
- *                          <translate></translate>
- *                          <rotate></rotate>
- *                          <scale></scale>
+ *                          <transform>
+ *                          </transform>
  *                      </bone>
  *                  </bone>
  *              </skeleton>
@@ -120,19 +133,6 @@ namespace mconv
         bool execute(int argc, char *argv[]);
 
     protected:
-        struct BindingNode
-        {
-            BindingNode()
-                : pSkel(nullptr)
-                , pMesh(nullptr)
-            {
-
-            }
-
-            Skeleton    *pSkel;
-            Mesh        *pMesh;
-        };
-
         bool importScene();
         bool convert();
         bool exportScene();
@@ -146,7 +146,7 @@ namespace mconv
 
         bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode);
         bool processFbxSkin(FbxNode *pFbxNode, Node *pParent, Mesh *pMesh);
-        bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
+        bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent);
         bool processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent);
@@ -161,9 +161,18 @@ namespace mconv
         bool readMaterial(FbxMesh *pFbxMesh, int nTriangleIndex, int &nMaterialIndex);
 
         bool optimizeMesh(Node *pRoot);
-        bool optimizeSkeleton();
+
+        // 根据某个Cluster的link node回溯获取骨骼根节点
+        bool searchSkeletonRoot(FbxNode *pFbxNode, FbxNode *&pFbxRootNode);
+        // 根据骨骼根节点，搜索看是否已经生成过对应的骨骼数据
+        bool searchSkeleton(FbxNode *pFbxNode);
 
         void cleanup();
+
+        typedef std::map<FbxNode*, Skeleton*>       Skeletons;
+        typedef Skeletons::iterator                 SkeletonsItr;
+        typedef Skeletons::const_iterator           SkeletonsConstItr;
+        typedef std::pair<FbxNode*, Skeleton*>      SkeletonsValue;
 
         Settings    mSettings;
 
@@ -173,9 +182,7 @@ namespace mconv
         void        *mSrcData;
         void        *mDstData;
 
-        Model       *mModel;
-        Skeleton    *mSkeleton;
-
+        Skeletons   mSkeletons;
         bool        mHasSkeleton;
 
 #ifdef _DEBUG

@@ -20,8 +20,6 @@ namespace mconv
     Converter::Converter()
         : mImporter(nullptr)
         , mExporter(nullptr)
-        , mModel(nullptr)
-        , mSkeleton(nullptr)
         , mHasSkeleton(false)
 #ifdef _DEBUG
         , mTabCount(0)
@@ -186,9 +184,7 @@ namespace mconv
     bool Converter::processFbxScene(FbxScene *pFbxScene, Node *pRoot)
     {
         FbxNode *pFbxRoot = pFbxScene->GetRootNode();
-
         bool result = processFbxNode(pFbxRoot, pRoot);
-        result = result && optimizeSkeleton();
         result = result && optimizeMesh(pRoot);
         return result;
     }
@@ -218,7 +214,6 @@ namespace mconv
                 {
                 case FbxNodeAttribute::eMesh:
                     {
-                        mHasSkeleton = false;
                         result = processFbxMesh(pFbxNode, pParent, pNode);
                         result = result && processFbxSkin(pFbxNode, pParent, (Mesh *)pNode);
                         result = result && processFbxMaterial(pFbxNode, pParent);
@@ -226,24 +221,21 @@ namespace mconv
                     break;
                 case FbxNodeAttribute::eSkeleton:
                     {
-                        result = processFbxSkeleton(pFbxNode, pParent, pNode);
+//                         result = processFbxSkeleton(pFbxNode, pParent, pNode);
                     }
                     break;
                 case FbxNodeAttribute::eCamera:
                     {
-                        mHasSkeleton = false;
                         result = processFbxCamera(pFbxNode, pParent, pNode);
                     }
                     break;
                 case FbxNodeAttribute::eLight:
                     {
-                        mHasSkeleton = false;
                         result = processFbxLight(pFbxNode, pParent, pNode);
                     }
                     break;
                 default:
                     {
-                        mHasSkeleton = false;
                     }
                     break;
                 }
@@ -299,7 +291,6 @@ namespace mconv
         Model *pModel = new Model(name);
         pParent->addChild(pModel);
         pNewNode = pModel;
-        mModel = pModel;
 
         Mesh *pMesh = new Mesh(name);
         pModel->addChild(pMesh);
@@ -843,7 +834,7 @@ namespace mconv
         return result;
     }
 
-    bool Converter::processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode)
+    bool Converter::processFbxSkeleton(FbxNode *pFbxNode, Node *pParent)
     {
 #ifdef _DEBUG
         std::stringstream ssTab;
@@ -866,8 +857,9 @@ namespace mconv
             }
             Skeleton *pSkel = new Skeleton(name);
             pParent->addChild(pSkel);
-            mSkeleton = pSkel;
             pParent = pSkel;
+            SkeletonsValue value(pFbxNode, pSkel);
+            mSkeletons.insert(value);
             mHasSkeleton = true;
         }
 
@@ -878,7 +870,7 @@ namespace mconv
         }
         Bone *pBone = new Bone(name);
         pParent->addChild(pBone);
-        pNewNode = pBone;
+
         FbxAMatrix &M = pFbxNode->EvaluateLocalTransform();
         FbxVector4 T = M.GetT();
         FbxQuaternion R = M.GetQ();
@@ -896,6 +888,17 @@ namespace mconv
         pBone->mScale[0] = S[0];
         pBone->mScale[1] = S[1];
         pBone->mScale[2] = S[2];
+
+        mTabCount++;
+
+        int i = 0;
+        int nChildrenCount = pFbxNode->GetChildCount();
+        for (i = 0; i < nChildrenCount; ++i)
+        {
+            processFbxSkeleton(pFbxNode->GetChild(i), pBone);
+        }
+
+        mTabCount--;
 
         return true;
     }
@@ -1110,7 +1113,23 @@ namespace mconv
 #ifdef _DEBUG
                 T3D_LOG_INFO("%sLink node : %s, 0x%p", ss.str().c_str(), pFbxLinkNode->GetName(), pFbxLinkNode);
 #endif
-                pFbxCluster;
+
+                if (j == 0)
+                {
+                    FbxNode *pFbxSkelRoot = nullptr;
+                    if (searchSkeletonRoot(pFbxLinkNode, pFbxSkelRoot) && !searchSkeleton(pFbxSkelRoot))
+                    {
+                        Model *pModel = (Model *)pMesh->getParent();
+                        mHasSkeleton = false;
+                        processFbxSkeleton(pFbxSkelRoot, pModel);
+                    }
+                }
+                
+                FbxAMatrix matLink;
+                pFbxCluster->GetTransformLinkMatrix(matLink);
+                FbxAMatrix mat;
+                pFbxCluster->GetTransformMatrix(mat);
+                int a = 0;
             }
         }
 
@@ -1135,14 +1154,41 @@ namespace mconv
         return true;
     }
 
-    bool Converter::optimizeSkeleton()
+    bool Converter::searchSkeletonRoot(FbxNode *pFbxNode, FbxNode *&pFbxRootNode)
     {
-        if (mModel != nullptr)
+        bool result = false;
+        FbxScene *pFbxScene = (FbxScene *)mSrcData;
+        FbxNode *pFbxSceneRoot = pFbxScene->GetRootNode();
+        FbxNode *pFbxParent = pFbxNode;
+        pFbxRootNode = nullptr;
+
+        while (pFbxParent != pFbxSceneRoot)
         {
-            mSkeleton->removeFromParent(false);
-            mModel->addChild(mSkeleton);
+            FbxNodeAttribute *pNodeAttrib = pFbxParent->GetNodeAttribute();
+            FbxNodeAttribute::EType attribType = pFbxNode->GetNodeAttribute()->GetAttributeType();
+            if (pNodeAttrib == nullptr || 
+                (pNodeAttrib != nullptr && pNodeAttrib->GetAttributeType() != FbxNodeAttribute::eSkeleton))
+            {
+                break;
+            }
+
+            pFbxRootNode = pFbxParent;
+            pFbxParent = pFbxParent->GetParent();
+            result = true;
         }
-        return true;
+
+        return result;
+    }
+
+    bool Converter::searchSkeleton(FbxNode *pFbxNode)
+    {
+        bool result = false;
+        SkeletonsConstItr itr = mSkeletons.find(pFbxNode);
+        if (itr != mSkeletons.end())
+        {
+            result = true;
+        }
+        return result;
     }
 
     void Converter::cleanup()
