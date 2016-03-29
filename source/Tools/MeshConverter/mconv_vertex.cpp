@@ -72,17 +72,17 @@ namespace mconv
             break;
         case E_VT_INT16:
             {
-                s = "int16";
+                s = "short";
             }
             break;
         case E_VT_INT32:
             {
-                s = "int32";
+                s = "int";
             }
             break;
         case E_VT_INT64:
             {
-                s = "int64";
+                s = "long";
             }
             break;
         }

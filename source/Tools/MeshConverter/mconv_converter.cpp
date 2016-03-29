@@ -301,6 +301,7 @@ namespace mconv
         Mesh *pMesh = new Mesh(name);
         pParent->addChild(pMesh);
         pNewNode = pMesh;
+        mHasVertexBlending = false;
 
         FbxVector4 T = pFbxNode->GetGeometricTranslation(FbxNode::eSourcePivot);
         FbxVector4 R = pFbxNode->GetGeometricRotation(FbxNode::eSourcePivot);
@@ -326,6 +327,11 @@ namespace mconv
 
                 // 读取顶点位置信息
                 readPosition(pFbxMesh, nControlPointIdx, vertex.mPosition);
+                FbxVector4 pos(vertex.mPosition);
+                pos = pMesh->mWorldMatrix.MultT(pos);
+                vertex.mPosition[0] = pos[0];
+                vertex.mPosition[1] = pos[1];
+                vertex.mPosition[2] = pos[2];
 
                 // 读取顶点颜色信息
                 FbxVector4 color;
@@ -1135,6 +1141,8 @@ namespace mconv
                 pBone->mLocalTransform = matOffset;
                 pSkin->addChild(pBone);
 
+                updateVertexBlendAttributes(pMesh);
+
                 int nCtrlPointCount = pFbxCluster->GetControlPointIndicesCount();
                 int *pCtrlPointIndices = pFbxCluster->GetControlPointIndices();
                 double *pCtrlPointWeights = pFbxCluster->GetControlPointWeights();
@@ -1217,56 +1225,36 @@ namespace mconv
                 Vertex &vertex = *itr;
 
                 // 更新骨骼索引
-                if (vertex.mBlendIndex.mData[0] == -1)
-                {
-                    vertex.mBlendIndex.mData[0] = nBlendIndex;
-                }
-                else if (vertex.mBlendIndex.mData[1] == -1)
-                {
-                    vertex.mBlendIndex.mData[1] = nBlendIndex;
-                }
-                else if (vertex.mBlendIndex.mData[2] == -1)
-                {
-                    vertex.mBlendIndex.mData[2] = nBlendIndex;
-                }
-                else if (vertex.mBlendIndex.mData[3] == -1)
-                {
-                    vertex.mBlendIndex.mData[3] = nBlendIndex;
-                }
-                else
-                {
-                    // 超过4根骨骼影响一个顶点，出错了，本格式最多只支持4个骨骼影响一个顶点
-//                     T3D_ASSERT(0);
-                }
-
-                // 更新骨骼权重
-                if (vertex.mBlendWeight.mData[0] == -1)
-                {
-                    vertex.mBlendWeight.mData[0] = fBlendWeight;
-                }
-                else if (vertex.mBlendWeight.mData[1] == -1)
-                {
-                    vertex.mBlendWeight.mData[1] = fBlendWeight;
-                }
-                else if (vertex.mBlendWeight.mData[2] == -1)
-                {
-                    vertex.mBlendWeight.mData[2] = fBlendWeight;
-                }
-                else if (vertex.mBlendWeight.mData[3] == -1)
-                {
-                    vertex.mBlendWeight.mData[3] = fBlendWeight;
-                }
-                else
-                {
-                    // 超过4根骨骼影响一个顶点，出错了，本格式最多只支持4个骨骼影响一个顶点
-//                     T3D_ASSERT(0);
-                }
+                BlendInfo blend;
+                blend.mBlendIndex = nBlendIndex;
+                blend.mBlendWeight = fBlendWeight;
+                BlendInfoValue value(fBlendWeight, blend);
+                vertex.mBlendInfo.insert(value);
             }
 
             ++itr;
         }
 
         return true;
+    }
+
+    void Converter::updateVertexBlendAttributes(Mesh *pMesh)
+    {
+        if (!mHasVertexBlending)
+        {
+            VertexAttribute attribute;
+            attribute.mVertexType = VertexAttribute::E_VT_BLEND_WEIGHT;
+            attribute.mSize = 4;
+            attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+            pMesh->mAttributes.push_back(attribute);
+
+            attribute.mVertexType = VertexAttribute::E_VT_BLEND_INDEX;
+            attribute.mSize = 4;
+            attribute.mDataType = VertexAttribute::E_VT_INT32;
+            pMesh->mAttributes.push_back(attribute);
+
+            mHasVertexBlending = true;
+        }
     }
 
     void Converter::cleanup()

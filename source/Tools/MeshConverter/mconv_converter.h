@@ -97,6 +97,8 @@
  *                  <action id="run">
  *                  </action>
  *              </animation>
+
+ *              <bound type="box">-1.0 -1.0 -1.0 1.0 1.0 1.0</bound>
  *          </model>
 
  *          <light>
@@ -170,6 +172,9 @@ namespace mconv
         // 更新顶点中的骨骼索引和骨骼权重值
         bool updateVertexBlendIndexAndWeight(Mesh *pMesh, int nCtrlPointIdx, int nBlendIndex, double fBlendWeight);
 
+        // 添加骨骼权重和骨骼索引到顶点属性里
+        void updateVertexBlendAttributes(Mesh *pMesh);
+
         void cleanup();
 
         typedef std::map<FbxNode*, Skeleton*>       Skeletons;
@@ -187,6 +192,7 @@ namespace mconv
 
         Skeletons   mSkeletons;
         bool        mHasSkeleton;
+        bool        mHasVertexBlending;
 
 #ifdef _DEBUG
         int         mTabCount;

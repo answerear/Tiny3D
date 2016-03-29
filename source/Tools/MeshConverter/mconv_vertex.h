@@ -47,14 +47,42 @@ namespace mconv
     typedef VertexAttributes::iterator          VertexAttributesItr;
     typedef VertexAttributes::const_iterator    VertexAttributesConstItr;
 
+    class BlendInfo
+    {
+    public:
+        BlendInfo()
+            : mBlendIndex(-1)
+            , mBlendWeight(0.0f)
+        {
+
+        }
+
+        bool operator <(const BlendInfo &other) const
+        {
+            return mBlendWeight < other.mBlendWeight;
+        }
+
+        bool operator ==(const BlendInfo &other) const
+        {
+            return (mBlendWeight == other.mBlendWeight && mBlendIndex == other.mBlendIndex);
+        }
+
+        int     mBlendIndex;
+        float   mBlendWeight;
+    };
+
+    typedef std::map<float, BlendInfo>      BlendInfoDict;
+    typedef BlendInfoDict::iterator         BlendInfoDictItr;
+    typedef BlendInfoDict::const_iterator   BlendInfoDictConstItr;
+    typedef std::pair<float, BlendInfo>     BlendInfoValue;
+
     class Vertex
     {
     public:
+
         Vertex()
             : mCtrlPointIdx(0)
             , mPosition(0.0, 0.0, 0.0)
-            , mBlendWeight(-1.0, -1.0, -1.0, -1.0)
-            , mBlendIndex(-1.0, -1.0, -1.0, -1.0)
             , mMaterialIdx(-1)
         {
 
@@ -63,14 +91,26 @@ namespace mconv
         bool operator <(const Vertex &other) const
         {
             bool ret = mPosition < other.mPosition;
-            ret = ret && mTexElements < other.mTexElements;
-            ret = ret && mNormalElements < other.mNormalElements;
-            ret = ret && mBinormalElements < other.mNormalElements;
-            ret = ret && mTangentElements < other.mTangentElements;
-            ret = ret && mColorElements < other.mColorElements;
-            ret = ret && mBlendWeight < other.mBlendWeight;
-            ret = ret && mBlendIndex < other.mBlendIndex;
-            ret = ret && mMaterialIdx < other.mMaterialIdx;
+            ret = ret && (mTexElements.size() > 0 ? (mTexElements < other.mTexElements) : true);
+            ret = ret && (mTexElements.size() > 0 ? (mNormalElements < other.mNormalElements) : true);
+            ret = ret && (mBinormalElements.size() > 0 ? (mBinormalElements < other.mNormalElements) : true);
+            ret = ret && (mTangentElements.size() > 0 ? (mTangentElements < other.mTangentElements) : true);
+            ret = ret && (mColorElements.size() > 0 ? (mColorElements < other.mColorElements) : true);
+            ret = ret && (mBlendInfo < other.mBlendInfo);
+//             ret = ret && (mMaterialIdx < other.mMaterialIdx);
+            return ret;
+        }
+
+        bool operator ==(const Vertex &other) const
+        {
+            bool ret = mPosition == other.mPosition;
+            ret = ret && (mTexElements == other.mTexElements);
+            ret = ret && (mNormalElements == other.mNormalElements);
+            ret = ret && (mBinormalElements == other.mNormalElements);
+            ret = ret && (mTangentElements == other.mTangentElements);
+            ret = ret && (mColorElements == other.mColorElements);
+            ret = ret && (mBlendInfo == other.mBlendInfo);
+//             ret = ret && (mMaterialIdx == other.mMaterialIdx);
             return ret;
         }
 
@@ -81,8 +121,7 @@ namespace mconv
         VectorElements3     mBinormalElements;
         VectorElements3     mTangentElements;
         VectorElements4     mColorElements;
-        FbxVector4          mBlendWeight;
-        FbxVector4          mBlendIndex;
+        BlendInfoDict       mBlendInfo;
         int                 mMaterialIdx;
     };
 

@@ -105,6 +105,9 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
     viewport->setBackgroundColor(Color4::BLACK);
 
+//     Matrix4 mat(false);
+//     mat.setTranslate(Vector3(5.0, 5.0, 5.0));
+
     return true;
 }
 

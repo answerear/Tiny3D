@@ -323,17 +323,68 @@ namespace mconv
                 ++itr4;
             }
 
-            // BLEND_WEIGHT
-            if (vertex.mBlendWeight != FbxVector4(-1.0, -1.0, -1.0, -1.0))
+            // BLEND_WEIGHT 只写权重最大的4个顶点
+            ss<<" ";
+            const int MAX_BLEND_COUNT = 4;
+            int i = 0;
+            auto itrBlend = vertex.mBlendInfo.rbegin();
+            while (itrBlend != vertex.mBlendInfo.rend())
             {
-                ss<<" "<<vertex.mBlendWeight[0]<<" "<<vertex.mBlendWeight[1]<<" "<<vertex.mBlendWeight[2]<<" "<<vertex.mBlendWeight[3];
+                ss<<itrBlend->second.mBlendWeight;
+                ++i;
+                ++itrBlend;
+
+                if (i >= MAX_BLEND_COUNT)
+                {
+                    break;
+                }
+
+                ss<<" ";
             }
 
-            // BLEND_INDEX
-            if (vertex.mBlendIndex != FbxVector4(-1.0, -1.0, -1.0, -1.0))
+            while (i < MAX_BLEND_COUNT)
             {
-                ss<<" "<<vertex.mBlendIndex[0]<<" "<<vertex.mBlendIndex[1]<<" "<<vertex.mBlendIndex[2]<<" "<<vertex.mBlendIndex[3];
+                ss<<"0";
+                ++i;
+                if (i < MAX_BLEND_COUNT)
+                    ss<<" ";
             }
+
+            // BLEND_INDEX 只写权重最大的4个顶点
+            i = 0;
+            itrBlend = vertex.mBlendInfo.rbegin();
+            while (itrBlend != vertex.mBlendInfo.rend())
+            {
+                ss<<itrBlend->second.mBlendIndex;
+                ++i;
+                ++itrBlend;
+
+                if (i >= MAX_BLEND_COUNT)
+                {
+                    break;
+                }
+
+                ss<<" ";
+            }
+
+            while (i < MAX_BLEND_COUNT)
+            {
+                ss<<"-1";
+                ++i;
+                if (i < MAX_BLEND_COUNT)
+                    ss<<" ";
+            }
+
+//             if (vertex.mBlendWeight != FbxVector4(-1.0, -1.0, -1.0, -1.0))
+//             {
+//                 ss<<" "<<vertex.mBlendWeight[0]<<" "<<vertex.mBlendWeight[1]<<" "<<vertex.mBlendWeight[2]<<" "<<vertex.mBlendWeight[3];
+//             }
+
+            // BLEND_INDEX
+//             if (vertex.mBlendIndex != FbxVector4(-1.0, -1.0, -1.0, -1.0))
+//             {
+//                 ss<<" "<<vertex.mBlendIndex[0]<<" "<<vertex.mBlendIndex[1]<<" "<<vertex.mBlendIndex[2]<<" "<<vertex.mBlendIndex[3];
+//             }
 
             ss<<"\n";
             XMLText *pText = pDoc->NewText(ss.str().c_str());
