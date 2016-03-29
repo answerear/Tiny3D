@@ -12,7 +12,8 @@ namespace mconv
     class SubMesh : public Node
     {
     public:
-        SubMesh()
+        SubMesh(const String &ID)
+            : Node(ID)
         {
 
         }
@@ -29,6 +30,26 @@ namespace mconv
 
         String      mMaterialName;
         Indices     mIndices;
+    };
+
+    class SubMeshes : public Node
+    {
+    public:
+        SubMeshes(const String &ID)
+            : Node(ID)
+        {
+
+        }
+
+        virtual ~SubMeshes()
+        {
+
+        }
+
+        virtual Type getNodeType() const override
+        {
+            return E_TYPE_SUBMESHES;
+        }
     };
 }
 

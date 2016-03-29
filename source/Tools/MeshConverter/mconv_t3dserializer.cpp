@@ -6,6 +6,14 @@
 #include "mconv_model.h"
 #include "mconv_mesh.h"
 #include "mconv_animation.h"
+#include "mconv_submesh.h"
+#include "mconv_skeleton.h"
+#include "mconv_skin.h"
+#include "mconv_bone.h"
+#include "mconv_material.h"
+#include "mconv_camera.h"
+#include "mconv_light.h"
+#include "mconv_texture.h"
 
 
 namespace mconv
@@ -55,13 +63,16 @@ namespace mconv
     const char * const T3DXMLSerializer::TAG_TEXTURE = "texture";
     const char * const T3DXMLSerializer::TAG_EFFECTS = "effects";
     const char * const T3DXMLSerializer::TAG_EFFECT = "effect";
+    const char * const T3DXMLSerializer::TAG_SKIN = "skin";
     const char * const T3DXMLSerializer::TAG_SKELETON = "skeleton";
     const char * const T3DXMLSerializer::TAG_BONE = "bone";
-    const char * const T3DXMLSerializer::TAG_CHILDREN = "children";
     const char * const T3DXMLSerializer::TAG_TRANSFORM = "transform";
     const char * const T3DXMLSerializer::TAG_ANIMATION = "animation";
     const char * const T3DXMLSerializer::TAG_ACTION = "action";
     const char * const T3DXMLSerializer::TAG_KEYFRAME = "keyframe";
+    const char * const T3DXMLSerializer::TAG_FRAME = "frame";
+    const char * const T3DXMLSerializer::TAG_LIGHT = "light";
+    const char * const T3DXMLSerializer::TAG_CAMERA = "camera";
 
     const char * const T3DXMLSerializer::ATTRIB_ID = "id";
     const char * const T3DXMLSerializer::ATTRIB_COUNT = "count";
@@ -69,6 +80,7 @@ namespace mconv
     const char * const T3DXMLSerializer::ATTRIB_TYPE = "type";
     const char * const T3DXMLSerializer::ATTRIB_PRIMITIVE = "primitive";
     const char * const T3DXMLSerializer::ATTRIB_MATERIAL = "material";
+    const char * const T3DXMLSerializer::ATTRIB_16BITS = "16bits";
 
     T3DXMLSerializer::T3DXMLSerializer()
     {
@@ -92,7 +104,7 @@ namespace mconv
         Scene *pScene = (Scene *)pData;
         if (pScene != nullptr)
         {
-            XMLDocument *pDoc = new XMLDocument();
+            XMLDocument *pDoc = new XMLDocument(true, COLLAPSE_WHITESPACE);
             XMLDeclaration *pDecl = pDoc->NewDeclaration();
             pDoc->LinkEndChild(pDecl);
 
@@ -100,6 +112,7 @@ namespace mconv
             pElement->SetAttribute(ATTRIB_ID, pScene->getID().c_str());
             pDoc->LinkEndChild(pElement);
 
+            mTabCount = 0;
             populateXMLNode(pDoc, pElement, pScene);
 
             pDoc->SaveFile(path.c_str());
@@ -115,27 +128,69 @@ namespace mconv
 
         switch (pNode->getNodeType())
         {
+        case Node::E_TYPE_ANIMATION:
+            {
+                pElement = buildXMLAnimation(pDoc, pParentElem, pNode);
+            }
+            break;
+        case Node::E_TYPE_ACTION:
+            {
+                pElement = buildXMLAction(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_BONE:
+            {
+                pElement = buildXMLBone(pDoc, pParentElem, pNode);
+            }
             break;
         case Node::E_TYPE_CAMERA:
+            {
+                pElement = buildXMLCamera(pDoc, pParentElem, pNode);
+            }
             break;
         case Node::E_TYPE_LIGHT:
+            {
+                pElement = buildXMLLight(pDoc, pParentElem, pNode);
+            }
             break;
         case Node::E_TYPE_MATERIAL:
+            {
+                pElement = buildXMLMaterial(pDoc, pParentElem, pNode);
+            }
+            break;
+        case Node::E_TYPE_MATERIALS:
+            {
+                pElement = buildXMLMaterials(pDoc, pParentElem, pNode);
+            }
             break;
         case Node::E_TYPE_MESH:
             {
-                pElement = populateXMLMesh(pDoc, pParentElem, pNode);
+                pElement = buildXMLMesh(pDoc, pParentElem, pNode);
             }
             break;
         case Node::E_TYPE_MODEL:
             {
-                pElement = populateXMLModel(pDoc, pParentElem, pNode);
+                pElement = buildXMLModel(pDoc, pParentElem, pNode);
             }
             break;
-        case Node::E_TYPE_ANIMATION:
+        case Node::E_TYPE_SKIN:
             {
-                pElement = populateXMLAnimation(pDoc, pParentElem, pNode);
+                pElement = buildXMLSkin(pDoc, pParentElem, pNode);
+            }
+            break;
+        case Node::E_TYPE_SKELETON:
+            {
+                pElement = buildXMLSkeleton(pDoc, pParentElem, pNode);
+            }
+            break;
+        case Node::E_TYPE_SUBMESH:
+            {
+                pElement = buildXMLSubMesh(pDoc, pParentElem, pNode);
+            }
+            break;
+        case Node::E_TYPE_SUBMESHES:
+            {
+                pElement = buildXMLSubMeshes(pDoc, pParentElem, pNode);
             }
             break;
         default:
@@ -155,7 +210,7 @@ namespace mconv
         return pElement;
     }
 
-    XMLElement *T3DXMLSerializer::populateXMLModel(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    XMLElement *T3DXMLSerializer::buildXMLModel(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
         XMLElement *pElement = pDoc->NewElement(TAG_MODEL);
         pElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
@@ -163,7 +218,7 @@ namespace mconv
         return pElement;
     }
 
-    XMLElement *T3DXMLSerializer::populateXMLMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    XMLElement *T3DXMLSerializer::buildXMLMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
         Mesh *pMesh = (Mesh *)pNode;
         XMLElement *pMeshElement = pDoc->NewElement(TAG_MESH);
@@ -172,16 +227,16 @@ namespace mconv
         pMeshElement->SetAttribute(ATTRIB_ID, pMesh->getID().c_str());
 
         // 世界变换
-        XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
-        int i = 0;
-        std::stringstream ss;
-        ss<<"\n\t\t\t\t"<<pMesh->mWorldMatrix[0][0]<<" "<<pMesh->mWorldMatrix[0][1]<<" "<<pMesh->mWorldMatrix[0][2]<<" "<<pMesh->mWorldMatrix[0][3]<<"\n";
-        ss<<"\t\t\t\t"<<pMesh->mWorldMatrix[1][0]<<" "<<pMesh->mWorldMatrix[1][1]<<" "<<pMesh->mWorldMatrix[1][2]<<" "<<pMesh->mWorldMatrix[1][3]<<"\n";
-        ss<<"\t\t\t\t"<<pMesh->mWorldMatrix[2][0]<<" "<<pMesh->mWorldMatrix[2][1]<<" "<<pMesh->mWorldMatrix[2][2]<<" "<<pMesh->mWorldMatrix[2][3]<<"\n";
-        ss<<"\t\t\t\t"<<pMesh->mWorldMatrix[3][0]<<" "<<pMesh->mWorldMatrix[3][1]<<" "<<pMesh->mWorldMatrix[3][2]<<" "<<pMesh->mWorldMatrix[3][3]<<"\n\t\t\t";
-        XMLText *pValue = pDoc->NewText(ss.str().c_str());
-        pTransformElement->LinkEndChild(pValue);
-        pMeshElement->LinkEndChild(pTransformElement);
+//         XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+//         int i = 0;
+//         std::stringstream ss;
+//         ss<<"\n\t\t\t\t"<<pMesh->mWorldMatrix[0][0]<<" "<<pMesh->mWorldMatrix[0][1]<<" "<<pMesh->mWorldMatrix[0][2]<<" "<<pMesh->mWorldMatrix[0][3]<<"\n";
+//         ss<<"\t\t\t\t"<<pMesh->mWorldMatrix[1][0]<<" "<<pMesh->mWorldMatrix[1][1]<<" "<<pMesh->mWorldMatrix[1][2]<<" "<<pMesh->mWorldMatrix[1][3]<<"\n";
+//         ss<<"\t\t\t\t"<<pMesh->mWorldMatrix[2][0]<<" "<<pMesh->mWorldMatrix[2][1]<<" "<<pMesh->mWorldMatrix[2][2]<<" "<<pMesh->mWorldMatrix[2][3]<<"\n";
+//         ss<<"\t\t\t\t"<<pMesh->mWorldMatrix[3][0]<<" "<<pMesh->mWorldMatrix[3][1]<<" "<<pMesh->mWorldMatrix[3][2]<<" "<<pMesh->mWorldMatrix[3][3]<<"\n\t\t\t";
+//         XMLText *pValue = pDoc->NewText(ss.str().c_str());
+//         pTransformElement->LinkEndChild(pValue);
+//         pMeshElement->LinkEndChild(pTransformElement);
 
         // 属性
         XMLElement *pAttribRootElement = pDoc->NewElement(TAG_ATTRIBUTES);
@@ -296,11 +351,178 @@ namespace mconv
         return pMeshElement;
     }
 
-    XMLElement *T3DXMLSerializer::populateXMLAnimation(XMLDocument *pDoc, XMLElement *pParentElm, Node *pNode)
+    XMLElement *T3DXMLSerializer::buildXMLSubMeshes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pSubmeshesElem = pDoc->NewElement(TAG_PARTS);
+        pParentElem->LinkEndChild(pSubmeshesElem);
+
+        size_t nChildrenCount = pNode->getChildrenCount();
+        pSubmeshesElem->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+        pSubmeshesElem->SetAttribute(ATTRIB_COUNT, nChildrenCount);
+
+        return pSubmeshesElem;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLSubMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pSubmeshElement = pDoc->NewElement(TAG_PART);
+        pParentElem->LinkEndChild(pSubmeshElement);
+
+        // sub-mesh
+        SubMesh *pSubMesh = (SubMesh *)pNode;
+        pSubmeshElement->SetAttribute(ATTRIB_ID, pSubMesh->getID().c_str());
+        pSubmeshElement->SetAttribute(ATTRIB_PRIMITIVE, "triangles");
+        size_t nIndexCount = pSubMesh->mIndices.size();
+        size_t nTriangleCount = nIndexCount / 3;
+        pSubmeshElement->SetAttribute(ATTRIB_COUNT, nTriangleCount);
+        pSubmeshElement->SetAttribute(ATTRIB_MATERIAL, pSubMesh->mMaterialName.c_str());
+
+        // 顶点索引
+        XMLElement *pIndicesElement = pDoc->NewElement(TAG_INDICES);
+        pSubmeshElement->LinkEndChild(pIndicesElement);
+
+        pIndicesElement->SetAttribute(ATTRIB_COUNT, nIndexCount);
+        bool b16Bits = (nIndexCount > 0xFFFF ? true : false);
+        pIndicesElement->SetAttribute(ATTRIB_16BITS, b16Bits);
+
+        std::stringstream ss;
+        size_t i = 0;
+        auto itr = pSubMesh->mIndices.begin();
+        while (itr != pSubMesh->mIndices.end())
+        {
+            int nIndex = *itr;
+            ss<<nIndex<<" ";
+            
+            if (i == 32)
+            {
+                ss<<"\n";
+                XMLText *pText = pDoc->NewText(ss.str().c_str());
+                pIndicesElement->LinkEndChild(pText);
+                ss.str() = "";
+                i = 0;
+            }
+
+            ++i;
+            ++itr;
+        }
+
+        if ((nIndexCount & 31) != 0)
+        {
+            /// 有多余的，需要重新写回去
+            XMLText *pText = pDoc->NewText(ss.str().c_str());
+            pIndicesElement->LinkEndChild(pText);
+        }
+
+        return pSubmeshElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLMaterials(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pMatsElement = pDoc->NewElement(TAG_MATERIALS);
+        pParentElem->LinkEndChild(pMatsElement);
+
+        pMatsElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+        pMatsElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
+
+        return pMatsElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLMaterial(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pMatElement = pDoc->NewElement(TAG_MATERIAL);
+        pParentElem->LinkEndChild(pMatElement);
+
+        Material *pMaterial = (Material *)pNode;
+        pMatElement->SetAttribute(ATTRIB_ID, pMaterial->getID().c_str());
+
+        // shader算法
+        XMLElement *pModeElement = pDoc->NewElement(TAG_MODE);
+        pMatElement->LinkEndChild(pModeElement);
+        XMLText *pText = pDoc->NewText(pMaterial->mMode.c_str());
+        pModeElement->LinkEndChild(pText);
+
+        // ambient
+        XMLElement *pAmbientElement = pDoc->NewElement(TAG_AMBIENT);
+        pMatElement->LinkEndChild(pAmbientElement);
+        std::stringstream ss;
+        ss<<pMaterial->mAmbientColor[0]<<" ";
+        ss<<pMaterial->mAmbientColor[1]<<" ";
+        ss<<pMaterial->mAmbientColor[2]<<" ";
+        ss<<pMaterial->mAmbientColor[3];
+        pText = pDoc->NewText(ss.str().c_str());
+        pAmbientElement->LinkEndChild(pText);
+
+        // diffuse
+        XMLElement *pDiffuseElement = pDoc->NewElement(TAG_DIFFUSE);
+        pMatElement->LinkEndChild(pDiffuseElement);
+        ss.clear();
+        ss.str("");
+        ss<<pMaterial->mDiffuseColor[0]<<" ";
+        ss<<pMaterial->mDiffuseColor[1]<<" ";
+        ss<<pMaterial->mDiffuseColor[2]<<" ";
+        ss<<pMaterial->mDiffuseColor[3];
+        pText = pDoc->NewText(ss.str().c_str());
+        pDiffuseElement->LinkEndChild(pText);
+
+        // specular
+        XMLElement *pSpecularElement = pDoc->NewElement(TAG_SPECULAR);
+        pMatElement->LinkEndChild(pSpecularElement);
+        ss.clear();
+        ss.str("");
+        ss<<pMaterial->mSpecularColor[0]<<" ";
+        ss<<pMaterial->mSpecularColor[1]<<" ";
+        ss<<pMaterial->mSpecularColor[2]<<" ";
+        ss<<pMaterial->mSpecularColor[3];
+        pText = pDoc->NewText(ss.str().c_str());
+        pSpecularElement->LinkEndChild(pText);
+
+        // emissive
+        XMLElement *pEmissiveElement = pDoc->NewElement(TAG_EMISSIVE);
+        pMatElement->LinkEndChild(pEmissiveElement);
+        ss.clear();
+        ss.str("");
+        ss<<pMaterial->mEmissiveColor[0]<<" ";
+        ss<<pMaterial->mEmissiveColor[1]<<" ";
+        ss<<pMaterial->mEmissiveColor[2]<<" ";
+        ss<<pMaterial->mEmissiveColor[3];
+        pText = pDoc->NewText(ss.str().c_str());
+        pEmissiveElement->LinkEndChild(pText);
+
+        // shininess
+        XMLElement *pShinElement = pDoc->NewElement(TAG_SHININESS);
+        pMatElement->LinkEndChild(pShinElement);
+        ss.clear();
+        ss.str("");
+        ss<<pMaterial->mShininess;
+        pText = pDoc->NewText(ss.str().c_str());
+        pShinElement->LinkEndChild(pText);
+
+        // transparency
+        XMLElement *pTransElement = pDoc->NewElement(TAG_TRANSPARENCY);
+        pMatElement->LinkEndChild(pTransElement);
+        ss.clear();
+        ss.str("");
+        ss<<pMaterial->mTransparency;
+        pText = pDoc->NewText(ss.str().c_str());
+        pTransElement->LinkEndChild(pText);
+
+        // reflection
+        XMLElement *pReflectElement = pDoc->NewElement(TAG_REFLECTION);
+        pMatElement->LinkEndChild(pReflectElement);
+        ss.clear();
+        ss.str("");
+        ss<<pMaterial->mReflection;
+        pText = pDoc->NewText(ss.str().c_str());
+        pReflectElement->LinkEndChild(pText);
+
+        return pMatElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLAnimation(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
         Animation *pAnim = (Animation *)pNode;
         XMLElement *pAnimElement = pDoc->NewElement(TAG_ANIMATION);
-        pParentElm->LinkEndChild(pAnimElement);
+        pParentElem->LinkEndChild(pAnimElement);
 
         pAnimElement->SetAttribute(ATTRIB_ID, pAnim->getID().c_str());
         pAnimElement->SetAttribute(ATTRIB_COUNT, pAnim->getChildrenCount());
@@ -316,6 +538,70 @@ namespace mconv
         }
         
         return pAnimElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLAction(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pActionElement = pDoc->NewElement(TAG_ACTION);
+        pParentElem->LinkEndChild(pActionElement);
+        return pActionElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLSkeleton(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pSkelElement = pDoc->NewElement(TAG_SKELETON);
+        pParentElem->LinkEndChild(pSkelElement);
+
+        pSkelElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+
+        return pSkelElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLSkin(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pSkinElement = pDoc->NewElement(TAG_SKIN);
+        pParentElem->LinkEndChild(pSkinElement);
+
+        pSkinElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+        pSkinElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
+
+        return pSkinElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLBone(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pBoneElement = pDoc->NewElement(TAG_BONE);
+        pParentElem->LinkEndChild(pBoneElement);
+
+        Bone *pBone = (Bone *)pNode;
+        pBoneElement->SetAttribute(ATTRIB_ID, pBone->getID().c_str());
+
+        XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+        pBoneElement->LinkEndChild(pTransformElement);
+
+        std::stringstream ss;
+        ss<<pBone->mLocalTransform[0][0]<<" "<<pBone->mLocalTransform[0][1]<<" "<<pBone->mLocalTransform[0][2]<<" "<<pBone->mLocalTransform[0][3];
+        ss<<pBone->mLocalTransform[1][0]<<" "<<pBone->mLocalTransform[1][1]<<" "<<pBone->mLocalTransform[1][2]<<" "<<pBone->mLocalTransform[1][3];
+        ss<<pBone->mLocalTransform[2][0]<<" "<<pBone->mLocalTransform[2][1]<<" "<<pBone->mLocalTransform[2][2]<<" "<<pBone->mLocalTransform[2][3];
+        ss<<pBone->mLocalTransform[3][0]<<" "<<pBone->mLocalTransform[3][1]<<" "<<pBone->mLocalTransform[3][2]<<" "<<pBone->mLocalTransform[3][3];
+        XMLText *pText = pDoc->NewText(ss.str().c_str());
+        pTransformElement->LinkEndChild(pText);
+
+        return pBoneElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLLight(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pLightElement = pDoc->NewElement(TAG_LIGHT);
+        pParentElem->LinkEndChild(pLightElement);
+        return pLightElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLCamera(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pCameraElement = pDoc->NewElement(TAG_CAMERA);
+        pParentElem->LinkEndChild(pCameraElement);
+        return pCameraElement;
     }
 
     //////////////////////////////////////////////////////////////////////////

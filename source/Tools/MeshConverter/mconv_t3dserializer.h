@@ -50,13 +50,16 @@ namespace mconv
         static const char * const TAG_TEXTURE;
         static const char * const TAG_EFFECTS;
         static const char * const TAG_EFFECT;
+        static const char * const TAG_SKIN;
         static const char * const TAG_SKELETON;
         static const char * const TAG_BONE;
-        static const char * const TAG_CHILDREN;
         static const char * const TAG_TRANSFORM;
         static const char * const TAG_ANIMATION;
         static const char * const TAG_ACTION;
         static const char * const TAG_KEYFRAME;
+        static const char * const TAG_FRAME;
+        static const char * const TAG_LIGHT;
+        static const char * const TAG_CAMERA;
 
         static const char * const ATTRIB_ID;
         static const char * const ATTRIB_COUNT;
@@ -64,6 +67,8 @@ namespace mconv
         static const char * const ATTRIB_TYPE;
         static const char * const ATTRIB_PRIMITIVE;
         static const char * const ATTRIB_MATERIAL;
+        static const char * const ATTRIB_TIME;
+        static const char * const ATTRIB_16BITS;
 
         T3DXMLSerializer();
         virtual ~T3DXMLSerializer();
@@ -73,10 +78,23 @@ namespace mconv
 
     protected:
         XMLElement *populateXMLNode(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
-        XMLElement *populateXMLModel(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
-        XMLElement *populateXMLMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
-        XMLElement *populateXMLVertexAttributes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
-        XMLElement *populateXMLAnimation(XMLDocument *pDoc, XMLElement *pParentElm, Node *pNode);
+
+        XMLElement *buildXMLModel(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLSubMeshes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLSubMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLVertexAttributes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLAnimation(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLAction(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLMaterials(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLMaterial(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLSkeleton(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLSkin(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLBone(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLLight(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLCamera(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+
+        size_t  mTabCount;
     };
 
     class T3DSerializer : public Serializer

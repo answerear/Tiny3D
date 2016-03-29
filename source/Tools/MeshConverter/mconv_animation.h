@@ -9,6 +9,17 @@
 
 namespace mconv
 {
+    class Keyframe
+    {
+    public:
+        Keyframe(const String &ID)
+        {
+
+        }
+
+        String  mID;
+    };
+
     class Action : public Node
     {
     public:
@@ -27,6 +38,8 @@ namespace mconv
         {
             return E_TYPE_ACTION;
         }
+
+
     };
 
     class Animation : public Node

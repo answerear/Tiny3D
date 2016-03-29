@@ -22,7 +22,7 @@
 
  *                  <parts count="1">
  *                      <part id="wolf" primitive="triangles" count="30" material="wolf">
- *                          <indices count="90">
+ *                          <indices count="90" 16bits="true">
  *                              1 2 3 1 2 3 1 2 3
  *                          </indices>
  *                      </part>
@@ -51,7 +51,7 @@
  *                  </material>
  *              </materials>
 
- *              <skin id="wolf_skin">
+ *              <skin id="wolf_skin" count="10">
  *                  <bone id="bone_head">
  *                      <transform>
  *                          1.0 0.0 0.0 0.0
@@ -63,14 +63,14 @@
  *              </skin>
 
  *              <skeleton id="wolf_skeleton">
- *                  <bone id="bone_head" count="1">
+ *                  <bone id="bone_head">
  *                      <transform>
  *                          1.0 0.0 0.0 0.0
  *                          0.0 1.0 0.0 0.0
  *                          0.0 0.0 1.0 0.0
  *                          0.0 0.0 0.0 1.0
  *                      </transform>
- *                      <bone id="bone_body" count="1">
+ *                      <bone id="bone_body">
  *                          <transform>
  *                          </transform>
  *                      </bone>
