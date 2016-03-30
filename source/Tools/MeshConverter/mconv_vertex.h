@@ -96,7 +96,7 @@ namespace mconv
             ret = ret && (mBinormalElements.size() > 0 ? (mBinormalElements < other.mNormalElements) : true);
             ret = ret && (mTangentElements.size() > 0 ? (mTangentElements < other.mTangentElements) : true);
             ret = ret && (mColorElements.size() > 0 ? (mColorElements < other.mColorElements) : true);
-            ret = ret && (mBlendInfo < other.mBlendInfo);
+            ret = ret && (mBlendInfo.size() > 0 ? (mBlendInfo < other.mBlendInfo) : true);
 //             ret = ret && (mMaterialIdx < other.mMaterialIdx);
             return ret;
         }
