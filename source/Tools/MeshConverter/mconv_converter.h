@@ -78,7 +78,7 @@
  *              </skeleton>
 
  *              <animation id="" count="3>
- *                  <action id="idle" spane="4.0">
+ *                  <action id="idle">
  *                      <keyframe type="translate" count="2">
  *                          <frame id="1" time="0.1">1.0 1.0 1.0</frame>
  *                          <frame id="2" time="0.5">0.0 1.0 0.0</frame>
@@ -144,7 +144,7 @@ namespace mconv
 
         bool processFbxScene(FbxScene *pFbxScene, Node *pRoot);
         bool processFbxNode(FbxNode *pFbxNode, Node *pParent);
-        bool processFbxAnimation(FbxNode *pFbxNode, Node *pParent);
+        bool processFbxAnimation(FbxNode *pFbxNode);
 
         bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode);
         bool processFbxSkin(FbxNode *pFbxNode, Node *pParent, Mesh *pMesh);

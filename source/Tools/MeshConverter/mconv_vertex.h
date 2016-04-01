@@ -190,29 +190,11 @@ namespace mconv
 
         bool operator <(const Vertex &other) const
         {
-//             bool ret = mPosition < other.mPosition;
-//             ret = ret && (mTexElements.size() > 0 ? (mTexElements < other.mTexElements) : true);
-//             ret = ret && (mNormalElements.size() > 0 ? (mNormalElements < other.mNormalElements) : true);
-//             ret = ret && (mBinormalElements.size() > 0 ? (mBinormalElements < other.mNormalElements) : true);
-//             ret = ret && (mTangentElements.size() > 0 ? (mTangentElements < other.mTangentElements) : true);
-//             ret = ret && (mColorElements.size() > 0 ? (mColorElements < other.mColorElements) : true);
-//             ret = ret && (mBlendInfo.size() > 0 ? (mBlendInfo < other.mBlendInfo) : true);
-// //             ret = ret && (mMaterialIdx < other.mMaterialIdx);
-//             return ret;
             return mHash < other.mHash;
         }
 
         bool operator ==(const Vertex &other) const
         {
-//             bool ret = mPosition == other.mPosition;
-//             ret = ret && (mTexElements == other.mTexElements);
-//             ret = ret && (mNormalElements == other.mNormalElements);
-//             ret = ret && (mBinormalElements == other.mNormalElements);
-//             ret = ret && (mTangentElements == other.mTangentElements);
-//             ret = ret && (mColorElements == other.mColorElements);
-//             ret = ret && (mBlendInfo == other.mBlendInfo);
-// //             ret = ret && (mMaterialIdx == other.mMaterialIdx);
-//             return ret;
             return mHash == other.mHash;
         }
 

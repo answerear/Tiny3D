@@ -81,6 +81,7 @@ namespace mconv
     const char * const T3DXMLSerializer::ATTRIB_PRIMITIVE = "primitive";
     const char * const T3DXMLSerializer::ATTRIB_MATERIAL = "material";
     const char * const T3DXMLSerializer::ATTRIB_16BITS = "16bits";
+    const char * const T3DXMLSerializer::ATTRIB_SPAN = "span";
 
     T3DXMLSerializer::T3DXMLSerializer()
     {
@@ -225,18 +226,6 @@ namespace mconv
         pParentElem->LinkEndChild(pMeshElement);
 
         pMeshElement->SetAttribute(ATTRIB_ID, pMesh->getID().c_str());
-
-        // 世界变换
-//         XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
-//         int i = 0;
-//         std::stringstream ss;
-//         ss<<"\n\t\t\t\t"<<pMesh->mWorldMatrix[0][0]<<" "<<pMesh->mWorldMatrix[0][1]<<" "<<pMesh->mWorldMatrix[0][2]<<" "<<pMesh->mWorldMatrix[0][3]<<"\n";
-//         ss<<"\t\t\t\t"<<pMesh->mWorldMatrix[1][0]<<" "<<pMesh->mWorldMatrix[1][1]<<" "<<pMesh->mWorldMatrix[1][2]<<" "<<pMesh->mWorldMatrix[1][3]<<"\n";
-//         ss<<"\t\t\t\t"<<pMesh->mWorldMatrix[2][0]<<" "<<pMesh->mWorldMatrix[2][1]<<" "<<pMesh->mWorldMatrix[2][2]<<" "<<pMesh->mWorldMatrix[2][3]<<"\n";
-//         ss<<"\t\t\t\t"<<pMesh->mWorldMatrix[3][0]<<" "<<pMesh->mWorldMatrix[3][1]<<" "<<pMesh->mWorldMatrix[3][2]<<" "<<pMesh->mWorldMatrix[3][3]<<"\n\t\t\t";
-//         XMLText *pValue = pDoc->NewText(ss.str().c_str());
-//         pTransformElement->LinkEndChild(pValue);
-//         pMeshElement->LinkEndChild(pTransformElement);
 
         // 属性
         XMLElement *pAttribRootElement = pDoc->NewElement(TAG_ATTRIBUTES);
@@ -589,6 +578,9 @@ namespace mconv
     {
         XMLElement *pActionElement = pDoc->NewElement(TAG_ACTION);
         pParentElem->LinkEndChild(pActionElement);
+
+
+
         return pActionElement;
     }
 

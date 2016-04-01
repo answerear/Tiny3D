@@ -263,6 +263,8 @@ namespace mconv
         mTabCount++;
 #endif
 
+        result = result && processFbxAnimation(pFbxNode);
+
         for (i = 0; i < pFbxNode->GetChildCount(); ++i)
         {
             result = result && processFbxNode(pFbxNode->GetChild(i), pNode);
@@ -956,8 +958,10 @@ namespace mconv
         return true;
     }
 
-    bool Converter::processFbxAnimation(FbxNode *pFbxNode, Node *pParent)
+    bool Converter::processFbxAnimation(FbxNode *pFbxNode)
     {
+        Mesh *pParent = new Mesh("abc");
+
 #ifdef _DEBUG
         std::stringstream ssTab;
         for (int t = 0; t < mTabCount; ++t)
@@ -1008,9 +1012,6 @@ namespace mconv
                     name = "Action";
                 }
 
-#ifdef _DEBUG
-                T3D_LOG_INFO("%sLayer : %s", ss.str().c_str(), name.c_str());
-#endif
 
                 Action *pAction = new Action(name);
                 pAnimation->addChild(pAction);
@@ -1019,6 +1020,13 @@ namespace mconv
                 FbxAnimCurve *pFbxRotationCurve = pFbxNode->LclRotation.GetCurve(pFbxAnimLayer);
                 FbxAnimCurve *pFbxScaleCurve = pFbxNode->LclScaling.GetCurve(pFbxAnimLayer);
 
+                if (pFbxTransCurve != nullptr || pFbxRotationCurve != nullptr || pFbxScaleCurve != nullptr)
+                {
+#ifdef _DEBUG
+                    T3D_LOG_INFO("%sLayer : %s", ss.str().c_str(), name.c_str());
+#endif
+                }
+
                 if (pFbxTransCurve != nullptr)
                 {
                     int nKeyframeCount = pFbxTransCurve->KeyGetCount();
@@ -1026,12 +1034,14 @@ namespace mconv
                     int k = 0;
                     for (k = 0; k < nKeyframeCount; ++k)
                     {
+                        KeyframeT *pFrame = new KeyframeT(k);
                         FbxTime frameTime = pFbxTransCurve->KeyGetTime(k);
                         FbxVector4 translate = pFbxNode->EvaluateLocalTranslation(frameTime);
-                        float x = translate[0];
-                        float y = translate[1];
-                        float z = translate[2];
-                        frameTime.GetMilliSeconds();
+                        pFrame->x = translate[0];
+                        pFrame->y = translate[1];
+                        pFrame->z = translate[2];
+                        pFrame->mTimestamp = frameTime.GetMilliSeconds();
+                        pAction->mTKeyframes.push_back(pFrame);
                     }
                 }
                 else
@@ -1048,6 +1058,37 @@ namespace mconv
                     {
                         FbxTime frameTime = pFbxRotationCurve->KeyGetTime(k);
                         FbxVector4 rotation = pFbxNode->EvaluateLocalRotation(frameTime);
+                        FbxQuaternion orientation;
+                        orientation.ComposeSphericalXYZ(rotation);
+                        KeyframeR *pFrame = new KeyframeR(k);
+                        pFrame->x = orientation[0];
+                        pFrame->y = orientation[1];
+                        pFrame->z = orientation[2];
+                        pFrame->w = orientation[3];
+                        pFrame->mTimestamp = frameTime.GetMilliSeconds();
+                        pAction->mRKeyframes.push_back(pFrame);
+                    }
+                }
+                else
+                {
+
+                }
+
+                if (pFbxScaleCurve != nullptr)
+                {
+                    int nKeyframeCount = pFbxScaleCurve->KeyGetCount();
+
+                    int k = 0;
+                    for (k = 0; k < nKeyframeCount; ++k)
+                    {
+                        FbxTime frameTime = pFbxScaleCurve->KeyGetTime(k);
+                        FbxVector4 scale = pFbxNode->EvaluateLocalScaling(frameTime);
+                        KeyframeS *pFrame = new KeyframeS(k);
+                        pFrame->x = scale[0];
+                        pFrame->y = scale[1];
+                        pFrame->z = scale[2];
+                        pFrame->mTimestamp = frameTime.GetMilliSeconds();
+                        pAction->mSKeyframes.push_back(pFrame);
                     }
                 }
                 else
