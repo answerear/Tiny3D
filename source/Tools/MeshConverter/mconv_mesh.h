@@ -32,20 +32,22 @@ namespace mconv
 
         bool split()
         {
-            typedef std::set<Vertex>        VerticesSet;
-            typedef VerticesSet::iterator   VerticesSetItr;
+            typedef std::map<uint32_t, Vertex>      VerticesDict;
+            typedef VerticesDict::iterator          VerticesDictItr;
+            typedef VerticesDict::const_iterator    VerticesDictConstItr;
+            typedef std::pair<uint32_t, Vertex>     VerticesValue;
 
-            typedef std::map<int, SubMesh*>     SubMeshDict;
-            typedef SubMeshDict::iterator       SubMeshDictItr;
-            typedef SubMeshDict::const_iterator SubMeshDictConstItr;
-            typedef std::pair<int, SubMesh*>    SubMeshValue;
+            typedef std::map<int, SubMesh*>         SubMeshDict;
+            typedef SubMeshDict::iterator           SubMeshDictItr;
+            typedef SubMeshDict::const_iterator     SubMeshDictConstItr;
+            typedef std::pair<int, SubMesh*>        SubMeshValue;
 
             SubMeshes *pSubMeshes = new SubMeshes("SubMeshes");
             addChild(pSubMeshes);
 
             SubMeshDict submeshes;
 
-            VerticesSet vertices;
+            VerticesDict vertices;
 
             // 第一遍扫描，先生成所有submesh，并且剔除所有相同的顶点
             int count = 0;
@@ -67,7 +69,9 @@ namespace mconv
                     ++count;
                 }
 
-                vertices.insert(vertex);
+                vertex.hash();
+                VerticesValue value(vertex.mHash, vertex);
+                vertices.insert(value);
 
                 ++itr;
             }
@@ -85,7 +89,7 @@ namespace mconv
                 auto i = vertices.begin();
                 while (i != vertices.end())
                 {
-                    const Vertex &other = *i;
+                    Vertex &other = i->second;
                     if (vertex == other)
                     {
                         pSubMesh->mIndices.push_back(nIndex);
@@ -102,7 +106,7 @@ namespace mconv
             auto i = vertices.begin();
             while (i != vertices.end())
             {
-                mVertices.push_back(*i);
+                mVertices.push_back(i->second);
                 ++i;
             }
 

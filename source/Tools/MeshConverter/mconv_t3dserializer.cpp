@@ -346,8 +346,7 @@ namespace mconv
             {
                 ss<<"0";
                 ++i;
-                if (i < MAX_BLEND_COUNT)
-                    ss<<" ";
+                ss<<" ";
             }
 
             // BLEND_INDEX 只写权重最大的4个顶点
@@ -374,17 +373,6 @@ namespace mconv
                 if (i < MAX_BLEND_COUNT)
                     ss<<" ";
             }
-
-//             if (vertex.mBlendWeight != FbxVector4(-1.0, -1.0, -1.0, -1.0))
-//             {
-//                 ss<<" "<<vertex.mBlendWeight[0]<<" "<<vertex.mBlendWeight[1]<<" "<<vertex.mBlendWeight[2]<<" "<<vertex.mBlendWeight[3];
-//             }
-
-            // BLEND_INDEX
-//             if (vertex.mBlendIndex != FbxVector4(-1.0, -1.0, -1.0, -1.0))
-//             {
-//                 ss<<" "<<vertex.mBlendIndex[0]<<" "<<vertex.mBlendIndex[1]<<" "<<vertex.mBlendIndex[2]<<" "<<vertex.mBlendIndex[3];
-//             }
 
             ss<<"\n";
             XMLText *pText = pDoc->NewText(ss.str().c_str());
@@ -433,10 +421,11 @@ namespace mconv
         pSubmeshElement->LinkEndChild(pIndicesElement);
 
         pIndicesElement->SetAttribute(ATTRIB_COUNT, nIndexCount);
-        bool b16Bits = (nIndexCount > 0xFFFF ? true : false);
+        bool b16Bits = (nIndexCount > 0xFFFF ? false : true);
         pIndicesElement->SetAttribute(ATTRIB_16BITS, b16Bits);
 
         std::stringstream ss;
+        ss<<"\n\t\t\t\t\t\t";
         size_t i = 0;
         auto itr = pSubMesh->mIndices.begin();
         while (itr != pSubMesh->mIndices.end())
@@ -446,10 +435,11 @@ namespace mconv
             
             if (i == 32)
             {
-                ss<<"\n";
+                ss<<"\n\t\t\t\t\t\t";
                 XMLText *pText = pDoc->NewText(ss.str().c_str());
                 pIndicesElement->LinkEndChild(pText);
-                ss.str() = "";
+                ss.clear();
+                ss.str("");
                 i = 0;
             }
 
@@ -463,6 +453,10 @@ namespace mconv
             XMLText *pText = pDoc->NewText(ss.str().c_str());
             pIndicesElement->LinkEndChild(pText);
         }
+
+        ss<<"\n\t\t\t\t\t";
+        XMLText *pText = pDoc->NewText(ss.str().c_str());
+        pIndicesElement->LinkEndChild(pText);
 
         return pSubmeshElement;
     }

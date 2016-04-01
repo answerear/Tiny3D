@@ -88,30 +88,132 @@ namespace mconv
 
         }
 
+        void hash()
+        {
+            std::vector<float> vertices;
+            vertices.push_back(mPosition[0]);
+            vertices.push_back(mPosition[1]);
+            vertices.push_back(mPosition[2]);
+
+            auto itr2 = mTexElements.begin();
+            while (itr2 != mTexElements.end())
+            {
+                FbxVector2 &texcoord = *itr2;
+                vertices.push_back(texcoord[0]);
+                vertices.push_back(texcoord[1]);
+                ++itr2;
+            }
+
+            auto itr3 = mNormalElements.begin();
+            while (itr3 != mNormalElements.end())
+            {
+                FbxVector3 &normal = *itr3;
+                vertices.push_back(normal[0]);
+                vertices.push_back(normal[1]);
+                vertices.push_back(normal[2]);
+                ++itr3;
+            }
+
+            itr3 = mBinormalElements.begin();
+            while (itr3 != mBinormalElements.end())
+            {
+                FbxVector3 &binormal = *itr3;
+                vertices.push_back(binormal[0]);
+                vertices.push_back(binormal[1]);
+                vertices.push_back(binormal[2]);
+                ++itr3;
+            }
+
+            itr3 = mTangentElements.begin();
+            while (itr3 != mTangentElements.end())
+            {
+                FbxVector3 &tangent = *itr3;
+                vertices.push_back(tangent[0]);
+                vertices.push_back(tangent[1]);
+                vertices.push_back(tangent[2]);
+                ++itr3;
+            }
+
+            auto itr4 = mColorElements.begin();
+            while (itr4 != mColorElements.end())
+            {
+                FbxVector4 &color = *itr4;
+                vertices.push_back(color[0]);
+                vertices.push_back(color[1]);
+                vertices.push_back(color[2]);
+                vertices.push_back(color[3]);
+                ++itr4;
+            }
+
+            int i = 0;
+            auto it = mBlendInfo.rbegin();
+            while (it != mBlendInfo.rend() && i < 4)
+            {
+                BlendInfo &info = it->second;
+                vertices.push_back(info.mBlendWeight);
+                ++it;
+                ++i;
+            }
+
+            while (i < 4)
+            {
+                vertices.push_back(0);
+                ++i;
+            }
+
+            i = 0;
+            while (it != mBlendInfo.rend() && i < 4)
+            {
+                BlendInfo &info = it->second;
+                vertices.push_back(info.mBlendIndex);
+                ++it;
+                ++i;
+            }
+
+            while (i < 4)
+            {
+                vertices.push_back(-1);
+                ++i;
+            }
+
+            char *str = (char *)vertices.data();
+
+            uint32_t value = 5381;
+
+            while (*str)
+            {
+                value += (value << 5) + (*str++);
+            }
+
+            mHash = (value & 0x7FFFFFFF);
+        }
+
         bool operator <(const Vertex &other) const
         {
-            bool ret = mPosition < other.mPosition;
-            ret = ret && (mTexElements.size() > 0 ? (mTexElements < other.mTexElements) : true);
-            ret = ret && (mTexElements.size() > 0 ? (mNormalElements < other.mNormalElements) : true);
-            ret = ret && (mBinormalElements.size() > 0 ? (mBinormalElements < other.mNormalElements) : true);
-            ret = ret && (mTangentElements.size() > 0 ? (mTangentElements < other.mTangentElements) : true);
-            ret = ret && (mColorElements.size() > 0 ? (mColorElements < other.mColorElements) : true);
-            ret = ret && (mBlendInfo.size() > 0 ? (mBlendInfo < other.mBlendInfo) : true);
-//             ret = ret && (mMaterialIdx < other.mMaterialIdx);
-            return ret;
+//             bool ret = mPosition < other.mPosition;
+//             ret = ret && (mTexElements.size() > 0 ? (mTexElements < other.mTexElements) : true);
+//             ret = ret && (mNormalElements.size() > 0 ? (mNormalElements < other.mNormalElements) : true);
+//             ret = ret && (mBinormalElements.size() > 0 ? (mBinormalElements < other.mNormalElements) : true);
+//             ret = ret && (mTangentElements.size() > 0 ? (mTangentElements < other.mTangentElements) : true);
+//             ret = ret && (mColorElements.size() > 0 ? (mColorElements < other.mColorElements) : true);
+//             ret = ret && (mBlendInfo.size() > 0 ? (mBlendInfo < other.mBlendInfo) : true);
+// //             ret = ret && (mMaterialIdx < other.mMaterialIdx);
+//             return ret;
+            return mHash < other.mHash;
         }
 
         bool operator ==(const Vertex &other) const
         {
-            bool ret = mPosition == other.mPosition;
-            ret = ret && (mTexElements == other.mTexElements);
-            ret = ret && (mNormalElements == other.mNormalElements);
-            ret = ret && (mBinormalElements == other.mNormalElements);
-            ret = ret && (mTangentElements == other.mTangentElements);
-            ret = ret && (mColorElements == other.mColorElements);
-            ret = ret && (mBlendInfo == other.mBlendInfo);
-//             ret = ret && (mMaterialIdx == other.mMaterialIdx);
-            return ret;
+//             bool ret = mPosition == other.mPosition;
+//             ret = ret && (mTexElements == other.mTexElements);
+//             ret = ret && (mNormalElements == other.mNormalElements);
+//             ret = ret && (mBinormalElements == other.mNormalElements);
+//             ret = ret && (mTangentElements == other.mTangentElements);
+//             ret = ret && (mColorElements == other.mColorElements);
+//             ret = ret && (mBlendInfo == other.mBlendInfo);
+// //             ret = ret && (mMaterialIdx == other.mMaterialIdx);
+//             return ret;
+            return mHash == other.mHash;
         }
 
         int                 mCtrlPointIdx;
@@ -123,6 +225,8 @@ namespace mconv
         VectorElements4     mColorElements;
         BlendInfoDict       mBlendInfo;
         int                 mMaterialIdx;
+
+        uint32_t            mHash;
     };
 
     typedef std::list<Vertex>           Vertices;
