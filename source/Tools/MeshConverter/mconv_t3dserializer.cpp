@@ -84,6 +84,9 @@ namespace mconv
     const char * const T3DXMLSerializer::ATTRIB_SPAN = "span";
     const char * const T3DXMLSerializer::ATTRIB_BONE = "bone";
     const char * const T3DXMLSerializer::ATTRIB_TIME = "time";
+    const char * const T3DXMLSerializer::ATTRIB_WRAP_U = "wrap_u";
+    const char * const T3DXMLSerializer::ATTRIB_WRAP_V = "wrap_v";
+
 
     T3DXMLSerializer::T3DXMLSerializer()
     {
@@ -583,6 +586,8 @@ namespace mconv
 
         pTexElement->SetAttribute(ATTRIB_ID, pTexture->getID().c_str());
         pTexElement->SetAttribute(ATTRIB_TYPE, pTexture->mType.c_str());
+        pTexElement->SetAttribute(ATTRIB_WRAP_U, pTexture->mWrapModeU.c_str());
+        pTexElement->SetAttribute(ATTRIB_WRAP_V, pTexture->mWrapModeV.c_str());
 
         XMLText *pText = pDoc->NewText(pTexture->mFilename.c_str());
         pTexElement->LinkEndChild(pText);

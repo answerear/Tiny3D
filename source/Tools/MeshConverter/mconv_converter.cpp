@@ -986,7 +986,51 @@ namespace mconv
                 pMaterial->mTransparency = pFbxMatPhong->TransparencyFactor;
                 pMaterial->mReflection = pFbxMatPhong->ReflectionFactor;
 
-                FbxTexture *pFbxTexture = (FbxTexture *)pFbxMatPhong->Diffuse.GetSrcObject();
+                Textures *pTextures = nullptr;
+
+                int nAmbientTexCount = pFbxMatPhong->Ambient.GetSrcObjectCount();
+                int nDiffuseTexCount = pFbxMatPhong->Diffuse.GetSrcObjectCount();
+                int nEmissiveTexCount = pFbxMatPhong->Emissive.GetSrcObjectCount();
+
+                if (nAmbientTexCount > 0 || nDiffuseTexCount > 0)
+                {
+                    pTextures = new Textures("Textures");
+                    pMaterial->addChild(pTextures);
+
+                    int i = 0;
+
+                    // Ambient texture
+                    for (i = 0; i < nAmbientTexCount; ++i)
+                    {
+                        FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatPhong->Ambient.GetSrcObject(i);
+                        if (pFbxTexture != nullptr)
+                        {
+                            Texture *pTexture = new Texture(pFbxTexture->GetName());
+                            pTextures->addChild(pTexture);
+
+                            pTexture->mFilename = pFbxTexture->GetFileName();
+                            pTexture->mType = "ambient";
+                            pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
+                            pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                        }
+                    }
+
+                    // Diffuse texture
+                    for (i = 0; i < nDiffuseTexCount; ++i)
+                    {
+                        FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatPhong->Diffuse.GetSrcObject(i);
+                        if (pFbxTexture != nullptr)
+                        {
+                            Texture *pTexture = new Texture(pFbxTexture->GetName());
+                            pTextures->addChild(pTexture);
+
+                            pTexture->mFilename = pFbxTexture->GetFileName();
+                            pTexture->mType = "diffuse";
+                            pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
+                            pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                        }
+                    }
+                }
             }
             else if (pFbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
             {
@@ -1012,14 +1056,37 @@ namespace mconv
                 pMaterial->mTransparency = pFbxMatLambert->TransparencyFactor;
                 pMaterial->mReflection = 0.0f;
 
-                int nTextureCount = pFbxMatLambert->Diffuse.GetSrcObjectCount();
-                if (nTextureCount > 0)
+                Textures *pTextures = nullptr;
+
+                int nAmbientTexCount = pFbxMatLambert->Ambient.GetSrcObjectCount();
+                int nDiffuseTexCount = pFbxMatLambert->Diffuse.GetSrcObjectCount();
+                int nEmissiveTexCount = pFbxMatLambert->Emissive.GetSrcObjectCount();
+
+                if (nAmbientTexCount > 0 || nDiffuseTexCount > 0 || nEmissiveTexCount > 0)
                 {
-                    Textures *pTextures = new Textures("Textures");
+                    pTextures = new Textures("Textures");
                     pMaterial->addChild(pTextures);
 
                     int i = 0;
-                    for (i = 0; i < nTextureCount; ++i)
+
+                    // Ambient texture
+                    for (i = 0; i < nAmbientTexCount; ++i)
+                    {
+                        FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatLambert->Ambient.GetSrcObject(i);
+                        if (pFbxTexture != nullptr)
+                        {
+                            Texture *pTexture = new Texture(pFbxTexture->GetName());
+                            pTextures->addChild(pTexture);
+
+                            pTexture->mFilename = pFbxTexture->GetFileName();
+                            pTexture->mType = "ambient";
+                            pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
+                            pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                        }
+                    }
+
+                    // Diffuse texture
+                    for (i = 0; i < nDiffuseTexCount; ++i)
                     {
                         FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatLambert->Diffuse.GetSrcObject(i);
                         if (pFbxTexture != nullptr)
@@ -1028,6 +1095,25 @@ namespace mconv
                             pTextures->addChild(pTexture);
 
                             pTexture->mFilename = pFbxTexture->GetFileName();
+                            pTexture->mType = "diffuse";
+                            pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
+                            pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                        }
+                    }
+
+                    // Emissive texture
+                    for (i = 0; i < nEmissiveTexCount; ++i)
+                    {
+                        FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatLambert->Emissive.GetSrcObject(i);
+                        if (pFbxTexture != nullptr)
+                        {
+                            Texture *pTexture = new Texture(pFbxTexture->GetName());
+                            pTextures->addChild(pTexture);
+
+                            pTexture->mFilename = pFbxTexture->GetFileName();
+                            pTexture->mType = "emissive";
+                            pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
+                            pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
                         }
                     }
                 }
@@ -1445,6 +1531,31 @@ namespace mconv
 
             mHasVertexBlending = true;
         }
+    }
+
+    String Converter::FbxWrapModeToString(FbxTexture::EWrapMode eWrapMode) const
+    {
+        String s;
+        switch (eWrapMode)
+        {
+        case fbxsdk_2015_1::FbxTexture::eRepeat:
+            {
+                s = "repeat";
+            }
+            break;
+        case fbxsdk_2015_1::FbxTexture::eClamp:
+            {
+                s = "clamp";
+            }
+            break;
+        default:
+            {
+                s = "repeat";
+            }
+            break;
+        }
+
+        return s;
     }
 
     void Converter::cleanup()

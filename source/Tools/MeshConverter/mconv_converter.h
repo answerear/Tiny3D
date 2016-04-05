@@ -182,6 +182,9 @@ namespace mconv
         // 添加骨骼权重和骨骼索引到顶点属性里
         void updateVertexBlendAttributes(Mesh *pMesh);
 
+        // 从FBX的纹理wrap模式转换成字符串
+        String FbxWrapModeToString(FbxTexture::EWrapMode eWrapMode) const;
+
         void cleanup();
 
         typedef std::map<FbxNode*, Skeleton*>       Skeletons;
