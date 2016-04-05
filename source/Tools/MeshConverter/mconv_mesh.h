@@ -53,16 +53,17 @@ namespace mconv
                 int index = 0;
                 for (i = 0; i < pMaterials->getChildrenCount(); ++i)
                 {
-                    Node *pNode = getChild(i);
+                    Node *pNode = pMaterials->getChild(i);
                     if (pNode->getNodeType() == Node::E_TYPE_MATERIAL)
                     {
-                        index++;
                         if (index == nMaterialIdx)
                         {
                             name = pNode->getID();
                             result = true;
                             break;
                         }
+
+                        index++;
                     }
                 }
             }

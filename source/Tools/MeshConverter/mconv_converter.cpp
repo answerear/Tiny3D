@@ -14,6 +14,7 @@
 #include "mconv_skeleton.h"
 #include "mconv_bone.h"
 #include "mconv_skin.h"
+#include "mconv_texture.h"
 
 
 namespace mconv
@@ -225,7 +226,7 @@ namespace mconv
 
                         result = processFbxMesh(pFbxNode, pModel, pNode);
                         result = result && processFbxSkin(pFbxNode, pParent, (Mesh *)pNode);
-                        result = result && processFbxMaterial(pFbxNode, pParent);
+                        result = result && processFbxMaterial(pFbxNode, pModel);
 
                         pNode = pModel;
                     }
@@ -966,6 +967,11 @@ namespace mconv
                 pMaterial->mAmbientColor[1] = value[1];
                 pMaterial->mAmbientColor[2] = value[0];
                 pMaterial->mAmbientColor[3] = pFbxMatPhong->AmbientFactor;
+                value = pFbxMatPhong->Diffuse.Get();
+                pMaterial->mDiffuseColor[0] = value[2];
+                pMaterial->mDiffuseColor[1] = value[1];
+                pMaterial->mDiffuseColor[2] = value[0];
+                pMaterial->mDiffuseColor[3] = pFbxMatPhong->DiffuseFactor;
                 value = pFbxMatPhong->Specular.Get();
                 pMaterial->mSpecularColor[0] = value[2];
                 pMaterial->mSpecularColor[1] = value[1];
@@ -979,6 +985,8 @@ namespace mconv
                 pMaterial->mShininess = pFbxMatPhong->Shininess;
                 pMaterial->mTransparency = pFbxMatPhong->TransparencyFactor;
                 pMaterial->mReflection = pFbxMatPhong->ReflectionFactor;
+
+                FbxTexture *pFbxTexture = (FbxTexture *)pFbxMatPhong->Diffuse.GetSrcObject();
             }
             else if (pFbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
             {
@@ -989,6 +997,11 @@ namespace mconv
                 pMaterial->mAmbientColor[1] = value[1];
                 pMaterial->mAmbientColor[2] = value[2];
                 pMaterial->mAmbientColor[3] = pFbxMatLambert->AmbientFactor;
+                value = pFbxMatLambert->Diffuse.Get();
+                pMaterial->mDiffuseColor[0] = value[2];
+                pMaterial->mDiffuseColor[1] = value[1];
+                pMaterial->mDiffuseColor[2] = value[0];
+                pMaterial->mDiffuseColor[3] = pFbxMatLambert->DiffuseFactor;
                 pMaterial->mSpecularColor[0] = pMaterial->mSpecularColor[1] = pMaterial->mSpecularColor[2] = 0.0f;
                 value = pFbxMatLambert->Emissive.Get();
                 pMaterial->mEmissiveColor[0] = value[2];
@@ -998,6 +1011,26 @@ namespace mconv
                 pMaterial->mShininess = 0.0f;
                 pMaterial->mTransparency = pFbxMatLambert->TransparencyFactor;
                 pMaterial->mReflection = 0.0f;
+
+                int nTextureCount = pFbxMatLambert->Diffuse.GetSrcObjectCount();
+                if (nTextureCount > 0)
+                {
+                    Textures *pTextures = new Textures("Textures");
+                    pMaterial->addChild(pTextures);
+
+                    int i = 0;
+                    for (i = 0; i < nTextureCount; ++i)
+                    {
+                        FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatLambert->Diffuse.GetSrcObject(i);
+                        if (pFbxTexture != nullptr)
+                        {
+                            Texture *pTexture = new Texture(pFbxTexture->GetName());
+                            pTextures->addChild(pTexture);
+
+                            pTexture->mFilename = pFbxTexture->GetFileName();
+                        }
+                    }
+                }
             }
         }
 

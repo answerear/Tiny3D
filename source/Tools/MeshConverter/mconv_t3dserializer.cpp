@@ -196,6 +196,16 @@ namespace mconv
                 pElement = buildXMLSubMeshes(pDoc, pParentElem, pNode);
             }
             break;
+        case Node::E_TYPE_TEXTURE:
+            {
+                pElement = buildXMLTexture(pDoc, pParentElem, pNode);
+            }
+            break;
+        case Node::E_TYPE_TEXTURES:
+            {
+                pElement = buildXMLTextures(pDoc, pParentElem, pNode);
+            }
+            break;
         default:
             {
                 pElement = pParentElem;
@@ -552,6 +562,32 @@ namespace mconv
         pReflectElement->LinkEndChild(pText);
 
         return pMatElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLTextures(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pTexElement = pDoc->NewElement(TAG_TEXTURES);
+        pParentElem->LinkEndChild(pTexElement);
+
+        pTexElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+        pTexElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
+
+        return pTexElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLTexture(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        Texture *pTexture = (Texture *)pNode;
+        XMLElement *pTexElement = pDoc->NewElement(TAG_TEXTURE);
+        pParentElem->LinkEndChild(pTexElement);
+
+        pTexElement->SetAttribute(ATTRIB_ID, pTexture->getID().c_str());
+        pTexElement->SetAttribute(ATTRIB_TYPE, pTexture->mType.c_str());
+
+        XMLText *pText = pDoc->NewText(pTexture->mFilename.c_str());
+        pTexElement->LinkEndChild(pText);
+
+        return pTexElement;
     }
 
     XMLElement *T3DXMLSerializer::buildXMLAnimation(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)

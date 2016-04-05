@@ -34,6 +34,7 @@ namespace mconv
             E_TYPE_SUBMESH,
             E_TYPE_SUBMESHES,
             E_TYPE_TEXTURE,
+            E_TYPE_TEXTURES,
         };
 
         Node(const String &ID = "Node")
