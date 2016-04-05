@@ -263,8 +263,6 @@ namespace mconv
         mTabCount++;
 #endif
 
-        result = result && processFbxAnimation(pFbxNode);
-
         for (i = 0; i < pFbxNode->GetChildCount(); ++i)
         {
             result = result && processFbxNode(pFbxNode->GetChild(i), pNode);
@@ -850,7 +848,7 @@ namespace mconv
         return result;
     }
 
-    bool Converter::processFbxSkeleton(FbxNode *pFbxNode, Node *pParent)
+    bool Converter::processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Model *pModel)
     {
 #ifdef _DEBUG
         std::stringstream ssTab;
@@ -892,11 +890,13 @@ namespace mconv
 
         mTabCount++;
 
+        processFbxAnimation(pFbxNode, pModel);
+
         int i = 0;
         int nChildrenCount = pFbxNode->GetChildCount();
         for (i = 0; i < nChildrenCount; ++i)
         {
-            processFbxSkeleton(pFbxNode->GetChild(i), pBone);
+            processFbxSkeleton(pFbxNode->GetChild(i), pBone, pModel);
         }
 
         mTabCount--;
@@ -945,23 +945,67 @@ namespace mconv
         }
 #endif
 
+        Materials *pMaterials = new Materials("Materials");
+        pParent->addChild(pMaterials);
+
         for (i = 0; i < nMaterialCount; ++i)
         {
             FbxSurfaceMaterial *pFbxMaterial = pFbxNode->GetMaterial(i);
             Material *pMaterial = new Material(pFbxMaterial->GetName());
-            pParent->addChild(pMaterial);
+            pMaterials->addChild(pMaterial);
 #ifdef _DEBUG
             T3D_LOG_INFO("%sMaterial : %s", ssTab.str().c_str(), pFbxMaterial->GetName());
 #endif
+
+            if (pFbxMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
+            {
+                FbxSurfacePhong *pFbxMatPhong = (FbxSurfacePhong *)pFbxMaterial;
+                pMaterial->mMode = "Phong";
+                FbxDouble3 value = pFbxMatPhong->Ambient.Get();
+                pMaterial->mAmbientColor[0] = value[2];
+                pMaterial->mAmbientColor[1] = value[1];
+                pMaterial->mAmbientColor[2] = value[0];
+                pMaterial->mAmbientColor[3] = pFbxMatPhong->AmbientFactor;
+                value = pFbxMatPhong->Specular.Get();
+                pMaterial->mSpecularColor[0] = value[2];
+                pMaterial->mSpecularColor[1] = value[1];
+                pMaterial->mSpecularColor[2] = value[0];
+                pMaterial->mSpecularColor[3] = pFbxMatPhong->SpecularFactor;
+                value = pFbxMatPhong->Emissive.Get();
+                pMaterial->mEmissiveColor[0] = value[2];
+                pMaterial->mEmissiveColor[1] = value[1];
+                pMaterial->mEmissiveColor[2] = value[0];
+                pMaterial->mEmissiveColor[3] = pFbxMatPhong->EmissiveFactor;
+                pMaterial->mShininess = pFbxMatPhong->Shininess;
+                pMaterial->mTransparency = pFbxMatPhong->TransparencyFactor;
+                pMaterial->mReflection = pFbxMatPhong->ReflectionFactor;
+            }
+            else if (pFbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
+            {
+                FbxSurfaceLambert *pFbxMatLambert = (FbxSurfaceLambert *)pFbxMaterial;
+                pMaterial->mMode = "Lambert";
+                FbxDouble3 value = pFbxMatLambert->Ambient.Get();
+                pMaterial->mAmbientColor[0] = value[0];
+                pMaterial->mAmbientColor[1] = value[1];
+                pMaterial->mAmbientColor[2] = value[2];
+                pMaterial->mAmbientColor[3] = pFbxMatLambert->AmbientFactor;
+                pMaterial->mSpecularColor[0] = pMaterial->mSpecularColor[1] = pMaterial->mSpecularColor[2] = 0.0f;
+                value = pFbxMatLambert->Emissive.Get();
+                pMaterial->mEmissiveColor[0] = value[2];
+                pMaterial->mEmissiveColor[1] = value[1];
+                pMaterial->mEmissiveColor[2] = value[0];
+                pMaterial->mEmissiveColor[3] = pFbxMatLambert->EmissiveFactor;
+                pMaterial->mShininess = 0.0f;
+                pMaterial->mTransparency = pFbxMatLambert->TransparencyFactor;
+                pMaterial->mReflection = 0.0f;
+            }
         }
 
         return true;
     }
 
-    bool Converter::processFbxAnimation(FbxNode *pFbxNode)
+    bool Converter::processFbxAnimation(FbxNode *pFbxNode, Model *pModel)
     {
-        Mesh *pParent = new Mesh("abc");
-
 #ifdef _DEBUG
         std::stringstream ssTab;
         for (int t = 0; t < mTabCount; ++t)
@@ -970,6 +1014,22 @@ namespace mconv
         }
         T3D_LOG_INFO("%sAnimation : %s 0x%p", ssTab.str().c_str(), pFbxNode->GetName(), pFbxNode);
 #endif
+
+        Animation *pAnimation = nullptr;
+        if (!mHasAnimation)
+        {
+            pAnimation = new Animation(pModel->getID());
+            pModel->addChild(pAnimation);
+            mHasAnimation = true;
+        }
+        else
+        {
+            searchAnimation(pModel->getID(), pModel, pAnimation);
+        }
+
+        FbxSkeleton *pFbxSkel = pFbxNode->GetSkeleton();
+
+        String strBoneName = pFbxNode->GetName();
 
         FbxScene *pFbxScene = (FbxScene *)mSrcData;
         int nAnimStackCount = pFbxScene->GetSrcObjectCount(FbxAnimStack::ClassId);
@@ -985,13 +1045,11 @@ namespace mconv
             String name = pFbxAnimStack->GetName();
             if (name.empty())
             {
-                name = "Animation";
+                name = "Action";
             }
 #ifdef _DEBUG
             T3D_LOG_INFO("%sAction : %s", ssTab.str().c_str(), name.c_str());
 #endif
-            Animation *pAnimation = new Animation(name);
-            pParent->addChild(pAnimation);
 
             int nAnimLayerCount = pFbxAnimStack->GetMemberCount();
 #ifdef _DEBUG
@@ -1006,15 +1064,17 @@ namespace mconv
             for (j = 0; j < nAnimLayerCount; ++j)
             {
                 FbxAnimLayer *pFbxAnimLayer = (FbxAnimLayer *)pFbxAnimStack->GetMember(j);
-                String name = pFbxAnimLayer->GetName();
-                if (name.empty())
+
+                Action *pAction = nullptr;
+                if (searchAction(name, pAnimation, pAction))
                 {
-                    name = "Action";
+
                 }
-
-
-                Action *pAction = new Action(name);
-                pAnimation->addChild(pAction);
+                else
+                {
+                    pAction = new Action(name);
+                    pAnimation->addChild(pAction);
+                }
 
                 FbxAnimCurve *pFbxTransCurve = pFbxNode->LclTranslation.GetCurve(pFbxAnimLayer);
                 FbxAnimCurve *pFbxRotationCurve = pFbxNode->LclRotation.GetCurve(pFbxAnimLayer);
@@ -1025,6 +1085,9 @@ namespace mconv
 #ifdef _DEBUG
                     T3D_LOG_INFO("%sLayer : %s", ss.str().c_str(), name.c_str());
 #endif
+                }
+                else
+                {
                 }
 
                 if (pFbxTransCurve != nullptr)
@@ -1040,8 +1103,8 @@ namespace mconv
                         pFrame->x = translate[0];
                         pFrame->y = translate[1];
                         pFrame->z = translate[2];
-                        pFrame->mTimestamp = frameTime.GetMilliSeconds();
-                        pAction->mTKeyframes.push_back(pFrame);
+                        pFrame->mTimestamp = frameTime.GetSecondDouble();
+                        pAction->addKeyframe(pFrame, strBoneName, pAction->mTKeyframes);
                     }
                 }
                 else
@@ -1065,8 +1128,8 @@ namespace mconv
                         pFrame->y = orientation[1];
                         pFrame->z = orientation[2];
                         pFrame->w = orientation[3];
-                        pFrame->mTimestamp = frameTime.GetMilliSeconds();
-                        pAction->mRKeyframes.push_back(pFrame);
+                        pFrame->mTimestamp = frameTime.GetSecondDouble();
+                        pAction->addKeyframe(pFrame, strBoneName, pAction->mRKeyframes);
                     }
                 }
                 else
@@ -1087,8 +1150,8 @@ namespace mconv
                         pFrame->x = scale[0];
                         pFrame->y = scale[1];
                         pFrame->z = scale[2];
-                        pFrame->mTimestamp = frameTime.GetMilliSeconds();
-                        pAction->mSKeyframes.push_back(pFrame);
+                        pFrame->mTimestamp = frameTime.GetSecondDouble();
+                        pAction->addKeyframe(pFrame, strBoneName, pAction->mSKeyframes);
                     }
                 }
                 else
@@ -1162,9 +1225,9 @@ namespace mconv
                     FbxNode *pFbxSkelRoot = nullptr;
                     if (searchSkeletonRoot(pFbxLinkNode, pFbxSkelRoot) && !searchSkeleton(pFbxSkelRoot))
                     {
-                        
                         mHasSkeleton = false;
-                        processFbxSkeleton(pFbxSkelRoot, pModel);
+                        mHasAnimation = false;
+                        processFbxSkeleton(pFbxSkelRoot, pModel, pModel);
                     }
                 }
                 
@@ -1252,6 +1315,59 @@ namespace mconv
         {
             result = true;
         }
+        return result;
+    }
+
+    bool Converter::searchAnimation(const String &name, Node *pNode, Animation *&pAnim)
+    {
+        bool result = false;
+
+        if (pNode->getID() == name && pNode->getNodeType() == Node::E_TYPE_MODEL)
+        {
+            size_t i = 0;
+            for (i = 0; i < pNode->getChildrenCount(); ++i)
+            {
+                Node *pChild = pNode->getChild(i);
+                if (pChild->getNodeType() == Node::E_TYPE_ANIMATION)
+                {
+                    pAnim = (Animation *)pChild;
+                    result = true;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            size_t i = 0;
+            for (i = 0; i < pNode->getChildrenCount(); ++i)
+            {
+                Node *pChild = pNode->getChild(i);
+                result = searchAnimation(name, pChild, pAnim);
+                if (result)
+                    break;
+            }
+        }
+
+        return result;
+    }
+
+    bool Converter::searchAction(const String &name, Animation *pAnim, Action *&pAction)
+    {
+        bool result = false;
+
+        size_t i = 0;
+        for (i = 0; i < pAnim->getChildrenCount(); ++i)
+        {
+            Node *pNode = pAnim->getChild(i);
+            if (pNode->getNodeType() == Node::E_TYPE_ACTION
+                && pNode->getID() == name)
+            {
+                pAction = (Action *)pNode;
+                result = true;
+                break;
+            }
+        }
+
         return result;
     }
 

@@ -7,6 +7,8 @@
 #include "mconv_node.h"
 #include "mconv_vertex.h"
 #include "mconv_submesh.h"
+#include "mconv_material.h"
+#include "mconv_model.h"
 
 
 namespace mconv
@@ -30,6 +32,44 @@ namespace mconv
             return E_TYPE_MESH;
         }
 
+        bool searchMaterial(Model *pModel, int nMaterialIdx, String &name)
+        {
+            bool result = false;
+
+            Materials *pMaterials = nullptr;
+            size_t i = 0;
+            for (i = 0; i < pModel->getChildrenCount(); ++i)
+            {
+                Node *pNode = pModel->getChild(i);
+                if (pNode->getNodeType() == Node::E_TYPE_MATERIALS)
+                {
+                    pMaterials = (Materials *)pNode;
+                    break;
+                }
+            }
+
+            if (pMaterials != nullptr)
+            {
+                int index = 0;
+                for (i = 0; i < pMaterials->getChildrenCount(); ++i)
+                {
+                    Node *pNode = getChild(i);
+                    if (pNode->getNodeType() == Node::E_TYPE_MATERIAL)
+                    {
+                        index++;
+                        if (index == nMaterialIdx)
+                        {
+                            name = pNode->getID();
+                            result = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
         bool split()
         {
             typedef std::map<uint32_t, Vertex>      VerticesDict;
@@ -41,6 +81,8 @@ namespace mconv
             typedef SubMeshDict::iterator           SubMeshDictItr;
             typedef SubMeshDict::const_iterator     SubMeshDictConstItr;
             typedef std::pair<int, SubMesh*>        SubMeshValue;
+
+            Model *pModel = (Model *)getParent();
 
             SubMeshes *pSubMeshes = new SubMeshes("SubMeshes");
             addChild(pSubMeshes);
@@ -63,6 +105,12 @@ namespace mconv
                     ss<<count;
                     SubMesh *pSubMesh = new SubMesh(ss.str());
                     pSubMeshes->addChild(pSubMesh);
+
+                    String name;
+                    if (searchMaterial(pModel, vertex.mMaterialIdx, name))
+                    {
+                        pSubMesh->mMaterialName = name;
+                    }
 
                     SubMeshValue value(vertex.mMaterialIdx, pSubMesh);
                     submeshes.insert(value);

@@ -82,6 +82,8 @@ namespace mconv
     const char * const T3DXMLSerializer::ATTRIB_MATERIAL = "material";
     const char * const T3DXMLSerializer::ATTRIB_16BITS = "16bits";
     const char * const T3DXMLSerializer::ATTRIB_SPAN = "span";
+    const char * const T3DXMLSerializer::ATTRIB_BONE = "bone";
+    const char * const T3DXMLSerializer::ATTRIB_TIME = "time";
 
     T3DXMLSerializer::T3DXMLSerializer()
     {
@@ -561,25 +563,112 @@ namespace mconv
         pAnimElement->SetAttribute(ATTRIB_ID, pAnim->getID().c_str());
         pAnimElement->SetAttribute(ATTRIB_COUNT, pAnim->getChildrenCount());
 
-        size_t i = 0;
-        for (i = 0; i < pNode->getChildrenCount(); ++i)
-        {
-            Action *pAction = (Action *)pNode->getChild(i);
-            XMLElement *pActionElement = pDoc->NewElement(TAG_ACTION);
-            pAnimElement->LinkEndChild(pActionElement);
-
-            pActionElement->SetAttribute(ATTRIB_ID, pAction->getID().c_str());
-        }
-        
         return pAnimElement;
     }
 
     XMLElement *T3DXMLSerializer::buildXMLAction(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
+        Action *pAction = (Action *)pNode;
         XMLElement *pActionElement = pDoc->NewElement(TAG_ACTION);
         pParentElem->LinkEndChild(pActionElement);
 
+        pActionElement->SetAttribute(ATTRIB_ID, pAction->getID().c_str());
 
+        auto itr = pAction->mTKeyframes.begin();
+        while (itr != pAction->mTKeyframes.end())
+        {
+            XMLElement *pKeyElement = pDoc->NewElement(TAG_KEYFRAME);
+            pActionElement->LinkEndChild(pKeyElement);
+
+            pKeyElement->SetAttribute(ATTRIB_TYPE, "translation");
+            pKeyElement->SetAttribute(ATTRIB_BONE, itr->first.c_str());
+            pKeyElement->SetAttribute(ATTRIB_COUNT, itr->second.size());
+
+            Keyframes &keyframes = itr->second;
+
+            auto i = keyframes.begin();
+            while (i != keyframes.end())
+            {
+                XMLElement *pFrameElement = pDoc->NewElement(TAG_FRAME);
+                pKeyElement->LinkEndChild(pFrameElement);
+
+                KeyframeT *pFrame = (KeyframeT *)*i;
+                pFrameElement->SetAttribute(ATTRIB_ID, pFrame->mID);
+                pFrameElement->SetAttribute(ATTRIB_TIME, pFrame->mTimestamp);
+
+                std::stringstream ss;
+                ss<<pFrame->x<<" "<<pFrame->y<<" "<<pFrame->z;
+                XMLText *pText = pDoc->NewText(ss.str().c_str());
+                pFrameElement->LinkEndChild(pText);
+                ++i;
+            }
+
+            ++itr;
+        }
+
+        itr = pAction->mRKeyframes.begin();
+        while (itr != pAction->mRKeyframes.end())
+        {
+            XMLElement *pKeyElement = pDoc->NewElement(TAG_KEYFRAME);
+            pActionElement->LinkEndChild(pKeyElement);
+
+            pKeyElement->SetAttribute(ATTRIB_TYPE, "rotation");
+            pKeyElement->SetAttribute(ATTRIB_BONE, itr->first.c_str());
+            pKeyElement->SetAttribute(ATTRIB_COUNT, itr->second.size());
+
+            Keyframes &keyframes = itr->second;
+
+            auto i = keyframes.begin();
+            while (i != keyframes.end())
+            {
+                XMLElement *pFrameElement = pDoc->NewElement(TAG_FRAME);
+                pKeyElement->LinkEndChild(pFrameElement);
+
+                KeyframeR *pFrame = (KeyframeR *)*i;
+                pFrameElement->SetAttribute(ATTRIB_ID, pFrame->mID);
+                pFrameElement->SetAttribute(ATTRIB_TIME, pFrame->mTimestamp);
+
+                std::stringstream ss;
+                ss<<pFrame->x<<" "<<pFrame->y<<" "<<pFrame->z<<" "<<pFrame->w;
+                XMLText *pText = pDoc->NewText(ss.str().c_str());
+                pFrameElement->LinkEndChild(pText);
+                ++i;
+            }
+
+            ++itr;
+        }
+
+        itr = pAction->mSKeyframes.begin();
+        while (itr != pAction->mSKeyframes.end())
+        {
+            XMLElement *pKeyElement = pDoc->NewElement(TAG_KEYFRAME);
+            pActionElement->LinkEndChild(pKeyElement);
+
+            pKeyElement->SetAttribute(ATTRIB_TYPE, "scaling");
+            pKeyElement->SetAttribute(ATTRIB_BONE, itr->first.c_str());
+            pKeyElement->SetAttribute(ATTRIB_COUNT, itr->second.size());
+
+            Keyframes &keyframes = itr->second;
+
+            auto i = keyframes.begin();
+            while (i != keyframes.end())
+            {
+                XMLElement *pFrameElement = pDoc->NewElement(TAG_FRAME);
+                pKeyElement->LinkEndChild(pFrameElement);
+
+                KeyframeS *pFrame = (KeyframeS *)*i;
+                pFrameElement->SetAttribute(ATTRIB_ID, pFrame->mID);
+                pFrameElement->SetAttribute(ATTRIB_TIME, pFrame->mTimestamp);
+
+                std::stringstream ss;
+                ss<<pFrame->x<<" "<<pFrame->y<<" "<<pFrame->z;
+                XMLText *pText = pDoc->NewText(ss.str().c_str());
+                pFrameElement->LinkEndChild(pText);
+                ++i;
+            }
+
+            ++itr;
+        }
 
         return pActionElement;
     }

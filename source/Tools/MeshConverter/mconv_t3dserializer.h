@@ -70,6 +70,7 @@ namespace mconv
         static const char * const ATTRIB_TIME;
         static const char * const ATTRIB_16BITS;
         static const char * const ATTRIB_SPAN;
+        static const char * const ATTRIB_BONE;
 
         T3DXMLSerializer();
         virtual ~T3DXMLSerializer();

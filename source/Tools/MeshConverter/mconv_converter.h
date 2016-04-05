@@ -79,15 +79,15 @@
 
  *              <animation id="" count="3>
  *                  <action id="idle">
- *                      <keyframe type="translate" count="2">
+ *                      <keyframe type="translation" bone="head" count="2">
  *                          <frame id="1" time="0.1">1.0 1.0 1.0</frame>
  *                          <frame id="2" time="0.5">0.0 1.0 0.0</frame>
  *                      </keyframe>
- *                      <keyframe type="rotate" count="2">
+ *                      <keyframe type="rotation" bone="head" count="2">
  *                          <frame id="2" time="1.0">1.0 1.0 1.0 1.0</frame>
  *                          <frame id="3" time="1.2">1.0 1.0 1.0 1.0</frame>
  *                      </keyframe>
- *                      <keyframe type="scale" count="2">
+ *                      <keyframe type="scaling" bone="head" count="2">
  *                          <frame id="4" time="1.5">1.2 1.2 1.2</frame>
  *                          <frame id="5" time="2.0">1.2 1.2 1.2</frame>
  *                      </keyframe>
@@ -125,6 +125,8 @@ namespace mconv
     class Model;
     class Skeleton;
     class Bone;
+    class Animation;
+    class Action;
 
     class Converter
     {
@@ -144,11 +146,11 @@ namespace mconv
 
         bool processFbxScene(FbxScene *pFbxScene, Node *pRoot);
         bool processFbxNode(FbxNode *pFbxNode, Node *pParent);
-        bool processFbxAnimation(FbxNode *pFbxNode);
+        bool processFbxAnimation(FbxNode *pFbxNode, Model *pModel);
 
         bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode);
         bool processFbxSkin(FbxNode *pFbxNode, Node *pParent, Mesh *pMesh);
-        bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent);
+        bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Model *pModel);
         bool processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent);
@@ -168,6 +170,11 @@ namespace mconv
         bool searchSkeletonRoot(FbxNode *pFbxNode, FbxNode *&pFbxRootNode);
         // 根据骨骼根节点，搜索看是否已经生成过对应的骨骼数据
         bool searchSkeleton(FbxNode *pFbxNode);
+
+        // 根据模型名称搜索是否曾经在本model下创建过动画节点
+        bool searchAnimation(const String &name, Node *pNode, Animation *&pAnim);
+        // 根据动作名称，搜索是否已经存在该动作
+        bool searchAction(const String &name, Animation *pAnim, Action *&pAction);
 
         // 更新顶点中的骨骼索引和骨骼权重值
         bool updateVertexBlendIndexAndWeight(Mesh *pMesh, int nCtrlPointIdx, int nBlendIndex, double fBlendWeight);
@@ -193,6 +200,7 @@ namespace mconv
         Skeletons   mSkeletons;
         bool        mHasSkeleton;
         bool        mHasVertexBlending;
+        bool        mHasAnimation;
 
 #ifdef _DEBUG
         int         mTabCount;
