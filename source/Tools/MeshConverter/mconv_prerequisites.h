@@ -30,6 +30,12 @@ namespace mconv
         E_FILETYPE_T3D      = E_FILETYPE_T3DB|E_FILETYPE_T3DT,  /// T3D二进制和文本格式
     };
 
+    enum BoundType
+    {
+        E_BT_SPHERE = 0,
+        E_BT_AABB,
+    };
+
 //     typedef FbxDouble3 FbxVector3;
     class FbxVector3 : public FbxDouble3
     {

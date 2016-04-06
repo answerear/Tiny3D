@@ -14,7 +14,7 @@
 #include "mconv_camera.h"
 #include "mconv_light.h"
 #include "mconv_texture.h"
-
+#include "mconv_bound.h"
 
 namespace mconv
 {
@@ -71,6 +71,7 @@ namespace mconv
     const char * const T3DXMLSerializer::TAG_ACTION = "action";
     const char * const T3DXMLSerializer::TAG_KEYFRAME = "keyframe";
     const char * const T3DXMLSerializer::TAG_FRAME = "frame";
+    const char * const T3DXMLSerializer::TAG_BOUND = "bound";
     const char * const T3DXMLSerializer::TAG_LIGHT = "light";
     const char * const T3DXMLSerializer::TAG_CAMERA = "camera";
 
@@ -147,6 +148,16 @@ namespace mconv
         case Node::E_TYPE_BONE:
             {
                 pElement = buildXMLBone(pDoc, pParentElem, pNode);
+            }
+            break;
+        case Node::E_TYPE_BOUND_AABB:
+            {
+                pElement = buildXMLAlignAxisBound(pDoc, pParentElem, pNode);
+            }
+            break;
+        case Node::E_TYPE_BOUND_SPHERE:
+            {
+                pElement = buildXMLSphereBound(pDoc, pParentElem, pNode);
             }
             break;
         case Node::E_TYPE_CAMERA:
@@ -755,6 +766,42 @@ namespace mconv
         pTransformElement->LinkEndChild(pText);
 
         return pBoneElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLAlignAxisBound(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pBoundElement = pDoc->NewElement(TAG_BOUND);
+        pParentElem->LinkEndChild(pBoundElement);
+
+        AabbBound *pBound = (AabbBound *)pNode;
+
+        pBoundElement->SetAttribute(ATTRIB_ID, pBound->getID().c_str());
+        pBoundElement->SetAttribute(ATTRIB_TYPE, "aabb");
+
+        std::stringstream ss;
+        ss<<pBound->mMinX<<" "<<pBound->mMaxX<<" "<<pBound->mMinY<<" "<<pBound->mMaxY<<" "<<pBound->mMinZ<<" "<<pBound->mMaxZ;
+        XMLText *pText = pDoc->NewText(ss.str().c_str());
+        pBoundElement->LinkEndChild(pText);
+
+        return pBoundElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLSphereBound(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pBoundElement = pDoc->NewElement(TAG_BOUND);
+        pParentElem->LinkEndChild(pBoundElement);
+
+        SphereBound *pBound = (SphereBound *)pNode;
+
+        pBoundElement->SetAttribute(ATTRIB_ID, pBound->getID().c_str());
+        pBoundElement->SetAttribute(ATTRIB_TYPE, "sphere");
+
+        std::stringstream ss;
+        ss<<pBound->mCenterX<<" "<<pBound->mCenterY<<" "<<pBound->mCenterZ<<" "<<pBound->mRadius;
+        XMLText *pText = pDoc->NewText(ss.str().c_str());
+        pBoundElement->LinkEndChild(pText);
+
+        return pBoundElement;
     }
 
     XMLElement *T3DXMLSerializer::buildXMLLight(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)

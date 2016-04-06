@@ -15,6 +15,7 @@
 #include "mconv_bone.h"
 #include "mconv_skin.h"
 #include "mconv_texture.h"
+#include "mconv_bound.h"
 
 
 namespace mconv
@@ -1388,6 +1389,8 @@ namespace mconv
         {
             Mesh *pMesh = (Mesh *)pNode;
             pMesh->split();
+
+            computeBoundingBox(pMesh);
         }
 
         size_t i = 0;
@@ -1556,6 +1559,121 @@ namespace mconv
         }
 
         return s;
+    }
+
+    bool Converter::computeBoundingBox(Mesh *pMesh)
+    {
+        Model *pModel = (Model *)pMesh->getParent();
+
+        bool result = false;
+
+        switch (mSettings.mBoundType)
+        {
+        case E_BT_SPHERE:
+            {
+                result = computeBoundingSphere(pModel, pMesh);
+            }
+            break;
+        case E_BT_AABB:
+            {
+                result = computeAlignAxisBoundingBox(pModel, pMesh);
+            }
+            break;
+        }
+
+        return result;
+    }
+
+    bool Converter::computeBoundingSphere(Model *pModel, Mesh *pMesh)
+    {
+        float x = 0.0f, y = 0.0f, z = 0.0f;
+        float radius = 0.0f;
+
+        auto itr = pMesh->mVertices.begin();
+        while (itr != pMesh->mVertices.end())
+        {
+            Vertex &vertex = *itr;
+
+            x += vertex.mPosition[0];
+            y += vertex.mPosition[1];
+            z += vertex.mPosition[2];
+
+            ++itr;
+        }
+
+        size_t nVertexCount = pMesh->mVertices.size();
+        x /= nVertexCount;
+        y /= nVertexCount;
+        z /= nVertexCount;
+
+        SphereBound *pBound = new SphereBound("SphereBoundingBox");
+        pModel->addChild(pBound);
+
+        pBound->mCenterX = x;
+        pBound->mCenterY = y;
+        pBound->mCenterZ = z;
+
+        itr = pMesh->mVertices.begin();
+        while (itr != pMesh->mVertices.end())
+        {
+            Vertex &vertex = *itr;
+            float dx = x - vertex.mPosition[0];
+            float dy = y - vertex.mPosition[1];
+            float dz = z - vertex.mPosition[2];
+            float length = sqrt(x * x + y * y + z * z);
+            if (length > radius)
+                radius = length;
+            ++itr;
+        }
+
+        pBound->mRadius = radius;
+
+        return true;
+    }
+
+    bool Converter::computeAlignAxisBoundingBox(Model *pModel, Mesh *pMesh)
+    {
+        float fMinX = FLT_MAX;
+        float fMaxX = FLT_MIN;
+        float fMinY = FLT_MAX;
+        float fMaxY = FLT_MIN;
+        float fMinZ = FLT_MAX;
+        float fMaxZ = FLT_MIN;
+
+        auto itr = pMesh->mVertices.begin();
+        while (itr != pMesh->mVertices.end())
+        {
+            Vertex &vertex = *itr;
+
+            if (vertex.mPosition[0] < fMinX)
+                fMinX = vertex.mPosition[0];
+            else if (vertex.mPosition[0] > fMaxX)
+                fMaxX = vertex.mPosition[0];
+
+            if (vertex.mPosition[1] < fMinY)
+                fMinY = vertex.mPosition[1];
+            else if (vertex.mPosition[1] > fMaxY)
+                fMaxY = vertex.mPosition[1];
+
+            if (vertex.mPosition[2] < fMinZ)
+                fMinZ = vertex.mPosition[2];
+            else if (vertex.mPosition[2] > fMaxZ)
+                fMaxZ = vertex.mPosition[2];
+
+            ++itr;
+        }
+
+        AabbBound *pBound = new AabbBound("AlignAxisBoundingBox");
+        pModel->addChild(pBound);
+
+        pBound->mMinX = fMinX;
+        pBound->mMaxX = fMaxX;
+        pBound->mMinY = fMinY;
+        pBound->mMaxY = fMaxY;
+        pBound->mMinZ = fMinZ;
+        pBound->mMaxZ = fMaxZ;
+
+        return true;
     }
 
     void Converter::cleanup()

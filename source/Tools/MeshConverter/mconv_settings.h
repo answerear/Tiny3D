@@ -26,6 +26,8 @@ namespace mconv
         FileType    mSrcType;
         FileType    mDstType;
 
+        BoundType   mBoundType;
+
         bool    mVerbose;
     };
 }

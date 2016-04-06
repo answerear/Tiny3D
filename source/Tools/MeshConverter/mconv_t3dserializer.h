@@ -58,6 +58,7 @@ namespace mconv
         static const char * const TAG_ACTION;
         static const char * const TAG_KEYFRAME;
         static const char * const TAG_FRAME;
+        static const char * const TAG_BOUND;
         static const char * const TAG_LIGHT;
         static const char * const TAG_CAMERA;
 
@@ -97,6 +98,8 @@ namespace mconv
         XMLElement *buildXMLSkeleton(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSkin(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLBone(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLAlignAxisBound(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLSphereBound(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLLight(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLCamera(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
 

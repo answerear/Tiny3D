@@ -43,6 +43,10 @@ namespace mconv
                     settings.mDstType = parseType(argv[++i]);
                     ext = argv[i];
                 }
+                else if (arg[1] == 'b')
+                {
+                    settings.mBoundType = parseBoundType(argv[++i]);
+                }
             }
             else if (settings.mSrcPath.length() == 0)
             {
@@ -94,6 +98,8 @@ namespace mconv
         printf("\t<type> : This type should be FBX (fbx), T3DB (t3db), T3DT (t3dt) or DAE (dae).\n");
         printf("-o <type>: Set the type of the output file to <type>\n");
         printf("\t<type> : This type should be FBX (fbx), T3DB (t3db), T3DT (t3dt), T3D (t3d) or DAE (dae).\n");
+        printf("-b <type>: Set the type of the bounding box to <type>\n");
+        printf("\t<type> : This type should be sphere or aabb.\n");
         printf("-v       : Verbose: print additional progress information\n");
         printf("\n");
         printf("<input>  : The filename of the file to convert.\n");
@@ -114,6 +120,18 @@ namespace mconv
             type = E_FILETYPE_T3DT;
         else if (stricmp(arg, "t3d") == 0)
             type = E_FILETYPE_T3D;
+
+        return type;
+    }
+
+    BoundType Command::parseBoundType(const char *arg) const
+    {
+        BoundType type = E_BT_SPHERE;
+
+        if (stricmp(arg, "sphere") == 0)
+            type = E_BT_SPHERE;
+        else if (stricmp(arg, "aabb") == 0)
+            type = E_BT_AABB;
 
         return type;
     }

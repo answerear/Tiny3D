@@ -154,6 +154,10 @@ namespace mconv
         bool processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent);
+        
+        bool computeBoundingBox(Mesh *pMesh);
+        bool computeBoundingSphere(Model *pModel, Mesh *pMesh);
+        bool computeAlignAxisBoundingBox(Model *pModel, Mesh *pMesh);
 
         bool processVertexAttribute(FbxMesh *pFbxMesh, Mesh *pMesh);
         bool readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos);

@@ -20,6 +20,7 @@ namespace mconv
         void printHelp() const;
 
         FileType parseType(const char *arg) const;
+        BoundType parseBoundType(const char *arg) const;
     };
 }
 

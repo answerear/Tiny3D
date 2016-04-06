@@ -22,6 +22,8 @@ namespace mconv
             E_TYPE_ACTION,
             E_TYPE_ANIMATION,
             E_TYPE_BONE,
+            E_TYPE_BOUND_AABB,
+            E_TYPE_BOUND_SPHERE,
             E_TYPE_CAMERA,
             E_TYPE_LIGHT,
             E_TYPE_MATERIAL,
