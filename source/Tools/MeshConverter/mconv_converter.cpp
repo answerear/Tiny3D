@@ -1606,7 +1606,7 @@ namespace mconv
         y /= nVertexCount;
         z /= nVertexCount;
 
-        SphereBound *pBound = new SphereBound("SphereBoundingBox");
+        SphereBound *pBound = new SphereBound("BoundingSphere");
         pModel->addChild(pBound);
 
         pBound->mCenterX = x;
