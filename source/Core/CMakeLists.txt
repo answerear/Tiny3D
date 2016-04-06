@@ -78,8 +78,6 @@ set_project_files(Source\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Source/DataSt
 # Internal project header files and source files
 set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageCodec/ .h)
 set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageCodec/ .cpp)
-set_project_files(Source\\\\MeshSerializer ${CMAKE_CURRENT_SOURCE_DIR}/Source/MeshSerializer/ .h)
-set_project_files(Source\\\\MeshSerializer ${CMAKE_CURRENT_SOURCE_DIR}/Source/MeshSerializer/ .cpp)
 
 # tinyxml2
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)

@@ -19,7 +19,7 @@ namespace Tiny3D
         {
             E_TYPE_UNKNOWN = 0,
             E_TYPE_DYLIB,
-            E_TYPE_MESH,
+            E_TYPE_MODEL,
             E_TYPE_MATERIAL,
             E_TYPE_TEXTURE,
             E_TYPE_ARCHIVE,

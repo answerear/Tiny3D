@@ -100,8 +100,14 @@ namespace Tiny3D
     class Archive;
     class ArchiveManager;
     class ArchiveCreator;
+    class Model;
+    class ModelManager;
+
     class Mesh;
-    class MeshManager;
+    class SubMesh;
+    class Skin;
+    class Bone;
+    class AnimationSet;
 
     class FileSystemArchive;
     class FileSystemArchiveCreator;
