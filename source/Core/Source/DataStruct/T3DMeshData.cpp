@@ -7,22 +7,24 @@
 
 namespace Tiny3D
 {
-    MeshDataPtr MeshData::create(Real *vertices, size_t vertexSize, size_t vertexCount)
+    MeshDataPtr MeshData::create()
     {
-        MeshDataPtr mesh = new MeshData(vertices, vertexSize, vertexCount);
+        MeshDataPtr mesh = new MeshData();
         mesh->release();
         return mesh;
     }
 
-    MeshData::MeshData(Real *vertices, size_t vertexSize, size_t vertexCount)
+    MeshData::MeshData()
+        : mVertices(nullptr)
+        , mVertexSize(0)
+        , mVertexCount(0)
     {
-        mVertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(vertexSize, vertexCount, HardwareBuffer::E_HBU_WRITE_ONLY, false);
 
     }
 
     MeshData::~MeshData()
     {
-
+        delete []mVertices;
+        mVertices = nullptr;
     }
-
 }

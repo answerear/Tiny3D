@@ -12,6 +12,12 @@ namespace Tiny3D
 {
     class MeshData;
     class SubMeshData;
+    class BoneData;
+    class ActionData;
+    class KeyFrameData;
+    class KeyFrameDataT;
+    class KeyFrameDataR;
+    class KeyFrameDataS;
 }
 
 

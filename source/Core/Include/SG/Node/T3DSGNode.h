@@ -31,6 +31,8 @@ namespace Tiny3D
         {
             E_NT_UNKNOWN = 0,
 
+            E_NT_BONE,
+
             // For SGTransformNode
             E_NT_TRANSFORM,
 

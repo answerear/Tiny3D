@@ -20,6 +20,18 @@ namespace Tiny3D
 
     protected:
         SubMeshData();
+
+    private:
+        SubMeshData(const SubMeshData &);
+        SubMeshData &operator =(const SubMeshData &);
+
+    public:
+        typedef std::list<int32_t>      Indices;
+        typedef Indices::iterator       IndicesItr;
+        typedef Indices::const_iterator IndicesConstItr;
+
+        String      mMaterialName;
+        Indices     mIndices;
     };
 }
 
