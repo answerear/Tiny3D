@@ -57,8 +57,8 @@
 #include "Resource/T3DTextureManager.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DMaterialManager.h"
-#include "Resource/T3DMesh.h"
-#include "Resource/T3DMeshManager.h"
+#include "Resource/T3DModel.h"
+#include "Resource/T3DModelManager.h"
 
 #include "SG/Node/T3DSGNode.h"
 #include "SG/Node/T3DSGTransformNode.h"

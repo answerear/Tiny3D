@@ -13,12 +13,12 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(Resource);
     T3D_DECLARE_SMART_PTR(Dylib);
+    T3D_DECLARE_SMART_PTR(Model);
     T3D_DECLARE_SMART_PTR(Material);
     T3D_DECLARE_SMART_PTR(Texture);
     T3D_DECLARE_SMART_PTR(Archive);
     T3D_DECLARE_SMART_PTR(FileSystemArchive);
     T3D_DECLARE_SMART_PTR(ZipArchive);
-    T3D_DECLARE_SMART_PTR(Mesh);
 
     T3D_DECLARE_SMART_PTR(SGNode);
     T3D_DECLARE_SMART_PTR(SGTransformNode);
@@ -53,6 +53,11 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(VertexData);
     T3D_DECLARE_SMART_PTR(IndexData);
+
+    T3D_DECLARE_SMART_PTR(SubMesh);
+    T3D_DECLARE_SMART_PTR(Skin);
+    T3D_DECLARE_SMART_PTR(AnimationSet);
+    T3D_DECLARE_SMART_PTR(Bone);
 
     T3D_DECLARE_SMART_PTR(RenderGroup);
     T3D_DECLARE_SMART_PTR(RenderQueue);
