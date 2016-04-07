@@ -110,6 +110,9 @@ namespace Tiny3D
         virtual const VertexElement &addElement(size_t offset, VertexElement::Type type, VertexElement::Semantic semantic);
         virtual const VertexElement &insertElement(size_t pos, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic);
 
+        virtual bool addElement(const VertexElement &vertexElement);
+        virtual bool insertElement(size_t pos, const VertexElement &vertexElement);
+
         virtual void removeElement(size_t pos);
         virtual void removeElement(VertexElement::Semantic semantic);
         virtual void removeAllElements();

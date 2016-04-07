@@ -54,11 +54,6 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(VertexData);
     T3D_DECLARE_SMART_PTR(IndexData);
 
-    T3D_DECLARE_SMART_PTR(SubMesh);
-    T3D_DECLARE_SMART_PTR(Skin);
-    T3D_DECLARE_SMART_PTR(AnimationSet);
-    T3D_DECLARE_SMART_PTR(Bone);
-
     T3D_DECLARE_SMART_PTR(RenderGroup);
     T3D_DECLARE_SMART_PTR(RenderQueue);
 

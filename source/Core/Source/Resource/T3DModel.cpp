@@ -1,6 +1,7 @@
 
 
 #include "Resource/T3DModel.h"
+#include "DataStruct/T3DMeshData.h"
 
 
 namespace Tiny3D
@@ -32,6 +33,8 @@ namespace Tiny3D
 
     bool Model::load()
     {
+        MeshDataPtr meshdata = smart_pointer_cast<MeshData>(mMeshData);
+
         return true;
     }
 

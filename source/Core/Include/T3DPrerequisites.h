@@ -103,12 +103,6 @@ namespace Tiny3D
     class Model;
     class ModelManager;
 
-    class Mesh;
-    class SubMesh;
-    class Skin;
-    class Bone;
-    class AnimationSet;
-
     class FileSystemArchive;
     class FileSystemArchiveCreator;
     class ZipArchive;

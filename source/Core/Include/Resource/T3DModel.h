@@ -13,6 +13,10 @@ namespace Tiny3D
     class T3D_ENGINE_API Model : public Resource
     {
     public:
+        typedef std::list<VertexElement>            VertexAttributes;
+        typedef VertexAttributes::iterator          VertexAttributesItr;
+        typedef VertexAttributes::const_iterator    VertexAttributesConstItr;
+
         static ModelPtr create(const String &name);
 
         virtual ~Model();
@@ -25,6 +29,9 @@ namespace Tiny3D
         virtual bool load() override;
         virtual void unload() override;
         virtual ResourcePtr clone() const override;
+
+    protected:
+        ObjectPtr   mMeshData;
     };
 }
 
