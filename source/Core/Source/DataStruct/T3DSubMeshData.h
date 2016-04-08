@@ -7,6 +7,7 @@
 #include "T3DPrerequisitesInternal.h"
 #include "T3DTypedefInternal.h"
 #include "Misc/T3DObject.h"
+#include "Render/T3DHardwareIndexBuffer.h"
 
 
 namespace Tiny3D
@@ -14,24 +15,26 @@ namespace Tiny3D
     class SubMeshData : public Object
     {
     public:
-        static SubMeshDataPtr create();
+        typedef std::vector<int32_t>    Indices;
+        typedef Indices::iterator       IndicesItr;
+        typedef Indices::const_iterator IndicesConstItr;
+
+        static SubMeshDataPtr create(const String &materialName, const Indices &indices, bool is16Bits);
 
         virtual ~SubMeshData();
 
     protected:
         SubMeshData();
 
+        bool init(const String &materialName, const Indices &indices, bool is16Bits);
+
     private:
         SubMeshData(const SubMeshData &);
         SubMeshData &operator =(const SubMeshData &);
 
-    public:
-        typedef std::list<int32_t>      Indices;
-        typedef Indices::iterator       IndicesItr;
-        typedef Indices::const_iterator IndicesConstItr;
-
-        String      mMaterialName;
-        Indices     mIndices;
+    protected:
+        String                  mMaterialName;
+        HardwareIndexBufferPtr  mIndexBuffer;
     };
 }
 

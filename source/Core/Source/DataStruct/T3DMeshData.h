@@ -16,26 +16,39 @@ namespace Tiny3D
     class MeshData : public Object
     {
     public:
-        static MeshDataPtr create();
+        typedef std::vector<VertexElement>          VertexAttributes;
+        typedef VertexAttributes::iterator          VertexAttributesItr;
+        typedef VertexAttributes::const_iterator    VertexAttributesConstItr;
+
+        typedef std::vector<float>          Vertices;
+        typedef Vertices::iterator          VerticesItr;
+        typedef Vertices::const_iterator    VerticesConstItr;
+
+        static MeshDataPtr create(const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize);
 
         virtual ~MeshData();
 
+        const VertexDeclarationPtr &getVertexDeclaration() const
+        {
+            return mVertexDecl;
+        }
+
+        const HardwareVertexBufferPtr &getVertexBuffer() const
+        {
+            return mVertexBuffer;
+        }
+
     protected:
         MeshData();
+        bool init(const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize);
 
     private:
         MeshData(const MeshData &);
         MeshData &operator =(const MeshData &);
 
-    public:
-        typedef std::list<VertexElement>            VertexAttributes;
-        typedef VertexAttributes::iterator          VertexAttributesItr;
-        typedef VertexAttributes::const_iterator    VertexAttributesConstItr;
-
-        VertexAttributes    mAttributes;
-        Real                *mVertices;
-        size_t              mVertexSize;
-        size_t              mVertexCount;
+    protected:
+        VertexDeclarationPtr    mVertexDecl;
+        HardwareVertexBufferPtr mVertexBuffer;
     };
 }
 

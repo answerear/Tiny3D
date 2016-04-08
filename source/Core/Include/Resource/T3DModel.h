@@ -5,7 +5,6 @@
 
 
 #include "Resource/T3DResource.h"
-#include "Math/T3DMatrix4.h"
 
 
 namespace Tiny3D
@@ -13,9 +12,13 @@ namespace Tiny3D
     class T3D_ENGINE_API Model : public Resource
     {
     public:
-        typedef std::list<VertexElement>            VertexAttributes;
-        typedef VertexAttributes::iterator          VertexAttributesItr;
-        typedef VertexAttributes::const_iterator    VertexAttributesConstItr;
+        typedef std::vector<ObjectPtr>          SubMeshDataList;
+        typedef SubMeshDataList::iterator       SubMeshDataListItr;
+        typedef SubMeshDataList::const_iterator SubMeshDataListConstItr;
+
+        typedef std::vector<String>             MaterialList;
+        typedef MaterialList::iterator          MaterialListItr;
+        typedef MaterialList::const_iterator    MaterialListConstItr;
 
         static ModelPtr create(const String &name);
 
@@ -31,7 +34,8 @@ namespace Tiny3D
         virtual ResourcePtr clone() const override;
 
     protected:
-        ObjectPtr   mMeshData;
+        ObjectPtr       mMeshData;
+        SubMeshDataList mSubMeshData;
     };
 }
 
