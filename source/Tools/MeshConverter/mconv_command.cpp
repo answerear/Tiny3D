@@ -95,9 +95,9 @@ namespace mconv
         printf("Options:\n");
         printf("-?       : Display this help information.\n");
         printf("-i <type>: Set the type of the input file to <type>\n");
-        printf("\t<type> : This type should be FBX (fbx), T3DB (t3db), T3DT (t3dt) or DAE (dae).\n");
+        printf("\t<type> : This type should be FBX (fbx), tmb (Tiny3D binary), tmt (Tiny3D text) or DAE (dae).\n");
         printf("-o <type>: Set the type of the output file to <type>\n");
-        printf("\t<type> : This type should be FBX (fbx), T3DB (t3db), T3DT (t3dt), T3D (t3d) or DAE (dae).\n");
+        printf("\t<type> : This type should be FBX (fbx), tmb (Tiny3D binary), tmt (Tiny3D text), t3d (both binary and text) or DAE (dae).\n");
         printf("-b <type>: Set the type of the bounding box to <type>\n");
         printf("\t<type> : This type should be sphere or aabb.\n");
         printf("-v       : Verbose: print additional progress information\n");
@@ -105,7 +105,7 @@ namespace mconv
         printf("<input>  : The filename of the file to convert.\n");
         printf("<output> : The filename of the converted file.\n");
         printf("\n");
-        printf("<type>   : FBX, T3DB (binary) or T3DT (xml).\n");
+        printf("<type>   : FBX, TMB (binary) or TMT (xml).\n");
     }
 
     FileType Command::parseType(const char *arg) const
@@ -114,10 +114,10 @@ namespace mconv
 
         if (stricmp(arg, "fbx") == 0)
             type = E_FILETYPE_FBX;
-        else if (stricmp(arg, "t3db") == 0)
-            type = E_FILETYPE_T3DB;
-        else if (stricmp(arg, "t3dt") == 0)
-            type = E_FILETYPE_T3DT;
+        else if (stricmp(arg, "tmb") == 0)
+            type = E_FILETYPE_TMB;
+        else if (stricmp(arg, "tmt") == 0)
+            type = E_FILETYPE_TMT;
         else if (stricmp(arg, "t3d") == 0)
             type = E_FILETYPE_T3D;
 

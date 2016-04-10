@@ -70,11 +70,11 @@ namespace mconv
         {
             mImporter = new T3DSerializer();
         }
-        else if (mSettings.mSrcType & E_FILETYPE_T3DB)
+        else if (mSettings.mSrcType & E_FILETYPE_TMB)
         {
             mImporter = new T3DBinSerializer();
         }
-        else if (mSettings.mSrcType & E_FILETYPE_T3DT)
+        else if (mSettings.mSrcType & E_FILETYPE_TMT)
         {
             mImporter = new T3DXMLSerializer();
         }
@@ -107,11 +107,11 @@ namespace mconv
         {
             mExporter = new T3DSerializer();
         }
-        else if (mSettings.mDstType & E_FILETYPE_T3DB)
+        else if (mSettings.mDstType & E_FILETYPE_TMB)
         {
             mExporter = new T3DBinSerializer();
         }
-        else if (mSettings.mDstType & E_FILETYPE_T3DT)
+        else if (mSettings.mDstType & E_FILETYPE_TMT)
         {
             mExporter = new T3DXMLSerializer();
         }

@@ -849,13 +849,13 @@ namespace mconv
 
         if (mBinSerializer != nullptr)
         {
-            String dstPath = path + ".t3db";
+            String dstPath = path + ".tmb";
             result = mBinSerializer->save(dstPath, pData);
         }
 
         if (mXMLSerializer != nullptr)
         {
-            String dstPath = path + ".t3dt";
+            String dstPath = path + ".tmt";
             result = result && mXMLSerializer->save(dstPath, pData);
         }
 
