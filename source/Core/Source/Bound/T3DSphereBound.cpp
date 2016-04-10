@@ -56,7 +56,7 @@ namespace Tiny3D
 
         const SphereBoundPtr &sphereBound = (const SphereBoundPtr &)bound;
         sphereBound->mOriginalSphere = mOriginalSphere;
-        sphereBound->mRenderable = (SGSphere *)((SGNode *)mRenderable->clone());
+        sphereBound->mRenderable = smart_pointer_cast<SGSphere>(mRenderable->clone());
     }
 
     void SphereBound::setParams(const Vector3 &rkCenter, Real radius)

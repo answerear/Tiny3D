@@ -4,23 +4,21 @@
 #define __T3D_SG_SPHERE_H__
 
 
-#include "SG/Renderable/T3DSGRenderable.h"
+#include "SG/Renderable/T3DSGGeometry.h"
 #include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SGSphere : public SGRenderable
+    class T3D_ENGINE_API SGSphere : public SGGeometry
     {
     public:
-        static SGSpherePtr create(uint32_t unID = E_NID_AUTOMATIC);
+        static SGSpherePtr create(const String &materialName, uint32_t unID = E_NID_AUTOMATIC);
 
         virtual ~SGSphere();
 
-        bool loadSphere();
-
         virtual Type getNodeType() const override;
-        virtual SGNodePtr clone() const override;
+        virtual NodePtr clone() const override;
 
         void setRadius(Real radius);
         Real getRadius() const  { return mRadius; }
@@ -28,9 +26,15 @@ namespace Tiny3D
     protected:
         SGSphere(uint32_t uID = E_NID_AUTOMATIC);
 
-        virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;
+        bool init(const String &materialName);
 
-        virtual void cloneProperties(const SGNodePtr &node) const override;
+        virtual void cloneProperties(const NodePtr &node) const override;
+
+        virtual MaterialPtr getMaterial() const override;
+        virtual Renderer::PrimitiveType getPrimitiveType() const override;
+        virtual VertexDataPtr getVertexData() const override;
+        virtual IndexDataPtr getIndexData() const override;
+        virtual bool isIndicesUsed() const override;
 
         void loadVertices(Vector3 *vertices, size_t vertexCount);
         void loadIndices(uint16_t *indices, size_t indexCount);
@@ -44,6 +48,10 @@ namespace Tiny3D
         };
 
         Real    mRadius;
+
+        MaterialPtr     mMaterial;
+        VertexDataPtr   mVertexData;
+        IndexDataPtr    mIndexData;
     };
 }
 

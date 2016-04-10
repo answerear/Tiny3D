@@ -10,6 +10,7 @@
 namespace Tiny3D
 {
     T3D_DECLARE_SMART_PTR(Object);
+    T3D_DECLARE_SMART_PTR(Node);
 
     T3D_DECLARE_SMART_PTR(Resource);
     T3D_DECLARE_SMART_PTR(Dylib);
@@ -24,9 +25,11 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(SGTransformNode);
     T3D_DECLARE_SMART_PTR(SGVisual);
     T3D_DECLARE_SMART_PTR(SGCamera);
-    T3D_DECLARE_SMART_PTR(SGMesh);
-    T3D_DECLARE_SMART_PTR(SGVirtualMesh);
+    T3D_DECLARE_SMART_PTR(SGShape);
+    T3D_DECLARE_SMART_PTR(SGModel);
     T3D_DECLARE_SMART_PTR(SGRenderable);
+    T3D_DECLARE_SMART_PTR(SGGeometry);
+    T3D_DECLARE_SMART_PTR(SGMesh);
     T3D_DECLARE_SMART_PTR(SGBox);
     T3D_DECLARE_SMART_PTR(SGSphere);
     T3D_DECLARE_SMART_PTR(SGLight);
@@ -74,11 +77,11 @@ namespace Tiny3D
 
     typedef VariantMap Settings;
 
-    typedef std::list<SGNodePtr>        SGChildren;
-    typedef SGChildren::iterator        SGChildrenItr;
-    typedef SGChildren::const_iterator  SGChildrenConstItr;
+    typedef std::list<NodePtr>              Children;
+    typedef Children::iterator              ChildrenItr;
+    typedef Children::const_iterator        ChildrenConstItr;
 
-    typedef VariantMap                  RenderWindowCreateParamEx;
+    typedef VariantMap                      RenderWindowCreateParamEx;
 
     typedef std::list<Renderer*>            RendererList;
     typedef RendererList::iterator          RendererListItr;

@@ -19,29 +19,42 @@ namespace Tiny3D
         SGRenderable(uint32_t unID = E_NID_AUTOMATIC);
 
     public:
+        /**
+         * @brief Destructor
+         */
         virtual ~SGRenderable();
 
-        void setMaterial(const MaterialPtr &material);
-        MaterialPtr getMaterial()   { return mMaterial; }
+        /**
+         * @brief 返回渲染材质对象。
+         * @note 所有可渲染派生类需要重写本接口以返回对应的渲染材质对象。
+         */
+        virtual MaterialPtr getMaterial() const = 0;
 
+        /**
+         * @brief 返回当前渲染对象世界变化矩阵
+         */
         virtual const Matrix4 &getWorldMatrix() const;
 
-        Renderer::PrimitiveType getPrimitiveType() const { return mPrimitiveType; }
-        const VertexDataPtr &getVertexData() const { return mVertexData; }
-        const IndexDataPtr &getIndexData()const { return mIndexData; }
-        bool isIndicesUsed() const { return mUseIndices; }
+        /**
+         * @brief 返回渲染元类型
+         * @see Renderer::PrimitiveType
+         */
+        virtual Renderer::PrimitiveType getPrimitiveType() const = 0;
 
-    protected:
-        virtual void cloneProperties(const SGNodePtr &node) const override;
+        /**
+         * @brief 返回顶点数据对象
+         */
+        virtual VertexDataPtr getVertexData() const = 0;
 
-        virtual void updateTransform() override;
+        /**
+         * @brief 返回索引数据对象
+         */
+        virtual IndexDataPtr getIndexData() const = 0;
 
-    protected:
-        MaterialPtr             mMaterial;
-        Renderer::PrimitiveType mPrimitiveType;
-        VertexDataPtr           mVertexData;
-        IndexDataPtr            mIndexData;
-        bool                    mUseIndices;
+        /**
+         * @brief 是否使用顶点索引
+         */
+        virtual bool isIndicesUsed() const = 0;
     };
 }
 

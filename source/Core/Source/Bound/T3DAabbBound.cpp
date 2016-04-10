@@ -59,7 +59,7 @@ namespace Tiny3D
 
         aabbBound->mAabb = mAabb;
         aabbBound->mOriginalAabb = mOriginalAabb;
-        aabbBound->mRenderable = (SGBox *)((SGNode *)mRenderable->clone());
+        aabbBound->mRenderable = smart_pointer_cast<SGBox>(mRenderable->clone());
     }
 
     bool AabbBound::testSphere(const SphereBoundPtr &bound) const

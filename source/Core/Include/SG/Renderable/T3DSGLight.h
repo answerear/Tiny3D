@@ -25,7 +25,7 @@ namespace Tiny3D
         virtual ~SGLight();
 
         virtual Type getNodeType() const override;
-        virtual SGNodePtr clone() const override;
+        virtual NodePtr clone() const override;
 
         void setLightType(LightType type)   { mLightType = type; }
         LightType getLightType() const      { return mLightType; }
@@ -58,6 +58,12 @@ namespace Tiny3D
     protected:
         virtual void updateTransform() override;
         virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;
+
+        virtual MaterialPtr getMaterial() const override;
+        virtual Renderer::PrimitiveType getPrimitiveType() const override;
+        virtual VertexDataPtr getVertexData() const override;
+        virtual IndexDataPtr getIndexData() const override;
+        virtual bool isIndicesUsed() const override;
 
     protected:
         SGLight(uint32_t uID = E_NID_AUTOMATIC);

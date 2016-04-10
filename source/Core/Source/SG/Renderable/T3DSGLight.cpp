@@ -29,12 +29,12 @@ namespace Tiny3D
 
     }
 
-    SGNode::Type SGLight::getNodeType() const
+    Node::Type SGLight::getNodeType() const
     {
         return E_NT_LIGHT;
     }
 
-    SGNodePtr SGLight::clone() const
+    NodePtr SGLight::clone() const
     {
         SGLightPtr light = create();
         cloneProperties(light);
@@ -48,5 +48,30 @@ namespace Tiny3D
     void SGLight::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
     {
         queue->addRenderable(RenderQueue::E_GRPID_LIGHT, this);
+    }
+
+    MaterialPtr SGLight::getMaterial() const
+    {
+        return nullptr;
+    }
+
+    Renderer::PrimitiveType SGLight::getPrimitiveType() const
+    {
+        return Renderer::E_PT_TRIANGLE_LIST;
+    }
+
+    VertexDataPtr SGLight::getVertexData() const
+    {
+        return nullptr;
+    }
+
+    IndexDataPtr SGLight::getIndexData() const
+    {
+        return nullptr;
+    }
+
+    bool SGLight::isIndicesUsed() const
+    {
+        return false;
     }
 }

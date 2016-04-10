@@ -78,7 +78,7 @@ namespace Tiny3D
         const ObbBoundPtr &newBound = (const ObbBoundPtr &)bound;
         newBound->mObb = mObb;
         newBound->mOriginalObb = mOriginalObb;
-        newBound->mRenderable = (SGBox *)((SGNode *)mRenderable->clone());
+        newBound->mRenderable = smart_pointer_cast<SGBox>(mRenderable->clone());
 
     }
 }

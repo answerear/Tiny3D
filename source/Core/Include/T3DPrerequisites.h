@@ -109,18 +109,21 @@ namespace Tiny3D
     class ZipArchiveCreator;
 
     class Object;
+    class Node;
 
     class SceneManager;
     class SGNode;
     class SGTransformNode;
     class SGVisual;
     class SGCamera;
-    class SGMesh;
-    class SGVirtualMesh;
+    class SGShape;
+    class SGModel;
     class SGRenderable;
+    class SGLight;
+    class SGGeometry;
+    class SGMesh;
     class SGSphere;
     class SGBox;
-    class SGLight;
 
     class VertexData;
     class IndexData;

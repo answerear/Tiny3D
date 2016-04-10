@@ -51,12 +51,12 @@ namespace Tiny3D
         const Matrix4 &getProjectionMatrix() const;
 
         virtual void setDirty(bool isDirty, bool recursive /* = false */) override;
-        virtual SGNodePtr clone() const override;
+        virtual NodePtr clone() const override;
 
     protected:
-        virtual void addChild(const SGNodePtr &child) override;
+        virtual void addChild(const NodePtr &child) override;
 
-        virtual void cloneProperties(const SGNodePtr &node) const override;
+        virtual void cloneProperties(const NodePtr &node) const override;
 
         virtual void updateTransform() override;
 

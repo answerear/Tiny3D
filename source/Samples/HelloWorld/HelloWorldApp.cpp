@@ -72,35 +72,43 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     node1->setOrientation(Radian(Math::PI / Real(6.0)), Vector3(0.0, 1.0, 0.0));
 
     // Α’·½Με #1 mesh
-    SGMeshPtr mesh = SGMesh::create();
-    node1->addChild(mesh);
-    mesh->loadBox();
+    SGShapePtr shape = SGShape::create();
+    node1->addChild(shape);
+    
+    SGBoxPtr box = SGBox::create("");
+    shape->addChild(box);
 
     SGTransformNodePtr node2 = SGTransformNode::create();
     node->addChild(node2);
     node2->setPosition(-1.0, 0.0, 0.0);
 
     // #2 Mesh
-    mesh = SGMesh::create();
-    node2->addChild(mesh);
-    mesh->loadBox();
+    shape = SGShape::create();
+    node2->addChild(shape);
+    
+    box = SGBox::create("");
+    shape->addChild(box);
 
     SGTransformNodePtr node3 = SGTransformNode::create();
     node->addChild(node3);
     node3->setPosition(-4.0, 0.0, 0.0);
 
     // #3 Mesh
-    mesh = SGMesh::create();
-    node3->addChild(mesh);
-    mesh->loadSphere();
+    shape = SGShape::create();
+    node3->addChild(shape);
+
+    SGSpherePtr sphere = SGSphere::create("");
+    shape->addChild(sphere);
 
     node = SGTransformNode::create();
     root->addChild(node);
     node->setPosition(-10.0, 0.0, 0.0);
 
-    mesh = SGMesh::create();
-    node->addChild(mesh);
-    mesh->loadSphere();
+    shape = SGShape::create();
+    node->addChild(shape);
+
+    sphere = SGSphere::create("");
+    shape->addChild(sphere);
 
     ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
     viewport->setBackgroundColor(Color4::BLACK);

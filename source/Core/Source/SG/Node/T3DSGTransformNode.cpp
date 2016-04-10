@@ -29,18 +29,18 @@ namespace Tiny3D
 
     }
 
-    SGNode::Type SGTransformNode::getNodeType() const
+    Node::Type SGTransformNode::getNodeType() const
     {
         return E_NT_TRANSFORM;
     }
 
-    void SGTransformNode::onAttachParent(const SGNodePtr &parent)
+    void SGTransformNode::onAttachParent(const NodePtr &parent)
     {
         SGNode::onAttachParent(parent);
         setDirty(true, true);
     }
 
-    void SGTransformNode::onDetachParent(const SGNodePtr &parent)
+    void SGTransformNode::onDetachParent(const NodePtr &parent)
     {
         SGNode::onDetachParent(parent);
     }
@@ -55,7 +55,7 @@ namespace Tiny3D
     {
         if (isDirty())
         {
-            SGNode *parent = getParent();
+            Node *parent = getParent();
 
             while (parent != nullptr && parent->getNodeType() != E_NT_TRANSFORM)
                 parent = parent->getParent();
@@ -126,25 +126,23 @@ namespace Tiny3D
         setDirty(true, true);
     }
 
-    void SGTransformNode::addChild(const SGNodePtr &node)
+    void SGTransformNode::addChild(const NodePtr &node)
     {
-        T3D_ASSERT(node->getNodeType() != E_NT_SUBMESH);
         SGNode::addChild(node);
     }
 
-    SGNodePtr SGTransformNode::clone() const
+    NodePtr SGTransformNode::clone() const
     {
-        SGTransformNodePtr node = new SGTransformNode();
-        node->release();
+        SGTransformNodePtr node = create();
         cloneProperties(node);
         return node;
     }
 
-    void SGTransformNode::cloneProperties(const SGNodePtr &node) const
+    void SGTransformNode::cloneProperties(const NodePtr &node) const
     {
         SGNode::cloneProperties(node);
 
-        const SGTransformNodePtr &newNode = (const SGTransformNodePtr &)node;
+        const SGTransformNodePtr &newNode = smart_pointer_cast<SGTransformNode>(node);
         newNode->mPosition = mPosition;
         newNode->mOrientation = mOrientation;
         newNode->mScale = mScale;

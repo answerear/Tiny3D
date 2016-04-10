@@ -30,7 +30,7 @@ namespace Tiny3D
 
     void SGVisual::updateBound()
     {
-        SGNode *node = getParent();
+        Node *node = getParent();
         SGTransformNode *parent = (SGTransformNode *)node;
 
         if (isDirty())
@@ -72,7 +72,7 @@ namespace Tiny3D
         }
     }
 
-    void SGVisual::cloneProperties(const SGNodePtr &node) const
+    void SGVisual::cloneProperties(const NodePtr &node) const
     {
         SGNode::cloneProperties(node);
 

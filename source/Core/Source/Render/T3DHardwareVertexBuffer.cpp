@@ -177,7 +177,7 @@ namespace Tiny3D
             return addElement(offset, type, semantic);
         }
 
-        VertexElementListItr itr = mVertexElements.begin();
+        auto itr = mVertexElements.begin();
         size_t i = 0;
         for (i = 0; i < pos; ++i)
         {
@@ -186,6 +186,31 @@ namespace Tiny3D
 
         itr = mVertexElements.insert(itr, VertexElement(offset, type, semantic));
         return *itr;
+    }
+
+    bool VertexDeclaration::addElement(const VertexElement &vertexElement)
+    {
+        mVertexElements.push_back(vertexElement);
+        return true;
+    }
+
+    bool VertexDeclaration::insertElement(size_t pos, const VertexElement &vertexElement)
+    {
+        if (pos >= mVertexElements.size())
+        {
+            return addElement(vertexElement);
+        }
+
+        auto itr = mVertexElements.begin();
+        size_t i = 0;
+        for (i = 0; i < pos; ++i)
+        {
+            ++itr;
+        }
+
+        itr = mVertexElements.insert(itr, vertexElement);
+
+        return true;
     }
 
     void VertexDeclaration::removeElement(size_t pos)

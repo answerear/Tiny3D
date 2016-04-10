@@ -7,16 +7,26 @@
 
 namespace Tiny3D
 {
-    SGSpherePtr SGSphere::create(uint32_t unID /* = E_NID_AUTOMATIC */)
+    SGSpherePtr SGSphere::create(const String &materialName, uint32_t unID /* = E_NID_AUTOMATIC */)
     {
         SGSpherePtr node = new SGSphere(unID);
-        node->release();
+        if (node != nullptr && node->init(materialName))
+        {
+            node->release();
+        }
+        else
+        {
+            T3D_SAFE_RELEASE(node);
+        }
         return node;
     }
 
     SGSphere::SGSphere(uint32_t uID /* = E_NID_AUTOMATIC */)
-        : SGRenderable(uID)
+        : SGGeometry(uID)
         , mRadius(1.0)
+        , mMaterial(nullptr)
+        , mVertexData(nullptr)
+        , mIndexData(nullptr)
     {
 
     }
@@ -26,7 +36,7 @@ namespace Tiny3D
 
     }
 
-    bool SGSphere::loadSphere()
+    bool SGSphere::init(const String &materialName)
     {
         size_t vertexCount = MAX_VERTICES;
 
@@ -50,36 +60,27 @@ namespace Tiny3D
 
         mIndexData = IndexData::create(indexBuffer);
 
-        mPrimitiveType = Renderer::E_PT_TRIANGLE_LIST;
-        mUseIndices = true;
-
         return true;
     }
 
-    SGNode::Type SGSphere::getNodeType() const
+    Node::Type SGSphere::getNodeType() const
     {
         return E_NT_SPHERE;
     }
 
-    SGNodePtr SGSphere::clone() const
+    NodePtr SGSphere::clone() const
     {
-        SGSpherePtr node = new SGSphere();
-        node->release();
+        SGSpherePtr node = create(mMaterial->getName());
         cloneProperties(node);
         return node;
     }
 
-    void SGSphere::cloneProperties(const SGNodePtr &node) const
+    void SGSphere::cloneProperties(const NodePtr &node) const
     {
         SGRenderable::cloneProperties(node);
 
         const SGSpherePtr &newNode = (const SGSpherePtr &)node;
         newNode->mRadius = mRadius;
-    }
-
-    void SGSphere::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
-    {
-        queue->addRenderable(RenderQueue::E_GRPID_SOLID, this);
     }
 
     void SGSphere::setRadius(Real radius)
@@ -145,5 +146,30 @@ namespace Tiny3D
 
             base++;
         }
+    }
+
+    MaterialPtr SGSphere::getMaterial() const
+    {
+        return mMaterial;
+    }
+
+    Renderer::PrimitiveType SGSphere::getPrimitiveType() const
+    {
+        return Renderer::E_PT_TRIANGLE_LIST;
+    }
+
+    VertexDataPtr SGSphere::getVertexData() const
+    {
+        return mVertexData;
+    }
+
+    IndexDataPtr SGSphere::getIndexData() const
+    {
+        return mIndexData;
+    }
+
+    bool SGSphere::isIndicesUsed() const
+    {
+        return true;
     }
 }

@@ -3,24 +3,24 @@
 #define __T3D_SG_BOX_H__
 
 
-#include "SG/Renderable/T3DSGRenderable.h"
+#include "SG/Renderable/T3DSGGeometry.h"
 #include "Math/T3DAabb.h"
 #include "Math/T3DVector2.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SGBox : public SGRenderable
+    class T3D_ENGINE_API SGBox : public SGGeometry
     {
     public:
-        static SGBoxPtr create(uint32_t unID = E_NID_AUTOMATIC);
+        static SGBoxPtr create(const String &materialName, uint32_t unID = E_NID_AUTOMATIC);
 
         virtual ~SGBox();
 
         bool loadBox();
 
         virtual Type getNodeType() const override;
-        virtual SGNodePtr clone() const override;
+        virtual NodePtr clone() const override;
 
         void setMinX(Real x);
         void setMaxX(Real x);
@@ -38,9 +38,15 @@ namespace Tiny3D
 
     protected:
         SGBox(uint32_t unID = E_NID_AUTOMATIC);
-        virtual void cloneProperties(const SGNodePtr &node) const override;
+        virtual bool init(const String &materialName);
 
-        virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;
+        virtual void cloneProperties(const NodePtr &node) const override;
+
+        virtual MaterialPtr getMaterial() const override;
+        virtual Renderer::PrimitiveType getPrimitiveType() const override;
+        virtual VertexDataPtr getVertexData() const override;
+        virtual IndexDataPtr getIndexData() const override;
+        virtual bool isIndicesUsed() const override;
 
         void updateVertices();
 
@@ -59,6 +65,10 @@ namespace Tiny3D
         };
 
         Vertex mVertices[MAX_VERTICES_NUM];
+
+        MaterialPtr     mMaterial;
+        VertexDataPtr   mVertexData;
+        IndexDataPtr    mIndexData;
     };
 }
 

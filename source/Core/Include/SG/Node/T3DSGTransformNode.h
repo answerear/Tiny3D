@@ -69,17 +69,17 @@ namespace Tiny3D
         virtual const Transform &getLocalToWorldTransform();
 //         Transform getWorldToLocalTransform();
 
-        virtual void addChild(const SGNodePtr &node) override;
+        virtual void addChild(const NodePtr &node) override;
 
-        virtual SGNodePtr clone() const override;
+        virtual NodePtr clone() const override;
 
     protected:
-        virtual void onAttachParent(const SGNodePtr &parent) override;
-        virtual void onDetachParent(const SGNodePtr &parent) override;
+        virtual void onAttachParent(const NodePtr &parent) override;
+        virtual void onDetachParent(const NodePtr &parent) override;
 
         virtual void updateTransform() override;
 
-        virtual void cloneProperties(const SGNodePtr &node) const override;
+        virtual void cloneProperties(const NodePtr &node) const override;
 
     private:
         Vector3     mPosition;

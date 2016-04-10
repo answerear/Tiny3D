@@ -8,15 +8,25 @@
 
 namespace Tiny3D
 {
-    SGBoxPtr SGBox::create(uint32_t unID /* = E_NID_AUTOMATIC */)
+    SGBoxPtr SGBox::create(const String &materialName, uint32_t unID /* = E_NID_AUTOMATIC */)
     {
         SGBoxPtr box = new SGBox(unID);
-        box->release();
+        if (box != nullptr && box->init(materialName))
+        {
+            box->release();
+        }
+        else
+        {
+            T3D_SAFE_RELEASE(box);
+        }
         return box;
     }
 
     SGBox::SGBox(uint32_t unID /* = E_NID_AUTOMATIC */)
-        : SGRenderable(unID)
+        : SGGeometry(unID)
+        , mMaterial(nullptr)
+        , mVertexData(nullptr)
+        , mIndexData(nullptr)
     {
         // 因为一个顶点要对应一个纹理UV，所以这里无法用8个顶点表示一个立方体，
         // 而需要每个立方体面用4个顶点表示
@@ -110,11 +120,12 @@ namespace Tiny3D
 
     SGBox::~SGBox()
     {
+        mMaterial = nullptr;
         mVertexData = nullptr;
         mIndexData = nullptr;
     }
 
-    bool SGBox::loadBox()
+    bool SGBox::init(const String &materialName)
     {
         size_t vertexCount = sizeof(mVertices) / sizeof(Vertex);
 
@@ -163,10 +174,17 @@ namespace Tiny3D
 
         mIndexData = IndexData::create(indexBuffer);
 
-        mPrimitiveType = Renderer::E_PT_TRIANGLE_LIST;
-
         mMaterial = nullptr;
-        mMaterial = T3D_MATERIAL_MGR.loadMaterial("Material_Box", Material::E_MT_MANUAL);
+
+        if (materialName.empty())
+        {
+            mMaterial = T3D_MATERIAL_MGR.loadMaterial("Material_Box", Material::E_MT_MANUAL);
+        }
+        else
+        {
+            mMaterial = T3D_MATERIAL_MGR.loadMaterial(materialName, Material::E_MT_DEFAULT);
+        }
+
         mMaterial->setAmbientColor(Color4::WHITE);
         mMaterial->setDiffuseColor(Color4::WHITE);
         mMaterial->setSpecularColor(Color4::WHITE);
@@ -176,7 +194,7 @@ namespace Tiny3D
         return true;
     }
 
-    SGNode::Type SGBox::getNodeType() const
+    Node::Type SGBox::getNodeType() const
     {
         return E_NT_BOX;
     }
@@ -345,25 +363,44 @@ namespace Tiny3D
         vertexBuffer->writeData(0, vertexSize * vertexCount, mVertices, true);
     }
 
-    SGNodePtr SGBox::clone() const
+    NodePtr SGBox::clone() const
     {
-        SGBoxPtr node = new SGBox();
-        node->release();
+        SGBoxPtr node = create(mMaterial->getName());
         cloneProperties(node);
         return node;
     }
 
-    void SGBox::cloneProperties(const SGNodePtr &node) const
+    void SGBox::cloneProperties(const NodePtr &node) const
     {
         SGRenderable::cloneProperties(node);
 
-        const SGBoxPtr &newNode = (const SGBoxPtr &)node;
+        const SGBoxPtr &newNode = smart_pointer_cast<SGBox>(node);
         size_t sizeInBytes = sizeof(mVertices);
         memcpy(newNode->mVertices, mVertices, sizeInBytes);
     }
 
-    void SGBox::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
+    MaterialPtr SGBox::getMaterial() const
     {
-        queue->addRenderable(RenderQueue::E_GRPID_SOLID, this);
+        return mMaterial;
+    }
+
+    VertexDataPtr SGBox::getVertexData() const
+    {
+        return mVertexData;
+    }
+
+    IndexDataPtr SGBox::getIndexData() const
+    {
+        return mIndexData;
+    }
+
+    Renderer::PrimitiveType SGBox::getPrimitiveType() const
+    {
+        return Renderer::E_PT_TRIANGLE_LIST;
+    }
+
+    bool SGBox::isIndicesUsed() const
+    {
+        return true;
     }
 }
