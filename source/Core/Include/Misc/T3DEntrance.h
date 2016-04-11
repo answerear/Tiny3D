@@ -135,6 +135,7 @@ namespace Tiny3D
         DylibManager    *mDylibMgr;
         ArchiveManager  *mArchiveMgr;
         MaterialManager *mMaterialMgr;
+        ModelManager    *mModelMgr;
 
         Renderer        *mActiveRenderer;
 

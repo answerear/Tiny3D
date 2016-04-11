@@ -11,6 +11,7 @@
 
 namespace Tiny3D
 {
+    #define T3D_XML_TAG_VERSION         "version"
     #define T3D_XML_TAG_SCENE           "scene"
     #define T3D_XML_TAG_MODEL           "model"
     #define T3D_XML_TAG_MESH            "mesh"
@@ -91,7 +92,7 @@ namespace Tiny3D
                     break;
                 case Tiny3D::Model::E_FILETYPE_TMT:
                     {
-                        ret = loadFromBinary(stream);
+                        ret = loadFromXML(stream);
                     }
                     break;
                 default:
@@ -151,8 +152,13 @@ namespace Tiny3D
             {
                 ret = true;
 
-                XMLElement *pRootElement = pDoc->RootElement();
-                XMLElement *pModelElement = pRootElement->FirstChildElement(T3D_XML_TAG_MODEL);
+                XMLDeclaration *pDeclaration = pDoc->ToDeclaration();
+                XMLElement *pVersionElement = pDoc->FirstChildElement(T3D_XML_TAG_VERSION);
+
+                String version = pVersionElement->GetText();
+
+                XMLElement *pSceneElement = pDoc->FirstChildElement(T3D_XML_TAG_SCENE);
+                XMLElement *pModelElement = pSceneElement->FirstChildElement(T3D_XML_TAG_MODEL);
                 XMLElement *pMeshElement = pModelElement->FirstChildElement(T3D_XML_TAG_MESH);
                 ret = ret && parseMesh(pMeshElement);
 
@@ -265,9 +271,33 @@ namespace Tiny3D
                 break;
             }
         }
-        else
+        else if (name == T3D_VALUE_TYPE_DOUBLE)
         {
+            vertexSize = sizeof(double) * valueCount;
 
+            switch (valueCount)
+            {
+            case 1:
+                {
+                    type = VertexElement::E_VET_DOUBLE1;
+                }
+                break;
+            case 2:
+                {
+                    type = VertexElement::E_VET_DOUBLE2;
+                }
+                break;
+            case 3:
+                {
+                    type = VertexElement::E_VET_DOUBLE3;
+                }
+                break;
+            case 4:
+                {
+                    type = VertexElement::E_VET_DOUBLE4;
+                }
+                break;
+            }
         }
 
         return type;

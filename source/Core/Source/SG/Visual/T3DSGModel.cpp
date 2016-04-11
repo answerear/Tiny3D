@@ -34,7 +34,15 @@ namespace Tiny3D
 
     bool SGModel::init(const String &modelName)
     {
-        return true;
+        bool ret = false;
+        mModel = T3D_MODEL_MGR.loadModel(modelName);
+
+        if (mModel != nullptr)
+        {
+            ret = true;
+        }
+
+        return ret;
     }
 
     Node::Type SGModel::getNodeType() const

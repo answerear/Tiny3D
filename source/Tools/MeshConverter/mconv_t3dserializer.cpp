@@ -40,6 +40,7 @@ namespace mconv
 
     //////////////////////////////////////////////////////////////////////////
 
+    const char * const T3DXMLSerializer::TAG_VERSION = "version";
     const char * const T3DXMLSerializer::TAG_SCENE = "scene";
     const char * const T3DXMLSerializer::TAG_MODEL = "model";
     const char * const T3DXMLSerializer::TAG_MESH = "mesh";
@@ -81,7 +82,7 @@ namespace mconv
     const char * const T3DXMLSerializer::ATTRIB_TYPE = "type";
     const char * const T3DXMLSerializer::ATTRIB_PRIMITIVE = "primitive";
     const char * const T3DXMLSerializer::ATTRIB_MATERIAL = "material";
-    const char * const T3DXMLSerializer::ATTRIB_16BITS = "16bits";
+    const char * const T3DXMLSerializer::ATTRIB_16BITS = "is16bits";
     const char * const T3DXMLSerializer::ATTRIB_SPAN = "span";
     const char * const T3DXMLSerializer::ATTRIB_BONE = "bone";
     const char * const T3DXMLSerializer::ATTRIB_TIME = "time";
@@ -111,9 +112,14 @@ namespace mconv
         Scene *pScene = (Scene *)pData;
         if (pScene != nullptr)
         {
-            XMLDocument *pDoc = new XMLDocument(true, COLLAPSE_WHITESPACE);
+            XMLDocument *pDoc = new XMLDocument();
             XMLDeclaration *pDecl = pDoc->NewDeclaration();
             pDoc->LinkEndChild(pDecl);
+
+            XMLElement *pVersionElement = pDoc->NewElement(TAG_VERSION);
+            pDoc->LinkEndChild(pVersionElement);
+            XMLText *pText = pDoc->NewText(T3D_FILE_VERSION_CURRENT_STR);
+            pVersionElement->LinkEndChild(pText);
 
             XMLElement *pElement = pDoc->NewElement(TAG_SCENE);
             pElement->SetAttribute(ATTRIB_ID, pScene->getID().c_str());

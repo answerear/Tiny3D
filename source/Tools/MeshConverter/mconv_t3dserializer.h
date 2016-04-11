@@ -27,6 +27,7 @@ namespace mconv
     class T3DXMLSerializer : public Serializer
     {
     public:
+        static const char * const TAG_VERSION;
         static const char * const TAG_SCENE;
         static const char * const TAG_MODEL;
         static const char * const TAG_MESH;

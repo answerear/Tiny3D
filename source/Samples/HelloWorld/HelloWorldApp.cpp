@@ -52,69 +52,104 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     // 相机结点
     SGCameraPtr camera = SGCamera::create();
     node->addChild(camera);
-
     camera->setProjectionType(SGCamera::E_PT_PERSPECTIVE);
 
     Radian fovY(Math::PI * Real(0.5));
     Real ratio = Real(960) / Real(640);
     camera->setPerspective(fovY, ratio, 1.0, 1000.0);
 
-    // 立方体变换结点
+    // 视口
+    ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
+    viewport->setBackgroundColor(Color4::BLACK);
+
+    // 变换结点
     node = SGTransformNode::create();
     root->addChild(node);
     node->setPosition(1.0, 0.0, 0.0);
 //     node->setOrientation(Radian(Math::PI * Real(0.5)), Vector3(0.0, 1.0, 0.0));
 
-    SGTransformNodePtr node1 = SGTransformNode::create();
-    node->addChild(node1);
-    node1->setPosition(2.0, 0.0, 0.0);
-//     node1->setScale(1.2, 1.2, 1.2);
-    node1->setOrientation(Radian(Math::PI / Real(6.0)), Vector3(0.0, 1.0, 0.0));
+    {
+        // 立方体 #1 变换结点
+        SGTransformNodePtr node1 = SGTransformNode::create();
+        node->addChild(node1);
+        node1->setPosition(2.0, 0.0, 0.0);
+        node1->setScale(1.2, 1.2, 1.2);
+        node1->setOrientation(Radian(Math::PI / Real(6.0)), Vector3(0.0, 1.0, 0.0));
 
-    // 立方体 #1 mesh
-    SGShapePtr shape = SGShape::create();
-    node1->addChild(shape);
-    
-    SGBoxPtr box = SGBox::create("");
-    shape->addChild(box);
+        {
+            // 立方体 #1 可见物体结点
+            SGShapePtr shape = SGShape::create();
+            node1->addChild(shape);
 
-    SGTransformNodePtr node2 = SGTransformNode::create();
-    node->addChild(node2);
-    node2->setPosition(-1.0, 0.0, 0.0);
+            {
+                // 立方体 #1 可渲染物体结点
+                SGBoxPtr box = SGBox::create("");
+                shape->addChild(box);
+            }
+        }
 
-    // #2 Mesh
-    shape = SGShape::create();
-    node2->addChild(shape);
-    
-    box = SGBox::create("");
-    shape->addChild(box);
+        // 立方体 #2 变换结点
+        SGTransformNodePtr node2 = SGTransformNode::create();
+        node->addChild(node2);
+        node2->setPosition(-1.0, 0.0, 0.0);
 
-    SGTransformNodePtr node3 = SGTransformNode::create();
-    node->addChild(node3);
-    node3->setPosition(-4.0, 0.0, 0.0);
+        {
+            // 立方体 #2 可见物体结点
+            SGShapePtr shape = SGShape::create();
+            node2->addChild(shape);
 
-    // #3 Mesh
-    shape = SGShape::create();
-    node3->addChild(shape);
+            {
+                // 立方体 #2 可渲染物体结点
+                SGBoxPtr box = SGBox::create("");
+                shape->addChild(box);
+            }
+        }
 
-    SGSpherePtr sphere = SGSphere::create("");
-    shape->addChild(sphere);
+        // 球体 #1 变换结点
+        SGTransformNodePtr node3 = SGTransformNode::create();
+        node->addChild(node3);
+        node3->setPosition(-4.0, 0.0, 0.0);
 
+        {
+            // 球体 #1 可见物体结点
+            SGShapePtr shape = SGShape::create();
+            node3->addChild(shape);
+
+            {
+                // 球体 #1 可渲染物体结点
+                SGSpherePtr sphere = SGSphere::create("");
+                shape->addChild(sphere);
+            }
+        }
+    }
+
+    // 球体 #2 变换结点
     node = SGTransformNode::create();
     root->addChild(node);
     node->setPosition(-10.0, 0.0, 0.0);
 
-    shape = SGShape::create();
-    node->addChild(shape);
+    {
+        // 球体 #2 可见物体结点
+        SGShapePtr shape = SGShape::create();
+        node->addChild(shape);
 
-    sphere = SGSphere::create("");
-    shape->addChild(sphere);
+        {
+            // 球体 #2 可渲染物体结点
+            SGSpherePtr sphere = SGSphere::create("");
+            shape->addChild(sphere);
+        }
+    }
 
-    ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
-    viewport->setBackgroundColor(Color4::BLACK);
+    // 模型 #1 变换结点
+    node = SGTransformNode::create();
+    root->addChild(node);
+    node->setPosition(-2.0, 0.0, 0.0);
 
-//     Matrix4 mat(false);
-//     mat.setTranslate(Vector3(5.0, 5.0, 5.0));
+    {
+        // 模型 #1 可见物体结点
+        SGModelPtr model = SGModel::create("knight.tmt");
+        node->addChild(model);
+    }
 
     return true;
 }

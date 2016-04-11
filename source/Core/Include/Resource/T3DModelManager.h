@@ -24,7 +24,7 @@ namespace Tiny3D
         virtual ResourcePtr create(const String &name, int32_t argc, va_list args) override;
     };
 
-    #define T3D_MESH_MGR        (MeshManager::getInstance())
+    #define T3D_MODEL_MGR        (ModelManager::getInstance())
 }
 
 
