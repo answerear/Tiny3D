@@ -5,6 +5,13 @@
 
 
 #include "Resource/T3DResource.h"
+#include "Render/T3DHardwareVertexBuffer.h"
+
+
+namespace tinyxml2
+{
+    class XMLElement;
+}
 
 
 namespace Tiny3D
@@ -20,11 +27,33 @@ namespace Tiny3D
         typedef MaterialList::iterator          MaterialListItr;
         typedef MaterialList::const_iterator    MaterialListConstItr;
 
+        enum FileType
+        {
+            E_FILETYPE_UNKNOWN = 0,
+            E_FILETYPE_TMB,
+            E_FILETYPE_TMT
+        };
+
         static ModelPtr create(const String &name);
 
         virtual ~Model();
 
         virtual Type getType() const override;
+
+        const ObjectPtr &getMeshData() const
+        {
+            return mMeshData;
+        }
+
+        const SubMeshDataList &getSubMeshDataList() const
+        {
+            return mSubMeshData;
+        }
+
+        const MaterialList &getMaterialList() const
+        {
+            return mMaterials;
+        }
 
     protected:
         Model(const String &name);
@@ -33,9 +62,23 @@ namespace Tiny3D
         virtual void unload() override;
         virtual ResourcePtr clone() const override;
 
+        bool loadFromXML(MemoryDataStream &stream);
+        
+        bool parseMesh(tinyxml2::XMLElement *pMeshElement);
+        VertexElement::Semantic parseVertexSemantic(const String &name);
+        VertexElement::Type parseVertexType(const String &name, size_t valueCount, size_t &vertexSize);
+
+        bool parseSubMesh(tinyxml2::XMLElement *pSubMeshElement);
+        bool parseMaterials(tinyxml2::XMLElement *pMatsElement);
+
+        bool loadFromBinary(DataStream &stream);
+
+        FileType parseFileType(const String &name) const;
+
     protected:
-        ObjectPtr       mMeshData;
-        SubMeshDataList mSubMeshData;
+        ObjectPtr       mMeshData;      // 网格顶点数据
+        SubMeshDataList mSubMeshData;   // 根据材质划分的子网格数据
+        MaterialList    mMaterials;     // 材质列表
     };
 }
 
