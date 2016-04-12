@@ -345,57 +345,60 @@ namespace mconv
             }
 
             // BLEND_WEIGHT 只写权重最大的4个顶点
-            ss<<" ";
-            const int MAX_BLEND_COUNT = 4;
-            int i = 0;
-            auto itrBlend = vertex.mBlendInfo.rbegin();
-            while (itrBlend != vertex.mBlendInfo.rend())
+            if (vertex.mBlendInfo.size() > 0)
             {
-                ss<<itrBlend->second.mBlendWeight;
-                ++i;
-                ++itrBlend;
-
-                if (i >= MAX_BLEND_COUNT)
+                ss<<" ";
+                const int MAX_BLEND_COUNT = 4;
+                int i = 0;
+                auto itrBlend = vertex.mBlendInfo.rbegin();
+                while (itrBlend != vertex.mBlendInfo.rend())
                 {
-                    break;
-                }
+                    ss<<itrBlend->second.mBlendWeight;
+                    ++i;
+                    ++itrBlend;
 
-                ss<<" ";
-            }
+                    if (i >= MAX_BLEND_COUNT)
+                    {
+                        break;
+                    }
 
-            while (i < MAX_BLEND_COUNT)
-            {
-                ss<<"0";
-                ++i;
-                ss<<" ";
-            }
-
-            // BLEND_INDEX 只写权重最大的4个顶点
-            i = 0;
-            itrBlend = vertex.mBlendInfo.rbegin();
-            while (itrBlend != vertex.mBlendInfo.rend())
-            {
-                ss<<itrBlend->second.mBlendIndex;
-                ++i;
-                ++itrBlend;
-
-                if (i >= MAX_BLEND_COUNT)
-                {
-                    break;
-                }
-
-                ss<<" ";
-            }
-
-            while (i < MAX_BLEND_COUNT)
-            {
-                ss<<"-1";
-                ++i;
-                if (i < MAX_BLEND_COUNT)
                     ss<<" ";
+                }
+
+                while (i < MAX_BLEND_COUNT)
+                {
+                    ss<<"0";
+                    ++i;
+                    ss<<" ";
+                }
+
+                // BLEND_INDEX 只写权重最大的4个顶点
+                i = 0;
+                itrBlend = vertex.mBlendInfo.rbegin();
+                while (itrBlend != vertex.mBlendInfo.rend())
+                {
+                    ss<<itrBlend->second.mBlendIndex;
+                    ++i;
+                    ++itrBlend;
+
+                    if (i >= MAX_BLEND_COUNT)
+                    {
+                        break;
+                    }
+
+                    ss<<" ";
+                }
+
+                while (i < MAX_BLEND_COUNT)
+                {
+                    ss<<"-1";
+                    ++i;
+                    if (i < MAX_BLEND_COUNT)
+                        ss<<" ";
+                }
             }
 
-            ss<<"\n";
+            ss<<" \n";
             XMLText *pText = pDoc->NewText(ss.str().c_str());
 
             pVertexElement->LinkEndChild(pText);

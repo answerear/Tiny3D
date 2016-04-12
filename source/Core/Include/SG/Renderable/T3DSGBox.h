@@ -54,7 +54,7 @@ namespace Tiny3D
         enum
         {
             MAX_FACE_NUM = 6,
-            MAX_VERTICES_NUM = 24,
+            MAX_VERTICES_NUM = 23,//24,
             INDICES_PER_FACE = 6
         };
 

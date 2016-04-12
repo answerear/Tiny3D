@@ -1,16 +1,17 @@
 
 
 #include "T3DSubMeshData.h"
+#include "Render/T3DHardwareIndexBuffer.h"
 #include "Render/T3DHardwareBufferManager.h"
 
 
 namespace Tiny3D
 {
-    SubMeshDataPtr SubMeshData::create(const String &materialName, const Indices &indices, bool is16Bits)
+    SubMeshDataPtr SubMeshData::create(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices &indices, bool is16Bits)
     {
         SubMeshDataPtr submesh = new SubMeshData();
 
-        if (submesh != nullptr && submesh->init(materialName, indices, is16Bits))
+        if (submesh != nullptr && submesh->init(primitiveType, materialName, indices, is16Bits))
         {
             submesh->release();
         }
@@ -23,20 +24,21 @@ namespace Tiny3D
     }
 
     SubMeshData::SubMeshData()
-        : mIndexBuffer(nullptr)
+        : mIndexData(nullptr)
     {
 
     }
 
     SubMeshData::~SubMeshData()
     {
-        mIndexBuffer = nullptr;
+        mIndexData = nullptr;
     }
 
-    bool SubMeshData::init(const String &materialName, const Indices &indices, bool is16Bits)
+    bool SubMeshData::init(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices &indices, bool is16Bits)
     {
-        bool result = false;
+        bool ret = false;
 
+        mPrimitiveType = primitiveType;
         mMaterialName = materialName;
 
         HardwareIndexBuffer::Type indexType = HardwareIndexBuffer::E_IT_32BITS;
@@ -44,13 +46,20 @@ namespace Tiny3D
         if (is16Bits)
             indexType = HardwareIndexBuffer::E_IT_16BITS;
 
-        mIndexBuffer = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(indexType, indices.size(), HardwareBuffer::E_HBU_DYNAMIC, false);
+        HardwareIndexBufferPtr indexBuffer = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(indexType, indices.size(), HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
 
-        if (mIndexBuffer != nullptr)
+        if (indexBuffer != nullptr)
         {
-            result = true;
+            size_t indexSize = sizeof(uint32_t) * indices.size();
+            if (is16Bits)
+                indexSize = sizeof(uint16_t) * indices.size();
+            ret = indexBuffer->writeData(0, indexSize, &indices[0]);
+            if (ret)
+            {
+                mIndexData = IndexData::create(indexBuffer);
+            }
         }
 
-        return result;
+        return ret;
     }
 }

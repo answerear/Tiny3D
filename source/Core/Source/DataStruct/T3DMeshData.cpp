@@ -2,6 +2,7 @@
 
 
 #include "T3DMeshData.h"
+#include "Render/T3DHardwareVertexBuffer.h"
 #include "Render/T3DHardwareBufferManager.h"
 
 
@@ -24,31 +25,41 @@ namespace Tiny3D
     }
 
     MeshData::MeshData()
-        : mVertexDecl(nullptr)
-        , mVertexBuffer(nullptr)
+        : mVertexData(nullptr)
     {
     }
 
     MeshData::~MeshData()
     {
-        mVertexDecl = nullptr;
-        mVertexDecl = nullptr;
+        mVertexData = nullptr;
     }
 
     bool MeshData::init(const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize)
     {
-        bool result = false;
+        bool ret = false;
 
-        mVertexDecl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
-
-        size_t vertexCount = vertices.size() / vertexSize;
-        mVertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(vertexSize, vertexCount, HardwareBuffer::E_HBU_DYNAMIC, false);
-
-        if (mVertexDecl != nullptr && mVertexBuffer != nullptr)
+        VertexDeclarationPtr vertexDecl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
+        auto itr = attributes.begin();
+        while (itr != attributes.end())
         {
-            result = true;
+            auto vertexElement = *itr;
+            vertexDecl->addElement(vertexElement);
+            ++itr;
         }
 
-        return result;
+        size_t vertexCount = vertices.size() / (vertexSize / 4);
+        HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(vertexSize, vertexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
+
+        if (vertexDecl != nullptr && vertexBuffer != nullptr)
+        {
+            ret = vertexBuffer->writeData(0, sizeof(Real)*vertices.size(), &vertices[0]);
+
+            if (ret)
+            {
+                mVertexData = VertexData::create(vertexDecl, vertexBuffer);
+            }
+        }
+
+        return ret;
     }
 }

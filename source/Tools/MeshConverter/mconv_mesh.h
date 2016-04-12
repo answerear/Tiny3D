@@ -120,8 +120,11 @@ namespace mconv
 
                 vertex.hash();
                 VerticesValue value(vertex.mHash, vertex);
-                vertices.insert(value);
-
+                auto r = vertices.insert(value);
+                if (!r.second)
+                {
+                    int a = 0;
+                }
                 ++itr;
             }
 

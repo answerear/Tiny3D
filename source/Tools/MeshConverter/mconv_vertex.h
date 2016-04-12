@@ -146,43 +146,49 @@ namespace mconv
             }
 
             int i = 0;
-            auto it = mBlendInfo.rbegin();
-            while (it != mBlendInfo.rend() && i < 4)
-            {
-                BlendInfo &info = it->second;
-                vertices.push_back(info.mBlendWeight);
-                ++it;
-                ++i;
-            }
 
-            while (i < 4)
+            if (mBlendInfo.size() > 0)
             {
-                vertices.push_back(0);
-                ++i;
-            }
+                auto it = mBlendInfo.rbegin();
+                while (it != mBlendInfo.rend() && i < 4)
+                {
+                    BlendInfo &info = it->second;
+                    vertices.push_back(info.mBlendWeight);
+                    ++it;
+                    ++i;
+                }
 
-            i = 0;
-            while (it != mBlendInfo.rend() && i < 4)
-            {
-                BlendInfo &info = it->second;
-                vertices.push_back(info.mBlendIndex);
-                ++it;
-                ++i;
-            }
+                while (i < 4)
+                {
+                    vertices.push_back(0);
+                    ++i;
+                }
 
-            while (i < 4)
-            {
-                vertices.push_back(-1);
-                ++i;
+                i = 0;
+                while (it != mBlendInfo.rend() && i < 4)
+                {
+                    BlendInfo &info = it->second;
+                    vertices.push_back(info.mBlendIndex);
+                    ++it;
+                    ++i;
+                }
+
+                while (i < 4)
+                {
+                    vertices.push_back(-1);
+                    ++i;
+                }
             }
 
             char *str = (char *)vertices.data();
+            int32_t count = vertices.size() * sizeof(float);
 
             uint32_t value = 5381;
-
-            while (*str)
+            i = 0;
+            while (i < count)
             {
                 value += (value << 5) + (*str++);
+                i++;
             }
 
             mHash = (value & 0x7FFFFFFF);

@@ -3,14 +3,16 @@
 #include "SG/Renderable/T3DSGMesh.h"
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
+#include "DataStruct/T3DMeshData.h"
+#include "DataStruct/T3DSubMeshData.h"
 
 
 namespace Tiny3D
 {
-    SGMeshPtr SGMesh::create(const ModelPtr &model, uint32_t uID /* = E_NID_AUTOMATIC */)
+    SGMeshPtr SGMesh::create(const ModelPtr &model, int32_t index, uint32_t uID /* = E_NID_AUTOMATIC */)
     {
         SGMeshPtr mesh = new SGMesh(uID);
-        if (mesh != nullptr && mesh->init(model))
+        if (mesh != nullptr && mesh->init(model, index))
         {
             mesh->release();
         }
@@ -23,6 +25,8 @@ namespace Tiny3D
 
     SGMesh::SGMesh(uint32_t uID /* = E_NID_AUTOMATIC */)
         : SGGeometry(uID)
+        , mModel(nullptr)
+        , mIndex(0)
     {
 
     }
@@ -32,8 +36,10 @@ namespace Tiny3D
 
     }
 
-    bool SGMesh::init(const ModelPtr &model)
+    bool SGMesh::init(const ModelPtr &model, int32_t index)
     {
+        mModel = model;
+        mIndex = index;
         return true;
     }
 
@@ -44,14 +50,14 @@ namespace Tiny3D
 
     NodePtr SGMesh::clone() const
     {
-        SGMeshPtr mesh = create(mModel);
+        SGMeshPtr mesh = create(mModel, mIndex);
         cloneProperties(mesh);
         return mesh;
     }
 
     void SGMesh::cloneProperties(const NodePtr &node) const
     {
-        
+
     }
 
     MaterialPtr SGMesh::getMaterial() const
@@ -61,17 +67,22 @@ namespace Tiny3D
 
     Renderer::PrimitiveType SGMesh::getPrimitiveType() const
     {
-        return Renderer::E_PT_TRIANGLE_LIST;
+        const Model::SubMeshDataList &submeshes = mModel->getSubMeshDataList();
+        SubMeshDataPtr submeshdata = smart_pointer_cast<SubMeshData>(submeshes[mIndex]);
+        return submeshdata->getPrimitiveType();
     }
 
     VertexDataPtr SGMesh::getVertexData() const
     {
-        return nullptr;
+        const MeshDataPtr &meshdata = smart_pointer_cast<MeshData>(mModel->getMeshData());
+        return meshdata->getVertexData();
     }
 
     IndexDataPtr SGMesh::getIndexData() const
     {
-        return nullptr;
+        const Model::SubMeshDataList &submeshes = mModel->getSubMeshDataList();
+        SubMeshDataPtr submeshdata = smart_pointer_cast<SubMeshData>(submeshes[mIndex]);
+        return submeshdata->getIndexData();
     }
 
     bool SGMesh::isIndicesUsed() const

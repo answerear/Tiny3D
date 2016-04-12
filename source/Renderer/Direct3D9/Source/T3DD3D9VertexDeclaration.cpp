@@ -31,6 +31,19 @@ namespace Tiny3D
         return VertexDeclaration::insertElement(pos, offset, type, semantic);
     }
 
+    bool D3D9VertexDeclaration::addElement(const VertexElement &vertexElement)
+    {
+        mIsDirty = true;
+        return VertexDeclaration::addElement(vertexElement);
+    }
+
+    bool D3D9VertexDeclaration::insertElement(size_t pos, const VertexElement &vertexElement)
+    {
+        mIsDirty = true;
+        return VertexDeclaration::insertElement(pos, vertexElement);
+    }
+
+
     void D3D9VertexDeclaration::removeElement(size_t pos)
     {
         mIsDirty = true;
@@ -74,7 +87,7 @@ namespace Tiny3D
             D3DVERTEXELEMENT9 *d3dve = new D3DVERTEXELEMENT9[mVertexElements.size()+1];
 
             size_t i = 0;
-            VertexElementListConstItr itr = mVertexElements.begin();
+            auto itr = mVertexElements.begin();
             while (itr != mVertexElements.end())
             {
                 d3dve[i].Usage = D3D9Mappings::get(itr->getSemantic());

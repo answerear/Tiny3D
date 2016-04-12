@@ -12,7 +12,7 @@ namespace Tiny3D
     class T3D_ENGINE_API SGMesh : public SGGeometry
     {
     public:
-        static SGMeshPtr create(const ModelPtr &model, uint32_t uID = E_NID_AUTOMATIC);
+        static SGMeshPtr create(const ModelPtr &model, int32_t index, uint32_t uID = E_NID_AUTOMATIC);
 
         virtual ~SGMesh();
 
@@ -22,7 +22,7 @@ namespace Tiny3D
     protected:
         SGMesh(uint32_t uID = E_NID_AUTOMATIC);
 
-        virtual bool init(const ModelPtr &model);
+        virtual bool init(const ModelPtr &model, int32_t index);
 
         virtual void cloneProperties(const NodePtr &node) const override;
 
@@ -34,6 +34,7 @@ namespace Tiny3D
 
     protected:
         ModelPtr    mModel;
+        int32_t     mIndex;
     };
 }
 

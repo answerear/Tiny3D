@@ -7,7 +7,8 @@
 #include "T3DPrerequisitesInternal.h"
 #include "T3DTypedefInternal.h"
 #include "Misc/T3DObject.h"
-#include "Render/T3DHardwareIndexBuffer.h"
+#include "DataStruct/T3DIndexData.h"
+#include "Render/T3DRenderer.h"
 
 
 namespace Tiny3D
@@ -19,14 +20,29 @@ namespace Tiny3D
         typedef Indices::iterator       IndicesItr;
         typedef Indices::const_iterator IndicesConstItr;
 
-        static SubMeshDataPtr create(const String &materialName, const Indices &indices, bool is16Bits);
+        static SubMeshDataPtr create(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices &indices, bool is16Bits);
 
         virtual ~SubMeshData();
+
+        const String &getMaterialName() const
+        {
+            return mMaterialName;
+        }
+
+        Renderer::PrimitiveType getPrimitiveType() const
+        {
+            return mPrimitiveType;
+        }
+
+        const IndexDataPtr &getIndexData() const
+        {
+            return mIndexData;
+        }
 
     protected:
         SubMeshData();
 
-        bool init(const String &materialName, const Indices &indices, bool is16Bits);
+        bool init(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices &indices, bool is16Bits);
 
     private:
         SubMeshData(const SubMeshData &);
@@ -34,7 +50,8 @@ namespace Tiny3D
 
     protected:
         String                  mMaterialName;
-        HardwareIndexBufferPtr  mIndexBuffer;
+        Renderer::PrimitiveType mPrimitiveType;
+        IndexDataPtr            mIndexData;
     };
 }
 

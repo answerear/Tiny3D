@@ -6,6 +6,7 @@
 
 #include "Resource/T3DResource.h"
 #include "Render/T3DHardwareVertexBuffer.h"
+#include "Render/T3DRenderer.h"
 
 
 namespace tinyxml2
@@ -63,12 +64,15 @@ namespace Tiny3D
         virtual ResourcePtr clone() const override;
 
         bool loadFromXML(MemoryDataStream &stream);
-        
+
         bool parseMesh(tinyxml2::XMLElement *pMeshElement);
         VertexElement::Semantic parseVertexSemantic(const String &name);
-        VertexElement::Type parseVertexType(const String &name, size_t valueCount, size_t &vertexSize);
+        VertexElement::Type parseVertexType(VertexElement::Semantic semantic, const String &name, size_t valueCount, size_t &vertexSize);
 
+        bool parseSubMeshes(tinyxml2::XMLElement *pMeshElement);
         bool parseSubMesh(tinyxml2::XMLElement *pSubMeshElement);
+        Renderer::PrimitiveType parsePrimitiveType(const String &name);
+
         bool parseMaterials(tinyxml2::XMLElement *pMatsElement);
 
         bool loadFromBinary(DataStream &stream);

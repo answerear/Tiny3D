@@ -20,6 +20,7 @@ namespace Tiny3D
     #define T3D_XML_TAG_VERTICES        "vertices"
     #define T3D_XML_TAG_PARTS           "parts"
     #define T3D_XML_TAG_PART            "part"
+    #define T3D_XML_TAG_INDICES         "indices"
     #define T3D_XML_TAG_MATERIALS       "materials"
     #define T3D_XML_TAG_MATERIAL        "material"
 
@@ -27,6 +28,8 @@ namespace Tiny3D
     #define T3D_XML_ATTRIB_SIZE         "size"
     #define T3D_XML_ATTRIB_TYPE         "type"
     #define T3D_XML_ATTRIB_COUNT        "count"
+    #define T3D_XML_ATTRIB_PRIMITIVE    "primitive"
+    #define T3D_XML_ATTRIB_16BITS       "is16bits"
 
     #define T3D_VERTEX_SEMANTIC_POSITION        "POSITION"
     #define T3D_VERTEX_SEMANTIC_TEXCOORD        "TEXCOORD"
@@ -43,6 +46,9 @@ namespace Tiny3D
     #define T3D_VALUE_TYPE_SHORT                "short"
     #define T3D_VALUE_TYPE_LONG                 "long"
 
+    #define T3D_PRITYPE_TRIANGLE_LIST           "triangles"
+    #define T3D_PRITYPE_TRIANGLE_STRIP          "triangle strip"
+
     using namespace tinyxml2;
 
     ModelPtr Model::create(const String &name)
@@ -54,6 +60,7 @@ namespace Tiny3D
 
     Model::Model(const String &name)
         : Resource(name)
+        , mMeshData(nullptr)
     {
 
     }
@@ -176,10 +183,18 @@ namespace Tiny3D
     {
         XMLElement *pAttribsElement = pMeshElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTES);
 
-        // 先设置属性列表并且设置其数量
+        // 解析顶点属性列表大小
         int32_t count = pAttribsElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+
+        if (count == 0)
+        {
+            T3D_LOG_ERROR("The size of vertex attributes is zero !!!");
+            return false;
+        }
+
         MeshData::VertexAttributes attributes(count);
 
+        // 解析顶点属性
         XMLElement *pAttribElement = pAttribsElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTE);
         int32_t i = 0;
         size_t offset = 0;
@@ -189,14 +204,57 @@ namespace Tiny3D
             VertexElement::Semantic vertexSemantic = parseVertexSemantic(pAttribElement->Attribute(T3D_XML_ATTRIB_ID));
             size_t valueCount = pAttribElement->IntAttribute(T3D_XML_ATTRIB_SIZE);
             size_t vertexSize = 0;
-            VertexElement::Type vertexType = parseVertexType(pAttribElement->Attribute(T3D_XML_ATTRIB_TYPE), valueCount, vertexSize);
-            attributes[i] = VertexElement(offset, vertexType, vertexSemantic);
+            VertexElement::Type vertexType = parseVertexType(vertexSemantic, pAttribElement->Attribute(T3D_XML_ATTRIB_TYPE), valueCount, vertexSize);
+            attributes[i++] = VertexElement(offset, vertexType, vertexSemantic);
             offset += vertexSize;
             pAttribElement = pAttribElement->NextSiblingElement(T3D_XML_TAG_ATTRIBUTE);
-            i++;
         }
 
-        return true;
+        // 解析顶点数据
+        XMLElement *pVerticesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_VERTICES);
+        count = pVerticesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+
+        if (count == 0)
+        {
+            T3D_LOG_ERROR("Size of vertex data is zero !!!");
+            return false;
+        }
+
+        count = count * offset / sizeof(Real);
+        MeshData::Vertices vertices(count);
+
+        String text = pVerticesElement->GetText();
+        size_t pos = 0;
+        size_t len = 0;
+        size_t start = 0;
+        i = 0;
+
+        T3D_LOG_INFO("Vertices");
+
+        do
+        {
+            pos = text.find(' ', start);
+            if (pos == -1)
+            {
+                len = text.length() - start;
+            }
+            else
+            {
+                len = pos - start;
+            }
+            String str = text.substr(start, len);
+            float value;
+            sscanf(str.c_str(), "%f", &value);
+            vertices[i++] = value;
+            T3D_LOG_INFO("%f", value);
+            start = pos + 1;
+        } while (pos != -1 && i < count);
+
+        mMeshData = MeshData::create(attributes, vertices, offset);
+
+        bool ret = parseSubMeshes(pMeshElement);
+
+        return ret;
     }
 
     VertexElement::Semantic Model::parseVertexSemantic(const String &name)
@@ -239,73 +297,184 @@ namespace Tiny3D
         return semantic;
     }
 
-    VertexElement::Type Model::parseVertexType(const String &name, size_t valueCount, size_t &vertexSize)
+    VertexElement::Type Model::parseVertexType(VertexElement::Semantic semantic, const String &name, size_t valueCount, size_t &vertexSize)
     {
+        bool bColorValue = false;
+
+        bColorValue = (semantic == VertexElement::E_VES_DIFFUSE || semantic == VertexElement::E_VES_SPECULAR);
+
         VertexElement::Type type = VertexElement::E_VET_FLOAT3;
 
-        if (name == T3D_VALUE_TYPE_FLOAT)
+        if (bColorValue)
         {
             vertexSize = sizeof(float) * valueCount;
-
-            switch (valueCount)
-            {
-            case 1:
-                {
-                    type = VertexElement::E_VET_FLOAT1;
-                }
-                break;
-            case 2:
-                {
-                    type = VertexElement::E_VET_FLOAT2;
-                }
-                break;
-            case 3:
-                {
-                    type = VertexElement::E_VET_FLOAT3;
-                }
-                break;
-            case 4:
-                {
-                    type = VertexElement::E_VET_FLOAT4;
-                }
-                break;
-            }
+            type = VertexElement::E_VET_COLOR;
         }
-        else if (name == T3D_VALUE_TYPE_DOUBLE)
+        else
         {
-            vertexSize = sizeof(double) * valueCount;
-
-            switch (valueCount)
+            if (name == T3D_VALUE_TYPE_FLOAT)
             {
-            case 1:
+                vertexSize = sizeof(float) * valueCount;
+
+                switch (valueCount)
                 {
-                    type = VertexElement::E_VET_DOUBLE1;
+                case 1:
+                    {
+                        type = VertexElement::E_VET_FLOAT1;
+                    }
+                    break;
+                case 2:
+                    {
+                        type = VertexElement::E_VET_FLOAT2;
+                    }
+                    break;
+                case 3:
+                    {
+                        type = VertexElement::E_VET_FLOAT3;
+                    }
+                    break;
+                case 4:
+                    {
+                        type = VertexElement::E_VET_FLOAT4;
+                    }
+                    break;
                 }
-                break;
-            case 2:
-                {
-                    type = VertexElement::E_VET_DOUBLE2;
-                }
-                break;
-            case 3:
-                {
-                    type = VertexElement::E_VET_DOUBLE3;
-                }
-                break;
-            case 4:
-                {
-                    type = VertexElement::E_VET_DOUBLE4;
-                }
-                break;
             }
+            else if (name == T3D_VALUE_TYPE_DOUBLE)
+            {
+                vertexSize = sizeof(double) * valueCount;
+
+                switch (valueCount)
+                {
+                case 1:
+                    {
+                        type = VertexElement::E_VET_DOUBLE1;
+                    }
+                    break;
+                case 2:
+                    {
+                        type = VertexElement::E_VET_DOUBLE2;
+                    }
+                    break;
+                case 3:
+                    {
+                        type = VertexElement::E_VET_DOUBLE3;
+                    }
+                    break;
+                case 4:
+                    {
+                        type = VertexElement::E_VET_DOUBLE4;
+                    }
+                    break;
+                }
+            }
+            else if (name == T3D_VALUE_TYPE_INT)
+            {
+                vertexSize = sizeof(int) * valueCount;
+
+                switch (valueCount)
+                {
+                case 1:
+                    {
+                        type = VertexElement::E_VET_INT1;
+                    }
+                    break;
+                case 2:
+                    {
+                        type = VertexElement::E_VET_INT2;
+                    }
+                    break;
+                case 3:
+                    {
+                        type = VertexElement::E_VET_INT3;
+                    }
+                    break;
+                case 4:
+                    {
+                        type = VertexElement::E_VET_INT4;
+                    }
+                    break;
+                }
+            }
+            else if (name == T3D_VALUE_TYPE_LONG)
+            {
+
+            }
+
         }
 
         return type;
     }
 
+    bool Model::parseSubMeshes(tinyxml2::XMLElement *pMeshElement)
+    {
+        XMLElement *pSubMeshesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_PARTS);
+        int32_t count = pSubMeshesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+        mSubMeshData.reserve(count);
+
+        XMLElement *pSubMeshElement = pSubMeshesElement->FirstChildElement(T3D_XML_TAG_PART);
+        while (pSubMeshElement != nullptr)
+        {
+            parseSubMesh(pSubMeshElement);
+            pSubMeshElement = pSubMeshElement->NextSiblingElement(T3D_XML_TAG_PART);
+        }
+
+        return true;
+    }
+
     bool Model::parseSubMesh(tinyxml2::XMLElement *pSubMeshElement)
     {
+        Renderer::PrimitiveType primitiveType = parsePrimitiveType(pSubMeshElement->Attribute(T3D_XML_ATTRIB_PRIMITIVE));
+        int32_t primitiveCount = pSubMeshElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+        String materialName = pSubMeshElement->Attribute(T3D_XML_TAG_MATERIAL);
+
+        XMLElement *pIndicesElement = pSubMeshElement->FirstChildElement(T3D_XML_TAG_INDICES);
+        int32_t indexCount = pIndicesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+        bool is16bits = pIndicesElement->BoolAttribute(T3D_XML_ATTRIB_16BITS);
+
+        SubMeshData::Indices indices(indexCount);
+
+        String text = pIndicesElement->GetText();
+        size_t pos = 0;
+        size_t len = 0;
+        size_t start = 0;
+        int32_t i = 0;
+        T3D_LOG_INFO("Indices");
+        do
+        {
+            pos = text.find(' ', start);
+            if (pos == -1)
+            {
+                len = text.length() - start;
+            }
+            else
+            {
+                len = pos - start;
+            }
+            String str = text.substr(start, len);
+            int32_t value;
+            sscanf(str.c_str(), "%d", &value);
+            indices[i++] = value;
+            T3D_LOG_INFO("%d", value);
+            start = pos + 1;
+        } while (pos != -1 && i < indexCount);
+
+        SubMeshDataPtr submeshdata = SubMeshData::create(primitiveType, materialName, indices, is16bits);
+        mSubMeshData.push_back(submeshdata);
+
         return true;
+    }
+
+    Renderer::PrimitiveType Model::parsePrimitiveType(const String &name)
+    {
+        Renderer::PrimitiveType primitiveType = Renderer::E_PT_TRIANGLE_LIST;
+
+        if (name == T3D_PRITYPE_TRIANGLE_LIST)
+        {
+            primitiveType = Renderer::E_PT_TRIANGLE_LIST;
+        }
+
+        return primitiveType;
     }
 
     bool Model::parseMaterials(tinyxml2::XMLElement *pMatsElement)

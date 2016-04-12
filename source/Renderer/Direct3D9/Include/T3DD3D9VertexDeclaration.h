@@ -18,6 +18,8 @@ namespace Tiny3D
 
         virtual const VertexElement &addElement(size_t offset, VertexElement::Type type, VertexElement::Semantic semantic) override;
         virtual const VertexElement &insertElement(size_t pos, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic) override;
+        virtual bool addElement(const VertexElement &vertexElement) override;
+        virtual bool insertElement(size_t pos, const VertexElement &vertexElement) override;
         virtual void removeElement(VertexElement::Semantic semantic) override;
         virtual void removeElement(size_t pos) override;
         virtual void removeAllElements() override;

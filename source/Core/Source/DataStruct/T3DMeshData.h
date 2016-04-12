@@ -6,7 +6,7 @@
 
 #include "Misc/T3DObject.h"
 #include "T3DPrerequisitesInternal.h"
-#include "Render/T3DHardwareVertexBuffer.h"
+#include "DataStruct/T3DVertexData.h"
 #include "T3DTypedefInternal.h"
 #include "Support/tinyxml2/tinyxml2.h"
 
@@ -20,7 +20,7 @@ namespace Tiny3D
         typedef VertexAttributes::iterator          VertexAttributesItr;
         typedef VertexAttributes::const_iterator    VertexAttributesConstItr;
 
-        typedef std::vector<float>          Vertices;
+        typedef std::vector<Real>          Vertices;
         typedef Vertices::iterator          VerticesItr;
         typedef Vertices::const_iterator    VerticesConstItr;
 
@@ -28,14 +28,9 @@ namespace Tiny3D
 
         virtual ~MeshData();
 
-        const VertexDeclarationPtr &getVertexDeclaration() const
+        const VertexDataPtr &getVertexData() const
         {
-            return mVertexDecl;
-        }
-
-        const HardwareVertexBufferPtr &getVertexBuffer() const
-        {
-            return mVertexBuffer;
+            return mVertexData;
         }
 
     protected:
@@ -47,8 +42,7 @@ namespace Tiny3D
         MeshData &operator =(const MeshData &);
 
     protected:
-        VertexDeclarationPtr    mVertexDecl;
-        HardwareVertexBufferPtr mVertexBuffer;
+        VertexDataPtr           mVertexData;
     };
 }
 

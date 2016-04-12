@@ -1,6 +1,7 @@
 
 
 #include "SG/Visual/T3DSGModel.h"
+#include "SG/Renderable/T3DSGMesh.h"
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
 
@@ -40,6 +41,15 @@ namespace Tiny3D
         if (mModel != nullptr)
         {
             ret = true;
+
+            const Model::SubMeshDataList &submeshes = mModel->getSubMeshDataList();
+            size_t submeshCount = submeshes.size();
+            size_t i = 0;
+            for (i = 0; i < submeshCount; ++i)
+            {
+                SGMeshPtr mesh = SGMesh::create(mModel, i);
+                addChild(mesh);
+            }
         }
 
         return ret;

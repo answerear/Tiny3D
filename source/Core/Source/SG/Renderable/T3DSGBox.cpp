@@ -58,64 +58,112 @@ namespace Tiny3D
 
         // 创建顶点缓存
         // Front
-        mVertices[0].position = Vector3(-1.0, 1.0, 1.0);
-        mVertices[0].texcoord = Vector2(0.0, 0.0);
-        mVertices[1].position = Vector3(-1.0, -1.0, 1.0);
-        mVertices[1].texcoord = Vector2(0.0, 1.0);
-        mVertices[2].position = Vector3(1.0, 1.0, 1.0);
-        mVertices[2].texcoord = Vector2(1.0, 0.0);
-        mVertices[3].position = Vector3(1.0, -1.0, 1.0);
-        mVertices[3].texcoord = Vector2(1.0, 1.0);
+//         mVertices[0].position = Vector3(-50.0, 50.0, 100.0);
+//         mVertices[0].texcoord = Vector2(0.0, 0.0);
+//         mVertices[1].position = Vector3(-50.0, -50.0, 100.0);
+//         mVertices[1].texcoord = Vector2(0.0, 1.0);
+//         mVertices[2].position = Vector3(50.0, 50.0, 100.0);
+//         mVertices[2].texcoord = Vector2(1.0, 0.0);
+//         mVertices[3].position = Vector3(50.0, -50.0, 100.0);
+//         mVertices[3].texcoord = Vector2(1.0, 1.0);
+// 
+//         // Right
+//         mVertices[4].position = Vector3(50.0, 50.0, 100.0);
+//         mVertices[4].texcoord = Vector2(0.0, 0.0);
+//         mVertices[5].position = Vector3(50.0, -50.0, 100.0);
+//         mVertices[5].texcoord = Vector2(0.0, 1.0);
+//         mVertices[6].position = Vector3(50.0, 50.0, 0.0);
+//         mVertices[6].texcoord = Vector2(1.0, 0.0);
+//         mVertices[7].position = Vector3(50.0, -50.0, 0.0);
+//         mVertices[7].texcoord = Vector2(1.0, 1.0);
+// 
+//         // Back
+//         mVertices[8].position = Vector3(50.0, 50.0, 0.0);
+//         mVertices[8].texcoord = Vector2(0.0, 0.0);
+//         mVertices[9].position = Vector3(50.0, -50.0, 0.0);
+//         mVertices[9].texcoord = Vector2(0.0, 1.0);
+//         mVertices[10].position = Vector3(-50.0, 50.0, 0.0);
+//         mVertices[10].texcoord = Vector2(1.0, 0.0);
+//         mVertices[11].position = Vector3(-50.0, -50.0, 0.0);
+//         mVertices[11].texcoord = Vector2(1.0, 1.0);
+// 
+//         // Left
+//         mVertices[12].position = Vector3(-50.0, 50.0, 0.0);
+//         mVertices[12].texcoord = Vector2(0.0, 0.0);
+//         mVertices[13].position = Vector3(-50.0, -50.0, 0.0);
+//         mVertices[13].texcoord = Vector2(0.0, 1.0);
+//         mVertices[14].position = Vector3(-50.0, 50.0, 100.0);
+//         mVertices[14].texcoord = Vector2(1.0, 0.0);
+//         mVertices[15].position = Vector3(-50.0, -50.0, 100.0);
+//         mVertices[15].texcoord = Vector2(1.0, 1.0);
+// 
+//         // Top
+//         mVertices[16].position = Vector3(-50.0, 50.0, 0.0);
+//         mVertices[16].texcoord = Vector2(0.0, 0.0);
+//         mVertices[17].position = Vector3(-50.0, 50.0, 100.0);
+//         mVertices[17].texcoord = Vector2(0.0, 1.0);
+//         mVertices[18].position = Vector3(50.0, 50.0, 0.0);
+//         mVertices[18].texcoord = Vector2(1.0, 0.0);
+//         mVertices[19].position = Vector3(50.0, 50.0, 100.0);
+//         mVertices[19].texcoord = Vector2(1.0, 1.0);
+// 
+//         // Bottom
+//         mVertices[20].position = Vector3(-50.0, -50.0, 100.0);
+//         mVertices[20].texcoord = Vector2(0.0, 0.0);
+//         mVertices[21].position = Vector3(-50.0, -50.0, 0.0);
+//         mVertices[21].texcoord = Vector2(0.0, 1.0);
+//         mVertices[22].position = Vector3(50.0, -50.0, 100.0);
+//         mVertices[22].texcoord = Vector2(1.0, 0.0);
+//         mVertices[23].position = Vector3(50.0, -50.0, 100.0);
+//         mVertices[23].texcoord = Vector2(1.0, 1.0);
 
-        // Right
-        mVertices[4].position = Vector3(1.0, 1.0, 1.0);
-        mVertices[4].texcoord = Vector2(0.0, 0.0);
-        mVertices[5].position = Vector3(1.0, -1.0, 1.0);
-        mVertices[5].texcoord = Vector2(0.0, 1.0);
-        mVertices[6].position = Vector3(1.0, 1.0, -1.0);
-        mVertices[6].texcoord = Vector2(1.0, 0.0);
-        mVertices[7].position = Vector3(1.0, -1.0, -1.0);
-        mVertices[7].texcoord = Vector2(1.0, 1.0);
+        mVertices[0].position = Vector3(-50, -50, 0);
+        mVertices[0].texcoord = Vector2(0, 9.995e+014);
+        mVertices[1].position = Vector3(-50, -50, 0);
+        mVertices[1].texcoord = Vector2(0, 9.995e+014);
+        mVertices[2].position = Vector3(-50, 50, 0);
+        mVertices[2].texcoord = Vector2(0, 9.995e+014);
+        mVertices[3].position = Vector3(-50, 50, 0);
+        mVertices[3].texcoord = Vector2(0, 4.99517e+014);
+        mVertices[4].position = Vector3(50, 50, 0);
+        mVertices[4].texcoord = Vector2(0, 9.995e+014);
+        mVertices[5].position = Vector3(50, 50, 100);
+        mVertices[5].texcoord = Vector2(0, 9.995e+014);
+        mVertices[6].position = Vector3(-50, -50, 100);
+        mVertices[6].texcoord = Vector2(0, 4.99547e+014);
+        mVertices[7].position = Vector3(-50, 50, 100);
+        mVertices[7].texcoord = Vector2(0, 4.99547e+014);
+        mVertices[8].position = Vector3(-50, -50, 100);
+        mVertices[8].texcoord = Vector2(0, 9.995e+014);
+        mVertices[9].position = Vector3(50, -50, 0);
+        mVertices[9].texcoord = Vector2(0, 4.99785e+013);
+        mVertices[10].position = Vector3(-50, 50, 0);
+        mVertices[10].texcoord = Vector2(0, 4.99785e+013);
+        mVertices[11].position = Vector3(50, -50, 0);
+        mVertices[11].texcoord = Vector2(0, 4.99785e+013);
+        mVertices[12].position = Vector3(-50, -50, 0);
+        mVertices[12].texcoord = Vector2(0, 4.99785e+013);
+        mVertices[13].position = Vector3(50, 50, 100);
+        mVertices[13].texcoord = Vector2(0, 4.99547e+014);
+        mVertices[14].position = Vector3(-50, -50, 100);
+        mVertices[14].texcoord = Vector2(0, 9.995e+014);
+        mVertices[15].position = Vector3(-50, 50, 100);
+        mVertices[15].texcoord = Vector2(0, 4.99547e+014);
+        mVertices[16].position = Vector3(50, -50, 100);
+        mVertices[16].texcoord = Vector2(0, 9.995e+014);
+        mVertices[17].position = Vector3(50, -50, 0);
+        mVertices[17].texcoord = Vector2(0, 9.995e+014);
+        mVertices[18].position = Vector3(50, -50, 100);
+        mVertices[18].texcoord = Vector2(0, 4.99785e+013);
+        mVertices[19].position = Vector3(50, 50, 0);
+        mVertices[19].texcoord = Vector2(0, 9.995e+014);
+        mVertices[20].position = Vector3(50, 50, 0);
+        mVertices[20].texcoord = Vector2(0, 4.99547e+014);
+        mVertices[21].position = Vector3(50, 50, 100);
+        mVertices[21].texcoord = Vector2(0, 4.99517e+014);
+        mVertices[22].position = Vector3(-50, 50, 100);
+        mVertices[22].texcoord = Vector2(0, 9.995e+014);
 
-        // Back
-        mVertices[8].position = Vector3(1.0, 1.0, -1.0);
-        mVertices[8].texcoord = Vector2(0.0, 0.0);
-        mVertices[9].position = Vector3(1.0, -1.0, -1.0);
-        mVertices[9].texcoord = Vector2(0.0, 1.0);
-        mVertices[10].position = Vector3(-1.0, 1.0, -1.0);
-        mVertices[10].texcoord = Vector2(1.0, 0.0);
-        mVertices[11].position = Vector3(-1.0, -1.0, -1.0);
-        mVertices[11].texcoord = Vector2(1.0, 1.0);
-
-        // Left
-        mVertices[12].position = Vector3(-1.0, 1.0, -1.0);
-        mVertices[12].texcoord = Vector2(0.0, 0.0);
-        mVertices[13].position = Vector3(-1.0, -1.0, -1.0);
-        mVertices[13].texcoord = Vector2(0.0, 1.0);
-        mVertices[14].position = Vector3(-1.0, 1.0, 1.0);
-        mVertices[14].texcoord = Vector2(1.0, 0.0);
-        mVertices[15].position = Vector3(-1.0, -1.0, 1.0);
-        mVertices[15].texcoord = Vector2(1.0, 1.0);
-
-        // Top
-        mVertices[16].position = Vector3(-1.0, 1.0, -1.0);
-        mVertices[16].texcoord = Vector2(0.0, 0.0);
-        mVertices[17].position = Vector3(-1.0, 1.0, 1.0);
-        mVertices[17].texcoord = Vector2(0.0, 1.0);
-        mVertices[18].position = Vector3(1.0, 1.0, -1.0);
-        mVertices[18].texcoord = Vector2(1.0, 0.0);
-        mVertices[19].position = Vector3(1.0, 1.0, 1.0);
-        mVertices[19].texcoord = Vector2(1.0, 1.0);
-
-        // Bottom
-        mVertices[20].position = Vector3(-1.0, -1.0, 1.0);
-        mVertices[20].texcoord = Vector2(0.0, 0.0);
-        mVertices[21].position = Vector3(-1.0, -1.0, -1.0);
-        mVertices[21].texcoord = Vector2(0.0, 1.0);
-        mVertices[22].position = Vector3(1.0, -1.0, 1.0);
-        mVertices[22].texcoord = Vector2(1.0, 0.0);
-        mVertices[23].position = Vector3(1.0, -1.0, -1.0);
-        mVertices[23].texcoord = Vector2(1.0, 1.0);
     }
 
     SGBox::~SGBox()
@@ -146,24 +194,37 @@ namespace Tiny3D
         // 创建索引缓存
         const uint16_t indices[] =
         {
-            // front face
-            0, 1, 2,
-            1, 3, 2,
-            // right face
-            4, 5, 6,
-            5, 7, 6,
-            // back face
-            8, 9, 10,
-            9, 11, 10,
-            // left face
-            12, 13, 14,
-            13, 15, 14,
-            // top face
-            16, 17, 18,
-            17, 19, 18,
-            // bottom face
-            20, 21, 22,
-            21, 23, 22
+//             // front face
+//             0, 1, 2,
+//             1, 3, 2,
+//             // right face
+//             4, 5, 6,
+//             5, 7, 6,
+//             // back face
+//             8, 9, 10,
+//             9, 11, 10,
+//             // left face
+//             12, 13, 14,
+//             13, 15, 14,
+//             // top face
+//             16, 17, 18,
+//             17, 19, 18,
+//             // bottom face
+//             20, 21, 22,
+//             21, 23, 22
+            11, 0, 19,
+            0, 10, 19,
+            13, 7, 8,
+            13, 8, 18, 
+            16, 6, 12, 
+            16, 12, 17, 
+            5, 16, 9, 
+            5, 9, 4, 
+            22, 21, 20, 
+            22, 20, 3, 
+            14, 15, 2, 
+            14, 2, 1//, 
+//             14, 2, 1
         };
 
         size_t indexCount = sizeof(indices) / sizeof(uint16_t);
