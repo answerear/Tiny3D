@@ -16,11 +16,16 @@ namespace Tiny3D
     class SubMeshData : public Object
     {
     public:
-        typedef std::vector<int32_t>    Indices;
-        typedef Indices::iterator       IndicesItr;
-        typedef Indices::const_iterator IndicesConstItr;
+        typedef std::vector<uint16_t>       Indices16;
+        typedef Indices16::iterator         Indices16Itr;
+        typedef Indices16::const_iterator   Indices16ConstItr;
 
-        static SubMeshDataPtr create(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices &indices, bool is16Bits);
+        typedef std::vector<uint32_t>       Indices32;
+        typedef Indices32::iterator         Indices32Itr;
+        typedef Indices32::const_iterator   Indices32ConstItr;
+
+        static SubMeshDataPtr create(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices16 &indices);
+        static SubMeshDataPtr create(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices32 &indices);
 
         virtual ~SubMeshData();
 
@@ -42,7 +47,8 @@ namespace Tiny3D
     protected:
         SubMeshData();
 
-        bool init(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices &indices, bool is16Bits);
+        bool init(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices16 &indices);
+        bool init(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices32 &indices);
 
     private:
         SubMeshData(const SubMeshData &);

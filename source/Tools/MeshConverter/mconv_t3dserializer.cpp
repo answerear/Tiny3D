@@ -471,12 +471,12 @@ namespace mconv
             ++itr;
         }
 
-        if ((nIndexCount & 31) != 0)
-        {
-            /// 有多余的，需要重新写回去
-            XMLText *pText = pDoc->NewText(ss.str().c_str());
-            pIndicesElement->LinkEndChild(pText);
-        }
+//         if ((nIndexCount & 31) != 0)
+//         {
+//             /// 有多余的，需要重新写回去
+//             XMLText *pText = pDoc->NewText(ss.str().c_str());
+//             pIndicesElement->LinkEndChild(pText);
+//         }
 
         ss<<"\n\t\t\t\t\t";
         XMLText *pText = pDoc->NewText(ss.str().c_str());

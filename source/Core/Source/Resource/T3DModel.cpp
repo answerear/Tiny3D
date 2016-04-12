@@ -8,6 +8,8 @@
 
 #include "Support/tinyxml2/tinyxml2.h"
 
+#include <sstream>
+
 
 namespace Tiny3D
 {
@@ -229,8 +231,6 @@ namespace Tiny3D
         size_t start = 0;
         i = 0;
 
-        T3D_LOG_INFO("Vertices");
-
         do
         {
             pos = text.find(' ', start);
@@ -246,7 +246,6 @@ namespace Tiny3D
             float value;
             sscanf(str.c_str(), "%f", &value);
             vertices[i++] = value;
-            T3D_LOG_INFO("%f", value);
             start = pos + 1;
         } while (pos != -1 && i < count);
 
@@ -432,17 +431,28 @@ namespace Tiny3D
         int32_t indexCount = pIndicesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
         bool is16bits = pIndicesElement->BoolAttribute(T3D_XML_ATTRIB_16BITS);
 
-        SubMeshData::Indices indices(indexCount);
+        SubMeshData::Indices16 indices16;
+        SubMeshData::Indices32 indices32;
+
+        if (is16bits)
+        {
+            indices16.resize(indexCount);
+        }
+        else
+        {
+            indices32.resize(indexCount);
+        }
 
         String text = pIndicesElement->GetText();
         size_t pos = 0;
         size_t len = 0;
         size_t start = 0;
         int32_t i = 0;
-        T3D_LOG_INFO("Indices");
+
         do
         {
             pos = text.find(' ', start);
+
             if (pos == -1)
             {
                 len = text.length() - start;
@@ -451,16 +461,33 @@ namespace Tiny3D
             {
                 len = pos - start;
             }
+
             String str = text.substr(start, len);
             int32_t value;
             sscanf(str.c_str(), "%d", &value);
-            indices[i++] = value;
-            T3D_LOG_INFO("%d", value);
+
+            if (is16bits)
+            {
+                indices16[i++] = value;
+            }
+            else
+            {
+                indices32[i++] = value;
+            }
+
             start = pos + 1;
         } while (pos != -1 && i < indexCount);
 
-        SubMeshDataPtr submeshdata = SubMeshData::create(primitiveType, materialName, indices, is16bits);
-        mSubMeshData.push_back(submeshdata);
+        if (is16bits)
+        {
+            SubMeshDataPtr submeshdata = SubMeshData::create(primitiveType, materialName, indices16);
+            mSubMeshData.push_back(submeshdata);
+        }
+        else
+        {
+            SubMeshDataPtr submeshdata = SubMeshData::create(primitiveType, materialName, indices32);
+            mSubMeshData.push_back(submeshdata);
+        }
 
         return true;
     }
