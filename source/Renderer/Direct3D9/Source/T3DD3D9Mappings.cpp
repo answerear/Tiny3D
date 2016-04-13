@@ -101,6 +101,9 @@ namespace Tiny3D
         case VertexElement::E_VET_FLOAT3:
             d3dtype = D3DDECLTYPE_FLOAT3;
             break;
+        case VertexElement::E_VET_FLOAT4:
+            d3dtype = D3DDECLTYPE_FLOAT4;
+            break;
         case VertexElement::E_VET_SHORT2:
             d3dtype = D3DDECLTYPE_SHORT2;
             break;

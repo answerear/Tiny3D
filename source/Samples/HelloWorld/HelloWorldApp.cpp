@@ -148,13 +148,13 @@ bool HelloWorldApp::applicationDidFinishLaunching()
 
     {
         // 模型 #1 可见物体结点
-        SGModelPtr model = SGModel::create("knight.tmt");
-        node->addChild(model);
-//         SGShapePtr shape = SGShape::create();
-//         node->addChild(shape);
-// 
-//         SGBoxPtr box = SGBox::create("");
-//         shape->addChild(box);
+//         SGModelPtr model = SGModel::create("knight.tmt");
+//         node->addChild(model);
+        SGShapePtr shape = SGShape::create();
+        node->addChild(shape);
+
+        SGBoxPtr box = SGBox::create("");
+        shape->addChild(box);
     }
 
     return true;

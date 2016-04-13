@@ -61,7 +61,9 @@ namespace Tiny3D
         struct Vertex
         {
             Vector3 position;
-            Vector2 texcoord;
+//             Vector2 texcoord;
+//             Vector4 diffuse;
+            uint32_t diffuse;
         };
 
         Vertex mVertices[MAX_VERTICES_NUM];
