@@ -47,7 +47,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     SGTransformNodePtr node = SGTransformNode::create();
     root->addChild(node);
 
-    node->lookAt(Vector3(0.0, 20.0, 40.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(0.0, 200.0, 400.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 相机结点
     SGCameraPtr camera = SGCamera::create();

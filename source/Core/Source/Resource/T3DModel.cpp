@@ -53,6 +53,31 @@ namespace Tiny3D
 
     using namespace tinyxml2;
 
+    template <typename T>
+    T getValue(const String &text, size_t &start)
+    {
+        size_t pos = text.find(' ', start);
+        size_t len = 0;
+
+        if (pos == -1)
+        {
+            len = text.length() - start;
+        }
+        else
+        {
+            len = pos - start;
+        }
+        String str = text.substr(start, len);
+        start = pos + 1;
+
+        std::stringstream ss(str);
+        T value;
+        ss>>value;
+
+        return value;
+    }
+
+
     ModelPtr Model::create(const String &name)
     {
         ModelPtr model = new Model(name);
@@ -181,6 +206,99 @@ namespace Tiny3D
         return ret;
     }
 
+    size_t Model::parseValue(const String &text, size_t &start, const VertexElement &attribute, void *value)
+    {
+        size_t step = 0;
+
+        switch (attribute.getSemantic())
+        {
+        case VertexElement::E_VES_POSITION:
+            {
+                switch (attribute.getType())
+                {
+                case VertexElement::E_VET_FLOAT3:
+                    {
+                        float pos[3];
+                        pos[0] = getValue<float>(text, start);
+                        pos[1] = getValue<float>(text, start);
+                        pos[2] = getValue<float>(text, start);
+                        memcpy(value, pos, sizeof(pos));
+                        step += sizeof(pos);
+                    }
+                    break;
+                case VertexElement::E_VET_DOUBLE3:
+                    {
+                        double pos[3];
+                        pos[0] = getValue<double>(text, start);
+                        pos[1] = getValue<double>(text, start);
+                        pos[2] = getValue<double>(text, start);
+                        memcpy(value, pos, sizeof(pos));
+                        step += sizeof(pos);
+                    }
+                    break;
+                }
+            }
+            break;
+        case VertexElement::E_VES_BLENDWEIGHT:
+            {
+                Real weight[4];
+                weight[0] = getValue<Real>(text, start);
+                weight[1] = getValue<Real>(text, start);
+                weight[2] = getValue<Real>(text, start);
+                weight[3] = getValue<Real>(text, start);
+                memcpy(value, weight, sizeof(weight));
+                step += sizeof(weight);
+            }
+            break;
+        case VertexElement::E_VES_BLENDINDICES:
+            {
+                int32_t indices[4];
+                indices[0] = getValue<int32_t>(text, start);
+                indices[1] = getValue<int32_t>(text, start);
+                indices[2] = getValue<int32_t>(text, start);
+                indices[3] = getValue<int32_t>(text, start);
+                memcpy(value, indices, sizeof(indices));
+                step += sizeof(indices);
+            }
+            break;
+        case VertexElement::E_VES_NORMAL:
+            {
+                Real normal[3];
+                normal[0] = getValue<Real>(text, start);
+                normal[1] = getValue<Real>(text, start);
+                normal[2] = getValue<Real>(text, start);
+                memcpy(value, normal, sizeof(normal));
+                step += sizeof(normal);
+            }
+            break;
+        case VertexElement::E_VES_DIFFUSE:
+            {
+                Real color[4];
+                color[0] = getValue<Real>(text, start);
+                color[1] = getValue<Real>(text, start);
+                color[2] = getValue<Real>(text, start);
+                color[3] = getValue<Real>(text, start);
+                uint8_t *c = (uint8_t *)value;
+                c[3] = (uint8_t)(color[0] * 255);
+                c[2] = (uint8_t)(color[1] * 255);
+                c[1] = (uint8_t)(color[2] * 255);
+                c[0] = (uint8_t)(color[3] * 255);
+                step += sizeof(uint32_t);
+            }
+            break;
+        case VertexElement::E_VES_SPECULAR:
+            break;
+        case VertexElement::E_VES_TEXCOORD:
+            break;
+        case VertexElement::E_VES_TANGENT:
+            break;
+        case VertexElement::E_VES_BINORMAL:
+            break;
+        }
+
+        return step;
+    }
+
     bool Model::parseMesh(tinyxml2::XMLElement *pMeshElement)
     {
         XMLElement *pAttribsElement = pMeshElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTES);
@@ -200,11 +318,13 @@ namespace Tiny3D
         XMLElement *pAttribElement = pAttribsElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTE);
         int32_t i = 0;
         size_t offset = 0;
+        size_t typeCount = 0;
 
         while (pAttribElement != nullptr && i < count)
         {
             VertexElement::Semantic vertexSemantic = parseVertexSemantic(pAttribElement->Attribute(T3D_XML_ATTRIB_ID));
             size_t valueCount = pAttribElement->IntAttribute(T3D_XML_ATTRIB_SIZE);
+            typeCount += valueCount;
             size_t vertexSize = 0;
             VertexElement::Type vertexType = parseVertexType(vertexSemantic, pAttribElement->Attribute(T3D_XML_ATTRIB_TYPE), valueCount, vertexSize);
             attributes[i++] = VertexElement(offset, vertexType, vertexSemantic);
@@ -214,7 +334,7 @@ namespace Tiny3D
 
         // 解析顶点数据
         XMLElement *pVerticesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_VERTICES);
-        count = pVerticesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+        size_t vertexCount = pVerticesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
 
         if (count == 0)
         {
@@ -222,32 +342,48 @@ namespace Tiny3D
             return false;
         }
 
-        count = count * offset / sizeof(Real);
-        MeshData::Vertices vertices(count);
+        size_t vertexSize = offset;
+        size_t valueCount = vertexCount * vertexSize;
+        MeshData::Vertices vertices(valueCount);
 
         String text = pVerticesElement->GetText();
-        size_t pos = 0;
-        size_t len = 0;
         size_t start = 0;
         i = 0;
 
         do
         {
-            pos = text.find(' ', start);
-            if (pos == -1)
+            size_t j = 0;
+
+            for (j = 0; j < attributes.size(); ++j)
             {
-                len = text.length() - start;
+                auto attribute = attributes[j];
+                size_t step = parseValue(text, start, attribute, &vertices[i]);
+                i += step;
             }
-            else
-            {
-                len = pos - start;
-            }
-            String str = text.substr(start, len);
-            float value;
-            sscanf(str.c_str(), "%f", &value);
-            vertices[i++] = value;
-            start = pos + 1;
-        } while (pos != -1 && i < count);
+        } while (i < valueCount);
+
+//         size_t pos = 0;
+//         size_t len = 0;
+//         size_t start = 0;
+//         i = 0;
+// 
+//         do
+//         {
+//             pos = text.find(' ', start);
+//             if (pos == -1)
+//             {
+//                 len = text.length() - start;
+//             }
+//             else
+//             {
+//                 len = pos - start;
+//             }
+//             String str = text.substr(start, len);
+//             float value;
+//             sscanf(str.c_str(), "%f", &value);
+//             vertices[i++] = value;
+//             start = pos + 1;
+//         } while (pos != -1 && i < count);
 
         mMeshData = MeshData::create(attributes, vertices, offset);
 

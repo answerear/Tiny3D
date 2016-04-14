@@ -20,7 +20,7 @@ namespace Tiny3D
         typedef VertexAttributes::iterator          VertexAttributesItr;
         typedef VertexAttributes::const_iterator    VertexAttributesConstItr;
 
-        typedef std::vector<Real>          Vertices;
+        typedef std::vector<uint8_t>        Vertices;
         typedef Vertices::iterator          VerticesItr;
         typedef Vertices::const_iterator    VerticesConstItr;
 

@@ -65,6 +65,8 @@ namespace Tiny3D
 
         bool loadFromXML(MemoryDataStream &stream);
 
+        size_t parseValue(const String &text, size_t &start, const VertexElement &attribute, void *value);
+
         bool parseMesh(tinyxml2::XMLElement *pMeshElement);
         VertexElement::Semantic parseVertexSemantic(const String &name);
         VertexElement::Type parseVertexType(VertexElement::Semantic semantic, const String &name, size_t valueCount, size_t &vertexSize);
