@@ -241,54 +241,120 @@ namespace Tiny3D
             break;
         case VertexElement::E_VES_BLENDWEIGHT:
             {
-                Real weight[4];
-                weight[0] = getValue<Real>(text, start);
-                weight[1] = getValue<Real>(text, start);
-                weight[2] = getValue<Real>(text, start);
-                weight[3] = getValue<Real>(text, start);
-                memcpy(value, weight, sizeof(weight));
-                step += sizeof(weight);
+                switch (attribute.getType())
+                {
+                case VertexElement::E_VET_FLOAT4:
+                    {
+                        float weight[4];
+                        weight[0] = getValue<float>(text, start);
+                        weight[1] = getValue<float>(text, start);
+                        weight[2] = getValue<float>(text, start);
+                        weight[3] = getValue<float>(text, start);
+                        memcpy(value, weight, sizeof(weight));
+                        step += sizeof(weight);
+                    }
+                    break;
+                case VertexElement::E_VET_DOUBLE4:
+                    {
+                        double weight[4];
+                        weight[0] = getValue<double>(text, start);
+                        weight[1] = getValue<double>(text, start);
+                        weight[2] = getValue<double>(text, start);
+                        weight[3] = getValue<double>(text, start);
+                        memcpy(value, weight, sizeof(weight));
+                        step += sizeof(weight);
+                    }
+                    break;
+                }
             }
             break;
         case VertexElement::E_VES_BLENDINDICES:
             {
-                int32_t indices[4];
-                indices[0] = getValue<int32_t>(text, start);
-                indices[1] = getValue<int32_t>(text, start);
-                indices[2] = getValue<int32_t>(text, start);
-                indices[3] = getValue<int32_t>(text, start);
-                memcpy(value, indices, sizeof(indices));
-                step += sizeof(indices);
+                switch (attribute.getType())
+                {
+                case VertexElement::E_VET_INT4:
+                    {
+                        int32_t indices[4];
+                        indices[0] = getValue<int32_t>(text, start);
+                        indices[1] = getValue<int32_t>(text, start);
+                        indices[2] = getValue<int32_t>(text, start);
+                        indices[3] = getValue<int32_t>(text, start);
+                        memcpy(value, indices, sizeof(indices));
+                        step += sizeof(indices);
+                    }
+                    break;
+                }
             }
             break;
         case VertexElement::E_VES_NORMAL:
             {
-                Real normal[3];
-                normal[0] = getValue<Real>(text, start);
-                normal[1] = getValue<Real>(text, start);
-                normal[2] = getValue<Real>(text, start);
-                memcpy(value, normal, sizeof(normal));
-                step += sizeof(normal);
+                switch (attribute.getType())
+                {
+                case VertexElement::E_VET_FLOAT3:
+                    {
+                        float normal[3];
+                        normal[0] = getValue<float>(text, start);
+                        normal[1] = getValue<float>(text, start);
+                        normal[2] = getValue<float>(text, start);
+                        memcpy(value, normal, sizeof(normal));
+                        step += sizeof(normal);
+                    }
+                    break;
+                case VertexElement::E_VET_DOUBLE3:
+                    {
+                        double normal[3];
+                        normal[0] = getValue<double>(text, start);
+                        normal[1] = getValue<double>(text, start);
+                        normal[2] = getValue<double>(text, start);
+                        memcpy(value, normal, sizeof(normal));
+                        step += sizeof(normal);
+                    }
+                    break;
+                }
             }
             break;
         case VertexElement::E_VES_DIFFUSE:
+        case VertexElement::E_VES_SPECULAR:
             {
-                Real color[4];
-                color[0] = getValue<Real>(text, start);
-                color[1] = getValue<Real>(text, start);
-                color[2] = getValue<Real>(text, start);
-                color[3] = getValue<Real>(text, start);
-                uint8_t *c = (uint8_t *)value;
-                c[3] = (uint8_t)(color[0] * 255);
-                c[2] = (uint8_t)(color[1] * 255);
-                c[1] = (uint8_t)(color[2] * 255);
-                c[0] = (uint8_t)(color[3] * 255);
-                step += sizeof(uint32_t);
+                switch (attribute.getType())
+                {
+                case VertexElement::E_VET_FLOAT4:
+                    {
+                        float color[4];
+                        color[0] = getValue<float>(text, start);
+                        color[1] = getValue<float>(text, start);
+                        color[2] = getValue<float>(text, start);
+                        color[3] = getValue<float>(text, start);
+                        uint8_t *c = (uint8_t *)value;
+                        c[3] = (uint8_t)(color[0] * 255);
+                        c[2] = (uint8_t)(color[1] * 255);
+                        c[1] = (uint8_t)(color[2] * 255);
+                        c[0] = (uint8_t)(color[3] * 255);
+                        step += sizeof(uint32_t);
+                    }
+                    break;
+                case VertexElement::E_VET_DOUBLE4:
+                    {
+                        double color[4];
+                        color[0] = getValue<double>(text, start);
+                        color[1] = getValue<double>(text, start);
+                        color[2] = getValue<double>(text, start);
+                        color[3] = getValue<double>(text, start);
+                        uint8_t *c = (uint8_t *)value;
+                        c[3] = (uint8_t)(color[0] * 255);
+                        c[2] = (uint8_t)(color[1] * 255);
+                        c[1] = (uint8_t)(color[2] * 255);
+                        c[0] = (uint8_t)(color[3] * 255);
+                        step += sizeof(uint32_t);
+                    }
+                    break;
+                }
             }
             break;
-        case VertexElement::E_VES_SPECULAR:
-            break;
         case VertexElement::E_VES_TEXCOORD:
+            {
+
+            }
             break;
         case VertexElement::E_VES_TANGENT:
             break;
