@@ -47,12 +47,12 @@ namespace Tiny3D
             ++itr;
         }
 
-        size_t vertexCount = vertices.size() / (vertexSize / 4);
+        size_t vertexCount = vertices.size() / vertexSize;
         HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(vertexSize, vertexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
 
         if (vertexDecl != nullptr && vertexBuffer != nullptr)
         {
-            ret = vertexBuffer->writeData(0, sizeof(Real)*vertices.size(), &vertices[0]);
+            ret = vertexBuffer->writeData(0, vertices.size(), &vertices[0]);
 
             if (ret)
             {

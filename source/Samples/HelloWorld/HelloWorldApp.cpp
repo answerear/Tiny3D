@@ -48,6 +48,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     root->addChild(node);
 
     node->lookAt(Vector3(0.0, 200.0, 400.0), Vector3::ZERO, Vector3::UNIT_Y);
+//     node->lookAt(Vector3(0.0, 20.0, 40.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 相机结点
     SGCameraPtr camera = SGCamera::create();
@@ -148,13 +149,13 @@ bool HelloWorldApp::applicationDidFinishLaunching()
 
     {
         // 模型 #1 可见物体结点
-//         SGModelPtr model = SGModel::create("knight.tmt");
-//         node->addChild(model);
-        SGShapePtr shape = SGShape::create();
-        node->addChild(shape);
-
-        SGBoxPtr box = SGBox::create("");
-        shape->addChild(box);
+        SGModelPtr model = SGModel::create("knight.tmt");
+        node->addChild(model);
+//         SGShapePtr shape = SGShape::create();
+//         node->addChild(shape);
+// 
+//         SGBoxPtr box = SGBox::create("");
+//         shape->addChild(box);
     }
 
     return true;

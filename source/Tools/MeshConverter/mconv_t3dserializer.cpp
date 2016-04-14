@@ -16,6 +16,9 @@
 #include "mconv_texture.h"
 #include "mconv_bound.h"
 
+#include <iomanip>
+
+
 namespace mconv
 {
     T3DBinSerializer::T3DBinSerializer()
@@ -295,16 +298,26 @@ namespace mconv
 
             // POSITION
             if (count == 0)
-                ss<<"\n"<<"\t\t\t\t"<<vertex.mPosition[0]<<" "<<vertex.mPosition[1]<<" "<<vertex.mPosition[2];
+            {
+                char szText[64] = {0};
+                snprintf(szText, sizeof(szText)-1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
+                ss<<"\n\t\t\t\t"<<szText;
+            }
             else
-                ss<<"\t\t\t\t"<<vertex.mPosition[0]<<" "<<vertex.mPosition[1]<<" "<<vertex.mPosition[2];
+            {
+                char szText[64] = {0};
+                snprintf(szText, sizeof(szText)-1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
+                ss<<"\t\t\t\t"<<szText;
+            }
 
             // TEXCOORD
             auto itr2 = vertex.mTexElements.begin();
             while (itr2 != vertex.mTexElements.end())
             {
                 const FbxVector2 &uv = *itr2;
-                ss<<" "<<uv[0]<<" "<<uv[1];
+                char szText[64] = {0};
+                snprintf(szText, sizeof(szText)-1, " % 8f % 8f", uv[0], uv[1]);
+                ss<<szText;
                 ++itr2;
             }
 
@@ -313,7 +326,9 @@ namespace mconv
             while (itr3 != vertex.mNormalElements.end())
             {
                 const FbxVector3 &normal = *itr3;
-                ss<<" "<<normal[0]<<" "<<normal[1]<<" "<<normal[2];
+                char szText[64] = {0};
+                snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", normal[0], normal[1], normal[2]);
+                ss<<szText;
                 ++itr3;
             }
 
@@ -322,7 +337,9 @@ namespace mconv
             while (itr3 != vertex.mBinormalElements.end())
             {
                 const FbxVector3 &binormal = *itr3;
-                ss<<" "<<binormal[0]<<" "<<binormal[1]<<" "<<binormal[2];
+                char szText[64] = {0};
+                snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", binormal[0], binormal[1], binormal[2]);
+                ss<<szText;
                 ++itr3;
             }
 
@@ -331,7 +348,10 @@ namespace mconv
             while (itr3 != vertex.mTangentElements.end())
             {
                 const FbxVector3 &tangent = *itr3;
-                ss<<" "<<tangent[0]<<" "<<tangent[1]<<" "<<tangent[2];
+                char szText[64] = {0};
+                snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", tangent[0], tangent[1], tangent[2]);
+                ss<<szText;
+//                 ss<<" "<<tangent[0]<<" "<<tangent[1]<<" "<<tangent[2];
                 ++itr3;
             }
 
@@ -340,7 +360,10 @@ namespace mconv
             while (itr4 != vertex.mColorElements.end())
             {
                 const FbxVector4 &color = *itr4;
-                ss<<" "<<color[0]<<" "<<color[1]<<" "<<color[2]<<" "<<color[3];
+                char szText[64] = {0};
+                snprintf(szText, sizeof(szText)-1, " % 8f %8f % 8f % 8f", color[0], color[1], color[2], color[3]);
+                ss<<szText;
+//                 ss<<" "<<color[0]<<" "<<color[1]<<" "<<color[2]<<" "<<color[3];
                 ++itr4;
             }
 
@@ -353,7 +376,10 @@ namespace mconv
                 auto itrBlend = vertex.mBlendInfo.rbegin();
                 while (itrBlend != vertex.mBlendInfo.rend())
                 {
-                    ss<<itrBlend->second.mBlendWeight;
+                    char szText[16] = {0};
+                    snprintf(szText, sizeof(szText)-1, "% 8f", itrBlend->second.mBlendWeight);
+                    ss<<szText;
+//                     ss<<itrBlend->second.mBlendWeight;
                     ++i;
                     ++itrBlend;
 
@@ -367,7 +393,10 @@ namespace mconv
 
                 while (i < MAX_BLEND_COUNT)
                 {
-                    ss<<"0";
+//                     ss<<"0";
+                    char szText[16] = {0};
+                    snprintf(szText, sizeof(szText)-1, "% 8f", 0);
+                    ss<<szText;
                     ++i;
                     ss<<" ";
                 }
@@ -377,7 +406,10 @@ namespace mconv
                 itrBlend = vertex.mBlendInfo.rbegin();
                 while (itrBlend != vertex.mBlendInfo.rend())
                 {
-                    ss<<itrBlend->second.mBlendIndex;
+                    char szText[16] = {0};
+                    snprintf(szText, sizeof(szText)-1, "% 8d", itrBlend->second.mBlendIndex);
+                    ss<<szText;
+//                     ss<<itrBlend->second.mBlendIndex;
                     ++i;
                     ++itrBlend;
 
@@ -391,7 +423,10 @@ namespace mconv
 
                 while (i < MAX_BLEND_COUNT)
                 {
-                    ss<<"-1";
+                    char szText[16] = {0};
+                    snprintf(szText, sizeof(szText)-1, "% 8d", 0);
+                    ss<<szText;
+//                     ss<<"-1";
                     ++i;
                     if (i < MAX_BLEND_COUNT)
                         ss<<" ";

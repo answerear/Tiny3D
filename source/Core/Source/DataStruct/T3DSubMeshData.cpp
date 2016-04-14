@@ -7,27 +7,11 @@
 
 namespace Tiny3D
 {
-    SubMeshDataPtr SubMeshData::create(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices16 &indices)
+    SubMeshDataPtr SubMeshData::create(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices &indices, bool is16bits)
     {
         SubMeshDataPtr submesh = new SubMeshData();
 
-        if (submesh != nullptr && submesh->init(primitiveType, materialName, indices))
-        {
-            submesh->release();
-        }
-        else
-        {
-            T3D_SAFE_RELEASE(submesh);
-        }
-
-        return submesh;
-    }
-
-    SubMeshDataPtr SubMeshData::create(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices32 &indices)
-    {
-        SubMeshDataPtr submesh = new SubMeshData();
-
-        if (submesh != nullptr && submesh->init(primitiveType, materialName, indices))
+        if (submesh != nullptr && submesh->init(primitiveType, materialName, indices, is16bits))
         {
             submesh->release();
         }
@@ -50,40 +34,27 @@ namespace Tiny3D
         mIndexData = nullptr;
     }
 
-    bool SubMeshData::init(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices16 &indices)
+    bool SubMeshData::init(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices &indices, bool is16bits)
     {
         bool ret = false;
 
         mPrimitiveType = primitiveType;
         mMaterialName = materialName;
 
-        HardwareIndexBufferPtr indexBuffer = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(HardwareIndexBuffer::E_IT_16BITS, indices.size(), HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
+        HardwareIndexBuffer::Type indexType = HardwareIndexBuffer::E_IT_32BITS;
+        size_t indexCount = indices.size() / sizeof(uint32_t);
 
-        if (indexBuffer != nullptr)
+        if (is16bits)
         {
-            size_t indexSize = sizeof(uint16_t) * indices.size();
-            ret = indexBuffer->writeData(0, indexSize, &indices[0]);
-            if (ret)
-            {
-                mIndexData = IndexData::create(indexBuffer);
-            }
+            indexType = HardwareIndexBuffer::E_IT_16BITS;
+            indexCount = indices.size() / sizeof(uint16_t);
         }
 
-        return ret;
-    }
-
-    bool SubMeshData::init(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices32 &indices)
-    {
-        bool ret = false;
-
-        mPrimitiveType = primitiveType;
-        mMaterialName = materialName;
-
-        HardwareIndexBufferPtr indexBuffer = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(HardwareIndexBuffer::E_IT_32BITS, indices.size(), HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
+        HardwareIndexBufferPtr indexBuffer = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(indexType, indexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
 
         if (indexBuffer != nullptr)
         {
-            size_t indexSize = sizeof(uint32_t) * indices.size();
+            size_t indexSize = indices.size();
             ret = indexBuffer->writeData(0, indexSize, &indices[0]);
             if (ret)
             {

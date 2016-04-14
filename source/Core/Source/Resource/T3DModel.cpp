@@ -206,7 +206,7 @@ namespace Tiny3D
         return ret;
     }
 
-    size_t Model::parseValue(const String &text, size_t &start, const VertexElement &attribute, void *value)
+    size_t Model::parseVertexValue(const String &text, size_t &start, const VertexElement &attribute, void *value)
     {
         size_t step = 0;
 
@@ -222,8 +222,8 @@ namespace Tiny3D
                         pos[0] = getValue<float>(text, start);
                         pos[1] = getValue<float>(text, start);
                         pos[2] = getValue<float>(text, start);
-                        memcpy(value, pos, sizeof(pos));
-                        step += sizeof(pos);
+                        step = sizeof(pos);
+                        memcpy(value, pos, step);
                     }
                     break;
                 case VertexElement::E_VET_DOUBLE3:
@@ -232,8 +232,8 @@ namespace Tiny3D
                         pos[0] = getValue<double>(text, start);
                         pos[1] = getValue<double>(text, start);
                         pos[2] = getValue<double>(text, start);
-                        memcpy(value, pos, sizeof(pos));
-                        step += sizeof(pos);
+                        step = sizeof(pos);
+                        memcpy(value, pos, step);
                     }
                     break;
                 }
@@ -250,8 +250,8 @@ namespace Tiny3D
                         weight[1] = getValue<float>(text, start);
                         weight[2] = getValue<float>(text, start);
                         weight[3] = getValue<float>(text, start);
-                        memcpy(value, weight, sizeof(weight));
-                        step += sizeof(weight);
+                        step = sizeof(weight);
+                        memcpy(value, weight, step);
                     }
                     break;
                 case VertexElement::E_VET_DOUBLE4:
@@ -261,8 +261,8 @@ namespace Tiny3D
                         weight[1] = getValue<double>(text, start);
                         weight[2] = getValue<double>(text, start);
                         weight[3] = getValue<double>(text, start);
-                        memcpy(value, weight, sizeof(weight));
-                        step += sizeof(weight);
+                        step = sizeof(weight);
+                        memcpy(value, weight, step);
                     }
                     break;
                 }
@@ -296,8 +296,8 @@ namespace Tiny3D
                         normal[0] = getValue<float>(text, start);
                         normal[1] = getValue<float>(text, start);
                         normal[2] = getValue<float>(text, start);
-                        memcpy(value, normal, sizeof(normal));
-                        step += sizeof(normal);
+                        step = sizeof(normal);
+                        memcpy(value, normal, step);
                     }
                     break;
                 case VertexElement::E_VET_DOUBLE3:
@@ -306,8 +306,8 @@ namespace Tiny3D
                         normal[0] = getValue<double>(text, start);
                         normal[1] = getValue<double>(text, start);
                         normal[2] = getValue<double>(text, start);
-                        memcpy(value, normal, sizeof(normal));
-                        step += sizeof(normal);
+                        step = sizeof(normal);
+                        memcpy(value, normal, step);
                     }
                     break;
                 }
@@ -318,7 +318,7 @@ namespace Tiny3D
             {
                 switch (attribute.getType())
                 {
-                case VertexElement::E_VET_FLOAT4:
+                case VertexElement::E_VET_COLOR:
                     {
                         float color[4];
                         color[0] = getValue<float>(text, start);
@@ -330,22 +330,7 @@ namespace Tiny3D
                         c[2] = (uint8_t)(color[1] * 255);
                         c[1] = (uint8_t)(color[2] * 255);
                         c[0] = (uint8_t)(color[3] * 255);
-                        step += sizeof(uint32_t);
-                    }
-                    break;
-                case VertexElement::E_VET_DOUBLE4:
-                    {
-                        double color[4];
-                        color[0] = getValue<double>(text, start);
-                        color[1] = getValue<double>(text, start);
-                        color[2] = getValue<double>(text, start);
-                        color[3] = getValue<double>(text, start);
-                        uint8_t *c = (uint8_t *)value;
-                        c[3] = (uint8_t)(color[0] * 255);
-                        c[2] = (uint8_t)(color[1] * 255);
-                        c[1] = (uint8_t)(color[2] * 255);
-                        c[0] = (uint8_t)(color[3] * 255);
-                        step += sizeof(uint32_t);
+                        step = sizeof(uint32_t);
                     }
                     break;
                 }
@@ -353,109 +338,118 @@ namespace Tiny3D
             break;
         case VertexElement::E_VES_TEXCOORD:
             {
-
+                switch (attribute.getType())
+                {
+                case VertexElement::E_VET_FLOAT2:
+                    {
+                        float texcoord[2];
+                        texcoord[0] = getValue<float>(text, start);
+                        texcoord[1] = getValue<float>(text, start);
+                        step = sizeof(texcoord);
+                        memcpy(value, texcoord, step);
+                    }
+                    break;
+                case VertexElement::E_VET_DOUBLE2:
+                    {
+                        double texcoord[2];
+                        texcoord[0] = getValue<double>(text, start);
+                        texcoord[1] = getValue<double>(text, start);
+                        step = sizeof(texcoord);
+                        memcpy(value, texcoord, step);
+                    }
+                    break;
+                }
             }
             break;
         case VertexElement::E_VES_TANGENT:
+            {
+                switch (attribute.getType())
+                {
+                case VertexElement::E_VET_FLOAT3:
+                    {
+                        float tangent[3];
+                        tangent[0] = getValue<float>(text, start);
+                        tangent[1] = getValue<float>(text, start);
+                        tangent[2] = getValue<float>(text, start);
+                        step = sizeof(tangent);
+                        memcpy(value, tangent, step);
+                    }
+                    break;
+                case VertexElement::E_VET_DOUBLE3:
+                    {
+                        double tangent[3];
+                        tangent[0] = getValue<double>(text, start);
+                        tangent[1] = getValue<double>(text, start);
+                        tangent[2] = getValue<double>(text, start);
+                        step = sizeof(tangent);
+                        memcpy(value, tangent, step);
+                    }
+                    break;
+                }
+            }
             break;
         case VertexElement::E_VES_BINORMAL:
+            {
+                switch (attribute.getType())
+                {
+                case VertexElement::E_VET_FLOAT3:
+                    {
+                        float binormal[3];
+                        binormal[0] = getValue<float>(text, start);
+                        binormal[1] = getValue<float>(text, start);
+                        binormal[2] = getValue<float>(text, start);
+                        step = sizeof(binormal);
+                        memcpy(value, binormal, step);
+                    }
+                    break;
+                case VertexElement::E_VET_DOUBLE3:
+                    {
+                        double binormal[3];
+                        binormal[0] = getValue<double>(text, start);
+                        binormal[1] = getValue<double>(text, start);
+                        binormal[2] = getValue<double>(text, start);
+                        step = sizeof(binormal);
+                        memcpy(value, binormal, step);
+                    }
+                    break;
+                }
+            }
             break;
         }
 
         return step;
     }
 
-    bool Model::parseMesh(tinyxml2::XMLElement *pMeshElement)
+    size_t Model::parseIndexValue(const String &text, size_t &start, bool is16bits, void *value)
     {
-        XMLElement *pAttribsElement = pMeshElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTES);
+        size_t step = 0;
 
-        // 解析顶点属性列表大小
-        int32_t count = pAttribsElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
-
-        if (count == 0)
+        if (is16bits)
         {
-            T3D_LOG_ERROR("The size of vertex attributes is zero !!!");
-            return false;
+            uint16_t index = getValue<uint16_t>(text, start);
+            step = sizeof(uint16_t);
+            memcpy(value, &index, step);
+        }
+        else
+        {
+            uint32_t index = getValue<uint32_t>(text, start);
+            step = sizeof(uint32_t);
+            memcpy(value, &index, step);
         }
 
-        MeshData::VertexAttributes attributes(count);
+        return step;
+    }
 
-        // 解析顶点属性
-        XMLElement *pAttribElement = pAttribsElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTE);
-        int32_t i = 0;
-        size_t offset = 0;
-        size_t typeCount = 0;
+    Renderer::PrimitiveType Model::parsePrimitiveType(const String &name)
+    {
+        Renderer::PrimitiveType primitiveType = Renderer::E_PT_TRIANGLE_LIST;
 
-        while (pAttribElement != nullptr && i < count)
+        if (name == T3D_PRITYPE_TRIANGLE_LIST)
         {
-            VertexElement::Semantic vertexSemantic = parseVertexSemantic(pAttribElement->Attribute(T3D_XML_ATTRIB_ID));
-            size_t valueCount = pAttribElement->IntAttribute(T3D_XML_ATTRIB_SIZE);
-            typeCount += valueCount;
-            size_t vertexSize = 0;
-            VertexElement::Type vertexType = parseVertexType(vertexSemantic, pAttribElement->Attribute(T3D_XML_ATTRIB_TYPE), valueCount, vertexSize);
-            attributes[i++] = VertexElement(offset, vertexType, vertexSemantic);
-            offset += vertexSize;
-            pAttribElement = pAttribElement->NextSiblingElement(T3D_XML_TAG_ATTRIBUTE);
+            primitiveType = Renderer::E_PT_TRIANGLE_LIST;
         }
 
-        // 解析顶点数据
-        XMLElement *pVerticesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_VERTICES);
-        size_t vertexCount = pVerticesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
-
-        if (count == 0)
-        {
-            T3D_LOG_ERROR("Size of vertex data is zero !!!");
-            return false;
-        }
-
-        size_t vertexSize = offset;
-        size_t valueCount = vertexCount * vertexSize;
-        MeshData::Vertices vertices(valueCount);
-
-        String text = pVerticesElement->GetText();
-        size_t start = 0;
-        i = 0;
-
-        do
-        {
-            size_t j = 0;
-
-            for (j = 0; j < attributes.size(); ++j)
-            {
-                auto attribute = attributes[j];
-                size_t step = parseValue(text, start, attribute, &vertices[i]);
-                i += step;
-            }
-        } while (i < valueCount);
-
-//         size_t pos = 0;
-//         size_t len = 0;
-//         size_t start = 0;
-//         i = 0;
-// 
-//         do
-//         {
-//             pos = text.find(' ', start);
-//             if (pos == -1)
-//             {
-//                 len = text.length() - start;
-//             }
-//             else
-//             {
-//                 len = pos - start;
-//             }
-//             String str = text.substr(start, len);
-//             float value;
-//             sscanf(str.c_str(), "%f", &value);
-//             vertices[i++] = value;
-//             start = pos + 1;
-//         } while (pos != -1 && i < count);
-
-        mMeshData = MeshData::create(attributes, vertices, offset);
-
-        bool ret = parseSubMeshes(pMeshElement);
-
-        return ret;
+        return primitiveType;
     }
 
     VertexElement::Semantic Model::parseVertexSemantic(const String &name)
@@ -498,7 +492,7 @@ namespace Tiny3D
         return semantic;
     }
 
-    VertexElement::Type Model::parseVertexType(VertexElement::Semantic semantic, const String &name, size_t valueCount, size_t &vertexSize)
+    VertexElement::Type Model::parseVertexType(VertexElement::Semantic semantic, const String &name, size_t valueCount)
     {
         bool bColorValue = false;
 
@@ -508,15 +502,12 @@ namespace Tiny3D
 
         if (bColorValue)
         {
-            vertexSize = sizeof(float) * valueCount;
             type = VertexElement::E_VET_COLOR;
         }
         else
         {
             if (name == T3D_VALUE_TYPE_FLOAT)
             {
-                vertexSize = sizeof(float) * valueCount;
-
                 switch (valueCount)
                 {
                 case 1:
@@ -543,8 +534,6 @@ namespace Tiny3D
             }
             else if (name == T3D_VALUE_TYPE_DOUBLE)
             {
-                vertexSize = sizeof(double) * valueCount;
-
                 switch (valueCount)
                 {
                 case 1:
@@ -571,8 +560,6 @@ namespace Tiny3D
             }
             else if (name == T3D_VALUE_TYPE_INT)
             {
-                vertexSize = sizeof(int) * valueCount;
-
                 switch (valueCount)
                 {
                 case 1:
@@ -607,6 +594,74 @@ namespace Tiny3D
         return type;
     }
 
+    bool Model::parseMesh(tinyxml2::XMLElement *pMeshElement)
+    {
+        XMLElement *pAttribsElement = pMeshElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTES);
+
+        // 解析顶点属性列表大小
+        int32_t count = pAttribsElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+
+        if (count == 0)
+        {
+            T3D_LOG_ERROR("The size of vertex attributes is zero !!!");
+            return false;
+        }
+
+        MeshData::VertexAttributes attributes(count);
+
+        // 解析顶点属性
+        XMLElement *pAttribElement = pAttribsElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTE);
+        int32_t i = 0;
+        size_t offset = 0;
+
+        while (pAttribElement != nullptr && i < count)
+        {
+            VertexElement::Semantic vertexSemantic = parseVertexSemantic(pAttribElement->Attribute(T3D_XML_ATTRIB_ID));
+            size_t valueCount = pAttribElement->IntAttribute(T3D_XML_ATTRIB_SIZE);
+            VertexElement::Type vertexType = parseVertexType(vertexSemantic, pAttribElement->Attribute(T3D_XML_ATTRIB_TYPE), valueCount);
+            attributes[i] = VertexElement(offset, vertexType, vertexSemantic);
+            offset += attributes[i].getSize();
+            i++;
+            pAttribElement = pAttribElement->NextSiblingElement(T3D_XML_TAG_ATTRIBUTE);
+        }
+
+        // 解析顶点数据
+        XMLElement *pVerticesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_VERTICES);
+        size_t vertexCount = pVerticesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+
+        if (count == 0)
+        {
+            T3D_LOG_ERROR("Size of vertex data is zero !!!");
+            return false;
+        }
+
+        size_t vertexSize = offset;
+        size_t valueCount = vertexCount * vertexSize;
+        MeshData::Vertices vertices(valueCount);
+
+        String text = pVerticesElement->GetText();
+        size_t start = 0;
+        i = 0;
+
+        do
+        {
+            size_t j = 0;
+
+            for (j = 0; j < attributes.size(); ++j)
+            {
+                auto attribute = attributes[j];
+                size_t step = parseVertexValue(text, start, attribute, &vertices[i]);
+                i += step;
+            }
+        } while (i < valueCount);
+
+        mMeshData = MeshData::create(attributes, vertices, offset);
+
+        bool ret = parseSubMeshes(pMeshElement);
+
+        return ret;
+    }
+
     bool Model::parseSubMeshes(tinyxml2::XMLElement *pMeshElement)
     {
         XMLElement *pSubMeshesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_PARTS);
@@ -633,77 +688,28 @@ namespace Tiny3D
         int32_t indexCount = pIndicesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
         bool is16bits = pIndicesElement->BoolAttribute(T3D_XML_ATTRIB_16BITS);
 
-        SubMeshData::Indices16 indices16;
-        SubMeshData::Indices32 indices32;
-
+        size_t indexSize = indexCount * sizeof(uint32_t);
         if (is16bits)
         {
-            indices16.resize(indexCount);
+            indexSize = indexCount * sizeof(uint16_t);
         }
-        else
-        {
-            indices32.resize(indexCount);
-        }
+
+        SubMeshData::Indices indices(indexSize);
 
         String text = pIndicesElement->GetText();
-        size_t pos = 0;
-        size_t len = 0;
         size_t start = 0;
-        int32_t i = 0;
+        size_t i = 0;
 
-        do
+        do 
         {
-            pos = text.find(' ', start);
-
-            if (pos == -1)
-            {
-                len = text.length() - start;
-            }
-            else
-            {
-                len = pos - start;
-            }
-
-            String str = text.substr(start, len);
-            int32_t value;
-            sscanf(str.c_str(), "%d", &value);
-
-            if (is16bits)
-            {
-                indices16[i++] = value;
-            }
-            else
-            {
-                indices32[i++] = value;
-            }
-
-            start = pos + 1;
-        } while (pos != -1 && i < indexCount);
-
-        if (is16bits)
-        {
-            SubMeshDataPtr submeshdata = SubMeshData::create(primitiveType, materialName, indices16);
-            mSubMeshData.push_back(submeshdata);
-        }
-        else
-        {
-            SubMeshDataPtr submeshdata = SubMeshData::create(primitiveType, materialName, indices32);
-            mSubMeshData.push_back(submeshdata);
-        }
+            size_t step = parseIndexValue(text, start, is16bits, &indices[i]);
+            i += step;
+        } while (i < indexSize);
+        
+        SubMeshDataPtr submeshdata = SubMeshData::create(primitiveType, materialName, indices, is16bits);
+        mSubMeshData.push_back(submeshdata);
 
         return true;
-    }
-
-    Renderer::PrimitiveType Model::parsePrimitiveType(const String &name)
-    {
-        Renderer::PrimitiveType primitiveType = Renderer::E_PT_TRIANGLE_LIST;
-
-        if (name == T3D_PRITYPE_TRIANGLE_LIST)
-        {
-            primitiveType = Renderer::E_PT_TRIANGLE_LIST;
-        }
-
-        return primitiveType;
     }
 
     bool Model::parseMaterials(tinyxml2::XMLElement *pMatsElement)

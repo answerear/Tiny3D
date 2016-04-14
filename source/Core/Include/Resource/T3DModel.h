@@ -63,23 +63,25 @@ namespace Tiny3D
         virtual void unload() override;
         virtual ResourcePtr clone() const override;
 
+        FileType parseFileType(const String &name) const;
+
         bool loadFromXML(MemoryDataStream &stream);
 
-        size_t parseValue(const String &text, size_t &start, const VertexElement &attribute, void *value);
+        size_t parseVertexValue(const String &text, size_t &start, const VertexElement &attribute, void *value);
+        size_t parseIndexValue(const String &text, size_t &start, bool is16bits, void *value);
+
+        VertexElement::Semantic parseVertexSemantic(const String &name);
+        VertexElement::Type parseVertexType(VertexElement::Semantic semantic, const String &name, size_t valueCount);
+        Renderer::PrimitiveType parsePrimitiveType(const String &name);
 
         bool parseMesh(tinyxml2::XMLElement *pMeshElement);
-        VertexElement::Semantic parseVertexSemantic(const String &name);
-        VertexElement::Type parseVertexType(VertexElement::Semantic semantic, const String &name, size_t valueCount, size_t &vertexSize);
 
         bool parseSubMeshes(tinyxml2::XMLElement *pMeshElement);
         bool parseSubMesh(tinyxml2::XMLElement *pSubMeshElement);
-        Renderer::PrimitiveType parsePrimitiveType(const String &name);
 
         bool parseMaterials(tinyxml2::XMLElement *pMatsElement);
 
         bool loadFromBinary(DataStream &stream);
-
-        FileType parseFileType(const String &name) const;
 
     protected:
         ObjectPtr       mMeshData;      // 网格顶点数据

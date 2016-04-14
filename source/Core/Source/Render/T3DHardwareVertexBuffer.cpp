@@ -59,7 +59,7 @@ namespace Tiny3D
             s = sizeof(float) * 4;
             break;
         case E_VET_COLOR:
-            s = sizeof(DWORD);
+            s = sizeof(uint32_t);
             break;
         case E_VET_BYTE4:
         case E_VET_BYTE4_NORM:
