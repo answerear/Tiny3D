@@ -53,22 +53,33 @@ namespace Tiny3D
 
     using namespace tinyxml2;
 
+    size_t getNextStart(const String &text, size_t start)
+    {
+        size_t pos = start;
+        while (text[pos] == ' ' || text[pos] == '\n' || text[pos] == '\t')
+        {
+            ++pos;
+        }
+
+        return pos;
+    }
+
     template <typename T>
     T getValue(const String &text, size_t &start)
     {
-        size_t pos = text.find(' ', start);
+        size_t end = text.find(' ', start);
         size_t len = 0;
 
-        if (pos == -1)
+        if (end == -1)
         {
             len = text.length() - start;
         }
         else
         {
-            len = pos - start;
+            len = end - start;
         }
         String str = text.substr(start, len);
-        start = pos + 1;
+        start = getNextStart(text, end);
 
         std::stringstream ss(str);
         T value;
@@ -655,7 +666,7 @@ namespace Tiny3D
             }
         } while (i < valueCount);
 
-        mMeshData = MeshData::create(attributes, vertices, offset);
+        mMeshData = MeshData::create(attributes, vertices, vertexSize);
 
         bool ret = parseSubMeshes(pMeshElement);
 
