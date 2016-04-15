@@ -47,8 +47,8 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     SGTransformNodePtr node = SGTransformNode::create();
     root->addChild(node);
 
-//     node->lookAt(Vector3(0.0, 200.0, 400.0), Vector3::ZERO, Vector3::UNIT_Y);
-    node->lookAt(Vector3(0.0, 10.0, 20.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(0.0, 10.0, 200.0), Vector3::ZERO, Vector3::UNIT_Y);
+//     node->lookAt(Vector3(0.0, 10.0, 20.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 相机结点
     SGCameraPtr camera = SGCamera::create();
@@ -145,12 +145,12 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     node = SGTransformNode::create();
     root->addChild(node);
     node->setPosition(0.0, 0.0, 0.0);
-    node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_X);
+//     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_X);
 //     node->setScale(200.0f, 200.0f, 200.0f);
 
     {
         // 模型 #1 可见物体结点
-        SGModelPtr model = SGModel::create("knight.tmt");
+        SGModelPtr model = SGModel::create("Dahu01.tmt");
 //         SGModelPtr model = SGModel::create("textured.tmt");
         node->addChild(model);
 //         SGShapePtr shape = SGShape::create();

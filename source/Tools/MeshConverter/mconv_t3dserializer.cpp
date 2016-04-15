@@ -395,7 +395,7 @@ namespace mconv
                 {
 //                     ss<<"0";
                     char szText[16] = {0};
-                    snprintf(szText, sizeof(szText)-1, "% 8f", 0);
+                    snprintf(szText, sizeof(szText)-1, "% 8f", 0.0f);
                     ss<<szText;
                     ++i;
                     ss<<" ";

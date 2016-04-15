@@ -53,7 +53,7 @@ namespace Tiny3D
 
     using namespace tinyxml2;
 
-    size_t getNextStart(const String &text, size_t start)
+    size_t getStartPos(const String &text, size_t start)
     {
         size_t pos = start;
         while (text[pos] == ' ' || text[pos] == '\n' || text[pos] == '\t')
@@ -79,7 +79,7 @@ namespace Tiny3D
             len = end - start;
         }
         String str = text.substr(start, len);
-        start = getNextStart(text, end);
+        start = getStartPos(text, end);
 
         std::stringstream ss(str);
         T value;
@@ -652,6 +652,7 @@ namespace Tiny3D
 
         String text = pVerticesElement->GetText();
         size_t start = 0;
+        start = getStartPos(text, start);
         i = 0;
 
         do
