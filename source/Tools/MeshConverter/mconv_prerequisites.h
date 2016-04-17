@@ -43,7 +43,13 @@ namespace mconv
         E_BT_AABB,
     };
 
-//     typedef FbxDouble3 FbxVector3;
+    enum FileMode
+    {
+        E_FM_SPLIT_MESH = 0,                /// fbx中有多个mesh的时候会自动按照mesh分离出多个文件
+        E_FM_SHARE_VERTEX,                  /// fbx中有多个mesh的时候会自动合并成一个model，全部都在一个文件中，并且共享顶点缓存
+        E_FM_MERGE_MESH,                    /// fbx中有多个mesh的时候会自动合并成一个model，全部都在一个文件中，每个mesh有其独立顶点缓存
+    };
+
     class FbxVector3 : public FbxDouble3
     {
     public:

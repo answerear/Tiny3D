@@ -125,7 +125,15 @@ namespace mconv
         
         if (mExporter != nullptr)
         {
-            result = mExporter->save(mSettings.mDstPath, mDstData);
+//             result = mExporter->save(mSettings.mDstPath, mDstData);
+            auto itr = mSceneList.begin();
+            while (itr != mSceneList.end())
+            {
+                const SceneInfo &scene = *itr;
+                String dstPath = mSettings.mDstPath + scene.mName;
+                result = mExporter->save(scene.mName, scene.mRoot);
+                ++itr;
+            }
         }
 
         return result;
@@ -167,19 +175,21 @@ namespace mconv
         }
 
         FbxScene *pFbxScene = static_cast<FbxScene *>(mSrcData);
-        String name = pFbxScene->GetName();
-        if (name.empty())
+
+        if (E_FM_MERGE_MESH == mSettings.mFileMode)
         {
-            name = "Scene";
+            String name = pFbxScene->GetName();
+
+            if (name.empty())
+            {
+                name = "Scene";
+            }
+
+            Scene *pScene = new Scene(name);
+//             mDstData = pScene;
+            SceneInfo info = {pScene, name};
+            processFbxScene(pFbxScene, pScene);
         }
-        Scene *pScene = new Scene(name);
-        mDstData = pScene;
-
-#ifdef _DEBUG
-        mTabCount = 0;
-#endif
-
-        processFbxScene(pFbxScene, pScene);
 
         return true;
     }
@@ -196,15 +206,6 @@ namespace mconv
     {
         bool result = false;
         Node *pNode = nullptr;
-
-#ifdef _DEBUG
-        std::stringstream ssTab;
-        for (int t = 0; t < mTabCount; ++t)
-        {
-            ssTab<<"\t";
-        }
-        T3D_LOG_INFO("%sNode : %s", ssTab.str().c_str(), pFbxNode->GetName());
-#endif
 
         int nAttribCount = pFbxNode->GetNodeAttributeCount();
         int i = 0;

@@ -19,8 +19,9 @@ namespace mconv
         void printCommand(int argc, char *argv[]) const;
         void printHelp() const;
 
-        FileType parseType(const char *arg) const;
+        FileType parseFileType(const char *arg) const;
         BoundType parseBoundType(const char *arg) const;
+        FileMode parseFileMode(const char *arg) const;
     };
 }
 

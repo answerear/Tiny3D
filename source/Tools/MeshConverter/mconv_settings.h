@@ -15,6 +15,8 @@ namespace mconv
         Settings()
             : mSrcType(E_FILETYPE_FBX)
             , mDstType(E_FILETYPE_T3D)
+            , mBoundType(E_BT_AABB)
+            , mFileMode(E_FM_SPLIT_MESH)
             , mVerbose(true)
         {
 
@@ -27,6 +29,7 @@ namespace mconv
         FileType    mDstType;
 
         BoundType   mBoundType;
+        FileMode    mFileMode;
 
         bool    mVerbose;
     };

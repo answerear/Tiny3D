@@ -36,16 +36,20 @@ namespace mconv
                 }
                 else if (arg[1] == 'i')
                 {
-                    settings.mSrcType = parseType(argv[++i]);
+                    settings.mSrcType = parseFileType(argv[++i]);
                 }
                 else if (arg[1] == 'o')
                 {
-                    settings.mDstType = parseType(argv[++i]);
+                    settings.mDstType = parseFileType(argv[++i]);
                     ext = argv[i];
                 }
                 else if (arg[1] == 'b')
                 {
                     settings.mBoundType = parseBoundType(argv[++i]);
+                }
+                else if (arg[1] == 'm')
+                {
+                    settings.mFileMode = parseFileMode(argv[++i]);
                 }
             }
             else if (settings.mSrcPath.length() == 0)
@@ -100,6 +104,11 @@ namespace mconv
         printf("\t<type> : This type should be FBX (fbx), tmb (Tiny3D binary), tmt (Tiny3D text), t3d (both binary and text) or DAE (dae).\n");
         printf("-b <type>: Set the type of the bounding box to <type>\n");
         printf("\t<type> : This type should be sphere or aabb.\n");
+        printf("-m <type>: This type should control file mode.\n");
+        printf("\t<type> : This type should be split, shared or merge.\n");
+        printf("\t              split - Split different meshes in one *.fbx file into different model files.\n");
+        printf("\t              shared - Merge different meshes in one *.fbx file into one model files and all meshes share one vertex buffer.\n");
+        printf("\t              merge - Merge different meshes in one *.fbx file into one model files but all meshes have individual vertex buffer.\n");
         printf("-v       : Verbose: print additional progress information\n");
         printf("\n");
         printf("<input>  : The filename of the file to convert.\n");
@@ -108,7 +117,7 @@ namespace mconv
         printf("<type>   : FBX, TMB (binary) or TMT (xml).\n");
     }
 
-    FileType Command::parseType(const char *arg) const
+    FileType Command::parseFileType(const char *arg) const
     {
         FileType type = E_FILETYPE_AUTO;
 
@@ -134,5 +143,25 @@ namespace mconv
             type = E_BT_AABB;
 
         return type;
+    }
+
+    FileMode Command::parseFileMode(const char *arg) const
+    {
+        FileMode mode = E_FM_SPLIT_MESH;
+
+        if (stricmp(arg, "split") == 0)
+        {
+            mode = E_FM_SPLIT_MESH;
+        }
+        else if (stricmp(arg, "shared") == 0)
+        {
+            mode = E_FM_SHARE_VERTEX;
+        }
+        else if (stricmp(arg, "merge") == 0)
+        {
+            mode = E_FM_MERGE_MESH;
+        }
+
+        return mode;
     }
 }

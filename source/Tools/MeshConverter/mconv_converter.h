@@ -191,10 +191,20 @@ namespace mconv
 
         void cleanup();
 
+        struct SceneInfo
+        {
+            void    *mRoot;
+            String  mName;
+        };
+
         typedef std::map<FbxNode*, Skeleton*>       Skeletons;
         typedef Skeletons::iterator                 SkeletonsItr;
         typedef Skeletons::const_iterator           SkeletonsConstItr;
         typedef std::pair<FbxNode*, Skeleton*>      SkeletonsValue;
+
+        typedef std::list<SceneInfo>                SceneList;
+        typedef SceneList::iterator                 SceneListItr;
+        typedef SceneList::const_iterator           SceneListConstItr;
 
         Settings    mSettings;
 
@@ -202,7 +212,9 @@ namespace mconv
         Serializer  *mExporter;
 
         void        *mSrcData;
-        void        *mDstData;
+//         void        *mDstData;
+
+        SceneList   mSceneList;
 
         Skeletons   mSkeletons;
         bool        mHasSkeleton;
