@@ -138,6 +138,7 @@ namespace mconv
                 if (child->getID() == ID)
                 {
                     node = child;
+                    result = true;
                     break;
                 }
 

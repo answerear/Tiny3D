@@ -23,7 +23,13 @@ namespace mconv
     Converter::Converter()
         : mImporter(nullptr)
         , mExporter(nullptr)
+        , mSrcData(nullptr)
+        , mCurScene(nullptr)
+        , mCurModel(nullptr)
+        , mCurMaterials(nullptr)
         , mHasSkeleton(false)
+        , mHasVertexBlending(false)
+        , mHasAnimation(false)
 #ifdef _DEBUG
         , mTabCount(0)
 #endif
@@ -126,13 +132,21 @@ namespace mconv
         if (mExporter != nullptr)
         {
 //             result = mExporter->save(mSettings.mDstPath, mDstData);
-            auto itr = mSceneList.begin();
-            while (itr != mSceneList.end())
+            if (E_FM_SPLIT_MESH == mSettings.mFileMode)
             {
-                const SceneInfo &scene = *itr;
-                String dstPath = mSettings.mDstPath + scene.mName;
-                result = mExporter->save(scene.mName, scene.mRoot);
-                ++itr;
+                auto itr = mSceneList.begin();
+                while (itr != mSceneList.end())
+                {
+                    const SceneInfo &sceneInfo = *itr;
+                    String dstPath = mSettings.mDstPath + sceneInfo.mName;
+                    result = mExporter->save(dstPath, sceneInfo.mRoot);
+                    ++itr;
+                }
+            }
+            else
+            {
+                const SceneInfo &sceneInfo = mSceneList.front();
+                result = mExporter->save(mSettings.mDstPath, sceneInfo.mRoot);
             }
         }
 
@@ -176,20 +190,16 @@ namespace mconv
 
         FbxScene *pFbxScene = static_cast<FbxScene *>(mSrcData);
 
-        if (E_FM_MERGE_MESH == mSettings.mFileMode)
+        String name = pFbxScene->GetName();
+
+        if (name.empty())
         {
-            String name = pFbxScene->GetName();
-
-            if (name.empty())
-            {
-                name = "Scene";
-            }
-
-            Scene *pScene = new Scene(name);
-//             mDstData = pScene;
-            SceneInfo info = {pScene, name};
-            processFbxScene(pFbxScene, pScene);
+            name = "Scene";
         }
+
+        Scene *pScene = new Scene(name);
+        mCurScene = pScene;
+        processFbxScene(pFbxScene, pScene);
 
         return true;
     }
@@ -198,7 +208,15 @@ namespace mconv
     {
         FbxNode *pFbxRoot = pFbxScene->GetRootNode();
         bool result = processFbxNode(pFbxRoot, pRoot);
-        result = result && optimizeMesh(pRoot);
+//         result = result && optimizeMesh(pRoot);
+
+        if (E_FM_SPLIT_MESH != mSettings.mFileMode)
+        {
+            // 如果不是分割模型文件模式，则调整材质数据到最后
+            mCurMaterials->removeFromParent(false);
+            mCurModel->addChild(mCurMaterials);
+        }
+
         return result;
     }
 
@@ -223,14 +241,44 @@ namespace mconv
                         {
                             name = "Model";
                         }
-                        Model *pModel = new Model(name);
-                        pParent->addChild(pModel);
 
-                        result = processFbxMesh(pFbxNode, pModel, pNode);
+                        if (E_FM_SPLIT_MESH == mSettings.mFileMode)
+                        {
+                            if (!mSceneList.empty())
+                            {
+                                // 不是第一个场景节点，需要重新创建，第一个场景节点已经在外部创建了
+                                Scene *pScene = new Scene(name);
+                                mCurScene = pScene;
+                            }
+
+                            String sceneName = "_" + name;
+                            SceneInfo info = {mCurScene, sceneName};
+                            mSceneList.push_back(info);
+                            pParent = mCurScene;
+
+                            Model *pModel = new Model(name);
+                            pParent->addChild(pModel);
+                            mCurModel = pModel;
+                        }
+                        else
+                        {
+                            if (mCurModel == nullptr)
+                            {
+                                SceneInfo info = {mCurScene, mCurScene->getID()};
+                                mSceneList.push_back(info);
+
+                                Model *pModel = new Model(name);
+                                pParent->addChild(pModel);
+                                mCurModel = pModel;
+                            }
+                        }
+
+                        result = processFbxMesh(pFbxNode, mCurModel, pNode);
                         result = result && processFbxSkin(pFbxNode, pParent, (Mesh *)pNode);
-                        result = result && processFbxMaterial(pFbxNode, pModel);
+                        result = result && processFbxMaterial(pFbxNode, mCurModel);
+                        result = result && optimizeMesh(pNode);
 
-                        pNode = pModel;
+                        pNode = mCurModel;
                     }
                     break;
                 case FbxNodeAttribute::eSkeleton:
@@ -948,174 +996,192 @@ namespace mconv
         }
 #endif
 
-        Materials *pMaterials = new Materials("Materials");
-        pParent->addChild(pMaterials);
+        if (E_FM_SPLIT_MESH != mSettings.mFileMode)
+        {
+            if (mCurMaterials == nullptr)
+            {
+                Materials *pMaterials = new Materials("Materials");
+                pParent->addChild(pMaterials);
+                mCurMaterials = pMaterials;
+            }
+        }
+        else
+        {
+            Materials *pMaterials = new Materials("Materials");
+            pParent->addChild(pMaterials);
+            mCurMaterials = pMaterials;
+        }
 
         for (i = 0; i < nMaterialCount; ++i)
         {
             FbxSurfaceMaterial *pFbxMaterial = pFbxNode->GetMaterial(i);
-            Material *pMaterial = new Material(pFbxMaterial->GetName());
-            pMaterials->addChild(pMaterial);
+
+            Material *pMaterial = nullptr;
+            if (!searchMaterial(pFbxMaterial->GetName(), pMaterial))
+            {
+                pMaterial = new Material(pFbxMaterial->GetName());
+                mCurMaterials->addChild(pMaterial);
 #ifdef _DEBUG
-            T3D_LOG_INFO("%sMaterial : %s", ssTab.str().c_str(), pFbxMaterial->GetName());
+                T3D_LOG_INFO("%sMaterial : %s", ssTab.str().c_str(), pFbxMaterial->GetName());
 #endif
 
-            if (pFbxMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
-            {
-                FbxSurfacePhong *pFbxMatPhong = (FbxSurfacePhong *)pFbxMaterial;
-                pMaterial->mMode = "Phong";
-                FbxDouble3 value = pFbxMatPhong->Ambient.Get();
-                pMaterial->mAmbientColor[0] = value[2];
-                pMaterial->mAmbientColor[1] = value[1];
-                pMaterial->mAmbientColor[2] = value[0];
-                pMaterial->mAmbientColor[3] = pFbxMatPhong->AmbientFactor;
-                value = pFbxMatPhong->Diffuse.Get();
-                pMaterial->mDiffuseColor[0] = value[2];
-                pMaterial->mDiffuseColor[1] = value[1];
-                pMaterial->mDiffuseColor[2] = value[0];
-                pMaterial->mDiffuseColor[3] = pFbxMatPhong->DiffuseFactor;
-                value = pFbxMatPhong->Specular.Get();
-                pMaterial->mSpecularColor[0] = value[2];
-                pMaterial->mSpecularColor[1] = value[1];
-                pMaterial->mSpecularColor[2] = value[0];
-                pMaterial->mSpecularColor[3] = pFbxMatPhong->SpecularFactor;
-                value = pFbxMatPhong->Emissive.Get();
-                pMaterial->mEmissiveColor[0] = value[2];
-                pMaterial->mEmissiveColor[1] = value[1];
-                pMaterial->mEmissiveColor[2] = value[0];
-                pMaterial->mEmissiveColor[3] = pFbxMatPhong->EmissiveFactor;
-                pMaterial->mShininess = pFbxMatPhong->Shininess;
-                pMaterial->mTransparency = pFbxMatPhong->TransparencyFactor;
-                pMaterial->mReflection = pFbxMatPhong->ReflectionFactor;
-
-                Textures *pTextures = nullptr;
-
-                int nAmbientTexCount = pFbxMatPhong->Ambient.GetSrcObjectCount();
-                int nDiffuseTexCount = pFbxMatPhong->Diffuse.GetSrcObjectCount();
-                int nEmissiveTexCount = pFbxMatPhong->Emissive.GetSrcObjectCount();
-
-                if (nAmbientTexCount > 0 || nDiffuseTexCount > 0)
+                if (pFbxMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
                 {
-                    pTextures = new Textures("Textures");
-                    pMaterial->addChild(pTextures);
+                    FbxSurfacePhong *pFbxMatPhong = (FbxSurfacePhong *)pFbxMaterial;
+                    pMaterial->mMode = "Phong";
+                    FbxDouble3 value = pFbxMatPhong->Ambient.Get();
+                    pMaterial->mAmbientColor[0] = value[2];
+                    pMaterial->mAmbientColor[1] = value[1];
+                    pMaterial->mAmbientColor[2] = value[0];
+                    pMaterial->mAmbientColor[3] = pFbxMatPhong->AmbientFactor;
+                    value = pFbxMatPhong->Diffuse.Get();
+                    pMaterial->mDiffuseColor[0] = value[2];
+                    pMaterial->mDiffuseColor[1] = value[1];
+                    pMaterial->mDiffuseColor[2] = value[0];
+                    pMaterial->mDiffuseColor[3] = pFbxMatPhong->DiffuseFactor;
+                    value = pFbxMatPhong->Specular.Get();
+                    pMaterial->mSpecularColor[0] = value[2];
+                    pMaterial->mSpecularColor[1] = value[1];
+                    pMaterial->mSpecularColor[2] = value[0];
+                    pMaterial->mSpecularColor[3] = pFbxMatPhong->SpecularFactor;
+                    value = pFbxMatPhong->Emissive.Get();
+                    pMaterial->mEmissiveColor[0] = value[2];
+                    pMaterial->mEmissiveColor[1] = value[1];
+                    pMaterial->mEmissiveColor[2] = value[0];
+                    pMaterial->mEmissiveColor[3] = pFbxMatPhong->EmissiveFactor;
+                    pMaterial->mShininess = pFbxMatPhong->Shininess;
+                    pMaterial->mTransparency = pFbxMatPhong->TransparencyFactor;
+                    pMaterial->mReflection = pFbxMatPhong->ReflectionFactor;
 
-                    int i = 0;
+                    Textures *pTextures = nullptr;
 
-                    // Ambient texture
-                    for (i = 0; i < nAmbientTexCount; ++i)
+                    int nAmbientTexCount = pFbxMatPhong->Ambient.GetSrcObjectCount();
+                    int nDiffuseTexCount = pFbxMatPhong->Diffuse.GetSrcObjectCount();
+                    int nEmissiveTexCount = pFbxMatPhong->Emissive.GetSrcObjectCount();
+
+                    if (nAmbientTexCount > 0 || nDiffuseTexCount > 0)
                     {
-                        FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatPhong->Ambient.GetSrcObject(i);
-                        if (pFbxTexture != nullptr)
-                        {
-                            Texture *pTexture = new Texture(pFbxTexture->GetName());
-                            pTextures->addChild(pTexture);
+                        pTextures = new Textures("Textures");
+                        pMaterial->addChild(pTextures);
 
-                            pTexture->mFilename = pFbxTexture->GetFileName();
-                            pTexture->mType = "ambient";
-                            pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
-                            pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                        int i = 0;
+
+                        // Ambient texture
+                        for (i = 0; i < nAmbientTexCount; ++i)
+                        {
+                            FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatPhong->Ambient.GetSrcObject(i);
+                            if (pFbxTexture != nullptr)
+                            {
+                                Texture *pTexture = new Texture(pFbxTexture->GetName());
+                                pTextures->addChild(pTexture);
+
+                                pTexture->mFilename = pFbxTexture->GetFileName();
+                                pTexture->mType = "ambient";
+                                pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
+                                pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                            }
                         }
-                    }
 
-                    // Diffuse texture
-                    for (i = 0; i < nDiffuseTexCount; ++i)
-                    {
-                        FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatPhong->Diffuse.GetSrcObject(i);
-                        if (pFbxTexture != nullptr)
+                        // Diffuse texture
+                        for (i = 0; i < nDiffuseTexCount; ++i)
                         {
-                            Texture *pTexture = new Texture(pFbxTexture->GetName());
-                            pTextures->addChild(pTexture);
+                            FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatPhong->Diffuse.GetSrcObject(i);
+                            if (pFbxTexture != nullptr)
+                            {
+                                Texture *pTexture = new Texture(pFbxTexture->GetName());
+                                pTextures->addChild(pTexture);
 
-                            pTexture->mFilename = pFbxTexture->GetFileName();
-                            pTexture->mType = "diffuse";
-                            pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
-                            pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                                pTexture->mFilename = pFbxTexture->GetFileName();
+                                pTexture->mType = "diffuse";
+                                pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
+                                pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                            }
                         }
                     }
                 }
-            }
-            else if (pFbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
-            {
-                FbxSurfaceLambert *pFbxMatLambert = (FbxSurfaceLambert *)pFbxMaterial;
-                pMaterial->mMode = "Lambert";
-                FbxDouble3 value = pFbxMatLambert->Ambient.Get();
-                pMaterial->mAmbientColor[0] = value[0];
-                pMaterial->mAmbientColor[1] = value[1];
-                pMaterial->mAmbientColor[2] = value[2];
-                pMaterial->mAmbientColor[3] = pFbxMatLambert->AmbientFactor;
-                value = pFbxMatLambert->Diffuse.Get();
-                pMaterial->mDiffuseColor[0] = value[2];
-                pMaterial->mDiffuseColor[1] = value[1];
-                pMaterial->mDiffuseColor[2] = value[0];
-                pMaterial->mDiffuseColor[3] = pFbxMatLambert->DiffuseFactor;
-                pMaterial->mSpecularColor[0] = pMaterial->mSpecularColor[1] = pMaterial->mSpecularColor[2] = 0.0f;
-                value = pFbxMatLambert->Emissive.Get();
-                pMaterial->mEmissiveColor[0] = value[2];
-                pMaterial->mEmissiveColor[1] = value[1];
-                pMaterial->mEmissiveColor[2] = value[0];
-                pMaterial->mEmissiveColor[3] = pFbxMatLambert->EmissiveFactor;
-                pMaterial->mShininess = 0.0f;
-                pMaterial->mTransparency = pFbxMatLambert->TransparencyFactor;
-                pMaterial->mReflection = 0.0f;
-
-                Textures *pTextures = nullptr;
-
-                int nAmbientTexCount = pFbxMatLambert->Ambient.GetSrcObjectCount();
-                int nDiffuseTexCount = pFbxMatLambert->Diffuse.GetSrcObjectCount();
-                int nEmissiveTexCount = pFbxMatLambert->Emissive.GetSrcObjectCount();
-
-                if (nAmbientTexCount > 0 || nDiffuseTexCount > 0 || nEmissiveTexCount > 0)
+                else if (pFbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
                 {
-                    pTextures = new Textures("Textures");
-                    pMaterial->addChild(pTextures);
+                    FbxSurfaceLambert *pFbxMatLambert = (FbxSurfaceLambert *)pFbxMaterial;
+                    pMaterial->mMode = "Lambert";
+                    FbxDouble3 value = pFbxMatLambert->Ambient.Get();
+                    pMaterial->mAmbientColor[0] = value[0];
+                    pMaterial->mAmbientColor[1] = value[1];
+                    pMaterial->mAmbientColor[2] = value[2];
+                    pMaterial->mAmbientColor[3] = pFbxMatLambert->AmbientFactor;
+                    value = pFbxMatLambert->Diffuse.Get();
+                    pMaterial->mDiffuseColor[0] = value[2];
+                    pMaterial->mDiffuseColor[1] = value[1];
+                    pMaterial->mDiffuseColor[2] = value[0];
+                    pMaterial->mDiffuseColor[3] = pFbxMatLambert->DiffuseFactor;
+                    pMaterial->mSpecularColor[0] = pMaterial->mSpecularColor[1] = pMaterial->mSpecularColor[2] = 0.0f;
+                    value = pFbxMatLambert->Emissive.Get();
+                    pMaterial->mEmissiveColor[0] = value[2];
+                    pMaterial->mEmissiveColor[1] = value[1];
+                    pMaterial->mEmissiveColor[2] = value[0];
+                    pMaterial->mEmissiveColor[3] = pFbxMatLambert->EmissiveFactor;
+                    pMaterial->mShininess = 0.0f;
+                    pMaterial->mTransparency = pFbxMatLambert->TransparencyFactor;
+                    pMaterial->mReflection = 0.0f;
 
-                    int i = 0;
+                    Textures *pTextures = nullptr;
 
-                    // Ambient texture
-                    for (i = 0; i < nAmbientTexCount; ++i)
+                    int nAmbientTexCount = pFbxMatLambert->Ambient.GetSrcObjectCount();
+                    int nDiffuseTexCount = pFbxMatLambert->Diffuse.GetSrcObjectCount();
+                    int nEmissiveTexCount = pFbxMatLambert->Emissive.GetSrcObjectCount();
+
+                    if (nAmbientTexCount > 0 || nDiffuseTexCount > 0 || nEmissiveTexCount > 0)
                     {
-                        FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatLambert->Ambient.GetSrcObject(i);
-                        if (pFbxTexture != nullptr)
-                        {
-                            Texture *pTexture = new Texture(pFbxTexture->GetName());
-                            pTextures->addChild(pTexture);
+                        pTextures = new Textures("Textures");
+                        pMaterial->addChild(pTextures);
 
-                            pTexture->mFilename = pFbxTexture->GetFileName();
-                            pTexture->mType = "ambient";
-                            pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
-                            pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                        int i = 0;
+
+                        // Ambient texture
+                        for (i = 0; i < nAmbientTexCount; ++i)
+                        {
+                            FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatLambert->Ambient.GetSrcObject(i);
+                            if (pFbxTexture != nullptr)
+                            {
+                                Texture *pTexture = new Texture(pFbxTexture->GetName());
+                                pTextures->addChild(pTexture);
+
+                                pTexture->mFilename = pFbxTexture->GetFileName();
+                                pTexture->mType = "ambient";
+                                pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
+                                pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                            }
                         }
-                    }
 
-                    // Diffuse texture
-                    for (i = 0; i < nDiffuseTexCount; ++i)
-                    {
-                        FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatLambert->Diffuse.GetSrcObject(i);
-                        if (pFbxTexture != nullptr)
+                        // Diffuse texture
+                        for (i = 0; i < nDiffuseTexCount; ++i)
                         {
-                            Texture *pTexture = new Texture(pFbxTexture->GetName());
-                            pTextures->addChild(pTexture);
+                            FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatLambert->Diffuse.GetSrcObject(i);
+                            if (pFbxTexture != nullptr)
+                            {
+                                Texture *pTexture = new Texture(pFbxTexture->GetName());
+                                pTextures->addChild(pTexture);
 
-                            pTexture->mFilename = pFbxTexture->GetFileName();
-                            pTexture->mType = "diffuse";
-                            pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
-                            pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                                pTexture->mFilename = pFbxTexture->GetFileName();
+                                pTexture->mType = "diffuse";
+                                pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
+                                pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                            }
                         }
-                    }
 
-                    // Emissive texture
-                    for (i = 0; i < nEmissiveTexCount; ++i)
-                    {
-                        FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatLambert->Emissive.GetSrcObject(i);
-                        if (pFbxTexture != nullptr)
+                        // Emissive texture
+                        for (i = 0; i < nEmissiveTexCount; ++i)
                         {
-                            Texture *pTexture = new Texture(pFbxTexture->GetName());
-                            pTextures->addChild(pTexture);
+                            FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatLambert->Emissive.GetSrcObject(i);
+                            if (pFbxTexture != nullptr)
+                            {
+                                Texture *pTexture = new Texture(pFbxTexture->GetName());
+                                pTextures->addChild(pTexture);
 
-                            pTexture->mFilename = pFbxTexture->GetFileName();
-                            pTexture->mType = "emissive";
-                            pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
-                            pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                                pTexture->mFilename = pFbxTexture->GetFileName();
+                                pTexture->mType = "emissive";
+                                pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
+                                pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+                            }
                         }
                     }
                 }
@@ -1123,6 +1189,18 @@ namespace mconv
         }
 
         return true;
+    }
+
+    bool Converter::searchMaterial(const String &name, Material *&pMaterial)
+    {
+        bool result = false;
+
+        if (E_FM_SPLIT_MESH != mSettings.mFileMode)
+        {
+            result = mCurMaterials->getChild(name, (Node *&)pMaterial);
+        }
+
+        return result;
     }
 
     bool Converter::processFbxAnimation(FbxNode *pFbxNode, Model *pModel)
@@ -1607,8 +1685,8 @@ namespace mconv
         y /= nVertexCount;
         z /= nVertexCount;
 
-        SphereBound *pBound = new SphereBound("BoundingSphere");
-        pModel->addChild(pBound);
+        SphereBound *pBound = new SphereBound(pMesh->getID());
+        pMesh->addChild(pBound);
 
         pBound->mCenterX = x;
         pBound->mCenterY = y;
@@ -1664,8 +1742,8 @@ namespace mconv
             ++itr;
         }
 
-        AabbBound *pBound = new AabbBound("AlignAxisBoundingBox");
-        pModel->addChild(pBound);
+        AabbBound *pBound = new AabbBound(pMesh->getID());
+        pMesh->addChild(pBound);
 
         pBound->mMinX = fMinX;
         pBound->mMaxX = fMaxX;
@@ -1679,7 +1757,14 @@ namespace mconv
 
     void Converter::cleanup()
     {
-        Node *pNode = (Node *)mDstData;
-        pNode->removeAllChildren();
+//         Node *pNode = (Node *)mDstData;
+        auto itr = mSceneList.begin();
+        while (itr != mSceneList.end())
+        {
+            const SceneInfo &info = *itr;
+            Node *pNode = (Node *)info.mRoot;
+            pNode->removeAllChildren();
+            ++itr;
+        }
     }
 }

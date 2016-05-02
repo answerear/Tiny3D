@@ -127,6 +127,7 @@ namespace mconv
     class Bone;
     class Animation;
     class Action;
+    class Material;
 
     class Converter
     {
@@ -189,6 +190,8 @@ namespace mconv
         // 从FBX的纹理wrap模式转换成字符串
         String FbxWrapModeToString(FbxTexture::EWrapMode eWrapMode) const;
 
+        bool searchMaterial(const String &name, Material *&pMaterial);
+
         void cleanup();
 
         struct SceneInfo
@@ -213,6 +216,10 @@ namespace mconv
 
         void        *mSrcData;
 //         void        *mDstData;
+
+        Node        *mCurScene;         // 当前场景节点，对于split mode是会变化的，对于merge和shared vertex永远只有一个不变的
+        Node        *mCurModel;         // 当前模型节点
+        Node        *mCurMaterials;     // 只用于merge和shared vertex文件格式下
 
         SceneList   mSceneList;
 
