@@ -26,6 +26,9 @@ namespace mconv
         , mSrcData(nullptr)
         , mCurScene(nullptr)
         , mCurModel(nullptr)
+        , mCurSkin(nullptr)
+        , mCurSkeleton(nullptr)
+        , mCurAnimation(nullptr)
         , mCurMaterials(nullptr)
         , mHasSkeleton(false)
         , mHasVertexBlending(false)
@@ -212,9 +215,24 @@ namespace mconv
 
         if (E_FM_SPLIT_MESH != mSettings.mFileMode)
         {
-            // 如果不是分割模型文件模式，则调整材质数据到最后
-            mCurMaterials->removeFromParent(false);
-            mCurModel->addChild(mCurMaterials);
+            // 如果不是分割模型文件模式，则调整骨骼、动画和材质数据到最后
+            if (mCurSkeleton != nullptr)
+            {
+                mCurSkeleton->removeFromParent(false);
+                mCurModel->addChild(mCurSkeleton);
+            }
+
+            if (mCurAnimation != nullptr)
+            {
+                mCurAnimation->removeFromParent(false);
+                mCurModel->addChild(mCurAnimation);
+            }
+
+            if (mCurMaterials != nullptr)
+            {
+                mCurMaterials->removeFromParent(false);
+                mCurModel->addChild(mCurMaterials);
+            }
         }
 
         return result;
@@ -273,6 +291,8 @@ namespace mconv
                             }
                         }
 
+                        mCurSkin = nullptr;
+
                         result = processFbxMesh(pFbxNode, mCurModel, pNode);
                         result = result && processFbxSkin(pFbxNode, pParent, (Mesh *)pNode);
                         result = result && processFbxMaterial(pFbxNode, mCurModel);
@@ -283,7 +303,6 @@ namespace mconv
                     break;
                 case FbxNodeAttribute::eSkeleton:
                     {
-//                         result = processFbxSkeleton(pFbxNode, pParent, pNode);
                     }
                     break;
                 case FbxNodeAttribute::eCamera:
@@ -926,6 +945,8 @@ namespace mconv
             SkeletonsValue value(pFbxNode, pSkel);
             mSkeletons.insert(value);
             mHasSkeleton = true;
+
+            mCurSkeleton = pSkel;
         }
 
         String name = pFbxNode->GetName();
@@ -1220,6 +1241,8 @@ namespace mconv
             pAnimation = new Animation(pModel->getID());
             pModel->addChild(pAnimation);
             mHasAnimation = true;
+
+            mCurAnimation = pAnimation;
         }
         else
         {
@@ -1409,7 +1432,8 @@ namespace mconv
             }
 #endif
             Skin *pSkin = new Skin(pFbxSkin->GetName());
-            pModel->addChild(pSkin);
+            mCurSkin = pSkin;
+            pMesh->addChild(pSkin);
 
             for (j = 0; j < nBoneCount; ++j)
             {
@@ -1468,6 +1492,12 @@ namespace mconv
         {
             Mesh *pMesh = (Mesh *)pNode;
             pMesh->split();
+
+            if (mCurSkin != nullptr)
+            {
+                mCurSkin->removeFromParent(false);
+                pMesh->addChild(mCurSkin);
+            }
 
             computeBoundingBox(pMesh);
         }
