@@ -38,6 +38,16 @@ namespace mconv
         String vertexTypeStr() const;
         String dataTypeStr() const;
 
+        bool operator ==(const VertexAttribute &rkOther) const
+        {
+            return (mVertexType == rkOther.mVertexType && mSize == rkOther.mSize && mDataType == rkOther.mDataType);
+        }
+
+        bool operator !=(const VertexAttribute &rkOther) const
+        {
+            return !operator==(rkOther);
+        }
+
         VertexType  mVertexType;
         int         mSize;
         DataType    mDataType;

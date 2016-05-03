@@ -128,6 +128,7 @@ namespace mconv
     class Animation;
     class Action;
     class Material;
+    class VertexAttribute;
 
     class Converter
     {
@@ -160,6 +161,7 @@ namespace mconv
         bool computeBoundingSphere(Model *pModel, Mesh *pMesh);
         bool computeAlignAxisBoundingBox(Model *pModel, Mesh *pMesh);
 
+        bool putVertexAttribute(Mesh *pMesh, bool bHasAttributes, const VertexAttribute &rkSource, const VertexAttribute &rkOther);
         bool processVertexAttribute(FbxMesh *pFbxMesh, Mesh *pMesh);
         bool readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos);
         bool readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector4 &color);
@@ -219,6 +221,7 @@ namespace mconv
 
         Node        *mCurScene;         // 当前场景节点，对于split mode是会变化的，对于merge和shared vertex永远只有一个不变的
         Node        *mCurModel;         // 当前模型节点
+        Node        *mCurMesh;          // 用于共享顶点模式的当前网格节点
         Node        *mCurSkin;          // 当前蒙皮节点
         Node        *mCurSkeleton;      // 骨骼节点
         Node        *mCurAnimation;     // 动画节点

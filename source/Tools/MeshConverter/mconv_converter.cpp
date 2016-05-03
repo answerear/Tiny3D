@@ -26,6 +26,7 @@ namespace mconv
         , mSrcData(nullptr)
         , mCurScene(nullptr)
         , mCurModel(nullptr)
+        , mCurMesh(nullptr)
         , mCurSkin(nullptr)
         , mCurSkeleton(nullptr)
         , mCurAnimation(nullptr)
@@ -211,7 +212,11 @@ namespace mconv
     {
         FbxNode *pFbxRoot = pFbxScene->GetRootNode();
         bool result = processFbxNode(pFbxRoot, pRoot);
-//         result = result && optimizeMesh(pRoot);
+
+        if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
+        {
+            result = result && optimizeMesh(pRoot);
+        }
 
         if (E_FM_SPLIT_MESH != mSettings.mFileMode)
         {
@@ -296,7 +301,11 @@ namespace mconv
                         result = processFbxMesh(pFbxNode, mCurModel, pNode);
                         result = result && processFbxSkin(pFbxNode, pParent, (Mesh *)pNode);
                         result = result && processFbxMaterial(pFbxNode, mCurModel);
-                        result = result && optimizeMesh(pNode);
+
+                        if (E_FM_SHARE_VERTEX != mSettings.mFileMode)
+                        {
+                            result = result && optimizeMesh(pNode);
+                        }
 
                         pNode = mCurModel;
                     }
@@ -333,9 +342,12 @@ namespace mconv
         mTabCount++;
 #endif
 
-        for (i = 0; i < pFbxNode->GetChildCount(); ++i)
+        if (result)
         {
-            result = result && processFbxNode(pFbxNode->GetChild(i), pNode);
+            for (i = 0; i < pFbxNode->GetChildCount(); ++i)
+            {
+                result = result && processFbxNode(pFbxNode->GetChild(i), pNode);
+            }
         }
 
 #ifdef _DEBUG
@@ -363,15 +375,41 @@ namespace mconv
         }
         T3D_LOG_INFO("%sMesh : %s, 0x%p", ssTab.str().c_str(), pFbxNode->GetName(), pFbxMesh);
 #endif
+
         String name = pFbxNode->GetName();
         if (name.empty())
         {
             name = "Mesh";
         }
-        Mesh *pMesh = new Mesh(name);
-        pParent->addChild(pMesh);
-        pNewNode = pMesh;
-        mHasVertexBlending = false;
+
+        Mesh *pMesh = nullptr;
+
+        if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
+        {
+            if (mCurMesh == nullptr)
+            {
+                name = pParent->getID();
+
+                pMesh = new Mesh(name);
+                pParent->addChild(pMesh);
+                pNewNode = pMesh;
+                mCurMesh = pMesh;
+                mHasVertexBlending = false;
+            }
+            else
+            {
+                pMesh = (Mesh *)mCurMesh;
+                pNewNode = pMesh;
+            }
+        }
+        else
+        {
+            pMesh = new Mesh(name);
+            pParent->addChild(pMesh);
+            pNewNode = pMesh;
+            mCurMesh = pMesh;
+            mHasVertexBlending = false;
+        }
 
         FbxVector4 T = pFbxNode->GetGeometricTranslation(FbxNode::eSourcePivot);
         FbxVector4 R = pFbxNode->GetGeometricRotation(FbxNode::eSourcePivot);
@@ -383,7 +421,10 @@ namespace mconv
         int i = 0, j = 0;
 
         // 生成顶点属性
-        processVertexAttribute(pFbxMesh, pMesh);
+        if (!processVertexAttribute(pFbxMesh, pMesh))
+        {
+            return false;
+        }
 
         // 构建顶点数据
         for (i = 0; i < nTriangleCount; ++i)
@@ -478,16 +519,48 @@ namespace mconv
         return true;
     }
 
+    bool Converter::putVertexAttribute(Mesh *pMesh, bool bHasAttributes, const VertexAttribute &rkSource, const VertexAttribute &rkOther)
+    {
+        if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
+        {
+            if (bHasAttributes)
+            {
+                if (rkSource != rkOther)
+                {
+                    T3D_LOG_ERROR("Different vertex format ! Shared vertex file mode could not be used !");
+                    return false;
+                }
+            }
+            else
+            {
+                pMesh->mAttributes.push_back(rkOther);
+            }
+        }
+        else
+        {
+            pMesh->mAttributes.push_back(rkOther);
+        }
+
+        return true;
+    }
+
     bool Converter::processVertexAttribute(FbxMesh *pFbxMesh, Mesh *pMesh)
     {
         int i = 0;
+
+        bool bHasAttributes = (pMesh->mAttributes.size() > 0);
+        auto itr = pMesh->mAttributes.begin();
+        VertexAttribute source;
 
         // 位置
         VertexAttribute attribute;
         attribute.mVertexType = VertexAttribute::E_VT_POSITION;
         attribute.mSize = 3;
         attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-        pMesh->mAttributes.push_back(attribute);
+        if (!putVertexAttribute(pMesh, bHasAttributes, (bHasAttributes ? *itr : source), attribute))
+        {
+            return false;
+        }
 
         int nControlPointsCount = pFbxMesh->GetControlPointsCount();
         int nUVCount = pFbxMesh->GetElementUVCount();
@@ -501,7 +574,10 @@ namespace mconv
             attribute.mVertexType = VertexAttribute::E_VT_TEXCOORD;
             attribute.mSize = 2;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-            pMesh->mAttributes.push_back(attribute);
+            if (!putVertexAttribute(pMesh, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
+            {
+                return false;
+            }
         }
 
         // 法线
@@ -510,34 +586,49 @@ namespace mconv
             attribute.mVertexType = VertexAttribute::E_VT_NORMAL;
             attribute.mSize = 3;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-            pMesh->mAttributes.push_back(attribute);
+            if (!putVertexAttribute(pMesh, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
+            {
+                return false;
+            }
         }
 
         // 副法线
         for (i = 0; i < pFbxMesh->GetElementBinormalCount(); ++i)
         {
+            ++itr;
             attribute.mVertexType = VertexAttribute::E_VT_BINORMAL;
             attribute.mSize = 3;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-            pMesh->mAttributes.push_back(attribute);
+            if (!putVertexAttribute(pMesh, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
+            {
+                return false;
+            }
         }
 
         // 切线
         for (i = 0; i < pFbxMesh->GetElementTangentCount(); ++i)
         {
+            ++itr;
             attribute.mVertexType = VertexAttribute::E_VT_TANGENT;
             attribute.mSize = 3;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-            pMesh->mAttributes.push_back(attribute);
+            if (!putVertexAttribute(pMesh, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
+            {
+                return false;
+            }
         }
 
         // 颜色
         for (i = 0; i < pFbxMesh->GetElementVertexColorCount(); ++i)
         {
+            ++itr;
             attribute.mVertexType = VertexAttribute::E_VT_COLOR;
             attribute.mSize = 4;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-            pMesh->mAttributes.push_back(attribute);
+            if (!putVertexAttribute(pMesh, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
+            {
+                return false;
+            }
         }
 
         return true;
