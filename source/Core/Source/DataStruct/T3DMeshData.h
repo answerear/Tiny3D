@@ -24,7 +24,7 @@ namespace Tiny3D
         typedef Vertices::iterator          VerticesItr;
         typedef Vertices::const_iterator    VerticesConstItr;
 
-        static MeshDataPtr create(const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize);
+        static MeshDataPtr create(const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize, bool sharedVertex);
 
         virtual ~MeshData();
 
@@ -33,9 +33,14 @@ namespace Tiny3D
             return mVertexData;
         }
 
+        bool isSharedVertex() const
+        {
+            return mSharedVertex;
+        }
+
     protected:
         MeshData();
-        bool init(const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize);
+        bool init(const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize, bool sharedVertex);
 
     private:
         MeshData(const MeshData &);
@@ -43,6 +48,7 @@ namespace Tiny3D
 
     protected:
         VertexDataPtr           mVertexData;
+        bool                    mSharedVertex;
     };
 }
 

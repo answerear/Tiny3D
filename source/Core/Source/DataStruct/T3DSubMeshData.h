@@ -7,6 +7,7 @@
 #include "T3DPrerequisitesInternal.h"
 #include "T3DTypedefInternal.h"
 #include "Misc/T3DObject.h"
+#include "DataStruct/T3DVertexData.h"
 #include "DataStruct/T3DIndexData.h"
 #include "Render/T3DRenderer.h"
 
@@ -20,7 +21,7 @@ namespace Tiny3D
         typedef Indices::iterator           IndicesItr;
         typedef Indices::const_iterator     IndicesConstItr;
 
-        static SubMeshDataPtr create(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices &indices, bool is16bits);
+        static SubMeshDataPtr create(Renderer::PrimitiveType primitiveType, const VertexDataPtr &vertexData, const String &materialName, const Indices &indices, bool is16bits);
 
         virtual ~SubMeshData();
 
@@ -34,6 +35,11 @@ namespace Tiny3D
             return mPrimitiveType;
         }
 
+        const VertexDataPtr &getVertexData() const
+        {
+            return mVertexData;
+        }
+
         const IndexDataPtr &getIndexData() const
         {
             return mIndexData;
@@ -42,7 +48,7 @@ namespace Tiny3D
     protected:
         SubMeshData();
 
-        bool init(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices &indices, bool is16bits);
+        bool init(Renderer::PrimitiveType primitiveType, const VertexDataPtr &vertexData, const String &materialName, const Indices &indices, bool is16bits);
 
     private:
         SubMeshData(const SubMeshData &);
@@ -51,6 +57,7 @@ namespace Tiny3D
     protected:
         String                  mMaterialName;
         Renderer::PrimitiveType mPrimitiveType;
+        VertexDataPtr           mVertexData;
         IndexDataPtr            mIndexData;
     };
 }

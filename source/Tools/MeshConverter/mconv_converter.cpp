@@ -31,6 +31,7 @@ namespace mconv
         , mCurSkeleton(nullptr)
         , mCurAnimation(nullptr)
         , mCurMaterials(nullptr)
+        , mCurBound(nullptr)
         , mHasSkeleton(false)
         , mHasVertexBlending(false)
         , mHasAnimation(false)
@@ -238,6 +239,39 @@ namespace mconv
                 mCurMaterials->removeFromParent(false);
                 mCurModel->addChild(mCurMaterials);
             }
+
+            if (mCurBound != nullptr)
+            {
+                mCurBound->removeFromParent(false);
+                mCurModel->addChild(mCurBound);
+            }
+
+            if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
+            {
+                Model *pModel = (Model *)mCurModel;
+                pModel->mMeshCount = 1;
+            }
+            else
+            {
+                size_t count = 0;
+                size_t i = 0;
+                for (i = 0; i < mCurModel->getChildrenCount(); ++i)
+                {
+                    Node *pChild = mCurModel->getChild(i);
+                    if (pChild->getNodeType() == Node::E_TYPE_MESH)
+                    {
+                        count++;
+                    }
+                }
+
+                Model *pModel = (Model *)mCurModel;
+                pModel->mMeshCount = count;
+            }
+        }
+        else
+        {
+            Model *pModel = (Model *)mCurModel;
+            pModel->mMeshCount = 1;
         }
 
         return result;
@@ -280,6 +314,7 @@ namespace mconv
                             pParent = mCurScene;
 
                             Model *pModel = new Model(name);
+                            pModel->mSharedVertex = true;
                             pParent->addChild(pModel);
                             mCurModel = pModel;
                         }
@@ -291,6 +326,16 @@ namespace mconv
                                 mSceneList.push_back(info);
 
                                 Model *pModel = new Model(name);
+
+                                if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
+                                {
+                                    pModel->mSharedVertex = true;
+                                }
+                                else
+                                {
+                                    pModel->mSharedVertex = false;
+                                }
+
                                 pParent->addChild(pModel);
                                 mCurModel = pModel;
                             }
@@ -595,7 +640,6 @@ namespace mconv
         // 副法线
         for (i = 0; i < pFbxMesh->GetElementBinormalCount(); ++i)
         {
-            ++itr;
             attribute.mVertexType = VertexAttribute::E_VT_BINORMAL;
             attribute.mSize = 3;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
@@ -608,7 +652,6 @@ namespace mconv
         // 切线
         for (i = 0; i < pFbxMesh->GetElementTangentCount(); ++i)
         {
-            ++itr;
             attribute.mVertexType = VertexAttribute::E_VT_TANGENT;
             attribute.mSize = 3;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
@@ -621,7 +664,6 @@ namespace mconv
         // 颜色
         for (i = 0; i < pFbxMesh->GetElementVertexColorCount(); ++i)
         {
-            ++itr;
             attribute.mVertexType = VertexAttribute::E_VT_COLOR;
             attribute.mSize = 4;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
@@ -1840,6 +1882,17 @@ namespace mconv
         float fMinZ = FLT_MAX;
         float fMaxZ = FLT_MIN;
 
+        if (mCurBound != nullptr)
+        {
+            AabbBound *pBound = (AabbBound *)mCurBound;
+            fMinX = pBound->mMinX;
+            fMaxX = pBound->mMaxX;
+            fMinY = pBound->mMinY;
+            fMaxY = pBound->mMaxY;
+            fMinZ = pBound->mMinZ;
+            fMaxZ = pBound->mMaxZ;
+        }
+
         auto itr = pMesh->mVertices.begin();
         while (itr != pMesh->mVertices.end())
         {
@@ -1863,8 +1916,18 @@ namespace mconv
             ++itr;
         }
 
-        AabbBound *pBound = new AabbBound(pMesh->getID());
-        pMesh->addChild(pBound);
+        AabbBound *pBound = nullptr;
+
+        if (mCurBound == nullptr)
+        {
+            pBound = new AabbBound(pMesh->getID());
+            pModel->addChild(pBound);
+            mCurBound = pBound;
+        }
+        else
+        {
+            pBound = (AabbBound *)mCurBound;
+        }
 
         pBound->mMinX = fMinX;
         pBound->mMaxX = fMaxX;

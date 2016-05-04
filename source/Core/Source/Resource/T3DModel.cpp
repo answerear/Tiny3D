@@ -32,6 +32,7 @@ namespace Tiny3D
     #define T3D_XML_ATTRIB_COUNT        "count"
     #define T3D_XML_ATTRIB_PRIMITIVE    "primitive"
     #define T3D_XML_ATTRIB_16BITS       "is16bits"
+    #define T3D_XML_ATTRIB_SHARED       "shared_vertex"
 
     #define T3D_VERTEX_SEMANTIC_POSITION        "POSITION"
     #define T3D_VERTEX_SEMANTIC_TEXCOORD        "TEXCOORD"
@@ -205,7 +206,17 @@ namespace Tiny3D
                 XMLElement *pSceneElement = pDoc->FirstChildElement(T3D_XML_TAG_SCENE);
                 XMLElement *pModelElement = pSceneElement->FirstChildElement(T3D_XML_TAG_MODEL);
                 XMLElement *pMeshElement = pModelElement->FirstChildElement(T3D_XML_TAG_MESH);
-                ret = ret && parseMesh(pMeshElement);
+
+                int32_t count = pModelElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+                bool sharedVertex = pModelElement->BoolAttribute(T3D_XML_ATTRIB_SHARED);
+
+                mMeshData.reserve(count);
+
+                while (pMeshElement != nullptr)
+                {
+                    ret = ret && parseMesh(pMeshElement, sharedVertex);
+                    pMeshElement = pMeshElement->NextSiblingElement(T3D_XML_TAG_MESH);
+                }
 
                 XMLElement *pMaterialsElement = pModelElement->FirstChildElement(T3D_XML_TAG_MATERIALS);
                 ret = ret && parseMaterials(pMaterialsElement);
@@ -605,7 +616,7 @@ namespace Tiny3D
         return type;
     }
 
-    bool Model::parseMesh(tinyxml2::XMLElement *pMeshElement)
+    bool Model::parseMesh(tinyxml2::XMLElement *pMeshElement, bool sharedVertex)
     {
         XMLElement *pAttribsElement = pMeshElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTES);
 
@@ -667,7 +678,8 @@ namespace Tiny3D
             }
         } while (i < valueCount);
 
-        mMeshData = MeshData::create(attributes, vertices, vertexSize);
+        MeshDataPtr meshData  = MeshData::create(attributes, vertices, vertexSize, sharedVertex);
+        mMeshData.push_back(meshData);
 
         bool ret = parseSubMeshes(pMeshElement);
 

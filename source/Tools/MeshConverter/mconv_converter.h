@@ -226,6 +226,7 @@ namespace mconv
         Node        *mCurSkeleton;      // 骨骼节点
         Node        *mCurAnimation;     // 动画节点
         Node        *mCurMaterials;     // 只用于merge和shared vertex文件格式下
+        Node        *mCurBound;         // 当前的碰撞区，不管是splite模式、merge模式、还是shared vertex模式，整个model只有一个bound
 
         SceneList   mSceneList;
 

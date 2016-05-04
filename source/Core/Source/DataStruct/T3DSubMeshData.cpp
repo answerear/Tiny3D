@@ -7,11 +7,11 @@
 
 namespace Tiny3D
 {
-    SubMeshDataPtr SubMeshData::create(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices &indices, bool is16bits)
+    SubMeshDataPtr SubMeshData::create(Renderer::PrimitiveType primitiveType, const VertexDataPtr &vertexData, const String &materialName, const Indices &indices, bool is16bits)
     {
         SubMeshDataPtr submesh = new SubMeshData();
 
-        if (submesh != nullptr && submesh->init(primitiveType, materialName, indices, is16bits))
+        if (submesh != nullptr && submesh->init(primitiveType, vertexData, materialName, indices, is16bits))
         {
             submesh->release();
         }
@@ -24,19 +24,23 @@ namespace Tiny3D
     }
 
     SubMeshData::SubMeshData()
-        : mIndexData(nullptr)
+        : mVertexData(nullptr)
+        , mIndexData(nullptr)
     {
 
     }
 
     SubMeshData::~SubMeshData()
     {
+        mVertexData = nullptr;
         mIndexData = nullptr;
     }
 
-    bool SubMeshData::init(Renderer::PrimitiveType primitiveType, const String &materialName, const Indices &indices, bool is16bits)
+    bool SubMeshData::init(Renderer::PrimitiveType primitiveType, const VertexDataPtr &vertexData, const String &materialName, const Indices &indices, bool is16bits)
     {
         bool ret = false;
+
+        mVertexData = vertexData;
 
         mPrimitiveType = primitiveType;
         mMaterialName = materialName;

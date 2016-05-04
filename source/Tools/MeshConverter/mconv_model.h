@@ -27,6 +27,9 @@ namespace mconv
         {
             return E_TYPE_MODEL;
         }
+
+        size_t  mMeshCount;
+        bool    mSharedVertex;      /// ÊÇ·ñ¹²Ïí¶¥µã»º´æ
     };
 }
 

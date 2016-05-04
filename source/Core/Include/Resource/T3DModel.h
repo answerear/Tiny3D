@@ -20,6 +20,10 @@ namespace Tiny3D
     class T3D_ENGINE_API Model : public Resource
     {
     public:
+        typedef std::vector<ObjectPtr>          MeshDataList;
+        typedef MeshDataList::iterator          MeshDataListItr;
+        typedef MeshDataList::const_iterator    MeshDataListConstItr;
+
         typedef std::vector<ObjectPtr>          SubMeshDataList;
         typedef SubMeshDataList::iterator       SubMeshDataListItr;
         typedef SubMeshDataList::const_iterator SubMeshDataListConstItr;
@@ -41,7 +45,7 @@ namespace Tiny3D
 
         virtual Type getType() const override;
 
-        const ObjectPtr &getMeshData() const
+        const MeshDataList &getMeshDataList() const
         {
             return mMeshData;
         }
@@ -74,7 +78,7 @@ namespace Tiny3D
         VertexElement::Type parseVertexType(VertexElement::Semantic semantic, const String &name, size_t valueCount);
         Renderer::PrimitiveType parsePrimitiveType(const String &name);
 
-        bool parseMesh(tinyxml2::XMLElement *pMeshElement);
+        bool parseMesh(tinyxml2::XMLElement *pMeshElement, bool sharedVertex);
 
         bool parseSubMeshes(tinyxml2::XMLElement *pMeshElement);
         bool parseSubMesh(tinyxml2::XMLElement *pSubMeshElement);
@@ -84,7 +88,7 @@ namespace Tiny3D
         bool loadFromBinary(DataStream &stream);
 
     protected:
-        ObjectPtr       mMeshData;      // 网格顶点数据
+        MeshDataList    mMeshData;      // 网格顶点数据
         SubMeshDataList mSubMeshData;   // 根据材质划分的子网格数据
         MaterialList    mMaterials;     // 材质列表
     };

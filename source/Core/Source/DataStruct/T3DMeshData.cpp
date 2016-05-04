@@ -8,11 +8,11 @@
 
 namespace Tiny3D
 {
-    MeshDataPtr MeshData::create(const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize)
+    MeshDataPtr MeshData::create(const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize, bool sharedVertex)
     {
         MeshDataPtr mesh = new MeshData();
 
-        if (mesh != nullptr && mesh->init(attributes, vertices, vertexSize))
+        if (mesh != nullptr && mesh->init(attributes, vertices, vertexSize, sharedVertex))
         {
             mesh->release();
         }
@@ -26,6 +26,7 @@ namespace Tiny3D
 
     MeshData::MeshData()
         : mVertexData(nullptr)
+        , mSharedVertex(false)
     {
     }
 
@@ -34,9 +35,11 @@ namespace Tiny3D
         mVertexData = nullptr;
     }
 
-    bool MeshData::init(const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize)
+    bool MeshData::init(const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize, bool sharedVertex)
     {
         bool ret = false;
+
+        mSharedVertex = sharedVertex;
 
         VertexDeclarationPtr vertexDecl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
         auto itr = attributes.begin();

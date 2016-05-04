@@ -91,6 +91,7 @@ namespace mconv
     const char * const T3DXMLSerializer::ATTRIB_TIME = "time";
     const char * const T3DXMLSerializer::ATTRIB_WRAP_U = "wrap_u";
     const char * const T3DXMLSerializer::ATTRIB_WRAP_V = "wrap_v";
+    const char * const T3DXMLSerializer::ATTRIB_SHARED = "shared_vertex";
 
 
     T3DXMLSerializer::T3DXMLSerializer()
@@ -250,6 +251,9 @@ namespace mconv
     {
         XMLElement *pElement = pDoc->NewElement(TAG_MODEL);
         pElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+        Model *pModel = (Model *)pNode;
+        pElement->SetAttribute(ATTRIB_SHARED, pModel->mSharedVertex);
+        pElement->SetAttribute(ATTRIB_COUNT, pModel->mMeshCount);
         pParentElem->LinkEndChild(pElement);
         return pElement;
     }
