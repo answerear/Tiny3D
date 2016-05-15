@@ -10,8 +10,7 @@
 
 namespace Tiny3D
 {
-    T3D_DECLARE_SMART_PTR(MeshData);
-    T3D_DECLARE_SMART_PTR(SubMeshData);
+    T3D_DECLARE_SMART_PTR(GeometryData);
     T3D_DECLARE_SMART_PTR(BoneData);
     T3D_DECLARE_SMART_PTR(ActionData);
     T3D_DECLARE_SMART_PTR(KeyFrameData);

@@ -10,8 +10,7 @@
 
 namespace Tiny3D
 {
-    class MeshData;
-    class SubMeshData;
+    class GeometryData;
     class BoneData;
     class ActionData;
     class KeyFrameData;

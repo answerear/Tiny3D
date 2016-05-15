@@ -1,8 +1,7 @@
 
 
 #include "Resource/T3DModel.h"
-#include "DataStruct/T3DMeshData.h"
-#include "DataStruct/T3DSubMeshData.h"
+#include "DataStruct/T3DGeometryData.h"
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveManager.h"
 
@@ -99,7 +98,6 @@ namespace Tiny3D
 
     Model::Model(const String &name)
         : Resource(name)
-        , mMeshData(nullptr)
     {
 
     }
@@ -210,7 +208,7 @@ namespace Tiny3D
                 int32_t count = pModelElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
                 bool sharedVertex = pModelElement->BoolAttribute(T3D_XML_ATTRIB_SHARED);
 
-                mMeshData.reserve(count);
+                mGeometryData.reserve(count);
 
                 while (pMeshElement != nullptr)
                 {

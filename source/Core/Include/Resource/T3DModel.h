@@ -20,13 +20,9 @@ namespace Tiny3D
     class T3D_ENGINE_API Model : public Resource
     {
     public:
-        typedef std::vector<ObjectPtr>          MeshDataList;
-        typedef MeshDataList::iterator          MeshDataListItr;
-        typedef MeshDataList::const_iterator    MeshDataListConstItr;
-
-        typedef std::vector<ObjectPtr>          SubMeshDataList;
-        typedef SubMeshDataList::iterator       SubMeshDataListItr;
-        typedef SubMeshDataList::const_iterator SubMeshDataListConstItr;
+        typedef std::vector<ObjectPtr>              GeometryDataList;
+        typedef GeometryDataList::iterator          GeometryDataListItr;
+        typedef GeometryDataList::const_iterator    GeometryDataListConstItr;
 
         typedef std::vector<String>             MaterialList;
         typedef MaterialList::iterator          MaterialListItr;
@@ -45,19 +41,9 @@ namespace Tiny3D
 
         virtual Type getType() const override;
 
-        const MeshDataList &getMeshDataList() const
+        const GeometryDataList &getMeshDataList() const
         {
-            return mMeshData;
-        }
-
-        const SubMeshDataList &getSubMeshDataList() const
-        {
-            return mSubMeshData;
-        }
-
-        const MaterialList &getMaterialList() const
-        {
-            return mMaterials;
+            return mGeometryData;
         }
 
     protected:
@@ -88,9 +74,7 @@ namespace Tiny3D
         bool loadFromBinary(DataStream &stream);
 
     protected:
-        MeshDataList    mMeshData;      // 网格顶点数据
-        SubMeshDataList mSubMeshData;   // 根据材质划分的子网格数据
-        MaterialList    mMaterials;     // 材质列表
+        GeometryDataList    mGeometryData;  /// 渲染几何数据
     };
 }
 
