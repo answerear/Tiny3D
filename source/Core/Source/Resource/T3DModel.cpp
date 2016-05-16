@@ -206,13 +206,13 @@ namespace Tiny3D
                 XMLElement *pMeshElement = pModelElement->FirstChildElement(T3D_XML_TAG_MESH);
 
                 int32_t count = pModelElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
-                bool sharedVertex = pModelElement->BoolAttribute(T3D_XML_ATTRIB_SHARED);
+                mIsVertexShared = pModelElement->BoolAttribute(T3D_XML_ATTRIB_SHARED);
 
                 mGeometryData.reserve(count);
 
                 while (pMeshElement != nullptr)
                 {
-                    ret = ret && parseMesh(pMeshElement, sharedVertex);
+                    ret = ret && parseMesh(pMeshElement, mIsVertexShared);
                     pMeshElement = pMeshElement->NextSiblingElement(T3D_XML_TAG_MESH);
                 }
 
@@ -627,7 +627,7 @@ namespace Tiny3D
             return false;
         }
 
-        MeshData::VertexAttributes attributes(count);
+        GeometryData::VertexAttributes attributes(count);
 
         // ½âÎö¶¥µãÊôÐÔ
         XMLElement *pAttribElement = pAttribsElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTE);
@@ -657,7 +657,7 @@ namespace Tiny3D
 
         size_t vertexSize = offset;
         size_t valueCount = vertexCount * vertexSize;
-        MeshData::Vertices vertices(valueCount);
+        GeometryData::Vertices vertices(valueCount);
 
         String text = pVerticesElement->GetText();
         size_t start = 0;
@@ -676,10 +676,19 @@ namespace Tiny3D
             }
         } while (i < valueCount);
 
-        MeshDataPtr meshData  = MeshData::create(attributes, vertices, vertexSize, sharedVertex);
-        mMeshData.push_back(meshData);
+//         MeshDataPtr meshData  = MeshData::create(attributes, vertices, vertexSize, sharedVertex);
+//         mMeshData.push_back(meshData);
 
-        bool ret = parseSubMeshes(pMeshElement);
+//         bool ret = parseSubMeshes(pMeshElement);
+        XMLElement *pSubMeshesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_PARTS);
+        int32_t count = pSubMeshesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+
+        XMLElement *pSubMeshElement = pSubMeshesElement->FirstChildElement(T3D_XML_TAG_PART);
+        while (pSubMeshElement != nullptr)
+        {
+            parseSubMesh(pSubMeshElement);
+            pSubMeshElement = pSubMeshElement->NextSiblingElement(T3D_XML_TAG_PART);
+        }
 
         return ret;
     }

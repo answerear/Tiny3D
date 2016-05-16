@@ -74,7 +74,8 @@ namespace Tiny3D
         bool loadFromBinary(DataStream &stream);
 
     protected:
-        GeometryDataList    mGeometryData;  /// 渲染几何数据
+        bool                mIsVertexShared;    /// 是否共享顶点数据
+        GeometryDataList    mGeometryData;      /// 渲染几何数据
     };
 }
 
