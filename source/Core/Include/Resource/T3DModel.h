@@ -41,9 +41,14 @@ namespace Tiny3D
 
         virtual Type getType() const override;
 
-        const GeometryDataList &getMeshDataList() const
+        const GeometryDataList &getGeometryDataList() const
         {
             return mGeometryData;
+        }
+
+        bool isSharedVertex() const
+        {
+            return mIsVertexShared;
         }
 
     protected:
@@ -64,10 +69,10 @@ namespace Tiny3D
         VertexElement::Type parseVertexType(VertexElement::Semantic semantic, const String &name, size_t valueCount);
         Renderer::PrimitiveType parsePrimitiveType(const String &name);
 
-        bool parseMesh(tinyxml2::XMLElement *pMeshElement, bool sharedVertex);
+        bool parseMesh(tinyxml2::XMLElement *pMeshElement);
 
-        bool parseSubMeshes(tinyxml2::XMLElement *pMeshElement);
-        bool parseSubMesh(tinyxml2::XMLElement *pSubMeshElement);
+        bool parseSubMeshes(tinyxml2::XMLElement *pMeshElement, void *attributes, void *vertices, size_t vertexSize);
+        bool parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, void *attributes, void *vertices, size_t vertexSize);
 
         bool parseMaterials(tinyxml2::XMLElement *pMatsElement);
 

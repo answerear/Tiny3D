@@ -208,11 +208,15 @@ namespace Tiny3D
                 int32_t count = pModelElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
                 mIsVertexShared = pModelElement->BoolAttribute(T3D_XML_ATTRIB_SHARED);
 
-                mGeometryData.reserve(count);
+                if (!mIsVertexShared)
+                {
+                    // 不是共享顶点模式，则有几个mesh就有几个GeometryData，共享顶点模式要看索引buffer的数量来定GeometryData数量
+                    mGeometryData.reserve(count);
+                }
 
                 while (pMeshElement != nullptr)
                 {
-                    ret = ret && parseMesh(pMeshElement, mIsVertexShared);
+                    ret = ret && parseMesh(pMeshElement);
                     pMeshElement = pMeshElement->NextSiblingElement(T3D_XML_TAG_MESH);
                 }
 
@@ -614,7 +618,7 @@ namespace Tiny3D
         return type;
     }
 
-    bool Model::parseMesh(tinyxml2::XMLElement *pMeshElement, bool sharedVertex)
+    bool Model::parseMesh(tinyxml2::XMLElement *pMeshElement)
     {
         XMLElement *pAttribsElement = pMeshElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTES);
 
@@ -676,40 +680,32 @@ namespace Tiny3D
             }
         } while (i < valueCount);
 
-//         MeshDataPtr meshData  = MeshData::create(attributes, vertices, vertexSize, sharedVertex);
-//         mMeshData.push_back(meshData);
+        bool ret = parseSubMeshes(pMeshElement, &attributes, &vertices, vertexSize);
 
-//         bool ret = parseSubMeshes(pMeshElement);
-        XMLElement *pSubMeshesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_PARTS);
-        int32_t count = pSubMeshesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
-
-        XMLElement *pSubMeshElement = pSubMeshesElement->FirstChildElement(T3D_XML_TAG_PART);
-        while (pSubMeshElement != nullptr)
-        {
-            parseSubMesh(pSubMeshElement);
-            pSubMeshElement = pSubMeshElement->NextSiblingElement(T3D_XML_TAG_PART);
-        }
-
-        return ret;
+        return true;
     }
 
-    bool Model::parseSubMeshes(tinyxml2::XMLElement *pMeshElement)
+    bool Model::parseSubMeshes(tinyxml2::XMLElement *pMeshElement, void *attributes, void *vertices, size_t vertexSize)
     {
         XMLElement *pSubMeshesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_PARTS);
         int32_t count = pSubMeshesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
-        mSubMeshData.reserve(count);
+
+        if (mIsVertexShared)
+        {
+            mGeometryData.reserve(count);
+        }
 
         XMLElement *pSubMeshElement = pSubMeshesElement->FirstChildElement(T3D_XML_TAG_PART);
         while (pSubMeshElement != nullptr)
         {
-            parseSubMesh(pSubMeshElement);
+            parseSubMesh(pSubMeshElement, attributes, vertices, vertexSize);
             pSubMeshElement = pSubMeshElement->NextSiblingElement(T3D_XML_TAG_PART);
         }
 
         return true;
     }
 
-    bool Model::parseSubMesh(tinyxml2::XMLElement *pSubMeshElement)
+    bool Model::parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, void *attributes, void *vertices, size_t vertexSize)
     {
         Renderer::PrimitiveType primitiveType = parsePrimitiveType(pSubMeshElement->Attribute(T3D_XML_ATTRIB_PRIMITIVE));
         int32_t primitiveCount = pSubMeshElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
@@ -725,7 +721,7 @@ namespace Tiny3D
             indexSize = indexCount * sizeof(uint16_t);
         }
 
-        SubMeshData::Indices indices(indexSize);
+        GeometryData::Indices indices(indexSize);
 
         String text = pIndicesElement->GetText();
         size_t start = 0;
@@ -736,9 +732,12 @@ namespace Tiny3D
             size_t step = parseIndexValue(text, start, is16bits, &indices[i]);
             i += step;
         } while (i < indexSize);
-        
-        SubMeshDataPtr submeshdata = SubMeshData::create(primitiveType, materialName, indices, is16bits);
-        mSubMeshData.push_back(submeshdata);
+
+        GeometryData::VertexAttributes *vertexAttrib = (GeometryData::VertexAttributes *)attributes;
+        GeometryData::Vertices *vertexData = (GeometryData::Vertices *)vertices;
+
+        GeometryDataPtr geometryData = GeometryData::create(primitiveType, *vertexAttrib, *vertexData, vertexSize, indices, is16bits, materialName);
+        mGeometryData.push_back(geometryData);
 
         return true;
     }

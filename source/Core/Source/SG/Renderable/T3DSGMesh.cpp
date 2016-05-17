@@ -3,16 +3,15 @@
 #include "SG/Renderable/T3DSGMesh.h"
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
-#include "DataStruct/T3DMeshData.h"
-#include "DataStruct/T3DSubMeshData.h"
+#include "DataStruct/T3DGeometryData.h"
 
 
 namespace Tiny3D
 {
-    SGMeshPtr SGMesh::create(const ModelPtr &model, int32_t index, uint32_t uID /* = E_NID_AUTOMATIC */)
+    SGMeshPtr SGMesh::create(const ObjectPtr &geometryData, bool isVertexShared, uint32_t uID /* = E_NID_AUTOMATIC */)
     {
         SGMeshPtr mesh = new SGMesh(uID);
-        if (mesh != nullptr && mesh->init(model, index))
+        if (mesh != nullptr && mesh->init(geometryData, isVertexShared))
         {
             mesh->release();
         }
@@ -25,8 +24,8 @@ namespace Tiny3D
 
     SGMesh::SGMesh(uint32_t uID /* = E_NID_AUTOMATIC */)
         : SGGeometry(uID)
-        , mModel(nullptr)
-        , mIndex(0)
+        , mGeometryData(nullptr)
+        , mIsVertexShared(false)
     {
 
     }
@@ -36,10 +35,10 @@ namespace Tiny3D
 
     }
 
-    bool SGMesh::init(const ModelPtr &model, int32_t index)
+    bool SGMesh::init(const ObjectPtr &geometryData, bool isVertexShared)
     {
-        mModel = model;
-        mIndex = index;
+        mGeometryData = geometryData;
+        mIsVertexShared = isVertexShared;
         return true;
     }
 
@@ -50,7 +49,7 @@ namespace Tiny3D
 
     NodePtr SGMesh::clone() const
     {
-        SGMeshPtr mesh = create(mModel, mIndex);
+        SGMeshPtr mesh = create(mGeometryData, mIsVertexShared);
         cloneProperties(mesh);
         return mesh;
     }
@@ -67,22 +66,20 @@ namespace Tiny3D
 
     Renderer::PrimitiveType SGMesh::getPrimitiveType() const
     {
-        const Model::SubMeshDataList &submeshes = mModel->getSubMeshDataList();
-        SubMeshDataPtr submeshdata = smart_pointer_cast<SubMeshData>(submeshes[mIndex]);
-        return submeshdata->getPrimitiveType();
+        GeometryDataPtr geometry = smart_pointer_cast<GeometryData>(mGeometryData);
+        return geometry->getPrimitiveType();
     }
 
     VertexDataPtr SGMesh::getVertexData() const
     {
-        const MeshDataPtr &meshdata = smart_pointer_cast<MeshData>(mModel->getMeshData());
-        return meshdata->getVertexData();
+        GeometryDataPtr geometry = smart_pointer_cast<GeometryData>(mGeometryData);
+        return geometry->getVertexData();
     }
 
     IndexDataPtr SGMesh::getIndexData() const
     {
-        const Model::SubMeshDataList &submeshes = mModel->getSubMeshDataList();
-        SubMeshDataPtr submeshdata = smart_pointer_cast<SubMeshData>(submeshes[mIndex]);
-        return submeshdata->getIndexData();
+        GeometryDataPtr geometry = smart_pointer_cast<GeometryData>(mGeometryData);
+        return geometry->getIndexData();
     }
 
     bool SGMesh::isIndicesUsed() const

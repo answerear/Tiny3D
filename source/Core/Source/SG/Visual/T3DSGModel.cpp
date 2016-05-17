@@ -42,12 +42,13 @@ namespace Tiny3D
         {
             ret = true;
 
-            const Model::SubMeshDataList &submeshes = mModel->getSubMeshDataList();
-            size_t submeshCount = submeshes.size();
+            const Model::GeometryDataList &geometries = mModel->getGeometryDataList();
+            size_t count = geometries.size();
             size_t i = 0;
-            for (i = 0; i < submeshCount; ++i)
+            for (i = 0; i < count; ++i)
             {
-                SGMeshPtr mesh = SGMesh::create(mModel, i);
+                ObjectPtr geometry = geometries[i];
+                SGMeshPtr mesh = SGMesh::create(geometry, mModel->isSharedVertex());
                 addChild(mesh);
             }
         }

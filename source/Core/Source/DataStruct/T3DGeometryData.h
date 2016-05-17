@@ -43,8 +43,6 @@ namespace Tiny3D
          */
         static GeometryDataPtr create(Renderer::PrimitiveType primitiveType, const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize, const Indices &indices, bool is16bits, const String &materialName);
 
-        static GeometryDataPtr create(Renderer::PrimitiveType primitvieType, const VertexDataPtr &vertexData, const Indices &indices, bool is16bits, const String &materialName);
-
         virtual ~GeometryData();
 
         Renderer::PrimitiveType getPrimitiveType() const
@@ -70,7 +68,6 @@ namespace Tiny3D
     protected:
         GeometryData();
         bool init(Renderer::PrimitiveType primitiveType, const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize, const Indices &indices, bool is16bits, const String &materialName);
-        bool init(Renderer::PrimitiveType primitiveType, const VertexDataPtr &vertexData, const Indices &indices, bool is16bits, const String &materialName);
 
     private:
         GeometryData(const GeometryData &);
