@@ -3,6 +3,8 @@
 #include "SG/Renderable/T3DSGMesh.h"
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
+#include "Resource/T3DMaterial.h"
+#include "Resource/T3DMaterialManager.h"
 #include "DataStruct/T3DGeometryData.h"
 
 
@@ -25,6 +27,7 @@ namespace Tiny3D
     SGMesh::SGMesh(uint32_t uID /* = E_NID_AUTOMATIC */)
         : SGGeometry(uID)
         , mGeometryData(nullptr)
+        , mMaterial(nullptr)
         , mIsVertexShared(false)
     {
 
@@ -39,6 +42,10 @@ namespace Tiny3D
     {
         mGeometryData = geometryData;
         mIsVertexShared = isVertexShared;
+
+        GeometryDataPtr geometry = smart_pointer_cast<GeometryData>(geometryData);
+        mMaterial = T3D_MATERIAL_MGR.loadMaterial(geometry->getMaterialName(), Material::E_MT_DEFAULT);
+
         return true;
     }
 
@@ -61,7 +68,7 @@ namespace Tiny3D
 
     MaterialPtr SGMesh::getMaterial() const
     {
-        return nullptr;
+        return mMaterial;
     }
 
     Renderer::PrimitiveType SGMesh::getPrimitiveType() const

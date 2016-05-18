@@ -123,9 +123,9 @@ namespace mconv
 
         if (stricmp(arg, "fbx") == 0)
             type = E_FILETYPE_FBX;
-        else if (stricmp(arg, "tmb") == 0)
+        else if (stricmp(arg, T3D_BIN_MODEL_FILE_EXT) == 0)
             type = E_FILETYPE_TMB;
-        else if (stricmp(arg, "tmt") == 0)
+        else if (stricmp(arg, T3D_TXT_MODEL_FILE_EXT) == 0)
             type = E_FILETYPE_TMT;
         else if (stricmp(arg, "t3d") == 0)
             type = E_FILETYPE_T3D;

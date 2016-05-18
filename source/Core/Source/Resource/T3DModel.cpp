@@ -51,6 +51,12 @@ namespace Tiny3D
     #define T3D_PRITYPE_TRIANGLE_LIST           "triangles"
     #define T3D_PRITYPE_TRIANGLE_STRIP          "triangle strip"
 
+    #define T3D_BIN_MODEL_FILE_EXT              "tmb"
+    #define T3D_TXT_MODEL_FILE_EXT              "tmt"
+
+    #define T3D_BIN_MATERIAL_FILE_EXT           "mtb"
+    #define T3D_TXT_MATERIAL_FILE_EXT           "mtt"
+
     using namespace tinyxml2;
 
     size_t getStartPos(const String &text, size_t start)
@@ -168,11 +174,11 @@ namespace Tiny3D
         {
             String ext = name.substr(pos+1);
 
-            if (ext == "tmb")
+            if (ext == T3D_BIN_MODEL_FILE_EXT)
             {
                 fileType = E_FILETYPE_TMB;
             }
-            else if (ext == "tmt")
+            else if (ext == T3D_TXT_MODEL_FILE_EXT)
             {
                 fileType = E_FILETYPE_TMT;
             }
@@ -709,7 +715,7 @@ namespace Tiny3D
     {
         Renderer::PrimitiveType primitiveType = parsePrimitiveType(pSubMeshElement->Attribute(T3D_XML_ATTRIB_PRIMITIVE));
         int32_t primitiveCount = pSubMeshElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
-        String materialName = pSubMeshElement->Attribute(T3D_XML_TAG_MATERIAL);
+        String materialName = pSubMeshElement->Attribute(T3D_XML_TAG_MATERIAL) + String(".") + T3D_TXT_MATERIAL_FILE_EXT;
 
         XMLElement *pIndicesElement = pSubMeshElement->FirstChildElement(T3D_XML_TAG_INDICES);
         int32_t indexCount = pIndicesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);

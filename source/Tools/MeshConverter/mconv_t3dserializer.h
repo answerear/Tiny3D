@@ -93,8 +93,8 @@ namespace mconv
         XMLElement *buildXMLVertexAttributes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLAnimation(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLAction(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
-        XMLElement *buildXMLMaterials(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
-        XMLElement *buildXMLMaterial(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+//         XMLElement *buildXMLMaterials(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+//         XMLElement *buildXMLMaterial(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLTextures(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLTexture(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSkeleton(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
@@ -105,6 +105,10 @@ namespace mconv
         XMLElement *buildXMLLight(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLCamera(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
 
+        bool loadMaterial(Node *&pNode);
+        bool saveMaterial(Node *pNode);
+
+        String  mSavePath;
         size_t  mTabCount;
     };
 

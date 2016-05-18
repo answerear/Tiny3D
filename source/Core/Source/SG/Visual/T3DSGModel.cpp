@@ -4,6 +4,7 @@
 #include "SG/Renderable/T3DSGMesh.h"
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
+#include "DataStruct/T3DGeometryData.h"
 
 
 namespace Tiny3D

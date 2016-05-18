@@ -34,6 +34,7 @@ namespace Tiny3D
 
     protected:
         ObjectPtr   mGeometryData;
+        MaterialPtr mMaterial;
         bool        mIsVertexShared;
     };
 }

@@ -20,12 +20,23 @@ namespace mconv
 {
     using namespace Tiny3D;
 
-    #define T3D_FILE_VERSION_00000001       0x00000001
+    #define T3D_MODEL_FILE_VER00000001          0x00000001
+    #define T3D_MATERIAL_FILE_VER_00000001      0x00000001
 
-    #define T3D_FILE_VERSION_00000001_STR   "0.0.0.1"
+    #define T3D_MODEL_FILE_VER_00000001_STR     "0.0.0.1"
+    #define T3D_MATERIAL_FILE_VER_00000001_STR  "0.0.0.1"
 
-    #define T3D_FILE_VERSION_CURRENT        T3D_FILE_VERSION_00000001
-    #define T3D_FILE_VERSION_CURRENT_STR    T3D_FILE_VERSION_00000001_STR
+    #define T3D_MODEL_FILE_VER_CUR              T3D_MODEL_FILE_VER00000001
+    #define T3D_MODEL_FILE_VER_CUR_STR          T3D_MODEL_FILE_VER_00000001_STR
+
+    #define T3D_MATERIAL_FILE_VER_CUR           T3D_MATERIAL_FILE_VER_00000001
+    #define T3D_MATERIAL_FILE_VER_CUR_STR       T3D_MATERIAL_FILE_VER_00000001_STR
+
+    #define T3D_BIN_MODEL_FILE_EXT              "tmb"
+    #define T3D_TXT_MODEL_FILE_EXT              "tmt"
+
+    #define T3D_BIN_MATERIAL_FILE_EXT           "mtb"
+    #define T3D_TXT_MATERIAL_FILE_EXT           "mtt"
 
     enum FileType
     {

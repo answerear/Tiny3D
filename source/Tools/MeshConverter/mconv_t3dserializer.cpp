@@ -116,13 +116,15 @@ namespace mconv
         Scene *pScene = (Scene *)pData;
         if (pScene != nullptr)
         {
+            mSavePath = path;
+
             XMLDocument *pDoc = new XMLDocument();
             XMLDeclaration *pDecl = pDoc->NewDeclaration();
             pDoc->LinkEndChild(pDecl);
 
             XMLElement *pVersionElement = pDoc->NewElement(TAG_VERSION);
             pDoc->LinkEndChild(pVersionElement);
-            XMLText *pText = pDoc->NewText(T3D_FILE_VERSION_CURRENT_STR);
+            XMLText *pText = pDoc->NewText(T3D_MODEL_FILE_VER_CUR_STR);
             pVersionElement->LinkEndChild(pText);
 
             XMLElement *pElement = pDoc->NewElement(TAG_SCENE);
@@ -182,12 +184,15 @@ namespace mconv
             break;
         case Node::E_TYPE_MATERIAL:
             {
-                pElement = buildXMLMaterial(pDoc, pParentElem, pNode);
+//                 pElement = buildXMLMaterial(pDoc, pParentElem, pNode);
+                saveMaterial(pNode);
+                pElement = pParentElem;
             }
             break;
         case Node::E_TYPE_MATERIALS:
             {
-                pElement = buildXMLMaterials(pDoc, pParentElem, pNode);
+//                 pElement = buildXMLMaterials(pDoc, pParentElem, pNode);
+                pElement = pParentElem;
             }
             break;
         case Node::E_TYPE_MESH:
@@ -237,11 +242,14 @@ namespace mconv
             break;
         }
 
-        size_t i = 0;
-        for (i = 0; i < pNode->getChildrenCount(); ++i)
+        if (pNode->getNodeType() != Node::E_TYPE_MATERIAL)
         {
-            Node *pChild = pNode->getChild(i);
-            populateXMLNode(pDoc, pElement, pChild);
+            size_t i = 0;
+            for (i = 0; i < pNode->getChildrenCount(); ++i)
+            {
+                Node *pChild = pNode->getChild(i);
+                populateXMLNode(pDoc, pElement, pChild);
+            }
         }
 
         return pElement;
@@ -524,21 +532,31 @@ namespace mconv
         return pSubmeshElement;
     }
 
-    XMLElement *T3DXMLSerializer::buildXMLMaterials(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+//     XMLElement *T3DXMLSerializer::buildXMLMaterials(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+//     {
+//         XMLElement *pMatsElement = pDoc->NewElement(TAG_MATERIALS);
+//         pParentElem->LinkEndChild(pMatsElement);
+// 
+//         pMatsElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+//         pMatsElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
+// 
+//         return pMatsElement;
+//     }
+
+//     XMLElement *T3DXMLSerializer::buildXMLMaterial(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    bool T3DXMLSerializer::saveMaterial(Node *pNode)
     {
-        XMLElement *pMatsElement = pDoc->NewElement(TAG_MATERIALS);
-        pParentElem->LinkEndChild(pMatsElement);
+        XMLDocument *pDoc = new XMLDocument();
 
-        pMatsElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
-        pMatsElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
+        XMLDeclaration *pDecl = pDoc->NewDeclaration();
+        pDoc->LinkEndChild(pDecl);
 
-        return pMatsElement;
-    }
+        XMLElement *pVersionElement = pDoc->NewElement(TAG_VERSION);
+        pDoc->LinkEndChild(pVersionElement);
+        XMLText *pText = pDoc->NewText(T3D_MATERIAL_FILE_VER_CUR_STR);
 
-    XMLElement *T3DXMLSerializer::buildXMLMaterial(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
-    {
         XMLElement *pMatElement = pDoc->NewElement(TAG_MATERIAL);
-        pParentElem->LinkEndChild(pMatElement);
+        pDoc->LinkEndChild(pMatElement);
 
         Material *pMaterial = (Material *)pNode;
         pMatElement->SetAttribute(ATTRIB_ID, pMaterial->getID().c_str());
@@ -546,7 +564,7 @@ namespace mconv
         // shaderËã·¨
         XMLElement *pModeElement = pDoc->NewElement(TAG_MODE);
         pMatElement->LinkEndChild(pModeElement);
-        XMLText *pText = pDoc->NewText(pMaterial->mMode.c_str());
+        pText = pDoc->NewText(pMaterial->mMode.c_str());
         pModeElement->LinkEndChild(pText);
 
         // ambient
@@ -623,7 +641,32 @@ namespace mconv
         pText = pDoc->NewText(ss.str().c_str());
         pReflectElement->LinkEndChild(pText);
 
-        return pMatElement;
+        // texture
+        size_t i = 0;
+        for (i = 0; i < pNode->getChildrenCount(); ++i)
+        {
+            Node *pChild = pNode->getChild(i);
+            populateXMLNode(pDoc, pMatElement, pChild);
+        }
+
+        size_t pos = mSavePath.rfind('\\');
+        if (pos == String::npos)
+        {
+            pos = mSavePath.rfind('/');
+        }
+        
+        String strPath;
+        if (pos != String::npos)
+        {
+            strPath = mSavePath.substr(0, pos+1);
+        }
+
+        String strFullPath = strPath + pMaterial->getID() + "." + T3D_TXT_MATERIAL_FILE_EXT;
+        pDoc->SaveFile(strFullPath.c_str());
+
+        delete pDoc;
+
+        return true;
     }
 
     XMLElement *T3DXMLSerializer::buildXMLTextures(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
@@ -897,13 +940,13 @@ namespace mconv
 
         if (mBinSerializer != nullptr)
         {
-            String dstPath = path + ".tmb";
+            String dstPath = path + "." + T3D_BIN_MODEL_FILE_EXT;
             result = mBinSerializer->save(dstPath, pData);
         }
 
         if (mXMLSerializer != nullptr)
         {
-            String dstPath = path + ".tmt";
+            String dstPath = path + "." + T3D_TXT_MODEL_FILE_EXT;
             result = result && mXMLSerializer->save(dstPath, pData);
         }
 

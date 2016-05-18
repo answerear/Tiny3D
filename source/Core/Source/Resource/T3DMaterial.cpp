@@ -4,6 +4,8 @@
 #include "Misc/T3DColor4.h"
 #include "Resource/T3DTextureManager.h"
 #include "Resource/T3DTexture.h"
+#include "Resource/T3DArchive.h"
+#include "Resource/T3DArchiveManager.h"
 
 
 namespace Tiny3D
@@ -43,9 +45,43 @@ namespace Tiny3D
 
     bool Material::load()
     {
+        bool ret = false;
+
         if (mMaterialType == E_MT_DEFAULT)
         {
+            ArchivePtr archive;
+            MemoryDataStream stream;
 
+            if (T3D_ARCHIVE_MGR.getArchive(mName, archive))
+            {
+                if (archive->read(mName, stream))
+                {
+                    ret = true;
+//                     FileType fileType = parseFileType(mName);
+// 
+//                     switch (fileType)
+//                     {
+//                     case Tiny3D::Model::E_FILETYPE_UNKNOWN:
+//                         break;
+//                     case Tiny3D::Model::E_FILETYPE_TMB:
+//                         {
+//                             ret = loadFromBinary(stream);
+//                         }
+//                         break;
+//                     case Tiny3D::Model::E_FILETYPE_TMT:
+//                         {
+//                             ret = loadFromXML(stream);
+//                         }
+//                         break;
+//                     default:
+//                         break;
+//                     }
+                }
+            }
+        }
+        else
+        {
+            ret = true;
         }
 
         return true;
