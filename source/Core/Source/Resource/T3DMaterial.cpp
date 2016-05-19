@@ -9,9 +9,14 @@
 #include "T3DPrerequisitesInternal.h"
 #include "T3DTypedefInternal.h"
 
+#include "Support/tinyxml2/tinyxml2.h"
+
+#include <sstream>
 
 namespace Tiny3D
 {
+    using namespace tinyxml2;
+
     MaterialPtr Material::create(const String &name, MaterialType matType)
     {
         MaterialPtr material = new Material(name, matType);
@@ -135,7 +140,99 @@ namespace Tiny3D
 
     bool Material::loadFromXML(MemoryDataStream &stream)
     {
-        return true;
+        bool ret = false;
+        uint8_t *buffer = nullptr;
+        size_t bufSize = 0;
+        stream.getBuffer(buffer, bufSize);
+
+        if (bufSize > 0 && buffer != nullptr)
+        {
+            XMLDocument *pDoc = new XMLDocument();
+
+            if (pDoc != nullptr && pDoc->Parse((const char *)buffer, bufSize) == XML_SUCCESS)
+            {
+                ret = true;
+
+                XMLDeclaration *pDeclaration = pDoc->ToDeclaration();
+                XMLElement *pVersionElement = pDoc->FirstChildElement(T3D_XML_TAG_VERSION);
+
+                String version = pVersionElement->GetText();
+
+                XMLElement *pMatElement = pDoc->FirstChildElement(T3D_XML_TAG_MATERIAL);
+                String name = pMatElement->Attribute(T3D_XML_ATTRIB_ID);
+
+                // Mode
+                XMLElement *pModeElement = pMatElement->FirstChildElement(T3D_XML_TAG_MODE);
+                mMode = pModeElement->GetText();
+
+                // Ambient
+                XMLElement *pAmbientElement = pMatElement->FirstChildElement(T3D_XML_TAG_AMBIENT);
+                String text = pAmbientElement->GetText();
+                parseColorValue(text, mAmbientColor);
+
+                // Diffse
+                XMLElement *pDiffuseElement = pMatElement->FirstChildElement(T3D_XML_TAG_DIFFUSE);
+                text = pDiffuseElement->GetText();
+                parseColorValue(text, mDiffuseColor);
+
+                // Specular
+                XMLElement *pSpecularElement = pMatElement->FirstChildElement(T3D_XML_TAG_SPECULAR);
+                text = pSpecularElement->GetText();
+                parseColorValue(text, mSpecularColor);
+
+                // Emissive
+                XMLElement *pEmissiveElement = pMatElement->FirstChildElement(T3D_XML_TAG_EMISSIVE);
+                text = pEmissiveElement->GetText();
+                parseColorValue(text, mEmissiveColor);
+
+                // Shininess
+                XMLElement *pShinElement = pMatElement->FirstChildElement(T3D_XML_TAG_SHININESS);
+                text = pShinElement->GetText();
+                size_t start = 0;
+                mShininess = getValue<Real>(text, start);
+
+                // Transparency
+                XMLElement *pTransElement = pMatElement->FirstChildElement(T3D_XML_TAG_TRANSPARENCY);
+                text = pTransElement->GetText();
+                start = 0;
+                mTransparency = getValue<Real>(text, start);
+
+                // Reflection
+                XMLElement *pReflectElement = pMatElement->FirstChildElement(T3D_XML_TAG_REFLECTION);
+                text = pReflectElement->GetText();
+                start = 0;
+                mReflection = getValue<Real>(text, start);
+
+                // Number of textures
+                XMLElement *pTexturesElement = pMatElement->FirstChildElement(T3D_XML_TAG_TEXTURES);
+                size_t layers = pTexturesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+
+                // Texture layers
+                size_t i = 0;
+                XMLElement *pTexElement = pTexturesElement->FirstChildElement(T3D_XML_TAG_TEXTURE);
+
+                while (pTexElement != nullptr)
+                {
+                    String texName = pTexElement->GetText();
+                    mTextureLayer[i] = T3D_TEXTURE_MGR.loadTexture(texName);
+                    pTexElement = pTexElement->NextSiblingElement(T3D_XML_TAG_TEXTURE);
+                    i++;
+                }
+            }
+
+            delete pDoc;
+        }
+
+        return ret;
+    }
+
+    void Material::parseColorValue(const String &text, Color4 &color)
+    {
+        size_t start = 0;
+        color.red() = getValue<Real>(text, start) * 255;
+        color.green() = getValue<Real>(text, start) * 255;
+        color.blue() = getValue<Real>(text, start) * 255;
+        color.alpha() = getValue<Real>(text, start) * 255;
     }
 }
 

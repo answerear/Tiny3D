@@ -106,6 +106,7 @@ namespace Tiny3D
         
         bool loadFromBinary(DataStream &stream);
         bool loadFromXML(MemoryDataStream &stream);
+        void parseColorValue(const String &text, Color4 &color);
 
     private:
         enum
@@ -115,12 +116,15 @@ namespace Tiny3D
 
         MaterialType    mMaterialType;
 
+        String  mMode;
         Color4  mAmbientColor;
         Color4  mDiffuseColor;
         Color4  mSpecularColor;
         Color4  mEmissiveColor;
 
         Real    mShininess;
+        Real    mTransparency;
+        Real    mReflection;
 
         TexturePtr  mTextureLayer[E_MAX_TEXTURE_LAYERS];
     };

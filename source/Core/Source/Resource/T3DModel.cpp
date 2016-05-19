@@ -12,82 +12,7 @@
 
 namespace Tiny3D
 {
-    #define T3D_XML_TAG_VERSION         "version"
-    #define T3D_XML_TAG_SCENE           "scene"
-    #define T3D_XML_TAG_MODEL           "model"
-    #define T3D_XML_TAG_MESH            "mesh"
-    #define T3D_XML_TAG_ATTRIBUTES      "attributes"
-    #define T3D_XML_TAG_ATTRIBUTE       "attribute"
-    #define T3D_XML_TAG_VERTICES        "vertices"
-    #define T3D_XML_TAG_PARTS           "parts"
-    #define T3D_XML_TAG_PART            "part"
-    #define T3D_XML_TAG_INDICES         "indices"
-    #define T3D_XML_TAG_MATERIALS       "materials"
-    #define T3D_XML_TAG_MATERIAL        "material"
-
-    #define T3D_XML_ATTRIB_ID           "id"
-    #define T3D_XML_ATTRIB_SIZE         "size"
-    #define T3D_XML_ATTRIB_TYPE         "type"
-    #define T3D_XML_ATTRIB_COUNT        "count"
-    #define T3D_XML_ATTRIB_PRIMITIVE    "primitive"
-    #define T3D_XML_ATTRIB_16BITS       "is16bits"
-    #define T3D_XML_ATTRIB_SHARED       "shared_vertex"
-
-    #define T3D_VERTEX_SEMANTIC_POSITION        "POSITION"
-    #define T3D_VERTEX_SEMANTIC_TEXCOORD        "TEXCOORD"
-    #define T3D_VERTEX_SEMANTIC_NORMAL          "NORMAL"
-    #define T3D_VERTEX_SEMANTIC_TANGENT         "TANGENT"
-    #define T3D_VERTEX_SEMANTIC_BINORMAL        "BINORMAL"
-    #define T3D_VERTEX_SEMANTIC_COLOR           "COLOR"
-    #define T3D_VERTEX_SEMANTIC_BLEND_WEIGHT    "BLEND_WEIGHT"
-    #define T3D_VERTEX_SEMANTIC_BLEND_INDEX     "BLEND_INDEX"
-
-    #define T3D_VALUE_TYPE_FLOAT                "float"
-    #define T3D_VALUE_TYPE_DOUBLE               "double"
-    #define T3D_VALUE_TYPE_INT                  "int"
-    #define T3D_VALUE_TYPE_SHORT                "short"
-    #define T3D_VALUE_TYPE_LONG                 "long"
-
-    #define T3D_PRITYPE_TRIANGLE_LIST           "triangles"
-    #define T3D_PRITYPE_TRIANGLE_STRIP          "triangle strip"
-
     using namespace tinyxml2;
-
-    size_t getStartPos(const String &text, size_t start)
-    {
-        size_t pos = start;
-        while (text[pos] == ' ' || text[pos] == '\n' || text[pos] == '\t')
-        {
-            ++pos;
-        }
-
-        return pos;
-    }
-
-    template <typename T>
-    T getValue(const String &text, size_t &start)
-    {
-        size_t end = text.find(' ', start);
-        size_t len = 0;
-
-        if (end == -1)
-        {
-            len = text.length() - start;
-        }
-        else
-        {
-            len = end - start;
-        }
-        String str = text.substr(start, len);
-        start = getStartPos(text, end);
-
-        std::stringstream ss(str);
-        T value;
-        ss>>value;
-
-        return value;
-    }
-
 
     ModelPtr Model::create(const String &name)
     {
@@ -623,7 +548,7 @@ namespace Tiny3D
         XMLElement *pAttribsElement = pMeshElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTES);
 
         // 解析顶点属性列表大小
-        int32_t count = pAttribsElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+        size_t count = pAttribsElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
 
         if (count == 0)
         {
@@ -635,7 +560,7 @@ namespace Tiny3D
 
         // 解析顶点属性
         XMLElement *pAttribElement = pAttribsElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTE);
-        int32_t i = 0;
+        size_t i = 0;
         size_t offset = 0;
 
         while (pAttribElement != nullptr && i < count)

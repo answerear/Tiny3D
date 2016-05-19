@@ -35,8 +35,8 @@ int32_t HelloWorldApp::go()
 bool HelloWorldApp::applicationDidFinishLaunching()
 {
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
-    renderer->setLightEnabled(false);
-    renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
+    renderer->setLightEnabled(true);
+    renderer->setRenderMode(Renderer::E_RM_SOLID);
     renderer->setAmbientLight(Color4::WHITE);
 
 //     T3D_ENTRANCE.getActiveRenderer()->setCullingMode(Renderer::E_CULL_NONE);
