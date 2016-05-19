@@ -6,6 +6,8 @@
 #include "Resource/T3DTexture.h"
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveManager.h"
+#include "T3DPrerequisitesInternal.h"
+#include "T3DTypedefInternal.h"
 
 
 namespace Tiny3D
@@ -56,26 +58,25 @@ namespace Tiny3D
             {
                 if (archive->read(mName, stream))
                 {
-                    ret = true;
-//                     FileType fileType = parseFileType(mName);
-// 
-//                     switch (fileType)
-//                     {
-//                     case Tiny3D::Model::E_FILETYPE_UNKNOWN:
-//                         break;
-//                     case Tiny3D::Model::E_FILETYPE_TMB:
-//                         {
-//                             ret = loadFromBinary(stream);
-//                         }
-//                         break;
-//                     case Tiny3D::Model::E_FILETYPE_TMT:
-//                         {
-//                             ret = loadFromXML(stream);
-//                         }
-//                         break;
-//                     default:
-//                         break;
-//                     }
+                    FileType fileType = parseFileType(mName);
+
+                    switch (fileType)
+                    {
+                    case E_FILETYPE_UNKNOWN:
+                        break;
+                    case E_FILETYPE_MTB:
+                        {
+                            ret = loadFromBinary(stream);
+                        }
+                        break;
+                    case E_FILETYPE_MTT:
+                        {
+                            ret = loadFromXML(stream);
+                        }
+                        break;
+                    default:
+                        break;
+                    }
                 }
             }
         }
@@ -103,6 +104,38 @@ namespace Tiny3D
         {
             mTextureLayer[layer] = T3D_TEXTURE_MGR.loadTexture(name);
         }
+    }
+
+    Material::FileType Material::parseFileType(const String &name) const
+    {
+        FileType fileType = E_FILETYPE_UNKNOWN;
+
+        size_t pos = name.rfind(".");
+        if (pos > 0)
+        {
+            String ext = name.substr(pos+1);
+
+            if (ext == T3D_BIN_MATERIAL_FILE_EXT)
+            {
+                fileType = E_FILETYPE_MTB;
+            }
+            else if (ext == T3D_TXT_MATERIAL_FILE_EXT)
+            {
+                fileType = E_FILETYPE_MTT;
+            }
+        }
+
+        return fileType;
+    }
+
+    bool Material::loadFromBinary(DataStream &stream)
+    {
+        return true;
+    }
+
+    bool Material::loadFromXML(MemoryDataStream &stream)
+    {
+        return true;
     }
 }
 

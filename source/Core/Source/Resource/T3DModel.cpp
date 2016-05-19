@@ -51,12 +51,6 @@ namespace Tiny3D
     #define T3D_PRITYPE_TRIANGLE_LIST           "triangles"
     #define T3D_PRITYPE_TRIANGLE_STRIP          "triangle strip"
 
-    #define T3D_BIN_MODEL_FILE_EXT              "tmb"
-    #define T3D_TXT_MODEL_FILE_EXT              "tmt"
-
-    #define T3D_BIN_MATERIAL_FILE_EXT           "mtb"
-    #define T3D_TXT_MATERIAL_FILE_EXT           "mtt"
-
     using namespace tinyxml2;
 
     size_t getStartPos(const String &text, size_t start)
@@ -133,14 +127,14 @@ namespace Tiny3D
 
                 switch (fileType)
                 {
-                case Tiny3D::Model::E_FILETYPE_UNKNOWN:
+                case E_FILETYPE_UNKNOWN:
                     break;
-                case Tiny3D::Model::E_FILETYPE_TMB:
+                case E_FILETYPE_TMB:
                     {
                         ret = loadFromBinary(stream);
                     }
                     break;
-                case Tiny3D::Model::E_FILETYPE_TMT:
+                case E_FILETYPE_TMT:
                     {
                         ret = loadFromXML(stream);
                     }

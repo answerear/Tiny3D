@@ -554,6 +554,7 @@ namespace mconv
         XMLElement *pVersionElement = pDoc->NewElement(TAG_VERSION);
         pDoc->LinkEndChild(pVersionElement);
         XMLText *pText = pDoc->NewText(T3D_MATERIAL_FILE_VER_CUR_STR);
+        pVersionElement->LinkEndChild(pText);
 
         XMLElement *pMatElement = pDoc->NewElement(TAG_MATERIAL);
         pDoc->LinkEndChild(pMatElement);

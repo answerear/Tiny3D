@@ -89,11 +89,23 @@ namespace Tiny3D
         }
 
     protected:
+        enum FileType
+        {
+            E_FILETYPE_UNKNOWN = 0,
+            E_FILETYPE_MTB,
+            E_FILETYPE_MTT,
+        };
+
         Material(const String &name, MaterialType matType);
 
         virtual bool load() override;
         virtual void unload() override;
         virtual ResourcePtr clone() const override;
+
+        FileType parseFileType(const String &name) const;
+        
+        bool loadFromBinary(DataStream &stream);
+        bool loadFromXML(MemoryDataStream &stream);
 
     private:
         enum
