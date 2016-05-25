@@ -48,7 +48,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     root->addChild(node);
 
 //     node->lookAt(Vector3(0.0, 10.0, 200.0), Vector3::ZERO, Vector3::UNIT_Y);
-    node->lookAt(Vector3(0.0, 10.0, 20.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(0.0, 2.0, 10.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 相机结点
     SGCameraPtr camera = SGCamera::create();
@@ -61,7 +61,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
 
     // 视口
     ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
-    viewport->setBackgroundColor(Color4::BLACK);
+    viewport->setBackgroundColor(Color4::BLUE);
 
     // 变换结点
 //     node = SGTransformNode::create();

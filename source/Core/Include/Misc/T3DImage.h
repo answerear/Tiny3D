@@ -41,7 +41,7 @@ namespace Tiny3D
 
         bool fill(const Color4 &rkColor);
 
-        bool copyToScaling(void *dstData, int32_t dstWidth, int32_t dstHeight, PixelFormat dstFormat, int32_t dstPitch) const;
+        bool copyToScaling(void *dstData, int32_t dstWidth, int32_t dstHeight, PixelFormat dstFormat, int32_t dstPitch, bool needFlip = false) const;
 
         int32_t compare(const Image &other, bool compareAlpha = true) const;
 
