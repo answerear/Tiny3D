@@ -504,7 +504,7 @@ namespace mconv
 
                 // ¶ÁÈ¡ÎÆÀíUV×ø±ê
                 FbxVector2 uv;
-                int nTexCount = pFbxMesh->GetTextureUVCount();
+                int nTexCount = pFbxMesh->GetElementUVCount();
                 for (k = 0; k < nTexCount; ++k)
                 {
                     if (readUV(pFbxMesh, nControlPointIdx, pFbxMesh->GetTextureUVIndex(i, j), k, uv))
@@ -759,7 +759,7 @@ namespace mconv
 
     bool Converter::readUV(FbxMesh *pFbxMesh, int nControlPointIdx, int nUVIndex, int nLayer, FbxVector2 &uv)
     {
-        if (pFbxMesh->GetElementUVCount() < 1)
+        if (pFbxMesh->GetElementUVCount() < 1 || nLayer >= pFbxMesh->GetElementUVCount())
         {
             return false;
         }
