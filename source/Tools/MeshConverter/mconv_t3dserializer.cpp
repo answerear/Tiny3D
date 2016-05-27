@@ -850,10 +850,25 @@ namespace mconv
         pBoneElement->LinkEndChild(pTransformElement);
 
         std::stringstream ss;
-        ss<<pBone->mLocalTransform[0][0]<<" "<<pBone->mLocalTransform[1][0]<<" "<<pBone->mLocalTransform[2][0]<<" "<<pBone->mLocalTransform[3][0]<<" ";
-        ss<<pBone->mLocalTransform[0][1]<<" "<<pBone->mLocalTransform[1][1]<<" "<<pBone->mLocalTransform[2][1]<<" "<<pBone->mLocalTransform[3][1]<<" ";
-        ss<<pBone->mLocalTransform[0][2]<<" "<<pBone->mLocalTransform[1][2]<<" "<<pBone->mLocalTransform[2][2]<<" "<<pBone->mLocalTransform[3][2]<<" ";
-        ss<<pBone->mLocalTransform[0][3]<<" "<<pBone->mLocalTransform[1][3]<<" "<<pBone->mLocalTransform[2][3]<<" "<<pBone->mLocalTransform[3][3];
+        char szText[512] = {0};
+//         snprintf(szText, sizeof(szText)-1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ", 
+//                                            pBone->mLocalTransform[0][0], pBone->mLocalTransform[1][0], pBone->mLocalTransform[2][0], pBone->mLocalTransform[3][0],
+//                                            pBone->mLocalTransform[0][1], pBone->mLocalTransform[1][1], pBone->mLocalTransform[2][1], pBone->mLocalTransform[3][1],
+//                                            pBone->mLocalTransform[0][2], pBone->mLocalTransform[1][2], pBone->mLocalTransform[2][2], pBone->mLocalTransform[3][2],
+//                                            pBone->mLocalTransform[0][3], pBone->mLocalTransform[1][3], pBone->mLocalTransform[2][3], pBone->mLocalTransform[3][3]);
+        snprintf(szText, sizeof(szText)-1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ", 
+            pBone->mLocalTransform[0][0], pBone->mLocalTransform[0][1], pBone->mLocalTransform[0][2], pBone->mLocalTransform[0][3],
+            pBone->mLocalTransform[1][0], pBone->mLocalTransform[1][1], pBone->mLocalTransform[1][2], pBone->mLocalTransform[1][3],
+            pBone->mLocalTransform[2][0], pBone->mLocalTransform[2][1], pBone->mLocalTransform[2][2], pBone->mLocalTransform[2][3],
+            pBone->mLocalTransform[3][0], pBone->mLocalTransform[3][1], pBone->mLocalTransform[3][2], pBone->mLocalTransform[3][3]);
+
+        ss<<szText;
+
+//         std::stringstream ss;
+//         ss<<pBone->mLocalTransform[0][0]<<" "<<pBone->mLocalTransform[1][0]<<" "<<pBone->mLocalTransform[2][0]<<" "<<pBone->mLocalTransform[3][0]<<" ";
+//         ss<<pBone->mLocalTransform[0][1]<<" "<<pBone->mLocalTransform[1][1]<<" "<<pBone->mLocalTransform[2][1]<<" "<<pBone->mLocalTransform[3][1]<<" ";
+//         ss<<pBone->mLocalTransform[0][2]<<" "<<pBone->mLocalTransform[1][2]<<" "<<pBone->mLocalTransform[2][2]<<" "<<pBone->mLocalTransform[3][2]<<" ";
+//         ss<<pBone->mLocalTransform[0][3]<<" "<<pBone->mLocalTransform[1][3]<<" "<<pBone->mLocalTransform[2][3]<<" "<<pBone->mLocalTransform[3][3];
         XMLText *pText = pDoc->NewText(ss.str().c_str());
         pTransformElement->LinkEndChild(pText);
 

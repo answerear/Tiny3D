@@ -1595,10 +1595,36 @@ namespace mconv
                 FbxVector4 R = pFbxLinkNode->GetGeometricRotation(FbxNode::eSourcePivot);
                 FbxVector4 S = pFbxLinkNode->GetGeometricScaling(FbxNode::eSourcePivot);
                 FbxAMatrix matGeometry(T, R, S);
-                FbxAMatrix matOffset = matLink.Inverse() * mat * matGeometry;
+                FbxAMatrix bindpose = (matLink.Inverse() * mat * matGeometry);
+//                 FbxAMatrix mp = pFbxLinkNode->EvaluateLocalTransform();
+// 
+//                 FbxScene *pFbxScene = (FbxScene *)(mSrcData);
+//                 const int poseCount = pFbxScene->GetPoseCount();
+//                 for (int ii = 0; ii < poseCount; ++ii)
+//                 {
+//                     FbxPose *pFbxPose = pFbxScene->GetPose(ii);
+//                     assert(pFbxPose);
+//                     if (pFbxPose->IsBindPose())
+//                     {
+//                         for (int jj = 0; jj < pFbxPose->GetCount(); ++jj)
+//                         {
+//                             FbxNode* fbxNode = pFbxPose->GetNode(jj);
+//                             if (std::string(fbxNode->GetName()) == "global")
+//                             {
+//                                 int a = 0;
+//                             }
+// //                             if (fbxNode->GetMesh() != NULL)
+//                             {
+//                                 FbxMatrix bindshape = pFbxPose->GetMatrix(jj);
+//                                 int a = 0;
+//                             }
+//                         }
+//                         
+//                     }
+//                 }
 
                 Bone *pBone = new Bone(pFbxLinkNode->GetName());
-                pBone->mLocalTransform = matOffset;
+                pBone->mLocalTransform = bindpose;
                 pSkin->addChild(pBone);
 
                 updateVertexBlendAttributes(pMesh);
