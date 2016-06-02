@@ -1777,6 +1777,32 @@ namespace mconv
                 blend.mBlendWeight = fBlendWeight;
                 BlendInfoValue value(fBlendWeight, blend);
                 vertex.mBlendInfo.insert(value);
+
+                auto i = vertex.mBlendInfo.rbegin();
+                double len = 0.0;
+                while (i != vertex.mBlendInfo.rend())
+                {
+                    len += i->second.mBlendWeight;
+                    ++i;
+                }
+
+                BlendInfoDict blends;
+                int j = 0;
+                i = vertex.mBlendInfo.rbegin();
+                while (i != vertex.mBlendInfo.rend())
+                {
+                    auto blend = i->second;
+                    blend.mBlendWeight /= len;
+                    BlendInfoValue value(blend.mBlendWeight, blend);
+                    blends.insert(value);
+                    ++j;
+                    ++i;
+
+                    if (j >= 4)
+                        break;
+                }
+
+                vertex.mBlendInfo = blends;
             }
 
             ++itr;
