@@ -146,12 +146,12 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     root->addChild(node);
     node->setPosition(0.0, 0.0, 0.0);
     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_X);
-//     node->setScale(200.0f, 200.0f, 200.0f);
+//     node->setScale(2.0f, 2.0f, 2.0f);
 
     {
         // 模型 #1 可见物体结点
         SGModelPtr model = SGModel::create("knight.tmt");
-//         SGModelPtr model = SGModel::create("textured.tmt");
+//         SGModelPtr model = SGModel::create("ironman.tmt");
         node->addChild(model);
 //         SGShapePtr shape = SGShape::create();
 //         node->addChild(shape);

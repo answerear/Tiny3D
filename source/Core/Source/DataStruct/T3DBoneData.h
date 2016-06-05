@@ -6,34 +6,29 @@
 
 #include "T3DPrerequisitesInternal.h"
 #include "T3DTypedefInternal.h"
-#include "Misc/T3DObject.h"
+#include "SG/Node/T3DSGTransformNode.h"
 #include "Math/T3DMatrix4.h"
 
 
 namespace Tiny3D
 {
-    class BoneData : public Object
+    class Bone : public SGTransformNode
     {
     public:
-        static BoneDataPtr create(const String &ID);
+        virtual ~Bone();
 
-        virtual ~BoneData();
+        static BonePtr create(const String &name, const Matrix4 &m);
+
+        const String &getName() const
+        {
+            return mName;
+        }
 
     protected:
-        BoneData(const String &ID);
+        Bone(const String &name, const Matrix4 &m);
 
-    private:
-        BoneData(const BoneData &);
-        BoneData &operator =(const BoneData &);
-
-    public:
-        BoneDataPtr mParent;
-        BoneDataPtr mChild;
-        BoneDataPtr mPrevSibling;
-        BoneDataPtr mNextSibling;
-
-        String      mID;
-        Matrix4     mBoneTransform;
+    protected:
+        String  mName;
     };
 }
 

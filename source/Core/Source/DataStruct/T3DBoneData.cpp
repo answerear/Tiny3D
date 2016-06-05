@@ -5,30 +5,30 @@
 
 namespace Tiny3D
 {
-    BoneDataPtr BoneData::create(const String &ID)
+    BonePtr Bone::create(const String &name, const Matrix4 &m)
     {
-        BoneDataPtr bone = new BoneData(ID);
-        bone->release();
+        BonePtr bone = new Bone(name, m);
+        if (bone != nullptr)
+        {
+            bone->release();
+        }
+        else
+        {
+            T3D_SAFE_RELEASE(bone);
+        }
         return bone;
     }
 
-    BoneData::BoneData(const String &ID)
-        : mParent(nullptr)
-        , mChild(nullptr)
-        , mPrevSibling(nullptr)
-        , mNextSibling(nullptr)
-        , mID(ID)
-        , mBoneTransform(false)
+    Bone::Bone(const String &name, const Matrix4 &m)
+        : SGTransformNode()
+        , mName(name)
     {
 
     }
 
-    BoneData::~BoneData()
+    Bone::~Bone()
     {
-        mParent = nullptr;
-        mChild = nullptr;
-        mPrevSibling = nullptr;
-        mNextSibling = nullptr;
+
     }
 }
 
