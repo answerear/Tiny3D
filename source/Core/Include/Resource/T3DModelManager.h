@@ -19,6 +19,7 @@ namespace Tiny3D
         virtual ~ModelManager();
 
         virtual ModelPtr loadModel(const String &name);
+        virtual void unloadModel(ModelPtr &model);
 
     protected:
         virtual ResourcePtr create(const String &name, int32_t argc, va_list args) override;

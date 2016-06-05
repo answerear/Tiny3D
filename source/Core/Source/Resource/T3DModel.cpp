@@ -3,7 +3,7 @@
 #include "Resource/T3DModel.h"
 #include "DataStruct/T3DGeometryData.h"
 #include "DataStruct/T3DSkinData.h"
-#include "DataStruct/T3DBoneData.h"
+#include "DataStruct/T3DBone.h"
 #include "DataStruct/T3DActionData.h"
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveManager.h"

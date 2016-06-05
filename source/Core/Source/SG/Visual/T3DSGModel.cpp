@@ -31,7 +31,6 @@ namespace Tiny3D
 
     SGModel::~SGModel()
     {
-
     }
 
     bool SGModel::init(const String &modelName)
