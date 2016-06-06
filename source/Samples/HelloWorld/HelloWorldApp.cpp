@@ -36,7 +36,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
 {
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
-    renderer->setRenderMode(Renderer::E_RM_SOLID);
+    renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
     renderer->setAmbientLight(Color4::WHITE);
 
 //     T3D_ENTRANCE.getActiveRenderer()->setCullingMode(Renderer::E_CULL_NONE);
@@ -61,7 +61,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
 
     // 视口
     ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
-    viewport->setBackgroundColor(Color4::BLUE);
+    viewport->setBackgroundColor(Color4::BLACK);
 
     // 变换结点
 //     node = SGTransformNode::create();
@@ -152,6 +152,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
         // 模型 #1 可见物体结点
         SGModelPtr model = SGModel::create("knight.tmt");
 //         SGModelPtr model = SGModel::create("ironman.tmt");
+        model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
 //         SGShapePtr shape = SGShape::create();
 //         node->addChild(shape);

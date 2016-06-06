@@ -36,6 +36,10 @@ namespace Tiny3D
 
     protected:
         ModelPtr    mModel;
+        RenderMode  mRenderMode;
+
+        Children        mMeshes;
+        SGSkeletonPtr   mSkeleton;
     };
 }
 

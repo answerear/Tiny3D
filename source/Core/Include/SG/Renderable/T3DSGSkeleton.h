@@ -20,9 +20,17 @@ namespace Tiny3D
         virtual NodePtr clone() const override;
 
     protected:
+        struct BoneVertex
+        {
+            BoneVertex() : position(), color(Color4::WHITE) {}
+            Vector3     position;
+            Color4      color;
+        };
+
         SGSkeleton(uint32_t uID = E_NID_AUTOMATIC);
 
         virtual bool init(ObjectPtr skeletonData);
+        bool buildSkeletonVertices(const ObjectPtr &skeleton, std::vector<BoneVertex> &vertices);
 
         virtual void cloneProperties(const NodePtr &node) const override;
 
@@ -33,7 +41,8 @@ namespace Tiny3D
         virtual bool isIndicesUsed() const override;
 
     protected:
-        ObjectPtr   mSkeleton;
+        ObjectPtr       mSkeleton;
+        VertexDataPtr   mVertexData;
     };
 }
 

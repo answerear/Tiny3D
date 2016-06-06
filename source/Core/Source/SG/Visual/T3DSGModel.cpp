@@ -2,6 +2,7 @@
 
 #include "SG/Visual/T3DSGModel.h"
 #include "SG/Renderable/T3DSGMesh.h"
+#include "SG/Renderable/T3DSGSkeleton.h"
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
 #include "DataStruct/T3DGeometryData.h"
@@ -25,12 +26,17 @@ namespace Tiny3D
 
     SGModel::SGModel(uint32_t unID /* = E_NID_AUTOMATIC */)
         : SGShape(unID)
+        , mModel(nullptr)
+        , mRenderMode(E_RENDER_ENTITY)
     {
 
     }
 
     SGModel::~SGModel()
     {
+        mSkeleton = nullptr;
+        mMeshes.clear();
+        T3D_MODEL_MGR.unloadModel(mModel);
     }
 
     bool SGModel::init(const String &modelName)
@@ -50,6 +56,7 @@ namespace Tiny3D
                 ObjectPtr geometry = geometries[i];
                 SGMeshPtr mesh = SGMesh::create(geometry, mModel->isSharedVertex());
                 addChild(mesh);
+                mMeshes.push_back(mesh);
             }
         }
 
@@ -73,5 +80,43 @@ namespace Tiny3D
         return model;
     }
 
+    void SGModel::setRenderMode(RenderMode mode)
+    {
+        if (mode != mRenderMode)
+        {
+            switch (mode)
+            {
+            case E_RENDER_ENTITY:
+                {
+                    removeAllChildren(false);
 
+                    if (!mMeshes.empty())
+                    {
+                        auto itr = mMeshes.begin();
+                        while (itr != mMeshes.end())
+                        {
+                            addChild(*itr);
+                            ++itr;
+                        }
+                    }
+                }
+                break;
+            case E_RENDER_SKELETON:
+                {
+                    removeAllChildren(false);
+
+                    if (mSkeleton == nullptr)
+                    {
+                        // 没有生成过骨骼渲染对象，先创建
+                        mSkeleton = SGSkeleton::create(mModel->getSkeletonData());
+                    }
+
+                    addChild(mSkeleton);
+                }
+                break;
+            }
+
+            mRenderMode = mode;
+        }
+    }
 }
