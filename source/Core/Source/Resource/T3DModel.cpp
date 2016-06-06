@@ -2,6 +2,9 @@
 
 #include "Resource/T3DModel.h"
 #include "DataStruct/T3DGeometryData.h"
+#include "DataStruct/T3DSkinData.h"
+#include "DataStruct/T3DBone.h"
+#include "DataStruct/T3DActionData.h"
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveManager.h"
 
@@ -139,14 +142,20 @@ namespace Tiny3D
                     mGeometryData.reserve(count);
                 }
 
+                // Íø¸ñ
                 while (pMeshElement != nullptr)
                 {
                     ret = ret && parseMesh(pMeshElement);
                     pMeshElement = pMeshElement->NextSiblingElement(T3D_XML_TAG_MESH);
                 }
 
-                XMLElement *pMaterialsElement = pModelElement->FirstChildElement(T3D_XML_TAG_MATERIALS);
-                ret = ret && parseMaterials(pMaterialsElement);
+                // ¹Ç÷À
+                XMLElement *pSkelElement = pModelElement->FirstChildElement(T3D_XML_TAG_SKELETON);
+                ret = ret && parseSkeleton(pSkelElement);
+
+                // ¶¯»­
+                XMLElement *pAnimElement = pModelElement->FirstChildElement(T3D_XML_TAG_ANIMATION);
+                ret = ret && parseAnimation(pAnimElement);
             }
 
             delete pDoc;
@@ -607,6 +616,8 @@ namespace Tiny3D
 
         bool ret = parseSubMeshes(pMeshElement, &attributes, &vertices, vertexSize);
 
+        ret = ret && parseSkin(pMeshElement);
+
         return true;
     }
 
@@ -667,9 +678,279 @@ namespace Tiny3D
         return true;
     }
 
-    bool Model::parseMaterials(tinyxml2::XMLElement *pMatsElement)
+    bool Model::parseSkin(tinyxml2::XMLElement *pMeshElement)
     {
-        return true;
+        XMLElement *pSkinElement = pMeshElement->FirstChildElement(T3D_XML_TAG_SKIN);
+        if (pSkinElement == nullptr)
+            return true;
+
+        bool ret = true;
+        String name = pSkinElement->Attribute(T3D_XML_ATTRIB_ID);
+        size_t boneCount = pSkinElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+
+        SkinDataList skindata;
+        auto val = mSkinData.insert(SkinMapValue(name, skindata));
+
+        XMLElement *pBoneElement = pSkinElement->FirstChildElement(T3D_XML_TAG_BONE);
+        while (pBoneElement != nullptr)
+        {
+            ret = ret && parseBone(pBoneElement, val.first->second);
+            pBoneElement = pBoneElement->NextSiblingElement(T3D_XML_TAG_BONE);
+        }
+
+        return ret;
+    }
+
+    bool Model::parseBone(tinyxml2::XMLElement *pBoneElement, SkinDataList &skinList)
+    {
+        bool ret = false;
+        String name = pBoneElement->Attribute(T3D_XML_ATTRIB_ID);
+
+        XMLElement *pTransformElement = pBoneElement->FirstChildElement(T3D_XML_TAG_TRANSFORM);
+
+        if (pTransformElement != nullptr)
+        {
+            String text = pTransformElement->GetText();
+            size_t start = 0;
+
+            start = getStartPos(text, start);
+
+            size_t i = 0, j = 0;
+            Matrix4 m;
+
+            for (j = 0; j < 4; ++j)
+            {
+                for (i = 0; i < 4; ++i)
+                {
+                    float val = getValue<float>(text, start);
+                    m[i][j] = val;
+                }
+            }
+
+            SkinDataPtr skin = SkinData::create(name, m);
+            if (skin != nullptr)
+            {
+                skinList.push_back(skin);
+                ret = true;
+            }
+        }
+
+        return ret;
+    }
+
+    bool Model::parseSkeleton(tinyxml2::XMLElement *pSkelElement)
+    {
+        if (pSkelElement == nullptr)
+            return true;
+
+        XMLElement *pBoneElement = pSkelElement->FirstChildElement(T3D_XML_TAG_BONE);
+        bool ret = parseSkeleton(pBoneElement, nullptr);
+
+        return ret;
+    }
+
+    bool Model::parseSkeleton(tinyxml2::XMLElement *pBoneElement, const ObjectPtr &parent)
+    {
+        bool ret = true;
+        String name = pBoneElement->Attribute(T3D_XML_ATTRIB_ID);
+
+        XMLElement *pTransformElement = pBoneElement->FirstChildElement(T3D_XML_TAG_TRANSFORM);
+
+        if (pTransformElement != nullptr)
+        {
+            String text = pTransformElement->GetText();
+            size_t start = 0;
+
+            start = getStartPos(text, start);
+
+            size_t i = 0, j = 0;
+            Matrix4 m;
+
+            for (j = 0; j < 4; ++j)
+            {
+                for (i = 0; i < 4; ++i)
+                {
+                    float val = getValue<float>(text, start);
+                    m[i][j] = val;
+                }
+            }
+
+            BonePtr bone = Bone::create(name, m);
+
+            if (parent == nullptr)
+            {
+                mSkeletonData = bone;
+            }
+            else
+            {
+                BonePtr parentBone = smart_pointer_cast<Bone>(parent);
+                parentBone->addChild(bone);
+            }
+
+            XMLElement *pChildElement = pBoneElement->FirstChildElement(T3D_XML_TAG_BONE);
+            while (pChildElement != nullptr)
+            {
+                ret = ret && parseSkeleton(pChildElement, bone);
+                pChildElement = pChildElement->NextSiblingElement(T3D_XML_TAG_BONE);
+            }
+        }
+        else
+        {
+            ret = false;
+        }
+
+        return ret;
+    }
+
+    bool Model::parseAnimation(tinyxml2::XMLElement *pAnimElement)
+    {
+        if (pAnimElement == nullptr)
+            return true;
+
+        bool ret = true;
+        size_t actionCount = pAnimElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+
+        XMLElement *pActionElement = pAnimElement->FirstChildElement(T3D_XML_TAG_ACTION);
+        while (pActionElement != nullptr)
+        {
+            ret = ret && parseAction(pActionElement);
+            pActionElement = pActionElement->NextSiblingElement(T3D_XML_TAG_ACTION);
+        }
+
+        return ret;
+    }
+
+    bool Model::parseAction(tinyxml2::XMLElement *pActionElement)
+    {
+        bool ret = true;
+        String actionName = pActionElement->Attribute(T3D_XML_ATTRIB_ID);
+
+        ActionDataPtr actionData = ActionData::create(actionName);
+        auto result = mAnimationData.insert(AnimationValue(actionName, actionData));
+
+        XMLElement *pKeyframeElement = pActionElement->FirstChildElement(T3D_XML_TAG_KEYFRAME);
+
+        while (pKeyframeElement != nullptr)
+        {
+            String actionType = pKeyframeElement->Attribute(T3D_XML_ATTRIB_TYPE);
+            size_t frameCount = pKeyframeElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+            String boneName = pKeyframeElement->Attribute(T3D_XML_ATTRIB_BONE);
+
+            ret = ret && parseKeyframe(pKeyframeElement, actionType, boneName, frameCount, result.first->second);
+
+            pKeyframeElement = pKeyframeElement->NextSiblingElement(T3D_XML_TAG_KEYFRAME);
+        }
+
+        return ret;
+    }
+
+    bool Model::parseKeyframe(tinyxml2::XMLElement *pKeyframeElement, const String &actionType, const String &boneName, size_t frameCount, const ObjectPtr &actionData)
+    {
+        bool ret = true;
+
+        KeyFrameData::Type frameType = (KeyFrameData::Type)parseActionType(actionType);
+        XMLElement *pFrameElement = pKeyframeElement->FirstChildElement(T3D_XML_TAG_FRAME);
+
+        ActionDataPtr action = smart_pointer_cast<ActionData>(actionData);
+
+        switch (frameType)
+        {
+        case KeyFrameData::E_TYPE_TRANSLATION:
+            {
+                auto result = action->mBonesTranslation.insert(ActionData::BonesValue(boneName, ActionData::KeyFrames()));
+
+                while (pFrameElement != nullptr)
+                {
+                    float timestamp = pFrameElement->FloatAttribute(T3D_XML_ATTRIB_TIME);
+                    String text = pFrameElement->GetText();
+                    size_t start = 0;
+                    start = getStartPos(text, start);
+                    float tx = getValue<float>(text, start);
+                    float ty = getValue<float>(text, start);
+                    float tz = getValue<float>(text, start);
+                    int64_t ts = (int64_t)((double)timestamp * 1000.0);
+
+                    KeyFrameDataTPtr keyframe = KeyFrameDataT::create(ts, Vector3(tx, ty, tz));
+                    result.first->second.push_back(keyframe);
+
+                    ret = true;
+                    pFrameElement = pFrameElement->NextSiblingElement(T3D_XML_TAG_FRAME);
+                }
+            }
+            break;
+        case KeyFrameData::E_TYPE_ROTATION:
+            {
+                auto result = action->mBonesTranslation.insert(ActionData::BonesValue(boneName, ActionData::KeyFrames()));
+
+                while (pFrameElement != nullptr)
+                {
+                    float timestamp = pFrameElement->FloatAttribute(T3D_XML_ATTRIB_TIME);
+                    String text = pFrameElement->GetText();
+                    size_t start = 0;
+                    start = getStartPos(text, start);
+                    float qx = getValue<float>(text, start);
+                    float qy = getValue<float>(text, start);
+                    float qz = getValue<float>(text, start);
+                    float qw = getValue<float>(text, start);
+                    int64_t ts = (int64_t)((double)timestamp * 1000.0);
+
+                    KeyFrameDataRPtr keyframe = KeyFrameDataR::create(ts, Quaternion(qw, qx, qy, qz));
+                    result.first->second.push_back(keyframe);
+
+                    ret = true;
+                    pFrameElement = pFrameElement->NextSiblingElement(T3D_XML_TAG_FRAME);
+                }
+            }
+            break;
+        case KeyFrameData::E_TYPE_SCALING:
+            {
+                auto result = action->mBonesScaling.insert(ActionData::BonesValue(boneName, ActionData::KeyFrames()));
+
+                while (pFrameElement != nullptr)
+                {
+                    float timestamp = pFrameElement->FloatAttribute(T3D_XML_ATTRIB_TIME);
+                    String text = pFrameElement->GetText();
+                    size_t start = 0;
+                    start = getStartPos(text, start);
+                    float sx = getValue<float>(text, start);
+                    float sy = getValue<float>(text, start);
+                    float sz = getValue<float>(text, start);
+                    int64_t ts = (int64_t)((double)timestamp * 1000.0);
+
+                    KeyFrameDataSPtr keyframe = KeyFrameDataS::create(ts, Vector3(sx, sy, sz));
+                    result.first->second.push_back(keyframe);
+
+                    ret = true;
+                    pFrameElement = pKeyframeElement->NextSiblingElement(T3D_XML_TAG_FRAME);
+                }
+            }
+            break;
+        default:
+            ret = false;
+            break;
+        }
+
+        return ret;
+    }
+
+    int32_t Model::parseActionType(const String &type)
+    {
+        KeyFrameData::Type actionType = KeyFrameData::E_TYPE_UNKNOWN;
+
+        if (T3D_ACTION_TYPE_TRANSLATION == type)
+        {
+            actionType = KeyFrameData::E_TYPE_TRANSLATION;
+        }
+        else if (T3D_ACTION_TYPE_ROTATION == type)
+        {
+            actionType = KeyFrameData::E_TYPE_ROTATION;
+        }
+        else if (T3D_ACTION_TYPE_SCALING == type)
+        {
+            actionType = KeyFrameData::E_TYPE_SCALING;
+        }
+
+        return actionType;
     }
 
     bool Model::loadFromBinary(DataStream &stream)

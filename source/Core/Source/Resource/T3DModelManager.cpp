@@ -22,6 +22,11 @@ namespace Tiny3D
         return smart_pointer_cast<Model>(load(name, 0));
     }
 
+    void ModelManager::unloadModel(ModelPtr &model)
+    {
+        unload((ResourcePtr &)model);
+    }
+
     ResourcePtr ModelManager::create(const String &name, int32_t argc, va_list args)
     {
         return Model::create(name);

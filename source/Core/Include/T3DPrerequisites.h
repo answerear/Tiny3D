@@ -122,6 +122,7 @@ namespace Tiny3D
     class SGLight;
     class SGGeometry;
     class SGMesh;
+    class SGSkeleton;
     class SGSphere;
     class SGBox;
 

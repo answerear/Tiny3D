@@ -11,7 +11,8 @@
 namespace Tiny3D
 {
     class GeometryData;
-    class BoneData;
+    class SkinData;
+    class Bone;
     class ActionData;
     class KeyFrameData;
     class KeyFrameDataT;

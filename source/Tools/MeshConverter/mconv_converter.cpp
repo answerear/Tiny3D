@@ -1564,7 +1564,7 @@ namespace mconv
                 ss<<ssTab.str()<<"\t";
             }
 #endif
-            Skin *pSkin = new Skin(pFbxSkin->GetName());
+            Skin *pSkin = new Skin(pMesh->getID());
             mCurSkin = pSkin;
             pMesh->addChild(pSkin);
 

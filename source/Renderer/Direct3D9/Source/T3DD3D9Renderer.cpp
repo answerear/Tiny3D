@@ -20,6 +20,7 @@ namespace Tiny3D
         , mD3DDevice(nullptr)
         , mHardwareBufferMgr(nullptr)
         , mD3DHwBufferMgr(new D3D9HardwareBufferManager())
+        , mMaterial(nullptr)
     {
         mHardwareBufferMgr = new HardwareBufferManager(mD3DHwBufferMgr);
     }
@@ -243,39 +244,44 @@ namespace Tiny3D
 
     void D3D9Renderer::setMaterial(const MaterialPtr &material)
     {
-        if (material != nullptr)
+        if (mMaterial != material)
         {
-            const Color4 &ambient = material->getAmbientColor();
-            const Color4 &diffuse = material->getDiffuseColor();
-            const Color4 &specular = material->getSpecularColor();
-            const Color4 &emissive = material->getEmissiveColor();
-            Real shininess = material->getShininess();
-
-            D3DMATERIAL9 d3dmat;
-            d3dmat.Ambient = D3D9Mappings::get(ambient);
-            d3dmat.Diffuse = D3D9Mappings::get(diffuse);
-            d3dmat.Specular = D3D9Mappings::get(specular);
-            d3dmat.Emissive = D3D9Mappings::get(emissive);
-            d3dmat.Power = shininess;
-            HRESULT hr = mD3DDevice->SetMaterial(&d3dmat);
-
-            size_t i = 0;
-            for (i = 0; i < material->getNumTextureLayer(); ++i)
+            if (material != nullptr && mRenderMode == E_RM_SOLID)
             {
-                Texture *tex = material->getTexture(i);
-                if (tex != nullptr)
+                const Color4 &ambient = material->getAmbientColor();
+                const Color4 &diffuse = material->getDiffuseColor();
+                const Color4 &specular = material->getSpecularColor();
+                const Color4 &emissive = material->getEmissiveColor();
+                Real shininess = material->getShininess();
+
+                D3DMATERIAL9 d3dmat;
+                d3dmat.Ambient = D3D9Mappings::get(ambient);
+                d3dmat.Diffuse = D3D9Mappings::get(diffuse);
+                d3dmat.Specular = D3D9Mappings::get(specular);
+                d3dmat.Emissive = D3D9Mappings::get(emissive);
+                d3dmat.Power = shininess;
+                HRESULT hr = mD3DDevice->SetMaterial(&d3dmat);
+
+                size_t i = 0;
+                for (i = 0; i < material->getNumTextureLayer(); ++i)
                 {
-                    D3D9Texture *texture = (D3D9Texture *)tex;
-                    mD3DDevice->SetTexture(0, texture->getD3DTexture());
-                    mD3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-                    mD3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-                    mD3DDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
+                    Texture *tex = material->getTexture(i);
+                    if (tex != nullptr)
+                    {
+                        D3D9Texture *texture = (D3D9Texture *)tex;
+                        mD3DDevice->SetTexture(0, texture->getD3DTexture());
+                        mD3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+                        mD3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+                        mD3DDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
+                    }
                 }
             }
-        }
-        else
-        {
-            mD3DDevice->SetTexture(0, nullptr);
+            else
+            {
+                mD3DDevice->SetTexture(0, nullptr);
+            }
+
+            mMaterial = material;
         }
     }
 
@@ -314,6 +320,13 @@ namespace Tiny3D
     void D3D9Renderer::setRenderMode(RenderMode mode)
     {
         DWORD d3dmode = D3DFILL_SOLID;
+
+        if (mRenderMode != mode)
+        {
+            mMaterial = nullptr;
+        }
+
+        mRenderMode = mode;
 
         HRESULT hr;
 

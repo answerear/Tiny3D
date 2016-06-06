@@ -156,6 +156,8 @@ namespace Tiny3D
 
         CullingMode         mCullingMode;
         RenderMode          mRenderMode;
+
+        Material            *mMaterial;
     };
 }
 

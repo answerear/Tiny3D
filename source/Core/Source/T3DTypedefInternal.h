@@ -11,7 +11,8 @@
 namespace Tiny3D
 {
     T3D_DECLARE_SMART_PTR(GeometryData);
-    T3D_DECLARE_SMART_PTR(BoneData);
+    T3D_DECLARE_SMART_PTR(SkinData);
+    T3D_DECLARE_SMART_PTR(Bone);
     T3D_DECLARE_SMART_PTR(ActionData);
     T3D_DECLARE_SMART_PTR(KeyFrameData);
     T3D_DECLARE_SMART_PTR(KeyFrameDataT);
@@ -28,6 +29,14 @@ namespace Tiny3D
     #define T3D_XML_TAG_PARTS                   "parts"
     #define T3D_XML_TAG_PART                    "part"
     #define T3D_XML_TAG_INDICES                 "indices"
+    #define T3D_XML_TAG_SKIN                    "skin"
+    #define T3D_XML_TAG_BONE                    "bone"
+    #define T3D_XML_TAG_TRANSFORM               "transform"
+    #define T3D_XML_TAG_SKELETON                "skeleton"
+    #define T3D_XML_TAG_ANIMATION               "animation"
+    #define T3D_XML_TAG_ACTION                  "action"
+    #define T3D_XML_TAG_KEYFRAME                "keyframe"
+    #define T3D_XML_TAG_FRAME                   "frame"
 
     #define T3D_XML_TAG_MATERIALS               "materials"
     #define T3D_XML_TAG_MATERIAL                "material"
@@ -50,6 +59,8 @@ namespace Tiny3D
     #define T3D_XML_ATTRIB_PRIMITIVE            "primitive"
     #define T3D_XML_ATTRIB_16BITS               "is16bits"
     #define T3D_XML_ATTRIB_SHARED               "shared_vertex"
+    #define T3D_XML_ATTRIB_BONE                 "bone"
+    #define T3D_XML_ATTRIB_TIME                 "time"
 
     #define T3D_XML_ATTRIB_WRAP_U               "wrap_u"
     #define T3D_XML_ATTRIB_WRAP_V               "wrap_v"
@@ -77,6 +88,11 @@ namespace Tiny3D
 
     #define T3D_BIN_MATERIAL_FILE_EXT           "mtb"
     #define T3D_TXT_MATERIAL_FILE_EXT           "mtt"
+
+    #define T3D_ACTION_TYPE_TRANSLATION         "translation"
+    #define T3D_ACTION_TYPE_ROTATION            "rotation"
+    #define T3D_ACTION_TYPE_SCALING             "scaling"
+
 
     inline size_t getStartPos(const String &text, size_t start)
     {

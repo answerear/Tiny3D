@@ -15,8 +15,19 @@ namespace Tiny3D
 {
     class KeyFrameData : public Object
     {
+    public:
+        enum Type
+        {
+            E_TYPE_UNKNOWN = 0,
+            E_TYPE_TRANSLATION,
+            E_TYPE_ROTATION,
+            E_TYPE_SCALING,
+        };
+
+        virtual Type getType() const = 0;
+
     protected:
-        KeyFrameData();
+        KeyFrameData(int64_t timestamp);
 
     private:
         KeyFrameData(const KeyFrameData &);
@@ -29,10 +40,12 @@ namespace Tiny3D
     class KeyFrameDataT : public KeyFrameData
     {
     public:
-        static KeyFrameDataTPtr create();
+        static KeyFrameDataTPtr create(int64_t timestamp, const Vector3 &translation);
+
+        virtual Type getType() const override;
 
     protected:
-        KeyFrameDataT();
+        KeyFrameDataT(int64_t timestamp, const Vector3 &translation);
 
     private:
         KeyFrameDataT(const KeyFrameDataT &);
@@ -45,10 +58,12 @@ namespace Tiny3D
     class KeyFrameDataR : public KeyFrameData
     {
     public:
-        static KeyFrameDataRPtr create();
+        static KeyFrameDataRPtr create(int64_t timestamp, const Quaternion &orientation);
+
+        virtual Type getType() const override;
 
     protected:
-        KeyFrameDataR();
+        KeyFrameDataR(int64_t timestamp, const Quaternion &orientation);
 
     private:
         KeyFrameDataR(const KeyFrameDataR &);
@@ -61,10 +76,12 @@ namespace Tiny3D
     class KeyFrameDataS : public KeyFrameData
     {
     public:
-        static KeyFrameDataSPtr create();
+        static KeyFrameDataSPtr create(int64_t timestamp, const Vector3 &scaling);
+
+        virtual Type getType() const override;
 
     protected:
-        KeyFrameDataS();
+        KeyFrameDataS(int64_t timestamp, const Vector3 &scaling);
 
     private:
         KeyFrameDataS(const KeyFrameDataS &);
@@ -85,13 +102,14 @@ namespace Tiny3D
         ActionData(const String &name);
 
     public:
-        typedef std::list<KeyFrameDataPtr>  KeyFrames;
-        typedef KeyFrames::iterator         KeyFramesItr;
-        typedef KeyFrames::const_iterator   KeyFramesConstItr;
+        typedef std::list<KeyFrameDataPtr>      KeyFrames;
+        typedef KeyFrames::iterator             KeyFramesItr;
+        typedef KeyFrames::const_iterator       KeyFramesConstItr;
 
-        typedef std::map<String, KeyFrames> Bones;
-        typedef Bones::iterator             BonesItr;
-        typedef Bones::const_iterator       BonesConstItr;
+        typedef std::map<String, KeyFrames>     Bones;
+        typedef Bones::iterator                 BonesItr;
+        typedef Bones::const_iterator           BonesConstItr;
+        typedef std::pair<String, KeyFrames>    BonesValue;
 
         String      mName;
         Bones       mBonesTranslation;

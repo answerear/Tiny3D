@@ -39,6 +39,7 @@ namespace Tiny3D
             E_NT_MESH,
             E_NT_SPHERE,
             E_NT_BOX,
+            E_NT_SKELETON,
         };
 
         virtual ~Node();

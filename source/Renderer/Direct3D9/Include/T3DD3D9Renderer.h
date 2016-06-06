@@ -85,6 +85,8 @@ namespace Tiny3D
 
         HardwareBufferManager       *mHardwareBufferMgr;
         D3D9HardwareBufferManager   *mD3DHwBufferMgr;
+
+        Material            *mMaterial;     /// 最后一次渲染的材质
     };
 
     #define D3D9_RENDERER           (D3D9Renderer::getInstance())
