@@ -48,7 +48,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     root->addChild(node);
 
 //     node->lookAt(Vector3(0.0, 10.0, 200.0), Vector3::ZERO, Vector3::UNIT_Y);
-    node->lookAt(Vector3(0.0, 2.0, 10.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(0.0, 2.0, 1.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 相机结点
     SGCameraPtr camera = SGCamera::create();
@@ -146,7 +146,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     root->addChild(node);
     node->setPosition(0.0, 0.0, 0.0);
     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_X);
-//     node->setScale(2.0f, 2.0f, 2.0f);
+    node->setScale(10.0f, 10.0f, 10.0f);
 
     {
         // 模型 #1 可见物体结点

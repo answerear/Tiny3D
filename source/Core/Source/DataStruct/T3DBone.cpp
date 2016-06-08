@@ -131,6 +131,7 @@ namespace Tiny3D
                 mCombineTransform.setTranslate(mTranslation);
                 mCombineTransform.setOrientation(mOrientation);
                 mCombineTransform.setScale(mScaling);
+                mCombineTransform.update();
             }
 
             setDirty(false);

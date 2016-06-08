@@ -6,6 +6,7 @@
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
 #include "DataStruct/T3DGeometryData.h"
+#include "DataStruct/T3DBone.h"
 
 
 namespace Tiny3D
@@ -108,6 +109,8 @@ namespace Tiny3D
                     if (mSkeleton == nullptr)
                     {
                         // 没有生成过骨骼渲染对象，先创建
+                        BonePtr bone = smart_pointer_cast<Bone>(mModel->getSkeletonData());
+                        bone->updateBone();
                         mSkeleton = SGSkeleton::create(mModel->getSkeletonData());
                     }
 
