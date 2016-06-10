@@ -12,7 +12,7 @@ namespace Tiny3D
     class T3D_ENGINE_API SGSkeleton : public SGGeometry
     {
     public:
-        static SGSkeletonPtr create(ObjectPtr skeletonData, uint32_t uID = E_NID_AUTOMATIC);
+        static SGSkeletonPtr create(ModelPtr model, uint32_t uID = E_NID_AUTOMATIC);
 
         virtual ~SGSkeleton();
 
@@ -29,7 +29,7 @@ namespace Tiny3D
 
         SGSkeleton(uint32_t uID = E_NID_AUTOMATIC);
 
-        virtual bool init(ObjectPtr skeletonData);
+        virtual bool init(ModelPtr model);
         bool buildSkeletonVertices(const ObjectPtr &skeleton, std::vector<BoneVertex> &vertices);
 
         virtual void cloneProperties(const NodePtr &node) const override;
@@ -40,8 +40,10 @@ namespace Tiny3D
         virtual IndexDataPtr getIndexData() const override;
         virtual bool isIndicesUsed() const override;
 
+        bool searchSkinData(const String &name, ObjectPtr &skin);
+
     protected:
-        ObjectPtr       mSkeleton;
+        ModelPtr        mModel;
         VertexDataPtr   mVertexData;
     };
 }

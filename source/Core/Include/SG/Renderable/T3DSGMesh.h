@@ -12,17 +12,23 @@ namespace Tiny3D
     class T3D_ENGINE_API SGMesh : public SGGeometry
     {
     public:
-        static SGMeshPtr create(const ObjectPtr &geometryData, bool isVertexShared, uint32_t uID = E_NID_AUTOMATIC);
+        static SGMeshPtr create(ModelPtr model, int32_t mesh, uint32_t uID = E_NID_AUTOMATIC);
 
         virtual ~SGMesh();
 
         virtual Type getNodeType() const override;
         virtual NodePtr clone() const override;
 
+        bool runAction(const String &name);
+
+        bool stopAction(const String &name);
+
     protected:
         SGMesh(uint32_t uID = E_NID_AUTOMATIC);
 
-        virtual bool init(const ObjectPtr &geometryData, bool isVertexShared);
+        virtual bool init(ModelPtr model, int32_t mesh);
+
+        virtual void updateTransform() override;
 
         virtual void cloneProperties(const NodePtr &node) const override;
 
@@ -33,9 +39,10 @@ namespace Tiny3D
         virtual bool isIndicesUsed() const override;
 
     protected:
-        ObjectPtr   mGeometryData;
+        int32_t     mMeshIndex;
+        ModelPtr    mModel;
         MaterialPtr mMaterial;
-        bool        mIsVertexShared;
+        ObjectPtr   mGeometryData;
     };
 }
 

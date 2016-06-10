@@ -19,6 +19,17 @@ namespace Tiny3D
             E_RENDER_BOUND,
         };
 
+        struct ActionInfo
+        {
+            String  mName;          /// 动作名称
+            int64_t mDuration;      /// 该动作动画持续时间
+            int32_t mTotalFrames;   /// 该动作动画总共关键帧帧数
+        };
+
+        typedef std::vector<ActionInfo>     ActionList;
+        typedef ActionList::iterator        ActionListItr;
+        typedef ActionList::const_iterator  ActionListConstItr;
+
         static SGModelPtr create(const String &modelName, uint32_t unID = E_NID_AUTOMATIC);
 
         virtual ~SGModel();
@@ -29,10 +40,33 @@ namespace Tiny3D
 
         virtual NodePtr clone() const override;
 
+        /**
+         * @brief 枚举该模型所有的动画动作
+         * @param [out] actions : 动画动作列表
+         * @return void
+         */
+        void enumerateActionList(ActionList &actions);
+
+        /**
+         * @brief 按照指定名称运行动画动作
+         * @param [in] name : 动作名称
+         * @return 调用成功，返回true
+         */
+        bool runAction(const String &name, bool repeat = true, int32_t frame = 0);
+
+        bool stopAction(const String &name);
+
+        bool isActionRunning(const String &name) const;
+        bool isActionRunning() const    { return mIsActionRunning; }
+
     protected:
         SGModel(uint32_t unID = E_NID_AUTOMATIC);
 
         virtual bool init(const String &modelName);
+
+        virtual void updateTransform() override;
+
+        void updateBone();
 
     protected:
         ModelPtr    mModel;
@@ -40,6 +74,14 @@ namespace Tiny3D
 
         Children        mMeshes;
         SGSkeletonPtr   mSkeleton;
+
+        int64_t         mLastTime;
+        int32_t         mCurFrame;
+
+        String          mCurActionName;
+        bool            mIsActionRunning;
+
+        ObjectPtr       mCurActionData;
     };
 }
 
