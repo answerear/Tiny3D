@@ -2,16 +2,18 @@
 
 #include "SG/Renderable/T3DSGSkeleton.h"
 #include "DataStruct/T3DBone.h"
+#include "DataStruct/T3DSkinData.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
+#include "Resource/T3DModel.h"
 
 
 namespace Tiny3D
 {
-    SGSkeletonPtr SGSkeleton::create(ObjectPtr skeletonData, uint32_t uID /* = E_NID_AUTOMATIC */)
+    SGSkeletonPtr SGSkeleton::create(ModelPtr model, uint32_t uID /* = E_NID_AUTOMATIC */)
     {
         SGSkeletonPtr skeleton = new SGSkeleton();
-        if (skeleton != nullptr && skeleton->init(skeletonData))
+        if (skeleton != nullptr && skeleton->init(model))
         {
             skeleton->release();
         }
@@ -24,7 +26,7 @@ namespace Tiny3D
 
     SGSkeleton::SGSkeleton(uint32_t uID /* = E_NID_AUTOMATIC */)
         : SGGeometry(uID)
-        , mSkeleton(nullptr)
+        , mModel(nullptr)
     {
 
     }
@@ -34,12 +36,14 @@ namespace Tiny3D
 
     }
 
-    bool SGSkeleton::init(ObjectPtr skeletonData)
+    bool SGSkeleton::init(ModelPtr model)
     {
-        mSkeleton = skeletonData;
+        mModel = model;
+
+        BonePtr skeleton = smart_pointer_cast<Bone>(mModel->getSkeletonData());
 
         std::vector<BoneVertex> vertices;
-        bool ret = buildSkeletonVertices(mSkeleton, vertices);
+        bool ret = buildSkeletonVertices(skeleton, vertices);
 
         if (ret)
         {
@@ -67,34 +71,56 @@ namespace Tiny3D
             // ¸ù¹Ç÷À
             Transform t0;
             const Transform &t1 = bone->getCombineTransform();
+
+            Matrix4 bindpose1;
+            SkinDataPtr skin;
+            if (searchSkinData(bone->getName(), (ObjectPtr &)skin))
+            {
+                bindpose1 = skin->getBindPose().inverse();
+            }
+
             Vector3 p0 = t0.getAffineMatrix() * Vector3::ZERO;
-            Vector3 p1 = t1.getAffineMatrix() * Vector3::ZERO;
+            Vector3 p1 = bindpose1 * t1.getAffineMatrix() * Vector3::ZERO;
 //             const Vector3 &p0 = t0.getTranslate();
 //             const Vector3 &p1 = t1.getTranslate();
-// 
+
             BoneVertex vertex;
             vertex.position = p0;
-            vertex.color = Color4::WHITE;
+            vertex.color = Color4::GREEN;
             vertices.push_back(vertex);
             vertex.position = p1;
-            vertex.color = Color4::WHITE;
+            vertex.color = Color4::GREEN;
             vertices.push_back(vertex);
         }
         else
         {
             const Transform &t0 = parentBone->getCombineTransform();
             const Transform &t1 = bone->getCombineTransform();
+
+            Matrix4 bindpose0(false);
+            SkinDataPtr s0;
+            if (searchSkinData(parentBone->getName(), (ObjectPtr &)s0))
+            {
+                bindpose0 = s0->getBindPose().inverse();
+            }
+
+            Matrix4 bindpose1(false);
+            SkinDataPtr s1;
+            if (searchSkinData(bone->getName(), (ObjectPtr &)s1))
+            {
+                bindpose1 = s1->getBindPose().inverse();
+            }
 //             const Vector3 &p0 = t0.getTranslate();
 //             const Vector3 &p1 = t1.getTranslate();
-            Vector3 p0 = t0.getAffineMatrix() * Vector3::ZERO;
-            Vector3 p1 = t1.getAffineMatrix() * Vector3::ZERO;
+            Vector3 p0 = bindpose0 * t0.getAffineMatrix() * Vector3::ZERO;
+            Vector3 p1 = bindpose1 * t1.getAffineMatrix() * Vector3::ZERO;
 
             BoneVertex vertex;
             vertex.position = p0;
-            vertex.color = Color4::WHITE;
+            vertex.color = Color4::GREEN;
             vertices.push_back(vertex);
             vertex.position = p1;
-            vertex.color = Color4::WHITE;
+            vertex.color = Color4::GREEN;
             vertices.push_back(vertex);
         }
 
@@ -112,6 +138,37 @@ namespace Tiny3D
         return true;
     }
 
+    bool SGSkeleton::searchSkinData(const String &name, ObjectPtr &skin)
+    {
+        bool found = false;
+
+        const Model::SkinMap &meshSkin = mModel->getSkinData();
+        auto itrSkin = meshSkin.begin();
+
+        while (itrSkin != meshSkin.end())
+        {
+            const Model::SkinDataList &skins = itrSkin->second;
+            auto itr = skins.begin();
+
+            while (itr != skins.end())
+            {
+                SkinDataPtr skinData = smart_pointer_cast<SkinData>(*itr);
+                if (name == skinData->getName())
+                {
+                    skin = skinData;
+                    found = true;
+                    break;
+                }
+
+                ++itr;
+            }
+
+            ++itrSkin;
+        }
+
+        return found;
+    }
+
     SGNode::Type SGSkeleton::getNodeType() const
     {
         return E_NT_SKELETON;
@@ -119,7 +176,7 @@ namespace Tiny3D
 
     NodePtr SGSkeleton::clone() const
     {
-        SGSkeletonPtr skeleton = SGSkeleton::create(mSkeleton);
+        SGSkeletonPtr skeleton = SGSkeleton::create(mModel);
         cloneProperties(skeleton);
         return skeleton;
     }

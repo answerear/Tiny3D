@@ -7,6 +7,8 @@
 #include "Resource/T3DModelManager.h"
 #include "DataStruct/T3DGeometryData.h"
 #include "DataStruct/T3DBone.h"
+#include "DataStruct/T3DActionData.h"
+#include "Misc/T3DEntrance.h"
 
 
 namespace Tiny3D
@@ -29,6 +31,9 @@ namespace Tiny3D
         : SGShape(unID)
         , mModel(nullptr)
         , mRenderMode(E_RENDER_ENTITY)
+        , mSkeleton(nullptr)
+        , mLastTime(0)
+        , mCurFrame(0)
     {
 
     }
@@ -54,8 +59,7 @@ namespace Tiny3D
             size_t i = 0;
             for (i = 0; i < count; ++i)
             {
-                ObjectPtr geometry = geometries[i];
-                SGMeshPtr mesh = SGMesh::create(geometry, mModel->isSharedVertex());
+                SGMeshPtr mesh = SGMesh::create(mModel, i);
                 addChild(mesh);
                 mMeshes.push_back(mesh);
             }
@@ -81,8 +85,17 @@ namespace Tiny3D
         return model;
     }
 
+    void SGModel::updateTransform()
+    {
+        SGShape::updateTransform();
+    }
+
     void SGModel::setRenderMode(RenderMode mode)
     {
+        Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
+        if (renderer->getRenderMode() == Renderer::E_RM_SOLID)
+            return;
+
         if (mode != mRenderMode)
         {
             switch (mode)
@@ -111,7 +124,7 @@ namespace Tiny3D
                         // 没有生成过骨骼渲染对象，先创建
                         BonePtr bone = smart_pointer_cast<Bone>(mModel->getSkeletonData());
                         bone->updateBone();
-                        mSkeleton = SGSkeleton::create(mModel->getSkeletonData());
+                        mSkeleton = SGSkeleton::create(mModel);
                     }
 
                     addChild(mSkeleton);
@@ -121,5 +134,45 @@ namespace Tiny3D
 
             mRenderMode = mode;
         }
+    }
+
+    void SGModel::enumerateActionList(ActionList &actions)
+    {
+        const Model::AnimationData &animation = mModel->getAnimationData();
+        auto itr = animation.begin();
+        actions.clear();
+
+        while (itr != animation.end())
+        {
+            ActionInfo action;
+            ActionDataPtr actionData = smart_pointer_cast<ActionData>(itr->second);
+            action.mName = actionData->mName;
+            ++itr;
+        }
+    }
+
+    bool SGModel::runAction(const String &name, bool repeat /* = true */, int32_t frame /* = 0 */)
+    {
+        if (isActionRunning())
+        {
+            stopAction(mCurActionName);
+        }
+
+        const Model::AnimationData &actionList = mModel->getAnimationData();
+        auto itr = actionList.find(name);
+        if (itr == actionList.end())
+            return false;
+
+        mCurFrame = 0;
+        mLastTime = DateTime::currentMSecsSinceEpoch();
+
+        mCurActionData = itr->second;
+
+        return true;
+    }
+
+    bool SGModel::stopAction(const String &name)
+    {
+        return true;
     }
 }

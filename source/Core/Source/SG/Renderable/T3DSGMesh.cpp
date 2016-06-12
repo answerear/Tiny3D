@@ -10,10 +10,10 @@
 
 namespace Tiny3D
 {
-    SGMeshPtr SGMesh::create(const ObjectPtr &geometryData, bool isVertexShared, uint32_t uID /* = E_NID_AUTOMATIC */)
+    SGMeshPtr SGMesh::create(ModelPtr model, int32_t index, uint32_t uID /* = E_NID_AUTOMATIC */)
     {
         SGMeshPtr mesh = new SGMesh(uID);
-        if (mesh != nullptr && mesh->init(geometryData, isVertexShared))
+        if (mesh != nullptr && mesh->init(model, index))
         {
             mesh->release();
         }
@@ -26,25 +26,32 @@ namespace Tiny3D
 
     SGMesh::SGMesh(uint32_t uID /* = E_NID_AUTOMATIC */)
         : SGGeometry(uID)
-        , mGeometryData(nullptr)
+        , mMeshIndex(-1)
+        , mModel(nullptr)
         , mMaterial(nullptr)
-        , mIsVertexShared(false)
+        , mGeometryData(nullptr)
     {
 
     }
 
     SGMesh::~SGMesh()
     {
-
+        mModel = nullptr;
+        mMaterial = nullptr;
     }
 
-    bool SGMesh::init(const ObjectPtr &geometryData, bool isVertexShared)
+    bool SGMesh::init(ModelPtr model, int32_t index)
     {
-        mGeometryData = geometryData;
-        mIsVertexShared = isVertexShared;
+        mModel = model;
+        mMeshIndex = index;
 
-        GeometryDataPtr geometry = smart_pointer_cast<GeometryData>(geometryData);
+        const Model::GeometryDataList &geometries = mModel->getGeometryDataList();
+        if (mMeshIndex < 0 || mMeshIndex >= geometries.size())
+            return false;
+
+        GeometryDataPtr geometry = smart_pointer_cast<GeometryData>(geometries[mMeshIndex]);
         mMaterial = T3D_MATERIAL_MGR.loadMaterial(geometry->getMaterialName(), Material::E_MT_DEFAULT);
+        mGeometryData = geometry;
 
         return true;
     }
@@ -56,7 +63,7 @@ namespace Tiny3D
 
     NodePtr SGMesh::clone() const
     {
-        SGMeshPtr mesh = create(mGeometryData, mIsVertexShared);
+        SGMeshPtr mesh = create(mModel, mMeshIndex);
         cloneProperties(mesh);
         return mesh;
     }
@@ -90,6 +97,21 @@ namespace Tiny3D
     }
 
     bool SGMesh::isIndicesUsed() const
+    {
+        return true;
+    }
+
+    void SGMesh::updateTransform()
+    {
+        SGGeometry::updateTransform();
+    }
+
+    bool SGMesh::runAction(const String &name)
+    {
+        return true;
+    }
+
+    bool SGMesh::stopAction(const String &name)
     {
         return true;
     }

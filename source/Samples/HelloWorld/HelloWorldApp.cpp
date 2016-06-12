@@ -36,7 +36,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
 {
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
-    renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
+    renderer->setRenderMode(Renderer::E_RM_SOLID);
     renderer->setAmbientLight(Color4::WHITE);
 
 //     T3D_ENTRANCE.getActiveRenderer()->setCullingMode(Renderer::E_CULL_NONE);
@@ -48,7 +48,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     root->addChild(node);
 
 //     node->lookAt(Vector3(0.0, 10.0, 200.0), Vector3::ZERO, Vector3::UNIT_Y);
-    node->lookAt(Vector3(0.0, 2.0, 1.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(0.0, 0.0, 10.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 相机结点
     SGCameraPtr camera = SGCamera::create();
@@ -57,7 +57,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
 
     Radian fovY(Math::PI * Real(0.5));
     Real ratio = Real(960) / Real(640);
-    camera->setPerspective(fovY, ratio, 1.0, 1000.0);
+    camera->setPerspective(fovY, ratio, 0.5, 1000.0);
 
     // 视口
     ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
@@ -146,7 +146,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     root->addChild(node);
     node->setPosition(0.0, 0.0, 0.0);
     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_X);
-    node->setScale(10.0f, 10.0f, 10.0f);
+//     node->setScale(10.0f, 10.0f, 10.0f);
 
     {
         // 模型 #1 可见物体结点
