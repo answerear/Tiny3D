@@ -5,6 +5,8 @@
 
 
 #include "Misc/T3DObject.h"
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
@@ -22,9 +24,9 @@ namespace Tiny3D
         virtual bool initialize() = 0;
         virtual void uninitialize() = 0;
 
-        virtual String getName() const = 0;
-
-
+        virtual TouchDevicePtr createTouchDevice() = 0;
+        virtual KeyboardDevicePtr createKeyboardDevice() = 0;
+        virtual JoystickDevicePtr createJoystickDevice() = 0;
     };
 }
 

@@ -43,6 +43,9 @@ namespace Tiny3D
     class ApplicationListener;
     class RenderTargetListener;
     class FrameListener;
+    class TouchEventListener;
+    class KeyboardEventListener;
+    class JoystickEventListener;
 
     class Degree;
     class Radian;
@@ -135,6 +138,11 @@ namespace Tiny3D
     class Variant;
 
     class Image;
+
+    class InputSystem;
+    class TouchDevice;
+    class KeyboardDevice;
+    class JoystickDevice;
 }
 
 
