@@ -72,7 +72,7 @@ namespace Tiny3D
             Transform t0;
             const Transform &t1 = bone->getCombineTransform();
 
-            Matrix4 bindpose1;
+            Matrix4 bindpose1(false);
             SkinDataPtr skin;
             if (searchSkinData(bone->getName(), (ObjectPtr &)skin))
             {
@@ -91,6 +91,8 @@ namespace Tiny3D
             vertex.position = p1;
             vertex.color = Color4::GREEN;
             vertices.push_back(vertex);
+
+            T3D_LOG_DEBUG("Bone from joint root to joint %s", bone->getName().c_str());
         }
         else
         {
@@ -122,6 +124,8 @@ namespace Tiny3D
             vertex.position = p1;
             vertex.color = Color4::GREEN;
             vertices.push_back(vertex);
+
+            T3D_LOG_DEBUG("Bone from joint %s to joint %s", parentBone->getName().c_str(), bone->getName().c_str());
         }
 
         bool ret = true;

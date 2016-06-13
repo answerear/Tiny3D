@@ -37,6 +37,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
     renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
+//     renderer->setRenderMode(Renderer::E_RM_SOLID);
     renderer->setAmbientLight(Color4::WHITE);
 
 //     T3D_ENTRANCE.getActiveRenderer()->setCullingMode(Renderer::E_CULL_NONE);
@@ -48,7 +49,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     root->addChild(node);
 
 //     node->lookAt(Vector3(0.0, 10.0, 200.0), Vector3::ZERO, Vector3::UNIT_Y);
-    node->lookAt(Vector3(0.0, 0.0, 150.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(0.0, 2.0, 10.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 相机结点
     SGCameraPtr camera = SGCamera::create();
@@ -150,8 +151,8 @@ bool HelloWorldApp::applicationDidFinishLaunching()
 
     {
         // 模型 #1 可见物体结点
-        SGModelPtr model = SGModel::create("dahu01.tmt");
-//         SGModelPtr model = SGModel::create("ironman.tmt");
+//         SGModelPtr model = SGModel::create("dahu01.tmt");
+        SGModelPtr model = SGModel::create("knight.tmt");
         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
 //         SGShapePtr shape = SGShape::create();

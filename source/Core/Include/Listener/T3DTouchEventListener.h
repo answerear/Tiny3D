@@ -19,7 +19,6 @@ namespace Tiny3D
         virtual void onTouchOver(int32_t x, int32_t y) = 0;
         virtual void onTouchMove(int32_t x, int32_t y) = 0;
         virtual void onTouchUp(int32_t x, int32_t y) = 0;
-        virtual void onDoubleTouched(int32_t x, int32_t y) = 0;
     };
 }
 
