@@ -205,18 +205,21 @@ namespace Tiny3D
 
                 // Number of textures
                 XMLElement *pTexturesElement = pMatElement->FirstChildElement(T3D_XML_TAG_TEXTURES);
-                size_t layers = pTexturesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
-
-                // Texture layers
-                size_t i = 0;
-                XMLElement *pTexElement = pTexturesElement->FirstChildElement(T3D_XML_TAG_TEXTURE);
-
-                while (pTexElement != nullptr)
+                if (pTexturesElement != nullptr)
                 {
-                    String texName = pTexElement->GetText();
-                    mTextureLayer[i] = T3D_TEXTURE_MGR.loadTexture(texName);
-                    pTexElement = pTexElement->NextSiblingElement(T3D_XML_TAG_TEXTURE);
-                    i++;
+                    size_t layers = pTexturesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+
+                    // Texture layers
+                    size_t i = 0;
+                    XMLElement *pTexElement = pTexturesElement->FirstChildElement(T3D_XML_TAG_TEXTURE);
+
+                    while (pTexElement != nullptr)
+                    {
+                        String texName = pTexElement->GetText();
+                        mTextureLayer[i] = T3D_TEXTURE_MGR.loadTexture(texName);
+                        pTexElement = pTexElement->NextSiblingElement(T3D_XML_TAG_TEXTURE);
+                        i++;
+                    }
                 }
             }
 
