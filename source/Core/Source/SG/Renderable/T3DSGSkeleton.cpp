@@ -68,31 +68,32 @@ namespace Tiny3D
 
         if (parentBone == nullptr)
         {
-//             // ¸ù¹Ç÷À
-//             Transform t0;
-//             const Transform &t1 = bone->getCombineTransform();
-// 
-//             Matrix4 bindpose1(false);
-//             SkinDataPtr skin;
-//             if (searchSkinData(bone->getName(), (ObjectPtr &)skin))
-//             {
-//                 bindpose1 = skin->getBindPose();//.inverse();
-//             }
-// 
-//             Vector3 p0 = t0.getAffineMatrix() * Vector3::ZERO;
-//             Vector3 p1 = bindpose1 * t1.getAffineMatrix() * Vector3::ZERO;
-// //             const Vector3 &p0 = t0.getTranslate();
-// //             const Vector3 &p1 = t1.getTranslate();
-// 
-//             BoneVertex vertex;
-//             vertex.position = p0;
-//             vertex.color = Color4::GREEN;
-//             vertices.push_back(vertex);
-//             vertex.position = p1;
-//             vertex.color = Color4::GREEN;
-//             vertices.push_back(vertex);
-// 
-//             T3D_LOG_DEBUG("Bone from joint root to joint %s", bone->getName().c_str());
+            // ¸ù¹Ç÷À
+            Transform t0;
+            const Transform &t1 = bone->getCombineTransform();
+
+            Matrix4 bindpose1(false);
+            SkinDataPtr skin;
+            if (searchSkinData(bone->getName(), (ObjectPtr &)skin))
+            {
+                bindpose1 = skin->getBindPose().inverse();
+            }
+
+            Vector3 p0 = t0.getAffineMatrix() * Vector3::ZERO;
+            Vector3 p1 = bindpose1 * t1.getAffineMatrix() * Vector3::ZERO;
+//             const Vector3 &p0 = t0.getTranslate();
+//             const Vector3 &p1 = t1.getTranslate();
+
+            BoneVertex vertex;
+            vertex.position = p0;
+            vertex.color = Color4::GREEN;
+            vertices.push_back(vertex);
+            vertex.position = p1;
+            vertex.color = Color4::GREEN;
+            vertices.push_back(vertex);
+
+            T3D_LOG_DEBUG("Bone from joint root (%.6f, %.6f, %.6f) to joint %s (%.6f, %.6f, %.6f)", 
+                p0[0], p0[1], p0[2], bone->getName().c_str(), p1[0], p1[1], p1[2]);
         }
         else
         {
@@ -104,7 +105,7 @@ namespace Tiny3D
             SkinDataPtr s0;
             if (searchSkinData(parentBone->getName(), (ObjectPtr &)s0))
             {
-                bindpose0 = s0->getBindPose();//.inverse();
+                bindpose0 = s0->getBindPose().inverse();
                 ret = true;
             }
 
@@ -112,7 +113,7 @@ namespace Tiny3D
             SkinDataPtr s1;
             if (ret && searchSkinData(bone->getName(), (ObjectPtr &)s1))
             {
-                bindpose1 = s1->getBindPose();//.inverse();
+                bindpose1 = s1->getBindPose().inverse();
                 ret = true;
             }
             else
@@ -122,10 +123,10 @@ namespace Tiny3D
 
             if (ret)
             {
-            const Vector3 &p0 = t0.getTranslate();
-            const Vector3 &p1 = t1.getTranslate();
-//                 Vector3 p0 = bindpose0 * t0.getAffineMatrix() * Vector3::ZERO;
-//                 Vector3 p1 = bindpose1 * t1.getAffineMatrix() * Vector3::ZERO;
+//                 const Vector3 &p0 = t0.getTranslate();
+//                 const Vector3 &p1 = t1.getTranslate();
+                Vector3 p0 = bindpose0 * t0.getAffineMatrix() * Vector3::ZERO;
+                Vector3 p1 = bindpose1 * t1.getAffineMatrix() * Vector3::ZERO;
 
                 BoneVertex vertex;
                 vertex.position = p0;
@@ -135,7 +136,8 @@ namespace Tiny3D
                 vertex.color = Color4::GREEN;
                 vertices.push_back(vertex);
 
-                T3D_LOG_DEBUG("Bone from joint %s to joint %s", parentBone->getName().c_str(), bone->getName().c_str());
+                T3D_LOG_DEBUG("Bone from joint %s (%.6f, %.6f, %.6f) to joint %s (%.6f, %.6f, %.6f)", 
+                    parentBone->getName().c_str(), p0[0], p0[1], p0[2], bone->getName().c_str(), p1[0], p1[1], p1[2]);
             }
         }
 

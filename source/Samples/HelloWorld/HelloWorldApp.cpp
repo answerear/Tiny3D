@@ -49,7 +49,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     root->addChild(node);
 
 //     node->lookAt(Vector3(0.0, 10.0, 200.0), Vector3::ZERO, Vector3::UNIT_Y);
-    node->lookAt(Vector3(0.0, 2.0, 10.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(0.0, 2.0, 20.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 相机结点
     SGCameraPtr camera = SGCamera::create();
