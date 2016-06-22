@@ -32,7 +32,7 @@ namespace Tiny3D
         , mModel(nullptr)
         , mRenderMode(E_RENDER_ENTITY)
         , mSkeleton(nullptr)
-        , mLastTime(0)
+        , mStarrTime(0)
         , mCurFrame(0)
     {
 
@@ -88,6 +88,8 @@ namespace Tiny3D
     void SGModel::updateTransform()
     {
         SGShape::updateTransform();
+
+        updateSkeleton();
     }
 
     void SGModel::setRenderMode(RenderMode mode)
@@ -117,7 +119,7 @@ namespace Tiny3D
                 break;
             case E_RENDER_SKELETON:
                 {
-                    removeAllChildren(false);
+//                     removeAllChildren(false);
 
                     if (mSkeleton == nullptr)
                     {
@@ -163,10 +165,12 @@ namespace Tiny3D
         if (itr == actionList.end())
             return false;
 
-        mCurFrame = 0;
-        mLastTime = DateTime::currentMSecsSinceEpoch();
+        mCurFrame = frame;
+        mStarrTime = DateTime::currentMSecsSinceEpoch();
 
         mCurActionData = itr->second;
+
+        mIsActionRunning = true;
 
         return true;
     }
@@ -174,5 +178,27 @@ namespace Tiny3D
     bool SGModel::stopAction(const String &name)
     {
         return true;
+    }
+
+    void SGModel::updateSkeleton()
+    {
+        if (isActionRunning())
+        {
+            int64_t current = DateTime::currentMSecsSinceEpoch();
+            int64_t dt = current - mStarrTime;
+
+            updateBone(dt, mModel->getSkeletonData());
+        }
+    }
+
+    void SGModel::updateBone(int64_t dt, ObjectPtr skeleton)
+    {
+        BonePtr bone = smart_pointer_cast<Bone>(skeleton);
+
+        ActionDataPtr actionData = smart_pointer_cast<ActionData>(mCurActionData);
+        
+        auto itrT = actionData->mBonesTranslation.find(bone->getName());
+        
+        itrT->second;
     }
 }

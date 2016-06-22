@@ -66,7 +66,8 @@ namespace Tiny3D
 
         virtual void updateTransform() override;
 
-        void updateBone();
+        void updateSkeleton();
+        void updateBone(int64_t dt, ObjectPtr skeleton);
 
     protected:
         ModelPtr    mModel;
@@ -75,7 +76,7 @@ namespace Tiny3D
         Children        mMeshes;
         SGSkeletonPtr   mSkeleton;
 
-        int64_t         mLastTime;
+        int64_t         mStarrTime;
         int32_t         mCurFrame;
 
         String          mCurActionName;
