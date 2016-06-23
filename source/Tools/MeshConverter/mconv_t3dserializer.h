@@ -76,6 +76,7 @@ namespace mconv
         static const char * const ATTRIB_WRAP_U;
         static const char * const ATTRIB_WRAP_V;
         static const char * const ATTRIB_SHARED;
+        static const char * const ATTRIB_DURATION;
 
         T3DXMLSerializer();
         virtual ~T3DXMLSerializer();

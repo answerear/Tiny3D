@@ -77,7 +77,10 @@ namespace Tiny3D
         SGSkeletonPtr   mSkeleton;
 
         int64_t         mStarrTime;
-        int32_t         mCurFrame;
+
+        int32_t         mCurKeyFrameT;
+        int32_t         mCurKeyFrameR;
+        int32_t         mCurKeyFrameS;
 
         String          mCurActionName;
         bool            mIsActionRunning;

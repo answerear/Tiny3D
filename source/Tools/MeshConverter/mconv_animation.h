@@ -72,6 +72,7 @@ namespace mconv
     public:
         Action(const String &ID)
             : Node(ID)
+            , mDuration(0.0f)
         {
 
         }
@@ -149,9 +150,11 @@ namespace mconv
             return true;
         }
 
-        Bones      mTKeyframes;
-        Bones      mRKeyframes;
-        Bones      mSKeyframes;
+        Bones       mTKeyframes;
+        Bones       mRKeyframes;
+        Bones       mSKeyframes;
+
+        float       mDuration;
     };
 
     class Animation : public Node

@@ -13,6 +13,16 @@
 
 namespace Tiny3D
 {
+    template <typename T, typename P>
+    bool searchKeyframe(const T &container, int64_t time, int32_t duration, int32_t &frame, P &keyframe, bool loop)
+    {
+        bool ret = false;
+
+        int32_t i = frame;
+
+        return ret;
+    }
+
     SGModelPtr SGModel::create(const String &modelName, uint32_t unID /* = E_NID_AUTOMATIC */)
     {
         SGModelPtr model = new SGModel(unID);
@@ -33,7 +43,9 @@ namespace Tiny3D
         , mRenderMode(E_RENDER_ENTITY)
         , mSkeleton(nullptr)
         , mStarrTime(0)
-        , mCurFrame(0)
+        , mCurKeyFrameT(0)
+        , mCurKeyFrameR(0)
+        , mCurKeyFrameS(0)
     {
 
     }
@@ -165,10 +177,12 @@ namespace Tiny3D
         if (itr == actionList.end())
             return false;
 
-        mCurFrame = frame;
         mStarrTime = DateTime::currentMSecsSinceEpoch();
 
         mCurActionData = itr->second;
+        mCurKeyFrameT = 0;
+        mCurKeyFrameR = 0;
+        mCurKeyFrameS = 0;
 
         mIsActionRunning = true;
 
@@ -198,7 +212,14 @@ namespace Tiny3D
         ActionDataPtr actionData = smart_pointer_cast<ActionData>(mCurActionData);
         
         auto itrT = actionData->mBonesTranslation.find(bone->getName());
+        ActionData::KeyFrames &keyframesT = itrT->second;
+
+        KeyFrameDataPtr keyframe;
+//         if (searchKeyFrame(keyframesT, dt, mCurKeyFrameT, keyframe))
+//         {
+//             KeyFrameDataTPtr keyframeT = smart_pointer_cast<KeyFrameDataT>(keyframe);
+//         }
         
-        itrT->second;
+        
     }
 }

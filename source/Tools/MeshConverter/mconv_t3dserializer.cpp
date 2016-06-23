@@ -92,6 +92,7 @@ namespace mconv
     const char * const T3DXMLSerializer::ATTRIB_WRAP_U = "wrap_u";
     const char * const T3DXMLSerializer::ATTRIB_WRAP_V = "wrap_v";
     const char * const T3DXMLSerializer::ATTRIB_SHARED = "shared_vertex";
+    const char * const T3DXMLSerializer::ATTRIB_DURATION = "duration";
 
 
     T3DXMLSerializer::T3DXMLSerializer()
@@ -717,6 +718,7 @@ namespace mconv
         pParentElem->LinkEndChild(pActionElement);
 
         pActionElement->SetAttribute(ATTRIB_ID, pAction->getID().c_str());
+        pActionElement->SetAttribute(ATTRIB_DURATION, pAction->mDuration);
 
         auto itr = pAction->mTKeyframes.begin();
         while (itr != pAction->mTKeyframes.end())
@@ -740,9 +742,9 @@ namespace mconv
                 pFrameElement->SetAttribute(ATTRIB_ID, pFrame->mID);
                 pFrameElement->SetAttribute(ATTRIB_TIME, pFrame->mTimestamp);
 
-                std::stringstream ss;
-                ss<<pFrame->x<<" "<<pFrame->y<<" "<<pFrame->z;
-                XMLText *pText = pDoc->NewText(ss.str().c_str());
+                char szText[512] = {0};
+                snprintf(szText, sizeof(szText)-1, " %8f % 8f % 8f", pFrame->x, pFrame->y, pFrame->z);
+                XMLText *pText = pDoc->NewText(szText);
                 pFrameElement->LinkEndChild(pText);
                 ++i;
             }
@@ -772,9 +774,11 @@ namespace mconv
                 pFrameElement->SetAttribute(ATTRIB_ID, pFrame->mID);
                 pFrameElement->SetAttribute(ATTRIB_TIME, pFrame->mTimestamp);
 
-                std::stringstream ss;
-                ss<<pFrame->x<<" "<<pFrame->y<<" "<<pFrame->z<<" "<<pFrame->w;
-                XMLText *pText = pDoc->NewText(ss.str().c_str());
+//                 std::stringstream ss;
+//                 ss<<pFrame->x<<" "<<pFrame->y<<" "<<pFrame->z<<" "<<pFrame->w;
+                char szText[512] = {0};
+                snprintf(szText, sizeof(szText)-1, " %8f % 8f % 8f % 8f", pFrame->x, pFrame->y, pFrame->z, pFrame->w);
+                XMLText *pText = pDoc->NewText(szText);
                 pFrameElement->LinkEndChild(pText);
                 ++i;
             }
@@ -804,9 +808,11 @@ namespace mconv
                 pFrameElement->SetAttribute(ATTRIB_ID, pFrame->mID);
                 pFrameElement->SetAttribute(ATTRIB_TIME, pFrame->mTimestamp);
 
-                std::stringstream ss;
-                ss<<pFrame->x<<" "<<pFrame->y<<" "<<pFrame->z;
-                XMLText *pText = pDoc->NewText(ss.str().c_str());
+//                 std::stringstream ss;
+//                 ss<<pFrame->x<<" "<<pFrame->y<<" "<<pFrame->z;
+                char szText[512] = {0};
+                snprintf(szText, sizeof(szText)-1, " %8f % 8f % 8f", pFrame->x, pFrame->y, pFrame->z);
+                XMLText *pText = pDoc->NewText(szText);
                 pFrameElement->LinkEndChild(pText);
                 ++i;
             }

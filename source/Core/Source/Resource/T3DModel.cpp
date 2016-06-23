@@ -824,8 +824,9 @@ namespace Tiny3D
     {
         bool ret = true;
         String actionName = pActionElement->Attribute(T3D_XML_ATTRIB_ID);
-
-        ActionDataPtr actionData = ActionData::create(actionName);
+        float duration = pActionElement->FloatAttribute(T3D_XML_ATTRIB_DURATION);
+        int32_t length = (int32_t)(duration * 1000);
+        ActionDataPtr actionData = ActionData::create(actionName, length);
         auto result = mAnimationData.insert(AnimationValue(actionName, actionData));
 
         XMLElement *pKeyframeElement = pActionElement->FirstChildElement(T3D_XML_TAG_KEYFRAME);

@@ -1460,6 +1460,9 @@ namespace mconv
                         pFrame->z = translate[2];
                         pFrame->mTimestamp = frameTime.GetSecondDouble();
                         pAction->addKeyframe(pFrame, strBoneName, pAction->mTKeyframes);
+
+                        if (pAction->mDuration < pFrame->mTimestamp)
+                            pAction->mDuration = pFrame->mTimestamp;
                     }
                 }
                 else
@@ -1485,6 +1488,9 @@ namespace mconv
                         pFrame->w = orientation[3];
                         pFrame->mTimestamp = frameTime.GetSecondDouble();
                         pAction->addKeyframe(pFrame, strBoneName, pAction->mRKeyframes);
+
+                        if (pAction->mDuration < pFrame->mTimestamp)
+                            pAction->mDuration = pFrame->mTimestamp;
                     }
                 }
                 else
@@ -1507,6 +1513,9 @@ namespace mconv
                         pFrame->z = scale[2];
                         pFrame->mTimestamp = frameTime.GetSecondDouble();
                         pAction->addKeyframe(pFrame, strBoneName, pAction->mSKeyframes);
+
+                        if (pAction->mDuration < pFrame->mTimestamp)
+                            pAction->mDuration = pFrame->mTimestamp;
                     }
                 }
                 else

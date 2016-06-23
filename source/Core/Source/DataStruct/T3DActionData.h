@@ -94,15 +94,15 @@ namespace Tiny3D
     class ActionData : public Object
     {
     public:
-        static ActionDataPtr create(const String &name);
+        static ActionDataPtr create(const String &name, int32_t duration);
 
         virtual ~ActionData();
 
     protected:
-        ActionData(const String &name);
+        ActionData(const String &name, int32_t duration);
 
     public:
-        typedef std::list<KeyFrameDataPtr>      KeyFrames;
+        typedef std::vector<KeyFrameDataPtr>    KeyFrames;
         typedef KeyFrames::iterator             KeyFramesItr;
         typedef KeyFrames::const_iterator       KeyFramesConstItr;
 
@@ -112,6 +112,7 @@ namespace Tiny3D
         typedef std::pair<String, KeyFrames>    BonesValue;
 
         String      mName;
+        int32_t     mDuration;
         Bones       mBonesTranslation;
         Bones       mBonesRotation;
         Bones       mBonesScaling;

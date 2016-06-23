@@ -91,9 +91,9 @@ namespace Tiny3D
 
     ////////////////////////////////////////////////////////////////////////////
 
-    ActionDataPtr ActionData::create(const String &name)
+    ActionDataPtr ActionData::create(const String &name, int32_t duration)
     {
-        ActionDataPtr action = new ActionData(name);
+        ActionDataPtr action = new ActionData(name, duration);
 
         if (action != nullptr)
         {
@@ -103,8 +103,9 @@ namespace Tiny3D
         return action;
     }
 
-    ActionData::ActionData(const String &name)
+    ActionData::ActionData(const String &name, int32_t duration)
         : mName(name)
+        , mDuration(duration)
     {
 
     }
