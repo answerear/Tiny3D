@@ -67,7 +67,7 @@ namespace Tiny3D
         virtual void updateTransform() override;
 
         void updateSkeleton();
-        void updateBone(int64_t dt, ObjectPtr skeleton);
+        void updateBone(int64_t time, ObjectPtr skeleton);
 
     protected:
         ModelPtr    mModel;
@@ -84,6 +84,7 @@ namespace Tiny3D
 
         String          mCurActionName;
         bool            mIsActionRunning;
+        bool            mIsLoop;
 
         ObjectPtr       mCurActionData;
     };

@@ -13,12 +13,29 @@
 
 namespace Tiny3D
 {
-    template <typename T, typename P>
-    bool searchKeyframe(const T &container, int64_t time, int32_t duration, int32_t &frame, P &keyframe, bool loop)
+    template <typename T, typename K>
+    bool searchKeyframe(const T &container, int64_t time, int32_t duration, int32_t &frame, K &keyframe1, K &keyframe2, bool loop)
     {
         bool ret = false;
 
         int32_t i = frame;
+
+        while (i < container.size() && i + 1 < container.size())
+        {
+            K kf1 = container[i];
+            K kf2 = container[i+1];
+
+            if (time > kf1->mTimestamp && time < kf2->mTimestamp)
+            {
+                keyframe1 = kf1;
+                keyframe2 = kf2;
+                frame = i;
+                ret = true;
+                break;
+            }
+
+            ++i;
+        }
 
         return ret;
     }
@@ -184,6 +201,7 @@ namespace Tiny3D
         mCurKeyFrameR = 0;
         mCurKeyFrameS = 0;
 
+        mIsLoop = repeat;
         mIsActionRunning = true;
 
         return true;
@@ -191,6 +209,7 @@ namespace Tiny3D
 
     bool SGModel::stopAction(const String &name)
     {
+        mIsActionRunning = false;
         return true;
     }
 
@@ -199,27 +218,79 @@ namespace Tiny3D
         if (isActionRunning())
         {
             int64_t current = DateTime::currentMSecsSinceEpoch();
-            int64_t dt = current - mStarrTime;
+            int64_t time = current - mStarrTime;
 
-            updateBone(dt, mModel->getSkeletonData());
+            updateBone(time, mModel->getSkeletonData());
         }
     }
 
-    void SGModel::updateBone(int64_t dt, ObjectPtr skeleton)
+    void SGModel::updateBone(int64_t time, ObjectPtr skeleton)
     {
         BonePtr bone = smart_pointer_cast<Bone>(skeleton);
 
         ActionDataPtr actionData = smart_pointer_cast<ActionData>(mCurActionData);
         
-        auto itrT = actionData->mBonesTranslation.find(bone->getName());
-        ActionData::KeyFrames &keyframesT = itrT->second;
+        KeyFrameDataPtr kf1, kf2;
 
-        KeyFrameDataPtr keyframe;
-//         if (searchKeyFrame(keyframesT, dt, mCurKeyFrameT, keyframe))
-//         {
-//             KeyFrameDataTPtr keyframeT = smart_pointer_cast<KeyFrameDataT>(keyframe);
-//         }
+        // 平移变换数据
+        Vector3 translation;
+        auto itrT = actionData->mBonesTranslation.find(bone->getName());
+        if (itrT != actionData->mBonesTranslation.end())
+        {
+            ActionData::KeyFrames &keyframesT = itrT->second;
+
+            if (searchKeyframe(keyframesT, time, actionData->mDuration, mCurKeyFrameT, kf1, kf2, mIsLoop))
+            {
+                KeyFrameDataTPtr keyframe1 = smart_pointer_cast<KeyFrameDataT>(kf1);
+                KeyFrameDataTPtr keyframe2 = smart_pointer_cast<KeyFrameDataT>(kf2);
+                int64_t t = (time - keyframe1->mTimestamp) / (keyframe2->mTimestamp - keyframe1->mTimestamp);
+                Vector3 &base = keyframe1->mTranslation;
+                translation = (base + (keyframe2->mTranslation - base) * t);
+            }
+        }
         
-        
+        // 旋转变换数据
+        Quaternion orientation;
+        auto itrR = actionData->mBonesRotation.find(bone->getName());
+        if (itrR != actionData->mBonesRotation.end())
+        {
+            ActionData::KeyFrames &keyframesR = itrR->second;
+
+            if (searchKeyframe(keyframesR, time, actionData->mDuration, mCurKeyFrameR, kf1, kf2, mIsLoop))
+            {
+                KeyFrameDataRPtr keyframe1 = smart_pointer_cast<KeyFrameDataR>(kf1);
+                KeyFrameDataRPtr keyframe2 = smart_pointer_cast<KeyFrameDataR>(kf2);
+                int64_t t = (time - keyframe1->mTimestamp) / (keyframe2->mTimestamp - keyframe1->mTimestamp);
+                orientation.lerp(keyframe1->mOrientation, keyframe2->mOrientation, t / 1000);
+            }
+        }
+
+        // 缩放变换数据
+        Vector3 scaling;
+        auto itrS = actionData->mBonesScaling.find(bone->getName());
+        if (itrS != actionData->mBonesScaling.end())
+        {
+            ActionData::KeyFrames &keyframesS = itrS->second;
+
+            if (searchKeyframe(keyframesS, time, actionData->mDuration, mCurKeyFrameS, kf1, kf2, mIsLoop))
+            {
+                KeyFrameDataSPtr keyframe1 = smart_pointer_cast<KeyFrameDataS>(kf1);
+                KeyFrameDataSPtr keyframe2 = smart_pointer_cast<KeyFrameDataS>(kf2);
+                int64_t t = (time - keyframe1->mTimestamp) / (keyframe2->mTimestamp - keyframe1->mTimestamp);
+                Vector3 &base = keyframe1->mScaling;
+                scaling = (base * (keyframe2->mScaling - base) * t);
+            }
+        }
+
+        bone->setTranslation(translation);
+        bone->setOrientation(orientation);
+        bone->setScaling(scaling);
+        bone->updateBone();
+
+        auto itr = bone->getChildren().begin();
+        while (itr != bone->getChildren().end())
+        {
+            updateBone(time, *itr);
+        }
     }
 }

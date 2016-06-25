@@ -23,6 +23,24 @@ namespace Tiny3D
         virtual Type getNodeType() const override;
         virtual NodePtr clone() const override;
 
+        void setTranslation(const Vector3 &pos)
+        {
+            mTranslation = pos;
+            setDirty(true, true);
+        }
+
+        void setOrientation(const Quaternion &orientation)
+        {
+            mOrientation = orientation;
+            setDirty(true, true);
+        }
+
+        void setScaling(const Vector3 &scaling)
+        {
+            mScaling = scaling;
+            setDirty(true, true);
+        }
+
         void updateBone();
 
         void setDirty(bool isDirty, bool recursive = false);

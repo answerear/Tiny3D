@@ -155,6 +155,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
         SGModelPtr model = SGModel::create("knight.tmt");
         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
+        model->runAction("Attack", false);
 //         SGShapePtr shape = SGShape::create();
 //         node->addChild(shape);
 // 
