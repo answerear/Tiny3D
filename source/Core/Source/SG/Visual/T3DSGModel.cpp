@@ -148,7 +148,7 @@ namespace Tiny3D
                 break;
             case E_RENDER_SKELETON:
                 {
-//                     removeAllChildren(false);
+                    removeAllChildren(false);
 
                     if (mSkeleton == nullptr)
                     {
@@ -291,6 +291,7 @@ namespace Tiny3D
         while (itr != bone->getChildren().end())
         {
             updateBone(time, *itr);
+            ++itr;
         }
     }
 }
