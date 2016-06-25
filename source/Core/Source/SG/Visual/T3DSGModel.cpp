@@ -59,7 +59,7 @@ namespace Tiny3D
         , mModel(nullptr)
         , mRenderMode(E_RENDER_ENTITY)
         , mSkeleton(nullptr)
-        , mStarrTime(0)
+        , mStartTime(0)
         , mCurKeyFrameT(0)
         , mCurKeyFrameR(0)
         , mCurKeyFrameS(0)
@@ -194,7 +194,7 @@ namespace Tiny3D
         if (itr == actionList.end())
             return false;
 
-        mStarrTime = DateTime::currentMSecsSinceEpoch();
+        mStartTime = DateTime::currentMSecsSinceEpoch();
 
         mCurActionData = itr->second;
         mCurKeyFrameT = 0;
@@ -218,8 +218,8 @@ namespace Tiny3D
         if (isActionRunning())
         {
             int64_t current = DateTime::currentMSecsSinceEpoch();
-            int64_t time = current - mStarrTime;
-
+            int64_t time = current - mStartTime;
+            T3D_LOG_INFO("time : %lld", time);
             updateBone(time, mModel->getSkeletonData());
         }
     }
@@ -243,9 +243,10 @@ namespace Tiny3D
             {
                 KeyFrameDataTPtr keyframe1 = smart_pointer_cast<KeyFrameDataT>(kf1);
                 KeyFrameDataTPtr keyframe2 = smart_pointer_cast<KeyFrameDataT>(kf2);
-                int64_t t = (time - keyframe1->mTimestamp) / (keyframe2->mTimestamp - keyframe1->mTimestamp);
+                double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 Vector3 &base = keyframe1->mTranslation;
                 translation = (base + (keyframe2->mTranslation - base) * t);
+                T3D_LOG_INFO("Bone : %s [%f], T(%f, %f, %f)", bone->getName().c_str(), t, translation[0], translation[1], translation[2]);
             }
         }
         
@@ -260,8 +261,9 @@ namespace Tiny3D
             {
                 KeyFrameDataRPtr keyframe1 = smart_pointer_cast<KeyFrameDataR>(kf1);
                 KeyFrameDataRPtr keyframe2 = smart_pointer_cast<KeyFrameDataR>(kf2);
-                int64_t t = (time - keyframe1->mTimestamp) / (keyframe2->mTimestamp - keyframe1->mTimestamp);
+                double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 orientation.lerp(keyframe1->mOrientation, keyframe2->mOrientation, t / 1000);
+                T3D_LOG_INFO("Bone : %s [%f], R(%f, %f, %f, %f)", bone->getName().c_str(), t, orientation[0], orientation[1], orientation[2], orientation[3]);
             }
         }
 
@@ -276,9 +278,10 @@ namespace Tiny3D
             {
                 KeyFrameDataSPtr keyframe1 = smart_pointer_cast<KeyFrameDataS>(kf1);
                 KeyFrameDataSPtr keyframe2 = smart_pointer_cast<KeyFrameDataS>(kf2);
-                int64_t t = (time - keyframe1->mTimestamp) / (keyframe2->mTimestamp - keyframe1->mTimestamp);
+                double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 Vector3 &base = keyframe1->mScaling;
                 scaling = (base * (keyframe2->mScaling - base) * t);
+                T3D_LOG_INFO("Bone : %s [%f], S(%f, %f, %f)", bone->getName().c_str(), t, scaling[0], scaling[1], scaling[2]);
             }
         }
 

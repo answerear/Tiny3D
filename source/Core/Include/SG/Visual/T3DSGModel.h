@@ -76,7 +76,7 @@ namespace Tiny3D
         Children        mMeshes;
         SGSkeletonPtr   mSkeleton;
 
-        int64_t         mStarrTime;
+        int64_t         mStartTime;
 
         int32_t         mCurKeyFrameT;
         int32_t         mCurKeyFrameR;

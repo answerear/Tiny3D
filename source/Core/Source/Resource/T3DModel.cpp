@@ -881,7 +881,7 @@ namespace Tiny3D
             break;
         case KeyFrameData::E_TYPE_ROTATION:
             {
-                auto result = action->mBonesTranslation.insert(ActionData::BonesValue(boneName, ActionData::KeyFrames()));
+                auto result = action->mBonesRotation.insert(ActionData::BonesValue(boneName, ActionData::KeyFrames()));
 
                 while (pFrameElement != nullptr)
                 {
