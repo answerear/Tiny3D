@@ -19,6 +19,8 @@ namespace Tiny3D
         virtual Type getNodeType() const override;
         virtual NodePtr clone() const override;
 
+        void updateVertices();
+
     protected:
         struct BoneVertex
         {

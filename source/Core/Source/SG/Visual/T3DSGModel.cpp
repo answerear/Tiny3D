@@ -221,6 +221,7 @@ namespace Tiny3D
             int64_t time = current - mStartTime;
             T3D_LOG_INFO("time : %lld", time);
             updateBone(time, mModel->getSkeletonData());
+            mSkeleton->updateVertices();
         }
     }
 
@@ -246,6 +247,8 @@ namespace Tiny3D
                 double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 Vector3 &base = keyframe1->mTranslation;
                 translation = (base + (keyframe2->mTranslation - base) * t);
+                T3D_LOG_INFO("Keyframe #1 T(%f, %f, %f)", keyframe1->mTranslation[0], keyframe1->mTranslation[1], keyframe1->mTranslation[2]);
+                T3D_LOG_INFO("Keyframe #2 T(%f, %f, %f)", keyframe2->mTranslation[0], keyframe2->mTranslation[1], keyframe2->mTranslation[2]);
                 T3D_LOG_INFO("Bone : %s [%f], T(%f, %f, %f)", bone->getName().c_str(), t, translation[0], translation[1], translation[2]);
             }
         }
@@ -263,6 +266,8 @@ namespace Tiny3D
                 KeyFrameDataRPtr keyframe2 = smart_pointer_cast<KeyFrameDataR>(kf2);
                 double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 orientation.lerp(keyframe1->mOrientation, keyframe2->mOrientation, t / 1000);
+                T3D_LOG_INFO("Keyframe #1 R(%f, %f, %f, %f)", keyframe1->mOrientation[0], keyframe1->mOrientation[1], keyframe1->mOrientation[2], keyframe1->mOrientation[3]);
+                T3D_LOG_INFO("Keyframe #2 R(%f, %f, %f, %f)", keyframe2->mOrientation[0], keyframe2->mOrientation[1], keyframe2->mOrientation[2], keyframe2->mOrientation[3]);
                 T3D_LOG_INFO("Bone : %s [%f], R(%f, %f, %f, %f)", bone->getName().c_str(), t, orientation[0], orientation[1], orientation[2], orientation[3]);
             }
         }
@@ -281,6 +286,8 @@ namespace Tiny3D
                 double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 Vector3 &base = keyframe1->mScaling;
                 scaling = (base * (keyframe2->mScaling - base) * t);
+                T3D_LOG_INFO("Keyframe #1 S(%f, %f, %f)", keyframe1->mScaling[0], keyframe1->mScaling[1], keyframe1->mScaling[2]);
+                T3D_LOG_INFO("Keyframe #2 S(%f, %f, %f)", keyframe2->mScaling[0], keyframe2->mScaling[1], keyframe2->mScaling[2]);
                 T3D_LOG_INFO("Bone : %s [%f], S(%f, %f, %f)", bone->getName().c_str(), t, scaling[0], scaling[1], scaling[2]);
             }
         }

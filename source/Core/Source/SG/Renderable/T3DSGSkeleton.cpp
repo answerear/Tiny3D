@@ -186,6 +186,19 @@ namespace Tiny3D
         return found;
     }
 
+    void SGSkeleton::updateVertices()
+    {
+        BonePtr skeleton = smart_pointer_cast<Bone>(mModel->getSkeletonData());
+        std::vector<BoneVertex> vertices;
+        bool ret = buildSkeletonVertices(skeleton, vertices);
+
+        if (ret)
+        {
+            HardwareVertexBufferPtr vb = mVertexData->getVertexBuffer();
+            ret = vb->writeData(0, sizeof(BoneVertex) * vertices.size(), &vertices[0]);
+        }
+    }
+
     SGNode::Type SGSkeleton::getNodeType() const
     {
         return E_NT_SKELETON;
