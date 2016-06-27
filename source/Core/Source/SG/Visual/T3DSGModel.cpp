@@ -250,6 +250,8 @@ namespace Tiny3D
                 T3D_LOG_INFO("Keyframe #1 T(%f, %f, %f)", keyframe1->mTranslation[0], keyframe1->mTranslation[1], keyframe1->mTranslation[2]);
                 T3D_LOG_INFO("Keyframe #2 T(%f, %f, %f)", keyframe2->mTranslation[0], keyframe2->mTranslation[1], keyframe2->mTranslation[2]);
                 T3D_LOG_INFO("Bone : %s [%f], T(%f, %f, %f)", bone->getName().c_str(), t, translation[0], translation[1], translation[2]);
+
+                bone->setTranslation(translation);
             }
         }
         
@@ -269,6 +271,8 @@ namespace Tiny3D
                 T3D_LOG_INFO("Keyframe #1 R(%f, %f, %f, %f)", keyframe1->mOrientation[0], keyframe1->mOrientation[1], keyframe1->mOrientation[2], keyframe1->mOrientation[3]);
                 T3D_LOG_INFO("Keyframe #2 R(%f, %f, %f, %f)", keyframe2->mOrientation[0], keyframe2->mOrientation[1], keyframe2->mOrientation[2], keyframe2->mOrientation[3]);
                 T3D_LOG_INFO("Bone : %s [%f], R(%f, %f, %f, %f)", bone->getName().c_str(), t, orientation[0], orientation[1], orientation[2], orientation[3]);
+
+                bone->setOrientation(orientation);
             }
         }
 
@@ -289,12 +293,11 @@ namespace Tiny3D
                 T3D_LOG_INFO("Keyframe #1 S(%f, %f, %f)", keyframe1->mScaling[0], keyframe1->mScaling[1], keyframe1->mScaling[2]);
                 T3D_LOG_INFO("Keyframe #2 S(%f, %f, %f)", keyframe2->mScaling[0], keyframe2->mScaling[1], keyframe2->mScaling[2]);
                 T3D_LOG_INFO("Bone : %s [%f], S(%f, %f, %f)", bone->getName().c_str(), t, scaling[0], scaling[1], scaling[2]);
+
+                bone->setScaling(scaling);
             }
         }
 
-        bone->setTranslation(translation);
-        bone->setOrientation(orientation);
-        bone->setScaling(scaling);
         bone->updateBone();
 
         auto itr = bone->getChildren().begin();

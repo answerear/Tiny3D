@@ -49,7 +49,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     root->addChild(node);
 
 //     node->lookAt(Vector3(0.0, 10.0, 200.0), Vector3::ZERO, Vector3::UNIT_Y);
-    node->lookAt(Vector3(0.0, 2.0, 20.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(0.0, 2.0, 10.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 相机结点
     SGCameraPtr camera = SGCamera::create();
@@ -155,7 +155,7 @@ bool HelloWorldApp::applicationDidFinishLaunching()
         SGModelPtr model = SGModel::create("knight.tmt");
         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
-        model->runAction("Attack", false);
+        model->runAction("Walk", false);
 //         SGShapePtr shape = SGShape::create();
 //         node->addChild(shape);
 // 
