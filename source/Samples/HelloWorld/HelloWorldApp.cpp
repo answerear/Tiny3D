@@ -48,8 +48,8 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     SGTransformNodePtr node = SGTransformNode::create();
     root->addChild(node);
 
-//     node->lookAt(Vector3(0.0, 10.0, 200.0), Vector3::ZERO, Vector3::UNIT_Y);
-    node->lookAt(Vector3(0.0, 2.0, 10.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(40.0, -80.0, 50.0), Vector3::ZERO, Vector3::UNIT_Y);
+//     node->lookAt(Vector3(0.0, 2.0, 10.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 相机结点
     SGCameraPtr camera = SGCamera::create();
@@ -152,10 +152,11 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     {
         // 模型 #1 可见物体结点
 //         SGModelPtr model = SGModel::create("dahu01.tmt");
-        SGModelPtr model = SGModel::create("knight.tmt");
+//         SGModelPtr model = SGModel::create("knight.tmt");
+        SGModelPtr model = SGModel::create("skeleton.tmt");
         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
-        model->runAction("Walk", false);
+        model->runAction("Take 001", false);
 //         SGShapePtr shape = SGShape::create();
 //         node->addChild(shape);
 // 

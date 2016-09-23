@@ -67,7 +67,7 @@ namespace Tiny3D
         Sphere  mSphere;
 
     private:
-        SGVisual        *mNode;
+        SGVisual    *mNode;
 
         uint32_t    mID;
         uint32_t    mGroupID;

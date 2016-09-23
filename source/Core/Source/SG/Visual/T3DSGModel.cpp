@@ -63,6 +63,9 @@ namespace Tiny3D
         , mCurKeyFrameT(0)
         , mCurKeyFrameR(0)
         , mCurKeyFrameS(0)
+        , mIsActionRunning(false)
+        , mIsLoop(false)
+        , mCurActionData(nullptr)
     {
 
     }
