@@ -373,12 +373,12 @@ namespace Tiny3D
 
 	inline Quaternion &Quaternion::lerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes)
 	{
-// 		Real fScale = 1.0f - fTimes;
-// 		return (*this = (rkP * fScale) + (rkQ * fScale));
-        Real fCos = rkP.dot(rkQ);
-        *this = rkP + fTimes * (rkQ - rkP);
-        normalize();
-        return *this;
+		Real fScale = 1.0f - fTimes;
+		return (*this = (rkP * fScale) + (rkQ * fScale));
+//         Real fCos = rkP.dot(rkQ);
+//         *this = rkP + fTimes * (rkQ - rkP);
+//         normalize();
+//         return *this;
 	}
 
 	inline Quaternion operator *(Real fScalar, const Quaternion &rkQ)
