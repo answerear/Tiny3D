@@ -273,7 +273,10 @@ namespace Tiny3D
                 orientation.lerp(keyframe1->mOrientation, keyframe2->mOrientation, t/* / 1000*/);
                 T3D_LOG_INFO("Keyframe #1 R(%f, %f, %f, %f)", keyframe1->mOrientation[0], keyframe1->mOrientation[1], keyframe1->mOrientation[2], keyframe1->mOrientation[3]);
                 T3D_LOG_INFO("Keyframe #2 R(%f, %f, %f, %f)", keyframe2->mOrientation[0], keyframe2->mOrientation[1], keyframe2->mOrientation[2], keyframe2->mOrientation[3]);
-                T3D_LOG_INFO("Bone : %s [%f], R(%f, %f, %f, %f)", bone->getName().c_str(), t, orientation[0], orientation[1], orientation[2], orientation[3]);
+                Degree deg;
+                Vector3 axis;
+                orientation.toAngleAxis(deg, axis);
+                T3D_LOG_INFO("Bone : %s [%d], R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", bone->getName().c_str(), time, orientation[0], orientation[1], orientation[2], orientation[3], deg.valueDegrees(), axis[0], axis[1], axis[2]);
 
                 bone->setOrientation(orientation);
             }
