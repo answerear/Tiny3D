@@ -17,6 +17,8 @@ namespace mconv
 
         virtual bool load(const String &path, void *&pData) override;
         virtual bool save(const String &path, void *pData) override;
+
+    protected:
     };
 }
 
