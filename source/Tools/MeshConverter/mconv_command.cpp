@@ -99,9 +99,9 @@ namespace mconv
         printf("Options:\n");
         printf("-?       : Display this help information.\n");
         printf("-i <type>: Set the type of the input file to <type>\n");
-        printf("\t<type> : This type should be FBX (fbx), tmb (Tiny3D binary), tmt (Tiny3D text) or DAE (dae).\n");
+        printf("\t<type> : This type should be FBX (fbx), tmb (Tiny3D binary), tmt (Tiny3D text), DAE (dae) or OGRE (mesh).\n");
         printf("-o <type>: Set the type of the output file to <type>\n");
-        printf("\t<type> : This type should be FBX (fbx), tmb (Tiny3D binary), tmt (Tiny3D text), t3d (both binary and text) or DAE (dae).\n");
+        printf("\t<type> : This type should be tmb (Tiny3D binary), tmt (Tiny3D text) or t3d (both binary and text).\n");
         printf("-b <type>: Set the type of the bounding box to <type>\n");
         printf("\t<type> : This type should be sphere or aabb.\n");
         printf("-m <type>: This type should control file mode.\n");
@@ -123,6 +123,8 @@ namespace mconv
 
         if (stricmp(arg, "fbx") == 0)
             type = E_FILETYPE_FBX;
+        else if (stricmp(arg,"ogre") == 0)
+            type = E_FILETYPE_OGRE;
         else if (stricmp(arg, T3D_BIN_MODEL_FILE_EXT) == 0)
             type = E_FILETYPE_TMB;
         else if (stricmp(arg, T3D_TXT_MODEL_FILE_EXT) == 0)
