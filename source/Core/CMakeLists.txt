@@ -14,12 +14,14 @@ if (MSVC)
 endif (MSVC)
 
 
+set(TINY3D_MATH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Math")
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
 set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
 set(TINY3D_MEDIA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../media")
 
 include_directories(
+	"${TINY3D_MATH_DIR}/include"
 	"${TINY3D_PLATFORM_DIR}/Include"
 	"${TINY3D_LOG_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
@@ -40,8 +42,8 @@ endif (TINY3D_OS_WINDOWS)
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
-set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .h)
-set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .inl)
+#set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .h)
+#set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .inl)
 set_project_files(Include\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/ .h)
 set_project_files(Include\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/ .inl)
 set_project_files(Include\\\\SG\\\\Node ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/Node/ .h)
@@ -65,7 +67,7 @@ set_project_files(Include\\\\InputDevice ${CMAKE_CURRENT_SOURCE_DIR}/Include/Inp
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .h)
-set_project_files(Source\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Source/Math/ .cpp)
+#set_project_files(Source\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Source/Math/ .cpp)
 set_project_files(Source\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Source/SG/ .cpp)
 set_project_files(Source\\\\SG\\\\Node ${CMAKE_CURRENT_SOURCE_DIR}/Source/SG/Node/ .cpp)
 set_project_files(Source\\\\SG\\\\Visual ${CMAKE_CURRENT_SOURCE_DIR}/Source/SG/Visual/ .cpp)
@@ -98,6 +100,7 @@ endif (TINY3D_BUILD_SHARED_LIBS)
 if (TINY3D_OS_WINDOWS)
 	target_link_libraries(
 		${LIB_NAME}
+		LINK_PRIVATE T3DMath
 		LINK_PRIVATE T3DPlatform
 		LINK_PRIVATE T3DLog
 		LINK_PRIVATE libpng

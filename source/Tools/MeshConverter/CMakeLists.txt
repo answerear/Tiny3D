@@ -10,7 +10,7 @@ set_project_name(mesh-conv)
 
 set(TINY3D_PLATFORM_INC_DIR "${TINY3D_INC_DIR}/Platform")
 set(TINY3D_LOG_INC_DIR "${TINY3D_INC_DIR}/Log")
-#set(TINY3D_CORE_INC_DIR "${TINY3D_INC_DIR}/Core")
+set(TINY3D_MATH_INC_DIR "${TINY3D_INC_DIR}/Math")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies")
 set(FBXSDK_DIR "${TINY3D_DEP_DIR}/fbxsdk")
 
@@ -21,7 +21,7 @@ add_definitions(-DFBXSDK_SHARED)
 include_directories(
 	"${TINY3D_PLATFORM_INC_DIR}"
 	"${TINY3D_LOG_INC_DIR}"
-#	"${TINY3D_CORE_INC_DIR}"
+	"${TINY3D_MATH_INC_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}/tinyxml2"
 	"${FBXSDK_DIR}/include"
@@ -51,7 +51,7 @@ target_link_libraries(
 	${LIB_NAME}
 	T3DPlatform
 	T3DLog
-#	T3DCore
+	T3DMath
 	libfbxsdk
 	)
 
@@ -70,6 +70,7 @@ if (TINY3D_OS_WINDOWS)
 
 	add_custom_command(TARGET ${BIN_NAME}
 		PRE_LINK 
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/bin/Debug/T3DMath.dll ${CMAKE_CURRENT_BINARY_DIR}/Debug
 		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/bin/Debug/T3DLog.dll ${CMAKE_CURRENT_BINARY_DIR}/Debug
 		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/bin/Debug/T3DPlatform.dll ${CMAKE_CURRENT_BINARY_DIR}/Debug
 		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/bin/Debug/libpng.dll ${CMAKE_CURRENT_BINARY_DIR}/Debug

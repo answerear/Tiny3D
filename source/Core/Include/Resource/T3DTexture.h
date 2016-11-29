@@ -5,7 +5,7 @@
 
 
 #include "Misc/T3DCommon.h"
-#include "Math/T3DRect.h"
+#include "T3DRect.h"
 #include "T3DResource.h"
 
 

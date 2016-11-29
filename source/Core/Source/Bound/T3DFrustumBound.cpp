@@ -4,7 +4,7 @@
 #include "Bound/T3DAabbBound.h"
 #include "Bound/T3DObbBound.h"
 #include "Bound/T3DFrustumBound.h"
-#include "Math/T3DMath.h"
+#include "T3DMath.h"
 #include "SG/Visual/T3DSGVisual.h"
 #include "SG/Renderable/T3DSGBox.h"
 

@@ -4,8 +4,8 @@
 
 
 #include "SG/Renderable/T3DSGGeometry.h"
-#include "Math/T3DAabb.h"
-#include "Math/T3DVector2.h"
+#include "T3DAabb.h"
+#include "T3DVector2.h"
 
 
 namespace Tiny3D

@@ -4,10 +4,10 @@
 
 
 #include "Misc/T3DNode.h"
-#include "Math/T3DMath.h"
-#include "Math/T3DVector3.h"
-#include "Math/T3DMatrix3.h"
-#include "Math/T3DMatrix4.h"
+#include "T3DMath.h"
+#include "T3DVector3.h"
+#include "T3DMatrix3.h"
+#include "T3DMatrix4.h"
 #include "Misc/T3DSmartPtr.h"
 #include "T3DTypedef.h"
 

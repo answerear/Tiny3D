@@ -3,12 +3,12 @@
 #include "SG/Visual/T3DSGCamera.h"
 #include "SG/Node/T3DSGTransformNode.h"
 #include "SG/Renderable/T3DSGRenderable.h"
-#include "Math/T3DMath.h"
-#include "Math/T3DMatrix4.h"
+#include "T3DMath.h"
+#include "T3DMatrix4.h"
 #include "Misc/T3DEntrance.h"
 #include "Render/T3DRenderer.h"
-#include "Math/T3DPlane.h"
-#include "Math/T3DFrustum.h"
+#include "T3DPlane.h"
+#include "T3DFrustum.h"
 #include "Bound/T3DFrustumBound.h"
 
 

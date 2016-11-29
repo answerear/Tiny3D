@@ -4,11 +4,11 @@
 
 
 #include "SG/Node/T3DSGNode.h"
-#include "Math/T3DMath.h"
-#include "Math/T3DVector3.h"
-#include "Math/T3DMatrix3.h"
-#include "Math/T3DMatrix4.h"
-#include "Math/T3DTransform.h"
+#include "T3DMath.h"
+#include "T3DVector3.h"
+#include "T3DMatrix3.h"
+#include "T3DMatrix4.h"
+#include "T3DTransform.h"
 
 
 namespace Tiny3D

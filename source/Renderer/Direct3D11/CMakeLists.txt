@@ -16,6 +16,7 @@ endif (MSVC)
 # Setup project include files path
 include_directories(
 	"${TINY3D_CORE_SOURCE_DIR}/Include"
+	"${TINY3D_MATH_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${DirectX11_INCLUDE_DIR}"
 	)
@@ -39,6 +40,9 @@ target_link_libraries(
 	${LIB_NAME}
 	${DirectX11_LIBRARIES}
 	T3DPlatform
+	T3DLog
+	T3DMath
+	T3DCore
 	)
 
 install(TARGETS ${LIB_NAME}

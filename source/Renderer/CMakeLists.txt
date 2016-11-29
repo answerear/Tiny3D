@@ -7,6 +7,7 @@
 
 
 set(TINY3D_CORE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Core" CACHE PATH "Tiny3D core source path")
+set(TINY3D_MATH_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Math" CACHE PATH "Tiny3D math source path")
 set(TINY3D_PLATFORM_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform" CACHE PATH "Tiny3D platform source path")
 set(TINY3D_LOG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log" CACHE PATH "Tiny3D log source path")
 

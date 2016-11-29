@@ -154,9 +154,9 @@ bool HelloWorldApp::applicationDidFinishLaunching()
 //         SGModelPtr model = SGModel::create("dahu01.tmt");
 //         SGModelPtr model = SGModel::create("knight.tmt");
         SGModelPtr model = SGModel::create("skeleton.tmt");
-        model->setRenderMode(SGModel::E_RENDER_SKELETON);
+//         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
-        model->runAction("Take 001", false);
+//         model->runAction("Take 001", false);
 //         SGShapePtr shape = SGShape::create();
 //         node->addChild(shape);
 // 

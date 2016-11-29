@@ -5,7 +5,7 @@
 
 
 #include "Misc/T3DObject.h"
-#include "Math/T3DSphere.h"
+#include "T3DSphere.h"
 #include "T3DTypedef.h"
 
 

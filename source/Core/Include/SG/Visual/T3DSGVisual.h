@@ -6,7 +6,7 @@
 
 #include "SG/Node/T3DSGTransformNode.h"
 #include "Bound/T3DBound.h"
-#include "Math/T3DTransform.h"
+#include "T3DTransform.h"
 
 
 namespace Tiny3D

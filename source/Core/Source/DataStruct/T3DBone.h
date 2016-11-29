@@ -7,8 +7,8 @@
 #include "T3DPrerequisitesInternal.h"
 #include "T3DTypedefInternal.h"
 #include "Misc/T3DNode.h"
-#include "Math/T3DMatrix4.h"
-#include "Math/T3DTransform.h"
+#include "T3DMatrix4.h"
+#include "T3DTransform.h"
 
 
 namespace Tiny3D

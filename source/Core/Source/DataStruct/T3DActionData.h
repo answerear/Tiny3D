@@ -7,8 +7,8 @@
 #include "T3DPrerequisitesInternal.h"
 #include "T3DTypedefInternal.h"
 #include "Misc/T3DObject.h"
-#include "Math/T3DVector3.h"
-#include "Math/T3DQuaternion.h"
+#include "T3DVector3.h"
+#include "T3DQuaternion.h"
 
 
 namespace Tiny3D

@@ -4,11 +4,6 @@
 #define __TINY3D_H__
 
 
-#include "Math/T3DSphere.h"
-#include "Math/T3DAabb.h"
-#include "Math/T3DObb.h"
-#include "Math/T3DFrustum.h"
-
 #include "Bound/T3DAabbBound.h"
 #include "Bound/T3DBound.h"
 #include "Bound/T3DFrustumBound.h"
@@ -18,16 +13,6 @@
 #include "Listener/T3DApplicationListener.h"
 #include "Listener/T3DFrameListener.h"
 
-#include "Math/T3DRect.h"
-#include "Math/T3DMath.h"
-#include "Math/T3DMatrix2.h"
-#include "Math/T3DMatrix3.h"
-#include "Math/T3DMatrix4.h"
-#include "Math/T3DQuaternion.h"
-#include "Math/T3DVector2.h"
-#include "Math/T3DVector3.h"
-#include "Math/T3DVector4.h"
-#include "Math/T3DPlane.h"
 
 #include "Misc/T3DEntrance.h"
 #include "Misc/T3DColor4.h"
