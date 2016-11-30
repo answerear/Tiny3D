@@ -2,6 +2,9 @@
 #include "mconv_ogreserializer.h"
 
 
+using namespace Tiny3D;
+
+
 namespace mconv
 {
     enum OgreMeshChundID
@@ -87,12 +90,146 @@ namespace mconv
 
     bool OgreSerializer::load(const String &path, void *&pData)
     {
+        OgreMesh *pMesh = new OgreMesh();
 
-        return false;
+        bool ret = false;
+
+        FileDataStream fs;
+
+        if (fs.open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        {
+            ret = readChunk(fs, *pMesh);
+            fs.close();
+        }
+
+        if (ret)
+        {
+            pData = pMesh;
+        }
+        else
+        {
+            delete pMesh;
+        }
+
+        return ret;
     }
 
     bool OgreSerializer::save(const String &path, void *pData)
     {
         return false;
+    }
+
+    bool OgreSerializer::readChunk(Tiny3D::DataStream &stream, OgreMesh &mesh)
+    {
+        return true;
+    }
+
+    bool OgreSerializer::readChunkData(Tiny3D::DataStream &stream, OgreChunkData &data)
+    {
+        return true;
+    }
+
+    size_t OgreSerializer::readBools(Tiny3D::DataStream &stream, OgreChunkData &data, bool *value, size_t count /* = 1 */)
+    {
+        size_t ret = stream.read(value, sizeof(bool)*count);
+        data.read += ret;
+        return ret;
+    }
+
+    size_t OgreSerializer::readBytes(Tiny3D::DataStream &stream, OgreChunkData &data, uint8_t *value, size_t count /* = 1 */)
+    {
+        size_t ret = stream.read(value, sizeof(uint8_t)*count);
+        data.read += ret;
+        return ret;
+    }
+
+    size_t OgreSerializer::readShorts(Tiny3D::DataStream &stream, OgreChunkData &data, uint16_t *value, size_t count /* = 1 */)
+    {
+        size_t ret = stream.read(value, sizeof(uint16_t)*count);
+        data.read += ret;
+        return ret;
+    }
+
+    size_t OgreSerializer::readInts(Tiny3D::DataStream &stream, OgreChunkData &data, uint32_t *value, size_t count /* = 1 */)
+    {
+        size_t ret = stream.read(value, sizeof(uint32_t)*count);
+        data.read += ret;
+        return ret;
+    }
+
+    size_t OgreSerializer::readFloats(Tiny3D::DataStream &stream, OgreChunkData &data, float *value, size_t count /* = 1 */)
+    {
+        size_t ret = stream.read(value, sizeof(float)*count);
+        data.read += ret;
+        return ret;
+    }
+
+    size_t OgreSerializer::readFloats(Tiny3D::DataStream &stream, OgreChunkData &data, double *value, size_t count /* = 1 */)
+    {
+        size_t ret = stream.read(value, sizeof(double)*count);
+        data.read += ret;
+        return ret;
+    }
+
+    size_t OgreSerializer::readObject(Tiny3D::DataStream &stream, OgreChunkData &data, Tiny3D::Vector3 &value)
+    {
+        size_t ret = 0;
+        ret += stream.read(&value[0], sizeof(float));
+        ret += stream.read(&value[1], sizeof(float));
+        ret += stream.read(&value[2], sizeof(float));
+        data.read += ret;
+        return ret;
+    }
+
+    size_t OgreSerializer::readObject(Tiny3D::DataStream &stream, OgreChunkData &data, Tiny3D::Quaternion &value)
+    {
+        size_t ret = 0;
+        ret += stream.read(&value[0], sizeof(float));
+        ret += stream.read(&value[1], sizeof(float));
+        ret += stream.read(&value[2], sizeof(float));
+        ret += stream.read(&value[3], sizeof(float));
+        data.read += ret;
+        return ret;
+    }
+
+    String OgreSerializer::readString(Tiny3D::DataStream &stream, OgreChunkData &data)
+    {
+        String s;
+        char c;
+        size_t numberOfRead = 0;
+
+        do
+        {
+            size_t bytes = stream.read(&c, sizeof(c));
+            if (c != '\n')
+                s.append(1, c);
+            numberOfRead += bytes;
+        }
+        while (!stream.eof() && c != '\n');
+
+        data.read += numberOfRead;
+        return s;
+    }
+
+    String OgreSerializer::readString(Tiny3D::DataStream &stream, OgreChunkData &data, size_t numChars)
+    {
+        String s;
+        char c;
+        size_t numberOfRead = 0;
+        size_t i = 0;
+        s.reserve(numChars+1);
+
+        do
+        {
+            size_t bytes = stream.read(&c, sizeof(c));
+            if (c != '\n')
+                s.append(1, c);
+            numberOfRead += bytes;
+            ++i;
+        }
+        while (!stream.eof() && c != '\n' && i < numChars);
+
+        data.read += numberOfRead;
+        return s;
     }
 }

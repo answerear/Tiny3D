@@ -6,6 +6,9 @@
 
 #include "mconv_serializer.h"
 
+#include <T3DVector3.h>
+#include <T3DQuaternion.h>
+
 
 namespace mconv
 {
@@ -19,19 +22,6 @@ namespace mconv
     {
         OgreChunkHeader     header;
         uint32_t            read;
-    };
-
-    struct OgreNode
-    {
-        enum Type
-        {
-            E_TYPE_NONE = 0,
-            E_TYPE_SCENE,
-            E_TYPE_MESH,
-            E_TYPE_SUBMESH,
-        };
-
-        virtual Type getType() const = 0;
     };
 
     struct OgreVertexElement
@@ -83,9 +73,21 @@ namespace mconv
         virtual bool save(const String &path, void *pData) override;
 
     protected:
-        bool readChunk(Tiny3D::DataStream &stream, );
-        bool readChunkData(Tiny3D::DataStream &stream, OgreChunkHeader &header);
+        bool readChunk(Tiny3D::DataStream &stream, OgreMesh &mesh);
+        bool readChunkData(Tiny3D::DataStream &stream, OgreChunkData &data);
         bool readMesh(Tiny3D::DataStream &stream, OgreMesh &mesh);
+
+        size_t readBools(Tiny3D::DataStream &stream, OgreChunkData &data, bool *value, size_t count = 1);
+        size_t readBytes(Tiny3D::DataStream &stream, OgreChunkData &data, uint8_t *value, size_t count = 1);
+        size_t readShorts(Tiny3D::DataStream &stream, OgreChunkData &data, uint16_t *value, size_t count = 1);
+        size_t readInts(Tiny3D::DataStream &stream, OgreChunkData &data, uint32_t *value, size_t count = 1);
+        size_t readFloats(Tiny3D::DataStream &stream, OgreChunkData &data, float *value, size_t count = 1);
+        size_t readFloats(Tiny3D::DataStream &stream, OgreChunkData &data, double *value, size_t count = 1);
+        size_t readObject(Tiny3D::DataStream &stream, OgreChunkData &data, Tiny3D::Vector3 &value);
+        size_t readObject(Tiny3D::DataStream &stream, OgreChunkData &data, Tiny3D::Quaternion &value);
+
+        String readString(Tiny3D::DataStream &stream, OgreChunkData &data);
+        String readString(Tiny3D::DataStream &stream, OgreChunkData &data, size_t numChars);
     };
 }
 
