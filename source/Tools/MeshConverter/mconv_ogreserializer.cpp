@@ -7,9 +7,15 @@ using namespace Tiny3D;
 
 namespace mconv
 {
+    #define OGRE_MESH_VERSION_130       "[MeshSerializer_v1.30]"
+    #define OGRE_MESH_VERSION_140       "[MeshSerializer_v1.40]"
+    #define OGRE_MESH_VERSION_141       "[MeshSerializer_v1.41]"
+
+
     enum OgreMeshChundID
     {
         OGRE_HEADER = 0x1000,
+        OGRE_OTHER_HEADER = 0x0010,
 
         //////////////////////////////////////////////////////////////////////////
         // Mesh
@@ -78,6 +84,7 @@ namespace mconv
         OGRE_SKELETON_ANIMATION_LINK = 0x5000,
     };
 
+
     OgreSerializer::OgreSerializer()
     {
 
@@ -90,7 +97,7 @@ namespace mconv
 
     bool OgreSerializer::load(const String &path, void *&pData)
     {
-        OgreMesh *pMesh = new OgreMesh();
+        OgreMesh *mesh = new OgreMesh();
 
         bool ret = false;
 
@@ -98,17 +105,56 @@ namespace mconv
 
         if (fs.open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
         {
-            ret = readChunk(fs, *pMesh);
+            size_t bytesOfRead = 0;
+            uint16_t id;
+
+            bool ret = true;
+
+            // 读取是否大小端交换标识
+            bytesOfRead = fs.read(&id, sizeof(id));
+
+            if (id == OGRE_HEADER)
+            {
+                mSwapEndian = false;
+                ret = true;
+            }
+            else if (id == OGRE_OTHER_HEADER)
+            {
+                mSwapEndian = true;
+                ret = true;
+            }
+            else
+            {
+                ret = false;
+            }
+
+            if (ret)
+            {
+                // 读取版本号
+                OgreChunkData data;
+                String version = readString(fs, data);
+
+                if (version != OGRE_MESH_VERSION_130 
+                    && version != OGRE_MESH_VERSION_140
+                    && version != OGRE_MESH_VERSION_141)
+                {
+                    ret = false;
+                }
+
+                ret = ret && readChunk(fs, *mesh);
+            }
+
             fs.close();
         }
 
         if (ret)
         {
-            pData = pMesh;
+            pData = mesh;
         }
         else
         {
-            delete pMesh;
+            delete mesh;
+            pData = nullptr;
         }
 
         return ret;
@@ -121,12 +167,78 @@ namespace mconv
 
     bool OgreSerializer::readChunk(Tiny3D::DataStream &stream, OgreMesh &mesh)
     {
-        return true;
+        bool ret = true;
+
+        while (!stream.eof())
+        {
+            OgreChunkData data;
+            readChunkData(stream, data);
+
+            switch (data.header.id)
+            {
+            case OGRE_MESH:
+                {
+                    ret = ret && readMesh(stream, data, mesh);
+                }
+                break;
+            }
+        }
+
+        return ret;
     }
 
     bool OgreSerializer::readChunkData(Tiny3D::DataStream &stream, OgreChunkData &data)
     {
-        return true;
+        bool ret = true;
+
+        size_t bytesOfRead = readShorts(stream, data, &data.header.id);
+        ret = ret && (bytesOfRead == sizeof(uint16_t));
+        bytesOfRead = readInts(stream, data, &data.header.length);
+        ret = ret && (bytesOfRead == sizeof(uint32_t));
+
+        return ret;
+    }
+
+    bool OgreSerializer::readMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh)
+    {
+        bool ret = true;
+        size_t bytesOfRead = readBools(stream, parent, &mesh.hasSkeleton);
+
+        ret = (bytesOfRead == sizeof(bool));
+
+        while (ret && parent.read < parent.header.length && !stream.eof())
+        {
+            OgreChunkData data;
+            ret = readChunkData(stream, data);
+
+            switch (data.header.id)
+            {
+            case OGRE_SUBMESH:
+                break;
+            case OGRE_GEOMETRY:
+                break;
+            case OGRE_MESH_SKELETON_LINK:
+                break;
+            case OGRE_MESH_BOUNDS:
+                break;
+            case OGRE_MESH_BONE_ASSIGNMENT:
+                break;
+            case OGRE_MESH_LOD:
+                break;
+            case OGRE_SUBMESH_NAME_TABLE:
+                break;
+            case OGRE_EDGE_LISTS:
+                break;
+            case OGRE_POSES:
+                break;
+            case OGRE_ANIMATIONS:
+                break;
+            case OGRE_TABLE_EXTREMES:
+                break;
+            }
+        }
+
+        return ret;
     }
 
     size_t OgreSerializer::readBools(Tiny3D::DataStream &stream, OgreChunkData &data, bool *value, size_t count /* = 1 */)
@@ -146,6 +258,10 @@ namespace mconv
     size_t OgreSerializer::readShorts(Tiny3D::DataStream &stream, OgreChunkData &data, uint16_t *value, size_t count /* = 1 */)
     {
         size_t ret = stream.read(value, sizeof(uint16_t)*count);
+        if (mSwapEndian)
+        {
+            swapEndian(value, sizeof(uint16_t), count);
+        }
         data.read += ret;
         return ret;
     }
@@ -153,6 +269,10 @@ namespace mconv
     size_t OgreSerializer::readInts(Tiny3D::DataStream &stream, OgreChunkData &data, uint32_t *value, size_t count /* = 1 */)
     {
         size_t ret = stream.read(value, sizeof(uint32_t)*count);
+        if (mSwapEndian)
+        {
+            swapEndian(value, sizeof(uint32_t), count);
+        }
         data.read += ret;
         return ret;
     }
@@ -160,34 +280,54 @@ namespace mconv
     size_t OgreSerializer::readFloats(Tiny3D::DataStream &stream, OgreChunkData &data, float *value, size_t count /* = 1 */)
     {
         size_t ret = stream.read(value, sizeof(float)*count);
+        if (mSwapEndian)
+        {
+            swapEndian(value, sizeof(float), count);
+        }
         data.read += ret;
         return ret;
     }
 
     size_t OgreSerializer::readFloats(Tiny3D::DataStream &stream, OgreChunkData &data, double *value, size_t count /* = 1 */)
     {
-        size_t ret = stream.read(value, sizeof(double)*count);
+        float *tmp = new float[count];
+        size_t ret = stream.read(tmp, sizeof(float)*count);
+        float *ptmp = tmp;
+
+        if (mSwapEndian)
+        {
+            swapEndian(tmp, sizeof(float), count);
+        }
+
+        while (count--)
+        {
+            *value++ = *ptmp++;
+        }
+
         data.read += ret;
+        delete []tmp;
         return ret;
     }
 
     size_t OgreSerializer::readObject(Tiny3D::DataStream &stream, OgreChunkData &data, Tiny3D::Vector3 &value)
     {
-        size_t ret = 0;
-        ret += stream.read(&value[0], sizeof(float));
-        ret += stream.read(&value[1], sizeof(float));
-        ret += stream.read(&value[2], sizeof(float));
+        float tmp[3];
+        size_t ret = readFloats(stream, data, tmp, 3);
+        value[0] = tmp[0];
+        value[1] = tmp[1];
+        value[2] = tmp[2];
         data.read += ret;
         return ret;
     }
 
     size_t OgreSerializer::readObject(Tiny3D::DataStream &stream, OgreChunkData &data, Tiny3D::Quaternion &value)
     {
-        size_t ret = 0;
-        ret += stream.read(&value[0], sizeof(float));
-        ret += stream.read(&value[1], sizeof(float));
-        ret += stream.read(&value[2], sizeof(float));
-        ret += stream.read(&value[3], sizeof(float));
+        float tmp[4];
+        size_t ret = readFloats(stream, data, tmp, 4);
+        value[0] = tmp[0];
+        value[1] = tmp[1];
+        value[2] = tmp[2];
+        value[3] = tmp[3];
         data.read += ret;
         return ret;
     }
@@ -231,5 +371,26 @@ namespace mconv
 
         data.read += numberOfRead;
         return s;
+    }
+
+    void OgreSerializer::swapEndian(void *data, size_t size, size_t count)
+    {
+        size_t i = 0;
+        for (i = 0; i < count; ++i)
+        {
+            swapEndian((void *)((long)data + (i * size)), size);
+        }
+    }
+
+    void OgreSerializer::swapEndian(void *data, size_t size)
+    {
+        char swapByte;
+        size_t i = 0;
+        for (i = 0; i < size / 2; ++i)
+        {
+            swapByte = *(char *)((long)data + i);
+            *(char *)((long)data + i) = *(char *)((long)data + size - i - 1);
+            *(char *)((long)data + size - i - 1) = swapByte;
+        }
     }
 }

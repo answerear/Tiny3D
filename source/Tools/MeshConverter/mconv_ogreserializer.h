@@ -22,6 +22,13 @@ namespace mconv
     {
         OgreChunkHeader     header;
         uint32_t            read;
+
+        OgreChunkData()
+        {
+            header.id = 0;
+            header.length = 0;
+            read = 0;
+        }
     };
 
     struct OgreVertexElement
@@ -75,7 +82,7 @@ namespace mconv
     protected:
         bool readChunk(Tiny3D::DataStream &stream, OgreMesh &mesh);
         bool readChunkData(Tiny3D::DataStream &stream, OgreChunkData &data);
-        bool readMesh(Tiny3D::DataStream &stream, OgreMesh &mesh);
+        bool readMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh);
 
         size_t readBools(Tiny3D::DataStream &stream, OgreChunkData &data, bool *value, size_t count = 1);
         size_t readBytes(Tiny3D::DataStream &stream, OgreChunkData &data, uint8_t *value, size_t count = 1);
@@ -88,6 +95,11 @@ namespace mconv
 
         String readString(Tiny3D::DataStream &stream, OgreChunkData &data);
         String readString(Tiny3D::DataStream &stream, OgreChunkData &data, size_t numChars);
+
+        void swapEndian(void *data, size_t size, size_t count);
+        void swapEndian(void *data, size_t size);
+
+        bool    mSwapEndian;
     };
 }
 
