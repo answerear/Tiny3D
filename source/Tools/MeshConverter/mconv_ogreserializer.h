@@ -49,6 +49,7 @@ namespace mconv
 
     struct OgreGeometry
     {
+        uint32_t                        vertexCount;
         std::vector<OgreVertexElement>  elements;
         std::vector<OgreVertexBuffer>   buffers;
     };
@@ -83,6 +84,10 @@ namespace mconv
         bool readChunk(Tiny3D::DataStream &stream, OgreMesh &mesh);
         bool readChunkData(Tiny3D::DataStream &stream, OgreChunkData &data);
         bool readMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh);
+        bool readSubMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh);
+        bool readGeometry(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh);
+        bool readGeometryVertexDeclaration(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreGeometry &geometry);
+        bool readGeometryVertexBuffer(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreGeometry &geometry);
 
         size_t readBools(Tiny3D::DataStream &stream, OgreChunkData &data, bool *value, size_t count = 1);
         size_t readBytes(Tiny3D::DataStream &stream, OgreChunkData &data, uint8_t *value, size_t count = 1);

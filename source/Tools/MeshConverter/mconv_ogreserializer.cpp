@@ -196,6 +196,11 @@ namespace mconv
         bytesOfRead = readInts(stream, data, &data.header.length);
         ret = ret && (bytesOfRead == sizeof(uint32_t));
 
+        if (ret)
+        {
+            data.read += sizeof(OgreChunkHeader);
+        }
+
         return ret;
     }
 
@@ -204,7 +209,7 @@ namespace mconv
         bool ret = true;
         size_t bytesOfRead = readBools(stream, parent, &mesh.hasSkeleton);
 
-        ret = (bytesOfRead == sizeof(bool));
+        ret = (bytesOfRead == sizeof(mesh.hasSkeleton));
 
         while (ret && parent.read < parent.header.length && !stream.eof())
         {
@@ -214,10 +219,19 @@ namespace mconv
             switch (data.header.id)
             {
             case OGRE_SUBMESH:
+                {
+                    ret = ret && readSubMesh(stream, data, mesh);
+                }
                 break;
             case OGRE_GEOMETRY:
+                {
+                    ret = ret && readGeometry(stream, data, mesh);
+                }
                 break;
             case OGRE_MESH_SKELETON_LINK:
+                {
+
+                }
                 break;
             case OGRE_MESH_BOUNDS:
                 break;
@@ -235,8 +249,107 @@ namespace mconv
                 break;
             case OGRE_TABLE_EXTREMES:
                 break;
+            default:
+                {
+                    // 跳过不需要解析的chunk
+                    stream.seek(data.header.length - data.read);
+                    data.read += (data.header.length - data.read);
+                }
+                break;
             }
         }
+
+        return ret;
+    }
+
+    bool OgreSerializer::readGeometry(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh)
+    {
+        bool ret = true;
+
+        size_t bytesOfRead = readInts(stream, parent, &mesh.geometry.vertexCount);
+        ret = (bytesOfRead == sizeof(mesh.geometry.vertexCount));
+
+        while (ret && parent.read < parent.header.length && !stream.eof())
+        {
+            OgreChunkData data;
+            ret = readChunkData(stream, data);
+
+            switch (data.header.id)
+            {
+            case OGRE_GEOMETRY_VERTEX_DECLARATION:
+                {
+                    ret = ret && readGeometryVertexDeclaration(stream, data, mesh.geometry);
+                }
+                break;
+            case OGRE_GEOMETRY_VERTEX_BUFFER:
+                {
+                    ret = ret && readGeometryVertexBuffer(stream, data, mesh.geometry);
+                }
+                break;
+            default:
+                {
+                    // 跳过不需要解析的chunk
+                    stream.seek(data.header.length - data.read);
+                    data.read += (data.header.length - data.read);
+                }
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    bool OgreSerializer::readGeometryVertexDeclaration(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreGeometry &geometry)
+    {
+        bool ret = true;
+        size_t bytesOfRead = 0;
+
+        while (ret && parent.read < parent.header.length && !stream.eof())
+        {
+            OgreChunkData data;
+            ret = readChunkData(stream, data);
+
+            switch (data.header.id)
+            {
+            case OGRE_GEOMETRY_VERTEX_ELEMENT:
+                {
+                    geometry.elements.push_back(OgreVertexElement());
+                    OgreVertexElement &element = geometry.elements.back();
+                    bytesOfRead = readShorts(stream, data, &element.source);
+                    ret = (ret && (bytesOfRead == sizeof(element.source)));
+                    bytesOfRead = readShorts(stream, data, &element.type);
+                    ret = (ret && (bytesOfRead == sizeof(element.type)));
+                    bytesOfRead = readShorts(stream, data, &element.semantic);
+                    ret = (ret && (bytesOfRead == sizeof(element.semantic)));
+                    bytesOfRead = readShorts(stream, data, &element.offset);
+                    ret = (ret && (bytesOfRead == sizeof(element.offset)));
+                    bytesOfRead = readShorts(stream, data, &element.index);
+                    ret = (ret && (bytesOfRead == sizeof(element.index)));
+                }
+                break;
+            default:
+                {
+                    // 跳过不需要解析的chunk
+                    stream.seek(data.header.length - data.read);
+                    data.read += (data.header.length - data.read);
+                }
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    bool OgreSerializer::readGeometryVertexBuffer(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreGeometry &geometry)
+    {
+        bool ret = true;
+
+        return ret;
+    }
+
+    bool OgreSerializer::readSubMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh)
+    {
+        bool ret = true;
 
         return ret;
     }
