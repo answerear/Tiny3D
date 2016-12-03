@@ -58,7 +58,7 @@ namespace mconv
     {
         std::string             materialName;
         bool                    hasSharedVertices;
-        std::vector<int32_t>    indices;
+        std::vector<uint32_t>   indices;
         bool                    indices32Bit;
         OgreGeometry            geometry;
         uint16_t                operation;
@@ -84,7 +84,7 @@ namespace mconv
         bool readChunk(Tiny3D::DataStream &stream, OgreMesh &mesh);
         bool readChunkData(Tiny3D::DataStream &stream, OgreChunkData &data);
         bool readMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh);
-        bool readSubMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh);
+        bool readSubMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh);
         bool readGeometry(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh);
         bool readGeometryVertexDeclaration(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreGeometry &geometry);
         bool readGeometryVertexBuffer(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreGeometry &geometry);

@@ -220,7 +220,8 @@ namespace mconv
             {
             case OGRE_SUBMESH:
                 {
-                    ret = ret && readSubMesh(stream, data, mesh);
+                    mesh.submeshes.push_back(OgreSubMesh());
+                    ret = ret && readSubMesh(stream, data, mesh.submeshes.back());
                 }
                 break;
             case OGRE_GEOMETRY:
@@ -344,12 +345,48 @@ namespace mconv
     {
         bool ret = true;
 
+        geometry.buffers.push_back(OgreVertexBuffer());
+        OgreVertexBuffer &vertexBuffer = geometry.buffers.back();
+
+        size_t bytesOfRead = readShorts(stream, parent, &vertexBuffer.bindIndex);
+        ret = ret && (bytesOfRead == sizeof(vertexBuffer.bindIndex));
+
+        bytesOfRead = readShorts(stream, parent, &vertexBuffer.vertexSize);
+        ret = ret && (bytesOfRead == sizeof(vertexBuffer.vertexSize));
+
+        OgreChunkData data;
+        ret = ret && readChunkData(stream, data);
+
+        if (data.header.id == OGRE_GEOMETRY_VERTEX_BUFFER_DATA)
+        {
+            vertexBuffer.vertices.resize(vertexBuffer.vertexSize * geometry.vertexCount);
+            ret = ret && readFloats(stream, data, &(*(vertexBuffer.vertices.begin())), geometry.vertexCount * vertexBuffer.vertexSize);
+        }
+
         return ret;
     }
 
-    bool OgreSerializer::readSubMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh)
+    bool OgreSerializer::readSubMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh)
     {
         bool ret = true;
+
+        submesh.materialName = readString(stream, parent);
+        size_t bytesOfRead = readBools(stream, parent, &submesh.hasSharedVertices);
+        ret = ret && (bytesOfRead == sizeof(submesh.hasSharedVertices));
+
+        uint32_t indexCount = 0;
+        ret = ret && readInts(stream, parent, &indexCount);
+        submesh.indices.resize(indexCount);
+        ret = ret && readBools(stream, parent, &submesh.indices32Bit);
+
+        if (submesh.indices32Bit)
+        {
+            ret = ret && readInts(stream, parent, &(*submesh.indices.begin()), indexCount);
+        }
+        else
+        {
+
+        }
 
         return ret;
     }
