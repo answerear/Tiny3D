@@ -31,6 +31,22 @@ namespace mconv
         }
     };
 
+    struct OgreTextureAlias
+    {
+        OgreTextureAlias()  {}
+        OgreTextureAlias(const String &texture, const String &alias) : textureName(texture), aliasName(alias)   {}
+
+        String  textureName;
+        String  aliasName;
+    };
+
+    struct OgreBoneAssignment
+    {
+        uint32_t    vertexID;
+        uint16_t    boneID;
+        float       weight;
+    };
+
     struct OgreVertexElement
     {
         uint16_t    source;
@@ -56,12 +72,14 @@ namespace mconv
 
     struct OgreSubMesh
     {
-        std::string             materialName;
-        bool                    hasSharedVertices;
-        std::vector<uint32_t>   indices;
-        bool                    indices32Bit;
-        OgreGeometry            geometry;
-        uint16_t                operation;
+        std::string                     materialName;
+        bool                            hasSharedVertices;
+        std::vector<uint32_t>           indices;
+        bool                            indices32Bit;
+        OgreGeometry                    geometry;
+        uint16_t                        operation;
+        std::vector<OgreTextureAlias>   textureAliases;
+        std::vector<OgreBoneAssignment> boneAssignments;
     };
 
     struct OgreMesh
@@ -83,11 +101,16 @@ namespace mconv
     protected:
         bool readChunk(Tiny3D::DataStream &stream, OgreMesh &mesh);
         bool readChunkData(Tiny3D::DataStream &stream, OgreChunkData &data);
+
         bool readMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh);
-        bool readSubMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh);
-        bool readGeometry(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh);
+        bool readGeometry(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreGeometry &geometry);
         bool readGeometryVertexDeclaration(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreGeometry &geometry);
         bool readGeometryVertexBuffer(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreGeometry &geometry);
+
+        bool readSubMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh);
+        bool readSubMeshOperation(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh);
+        bool readSubMeshTextureAlias(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh);
+        bool readSubMeshBoneAssignment(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh);
 
         size_t readBools(Tiny3D::DataStream &stream, OgreChunkData &data, bool *value, size_t count = 1);
         size_t readBytes(Tiny3D::DataStream &stream, OgreChunkData &data, uint8_t *value, size_t count = 1);

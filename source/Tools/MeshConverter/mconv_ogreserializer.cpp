@@ -226,7 +226,7 @@ namespace mconv
                 break;
             case OGRE_GEOMETRY:
                 {
-                    ret = ret && readGeometry(stream, data, mesh);
+                    ret = ret && readGeometry(stream, data, mesh.geometry);
                 }
                 break;
             case OGRE_MESH_SKELETON_LINK:
@@ -263,12 +263,12 @@ namespace mconv
         return ret;
     }
 
-    bool OgreSerializer::readGeometry(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh)
+    bool OgreSerializer::readGeometry(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreGeometry &geometry)
     {
         bool ret = true;
 
-        size_t bytesOfRead = readInts(stream, parent, &mesh.geometry.vertexCount);
-        ret = (bytesOfRead == sizeof(mesh.geometry.vertexCount));
+        size_t bytesOfRead = readInts(stream, parent, &geometry.vertexCount);
+        ret = (bytesOfRead == sizeof(geometry.vertexCount));
 
         while (ret && parent.read < parent.header.length && !stream.eof())
         {
@@ -279,12 +279,12 @@ namespace mconv
             {
             case OGRE_GEOMETRY_VERTEX_DECLARATION:
                 {
-                    ret = ret && readGeometryVertexDeclaration(stream, data, mesh.geometry);
+                    ret = ret && readGeometryVertexDeclaration(stream, data, geometry);
                 }
                 break;
             case OGRE_GEOMETRY_VERTEX_BUFFER:
                 {
-                    ret = ret && readGeometryVertexBuffer(stream, data, mesh.geometry);
+                    ret = ret && readGeometryVertexBuffer(stream, data, geometry);
                 }
                 break;
             default:
@@ -385,8 +385,79 @@ namespace mconv
         }
         else
         {
+            size_t i = 0;
 
+            for (i = 0; i < indexCount; ++i)
+            {
+                uint16_t value;
+                bytesOfRead = ret && readShorts(stream, parent, &value);
+                submesh.indices[i] = value;
+            }
         }
+
+        while (ret && parent.read < parent.header.length && !stream.eof())
+        {
+            OgreChunkData data;
+            ret = readChunkData(stream, data);
+
+            switch (data.header.id)
+            {
+            case OGRE_GEOMETRY:
+                {
+                    ret = ret && readGeometry(stream, data, submesh.geometry);
+                }
+                break;
+            case OGRE_SUBMESH_OPERATION:
+                {
+                    ret = ret && readSubMeshOperation(stream, data, submesh);
+                }
+                break;
+            case OGRE_SUBMESH_TEXTURE_ALIAS:
+                {
+                    ret = ret && readSubMeshTextureAlias(stream, data, submesh);
+                }
+                break;
+            case OGRE_SUBMESH_BONE_ASSIGNMENT:
+                break;
+            default:
+                {
+                    // 跳过不需要解析的chunk
+                    stream.seek(data.header.length - data.read);
+                    data.read += (data.header.length - data.read);
+                }
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    bool OgreSerializer::readSubMeshOperation(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh)
+    {
+        size_t bytesOfRead = readShorts(stream, parent, &submesh.operation);
+        return (bytesOfRead == sizeof(submesh.operation));
+    }
+
+    bool OgreSerializer::readSubMeshTextureAlias(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh)
+    {
+        String aliasName = readString(stream, parent);
+        String textureName = readString(stream, parent);
+        submesh.textureAliases.push_back(OgreTextureAlias(textureName, aliasName));
+        return true;
+    }
+
+    bool OgreSerializer::readSubMeshBoneAssignment(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh)
+    {
+        bool ret = true;
+        uint32_t vertexID;
+        size_t bytesOfRead = readInts(stream, parent, &vertexID);
+        ret = ret && (bytesOfRead == sizeof(vertexID));
+        uint16_t boneID;
+        bytesOfRead = readShorts(stream, parent, &boneID);
+        ret = ret && (bytesOfRead == sizeof(boneID));
+        float weight;
+        bytesOfRead = readFloats(stream, parent, &weight);
+        ret = ret && (bytesOfRead == sizeof(weight));
 
         return ret;
     }
