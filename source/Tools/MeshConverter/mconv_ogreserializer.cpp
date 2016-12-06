@@ -418,6 +418,9 @@ namespace mconv
                 }
                 break;
             case OGRE_SUBMESH_BONE_ASSIGNMENT:
+                {
+                    ret = ret && readSubMeshBoneAssignment(stream, data, submesh);
+                }
                 break;
             default:
                 {
