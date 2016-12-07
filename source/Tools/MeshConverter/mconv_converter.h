@@ -10,6 +10,7 @@
 namespace mconv
 {
     class ConverterImpl;
+    class Serializer;
 
     class Converter
     {
@@ -29,10 +30,19 @@ namespace mconv
         ConverterImpl(const Settings &settings);
         virtual ~ConverterImpl();
 
-        virtual bool convert() = 0;
+        virtual bool convert();
+
+    protected:
+        virtual bool importScene() = 0;
+        virtual bool convertToT3D() = 0;
+        virtual bool exportScene() = 0;
+        virtual void cleanup() = 0;
 
     protected:
         const Settings    &mSettings;
+
+        Serializer  *mImporter;
+        Serializer  *mExporter;
     };
 }
 

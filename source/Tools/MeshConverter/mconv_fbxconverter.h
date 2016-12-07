@@ -26,13 +26,12 @@ namespace mconv
         FBXConverter(const Settings &settings);
         virtual ~FBXConverter();
 
-        virtual bool convert() override;
-
     protected:
-        bool importScene();
-        bool exportScene();
+        virtual bool importScene() override;
+        virtual bool exportScene() override;
+        virtual bool convertToT3D() override;
+        virtual void cleanup() override;
 
-        bool convertToT3D();
 
         bool processFbxScene(FbxScene *pFbxScene, Node *pRoot);
         bool processFbxNode(FbxNode *pFbxNode, Node *pParent);
@@ -81,8 +80,6 @@ namespace mconv
         String FbxWrapModeToString(FbxTexture::EWrapMode eWrapMode) const;
 
         bool searchMaterial(const String &name, Material *&pMaterial);
-
-        void cleanup();
 
         struct SceneInfo
         {

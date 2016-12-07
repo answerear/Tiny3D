@@ -5,6 +5,7 @@
 #include "mconv_settings.h"
 #include "mconv_fbxconverter.h"
 #include "mconv_ogreconverter.h"
+#include "mconv_serializer.h"
 
 
 namespace mconv
@@ -36,6 +37,7 @@ namespace mconv
             switch (settings.mSrcType)
             {
             case E_FILETYPE_FBX:
+            case E_FILETYPE_DAE:
                 {
                     converter = new FBXConverter(settings);
                 }
@@ -60,12 +62,31 @@ namespace mconv
 
     ConverterImpl::ConverterImpl(const Settings &settings)
         : mSettings(settings)
+        , mImporter(nullptr)
+        , mExporter(nullptr)
     {
 
     }
 
     ConverterImpl::~ConverterImpl()
     {
+        delete mImporter;
+        mImporter = nullptr;
 
+        delete mExporter;
+        mExporter = nullptr;
+    }
+
+    bool ConverterImpl::convert()
+    {
+        bool ret = true;
+
+        ret = ret && importScene();
+        ret = ret && convertToT3D();
+        ret = ret && exportScene();
+
+        cleanup();
+
+        return ret;
     }
 }

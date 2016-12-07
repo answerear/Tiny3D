@@ -52,21 +52,10 @@ namespace mconv
         mExporter = nullptr;
     }
 
-    bool FBXConverter::convert()
-    {
-        bool result = true;
-
-        result = result && importScene();
-        result = result && convertToT3D();
-        result = result && exportScene();
-
-        cleanup();
-
-        return result;
-    }
-
     bool FBXConverter::importScene()
     {
+        bool result = false;
+
         delete mImporter;
         mImporter = nullptr;
 
@@ -74,18 +63,15 @@ namespace mconv
             || (mSettings.mSrcType & E_FILETYPE_DAE))
         {
             mImporter = new FbxSerializer();
+            result = (mImporter != nullptr);
         }
         else
         {
             T3D_LOG_ERROR("Create importer failed ! Because of invalid source file format !");
+            result = false;
         }
 
-        bool result = false;
-
-        if (mImporter != nullptr)
-        {
-            result = mImporter->load(mSettings.mSrcPath, mSrcData);
-        }
+        result = result && mImporter->load(mSettings.mSrcPath, mSrcData);
 
         return result;
     }
@@ -161,6 +147,19 @@ namespace mconv
         processFbxScene(pFbxScene, pScene);
 
         return true;
+    }
+
+    void FBXConverter::cleanup()
+    {
+        //         Node *pNode = (Node *)mDstData;
+        auto itr = mSceneList.begin();
+        while (itr != mSceneList.end())
+        {
+            const SceneInfo &info = *itr;
+            Node *pNode = (Node *)info.mRoot;
+            pNode->removeAllChildren();
+            ++itr;
+        }
     }
 
     bool FBXConverter::processFbxScene(FbxScene *pFbxScene, Node *pRoot)
@@ -1952,18 +1951,5 @@ namespace mconv
         pBound->mMaxZ = fMaxZ;
 
         return true;
-    }
-
-    void FBXConverter::cleanup()
-    {
-//         Node *pNode = (Node *)mDstData;
-        auto itr = mSceneList.begin();
-        while (itr != mSceneList.end())
-        {
-            const SceneInfo &info = *itr;
-            Node *pNode = (Node *)info.mRoot;
-            pNode->removeAllChildren();
-            ++itr;
-        }
     }
 }

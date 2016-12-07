@@ -295,6 +295,8 @@ namespace mconv
                 }
                 break;
             }
+
+            parent.read += data.read;
         }
 
         return ret;
@@ -336,6 +338,8 @@ namespace mconv
                 }
                 break;
             }
+
+            parent.read += data.read;
         }
 
         return ret;
