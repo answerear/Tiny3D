@@ -61,7 +61,7 @@ namespace Tiny3D
          * @param [in] nSize : 数据缓冲区大小
          * @return 读取到的数据大小
          */
-        size_t read(void *pBuffer, size_t nSize);
+        virtual size_t read(void *pBuffer, size_t nSize) override;
 
         /**
          * @brief 写入内存数据流.
@@ -69,32 +69,32 @@ namespace Tiny3D
          * @param [in] nSize : 数据缓冲区大小
          * @return 写入数据大小
          */
-        size_t write(void *pBuffer, size_t nSize);
+        virtual size_t write(void *pBuffer, size_t nSize) override;
 
         /**
          * @brief 设置内存数据流读写偏移位置.
          * @param [in] unPos : 偏移位置
          * @return void
          */
-        void seek(long_t lPos);
+        virtual void seek(long_t lPos, bool relative) override;
 
         /**
          * @brief 获取当前内存数据流读写偏移位置.
          * @return 返回读写偏移位置
          */
-        long_t tell() const;
+        virtual long_t tell() const override;
 
         /**
          * @brief 获取内存数据流大小.
          * @return 返回内存数据流大小
          */
-        long_t size() const;
+        virtual long_t size() const override;
 
         /**
          * @brief 是否到达内存数据流末尾.
          * @return 到达末尾返回true，否则返回false.
          */
-        bool eof() const;
+        virtual bool eof() const override;
 
         void setBuffer(uint8_t *buffer, size_t bufSize, bool reallocate = true);
 

@@ -31,7 +31,7 @@ namespace Tiny3D
 
     MemoryDataStream::MemoryDataStream(size_t unSize)
         : m_pBuffer(nullptr)
-        , m_lSize(0)
+        , m_lSize(unSize)
         , m_lCurPos(0)
         , m_bCreated(true)
     {
@@ -75,9 +75,16 @@ namespace Tiny3D
         return lBytesOfWritten;
     }
 
-    void MemoryDataStream::seek(long_t lPos)
+    void MemoryDataStream::seek(long_t lPos, bool relative)
     {
-        m_lCurPos = lPos;
+        if (relative)
+        {
+            m_lCurPos += lPos;
+        }
+        else
+        {
+            m_lCurPos = lPos;
+        }
     }
 
     long_t MemoryDataStream::tell() const

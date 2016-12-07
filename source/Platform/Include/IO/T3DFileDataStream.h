@@ -66,7 +66,7 @@ namespace Tiny3D
          * @param [in] nSize : 数据缓冲区大小
          * @return 读取到的数据大小.
          */
-        size_t read(void *pBuffer, size_t nSize);
+        virtual size_t read(void *pBuffer, size_t nSize) override;
 
         /**
          * @brief 写入文件流.
@@ -74,7 +74,7 @@ namespace Tiny3D
          * @param [in] nSize : 数据缓冲区大小
          * @return 写入的数据大小
          */
-        size_t write(void *pBuffer, size_t nSize);
+        virtual size_t write(void *pBuffer, size_t nSize) override;
 
         /**
          * @brief 把文件缓存在内存的内容全部强制写到文件中
@@ -86,25 +86,25 @@ namespace Tiny3D
          * @param [in] llPos : 偏移位置
          * @return void
          */
-        void seek(long_t lPos);
+        virtual void seek(long_t lPos, bool relative) override;
 
         /**
          * @brief 获取当前文件流当前读写位置.
          * @return 返回文件流当前读写位置
          */
-        long_t tell() const;
+        virtual long_t tell() const override;
 
         /**
          * @brief 获取文件大小.
          * @return 返回文件大小
          */
-        long_t size() const;
+        virtual long_t size() const override;
 
         /**
          * @brief 获取是否到文件流末尾.
          * @return 已到文件流末尾
          */
-        bool eof() const;
+        virtual bool eof() const override;
 
         bool isOpened() const   { return m_bIsOpened; }
 
