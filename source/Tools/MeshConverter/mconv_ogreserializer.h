@@ -12,11 +12,13 @@
 
 namespace mconv
 {
+#pragma pack(push, 1)
     struct OgreChunkHeader
     {
         uint16_t    id;
         uint32_t    length;
     };
+#pragma pack(pop)
 
     struct OgreChunkData
     {

@@ -256,8 +256,13 @@ namespace mconv
                 break;
             }
 
+            size_t s = stream.size();
+            size_t pos = stream.tell();
+
             parent.read += data.read;
         }
+
+//         T3D_ASSERT(parent.read == parent.header.length);
 
         return ret;
     }
@@ -343,6 +348,8 @@ namespace mconv
             parent.read += data.read;
         }
 
+        T3D_ASSERT(parent.read == parent.header.length);
+
         return ret;
     }
 
@@ -369,6 +376,8 @@ namespace mconv
             ret = ret && readFloats(stream, data, &(*(vertexBuffer.vertices.begin())), geometry.vertexCount * vertexBuffer.vertexSize);
             parent.read += data.read;
         }
+
+        T3D_ASSERT(data.read == data.header.length);
 
         return ret;
     }
@@ -432,15 +441,17 @@ namespace mconv
             default:
                 {
                     // 跳过不需要解析的chunk
-                    size_t offset = data.header.length - data.read;
-                    stream.seek(offset, true);
-                    data.read += offset;
+                    parent.read -= data.read;
+                    stream.seek(-data.read, true);
+                    return true;
                 }
                 break;
             }
 
             parent.read += data.read;
         }
+
+        T3D_ASSERT(parent.read = parent.header.length);
 
         return ret;
     }
