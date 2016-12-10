@@ -169,7 +169,6 @@ namespace mconv
     {
         bool ret = true;
 
-        size_t s = stream.size();
         while (!stream.eof())
         {
             OgreChunkData data;
@@ -180,6 +179,14 @@ namespace mconv
             case OGRE_MESH:
                 {
                     ret = ret && readMesh(stream, data, mesh);
+                }
+                break;
+            default:
+                {
+                    T3D_ASSERT(data.header.id != 0);
+                    size_t offset = data.header.length - data.read;
+                    stream.seek(offset, true);
+                    data.read += offset;
                 }
                 break;
             }
@@ -301,8 +308,12 @@ namespace mconv
                 break;
             }
 
+            T3D_ASSERT(data.read == data.header.length);
+
             parent.read += data.read;
         }
+
+        T3D_ASSERT(parent.read == parent.header.length);
 
         return ret;
     }
@@ -344,6 +355,8 @@ namespace mconv
                 }
                 break;
             }
+
+            T3D_ASSERT(data.read == data.header.length);
 
             parent.read += data.read;
         }
@@ -440,13 +453,14 @@ namespace mconv
                 break;
             default:
                 {
-                    // 跳过不需要解析的chunk
-                    parent.read -= data.read;
+                    // 不是自己负责解析的chunk，返回跳出，交给外面来解析处理
                     stream.seek(-data.read, true);
                     return true;
                 }
                 break;
             }
+
+            T3D_ASSERT(data.read == data.header.length);
 
             parent.read += data.read;
         }

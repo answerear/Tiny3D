@@ -175,7 +175,7 @@ namespace Tiny3D
         {
             uint32_t unPos = ftell(m_pFileHandle);
             uint32_t unSize = size();
-            bEnd = (unPos == unSize - 1);
+            bEnd = (unPos == unSize);
         }
 
         return bEnd;
