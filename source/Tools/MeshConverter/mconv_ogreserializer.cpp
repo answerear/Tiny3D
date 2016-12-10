@@ -214,7 +214,7 @@ namespace mconv
 
         ret = (bytesOfRead == sizeof(mesh.hasSkeleton));
 
-        while (ret && parent.read < parent.header.length && !stream.eof())
+        while (ret && !stream.eof())
         {
             OgreChunkData data;
             ret = readChunkData(stream, data);
