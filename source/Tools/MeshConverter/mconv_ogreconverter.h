@@ -10,6 +10,9 @@
 namespace mconv
 {
     class Serializer;
+    class Node;
+
+    struct OgreMesh;
 
     class OgreConverter : public ConverterImpl
     {
@@ -22,6 +25,8 @@ namespace mconv
         virtual bool convertToT3D() override;
         virtual bool exportScene() override;
         virtual void cleanup() override;
+
+        bool processOgreMesh(OgreMesh *pOgreMesh, Node *pRoot);
 
     protected:
         void    *mSrcData;

@@ -90,9 +90,21 @@ namespace mconv
 
     bool OgreConverter::convertToT3D()
     {
+        if (mSrcData == nullptr)
+        {
+            T3D_LOG_ERROR("Convert to T3D failed ! Because of invalid source data !");
+            return false;
+        }
+
         bool result = true;
 
         OgreMesh *pOgreMesh = (OgreMesh *)mSrcData;
+
+        String name = "Scene";
+
+        Scene *pScene = new Scene(name);
+        
+        result = processOgreMesh(pOgreMesh, pScene);
 
         return result;
     }
@@ -103,5 +115,25 @@ namespace mconv
 
         delete pOgreMesh;
         mSrcData = nullptr;
+    }
+
+    bool OgreConverter::processOgreMesh(OgreMesh *pOgreMesh, Node *pRoot)
+    {
+        bool result = false;
+
+        String name = "Model";
+
+        if (E_FM_SPLIT_MESH == mSettings.mFileMode)
+        {
+            Model *pModel = new Model(name);
+            pModel->mSharedVertex = true;
+            pRoot->addChild(pModel);
+        }
+        else
+        {
+
+        }
+
+        return result;
     }
 }
