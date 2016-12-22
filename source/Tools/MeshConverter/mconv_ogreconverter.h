@@ -27,6 +27,8 @@ namespace mconv
         virtual void cleanup() override;
 
         bool processOgreMesh(OgreMesh *pOgreMesh, Node *pRoot);
+        bool processOgreGeometry(const OgreGeometry &geometry, Node *pParent, bool bSharedVertices);
+        bool processOgreSubMesh();
 
     protected:
         void    *mSrcData;

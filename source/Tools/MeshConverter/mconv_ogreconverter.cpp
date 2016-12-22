@@ -123,15 +123,41 @@ namespace mconv
 
         String name = "Model";
 
-        if (E_FM_SPLIT_MESH == mSettings.mFileMode)
+        Model *pModel = new Model(name);
+
+        if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
         {
-            Model *pModel = new Model(name);
             pModel->mSharedVertex = true;
-            pRoot->addChild(pModel);
         }
         else
         {
+            pModel->mSharedVertex = false;
+        }
 
+        pRoot->addChild(pModel);
+
+        name = "Mesh";
+        Mesh *pMesh = new Mesh(name);
+        pModel->addChild(pMesh);
+
+        result = processOgreGeometry(pOgreMesh->geometry, pMesh, pModel->mSharedVertex);;
+
+        return result;
+    }
+
+    bool OgreConverter::processOgreGeometry(const OgreGeometry &geometry, Node *pParent, bool bSharedVertices)
+    {
+        bool result = false;
+
+        Mesh *pMesh = (Mesh *)pParent;
+
+        if (bSharedVertices)
+        {
+
+        }
+        else
+        {
+            
         }
 
         return result;
