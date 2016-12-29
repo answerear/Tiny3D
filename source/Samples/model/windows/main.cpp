@@ -1,9 +1,9 @@
 
 #include <windows.h>
-#include "TriangleApp.h"
+#include "ModelApp.h"
 
 
-TriangleApp theApp;
+ModelApp theApp;
 
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,

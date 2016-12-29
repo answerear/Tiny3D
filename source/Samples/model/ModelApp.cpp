@@ -1,23 +1,23 @@
 
 
-#include "TransformationApp.h"
+#include "ModelApp.h"
 #include <Tiny3D.h>
 
 
 using namespace Tiny3D;
 
 
-TransformationApp::TransformationApp()
+ModelApp::ModelApp()
 {
 
 }
 
-TransformationApp::~TransformationApp()
+ModelApp::~ModelApp()
 {
 
 }
 
-int32_t TransformationApp::go()
+int32_t ModelApp::go()
 {
     Entrance *entrance = new Entrance();
 
@@ -33,7 +33,7 @@ int32_t TransformationApp::go()
     return 0;
 }
 
-bool TransformationApp::applicationDidFinishLaunching()
+bool ModelApp::applicationDidFinishLaunching()
 {
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
@@ -168,17 +168,17 @@ bool TransformationApp::applicationDidFinishLaunching()
     return true;
 }
 
-void TransformationApp::applicationDidEnterBackground()
+void ModelApp::applicationDidEnterBackground()
 {
 
 }
 
-void TransformationApp::applicationWillEnterForeground()
+void ModelApp::applicationWillEnterForeground()
 {
 
 }
 
-void TransformationApp::applicationWillTerminate()
+void ModelApp::applicationWillTerminate()
 {
 
 }

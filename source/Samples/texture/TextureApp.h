@@ -1,18 +1,18 @@
 
 
-#ifndef __HELLO_WOLRD_APP_H__
-#define __HELLO_WOLRD_APP_H__
+#ifndef __TEXTURE_APP_H__
+#define __TEXTURE_APP_H__
 
 
 #include <Tiny3D.h>
 
 
-class HelloWorldApp 
+class TextureApp 
     : public Tiny3D::ApplicationListener
 {
 public:
-    HelloWorldApp();
-    virtual ~HelloWorldApp();
+    TextureApp();
+    virtual ~TextureApp();
 
     int32_t go();
 
@@ -30,4 +30,4 @@ protected:
 };
 
 
-#endif  /*__HELLO_WOLRD_APP_H__*/
+#endif  /*__TEXTURE_APP_H__*/

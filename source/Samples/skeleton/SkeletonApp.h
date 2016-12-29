@@ -1,18 +1,18 @@
 
 
-#ifndef __HELLO_WOLRD_APP_H__
-#define __HELLO_WOLRD_APP_H__
+#ifndef __SKELETON_APP_H__
+#define __SKELETON_APP_H__
 
 
 #include <Tiny3D.h>
 
 
-class HelloWorldApp 
+class SkeletonApp 
     : public Tiny3D::ApplicationListener
 {
 public:
-    HelloWorldApp();
-    virtual ~HelloWorldApp();
+    SkeletonApp();
+    virtual ~SkeletonApp();
 
     int32_t go();
 
@@ -30,4 +30,4 @@ protected:
 };
 
 
-#endif  /*__HELLO_WOLRD_APP_H__*/
+#endif  /*__SKELETON_APP_H__*/

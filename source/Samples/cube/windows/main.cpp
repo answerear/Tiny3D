@@ -1,9 +1,9 @@
 
 #include <windows.h>
-#include "HelloWorldApp.h"
+#include "CubeApp.h"
 
 
-HelloWorldApp theApp;
+CubeApp theApp;
 
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,

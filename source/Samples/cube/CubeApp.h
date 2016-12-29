@@ -1,18 +1,18 @@
 
 
-#ifndef __HELLO_WOLRD_APP_H__
-#define __HELLO_WOLRD_APP_H__
+#ifndef __CUBE_APP_H__
+#define __CUBE_APP_H__
 
 
 #include <Tiny3D.h>
 
 
-class HelloWorldApp 
+class CubeApp 
     : public Tiny3D::ApplicationListener
 {
 public:
-    HelloWorldApp();
-    virtual ~HelloWorldApp();
+    CubeApp();
+    virtual ~CubeApp();
 
     int32_t go();
 
@@ -30,4 +30,4 @@ protected:
 };
 
 
-#endif  /*__HELLO_WOLRD_APP_H__*/
+#endif  /*__CUBE_APP_H__*/

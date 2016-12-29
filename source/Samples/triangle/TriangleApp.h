@@ -1,18 +1,18 @@
 
 
-#ifndef __TRANSFORMATION_APP_H__
-#define __TRANSFORMATION_APP_H__
+#ifndef __TRIANGLE_APP_H__
+#define __TRIANGLE_APP_H__
 
 
 #include <Tiny3D.h>
 
 
-class TransformationApp 
+class TriangleApp 
     : public Tiny3D::ApplicationListener
 {
 public:
-    TransformationApp();
-    virtual ~TransformationApp();
+    TriangleApp();
+    virtual ~TriangleApp();
 
     int32_t go();
 
@@ -30,4 +30,4 @@ protected:
 };
 
 
-#endif  /*__TRANSFORMATION_APP_H__*/
+#endif  /*__TRIANGLE_APP_H__*/

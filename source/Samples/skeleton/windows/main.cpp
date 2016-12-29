@@ -1,9 +1,9 @@
 
 #include <windows.h>
-#include "HelloWorldApp.h"
+#include "SkeletonApp.h"
 
 
-HelloWorldApp theApp;
+SkeletonApp theApp;
 
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,

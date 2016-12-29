@@ -1,9 +1,9 @@
 
 #include <windows.h>
-#include "HelloWorldApp.h"
+#include "TextureApp.h"
 
 
-HelloWorldApp theApp;
+TextureApp theApp;
 
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,

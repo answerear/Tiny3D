@@ -1,23 +1,23 @@
 
 
-#include "HelloWorldApp.h"
+#include "TriangleApp.h"
 #include <Tiny3D.h>
 
 
 using namespace Tiny3D;
 
 
-HelloWorldApp::HelloWorldApp()
+TriangleApp::TriangleApp()
 {
 
 }
 
-HelloWorldApp::~HelloWorldApp()
+TriangleApp::~TriangleApp()
 {
 
 }
 
-int32_t HelloWorldApp::go()
+int32_t TriangleApp::go()
 {
     Entrance *entrance = new Entrance();
 
@@ -33,7 +33,7 @@ int32_t HelloWorldApp::go()
     return 0;
 }
 
-bool HelloWorldApp::applicationDidFinishLaunching()
+bool TriangleApp::applicationDidFinishLaunching()
 {
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
@@ -168,17 +168,17 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     return true;
 }
 
-void HelloWorldApp::applicationDidEnterBackground()
+void TriangleApp::applicationDidEnterBackground()
 {
 
 }
 
-void HelloWorldApp::applicationWillEnterForeground()
+void TriangleApp::applicationWillEnterForeground()
 {
 
 }
 
-void HelloWorldApp::applicationWillTerminate()
+void TriangleApp::applicationWillTerminate()
 {
 
 }

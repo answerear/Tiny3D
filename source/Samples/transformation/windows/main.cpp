@@ -1,9 +1,9 @@
 
 #include <windows.h>
-#include "HelloWorldApp.h"
+#include "TransformationApp.h"
 
 
-HelloWorldApp theApp;
+TransformationApp theApp;
 
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,

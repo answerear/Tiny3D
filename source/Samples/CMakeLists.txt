@@ -8,6 +8,7 @@
 
 add_subdirectory(helloworld)
 add_subdirectory(transformation)
+add_subdirectory(triangle)
 add_subdirectory(cube)
 add_subdirectory(texture)
 add_subdirectory(model)

@@ -1,23 +1,23 @@
 
 
-#include "HelloWorldApp.h"
+#include "SkeletonApp.h"
 #include <Tiny3D.h>
 
 
 using namespace Tiny3D;
 
 
-HelloWorldApp::HelloWorldApp()
+SkeletonApp::SkeletonApp()
 {
 
 }
 
-HelloWorldApp::~HelloWorldApp()
+SkeletonApp::~SkeletonApp()
 {
 
 }
 
-int32_t HelloWorldApp::go()
+int32_t SkeletonApp::go()
 {
     Entrance *entrance = new Entrance();
 
@@ -33,7 +33,7 @@ int32_t HelloWorldApp::go()
     return 0;
 }
 
-bool HelloWorldApp::applicationDidFinishLaunching()
+bool SkeletonApp::applicationDidFinishLaunching()
 {
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
@@ -168,17 +168,17 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     return true;
 }
 
-void HelloWorldApp::applicationDidEnterBackground()
+void SkeletonApp::applicationDidEnterBackground()
 {
 
 }
 
-void HelloWorldApp::applicationWillEnterForeground()
+void SkeletonApp::applicationWillEnterForeground()
 {
 
 }
 
-void HelloWorldApp::applicationWillTerminate()
+void SkeletonApp::applicationWillTerminate()
 {
 
 }

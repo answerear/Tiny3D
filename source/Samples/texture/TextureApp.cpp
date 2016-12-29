@@ -1,23 +1,23 @@
 
 
-#include "HelloWorldApp.h"
+#include "TextureApp.h"
 #include <Tiny3D.h>
 
 
 using namespace Tiny3D;
 
 
-HelloWorldApp::HelloWorldApp()
+TextureApp::TextureApp()
 {
 
 }
 
-HelloWorldApp::~HelloWorldApp()
+TextureApp::~TextureApp()
 {
 
 }
 
-int32_t HelloWorldApp::go()
+int32_t TextureApp::go()
 {
     Entrance *entrance = new Entrance();
 
@@ -33,7 +33,7 @@ int32_t HelloWorldApp::go()
     return 0;
 }
 
-bool HelloWorldApp::applicationDidFinishLaunching()
+bool TextureApp::applicationDidFinishLaunching()
 {
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
@@ -168,17 +168,17 @@ bool HelloWorldApp::applicationDidFinishLaunching()
     return true;
 }
 
-void HelloWorldApp::applicationDidEnterBackground()
+void TextureApp::applicationDidEnterBackground()
 {
 
 }
 
-void HelloWorldApp::applicationWillEnterForeground()
+void TextureApp::applicationWillEnterForeground()
 {
 
 }
 
-void HelloWorldApp::applicationWillTerminate()
+void TextureApp::applicationWillTerminate()
 {
 
 }
