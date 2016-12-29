@@ -13,6 +13,7 @@ namespace mconv
     class Node;
 
     struct OgreMesh;
+    struct OgreGeometry;
 
     class OgreConverter : public ConverterImpl
     {

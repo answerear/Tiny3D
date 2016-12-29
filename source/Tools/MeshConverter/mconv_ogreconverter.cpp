@@ -140,7 +140,7 @@ namespace mconv
         Mesh *pMesh = new Mesh(name);
         pModel->addChild(pMesh);
 
-        result = processOgreGeometry(pOgreMesh->geometry, pMesh, pModel->mSharedVertex);;
+        result = processOgreGeometry(pOgreMesh->geometry, pMesh, pModel->mSharedVertex);
 
         return result;
     }
