@@ -125,39 +125,203 @@ namespace mconv
 
         Model *pModel = new Model(name);
 
-        if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
-        {
-            pModel->mSharedVertex = true;
-        }
-        else
-        {
-            pModel->mSharedVertex = false;
-        }
-
         pRoot->addChild(pModel);
 
         name = "Mesh";
         Mesh *pMesh = new Mesh(name);
         pModel->addChild(pMesh);
 
-        result = processOgreGeometry(pOgreMesh->geometry, pMesh, pModel->mSharedVertex);
+        result = processOgreGeometry(pOgreMesh->geometry, pMesh);
 
         return result;
     }
 
-    bool OgreConverter::processOgreGeometry(const OgreGeometry &geometry, Node *pParent, bool bSharedVertices)
+    bool OgreConverter::processOgreGeometry(const OgreGeometry &geometry, Mesh *pMesh)
     {
-        bool result = false;
+        bool result = processOgreVertexAttributes(geometry, pMesh);
 
-        Mesh *pMesh = (Mesh *)pParent;
 
-        if (bSharedVertices)
+
+        return result;
+    }
+
+    bool OgreConverter::processOgreVertexAttributes(const OgreGeometry &geometry, Mesh *pMesh)
+    {
+        bool result = (geometry.elements.size() > 0);
+
+        auto itr = geometry.elements.begin();
+
+        while (itr != geometry.elements.end())
         {
-
+            VertexAttribute attribute;
+            const OgreVertexElement &element = *itr;
+            result = result && putVertexAttribute(element, pMesh);
+            ++itr;
         }
-        else
+
+        return result;
+    }
+
+    bool OgreConverter::putVertexAttribute(const OgreVertexElement &element, Mesh *pMesh)
+    {
+        bool result;
+
+        VertexAttribute attribute;
+        result = processVertexSemantic(element.semantic, attribute);
+        result = result && processVertexType(element.type, attribute);
+
+        if (result)
         {
-            
+            pMesh->mAttributes.push_back(attribute);
+        }
+
+        return result;
+    }
+
+    bool OgreConverter::processVertexSemantic(uint16_t semantic, VertexAttribute &attribute)
+    {
+        bool result = true;
+
+        switch (semantic)
+        {
+        case VES_POSITION:
+            {
+                attribute.mVertexType = VertexAttribute::E_VT_POSITION;
+            }
+            break;
+        case VES_BLEND_WEIGHTS:
+            {
+                attribute.mVertexType = VertexAttribute::E_VT_BLEND_WEIGHT;
+            }
+            break;
+        case VES_BLEND_INDICES:
+            {
+                attribute.mVertexType = VertexAttribute::E_VT_BLEND_INDEX;
+            }
+            break;
+        case VES_NORMAL:
+            {
+                attribute.mVertexType = VertexAttribute::E_VT_NORMAL;
+            }
+            break;
+        case VES_DIFFUSE:
+            {
+                attribute.mVertexType = VertexAttribute::E_VT_COLOR;
+            }
+            break;
+        case VES_SPECULAR:
+            {
+                attribute.mVertexType = VertexAttribute::E_VT_COLOR;
+            }
+            break;
+        case VES_TEXTURE_COORDINATES:
+            {
+                attribute.mVertexType = VertexAttribute::E_VT_TEXCOORD;
+            }
+            break;
+        case VES_BINORMAL:
+            {
+                attribute.mVertexType = VertexAttribute::E_VT_BINORMAL;
+            }
+            break;
+        case VES_TANGENT:
+            {
+                attribute.mVertexType = VertexAttribute::E_VT_TANGENT;
+            }
+            break;
+        default:
+            {
+                result = false;
+            }
+            break;
+        }
+
+        return result;
+    }
+
+    bool OgreConverter::processVertexType(uint16_t type, VertexAttribute &attribute)
+    {
+        bool result = true;
+
+        switch (type)
+        {
+        case VET_FLOAT1:
+            {
+                attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+                attribute.mSize = 1;
+            }
+            break;
+        case VET_FLOAT2:
+            {
+                attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+                attribute.mSize = 2;
+            }
+            break;
+        case VET_FLOAT3:
+            {
+                attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+                attribute.mSize = 3;
+            }
+            break;
+        case VET_FLOAT4:
+            {
+                attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+                attribute.mSize = 4;
+            }
+            break;
+        case VET_COLOR:
+            {
+                attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+                attribute.mSize = 4;
+            }
+            break;
+        case VET_SHORT1:
+            {
+                attribute.mDataType = VertexAttribute::E_VT_INT16;
+                attribute.mSize = 1;
+            }
+            break;
+        case VET_SHORT2:
+            {
+                attribute.mDataType = VertexAttribute::E_VT_INT16;
+                attribute.mSize = 2;
+            }
+            break;
+        case VET_SHORT3:
+            {
+                attribute.mDataType = VertexAttribute::E_VT_INT16;
+                attribute.mSize = 3;
+            }
+            break;
+        case VET_SHORT4:
+            {
+                attribute.mDataType = VertexAttribute::E_VT_INT16;
+                attribute.mSize = 4;
+            }
+            break;
+        case VET_UBYTE4:
+            {
+                attribute.mDataType = VertexAttribute::E_VT_INT8;
+                attribute.mSize = 4;
+            }
+            break;
+        case VET_COLOR_ARGB:
+            {
+                attribute.mDataType = VertexAttribute::E_VT_INT16;
+                attribute.mSize = 4;
+            }
+            break;
+        case VET_COLOR_ABGR:
+            {
+                attribute.mDataType = VertexAttribute::E_VT_INT32;
+                attribute.mSize = 4;
+            }
+            break;
+        default:
+            {
+                result = false;
+            }
+            break;
         }
 
         return result;

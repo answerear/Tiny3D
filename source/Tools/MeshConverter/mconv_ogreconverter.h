@@ -5,15 +5,18 @@
 
 
 #include "mconv_converter.h"
+#include "mconv_vertex.h"
 
 
 namespace mconv
 {
     class Serializer;
     class Node;
+    class Mesh;
 
     struct OgreMesh;
     struct OgreGeometry;
+    struct OgreVertexElement;
 
     class OgreConverter : public ConverterImpl
     {
@@ -28,7 +31,11 @@ namespace mconv
         virtual void cleanup() override;
 
         bool processOgreMesh(OgreMesh *pOgreMesh, Node *pRoot);
-        bool processOgreGeometry(const OgreGeometry &geometry, Node *pParent, bool bSharedVertices);
+        bool processOgreGeometry(const OgreGeometry &geometry, Mesh *pMesh);
+        bool processOgreVertexAttributes(const OgreGeometry &geometry, Mesh *pMesh);
+        bool putVertexAttribute(const OgreVertexElement &element, Mesh *pMesh);
+        bool processVertexSemantic(uint16_t semantic, VertexAttribute &attribute);
+        bool processVertexType(uint16_t type, VertexAttribute &attribute);
         bool processOgreSubMesh();
 
     protected:

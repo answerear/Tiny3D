@@ -29,6 +29,7 @@ namespace mconv
         {
             E_VT_FLOAT = 0,
             E_VT_DOUBLE,
+            E_VT_INT8,
             E_VT_INT16,
             E_VT_INT32,
             E_VT_INT64,
