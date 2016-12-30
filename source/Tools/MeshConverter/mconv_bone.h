@@ -28,7 +28,8 @@ namespace mconv
             return E_TYPE_BONE;
         }
 
-        FbxAMatrix  mLocalTransform;
+//         FbxAMatrix  mLocalTransform;
+        Matrix4     mLocalTransform;
     };
 }
 

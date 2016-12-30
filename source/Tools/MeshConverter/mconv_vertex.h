@@ -109,7 +109,8 @@ namespace mconv
             auto itr2 = mTexElements.begin();
             while (itr2 != mTexElements.end())
             {
-                FbxVector2 &texcoord = *itr2;
+//                 FbxVector2 &texcoord = *itr2;
+                const Vector2 &texcoord = *itr2;
                 vertices.push_back(texcoord[0]);
                 vertices.push_back(texcoord[1]);
                 ++itr2;
@@ -118,7 +119,8 @@ namespace mconv
             auto itr3 = mNormalElements.begin();
             while (itr3 != mNormalElements.end())
             {
-                FbxVector3 &normal = *itr3;
+//                 FbxVector3 &normal = *itr3;
+                const Vector3 &normal = *itr3;
                 vertices.push_back(normal[0]);
                 vertices.push_back(normal[1]);
                 vertices.push_back(normal[2]);
@@ -128,7 +130,8 @@ namespace mconv
             itr3 = mBinormalElements.begin();
             while (itr3 != mBinormalElements.end())
             {
-                FbxVector3 &binormal = *itr3;
+//                 FbxVector3 &binormal = *itr3;
+                const Vector3 &binormal = *itr3;
                 vertices.push_back(binormal[0]);
                 vertices.push_back(binormal[1]);
                 vertices.push_back(binormal[2]);
@@ -138,7 +141,8 @@ namespace mconv
             itr3 = mTangentElements.begin();
             while (itr3 != mTangentElements.end())
             {
-                FbxVector3 &tangent = *itr3;
+//                 FbxVector3 &tangent = *itr3;
+                const Vector3 &tangent = *itr3;
                 vertices.push_back(tangent[0]);
                 vertices.push_back(tangent[1]);
                 vertices.push_back(tangent[2]);
@@ -148,7 +152,8 @@ namespace mconv
             auto itr4 = mColorElements.begin();
             while (itr4 != mColorElements.end())
             {
-                FbxVector4 &color = *itr4;
+//                 FbxVector4 &color = *itr4;
+                const Vector4 &color = *itr4;
                 vertices.push_back(color[0]);
                 vertices.push_back(color[1]);
                 vertices.push_back(color[2]);
@@ -179,7 +184,7 @@ namespace mconv
                 while (it != mBlendInfo.rend() && i < 4)
                 {
                     BlendInfo &info = it->second;
-                    vertices.push_back(info.mBlendIndex);
+                    vertices.push_back((float)info.mBlendIndex);
                     ++it;
                     ++i;
                 }
@@ -216,7 +221,8 @@ namespace mconv
         }
 
         int                 mCtrlPointIdx;
-        FbxVector3          mPosition;
+//         FbxVector3          mPosition;
+        Vector3             mPosition;
         VectorElements2     mTexElements;
         VectorElements3     mNormalElements;
         VectorElements3     mBinormalElements;

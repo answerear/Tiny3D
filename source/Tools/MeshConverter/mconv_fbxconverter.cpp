@@ -412,7 +412,10 @@ namespace mconv
         FbxVector4 T = pFbxNode->GetGeometricTranslation(FbxNode::eSourcePivot);
         FbxVector4 R = pFbxNode->GetGeometricRotation(FbxNode::eSourcePivot);
         FbxVector4 S = pFbxNode->GetGeometricScaling(FbxNode::eSourcePivot);
-        pMesh->mWorldMatrix.SetTRS(T, R, S);
+//         pMesh->mWorldMatrix.SetTRS(T, R, S);
+        FbxAMatrix M;
+        M.SetTRS(T, R, S);
+        convertMatrix(M, pMesh->mWorldMatrix);
 
         int nTriangleCount = pFbxMesh->GetPolygonCount();
         int nVertexCount = 0;
@@ -436,14 +439,17 @@ namespace mconv
 
                 // 读取顶点位置信息
                 readPosition(pFbxMesh, nControlPointIdx, vertex.mPosition);
-                FbxVector4 pos(vertex.mPosition);
-                pos = pMesh->mWorldMatrix.MultT(pos);
+//                 FbxVector4 pos(vertex.mPosition);
+                Vector3 pos = vertex.mPosition;
+//                 pos = pMesh->mWorldMatrix.MultT(pos);
+                pos = pMesh->mWorldMatrix * pos;
                 vertex.mPosition[0] = pos[0];
                 vertex.mPosition[1] = pos[1];
                 vertex.mPosition[2] = pos[2];
 
                 // 读取顶点颜色信息
-                FbxVector4 color;
+//                 FbxVector4 color;
+                Vector4 color;
                 int k = 0;
                 bool ret = false;
                 do 
@@ -456,7 +462,8 @@ namespace mconv
                 } while (ret);
 
                 // 读取纹理UV坐标
-                FbxVector2 uv;
+//                 FbxVector2 uv;
+                Vector2 uv;
                 int nTexCount = pFbxMesh->GetElementUVCount();
                 for (k = 0; k < nTexCount; ++k)
                 {
@@ -467,7 +474,8 @@ namespace mconv
                 }
 
                 // 读取顶点法线
-                FbxVector3 normal;
+//                 FbxVector3 normal;
+                Vector3 normal;
                 k = 0;
                 do 
                 {
@@ -479,7 +487,8 @@ namespace mconv
                 } while (ret);
 
                 // 读取副法线
-                FbxVector3 binormal;
+//                 FbxVector3 binormal;
+                Vector3 binormal;
                 k = 0;
                 do
                 {
@@ -491,7 +500,8 @@ namespace mconv
                 } while (ret);
 
                 // 读取切线
-                FbxVector3 tangent;
+//                 FbxVector3 tangent;
+                Vector3 tangent;
                 k = 0;
                 do 
                 {
@@ -629,7 +639,8 @@ namespace mconv
         return true;
     }
 
-    bool FBXConverter::readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos)
+//     bool FBXConverter::readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos)
+    bool FBXConverter::readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, Vector3 &pos)
     {
         FbxVector4 *pControlPoint = pFbxMesh->GetControlPoints();
         pos[0] = pControlPoint[nControlPointIdx][0];
@@ -638,7 +649,8 @@ namespace mconv
         return true;
     }
 
-    bool FBXConverter::readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector4 &color)
+//     bool FBXConverter::readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector4 &color)
+    bool FBXConverter::readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector4 &color)
     {
         if (pFbxMesh->GetElementVertexColorCount() < 1)
         {
@@ -710,7 +722,8 @@ namespace mconv
         return result;
     }
 
-    bool FBXConverter::readUV(FbxMesh *pFbxMesh, int nControlPointIdx, int nUVIndex, int nLayer, FbxVector2 &uv)
+//     bool FBXConverter::readUV(FbxMesh *pFbxMesh, int nControlPointIdx, int nUVIndex, int nLayer, FbxVector2 &uv)
+    bool FBXConverter::readUV(FbxMesh *pFbxMesh, int nControlPointIdx, int nUVIndex, int nLayer, Vector2 &uv)
     {
         if (pFbxMesh->GetElementUVCount() < 1 || nLayer >= pFbxMesh->GetElementUVCount())
         {
@@ -768,7 +781,8 @@ namespace mconv
         return result;
     }
 
-    bool FBXConverter::readNormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &normal)
+//     bool FBXConverter::readNormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &normal)
+    bool FBXConverter::readNormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector3 &normal)
     {
         if (pFbxMesh->GetElementNormalCount() < 1)
         {
@@ -836,7 +850,8 @@ namespace mconv
         return result;
     }
 
-    bool FBXConverter::readTangent(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &tangent)
+//     bool FBXConverter::readTangent(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &tangent)
+    bool FBXConverter::readTangent(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector3 &tangent)
     {
         if (pFbxMesh->GetElementTangentCount() < 1)
         {
@@ -904,7 +919,8 @@ namespace mconv
         return result;
     }
 
-    bool FBXConverter::readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &binormal)
+//     bool FBXConverter::readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &binormal)
+    bool FBXConverter::readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector3 &binormal)
     {
         if (pFbxMesh->GetElementBinormalCount() < 1)
         {
@@ -1044,8 +1060,8 @@ namespace mconv
         pParent->addChild(pBone);
 
         FbxAMatrix &M = pFbxNode->EvaluateLocalTransform();
-        pBone->mLocalTransform = M;
-
+//         pBone->mLocalTransform = M;
+        convertMatrix(M, pBone->mLocalTransform);
         mTabCount++;
 
         processFbxAnimation(pFbxNode, pModel);
@@ -1586,7 +1602,8 @@ namespace mconv
 //                 }
 
                 Bone *pBone = new Bone(pFbxLinkNode->GetName());
-                pBone->mLocalTransform = bindpose;
+//                 pBone->mLocalTransform = bindpose;
+                convertMatrix(bindpose, pBone->mLocalTransform);
                 pSkin->addChild(pBone);
 
                 updateVertexBlendAttributes(pMesh);
@@ -1951,5 +1968,28 @@ namespace mconv
         pBound->mMaxZ = fMaxZ;
 
         return true;
+    }
+
+    void FBXConverter::convertMatrix(const FbxAMatrix &fbxMat, Matrix4 &m)
+    {
+        m[0][0] = fbxMat[0][0];
+        m[0][1] = fbxMat[0][1];
+        m[0][2] = fbxMat[0][2];
+        m[0][3] = fbxMat[0][3];
+
+        m[1][0] = fbxMat[1][0];
+        m[1][1] = fbxMat[1][1];
+        m[1][2] = fbxMat[1][2];
+        m[1][3] = fbxMat[1][3];
+
+        m[2][0] = fbxMat[2][0];
+        m[2][1] = fbxMat[2][1];
+        m[2][2] = fbxMat[2][2];
+        m[2][3] = fbxMat[2][3];
+
+        m[3][0] = fbxMat[3][0];
+        m[3][1] = fbxMat[3][1];
+        m[3][2] = fbxMat[3][2];
+        m[3][3] = fbxMat[3][3];
     }
 }

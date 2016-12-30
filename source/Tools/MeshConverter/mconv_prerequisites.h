@@ -14,6 +14,11 @@
 
 #include <T3DLog.h>
 #include <T3DPlatform.h>
+#include <T3DVector2.h>
+#include <T3DVector3.h>
+#include <T3DVector4.h>
+#include <T3DMatrix4.h>
+#include <T3DQuaternion.h>
 
 
 namespace mconv
@@ -62,42 +67,45 @@ namespace mconv
         E_FM_MERGE_MESH,                    /// fbx中有多个mesh的时候会自动合并成一个model，全部都在一个文件中，每个mesh有其独立顶点缓存
     };
 
-    class FbxVector3 : public FbxDouble3
-    {
-    public:
-        FbxVector3()
-            : FbxDouble3()
-        {
+//     class FbxVector3 : public FbxDouble3
+//     {
+//     public:
+//         FbxVector3()
+//             : FbxDouble3()
+//         {
+// 
+//         }
+// 
+//         FbxVector3(FbxDouble x, FbxDouble y, FbxDouble z)
+//             : FbxDouble3(x, y, z)
+//         {
+// 
+//         }
+// 
+//         FbxVector3(const FbxVector3 &other)
+//         {
+//             memcpy(mData, other.mData, sizeof(mData));
+//         }
+// 
+//         FbxVector3 &operator =(const FbxVector3 &other)
+//         {
+//             memcpy(mData, other.mData, sizeof(mData));
+//             return *this;
+//         }
+//     };
 
-        }
-
-        FbxVector3(FbxDouble x, FbxDouble y, FbxDouble z)
-            : FbxDouble3(x, y, z)
-        {
-
-        }
-
-        FbxVector3(const FbxVector3 &other)
-        {
-            memcpy(mData, other.mData, sizeof(mData));
-        }
-
-        FbxVector3 &operator =(const FbxVector3 &other)
-        {
-            memcpy(mData, other.mData, sizeof(mData));
-            return *this;
-        }
-    };
-
-    typedef std::list<FbxVector2>           VectorElements2;
+//     typedef std::list<FbxVector2>           VectorElements2;
+    typedef std::list<Vector2>              VectorElements2;
     typedef VectorElements2::iterator       VectorElements2Itr;
     typedef VectorElements2::const_iterator VectorElements2ConstItr;
 
-    typedef std::list<FbxVector3>           VectorElements3;
+//     typedef std::list<FbxVector3>           VectorElements3;
+    typedef std::list<Vector3>              VectorElements3;
     typedef VectorElements3::iterator       VectorElements3Itr;
     typedef VectorElements3::const_iterator VectorElements3ConstItr;
 
-    typedef std::list<FbxVector4>           VectorElements4;
+//     typedef std::list<FbxVector4>           VectorElements4;
+    typedef std::list<Vector4>              VectorElements4;
     typedef VectorElements4::iterator       VectorElements4Itr;
     typedef VectorElements4::const_iterator VectorElements4ConstItr;
 
@@ -109,20 +117,20 @@ namespace mconv
     typedef BlendIndices::iterator          BlendIndicesItr;
     typedef BlendIndices::const_iterator    BlendIndicesConstItr;
 
-    inline bool operator <(const FbxVector2 &v1, const FbxVector2 &v2)
-    {
-        return (memcmp(v1.Buffer(), v2.Buffer(), sizeof(v1.mData)) < 0);
-    }
-
-    inline bool operator <(const FbxVector3 &v1, const FbxVector3 &v2)
-    {
-        return (memcmp(v1.Buffer(), v2.Buffer(), sizeof(v1.mData)) < 0);
-    }
-
-    inline bool operator <(const FbxVector4 &v1, const FbxVector4 &v2)
-    {
-        return (memcmp(v1.Buffer(), v2.Buffer(), sizeof(v1.mData)) < 0);
-    }
+//     inline bool operator <(const FbxVector2 &v1, const FbxVector2 &v2)
+//     {
+//         return (memcmp(v1.Buffer(), v2.Buffer(), sizeof(v1.mData)) < 0);
+//     }
+// 
+//     inline bool operator <(const FbxVector3 &v1, const FbxVector3 &v2)
+//     {
+//         return (memcmp(v1.Buffer(), v2.Buffer(), sizeof(v1.mData)) < 0);
+//     }
+// 
+//     inline bool operator <(const FbxVector4 &v1, const FbxVector4 &v2)
+//     {
+//         return (memcmp(v1.Buffer(), v2.Buffer(), sizeof(v1.mData)) < 0);
+//     }
 }
 
 

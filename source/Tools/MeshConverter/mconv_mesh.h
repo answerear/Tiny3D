@@ -165,7 +165,8 @@ namespace mconv
             return true;
         }
 
-        FbxAMatrix          mWorldMatrix;
+//         FbxAMatrix          mWorldMatrix;
+        Matrix4             mWorldMatrix;
         VertexAttributes    mAttributes;
         Vertices            mVertices;
     };

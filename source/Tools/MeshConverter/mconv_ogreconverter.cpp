@@ -153,7 +153,6 @@ namespace mconv
 
         while (itr != geometry.elements.end())
         {
-            VertexAttribute attribute;
             const OgreVertexElement &element = *itr;
             result = result && putVertexAttribute(element, pMesh);
             ++itr;

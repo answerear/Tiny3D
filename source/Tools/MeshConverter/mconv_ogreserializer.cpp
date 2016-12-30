@@ -454,7 +454,8 @@ namespace mconv
             default:
                 {
                     // 不是自己负责解析的chunk，返回跳出，交给外面来解析处理
-                    stream.seek(-data.read, true);
+                    long_t read = data.read;
+                    stream.seek(-read, true);
                     return true;
                 }
                 break;
