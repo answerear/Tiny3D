@@ -36,7 +36,7 @@ namespace mconv
         bool putVertexAttribute(const OgreVertexElement &element, Mesh *pMesh);
         bool processVertexSemantic(uint16_t semantic, VertexAttribute &attribute);
         bool processVertexType(uint16_t type, VertexAttribute &attribute);
-        bool processOgreSubMesh();
+        bool processOgreSubMeshes(const OgreMesh &mesh, Model *pModel);
 
     protected:
         void    *mSrcData;

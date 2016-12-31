@@ -127,11 +127,7 @@ namespace mconv
 
         pRoot->addChild(pModel);
 
-        name = "Mesh";
-        Mesh *pMesh = new Mesh(name);
-        pModel->addChild(pMesh);
-
-        result = processOgreGeometry(pOgreMesh->geometry, pMesh);
+        result = processOgreSubMeshes(*pOgreMesh, pModel);
 
         return result;
     }
@@ -322,6 +318,15 @@ namespace mconv
             }
             break;
         }
+
+        return result;
+    }
+
+    bool OgreConverter::processOgreSubMeshes(const OgreMesh &mesh, Model *pModel)
+    {
+        bool result = false;
+
+
 
         return result;
     }
