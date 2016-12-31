@@ -17,7 +17,7 @@ namespace Tiny3D
     {
     public:
         /// Default constructor.
-        Matrix4(bool bZero = true);
+        Matrix4(bool bZero = false);
         /// Copy constructor.
         Matrix4(const Matrix4 &other);
         /// Create and initialize using rows and columns of numbers.
