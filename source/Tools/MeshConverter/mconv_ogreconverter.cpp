@@ -136,7 +136,16 @@ namespace mconv
     {
         bool result = processOgreVertexAttributes(geometry, pMesh);
 
+        if (result)
+        {
+            auto itr = geometry.buffers.begin();
 
+            while (itr != geometry.buffers.end())
+            {
+                result = result && processOgreVertexBuffer(*itr, pMesh);
+                ++itr;
+            }
+        }
 
         return result;
     }
@@ -322,12 +331,106 @@ namespace mconv
         return result;
     }
 
+    bool OgreConverter::processOgreVertexBuffer(const OgreVertexBuffer &buffer, Mesh *pMesh)
+    {
+        bool result = (buffer.vertices.size() > 0);
+
+        size_t i = 0;
+
+        for (i = 0; i < buffer.vertices.size(); ++i)
+        {
+            pMesh->mVertices.push_back(Vertex());
+            Vertex &vertex = pMesh->mVertices.back();
+            result = result && putVertexData(buffer.vertices, i, pMesh->mAttributes, vertex);
+        }
+
+        return result;
+    }
+
+    bool OgreConverter::putVertexData(const std::vector<float> &vertices, size_t &index, const VertexAttributes &attributes, Vertex &vertex)
+    {
+        bool result = true;
+
+        auto itr = attributes.begin();
+
+        while (itr != attributes.end())
+        {
+            const VertexAttribute &attr = *itr;
+
+            switch (attr.mVertexType)
+            {
+            case VertexAttribute::E_VT_POSITION:
+                {
+                    vertex.mPosition[0] = vertices[index++];
+                    vertex.mPosition[1] = vertices[index++];
+                    vertex.mPosition[2] = vertices[index++];
+                }
+                break;
+            case VertexAttribute::E_VT_TEXCOORD:
+                {
+                    vertex.mTexElements.push_back(Vector2());
+                    Vector2 &texcoord = vertex.mTexElements.back();
+                    texcoord[0] = vertices[index++];
+                }
+                break;
+            default:
+                {
+                    result = false;
+                }
+                break;
+            }
+
+            ++itr;
+        }
+
+        return result;
+    }
+
     bool OgreConverter::processOgreSubMeshes(const OgreMesh &mesh, Model *pModel)
     {
         bool result = false;
 
+        Mesh *pGlobalMesh = nullptr;
 
+        size_t i = 0;
+        auto itr = mesh.submeshes.begin();
+
+        while (itr != mesh.submeshes.end())
+        {
+            auto submesh = *itr;
+
+            if (0 == i)
+            {
+                // 第一个submesh，不管什么情况，先生成一个mesh，用于存放共享的顶点数据
+                char szName[64];
+                snprintf(szName, sizeof(szName)-1, "Mesh#% 3d", i);
+                String strName = szName;
+                Mesh *pMesh = new Mesh(strName);
+                pModel->addChild(pMesh);
+                result = processOgreGeometry(mesh.geometry, pMesh);
+                pGlobalMesh = pMesh;
+            }
+
+            if (submesh.hasSharedVertices)
+            {
+                SubMesh *pSubMesh = new SubMesh("SubMesh");
+                pGlobalMesh->addChild(pSubMesh);
+            }
+            else
+            {
+                // submesh自己独享顶点数据，需要创建一个mesh出来
+
+            }
+
+            ++i;
+            ++itr;
+        }
 
         return result;
+    }
+
+    bool OgreConverter::processOgreSubMesh(const OgreSubMesh &submesh, Model *pModel)
+    {
+        return true;
     }
 }
