@@ -337,7 +337,7 @@ namespace mconv
 
         size_t i = 0;
 
-        for (i = 0; i < buffer.vertices.size(); ++i)
+        while (i < buffer.vertices.size())
         {
             pMesh->mVertices.push_back(Vertex());
             Vertex &vertex = pMesh->mVertices.back();
@@ -349,11 +349,11 @@ namespace mconv
 
     bool OgreConverter::putVertexData(const std::vector<float> &vertices, size_t &index, const VertexAttributes &attributes, Vertex &vertex)
     {
-        bool result = true;
+        bool result = (attributes.size() > 0);
 
         auto itr = attributes.begin();
 
-        while (itr != attributes.end())
+        while (itr != attributes.end() && index < vertices.size())
         {
             const VertexAttribute &attr = *itr;
 
@@ -371,6 +371,54 @@ namespace mconv
                     vertex.mTexElements.push_back(Vector2());
                     Vector2 &texcoord = vertex.mTexElements.back();
                     texcoord[0] = vertices[index++];
+                    texcoord[1] = vertices[index++];
+                }
+                break;
+            case VertexAttribute::E_VT_NORMAL:
+                {
+                    vertex.mNormalElements.push_back(Vector3());
+                    Vector3 &normal = vertex.mNormalElements.back();
+                    normal[0] = vertices[index++];
+                    normal[1] = vertices[index++];
+                    normal[2] = vertices[index++];
+                }
+                break;
+            case VertexAttribute::E_VT_TANGENT:
+                {
+                    vertex.mTangentElements.push_back(Vector3());
+                    Vector3 &tangent = vertex.mTangentElements.back();
+                    tangent[0] = vertices[index++];
+                    tangent[1] = vertices[index++];
+                    tangent[2] = vertices[index++];
+                }
+                break;
+            case VertexAttribute::E_VT_BINORMAL:
+                {
+                    vertex.mBinormalElements.push_back(Vector3());
+                    Vector3 &binormal = vertex.mBinormalElements.back();
+                    binormal[0] = vertices[index++];
+                    binormal[1] = vertices[index++];
+                    binormal[2] = vertices[index++];
+                }
+                break;
+            case VertexAttribute::E_VT_COLOR:
+                {
+                    vertex.mColorElements.push_back(Vector4());
+                    Vector4 &color = vertex.mColorElements.back();
+                    color[0] = vertices[index++];
+                    color[1] = vertices[index++];
+                    color[2] = vertices[index++];
+                    color[4] = vertices[index++];
+                }
+                break;
+            case VertexAttribute::E_VT_BLEND_WEIGHT:
+                {
+                    T3D_ASSERT(0);
+                }
+                break;
+            case VertexAttribute::E_VT_BLEND_INDEX:
+                {
+                    T3D_ASSERT(0);
                 }
                 break;
             default:

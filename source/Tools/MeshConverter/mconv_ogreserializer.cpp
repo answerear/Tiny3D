@@ -108,8 +108,6 @@ namespace mconv
             size_t bytesOfRead = 0;
             uint16_t id;
 
-            bool ret = true;
-
             // 读取是否大小端交换标识
             bytesOfRead = fs.read(&id, sizeof(id));
 
