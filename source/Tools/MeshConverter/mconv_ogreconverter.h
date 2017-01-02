@@ -13,6 +13,8 @@ namespace mconv
     class Serializer;
     class Node;
     class Mesh;
+    class SubMeshes;
+    class SubMesh;
     class Model;
     class Vertex;
 
@@ -42,8 +44,9 @@ namespace mconv
         bool putVertexData(const std::vector<float> &vertices, size_t &index, const VertexAttributes &attributes, Vertex &vertex);
         bool processVertexSemantic(uint16_t semantic, VertexAttribute &attribute);
         bool processVertexType(uint16_t type, VertexAttribute &attribute);
+        bool createMesh(Model *pModel, Mesh *&pMesh, SubMeshes *&pSubMeshes, size_t index);
         bool processOgreSubMeshes(const OgreMesh &mesh, Model *pModel);
-        bool processOgreSubMesh(const OgreSubMesh &submesh, Model *pModel);
+        bool processOgreSubMesh(const OgreSubMesh &submesh, Mesh *pMesh, SubMeshes *pSubMeshes);
 
     protected:
         void    *mSrcData;

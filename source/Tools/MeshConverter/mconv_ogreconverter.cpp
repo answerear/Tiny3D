@@ -351,84 +351,109 @@ namespace mconv
     {
         bool result = (attributes.size() > 0);
 
-        auto itr = attributes.begin();
-
-        while (itr != attributes.end() && index < vertices.size())
+//         while (index < vertices.size())
         {
-            const VertexAttribute &attr = *itr;
+            auto itr = attributes.begin();
 
-            switch (attr.mVertexType)
+            while (itr != attributes.end())
             {
-            case VertexAttribute::E_VT_POSITION:
-                {
-                    vertex.mPosition[0] = vertices[index++];
-                    vertex.mPosition[1] = vertices[index++];
-                    vertex.mPosition[2] = vertices[index++];
-                }
-                break;
-            case VertexAttribute::E_VT_TEXCOORD:
-                {
-                    vertex.mTexElements.push_back(Vector2());
-                    Vector2 &texcoord = vertex.mTexElements.back();
-                    texcoord[0] = vertices[index++];
-                    texcoord[1] = vertices[index++];
-                }
-                break;
-            case VertexAttribute::E_VT_NORMAL:
-                {
-                    vertex.mNormalElements.push_back(Vector3());
-                    Vector3 &normal = vertex.mNormalElements.back();
-                    normal[0] = vertices[index++];
-                    normal[1] = vertices[index++];
-                    normal[2] = vertices[index++];
-                }
-                break;
-            case VertexAttribute::E_VT_TANGENT:
-                {
-                    vertex.mTangentElements.push_back(Vector3());
-                    Vector3 &tangent = vertex.mTangentElements.back();
-                    tangent[0] = vertices[index++];
-                    tangent[1] = vertices[index++];
-                    tangent[2] = vertices[index++];
-                }
-                break;
-            case VertexAttribute::E_VT_BINORMAL:
-                {
-                    vertex.mBinormalElements.push_back(Vector3());
-                    Vector3 &binormal = vertex.mBinormalElements.back();
-                    binormal[0] = vertices[index++];
-                    binormal[1] = vertices[index++];
-                    binormal[2] = vertices[index++];
-                }
-                break;
-            case VertexAttribute::E_VT_COLOR:
-                {
-                    vertex.mColorElements.push_back(Vector4());
-                    Vector4 &color = vertex.mColorElements.back();
-                    color[0] = vertices[index++];
-                    color[1] = vertices[index++];
-                    color[2] = vertices[index++];
-                    color[4] = vertices[index++];
-                }
-                break;
-            case VertexAttribute::E_VT_BLEND_WEIGHT:
-                {
-                    T3D_ASSERT(0);
-                }
-                break;
-            case VertexAttribute::E_VT_BLEND_INDEX:
-                {
-                    T3D_ASSERT(0);
-                }
-                break;
-            default:
-                {
-                    result = false;
-                }
-                break;
-            }
+                const VertexAttribute &attr = *itr;
 
-            ++itr;
+                switch (attr.mVertexType)
+                {
+                case VertexAttribute::E_VT_POSITION:
+                    {
+                        vertex.mPosition[0] = vertices[index++];
+                        vertex.mPosition[1] = vertices[index++];
+                        vertex.mPosition[2] = vertices[index++];
+                    }
+                    break;
+                case VertexAttribute::E_VT_TEXCOORD:
+                    {
+                        vertex.mTexElements.push_back(Vector2());
+                        Vector2 &texcoord = vertex.mTexElements.back();
+                        texcoord[0] = vertices[index++];
+                        texcoord[1] = vertices[index++];
+                    }
+                    break;
+                case VertexAttribute::E_VT_NORMAL:
+                    {
+                        vertex.mNormalElements.push_back(Vector3());
+                        Vector3 &normal = vertex.mNormalElements.back();
+                        normal[0] = vertices[index++];
+                        normal[1] = vertices[index++];
+                        normal[2] = vertices[index++];
+                    }
+                    break;
+                case VertexAttribute::E_VT_TANGENT:
+                    {
+                        vertex.mTangentElements.push_back(Vector3());
+                        Vector3 &tangent = vertex.mTangentElements.back();
+                        tangent[0] = vertices[index++];
+                        tangent[1] = vertices[index++];
+                        tangent[2] = vertices[index++];
+                    }
+                    break;
+                case VertexAttribute::E_VT_BINORMAL:
+                    {
+                        vertex.mBinormalElements.push_back(Vector3());
+                        Vector3 &binormal = vertex.mBinormalElements.back();
+                        binormal[0] = vertices[index++];
+                        binormal[1] = vertices[index++];
+                        binormal[2] = vertices[index++];
+                    }
+                    break;
+                case VertexAttribute::E_VT_COLOR:
+                    {
+                        vertex.mColorElements.push_back(Vector4());
+                        Vector4 &color = vertex.mColorElements.back();
+                        color[0] = vertices[index++];
+                        color[1] = vertices[index++];
+                        color[2] = vertices[index++];
+                        color[4] = vertices[index++];
+                    }
+                    break;
+                case VertexAttribute::E_VT_BLEND_WEIGHT:
+                    {
+                        T3D_ASSERT(0);
+                    }
+                    break;
+                case VertexAttribute::E_VT_BLEND_INDEX:
+                    {
+                        T3D_ASSERT(0);
+                    }
+                    break;
+                default:
+                    {
+                        result = false;
+                    }
+                    break;
+                }
+
+                ++itr;
+            }
+        }
+
+        return result;
+    }
+
+    bool OgreConverter::createMesh(Model *pModel, Mesh *&pMesh, SubMeshes *&pSubMeshes, size_t index)
+    {
+        char szName[64];
+        snprintf(szName, sizeof(szName)-1, "Mesh#% 3d", index);
+        String strName = szName;
+        pMesh = new Mesh(strName);
+        bool result = (pMesh != nullptr);
+        if (result)
+        {
+            pModel->addChild(pMesh);
+        }
+
+        pSubMeshes = new SubMeshes("SubMeshes");
+        result = (pSubMeshes != nullptr);
+        if (result)
+        {
+            pMesh->addChild(pSubMeshes);
         }
 
         return result;
@@ -436,38 +461,55 @@ namespace mconv
 
     bool OgreConverter::processOgreSubMeshes(const OgreMesh &mesh, Model *pModel)
     {
-        bool result = false;
+        bool result = (mesh.submeshes.size() > 0);
 
         Mesh *pGlobalMesh = nullptr;
+        SubMeshes *pGlobalSubMeshes = nullptr;
+
+        bool bHasSharedVertices = false;
 
         size_t i = 0;
         auto itr = mesh.submeshes.begin();
 
-        while (itr != mesh.submeshes.end())
+        while (itr != mesh.submeshes.end() && result)
         {
             auto submesh = *itr;
 
-            if (0 == i)
-            {
-                // 第一个submesh，不管什么情况，先生成一个mesh，用于存放共享的顶点数据
-                char szName[64];
-                snprintf(szName, sizeof(szName)-1, "Mesh#% 3d", i);
-                String strName = szName;
-                Mesh *pMesh = new Mesh(strName);
-                pModel->addChild(pMesh);
-                result = processOgreGeometry(mesh.geometry, pMesh);
-                pGlobalMesh = pMesh;
-            }
-
             if (submesh.hasSharedVertices)
             {
-                SubMesh *pSubMesh = new SubMesh("SubMesh");
-                pGlobalMesh->addChild(pSubMesh);
+                if (0 == i)
+                {
+                    bHasSharedVertices = submesh.hasSharedVertices;
+
+                    // 第一个submesh，用于存放共享的顶点数据
+                    result = createMesh(pModel, pGlobalMesh, pGlobalSubMeshes, i);
+                    result = result && processOgreGeometry(mesh.geometry, pGlobalMesh);
+                }
+                else
+                {
+                    T3D_ASSERT(bHasSharedVertices == submesh.hasSharedVertices);
+                }
+
+                result = result && processOgreSubMesh(submesh, pGlobalMesh, pGlobalSubMeshes);
             }
             else
             {
                 // submesh自己独享顶点数据，需要创建一个mesh出来
+                if (i == 0)
+                {
+                    bHasSharedVertices = submesh.hasSharedVertices;
+                }
+                else
+                {
+                    T3D_ASSERT(bHasSharedVertices == submesh.hasSharedVertices);
+                }
+                
+                Mesh *pMesh = nullptr;
+                SubMeshes *pSubMeshes = nullptr;
 
+                result = createMesh(pModel, pMesh, pSubMeshes, i);
+                result = result && processOgreGeometry(submesh.geometry, pMesh);
+                result = result && processOgreSubMesh(submesh, pMesh, pSubMeshes);
             }
 
             ++i;
@@ -477,8 +519,26 @@ namespace mconv
         return result;
     }
 
-    bool OgreConverter::processOgreSubMesh(const OgreSubMesh &submesh, Model *pModel)
+    bool OgreConverter::processOgreSubMesh(const OgreSubMesh &submesh, Mesh *pMesh, SubMeshes *pSubMeshes)
     {
-        return true;
+        bool result = (submesh.indices.size() > 0);
+
+        SubMesh *pSubMesh = new SubMesh("SubMesh");
+        pSubMeshes->addChild(pSubMesh);
+
+        pSubMesh->mMaterialName = submesh.materialName;
+
+        pSubMesh->mIndices.resize(submesh.indices.size());
+
+        auto itr = pSubMesh->mIndices.begin();
+        size_t i = 0;
+
+        for (i = 0; i < submesh.indices.size() && itr != pSubMesh->mIndices.end(); ++i)
+        {
+            *itr = submesh.indices[i];
+            ++itr;
+        }
+
+        return result;
     }
 }
