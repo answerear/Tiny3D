@@ -5,28 +5,38 @@
  *      <scene>
  *          <model id="wolf">
  *              <mesh id="wolf_skin">
- *                  <attributes count="5">
- *                      <attirbute id="POSITION" size="3" type="float" />
- *                      <attribute id="TEXCOORD" size="2" tpye="float" />
- *                      <attribute id="NORMAL" size="3" type="float" />
- *                      <attribute id="TANGENT" size="3" type="float" />
- *                      <attribute id="BINORMAL" size="3" type="float" />
- *                      <attribute id="COLOR" size="4" type="float" />
- *                      <attribute id="BLEND_WEIGHT" size="4" type="float" />
- *                      <attribute id="BLEND_INDEX" size="4" type="ushort" />
- *                  </attributes>
-
- *                  <vertices count="12">
- *                      -1.0 1.0 1.0 
+ *                  <vertices count="2">
+ *                      <buffer id="0">
+ *                          <attributes count="7">
+ *                              <attirbute id="POSITION" size="3" type="float" />
+ *                              <attribute id="NORMAL" size="3" type="float" />
+ *                              <attribute id="TANGENT" size="3" type="float" />
+ *                              <attribute id="BINORMAL" size="3" type="float" />
+ *                              <attribute id="COLOR" size="4" type="float" />
+ *                              <attribute id="BLEND_WEIGHT" size="4" type="float" />
+ *                              <attribute id="BLEND_INDEX" size="4" type="ushort" />
+ *                          </attributes>
+ *                          <data count="12">
+ *                              -1.0 1.0 1.0 
+ *                          </data>
+ *                      </buffer>
+ *                      <buffer id="1">
+ *                          <attributes count="1">
+ *                              <attribute id="TEXCOORD" size="2" tpye="float" />
+ *                          </attributes>
+ *                          <data count="12">
+ *                              -1.0 1.0 1.0 
+ *                          </data>
+ *                      </buffer>
  *                  </vertices>
 
- *                  <parts count="1">
- *                      <part id="wolf" primitive="triangles" count="30" material="wolf">
+ *                  <submeshes count="1">
+ *                      <submesh id="wolf" primitive="triangles" count="30" material="wolf">
  *                          <indices count="90" 16bits="true">
  *                              1 2 3 1 2 3 1 2 3
  *                          </indices>
- *                      </part>
- *                  </parts>
+ *                      </submesh>
+ *                  </submeshes>
  *              </mesh>
 
  *              <materials id="" count="1">
@@ -140,11 +150,13 @@ namespace mconv
         static const char * const TAG_SCENE;
         static const char * const TAG_MODEL;
         static const char * const TAG_MESH;
+        static const char * const TAG_VERTICES;
+        static const char * const TAG_BUFFER;
         static const char * const TAG_ATTRIBUTES;
         static const char * const TAG_ATTRIBUTE;
-        static const char * const TAG_VERTICES;
-        static const char * const TAG_PARTS;
-        static const char * const TAG_PART;
+        static const char * const TAG_DATA;
+        static const char * const TAG_SUBMESHES;
+        static const char * const TAG_SUBMESH;
         static const char * const TAG_INDICES;
         static const char * const TAG_MATERIALS;
         static const char * const TAG_MATERIAL;
