@@ -12,25 +12,42 @@ namespace Tiny3D
     class T3D_ENGINE_API VertexData : public Object
     {
     public:
-        static VertexDataPtr create(VertexDeclaration *decl, HardwareVertexBuffer *buffer);
+        static VertexDataPtr create();
 
         virtual ~VertexData();
 
         VertexDataPtr clone(bool copyData = true) const;
 
-        const VertexDeclarationPtr getDeclaration() const       { return mDeclaration; }
-        const HardwareVertexBufferPtr getVertexBuffer() const   { return mVertexBuffer; }
+        bool addVertexStream(const VertexStreamPtr &stream);
+        bool insertVertexStream(const VertexStreamPtr &stream, size_t index);
+        bool removeVertexStream(const VertexStreamPtr &stream);
+        bool removeVertexStream(size_t index);
+
+        const VertexStreamPtr &getStream(size_t index) const
+        {
+            T3D_ASSERT(index <= mStreams.size());
+            return mStreams[index];
+        }
+
+        VertexStreamPtr &getStream(size_t index)
+        {
+            T3D_ASSERT(index <= mStreams.size());
+            return mStreams[index];
+        }
 
     protected:
-        VertexData(VertexDeclaration *decl, HardwareVertexBuffer *buffer);
+        VertexData();
 
     private:
         VertexData(const VertexData &);
         VertexData &operator =(const VertexData &);
 
     protected:
-        VertexDeclarationPtr    mDeclaration;
-        HardwareVertexBufferPtr mVertexBuffer;
+        typedef std::vector<VertexStreamPtr>    Streams;
+        typedef Streams::iterator               StreamsItr;
+        typedef Streams::const_iterator         StreamsConstItr;
+
+        Streams     mStreams;
     };
 }
 

@@ -556,6 +556,17 @@ namespace Tiny3D
     {
         XMLElement *pAttribsElement = pMeshElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTES);
 
+        
+
+        bool ret = parseSubMeshes(pMeshElement, &attributes, &vertices, vertexSize);
+
+        ret = ret && parseSkin(pMeshElement);
+
+        return true;
+    }
+
+    bool Model::parseVertexBuffer(tinyxml2::XMLElement *pBufferElement)
+    {
         // 解析顶点属性列表大小
         size_t count = pAttribsElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
 
@@ -613,12 +624,6 @@ namespace Tiny3D
                 i += step;
             }
         } while (i < valueCount);
-
-        bool ret = parseSubMeshes(pMeshElement, &attributes, &vertices, vertexSize);
-
-        ret = ret && parseSkin(pMeshElement);
-
-        return true;
     }
 
     bool Model::parseSubMeshes(tinyxml2::XMLElement *pMeshElement, void *attributes, void *vertices, size_t vertexSize)

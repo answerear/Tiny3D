@@ -16,6 +16,7 @@
 #include "mconv_skin.h"
 #include "mconv_texture.h"
 #include "mconv_bound.h"
+#include "mconv_vertexbuffer.h"
 
 
 namespace mconv
@@ -381,6 +382,8 @@ namespace mconv
         }
 
         Mesh *pMesh = nullptr;
+        VertexBuffers *pVBS = nullptr;
+        VertexBuffer *pVB = nullptr;
 
         if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
         {
@@ -393,11 +396,19 @@ namespace mconv
                 pNewNode = pMesh;
                 mCurMesh = pMesh;
                 mHasVertexBlending = false;
+
+                pVBS = new VertexBuffers(name);
+                pMesh->addChild(pVBS);
+
+                pVB = new VertexBuffer("0");
+                pVBS->addChild(pVB);
             }
             else
             {
                 pMesh = (Mesh *)mCurMesh;
                 pNewNode = pMesh;
+
+                searchVertexBuffer(pMesh, pVB);
             }
         }
         else
@@ -407,6 +418,12 @@ namespace mconv
             pNewNode = pMesh;
             mCurMesh = pMesh;
             mHasVertexBlending = false;
+
+            pVBS = new VertexBuffers(name);
+            pMesh->addChild(pVBS);
+
+            pVB = new VertexBuffer("0");
+            pVBS->addChild(pVB);
         }
 
         FbxVector4 T = pFbxNode->GetGeometricTranslation(FbxNode::eSourcePivot);
@@ -422,7 +439,7 @@ namespace mconv
         int i = 0, j = 0;
 
         // 生成顶点属性
-        if (!processVertexAttribute(pFbxMesh, pMesh))
+        if (!processVertexAttribute(pFbxMesh, pVB))
         {
             return false;
         }
@@ -518,7 +535,7 @@ namespace mconv
                     vertex.mMaterialIdx = nMaterialIdx;
                 }
 
-                pMesh->mVertices.push_back(vertex);
+                pVB->mVertices.push_back(vertex);
 
                 ++nVertexCount;
             }
@@ -527,7 +544,39 @@ namespace mconv
         return true;
     }
 
-    bool FBXConverter::putVertexAttribute(Mesh *pMesh, bool bHasAttributes, const VertexAttribute &rkSource, const VertexAttribute &rkOther)
+    bool FBXConverter::searchVertexBuffer(Mesh *pMesh, VertexBuffer *&pVertexBuffer)
+    {
+        bool found = false;
+
+        pVertexBuffer = nullptr;
+        size_t count = pMesh->getChildrenCount();
+        size_t i = 0;
+
+        for (i = 0; i < count; ++i)
+        {
+            VertexBuffers *pBuffers = dynamic_cast<VertexBuffers *>(pMesh->getChild(i));
+
+            if (pBuffers != nullptr)
+            {
+                size_t j = 0;
+
+                for (j = 0; j < pBuffers->getChildrenCount(); ++j)
+                {
+                    VertexBuffer *pBuffer = dynamic_cast<VertexBuffer *>(pBuffers->getChild(i));
+                    
+                    if (pBuffer != nullptr)
+                    {
+                        pVertexBuffer = pBuffer;
+                        found = true;
+                    }
+                }
+            }
+        }
+
+        return found;
+    }
+
+    bool FBXConverter::putVertexAttribute(VertexBuffer *pVertexBuffer, bool bHasAttributes, const VertexAttribute &rkSource, const VertexAttribute &rkOther)
     {
         if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
         {
@@ -541,23 +590,23 @@ namespace mconv
             }
             else
             {
-                pMesh->mAttributes.push_back(rkOther);
+                pVertexBuffer->mAttributes.push_back(rkOther);
             }
         }
         else
         {
-            pMesh->mAttributes.push_back(rkOther);
+            pVertexBuffer->mAttributes.push_back(rkOther);
         }
 
         return true;
     }
 
-    bool FBXConverter::processVertexAttribute(FbxMesh *pFbxMesh, Mesh *pMesh)
+    bool FBXConverter::processVertexAttribute(FbxMesh *pFbxMesh, VertexBuffer *pVertexBuffer)
     {
         int i = 0;
 
-        bool bHasAttributes = (pMesh->mAttributes.size() > 0);
-        auto itr = pMesh->mAttributes.begin();
+        bool bHasAttributes = (pVertexBuffer->mAttributes.size() > 0);
+        auto itr = pVertexBuffer->mAttributes.begin();
         VertexAttribute source;
 
         // 位置
@@ -565,7 +614,7 @@ namespace mconv
         attribute.mVertexType = VertexAttribute::E_VT_POSITION;
         attribute.mSize = 3;
         attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-        if (!putVertexAttribute(pMesh, bHasAttributes, (bHasAttributes ? *itr : source), attribute))
+        if (!putVertexAttribute(pVertexBuffer, bHasAttributes, (bHasAttributes ? *itr : source), attribute))
         {
             return false;
         }
@@ -582,7 +631,7 @@ namespace mconv
             attribute.mVertexType = VertexAttribute::E_VT_TEXCOORD;
             attribute.mSize = 2;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-            if (!putVertexAttribute(pMesh, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
+            if (!putVertexAttribute(pVertexBuffer, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
             {
                 return false;
             }
@@ -594,7 +643,7 @@ namespace mconv
             attribute.mVertexType = VertexAttribute::E_VT_NORMAL;
             attribute.mSize = 3;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-            if (!putVertexAttribute(pMesh, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
+            if (!putVertexAttribute(pVertexBuffer, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
             {
                 return false;
             }
@@ -606,7 +655,7 @@ namespace mconv
             attribute.mVertexType = VertexAttribute::E_VT_BINORMAL;
             attribute.mSize = 3;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-            if (!putVertexAttribute(pMesh, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
+            if (!putVertexAttribute(pVertexBuffer, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
             {
                 return false;
             }
@@ -618,7 +667,7 @@ namespace mconv
             attribute.mVertexType = VertexAttribute::E_VT_TANGENT;
             attribute.mSize = 3;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-            if (!putVertexAttribute(pMesh, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
+            if (!putVertexAttribute(pVertexBuffer, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
             {
                 return false;
             }
@@ -630,7 +679,7 @@ namespace mconv
             attribute.mVertexType = VertexAttribute::E_VT_COLOR;
             attribute.mSize = 4;
             attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-            if (!putVertexAttribute(pMesh, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
+            if (!putVertexAttribute(pVertexBuffer, bHasAttributes, (bHasAttributes ? *(++itr) : source), attribute))
             {
                 return false;
             }
@@ -1742,70 +1791,82 @@ namespace mconv
 
     bool FBXConverter::updateVertexBlendIndexAndWeight(Mesh *pMesh, int nCtrlPointIdx, int nBlendIndex, double fBlendWeight)
     {
-        VerticesItr itr = pMesh->mVertices.begin();
+        VertexBuffer *pVB = nullptr;
+        bool ret = searchVertexBuffer(pMesh, pVB);
 
-        while (itr != pMesh->mVertices.end())
+        if (ret)
         {
-            if (itr->mCtrlPointIdx == nCtrlPointIdx)
+            VerticesItr itr = pVB->mVertices.begin();
+
+            while (itr != pVB->mVertices.end())
             {
-                Vertex &vertex = *itr;
-
-                // 更新骨骼索引
-                BlendInfo blend;
-                blend.mBlendIndex = nBlendIndex;
-                blend.mBlendWeight = fBlendWeight;
-                BlendInfoValue value(fBlendWeight, blend);
-                vertex.mBlendInfo.insert(value);
-
-                auto i = vertex.mBlendInfo.rbegin();
-                double len = 0.0;
-                while (i != vertex.mBlendInfo.rend())
+                if (itr->mCtrlPointIdx == nCtrlPointIdx)
                 {
-                    len += i->second.mBlendWeight;
-                    ++i;
+                    Vertex &vertex = *itr;
+
+                    // 更新骨骼索引
+                    BlendInfo blend;
+                    blend.mBlendIndex = nBlendIndex;
+                    blend.mBlendWeight = fBlendWeight;
+                    BlendInfoValue value(fBlendWeight, blend);
+                    vertex.mBlendInfo.insert(value);
+
+                    auto i = vertex.mBlendInfo.rbegin();
+                    double len = 0.0;
+                    while (i != vertex.mBlendInfo.rend())
+                    {
+                        len += i->second.mBlendWeight;
+                        ++i;
+                    }
+
+                    BlendInfoDict blends;
+                    int j = 0;
+                    i = vertex.mBlendInfo.rbegin();
+                    while (i != vertex.mBlendInfo.rend())
+                    {
+                        auto blend = i->second;
+                        blend.mBlendWeight /= len;
+                        BlendInfoValue value(blend.mBlendWeight, blend);
+                        blends.insert(value);
+                        ++j;
+                        ++i;
+
+                        if (j >= 4)
+                            break;
+                    }
+
+                    vertex.mBlendInfo = blends;
                 }
 
-                BlendInfoDict blends;
-                int j = 0;
-                i = vertex.mBlendInfo.rbegin();
-                while (i != vertex.mBlendInfo.rend())
-                {
-                    auto blend = i->second;
-                    blend.mBlendWeight /= len;
-                    BlendInfoValue value(blend.mBlendWeight, blend);
-                    blends.insert(value);
-                    ++j;
-                    ++i;
-
-                    if (j >= 4)
-                        break;
-                }
-
-                vertex.mBlendInfo = blends;
+                ++itr;
             }
 
-            ++itr;
+            ret = true;
         }
 
-        return true;
+        return ret;
     }
 
     void FBXConverter::updateVertexBlendAttributes(Mesh *pMesh)
     {
         if (!mHasVertexBlending)
         {
-            VertexAttribute attribute;
-            attribute.mVertexType = VertexAttribute::E_VT_BLEND_WEIGHT;
-            attribute.mSize = 4;
-            attribute.mDataType = VertexAttribute::E_VT_FLOAT;
-            pMesh->mAttributes.push_back(attribute);
+            VertexBuffer *pVB = nullptr;
+            if (searchVertexBuffer(pMesh, pVB))
+            {
+                VertexAttribute attribute;
+                attribute.mVertexType = VertexAttribute::E_VT_BLEND_WEIGHT;
+                attribute.mSize = 4;
+                attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+                pVB->mAttributes.push_back(attribute);
 
-            attribute.mVertexType = VertexAttribute::E_VT_BLEND_INDEX;
-            attribute.mSize = 4;
-            attribute.mDataType = VertexAttribute::E_VT_INT32;
-            pMesh->mAttributes.push_back(attribute);
+                attribute.mVertexType = VertexAttribute::E_VT_BLEND_INDEX;
+                attribute.mSize = 4;
+                attribute.mDataType = VertexAttribute::E_VT_INT32;
+                pVB->mAttributes.push_back(attribute);
 
-            mHasVertexBlending = true;
+                mHasVertexBlending = true;
+            }
         }
     }
 
@@ -1862,110 +1923,120 @@ namespace mconv
         float x = 0.0f, y = 0.0f, z = 0.0f;
         float radius = 0.0f;
 
-        auto itr = pMesh->mVertices.begin();
-        while (itr != pMesh->mVertices.end())
+        VertexBuffer *pVB = nullptr;
+
+        if (searchVertexBuffer(pMesh, pVB))
         {
-            Vertex &vertex = *itr;
+            auto itr = pVB->mVertices.begin();
+            while (itr != pVB->mVertices.end())
+            {
+                Vertex &vertex = *itr;
 
-            x += vertex.mPosition[0];
-            y += vertex.mPosition[1];
-            z += vertex.mPosition[2];
+                x += vertex.mPosition[0];
+                y += vertex.mPosition[1];
+                z += vertex.mPosition[2];
 
-            ++itr;
+                ++itr;
+            }
+
+            size_t nVertexCount = pVB->mVertices.size();
+            x /= nVertexCount;
+            y /= nVertexCount;
+            z /= nVertexCount;
+
+            SphereBound *pBound = new SphereBound(pMesh->getID());
+            pMesh->addChild(pBound);
+
+            pBound->mCenterX = x;
+            pBound->mCenterY = y;
+            pBound->mCenterZ = z;
+
+            itr = pVB->mVertices.begin();
+            while (itr != pVB->mVertices.end())
+            {
+                Vertex &vertex = *itr;
+                float dx = x - vertex.mPosition[0];
+                float dy = y - vertex.mPosition[1];
+                float dz = z - vertex.mPosition[2];
+                float length = sqrt(x * x + y * y + z * z);
+                if (length > radius)
+                    radius = length;
+                ++itr;
+            }
+
+            pBound->mRadius = radius;
         }
-
-        size_t nVertexCount = pMesh->mVertices.size();
-        x /= nVertexCount;
-        y /= nVertexCount;
-        z /= nVertexCount;
-
-        SphereBound *pBound = new SphereBound(pMesh->getID());
-        pMesh->addChild(pBound);
-
-        pBound->mCenterX = x;
-        pBound->mCenterY = y;
-        pBound->mCenterZ = z;
-
-        itr = pMesh->mVertices.begin();
-        while (itr != pMesh->mVertices.end())
-        {
-            Vertex &vertex = *itr;
-            float dx = x - vertex.mPosition[0];
-            float dy = y - vertex.mPosition[1];
-            float dz = z - vertex.mPosition[2];
-            float length = sqrt(x * x + y * y + z * z);
-            if (length > radius)
-                radius = length;
-            ++itr;
-        }
-
-        pBound->mRadius = radius;
 
         return true;
     }
 
     bool FBXConverter::computeAlignAxisBoundingBox(Model *pModel, Mesh *pMesh)
     {
-        float fMinX = FLT_MAX;
-        float fMaxX = FLT_MIN;
-        float fMinY = FLT_MAX;
-        float fMaxY = FLT_MIN;
-        float fMinZ = FLT_MAX;
-        float fMaxZ = FLT_MIN;
+        VertexBuffer *pVB = nullptr;
 
-        if (mCurBound != nullptr)
+        if (searchVertexBuffer(pMesh, pVB))
         {
-            AabbBound *pBound = (AabbBound *)mCurBound;
-            fMinX = pBound->mMinX;
-            fMaxX = pBound->mMaxX;
-            fMinY = pBound->mMinY;
-            fMaxY = pBound->mMaxY;
-            fMinZ = pBound->mMinZ;
-            fMaxZ = pBound->mMaxZ;
+            float fMinX = FLT_MAX;
+            float fMaxX = FLT_MIN;
+            float fMinY = FLT_MAX;
+            float fMaxY = FLT_MIN;
+            float fMinZ = FLT_MAX;
+            float fMaxZ = FLT_MIN;
+
+            if (mCurBound != nullptr)
+            {
+                AabbBound *pBound = (AabbBound *)mCurBound;
+                fMinX = pBound->mMinX;
+                fMaxX = pBound->mMaxX;
+                fMinY = pBound->mMinY;
+                fMaxY = pBound->mMaxY;
+                fMinZ = pBound->mMinZ;
+                fMaxZ = pBound->mMaxZ;
+            }
+
+            auto itr = pVB->mVertices.begin();
+            while (itr != pVB->mVertices.end())
+            {
+                Vertex &vertex = *itr;
+
+                if (vertex.mPosition[0] < fMinX)
+                    fMinX = vertex.mPosition[0];
+                else if (vertex.mPosition[0] > fMaxX)
+                    fMaxX = vertex.mPosition[0];
+
+                if (vertex.mPosition[1] < fMinY)
+                    fMinY = vertex.mPosition[1];
+                else if (vertex.mPosition[1] > fMaxY)
+                    fMaxY = vertex.mPosition[1];
+
+                if (vertex.mPosition[2] < fMinZ)
+                    fMinZ = vertex.mPosition[2];
+                else if (vertex.mPosition[2] > fMaxZ)
+                    fMaxZ = vertex.mPosition[2];
+
+                ++itr;
+            }
+
+            AabbBound *pBound = nullptr;
+
+            if (mCurBound == nullptr)
+            {
+                pBound = new AabbBound(pMesh->getID());
+                pModel->addChild(pBound);
+                mCurBound = pBound;
+            }
+            else
+            {
+                pBound = (AabbBound *)mCurBound;
+            }
+
+            pBound->mMinX = fMinX;
+            pBound->mMaxX = fMaxX;
+            pBound->mMinY = fMinY;
+            pBound->mMaxY = fMaxY;
+            pBound->mMinZ = fMinZ;
+            pBound->mMaxZ = fMaxZ;
         }
-
-        auto itr = pMesh->mVertices.begin();
-        while (itr != pMesh->mVertices.end())
-        {
-            Vertex &vertex = *itr;
-
-            if (vertex.mPosition[0] < fMinX)
-                fMinX = vertex.mPosition[0];
-            else if (vertex.mPosition[0] > fMaxX)
-                fMaxX = vertex.mPosition[0];
-
-            if (vertex.mPosition[1] < fMinY)
-                fMinY = vertex.mPosition[1];
-            else if (vertex.mPosition[1] > fMaxY)
-                fMaxY = vertex.mPosition[1];
-
-            if (vertex.mPosition[2] < fMinZ)
-                fMinZ = vertex.mPosition[2];
-            else if (vertex.mPosition[2] > fMaxZ)
-                fMaxZ = vertex.mPosition[2];
-
-            ++itr;
-        }
-
-        AabbBound *pBound = nullptr;
-
-        if (mCurBound == nullptr)
-        {
-            pBound = new AabbBound(pMesh->getID());
-            pModel->addChild(pBound);
-            mCurBound = pBound;
-        }
-        else
-        {
-            pBound = (AabbBound *)mCurBound;
-        }
-
-        pBound->mMinX = fMinX;
-        pBound->mMaxX = fMaxX;
-        pBound->mMinY = fMinY;
-        pBound->mMaxY = fMaxY;
-        pBound->mMinZ = fMinZ;
-        pBound->mMaxZ = fMaxZ;
 
         return true;
     }

@@ -47,11 +47,13 @@ namespace mconv
     const char * const T3DXMLSerializer::TAG_SCENE = "scene";
     const char * const T3DXMLSerializer::TAG_MODEL = "model";
     const char * const T3DXMLSerializer::TAG_MESH = "mesh";
+    const char * const T3DXMLSerializer::TAG_VERTICES = "vertices";
+    const char * const T3DXMLSerializer::TAG_BUFFER = "buffer";
     const char * const T3DXMLSerializer::TAG_ATTRIBUTES = "attributes";
     const char * const T3DXMLSerializer::TAG_ATTRIBUTE = "attribute";
-    const char * const T3DXMLSerializer::TAG_VERTICES = "vertices";
-    const char * const T3DXMLSerializer::TAG_PARTS = "parts";
-    const char * const T3DXMLSerializer::TAG_PART = "part";
+    const char * const T3DXMLSerializer::TAG_DATA = "data";
+    const char * const T3DXMLSerializer::TAG_SUBMESHES = "submeshes";
+    const char * const T3DXMLSerializer::TAG_SUBMESH = "submesh";
     const char * const T3DXMLSerializer::TAG_INDICES = "indices";
     const char * const T3DXMLSerializer::TAG_MATERIALS = "materials";
     const char * const T3DXMLSerializer::TAG_MATERIAL = "material";
@@ -236,6 +238,16 @@ namespace mconv
                 pElement = buildXMLTextures(pDoc, pParentElem, pNode);
             }
             break;
+        case Node::E_TYPE_VERTEX_BUFFERS:
+            {
+                pElement = buildXMLVertexBuffers(pDoc, pParentElem, pNode);
+            }
+            break;
+        case Node::E_TYPE_VERTEX_BUFFER:
+            {
+                pElement = buildXMLVertexBuffer(pDoc, pParentElem, pNode);
+            }
+            break;
         default:
             {
                 pElement = pParentElem;
@@ -275,15 +287,36 @@ namespace mconv
 
         pMeshElement->SetAttribute(ATTRIB_ID, pMesh->getID().c_str());
 
+        return pMeshElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLVertexBuffers(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        VertexBuffers *pVertices = (VertexBuffers *)pNode;
+        XMLElement *pVerticesElement = pDoc->NewElement(TAG_VERTICES);
+        pParentElem->LinkEndChild(pVerticesElement);
+
+        pVerticesElement->SetAttribute(ATTRIB_ID, pVertices->getID().c_str());
+
+        return pVerticesElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLVertexBuffer(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        VertexBuffer *pVB = (VertexBuffer *)pNode;
+        XMLElement *pBufferElement = pDoc->NewElement(TAG_BUFFER);
+        pBufferElement->SetAttribute(ATTRIB_ID, pVB->getID().c_str());
+        pParentElem->LinkEndChild(pBufferElement);
+
         // 属性
         XMLElement *pAttribRootElement = pDoc->NewElement(TAG_ATTRIBUTES);
-        pAttribRootElement->SetAttribute(ATTRIB_COUNT, pMesh->mAttributes.size());
-        pMeshElement->LinkEndChild(pAttribRootElement);
+        pAttribRootElement->SetAttribute(ATTRIB_COUNT, pVB->mAttributes.size());
+        pBufferElement->LinkEndChild(pAttribRootElement);
 
         int nVertexSize = 0;
-        auto itrAttrib = pMesh->mAttributes.begin();
+        auto itrAttrib = pVB->mAttributes.begin();
 
-        while (itrAttrib != pMesh->mAttributes.end())
+        while (itrAttrib != pVB->mAttributes.end())
         {
             const VertexAttribute &attribute = *itrAttrib;
             XMLElement *pAttribElement = pDoc->NewElement(TAG_ATTRIBUTE);
@@ -296,15 +329,15 @@ namespace mconv
         }
 
         // 顶点数据
-        XMLElement *pVertexElement = pDoc->NewElement(TAG_VERTICES);
-        pMeshElement->LinkEndChild(pVertexElement);
-        pVertexElement->SetAttribute(ATTRIB_COUNT, pMesh->mVertices.size());
+        XMLElement *pVertexElement = pDoc->NewElement(TAG_DATA);
+        pBufferElement->LinkEndChild(pVertexElement);
+        pVertexElement->SetAttribute(ATTRIB_COUNT, pVB->mVertices.size());
 
-        auto itrVertex = pMesh->mVertices.begin();
+        auto itrVertex = pVB->mVertices.begin();
 
         int count = 0;
 
-        while (itrVertex != pMesh->mVertices.end())
+        while (itrVertex != pVB->mVertices.end())
         {
             std::stringstream ss;
             const Vertex &vertex = *itrVertex;
@@ -314,20 +347,20 @@ namespace mconv
             {
                 char szText[64] = {0};
                 snprintf(szText, sizeof(szText)-1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
-                ss<<"\n\t\t\t\t"<<szText;
+                ss<<"\n\t\t\t\t\t\t"<<szText;
             }
             else
             {
                 char szText[64] = {0};
                 snprintf(szText, sizeof(szText)-1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
-                ss<<"\t\t\t\t"<<szText;
+                ss<<"\t\t\t\t\t\t"<<szText;
             }
 
             // TEXCOORD
             auto itr2 = vertex.mTexElements.begin();
             while (itr2 != vertex.mTexElements.end())
             {
-//                 const FbxVector2 &uv = *itr2;
+                //                 const FbxVector2 &uv = *itr2;
                 const Vector2 &uv = *itr2;
                 char szText[64] = {0};
                 snprintf(szText, sizeof(szText)-1, " % 8f % 8f", uv[0], uv[1]);
@@ -339,7 +372,7 @@ namespace mconv
             auto itr3 = vertex.mNormalElements.begin();
             while (itr3 != vertex.mNormalElements.end())
             {
-//                 const FbxVector3 &normal = *itr3;
+                //                 const FbxVector3 &normal = *itr3;
                 const Vector3 &normal = *itr3;
                 char szText[64] = {0};
                 snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", normal[0], normal[1], normal[2]);
@@ -351,7 +384,7 @@ namespace mconv
             itr3 = vertex.mBinormalElements.begin();
             while (itr3 != vertex.mBinormalElements.end())
             {
-//                 const FbxVector3 &binormal = *itr3;
+                //                 const FbxVector3 &binormal = *itr3;
                 const Vector3 &binormal = *itr3;
                 char szText[64] = {0};
                 snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", binormal[0], binormal[1], binormal[2]);
@@ -363,12 +396,12 @@ namespace mconv
             itr3 = vertex.mTangentElements.begin();
             while (itr3 != vertex.mTangentElements.end())
             {
-//                 const FbxVector3 &tangent = *itr3;
+                //                 const FbxVector3 &tangent = *itr3;
                 const Vector3 &tangent = *itr3;
                 char szText[64] = {0};
                 snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", tangent[0], tangent[1], tangent[2]);
                 ss<<szText;
-//                 ss<<" "<<tangent[0]<<" "<<tangent[1]<<" "<<tangent[2];
+                //                 ss<<" "<<tangent[0]<<" "<<tangent[1]<<" "<<tangent[2];
                 ++itr3;
             }
 
@@ -376,12 +409,12 @@ namespace mconv
             auto itr4 = vertex.mColorElements.begin();
             while (itr4 != vertex.mColorElements.end())
             {
-//                 const FbxVector4 &color = *itr4;
+                //                 const FbxVector4 &color = *itr4;
                 const Vector4 &color = *itr4;
                 char szText[64] = {0};
                 snprintf(szText, sizeof(szText)-1, " % 8f %8f % 8f % 8f", color[0], color[1], color[2], color[3]);
                 ss<<szText;
-//                 ss<<" "<<color[0]<<" "<<color[1]<<" "<<color[2]<<" "<<color[3];
+                //                 ss<<" "<<color[0]<<" "<<color[1]<<" "<<color[2]<<" "<<color[3];
                 ++itr4;
             }
 
@@ -397,7 +430,7 @@ namespace mconv
                     char szText[16] = {0};
                     snprintf(szText, sizeof(szText)-1, "% 8f", itrBlend->second.mBlendWeight);
                     ss<<szText;
-//                     ss<<itrBlend->second.mBlendWeight;
+                    //                     ss<<itrBlend->second.mBlendWeight;
                     ++i;
                     ++itrBlend;
 
@@ -411,7 +444,7 @@ namespace mconv
 
                 while (i < MAX_BLEND_COUNT)
                 {
-//                     ss<<"0";
+                    //                     ss<<"0";
                     char szText[16] = {0};
                     snprintf(szText, sizeof(szText)-1, "% 8f", 0.0f);
                     ss<<szText;
@@ -427,7 +460,7 @@ namespace mconv
                     char szText[16] = {0};
                     snprintf(szText, sizeof(szText)-1, "% 8d", itrBlend->second.mBlendIndex);
                     ss<<szText;
-//                     ss<<itrBlend->second.mBlendIndex;
+                    //                     ss<<itrBlend->second.mBlendIndex;
                     ++i;
                     ++itrBlend;
 
@@ -444,7 +477,7 @@ namespace mconv
                     char szText[16] = {0};
                     snprintf(szText, sizeof(szText)-1, "% 8d", 0);
                     ss<<szText;
-//                     ss<<"-1";
+                    //                     ss<<"-1";
                     ++i;
                     if (i < MAX_BLEND_COUNT)
                         ss<<" ";
@@ -461,15 +494,15 @@ namespace mconv
             ++count;
         }
 
-        XMLText *pText = pDoc->NewText("\t\t\t");
+        XMLText *pText = pDoc->NewText("\t\t\t\t\t");
         pVertexElement->LinkEndChild(pText);
 
-        return pMeshElement;
+        return pBufferElement;
     }
 
     XMLElement *T3DXMLSerializer::buildXMLSubMeshes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
-        XMLElement *pSubmeshesElem = pDoc->NewElement(TAG_PARTS);
+        XMLElement *pSubmeshesElem = pDoc->NewElement(TAG_SUBMESHES);
         pParentElem->LinkEndChild(pSubmeshesElem);
 
         size_t nChildrenCount = pNode->getChildrenCount();
@@ -481,7 +514,7 @@ namespace mconv
 
     XMLElement *T3DXMLSerializer::buildXMLSubMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
-        XMLElement *pSubmeshElement = pDoc->NewElement(TAG_PART);
+        XMLElement *pSubmeshElement = pDoc->NewElement(TAG_SUBMESH);
         pParentElem->LinkEndChild(pSubmeshElement);
 
         // sub-mesh

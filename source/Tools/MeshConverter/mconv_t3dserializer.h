@@ -210,6 +210,8 @@ namespace mconv
 
         XMLElement *buildXMLModel(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLVertexBuffers(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLVertexBuffer(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSubMeshes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSubMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLVertexAttributes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);

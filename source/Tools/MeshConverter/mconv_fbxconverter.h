@@ -19,6 +19,8 @@ namespace mconv
     class Action;
     class Material;
     class VertexAttribute;
+    class VertexBuffer;
+    class VertexBuffers;
 
     class FBXConverter : public ConverterImpl
     {
@@ -49,17 +51,13 @@ namespace mconv
         bool computeBoundingSphere(Model *pModel, Mesh *pMesh);
         bool computeAlignAxisBoundingBox(Model *pModel, Mesh *pMesh);
 
-        bool putVertexAttribute(Mesh *pMesh, bool bHasAttributes, const VertexAttribute &rkSource, const VertexAttribute &rkOther);
-        bool processVertexAttribute(FbxMesh *pFbxMesh, Mesh *pMesh);
-//         bool readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos);
+        bool searchVertexBuffer(Mesh *pMesh, VertexBuffer *&pVertexBuffer);
+
+        bool putVertexAttribute(VertexBuffer *pVertexBuffer, bool bHasAttributes, const VertexAttribute &rkSource, const VertexAttribute &rkOther);
+        bool processVertexAttribute(FbxMesh *pFbxMesh, VertexBuffer *pVertexBuffer);
         bool readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, Vector3 &pos);
-//         bool readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector4 &color);
         bool readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector4 &color);
-//         bool readUV(FbxMesh *pFbxMesh, int nControlPointIdx, int nUVIndex, int nLayer, FbxVector2 &uv);
         bool readUV(FbxMesh *pFbxMesh, int nControlPointIdx, int nUVIndex, int nLayer, Vector2 &uv);
-//         bool readNormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &normal);
-//         bool readTangent(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &tangent);
-//         bool readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &binormal);
         bool readNormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector3 &normal);
         bool readTangent(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector3 &tangent);
         bool readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector3 &binormal);

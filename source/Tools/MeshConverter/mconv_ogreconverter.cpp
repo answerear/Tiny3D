@@ -176,7 +176,7 @@ namespace mconv
 
         if (result)
         {
-            pMesh->mAttributes.push_back(attribute);
+//             pMesh->mAttributes.push_back(attribute);
         }
 
         return result;
@@ -339,9 +339,9 @@ namespace mconv
 
         while (i < buffer.vertices.size())
         {
-            pMesh->mVertices.push_back(Vertex());
-            Vertex &vertex = pMesh->mVertices.back();
-            result = result && putVertexData(buffer.vertices, i, pMesh->mAttributes, vertex);
+//             pMesh->mVertices.push_back(Vertex());
+//             Vertex &vertex = pMesh->mVertices.back();
+//             result = result && putVertexData(buffer.vertices, i, pMesh->mAttributes, vertex);
         }
 
         return result;

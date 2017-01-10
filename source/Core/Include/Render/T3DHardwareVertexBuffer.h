@@ -128,6 +128,30 @@ namespace Tiny3D
     protected:
         VertexElementList   mVertexElements;
     };
+
+    class T3D_ENGINE_API VertexStream : public Object
+    {
+    public:
+        static VertexStreamPtr create(VertexDeclaration *decl, HardwareVertexBuffer *buffer);
+
+        virtual ~VertexStream();
+
+        VertexStreamPtr clone(bool copyData) const;
+
+        const VertexDeclarationPtr getDeclaration() const       { return mDeclaration; }
+        const HardwareVertexBufferPtr getVertexBuffer() const   { return mVertexBuffer; }
+
+    protected:
+        VertexStream(VertexDeclaration *decl, HardwareVertexBuffer *buffer);
+
+    private:
+        VertexStream(const VertexStream &);
+        VertexStream &operator =(const VertexStream &);
+
+    protected:
+        VertexDeclarationPtr    mDeclaration;
+        HardwareVertexBufferPtr mVertexBuffer;
+    };
 }
 
 

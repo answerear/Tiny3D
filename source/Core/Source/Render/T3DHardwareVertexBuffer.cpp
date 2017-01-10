@@ -304,4 +304,51 @@ namespace Tiny3D
 
         return decl;
     }
+
+    VertexStreamPtr VertexStream::create(VertexDeclaration *decl, HardwareVertexBuffer *buffer)
+    {
+        VertexStream *stream = new VertexStream(decl, buffer);
+        VertexStreamPtr ptr(stream);
+        stream->release();
+        return ptr;
+    }
+
+    VertexStream::VertexStream(VertexDeclaration *decl, HardwareVertexBuffer *buffer)
+        : mDeclaration(decl)
+        , mVertexBuffer(buffer)
+    {
+
+    }
+
+    VertexStream::~VertexStream()
+    {
+    }
+
+    VertexStreamPtr VertexStream::clone(bool copyData) const
+    {
+        VertexStreamPtr ptr;
+
+        if (copyData)
+        {
+            HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(
+                mVertexBuffer->getVertexSize(), mVertexBuffer->getVertexCount(), mVertexBuffer->getUsage(), mVertexBuffer->hasShadowBuffer());
+
+            vertexBuffer->copyData((HardwareBufferPtr)mVertexBuffer);
+
+            VertexDeclaration *decl = new VertexDeclaration();
+            *decl = *mDeclaration;
+            VertexStream *stream = new VertexStream(decl, vertexBuffer);
+            decl->release();
+            ptr = stream;
+            stream->release();
+        }
+        else
+        {
+            VertexStream *stream = new VertexStream(mDeclaration, mVertexBuffer);
+            ptr = stream;
+            stream->release();
+        }
+
+        return ptr;
+    }
 }

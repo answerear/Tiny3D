@@ -6,50 +6,78 @@
 
 namespace Tiny3D
 {
-    VertexDataPtr VertexData::create(VertexDeclaration *decl, HardwareVertexBuffer *buffer)
+    VertexDataPtr VertexData::create()
     {
-        VertexData *data = new VertexData(decl, buffer);
+        VertexData *data = new VertexData();
         VertexDataPtr ptr(data);
         data->release();
         return ptr;
     }
 
-    VertexData::VertexData(VertexDeclaration *decl, HardwareVertexBuffer *buffer)
-        : mDeclaration(decl)
-        , mVertexBuffer(buffer)
+    VertexData::VertexData()
     {
 
     }
 
     VertexData::~VertexData()
     {
-        mVertexBuffer = nullptr;
+
     }
 
-    VertexDataPtr VertexData::clone(bool copyData /* = true */) const
+    bool VertexData::addVertexStream(const VertexStreamPtr &stream)
     {
-        VertexDataPtr ptr;
+        mStreams.push_back(stream);
+        return true;
+    }
 
-        if (copyData)
+    bool VertexData::insertVertexStream(const VertexStreamPtr &stream, size_t index)
+    {
+        bool found = false;
+        size_t i = 0;
+
+        if (index <= mStreams.size())
         {
-            HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(
-                mVertexBuffer->getVertexSize(), mVertexBuffer->getVertexCount(), mVertexBuffer->getUsage(), mVertexBuffer->hasShadowBuffer());
-
-            vertexBuffer->copyData((HardwareBufferPtr)mVertexBuffer);
-
-            VertexDeclaration *decl = new VertexDeclaration();
-            *decl = *mDeclaration;
-            VertexData *data = new VertexData(decl, vertexBuffer);
-            decl->release();
-
-            ptr = data;
+            mStreams.insert(mStreams.begin()+index, stream);
         }
         else
         {
-            VertexData *data = new VertexData(mDeclaration, mVertexBuffer);
-            ptr = data;
+            mStreams.push_back(stream);
         }
 
-        return ptr;
+        return true;
+    }
+
+    bool VertexData::removeVertexStream(const VertexStreamPtr &stream)
+    {
+        bool found = false;
+
+        auto itr = mStreams.begin();
+
+        while (itr != mStreams.end())
+        {
+            if (stream == *itr)
+            {
+                found = true;
+                mStreams.erase(itr);
+                break;
+            }
+
+            ++itr;
+        }
+
+        return found;
+    }
+
+    bool VertexData::removeVertexStream(size_t index)
+    {
+        bool found = false;
+
+        if (index < mStreams.size())
+        {
+            mStreams.erase(mStreams.begin()+index);
+            found = true;
+        }
+
+        return found;
     }
 }

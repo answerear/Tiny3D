@@ -141,6 +141,7 @@ namespace Tiny3D
         Renderer::PrimitiveType parsePrimitiveType(const String &name);
 
         bool parseMesh(tinyxml2::XMLElement *pMeshElement);
+        bool parseVertexBuffer(tinyxml2::XMLElement *pBufferElement);
 
         bool parseSubMeshes(tinyxml2::XMLElement *pMeshElement, void *attributes, void *vertices, size_t vertexSize);
         bool parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, void *attributes, void *vertices, size_t vertexSize);
