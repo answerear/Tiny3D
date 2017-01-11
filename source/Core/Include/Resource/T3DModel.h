@@ -141,10 +141,11 @@ namespace Tiny3D
         Renderer::PrimitiveType parsePrimitiveType(const String &name);
 
         bool parseMesh(tinyxml2::XMLElement *pMeshElement);
-        bool parseVertexBuffer(tinyxml2::XMLElement *pBufferElement);
+        bool parseVertexBuffers(tinyxml2::XMLElement *pBuffersElement, void *buffers);
+        bool parseVertexBuffer(tinyxml2::XMLElement *pBufferElement, void *buffer);
 
-        bool parseSubMeshes(tinyxml2::XMLElement *pMeshElement, void *attributes, void *vertices, size_t vertexSize);
-        bool parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, void *attributes, void *vertices, size_t vertexSize);
+        bool parseSubMeshes(tinyxml2::XMLElement *pMeshElement, void *buffers);
+        bool parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, void *buffers);
 
         bool parseSkin(tinyxml2::XMLElement *pMeshElement);
         bool parseBone(tinyxml2::XMLElement *pBoneElement, SkinDataList &skinList);

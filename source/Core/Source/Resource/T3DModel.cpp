@@ -554,19 +554,47 @@ namespace Tiny3D
 
     bool Model::parseMesh(tinyxml2::XMLElement *pMeshElement)
     {
-        XMLElement *pAttribsElement = pMeshElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTES);
+        GeometryData::VertexBuffers buffers;
 
-        
+        XMLElement *pBuffersElement = pMeshElement->FirstChildElement(T3D_XML_TAG_VERTEX_BUFFERS);
 
-        bool ret = parseSubMeshes(pMeshElement, &attributes, &vertices, vertexSize);
+        bool ret = parseVertexBuffers(pBuffersElement, &buffers);
+
+        ret = ret && parseSubMeshes(pMeshElement, &buffers);
 
         ret = ret && parseSkin(pMeshElement);
 
         return true;
     }
 
-    bool Model::parseVertexBuffer(tinyxml2::XMLElement *pBufferElement)
+    bool Model::parseVertexBuffers(tinyxml2::XMLElement *pBuffersElement, void *buffers)
     {
+        GeometryData::VertexBuffers *pBuffers = (GeometryData::VertexBuffers *)buffers;
+
+        size_t count = pBuffersElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+
+        pBuffers->resize(count);
+
+        XMLElement *pBufferElement = pBuffersElement->FirstChildElement(T3D_XML_TAG_VERTEX_BUFFER);
+
+        size_t i = 0;
+        bool ret = (pBufferElement != nullptr);
+
+        while (pBufferElement != nullptr)
+        {
+            GeometryData::VertexBuffer &buffer = pBuffers->at(i);
+            ret = ret && parseVertexBuffer(pBufferElement, &buffer);
+            pBufferElement = pBufferElement->NextSiblingElement(T3D_XML_TAG_VERTEX_BUFFER);
+            ++i;
+        }
+
+        return true;
+    }
+
+    bool Model::parseVertexBuffer(tinyxml2::XMLElement *pBufferElement, void *buffer)
+    {
+        XMLElement *pAttribsElement = pBufferElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTES);
+
         // 解析顶点属性列表大小
         size_t count = pAttribsElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
 
@@ -595,7 +623,7 @@ namespace Tiny3D
         }
 
         // 解析顶点数据
-        XMLElement *pVerticesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_VERTICES);
+        XMLElement *pVerticesElement = pBufferElement->FirstChildElement(T3D_XML_TAG_DATA);
         size_t vertexCount = pVerticesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
 
         if (count == 0)
@@ -626,9 +654,9 @@ namespace Tiny3D
         } while (i < valueCount);
     }
 
-    bool Model::parseSubMeshes(tinyxml2::XMLElement *pMeshElement, void *attributes, void *vertices, size_t vertexSize)
+    bool Model::parseSubMeshes(tinyxml2::XMLElement *pMeshElement, void *buffers)
     {
-        XMLElement *pSubMeshesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_PARTS);
+        XMLElement *pSubMeshesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_SUBMESHES);
         int32_t count = pSubMeshesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
 
         if (mIsVertexShared)
@@ -636,17 +664,17 @@ namespace Tiny3D
             mGeometryData.reserve(count);
         }
 
-        XMLElement *pSubMeshElement = pSubMeshesElement->FirstChildElement(T3D_XML_TAG_PART);
+        XMLElement *pSubMeshElement = pSubMeshesElement->FirstChildElement(T3D_XML_TAG_SUBMESH);
         while (pSubMeshElement != nullptr)
         {
-            parseSubMesh(pSubMeshElement, attributes, vertices, vertexSize);
-            pSubMeshElement = pSubMeshElement->NextSiblingElement(T3D_XML_TAG_PART);
+            parseSubMesh(pSubMeshElement, buffers);
+            pSubMeshElement = pSubMeshElement->NextSiblingElement(T3D_XML_TAG_SUBMESH);
         }
 
         return true;
     }
 
-    bool Model::parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, void *attributes, void *vertices, size_t vertexSize)
+    bool Model::parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, void *buffers)
     {
         Renderer::PrimitiveType primitiveType = parsePrimitiveType(pSubMeshElement->Attribute(T3D_XML_ATTRIB_PRIMITIVE));
         int32_t primitiveCount = pSubMeshElement->IntAttribute(T3D_XML_ATTRIB_COUNT);

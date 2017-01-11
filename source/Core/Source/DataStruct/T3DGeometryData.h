@@ -30,6 +30,17 @@ namespace Tiny3D
         typedef Indices::iterator           IndicesItr;
         typedef Indices::const_iterator     IndicesConstItr;
 
+        struct VertexBuffer
+        {
+            VertexAttributes    attributes;
+            Vertices            vertices;
+            size_t              vertexSize;
+        };
+
+        typedef std::vector<VertexBuffer>       VertexBuffers;
+        typedef VertexBuffers::iterator         VertexStreamItr;
+        typedef VertexBuffers::const_iterator   VertexStreamConstItr;
+
         /**
          * @brief 创建几何物体数据对象
          * @param [in] primitiveType : 渲染用的图元类型
@@ -41,7 +52,7 @@ namespace Tiny3D
          * @param [in] materialName : 材质资源名称
          * @return 返回一个几何渲染数据对象
          */
-        static GeometryDataPtr create(Renderer::PrimitiveType primitiveType, const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize, const Indices &indices, bool is16bits, const String &materialName);
+        static GeometryDataPtr create(Renderer::PrimitiveType primitiveType, const VertexBuffers &buffers, const Indices &indices, bool is16bits, const String &materialName);
 
         virtual ~GeometryData();
 
@@ -67,7 +78,7 @@ namespace Tiny3D
 
     protected:
         GeometryData();
-        bool init(Renderer::PrimitiveType primitiveType, const VertexAttributes &attributes, const Vertices &vertices, size_t vertexSize, const Indices &indices, bool is16bits, const String &materialName);
+        bool init(Renderer::PrimitiveType primitiveType, const VertexBuffers &buffers, const Indices &indices, bool is16bits, const String &materialName);
 
     private:
         GeometryData(const GeometryData &);

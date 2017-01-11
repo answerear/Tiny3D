@@ -297,6 +297,7 @@ namespace mconv
         pParentElem->LinkEndChild(pVerticesElement);
 
         pVerticesElement->SetAttribute(ATTRIB_ID, pVertices->getID().c_str());
+        pVerticesElement->SetAttribute(ATTRIB_COUNT, pVertices->getChildrenCount());
 
         return pVerticesElement;
     }
