@@ -178,11 +178,11 @@ namespace Tiny3D
 
         VertexDeclarationPtr vertexDecl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
         size_t offset = 0;
-        const VertexElement &posElem = vertexDecl->addElement(offset, VertexElement::E_VET_FLOAT3, VertexElement::E_VES_POSITION);
+        const VertexElement &posElem = vertexDecl->addElement(0, offset, VertexElement::E_VET_FLOAT3, VertexElement::E_VES_POSITION);
         offset += posElem.getSize();
 //         const VertexElement &texElem = vertexDecl->addElement(offset, VertexElement::E_VET_FLOAT2, VertexElement::E_VES_TEXCOORD);
 //         offset += texElem.getSize();
-        const VertexElement &texElem = vertexDecl->addElement(offset, VertexElement::E_VET_COLOR, VertexElement::E_VES_DIFFUSE);
+        const VertexElement &texElem = vertexDecl->addElement(0, offset, VertexElement::E_VET_COLOR, VertexElement::E_VES_DIFFUSE);
         offset += texElem.getSize();
 
         size_t vertexSize = offset;
@@ -190,7 +190,8 @@ namespace Tiny3D
 
         vertexBuffer->writeData(0, vertexSize * vertexCount, mVertices);
 
-        mVertexData = VertexData::create(vertexDecl, vertexBuffer);
+        mVertexData = VertexData::create(vertexDecl);
+        mVertexData->addVertexBuffer(vertexBuffer);
 
         // ´´½¨Ë÷Òý»º´æ
         const uint16_t indices[] =
@@ -413,7 +414,7 @@ namespace Tiny3D
 
     void SGBox::updateVertices()
     {
-        HardwareVertexBufferPtr vertexBuffer = mVertexData->getVertexBuffer();
+        HardwareVertexBufferPtr vertexBuffer = mVertexData->getVertexBuffer(0);
         VertexDeclarationPtr vertexDecl = mVertexData->getDeclaration();
         size_t vertexSize = 0;
         const VertexElement *posElem = vertexDecl->findElementBySemantic(VertexElement::E_VES_POSITION);

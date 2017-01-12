@@ -12,42 +12,53 @@ namespace Tiny3D
     class T3D_ENGINE_API VertexData : public Object
     {
     public:
-        static VertexDataPtr create();
+        static VertexDataPtr create(const VertexDeclarationPtr &decl);
 
         virtual ~VertexData();
 
         VertexDataPtr clone(bool copyData = true) const;
 
-        bool addVertexStream(const VertexStreamPtr &stream);
-        bool insertVertexStream(const VertexStreamPtr &stream, size_t index);
-        bool removeVertexStream(const VertexStreamPtr &stream);
-        bool removeVertexStream(size_t index);
+        bool addVertexBuffer(const HardwareVertexBufferPtr &buffer);
+        bool insertVertexBuffer(const HardwareVertexBufferPtr &buffer, size_t index);
+        bool removeVertexBuffer(const HardwareVertexBufferPtr &buffer);
+        bool removeVertexBuffer(size_t index);
 
-        const VertexStreamPtr &getStream(size_t index) const
+        const VertexDeclarationPtr &getDeclaration() const
         {
-            T3D_ASSERT(index <= mStreams.size());
-            return mStreams[index];
+            return mDeclaration;
         }
 
-        VertexStreamPtr &getStream(size_t index)
+        size_t getVertexBufferCount() const
         {
-            T3D_ASSERT(index <= mStreams.size());
-            return mStreams[index];
+            return mBuffers.size();
+        }
+
+        const HardwareVertexBufferPtr &getVertexBuffer(size_t index) const
+        {
+            T3D_ASSERT(index <= mBuffers.size());
+            return mBuffers[index];
+        }
+
+        HardwareVertexBufferPtr &getVertexBuffer(size_t index)
+        {
+            T3D_ASSERT(index <= mBuffers.size());
+            return mBuffers[index];
         }
 
     protected:
-        VertexData();
+        VertexData(const VertexDeclarationPtr &decl);
 
     private:
         VertexData(const VertexData &);
         VertexData &operator =(const VertexData &);
 
     protected:
-        typedef std::vector<VertexStreamPtr>    Streams;
-        typedef Streams::iterator               StreamsItr;
-        typedef Streams::const_iterator         StreamsConstItr;
+        typedef std::vector<HardwareVertexBufferPtr>    VertexBuffers;
+        typedef VertexBuffers::iterator                 VertexBuffersItr;
+        typedef VertexBuffers::const_iterator           VertexBuffersConstItr;
 
-        Streams     mStreams;
+        VertexDeclarationPtr    mDeclaration;
+        VertexBuffers           mBuffers;
     };
 }
 

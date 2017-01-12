@@ -555,19 +555,20 @@ namespace Tiny3D
     bool Model::parseMesh(tinyxml2::XMLElement *pMeshElement)
     {
         GeometryData::VertexBuffers buffers;
+        GeometryData::VertexAttributes attributes;
 
         XMLElement *pBuffersElement = pMeshElement->FirstChildElement(T3D_XML_TAG_VERTEX_BUFFERS);
 
-        bool ret = parseVertexBuffers(pBuffersElement, &buffers);
+        bool ret = parseVertexBuffers(pBuffersElement, &attributes, &buffers);
 
-        ret = ret && parseSubMeshes(pMeshElement, &buffers);
+        ret = ret && parseSubMeshes(pMeshElement, &attributes, &buffers);
 
         ret = ret && parseSkin(pMeshElement);
 
         return true;
     }
 
-    bool Model::parseVertexBuffers(tinyxml2::XMLElement *pBuffersElement, void *buffers)
+    bool Model::parseVertexBuffers(tinyxml2::XMLElement *pBuffersElement, void *attributes, void *buffers)
     {
         GeometryData::VertexBuffers *pBuffers = (GeometryData::VertexBuffers *)buffers;
 
@@ -583,7 +584,7 @@ namespace Tiny3D
         while (pBufferElement != nullptr)
         {
             GeometryData::VertexBuffer &buffer = pBuffers->at(i);
-            ret = ret && parseVertexBuffer(pBufferElement, &buffer);
+            ret = ret && parseVertexBuffer(pBufferElement, attributes, &buffer, i);
             pBufferElement = pBufferElement->NextSiblingElement(T3D_XML_TAG_VERTEX_BUFFER);
             ++i;
         }
@@ -591,7 +592,7 @@ namespace Tiny3D
         return true;
     }
 
-    bool Model::parseVertexBuffer(tinyxml2::XMLElement *pBufferElement, void *buffer)
+    bool Model::parseVertexBuffer(tinyxml2::XMLElement *pBufferElement, void *attributes, void *buffer, size_t index)
     {
         XMLElement *pAttribsElement = pBufferElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTES);
 
@@ -604,7 +605,7 @@ namespace Tiny3D
             return false;
         }
 
-        GeometryData::VertexAttributes attributes(count);
+        GeometryData::VertexAttributes *pAttributes = (GeometryData::VertexAttributes *)attributes;
 
         // ½âÎö¶¥µãÊôÐÔ
         XMLElement *pAttribElement = pAttribsElement->FirstChildElement(T3D_XML_TAG_ATTRIBUTE);
@@ -616,8 +617,8 @@ namespace Tiny3D
             VertexElement::Semantic vertexSemantic = parseVertexSemantic(pAttribElement->Attribute(T3D_XML_ATTRIB_ID));
             size_t valueCount = pAttribElement->IntAttribute(T3D_XML_ATTRIB_SIZE);
             VertexElement::Type vertexType = parseVertexType(vertexSemantic, pAttribElement->Attribute(T3D_XML_ATTRIB_TYPE), valueCount);
-            attributes[i] = VertexElement(offset, vertexType, vertexSemantic);
-            offset += attributes[i].getSize();
+            pAttributes->push_back(VertexElement(index, offset, vertexType, vertexSemantic));
+            offset += (*pAttributes)[i].getSize();
             i++;
             pAttribElement = pAttribElement->NextSiblingElement(T3D_XML_TAG_ATTRIBUTE);
         }
@@ -632,9 +633,12 @@ namespace Tiny3D
             return false;
         }
 
+        GeometryData::VertexBuffer *pBuffer = (GeometryData::VertexBuffer *)buffer;
+
         size_t vertexSize = offset;
         size_t valueCount = vertexCount * vertexSize;
-        GeometryData::Vertices vertices(valueCount);
+        pBuffer->vertices.resize(valueCount);
+        pBuffer->vertexSize = vertexSize;
 
         String text = pVerticesElement->GetText();
         size_t start = 0;
@@ -645,16 +649,21 @@ namespace Tiny3D
         {
             size_t j = 0;
 
-            for (j = 0; j < attributes.size(); ++j)
+            for (j = 0; j < pAttributes->size(); ++j)
             {
-                auto attribute = attributes[j];
-                size_t step = parseVertexValue(text, start, attribute, &vertices[i]);
-                i += step;
+                auto attribute = (*pAttributes)[j];
+                if (attribute.getStream() == index)
+                {
+                    size_t step = parseVertexValue(text, start, attribute, &pBuffer->vertices[i]);
+                    i += step;
+                }
             }
         } while (i < valueCount);
+
+        return true;
     }
 
-    bool Model::parseSubMeshes(tinyxml2::XMLElement *pMeshElement, void *buffers)
+    bool Model::parseSubMeshes(tinyxml2::XMLElement *pMeshElement, void *attributes, void *buffers)
     {
         XMLElement *pSubMeshesElement = pMeshElement->FirstChildElement(T3D_XML_TAG_SUBMESHES);
         int32_t count = pSubMeshesElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
@@ -667,14 +676,14 @@ namespace Tiny3D
         XMLElement *pSubMeshElement = pSubMeshesElement->FirstChildElement(T3D_XML_TAG_SUBMESH);
         while (pSubMeshElement != nullptr)
         {
-            parseSubMesh(pSubMeshElement, buffers);
+            parseSubMesh(pSubMeshElement, attributes, buffers);
             pSubMeshElement = pSubMeshElement->NextSiblingElement(T3D_XML_TAG_SUBMESH);
         }
 
         return true;
     }
 
-    bool Model::parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, void *buffers)
+    bool Model::parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, void *attributes, void *buffers)
     {
         Renderer::PrimitiveType primitiveType = parsePrimitiveType(pSubMeshElement->Attribute(T3D_XML_ATTRIB_PRIMITIVE));
         int32_t primitiveCount = pSubMeshElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
@@ -702,10 +711,13 @@ namespace Tiny3D
             i += step;
         } while (i < indexSize);
 
-        GeometryData::VertexAttributes *vertexAttrib = (GeometryData::VertexAttributes *)attributes;
-        GeometryData::Vertices *vertexData = (GeometryData::Vertices *)vertices;
-
-        GeometryDataPtr geometryData = GeometryData::create(primitiveType, *vertexAttrib, *vertexData, vertexSize, indices, is16bits, materialName);
+//         GeometryData::VertexAttributes *vertexAttrib = (GeometryData::VertexAttributes *)attributes;
+//         GeometryData::Vertices *vertexData = (GeometryData::Vertices *)vertices;
+// 
+//         GeometryDataPtr geometryData = GeometryData::create(primitiveType, *vertexAttrib, *vertexData, vertexSize, indices, is16bits, materialName);
+        GeometryData::VertexBuffers *pBuffers = (GeometryData::VertexBuffers *)buffers;
+        GeometryData::VertexAttributes *pAttributes = (GeometryData::VertexAttributes *)attributes;
+        GeometryDataPtr geometryData = GeometryData::create(primitiveType, *pAttributes, *pBuffers, indices, is16bits, materialName);
         mGeometryData.push_back(geometryData);
 
         return true;

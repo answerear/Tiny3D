@@ -106,7 +106,6 @@ namespace Tiny3D
 
     class VertexElement;
     class VertexDeclaration;
-    class VertexStream;
 
     class HardwareBufferManagerBase;
     class HardwareBufferManager;

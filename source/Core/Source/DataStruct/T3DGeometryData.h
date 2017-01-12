@@ -32,7 +32,6 @@ namespace Tiny3D
 
         struct VertexBuffer
         {
-            VertexAttributes    attributes;
             Vertices            vertices;
             size_t              vertexSize;
         };
@@ -52,7 +51,7 @@ namespace Tiny3D
          * @param [in] materialName : 材质资源名称
          * @return 返回一个几何渲染数据对象
          */
-        static GeometryDataPtr create(Renderer::PrimitiveType primitiveType, const VertexBuffers &buffers, const Indices &indices, bool is16bits, const String &materialName);
+        static GeometryDataPtr create(Renderer::PrimitiveType primitiveType, const VertexAttributes &attributes, const VertexBuffers &buffers, const Indices &indices, bool is16bits, const String &materialName);
 
         virtual ~GeometryData();
 
@@ -78,7 +77,7 @@ namespace Tiny3D
 
     protected:
         GeometryData();
-        bool init(Renderer::PrimitiveType primitiveType, const VertexBuffers &buffers, const Indices &indices, bool is16bits, const String &materialName);
+        bool init(Renderer::PrimitiveType primitiveType, const VertexAttributes &attributes, const VertexBuffers &buffers, const Indices &indices, bool is16bits, const String &materialName);
 
     private:
         GeometryData(const GeometryData &);

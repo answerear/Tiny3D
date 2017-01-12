@@ -75,8 +75,10 @@ namespace Tiny3D
         };
 
         VertexElement();
-        VertexElement(size_t offset, Type type, Semantic semantic);
+        VertexElement(size_t stream, size_t offset, Type type, Semantic semantic);
         virtual ~VertexElement();
+
+        size_t getStream() const    { return mStream; }
 
         size_t getOffset() const    { return mOffset; }
 
@@ -90,6 +92,7 @@ namespace Tiny3D
         Type        mType;          /// 顶点元素数据类型
         Semantic    mSemantic;      /// 顶点元素语义
         size_t      mOffset;        /// 这个顶点元素定义的在顶点缓存中的起始点偏移值
+        size_t      mStream;        /// 对应定义的顶点缓存索引
     };
 
     class T3D_ENGINE_API VertexDeclaration : public Object
@@ -107,8 +110,8 @@ namespace Tiny3D
 
         const VertexElement &getElement(size_t index) const;
 
-        virtual const VertexElement &addElement(size_t offset, VertexElement::Type type, VertexElement::Semantic semantic);
-        virtual const VertexElement &insertElement(size_t pos, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic);
+        virtual const VertexElement &addElement(size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic);
+        virtual const VertexElement &insertElement(size_t pos, size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic);
 
         virtual bool addElement(const VertexElement &vertexElement);
         virtual bool insertElement(size_t pos, const VertexElement &vertexElement);
@@ -117,7 +120,7 @@ namespace Tiny3D
         virtual void removeElement(VertexElement::Semantic semantic);
         virtual void removeAllElements();
 
-        virtual void updateElement(size_t pos, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic);
+        virtual void updateElement(size_t pos, size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic);
 
         virtual const VertexElement *findElementBySemantic(VertexElement::Semantic semantic) const;
 
@@ -129,29 +132,27 @@ namespace Tiny3D
         VertexElementList   mVertexElements;
     };
 
-    class T3D_ENGINE_API VertexStream : public Object
-    {
-    public:
-        static VertexStreamPtr create(VertexDeclaration *decl, HardwareVertexBuffer *buffer);
-
-        virtual ~VertexStream();
-
-        VertexStreamPtr clone(bool copyData) const;
-
-        const VertexDeclarationPtr getDeclaration() const       { return mDeclaration; }
-        const HardwareVertexBufferPtr getVertexBuffer() const   { return mVertexBuffer; }
-
-    protected:
-        VertexStream(VertexDeclaration *decl, HardwareVertexBuffer *buffer);
-
-    private:
-        VertexStream(const VertexStream &);
-        VertexStream &operator =(const VertexStream &);
-
-    protected:
-        VertexDeclarationPtr    mDeclaration;
-        HardwareVertexBufferPtr mVertexBuffer;
-    };
+//     class T3D_ENGINE_API VertexStream : public Object
+//     {
+//     public:
+//         static VertexStreamPtr create(VertexDeclaration *decl, HardwareVertexBuffer *buffer);
+// 
+//         virtual ~VertexStream();
+// 
+//         VertexStreamPtr clone(bool copyData) const;
+// 
+//         const HardwareVertexBufferPtr getVertexBuffer() const   { return mVertexBuffer; }
+// 
+//     protected:
+//         VertexStream(VertexDeclaration *decl, HardwareVertexBuffer *buffer);
+// 
+//     private:
+//         VertexStream(const VertexStream &);
+//         VertexStream &operator =(const VertexStream &);
+// 
+//     protected:
+//         HardwareVertexBufferPtr mVertexBuffer;
+//     };
 }
 
 

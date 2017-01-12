@@ -41,7 +41,7 @@ namespace Tiny3D
         size_t vertexCount = MAX_VERTICES;
 
         VertexDeclarationPtr vertexDecl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
-        const VertexElement &vertexElem = vertexDecl->addElement(0, VertexElement::E_VET_FLOAT3, VertexElement::E_VES_POSITION);
+        const VertexElement &vertexElem = vertexDecl->addElement(0, 0, VertexElement::E_VET_FLOAT3, VertexElement::E_VES_POSITION);
 
         HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(vertexElem.getSize(), vertexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
 
@@ -49,7 +49,8 @@ namespace Tiny3D
         loadVertices((Vector3*)vertices, vertexCount);
         vertexBuffer->unlock();
 
-        mVertexData = VertexData::create(vertexDecl, vertexBuffer);
+        mVertexData = VertexData::create(vertexDecl);
+        mVertexData->addVertexBuffer(vertexBuffer);
 
         size_t indexCount = MAX_TRIANGLES * 3;
         HardwareIndexBufferPtr indexBuffer = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(HardwareIndexBuffer::E_IT_16BITS, indexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
@@ -87,9 +88,9 @@ namespace Tiny3D
     {
         mRadius = radius;
         size_t vertexCount = MAX_VERTICES;
-        void *vertices = mVertexData->getVertexBuffer()->lock(HardwareBuffer::E_HBL_DISCARD);
+        void *vertices = mVertexData->getVertexBuffer(0)->lock(HardwareBuffer::E_HBL_DISCARD);
         loadVertices((Vector3*)vertices, vertexCount);
-        mVertexData->getVertexBuffer()->unlock();
+        mVertexData->getVertexBuffer(0)->unlock();
     }
 
     void SGSphere::loadVertices(Vector3 *vertices, size_t vertexCount)

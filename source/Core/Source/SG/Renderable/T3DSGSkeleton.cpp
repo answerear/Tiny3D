@@ -51,10 +51,11 @@ namespace Tiny3D
             ret = vb->writeData(0, sizeof(BoneVertex) * vertices.size(), &vertices[0]);
 
             VertexDeclarationPtr decl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
-            decl->addElement(VertexElement(0, VertexElement::E_VET_FLOAT3, VertexElement::E_VES_POSITION));
-            decl->addElement(VertexElement(12, VertexElement::E_VET_COLOR, VertexElement::E_VES_DIFFUSE));
+            decl->addElement(VertexElement(0, 0, VertexElement::E_VET_FLOAT3, VertexElement::E_VES_POSITION));
+            decl->addElement(VertexElement(0, 12, VertexElement::E_VET_COLOR, VertexElement::E_VES_DIFFUSE));
 
-            mVertexData = VertexData::create(decl, vb);
+            mVertexData = VertexData::create(decl);
+            mVertexData->addVertexBuffer(vb);
         }
 
         return ret;
@@ -194,7 +195,7 @@ namespace Tiny3D
 
         if (ret)
         {
-            HardwareVertexBufferPtr vb = mVertexData->getVertexBuffer();
+            HardwareVertexBufferPtr vb = mVertexData->getVertexBuffer(0);
             ret = vb->writeData(0, sizeof(BoneVertex) * vertices.size(), &vertices[0]);
         }
     }

@@ -71,7 +71,7 @@ namespace Tiny3D
 
                     size_t primitiveCount = calcPrimitiveCount(priType, 
                         useIndices ? indexData->getIndexBuffer()->getIndexCount() : 0, 
-                        vertexData->getVertexBuffer()->getVertexCount(),
+                        vertexData->getVertexBuffer(0)->getVertexCount(),
                         useIndices);
 
                     if (useIndices)

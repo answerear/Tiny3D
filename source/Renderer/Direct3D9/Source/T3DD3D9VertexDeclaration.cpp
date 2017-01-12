@@ -19,16 +19,16 @@ namespace Tiny3D
         D3D_SAFE_RELEASE(mD3DVertexDecl);
     }
 
-    const VertexElement &D3D9VertexDeclaration::addElement(size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
+    const VertexElement &D3D9VertexDeclaration::addElement(size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
     {
         mIsDirty = true;
-        return VertexDeclaration::addElement(offset, type, semantic);
+        return VertexDeclaration::addElement(stream, offset, type, semantic);
     }
 
-    const VertexElement &D3D9VertexDeclaration::insertElement(size_t pos, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
+    const VertexElement &D3D9VertexDeclaration::insertElement(size_t pos, size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
     {
         mIsDirty = true;
-        return VertexDeclaration::insertElement(pos, offset, type, semantic);
+        return VertexDeclaration::insertElement(pos, stream, offset, type, semantic);
     }
 
     bool D3D9VertexDeclaration::addElement(const VertexElement &vertexElement)
@@ -62,10 +62,10 @@ namespace Tiny3D
         VertexDeclaration::removeAllElements();
     }
 
-    void D3D9VertexDeclaration::updateElement(size_t pos, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
+    void D3D9VertexDeclaration::updateElement(size_t pos, size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
     {
         mIsDirty = true;
-        VertexDeclaration::updateElement(pos, offset, type, semantic);
+        VertexDeclaration::updateElement(pos, stream, offset, type, semantic);
     }
 
     VertexDeclarationPtr D3D9VertexDeclaration::clone() const
@@ -93,7 +93,7 @@ namespace Tiny3D
                 d3dve[i].Usage = D3D9Mappings::get(itr->getSemantic());
                 d3dve[i].Type = D3D9Mappings::get(itr->getType());
                 d3dve[i].Offset = itr->getOffset();
-                d3dve[i].Stream = 0;
+                d3dve[i].Stream = itr->getStream();
                 d3dve[i].UsageIndex = 0;
                 d3dve[i].Method = D3DDECLMETHOD_DEFAULT;
                 ++itr;

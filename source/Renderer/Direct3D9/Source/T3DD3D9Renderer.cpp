@@ -403,9 +403,14 @@ namespace Tiny3D
         HRESULT hr;
 
         VertexDeclarationPtr decl = vertexData->getDeclaration();
-        HardwareVertexBufferPtr vb = vertexData->getVertexBuffer();
-        D3D9HardwareVertexBuffer *vertices = (D3D9HardwareVertexBuffer*)(HardwareVertexBuffer *)vb;
-        hr = mD3DDevice->SetStreamSource(0, vertices->getD3DVertexBuffer(), 0, decl->getVertexSize());
+
+        size_t i = 0;
+        for (i = 0; i < vertexData->getVertexBufferCount(); ++i)
+        {
+            HardwareVertexBufferPtr vb = vertexData->getVertexBuffer(i);
+            D3D9HardwareVertexBuffer *vertices = (D3D9HardwareVertexBuffer*)(HardwareVertexBuffer *)vb;
+            hr = mD3DDevice->SetStreamSource(i, vertices->getD3DVertexBuffer(), 0, decl->getVertexSize());
+        }
 
         D3D9VertexDeclaration *vertexDecl = (D3D9VertexDeclaration *)(VertexDeclaration *)decl;
         hr = mD3DDevice->SetVertexDeclaration(vertexDecl->getD3D9VertexDeclaration());
@@ -420,9 +425,16 @@ namespace Tiny3D
         HRESULT hr;
 
         VertexDeclarationPtr decl = vertexData->getDeclaration();
-        HardwareVertexBufferPtr vb = vertexData->getVertexBuffer();
-        D3D9HardwareVertexBuffer *vertices = (D3D9HardwareVertexBuffer *)(HardwareVertexBuffer *)vb;
-        hr = mD3DDevice->SetStreamSource(0, vertices->getD3DVertexBuffer(), 0, decl->getVertexSize());
+
+        size_t vertexCount = 0;
+        size_t i = 0;
+        for (i = 0; i < vertexData->getVertexBufferCount(); ++i)
+        {
+            HardwareVertexBufferPtr vb = vertexData->getVertexBuffer(i);
+            D3D9HardwareVertexBuffer *vertices = (D3D9HardwareVertexBuffer *)(HardwareVertexBuffer *)vb;
+            vertexCount = vertices->getVertexCount();
+            hr = mD3DDevice->SetStreamSource(i, vertices->getD3DVertexBuffer(), 0, decl->getVertexSize());
+        }
 
         HardwareIndexBufferPtr ib = indexData->getIndexBuffer();
         D3D9HardwareIndexBuffer *indices = (D3D9HardwareIndexBuffer *)(HardwareIndexBuffer *)ib;
@@ -431,7 +443,7 @@ namespace Tiny3D
         D3D9VertexDeclaration *vertexDecl = (D3D9VertexDeclaration *)(VertexDeclaration *)decl;
         hr = mD3DDevice->SetVertexDeclaration(vertexDecl->getD3D9VertexDeclaration());
 
-        hr = mD3DDevice->DrawIndexedPrimitive(D3D9Mappings::get(primitiveType), 0, 0, vertices->getVertexCount(), 0, pritimitiveCount);
+        hr = mD3DDevice->DrawIndexedPrimitive(D3D9Mappings::get(primitiveType), 0, 0, vertexCount, 0, pritimitiveCount);
     }
 
     void D3D9Renderer::makeProjectionMatrix(const Radian &rkFovY, Real aspect, 

@@ -8,11 +8,11 @@
 
 namespace Tiny3D
 {
-    GeometryDataPtr GeometryData::create(Renderer::PrimitiveType primitiveType, const VertexBuffers &buffers, const Indices &indices, bool is16bits, const String &materialName)
+    GeometryDataPtr GeometryData::create(Renderer::PrimitiveType primitiveType, const VertexAttributes &attributes, const VertexBuffers &buffers, const Indices &indices, bool is16bits, const String &materialName)
     {
         GeometryDataPtr geometry = new GeometryData();
 
-        if (geometry != nullptr && geometry->init(primitiveType, buffers, indices, is16bits, materialName))
+        if (geometry != nullptr && geometry->init(primitiveType, attributes, buffers, indices, is16bits, materialName))
         {
             geometry->release();
         }
@@ -36,27 +36,29 @@ namespace Tiny3D
     {
     }
 
-    bool GeometryData::init(Renderer::PrimitiveType primitiveType, const VertexBuffers &buffers, const Indices &indices, bool is16bits, const String &materialName)
+    bool GeometryData::init(Renderer::PrimitiveType primitiveType, const VertexAttributes &attributes, const VertexBuffers &buffers, const Indices &indices, bool is16bits, const String &materialName)
     {
         bool ret = false;
 
         mPrimitiveType = primitiveType;
         mMaterialName = materialName;
 
+        VertexDeclarationPtr vertexDecl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
+        auto itr = attributes.begin();
+        while (itr != attributes.end())
+        {
+            auto vertexElement = *itr;
+            vertexDecl->addElement(vertexElement);
+            ++itr;
+        }
+
+        mVertexData = VertexData::create(vertexDecl);
+
         auto itrBuffer = buffers.begin();
 
         while (itrBuffer != buffers.end())
         {
             const VertexBuffer &buffer = *itrBuffer;
-
-            VertexDeclarationPtr vertexDecl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
-            auto itr = buffer.attributes.begin();
-            while (itr != buffer.attributes.end())
-            {
-                auto vertexElement = *itr;
-                vertexDecl->addElement(vertexElement);
-                ++itr;
-            }
 
             size_t vertexCount = buffer.vertices.size() / buffer.vertexSize;
             HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(buffer.vertexSize, vertexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
@@ -67,13 +69,7 @@ namespace Tiny3D
 
                 if (ret)
                 {
-                    if (mVertexData != nullptr)
-                    {
-                        mVertexData = VertexData::create();
-                    }
-
-                    VertexStreamPtr stream = VertexStream::create(vertexDecl, vertexBuffer);
-                    mVertexData->addVertexStream(stream);
+                    mVertexData->addVertexBuffer(vertexBuffer);
                 }
             }
 

@@ -24,14 +24,16 @@ namespace Tiny3D
         : mType(E_VET_FLOAT1)
         , mSemantic(E_VES_POSITION)
         , mOffset(0)
+        , mStream(0)
     {
 
     }
 
-    VertexElement::VertexElement(size_t offset, Type type, Semantic semantic)
+    VertexElement::VertexElement(size_t stream, size_t offset, Type type, Semantic semantic)
         : mType(type)
         , mSemantic(semantic)
         , mOffset(offset)
+        , mStream(stream)
     {
 
     }
@@ -162,19 +164,19 @@ namespace Tiny3D
         return *itr;
     }
 
-    const VertexElement &VertexDeclaration::addElement(size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
+    const VertexElement &VertexDeclaration::addElement(size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
     {
-        VertexElement element(offset, type, semantic);
+        VertexElement element(stream, offset, type, semantic);
 
         mVertexElements.push_back(element);
         return mVertexElements.back();
     }
 
-    const VertexElement &VertexDeclaration::insertElement(size_t pos, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
+    const VertexElement &VertexDeclaration::insertElement(size_t pos, size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
     {
         if (pos >= mVertexElements.size())
         {
-            return addElement(offset, type, semantic);
+            return addElement(stream, offset, type, semantic);
         }
 
         auto itr = mVertexElements.begin();
@@ -184,7 +186,7 @@ namespace Tiny3D
             ++itr;
         }
 
-        itr = mVertexElements.insert(itr, VertexElement(offset, type, semantic));
+        itr = mVertexElements.insert(itr, VertexElement(stream, offset, type, semantic));
         return *itr;
     }
 
@@ -247,7 +249,7 @@ namespace Tiny3D
         mVertexElements.clear();
     }
 
-    void VertexDeclaration::updateElement(size_t pos, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
+    void VertexDeclaration::updateElement(size_t pos, size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
     {
         if (pos >= mVertexElements.size())
             return;
@@ -259,7 +261,7 @@ namespace Tiny3D
             ++itr;
         }
 
-        *itr = VertexElement(offset, type, semantic);
+        *itr = VertexElement(stream, offset, type, semantic);
     }
 
     const VertexElement *VertexDeclaration::findElementBySemantic(VertexElement::Semantic semantic) const
@@ -298,57 +300,57 @@ namespace Tiny3D
 
         while (itr != mVertexElements.end())
         {
-            decl->addElement(itr->getOffset(), itr->getType(), itr->getSemantic());
+            decl->addElement(itr->getStream(), itr->getOffset(), itr->getType(), itr->getSemantic());
             ++itr;
         }
 
         return decl;
     }
 
-    VertexStreamPtr VertexStream::create(VertexDeclaration *decl, HardwareVertexBuffer *buffer)
-    {
-        VertexStream *stream = new VertexStream(decl, buffer);
-        VertexStreamPtr ptr(stream);
-        stream->release();
-        return ptr;
-    }
-
-    VertexStream::VertexStream(VertexDeclaration *decl, HardwareVertexBuffer *buffer)
-        : mDeclaration(decl)
-        , mVertexBuffer(buffer)
-    {
-
-    }
-
-    VertexStream::~VertexStream()
-    {
-    }
-
-    VertexStreamPtr VertexStream::clone(bool copyData) const
-    {
-        VertexStreamPtr ptr;
-
-        if (copyData)
-        {
-            HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(
-                mVertexBuffer->getVertexSize(), mVertexBuffer->getVertexCount(), mVertexBuffer->getUsage(), mVertexBuffer->hasShadowBuffer());
-
-            vertexBuffer->copyData((HardwareBufferPtr)mVertexBuffer);
-
-            VertexDeclaration *decl = new VertexDeclaration();
-            *decl = *mDeclaration;
-            VertexStream *stream = new VertexStream(decl, vertexBuffer);
-            decl->release();
-            ptr = stream;
-            stream->release();
-        }
-        else
-        {
-            VertexStream *stream = new VertexStream(mDeclaration, mVertexBuffer);
-            ptr = stream;
-            stream->release();
-        }
-
-        return ptr;
-    }
+//     VertexStreamPtr VertexStream::create(VertexDeclaration *decl, HardwareVertexBuffer *buffer)
+//     {
+//         VertexStream *stream = new VertexStream(decl, buffer);
+//         VertexStreamPtr ptr(stream);
+//         stream->release();
+//         return ptr;
+//     }
+// 
+//     VertexStream::VertexStream(VertexDeclaration *decl, HardwareVertexBuffer *buffer)
+//         : mDeclaration(decl)
+//         , mVertexBuffer(buffer)
+//     {
+// 
+//     }
+// 
+//     VertexStream::~VertexStream()
+//     {
+//     }
+// 
+//     VertexStreamPtr VertexStream::clone(bool copyData) const
+//     {
+//         VertexStreamPtr ptr;
+// 
+//         if (copyData)
+//         {
+//             HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(
+//                 mVertexBuffer->getVertexSize(), mVertexBuffer->getVertexCount(), mVertexBuffer->getUsage(), mVertexBuffer->hasShadowBuffer());
+// 
+//             vertexBuffer->copyData((HardwareBufferPtr)mVertexBuffer);
+// 
+//             VertexDeclaration *decl = new VertexDeclaration();
+//             *decl = *mDeclaration;
+//             VertexStream *stream = new VertexStream(decl, vertexBuffer);
+//             decl->release();
+//             ptr = stream;
+//             stream->release();
+//         }
+//         else
+//         {
+//             VertexStream *stream = new VertexStream(mDeclaration, mVertexBuffer);
+//             ptr = stream;
+//             stream->release();
+//         }
+// 
+//         return ptr;
+//     }
 }
