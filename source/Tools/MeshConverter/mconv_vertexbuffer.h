@@ -83,11 +83,13 @@ namespace mconv
             typedef SubMeshDict::const_iterator     SubMeshDictConstItr;
             typedef std::pair<int, SubMesh*>        SubMeshValue;
 
-            Model *pModel = (Model *)getParent();
+            Model *pModel = (Model *)getParent()->getParent()->getParent();
+            T3D_ASSERT(pModel->getNodeType() == Node::E_TYPE_MODEL);
 
             SubMeshes *pSubMeshes = new SubMeshes("SubMeshes");
 
             Node *pMesh = getParent()->getParent();
+            T3D_ASSERT(pMesh->getNodeType() == Node::E_TYPE_MESH);
             pMesh->addChild(pSubMeshes);
 
             SubMeshDict submeshes;
