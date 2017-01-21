@@ -692,9 +692,9 @@ namespace mconv
     bool FBXConverter::readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, Vector3 &pos)
     {
         FbxVector4 *pControlPoint = pFbxMesh->GetControlPoints();
-        pos[0] = pControlPoint[nControlPointIdx][0];
-        pos[1] = pControlPoint[nControlPointIdx][1];
-        pos[2] = pControlPoint[nControlPointIdx][2];
+        pos[0] = Real(pControlPoint[nControlPointIdx][0]);
+        pos[1] = Real(pControlPoint[nControlPointIdx][1]);
+        pos[2] = Real(pControlPoint[nControlPointIdx][2]);
         return true;
     }
 
@@ -721,20 +721,20 @@ namespace mconv
                     {
                     case FbxGeometryElement::eDirect:
                         {
-                            color[0] = pVertexColor->GetDirectArray().GetAt(nControlPointIdx).mBlue;
-                            color[1] = pVertexColor->GetDirectArray().GetAt(nControlPointIdx).mGreen;
-                            color[2] = pVertexColor->GetDirectArray().GetAt(nControlPointIdx).mRed;
-                            color[3] = pVertexColor->GetDirectArray().GetAt(nControlPointIdx).mAlpha;
+                            color[0] = Real(pVertexColor->GetDirectArray().GetAt(nControlPointIdx).mBlue);
+                            color[1] = Real(pVertexColor->GetDirectArray().GetAt(nControlPointIdx).mGreen);
+                            color[2] = Real(pVertexColor->GetDirectArray().GetAt(nControlPointIdx).mRed);
+                            color[3] = Real(pVertexColor->GetDirectArray().GetAt(nControlPointIdx).mAlpha);
                         }
                         break;
                     case FbxGeometryElement::eIndex:
                     case FbxGeometryElement::eIndexToDirect:
                         {
                             int idx = pVertexColor->GetIndexArray().GetAt(nControlPointIdx);
-                            color[0] = pVertexColor->GetDirectArray().GetAt(idx).mBlue;
-                            color[1] = pVertexColor->GetDirectArray().GetAt(idx).mGreen;
-                            color[2] = pVertexColor->GetDirectArray().GetAt(idx).mRed;
-                            color[3] = pVertexColor->GetDirectArray().GetAt(idx).mAlpha;
+                            color[0] = Real(pVertexColor->GetDirectArray().GetAt(idx).mBlue);
+                            color[1] = Real(pVertexColor->GetDirectArray().GetAt(idx).mGreen);
+                            color[2] = Real(pVertexColor->GetDirectArray().GetAt(idx).mRed);
+                            color[3] = Real(pVertexColor->GetDirectArray().GetAt(idx).mAlpha);
                         }
                         break;
                     }
@@ -746,20 +746,20 @@ namespace mconv
                     {
                     case FbxGeometryElement::eDirect:
                         {
-                            color[0] = pVertexColor->GetDirectArray().GetAt(nVertexIndex).mBlue;
-                            color[1] = pVertexColor->GetDirectArray().GetAt(nVertexIndex).mGreen;
-                            color[2] = pVertexColor->GetDirectArray().GetAt(nVertexIndex).mRed;
-                            color[3] = pVertexColor->GetDirectArray().GetAt(nVertexIndex).mAlpha;
+                            color[0] = Real(pVertexColor->GetDirectArray().GetAt(nVertexIndex).mBlue);
+                            color[1] = Real(pVertexColor->GetDirectArray().GetAt(nVertexIndex).mGreen);
+                            color[2] = Real(pVertexColor->GetDirectArray().GetAt(nVertexIndex).mRed);
+                            color[3] = Real(pVertexColor->GetDirectArray().GetAt(nVertexIndex).mAlpha);
                         }
                         break;
                     case FbxGeometryElement::eIndex:
                     case FbxGeometryElement::eIndexToDirect:
                         {
                             int idx = pVertexColor->GetIndexArray().GetAt(nVertexIndex);
-                            color[0] = pVertexColor->GetDirectArray().GetAt(idx).mBlue;
-                            color[1] = pVertexColor->GetDirectArray().GetAt(idx).mGreen;
-                            color[2] = pVertexColor->GetDirectArray().GetAt(idx).mRed;
-                            color[3] = pVertexColor->GetDirectArray().GetAt(idx).mAlpha;
+                            color[0] = Real(pVertexColor->GetDirectArray().GetAt(idx).mBlue);
+                            color[1] = Real(pVertexColor->GetDirectArray().GetAt(idx).mGreen);
+                            color[2] = Real(pVertexColor->GetDirectArray().GetAt(idx).mRed);
+                            color[3] = Real(pVertexColor->GetDirectArray().GetAt(idx).mAlpha);
                         }
                         break;
                     }
@@ -794,16 +794,16 @@ namespace mconv
                     {
                     case FbxGeometryElement::eDirect:
                         {
-                            uv[0] = pVertexUV->GetDirectArray().GetAt(nControlPointIdx)[0];
-                            uv[1] = pVertexUV->GetDirectArray().GetAt(nControlPointIdx)[1];
+                            uv[0] = Real(pVertexUV->GetDirectArray().GetAt(nControlPointIdx)[0]);
+                            uv[1] = Real(pVertexUV->GetDirectArray().GetAt(nControlPointIdx)[1]);
                         }
                         break;
                     case FbxGeometryElement::eIndex:
                     case FbxGeometryElement::eIndexToDirect:
                         {
                             int idx = pVertexUV->GetIndexArray().GetAt(nControlPointIdx);
-                            uv[0] = pVertexUV->GetDirectArray().GetAt(idx)[0];
-                            uv[1] = pVertexUV->GetDirectArray().GetAt(idx)[1];
+                            uv[0] = Real(pVertexUV->GetDirectArray().GetAt(idx)[0]);
+                            uv[1] = Real(pVertexUV->GetDirectArray().GetAt(idx)[1]);
                         }
                         break;
                     }
@@ -817,8 +817,8 @@ namespace mconv
                     case FbxGeometryElement::eIndex:
                     case FbxGeometryElement::eIndexToDirect:
                         {
-                            uv[0] = pVertexUV->GetDirectArray().GetAt(nUVIndex)[0];
-                            uv[1] = pVertexUV->GetDirectArray().GetAt(nUVIndex)[1];
+                            uv[0] = Real(pVertexUV->GetDirectArray().GetAt(nUVIndex)[0]);
+                            uv[1] = Real(pVertexUV->GetDirectArray().GetAt(nUVIndex)[1]);
                         }
                         break;
                     }
@@ -853,18 +853,18 @@ namespace mconv
                     {
                     case FbxGeometryElement::eDirect:
                         {
-                            normal[0] = pNormal->GetDirectArray().GetAt(nControlPointIdx)[0];
-                            normal[1] = pNormal->GetDirectArray().GetAt(nControlPointIdx)[1];
-                            normal[2] = pNormal->GetDirectArray().GetAt(nControlPointIdx)[2];
+                            normal[0] = Real(pNormal->GetDirectArray().GetAt(nControlPointIdx)[0]);
+                            normal[1] = Real(pNormal->GetDirectArray().GetAt(nControlPointIdx)[1]);
+                            normal[2] = Real(pNormal->GetDirectArray().GetAt(nControlPointIdx)[2]);
                         }
                         break;
                     case FbxGeometryElement::eIndex:
                     case FbxGeometryElement::eIndexToDirect:
                         {
                             int idx = pNormal->GetIndexArray().GetAt(nControlPointIdx);
-                            normal[0] = pNormal->GetDirectArray().GetAt(idx)[0];
-                            normal[1] = pNormal->GetDirectArray().GetAt(idx)[1];
-                            normal[2] = pNormal->GetDirectArray().GetAt(idx)[2];
+                            normal[0] = Real(pNormal->GetDirectArray().GetAt(idx)[0]);
+                            normal[1] = Real(pNormal->GetDirectArray().GetAt(idx)[1]);
+                            normal[2] = Real(pNormal->GetDirectArray().GetAt(idx)[2]);
                         }
                         break;
                     }
@@ -876,18 +876,18 @@ namespace mconv
                     {
                     case FbxGeometryElement::eDirect:
                         {
-                            normal[0] = pNormal->GetDirectArray().GetAt(nVertexIndex)[0];
-                            normal[1] = pNormal->GetDirectArray().GetAt(nVertexIndex)[1];
-                            normal[2] = pNormal->GetDirectArray().GetAt(nVertexIndex)[2];
+                            normal[0] = Real(pNormal->GetDirectArray().GetAt(nVertexIndex)[0]);
+                            normal[1] = Real(pNormal->GetDirectArray().GetAt(nVertexIndex)[1]);
+                            normal[2] = Real(pNormal->GetDirectArray().GetAt(nVertexIndex)[2]);
                         }
                         break;
                     case FbxGeometryElement::eIndex:
                     case FbxGeometryElement::eIndexToDirect:
                         {
                             int idx = pNormal->GetIndexArray().GetAt(nVertexIndex);
-                            normal[0] = pNormal->GetDirectArray().GetAt(idx)[0];
-                            normal[1] = pNormal->GetDirectArray().GetAt(idx)[1];
-                            normal[2] = pNormal->GetDirectArray().GetAt(idx)[2];
+                            normal[0] = Real(pNormal->GetDirectArray().GetAt(idx)[0]);
+                            normal[1] = Real(pNormal->GetDirectArray().GetAt(idx)[1]);
+                            normal[2] = Real(pNormal->GetDirectArray().GetAt(idx)[2]);
                         }
                         break;
                     }
@@ -922,18 +922,18 @@ namespace mconv
                     {
                     case FbxGeometryElement::eDirect:
                         {
-                            tangent[0] = pTangent->GetDirectArray().GetAt(nControlPointIdx)[0];
-                            tangent[1] = pTangent->GetDirectArray().GetAt(nControlPointIdx)[1];
-                            tangent[2] = pTangent->GetDirectArray().GetAt(nControlPointIdx)[2];
+                            tangent[0] = Real(pTangent->GetDirectArray().GetAt(nControlPointIdx)[0]);
+                            tangent[1] = Real(pTangent->GetDirectArray().GetAt(nControlPointIdx)[1]);
+                            tangent[2] = Real(pTangent->GetDirectArray().GetAt(nControlPointIdx)[2]);
                         }
                         break;
                     case FbxGeometryElement::eIndex:
                     case FbxGeometryElement::eIndexToDirect:
                         {
                             int idx = pTangent->GetIndexArray().GetAt(nControlPointIdx);
-                            tangent[0] = pTangent->GetDirectArray().GetAt(idx)[0];
-                            tangent[1] = pTangent->GetDirectArray().GetAt(idx)[1];
-                            tangent[2] = pTangent->GetDirectArray().GetAt(idx)[2];
+                            tangent[0] = Real(pTangent->GetDirectArray().GetAt(idx)[0]);
+                            tangent[1] = Real(pTangent->GetDirectArray().GetAt(idx)[1]);
+                            tangent[2] = Real(pTangent->GetDirectArray().GetAt(idx)[2]);
                         }
                         break;
                     }
@@ -945,18 +945,18 @@ namespace mconv
                     {
                     case FbxGeometryElement::eDirect:
                         {
-                            tangent[0] = pTangent->GetDirectArray().GetAt(nVertexIndex)[0];
-                            tangent[1] = pTangent->GetDirectArray().GetAt(nVertexIndex)[1];
-                            tangent[2] = pTangent->GetDirectArray().GetAt(nVertexIndex)[2];
+                            tangent[0] = Real(pTangent->GetDirectArray().GetAt(nVertexIndex)[0]);
+                            tangent[1] = Real(pTangent->GetDirectArray().GetAt(nVertexIndex)[1]);
+                            tangent[2] = Real(pTangent->GetDirectArray().GetAt(nVertexIndex)[2]);
                         }
                         break;
                     case FbxGeometryElement::eIndex:
                     case FbxGeometryElement::eIndexToDirect:
                         {
                             int idx = pTangent->GetIndexArray().GetAt(nVertexIndex);
-                            tangent[0] = pTangent->GetDirectArray().GetAt(idx)[0];
-                            tangent[1] = pTangent->GetDirectArray().GetAt(idx)[1];
-                            tangent[2] = pTangent->GetDirectArray().GetAt(idx)[2];
+                            tangent[0] = Real(pTangent->GetDirectArray().GetAt(idx)[0]);
+                            tangent[1] = Real(pTangent->GetDirectArray().GetAt(idx)[1]);
+                            tangent[2] = Real(pTangent->GetDirectArray().GetAt(idx)[2]);
                         }
                         break;
                     }
@@ -991,18 +991,18 @@ namespace mconv
                     {
                     case FbxGeometryElement::eDirect:
                         {
-                            binormal[0] = pBinormal->GetDirectArray().GetAt(nControlPointIdx)[0];
-                            binormal[1] = pBinormal->GetDirectArray().GetAt(nControlPointIdx)[1];
-                            binormal[2] = pBinormal->GetDirectArray().GetAt(nControlPointIdx)[2];
+                            binormal[0] = Real(pBinormal->GetDirectArray().GetAt(nControlPointIdx)[0]);
+                            binormal[1] = Real(pBinormal->GetDirectArray().GetAt(nControlPointIdx)[1]);
+                            binormal[2] = Real(pBinormal->GetDirectArray().GetAt(nControlPointIdx)[2]);
                         }
                         break;
                     case FbxGeometryElement::eIndex:
                     case FbxGeometryElement::eIndexToDirect:
                         {
                             int idx = pBinormal->GetIndexArray().GetAt(nControlPointIdx);
-                            binormal[0] = pBinormal->GetDirectArray().GetAt(idx)[0];
-                            binormal[1] = pBinormal->GetDirectArray().GetAt(idx)[1];
-                            binormal[2] = pBinormal->GetDirectArray().GetAt(idx)[2];
+                            binormal[0] = Real(pBinormal->GetDirectArray().GetAt(idx)[0]);
+                            binormal[1] = Real(pBinormal->GetDirectArray().GetAt(idx)[1]);
+                            binormal[2] = Real(pBinormal->GetDirectArray().GetAt(idx)[2]);
                         }
                         break;
                     }
@@ -1014,18 +1014,18 @@ namespace mconv
                     {
                     case FbxGeometryElement::eDirect:
                         {
-                            binormal[0] = pBinormal->GetDirectArray().GetAt(nVertexIndex)[0];
-                            binormal[1] = pBinormal->GetDirectArray().GetAt(nVertexIndex)[1];
-                            binormal[2] = pBinormal->GetDirectArray().GetAt(nVertexIndex)[2];
+                            binormal[0] = Real(pBinormal->GetDirectArray().GetAt(nVertexIndex)[0]);
+                            binormal[1] = Real(pBinormal->GetDirectArray().GetAt(nVertexIndex)[1]);
+                            binormal[2] = Real(pBinormal->GetDirectArray().GetAt(nVertexIndex)[2]);
                         }
                         break;
                     case FbxGeometryElement::eIndex:
                     case FbxGeometryElement::eIndexToDirect:
                         {
                             int idx = pBinormal->GetIndexArray().GetAt(nVertexIndex);
-                            binormal[0] = pBinormal->GetDirectArray().GetAt(idx)[0];
-                            binormal[1] = pBinormal->GetDirectArray().GetAt(idx)[1];
-                            binormal[2] = pBinormal->GetDirectArray().GetAt(idx)[2];
+                            binormal[0] = Real(pBinormal->GetDirectArray().GetAt(idx)[0]);
+                            binormal[1] = Real(pBinormal->GetDirectArray().GetAt(idx)[1]);
+                            binormal[2] = Real(pBinormal->GetDirectArray().GetAt(idx)[2]);
                         }
                         break;
                     }

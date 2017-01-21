@@ -16,6 +16,7 @@
 #include "mconv_skin.h"
 #include "mconv_texture.h"
 #include "mconv_bound.h"
+#include "mconv_vertexbuffer.h"
 
 
 namespace mconv
@@ -106,6 +107,8 @@ namespace mconv
         
         result = processOgreMesh(pOgreMesh, pScene);
 
+        mDstData = pScene;
+
         return result;
     }
 
@@ -134,23 +137,32 @@ namespace mconv
 
     bool OgreConverter::processOgreGeometry(const OgreGeometry &geometry, Mesh *pMesh)
     {
-        bool result = processOgreVertexAttributes(geometry, pMesh);
+        bool result = false;
 
-        if (result)
+        VertexBuffers *pVBS = new VertexBuffers(pMesh->getID());
+        pMesh->addChild(pVBS);
+
+        result = (geometry.buffers.size() > 0);
+        size_t i = 0;
+        auto itr = geometry.buffers.begin();
+
+        while (itr != geometry.buffers.end())
         {
-            auto itr = geometry.buffers.begin();
+            std::stringstream ss;
+            ss<<i;
+            VertexBuffer *pVB = new VertexBuffer(ss.str());
+            pVBS->addChild(pVB);
 
-            while (itr != geometry.buffers.end())
-            {
-                result = result && processOgreVertexBuffer(*itr, pMesh);
-                ++itr;
-            }
+            result = result && processOgreVertexAttributes(geometry, pVB, i);
+            result = result && processOgreVertexBuffer(*itr, pVB, i);
+            ++i;
+            ++itr;
         }
 
         return result;
     }
 
-    bool OgreConverter::processOgreVertexAttributes(const OgreGeometry &geometry, Mesh *pMesh)
+    bool OgreConverter::processOgreVertexAttributes(const OgreGeometry &geometry, VertexBuffer *pVertexBuffer, size_t source)
     {
         bool result = (geometry.elements.size() > 0);
 
@@ -159,14 +171,18 @@ namespace mconv
         while (itr != geometry.elements.end())
         {
             const OgreVertexElement &element = *itr;
-            result = result && putVertexAttribute(element, pMesh);
+            if (element.source == source)
+            {
+                result = result && putVertexAttribute(element, pVertexBuffer);
+            }
+
             ++itr;
         }
 
         return result;
     }
 
-    bool OgreConverter::putVertexAttribute(const OgreVertexElement &element, Mesh *pMesh)
+    bool OgreConverter::putVertexAttribute(const OgreVertexElement &element, VertexBuffer *pVertexBuffer)
     {
         bool result;
 
@@ -176,7 +192,7 @@ namespace mconv
 
         if (result)
         {
-//             pMesh->mAttributes.push_back(attribute);
+            pVertexBuffer->mAttributes.push_back(attribute);
         }
 
         return result;
@@ -331,7 +347,7 @@ namespace mconv
         return result;
     }
 
-    bool OgreConverter::processOgreVertexBuffer(const OgreVertexBuffer &buffer, Mesh *pMesh)
+    bool OgreConverter::processOgreVertexBuffer(const OgreVertexBuffer &buffer, VertexBuffer *pVertexBuffer, size_t source)
     {
         bool result = (buffer.vertices.size() > 0);
 
@@ -339,9 +355,9 @@ namespace mconv
 
         while (i < buffer.vertices.size())
         {
-//             pMesh->mVertices.push_back(Vertex());
-//             Vertex &vertex = pMesh->mVertices.back();
-//             result = result && putVertexData(buffer.vertices, i, pMesh->mAttributes, vertex);
+            pVertexBuffer->mVertices.push_back(Vertex());
+            Vertex &vertex = pVertexBuffer->mVertices.back();
+            result = result && putVertexData(buffer.vertices, i, pVertexBuffer->mAttributes, vertex);
         }
 
         return result;

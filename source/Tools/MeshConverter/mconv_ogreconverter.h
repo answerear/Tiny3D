@@ -17,6 +17,8 @@ namespace mconv
     class SubMesh;
     class Model;
     class Vertex;
+    class VertexBuffers;
+    class VertexBuffer;
 
     struct OgreMesh;
     struct OgreSubMesh;
@@ -38,9 +40,9 @@ namespace mconv
 
         bool processOgreMesh(OgreMesh *pOgreMesh, Node *pRoot);
         bool processOgreGeometry(const OgreGeometry &geometry, Mesh *pMesh);
-        bool processOgreVertexAttributes(const OgreGeometry &geometry, Mesh *pMesh);
-        bool putVertexAttribute(const OgreVertexElement &element, Mesh *pMesh);
-        bool processOgreVertexBuffer(const OgreVertexBuffer &buffer, Mesh *pMesh);
+        bool processOgreVertexAttributes(const OgreGeometry &geometry, VertexBuffer *pVertexBuffer, size_t source);
+        bool putVertexAttribute(const OgreVertexElement &element, VertexBuffer *pVertexBuffer);
+        bool processOgreVertexBuffer(const OgreVertexBuffer &buffer, VertexBuffer *pVertexBuffer, size_t source);
         bool putVertexData(const std::vector<float> &vertices, size_t &index, const VertexAttributes &attributes, Vertex &vertex);
         bool processVertexSemantic(uint16_t semantic, VertexAttribute &attribute);
         bool processVertexType(uint16_t type, VertexAttribute &attribute);
