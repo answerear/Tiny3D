@@ -229,6 +229,8 @@ namespace mconv
         XMLElement *buildXMLLight(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLCamera(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
 
+		bool hasVertexAttribute(Node *pNode, int16_t attribType);
+
         bool loadMaterial(Node *&pNode);
         bool saveMaterial(Node *pNode);
 

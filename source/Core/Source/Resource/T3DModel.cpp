@@ -618,7 +618,8 @@ namespace Tiny3D
             size_t valueCount = pAttribElement->IntAttribute(T3D_XML_ATTRIB_SIZE);
             VertexElement::Type vertexType = parseVertexType(vertexSemantic, pAttribElement->Attribute(T3D_XML_ATTRIB_TYPE), valueCount);
             pAttributes->push_back(VertexElement(index, offset, vertexType, vertexSemantic));
-            offset += (*pAttributes)[i].getSize();
+			const VertexElement &element = pAttributes->back(); 
+            offset += element.getSize();
             i++;
             pAttribElement = pAttribElement->NextSiblingElement(T3D_XML_TAG_ATTRIBUTE);
         }

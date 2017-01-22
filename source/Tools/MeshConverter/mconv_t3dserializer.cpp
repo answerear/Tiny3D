@@ -337,6 +337,7 @@ namespace mconv
         auto itrVertex = pVB->mVertices.begin();
 
         int count = 0;
+		bool first = true;
 
         while (itrVertex != pVB->mVertices.end())
         {
@@ -344,80 +345,111 @@ namespace mconv
             const Vertex &vertex = *itrVertex;
 
             // POSITION
-            if (count == 0)
-            {
-                char szText[64] = {0};
-                snprintf(szText, sizeof(szText)-1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
-                ss<<"\n\t\t\t\t\t\t"<<szText;
-            }
-            else
-            {
-                char szText[64] = {0};
-                snprintf(szText, sizeof(szText)-1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
-                ss<<"\t\t\t\t\t\t"<<szText;
-            }
+			if (hasVertexAttribute(pVB, VertexAttribute::E_VT_POSITION))
+			{
+				if (first)
+				{
+					char szText[64] = {0};
+					snprintf(szText, sizeof(szText)-1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
+					ss<<"\n\t\t\t\t\t\t"<<szText;
+				}
+				else
+				{
+					char szText[64] = {0};
+					snprintf(szText, sizeof(szText)-1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
+					ss<<"\t\t\t\t\t\t"<<szText;
+				}
+
+				first = false;
+			}
 
             // TEXCOORD
-            auto itr2 = vertex.mTexElements.begin();
-            while (itr2 != vertex.mTexElements.end())
-            {
-                //                 const FbxVector2 &uv = *itr2;
-                const Vector2 &uv = *itr2;
-                char szText[64] = {0};
-                snprintf(szText, sizeof(szText)-1, " % 8f % 8f", uv[0], uv[1]);
-                ss<<szText;
-                ++itr2;
-            }
+			if (hasVertexAttribute(pVB, VertexAttribute::E_VT_TEXCOORD))
+			{
+				auto itr2 = vertex.mTexElements.begin();
+				while (itr2 != vertex.mTexElements.end())
+				{
+					if (first)
+					{
+						const Vector2 &uv = *itr2;
+						char szText[64] = {0};
+						snprintf(szText, sizeof(szText)-1, " % 8f % 8f", uv[0], uv[1]);
+						ss<<"\n\t\t\t\t\t\t"<<szText;
+					}
+					else
+					{
+						const Vector2 &uv = *itr2;
+						char szText[64] = {0};
+						snprintf(szText, sizeof(szText)-1, " % 8f % 8f", uv[0], uv[1]);
+						ss<<"\t\t\t\t\t\t"<<szText;
+					}
+					
+					first = false;
+					++itr2;
+				}
+			}
 
             // NORMAL
-            auto itr3 = vertex.mNormalElements.begin();
-            while (itr3 != vertex.mNormalElements.end())
-            {
-                //                 const FbxVector3 &normal = *itr3;
-                const Vector3 &normal = *itr3;
-                char szText[64] = {0};
-                snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", normal[0], normal[1], normal[2]);
-                ss<<szText;
-                ++itr3;
-            }
+			if (hasVertexAttribute(pVB, VertexAttribute::E_VT_NORMAL))
+			{
+				auto itr3 = vertex.mNormalElements.begin();
+				while (itr3 != vertex.mNormalElements.end())
+				{
+					//                 const FbxVector3 &normal = *itr3;
+					const Vector3 &normal = *itr3;
+					char szText[64] = {0};
+					snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", normal[0], normal[1], normal[2]);
+					ss<<szText;
+					++itr3;
+				}
+			}
 
             // BINORMAL
-            itr3 = vertex.mBinormalElements.begin();
-            while (itr3 != vertex.mBinormalElements.end())
-            {
-                //                 const FbxVector3 &binormal = *itr3;
-                const Vector3 &binormal = *itr3;
-                char szText[64] = {0};
-                snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", binormal[0], binormal[1], binormal[2]);
-                ss<<szText;
-                ++itr3;
-            }
+			if (hasVertexAttribute(pVB, VertexAttribute::E_VT_BINORMAL))
+			{
+				auto itr3 = vertex.mBinormalElements.begin();
+				while (itr3 != vertex.mBinormalElements.end())
+				{
+					//                 const FbxVector3 &binormal = *itr3;
+					const Vector3 &binormal = *itr3;
+					char szText[64] = {0};
+					snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", binormal[0], binormal[1], binormal[2]);
+					ss<<szText;
+					++itr3;
+				}
+			}
 
             // TANGENT
-            itr3 = vertex.mTangentElements.begin();
-            while (itr3 != vertex.mTangentElements.end())
-            {
-                //                 const FbxVector3 &tangent = *itr3;
-                const Vector3 &tangent = *itr3;
-                char szText[64] = {0};
-                snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", tangent[0], tangent[1], tangent[2]);
-                ss<<szText;
-                //                 ss<<" "<<tangent[0]<<" "<<tangent[1]<<" "<<tangent[2];
-                ++itr3;
-            }
+			if (hasVertexAttribute(pVB, VertexAttribute::E_VT_TANGENT))
+			{
+				auto itr3 = vertex.mTangentElements.begin();
+				while (itr3 != vertex.mTangentElements.end())
+				{
+					//                 const FbxVector3 &tangent = *itr3;
+					const Vector3 &tangent = *itr3;
+					char szText[64] = {0};
+					snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", tangent[0], tangent[1], tangent[2]);
+					ss<<szText;
+					//                 ss<<" "<<tangent[0]<<" "<<tangent[1]<<" "<<tangent[2];
+					++itr3;
+				}
+			}
 
             // COLOR
-            auto itr4 = vertex.mColorElements.begin();
-            while (itr4 != vertex.mColorElements.end())
-            {
-                //                 const FbxVector4 &color = *itr4;
-                const Vector4 &color = *itr4;
-                char szText[64] = {0};
-                snprintf(szText, sizeof(szText)-1, " % 8f %8f % 8f % 8f", color[0], color[1], color[2], color[3]);
-                ss<<szText;
-                //                 ss<<" "<<color[0]<<" "<<color[1]<<" "<<color[2]<<" "<<color[3];
-                ++itr4;
-            }
+			if (hasVertexAttribute(pVB, VertexAttribute::E_VT_COLOR))
+			{
+				auto itr4 = vertex.mColorElements.begin();
+				while (itr4 != vertex.mColorElements.end())
+				{
+					//                 const FbxVector4 &color = *itr4;
+					const Vector4 &color = *itr4;
+					char szText[64] = {0};
+					snprintf(szText, sizeof(szText)-1, " % 8f %8f % 8f % 8f", color[0], color[1], color[2], color[3]);
+					ss<<szText;
+					//                 ss<<" "<<color[0]<<" "<<color[1]<<" "<<color[2]<<" "<<color[3];
+					++itr4;
+				}
+			}
 
             // BLEND_WEIGHT 只写权重最大的4个顶点
             if (vertex.mBlendInfo.size() > 0)
@@ -500,6 +532,31 @@ namespace mconv
 
         return pBufferElement;
     }
+
+	bool T3DXMLSerializer::hasVertexAttribute(Node *pNode, int16_t attribType)
+	{
+		bool found = false;
+
+		VertexBuffer *pVB = (VertexBuffer *)pNode;
+		T3D_ASSERT(pVB->getNodeType() == Node::E_TYPE_VERTEX_BUFFER);
+
+		auto itr = pVB->mAttributes.begin();
+
+		while (itr != pVB->mAttributes.end())
+		{
+			const VertexAttribute &attribute = *itr;
+			
+			if (attribType == attribute.mVertexType)
+			{
+				found = true;
+				break;
+			}
+
+			++itr;
+		}
+
+		return found;
+	}
 
     XMLElement *T3DXMLSerializer::buildXMLSubMeshes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {

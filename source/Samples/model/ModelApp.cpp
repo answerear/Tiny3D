@@ -37,7 +37,7 @@ bool ModelApp::applicationDidFinishLaunching()
 {
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
-    renderer->setRenderMode(Renderer::E_RM_SOLID);
+    renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
     renderer->setAmbientLight(Color4::WHITE);
 
     SGNodePtr root = T3D_SCENE_MGR.getRoot();
@@ -66,11 +66,11 @@ bool ModelApp::applicationDidFinishLaunching()
     node = SGTransformNode::create();
     root->addChild(node);
     node->setPosition(0.0, 0.0, 0.0);
-    node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_X);
-
+//     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_X);
+	node->setScale(0.02, 0.02, 0.02);
     {
         // 模型 #1 可见物体结点
-        SGModelPtr model = SGModel::create("knight.tmt");
+        SGModelPtr model = SGModel::create("白骆驼.tmt");
         node->addChild(model);
     }
 
