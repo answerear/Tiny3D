@@ -66,7 +66,7 @@ bool ModelApp::applicationDidFinishLaunching()
     node = SGTransformNode::create();
     root->addChild(node);
     node->setPosition(0.0, 0.0, 0.0);
-//     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_X);
+//     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_Y);
 	node->setScale(0.02, 0.02, 0.02);
     {
         // 模型 #1 可见物体结点
