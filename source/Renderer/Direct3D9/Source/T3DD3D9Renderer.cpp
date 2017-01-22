@@ -409,7 +409,7 @@ namespace Tiny3D
         {
             HardwareVertexBufferPtr vb = vertexData->getVertexBuffer(i);
             D3D9HardwareVertexBuffer *vertices = (D3D9HardwareVertexBuffer*)(HardwareVertexBuffer *)vb;
-            hr = mD3DDevice->SetStreamSource(i, vertices->getD3DVertexBuffer(), 0, decl->getVertexSize());
+            hr = mD3DDevice->SetStreamSource(i, vertices->getD3DVertexBuffer(), 0, decl->getVertexSize(i));
         }
 
         D3D9VertexDeclaration *vertexDecl = (D3D9VertexDeclaration *)(VertexDeclaration *)decl;
@@ -433,7 +433,7 @@ namespace Tiny3D
             HardwareVertexBufferPtr vb = vertexData->getVertexBuffer(i);
             D3D9HardwareVertexBuffer *vertices = (D3D9HardwareVertexBuffer *)(HardwareVertexBuffer *)vb;
             vertexCount = vertices->getVertexCount();
-            hr = mD3DDevice->SetStreamSource(i, vertices->getD3DVertexBuffer(), 0, decl->getVertexSize());
+            hr = mD3DDevice->SetStreamSource(i, vertices->getD3DVertexBuffer(), 0, decl->getVertexSize(i));
         }
 
         HardwareIndexBufferPtr ib = indexData->getIndexBuffer();

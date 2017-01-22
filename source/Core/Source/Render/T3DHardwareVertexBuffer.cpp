@@ -280,13 +280,17 @@ namespace Tiny3D
         return nullptr;
     }
 
-    size_t VertexDeclaration::getVertexSize() const
+    size_t VertexDeclaration::getVertexSize(size_t source) const
     {
         size_t s = 0;
         VertexElementListConstItr itr = mVertexElements.begin();
         while (itr != mVertexElements.end())
         {
-            s += itr->getSize();
+			if (source == itr->getStream())
+			{
+				s += itr->getSize();
+			}
+
             ++itr;
         }
 

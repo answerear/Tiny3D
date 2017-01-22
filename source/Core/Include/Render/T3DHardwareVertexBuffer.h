@@ -124,7 +124,7 @@ namespace Tiny3D
 
         virtual const VertexElement *findElementBySemantic(VertexElement::Semantic semantic) const;
 
-        virtual size_t getVertexSize() const;
+        virtual size_t getVertexSize(size_t source) const;
 
         virtual VertexDeclarationPtr clone() const;
 

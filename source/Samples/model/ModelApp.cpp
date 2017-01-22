@@ -45,7 +45,7 @@ bool ModelApp::applicationDidFinishLaunching()
     // 相机变换结点
     SGTransformNodePtr node = SGTransformNode::create();
     root->addChild(node);
-    node->lookAt(Vector3(0.0, 2.0, 10.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(5.0, 2.0, 10.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     {
         // 相机结点
@@ -66,7 +66,7 @@ bool ModelApp::applicationDidFinishLaunching()
     node = SGTransformNode::create();
     root->addChild(node);
     node->setPosition(0.0, 0.0, 0.0);
-//     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_Y);
+//     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_X);
 	node->setScale(0.02, 0.02, 0.02);
     {
         // 模型 #1 可见物体结点
