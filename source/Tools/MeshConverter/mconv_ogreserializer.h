@@ -34,7 +34,13 @@ namespace mconv
         bool readSubMesh(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh);
         bool readSubMeshOperation(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh);
         bool readSubMeshTextureAlias(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh);
-        bool readSubMeshBoneAssignment(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh);
+
+        bool readSubMeshNameTable(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh);
+
+        bool readBoneAssignment(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreBoneAssignment &assignment);
+        bool readMeshBound(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh);
+
+        bool readSkeleton(const String &name);
 
         size_t readBools(Tiny3D::DataStream &stream, OgreChunkData &data, bool *value, size_t count = 1);
         size_t readBytes(Tiny3D::DataStream &stream, OgreChunkData &data, uint8_t *value, size_t count = 1);

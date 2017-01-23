@@ -112,9 +112,13 @@ namespace mconv
 
     struct OgreMesh
     {
-        bool                        hasSkeleton;
-        OgreGeometry                geometry;
-        std::vector<OgreSubMesh>    submeshes;
+        bool                            hasSkeleton;
+        OgreGeometry                    geometry;
+        std::vector<OgreSubMesh>        submeshes;
+		std::vector<OgreBoneAssignment> boneAssignments;
+        Vector3                         minEdge;
+        Vector3                         maxEdge;
+        float                           radius;
     };
 }
 

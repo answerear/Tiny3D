@@ -232,25 +232,51 @@ namespace mconv
                 break;
             case OGRE_MESH_SKELETON_LINK:
                 {
-
+                    String skeletonName = readString(stream, data);
+                    ret = ret && readSkeleton(skeletonName);
                 }
-//                 break;
+                break;
             case OGRE_MESH_BOUNDS:
-//                 break;
+                {
+                    ret = ret && readMeshBound(stream, data, mesh);
+                }
+                break;
             case OGRE_MESH_BONE_ASSIGNMENT:
-//                 break;
+                {
+                    mesh.boneAssignments.push_back(OgreBoneAssignment());
+                    ret = ret && readBoneAssignment(stream, data, mesh.boneAssignments.back());
+                }
+                break;
             case OGRE_MESH_LOD:
-//                 break;
+                {
+                    T3D_ASSERT(0);
+                }
+                break;
             case OGRE_SUBMESH_NAME_TABLE:
-//                 break;
+                {
+                    ret = ret && readSubMeshNameTable(stream, data, mesh);
+                }
+                break;
             case OGRE_EDGE_LISTS:
-//                 break;
+                {
+                    T3D_ASSERT(0);
+                }
+                break;
             case OGRE_POSES:
-//                 break;
+                {
+                    T3D_ASSERT(0);
+                }
+                break;
             case OGRE_ANIMATIONS:
-//                 break;
+                {
+                    T3D_ASSERT(0);
+                }
+                break;
             case OGRE_TABLE_EXTREMES:
-//                 break;
+                {
+                    T3D_ASSERT(0);
+                }
+                break;
             default:
                 {
                     // 跳过不需要解析的chunk
@@ -446,7 +472,8 @@ namespace mconv
                 break;
             case OGRE_SUBMESH_BONE_ASSIGNMENT:
                 {
-                    ret = ret && readSubMeshBoneAssignment(stream, data, submesh);
+                    submesh.boneAssignments.push_back(OgreBoneAssignment());
+                    ret = ret && readBoneAssignment(stream, data, submesh.boneAssignments.back());
                 }
                 break;
             default:
@@ -483,20 +510,73 @@ namespace mconv
         return true;
     }
 
-    bool OgreSerializer::readSubMeshBoneAssignment(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSubMesh &submesh)
+    bool OgreSerializer::readBoneAssignment(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreBoneAssignment &assignment)
     {
         bool ret = true;
-        uint32_t vertexID;
-        size_t bytesOfRead = readInts(stream, parent, &vertexID);
-        ret = ret && (bytesOfRead == sizeof(vertexID));
-        uint16_t boneID;
-        bytesOfRead = readShorts(stream, parent, &boneID);
-        ret = ret && (bytesOfRead == sizeof(boneID));
-        float weight;
-        bytesOfRead = readFloats(stream, parent, &weight);
-        ret = ret && (bytesOfRead == sizeof(weight));
+        size_t bytesOfRead = readInts(stream, parent, &assignment.vertexID);
+        ret = ret && (bytesOfRead == sizeof(assignment.vertexID));
+        bytesOfRead = readShorts(stream, parent, &assignment.boneID);
+        ret = ret && (bytesOfRead == sizeof(assignment.boneID));
+        bytesOfRead = readFloats(stream, parent, &assignment.weight);
+        ret = ret && (bytesOfRead == sizeof(assignment.weight));
+        return ret;
+    }
+
+    bool OgreSerializer::readMeshBound(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh)
+    {
+        bool ret = true;
+        size_t bytesOfRead = readObject(stream, parent, mesh.minEdge);
+        ret = ret && (bytesOfRead == sizeof(mesh.minEdge));
+        bytesOfRead = readObject(stream, parent, mesh.maxEdge);
+        ret = ret && (bytesOfRead == sizeof(mesh.maxEdge));
+        bytesOfRead = readFloats(stream, parent, &mesh.radius);
+        ret = ret && (bytesOfRead == sizeof(mesh.radius));
+        return ret;
+    }
+
+    bool OgreSerializer::readSubMeshNameTable(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh)
+    {
+        std::map<uint16_t, String> submeshNames;
+
+        bool ret = true;
+
+        while (ret && parent.read < parent.header.length && !stream.eof())
+        {
+            OgreChunkData data;
+            ret = readChunkData(stream, data);
+
+            switch (data.header.id)
+            {
+            case OGRE_SUBMESH_NAME_TABLE_ELEMENT:
+                {
+                    uint16_t submeshIndex;
+                    size_t bytesOfRead = readShorts(stream, data, &submeshIndex);
+                    ret = ret && (bytesOfRead == sizeof(submeshIndex));
+                    String submeshName = readString(stream, data);
+                    submeshNames[submeshIndex] = submeshName;
+                }
+                break;
+            default:
+                {
+                    // 不是自己负责解析的chunk，返回跳出，交给外面来解析处理
+                    long_t read = data.read;
+                    stream.seek(-read, true);
+                    return true;
+                }
+                break;
+            }
+
+            T3D_ASSERT(data.read == data.header.length);
+
+            parent.read += data.read;
+        }
 
         return ret;
+    }
+
+    bool OgreSerializer::readSkeleton(const String &name)
+    {
+        return true;
     }
 
     size_t OgreSerializer::readBools(Tiny3D::DataStream &stream, OgreChunkData &data, bool *value, size_t count /* = 1 */)
