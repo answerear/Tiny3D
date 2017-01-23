@@ -40,7 +40,15 @@ namespace mconv
         bool readBoneAssignment(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreBoneAssignment &assignment);
         bool readMeshBound(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreMesh &mesh);
 
-        bool readSkeleton(const String &name);
+        bool readSkeleton(const String &name, OgreSkeleton &skeleton);
+        bool readSkeletonChunk(Tiny3D::DataStream &stream, OgreSkeleton &skeleton);
+        bool readSkeletonBone(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSkeleton &skeleton);
+        bool readSkeletonBoneParent(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSkeleton &skeleton);
+        bool readSkeletonAnimation(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSkeleton &skeleton);
+        bool readAnimationTrack(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreAnimation &animation);
+        bool readAnimationKeyframe(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreAnimation &animation, uint16_t bone);
+        bool readAnimationKeyframeList(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreAnimation &animation);
+        bool readSkeletonAnimationLink(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSkeleton &skeleton);
 
         size_t readBools(Tiny3D::DataStream &stream, OgreChunkData &data, bool *value, size_t count = 1);
         size_t readBytes(Tiny3D::DataStream &stream, OgreChunkData &data, uint8_t *value, size_t count = 1);
@@ -57,6 +65,7 @@ namespace mconv
         void swapEndian(void *data, size_t size, size_t count);
         void swapEndian(void *data, size_t size);
 
+        String  mSrcPath;
         bool    mSwapEndian;
     };
 }

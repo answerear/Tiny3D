@@ -100,7 +100,7 @@ namespace mconv
 
     struct OgreSubMesh
     {
-        std::string                     materialName;
+        String                          materialName;
         bool                            hasSharedVertices;
         std::vector<uint32_t>           indices;
         bool                            indices32Bit;
@@ -108,6 +108,38 @@ namespace mconv
         uint16_t                        operation;
         std::vector<OgreTextureAlias>   textureAliases;
         std::vector<OgreBoneAssignment> boneAssignments;
+    };
+
+    struct OgreBone
+    {
+        String                          name;
+        Vector3                         position;
+        Quaternion                      orientation;
+        Vector3                         scale;
+        uint16_t                        handle;
+        uint16_t                        parent;
+    };
+
+    struct OgreKeyframe
+    {
+        uint16_t                        boneID;
+        float                           time;
+        Vector3                         position;
+        Quaternion                      orientation;
+        Vector3                         scale;
+    };
+
+    struct OgreAnimation
+    {
+        String                          name;
+        float                           length;
+        std::vector<OgreKeyframe>       keyframes;
+    };
+
+    struct OgreSkeleton
+    {
+        std::vector<OgreBone>           bones;
+        std::vector<OgreAnimation>      animations;
     };
 
     struct OgreMesh
@@ -119,6 +151,8 @@ namespace mconv
         Vector3                         minEdge;
         Vector3                         maxEdge;
         float                           radius;
+
+        OgreSkeleton                    skeleton;
     };
 }
 

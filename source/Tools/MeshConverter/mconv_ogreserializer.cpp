@@ -11,6 +11,8 @@ namespace mconv
     #define OGRE_MESH_VERSION_140       "[MeshSerializer_v1.40]"
     #define OGRE_MESH_VERSION_141       "[MeshSerializer_v1.41]"
 
+    #define OGRE_SERIALIZER_VERSION_110 "[Serializer_v1.00]"
+
 
     enum OgreMeshChundID
     {
@@ -80,6 +82,7 @@ namespace mconv
         OGRE_SKELETON_ANIMATION = 0x4000,
         OGRE_SKELETON_ANIMATION_TRACK = 0x4100,
         OGRE_SKELETON_ANIMATION_TRACK_KEYFRAME = 0x4110,
+        OGRE_SKELETON_ANIMATION_TRACK_KEYFRAME_LIST = 0x4120,
 
         OGRE_SKELETON_ANIMATION_LINK = 0x5000,
     };
@@ -105,6 +108,8 @@ namespace mconv
 
         if (fs.open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
         {
+            mSrcPath = path;
+
             size_t bytesOfRead = 0;
             uint16_t id;
 
@@ -233,7 +238,7 @@ namespace mconv
             case OGRE_MESH_SKELETON_LINK:
                 {
                     String skeletonName = readString(stream, data);
-                    ret = ret && readSkeleton(skeletonName);
+                    ret = ret && readSkeleton(skeletonName, mesh.skeleton);
                 }
                 break;
             case OGRE_MESH_BOUNDS:
@@ -574,18 +579,279 @@ namespace mconv
         return ret;
     }
 
-    bool OgreSerializer::readSkeleton(const String &name)
+    bool OgreSerializer::readSkeleton(const String &name, OgreSkeleton &skeleton)
     {
+        bool ret = false;
+
         Tiny3D::FileDataStream fs;
 
-        if (fs.open(name.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        String path;
+        size_t pos = mSrcPath.rfind("\\");
+        if (pos == String::npos)
         {
+            pos = mSrcPath.rfind("/");
+        }
+
+        if (pos != String::npos)
+        {
+            path = mSrcPath.substr(0, pos);
+            path += "\\" + name;
+        }
+
+        if (fs.open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        {
+            size_t bytesOfRead = 0;
+            uint16_t id;
+
+            // 读取是否大小端交换标识
+            bytesOfRead = fs.read(&id, sizeof(id));
+
+            if (id == OGRE_HEADER)
+            {
+                mSwapEndian = false;
+                ret = true;
+            }
+            else if (id == OGRE_OTHER_HEADER)
+            {
+                mSwapEndian = true;
+                ret = true;
+            }
+            else
+            {
+                ret = false;
+            }
+
+            if (ret)
+            {
+                // 读取版本号
+                OgreChunkData data;
+                String version = readString(fs, data);
+
+                if (version != OGRE_SERIALIZER_VERSION_110)
+                {
+                    ret = false;
+                }
+
+                ret = ret && readSkeletonChunk(fs, skeleton);
+            }
 
             fs.close();
         }
 
+        return ret;
+    }
 
-        return true;
+    bool OgreSerializer::readSkeletonChunk(Tiny3D::DataStream &stream, OgreSkeleton &skeleton)
+    {
+        bool ret = true;
+
+        while (!stream.eof())
+        {
+            OgreChunkData data;
+            readChunkData(stream, data);
+
+            switch (data.header.id)
+            {
+            case OGRE_SKELETON_BONE:
+                {
+                    ret = ret && readSkeletonBone(stream, data, skeleton);
+                }
+                break;
+            case OGRE_SKELETON_BONE_PARENT:
+                {
+                    ret = ret && readSkeletonBoneParent(stream, data, skeleton);
+                }
+                break;
+            case OGRE_SKELETON_ANIMATION:
+                {
+                    ret = ret && readSkeletonAnimation(stream, data, skeleton);
+                }
+                break;
+            case OGRE_SKELETON_ANIMATION_LINK:
+                {
+                    ret = ret && readSkeletonAnimationLink(stream, data, skeleton);
+                }
+                break;
+            default:
+                {
+                    T3D_ASSERT(data.header.id != 0);
+                    size_t offset = data.header.length - data.read;
+                    stream.seek(offset, true);
+                    data.read += offset;
+                }
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    bool OgreSerializer::readSkeletonBone(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSkeleton &skeleton)
+    {
+        bool ret = true;
+
+        skeleton.bones.push_back(OgreBone());
+        OgreBone &bone = skeleton.bones.back();
+        bone.name = readString(stream, parent);
+        size_t bytesOfRead = readShorts(stream, parent, &bone.handle);
+        ret = ret && (bytesOfRead == sizeof(bone.handle));
+        bytesOfRead = readObject(stream, parent, bone.position);
+        ret = ret && (bytesOfRead == sizeof(bone.position));
+        bytesOfRead = readObject(stream, parent, bone.orientation);
+
+        if (parent.read < (parent.header.length - bone.name.size()))
+        {
+            bytesOfRead = readObject(stream, parent, bone.scale);
+            ret = ret && (bytesOfRead == sizeof(bone.scale));
+        }
+        else
+        {
+            bone.scale = Vector3(1, 1, 1);
+        }
+
+        bone.parent = 0xffff;
+
+        return ret;
+    }
+
+    bool OgreSerializer::readSkeletonBoneParent(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSkeleton &skeleton)
+    {
+        bool ret = true;
+
+        uint16_t childHandle;
+        uint16_t parentHandle;
+
+        size_t bytesOfRead = readShorts(stream, parent, &childHandle);
+        ret = ret && (bytesOfRead == sizeof(childHandle));
+        bytesOfRead = readShorts(stream, parent, &parentHandle);
+
+        if (childHandle < skeleton.bones.size() && parentHandle < skeleton.bones.size())
+        {
+            skeleton.bones[childHandle].parent = parentHandle;
+        }
+
+        return ret;
+    }
+
+    bool OgreSerializer::readSkeletonAnimation(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSkeleton &skeleton)
+    {
+        bool ret = true;
+
+        skeleton.animations.push_back(OgreAnimation());
+        OgreAnimation &animation = skeleton.animations.back();
+        animation.name = readString(stream, parent);
+        size_t bytesOfRead = readFloats(stream, parent, &animation.length);
+        ret = ret && (bytesOfRead == sizeof(animation.length));
+
+        while (ret && parent.read < parent.header.length && !stream.eof())
+        {
+            OgreChunkData data;
+            ret = readChunkData(stream, data);
+
+            switch (data.header.id)
+            {
+            case OGRE_SKELETON_ANIMATION_TRACK:
+                {
+                    ret = ret && readAnimationTrack(stream, data, animation);
+                }
+                break;
+            default:
+                {
+                    T3D_ASSERT(data.header.id != 0);
+                    size_t offset = data.header.length - data.read;
+                    stream.seek(offset, true);
+                    data.read += offset;
+                }
+                break;
+            }
+
+            parent.read += data.header.length;
+        }
+
+        return ret;
+    }
+
+    bool OgreSerializer::readAnimationTrack(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreAnimation &animation)
+    {
+        bool ret = true;
+
+        uint16_t boneHandle;
+        size_t bytesOfRead = readShorts(stream, parent, &boneHandle);
+        ret = ret && (bytesOfRead == sizeof(boneHandle));
+
+        while (ret && parent.read < parent.header.length && !stream.eof())
+        {
+            OgreChunkData data;
+            ret = readChunkData(stream, data);
+
+            switch (data.header.id)
+            {
+            case OGRE_SKELETON_ANIMATION_TRACK_KEYFRAME:
+                {
+                    ret = ret && readAnimationKeyframe(stream, data, animation, boneHandle);
+                }
+                break;
+            case OGRE_SKELETON_ANIMATION_TRACK_KEYFRAME_LIST:
+                {
+                    ret = ret && readAnimationKeyframeList(stream, data, animation);
+                }
+                break;
+            default:
+                {
+                    T3D_ASSERT(data.header.id != 0);
+                    size_t offset = data.header.length - data.read;
+                    stream.seek(offset, true);
+                    data.read += offset;
+                }
+                break;
+            }
+
+            parent.read += data.header.length;
+        }
+
+        return ret;
+    }
+
+    bool OgreSerializer::readAnimationKeyframe(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreAnimation &animation, uint16_t bone)
+    {
+        bool ret = true;
+
+        animation.keyframes.push_back(OgreKeyframe());
+        OgreKeyframe &keyframe = animation.keyframes.back();
+        size_t bytesOfRead = readFloats(stream, parent, &keyframe.time);
+        ret = ret && (bytesOfRead == sizeof(keyframe.time));
+        bytesOfRead = readObject(stream, parent, keyframe.orientation);
+        ret = ret && (bytesOfRead == sizeof(keyframe.orientation));
+        bytesOfRead = readObject(stream, parent, keyframe.position);
+        ret = ret && (bytesOfRead == sizeof(keyframe.position));
+
+        if (parent.read < parent.header.length)
+        {
+            bytesOfRead = readObject(stream, parent, keyframe.scale);
+            ret = ret && (bytesOfRead == sizeof(keyframe.scale));
+        }
+        else
+        {
+            keyframe.scale = Vector3(1, 1, 1);
+        }
+
+        keyframe.boneID = bone;
+
+        return ret;
+    }
+
+    bool OgreSerializer::readAnimationKeyframeList(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreAnimation &animation)
+    {
+        bool ret = true;
+
+        return ret;
+    }
+
+    bool OgreSerializer::readSkeletonAnimationLink(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSkeleton &skeleton)
+    {
+        bool ret = true;
+
+        return ret;
     }
 
     size_t OgreSerializer::readBools(Tiny3D::DataStream &stream, OgreChunkData &data, bool *value, size_t count /* = 1 */)
