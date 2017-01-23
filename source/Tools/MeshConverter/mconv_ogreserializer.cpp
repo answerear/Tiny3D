@@ -576,6 +576,15 @@ namespace mconv
 
     bool OgreSerializer::readSkeleton(const String &name)
     {
+        Tiny3D::FileDataStream fs;
+
+        if (fs.open(name.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        {
+
+            fs.close();
+        }
+
+
         return true;
     }
 
