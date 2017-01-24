@@ -11,7 +11,7 @@ namespace mconv
     #define OGRE_MESH_VERSION_140       "[MeshSerializer_v1.40]"
     #define OGRE_MESH_VERSION_141       "[MeshSerializer_v1.41]"
 
-    #define OGRE_SERIALIZER_VERSION_110 "[Serializer_v1.00]"
+    #define OGRE_SERIALIZER_VERSION_110 "[Serializer_v1.10]"
 
 
     enum OgreMeshChundID
@@ -681,6 +681,8 @@ namespace mconv
                 }
                 break;
             }
+
+//             T3D_ASSERT(data.read == data.header.length);
         }
 
         return ret;
@@ -730,6 +732,8 @@ namespace mconv
             skeleton.bones[childHandle].parent = parentHandle;
         }
 
+        T3D_ASSERT(parent.read == parent.header.length);
+
         return ret;
     }
 
@@ -765,8 +769,12 @@ namespace mconv
                 break;
             }
 
+            T3D_ASSERT(data.read == data.header.length);
+
             parent.read += data.header.length;
         }
+
+        T3D_ASSERT(parent.read == parent.header.length);
 
         return ret;
     }
@@ -806,8 +814,11 @@ namespace mconv
                 break;
             }
 
+            T3D_ASSERT(data.read == data.header.length);
             parent.read += data.header.length;
         }
+
+        T3D_ASSERT(parent.read == parent.header.length);
 
         return ret;
     }
@@ -844,12 +855,35 @@ namespace mconv
     {
         bool ret = true;
 
+        uint16_t length;
+        size_t bytesOfRead = readShorts(stream, parent, &length);
+        ret = ret && (bytesOfRead == sizeof(length));
+
+        uint16_t flag;
+        bytesOfRead = readShorts(stream, parent, &flag);
+        ret = ret && (bytesOfRead == sizeof(flag));
+
+        float time;
+
+        size_t i = 0;
+        for (i = 0; i < length; ++i)
+        {
+            bytesOfRead = readFloats(stream, parent, &time);
+        }
+
         return ret;
     }
 
     bool OgreSerializer::readSkeletonAnimationLink(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreSkeleton &skeleton)
     {
         bool ret = true;
+
+        String skelName = readString(stream, parent);
+        float scale;
+        size_t bytesOfRead = readFloats(stream, parent, &scale);
+        ret = ret && (bytesOfRead == sizeof(scale));
+
+        T3D_ASSERT(parent.read == parent.header.length);
 
         return ret;
     }
@@ -929,7 +963,6 @@ namespace mconv
         value[0] = tmp[0];
         value[1] = tmp[1];
         value[2] = tmp[2];
-        data.read += ret;
         return ret;
     }
 
@@ -941,7 +974,6 @@ namespace mconv
         value[1] = tmp[1];
         value[2] = tmp[2];
         value[3] = tmp[3];
-        data.read += ret;
         return ret;
     }
 
