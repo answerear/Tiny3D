@@ -149,13 +149,12 @@ namespace mconv
         while (itr != geometry.buffers.end())
         {
             std::stringstream ss;
-            ss<<i;
+            ss<<itr->bindIndex;
             VertexBuffer *pVB = new VertexBuffer(ss.str());
             pVBS->addChild(pVB);
 
-            result = result && processOgreVertexAttributes(geometry, pVB, i);
-            result = result && processOgreVertexBuffer(*itr, pVB, i);
-            ++i;
+            result = result && processOgreVertexAttributes(geometry, pVB, itr->bindIndex);
+            result = result && processOgreVertexBuffer(*itr, pVB, itr->bindIndex);
             ++itr;
         }
 

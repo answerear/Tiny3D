@@ -104,6 +104,7 @@ namespace Tiny3D
         Real normalize();
 
         static const Vector3 ZERO;
+        static const Vector3 UNIT_SCALE;
         static const Vector3 UNIT_X;
         static const Vector3 UNIT_Y;
         static const Vector3 UNIT_Z;

@@ -234,7 +234,7 @@ namespace mconv
         uint32_t            mHash;
     };
 
-    typedef std::list<Vertex>           Vertices;
+    typedef std::vector<Vertex>         Vertices;
     typedef Vertices::iterator          VerticesItr;
     typedef Vertices::const_iterator    VerticesConstItr;
 }

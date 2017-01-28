@@ -13,6 +13,10 @@ namespace mconv
 
     #define OGRE_SERIALIZER_VERSION_110 "[Serializer_v1.10]"
 
+    #define KF_ROTATION     (1<<0)
+    #define KF_TRANSLATE    (1<<1)
+    #define KF_SCALE        (1<<2)
+    #define KF_ALL          (KF_ROTATION | KF_TRANSLATE | KF_SCALE)
 
     enum OgreMeshChundID
     {
@@ -769,12 +773,12 @@ namespace mconv
                 break;
             }
 
-            T3D_ASSERT(data.read == data.header.length);
+//             T3D_ASSERT(data.read == data.header.length);
 
-            parent.read += data.header.length;
+            parent.read += data.read;
         }
 
-        T3D_ASSERT(parent.read == parent.header.length);
+//         T3D_ASSERT(parent.read == parent.header.length);
 
         return ret;
     }
@@ -814,11 +818,11 @@ namespace mconv
                 break;
             }
 
-            T3D_ASSERT(data.read == data.header.length);
-            parent.read += data.header.length;
+//             T3D_ASSERT(data.read == data.header.length);
+            parent.read += data.read;
         }
 
-        T3D_ASSERT(parent.read == parent.header.length);
+//         T3D_ASSERT(parent.read == parent.header.length);
 
         return ret;
     }
@@ -868,7 +872,40 @@ namespace mconv
         size_t i = 0;
         for (i = 0; i < length; ++i)
         {
-            bytesOfRead = readFloats(stream, parent, &time);
+            animation.keyframes.push_back(OgreKeyframe());
+            OgreKeyframe &keyframe = animation.keyframes.back();
+            bytesOfRead = readFloats(stream, parent, &keyframe.time);
+            ret = ret && (bytesOfRead == sizeof(keyframe.time));
+
+            if (flag & KF_ROTATION)
+            {
+                bytesOfRead = readObject(stream, parent, keyframe.orientation);
+                ret = ret && (bytesOfRead == sizeof(keyframe.orientation));
+            }
+            else
+            {
+                keyframe.orientation = Quaternion::IDENTITY;
+            }
+
+            if (flag & KF_TRANSLATE)
+            {
+                bytesOfRead = readObject(stream, parent, keyframe.position);
+                ret = ret && (bytesOfRead == sizeof(keyframe.position));
+            }
+            else
+            {
+                keyframe.position = Vector3::ZERO;
+            }
+
+            if (flag & KF_SCALE)
+            {
+                bytesOfRead = readObject(stream, parent, keyframe.scale);
+                ret = ret && (bytesOfRead == sizeof(keyframe.scale));
+            }
+            else
+            {
+                keyframe.scale = Vector3::UNIT_SCALE;
+            }
         }
 
         return ret;
