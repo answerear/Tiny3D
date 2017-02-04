@@ -105,7 +105,7 @@ namespace mconv
 
         Scene *pScene = new Scene(name);
         
-        result = processOgreMesh(pOgreMesh, pScene);
+        result = processOgreMesh(*pOgreMesh, pScene);
 
         mDstData = pScene;
 
@@ -120,7 +120,7 @@ namespace mconv
         mSrcData = nullptr;
     }
 
-    bool OgreConverter::processOgreMesh(OgreMesh *pOgreMesh, Node *pRoot)
+    bool OgreConverter::processOgreMesh(const OgreMesh &mesh, Node *pRoot)
     {
         bool result = false;
 
@@ -130,7 +130,12 @@ namespace mconv
 
         pRoot->addChild(pModel);
 
-        result = processOgreSubMeshes(*pOgreMesh, pModel);
+        result = processOgreSubMeshes(mesh, pModel);
+
+        if (mesh.hasSkeleton)
+        {
+            result = result && processOgreSkeleton(mesh.skeleton, pModel);
+        }
 
         return result;
     }
@@ -553,6 +558,81 @@ namespace mconv
             *itr = submesh.indices[i];
             ++itr;
         }
+
+        return result;
+    }
+
+    bool OgreConverter::processOgreSkeleton(const OgreSkeleton &skeleton, Model *pModel)
+    {
+        bool result = processOgreBones(skeleton, pModel);
+        result = result && processOgreAnimations(skeleton, pModel);
+        return result;
+    }
+
+    bool OgreConverter::processOgreBones(const OgreSkeleton &skeleton, Model *pModel)
+    {
+        bool result = (skeleton.bones.size() > 0);
+
+        if (result)
+        {
+            Skeleton *pSkel = new Skeleton("skeleton");
+            pModel->addChild(pSkel);
+
+            auto itr = skeleton.bones.begin();
+
+            while (itr != skeleton.bones.end())
+            {
+                const OgreBone &bone = *itr;
+                Bone *pBone = new Bone(bone.name);
+                Node *pParent = nullptr;
+
+                if (searchParentBone(pSkel, bone.name, pParent))
+                {
+                    pParent->addChild(pBone);
+                }
+
+                result = result && processOgreBone(bone, pBone);
+                ++itr;
+            }
+        }
+
+        return result;
+    }
+
+    bool OgreConverter::searchParentBone(Skeleton *pSkel, const String &name, Node *&pParent)
+    {
+        bool found = false;
+
+
+        return found;
+    }
+
+    bool OgreConverter::searchBone(const OgreSkeleton &skeleton, uint16_t parent, uint16_t prev, OgreBone &bone)
+    {
+        bool found = false;
+
+        auto itr = skeleton.bones.begin();
+
+        while (itr != skeleton.bones.end())
+        {
+            const OgreBone &inst = *itr;
+
+            if (parent == inst.parent)
+            {
+                bone = inst;
+                found = true;
+                break;
+            }
+
+            ++itr;
+        }
+
+        return found;
+    }
+
+    bool OgreConverter::processOgreAnimations(const OgreSkeleton &skeleton, Model *pModel)
+    {
+        bool result;
 
         return result;
     }

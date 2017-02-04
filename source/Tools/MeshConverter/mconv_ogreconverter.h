@@ -38,7 +38,7 @@ namespace mconv
         virtual bool exportScene() override;
         virtual void cleanup() override;
 
-        bool processOgreMesh(OgreMesh *pOgreMesh, Node *pRoot);
+        bool processOgreMesh(const OgreMesh &mesh, Node *pRoot);
         bool processOgreGeometry(const OgreGeometry &geometry, Mesh *pMesh);
         bool processOgreVertexAttributes(const OgreGeometry &geometry, VertexBuffer *pVertexBuffer, size_t source);
         bool putVertexAttribute(const OgreVertexElement &element, VertexBuffer *pVertexBuffer);
@@ -49,6 +49,12 @@ namespace mconv
         bool createMesh(Model *pModel, Mesh *&pMesh, SubMeshes *&pSubMeshes, size_t index);
         bool processOgreSubMeshes(const OgreMesh &mesh, Model *pModel);
         bool processOgreSubMesh(const OgreSubMesh &submesh, Mesh *pMesh, SubMeshes *pSubMeshes);
+
+        bool processOgreSkeleton(const OgreSkeleton &skeleton, Model *pModel);
+        bool processOgreBones(const OgreSkeleton &skeleton, Model *pModel);
+        bool searchParentBone(Skeleton *pSkel, const String &name, Node *&pParent);
+        bool processOgreBone(const OgreSkeleton &skeleton, const OgreBone &bone, Node *pParent);
+        bool processOgreAnimations(const OgreSkeleton &skeleton, Model *pModel);
 
     protected:
         void    *mSrcData;
