@@ -119,7 +119,7 @@ namespace Tiny3D
             }
             else
             {
-                ret = false;
+                ret = true;
             }
 
             if (ret)
