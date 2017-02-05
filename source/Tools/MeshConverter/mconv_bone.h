@@ -23,6 +23,11 @@ namespace mconv
 
         }
 
+        void setID(const String &ID)
+        {
+            mID = ID;
+        }
+
         virtual Type getNodeType() const override
         {
             return E_TYPE_BONE;

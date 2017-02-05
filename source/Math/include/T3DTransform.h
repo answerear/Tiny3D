@@ -49,16 +49,9 @@ namespace Tiny3D
 
     inline void Transform::makeAffineMatrix()
     {
-        Matrix3 m3;
-        mOrientation.toRotationMatrix(m3);
-        Matrix4 R(m3);
-        Matrix4 S;
-        S[0][0] = mScale.x();
-        S[1][1] = mScale.y();
-        S[2][2] = mScale.z();
-        S[3][3] = 1.0;
-        Matrix4 T;
-        T.makeTranslate(mTranslate);
+        Matrix4 R(mOrientation);
+        Matrix4 S(mScale.x(), mScale.y(), mScale.z(), 1.0);
+        Matrix4 T(mTranslate);
         mAffineMatrix = T * R * S;
     }
 

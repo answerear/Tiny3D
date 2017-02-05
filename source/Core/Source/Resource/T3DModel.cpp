@@ -764,9 +764,9 @@ namespace Tiny3D
             size_t i = 0, j = 0;
             Matrix4 m;
 
-            for (j = 0; j < 4; ++j)
+            for (i = 0; i < 4; ++i)
             {
-                for (i = 0; i < 4; ++i)
+                for (j = 0; j < 4; ++j)
                 {
                     float val = getValue<float>(text, start);
                     m[i][j] = val;
@@ -812,9 +812,9 @@ namespace Tiny3D
             size_t i = 0, j = 0;
             Matrix4 m;
 
-            for (j = 0; j < 4; ++j)
+            for (i = 0; i < 4; ++i)
             {
-                for (i = 0; i < 4; ++i)
+                for (j = 0; j < 4; ++j)
                 {
                     float val = getValue<float>(text, start);
                     m[i][j] = val;

@@ -31,6 +31,10 @@ namespace Tiny3D
         /// Create a standard 4x4 transformation matrix with a zero translation part from a
         /// rotation/scaling quaternion.
         Matrix4(const Quaternion &rkRot);
+        /// Create a standard 4x4 transformation matrix with a translation.
+        Matrix4(const Vector3 &rkPos);
+        /// Create a diagonal matrix.
+        Matrix4(Real m00, Real m11, Real m22, Real m33);
 
         /// Make zero matrix.
         void makeZero();

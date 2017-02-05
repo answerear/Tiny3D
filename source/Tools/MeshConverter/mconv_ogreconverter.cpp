@@ -578,20 +578,41 @@ namespace mconv
             Skeleton *pSkel = new Skeleton("skeleton");
             pModel->addChild(pSkel);
 
+            // 先分配所有骨骼结点对象
+            std::vector<Bone*> bones(skeleton.bones.size(), nullptr);
+            size_t i = 0;
+            for (i = 0; i < bones.size(); ++i)
+            {
+                bones[i] = new Bone("unknown");
+            }
+
+            // 构建树形骨骼关系和计算变换矩阵
             auto itr = skeleton.bones.begin();
 
             while (itr != skeleton.bones.end())
             {
                 const OgreBone &bone = *itr;
-                Bone *pBone = new Bone(bone.name);
-                Node *pParent = nullptr;
+                Bone *pBone = bones[bone.handle];
 
-                if (searchParentBone(pSkel, bone.name, pParent))
+                if (bone.parent == 0xFFFF)
                 {
+                    pBone->setID(bone.name);
+                    pSkel->addChild(pBone);
+                }
+                else
+                {
+                    Bone *pParent = bones[bone.parent];
+                    pBone->setID(bone.name);
+                    T3D_ASSERT(pBone->getParent() == nullptr);
                     pParent->addChild(pBone);
                 }
 
-                result = result && processOgreBone(bone, pBone);
+                // 计算变换矩阵
+                Matrix4 R(bone.orientation);
+                Matrix4 T(bone.position);
+                Matrix4 S;
+                S.setScale(bone.scale);
+                pBone->mLocalTransform = T * R * S;
                 ++itr;
             }
         }
@@ -599,40 +620,9 @@ namespace mconv
         return result;
     }
 
-    bool OgreConverter::searchParentBone(Skeleton *pSkel, const String &name, Node *&pParent)
-    {
-        bool found = false;
-
-
-        return found;
-    }
-
-    bool OgreConverter::searchBone(const OgreSkeleton &skeleton, uint16_t parent, uint16_t prev, OgreBone &bone)
-    {
-        bool found = false;
-
-        auto itr = skeleton.bones.begin();
-
-        while (itr != skeleton.bones.end())
-        {
-            const OgreBone &inst = *itr;
-
-            if (parent == inst.parent)
-            {
-                bone = inst;
-                found = true;
-                break;
-            }
-
-            ++itr;
-        }
-
-        return found;
-    }
-
     bool OgreConverter::processOgreAnimations(const OgreSkeleton &skeleton, Model *pModel)
     {
-        bool result;
+        bool result = true;
 
         return result;
     }

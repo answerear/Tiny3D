@@ -25,6 +25,7 @@ namespace mconv
     struct OgreGeometry;
     struct OgreVertexBuffer;
     struct OgreVertexElement;
+    struct OgreSkeleton;
 
     class OgreConverter : public ConverterImpl
     {
@@ -52,8 +53,6 @@ namespace mconv
 
         bool processOgreSkeleton(const OgreSkeleton &skeleton, Model *pModel);
         bool processOgreBones(const OgreSkeleton &skeleton, Model *pModel);
-        bool searchParentBone(Skeleton *pSkel, const String &name, Node *&pParent);
-        bool processOgreBone(const OgreSkeleton &skeleton, const OgreBone &bone, Node *pParent);
         bool processOgreAnimations(const OgreSkeleton &skeleton, Model *pModel);
 
     protected:
