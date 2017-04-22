@@ -222,8 +222,10 @@ namespace Tiny3D
         {
             int64_t current = DateTime::currentMSecsSinceEpoch();
             int64_t time = current - mStartTime;
-            T3D_LOG_INFO("time : %lld", time);
-            updateBone(time, mModel->getSkeletonData());
+            ActionDataPtr actionData = smart_pointer_cast<ActionData>(mCurActionData);
+            int64_t dt = time % actionData->mDuration;
+            T3D_LOG_INFO("time : %lld, dt = %lld, duration : %d", time, dt, actionData->mDuration);
+            updateBone(dt, mModel->getSkeletonData());
             mSkeleton->updateVertices();
         }
     }

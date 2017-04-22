@@ -6,6 +6,12 @@
 #include "T3DPrerequisites.h"
 #include <type_traits>
 
+#if _MSC_VER >= 1900
+namespace std
+{
+    struct _Static_tag {};
+}
+#endif
 
 namespace Tiny3D
 {

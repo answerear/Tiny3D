@@ -45,7 +45,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     // 相机变换结点
     SGTransformNodePtr node = SGTransformNode::create();
     root->addChild(node);
-    node->lookAt(Vector3(5.0, 2.0, 10.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(0.0, -3.0, 0.0), Vector3::ZERO, Vector3::UNIT_Z);
 
     {
         // 相机结点
@@ -70,9 +70,10 @@ bool SkeletonApp::applicationDidFinishLaunching()
     node->setScale(0.02, 0.02, 0.02);
     {
         // 模型 #1 可见物体结点
-        SGModelPtr model = SGModel::create("白骆驼.tmt");
+        SGModelPtr model = SGModel::create("skeleton.tmt");
         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
+        model->runAction("Take 001");
     }
 
     return true;

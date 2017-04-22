@@ -1875,12 +1875,12 @@ namespace mconv
         String s;
         switch (eWrapMode)
         {
-        case fbxsdk_2015_1::FbxTexture::eRepeat:
+        case FbxTexture::eRepeat:
             {
                 s = "repeat";
             }
             break;
-        case fbxsdk_2015_1::FbxTexture::eClamp:
+        case FbxTexture::eClamp:
             {
                 s = "clamp";
             }
@@ -2043,24 +2043,43 @@ namespace mconv
 
     void FBXConverter::convertMatrix(const FbxAMatrix &fbxMat, Matrix4 &m)
     {
+//         m[0][0] = fbxMat[0][0];
+//         m[0][1] = fbxMat[0][1];
+//         m[0][2] = fbxMat[0][2];
+//         m[0][3] = fbxMat[0][3];
+// 
+//         m[1][0] = fbxMat[1][0];
+//         m[1][1] = fbxMat[1][1];
+//         m[1][2] = fbxMat[1][2];
+//         m[1][3] = fbxMat[1][3];
+// 
+//         m[2][0] = fbxMat[2][0];
+//         m[2][1] = fbxMat[2][1];
+//         m[2][2] = fbxMat[2][2];
+//         m[2][3] = fbxMat[2][3];
+// 
+//         m[3][0] = fbxMat[3][0];
+//         m[3][1] = fbxMat[3][1];
+//         m[3][2] = fbxMat[3][2];
+//         m[3][3] = fbxMat[3][3];
         m[0][0] = fbxMat[0][0];
-        m[0][1] = fbxMat[0][1];
-        m[0][2] = fbxMat[0][2];
-        m[0][3] = fbxMat[0][3];
+        m[1][0] = fbxMat[0][1];
+        m[2][0] = fbxMat[0][2];
+        m[3][0] = fbxMat[0][3];
 
-        m[1][0] = fbxMat[1][0];
+        m[0][1] = fbxMat[1][0];
         m[1][1] = fbxMat[1][1];
-        m[1][2] = fbxMat[1][2];
-        m[1][3] = fbxMat[1][3];
+        m[2][1] = fbxMat[1][2];
+        m[3][1] = fbxMat[1][3];
 
-        m[2][0] = fbxMat[2][0];
-        m[2][1] = fbxMat[2][1];
+        m[0][2] = fbxMat[2][0];
+        m[1][2] = fbxMat[2][1];
         m[2][2] = fbxMat[2][2];
-        m[2][3] = fbxMat[2][3];
+        m[3][2] = fbxMat[2][3];
 
-        m[3][0] = fbxMat[3][0];
-        m[3][1] = fbxMat[3][1];
-        m[3][2] = fbxMat[3][2];
+        m[0][3] = fbxMat[3][0];
+        m[1][3] = fbxMat[3][1];
+        m[2][3] = fbxMat[3][2];
         m[3][3] = fbxMat[3][3];
     }
 }

@@ -27,9 +27,16 @@ include_directories(
 	"${FBXSDK_DIR}/include"
 	)
 
-link_directories(
-	"${FBXSDK_DIR}/lib/vs2012/x86/debug"
+if (MSVC11)
+	link_directories(
+		"${FBXSDK_DIR}/lib/vs2012/x86"
 	)
+elseif (MSVC14)
+	link_directories(
+		"${FBXSDK_DIR}/lib/vs2015/x86"
+	)
+endif ()
+
 
 # Setup project header files
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
@@ -56,11 +63,19 @@ target_link_libraries(
 	)
 
 if (TINY3D_OS_WINDOWS)
-	install(DIRECTORY 
-		${FBXSDK_DIR}/lib/vs2012/x86/debug/ DESTINATION bin/Debug 
-		CONFIGURATIONS Debug
-		PATTERN "lib" EXCLUDE
-		)
+	if (MSVC11)
+		install(DIRECTORY 
+			${FBXSDK_DIR}/lib/vs2012/x86/debug/ DESTINATION bin/Debug 
+			CONFIGURATIONS Debug
+			PATTERN "lib" EXCLUDE
+			)
+	elseif (MSVC14)
+		install(DIRECTORY 
+			${FBXSDK_DIR}/lib/vs2015/x86/debug/ DESTINATION bin/Debug 
+			CONFIGURATIONS Debug
+			PATTERN "lib" EXCLUDE
+			)
+	endif ()
 	
 	install(TARGETS ${BIN_NAME}
 		RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug

@@ -30,10 +30,17 @@ include_directories(
 	)
 
 if (TINY3D_OS_WINDOWS)
-link_directories(
-	"${TINY3D_DEP_DIR}/libpng/prebuilt/win32/vc110/x86"
-	"${TINY3D_DEP_DIR}/zlib/prebuilt/win32/vc110/x86"
-	)
+	if (MSVC11)
+		link_directories(
+			"${TINY3D_DEP_DIR}/libpng/prebuilt/win32/vc110/x86"
+			"${TINY3D_DEP_DIR}/zlib/prebuilt/win32/vc110/x86"
+			)
+	elseif (MSVC14)
+		link_directories(
+			"${TINY3D_DEP_DIR}/libpng/prebuilt/win32/vc140/x86"
+			"${TINY3D_DEP_DIR}/zlib/prebuilt/win32/vc140/x86"
+			)
+	endif ()
 elseif (TINY3D_OS_MACOSX)
 elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)
