@@ -564,8 +564,18 @@ namespace mconv
 
     bool OgreConverter::processOgreSkeleton(const OgreSkeleton &skeleton, Model *pModel)
     {
-        bool result = processOgreBones(skeleton, pModel);
+        bool result = processOgreSkin(skeleton, pModel);
+        result = result && processOgreBones(skeleton, pModel);
         result = result && processOgreAnimations(skeleton, pModel);
+        return result;
+    }
+
+    bool OgreConverter::processOgreSkin(const OgreSkeleton &skeleton, Model *pModel)
+    {
+        bool result = (skeleton.bones.size() > 0);
+
+
+
         return result;
     }
 

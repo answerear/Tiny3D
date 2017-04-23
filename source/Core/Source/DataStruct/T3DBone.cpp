@@ -144,14 +144,14 @@ namespace Tiny3D
     {
         getCombineTransform();
 
-        auto itr = mChildren.begin();
-
-        while (itr != mChildren.end())
-        {
-            const BonePtr &bone = smart_pointer_cast<Bone>(*itr);
-            bone->updateBone();
-            ++itr;
-        }
+//         auto itr = mChildren.begin();
+// 
+//         while (itr != mChildren.end())
+//         {
+//             const BonePtr &bone = smart_pointer_cast<Bone>(*itr);
+//             bone->updateBone();
+//             ++itr;
+//         }
     }
 }
 

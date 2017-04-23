@@ -52,6 +52,7 @@ namespace mconv
         bool processOgreSubMesh(const OgreSubMesh &submesh, Mesh *pMesh, SubMeshes *pSubMeshes);
 
         bool processOgreSkeleton(const OgreSkeleton &skeleton, Model *pModel);
+        bool processOgreSkin(const OgreSkeleton &skeleton, Model *pModel);
         bool processOgreBones(const OgreSkeleton &skeleton, Model *pModel);
         bool processOgreAnimations(const OgreSkeleton &skeleton, Model *pModel);
 

@@ -267,7 +267,8 @@ namespace Tiny3D
         {
             ActionData::KeyFrames &keyframesR = itrR->second;
 
-            if (searchKeyframe(keyframesR, time, actionData->mDuration, mCurKeyFrameR, kf1, kf2, mIsLoop))
+            int32_t frame = 0;
+            if (searchKeyframe(keyframesR, time, actionData->mDuration, frame, kf1, kf2, mIsLoop))
             {
                 KeyFrameDataRPtr keyframe1 = smart_pointer_cast<KeyFrameDataR>(kf1);
                 KeyFrameDataRPtr keyframe2 = smart_pointer_cast<KeyFrameDataR>(kf2);
@@ -278,8 +279,20 @@ namespace Tiny3D
                 Degree deg;
                 Vector3 axis;
                 orientation.toAngleAxis(deg, axis);
-                T3D_LOG_INFO("Bone : %s [%d], R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", bone->getName().c_str(), time, orientation[0], orientation[1], orientation[2], orientation[3], deg.valueDegrees(), axis[0], axis[1], axis[2]);
-
+                T3D_LOG_INFO("Bone : %s [%lld], keyframe=%d, kf1t=%lld, kf2t=%lld, R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", 
+                    bone->getName().c_str(), time, frame, keyframe1->mTimestamp, keyframe2->mTimestamp,
+                    orientation[0], orientation[1], orientation[2], orientation[3], deg.valueDegrees(), axis[0], axis[1], axis[2]);
+                bone->setOrientation(orientation);
+            }
+            else
+            {
+                KeyFrameDataRPtr keyframe = smart_pointer_cast<KeyFrameDataR>(keyframesR.back());
+                Degree deg;
+                Vector3 axis;
+                orientation = keyframe->mOrientation;
+                orientation.toAngleAxis(deg, axis);
+                T3D_LOG_INFO("Bone : %s [%lld], keyframe=%d, R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", bone->getName().c_str(), time, mCurKeyFrameR,
+                    orientation[0], orientation[1], orientation[2], orientation[3], deg.valueDegrees(), axis[0], axis[1], axis[2]);
                 bone->setOrientation(orientation);
             }
         }
