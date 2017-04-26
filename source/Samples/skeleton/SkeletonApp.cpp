@@ -42,10 +42,14 @@ bool SkeletonApp::applicationDidFinishLaunching()
 
     SGNodePtr root = T3D_SCENE_MGR.getRoot();
 
+    // 坐标
+    SGIndicatorPtr indicator = SGIndicator::create(50, 50, 50);
+    root->addChild(indicator);
+
     // 相机变换结点
     SGTransformNodePtr node = SGTransformNode::create();
     root->addChild(node);
-    node->lookAt(Vector3(0.0, -150.0, 0.0), Vector3::ZERO, Vector3::UNIT_Z);
+    node->lookAt(Vector3(0, 50, 150), Vector3::ZERO, Vector3::UNIT_Y);
 
     {
         // 相机结点
@@ -66,15 +70,40 @@ bool SkeletonApp::applicationDidFinishLaunching()
     node = SGTransformNode::create();
     root->addChild(node);
     node->setPosition(0.0, 0.0, 0.0);
-    //     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_X);
+    node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_Y);
 //     node->setScale(0.02, 0.02, 0.02);
     {
         // 模型 #1 可见物体结点
-        SGModelPtr model = SGModel::create("skeleton.tmt");
-        model->setRenderMode(SGModel::E_RENDER_SKELETON);
+        SGModelPtr model = SGModel::create("skeleton1.tmt");
+//         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
+//         model->runAction("Take 001");
+    }
+
+    node = SGTransformNode::create();
+    root->addChild(node);
+    node->setPosition(100.0, 0.0, 0.0);
+    node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_Y);
+    {
+        SGModelPtr model = SGModel::create("skeleton1.tmt");
+        node->addChild(model);
+        model->setRenderMode(SGModel::E_RENDER_SKELETON);
         model->runAction("Take 001");
     }
+
+//     node = SGTransformNode::create();
+//     root->addChild(node);
+//     {
+//         // 立方体 #1 可见物体结点
+//         SGShapePtr shape = SGShape::create();
+//         node->addChild(shape);
+// 
+//         {
+//             // 立方体 #1 可渲染物体结点
+//             SGBoxPtr box = SGBox::create("");
+//             shape->addChild(box);
+//         }
+//     }
 
     return true;
 }

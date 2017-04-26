@@ -13,6 +13,7 @@ namespace Tiny3D
     SGSkeletonPtr SGSkeleton::create(ModelPtr model, uint32_t uID /* = E_NID_AUTOMATIC */)
     {
         SGSkeletonPtr skeleton = new SGSkeleton();
+
         if (skeleton != nullptr && skeleton->init(model))
         {
             skeleton->release();
@@ -21,6 +22,7 @@ namespace Tiny3D
         {
             T3D_SAFE_RELEASE(skeleton);
         }
+
         return skeleton;
     }
 

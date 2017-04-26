@@ -32,6 +32,7 @@ namespace Tiny3D
             E_NT_CAMERA,
             E_NT_SHAPE,
             E_NT_MODEL,
+            E_NT_INDICATOR,
 
             // All node derived from SGRenderable
             E_NT_LIGHT,
@@ -40,6 +41,7 @@ namespace Tiny3D
             E_NT_SPHERE,
             E_NT_BOX,
             E_NT_SKELETON,
+            E_NT_AXIS,
         };
 
         virtual ~Node();

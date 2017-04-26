@@ -51,12 +51,14 @@
 #include "SG/Visual/T3DSGCamera.h"
 #include "SG/Visual/T3DSGShape.h"
 #include "SG/Visual/T3DSGModel.h"
+#include "SG/Visual/T3DSGIndicator.h"
 #include "SG/Renderable/T3DSGRenderable.h"
 #include "SG/Renderable/T3DSGGeometry.h"
 #include "SG/Renderable/T3DSGMesh.h"
 #include "SG/Renderable/T3DSGBox.h"
 #include "SG/Renderable/T3DSGSphere.h"
 #include "SG/Renderable/T3DSGLight.h"
+#include "SG/Renderable/T3DSGAxis.h"
 
 
 #endif  /*__TINY3D_H__*/

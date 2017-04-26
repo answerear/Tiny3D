@@ -226,6 +226,8 @@ namespace Tiny3D
             int64_t dt = time % actionData->mDuration;
             T3D_LOG_INFO("time : %lld, dt = %lld, duration : %d", time, dt, actionData->mDuration);
             updateBone(dt, mModel->getSkeletonData());
+            BonePtr bone = smart_pointer_cast<Bone>(mModel->getSkeletonData());
+            bone->updateBone();
             mSkeleton->updateVertices();
         }
     }
@@ -259,7 +261,7 @@ namespace Tiny3D
                 bone->setTranslation(translation);
             }
         }
-        
+
         // 旋转变换数据
         Quaternion orientation;
         auto itrR = actionData->mBonesRotation.find(bone->getName());
@@ -318,8 +320,6 @@ namespace Tiny3D
                 bone->setScaling(scaling);
             }
         }
-
-        bone->updateBone();
 
         auto itr = bone->getChildren().begin();
         while (itr != bone->getChildren().end())

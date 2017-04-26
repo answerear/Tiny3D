@@ -17,8 +17,6 @@ namespace Tiny3D
 
         virtual ~SGBox();
 
-        bool loadBox();
-
         virtual Type getNodeType() const override;
         virtual NodePtr clone() const override;
 
