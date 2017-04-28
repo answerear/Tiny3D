@@ -69,6 +69,30 @@ namespace Tiny3D
 
         BonePtr parentBone = smart_pointer_cast<Bone>(bone->getParent());
 
+        static const Vector3 boneVertices[] =
+        {
+            Vector3(0.0f, 0.0f, 0.0f),
+            Vector3(-0.2f, 0.2f,-0.2f),
+
+            Vector3(0.2f, 0.2f,-0.2f),
+            Vector3(0.0f, 3.0f, 0.0f),
+
+            Vector3(-0.2f, 0.2f,-0.2f),
+            Vector3(-0.2f, 0.2f, 0.2f),
+
+            Vector3(0.0f, 0.0f, 0.0f),
+            Vector3(0.2f, 0.2f,-0.2f),
+
+            Vector3(0.2f, 0.2f, 0.2f),
+            Vector3(0.0f, 0.0f, 0.0f),
+
+            Vector3(-0.2f, 0.2f, 0.2f),
+            Vector3(0.0f, 3.0f, 0.0f),
+
+            Vector3(0.2f, 0.2f, 0.2f),
+            Vector3(-0.2f, 0.2f, 0.2f)
+        };
+
         if (parentBone == nullptr)
         {
             // ¸ù¹Ç÷À
