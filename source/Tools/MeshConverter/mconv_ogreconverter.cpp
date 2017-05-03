@@ -13,7 +13,7 @@
 #include "mconv_animation.h"
 #include "mconv_skeleton.h"
 #include "mconv_bone.h"
-#include "mconv_skin.h"
+#include "mconv_bindpose.h"
 #include "mconv_texture.h"
 #include "mconv_bound.h"
 #include "mconv_vertexbuffer.h"

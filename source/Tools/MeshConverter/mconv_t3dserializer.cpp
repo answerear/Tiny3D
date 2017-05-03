@@ -8,7 +8,7 @@
 #include "mconv_animation.h"
 #include "mconv_submesh.h"
 #include "mconv_skeleton.h"
-#include "mconv_skin.h"
+#include "mconv_bindpose.h"
 #include "mconv_bone.h"
 #include "mconv_material.h"
 #include "mconv_camera.h"
@@ -69,7 +69,7 @@ namespace mconv
     const char * const T3DXMLSerializer::TAG_TEXTURE = "texture";
     const char * const T3DXMLSerializer::TAG_EFFECTS = "effects";
     const char * const T3DXMLSerializer::TAG_EFFECT = "effect";
-    const char * const T3DXMLSerializer::TAG_SKIN = "skin";
+    const char * const T3DXMLSerializer::TAG_BINDPOSE = "bindpose";
     const char * const T3DXMLSerializer::TAG_SKELETON = "skeleton";
     const char * const T3DXMLSerializer::TAG_BONE = "bone";
     const char * const T3DXMLSerializer::TAG_TRANSFORM = "transform";
@@ -208,9 +208,9 @@ namespace mconv
                 pElement = buildXMLModel(pDoc, pParentElem, pNode);
             }
             break;
-        case Node::E_TYPE_SKIN:
+        case Node::E_TYPE_BINDPOSE:
             {
-                pElement = buildXMLSkin(pDoc, pParentElem, pNode);
+                pElement = buildXMLBindPose(pDoc, pParentElem, pNode);
             }
             break;
         case Node::E_TYPE_SKELETON:
@@ -929,15 +929,15 @@ namespace mconv
         return pSkelElement;
     }
 
-    XMLElement *T3DXMLSerializer::buildXMLSkin(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    XMLElement *T3DXMLSerializer::buildXMLBindPose(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
-        XMLElement *pSkinElement = pDoc->NewElement(TAG_SKIN);
-        pParentElem->LinkEndChild(pSkinElement);
+        XMLElement *pPoseElement = pDoc->NewElement(TAG_BINDPOSE);
+        pParentElem->LinkEndChild(pPoseElement);
 
-        pSkinElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
-        pSkinElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
+        pPoseElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+        pPoseElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
 
-        return pSkinElement;
+        return pPoseElement;
     }
 
     XMLElement *T3DXMLSerializer::buildXMLBone(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)

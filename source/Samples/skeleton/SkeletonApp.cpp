@@ -6,6 +6,10 @@
 
 using namespace Tiny3D;
 
+#define TEST_MODEL_KNIGHT               0
+#define TEST_MODEL_CAMEL                0
+#define TEST_MODEL_SKELETON             1
+
 
 SkeletonApp::SkeletonApp()
 {
@@ -42,15 +46,31 @@ bool SkeletonApp::applicationDidFinishLaunching()
 
     SGNodePtr root = T3D_SCENE_MGR.getRoot();
 
+    // 相机变换结点
+    SGTransformNodePtr node = SGTransformNode::create();
+    root->addChild(node);
+
+#if TEST_MODEL_CAMEL 
+    node->lookAt(Vector3(150, 150, 150), Vector3::ZERO, Vector3::UNIT_Y);
+
     // 坐标
     SGIndicatorPtr indicator = SGIndicator::create(50, 50, 50);
     root->addChild(indicator);
 
-    // 相机变换结点
-    SGTransformNodePtr node = SGTransformNode::create();
-    root->addChild(node);
+#elif TEST_MODEL_KNIGHT
+    node->lookAt(Vector3(10, 10, 10), Vector3::ZERO, Vector3::UNIT_Y);
+
+    // 坐标
+    SGIndicatorPtr indicator = SGIndicator::create(5, 5, 5);
+    root->addChild(indicator);
+
+#elif TEST_MODEL_SKELETON
     node->lookAt(Vector3(150, 150, 150), Vector3::ZERO, Vector3::UNIT_Y);
-//     node->lookAt(Vector3(10, 10, 10), Vector3::ZERO, Vector3::UNIT_Y);
+
+    // 坐标
+    SGIndicatorPtr indicator = SGIndicator::create(50, 50, 50);
+    root->addChild(indicator);
+#endif
 
     {
         // 相机结点
@@ -67,44 +87,37 @@ bool SkeletonApp::applicationDidFinishLaunching()
         viewport->setBackgroundColor(Color4::BLACK);
     }
 
+#if TEST_MODEL_CAMEL
     // 模型 #1 变换结点
-//     node = SGTransformNode::create();
-//     root->addChild(node);
-// //     node->setPosition(0.0, -166.487442, 76.205284);
-//     {
-//         // 模型 #1 可见物体结点
-//         SGModelPtr model = SGModel::create("白骆驼.tmt");
-//         model->setRenderMode(SGModel::E_RENDER_SKELETON);
-//         node->addChild(model);
-// //         model->runAction("Take 001");
-//     }
-
     node = SGTransformNode::create();
     root->addChild(node);
-//     node->setPosition(20.0, -0, 0);
-//     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_Y);
+    node->setPosition(0.0, -166.487442, 76.205284);
+    {
+        // 模型 #1 可见物体结点
+        SGModelPtr model = SGModel::create("白骆驼.tmt");
+        model->setRenderMode(SGModel::E_RENDER_SKELETON);
+        node->addChild(model);
+//         model->runAction("Take 001");
+    }
+#elif TEST_MODEL_KNIGHT
+    node = SGTransformNode::create();
+    root->addChild(node);
+    {
+        SGModelPtr model = SGModel::create("knight.tmt");
+        node->addChild(model);
+        model->setRenderMode(SGModel::E_RENDER_SKELETON);
+        model->runAction("Walk");
+    }
+#elif TEST_MODEL_SKELETON
+    node = SGTransformNode::create();
+    root->addChild(node);
     {
         SGModelPtr model = SGModel::create("skeleton.tmt");
         node->addChild(model);
         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         model->runAction("Take 001");
-//         model->runAction("Walk");
-
     }
-
-//     node = SGTransformNode::create();
-//     root->addChild(node);
-//     {
-//         // 立方体 #1 可见物体结点
-//         SGShapePtr shape = SGShape::create();
-//         node->addChild(shape);
-// 
-//         {
-//             // 立方体 #1 可渲染物体结点
-//             SGBoxPtr box = SGBox::create("");
-//             shape->addChild(box);
-//         }
-//     }
+#endif
 
     return true;
 }

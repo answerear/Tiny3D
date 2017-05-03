@@ -32,7 +32,7 @@ namespace mconv
             E_TYPE_MODEL,
             E_TYPE_SCENE,
             E_TYPE_SKELETON,
-            E_TYPE_SKIN,
+            E_TYPE_BINDPOSE,
             E_TYPE_SUBMESH,
             E_TYPE_SUBMESHES,
             E_TYPE_TEXTURE,

@@ -13,7 +13,7 @@
 #include "mconv_animation.h"
 #include "mconv_skeleton.h"
 #include "mconv_bone.h"
-#include "mconv_skin.h"
+#include "mconv_bindpose.h"
 #include "mconv_texture.h"
 #include "mconv_bound.h"
 #include "mconv_vertexbuffer.h"
@@ -29,7 +29,6 @@ namespace mconv
         , mCurScene(nullptr)
         , mCurModel(nullptr)
         , mCurMesh(nullptr)
-        , mCurSkin(nullptr)
         , mCurSkeleton(nullptr)
         , mCurAnimation(nullptr)
         , mCurMaterials(nullptr)
@@ -294,8 +293,6 @@ namespace mconv
                                 mCurModel = pModel;
                             }
                         }
-
-                        mCurSkin = nullptr;
 
                         result = processFbxMesh(pFbxNode, mCurModel, pNode);
                         result = result && processFbxSkin(pFbxNode, pParent, (Mesh *)pNode);
@@ -1591,9 +1588,8 @@ namespace mconv
                 ss<<ssTab.str()<<"\t";
             }
 #endif
-            Skin *pSkin = new Skin(pMesh->getID());
-            mCurSkin = pSkin;
-            pMesh->addChild(pSkin);
+            BindPose *pBindPose = new BindPose(pModel->getID());
+            pModel->addChild(pBindPose);
 
             for (j = 0; j < nBoneCount; ++j)
             {
@@ -1653,7 +1649,7 @@ namespace mconv
                 Bone *pBone = new Bone(pFbxLinkNode->GetName());
 //                 pBone->mLocalTransform = bindpose;
                 convertMatrix(bindpose, pBone->mLocalTransform);
-                pSkin->addChild(pBone);
+                pBindPose->addChild(pBone);
 
                 updateVertexBlendAttributes(pMesh);
 
@@ -1679,12 +1675,6 @@ namespace mconv
         {
             Mesh *pMesh = (Mesh *)pNode;
             pMesh->split();
-
-            if (mCurSkin != nullptr)
-            {
-                mCurSkin->removeFromParent(false);
-                pMesh->addChild(mCurSkin);
-            }
 
             computeBoundingBox(pMesh);
         }
