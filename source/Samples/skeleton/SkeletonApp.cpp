@@ -49,7 +49,8 @@ bool SkeletonApp::applicationDidFinishLaunching()
     // 相机变换结点
     SGTransformNodePtr node = SGTransformNode::create();
     root->addChild(node);
-    node->lookAt(Vector3(50, 50, 150), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(150, 150, 150), Vector3::ZERO, Vector3::UNIT_Y);
+//     node->lookAt(Vector3(10, 10, 10), Vector3::ZERO, Vector3::UNIT_Y);
 
     {
         // 相机结点
@@ -67,28 +68,28 @@ bool SkeletonApp::applicationDidFinishLaunching()
     }
 
     // 模型 #1 变换结点
-    node = SGTransformNode::create();
-    root->addChild(node);
-    node->setPosition(0.0, 0.0, 0.0);
-    node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_Y);
-//     node->setScale(0.02, 0.02, 0.02);
-    {
-        // 模型 #1 可见物体结点
-        SGModelPtr model = SGModel::create("skeleton.tmt");
+//     node = SGTransformNode::create();
+//     root->addChild(node);
+// //     node->setPosition(0.0, -166.487442, 76.205284);
+//     {
+//         // 模型 #1 可见物体结点
+//         SGModelPtr model = SGModel::create("白骆驼.tmt");
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
-        node->addChild(model);
-//         model->runAction("Take 001");
-    }
+//         node->addChild(model);
+// //         model->runAction("Take 001");
+//     }
 
     node = SGTransformNode::create();
     root->addChild(node);
-    node->setPosition(100.0, 0.0, 0.0);
-    node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_Y);
+//     node->setPosition(20.0, -0, 0);
+//     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_Y);
     {
         SGModelPtr model = SGModel::create("skeleton.tmt");
         node->addChild(model);
         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         model->runAction("Take 001");
+//         model->runAction("Walk");
+
     }
 
 //     node = SGTransformNode::create();
