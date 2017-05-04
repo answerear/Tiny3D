@@ -1648,6 +1648,7 @@ namespace mconv
 
                 Bone *pBone = new Bone(pFbxLinkNode->GetName());
 //                 pBone->mLocalTransform = bindpose;
+                bindpose = bindpose.Inverse();
                 convertMatrix(bindpose, pBone->mLocalTransform);
                 pBindPose->addChild(pBone);
 

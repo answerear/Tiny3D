@@ -6,7 +6,7 @@
 
 using namespace Tiny3D;
 
-#define TEST_MODEL_KNIGHT               0
+#define TEST_MODEL_TORTOISE             0
 #define TEST_MODEL_CAMEL                0
 #define TEST_MODEL_SKELETON             1
 
@@ -57,11 +57,11 @@ bool SkeletonApp::applicationDidFinishLaunching()
     SGIndicatorPtr indicator = SGIndicator::create(50, 50, 50);
     root->addChild(indicator);
 
-#elif TEST_MODEL_KNIGHT
-    node->lookAt(Vector3(10, 10, 10), Vector3::ZERO, Vector3::UNIT_Y);
+#elif TEST_MODEL_TORTOISE
+    node->lookAt(Vector3(200, 1000, 200), Vector3::ZERO, Vector3::UNIT_Y);
 
     // ×ø±ê
-    SGIndicatorPtr indicator = SGIndicator::create(5, 5, 5);
+    SGIndicatorPtr indicator = SGIndicator::create(100, 100, 100);
     root->addChild(indicator);
 
 #elif TEST_MODEL_SKELETON
@@ -80,7 +80,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
 
         Radian fovY(Math::PI * Real(0.5));
         Real ratio = Real(960) / Real(640);
-        camera->setPerspective(fovY, ratio, 0.5, 1000.0);
+        camera->setPerspective(fovY, ratio, 0.5, 5000.0);
 
         // ÊÓ¿Ú
         ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
@@ -99,14 +99,14 @@ bool SkeletonApp::applicationDidFinishLaunching()
         node->addChild(model);
 //         model->runAction("Take 001");
     }
-#elif TEST_MODEL_KNIGHT
+#elif TEST_MODEL_TORTOISE
     node = SGTransformNode::create();
     root->addChild(node);
     {
-        SGModelPtr model = SGModel::create("knight.tmt");
+        SGModelPtr model = SGModel::create("tortoise.tmt");
         node->addChild(model);
         model->setRenderMode(SGModel::E_RENDER_SKELETON);
-        model->runAction("Walk");
+        model->runAction("Take 001");
     }
 #elif TEST_MODEL_SKELETON
     node = SGTransformNode::create();

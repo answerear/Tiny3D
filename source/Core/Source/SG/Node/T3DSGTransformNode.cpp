@@ -65,15 +65,6 @@ namespace Tiny3D
                 SGTransformNode *node = (SGTransformNode *)parent;
                 const Transform &transform = node->getLocalToWorldTransform();
                 mWorldTransform.applyTransform(transform, mPosition, mOrientation, mScale);
-//                 Quaternion R = transform.getOrientation() * mOrientation;
-//                 Vector3 S = transform.getScale() * mScale;
-//                 Vector3 T = transform.getOrientation() * mPosition;
-//                 T = T * transform.getScale();
-//                 T = transform.getTranslate() + T;
-//                 mWorldTransform.setTranslate(T);
-//                 mWorldTransform.setOrientation(R);
-//                 mWorldTransform.setScale(S);
-//                 mWorldTransform.update();
             }
             else
             {

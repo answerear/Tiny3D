@@ -47,6 +47,7 @@ namespace Tiny3D
         bool isDirty() const { return mIsDirty; }
 
         const Transform &getCombineTransform();
+        const Matrix4 &getOffsetMatrix();
 
     protected:
         Bone();
@@ -62,6 +63,8 @@ namespace Tiny3D
         Quaternion  mOrientation;
 
         Transform   mCombineTransform;
+
+        Matrix4     mOffsetMatrix;
 
         bool        mIsDirty;
     };

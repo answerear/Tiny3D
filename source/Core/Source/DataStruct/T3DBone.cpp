@@ -24,6 +24,7 @@ namespace Tiny3D
         , mTranslation(Vector3::ZERO)
         , mScaling(Vector3(1.0, 1.0, 1.0))
         , mOrientation(Quaternion::IDENTITY)
+        , mOffsetMatrix()
         , mIsDirty(true)
     {
 
@@ -117,23 +118,6 @@ namespace Tiny3D
                 BonePtr bone = smart_pointer_cast<Bone>(parent);
                 const Transform &transform = bone->getCombineTransform();
                 mCombineTransform.applyTransform(transform, mTranslation, mOrientation, Vector3::UNIT_SCALE);
-//                 Quaternion R = transform.getOrientation() * mOrientation;
-// //                 Vector3 S = transform.getScale() * mScaling;
-//                 Vector3 T = transform.getOrientation() * mTranslation;
-// //                 T = T * transform.getScale();
-//                 T = transform.getTranslate() + T;
-//                 mCombineTransform.setTranslate(T);
-//                 mCombineTransform.setOrientation(R);
-// //                 mCombineTransform.setScale(S);
-// 
-//                 const Matrix4 &m0 = transform.getAffineMatrix();
-//                 Matrix4 Mt(mTranslation);
-//                 Matrix4 Ms(mScaling);
-//                 Matrix4 Mr(mOrientation);
-//                 Matrix4 m1 = Mr * Ms;
-//                 m1.setTranslate(mTranslation);
-//                 Matrix4 m2 = m1 * m0;
-//                 mCombineTransform.update();
             }
             else
             {
@@ -161,6 +145,14 @@ namespace Tiny3D
 //             bone->updateBone();
 //             ++itr;
 //         }
+    }
+
+    const Matrix4 &Bone::getOffsetMatrix()
+    {
+        getCombineTransform();
+
+        mOffsetMatrix = mCombineTransform.getAffineMatrix().inverseAffine();
+        return mOffsetMatrix;
     }
 }
 
