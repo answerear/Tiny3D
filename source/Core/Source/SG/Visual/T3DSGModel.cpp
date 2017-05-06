@@ -300,26 +300,26 @@ namespace Tiny3D
         }
 
         // 缩放变换数据
-        Vector3 scaling;
-        auto itrS = actionData->mBonesScaling.find(bone->getName());
-        if (itrS != actionData->mBonesScaling.end())
-        {
-            ActionData::KeyFrames &keyframesS = itrS->second;
-
-            if (searchKeyframe(keyframesS, time, actionData->mDuration, mCurKeyFrameS, kf1, kf2, mIsLoop))
-            {
-                KeyFrameDataSPtr keyframe1 = smart_pointer_cast<KeyFrameDataS>(kf1);
-                KeyFrameDataSPtr keyframe2 = smart_pointer_cast<KeyFrameDataS>(kf2);
-                double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
-                Vector3 &base = keyframe1->mScaling;
-                scaling = (base * (keyframe2->mScaling - base) * t);
-                T3D_LOG_INFO("Keyframe #1 S(%f, %f, %f)", keyframe1->mScaling[0], keyframe1->mScaling[1], keyframe1->mScaling[2]);
-                T3D_LOG_INFO("Keyframe #2 S(%f, %f, %f)", keyframe2->mScaling[0], keyframe2->mScaling[1], keyframe2->mScaling[2]);
-                T3D_LOG_INFO("Bone : %s [%f], S(%f, %f, %f)", bone->getName().c_str(), t, scaling[0], scaling[1], scaling[2]);
-
-                bone->setScaling(scaling);
-            }
-        }
+//         Vector3 scaling;
+//         auto itrS = actionData->mBonesScaling.find(bone->getName());
+//         if (itrS != actionData->mBonesScaling.end())
+//         {
+//             ActionData::KeyFrames &keyframesS = itrS->second;
+// 
+//             if (searchKeyframe(keyframesS, time, actionData->mDuration, mCurKeyFrameS, kf1, kf2, mIsLoop))
+//             {
+//                 KeyFrameDataSPtr keyframe1 = smart_pointer_cast<KeyFrameDataS>(kf1);
+//                 KeyFrameDataSPtr keyframe2 = smart_pointer_cast<KeyFrameDataS>(kf2);
+//                 double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
+//                 Vector3 &base = keyframe1->mScaling;
+//                 scaling = (base * (keyframe2->mScaling - base) * t);
+//                 T3D_LOG_INFO("Keyframe #1 S(%f, %f, %f)", keyframe1->mScaling[0], keyframe1->mScaling[1], keyframe1->mScaling[2]);
+//                 T3D_LOG_INFO("Keyframe #2 S(%f, %f, %f)", keyframe2->mScaling[0], keyframe2->mScaling[1], keyframe2->mScaling[2]);
+//                 T3D_LOG_INFO("Bone : %s [%f], S(%f, %f, %f)", bone->getName().c_str(), t, scaling[0], scaling[1], scaling[2]);
+// 
+//                 bone->setScaling(scaling);
+//             }
+//         }
 
         auto itr = bone->getChildren().begin();
         while (itr != bone->getChildren().end())

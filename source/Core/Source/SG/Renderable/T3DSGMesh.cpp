@@ -105,14 +105,4 @@ namespace Tiny3D
     {
         SGGeometry::updateTransform();
     }
-
-    bool SGMesh::runAction(const String &name)
-    {
-        return true;
-    }
-
-    bool SGMesh::stopAction(const String &name)
-    {
-        return true;
-    }
 }

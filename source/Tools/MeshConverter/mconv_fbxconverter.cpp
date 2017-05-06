@@ -13,7 +13,7 @@
 #include "mconv_animation.h"
 #include "mconv_skeleton.h"
 #include "mconv_bone.h"
-#include "mconv_bindpose.h"
+#include "mconv_skin.h"
 #include "mconv_texture.h"
 #include "mconv_bound.h"
 #include "mconv_vertexbuffer.h"
@@ -1106,7 +1106,6 @@ namespace mconv
         pParent->addChild(pBone);
 
         FbxAMatrix &M = pFbxNode->EvaluateLocalTransform();
-//         pBone->mLocalTransform = M;
         convertMatrix(M, pBone->mLocalTransform);
         mTabCount++;
 
@@ -1588,8 +1587,8 @@ namespace mconv
                 ss<<ssTab.str()<<"\t";
             }
 #endif
-            BindPose *pBindPose = new BindPose(pModel->getID());
-            pModel->addChild(pBindPose);
+            Skin *pSkin = new Skin(pModel->getID());
+            pModel->addChild(pSkin);
 
             for (j = 0; j < nBoneCount; ++j)
             {
@@ -1619,38 +1618,10 @@ namespace mconv
                 FbxVector4 S = pFbxLinkNode->GetGeometricScaling(FbxNode::eSourcePivot);
                 FbxAMatrix matGeometry(T, R, S);
                 FbxAMatrix bindpose = matLink.Inverse();// (matLink.Inverse() * mat * matGeometry);
-//                 FbxAMatrix mp = pFbxLinkNode->EvaluateLocalTransform();
-// 
-//                 FbxScene *pFbxScene = (FbxScene *)(mSrcData);
-//                 const int poseCount = pFbxScene->GetPoseCount();
-//                 for (int ii = 0; ii < poseCount; ++ii)
-//                 {
-//                     FbxPose *pFbxPose = pFbxScene->GetPose(ii);
-//                     assert(pFbxPose);
-//                     if (pFbxPose->IsBindPose())
-//                     {
-//                         for (int jj = 0; jj < pFbxPose->GetCount(); ++jj)
-//                         {
-//                             FbxNode* fbxNode = pFbxPose->GetNode(jj);
-//                             if (std::string(fbxNode->GetName()) == "global")
-//                             {
-//                                 int a = 0;
-//                             }
-// //                             if (fbxNode->GetMesh() != NULL)
-//                             {
-//                                 FbxMatrix bindshape = pFbxPose->GetMatrix(jj);
-//                                 int a = 0;
-//                             }
-//                         }
-//                         
-//                     }
-//                 }
 
                 Bone *pBone = new Bone(pFbxLinkNode->GetName());
-//                 pBone->mLocalTransform = bindpose;
-//                 bindpose = bindpose.Inverse();
                 convertMatrix(bindpose, pBone->mLocalTransform);
-                pBindPose->addChild(pBone);
+                pSkin->addChild(pBone);
 
                 updateVertexBlendAttributes(pMesh);
 

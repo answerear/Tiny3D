@@ -166,7 +166,7 @@ namespace Tiny3D
         GeometryDataList    mGeometryData;      /// 渲染几何数据
         SkinMap             mSkinData;          /// 蒙皮数据
         ObjectPtr           mSkeletonData;      /// 骨骼数据
-        AnimationData       mAnimationData;
+        AnimationData       mAnimationData;     /// 动画数据
     };
 }
 

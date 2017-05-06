@@ -8,7 +8,7 @@
 #include "mconv_animation.h"
 #include "mconv_submesh.h"
 #include "mconv_skeleton.h"
-#include "mconv_bindpose.h"
+#include "mconv_skin.h"
 #include "mconv_bone.h"
 #include "mconv_material.h"
 #include "mconv_camera.h"
@@ -69,7 +69,7 @@ namespace mconv
     const char * const T3DXMLSerializer::TAG_TEXTURE = "texture";
     const char * const T3DXMLSerializer::TAG_EFFECTS = "effects";
     const char * const T3DXMLSerializer::TAG_EFFECT = "effect";
-    const char * const T3DXMLSerializer::TAG_BINDPOSE = "bindpose";
+    const char * const T3DXMLSerializer::TAG_SKIN = "skin";
     const char * const T3DXMLSerializer::TAG_SKELETON = "skeleton";
     const char * const T3DXMLSerializer::TAG_BONE = "bone";
     const char * const T3DXMLSerializer::TAG_TRANSFORM = "transform";
@@ -208,9 +208,9 @@ namespace mconv
                 pElement = buildXMLModel(pDoc, pParentElem, pNode);
             }
             break;
-        case Node::E_TYPE_BINDPOSE:
+        case Node::E_TYPE_SKIN:
             {
-                pElement = buildXMLBindPose(pDoc, pParentElem, pNode);
+                pElement = buildXMLSkin(pDoc, pParentElem, pNode);
             }
             break;
         case Node::E_TYPE_SKELETON:
@@ -369,22 +369,23 @@ namespace mconv
 				auto itr2 = vertex.mTexElements.begin();
 				while (itr2 != vertex.mTexElements.end())
 				{
-					if (first)
+// 					if (first)
 					{
 						const Vector2 &uv = *itr2;
 						char szText[64] = {0};
 						snprintf(szText, sizeof(szText)-1, " % 8f % 8f", uv[0], uv[1]);
-						ss<<"\n\t\t\t\t\t\t"<<szText;
+// 						ss<<"\n\t\t\t\t\t\t"<<szText;
+                        ss<<szText;
 					}
-					else
-					{
-						const Vector2 &uv = *itr2;
-						char szText[64] = {0};
-						snprintf(szText, sizeof(szText)-1, " % 8f % 8f", uv[0], uv[1]);
-						ss<<"\t\t\t\t\t\t"<<szText;
-					}
-					
-					first = false;
+// 					else
+// 					{
+// 						const Vector2 &uv = *itr2;
+// 						char szText[64] = {0};
+// 						snprintf(szText, sizeof(szText)-1, " % 8f % 8f", uv[0], uv[1]);
+// 						ss<<"\t\t\t\t\t\t"<<szText;
+// 					}
+// 					
+// 					first = false;
 					++itr2;
 				}
 			}
@@ -929,15 +930,15 @@ namespace mconv
         return pSkelElement;
     }
 
-    XMLElement *T3DXMLSerializer::buildXMLBindPose(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    XMLElement *T3DXMLSerializer::buildXMLSkin(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
-        XMLElement *pPoseElement = pDoc->NewElement(TAG_BINDPOSE);
-        pParentElem->LinkEndChild(pPoseElement);
+        XMLElement *pSkinElement = pDoc->NewElement(TAG_SKIN);
+        pParentElem->LinkEndChild(pSkinElement);
 
-        pPoseElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
-        pPoseElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
+        pSkinElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+        pSkinElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
 
-        return pPoseElement;
+        return pSkinElement;
     }
 
     XMLElement *T3DXMLSerializer::buildXMLBone(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)

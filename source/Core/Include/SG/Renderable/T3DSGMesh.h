@@ -19,10 +19,6 @@ namespace Tiny3D
         virtual Type getNodeType() const override;
         virtual NodePtr clone() const override;
 
-        bool runAction(const String &name);
-
-        bool stopAction(const String &name);
-
     protected:
         SGMesh(uint32_t uID = E_NID_AUTOMATIC);
 

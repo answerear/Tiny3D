@@ -61,7 +61,7 @@
  *                  </material>
  *              </materials>
 
- *              <bindpose id="wolf_skin" count="10">
+ *              <skin id="wolf_skin" count="10">
  *                  <bone id="bone_head">
  *                      <transform>
  *                          1.0 0.0 0.0 0.0
@@ -70,7 +70,7 @@
  *                          0.0 0.0 0.0 1.0
  *                      </transform>
  *                  </bone>
- *              </bindpose>
+ *              </skin>
 
  *              <skeleton id="wolf_skeleton">
  *                  <bone id="bone_head">
@@ -172,7 +172,7 @@ namespace mconv
         static const char * const TAG_TEXTURE;
         static const char * const TAG_EFFECTS;
         static const char * const TAG_EFFECT;
-        static const char * const TAG_BINDPOSE;
+        static const char * const TAG_SKIN;
         static const char * const TAG_SKELETON;
         static const char * const TAG_BONE;
         static const char * const TAG_TRANSFORM;
@@ -222,7 +222,7 @@ namespace mconv
         XMLElement *buildXMLTextures(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLTexture(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSkeleton(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
-        XMLElement *buildXMLBindPose(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLSkin(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLBone(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLAlignAxisBound(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSphereBound(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
