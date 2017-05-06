@@ -1618,7 +1618,7 @@ namespace mconv
                 FbxVector4 R = pFbxLinkNode->GetGeometricRotation(FbxNode::eSourcePivot);
                 FbxVector4 S = pFbxLinkNode->GetGeometricScaling(FbxNode::eSourcePivot);
                 FbxAMatrix matGeometry(T, R, S);
-                FbxAMatrix bindpose = (matLink.Inverse() * mat * matGeometry);
+                FbxAMatrix bindpose = matLink.Inverse();// (matLink.Inverse() * mat * matGeometry);
 //                 FbxAMatrix mp = pFbxLinkNode->EvaluateLocalTransform();
 // 
 //                 FbxScene *pFbxScene = (FbxScene *)(mSrcData);
@@ -1648,7 +1648,7 @@ namespace mconv
 
                 Bone *pBone = new Bone(pFbxLinkNode->GetName());
 //                 pBone->mLocalTransform = bindpose;
-                bindpose = bindpose.Inverse();
+//                 bindpose = bindpose.Inverse();
                 convertMatrix(bindpose, pBone->mLocalTransform);
                 pBindPose->addChild(pBone);
 
