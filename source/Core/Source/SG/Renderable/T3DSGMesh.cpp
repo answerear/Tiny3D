@@ -5,15 +5,16 @@
 #include "Resource/T3DModelManager.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DMaterialManager.h"
-#include "DataStruct/T3DGeometryData.h"
+#include "DataStruct/T3DModelData.h"
+#include "Render/T3DHardwareBufferManager.h"
 
 
 namespace Tiny3D
 {
-    SGMeshPtr SGMesh::create(ModelPtr model, int32_t index, uint32_t uID /* = E_NID_AUTOMATIC */)
+    SGMeshPtr SGMesh::create(VertexDataPtr vertexData, ObjectPtr submeshData, uint32_t uID /* = E_NID_AUTOMATIC */)
     {
         SGMeshPtr mesh = new SGMesh(uID);
-        if (mesh != nullptr && mesh->init(model, index))
+        if (mesh != nullptr && mesh->init(vertexData, submeshData))
         {
             mesh->release();
         }
@@ -26,34 +27,49 @@ namespace Tiny3D
 
     SGMesh::SGMesh(uint32_t uID /* = E_NID_AUTOMATIC */)
         : SGGeometry(uID)
-        , mMeshIndex(-1)
-        , mModel(nullptr)
+        , mSubMeshData(nullptr)
         , mMaterial(nullptr)
-        , mGeometryData(nullptr)
     {
 
     }
 
     SGMesh::~SGMesh()
     {
-        mModel = nullptr;
-        mMaterial = nullptr;
     }
 
-    bool SGMesh::init(ModelPtr model, int32_t index)
+    bool SGMesh::init(VertexDataPtr vertexData, ObjectPtr subData)
     {
-        mModel = model;
-        mMeshIndex = index;
+        bool ret = false;
 
-        const Model::GeometryDataList &geometries = mModel->getGeometryDataList();
-        if (mMeshIndex < 0 || mMeshIndex >= geometries.size())
-            return false;
+        mVertexData = vertexData;
+        mSubMeshData = subData;
 
-        GeometryDataPtr geometry = smart_pointer_cast<GeometryData>(geometries[mMeshIndex]);
-        mMaterial = T3D_MATERIAL_MGR.loadMaterial(geometry->getMaterialName(), Material::E_MT_DEFAULT);
-        mGeometryData = geometry;
+        SubMeshDataPtr submeshData = smart_pointer_cast<SubMeshData>(mSubMeshData);
 
-        return true;
+        HardwareIndexBuffer::Type indexType = HardwareIndexBuffer::E_IT_32BITS;
+        size_t indexCount = submeshData->mIndices.size() / sizeof(uint32_t);
+
+        if (submeshData->mIs16Bits)
+        {
+            indexType = HardwareIndexBuffer::E_IT_16BITS;
+            indexCount = submeshData->mIndices.size() / sizeof(uint16_t);
+        }
+
+        HardwareIndexBufferPtr indexBuffer = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(indexType, indexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
+
+        if (indexBuffer != nullptr)
+        {
+            size_t indexSize = submeshData->mIndices.size();
+            ret = indexBuffer->writeData(0, indexSize, &submeshData->mIndices[0]);
+
+            if (ret)
+            {
+                mIndexData = IndexData::create(indexBuffer);
+                mMaterial = T3D_MATERIAL_MGR.loadMaterial(submeshData->mMaterialName, Material::E_MT_DEFAULT);
+            }
+        }
+
+        return ret;
     }
 
     Node::Type SGMesh::getNodeType() const
@@ -63,7 +79,7 @@ namespace Tiny3D
 
     NodePtr SGMesh::clone() const
     {
-        SGMeshPtr mesh = create(mModel, mMeshIndex);
+        SGMeshPtr mesh = create(mVertexData, mSubMeshData);
         cloneProperties(mesh);
         return mesh;
     }
@@ -80,38 +96,27 @@ namespace Tiny3D
 
     Renderer::PrimitiveType SGMesh::getPrimitiveType() const
     {
-        GeometryDataPtr geometry = smart_pointer_cast<GeometryData>(mGeometryData);
-        return geometry->getPrimitiveType();
+        SubMeshDataPtr submeshData = smart_pointer_cast<SubMeshData>(mSubMeshData);
+        return submeshData->mPrimitiveType;
     }
 
     VertexDataPtr SGMesh::getVertexData() const
     {
-        GeometryDataPtr geometry = smart_pointer_cast<GeometryData>(mGeometryData);
-        return geometry->getVertexData();
+        return mVertexData;
     }
 
     IndexDataPtr SGMesh::getIndexData() const
     {
-        GeometryDataPtr geometry = smart_pointer_cast<GeometryData>(mGeometryData);
-        return geometry->getIndexData();
+        return mIndexData;
     }
 
     bool SGMesh::isIndicesUsed() const
     {
-        return true;
+        return (mIndexData != nullptr);
     }
 
     void SGMesh::updateTransform()
     {
-        updateSkin();
-    }
-
-    void SGMesh::updateSkin()
-    {
-//         GeometryDataPtr geometry = smart_pointer_cast<GeometryData>(mGeometryData);
-//         VertexDataPtr vertexData = geometry->getVertexData();
-//         mModel->getSkinData();
-//         HardwareVertexBufferPtr vb = vertexData->getVertexBuffer(0);
-//         vb->writeData(0, sizeof(BoneVertex) * vertices.size(), &vertices[0]);
+        SGGeometry::updateTransform();
     }
 }

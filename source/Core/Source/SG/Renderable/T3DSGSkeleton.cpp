@@ -2,7 +2,6 @@
 
 #include "SG/Renderable/T3DSGSkeleton.h"
 #include "DataStruct/T3DBone.h"
-#include "DataStruct/T3DSkinData.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Resource/T3DModel.h"
@@ -10,11 +9,11 @@
 
 namespace Tiny3D
 {
-    SGSkeletonPtr SGSkeleton::create(ModelPtr model, uint32_t uID /* = E_NID_AUTOMATIC */)
+    SGSkeletonPtr SGSkeleton::create(ObjectPtr bone, uint32_t uID /* = E_NID_AUTOMATIC */)
     {
         SGSkeletonPtr skeleton = new SGSkeleton();
 
-        if (skeleton != nullptr && skeleton->init(model))
+        if (skeleton != nullptr && skeleton->init(bone))
         {
             skeleton->release();
         }
@@ -28,7 +27,7 @@ namespace Tiny3D
 
     SGSkeleton::SGSkeleton(uint32_t uID /* = E_NID_AUTOMATIC */)
         : SGGeometry(uID)
-        , mModel(nullptr)
+        , mSkeleton(nullptr)
     {
 
     }
@@ -38,11 +37,11 @@ namespace Tiny3D
 
     }
 
-    bool SGSkeleton::init(ModelPtr model)
+    bool SGSkeleton::init(ObjectPtr bone)
     {
-        mModel = model;
+        mSkeleton = bone;
 
-        BonePtr skeleton = smart_pointer_cast<Bone>(mModel->getSkeletonData());
+        BonePtr skeleton = smart_pointer_cast<Bone>(mSkeleton);
 
         std::vector<BoneVertex> vertices;
         bool ret = buildSkeletonVertices(skeleton, vertices);
@@ -133,7 +132,7 @@ namespace Tiny3D
 
     void SGSkeleton::updateVertices()
     {
-        BonePtr skeleton = smart_pointer_cast<Bone>(mModel->getSkeletonData());
+        BonePtr skeleton = smart_pointer_cast<Bone>(mSkeleton);
         std::vector<BoneVertex> vertices;
         bool ret = buildSkeletonVertices(skeleton, vertices);
 
@@ -151,7 +150,7 @@ namespace Tiny3D
 
     NodePtr SGSkeleton::clone() const
     {
-        SGSkeletonPtr skeleton = SGSkeleton::create(mModel);
+        SGSkeletonPtr skeleton = SGSkeleton::create(mSkeleton);
         cloneProperties(skeleton);
         return skeleton;
     }

@@ -69,9 +69,25 @@ namespace Tiny3D
         void updateSkeleton();
         void updateBone(int64_t time, ObjectPtr skeleton);
 
+        VertexDataPtr createVertexData(ObjectPtr data);
+        bool createSkeletons();
+
     protected:
-        ModelPtr    mModel;
-        RenderMode  mRenderMode;
+        typedef std::vector<VertexDataPtr>      VertexDataList;
+        typedef VertexDataList::iterator        VerticesDataItr;
+        typedef VertexDataList::const_iterator  VerticesDataConstItr;
+
+        typedef std::vector<ObjectPtr>          BoneList;
+        typedef BoneList::iterator              BoneListItr;
+        typedef BoneList::const_iterator        BoneListConstItr;
+
+        ModelPtr        mModel;
+        RenderMode      mRenderMode;
+
+        VertexDataList  mVertexDataList;
+        BoneList        mBones;
+
+        ObjectPtr       mRootBone;
 
         Children        mMeshes;
         SGSkeletonPtr   mSkeleton;

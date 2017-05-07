@@ -5,9 +5,9 @@
 
 namespace Tiny3D
 {
-    BonePtr Bone::create(const String &name, const Matrix4 &m)
+    BonePtr Bone::create(const String &name, const Matrix4 &offsetMatrix, const Matrix4 &localMatrix)
     {
-        BonePtr bone = new Bone(name, m);
+        BonePtr bone = new Bone(name, offsetMatrix, localMatrix);
         if (bone != nullptr)
         {
             bone->release();
@@ -30,16 +30,17 @@ namespace Tiny3D
 
     }
 
-    Bone::Bone(const String &name, const Matrix4 &m)
+    Bone::Bone(const String &name, const Matrix4 &offsetMatrix, const Matrix4 &localMatrix)
         : Node()
         , mTranslation(Vector3::ZERO)
         , mScaling(Vector3(1.0, 1.0, 1.0))
         , mOrientation(Quaternion::IDENTITY)
+        , mOffsetMatrix(offsetMatrix)
         , mIsDirty(true)
     {
         setName(name);
 
-        m.decomposition(mTranslation, mScaling, mOrientation);
+        localMatrix.decomposition(mTranslation, mScaling, mOrientation);
 
 //         Vector3 translation;
 //         Vector3 scaling;

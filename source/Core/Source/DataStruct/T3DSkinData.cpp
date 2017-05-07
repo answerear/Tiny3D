@@ -1,29 +1,23 @@
 
-
 #include "T3DSkinData.h"
-
 
 namespace Tiny3D
 {
-    SkinDataPtr SkinData::create(const String &name, const Matrix4 &m)
+    SkinDataPtr SkinData::create(const String &name)
     {
-        SkinDataPtr skin = new SkinData(name, m);
-        if (skin != nullptr)
+        SkinDataPtr data = new SkinData(name);
+
+        if (data != nullptr)
         {
-            skin->release();
+            data->release();
         }
 
-        return skin;
+        return data;
     }
 
-    SkinData::SkinData(const String &name, const Matrix4 &m)
+    SkinData::SkinData(const String &name)
         : mName(name)
-        , mBindPose(m)
-    {
-
-    }
-
-    SkinData::~SkinData()
+        , mOffsetMatrix(false)
     {
 
     }

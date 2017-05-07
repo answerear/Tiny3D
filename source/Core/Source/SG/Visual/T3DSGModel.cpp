@@ -5,10 +5,10 @@
 #include "SG/Renderable/T3DSGSkeleton.h"
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
-#include "DataStruct/T3DGeometryData.h"
+#include "DataStruct/T3DModelData.h"
 #include "DataStruct/T3DBone.h"
-#include "DataStruct/T3DActionData.h"
 #include "Misc/T3DEntrance.h"
+#include "Render/T3DHardwareBufferManager.h"
 
 
 namespace Tiny3D
@@ -72,8 +72,6 @@ namespace Tiny3D
 
     SGModel::~SGModel()
     {
-        mSkeleton = nullptr;
-        mMeshes.clear();
         T3D_MODEL_MGR.unloadModel(mModel);
     }
 
@@ -86,15 +84,61 @@ namespace Tiny3D
         {
             ret = true;
 
-            const Model::GeometryDataList &geometries = mModel->getGeometryDataList();
-            size_t count = geometries.size();
-            size_t i = 0;
-            for (i = 0; i < count; ++i)
+            ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
+
+            if (modelData->mIsVertexShared)
             {
-                SGMeshPtr mesh = SGMesh::create(mModel, i);
-                addChild(mesh);
-                mMeshes.push_back(mesh);
+                // 共享顶点模式，只有一个mesh，多个submesh
+                T3D_ASSERT(modelData->mMeshes.size() == 1);
+
+                // 创建共享的顶点数据对象
+                MeshDataPtr meshData = modelData->mMeshes[0];
+                VertexDataPtr vertexData = createVertexData(meshData);
+                mVertexDataList.push_back(vertexData);
+
+                // 根据子网格数据逐个创建渲染用的网格对象
+                size_t submeshCount = meshData->mSubMeshes.size();
+                size_t i = 0;
+
+                auto itr = meshData->mSubMeshes.begin();
+                for (i = 0; i < submeshCount; ++i)
+                {
+                    SubMeshDataPtr submeshData = *itr;
+                    SGMeshPtr mesh = SGMesh::create(vertexData, submeshData);
+                    addChild(mesh);
+                    mMeshes.push_back(mesh);
+                    ++itr;
+                }
             }
+            else
+            {
+                // 不共享顶点模式，有多个mesh和多个submesh
+                size_t meshCount = modelData->mMeshes.size();
+                size_t i = 0;
+                mVertexDataList.resize(meshCount);
+
+                for (i = 0; i < meshCount; ++i)
+                {
+                    // 根据网格数据来逐个创建渲染用网格对象
+                    MeshDataPtr meshData = modelData->mMeshes[i];
+                    VertexDataPtr vertexData = createVertexData(meshData);
+                    mVertexDataList[i] = vertexData;
+
+                    // 根据子网格数据逐个创建渲染用的网格对象
+                    size_t j = 0;
+                    size_t submeshCount = meshData->mSubMeshes.size();
+
+                    for (j = 0; j < submeshCount; ++j)
+                    {
+                        SGMeshPtr mesh = SGMesh::create(vertexData, meshData, j);
+                        addChild(mesh);
+                        mMeshes.push_back(mesh);
+                    }
+                }
+            }
+
+            // 创建骨骼层次和骨骼偏移矩阵数组
+            ret = createSkeletons();
         }
 
         return ret;
@@ -159,9 +203,9 @@ namespace Tiny3D
                     if (mSkeleton == nullptr)
                     {
                         // 没有生成过骨骼渲染对象，先创建
-                        BonePtr bone = smart_pointer_cast<Bone>(mModel->getSkeletonData());
+                        BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
                         bone->updateBone();
-                        mSkeleton = SGSkeleton::create(mModel);
+                        mSkeleton = SGSkeleton::create(mRootBone);
                     }
 
                     addChild(mSkeleton);
@@ -173,13 +217,91 @@ namespace Tiny3D
         }
     }
 
+    VertexDataPtr SGModel::createVertexData(ObjectPtr data)
+    {
+        MeshDataPtr meshData = smart_pointer_cast<MeshData>(data);
+
+        VertexDeclarationPtr vertexDecl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
+        auto itr = meshData->mBuffers.begin();
+        while (itr != meshData->mBuffers.end())
+        {
+            auto buffer = *itr;
+            auto i = buffer->mAttributes.begin();
+
+            while (i != buffer->mAttributes.end())
+            {
+                auto vertexElement = *i;
+                vertexDecl->addElement(vertexElement);
+                ++i;
+            }
+
+            ++itr;
+        }
+
+        VertexDataPtr vertexData = VertexData::create(vertexDecl);
+
+        itr = meshData->mBuffers.begin();
+        while (itr != meshData->mBuffers.end())
+        {
+            auto buffer = *itr;
+
+            size_t vertexCount = buffer->mVertices.size() / buffer->mVertexSize;
+            HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(buffer->mVertexSize, vertexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
+
+            if (vertexDecl != nullptr && vertexBuffer != nullptr)
+            {
+                if (vertexBuffer->writeData(0, buffer->mVertices.size(), &buffer->mVertices[0]))
+                {
+                    vertexData->addVertexBuffer(vertexBuffer);
+                }
+            }
+
+            ++itr;
+        }
+
+        return vertexData;
+    }
+
+    bool SGModel::createSkeletons()
+    {
+        ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
+        mBones.resize(modelData->mBones.size());
+        size_t i = 0;
+
+        for (i = 0; i < modelData->mBones.size(); ++i)
+        {
+            auto boneData = modelData->mBones[i];
+            BonePtr bone = Bone::create(boneData->mName, boneData->mOffsetMatrix, boneData->mLocalMatrix);
+            mBones[i] = bone;
+        }
+
+        for (i = 0; i < mBones.size(); ++i)
+        {
+            auto bone = smart_pointer_cast<Bone>(mBones[i]);
+            auto boneData = modelData->mBones[i];
+            if (boneData->mParentBone == 0xFFFF)
+            {
+                mRootBone = bone;
+            }
+            else
+            {
+                T3D_ASSERT(boneData->mParentBone < mBones.size());
+                auto parentBone = smart_pointer_cast<Bone>(mBones[boneData->mParentBone]);
+                parentBone->addChild(bone);
+            }
+        }
+
+        return true;
+    }
+
     void SGModel::enumerateActionList(ActionList &actions)
     {
-        const Model::AnimationData &animation = mModel->getAnimationData();
-        auto itr = animation.begin();
+        ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
+        auto animations = modelData->mAnimations;
+        auto itr = animations.begin();
         actions.clear();
 
-        while (itr != animation.end())
+        while (itr != animations.end())
         {
             ActionInfo action;
             ActionDataPtr actionData = smart_pointer_cast<ActionData>(itr->second);
@@ -195,9 +317,10 @@ namespace Tiny3D
             stopAction(mCurActionName);
         }
 
-        const Model::AnimationData &actionList = mModel->getAnimationData();
-        auto itr = actionList.find(name);
-        if (itr == actionList.end())
+        ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
+        auto animations = modelData->mAnimations;
+        auto itr = animations.find(name);
+        if (itr == animations.end())
             return false;
 
         mStartTime = DateTime::currentMSecsSinceEpoch();
@@ -226,8 +349,8 @@ namespace Tiny3D
         ActionDataPtr actionData = smart_pointer_cast<ActionData>(mCurActionData);
         int64_t dt = time % actionData->mDuration;
         T3D_LOG_INFO("time : %lld, dt = %lld, duration : %d", time, dt, actionData->mDuration);
-        updateBone(dt, mModel->getSkeletonData());
-        BonePtr bone = smart_pointer_cast<Bone>(mModel->getSkeletonData());
+        updateBone(dt, mRootBone);
+        BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
         bone->updateBone();
     }
 

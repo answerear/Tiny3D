@@ -60,7 +60,7 @@ namespace Tiny3D
             return mPrimitiveType;
         }
 
-        const VertexDataPtr &getVertexData() const
+        const VertexBuffers &getVertexBuffers() const
         {
             return mVertexData;
         }
@@ -85,8 +85,8 @@ namespace Tiny3D
 
     protected:
         Renderer::PrimitiveType mPrimitiveType;
-        VertexDataPtr           mVertexData;
-        IndexDataPtr            mIndexData;
+        VertexBuffers           mVertexBuffers;
+        Indices
         String                  mMaterialName;
     };
 }

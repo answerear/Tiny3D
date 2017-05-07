@@ -18,7 +18,7 @@ namespace Tiny3D
     public:
         virtual ~Bone();
 
-        static BonePtr create(const String &name, const Matrix4 &m);
+        static BonePtr create(const String &name, const Matrix4 &offsetMatrix, const Matrix4 &localMatrix);
 
         virtual Type getNodeType() const override;
         virtual NodePtr clone() const override;
@@ -51,7 +51,7 @@ namespace Tiny3D
 
     protected:
         Bone();
-        Bone(const String &name, const Matrix4 &m);
+        Bone(const String &name, const Matrix4 &offsetMatrix, const Matrix4 &localMatrix);
 
         virtual void cloneProperties(const NodePtr &node) const override;
 

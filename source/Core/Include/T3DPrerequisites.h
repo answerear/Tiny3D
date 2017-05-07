@@ -4,6 +4,7 @@
 #define __T3D_PREREQUISITES_H__
 
 
+#include "T3DConfig.h"
 #include "T3DMacro.h"
 #include <stdarg.h>
 

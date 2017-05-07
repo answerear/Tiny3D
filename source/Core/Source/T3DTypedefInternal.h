@@ -4,15 +4,19 @@
 #define __T3D_TYPEDEF_INTERNAL_H__
 
 
-
 #include "Misc/T3DSmartPtr.h"
+#include <sstream>
 
 
 namespace Tiny3D
 {
-    T3D_DECLARE_SMART_PTR(GeometryData);
-    T3D_DECLARE_SMART_PTR(SkinData);
+    T3D_DECLARE_SMART_PTR(ModelData);
     T3D_DECLARE_SMART_PTR(Bone);
+    T3D_DECLARE_SMART_PTR(VertexBuffer);
+    T3D_DECLARE_SMART_PTR(SubMeshData);
+    T3D_DECLARE_SMART_PTR(MeshData);
+    T3D_DECLARE_SMART_PTR(SkinData);
+    T3D_DECLARE_SMART_PTR(BoneData);
     T3D_DECLARE_SMART_PTR(ActionData);
     T3D_DECLARE_SMART_PTR(KeyFrameData);
     T3D_DECLARE_SMART_PTR(KeyFrameDataT);

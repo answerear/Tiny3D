@@ -1104,6 +1104,7 @@ namespace mconv
         }
         Bone *pBone = new Bone(name);
         pParent->addChild(pBone);
+        mBoneCount++;
 
         FbxAMatrix &M = pFbxNode->EvaluateLocalTransform();
         convertMatrix(M, pBone->mLocalTransform);
@@ -1600,6 +1601,7 @@ namespace mconv
 
                 if (j == 0)
                 {
+                    mBoneCount = 0;
                     FbxNode *pFbxSkelRoot = nullptr;
                     if (searchSkeletonRoot(pFbxLinkNode, pFbxSkelRoot) && !searchSkeleton(pFbxSkelRoot))
                     {
@@ -1635,6 +1637,34 @@ namespace mconv
                     double fCtrlPointWeight = pCtrlPointWeights[k];
                     updateVertexBlendIndexAndWeight(pMesh, nCtrlPointIdx, j, fCtrlPointWeight);
                 }
+            }
+
+            // 不知道为何骨骼层次中的骨骼数和蒙皮计算的骨骼偏移矩阵的数差一，这里在蒙皮计算的偏移矩阵末尾插入一个骨骼根结点
+            if (nBoneCount == mBoneCount - 1)
+            {
+                size_t i = 0;
+                for (i = 0; i < pModel->getChildrenCount(); ++i)
+                {
+                    Node *pNode = pModel->getChild(i);
+                    if (pNode->getNodeType() == Node::E_TYPE_SKELETON)
+                    {
+                        Skeleton *pSkel = (Skeleton *)pNode;
+                        Bone *pBone = (Bone *)pSkel->getChild(0);
+                        T3D_ASSERT(pBone->getNodeType() == Node::E_TYPE_BONE);
+                        Bone *pNewBone = new Bone(pBone->getID());
+                        Matrix4 m = pBone->mLocalTransform.inverse();
+                        pNewBone->mLocalTransform = m;
+                        pSkin->addChild(pNewBone);
+                    }
+                }
+            }
+            else if (nBoneCount == mBoneCount)
+            {
+
+            }
+            else
+            {
+                T3D_ASSERT(0);
             }
         }
 

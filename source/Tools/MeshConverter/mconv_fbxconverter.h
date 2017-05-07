@@ -122,6 +122,8 @@ namespace mconv
         bool        mHasVertexBlending;
         bool        mHasAnimation;
 
+        int         mBoneCount;         // 用来记录骨骼数量，主要用于不知道为何offset matrix和skeleton hiarachy里面的骨骼数有差异
+
 #ifdef _DEBUG
         int         mTabCount;
 #endif

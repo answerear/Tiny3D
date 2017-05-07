@@ -83,6 +83,7 @@ set_project_files(Source\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/ .c
 set_project_files(Source\\\\Misc ${CMAKE_CURRENT_SOURCE_DIR}/Source/Misc/ .cpp)
 set_project_files(Source\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Source/Bound/ .cpp)
 set_project_files(Source\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Source/Resource/ .cpp)
+set_project_files(Source\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Source/Resource/ .h)
 set_project_files(Source\\\\Listener ${CMAKE_CURRENT_SOURCE_DIR}/Source/Listener/ .cpp)
 set_project_files(Source\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Source/DataStruct/ .cpp)
 set_project_files(Source\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Source/DataStruct/ .h)

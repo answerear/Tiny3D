@@ -12,7 +12,7 @@ namespace Tiny3D
     class T3D_ENGINE_API SGMesh : public SGGeometry
     {
     public:
-        static SGMeshPtr create(ModelPtr model, int32_t mesh, uint32_t uID = E_NID_AUTOMATIC);
+        static SGMeshPtr create(VertexDataPtr vertexData, ObjectPtr submeshData, uint32_t uID = E_NID_AUTOMATIC);
 
         virtual ~SGMesh();
 
@@ -22,7 +22,7 @@ namespace Tiny3D
     protected:
         SGMesh(uint32_t uID = E_NID_AUTOMATIC);
 
-        virtual bool init(ModelPtr model, int32_t mesh);
+        virtual bool init(VertexDataPtr vertexData, ObjectPtr submeshData);
 
         virtual void updateTransform() override;
 
@@ -34,13 +34,12 @@ namespace Tiny3D
         virtual IndexDataPtr getIndexData() const override;
         virtual bool isIndicesUsed() const override;
 
-        void updateSkin();
-
     protected:
-        int32_t     mMeshIndex;
-        ModelPtr    mModel;
+        ObjectPtr   mSubMeshData;
         MaterialPtr mMaterial;
-        ObjectPtr   mGeometryData;
+
+        VertexDataPtr   mVertexData;
+        IndexDataPtr    mIndexData;
     };
 }
 

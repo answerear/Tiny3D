@@ -2,7 +2,7 @@
 <version>0.0.0.1</version>
 
 <scene id="Scene">
-    <model id="Box001" shared_vertex="0" count="1">
+    <model id="Box001" shared_vertex="1" count="1">
         <mesh id="Box001">
             <vertices id="Box001" count="1">
                 <buffer id="0">
