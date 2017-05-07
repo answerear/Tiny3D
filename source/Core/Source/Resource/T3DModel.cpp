@@ -149,6 +149,10 @@ namespace Tiny3D
                     pMeshElement = pMeshElement->NextSiblingElement(T3D_XML_TAG_MESH);
                 }
 
+                // ÃÉÆ¤Êý¾Ý
+                XMLElement *pSkinElement = pModelElement->FirstChildElement(T3D_XML_TAG_SKIN);
+                ret = ret && parseSkin(pSkinElement);
+
                 // ¹Ç÷À
                 XMLElement *pSkelElement = pModelElement->FirstChildElement(T3D_XML_TAG_SKELETON);
                 ret = ret && parseSkeleton(pSkelElement);
@@ -563,8 +567,6 @@ namespace Tiny3D
 
         ret = ret && parseSubMeshes(pMeshElement, &attributes, &buffers);
 
-        ret = ret && parseSkin(pMeshElement);
-
         return true;
     }
 
@@ -724,32 +726,29 @@ namespace Tiny3D
         return true;
     }
 
-    bool Model::parseSkin(tinyxml2::XMLElement *pMeshElement)
+    bool Model::parseSkin(tinyxml2::XMLElement *pSkinElement)
     {
-        XMLElement *pSkinElement = pMeshElement->FirstChildElement(T3D_XML_TAG_SKIN);
-        if (pSkinElement == nullptr)
-            return true;
-
         bool ret = true;
         String name = pSkinElement->Attribute(T3D_XML_ATTRIB_ID);
         size_t boneCount = pSkinElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
 
-        SkinDataList skindata;
-        auto val = mSkinData.insert(SkinMapValue(name, skindata));
+        SkinDataList skindata(boneCount, nullptr);
 
+        auto itr = skindata.begin();
         XMLElement *pBoneElement = pSkinElement->FirstChildElement(T3D_XML_TAG_BONE);
         while (pBoneElement != nullptr)
         {
-            ret = ret && parseBone(pBoneElement, val.first->second);
+            ret = ret && parseBone(pBoneElement, *itr);
             pBoneElement = pBoneElement->NextSiblingElement(T3D_XML_TAG_BONE);
+            ++itr;
         }
 
         return ret;
     }
 
-    bool Model::parseBone(tinyxml2::XMLElement *pBoneElement, SkinDataList &skinList)
+    bool Model::parseBone(tinyxml2::XMLElement *pBoneElement, const ObjectPtr &bone)
     {
-        bool ret = false;
+        bool ret = true;
         String name = pBoneElement->Attribute(T3D_XML_ATTRIB_ID);
 
         XMLElement *pTransformElement = pBoneElement->FirstChildElement(T3D_XML_TAG_TRANSFORM);
@@ -773,12 +772,12 @@ namespace Tiny3D
                 }
             }
 
-            SkinDataPtr skin = SkinData::create(name, m);
-            if (skin != nullptr)
-            {
-                skinList.push_back(skin);
-                ret = true;
-            }
+//             BonePtr 
+//             if (skin != nullptr)
+//             {
+//                 skinList.push_back(skin);
+//                 ret = true;
+//             }
         }
 
         return ret;

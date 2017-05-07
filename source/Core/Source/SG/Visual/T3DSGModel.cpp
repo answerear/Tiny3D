@@ -119,9 +119,12 @@ namespace Tiny3D
 
     void SGModel::updateTransform()
     {
-        SGShape::updateTransform();
+        if (isActionRunning())
+        {
+            updateSkeleton();
 
-        updateSkeleton();
+            SGShape::updateTransform();
+        }
     }
 
     void SGModel::setRenderMode(RenderMode mode)
@@ -218,18 +221,14 @@ namespace Tiny3D
 
     void SGModel::updateSkeleton()
     {
-        if (isActionRunning())
-        {
-            int64_t current = DateTime::currentMSecsSinceEpoch();
-            int64_t time = current - mStartTime;
-            ActionDataPtr actionData = smart_pointer_cast<ActionData>(mCurActionData);
-            int64_t dt = time % actionData->mDuration;
-            T3D_LOG_INFO("time : %lld, dt = %lld, duration : %d", time, dt, actionData->mDuration);
-            updateBone(dt, mModel->getSkeletonData());
-            BonePtr bone = smart_pointer_cast<Bone>(mModel->getSkeletonData());
-            bone->updateBone();
-            mSkeleton->updateVertices();
-        }
+        int64_t current = DateTime::currentMSecsSinceEpoch();
+        int64_t time = current - mStartTime;
+        ActionDataPtr actionData = smart_pointer_cast<ActionData>(mCurActionData);
+        int64_t dt = time % actionData->mDuration;
+        T3D_LOG_INFO("time : %lld, dt = %lld, duration : %d", time, dt, actionData->mDuration);
+        updateBone(dt, mModel->getSkeletonData());
+        BonePtr bone = smart_pointer_cast<Bone>(mModel->getSkeletonData());
+        bone->updateBone();
     }
 
     void SGModel::updateBone(int64_t time, ObjectPtr skeleton)

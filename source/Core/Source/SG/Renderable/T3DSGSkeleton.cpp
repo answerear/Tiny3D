@@ -66,106 +66,50 @@ namespace Tiny3D
     bool SGSkeleton::buildSkeletonVertices(const ObjectPtr &skeleton, std::vector<BoneVertex> &vertices)
     {
         BonePtr bone = smart_pointer_cast<Bone>(skeleton);
-
         BonePtr parentBone = smart_pointer_cast<Bone>(bone->getParent());
 
-        static const Vector3 boneVertices[] =
-        {
-            Vector3(0.0f, 0.0f, 0.0f),
-            Vector3(-0.2f, 0.2f,-0.2f),
-
-            Vector3(0.2f, 0.2f,-0.2f),
-            Vector3(0.0f, 3.0f, 0.0f),
-
-            Vector3(-0.2f, 0.2f,-0.2f),
-            Vector3(-0.2f, 0.2f, 0.2f),
-
-            Vector3(0.0f, 0.0f, 0.0f),
-            Vector3(0.2f, 0.2f,-0.2f),
-
-            Vector3(0.2f, 0.2f, 0.2f),
-            Vector3(0.0f, 0.0f, 0.0f),
-
-            Vector3(-0.2f, 0.2f, 0.2f),
-            Vector3(0.0f, 3.0f, 0.0f),
-
-            Vector3(0.2f, 0.2f, 0.2f),
-            Vector3(-0.2f, 0.2f, 0.2f)
-        };
-
-        if (parentBone == nullptr)
-        {
-//             // ¸ù¹Ç÷À
-//             Transform t0;
-//             const Transform &t1 = bone->getCombineTransform();
+//         static const Vector3 boneVertices[] =
+//         {
+//             Vector3(0.0f, 0.0f, 0.0f),
+//             Vector3(-0.2f, 0.2f,-0.2f),
 // 
-//             Matrix4 bindpose1(false);
-//             SkinDataPtr skin;
-//             if (searchSkinData(bone->getName(), (ObjectPtr &)skin))
-//             {
-//                 bindpose1 = skin->getBindPose().inverse();
-//             }
+//             Vector3(0.2f, 0.2f,-0.2f),
+//             Vector3(0.0f, 3.0f, 0.0f),
 // 
-// //             Vector3 p0 = t0.getAffineMatrix() * Vector3::ZERO;
-// //             Vector3 p1 = bindpose1 * t1.getAffineMatrix() * Vector3::ZERO;
-//             const Vector3 &p0 = t0.getTranslate();
-//             const Vector3 &p1 = t1.getTranslate();
+//             Vector3(-0.2f, 0.2f,-0.2f),
+//             Vector3(-0.2f, 0.2f, 0.2f),
 // 
-//             BoneVertex vertex;
-//             vertex.position = p0;
-//             vertex.color = Color4::WHITE;
-//             vertices.push_back(vertex);
-//             vertex.position = p1;
-//             vertex.color = Color4::WHITE;
-//             vertices.push_back(vertex);
+//             Vector3(0.0f, 0.0f, 0.0f),
+//             Vector3(0.2f, 0.2f,-0.2f),
 // 
-//             T3D_LOG_DEBUG("Bone from joint root (%.6f, %.6f, %.6f) to joint %s (%.6f, %.6f, %.6f)", 
-//                 p0[0], p0[1], p0[2], bone->getName().c_str(), p1[0], p1[1], p1[2]);
-        }
-        else
+//             Vector3(0.2f, 0.2f, 0.2f),
+//             Vector3(0.0f, 0.0f, 0.0f),
+// 
+//             Vector3(-0.2f, 0.2f, 0.2f),
+//             Vector3(0.0f, 3.0f, 0.0f),
+// 
+//             Vector3(0.2f, 0.2f, 0.2f),
+//             Vector3(-0.2f, 0.2f, 0.2f)
+//         };
+
+        if (parentBone != nullptr)
         {
             const Transform &t0 = parentBone->getCombineTransform();
             const Transform &t1 = bone->getCombineTransform();
 
-            bool ret = false;
-            Matrix4 bindpose0(false);
-            SkinDataPtr s0;
-            if (searchSkinData(parentBone->getName(), (ObjectPtr &)s0))
-            {
-                bindpose0 = s0->getBindPose().inverse();
-                ret = true;
-            }
+            const Vector3 &p0 = t0.getTranslate();
+            const Vector3 &p1 = t1.getTranslate();
 
-            Matrix4 bindpose1(false);
-            SkinDataPtr s1;
-            if (ret && searchSkinData(bone->getName(), (ObjectPtr &)s1))
-            {
-                bindpose1 = s1->getBindPose().inverse();
-                ret = true;
-            }
-            else
-            {
-                ret = true;
-            }
+            BoneVertex vertex;
+            vertex.position = p0;
+            vertex.color = Color4::WHITE;
+            vertices.push_back(vertex);
+            vertex.position = p1;
+            vertex.color = Color4::WHITE;
+            vertices.push_back(vertex);
 
-            if (ret)
-            {
-                const Vector3 &p0 = t0.getTranslate();
-                const Vector3 &p1 = t1.getTranslate();
-//                 Vector3 p0 = bindpose0 * t0.getAffineMatrix() * Vector3::ZERO;
-//                 Vector3 p1 = bindpose1 * t1.getAffineMatrix() * Vector3::ZERO;
-
-                BoneVertex vertex;
-                vertex.position = p0;
-                vertex.color = Color4::WHITE;
-                vertices.push_back(vertex);
-                vertex.position = p1;
-                vertex.color = Color4::WHITE;
-                vertices.push_back(vertex);
-
-                T3D_LOG_DEBUG("Bone from joint %s (%.6f, %.6f, %.6f) to joint %s (%.6f, %.6f, %.6f)", 
-                    parentBone->getName().c_str(), p0[0], p0[1], p0[2], bone->getName().c_str(), p1[0], p1[1], p1[2]);
-            }
+            T3D_LOG_DEBUG("Bone from joint %s (%.6f, %.6f, %.6f) to joint %s (%.6f, %.6f, %.6f)", 
+                parentBone->getName().c_str(), p0[0], p0[1], p0[2], bone->getName().c_str(), p1[0], p1[1], p1[2]);
         }
 
         bool ret = true;
@@ -182,35 +126,9 @@ namespace Tiny3D
         return true;
     }
 
-    bool SGSkeleton::searchSkinData(const String &name, ObjectPtr &skin)
+    void SGSkeleton::updateTransform()
     {
-        bool found = false;
-
-        const Model::SkinMap &meshSkin = mModel->getSkinData();
-        auto itrSkin = meshSkin.begin();
-
-        while (itrSkin != meshSkin.end())
-        {
-            const Model::SkinDataList &skins = itrSkin->second;
-            auto itr = skins.begin();
-
-            while (itr != skins.end())
-            {
-                SkinDataPtr skinData = smart_pointer_cast<SkinData>(*itr);
-                if (name == skinData->getName())
-                {
-                    skin = skinData;
-                    found = true;
-                    break;
-                }
-
-                ++itr;
-            }
-
-            ++itrSkin;
-        }
-
-        return found;
+        updateVertices();
     }
 
     void SGSkeleton::updateVertices()

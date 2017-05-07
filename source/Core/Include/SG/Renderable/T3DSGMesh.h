@@ -34,6 +34,8 @@ namespace Tiny3D
         virtual IndexDataPtr getIndexData() const override;
         virtual bool isIndicesUsed() const override;
 
+        void updateSkin();
+
     protected:
         int32_t     mMeshIndex;
         ModelPtr    mModel;

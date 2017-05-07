@@ -103,6 +103,15 @@ namespace Tiny3D
 
     void SGMesh::updateTransform()
     {
-        SGGeometry::updateTransform();
+        updateSkin();
+    }
+
+    void SGMesh::updateSkin()
+    {
+//         GeometryDataPtr geometry = smart_pointer_cast<GeometryData>(mGeometryData);
+//         VertexDataPtr vertexData = geometry->getVertexData();
+//         mModel->getSkinData();
+//         HardwareVertexBufferPtr vb = vertexData->getVertexBuffer(0);
+//         vb->writeData(0, sizeof(BoneVertex) * vertices.size(), &vertices[0]);
     }
 }

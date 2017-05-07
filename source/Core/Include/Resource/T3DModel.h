@@ -28,11 +28,6 @@ namespace Tiny3D
         typedef SkinDataList::iterator              SkinDataListItr;
         typedef SkinDataList::const_iterator        SkinDataListConstItr;
 
-        typedef std::map<String, SkinDataList>      SkinMap;
-        typedef SkinMap::iterator                   SkinMapItr;
-        typedef SkinMap::const_iterator             SkinMapConstItr;
-        typedef std::pair<String, SkinDataList>     SkinMapValue;
-
         typedef std::map<String, ObjectPtr>         AnimationData;
         typedef AnimationData::iterator             AnimationItr;
         typedef AnimationData::const_iterator       AnimationConstItr;
@@ -71,7 +66,7 @@ namespace Tiny3D
         /**
          * @brief 获取模型的蒙皮信息数据列表.
          */
-        const SkinMap &getSkinData() const
+        const SkinDataList &getSkinData() const
         {
             return mSkinData;
         }
@@ -147,8 +142,8 @@ namespace Tiny3D
         bool parseSubMeshes(tinyxml2::XMLElement *pMeshElement, void *attributes, void *buffers);
         bool parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, void *attributes, void *buffers);
 
-        bool parseSkin(tinyxml2::XMLElement *pMeshElement);
-        bool parseBone(tinyxml2::XMLElement *pBoneElement, SkinDataList &skinList);
+        bool parseSkin(tinyxml2::XMLElement *pSkinElement);
+        bool parseBone(tinyxml2::XMLElement *pBoneElement, const ObjectPtr &bone);
 
         bool parseSkeleton(tinyxml2::XMLElement *pSkelElement);
         bool parseSkeleton(tinyxml2::XMLElement *pBoneElement, const ObjectPtr &parent);
@@ -164,7 +159,7 @@ namespace Tiny3D
     protected:
         bool                mIsVertexShared;    /// 是否共享顶点数据
         GeometryDataList    mGeometryData;      /// 渲染几何数据
-        SkinMap             mSkinData;          /// 蒙皮数据
+        SkinDataList        mSkinData;          /// 蒙皮数据
         ObjectPtr           mSkeletonData;      /// 骨骼数据
         AnimationData       mAnimationData;     /// 动画数据
     };
