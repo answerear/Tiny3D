@@ -352,6 +352,8 @@ namespace Tiny3D
         updateBone(dt, mRootBone);
         BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
         bone->updateBone();
+
+        updateVertices();
     }
 
     void SGModel::updateBone(int64_t time, ObjectPtr skeleton)
@@ -449,5 +451,66 @@ namespace Tiny3D
             updateBone(time, *itr);
             ++itr;
         }
+    }
+
+    void SGModel::updateVertices()
+    {
+        ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
+
+        if (modelData->mIsVertexShared)
+        {
+            // 共享顶点模式，只有一个mesh，多个submesh
+            T3D_ASSERT(modelData->mMeshes.size() == 1);
+
+            auto itr = mVertexDataList.begin();
+            MeshDataPtr meshData = modelData->mMeshes[0];
+            updateVertexData(meshData, *itr);
+        }
+        else
+        {
+            // 不共享顶点模式，有多个mesh和多个submesh
+            size_t meshCount = modelData->mMeshes.size();
+            size_t i = 0;
+
+            auto itr = mVertexDataList.begin();
+
+            for (i = 0; i < meshCount; ++i)
+            {
+                // 根据网格数据来逐个创建渲染用网格对象
+                MeshDataPtr meshData = modelData->mMeshes[i];
+                updateVertexData(meshData, *itr);
+                ++itr;
+            }
+        }
+    }
+
+    void SGModel::updateVertexData(ObjectPtr data, VertexDataPtr vertexData)
+    {
+        MeshDataPtr meshData = smart_pointer_cast<MeshData>(data);
+        auto itr = meshData->mBuffers.begin();
+        while (itr != meshData->mBuffers.end())
+        {
+            auto buffer = *itr;
+
+            size_t step = buffer->mVertexSize;
+            size_t vertexCount = buffer->mVertices.size() / buffer->mVertexSize;
+            size_t i = 0;
+            VertexBuffer::Vertices vertices(buffer->mVertices);
+
+            for (i = 0; i < vertexCount; i += step)
+            {
+                updateVertex(buffer, &vertices[i]);
+            }
+
+            ++itr;
+        }
+    }
+
+    void SGModel::updateVertex(ObjectPtr buffer, void *vertex)
+    {
+        VertexBufferPtr vb = smart_pointer_cast<VertexBuffer>(buffer);
+        uint8_t *data = (uint8_t *)vertex;
+
+        
     }
 }

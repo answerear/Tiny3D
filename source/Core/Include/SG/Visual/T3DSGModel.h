@@ -68,7 +68,9 @@ namespace Tiny3D
 
         void updateSkeleton();
         void updateBone(int64_t time, ObjectPtr skeleton);
-
+        void updateVertices();
+        void updateVertexData(ObjectPtr data, VertexDataPtr vertexData);
+        void updateVertex(ObjectPtr buffer, void *vertex);
         VertexDataPtr createVertexData(ObjectPtr data);
         bool createSkeletons();
 
