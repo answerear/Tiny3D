@@ -45,7 +45,7 @@ bool TextureApp::applicationDidFinishLaunching()
     // 相机变换结点
     SGTransformNodePtr node = SGTransformNode::create();
     root->addChild(node);
-    node->lookAt(Vector3(0.0, 100.0, 200.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(0.0, 50.0, 50.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     {
         // 相机结点

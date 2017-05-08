@@ -90,7 +90,7 @@ namespace Tiny3D
             ret = true;
         }
 
-        return ret;
+        return true;
     }
 
     void Material::unload()

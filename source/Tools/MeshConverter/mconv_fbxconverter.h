@@ -86,6 +86,8 @@ namespace mconv
 
         bool searchMaterial(const String &name, Material *&pMaterial);
 
+        String getFileName(const String &strPath);
+
         struct SceneInfo
         {
             void    *mRoot;

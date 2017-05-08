@@ -130,7 +130,7 @@ namespace Tiny3D
 
                     for (j = 0; j < submeshCount; ++j)
                     {
-                        SGMeshPtr mesh = SGMesh::create(vertexData, meshData, j);
+                        SGMeshPtr mesh = SGMesh::create(vertexData, meshData);
                         addChild(mesh);
                         mMeshes.push_back(mesh);
                     }
@@ -166,9 +166,9 @@ namespace Tiny3D
         if (isActionRunning())
         {
             updateSkeleton();
-
-            SGShape::updateTransform();
         }
+
+        SGShape::updateTransform();
     }
 
     void SGModel::setRenderMode(RenderMode mode)

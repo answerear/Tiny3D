@@ -9,7 +9,7 @@ using namespace Tiny3D;
 #define TEST_MODEL_TORTOISE             1
 #define TEST_MODEL_CAMEL                0
 #define TEST_MODEL_SKELETON             0
-
+#define TEST_MODEL_KNIGHT               0
 
 SkeletonApp::SkeletonApp()
 {
@@ -41,7 +41,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
 {
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
-//     renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
+    renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
     renderer->setRenderMode(Renderer::E_RM_SOLID);
     renderer->setAmbientLight(Color4::WHITE);
 
@@ -62,7 +62,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     node->lookAt(Vector3(200, 1000, 200), Vector3::ZERO, Vector3::UNIT_Y);
 
     // зјБъ
-    SGIndicatorPtr indicator = SGIndicator::create(100, 100, 100);
+    SGIndicatorPtr indicator = SGIndicator::create(500, 500, 500);
     root->addChild(indicator);
 
 #elif TEST_MODEL_SKELETON
@@ -71,6 +71,14 @@ bool SkeletonApp::applicationDidFinishLaunching()
     // зјБъ
     SGIndicatorPtr indicator = SGIndicator::create(50, 50, 50);
     root->addChild(indicator);
+
+#elif TEST_MODEL_KNIGHT
+    node->lookAt(Vector3(0, 20, 20), Vector3::ZERO, Vector3::UNIT_Y);
+
+    // зјБъ
+    SGIndicatorPtr indicator = SGIndicator::create(10, 10, 10);
+    root->addChild(indicator);
+
 #endif
 
     {
@@ -115,8 +123,15 @@ bool SkeletonApp::applicationDidFinishLaunching()
     {
         SGModelPtr model = SGModel::create("skeleton.tmt");
         node->addChild(model);
-        model->setRenderMode(SGModel::E_RENDER_SKELETON);
-        model->runAction("Take 001");
+//         model->setRenderMode(SGModel::E_RENDER_SKELETON);
+//         model->runAction("Take 001");
+    }
+#elif TEST_MODEL_KNIGHT
+    node = SGTransformNode::create();
+    root->addChild(node);
+    {
+        SGModelPtr model = SGModel::create("knight.tmt");
+        node->addChild(model);
     }
 #endif
 

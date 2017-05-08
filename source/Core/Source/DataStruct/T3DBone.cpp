@@ -150,9 +150,6 @@ namespace Tiny3D
 
     const Matrix4 &Bone::getOffsetMatrix()
     {
-        getCombineTransform();
-
-        mOffsetMatrix = mCombineTransform.getAffineMatrix().inverseAffine();
         return mOffsetMatrix;
     }
 }

@@ -1259,8 +1259,8 @@ namespace mconv
                             {
                                 Texture *pTexture = new Texture(pFbxTexture->GetName());
                                 pTextures->addChild(pTexture);
-
-                                pTexture->mFilename = pFbxTexture->GetFileName();
+                                
+                                pTexture->mFilename = getFileName(pFbxTexture->GetFileName());
                                 pTexture->mType = "diffuse";
                                 pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
                                 pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
@@ -1346,7 +1346,7 @@ namespace mconv
                                 Texture *pTexture = new Texture(pFbxTexture->GetName());
                                 pTextures->addChild(pTexture);
 
-                                pTexture->mFilename = pFbxTexture->GetFileName();
+                                pTexture->mFilename = getFileName(pFbxTexture->GetFileName());
                                 pTexture->mType = "emissive";
                                 pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
                                 pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
@@ -1358,6 +1358,21 @@ namespace mconv
         }
 
         return true;
+    }
+
+    String FBXConverter::getFileName(const String &strPath)
+    {
+        String strName;
+        size_t pos = strPath.rfind("\\");
+        if (pos != String::npos)
+        {
+            strName = strPath.substr(pos + 1);
+        }
+        else
+        {
+            strName = strPath;
+        }
+        return strName;
     }
 
     bool FBXConverter::searchMaterial(const String &name, Material *&pMaterial)
