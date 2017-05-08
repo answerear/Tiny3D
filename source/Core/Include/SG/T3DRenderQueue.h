@@ -48,6 +48,7 @@ namespace Tiny3D
             E_GRPID_BACKGROUND = 10,
             E_GRPID_LIGHT = 15,
             E_GRPID_SKY_BOX = 20,
+            E_GRPID_INDICATOR = 30,
             E_GRPID_AUTOMATIC = 50,
             E_GRPID_SOLID = 60,
             E_GRPID_TRANSPARENT = 70,

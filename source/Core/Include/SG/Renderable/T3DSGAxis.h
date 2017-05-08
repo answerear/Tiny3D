@@ -16,7 +16,7 @@ namespace Tiny3D
         AXIS_Z
     };
 
-    class T3D_ENGINE_API SGAxis : public SGGeometry
+    class T3D_ENGINE_API SGAxis : public SGRenderable
     {
     public:
         static SGAxisPtr create(Real fAxisX, Real fAxisY, Real fAxisZ, uint32_t uID = E_NID_AUTOMATIC);
@@ -34,6 +34,8 @@ namespace Tiny3D
         virtual bool init(Real fAxisX, Real fAxisY, Real fAxisZ);
         
         virtual void cloneProperties(const NodePtr &node) const override;
+
+        virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;
 
         virtual MaterialPtr getMaterial() const override;
         virtual Renderer::PrimitiveType getPrimitiveType() const override;

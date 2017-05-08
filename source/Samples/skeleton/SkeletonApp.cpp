@@ -114,7 +114,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     {
         SGModelPtr model = SGModel::create("tortoise.tmt");
         node->addChild(model);
-//         model->setRenderMode(SGModel::E_RENDER_SKELETON);
+        model->setRenderMode(SGModel::E_RENDER_SKELETON);
 //         model->runAction("Take 001");
     }
 #elif TEST_MODEL_SKELETON

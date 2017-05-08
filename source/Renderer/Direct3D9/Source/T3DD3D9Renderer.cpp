@@ -321,10 +321,11 @@ namespace Tiny3D
     {
         DWORD d3dmode = D3DFILL_SOLID;
 
-        if (mRenderMode != mode)
-        {
-            mMaterial = nullptr;
-        }
+//         if (mRenderMode != mode)
+//         {
+//             mMaterial = nullptr;
+//             mD3DDevice->SetTexture(0, nullptr);
+//         }
 
         mRenderMode = mode;
 

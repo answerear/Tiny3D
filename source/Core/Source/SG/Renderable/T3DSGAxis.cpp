@@ -3,6 +3,7 @@
 #include "SG/Renderable/T3DSGAxis.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
+#include "SG/T3DRenderQueue.h"
 
 
 namespace Tiny3D
@@ -24,7 +25,7 @@ namespace Tiny3D
     }
 
     SGAxis::SGAxis(uint32_t uID /* = E_NID_AUTOMATIC */)
-        : SGGeometry(uID)
+        : SGRenderable(uID)
         , mIsDataDirty(false)
     {
 
@@ -156,7 +157,12 @@ namespace Tiny3D
 
     void SGAxis::cloneProperties(const NodePtr &node) const
     {
-        SGGeometry::cloneProperties(node);
+        SGRenderable::cloneProperties(node);
+    }
+
+    void SGAxis::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
+    {
+        queue->addRenderable(RenderQueue::E_GRPID_INDICATOR, this);
     }
 
     MaterialPtr SGAxis::getMaterial() const

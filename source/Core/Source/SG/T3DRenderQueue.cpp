@@ -44,13 +44,20 @@ namespace Tiny3D
 
     void RenderGroup::render(uint32_t groupID, const RendererPtr &renderer)
     {
+        Renderer::RenderMode renderMode;
+        if (RenderQueue::E_GRPID_INDICATOR == groupID)
+        {
+            renderMode = renderer->getRenderMode();
+            renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
+        }
+
         if (RenderQueue::E_GRPID_LIGHT != groupID)
         {
             RenderablesItr itr = mRenderables.begin();
 
             while (itr != mRenderables.end())
             {
-                const MaterialPtr material = itr->first;
+                MaterialPtr material = itr->first;
                 renderer->setMaterial(material);
 
                 RenderableList &renderables = itr->second;
@@ -110,6 +117,11 @@ namespace Tiny3D
                 
                 ++itr;
             }
+        }
+
+        if (RenderQueue::E_GRPID_INDICATOR == groupID)
+        {
+            renderer->setRenderMode(renderMode);
         }
     }
 
