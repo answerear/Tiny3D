@@ -35,12 +35,18 @@ namespace Tiny3D
         , mTranslation(Vector3::ZERO)
         , mScaling(Vector3(1.0, 1.0, 1.0))
         , mOrientation(Quaternion::IDENTITY)
-        , mOffsetMatrix(offsetMatrix)
+        , mOffsetMatrix()
         , mIsDirty(true)
     {
         setName(name);
 
         localMatrix.decomposition(mTranslation, mScaling, mOrientation);
+
+        Vector3 pos;
+        Vector3 scale;
+        Quaternion orientation;
+        offsetMatrix.decomposition(pos, scale, orientation);
+        mOffsetMatrix.makeTransform(pos, Vector3::UNIT_SCALE, orientation);
 
 //         Vector3 translation;
 //         Vector3 scaling;

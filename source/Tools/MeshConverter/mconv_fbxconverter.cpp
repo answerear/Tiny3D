@@ -1869,7 +1869,7 @@ namespace mconv
 
                 attribute.mVertexType = VertexAttribute::E_VT_BLEND_INDEX;
                 attribute.mSize = 4;
-                attribute.mDataType = VertexAttribute::E_VT_INT32;
+                attribute.mDataType = VertexAttribute::E_VT_INT16;
                 pVB->mAttributes.push_back(attribute);
 
                 mHasVertexBlending = true;

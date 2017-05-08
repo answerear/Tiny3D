@@ -4,6 +4,7 @@
 
 
 #include "SG/Visual/T3DSGShape.h"
+#include "Render/T3DHardwareVertexBuffer.h"
 
 
 namespace Tiny3D
@@ -70,7 +71,10 @@ namespace Tiny3D
         void updateBone(int64_t time, ObjectPtr skeleton);
         void updateVertices();
         void updateVertexData(ObjectPtr data, VertexDataPtr vertexData);
-        void updateVertex(ObjectPtr buffer, void *vertex);
+        void updateVertex(ObjectPtr buffer, void *vertex, const VertexElement &posElem, const VertexElement &weightElem, const VertexElement &indicesElem);
+
+        bool getVertexElement(ObjectPtr buffer, VertexElement::Semantic semantic, VertexElement &element);
+
         VertexDataPtr createVertexData(ObjectPtr data);
         bool createSkeletons();
 

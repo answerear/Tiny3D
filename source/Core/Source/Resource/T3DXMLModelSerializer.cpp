@@ -161,6 +161,17 @@ namespace Tiny3D
                         step += sizeof(indices);
                     }
                     break;
+                case VertexElement::E_VET_SHORT4:
+                    {
+                        uint16_t indices[4];
+                        indices[0] = getValue<uint16_t>(text, start);
+                        indices[1] = getValue<uint16_t>(text, start);
+                        indices[2] = getValue<uint16_t>(text, start);
+                        indices[3] = getValue<uint16_t>(text, start);
+                        memcpy(value, indices, sizeof(indices));
+                        step += sizeof(indices);
+                    }
+                    break;
                 }
             }
             break;
@@ -471,7 +482,22 @@ namespace Tiny3D
             {
 
             }
-
+            else if (name == T3D_VALUE_TYPE_SHORT)
+            {
+                switch (valueCount)
+                {
+                case 2:
+                    {
+                        type = VertexElement::E_VET_SHORT2;
+                    }
+                    break;
+                case 4:
+                    {
+                        type = VertexElement::E_VET_SHORT4;
+                    }
+                    break;
+                }
+            }
         }
 
         return type;

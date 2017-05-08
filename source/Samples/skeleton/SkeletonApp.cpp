@@ -6,9 +6,9 @@
 
 using namespace Tiny3D;
 
-#define TEST_MODEL_TORTOISE             1
+#define TEST_MODEL_TORTOISE             0
 #define TEST_MODEL_CAMEL                0
-#define TEST_MODEL_SKELETON             0
+#define TEST_MODEL_SKELETON             1
 #define TEST_MODEL_KNIGHT               0
 
 SkeletonApp::SkeletonApp()
@@ -42,7 +42,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
     renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
-    renderer->setRenderMode(Renderer::E_RM_SOLID);
+//     renderer->setRenderMode(Renderer::E_RM_SOLID);
     renderer->setAmbientLight(Color4::WHITE);
 
     SGNodePtr root = T3D_SCENE_MGR.getRoot();

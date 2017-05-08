@@ -139,6 +139,21 @@ namespace Tiny3D
 
             // 创建骨骼层次和骨骼偏移矩阵数组
             ret = createSkeletons();
+
+            if (modelData->mAnimations.size() > 0)
+            {
+                auto animations = modelData->mAnimations;
+                auto itr = animations.begin();
+
+                mCurActionData = itr->second;
+                mCurKeyFrameT = 0;
+                mCurKeyFrameR = 0;
+                mCurKeyFrameS = 0;
+
+                BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
+                bone->updateBone();
+                updateVertices();
+            }
         }
 
         return ret;
@@ -246,7 +261,7 @@ namespace Tiny3D
             auto buffer = *itr;
 
             size_t vertexCount = buffer->mVertices.size() / buffer->mVertexSize;
-            HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(buffer->mVertexSize, vertexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
+            HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(buffer->mVertexSize, vertexCount, HardwareBuffer::E_HBU_WRITE_ONLY, false);
 
             if (vertexDecl != nullptr && vertexBuffer != nullptr)
             {
@@ -488,6 +503,7 @@ namespace Tiny3D
     {
         MeshDataPtr meshData = smart_pointer_cast<MeshData>(data);
         auto itr = meshData->mBuffers.begin();
+        size_t stream = 0;
         while (itr != meshData->mBuffers.end())
         {
             auto buffer = *itr;
@@ -496,21 +512,78 @@ namespace Tiny3D
             size_t vertexCount = buffer->mVertices.size() / buffer->mVertexSize;
             size_t i = 0;
             VertexBuffer::Vertices vertices(buffer->mVertices);
+            VertexElement posElement;
+            getVertexElement(buffer, VertexElement::E_VES_POSITION, posElement);
+            VertexElement weightElement;
+            getVertexElement(buffer, VertexElement::E_VES_BLENDWEIGHT, weightElement);
+            VertexElement indicesElement;
+            getVertexElement(buffer, VertexElement::E_VES_BLENDINDICES, indicesElement);
 
-            for (i = 0; i < vertexCount; i += step)
+            for (i = 0; i < buffer->mVertices.size(); i += step)
             {
-                updateVertex(buffer, &vertices[i]);
+                updateVertex(buffer, &vertices[i], posElement, weightElement, indicesElement);
             }
 
+            HardwareVertexBufferPtr vb = vertexData->getVertexBuffer(stream);
+            bool ret = vb->writeData(0, buffer->mVertices.size(), &buffer->mVertices[0]);
+            stream++;
             ++itr;
         }
     }
 
-    void SGModel::updateVertex(ObjectPtr buffer, void *vertex)
+    void SGModel::updateVertex(ObjectPtr buffer, void *vertex, const VertexElement &posElem, const VertexElement &weightElem, const VertexElement &indicesElem)
     {
         VertexBufferPtr vb = smart_pointer_cast<VertexBuffer>(buffer);
         uint8_t *data = (uint8_t *)vertex;
 
-        
+        Vector3 *pos = (Vector3 *)(data + posElem.getOffset());
+        float *weights = (float *)(data + weightElem.getOffset());
+        uint16_t *indices = (uint16_t *)(data + indicesElem.getOffset());
+
+        ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
+        size_t i = 0;
+
+        BonePtr bone = smart_pointer_cast<Bone>(mBones[indices[0]]);
+        const Matrix4 matOffset0 = bone->getOffsetMatrix();
+        const Matrix4 matCombine0 = bone->getCombineTransform().getAffineMatrix();
+
+        bone = smart_pointer_cast<Bone>(mBones[indices[1]]);
+        const Matrix4 matOffset1 = bone->getOffsetMatrix();
+        const Matrix4 matCombine1 = bone->getCombineTransform().getAffineMatrix();
+
+        bone = smart_pointer_cast<Bone>(mBones[indices[2]]);
+        const Matrix4 matOffset2 = bone->getOffsetMatrix();
+        const Matrix4 matCombine2 = bone->getCombineTransform().getAffineMatrix();
+
+        bone = smart_pointer_cast<Bone>(mBones[indices[3]]);
+        const Matrix4 matOffset3 = bone->getOffsetMatrix();
+        const Matrix4 matCombine3= bone->getCombineTransform().getAffineMatrix();
+
+        *pos = (weights[0] > 0 ? (/*matCombine0 * */matOffset0 * (*pos) * weights[0]) : Vector3::ZERO) 
+            + (weights[1] > 0 ? (/*matCombine1 * */matOffset1 * (*pos) * weights[1]) : Vector3::ZERO)
+            + (weights[2] > 0 ? (/*matCombine2 * */matOffset2 * (*pos) * weights[2]) : Vector3::ZERO)
+            + (weights[3] > 0 ? (/*matCombine3 * */matOffset3 * (*pos) * weights[3]) : Vector3::ZERO);
+    }
+
+    bool SGModel::getVertexElement(ObjectPtr buffer, VertexElement::Semantic semantic, VertexElement &element)
+    {
+        VertexBufferPtr vb = smart_pointer_cast<VertexBuffer>(buffer);
+        auto itr = vb->mAttributes.begin();
+
+        while (itr != vb->mAttributes.end())
+        {
+            auto vertexElement = *itr;
+
+            if (semantic == vertexElement.getSemantic())
+            {
+                element = vertexElement;
+                return true;
+                break;
+            }
+
+            ++itr;
+        }
+
+        return false;
     }
 }
