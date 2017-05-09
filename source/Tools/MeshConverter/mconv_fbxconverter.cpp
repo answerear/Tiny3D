@@ -1626,15 +1626,16 @@ namespace mconv
                     }
                 }
                 
-                FbxAMatrix matLink;
-                pFbxCluster->GetTransformLinkMatrix(matLink);
-                FbxAMatrix mat;
-                pFbxCluster->GetTransformMatrix(mat);
+                FbxAMatrix Mb;
+                pFbxCluster->GetTransformLinkMatrix(Mb);
+                FbxAMatrix Mv;
+                pFbxCluster->GetTransformMatrix(Mv);
+                FbxAMatrix m = pFbxLinkNode->EvaluateLocalTransform();
                 FbxVector4 T = pFbxLinkNode->GetGeometricTranslation(FbxNode::eSourcePivot);
                 FbxVector4 R = pFbxLinkNode->GetGeometricRotation(FbxNode::eSourcePivot);
                 FbxVector4 S = pFbxLinkNode->GetGeometricScaling(FbxNode::eSourcePivot);
                 FbxAMatrix matGeometry(T, R, S);
-                FbxAMatrix bindpose = matLink.Inverse();// (matLink.Inverse() * mat * matGeometry);
+                FbxAMatrix bindpose = Mb.Inverse() * Mv * matGeometry;
 
                 Bone *pBone = new Bone(pFbxLinkNode->GetName());
                 convertMatrix(bindpose, pBone->mLocalTransform);

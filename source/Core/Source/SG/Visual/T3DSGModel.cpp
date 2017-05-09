@@ -525,7 +525,7 @@ namespace Tiny3D
             }
 
             HardwareVertexBufferPtr vb = vertexData->getVertexBuffer(stream);
-            bool ret = vb->writeData(0, buffer->mVertices.size(), &buffer->mVertices[0]);
+            bool ret = vb->writeData(0, buffer->mVertices.size(), &vertices[0]);
             stream++;
             ++itr;
         }
@@ -544,25 +544,25 @@ namespace Tiny3D
         size_t i = 0;
 
         BonePtr bone = smart_pointer_cast<Bone>(mBones[indices[0]]);
-        const Matrix4 matOffset0 = bone->getOffsetMatrix();
-        const Matrix4 matCombine0 = bone->getCombineTransform().getAffineMatrix();
+        const Matrix4 &matOffset0 = bone->getOffsetMatrix();
+        const Matrix4 &matCombine0 = bone->getCombineTransform().getAffineMatrix();
 
         bone = smart_pointer_cast<Bone>(mBones[indices[1]]);
-        const Matrix4 matOffset1 = bone->getOffsetMatrix();
-        const Matrix4 matCombine1 = bone->getCombineTransform().getAffineMatrix();
+        const Matrix4 &matOffset1 = bone->getOffsetMatrix();
+        const Matrix4 &matCombine1 = bone->getCombineTransform().getAffineMatrix();
 
         bone = smart_pointer_cast<Bone>(mBones[indices[2]]);
-        const Matrix4 matOffset2 = bone->getOffsetMatrix();
-        const Matrix4 matCombine2 = bone->getCombineTransform().getAffineMatrix();
+        const Matrix4 &matOffset2 = bone->getOffsetMatrix();
+        const Matrix4 &matCombine2 = bone->getCombineTransform().getAffineMatrix();
 
         bone = smart_pointer_cast<Bone>(mBones[indices[3]]);
-        const Matrix4 matOffset3 = bone->getOffsetMatrix();
-        const Matrix4 matCombine3= bone->getCombineTransform().getAffineMatrix();
+        const Matrix4 &matOffset3 = bone->getOffsetMatrix();
+        const Matrix4 &matCombine3= bone->getCombineTransform().getAffineMatrix();
 
-        *pos = (weights[0] > 0 ? (/*matCombine0 * */matOffset0 * (*pos) * weights[0]) : Vector3::ZERO) 
-            + (weights[1] > 0 ? (/*matCombine1 * */matOffset1 * (*pos) * weights[1]) : Vector3::ZERO)
-            + (weights[2] > 0 ? (/*matCombine2 * */matOffset2 * (*pos) * weights[2]) : Vector3::ZERO)
-            + (weights[3] > 0 ? (/*matCombine3 * */matOffset3 * (*pos) * weights[3]) : Vector3::ZERO);
+        *pos = (weights[0] > 0 ? (matCombine0 * matOffset0 * (*pos) * weights[0]) : Vector3::ZERO) 
+            + (weights[1] > 0 ? (matCombine1 * matOffset1 * (*pos) * weights[1]) : Vector3::ZERO)
+            + (weights[2] > 0 ? (matCombine2 * matOffset2 * (*pos) * weights[2]) : Vector3::ZERO)
+            + (weights[3] > 0 ? (matCombine3 * matOffset3 * (*pos) * weights[3]) : Vector3::ZERO);
     }
 
     bool SGModel::getVertexElement(ObjectPtr buffer, VertexElement::Semantic semantic, VertexElement &element)
