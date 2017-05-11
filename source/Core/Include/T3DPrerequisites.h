@@ -162,7 +162,7 @@ namespace Tiny3D
 
     class InputSystem;
     class TouchDevice;
-    class KeyboardDevice;
+    class KeyDevice;
     class JoystickDevice;
 }
 

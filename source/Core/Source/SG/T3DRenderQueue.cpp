@@ -212,6 +212,7 @@ namespace Tiny3D
         while (itr != mGroups.end())
         {
             itr->second->render(itr->first, renderer);
+            itr->second->clear();
             ++itr;
         }
     }

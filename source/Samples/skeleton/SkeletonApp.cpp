@@ -6,9 +6,9 @@
 
 using namespace Tiny3D;
 
-#define TEST_MODEL_TORTOISE             1
+#define TEST_MODEL_TORTOISE             0
 #define TEST_MODEL_CAMEL                0
-#define TEST_MODEL_SKELETON             0
+#define TEST_MODEL_SKELETON             1
 #define TEST_MODEL_KNIGHT               0
 
 SkeletonApp::SkeletonApp()
@@ -59,14 +59,14 @@ bool SkeletonApp::applicationDidFinishLaunching()
     root->addChild(indicator);
 
 #elif TEST_MODEL_TORTOISE
-    node->lookAt(Vector3(200, 1000, 200), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(-2000, 1000, 2000), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 坐标
     SGIndicatorPtr indicator = SGIndicator::create(500, 500, 500);
     root->addChild(indicator);
 
 #elif TEST_MODEL_SKELETON
-    node->lookAt(Vector3(150, 150, 150), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(200, 400, 200), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 坐标
     SGIndicatorPtr indicator = SGIndicator::create(50, 50, 50);
@@ -87,9 +87,9 @@ bool SkeletonApp::applicationDidFinishLaunching()
         node->addChild(camera);
         camera->setProjectionType(SGCamera::E_PT_PERSPECTIVE);
 
-        Radian fovY(Math::PI * Real(0.5));
+        Radian fovY(Math::PI * Real(0.5) / 90 * 27);
         Real ratio = Real(960) / Real(640);
-        camera->setPerspective(fovY, ratio, 0.5, 5000.0);
+        camera->setPerspective(fovY, ratio, 0.5, 10000);
 
         // 视口
         ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
@@ -111,15 +111,26 @@ bool SkeletonApp::applicationDidFinishLaunching()
 #elif TEST_MODEL_TORTOISE
     node = SGTransformNode::create();
     root->addChild(node);
+//     node->setOrientation(Degree(-90), Vector3::UNIT_X);
     {
         SGModelPtr model = SGModel::create("tortoise.tmt");
         node->addChild(model);
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
-        model->runAction("Take 001");
+//         model->runAction("Take 001");
     }
 #elif TEST_MODEL_SKELETON
     node = SGTransformNode::create();
     root->addChild(node);
+    Quaternion Q1, Q2;
+    Degree degree1(-90.0f);
+    Q1.fromAngleAxis(degree1, Vector3::UNIT_X);
+    Degree degree2(11.0f);
+    Q2.fromAngleAxis(degree2, Vector3::UNIT_Z);
+    Quaternion Q = Q2 * Q1;
+//     node->setOrientation(Q);
+//     auto node1 = SGTransformNode::create();
+//     node->addChild(node1);
+//     node1->setOrientation(Q1);
     {
         SGModelPtr model = SGModel::create("skeleton.tmt");
         node->addChild(model);

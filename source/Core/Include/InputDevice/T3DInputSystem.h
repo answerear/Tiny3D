@@ -11,22 +11,24 @@
 
 namespace Tiny3D
 {
-    class TouchDevice;
-    class KeyboardDevice;
-    class JoystickDevice;
-
     class T3D_ENGINE_API InputSystem : public Object
     {
     public:
-        InputSystem();
+        /**
+         * @brief Îö¹¹º¯Êý
+         */
         virtual ~InputSystem();
 
         virtual bool initialize() = 0;
         virtual void uninitialize() = 0;
 
-        virtual TouchDevicePtr createTouchDevice() = 0;
-        virtual KeyboardDevicePtr createKeyboardDevice() = 0;
-        virtual JoystickDevicePtr createJoystickDevice() = 0;
+        virtual bool hasTouchDevice() const = 0;
+        virtual bool hasKeyDevice() const = 0;
+        virtual bool hasJoystickDevice() const = 0;
+
+        virtual TouchDevicePtr getTouchDevcie() = 0;
+        virtual KeyDevicePtr getKeyDevice() = 0;
+        virtual JoystickDevicePtr getJoystickDevice() = 0;
     };
 }
 

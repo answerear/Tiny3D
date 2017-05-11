@@ -64,7 +64,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RenderQueue);
 
     T3D_DECLARE_SMART_PTR(TouchDevice);
-    T3D_DECLARE_SMART_PTR(KeyboardDevice);
+    T3D_DECLARE_SMART_PTR(KeyDevice);
     T3D_DECLARE_SMART_PTR(JoystickDevice);
 
 

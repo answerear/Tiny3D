@@ -235,6 +235,12 @@ namespace mconv
         bool result = false;
         Node *pNode = nullptr;
 
+        String name = pFbxNode->GetName();
+        FbxDouble3 R = pFbxNode->LclRotation.Get();
+        FbxDouble3 T = pFbxNode->LclTranslation.Get();
+        FbxDouble3 S = pFbxNode->LclScaling.Get();
+        FbxAMatrix MM = pFbxNode->EvaluateGlobalTransform();
+        FbxQuaternion Q;
         int nAttribCount = pFbxNode->GetNodeAttributeCount();
         int i = 0;
         for (i = 0; i < nAttribCount; ++i)
@@ -426,9 +432,24 @@ namespace mconv
         FbxVector4 T = pFbxNode->GetGeometricTranslation(FbxNode::eSourcePivot);
         FbxVector4 R = pFbxNode->GetGeometricRotation(FbxNode::eSourcePivot);
         FbxVector4 S = pFbxNode->GetGeometricScaling(FbxNode::eSourcePivot);
+        FbxDouble3 preRotation = pFbxNode->PreRotation.Get();
+        FbxDouble3 postRotation = pFbxNode->PostRotation.Get();
+        FbxDouble3 off = pFbxNode->RotationOffset.Get();
+        FbxAMatrix LocalM = pFbxNode->EvaluateLocalTransform();
+        FbxVector4 RR = LocalM.GetR();
+        FbxVector4 TT = LocalM.GetT();
+        FbxVector4 SS = LocalM.GetS();
+        FbxAMatrix LocalM1;
+        FbxQuaternion Q(R[0], R[1], R[2], R[3]);
+        LocalM1.SetTQS(T, Q, S);
 //         pMesh->mWorldMatrix.SetTRS(T, R, S);
         FbxAMatrix M;
         M.SetTRS(T, R, S);
+        FbxDouble3 t = pFbxNode->LclTranslation.Get();
+        FbxDouble3 r = pFbxNode->LclRotation.Get();
+        FbxDouble3 s = pFbxNode->LclScaling.Get();
+        LocalM1.SetTRS(pFbxNode->LclTranslation.Get(), pFbxNode->LclRotation.Get(), pFbxNode->LclScaling.Get());
+//         M = LocalM * M;
         convertMatrix(M, pMesh->mWorldMatrix);
 
         int nTriangleCount = pFbxMesh->GetPolygonCount();

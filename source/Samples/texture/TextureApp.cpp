@@ -45,7 +45,7 @@ bool TextureApp::applicationDidFinishLaunching()
     // 相机变换结点
     SGTransformNodePtr node = SGTransformNode::create();
     root->addChild(node);
-    node->lookAt(Vector3(0.0, 50.0, 50.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(05.0, 5.0, 5.0), Vector3::ZERO, Vector3::UNIT_Y);
 
     {
         // 相机结点
@@ -61,6 +61,9 @@ bool TextureApp::applicationDidFinishLaunching()
         ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
         viewport->setBackgroundColor(Color4::BLACK);
     }
+
+    SGIndicatorPtr indicator = SGIndicator::create(5, 5, 5);
+    root->addChild(indicator);
 
     // 变换结点
     node = SGTransformNode::create();

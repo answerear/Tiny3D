@@ -559,10 +559,10 @@ namespace Tiny3D
         const Matrix4 &matOffset3 = bone->getOffsetMatrix();
         const Matrix4 &matCombine3= bone->getCombineTransform().getAffineMatrix();
 
-        *pos = (weights[0] > 0 ? (matCombine0 * matOffset0 * (*pos) * weights[0]) : Vector3::ZERO) 
-            + (weights[1] > 0 ? (matCombine1 * matOffset1 * (*pos) * weights[1]) : Vector3::ZERO)
-            + (weights[2] > 0 ? (matCombine2 * matOffset2 * (*pos) * weights[2]) : Vector3::ZERO)
-            + (weights[3] > 0 ? (matCombine3 * matOffset3 * (*pos) * weights[3]) : Vector3::ZERO);
+        *pos = (weights[0] > 0 ? (weights[0] * matCombine0 * matOffset0 * (*pos)) : Vector3::ZERO) 
+            + (weights[1] > 0 ? (weights[1] * matCombine1 * matOffset1 * (*pos)) : Vector3::ZERO)
+            + (weights[2] > 0 ? (weights[2] * matCombine2 * matOffset2 * (*pos)) : Vector3::ZERO)
+            + (weights[3] > 0 ? (weights[3] * matCombine3 * matOffset3 * (*pos)) : Vector3::ZERO);
     }
 
     bool SGModel::getVertexElement(ObjectPtr buffer, VertexElement::Semantic semantic, VertexElement &element)
