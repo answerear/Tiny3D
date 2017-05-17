@@ -415,6 +415,7 @@ namespace Tiny3D
                 KeyFrameDataRPtr keyframe2 = smart_pointer_cast<KeyFrameDataR>(kf2);
                 double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 orientation.lerp(keyframe1->mOrientation, keyframe2->mOrientation, t/* / 1000*/);
+//                 orientation.slerp(keyframe1->mOrientation, keyframe2->mOrientation, t, true);
                 T3D_LOG_INFO("Keyframe #1 R(%f, %f, %f, %f)", keyframe1->mOrientation[0], keyframe1->mOrientation[1], keyframe1->mOrientation[2], keyframe1->mOrientation[3]);
                 T3D_LOG_INFO("Keyframe #2 R(%f, %f, %f, %f)", keyframe2->mOrientation[0], keyframe2->mOrientation[1], keyframe2->mOrientation[2], keyframe2->mOrientation[3]);
                 Degree deg;
@@ -544,25 +545,34 @@ namespace Tiny3D
         size_t i = 0;
 
         BonePtr bone = smart_pointer_cast<Bone>(mBones[indices[0]]);
-        const Matrix4 &matOffset0 = bone->getOffsetMatrix();
+        const Matrix4 &matBindpose0 = bone->getBindPoseMatrix();
+        const Matrix4 &matInverseBone0 = bone->getInverseBoneMatrix();
         const Matrix4 &matCombine0 = bone->getCombineTransform().getAffineMatrix();
 
         bone = smart_pointer_cast<Bone>(mBones[indices[1]]);
-        const Matrix4 &matOffset1 = bone->getOffsetMatrix();
+        const Matrix4 &matBindpose1 = bone->getBindPoseMatrix();
+        const Matrix4 &matInverseBone1 = bone->getInverseBoneMatrix();
         const Matrix4 &matCombine1 = bone->getCombineTransform().getAffineMatrix();
 
         bone = smart_pointer_cast<Bone>(mBones[indices[2]]);
-        const Matrix4 &matOffset2 = bone->getOffsetMatrix();
+        const Matrix4 &matBindpose2 = bone->getBindPoseMatrix();
+        const Matrix4 &matInverseBone2 = bone->getInverseBoneMatrix();
         const Matrix4 &matCombine2 = bone->getCombineTransform().getAffineMatrix();
 
         bone = smart_pointer_cast<Bone>(mBones[indices[3]]);
-        const Matrix4 &matOffset3 = bone->getOffsetMatrix();
-        const Matrix4 &matCombine3= bone->getCombineTransform().getAffineMatrix();
+        const Matrix4 &matBindpose3 = bone->getBindPoseMatrix();
+        const Matrix4 &matInverseBone3 = bone->getInverseBoneMatrix();
+        const Matrix4 &matCombine3 = bone->getCombineTransform().getAffineMatrix();
 
-        *pos = (weights[0] > 0 ? (weights[0] * matCombine0 * matOffset0 * (*pos)) : Vector3::ZERO) 
-            + (weights[1] > 0 ? (weights[1] * matCombine1 * matOffset1 * (*pos)) : Vector3::ZERO)
-            + (weights[2] > 0 ? (weights[2] * matCombine2 * matOffset2 * (*pos)) : Vector3::ZERO)
-            + (weights[3] > 0 ? (weights[3] * matCombine3 * matOffset3 * (*pos)) : Vector3::ZERO);
+        const Matrix4 &matVertex = modelData->mVertexMatrix;
+
+        MeshDataPtr meshData = modelData->mMeshes.front();
+        Matrix4 matWorld = meshData->mWorldMatrix;
+
+        *pos = (weights[0] > 0 ? ((/*matWorld * matVertex.inverse() * */matCombine0 * matInverseBone0 * matVertex) * (*pos) * weights[0]) : Vector3::ZERO)
+            + (weights[1] > 0 ? ((/*matWorld * matVertex.inverse() * */matCombine1 * matInverseBone1 * matVertex) * (*pos) * weights[1]) : Vector3::ZERO)
+            + (weights[2] > 0 ? ((/*matWorld * matVertex.inverse() * */matCombine2 * matInverseBone2 * matVertex) * (*pos) * weights[2]) : Vector3::ZERO)
+            + (weights[3] > 0 ? ((/*matWorld * matVertex.inverse() * */matCombine3 * matInverseBone3 * matVertex) * (*pos) * weights[3]) : Vector3::ZERO);
     }
 
     bool SGModel::getVertexElement(ObjectPtr buffer, VertexElement::Semantic semantic, VertexElement &element)

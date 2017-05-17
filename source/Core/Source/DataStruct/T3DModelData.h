@@ -38,6 +38,7 @@ namespace Tiny3D
         MeshDataList    mMeshes;
         BoneDataList    mBones;
         AnimationData   mAnimations;
+        Matrix4         mVertexMatrix;
 
     protected:
         ModelData();

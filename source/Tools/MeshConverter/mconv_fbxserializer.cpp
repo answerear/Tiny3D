@@ -44,9 +44,24 @@ namespace mconv
         pFbxImporter->Destroy();
 
         // 统一切换成OpenGL的右手坐标系和以米为单位的坐标系
-        FbxAxisSystem::OpenGL.ConvertScene(mFbxScene);
+        FbxAxisSystem SceneAxisSystem = mFbxScene->GetGlobalSettings().GetAxisSystem();
+        FbxAxisSystem OurAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
+        if (SceneAxisSystem != OurAxisSystem)
+        {
+            OurAxisSystem.ConvertScene(mFbxScene);
+        }
+
+        // Convert Unit System to what is used in this example, if needed
+        FbxSystemUnit SceneSystemUnit = mFbxScene->GetGlobalSettings().GetSystemUnit();
+        if (SceneSystemUnit.GetScaleFactor() != 1.0)
+        {
+            //The unit in this example is centimeter.
+            FbxSystemUnit::cm.ConvertScene(mFbxScene);
+        }
+        
+//         FbxAxisSystem::OpenGL.ConvertScene(mFbxScene);
         // 统一以1米为单位
-        FbxSystemUnit::m.ConvertScene(mFbxScene);
+//         FbxSystemUnit::m.ConvertScene(mFbxScene);
 
         // 不是三角形为面的mesh，统一转换成三角形为面的mesh
         FbxGeometryConverter converter(mFbxManager);

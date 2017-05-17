@@ -24,29 +24,33 @@ namespace Tiny3D
         , mTranslation(Vector3::ZERO)
         , mScaling(Vector3(1.0, 1.0, 1.0))
         , mOrientation(Quaternion::IDENTITY)
-        , mOffsetMatrix()
+        , mInverseBoneMatrix()
+        , mBindposeMatrix()
+        , mInverseDirty(true)
         , mIsDirty(true)
     {
 
     }
 
-    Bone::Bone(const String &name, const Matrix4 &offsetMatrix, const Matrix4 &localMatrix)
+    Bone::Bone(const String &name, const Matrix4 &bindposeMatrix, const Matrix4 &localMatrix)
         : Node()
         , mTranslation(Vector3::ZERO)
         , mScaling(Vector3(1.0, 1.0, 1.0))
         , mOrientation(Quaternion::IDENTITY)
-        , mOffsetMatrix()
+        , mInverseBoneMatrix(bindposeMatrix)
+        , mBindposeMatrix(bindposeMatrix)
+        , mInverseDirty(true)
         , mIsDirty(true)
     {
         setName(name);
 
         localMatrix.decomposition(mTranslation, mScaling, mOrientation);
 
-        Vector3 pos;
-        Vector3 scale;
-        Quaternion orientation;
-        offsetMatrix.decomposition(pos, scale, orientation);
-        mOffsetMatrix.makeTransform(pos, Vector3::UNIT_SCALE, orientation);
+//         Vector3 pos;
+//         Vector3 scale;
+//         Quaternion orientation;
+//         bindposeMatrix.decomposition(pos, scale, orientation);
+//         mInverseBoneMatrix.makeTransform(pos, Vector3::UNIT_SCALE, orientation);
 
 //         Vector3 translation;
 //         Vector3 scaling;
@@ -124,13 +128,13 @@ namespace Tiny3D
             {
                 BonePtr bone = smart_pointer_cast<Bone>(parent);
                 const Transform &transform = bone->getCombineTransform();
-                mCombineTransform.applyTransform(transform, mTranslation, mOrientation, Vector3::UNIT_SCALE);
+                mCombineTransform.applyTransform(transform, mTranslation, mOrientation, mScaling/*Vector3::UNIT_SCALE*/);
             }
             else
             {
                 mCombineTransform.setTranslate(mTranslation);
                 mCombineTransform.setOrientation(mOrientation);
-                mCombineTransform.setScale(Vector3::UNIT_SCALE);
+                mCombineTransform.setScale(mScaling/*Vector3::UNIT_SCALE*/);
                 mCombineTransform.update();
             }
 
@@ -138,6 +142,22 @@ namespace Tiny3D
         }
 
         return mCombineTransform;
+    }
+
+    const Matrix4 &Bone::getInverseBoneMatrix()
+    {
+//         if (mInverseDirty)
+//         {
+//             NodePtr parent = getParent();
+//             while (parent != nullptr && parent->getNodeType() != E_NT_BONE)
+//                 parent = parent->getParent();
+// 
+//             const Matrix4 &combineMatrix = getCombineTransform().getAffineMatrix();
+//             mInverseBoneMatrix = combineMatrix.inverseAffine();
+//             mInverseDirty = false;
+//         }
+
+        return mInverseBoneMatrix;
     }
 
     void Bone::updateBone()
@@ -154,9 +174,9 @@ namespace Tiny3D
 //         }
     }
 
-    const Matrix4 &Bone::getOffsetMatrix()
+    const Matrix4 &Bone::getBindPoseMatrix()
     {
-        return mOffsetMatrix;
+        return mBindposeMatrix;
     }
 }
 

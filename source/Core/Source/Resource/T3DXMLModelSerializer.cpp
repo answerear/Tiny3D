@@ -525,6 +525,27 @@ namespace Tiny3D
 
     bool XMLModelSerializer::parseMesh(tinyxml2::XMLElement *pMeshElement, MeshDataPtr mesh)
     {
+        mesh->mHasWorldMatrix = pMeshElement->BoolAttribute(T3D_XML_ATTRIB_HAS_WORLD);
+        mesh->mHasGeometryMatrix = pMeshElement->BoolAttribute(T3D_XML_ATTRIB_HAS_GEOMETRY);
+
+        XMLElement *pTransformElement = pMeshElement->FirstChildElement(T3D_XML_TAG_TRANSFORM);
+
+        while (pTransformElement != nullptr)
+        {
+            if (mesh->mHasWorldMatrix && pTransformElement->Attribute(T3D_XML_ATTRIB_ID) == String("WORLD"))
+            {
+                String text = pTransformElement->GetText();
+                parseMatrixValue(text, mesh->mWorldMatrix);
+            }
+            else if (mesh->mHasGeometryMatrix && pTransformElement->Attribute(T3D_XML_ATTRIB_ID) == String("GEOMETRY"))
+            {
+                String text = pTransformElement->GetText();
+                parseMatrixValue(text, mesh->mGeometryMatrix);
+            }
+
+            pTransformElement = pTransformElement->NextSiblingElement(T3D_XML_TAG_TRANSFORM);
+        }
+
         XMLElement *pBuffersElement = pMeshElement->FirstChildElement(T3D_XML_TAG_VERTEX_BUFFERS);
 
         bool ret = parseVertexBuffers(pBuffersElement, mesh);
@@ -675,6 +696,13 @@ namespace Tiny3D
         size_t boneCount = pSkinElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
 
         mModelData->mBones.resize(boneCount);
+
+        XMLElement *pTransformElement = pSkinElement->FirstChildElement(T3D_XML_TAG_TRANSFORM);
+        if (pTransformElement != nullptr)
+        {
+            String text = pTransformElement->GetText();
+            parseMatrixValue(text, mModelData->mVertexMatrix);
+        }
 
         size_t i = 0;
         XMLElement *pBoneElement = pSkinElement->FirstChildElement(T3D_XML_TAG_BONE);

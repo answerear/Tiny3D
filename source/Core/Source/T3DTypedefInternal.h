@@ -68,6 +68,8 @@ namespace Tiny3D
     #define T3D_XML_ATTRIB_BONE                 "bone"
     #define T3D_XML_ATTRIB_TIME                 "time"
     #define T3D_XML_ATTRIB_DURATION             "duration"
+    #define T3D_XML_ATTRIB_HAS_WORLD            "has_world"
+    #define T3D_XML_ATTRIB_HAS_GEOMETRY         "has_geometry"
 
     #define T3D_XML_ATTRIB_WRAP_U               "wrap_u"
     #define T3D_XML_ATTRIB_WRAP_V               "wrap_v"

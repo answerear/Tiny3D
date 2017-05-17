@@ -95,6 +95,8 @@ namespace mconv
     const char * const T3DXMLSerializer::ATTRIB_WRAP_V = "wrap_v";
     const char * const T3DXMLSerializer::ATTRIB_SHARED = "shared_vertex";
     const char * const T3DXMLSerializer::ATTRIB_DURATION = "duration";
+    const char * const T3DXMLSerializer::ATTRIB_HAS_GEOMETRY = "has_geometry";
+    const char * const T3DXMLSerializer::ATTRIB_HAS_WORLD = "has_world";
 
 
     T3DXMLSerializer::T3DXMLSerializer()
@@ -286,6 +288,68 @@ namespace mconv
         pParentElem->LinkEndChild(pMeshElement);
 
         pMeshElement->SetAttribute(ATTRIB_ID, pMesh->getID().c_str());
+
+        bool bHasWorld = false;
+
+        if (pMesh->mWorldMatrix == Matrix4::IDENTITY)
+        {
+            pMeshElement->SetAttribute(ATTRIB_HAS_WORLD, false);
+        }
+        else
+        {
+            pMeshElement->SetAttribute(ATTRIB_HAS_WORLD, true);
+            bHasWorld = true;
+        }
+
+        bool bHasGeometry = false;
+
+        if (pMesh->mGeometryMatrix == Matrix4::IDENTITY)
+        {
+            pMeshElement->SetAttribute(ATTRIB_HAS_GEOMETRY, false);
+        }
+        else
+        {
+            pMeshElement->SetAttribute(ATTRIB_HAS_GEOMETRY, true);
+            bHasGeometry = true;
+        }
+
+        if (bHasWorld)
+        {
+            XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+            pMeshElement->LinkEndChild(pTransformElement);
+            pTransformElement->SetAttribute(ATTRIB_ID, "WORLD");
+
+            std::stringstream ss;
+            char szText[512] = { 0 };
+            snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
+                pMesh->mWorldMatrix[0][0], pMesh->mWorldMatrix[0][1], pMesh->mWorldMatrix[0][2], pMesh->mWorldMatrix[0][3],
+                pMesh->mWorldMatrix[1][0], pMesh->mWorldMatrix[1][1], pMesh->mWorldMatrix[1][2], pMesh->mWorldMatrix[1][3],
+                pMesh->mWorldMatrix[2][0], pMesh->mWorldMatrix[2][1], pMesh->mWorldMatrix[2][2], pMesh->mWorldMatrix[2][3],
+                pMesh->mWorldMatrix[3][0], pMesh->mWorldMatrix[3][1], pMesh->mWorldMatrix[3][2], pMesh->mWorldMatrix[3][3]);
+
+            ss << szText;
+            XMLText *pText = pDoc->NewText(ss.str().c_str());
+            pTransformElement->LinkEndChild(pText);
+        }
+
+        if (bHasGeometry)
+        {
+            XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+            pMeshElement->LinkEndChild(pTransformElement);
+            pTransformElement->SetAttribute(ATTRIB_ID, "GEOMETRY");
+
+            std::stringstream ss;
+            char szText[512] = { 0 };
+            snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
+                pMesh->mGeometryMatrix[0][0], pMesh->mGeometryMatrix[0][1], pMesh->mGeometryMatrix[0][2], pMesh->mGeometryMatrix[0][3],
+                pMesh->mGeometryMatrix[1][0], pMesh->mGeometryMatrix[1][1], pMesh->mGeometryMatrix[1][2], pMesh->mGeometryMatrix[1][3],
+                pMesh->mGeometryMatrix[2][0], pMesh->mGeometryMatrix[2][1], pMesh->mGeometryMatrix[2][2], pMesh->mGeometryMatrix[2][3],
+                pMesh->mGeometryMatrix[3][0], pMesh->mGeometryMatrix[3][1], pMesh->mGeometryMatrix[3][2], pMesh->mGeometryMatrix[3][3]);
+
+            ss << szText;
+            XMLText *pText = pDoc->NewText(ss.str().c_str());
+            pTransformElement->LinkEndChild(pText);
+        }
 
         return pMeshElement;
     }
@@ -937,6 +1001,23 @@ namespace mconv
 
         pSkinElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
         pSkinElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
+
+        XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+        pSkinElement->LinkEndChild(pTransformElement);
+
+        Skin *pSkin = (Skin *)pNode;
+        std::stringstream ss;
+        char szText[512] = { 0 };
+        snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
+            pSkin->mVertexMatrix[0][0], pSkin->mVertexMatrix[0][1], pSkin->mVertexMatrix[0][2], pSkin->mVertexMatrix[0][3],
+            pSkin->mVertexMatrix[1][0], pSkin->mVertexMatrix[1][1], pSkin->mVertexMatrix[1][2], pSkin->mVertexMatrix[1][3],
+            pSkin->mVertexMatrix[2][0], pSkin->mVertexMatrix[2][1], pSkin->mVertexMatrix[2][2], pSkin->mVertexMatrix[2][3],
+            pSkin->mVertexMatrix[3][0], pSkin->mVertexMatrix[3][1], pSkin->mVertexMatrix[3][2], pSkin->mVertexMatrix[3][3]);
+
+        ss << szText;
+
+        XMLText *pText = pDoc->NewText(ss.str().c_str());
+        pTransformElement->LinkEndChild(pText);
 
         return pSkinElement;
     }

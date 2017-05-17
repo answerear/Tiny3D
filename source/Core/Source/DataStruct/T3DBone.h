@@ -47,11 +47,13 @@ namespace Tiny3D
         bool isDirty() const { return mIsDirty; }
 
         const Transform &getCombineTransform();
-        const Matrix4 &getOffsetMatrix();
+        const Matrix4 &getBindPoseMatrix();
+
+        const Matrix4 &getInverseBoneMatrix();
 
     protected:
         Bone();
-        Bone(const String &name, const Matrix4 &offsetMatrix, const Matrix4 &localMatrix);
+        Bone(const String &name, const Matrix4 &bindposeMatrix, const Matrix4 &localMatrix);
 
         virtual void cloneProperties(const NodePtr &node) const override;
 
@@ -64,8 +66,10 @@ namespace Tiny3D
 
         Transform   mCombineTransform;
 
-        Matrix4     mOffsetMatrix;
+        Matrix4     mInverseBoneMatrix;
+        Matrix4     mBindposeMatrix;
 
+        bool        mInverseDirty;
         bool        mIsDirty;
     };
 }

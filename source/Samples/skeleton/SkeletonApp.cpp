@@ -6,9 +6,9 @@
 
 using namespace Tiny3D;
 
-#define TEST_MODEL_TORTOISE             0
+#define TEST_MODEL_TORTOISE             1
 #define TEST_MODEL_CAMEL                0
-#define TEST_MODEL_SKELETON             1
+#define TEST_MODEL_SKELETON             0
 #define TEST_MODEL_KNIGHT               0
 
 SkeletonApp::SkeletonApp()
@@ -59,10 +59,10 @@ bool SkeletonApp::applicationDidFinishLaunching()
     root->addChild(indicator);
 
 #elif TEST_MODEL_TORTOISE
-    node->lookAt(Vector3(-2000, 1000, 2000), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(-2500, 2000, 2500), Vector3::ZERO, Vector3::UNIT_Y);
 
     // зјБъ
-    SGIndicatorPtr indicator = SGIndicator::create(500, 500, 500);
+    SGIndicatorPtr indicator = SGIndicator::create(1000, 1000, 1000);
     root->addChild(indicator);
 
 #elif TEST_MODEL_SKELETON

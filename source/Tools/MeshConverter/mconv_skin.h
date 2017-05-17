@@ -27,6 +27,8 @@ namespace mconv
         {
             return E_TYPE_SKIN;
         }
+
+        Matrix4     mVertexMatrix;
     };
 }
 

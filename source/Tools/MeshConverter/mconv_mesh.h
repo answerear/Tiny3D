@@ -56,10 +56,8 @@ namespace mconv
             return ret;
         }
 
-//         FbxAMatrix          mWorldMatrix;
         Matrix4             mWorldMatrix;
-//         VertexAttributes    mAttributes;
-//         Vertices            mVertices;
+        Matrix4             mGeometryMatrix;
     };
 }
 
