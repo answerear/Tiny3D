@@ -393,9 +393,9 @@ namespace Tiny3D
                 double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 Vector3 &base = keyframe1->mTranslation;
                 translation = (base + (keyframe2->mTranslation - base) * t);
-                T3D_LOG_INFO("Keyframe #1 T(%f, %f, %f)", keyframe1->mTranslation[0], keyframe1->mTranslation[1], keyframe1->mTranslation[2]);
-                T3D_LOG_INFO("Keyframe #2 T(%f, %f, %f)", keyframe2->mTranslation[0], keyframe2->mTranslation[1], keyframe2->mTranslation[2]);
-                T3D_LOG_INFO("Bone : %s [%f], T(%f, %f, %f)", bone->getName().c_str(), t, translation[0], translation[1], translation[2]);
+//                 T3D_LOG_INFO("Keyframe #1 T(%f, %f, %f)", keyframe1->mTranslation[0], keyframe1->mTranslation[1], keyframe1->mTranslation[2]);
+//                 T3D_LOG_INFO("Keyframe #2 T(%f, %f, %f)", keyframe2->mTranslation[0], keyframe2->mTranslation[1], keyframe2->mTranslation[2]);
+//                 T3D_LOG_INFO("Bone : %s [%f], T(%f, %f, %f)", bone->getName().c_str(), t, translation[0], translation[1], translation[2]);
 
                 bone->setTranslation(translation);
             }
@@ -416,14 +416,14 @@ namespace Tiny3D
                 double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 orientation.lerp(keyframe1->mOrientation, keyframe2->mOrientation, t/* / 1000*/);
 //                 orientation.slerp(keyframe1->mOrientation, keyframe2->mOrientation, t, true);
-                T3D_LOG_INFO("Keyframe #1 R(%f, %f, %f, %f)", keyframe1->mOrientation[0], keyframe1->mOrientation[1], keyframe1->mOrientation[2], keyframe1->mOrientation[3]);
-                T3D_LOG_INFO("Keyframe #2 R(%f, %f, %f, %f)", keyframe2->mOrientation[0], keyframe2->mOrientation[1], keyframe2->mOrientation[2], keyframe2->mOrientation[3]);
+//                 T3D_LOG_INFO("Keyframe #1 R(%f, %f, %f, %f)", keyframe1->mOrientation[0], keyframe1->mOrientation[1], keyframe1->mOrientation[2], keyframe1->mOrientation[3]);
+//                 T3D_LOG_INFO("Keyframe #2 R(%f, %f, %f, %f)", keyframe2->mOrientation[0], keyframe2->mOrientation[1], keyframe2->mOrientation[2], keyframe2->mOrientation[3]);
                 Degree deg;
                 Vector3 axis;
                 orientation.toAngleAxis(deg, axis);
-                T3D_LOG_INFO("Bone : %s [%lld], keyframe=%d, kf1t=%lld, kf2t=%lld, R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", 
-                    bone->getName().c_str(), time, frame, keyframe1->mTimestamp, keyframe2->mTimestamp,
-                    orientation[0], orientation[1], orientation[2], orientation[3], deg.valueDegrees(), axis[0], axis[1], axis[2]);
+//                 T3D_LOG_INFO("Bone : %s [%lld], keyframe=%d, kf1t=%lld, kf2t=%lld, R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", 
+//                     bone->getName().c_str(), time, frame, keyframe1->mTimestamp, keyframe2->mTimestamp,
+//                     orientation[0], orientation[1], orientation[2], orientation[3], deg.valueDegrees(), axis[0], axis[1], axis[2]);
                 bone->setOrientation(orientation);
             }
             else
@@ -433,8 +433,8 @@ namespace Tiny3D
                 Vector3 axis;
                 orientation = keyframe->mOrientation;
                 orientation.toAngleAxis(deg, axis);
-                T3D_LOG_INFO("Bone : %s [%lld], keyframe=%d, R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", bone->getName().c_str(), time, mCurKeyFrameR,
-                    orientation[0], orientation[1], orientation[2], orientation[3], deg.valueDegrees(), axis[0], axis[1], axis[2]);
+//                 T3D_LOG_INFO("Bone : %s [%lld], keyframe=%d, R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", bone->getName().c_str(), time, mCurKeyFrameR,
+//                     orientation[0], orientation[1], orientation[2], orientation[3], deg.valueDegrees(), axis[0], axis[1], axis[2]);
                 bone->setOrientation(orientation);
             }
         }
@@ -569,10 +569,10 @@ namespace Tiny3D
         MeshDataPtr meshData = modelData->mMeshes.front();
         Matrix4 matWorld = meshData->mWorldMatrix;
 
-        *pos = (weights[0] > 0 ? ((/*matWorld * matVertex.inverse() * */matCombine0 * matInverseBone0 * matVertex) * (*pos) * weights[0]) : Vector3::ZERO)
-            + (weights[1] > 0 ? ((/*matWorld * matVertex.inverse() * */matCombine1 * matInverseBone1 * matVertex) * (*pos) * weights[1]) : Vector3::ZERO)
-            + (weights[2] > 0 ? ((/*matWorld * matVertex.inverse() * */matCombine2 * matInverseBone2 * matVertex) * (*pos) * weights[2]) : Vector3::ZERO)
-            + (weights[3] > 0 ? ((/*matWorld * matVertex.inverse() * */matCombine3 * matInverseBone3 * matVertex) * (*pos) * weights[3]) : Vector3::ZERO);
+        *pos = (weights[0] > 0 ? ((matWorld * matVertex.inverse() * matCombine0 * matInverseBone0 * matVertex) * (*pos) * weights[0]) : Vector3::ZERO)
+            + (weights[1] > 0 ? ((matWorld * matVertex.inverse() * matCombine1 * matInverseBone1 * matVertex) * (*pos) * weights[1]) : Vector3::ZERO)
+            + (weights[2] > 0 ? ((matWorld * matVertex.inverse() * matCombine2 * matInverseBone2 * matVertex) * (*pos) * weights[2]) : Vector3::ZERO)
+            + (weights[3] > 0 ? ((matWorld * matVertex.inverse() * matCombine3 * matInverseBone3 * matVertex) * (*pos) * weights[3]) : Vector3::ZERO);
     }
 
     bool SGModel::getVertexElement(ObjectPtr buffer, VertexElement::Semantic semantic, VertexElement &element)

@@ -1520,11 +1520,15 @@ namespace mconv
                         FbxVector4 rotation = pFbxNode->EvaluateLocalRotation(frameTime);
                         FbxQuaternion orientation;
                         orientation.ComposeSphericalXYZ(rotation);
+                        FbxAMatrix M;
+                        M.SetIdentity();
+                        M.SetR(rotation);
+                        FbxQuaternion R = M.GetQ();
                         KeyframeR *pFrame = new KeyframeR(k);
-                        pFrame->x = orientation[0];
-                        pFrame->y = orientation[1];
-                        pFrame->z = orientation[2];
-                        pFrame->w = orientation[3];
+                        pFrame->x = R[0];//orientation[0];
+                        pFrame->y = R[1];//orientation[1];
+                        pFrame->z = R[2];//orientation[2];
+                        pFrame->w = R[3];//orientation[3];
                         pFrame->mTimestamp = frameTime.GetSecondDouble();
                         pAction->addKeyframe(pFrame, strBoneName, pAction->mRKeyframes);
 
