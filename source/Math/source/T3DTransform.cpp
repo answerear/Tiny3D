@@ -21,6 +21,11 @@ namespace Tiny3D
         mTranslate = mTranslate * rkTransform.getScale();
         mTranslate = rkTransform.getTranslate() + mTranslate;
         makeAffineMatrix();
+//         const Matrix4 &ParentM = rkTransform.getAffineMatrix();
+//         Matrix4 T(rkTranslation), S(rkScale[0], rkScale[1], rkScale[2], 1.0f), R(rkOrientation);
+//         Matrix4 LocalM = T * R * S;
+//         mAffineMatrix = ParentM * LocalM;
+//         mAffineMatrix.decomposition(mTranslate, mScale, mOrientation);
     }
 
     void Transform::applyTransform(const Transform &rkTransform1, const Transform &rkTransform2)

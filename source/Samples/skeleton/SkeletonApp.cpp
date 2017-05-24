@@ -39,10 +39,23 @@ int32_t SkeletonApp::go()
 
 bool SkeletonApp::applicationDidFinishLaunching()
 {
+    Matrix4 A(
+        -0.020021, -0.999379, -0.028981, 258.032745, 
+        0.999772, -0.019797, -0.007998, 31.157825, 
+        0.007420, -0.029135, 0.999548, 0.000000, 
+        0.000000, 0.000000, 0.000000, 1.000000);
+    Matrix4 B(
+        0.187024, 0.982153, -0.019926, 0.692993, 
+        -0.981782, 0.186183, -0.037947, -0.847788,
+        -0.033560, 0.026660, 0.999081, -0.018381,
+        0.000000, 0.000000, 0.000000, 1.000000);
+    Matrix4 C = A * B;
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
     renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
+#if !TEST_MODEL_SKELETON
     renderer->setRenderMode(Renderer::E_RM_SOLID);
+#endif
     renderer->setAmbientLight(Color4::WHITE);
 
     SGNodePtr root = T3D_SCENE_MGR.getRoot();
@@ -66,7 +79,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     root->addChild(indicator);
 
 #elif TEST_MODEL_SKELETON
-    node->lookAt(Vector3(200, 400, 200), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(400, 1000, 400), Vector3::ZERO, Vector3::UNIT_Y);
 
     // зјБъ
     SGIndicatorPtr indicator = SGIndicator::create(50, 50, 50);
@@ -135,7 +148,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
         SGModelPtr model = SGModel::create("skeleton.tmt");
         node->addChild(model);
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
-        model->runAction("Take 001");
+//         model->runAction("Take 001");
     }
 #elif TEST_MODEL_KNIGHT
     node = SGTransformNode::create();

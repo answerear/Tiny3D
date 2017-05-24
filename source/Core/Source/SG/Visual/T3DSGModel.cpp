@@ -363,9 +363,14 @@ namespace Tiny3D
         int64_t time = current - mStartTime;
         ActionDataPtr actionData = smart_pointer_cast<ActionData>(mCurActionData);
         int64_t dt = time % actionData->mDuration;
-        T3D_LOG_INFO("time : %lld, dt = %lld, duration : %d", time, dt, actionData->mDuration);
-        updateBone(dt, mRootBone);
+        T3D_LOG_INFO("time : %lld, dt = %lld, duration : %d", time, dt, actionData->mDuration); 
+
+        ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
+        MeshDataPtr meshData = smart_pointer_cast<MeshData>(modelData->mMeshes.front());
         BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
+        bone->setRootMatrix(meshData->mWorldMatrix);
+        updateBone(dt, mRootBone);
+//         BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
         bone->updateBone();
 
         updateVertices();

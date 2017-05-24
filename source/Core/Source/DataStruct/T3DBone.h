@@ -51,6 +51,11 @@ namespace Tiny3D
 
         const Matrix4 &getInverseBoneMatrix();
 
+        void setRootMatrix(const Matrix4 &matWorld)
+        {
+            mWorldMatrix = matWorld;
+        }
+
     protected:
         Bone();
         Bone(const String &name, const Matrix4 &bindposeMatrix, const Matrix4 &localMatrix);
@@ -68,6 +73,7 @@ namespace Tiny3D
 
         Matrix4     mInverseBoneMatrix;
         Matrix4     mBindposeMatrix;
+        Matrix4     mWorldMatrix;
 
         bool        mInverseDirty;
         bool        mIsDirty;
