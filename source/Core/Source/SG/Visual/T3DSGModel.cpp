@@ -574,10 +574,10 @@ namespace Tiny3D
         MeshDataPtr meshData = modelData->mMeshes.front();
         Matrix4 matWorld = meshData->mWorldMatrix;
 
-        *pos = (weights[0] > 0 ? ((matWorld * matVertex.inverse() * matCombine0 * matInverseBone0 * matVertex) * (*pos) * weights[0]) : Vector3::ZERO)
-            + (weights[1] > 0 ? ((matWorld * matVertex.inverse() * matCombine1 * matInverseBone1 * matVertex) * (*pos) * weights[1]) : Vector3::ZERO)
-            + (weights[2] > 0 ? ((matWorld * matVertex.inverse() * matCombine2 * matInverseBone2 * matVertex) * (*pos) * weights[2]) : Vector3::ZERO)
-            + (weights[3] > 0 ? ((matWorld * matVertex.inverse() * matCombine3 * matInverseBone3 * matVertex) * (*pos) * weights[3]) : Vector3::ZERO);
+        *pos = (weights[0] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine0 * matBindpose0/*matInverseBone0 * matVertex*/) * (*pos) * weights[0]) : Vector3::ZERO)
+            + (weights[1] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine1 * matBindpose1/*matInverseBone1 * matVertex*/) * (*pos) * weights[1]) : Vector3::ZERO)
+            + (weights[2] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine2 * matBindpose2/*matInverseBone2 * matVertex*/) * (*pos) * weights[2]) : Vector3::ZERO)
+            + (weights[3] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine3 * matBindpose3/*matInverseBone3 * matVertex*/) * (*pos) * weights[3]) : Vector3::ZERO);
     }
 
     bool SGModel::getVertexElement(ObjectPtr buffer, VertexElement::Semantic semantic, VertexElement &element)

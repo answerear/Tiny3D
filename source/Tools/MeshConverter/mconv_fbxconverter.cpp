@@ -1115,7 +1115,6 @@ namespace mconv
         mBoneCount++;
 
         FbxAMatrix &M = pFbxNode->EvaluateLocalTransform();
-        FbxAMatrix &MM = pFbxNode->EvaluateGlobalTransform();
         convertMatrix(M, pBone->mLocalTransform);
         mTabCount++;
 
@@ -1645,14 +1644,14 @@ namespace mconv
                 
                 FbxAMatrix Mb;
                 pFbxCluster->GetTransformLinkMatrix(Mb);
-//                 FbxAMatrix Mv;
-//                 pFbxCluster->GetTransformMatrix(Mv);
-//                 FbxAMatrix m = pFbxLinkNode->EvaluateLocalTransform();
-//                 FbxVector4 T = pFbxLinkNode->GetGeometricTranslation(FbxNode::eSourcePivot);
-//                 FbxVector4 R = pFbxLinkNode->GetGeometricRotation(FbxNode::eSourcePivot);
-//                 FbxVector4 S = pFbxLinkNode->GetGeometricScaling(FbxNode::eSourcePivot);
-//                 FbxAMatrix matGeometry(T, R, S);
-                FbxAMatrix bindpose = Mb.Inverse();//Mb.Inverse() * Mv * matGeometry;
+                FbxAMatrix Mv;
+                pFbxCluster->GetTransformMatrix(Mv);
+                FbxAMatrix m = pFbxLinkNode->EvaluateLocalTransform();
+                FbxVector4 T = pFbxLinkNode->GetGeometricTranslation(FbxNode::eSourcePivot);
+                FbxVector4 R = pFbxLinkNode->GetGeometricRotation(FbxNode::eSourcePivot);
+                FbxVector4 S = pFbxLinkNode->GetGeometricScaling(FbxNode::eSourcePivot);
+                FbxAMatrix matGeometry(T, R, S);
+                FbxAMatrix bindpose = Mb.Inverse() * Mv * matGeometry;
 
                 Bone *pBone = new Bone(pFbxLinkNode->GetName());
                 convertMatrix(bindpose, pBone->mLocalTransform);

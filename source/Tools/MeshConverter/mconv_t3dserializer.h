@@ -117,6 +117,126 @@
  *          <camera>
  *          </camera>
  *      </scene>
+
+    shared_vertex=1
+
+    <scene id="Scene">
+        <model id="body" count="1">
+            <mesh id="body">
+                <transform id="LOCAL">
+                    <translation></translation>
+                    <orientation></orientation>
+                    <scale></scale>
+                </transform>
+                <vertices id="body" count="1">
+                    <buffer id="0">
+                        <attributes count="5">
+                            <attribute id="POSITION" size="3" type="float"/>
+                            <attribute id="TEXCOORD" size="2" type="float"/>
+                            <attribute id="NORMAL" size="3" type="float"/>
+                            <attribute id="BLEND_WEIGHT" size="4" type="float"/>
+                            <attribute id="BLEND_INDEX" size="4" type="short"/>
+                        </attributes>
+                        <data count="497">
+                        </data>
+                    </buffer>
+                </vertices>
+                <submeshes id="SUBMESHES" count="1>
+                    <submesh id="0" primitivve="triangles" count="768" meterial="base">
+                        <indices count="2304" is16bits="1">
+                        </indices>
+                    </submesh>
+                </submeshes>
+            </mesh>
+            <skin id="skin">
+                <transform id="SKINMESH">
+                    <translation></translation>
+                    <orientation></orientation>
+                    <scale></scale>
+                </transform>
+            </skin>
+            <skeleton id="Bip01" index="0">
+            </skeleton>
+            <animation>
+                <action id="Idel">
+                </action>
+            </animation>
+        </model>
+    </scene>
+
+
+    shared_vertex=0
+
+    <scene id="Scene">
+        <model id="body" count="1">
+            <mesh id="body">
+                <transform id="LOCAL">
+                    <translation></translation>
+                    <orientation></orientation>
+                    <scale></scale>
+                </transform>
+                <vertices id="body" count="1">
+                    <buffer id="0">
+                        <attributes count="5">
+                            <attribute id="POSITION" size="3" type="float"/>
+                            <attribute id="TEXCOORD" size="2" type="float"/>
+                            <attribute id="NORMAL" size="3" type="float"/>
+                            <attribute id="BLEND_WEIGHT" size="4" type="float"/>
+                            <attribute id="BLEND_INDEX" size="4" type="short"/>
+                        </attributes>
+                        <data count="497">
+                        </data>
+                    </buffer>
+                </vertices>
+                <submeshes id="SUBMESHES" count="1>
+                    <submesh id="0" primitivve="triangles" count="768" meterial="base">
+                        <indices count="2304" is16bits="1">
+                        </indices>
+                    </submesh>
+                </submeshes>
+            </mesh>
+            <mesh id="body">
+                <transform id="LOCAL">
+                    <translation></translation>
+                    <orientation></orientation>
+                    <scale></scale>
+                </transform>
+                <vertices id="body" count="1">
+                    <buffer id="0">
+                        <attributes count="5">
+                            <attribute id="POSITION" size="3" type="float"/>
+                            <attribute id="TEXCOORD" size="2" type="float"/>
+                            <attribute id="NORMAL" size="3" type="float"/>
+                            <attribute id="BLEND_WEIGHT" size="4" type="float"/>
+                            <attribute id="BLEND_INDEX" size="4" type="short"/>
+                        </attributes>
+                    <data count="497">
+                    </data>
+                    </buffer>
+                </vertices>
+                <submeshes id="SUBMESHES" count="1>
+                    <submesh id="0" primitivve="triangles" count="768" meterial="base">
+                        <indices count="2304" is16bits="1">
+                        </indices>
+                    </submesh>
+                </submeshes>
+            </mesh>
+            <skin id="skin">
+                <transform id="SKINMESH">
+                    <translation></translation>
+                    <orientation></orientation>
+                    <scale></scale>
+                </transform>
+            </skin>
+            <skeleton id="Bip01" index="0">
+            </skeleton>
+            <animation>
+                <action id="Idel">
+                </action>
+            </animation>
+        </model>
+    </scene>
+
  */
 
 #ifndef __MCONV_T3DSERIALIZER_H__

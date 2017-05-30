@@ -165,16 +165,16 @@ namespace Tiny3D
             }
             else
             {
-                Vector3 pos, scale;
-                Quaternion orientation;
-                mWorldMatrix.decomposition(pos, scale, orientation);
-
-                Transform transform(pos, scale, orientation);
-                mCombineTransform.applyTransform(transform, mTranslation, mOrientation, mScaling);
-//                 mCombineTransform.setTranslate(mTranslation);
-//                 mCombineTransform.setOrientation(mOrientation);
-//                 mCombineTransform.setScale(mScaling/*Vector3::UNIT_SCALE*/);
-//                 mCombineTransform.update();
+//                 Vector3 pos, scale;
+//                 Quaternion orientation;
+//                 mWorldMatrix.decomposition(pos, scale, orientation);
+// 
+//                 Transform transform(pos, scale, orientation);
+//                 mCombineTransform.applyTransform(transform, mTranslation, mOrientation, mScaling);
+                mCombineTransform.setTranslate(mTranslation);
+                mCombineTransform.setOrientation(mOrientation);
+                mCombineTransform.setScale(mScaling/*Vector3::UNIT_SCALE*/);
+                mCombineTransform.update();
 
 //                 const Matrix4 &MM = mCombineTransform.getAffineMatrix();
 //                 T3D_LOG_INFO("Root Translation (% 8f, % 8f, % 8f)", mTranslation[0], mTranslation[1], mTranslation[2]);
