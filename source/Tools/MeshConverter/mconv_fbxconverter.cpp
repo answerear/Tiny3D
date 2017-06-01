@@ -1450,8 +1450,8 @@ namespace mconv
             int j = 0;
             int nBoneCount = pFbxSkin->GetClusterCount();
 
-            Skin *pSkin = new Skin(pModel->getID());
-            pModel->addChild(pSkin);
+//             Skin *pSkin = new Skin(pModel->getID());
+//             pModel->addChild(pSkin);
             
             for (j = 0; j < nBoneCount; ++j)
             {
