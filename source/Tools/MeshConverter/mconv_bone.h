@@ -14,6 +14,7 @@ namespace mconv
     public:
         Bone(const String &ID)
             : Node(ID)
+            , mBoneIndex(0)
         {
 
         }
@@ -33,8 +34,8 @@ namespace mconv
             return E_TYPE_BONE;
         }
 
-//         FbxAMatrix  mLocalTransform;
         Matrix4     mLocalTransform;
+        size_t      mBoneIndex;
     };
 }
 

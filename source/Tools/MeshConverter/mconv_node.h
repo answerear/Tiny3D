@@ -25,6 +25,7 @@ namespace mconv
             E_TYPE_BOUND_AABB,
             E_TYPE_BOUND_SPHERE,
             E_TYPE_CAMERA,
+            E_TYPE_HIARACHY,
             E_TYPE_LIGHT,
             E_TYPE_MATERIAL,
             E_TYPE_MATERIALS,
@@ -37,6 +38,7 @@ namespace mconv
             E_TYPE_SUBMESHES,
             E_TYPE_TEXTURE,
             E_TYPE_TEXTURES,
+            E_TYPE_TRANSFORM,
             E_TYPE_VERTEX_BUFFERS,
             E_TYPE_VERTEX_BUFFER,
         };

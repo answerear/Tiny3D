@@ -17,6 +17,7 @@
 #include "mconv_texture.h"
 #include "mconv_bound.h"
 #include "mconv_vertexbuffer.h"
+#include "mconv_transform.h"
 
 
 namespace mconv
@@ -26,6 +27,7 @@ namespace mconv
         , mImporter(nullptr)
         , mExporter(nullptr)
         , mSrcData(nullptr)
+        , mDstData(nullptr)
         , mCurScene(nullptr)
         , mCurModel(nullptr)
         , mCurMesh(nullptr)
@@ -33,12 +35,10 @@ namespace mconv
         , mCurAnimation(nullptr)
         , mCurMaterials(nullptr)
         , mCurBound(nullptr)
+        , mRootTransform(nullptr)
         , mHasSkeleton(false)
         , mHasVertexBlending(false)
         , mHasAnimation(false)
-#ifdef _DEBUG
-        , mTabCount(0)
-#endif
     {
 
     }
@@ -78,49 +78,33 @@ namespace mconv
 
     bool FBXConverter::exportScene()
     {
+        bool result = false;
+
         delete mExporter;
         mExporter = nullptr;
 
         if ((mSettings.mDstType & E_FILETYPE_T3D) == E_FILETYPE_T3D)
         {
             mExporter = new T3DSerializer();
+            result = (mExporter != nullptr);
         }
         else if (mSettings.mDstType & E_FILETYPE_TMB)
         {
             mExporter = new T3DBinSerializer();
+            result = (mExporter != nullptr);
         }
         else if (mSettings.mDstType & E_FILETYPE_TMT)
         {
             mExporter = new T3DXMLSerializer();
+            result = (mExporter != nullptr);
         }
         else
         {
             T3D_LOG_ERROR("Create exporter failed ! Because of invalid destination file format !");
-            T3D_ASSERT(0);
+            return false;
         }
 
-        bool result = false;
-        
-        if (mExporter != nullptr)
-        {
-//             result = mExporter->save(mSettings.mDstPath, mDstData);
-            if (E_FM_SPLIT_MESH == mSettings.mFileMode)
-            {
-                auto itr = mSceneList.begin();
-                while (itr != mSceneList.end())
-                {
-                    const SceneInfo &sceneInfo = *itr;
-                    String dstPath = mSettings.mDstPath + sceneInfo.mName;
-                    result = mExporter->save(dstPath, sceneInfo.mRoot);
-                    ++itr;
-                }
-            }
-            else
-            {
-                const SceneInfo &sceneInfo = mSceneList.front();
-                result = mExporter->save(mSettings.mDstPath, sceneInfo.mRoot);
-            }
-        }
+        result = result && mExporter->save(mSettings.mDstPath, mDstData);
 
         return result;
     }
@@ -144,6 +128,7 @@ namespace mconv
 
         Scene *pScene = new Scene(name);
         mCurScene = pScene;
+        mDstData = pScene;
         processFbxScene(pFbxScene, pScene);
 
         return true;
@@ -151,15 +136,8 @@ namespace mconv
 
     void FBXConverter::cleanup()
     {
-        //         Node *pNode = (Node *)mDstData;
-        auto itr = mSceneList.begin();
-        while (itr != mSceneList.end())
-        {
-            const SceneInfo &info = *itr;
-            Node *pNode = (Node *)info.mRoot;
-            pNode->removeAllChildren();
-            ++itr;
-        }
+        Node *pNode = (Node *)mDstData;
+        pNode->removeAllChildren();
     }
 
     bool FBXConverter::processFbxScene(FbxScene *pFbxScene, Node *pRoot)
@@ -172,59 +150,51 @@ namespace mconv
             result = result && optimizeMesh(pRoot);
         }
 
-        if (E_FM_SPLIT_MESH != mSettings.mFileMode)
+        // 如果不是分割模型文件模式，则调整骨骼、动画和材质数据到最后
+        if (mCurSkeleton != nullptr)
         {
-            // 如果不是分割模型文件模式，则调整骨骼、动画和材质数据到最后
-            if (mCurSkeleton != nullptr)
-            {
-                mCurSkeleton->removeFromParent(false);
-                mCurModel->addChild(mCurSkeleton);
-            }
-
-            if (mCurAnimation != nullptr)
-            {
-                mCurAnimation->removeFromParent(false);
-                mCurModel->addChild(mCurAnimation);
-            }
-
-            if (mCurMaterials != nullptr)
-            {
-                mCurMaterials->removeFromParent(false);
-                mCurModel->addChild(mCurMaterials);
-            }
-
-            if (mCurBound != nullptr)
-            {
-                mCurBound->removeFromParent(false);
-                mCurModel->addChild(mCurBound);
-            }
-
-            if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
-            {
-                Model *pModel = (Model *)mCurModel;
-                pModel->mMeshCount = 1;
-            }
-            else
-            {
-                size_t count = 0;
-                size_t i = 0;
-                for (i = 0; i < mCurModel->getChildrenCount(); ++i)
-                {
-                    Node *pChild = mCurModel->getChild(i);
-                    if (pChild->getNodeType() == Node::E_TYPE_MESH)
-                    {
-                        count++;
-                    }
-                }
-
-                Model *pModel = (Model *)mCurModel;
-                pModel->mMeshCount = count;
-            }
+            mCurSkeleton->removeFromParent(false);
+            mCurModel->addChild(mCurSkeleton);
         }
-        else
+
+        if (mCurAnimation != nullptr)
+        {
+            mCurAnimation->removeFromParent(false);
+            mCurModel->addChild(mCurAnimation);
+        }
+
+        if (mCurMaterials != nullptr)
+        {
+            mCurMaterials->removeFromParent(false);
+            mCurModel->addChild(mCurMaterials);
+        }
+
+        if (mCurBound != nullptr)
+        {
+            mCurBound->removeFromParent(false);
+            mCurModel->addChild(mCurBound);
+        }
+
+        if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
         {
             Model *pModel = (Model *)mCurModel;
             pModel->mMeshCount = 1;
+        }
+        else
+        {
+            size_t count = 0;
+            size_t i = 0;
+            for (i = 0; i < mCurModel->getChildrenCount(); ++i)
+            {
+                Node *pChild = mCurModel->getChild(i);
+                if (pChild->getNodeType() == Node::E_TYPE_MESH)
+                {
+                    count++;
+                }
+            }
+
+            Model *pModel = (Model *)mCurModel;
+            pModel->mMeshCount = count;
         }
 
         return result;
@@ -236,11 +206,6 @@ namespace mconv
         Node *pNode = nullptr;
 
         String name = pFbxNode->GetName();
-        FbxDouble3 R = pFbxNode->LclRotation.Get();
-        FbxDouble3 T = pFbxNode->LclTranslation.Get();
-        FbxDouble3 S = pFbxNode->LclScaling.Get();
-        FbxAMatrix MM = pFbxNode->EvaluateGlobalTransform();
-        FbxQuaternion Q;
         int nAttribCount = pFbxNode->GetNodeAttributeCount();
         int i = 0;
         for (i = 0; i < nAttribCount; ++i)
@@ -258,47 +223,42 @@ namespace mconv
                             name = "Model";
                         }
 
-                        if (E_FM_SPLIT_MESH == mSettings.mFileMode)
+                        if (mCurModel == nullptr)
                         {
-                            if (!mSceneList.empty())
+                            // 没有model节点，先创建一个，用于后续挂接所有mesh节点
+                            Model *pModel = new Model(name);
+
+                            if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
                             {
-                                // 不是第一个场景节点，需要重新创建，第一个场景节点已经在外部创建了
-                                Scene *pScene = new Scene(name);
-                                mCurScene = pScene;
+                                pModel->mSharedVertex = true;
+                            }
+                            else
+                            {
+                                pModel->mSharedVertex = false;
                             }
 
-                            String sceneName = "_" + name;
-                            SceneInfo info = {mCurScene, sceneName};
-                            mSceneList.push_back(info);
-                            pParent = mCurScene;
-
-                            Model *pModel = new Model(name);
-                            pModel->mSharedVertex = true;
                             pParent->addChild(pModel);
                             mCurModel = pModel;
                         }
+
+                        Transform *pTransform = nullptr;
+
+                        if (mRootTransform == nullptr)
+                        {
+                            mRootTransform = new Hiarachy(name);
+                            pParent->addChild(mRootTransform);
+
+                            pTransform = new Transform(name);
+                            mRootTransform->addChild(pTransform);
+                        }
                         else
                         {
-                            if (mCurModel == nullptr)
-                            {
-                                SceneInfo info = {mCurScene, mCurScene->getID()};
-                                mSceneList.push_back(info);
-
-                                Model *pModel = new Model(name);
-
-                                if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
-                                {
-                                    pModel->mSharedVertex = true;
-                                }
-                                else
-                                {
-                                    pModel->mSharedVertex = false;
-                                }
-
-                                pParent->addChild(pModel);
-                                mCurModel = pModel;
-                            }
+                            pTransform = new Transform(name);
+                            pParent->addChild(pTransform);
                         }
+
+                        FbxAMatrix M = pFbxNode->EvaluateLocalTransform();
+                        convertMatrix(M, pTransform->mMatrix);
 
                         result = processFbxMesh(pFbxNode, mCurModel, pNode);
                         result = result && processFbxSkin(pFbxNode, pParent, (Mesh *)pNode);
@@ -314,6 +274,7 @@ namespace mconv
                     break;
                 case FbxNodeAttribute::eSkeleton:
                     {
+                        result = processFbxSkeleton(pFbxNode, pParent, (Model *)mCurModel, pNode);
                     }
                     break;
                 case FbxNodeAttribute::eCamera:
@@ -340,10 +301,6 @@ namespace mconv
             result = true;
         }
 
-#ifdef _DEBUG
-        mTabCount++;
-#endif
-
         if (result)
         {
             for (i = 0; i < pFbxNode->GetChildCount(); ++i)
@@ -351,10 +308,6 @@ namespace mconv
                 result = result && processFbxNode(pFbxNode->GetChild(i), pNode);
             }
         }
-
-#ifdef _DEBUG
-        mTabCount--;
-#endif
 
         return result;
     }
@@ -368,15 +321,6 @@ namespace mconv
             T3D_LOG_ERROR("FBX mesh is invalid !");
             return false;
         }
-
-#ifdef _DEBUG
-        std::stringstream ssTab;
-        for (int t = 0; t < mTabCount; ++t)
-        {
-            ssTab<<"\t";
-        }
-        T3D_LOG_INFO("%sMesh : %s, 0x%p", ssTab.str().c_str(), pFbxNode->GetName(), pFbxMesh);
-#endif
 
         String name = pFbxNode->GetName();
         if (name.empty())
@@ -436,8 +380,8 @@ namespace mconv
         M.SetTRS(T, R, S);
         convertMatrix(M, pMesh->mGeometryMatrix);
 
-        M = pFbxNode->EvaluateGlobalTransform();
-        convertMatrix(M, pMesh->mWorldMatrix);
+//         M = pFbxNode->EvaluateGlobalTransform();
+//         convertMatrix(M, pMesh->mWorldMatrix);
 
         int nTriangleCount = pFbxMesh->GetPolygonCount();
         int nVertexCount = 0;
@@ -461,16 +405,12 @@ namespace mconv
 
                 // 读取顶点位置信息
                 readPosition(pFbxMesh, nControlPointIdx, vertex.mPosition);
-//                 FbxVector4 pos(vertex.mPosition);
-                Vector3 pos = vertex.mPosition;
-//                 pos = pMesh->mWorldMatrix.MultT(pos);
-//                 pos = pMesh->mWorldMatrix * pos;
+                Vector3 pos = pMesh->mGeometryMatrix * vertex.mPosition;
                 vertex.mPosition[0] = pos[0];
                 vertex.mPosition[1] = pos[1];
                 vertex.mPosition[2] = pos[2];
 
                 // 读取顶点颜色信息
-//                 FbxVector4 color;
                 Vector4 color;
                 int k = 0;
                 bool ret = false;
@@ -484,7 +424,6 @@ namespace mconv
                 } while (ret);
 
                 // 读取纹理UV坐标
-//                 FbxVector2 uv;
                 Vector2 uv;
                 int nTexCount = pFbxMesh->GetElementUVCount();
                 for (k = 0; k < nTexCount; ++k)
@@ -496,7 +435,6 @@ namespace mconv
                 }
 
                 // 读取顶点法线
-//                 FbxVector3 normal;
                 Vector3 normal;
                 k = 0;
                 do 
@@ -509,7 +447,6 @@ namespace mconv
                 } while (ret);
 
                 // 读取副法线
-//                 FbxVector3 binormal;
                 Vector3 binormal;
                 k = 0;
                 do
@@ -522,7 +459,6 @@ namespace mconv
                 } while (ret);
 
                 // 读取切线
-//                 FbxVector3 tangent;
                 Vector3 tangent;
                 k = 0;
                 do 
@@ -693,7 +629,6 @@ namespace mconv
         return true;
     }
 
-//     bool FBXConverter::readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, FbxVector3 &pos)
     bool FBXConverter::readPosition(FbxMesh *pFbxMesh, int nControlPointIdx, Vector3 &pos)
     {
         FbxVector4 *pControlPoint = pFbxMesh->GetControlPoints();
@@ -703,7 +638,6 @@ namespace mconv
         return true;
     }
 
-//     bool FBXConverter::readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector4 &color)
     bool FBXConverter::readColor(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector4 &color)
     {
         if (pFbxMesh->GetElementVertexColorCount() < 1)
@@ -776,7 +710,6 @@ namespace mconv
         return result;
     }
 
-//     bool FBXConverter::readUV(FbxMesh *pFbxMesh, int nControlPointIdx, int nUVIndex, int nLayer, FbxVector2 &uv)
     bool FBXConverter::readUV(FbxMesh *pFbxMesh, int nControlPointIdx, int nUVIndex, int nLayer, Vector2 &uv)
     {
         if (pFbxMesh->GetElementUVCount() < 1 || nLayer >= pFbxMesh->GetElementUVCount())
@@ -835,7 +768,6 @@ namespace mconv
         return result;
     }
 
-//     bool FBXConverter::readNormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &normal)
     bool FBXConverter::readNormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector3 &normal)
     {
         if (pFbxMesh->GetElementNormalCount() < 1)
@@ -904,7 +836,6 @@ namespace mconv
         return result;
     }
 
-//     bool FBXConverter::readTangent(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &tangent)
     bool FBXConverter::readTangent(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector3 &tangent)
     {
         if (pFbxMesh->GetElementTangentCount() < 1)
@@ -973,7 +904,6 @@ namespace mconv
         return result;
     }
 
-//     bool FBXConverter::readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, FbxVector3 &binormal)
     bool FBXConverter::readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector3 &binormal)
     {
         if (pFbxMesh->GetElementBinormalCount() < 1)
@@ -1074,20 +1004,15 @@ namespace mconv
         return result;
     }
 
-    bool FBXConverter::processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Model *pModel)
+    bool FBXConverter::processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Model *pModel, Node *&pNode)
     {
-#ifdef _DEBUG
-        std::stringstream ssTab;
-        for (int t = 0; t < mTabCount; ++t)
-        {
-            ssTab<<"\t";
-        }
         FbxGeometry *pFbxGeometry = pFbxNode->GetGeometry();
-
-        T3D_LOG_INFO("%sSkeleton : %s, 0x%p", ssTab.str().c_str(), pFbxNode->GetName(), pFbxNode);
-#endif
-
         FbxSkeleton *pFbxSkel = pFbxNode->GetSkeleton();
+
+        Matrix4 m;
+        const FbxAMatrix &M = pFbxNode->EvaluateLocalTransform();
+        convertMatrix(M, m);
+
         if (!mHasSkeleton)
         {
             String name = pFbxNode->GetName();
@@ -1095,68 +1020,53 @@ namespace mconv
             {
                 name = "skeleton";
             }
+
             Skeleton *pSkel = new Skeleton(name);
             pParent->addChild(pSkel);
             pParent = pSkel;
-            SkeletonsValue value(pFbxNode, pSkel);
-            mSkeletons.insert(value);
+//             SkeletonsValue value(pFbxNode, pSkel);
+//             mSkeletons.insert(value);
             mHasSkeleton = true;
-
             mCurSkeleton = pSkel;
-        }
 
-        String name = pFbxNode->GetName();
-        if (name.empty())
+            updateBoneMatrix(pFbxNode, m, pSkel, pNode);
+        }
+        else
         {
-            name = "bone";
+            updateBoneMatrix(pFbxNode, m, pParent, pNode);
         }
-        Bone *pBone = new Bone(name);
-        pParent->addChild(pBone);
-        mBoneCount++;
 
-        FbxAMatrix &M = pFbxNode->EvaluateLocalTransform();
-        convertMatrix(M, pBone->mLocalTransform);
-        mTabCount++;
+//         String name = pFbxNode->GetName();
+//         if (name.empty())
+//         {
+//             name = "bone";
+//         }
+//         Bone *pBone = new Bone(name);
+//         pParent->addChild(pBone);
+//         mBoneCount++;
+// 
+//         FbxAMatrix &M = pFbxNode->EvaluateLocalTransform();
+//         convertMatrix(M, pBone->mLocalTransform);
 
         processFbxAnimation(pFbxNode, pModel);
 
-        int i = 0;
-        int nChildrenCount = pFbxNode->GetChildCount();
-        for (i = 0; i < nChildrenCount; ++i)
-        {
-            processFbxSkeleton(pFbxNode->GetChild(i), pBone, pModel);
-        }
-
-        mTabCount--;
+//         int i = 0;
+//         int nChildrenCount = pFbxNode->GetChildCount();
+//         for (i = 0; i < nChildrenCount; ++i)
+//         {
+//             processFbxSkeleton(pFbxNode->GetChild(i), pBone, pModel);
+//         }
 
         return true;
     }
 
     bool FBXConverter::processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode)
     {
-#ifdef _DEBUG
-        std::stringstream ssTab;
-        for (int t = 0; t < mTabCount; ++t)
-        {
-            ssTab<<"\t";
-        }
-        T3D_LOG_INFO("%sCamera : %s", ssTab.str().c_str(), pFbxNode->GetName());
-#endif
-
         return true;
     }
 
     bool FBXConverter::processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode)
     {
-#ifdef _DEBUG
-        std::stringstream ssTab;
-        for (int t = 0; t < mTabCount; ++t)
-        {
-            ssTab<<"\t";
-        }
-        T3D_LOG_INFO("%sLight : %s", ssTab.str().c_str(), pFbxNode->GetName());
-#endif
-
         return true;
     }
 
@@ -1164,30 +1074,10 @@ namespace mconv
     {
         int nMaterialCount = pFbxNode->GetMaterialCount();
         int i = 0;
-
-#ifdef _DEBUG
-        std::stringstream ssTab;
-        for (i = 0; i < mTabCount; ++i)
-        {
-            ssTab<<"\t";
-        }
-#endif
-
-        if (E_FM_SPLIT_MESH != mSettings.mFileMode)
-        {
-            if (mCurMaterials == nullptr)
-            {
-                Materials *pMaterials = new Materials("Materials");
-                pParent->addChild(pMaterials);
-                mCurMaterials = pMaterials;
-            }
-        }
-        else
-        {
-            Materials *pMaterials = new Materials("Materials");
-            pParent->addChild(pMaterials);
-            mCurMaterials = pMaterials;
-        }
+        
+        Materials *pMaterials = new Materials("Materials");
+        pParent->addChild(pMaterials);
+        mCurMaterials = pMaterials;
 
         for (i = 0; i < nMaterialCount; ++i)
         {
@@ -1198,9 +1088,6 @@ namespace mconv
             {
                 pMaterial = new Material(pFbxMaterial->GetName());
                 mCurMaterials->addChild(pMaterial);
-#ifdef _DEBUG
-                T3D_LOG_INFO("%sMaterial : %s", ssTab.str().c_str(), pFbxMaterial->GetName());
-#endif
 
                 if (pFbxMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
                 {
@@ -1387,25 +1274,13 @@ namespace mconv
     {
         bool result = false;
 
-        if (E_FM_SPLIT_MESH != mSettings.mFileMode)
-        {
-            result = mCurMaterials->getChild(name, (Node *&)pMaterial);
-        }
+        result = mCurMaterials->getChild(name, (Node *&)pMaterial);
 
         return result;
     }
 
     bool FBXConverter::processFbxAnimation(FbxNode *pFbxNode, Model *pModel)
     {
-#ifdef _DEBUG
-        std::stringstream ssTab;
-        for (int t = 0; t < mTabCount; ++t)
-        {
-            ssTab<<"\t";
-        }
-        T3D_LOG_INFO("%sAnimation : %s 0x%p", ssTab.str().c_str(), pFbxNode->GetName(), pFbxNode);
-#endif
-
         Animation *pAnimation = nullptr;
         if (!mHasAnimation)
         {
@@ -1427,10 +1302,7 @@ namespace mconv
         FbxScene *pFbxScene = (FbxScene *)mSrcData;
         int nAnimStackCount = pFbxScene->GetSrcObjectCount(FbxAnimStack::ClassId);
         int i = 0;
-        if (nAnimStackCount > 0)
-        {
-            ssTab<<"\t";
-        }
+
         for (i = 0; i < nAnimStackCount; ++i)
         {
             FbxAnimStack *pFbxAnimStack = (FbxAnimStack *)pFbxScene->GetSrcObject(FbxAnimStack::ClassId, i);
@@ -1440,19 +1312,8 @@ namespace mconv
             {
                 name = "Action";
             }
-#ifdef _DEBUG
-            T3D_LOG_INFO("%sAction : %s", ssTab.str().c_str(), name.c_str());
-#endif
 
             int nAnimLayerCount = pFbxAnimStack->GetMemberCount();
-#ifdef _DEBUG
-            std::stringstream ss;
-            if (nAnimLayerCount > 0)
-            {
-                ss<<ssTab.str()<<"\t";
-            }
-#endif
-            
             int j = 0;
             for (j = 0; j < nAnimLayerCount; ++j)
             {
@@ -1472,17 +1333,7 @@ namespace mconv
                 FbxAnimCurve *pFbxTransCurve = pFbxNode->LclTranslation.GetCurve(pFbxAnimLayer);
                 FbxAnimCurve *pFbxRotationCurve = pFbxNode->LclRotation.GetCurve(pFbxAnimLayer);
                 FbxAnimCurve *pFbxScaleCurve = pFbxNode->LclScaling.GetCurve(pFbxAnimLayer);
-
-                if (pFbxTransCurve != nullptr || pFbxRotationCurve != nullptr || pFbxScaleCurve != nullptr)
-                {
-#ifdef _DEBUG
-                    T3D_LOG_INFO("%sLayer : %s", ss.str().c_str(), name.c_str());
-#endif
-                }
-                else
-                {
-                }
-
+                
                 if (pFbxTransCurve != nullptr)
                 {
                     int nKeyframeCount = pFbxTransCurve->KeyGetCount();
@@ -1572,15 +1423,6 @@ namespace mconv
 
     bool FBXConverter::processFbxSkin(FbxNode *pFbxNode, Node *pParent, Mesh *pMesh)
     {
-#ifdef _DEBUG
-        std::stringstream ssTab;
-        for (int t = 0; t < mTabCount; ++t)
-        {
-            ssTab<<"\t";
-        }
-        T3D_LOG_INFO("%sSkin : %s", ssTab.str().c_str(), pFbxNode->GetName());
-#endif
-
         FbxMesh *pFbxMesh = pFbxNode->GetMesh();
         Model *pModel = (Model *)pMesh->getParent();
         int nDeformerCount = pFbxMesh->GetDeformerCount();
@@ -1608,13 +1450,6 @@ namespace mconv
             int j = 0;
             int nBoneCount = pFbxSkin->GetClusterCount();
 
-#ifdef _DEBUG
-            std::stringstream ss;
-            if (nBoneCount > 0)
-            {
-                ss<<ssTab.str()<<"\t";
-            }
-#endif
             Skin *pSkin = new Skin(pModel->getID());
             pModel->addChild(pSkin);
             
@@ -1622,41 +1457,39 @@ namespace mconv
             {
                 FbxCluster *pFbxCluster = pFbxSkin->GetCluster(j);
                 FbxNode *pFbxLinkNode = pFbxCluster->GetLink();
-#ifdef _DEBUG
-                T3D_LOG_INFO("%sLink node : %s, 0x%p", ss.str().c_str(), pFbxLinkNode->GetName(), pFbxLinkNode);
-#endif
 
-                if (j == 0)
-                {
-                    FbxAMatrix Mv;
-                    pFbxCluster->GetTransformMatrix(Mv);
-                    convertMatrix(Mv, pSkin->mVertexMatrix);
-
-                    mBoneCount = 0;
-                    FbxNode *pFbxSkelRoot = nullptr;
-                    if (searchSkeletonRoot(pFbxLinkNode, pFbxSkelRoot) && !searchSkeleton(pFbxSkelRoot))
-                    {
-                        mHasSkeleton = false;
-                        mHasAnimation = false;
-                        processFbxSkeleton(pFbxSkelRoot, pModel, pModel);
-                    }
-                }
+//                 if (j == 0)
+//                 {
+//                     FbxAMatrix Mv;
+//                     pFbxCluster->GetTransformMatrix(Mv);
+//                     convertMatrix(Mv, pSkin->mVertexMatrix);
+// 
+//                     mBoneCount = 0;
+//                     FbxNode *pFbxSkelRoot = nullptr;
+//                     if (searchSkeletonRoot(pFbxLinkNode, pFbxSkelRoot) && !searchSkeleton(pFbxSkelRoot))
+//                     {
+//                         mHasSkeleton = false;
+//                         mHasAnimation = false;
+//                         processFbxSkeleton(pFbxSkelRoot, pModel, pModel);
+//                     }
+//                 }
                 
-                FbxAMatrix Mb;
-                pFbxCluster->GetTransformLinkMatrix(Mb);
-                FbxAMatrix Mv;
-                pFbxCluster->GetTransformMatrix(Mv);
-                FbxAMatrix m = pFbxLinkNode->EvaluateLocalTransform();
-                FbxVector4 T = pFbxLinkNode->GetGeometricTranslation(FbxNode::eSourcePivot);
-                FbxVector4 R = pFbxLinkNode->GetGeometricRotation(FbxNode::eSourcePivot);
-                FbxVector4 S = pFbxLinkNode->GetGeometricScaling(FbxNode::eSourcePivot);
-                FbxAMatrix matGeometry(T, R, S);
-                FbxAMatrix bindpose = Mb.Inverse() * Mv * matGeometry;
+//                 FbxAMatrix Mb;
+//                 pFbxCluster->GetTransformLinkMatrix(Mb);
+//                 FbxAMatrix Mv;
+//                 pFbxCluster->GetTransformMatrix(Mv);
+//                 FbxAMatrix m = pFbxLinkNode->EvaluateLocalTransform();
+//                 FbxVector4 T = pFbxLinkNode->GetGeometricTranslation(FbxNode::eSourcePivot);
+//                 FbxVector4 R = pFbxLinkNode->GetGeometricRotation(FbxNode::eSourcePivot);
+//                 FbxVector4 S = pFbxLinkNode->GetGeometricScaling(FbxNode::eSourcePivot);
+//                 FbxAMatrix matGeometry(T, R, S);
+//                 FbxAMatrix bindpose = Mb.Inverse() * Mv * matGeometry;
+// 
+//                 Bone *pBone = new Bone(pFbxLinkNode->GetName());
+//                 convertMatrix(bindpose, pBone->mLocalTransform);
+//                 pSkin->addChild(pBone);
 
-                Bone *pBone = new Bone(pFbxLinkNode->GetName());
-                convertMatrix(bindpose, pBone->mLocalTransform);
-                pSkin->addChild(pBone);
-
+                updateBoneIndex(pFbxLinkNode, j);
                 updateVertexBlendAttributes(pMesh);
 
                 int nCtrlPointCount = pFbxCluster->GetControlPointIndicesCount();
@@ -1672,32 +1505,32 @@ namespace mconv
             }
 
             // 不知道为何骨骼层次中的骨骼数和蒙皮计算的骨骼偏移矩阵的数差一，这里在蒙皮计算的偏移矩阵末尾插入一个骨骼根结点
-            if (nBoneCount == mBoneCount - 1)
-            {
-                size_t i = 0;
-                for (i = 0; i < pModel->getChildrenCount(); ++i)
-                {
-                    Node *pNode = pModel->getChild(i);
-                    if (pNode->getNodeType() == Node::E_TYPE_SKELETON)
-                    {
-                        Skeleton *pSkel = (Skeleton *)pNode;
-                        Bone *pBone = (Bone *)pSkel->getChild(0);
-                        T3D_ASSERT(pBone->getNodeType() == Node::E_TYPE_BONE);
-                        Bone *pNewBone = new Bone(pBone->getID());
-//                         convertMatrix(Mv, pNewBone->mLocalTransform);
-                        pNewBone->mLocalTransform = pBone->mLocalTransform;
-                        pSkin->addChild(pNewBone);
-                    }
-                }
-            }
-            else if (nBoneCount == mBoneCount)
-            {
-
-            }
-            else
-            {
-                T3D_ASSERT(0);
-            }
+//             if (nBoneCount == mBoneCount - 1)
+//             {
+//                 size_t i = 0;
+//                 for (i = 0; i < pModel->getChildrenCount(); ++i)
+//                 {
+//                     Node *pNode = pModel->getChild(i);
+//                     if (pNode->getNodeType() == Node::E_TYPE_SKELETON)
+//                     {
+//                         Skeleton *pSkel = (Skeleton *)pNode;
+//                         Bone *pBone = (Bone *)pSkel->getChild(0);
+//                         T3D_ASSERT(pBone->getNodeType() == Node::E_TYPE_BONE);
+//                         Bone *pNewBone = new Bone(pBone->getID());
+// //                         convertMatrix(Mv, pNewBone->mLocalTransform);
+//                         pNewBone->mLocalTransform = pBone->mLocalTransform;
+//                         pSkin->addChild(pNewBone);
+//                     }
+//                 }
+//             }
+//             else if (nBoneCount == mBoneCount)
+//             {
+// 
+//             }
+//             else
+//             {
+//                 T3D_ASSERT(0);
+//             }
         }
 
         return true;
@@ -1723,42 +1556,84 @@ namespace mconv
         return true;
     }
 
-    bool FBXConverter::searchSkeletonRoot(FbxNode *pFbxNode, FbxNode *&pFbxRootNode)
+    bool FBXConverter::updateBoneIndex(FbxNode *pFbxNode, size_t boneIdx)
     {
-        bool result = false;
-        FbxScene *pFbxScene = (FbxScene *)mSrcData;
-        FbxNode *pFbxSceneRoot = pFbxScene->GetRootNode();
-        FbxNode *pFbxParent = pFbxNode;
-        pFbxRootNode = nullptr;
+        auto itr = mBones.find(pFbxNode);
 
-        while (pFbxParent != pFbxSceneRoot)
+        if (itr != mBones.end())
         {
-            FbxNodeAttribute *pNodeAttrib = pFbxParent->GetNodeAttribute();
-            FbxNodeAttribute::EType attribType = pFbxNode->GetNodeAttribute()->GetAttributeType();
-            if (pNodeAttrib == nullptr || 
-                (pNodeAttrib != nullptr && pNodeAttrib->GetAttributeType() != FbxNodeAttribute::eSkeleton))
-            {
-                break;
-            }
-
-            pFbxRootNode = pFbxParent;
-            pFbxParent = pFbxParent->GetParent();
-            result = true;
+            auto pBone = itr->second;
+            pBone->mBoneIndex = boneIdx;
+        }
+        else
+        {
+            Bone *pBone = new Bone(pFbxNode->GetName());
+            mBones.insert(BonesValue(pFbxNode, pBone));
+            pBone->mBoneIndex = boneIdx;
         }
 
-        return result;
+        return true;
     }
 
-    bool FBXConverter::searchSkeleton(FbxNode *pFbxNode)
+    bool FBXConverter::updateBoneMatrix(FbxNode *pFbxNode, const Matrix4 &m, Node *pParent, Node *&pNode)
     {
-        bool result = false;
-        SkeletonsConstItr itr = mSkeletons.find(pFbxNode);
-        if (itr != mSkeletons.end())
+        auto itr = mBones.find(pFbxNode);
+
+        if (itr != mBones.end())
         {
-            result = true;
+            auto pBone = itr->second;
+            pBone->mLocalTransform = m;
+            pParent->addChild(pBone);
+            pNode = pBone;
         }
-        return result;
+        else
+        {
+            Bone *pBone = new Bone(pFbxNode->GetName());
+            mBones.insert(BonesValue(pFbxNode, pBone));
+            pBone->mLocalTransform = m;
+            pParent->addChild(pBone);
+            pNode = pBone;
+        }
+
+        return true;
     }
+
+//     bool FBXConverter::searchSkeletonRoot(FbxNode *pFbxNode, FbxNode *&pFbxRootNode)
+//     {
+//         bool result = false;
+//         FbxScene *pFbxScene = (FbxScene *)mSrcData;
+//         FbxNode *pFbxSceneRoot = pFbxScene->GetRootNode();
+//         FbxNode *pFbxParent = pFbxNode;
+//         pFbxRootNode = nullptr;
+// 
+//         while (pFbxParent != pFbxSceneRoot)
+//         {
+//             FbxNodeAttribute *pNodeAttrib = pFbxParent->GetNodeAttribute();
+//             FbxNodeAttribute::EType attribType = pFbxNode->GetNodeAttribute()->GetAttributeType();
+//             if (pNodeAttrib == nullptr || 
+//                 (pNodeAttrib != nullptr && pNodeAttrib->GetAttributeType() != FbxNodeAttribute::eSkeleton))
+//             {
+//                 break;
+//             }
+// 
+//             pFbxRootNode = pFbxParent;
+//             pFbxParent = pFbxParent->GetParent();
+//             result = true;
+//         }
+// 
+//         return result;
+//     }
+// 
+//     bool FBXConverter::searchSkeleton(FbxNode *pFbxNode)
+//     {
+//         bool result = false;
+//         SkeletonsConstItr itr = mSkeletons.find(pFbxNode);
+//         if (itr != mSkeletons.end())
+//         {
+//             result = true;
+//         }
+//         return result;
+//     }
 
     bool FBXConverter::searchAnimation(const String &name, Node *pNode, Animation *&pAnim)
     {
@@ -2067,25 +1942,6 @@ namespace mconv
 
     void FBXConverter::convertMatrix(const FbxAMatrix &fbxMat, Matrix4 &m)
     {
-//         m[0][0] = fbxMat[0][0];
-//         m[0][1] = fbxMat[0][1];
-//         m[0][2] = fbxMat[0][2];
-//         m[0][3] = fbxMat[0][3];
-// 
-//         m[1][0] = fbxMat[1][0];
-//         m[1][1] = fbxMat[1][1];
-//         m[1][2] = fbxMat[1][2];
-//         m[1][3] = fbxMat[1][3];
-// 
-//         m[2][0] = fbxMat[2][0];
-//         m[2][1] = fbxMat[2][1];
-//         m[2][2] = fbxMat[2][2];
-//         m[2][3] = fbxMat[2][3];
-// 
-//         m[3][0] = fbxMat[3][0];
-//         m[3][1] = fbxMat[3][1];
-//         m[3][2] = fbxMat[3][2];
-//         m[3][3] = fbxMat[3][3];
         m[0][0] = fbxMat[0][0];
         m[1][0] = fbxMat[0][1];
         m[2][0] = fbxMat[0][2];

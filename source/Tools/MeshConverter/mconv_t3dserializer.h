@@ -121,13 +121,8 @@
     shared_vertex=1
 
     <scene id="Scene">
-        <model id="body" count="1">
+        <model id="" shared_vertex="1">
             <mesh id="body">
-                <transform id="LOCAL">
-                    <translation></translation>
-                    <orientation></orientation>
-                    <scale></scale>
-                </transform>
                 <vertices id="body" count="1">
                     <buffer id="0">
                         <attributes count="5">
@@ -148,21 +143,23 @@
                     </submesh>
                 </submeshes>
             </mesh>
-            <skin id="skin">
-                <transform id="SKINMESH">
-                    <translation></translation>
-                    <orientation></orientation>
-                    <scale></scale>
-                </transform>
-            </skin>
             <skeleton id="Bip01" index="0">
             </skeleton>
             <animation>
-                <action id="Idel">
+                <action id="Idle">
                 </action>
             </animation>
         </model>
+        <hiarachy>
+            <transform id="body">
+                <translation></translation>
+                <orientation></orientation>
+                <scale></scale>
+                <link mesh="body" submesh="1" />
+            </transform>
+        </hiarachy>
     </scene>
+
 
 
     shared_vertex=0
@@ -303,6 +300,12 @@ namespace mconv
         static const char * const TAG_BOUND;
         static const char * const TAG_LIGHT;
         static const char * const TAG_CAMERA;
+        static const char * const TAG_HIARACHY;
+        static const char * const TAG_LINK;
+        static const char * const TAG_TRANSLATION;
+        static const char * const TAG_SCALE;
+        static const char * const TAG_ORIENTATION;
+        static const char * const TAG_ROTATION;
 
         static const char * const ATTRIB_ID;
         static const char * const ATTRIB_COUNT;
@@ -320,6 +323,9 @@ namespace mconv
         static const char * const ATTRIB_DURATION;
         static const char * const ATTRIB_HAS_WORLD;
         static const char * const ATTRIB_HAS_GEOMETRY;
+        static const char * const ATTRIB_MESH;
+        static const char * const ATTRIB_SUBMESH;
+        static const char * const ATTRIB_INDEX;
 
         T3DXMLSerializer();
         virtual ~T3DXMLSerializer();
@@ -336,13 +342,12 @@ namespace mconv
         XMLElement *buildXMLVertexBuffer(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSubMeshes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSubMesh(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
-        XMLElement *buildXMLVertexAttributes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLAnimation(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLAction(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
-//         XMLElement *buildXMLMaterials(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
-//         XMLElement *buildXMLMaterial(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLTextures(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLTexture(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLTransform(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLHiarachy(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSkeleton(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSkin(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLBone(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);

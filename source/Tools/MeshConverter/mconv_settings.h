@@ -16,7 +16,7 @@ namespace mconv
             : mSrcType(E_FILETYPE_FBX)
             , mDstType(E_FILETYPE_T3D)
             , mBoundType(E_BT_AABB)
-            , mFileMode(E_FM_SPLIT_MESH)
+            , mFileMode(E_FM_SHARE_VERTEX)
             , mVerbose(true)
         {
 

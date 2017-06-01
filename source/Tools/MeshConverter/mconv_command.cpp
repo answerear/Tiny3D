@@ -149,13 +149,9 @@ namespace mconv
 
     FileMode Command::parseFileMode(const char *arg) const
     {
-        FileMode mode = E_FM_SPLIT_MESH;
+        FileMode mode = E_FM_SHARE_VERTEX;
 
-        if (stricmp(arg, "split") == 0)
-        {
-            mode = E_FM_SPLIT_MESH;
-        }
-        else if (stricmp(arg, "shared") == 0)
+        if (stricmp(arg, "shared") == 0)
         {
             mode = E_FM_SHARE_VERTEX;
         }

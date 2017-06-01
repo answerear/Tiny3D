@@ -21,6 +21,7 @@ namespace mconv
     class VertexAttribute;
     class VertexBuffer;
     class VertexBuffers;
+    class Transform;
 
     class FBXConverter : public ConverterImpl
     {
@@ -42,7 +43,7 @@ namespace mconv
 
         bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode);
         bool processFbxSkin(FbxNode *pFbxNode, Node *pParent, Mesh *pMesh);
-        bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Model *pModel);
+        bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Model *pModel, Node *&pNode);
         bool processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent);
@@ -65,10 +66,13 @@ namespace mconv
 
         bool optimizeMesh(Node *pRoot);
 
-        // 根据某个Cluster的link node回溯获取骨骼根节点
-        bool searchSkeletonRoot(FbxNode *pFbxNode, FbxNode *&pFbxRootNode);
-        // 根据骨骼根节点，搜索看是否已经生成过对应的骨骼数据
-        bool searchSkeleton(FbxNode *pFbxNode);
+        bool updateBoneIndex(FbxNode *pFbxNode, size_t boneIdx);
+        bool updateBoneMatrix(FbxNode *pFbxNode, const Matrix4 &m, Node *pParent, Node *&pNode);
+
+//         // 根据某个Cluster的link node回溯获取骨骼根节点
+//         bool searchSkeletonRoot(FbxNode *pFbxNode, FbxNode *&pFbxRootNode);
+//         // 根据骨骼根节点，搜索看是否已经生成过对应的骨骼数据
+//         bool searchSkeleton(FbxNode *pFbxNode);
 
         // 根据模型名称搜索是否曾经在本model下创建过动画节点
         bool searchAnimation(const String &name, Node *pNode, Animation *&pAnim);
@@ -87,27 +91,22 @@ namespace mconv
         bool searchMaterial(const String &name, Material *&pMaterial);
 
         String getFileName(const String &strPath);
-
-        struct SceneInfo
-        {
-            void    *mRoot;
-            String  mName;
-        };
-
+        
         typedef std::map<FbxNode*, Skeleton*>       Skeletons;
         typedef Skeletons::iterator                 SkeletonsItr;
         typedef Skeletons::const_iterator           SkeletonsConstItr;
         typedef std::pair<FbxNode*, Skeleton*>      SkeletonsValue;
 
-        typedef std::list<SceneInfo>                SceneList;
-        typedef SceneList::iterator                 SceneListItr;
-        typedef SceneList::const_iterator           SceneListConstItr;
+        typedef std::map<FbxNode*, Bone*>           Bones;
+        typedef Bones::iterator                     BonesItr;
+        typedef Bones::const_iterator               BonesConstItr;
+        typedef std::pair<FbxNode*, Bone*>          BonesValue;
 
         Serializer  *mImporter;
         Serializer  *mExporter;
 
         void        *mSrcData;
-//         void        *mDstData;
+        void        *mDstData;
 
         Node        *mCurScene;         // 当前场景节点，对于split mode是会变化的，对于merge和shared vertex永远只有一个不变的
         Node        *mCurModel;         // 当前模型节点
@@ -116,19 +115,15 @@ namespace mconv
         Node        *mCurAnimation;     // 动画节点
         Node        *mCurMaterials;     // 只用于merge和shared vertex文件格式下
         Node        *mCurBound;         // 当前的碰撞区，不管是splite模式、merge模式、还是shared vertex模式，整个model只有一个bound
+        Node        *mRootTransform;    // 场景变换根结点
 
-        SceneList   mSceneList;
-
-        Skeletons   mSkeletons;
+        Bones       mBones;
+//         Skeletons   mSkeletons;
         bool        mHasSkeleton;
         bool        mHasVertexBlending;
         bool        mHasAnimation;
 
         int         mBoneCount;         // 用来记录骨骼数量，主要用于不知道为何offset matrix和skeleton hiarachy里面的骨骼数有差异
-
-#ifdef _DEBUG
-        int         mTabCount;
-#endif
     };
 }
 

@@ -15,7 +15,7 @@
 #include "mconv_light.h"
 #include "mconv_texture.h"
 #include "mconv_bound.h"
-
+#include "mconv_transform.h"
 #include <iomanip>
 
 
@@ -80,6 +80,11 @@ namespace mconv
     const char * const T3DXMLSerializer::TAG_BOUND = "bound";
     const char * const T3DXMLSerializer::TAG_LIGHT = "light";
     const char * const T3DXMLSerializer::TAG_CAMERA = "camera";
+    const char * const T3DXMLSerializer::TAG_HIARACHY = "hiarachy";
+    const char * const T3DXMLSerializer::TAG_LINK = "link";
+    const char * const T3DXMLSerializer::TAG_TRANSLATION = "translation";
+    const char * const T3DXMLSerializer::TAG_ORIENTATION = "orientation";
+    const char * const T3DXMLSerializer::TAG_SCALE = "scale";
 
     const char * const T3DXMLSerializer::ATTRIB_ID = "id";
     const char * const T3DXMLSerializer::ATTRIB_COUNT = "count";
@@ -97,7 +102,9 @@ namespace mconv
     const char * const T3DXMLSerializer::ATTRIB_DURATION = "duration";
     const char * const T3DXMLSerializer::ATTRIB_HAS_GEOMETRY = "has_geometry";
     const char * const T3DXMLSerializer::ATTRIB_HAS_WORLD = "has_world";
-
+    const char * const T3DXMLSerializer::ATTRIB_MESH = "mesh";
+    const char * const T3DXMLSerializer::ATTRIB_SUBMESH = "submesh";
+    const char * const T3DXMLSerializer::ATTRIB_INDEX = "index";
 
     T3DXMLSerializer::T3DXMLSerializer()
     {
@@ -153,108 +160,118 @@ namespace mconv
         switch (pNode->getNodeType())
         {
         case Node::E_TYPE_ANIMATION:
-            {
-                pElement = buildXMLAnimation(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLAnimation(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_ACTION:
-            {
-                pElement = buildXMLAction(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLAction(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_BONE:
-            {
-                pElement = buildXMLBone(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLBone(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_BOUND_AABB:
-            {
-                pElement = buildXMLAlignAxisBound(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLAlignAxisBound(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_BOUND_SPHERE:
-            {
-                pElement = buildXMLSphereBound(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLSphereBound(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_CAMERA:
-            {
-                pElement = buildXMLCamera(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLCamera(pDoc, pParentElem, pNode);
+        }
+        break;
+        case Node::E_TYPE_HIARACHY:
+        {
+            pElement = buildXMLHiarachy(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_LIGHT:
-            {
-                pElement = buildXMLLight(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLLight(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_MATERIAL:
-            {
-//                 pElement = buildXMLMaterial(pDoc, pParentElem, pNode);
-                saveMaterial(pNode);
-                pElement = pParentElem;
-            }
-            break;
+        {
+            //                 pElement = buildXMLMaterial(pDoc, pParentElem, pNode);
+            saveMaterial(pNode);
+            pElement = pParentElem;
+        }
+        break;
         case Node::E_TYPE_MATERIALS:
-            {
-//                 pElement = buildXMLMaterials(pDoc, pParentElem, pNode);
-                pElement = pParentElem;
-            }
-            break;
+        {
+            //                 pElement = buildXMLMaterials(pDoc, pParentElem, pNode);
+            pElement = pParentElem;
+        }
+        break;
         case Node::E_TYPE_MESH:
-            {
-                pElement = buildXMLMesh(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLMesh(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_MODEL:
-            {
-                pElement = buildXMLModel(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLModel(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_SKIN:
-            {
-                pElement = buildXMLSkin(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLSkin(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_SKELETON:
-            {
-                pElement = buildXMLSkeleton(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLSkeleton(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_SUBMESH:
-            {
-                pElement = buildXMLSubMesh(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLSubMesh(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_SUBMESHES:
-            {
-                pElement = buildXMLSubMeshes(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLSubMeshes(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_TEXTURE:
-            {
-                pElement = buildXMLTexture(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLTexture(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_TEXTURES:
-            {
-                pElement = buildXMLTextures(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLTextures(pDoc, pParentElem, pNode);
+        }
+        break;
+        case Node::E_TYPE_TRANSFORM:
+        {
+            pElement = buildXMLTransform(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_VERTEX_BUFFERS:
-            {
-                pElement = buildXMLVertexBuffers(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLVertexBuffers(pDoc, pParentElem, pNode);
+        }
+        break;
         case Node::E_TYPE_VERTEX_BUFFER:
-            {
-                pElement = buildXMLVertexBuffer(pDoc, pParentElem, pNode);
-            }
-            break;
+        {
+            pElement = buildXMLVertexBuffer(pDoc, pParentElem, pNode);
+        }
+        break;
         default:
-            {
-                pElement = pParentElem;
-            }
-            break;
+        {
+            pElement = pParentElem;
+        }
+        break;
         }
 
         if (pNode->getNodeType() != Node::E_TYPE_MATERIAL)
@@ -289,67 +306,67 @@ namespace mconv
 
         pMeshElement->SetAttribute(ATTRIB_ID, pMesh->getID().c_str());
 
-        bool bHasWorld = false;
-
-        if (pMesh->mWorldMatrix == Matrix4::IDENTITY)
-        {
-            pMeshElement->SetAttribute(ATTRIB_HAS_WORLD, false);
-        }
-        else
-        {
-            pMeshElement->SetAttribute(ATTRIB_HAS_WORLD, true);
-            bHasWorld = true;
-        }
-
-        bool bHasGeometry = false;
-
-        if (pMesh->mGeometryMatrix == Matrix4::IDENTITY)
-        {
-            pMeshElement->SetAttribute(ATTRIB_HAS_GEOMETRY, false);
-        }
-        else
-        {
-            pMeshElement->SetAttribute(ATTRIB_HAS_GEOMETRY, true);
-            bHasGeometry = true;
-        }
-
-        if (bHasWorld)
-        {
-            XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
-            pMeshElement->LinkEndChild(pTransformElement);
-            pTransformElement->SetAttribute(ATTRIB_ID, "WORLD");
-
-            std::stringstream ss;
-            char szText[512] = { 0 };
-            snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
-                pMesh->mWorldMatrix[0][0], pMesh->mWorldMatrix[0][1], pMesh->mWorldMatrix[0][2], pMesh->mWorldMatrix[0][3],
-                pMesh->mWorldMatrix[1][0], pMesh->mWorldMatrix[1][1], pMesh->mWorldMatrix[1][2], pMesh->mWorldMatrix[1][3],
-                pMesh->mWorldMatrix[2][0], pMesh->mWorldMatrix[2][1], pMesh->mWorldMatrix[2][2], pMesh->mWorldMatrix[2][3],
-                pMesh->mWorldMatrix[3][0], pMesh->mWorldMatrix[3][1], pMesh->mWorldMatrix[3][2], pMesh->mWorldMatrix[3][3]);
-
-            ss << szText;
-            XMLText *pText = pDoc->NewText(ss.str().c_str());
-            pTransformElement->LinkEndChild(pText);
-        }
-
-        if (bHasGeometry)
-        {
-            XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
-            pMeshElement->LinkEndChild(pTransformElement);
-            pTransformElement->SetAttribute(ATTRIB_ID, "GEOMETRY");
-
-            std::stringstream ss;
-            char szText[512] = { 0 };
-            snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
-                pMesh->mGeometryMatrix[0][0], pMesh->mGeometryMatrix[0][1], pMesh->mGeometryMatrix[0][2], pMesh->mGeometryMatrix[0][3],
-                pMesh->mGeometryMatrix[1][0], pMesh->mGeometryMatrix[1][1], pMesh->mGeometryMatrix[1][2], pMesh->mGeometryMatrix[1][3],
-                pMesh->mGeometryMatrix[2][0], pMesh->mGeometryMatrix[2][1], pMesh->mGeometryMatrix[2][2], pMesh->mGeometryMatrix[2][3],
-                pMesh->mGeometryMatrix[3][0], pMesh->mGeometryMatrix[3][1], pMesh->mGeometryMatrix[3][2], pMesh->mGeometryMatrix[3][3]);
-
-            ss << szText;
-            XMLText *pText = pDoc->NewText(ss.str().c_str());
-            pTransformElement->LinkEndChild(pText);
-        }
+        //         bool bHasWorld = false;
+        // 
+        //         if (pMesh->mWorldMatrix == Matrix4::IDENTITY)
+        //         {
+        //             pMeshElement->SetAttribute(ATTRIB_HAS_WORLD, false);
+        //         }
+        //         else
+        //         {
+        //             pMeshElement->SetAttribute(ATTRIB_HAS_WORLD, true);
+        //             bHasWorld = true;
+        //         }
+        // 
+        //         bool bHasGeometry = false;
+        // 
+        //         if (pMesh->mGeometryMatrix == Matrix4::IDENTITY)
+        //         {
+        //             pMeshElement->SetAttribute(ATTRIB_HAS_GEOMETRY, false);
+        //         }
+        //         else
+        //         {
+        //             pMeshElement->SetAttribute(ATTRIB_HAS_GEOMETRY, true);
+        //             bHasGeometry = true;
+        //         }
+        // 
+        //         if (bHasWorld)
+        //         {
+        //             XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+        //             pMeshElement->LinkEndChild(pTransformElement);
+        //             pTransformElement->SetAttribute(ATTRIB_ID, "WORLD");
+        // 
+        //             std::stringstream ss;
+        //             char szText[512] = { 0 };
+        //             snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
+        //                 pMesh->mWorldMatrix[0][0], pMesh->mWorldMatrix[0][1], pMesh->mWorldMatrix[0][2], pMesh->mWorldMatrix[0][3],
+        //                 pMesh->mWorldMatrix[1][0], pMesh->mWorldMatrix[1][1], pMesh->mWorldMatrix[1][2], pMesh->mWorldMatrix[1][3],
+        //                 pMesh->mWorldMatrix[2][0], pMesh->mWorldMatrix[2][1], pMesh->mWorldMatrix[2][2], pMesh->mWorldMatrix[2][3],
+        //                 pMesh->mWorldMatrix[3][0], pMesh->mWorldMatrix[3][1], pMesh->mWorldMatrix[3][2], pMesh->mWorldMatrix[3][3]);
+        // 
+        //             ss << szText;
+        //             XMLText *pText = pDoc->NewText(ss.str().c_str());
+        //             pTransformElement->LinkEndChild(pText);
+        //         }
+        // 
+        //         if (bHasGeometry)
+        //         {
+        //             XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+        //             pMeshElement->LinkEndChild(pTransformElement);
+        //             pTransformElement->SetAttribute(ATTRIB_ID, "GEOMETRY");
+        // 
+        //             std::stringstream ss;
+        //             char szText[512] = { 0 };
+        //             snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
+        //                 pMesh->mGeometryMatrix[0][0], pMesh->mGeometryMatrix[0][1], pMesh->mGeometryMatrix[0][2], pMesh->mGeometryMatrix[0][3],
+        //                 pMesh->mGeometryMatrix[1][0], pMesh->mGeometryMatrix[1][1], pMesh->mGeometryMatrix[1][2], pMesh->mGeometryMatrix[1][3],
+        //                 pMesh->mGeometryMatrix[2][0], pMesh->mGeometryMatrix[2][1], pMesh->mGeometryMatrix[2][2], pMesh->mGeometryMatrix[2][3],
+        //                 pMesh->mGeometryMatrix[3][0], pMesh->mGeometryMatrix[3][1], pMesh->mGeometryMatrix[3][2], pMesh->mGeometryMatrix[3][3]);
+        // 
+        //             ss << szText;
+        //             XMLText *pText = pDoc->NewText(ss.str().c_str());
+        //             pTransformElement->LinkEndChild(pText);
+        //         }
 
         return pMeshElement;
     }
@@ -401,7 +418,7 @@ namespace mconv
         auto itrVertex = pVB->mVertices.begin();
 
         int count = 0;
-		bool first = true;
+        bool first = true;
 
         while (itrVertex != pVB->mVertices.end())
         {
@@ -409,125 +426,125 @@ namespace mconv
             const Vertex &vertex = *itrVertex;
 
             // POSITION
-			if (hasVertexAttribute(pVB, VertexAttribute::E_VT_POSITION))
-			{
-				if (first)
-				{
-					char szText[64] = {0};
-					snprintf(szText, sizeof(szText)-1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
-					ss<<"\n\t\t\t\t\t\t"<<szText;
-				}
-				else
-				{
-					char szText[64] = {0};
-					snprintf(szText, sizeof(szText)-1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
-					ss<<"\t\t\t\t\t\t"<<szText;
-				}
+            if (hasVertexAttribute(pVB, VertexAttribute::E_VT_POSITION))
+            {
+                if (first)
+                {
+                    char szText[64] = { 0 };
+                    snprintf(szText, sizeof(szText) - 1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
+                    ss << "\n\t\t\t\t\t\t" << szText;
+                }
+                else
+                {
+                    char szText[64] = { 0 };
+                    snprintf(szText, sizeof(szText) - 1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
+                    ss << "\t\t\t\t\t\t" << szText;
+                }
 
-				first = false;
-			}
+                first = false;
+            }
 
             // TEXCOORD
-			if (hasVertexAttribute(pVB, VertexAttribute::E_VT_TEXCOORD))
-			{
-				auto itr2 = vertex.mTexElements.begin();
-				while (itr2 != vertex.mTexElements.end())
-				{
-// 					if (first)
-					{
-						const Vector2 &uv = *itr2;
-						char szText[64] = {0};
-						snprintf(szText, sizeof(szText)-1, " % 8f % 8f", uv[0], uv[1]);
-// 						ss<<"\n\t\t\t\t\t\t"<<szText;
-                        ss<<szText;
-					}
-// 					else
-// 					{
-// 						const Vector2 &uv = *itr2;
-// 						char szText[64] = {0};
-// 						snprintf(szText, sizeof(szText)-1, " % 8f % 8f", uv[0], uv[1]);
-// 						ss<<"\t\t\t\t\t\t"<<szText;
-// 					}
-// 					
-// 					first = false;
-					++itr2;
-				}
-			}
+            if (hasVertexAttribute(pVB, VertexAttribute::E_VT_TEXCOORD))
+            {
+                auto itr2 = vertex.mTexElements.begin();
+                while (itr2 != vertex.mTexElements.end())
+                {
+                    // 					if (first)
+                    {
+                        const Vector2 &uv = *itr2;
+                        char szText[64] = { 0 };
+                        snprintf(szText, sizeof(szText) - 1, " % 8f % 8f", uv[0], uv[1]);
+                        // 						ss<<"\n\t\t\t\t\t\t"<<szText;
+                        ss << szText;
+                    }
+                    // 					else
+                    // 					{
+                    // 						const Vector2 &uv = *itr2;
+                    // 						char szText[64] = {0};
+                    // 						snprintf(szText, sizeof(szText)-1, " % 8f % 8f", uv[0], uv[1]);
+                    // 						ss<<"\t\t\t\t\t\t"<<szText;
+                    // 					}
+                    // 					
+                    // 					first = false;
+                    ++itr2;
+                }
+            }
 
             // NORMAL
-			if (hasVertexAttribute(pVB, VertexAttribute::E_VT_NORMAL))
-			{
-				auto itr3 = vertex.mNormalElements.begin();
-				while (itr3 != vertex.mNormalElements.end())
-				{
-					//                 const FbxVector3 &normal = *itr3;
-					const Vector3 &normal = *itr3;
-					char szText[64] = {0};
-					snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", normal[0], normal[1], normal[2]);
-					ss<<szText;
-					++itr3;
-				}
-			}
+            if (hasVertexAttribute(pVB, VertexAttribute::E_VT_NORMAL))
+            {
+                auto itr3 = vertex.mNormalElements.begin();
+                while (itr3 != vertex.mNormalElements.end())
+                {
+                    //                 const FbxVector3 &normal = *itr3;
+                    const Vector3 &normal = *itr3;
+                    char szText[64] = { 0 };
+                    snprintf(szText, sizeof(szText) - 1, " % 8f % 8f % 8f", normal[0], normal[1], normal[2]);
+                    ss << szText;
+                    ++itr3;
+                }
+            }
 
             // BINORMAL
-			if (hasVertexAttribute(pVB, VertexAttribute::E_VT_BINORMAL))
-			{
-				auto itr3 = vertex.mBinormalElements.begin();
-				while (itr3 != vertex.mBinormalElements.end())
-				{
-					//                 const FbxVector3 &binormal = *itr3;
-					const Vector3 &binormal = *itr3;
-					char szText[64] = {0};
-					snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", binormal[0], binormal[1], binormal[2]);
-					ss<<szText;
-					++itr3;
-				}
-			}
+            if (hasVertexAttribute(pVB, VertexAttribute::E_VT_BINORMAL))
+            {
+                auto itr3 = vertex.mBinormalElements.begin();
+                while (itr3 != vertex.mBinormalElements.end())
+                {
+                    //                 const FbxVector3 &binormal = *itr3;
+                    const Vector3 &binormal = *itr3;
+                    char szText[64] = { 0 };
+                    snprintf(szText, sizeof(szText) - 1, " % 8f % 8f % 8f", binormal[0], binormal[1], binormal[2]);
+                    ss << szText;
+                    ++itr3;
+                }
+            }
 
             // TANGENT
-			if (hasVertexAttribute(pVB, VertexAttribute::E_VT_TANGENT))
-			{
-				auto itr3 = vertex.mTangentElements.begin();
-				while (itr3 != vertex.mTangentElements.end())
-				{
-					//                 const FbxVector3 &tangent = *itr3;
-					const Vector3 &tangent = *itr3;
-					char szText[64] = {0};
-					snprintf(szText, sizeof(szText)-1, " % 8f % 8f % 8f", tangent[0], tangent[1], tangent[2]);
-					ss<<szText;
-					//                 ss<<" "<<tangent[0]<<" "<<tangent[1]<<" "<<tangent[2];
-					++itr3;
-				}
-			}
+            if (hasVertexAttribute(pVB, VertexAttribute::E_VT_TANGENT))
+            {
+                auto itr3 = vertex.mTangentElements.begin();
+                while (itr3 != vertex.mTangentElements.end())
+                {
+                    //                 const FbxVector3 &tangent = *itr3;
+                    const Vector3 &tangent = *itr3;
+                    char szText[64] = { 0 };
+                    snprintf(szText, sizeof(szText) - 1, " % 8f % 8f % 8f", tangent[0], tangent[1], tangent[2]);
+                    ss << szText;
+                    //                 ss<<" "<<tangent[0]<<" "<<tangent[1]<<" "<<tangent[2];
+                    ++itr3;
+                }
+            }
 
             // COLOR
-			if (hasVertexAttribute(pVB, VertexAttribute::E_VT_COLOR))
-			{
-				auto itr4 = vertex.mColorElements.begin();
-				while (itr4 != vertex.mColorElements.end())
-				{
-					//                 const FbxVector4 &color = *itr4;
-					const Vector4 &color = *itr4;
-					char szText[64] = {0};
-					snprintf(szText, sizeof(szText)-1, " % 8f %8f % 8f % 8f", color[0], color[1], color[2], color[3]);
-					ss<<szText;
-					//                 ss<<" "<<color[0]<<" "<<color[1]<<" "<<color[2]<<" "<<color[3];
-					++itr4;
-				}
-			}
+            if (hasVertexAttribute(pVB, VertexAttribute::E_VT_COLOR))
+            {
+                auto itr4 = vertex.mColorElements.begin();
+                while (itr4 != vertex.mColorElements.end())
+                {
+                    //                 const FbxVector4 &color = *itr4;
+                    const Vector4 &color = *itr4;
+                    char szText[64] = { 0 };
+                    snprintf(szText, sizeof(szText) - 1, " % 8f %8f % 8f % 8f", color[0], color[1], color[2], color[3]);
+                    ss << szText;
+                    //                 ss<<" "<<color[0]<<" "<<color[1]<<" "<<color[2]<<" "<<color[3];
+                    ++itr4;
+                }
+            }
 
             // BLEND_WEIGHT 只写权重最大的4个顶点
             if (vertex.mBlendInfo.size() > 0)
             {
-                ss<<" ";
+                ss << " ";
                 const int MAX_BLEND_COUNT = 4;
                 int i = 0;
                 auto itrBlend = vertex.mBlendInfo.rbegin();
                 while (itrBlend != vertex.mBlendInfo.rend())
                 {
-                    char szText[16] = {0};
-                    snprintf(szText, sizeof(szText)-1, "% 8f", itrBlend->second.mBlendWeight);
-                    ss<<szText;
+                    char szText[16] = { 0 };
+                    snprintf(szText, sizeof(szText) - 1, "% 8f", itrBlend->second.mBlendWeight);
+                    ss << szText;
                     //                     ss<<itrBlend->second.mBlendWeight;
                     ++i;
                     ++itrBlend;
@@ -537,17 +554,17 @@ namespace mconv
                         break;
                     }
 
-                    ss<<" ";
+                    ss << " ";
                 }
 
                 while (i < MAX_BLEND_COUNT)
                 {
                     //                     ss<<"0";
-                    char szText[16] = {0};
-                    snprintf(szText, sizeof(szText)-1, "% 8f", 0.0f);
-                    ss<<szText;
+                    char szText[16] = { 0 };
+                    snprintf(szText, sizeof(szText) - 1, "% 8f", 0.0f);
+                    ss << szText;
                     ++i;
-                    ss<<" ";
+                    ss << " ";
                 }
 
                 // BLEND_INDEX 只写权重最大的4个顶点
@@ -555,9 +572,9 @@ namespace mconv
                 itrBlend = vertex.mBlendInfo.rbegin();
                 while (itrBlend != vertex.mBlendInfo.rend())
                 {
-                    char szText[16] = {0};
-                    snprintf(szText, sizeof(szText)-1, "% 8d", itrBlend->second.mBlendIndex);
-                    ss<<szText;
+                    char szText[16] = { 0 };
+                    snprintf(szText, sizeof(szText) - 1, "% 8d", itrBlend->second.mBlendIndex);
+                    ss << szText;
                     //                     ss<<itrBlend->second.mBlendIndex;
                     ++i;
                     ++itrBlend;
@@ -567,22 +584,22 @@ namespace mconv
                         break;
                     }
 
-                    ss<<" ";
+                    ss << " ";
                 }
 
                 while (i < MAX_BLEND_COUNT)
                 {
-                    char szText[16] = {0};
-                    snprintf(szText, sizeof(szText)-1, "% 8d", 0);
-                    ss<<szText;
+                    char szText[16] = { 0 };
+                    snprintf(szText, sizeof(szText) - 1, "% 8d", 0);
+                    ss << szText;
                     //                     ss<<"-1";
                     ++i;
                     if (i < MAX_BLEND_COUNT)
-                        ss<<" ";
+                        ss << " ";
                 }
             }
 
-            ss<<" \n";
+            ss << " \n";
             XMLText *pText = pDoc->NewText(ss.str().c_str());
 
             pVertexElement->LinkEndChild(pText);
@@ -598,30 +615,30 @@ namespace mconv
         return pBufferElement;
     }
 
-	bool T3DXMLSerializer::hasVertexAttribute(Node *pNode, int16_t attribType)
-	{
-		bool found = false;
+    bool T3DXMLSerializer::hasVertexAttribute(Node *pNode, int16_t attribType)
+    {
+        bool found = false;
 
-		VertexBuffer *pVB = (VertexBuffer *)pNode;
-		T3D_ASSERT(pVB->getNodeType() == Node::E_TYPE_VERTEX_BUFFER);
+        VertexBuffer *pVB = (VertexBuffer *)pNode;
+        T3D_ASSERT(pVB->getNodeType() == Node::E_TYPE_VERTEX_BUFFER);
 
-		auto itr = pVB->mAttributes.begin();
+        auto itr = pVB->mAttributes.begin();
 
-		while (itr != pVB->mAttributes.end())
-		{
-			const VertexAttribute &attribute = *itr;
-			
-			if (attribType == attribute.mVertexType)
-			{
-				found = true;
-				break;
-			}
+        while (itr != pVB->mAttributes.end())
+        {
+            const VertexAttribute &attribute = *itr;
 
-			++itr;
-		}
+            if (attribType == attribute.mVertexType)
+            {
+                found = true;
+                break;
+            }
 
-		return found;
-	}
+            ++itr;
+        }
+
+        return found;
+    }
 
     XMLElement *T3DXMLSerializer::buildXMLSubMeshes(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
@@ -658,17 +675,17 @@ namespace mconv
         pIndicesElement->SetAttribute(ATTRIB_16BITS, b16Bits);
 
         std::stringstream ss;
-        ss<<"\n\t\t\t\t\t\t";
+        ss << "\n\t\t\t\t\t\t";
         size_t i = 0;
         auto itr = pSubMesh->mIndices.begin();
         while (itr != pSubMesh->mIndices.end())
         {
             int nIndex = *itr;
-            ss<<nIndex<<" ";
-            
+            ss << nIndex << " ";
+
             if (i == 32)
             {
-                ss<<"\n\t\t\t\t\t\t";
+                ss << "\n\t\t\t\t\t\t";
                 XMLText *pText = pDoc->NewText(ss.str().c_str());
                 pIndicesElement->LinkEndChild(pText);
                 ss.clear();
@@ -680,32 +697,32 @@ namespace mconv
             ++itr;
         }
 
-//         if ((nIndexCount & 31) != 0)
-//         {
-//             /// 有多余的，需要重新写回去
-//             XMLText *pText = pDoc->NewText(ss.str().c_str());
-//             pIndicesElement->LinkEndChild(pText);
-//         }
+        //         if ((nIndexCount & 31) != 0)
+        //         {
+        //             /// 有多余的，需要重新写回去
+        //             XMLText *pText = pDoc->NewText(ss.str().c_str());
+        //             pIndicesElement->LinkEndChild(pText);
+        //         }
 
-        ss<<"\n\t\t\t\t\t";
+        ss << "\n\t\t\t\t\t";
         XMLText *pText = pDoc->NewText(ss.str().c_str());
         pIndicesElement->LinkEndChild(pText);
 
         return pSubmeshElement;
     }
 
-//     XMLElement *T3DXMLSerializer::buildXMLMaterials(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
-//     {
-//         XMLElement *pMatsElement = pDoc->NewElement(TAG_MATERIALS);
-//         pParentElem->LinkEndChild(pMatsElement);
-// 
-//         pMatsElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
-//         pMatsElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
-// 
-//         return pMatsElement;
-//     }
+    //     XMLElement *T3DXMLSerializer::buildXMLMaterials(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    //     {
+    //         XMLElement *pMatsElement = pDoc->NewElement(TAG_MATERIALS);
+    //         pParentElem->LinkEndChild(pMatsElement);
+    // 
+    //         pMatsElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+    //         pMatsElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
+    // 
+    //         return pMatsElement;
+    //     }
 
-//     XMLElement *T3DXMLSerializer::buildXMLMaterial(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    //     XMLElement *T3DXMLSerializer::buildXMLMaterial(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     bool T3DXMLSerializer::saveMaterial(Node *pNode)
     {
         XMLDocument *pDoc = new XMLDocument();
@@ -734,10 +751,10 @@ namespace mconv
         XMLElement *pAmbientElement = pDoc->NewElement(TAG_AMBIENT);
         pMatElement->LinkEndChild(pAmbientElement);
         std::stringstream ss;
-        ss<<pMaterial->mAmbientColor[0]<<" ";
-        ss<<pMaterial->mAmbientColor[1]<<" ";
-        ss<<pMaterial->mAmbientColor[2]<<" ";
-        ss<<pMaterial->mAmbientColor[3];
+        ss << pMaterial->mAmbientColor[0] << " ";
+        ss << pMaterial->mAmbientColor[1] << " ";
+        ss << pMaterial->mAmbientColor[2] << " ";
+        ss << pMaterial->mAmbientColor[3];
         pText = pDoc->NewText(ss.str().c_str());
         pAmbientElement->LinkEndChild(pText);
 
@@ -746,10 +763,10 @@ namespace mconv
         pMatElement->LinkEndChild(pDiffuseElement);
         ss.clear();
         ss.str("");
-        ss<<pMaterial->mDiffuseColor[0]<<" ";
-        ss<<pMaterial->mDiffuseColor[1]<<" ";
-        ss<<pMaterial->mDiffuseColor[2]<<" ";
-        ss<<pMaterial->mDiffuseColor[3];
+        ss << pMaterial->mDiffuseColor[0] << " ";
+        ss << pMaterial->mDiffuseColor[1] << " ";
+        ss << pMaterial->mDiffuseColor[2] << " ";
+        ss << pMaterial->mDiffuseColor[3];
         pText = pDoc->NewText(ss.str().c_str());
         pDiffuseElement->LinkEndChild(pText);
 
@@ -758,10 +775,10 @@ namespace mconv
         pMatElement->LinkEndChild(pSpecularElement);
         ss.clear();
         ss.str("");
-        ss<<pMaterial->mSpecularColor[0]<<" ";
-        ss<<pMaterial->mSpecularColor[1]<<" ";
-        ss<<pMaterial->mSpecularColor[2]<<" ";
-        ss<<pMaterial->mSpecularColor[3];
+        ss << pMaterial->mSpecularColor[0] << " ";
+        ss << pMaterial->mSpecularColor[1] << " ";
+        ss << pMaterial->mSpecularColor[2] << " ";
+        ss << pMaterial->mSpecularColor[3];
         pText = pDoc->NewText(ss.str().c_str());
         pSpecularElement->LinkEndChild(pText);
 
@@ -770,10 +787,10 @@ namespace mconv
         pMatElement->LinkEndChild(pEmissiveElement);
         ss.clear();
         ss.str("");
-        ss<<pMaterial->mEmissiveColor[0]<<" ";
-        ss<<pMaterial->mEmissiveColor[1]<<" ";
-        ss<<pMaterial->mEmissiveColor[2]<<" ";
-        ss<<pMaterial->mEmissiveColor[3];
+        ss << pMaterial->mEmissiveColor[0] << " ";
+        ss << pMaterial->mEmissiveColor[1] << " ";
+        ss << pMaterial->mEmissiveColor[2] << " ";
+        ss << pMaterial->mEmissiveColor[3];
         pText = pDoc->NewText(ss.str().c_str());
         pEmissiveElement->LinkEndChild(pText);
 
@@ -782,7 +799,7 @@ namespace mconv
         pMatElement->LinkEndChild(pShinElement);
         ss.clear();
         ss.str("");
-        ss<<pMaterial->mShininess;
+        ss << pMaterial->mShininess;
         pText = pDoc->NewText(ss.str().c_str());
         pShinElement->LinkEndChild(pText);
 
@@ -791,7 +808,7 @@ namespace mconv
         pMatElement->LinkEndChild(pTransElement);
         ss.clear();
         ss.str("");
-        ss<<pMaterial->mTransparency;
+        ss << pMaterial->mTransparency;
         pText = pDoc->NewText(ss.str().c_str());
         pTransElement->LinkEndChild(pText);
 
@@ -800,7 +817,7 @@ namespace mconv
         pMatElement->LinkEndChild(pReflectElement);
         ss.clear();
         ss.str("");
-        ss<<pMaterial->mReflection;
+        ss << pMaterial->mReflection;
         pText = pDoc->NewText(ss.str().c_str());
         pReflectElement->LinkEndChild(pText);
 
@@ -817,11 +834,11 @@ namespace mconv
         {
             pos = mSavePath.rfind('/');
         }
-        
+
         String strPath;
         if (pos != String::npos)
         {
-            strPath = mSavePath.substr(0, pos+1);
+            strPath = mSavePath.substr(0, pos + 1);
         }
 
         String strFullPath = strPath + pMaterial->getID() + "." + T3D_TXT_MATERIAL_FILE_EXT;
@@ -903,8 +920,8 @@ namespace mconv
                 pFrameElement->SetAttribute(ATTRIB_ID, pFrame->mID);
                 pFrameElement->SetAttribute(ATTRIB_TIME, pFrame->mTimestamp);
 
-                char szText[512] = {0};
-                snprintf(szText, sizeof(szText)-1, " %8f % 8f % 8f", pFrame->x, pFrame->y, pFrame->z);
+                char szText[512] = { 0 };
+                snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f", pFrame->x, pFrame->y, pFrame->z);
                 XMLText *pText = pDoc->NewText(szText);
                 pFrameElement->LinkEndChild(pText);
                 ++i;
@@ -935,10 +952,10 @@ namespace mconv
                 pFrameElement->SetAttribute(ATTRIB_ID, pFrame->mID);
                 pFrameElement->SetAttribute(ATTRIB_TIME, pFrame->mTimestamp);
 
-//                 std::stringstream ss;
-//                 ss<<pFrame->x<<" "<<pFrame->y<<" "<<pFrame->z<<" "<<pFrame->w;
-                char szText[512] = {0};
-                snprintf(szText, sizeof(szText)-1, " %8f % 8f % 8f % 8f", pFrame->x, pFrame->y, pFrame->z, pFrame->w);
+                //                 std::stringstream ss;
+                //                 ss<<pFrame->x<<" "<<pFrame->y<<" "<<pFrame->z<<" "<<pFrame->w;
+                char szText[512] = { 0 };
+                snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f", pFrame->x, pFrame->y, pFrame->z, pFrame->w);
                 XMLText *pText = pDoc->NewText(szText);
                 pFrameElement->LinkEndChild(pText);
                 ++i;
@@ -969,10 +986,10 @@ namespace mconv
                 pFrameElement->SetAttribute(ATTRIB_ID, pFrame->mID);
                 pFrameElement->SetAttribute(ATTRIB_TIME, pFrame->mTimestamp);
 
-//                 std::stringstream ss;
-//                 ss<<pFrame->x<<" "<<pFrame->y<<" "<<pFrame->z;
-                char szText[512] = {0};
-                snprintf(szText, sizeof(szText)-1, " %8f % 8f % 8f", pFrame->x, pFrame->y, pFrame->z);
+                //                 std::stringstream ss;
+                //                 ss<<pFrame->x<<" "<<pFrame->y<<" "<<pFrame->z;
+                char szText[512] = { 0 };
+                snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f", pFrame->x, pFrame->y, pFrame->z);
                 XMLText *pText = pDoc->NewText(szText);
                 pFrameElement->LinkEndChild(pText);
                 ++i;
@@ -1029,34 +1046,98 @@ namespace mconv
 
         Bone *pBone = (Bone *)pNode;
         pBoneElement->SetAttribute(ATTRIB_ID, pBone->getID().c_str());
+        pBoneElement->SetAttribute(ATTRIB_INDEX, pBone->mBoneIndex);
 
         XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
         pBoneElement->LinkEndChild(pTransformElement);
 
         std::stringstream ss;
-        char szText[512] = {0};
-//         snprintf(szText, sizeof(szText)-1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ", 
-//                                            pBone->mLocalTransform[0][0], pBone->mLocalTransform[1][0], pBone->mLocalTransform[2][0], pBone->mLocalTransform[3][0],
-//                                            pBone->mLocalTransform[0][1], pBone->mLocalTransform[1][1], pBone->mLocalTransform[2][1], pBone->mLocalTransform[3][1],
-//                                            pBone->mLocalTransform[0][2], pBone->mLocalTransform[1][2], pBone->mLocalTransform[2][2], pBone->mLocalTransform[3][2],
-//                                            pBone->mLocalTransform[0][3], pBone->mLocalTransform[1][3], pBone->mLocalTransform[2][3], pBone->mLocalTransform[3][3]);
-        snprintf(szText, sizeof(szText)-1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ", 
+        char szText[512] = { 0 };
+        //         snprintf(szText, sizeof(szText)-1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ", 
+        //                                            pBone->mLocalTransform[0][0], pBone->mLocalTransform[1][0], pBone->mLocalTransform[2][0], pBone->mLocalTransform[3][0],
+        //                                            pBone->mLocalTransform[0][1], pBone->mLocalTransform[1][1], pBone->mLocalTransform[2][1], pBone->mLocalTransform[3][1],
+        //                                            pBone->mLocalTransform[0][2], pBone->mLocalTransform[1][2], pBone->mLocalTransform[2][2], pBone->mLocalTransform[3][2],
+        //                                            pBone->mLocalTransform[0][3], pBone->mLocalTransform[1][3], pBone->mLocalTransform[2][3], pBone->mLocalTransform[3][3]);
+        snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
             pBone->mLocalTransform[0][0], pBone->mLocalTransform[0][1], pBone->mLocalTransform[0][2], pBone->mLocalTransform[0][3],
             pBone->mLocalTransform[1][0], pBone->mLocalTransform[1][1], pBone->mLocalTransform[1][2], pBone->mLocalTransform[1][3],
             pBone->mLocalTransform[2][0], pBone->mLocalTransform[2][1], pBone->mLocalTransform[2][2], pBone->mLocalTransform[2][3],
             pBone->mLocalTransform[3][0], pBone->mLocalTransform[3][1], pBone->mLocalTransform[3][2], pBone->mLocalTransform[3][3]);
 
-        ss<<szText;
+        ss << szText;
 
-//         std::stringstream ss;
-//         ss<<pBone->mLocalTransform[0][0]<<" "<<pBone->mLocalTransform[1][0]<<" "<<pBone->mLocalTransform[2][0]<<" "<<pBone->mLocalTransform[3][0]<<" ";
-//         ss<<pBone->mLocalTransform[0][1]<<" "<<pBone->mLocalTransform[1][1]<<" "<<pBone->mLocalTransform[2][1]<<" "<<pBone->mLocalTransform[3][1]<<" ";
-//         ss<<pBone->mLocalTransform[0][2]<<" "<<pBone->mLocalTransform[1][2]<<" "<<pBone->mLocalTransform[2][2]<<" "<<pBone->mLocalTransform[3][2]<<" ";
-//         ss<<pBone->mLocalTransform[0][3]<<" "<<pBone->mLocalTransform[1][3]<<" "<<pBone->mLocalTransform[2][3]<<" "<<pBone->mLocalTransform[3][3];
+        //         std::stringstream ss;
+        //         ss<<pBone->mLocalTransform[0][0]<<" "<<pBone->mLocalTransform[1][0]<<" "<<pBone->mLocalTransform[2][0]<<" "<<pBone->mLocalTransform[3][0]<<" ";
+        //         ss<<pBone->mLocalTransform[0][1]<<" "<<pBone->mLocalTransform[1][1]<<" "<<pBone->mLocalTransform[2][1]<<" "<<pBone->mLocalTransform[3][1]<<" ";
+        //         ss<<pBone->mLocalTransform[0][2]<<" "<<pBone->mLocalTransform[1][2]<<" "<<pBone->mLocalTransform[2][2]<<" "<<pBone->mLocalTransform[3][2]<<" ";
+        //         ss<<pBone->mLocalTransform[0][3]<<" "<<pBone->mLocalTransform[1][3]<<" "<<pBone->mLocalTransform[2][3]<<" "<<pBone->mLocalTransform[3][3];
         XMLText *pText = pDoc->NewText(ss.str().c_str());
         pTransformElement->LinkEndChild(pText);
 
         return pBoneElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLHiarachy(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pHiarachyElement = pDoc->NewElement(TAG_HIARACHY);
+        pParentElem->LinkEndChild(pHiarachyElement);
+
+        pHiarachyElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+
+        return pHiarachyElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLTransform(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+        pParentElem->LinkEndChild(pTransformElement);
+
+        pTransformElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+
+        // 解出RTS
+        Transform *pTransform = (Transform *)pNode;
+        Vector3 pos, scale;
+        Quaternion orientation;
+        pTransform->mMatrix.decomposition(pos, scale, orientation);
+
+        // Translation
+        XMLElement *pTranslationElement = pDoc->NewElement(TAG_TRANSLATION);
+        pTransformElement->LinkEndChild(pTranslationElement);
+
+        std::stringstream ss;
+        char szText[128] = { 0 };
+        snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f", pos[0], pos[1], pos[2]);
+        ss << szText;
+        XMLText *pText = pDoc->NewText(ss.str().c_str());
+        pTranslationElement->LinkEndChild(pText);
+
+        // Orientation
+        XMLElement *pOrientationElement = pDoc->NewElement(TAG_ORIENTATION);
+        pTransformElement->LinkEndChild(pOrientationElement);
+
+        ss.str("");
+        snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f", orientation[0], orientation[1], orientation[2], orientation[3]);
+        ss << szText;
+        pText = pDoc->NewText(ss.str().c_str());
+        pOrientationElement->LinkEndChild(pText);
+
+        // Scale
+        XMLElement *pScaleElement = pDoc->NewElement(TAG_SCALE);
+        pTransformElement->LinkEndChild(pScaleElement);
+
+        ss.str("");
+        snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f", orientation[0], orientation[1], orientation[2], orientation[3]);
+        ss << szText;
+        pText = pDoc->NewText(ss.str().c_str());
+        pScaleElement->LinkEndChild(pText);
+
+        // Link
+        if (pTransform->mMesh != nullptr || pTransform->mSubMesh != nullptr)
+        {
+            XMLElement *pLink = pDoc->NewElement(TAG_LINK);
+        }
+
+        return pTransformElement;
     }
 
     XMLElement *T3DXMLSerializer::buildXMLAlignAxisBound(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
