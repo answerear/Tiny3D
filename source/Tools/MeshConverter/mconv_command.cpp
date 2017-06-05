@@ -148,13 +148,13 @@ namespace mconv
 
     FileMode Command::parseFileMode(const char *arg) const
     {
-        FileMode mode = E_FM_SHARE_VERTEX;
+        FileMode mode = E_FM_ORIGINAL;
 
         if (stricmp(arg, "shared") == 0)
         {
             mode = E_FM_SHARE_VERTEX;
         }
-        else if (stricmp(arg, "merge") == 0)
+        else if (stricmp(arg, "original") == 0)
         {
             mode = E_FM_ORIGINAL;
         }
