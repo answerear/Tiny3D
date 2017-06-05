@@ -95,6 +95,7 @@ namespace mconv
             : mCtrlPointIdx(0)
             , mPosition(0.0, 0.0, 0.0)
             , mMaterialIdx(-1)
+            , mHash(0)
         {
 
         }

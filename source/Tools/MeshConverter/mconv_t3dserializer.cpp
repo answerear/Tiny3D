@@ -1132,9 +1132,16 @@ namespace mconv
         pScaleElement->LinkEndChild(pText);
 
         // Link
-        if (pTransform->mMesh != nullptr || pTransform->mSubMesh != nullptr)
+        auto itr = pTransform->mEntities.begin();
+
+        while (itr != pTransform->mEntities.end())
         {
-            XMLElement *pLink = pDoc->NewElement(TAG_LINK);
+            auto entity = *itr;
+            XMLElement *pLinkElement = pDoc->NewElement(TAG_LINK);
+            pTransformElement->LinkEndChild(pLinkElement);
+            pLinkElement->SetAttribute(ATTRIB_MESH, entity.first->getID().c_str());
+            pLinkElement->SetAttribute(ATTRIB_SUBMESH, entity.second->getID().c_str());
+            ++itr;
         }
 
         return pTransformElement;

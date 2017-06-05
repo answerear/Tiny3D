@@ -22,6 +22,7 @@ namespace mconv
     class VertexBuffer;
     class VertexBuffers;
     class Transform;
+    class SubMesh;
 
     class FBXConverter : public ConverterImpl
     {
@@ -38,19 +39,23 @@ namespace mconv
         void convertMatrix(const FbxAMatrix &fbxMat, Matrix4 &m);
 
         bool processFbxScene(FbxScene *pFbxScene, Node *pRoot);
-        bool processFbxNode(FbxNode *pFbxNode, Node *pParent);
+        bool processFbxNode(FbxNode *pFbxNode, Node *pTransformNode, Node *pParent);
         bool processFbxAnimation(FbxNode *pFbxNode, Model *pModel);
 
-        bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Node *&pNode);
+        bool processFbxMesh(FbxNode *pFbxNode, Node *pParent, Transform *pTransform, Node *&pNode);
         bool processFbxSkin(FbxNode *pFbxNode, Node *pParent, Mesh *pMesh);
         bool processFbxSkeleton(FbxNode *pFbxNode, Node *pParent, Model *pModel, Node *&pNode);
         bool processFbxCamera(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxLight(FbxNode *pFbxNode, Node *pParent, Node *&pNewNode);
         bool processFbxMaterial(FbxNode *pFbxNode, Node *pParent);
         
-        bool computeBoundingBox(Mesh *pMesh);
-        bool computeBoundingSphere(Model *pModel, Mesh *pMesh);
-        bool computeAlignAxisBoundingBox(Model *pModel, Mesh *pMesh);
+        bool processBoundingBox(Node *pRoot);
+        bool computeBoundingBox(SubMesh *pSubMesh);
+        bool computeBoundingSphere(SubMesh *pSubMesh);
+        bool computeAlignAxisBoundingBox(SubMesh *pSubMesh);
+//         bool computeBoundingBox(Mesh *pMesh);
+//         bool computeBoundingSphere(Model *pModel, Mesh *pMesh);
+//         bool computeAlignAxisBoundingBox(Model *pModel, Mesh *pMesh);
 
         bool searchVertexBuffer(Mesh *pMesh, VertexBuffer *&pVertexBuffer);
 
@@ -64,7 +69,7 @@ namespace mconv
         bool readBinormal(FbxMesh *pFbxMesh, int nControlPointIdx, int nVertexIndex, int nLayer, Vector3 &binormal);
         bool readMaterial(FbxMesh *pFbxMesh, int nTriangleIndex, int &nMaterialIndex);
 
-        bool optimizeMesh(Node *pRoot);
+        bool optimizeMesh(Node *pNode);
 
         bool updateBoneIndex(FbxNode *pFbxNode, size_t boneIdx);
         bool updateBoneMatrix(FbxNode *pFbxNode, const Matrix4 &m, Node *pParent, Node *&pNode);
@@ -81,6 +86,8 @@ namespace mconv
 
         // 更新顶点中的骨骼索引和骨骼权重值
         bool updateVertexBlendIndexAndWeight(Mesh *pMesh, int nCtrlPointIdx, int nBlendIndex, double fBlendWeight);
+        bool updateVertexBlendIndexAndWeight(VertexBuffer *pVB, int nCtrlPointIndex, int nBlendIndex, double fBlendWeight);
+        void putVertexBlendAndWeightAttributes(VertexBuffer *pVB);
 
         // 添加骨骼权重和骨骼索引到顶点属性里
         void updateVertexBlendAttributes(Mesh *pMesh);
@@ -111,10 +118,11 @@ namespace mconv
         Node        *mCurScene;         // 当前场景节点，对于split mode是会变化的，对于merge和shared vertex永远只有一个不变的
         Node        *mCurModel;         // 当前模型节点
         Node        *mCurMesh;          // 用于共享顶点模式的当前网格节点
+        Node        *mCurSubMeshes;     // 用于共享顶点模式的当前子网格集合节点
         Node        *mCurSkeleton;      // 骨骼节点
         Node        *mCurAnimation;     // 动画节点
         Node        *mCurMaterials;     // 只用于merge和shared vertex文件格式下
-        Node        *mCurBound;         // 当前的碰撞区，不管是splite模式、merge模式、还是shared vertex模式，整个model只有一个bound
+//         Node        *mCurBound;         // 当前的碰撞区，不管是splite模式、merge模式、还是shared vertex模式，整个model只有一个bound
         Node        *mRootTransform;    // 场景变换根结点
 
         Bones       mBones;

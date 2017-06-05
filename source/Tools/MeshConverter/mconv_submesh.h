@@ -5,6 +5,8 @@
 
 
 #include "mconv_node.h"
+#include "mconv_vertexbuffer.h"
+#include "mconv_material.h"
 
 
 namespace mconv
@@ -14,13 +16,15 @@ namespace mconv
     public:
         SubMesh(const String &ID)
             : Node(ID)
+            , mMaterialIdx(0)
         {
-
+            mVB = new VertexBuffer(ID);
         }
 
         virtual ~SubMesh()
         {
-
+            delete mVB;
+            mVB = nullptr;
         }
 
         virtual Type getNodeType() const override
@@ -28,8 +32,49 @@ namespace mconv
             return E_TYPE_SUBMESH;
         }
 
-        String      mMaterialName;
-        Indices     mIndices;
+        bool generateIndices(const String &name, VertexBuffer *pVB)
+        {
+            if (pVB->getAttributesHash() != mVB->getAttributesHash())
+            {
+                return false;
+            }
+
+            // 重新声明名字
+            this->mID = name;
+
+            // 生成顶点索引
+            auto itr = mVB->mVertices.begin();
+
+            while (itr != mVB->mVertices.end())
+            {
+                Vertex &vertex = *itr;
+                vertex.hash();
+
+                int nIndex = 0;
+                auto i = pVB->mVertices.begin();
+
+                while (i != pVB->mVertices.end())
+                {
+                    Vertex &other = *i;
+
+                    if (vertex == other)
+                    {
+                       mIndices.push_back(nIndex);
+                    }
+                    ++nIndex;
+                    ++i;
+                }
+
+                ++itr;
+            }
+
+            return true;
+        }
+
+        int             mMaterialIdx;
+        String          mMaterialName;
+        VertexBuffer    *mVB;
+        Indices         mIndices;
     };
 
     class SubMeshes : public Node

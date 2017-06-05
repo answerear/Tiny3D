@@ -6,6 +6,7 @@
 
 #include "mconv_node.h"
 #include "mconv_vertexbuffer.h"
+#include "mconv_submesh.h"
 
 
 namespace mconv
@@ -29,25 +30,96 @@ namespace mconv
             return E_TYPE_MESH;
         }
 
-        bool split()
+        bool searchMaterial(Model *pModel, int nMaterialIdx, String &name)
+        {
+            bool result = false;
+
+            Materials *pMaterials = nullptr;
+            size_t i = 0;
+            for (i = 0; i < pModel->getChildrenCount(); ++i)
+            {
+                Node *pNode = pModel->getChild(i);
+                if (pNode->getNodeType() == Node::E_TYPE_MATERIALS)
+                {
+                    pMaterials = (Materials *)pNode;
+                    break;
+                }
+            }
+
+            if (pMaterials != nullptr)
+            {
+                int index = 0;
+                for (i = 0; i < pMaterials->getChildrenCount(); ++i)
+                {
+                    Node *pNode = pMaterials->getChild(i);
+                    if (pNode->getNodeType() == Node::E_TYPE_MATERIAL)
+                    {
+                        if (index == nMaterialIdx)
+                        {
+                            name = pNode->getID();
+                            result = true;
+                            break;
+                        }
+
+                        index++;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        bool optimize()
         {
             bool ret = false;
             size_t count = getChildrenCount();
+            size_t i = 0, j = 0, k = 0;
+            size_t idx = 0;
 
-            for (size_t i = 0; i < count; ++i)
+            SubMeshes *pSubMeshes = nullptr;
+
+            for (i = 0; i < count; ++i)
+            {
+                Node *pNode = getChild(i);
+                if (pNode->getNodeType() == Node::E_TYPE_SUBMESHES)
+                {
+                    pSubMeshes = (SubMeshes *)pNode;
+                    ret = true;
+                    break;
+                }
+            }
+
+            for (i = 0; i < count; ++i)
             {
                 VertexBuffers *vbs = dynamic_cast<VertexBuffers *>(getChild(i));
 
                 if (vbs != nullptr)
                 {
-                    ret = (vbs->getChildrenCount() > 0);
+                    ret = ret && (vbs->getChildrenCount() > 0);
 
-                    for (size_t j = 0; j < vbs->getChildrenCount(); ++j)
+                    for (j = 0; j < vbs->getChildrenCount(); ++j)
                     {
                         VertexBuffer *vb = dynamic_cast<VertexBuffer *>(vbs->getChild(j));
+                        vb->calcAttributesHash();
+
                         if (vb != nullptr)
                         {
-                            ret = ret && vb->split();
+                            ret = ret && vb->optimize();
+
+                            for (k = 0; k < pSubMeshes->getChildrenCount(); ++k)
+                            {
+                                SubMesh *pSubMesh = (SubMesh *)pSubMeshes->getChild(k);
+                                T3D_ASSERT(pSubMesh->getNodeType() == Node::E_TYPE_SUBMESH);
+                                Model *pModel = (Model *)getParent();
+                                String name;
+                                searchMaterial(pModel, pSubMesh->mMaterialIdx, name);
+                                std::stringstream ss;
+                                ss << name << "#" << idx;
+                                pSubMesh->mMaterialName = name;
+                                pSubMesh->mVB->calcAttributesHash();
+                                ret = ret && pSubMesh->generateIndices(ss.str(), vb);
+                                idx++;
+                            }
                         }
                     }
                 }
@@ -55,9 +127,6 @@ namespace mconv
 
             return ret;
         }
-
-        Matrix4             mWorldMatrix;
-        Matrix4             mGeometryMatrix;
     };
 }
 

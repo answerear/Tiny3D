@@ -32,10 +32,12 @@ namespace mconv
     class Transform : public Node
     {
     public:
+        typedef std::pair<Mesh*, SubMesh*>  Entity;
+        typedef std::list<Entity>           Entities;
+        typedef Entities::iterator          EntitiesItr;
+
         Transform(const String &ID)
             : Node(ID)
-            , mMesh(nullptr)
-            , mSubMesh(nullptr)
         {
 
         }
@@ -51,8 +53,7 @@ namespace mconv
         }
 
         Matrix4     mMatrix;
-        Mesh        *mMesh;
-        SubMesh     *mSubMesh;
+        Entities    mEntities;
     };
 }
 

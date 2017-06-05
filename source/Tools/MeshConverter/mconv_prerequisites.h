@@ -62,8 +62,8 @@ namespace mconv
 
     enum FileMode
     {
-        E_FM_SHARE_VERTEX = 0,                  /// fbx中有多个mesh的时候会自动合并成一个model，全部都在一个文件中，并且共享顶点缓存
-        E_FM_MERGE_MESH,                    /// fbx中有多个mesh的时候会自动合并成一个model，全部都在一个文件中，每个mesh有其独立顶点缓存
+        E_FM_SHARE_VERTEX = 0,              /// fbx中有多个mesh的时候会自动合并成一个model，全部都在一个文件中，并且共享顶点缓存
+        E_FM_ORIGINAL,                      /// 维持fbx中的原始结构，如果有多个mesh就多个mesh，只有一个mesh就一个mesh
     };
 
     typedef std::list<Vector2>              VectorElements2;
