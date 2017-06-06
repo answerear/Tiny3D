@@ -17,6 +17,7 @@
 #include "mconv_texture.h"
 #include "mconv_bound.h"
 #include "mconv_vertexbuffer.h"
+#include "mconv_log.h"
 
 
 namespace mconv
@@ -46,7 +47,7 @@ namespace mconv
         }
         else
         {
-            T3D_LOG_ERROR("Create importer failed ! Because of invalid source file format !");
+            MCONV_LOG_ERROR("Create importer failed ! Because of invalid source file format !");
             result = false;
         }
 
@@ -79,7 +80,7 @@ namespace mconv
         }
         else
         {
-            T3D_LOG_ERROR("Create exporter failed ! Because of invalid destination file format !");
+            MCONV_LOG_ERROR("Create exporter failed ! Because of invalid destination file format !");
             T3D_ASSERT(0);
             result = false;
         }
@@ -93,7 +94,7 @@ namespace mconv
     {
         if (mSrcData == nullptr)
         {
-            T3D_LOG_ERROR("Convert to T3D failed ! Because of invalid source data !");
+            MCONV_LOG_ERROR("Convert to T3D failed ! Because of invalid source data !");
             return false;
         }
 

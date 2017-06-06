@@ -1,6 +1,7 @@
 
 
 #include "mconv_fbxserializer.h"
+#include "mconv_log.h"
 
 
 namespace mconv
@@ -21,7 +22,7 @@ namespace mconv
     {
         if (mFbxManager == nullptr)
         {
-            T3D_LOG_ERROR("FBX Manager haven't been initialized !");
+            MCONV_LOG_ERROR("FBX Manager haven't been initialized !");
             return false;
         }
 
@@ -33,12 +34,22 @@ namespace mconv
 
         if (!bImportStatus)
         {
-            T3D_LOG_ERROR("Unable to initialize FBX importer !");
+            MCONV_LOG_ERROR("Unable to initialize FBX importer !");
             return false;
         }
 
+        MCONV_LOG_INFO("Initialize FBX importer successfully !");
+
         // Import the scene
         bool bStatus = pFbxImporter->Import(mFbxScene);
+
+        if (!bStatus)
+        {
+            MCONV_LOG_ERROR("Import FBX file failed !");
+            return false;
+        }
+
+        MCONV_LOG_INFO("Import FBX file successfully !");
 
         // Destroy the importer
         pFbxImporter->Destroy();
@@ -48,24 +59,29 @@ namespace mconv
         FbxAxisSystem OurAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
         if (SceneAxisSystem != OurAxisSystem)
         {
+            MCONV_LOG_INFO("Start converting axis system to RIGHT HAND ......");
             OurAxisSystem.ConvertScene(mFbxScene);
+            MCONV_LOG_INFO("Completed converting axis system !");
         }
 
         // Convert Unit System to what is used in this example, if needed
         FbxSystemUnit SceneSystemUnit = mFbxScene->GetGlobalSettings().GetSystemUnit();
         if (SceneSystemUnit.GetScaleFactor() != 1.0)
         {
+            MCONV_LOG_INFO("Start converting unit to centimeter ......");
             //The unit in this example is centimeter.
             FbxSystemUnit::cm.ConvertScene(mFbxScene);
+            MCONV_LOG_INFO("Completed converting unit !");
         }
         
 //         FbxAxisSystem::OpenGL.ConvertScene(mFbxScene);
         // 统一以1米为单位
 //         FbxSystemUnit::m.ConvertScene(mFbxScene);
-
+        MCONV_LOG_INFO("Start converting face to triangles ......");
         // 不是三角形为面的mesh，统一转换成三角形为面的mesh
         FbxGeometryConverter converter(mFbxManager);
         converter.Triangulate(mFbxScene, true);
+        MCONV_LOG_INFO("Completed converting face to triangles !");
 
         pData = mFbxScene;
 
@@ -87,7 +103,7 @@ namespace mconv
         mFbxManager = FbxManager::Create();
         if (mFbxManager == nullptr)
         {
-            T3D_LOG_ERROR("Unable to create FBX Manager !");
+            MCONV_LOG_ERROR("Unable to create FBX Manager !");
             return false;
         }
 
@@ -103,7 +119,7 @@ namespace mconv
         mFbxScene = FbxScene::Create(mFbxManager, "My Scene");
         if (mFbxScene == nullptr)
         {
-            T3D_LOG_ERROR("Unable to create FBX scene !");
+            MCONV_LOG_ERROR("Unable to create FBX scene !");
             return false;
         }
 

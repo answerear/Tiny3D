@@ -6,6 +6,7 @@
 #include "mconv_fbxconverter.h"
 #include "mconv_ogreconverter.h"
 #include "mconv_serializer.h"
+#include "mconv_log.h"
 
 
 namespace mconv
@@ -81,11 +82,13 @@ namespace mconv
     {
         bool ret = true;
 
+        MCONV_LOG_INFO("Starting converting ......");
         ret = ret && importScene();
         ret = ret && convertToT3D();
         ret = ret && exportScene();
 
         cleanup();
+        MCONV_LOG_INFO("Completed converting !");
 
         return ret;
     }

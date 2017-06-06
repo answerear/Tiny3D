@@ -16,6 +16,7 @@
 #include "mconv_texture.h"
 #include "mconv_bound.h"
 #include "mconv_transform.h"
+#include "mconv_log.h"
 #include <iomanip>
 
 
@@ -123,6 +124,7 @@ namespace mconv
 
     bool T3DXMLSerializer::save(const String &path, void *pData)
     {
+        MCONV_LOG_INFO("Start writing file : %s", path);
         using namespace tinyxml2;
 
         Scene *pScene = (Scene *)pData;
@@ -150,6 +152,8 @@ namespace mconv
             delete pDoc;
         }
 
+        MCONV_LOG_INFO("Completed writing file !");
+
         return true;
     }
 
@@ -160,118 +164,118 @@ namespace mconv
         switch (pNode->getNodeType())
         {
         case Node::E_TYPE_ANIMATION:
-        {
-            pElement = buildXMLAnimation(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLAnimation(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_ACTION:
-        {
-            pElement = buildXMLAction(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLAction(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_BONE:
-        {
-            pElement = buildXMLBone(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLBone(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_BOUND_AABB:
-        {
-            pElement = buildXMLAlignAxisBound(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLAlignAxisBound(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_BOUND_SPHERE:
-        {
-            pElement = buildXMLSphereBound(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLSphereBound(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_CAMERA:
-        {
-            pElement = buildXMLCamera(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLCamera(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_HIARACHY:
-        {
-            pElement = buildXMLHiarachy(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLHiarachy(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_LIGHT:
-        {
-            pElement = buildXMLLight(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLLight(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_MATERIAL:
-        {
-            //                 pElement = buildXMLMaterial(pDoc, pParentElem, pNode);
-            saveMaterial(pNode);
-            pElement = pParentElem;
-        }
-        break;
+            {
+                //                 pElement = buildXMLMaterial(pDoc, pParentElem, pNode);
+                saveMaterial(pNode);
+                pElement = pParentElem;
+            }
+            break;
         case Node::E_TYPE_MATERIALS:
-        {
-            //                 pElement = buildXMLMaterials(pDoc, pParentElem, pNode);
-            pElement = pParentElem;
-        }
-        break;
+            {
+                //                 pElement = buildXMLMaterials(pDoc, pParentElem, pNode);
+                pElement = pParentElem;
+            }
+            break;
         case Node::E_TYPE_MESH:
-        {
-            pElement = buildXMLMesh(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLMesh(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_MODEL:
-        {
-            pElement = buildXMLModel(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLModel(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_SKIN:
-        {
-            pElement = buildXMLSkin(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLSkin(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_SKELETON:
-        {
-            pElement = buildXMLSkeleton(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLSkeleton(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_SUBMESH:
-        {
-            pElement = buildXMLSubMesh(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLSubMesh(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_SUBMESHES:
-        {
-            pElement = buildXMLSubMeshes(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLSubMeshes(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_TEXTURE:
-        {
-            pElement = buildXMLTexture(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLTexture(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_TEXTURES:
-        {
-            pElement = buildXMLTextures(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLTextures(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_TRANSFORM:
-        {
-            pElement = buildXMLTransform(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLTransform(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_VERTEX_BUFFERS:
-        {
-            pElement = buildXMLVertexBuffers(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLVertexBuffers(pDoc, pParentElem, pNode);
+            }
+            break;
         case Node::E_TYPE_VERTEX_BUFFER:
-        {
-            pElement = buildXMLVertexBuffer(pDoc, pParentElem, pNode);
-        }
-        break;
+            {
+                pElement = buildXMLVertexBuffer(pDoc, pParentElem, pNode);
+            }
+            break;
         default:
-        {
-            pElement = pParentElem;
-        }
-        break;
+            {
+                pElement = pParentElem;
+            }
+            break;
         }
 
         if (pNode->getNodeType() != Node::E_TYPE_MATERIAL)

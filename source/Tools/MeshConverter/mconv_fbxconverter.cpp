@@ -18,6 +18,7 @@
 #include "mconv_bound.h"
 #include "mconv_vertexbuffer.h"
 #include "mconv_transform.h"
+#include "mconv_log.h"
 
 
 namespace mconv
@@ -67,7 +68,7 @@ namespace mconv
         }
         else
         {
-            T3D_LOG_ERROR("Create importer failed ! Because of invalid source file format !");
+            MCONV_LOG_ERROR("Create importer failed ! Because of invalid source file format !");
             result = false;
         }
 
@@ -100,7 +101,7 @@ namespace mconv
         }
         else
         {
-            T3D_LOG_ERROR("Create exporter failed ! Because of invalid destination file format !");
+            MCONV_LOG_ERROR("Create exporter failed ! Because of invalid destination file format !");
             return false;
         }
 
@@ -113,7 +114,7 @@ namespace mconv
     {
         if (mSrcData == nullptr)
         {
-            T3D_LOG_ERROR("Convert to T3D failed ! Because of invalid source data !");
+            MCONV_LOG_ERROR("Convert to T3D failed ! Because of invalid source data !");
             return false;
         }
 
@@ -126,12 +127,21 @@ namespace mconv
             name = "Scene";
         }
 
+        MCONV_LOG_INFO("Start converting to T3D ......");
         Scene *pScene = new Scene(name);
         mCurScene = pScene;
         mDstData = pScene;
-        processFbxScene(pFbxScene, pScene);
+        bool ret = processFbxScene(pFbxScene, pScene);
+        if (!ret)
+        {
+            MCONV_LOG_ERROR("Failed converting !");
+        }
+        else
+        {
+            MCONV_LOG_INFO("Completed converting successfully !");
+        }
 
-        return true;
+        return ret;
     }
 
     void FBXConverter::cleanup()
@@ -150,8 +160,29 @@ namespace mconv
 
         if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
         {
+            MCONV_LOG_INFO("Start optimizing mesh ......");
             result = result && optimizeMesh(pRoot);
-            processBoundingBox(pRoot);
+
+            if (!result)
+            {
+                MCONV_LOG_ERROR("Failed optimizing mesh !");
+            }
+            else
+            {
+                MCONV_LOG_INFO("Completed optimizing mesh !");
+            }
+
+            MCONV_LOG_INFO("Start computing bounding box ......");
+            result = processBoundingBox(pRoot);
+
+            if (!result)
+            {
+                MCONV_LOG_ERROR("Failed computing bounding box !");
+            }
+            else
+            {
+                MCONV_LOG_INFO("Completed computing bounding box !");
+            }
         }
 
         pRoot->addChild(mRootTransform);
@@ -224,6 +255,7 @@ namespace mconv
                 {
                 case FbxNodeAttribute::eNull:
                     {
+                        MCONV_LOG_INFO("Start processing transform ......");
                         Transform *pTransform = nullptr;
 
                         pTransform = new Transform(name);
@@ -232,6 +264,7 @@ namespace mconv
 
                         FbxAMatrix M = pFbxNode->EvaluateLocalTransform();
                         convertMatrix(M, pTransform->mMatrix);
+                        MCONV_LOG_INFO("Completed processing transform !");
                     }
                     break;
                 case FbxNodeAttribute::eMesh:
@@ -284,7 +317,26 @@ namespace mconv
                     break;
                 case FbxNodeAttribute::eSkeleton:
                     {
+                        if (pFbxNode->GetParent() &&
+                            pFbxNode->GetParent()->GetNodeAttribute() == NULL)
+                        {
+                            MCONV_LOG_INFO("Start processing skeleton ......");
+                        }
+
                         result = processFbxSkeleton(pFbxNode, pParent, (Model *)mCurModel, pNode);
+
+                        if (pFbxNode->GetParent() &&
+                            pFbxNode->GetParent()->GetNodeAttribute() == NULL)
+                        {
+                            if (!result)
+                            {
+                                MCONV_LOG_ERROR("Failed processing skeleton !");
+                            }
+                            else
+                            {
+                                MCONV_LOG_INFO("Completed processing skeleton successfully !");
+                            }
+                        }
                     }
                     break;
                 case FbxNodeAttribute::eCamera:
@@ -329,11 +381,13 @@ namespace mconv
 
     bool FBXConverter::processFbxMesh(FbxNode *pFbxNode, Node *pParent, Transform *pTransform, Node *&pNewNode)
     {
+        MCONV_LOG_INFO("Start processing mesh ......");
+
         FbxMesh *pFbxMesh = pFbxNode->GetMesh();
 
         if (pFbxMesh == nullptr)
         {
-            T3D_LOG_ERROR("FBX mesh is invalid !");
+            MCONV_LOG_ERROR("FBX mesh is invalid !");
             return false;
         }
 
@@ -417,12 +471,12 @@ namespace mconv
         // 生成顶点属性
         if (!processVertexAttribute(pFbxMesh, pVB))
         {
+            MCONV_LOG_ERROR("Failed processing vertex attribute !");
             return false;
         }
 
         typedef std::map<size_t, SubMesh*>  SubMeshMap;
         typedef SubMeshMap::iterator        SubMeshMapItr;
-
         typedef std::pair<size_t, SubMesh*> SubMeshValue;
 
         SubMeshMap  submeshes;
@@ -551,6 +605,8 @@ namespace mconv
             }
         }
 
+        MCONV_LOG_INFO("Completed processing mesh successfully !");
+
         return true;
     }
 
@@ -595,7 +651,7 @@ namespace mconv
             {
                 if (rkSource != rkOther)
                 {
-                    T3D_LOG_ERROR("Different vertex format ! Shared vertex file mode could not be used !");
+                    MCONV_LOG_ERROR("Different vertex format ! Shared vertex file mode could not be used !");
                     return false;
                 }
             }
@@ -1142,6 +1198,8 @@ namespace mconv
 
     bool FBXConverter::processFbxMaterial(FbxNode *pFbxNode, Node *pParent)
     {
+        MCONV_LOG_INFO("Start processing material ......");
+
         int nMaterialCount = pFbxNode->GetMaterialCount();
         int i = 0;
         
@@ -1322,6 +1380,8 @@ namespace mconv
             }
         }
 
+        MCONV_LOG_INFO("Completed processing material !");
+
         return true;
     }
 
@@ -1493,6 +1553,8 @@ namespace mconv
 
     bool FBXConverter::processFbxSkin(FbxNode *pFbxNode, Node *pParent, Mesh *pMesh)
     {
+        MCONV_LOG_INFO("Start processing skin ......");
+
         FbxMesh *pFbxMesh = pFbxNode->GetMesh();
         Model *pModel = (Model *)pMesh->getParent();
         int nDeformerCount = pFbxMesh->GetDeformerCount();
@@ -1602,6 +1664,8 @@ namespace mconv
 //                 T3D_ASSERT(0);
 //             }
         }
+
+        MCONV_LOG_INFO("Completed processing skin successfully !");
 
         return true;
     }
@@ -1911,7 +1975,7 @@ namespace mconv
 
     bool FBXConverter::processBoundingBox(Node *pNode)
     {
-        bool result = false;
+        bool result = true;
 
         if (pNode->getNodeType() == Node::E_TYPE_SUBMESH)
         {
@@ -1923,7 +1987,7 @@ namespace mconv
         for (i = 0; i < pNode->getChildrenCount(); ++i)
         {
             Node *pChild = pNode->getChild(i);
-            processBoundingBox(pChild);
+            result = processBoundingBox(pChild);
         }
 
         return result;
