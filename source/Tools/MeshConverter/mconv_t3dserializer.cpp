@@ -124,7 +124,7 @@ namespace mconv
 
     bool T3DXMLSerializer::save(const String &path, void *pData)
     {
-        MCONV_LOG_INFO("Start writing file : %s", path);
+        MCONV_LOG_INFO("Start writing file : %s", path.c_str());
         using namespace tinyxml2;
 
         Scene *pScene = (Scene *)pData;

@@ -158,7 +158,7 @@ namespace mconv
 
         bool result = processFbxNode(pFbxRoot, mRootTransform, pRoot);
 
-        if (E_FM_SHARE_VERTEX == mSettings.mFileMode)
+        if (result && E_FM_SHARE_VERTEX == mSettings.mFileMode)
         {
             MCONV_LOG_INFO("Start optimizing mesh ......");
             result = result && optimizeMesh(pRoot);
@@ -651,7 +651,7 @@ namespace mconv
             {
                 if (rkSource != rkOther)
                 {
-                    MCONV_LOG_ERROR("Different vertex format ! Shared vertex file mode could not be used !");
+                    MCONV_LOG_ERROR("Different vertex format, shared vertex file mode could not be used ! Please using \"-m original\" insteading of \"-m shared\" !");
                     return false;
                 }
             }

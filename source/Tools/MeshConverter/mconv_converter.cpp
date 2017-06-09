@@ -88,7 +88,11 @@ namespace mconv
         ret = ret && exportScene();
 
         cleanup();
-        MCONV_LOG_INFO("Completed converting !");
+
+        if (ret)
+        {
+            MCONV_LOG_INFO("Completed converting !");
+        }
 
         return ret;
     }
