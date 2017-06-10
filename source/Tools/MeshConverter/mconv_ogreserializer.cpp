@@ -805,7 +805,7 @@ namespace mconv
                 break;
             case OGRE_SKELETON_ANIMATION_TRACK_KEYFRAME_LIST:
                 {
-                    ret = ret && readAnimationKeyframeList(stream, data, animation);
+                    ret = ret && readAnimationKeyframeList(stream, data, animation, boneHandle);
                 }
                 break;
             default:
@@ -833,6 +833,7 @@ namespace mconv
 
         animation.keyframes.push_back(OgreKeyframe());
         OgreKeyframe &keyframe = animation.keyframes.back();
+        keyframe.boneID = bone;
         size_t bytesOfRead = readFloats(stream, parent, &keyframe.time);
         ret = ret && (bytesOfRead == sizeof(keyframe.time));
         bytesOfRead = readObject(stream, parent, keyframe.orientation);
@@ -855,7 +856,7 @@ namespace mconv
         return ret;
     }
 
-    bool OgreSerializer::readAnimationKeyframeList(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreAnimation &animation)
+    bool OgreSerializer::readAnimationKeyframeList(Tiny3D::DataStream &stream, OgreChunkData &parent, OgreAnimation &animation, uint16_t bone)
     {
         bool ret = true;
 
@@ -874,6 +875,8 @@ namespace mconv
         {
             animation.keyframes.push_back(OgreKeyframe());
             OgreKeyframe &keyframe = animation.keyframes.back();
+            keyframe.boneID = bone;
+
             bytesOfRead = readFloats(stream, parent, &keyframe.time);
             ret = ret && (bytesOfRead == sizeof(keyframe.time));
 

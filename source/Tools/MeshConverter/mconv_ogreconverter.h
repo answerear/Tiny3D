@@ -19,6 +19,7 @@ namespace mconv
     class Vertex;
     class VertexBuffers;
     class VertexBuffer;
+    class Bone;
 
     struct OgreMesh;
     struct OgreSubMesh;
@@ -57,6 +58,8 @@ namespace mconv
         bool processOgreAnimations(const OgreSkeleton &skeleton, Model *pModel);
 
     protected:
+        std::vector<Bone*> mBones;
+
         void    *mSrcData;
         void    *mDstData;
     };

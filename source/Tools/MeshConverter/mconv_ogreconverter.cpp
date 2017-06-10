@@ -590,11 +590,12 @@ namespace mconv
             pModel->addChild(pSkel);
 
             // 先分配所有骨骼结点对象
-            std::vector<Bone*> bones(skeleton.bones.size(), nullptr);
+            mBones.resize(skeleton.bones.size(), nullptr);
             size_t i = 0;
-            for (i = 0; i < bones.size(); ++i)
+            for (i = 0; i < mBones.size(); ++i)
             {
-                bones[i] = new Bone("unknown");
+                mBones[i] = new Bone("unknown");
+                mBones[i]->mBoneIndex = i;
             }
 
             // 构建树形骨骼关系和计算变换矩阵
@@ -603,7 +604,7 @@ namespace mconv
             while (itr != skeleton.bones.end())
             {
                 const OgreBone &bone = *itr;
-                Bone *pBone = bones[bone.handle];
+                Bone *pBone = mBones[bone.handle];
 
                 if (bone.parent == 0xFFFF)
                 {
@@ -612,7 +613,7 @@ namespace mconv
                 }
                 else
                 {
-                    Bone *pParent = bones[bone.parent];
+                    Bone *pParent = mBones[bone.parent];
                     pBone->setID(bone.name);
                     T3D_ASSERT(pBone->getParent() == nullptr);
                     pParent->addChild(pBone);
@@ -634,6 +635,53 @@ namespace mconv
     bool OgreConverter::processOgreAnimations(const OgreSkeleton &skeleton, Model *pModel)
     {
         bool result = true;
+
+        Animation *pAnimation = new Animation(pModel->getID());
+        pModel->addChild(pAnimation);
+
+        auto itr = skeleton.animations.begin();
+        while (itr != skeleton.animations.end())
+        {
+            auto action = *itr;
+            Action *pAction = new Action(action.name);
+            pAnimation->addChild(pAction);
+            pAction->mDuration = action.length;
+
+            int k = 0;
+            auto i = action.keyframes.begin();
+            while (i != action.keyframes.end())
+            {
+                auto keyframe = *i;
+                Bone *pBone = mBones[keyframe.boneID];
+
+                k = pAction->getKeyFramesSize(pBone->getID(), pAction->mTKeyframes);
+                KeyframeT *pTFrame = new KeyframeT(k);
+                pTFrame->x = keyframe.position[0];
+                pTFrame->y = keyframe.position[1];
+                pTFrame->z = keyframe.position[2];
+                pTFrame->mTimestamp = keyframe.time;
+                pAction->addKeyframe(pTFrame, pBone->getID(), pAction->mTKeyframes);
+
+                k = pAction->getKeyFramesSize(pBone->getID(), pAction->mRKeyframes);
+                KeyframeR *pRFrame = new KeyframeR(k);
+                pRFrame->x = keyframe.orientation.x();
+                pRFrame->y = keyframe.orientation.y();
+                pRFrame->z = keyframe.orientation.z();
+                pRFrame->w = keyframe.orientation.w();
+                pAction->addKeyframe(pRFrame, pBone->getID(), pAction->mRKeyframes);
+
+                k = pAction->getKeyFramesSize(pBone->getID(), pAction->mSKeyframes);
+                KeyframeS *pSFrame = new KeyframeS(k);
+                pSFrame->x = keyframe.scale[0];
+                pSFrame->y = keyframe.scale[1];
+                pSFrame->z = keyframe.scale[2];
+                pAction->addKeyframe(pSFrame, pBone->getID(), pAction->mSKeyframes);
+
+                ++i;
+            }
+
+            ++itr;
+        }
 
         return result;
     }

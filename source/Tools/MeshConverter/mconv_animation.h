@@ -150,6 +150,21 @@ namespace mconv
             return true;
         }
 
+        size_t getKeyFramesSize(const String &name, const Bones &bones)
+        {
+            size_t s = 0;
+
+            auto itr = bones.find(name);
+
+            if (itr != bones.end())
+            {
+                auto keyframes = itr->second;
+                s = keyframes.size();
+            }
+
+            return s;
+        }
+
         Bones       mTKeyframes;
         Bones       mRKeyframes;
         Bones       mSKeyframes;
