@@ -68,12 +68,12 @@ namespace mconv
             mExporter = new T3DSerializer();
             result = (mExporter != nullptr);
         }
-        else if (mSettings.mDstType & E_FILETYPE_TMB)
+        else if (mSettings.mDstType & E_FILETYPE_T3B)
         {
             mExporter = new T3DBinSerializer();
             result = (mExporter != nullptr);
         }
-        else if (mSettings.mDstType & E_FILETYPE_TMT)
+        else if (mSettings.mDstType & E_FILETYPE_T3T)
         {
             mExporter = new T3DXMLSerializer();
             result = (mExporter != nullptr);

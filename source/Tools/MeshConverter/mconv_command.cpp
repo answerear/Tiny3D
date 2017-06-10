@@ -125,9 +125,9 @@ namespace mconv
         else if (stricmp(arg,"ogre") == 0)
             type = E_FILETYPE_OGRE;
         else if (stricmp(arg, T3D_BIN_MODEL_FILE_EXT) == 0)
-            type = E_FILETYPE_TMB;
+            type = E_FILETYPE_T3B;
         else if (stricmp(arg, T3D_TXT_MODEL_FILE_EXT) == 0)
-            type = E_FILETYPE_TMT;
+            type = E_FILETYPE_T3T;
         else if (stricmp(arg, "t3d") == 0)
             type = E_FILETYPE_T3D;
 

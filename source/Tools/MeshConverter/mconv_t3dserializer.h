@@ -263,7 +263,7 @@ namespace mconv
     class T3DXMLSerializer : public Serializer
     {
     public:
-        static const char * const TAG_VERSION;
+        static const char * const TAG_TINY3D;
         static const char * const TAG_SCENE;
         static const char * const TAG_MODEL;
         static const char * const TAG_MESH;
@@ -300,13 +300,16 @@ namespace mconv
         static const char * const TAG_BOUND;
         static const char * const TAG_LIGHT;
         static const char * const TAG_CAMERA;
-        static const char * const TAG_HIARACHY;
+        static const char * const TAG_HIERARCHY;
         static const char * const TAG_LINK;
         static const char * const TAG_TRANSLATION;
         static const char * const TAG_SCALE;
         static const char * const TAG_ORIENTATION;
         static const char * const TAG_ROTATION;
+        static const char * const TAG_NODE;
 
+        static const char * const ATTRIB_VERSION;
+        static const char * const ATTRIB_MAGIC;
         static const char * const ATTRIB_ID;
         static const char * const ATTRIB_COUNT;
         static const char * const ATTRIB_SIZE;
@@ -347,7 +350,7 @@ namespace mconv
         XMLElement *buildXMLTextures(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLTexture(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLTransform(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
-        XMLElement *buildXMLHiarachy(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLHierarchy(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSkeleton(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSkin(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLBone(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);

@@ -37,21 +37,26 @@ namespace mconv
     #define T3D_MATERIAL_FILE_VER_CUR           T3D_MATERIAL_FILE_VER_00000001
     #define T3D_MATERIAL_FILE_VER_CUR_STR       T3D_MATERIAL_FILE_VER_00000001_STR
 
-    #define T3D_BIN_MODEL_FILE_EXT              "tmb"
-    #define T3D_TXT_MODEL_FILE_EXT              "tmt"
+    #define T3D_BIN_MODEL_FILE_EXT              "t3b"
+    #define T3D_TXT_MODEL_FILE_EXT              "t3t"
 
-    #define T3D_BIN_MATERIAL_FILE_EXT           "mtb"
-    #define T3D_TXT_MATERIAL_FILE_EXT           "mtt"
+    #define T3D_BIN_MATERIAL_FILE_EXT           "t3b"
+    #define T3D_TXT_MATERIAL_FILE_EXT           "t3t"
+
+    #define T3D_SCENE_FILE_MAGIC                "TSCN"
+    #define T3D_MODEL_FILE_MAGIC                "TMDL"
+    #define T3D_MATERIAL_FILE_MAGIC             "TMTL"
+
 
     enum FileType
     {
         E_FILETYPE_AUTO     = 0,        /// 根据扩展名自动判断文件格式
         E_FILETYPE_FBX      = 0x10,     /// FBX格式
         E_FILETYPE_DAE      = 0x20,     /// DAE格式
-        E_FILETYPE_TMB      = 0x40,     /// T3D二进制格式
-        E_FILETYPE_TMT      = 0x41,     /// T3D文本XML格式
+        E_FILETYPE_T3B      = 0x40,     /// T3D二进制格式
+        E_FILETYPE_T3T      = 0x41,     /// T3D文本XML格式
         E_FILETYPE_OGRE     = 0x50,     /// Ogre文件格式
-        E_FILETYPE_T3D      = E_FILETYPE_TMB|E_FILETYPE_TMT,  /// T3D二进制和文本格式
+        E_FILETYPE_T3D      = E_FILETYPE_T3B|E_FILETYPE_T3T,  /// T3D二进制和文本格式
     };
 
     enum BoundType

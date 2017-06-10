@@ -9,22 +9,22 @@
 
 namespace mconv
 {
-    class Hiarachy : public Node
+    class Hierarchy : public Node
     {
     public:
-        Hiarachy(const String &ID)
+        Hierarchy(const String &ID)
             : Node(ID)
         {
         }
 
-        ~Hiarachy()
+        ~Hierarchy()
         {
 
         }
 
         virtual Type getNodeType() const override
         {
-            return E_TYPE_HIARACHY;
+            return E_TYPE_HIERARCHY;
         }
     };
 

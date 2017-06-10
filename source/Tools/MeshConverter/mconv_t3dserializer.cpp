@@ -44,7 +44,7 @@ namespace mconv
 
     //////////////////////////////////////////////////////////////////////////
 
-    const char * const T3DXMLSerializer::TAG_VERSION = "version";
+    const char * const T3DXMLSerializer::TAG_TINY3D = "TINY3D";
     const char * const T3DXMLSerializer::TAG_SCENE = "scene";
     const char * const T3DXMLSerializer::TAG_MODEL = "model";
     const char * const T3DXMLSerializer::TAG_MESH = "mesh";
@@ -81,12 +81,15 @@ namespace mconv
     const char * const T3DXMLSerializer::TAG_BOUND = "bound";
     const char * const T3DXMLSerializer::TAG_LIGHT = "light";
     const char * const T3DXMLSerializer::TAG_CAMERA = "camera";
-    const char * const T3DXMLSerializer::TAG_HIARACHY = "hiarachy";
+    const char * const T3DXMLSerializer::TAG_HIERARCHY = "hierarchy";
     const char * const T3DXMLSerializer::TAG_LINK = "link";
     const char * const T3DXMLSerializer::TAG_TRANSLATION = "translation";
     const char * const T3DXMLSerializer::TAG_ORIENTATION = "orientation";
     const char * const T3DXMLSerializer::TAG_SCALE = "scale";
+    const char * const T3DXMLSerializer::TAG_NODE = "node";
 
+    const char * const T3DXMLSerializer::ATTRIB_VERSION = "version";
+    const char * const T3DXMLSerializer::ATTRIB_MAGIC = "magic";
     const char * const T3DXMLSerializer::ATTRIB_ID = "id";
     const char * const T3DXMLSerializer::ATTRIB_COUNT = "count";
     const char * const T3DXMLSerializer::ATTRIB_SIZE = "size";
@@ -136,14 +139,24 @@ namespace mconv
             XMLDeclaration *pDecl = pDoc->NewDeclaration();
             pDoc->LinkEndChild(pDecl);
 
-            XMLElement *pVersionElement = pDoc->NewElement(TAG_VERSION);
-            pDoc->LinkEndChild(pVersionElement);
-            XMLText *pText = pDoc->NewText(T3D_MODEL_FILE_VER_CUR_STR);
-            pVersionElement->LinkEndChild(pText);
+            XMLElement *pTiny3DElement = pDoc->NewElement(TAG_TINY3D);
+            pDoc->LinkEndChild(pTiny3DElement);
+            pTiny3DElement->SetAttribute(ATTRIB_MAGIC, T3D_MODEL_FILE_MAGIC);
+            pTiny3DElement->SetAttribute(ATTRIB_VERSION, T3D_MODEL_FILE_VER_CUR_STR);
+
+//             XMLElement *pMagicElement = pDoc->NewElement(TAG_MAGIC);
+//             pDoc->LinkEndChild(pMagicElement);
+//             XMLText *pText = pDoc->NewText(T3D_MODEL_FILE_MAGIC);
+//             pMagicElement->LinkEndChild(pText);
+// 
+//             XMLElement *pVersionElement = pDoc->NewElement(TAG_VERSION);
+//             pDoc->LinkEndChild(pVersionElement);
+//             pText = pDoc->NewText(T3D_MODEL_FILE_VER_CUR_STR);
+//             pVersionElement->LinkEndChild(pText);
 
             XMLElement *pElement = pDoc->NewElement(TAG_SCENE);
             pElement->SetAttribute(ATTRIB_ID, pScene->getID().c_str());
-            pDoc->LinkEndChild(pElement);
+            pTiny3DElement->LinkEndChild(pElement);
 
             mTabCount = 0;
             populateXMLNode(pDoc, pElement, pScene);
@@ -193,9 +206,9 @@ namespace mconv
                 pElement = buildXMLCamera(pDoc, pParentElem, pNode);
             }
             break;
-        case Node::E_TYPE_HIARACHY:
+        case Node::E_TYPE_HIERARCHY:
             {
-                pElement = buildXMLHiarachy(pDoc, pParentElem, pNode);
+                pElement = buildXMLHierarchy(pDoc, pParentElem, pNode);
             }
             break;
         case Node::E_TYPE_LIGHT:
@@ -426,6 +439,8 @@ namespace mconv
 
         while (itrVertex != pVB->mVertices.end())
         {
+            bool bFirstAttribute = true;
+
             std::stringstream ss;
             const Vertex &vertex = *itrVertex;
 
@@ -436,16 +451,17 @@ namespace mconv
                 {
                     char szText[64] = { 0 };
                     snprintf(szText, sizeof(szText) - 1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
-                    ss << "\n\t\t\t\t\t\t" << szText;
+                    ss << "\n\t\t\t\t\t\t\t" << szText;
                 }
                 else
                 {
                     char szText[64] = { 0 };
                     snprintf(szText, sizeof(szText) - 1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
-                    ss << "\t\t\t\t\t\t" << szText;
+                    ss << "\t\t\t\t\t\t\t" << szText;
                 }
 
                 first = false;
+                bFirstAttribute = false;
             }
 
             // TEXCOORD
@@ -454,25 +470,29 @@ namespace mconv
                 auto itr2 = vertex.mTexElements.begin();
                 while (itr2 != vertex.mTexElements.end())
                 {
-                    // 					if (first)
+					if (first)
                     {
                         const Vector2 &uv = *itr2;
                         char szText[64] = { 0 };
                         snprintf(szText, sizeof(szText) - 1, " % 8f % 8f", uv[0], uv[1]);
-                        // 						ss<<"\n\t\t\t\t\t\t"<<szText;
-                        ss << szText;
+						ss<<"\n\t\t\t\t\t\t\t"<<szText;
                     }
-                    // 					else
-                    // 					{
-                    // 						const Vector2 &uv = *itr2;
-                    // 						char szText[64] = {0};
-                    // 						snprintf(szText, sizeof(szText)-1, " % 8f % 8f", uv[0], uv[1]);
-                    // 						ss<<"\t\t\t\t\t\t"<<szText;
-                    // 					}
-                    // 					
-                    // 					first = false;
+					else
+					{
+						const Vector2 &uv = *itr2;
+						char szText[64] = { 0 };
+						snprintf(szText, sizeof(szText) - 1, " % 8f % 8f", uv[0], uv[1]);
+                        if (bFirstAttribute)
+						    ss<<"\t\t\t\t\t\t\t"<<szText;
+                        else
+                            ss << szText;
+					}
+					
+					first = false;
                     ++itr2;
                 }
+
+                bFirstAttribute = false;
             }
 
             // NORMAL
@@ -613,7 +633,7 @@ namespace mconv
             ++count;
         }
 
-        XMLText *pText = pDoc->NewText("\t\t\t\t\t");
+        XMLText *pText = pDoc->NewText("\t\t\t\t\t\t");
         pVertexElement->LinkEndChild(pText);
 
         return pBufferElement;
@@ -679,7 +699,7 @@ namespace mconv
         pIndicesElement->SetAttribute(ATTRIB_16BITS, b16Bits);
 
         std::stringstream ss;
-        ss << "\n\t\t\t\t\t\t";
+        ss << "\n\t\t\t\t\t\t\t";
         size_t i = 0;
         auto itr = pSubMesh->mIndices.begin();
         while (itr != pSubMesh->mIndices.end())
@@ -689,7 +709,7 @@ namespace mconv
 
             if (i == 32)
             {
-                ss << "\n\t\t\t\t\t\t";
+                ss << "\n\t\t\t\t\t\t\t";
                 XMLText *pText = pDoc->NewText(ss.str().c_str());
                 pIndicesElement->LinkEndChild(pText);
                 ss.clear();
@@ -708,7 +728,7 @@ namespace mconv
         //             pIndicesElement->LinkEndChild(pText);
         //         }
 
-        ss << "\n\t\t\t\t\t";
+        ss << "\n\t\t\t\t\t\t";
         XMLText *pText = pDoc->NewText(ss.str().c_str());
         pIndicesElement->LinkEndChild(pText);
 
@@ -734,13 +754,23 @@ namespace mconv
         XMLDeclaration *pDecl = pDoc->NewDeclaration();
         pDoc->LinkEndChild(pDecl);
 
-        XMLElement *pVersionElement = pDoc->NewElement(TAG_VERSION);
-        pDoc->LinkEndChild(pVersionElement);
-        XMLText *pText = pDoc->NewText(T3D_MATERIAL_FILE_VER_CUR_STR);
-        pVersionElement->LinkEndChild(pText);
+//         XMLElement *pMagicElement = pDoc->NewElement(TAG_MAGIC);
+//         pDoc->LinkEndChild(pMagicElement);
+//         XMLText *pText = pDoc->NewText(T3D_MATERIAL_FILE_MAGIC);
+//         pMagicElement->LinkEndChild(pText);
+// 
+//         XMLElement *pVersionElement = pDoc->NewElement(TAG_VERSION);
+//         pDoc->LinkEndChild(pVersionElement);
+//         pText = pDoc->NewText(T3D_MATERIAL_FILE_VER_CUR_STR);
+//         pVersionElement->LinkEndChild(pText);
+        XMLElement *pTiny3DElement = pDoc->NewElement(TAG_TINY3D);
+        pDoc->LinkEndChild(pTiny3DElement);
+
+        pTiny3DElement->SetAttribute(ATTRIB_MAGIC, T3D_MATERIAL_FILE_MAGIC);
+        pTiny3DElement->SetAttribute(ATTRIB_VERSION, T3D_MATERIAL_FILE_VER_CUR_STR);
 
         XMLElement *pMatElement = pDoc->NewElement(TAG_MATERIAL);
-        pDoc->LinkEndChild(pMatElement);
+        pTiny3DElement->LinkEndChild(pMatElement);
 
         Material *pMaterial = (Material *)pNode;
         pMatElement->SetAttribute(ATTRIB_ID, pMaterial->getID().c_str());
@@ -748,7 +778,7 @@ namespace mconv
         // shaderËã·¨
         XMLElement *pModeElement = pDoc->NewElement(TAG_MODE);
         pMatElement->LinkEndChild(pModeElement);
-        pText = pDoc->NewText(pMaterial->mMode.c_str());
+        XMLText *pText = pDoc->NewText(pMaterial->mMode.c_str());
         pModeElement->LinkEndChild(pText);
 
         // ambient
@@ -1081,9 +1111,9 @@ namespace mconv
         return pBoneElement;
     }
 
-    XMLElement *T3DXMLSerializer::buildXMLHiarachy(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    XMLElement *T3DXMLSerializer::buildXMLHierarchy(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
-        XMLElement *pHiarachyElement = pDoc->NewElement(TAG_HIARACHY);
+        XMLElement *pHiarachyElement = pDoc->NewElement(TAG_HIERARCHY);
         pParentElem->LinkEndChild(pHiarachyElement);
 
         pHiarachyElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
@@ -1093,7 +1123,7 @@ namespace mconv
 
     XMLElement *T3DXMLSerializer::buildXMLTransform(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
-        XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+        XMLElement *pTransformElement = pDoc->NewElement(TAG_NODE);
         pParentElem->LinkEndChild(pTransformElement);
 
         pTransformElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
