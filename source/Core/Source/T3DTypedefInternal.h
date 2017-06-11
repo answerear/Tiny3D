@@ -11,7 +11,7 @@
 namespace Tiny3D
 {
     T3D_DECLARE_SMART_PTR(ModelData);
-    T3D_DECLARE_SMART_PTR(Bone);
+    T3D_DECLARE_SMART_PTR(NodeData);
     T3D_DECLARE_SMART_PTR(VertexBuffer);
     T3D_DECLARE_SMART_PTR(SubMeshData);
     T3D_DECLARE_SMART_PTR(MeshData);

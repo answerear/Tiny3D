@@ -17,7 +17,7 @@ namespace Tiny3D
         static BoneDataPtr create(const String &name);
 
         String      mName;
-        uint16_t     mParentBone;
+        uint16_t    mParentBone;
         Matrix4     mOffsetMatrix;
         Matrix4     mLocalMatrix;
 

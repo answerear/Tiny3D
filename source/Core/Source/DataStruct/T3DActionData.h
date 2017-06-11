@@ -13,20 +13,31 @@
 
 namespace Tiny3D
 {
+    /**
+     * @brief 关键帧数据
+     */
     class KeyFrameData : public Object
     {
     public:
+        /**
+         * @brief 关键帧类型
+         */
         enum Type
         {
             E_TYPE_UNKNOWN = 0,
-            E_TYPE_TRANSLATION,
-            E_TYPE_ROTATION,
-            E_TYPE_SCALING,
+            E_TYPE_TRANSLATION,     /// 平移变换
+            E_TYPE_ROTATION,        /// 旋转变换
+            E_TYPE_SCALING,         /// 缩放变换
         };
 
+        /**
+         * @brief 返回关键帧类型
+         * @note 子类实现返回具体类型
+         */
         virtual Type getType() const = 0;
 
     protected:
+        /** 构造函数 */
         KeyFrameData(int64_t timestamp);
 
     private:
@@ -34,9 +45,12 @@ namespace Tiny3D
         KeyFrameData &operator =(const KeyFrameData &);
 
     public:
-        int64_t     mTimestamp;
+        int64_t     mTimestamp;     /// 当前关键帧时间戳
     };
 
+    /**
+     * @brief 平移关键帧数据
+     */
     class KeyFrameDataT : public KeyFrameData
     {
     public:
@@ -55,6 +69,9 @@ namespace Tiny3D
         Vector3     mTranslation;
     };
 
+    /**
+     * @brief 旋转关键帧数据
+     */
     class KeyFrameDataR : public KeyFrameData
     {
     public:
@@ -73,6 +90,9 @@ namespace Tiny3D
         Quaternion  mOrientation;
     };
 
+    /**
+     * @brief 缩放关键帧数据
+     */
     class KeyFrameDataS : public KeyFrameData
     {
     public:
@@ -91,6 +111,9 @@ namespace Tiny3D
         Vector3     mScaling;
     };
 
+    /**
+     * @brief 动作数据
+     */
     class ActionData : public Object
     {
     public:

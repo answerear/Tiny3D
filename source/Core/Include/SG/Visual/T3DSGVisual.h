@@ -22,29 +22,12 @@ namespace Tiny3D
         virtual void setVisible(bool visible);
         bool isVisible() const;
 
-        BoundPtr getBound();
-
-        void setBoundEnabled(bool enable);
-        bool isBoundEnabled() const;
-
-        bool inFrustum() const;
-
-        const Transform &getWorldTransform() const;
-
         virtual void cloneProperties(const NodePtr &node) const override;
 
     protected:
-        virtual void updateTransform() override;
         virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;
 
-        virtual void updateBound();
-
     protected:
-        BoundPtr    mBound;
-
-        Transform mWorldTransform;
-
-        bool    mIsInFrustum;
         bool    mIsVisible;
     };
 }

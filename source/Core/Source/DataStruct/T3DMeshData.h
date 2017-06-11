@@ -52,10 +52,6 @@ namespace Tiny3D
 
         static MeshDataPtr create();
 
-        bool                mHasWorldMatrix;
-        bool                mHasGeometryMatrix;
-        Matrix4             mWorldMatrix;
-        Matrix4             mGeometryMatrix;
         VertexBuffers       mBuffers;
         SubMeshDataList     mSubMeshes;
 
