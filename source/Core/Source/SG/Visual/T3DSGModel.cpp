@@ -6,7 +6,7 @@
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
 #include "DataStruct/T3DModelData.h"
-#include "DataStruct/T3DBone.h"
+#include "SG/Node/T3DSGBone.h"
 #include "Misc/T3DEntrance.h"
 #include "Render/T3DHardwareBufferManager.h"
 
@@ -55,7 +55,7 @@ namespace Tiny3D
     }
 
     SGModel::SGModel(uint32_t unID /* = E_NID_AUTOMATIC */)
-        : SGShape(unID)
+        : SGVisual(unID)
         , mModel(nullptr)
         , mRenderMode(E_RENDER_ENTITY)
         , mSkeleton(nullptr)

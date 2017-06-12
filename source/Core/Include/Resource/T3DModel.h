@@ -19,8 +19,8 @@ namespace Tiny3D
         enum FileType
         {
             E_FILETYPE_UNKNOWN = 0,     /// 未知模型文件格式
-            E_FILETYPE_TMB,             /// 二进制模型文件格式
-            E_FILETYPE_TMT              /// XML模型文件格式
+            E_FILETYPE_T3B,             /// 二进制模型文件格式
+            E_FILETYPE_T3T              /// XML模型文件格式
         };
 
         /**

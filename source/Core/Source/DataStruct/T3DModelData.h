@@ -9,13 +9,16 @@
 #include "T3DTypedefInternal.h"
 
 #include "T3DMeshData.h"
-#include "T3DSkinData.h"
+#include "T3DNodeData.h"
 #include "T3DBoneData.h"
 #include "T3DActionData.h"
 
 
 namespace Tiny3D
 {
+    /**
+     * @brief 模型数据
+     */
     class ModelData : public Object
     {
     public:
@@ -27,6 +30,10 @@ namespace Tiny3D
         typedef BoneDataList::iterator          BoneDataListItr;
         typedef BoneDataList::const_iterator    BoneDataListConstItr;
 
+        typedef std::vector<NodeDataPtr>        NodeDataList;
+        typedef NodeDataList::iterator          NodeDataListItr;
+        typedef NodeDataList::const_iterator    NodeDataListConstItr;
+
         typedef std::map<String, ObjectPtr>     AnimationData;
         typedef AnimationData::iterator         AnimationItr;
         typedef AnimationData::const_iterator   AnimationConstItr;
@@ -34,11 +41,11 @@ namespace Tiny3D
 
         static ModelDataPtr create();
 
-        bool            mIsVertexShared;
-        MeshDataList    mMeshes;
-        BoneDataList    mBones;
-        AnimationData   mAnimations;
-        Matrix4         mVertexMatrix;
+        bool            mIsVertexShared;        /// 所有网格是否共享顶点缓存
+        MeshDataList    mMeshes;                /// 网格数据列表
+        BoneDataList    mBones;                 /// 骨骼数据列表
+        AnimationData   mAnimations;            /// 动画数据列表
+        NodeDataList    mNodes;                 /// 变换结点数据列表
 
     protected:
         ModelData();

@@ -134,11 +134,11 @@ namespace Tiny3D
         typedef Bones::const_iterator           BonesConstItr;
         typedef std::pair<String, KeyFrames>    BonesValue;
 
-        String      mName;
-        int32_t     mDuration;
-        Bones       mBonesTranslation;
-        Bones       mBonesRotation;
-        Bones       mBonesScaling;
+        String      mName;                  /// 动作名称
+        int32_t     mDuration;              /// 动作时长，单位：毫秒
+        Bones       mBonesTranslation;      /// 动作相关骨骼的平移变换关键帧数据
+        Bones       mBonesRotation;         /// 动作相关骨骼的旋转变换关键帧数据
+        Bones       mBonesScaling;          /// 动作相关骨骼的缩放变换关键帧数据
     };
 }
 

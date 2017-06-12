@@ -55,13 +55,13 @@ namespace Tiny3D
                 {
                 case E_FILETYPE_UNKNOWN:
                     break;
-                case E_FILETYPE_TMB:
+                case E_FILETYPE_T3B:
                     {
                         BinModelSerializer serializer;
                         ret = serializer.load(stream, smart_pointer_cast<ModelData>(mModelData));
                     }
                     break;
-                case E_FILETYPE_TMT:
+                case E_FILETYPE_T3T:
                     {
                         XMLModelSerializer serializer;
                         ret = serializer.load(stream, smart_pointer_cast<ModelData>(mModelData));
@@ -103,11 +103,11 @@ namespace Tiny3D
 
             if (ext == T3D_BIN_MODEL_FILE_EXT)
             {
-                fileType = E_FILETYPE_TMB;
+                fileType = E_FILETYPE_T3B;
             }
             else if (ext == T3D_TXT_MODEL_FILE_EXT)
             {
-                fileType = E_FILETYPE_TMT;
+                fileType = E_FILETYPE_T3T;
             }
         }
 

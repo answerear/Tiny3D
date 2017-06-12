@@ -4,22 +4,22 @@
 #define __T3D_BONE_DATA_H__
 
 
-#include "Misc/T3DObject.h"
 #include "T3DPrerequisitesInternal.h"
 #include "T3DTypedefInternal.h"
+#include "T3DNodeData.h"
 
 
 namespace Tiny3D
 {
-    class BoneData : public Object
+    /**
+     * @brief ¹Ç÷ÀÊý¾Ý
+     */
+    class BoneData : public NodeData
     {
     public:
         static BoneDataPtr create(const String &name);
 
-        String      mName;
-        uint16_t    mParentBone;
         Matrix4     mOffsetMatrix;
-        Matrix4     mLocalMatrix;
 
     protected:
         BoneData(const String &name);

@@ -16,10 +16,8 @@ namespace Tiny3D
     }
 
     BoneData::BoneData(const String &name)
-        : mName(name)
-        , mParentBone(0xFFFF)
+        : NodeData(name)
         , mOffsetMatrix(false)
-        , mLocalMatrix(false)
     {
 
     }

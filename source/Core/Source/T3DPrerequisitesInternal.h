@@ -14,7 +14,6 @@ namespace Tiny3D
     class Bone;
     class MeshData;
     class SubMeshData;
-    class SkinData;
     class NodeData;
     class BoneData;
     class VertexBuffer;

@@ -36,11 +36,19 @@ namespace Tiny3D
                 mModelData = model;
 
                 XMLDeclaration *pDeclaration = pDoc->ToDeclaration();
-                XMLElement *pVersionElement = pDoc->FirstChildElement(T3D_XML_TAG_VERSION);
+                XMLElement *pRootElement = pDoc->FirstChildElement(T3D_XML_TAG_TINY3D);
 
-                String version = pVersionElement->GetText();
+                String magic = pRootElement->Attribute(T3D_XML_ATTRIB_MAGIC);
+                if (magic != T3D_MODEL_FILE_MAGIC)
+                {
+                    T3D_LOG_WARNING("This file isn't MODEL file !");
+                    delete pDoc;
+                    return false;
+                }
 
-                XMLElement *pSceneElement = pDoc->FirstChildElement(T3D_XML_TAG_SCENE);
+                String version = pRootElement->Attribute(T3D_XML_ATTRIB_VERSION);
+
+                XMLElement *pSceneElement = pRootElement->FirstChildElement(T3D_XML_TAG_SCENE);
                 XMLElement *pModelElement = pSceneElement->FirstChildElement(T3D_XML_TAG_MODEL);
                 XMLElement *pMeshElement = pModelElement->FirstChildElement(T3D_XML_TAG_MESH);
 
@@ -64,10 +72,6 @@ namespace Tiny3D
                     ++i;
                 }
 
-                // 蒙皮偏移变换数据
-                XMLElement *pSkinElement = pModelElement->FirstChildElement(T3D_XML_TAG_SKIN);
-                ret = ret && parseSkins(pSkinElement);
-
                 // 骨骼层次和骨骼本地变换数据
                 XMLElement *pSkelElement = pModelElement->FirstChildElement(T3D_XML_TAG_SKELETON);
                 ret = ret && parseSkeleton(pSkelElement);
@@ -75,6 +79,10 @@ namespace Tiny3D
                 // 关键帧动画数据
                 XMLElement *pAnimElement = pModelElement->FirstChildElement(T3D_XML_TAG_ANIMATION);
                 ret = ret && parseAnimation(pAnimElement);
+
+                // 变换结点数据
+                XMLElement *pHierarchyElement = pSceneElement->FirstChildElement(T3D_XML_TAG_HIERARCHY);
+                ret = ret && parseHierarchy(pHierarchyElement);
             }
 
             delete pDoc;
@@ -525,27 +533,6 @@ namespace Tiny3D
 
     bool XMLModelSerializer::parseMesh(tinyxml2::XMLElement *pMeshElement, MeshDataPtr mesh)
     {
-        mesh->mHasWorldMatrix = pMeshElement->BoolAttribute(T3D_XML_ATTRIB_HAS_WORLD);
-        mesh->mHasGeometryMatrix = pMeshElement->BoolAttribute(T3D_XML_ATTRIB_HAS_GEOMETRY);
-
-        XMLElement *pTransformElement = pMeshElement->FirstChildElement(T3D_XML_TAG_TRANSFORM);
-
-        while (pTransformElement != nullptr)
-        {
-            if (mesh->mHasWorldMatrix && pTransformElement->Attribute(T3D_XML_ATTRIB_ID) == String("WORLD"))
-            {
-                String text = pTransformElement->GetText();
-                parseMatrixValue(text, mesh->mWorldMatrix);
-            }
-            else if (mesh->mHasGeometryMatrix && pTransformElement->Attribute(T3D_XML_ATTRIB_ID) == String("GEOMETRY"))
-            {
-                String text = pTransformElement->GetText();
-                parseMatrixValue(text, mesh->mGeometryMatrix);
-            }
-
-            pTransformElement = pTransformElement->NextSiblingElement(T3D_XML_TAG_TRANSFORM);
-        }
-
         XMLElement *pBuffersElement = pMeshElement->FirstChildElement(T3D_XML_TAG_VERTEX_BUFFERS);
 
         bool ret = parseVertexBuffers(pBuffersElement, mesh);
@@ -689,51 +676,51 @@ namespace Tiny3D
         return true;
     }
 
-    bool XMLModelSerializer::parseSkins(tinyxml2::XMLElement *pSkinElement)
-    {
-        bool ret = true;
-        String name = pSkinElement->Attribute(T3D_XML_ATTRIB_ID);
-        size_t boneCount = pSkinElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
-
-        mModelData->mBones.resize(boneCount);
-
-        XMLElement *pTransformElement = pSkinElement->FirstChildElement(T3D_XML_TAG_TRANSFORM);
-        if (pTransformElement != nullptr)
-        {
-            String text = pTransformElement->GetText();
-            parseMatrixValue(text, mModelData->mVertexMatrix);
-        }
-
-        size_t i = 0;
-        XMLElement *pBoneElement = pSkinElement->FirstChildElement(T3D_XML_TAG_BONE);
-        while (pBoneElement != nullptr)
-        {
-            ret = ret && parseSkin(pBoneElement, i);
-            pBoneElement = pBoneElement->NextSiblingElement(T3D_XML_TAG_BONE);
-            ++i;
-        }
-
-        return ret;
-    }
-
-    bool XMLModelSerializer::parseSkin(tinyxml2::XMLElement *pBoneElement, size_t index)
-    {
-        bool ret = true;
-        String name = pBoneElement->Attribute(T3D_XML_ATTRIB_ID);
-
-        BoneDataPtr bone = BoneData::create(name);
-        mModelData->mBones[index] = bone;
-
-        XMLElement *pTransformElement = pBoneElement->FirstChildElement(T3D_XML_TAG_TRANSFORM);
-
-        if (pTransformElement != nullptr)
-        {
-            String text = pTransformElement->GetText();
-            parseMatrixValue(text, bone->mOffsetMatrix);
-        }
-
-        return ret;
-    }
+//     bool XMLModelSerializer::parseSkins(tinyxml2::XMLElement *pSkinElement)
+//     {
+//         bool ret = true;
+//         String name = pSkinElement->Attribute(T3D_XML_ATTRIB_ID);
+//         size_t boneCount = pSkinElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+// 
+//         mModelData->mBones.resize(boneCount);
+// 
+//         XMLElement *pTransformElement = pSkinElement->FirstChildElement(T3D_XML_TAG_TRANSFORM);
+//         if (pTransformElement != nullptr)
+//         {
+//             String text = pTransformElement->GetText();
+//             parseMatrixValue(text, mModelData->mVertexMatrix);
+//         }
+// 
+//         size_t i = 0;
+//         XMLElement *pBoneElement = pSkinElement->FirstChildElement(T3D_XML_TAG_BONE);
+//         while (pBoneElement != nullptr)
+//         {
+//             ret = ret && parseSkin(pBoneElement, i);
+//             pBoneElement = pBoneElement->NextSiblingElement(T3D_XML_TAG_BONE);
+//             ++i;
+//         }
+// 
+//         return ret;
+//     }
+// 
+//     bool XMLModelSerializer::parseSkin(tinyxml2::XMLElement *pBoneElement, size_t index)
+//     {
+//         bool ret = true;
+//         String name = pBoneElement->Attribute(T3D_XML_ATTRIB_ID);
+// 
+//         BoneDataPtr bone = BoneData::create(name);
+//         mModelData->mBones[index] = bone;
+// 
+//         XMLElement *pTransformElement = pBoneElement->FirstChildElement(T3D_XML_TAG_TRANSFORM);
+// 
+//         if (pTransformElement != nullptr)
+//         {
+//             String text = pTransformElement->GetText();
+//             parseMatrixValue(text, bone->mOffsetMatrix);
+//         }
+// 
+//         return ret;
+//     }
 
     bool XMLModelSerializer::parseSkeleton(tinyxml2::XMLElement *pSkelElement)
     {
@@ -750,6 +737,7 @@ namespace Tiny3D
     {
         bool ret = true;
         String name = pBoneElement->Attribute(T3D_XML_ATTRIB_ID);
+        uint16_t boneIndex = pBoneElement->IntAttribute(T3D_XML_ATTRIB_INDEX);
 
         XMLElement *pTransformElement = pBoneElement->FirstChildElement(T3D_XML_TAG_TRANSFORM);
 
@@ -757,24 +745,25 @@ namespace Tiny3D
         {
             String text = pTransformElement->GetText();
             
-            BoneDataPtr bone;
-            uint16_t index = 0;
-            if (searchBone(name, bone, index))
+            BoneDataPtr bone = BoneData::create(name);
+            mModelData->mBones[boneIndex] = bone;
+//             uint16_t index = 0;
+//             if (searchBone(name, bone, index))
             {
-                bone->mParentBone = parentBone;
+                bone->mParent = parentBone;
                 parseMatrixValue(text, bone->mLocalMatrix);
 
                 XMLElement *pChildElement = pBoneElement->FirstChildElement(T3D_XML_TAG_BONE);
                 while (pChildElement != nullptr)
                 {
-                    ret = ret && parseSkeleton(pChildElement, index);
+                    ret = ret && parseSkeleton(pChildElement, boneIndex);
                     pChildElement = pChildElement->NextSiblingElement(T3D_XML_TAG_BONE);
                 }
             }
-            else
-            {
-                ret = false;
-            }
+//             else
+//             {
+//                 ret = false;
+//             }
         }
         else
         {
@@ -784,25 +773,25 @@ namespace Tiny3D
         return ret;
     }
 
-    bool XMLModelSerializer::searchBone(const String &name, BoneDataPtr &bone, uint16_t &index)
-    {
-        bool found = false;
-
-        uint16_t i = 0;
-        for (i = 0; i < mModelData->mBones.size(); ++i)
-        {
-            auto data = mModelData->mBones[i];
-            if (name == data->mName)
-            {
-                bone = data;
-                index = i;
-                found = true;
-                break;
-            }
-        }
-
-        return found;
-    }
+//     bool XMLModelSerializer::searchBone(const String &name, BoneDataPtr &bone, uint16_t &index)
+//     {
+//         bool found = false;
+// 
+//         uint16_t i = 0;
+//         for (i = 0; i < mModelData->mBones.size(); ++i)
+//         {
+//             auto data = mModelData->mBones[i];
+//             if (name == data->mName)
+//             {
+//                 bone = data;
+//                 index = i;
+//                 found = true;
+//                 break;
+//             }
+//         }
+// 
+//         return found;
+//     }
 
     bool XMLModelSerializer::parseAnimation(tinyxml2::XMLElement *pAnimElement)
     {

@@ -17,6 +17,7 @@ namespace Tiny3D
 
     NodeData::NodeData(const String &name)
         : mName(name)
+        , mParent(0xFFFF)
         , mLocalMatrix(false)
     {
 

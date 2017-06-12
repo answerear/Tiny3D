@@ -14,6 +14,9 @@
 
 namespace Tiny3D
 {
+    /**
+     * @brief 顶点缓冲区
+     */
     class VertexBuffer : public Object
     {
     public:
@@ -27,9 +30,10 @@ namespace Tiny3D
 
         static VertexBufferPtr create();
 
-        Attributes              mAttributes;
-        Vertices                mVertices;
-        size_t                  mVertexSize;
+        String                  mName;          /// 缓冲区名称
+        Attributes              mAttributes;    /// 缓冲区中顶点属性
+        Vertices                mVertices;      /// 缓冲区顶点数据
+        size_t                  mVertexSize;    /// 每个顶点的大小，单位：字节
 
     protected:
         VertexBuffer();
@@ -39,6 +43,9 @@ namespace Tiny3D
         VertexBuffer &operator =(const VertexBuffer &rkOther);
     };
 
+    /**
+     * @brief 网格数据
+     */
     class MeshData : public Object
     {
     public:
@@ -52,8 +59,9 @@ namespace Tiny3D
 
         static MeshDataPtr create();
 
-        VertexBuffers       mBuffers;
-        SubMeshDataList     mSubMeshes;
+        String              mName;              /// 网格名称
+        VertexBuffers       mBuffers;           /// 网格拥有的顶点缓冲区列表
+        SubMeshDataList     mSubMeshes;         /// 子网格列表
 
     protected:
         MeshData();

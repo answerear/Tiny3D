@@ -136,6 +136,7 @@ namespace Tiny3D
     class SceneManager;
     class SGNode;
     class SGTransformNode;
+    class SGBone;
     class SGVisual;
     class SGCamera;
     class SGShape;

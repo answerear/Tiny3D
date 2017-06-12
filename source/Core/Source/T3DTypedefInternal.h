@@ -15,7 +15,6 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(VertexBuffer);
     T3D_DECLARE_SMART_PTR(SubMeshData);
     T3D_DECLARE_SMART_PTR(MeshData);
-    T3D_DECLARE_SMART_PTR(SkinData);
     T3D_DECLARE_SMART_PTR(BoneData);
     T3D_DECLARE_SMART_PTR(ActionData);
     T3D_DECLARE_SMART_PTR(KeyFrameData);
@@ -23,7 +22,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(KeyFrameDataR);
     T3D_DECLARE_SMART_PTR(KeyFrameDataS);
 
-    #define T3D_XML_TAG_VERSION                 "version"
+    #define T3D_XML_TAG_TINY3D                 "TINY3D"
     #define T3D_XML_TAG_SCENE                   "scene"
     #define T3D_XML_TAG_MODEL                   "model"
     #define T3D_XML_TAG_MESH                    "mesh"
@@ -43,6 +42,12 @@ namespace Tiny3D
     #define T3D_XML_TAG_ACTION                  "action"
     #define T3D_XML_TAG_KEYFRAME                "keyframe"
     #define T3D_XML_TAG_FRAME                   "frame"
+    #define T3D_XML_TAG_HIERARCHY               "hierarchy"
+    #define T3D_XML_TAG_NODE                    "node"
+    #define T3D_XML_TAG_TRANSLATION             "translation"
+    #define T3D_XML_TAG_ORIENTATION             "orientation"
+    #define T3D_XML_TAG_SCALE                   "scale"
+    #define T3D_XML_TAG_LINK                    "link"
 
     #define T3D_XML_TAG_MATERIALS               "materials"
     #define T3D_XML_TAG_MATERIAL                "material"
@@ -58,6 +63,8 @@ namespace Tiny3D
     #define T3D_XML_TAG_TEXTURES                "textures"
     #define T3D_XML_TAG_TEXTURE                 "texture"
 
+    #define T3D_XML_ATTRIB_MAGIC                "magic"
+    #define T3D_XML_ATTRIB_VERSION              "version"
     #define T3D_XML_ATTRIB_ID                   "id"
     #define T3D_XML_ATTRIB_SIZE                 "size"
     #define T3D_XML_ATTRIB_TYPE                 "type"
@@ -68,11 +75,16 @@ namespace Tiny3D
     #define T3D_XML_ATTRIB_BONE                 "bone"
     #define T3D_XML_ATTRIB_TIME                 "time"
     #define T3D_XML_ATTRIB_DURATION             "duration"
-    #define T3D_XML_ATTRIB_HAS_WORLD            "has_world"
-    #define T3D_XML_ATTRIB_HAS_GEOMETRY         "has_geometry"
+    #define T3D_XML_ATTRIB_MESH                 "mesh"
+    #define T3D_XML_ATTRIB_SUBMESH              "submesh"
+    #define T3D_XML_ATTRIB_INDEX                "index"
 
     #define T3D_XML_ATTRIB_WRAP_U               "wrap_u"
     #define T3D_XML_ATTRIB_WRAP_V               "wrap_v"
+
+    #define T3D_SCENE_FILE_MAGIC                "TSCN"
+    #define T3D_MODEL_FILE_MAGIC                "TMDL"
+    #define T3D_MATERIAL_FILE_MAGIC             "TMTL"
 
     #define T3D_VERTEX_SEMANTIC_POSITION        "POSITION"
     #define T3D_VERTEX_SEMANTIC_TEXCOORD        "TEXCOORD"
@@ -92,11 +104,11 @@ namespace Tiny3D
     #define T3D_PRITYPE_TRIANGLE_LIST           "triangles"
     #define T3D_PRITYPE_TRIANGLE_STRIP          "triangle strip"
 
-    #define T3D_BIN_MODEL_FILE_EXT              "tmb"
-    #define T3D_TXT_MODEL_FILE_EXT              "tmt"
+    #define T3D_BIN_MODEL_FILE_EXT              "t3b"
+    #define T3D_TXT_MODEL_FILE_EXT              "t3t"
 
-    #define T3D_BIN_MATERIAL_FILE_EXT           "mtb"
-    #define T3D_TXT_MATERIAL_FILE_EXT           "mtt"
+    #define T3D_BIN_MATERIAL_FILE_EXT           "t3b"
+    #define T3D_TXT_MATERIAL_FILE_EXT           "t3t"
 
     #define T3D_ACTION_TYPE_TRANSLATION         "translation"
     #define T3D_ACTION_TYPE_ROTATION            "rotation"

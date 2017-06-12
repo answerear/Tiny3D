@@ -16,8 +16,9 @@ namespace Tiny3D
     public:
         static NodeDataPtr create(const String &name);
 
-        String      mName;
-        Matrix4     mLocalMatrix;
+        String      mName;              /// 结点名称
+        uint16_t    mParent;            /// 父节点索引
+        Matrix4     mLocalMatrix;       /// 结点本地变换
 
     protected:
         NodeData(const String &name);

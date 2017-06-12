@@ -43,12 +43,12 @@ namespace Tiny3D
         bool parseSubMeshes(tinyxml2::XMLElement *pMeshElement, MeshDataPtr mesh);
         bool parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, MeshDataPtr mesh);
 
-        bool parseSkins(tinyxml2::XMLElement *pSkinElement);
-        bool parseSkin(tinyxml2::XMLElement *pBoneElement, size_t index);
+        bool parseHierarchy(tinyxml2::XMLElement *pHierarchyElement);
+        bool parseNode(tinyxml2::XMLElement *pNodeElement, NodeDataPtr node);
 
         bool parseSkeleton(tinyxml2::XMLElement *pSkelElement);
         bool parseSkeleton(tinyxml2::XMLElement *pBoneElement, uint16_t parentBone);
-        bool searchBone(const String &name, BoneDataPtr &bone, uint16_t &index);
+//         bool searchBone(const String &name, BoneDataPtr &bone, uint16_t &index);
 
         bool parseAnimation(tinyxml2::XMLElement *pAnimElement);
         bool parseAction(tinyxml2::XMLElement *pActionElement);

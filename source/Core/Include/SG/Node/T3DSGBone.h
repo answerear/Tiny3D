@@ -1,83 +1,38 @@
 
 
-#ifndef __T3D_BONE_H__
-#define __T3D_BONE_H__
+#ifndef __T3D_SG_BONE_H__
+#define __T3D_SG_BONE_H__
 
 
-#include "T3DPrerequisitesInternal.h"
-#include "T3DTypedefInternal.h"
-#include "Misc/T3DNode.h"
-#include "T3DMatrix4.h"
-#include "T3DTransform.h"
+#include "SG/Node/T3DSGTransformNode.h"
 
 
 namespace Tiny3D
 {
-    class Bone : public Node
+    class SGBone : public SGTransformNode
     {
     public:
-        virtual ~Bone();
+        virtual ~SGBone();
 
-        static BonePtr create(const String &name, const Matrix4 &offsetMatrix, const Matrix4 &localMatrix);
+        static SGBonePtr create(ObjectPtr data = nullptr, uint32_t unID = E_NID_AUTOMATIC);
+
+        uint16_t getParentBone() const;
 
         virtual Type getNodeType() const override;
+
         virtual NodePtr clone() const override;
 
-        void setTranslation(const Vector3 &pos)
-        {
-            mTranslation = pos;
-            setDirty(true, true);
-        }
-
-        void setOrientation(const Quaternion &orientation)
-        {
-            mOrientation = orientation;
-            setDirty(true, true);
-        }
-
-        void setScaling(const Vector3 &scaling)
-        {
-            mScaling = scaling;
-            setDirty(true, true);
-        }
-
-        void updateBone();
-
-        void setDirty(bool isDirty, bool recursive = false);
-        bool isDirty() const { return mIsDirty; }
-
-        const Transform &getCombineTransform();
-        const Matrix4 &getBindPoseMatrix();
-
-        const Matrix4 &getInverseBoneMatrix();
-
-        void setRootMatrix(const Matrix4 &matWorld)
-        {
-            mWorldMatrix = matWorld;
-        }
+        void calcOffsetMatrix();
 
     protected:
-        Bone();
-        Bone(const String &name, const Matrix4 &bindposeMatrix, const Matrix4 &localMatrix);
+        SGBone(uint32_t unID = E_NID_AUTOMATIC);
 
-        virtual void cloneProperties(const NodePtr &node) const override;
-
-        virtual void onAttachParent(const NodePtr &parent) override;
+        virtual bool init(ObjectPtr data);
 
     protected:
-        Vector3     mTranslation;
-        Vector3     mScaling;
-        Quaternion  mOrientation;
-
-        Transform   mCombineTransform;
-
-        Matrix4     mInverseBoneMatrix;
-        Matrix4     mBindposeMatrix;
-        Matrix4     mWorldMatrix;
-
-        bool        mInverseDirty;
-        bool        mIsDirty;
+        ObjectPtr   mBoneData;
     };
 }
 
-#endif  /*__T3D_BONE_H__*/
+
+#endif  /*__T3D_SG_BONE_H__*/
