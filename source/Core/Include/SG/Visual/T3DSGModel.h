@@ -71,33 +71,45 @@ namespace Tiny3D
 
         void updateSkeleton();
         void updateBone(int64_t time, ObjectPtr skeleton);
-        void updateVertices();
-        void updateVertexData(ObjectPtr data, VertexDataPtr vertexData);
-        void updateVertex(ObjectPtr buffer, void *vertex, const VertexElement &posElem, const VertexElement &weightElem, const VertexElement &indicesElem);
+        void updateSkin();
+        void updateSkinData(ObjectPtr data, VertexDataPtr vertexData);
+        void updateSkinVertex(ObjectPtr buffer, void *vertex, const VertexElement &posElem, const VertexElement &weightElem, const VertexElement &indicesElem);
 
         bool getVertexElement(ObjectPtr buffer, VertexElement::Semantic semantic, VertexElement &element);
 
         VertexDataPtr createVertexData(ObjectPtr data);
         bool createSkeletons();
+        bool createNodes();
+
+        bool searchMesh(const String &meshName, const String &submeshName, SGMeshPtr &mesh);
 
     protected:
         typedef std::vector<VertexDataPtr>      VertexDataList;
         typedef VertexDataList::iterator        VerticesDataItr;
         typedef VertexDataList::const_iterator  VerticesDataConstItr;
 
+        typedef std::vector<SGMeshPtr>          MeshList;
+        typedef MeshList::iterator              MeshListItr;
+        typedef MeshList::const_iterator        MeshListConstItr;
+
         typedef std::vector<SGBonePtr>          BoneList;
         typedef BoneList::iterator              BoneListItr;
         typedef BoneList::const_iterator        BoneListConstItr;
+
+        typedef std::vector<SGTransformNodePtr> NodeList;
+        typedef NodeList::iterator              NodeListItr;
+        typedef NodeList::const_iterator        NodeListConstItr;
 
         ModelPtr        mModel;
         RenderMode      mRenderMode;
 
         VertexDataList  mVertexDataList;
         BoneList        mBones;
+        NodeList        mNodes;
+        MeshList        mMeshes;
 
         SGBonePtr       mRootBone;
 
-        Children        mMeshes;
         SGSkeletonPtr   mSkeleton;
 
         int64_t         mStartTime;

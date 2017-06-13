@@ -19,6 +19,8 @@ namespace Tiny3D
         virtual Type getNodeType() const override;
         virtual NodePtr clone() const override;
 
+        const String &getSubMeshName() const;
+
     protected:
         SGMesh(uint32_t uID = E_NID_AUTOMATIC);
 

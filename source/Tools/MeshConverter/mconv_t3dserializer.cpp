@@ -1125,11 +1125,12 @@ namespace mconv
 
     XMLElement *T3DXMLSerializer::buildXMLTransform(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
     {
-        XMLElement *pTransformElement = pDoc->NewElement(TAG_NODE);
-        pParentElem->LinkEndChild(pTransformElement);
+        XMLElement *pNodeElement = pDoc->NewElement(TAG_NODE);
+        pParentElem->LinkEndChild(pNodeElement);
 
-        pTransformElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+        pNodeElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
 
+#if 0
         // ½â³öRTS
         Transform *pTransform = (Transform *)pNode;
         Vector3 pos, scale;
@@ -1138,7 +1139,7 @@ namespace mconv
 
         // Translation
         XMLElement *pTranslationElement = pDoc->NewElement(TAG_TRANSLATION);
-        pTransformElement->LinkEndChild(pTranslationElement);
+        pNodeElement->LinkEndChild(pTranslationElement);
 
         std::stringstream ss;
         char szText[128] = { 0 };
@@ -1149,7 +1150,7 @@ namespace mconv
 
         // Orientation
         XMLElement *pOrientationElement = pDoc->NewElement(TAG_ORIENTATION);
-        pTransformElement->LinkEndChild(pOrientationElement);
+        pNodeElement->LinkEndChild(pOrientationElement);
 
         ss.str("");
         snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f", orientation[0], orientation[1], orientation[2], orientation[3]);
@@ -1159,13 +1160,29 @@ namespace mconv
 
         // Scale
         XMLElement *pScaleElement = pDoc->NewElement(TAG_SCALE);
-        pTransformElement->LinkEndChild(pScaleElement);
+        pNodeElement->LinkEndChild(pScaleElement);
 
         ss.str("");
         snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f", orientation[0], orientation[1], orientation[2], orientation[3]);
         ss << szText;
         pText = pDoc->NewText(ss.str().c_str());
         pScaleElement->LinkEndChild(pText);
+#else
+        XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+        pNodeElement->LinkEndChild(pTransformElement);
+        Transform *pTransform = (Transform *)pNode;
+        std::stringstream ss;
+        char szText[512] = { 0 };
+        snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
+            pTransform->mMatrix[0][0], pTransform->mMatrix[0][1], pTransform->mMatrix[0][2], pTransform->mMatrix[0][3],
+            pTransform->mMatrix[1][0], pTransform->mMatrix[1][1], pTransform->mMatrix[1][2], pTransform->mMatrix[1][3],
+            pTransform->mMatrix[2][0], pTransform->mMatrix[2][1], pTransform->mMatrix[2][2], pTransform->mMatrix[2][3],
+            pTransform->mMatrix[3][0], pTransform->mMatrix[3][1], pTransform->mMatrix[3][2], pTransform->mMatrix[3][3]);
+
+        ss << szText;
+        XMLText *pText = pDoc->NewText(ss.str().c_str());
+        pTransformElement->LinkEndChild(pText);
+#endif
 
         // Link
         auto itr = pTransform->mEntities.begin();
@@ -1174,7 +1191,7 @@ namespace mconv
         {
             auto entity = *itr;
             XMLElement *pLinkElement = pDoc->NewElement(TAG_LINK);
-            pTransformElement->LinkEndChild(pLinkElement);
+            pNodeElement->LinkEndChild(pLinkElement);
             pLinkElement->SetAttribute(ATTRIB_MESH, entity.first->getID().c_str());
             pLinkElement->SetAttribute(ATTRIB_SUBMESH, entity.second->getID().c_str());
             ++itr;

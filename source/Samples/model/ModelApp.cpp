@@ -70,7 +70,7 @@ bool ModelApp::applicationDidFinishLaunching()
 	node->setScale(0.02, 0.02, 0.02);
     {
         // 模型 #1 可见物体结点
-        SGModelPtr model = SGModel::create("白骆驼.tmt");
+        SGModelPtr model = SGModel::create("tortoise.t3t");
         node->addChild(model);
     }
 

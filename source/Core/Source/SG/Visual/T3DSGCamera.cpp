@@ -168,7 +168,7 @@ namespace Tiny3D
 
         renderer->updateFrustum(M, plane, Frustum::E_MAX_FACE);
 
-        FrustumBound *bound = ((FrustumBound *)(Bound *)mBound);
+        FrustumBoundPtr bound = smart_pointer_cast<FrustumBound>(mBound);
         bound->setParam(plane, Frustum::E_MAX_FACE);
     }
 }

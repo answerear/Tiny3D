@@ -53,6 +53,8 @@ namespace Tiny3D
         virtual void setDirty(bool isDirty, bool recursive /* = false */) override;
         virtual NodePtr clone() const override;
 
+        BoundPtr getBound() const   { return mBound; }
+
     protected:
         virtual void addChild(const NodePtr &child) override;
 
@@ -60,7 +62,7 @@ namespace Tiny3D
 
         virtual void updateTransform() override;
 
-        virtual void updateBound() override;
+        virtual void updateBound();
 
         void renderScene(const ViewportPtr &viewport);
 
@@ -71,6 +73,8 @@ namespace Tiny3D
         Real    mAspectRatio;
 
         ProjectionType  mProjType;
+
+        BoundPtr        mBound;
 
         mutable Matrix4 mViewMatrix;
         mutable Matrix4 mProjMatrix;

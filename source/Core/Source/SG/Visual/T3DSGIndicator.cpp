@@ -61,12 +61,12 @@ namespace Tiny3D
             addChild(axis);
             ret = true;
 
-            AabbBoundPtr bound = AabbBound::create(getNodeID(), this);
-            if (bound != nullptr)
-            {
-                bound->setParam(0, fAxisX, 0, fAxisY, 0, fAxisZ);
-                mBound = bound;
-            }
+//             AabbBoundPtr bound = AabbBound::create(getNodeID(), this);
+//             if (bound != nullptr)
+//             {
+//                 bound->setParam(0, fAxisX, 0, fAxisY, 0, fAxisZ);
+//                 mBound = bound;
+//             }
         }
 
         return ret;

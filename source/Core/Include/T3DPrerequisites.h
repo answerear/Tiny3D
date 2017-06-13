@@ -139,7 +139,6 @@ namespace Tiny3D
     class SGBone;
     class SGVisual;
     class SGCamera;
-    class SGShape;
     class SGModel;
     class SGIndicator;
     class SGRenderable;

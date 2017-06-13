@@ -89,6 +89,12 @@ namespace Tiny3D
 
     }
 
+    const String &SGMesh::getSubMeshName() const
+    {
+        SubMeshDataPtr submeshData = smart_pointer_cast<SubMeshData>(mSubMeshData);
+        return submeshData->mName;
+    }
+
     MaterialPtr SGMesh::getMaterial() const
     {
         return mMaterial;

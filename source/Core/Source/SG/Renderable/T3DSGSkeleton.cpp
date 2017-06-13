@@ -1,7 +1,7 @@
 
 
 #include "SG/Renderable/T3DSGSkeleton.h"
-#include "DataStruct/T3DBone.h"
+// #include "DataStruct/T3DBone.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Resource/T3DModel.h"
@@ -39,89 +39,67 @@ namespace Tiny3D
 
     bool SGSkeleton::init(ObjectPtr bone)
     {
-        mSkeleton = bone;
+        return true;
+//         mSkeleton = bone;
 
-        BonePtr skeleton = smart_pointer_cast<Bone>(mSkeleton);
+//         BonePtr skeleton = smart_pointer_cast<Bone>(mSkeleton);
+// 
+//         std::vector<BoneVertex> vertices;
+//         bool ret = buildSkeletonVertices(skeleton, vertices);
+// 
+//         if (ret)
+//         {
+//             HardwareVertexBufferPtr vb = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(sizeof(BoneVertex), vertices.size(), HardwareVertexBuffer::E_HBU_DYNAMIC, false);
+//             ret = vb->writeData(0, sizeof(BoneVertex) * vertices.size(), &vertices[0]);
+// 
+//             VertexDeclarationPtr decl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
+//             decl->addElement(VertexElement(0, 0, VertexElement::E_VET_FLOAT3, VertexElement::E_VES_POSITION));
+//             decl->addElement(VertexElement(0, 12, VertexElement::E_VET_COLOR, VertexElement::E_VES_DIFFUSE));
+// 
+//             mVertexData = VertexData::create(decl);
+//             mVertexData->addVertexBuffer(vb);
+//         }
 
-        std::vector<BoneVertex> vertices;
-        bool ret = buildSkeletonVertices(skeleton, vertices);
-
-        if (ret)
-        {
-            HardwareVertexBufferPtr vb = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(sizeof(BoneVertex), vertices.size(), HardwareVertexBuffer::E_HBU_DYNAMIC, false);
-            ret = vb->writeData(0, sizeof(BoneVertex) * vertices.size(), &vertices[0]);
-
-            VertexDeclarationPtr decl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
-            decl->addElement(VertexElement(0, 0, VertexElement::E_VET_FLOAT3, VertexElement::E_VES_POSITION));
-            decl->addElement(VertexElement(0, 12, VertexElement::E_VET_COLOR, VertexElement::E_VES_DIFFUSE));
-
-            mVertexData = VertexData::create(decl);
-            mVertexData->addVertexBuffer(vb);
-        }
-
-        return ret;
+//         return ret;
     }
 
     bool SGSkeleton::buildSkeletonVertices(const ObjectPtr &skeleton, std::vector<BoneVertex> &vertices)
     {
-        BonePtr bone = smart_pointer_cast<Bone>(skeleton);
-        BonePtr parentBone = smart_pointer_cast<Bone>(bone->getParent());
+//         BonePtr bone = smart_pointer_cast<Bone>(skeleton);
+//         BonePtr parentBone = smart_pointer_cast<Bone>(bone->getParent());
 
-//         static const Vector3 boneVertices[] =
+
+//         if (parentBone != nullptr)
 //         {
-//             Vector3(0.0f, 0.0f, 0.0f),
-//             Vector3(-0.2f, 0.2f,-0.2f),
+//             const Transform &t0 = parentBone->getCombineTransform();
+//             const Transform &t1 = bone->getCombineTransform();
 // 
-//             Vector3(0.2f, 0.2f,-0.2f),
-//             Vector3(0.0f, 3.0f, 0.0f),
+//             const Vector3 &p0 = t0.getTranslate();
+//             const Vector3 &p1 = t1.getTranslate();
 // 
-//             Vector3(-0.2f, 0.2f,-0.2f),
-//             Vector3(-0.2f, 0.2f, 0.2f),
+//             BoneVertex vertex;
+//             vertex.position = p0;
+//             vertex.color = Color4::WHITE;
+//             vertices.push_back(vertex);
+//             vertex.position = p1;
+//             vertex.color = Color4::WHITE;
+//             vertices.push_back(vertex);
 // 
-//             Vector3(0.0f, 0.0f, 0.0f),
-//             Vector3(0.2f, 0.2f,-0.2f),
+//             T3D_LOG_DEBUG("Bone from joint %s (%.6f, %.6f, %.6f) to joint %s (%.6f, %.6f, %.6f)", 
+//                 parentBone->getName().c_str(), p0[0], p0[1], p0[2], bone->getName().c_str(), p1[0], p1[1], p1[2]);
+//         }
 // 
-//             Vector3(0.2f, 0.2f, 0.2f),
-//             Vector3(0.0f, 0.0f, 0.0f),
+//         bool ret = true;
 // 
-//             Vector3(-0.2f, 0.2f, 0.2f),
-//             Vector3(0.0f, 3.0f, 0.0f),
+//         const Children &children = bone->getChildren();
+//         auto itr = children.begin();
+//         while (itr != children.end())
+//         {
+//             BonePtr childBone = smart_pointer_cast<Bone>(*itr);
+//             ret = ret && buildSkeletonVertices(childBone, vertices);
+//             ++itr;
+//         }
 // 
-//             Vector3(0.2f, 0.2f, 0.2f),
-//             Vector3(-0.2f, 0.2f, 0.2f)
-//         };
-
-        if (parentBone != nullptr)
-        {
-            const Transform &t0 = parentBone->getCombineTransform();
-            const Transform &t1 = bone->getCombineTransform();
-
-            const Vector3 &p0 = t0.getTranslate();
-            const Vector3 &p1 = t1.getTranslate();
-
-            BoneVertex vertex;
-            vertex.position = p0;
-            vertex.color = Color4::WHITE;
-            vertices.push_back(vertex);
-            vertex.position = p1;
-            vertex.color = Color4::WHITE;
-            vertices.push_back(vertex);
-
-            T3D_LOG_DEBUG("Bone from joint %s (%.6f, %.6f, %.6f) to joint %s (%.6f, %.6f, %.6f)", 
-                parentBone->getName().c_str(), p0[0], p0[1], p0[2], bone->getName().c_str(), p1[0], p1[1], p1[2]);
-        }
-
-        bool ret = true;
-
-        const Children &children = bone->getChildren();
-        auto itr = children.begin();
-        while (itr != children.end())
-        {
-            BonePtr childBone = smart_pointer_cast<Bone>(*itr);
-            ret = ret && buildSkeletonVertices(childBone, vertices);
-            ++itr;
-        }
-
         return true;
     }
 
@@ -132,15 +110,15 @@ namespace Tiny3D
 
     void SGSkeleton::updateVertices()
     {
-        BonePtr skeleton = smart_pointer_cast<Bone>(mSkeleton);
-        std::vector<BoneVertex> vertices;
-        bool ret = buildSkeletonVertices(skeleton, vertices);
-
-        if (ret)
-        {
-            HardwareVertexBufferPtr vb = mVertexData->getVertexBuffer(0);
-            ret = vb->writeData(0, sizeof(BoneVertex) * vertices.size(), &vertices[0]);
-        }
+//         BonePtr skeleton = smart_pointer_cast<Bone>(mSkeleton);
+//         std::vector<BoneVertex> vertices;
+//         bool ret = buildSkeletonVertices(skeleton, vertices);
+// 
+//         if (ret)
+//         {
+//             HardwareVertexBufferPtr vb = mVertexData->getVertexBuffer(0);
+//             ret = vb->writeData(0, sizeof(BoneVertex) * vertices.size(), &vertices[0]);
+//         }
     }
 
     SGNode::Type SGSkeleton::getNodeType() const

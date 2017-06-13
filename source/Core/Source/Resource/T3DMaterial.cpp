@@ -154,11 +154,27 @@ namespace Tiny3D
                 ret = true;
 
                 XMLDeclaration *pDeclaration = pDoc->ToDeclaration();
-                XMLElement *pVersionElement = pDoc->FirstChildElement(T3D_XML_TAG_VERSION);
+                XMLElement *pRootElement = pDoc->FirstChildElement(T3D_XML_TAG_TINY3D);
 
-                String version = pVersionElement->GetText();
+                if (pRootElement == nullptr)
+                {
+                    delete pDoc;
+                    return false;
+                }
 
-                XMLElement *pMatElement = pDoc->FirstChildElement(T3D_XML_TAG_MATERIAL);
+                String magic = pRootElement->Attribute(T3D_XML_ATTRIB_MAGIC);
+                if (magic != T3D_MATERIAL_FILE_MAGIC)
+                {
+                    delete pDoc;
+                    return false;
+                }
+
+                String version = pRootElement->Attribute(T3D_XML_ATTRIB_VERSION);
+//                 XMLElement *pVersionElement = pDoc->FirstChildElement(T3D_XML_TAG_VERSION);
+
+//                 String version = pVersionElement->GetText();
+
+                XMLElement *pMatElement = pRootElement->FirstChildElement(T3D_XML_TAG_MATERIAL);
                 String name = pMatElement->Attribute(T3D_XML_ATTRIB_ID);
 
                 // Mode

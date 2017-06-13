@@ -19,6 +19,7 @@ namespace Tiny3D
         : mName(name)
         , mParent(0xFFFF)
         , mLocalMatrix(false)
+        , mHasLink(false)
     {
 
     }

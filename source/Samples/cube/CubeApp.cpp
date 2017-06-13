@@ -66,11 +66,8 @@ bool CubeApp::applicationDidFinishLaunching()
 
     {
         // Α’·½Με
-        SGShapePtr shape = SGShape::create();
-        node->addChild(shape);
-
         SGBoxPtr box = SGBox::create("");
-        shape->addChild(box);
+        node->addChild(box);
     }
 
     return true;

@@ -19,15 +19,16 @@ namespace Tiny3D
         typedef Indices::iterator               IndicesItr;
         typedef Indices::const_iterator         IndicesConstItr;
 
-        static SubMeshDataPtr create(const String &materialName, Renderer::PrimitiveType priType, bool is16Bits, size_t indexCount);
+        static SubMeshDataPtr create(const String &name, const String &materialName, Renderer::PrimitiveType priType, bool is16Bits, size_t indexCount);
 
+        String                  mName;
         String                  mMaterialName;
         Renderer::PrimitiveType mPrimitiveType;
         bool                    mIs16Bits;
         Indices                 mIndices;
 
     protected:
-        SubMeshData(const String &materialName, Renderer::PrimitiveType priType, bool is16Bits, size_t indexCount);
+        SubMeshData(const String &name, const String &materialName, Renderer::PrimitiveType priType, bool is16Bits, size_t indexCount);
 
     private:
         SubMeshData(const SubMeshData &rkOther);

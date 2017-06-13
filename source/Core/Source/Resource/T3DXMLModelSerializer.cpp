@@ -534,6 +534,7 @@ namespace Tiny3D
     bool XMLModelSerializer::parseMesh(tinyxml2::XMLElement *pMeshElement, MeshDataPtr mesh)
     {
         XMLElement *pBuffersElement = pMeshElement->FirstChildElement(T3D_XML_TAG_VERTEX_BUFFERS);
+        mesh->mName = pMeshElement->Attribute(T3D_XML_ATTRIB_ID);
 
         bool ret = parseVertexBuffers(pBuffersElement, mesh);
         ret = ret && parseSubMeshes(pMeshElement, mesh);
@@ -649,6 +650,7 @@ namespace Tiny3D
 
     bool XMLModelSerializer::parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, MeshDataPtr mesh)
     {
+        String name = pSubMeshElement->Attribute(T3D_XML_ATTRIB_ID);
         Renderer::PrimitiveType primitiveType = parsePrimitiveType(pSubMeshElement->Attribute(T3D_XML_ATTRIB_PRIMITIVE));
         int32_t primitiveCount = pSubMeshElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
         String materialName = pSubMeshElement->Attribute(T3D_XML_TAG_MATERIAL) + String(".") + T3D_TXT_MATERIAL_FILE_EXT;
@@ -659,7 +661,7 @@ namespace Tiny3D
 
         size_t indexSize = indexCount * (is16bits ? sizeof(uint16_t) : sizeof(uint32_t));
 
-        SubMeshDataPtr submesh = SubMeshData::create(materialName, primitiveType, is16bits, indexCount);
+        SubMeshDataPtr submesh = SubMeshData::create(name, materialName, primitiveType, is16bits, indexCount);
 
         String text = pIndicesElement->GetText();
         size_t start = 0;
@@ -946,6 +948,62 @@ namespace Tiny3D
         }
 
         return actionType;
+    }
+
+    bool XMLModelSerializer::parseHierarchy(tinyxml2::XMLElement *pHierarchyElement)
+    {
+        if (pHierarchyElement == nullptr)
+            return true;
+
+        XMLElement *pNodeElement = pHierarchyElement->FirstChildElement(T3D_XML_TAG_NODE);
+        bool ret = parseNode(pNodeElement, 0xFFFF);
+
+        return ret;
+    }
+
+    bool XMLModelSerializer::parseNode(tinyxml2::XMLElement *pNodeElement, uint16_t parent)
+    {
+        bool ret = true;
+        String name = pNodeElement->Attribute(T3D_XML_ATTRIB_ID);
+        XMLElement *pTransformElement = pNodeElement->FirstChildElement(T3D_XML_TAG_TRANSFORM);
+
+        if (pTransformElement != nullptr)
+        {
+            String text = pTransformElement->GetText();
+
+            NodeDataPtr node = NodeData::create(name);
+            
+            node->mParent = parent;
+            parseMatrixValue(text, node->mLocalMatrix);
+
+            XMLElement *pLinkElement = pNodeElement->FirstChildElement(T3D_XML_TAG_LINK);
+            if (pLinkElement == nullptr)
+            {
+                node->mHasLink = false;
+            }
+            else
+            {
+                node->mHasLink = true;
+                node->mLinkMesh = pLinkElement->Attribute(T3D_XML_ATTRIB_MESH);
+                node->mLinkSubMesh = pLinkElement->Attribute(T3D_XML_ATTRIB_SUBMESH);
+            }
+
+            uint16_t index = mModelData->mNodes.size();
+            mModelData->mNodes.push_back(node);
+
+            XMLElement *pChildElement = pNodeElement->FirstChildElement(T3D_XML_TAG_NODE);
+            while (pChildElement != nullptr)
+            {
+                ret = ret && parseNode(pChildElement, index);
+                pChildElement = pChildElement->NextSiblingElement(T3D_XML_TAG_NODE);
+            }
+        }
+        else
+        {
+            ret = false;
+        }
+
+        return ret;
     }
 
     bool XMLModelSerializer::save(MemoryDataStream &stream, ModelDataPtr model)

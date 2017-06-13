@@ -49,7 +49,6 @@
 #include "SG/Node/T3DSGTransformNode.h"
 #include "SG/Visual/T3DSGVisual.h"
 #include "SG/Visual/T3DSGCamera.h"
-#include "SG/Visual/T3DSGShape.h"
 #include "SG/Visual/T3DSGModel.h"
 #include "SG/Visual/T3DSGIndicator.h"
 #include "SG/Renderable/T3DSGRenderable.h"

@@ -80,15 +80,9 @@ bool TextureApp::applicationDidFinishLaunching()
         node1->setOrientation(Radian(Math::PI / Real(6.0)), Vector3(0.0, 1.0, 0.0));
 
         {
-            // 立方体 #1 可见物体结点
-            SGShapePtr shape = SGShape::create();
-            node1->addChild(shape);
-
-            {
-                // 立方体 #1 可渲染物体结点
-                SGBoxPtr box = SGBox::create("");
-                shape->addChild(box);
-            }
+            // 立方体 #1 可渲染物体结点
+            SGBoxPtr box = SGBox::create("");
+            node1->addChild(box);
         }
 
         // 立方体 #2 变换结点
@@ -97,15 +91,9 @@ bool TextureApp::applicationDidFinishLaunching()
         node2->setPosition(-1.0, 0.0, 0.0);
 
         {
-            // 立方体 #2 可见物体结点
-            SGShapePtr shape = SGShape::create();
-            node2->addChild(shape);
-
-            {
-                // 立方体 #2 可渲染物体结点
-                SGBoxPtr box = SGBox::create("");
-                shape->addChild(box);
-            }
+            // 立方体 #2 可渲染物体结点
+            SGBoxPtr box = SGBox::create("");
+            node2->addChild(box);
         }
 
         // 球体 #1 变换结点
@@ -114,15 +102,9 @@ bool TextureApp::applicationDidFinishLaunching()
         node3->setPosition(-4.0, 0.0, 0.0);
 
         {
-            // 球体 #1 可见物体结点
-            SGShapePtr shape = SGShape::create();
-            node3->addChild(shape);
-
-            {
-                // 球体 #1 可渲染物体结点
-                SGSpherePtr sphere = SGSphere::create("");
-                shape->addChild(sphere);
-            }
+            // 球体 #1 可渲染物体结点
+            SGSpherePtr sphere = SGSphere::create("");
+            node3->addChild(sphere);
         }
     }
 
@@ -132,15 +114,9 @@ bool TextureApp::applicationDidFinishLaunching()
     node->setPosition(-10.0, 0.0, 0.0);
 
     {
-        // 球体 #2 可见物体结点
-        SGShapePtr shape = SGShape::create();
-        node->addChild(shape);
-
-        {
-            // 球体 #2 可渲染物体结点
-            SGSpherePtr sphere = SGSphere::create("");
-            shape->addChild(sphere);
-        }
+        // 球体 #2 可渲染物体结点
+        SGSpherePtr sphere = SGSphere::create("");
+        node->addChild(sphere);
     }
 
     return true;

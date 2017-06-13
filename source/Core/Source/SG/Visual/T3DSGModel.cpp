@@ -99,14 +99,15 @@ namespace Tiny3D
                 // 根据子网格数据逐个创建渲染用的网格对象
                 size_t submeshCount = meshData->mSubMeshes.size();
                 size_t i = 0;
+                mMeshes.resize(submeshCount);
 
                 auto itr = meshData->mSubMeshes.begin();
                 for (i = 0; i < submeshCount; ++i)
                 {
                     SubMeshDataPtr submeshData = *itr;
                     SGMeshPtr mesh = SGMesh::create(vertexData, submeshData);
-                    addChild(mesh);
-                    mMeshes.push_back(mesh);
+                    mesh->setName(meshData->mName);
+                    mMeshes[i] = mesh;
                     ++itr;
                 }
             }
@@ -128,17 +129,21 @@ namespace Tiny3D
                     size_t j = 0;
                     size_t submeshCount = meshData->mSubMeshes.size();
 
+                    auto itr = meshData->mSubMeshes.begin();
                     for (j = 0; j < submeshCount; ++j)
                     {
+                        SubMeshDataPtr submeshData = *itr;
                         SGMeshPtr mesh = SGMesh::create(vertexData, meshData);
-                        addChild(mesh);
+                        mesh->setName(meshData->mName);
                         mMeshes.push_back(mesh);
+                        ++itr;
                     }
                 }
             }
 
             // 创建骨骼层次和骨骼偏移矩阵数组
             ret = createSkeletons();
+            ret = ret && createNodes();
 
 //             if (modelData->mAnimations.size() > 0)
 //             {
@@ -180,10 +185,20 @@ namespace Tiny3D
     {
         if (isActionRunning())
         {
+            // 根据动作数据，更新骨骼RTS
             updateSkeleton();
-        }
 
-        SGVisual::updateTransform();
+            // 更新骨骼Combine Matrix和所有子结点变换
+            SGVisual::updateTransform();
+
+            // 更新蒙皮数据
+            updateSkin();
+        }
+        else
+        {
+            // 更新所有子结点变换
+            SGVisual::updateTransform();
+        }
     }
 
     void SGModel::setRenderMode(RenderMode mode)
@@ -337,6 +352,66 @@ namespace Tiny3D
         }
     }
 
+    bool SGModel::createNodes()
+    {
+        ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel);
+
+        mNodes.resize(modelData->mNodes.size());
+
+        // 创建所有结点
+        size_t i = 0;
+        for (i = 0; i < modelData->mNodes.size(); ++i)
+        {
+            SGTransformNodePtr node = SGTransformNode::create();
+            mNodes[i] = node;
+        }
+
+        // 构建结点的树形结构
+        for (i = 0; i < modelData->mNodes.size(); ++i)
+        {
+            auto nodeData = modelData->mNodes[i];
+            auto node = mNodes[i];
+            node->setName(nodeData->mName);
+
+            if (nodeData->mParent == 0xFFFF)
+            {
+                addChild(node);
+            }
+            else
+            {
+                T3D_ASSERT(nodeData->mParent < modelData->mNodes.size());
+                mNodes[nodeData->mParent]->addChild(node);
+            }
+
+            SGMeshPtr mesh;
+            if (nodeData->mHasLink && searchMesh(nodeData->mLinkMesh, nodeData->mLinkSubMesh, mesh))
+            {
+                node->addChild(mesh);
+            }
+        }
+
+        return true;
+    }
+
+    bool SGModel::searchMesh(const String &meshName, const String &submeshName, SGMeshPtr &mesh)
+    {
+        bool found = false;
+        size_t i = 0;
+
+        for (i = 0; i < mMeshes.size(); ++i)
+        {
+            auto target = mMeshes[i];
+            if (target->getName() == meshName && target->getSubMeshName() == submeshName)
+            {
+                found = true;
+                mesh = target;
+                break;
+            }
+        }
+
+        return found;
+    }
+
     void SGModel::enumerateActionList(ActionList &actions)
     {
         ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
@@ -396,17 +471,12 @@ namespace Tiny3D
         ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
         MeshDataPtr meshData = smart_pointer_cast<MeshData>(modelData->mMeshes.front());
         SGBonePtr bone = smart_pointer_cast<SGBone>(mRootBone);
-//         bone->setRootMatrix(meshData->mWorldMatrix);
         updateBone(dt, mRootBone);
-//         BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
-//         bone->updateBone();
-
-        updateVertices();
     }
 
     void SGModel::updateBone(int64_t time, ObjectPtr skeleton)
     {
-        BonePtr bone = smart_pointer_cast<Bone>(skeleton);
+        SGBonePtr bone = smart_pointer_cast<SGBone>(skeleton);
 
         ActionDataPtr actionData = smart_pointer_cast<ActionData>(mCurActionData);
         
@@ -430,7 +500,7 @@ namespace Tiny3D
 //                 T3D_LOG_INFO("Keyframe #2 T(%f, %f, %f)", keyframe2->mTranslation[0], keyframe2->mTranslation[1], keyframe2->mTranslation[2]);
 //                 T3D_LOG_INFO("Bone : %s [%f], T(%f, %f, %f)", bone->getName().c_str(), t, translation[0], translation[1], translation[2]);
 
-                bone->setTranslation(translation);
+                bone->setPosition(translation);
             }
         }
 
@@ -502,7 +572,7 @@ namespace Tiny3D
         }
     }
 
-    void SGModel::updateVertices()
+    void SGModel::updateSkin()
     {
         ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
 
@@ -513,7 +583,7 @@ namespace Tiny3D
 
             auto itr = mVertexDataList.begin();
             MeshDataPtr meshData = modelData->mMeshes[0];
-            updateVertexData(meshData, *itr);
+            updateSkinData(meshData, *itr);
         }
         else
         {
@@ -527,13 +597,13 @@ namespace Tiny3D
             {
                 // 根据网格数据来逐个创建渲染用网格对象
                 MeshDataPtr meshData = modelData->mMeshes[i];
-                updateVertexData(meshData, *itr);
+                updateSkinData(meshData, *itr);
                 ++itr;
             }
         }
     }
 
-    void SGModel::updateVertexData(ObjectPtr data, VertexDataPtr vertexData)
+    void SGModel::updateSkinData(ObjectPtr data, VertexDataPtr vertexData)
     {
         MeshDataPtr meshData = smart_pointer_cast<MeshData>(data);
         auto itr = meshData->mBuffers.begin();
@@ -555,7 +625,7 @@ namespace Tiny3D
 
             for (i = 0; i < buffer->mVertices.size(); i += step)
             {
-                updateVertex(buffer, &vertices[i], posElement, weightElement, indicesElement);
+                updateSkinVertex(buffer, &vertices[i], posElement, weightElement, indicesElement);
             }
 
             HardwareVertexBufferPtr vb = vertexData->getVertexBuffer(stream);
@@ -565,7 +635,7 @@ namespace Tiny3D
         }
     }
 
-    void SGModel::updateVertex(ObjectPtr buffer, void *vertex, const VertexElement &posElem, const VertexElement &weightElem, const VertexElement &indicesElem)
+    void SGModel::updateSkinVertex(ObjectPtr buffer, void *vertex, const VertexElement &posElem, const VertexElement &weightElem, const VertexElement &indicesElem)
     {
         VertexBufferPtr vb = smart_pointer_cast<VertexBuffer>(buffer);
         uint8_t *data = (uint8_t *)vertex;
@@ -577,35 +647,57 @@ namespace Tiny3D
         ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
         size_t i = 0;
 
-        BonePtr bone = smart_pointer_cast<Bone>(mBones[indices[0]]);
-        const Matrix4 &matBindpose0 = bone->getBindPoseMatrix();
-        const Matrix4 &matInverseBone0 = bone->getInverseBoneMatrix();
-        const Matrix4 &matCombine0 = bone->getCombineTransform().getAffineMatrix();
+        SGBonePtr bone;
+        BoneDataPtr boneData;
 
-        bone = smart_pointer_cast<Bone>(mBones[indices[1]]);
-        const Matrix4 &matBindpose1 = bone->getBindPoseMatrix();
-        const Matrix4 &matInverseBone1 = bone->getInverseBoneMatrix();
-        const Matrix4 &matCombine1 = bone->getCombineTransform().getAffineMatrix();
+        bone = smart_pointer_cast<SGBone>(mBones[indices[0]]);
+        const Matrix4 &matOffset0 = boneData->mOffsetMatrix;
+        const Matrix4 &matCombine0 = bone->getLocalToWorldTransform().getAffineMatrix();
 
-        bone = smart_pointer_cast<Bone>(mBones[indices[2]]);
-        const Matrix4 &matBindpose2 = bone->getBindPoseMatrix();
-        const Matrix4 &matInverseBone2 = bone->getInverseBoneMatrix();
-        const Matrix4 &matCombine2 = bone->getCombineTransform().getAffineMatrix();
+        bone = smart_pointer_cast<SGBone>(mBones[indices[1]]);
+        const Matrix4 &matOffset1 = boneData->mOffsetMatrix;
+        const Matrix4 &matCombine1 = bone->getLocalToWorldTransform().getAffineMatrix();
 
-        bone = smart_pointer_cast<Bone>(mBones[indices[3]]);
-        const Matrix4 &matBindpose3 = bone->getBindPoseMatrix();
-        const Matrix4 &matInverseBone3 = bone->getInverseBoneMatrix();
-        const Matrix4 &matCombine3 = bone->getCombineTransform().getAffineMatrix();
+        bone = smart_pointer_cast<SGBone>(mBones[indices[2]]);
+        const Matrix4 &matOffset2 = boneData->mOffsetMatrix;
+        const Matrix4 &matCombine2 = bone->getLocalToWorldTransform().getAffineMatrix();
 
-        const Matrix4 &matVertex = modelData->mVertexMatrix;
+        bone = smart_pointer_cast<SGBone>(mBones[indices[3]]);
+        const Matrix4 &matOffset3 = boneData->mOffsetMatrix;
+        const Matrix4 &matCombine3 = bone->getLocalToWorldTransform().getAffineMatrix();
 
-        MeshDataPtr meshData = modelData->mMeshes.front();
-        Matrix4 matWorld = meshData->mWorldMatrix;
-
-        *pos = (weights[0] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine0 * matBindpose0/*matInverseBone0 * matVertex*/) * (*pos) * weights[0]) : Vector3::ZERO)
-            + (weights[1] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine1 * matBindpose1/*matInverseBone1 * matVertex*/) * (*pos) * weights[1]) : Vector3::ZERO)
-            + (weights[2] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine2 * matBindpose2/*matInverseBone2 * matVertex*/) * (*pos) * weights[2]) : Vector3::ZERO)
-            + (weights[3] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine3 * matBindpose3/*matInverseBone3 * matVertex*/) * (*pos) * weights[3]) : Vector3::ZERO);
+        *pos = (weights[0] > 0 ? ((matCombine0 * matOffset0) * (*pos) * weights[0]) : Vector3::ZERO)
+            + (weights[1] > 0 ? ((matCombine1 * matOffset1) * (*pos) * weights[1]) : Vector3::ZERO)
+            + (weights[2] > 0 ? ((matCombine2 * matOffset2) * (*pos) * weights[2]) : Vector3::ZERO)
+            + (weights[3] > 0 ? ((matCombine3 * matOffset3) * (*pos) * weights[3]) : Vector3::ZERO);
+//         const Matrix4 &matBindpose0 = bone->getBindPoseMatrix();
+//         const Matrix4 &matInverseBone0 = bone->getInverseBoneMatrix();
+//         const Matrix4 &matCombine0 = bone->getCombineTransform().getAffineMatrix();
+// 
+//         bone = smart_pointer_cast<Bone>(mBones[indices[1]]);
+//         const Matrix4 &matBindpose1 = bone->getBindPoseMatrix();
+//         const Matrix4 &matInverseBone1 = bone->getInverseBoneMatrix();
+//         const Matrix4 &matCombine1 = bone->getCombineTransform().getAffineMatrix();
+// 
+//         bone = smart_pointer_cast<Bone>(mBones[indices[2]]);
+//         const Matrix4 &matBindpose2 = bone->getBindPoseMatrix();
+//         const Matrix4 &matInverseBone2 = bone->getInverseBoneMatrix();
+//         const Matrix4 &matCombine2 = bone->getCombineTransform().getAffineMatrix();
+// 
+//         bone = smart_pointer_cast<Bone>(mBones[indices[3]]);
+//         const Matrix4 &matBindpose3 = bone->getBindPoseMatrix();
+//         const Matrix4 &matInverseBone3 = bone->getInverseBoneMatrix();
+//         const Matrix4 &matCombine3 = bone->getCombineTransform().getAffineMatrix();
+// 
+//         const Matrix4 &matVertex = modelData->mVertexMatrix;
+// 
+//         MeshDataPtr meshData = modelData->mMeshes.front();
+//         Matrix4 matWorld = meshData->mWorldMatrix;
+// 
+//         *pos = (weights[0] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine0 * matBindpose0/*matInverseBone0 * matVertex*/) * (*pos) * weights[0]) : Vector3::ZERO)
+//             + (weights[1] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine1 * matBindpose1/*matInverseBone1 * matVertex*/) * (*pos) * weights[1]) : Vector3::ZERO)
+//             + (weights[2] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine2 * matBindpose2/*matInverseBone2 * matVertex*/) * (*pos) * weights[2]) : Vector3::ZERO)
+//             + (weights[3] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine3 * matBindpose3/*matInverseBone3 * matVertex*/) * (*pos) * weights[3]) : Vector3::ZERO);
     }
 
     bool SGModel::getVertexElement(ObjectPtr buffer, VertexElement::Semantic semantic, VertexElement &element)

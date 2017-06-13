@@ -1,7 +1,7 @@
 
 
 #include "SG/Renderable/T3DSGRenderable.h"
-#include "SG/Visual/T3DSGVisual.h"
+#include "SG/Node/T3DSGTransformNode.h"
 
 
 namespace Tiny3D
@@ -18,11 +18,17 @@ namespace Tiny3D
 
     const Matrix4 &SGRenderable::getWorldMatrix() const
     {
-        if (getParent() != nullptr)
+        NodePtr node = getParent();
+        while (node != nullptr && node->getNodeType() != E_NT_TRANSFORM)
         {
-            Node *p = getParent();
-            SGVisual *parent = (SGVisual *)p;
-            return parent->getWorldTransform().getAffineMatrix();
+            node = node->getParent();
+        }
+
+        if (node != nullptr)
+        {
+            T3D_ASSERT(node->getNodeType() == E_NT_TRANSFORM);
+            SGTransformNodePtr parent = smart_pointer_cast<SGTransformNode>(node);
+            return parent->getLocalToWorldTransform().getAffineMatrix();
         }
 
         return Matrix4::IDENTITY;

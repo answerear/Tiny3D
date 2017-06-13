@@ -44,7 +44,7 @@ namespace Tiny3D
         bool parseSubMesh(tinyxml2::XMLElement *pSubMeshElement, MeshDataPtr mesh);
 
         bool parseHierarchy(tinyxml2::XMLElement *pHierarchyElement);
-        bool parseNode(tinyxml2::XMLElement *pNodeElement, NodeDataPtr node);
+        bool parseNode(tinyxml2::XMLElement *pNodeElement, uint16_t parent);
 
         bool parseSkeleton(tinyxml2::XMLElement *pSkelElement);
         bool parseSkeleton(tinyxml2::XMLElement *pBoneElement, uint16_t parentBone);
