@@ -588,6 +588,7 @@ namespace mconv
         {
             Skeleton *pSkel = new Skeleton("skeleton");
             pModel->addChild(pSkel);
+            pSkel->mBoneCount = skeleton.bones.size();
 
             // 先分配所有骨骼结点对象
             mBones.resize(skeleton.bones.size(), nullptr);

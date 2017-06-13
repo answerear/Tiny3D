@@ -17,12 +17,11 @@ namespace Tiny3D
         static SGBonePtr create(ObjectPtr data = nullptr, uint32_t unID = E_NID_AUTOMATIC);
 
         uint16_t getParentBone() const;
+        ObjectPtr getBoneData() const { return mBoneData; }
 
         virtual Type getNodeType() const override;
 
         virtual NodePtr clone() const override;
-
-        void calcOffsetMatrix();
 
     protected:
         SGBone(uint32_t unID = E_NID_AUTOMATIC);

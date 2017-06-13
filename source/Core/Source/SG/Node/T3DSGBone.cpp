@@ -37,6 +37,13 @@ namespace Tiny3D
     bool SGBone::init(ObjectPtr data)
     {
         mBoneData = data;
+
+        if (mBoneData != nullptr)
+        {
+            BoneDataPtr boneData = smart_pointer_cast<BoneData>(mBoneData);
+            setName(boneData->mName);
+        }
+
         return true;
     }
 
@@ -49,11 +56,6 @@ namespace Tiny3D
             parent = boneData->mParent;
         }
         return parent;
-    }
-
-    void SGBone::calcOffsetMatrix()
-    {
-
     }
 
     Node::Type SGBone::getNodeType() const

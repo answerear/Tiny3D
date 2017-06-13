@@ -19,7 +19,8 @@ namespace Tiny3D
     public:
         static BoneDataPtr create(const String &name);
 
-        Matrix4     mOffsetMatrix;
+        Matrix4     mOffsetMatrix;          /// ¹Ç÷ÀÆ«ÒÆ¾ØÕó
+        bool        mIsMatrixDirty;         /// ÊÇ·ñÒªÖØĞÂ¼ÆËãÆ«ÒÆ¾ØÕó
 
     protected:
         BoneData(const String &name);

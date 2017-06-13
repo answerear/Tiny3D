@@ -1152,14 +1152,18 @@ namespace mconv
             pParent = pSkel;
 //             SkeletonsValue value(pFbxNode, pSkel);
 //             mSkeletons.insert(value);
+            pSkel->mBoneCount = 0;
             mHasSkeleton = true;
             mCurSkeleton = pSkel;
 
             updateBoneMatrix(pFbxNode, m, pSkel, pNode);
+            pSkel->mBoneCount++;
         }
         else
         {
             updateBoneMatrix(pFbxNode, m, pParent, pNode);
+            Skeleton *pSkel = (Skeleton *)mCurSkeleton;
+            pSkel->mBoneCount++;
         }
 
 //         String name = pFbxNode->GetName();

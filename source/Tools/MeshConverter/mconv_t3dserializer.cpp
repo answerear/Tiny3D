@@ -1041,6 +1041,8 @@ namespace mconv
         pParentElem->LinkEndChild(pSkelElement);
 
         pSkelElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+        Skeleton *pSkel = (Skeleton *)pNode;
+        pSkelElement->SetAttribute(ATTRIB_COUNT, pSkel->mBoneCount);
 
         return pSkelElement;
     }

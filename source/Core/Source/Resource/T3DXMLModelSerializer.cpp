@@ -727,6 +727,9 @@ namespace Tiny3D
         if (pSkelElement == nullptr)
             return true;
 
+        size_t boneCount = pSkelElement->IntAttribute(T3D_XML_ATTRIB_COUNT);
+        mModelData->mBones.resize(boneCount, nullptr);
+
         XMLElement *pBoneElement = pSkelElement->FirstChildElement(T3D_XML_TAG_BONE);
         bool ret = parseSkeleton(pBoneElement, 0xFFFF);
 

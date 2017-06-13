@@ -67,6 +67,8 @@ namespace Tiny3D
 
         virtual void updateTransform() override;
 
+        void calcBoneOffsetMatrix(NodePtr node);
+
         void updateSkeleton();
         void updateBone(int64_t time, ObjectPtr skeleton);
         void updateVertices();
@@ -83,7 +85,7 @@ namespace Tiny3D
         typedef VertexDataList::iterator        VerticesDataItr;
         typedef VertexDataList::const_iterator  VerticesDataConstItr;
 
-        typedef std::vector<ObjectPtr>          BoneList;
+        typedef std::vector<SGBonePtr>          BoneList;
         typedef BoneList::iterator              BoneListItr;
         typedef BoneList::const_iterator        BoneListConstItr;
 
@@ -93,7 +95,7 @@ namespace Tiny3D
         VertexDataList  mVertexDataList;
         BoneList        mBones;
 
-        ObjectPtr       mRootBone;
+        SGBonePtr       mRootBone;
 
         Children        mMeshes;
         SGSkeletonPtr   mSkeleton;

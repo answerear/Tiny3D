@@ -140,20 +140,20 @@ namespace Tiny3D
             // 创建骨骼层次和骨骼偏移矩阵数组
             ret = createSkeletons();
 
-            if (modelData->mAnimations.size() > 0)
-            {
-                auto animations = modelData->mAnimations;
-                auto itr = animations.begin();
-
-                mCurActionData = itr->second;
-                mCurKeyFrameT = 0;
-                mCurKeyFrameR = 0;
-                mCurKeyFrameS = 0;
-
-                BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
-                bone->updateBone();
-                updateVertices();
-            }
+//             if (modelData->mAnimations.size() > 0)
+//             {
+//                 auto animations = modelData->mAnimations;
+//                 auto itr = animations.begin();
+// 
+//                 mCurActionData = itr->second;
+//                 mCurKeyFrameT = 0;
+//                 mCurKeyFrameR = 0;
+//                 mCurKeyFrameS = 0;
+// 
+//                 BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
+//                 bone->updateBone();
+//                 updateVertices();
+//             }
         }
 
         return ret;
@@ -170,7 +170,7 @@ namespace Tiny3D
 
         if (model != nullptr)
         {
-            SGShape::cloneProperties(model);
+            SGVisual::cloneProperties(model);
         }
         
         return model;
@@ -183,7 +183,7 @@ namespace Tiny3D
             updateSkeleton();
         }
 
-        SGShape::updateTransform();
+        SGVisual::updateTransform();
     }
 
     void SGModel::setRenderMode(RenderMode mode)
@@ -218,9 +218,9 @@ namespace Tiny3D
                     if (mSkeleton == nullptr)
                     {
                         // 没有生成过骨骼渲染对象，先创建
-                        BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
-                        bone->updateBone();
-                        mSkeleton = SGSkeleton::create(mRootBone);
+//                         SGBonePtr bone = smart_pointer_cast<SGBone>(mRootBone);
+//                         bone->updateBone();
+//                         mSkeleton = SGSkeleton::create(mRootBone);
                     }
 
                     addChild(mSkeleton);
@@ -286,27 +286,55 @@ namespace Tiny3D
         for (i = 0; i < modelData->mBones.size(); ++i)
         {
             auto boneData = modelData->mBones[i];
-            BonePtr bone = Bone::create(boneData->mName, boneData->mOffsetMatrix, boneData->mLocalMatrix);
+            SGBonePtr bone = SGBone::create(boneData);
             mBones[i] = bone;
         }
 
         for (i = 0; i < mBones.size(); ++i)
         {
-            auto bone = smart_pointer_cast<Bone>(mBones[i]);
+            auto bone = smart_pointer_cast<SGBone>(mBones[i]);
             auto boneData = modelData->mBones[i];
-            if (boneData->mParentBone == 0xFFFF)
+            if (boneData->mParent == 0xFFFF)
             {
                 mRootBone = bone;
+                addChild(mRootBone);
             }
             else
             {
-                T3D_ASSERT(boneData->mParentBone < mBones.size());
-                auto parentBone = smart_pointer_cast<Bone>(mBones[boneData->mParentBone]);
+                T3D_ASSERT(boneData->mParent < mBones.size());
+                auto parentBone = smart_pointer_cast<SGBone>(mBones[boneData->mParent]);
                 parentBone->addChild(bone);
             }
         }
 
+        // 递归计算所有骨骼的偏移变换
+        calcBoneOffsetMatrix(mRootBone);
+
         return true;
+    }
+
+    void SGModel::calcBoneOffsetMatrix(NodePtr node)
+    {
+        if (node->getNodeType() == Node::E_NT_BONE)
+        {
+            SGBonePtr bone = smart_pointer_cast<SGBone>(node);
+            const Matrix4 &M = bone->getLocalToWorldTransform().getAffineMatrix();
+            BoneDataPtr boneData = smart_pointer_cast<BoneData>(bone->getBoneData());
+            if (boneData->mIsMatrixDirty)
+            {
+                boneData->mOffsetMatrix = M.inverse();
+                boneData->mIsMatrixDirty = false;
+            }
+        }
+
+        auto children = node->getChildren();
+        auto itr = children.begin();
+        while (itr != children.end())
+        {
+            auto child = *itr;
+            calcBoneOffsetMatrix(child);
+            ++itr;
+        }
     }
 
     void SGModel::enumerateActionList(ActionList &actions)
@@ -367,11 +395,11 @@ namespace Tiny3D
 
         ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
         MeshDataPtr meshData = smart_pointer_cast<MeshData>(modelData->mMeshes.front());
-        BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
-        bone->setRootMatrix(meshData->mWorldMatrix);
+        SGBonePtr bone = smart_pointer_cast<SGBone>(mRootBone);
+//         bone->setRootMatrix(meshData->mWorldMatrix);
         updateBone(dt, mRootBone);
 //         BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
-        bone->updateBone();
+//         bone->updateBone();
 
         updateVertices();
     }

@@ -14,6 +14,7 @@ namespace mconv
     public:
         Skeleton(const String &ID)
             : Node(ID)
+            , mBoneCount(0)
         {
 
         }
@@ -27,6 +28,8 @@ namespace mconv
         {
             return E_TYPE_SKELETON;
         }
+
+        uint16_t    mBoneCount;
     };
 }
 
