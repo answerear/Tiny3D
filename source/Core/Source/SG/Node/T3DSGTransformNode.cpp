@@ -57,7 +57,7 @@ namespace Tiny3D
         {
             Node *parent = getParent();
 
-            while (parent != nullptr && parent->getNodeType() != E_NT_TRANSFORM)
+            while (parent != nullptr && (parent->getNodeType() != E_NT_TRANSFORM && parent->getNodeType() != E_NT_BONE))
                 parent = parent->getParent();
 
             if (parent != nullptr)

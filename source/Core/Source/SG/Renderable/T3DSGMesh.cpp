@@ -86,7 +86,7 @@ namespace Tiny3D
 
     void SGMesh::cloneProperties(const NodePtr &node) const
     {
-
+        SGGeometry::cloneProperties(node);
     }
 
     const String &SGMesh::getSubMeshName() const

@@ -141,9 +141,10 @@ namespace Tiny3D
                 }
             }
 
+            ret = ret && createNodes();
+
             // 创建骨骼层次和骨骼偏移矩阵数组
             ret = createSkeletons();
-            ret = ret && createNodes();
 
 //             if (modelData->mAnimations.size() > 0)
 //             {
@@ -159,6 +160,7 @@ namespace Tiny3D
 //                 bone->updateBone();
 //                 updateVertices();
 //             }
+            updateSkin();
         }
 
         return ret;
@@ -309,10 +311,18 @@ namespace Tiny3D
         {
             auto bone = smart_pointer_cast<SGBone>(mBones[i]);
             auto boneData = modelData->mBones[i];
+
+            Vector3 pos;
+            Quaternion orientation;
+            Vector3 scale;
+            boneData->mLocalMatrix.decomposition(pos, scale, orientation);
+            bone->setPosition(pos);
+            bone->setScale(Vector3::UNIT_SCALE);
+            bone->setOrientation(orientation);
+
             if (boneData->mParent == 0xFFFF)
             {
                 mRootBone = bone;
-                addChild(mRootBone);
             }
             else
             {
@@ -333,8 +343,9 @@ namespace Tiny3D
         if (node->getNodeType() == Node::E_NT_BONE)
         {
             SGBonePtr bone = smart_pointer_cast<SGBone>(node);
-            const Matrix4 &M = bone->getLocalToWorldTransform().getAffineMatrix();
             BoneDataPtr boneData = smart_pointer_cast<BoneData>(bone->getBoneData());
+            const Matrix4 &M = bone->getLocalToWorldTransform().getAffineMatrix();
+
             if (boneData->mIsMatrixDirty)
             {
                 boneData->mOffsetMatrix = M.inverse();
@@ -364,6 +375,15 @@ namespace Tiny3D
         {
             SGTransformNodePtr node = SGTransformNode::create();
             mNodes[i] = node;
+
+            NodeDataPtr nodeData = modelData->mNodes[i];
+            Vector3 pos;
+            Vector3 scale;
+            Quaternion orientation;
+            nodeData->mLocalMatrix.decomposition(pos, scale, orientation);
+            node->setPosition(pos);
+            node->setScale(Vector3::UNIT_SCALE);
+            node->setOrientation(orientation);
         }
 
         // 构建结点的树形结构
@@ -467,10 +487,6 @@ namespace Tiny3D
         ActionDataPtr actionData = smart_pointer_cast<ActionData>(mCurActionData);
         int64_t dt = time % actionData->mDuration;
         T3D_LOG_INFO("time : %lld, dt = %lld, duration : %d", time, dt, actionData->mDuration); 
-
-        ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
-        MeshDataPtr meshData = smart_pointer_cast<MeshData>(modelData->mMeshes.front());
-        SGBonePtr bone = smart_pointer_cast<SGBone>(mRootBone);
         updateBone(dt, mRootBone);
     }
 
@@ -543,26 +559,26 @@ namespace Tiny3D
         }
 
         // 缩放变换数据
-//         Vector3 scaling;
-//         auto itrS = actionData->mBonesScaling.find(bone->getName());
-//         if (itrS != actionData->mBonesScaling.end())
-//         {
-//             ActionData::KeyFrames &keyframesS = itrS->second;
-// 
-//             if (searchKeyframe(keyframesS, time, actionData->mDuration, mCurKeyFrameS, kf1, kf2, mIsLoop))
-//             {
-//                 KeyFrameDataSPtr keyframe1 = smart_pointer_cast<KeyFrameDataS>(kf1);
-//                 KeyFrameDataSPtr keyframe2 = smart_pointer_cast<KeyFrameDataS>(kf2);
-//                 double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
-//                 Vector3 &base = keyframe1->mScaling;
-//                 scaling = (base * (keyframe2->mScaling - base) * t);
-//                 T3D_LOG_INFO("Keyframe #1 S(%f, %f, %f)", keyframe1->mScaling[0], keyframe1->mScaling[1], keyframe1->mScaling[2]);
-//                 T3D_LOG_INFO("Keyframe #2 S(%f, %f, %f)", keyframe2->mScaling[0], keyframe2->mScaling[1], keyframe2->mScaling[2]);
-//                 T3D_LOG_INFO("Bone : %s [%f], S(%f, %f, %f)", bone->getName().c_str(), t, scaling[0], scaling[1], scaling[2]);
-// 
-//                 bone->setScaling(scaling);
-//             }
-//         }
+        Vector3 scaling;
+        auto itrS = actionData->mBonesScaling.find(bone->getName());
+        if (itrS != actionData->mBonesScaling.end())
+        {
+            ActionData::KeyFrames &keyframesS = itrS->second;
+
+            if (searchKeyframe(keyframesS, time, actionData->mDuration, mCurKeyFrameS, kf1, kf2, mIsLoop))
+            {
+                KeyFrameDataSPtr keyframe1 = smart_pointer_cast<KeyFrameDataS>(kf1);
+                KeyFrameDataSPtr keyframe2 = smart_pointer_cast<KeyFrameDataS>(kf2);
+                double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
+                Vector3 &base = keyframe1->mScaling;
+                scaling = (base * (keyframe2->mScaling - base) * t);
+                T3D_LOG_INFO("Keyframe #1 S(%f, %f, %f)", keyframe1->mScaling[0], keyframe1->mScaling[1], keyframe1->mScaling[2]);
+                T3D_LOG_INFO("Keyframe #2 S(%f, %f, %f)", keyframe2->mScaling[0], keyframe2->mScaling[1], keyframe2->mScaling[2]);
+                T3D_LOG_INFO("Bone : %s [%f], S(%f, %f, %f)", bone->getName().c_str(), t, scaling[0], scaling[1], scaling[2]);
+
+                bone->setScale(scaling);
+            }
+        }
 
         auto itr = bone->getChildren().begin();
         while (itr != bone->getChildren().end())
@@ -583,21 +599,24 @@ namespace Tiny3D
 
             auto itr = mVertexDataList.begin();
             MeshDataPtr meshData = modelData->mMeshes[0];
+            mMeshes[0]->getParent()->addChild(mRootBone);
             updateSkinData(meshData, *itr);
+            mRootBone->removeFromParent(true);
         }
         else
         {
             // 不共享顶点模式，有多个mesh和多个submesh
             size_t meshCount = modelData->mMeshes.size();
             size_t i = 0;
-
             auto itr = mVertexDataList.begin();
 
             for (i = 0; i < meshCount; ++i)
             {
                 // 根据网格数据来逐个创建渲染用网格对象
                 MeshDataPtr meshData = modelData->mMeshes[i];
+                mMeshes[i]->getParent()->addChild(mRootBone);
                 updateSkinData(meshData, *itr);
+                mRootBone->removeFromParent(true);
                 ++itr;
             }
         }
@@ -651,18 +670,22 @@ namespace Tiny3D
         BoneDataPtr boneData;
 
         bone = smart_pointer_cast<SGBone>(mBones[indices[0]]);
+        boneData = bone->getBoneData();
         const Matrix4 &matOffset0 = boneData->mOffsetMatrix;
         const Matrix4 &matCombine0 = bone->getLocalToWorldTransform().getAffineMatrix();
 
         bone = smart_pointer_cast<SGBone>(mBones[indices[1]]);
+        boneData = bone->getBoneData();
         const Matrix4 &matOffset1 = boneData->mOffsetMatrix;
         const Matrix4 &matCombine1 = bone->getLocalToWorldTransform().getAffineMatrix();
 
         bone = smart_pointer_cast<SGBone>(mBones[indices[2]]);
+        boneData = bone->getBoneData();
         const Matrix4 &matOffset2 = boneData->mOffsetMatrix;
         const Matrix4 &matCombine2 = bone->getLocalToWorldTransform().getAffineMatrix();
 
         bone = smart_pointer_cast<SGBone>(mBones[indices[3]]);
+        boneData = bone->getBoneData();
         const Matrix4 &matOffset3 = boneData->mOffsetMatrix;
         const Matrix4 &matCombine3 = bone->getLocalToWorldTransform().getAffineMatrix();
 

@@ -599,10 +599,9 @@ namespace mconv
                             pTransform->mEntities.push_back(Transform::Entity(pMesh, pCurSubMesh));
                         }
                     }
-
-                    pCurSubMesh->mVB->mVertices.push_back(vertex);
                 }
 
+                pCurSubMesh->mVB->mVertices.push_back(vertex);
                 pVB->mVertices.push_back(vertex);
 
                 ++nVertexCount;

@@ -19,6 +19,8 @@ namespace Tiny3D
         uint16_t getParentBone() const;
         ObjectPtr getBoneData() const { return mBoneData; }
 
+        void updateBone();
+
         virtual Type getNodeType() const override;
 
         virtual NodePtr clone() const override;

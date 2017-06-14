@@ -60,6 +60,7 @@ namespace mconv
                     if (vertex == other)
                     {
                        mIndices.push_back(nIndex);
+                       break;
                     }
                     ++nIndex;
                     ++i;

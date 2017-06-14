@@ -47,6 +47,11 @@ namespace Tiny3D
         return true;
     }
 
+    void SGBone::updateBone()
+    {
+        updateTransform();
+    }
+
     uint16_t SGBone::getParentBone() const
     {
         uint16_t parent = 0xFFFF;

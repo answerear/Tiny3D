@@ -19,6 +19,7 @@ namespace Tiny3D
     {
         mRenderQueue = RenderQueue::create();
         mRoot = SGTransformNode::create();
+        mRoot->setName("Root");
     }
 
     SceneManager::~SceneManager()
