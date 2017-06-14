@@ -1197,7 +1197,7 @@ namespace mconv
             ++itr;
         }
 
-        return pTransformElement;
+        return pNodeElement;
     }
 
     XMLElement *T3DXMLSerializer::buildXMLAlignAxisBound(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)

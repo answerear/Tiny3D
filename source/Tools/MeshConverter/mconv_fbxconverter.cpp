@@ -562,41 +562,45 @@ namespace mconv
                 if (ret = readMaterial(pFbxMesh, i, nMaterialIdx))
                 {
                     vertex.mMaterialIdx = nMaterialIdx;
+                }
+                else
+                {
+                    nMaterialIdx = -1;
+                }
 
-                    if (pCurSubMesh == nullptr)
+                if (pCurSubMesh == nullptr)
+                {
+                    // 没有子网格，生成一个
+                    pCurSubMesh = new SubMesh(name);
+                    pSubMeshes->addChild(pCurSubMesh);
+                    submeshes.insert(SubMeshValue(nMaterialIdx, pCurSubMesh));
+                    processVertexAttribute(pFbxMesh, pCurSubMesh->mVB);
+                    pCurSubMesh->mMaterialIdx = nMaterialIdx;
+                    pTransform->mEntities.push_back(Transform::Entity(pMesh, pCurSubMesh));
+                }
+                else
+                {
+                    // 有子网格，看看是否跟当前的材质相同，不相同则查找一个现成 ，如果现成的都没有，则生成一个新的
+                    if (pCurSubMesh->mMaterialIdx != nMaterialIdx)
                     {
-                        // 没有子网格，生成一个
-                        pCurSubMesh = new SubMesh(name);
-                        pSubMeshes->addChild(pCurSubMesh);
-                        submeshes.insert(SubMeshValue(nMaterialIdx, pCurSubMesh));
-                        processVertexAttribute(pFbxMesh, pCurSubMesh->mVB);
-                        pCurSubMesh->mMaterialIdx = nMaterialIdx;
-                        pTransform->mEntities.push_back(Transform::Entity(pMesh, pCurSubMesh));
-                    }
-                    else
-                    {
-                        // 有子网格，看看是否跟当前的材质相同，不相同则查找一个现成 ，如果现成的都没有，则生成一个新的
-                        if (pCurSubMesh->mMaterialIdx != nMaterialIdx)
+                        auto itr = submeshes.find(nMaterialIdx);
+
+                        if (itr != submeshes.end())
                         {
-                            auto itr = submeshes.find(nMaterialIdx);
-
-                            if (itr != submeshes.end())
-                            {
-                                pCurSubMesh = itr->second;
-                            }
-                            else
-                            {
-                                pCurSubMesh = new SubMesh(name);
-                                pSubMeshes->addChild(pCurSubMesh);
-                                submeshes.insert(SubMeshValue(nMaterialIdx, pCurSubMesh));
-                                processVertexAttribute(pFbxMesh, pCurSubMesh->mVB);
-                                pCurSubMesh->mMaterialIdx = nMaterialIdx;
-                                pTransform->mEntities.push_back(Transform::Entity(pMesh, pCurSubMesh));
-                            }
+                            pCurSubMesh = itr->second;
                         }
-
-                        pCurSubMesh->mVB->mVertices.push_back(vertex);
+                        else
+                        {
+                            pCurSubMesh = new SubMesh(name);
+                            pSubMeshes->addChild(pCurSubMesh);
+                            submeshes.insert(SubMeshValue(nMaterialIdx, pCurSubMesh));
+                            processVertexAttribute(pFbxMesh, pCurSubMesh->mVB);
+                            pCurSubMesh->mMaterialIdx = nMaterialIdx;
+                            pTransform->mEntities.push_back(Transform::Entity(pMesh, pCurSubMesh));
+                        }
                     }
+
+                    pCurSubMesh->mVB->mVertices.push_back(vertex);
                 }
 
                 pVB->mVertices.push_back(vertex);

@@ -6,9 +6,9 @@
 
 using namespace Tiny3D;
 
-#define TEST_MODEL_TORTOISE             1
+#define TEST_MODEL_TORTOISE             0
 #define TEST_MODEL_CAMEL                0
-#define TEST_MODEL_SKELETON             0
+#define TEST_MODEL_SKELETON             1
 #define TEST_MODEL_KNIGHT               0
 
 SkeletonApp::SkeletonApp()
@@ -116,7 +116,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     node->setPosition(0.0, -166.487442, 76.205284);
     {
         // 模型 #1 可见物体结点
-        SGModelPtr model = SGModel::create("白骆驼.tmt");
+        SGModelPtr model = SGModel::create("白骆驼.t3t");
         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
 //         model->runAction("Take 001");
@@ -126,7 +126,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     root->addChild(node);
 //     node->setOrientation(Degree(-90), Vector3::UNIT_X);
     {
-        SGModelPtr model = SGModel::create("tortoise.tmt");
+        SGModelPtr model = SGModel::create("tortoise.t3t");
         node->addChild(model);
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         model->runAction("Take 001");
@@ -145,7 +145,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
 //     node->addChild(node1);
 //     node1->setOrientation(Q1);
     {
-        SGModelPtr model = SGModel::create("skeleton.tmt");
+        SGModelPtr model = SGModel::create("skeleton.t3t");
         node->addChild(model);
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
 //         model->runAction("Take 001");
@@ -154,7 +154,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     node = SGTransformNode::create();
     root->addChild(node);
     {
-        SGModelPtr model = SGModel::create("knight.tmt");
+        SGModelPtr model = SGModel::create("knight.t3t");
         node->addChild(model);
     }
 #endif

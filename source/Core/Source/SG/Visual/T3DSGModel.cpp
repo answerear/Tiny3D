@@ -354,7 +354,7 @@ namespace Tiny3D
 
     bool SGModel::createNodes()
     {
-        ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel);
+        ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
 
         mNodes.resize(modelData->mNodes.size());
 

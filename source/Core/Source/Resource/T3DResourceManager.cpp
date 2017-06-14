@@ -109,7 +109,7 @@ namespace Tiny3D
 
     void ResourceManager::unload(ResourcePtr &res)
     {
-        if (res->referCount() > 1)
+        if (res != nullptr && res->referCount() > 1)
         {
             Resource *r = res;
             res = nullptr;

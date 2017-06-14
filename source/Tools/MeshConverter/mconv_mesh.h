@@ -32,6 +32,12 @@ namespace mconv
 
         bool searchMaterial(Model *pModel, int nMaterialIdx, String &name)
         {
+            if (nMaterialIdx == -1)
+            {
+                name = "No material";
+                return true;
+            }
+
             bool result = false;
 
             Materials *pMaterials = nullptr;
