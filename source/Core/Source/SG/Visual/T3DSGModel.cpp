@@ -317,7 +317,7 @@ namespace Tiny3D
             Vector3 scale;
             boneData->mLocalMatrix.decomposition(pos, scale, orientation);
             bone->setPosition(pos);
-            bone->setScale(Vector3::UNIT_SCALE);
+            bone->setScale(scale);
             bone->setOrientation(orientation);
 
             if (boneData->mParent == 0xFFFF)
@@ -382,7 +382,7 @@ namespace Tiny3D
             Quaternion orientation;
             nodeData->mLocalMatrix.decomposition(pos, scale, orientation);
             node->setPosition(pos);
-            node->setScale(Vector3::UNIT_SCALE);
+            node->setScale(scale);
             node->setOrientation(orientation);
         }
 
@@ -669,6 +669,9 @@ namespace Tiny3D
         SGBonePtr bone;
         BoneDataPtr boneData;
 
+        SGTransformNodePtr node = mNodes.front();
+        Matrix4 M = node->getLocalToWorldTransform().getAffineMatrix().inverse();
+
         bone = smart_pointer_cast<SGBone>(mBones[indices[0]]);
         boneData = bone->getBoneData();
         const Matrix4 &matOffset0 = boneData->mOffsetMatrix;
@@ -689,10 +692,10 @@ namespace Tiny3D
         const Matrix4 &matOffset3 = boneData->mOffsetMatrix;
         const Matrix4 &matCombine3 = bone->getLocalToWorldTransform().getAffineMatrix();
 
-        *pos = (weights[0] > 0 ? ((matCombine0 * matOffset0) * (*pos) * weights[0]) : Vector3::ZERO)
-            + (weights[1] > 0 ? ((matCombine1 * matOffset1) * (*pos) * weights[1]) : Vector3::ZERO)
-            + (weights[2] > 0 ? ((matCombine2 * matOffset2) * (*pos) * weights[2]) : Vector3::ZERO)
-            + (weights[3] > 0 ? ((matCombine3 * matOffset3) * (*pos) * weights[3]) : Vector3::ZERO);
+        *pos = (weights[0] > 0 ? ((matCombine0 * matOffset0 * M) * (*pos) * weights[0]) : Vector3::ZERO)
+            + (weights[1] > 0 ? ((matCombine1 * matOffset1 * M) * (*pos) * weights[1]) : Vector3::ZERO)
+            + (weights[2] > 0 ? ((matCombine2 * matOffset2 * M) * (*pos) * weights[2]) : Vector3::ZERO)
+            + (weights[3] > 0 ? ((matCombine3 * matOffset3 * M) * (*pos) * weights[3]) : Vector3::ZERO);
 //         const Matrix4 &matBindpose0 = bone->getBindPoseMatrix();
 //         const Matrix4 &matInverseBone0 = bone->getInverseBoneMatrix();
 //         const Matrix4 &matCombine0 = bone->getCombineTransform().getAffineMatrix();

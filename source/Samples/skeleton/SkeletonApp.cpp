@@ -6,9 +6,9 @@
 
 using namespace Tiny3D;
 
-#define TEST_MODEL_TORTOISE             0
+#define TEST_MODEL_TORTOISE             1
 #define TEST_MODEL_CAMEL                0
-#define TEST_MODEL_SKELETON             1
+#define TEST_MODEL_SKELETON             0
 #define TEST_MODEL_KNIGHT               0
 
 void printNode(NodePtr node, size_t tabCount)
@@ -103,7 +103,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     root->addChild(indicator);
 
 #elif TEST_MODEL_SKELETON
-    node->lookAt(Vector3(400, 500, 400), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(400, 1000, 400), Vector3::ZERO, Vector3::UNIT_Y);
 
     // зјБъ
     SGIndicatorPtr indicator = SGIndicator::create(50, 50, 50);
@@ -175,7 +175,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
         SGModelPtr model = SGModel::create("skeleton.t3t");
         node->addChild(model);
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
-//         model->runAction("Take 001");
+        model->runAction("Take 001");
     }
 #elif TEST_MODEL_KNIGHT
     node = SGTransformNode::create();

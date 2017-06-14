@@ -154,6 +154,8 @@ namespace mconv
     {
         FbxNode *pFbxRoot = pFbxScene->GetRootNode();
 
+        mMaxBoneIdx = 0;
+
         mRootTransform = new Hierarchy("Hierarchy");
 
         bool result = processFbxNode(pFbxRoot, mRootTransform, pRoot);
@@ -192,6 +194,9 @@ namespace mconv
         {
             mCurSkeleton->removeFromParent(false);
             mCurModel->addChild(mCurSkeleton);
+
+            // 修正骨骼pallette，避免有骨骼不在骨骼pallette里面
+            fixBoneIndex((Bone *)mCurSkeleton->getChild(0));
         }
 
         if (mCurAnimation != nullptr)
@@ -1713,6 +1718,11 @@ namespace mconv
             pBone->mBoneIndex = boneIdx;
         }
 
+        if (boneIdx > mMaxBoneIdx)
+        {
+            mMaxBoneIdx = boneIdx;
+        }
+
         return true;
     }
 
@@ -1739,6 +1749,24 @@ namespace mconv
         return true;
     }
 
+    bool FBXConverter::fixBoneIndex(Bone *pBone)
+    {
+        uint16_t count = mMaxBoneIdx + 1;
+        auto itr = mBones.begin();
+
+        while (itr != mBones.end())
+        {
+            if (pBone->mBoneIndex == 0xFFFF)
+            {
+                pBone->mBoneIndex = count;
+                ++count;
+            }
+
+            ++itr;
+        }
+
+        return true;
+    }
 //     bool FBXConverter::searchSkeletonRoot(FbxNode *pFbxNode, FbxNode *&pFbxRootNode)
 //     {
 //         bool result = false;

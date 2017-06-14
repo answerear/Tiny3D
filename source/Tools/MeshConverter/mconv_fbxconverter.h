@@ -73,6 +73,7 @@ namespace mconv
 
         bool updateBoneIndex(FbxNode *pFbxNode, size_t boneIdx);
         bool updateBoneMatrix(FbxNode *pFbxNode, const Matrix4 &m, Node *pParent, Node *&pNode);
+        bool fixBoneIndex(Bone *pBone);
 
 //         // 根据某个Cluster的link node回溯获取骨骼根节点
 //         bool searchSkeletonRoot(FbxNode *pFbxNode, FbxNode *&pFbxRootNode);
@@ -126,6 +127,8 @@ namespace mconv
         Node        *mRootTransform;    // 场景变换根结点
 
         Bones       mBones;
+
+        uint16_t    mMaxBoneIdx;        // 骨骼最大索引值
 //         Skeletons   mSkeletons;
         bool        mHasSkeleton;
         bool        mHasVertexBlending;
