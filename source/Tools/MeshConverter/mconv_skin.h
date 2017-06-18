@@ -27,8 +27,28 @@ namespace mconv
         {
             return E_TYPE_SKIN;
         }
+    };
 
-        Matrix4     mVertexMatrix;
+    class SkinInfo : public Node
+    {
+    public:
+        SkinInfo(const String &ID)
+            : Node(ID)
+        {
+
+        }
+
+        virtual ~SkinInfo()
+        {
+
+        }
+
+        virtual Type getNodeType() const override
+        {
+            return E_TYPE_SKIN_INFO;
+        }
+
+        Matrix4     mOffsetMatrix;
     };
 }
 

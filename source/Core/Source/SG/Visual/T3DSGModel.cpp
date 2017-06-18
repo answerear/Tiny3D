@@ -332,35 +332,7 @@ namespace Tiny3D
             }
         }
 
-        // 递归计算所有骨骼的偏移变换
-        calcBoneOffsetMatrix(mRootBone);
-
         return true;
-    }
-
-    void SGModel::calcBoneOffsetMatrix(NodePtr node)
-    {
-        if (node->getNodeType() == Node::E_NT_BONE)
-        {
-            SGBonePtr bone = smart_pointer_cast<SGBone>(node);
-            BoneDataPtr boneData = smart_pointer_cast<BoneData>(bone->getBoneData());
-            const Matrix4 &M = bone->getLocalToWorldTransform().getAffineMatrix();
-
-            if (boneData->mIsMatrixDirty)
-            {
-                boneData->mOffsetMatrix = M.inverse();
-                boneData->mIsMatrixDirty = false;
-            }
-        }
-
-        auto children = node->getChildren();
-        auto itr = children.begin();
-        while (itr != children.end())
-        {
-            auto child = *itr;
-            calcBoneOffsetMatrix(child);
-            ++itr;
-        }
     }
 
     bool SGModel::createNodes()
@@ -488,6 +460,8 @@ namespace Tiny3D
         int64_t dt = time % actionData->mDuration;
         T3D_LOG_INFO("time : %lld, dt = %lld, duration : %d", time, dt, actionData->mDuration); 
         updateBone(dt, mRootBone);
+
+        mRootBone->updateBone();
     }
 
     void SGModel::updateBone(int64_t time, ObjectPtr skeleton)
@@ -599,9 +573,10 @@ namespace Tiny3D
 
             auto itr = mVertexDataList.begin();
             MeshDataPtr meshData = modelData->mMeshes[0];
-            mMeshes[0]->getParent()->addChild(mRootBone);
+//             if (mRootBone->getParent() == nullptr)
+//                 mMeshes[0]->getParent()->addChild(mRootBone);
             updateSkinData(meshData, *itr);
-            mRootBone->removeFromParent(true);
+//             mRootBone->removeFromParent(true);
         }
         else
         {
@@ -614,9 +589,9 @@ namespace Tiny3D
             {
                 // 根据网格数据来逐个创建渲染用网格对象
                 MeshDataPtr meshData = modelData->mMeshes[i];
-                mMeshes[i]->getParent()->addChild(mRootBone);
+//                 mMeshes[i]->getParent()->addChild(mRootBone);
                 updateSkinData(meshData, *itr);
-                mRootBone->removeFromParent(true);
+//                 mRootBone->removeFromParent(true);
                 ++itr;
             }
         }
@@ -670,7 +645,8 @@ namespace Tiny3D
         BoneDataPtr boneData;
 
         SGTransformNodePtr node = mNodes.front();
-        Matrix4 M = node->getLocalToWorldTransform().getAffineMatrix().inverse();
+        Matrix4 InverseM = node->getLocalToWorldTransform().getAffineMatrix().inverse();
+        Matrix4 M = node->getLocalTransform().getAffineMatrix();
 
         bone = smart_pointer_cast<SGBone>(mBones[indices[0]]);
         boneData = bone->getBoneData();
@@ -692,10 +668,10 @@ namespace Tiny3D
         const Matrix4 &matOffset3 = boneData->mOffsetMatrix;
         const Matrix4 &matCombine3 = bone->getLocalToWorldTransform().getAffineMatrix();
 
-        *pos = (weights[0] > 0 ? ((matCombine0 * matOffset0 * M) * (*pos) * weights[0]) : Vector3::ZERO)
-            + (weights[1] > 0 ? ((matCombine1 * matOffset1 * M) * (*pos) * weights[1]) : Vector3::ZERO)
-            + (weights[2] > 0 ? ((matCombine2 * matOffset2 * M) * (*pos) * weights[2]) : Vector3::ZERO)
-            + (weights[3] > 0 ? ((matCombine3 * matOffset3 * M) * (*pos) * weights[3]) : Vector3::ZERO);
+        *pos = (weights[0] > 0 ? ((InverseM * matCombine0 * matOffset0) * (*pos) * weights[0]) : Vector3::ZERO)
+            + (weights[1] > 0 ? ((InverseM * matCombine1 * matOffset1) * (*pos) * weights[1]) : Vector3::ZERO)
+            + (weights[2] > 0 ? ((InverseM * matCombine2 * matOffset2) * (*pos) * weights[2]) : Vector3::ZERO)
+            + (weights[3] > 0 ? ((InverseM * matCombine3 * matOffset3) * (*pos) * weights[3]) : Vector3::ZERO);
 //         const Matrix4 &matBindpose0 = bone->getBindPoseMatrix();
 //         const Matrix4 &matInverseBone0 = bone->getInverseBoneMatrix();
 //         const Matrix4 &matCombine0 = bone->getCombineTransform().getAffineMatrix();

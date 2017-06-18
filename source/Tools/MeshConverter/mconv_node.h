@@ -34,6 +34,7 @@ namespace mconv
             E_TYPE_SCENE,
             E_TYPE_SKELETON,
             E_TYPE_SKIN,
+            E_TYPE_SKIN_INFO,
             E_TYPE_SUBMESH,
             E_TYPE_SUBMESHES,
             E_TYPE_TEXTURE,

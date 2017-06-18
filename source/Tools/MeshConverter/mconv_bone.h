@@ -35,6 +35,7 @@ namespace mconv
         }
 
         Matrix4     mLocalTransform;
+        Matrix4     mOffsetMatrix;
         uint16_t    mBoneIndex;
     };
 }

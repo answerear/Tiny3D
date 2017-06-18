@@ -18,7 +18,6 @@ namespace Tiny3D
     BoneData::BoneData(const String &name)
         : NodeData(name)
         , mOffsetMatrix(false)
-        , mIsMatrixDirty(true)
     {
 
     }

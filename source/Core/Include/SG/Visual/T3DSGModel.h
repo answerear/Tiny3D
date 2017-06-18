@@ -67,8 +67,6 @@ namespace Tiny3D
 
         virtual void updateTransform() override;
 
-        void calcBoneOffsetMatrix(NodePtr node);
-
         void updateSkeleton();
         void updateBone(int64_t time, ObjectPtr skeleton);
         void updateSkin();

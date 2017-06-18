@@ -35,6 +35,7 @@ namespace Tiny3D
     #define T3D_XML_TAG_SUBMESH                 "submesh"
     #define T3D_XML_TAG_INDICES                 "indices"
     #define T3D_XML_TAG_SKIN                    "skin"
+    #define T3D_XML_TAG_SKIN_INFO               "skininfo"
     #define T3D_XML_TAG_BONE                    "bone"
     #define T3D_XML_TAG_TRANSFORM               "transform"
     #define T3D_XML_TAG_SKELETON                "skeleton"

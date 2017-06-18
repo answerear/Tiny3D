@@ -71,6 +71,7 @@ namespace mconv
     const char * const T3DXMLSerializer::TAG_EFFECTS = "effects";
     const char * const T3DXMLSerializer::TAG_EFFECT = "effect";
     const char * const T3DXMLSerializer::TAG_SKIN = "skin";
+    const char * const T3DXMLSerializer::TAG_SKIN_INFO = "skininfo";
     const char * const T3DXMLSerializer::TAG_SKELETON = "skeleton";
     const char * const T3DXMLSerializer::TAG_BONE = "bone";
     const char * const T3DXMLSerializer::TAG_TRANSFORM = "transform";
@@ -242,6 +243,11 @@ namespace mconv
         case Node::E_TYPE_SKIN:
             {
                 pElement = buildXMLSkin(pDoc, pParentElem, pNode);
+            }
+            break;
+        case Node::E_TYPE_SKIN_INFO:
+            {
+                pElement = buildXMLSkinInfo(pDoc, pParentElem, pNode);
             }
             break;
         case Node::E_TYPE_SKELETON:
@@ -1055,17 +1061,44 @@ namespace mconv
         pSkinElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
         pSkinElement->SetAttribute(ATTRIB_COUNT, pNode->getChildrenCount());
 
+//         XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+//         pSkinElement->LinkEndChild(pTransformElement);
+// 
+//         Skin *pSkin = (Skin *)pNode;
+//         std::stringstream ss;
+//         char szText[512] = { 0 };
+//         snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
+//             pSkin->mVertexMatrix[0][0], pSkin->mVertexMatrix[0][1], pSkin->mVertexMatrix[0][2], pSkin->mVertexMatrix[0][3],
+//             pSkin->mVertexMatrix[1][0], pSkin->mVertexMatrix[1][1], pSkin->mVertexMatrix[1][2], pSkin->mVertexMatrix[1][3],
+//             pSkin->mVertexMatrix[2][0], pSkin->mVertexMatrix[2][1], pSkin->mVertexMatrix[2][2], pSkin->mVertexMatrix[2][3],
+//             pSkin->mVertexMatrix[3][0], pSkin->mVertexMatrix[3][1], pSkin->mVertexMatrix[3][2], pSkin->mVertexMatrix[3][3]);
+// 
+//         ss << szText;
+// 
+//         XMLText *pText = pDoc->NewText(ss.str().c_str());
+//         pTransformElement->LinkEndChild(pText);
+
+        return pSkinElement;
+    }
+
+    XMLElement *T3DXMLSerializer::buildXMLSkinInfo(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode)
+    {
+        XMLElement *pSkinElement = pDoc->NewElement(TAG_SKIN_INFO);
+        pParentElem->LinkEndChild(pSkinElement);
+
+        pSkinElement->SetAttribute(ATTRIB_ID, pNode->getID().c_str());
+
         XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
         pSkinElement->LinkEndChild(pTransformElement);
 
-        Skin *pSkin = (Skin *)pNode;
+        SkinInfo *pSkinInfo = (SkinInfo *)pNode;
         std::stringstream ss;
         char szText[512] = { 0 };
         snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
-            pSkin->mVertexMatrix[0][0], pSkin->mVertexMatrix[0][1], pSkin->mVertexMatrix[0][2], pSkin->mVertexMatrix[0][3],
-            pSkin->mVertexMatrix[1][0], pSkin->mVertexMatrix[1][1], pSkin->mVertexMatrix[1][2], pSkin->mVertexMatrix[1][3],
-            pSkin->mVertexMatrix[2][0], pSkin->mVertexMatrix[2][1], pSkin->mVertexMatrix[2][2], pSkin->mVertexMatrix[2][3],
-            pSkin->mVertexMatrix[3][0], pSkin->mVertexMatrix[3][1], pSkin->mVertexMatrix[3][2], pSkin->mVertexMatrix[3][3]);
+            pSkinInfo->mOffsetMatrix[0][0], pSkinInfo->mOffsetMatrix[0][1], pSkinInfo->mOffsetMatrix[0][2], pSkinInfo->mOffsetMatrix[0][3],
+            pSkinInfo->mOffsetMatrix[1][0], pSkinInfo->mOffsetMatrix[1][1], pSkinInfo->mOffsetMatrix[1][2], pSkinInfo->mOffsetMatrix[1][3],
+            pSkinInfo->mOffsetMatrix[2][0], pSkinInfo->mOffsetMatrix[2][1], pSkinInfo->mOffsetMatrix[2][2], pSkinInfo->mOffsetMatrix[2][3],
+            pSkinInfo->mOffsetMatrix[3][0], pSkinInfo->mOffsetMatrix[3][1], pSkinInfo->mOffsetMatrix[3][2], pSkinInfo->mOffsetMatrix[3][3]);
 
         ss << szText;
 
@@ -1086,14 +1119,10 @@ namespace mconv
 
         XMLElement *pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
         pBoneElement->LinkEndChild(pTransformElement);
+        pTransformElement->SetAttribute(ATTRIB_ID, "LOCAL");
 
         std::stringstream ss;
         char szText[512] = { 0 };
-        //         snprintf(szText, sizeof(szText)-1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ", 
-        //                                            pBone->mLocalTransform[0][0], pBone->mLocalTransform[1][0], pBone->mLocalTransform[2][0], pBone->mLocalTransform[3][0],
-        //                                            pBone->mLocalTransform[0][1], pBone->mLocalTransform[1][1], pBone->mLocalTransform[2][1], pBone->mLocalTransform[3][1],
-        //                                            pBone->mLocalTransform[0][2], pBone->mLocalTransform[1][2], pBone->mLocalTransform[2][2], pBone->mLocalTransform[3][2],
-        //                                            pBone->mLocalTransform[0][3], pBone->mLocalTransform[1][3], pBone->mLocalTransform[2][3], pBone->mLocalTransform[3][3]);
         snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
             pBone->mLocalTransform[0][0], pBone->mLocalTransform[0][1], pBone->mLocalTransform[0][2], pBone->mLocalTransform[0][3],
             pBone->mLocalTransform[1][0], pBone->mLocalTransform[1][1], pBone->mLocalTransform[1][2], pBone->mLocalTransform[1][3],
@@ -1101,13 +1130,22 @@ namespace mconv
             pBone->mLocalTransform[3][0], pBone->mLocalTransform[3][1], pBone->mLocalTransform[3][2], pBone->mLocalTransform[3][3]);
 
         ss << szText;
-
-        //         std::stringstream ss;
-        //         ss<<pBone->mLocalTransform[0][0]<<" "<<pBone->mLocalTransform[1][0]<<" "<<pBone->mLocalTransform[2][0]<<" "<<pBone->mLocalTransform[3][0]<<" ";
-        //         ss<<pBone->mLocalTransform[0][1]<<" "<<pBone->mLocalTransform[1][1]<<" "<<pBone->mLocalTransform[2][1]<<" "<<pBone->mLocalTransform[3][1]<<" ";
-        //         ss<<pBone->mLocalTransform[0][2]<<" "<<pBone->mLocalTransform[1][2]<<" "<<pBone->mLocalTransform[2][2]<<" "<<pBone->mLocalTransform[3][2]<<" ";
-        //         ss<<pBone->mLocalTransform[0][3]<<" "<<pBone->mLocalTransform[1][3]<<" "<<pBone->mLocalTransform[2][3]<<" "<<pBone->mLocalTransform[3][3];
         XMLText *pText = pDoc->NewText(ss.str().c_str());
+        pTransformElement->LinkEndChild(pText);
+
+        pTransformElement = pDoc->NewElement(TAG_TRANSFORM);
+        pBoneElement->LinkEndChild(pTransformElement);
+        pTransformElement->SetAttribute(ATTRIB_ID, "OFFSET");
+
+        ss.str("");
+        snprintf(szText, sizeof(szText) - 1, " %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f ",
+            pBone->mOffsetMatrix[0][0], pBone->mOffsetMatrix[0][1], pBone->mOffsetMatrix[0][2], pBone->mOffsetMatrix[0][3],
+            pBone->mOffsetMatrix[1][0], pBone->mOffsetMatrix[1][1], pBone->mOffsetMatrix[1][2], pBone->mOffsetMatrix[1][3],
+            pBone->mOffsetMatrix[2][0], pBone->mOffsetMatrix[2][1], pBone->mOffsetMatrix[2][2], pBone->mOffsetMatrix[2][3],
+            pBone->mOffsetMatrix[3][0], pBone->mOffsetMatrix[3][1], pBone->mOffsetMatrix[3][2], pBone->mOffsetMatrix[3][3]);
+
+        ss << szText;
+        pText = pDoc->NewText(ss.str().c_str());
         pTransformElement->LinkEndChild(pText);
 
         return pBoneElement;

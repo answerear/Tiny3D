@@ -68,6 +68,7 @@ namespace Tiny3D
 
         virtual const Transform &getLocalToWorldTransform();
 //         Transform getWorldToLocalTransform();
+        Transform getLocalTransform() const;
 
         virtual void addChild(const NodePtr &node) override;
 

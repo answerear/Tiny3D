@@ -290,6 +290,7 @@ namespace mconv
         static const char * const TAG_EFFECTS;
         static const char * const TAG_EFFECT;
         static const char * const TAG_SKIN;
+        static const char * const TAG_SKIN_INFO;
         static const char * const TAG_SKELETON;
         static const char * const TAG_BONE;
         static const char * const TAG_TRANSFORM;
@@ -353,6 +354,7 @@ namespace mconv
         XMLElement *buildXMLHierarchy(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSkeleton(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSkin(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
+        XMLElement *buildXMLSkinInfo(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLBone(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLAlignAxisBound(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);
         XMLElement *buildXMLSphereBound(XMLDocument *pDoc, XMLElement *pParentElem, Node *pNode);

@@ -52,6 +52,18 @@ namespace Tiny3D
         updateTransform();
     }
 
+    void SGBone::updateTransform()
+    {
+        SGTransformNode::updateTransform();
+
+        const Matrix4 &matWorld = getLocalToWorldTransform().getAffineMatrix();
+        Matrix4 matLocal = getLocalTransform().getAffineMatrix();
+        matWorld.printLog(getName() + " matCombine : ");
+        matLocal.printLog(getName() + " matBone : ");
+        BoneDataPtr boneData = smart_pointer_cast<BoneData>(mBoneData);
+        boneData->mOffsetMatrix.printLog(getName() + " matVertex : ");
+    }
+
     uint16_t SGBone::getParentBone() const
     {
         uint16_t parent = 0xFFFF;

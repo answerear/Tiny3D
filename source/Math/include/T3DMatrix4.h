@@ -157,6 +157,8 @@ namespace Tiny3D
         /// 4-D Vector transformation specially for an affine matrix.
         Vector4 transformAffine(const Vector4 &v) const;
 
+        void printLog(const String &prefix) const;
+
         static const Matrix4 ZERO;
         static const Matrix4 IDENTITY;
 

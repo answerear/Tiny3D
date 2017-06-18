@@ -20,7 +20,6 @@ namespace Tiny3D
         static BoneDataPtr create(const String &name);
 
         Matrix4     mOffsetMatrix;          /// 骨骼偏移矩阵
-        bool        mIsMatrixDirty;         /// 是否要重新计算偏移矩阵
 
     protected:
         BoneData(const String &name);

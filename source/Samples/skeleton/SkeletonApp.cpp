@@ -155,7 +155,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
         SGModelPtr model = SGModel::create("tortoise.t3t");
         node->addChild(model);
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
-        model->runAction("Take 001");
+//         model->runAction("Take 001");
     }
 #elif TEST_MODEL_SKELETON
     node = SGTransformNode::create();
@@ -167,6 +167,17 @@ bool SkeletonApp::applicationDidFinishLaunching()
     Degree degree2(11.0f);
     Q2.fromAngleAxis(degree2, Vector3::UNIT_Z);
     Quaternion Q = Q2 * Q1;
+    Matrix4 R(Q);
+
+    Matrix4 M(
+        2.493333, 0.000000, -0.484655, 0.000000,
+        0.484655, 0.000000, 2.493333, 0.000000,
+        0.000000, -2.540000, 0.000000, 0.000000,
+        0.000000, 0.000000, 0.000000, 1.000000);
+    Vector3 t, s;
+    Quaternion r;
+    M.decomposition(t, s, r);
+
 //     node->setOrientation(Q);
 //     auto node1 = SGTransformNode::create();
 //     node->addChild(node1);
@@ -175,7 +186,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
         SGModelPtr model = SGModel::create("skeleton.t3t");
         node->addChild(model);
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
-        model->runAction("Take 001");
+//         model->runAction("Take 001");
     }
 #elif TEST_MODEL_KNIGHT
     node = SGTransformNode::create();

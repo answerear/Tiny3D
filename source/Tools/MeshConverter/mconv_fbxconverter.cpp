@@ -37,6 +37,7 @@ namespace mconv
         , mCurAnimation(nullptr)
         , mCurMaterials(nullptr)
         , mRootTransform(nullptr)
+        , mCurSkin(nullptr)
         , mHasSkeleton(false)
         , mHasVertexBlending(false)
         , mHasAnimation(false)
@@ -155,6 +156,7 @@ namespace mconv
         FbxNode *pFbxRoot = pFbxScene->GetRootNode();
 
         mMaxBoneIdx = 0;
+        mBoneIdx = 0;
 
         mRootTransform = new Hierarchy("Hierarchy");
 
@@ -197,6 +199,12 @@ namespace mconv
 
             // 修正骨骼pallette，避免有骨骼不在骨骼pallette里面
             fixBoneIndex((Bone *)mCurSkeleton->getChild(0));
+        }
+
+        if (mCurSkin != nullptr)
+        {
+            mCurSkin->removeFromParent(false);
+            mCurModel->addChild(mCurSkin);
         }
 
         if (mCurAnimation != nullptr)
@@ -306,6 +314,10 @@ namespace mconv
 
                         FbxAMatrix M = pFbxNode->EvaluateLocalTransform();
                         convertMatrix(M, pTransform->mMatrix);
+
+#ifdef T3D_DEBUG
+                        pTransform->mMatrix.printLog(name + "NodeMatrix : ");
+#endif
 
                         result = processFbxMesh(pFbxNode, mCurModel, pTransform, pNode);
                         result = result && processFbxSkin(pFbxNode, pParent, (Mesh *)pNode);
@@ -1594,8 +1606,18 @@ namespace mconv
             int j = 0;
             int nBoneCount = pFbxSkin->GetClusterCount();
 
-//             Skin *pSkin = new Skin(pModel->getID());
-//             pModel->addChild(pSkin);
+//             Skin *pSkin = nullptr;
+// 
+//             if (mCurSkin == nullptr)
+//             {
+//                 pSkin = new Skin(pModel->getID());
+//                 pModel->addChild(pSkin);
+//                 mCurSkin = pSkin;
+//             }
+//             else
+//             {
+//                 pSkin = (Skin *)mCurSkin;
+//             }
             
             for (j = 0; j < nBoneCount; ++j)
             {
@@ -1618,22 +1640,36 @@ namespace mconv
 //                     }
 //                 }
                 
-//                 FbxAMatrix Mb;
-//                 pFbxCluster->GetTransformLinkMatrix(Mb);
-//                 FbxAMatrix Mv;
-//                 pFbxCluster->GetTransformMatrix(Mv);
-//                 FbxAMatrix m = pFbxLinkNode->EvaluateLocalTransform();
-//                 FbxVector4 T = pFbxLinkNode->GetGeometricTranslation(FbxNode::eSourcePivot);
-//                 FbxVector4 R = pFbxLinkNode->GetGeometricRotation(FbxNode::eSourcePivot);
-//                 FbxVector4 S = pFbxLinkNode->GetGeometricScaling(FbxNode::eSourcePivot);
-//                 FbxAMatrix matGeometry(T, R, S);
-//                 FbxAMatrix bindpose = Mb.Inverse() * Mv * matGeometry;
-// 
-//                 Bone *pBone = new Bone(pFbxLinkNode->GetName());
-//                 convertMatrix(bindpose, pBone->mLocalTransform);
-//                 pSkin->addChild(pBone);
+                FbxAMatrix Mb;
+                pFbxCluster->GetTransformLinkMatrix(Mb);
+                FbxAMatrix Mv;
+                pFbxCluster->GetTransformMatrix(Mv);
+                FbxAMatrix m = pFbxLinkNode->EvaluateLocalTransform();
+                FbxVector4 T = pFbxLinkNode->GetGeometricTranslation(FbxNode::eSourcePivot);
+                FbxVector4 R = pFbxLinkNode->GetGeometricRotation(FbxNode::eSourcePivot);
+                FbxVector4 S = pFbxLinkNode->GetGeometricScaling(FbxNode::eSourcePivot);
+                FbxAMatrix matGeometry(T, R, S);
+                FbxAMatrix bindpose = Mb.Inverse() * Mv;
+                Matrix4 mb;
+                Matrix4 mv;
+                Matrix4 mp;
+                convertMatrix(Mb, mb);
+                convertMatrix(Mv, mv);
+                convertMatrix(bindpose, mp);
 
-                updateBoneIndex(pFbxLinkNode, j);
+                mb.printLog(std::string(pFbxLinkNode->GetName()) + " BoneMatrix : ");
+                mv.printLog(std::string(pFbxLinkNode->GetName()) + " VertexMatrix : ");
+                mp.printLog(std::string(pFbxLinkNode->GetName()) + " BineposeMatrix : ");
+
+//                 SkinInfo *pSkinInfo = new SkinInfo(pFbxLinkNode->GetName());
+//                 convertMatrix(bindpose, pSkinInfo->mOffsetMatrix);
+//                 pSkin->addChild(pSkinInfo);
+
+                if (updateSkinInfo(pFbxLinkNode, mBoneIdx, mp))
+                {
+                    mBoneIdx++;
+                }
+
                 updateVertexBlendAttributes(pMesh);
 
                 int nCtrlPointCount = pFbxCluster->GetControlPointIndicesCount();
@@ -1702,20 +1738,33 @@ namespace mconv
         return true;
     }
 
-    bool FBXConverter::updateBoneIndex(FbxNode *pFbxNode, size_t boneIdx)
+    bool FBXConverter::updateSkinInfo(FbxNode *pFbxNode, size_t boneIdx, const Matrix4 &m)
     {
+        bool ret = false;
+
         auto itr = mBones.find(pFbxNode);
 
         if (itr != mBones.end())
         {
             auto pBone = itr->second;
             pBone->mBoneIndex = boneIdx;
+            pBone->mOffsetMatrix = m;
+            ret = true;
         }
         else
         {
             Bone *pBone = new Bone(pFbxNode->GetName());
-            mBones.insert(BonesValue(pFbxNode, pBone));
-            pBone->mBoneIndex = boneIdx;
+            std::pair<BonesItr, bool> r = mBones.insert(BonesValue(pFbxNode, pBone));
+            if (r.second)
+            {
+                pBone->mBoneIndex = boneIdx;
+                pBone->mOffsetMatrix = m;
+                ret = true;
+            }
+            else
+            {
+                T3D_ASSERT(0);
+            }
         }
 
         if (boneIdx > mMaxBoneIdx)

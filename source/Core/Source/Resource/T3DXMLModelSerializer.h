@@ -48,7 +48,10 @@ namespace Tiny3D
 
         bool parseSkeleton(tinyxml2::XMLElement *pSkelElement);
         bool parseSkeleton(tinyxml2::XMLElement *pBoneElement, uint16_t parentBone);
-//         bool searchBone(const String &name, BoneDataPtr &bone, uint16_t &index);
+        bool searchBone(const String &name, BoneDataPtr &bone, uint16_t &index);
+
+//         bool parseSkins(tinyxml2::XMLElement *pSkinElement);
+//         bool parseSkin(tinyxml2::XMLElement *pSkinElement);
 
         bool parseAnimation(tinyxml2::XMLElement *pAnimElement);
         bool parseAction(tinyxml2::XMLElement *pActionElement);

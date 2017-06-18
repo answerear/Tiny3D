@@ -21,6 +21,7 @@ namespace Tiny3D
 
         void updateBone();
 
+        virtual void updateTransform() override;
         virtual Type getNodeType() const override;
 
         virtual NodePtr clone() const override;

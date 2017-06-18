@@ -71,7 +71,7 @@ namespace mconv
 
         bool optimizeMesh(Node *pNode);
 
-        bool updateBoneIndex(FbxNode *pFbxNode, size_t boneIdx);
+        bool updateSkinInfo(FbxNode *pFbxNode, size_t boneIdx, const Matrix4 &m);
         bool updateBoneMatrix(FbxNode *pFbxNode, const Matrix4 &m, Node *pParent, Node *&pNode);
         bool fixBoneIndex(Bone *pBone);
 
@@ -125,10 +125,13 @@ namespace mconv
         Node        *mCurMaterials;     // 只用于merge和shared vertex文件格式下
 //         Node        *mCurBound;         // 当前的碰撞区，不管是splite模式、merge模式、还是shared vertex模式，整个model只有一个bound
         Node        *mRootTransform;    // 场景变换根结点
+        Node        *mCurSkin;          // 当前蒙皮信息结点
 
         Bones       mBones;
 
         uint16_t    mMaxBoneIdx;        // 骨骼最大索引值
+        uint16_t    mBoneIdx;           // 蒙皮信息的骨骼索引
+
 //         Skeletons   mSkeletons;
         bool        mHasSkeleton;
         bool        mHasVertexBlending;

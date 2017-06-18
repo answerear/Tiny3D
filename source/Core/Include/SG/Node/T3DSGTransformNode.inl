@@ -160,4 +160,11 @@ namespace Tiny3D
         Vector3 s(x, y, z);
         scale(s);
     }
+
+    inline Transform SGTransformNode::getLocalTransform() const
+    {
+        Transform transform(mPosition, mScale, mOrientation);
+        transform.update();
+        return transform;
+    }
 }

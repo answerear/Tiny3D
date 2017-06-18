@@ -505,6 +505,15 @@ namespace Tiny3D
 			v.w());
 	}
 
+    inline void Matrix4::printLog(const String &prefix) const
+    {
+        T3D_LOG_DEBUG("%s %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f", prefix.c_str(),
+            _m4x4[0][0], _m4x4[0][1], _m4x4[0][2], _m4x4[0][3],
+            _m4x4[1][0], _m4x4[1][1], _m4x4[1][2], _m4x4[1][3],
+            _m4x4[2][0], _m4x4[2][1], _m4x4[2][2], _m4x4[2][3],
+            _m4x4[3][0], _m4x4[3][1], _m4x4[3][2], _m4x4[3][3]);
+    }
+
 
 	inline Matrix4 operator *(Real fScalar, const Matrix4 &rkM)
 	{
