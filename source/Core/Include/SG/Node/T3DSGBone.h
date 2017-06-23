@@ -19,12 +19,13 @@ namespace Tiny3D
         uint16_t getParentBone() const;
         ObjectPtr getBoneData() const { return mBoneData; }
 
-        void updateBone();
+        void updateBone(const Matrix4 &matInverseRootParent);
 
-        virtual void updateTransform() override;
         virtual Type getNodeType() const override;
 
         virtual NodePtr clone() const override;
+
+        const Matrix4 &getFinalMatrix() const { return mFinalMatrix; }
 
     protected:
         SGBone(uint32_t unID = E_NID_AUTOMATIC);
@@ -33,6 +34,7 @@ namespace Tiny3D
 
     protected:
         ObjectPtr   mBoneData;
+        Matrix4     mFinalMatrix;
     };
 }
 

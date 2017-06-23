@@ -163,8 +163,6 @@ namespace Tiny3D
 
     inline Transform SGTransformNode::getLocalTransform() const
     {
-        Transform transform(mPosition, mScale, mOrientation);
-        transform.update();
-        return transform;
+        return Transform(mPosition, mScale, mOrientation);
     }
 }

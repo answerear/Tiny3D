@@ -156,11 +156,9 @@ namespace Tiny3D
 //                 mCurKeyFrameR = 0;
 //                 mCurKeyFrameS = 0;
 // 
-//                 BonePtr bone = smart_pointer_cast<Bone>(mRootBone);
-//                 bone->updateBone();
-//                 updateVertices();
+//                 updateSkeleton();
+//                 updateSkin();
 //             }
-            updateSkin();
         }
 
         return ret;
@@ -461,7 +459,11 @@ namespace Tiny3D
         T3D_LOG_INFO("time : %lld, dt = %lld, duration : %d", time, dt, actionData->mDuration); 
         updateBone(dt, mRootBone);
 
-        mRootBone->updateBone();
+        SGTransformNodePtr node = mNodes.front();
+        Matrix4 matNode = node->getLocalToWorldTransform().getAffineMatrix();
+        matNode.printLog("matWorld : ");
+        matNode.inverse().printLog("matInverseWorld : ");
+        mRootBone->updateBone(matNode.inverse());
     }
 
     void SGModel::updateBone(int64_t time, ObjectPtr skeleton)
@@ -644,34 +646,44 @@ namespace Tiny3D
         SGBonePtr bone;
         BoneDataPtr boneData;
 
-        SGTransformNodePtr node = mNodes.front();
-        Matrix4 InverseM = node->getLocalToWorldTransform().getAffineMatrix().inverse();
-        Matrix4 M = node->getLocalTransform().getAffineMatrix();
+//         SGTransformNodePtr node = mNodes.front();
+//         Matrix4 InverseM = node->getLocalToWorldTransform().getAffineMatrix().inverse();
+//         Matrix4 M = node->getLocalTransform().getAffineMatrix();
 
         bone = smart_pointer_cast<SGBone>(mBones[indices[0]]);
         boneData = bone->getBoneData();
-        const Matrix4 &matOffset0 = boneData->mOffsetMatrix;
-        const Matrix4 &matCombine0 = bone->getLocalToWorldTransform().getAffineMatrix();
+        const Matrix4 &matVertex0 = bone->getFinalMatrix();
+//         const Matrix4 &matOffset0 = boneData->mOffsetMatrix;
+//         const Matrix4 &matCombine0 = bone->getLocalToWorldTransform().getAffineMatrix();
+//         Matrix4 matVertex0 = InverseM * matCombine0 * matOffset0;
 
         bone = smart_pointer_cast<SGBone>(mBones[indices[1]]);
         boneData = bone->getBoneData();
-        const Matrix4 &matOffset1 = boneData->mOffsetMatrix;
-        const Matrix4 &matCombine1 = bone->getLocalToWorldTransform().getAffineMatrix();
+//         const Matrix4 &matOffset1 = boneData->mOffsetMatrix;
+//         const Matrix4 &matCombine1 = bone->getLocalToWorldTransform().getAffineMatrix();
+//         Matrix4 matVertex1 = InverseM * matCombine1 * matOffset1;
+        const Matrix4 &matVertex1 = bone->getFinalMatrix();
 
         bone = smart_pointer_cast<SGBone>(mBones[indices[2]]);
         boneData = bone->getBoneData();
-        const Matrix4 &matOffset2 = boneData->mOffsetMatrix;
-        const Matrix4 &matCombine2 = bone->getLocalToWorldTransform().getAffineMatrix();
+//         const Matrix4 &matOffset2 = boneData->mOffsetMatrix;
+//         const Matrix4 &matCombine2 = bone->getLocalToWorldTransform().getAffineMatrix();
+//         Matrix4 matVertex2 = InverseM * matCombine2 * matOffset2;
+        const Matrix4 &matVertex2 = bone->getFinalMatrix();
 
         bone = smart_pointer_cast<SGBone>(mBones[indices[3]]);
         boneData = bone->getBoneData();
-        const Matrix4 &matOffset3 = boneData->mOffsetMatrix;
-        const Matrix4 &matCombine3 = bone->getLocalToWorldTransform().getAffineMatrix();
+//         const Matrix4 &matOffset3 = boneData->mOffsetMatrix;
+//         const Matrix4 &matCombine3 = bone->getLocalToWorldTransform().getAffineMatrix();
+//         Matrix4 matVertex3 = InverseM * matCombine3 * matOffset3;
+        const Matrix4 &matVertex3 = bone->getFinalMatrix();
 
-        *pos = (weights[0] > 0 ? ((InverseM * matCombine0 * matOffset0) * (*pos) * weights[0]) : Vector3::ZERO)
-            + (weights[1] > 0 ? ((InverseM * matCombine1 * matOffset1) * (*pos) * weights[1]) : Vector3::ZERO)
-            + (weights[2] > 0 ? ((InverseM * matCombine2 * matOffset2) * (*pos) * weights[2]) : Vector3::ZERO)
-            + (weights[3] > 0 ? ((InverseM * matCombine3 * matOffset3) * (*pos) * weights[3]) : Vector3::ZERO);
+        *pos = (weights[0] > 0 ? (matVertex0 * (*pos) * weights[0]) : Vector3::ZERO)
+            + (weights[1] > 0 ? (matVertex1 * (*pos) * weights[1]) : Vector3::ZERO)
+            + (weights[2] > 0 ? (matVertex2 * (*pos) * weights[2]) : Vector3::ZERO)
+            + (weights[3] > 0 ? (matVertex3 * (*pos) * weights[3]) : Vector3::ZERO);
+
+
 //         const Matrix4 &matBindpose0 = bone->getBindPoseMatrix();
 //         const Matrix4 &matInverseBone0 = bone->getInverseBoneMatrix();
 //         const Matrix4 &matCombine0 = bone->getCombineTransform().getAffineMatrix();

@@ -1522,6 +1522,8 @@ namespace mconv
                     {
                         FbxTime frameTime = pFbxRotationCurve->KeyGetTime(k);
                         FbxVector4 rotation = pFbxNode->EvaluateLocalRotation(frameTime);
+//                         FbxAMatrix GlobalM = pFbxNode->EvaluateGlobalTransform(frameTime);
+//                         FbxAMatrix LocalM = pFbxNode->EvaluateLocalTransform(frameTime);
                         FbxQuaternion orientation;
                         orientation.ComposeSphericalXYZ(rotation);
                         FbxAMatrix M;
