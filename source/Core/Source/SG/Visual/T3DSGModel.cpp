@@ -157,7 +157,7 @@ namespace Tiny3D
 //                 mCurKeyFrameS = 0;
 // 
 //                 updateSkeleton();
-//                 updateSkin();
+                updateSkin();
 //             }
         }
 

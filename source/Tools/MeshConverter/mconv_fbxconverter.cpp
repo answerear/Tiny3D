@@ -1497,7 +1497,9 @@ namespace mconv
                     {
                         KeyframeT *pFrame = new KeyframeT(k);
                         FbxTime frameTime = pFbxTransCurve->KeyGetTime(k);
-                        FbxVector4 translate = pFbxNode->EvaluateLocalTranslation(frameTime);
+//                         FbxVector4 translate = pFbxNode->EvaluateLocalTranslation(frameTime);
+                        const FbxAMatrix &M = pFbxNode->EvaluateLocalTransform(frameTime);
+                        FbxVector4 translate = M.GetT();
                         pFrame->x = translate[0];
                         pFrame->y = translate[1];
                         pFrame->z = translate[2];
@@ -1521,20 +1523,20 @@ namespace mconv
                     for (k = 0; k < nKeyframeCount; ++k)
                     {
                         FbxTime frameTime = pFbxRotationCurve->KeyGetTime(k);
-                        FbxVector4 rotation = pFbxNode->EvaluateLocalRotation(frameTime);
-//                         FbxAMatrix GlobalM = pFbxNode->EvaluateGlobalTransform(frameTime);
-//                         FbxAMatrix LocalM = pFbxNode->EvaluateLocalTransform(frameTime);
-                        FbxQuaternion orientation;
-                        orientation.ComposeSphericalXYZ(rotation);
-                        FbxAMatrix M;
-                        M.SetIdentity();
-                        M.SetR(rotation);
-                        FbxQuaternion R = M.GetQ();
+//                         FbxVector4 rotation = pFbxNode->EvaluateLocalRotation(frameTime);
+//                         FbxQuaternion orientation;
+//                         orientation.ComposeSphericalXYZ(rotation);
+//                         FbxAMatrix M;
+//                         M.SetIdentity();
+//                         M.SetR(rotation);
+//                         FbxQuaternion R = M.GetQ();
+                        const FbxAMatrix &M = pFbxNode->EvaluateLocalTransform(frameTime);
+                        FbxQuaternion Q = M.GetQ();
                         KeyframeR *pFrame = new KeyframeR(k);
-                        pFrame->x = R[0];//orientation[0];
-                        pFrame->y = R[1];//orientation[1];
-                        pFrame->z = R[2];//orientation[2];
-                        pFrame->w = R[3];//orientation[3];
+                        pFrame->x = Q[0];//orientation[0];
+                        pFrame->y = Q[1];//orientation[1];
+                        pFrame->z = Q[2];//orientation[2];
+                        pFrame->w = Q[3];//orientation[3];
                         pFrame->mTimestamp = frameTime.GetSecondDouble();
                         pAction->addKeyframe(pFrame, strBoneName, pAction->mRKeyframes);
 
@@ -1555,7 +1557,9 @@ namespace mconv
                     for (k = 0; k < nKeyframeCount; ++k)
                     {
                         FbxTime frameTime = pFbxScaleCurve->KeyGetTime(k);
-                        FbxVector4 scale = pFbxNode->EvaluateLocalScaling(frameTime);
+//                         FbxVector4 scale = pFbxNode->EvaluateLocalScaling(frameTime);
+                        const FbxAMatrix &M = pFbxNode->EvaluateLocalTransform(frameTime);
+                        FbxVector4 scale = M.GetS();
                         KeyframeS *pFrame = new KeyframeS(k);
                         pFrame->x = scale[0];
                         pFrame->y = scale[1];
