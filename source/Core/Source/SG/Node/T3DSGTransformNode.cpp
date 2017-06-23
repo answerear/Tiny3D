@@ -131,4 +131,10 @@ namespace Tiny3D
         newNode->mScale = mScale;
         newNode->mWorldTransform = mWorldTransform;
     }
+
+    void SGTransformNode::setLocalMatrix(const Matrix4 &m)
+    {
+        m.decomposition(mPosition, mScale, mOrientation);
+        setDirty(true, true);
+    }
 }

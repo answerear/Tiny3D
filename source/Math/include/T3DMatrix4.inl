@@ -114,6 +114,14 @@ namespace Tiny3D
         _m4x4[3][0] = 0.0, _m4x4[3][1] = 0.0, _m4x4[3][2] = 0.0, _m4x4[3][3] = m33;
     }
 
+    inline Matrix4::Matrix4(const Vector3 &X, const Vector3 &Y, const Vector3 &Z)
+    {
+        _m4x4[0][0] = X[0], _m4x4[0][1] = Y[0], _m4x4[0][2] = Z[0], _m4x4[0][3] = 0.0f;
+        _m4x4[1][0] = X[1], _m4x4[1][1] = Y[1], _m4x4[1][2] = Z[1], _m4x4[1][3] = 0.0f;
+        _m4x4[2][0] = X[2], _m4x4[2][1] = Y[2], _m4x4[2][2] = Z[2], _m4x4[2][3] = 0.0f;
+        _m4x4[3][0] = 0.0f, _m4x4[3][1] = 0.0f, _m4x4[3][2] = 0.0f, _m4x4[3][3] = 1.0f;
+    }
+
 	inline Matrix4::operator const Real *() const
 	{
 		return _m16;

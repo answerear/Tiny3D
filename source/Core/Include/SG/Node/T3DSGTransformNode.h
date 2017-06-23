@@ -58,6 +58,8 @@ namespace Tiny3D
         void scale(const Vector3 &rkScale);
         void scale(Real x, Real y, Real z);
 
+        void setLocalMatrix(const Matrix4 &m);
+
         /**
          * @brief This method only be used by SGCamera for child.
          * @param [in] pos : 

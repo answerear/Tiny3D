@@ -35,6 +35,8 @@ namespace Tiny3D
         Matrix4(const Vector3 &rkPos);
         /// Create a diagonal matrix.
         Matrix4(Real m00, Real m11, Real m22, Real m33);
+        /// Create a matrix from three axis
+        Matrix4(const Vector3 &X, const Vector3 &Y, const Vector3 &Z);
 
         /// Make zero matrix.
         void makeZero();
