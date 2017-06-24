@@ -460,7 +460,7 @@ namespace Tiny3D
         updateBone(dt, mRootBone);
 
         SGTransformNodePtr node = mNodes.front();
-        Matrix4 matNode = node->getLocalToWorldTransform().getAffineMatrix();
+        Matrix4 matNode = node->getLocalTransform().getAffineMatrix();
         matNode.printLog("matWorld : ");
         matNode.inverse().printLog("matInverseWorld : ");
         mRootBone->updateBone(matNode.inverse());
