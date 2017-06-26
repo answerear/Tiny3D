@@ -72,7 +72,7 @@ namespace Tiny3D
             matLocal.printLog(getName() + " matBone : ");
             BoneDataPtr boneData = smart_pointer_cast<BoneData>(mBoneData);
             boneData->mOffsetMatrix.printLog(getName() + " matVertex : ");
-            mFinalMatrix = matInverseRootParent * matCombine * boneData->mOffsetMatrix;
+            mFinalMatrix = /*matInverseRootParent * */matCombine * boneData->mOffsetMatrix;
             mFinalMatrix.printLog(getName() + " matFinal : ");
         }
     }

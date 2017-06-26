@@ -155,7 +155,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
         SGModelPtr model = SGModel::create("tortoise.t3t");
         node->addChild(model);
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
-        model->runAction("Take 001");
+//         model->runAction("Take 001");
     }
 #elif TEST_MODEL_SKELETON
     node = SGTransformNode::create();
@@ -186,7 +186,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
         SGModelPtr model = SGModel::create("skeleton.t3t");
         node->addChild(model);
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
-        model->runAction("Take 001");
+//         model->runAction("Take 001");
     }
 #elif TEST_MODEL_KNIGHT
     node = SGTransformNode::create();
