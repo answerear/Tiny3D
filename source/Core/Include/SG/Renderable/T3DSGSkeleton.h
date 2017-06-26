@@ -12,7 +12,7 @@ namespace Tiny3D
     class T3D_ENGINE_API SGSkeleton : public SGGeometry
     {
     public:
-        static SGSkeletonPtr create(ObjectPtr bone, uint32_t uID = E_NID_AUTOMATIC);
+        static SGSkeletonPtr create(SGBonePtr bone, uint32_t uID = E_NID_AUTOMATIC);
 
         virtual ~SGSkeleton();
 
@@ -29,8 +29,8 @@ namespace Tiny3D
 
         SGSkeleton(uint32_t uID = E_NID_AUTOMATIC);
 
-        virtual bool init(ObjectPtr bone);
-        bool buildSkeletonVertices(const ObjectPtr &skeleton, std::vector<BoneVertex> &vertices);
+        virtual bool init(SGBonePtr bone);
+        bool buildSkeletonVertices(SGBonePtr bone, std::vector<BoneVertex> &vertices);
 
         void updateVertices();
 
@@ -47,7 +47,7 @@ namespace Tiny3D
         bool searchSkinData(const String &name, ObjectPtr &skin);
 
     protected:
-        ObjectPtr       mSkeleton;
+        SGBonePtr       mSkeleton;
         VertexDataPtr   mVertexData;
     };
 }

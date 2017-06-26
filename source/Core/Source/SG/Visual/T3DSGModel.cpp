@@ -203,15 +203,26 @@ namespace Tiny3D
                 {
                     removeAllChildren(false);
 
-                    if (!mMeshes.empty())
+                    auto itr = mNodes.begin();
+                    while (itr != mNodes.end())
                     {
-                        auto itr = mMeshes.begin();
-                        while (itr != mMeshes.end())
+                        auto node = *itr;
+                        if (node->getParent() == nullptr)
                         {
-                            addChild(*itr);
-                            ++itr;
+                            addChild(node);
+                            break;
                         }
                     }
+
+//                     if (!mMeshes.empty())
+//                     {
+//                         auto itr = mMeshes.begin();
+//                         while (itr != mMeshes.end())
+//                         {
+//                             addChild(*itr);
+//                             ++itr;
+//                         }
+//                     }
                 }
                 break;
             case E_RENDER_SKELETON:
@@ -221,6 +232,7 @@ namespace Tiny3D
                     if (mSkeleton == nullptr)
                     {
                         // 没有生成过骨骼渲染对象，先创建
+                        mSkeleton = SGSkeleton::create(mRootBone);
 //                         SGBonePtr bone = smart_pointer_cast<SGBone>(mRootBone);
 //                         bone->updateBone();
 //                         mSkeleton = SGSkeleton::create(mRootBone);
