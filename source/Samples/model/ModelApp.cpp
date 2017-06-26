@@ -37,7 +37,7 @@ bool ModelApp::applicationDidFinishLaunching()
 {
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
-    renderer->setRenderMode(Renderer::E_RM_SOLID);
+    renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
     renderer->setAmbientLight(Color4::WHITE);
 
     SGNodePtr root = T3D_SCENE_MGR.getRoot();
@@ -45,7 +45,7 @@ bool ModelApp::applicationDidFinishLaunching()
     // 相机变换结点
     SGTransformNodePtr node = SGTransformNode::create();
     root->addChild(node);
-    node->lookAt(Vector3(5.0, 2.0, 10.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(-10.0f, 10.0f, 10.0f), Vector3(0.0f, 3.0f, 0.0f), Vector3::UNIT_Y);
 
     {
         // 相机结点
@@ -53,9 +53,9 @@ bool ModelApp::applicationDidFinishLaunching()
         node->addChild(camera);
         camera->setProjectionType(SGCamera::E_PT_PERSPECTIVE);
 
-        Radian fovY(Math::PI * Real(0.5));
+        Radian fovY(Math::PI * Real(0.5) / 90 * 27);
         Real ratio = Real(960) / Real(640);
-        camera->setPerspective(fovY, ratio, 0.5, 1000.0);
+        camera->setPerspective(fovY, ratio, 0.5, 10000.0);
 
         // 视口
         ViewportPtr viewport = mRenderWindow->addViewport(camera, 0, 0.0, 0.0, 1.0, 1.0);
@@ -66,11 +66,9 @@ bool ModelApp::applicationDidFinishLaunching()
     node = SGTransformNode::create();
     root->addChild(node);
     node->setPosition(0.0, 0.0, 0.0);
-//     node->setOrientation(Radian(-Math::PI*0.5), Vector3::UNIT_X);
-	node->setScale(0.02, 0.02, 0.02);
     {
         // 模型 #1 可见物体结点
-        SGModelPtr model = SGModel::create("tortoise.t3t");
+        SGModelPtr model = SGModel::create("WarriorKnight.t3t");
         node->addChild(model);
     }
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TINY3D magic="TMTL" version="0.0.0.1">
+    <material id="knight__Knight_png">
+        <mode>Lambert</mode>
+        <ambient>0 0 0 1</ambient>
+        <diffuse>0.8 0.8 0.8 1</diffuse>
+        <specular>0 0 0 1</specular>
+        <emissive>0.8 0.8 0.8 0</emissive>
+        <shininess>0</shininess>
+        <transparency>0</transparency>
+        <reflection>0</reflection>
+        <textures id="Textures" count="1">
+            <texture id="Knight_png" type="diffuse" wrap_u="repeat" wrap_v="repeat">Knight.png</texture>
+        </textures>
+    </material>
+</TINY3D>

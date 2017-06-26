@@ -141,14 +141,31 @@ namespace Tiny3D
                 }
             }
 
-            // 创建所有结点
-            ret = ret && createNodes();
+            if (modelData->mNodes.size() > 0)
+            {
+                // 有变换结点，则创建所有结点
+                ret = ret && createNodes();
+            }
+            else
+            {
+                // 没有变换结点，直接把所有mesh挂到model下
+                auto itr = mMeshes.begin();
+                while (itr != mMeshes.end())
+                {
+                    auto mesh = *itr;
+                    addChild(mesh);
+                    ++itr;
+                }
+            }
 
-            // 创建骨骼层次和骨骼偏移矩阵数组
-            ret = createSkeletons();
+            if (modelData->mBones.size() > 0)
+            {
+                // 创建骨骼层次和骨骼偏移矩阵数组
+                ret = createSkeletons();
 
-            // 更新蒙皮
-            updateSkins();
+                // 更新蒙皮
+                updateSkins();
+            }
         }
 
         return ret;
@@ -189,6 +206,51 @@ namespace Tiny3D
         SGVisual::updateTransform();
     }
 
+    void SGModel::enableRenderingEntities()
+    {
+        removeAllChildren(false);
+
+        if (mNodes.size() > 0)
+        {
+            auto itr = mNodes.begin();
+            while (itr != mNodes.end())
+            {
+                auto node = *itr;
+
+                if (node->getParent() == nullptr)
+                {
+                    addChild(node);
+                    break;
+                }
+
+                ++itr;
+            }
+        }
+        else
+        {
+            auto itr = mMeshes.begin();
+            while (itr != mMeshes.end())
+            {
+                auto mesh = *itr;
+                addChild(mesh);
+                ++itr;
+            }
+        }
+    }
+
+    void SGModel::enableRenderingSkeletons()
+    {
+        removeAllChildren(false);
+
+        if (mSkeleton == nullptr)
+        {
+            // 没有生成过骨骼渲染对象，先创建
+            mSkeleton = SGSkeleton::create(mRootBone);
+        }
+
+        addChild(mSkeleton);
+    }
+
     void SGModel::setRenderMode(RenderMode mode)
     {
         Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
@@ -201,44 +263,12 @@ namespace Tiny3D
             {
             case E_RENDER_ENTITY:
                 {
-                    removeAllChildren(false);
-
-                    auto itr = mNodes.begin();
-                    while (itr != mNodes.end())
-                    {
-                        auto node = *itr;
-                        if (node->getParent() == nullptr)
-                        {
-                            addChild(node);
-                            break;
-                        }
-                    }
-
-//                     if (!mMeshes.empty())
-//                     {
-//                         auto itr = mMeshes.begin();
-//                         while (itr != mMeshes.end())
-//                         {
-//                             addChild(*itr);
-//                             ++itr;
-//                         }
-//                     }
+                    enableRenderingEntities();
                 }
                 break;
             case E_RENDER_SKELETON:
                 {
-                    removeAllChildren(false);
-
-                    if (mSkeleton == nullptr)
-                    {
-                        // 没有生成过骨骼渲染对象，先创建
-                        mSkeleton = SGSkeleton::create(mRootBone);
-//                         SGBonePtr bone = smart_pointer_cast<SGBone>(mRootBone);
-//                         bone->updateBone();
-//                         mSkeleton = SGSkeleton::create(mRootBone);
-                    }
-
-                    addChild(mSkeleton);
+                    enableRenderingSkeletons();
                 }
                 break;
             }
@@ -336,7 +366,7 @@ namespace Tiny3D
     bool SGModel::createNodes()
     {
         ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
-
+        
         mNodes.resize(modelData->mNodes.size());
 
         // 创建所有结点

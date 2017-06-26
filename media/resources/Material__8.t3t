@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TINY3D magic="TMTL" version="0.0.0.1">
+    <material id="Material__8">
+        <mode>Phong</mode>
+        <ambient>0 0 0 1</ambient>
+        <diffuse>1 1 1 0.8</diffuse>
+        <specular>0.5 0.5 0.5 1</specular>
+        <emissive>0 0 0 1</emissive>
+        <shininess>20</shininess>
+        <transparency>1</transparency>
+        <reflection>0.5</reflection>
+        <textures id="Textures" count="1">
+            <texture id="file3" type="diffuse" wrap_u="repeat" wrap_v="repeat">C:/Users/Animation/Desktop/Armor.tga</texture>
+        </textures>
+    </material>
+</TINY3D>

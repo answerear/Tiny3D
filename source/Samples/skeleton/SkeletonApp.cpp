@@ -8,8 +8,8 @@ using namespace Tiny3D;
 
 #define TEST_MODEL_TORTOISE             0
 #define TEST_MODEL_CAMEL                0
-#define TEST_MODEL_SKELETON             1
-#define TEST_MODEL_KNIGHT               0
+#define TEST_MODEL_SKELETON             0
+#define TEST_MODEL_KNIGHT               1
 
 void printNode(NodePtr node, size_t tabCount)
 {
@@ -195,6 +195,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     {
         SGModelPtr model = SGModel::create("knight.t3t");
         node->addChild(model);
+        model->runAction("Walk");
     }
 #endif
 

@@ -82,6 +82,9 @@ namespace Tiny3D
 
         bool searchMesh(const String &meshName, const String &submeshName, SGMeshPtr &mesh);
 
+        void enableRenderingEntities();
+        void enableRenderingSkeletons();
+
     protected:
         typedef std::vector<VertexDataPtr>      VertexDataList;
         typedef VertexDataList::iterator        VerticesDataItr;
