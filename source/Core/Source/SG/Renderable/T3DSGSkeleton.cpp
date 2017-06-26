@@ -1,7 +1,6 @@
 
 
 #include "SG/Renderable/T3DSGSkeleton.h"
-// #include "DataStruct/T3DBone.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Resource/T3DModel.h"

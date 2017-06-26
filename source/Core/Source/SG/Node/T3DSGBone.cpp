@@ -47,33 +47,22 @@ namespace Tiny3D
         return true;
     }
 
-    void SGBone::updateBone(const Matrix4 &matInverseRootParent)
+    void SGBone::updateTransform()
     {
         bool isTransformDirty = isDirty();
-        getLocalToWorldTransform();
 
-        auto children = getChildren();
-        auto itr = children.begin();
-
-        while (itr != children.end())
-        {
-            auto child = *itr;
-            T3D_ASSERT(child->getNodeType() == Node::E_NT_BONE);
-            SGBonePtr bone = smart_pointer_cast<SGBone>(child);
-            bone->updateBone(matInverseRootParent);
-            ++itr;
-        }
+        SGTransformNode::updateTransform();
 
         if (isTransformDirty)
         {
             const Matrix4 &matCombine = getLocalToWorldTransform().getAffineMatrix();
-            Matrix4 matLocal = getLocalTransform().getAffineMatrix();
-            matCombine.printLog(getName() + " matCombine : ");
-            matLocal.printLog(getName() + " matBone : ");
+//             Matrix4 matLocal = getLocalTransform().getAffineMatrix();
+//             matCombine.printLog(getName() + " matCombine : ");
+//             matLocal.printLog(getName() + " matBone : ");
             BoneDataPtr boneData = smart_pointer_cast<BoneData>(mBoneData);
-            boneData->mOffsetMatrix.printLog(getName() + " matVertex : ");
-            mFinalMatrix = /*matInverseRootParent * */matCombine * boneData->mOffsetMatrix;
-            mFinalMatrix.printLog(getName() + " matFinal : ");
+//             boneData->mOffsetMatrix.printLog(getName() + " matVertex : ");
+            mFinalMatrix = matCombine * boneData->mOffsetMatrix;
+//             mFinalMatrix.printLog(getName() + " matFinal : ");
         }
     }
 

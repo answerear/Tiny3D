@@ -151,11 +151,12 @@ bool SkeletonApp::applicationDidFinishLaunching()
     node = SGTransformNode::create();
     root->addChild(node);
 //     node->setOrientation(Degree(-90), Vector3::UNIT_X);
+    node->setPosition(0.0f, 500.0f, 0.0f);
     {
         SGModelPtr model = SGModel::create("tortoise.t3t");
         node->addChild(model);
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
-//         model->runAction("Take 001");
+        model->runAction("Take 001");
     }
 #elif TEST_MODEL_SKELETON
     node = SGTransformNode::create();

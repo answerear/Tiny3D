@@ -141,24 +141,14 @@ namespace Tiny3D
                 }
             }
 
+            // 创建所有结点
             ret = ret && createNodes();
 
             // 创建骨骼层次和骨骼偏移矩阵数组
             ret = createSkeletons();
 
-//             if (modelData->mAnimations.size() > 0)
-//             {
-//                 auto animations = modelData->mAnimations;
-//                 auto itr = animations.begin();
-// 
-//                 mCurActionData = itr->second;
-//                 mCurKeyFrameT = 0;
-//                 mCurKeyFrameR = 0;
-//                 mCurKeyFrameS = 0;
-// 
-//                 updateSkeleton();
-                updateSkin();
-//             }
+            // 更新蒙皮
+            updateSkins();
         }
 
         return ret;
@@ -185,20 +175,18 @@ namespace Tiny3D
     {
         if (isActionRunning())
         {
-            // 根据动作数据，更新骨骼RTS
-            updateSkeleton();
+            // 根据动作数据，更新骨骼姿势
+            updatePoses();
 
-            // 更新骨骼Combine Matrix和所有子结点变换
-            SGVisual::updateTransform();
+            // 根据更新后的姿势数据，更新所有骨骼变换生成骨骼最终变换
+            updateSkeletons();
 
-            // 更新蒙皮数据
-            updateSkin();
+            // 根据骨骼最终变换更新蒙皮数据
+            updateSkins();
         }
-        else
-        {
-            // 更新所有子结点变换
-            SGVisual::updateTransform();
-        }
+
+        // 更新所有子结点变换
+        SGVisual::updateTransform();
     }
 
     void SGModel::setRenderMode(RenderMode mode)
@@ -450,23 +438,16 @@ namespace Tiny3D
         return true;
     }
 
-    void SGModel::updateSkeleton()
+    void SGModel::updatePoses()
     {
         int64_t current = DateTime::currentMSecsSinceEpoch();
         int64_t time = current - mStartTime;
         ActionDataPtr actionData = smart_pointer_cast<ActionData>(mCurActionData);
         int64_t dt = time % actionData->mDuration;
-        T3D_LOG_INFO("time : %lld, dt = %lld, duration : %d", time, dt, actionData->mDuration); 
-        updateBone(dt, mRootBone);
-
-        SGTransformNodePtr node = mNodes.front();
-        Matrix4 matNode = node->getLocalTransform().getAffineMatrix();
-        matNode.printLog("matWorld : ");
-        matNode.inverse().printLog("matInverseWorld : ");
-        mRootBone->updateBone(matNode.inverse());
+        updatePose(dt, mRootBone);
     }
 
-    void SGModel::updateBone(int64_t time, ObjectPtr skeleton)
+    void SGModel::updatePose(int64_t time, ObjectPtr skeleton)
     {
         SGBonePtr bone = smart_pointer_cast<SGBone>(skeleton);
 
@@ -559,12 +540,17 @@ namespace Tiny3D
         auto itr = bone->getChildren().begin();
         while (itr != bone->getChildren().end())
         {
-            updateBone(time, *itr);
+            updatePose(time, *itr);
             ++itr;
         }
     }
 
-    void SGModel::updateSkin()
+    void SGModel::updateSkeletons()
+    {
+        mRootBone->updateTransform();
+    }
+
+    void SGModel::updateSkins()
     {
         ModelDataPtr modelData = smart_pointer_cast<ModelData>(mModel->getModelData());
 
@@ -575,10 +561,7 @@ namespace Tiny3D
 
             auto itr = mVertexDataList.begin();
             MeshDataPtr meshData = modelData->mMeshes[0];
-//             if (mRootBone->getParent() == nullptr)
-//                 mMeshes[0]->getParent()->addChild(mRootBone);
             updateSkinData(meshData, *itr);
-//             mRootBone->removeFromParent(true);
         }
         else
         {
@@ -591,9 +574,7 @@ namespace Tiny3D
             {
                 // 根据网格数据来逐个创建渲染用网格对象
                 MeshDataPtr meshData = modelData->mMeshes[i];
-//                 mMeshes[i]->getParent()->addChild(mRootBone);
                 updateSkinData(meshData, *itr);
-//                 mRootBone->removeFromParent(true);
                 ++itr;
             }
         }
@@ -646,72 +627,26 @@ namespace Tiny3D
         SGBonePtr bone;
         BoneDataPtr boneData;
 
-//         SGTransformNodePtr node = mNodes.front();
-//         Matrix4 InverseM = node->getLocalToWorldTransform().getAffineMatrix().inverse();
-//         Matrix4 M = node->getLocalTransform().getAffineMatrix();
-
         bone = smart_pointer_cast<SGBone>(mBones[indices[0]]);
         boneData = bone->getBoneData();
         const Matrix4 &matVertex0 = bone->getFinalMatrix();
-//         const Matrix4 &matOffset0 = boneData->mOffsetMatrix;
-//         const Matrix4 &matCombine0 = bone->getLocalToWorldTransform().getAffineMatrix();
-//         Matrix4 matVertex0 = InverseM * matCombine0 * matOffset0;
 
         bone = smart_pointer_cast<SGBone>(mBones[indices[1]]);
         boneData = bone->getBoneData();
-//         const Matrix4 &matOffset1 = boneData->mOffsetMatrix;
-//         const Matrix4 &matCombine1 = bone->getLocalToWorldTransform().getAffineMatrix();
-//         Matrix4 matVertex1 = InverseM * matCombine1 * matOffset1;
         const Matrix4 &matVertex1 = bone->getFinalMatrix();
 
         bone = smart_pointer_cast<SGBone>(mBones[indices[2]]);
         boneData = bone->getBoneData();
-//         const Matrix4 &matOffset2 = boneData->mOffsetMatrix;
-//         const Matrix4 &matCombine2 = bone->getLocalToWorldTransform().getAffineMatrix();
-//         Matrix4 matVertex2 = InverseM * matCombine2 * matOffset2;
         const Matrix4 &matVertex2 = bone->getFinalMatrix();
 
         bone = smart_pointer_cast<SGBone>(mBones[indices[3]]);
         boneData = bone->getBoneData();
-//         const Matrix4 &matOffset3 = boneData->mOffsetMatrix;
-//         const Matrix4 &matCombine3 = bone->getLocalToWorldTransform().getAffineMatrix();
-//         Matrix4 matVertex3 = InverseM * matCombine3 * matOffset3;
         const Matrix4 &matVertex3 = bone->getFinalMatrix();
 
         *pos = (weights[0] > 0 ? (matVertex0 * (*pos) * weights[0]) : Vector3::ZERO)
             + (weights[1] > 0 ? (matVertex1 * (*pos) * weights[1]) : Vector3::ZERO)
             + (weights[2] > 0 ? (matVertex2 * (*pos) * weights[2]) : Vector3::ZERO)
             + (weights[3] > 0 ? (matVertex3 * (*pos) * weights[3]) : Vector3::ZERO);
-
-
-//         const Matrix4 &matBindpose0 = bone->getBindPoseMatrix();
-//         const Matrix4 &matInverseBone0 = bone->getInverseBoneMatrix();
-//         const Matrix4 &matCombine0 = bone->getCombineTransform().getAffineMatrix();
-// 
-//         bone = smart_pointer_cast<Bone>(mBones[indices[1]]);
-//         const Matrix4 &matBindpose1 = bone->getBindPoseMatrix();
-//         const Matrix4 &matInverseBone1 = bone->getInverseBoneMatrix();
-//         const Matrix4 &matCombine1 = bone->getCombineTransform().getAffineMatrix();
-// 
-//         bone = smart_pointer_cast<Bone>(mBones[indices[2]]);
-//         const Matrix4 &matBindpose2 = bone->getBindPoseMatrix();
-//         const Matrix4 &matInverseBone2 = bone->getInverseBoneMatrix();
-//         const Matrix4 &matCombine2 = bone->getCombineTransform().getAffineMatrix();
-// 
-//         bone = smart_pointer_cast<Bone>(mBones[indices[3]]);
-//         const Matrix4 &matBindpose3 = bone->getBindPoseMatrix();
-//         const Matrix4 &matInverseBone3 = bone->getInverseBoneMatrix();
-//         const Matrix4 &matCombine3 = bone->getCombineTransform().getAffineMatrix();
-// 
-//         const Matrix4 &matVertex = modelData->mVertexMatrix;
-// 
-//         MeshDataPtr meshData = modelData->mMeshes.front();
-//         Matrix4 matWorld = meshData->mWorldMatrix;
-// 
-//         *pos = (weights[0] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine0 * matBindpose0/*matInverseBone0 * matVertex*/) * (*pos) * weights[0]) : Vector3::ZERO)
-//             + (weights[1] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine1 * matBindpose1/*matInverseBone1 * matVertex*/) * (*pos) * weights[1]) : Vector3::ZERO)
-//             + (weights[2] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine2 * matBindpose2/*matInverseBone2 * matVertex*/) * (*pos) * weights[2]) : Vector3::ZERO)
-//             + (weights[3] > 0 ? ((matWorld /** matVertex.inverse() */* matCombine3 * matBindpose3/*matInverseBone3 * matVertex*/) * (*pos) * weights[3]) : Vector3::ZERO);
     }
 
     bool SGModel::getVertexElement(ObjectPtr buffer, VertexElement::Semantic semantic, VertexElement &element)

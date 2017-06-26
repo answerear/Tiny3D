@@ -67,9 +67,10 @@ namespace Tiny3D
 
         virtual void updateTransform() override;
 
-        void updateSkeleton();
-        void updateBone(int64_t time, ObjectPtr skeleton);
-        void updateSkin();
+        void updatePoses();
+        void updatePose(int64_t time, ObjectPtr skeleton);
+        void updateSkeletons();
+        void updateSkins();
         void updateSkinData(ObjectPtr data, VertexDataPtr vertexData);
         void updateSkinVertex(ObjectPtr buffer, void *vertex, const VertexElement &posElem, const VertexElement &weightElem, const VertexElement &indicesElem);
 
