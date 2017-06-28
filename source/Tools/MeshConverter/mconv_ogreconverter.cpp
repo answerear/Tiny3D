@@ -130,7 +130,6 @@ namespace mconv
         Model *pModel = new Model(name);
 
         pRoot->addChild(pModel);
-
         result = processOgreSubMeshes(mesh, pModel);
 
         if (mesh.hasSkeleton)
@@ -436,12 +435,11 @@ namespace mconv
                     break;
                 case VertexAttribute::E_VT_BLEND_WEIGHT:
                     {
-                        T3D_ASSERT(0);
+                        
                     }
                     break;
                 case VertexAttribute::E_VT_BLEND_INDEX:
                     {
-                        T3D_ASSERT(0);
                     }
                     break;
                 default:
@@ -560,13 +558,25 @@ namespace mconv
             ++itr;
         }
 
+        if (submesh.boneAssignments.size() > 0)
+        {
+            result = result && processOgreBoneAssignment(submesh.boneAssignments, pMesh);
+        }
+
+        return result;
+    }
+
+    bool OgreConverter::processOgreBoneAssignment(const std::vector<OgreBoneAssignment> &assignments, Mesh *pMesh)
+    {
+        bool result = true;
+
         return result;
     }
 
     bool OgreConverter::processOgreSkeleton(const OgreSkeleton &skeleton, Model *pModel)
     {
-        bool result = processOgreSkin(skeleton, pModel);
-        result = result && processOgreBones(skeleton, pModel);
+        bool result = processOgreBones(skeleton, pModel);
+        result = result && processOgreSkin(skeleton, pModel);
         result = result && processOgreAnimations(skeleton, pModel);
         return result;
     }
@@ -575,7 +585,52 @@ namespace mconv
     {
         bool result = (skeleton.bones.size() > 0);
 
+        if (result)
+        {
+            // œ»≤È’“skeleton
+            Skeleton *pSkel = nullptr;
+            size_t i = 0;
+            result = false;
 
+            for (i = 0; i < pModel->getChildrenCount(); ++i)
+            {
+                auto pChild = pModel->getChild(i);
+                if (pChild->getNodeType() == Node::E_TYPE_SKELETON)
+                {
+                    pSkel = (Skeleton *)pChild;
+                    result = true;
+                    break;
+                }
+            }
+
+            if (pSkel != nullptr)
+            {
+                for (i = 0; i < pSkel->getChildrenCount(); ++i)
+                {
+                    Bone *pBone = (Bone *)pSkel->getChild(i);
+                    Matrix4 m;
+                    processBone(pBone, m);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    bool OgreConverter::processBone(Bone *pBone, const Matrix4 &m)
+    {
+        bool result = true;
+
+        Matrix4 matWorld = m * pBone->mLocalTransform;
+        pBone->mOffsetMatrix = matWorld.inverse();
+
+        size_t i = 0;
+
+        for (i = 0; i < pBone->getChildrenCount(); ++i)
+        {
+            Bone *pChildBone = (Bone *)pBone->getChild(i);
+            processBone(pChildBone, matWorld);
+        }
 
         return result;
     }

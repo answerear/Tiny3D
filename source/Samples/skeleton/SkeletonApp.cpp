@@ -7,9 +7,9 @@
 using namespace Tiny3D;
 
 #define TEST_MODEL_TORTOISE             0
-#define TEST_MODEL_CAMEL                0
+#define TEST_MODEL_CAMEL                1
 #define TEST_MODEL_SKELETON             0
-#define TEST_MODEL_KNIGHT               1
+#define TEST_MODEL_KNIGHT               0
 
 void printNode(NodePtr node, size_t tabCount)
 {
@@ -143,7 +143,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     {
         // 模型 #1 可见物体结点
         SGModelPtr model = SGModel::create("白骆驼.t3t");
-        model->setRenderMode(SGModel::E_RENDER_SKELETON);
+//         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
 //         model->runAction("Take 001");
     }

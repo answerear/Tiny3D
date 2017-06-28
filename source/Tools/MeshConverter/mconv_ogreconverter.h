@@ -6,6 +6,7 @@
 
 #include "mconv_converter.h"
 #include "mconv_vertex.h"
+#include "mconv_ogredata.h"
 
 
 namespace mconv
@@ -20,6 +21,7 @@ namespace mconv
     class VertexBuffers;
     class VertexBuffer;
     class Bone;
+    class Skeleton;
 
     struct OgreMesh;
     struct OgreSubMesh;
@@ -51,15 +53,18 @@ namespace mconv
         bool createMesh(Model *pModel, Mesh *&pMesh, SubMeshes *&pSubMeshes, size_t index);
         bool processOgreSubMeshes(const OgreMesh &mesh, Model *pModel);
         bool processOgreSubMesh(const OgreSubMesh &submesh, Mesh *pMesh, SubMeshes *pSubMeshes);
+        bool processOgreBoneAssignment(const std::vector<OgreBoneAssignment> &assignments, Mesh *pMesh);
 
         bool processOgreSkeleton(const OgreSkeleton &skeleton, Model *pModel);
         bool processOgreSkin(const OgreSkeleton &skeleton, Model *pModel);
+        bool processBone(Bone *pBone, const Matrix4 &m);
         bool processOgreBones(const OgreSkeleton &skeleton, Model *pModel);
+
         bool processOgreAnimations(const OgreSkeleton &skeleton, Model *pModel);
 
     protected:
         std::vector<Bone*> mBones;
-
+        
         void    *mSrcData;
         void    *mDstData;
     };
