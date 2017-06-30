@@ -36,9 +36,9 @@ namespace Tiny3D
          * @brief 把数据流指针移动到指定位置.
          * @param [in] llPos : 指定偏移位置
          * @param [in] relative : 是否相对位置
-         * @return void
+         * @return 当调用成功时，返回true
          */
-        virtual void seek(long_t lPos, bool relative) = 0;
+        virtual bool seek(long_t lPos, bool relative) = 0;
 
         /**
          * @brief 获取当前数据流读写位置.

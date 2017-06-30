@@ -124,19 +124,29 @@ namespace Tiny3D
         }
     }
 
-    void FileDataStream::seek(long_t lPos, bool relative)
+    bool FileDataStream::seek(long_t lPos, bool relative)
     {
+        bool ret = false;
+
         if (m_pFileHandle != nullptr)
         {
             if (relative)
             {
-                fseek(m_pFileHandle, lPos, SEEK_CUR);
+                if (fseek(m_pFileHandle, lPos, SEEK_CUR) == 0)
+                {
+                    ret = true;
+                }
             }
             else
             {
-                fseek(m_pFileHandle, lPos, SEEK_SET);
+                if (fseek(m_pFileHandle, lPos, SEEK_SET) == 0)
+                {
+                    ret = true;
+                }
             }
         }
+
+        return ret;
     }
 
     long_t FileDataStream::tell() const

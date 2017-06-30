@@ -84,9 +84,9 @@ namespace Tiny3D
         /**
          * @brief 设置文件流读写偏移位置.
          * @param [in] llPos : 偏移位置
-         * @return void
+         * @return 当调用成功时，返回当前读写位置，若错误时，返回-1
          */
-        virtual void seek(long_t lPos, bool relative) override;
+        virtual bool seek(long_t lPos, bool relative) override;
 
         /**
          * @brief 获取当前文件流当前读写位置.

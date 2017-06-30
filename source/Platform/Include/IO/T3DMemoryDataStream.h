@@ -74,9 +74,9 @@ namespace Tiny3D
         /**
          * @brief 设置内存数据流读写偏移位置.
          * @param [in] unPos : 偏移位置
-         * @return void
+         * @return 当调用成功时，返回true
          */
-        virtual void seek(long_t lPos, bool relative) override;
+        virtual bool seek(long_t lPos, bool relative) override;
 
         /**
          * @brief 获取当前内存数据流读写偏移位置.

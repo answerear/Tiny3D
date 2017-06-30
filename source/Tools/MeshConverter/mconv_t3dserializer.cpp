@@ -443,199 +443,385 @@ namespace mconv
         int count = 0;
         bool first = true;
 
+        std::stringstream ss;
+        ss << "\n";
+
+        const char *TAB_INDENT = "\t\t\t\t\t\t\t";
+        const int MAX_BLEND_COUNT = 4;
+
         while (itrVertex != pVB->mVertices.end())
         {
             bool bFirstAttribute = true;
 
-            std::stringstream ss;
             const Vertex &vertex = *itrVertex;
 
-            // POSITION
-            if (hasVertexAttribute(pVB, VertexAttribute::E_VT_POSITION))
+            auto itrAttrib = pVB->mAttributes.begin();
+
+            while (itrAttrib != pVB->mAttributes.end())
             {
-                if (first)
+                const VertexAttribute &attribute = *itrAttrib;
+
+                if (attribute.mVertexType == VertexAttribute::E_VT_POSITION)
                 {
+                    // POSITION
                     char szText[64] = { 0 };
                     snprintf(szText, sizeof(szText) - 1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
-                    ss << "\n\t\t\t\t\t\t\t" << szText;
-                }
-                else
-                {
-                    char szText[64] = { 0 };
-                    snprintf(szText, sizeof(szText) - 1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
-                    ss << "\t\t\t\t\t\t\t" << szText;
-                }
 
-                first = false;
-                bFirstAttribute = false;
-            }
-
-            // TEXCOORD
-            if (hasVertexAttribute(pVB, VertexAttribute::E_VT_TEXCOORD))
-            {
-                auto itr2 = vertex.mTexElements.begin();
-                while (itr2 != vertex.mTexElements.end())
+                    if (bFirstAttribute)
+                        ss << TAB_INDENT;
+                    
+                    ss << szText;
+                    bFirstAttribute = false;
+                }
+                else if (attribute.mVertexType == VertexAttribute::E_VT_TEXCOORD)
                 {
-					if (first)
+                    // TEXCOORD
+                    auto itr2 = vertex.mTexElements.begin();
+
+                    while (itr2 != vertex.mTexElements.end())
                     {
                         const Vector2 &uv = *itr2;
                         char szText[64] = { 0 };
                         snprintf(szText, sizeof(szText) - 1, " % 8f % 8f", uv[0], uv[1]);
-						ss<<"\n\t\t\t\t\t\t\t"<<szText;
-                    }
-					else
-					{
-						const Vector2 &uv = *itr2;
-						char szText[64] = { 0 };
-						snprintf(szText, sizeof(szText) - 1, " % 8f % 8f", uv[0], uv[1]);
+
                         if (bFirstAttribute)
-						    ss<<"\t\t\t\t\t\t\t"<<szText;
-                        else
-                            ss << szText;
-					}
-					
-					first = false;
-                    ++itr2;
-                }
+                            ss << TAB_INDENT;
 
-                bFirstAttribute = false;
-            }
-
-            // NORMAL
-            if (hasVertexAttribute(pVB, VertexAttribute::E_VT_NORMAL))
-            {
-                auto itr3 = vertex.mNormalElements.begin();
-                while (itr3 != vertex.mNormalElements.end())
-                {
-                    //                 const FbxVector3 &normal = *itr3;
-                    const Vector3 &normal = *itr3;
-                    char szText[64] = { 0 };
-                    snprintf(szText, sizeof(szText) - 1, " % 8f % 8f % 8f", normal[0], normal[1], normal[2]);
-                    ss << szText;
-                    ++itr3;
-                }
-            }
-
-            // BINORMAL
-            if (hasVertexAttribute(pVB, VertexAttribute::E_VT_BINORMAL))
-            {
-                auto itr3 = vertex.mBinormalElements.begin();
-                while (itr3 != vertex.mBinormalElements.end())
-                {
-                    //                 const FbxVector3 &binormal = *itr3;
-                    const Vector3 &binormal = *itr3;
-                    char szText[64] = { 0 };
-                    snprintf(szText, sizeof(szText) - 1, " % 8f % 8f % 8f", binormal[0], binormal[1], binormal[2]);
-                    ss << szText;
-                    ++itr3;
-                }
-            }
-
-            // TANGENT
-            if (hasVertexAttribute(pVB, VertexAttribute::E_VT_TANGENT))
-            {
-                auto itr3 = vertex.mTangentElements.begin();
-                while (itr3 != vertex.mTangentElements.end())
-                {
-                    //                 const FbxVector3 &tangent = *itr3;
-                    const Vector3 &tangent = *itr3;
-                    char szText[64] = { 0 };
-                    snprintf(szText, sizeof(szText) - 1, " % 8f % 8f % 8f", tangent[0], tangent[1], tangent[2]);
-                    ss << szText;
-                    //                 ss<<" "<<tangent[0]<<" "<<tangent[1]<<" "<<tangent[2];
-                    ++itr3;
-                }
-            }
-
-            // COLOR
-            if (hasVertexAttribute(pVB, VertexAttribute::E_VT_COLOR))
-            {
-                auto itr4 = vertex.mColorElements.begin();
-                while (itr4 != vertex.mColorElements.end())
-                {
-                    //                 const FbxVector4 &color = *itr4;
-                    const Vector4 &color = *itr4;
-                    char szText[64] = { 0 };
-                    snprintf(szText, sizeof(szText) - 1, " % 8f %8f % 8f % 8f", color[0], color[1], color[2], color[3]);
-                    ss << szText;
-                    //                 ss<<" "<<color[0]<<" "<<color[1]<<" "<<color[2]<<" "<<color[3];
-                    ++itr4;
-                }
-            }
-
-            // BLEND_WEIGHT 只写权重最大的4个顶点
-            if (vertex.mBlendInfo.size() > 0)
-            {
-                ss << " ";
-                const int MAX_BLEND_COUNT = 4;
-                int i = 0;
-                auto itrBlend = vertex.mBlendInfo.rbegin();
-                while (itrBlend != vertex.mBlendInfo.rend())
-                {
-                    char szText[16] = { 0 };
-                    snprintf(szText, sizeof(szText) - 1, "% 8f", itrBlend->second.mBlendWeight);
-                    ss << szText;
-                    //                     ss<<itrBlend->second.mBlendWeight;
-                    ++i;
-                    ++itrBlend;
-
-                    if (i >= MAX_BLEND_COUNT)
-                    {
-                        break;
+                        ss << szText;
+                        ++itr2;
+                        bFirstAttribute = false;
                     }
-
-                    ss << " ";
                 }
-
-                while (i < MAX_BLEND_COUNT)
+                else if (attribute.mVertexType == VertexAttribute::E_VT_NORMAL)
                 {
-                    //                     ss<<"0";
-                    char szText[16] = { 0 };
-                    snprintf(szText, sizeof(szText) - 1, "% 8f", 0.0f);
-                    ss << szText;
-                    ++i;
-                    ss << " ";
-                }
+                    // NORMAL
+                    auto itr3 = vertex.mNormalElements.begin();
 
-                // BLEND_INDEX 只写权重最大的4个顶点
-                i = 0;
-                itrBlend = vertex.mBlendInfo.rbegin();
-                while (itrBlend != vertex.mBlendInfo.rend())
-                {
-                    char szText[16] = { 0 };
-                    snprintf(szText, sizeof(szText) - 1, "% 8d", itrBlend->second.mBlendIndex);
-                    ss << szText;
-                    //                     ss<<itrBlend->second.mBlendIndex;
-                    ++i;
-                    ++itrBlend;
-
-                    if (i >= MAX_BLEND_COUNT)
+                    while (itr3 != vertex.mNormalElements.end())
                     {
-                        break;
+                        const Vector3 &normal = *itr3;
+                        char szText[64] = { 0 };
+                        snprintf(szText, sizeof(szText) - 1, " % 8f % 8f % 8f", normal[0], normal[1], normal[2]);
+
+                        if (bFirstAttribute)
+                            ss << TAB_INDENT;
+
+                        ss << szText;
+                        ++itr3;
+                        bFirstAttribute = false;
                     }
-
-                    ss << " ";
                 }
-
-                while (i < MAX_BLEND_COUNT)
+                else if (attribute.mVertexType == VertexAttribute::E_VT_BINORMAL)
                 {
-                    char szText[16] = { 0 };
-                    snprintf(szText, sizeof(szText) - 1, "% 8d", 0);
-                    ss << szText;
-                    //                     ss<<"-1";
-                    ++i;
-                    if (i < MAX_BLEND_COUNT)
+                    // BINORMAL
+                    auto itr3 = vertex.mBinormalElements.begin();
+
+                    while (itr3 != vertex.mBinormalElements.end())
+                    {
+                        const Vector3 &binormal = *itr3;
+                        char szText[64] = { 0 };
+                        snprintf(szText, sizeof(szText) - 1, " % 8f % 8f % 8f", binormal[0], binormal[1], binormal[2]);
+
+                        if (bFirstAttribute)
+                            ss << TAB_INDENT;
+
+                        ss << szText;
+                        ++itr3;
+                        bFirstAttribute = false;
+                    }
+                }
+                else if (attribute.mVertexType == VertexAttribute::E_VT_TANGENT)
+                {
+                    // TANGENT
+                    auto itr3 = vertex.mTangentElements.begin();
+
+                    while (itr3 != vertex.mTangentElements.end())
+                    {
+                        const Vector3 &tangent = *itr3;
+                        char szText[64] = { 0 };
+                        snprintf(szText, sizeof(szText) - 1, " % 8f % 8f % 8f", tangent[0], tangent[1], tangent[2]);
+
+                        if (bFirstAttribute)
+                            ss << TAB_INDENT;
+
+                        ss << szText;
+                        ++itr3;
+                        bFirstAttribute = false;
+                    }
+                }
+                else if (attribute.mVertexType == VertexAttribute::E_VT_COLOR)
+                {
+                    // COLOR
+                    auto itr4 = vertex.mColorElements.begin();
+
+                    while (itr4 != vertex.mColorElements.end())
+                    {
+                        const Vector4 &color = *itr4;
+                        char szText[64] = { 0 };
+                        snprintf(szText, sizeof(szText) - 1, " % 8f %8f % 8f % 8f", color[0], color[1], color[2], color[3]);
+
+                        if (bFirstAttribute)
+                            ss << TAB_INDENT;
+
+                        ss << szText;
+                        ++itr4;
+                        bFirstAttribute = false;
+                    }
+                }
+                else if (attribute.mVertexType == VertexAttribute::E_VT_BLEND_INDEX)
+                {
+                    // BLEND_WEIGHT 只写权重最大的4个顶点
+                    if (vertex.mBlendInfo.size() > 0)
+                    {
                         ss << " ";
+                        int i = 0;
+                        auto itrBlend = vertex.mBlendInfo.rbegin();
+                        while (itrBlend != vertex.mBlendInfo.rend())
+                        {
+                            char szText[16] = { 0 };
+                            snprintf(szText, sizeof(szText) - 1, "% 8f", itrBlend->second.mBlendWeight);
+                            ss << szText;
+                            ++i;
+                            ++itrBlend;
+
+                            if (i >= MAX_BLEND_COUNT)
+                            {
+                                break;
+                            }
+
+                            ss << " ";
+                        }
+
+                        while (i < MAX_BLEND_COUNT)
+                        {
+                            char szText[16] = { 0 };
+                            snprintf(szText, sizeof(szText) - 1, "% 8f", 0.0f);
+                            ss << szText;
+                            ++i;
+                            ss << " ";
+                        }
+                    }
                 }
+                else if (attribute.mVertexType == VertexAttribute::E_VT_BLEND_WEIGHT)
+                {
+                    // BLEND_INDEX 只写权重最大的4个顶点
+                    int i = 0;
+                    auto itrBlend = vertex.mBlendInfo.rbegin();
+                    while (itrBlend != vertex.mBlendInfo.rend())
+                    {
+                        char szText[16] = { 0 };
+                        snprintf(szText, sizeof(szText) - 1, "% 8d", itrBlend->second.mBlendIndex);
+                        ss << szText;
+                        ++i;
+                        ++itrBlend;
+
+                        if (i >= MAX_BLEND_COUNT)
+                        {
+                            break;
+                        }
+
+                        ss << " ";
+                    }
+
+                    while (i < MAX_BLEND_COUNT)
+                    {
+                        char szText[16] = { 0 };
+                        snprintf(szText, sizeof(szText) - 1, "% 8d", 0);
+                        ss << szText;
+                        ++i;
+                        if (i < MAX_BLEND_COUNT)
+                            ss << " ";
+                    }
+                }
+
+                ++itrAttrib;
             }
+
+//             // POSITION
+//             if (hasVertexAttribute(pVB, VertexAttribute::E_VT_POSITION))
+//             {
+//                 if (first)
+//                 {
+//                     char szText[64] = { 0 };
+//                     snprintf(szText, sizeof(szText) - 1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
+//                     ss << "\n\t\t\t\t\t\t\t" << szText;
+//                 }
+//                 else
+//                 {
+//                     char szText[64] = { 0 };
+//                     snprintf(szText, sizeof(szText) - 1, "% 8f % 8f % 8f", vertex.mPosition[0], vertex.mPosition[1], vertex.mPosition[2]);
+//                     ss << "\t\t\t\t\t\t\t" << szText;
+//                 }
+// 
+//                 first = false;
+//                 bFirstAttribute = false;
+//             }
+// 
+//             // TEXCOORD
+//             if (hasVertexAttribute(pVB, VertexAttribute::E_VT_TEXCOORD))
+//             {
+//                 auto itr2 = vertex.mTexElements.begin();
+//                 while (itr2 != vertex.mTexElements.end())
+//                 {
+// 					if (first)
+//                     {
+//                         const Vector2 &uv = *itr2;
+//                         char szText[64] = { 0 };
+//                         snprintf(szText, sizeof(szText) - 1, " % 8f % 8f", uv[0], uv[1]);
+// 						ss<<"\n\t\t\t\t\t\t\t"<<szText;
+//                     }
+// 					else
+// 					{
+// 						const Vector2 &uv = *itr2;
+// 						char szText[64] = { 0 };
+// 						snprintf(szText, sizeof(szText) - 1, " % 8f % 8f", uv[0], uv[1]);
+//                         if (bFirstAttribute)
+// 						    ss<<"\t\t\t\t\t\t\t"<<szText;
+//                         else
+//                             ss << szText;
+// 					}
+// 					
+// 					first = false;
+//                     ++itr2;
+//                 }
+// 
+//                 bFirstAttribute = false;
+//             }
+// 
+//             // NORMAL
+//             if (hasVertexAttribute(pVB, VertexAttribute::E_VT_NORMAL))
+//             {
+//                 auto itr3 = vertex.mNormalElements.begin();
+//                 while (itr3 != vertex.mNormalElements.end())
+//                 {
+//                     //                 const FbxVector3 &normal = *itr3;
+//                     const Vector3 &normal = *itr3;
+//                     char szText[64] = { 0 };
+//                     snprintf(szText, sizeof(szText) - 1, " % 8f % 8f % 8f", normal[0], normal[1], normal[2]);
+//                     ss << szText;
+//                     ++itr3;
+//                 }
+//             }
+// 
+//             // BINORMAL
+//             if (hasVertexAttribute(pVB, VertexAttribute::E_VT_BINORMAL))
+//             {
+//                 auto itr3 = vertex.mBinormalElements.begin();
+//                 while (itr3 != vertex.mBinormalElements.end())
+//                 {
+//                     //                 const FbxVector3 &binormal = *itr3;
+//                     const Vector3 &binormal = *itr3;
+//                     char szText[64] = { 0 };
+//                     snprintf(szText, sizeof(szText) - 1, " % 8f % 8f % 8f", binormal[0], binormal[1], binormal[2]);
+//                     ss << szText;
+//                     ++itr3;
+//                 }
+//             }
+// 
+//             // TANGENT
+//             if (hasVertexAttribute(pVB, VertexAttribute::E_VT_TANGENT))
+//             {
+//                 auto itr3 = vertex.mTangentElements.begin();
+//                 while (itr3 != vertex.mTangentElements.end())
+//                 {
+//                     //                 const FbxVector3 &tangent = *itr3;
+//                     const Vector3 &tangent = *itr3;
+//                     char szText[64] = { 0 };
+//                     snprintf(szText, sizeof(szText) - 1, " % 8f % 8f % 8f", tangent[0], tangent[1], tangent[2]);
+//                     ss << szText;
+//                     //                 ss<<" "<<tangent[0]<<" "<<tangent[1]<<" "<<tangent[2];
+//                     ++itr3;
+//                 }
+//             }
+// 
+//             // COLOR
+//             if (hasVertexAttribute(pVB, VertexAttribute::E_VT_COLOR))
+//             {
+//                 auto itr4 = vertex.mColorElements.begin();
+//                 while (itr4 != vertex.mColorElements.end())
+//                 {
+//                     //                 const FbxVector4 &color = *itr4;
+//                     const Vector4 &color = *itr4;
+//                     char szText[64] = { 0 };
+//                     snprintf(szText, sizeof(szText) - 1, " % 8f %8f % 8f % 8f", color[0], color[1], color[2], color[3]);
+//                     ss << szText;
+//                     //                 ss<<" "<<color[0]<<" "<<color[1]<<" "<<color[2]<<" "<<color[3];
+//                     ++itr4;
+//                 }
+//             }
+// 
+//             // BLEND_WEIGHT 只写权重最大的4个顶点
+//             if (vertex.mBlendInfo.size() > 0)
+//             {
+//                 ss << " ";
+//                 const int MAX_BLEND_COUNT = 4;
+//                 int i = 0;
+//                 auto itrBlend = vertex.mBlendInfo.rbegin();
+//                 while (itrBlend != vertex.mBlendInfo.rend())
+//                 {
+//                     char szText[16] = { 0 };
+//                     snprintf(szText, sizeof(szText) - 1, "% 8f", itrBlend->second.mBlendWeight);
+//                     ss << szText;
+//                     //                     ss<<itrBlend->second.mBlendWeight;
+//                     ++i;
+//                     ++itrBlend;
+// 
+//                     if (i >= MAX_BLEND_COUNT)
+//                     {
+//                         break;
+//                     }
+// 
+//                     ss << " ";
+//                 }
+// 
+//                 while (i < MAX_BLEND_COUNT)
+//                 {
+//                     //                     ss<<"0";
+//                     char szText[16] = { 0 };
+//                     snprintf(szText, sizeof(szText) - 1, "% 8f", 0.0f);
+//                     ss << szText;
+//                     ++i;
+//                     ss << " ";
+//                 }
+// 
+//                 // BLEND_INDEX 只写权重最大的4个顶点
+//                 i = 0;
+//                 itrBlend = vertex.mBlendInfo.rbegin();
+//                 while (itrBlend != vertex.mBlendInfo.rend())
+//                 {
+//                     char szText[16] = { 0 };
+//                     snprintf(szText, sizeof(szText) - 1, "% 8d", itrBlend->second.mBlendIndex);
+//                     ss << szText;
+//                     //                     ss<<itrBlend->second.mBlendIndex;
+//                     ++i;
+//                     ++itrBlend;
+// 
+//                     if (i >= MAX_BLEND_COUNT)
+//                     {
+//                         break;
+//                     }
+// 
+//                     ss << " ";
+//                 }
+// 
+//                 while (i < MAX_BLEND_COUNT)
+//                 {
+//                     char szText[16] = { 0 };
+//                     snprintf(szText, sizeof(szText) - 1, "% 8d", 0);
+//                     ss << szText;
+//                     //                     ss<<"-1";
+//                     ++i;
+//                     if (i < MAX_BLEND_COUNT)
+//                         ss << " ";
+//                 }
+//             }
 
             ss << " \n";
             XMLText *pText = pDoc->NewText(ss.str().c_str());
-
             pVertexElement->LinkEndChild(pText);
 
+            ss.str("");
             ++itrVertex;
-
             ++count;
         }
 

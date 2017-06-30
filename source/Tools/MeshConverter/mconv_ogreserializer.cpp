@@ -678,10 +678,10 @@ namespace mconv
                 break;
             default:
                 {
-                    T3D_ASSERT(data.header.id != 0);
-                    size_t offset = data.header.length - data.read;
-                    stream.seek(offset, true);
-                    data.read += offset;
+//                     T3D_ASSERT(data.header.id != 0);
+//                     size_t offset = data.header.length - data.read;
+//                     stream.seek(offset, true);
+//                     data.read += offset;
                 }
                 break;
             }

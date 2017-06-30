@@ -425,12 +425,17 @@ namespace mconv
                     break;
                 case VertexAttribute::E_VT_COLOR:
                     {
+                        uint32_t value = *(uint32_t *)&vertices[index++];
+                        uint8_t b = value & 0xFF;
+                        uint8_t g = (value >> 8) & 0xFF;
+                        uint8_t r = (value >> 16) & 0xFF;
+                        uint8_t a = (value >> 24) & 0xFF;
                         vertex.mColorElements.push_back(Vector4());
                         Vector4 &color = vertex.mColorElements.back();
-                        color[0] = vertices[index++];
-                        color[1] = vertices[index++];
-                        color[2] = vertices[index++];
-                        color[4] = vertices[index++];
+                        color[0] = (float)b / 255.0f;
+                        color[1] = (float)g / 255.0f;
+                        color[2] = (float)r / 255.0f;
+                        color[3] = (float)a / 255.0f;
                     }
                     break;
                 case VertexAttribute::E_VT_BLEND_WEIGHT:
