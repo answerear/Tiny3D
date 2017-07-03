@@ -82,10 +82,13 @@ namespace mconv
         float   mBlendWeight;
     };
 
-    typedef std::map<float, BlendInfo>      BlendInfoDict;
-    typedef BlendInfoDict::iterator         BlendInfoDictItr;
-    typedef BlendInfoDict::const_iterator   BlendInfoDictConstItr;
-    typedef std::pair<float, BlendInfo>     BlendInfoValue;
+//     typedef std::map<float, BlendInfo>      BlendInfoDict;
+//     typedef BlendInfoDict::iterator         BlendInfoDictItr;
+//     typedef BlendInfoDict::const_iterator   BlendInfoDictConstItr;
+//     typedef std::pair<float, BlendInfo>     BlendInfoValue;
+    typedef std::list<BlendInfo>                BlendInfoList;
+    typedef BlendInfoList::iterator             BlendInfoListItr;
+    typedef BlendInfoList::const_iterator       BlendInfoListConstItr;
 
     class Vertex
     {
@@ -169,7 +172,7 @@ namespace mconv
                 auto it = mBlendInfo.rbegin();
                 while (it != mBlendInfo.rend() && i < 4)
                 {
-                    BlendInfo &info = it->second;
+                    BlendInfo &info = *it;//it->second;
                     vertices.push_back(info.mBlendWeight);
                     ++it;
                     ++i;
@@ -184,7 +187,7 @@ namespace mconv
                 i = 0;
                 while (it != mBlendInfo.rend() && i < 4)
                 {
-                    BlendInfo &info = it->second;
+                    BlendInfo &info = *it;//it->second;
                     vertices.push_back((float)info.mBlendIndex);
                     ++it;
                     ++i;
@@ -222,14 +225,14 @@ namespace mconv
         }
 
         int                 mCtrlPointIdx;
-//         FbxVector3          mPosition;
         Vector3             mPosition;
         VectorElements2     mTexElements;
         VectorElements3     mNormalElements;
         VectorElements3     mBinormalElements;
         VectorElements3     mTangentElements;
         VectorElements4     mColorElements;
-        BlendInfoDict       mBlendInfo;
+//         BlendInfoDict       mBlendInfo;
+        BlendInfoList       mBlendInfo;
         int                 mMaterialIdx;
 
         uint32_t            mHash;

@@ -18,6 +18,7 @@
 #include "mconv_bound.h"
 #include "mconv_vertexbuffer.h"
 #include "mconv_log.h"
+#include "mconv_transform.h"
 
 
 namespace mconv
@@ -331,13 +332,13 @@ namespace mconv
             break;
         case VET_COLOR_ARGB:
             {
-                attribute.mDataType = VertexAttribute::E_VT_INT16;
+                attribute.mDataType = VertexAttribute::E_VT_FLOAT;
                 attribute.mSize = 4;
             }
             break;
         case VET_COLOR_ABGR:
             {
-                attribute.mDataType = VertexAttribute::E_VT_INT32;
+                attribute.mDataType = VertexAttribute::E_VT_FLOAT;
                 attribute.mSize = 4;
             }
             break;
@@ -491,6 +492,7 @@ namespace mconv
         SubMeshes *pGlobalSubMeshes = nullptr;
 
         bool bHasSharedVertices = false;
+        pModel->mMeshCount = 0;
 
         size_t i = 0;
         auto itr = mesh.submeshes.begin();
@@ -501,6 +503,8 @@ namespace mconv
 
             if (submesh.hasSharedVertices)
             {
+                pModel->mMeshCount++;
+
                 if (0 == i)
                 {
                     bHasSharedVertices = submesh.hasSharedVertices;
@@ -515,10 +519,17 @@ namespace mconv
                 }
 
                 result = result && processOgreSubMesh(submesh, pGlobalMesh, pGlobalSubMeshes);
+
+                if (mesh.boneAssignments.size() > 0)
+                {
+                    result = result && processOgreBoneAssignment(mesh.boneAssignments, pGlobalMesh);
+                }
             }
             else
             {
                 // submesh自己独享顶点数据，需要创建一个mesh出来
+                pModel->mMeshCount++;
+
                 if (i == 0)
                 {
                     bHasSharedVertices = submesh.hasSharedVertices;
@@ -534,6 +545,11 @@ namespace mconv
                 result = createMesh(pModel, pMesh, pSubMeshes, i);
                 result = result && processOgreGeometry(submesh.geometry, pMesh);
                 result = result && processOgreSubMesh(submesh, pMesh, pSubMeshes);
+
+                if (mesh.boneAssignments.size() > 0)
+                {
+                    result = result && processOgreBoneAssignment(mesh.boneAssignments, pMesh);
+                }
             }
 
             ++i;
@@ -571,9 +587,118 @@ namespace mconv
         return result;
     }
 
+    bool OgreConverter::searchVertexBuffer(Mesh *pMesh, VertexBuffer *&pVertexBuffer)
+    {
+        bool found = false;
+        size_t i = 0;
+
+        for (i = 0; i < pMesh->getChildrenCount(); ++i)
+        {
+            Node *pChild = pMesh->getChild(i);
+
+            if (pChild->getNodeType() == Node::E_TYPE_VERTEX_BUFFERS)
+            {
+                size_t j = 0;
+
+                for (j = 0; j < pChild->getChildrenCount(); ++j)
+                {
+                    Node *pNode = pChild->getChild(j);
+
+                    if (pNode->getNodeType() == Node::E_TYPE_VERTEX_BUFFER)
+                    {
+                        // 查找跟position顶点数据放置的vertex buffer
+                        VertexBuffer *pVB = (VertexBuffer *)pNode;
+                        auto itr = pVB->mAttributes.begin();
+
+                        while (itr != pVB->mAttributes.end())
+                        {
+                            auto attribute = *itr;
+
+                            if (attribute.mVertexType == VertexAttribute::E_VT_POSITION)
+                            {
+                                pVertexBuffer = pVB;
+                                found = true;
+                                break;
+                            }
+
+                            ++itr;
+                        }
+
+                        if (pVertexBuffer != nullptr)
+                            break;
+                    }
+                }
+            }
+        }
+
+        return found;
+    }
+
+    bool OgreConverter::searchVertexAttribute(VertexBuffer *pVertexBuffer, VertexAttribute::VertexType type)
+    {
+        bool found = false;
+
+        auto itr = pVertexBuffer->mAttributes.begin();
+
+        while (itr != pVertexBuffer->mAttributes.end())
+        {
+            if (type == itr->mVertexType)
+            {
+                found = true;
+                break;
+            }
+
+            ++itr;
+        }
+
+        return found;
+    }
+
+    void OgreConverter::putVertexBlendAndWeightAttributes(VertexBuffer *pVB)
+    {
+        VertexAttribute attribute;
+        attribute.mVertexType = VertexAttribute::E_VT_BLEND_WEIGHT;
+        attribute.mSize = 4;
+        attribute.mDataType = VertexAttribute::E_VT_FLOAT;
+        pVB->mAttributes.push_back(attribute);
+
+        attribute.mVertexType = VertexAttribute::E_VT_BLEND_INDEX;
+        attribute.mSize = 4;
+        attribute.mDataType = VertexAttribute::E_VT_INT16;
+        pVB->mAttributes.push_back(attribute);
+    }
+
     bool OgreConverter::processOgreBoneAssignment(const std::vector<OgreBoneAssignment> &assignments, Mesh *pMesh)
     {
-        bool result = true;
+        bool result = false;
+
+        VertexBuffer *pVB = nullptr;
+
+        if (searchVertexBuffer(pMesh, pVB))
+        {
+            if (!searchVertexAttribute(pVB, VertexAttribute::E_VT_BLEND_INDEX))
+            {
+                // 没有这个顶点属性，先添加顶点属性
+                putVertexBlendAndWeightAttributes(pVB);
+            }
+
+            size_t i = 0;
+
+            for (i = 0; i < assignments.size(); ++i)
+            {
+                const OgreBoneAssignment &bone = assignments[i];
+                Vertex &vertex = pVB->mVertices[bone.vertexID];
+                BlendInfo blend;
+                blend.mBlendIndex = bone.boneID;
+                blend.mBlendWeight = bone.weight;
+//                 BlendInfoValue value(bone.weight, blend);
+//                 vertex.mBlendInfo.insert(value);
+                vertex.mBlendInfo.push_back(blend);
+                vertex.mBlendInfo.sort();
+            }
+
+            result = true;
+        }
 
         return result;
     }

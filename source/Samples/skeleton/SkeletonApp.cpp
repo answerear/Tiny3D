@@ -76,7 +76,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
     renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
-#if !TEST_MODEL_SKELETON
+#if !TEST_MODEL_SKELETON && !TEST_MODEL_CAMEL
     renderer->setRenderMode(Renderer::E_RM_SOLID);
 #endif
     renderer->setAmbientLight(Color4::WHITE);
@@ -139,13 +139,14 @@ bool SkeletonApp::applicationDidFinishLaunching()
     // 模型 #1 变换结点
     node = SGTransformNode::create();
     root->addChild(node);
-    node->setPosition(0.0, -166.487442, 76.205284);
+//     node->setPosition(0.0, -166.487442, 76.205284);
+    node->setScale(0.2f, 0.2f, 0.2f);
     {
         // 模型 #1 可见物体结点
         SGModelPtr model = SGModel::create("白骆驼.t3t");
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
-//         model->runAction("Take 001");
+        model->runAction("站立");
     }
 #elif TEST_MODEL_TORTOISE
     node = SGTransformNode::create();

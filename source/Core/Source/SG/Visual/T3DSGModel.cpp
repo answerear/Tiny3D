@@ -636,19 +636,23 @@ namespace Tiny3D
             size_t i = 0;
             VertexBuffer::Vertices vertices(buffer->mVertices);
             VertexElement posElement;
-            getVertexElement(buffer, VertexElement::E_VES_POSITION, posElement);
+            bool result = getVertexElement(buffer, VertexElement::E_VES_POSITION, posElement);
             VertexElement weightElement;
-            getVertexElement(buffer, VertexElement::E_VES_BLENDWEIGHT, weightElement);
+            result = result && getVertexElement(buffer, VertexElement::E_VES_BLENDWEIGHT, weightElement);
             VertexElement indicesElement;
-            getVertexElement(buffer, VertexElement::E_VES_BLENDINDICES, indicesElement);
+            result = result && getVertexElement(buffer, VertexElement::E_VES_BLENDINDICES, indicesElement);
 
-            for (i = 0; i < buffer->mVertices.size(); i += step)
+            if (result)
             {
-                updateSkinVertex(buffer, &vertices[i], posElement, weightElement, indicesElement);
+                for (i = 0; i < buffer->mVertices.size(); i += step)
+                {
+                    updateSkinVertex(buffer, &vertices[i], posElement, weightElement, indicesElement);
+                }
+
+                HardwareVertexBufferPtr vb = vertexData->getVertexBuffer(stream);
+                result = result && vb->writeData(0, buffer->mVertices.size(), &vertices[0]);
             }
 
-            HardwareVertexBufferPtr vb = vertexData->getVertexBuffer(stream);
-            bool ret = vb->writeData(0, buffer->mVertices.size(), &vertices[0]);
             stream++;
             ++itr;
         }

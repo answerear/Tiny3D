@@ -1926,26 +1926,30 @@ namespace mconv
                 BlendInfo blend;
                 blend.mBlendIndex = nBlendIndex;
                 blend.mBlendWeight = fBlendWeight;
-                BlendInfoValue value(fBlendWeight, blend);
-                vertex.mBlendInfo.insert(value);
+//                 BlendInfoValue value(fBlendWeight, blend);
+//                 vertex.mBlendInfo.insert(value);
+                vertex.mBlendInfo.push_back(blend);
+                vertex.mBlendInfo.sort();
 
                 auto i = vertex.mBlendInfo.rbegin();
                 double len = 0.0;
                 while (i != vertex.mBlendInfo.rend())
                 {
-                    len += i->second.mBlendWeight;
+                    len += i->mBlendWeight;//i->second.mBlendWeight;
                     ++i;
                 }
 
-                BlendInfoDict blends;
+//                 BlendInfoDict blends;
+                BlendInfoList blends;
                 int j = 0;
                 i = vertex.mBlendInfo.rbegin();
                 while (i != vertex.mBlendInfo.rend())
                 {
-                    auto blend = i->second;
+                    auto blend = *i;// i->second;
                     blend.mBlendWeight /= len;
-                    BlendInfoValue value(blend.mBlendWeight, blend);
-                    blends.insert(value);
+//                     BlendInfoValue value(blend.mBlendWeight, blend);
+//                     blends.insert(value);
+                    blends.push_back(blend);
                     ++j;
                     ++i;
 

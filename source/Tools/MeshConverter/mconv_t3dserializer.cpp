@@ -568,7 +568,7 @@ namespace mconv
                         bFirstAttribute = false;
                     }
                 }
-                else if (attribute.mVertexType == VertexAttribute::E_VT_BLEND_INDEX)
+                else if (attribute.mVertexType == VertexAttribute::E_VT_BLEND_WEIGHT)
                 {
                     // BLEND_WEIGHT 只写权重最大的4个顶点
                     if (vertex.mBlendInfo.size() > 0)
@@ -579,7 +579,8 @@ namespace mconv
                         while (itrBlend != vertex.mBlendInfo.rend())
                         {
                             char szText[16] = { 0 };
-                            snprintf(szText, sizeof(szText) - 1, "% 8f", itrBlend->second.mBlendWeight);
+//                             snprintf(szText, sizeof(szText) - 1, "% 8f", itrBlend->second.mBlendWeight);
+                            snprintf(szText, sizeof(szText) - 1, "% 8f", itrBlend->mBlendWeight);
                             ss << szText;
                             ++i;
                             ++itrBlend;
@@ -602,7 +603,7 @@ namespace mconv
                         }
                     }
                 }
-                else if (attribute.mVertexType == VertexAttribute::E_VT_BLEND_WEIGHT)
+                else if (attribute.mVertexType == VertexAttribute::E_VT_BLEND_INDEX)
                 {
                     // BLEND_INDEX 只写权重最大的4个顶点
                     int i = 0;
@@ -610,7 +611,8 @@ namespace mconv
                     while (itrBlend != vertex.mBlendInfo.rend())
                     {
                         char szText[16] = { 0 };
-                        snprintf(szText, sizeof(szText) - 1, "% 8d", itrBlend->second.mBlendIndex);
+//                         snprintf(szText, sizeof(szText) - 1, "% 8d", itrBlend->second.mBlendIndex);
+                        snprintf(szText, sizeof(szText) - 1, "% 8d", itrBlend->mBlendIndex);
                         ss << szText;
                         ++i;
                         ++itrBlend;

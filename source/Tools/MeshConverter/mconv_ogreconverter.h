@@ -62,6 +62,10 @@ namespace mconv
 
         bool processOgreAnimations(const OgreSkeleton &skeleton, Model *pModel);
 
+        bool searchVertexBuffer(Mesh *pMesh, VertexBuffer *&pVertexBuffer);
+        bool searchVertexAttribute(VertexBuffer *pVertexBuffer, VertexAttribute::VertexType type);
+        void putVertexBlendAndWeightAttributes(VertexBuffer *pVB);
+
     protected:
         std::vector<Bone*> mBones;
         
