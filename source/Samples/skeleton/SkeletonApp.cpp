@@ -89,7 +89,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     node->setName("Camera Transform");
 
 #if TEST_MODEL_CAMEL 
-    node->lookAt(Vector3(150, 150, 150), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(150, 50, 150), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 坐标
     SGIndicatorPtr indicator = SGIndicator::create(50, 50, 50);
@@ -141,12 +141,13 @@ bool SkeletonApp::applicationDidFinishLaunching()
     root->addChild(node);
 //     node->setPosition(0.0, -166.487442, 76.205284);
     node->setScale(0.2f, 0.2f, 0.2f);
+//     node->setScale(8.0f, 8.0f, 8.0f);
     {
         // 模型 #1 可见物体结点
         SGModelPtr model = SGModel::create("白骆驼.t3t");
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
-        model->runAction("站立");
+        model->runAction("休闲");
     }
 #elif TEST_MODEL_TORTOISE
     node = SGTransformNode::create();

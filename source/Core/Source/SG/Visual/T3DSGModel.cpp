@@ -25,7 +25,7 @@ namespace Tiny3D
             K kf1 = container[i];
             K kf2 = container[i+1];
 
-            if (time > kf1->mTimestamp && time < kf2->mTimestamp)
+            if (time >= kf1->mTimestamp && time < kf2->mTimestamp)
             {
                 keyframe1 = kf1;
                 keyframe2 = kf2;
@@ -133,7 +133,7 @@ namespace Tiny3D
                     for (j = 0; j < submeshCount; ++j)
                     {
                         SubMeshDataPtr submeshData = *itr;
-                        SGMeshPtr mesh = SGMesh::create(vertexData, meshData);
+                        SGMeshPtr mesh = SGMesh::create(vertexData, submeshData);
                         mesh->setName(meshData->mName);
                         mMeshes.push_back(mesh);
                         ++itr;
@@ -162,6 +162,15 @@ namespace Tiny3D
             {
                 // 创建骨骼层次和骨骼偏移矩阵数组
                 ret = createSkeletons();
+
+                // 更新姿势，默认姿势为第一个动作的第一帧姿势
+                mStartTime = DateTime::currentMSecsSinceEpoch();
+
+                auto itr = modelData->mAnimations.begin();
+                mCurActionData = itr->second;
+
+                updatePoses();
+                updateSkeletons();
 
                 // 更新蒙皮
                 updateSkins();
@@ -485,7 +494,7 @@ namespace Tiny3D
         int64_t current = DateTime::currentMSecsSinceEpoch();
         int64_t time = current - mStartTime;
         ActionDataPtr actionData = smart_pointer_cast<ActionData>(mCurActionData);
-        int64_t dt = time % actionData->mDuration;
+        int64_t dt = (actionData->mDuration > 0 ? (time % actionData->mDuration) : 0);
         updatePose(dt, mRootBone);
     }
 
@@ -504,7 +513,8 @@ namespace Tiny3D
         {
             ActionData::KeyFrames &keyframesT = itrT->second;
 
-            if (searchKeyframe(keyframesT, time, actionData->mDuration, mCurKeyFrameT, kf1, kf2, mIsLoop))
+            int32_t frame = 0;
+            if (searchKeyframe(keyframesT, time, actionData->mDuration, frame, kf1, kf2, mIsLoop))
             {
                 KeyFrameDataTPtr keyframe1 = smart_pointer_cast<KeyFrameDataT>(kf1);
                 KeyFrameDataTPtr keyframe2 = smart_pointer_cast<KeyFrameDataT>(kf2);
@@ -513,7 +523,7 @@ namespace Tiny3D
                 translation = (base + (keyframe2->mTranslation - base) * t);
 //                 T3D_LOG_INFO("Keyframe #1 T(%f, %f, %f)", keyframe1->mTranslation[0], keyframe1->mTranslation[1], keyframe1->mTranslation[2]);
 //                 T3D_LOG_INFO("Keyframe #2 T(%f, %f, %f)", keyframe2->mTranslation[0], keyframe2->mTranslation[1], keyframe2->mTranslation[2]);
-//                 T3D_LOG_INFO("Bone : %s [%f], T(%f, %f, %f)", bone->getName().c_str(), t, translation[0], translation[1], translation[2]);
+                T3D_LOG_INFO("Bone : %s [%f], T(%f, %f, %f)", bone->getName().c_str(), t, translation[0], translation[1], translation[2]);
 
                 bone->setPosition(translation);
             }
@@ -539,9 +549,9 @@ namespace Tiny3D
                 Degree deg;
                 Vector3 axis;
                 orientation.toAngleAxis(deg, axis);
-//                 T3D_LOG_INFO("Bone : %s [%lld], keyframe=%d, kf1t=%lld, kf2t=%lld, R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", 
-//                     bone->getName().c_str(), time, frame, keyframe1->mTimestamp, keyframe2->mTimestamp,
-//                     orientation[0], orientation[1], orientation[2], orientation[3], deg.valueDegrees(), axis[0], axis[1], axis[2]);
+                T3D_LOG_INFO("Bone : %s [%lld], keyframe=%d, kf1t=%lld, kf2t=%lld, R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", 
+                    bone->getName().c_str(), time, frame, keyframe1->mTimestamp, keyframe2->mTimestamp,
+                    orientation[0], orientation[1], orientation[2], orientation[3], deg.valueDegrees(), axis[0], axis[1], axis[2]);
                 bone->setOrientation(orientation);
             }
             else
@@ -564,7 +574,8 @@ namespace Tiny3D
         {
             ActionData::KeyFrames &keyframesS = itrS->second;
 
-            if (searchKeyframe(keyframesS, time, actionData->mDuration, mCurKeyFrameS, kf1, kf2, mIsLoop))
+            int32_t frame = 0;
+            if (searchKeyframe(keyframesS, time, actionData->mDuration, frame, kf1, kf2, mIsLoop))
             {
                 KeyFrameDataSPtr keyframe1 = smart_pointer_cast<KeyFrameDataS>(kf1);
                 KeyFrameDataSPtr keyframe2 = smart_pointer_cast<KeyFrameDataS>(kf2);

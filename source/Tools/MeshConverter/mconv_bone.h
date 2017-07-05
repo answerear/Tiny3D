@@ -37,6 +37,8 @@ namespace mconv
         Matrix4     mLocalTransform;
         Matrix4     mOffsetMatrix;
         uint16_t    mBoneIndex;
+
+        Matrix4     mKeyframeMatrix;    /// 专门给ogre骨骼动画计算关键帧绝对本地变换用的
     };
 }
 

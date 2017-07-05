@@ -268,7 +268,9 @@ namespace mconv
                 break;
             case OGRE_EDGE_LISTS:
                 {
-                    T3D_ASSERT(0);
+                    size_t offset = data.header.length - data.read;
+                    stream.seek(offset, true);
+                    data.read += offset;
                 }
                 break;
             case OGRE_POSES:
@@ -1010,10 +1012,10 @@ namespace mconv
     {
         float tmp[4];
         size_t ret = readFloats(stream, data, tmp, 4);
-        value[0] = tmp[0];
-        value[1] = tmp[1];
-        value[2] = tmp[2];
-        value[3] = tmp[3];
+        value.x() = tmp[0];
+        value.y() = tmp[1];
+        value.z() = tmp[2];
+        value.w() = tmp[3];
         return ret;
     }
 

@@ -556,6 +556,8 @@ namespace mconv
             ++itr;
         }
 
+        pModel->mSharedVertex = (pModel->mMeshCount == 1);
+
         return result;
     }
 
@@ -833,6 +835,14 @@ namespace mconv
             pAnimation->addChild(pAction);
             pAction->mDuration = action.length;
 
+            // 先把所有骨骼关键帧变换矩阵重置为本地绑定骨骼矩阵，稍后按照帧来逐帧计算当前帧的绝对变换
+            size_t idx = 0;
+            for (idx = 0; idx < mBones.size(); ++idx)
+            {
+                Bone *pBone = mBones[idx];
+                pBone->mKeyframeMatrix = pBone->mLocalTransform;
+            }
+
             int k = 0;
             auto i = action.keyframes.begin();
             while (i != action.keyframes.end())
@@ -842,25 +852,45 @@ namespace mconv
 
                 k = pAction->getKeyFramesSize(pBone->getID(), pAction->mTKeyframes);
                 KeyframeT *pTFrame = new KeyframeT(k);
-                pTFrame->x = keyframe.position[0];
-                pTFrame->y = keyframe.position[1];
-                pTFrame->z = keyframe.position[2];
+
+                const Vector3 &translation = keyframe.position;
+                const Quaternion &rotation = keyframe.orientation;
+                const Vector3 &scaling = keyframe.scale;
+
+                Matrix4 T(translation);
+                Matrix4 R(rotation);
+                Matrix4 S(scaling[0], scaling[1], scaling[2], 1.0f);
+                Matrix4 M = T * R * S;
+                Matrix4 M1 = M * pBone->mLocalTransform;
+
+                Vector3 pos, scale;
+                Quaternion orientation;
+                M1.decomposition(pos, scale, orientation);
+//                 const Vector3 &pos = translation;
+//                 const Vector3 &scale = scaling;
+//                 const Quaternion &orientation = rotation;
+
+                pTFrame->x = pos[0];
+                pTFrame->y = pos[1];
+                pTFrame->z = pos[2];
                 pTFrame->mTimestamp = keyframe.time;
                 pAction->addKeyframe(pTFrame, pBone->getID(), pAction->mTKeyframes);
 
                 k = pAction->getKeyFramesSize(pBone->getID(), pAction->mRKeyframes);
                 KeyframeR *pRFrame = new KeyframeR(k);
-                pRFrame->x = keyframe.orientation.x();
-                pRFrame->y = keyframe.orientation.y();
-                pRFrame->z = keyframe.orientation.z();
-                pRFrame->w = keyframe.orientation.w();
+                pRFrame->x = orientation.x();
+                pRFrame->y = orientation.y();
+                pRFrame->z = orientation.z();
+                pRFrame->w = orientation.w();
+                pRFrame->mTimestamp = keyframe.time;
                 pAction->addKeyframe(pRFrame, pBone->getID(), pAction->mRKeyframes);
 
                 k = pAction->getKeyFramesSize(pBone->getID(), pAction->mSKeyframes);
                 KeyframeS *pSFrame = new KeyframeS(k);
-                pSFrame->x = keyframe.scale[0];
-                pSFrame->y = keyframe.scale[1];
-                pSFrame->z = keyframe.scale[2];
+                pSFrame->x = scale[0];
+                pSFrame->y = scale[1];
+                pSFrame->z = scale[2];
+                pSFrame->mTimestamp = keyframe.time;
                 pAction->addKeyframe(pSFrame, pBone->getID(), pAction->mSKeyframes);
 
                 ++i;
