@@ -147,7 +147,8 @@ bool SkeletonApp::applicationDidFinishLaunching()
         SGModelPtr model = SGModel::create("°×ÂæÍÕ.t3t");
 //         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
-        model->runAction("ÐÝÏÐ");
+        model->runAction("ÅÜ²½");
+//         model->stopAction("");
     }
 #elif TEST_MODEL_TORTOISE
     node = SGTransformNode::create();

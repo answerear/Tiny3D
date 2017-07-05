@@ -857,18 +857,24 @@ namespace mconv
                 const Quaternion &rotation = keyframe.orientation;
                 const Vector3 &scaling = keyframe.scale;
 
-                Matrix4 T(translation);
-                Matrix4 R(rotation);
-                Matrix4 S(scaling[0], scaling[1], scaling[2], 1.0f);
-                Matrix4 M = T * R * S;
-                Matrix4 M1 = M * pBone->mLocalTransform;
-
-                Vector3 pos, scale;
-                Quaternion orientation;
-                M1.decomposition(pos, scale, orientation);
+//                 Matrix4 T(translation);
+//                 Matrix4 R(rotation);
+//                 Matrix4 S(scaling[0], scaling[1], scaling[2], 1.0f);
+//                 Matrix4 M = T * R * S;
+//                 Matrix4 M1 = M * pBone->mLocalTransform;
+// 
+//                 Vector3 pos, scale;
+//                 Quaternion orientation;
+//                 M1.decomposition(pos, scale, orientation);
 //                 const Vector3 &pos = translation;
 //                 const Vector3 &scale = scaling;
 //                 const Quaternion &orientation = rotation;
+                Vector3 pos, scale;
+                Quaternion orientation;
+                pBone->mLocalTransform.decomposition(pos, scale, orientation);
+                pos = pos + translation;
+                orientation = orientation * rotation;
+                scale = scaling;
 
                 pTFrame->x = pos[0];
                 pTFrame->y = pos[1];

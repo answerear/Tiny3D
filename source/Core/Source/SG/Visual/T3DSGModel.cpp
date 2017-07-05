@@ -480,6 +480,15 @@ namespace Tiny3D
         mIsLoop = repeat;
         mIsActionRunning = true;
 
+        // 根据动作数据，更新骨骼姿势
+        updatePoses();
+
+        // 根据更新后的姿势数据，更新所有骨骼变换生成骨骼最终变换
+        updateSkeletons();
+
+        // 根据骨骼最终变换更新蒙皮数据
+        updateSkins();
+
         return true;
     }
 
@@ -523,7 +532,7 @@ namespace Tiny3D
                 translation = (base + (keyframe2->mTranslation - base) * t);
 //                 T3D_LOG_INFO("Keyframe #1 T(%f, %f, %f)", keyframe1->mTranslation[0], keyframe1->mTranslation[1], keyframe1->mTranslation[2]);
 //                 T3D_LOG_INFO("Keyframe #2 T(%f, %f, %f)", keyframe2->mTranslation[0], keyframe2->mTranslation[1], keyframe2->mTranslation[2]);
-                T3D_LOG_INFO("Bone : %s [%f], T(%f, %f, %f)", bone->getName().c_str(), t, translation[0], translation[1], translation[2]);
+//                 T3D_LOG_INFO("Bone : %s [%f], T(%f, %f, %f)", bone->getName().c_str(), t, translation[0], translation[1], translation[2]);
 
                 bone->setPosition(translation);
             }
@@ -546,12 +555,13 @@ namespace Tiny3D
 //                 orientation.slerp(keyframe1->mOrientation, keyframe2->mOrientation, t, true);
 //                 T3D_LOG_INFO("Keyframe #1 R(%f, %f, %f, %f)", keyframe1->mOrientation[0], keyframe1->mOrientation[1], keyframe1->mOrientation[2], keyframe1->mOrientation[3]);
 //                 T3D_LOG_INFO("Keyframe #2 R(%f, %f, %f, %f)", keyframe2->mOrientation[0], keyframe2->mOrientation[1], keyframe2->mOrientation[2], keyframe2->mOrientation[3]);
-                Degree deg;
-                Vector3 axis;
-                orientation.toAngleAxis(deg, axis);
-                T3D_LOG_INFO("Bone : %s [%lld], keyframe=%d, kf1t=%lld, kf2t=%lld, R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", 
-                    bone->getName().c_str(), time, frame, keyframe1->mTimestamp, keyframe2->mTimestamp,
-                    orientation[0], orientation[1], orientation[2], orientation[3], deg.valueDegrees(), axis[0], axis[1], axis[2]);
+//                 Degree deg;
+//                 Vector3 axis;
+//                 orientation.toAngleAxis(deg, axis);
+//                 T3D_LOG_INFO("Bone : %s [%lld], keyframe=%d, kf1t=%lld, kf2t=%lld, R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", 
+//                     bone->getName().c_str(), time, frame, keyframe1->mTimestamp, keyframe2->mTimestamp,
+//                     orientation.x(), orientation.y(), orientation.z(), orientation.w(), deg.valueDegrees(), axis[0], axis[1], axis[2]);
+                orientation.normalize();
                 bone->setOrientation(orientation);
             }
             else
@@ -560,9 +570,10 @@ namespace Tiny3D
                 Degree deg;
                 Vector3 axis;
                 orientation = keyframe->mOrientation;
-                orientation.toAngleAxis(deg, axis);
+//                 orientation.toAngleAxis(deg, axis);
 //                 T3D_LOG_INFO("Bone : %s [%lld], keyframe=%d, R(%f, %f, %f, %f), deg=%f, Axis(%f, %f, %f)", bone->getName().c_str(), time, mCurKeyFrameR,
 //                     orientation[0], orientation[1], orientation[2], orientation[3], deg.valueDegrees(), axis[0], axis[1], axis[2]);
+                orientation.normalize();
                 bone->setOrientation(orientation);
             }
         }
@@ -582,9 +593,9 @@ namespace Tiny3D
                 double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 Vector3 &base = keyframe1->mScaling;
                 scaling = (base * (keyframe2->mScaling - base) * t);
-                T3D_LOG_INFO("Keyframe #1 S(%f, %f, %f)", keyframe1->mScaling[0], keyframe1->mScaling[1], keyframe1->mScaling[2]);
-                T3D_LOG_INFO("Keyframe #2 S(%f, %f, %f)", keyframe2->mScaling[0], keyframe2->mScaling[1], keyframe2->mScaling[2]);
-                T3D_LOG_INFO("Bone : %s [%f], S(%f, %f, %f)", bone->getName().c_str(), t, scaling[0], scaling[1], scaling[2]);
+//                 T3D_LOG_INFO("Keyframe #1 S(%f, %f, %f)", keyframe1->mScaling[0], keyframe1->mScaling[1], keyframe1->mScaling[2]);
+//                 T3D_LOG_INFO("Keyframe #2 S(%f, %f, %f)", keyframe2->mScaling[0], keyframe2->mScaling[1], keyframe2->mScaling[2]);
+//                 T3D_LOG_INFO("Bone : %s [%f], S(%f, %f, %f)", bone->getName().c_str(), t, scaling[0], scaling[1], scaling[2]);
 
                 bone->setScale(scaling);
             }
