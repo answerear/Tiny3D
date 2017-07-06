@@ -31,6 +31,7 @@
 
 #include "DataStruct/T3DIndexData.h"
 #include "DataStruct/T3DVertexData.h"
+#include "DataStruct/T3DVariant.h"
 
 #include "Resource/T3DResource.h"
 #include "Resource/T3DResourceManager.h"

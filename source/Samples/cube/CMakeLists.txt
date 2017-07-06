@@ -21,6 +21,7 @@ include_directories(
 	"${TINY3D_LOG_INC_DIR}"
 	"${TINY3D_CORE_INC_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
+	"${SDL2_INCLUDE_DIR}"
 	)
 
 
@@ -50,6 +51,7 @@ target_link_libraries(
 	T3DLog
 	T3DMath
 	T3DCore
+	${SDL2_LIBRARY}
 	)
 
 if (TINY3D_OS_WINDOWS)
@@ -69,6 +71,7 @@ if (TINY3D_OS_WINDOWS)
 		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/bin/debug/T3DD3D11Renderer.dll ${CMAKE_CURRENT_BINARY_DIR}/debug
 		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/bin/debug/T3DGL3PRenderer.dll ${CMAKE_CURRENT_BINARY_DIR}/debug
 		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/bin/debug/libpng.dll ${CMAKE_CURRENT_BINARY_DIR}/debug
+		COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_CURRENT_BINARY_DIR}/debug
 		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_INSTALL_PREFIX}/media/config ${CMAKE_CURRENT_BINARY_DIR}
 		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_INSTALL_PREFIX}/media/resources ${CMAKE_CURRENT_BINARY_DIR}/resources
 		)

@@ -1,0 +1,79 @@
+material npcÎ÷ÓòË£ÉßÈË
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.588235 0.588235 0.588235 
+			diffuse 0.588235 0.588235 0.588235 
+			specular 0 0 0 10
+			emissive 0 0 0 
+			scene_blend alpha_blend
+
+			texture_unit 
+			{
+				texture tga_npcÎ÷ÓòË£ÉßÈË.dds
+			}
+		}
+	}
+}
+
+material °×ÂæÍÕ
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.588235 0.588235 0.588235 
+			diffuse 0.588235 0.588235 0.588235 
+			specular 0 0 0 10
+			emissive 0 0 0 
+			scene_blend alpha_blend
+
+			texture_unit 
+			{
+				texture tga_°×ÂæÍÕ.dds
+			}
+		}
+	}
+}
+
+material npc¹Ö±¦ÏäÆå×Ó
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.588235 0.588235 0.588235 
+			diffuse 0.588235 0.588235 0.588235 
+			specular 0 0 0 10
+			emissive 0 0 0 
+			scene_blend alpha_blend
+
+			texture_unit 
+			{
+				texture jpg_npc°×É«±¦Ïä.dds
+			}
+		}
+	}
+}
+
+material npc¹ÖµØ¹¬»¤ÎÀ
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.588235 0.588235 0.588235 
+			diffuse 0.588235 0.588235 0.588235 
+			specular 0 0 0 10
+			emissive 0 0 0 
+			scene_blend alpha_blend
+
+			texture_unit 
+			{
+				texture jpg_npc¹ÖµØ¹¬»¤ÎÀ.dds
+			}
+		}
+	}
+}

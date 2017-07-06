@@ -21,6 +21,7 @@ include_directories(
 	"${TINY3D_LOG_INC_DIR}"
 	"${TINY3D_CORE_INC_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
+	"${SDL2_INCLUDE_DIR}"
 	)
 
 
@@ -50,6 +51,7 @@ target_link_libraries(
 	T3DLog
 	T3DMath
 	T3DCore
+	${SDL2_LIBRARY}
 	)
 
 if (TINY3D_OS_WINDOWS)
