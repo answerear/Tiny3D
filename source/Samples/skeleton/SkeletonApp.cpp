@@ -6,10 +6,11 @@
 
 using namespace Tiny3D;
 
-#define TEST_MODEL_TORTOISE             0
-#define TEST_MODEL_CAMEL                1
+#define TEST_MODEL_TORTOISE             1
+#define TEST_MODEL_CAMEL                0
 #define TEST_MODEL_SKELETON             0
 #define TEST_MODEL_KNIGHT               0
+#define TEST_MODEL_SINBAD               0
 
 void printNode(NodePtr node, size_t tabCount)
 {
@@ -76,7 +77,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
     renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
-#if !TEST_MODEL_SKELETON && !TEST_MODEL_CAMEL
+#if !TEST_MODEL_SKELETON && !TEST_MODEL_CAMEL && !TEST_MODEL_SINBAD
     renderer->setRenderMode(Renderer::E_RM_SOLID);
 #endif
     renderer->setAmbientLight(Color4::WHITE);
@@ -88,7 +89,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     root->addChild(node);
     node->setName("Camera Transform");
 
-#if TEST_MODEL_CAMEL 
+#if TEST_MODEL_CAMEL || TEST_MODEL_SINBAD
     node->lookAt(Vector3(150, 50, 150), Vector3::ZERO, Vector3::UNIT_Y);
 
     // 坐标
@@ -139,22 +140,29 @@ bool SkeletonApp::applicationDidFinishLaunching()
     // 模型 #1 变换结点
     node = SGTransformNode::create();
     root->addChild(node);
-//     node->setPosition(0.0, -166.487442, 76.205284);
     node->setScale(0.2f, 0.2f, 0.2f);
-//     node->setScale(8.0f, 8.0f, 8.0f);
     {
         // 模型 #1 可见物体结点
         SGModelPtr model = SGModel::create("白骆驼.t3t");
-//         model->setRenderMode(SGModel::E_RENDER_SKELETON);
         node->addChild(model);
         model->runAction("跑步");
-//         model->stopAction("");
     }
+#elif TEST_MODEL_SINBAD
+    // 模型 #1 变换结点
+    node = SGTransformNode::create();
+    root->addChild(node);
+    node->setScale(8.0f, 8.0f, 8.0f);
+    {
+        // 模型 #1 可见物体结点
+        SGModelPtr model = SGModel::create("Sinbad.t3t");
+        node->addChild(model);
+        model->runAction("Dance");
+}
 #elif TEST_MODEL_TORTOISE
     node = SGTransformNode::create();
     root->addChild(node);
 //     node->setOrientation(Degree(-90), Vector3::UNIT_X);
-    node->setPosition(0.0f, 500.0f, 0.0f);
+    node->setPosition(0.0f, 0.0f, 0.0f);
     {
         SGModelPtr model = SGModel::create("tortoise.t3t");
         node->addChild(model);

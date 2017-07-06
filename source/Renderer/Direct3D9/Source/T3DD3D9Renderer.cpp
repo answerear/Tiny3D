@@ -356,7 +356,7 @@ namespace Tiny3D
         case E_RM_SOLID:
         default:
             {
-                d3dmode = D3DRS_FILLMODE;
+                d3dmode = D3DFILL_SOLID;
                 hr = mD3DDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
                 if (FAILED(hr))
                 {
