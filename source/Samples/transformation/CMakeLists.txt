@@ -26,16 +26,18 @@ include_directories(
 
 # Setup project header files
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
+set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../common/ .h)
 
 
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
+set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../common/ .cpp)
+
 
 if (TINY3D_OS_WINDOWS)
 	set_project_files(include\\\\windows ${CMAKE_CURRENT_SOURCE_DIR}/windows/ .h)
 	set_project_files(source\\\\windows ${CMAKE_CURRENT_SOURCE_DIR}/windows/ .cpp)
 endif ()
-
 
 
 add_executable(

@@ -4,29 +4,17 @@
 #define __TRIANGLE_APP_H__
 
 
-#include <Tiny3D.h>
+#include "../common/SampleApp.h"
 
 
-class TriangleApp 
-    : public Tiny3D::ApplicationListener
+class TriangleApp : public SampleApp
 {
 public:
     TriangleApp();
     virtual ~TriangleApp();
 
-    int32_t go();
-
 protected:  /// from Tiny3D::ApplicationListener
     virtual bool applicationDidFinishLaunching() override;
-
-    virtual void applicationDidEnterBackground() override;
-
-    virtual void applicationWillEnterForeground() override;
-
-    virtual void applicationWillTerminate() override;
-
-protected:
-    Tiny3D::RenderWindowPtr     mRenderWindow;
 };
 
 

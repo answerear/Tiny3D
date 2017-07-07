@@ -1,8 +1,6 @@
 
 
 #include "ModelApp.h"
-#include <Tiny3D.h>
-
 
 using namespace Tiny3D;
 
@@ -15,22 +13,6 @@ ModelApp::ModelApp()
 ModelApp::~ModelApp()
 {
 
-}
-
-int32_t ModelApp::go()
-{
-    Entrance *entrance = new Entrance();
-
-    entrance->setApplicationListener(this);
-
-    RenderWindow *renderWindow = nullptr;
-    Entrance::getInstance().initialize(true, renderWindow);
-    mRenderWindow = renderWindow;
-    Entrance::getInstance().run();
-
-    delete entrance;
-
-    return 0;
 }
 
 bool ModelApp::applicationDidFinishLaunching()
@@ -73,19 +55,4 @@ bool ModelApp::applicationDidFinishLaunching()
     }
 
     return true;
-}
-
-void ModelApp::applicationDidEnterBackground()
-{
-
-}
-
-void ModelApp::applicationWillEnterForeground()
-{
-
-}
-
-void ModelApp::applicationWillTerminate()
-{
-
 }

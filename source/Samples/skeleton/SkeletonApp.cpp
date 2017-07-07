@@ -56,22 +56,6 @@ SkeletonApp::~SkeletonApp()
 
 }
 
-int32_t SkeletonApp::go()
-{
-    Entrance *entrance = new Entrance();
-
-    entrance->setApplicationListener(this);
-
-    RenderWindow *renderWindow = nullptr;
-    Entrance::getInstance().initialize(true, renderWindow);
-    mRenderWindow = renderWindow;
-    Entrance::getInstance().run();
-
-    delete entrance;
-
-    return 0;
-}
-
 bool SkeletonApp::applicationDidFinishLaunching()
 {
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
@@ -213,19 +197,4 @@ bool SkeletonApp::applicationDidFinishLaunching()
     printNode(root, 0);
 
     return true;
-}
-
-void SkeletonApp::applicationDidEnterBackground()
-{
-
-}
-
-void SkeletonApp::applicationWillEnterForeground()
-{
-
-}
-
-void SkeletonApp::applicationWillTerminate()
-{
-
 }

@@ -25,6 +25,24 @@ namespace Tiny3D
 
     }
 
+    bool Renderer::renderOneFrame()
+    {
+        if (!fireFrameStarted())
+            return false;
+
+        RenderTargetListItr itr = mRenderTargets.begin();
+        while (itr != mRenderTargets.end())
+        {
+            itr->second->update();
+            ++itr;
+        }
+
+        if (!fireFrameEnded())
+            return false;
+
+        return true;
+    }
+
     bool Renderer::attachRenderTarget(RenderTarget *target)
     {
         std::pair<RenderTargetListItr, bool> ret = 

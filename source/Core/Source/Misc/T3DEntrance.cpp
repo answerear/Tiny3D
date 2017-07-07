@@ -3,6 +3,7 @@
 #include "Misc/T3DEntrance.h"
 #include "Misc/T3DPlugin.h"
 #include "Misc/T3DConfigFile.h"
+#include "Misc/T3DWindowEventHandler.h"
 #include "Render/T3DRenderer.h"
 #include "Render/T3DRenderWindow.h"
 #include "Resource/T3DDylibManager.h"
@@ -12,6 +13,7 @@
 #include "Resource/T3DDylib.h"
 #include "ImageCodec/T3DImageCodec.h"
 #include "Resource/T3DFileSystemArchive.h"
+#include "Listener/T3DApplicationListener.h"
 #include <algorithm>
 
 
@@ -25,6 +27,7 @@ namespace Tiny3D
     Entrance::Entrance(const String &config /* = "Tiny3D.cfg" */)
         : mSystem(new System())
         , mLogger(new Logger())
+        , mWindowEventHandler(new WindowEventHandler())
         , mDylibMgr(new DylibManager())
         , mArchiveMgr(new ArchiveManager())
         , mMaterialMgr(new MaterialManager())
@@ -61,6 +64,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mArchiveMgr);
         T3D_SAFE_DELETE(mDylibMgr);
 
+        T3D_SAFE_DELETE(mWindowEventHandler);
         stopLogging();
         T3D_SAFE_DELETE(mLogger);
         T3D_SAFE_DELETE(mSystem);
@@ -303,12 +307,38 @@ namespace Tiny3D
 
     bool Entrance::run()
     {
-        if (mActiveRenderer != nullptr)
+        if (mAppListener != nullptr)
         {
-            mActiveRenderer->startRendering();
+            mAppListener->applicationDidFinishLaunching();
+        }
+
+        mShutdown = false;
+
+        while (!mShutdown)
+        {
+            WindowEventHandler::getInstance().handleWindowMessage();
+            if (!renderOneFrame())
+                break;
         }
 
         return true;
+    }
+
+    bool Entrance::renderOneFrame()
+    {
+        bool ret = false;
+
+        if (mActiveRenderer != nullptr)
+        {
+            ret = mActiveRenderer->renderOneFrame();
+        }
+
+        return ret;
+    }
+
+    void Entrance::shutdown()
+    {
+        mShutdown = true;
     }
 
     void Entrance::setApplicationListener(ApplicationListener *listener)

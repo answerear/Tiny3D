@@ -64,6 +64,8 @@ namespace Tiny3D
         virtual void swapBuffers() = 0;
 
         virtual bool isFullScreen() const;
+
+        virtual void windowMovedOrResized();
     };
 }
 

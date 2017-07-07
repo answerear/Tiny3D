@@ -94,7 +94,9 @@ namespace Tiny3D
          */
         bool run();
 
-        void renderOneFrame();
+        bool renderOneFrame();
+
+        void shutdown();
 
         /**
          * @brief Set application event listener.
@@ -130,12 +132,14 @@ namespace Tiny3D
         typedef DylibList::iterator         DylibListItr;
         typedef DylibList::const_iterator   DylibListConstItr;
 
-        System          *mSystem;
-        Logger          *mLogger;
-        DylibManager    *mDylibMgr;
-        ArchiveManager  *mArchiveMgr;
-        MaterialManager *mMaterialMgr;
-        ModelManager    *mModelMgr;
+        System                  *mSystem;
+        Logger                  *mLogger;
+        WindowEventHandlerPtr   mWindowEventHandler;
+
+        DylibManager            *mDylibMgr;
+        ArchiveManager          *mArchiveMgr;
+        MaterialManager         *mMaterialMgr;
+        ModelManager            *mModelMgr;
 
         Renderer        *mActiveRenderer;
 
@@ -151,6 +155,8 @@ namespace Tiny3D
         SceneManager    *mSceneMgr;
 
         ImageCodec      *mImageCodec;
+
+        bool            mShutdown;
     };
 
     #define T3D_ENTRANCE         Entrance::getInstance()

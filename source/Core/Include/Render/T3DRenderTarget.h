@@ -28,6 +28,9 @@ namespace Tiny3D
 
         int32_t getColorDepth() const;
 
+        bool isActive() const       { return mIsActive; }
+        void setActive(bool active) { mIsActive = active; }
+
         virtual void update();
 
         ViewportPtr addViewport(SGCamera *camera, int32_t nZOrder, 
@@ -60,6 +63,8 @@ namespace Tiny3D
         int32_t         mWidth;
         int32_t         mHeight;
         int32_t         mColorDepth;
+
+        bool            mIsActive;
 
         String          mName;
 

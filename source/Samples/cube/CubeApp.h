@@ -4,29 +4,17 @@
 #define __CUBE_APP_H__
 
 
-#include <Tiny3D.h>
+#include "../common/SampleApp.h"
 
 
-class CubeApp 
-    : public Tiny3D::ApplicationListener
+class CubeApp : public SampleApp
 {
 public:
     CubeApp();
     virtual ~CubeApp();
 
-    int32_t go();
-
 protected:  /// from Tiny3D::ApplicationListener
     virtual bool applicationDidFinishLaunching() override;
-
-    virtual void applicationDidEnterBackground() override;
-
-    virtual void applicationWillEnterForeground() override;
-
-    virtual void applicationWillTerminate() override;
-
-protected:
-    Tiny3D::RenderWindowPtr     mRenderWindow;
 };
 
 

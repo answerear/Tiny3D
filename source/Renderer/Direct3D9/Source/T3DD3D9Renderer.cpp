@@ -52,44 +52,6 @@ namespace Tiny3D
         return window;
     }
 
-    void D3D9Renderer::startRendering()
-    {
-        if (Entrance::getInstance().getApplicationListener())
-            Entrance::getInstance().getApplicationListener()->applicationDidFinishLaunching();
-
-        MSG msg;
-
-        // Render this window
-        PeekMessage(&msg, NULL, 0U, 0U, PM_NOREMOVE);
-
-        while (mRenderTargets.size())
-        {
-            if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
-            {
-                if (WM_QUIT == msg.message)
-                    break;
-
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-            }
-            else
-            {
-                if (!fireFrameStarted())
-                    break;
-
-                RenderTargetListItr itr = mRenderTargets.begin();
-                while (itr != mRenderTargets.end())
-                {
-                    itr->second->update();
-                    ++itr;
-                }
-
-                if (!fireFrameEnded())
-                    break;
-            }
-        }
-    }
-
     bool D3D9Renderer::initialize()
     {
         mD3D = ::Direct3DCreate9(D3D_SDK_VERSION);

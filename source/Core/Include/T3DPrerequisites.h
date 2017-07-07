@@ -62,9 +62,12 @@ namespace Tiny3D
     class ApplicationListener;
     class RenderTargetListener;
     class FrameListener;
+    class WindowEventListener;
     class TouchEventListener;
     class KeyboardEventListener;
     class JoystickEventListener;
+
+    class WindowEventHandler;
 
     class Degree;
     class Radian;

@@ -25,8 +25,6 @@ namespace Tiny3D
             const RenderWindowCreateParam &rkCreateParam, 
             const RenderWindowCreateParamEx &rkCreateParamEx) override;
 
-        virtual void startRendering() override;
-
         virtual bool initialize() override;
         virtual void uninitialize() override;
 

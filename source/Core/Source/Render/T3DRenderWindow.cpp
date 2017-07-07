@@ -27,4 +27,9 @@ namespace Tiny3D
 
         swapBuffers();
     }
+
+    void RenderWindow::windowMovedOrResized()
+    {
+
+    }
 }

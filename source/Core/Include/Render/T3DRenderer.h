@@ -75,7 +75,7 @@ namespace Tiny3D
             const RenderWindowCreateParam &rkCreateParam,
             const RenderWindowCreateParamEx &rkCreateParamEx) = 0;
 
-        virtual void startRendering() = 0;
+        virtual bool renderOneFrame();
 
         virtual bool attachRenderTarget(RenderTarget *target);
         virtual void detachRenderTarget(const String &name);

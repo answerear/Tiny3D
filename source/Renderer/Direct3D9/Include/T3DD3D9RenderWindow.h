@@ -31,9 +31,6 @@ namespace Tiny3D
         LPDIRECT3DDEVICE9 getD3DDevice()    { return mD3DDevice; }
 
     protected:
-        static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, 
-            WPARAM wParam, LPARAM lParam);
-
         bool checkMultiSampleQuality(LPDIRECT3D9 pD3D, D3DMULTISAMPLE_TYPE type, 
             DWORD *outQuality, D3DFORMAT fBack, D3DFORMAT fDepth, 
             UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen);
@@ -44,6 +41,7 @@ namespace Tiny3D
 
         DWORD   mMultiSampleQuality;
 
+        bool    mIsExternal;
         bool    mIsFullScreen;
         bool    mActive;
         bool    mReady;

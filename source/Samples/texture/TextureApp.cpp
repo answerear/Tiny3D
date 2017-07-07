@@ -1,7 +1,6 @@
 
 
 #include "TextureApp.h"
-#include <Tiny3D.h>
 
 
 using namespace Tiny3D;
@@ -15,22 +14,6 @@ TextureApp::TextureApp()
 TextureApp::~TextureApp()
 {
 
-}
-
-int32_t TextureApp::go()
-{
-    Entrance *entrance = new Entrance();
-
-    entrance->setApplicationListener(this);
-
-    RenderWindow *renderWindow = nullptr;
-    Entrance::getInstance().initialize(true, renderWindow);
-    mRenderWindow = renderWindow;
-    Entrance::getInstance().run();
-
-    delete entrance;
-
-    return 0;
 }
 
 bool TextureApp::applicationDidFinishLaunching()
@@ -120,19 +103,4 @@ bool TextureApp::applicationDidFinishLaunching()
     }
 
     return true;
-}
-
-void TextureApp::applicationDidEnterBackground()
-{
-
-}
-
-void TextureApp::applicationWillEnterForeground()
-{
-
-}
-
-void TextureApp::applicationWillTerminate()
-{
-
 }

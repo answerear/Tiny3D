@@ -1,7 +1,6 @@
 
 
 #include "TransformationApp.h"
-#include <Tiny3D.h>
 
 
 using namespace Tiny3D;
@@ -15,22 +14,6 @@ TransformationApp::TransformationApp()
 TransformationApp::~TransformationApp()
 {
 
-}
-
-int32_t TransformationApp::go()
-{
-    Entrance *entrance = new Entrance();
-
-    entrance->setApplicationListener(this);
-
-    RenderWindow *renderWindow = nullptr;
-    Entrance::getInstance().initialize(true, renderWindow);
-    mRenderWindow = renderWindow;
-    Entrance::getInstance().run();
-
-    delete entrance;
-
-    return 0;
 }
 
 bool TransformationApp::applicationDidFinishLaunching()
@@ -113,19 +96,4 @@ bool TransformationApp::applicationDidFinishLaunching()
     }
 
     return true;
-}
-
-void TransformationApp::applicationDidEnterBackground()
-{
-
-}
-
-void TransformationApp::applicationWillEnterForeground()
-{
-
-}
-
-void TransformationApp::applicationWillTerminate()
-{
-
 }

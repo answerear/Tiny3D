@@ -1,7 +1,6 @@
 
 
 #include "CubeApp.h"
-#include <Tiny3D.h>
 
 
 using namespace Tiny3D;
@@ -15,22 +14,6 @@ CubeApp::CubeApp()
 CubeApp::~CubeApp()
 {
 
-}
-
-int32_t CubeApp::go()
-{
-    Entrance *entrance = new Entrance();
-
-    entrance->setApplicationListener(this);
-
-    RenderWindow *renderWindow = nullptr;
-    Entrance::getInstance().initialize(true, renderWindow);
-    mRenderWindow = renderWindow;
-    Entrance::getInstance().run();
-
-    delete entrance;
-
-    return 0;
 }
 
 bool CubeApp::applicationDidFinishLaunching()
@@ -71,19 +54,4 @@ bool CubeApp::applicationDidFinishLaunching()
     }
 
     return true;
-}
-
-void CubeApp::applicationDidEnterBackground()
-{
-
-}
-
-void CubeApp::applicationWillEnterForeground()
-{
-
-}
-
-void CubeApp::applicationWillTerminate()
-{
-
 }

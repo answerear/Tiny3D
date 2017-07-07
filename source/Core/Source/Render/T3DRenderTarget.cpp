@@ -18,6 +18,7 @@ namespace Tiny3D
         : mWidth(0)
         , mHeight(0)
         , mColorDepth(0)
+        , mIsActive(true)
     {
 
     }

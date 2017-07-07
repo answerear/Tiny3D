@@ -12,7 +12,7 @@
 
 #include "Listener/T3DApplicationListener.h"
 #include "Listener/T3DFrameListener.h"
-
+#include "Listener/T3DWindowEventListener.h"
 
 #include "Misc/T3DEntrance.h"
 #include "Misc/T3DColor4.h"
@@ -20,6 +20,7 @@
 #include "Misc/T3DPlugin.h"
 #include "Misc/T3DViewport.h"
 #include "Misc/T3DImage.h"
+#include "Misc/T3DWindowEventHandler.h"
 
 #include "Render/T3DRenderer.h"
 #include "Render/T3DRenderTarget.h"
@@ -48,10 +49,12 @@
 
 #include "SG/Node/T3DSGNode.h"
 #include "SG/Node/T3DSGTransformNode.h"
+
 #include "SG/Visual/T3DSGVisual.h"
 #include "SG/Visual/T3DSGCamera.h"
 #include "SG/Visual/T3DSGModel.h"
 #include "SG/Visual/T3DSGIndicator.h"
+
 #include "SG/Renderable/T3DSGRenderable.h"
 #include "SG/Renderable/T3DSGGeometry.h"
 #include "SG/Renderable/T3DSGMesh.h"

@@ -4,29 +4,17 @@
 #define __TEXTURE_APP_H__
 
 
-#include <Tiny3D.h>
+#include "../common/SampleApp.h"
 
 
-class TextureApp 
-    : public Tiny3D::ApplicationListener
+class TextureApp : public SampleApp
 {
 public:
     TextureApp();
     virtual ~TextureApp();
 
-    int32_t go();
-
 protected:  /// from Tiny3D::ApplicationListener
     virtual bool applicationDidFinishLaunching() override;
-
-    virtual void applicationDidEnterBackground() override;
-
-    virtual void applicationWillEnterForeground() override;
-
-    virtual void applicationWillTerminate() override;
-
-protected:
-    Tiny3D::RenderWindowPtr     mRenderWindow;
 };
 
 

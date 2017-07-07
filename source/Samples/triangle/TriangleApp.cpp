@@ -1,8 +1,6 @@
 
 
 #include "TriangleApp.h"
-#include <Tiny3D.h>
-
 
 using namespace Tiny3D;
 
@@ -15,22 +13,6 @@ TriangleApp::TriangleApp()
 TriangleApp::~TriangleApp()
 {
 
-}
-
-int32_t TriangleApp::go()
-{
-    Entrance *entrance = new Entrance();
-
-    entrance->setApplicationListener(this);
-
-    RenderWindow *renderWindow = nullptr;
-    Entrance::getInstance().initialize(true, renderWindow);
-    mRenderWindow = renderWindow;
-    Entrance::getInstance().run();
-
-    delete entrance;
-
-    return 0;
 }
 
 bool TriangleApp::applicationDidFinishLaunching()
@@ -46,17 +28,3 @@ bool TriangleApp::applicationDidFinishLaunching()
     return true;
 }
 
-void TriangleApp::applicationDidEnterBackground()
-{
-
-}
-
-void TriangleApp::applicationWillEnterForeground()
-{
-
-}
-
-void TriangleApp::applicationWillTerminate()
-{
-
-}

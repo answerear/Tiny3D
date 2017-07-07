@@ -62,10 +62,13 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(RenderGroup);
     T3D_DECLARE_SMART_PTR(RenderQueue);
+    T3D_DECLARE_SMART_PTR(RenderWindow);
 
     T3D_DECLARE_SMART_PTR(TouchDevice);
     T3D_DECLARE_SMART_PTR(KeyDevice);
     T3D_DECLARE_SMART_PTR(JoystickDevice);
+
+    T3D_DECLARE_SMART_PTR(WindowEventHandler);
 
 
     typedef std::vector<Variant>            VariantArray;
@@ -93,6 +96,10 @@ namespace Tiny3D
     typedef std::list<Renderer*>            RendererList;
     typedef RendererList::iterator          RendererListItr;
     typedef RendererList::const_iterator    RendererListConstItr;
+
+    typedef std::list<RenderWindowPtr>          RenderWindowList;
+    typedef RenderWindowList::iterator          RenderWindowListItr;
+    typedef RenderWindowList::const_iterator    RenderWindowListConstItr;
 }
 
 #endif
