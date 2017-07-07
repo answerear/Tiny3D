@@ -37,6 +37,11 @@ namespace Tiny3D
         /** Destructor. */
         virtual ~Entrance();
 
+        Settings &getConfig()
+        {
+            return mSettings;
+        }
+
         void installPlugin(Plugin *plugin);
         void uninstallPlugin(Plugin *plugin);
 
