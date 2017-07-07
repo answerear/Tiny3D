@@ -27,7 +27,7 @@ int32_t SampleApp::go()
     mRenderWindow = renderWindow;
     WindowEventHandler::getInstance().addWindowEventListener(mRenderWindow, this);
     Entrance::getInstance().run();
-
+    WindowEventHandler::getInstance().removeWindowEventListener(mRenderWindow, this);
     delete entrance;
 
     return 0;

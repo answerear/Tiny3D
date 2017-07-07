@@ -68,7 +68,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(KeyDevice);
     T3D_DECLARE_SMART_PTR(JoystickDevice);
 
-    T3D_DECLARE_SMART_PTR(WindowEventHandler);
+//     T3D_DECLARE_SMART_PTR(WindowEventHandler);
 
 
     typedef std::vector<Variant>            VariantArray;

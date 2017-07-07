@@ -139,7 +139,7 @@ namespace Tiny3D
 
         System                  *mSystem;
         Logger                  *mLogger;
-        WindowEventHandlerPtr   mWindowEventHandler;
+        WindowEventHandler      *mWindowEventHandler;
 
         DylibManager            *mDylibMgr;
         ArchiveManager          *mArchiveMgr;

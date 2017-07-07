@@ -17,7 +17,6 @@ namespace Tiny3D
 {
     class T3D_ENGINE_API WindowEventHandler 
         : public Singleton<WindowEventHandler>
-        , public Object
     {
         friend class Entrance;
 
