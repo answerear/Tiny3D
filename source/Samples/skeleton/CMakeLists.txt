@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 ################################################################################
 
-set_project_name(skeleton)
+set_project_name(Demo_SkeletonAnimation)
 
 
 set(TINY3D_MATH_INC_DIR "${TINY3D_INC_DIR}/Math")
