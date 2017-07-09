@@ -51,6 +51,10 @@ namespace mconv
                 {
                     settings.mFileMode = parseFileMode(argv[++i]);
                 }
+                else if (arg[1] == 'f')
+                {
+                    settings.mExtraPath = argv[++i];
+                }
             }
             else if (settings.mSrcPath.length() == 0)
             {
@@ -99,7 +103,7 @@ namespace mconv
         printf("Options:\n");
         printf("-?       : Display this help information.\n");
         printf("-i <type>: Set the type of the input file to <type>\n");
-        printf("\t<type> : This type should be \"FBX\" (fbx), \"tmb\" (Tiny3D binary), \"tmt\" (Tiny3D text), \"DAE\" (dae) or \"OGRE\" (mesh).\n");
+        printf("\t<type> : This type should be \"FBX\" (fbx), \"t3b\" (Tiny3D binary), \"t3t\" (Tiny3D text), \"DAE\" (dae) or \"OGRE\" (mesh).\n");
         printf("-o <type>: Set the type of the output file to <type>\n");
         printf("\t<type> : This type should be \"tmb\" (Tiny3D binary), \"tmt\" (Tiny3D text) or \"t3d\" (both binary and text).\n");
         printf("-b <type>: Set the type of the bounding box to <type>\n");
@@ -108,12 +112,13 @@ namespace mconv
         printf("\t<type> : This type should be \"shared\" or \"original\".\n");
         printf("\t              shared - Merge different meshes in one *.fbx file into one model file and all meshes share one vertex buffer.\n");
         printf("\t              original - Maintain meshes original structure.\n");
+        printf("-f <filename>: This option is material file when input file type is OGRE.\n");
         printf("-v       : Verbose: print additional progress information\n");
         printf("\n");
         printf("<input>  : The filename of the file to convert.\n");
         printf("<output> : The filename of the converted file.\n");
         printf("\n");
-        printf("<type>   : FBX, TMB (binary) or TMT (xml).\n");
+        printf("<type>   : FBX, T3B (binary) or T3T (xml).\n");
     }
 
     FileType Command::parseFileType(const char *arg) const

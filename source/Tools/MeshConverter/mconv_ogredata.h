@@ -154,6 +154,23 @@ namespace mconv
 
         OgreSkeleton                    skeleton;
     };
+
+    struct OgreTexture
+    {
+        
+    };
+
+    struct OgrePass
+    {
+    };
+
+    struct OgreTechnique
+    {
+    };
+
+    struct OgreMaterial
+    {
+    };
 }
 
 

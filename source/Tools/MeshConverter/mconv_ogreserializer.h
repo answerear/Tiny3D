@@ -68,6 +68,17 @@ namespace mconv
         String  mSrcPath;
         bool    mSwapEndian;
     };
+
+
+    class OgreMaterialSerializer : public Serializer
+    {
+    public:
+        OgreMaterialSerializer();
+        virtual ~OgreMaterialSerializer();
+
+        virtual bool load(const String &path, void *&pData);
+        virtual bool save(const String &path, void *pData);
+    };
 }
 
 

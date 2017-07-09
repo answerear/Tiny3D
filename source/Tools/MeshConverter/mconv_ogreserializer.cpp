@@ -1080,4 +1080,27 @@ namespace mconv
             *(char *)((long)data + size - i - 1) = swapByte;
         }
     }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    OgreMaterialSerializer::OgreMaterialSerializer()
+    {
+
+    }
+
+    OgreMaterialSerializer::~OgreMaterialSerializer()
+    {
+
+    }
+
+    bool OgreMaterialSerializer::load(const String &path, void *&pData)
+    {
+        return true;
+    }
+
+    bool OgreMaterialSerializer::save(const String &path, void *pData)
+    {
+        return true;
+    }
 }
