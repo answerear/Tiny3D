@@ -69,8 +69,12 @@ namespace mconv
     protected:
         std::vector<Bone*> mBones;
         
+        Serializer  *mMtrlImporter;
+
         void    *mSrcData;
         void    *mDstData;
+
+        void    *mSrcMtrlData;
     };
 }
 

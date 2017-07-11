@@ -4,6 +4,7 @@
 #include "mconv_command.h"
 #include "mconv_settings.h"
 #include "mconv_ogreserializer.h"
+#include "mconv_ogrematerialserializer.h"
 #include "mconv_t3dSerializer.h"
 #include "mconv_node.h"
 #include "mconv_scene.h"
@@ -25,6 +26,7 @@ namespace mconv
 {
     OgreConverter::OgreConverter(const Settings &settings)
         : ConverterImpl(settings)
+        , mMtrlImporter(nullptr)
     {
 
     }
@@ -45,6 +47,9 @@ namespace mconv
         {
             mImporter = new OgreSerializer();
             result = (mImporter != nullptr);
+
+            mMtrlImporter = new OgreMaterialSerializer();
+            result = (mMtrlImporter != nullptr);
         }
         else
         {
@@ -53,6 +58,7 @@ namespace mconv
         }
 
         result = result && mImporter->load(mSettings.mSrcPath, mSrcData);
+        result = result && mMtrlImporter->load(mSettings.mExtraPath, mSrcMtrlData);
 
         return result;
     }

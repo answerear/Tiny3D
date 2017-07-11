@@ -59,6 +59,19 @@ namespace Tiny3D
         virtual bool eof() const = 0;
 
         /**
+         * @brief 读取一行文本
+         * @return 返回一行文本
+         */
+        String readLine();
+
+        /**
+         * @brief 写一行文本
+         * @param [in] strLine : 文本串
+         * @return 返回写入文本长度
+         */
+        size_t writeLine(const String &strLine);
+
+        /**
          * @brief 输出基本类型值到数据流
          */
         DataStream &operator<<(bool val);

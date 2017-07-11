@@ -5,6 +5,40 @@
 
 namespace Tiny3D
 {
+    String DataStream::readLine()
+    {
+        char c;
+        size_t nNumberOfRead = 0;
+        String s;
+
+        do
+        {
+            size_t nBytes = read(&c, sizeof(c));
+            s += c;
+            nNumberOfRead += nBytes;
+        } while (!eof() && c != '\n');
+
+        return s;
+    }
+
+    size_t DataStream::writeLine(const String &strLine)
+    {
+        size_t bytesOfWritten = 0;
+        size_t nLength = strLine.find('\n');
+
+        if (nLength > 0)
+        {
+            bytesOfWritten = write((void *)strLine.c_str(), nLength);
+        }
+        else if (nLength == String::npos)
+        {
+            nLength = strLine.length();
+            bytesOfWritten = write((void *)strLine.c_str(), nLength);
+        }
+
+        return bytesOfWritten;
+    }
+
     DataStream &DataStream::operator<<(bool val)
     {
         write(&val, sizeof(val));
