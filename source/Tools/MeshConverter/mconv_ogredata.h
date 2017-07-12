@@ -571,16 +571,12 @@ namespace mconv
             , transparencyCastsShadows(false)
         {}
 
-        String                          name;
+        String                          baseName;                   /// name of parent material
+        String                          name;                       /// the name of material
         bool                            receiveShadows;             /// receive_shadows
         bool                            transparencyCastsShadows;   /// transparency_casts_shadows
         std::vector<float>              LODDistances;               /// lod_distances
         std::vector<OgreTechnique>      techniques;                 /// technique
-    };
-
-    struct OgreMaterials
-    {
-        std::map<String, OgreMaterial>  materials;
     };
 }
 

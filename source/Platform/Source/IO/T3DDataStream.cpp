@@ -14,9 +14,12 @@ namespace Tiny3D
         do
         {
             size_t nBytes = read(&c, sizeof(c));
-            s += c;
-            nNumberOfRead += nBytes;
-        } while (!eof() && c != '\n');
+            if (nBytes > 0 && c != '\r' && c != '\n')
+            {
+                s += c;
+                nNumberOfRead += nBytes;
+            }
+        } while (c != '\n');
 
         return s;
     }
@@ -24,16 +27,16 @@ namespace Tiny3D
     size_t DataStream::writeLine(const String &strLine)
     {
         size_t bytesOfWritten = 0;
-        size_t nLength = strLine.find('\n');
+        size_t length = strLine.find_first_not_of("\r\n");
 
-        if (nLength > 0)
+        if (length > 0)
         {
-            bytesOfWritten = write((void *)strLine.c_str(), nLength);
+            bytesOfWritten = write((void *)strLine.c_str(), length);
         }
-        else if (nLength == String::npos)
+        else if (length == String::npos)
         {
-            nLength = strLine.length();
-            bytesOfWritten = write((void *)strLine.c_str(), nLength);
+            length = strLine.length();
+            bytesOfWritten = write((void *)strLine.c_str(), length);
         }
 
         return bytesOfWritten;
