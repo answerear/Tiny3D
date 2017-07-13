@@ -19,6 +19,10 @@ namespace Tiny3D
                 str += c;
                 nNumberOfRead += nBytes;
             }
+            else if (nBytes == 0)
+            {
+                break;
+            }
         } while (c != '\n');
 
         if (trim)

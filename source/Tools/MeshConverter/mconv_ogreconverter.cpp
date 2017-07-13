@@ -575,7 +575,7 @@ namespace mconv
         SubMesh *pSubMesh = new SubMesh("SubMesh");
         pSubMeshes->addChild(pSubMesh);
 
-        pSubMesh->mMaterialName = submesh.materialName;
+        pSubMesh->mMaterialName = submesh.materialName + "_mtrl";
         StringUtil::replaceAll(pSubMesh->mMaterialName, "/", "_");
 
         if (mCurMaterials == nullptr)

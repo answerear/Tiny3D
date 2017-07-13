@@ -449,7 +449,8 @@ namespace mconv
     struct OgrePass
     {
         OgrePass()
-            : sceneBlend(BM_NONE)
+            : shininess(1.0f)
+            , sceneBlend(BM_NONE)
             , separateSceneBlend(BM_NONE)
             , depthCheckEnabled(false)
             , depthWriteEnabled(false)

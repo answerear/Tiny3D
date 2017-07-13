@@ -20,7 +20,8 @@ namespace mconv
         StringUtil::trim(name);
 
         StringUtil::replaceAll(name, "/", "_");
-        auto ret = context.materials->insert(OgreMaterialsValue(name, OgreMaterial()));
+        String materialName = name + "_mtrl";
+        auto ret = context.materials->insert(OgreMaterialsValue(materialName, OgreMaterial()));
         T3D_ASSERT(ret.second);
 
         OgreMaterial &material = (ret.first)->second;
@@ -33,7 +34,7 @@ namespace mconv
         }
 
         context.material = &material;
-        material.name = name;
+        material.name = materialName;
         context.section = MSS_MATERIAL;
 
         return true;
