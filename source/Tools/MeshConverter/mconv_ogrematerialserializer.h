@@ -36,6 +36,7 @@ namespace mconv
         MaterialScriptContext()
             : section(MSS_NONE)
             , lineNumber(0)
+            , materials(nullptr)
             , material(nullptr)
             , technique(nullptr)
             , pass(nullptr)
@@ -46,6 +47,7 @@ namespace mconv
         {
             section = MSS_NONE;
             lineNumber = 0;
+            materials = nullptr;
             material = nullptr;
             technique = nullptr;
             pass = nullptr;
@@ -54,7 +56,7 @@ namespace mconv
 
         MaterialScriptSection   section;
         size_t                  lineNumber;
-        OgreMaterials           materials;
+        OgreMaterials           *materials;
         OgreMaterial            *material;
         OgreTechnique           *technique;
         OgrePass                *pass;

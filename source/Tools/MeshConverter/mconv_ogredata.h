@@ -5,6 +5,7 @@
 
 
 #include "mconv_prerequisites.h"
+#include "mconv_string.h"
 
 
 namespace mconv
@@ -248,12 +249,12 @@ namespace mconv
     struct OgreUVWAddressMode
     {
         OgreUVWAddressMode()
-            : u(TAM_WRAP)
-            , v(TAM_WRAP)
-            , w(TAM_WRAP)
+            : u("wrap")
+            , v("wrap")
+            , w("wrap")
         {}
 
-        OgreTextureAddressMode u, v, w;
+        String u, v, w;
     };
 
     struct OgreTexture
@@ -302,7 +303,6 @@ namespace mconv
             : textureSource("")
             , bindingType(BT_VERTEX)
             , texCoordSet(0)
-            , texAddressMode(TAM_WRAP)
             , colorOp("")
             , envMap("")
             , scrollUV(Vector2::ZERO)
@@ -315,25 +315,26 @@ namespace mconv
             texBorderColor[0] = texBorderColor[1] = texBorderColor[2] = texBorderColor[3] = 1.0f;
         }
 
+        String                          name;                   /// the name of texture unit
         String                          textureSource;          /// texture_source
         OgreTexture                     texture;                /// texture
-        std::vector<String>             animTexture;            /// anim_texture
-        std::vector<String>             cubicTexture;           /// cubic_texture
+        StringVector                    animTexture;            /// anim_texture
+        StringVector                    cubicTexture;           /// cubic_texture
         OgreBindingType                 bindingType;            /// binding_type
         uint32_t                        texCoordSet;            /// tex_coord_set
-        OgreTextureAddressMode          texAddressMode;         /// tex_address_mode
+        OgreUVWAddressMode              texAddressMode;         /// tex_address_mode
         float                           texBorderColor[4];      /// tex_border_colour
         String                          colorOp;                /// colour_op
-        std::vector<String>             colorOpEx;              /// colour_op_ex
-        std::vector<String>             colorOpMultiFallback;   /// colour_op_multipass_fallback
-        std::vector<String>             alphaOpEx;              /// alpha_op_ex
+        StringVector                    colorOpEx;              /// colour_op_ex
+        StringVector                    colorOpMultiFallback;   /// colour_op_multipass_fallback
+        StringVector                    alphaOpEx;              /// alpha_op_ex
         String                          envMap;                 /// env_map
         Vector2                         scrollUV;               /// scroll
         Vector2                         scrollAnimUV;           /// scroll_anim
         float                           rotateAngle;            /// rotate
         float                           rotateSpeed;            /// rotate_anim
         Vector2                         scaleUV;                /// scale
-        std::vector<String>             waveXForm;              /// wave_xform
+        StringVector                    waveXForm;              /// wave_xform
         Matrix4                         transform;              /// transform
         OgreTextureFiltering            filtering;              /// filtering
         uint32_t                        maxAnisotropy;          /// max_anisotropy
@@ -477,11 +478,13 @@ namespace mconv
             emissive[0] = emissive[1] = emissive[2] = emissive[3] = 1.0f;
         }
 
+        String                          name;                       /// name of pass
         float                           ambient[4];                 /// ambient
         float                           diffuse[4];                 /// diffuse
         float                           specular[4];                /// specular
         float                           emissive[4];                /// emissive
-        OgreBlendMode                   sceneBlend;                 /// scene_blend
+        float                           shininess;                  /// shininess
+        StringVector                    sceneBlend;                 /// scene_blend
         OgreBlendMode                   separateSceneBlend;         /// seperate_scene_blend
         bool                            depthCheckEnabled;          /// depth_check
         bool                            depthWriteEnabled;          /// depth_write
@@ -558,7 +561,7 @@ namespace mconv
         String                          scheme;                     /// scheme
         uint16_t                        LODIndex;                   /// lod_index
         String                          shadowCasterMaterial;       /// shadow_caster_material
-        String                          shaderReceiverMaterial;     /// shadow_receiver_material
+        String                          shadowReceiverMaterial;     /// shadow_receiver_material
         OgreGPUVendorRule               gpuVendorRule;              /// gpu_vendor_rule
         OgreGPUDeviceRule               gpuDeviceRule;              /// gpu_device_rule
         std::vector<OgrePass>           passes;                     /// pass

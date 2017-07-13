@@ -60,9 +60,10 @@ namespace Tiny3D
 
         /**
          * @brief 读取一行文本
+         * @param [in] trim : 是否裁剪掉前后的tab、空格等无效字符
          * @return 返回一行文本
          */
-        String readLine();
+        String readLine(bool trim = true);
 
         /**
          * @brief 写一行文本

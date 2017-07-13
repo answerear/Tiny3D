@@ -5,23 +5,29 @@
 
 namespace Tiny3D
 {
-    String DataStream::readLine()
+    String DataStream::readLine(bool trim)
     {
         char c;
         size_t nNumberOfRead = 0;
-        String s;
+        String str;
 
         do
         {
             size_t nBytes = read(&c, sizeof(c));
             if (nBytes > 0 && c != '\r' && c != '\n')
             {
-                s += c;
+                str += c;
                 nNumberOfRead += nBytes;
             }
         } while (c != '\n');
 
-        return s;
+        if (trim)
+        {
+            str.erase(str.find_last_not_of(" \t\r\n") + 1); // trim right
+            str.erase(0, str.find_first_not_of(" \t\r\n")); // trim left
+        }
+
+        return str;
     }
 
     size_t DataStream::writeLine(const String &strLine)

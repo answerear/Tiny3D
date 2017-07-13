@@ -20,6 +20,7 @@
 #include "mconv_vertexbuffer.h"
 #include "mconv_log.h"
 #include "mconv_transform.h"
+#include "mconv_material.h"
 
 
 namespace mconv
@@ -27,13 +28,15 @@ namespace mconv
     OgreConverter::OgreConverter(const Settings &settings)
         : ConverterImpl(settings)
         , mMtrlImporter(nullptr)
+        , mCurMaterials(nullptr)
     {
 
     }
 
     OgreConverter::~OgreConverter()
     {
-
+        delete mSrcMtrlData;
+        mSrcMtrlData = nullptr;
     }
 
     bool OgreConverter::importScene()
@@ -112,10 +115,8 @@ namespace mconv
         String name = "Scene";
 
         Scene *pScene = new Scene(name);
-        
-        result = processOgreMesh(*pOgreMesh, pScene);
-
         mDstData = pScene;
+        result = processOgreMesh(*pOgreMesh, pScene);
 
         return result;
     }
@@ -575,6 +576,16 @@ namespace mconv
         pSubMeshes->addChild(pSubMesh);
 
         pSubMesh->mMaterialName = submesh.materialName;
+        StringUtil::replaceAll(pSubMesh->mMaterialName, "/", "_");
+
+        if (mCurMaterials == nullptr)
+        {
+            mCurMaterials = new Materials("Materials");
+            Scene *pScene = (Scene *)mDstData;
+            pScene->addChild(mCurMaterials);
+        }
+
+        processOgreMaterial(pSubMesh->mMaterialName, mCurMaterials);
 
         pSubMesh->mIndices.resize(submesh.indices.size());
 
@@ -912,5 +923,113 @@ namespace mconv
         }
 
         return result;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Material
+
+    bool OgreConverter::processOgreMaterial(const String &name, Node *pParent)
+    {
+        bool ret = false;
+        bool found = false;
+        size_t i = 0;
+        for (i = 0; i < pParent->getChildrenCount(); ++i)
+        {
+            auto pChild = pParent->getChild(i);
+            if (pChild->getID() == name)
+            {
+                found = true;
+                ret = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            Material *pMaterial = new Material(name);
+            pParent->addChild(pMaterial);
+
+            if (!(ret = convertOgreMaterial(name, pMaterial)))
+            {
+                pParent->removeChild(name);
+            }
+        }
+
+        return ret;
+    }
+
+    bool OgreConverter::convertOgreMaterial(const String &name, Material *pMaterial)
+    {
+        bool ret = false;
+
+        OgreMaterials &materials = *((OgreMaterials *)mSrcMtrlData);
+        auto itr = materials.find(name);
+        if (itr != materials.end())
+        {
+            ret = true;
+            const OgreMaterial &material = itr->second;
+            const OgreTechnique &technique = material.techniques.front();
+            const OgrePass &pass = technique.passes.front();
+            // shding
+            pMaterial->mMode = pass.shading;
+            // ambient
+            pMaterial->mAmbientColor[0] = pass.ambient[0];
+            pMaterial->mAmbientColor[1] = pass.ambient[1];
+            pMaterial->mAmbientColor[2] = pass.ambient[2];
+            pMaterial->mAmbientColor[3] = pass.ambient[3];
+            // diffuse
+            pMaterial->mDiffuseColor[0] = pass.diffuse[0];
+            pMaterial->mDiffuseColor[1] = pass.diffuse[1];
+            pMaterial->mDiffuseColor[2] = pass.diffuse[2];
+            pMaterial->mDiffuseColor[3] = pass.diffuse[3];
+            // specular
+            pMaterial->mSpecularColor[0] = pass.specular[0];
+            pMaterial->mSpecularColor[1] = pass.specular[1];
+            pMaterial->mSpecularColor[2] = pass.specular[2];
+            pMaterial->mSpecularColor[3] = pass.specular[3];
+            // emissive
+            pMaterial->mEmissiveColor[0] = pass.emissive[0];
+            pMaterial->mEmissiveColor[1] = pass.emissive[1];
+            pMaterial->mEmissiveColor[2] = pass.emissive[2];
+            pMaterial->mEmissiveColor[3] = pass.emissive[3];
+            // shininess
+            pMaterial->mShininess = pass.shininess;
+            pMaterial->mTransparency = 0.0f;
+            pMaterial->mReflection = 1.0f;
+
+            Textures *pTextures = new Textures("Textures");
+            pMaterial->addChild(pTextures);
+
+            size_t i = 0;
+
+            // Ambient texture
+            for (i = 0; i < pass.textures.size(); ++i)
+            {
+                const OgreTextureUnit &unit = pass.textures[i];
+                Texture *pTexture = new Texture(unit.texture.name);
+                pTextures->addChild(pTexture);
+                pTexture->mFilename = unit.texture.name;
+                pTexture->mType = "diffuse";
+                pTexture->mWrapModeU = "repeat";//unit.texAddressMode
+                pTexture->mWrapModeV = "repeat";
+            }
+
+//             for (i = 0; i < nAmbientTexCount; ++i)
+//             {
+//                 FbxFileTexture *pFbxTexture = (FbxFileTexture *)pFbxMatPhong->Ambient.GetSrcObject(i);
+//                 if (pFbxTexture != nullptr)
+//                 {
+//                     Texture *pTexture = new Texture(pFbxTexture->GetName());
+//                     pTextures->addChild(pTexture);
+// 
+//                     pTexture->mFilename = pFbxTexture->GetFileName();
+//                     pTexture->mType = "ambient";
+//                     pTexture->mWrapModeU = FbxWrapModeToString(pFbxTexture->WrapModeU.Get());
+//                     pTexture->mWrapModeV = FbxWrapModeToString(pFbxTexture->WrapModeV.Get());
+//                 }
+//             }
+        }
+
+        return ret;
     }
 }

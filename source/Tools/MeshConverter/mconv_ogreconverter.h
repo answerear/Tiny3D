@@ -22,6 +22,8 @@ namespace mconv
     class VertexBuffer;
     class Bone;
     class Skeleton;
+    class Material;
+    class Materials;
 
     struct OgreMesh;
     struct OgreSubMesh;
@@ -66,10 +68,15 @@ namespace mconv
         bool searchVertexAttribute(VertexBuffer *pVertexBuffer, VertexAttribute::VertexType type);
         void putVertexBlendAndWeightAttributes(VertexBuffer *pVB);
 
+        bool processOgreMaterial(const String &name, Node *pParent);
+        bool convertOgreMaterial(const String &name, Material *pMaterial);
+
     protected:
         std::vector<Bone*> mBones;
         
         Serializer  *mMtrlImporter;
+
+        Materials   *mCurMaterials;
 
         void    *mSrcData;
         void    *mDstData;

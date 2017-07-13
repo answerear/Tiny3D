@@ -1,5 +1,6 @@
 
 #include "mconv_ogrematerialserializer.h"
+#include "mconv_string.h"
 
 
 using namespace Tiny3D;
@@ -7,97 +8,6 @@ using namespace Tiny3D;
 
 namespace mconv
 {
-    typedef std::vector<String> StringVector;
-
-    class StringUtil
-    {
-    public:
-        static StringVector split(const String &str, const String &delims = " ", size_t maxSplits = 0)
-        {
-            StringVector ret;
-            // Pre-allocate some space for performance
-            ret.reserve(maxSplits ? maxSplits + 1 : 10);    // 10 is guessed capacity for most case
-
-            unsigned int numSplits = 0;
-
-            // Use STL methods 
-            size_t start, pos;
-            start = 0;
-            do
-            {
-                pos = str.find_first_of(delims, start);
-                if (pos == start)
-                {
-                    // Do nothing
-                    start = pos + 1;
-                }
-                else if (pos == String::npos || (maxSplits && numSplits == maxSplits))
-                {
-                    // Copy the rest of the string
-                    ret.push_back(str.substr(start));
-                    break;
-                }
-                else
-                {
-                    // Copy up to delimiter
-                    ret.push_back(str.substr(start, pos - start));
-                    start = pos + 1;
-                }
-                // parse up to next real data
-                start = str.find_first_not_of(delims, start);
-                ++numSplits;
-
-            } while (pos != String::npos);
-
-            return ret;
-        }
-
-        static void trim(String &str, bool left = true, bool right = true)
-        {
-            static const String delims = " \t\r\n";
-            if (right)
-            {
-                size_t pos = str.find_last_not_of(delims);
-                str.erase(pos+1); // trim right
-            }
-            if (left)
-            {
-                size_t pos = str.find_first_not_of(delims);
-                str.erase(0, pos); // trim left
-            }
-        }
-
-        static void toLowerCase(String &str)
-        {
-            std::transform(
-                str.begin(),
-                str.end(),
-                str.begin(),
-                tolower);
-        }
-    };
-
-
-    class StringConverter
-    {
-    public:
-        static float parseReal(const String &val)
-        {
-            std::istringstream str(val);
-            Real ret = 0;
-            str >> ret;
-            return ret;
-        }
-
-        static int parseInt(const String &val)
-        {
-            std::istringstream str(val);
-            int ret = 0;
-            str >> ret;
-            return ret;
-        }
-    };
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // root attribute parsers
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,7 +19,8 @@ namespace mconv
         String &name = strings[0];
         StringUtil::trim(name);
 
-        auto ret = context.materials.insert(OgreMaterialsValue(name, OgreMaterial()));
+        StringUtil::replaceAll(name, "/", "_");
+        auto ret = context.materials->insert(OgreMaterialsValue(name, OgreMaterial()));
         T3D_ASSERT(ret.second);
 
         OgreMaterial &material = (ret.first)->second;
@@ -254,7 +165,7 @@ namespace mconv
 
         technique.shadowCasterMaterial = params;
 
-        return true;
+        return false;
     }
 
     bool parseShadowReceiverMaterial(String &params, MaterialScriptContext &context)
@@ -262,26 +173,95 @@ namespace mconv
         T3D_ASSERT(context.technique != nullptr);
         OgreTechnique &technique = *(context.technique);
 
-        return true;
+        technique.shadowReceiverMaterial = params;
+
+        return false;
     }
 
     bool parseScheme(String &params, MaterialScriptContext &context)
     {
-        return true;
+        T3D_ASSERT(context.technique != nullptr);
+        OgreTechnique &technique = *(context.technique);
+
+        technique.scheme = params;
+
+        return false;
     }
 
     bool parseGPUVendorRule(String &params, MaterialScriptContext &context)
     {
-        return true;
+        T3D_ASSERT(context.technique != nullptr);
+        OgreTechnique &technique = *(context.technique);
+
+        StringVector strings = StringUtil::split(params, " \t");
+
+        T3D_ASSERT(strings.size() == 2);
+
+        if (strings[0] == "include")
+        {
+            technique.gpuVendorRule.rule = TR_INCLUDE;
+        }
+        else if (strings[0] == "exclude")
+        {
+            technique.gpuVendorRule.rule = TR_EXCLUDE;
+        }
+        else
+        {
+            T3D_ASSERT(0);
+            return false;
+        }
+
+        technique.gpuVendorRule.name = strings[1];
+
+        return false;
     }
 
     bool parseGPUDeviceRule(String &params, MaterialScriptContext &context)
     {
-        return true;
+        T3D_ASSERT(context.technique != nullptr);
+        OgreTechnique &technique = *(context.technique);
+
+        StringVector strings = StringUtil::split(params, " \t");
+
+        T3D_ASSERT(strings.size() == 2 || strings.size() == 3);
+
+        if (strings[0] == "include")
+        {
+            technique.gpuDeviceRule.rule = TR_INCLUDE;
+        }
+        else if (strings[0] == "exclude")
+        {
+            technique.gpuDeviceRule.rule = TR_EXCLUDE;
+        }
+        else
+        {
+            T3D_ASSERT(0);
+            return false;
+        }
+
+        technique.gpuDeviceRule.devicePattern = strings[1];
+
+        if (strings.size() == 3)
+        {
+            technique.gpuDeviceRule.caseSensitive = StringConverter::parseBool(strings[2]);
+        }
+
+        return false;
     }
 
     bool parsePass(String &params, MaterialScriptContext &context)
     {
+        T3D_ASSERT(context.technique != nullptr);
+        OgreTechnique &technique = *(context.technique);
+
+        String &name = params;
+
+        technique.passes.push_back(OgrePass());
+        OgrePass &pass = technique.passes.back();
+        pass.name = params;
+        context.pass = &pass;
+        context.section = MSS_PASS;
+
         return true;
     }
 
@@ -291,131 +271,257 @@ namespace mconv
 
     bool parseAmbient(String &params, MaterialScriptContext &context)
     {
-        return true;
+        T3D_ASSERT(context.pass != nullptr);
+        OgrePass &pass = *(context.pass);
+
+        StringVector strings = StringUtil::split(params, " \t");
+
+        if (strings.size() == 1)
+        {
+            // 只有一个参数，是vertexcolour，目前暂时不支持，先跳过吧
+        }
+        else if (strings.size() == 3 || strings.size() == 4)
+        {
+            pass.ambient[0] = StringConverter::parseReal(strings[2]);   // blue
+            pass.ambient[1] = StringConverter::parseReal(strings[1]);   // green
+            pass.ambient[2] = StringConverter::parseReal(strings[0]);   // red
+            pass.ambient[3] = ((strings.size() == 4) ? StringConverter::parseReal(strings[3]) : 1.0f);  // alpha
+        }
+        else
+        {
+            T3D_ASSERT(0);
+            return false;
+        }
+
+        return false;
     }
 
     bool parseDiffuse(String &params, MaterialScriptContext &context)
     {
-        return true;
+        T3D_ASSERT(context.pass != nullptr);
+        OgrePass &pass = *(context.pass);
+
+        StringVector strings = StringUtil::split(params, " \t");
+
+        if (strings.size() == 1)
+        {
+            // 只有一个参数，是vertexcolour，目前暂时不支持，先跳过吧
+        }
+        else if (strings.size() == 3 || strings.size() == 4)
+        {
+            pass.diffuse[0] = StringConverter::parseReal(strings[2]);   // blue
+            pass.diffuse[1] = StringConverter::parseReal(strings[1]);   // green
+            pass.diffuse[2] = StringConverter::parseReal(strings[0]);   // red
+            pass.diffuse[3] = ((strings.size() == 4) ? StringConverter::parseReal(strings[3]) : 1.0f);  // alpha
+        }
+        else
+        {
+            T3D_ASSERT(0);
+            return false;
+        }
+
+        return false;
     }
 
     bool parseSpecular(String &params, MaterialScriptContext &context)
     {
-        return true;
+        T3D_ASSERT(context.pass != nullptr);
+        OgrePass &pass = *(context.pass);
+
+        StringVector strings = StringUtil::split(params, " \t");
+
+        if (strings.size() == 2)
+        {
+            // 2个参数，是vertexcolour和shininess，目前先用shininess
+            pass.shininess = StringConverter::parseReal(strings[1]);
+        }
+        else if (strings.size() == 4 || strings.size() == 5)
+        {
+            pass.diffuse[0] = StringConverter::parseReal(strings[2]);   // blue
+            pass.diffuse[1] = StringConverter::parseReal(strings[1]);   // green
+            pass.diffuse[2] = StringConverter::parseReal(strings[0]);   // red
+            pass.diffuse[3] = ((strings.size() == 5) ? StringConverter::parseReal(strings[3]) : 1.0f);  // alpha
+            pass.shininess = StringConverter::parseReal(strings[strings.size() - 1]);   // shininess
+        }
+        else
+        {
+            T3D_ASSERT(0);
+            return false;
+        }
+
+        return false;
     }
 
     bool parseEmissive(String &params, MaterialScriptContext &context)
     {
-        return true;
+        T3D_ASSERT(context.pass != nullptr);
+        OgrePass &pass = *(context.pass);
+
+        StringVector strings = StringUtil::split(params, " \t");
+
+        if (strings.size() == 1)
+        {
+            // 只有一个参数，是vertexcolour，目前暂时不支持，先跳过吧
+        }
+        else if (strings.size() == 3 || strings.size() == 4)
+        {
+            pass.emissive[0] = StringConverter::parseReal(strings[2]);   // blue
+            pass.emissive[1] = StringConverter::parseReal(strings[1]);   // green
+            pass.emissive[2] = StringConverter::parseReal(strings[0]);   // red
+            pass.emissive[3] = ((strings.size() == 4) ? StringConverter::parseReal(strings[3]) : 1.0f);  // alpha
+        }
+        else
+        {
+            T3D_ASSERT(0);
+            return false;
+        }
+
+        return false;
     }
 
     bool parseSceneBlend(String &params, MaterialScriptContext &context)
     {
-        return true;
+        T3D_ASSERT(context.pass != nullptr);
+        OgrePass &pass = *(context.pass);
+
+        StringUtil::toLowerCase(params);
+        StringVector strings = StringUtil::split(params, " \t");
+
+        if (strings.size() == 1)
+        {
+            pass.sceneBlend.push_back(strings[0]);
+        }
+        else if (strings.size() == 2)
+        {
+            pass.sceneBlend.push_back(strings[0]);
+            pass.sceneBlend.push_back(strings[1]);
+        }
+        else
+        {
+            T3D_ASSERT(0);
+            return false;
+        }
+
+        return false;
     }
 
     bool parseSeparateSceneBlend(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseDepthCheck(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseDepthWrite(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseDepthFunc(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseNormalizeNormals(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseAlphaRejection(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseAlphaToCoverage(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseTransparentSorting(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseColourWrite(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseLightScissor(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseLightClip(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseCullHardware(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseCullSoftware(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseLighting(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseFogging(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseShading(String &params, MaterialScriptContext &context)
     {
-        return true;
+        T3D_ASSERT(context.pass != nullptr);
+        OgrePass &pass = *(context.pass);
+
+        StringUtil::toLowerCase(params);
+        pass.shading = params;
+
+        return false;
     }
 
     bool parsePolygonMode(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parsePolygonModeOverrideable(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseDepthBias(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseIterationDepthBias(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseTextureUnit(String &params, MaterialScriptContext &context)
     {
+        T3D_ASSERT(context.pass != nullptr);
+        OgrePass &pass = *(context.pass);
+
+        pass.textures.push_back(OgreTextureUnit());
+        OgreTextureUnit &textureUnit = pass.textures.back();
+        textureUnit.name = params;
+        context.textureUnit = &textureUnit;
+        context.section = MSS_TEXTUREUNIT;
+
         return true;
     }
 
@@ -451,47 +557,47 @@ namespace mconv
 
     bool parseMaxLights(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseStartLight(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseIteration(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parsePointSize(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parsePointSprites(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parsePointAttenuation(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parsePointSizeMin(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parsePointSizeMax(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseIlluminationStage(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -505,122 +611,128 @@ namespace mconv
 
     bool parseTexture(String &params, MaterialScriptContext &context)
     {
-        return true;
+        T3D_ASSERT(context.textureUnit != nullptr);
+        OgreTextureUnit &textureUnit = *(context.textureUnit);
+
+        StringVector strings = StringUtil::split(params, " \t");
+        textureUnit.texture.name = strings[0];
+
+        return false;
     }
 
     bool parseAnimTexture(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseCubicTexture(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseBindingType(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseTexCoord(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseTexAddressMode(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseTexBorderColour(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseColourOp(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseColourOpEx(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseColourOpFallback(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseAlphaOpEx(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseEnvMap(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseScroll(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseScrollAnim(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseRotate(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseRotateAnim(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseScale(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseWaveXform(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseTransform(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseFiltering(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseAnisotropy(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseTextureAlias(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseMipmapBias(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     bool parseContentType(String &params, MaterialScriptContext &context)
     {
-        return true;
+        return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -737,8 +849,18 @@ namespace mconv
 
         if (fs.open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
         {
+            mScriptContext.materials = materials;
             ret = parseScript(fs);
             fs.close();
+        }
+
+        if (ret)
+        {
+            pData = materials;
+        }
+        else
+        {
+            delete materials;
         }
 
         return ret;
@@ -753,7 +875,6 @@ namespace mconv
     {
         bool ret = true;
         bool nextIsOpenBrace = false;
-        mScriptContext.reset();
 
         while (!stream.eof())
         {
