@@ -1,49 +1,47 @@
-#-------------------------------------------------------------------
-# This file is part of the CMake build system for OGRE
-#     (Object-oriented Graphics Rendering Engine)
-# For the latest info, see http://www.ogre3d.org/
-#
-# The contents of this file are placed in the public domain. Feel
-# free to make use of it in any way you like.
-#-------------------------------------------------------------------
 
-# - Try to find FreeImage
-# Once done, this will define
-#
-#  FreeImage_FOUND - system has FreeImage
-#  FreeImage_INCLUDE_DIRS - the FreeImage include directories 
-#  FreeImage_LIBRARIES - link these to use FreeImage
-
-include(FindPkgMacros)
-findpkg_begin(FreeImage)
-
-# Get path, convert backslashes as ${ENV_${var}}
-getenv_path(FREEIMAGE_HOME)
-
-# construct search paths
-set(FreeImage_PREFIX_PATH ${FREEIMAGE_HOME} ${ENV_FREEIMAGE_HOME})
-create_search_paths(FreeImage)
-# redo search if prefix path changed
-clear_if_changed(FreeImage_PREFIX_PATH
-  FreeImage_LIBRARY_FWK
-  FreeImage_LIBRARY_REL
-  FreeImage_LIBRARY_DBG
-  FreeImage_INCLUDE_DIR
+FIND_PATH(FREEIMAGE_INCLUDE_DIR FreeImage.h
+  HINTS
+  ${FREEIMAGE_HOME}
+  PATH_SUFFIXES include
+  PATHS
+  ~/Library/Frameworks
+  /Library/Frameworks
+  /usr/local/include/FreeImage
+  /usr/include/FreeImage
+  /sw # Fink
+  /opt/local # DarwinPorts
+  /opt/csw # Blastwave
+  /opt
 )
 
-set(FreeImage_LIBRARY_NAMES freeimage freeimageLib FreeImage FreeImageLib)
-get_debug_names(FreeImage_LIBRARY_NAMES)
+FIND_LIBRARY(FREEIMAGE_LIBRARY_TEMP
+  NAMES FreeImage
+  HINTS
+  ${FREEIMAGE_HOME}
+  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}
+  PATHS
+  /sw
+  /opt/local
+  /opt/csw
+  /opt
+)
 
-use_pkgconfig(FreeImage_PKGC freeimage)
+FIND_FILE(FREEIMAGE_BINARY
+  NAMES "FreeImage.dll"
+  HINTS
+  ${FREEIMAGE_HOME}
+  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}
+)
 
-findpkg_framework(FreeImage)
 
-find_path(FreeImage_INCLUDE_DIR NAMES FreeImage.h HINTS ${FreeImage_INC_SEARCH_PATH} ${FreeImage_PKGC_INCLUDE_DIRS})
 
-find_library(FreeImage_LIBRARY_REL NAMES ${FreeImage_LIBRARY_NAMES} HINTS ${FreeImage_LIB_SEARCH_PATH} ${FreeImage_PKGC_LIBRARY_DIRS} PATH_SUFFIXES "" Release RelWithDebInfo MinSizeRel)
-find_library(FreeImage_LIBRARY_DBG NAMES ${FreeImage_LIBRARY_NAMES_DBG} HINTS ${FreeImage_LIB_SEARCH_PATH} ${FreeImage_PKGC_LIBRARY_DIRS} PATH_SUFFIXES "" Debug)
+SET(FREEIMAGE_FOUND "NO")
+IF(FREEIMAGE_LIBRARY_TEMP)
+  # Set the final string here so the GUI reflects the final state.
+  SET(FREEIMAGE_LIBRARY ${FREEIMAGE_LIBRARY_TEMP} CACHE STRING "Where the SDL2 Library can be found")
+  # Set the temp variable to INTERNAL so it is not seen in the CMake GUI
+  SET(FREEIMAGE_LIBRARY_TEMP "${FREEIMAGE_LIBRARY_TEMP}" CACHE INTERNAL "")
 
-make_library_set(FreeImage_LIBRARY)
-
-findpkg_finish(FreeImage)
+  SET(FREEIMAGE_FOUND "YES")
+ENDIF(FREEIMAGE_LIBRARY_TEMP)
 

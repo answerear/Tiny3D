@@ -20,6 +20,9 @@ set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
 set(TINY3D_MEDIA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../media")
 
+set(FREEIMAGE_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/freeimage" CACHE PATH "FreeImage library path")
+find_package(FreeImage)
+
 include_directories(
 	"${TINY3D_MATH_DIR}/include"
 	"${TINY3D_PLATFORM_DIR}/Include"
@@ -27,6 +30,7 @@ include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
 	"${TINY3D_DEP_DIR}/libpng/include"
+	"${FREEIMAGE_INCLUDE_DIR}"
 	)
 
 if (TINY3D_OS_WINDOWS)
