@@ -39,11 +39,13 @@ namespace Tiny3D
     {
         ConfigFile file(config);
         file.loadXML(mSettings);
-
         startLogging();
+
         initArchives();
         initResources();
         loadPlugins();
+
+        mImageCodec->startup();
 
         RendererListItr itr = mRendererList.begin();
         while (itr != mRendererList.end())
@@ -59,12 +61,16 @@ namespace Tiny3D
 
     Entrance::~Entrance()
     {
+        mImageCodec->shutdown();
+
+        T3D_SAFE_DELETE(mImageCodec);
         T3D_SAFE_DELETE(mModelMgr);
         T3D_SAFE_DELETE(mMaterialMgr);
         T3D_SAFE_DELETE(mArchiveMgr);
         T3D_SAFE_DELETE(mDylibMgr);
 
         T3D_SAFE_DELETE(mWindowEventHandler);
+
         stopLogging();
         T3D_SAFE_DELETE(mLogger);
         T3D_SAFE_DELETE(mSystem);

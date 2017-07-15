@@ -9,12 +9,15 @@ namespace Tiny3D
         : m_pFileHandle(nullptr)
         , m_lSize(0)
         , m_bIsOpened(false)
+        , m_pData(nullptr)
     {
 
     }
 
     FileDataStream::~FileDataStream()
     {
+        T3D_SAFE_DELETE_ARRAY(m_pData);
+
         if (isOpened())
         {
             close();
@@ -189,5 +192,27 @@ namespace Tiny3D
         }
 
         return bEnd;
+    }
+
+    size_t FileDataStream::read(uint8_t *&pData)
+    {
+        size_t bytesOfRead = 0;
+
+        if (m_pFileHandle != nullptr)
+        {
+            long_t s = size();
+
+            if (m_pData == nullptr)
+            {
+                m_pData = new uint8_t[s];
+            }
+
+            uint32_t pos = ftell(m_pFileHandle);
+            fseek(m_pFileHandle, 0, SEEK_SET);
+            bytesOfRead = fread(m_pData, 1, s, m_pFileHandle);
+            fseek(m_pFileHandle, pos, SEEK_SET);
+        }
+
+        return bytesOfRead;
     }
 }

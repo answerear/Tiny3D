@@ -59,6 +59,14 @@ namespace Tiny3D
         virtual bool eof() const = 0;
 
         /**
+         * @brief 一次把整个数据流读取完并返回这块buffer
+         * @note 返回的pData内部管理，外部不用负责释放
+         * @param [in][out] pData : 返回读取的数据首地址
+         * @return 返回读取的长度
+         */
+        virtual size_t read(uint8_t *&pData) = 0;
+
+        /**
          * @brief 读取一行文本
          * @param [in] trim : 是否裁剪掉前后的tab、空格等无效字符
          * @return 返回一行文本

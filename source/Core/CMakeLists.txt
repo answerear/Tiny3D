@@ -117,6 +117,7 @@ if (TINY3D_OS_WINDOWS)
 		LINK_PRIVATE T3DLog
 		LINK_PRIVATE libpng
 		LINK_PRIVATE zlib
+		LINK_PRIVATE ${FREEIMAGE_LIBRARY}
 		)
 
 	install(TARGETS ${LIB_NAME}
@@ -156,6 +157,13 @@ if (TINY3D_OS_WINDOWS)
 		${TINY3D_MEDIA_DIR}/resources/
 		DESTINATION bin/Debug/resources
 		)
+
+	install(FILES
+		${FREEIMAGE_BINARY}
+		DESTINATION bin/Debug
+		CONFIGURATIONS Debug
+		)
+
 elseif (TINY3D_OS_MACOSX)
 elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)

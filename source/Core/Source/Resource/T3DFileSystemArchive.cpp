@@ -121,8 +121,7 @@ namespace Tiny3D
         if (ret)
         {
             uint8_t *data;
-            size_t size;
-            stream.getBuffer(data, size);
+            size_t size = stream.read(data);
             if (fs->write(data, size) != size)
             {
                 ret = false;

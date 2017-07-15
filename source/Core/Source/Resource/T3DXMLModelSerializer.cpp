@@ -22,8 +22,7 @@ namespace Tiny3D
     {
         bool ret = false;
         uint8_t *buffer = nullptr;
-        size_t bufSize = 0;
-        stream.getBuffer(buffer, bufSize);
+        size_t bufSize = stream.read(buffer);
 
         if (bufSize > 0 && buffer != nullptr)
         {

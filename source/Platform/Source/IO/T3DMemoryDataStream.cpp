@@ -114,6 +114,12 @@ namespace Tiny3D
         return (m_lCurPos == m_lSize - 1);
     }
 
+    size_t MemoryDataStream::read(uint8_t *&pData)
+    {
+        pData = m_pBuffer;
+        return m_lSize;
+    }
+
     void MemoryDataStream::setBuffer(uint8_t *buffer, size_t bufSize, bool reallocate /* = true */)
     {
         if (reallocate)
@@ -130,12 +136,6 @@ namespace Tiny3D
         }
 
         m_bCreated = true;
-    }
-
-    void MemoryDataStream::getBuffer(uint8_t *&buffer, size_t &bufSize) const
-    {
-        buffer = m_pBuffer;
-        bufSize = m_lSize;
     }
 
     void MemoryDataStream::copy(const MemoryDataStream &other)

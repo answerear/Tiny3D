@@ -106,12 +106,21 @@ namespace Tiny3D
          */
         virtual bool eof() const override;
 
+        /**
+         * @brief 一次把整个数据流读取完并返回这块buffer
+         * @note 返回的pData内部管理，外部不用负责释放
+         * @param [in][out] pData : 返回读取的数据首地址
+         * @return 返回读取的长度
+         */
+        virtual size_t read(uint8_t *&pData) override;
+
         bool isOpened() const   { return m_bIsOpened; }
 
     protected:
         FILE                *m_pFileHandle;     /**< 文件操作指针 */
         mutable long_t      m_lSize;            /**< 文件大小 */
         bool                m_bIsOpened;        /**< 文件是否打开 */
+        uint8_t             *m_pData;           /**< 读取回来的数据 */
     };
 }
 

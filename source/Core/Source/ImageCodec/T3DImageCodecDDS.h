@@ -20,6 +20,9 @@ namespace Tiny3D
 
         virtual ~ImageCodecDDS();
 
+        virtual bool startup() override;
+        virtual bool shutdown() override;
+
         virtual FileType getFileType() const override;
 
         virtual bool encode(const String &name, const Image &image) override;

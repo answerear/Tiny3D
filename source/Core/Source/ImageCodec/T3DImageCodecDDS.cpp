@@ -22,6 +22,16 @@ namespace Tiny3D
 
     }
 
+    bool ImageCodecDDS::startup()
+    {
+        return true;
+    }
+
+    bool ImageCodecDDS::shutdown()
+    {
+        return true;
+    }
+
     ImageCodecBase::FileType ImageCodecDDS::getFileType() const
     {
         return E_TYPE_DDS;

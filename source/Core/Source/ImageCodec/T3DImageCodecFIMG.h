@@ -16,9 +16,18 @@ namespace Tiny3D
     class ImageCodecFIMG : public ImageCodecBase
     {
     public:
+        typedef std::vector<ImageCodecBase::FileType>   FileTypeList;
+        typedef FileTypeList::iterator                  FileTypeListItr;
+        typedef FileTypeList::const_iterator            FileTypeListConstItr;
+
         static ImageCodecFIMGPtr create();
 
         virtual ~ImageCodecFIMG();
+
+        const FileTypeList &getSupportedFileTypeList() const { return mFileTypeList; }
+
+        virtual bool startup() override;
+        virtual bool shutdown() override;
 
         virtual FileType getFileType() const override;
 
@@ -32,6 +41,8 @@ namespace Tiny3D
 
     protected:
         ImageCodecFIMG();
+
+        FileTypeList        mFileTypeList;
     };
 }
 

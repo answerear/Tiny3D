@@ -23,6 +23,19 @@ if (SDL2_FOUND)
 		)
 endif (SDL2_FOUND)
 
+if (FREEIMAGE_FOUND)
+	install(FILES
+		${FREEIMAGE_BINARY} DESTINATION bin/Debug
+		CONFIGURATIONS Debug
+		)
+		
+	install(FILES
+		${FREEIMAGE_BINARY} DESTINATION bin/Release
+		CONFIGURATIONS Debug
+		)
+endif (FREEIMAGE_FOUND)
+
+
 add_subdirectory(helloworld)
 add_subdirectory(transformation)
 add_subdirectory(triangle)

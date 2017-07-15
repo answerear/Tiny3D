@@ -100,6 +100,8 @@ namespace Tiny3D
     typedef std::list<RenderWindowPtr>          RenderWindowList;
     typedef RenderWindowList::iterator          RenderWindowListItr;
     typedef RenderWindowList::const_iterator    RenderWindowListConstItr;
+
+    typedef std::vector<String> StringVector;
 }
 
 #endif

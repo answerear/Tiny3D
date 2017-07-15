@@ -57,13 +57,13 @@ namespace Tiny3D
         {
             const Matrix4 &matCombine = getLocalToWorldTransform().getAffineMatrix();
             Matrix4 matLocal = getLocalTransform().getAffineMatrix();
-            matCombine.printLog(getName() + " matCombine : ");
-            matLocal.printLog(getName() + " matBone : ");
+//             matCombine.printLog(getName() + " matCombine : ");
+//             matLocal.printLog(getName() + " matBone : ");
             BoneDataPtr boneData = smart_pointer_cast<BoneData>(mBoneData);
 //             boneData->mOffsetMatrix.printLog(getName() + " matVertex : ");
-            boneData->mLocalMatrix.printLog(getName() + "matBindPose : ");
+//             boneData->mLocalMatrix.printLog(getName() + "matBindPose : ");
             mFinalMatrix = matCombine * boneData->mOffsetMatrix;
-            mFinalMatrix.printLog(getName() + " matFinal : ");
+//             mFinalMatrix.printLog(getName() + " matFinal : ");
         }
     }
 

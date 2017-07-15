@@ -96,9 +96,15 @@ namespace Tiny3D
          */
         virtual bool eof() const override;
 
-        void setBuffer(uint8_t *buffer, size_t bufSize, bool reallocate = true);
+        /**
+         * @brief 一次把整个数据流读取完并返回这块buffer
+         * @note 返回的pData内部管理，外部不用负责释放
+         * @param [in][out] pData : 返回读取的数据首地址
+         * @return 返回读取的长度
+         */
+        virtual size_t read(uint8_t *&pData) override;
 
-        void getBuffer(uint8_t *&buffer, size_t &bufSize) const;
+        void setBuffer(uint8_t *buffer, size_t bufSize, bool reallocate = true);
 
     protected:
         void copy(const MemoryDataStream &other);
