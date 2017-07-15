@@ -44,26 +44,8 @@ namespace Tiny3D
 
     bool Image::save(const String &name, const String &fileType /* = FILETYPE_PNG */) const
     {
-        ImageCodecBase::FileType eType = ImageCodecBase::E_TYPE_PNG;
-
-        size_t len = fileType.size() > 3 ? 3 : fileType.size();
-        if (strnicmp(fileType.c_str(), FILETYPE_JPG, len) == 0)
-        {
-            eType = ImageCodecBase::E_TYPE_JPG;
-        }
-        else if (strnicmp(fileType.c_str(), FILETYPE_BMP, len) == 0)
-        {
-            eType = ImageCodecBase::E_TYPE_BMP;
-        }
-        else if (strnicmp(fileType.c_str(), FILETYPE_TGA, len) == 0)
-        {
-            eType = ImageCodecBase::E_TYPE_TGA;
-        }
-        else if (strnicmp(fileType.c_str(), FILETYPE_DDS, len) == 0)
-        {
-            eType = ImageCodecBase::E_TYPE_DDS;
-        }
-
+        ImageCodecBase::FileType eType = ImageCodecBase::E_FT_PNG;
+        
         return T3D_IMAGE_CODEC.encode(name, *this, eType);
     }
 

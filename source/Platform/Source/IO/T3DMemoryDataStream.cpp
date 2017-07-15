@@ -138,6 +138,12 @@ namespace Tiny3D
         m_bCreated = true;
     }
 
+    void MemoryDataStream::getBuffer(uint8_t *&buffer, size_t &bufSize) const
+    {
+        buffer = m_pBuffer;
+        bufSize = m_lSize;
+    }
+
     void MemoryDataStream::copy(const MemoryDataStream &other)
     {
         if (m_bCreated)

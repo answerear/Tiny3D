@@ -29,6 +29,7 @@ namespace Tiny3D
         virtual bool startup() override;
         virtual bool shutdown() override;
 
+        virtual bool isSupportedType(uint8_t *data, size_t size) const override;
         virtual FileType getFileType() const override;
 
         virtual bool encode(const String &name, const Image &image) override;

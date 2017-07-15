@@ -145,6 +145,7 @@ namespace Tiny3D
         bool ret = false;
 
         ImageCodecBasePtr codec = getImageCodec(data, size, eType);
+
         if (codec != ImageCodecBasePtr::NULL_PTR)
         {
             ret = codec->decode(data, size, image);
@@ -153,20 +154,42 @@ namespace Tiny3D
         return ret;
     }
 
-    const ImageCodecBasePtr &ImageCodec::getImageCodec(ImageCodecBase::FileType eType) const
+    ImageCodecBasePtr ImageCodec::getImageCodec(uint8_t *data, size_t size, ImageCodecBase::FileType eFileType) const
     {
-        ImageCodecListConstItr itr = mCodecList.begin();
+        ImageCodecBasePtr codec;
 
-        while (itr != mCodecList.end())
+        if (eFileType != ImageCodecBase::E_FT_UNKNOWN)
         {
-            if ((*itr)->getFileType() == eType)
+            auto itr = mCodecMap.find(eFileType);
+            if (itr != mCodecMap.end())
             {
-                return *itr;
-                break;
+                codec = itr->second;
             }
-            ++itr;
         }
 
-        return ImageCodecBasePtr::NULL_PTR;
+        if (codec == nullptr)
+        {
+            for (auto i = mCodecList.begin(); i != mCodecList.end(); ++i)
+            {
+                if ((*i)->isSupportedType(data, size))
+                {
+                    codec = *i;
+                    break;
+                }
+            }
+        }
+
+        return codec;
+    }
+
+    ImageCodecBasePtr ImageCodec::getImageCodec(ImageCodecBase::FileType eFileType) const
+    {
+        ImageCodecBasePtr codec;
+        auto itr = mCodecMap.find(eFileType);
+        if (itr != mCodecMap.end())
+        {
+            codec = itr->second;
+        }
+        return codec;
     }
 }

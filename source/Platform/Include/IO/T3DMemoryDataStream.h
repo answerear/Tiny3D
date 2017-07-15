@@ -106,6 +106,8 @@ namespace Tiny3D
 
         void setBuffer(uint8_t *buffer, size_t bufSize, bool reallocate = true);
 
+        void getBuffer(uint8_t *&buffer, size_t &bufSize) const;
+
     protected:
         void copy(const MemoryDataStream &other);
 

@@ -59,22 +59,13 @@ namespace Tiny3D
             MAX_TYPE_SUPPORTED,
         };
 
-//         static const char * const FORMAT_BMP;
-//         static const char * const FORMAT_PNG;
-//         static const char * const FORMAT_JPG;
-//         static const char * const FORMAT_TGA;
-//         static const char * const FORMAT_DDS;
-
-//         static bool isSupportedType(const String &name);
-// 
-//         static FileType getFileType(const String &name);
 
         virtual ~ImageCodecBase();
 
         virtual bool startup() = 0;
         virtual bool shutdown() = 0;
 
-        virtual bool isSupportedType() const = 0;
+        virtual bool isSupportedType(uint8_t *data, size_t size) const = 0;
         virtual FileType getFileType() const = 0;
 
         virtual bool encode(const String &name, const Image &image) = 0;

@@ -61,9 +61,26 @@ namespace Tiny3D
         return true;
     }
 
+    bool ImageCodecFIMG::isSupportedType(uint8_t *data, size_t size) const
+    {
+        bool ret = false;
+
+        FIMEMORY* fiMem = FreeImage_OpenMemory(data, size);
+
+        FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(fiMem, size);
+        FreeImage_CloseMemory(fiMem);
+
+        if (fif != FIF_UNKNOWN)
+        {
+            ret = true;
+        }
+
+        return ret;
+    }
+
     ImageCodecBase::FileType ImageCodecFIMG::getFileType() const
     {
-        return E_TYPE_DDS;
+        return E_FT_IMG;
     }
 
     bool ImageCodecFIMG::encode(const String &name, const Image &image)
