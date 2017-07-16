@@ -6,8 +6,8 @@
 
 using namespace Tiny3D;
 
-#define TEST_MODEL_TORTOISE             0
-#define TEST_MODEL_CAMEL                1
+#define TEST_MODEL_TORTOISE             1
+#define TEST_MODEL_CAMEL                0
 #define TEST_MODEL_SKELETON             0
 #define TEST_MODEL_KNIGHT               0
 #define TEST_MODEL_SINBAD               0
