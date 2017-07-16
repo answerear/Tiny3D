@@ -6,8 +6,8 @@
 
 using namespace Tiny3D;
 
-#define TEST_MODEL_TORTOISE             1
-#define TEST_MODEL_CAMEL                0
+#define TEST_MODEL_TORTOISE             0
+#define TEST_MODEL_CAMEL                1
 #define TEST_MODEL_SKELETON             0
 #define TEST_MODEL_KNIGHT               0
 #define TEST_MODEL_SINBAD               0
@@ -61,7 +61,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
     renderer->setLightEnabled(true);
     renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
-#if !TEST_MODEL_SKELETON && !TEST_MODEL_CAMEL && !TEST_MODEL_SINBAD
+#if !TEST_MODEL_SKELETON //&& !TEST_MODEL_CAMEL && !TEST_MODEL_SINBAD
     renderer->setRenderMode(Renderer::E_RM_SOLID);
 #endif
     renderer->setAmbientLight(Color4::WHITE);

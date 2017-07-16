@@ -178,10 +178,10 @@ namespace Tiny3D
         case E_PF_X8R8G8B8:
             d3dfmt = D3DFMT_X8R8G8B8;
             break;
-        case E_PF_X8B8G8R8:
+        case E_PF_B8G8R8X8:
             d3dfmt = D3DFMT_X8B8G8R8;
             break;
-        case E_PF_A8B8G8R8:
+        case E_PF_B8G8R8A8:
             d3dfmt = D3DFMT_A8B8G8R8;
             break;
         }
@@ -214,10 +214,10 @@ namespace Tiny3D
             format = E_PF_X8R8G8B8;
             break;
         case D3DFMT_A8B8G8R8:
-            format = E_PF_A8B8G8R8;
+            format = E_PF_B8G8R8A8;
             break;
         case D3DFMT_X8B8G8R8:
-            format = E_PF_X8B8G8R8;
+            format = E_PF_B8G8R8X8;
             break;
         }
 

@@ -463,6 +463,7 @@ namespace mconv
             , cullHardware(CULL_HW_NONE)
             , cullSoftware(CULL_SW_NONE)
             , lightingEnabled(false)
+            , shading("Phong")
             , polygonModeOverridable(false)
             , iterationDepthBias(0.0f)
             , maxLights(0)

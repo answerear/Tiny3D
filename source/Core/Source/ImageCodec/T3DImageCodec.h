@@ -26,7 +26,7 @@ namespace Tiny3D
         bool decode(uint8_t *data, size_t size, Image &image, ImageCodecBase::FileType eType = ImageCodecBase::E_FT_UNKNOWN);
 
     protected:
-        ImageCodecBasePtr getImageCodec(uint8_t *data, size_t size, ImageCodecBase::FileType eFileType) const;
+        ImageCodecBasePtr getImageCodec(uint8_t *data, size_t size, ImageCodecBase::FileType &eFileType) const;
         ImageCodecBasePtr getImageCodec(ImageCodecBase::FileType eFileType) const;
 
         typedef std::vector<ImageCodecBasePtr>      ImageCodecList;

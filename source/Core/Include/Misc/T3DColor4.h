@@ -4,6 +4,7 @@
 
 
 #include "T3DPrerequisites.h"
+#include "Misc/T3DCommon.h"
 
 
 namespace Tiny3D
@@ -76,6 +77,10 @@ namespace Tiny3D
             return ((alpha << 12) & 0xF000) | ((mRed << 8) & 0x0F00) 
                 | ((mGreen << 4) & 0x00F0) | (mBlue & 0x000F);
         }
+
+        static void convert_B8G8R8A8toA8R8G8B8(void *src, void *dst, size_t count);
+
+        static void convert(void *srcPixel, PixelFormat srcFmt, void *dstPixel, PixelFormat dstFmt);
 
         static const Color4 BLACK;
         static const Color4 WHITE;

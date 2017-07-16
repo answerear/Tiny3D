@@ -75,12 +75,6 @@ namespace Tiny3D
     bool ImageCodec::encode(const String &name, const Image &image, ImageCodecBase::FileType eType /* = ImageCodecBase::E_FT_PNG */)
     {
         bool ret = false;
-        const ImageCodecBasePtr &codec = getImageCodec(eType);
-
-        if (codec != nullptr)
-        {
-            ret = codec->encode(name, image);
-        }
 
         return ret;
     }
@@ -88,12 +82,6 @@ namespace Tiny3D
     bool ImageCodec::encode(DataStream &stream, const Image &image, ImageCodecBase::FileType eType /* = ImageCodecBase::E_FT_PNG */)
     {
         bool ret =false;
-        const ImageCodecBasePtr &codec = getImageCodec(eType);
-
-        if (codec != nullptr)
-        {
-            ret = codec->encode(stream, image);
-        }
 
         return ret;
     }
@@ -135,7 +123,6 @@ namespace Tiny3D
         uint8_t *data = nullptr;
         size_t size = stream.read(data);
         ret = decode(data, size, image, eType);
-        T3D_SAFE_DELETE_ARRAY(data);
 
         return ret;
     }
@@ -148,13 +135,13 @@ namespace Tiny3D
 
         if (codec != ImageCodecBasePtr::NULL_PTR)
         {
-            ret = codec->decode(data, size, image);
+            ret = codec->decode(data, size, image, eType);
         }
 
         return ret;
     }
 
-    ImageCodecBasePtr ImageCodec::getImageCodec(uint8_t *data, size_t size, ImageCodecBase::FileType eFileType) const
+    ImageCodecBasePtr ImageCodec::getImageCodec(uint8_t *data, size_t size, ImageCodecBase::FileType &eFileType) const
     {
         ImageCodecBasePtr codec;
 
@@ -171,7 +158,7 @@ namespace Tiny3D
         {
             for (auto i = mCodecList.begin(); i != mCodecList.end(); ++i)
             {
-                if ((*i)->isSupportedType(data, size))
+                if ((*i)->isSupportedType(data, size, eFileType))
                 {
                     codec = *i;
                     break;

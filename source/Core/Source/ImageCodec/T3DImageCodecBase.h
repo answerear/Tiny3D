@@ -65,16 +65,11 @@ namespace Tiny3D
         virtual bool startup() = 0;
         virtual bool shutdown() = 0;
 
-        virtual bool isSupportedType(uint8_t *data, size_t size) const = 0;
+        virtual bool isSupportedType(uint8_t *data, size_t size, FileType &eFileType) const = 0;
         virtual FileType getFileType() const = 0;
 
-        virtual bool encode(const String &name, const Image &image) = 0;
-        virtual bool encode(DataStream &stream, const Image &image) = 0;
         virtual bool encode(uint8_t *&data, size_t &size, const Image &image) = 0;
-
-        virtual bool decode(const String &name, Image &image) = 0;
-        virtual bool decode(DataStream &stream, Image &image) = 0;
-        virtual bool decode(const uint8_t *data, size_t size, Image &image) = 0;
+        virtual bool decode(uint8_t *data, size_t size, Image &image, FileType eFileType) = 0;
 
     protected:
         ImageCodecBase();

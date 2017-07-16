@@ -66,7 +66,7 @@ namespace Tiny3D
         hr = mD3DTexture->LockRect(0, &rect, nullptr, 0);
         if (SUCCEEDED(hr))
         {
-            ret = image.copyToScaling(rect.pBits, mTexWidth, mTexHeight, mFormat, rect.Pitch, true);
+            ret = image.copyToScaling(rect.pBits, mTexWidth, mTexHeight, mFormat, rect.Pitch, false);
             hr = mD3DTexture->UnlockRect(0);
         }
 

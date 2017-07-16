@@ -1,6 +1,7 @@
 
 
 #include "Misc/T3DImage.h"
+#include "Misc/T3DColor4.h"
 #include "ImageCodec/T3DImageCodec.h"
 #include "Resource/T3DArchiveManager.h"
 
@@ -118,9 +119,10 @@ namespace Tiny3D
         }
         else
         {
-            int32_t bpp = 3;
-            if (dstFormat == E_PF_A8R8G8B8 || dstFormat == E_PF_A8B8G8R8 || dstFormat == E_PF_X8B8G8R8 || dstFormat == E_PF_X8R8G8B8)
-                bpp = 4;
+            int32_t dstBytesPerPixel = 3;
+            if (dstFormat == E_PF_A8R8G8B8 || dstFormat == E_PF_B8G8R8A8 || dstFormat == E_PF_B8G8R8X8 || dstFormat == E_PF_X8R8G8B8)
+                dstBytesPerPixel = 4;
+            int32_t srcBytesPerPiexl = mBPP / 8;
             const float sourceXStep = (float)mWidth / (float)dstWidth;
             const float sourceYStep = (float)mHeight / (float)dstHeight;
             int32_t yval=0, syval=0;
@@ -134,7 +136,7 @@ namespace Tiny3D
                     float sx = 0.0f;
                     for (int32_t x = 0; x < dstWidth; ++x)
                     {
-                        convertPixel(mData+syval+int32_t(sx)*mBPP, mFormat, dst+yval+x*bpp, dstFormat);
+                        Color4::convert(mData+syval+int32_t(sx)*srcBytesPerPiexl, mFormat, dst+yval+x*dstBytesPerPixel, dstFormat);
                         sx += sourceXStep;
                     }
                     sy += sourceYStep;
@@ -149,7 +151,7 @@ namespace Tiny3D
                     float sx = 0.0f;
                     for (int32_t x = 0; x < dstWidth; ++x)
                     {
-                        convertPixel(mData+syval+int32_t(sx)*mBPP, mFormat, dst+yval+x*bpp, dstFormat);
+                        Color4::convert(mData+syval+int32_t(sx)*srcBytesPerPiexl, mFormat, dst+yval+x*dstBytesPerPixel, dstFormat);
                         sx += sourceXStep;
                     }
                     sy += sourceYStep;
@@ -172,42 +174,5 @@ namespace Tiny3D
     void Image::copy(const Image &other)
     {
 
-    }
-
-    void Image::convertPixel(void *srcPixel, PixelFormat srcFmt, void *dstPixel, PixelFormat dstFmt) const
-    {
-        switch (srcFmt)
-        {
-        case E_PF_R8G8B8:
-            {
-                uint8_t *src = (uint8_t *)srcPixel;
-                uint8_t b = *src++;
-                uint8_t g = *src++;
-                uint8_t r = *src++;
-
-                if (dstFmt == E_PF_A8R8G8B8 || dstFmt == E_PF_X8R8G8B8)
-                {
-                    uint8_t *dst = (uint8_t *)dstPixel;
-                    *dst++ = b & 0xFF;
-                    *dst++ = (g & 0xFF);
-                    *dst++ = (r & 0xFF);
-                    *dst++ = 0xFF;
-                }
-                else if (dstFmt == E_PF_A8B8G8R8 || dstFmt == E_PF_X8B8G8R8)
-                {
-                    uint8_t *dst = (uint8_t *)dstPixel;
-                    *dst++ = (r & 0xFF);
-                    *dst++ = (g & 0xFF);
-                    *dst++ = (b & 0xFF);
-                    *dst++ = 0xFF;
-                }
-            }
-            break;
-        case E_PF_A8R8G8B8:
-            {
-
-            }
-            break;
-        }
     }
 }

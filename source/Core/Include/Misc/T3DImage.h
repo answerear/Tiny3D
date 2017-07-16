@@ -63,8 +63,6 @@ namespace Tiny3D
     protected:
         void copy(const Image &other);
 
-        void convertPixel(void *srcPixel, PixelFormat srcFmt, void *dstPixel, PixelFormat dstFmt) const;
-
     private:
         int32_t     mWidth;
         int32_t     mHeight;
