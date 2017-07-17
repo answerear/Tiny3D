@@ -29,27 +29,9 @@ include_directories(
 	"${TINY3D_LOG_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
-	"${TINY3D_DEP_DIR}/libpng/include"
 	"${FREEIMAGE_INCLUDE_DIR}"
 	)
 
-if (TINY3D_OS_WINDOWS)
-	if (MSVC11)
-		link_directories(
-			"${TINY3D_DEP_DIR}/libpng/prebuilt/win32/vc110/x86"
-			"${TINY3D_DEP_DIR}/zlib/prebuilt/win32/vc110/x86"
-			)
-	elseif (MSVC14)
-		link_directories(
-			"${TINY3D_DEP_DIR}/libpng/prebuilt/win32/vc140/x86"
-			"${TINY3D_DEP_DIR}/zlib/prebuilt/win32/vc140/x86"
-			)
-	endif ()
-elseif (TINY3D_OS_MACOSX)
-elseif (TINY3D_OS_LINUX)
-elseif (TINY3D_OS_IOS)
-elseif (TINY3D_OS_ANDROID)
-endif (TINY3D_OS_WINDOWS)
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
@@ -115,8 +97,6 @@ if (TINY3D_OS_WINDOWS)
 		LINK_PRIVATE T3DMath
 		LINK_PRIVATE T3DPlatform
 		LINK_PRIVATE T3DLog
-		LINK_PRIVATE libpng
-		LINK_PRIVATE zlib
 		LINK_PRIVATE ${FREEIMAGE_LIBRARY}
 		)
 
@@ -140,12 +120,6 @@ if (TINY3D_OS_WINDOWS)
 		PATTERN "OpenGL3Plus" EXCLUDE
 		PATTERN "OpenGLES2" EXCLUDE
 		PATTERN "OpenGLES3" EXCLUDE
-		)
-
-	install(DIRECTORY 
-		${TINY3D_DEP_DIR}/libpng/prebuilt/win32/vc110/x86/ DESTINATION bin/Debug 
-		CONFIGURATIONS Debug
-		PATTERN "lib" EXCLUDE
 		)
 
 	install(DIRECTORY

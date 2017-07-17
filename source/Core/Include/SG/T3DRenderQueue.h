@@ -51,6 +51,7 @@ namespace Tiny3D
             E_GRPID_INDICATOR = 30,
             E_GRPID_AUTOMATIC = 50,
             E_GRPID_SOLID = 60,
+            E_GRPID_WIREFRAME = 65,
             E_GRPID_TRANSPARENT = 70,
             E_GRPID_TRANSPARENT_EFFECT = 80,
             E_GRPID_SHADOW = 90,
