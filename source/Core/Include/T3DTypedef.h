@@ -20,6 +20,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Archive);
     T3D_DECLARE_SMART_PTR(FileSystemArchive);
     T3D_DECLARE_SMART_PTR(ZipArchive);
+    T3D_DECLARE_SMART_PTR(Font);
 
     T3D_DECLARE_SMART_PTR(SGNode);
     T3D_DECLARE_SMART_PTR(SGTransformNode);
@@ -67,8 +68,6 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(TouchDevice);
     T3D_DECLARE_SMART_PTR(KeyDevice);
     T3D_DECLARE_SMART_PTR(JoystickDevice);
-
-//     T3D_DECLARE_SMART_PTR(WindowEventHandler);
 
 
     typedef std::vector<Variant>            VariantArray;

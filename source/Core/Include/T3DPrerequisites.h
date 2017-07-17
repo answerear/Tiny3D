@@ -127,6 +127,8 @@ namespace Tiny3D
     class ArchiveCreator;
     class Model;
     class ModelManager;
+    class Font;
+    class FontManager;
 
     class FileSystemArchive;
     class FileSystemArchiveCreator;

@@ -23,6 +23,7 @@ namespace Tiny3D
             E_TYPE_MATERIAL,
             E_TYPE_TEXTURE,
             E_TYPE_ARCHIVE,
+            E_TYPE_FONT,
         };
 
         virtual ~Resource();
