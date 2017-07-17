@@ -1,61 +1,60 @@
-#-------------------------------------------------------------------
-# This file is part of the CMake build system for OGRE
-#     (Object-oriented Graphics Rendering Engine)
-# For the latest info, see http://www.ogre3d.org/
-#
-# The contents of this file are placed in the public domain. Feel
-# free to make use of it in any way you like.
-#-------------------------------------------------------------------
 
-# - Try to find FreeType
-# Once done, this will define
-#
-#  FREETYPE_FOUND - system has FreeType
-#  FREETYPE_INCLUDE_DIRS - the FreeType include directories 
-#  FREETYPE_LIBRARIES - link these to use FreeType
-
-include(FindPkgMacros)
-findpkg_begin(FREETYPE)
-
-# Get path, convert backslashes as ${ENV_${var}}
-getenv_path(FREETYPE_HOME)
-
-# construct search paths
-set(FREETYPE_PREFIX_PATH ${FREETYPE_HOME} ${ENV_FREETYPE_HOME})
-create_search_paths(FREETYPE)
-# redo search if prefix path changed
-clear_if_changed(FREETYPE_PREFIX_PATH
-  FREETYPE_LIBRARY_FWK
-  FREETYPE_LIBRARY_REL
-  FREETYPE_LIBRARY_DBG
-  FREETYPE_INCLUDE_DIR
+FIND_PATH(FREETYPE_INCLUDE_DIR 
+  NAMES freetype.h freetype/freetype.h
+  HINTS
+  ${FREETYPE_HOME}
+  PATH_SUFFIXES include include/freetype
+  PATHS
+  ~/Library/Frameworks
+  /Library/Frameworks
+  /usr/local/include/freetype
+  /usr/include/freetype
+  /sw # Fink
+  /opt/local # DarwinPorts
+  /opt/csw # Blastwave
+  /opt
 )
 
-set(FREETYPE_LIBRARY_NAMES freetype253 freetype252 freetype251 freetype2501 freetype250 freetype2412 freetype2411 freetype2410 freetype249 freetype248 freetype246 freetype2311 freetype239 freetype238 freetype235 freetype219 freetype)
-get_debug_names(FREETYPE_LIBRARY_NAMES)
+FIND_PATH(FREETYPE_FT2BUILD_INCLUDE_DIR 
+  NAMES ft2build.h
+  HINTS
+  ${FREETYPE_HOME}
+  PATH_SUFFIXES include include/freetype
+  PATHS
+  ~/Library/Frameworks
+  /Library/Frameworks
+  /usr/local/include/freetype
+  /usr/include/freetype
+  /sw # Fink
+  /opt/local # DarwinPorts
+  /opt/csw # Blastwave
+  /opt
+)
 
-use_pkgconfig(FREETYPE_PKGC freetype2)
+FIND_LIBRARY(FREETYPE_LIBRARY_TEMP
+  NAMES freetype28
+  HINTS
+  ${FREETYPE_HOME}
+  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}
+  PATHS
+  /sw
+  /opt/local
+  /opt/csw
+  /opt
+)
 
-# prefer static library over framework 
-set(CMAKE_FIND_FRAMEWORK "LAST")
 
-message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
-findpkg_framework(FREETYPE)
-message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+SET(FREETYPE_FOUND "NO")
+IF(FREETYPE_LIBRARY_TEMP)
+  # Set the final string here so the GUI reflects the final state.
+  SET(FREETYPE_LIBRARY ${FREETYPE_LIBRARY_TEMP} CACHE STRING "Where the FreeType Library can be found")
+  # Set the temp variable to INTERNAL so it is not seen in the CMake GUI
+  SET(FREETYPE_LIBRARY_TEMP "${FREETYPE_LIBRARY_TEMP}" CACHE INTERNAL "")
 
-find_path(FREETYPE_INCLUDE_DIR NAMES freetype.h freetype/freetype.h HINTS ${FREETYPE_INC_SEARCH_PATH} ${FREETYPE_PKGC_INCLUDE_DIRS} PATH_SUFFIXES freetype2)
-find_path(FREETYPE_FT2BUILD_INCLUDE_DIR NAMES ft2build.h HINTS ${FREETYPE_INC_SEARCH_PATH} ${FREETYPE_PKGC_INCLUDE_DIRS} PATH_SUFFIXES freetype2)
+  IF (NOT FREETYPE_FT2BUILD_INCLUDE_DIR STREQUAL FREETYPE_INCLUDE_DIR)
+    set(FREETYPE_INCLUDE_DIRS ${FREETYPE_INCLUDE_DIRS} ${FREETYPE_FT2BUILD_INCLUDE_DIR})
+  ENDIF ()
+  
+  SET(FREETYPE_FOUND "YES")
+ENDIF(FREETYPE_LIBRARY_TEMP)
 
-find_library(FREETYPE_LIBRARY_REL NAMES ${FREETYPE_LIBRARY_NAMES} HINTS ${FREETYPE_LIB_SEARCH_PATH} ${FREETYPE_PKGC_LIBRARY_DIRS} PATH_SUFFIXES "" Release RelWithDebInfo MinSizeRel)
-find_library(FREETYPE_LIBRARY_DBG NAMES ${FREETYPE_LIBRARY_NAMES_DBG} HINTS ${FREETYPE_LIB_SEARCH_PATH} ${FREETYPE_PKGC_LIBRARY_DIRS} PATH_SUFFIXES "" Debug)
-
-make_library_set(FREETYPE_LIBRARY)
-
-findpkg_finish(FREETYPE)
-mark_as_advanced(FREETYPE_FT2BUILD_INCLUDE_DIR)
-if (NOT FREETYPE_FT2BUILD_INCLUDE_DIR STREQUAL FREETYPE_INCLUDE_DIR)
-  set(FREETYPE_INCLUDE_DIRS ${FREETYPE_INCLUDE_DIRS} ${FREETYPE_FT2BUILD_INCLUDE_DIR})
-endif ()
-
-# Reset framework finding
-set(CMAKE_FIND_FRAMEWORK "FIRST")

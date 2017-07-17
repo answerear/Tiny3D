@@ -38,7 +38,7 @@ FIND_FILE(FREEIMAGE_BINARY
 SET(FREEIMAGE_FOUND "NO")
 IF(FREEIMAGE_LIBRARY_TEMP)
   # Set the final string here so the GUI reflects the final state.
-  SET(FREEIMAGE_LIBRARY ${FREEIMAGE_LIBRARY_TEMP} CACHE STRING "Where the SDL2 Library can be found")
+  SET(FREEIMAGE_LIBRARY ${FREEIMAGE_LIBRARY_TEMP} CACHE STRING "Where the FreeImage Library can be found")
   # Set the temp variable to INTERNAL so it is not seen in the CMake GUI
   SET(FREEIMAGE_LIBRARY_TEMP "${FREEIMAGE_LIBRARY_TEMP}" CACHE INTERNAL "")
 

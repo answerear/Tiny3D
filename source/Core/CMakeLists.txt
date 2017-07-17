@@ -21,7 +21,10 @@ set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
 set(TINY3D_MEDIA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../media")
 
 set(FREEIMAGE_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/freeimage" CACHE PATH "FreeImage library path")
+set(FREETYPE_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/freetype" CACHE PATH "FreeType library path")
+
 find_package(FreeImage)
+find_package(FreeType)
 
 include_directories(
 	"${TINY3D_MATH_DIR}/include"
@@ -30,6 +33,7 @@ include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
 	"${FREEIMAGE_INCLUDE_DIR}"
+	"${FREETYPE_INCLUDE_DIRS}"
 	)
 
 
@@ -98,6 +102,7 @@ if (TINY3D_OS_WINDOWS)
 		LINK_PRIVATE T3DPlatform
 		LINK_PRIVATE T3DLog
 		LINK_PRIVATE ${FREEIMAGE_LIBRARY}
+		LINK_PRIVATE ${FREETYPE_LIBRARY}
 		)
 
 	install(TARGETS ${LIB_NAME}
