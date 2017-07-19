@@ -18,7 +18,7 @@ namespace Tiny3D
             E_FT_IMAGE = 2,
         };
 
-        static FontPtr create(const String &name);
+        static FontPtr create(const String &name, FontType eFontType);
 
         virtual ~Font();
 
@@ -30,6 +30,8 @@ namespace Tiny3D
         virtual bool load() override;
         virtual void unload() override;
         virtual ResourcePtr clone() const override;
+
+        bool loadFreeType(DataStream &stream);
     };
 }
 
