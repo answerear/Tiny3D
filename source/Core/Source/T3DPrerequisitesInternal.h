@@ -22,6 +22,8 @@ namespace Tiny3D
     class KeyFrameDataT;
     class KeyFrameDataR;
     class KeyFrameDataS;
+
+    class FontFreeType;
 }
 
 

@@ -36,7 +36,11 @@ typedef unsigned long long  uint64_t;
 
 
 typedef std::string         String;
-typedef std::wstring        TWString;
+typedef std::wstring        WString;
+
+typedef std::string         UTF8String;
+typedef std::u16string      UTF16String;
+typedef std::u32string      UTF32String;
 
 typedef void*               THandle;
 

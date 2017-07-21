@@ -22,6 +22,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(KeyFrameDataR);
     T3D_DECLARE_SMART_PTR(KeyFrameDataS);
 
+    T3D_DECLARE_SMART_PTR(FontFreeType);
+
     #define T3D_XML_TAG_TINY3D                 "TINY3D"
     #define T3D_XML_TAG_SCENE                   "scene"
     #define T3D_XML_TAG_MODEL                   "model"

@@ -17,7 +17,11 @@ namespace Tiny3D
     public:
         TextCodec(const String &strCodecFile);
         virtual ~TextCodec();
-//
+
+        bool UTF8ToUTF16(const UTF8String &src, UTF16String &dst);
+
+        bool UTF16ToUTF8(const UTF16String &src, UTF8String &dst);
+
 //      /** GBK字符串有效性检查，过滤掉被截断的不完整gbk码 */
 //      bool checkGBKString(char *pText, int32_t nTextLength);
 //
