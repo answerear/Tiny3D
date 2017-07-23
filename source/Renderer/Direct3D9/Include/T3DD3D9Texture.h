@@ -29,6 +29,9 @@ namespace Tiny3D
         virtual bool copyToTexture(const TexturePtr &texture, Rect *src /* = nullptr */, Rect *dst /* = nullptr */) const override;
         virtual ResourcePtr clone() const override;
 
+        virtual size_t writeData(uint8_t *data, size_t size, Rect *dst /* = nullptr */, Rect *src /* = nullptr */) override;
+        virtual size_t readData(uint8_t *data, size_t size, Rect *dst /* = nullptr */, Rect *src /* = nullptr */) override;
+
         bool createTexture();
         bool createRenderTexture();
 

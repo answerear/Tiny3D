@@ -148,4 +148,17 @@ namespace Tiny3D
 
         return ret;
     }
+
+    size_t D3D9Texture::writeData(uint8_t *data, size_t size, Rect *dst , Rect *src )
+    {
+        size_t bytesOfWritten = 0;
+
+        return bytesOfWritten;
+    }
+
+    size_t D3D9Texture::readData(uint8_t *data, size_t size, Rect *dst , Rect *src )
+    {
+        size_t bytesOfRead = 0;
+        return bytesOfRead;
+    }
 }

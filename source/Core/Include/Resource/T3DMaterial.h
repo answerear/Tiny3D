@@ -82,6 +82,8 @@ namespace Tiny3D
 
         void setTexture(size_t layer, const String &name);
 
+        void setTexture(size_t layer, TexturePtr texture);
+
         TexturePtr getTexture(size_t layer) const
         {
             T3D_ASSERT(layer < E_MAX_TEXTURE_LAYERS);

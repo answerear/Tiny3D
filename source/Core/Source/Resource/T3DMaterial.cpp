@@ -105,10 +105,12 @@ namespace Tiny3D
 
     void Material::setTexture(size_t layer, const String &name)
     {
-        if (mMaterialType == E_MT_MANUAL)
-        {
-            mTextureLayer[layer] = T3D_TEXTURE_MGR.loadTexture(name);
-        }
+        mTextureLayer[layer] = T3D_TEXTURE_MGR.loadTexture(name);
+    }
+
+    void Material::setTexture(size_t layer, TexturePtr texture)
+    {
+        mTextureLayer[layer] = texture;
     }
 
     Material::FileType Material::parseFileType(const String &name) const

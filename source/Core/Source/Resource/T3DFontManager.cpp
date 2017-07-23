@@ -28,7 +28,8 @@ namespace Tiny3D
 
         int32_t fontSize = va_arg(args, int32_t);
         Font::FontType fontType = va_arg(args, Font::FontType);
-        font = Font::create(name, fontSize, fontType);
+        const Font::FontConfig &fontConfig = va_arg(args, Font::FontConfig);
+        font = Font::create(name, fontSize, fontType, fontConfig);
 
         return font;
     }

@@ -303,14 +303,14 @@ namespace Tiny3D
             return bottom - top + 1;
         }
 
-        TSize size() const
+        TSize<T> size() const
         {
-            return TSize(width(), height());
+            return TSize<T>(width(), height());
         }
 
-        TPoint position() const
+        TPoint<T> position() const
         {
-            return TPoint(left, top);
+            return TPoint<T>(left, top);
         }
 
         bool isEmpty() const
@@ -323,12 +323,12 @@ namespace Tiny3D
             left = top = right = bottom = 0;
         }
 
-        TRect operator +(const TPoint &offset) const
+        TRect operator +(const TPoint<T> &offset) const
         {
             return TRect(left + offset.x, top + offset.y, right + offset.x, bottom + offset.y);
         }
 
-        TRect &operator +=(const TPoint &offset)
+        TRect &operator +=(const TPoint<T> &offset)
         {
             left += offset.x;
             right += offset.x;
@@ -337,12 +337,12 @@ namespace Tiny3D
             return *this;
         }
 
-        TRect operator -(const TPoint &offset) const
+        TRect operator -(const TPoint<T> &offset) const
         {
             return TRect(left - offset.x, top - offset.y, right - offset.x, bottom - offset.y);
         }
 
-        TRect &operator -=(const TPoint &offset)
+        TRect &operator -=(const TPoint<T> &offset)
         {
             left -= offset.x;
             right -= offset.x;
