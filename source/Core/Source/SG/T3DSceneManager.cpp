@@ -1,9 +1,9 @@
 
 
 #include "SG/T3DSceneManager.h"
-#include "SG/Visual/T3DSGCamera.h"
-#include "SG/Node/T3DSGTransformNode.h"
-#include "SG/Renderable/T3DSGRenderable.h"
+#include "SG/T3DSGCamera.h"
+#include "SG//T3DSGTransformNode.h"
+#include "SG/T3DSGRenderable.h"
 #include "Render/T3DRenderer.h"
 #include "SG/T3DRenderQueue.h"
 

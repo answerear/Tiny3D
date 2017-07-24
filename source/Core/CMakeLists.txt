@@ -39,16 +39,8 @@ include_directories(
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
-#set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .h)
-#set_project_files(Include\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Include/Math/ .inl)
 set_project_files(Include\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/ .h)
 set_project_files(Include\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/ .inl)
-set_project_files(Include\\\\SG\\\\Node ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/Node/ .h)
-set_project_files(Include\\\\SG\\\\Node ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/Node/ .inl)
-set_project_files(Include\\\\SG\\\\Visual ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/Visual/ .h)
-set_project_files(Include\\\\SG\\\\Visual ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/Visual/ .inl)
-set_project_files(Include\\\\SG\\\\Renderable ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/Renderable/ .h)
-set_project_files(Include\\\\SG\\\\Renderable ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/Renderable/ .inl)
 set_project_files(Include\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/ .h)
 set_project_files(Include\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/ .inl)
 set_project_files(Include\\\\Misc ${CMAKE_CURRENT_SOURCE_DIR}/Include/Misc/ .h)
@@ -64,11 +56,7 @@ set_project_files(Include\\\\InputDevice ${CMAKE_CURRENT_SOURCE_DIR}/Include/Inp
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .h)
-#set_project_files(Source\\\\Math ${CMAKE_CURRENT_SOURCE_DIR}/Source/Math/ .cpp)
 set_project_files(Source\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Source/SG/ .cpp)
-set_project_files(Source\\\\SG\\\\Node ${CMAKE_CURRENT_SOURCE_DIR}/Source/SG/Node/ .cpp)
-set_project_files(Source\\\\SG\\\\Visual ${CMAKE_CURRENT_SOURCE_DIR}/Source/SG/Visual/ .cpp)
-set_project_files(Source\\\\SG\\\\Renderable ${CMAKE_CURRENT_SOURCE_DIR}/Source/SG/Renderable/ .cpp)
 set_project_files(Source\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/ .cpp)
 set_project_files(Source\\\\Misc ${CMAKE_CURRENT_SOURCE_DIR}/Source/Misc/ .cpp)
 set_project_files(Source\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Source/Bound/ .cpp)

@@ -2,8 +2,8 @@
 
 #include "SG/T3DRenderQueue.h"
 #include "Resource/T3DMaterial.h"
-#include "SG/Renderable/T3DSGRenderable.h"
-#include "SG/Renderable/T3DSGLight.h"
+#include "SG/T3DSGRenderable.h"
+#include "SG/T3DSGLight.h"
 #include "Render/T3DRenderer.h"
 
 

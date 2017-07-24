@@ -1,6 +1,6 @@
 
 
-#include "SG/Renderable/T3DSGGeometry.h"
+#include "SG/T3DSGGeometry.h"
 #include "SG/T3DRenderQueue.h"
 
 

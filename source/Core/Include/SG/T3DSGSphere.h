@@ -4,7 +4,7 @@
 #define __T3D_SG_SPHERE_H__
 
 
-#include "SG/Renderable/T3DSGGeometry.h"
+#include "SG/T3DSGGeometry.h"
 #include "T3DTypedef.h"
 
 

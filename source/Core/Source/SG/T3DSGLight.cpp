@@ -1,6 +1,6 @@
 
 
-#include "SG/Renderable/T3DSGLight.h"
+#include "SG/T3DSGLight.h"
 #include "SG/T3DRenderQueue.h"
 #include "T3DTypedef.h"
 

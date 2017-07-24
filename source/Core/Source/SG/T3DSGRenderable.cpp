@@ -1,7 +1,7 @@
 
 
-#include "SG/Renderable/T3DSGRenderable.h"
-#include "SG/Node/T3DSGTransformNode.h"
+#include "SG/T3DSGRenderable.h"
+#include "SG//T3DSGTransformNode.h"
 
 
 namespace Tiny3D

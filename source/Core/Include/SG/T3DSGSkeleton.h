@@ -4,7 +4,7 @@
 #define __T3D_SG_SKELETON_H__
 
 
-#include "SG/Renderable/T3DSGGeometry.h"
+#include "SG/T3DSGGeometry.h"
 
 
 namespace Tiny3D

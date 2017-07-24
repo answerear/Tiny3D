@@ -4,7 +4,7 @@
 #define __T3D_SG_GEOMETRY_H__
 
 
-#include "SG/Renderable/T3DSGRenderable.h"
+#include "SG/T3DSGRenderable.h"
 
 
 namespace Tiny3D

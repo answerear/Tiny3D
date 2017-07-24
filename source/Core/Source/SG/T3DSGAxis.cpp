@@ -1,6 +1,6 @@
 
 
-#include "SG/Renderable/T3DSGAxis.h"
+#include "SG/T3DSGAxis.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "SG/T3DRenderQueue.h"

@@ -4,7 +4,7 @@
 #define __T3D_SG_RENDERABLE_H__
 
 
-#include "SG/Node/T3DSGNode.h"
+#include "SG//T3DSGNode.h"
 #include "Resource/T3DMaterial.h"
 #include "DataStruct/T3DIndexData.h"
 #include "DataStruct/T3DVertexData.h"

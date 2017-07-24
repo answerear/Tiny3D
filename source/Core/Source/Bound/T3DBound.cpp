@@ -4,9 +4,9 @@
 #include "Bound/T3DSphereBound.h"
 #include "Bound/T3DAabbBound.h"
 #include "Bound/T3DObbBound.h"
-#include "SG/Node/T3DSGNode.h"
+#include "SG//T3DSGNode.h"
 #include "T3DTransform.h"
-#include "SG/Renderable/T3DSGRenderable.h"
+#include "SG/T3DSGRenderable.h"
 
 
 namespace Tiny3D

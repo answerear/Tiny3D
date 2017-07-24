@@ -5,8 +5,8 @@
 #include "Bound/T3DObbBound.h"
 #include "Bound/T3DFrustumBound.h"
 #include "T3DMath.h"
-#include "SG/Node/T3DSGNode.h"
-#include "SG/Renderable/T3DSGBox.h"
+#include "SG//T3DSGNode.h"
+#include "SG/T3DSGBox.h"
 #include "T3DTransform.h"
 
 

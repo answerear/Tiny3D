@@ -1,12 +1,12 @@
 
 
-#include "SG/Visual/T3DSGModel.h"
-#include "SG/Renderable/T3DSGMesh.h"
-#include "SG/Renderable/T3DSGSkeleton.h"
+#include "SG/T3DSGModel.h"
+#include "SG/T3DSGMesh.h"
+#include "SG/T3DSGSkeleton.h"
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
 #include "DataStruct/T3DModelData.h"
-#include "SG/Node/T3DSGBone.h"
+#include "SG//T3DSGBone.h"
 #include "Misc/T3DEntrance.h"
 #include "Render/T3DHardwareBufferManager.h"
 

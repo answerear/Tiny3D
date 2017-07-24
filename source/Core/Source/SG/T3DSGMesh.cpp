@@ -1,6 +1,6 @@
 
 
-#include "SG/Renderable/T3DSGMesh.h"
+#include "SG/T3DSGMesh.h"
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
 #include "Resource/T3DMaterial.h"

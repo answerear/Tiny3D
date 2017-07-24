@@ -1,6 +1,6 @@
 
 
-#include "SG/Renderable/T3DSGBox.h"
+#include "SG/T3DSGBox.h"
 #include "SG/T3DRenderQueue.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Resource/T3DMaterialManager.h"

@@ -47,19 +47,17 @@
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
 
-#include "SG/Node/T3DSGNode.h"
-#include "SG/Node/T3DSGTransformNode.h"
-
-#include "SG/Visual/T3DSGCamera.h"
-#include "SG/Visual/T3DSGModel.h"
-
-#include "SG/Renderable/T3DSGRenderable.h"
-#include "SG/Renderable/T3DSGGeometry.h"
-#include "SG/Renderable/T3DSGMesh.h"
-#include "SG/Renderable/T3DSGBox.h"
-#include "SG/Renderable/T3DSGSphere.h"
-#include "SG/Renderable/T3DSGLight.h"
-#include "SG/Renderable/T3DSGAxis.h"
+#include "SG/T3DSGNode.h"
+#include "SG/T3DSGTransformNode.h"
+#include "SG/T3DSGCamera.h"
+#include "SG/T3DSGModel.h"
+#include "SG/T3DSGRenderable.h"
+#include "SG/T3DSGGeometry.h"
+#include "SG/T3DSGMesh.h"
+#include "SG/T3DSGBox.h"
+#include "SG/T3DSGSphere.h"
+#include "SG/T3DSGLight.h"
+#include "SG/T3DSGAxis.h"
 
 
 #endif  /*__TINY3D_H__*/
