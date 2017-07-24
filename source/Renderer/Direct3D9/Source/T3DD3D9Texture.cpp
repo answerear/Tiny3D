@@ -153,6 +153,25 @@ namespace Tiny3D
     {
         size_t bytesOfWritten = 0;
 
+        D3DLOCKED_RECT rect;
+        HRESULT hr = mD3DTexture->LockRect(0, &rect, nullptr, 0);
+
+        if (SUCCEEDED(hr))
+        {
+            if (dst == nullptr && src == nullptr)
+            {
+                T3D_ASSERT(size == rect.Pitch * mTexHeight);
+                memcpy(rect.pBits, data, size);
+                bytesOfWritten = size;
+            }
+            else
+            {
+
+            }
+
+            hr = mD3DTexture->UnlockRect(0);
+        }
+
         return bytesOfWritten;
     }
 
