@@ -142,10 +142,8 @@ namespace Tiny3D
     class SGNode;
     class SGTransformNode;
     class SGBone;
-    class SGVisual;
     class SGCamera;
     class SGModel;
-    class SGIndicator;
     class SGRenderable;
     class SGLight;
     class SGGeometry;
@@ -154,6 +152,7 @@ namespace Tiny3D
     class SGSphere;
     class SGBox;
     class SGAxis;
+    class SGQuad;
 
     class VertexData;
     class IndexData;

@@ -40,6 +40,7 @@ namespace Tiny3D
             E_NT_BOX,
             E_NT_SKELETON,
             E_NT_AXIS,
+            E_NT_QUAD,
         };
 
         virtual ~Node();

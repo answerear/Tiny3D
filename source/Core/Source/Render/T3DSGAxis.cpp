@@ -150,7 +150,7 @@ namespace Tiny3D
 
     NodePtr SGAxis::clone() const
     {
-        SGAxisPtr axis = create(mVertices[1].position.x(), mVertices[3].position.y(), mVertices[5].position.z());
+        SGAxisPtr axis = SGAxis::create(mVertices[1].position.x(), mVertices[3].position.y(), mVertices[5].position.z());
         cloneProperties(axis);
         return axis;
     }
