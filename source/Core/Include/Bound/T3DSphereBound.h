@@ -13,7 +13,7 @@ namespace Tiny3D
     class T3D_ENGINE_API SphereBound : public Bound
     {
     public:
-        static SphereBoundPtr create(uint32_t unID, SGVisual *node);
+        static SphereBoundPtr create(uint32_t unID, SGNode *node);
 
         virtual ~SphereBound();
 
@@ -27,7 +27,7 @@ namespace Tiny3D
         virtual SGRenderablePtr getRenderable() override;
 
     protected:
-        SphereBound(uint32_t unID, SGVisual *node);
+        SphereBound(uint32_t unID, SGNode *node);
 
         virtual bool testSphere(const SphereBoundPtr &bound) const override;
         virtual bool testAabb(const AabbBoundPtr &bound) const override;

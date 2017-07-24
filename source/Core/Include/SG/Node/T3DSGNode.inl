@@ -31,4 +31,9 @@ namespace Tiny3D
     {
         return mIsDirty;
     }
+
+    inline bool SGNode::isVisible() const
+    {
+        return mIsVisible;
+    }
 }

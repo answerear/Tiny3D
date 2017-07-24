@@ -220,5 +220,4 @@ namespace Tiny3D
         static uint32_t unID = 0;
         return ++unID;
     }
-
 }

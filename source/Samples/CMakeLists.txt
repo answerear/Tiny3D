@@ -43,4 +43,5 @@ add_subdirectory(cube)
 add_subdirectory(texture)
 add_subdirectory(model)
 add_subdirectory(skeleton)
+add_subdirectory(font)
 

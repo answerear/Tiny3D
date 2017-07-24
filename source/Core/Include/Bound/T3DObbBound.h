@@ -13,7 +13,7 @@ namespace Tiny3D
     class T3D_ENGINE_API ObbBound : public Bound
     {
     public:
-        static ObbBoundPtr create(uint32_t unID, SGVisual *node);
+        static ObbBoundPtr create(uint32_t unID, SGNode *node);
 
         virtual ~ObbBound();
 
@@ -24,7 +24,7 @@ namespace Tiny3D
         const Obb &getObb() const   { return mObb; }
 
     protected:
-        ObbBound(uint32_t unID, SGVisual *node);
+        ObbBound(uint32_t unID, SGNode *node);
 
         virtual bool testSphere(const SphereBoundPtr &bound) const override;
         virtual bool testAabb(const AabbBoundPtr &bound) const override;

@@ -1,20 +1,23 @@
 
 
 #include "Resource/T3DFontManager.h"
+#include "Resource/T3DFreeTypeAtlas.h"
 
 
 namespace Tiny3D
 {
     T3D_INIT_SINGLETON(FontManager);
 
-    FontManager::FontManager()
+    FontManager::FontManager(const FontConfig &config)
+        : mFontConfig(config)
     {
-
+        FreeTypeAtlas *atlas = new FreeTypeAtlas();
     }
 
     FontManager::~FontManager()
     {
-
+        FreeTypeAtlas *atlas = FreeTypeAtlas::getInstancePtr();
+        delete atlas;
     }
 
     FontPtr FontManager::loadFont(const String &name)
@@ -28,8 +31,7 @@ namespace Tiny3D
 
         int32_t fontSize = va_arg(args, int32_t);
         Font::FontType fontType = va_arg(args, Font::FontType);
-        const Font::FontConfig &fontConfig = va_arg(args, Font::FontConfig);
-        font = Font::create(name, fontSize, fontType, fontConfig);
+        font = Font::create(name, fontSize, fontType);
 
         return font;
     }

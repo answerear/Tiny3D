@@ -5,20 +5,20 @@
 #include "Bound/T3DObbBound.h"
 #include "Bound/T3DFrustumBound.h"
 #include "T3DMath.h"
-#include "SG/Visual/T3DSGVisual.h"
+#include "SG/Node/T3DSGNode.h"
 #include "SG/Renderable/T3DSGBox.h"
 
 
 namespace Tiny3D
 {
-    FrustumBoundPtr FrustumBound::create(uint32_t unID, SGVisual *node)
+    FrustumBoundPtr FrustumBound::create(uint32_t unID, SGNode *node)
     {
         FrustumBoundPtr bound = new FrustumBound(unID, node);
         bound->release();
         return bound;
     }
 
-    FrustumBound::FrustumBound(uint32_t unID, SGVisual *node)
+    FrustumBound::FrustumBound(uint32_t unID, SGNode *node)
         : Bound(unID, node)
         , mRenderable(nullptr)
     {
@@ -42,7 +42,7 @@ namespace Tiny3D
 
     BoundPtr FrustumBound::clone() const
     {
-        FrustumBoundPtr bound = new FrustumBound(getID(), getVisualNode());
+        FrustumBoundPtr bound = new FrustumBound(getID(), getNode());
         bound->release();
         cloneProperties(bound);
         return bound;

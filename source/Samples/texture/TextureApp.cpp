@@ -45,8 +45,8 @@ bool TextureApp::applicationDidFinishLaunching()
         viewport->setBackgroundColor(Color4::BLACK);
     }
 
-    SGIndicatorPtr indicator = SGIndicator::create(5, 5, 5);
-    root->addChild(indicator);
+    SGAxisPtr axis = SGAxis::create(5, 5, 5);
+    root->addChild(axis);
 
     // ±ä»»½áµã
     node = SGTransformNode::create();

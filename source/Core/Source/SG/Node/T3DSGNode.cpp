@@ -71,4 +71,8 @@ namespace Tiny3D
         newNode->mUserObject = mUserObject;
     }
 
+    void SGNode::setVisible(bool visible)
+    {
+        mIsVisible = visible;
+    }
 }

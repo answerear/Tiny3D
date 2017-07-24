@@ -13,7 +13,7 @@ namespace Tiny3D
     class T3D_ENGINE_API FrustumBound : public Bound
     {
     public:
-        static FrustumBoundPtr create(uint32_t unID, SGVisual *node);
+        static FrustumBoundPtr create(uint32_t unID, SGNode *node);
 
         virtual ~FrustumBound();
 
@@ -27,7 +27,7 @@ namespace Tiny3D
         void setParam(const Plane *plane, size_t planeCount);
 
     protected:
-        FrustumBound(uint32_t unID, SGVisual *node);
+        FrustumBound(uint32_t unID, SGNode *node);
 
         virtual bool testSphere(const SphereBoundPtr &bound) const override;
         virtual bool testAabb(const AabbBoundPtr &bound) const override;

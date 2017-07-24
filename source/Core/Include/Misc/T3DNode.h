@@ -28,11 +28,9 @@ namespace Tiny3D
             // For SGTransformNode
             E_NT_TRANSFORM,
 
-            // All node derived from SGVisual
+            // All node derived from SGNode
             E_NT_CAMERA,
-            E_NT_SHAPE,
             E_NT_MODEL,
-            E_NT_INDICATOR,
 
             // All node derived from SGRenderable
             E_NT_LIGHT,

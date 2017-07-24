@@ -10,16 +10,15 @@
 
 namespace Tiny3D
 {
-    FontPtr Font::create(const String &name, int32_t fontSize, FontType fontType, const FontConfig &fontConfig)
+    FontPtr Font::create(const String &name, int32_t fontSize, FontType fontType)
     {
-        return FontFreeType::create(name, fontSize, fontType, fontConfig);
+        return FontFreeType::create(name, fontSize, fontType);
     }
 
-    Font::Font(const String &name, int32_t fontSize, FontType fontType, const FontConfig &fontConfig)
+    Font::Font(const String &name, int32_t fontSize, FontType fontType)
         : Resource(name)
         , mFontSize(fontSize)
         , mFontType(fontType)
-        , mFontConfig(fontConfig)
     {
 
     }

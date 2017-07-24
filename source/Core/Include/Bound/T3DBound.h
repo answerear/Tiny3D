@@ -36,8 +36,8 @@ namespace Tiny3D
 
         virtual bool test(const BoundPtr &bound) const;
 
-        const SGVisualPtr getVisualNode() const;
-        SGVisualPtr getVisualNode();
+        SGNodePtr getNode() const;
+        SGNodePtr getNode();
 
         void setCollisionSource(bool isSource);
         bool isCollisionSource() const;
@@ -52,7 +52,7 @@ namespace Tiny3D
         virtual BoundPtr clone() const = 0;
 
     protected:
-        Bound(uint32_t unID, SGVisual *node);
+        Bound(uint32_t unID, SGNode *node);
 
         virtual bool testSphere(const SphereBoundPtr &bound) const = 0;
         virtual bool testAabb(const AabbBoundPtr &bound) const = 0;
@@ -67,7 +67,7 @@ namespace Tiny3D
         Sphere  mSphere;
 
     private:
-        SGVisual    *mNode;
+        SGNode      *mNode;
 
         uint32_t    mID;
         uint32_t    mGroupID;

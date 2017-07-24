@@ -18,7 +18,7 @@ namespace Tiny3D
     {
         bool ret = false;
 
-        int32_t i = frame;
+        size_t i = frame;
 
         while (i < container.size() && i + 1 < container.size())
         {
@@ -55,7 +55,7 @@ namespace Tiny3D
     }
 
     SGModel::SGModel(uint32_t unID /* = E_NID_AUTOMATIC */)
-        : SGVisual(unID)
+        : SGNode(unID)
         , mModel(nullptr)
         , mRenderMode(E_RENDER_ENTITY)
         , mSkeleton(nullptr)
@@ -191,7 +191,7 @@ namespace Tiny3D
 
         if (model != nullptr)
         {
-            SGVisual::cloneProperties(model);
+            SGNode::cloneProperties(model);
         }
         
         return model;
@@ -212,7 +212,7 @@ namespace Tiny3D
         }
 
         // 更新所有子结点变换
-        SGVisual::updateTransform();
+        SGNode::updateTransform();
     }
 
     void SGModel::enableRenderingEntities()
@@ -527,7 +527,7 @@ namespace Tiny3D
             {
                 KeyFrameDataTPtr keyframe1 = smart_pointer_cast<KeyFrameDataT>(kf1);
                 KeyFrameDataTPtr keyframe2 = smart_pointer_cast<KeyFrameDataT>(kf2);
-                double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
+                Real t = Real(time - keyframe1->mTimestamp) / Real(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 Vector3 &base = keyframe1->mTranslation;
                 translation = (base + (keyframe2->mTranslation - base) * t);
 //                 T3D_LOG_INFO("Keyframe #1 T(%f, %f, %f)", keyframe1->mTranslation[0], keyframe1->mTranslation[1], keyframe1->mTranslation[2]);
@@ -550,7 +550,7 @@ namespace Tiny3D
             {
                 KeyFrameDataRPtr keyframe1 = smart_pointer_cast<KeyFrameDataR>(kf1);
                 KeyFrameDataRPtr keyframe2 = smart_pointer_cast<KeyFrameDataR>(kf2);
-                double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
+                Real t = Real(time - keyframe1->mTimestamp) / Real(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 orientation.lerp(keyframe1->mOrientation, keyframe2->mOrientation, t/* / 1000*/);
 //                 orientation.slerp(keyframe1->mOrientation, keyframe2->mOrientation, t, true);
 //                 T3D_LOG_INFO("Keyframe #1 R(%f, %f, %f, %f)", keyframe1->mOrientation[0], keyframe1->mOrientation[1], keyframe1->mOrientation[2], keyframe1->mOrientation[3]);
@@ -590,7 +590,7 @@ namespace Tiny3D
             {
                 KeyFrameDataSPtr keyframe1 = smart_pointer_cast<KeyFrameDataS>(kf1);
                 KeyFrameDataSPtr keyframe2 = smart_pointer_cast<KeyFrameDataS>(kf2);
-                double t = double(time - keyframe1->mTimestamp) / double(keyframe2->mTimestamp - keyframe1->mTimestamp);
+                Real t = Real(time - keyframe1->mTimestamp) / Real(keyframe2->mTimestamp - keyframe1->mTimestamp);
                 Vector3 &base = keyframe1->mScaling;
                 scaling = (base * (keyframe2->mScaling - base) * t);
 //                 T3D_LOG_INFO("Keyframe #1 S(%f, %f, %f)", keyframe1->mScaling[0], keyframe1->mScaling[1], keyframe1->mScaling[2]);

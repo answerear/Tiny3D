@@ -19,37 +19,6 @@ namespace Tiny3D
             E_FT_IMAGE = 2,
         };
 
-        struct FontConfig
-        {
-            enum Strategy
-            {
-                E_STRATEGY_AUTO = 0,    /// 内部自动选择
-                E_STRATEGY_LRU,         /// 当纹理空间不够时，使用LRU算法淘汰最长时间没有渲染的纹理
-                E_STRATEGY_APPEND,      /// 新增另外一个材质和纹理
-            };
-
-            enum DefaultValue
-            {
-                E_DEFAULT_SIZE = 512,
-                E_DEFAULT_MAX = 2048,
-            };
-
-            FontConfig()
-                : initTexWidth(E_DEFAULT_SIZE)
-                , initTexHeight(E_DEFAULT_SIZE)
-                , maxTexWidth(E_DEFAULT_MAX)
-                , maxTexHeight(E_DEFAULT_MAX)
-                , strategy(E_STRATEGY_AUTO)
-            {
-            }
-
-            size_t      initTexWidth;       /// 初始纹理宽度，默认是512
-            size_t      initTexHeight;      /// 初始纹理高度，默认是512
-            size_t      maxTexWidth;        /// 最大纹理宽度，此值会跟硬件支持最大纹理宽度比较取最小值，默认是2048
-            size_t      maxTexHeight;       /// 最大纹理高度，此值会跟硬件支持最大纹理高度比较取最小值，默认是2048
-            Strategy    strategy;           /// 管理策略，默认是E_STRATEGY_AUTO，具体会根据不同的字体实现来定制
-        };
-
         class Char : public Object
         {
         public:
@@ -57,7 +26,7 @@ namespace Tiny3D
                 : mCode(0)
             {}
 
-            MaterialPtr     mMaterial;      /// 材质对象
+            ObjectPtr       mBlock;         /// 字符对应区块信息对象
             int32_t         mCode;          /// 字符编码
             Rect            mArea;          /// 字符对应材质中纹理信息
         };
@@ -69,7 +38,7 @@ namespace Tiny3D
         typedef CharSet::const_iterator CharSetConstItr;
         typedef CharSet::value_type     CharSetValue;
 
-        static FontPtr create(const String &name, int32_t fontSize, FontType fontType, const FontConfig &fontConfig);
+        static FontPtr create(const String &name, int32_t fontSize, FontType fontType);
 
         virtual ~Font();
 
@@ -97,12 +66,11 @@ namespace Tiny3D
         virtual bool updateContent(const String &text, MaterialPtr &material, CharSet &set) = 0;
 
     protected:
-        Font(const String &name, int32_t fontSize, FontType fontType, const FontConfig &fontConfig);
+        Font(const String &name, int32_t fontSize, FontType fontType);
 
     protected:
         int32_t     mFontSize;
         FontType    mFontType;
-        FontConfig  mFontConfig;
     };
 }
 

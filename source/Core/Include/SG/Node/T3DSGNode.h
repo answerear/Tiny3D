@@ -41,6 +41,9 @@ namespace Tiny3D
         virtual void setDirty(bool isDirty, bool recursive = false);
         bool isDirty() const;
 
+        virtual void setVisible(bool visible);
+        bool isVisible() const;
+
     protected:
         /** 
          * @brief Perform self transformation and recursively call all children
@@ -61,6 +64,7 @@ namespace Tiny3D
         ObjectPtr   mUserObject;   /// Pointer to user object
 
         bool        mIsDirty;
+        bool        mIsVisible;
     };
 }
 

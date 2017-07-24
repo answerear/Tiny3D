@@ -22,7 +22,7 @@ namespace Tiny3D
     }
 
     SGCamera::SGCamera(uint32_t unID /* = E_NID_AUTOMATIC */)
-        : SGVisual(unID)
+        : SGNode(unID)
         , mFovY(Real(45.0))
         , mFarDistance(Real(2000.0))
         , mNearDistance(Real(1.0))
@@ -52,7 +52,7 @@ namespace Tiny3D
 
     void SGCamera::cloneProperties(const NodePtr &node) const
     {
-        SGVisual::cloneProperties(node);
+        SGNode::cloneProperties(node);
 
         const SGCameraPtr &newNode = smart_pointer_cast<SGCamera>(node);
         newNode->mFovY = mFovY;
@@ -84,12 +84,12 @@ namespace Tiny3D
             updateBound();
         }
 
-        SGVisual::updateTransform();
+        SGNode::updateTransform();
     }
 
     void SGCamera::setDirty(bool isDirty, bool recursive /* = false */)
     {
-        SGVisual::setDirty(isDirty, recursive);
+        SGNode::setDirty(isDirty, recursive);
         mIsViewDirty = isDirty;
     }
 

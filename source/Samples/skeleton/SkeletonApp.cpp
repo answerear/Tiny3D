@@ -77,8 +77,8 @@ bool SkeletonApp::applicationDidFinishLaunching()
     node->lookAt(Vector3(150, 50, 150), Vector3::ZERO, Vector3::UNIT_Y);
 
     // зјБъ
-    SGIndicatorPtr indicator = SGIndicator::create(50, 50, 50);
-    root->addChild(indicator);
+    SGAxisPtr axis = SGAxis::create(50, 50, 50);
+    root->addChild(axis);
 
 #elif TEST_MODEL_TORTOISE
     node->lookAt(Vector3(-2500, 2000, 2500), Vector3::ZERO, Vector3::UNIT_Y);

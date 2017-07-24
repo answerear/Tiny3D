@@ -4,14 +4,14 @@
 #include "Bound/T3DSphereBound.h"
 #include "Bound/T3DAabbBound.h"
 #include "Bound/T3DObbBound.h"
-#include "SG/Visual/T3DSGVisual.h"
+#include "SG/Node/T3DSGNode.h"
 #include "T3DTransform.h"
 #include "SG/Renderable/T3DSGRenderable.h"
 
 
 namespace Tiny3D
 {
-    Bound::Bound(uint32_t unID, SGVisual *node)
+    Bound::Bound(uint32_t unID, SGNode *node)
         : mNode(node)
         , mID(unID)
         , mGroupID(0)

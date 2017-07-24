@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 ################################################################################
 
-set_project_name(Demo_Cube)
+set_project_name(Demo_Font)
 
 
 set(TINY3D_MATH_INC_DIR "${TINY3D_INC_DIR}/Math")
@@ -21,7 +21,6 @@ include_directories(
 	"${TINY3D_LOG_INC_DIR}"
 	"${TINY3D_CORE_INC_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
-	"${SDL2_INCLUDE_DIR}"
 	)
 
 
@@ -41,7 +40,6 @@ if (TINY3D_OS_WINDOWS)
 endif ()
 
 
-
 add_executable(
 	${BIN_NAME} WIN32 
 	${SOURCE_FILES}
@@ -54,7 +52,6 @@ target_link_libraries(
 	T3DLog
 	T3DMath
 	T3DCore
-	${SDL2_LIBRARY}
 	)
 
 if (TINY3D_OS_WINDOWS)
@@ -76,7 +73,6 @@ if (TINY3D_OS_WINDOWS)
 		COMMAND ${CMAKE_COMMAND} -E copy ${FREEIMAGE_BINARY} ${CMAKE_CURRENT_BINARY_DIR}/debug
 		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_INSTALL_PREFIX}/media/config ${CMAKE_CURRENT_BINARY_DIR}
 		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_INSTALL_PREFIX}/media/resources ${CMAKE_CURRENT_BINARY_DIR}/resources
-		COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_CURRENT_BINARY_DIR}/debug
 		)
 endif ()
 

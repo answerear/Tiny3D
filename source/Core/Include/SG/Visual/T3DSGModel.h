@@ -3,13 +3,13 @@
 #define __T3D_SG_MODEL_H__
 
 
-#include "SG/Visual/T3DSGVisual.h"
+#include "SG/Node/T3DSGNode.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SGModel : public SGVisual
+    class T3D_ENGINE_API SGModel : public SGNode
     {
     public:
         enum RenderMode

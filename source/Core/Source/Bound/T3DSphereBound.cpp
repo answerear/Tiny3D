@@ -7,20 +7,20 @@
 #include "T3DTransform.h"
 #include "T3DMath.h"
 #include "SG/Renderable/T3DSGRenderable.h"
-#include "SG/Visual/T3DSGVisual.h"
+#include "SG/Node/T3DSGNode.h"
 #include "SG/Renderable/T3DSGSphere.h"
 
 
 namespace Tiny3D
 {
-    SphereBoundPtr SphereBound::create(uint32_t unID, SGVisual *node)
+    SphereBoundPtr SphereBound::create(uint32_t unID, SGNode *node)
     {
         SphereBoundPtr bound = new SphereBound(unID, node);
         bound->release();
         return bound;
     }
 
-    SphereBound::SphereBound(uint32_t unID, SGVisual *node)
+    SphereBound::SphereBound(uint32_t unID, SGNode *node)
         : Bound(unID, node)
         , mOriginalSphere()
         , mRenderable(nullptr)
@@ -45,7 +45,7 @@ namespace Tiny3D
 
     BoundPtr SphereBound::clone() const
     {
-        SphereBoundPtr bound = new SphereBound(getID(), getVisualNode());
+        SphereBoundPtr bound = new SphereBound(getID(), getNode());
         cloneProperties(bound);
         return bound;
     }

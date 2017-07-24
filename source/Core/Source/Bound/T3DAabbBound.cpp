@@ -5,20 +5,21 @@
 #include "Bound/T3DObbBound.h"
 #include "Bound/T3DFrustumBound.h"
 #include "T3DMath.h"
-#include "SG/Visual/T3DSGVisual.h"
+#include "SG/Node/T3DSGNode.h"
 #include "SG/Renderable/T3DSGBox.h"
+#include "T3DTransform.h"
 
 
 namespace Tiny3D
 {
-    AabbBoundPtr AabbBound::create(uint32_t unID, SGVisual *node)
+    AabbBoundPtr AabbBound::create(uint32_t unID, SGNode *node)
     {
         AabbBoundPtr bound = new AabbBound(unID, node);
         bound->release();
         return bound;
     }
 
-    AabbBound::AabbBound(uint32_t unID, SGVisual *node)
+    AabbBound::AabbBound(uint32_t unID, SGNode *node)
         : Bound(unID, node)
     {
 
@@ -46,7 +47,7 @@ namespace Tiny3D
 
     BoundPtr AabbBound::clone() const
     {
-        AabbBoundPtr bound = new AabbBound(getID(), getVisualNode());
+        AabbBoundPtr bound = new AabbBound(getID(), getNode());
         cloneProperties(bound);
         return bound;
     }

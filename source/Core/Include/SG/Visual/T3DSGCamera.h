@@ -4,12 +4,12 @@
 #define __T3D_SG_CAMERA_H__
 
 
-#include "SG/Visual/T3DSGVisual.h"
+#include "SG/Node/T3DSGNode.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SGCamera : public SGVisual
+    class T3D_ENGINE_API SGCamera : public SGNode
     {
         friend class Viewport;
         friend class SceneManager;
