@@ -30,8 +30,8 @@
 #include "Render/T3DHardwareIndexBuffer.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 
-#include "Misc/T3DIndexData.h"
-#include "Misc/T3DVertexData.h"
+#include "Render/T3DIndexData.h"
+#include "Render/T3DVertexData.h"
 #include "Misc/T3DVariant.h"
 
 #include "Resource/T3DResource.h"
@@ -47,19 +47,19 @@
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
 
-#include "SG/T3DSGNode.h"
-#include "SG/T3DSGTransformNode.h"
-#include "SG/T3DSGCamera.h"
-#include "SG/T3DSGModel.h"
-#include "SG/T3DSGRenderable.h"
-#include "SG/T3DSGGeometry.h"
-#include "SG/T3DSGMesh.h"
-#include "SG/T3DSGBox.h"
-#include "SG/T3DSGSphere.h"
-#include "SG/T3DSGLight.h"
-#include "SG/T3DSGAxis.h"
-#include "SG/T3DRenderQueue.h"
-#include "SG/T3DSceneManager.h"
+#include "Render/T3DSGNode.h"
+#include "Render/T3DSGTransformNode.h"
+#include "Render/T3DSGCamera.h"
+#include "Render/T3DSGModel.h"
+#include "Render/T3DSGRenderable.h"
+#include "Render/T3DSGGeometry.h"
+#include "Render/T3DSGMesh.h"
+#include "Render/T3DSGBox.h"
+#include "Render/T3DSGSphere.h"
+#include "Render/T3DSGLight.h"
+#include "Render/T3DSGAxis.h"
+#include "Render/T3DRenderQueue.h"
+#include "Render/T3DSceneManager.h"
 
 
 #endif  /*__TINY3D_H__*/

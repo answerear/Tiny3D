@@ -1,11 +1,11 @@
 
 
-#include "SG/T3DSceneManager.h"
-#include "SG/T3DSGCamera.h"
-#include "SG//T3DSGTransformNode.h"
-#include "SG/T3DSGRenderable.h"
+#include "Render/T3DSceneManager.h"
+#include "Render/T3DSGCamera.h"
+#include "Render//T3DSGTransformNode.h"
+#include "Render/T3DSGRenderable.h"
 #include "Render/T3DRenderer.h"
-#include "SG/T3DRenderQueue.h"
+#include "Render/T3DRenderQueue.h"
 
 
 namespace Tiny3D

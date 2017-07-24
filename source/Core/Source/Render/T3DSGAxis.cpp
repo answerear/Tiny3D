@@ -1,9 +1,9 @@
 
 
-#include "SG/T3DSGAxis.h"
+#include "Render/T3DSGAxis.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
-#include "SG/T3DRenderQueue.h"
+#include "Render/T3DRenderQueue.h"
 
 
 namespace Tiny3D

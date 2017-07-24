@@ -3,7 +3,7 @@
 #define __T3D_SG_BOX_H__
 
 
-#include "SG/T3DSGGeometry.h"
+#include "Render/T3DSGGeometry.h"
 #include "T3DAabb.h"
 #include "T3DVector2.h"
 

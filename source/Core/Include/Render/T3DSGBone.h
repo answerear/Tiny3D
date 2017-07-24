@@ -4,7 +4,7 @@
 #define __T3D_SG_BONE_H__
 
 
-#include "SG//T3DSGTransformNode.h"
+#include "Render//T3DSGTransformNode.h"
 
 
 namespace Tiny3D

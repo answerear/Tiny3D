@@ -8,7 +8,7 @@
 #include "T3DSingleton.h"
 #include "T3DCommon.h"
 #include "Misc/T3DVariant.h"
-#include "SG/T3DSceneManager.h"
+#include "Render/T3DSceneManager.h"
 
 
 namespace Tiny3D

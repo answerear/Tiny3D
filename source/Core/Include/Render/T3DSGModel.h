@@ -3,7 +3,7 @@
 #define __T3D_SG_MODEL_H__
 
 
-#include "SG//T3DSGNode.h"
+#include "Render//T3DSGNode.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 
 

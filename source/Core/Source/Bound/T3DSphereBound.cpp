@@ -6,9 +6,9 @@
 #include "Bound/T3DFrustumBound.h"
 #include "T3DTransform.h"
 #include "T3DMath.h"
-#include "SG/T3DSGRenderable.h"
-#include "SG//T3DSGNode.h"
-#include "SG/T3DSGSphere.h"
+#include "Render/T3DSGRenderable.h"
+#include "Render//T3DSGNode.h"
+#include "Render/T3DSGSphere.h"
 
 
 namespace Tiny3D

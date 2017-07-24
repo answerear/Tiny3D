@@ -4,7 +4,7 @@
 #define __T3D_SG_MESH_H__
 
 
-#include "SG/T3DSGGeometry.h"
+#include "Render/T3DSGGeometry.h"
 
 
 namespace Tiny3D

@@ -39,8 +39,6 @@ include_directories(
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
-set_project_files(Include\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/ .h)
-set_project_files(Include\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Include/SG/ .inl)
 set_project_files(Include\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/ .h)
 set_project_files(Include\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/ .inl)
 set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .h)
@@ -54,7 +52,6 @@ set_project_files(Include\\\\InputDevice ${CMAKE_CURRENT_SOURCE_DIR}/Include/Inp
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .h)
-set_project_files(Source\\\\SG ${CMAKE_CURRENT_SOURCE_DIR}/Source/SG/ .cpp)
 set_project_files(Source\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/ .cpp)
 set_project_files(Source\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Source/Bound/ .cpp)
 set_project_files(Source\\\\Misc ${CMAKE_CURRENT_SOURCE_DIR}/Source/Misc/ .cpp)

@@ -1,8 +1,8 @@
 
 
-#include "SG/T3DSGCamera.h"
-#include "SG//T3DSGTransformNode.h"
-#include "SG/T3DSGRenderable.h"
+#include "Render/T3DSGCamera.h"
+#include "Render//T3DSGTransformNode.h"
+#include "Render/T3DSGRenderable.h"
 #include "T3DMath.h"
 #include "T3DMatrix4.h"
 #include "Misc/T3DEntrance.h"

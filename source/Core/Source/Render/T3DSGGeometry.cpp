@@ -1,7 +1,7 @@
 
 
-#include "SG/T3DSGGeometry.h"
-#include "SG/T3DRenderQueue.h"
+#include "Render/T3DSGGeometry.h"
+#include "Render/T3DRenderQueue.h"
 
 
 namespace Tiny3D

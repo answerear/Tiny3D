@@ -4,10 +4,10 @@
 #define __T3D_SG_RENDERABLE_H__
 
 
-#include "SG//T3DSGNode.h"
+#include "Render//T3DSGNode.h"
 #include "Resource/T3DMaterial.h"
-#include "Misc/T3DIndexData.h"
-#include "Misc/T3DVertexData.h"
+#include "Render/T3DIndexData.h"
+#include "Render/T3DVertexData.h"
 #include "Render/T3DRenderer.h"
 
 

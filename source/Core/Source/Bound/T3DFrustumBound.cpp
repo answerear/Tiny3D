@@ -5,8 +5,8 @@
 #include "Bound/T3DObbBound.h"
 #include "Bound/T3DFrustumBound.h"
 #include "T3DMath.h"
-#include "SG//T3DSGNode.h"
-#include "SG/T3DSGBox.h"
+#include "Render//T3DSGNode.h"
+#include "Render/T3DSGBox.h"
 
 
 namespace Tiny3D

@@ -4,7 +4,7 @@
 #define __T3D_SG_CAMERA_H__
 
 
-#include "SG//T3DSGNode.h"
+#include "Render//T3DSGNode.h"
 
 
 namespace Tiny3D

@@ -1,7 +1,7 @@
 
 
-#include "SG/T3DSGSphere.h"
-#include "SG/T3DRenderQueue.h"
+#include "Render/T3DSGSphere.h"
+#include "Render/T3DRenderQueue.h"
 #include "Render/T3DHardwareBufferManager.h"
 
 
