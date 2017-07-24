@@ -1,6 +1,6 @@
 
 
-#include "DataStruct/T3DVertexData.h"
+#include "Misc/T3DVertexData.h"
 #include "Render/T3DHardwareBufferManager.h"
 
 

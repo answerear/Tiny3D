@@ -6,7 +6,7 @@
 #include "T3DModelSerializer.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Render/T3DRenderer.h"
-#include "DataStruct/T3DModelData.h"
+#include "Misc/T3DModelData.h"
 
 
 namespace tinyxml2

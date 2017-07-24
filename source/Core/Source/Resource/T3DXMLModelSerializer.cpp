@@ -1,7 +1,7 @@
 
 #include "T3DXMLModelSerializer.h"
 #include "Support/tinyxml2/tinyxml2.h"
-#include "DataStruct/T3DModelData.h"
+#include "Misc/T3DModelData.h"
 
 
 namespace Tiny3D

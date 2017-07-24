@@ -1,7 +1,7 @@
 
 
 #include "Resource/T3DModel.h"
-#include "DataStruct/T3DModelData.h"
+#include "Misc/T3DModelData.h"
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveManager.h"
 #include "Resource/T3DXMLModelSerializer.h"

@@ -7,7 +7,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DSingleton.h"
 #include "T3DCommon.h"
-#include "DataStruct/T3DVariant.h"
+#include "Misc/T3DVariant.h"
 #include "SG/T3DSceneManager.h"
 
 

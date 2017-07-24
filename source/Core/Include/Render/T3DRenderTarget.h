@@ -5,7 +5,7 @@
 
 
 #include "T3DPrerequisites.h"
-#include "Misc/T3DViewport.h"
+#include "Render/T3DViewport.h"
 #include "Misc/T3DObject.h"
 
 

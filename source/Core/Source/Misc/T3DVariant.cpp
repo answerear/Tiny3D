@@ -1,6 +1,6 @@
 
 
-#include "DataStruct/T3DVariant.h"
+#include "Misc/T3DVariant.h"
 
 
 namespace Tiny3D

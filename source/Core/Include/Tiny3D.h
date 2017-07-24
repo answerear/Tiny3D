@@ -18,7 +18,7 @@
 #include "Misc/T3DColor4.h"
 #include "Misc/T3DCommon.h"
 #include "Misc/T3DPlugin.h"
-#include "Misc/T3DViewport.h"
+#include "Render/T3DViewport.h"
 #include "Misc/T3DImage.h"
 #include "Misc/T3DWindowEventHandler.h"
 
@@ -30,9 +30,9 @@
 #include "Render/T3DHardwareIndexBuffer.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 
-#include "DataStruct/T3DIndexData.h"
-#include "DataStruct/T3DVertexData.h"
-#include "DataStruct/T3DVariant.h"
+#include "Misc/T3DIndexData.h"
+#include "Misc/T3DVertexData.h"
+#include "Misc/T3DVariant.h"
 
 #include "Resource/T3DResource.h"
 #include "Resource/T3DResourceManager.h"
@@ -58,6 +58,8 @@
 #include "SG/T3DSGSphere.h"
 #include "SG/T3DSGLight.h"
 #include "SG/T3DSGAxis.h"
+#include "SG/T3DRenderQueue.h"
+#include "SG/T3DSceneManager.h"
 
 
 #endif  /*__TINY3D_H__*/

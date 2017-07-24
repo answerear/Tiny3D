@@ -1,7 +1,7 @@
 
 
 #include "SG//T3DSGBone.h"
-#include "DataStruct/T3DBoneData.h"
+#include "Misc/T3DBoneData.h"
 
 
 namespace Tiny3D

@@ -1,6 +1,6 @@
 
 #include "Misc/T3DConfigFile.h"
-#include "DataStruct/T3DVariant.h"
+#include "Misc/T3DVariant.h"
 #include "Support/tinyxml2/tinyxml2.h"
 
 #include <T3DPlatform.h>

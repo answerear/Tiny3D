@@ -5,7 +5,7 @@
 #include "Resource/T3DModelManager.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DMaterialManager.h"
-#include "DataStruct/T3DModelData.h"
+#include "Misc/T3DModelData.h"
 #include "Render/T3DHardwareBufferManager.h"
 
 

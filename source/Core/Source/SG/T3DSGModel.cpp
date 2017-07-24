@@ -5,7 +5,7 @@
 #include "SG/T3DSGSkeleton.h"
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
-#include "DataStruct/T3DModelData.h"
+#include "Misc/T3DModelData.h"
 #include "SG//T3DSGBone.h"
 #include "Misc/T3DEntrance.h"
 #include "Render/T3DHardwareBufferManager.h"
