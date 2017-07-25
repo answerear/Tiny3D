@@ -104,20 +104,34 @@ namespace Tiny3D
 
             // 先判断是否够空间放入新的字符
             FT_Face ftFace = font->getFontFace();
-            Rect srcRect;
-            srcRect.left = (ftFace->glyph->metrics.horiBearingX >> 6);
-            srcRect.right = (srcRect.left + ftFace->glyph->metrics.width >> 6);
-            srcRect.top = (ftFace->glyph->metrics.horiBearingY >> 6);
-            srcRect.bottom = (srcRect.top + ftFace->glyph->metrics.height >> 6);
 
-            Size srcSize;
-            srcSize.width = ftFace->glyph->bitmap.width;
-            srcSize.height = ftFace->glyph->bitmap.rows;
+            // 获取字体高度
+            int32_t fontHeight = (ftFace->size->metrics.height >> 6);
+            int32_t fontWidth = ftFace->size->metrics.max_advance;
+
+            if (block->offset.x + fontWidth > block->area.width()
+                && block->offset.y + fontHeight > block->area.height())
+            {
+                // block空间不足放这个字符，只能新建一个block
+                if (!insertBlock(font, block))
+                {
+                    T3D_LOG_ERROR("Insert block failed !");
+                    break;
+                }
+            }
+
+            // 复制bitmap到目标纹理上
+            if (!copyBitmapToTexture(font, block, ch))
+            {
+                T3D_LOG_ERROR("Copy font bitmap to texture failed !");
+                break;
+            }
 
             block->charmap.insert(CharMapValue(code, ch));
             ch->mBlock = block;
 
             mCharmap.insert(CharMapValue(code, ch));
+
             ret = true;
         } while (0);
 
@@ -371,6 +385,55 @@ namespace Tiny3D
             }
 
             r.first->second.push_back(block);
+        } while (0);
+
+        return ret;
+    }
+
+    bool FreeTypeAtlas::copyBitmapToTexture(FontFreeTypePtr font, BlockPtr block, Font::CharPtr ch)
+    {
+        bool ret = false;
+
+        do 
+        {
+            FT_Face ftFace = font->getFontFace();
+            
+            Rect srcRect(Point(0, 0), Size(ftFace->glyph->bitmap.width, ftFace->glyph->bitmap.rows));
+            
+            int32_t baseline = (ftFace->size->metrics.ascender >> 6);
+            int32_t fontHeight = (ftFace->size->metrics.height >> 6);
+
+            int32_t left = block->offset.x + ftFace->glyph->bitmap_left;
+            int32_t top = block->offset.y + baseline - ftFace->glyph->bitmap_top;
+            int32_t stepX = ftFace->glyph->metrics.horiAdvance;
+
+            Rect dstRect(Point(left, top), Size(ftFace->glyph->bitmap.width, ftFace->glyph->bitmap.rows));
+
+            if (dstRect.right > block->area.right)
+            {
+                // 需要换行了
+                block->offset.x = block->area.left;
+                block->offset.y += fontHeight;
+                left = block->offset.x + ftFace->glyph->bitmap_left;
+            }
+
+            T3D_ASSERT(dstRect.bottom <= block->area.bottom);
+
+            ch->mArea.left = block->offset.x;
+            ch->mArea.right = ch->mArea.left + ftFace->glyph->bitmap.width - 1;
+            ch->mArea.top = block->offset.y;
+            ch->mArea.bottom = ch->mArea.top + fontHeight - 1;
+
+            // 获取纹理缓存，写纹理
+            FacePtr face = smart_pointer_cast<Face>(block->face);
+            TexturePtr texture = face->material->getTexture(0);
+
+            uint8_t *srcData = ftFace->glyph->bitmap.buffer;
+            uint8_t *dstData = nullptr;
+            int32_t pitch;
+            int32_t width;
+            int32_t height;
+            
         } while (0);
 
         return ret;

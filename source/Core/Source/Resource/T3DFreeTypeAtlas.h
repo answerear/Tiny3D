@@ -120,6 +120,8 @@ namespace Tiny3D
 
         bool createBlock(size_t fontSize, const Rect &area, const Point &offset, FacePtr face, BlockPtr &block);
 
+        bool copyBitmapToTexture(FontFreeTypePtr font, BlockPtr block, Font::CharPtr ch);
+
     protected:
         FaceMap     mFaces;
         CharMap     mCharmap;           /// 存储所有字符，方便用于查找
