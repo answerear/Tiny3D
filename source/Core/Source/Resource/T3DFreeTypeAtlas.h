@@ -15,6 +15,8 @@ namespace Tiny3D
     public:
         virtual ~FreeTypeAtlas();
 
+        bool hasCharacter(int32_t code, Font::CharPtr &ch) const;
+
         bool updateContent(FontFreeTypePtr font, const String &text, MaterialPtr &material, Font::CharSet &set);
 
     protected:

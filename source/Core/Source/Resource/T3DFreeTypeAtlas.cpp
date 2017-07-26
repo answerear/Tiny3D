@@ -23,6 +23,20 @@ namespace Tiny3D
 
     }
 
+    bool FreeTypeAtlas::hasCharacter(int32_t code, Font::CharPtr &ch) const
+    {
+        bool found = false;
+
+        auto itr = mCharmap.find(code);
+        if (itr != mCharmap.end())
+        {
+            ch = itr->second;
+            found = true;
+        }
+
+        return found;
+    }
+
     bool FreeTypeAtlas::updateContent(FontFreeTypePtr font, const String &text, MaterialPtr &material, Font::CharSet &set)
     {
         bool ret = false;
@@ -102,30 +116,32 @@ namespace Tiny3D
                 if (!insertBlock(font, face, block))
                 {
                     T3D_LOG_ERROR("Insert block failed !");
-                    break;
                 }
             }
 
-            // 先判断是否够空间放入新的字符
-            FT_Face ftFace = font->getFontFace();
-
-            // 获取字体高度
-            int32_t fontHeight = (ftFace->size->metrics.height >> 6);
-            int32_t fontWidth = ftFace->size->metrics.max_advance;
-
-            if (block->offset.x + fontWidth > block->area.width()
-                && block->offset.y + fontHeight > block->area.height())
+            if (block != nullptr)
             {
-                // block空间不足放这个字符，只能新建一个block
-                if (!insertBlock(font, face, block))
+                // 获取字体高度
+                int32_t fontWidth = font->getFontWidth();
+                int32_t fontHeight = font->getFontHeight();
+
+                // 先判断是否够空间放入新的字符
+                if (block->offset.x + fontWidth > block->area.width()
+                    && block->offset.y + fontHeight > block->area.height())
                 {
-                    T3D_LOG_ERROR("Insert block failed !");
+                    // block空间不足放这个字符，只能新建一个block
+                    block = nullptr;
+
+                    if (!insertBlock(font, face, block))
+                    {
+                        T3D_LOG_ERROR("Insert block failed !");
+                    }
                 }
             }
 
             if (block == nullptr)
             {
-                // 说明刚才插入失败了
+                // 插入block失败了，纹理没空间了，按照配置的不同策略去申请新的空间
                 if (FontConfig::E_STRATEGY_LRU == config.strategy)
                 {
                     // 直接使用LRU淘汰没用的字符，如果淘汰后还不够，只能返回错误
@@ -151,18 +167,47 @@ namespace Tiny3D
                     }
                 }
             }
-
-            // 复制bitmap到目标纹理上
-            if (!copyBitmapToTexture(font, block, ch))
+            else
             {
-                T3D_LOG_ERROR("Copy font bitmap to texture failed !");
-                break;
+                // 咦，居然有空闲区域可以插入新的block，那不好意思了，只能拿来用
+
+                // 先通过字体对象用 freetype 库加载位图
+                Size charSize;
+
+                if (!font->loadBitmap(code, charSize))
+                {
+                    T3D_LOG_ERROR("Load font bitmap failed !");
+                    break;
+                }
+
+                // 判断是否需要换行
+                if (block->offset.x + charSize.width > block->area.width())
+                {
+                    // 没办法了，只能换行
+                    block->offset.x = 0;
+                    block->offset.y += charSize.height;
+                }
+
+                TexturePtr texture = face->material->getTexture(0);
+                Point uv(block->area.left + block->offset.x, block->area.top + block->offset.y);
+                Rect dstRect(uv, charSize);
+                if (!font->renderAt(texture, dstRect))
+                {
+                    T3D_LOG_ERROR("Render at texture failed !");
+                    break;
+                }
+
+                ch = new Font::Char();
+                ch->release();
+                ch->mCode = code;
+                ch->mBlock = block;
+                ch->mArea = dstRect;
+
+                block->charmap.insert(CharMapValue(code, ch));
+                ch->mBlock = block;
+
+                mCharmap.insert(CharMapValue(code, ch));
             }
-
-            block->charmap.insert(CharMapValue(code, ch));
-            ch->mBlock = block;
-
-            mCharmap.insert(CharMapValue(code, ch));
 
             ret = true;
         } while (0);

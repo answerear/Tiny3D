@@ -97,6 +97,16 @@ namespace Tiny3D
                 break;
             }
 
+            // 设置字体中最大字符宽度
+            mFontWidth = (face->size->metrics.height >> 6);
+
+            // 设置字体中最大字符高度
+            mFontHeight = (face->size->metrics.max_advance >> 6);
+
+            // 设置字体基线
+            mFontBaseline = (face->size->metrics.ascender >> 6);
+
+            // 设置字体外观
             mFTFace = face;
             ret = true;
         } while (0);
@@ -104,8 +114,107 @@ namespace Tiny3D
         return ret;
     }
 
+    int32_t FontFreeType::getCharWidth(int32_t code) const
+    {
+        int32_t charWidth = 0;
+
+        if (mFTFace != nullptr)
+        {
+            CharPtr ch;
+            if (FreeTypeAtlas::getInstance().hasCharacter(code, ch))
+            {
+                charWidth = ch->mArea.width();
+            }
+            else
+            {
+                // 缓存中没有，这就麻烦了，只能通过freetype库去计算了
+                FT_Error ftError = FT_Load_Char(mFTFace, code, FT_LOAD_RENDER);
+                if (ftError == 0)
+                {
+                    charWidth = std::max(mFTFace->glyph->bitmap.width, (uint32_t)(mFTFace->glyph->metrics.horiAdvance >> 6));
+                }
+            }
+        }
+
+        return charWidth;
+    }
+
+    int32_t FontFreeType::getCharHeight(int32_t code) const
+    {
+        int32_t charHeight = 0;
+
+        if (mFTFace != nullptr)
+        {
+            CharPtr ch;
+            if (FreeTypeAtlas::getInstance().hasCharacter(code, ch))
+            {
+                charHeight = ch->mArea.height();
+            }
+            else
+            {
+                // 缓存中没有，这就麻烦了，只能通过freetype库去计算了
+                FT_Error ftError = FT_Load_Char(mFTFace, code, FT_LOAD_RENDER);
+                if (ftError == 0)
+                {
+                    charHeight = mFTFace->glyph->bitmap.rows;
+                }
+            }
+        }
+
+        return charHeight;
+    }
+
+    Size FontFreeType::getCharSize(int32_t code) const
+    {
+        int32_t charWidth = 0;
+        int32_t charHeight = 0;
+
+        if (mFTFace != nullptr)
+        {
+            CharPtr ch;
+            if (FreeTypeAtlas::getInstance().hasCharacter(code, ch))
+            {
+                charWidth = ch->mArea.width();
+                charHeight = ch->mArea.height();
+            }
+            else
+            {
+                FT_Error ftError = FT_Load_Char(mFTFace, code, FT_LOAD_RENDER);
+                if (ftError == 0)
+                {
+                    charWidth = std::max(mFTFace->glyph->bitmap.width, (uint32_t)(mFTFace->glyph->metrics.horiAdvance >> 6));
+                    charHeight = mFTFace->glyph->bitmap.rows;
+                }
+            }
+        }
+
+        return Size(charWidth, charHeight);
+    }
+
     bool FontFreeType::updateContent(const String &text, MaterialPtr &material, CharSet &set)
     {
         return FreeTypeAtlas::getInstance().updateContent(this, text, material, set);
+    }
+
+    bool FontFreeType::loadBitmap(int32_t code, Size &charSize)
+    {
+        bool ret = false;
+
+        do 
+        {
+        } while (0);
+
+        return ret;
+    }
+
+    bool FontFreeType::renderAt(TexturePtr texture, const Rect &dstRect)
+    {
+        bool ret = false;
+
+        do 
+        {
+        } while (0);
+
+        return ret;
     }
 }

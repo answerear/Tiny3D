@@ -56,6 +56,43 @@ namespace Tiny3D
         FontType getFontType() const { return mFontType; }
 
         /**
+         * @brief 获取当前字体最大字符的宽度
+         */
+        int32_t getFontWidth() const { return mFontWidth; }
+        /**
+         * @brief 获取当前字体最大字符的高度
+         */
+        int32_t getFontHeight() const { return mFontHeight; }
+
+        /**
+         * @brief 获取当前字体的基线，返回值是向下是正直，相对于字符上边的偏移
+         */
+        int32_t getFontBaseline() const { return mFontBaseline; }
+
+        /**
+         * @brief 获取某一个字符的宽度
+         * @note 
+         *  - 对于没有缓存的字符，这个接口调用会有性能上的损耗，而且调用完后，该字符也不会被缓存
+         *  - 对于已经缓存过的字符，这个直接从缓存中返回
+         */
+        virtual int32_t getCharWidth(int32_t code) const = 0;
+
+        /**
+         * @brief 获取某一个字符的高度
+         * @note 对于没有缓存的字符，这个接口调用会有性能上的损耗，而且调用完后，该字符也不会被缓存
+         */
+        virtual int32_t getCharHeight(int32_t code) const = 0;
+
+        /**
+         * @brief 获取某一个字符的宽高
+         * @note 
+         *  - 对于没有缓存的字符，这个接口调用会有性能上的损耗，而且调用完后，该字符也不会被缓存
+         *  - 对于已经缓存过的字符，这个直接从缓存中返回
+         *  - 这个接口相对于分别逐个调用getFontWidth(int32_t)和getFontHeight(int32_t)性能会高一些，因为这个只需要渲染一次到bitmap
+         */
+        virtual Size getCharSize(int32_t code) const = 0;
+
+        /**
          * @brief 更新内容，主要是更新字体纹理
          * @param [in] text : UTF8的文本字符串
          * @param [out] material : 返回包含文本的材质对象
@@ -69,8 +106,11 @@ namespace Tiny3D
         Font(const String &name, int32_t fontSize, FontType fontType);
 
     protected:
-        int32_t     mFontSize;
-        FontType    mFontType;
+        int32_t     mFontSize;      /// 字号
+        int32_t     mFontWidth;     /// 字体中最大字符宽度
+        int32_t     mFontHeight;    /// 字体中最大字符高度
+        int32_t     mFontBaseline;  /// 字体基线
+        FontType    mFontType;      /// 字体类型，@see enum FontType
     };
 }
 
