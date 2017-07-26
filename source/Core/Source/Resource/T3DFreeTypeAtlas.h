@@ -101,26 +101,35 @@ namespace Tiny3D
          * @param [out] block : 返回的区块对象
          * @return 查找到适合的返回true，否则返回false
          */
-        bool lookupBlock(FontFreeTypePtr font, BlockPtr &block);
+        bool lookupBlock(FontFreeTypePtr font, FacePtr &face, BlockPtr &block);
 
         /**
          * @brief 插入一个区块
          * @param [out] block : 返回的区块对象
          * @return 插入成功返回true，否则返回false
          */
-        bool insertBlock(FontFreeTypePtr font, BlockPtr &block);
+        bool insertBlock(FontFreeTypePtr font, FacePtr face, BlockPtr &block);
 
-        bool insertBlockWithAppend(FontFreeTypePtr font, BlockPtr &block);
+        bool doStrategyAuto(FontFreeTypePtr font, FacePtr face, BlockPtr &block, Font::CharPtr &ch);
 
-        bool insertBlockWithLRU(FontFreeTypePtr font, BlockPtr &block);
+        bool doStrategyLRU(FontFreeTypePtr font, FacePtr face, BlockPtr &block, Font::CharPtr &ch);
 
-        bool loadMaterial(const String &name, FontFreeTypePtr font, MaterialPtr &material);
+        bool doStrategyAppend(FontFreeTypePtr font, FacePtr face, BlockPtr &block, Font::CharPtr &ch);
+
+        bool loadMaterial(const String &name, FontFreeTypePtr font, MaterialPtr &material, size_t texWidth, size_t texHeight);
 
         bool createFace(MaterialPtr material, const String &fontName, FacePtr &face);
 
         bool createBlock(size_t fontSize, const Rect &area, const Point &offset, FacePtr face, BlockPtr &block);
 
+        bool createTexture(const String &name, size_t texWidth, size_t texHeight, TexturePtr &texture);
+
         bool copyBitmapToTexture(FontFreeTypePtr font, BlockPtr block, Font::CharPtr ch);
+
+        /**
+         * @brief 扩展纹理，其实就是重新生成一个新纹理，然后把老纹理数据复制上去
+         */
+        bool extendTexture(const String &name, TexturePtr srcTexture, TexturePtr &newTexture);
 
     protected:
         FaceMap     mFaces;

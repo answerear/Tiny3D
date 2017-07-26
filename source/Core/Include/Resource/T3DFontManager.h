@@ -23,6 +23,7 @@ namespace Tiny3D
         {
             E_DEFAULT_TEX_SIZE = 512,
             E_DEFAULT_TEX_MAX = 2048,
+            E_DEFAULT_TEX_INC_SIZE = 0,
             E_DEFAULT_BLOCK_SIZE = 128,
         };
 
@@ -33,16 +34,20 @@ namespace Tiny3D
             , maxTexHeight(E_DEFAULT_TEX_MAX)
             , blockWidth(E_DEFAULT_BLOCK_SIZE)
             , blockHeight(E_DEFAULT_BLOCK_SIZE)
+            , incTexWidth(E_DEFAULT_TEX_INC_SIZE)
+            , incTexHeight(E_DEFAULT_TEX_INC_SIZE)
             , strategy(E_STRATEGY_AUTO)
         {
         }
 
-        size_t      initTexWidth;       /// 初始纹理宽度，默认是512
-        size_t      initTexHeight;      /// 初始纹理高度，默认是512
-        size_t      maxTexWidth;        /// 最大纹理宽度，此值会跟硬件支持最大纹理宽度比较取最小值，默认是2048
-        size_t      maxTexHeight;       /// 最大纹理高度，此值会跟硬件支持最大纹理高度比较取最小值，默认是2048
-        size_t      blockWidth;         /// 子纹理区块宽度，默认是128
-        size_t      blockHeight;        /// 子纹理区块高度，默认是128
+        size_t      initTexWidth;       /// 初始纹理宽度，默认是E_DEFAULT_TEX_SIZE
+        size_t      initTexHeight;      /// 初始纹理高度，默认是E_DEFAULT_TEX_SIZE
+        size_t      maxTexWidth;        /// 最大纹理宽度，此值会跟硬件支持最大纹理宽度比较取最小值，默认是E_DEFAULT_TEX_MAX
+        size_t      maxTexHeight;       /// 最大纹理高度，此值会跟硬件支持最大纹理高度比较取最小值，默认是E_DEFAULT_TEX_MAX
+        size_t      blockWidth;         /// 子纹理区块宽度，默认是E_DEFAULT_BLOCK_SIZE
+        size_t      blockHeight;        /// 子纹理区块高度，默认是E_DEFAULT_BLOCK_SIZE
+        size_t      incTexWidth;        /// 纹理满时，宽度增长尺寸，默认是E_DEFAULT_TEX_INC_SIZE，当该值为0时，默认是按照原尺寸两倍增长
+        size_t      incTexHeight;       /// 纹理满时，高度增长尺寸，默认是E_DEFAULT_TEX_INC_SIZE，当该值为0时，默认是按照原尺寸两倍增长
         Strategy    strategy;           /// 管理策略，默认是E_STRATEGY_AUTO，具体会根据不同的字体实现来定制
     };
 
