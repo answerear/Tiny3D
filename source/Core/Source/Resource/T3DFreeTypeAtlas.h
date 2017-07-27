@@ -53,19 +53,54 @@ namespace Tiny3D
         typedef BlockMap::const_iterator        BlockMapConstItr;
         typedef BlockMap::value_type            BlockMapValue;
 
+        typedef std::map<int32_t, BlockPtr>     Blocks;
+        typedef Blocks::iterator                BlocksItr;
+        typedef Blocks::const_iterator          BlocksConstItr;
+        typedef Blocks::value_type              BlocksValue;
+
+        class Face;
+        T3D_DECLARE_SMART_PTR(Face);
+
         struct Face : public Object
         {
-            Face(const String &name, MaterialPtr material);
+            static FacePtr create(const String &name, size_t index);
+
+            Face(const String &name);
             ~Face();
 
-            String          name;       /// 字体外观名称
-            MaterialPtr     material;   /// 对应字体外观的材质
-            Point           offset;     /// 新增block位置
-            BlockMap        blockmap;   /// blockmap
-            BlockList       free;       /// 空闲block链表
-        };
+            bool init(size_t index);
 
-        T3D_DECLARE_SMART_PTR(Face);
+            /**
+             * @brief 是否还有空闲block可使用
+             */
+            bool isBlockAvailable() const;
+
+            /**
+             * @brief 纹理是否还有空间可用
+             */
+            bool isTextureAvailable() const;
+
+            /**
+             * @brief 创建纹理
+             */
+            bool createTexture(size_t texWidth, size_t texHeight, TexturePtr &texture);
+
+            /**
+             * @brief 创建block
+             */
+            bool createBlock(size_t fontSize, BlockPtr &block);
+
+            /**
+             * @brief 按照预设策略扩展纹理
+             */
+            bool extendTexture();
+
+            String          name;          /// 字体外观名称
+            MaterialPtr     material;      /// 对应字体外观的材质
+            BlockMap        blockmap;      /// blockmap
+            BlockList       available;     /// 空闲可用block链表
+            Blocks          unavailable;   /// 空闲不可用block，按照行列编号作为key存放，方便扩展纹理时候从blocks放到free里面
+        };
 
         // 相同的字体外观，用一个链表串起来，一个元素是一个字体外观对应的blockmap
         typedef std::list<FacePtr>              FaceList;
@@ -119,11 +154,9 @@ namespace Tiny3D
 
         bool doStrategyAppend(FontFreeTypePtr font, FacePtr face, BlockPtr &block, Font::CharPtr &ch);
 
-        bool loadMaterial(const String &name, FontFreeTypePtr font, MaterialPtr &material, size_t texWidth, size_t texHeight);
+        bool createFace(const String &fontName, FacePtr &face);
 
-        bool createFace(MaterialPtr material, const String &fontName, FacePtr &face);
-
-        bool createBlock(size_t fontSize, const Rect &area, const Point &offset, FacePtr face, BlockPtr &block);
+        bool createBlock(size_t fontSize, FacePtr face, BlockPtr &block);
 
         bool createTexture(const String &name, size_t texWidth, size_t texHeight, TexturePtr &texture);
 
