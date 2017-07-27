@@ -41,7 +41,6 @@ namespace Tiny3D
 
         T3D_DECLARE_SMART_PTR(Block);
 
-
         // 存储所有相同字体外观和相同字体大小的block信息，一个元素是一个block
         typedef std::list<BlockPtr>             BlockList;
         typedef BlockList::iterator             BlockListItr;
@@ -56,12 +55,14 @@ namespace Tiny3D
 
         struct Face : public Object
         {
-            Face()
-            {}
+            Face(const String &name, MaterialPtr material);
+            ~Face();
 
             String          name;       /// 字体外观名称
             MaterialPtr     material;   /// 对应字体外观的材质
+            Point           offset;     /// 新增block位置
             BlockMap        blockmap;   /// blockmap
+            BlockList       free;       /// 空闲block链表
         };
 
         T3D_DECLARE_SMART_PTR(Face);

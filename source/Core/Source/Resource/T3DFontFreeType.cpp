@@ -202,6 +202,17 @@ namespace Tiny3D
 
         do 
         {
+            FT_Error error = FT_Load_Char(mFTFace, code, FT_LOAD_RENDER);
+            if (error != 0)
+                break;
+
+            int32_t stepX = (mFTFace->glyph->metrics.horiAdvance >> 6);
+            int32_t charWidth = std::max(mFTFace->glyph->bitmap.width, (uint32_t)stepX);
+
+            charSize.width = charWidth;
+            charSize.height = mFontHeight;
+            
+            ret = true;
         } while (0);
 
         return ret;
@@ -213,6 +224,57 @@ namespace Tiny3D
 
         do 
         {
+            uint8_t *srcData = mFTFace->glyph->bitmap.buffer;
+            int32_t srcPitch = mFTFace->glyph->bitmap.pitch;
+            int32_t srcWidth = mFTFace->glyph->bitmap.width;
+            int32_t srcHeight = mFTFace->glyph->bitmap.rows;
+
+            uint8_t *dstData = nullptr;
+            int32_t dstPitch = 0;
+            int32_t dstWidth = texture->getTexWidth();
+            int32_t dstHeight = texture->getTexHeight();
+
+            int32_t startX = (mFTFace->glyph->bitmap_left < 0 ? 0 : mFTFace->glyph->bitmap_left);
+            int32_t endX = startX + srcWidth;
+
+            int32_t startY = mFontBaseline - mFTFace->glyph->bitmap_top;
+            int32_t endY = startY + srcHeight;
+
+            const int32_t PIXEL_SIZE = 4;
+            const int32_t PIXEL_SIZE_SHIFT = 2;
+
+            // 这里因为freetype中获取到的bitmap的Y正方向是朝上的，跟纹理UV坐标刚好反的，所以逐行相反复制
+            uint8_t *srcLine = srcData + srcPitch * (srcHeight - 1);
+            uint8_t *dstLine = dstData + dstPitch * dstRect.top + PIXEL_SIZE * dstRect.left;
+
+            for (int32_t y = 0; y < dstRect.height(); ++y)
+            {
+                for (int32_t x = 0; x < dstRect.width(); ++x)
+                {
+                    int32_t index = (x << PIXEL_SIZE_SHIFT);
+
+                    if (x >= startX && x < endX
+                        && y >= startY && y < endY)
+                    {
+                        // 在复制范围内，复制字符位图数据，把灰度图值存放在alpha通道中，
+                        // 防止后面改变字体颜色后丢失了灰度值，需要重新解析freetype，进一步提高性能
+                        dstLine[index] = srcLine[x];        // blue
+                        dstLine[index + 1] = srcLine[x];    // green
+                        dstLine[index + 2] = srcLine[x];    // red
+                        dstLine[index + 3] = srcLine[x];    // alpha
+                    }
+                    else
+                    {
+                        // 不在范围内的，但是在字符范围中，其他像素全部置成透明值
+                        dstLine[index] = dstLine[index + 1] = dstLine[index + 2] = dstLine[index + 3] = 0;
+                    }
+                }
+
+                srcLine -= srcPitch;
+                dstLine += dstPitch;
+            }
+
+            ret = true;
         } while (0);
 
         return ret;

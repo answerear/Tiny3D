@@ -13,6 +13,36 @@ namespace Tiny3D
 {
     T3D_INIT_SINGLETON(FreeTypeAtlas);
 
+    FreeTypeAtlas::Face::Face(const String &n, MaterialPtr m)
+        : name(n)
+        , material(m)
+    {
+        const FontConfig &config = FontManager::getInstance().getConfig();
+
+        // 计算这里面需要的block数量
+        int32_t blockCols = config.maxTexWidth / config.blockWidth;
+        int32_t blockRows = config.maxTexHeight / config.blockHeight;
+        int32_t blockCount = blockCols * blockRows;
+        Size blockSize(config.blockWidth, config.blockHeight);
+
+        // 创建所有的block，放到空闲链表里
+        for (int32_t i = 0; i < blockCount; i++)
+        {
+            BlockPtr block = new Block();
+            block->release();
+            block->face = this;
+            block->area.left = i % blockCols * config.blockWidth;
+            block->area.right = block->area.left + config.blockWidth - 1;
+            block->area.top = i / blockCols * config.blockHeight;
+            block->area.bottom = block->area.top + config.blockHeight - 1;
+            free.push_back(block);
+        }
+    }
+
+    FreeTypeAtlas::Face::~Face()
+    {
+    }
+
     FreeTypeAtlas::FreeTypeAtlas()
     {
 
@@ -264,7 +294,7 @@ namespace Tiny3D
             Point offset;
             Size blockSize(config.blockWidth, config.blockHeight);
 
-            if (mFaces.empty())
+            if (mFaces.empty() || face == nullptr)
             {
                 // 先加载一个新的材质和纹理
                 const String &fontName = font->getName();
@@ -286,57 +316,51 @@ namespace Tiny3D
                     break;
                 }
 
-                // 插入一个新block
-                BlockPtr newBlock;
-                if (!createBlock(font->getFontSize(), Rect(uv, blockSize), offset, newFace, newBlock))
+                face = newFace;
+            }
+
+            T3D_ASSERT(face != nullptr);
+
+            TexturePtr texture = face->material->getTexture(0);
+            int32_t texWidth = texture->getTexWidth();
+            int32_t texHeight = texture->getTexHeight();
+
+            if (!face->free.empty())
+            {
+                // 还有空闲block
+
+                size_t blocksUsed = face->blockmap.size();
+                size_t blocksFree = face->free.size();
+
+                {
+                    // 直接扩展纹理
+                    TexturePtr newTexture;
+                    if (!extendTexture(face->material->getName(), texture, newTexture))
+                    {
+                        break;
+                    }
+
+                    // 在新纹理扩展区域
+                    face->offset.x = texWidth;
+                    face->offset.y = 0;
+
+                    blockSize.width = config.blockWidth;
+                    blockSize.height = config.blockHeight;
+                    offset.setZero();
+                }
+                        
+                if (!createBlock(font->getFontSize(), Rect(uv, blockSize), offset, face, block))
                 {
                     break;
                 }
 
-                block = newBlock;
+                // 跳到下一个block开始位置，为将来新开辟block空间做准备
+                face->offset.x += config.blockWidth;
             }
             else
             {
-                // 先看当前使用的纹理是否还有足够空间开辟新block
-                if (face != nullptr)
-                {
-                    TexturePtr texture = face->material->getTexture(0);
-                    int32_t texWidth = texture->getTexWidth();
-                    int32_t texHeight = texture->getTexHeight();
-
-                    if (texWidth >= config.maxTexWidth && texHeight >= config.maxTexHeight)
-                    {
-                        // 当前纹理不够用了，先用LRU淘汰老的字符，重新整理
-
-                    }
-                    else
-                    {
-
-                        // 直接扩展纹理
-                        TexturePtr newTexture;
-                        if (!extendTexture(face->material->getName(), texture, newTexture))
-                        {
-                            break;
-                        }
-
-                        size_t blockWidth = config.blockWidth;
-                        size_t blockHeight = config.blockHeight;
-                        size_t left = texWidth;
-                        size_t top = texHeight;
-
-                        block = new Block();
-                        block->release();
-                        block->face = face;
-                        block->size = font->getFontSize();
-                        block->area.left = texWidth;
-                        block->area.top = texHeight;
-
-                    }
-                }
-                else
-                {
-
-                }
+                // 没有空闲block，直接告诉外面失败了，让外面根据预设策略处理
+                break;
             }
 
             ret = true;
@@ -425,10 +449,9 @@ namespace Tiny3D
                 break;
             }
 
-            face = new Face();
+            face = new Face(fontName, material);
             face->release();
-            face->name = fontName;
-            face->material = material;
+
             r.first->second.push_back(face);
             ret = true;
         } while (0);
@@ -449,13 +472,13 @@ namespace Tiny3D
                 break;
             }
 
-            block = new Block();
-            block->release();
+            // 从face的空闲链表里面获取一个空闲的block出来，放到blockmap中
+            block = face->free.front();
+            face->free.pop_front();
             block->size = fontSize;
-            block->area = area;
-            block->offset = offset;
-            block->face = face;
+            block->offset.x = block->offset.y;
             r.first->second.push_back(block);
+
             ret = true;
         } while (0);
 
