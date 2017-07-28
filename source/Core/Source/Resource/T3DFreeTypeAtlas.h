@@ -58,7 +58,7 @@ namespace Tiny3D
         typedef Blocks::const_iterator          BlocksConstItr;
         typedef Blocks::value_type              BlocksValue;
 
-        class Face;
+        struct Face;
         T3D_DECLARE_SMART_PTR(Face);
 
         struct Face : public Object
@@ -148,24 +148,13 @@ namespace Tiny3D
          */
         bool insertBlock(FontFreeTypePtr font, FacePtr face, BlockPtr &block);
 
-        bool doStrategyAuto(FontFreeTypePtr font, FacePtr face, BlockPtr &block, Font::CharPtr &ch);
+        bool doStrategyAuto(FontFreeTypePtr font, FacePtr face, BlockPtr &block, const Size &charSize, Font::CharPtr &ch);
 
-        bool doStrategyLRU(FontFreeTypePtr font, FacePtr face, BlockPtr &block, Font::CharPtr &ch);
+        bool doStrategyLRU(FontFreeTypePtr font, FacePtr face, BlockPtr &block, const Size &charSize, Font::CharPtr &ch);
 
-        bool doStrategyAppend(FontFreeTypePtr font, FacePtr face, BlockPtr &block, Font::CharPtr &ch);
+        bool doStrategyAppend(FontFreeTypePtr font, FacePtr face, BlockPtr &block, const Size &charSize, Font::CharPtr &ch);
 
         bool createFace(const String &fontName, FacePtr &face);
-
-        bool createBlock(size_t fontSize, FacePtr face, BlockPtr &block);
-
-        bool createTexture(const String &name, size_t texWidth, size_t texHeight, TexturePtr &texture);
-
-        bool copyBitmapToTexture(FontFreeTypePtr font, BlockPtr block, Font::CharPtr ch);
-
-        /**
-         * @brief 扩展纹理，其实就是重新生成一个新纹理，然后把老纹理数据复制上去
-         */
-        bool extendTexture(const String &name, TexturePtr srcTexture, TexturePtr &newTexture);
 
     protected:
         FaceMap     mFaces;

@@ -181,9 +181,6 @@ namespace Tiny3D
             int32_t texWidth = srcTexture->getTexWidth();
             int32_t texHeight = srcTexture->getTexHeight();
 
-            int32_t blockRows = texHeight / config.blockHeight;
-            int32_t blockCols = texWidth / config.blockWidth;
-
             int32_t newTexWidth = 0;
             int32_t newTexHeight = 0;
 
@@ -213,6 +210,49 @@ namespace Tiny3D
                 newTexWidth = config.maxTexWidth;
                 newTexHeight = config.maxTexHeight;
             }
+
+            // 把缓存不可用的block放到可用的block链表里
+            int32_t blockCols = texWidth / config.blockWidth;
+            int32_t blockRows = texHeight / config.blockHeight;
+
+            int32_t newBlockCols = newTexWidth / config.blockWidth;
+            int32_t newBlockRows = newTexHeight / config.blockHeight;
+
+            int32_t maxBlockCols = config.maxTexWidth / config.blockWidth;
+            int32_t maxBlockRows = config.maxTexHeight / config.blockHeight;
+
+            bool found = true;
+            int32_t x = 0, y = 0;
+            for (y = 0; y < newBlockRows; y++)
+            {
+                for (x = 0; x < newBlockCols; x++)
+                {
+                    if (x >= blockCols || y >= blockRows)
+                    {
+                        int32_t blockID = y * maxBlockCols + x;
+                        auto itr = unavailable.find(blockID);
+                        if (itr != unavailable.end())
+                        {
+                            BlockPtr block = itr->second;
+                            unavailable.erase(itr);
+                            available.push_back(block);
+                        }
+                        else
+                        {
+                            found = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found)
+                {
+                    break;
+                }
+            }
+
+            if (!found)
+                break;
 
             // 新创建一个纹理
             TexturePtr newTexture;
@@ -365,6 +405,9 @@ namespace Tiny3D
                 }
             }
 
+            Point uv;
+            Rect dstRect;
+
             if (block != nullptr)
             {
                 // 咦~~~ 居然有空闲区域可以插入新的block，那不客气了，直接拿来用
@@ -378,27 +421,18 @@ namespace Tiny3D
                     block->offset.y += charSize.height;
                 }
 
-                // 渲染到纹理指定区域
-                TexturePtr texture = face->material->getTexture(0);
-                Point uv(block->area.left + block->offset.x, block->area.top + block->offset.y);
-                Rect dstRect(uv, charSize);
-                if (!font->renderAt(texture, dstRect))
-                {
-                    T3D_LOG_ERROR("Render at texture failed !");
-                    break;
-                }
+                uv.x = block->area.left + block->offset.x;
+                uv.y = block->area.top + block->offset.y;
+
+                dstRect.left = uv.x;
+                dstRect.top = uv.y;
+                dstRect.right = dstRect.left + charSize.width - 1;
+                dstRect.bottom = dstRect.top + charSize.height - 1;
 
                 // 把字符信息缓存起来
                 ch = new Font::Char();
                 ch->release();
-                ch->mCode = code;
-                ch->mBlock = block;
                 ch->mArea = dstRect;
-
-                block->charmap.insert(CharMapValue(code, ch));
-                ch->mBlock = block;
-
-                mCharmap.insert(CharMapValue(code, ch));
             }
             else
             {
@@ -406,7 +440,7 @@ namespace Tiny3D
                 if (FontConfig::E_STRATEGY_LRU == config.strategy)
                 {
                     // 直接使用LRU淘汰没用的字符，如果淘汰后还不够，只能返回错误
-                    if (!doStrategyLRU(font, face, block, ch))
+                    if (!doStrategyLRU(font, face, block, charSize, ch))
                     {
                         break;
                     }
@@ -414,7 +448,7 @@ namespace Tiny3D
                 else if (FontConfig::E_STRATEGY_APPEND == config.strategy)
                 {
                     // 这种策略就直接新建材质和纹理来存放新字符
-                    if (!doStrategyAppend(font, face, block, ch))
+                    if (!doStrategyAppend(font, face, block, charSize, ch))
                     {
                         break;
                     }
@@ -422,12 +456,29 @@ namespace Tiny3D
                 else
                 {
                     // 自动策略是先使用LRU淘汰没用的字符，实在没有淘汰的时候，再新建新纹理来存放新字符
-                    if (!doStrategyAuto(font, face, block, ch))
+                    if (!doStrategyAuto(font, face, block, charSize, ch))
                     {
                         break;
                     }
                 }
+
+                dstRect = ch->mArea;
             }
+
+            T3D_ASSERT(block != nullptr);
+
+            // 渲染到纹理指定区域
+            TexturePtr texture = face->material->getTexture(0);
+            if (!font->renderAt(texture, dstRect))
+            {
+                T3D_LOG_ERROR("Render at texture failed !");
+                break;
+            }
+
+            ch->mBlock = block;
+            ch->mCode = code;
+            block->charmap.insert(CharMapValue(code, ch));
+            mCharmap.insert(CharMapValue(code, ch));
 
             ret = true;
         } while (0);
@@ -530,34 +581,95 @@ namespace Tiny3D
         return ret;
     }
 
-    bool FreeTypeAtlas::doStrategyAuto(FontFreeTypePtr font, FacePtr face, BlockPtr &block, Font::CharPtr &ch)
+    bool FreeTypeAtlas::doStrategyAuto(FontFreeTypePtr font, FacePtr face, BlockPtr &block, const Size &charSize, Font::CharPtr &ch)
     {
         bool ret = false;
 
         do 
         {
+            // 本策略是先淘汰老的没用的字符，如果都没得淘汰，就新生成多一个字体外观和相关纹理
+            if (!doStrategyLRU(font, face, block, charSize, ch))
+            {
+                if (!doStrategyAppend(font, face, block, charSize, ch))
+                {
+                    break;
+                }
+            }
+
+            ret = true;
         } while (0);
 
         return ret;
     }
 
-    bool FreeTypeAtlas::doStrategyLRU(FontFreeTypePtr font, FacePtr face, BlockPtr &block, Font::CharPtr &ch)
+    bool FreeTypeAtlas::doStrategyLRU(FontFreeTypePtr font, FacePtr face, BlockPtr &block, const Size &charSize, Font::CharPtr &ch)
     {
         bool ret = false;
 
         do 
         {
+            // 本策略只是用LRU淘汰老的，如果没有可以淘汰的，直接返回false
+            size_t fontSize = font->getFontSize();
+
+            auto itr = face->blockmap.find(fontSize);
+
+            if (itr != face->blockmap.end())
+            {
+                BlockList &blockList = itr->second;
+
+                for (auto i = blockList.begin(); i != blockList.end(); ++i)
+                {
+                    BlockPtr tempBlock = *i;
+
+                    for (auto ii = block->charmap.begin(); ii != block->charmap.end(); ++ii)
+                    {
+                        Font::CharPtr temp = ii->second;
+
+                        // 因为字体相同，所以字体高度肯定相等
+                        T3D_ASSERT(charSize.height == temp->mArea.height());
+
+                        if (temp->referCount() == 2 && charSize.width <= temp->mArea.width())
+                        {
+                            // 没有外部引用，并且现成区域能存放新增的字符
+                            ch = temp;
+                            block->charmap.erase(temp->mCode);
+                            mCharmap.erase(temp->mCode);
+                            block = tempBlock;
+                            ret = true;
+                        }
+                    }
+
+                    if (ret)
+                    {
+                        break;
+                    }
+                }
+
+                ++itr;
+            }
         } while (0);
 
         return ret;
     }
 
-    bool FreeTypeAtlas::doStrategyAppend(FontFreeTypePtr font, FacePtr face, BlockPtr &block, Font::CharPtr &ch)
+    bool FreeTypeAtlas::doStrategyAppend(FontFreeTypePtr font, FacePtr face, BlockPtr &block, const Size &charSize, Font::CharPtr &ch)
     {
         bool ret = false;
 
         do 
         {
+            if (!insertBlock(font, face, block))
+            {
+                break;
+            }
+
+            T3D_ASSERT(face != nullptr && block != nullptr);
+
+            ch = new Font::Char();
+            ch->release();
+            ch->mBlock = block;
+
+            ret = true;
         } while (0);
 
         return ret;
@@ -569,180 +681,29 @@ namespace Tiny3D
 
         do 
         {
-            size_t faceIdx = 0;
-            face = Face::create(fontName, faceIdx);
+            auto itr = mFaces.find(fontName);
 
-            auto r = mFaces.insert(FaceMapValue(fontName, FaceList()));
-            if (!r.second)
+            if (itr != mFaces.end())
             {
-                T3D_LOG_ERROR("Insert font face [%s] failed !", fontName.c_str());
-                break;
+                // 已经存在同样字体外观对象了，获取回来，插入链表里
+                FaceList &faceList = itr->second;
+                size_t faceIdx = faceList.size();
+                face = Face::create(fontName, faceIdx);
+                faceList.push_back(face);
             }
-
-            r.first->second.push_back(face);
-            ret = true;
-        } while (0);
-
-        return ret;
-    }
-
-    bool FreeTypeAtlas::createTexture(const String &name, size_t texWidth, size_t texHeight, TexturePtr &texture)
-    {
-        bool ret = false;
-
-        do 
-        {
-            std::stringstream ss;
-            ss << name << "_tex_" << texWidth << "x" << texHeight;
-            texture = TextureManager::getInstance().loadTexture(ss.str(), texWidth, texHeight, 1, E_PF_A8R8G8B8, Texture::E_TU_BLANK);
-            if (texture == nullptr)
+            else
             {
-                T3D_LOG_ERROR("Load font %s texture failed !", ss.str().c_str());
-                break;
-            }
-
-            ret = true;
-        } while (0);
-
-        return ret;
-    }
-
-    bool FreeTypeAtlas::copyBitmapToTexture(FontFreeTypePtr font, BlockPtr block, Font::CharPtr ch)
-    {
-        bool ret = false;
-
-        do 
-        {
-            FT_Face ftFace = font->getFontFace();
-            
-            // 源位图区域
-            Rect srcRect(Point(0, 0), Size(ftFace->glyph->bitmap.width, ftFace->glyph->bitmap.rows));
-
-            uint8_t *srcData = ftFace->glyph->bitmap.buffer;
-            int32_t srcPitch = ftFace->glyph->bitmap.pitch;
-            int32_t srcWidth = ftFace->glyph->bitmap.width;
-            int32_t srcHeight = ftFace->glyph->bitmap.rows;
-
-            // 这里的bitmap_left有可能存在负值
-            int32_t srcLeft = (ftFace->glyph->bitmap_left >= 0 ? ftFace->glyph->bitmap_left : 0);
-            int32_t srcTop = ftFace->glyph->bitmap_top;
-
-            // 基线
-            int32_t baseline = (ftFace->size->metrics.ascender >> 6);
-            // 字体高度
-            int32_t fontHeight = (ftFace->size->metrics.height >> 6);
-
-            // 目标纹理的起始位置
-            int32_t dstLeft = block->offset.x + srcLeft;
-            int32_t dstTop = block->offset.y + baseline - srcTop;
-
-            // 水平步进
-            int32_t advanceX = ftFace->glyph->metrics.horiAdvance;
-            // 字体实际宽度，取步进值和位图宽度最大值
-            int32_t fontWidth = std::max(advanceX, srcWidth);
-
-            if (dstLeft + fontWidth > block->area.right)
-            {
-                // 需要换行了，重新计算block中字符区域的位置
-                block->offset.x = block->area.left;
-                block->offset.y += fontHeight;
-                dstLeft = block->offset.x + srcLeft;
-            }
-
-            // 目标纹理绘制区域
-            Rect dstRect(Point(dstLeft, dstTop), Size(srcWidth, srcHeight));
-            T3D_ASSERT(dstRect.bottom <= block->area.bottom);
-
-            // 字符区域，字符区域跟目标纹理绘制区域是不相同的，因为目标纹理区域是固定高度的，而绘制内容是实际绘制高度
-            ch->mArea.left = block->offset.x;
-            ch->mArea.right = ch->mArea.left + fontWidth - 1;
-            ch->mArea.top = block->offset.y;
-            ch->mArea.bottom = ch->mArea.top + fontHeight - 1;
-
-            // 获取纹理缓存，写纹理
-            FacePtr face = smart_pointer_cast<Face>(block->face);
-            TexturePtr texture = face->material->getTexture(0);
-
-            // 这里需要获取纹理数据来修改，后续再添加，这里需要修改纹理读写数据结构
-            T3D_ASSERT(0);
-            uint8_t *dstData = nullptr;
-            int32_t dstPitch = 0;
-            int32_t dstWidth = 0;
-            int32_t dstHeight = 0;
-            
-            uint8_t *dstLine = dstData + dstTop * dstPitch + 4 * dstLeft;
-            uint8_t *srcLine = srcData + (srcHeight - 1);
-
-            // 纹理UV坐标是X向右为正，Y向下为正，而freetype里面的bitmap坐标是X向右为正，Y向上位正
-            for (size_t y = 0; y < srcHeight; y++)
-            {
-                uint32_t *dst = (uint32_t *)dstLine;
-                uint8_t *src = srcLine;
-                for (size_t x = 0; x < srcWidth; x++)
+                // 没有字体外观对象，直接插入一个链表
+                auto r = mFaces.insert(FaceMapValue(fontName, FaceList()));
+                if (!r.second)
                 {
-                    // 因为字体是灰度图，把字体存在alpha通道里备份，方便后续直接修改文本颜色，不用再解析字库
-                    Color4 color(*src, *src, *src, *src);
-                    *dst = color.A8R8G8B8();
-                    dst++;
-                    src++;
+                    T3D_LOG_ERROR("Insert font face [%s] failed !", fontName.c_str());
+                    break;
                 }
 
-                dstLine += dstPitch;
-                srcLine -= srcPitch;
-            }
-        } while (0);
-
-        return ret;
-    }
-
-    bool FreeTypeAtlas::extendTexture(const String &name, TexturePtr srcTexture, TexturePtr &newTexture)
-    {
-        bool ret = false;
-
-        do 
-        {
-            const FontConfig &config = FontManager::getInstance().getConfig();
-
-            int32_t texWidth = srcTexture->getTexWidth();
-            int32_t texHeight = srcTexture->getTexHeight();
-
-            size_t incTexWidth = (config.incTexWidth == 0 ? texWidth : config.incTexWidth);
-            size_t incTexHeight = (config.incTexHeight == 0 ? texHeight : config.incTexHeight);
-
-            int32_t newTexWidth = 0;
-            int32_t newTexHeight = 0;
-
-            if (texWidth + incTexWidth < config.maxTexWidth)
-            {
-                newTexWidth = texWidth + incTexWidth;
-            }
-            else
-            {
-                newTexWidth = config.maxTexWidth;
-            }
-
-            if (texHeight + incTexHeight < config.maxTexHeight)
-            {
-                newTexHeight = texHeight + incTexHeight;
-            }
-            else
-            {
-                newTexHeight = config.maxTexHeight;
-            }
-
-            // 新创建一个纹理
-            if (!createTexture(name, newTexWidth, newTexHeight, newTexture))
-            {
-                break;
-            }
-
-            // 把旧纹理的所有数据复制到新纹理相同区域
-            Rect srcRect(Point(0, 0), Size(texWidth, texHeight));
-            Rect dstRect = srcRect;
-            if (!srcTexture->copyToTexture(newTexture, &srcRect, &dstRect))
-            {
-                T3D_LOG_ERROR("Copy source texture data to new texture failed !");
-                break;
+                size_t faceIdx = 0;
+                face = Face::create(fontName, faceIdx);
+                r.first->second.push_back(face);
             }
 
             ret = true;
