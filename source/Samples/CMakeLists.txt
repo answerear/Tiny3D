@@ -1,9 +1,9 @@
-################################################################################
-# This file is part of the CMake build system for Tiny3D Sample
+#-------------------------------------------------------------------------------
+# This file is part of the CMake build system for Tiny3D
 #
 # The contents of this file are placed in the public domain. 
 # Feel free to make use of it in any way you like.
-################################################################################
+#-------------------------------------------------------------------------------
 
 
 set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/sdl2" CACHE PATH "SDL2 library path")
