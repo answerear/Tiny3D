@@ -4,7 +4,7 @@
 #define __T3D_SG_QUAD_H__
 
 
-#include "Render/T3DSGRenderable.h"
+#include "SceneGraph/T3DSGRenderable.h"
 
 
 namespace Tiny3D

@@ -4,7 +4,7 @@
 #define __T3D_SG_AXIS_H__
 
 
-#include "Render/T3DSGGeometry.h"
+#include "SceneGraph/T3DSGGeometry.h"
 
 
 namespace Tiny3D

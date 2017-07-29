@@ -1,6 +1,6 @@
 
 
-#include "Render/T3DSGQuad.h"
+#include "SceneGraph/T3DSGQuad.h"
 #include "T3DTypedef.h"
 #include "Render/T3DRenderQueue.h"
 

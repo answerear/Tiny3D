@@ -1,10 +1,10 @@
 
 
-#include "Render/T3DSGSkeleton.h"
+#include "SceneGraph/T3DSGSkeleton.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Resource/T3DModel.h"
-#include "Render//T3DSGBone.h"
+#include "SceneGraph/T3DSGBone.h"
 
 
 namespace Tiny3D

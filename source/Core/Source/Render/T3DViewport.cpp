@@ -2,7 +2,7 @@
 
 #include "Render/T3DViewport.h"
 #include "Render/T3DRenderTarget.h"
-#include "Render/T3DSGCamera.h"
+#include "SceneGraph/T3DSGCamera.h"
 
 
 namespace Tiny3D

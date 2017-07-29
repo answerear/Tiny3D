@@ -1,9 +1,9 @@
 
 
-#include "Render/T3DSceneManager.h"
-#include "Render/T3DSGCamera.h"
-#include "Render//T3DSGTransformNode.h"
-#include "Render/T3DSGRenderable.h"
+#include "SceneGraph/T3DSceneManager.h"
+#include "SceneGraph/T3DSGCamera.h"
+#include "SceneGraph//T3DSGTransformNode.h"
+#include "SceneGraph/T3DSGRenderable.h"
 #include "Render/T3DRenderer.h"
 #include "Render/T3DRenderQueue.h"
 

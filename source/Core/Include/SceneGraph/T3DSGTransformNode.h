@@ -3,7 +3,7 @@
 #define __T3D_SG_TRANSFORM_NODE_H__
 
 
-#include "Render//T3DSGNode.h"
+#include "SceneGraph/T3DSGNode.h"
 #include "T3DMath.h"
 #include "T3DVector3.h"
 #include "T3DMatrix3.h"
