@@ -18,12 +18,7 @@
  ******************************************************************************/
 
 #include "T3DImageCodec.h"
-#include "T3DImageCodecBMP.h"
-#include "T3DImageCodecPNG.h"
-#include "T3DImageCodecJPG.h"
-#include "T3DImageCodecTGA.h"
-#include "T3DImageCodecDDS.h"
-#include "T3DImageCodecFIMG.h"
+#include "T3DImageCodecIMG.h"
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveManager.h"
 
@@ -38,7 +33,7 @@ namespace Tiny3D
         : mCodecList(MAX_NUMBER_OF_CODEC)
     {
         size_t i = 0;
-        mCodecList[i++] = ImageCodecFIMG::create();
+        mCodecList[i++] = ImageCodecIMG::create();
     }
 
     ImageCodec::~ImageCodec()
@@ -59,8 +54,8 @@ namespace Tiny3D
             {
                 if (codec->getFileType() == ImageCodecBase::E_FT_IMG)
                 {
-                    ImageCodecFIMGPtr codecIMG = smart_pointer_cast<ImageCodecFIMG>(codec);
-                    ImageCodecFIMG::FileTypeList fileTypeList = codecIMG->getSupportedFileTypeList();
+                    ImageCodecIMGPtr codecIMG = smart_pointer_cast<ImageCodecIMG>(codec);
+                    ImageCodecIMG::FileTypeList fileTypeList = codecIMG->getSupportedFileTypeList();
 
                     for (auto itr = fileTypeList.begin(); itr != fileTypeList.end(); ++itr)
                     {

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "ImageCodec/T3DImageCodecFIMG.h"
+#include "ImageCodec/T3DImageCodecIMG.h"
 #include <FreeImage.h>
 #include <sstream>
 #include "Misc/T3DString.h"
@@ -26,7 +26,7 @@
 
 namespace Tiny3D
 {
-    const size_t ImageCodecFIMG::MAX_SUPPORTED_FILE_TYPE = 37;
+    const size_t ImageCodecIMG::MAX_SUPPORTED_FILE_TYPE = 37;
 
     void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message)
     {
@@ -38,24 +38,24 @@ namespace Tiny3D
         T3D_LOG_ERROR(message);
     }
 
-    ImageCodecFIMGPtr ImageCodecFIMG::create()
+    ImageCodecIMGPtr ImageCodecIMG::create()
     {
-        ImageCodecFIMGPtr codec = new ImageCodecFIMG();
+        ImageCodecIMGPtr codec = new ImageCodecIMG();
         codec->release();
         return codec;
     }
 
-    ImageCodecFIMG::ImageCodecFIMG()
+    ImageCodecIMG::ImageCodecIMG()
     {
 
     }
 
-    ImageCodecFIMG::~ImageCodecFIMG()
+    ImageCodecIMG::~ImageCodecIMG()
     {
 
     }
 
-    bool ImageCodecFIMG::startup()
+    bool ImageCodecIMG::startup()
     {
         FreeImage_Initialise(FALSE);
 
@@ -92,14 +92,14 @@ namespace Tiny3D
         return true;
     }
 
-    bool ImageCodecFIMG::shutdown()
+    bool ImageCodecIMG::shutdown()
     {
         FreeImage_DeInitialise();
 
         return true;
     }
 
-    bool ImageCodecFIMG::isSupportedType(uint8_t *data, size_t size, FileType &eFileType) const
+    bool ImageCodecIMG::isSupportedType(uint8_t *data, size_t size, FileType &eFileType) const
     {
         bool ret = false;
 
@@ -118,17 +118,17 @@ namespace Tiny3D
         return ret;
     }
 
-    ImageCodecBase::FileType ImageCodecFIMG::getFileType() const
+    ImageCodecBase::FileType ImageCodecIMG::getFileType() const
     {
         return E_FT_IMG;
     }
 
-    bool ImageCodecFIMG::encode(uint8_t *&data, size_t &size, const Image &image)
+    bool ImageCodecIMG::encode(uint8_t *&data, size_t &size, const Image &image)
     {
         return true;
     }
 
-    bool ImageCodecFIMG::decode(uint8_t *data, size_t size, Image &image, FileType eFileType)
+    bool ImageCodecIMG::decode(uint8_t *data, size_t size, Image &image, FileType eFileType)
     {
         bool ret = false;
         FIMEMORY *stream = FreeImage_OpenMemory(data, size);

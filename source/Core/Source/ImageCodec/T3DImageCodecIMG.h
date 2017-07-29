@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_IMAGE_CODEC_FIMG_H__
-#define __T3D_IMAGE_CODEC_FIMG_H__
+#ifndef __T3D_IMAGE_CODEC_IMG_H__
+#define __T3D_IMAGE_CODEC_IMG_H__
 
 
 #include "ImageCodec/T3DImageCodecBase.h"
@@ -26,20 +26,20 @@
 
 namespace Tiny3D
 {
-    class ImageCodecFIMG;
+    class ImageCodecIMG;
 
-    T3D_DECLARE_SMART_PTR(ImageCodecFIMG);
+    T3D_DECLARE_SMART_PTR(ImageCodecIMG);
 
-    class ImageCodecFIMG : public ImageCodecBase
+    class ImageCodecIMG : public ImageCodecBase
     {
     public:
         typedef std::vector<ImageCodecBase::FileType>   FileTypeList;
         typedef FileTypeList::iterator                  FileTypeListItr;
         typedef FileTypeList::const_iterator            FileTypeListConstItr;
 
-        static ImageCodecFIMGPtr create();
+        static ImageCodecIMGPtr create();
 
-        virtual ~ImageCodecFIMG();
+        virtual ~ImageCodecIMG();
 
         const FileTypeList &getSupportedFileTypeList() const { return mFileTypeList; }
 
@@ -54,7 +54,7 @@ namespace Tiny3D
         virtual bool decode(uint8_t *data, size_t size, Image &image, FileType eFileType) override;
 
     protected:
-        ImageCodecFIMG();
+        ImageCodecIMG();
 
         FileTypeList        mFileTypeList;
 
@@ -63,4 +63,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_IMAGE_CODEC_FIMG_H__*/
+#endif  /*__T3D_IMAGE_CODEC_IMG_H__*/
