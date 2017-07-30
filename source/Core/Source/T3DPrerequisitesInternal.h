@@ -1,6 +1,6 @@
 /*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Aaron Wong
+ * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -40,6 +40,7 @@ namespace Tiny3D
     class KeyFrameDataR;
     class KeyFrameDataS;
 
+    class ImageCodecIMG;
     class FontFreeType;
 }
 

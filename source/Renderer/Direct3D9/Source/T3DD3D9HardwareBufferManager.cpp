@@ -1,6 +1,6 @@
 /*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Aaron Wong
+ * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,6 +20,7 @@
 #include "T3DD3D9HardwareBufferManager.h"
 #include "T3DD3D9HardwareVertexBuffer.h"
 #include "T3DD3D9HardwareIndexBuffer.h"
+#include "T3DD3D9HardwarePixelBuffer.h"
 #include "T3DD3D9VertexDeclaration.h"
 
 
@@ -36,10 +37,12 @@ namespace Tiny3D
 
     }
 
-    HardwareVertexBufferPtr D3D9HardwareBufferManager::createVertexBuffer(size_t vertexSize, size_t vertexCount, HardwareBuffer::Usage usage, bool useShadowBuffer)
+    HardwareVertexBufferPtr D3D9HardwareBufferManager::createVertexBuffer(
+        size_t vertexSize, size_t vertexCount, HardwareBuffer::Usage usage, 
+        bool useShadowBuffer)
     {
-        D3D9HardwareVertexBuffer *vertexBuffer = new D3D9HardwareVertexBuffer(vertexSize,
-            vertexCount, usage, false, useShadowBuffer);
+        D3D9HardwareVertexBuffer *vertexBuffer = new D3D9HardwareVertexBuffer(
+            vertexSize, vertexCount, usage, false, useShadowBuffer);
 
         HardwareVertexBufferPtr ptr(vertexBuffer);
         mVertexBuffers.insert(ptr);
@@ -48,14 +51,30 @@ namespace Tiny3D
         return ptr;
     }
 
-    HardwareIndexBufferPtr D3D9HardwareBufferManager::createIndexBuffer(HardwareIndexBuffer::Type indexType, size_t indexCount, HardwareBuffer::Usage usage, bool useShadowBuffer)
+    HardwareIndexBufferPtr D3D9HardwareBufferManager::createIndexBuffer(
+        HardwareIndexBuffer::Type indexType, size_t indexCount, 
+        HardwareBuffer::Usage usage, bool useShadowBuffer)
     {
-        D3D9HardwareIndexBuffer *indexBuffer = new D3D9HardwareIndexBuffer(indexType,
-            indexCount, usage, false, useShadowBuffer);
+        D3D9HardwareIndexBuffer *indexBuffer = new D3D9HardwareIndexBuffer(
+            indexType, indexCount, usage, false, useShadowBuffer);
 
         HardwareIndexBufferPtr ptr(indexBuffer);
         mIndexBuffers.insert(ptr);
         indexBuffer->release();
+
+        return ptr;
+    }
+
+    HardwarePixelBufferPtr D3D9HardwareBufferManager::createPixelBuffer(
+        uint32_t width, uint32_t height, PixelFormat format, 
+        HardwareBuffer::Usage usage, bool useShadowBuffer)
+    {
+        D3D9HardwarePixelBuffer *pixelBuffer = new D3D9HardwarePixelBuffer(
+            width, height, format, usage, false, useShadowBuffer);
+
+        HardwarePixelBufferPtr ptr(pixelBuffer);
+        mPixelBuffers.insert(ptr);
+        pixelBuffer->release();
 
         return ptr;
     }

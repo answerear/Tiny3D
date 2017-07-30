@@ -1,6 +1,6 @@
 /*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Aaron Wong
+ * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 
 
 #include "Misc/T3DObject.h"
+#include "Misc/T3DCommon.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Render/T3DHardwareIndexBuffer.h"
 
@@ -35,7 +36,7 @@ namespace Tiny3D
 
         virtual HardwareVertexBufferPtr createVertexBuffer(size_t vertexSize, size_t vertexCount, HardwareBuffer::Usage usage, bool useShadowBuffer) = 0;
         virtual HardwareIndexBufferPtr createIndexBuffer(HardwareIndexBuffer::Type indexType, size_t indexCount, HardwareBuffer::Usage usage, bool useShadowBuffer) = 0;
-
+        virtual HardwarePixelBufferPtr createPixelBuffer(uint32_t width, uint32_t height, PixelFormat format, HardwareBuffer::Usage usage, bool useShadowBuffer) = 0;
         virtual VertexDeclarationPtr createVertexDeclaration();
 
     protected:
@@ -49,8 +50,13 @@ namespace Tiny3D
         typedef IndexBufferList::iterator           IndexBufferListItr;
         typedef IndexBufferList::const_iterator     IndexBufferListConstItr;
 
+        typedef std::set<HardwarePixelBufferPtr>    PixelBufferList;
+        typedef PixelBufferList::iterator           PixelBufferListItr;
+        typedef PixelBufferList::const_iterator     PixelBufferListConstItr;
+
         VertexBufferList    mVertexBuffers;
         IndexBufferList     mIndexBuffers;
+        PixelBufferList     mPixelBuffers;
     };
 
     class T3D_ENGINE_API HardwareBufferManager 
@@ -63,6 +69,7 @@ namespace Tiny3D
 
         virtual HardwareVertexBufferPtr createVertexBuffer(size_t vertexSize, size_t vertexCount, HardwareBuffer::Usage usage, bool useShadowBuffer) override;
         virtual HardwareIndexBufferPtr createIndexBuffer(HardwareIndexBuffer::Type indexType, size_t indexCount, HardwareBuffer::Usage usage, bool useShadowBuffer) override;
+        virtual HardwarePixelBufferPtr createPixelBuffer(uint32_t width, uint32_t height, PixelFormat format, HardwareBuffer::Usage usage, bool useShadowBuffer) override;
         virtual VertexDeclarationPtr createVertexDeclaration() override;
 
     protected:
