@@ -26,6 +26,7 @@ namespace Tiny3D
 
     inline Image &Image::operator =(const Image &other)
     {
+        destroy();
         copy(other);
         return *this;
     }
@@ -45,7 +46,7 @@ namespace Tiny3D
         return mData;
     }
 
-    inline const uint8_t *Image::getData() const
+    inline const uint8_t * const Image::getData() const
     {
         return mData;
     }
@@ -88,5 +89,10 @@ namespace Tiny3D
     inline bool Image::isPremultipliedAlpha() const
     {
         return mIsPreMulti;
+    }
+
+    inline bool Image::isEmpty() const
+    {
+        return mIsDataExternal;
     }
 }

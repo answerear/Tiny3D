@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #include "Render/T3DHardwarePixelBuffer.h"
 
@@ -34,7 +34,7 @@ namespace Tiny3D
 
     }
 
-    void *HardwarePixelBuffer::lock(const Rect &rect, LockOptions options)
+    void *HardwarePixelBuffer::lock(const Rect &rect, LockOptions options, int32_t &lockedPitch)
     {
         T3D_ASSERT(!isLocked());
 
@@ -53,12 +53,12 @@ namespace Tiny3D
                 mIsShadowBufferDirty = true;
             }
 
-            buffer = smart_pointer_cast<HardwarePixelBuffer>(mShadowBuffer)->lock(rect, options);
+            buffer = smart_pointer_cast<HardwarePixelBuffer>(mShadowBuffer)->lock(rect, options, lockedPitch);
         }
         else
         {
             // 没有影子buffer，调用实际锁接口
-            buffer = lockImpl(rect, options);
+            buffer = lockImpl(rect, options, lockedPitch);
             if (buffer != nullptr)
             {
                 mIsLocked = true;
@@ -67,6 +67,7 @@ namespace Tiny3D
 
         if (buffer != nullptr)
         {
+            mLockSize = lockedPitch * rect.height();
         }
 
         return buffer;
@@ -74,12 +75,16 @@ namespace Tiny3D
 
     void *HardwarePixelBuffer::lock(LockOptions options)
     {
-        return lock(Rect(0, 0, mWidth-1, mHeight-1), options);
+        int32_t lockedPitch = 0;
+        return lock(Rect(0, 0, mWidth-1, mHeight-1), options, lockedPitch);
     }
 
-    bool HardwarePixelBuffer::copyTo(HardwarePixelBufferPtr dst, Rect *dstRect/* = nullptr*/, Rect *srcRect/* = nullptr*/) const
+    bool HardwarePixelBuffer::copyTo(HardwarePixelBufferPtr dst, Rect *dstRect/* = nullptr*/, Rect *srcRect/* = nullptr*/)
     {
         bool ret = false;
+
+        uint8_t *dstData = nullptr;
+        uint8_t *srcData = nullptr;
 
         do 
         {
@@ -103,25 +108,38 @@ namespace Tiny3D
                 rtDst = *dstRect;
             }
 
-            if (rtSrc == rtDst)
+            int32_t dstPitch = 0;
+            dstData = (uint8_t *)dst->lock(rtDst, HardwareBuffer::E_HBL_WRITE_ONLY, dstPitch);
+            if (dstData == nullptr)
             {
-                // 两个区域相同
-
-                PixelFormat dstFormat = dst->getFormat();
-                PixelFormat srcFormat = getFormat();
-
-                if (dstFormat == srcFormat)
-                {
-                    // 目标和源格式相同，直接复制
-                    dst->lock(HardwareBuffer::E_HBL_WRITE_ONLY);
-                }
+                T3D_LOG_ERROR("Lock destination pixel buffer failed !");
+                break;
             }
-            else
+
+            int32_t srcPitch = 0;
+            srcData = (uint8_t *)lock(rtSrc, HardwareBuffer::E_HBL_READ_ONLY, srcPitch);
+            if (srcData == nullptr)
             {
-                // 两个区域不相同
+                T3D_LOG_ERROR("Lock source pixel buffer failed !");
+                break;
             }
 
         } while (0);
+
+        if (!ret)
+        {
+            if (srcData != nullptr)
+            {
+                unlock();
+                srcData = nullptr;
+            }
+
+            if (dstData != nullptr)
+            {
+                dst->unlock();
+                dstData = nullptr;
+            }
+        }
 
         return ret;
     }
@@ -142,5 +160,34 @@ namespace Tiny3D
     {
         T3D_LOG_ERROR("Lock implementation is not implemented. Use lockImpl(const Rect &, LockOptions).");
         return nullptr;
+    }
+
+    int32_t HardwarePixelBuffer::getBPP() const
+    {
+        int32_t bpp = 0;
+
+        switch (mFormat)
+        {
+        case E_PF_PALETTE8:
+            bpp = 8;
+            break;
+        case E_PF_R5G6B5:
+        case E_PF_A1R5G5B5:
+        case E_PF_A4R4G4B4:
+            bpp = 16;
+            break;
+        case E_PF_R8G8B8:
+        case E_PF_B8G8R8:
+            bpp = 24;
+            break;
+        case E_PF_A8R8G8B8:
+        case E_PF_B8G8R8A8:
+        case E_PF_X8R8G8B8:
+        case E_PF_B8G8R8X8:
+            bpp = 32;
+            break;
+        }
+
+        return bpp;
     }
 }

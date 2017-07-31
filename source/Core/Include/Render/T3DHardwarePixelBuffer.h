@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #ifndef __T3D_HARDWARE_PIXEL_BUFFER_H__
 #define __T3D_HARDWARE_PIXEL_BUFFER_H__
@@ -39,10 +39,11 @@ namespace Tiny3D
          * @brief 获取硬件缓冲区数据
          * @param [in] rect : 要获取数据的区域
          * @param [in] options : 获取数据选项
+         * @param [out] lockedPitch : 返回锁定区域的pitch
          * @return 返回锁定的硬件数据地址
          * @see enum LockOptions
          */
-        virtual void *lock(const Rect &rect, LockOptions options);
+        virtual void *lock(const Rect &rect, LockOptions options, int32_t &lockedPitch);
 
         /**
          * @brief 获取硬件缓冲区数据
@@ -57,10 +58,11 @@ namespace Tiny3D
          * @brief 获取锁定硬件缓冲区不同渲染器实现接口
          * @param [in] rect : 要获取数据的区域
          * @param [in] options : 获取数据选项
+         * @param [out] lockedPitch : 返回锁定区域的pitch
          * @return 返回锁定的硬件数据地址
          * @see enum LockOptions
          */
-        virtual void *lockImpl(const Rect &rect, LockOptions options) = 0;
+        virtual void *lockImpl(const Rect &rect, LockOptions options, int32_t &lockedPitch) = 0;
 
         /**
          * @brief 复制数据到另外一个HardwarePixelBuffer
@@ -70,7 +72,7 @@ namespace Tiny3D
          * @return 调用成功返回true，否则返回false
          * @note dstRect 和 srcRect 均为nullptr的时候，会自动缩放匹配源和目标区域
          */
-        virtual bool copyTo(HardwarePixelBufferPtr dst, Rect *dstRect = nullptr, Rect *srcRect = nullptr) const;
+        virtual bool copyTo(HardwarePixelBufferPtr dst, Rect *dstRect = nullptr, Rect *srcRect = nullptr);
 
         /**
          * @brief 按照源区域从image读取数据到目标区域
@@ -125,6 +127,8 @@ namespace Tiny3D
         HardwarePixelBuffer(uint32_t width, uint32_t height, PixelFormat format,
             Usage usage, bool useSystemMemory, bool useShadowBuffer);
 
+        int32_t getBPP() const;
+
     private:
         /**
          * @brief 从父类继承而来，对于像素缓冲区来说，本接口没有意义，请使用readImage来代替
@@ -143,10 +147,10 @@ namespace Tiny3D
         virtual void *lockImpl(size_t offset, size_t size, LockOptions options) override;
 
     protected:
-        uint32_t    mWidth;
-        uint32_t    mHeight;
-        size_t      mPitch;
-        PixelFormat mFormat;
+        uint32_t    mWidth;         /// 像素缓冲区的宽度
+        uint32_t    mHeight;        /// 像素缓冲区的高度
+        size_t      mPitch;         /// 像素缓冲区的pitch
+        PixelFormat mFormat;        /// 像素缓冲区的格式
     };
 }
 

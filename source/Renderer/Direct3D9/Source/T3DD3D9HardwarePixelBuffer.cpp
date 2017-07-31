@@ -29,7 +29,7 @@ namespace Tiny3D
         HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
         : HardwarePixelBuffer(width, height, format, usage, useSystemMemory, useShadowBuffer)
     {
-
+        createTexture();
     }
 
     D3D9HardwarePixelBuffer::~D3D9HardwarePixelBuffer()
@@ -37,23 +37,103 @@ namespace Tiny3D
 
     }
 
-    void *D3D9HardwarePixelBuffer::lockImpl(const Rect &rect, LockOptions options)
+    bool D3D9HardwarePixelBuffer::createTexture()
     {
-        return nullptr;
+        bool ret = false;
+
+        do 
+        {
+            LPDIRECT3DDEVICE9 D3DDevice = D3D9_RENDERER.getD3DDevice();
+
+            D3DFORMAT format = D3D9Mappings::get(mFormat);
+            HRESULT hr = D3DXCreateTexture(D3DDevice, mWidth, mHeight, 1, 0, format, D3DPOOL_MANAGED, &mD3DTexture);
+
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            D3DSURFACE_DESC desc;
+            hr = mD3DTexture->GetLevelDesc(0, &desc);
+
+            if (FAILED(hr))
+            {
+                mFormat = D3D9Mappings::get(desc.Format);
+            }
+
+            ret = true;
+        } while (0);
+
+        return ret;
+    }
+
+    void *D3D9HardwarePixelBuffer::lockImpl(const Rect &rect, LockOptions options, int32_t &lockedPitch)
+    {
+        D3DLOCKED_RECT d3dRect;
+        RECT winRect = { rect.left, rect.top, rect.right, rect.bottom };
+        HRESULT hr = mD3DTexture->LockRect(0, &d3dRect, &winRect, 0);
+        if (SUCCEEDED(hr))
+        {
+            lockedPitch = d3dRect.Pitch;
+        }
+
+        return d3dRect.pBits;
     }
 
     void D3D9HardwarePixelBuffer::unlockImpl()
     {
+        HRESULT hr = mD3DTexture->UnlockRect(0);
+        if (FAILED(hr))
+        {
 
+        }
     }
 
     bool D3D9HardwarePixelBuffer::readImage(const Image &image, Rect *srcRect/* = nullptr*/, Rect *dstRect/* = nullptr*/)
     {
         bool ret = false;
 
+        uint8_t *dst = nullptr;
+
         do 
         {
+            int32_t bpp = getBPP();
+            Image temp;
+            int32_t dstPitch = 0;
+
+            if (dstRect == nullptr)
+            {
+                dst = (uint8_t *)lock(E_HBL_DISCARD);
+                dstPitch = mPitch;
+            }
+            else
+            {
+                dst = (uint8_t *)lock(*dstRect, E_HBL_WRITE_ONLY, dstPitch);
+            }
+
+            // 临时构造一个图像对象，用于复制数据
+            if (!temp.load(dst, mWidth, mHeight, bpp, mPitch, mFormat))
+            {
+                break;
+            }
+
+            // 复制图像数据到纹理
+            if (!temp.copy(image))
+            {
+                break;
+            }
+
+            unlock();
+            dst = nullptr;
+
+            ret = true;
         } while (0);
+
+        if (dst != nullptr)
+        {
+            unlock();
+            dst = nullptr;
+        }
 
         return ret;
     }

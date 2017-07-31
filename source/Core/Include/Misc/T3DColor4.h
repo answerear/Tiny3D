@@ -30,6 +30,31 @@ namespace Tiny3D
     class T3D_ENGINE_API Color4
     {
     public:
+        static const Color4 BLACK;
+        static const Color4 WHITE;
+        static const Color4 RED;
+        static const Color4 GREEN;
+        static const Color4 BLUE;
+
+        static const uint16_t RGB555_RED_MASK;
+        static const uint16_t RGB555_GREEN_MASK;
+        static const uint16_t RGB555_BLUE_MASK;
+        static const uint16_t RGB555_ALPHA_MASK;
+
+        static const uint16_t RGB565_RED_MASK;
+        static const uint16_t RGB565_GREEN_MASK;
+        static const uint16_t RGB565_BLUE_MASK;
+
+        static const uint16_t RGB444_RED_MASK;
+        static const uint16_t RGB444_GREEN_MASK;
+        static const uint16_t RGB444_BLUE_MASK;
+        static const uint16_t RGB444_ALPHA_MASK;
+
+        static const uint32_t RGB_RED_MASK;
+        static const uint32_t RGB_GREEN_MASK;
+        static const uint32_t RGB_BLUE_MASK;
+        static const uint32_t RGB_ALPHA_MASK;
+
         Color4(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
             : mAlpha(a)
             , mRed(r)
@@ -72,39 +97,33 @@ namespace Tiny3D
 
         uint32_t A8R8G8B8() const
         {
-            return ((mAlpha << 24) & 0xFF000000) | ((mRed << 16) & 0x00FF0000)
-                | ((mGreen << 8) & 0x0000FF00) | (mBlue & 0x000000FF);
+            return ((mAlpha << 24) & RGB_ALPHA_MASK) | ((mRed << 16) & RGB_RED_MASK)
+                | ((mGreen << 8) & RGB_GREEN_MASK) | (mBlue & RGB_BLUE_MASK);
         }
 
         uint16_t A1R5G5B5() const
         {
             uint8_t alpha = (mAlpha > 0 ? 1 : 0);
-            return ((alpha << 15) & 0x8000) | ((mRed << 10) & 0x7C00)
-                | ((mGreen << 5) & 0x03E0) | (mBlue & 0x001F);
+            return ((alpha << 15) & RGB555_ALPHA_MASK) | ((mRed << 10) & RGB555_RED_MASK)
+                | ((mGreen << 5) & RGB555_GREEN_MASK) | (mBlue & RGB555_BLUE_MASK);
         }
 
         uint16_t R5G6B5() const
         {
-            return ((mRed << 11) & 0xF800) | ((mGreen << 5) & 0x07E0) 
-                | (mBlue & 0x001F);
+            return ((mRed << 11) & RGB565_RED_MASK) | ((mGreen << 5) & RGB565_GREEN_MASK)
+                | (mBlue & RGB565_BLUE_MASK);
         }
 
         uint16_t A4R4G4B4() const
         {
             uint8_t alpha = (mAlpha >> 1);
-            return ((alpha << 12) & 0xF000) | ((mRed << 8) & 0x0F00) 
-                | ((mGreen << 4) & 0x00F0) | (mBlue & 0x000F);
+            return ((alpha << 12) & RGB444_ALPHA_MASK) | ((mRed << 8) & RGB444_RED_MASK) 
+                | ((mGreen << 4) & RGB444_GREEN_MASK) | (mBlue & RGB444_BLUE_MASK);
         }
 
         static void convert_B8G8R8A8toA8R8G8B8(void *src, void *dst, size_t count);
 
         static void convert(void *srcPixel, PixelFormat srcFmt, void *dstPixel, PixelFormat dstFmt);
-
-        static const Color4 BLACK;
-        static const Color4 WHITE;
-        static const Color4 RED;
-        static const Color4 GREEN;
-        static const Color4 BLUE;
 
     private:
         uint8_t     mBlue;

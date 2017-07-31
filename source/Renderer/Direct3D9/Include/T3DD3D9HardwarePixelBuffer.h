@@ -35,14 +35,17 @@ namespace Tiny3D
             bool useSystemMemory, bool useShadowBuffer);
         virtual ~D3D9HardwarePixelBuffer();
 
+        bool createTexture();
+
         /**
          * @brief 获取锁定硬件缓冲区不同渲染器实现接口
          * @param [in] rect : 要获取数据的区域
          * @param [in] options : 获取数据选项
+         * @param [out] lockedPitch : 返回锁定区域的pitch
          * @return 返回锁定的硬件数据地址
          * @see enum LockOptions
          */
-        virtual void *lockImpl(const Rect &rect, LockOptions options) override;
+        virtual void *lockImpl(const Rect &rect, LockOptions options, int32_t &lockedPitch) override;
 
         /**
          * @brief 解锁硬件缓冲区
@@ -70,6 +73,7 @@ namespace Tiny3D
         virtual bool writeImage(Image &image, Rect *dstRect = nullptr, Rect *srcRect = nullptr) const override;
 
     protected:
+        LPDIRECT3DTEXTURE9  mD3DTexture;
     };
 }
 
