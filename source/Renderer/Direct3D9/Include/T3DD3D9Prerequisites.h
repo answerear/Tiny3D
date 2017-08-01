@@ -53,6 +53,7 @@ namespace Tiny3D
     class D3D9TextureManager;
     class D3D9HardwareVertexBuffer;
     class D3D9HardwareIndexBuffer;
+    class D3D9HardwarePixelBuffer;
     class D3D9HardwareBufferManager;
     class D3D9Material;
     class D3D9VertexDeclaration;

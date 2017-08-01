@@ -70,7 +70,9 @@ namespace Tiny3D
          * @return 调用成功返回true，否则返回false
          * @note dstRect 和 srcRect 均为nullptr的时候，会自动缩放匹配源和目标区域
          */
-        virtual bool writeImage(Image &image, Rect *dstRect = nullptr, Rect *srcRect = nullptr) const override;
+        virtual bool writeImage(Image &image, Rect *dstRect = nullptr, Rect *srcRect = nullptr) override;
+
+        LPDIRECT3DTEXTURE9 getD3DTexture() { return mD3DTexture; }
 
     protected:
         LPDIRECT3DTEXTURE9  mD3DTexture;

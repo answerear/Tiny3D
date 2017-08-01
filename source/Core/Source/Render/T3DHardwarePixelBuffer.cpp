@@ -18,6 +18,7 @@
  **************************************************************************************************/
 
 #include "Render/T3DHardwarePixelBuffer.h"
+#include "Misc/T3DImage.h"
 
 
 namespace Tiny3D
@@ -25,8 +26,13 @@ namespace Tiny3D
     HardwarePixelBuffer::HardwarePixelBuffer(uint32_t width, uint32_t height, 
         PixelFormat format, Usage usage, bool useSystemMemory, bool useShadowBuffer)
         : HardwareBuffer(usage, useSystemMemory, useShadowBuffer)
+        , mWidth(width)
+        , mHeight(height)
+        , mPitch(0)
+        , mFormat(format)
     {
-
+        int32_t bpp = Image::getBPP(mFormat);
+        mPitch = Image::calcPitch(mWidth, bpp);
     }
 
     HardwarePixelBuffer::~HardwarePixelBuffer()
@@ -160,34 +166,5 @@ namespace Tiny3D
     {
         T3D_LOG_ERROR("Lock implementation is not implemented. Use lockImpl(const Rect &, LockOptions).");
         return nullptr;
-    }
-
-    int32_t HardwarePixelBuffer::getBPP() const
-    {
-        int32_t bpp = 0;
-
-        switch (mFormat)
-        {
-        case E_PF_PALETTE8:
-            bpp = 8;
-            break;
-        case E_PF_R5G6B5:
-        case E_PF_A1R5G5B5:
-        case E_PF_A4R4G4B4:
-            bpp = 16;
-            break;
-        case E_PF_R8G8B8:
-        case E_PF_B8G8R8:
-            bpp = 24;
-            break;
-        case E_PF_A8R8G8B8:
-        case E_PF_B8G8R8A8:
-        case E_PF_X8R8G8B8:
-        case E_PF_B8G8R8X8:
-            bpp = 32;
-            break;
-        }
-
-        return bpp;
     }
 }

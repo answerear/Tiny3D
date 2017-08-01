@@ -26,6 +26,7 @@
 
 namespace Tiny3D
 {
+#if 0
     class T3D_D3D9RENDERER_API D3D9TextureManager : public TextureManager
     {
     public:
@@ -35,6 +36,7 @@ namespace Tiny3D
     protected:
         virtual TexturePtr createTexture(const String &name, int32_t width, int32_t height, int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType);
     };
+#endif
 }
 
 

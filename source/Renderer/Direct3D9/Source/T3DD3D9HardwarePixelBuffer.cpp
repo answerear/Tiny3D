@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #include "T3DD3D9HardwarePixelBuffer.h"
 #include "T3DD3D9Renderer.h"
@@ -34,7 +34,7 @@ namespace Tiny3D
 
     D3D9HardwarePixelBuffer::~D3D9HardwarePixelBuffer()
     {
-
+        D3D_SAFE_RELEASE(mD3DTexture);
     }
 
     bool D3D9HardwarePixelBuffer::createTexture()
@@ -97,28 +97,31 @@ namespace Tiny3D
 
         do 
         {
-            int32_t bpp = getBPP();
+            int32_t bpp = Image::getBPP(mFormat);
             Image temp;
             int32_t dstPitch = 0;
+            Rect rtDst;
 
             if (dstRect == nullptr)
             {
                 dst = (uint8_t *)lock(E_HBL_DISCARD);
                 dstPitch = mPitch;
+                rtDst = Rect(0, 0, mWidth - 1, mHeight - 1);
             }
             else
             {
-                dst = (uint8_t *)lock(*dstRect, E_HBL_WRITE_ONLY, dstPitch);
+                rtDst = *dstRect;
+                dst = (uint8_t *)lock(rtDst, E_HBL_WRITE_ONLY, dstPitch);
             }
 
             // 临时构造一个图像对象，用于复制数据
-            if (!temp.load(dst, mWidth, mHeight, bpp, mPitch, mFormat))
+            if (!temp.load(dst, rtDst.width(), rtDst.height(), bpp, dstPitch, mFormat))
             {
                 break;
             }
 
             // 复制图像数据到纹理
-            if (!temp.copy(image))
+            if (!temp.copy(image, srcRect))
             {
                 break;
             }
@@ -138,13 +141,49 @@ namespace Tiny3D
         return ret;
     }
 
-    bool D3D9HardwarePixelBuffer::writeImage(Image &image, Rect *dstRect/* = nullptr*/, Rect *srcRect/* = nullptr*/) const
+    bool D3D9HardwarePixelBuffer::writeImage(Image &image, Rect *dstRect/* = nullptr*/, Rect *srcRect/* = nullptr*/)
     {
         bool ret = false;
 
+        uint8_t *src = nullptr;
+
         do 
         {
+            int32_t bpp = Image::getBPP(mFormat);
+            Image temp;
+            int32_t srcPitch = 0;
+            Rect rtSrc;
+
+            if (srcRect == nullptr)
+            {
+                src = (uint8_t *)lock(E_HBL_READ_ONLY);
+                srcPitch = mPitch;
+                rtSrc = Rect(0, 0, mWidth - 1, mHeight - 1);
+            }
+
+            // 临时构造一个图像对象，用于复制数据
+            if (!temp.load(src, mWidth, mHeight, bpp, mPitch, mFormat))
+            {
+                break;
+            }
+
+            // 复制图像数据到纹理
+            if (!image.copy(temp, dstRect))
+            {
+                break;
+            }
+
+            unlock();
+            src = nullptr;
+
+            ret = true;
         } while (0);
+
+        if (src != nullptr)
+        {
+            unlock();
+            src = nullptr;
+        }
 
         return ret;
     }

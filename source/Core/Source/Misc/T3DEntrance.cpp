@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #include "Misc/T3DEntrance.h"
 #include "Misc/T3DPlugin.h"
@@ -27,6 +27,7 @@
 #include "Resource/T3DArchiveManager.h"
 #include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DModelManager.h"
+#include "Resource/T3DTextureManager.h"
 #include "Resource/T3DDylib.h"
 #include "ImageCodec/T3DImageCodec.h"
 #include "Resource/T3DFileSystemArchive.h"
@@ -49,6 +50,7 @@ namespace Tiny3D
         , mArchiveMgr(new ArchiveManager())
         , mMaterialMgr(new MaterialManager())
         , mModelMgr(new ModelManager())
+        , mTextureMgr(new TextureManager())
         , mActiveRenderer(nullptr)
         , mAppListener(nullptr)
         , mSceneMgr(nullptr)
@@ -78,11 +80,16 @@ namespace Tiny3D
 
     Entrance::~Entrance()
     {
+        unloadPlugins();
+
         mImageCodec->shutdown();
+
+        T3D_SAFE_DELETE(mSceneMgr);
 
         T3D_SAFE_DELETE(mImageCodec);
         T3D_SAFE_DELETE(mModelMgr);
         T3D_SAFE_DELETE(mMaterialMgr);
+        T3D_SAFE_DELETE(mTextureMgr);
         T3D_SAFE_DELETE(mArchiveMgr);
         T3D_SAFE_DELETE(mDylibMgr);
 
@@ -148,8 +155,7 @@ namespace Tiny3D
             {
                 DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)lib->getSymbol("dllStopPlugin");
                 pFunc();
-                ResourcePtr &res = (ResourcePtr)lib;
-                DylibManager::getInstance().unload(res);
+                DylibManager::getInstance().unloadDylib(lib);
                 break;
             }
 
@@ -188,7 +194,16 @@ namespace Tiny3D
 
     void Entrance::unloadPlugins()
     {
+        DylibListItr itr = mDylibList.begin();
 
+        while (itr != mDylibList.end())
+        {
+            DylibPtr &lib = *itr;
+            DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)lib->getSymbol("dllStopPlugin");
+            pFunc();
+            DylibManager::getInstance().unloadDylib(lib);
+            ++itr;
+        }
     }
 
     void Entrance::startLogging()

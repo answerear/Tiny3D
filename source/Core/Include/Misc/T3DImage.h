@@ -38,6 +38,16 @@ namespace Tiny3D
         static const char * const FILETYPE_TGA;
         static const char * const FILETYPE_DDS;
 
+        enum Filter
+        {
+            E_FILTER_BOX = 0,           /// Box, pulse, Fourier window, 1st order (constant) b-spline
+            E_FILTER_BICUBIC = 1,       /// Mitchell & Netravali's two-param cubic filter
+            E_FILTER_BILINEAR = 2,      /// Bilinear filter
+            E_FILTER_BSPLINE = 3,       /// 4th order (cubic) b-spline
+            E_FILTER_CATMULLROM = 4,    /// Catmull-Rom spline, Overhauser spline
+            E_FILTER_LANCZOS3 = 5       /// Lanczos3 filter
+        };
+
         /**
          * @brief 默认构造函数
          */
@@ -150,8 +160,9 @@ namespace Tiny3D
          * @param [in] dstRect : 要复制过去的目标区域，默认nullptr为整个区域
          * @return 调用成功返回true，否则返回false
          * @note 当源和目标区域不相同大小时，自动缩放来复制，源和目标图像必须要像素格式一致，否则调用失败
+         * @note 当自动缩放时，会导致性能下降
          */
-        bool copy(const Image &image, Rect *srcRect = nullptr, Rect *dstRect = nullptr);
+        bool copy(const Image &image, Rect *srcRect = nullptr, Rect *dstRect = nullptr, Filter filter = E_FILTER_BILINEAR);
 
         /**
          * @brief 转成目标像素格式的图像
@@ -167,8 +178,6 @@ namespace Tiny3D
          */
         bool convert(Image &image, PixelFormat format) const;
 
-        bool copyToScaling(void *dstData, int32_t dstWidth, int32_t dstHeight, PixelFormat dstFormat, int32_t dstPitch, bool needFlip = false) const;
-        
         /**
          * @brief 比较图像
          * @param [in] other : 另外一个图像对象
@@ -232,6 +241,16 @@ namespace Tiny3D
          * @brief 返回是否空图像
          */
         bool isEmpty() const;
+
+        /**
+         * @brief 根据色深计算图像行跨度
+         */
+        static int32_t calcPitch(int32_t width, int32_t bpp);
+
+        /**
+         * @brief 根据图像像素格式获取色深
+         */
+        static int32_t getBPP(PixelFormat format);
 
     protected:
         /**

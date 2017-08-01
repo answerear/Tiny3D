@@ -60,7 +60,7 @@ namespace Tiny3D
 
         Entrance::getInstance().addRenderer(mRenderer);
 
-        mTextureMgr = new D3D9TextureManager();
+//         mTextureMgr = new D3D9TextureManager();
 
         return true;
     }

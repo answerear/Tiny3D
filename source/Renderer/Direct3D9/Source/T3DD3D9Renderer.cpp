@@ -22,9 +22,10 @@
 #include "T3DD3D9HardwareBufferManager.h"
 #include "T3DD3D9HardwareVertexBuffer.h"
 #include "T3DD3D9HardwareIndexBuffer.h"
+#include "T3DD3D9HardwarePixelBuffer.h"
 #include "T3DD3D9VertexDeclaration.h"
 #include "T3DD3D9Mappings.h"
-#include "T3DD3D9Texture.h"
+// #include "T3DD3D9Texture.h"
 
 
 namespace Tiny3D
@@ -248,7 +249,9 @@ namespace Tiny3D
                     if (tex != nullptr)
                     {
                         D3D9Texture *texture = (D3D9Texture *)tex;
-                        mD3DDevice->SetTexture(0, texture->getD3DTexture());
+                        HardwarePixelBufferPtr pixelBuffer = tex->getPixelBuffer();
+                        D3D9HardwarePixelBuffer *pb = (D3D9HardwarePixelBuffer *)(HardwarePixelBuffer *)pixelBuffer;
+                        mD3DDevice->SetTexture(0, pb->getD3DTexture());
                         mD3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
                         mD3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
                         mD3DDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_POINT);

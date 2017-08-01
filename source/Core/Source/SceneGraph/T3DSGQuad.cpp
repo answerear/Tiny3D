@@ -27,7 +27,27 @@ namespace Tiny3D
     SGQuadPtr SGQuad::create(uint32_t uID /* = E_NID_AUTOMATIC */)
     {
         SGQuadPtr quad = new SGQuad(uID);
-        if (quad != nullptr)
+        if (quad != nullptr && quad->init("", RealSize()))
+        {
+            quad->release();
+        }
+        return quad;
+    }
+
+    SGQuadPtr SGQuad::create(const RealSize &size, uint32_t uID /* = E_NID_AUTOMATIC */)
+    {
+        SGQuadPtr quad = new SGQuad(uID);
+        if (quad != nullptr && quad->init("", size))
+        {
+            quad->release();
+        }
+        return quad;
+    }
+
+    SGQuadPtr SGQuad::create(const String &materialName, const RealSize &size, uint32_t uID /* = E_NID_AUTOMATIC */)
+    {
+        SGQuadPtr quad = new SGQuad(uID);
+        if (quad != nullptr && quad->init(materialName, size))
         {
             quad->release();
         }
@@ -41,6 +61,32 @@ namespace Tiny3D
     }
 
     SGQuad::~SGQuad()
+    {
+
+    }
+
+    bool SGQuad::init(const String &materialName, const RealSize &size)
+    {
+        bool ret = false;
+
+        do 
+        {
+        } while (0);
+
+        return ret;
+    }
+
+    void SGQuad::setSize(const RealSize &size)
+    {
+
+    }
+
+    void SGQuad::setMaterial(const String &materialName)
+    {
+
+    }
+
+    void SGQuad::setMaterial(MaterialPtr material)
     {
 
     }

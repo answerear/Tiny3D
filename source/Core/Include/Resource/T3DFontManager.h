@@ -74,6 +74,8 @@ namespace Tiny3D
 
         virtual FontPtr loadFont(const String &name);
 
+        virtual void unloadFont(FontPtr &font);
+
         const FontConfig &getConfig() const { return mFontConfig; }
 
     protected:

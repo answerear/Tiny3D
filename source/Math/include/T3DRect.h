@@ -51,6 +51,11 @@ namespace Tiny3D
             height = (T)other.y();
         }
 
+        bool isEmpty() const
+        {
+            return (width == 0 && height == 0);
+        }
+
         TSize &operator =(const Vector2 &other)
         {
             width = (T)other.x();
@@ -267,6 +272,8 @@ namespace Tiny3D
 
         TRect(const TPoint<T> &pos, const TSize<T> &size)
         {
+            left = pos.x;
+            top = pos.y;
             right = pos.x + size.width - 1;
             bottom = pos.y + size.height - 1;
         }

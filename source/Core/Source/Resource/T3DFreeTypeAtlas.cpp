@@ -281,7 +281,7 @@ namespace Tiny3D
             // 把旧纹理的所有数据复制到新纹理相同区域
             Rect srcRect(Point(0, 0), Size(texWidth, texHeight));
             Rect dstRect = srcRect;
-            if (!srcTexture->copyToTexture(newTexture, &srcRect, &dstRect))
+            if (!srcTexture->copyTo(newTexture, &dstRect, &srcRect))
             {
                 T3D_LOG_ERROR("Copy source texture data to new texture failed !");
                 break;

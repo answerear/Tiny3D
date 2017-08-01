@@ -23,6 +23,7 @@
 
 namespace Tiny3D
 {
+#if 0
     D3D9TextureManager::D3D9TextureManager()
     {
 
@@ -37,4 +38,5 @@ namespace Tiny3D
     {
         return D3D9Texture::create(name, width, height, numMipMaps, format, texUsage, texType);
     }
+#endif
 }

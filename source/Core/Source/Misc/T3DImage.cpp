@@ -33,6 +33,40 @@ namespace Tiny3D
     const char * const Image::FILETYPE_JPG = "jpg";
     const char * const Image::FILETYPE_DDS = "dds";
 
+    int32_t Image::calcPitch(int32_t width, int32_t bpp)
+    {
+        return (width * (bpp / 8) + 3) & ~3;
+    }
+
+    int32_t Image::getBPP(PixelFormat format)
+    {
+        int32_t bpp = 0;
+
+        switch (format)
+        {
+        case E_PF_PALETTE8:
+            bpp = 8;
+            break;
+        case E_PF_R5G6B5:
+        case E_PF_A1R5G5B5:
+        case E_PF_A4R4G4B4:
+            bpp = 16;
+            break;
+        case E_PF_R8G8B8:
+        case E_PF_B8G8R8:
+            bpp = 24;
+            break;
+        case E_PF_A8R8G8B8:
+        case E_PF_B8G8R8A8:
+        case E_PF_X8R8G8B8:
+        case E_PF_B8G8R8X8:
+            bpp = 32;
+            break;
+        }
+
+        return bpp;
+    }
+
     Image::Image()
         : mWidth(0)
         , mHeight(0)
@@ -295,7 +329,7 @@ namespace Tiny3D
         return ret;
     }
 
-    bool Image::copy(const Image &image, Rect *srcRect /* = nullptr */, Rect *dstRect /* = nullptr */)
+    bool Image::copy(const Image &image, Rect *srcRect /* = nullptr */, Rect *dstRect /* = nullptr */, Filter filter /* = E_FILTER_BILINEAR */)
     {
         bool ret = false;
 
@@ -410,7 +444,7 @@ namespace Tiny3D
                     }
 
                     // Ëõ·Å
-                    newdib = FreeImage_Rescale(dib, rtDst.width(), rtDst.height(), FILTER_BILINEAR);
+                    newdib = FreeImage_Rescale(dib, rtDst.width(), rtDst.height(), (FREE_IMAGE_FILTER)filter);
                     if (newdib == nullptr)
                     {
                         T3D_LOG_ERROR("Scale image failed !");
@@ -491,107 +525,6 @@ namespace Tiny3D
         return ret;
     }
 
-    bool Image::copyToScaling(void *dstData, int32_t dstWidth, int32_t dstHeight, PixelFormat dstFormat, int32_t dstPitch, bool needFlip /* = false */) const
-    {
-        bool ret = false;
-
-        if (dstFormat == mFormat && dstWidth == mWidth && dstHeight == mHeight)
-        {
-            if (needFlip)
-            {
-                uint8_t *dst = (uint8_t *)dstData;
-                uint8_t *src = mData;
-                int32_t bpp = (mFormat == E_PF_A8R8G8B8 ? 32 : 24) / 8;
-                const uint32_t bwidth = dstWidth * bpp;
-                const uint32_t rest = dstPitch - bwidth;
-                dst = dst + dstPitch * (dstHeight - 1);
-                for (int32_t y = 0; y < dstHeight; ++y)
-                {
-                    // copy scanline
-                    memcpy(dst, src, bwidth);
-                    // clear pitch
-                    memset(dst+bwidth, 0, rest);
-                    dst -= dstPitch;
-                    src += mPitch;
-                }
-                ret = true;
-            }
-            else
-            {
-                if (dstPitch == mPitch)
-                {
-                    memcpy(dstData, mData, mDataSize);
-                    ret = true;
-                }
-                else
-                {
-                    uint8_t *dst = (uint8_t *)dstData;
-                    uint8_t *src = mData;
-                    int32_t bpp = (mFormat == E_PF_A8R8G8B8 ? 32 : 24) / 8;
-                    const uint32_t bwidth = dstWidth * bpp;
-                    const uint32_t rest = dstPitch - bwidth;
-                    for (int32_t y = 0; y < dstHeight; ++y)
-                    {
-                        // copy scanline
-                        memcpy(dst, src, bwidth);
-                        // clear pitch
-                        memset(dst+bwidth, 0, rest);
-                        dst += dstPitch;
-                        src += mPitch;
-                    }
-                    ret = true;
-                }
-            }
-        }
-        else
-        {
-            int32_t dstBytesPerPixel = 3;
-            if (dstFormat == E_PF_A8R8G8B8 || dstFormat == E_PF_B8G8R8A8 || dstFormat == E_PF_B8G8R8X8 || dstFormat == E_PF_X8R8G8B8)
-                dstBytesPerPixel = 4;
-            int32_t srcBytesPerPiexl = mBPP / 8;
-            const float sourceXStep = (float)mWidth / (float)dstWidth;
-            const float sourceYStep = (float)mHeight / (float)dstHeight;
-            int32_t yval=0, syval=0;
-            float sy = 0.0f;
-            uint8_t *dst = (uint8_t *)dstData;
-            if (needFlip)
-            {
-                yval = dstPitch * (dstHeight - 1);
-                for (int32_t y = 0; y < dstHeight; ++y)
-                {
-                    float sx = 0.0f;
-                    for (int32_t x = 0; x < dstWidth; ++x)
-                    {
-                        Color4::convert(mData+syval+int32_t(sx)*srcBytesPerPiexl, mFormat, dst+yval+x*dstBytesPerPixel, dstFormat);
-                        sx += sourceXStep;
-                    }
-                    sy += sourceYStep;
-                    syval = ((int32_t)sy) * mPitch;
-                    yval -= dstPitch;
-                }
-            }
-            else
-            {
-                for (int32_t y = 0; y < dstHeight; ++y)
-                {
-                    float sx = 0.0f;
-                    for (int32_t x = 0; x < dstWidth; ++x)
-                    {
-                        Color4::convert(mData+syval+int32_t(sx)*srcBytesPerPiexl, mFormat, dst+yval+x*dstBytesPerPixel, dstFormat);
-                        sx += sourceXStep;
-                    }
-                    sy += sourceYStep;
-                    syval = ((int32_t)sy) * mPitch;
-                    yval += dstPitch;
-                }
-            }
-
-            ret = true;
-        }
-
-        return ret;
-    }
-
     bool Image::compare(const Image &other, bool compareAlpha /* = true */) const
     {
         return false;
@@ -629,7 +562,7 @@ namespace Tiny3D
 
     int32_t Image::calcPitch() const
     {
-        return (mWidth * (mBPP / 8) + 3) & ~3;
+        return Image::calcPitch(mWidth, mBPP);//(mWidth * (mBPP / 8) + 3) & ~3;
     }
 
     void Image::getColorMask(uint32_t &redMask, uint32_t &greenMask, uint32_t &blueMask, uint32_t &alphaMask) const

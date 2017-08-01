@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #include "Resource/T3DTextureManager.h"
 
@@ -62,9 +62,14 @@ namespace Tiny3D
             Texture::TexUsage texUsage = va_arg(args, Texture::TexUsage);
             Texture::TexType texType = va_arg(args, Texture::TexType);
             numMipMaps = (numMipMaps == -1 ? mDefaultNumMipMaps : numMipMaps);
-            res = createTexture(name, width, height, numMipMaps, format, texUsage, texType);
+            res = Texture::create(name, numMipMaps, width, height, texUsage, texType, format);//createTexture(name, width, height, numMipMaps, format, texUsage, texType);
         }
 
         return res;
+    }
+
+    void TextureManager::unloadTexture(TexturePtr &texture)
+    {
+        unload((ResourcePtr &)texture);
     }
 }

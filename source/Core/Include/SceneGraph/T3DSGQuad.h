@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #ifndef __T3D_SG_QUAD_H__
 #define __T3D_SG_QUAD_H__
@@ -31,12 +31,61 @@ namespace Tiny3D
     public:
         static SGQuadPtr create(uint32_t uID = E_NID_AUTOMATIC);
 
+        /**
+         * @brief 创建一个Quad对象出来
+         * @param [in] size : 要创建的Quad的大小
+         * @param [in] uID : 这个节点的ID，默认为自动生成
+         * @return 返回一个Quad对象指针
+         */
+        static SGQuadPtr create(const RealSize &size, uint32_t uID = E_NID_AUTOMATIC);
+
+        /**
+         * @brief 创建一个Quad对象出来
+         * @param [in] materialName : 用于新创建的Quad的材质名称
+         * @param [in] size : 要创建的Quad的大小
+         * @param [in] uID : 这个节点的ID，默认为自动生成
+         * @return 返回一个Quad对象指针
+         */
+        static SGQuadPtr create(const String &materialName, const RealSize &size, uint32_t uID = E_NID_AUTOMATIC);
+
+        /**
+         * @brief 析构函数
+         */
         virtual ~SGQuad();
 
+        /**
+         * @brief 返回节点类型，从父类派生的方法
+         * @return 返回节点类型
+         * @see enum Type
+         */
         virtual Type getNodeType() const override;
+
+        /**
+         * @brief 设置Quad的大小
+         */
+        void setSize(const RealSize &size);
+
+        /**
+         * @brief 返回Quad的大小
+         */
+        const RealSize &getSize() const;
+
+        /**
+         * @brief 设置Quad使用的材质
+         * @param [in] materialName : 材质名称
+         */
+        void setMaterial(const String &materialName);
+
+        /**
+         * @brief 设置Quad使用的材质
+         * @param [in] 材质对象
+         */
+        void setMaterial(MaterialPtr material);
 
     protected:
         SGQuad(uint32_t uID = E_NID_AUTOMATIC);
+
+        virtual bool init(const String &materialName, const RealSize &size);
 
         virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue) override;
 

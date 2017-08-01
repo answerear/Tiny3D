@@ -162,6 +162,7 @@ namespace Tiny3D
         ArchiveManager          *mArchiveMgr;
         MaterialManager         *mMaterialMgr;
         ModelManager            *mModelMgr;
+        TextureManager          *mTextureMgr;
 
         Renderer        *mActiveRenderer;
 

@@ -24,6 +24,7 @@
 
 namespace Tiny3D
 {
+#if 0
     TexturePtr D3D9Texture::create(const String &name, int32_t width, int32_t height,
         int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType)
     {
@@ -197,4 +198,5 @@ namespace Tiny3D
         size_t bytesOfRead = 0;
         return bytesOfRead;
     }
+#endif
 }

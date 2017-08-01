@@ -92,7 +92,7 @@ namespace Tiny3D
          * @return 调用成功返回true，否则返回false
          * @note dstRect 和 srcRect 均为nullptr的时候，会自动缩放匹配源和目标区域
          */
-        virtual bool writeImage(Image &image, Rect *dstRect = nullptr, Rect *srcRect = nullptr) const = 0;
+        virtual bool writeImage(Image &image, Rect *dstRect = nullptr, Rect *srcRect = nullptr) = 0;
 
         /**
          * @brief 返回像素缓冲宽度
@@ -126,8 +126,6 @@ namespace Tiny3D
          */
         HardwarePixelBuffer(uint32_t width, uint32_t height, PixelFormat format,
             Usage usage, bool useSystemMemory, bool useShadowBuffer);
-
-        int32_t getBPP() const;
 
     private:
         /**

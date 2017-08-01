@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #include "SceneGraph/T3DSceneManager.h"
 #include "SceneGraph/T3DSGCamera.h"
@@ -41,8 +41,10 @@ namespace Tiny3D
 
     SceneManager::~SceneManager()
     {
-        mRenderQueue = nullptr;
+        mRoot->removeAllChildren(true);
         mRoot = nullptr;
+
+        mRenderQueue = nullptr;
     }
 
     void SceneManager::renderScene(const SGCameraPtr &camera, const ViewportPtr &viewport)

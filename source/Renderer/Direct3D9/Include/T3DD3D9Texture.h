@@ -26,6 +26,7 @@
 
 namespace Tiny3D
 {
+#if 0
     class T3D_D3D9RENDERER_API D3D9Texture : public Texture
     {
     public:
@@ -54,6 +55,7 @@ namespace Tiny3D
 
         LPDIRECT3DTEXTURE9  mD3DTexture;
     };
+#endif
 }
 
 

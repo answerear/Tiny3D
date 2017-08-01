@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DMaterial.h"
@@ -38,6 +38,11 @@ namespace Tiny3D
     MaterialPtr MaterialManager::loadMaterial(const String &name, Material::MaterialType matType)
     {
         return smart_pointer_cast<Material>(ResourceManager::load(name, 1, matType));
+    }
+
+    void MaterialManager::unloadMaterial(MaterialPtr &material)
+    {
+        unload((ResourcePtr &)material);
     }
 
     ResourcePtr MaterialManager::create(const String &name, int32_t argc, va_list args)

@@ -26,6 +26,7 @@
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveManager.h"
 #include "Resource/T3DFreeTypeAtlas.h"
+#include "Render/T3DHardwarePixelBuffer.h"
 
 
 namespace Tiny3D
@@ -246,10 +247,10 @@ namespace Tiny3D
             int32_t srcWidth = mFTFace->glyph->bitmap.width;
             int32_t srcHeight = mFTFace->glyph->bitmap.rows;
 
-            uint8_t *dstData = nullptr;
             int32_t dstPitch = 0;
-            int32_t dstWidth = texture->getTexWidth();
-            int32_t dstHeight = texture->getTexHeight();
+            uint8_t *dstData = (uint8_t *)texture->getPixelBuffer()->lock(dstRect, HardwareBuffer::E_HBL_WRITE_ONLY, dstPitch);            
+            int32_t dstWidth = dstRect.width();
+            int32_t dstHeight = dstRect.height();
 
             int32_t startX = (mFTFace->glyph->bitmap_left < 0 ? 0 : mFTFace->glyph->bitmap_left);
             int32_t endX = startX + srcWidth;

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #ifndef __T3D_TEXTURE_MANAGER_H__
 #define __T3D_TEXTURE_MANAGER_H__
@@ -39,10 +39,10 @@ namespace Tiny3D
         virtual TexturePtr loadTexture(const String &name, int32_t numMipMaps = -1, Texture::TexUsage texUsage = Texture::E_TU_DEFAULT, Texture::TexType texType = Texture::E_TEX_TYPE_2D);
         virtual TexturePtr loadTexture(const String &name, int32_t width, int32_t height, int32_t numMipMaps = -1, PixelFormat format = E_PF_A8R8G8B8, Texture::TexUsage texUsage = Texture::E_TU_BLANK, Texture::TexType texType = Texture::E_TEX_TYPE_2D);
 
+        virtual void unloadTexture(TexturePtr &texture);
+
     protected:
         virtual ResourcePtr create(const String &name, int32_t argc, va_list args) override;
-
-        virtual TexturePtr createTexture(const String &name, int32_t width, int32_t height, int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType) = 0;
 
         int32_t mDefaultNumMipMaps;
     };
