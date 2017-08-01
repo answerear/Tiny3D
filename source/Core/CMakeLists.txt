@@ -20,6 +20,9 @@ set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
 set(TINY3D_MEDIA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../media")
 
+set(TINY3D_CORE_BIN_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/Debug" CACHE PATH "Tiny3D core debug output path")
+set(TINY3D_CORE_BIN_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/Release" CACHE PATH "Tiny3D core release output path")
+
 set(FREEIMAGE_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/freeimage" CACHE PATH "FreeImage library path")
 set(FREETYPE_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/freetype" CACHE PATH "FreeType library path")
 
@@ -75,6 +78,7 @@ if (TINY3D_BUILD_SHARED_LIBS)
 else (TINY3D_BUILD_SHARED_LIBS)
 	add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
 endif (TINY3D_BUILD_SHARED_LIBS)
+
 
 
 if (TINY3D_OS_WINDOWS)

@@ -77,16 +77,8 @@ namespace Tiny3D
 
     void D3D9Plugin::uninstall()
     {
-        if (mRenderer != nullptr)
-        {
-            delete mRenderer;
-            mRenderer = nullptr;
-        }
+        Entrance::getInstance().removeRenderer(mRenderer);
 
-        if (mTextureMgr != nullptr)
-        {
-            delete mTextureMgr;
-            mTextureMgr = nullptr;
-        }
+        T3D_SAFE_RELEASE(mRenderer);
     }
 }

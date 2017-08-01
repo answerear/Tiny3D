@@ -17,6 +17,9 @@ endif (MSVC)
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
 set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
 
+set(TINY3D_MATH_BIN_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/Debug" CACHE PATH "Tiny3D math debug output path")
+set(TINY3D_MATH_BIN_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/Release" CACHE PATH "Tiny3D math release output path")
+
 
 # Setup project include files path
 include_directories(

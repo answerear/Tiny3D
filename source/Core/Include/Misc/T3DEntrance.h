@@ -93,6 +93,8 @@ namespace Tiny3D
 
         void addRenderer(Renderer *renderer);
 
+        void removeRenderer(Renderer *renderer);
+
         /**
          * @brief Create render window.
          * @param [in] rkCreatedParam 

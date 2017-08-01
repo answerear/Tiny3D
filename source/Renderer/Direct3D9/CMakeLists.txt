@@ -13,6 +13,10 @@ if (MSVC)
 	endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
+set(TINY3D_D3D9RENDER_BIN_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/Debug" CACHE PATH "Tiny3D D3D9 Renderer debug output path")
+set(TINY3D_D3D9RENDER_BIN_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/Release" CACHE PATH "Tiny3D D3D9 Renderer release output path")
+
+
 # Setup project include files path
 include_directories(
 	"${TINY3D_CORE_SOURCE_DIR}/Include"

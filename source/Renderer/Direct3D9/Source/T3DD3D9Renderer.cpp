@@ -45,8 +45,8 @@ namespace Tiny3D
 
     D3D9Renderer::~D3D9Renderer()
     {
-        T3D_SAFE_DELETE(mD3DHwBufferMgr);
-        T3D_SAFE_DELETE(mHardwareBufferMgr);
+        T3D_SAFE_RELEASE(mD3DHwBufferMgr);
+        T3D_SAFE_RELEASE(mHardwareBufferMgr);
     }
 
     String D3D9Renderer::getName() const

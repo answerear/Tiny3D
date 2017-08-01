@@ -80,6 +80,7 @@ namespace Tiny3D
 
     Entrance::~Entrance()
     {
+        mActiveRenderer = nullptr;
         unloadPlugins();
 
         mImageCodec->shutdown();
@@ -325,6 +326,18 @@ namespace Tiny3D
     void Entrance::addRenderer(Renderer *renderer)
     {
         mRendererList.push_back(renderer);
+    }
+
+    void Entrance::removeRenderer(Renderer *renderer)
+    {
+        for (auto itr = mRendererList.begin(); itr != mRendererList.end(); ++itr)
+        {
+            if (*itr == renderer)
+            {
+                mRendererList.erase(itr);
+                break;
+            }
+        }
     }
 
     RenderWindow *Entrance::createRenderWindow(
