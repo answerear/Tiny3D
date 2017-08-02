@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #include "Misc/T3DString.h"
 #include <sstream>
@@ -61,6 +61,24 @@ namespace Tiny3D
         } while (pos != String::npos);
 
         return ret;
+    }
+
+    void StringUtil::split(const String &fullpath, String &path, String &name)
+    {
+        String filepath = fullpath;
+        std::replace(filepath.begin(), filepath.end(), '\\', '/');
+        size_t pos = filepath.find_last_of('/');
+
+        if (pos == String::npos)
+        {
+            path.clear();
+            name = filepath;
+        }
+        else
+        {
+            name = filepath.substr(pos + 1, path.size() - pos - 1);
+            path = filepath.substr(0, pos + 1);
+        }
     }
 
     void StringUtil::trim(String &str, bool left/* = true*/, bool right/* = true*/)

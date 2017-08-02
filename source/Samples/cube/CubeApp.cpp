@@ -11,6 +11,8 @@
 #include <SDL_syswm.h>
 
 
+CubeApp theApp;
+
 using namespace Tiny3D;
 
 

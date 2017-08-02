@@ -12,15 +12,17 @@
 
 using namespace Tiny3D;
 
+SampleApp *app = nullptr;
+
 
 SampleApp::SampleApp()
 {
-
+    app = this;
 }
 
 SampleApp::~SampleApp()
 {
-
+    app = nullptr;
 }
 
 int32_t SampleApp::go(const String &appPath)

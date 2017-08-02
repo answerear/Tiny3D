@@ -2,6 +2,10 @@
 
 #include "TriangleApp.h"
 
+
+TriangleApp theApp;
+
+
 using namespace Tiny3D;
 
 

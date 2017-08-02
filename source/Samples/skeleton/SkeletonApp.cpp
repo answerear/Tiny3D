@@ -11,6 +11,10 @@
 #include <Tiny3D.h>
 #include <sstream>
 
+
+SkeletonApp theApp;
+
+
 using namespace Tiny3D;
 
 #define TEST_MODEL_TORTOISE             0

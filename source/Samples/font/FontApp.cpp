@@ -10,6 +10,8 @@
 #include "FontApp.h"
 
 
+FontApp theApp;
+
 using namespace Tiny3D;
 
 

@@ -94,30 +94,30 @@ namespace Tiny3D
         virtual void cloneProperties(const NodePtr &node) const override;
 
         /**
-        * @brief 返回渲染材质对象。
-        * @note 所有可渲染派生类需要重写本接口以返回对应的渲染材质对象。
-        */
+         * @brief 返回渲染材质对象。
+         * @note 所有可渲染派生类需要重写本接口以返回对应的渲染材质对象。
+         */
         virtual MaterialPtr getMaterial() const override;
 
         /**
-        * @brief 返回渲染元类型
-        * @see Renderer::PrimitiveType
-        */
+         * @brief 返回渲染元类型
+         * @see Renderer::PrimitiveType
+         */
         virtual Renderer::PrimitiveType getPrimitiveType() const override;
 
         /**
-        * @brief 返回顶点数据对象
-        */
+         * @brief 返回顶点数据对象
+         */
         virtual VertexDataPtr getVertexData() const override;
 
         /**
-        * @brief 返回索引数据对象
-        */
+         * @brief 返回索引数据对象
+         */
         virtual IndexDataPtr getIndexData() const override;
 
         /**
-        * @brief 是否使用顶点索引
-        */
+         * @brief 是否使用顶点索引
+         */
         virtual bool isIndicesUsed() const override;
 
     protected:

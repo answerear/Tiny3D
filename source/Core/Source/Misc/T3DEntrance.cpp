@@ -21,6 +21,7 @@
 #include "Misc/T3DPlugin.h"
 #include "Misc/T3DConfigFile.h"
 #include "Misc/T3DWindowEventHandler.h"
+#include "Misc/T3DString.h"
 #include "Render/T3DRenderer.h"
 #include "Render/T3DRenderWindow.h"
 #include "Resource/T3DDylibManager.h"
@@ -56,9 +57,9 @@ namespace Tiny3D
         , mSceneMgr(nullptr)
         , mImageCodec(new ImageCodec())
     {
-        mAppPath = appPath;
+        StringUtil::split(appPath, mAppPath, mAppName);
 
-        ConfigFile file(config);
+        ConfigFile file(mAppPath + config);
         file.loadXML(mSettings);
         startLogging();
 

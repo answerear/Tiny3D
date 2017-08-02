@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #ifndef __T3D_BUILDER_H__
 #define __T3D_BUILDER_H__
@@ -137,6 +137,16 @@ namespace Tiny3D
 
         SceneManager *getSceneManager() { return mSceneMgr; }
 
+        /**
+         * @brief 返回应用程序路径
+         */
+        const String &getAppPath() const { return mAppPath; }
+
+        /**
+         * @brief 返回应用程序名称
+         */
+        const String &getAppName() const { return mAppName; }
+
     protected:
         void loadPlugins();
         void unloadPlugins();
@@ -176,6 +186,7 @@ namespace Tiny3D
         Settings        mSettings;
 
         String          mAppPath;
+        String          mAppName;
 
         ApplicationListener *mAppListener;
 

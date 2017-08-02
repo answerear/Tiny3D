@@ -10,6 +10,9 @@
 #include "TextureApp.h"
 
 
+TextureApp theApp;
+
+
 using namespace Tiny3D;
 
 

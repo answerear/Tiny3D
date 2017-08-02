@@ -9,6 +9,10 @@
 
 #include "ModelApp.h"
 
+
+ModelApp theApp;
+
+
 using namespace Tiny3D;
 
 

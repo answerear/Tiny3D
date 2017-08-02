@@ -10,6 +10,8 @@
 #include "HelloWorldApp.h"
 
 
+HelloWorldApp theApp;
+
 using namespace Tiny3D;
 
 

@@ -10,6 +10,9 @@
 #include "TransformationApp.h"
 
 
+TransformationApp theApp;
+
+
 using namespace Tiny3D;
 
 
