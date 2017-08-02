@@ -42,7 +42,7 @@ namespace Tiny3D
 
     T3D_INIT_SINGLETON(Entrance);
 
-    Entrance::Entrance(const String &config /* = "Tiny3D.cfg" */)
+    Entrance::Entrance(const String &appPath, const String &config /* = "Tiny3D.cfg" */)
         : mSystem(new System())
         , mLogger(new Logger())
         , mWindowEventHandler(new WindowEventHandler())
@@ -56,6 +56,8 @@ namespace Tiny3D
         , mSceneMgr(nullptr)
         , mImageCodec(new ImageCodec())
     {
+        mAppPath = appPath;
+
         ConfigFile file(config);
         file.loadXML(mSettings);
         startLogging();

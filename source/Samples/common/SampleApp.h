@@ -22,7 +22,7 @@ public:
     SampleApp();
     virtual ~SampleApp();
 
-    virtual int32_t go();
+    virtual int32_t go(const String &appPath);
 
 protected:  /// from Tiny3D::ApplicationListener
     virtual bool applicationDidFinishLaunching() override;

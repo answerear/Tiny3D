@@ -16,8 +16,6 @@ endif (MSVC)
 
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
 
-set(TINY3D_LOG_BIN_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/Debug" CACHE PATH "Tiny3D log debug output path")
-set(TINY3D_LOG_BIN_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/Release" CACHE PATH "Tiny3D log release output path")
 
 # Setup project include files path
 include_directories(

@@ -24,11 +24,11 @@ CubeApp::~CubeApp()
 
 }
 
-int32_t CubeApp::go()
+int32_t CubeApp::go(const String &appPath)
 {
 //     int32_t ret = SampleApp::go();
 
-    Entrance *entrance = new Entrance();
+    Entrance *entrance = new Entrance(appPath);
     entrance->setApplicationListener(this);
     
     RenderWindow *renderWindow = nullptr;

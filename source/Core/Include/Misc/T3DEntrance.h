@@ -49,7 +49,7 @@ namespace Tiny3D
     {
     public:
         /** Default constructor. */
-        Entrance(const String &config = "Tiny3D.cfg");
+        Entrance(const String &appPath, const String &config = "Tiny3D.cfg");
 
         /** Destructor. */
         virtual ~Entrance();
@@ -174,6 +174,8 @@ namespace Tiny3D
         DylibList       mDylibList;
 
         Settings        mSettings;
+
+        String          mAppPath;
 
         ApplicationListener *mAppListener;
 

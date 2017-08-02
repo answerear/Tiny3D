@@ -14,8 +14,6 @@ if (MSVC)
 	endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
-set(TINY3D_PLATFORM_BIN_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/Debug" CACHE PATH "Tiny3D platform debug output path")
-set(TINY3D_PLATFORM_BIN_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/Release" CACHE PATH "Tiny3D platform release output path")
 
 # Setup project include files path
 include_directories(

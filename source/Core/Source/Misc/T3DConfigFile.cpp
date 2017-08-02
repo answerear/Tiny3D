@@ -56,11 +56,33 @@ namespace Tiny3D
     {
         bool ret = false;
 
-        tinyxml2::XMLDocument doc;
-        if (doc.LoadFile(mFilename.c_str()) == tinyxml2::XML_NO_ERROR)
+        do 
         {
+            FileDataStream fs;
+            if (!fs.open(mFilename.c_str(), FileDataStream::E_MODE_READ_ONLY))
+            {
+                break;
+            }
+
+            size_t contentSize = fs.size();
+            char *content = new char[contentSize];
+            if (fs.read(content, contentSize) != contentSize)
+            {
+                fs.close();
+                break;
+            }
+
+            fs.close();
+
+            tinyxml2::XMLDocument doc;
+//             if (doc.LoadFile(mFilename.c_str()) == tinyxml2::XML_NO_ERROR)
+            if (doc.Parse(content, contentSize) != tinyxml2::XML_NO_ERROR)
+            {
+                break;
+            }
+
             ret = parseXML(doc, settings);
-        }
+        } while (0);
 
         return ret;
     }

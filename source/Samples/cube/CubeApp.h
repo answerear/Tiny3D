@@ -21,7 +21,7 @@ public:
     CubeApp();
     virtual ~CubeApp();
 
-    virtual int32_t go() override;
+    virtual int32_t go(const String &appPath) override;
 
 protected:  /// from Tiny3D::ApplicationListener
     virtual bool applicationDidFinishLaunching() override;
