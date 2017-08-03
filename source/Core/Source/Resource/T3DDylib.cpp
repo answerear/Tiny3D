@@ -78,7 +78,9 @@ namespace Tiny3D
 #elif defined (T3D_OS_MACOSX)
         String name = mName + ".dylib";
 #endif
-        String path = Entrance::getInstance().getAppPath() + name;
+
+        String pluginsPath = Entrance::getInstance().getPluginsPath();
+        String path = Entrance::getInstance().getAppPath() + pluginsPath + name;
         mHandle = DYLIB_LOAD(path.c_str());
         mIsLoaded = true;
         return true;

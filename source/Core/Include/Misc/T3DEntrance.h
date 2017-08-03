@@ -147,6 +147,11 @@ namespace Tiny3D
          */
         const String &getAppName() const { return mAppName; }
 
+        /**
+         * @brief ·µ»Ø²å¼þÂ·¾¶
+         */
+        const String &getPluginsPath() const { return mPluginsPath; }
+
     protected:
         void loadPlugins();
         void unloadPlugins();
@@ -187,6 +192,7 @@ namespace Tiny3D
 
         String          mAppPath;
         String          mAppName;
+        String          mPluginsPath;
 
         ApplicationListener *mAppListener;
 

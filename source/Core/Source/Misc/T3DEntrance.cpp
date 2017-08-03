@@ -176,7 +176,7 @@ namespace Tiny3D
         if (itr == pluginSettings.end())
             return;
 
-        String path = itr->second.stringValue();
+        mPluginsPath = itr->second.stringValue();
         
         key.setString("List");
         itr = pluginSettings.find(key);
@@ -189,7 +189,6 @@ namespace Tiny3D
             while (i != plugins.end())
             {
                 String name = i->stringValue();
-                String fullpath = path + Dir::NATIVE_SEPARATOR + name;
                 bool ret = loadPlugin(name);
                 T3D_LOG_INFO("Load plugin %s result %d", name.c_str(), ret);
                 ++i;
