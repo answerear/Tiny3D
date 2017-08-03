@@ -124,13 +124,8 @@ if (TINY3D_OS_WINDOWS)
 		)
 
 	install(DIRECTORY
-		${TINY3D_MEDIA_DIR}/config/
-		DESTINATION bin/Debug
-		)
-
-	install(DIRECTORY
-		${TINY3D_MEDIA_DIR}/resources/
-		DESTINATION bin/Debug/resources
+		${TINY3D_MEDIA_DIR}
+		DESTINATION bin
 		)
 
 	install(FILES

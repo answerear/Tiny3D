@@ -18,6 +18,7 @@
  ******************************************************************************/
 
 #include "Resource/T3DDylib.h"
+#include "Misc/T3DEntrance.h"
 
 #if defined (T3D_OS_WINDOWS)
     #include <windows.h>
@@ -77,7 +78,8 @@ namespace Tiny3D
 #elif defined (T3D_OS_MACOSX)
         String name = mName + ".dylib";
 #endif
-        mHandle = DYLIB_LOAD(name.c_str());
+        String path = Entrance::getInstance().getAppPath() + name;
+        mHandle = DYLIB_LOAD(path.c_str());
         mIsLoaded = true;
         return true;
     }

@@ -18,6 +18,7 @@
  ******************************************************************************/
 
 #include "Resource/T3DFileSystemArchive.h"
+#include "Misc/T3DEntrance.h"
 
 
 namespace Tiny3D
@@ -92,7 +93,7 @@ namespace Tiny3D
 
     bool FileSystemArchive::read(const String &name, MemoryDataStream &stream)
     {
-        String path = getLocation() + Dir::NATIVE_SEPARATOR + name;
+        String path = Entrance::getInstance().getAppPath() + getLocation() + Dir::NATIVE_SEPARATOR + name;
         FileDataStream *fs = nullptr;
         bool ret = false;
 
@@ -123,7 +124,7 @@ namespace Tiny3D
 
     bool FileSystemArchive::write(const String &name, const MemoryDataStream &stream)
     {
-        String path = getLocation() + Dir::NATIVE_SEPARATOR + name;
+        String path = Entrance::getInstance().getAppPath() + getLocation() + Dir::NATIVE_SEPARATOR + name;
         FileDataStream *fs = nullptr;
         bool ret = false;
 

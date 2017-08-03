@@ -190,7 +190,8 @@ namespace Tiny3D
             {
                 String name = i->stringValue();
                 String fullpath = path + Dir::NATIVE_SEPARATOR + name;
-                loadPlugin(name);
+                bool ret = loadPlugin(name);
+                T3D_LOG_INFO("Load plugin %s result %d", name.c_str(), ret);
                 ++i;
             }
         }
