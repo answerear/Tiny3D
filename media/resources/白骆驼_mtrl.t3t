@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TINY3D magic="TMTL" version="0.0.0.1">
+    <material id="易台葉_mtrl">
+        <mode>Phong</mode>
+        <ambient>0.588235 0.588235 0.588235 1</ambient>
+        <diffuse>0 0 0 1</diffuse>
+        <specular>1 1 1 1</specular>
+        <emissive>0 0 0 1</emissive>
+        <shininess>10</shininess>
+        <transparency>0</transparency>
+        <reflection>1</reflection>
+        <textures id="Textures" count="1">
+            <texture id="tga_易台葉.dds" type="diffuse" wrap_u="repeat" wrap_v="repeat">tga_易台葉.dds</texture>
+        </textures>
+    </material>
+</TINY3D>
