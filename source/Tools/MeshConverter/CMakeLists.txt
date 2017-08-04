@@ -8,11 +8,12 @@
 set_project_name(mesh-conv)
 
 
-set(TINY3D_PLATFORM_INC_DIR "${TINY3D_INC_DIR}/Platform")
-set(TINY3D_LOG_INC_DIR "${TINY3D_INC_DIR}/Log")
-set(TINY3D_MATH_INC_DIR "${TINY3D_INC_DIR}/Math")
+set(TINY3D_MATH_INC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Math/Include")
+set(TINY3D_PLATFORM_INC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Platform/Include")
+set(TINY3D_LOG_INC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Log/Include")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies")
 set(FBXSDK_DIR "${TINY3D_DEP_DIR}/fbxsdk")
+
 
 
 add_definitions(-DFBXSDK_SHARED)

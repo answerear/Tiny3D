@@ -14,9 +14,9 @@ if (MSVC)
 endif (MSVC)
 
 
-set(TINY3D_MATH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Math")
-set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
-set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
+set(TINY3D_MATH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Math/Include")
+set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform/Include")
+set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log/Include")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
 set(TINY3D_MEDIA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../media")
 
@@ -27,9 +27,9 @@ find_package(FreeImage)
 find_package(FreeType)
 
 include_directories(
-	"${TINY3D_MATH_DIR}/include"
-	"${TINY3D_PLATFORM_DIR}/Include"
-	"${TINY3D_LOG_DIR}/Include"
+	"${TINY3D_MATH_DIR}"
+	"${TINY3D_PLATFORM_DIR}"
+	"${TINY3D_LOG_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
 	"${FREEIMAGE_INCLUDE_DIR}"
