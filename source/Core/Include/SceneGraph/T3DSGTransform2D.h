@@ -17,45 +17,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************************************/
 
-#ifndef __T3D_SG_TRANSFORM_NODE_H__
-#define __T3D_SG_TRANSFORM_NODE_H__
+#ifndef __T3D_SG_TRANSFORM_2D_H__
+#define __T3D_SG_TRANSFORM_2D_H__
 
 
 #include "SceneGraph/T3DSGNode.h"
 #include "T3DMath.h"
-#include "T3DVector3.h"
-#include "T3DMatrix3.h"
-#include "T3DMatrix4.h"
+#include "T3DVector2.h"
 #include "T3DTransform.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @class SGTransformNode
-     * @brief 3D变换结点
+     * @brief 在 Scene Graph 中2D物体使用的空间变换结点
      */
-    class T3D_ENGINE_API SGTransformNode : public SGNode
+    class T3D_ENGINE_API SGTransform2D : public SGNode
     {
-    protected:
-        /**
-         * @brief 默认构造函数
-         * @param [in] unID : 结点唯一标识，默认是自动生成
-         */
-        SGTransformNode(uint32_t unID = E_NID_AUTOMATIC);
-
     public:
         /**
          * @brief 创建对象
          * @param [in] unID : 结点唯一标识，默认是自动生成
-         * @return 返回一个3D变换结点对象
+         * @return 返回一个2D变换结点对象
          */
-        static SGTransformNodePtr create(uint32_t unID = E_NID_AUTOMATIC);
+        static SGTransform2DPtr create(uint32_t uID = E_NID_AUTOMATIC);
 
         /**
          * @brief 析构函数
          */
-        virtual ~SGTransformNode();
+        virtual ~SGTransform2D();
 
         /**
          * @brief 从父类继承来重写接口，获取结点类型
@@ -64,33 +54,30 @@ namespace Tiny3D
         virtual Type getNodeType() const override;
 
         /**
-         * @brief 设置在父结点空间坐标系下的位置
-         * @param [in] rkPos : 位置
-         * @return void
-         * @see void setPosition(Real x, Real y, Real z)
+         * @brief 设置在父节点空间坐标系下位置
+         * @param [in] rkPos : 在父节点空间坐标系下的位置
          */
-        void setPosition(const Vector3 &rkPos);
+        void setPosition(const Vector2 &rkPos);
 
         /**
-         * @brief 设置在父结点空间坐标系下的位置
-         * @param [in] x : X方向位置
-         * @param [in] y : Y方向位置
-         * @param [in] z : Z方向位置
-         * @return void
-         * @see void setPosition(const Vector3 &rkPos)
+         * @brief 设置在父节点空间坐标系下位置
+         * @param [in] x : 父节点空间坐标系下的x坐标
+         * @param [in] y : 父节点空间坐标系下的y坐标
          */
-        void setPosition(Real x, Real y, Real z);
+        void setPosition(Real x, Real y);
 
         /**
-         * @brief 获取在父结点空间坐标系下的位置
-         * @return 返回位置
+         * @brief 返回在父节点空间坐标系下的位置
+         * @return 返回的位置
          */
-        const Vector3 &getPosition() const;
+        const Vector2 &getPosition() const;
 
         /**
          * @brief 设置在父结点空间坐标系下的朝向
          * @param [in] rkQ : 方向四元素
          * @return void
+         * @note 虽然是2D空间的变换，然后旋转可以实现分别绕X、Y、Z三个轴的旋转，
+         *  因此在这里继续用四元素表示旋转
          * @see void setOrientation(Real w, Real x, Real y, Real z)
          */
         void setOrientation(const Quaternion &rkQ);
@@ -125,50 +112,48 @@ namespace Tiny3D
          * @brief 设置在父结点空间坐标系下的缩放
          * @param [in] rkScale : 缩放值
          * @return void
-         * @see void setScale(Real x, Real y, Real z)
+         * @see void setScale(Real x, Real y)
          */
-        void setScale(const Vector3 &rkScale);
+        void setScale(const Vector2 &rkScale);
 
         /**
          * @brief 设置在父结点空间坐标系下的缩放
          * @param [in] x : X轴缩放值
          * @param [in] y : Y轴缩放值
-         * @param [in] z : Z轴缩放值
          * @return void
-         * @see void setScale(const Vector3 &rkScale)
+         * @see void setScale(const Vector2 &rkScale)
          */
-        void setScale(Real x, Real y, Real z);
+        void setScale(Real x, Real y);
 
         /**
          * @brief 获取在父结点空间坐标系下的缩放值
          * @return 返回一个表示三个周缩放值的向量，每个分量表示一个轴的缩放值
          */
-        const Vector3 &getScale() const;
+        const Vector2 &getScale() const;
 
         /**
-         * @brief 在当前位置基础上平移一个偏移值
+         * @brief 平移一个偏移值
          * @param [in] rkOffset : 三个坐标轴上的偏移值
          * @return void
          */
-        void translate(const Vector3 &rkOffset);
+        void translate(const Vector2 &rkOffset);
 
         /**
-         * @brief 在当前位置基础上平移一个偏移值
+         * @brief 平移一个偏移值
          * @param [in] x : X轴上偏移值
          * @param [in] y : Y轴上偏移值
-         * @param [in] z : Z轴上偏移值
          * @return void
          */
-        void translate(Real x, Real y, Real z);
+        void translate(Real x, Real y);
 
         /**
-         * @brief 在当前位置基础上，朝一个向量所指方向移动某一个步长
+         * @brief 朝一个向量所指方向移动某一个步长
          * @param [in] rkOrientation : 方向向量
          * @param [in] step : 移动步长
          * @return void
          */
-        void translate(const Vector3 &rkOrientation, Real step);
-        
+        void translate(const Vector2 &rkOrientation, Real step);
+
         /**
          * @brief 在当前方向上旋转一个四元素表示的旋转变换
          * @param [in] rkQ : 表示旋转变换的四元素
@@ -246,9 +231,9 @@ namespace Tiny3D
          * @brief 在当前大小下缩放
          * @param [in] rkScale : 缩放值
          * @return void
-         * @see void scale(Real x, Real y, Real z)
+         * @see void scale(Real x, Real y)
          */
-        void scale(const Vector3 &rkScale);
+        void scale(const Vector2 &rkScale);
 
         /**
          * @brief 在当前大小下缩放
@@ -256,27 +241,9 @@ namespace Tiny3D
          * @param [in] y : Y轴缩放值
          * @param [in] z : Z轴缩放值
          * @return void
-         * @see void scale(const Vector3 &rkScale)
+         * @see void scale(const Vector2 &rkScale)
          */
-        void scale(Real x, Real y, Real z);
-
-        /**
-         * @brief 直接设置一个局部变换矩阵
-         * @param [in] m : 局部变换矩阵
-         * @return void
-         * @note 本接口会根据设置的局部变换矩阵来分解出旋转、平移、缩放三个分量
-         */
-        void setLocalMatrix(const Matrix4 &m);
-
-        /**
-         * @brief 专门提供给挂相机结点的3D变换结点使用，用于构建UVN相机.
-         * @param [in] pos : 相机位置
-         * @param [in] obj : 相机观察物体位置
-         * @param [in] up : 上方向向量
-         * @return void
-         * @note UVN相机通过此接口可以构造一个变换矩阵出来
-         */
-        void lookAt(const Vector3 &pos, const Vector3 &obj, const Vector3 &up);
+        void scale(Real x, Real y);
 
         /**
          * @brief 获取局部到世界的变换
@@ -295,7 +262,7 @@ namespace Tiny3D
          * @return 返回一个新的3D变换结点对象
          */
         virtual NodePtr clone() const override;
-
+        
     protected:
         /**
          * @brief 从父类继承，重写以响应结点挂到父结点的通知事件
@@ -324,17 +291,23 @@ namespace Tiny3D
          */
         virtual void cloneProperties(const NodePtr &node) const override;
 
-    private:
-        Vector3     mPosition;          /// 父节点坐标系下的局部位置
+    protected:
+        /**
+         * @brief 默认构造函数
+         * @param [in] unID : 结点唯一标识，默认是自动生成
+         */
+        SGTransform2D(uint32_t uID = E_NID_AUTOMATIC);
+
+        Vector2     mPosition;          /// 父节点坐标系下的局部位置
         Quaternion  mOrientation;       /// 父节点坐标系下的局部朝向
-        Vector3     mScale;             /// 父节点坐标系下的局部大小
+        Vector2     mScale;             /// 父节点坐标系下的局部大小
 
         Transform   mWorldTransform;    /// 从局部到世界的变换对象
     };
 }
 
 
-#include "T3DSGTransformNode.inl"
+#include "T3DSGTransform2D.inl"
 
 
-#endif  /*__T3D_SG_TRANSFORM_NODE_H__*/
+#endif  /*__T3D_SG_TRANSFORM_2D_H__*/

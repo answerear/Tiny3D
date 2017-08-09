@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,10 +15,11 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #include "SceneGraph/T3DSGRenderable.h"
 #include "SceneGraph/T3DSGTransformNode.h"
+#include "SceneGraph/T3DSGTransform2D.h"
 
 
 namespace Tiny3D
@@ -36,16 +37,26 @@ namespace Tiny3D
     const Matrix4 &SGRenderable::getWorldMatrix() const
     {
         NodePtr node = getParent();
-        while (node != nullptr && node->getNodeType() != E_NT_TRANSFORM)
+        while (node != nullptr 
+            && node->getNodeType() != E_NT_TRANSFORM
+            && node->getNodeType() != E_NT_TRANSFORM2D)
         {
             node = node->getParent();
         }
 
         if (node != nullptr)
         {
-            T3D_ASSERT(node->getNodeType() == E_NT_TRANSFORM);
-            SGTransformNodePtr parent = smart_pointer_cast<SGTransformNode>(node);
-            return parent->getLocalToWorldTransform().getAffineMatrix();
+            T3D_ASSERT(node->getNodeType() == E_NT_TRANSFORM || node->getNodeType() == E_NT_TRANSFORM2D);
+            if (node->getNodeType() == E_NT_TRANSFORM)
+            {
+                SGTransformNodePtr parent = smart_pointer_cast<SGTransformNode>(node);
+                return parent->getLocalToWorldTransform().getAffineMatrix();
+            }
+            else
+            {
+                SGTransform2DPtr parent = smart_pointer_cast<SGTransform2D>(node);
+                return parent->getLocalToWorldTransform().getAffineMatrix();
+            }
         }
 
         return Matrix4::IDENTITY;

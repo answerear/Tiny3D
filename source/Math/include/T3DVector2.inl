@@ -135,6 +135,14 @@ namespace Tiny3D
 		return result;
 	}
 
+    inline Vector2 Vector2::operator *(const Vector2 &other) const
+    {
+        Vector2 v;
+        v.x() = _x * other._x;
+        v.y() = _y * other._y;
+        return v;
+    }
+
 	inline Vector2 Vector2::operator -() const
 	{
 		return Vector2(-_x, -_y);
@@ -160,6 +168,13 @@ namespace Tiny3D
 		_y *= fScalar;
 		return *this;
 	}
+
+    inline Vector2 &Vector2::operator *=(const Vector2 &other)
+    {
+        _x *= other._x;
+        _y *= other._y;
+        return *this;
+    }
 
 	inline Vector2 &Vector2::operator /=(Real fScalar)
 	{

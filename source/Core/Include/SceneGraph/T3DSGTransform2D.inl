@@ -17,9 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************************************/
 
+
 namespace Tiny3D
 {
-    inline void SGTransformNode::setPosition(const Vector3 &rkPos)
+    inline void SGTransform2D::setPosition(const Vector2 &rkPos)
     {
         if (rkPos != mPosition)
         {
@@ -28,18 +29,18 @@ namespace Tiny3D
         }
     }
 
-    inline void SGTransformNode::setPosition(Real x, Real y, Real z)
+    inline void SGTransform2D::setPosition(Real x, Real y)
     {
-        Vector3 pos(x, y, z);
+        Vector2 pos(x, y);
         setPosition(pos);
     }
 
-    inline const Vector3 &SGTransformNode::getPosition() const
+    inline const Vector2 &SGTransform2D::getPosition() const
     {
         return mPosition;
     }
 
-    inline void SGTransformNode::setOrientation(const Quaternion &rkQ)
+    inline void SGTransform2D::setOrientation(const Quaternion &rkQ)
     {
         if (rkQ != mOrientation)
         {
@@ -48,24 +49,24 @@ namespace Tiny3D
         }
     }
 
-    inline void SGTransformNode::setOrientation(Real w, Real x, Real y, Real z)
+    inline void SGTransform2D::setOrientation(Real w, Real x, Real y, Real z)
     {
         Quaternion q(w, x, y, z);
         setOrientation(q);
     }
 
-    inline void SGTransformNode::setOrientation(const Radian &radian, const Vector3 &axis)
+    inline void SGTransform2D::setOrientation(const Radian &radian, const Vector3 &axis)
     {
         Quaternion q(radian, axis);
         setOrientation(q);
     }
 
-    inline const Quaternion &SGTransformNode::getOrientation() const
+    inline const Quaternion &SGTransform2D::getOrientation() const
     {
         return mOrientation;
     }
 
-    inline void SGTransformNode::setScale(const Vector3 &rkScale)
+    inline void SGTransform2D::setScale(const Vector2 &rkScale)
     {
         if (rkScale != mScale)
         {
@@ -74,38 +75,38 @@ namespace Tiny3D
         }
     }
 
-    inline void SGTransformNode::setScale(Real x, Real y, Real z)
+    inline void SGTransform2D::setScale(Real x, Real y)
     {
-        Vector3 s(x, y, z);
+        Vector2 s(x, y);
         setScale(s);
     }
 
-    inline const Vector3 &SGTransformNode::getScale() const
+    inline const Vector2 &SGTransform2D::getScale() const
     {
         return mScale;
     }
 
-    inline void SGTransformNode::translate(const Vector3 &rkOffset)
+    inline void SGTransform2D::translate(const Vector2 &rkOffset)
     {
-        if (rkOffset != Vector3::ZERO)
+        if (rkOffset != Vector2::ZERO)
         {
             mPosition += rkOffset;
             setDirty(true, true);
         }
     }
 
-    inline void SGTransformNode::translate(Real x, Real y, Real z)
+    inline void SGTransform2D::translate(Real x, Real y)
     {
-        translate(Vector3(x, y, z));
+        translate(Vector2(x, y));
     }
 
-    inline void SGTransformNode::translate(const Vector3 &rkOrientation, Real step)
+    inline void SGTransform2D::translate(const Vector2 &rkOrientation, Real step)
     {
-        Vector3 offset = rkOrientation * step;
+        Vector2 offset = rkOrientation * step;
         translate(offset);
     }
 
-    inline void SGTransformNode::rotate(const Quaternion &rkQ)
+    inline void SGTransform2D::rotate(const Quaternion &rkQ)
     {
         if (rkQ != Quaternion::IDENTITY)
         {
@@ -114,49 +115,49 @@ namespace Tiny3D
         }
     }
 
-    inline void SGTransformNode::rotate(const Vector3 &axis, const Radian &radians)
+    inline void SGTransform2D::rotate(const Vector3 &axis, const Radian &radians)
     {
         Quaternion q;
         q.fromAngleAxis(radians, axis);
         rotate(q);
     }
 
-    inline void SGTransformNode::rotate(const Vector3 &axis, const Degree &degrees)
+    inline void SGTransform2D::rotate(const Vector3 &axis, const Degree &degrees)
     {
         rotate(axis, Radian(degrees));
     }
 
-    inline void SGTransformNode::pitch(const Degree &degrees)
+    inline void SGTransform2D::pitch(const Degree &degrees)
     {
         rotate(Vector3::UNIT_X, degrees);
     }
 
-    inline void SGTransformNode::yaw(const Degree &degrees)
+    inline void SGTransform2D::yaw(const Degree &degrees)
     {
         rotate(Vector3::UNIT_Y, degrees);
     }
 
-    inline void SGTransformNode::roll(const Degree &degrees)
+    inline void SGTransform2D::roll(const Degree &degrees)
     {
         rotate(Vector3::UNIT_Z, degrees);
     }
 
-    inline void SGTransformNode::pitch(const Radian &radians)
+    inline void SGTransform2D::pitch(const Radian &radians)
     {
         rotate(Vector3::UNIT_X, radians);
     }
 
-    inline void SGTransformNode::yaw(const Radian &radians)
+    inline void SGTransform2D::yaw(const Radian &radians)
     {
         rotate(Vector3::UNIT_Y, radians);
     }
 
-    inline void SGTransformNode::roll(const Radian &radians)
+    inline void SGTransform2D::roll(const Radian &radians)
     {
         rotate(Vector3::UNIT_Z, radians);
     }
 
-    inline void SGTransformNode::scale(const Vector3 &rkScale)
+    inline void SGTransform2D::scale(const Vector2 &rkScale)
     {
         if (rkScale != Vector3::ZERO)
         {
@@ -165,14 +166,14 @@ namespace Tiny3D
         }
     }
 
-    inline void SGTransformNode::scale(Real x, Real y, Real z)
+    inline void SGTransform2D::scale(Real x, Real y)
     {
-        Vector3 s(x, y, z);
+        Vector2 s(x, y);
         scale(s);
     }
 
-    inline Transform SGTransformNode::getLocalTransform() const
+    inline Transform SGTransform2D::getLocalTransform() const
     {
-        return Transform(mPosition, mScale, mOrientation);
+        return Transform(Vector3(mPosition.x(), mPosition.y(), Real(0.0)), Vector3(mScale.x(), mScale.y(), Real(1.0)), mOrientation);
     }
 }

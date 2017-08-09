@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #include "SceneGraph/T3DSGTransformNode.h"
 
@@ -97,11 +97,6 @@ namespace Tiny3D
         return mWorldTransform;
     }
 
-//     Transform SGTransformNode::getWorldToLocalTransform()
-//     {
-//         return getLocalToWorldTransform().inverseAffine();
-//     }
-
     void SGTransformNode::lookAt(const Vector3 &pos, const Vector3 &obj, const Vector3 &up)
     {
         Vector3 N = obj - pos;
@@ -124,11 +119,6 @@ namespace Tiny3D
         mScale[2] = Real(1.0);
 
         setDirty(true, true);
-    }
-
-    void SGTransformNode::addChild(const NodePtr &node)
-    {
-        SGNode::addChild(node);
     }
 
     NodePtr SGTransformNode::clone() const

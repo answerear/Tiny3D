@@ -21,7 +21,11 @@ namespace Tiny3D
 {
     inline void SGCamera::setProjectionType(ProjectionType eType)
     {
-        mProjType = eType;
+        if (mProjType != eType)
+        {
+            mProjType = eType;
+            mIsFrustumDirty = true;
+        }
     }
 
     inline SGCamera::ProjectionType SGCamera::getProjectionType() const

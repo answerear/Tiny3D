@@ -86,6 +86,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
 
 #if TEST_MODEL_CAMEL || TEST_MODEL_SINBAD
     node->lookAt(Vector3(150, 50, 150), Vector3::ZERO, Vector3::UNIT_Y);
+//     node->lookAt(Vector3(1509, 509, 1509), Vector3::ZERO, Vector3::UNIT_Y);
 
     // зјБъ
     SGAxisPtr axis = SGAxis::create(50, 50, 50);
@@ -123,6 +124,7 @@ bool SkeletonApp::applicationDidFinishLaunching()
         camera->setProjectionType(SGCamera::E_PT_PERSPECTIVE);
 
         Radian fovY(Math::PI * Real(0.5) / 90 * 27);
+
         Real ratio = Real(960) / Real(640);
         camera->setPerspective(fovY, ratio, 0.5, 10000);
 
