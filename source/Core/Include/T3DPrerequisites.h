@@ -173,6 +173,7 @@ namespace Tiny3D
     class SGAxis;
     class SGQuad;
     class SGSprite;
+    class SGText2D;
 
     class VertexData;
     class IndexData;

@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************************************/
 
-#ifndef __T3D_SG_SPRITE_H__
-#define __T3D_SG_SPRITE_H__
+#ifndef __T3D_SG_TEXT2D_H__
+#define __T3D_SG_TEXT2D_H__
 
 
 #include "SceneGraph/T3DSGRenderable.h"
@@ -26,19 +26,19 @@
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SGSprite : public SGRenderable
+    class T3D_ENGINE_API SGText2D : public SGRenderable
     {
     public:
         /**
-         * @brief 创建sprite结点对象
+         * @brief 创建2D文本渲染结点对象
          * @param [in] uID : 结点唯一标识，默认为引擎自动生成
          */
-        static SGSpritePtr create(uint32_t uID = E_NID_AUTOMATIC);
+        static SGText2DPtr create(uint32_t uID = E_NID_AUTOMATIC);
 
         /**
          * @brief 析构函数
          */
-        virtual ~SGSprite();
+        virtual ~SGText2D();
 
         /**
          * @brief 从父类继承，重写返回对应的结点类型
@@ -54,69 +54,20 @@ namespace Tiny3D
         virtual NodePtr clone() const override;
 
         /**
-         * @brief 设置纹理UV坐标
-         * @param [in] index : 顶点索引
-         * @param [in] uv : 纹理坐标
-         * @return void
+         * @brief 设置文本
          */
-        void setTextureUV(size_t index, const Vector2 &uv);
+        void setText(const String &text);
 
         /**
-         * @brief 设置纹理矩形区域
-         * @param [in] rect : 纹理区域
-         * @return void
-         * @note 可以使用本接口直接设置纹理UV
+         * @brief 获取文本
          */
-        void setTextureUV(const Rect &rect);
-
-        /**
-         * @brief 设置某个顶点颜色，默认都是白色
-         * @param [in] index : 顶点索引
-         * @param [in] color : 顶点颜色
-         * @return void
-         */
-        void setVertexColor(size_t index, const Color4 &color);
-
-        /**
-         * @brief 设置所有顶点颜色，默认都是白色
-         * @param [in] color : 顶点颜色
-         * @return void
-         */
-        void setVerticesColor(const Color4 &color);
-
-        /**
-         * @brief 设置锚点位于精灵区域的相对位置
-         * @param [in] pos : 锚点位置，单位是百分比
-         * @return void
-         */
-        void setAnchorPos(const Vector2 &pos);
-
-        /**
-         * @brief 获取锚点位置
-         * @return 返回锚点位置，返回的是百分比，不是绝对值
-         */
-        const Vector2 &getAnchorPos() const;
-
-        /**
-         * @brief 设置精灵大小
-         * @param [in] size : 大小值
-         * @return void
-         * @note 这个大小不是直接缩放回来的大小，而是实际屏幕上的像素大小
-         */
-        void setSize(const Size &size);
-
-        /**
-         * @brief 获取精灵大小
-         * @return 返回精灵大小
-         * @note 这个大小不是直接缩放回来的大小，而是实际屏幕上的像素大小
-         */
-        const Size &getSize() const;
+        const String &getText() const;
 
     protected:
         /**
          * @brief 默认构造函数
          */
-        SGSprite(uint32_t uID = E_NID_AUTOMATIC);
+        SGText2D(uint32_t uID = E_NID_AUTOMATIC);
 
         /**
          * @brief 初始化
@@ -158,20 +109,10 @@ namespace Tiny3D
         virtual bool isIndicesUsed() const override;
 
     protected:
-        /**
-         * @brief 精灵使用的顶点结构定义
-         */
-        struct Vertex
-        {
-            Vector3     position;       /// 顶点位置
-            Vector2     texcoord;       /// 纹理UV坐标
-            Color4      color;          /// 顶点颜色
-        };
-
         VertexDataPtr       mVertexData;    /// 顶点数据
-        MaterialPtr         mMaterial;      /// 材质数据
+        MaterialPtr         mMaterial;      /// 材质
+        FontPtr             mFont;          /// 文本对应的字体
         Vector2             mAnchorPos;     /// 锚点位置
-        Size                mSize;
     };
 }
 

@@ -17,118 +17,83 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************************************/
 
-#include "SceneGraph/T3DSGSprite.h"
+#include "SceneGraph/T3DSGText2D.h"
+#include "Resource/T3DFont.h"
+#include "Resource/T3DFontManager.h"
 
 
 namespace Tiny3D
 {
-    SGSpritePtr SGSprite::create(uint32_t uID /* = E_NID_AUTOMATIC */)
+    SGText2DPtr SGText2D::create(uint32_t uID /* = E_NID_AUTOMATIC */)
     {
-        SGSpritePtr spr = new SGSprite(uID);
-        if (spr != nullptr && spr->init())
+        SGText2DPtr text = new SGText2D(uID);
+
+        if (text != nullptr && text->init())
         {
-            spr->release();
+            text->release();
         }
         else
         {
-            T3D_SAFE_RELEASE(spr);
+            T3D_SAFE_DELETE(text);
         }
-        return spr;
+
+        return text;
     }
 
-    SGSprite::SGSprite(uint32_t uID /* = E_NID_AUTOMATIC */)
+    SGText2D::SGText2D(uint32_t uID /* = E_NID_AUTOMATIC */)
         : SGRenderable(uID)
     {
 
     }
 
-    SGSprite::~SGSprite()
+    SGText2D::~SGText2D()
     {
 
     }
 
-    bool SGSprite::init()
+    bool SGText2D::init()
     {
         return true;
     }
 
-    Node::Type SGSprite::getNodeType() const
+    Node::Type SGText2D::getNodeType() const
     {
-        return E_NT_SPRITE;
+        return E_NT_TEXT2D;
     }
 
-    NodePtr SGSprite::clone() const
+    NodePtr SGText2D::clone() const
     {
-        return SGSprite::create();
+        return SGText2D::create();
     }
 
-    void SGSprite::setTextureUV(size_t index, const Vector2 &uv)
-    {
-
-    }
-
-    void SGSprite::setTextureUV(const Rect &rect)
+    void SGText2D::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
     {
 
     }
 
-    void SGSprite::setVertexColor(size_t index, const Color4 &color)
-    {
-
-    }
-
-    void SGSprite::setVerticesColor(const Color4 &color)
-    {
-
-    }
-
-    void SGSprite::setAnchorPos(const Vector2 &pos)
-    {
-
-    }
-
-    const Vector2 &SGSprite::getAnchorPos() const
-    {
-        return mAnchorPos;
-    }
-
-    void SGSprite::setSize(const Size &size)
-    {
-
-    }
-
-    const Size &SGSprite::getSize() const
-    {
-        return mSize;
-    }
-
-    void SGSprite::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
-    {
-
-    }
-
-    MaterialPtr SGSprite::getMaterial() const
+    MaterialPtr SGText2D::getMaterial() const
     {
         return mMaterial;
     }
 
-    Renderer::PrimitiveType SGSprite::getPrimitiveType() const
+    Renderer::PrimitiveType SGText2D::getPrimitiveType() const
     {
         return Renderer::E_PT_TRIANGLE_LIST;
     }
 
-    VertexDataPtr SGSprite::getVertexData() const
+    VertexDataPtr SGText2D::getVertexData() const
     {
         return mVertexData;
     }
 
-    IndexDataPtr SGSprite::getIndexData() const
+    IndexDataPtr SGText2D::getIndexData() const
     {
         return nullptr;
     }
 
-    bool SGSprite::isIndicesUsed() const
+    bool SGText2D::isIndicesUsed() const
     {
         return false;
     }
 }
+

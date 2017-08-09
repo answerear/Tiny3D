@@ -66,6 +66,7 @@ namespace Tiny3D
             E_NT_AXIS,                  /// 坐标轴结点
             E_NT_QUAD,                  /// 四边形结点
             E_NT_SPRITE,                /// 精灵结点
+            E_NT_TEXT2D,                /// 2D文本结点
         };
 
         /**
