@@ -180,6 +180,7 @@ namespace Tiny3D
         MaterialManager         *mMaterialMgr;
         ModelManager            *mModelMgr;
         TextureManager          *mTextureMgr;
+        FontManager             *mFontMgr;
 
         Renderer        *mActiveRenderer;
 

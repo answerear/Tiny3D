@@ -209,9 +209,9 @@ namespace Tiny3D
         return Size(charWidth, charHeight);
     }
 
-    bool FontFreeType::updateContent(const String &text, MaterialPtr &material, CharSet &set)
+    bool FontFreeType::updateContent(const String &text, MaterialPtr &material, CharSet &set, Size &size)
     {
-        return FreeTypeAtlas::getInstance().updateContent(this, text, material, set);
+        return FreeTypeAtlas::getInstance().updateContent(this, text, material, set, size);
     }
 
     bool FontFreeType::loadBitmap(int32_t code, Size &charSize)

@@ -65,9 +65,12 @@
 #include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DModel.h"
 #include "Resource/T3DModelManager.h"
+#include "Resource/T3DFont.h"
+#include "Resource/T3DFontManager.h"
 
 #include "SceneGraph/T3DSGNode.h"
 #include "SceneGraph/T3DSGTransformNode.h"
+#include "SceneGraph/T3DSGTransform2D.h"
 #include "SceneGraph/T3DSGCamera.h"
 #include "SceneGraph/T3DSGModel.h"
 #include "SceneGraph/T3DSGRenderable.h"
@@ -77,6 +80,9 @@
 #include "SceneGraph/T3DSGSphere.h"
 #include "SceneGraph/T3DSGLight.h"
 #include "SceneGraph/T3DSGAxis.h"
+#include "SceneGraph/T3DSGSprite.h"
+#include "SceneGraph/T3DSGQuad.h"
+#include "SceneGraph/T3DSGText2D.h"
 #include "SceneGraph/T3DSceneManager.h"
 
 

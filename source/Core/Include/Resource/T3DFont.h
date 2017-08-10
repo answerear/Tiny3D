@@ -114,10 +114,11 @@ namespace Tiny3D
          * @param [in] text : UTF8的文本字符串
          * @param [out] material : 返回包含文本的材质对象
          * @param [out] set : 返回字符串信息
+         * @param [out] size : 字符串大小
          * @return 成功更新字体材质和纹理，则返回true，否则返回false.
          * @see class Char
          */
-        virtual bool updateContent(const String &text, MaterialPtr &material, CharSet &set) = 0;
+        virtual bool updateContent(const String &text, MaterialPtr &material, CharSet &set, Size &size) = 0;
 
     protected:
         Font(const String &name, int32_t fontSize, FontType fontType);

@@ -72,6 +72,8 @@ namespace Tiny3D
 
         BoundPtr getBound() const   { return mBound; }
 
+        ViewportPtr getViewport() const { return mViewport; }
+
     protected:
         virtual void addChild(const NodePtr &child) override;
 
@@ -92,6 +94,7 @@ namespace Tiny3D
         ProjectionType  mProjType;
 
         BoundPtr        mBound;
+        ViewportPtr     mViewport;
 
         mutable Matrix4 mViewMatrix;
         mutable Matrix4 mProjMatrix;

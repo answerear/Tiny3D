@@ -29,6 +29,7 @@
 #include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DModelManager.h"
 #include "Resource/T3DTextureManager.h"
+#include "Resource/T3DFontManager.h"
 #include "Resource/T3DDylib.h"
 #include "ImageCodec/T3DImageCodec.h"
 #include "Resource/T3DFileSystemArchive.h"
@@ -52,6 +53,7 @@ namespace Tiny3D
         , mMaterialMgr(new MaterialManager())
         , mModelMgr(new ModelManager())
         , mTextureMgr(new TextureManager())
+        , mFontMgr(new FontManager())
         , mActiveRenderer(nullptr)
         , mAppListener(nullptr)
         , mSceneMgr(nullptr)
@@ -91,6 +93,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mSceneMgr);
 
         T3D_SAFE_DELETE(mImageCodec);
+        T3D_SAFE_DELETE(mFontMgr);
         T3D_SAFE_DELETE(mModelMgr);
         T3D_SAFE_DELETE(mMaterialMgr);
         T3D_SAFE_DELETE(mTextureMgr);

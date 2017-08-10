@@ -317,7 +317,7 @@ namespace Tiny3D
         return found;
     }
 
-    bool FreeTypeAtlas::updateContent(FontFreeTypePtr font, const String &text, MaterialPtr &material, Font::CharSet &set)
+    bool FreeTypeAtlas::updateContent(FontFreeTypePtr font, const String &text, MaterialPtr &material, Font::CharSet &set, Size &size)
     {
         bool ret = false;
 
@@ -327,6 +327,9 @@ namespace Tiny3D
             TextCodec::getInstance().UTF8ToUTF16(text, u16text);
 
             FT_Face ftFace = font->getFontFace();
+
+            size.width = 0;
+            size.height = 0;
 
             set.clear();
             Font::CharPtr ch;
@@ -350,6 +353,7 @@ namespace Tiny3D
                     }
 
                     set.push_back(ch);
+                    size.width += ch->mArea.width();
                 }
             }
 
@@ -358,6 +362,7 @@ namespace Tiny3D
                 BlockPtr block = smart_pointer_cast<Block>(ch->mBlock);
                 FacePtr face = smart_pointer_cast<Face>(block->face);
                 material = face->material;
+                size.height = font->getFontHeight();
                 ret = true;
             }
         } while (0);

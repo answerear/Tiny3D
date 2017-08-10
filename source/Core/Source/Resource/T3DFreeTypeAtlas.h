@@ -35,7 +35,7 @@ namespace Tiny3D
 
         bool hasCharacter(int32_t code, Font::CharPtr &ch) const;
 
-        bool updateContent(FontFreeTypePtr font, const String &text, MaterialPtr &material, Font::CharSet &set);
+        bool updateContent(FontFreeTypePtr font, const String &text, MaterialPtr &material, Font::CharSet &set, Size &size);
 
     protected:
         // 存储所有字符对应的信息

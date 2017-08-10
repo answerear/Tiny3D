@@ -112,7 +112,9 @@ namespace Tiny3D
 
     void SGCamera::renderScene(const ViewportPtr &viewport)
     {
+        mViewport = viewport;
         T3D_SCENE_MGR.renderScene(this, viewport);
+        mViewport = nullptr;
     }
 
     const Matrix4 &SGCamera::getViewMatrix() const

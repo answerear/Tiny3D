@@ -86,14 +86,14 @@ namespace Tiny3D
 
         /**
          * @brief 设置锚点位于精灵区域的相对位置
-         * @param [in] pos : 锚点位置，单位是百分比
+         * @param [in] pos : 锚点位置，单位是百分比，数值介于0到1之间
          * @return void
          */
         void setAnchorPos(const Vector2 &pos);
 
         /**
          * @brief 获取锚点位置
-         * @return 返回锚点位置，返回的是百分比，不是绝对值
+         * @return 返回锚点位置，返回的是百分比，不是绝对值，数值介于0到1之间
          */
         const Vector2 &getAnchorPos() const;
 

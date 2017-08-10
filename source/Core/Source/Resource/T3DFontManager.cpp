@@ -37,9 +37,15 @@ namespace Tiny3D
         delete atlas;
     }
 
-    FontPtr FontManager::loadFont(const String &name)
+    FontPtr FontManager::loadFont(int32_t fontSize, const String &name /* = "" */, 
+        Font::FontType fontType /* = Font::E_FT_TRUETYPE */)
     {
-        return smart_pointer_cast<Font>(ResourceManager::load(name, 0));
+        if (name.empty())
+        {
+            return smart_pointer_cast<Font>(ResourceManager::load(mDefaultFontName, 2, fontSize, fontType));
+        }
+
+        return smart_pointer_cast<Font>(ResourceManager::load(name, 2, fontSize, fontType));
     }
 
     ResourcePtr FontManager::create(const String &name, int32_t argc, va_list args)
