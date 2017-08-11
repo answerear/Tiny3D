@@ -18,10 +18,11 @@
  ******************************************************************************/
 
 #include "Render/T3DRenderQueue.h"
+#include "Render/T3DRenderer.h"
 #include "Resource/T3DMaterial.h"
 #include "SceneGraph/T3DSGRenderable.h"
+#include "SceneGraph/T3DSGCamera.h"
 #include "SceneGraph/T3DSGLight.h"
-#include "Render/T3DRenderer.h"
 
 
 namespace Tiny3D
@@ -66,6 +67,12 @@ namespace Tiny3D
         {
             renderMode = renderer->getRenderMode();
             renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
+        }
+        else if (RenderQueue::E_GRPID_OVERLAY == groupID)
+        {
+            renderer->getViewport()->getCamera()->setProjectionType(SGCamera::E_PT_ORTHOGRAPHIC);
+            renderer->getViewport()->getCamera()->getViewMatrix();
+            renderer->getViewport()->getCamera()->getProjectionMatrix();
         }
 
         if (RenderQueue::E_GRPID_LIGHT != groupID)

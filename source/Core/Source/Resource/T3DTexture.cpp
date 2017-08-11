@@ -74,24 +74,24 @@ namespace Tiny3D
 
         do 
         {
-            ArchivePtr archive;
-            MemoryDataStream stream;
-
-            // 加载纹理数据
-            if (!ArchiveManager::getInstance().getArchive(mName, archive))
-            {
-                T3D_LOG_ERROR("Get archive named %s failed !", mName.c_str());
-                break;
-            }
-
-            if (!archive->read(mName, stream))
-            {
-                T3D_LOG_ERROR("Read data from stream failed !");
-                break;
-            }
-
             if (E_TU_DEFAULT == mTexUsage)
             {
+                ArchivePtr archive;
+                MemoryDataStream stream;
+
+                // 加载纹理数据
+                if (!ArchiveManager::getInstance().getArchive(mName, archive))
+                {
+                    T3D_LOG_ERROR("Get archive named %s failed !", mName.c_str());
+                    break;
+                }
+
+                if (!archive->read(mName, stream))
+                {
+                    T3D_LOG_ERROR("Read data from stream failed !");
+                    break;
+                }
+
                 Image image;
                 if (!image.load(stream))
                 {

@@ -40,29 +40,47 @@ namespace Tiny3D
 
     FontFreeType::FontFreeType(const String &name, int32_t fontSize, FontType fontType)
         : Font(name, fontSize, fontType)
+        , mFTLibrary(nullptr)
+        , mFTFace(nullptr)
+        , mData(nullptr)
     {
 
     }
 
     FontFreeType::~FontFreeType()
     {
-
+        if (isLoaded())
+        {
+            unload();
+        }
     }
 
     bool FontFreeType::load()
     {
         bool ret = false;
 
-        ArchivePtr archive;
-        MemoryDataStream stream;
-
-        if (T3D_ARCHIVE_MGR.getArchive(mName, archive))
+        do 
         {
-            if (archive->read(mName, stream))
+            ArchivePtr archive;
+
+            MemoryDataStream *stream = new MemoryDataStream();
+
+            if (T3D_ARCHIVE_MGR.getArchive(mName, archive))
             {
-                ret = loadFreeType(stream);
+                if (archive->read(mName, *stream))
+                {
+                    ret = loadFreeType(*stream);
+
+                    if (ret)
+                    {
+                        T3D_SAFE_DELETE(mData);
+                        mData = stream;
+                    }
+                }
             }
-        }
+
+            ret = true;
+        } while (0);
 
         return ret;
     }
@@ -70,7 +88,7 @@ namespace Tiny3D
     void FontFreeType::unload()
     {
         FT_Done_FreeType(mFTLibrary);
-
+        T3D_SAFE_DELETE(mData);
         Font::unload();
     }
 
@@ -96,20 +114,25 @@ namespace Tiny3D
             FT_Face face;
             uint8_t *data;
             size_t size = stream.read(data);
+            FT_Error error;
 
-            if (FT_New_Memory_Face(mFTLibrary, data, size, 0, &face))
+            if (error = FT_New_Memory_Face(mFTLibrary, data, size, 0, &face))
             {
                 T3D_LOG_ERROR("Could not open font face !");
                 break;
             }
 
             // 选择一个字符表，当前选择UNICODE
-            FT_Select_Charmap(face, FT_ENCODING_UNICODE);
+            if (error = FT_Select_Charmap(face, FT_ENCODING_UNICODE))
+            {
+                T3D_LOG_ERROR("Select charmap failed !");
+                break;
+            }
 
             // 设置字符大小，基于26.6规则设定
-            FT_F26Dot6 ftSize = (FT_F26Dot6)(mFontSize * (1 << 6));
+            FT_F26Dot6 ftSize = (FT_F26Dot6)(mFontSize << 6);
             int32_t dpi = 72;
-            if (FT_Set_Char_Size(face, ftSize, 0, dpi, dpi))
+            if (error = FT_Set_Char_Size(face, ftSize, 0, dpi, dpi))
             {
                 T3D_LOG_ERROR("Set font size failed !");
                 break;
@@ -126,6 +149,7 @@ namespace Tiny3D
 
             // 设置字体外观
             mFTFace = face;
+
             ret = true;
         } while (0);
 
@@ -291,6 +315,8 @@ namespace Tiny3D
                 srcLine -= srcPitch;
                 dstLine += dstPitch;
             }
+
+            texture->getPixelBuffer()->unlock();
 
             ret = true;
         } while (0);

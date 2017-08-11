@@ -164,7 +164,7 @@ namespace Tiny3D
          * @param [out] block : 返回的区块对象
          * @return 插入成功返回true，否则返回false
          */
-        bool insertBlock(FontFreeTypePtr font, FacePtr face, BlockPtr &block);
+        bool insertBlock(FontFreeTypePtr font, FacePtr &face, BlockPtr &block);
 
         bool doStrategyAuto(FontFreeTypePtr font, FacePtr face, BlockPtr &block, const Size &charSize, Font::CharPtr &ch);
 

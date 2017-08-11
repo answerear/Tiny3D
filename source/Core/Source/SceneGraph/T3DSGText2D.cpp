@@ -90,7 +90,7 @@ namespace Tiny3D
             }
 
             ret = true;
-        } while (ret);
+        } while (0);
         
         return ret;
     }
@@ -230,8 +230,8 @@ namespace Tiny3D
             size_t i = 0;
             size_t c = 0;
             Real left = -mAnchorPos.x() * mSize.width;
-            Real top = -mAnchorPos.y() * mSize.height;
-            Real bottom = Real(1.0f) - mAnchorPos.y() * mSize.height;
+            Real top =  (Real(1.0f) - mAnchorPos.y()) * mSize.height;
+            Real bottom = -mAnchorPos.y() * mSize.height;
 
             for (auto itr = mCharSet.begin(); itr != mCharSet.end() && i < vertices.size(); ++itr)
             {
@@ -244,7 +244,7 @@ namespace Tiny3D
                 Vertex &v0 = vertices[i++];
                 v0.position[0] = left;
                 v0.position[1] = top;
-                v0.position[2] = 0;
+                v0.position[2] = 0.5;
                 v0.diffuse = color;
                 v0.texcoord[0] = ch->mArea.left;
                 v0.texcoord[1] = ch->mArea.top;
@@ -253,7 +253,7 @@ namespace Tiny3D
                 Vertex &v1 = vertices[i++];
                 v1.position[0] = left;
                 v1.position[1] = bottom;
-                v1.position[2] = 0;
+                v1.position[2] = 0.5;
                 v1.diffuse = color;
                 v1.texcoord[0] = ch->mArea.left;
                 v1.texcoord[1] = ch->mArea.bottom;
@@ -262,7 +262,7 @@ namespace Tiny3D
                 Vertex &v2 = vertices[i++];
                 v2.position[0] = left + ch->mArea.width();
                 v2.position[1] = top;
-                v2.position[2] = 0;
+                v2.position[2] = 0.5;
                 v2.diffuse = color;
                 v2.texcoord[0] = ch->mArea.right;
                 v2.texcoord[1] = ch->mArea.top;
@@ -270,8 +270,8 @@ namespace Tiny3D
                 // bottom-right
                 Vertex &v3 = vertices[i++];
                 v3.position[0] = left + ch->mArea.width();
-                v3.position[1] = top;
-                v3.position[2] = 0;
+                v3.position[1] = bottom;
+                v3.position[2] = 0.5;
                 v3.diffuse = color;
                 v3.texcoord[0] = ch->mArea.right;
                 v3.texcoord[1] = ch->mArea.bottom;
@@ -309,7 +309,7 @@ namespace Tiny3D
             mIndexData = IndexData::create(indexBuffer);
 
             ret = true;
-        } while (ret);
+        } while (0);
 
         return ret;
     }

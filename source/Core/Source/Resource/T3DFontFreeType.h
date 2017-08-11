@@ -106,6 +106,8 @@ namespace Tiny3D
     protected:
         FT_Library      mFTLibrary;
         FT_Face         mFTFace;
+
+        DataStream      *mData;
     };
 }
 

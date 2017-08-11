@@ -154,6 +154,8 @@ namespace Tiny3D
                 T3D_LOG_ERROR("Load font %s texture failed !", ss.str().c_str());
                 break;
             }
+
+            ret = true;
         } while (0);
 
         return ret;
@@ -338,10 +340,11 @@ namespace Tiny3D
             {
                 // 装载字形到字形槽
                 size_t code = u16text[i];
-                if (FT_Load_Char(ftFace, code, FT_LOAD_RENDER))
-                {
-                    continue;
-                }
+//                 FT_Error error = FT_Load_Char(ftFace, code, FT_LOAD_RENDER);
+//                 if (error != 0)
+//                 {
+//                     continue;
+//                 }
 
                 // 从区块里面查找是否有现成字符
                 if (!lookupCharMap(font, code, ch))
@@ -532,6 +535,7 @@ namespace Tiny3D
 
                     // 这里肯定返回最后一个，因为只有最后一个才有可能是存在空闲区域的block
                     block = blockList.back();
+                    face = temp;
                     found = true;
                 }
                 else
@@ -545,7 +549,7 @@ namespace Tiny3D
         return found;
     }
 
-    bool FreeTypeAtlas::insertBlock(FontFreeTypePtr font, FacePtr face, BlockPtr &block)
+    bool FreeTypeAtlas::insertBlock(FontFreeTypePtr font, FacePtr &face, BlockPtr &block)
     {
         bool ret = false;
 

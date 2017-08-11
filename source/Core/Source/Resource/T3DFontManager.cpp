@@ -52,9 +52,12 @@ namespace Tiny3D
     {
         FontPtr font;
 
-        int32_t fontSize = va_arg(args, int32_t);
-        Font::FontType fontType = va_arg(args, Font::FontType);
-        font = Font::create(name, fontSize, fontType);
+        if (argc == 2)
+        {
+            int32_t fontSize = va_arg(args, int32_t);
+            Font::FontType fontType = va_arg(args, Font::FontType);
+            font = Font::create(name, fontSize, fontType);
+        }
 
         return font;
     }

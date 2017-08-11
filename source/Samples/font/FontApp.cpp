@@ -60,7 +60,7 @@ bool FontApp::applicationDidFinishLaunching()
     node1->setPosition(Vector2(480, 320));
 
     {
-        SGText2DPtr text = SGText2D::create("Hello world !", 10);
+        SGText2DPtr text = SGText2D::create("Hello world !", 40);
         node1->addChild(text);
     }
 
