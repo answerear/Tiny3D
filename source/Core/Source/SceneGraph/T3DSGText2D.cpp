@@ -23,6 +23,8 @@
 
 #include "Resource/T3DFont.h"
 #include "Resource/T3DFontManager.h"
+#include "Resource/T3DMaterial.h"
+#include "Resource/T3DTexture.h"
 
 #include "Bound/T3DFrustumBound.h"
 
@@ -136,6 +138,8 @@ namespace Tiny3D
 
     void SGText2D::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
     {
+        queue->addRenderable(RenderQueue::E_GRPID_SOLID, this);
+        return;
         if (isVisible())
         {
             // 可见物体，才需要判断是否在视景体内，否则根本不用判断了
@@ -233,6 +237,10 @@ namespace Tiny3D
             Real top =  (Real(1.0f) - mAnchorPos.y()) * mSize.height;
             Real bottom = -mAnchorPos.y() * mSize.height;
 
+            Texture *texture = mMaterial->getTexture(0);
+            int32_t texWidth = texture->getTexWidth();
+            int32_t texHeight = texture->getTexHeight();
+
             for (auto itr = mCharSet.begin(); itr != mCharSet.end() && i < vertices.size(); ++itr)
             {
                 Font::CharPtr ch = *itr;
@@ -246,8 +254,8 @@ namespace Tiny3D
                 v0.position[1] = top;
                 v0.position[2] = 0.5;
                 v0.diffuse = color;
-                v0.texcoord[0] = ch->mArea.left;
-                v0.texcoord[1] = ch->mArea.top;
+                v0.texcoord[0] = Real(ch->mArea.left) / Real(texWidth);
+                v0.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
 
                 // bottom-left
                 Vertex &v1 = vertices[i++];
@@ -255,8 +263,8 @@ namespace Tiny3D
                 v1.position[1] = bottom;
                 v1.position[2] = 0.5;
                 v1.diffuse = color;
-                v1.texcoord[0] = ch->mArea.left;
-                v1.texcoord[1] = ch->mArea.bottom;
+                v1.texcoord[0] = Real(ch->mArea.left) / Real(texWidth);
+                v1.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
 
                 // top-right
                 Vertex &v2 = vertices[i++];
@@ -264,8 +272,8 @@ namespace Tiny3D
                 v2.position[1] = top;
                 v2.position[2] = 0.5;
                 v2.diffuse = color;
-                v2.texcoord[0] = ch->mArea.right;
-                v2.texcoord[1] = ch->mArea.top;
+                v2.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
+                v2.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
 
                 // bottom-right
                 Vertex &v3 = vertices[i++];
@@ -273,8 +281,8 @@ namespace Tiny3D
                 v3.position[1] = bottom;
                 v3.position[2] = 0.5;
                 v3.diffuse = color;
-                v3.texcoord[0] = ch->mArea.right;
-                v3.texcoord[1] = ch->mArea.bottom;
+                v3.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
+                v3.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
 
                 left += ch->mArea.width();
 

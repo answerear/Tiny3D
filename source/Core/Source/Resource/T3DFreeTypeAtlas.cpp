@@ -167,19 +167,32 @@ namespace Tiny3D
 
         do 
         {
-            auto r = blockmap.insert(BlockMapValue(fontSize, BlockList()));
-            if (!r.second)
+            auto itr = blockmap.find(fontSize);
+            if (itr == blockmap.end())
             {
-                T3D_LOG_ERROR("Insert font block [%s_%u] failed !", name.c_str(), fontSize);
-                break;
-            }
+                auto r = blockmap.insert(BlockMapValue(fontSize, BlockList()));
+                if (!r.second)
+                {
+                    T3D_LOG_ERROR("Insert font block [%s_%u] failed !", name.c_str(), fontSize);
+                    break;
+                }
 
-            // 从face的空闲链表里面获取一个空闲的block出来，放到blockmap中
-            block = available.front();
-            available.pop_front();
-            block->size = fontSize;
-            block->offset.x = block->offset.y = 0;
-            r.first->second.push_back(block);
+                // 从face的空闲链表里面获取一个空闲的block出来，放到blockmap中
+                block = available.front();
+                available.pop_front();
+                block->size = fontSize;
+                block->offset.x = block->offset.y = 0;
+                r.first->second.push_back(block);
+            }
+            else
+            {
+                // 从face的空闲链表里面获取一个空闲的block出来，放到blockmap中
+                block = available.front();
+                available.pop_front();
+                block->size = fontSize;
+                block->offset.x = block->offset.y = 0;
+                itr->second.push_back(block);
+            }
 
             ret = true;
         } while (0);
@@ -340,11 +353,6 @@ namespace Tiny3D
             {
                 // 装载字形到字形槽
                 size_t code = u16text[i];
-//                 FT_Error error = FT_Load_Char(ftFace, code, FT_LOAD_RENDER);
-//                 if (error != 0)
-//                 {
-//                     continue;
-//                 }
 
                 // 从区块里面查找是否有现成字符
                 if (!lookupCharMap(font, code, ch))
@@ -355,6 +363,11 @@ namespace Tiny3D
                         continue;
                     }
 
+                    set.push_back(ch);
+                    size.width += ch->mArea.width();
+                }
+                else
+                {
                     set.push_back(ch);
                     size.width += ch->mArea.width();
                 }
@@ -458,6 +471,8 @@ namespace Tiny3D
                 ch = new Font::Char();
                 ch->release();
                 ch->mArea = dstRect;
+
+                block->offset.x += charSize.width;
             }
             else
             {
@@ -537,6 +552,7 @@ namespace Tiny3D
                     block = blockList.back();
                     face = temp;
                     found = true;
+                    break;
                 }
                 else
                 {
@@ -647,7 +663,7 @@ namespace Tiny3D
                 {
                     BlockPtr tempBlock = *i;
 
-                    for (auto ii = block->charmap.begin(); ii != block->charmap.end(); ++ii)
+                    for (auto ii = tempBlock->charmap.begin(); ii != tempBlock->charmap.end(); ++ii)
                     {
                         Font::CharPtr temp = ii->second;
 
@@ -658,7 +674,7 @@ namespace Tiny3D
                         {
                             // 没有外部引用，并且现成区域能存放新增的字符
                             ch = temp;
-                            block->charmap.erase(temp->mCode);
+                            tempBlock->charmap.erase(temp->mCode);
                             mCharmap.erase(temp->mCode);
                             block = tempBlock;
                             ret = true;

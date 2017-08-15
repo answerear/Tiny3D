@@ -139,10 +139,10 @@ namespace Tiny3D
             }
 
             // 设置字体中最大字符宽度
-            mFontWidth = (face->size->metrics.height >> 6);
+            mFontWidth = (face->size->metrics.max_advance >> 6);
 
             // 设置字体中最大字符高度
-            mFontHeight = (face->size->metrics.max_advance >> 6);
+            mFontHeight = (face->size->metrics.height >> 6);
 
             // 设置字体基线
             mFontBaseline = (face->size->metrics.ascender >> 6);
@@ -266,13 +266,15 @@ namespace Tiny3D
 
         do 
         {
+            T3D_LOG_INFO("Dst Rect (%d, %d), (%d, %d)", dstRect.left, dstRect.top, dstRect.width(), dstRect.height());
+
             uint8_t *srcData = mFTFace->glyph->bitmap.buffer;
             int32_t srcPitch = mFTFace->glyph->bitmap.pitch;
             int32_t srcWidth = mFTFace->glyph->bitmap.width;
             int32_t srcHeight = mFTFace->glyph->bitmap.rows;
 
-            int32_t dstPitch = 0;
-            uint8_t *dstData = (uint8_t *)texture->getPixelBuffer()->lock(dstRect, HardwareBuffer::E_HBL_WRITE_ONLY, dstPitch);            
+            int32_t dstPitch = texture->getPixelBuffer()->getPitch();
+            uint8_t *dstData = (uint8_t *)texture->getPixelBuffer()->lock(HardwareBuffer::E_HBL_WRITE_ONLY);
             int32_t dstWidth = dstRect.width();
             int32_t dstHeight = dstRect.height();
 
@@ -285,36 +287,80 @@ namespace Tiny3D
             const int32_t PIXEL_SIZE = 4;
             const int32_t PIXEL_SIZE_SHIFT = 2;
 
+            int32_t texHeight = texture->getTexHeight();
+
             // 这里因为freetype中获取到的bitmap的Y正方向是朝上的，跟纹理UV坐标刚好反的，所以逐行相反复制
-            uint8_t *srcLine = srcData + srcPitch * (srcHeight - 1);
-            uint8_t *dstLine = dstData + dstPitch * dstRect.top + PIXEL_SIZE * dstRect.left;
+            uint8_t *srcLine = srcData;// +srcPitch * (srcHeight - 1);
+            uint8_t *dstLine = dstData + dstPitch * (dstRect.top + dstHeight - 1) + PIXEL_SIZE * dstRect.left;
 
-            for (int32_t y = 0; y < dstRect.height(); ++y)
+            for (int32_t y = 0; y < dstHeight; ++y)
             {
-                for (int32_t x = 0; x < dstRect.width(); ++x)
+                if (y >= startY && y < endY)
                 {
-                    int32_t index = (x << PIXEL_SIZE_SHIFT);
+                    for (int32_t x = 0; x < dstWidth; ++x)
+                    {
+                        int32_t index = (x << PIXEL_SIZE_SHIFT);
 
-                    if (x >= startX && x < endX
-                        && y >= startY && y < endY)
-                    {
-                        // 在复制范围内，复制字符位图数据，把灰度图值存放在alpha通道中，
-                        // 防止后面改变字体颜色后丢失了灰度值，需要重新解析freetype，进一步提高性能
-                        dstLine[index] = srcLine[x];        // blue
-                        dstLine[index + 1] = srcLine[x];    // green
-                        dstLine[index + 2] = srcLine[x];    // red
-                        dstLine[index + 3] = srcLine[x];    // alpha
+                        if (x >= startX && x < endX)
+                        {
+                            // 在复制范围内，复制字符位图数据，把灰度图值存放在alpha通道中，
+                            // 防止后面改变字体颜色后丢失了灰度值，需要重新解析freetype，进一步提高性能
+                            dstLine[index] = srcLine[x - startX];        // blue
+                            dstLine[index + 1] = srcLine[x - startX];    // green
+                            dstLine[index + 2] = srcLine[x - startX];    // red
+                            dstLine[index + 3] = srcLine[x - startX];    // alpha
+                        }
+                        else
+                        {
+                            // 不在范围内的，但是在字符范围中，其他像素全部置成透明值
+                            dstLine[index] = dstLine[index + 1] = dstLine[index + 2] = dstLine[index + 3] = 0;
+                        }
                     }
-                    else
+
+                    srcLine += srcPitch;
+                }
+                else
+                {
+                    for (int32_t x = 0; x < dstWidth; ++x)
                     {
-                        // 不在范围内的，但是在字符范围中，其他像素全部置成透明值
-                        dstLine[index] = dstLine[index + 1] = dstLine[index + 2] = dstLine[index + 3] = 0;
+                        int32_t index = (x << PIXEL_SIZE_SHIFT);
+                        dstLine[index] = dstLine[index + 1] = dstLine[index + 3] = 0;
+                        dstLine[index + 2] = 255;
                     }
+//                     memset(dstLine, 0, (dstWidth << PIXEL_SIZE_SHIFT));
                 }
 
-                srcLine -= srcPitch;
-                dstLine += dstPitch;
+                dstLine -= dstPitch;
             }
+
+
+//             for (int32_t y = 0; y < dstRect.height(); ++y)
+//             {
+//                 for (int32_t x = 0; x < dstRect.width(); ++x)
+//                 {
+//                     int32_t index = (x << PIXEL_SIZE_SHIFT);
+// 
+//                     if (x >= startX && x < endX
+//                         && y >= startY && y < endY)
+//                     {
+//                         // 在复制范围内，复制字符位图数据，把灰度图值存放在alpha通道中，
+//                         // 防止后面改变字体颜色后丢失了灰度值，需要重新解析freetype，进一步提高性能
+//                         dstLine[index] = srcLine[x-startX];// ((srcLine[x] * 255) >> 8);        // blue
+//                         dstLine[index + 1] = srcLine[x-startX];// ((srcLine[x] * 255) >> 8);    // green
+//                         dstLine[index + 2] = srcLine[x-startX];// ((srcLine[x] * 255) >> 8);    // red
+//                         dstLine[index + 3] = srcLine[x-startX];    // alpha
+// 
+//                         srcLine -= srcPitch;
+//                     }
+//                     else
+//                     {
+//                         // 不在范围内的，但是在字符范围中，其他像素全部置成透明值
+//                         dstLine[index] = dstLine[index + 1] = dstLine[index + 2] = dstLine[index + 3] = 0;
+//                     }
+//                 }
+// 
+//                 dstLine += dstPitch;
+//             }
 
             texture->getPixelBuffer()->unlock();
 
