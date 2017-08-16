@@ -162,12 +162,23 @@ namespace Tiny3D
          */
         bool updateVertices();
 
+        /**
+         * @brief 更新纹理UV坐标，因为可能底层纹理伸缩导致UV坐标变了
+         * @return 更新成功返回true，否则返回false
+         * @note 这里仅仅更新UV坐标，并不会改变其他任何顶点信息
+         */
+        bool updateTexcoord();
+
     protected:
         struct Vertex
         {
             Vector3     position;
-            Vector2     texcoord;
             uint32_t    diffuse;
+        };
+
+        struct Texcoord
+        {
+            Vector2     texcoord;
         };
 
         VertexDataPtr       mVertexData;    /// 顶点数据
@@ -178,6 +189,8 @@ namespace Tiny3D
         Size                mSize;          /// 字符串渲染区域的大小
         String              mText;          /// 文本字符串
         Font::CharSet       mCharSet;       /// 字符串对应的字符集
+        int32_t             mTexWidth;      /// 目前字体使用的纹理宽度
+        int32_t             mTexHeight;     /// 目前字体使用的纹理高度
     };
 }
 

@@ -114,37 +114,55 @@ namespace Tiny3D
                 rtDst = *dstRect;
             }
 
-            int32_t dstPitch = 0;
-            dstData = (uint8_t *)dst->lock(rtDst, HardwareBuffer::E_HBL_WRITE_ONLY, dstPitch);
+            int32_t dstPitch = dst->getPitch();
+            dstData = (uint8_t *)dst->lock(HardwareBuffer::E_HBL_WRITE_ONLY);
             if (dstData == nullptr)
             {
                 T3D_LOG_ERROR("Lock destination pixel buffer failed !");
                 break;
             }
 
-            int32_t srcPitch = 0;
-            srcData = (uint8_t *)lock(rtSrc, HardwareBuffer::E_HBL_READ_ONLY, srcPitch);
+            int32_t srcPitch = mPitch;
+            srcData = (uint8_t *)lock(HardwareBuffer::E_HBL_READ_ONLY);
             if (srcData == nullptr)
             {
                 T3D_LOG_ERROR("Lock source pixel buffer failed !");
                 break;
             }
 
+            Image srcImage;
+            if (!srcImage.load(srcData, mWidth, mHeight, Image::getBPP(mFormat), srcPitch, mFormat))
+            {
+                T3D_LOG_ERROR("Load source texture to image failed  !");
+                break;
+            }
+
+            Image dstImage;
+            if (!dstImage.load(dstData, dst->getWidth(), dst->getHeight(), Image::getBPP(dst->getFormat()), dstPitch, dst->getFormat()))
+            {
+                T3D_LOG_ERROR("Load destination texture to image failed !");
+                break;
+            }
+
+            if (!dstImage.copy(srcImage, &rtSrc, &rtDst))
+            {
+                T3D_LOG_ERROR("Copy image from source image failed !");
+                break;
+            }
+
+            ret = true;
         } while (0);
 
-        if (!ret)
+        if (srcData != nullptr)
         {
-            if (srcData != nullptr)
-            {
-                unlock();
-                srcData = nullptr;
-            }
+            unlock();
+            srcData = nullptr;
+        }
 
-            if (dstData != nullptr)
-            {
-                dst->unlock();
-                dstData = nullptr;
-            }
+        if (dstData != nullptr)
+        {
+            dst->unlock();
+            dstData = nullptr;
         }
 
         return ret;

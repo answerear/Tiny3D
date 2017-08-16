@@ -302,6 +302,9 @@ namespace Tiny3D
                 break;
             }
 
+            material->setTexture(0, newTexture);
+            T3D_TEXTURE_MGR.unloadTexture(srcTexture);
+
             ret = true;
         } while (0);
 
@@ -681,6 +684,7 @@ namespace Tiny3D
                             mCharmap.erase(temp->mCode);
                             block = tempBlock;
                             ret = true;
+                            break;
                         }
                     }
 

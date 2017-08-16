@@ -338,7 +338,7 @@ namespace Tiny3D
 
         do
         {
-            if (image.isEmpty())
+            if (isEmpty())
             {
                 // 空图像，给空图像创建并且复制数据
                 mData = new uint8_t[image.mDataSize];
@@ -402,7 +402,7 @@ namespace Tiny3D
                     break;
                 }
 
-                if (rtDst == rtSrc)
+                if (image.getWidth() == mWidth && image.getHeight() == mHeight && rtDst == rtSrc)
                 {
                     // 源和目标区域完全相同，直接点吧
                     T3D_ASSERT(image.mDataSize == mDataSize);
@@ -416,14 +416,14 @@ namespace Tiny3D
                     uint8_t *src = srcData;
                     uint8_t *dst = dstData;
 
-                    int32_t pitch = rtSrc.width() * getBytesPerPixel();
+                    int32_t pitch = std::min(image.mPitch, mPitch);
 
                     int32_t y = 0;
                     for (y = 0; y < rtSrc.height(); ++y)
                     {
                         memcpy(dst, src, pitch);
-                        dst += image.mPitch;
-                        src += mPitch;
+                        dst += mPitch;
+                        src += image.mPitch;
                     }
                 }
                 else
@@ -435,7 +435,7 @@ namespace Tiny3D
                     // 把源数据读到FreeImage里面，让FreeImage来处理
                     dib = FreeImage_ConvertFromRawBitsEx(FALSE, mData, FIT_BITMAP, 
                         image.getWidth(), image.getWidth(), image.getPitch(), image.getBPP(), 
-                        redMask, greenMask, blueMask, FALSE);
+                        redMask, greenMask, blueMask, TRUE);
 
                     if (dib == nullptr)
                     {

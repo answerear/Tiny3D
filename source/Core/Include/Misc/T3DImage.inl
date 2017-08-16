@@ -93,6 +93,6 @@ namespace Tiny3D
 
     inline bool Image::isEmpty() const
     {
-        return mIsDataExternal;
+        return mIsEmpty;
     }
 }

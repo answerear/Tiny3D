@@ -60,6 +60,8 @@ namespace Tiny3D
     SGText2D::SGText2D(uint32_t uID /* = E_NID_AUTOMATIC */)
         : SGRenderable(uID)
         , mAnchorPos(0.5f, 0.5f)
+        , mTexWidth(0)
+        , mTexHeight(0)
     {
 
     }
@@ -139,6 +141,7 @@ namespace Tiny3D
 
     void SGText2D::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
     {
+        updateTexcoord();
         queue->addRenderable(RenderQueue::E_GRPID_SOLID, this);
         return;
         if (isVisible())
@@ -226,6 +229,9 @@ namespace Tiny3D
             std::vector<Vertex> vertices;
             vertices.resize(vertexCount);
 
+            std::vector<Texcoord> texcoords;
+            texcoords.resize(vertexCount);
+
             size_t indexCount = mCharSet.size() * 6;
             std::vector<uint16_t> indices;
             indices.resize(indexCount);
@@ -242,6 +248,9 @@ namespace Tiny3D
             int32_t texWidth = texture->getTexWidth();
             int32_t texHeight = texture->getTexHeight();
 
+            mTexWidth = texWidth;
+            mTexHeight = texHeight;
+
             for (auto itr = mCharSet.begin(); itr != mCharSet.end() && i < vertices.size(); ++itr)
             {
                 Font::CharPtr ch = *itr;
@@ -250,46 +259,48 @@ namespace Tiny3D
                 uint16_t index = i;
 
                 // top-left
-                Vertex &v0 = vertices[i++];
+                Vertex &v0 = vertices[i];
                 v0.position[0] = left;
                 v0.position[1] = top;
                 v0.position[2] = 0.5;
                 v0.diffuse = color;
-                v0.texcoord[0] = Real(ch->mArea.left) / Real(texWidth);
-                v0.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
+                Texcoord &t0 = texcoords[i];
+                t0.texcoord[0] = Real(ch->mArea.left) / Real(texWidth);
+                t0.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
+                i++;
 
                 // bottom-left
-                Vertex &v1 = vertices[i++];
+                Vertex &v1 = vertices[i];
                 v1.position[0] = left;
                 v1.position[1] = bottom;
                 v1.position[2] = 0.5;
                 v1.diffuse = color;
-                v1.texcoord[0] = Real(ch->mArea.left) / Real(texWidth);
-                v1.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
+                Texcoord &t1 = texcoords[i];
+                t1.texcoord[0] = Real(ch->mArea.left) / Real(texWidth);
+                t1.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
+                i++;
 
                 // top-right
-                Vertex &v2 = vertices[i++];
+                Vertex &v2 = vertices[i];
                 v2.position[0] = left + ch->mArea.width();
                 v2.position[1] = top;
                 v2.position[2] = 0.5;
                 v2.diffuse = color;
-                v2.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
-                v2.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
+                Texcoord &t2 = texcoords[i];
+                t2.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
+                t2.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
+                i++;
 
                 // bottom-right
-                Vertex &v3 = vertices[i++];
+                Vertex &v3 = vertices[i];
                 v3.position[0] = left + ch->mArea.width();
                 v3.position[1] = bottom;
                 v3.position[2] = 0.5;
                 v3.diffuse = color;
-                v3.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
-                v3.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
-
-                T3D_LOG_INFO("code [%d]", ch->mCode);
-                T3D_LOG_INFO("top-left uv : (%f, %f)", v0.texcoord[0], v0.texcoord[1]);
-                T3D_LOG_INFO("bottom-left uv : (%f, %f)", v1.texcoord[0], v1.texcoord[1]);
-                T3D_LOG_INFO("top-right uv : (%f, %f)", v2.texcoord[0], v2.texcoord[1]);
-                T3D_LOG_INFO("bottom-right uv : (%f, %f)", v3.texcoord[0], v3.texcoord[1]);
+                Texcoord &t3 = texcoords[i];
+                t3.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
+                t3.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
+                i++;
 
                 left += ch->mArea.width();
 
@@ -307,21 +318,97 @@ namespace Tiny3D
             size_t offset = 0;
             const VertexElement &posElem = vertexDecl->addElement(0, offset, VertexElement::E_VET_FLOAT3, VertexElement::E_VES_POSITION);
             offset += posElem.getSize();
-            const VertexElement &texElem = vertexDecl->addElement(0, offset, VertexElement::E_VET_FLOAT2, VertexElement::E_VES_TEXCOORD);
-            offset += texElem.getSize();
             const VertexElement &colorElem = vertexDecl->addElement(0, offset, VertexElement::E_VET_COLOR, VertexElement::E_VES_DIFFUSE);
             offset += colorElem.getSize();
 
+            const VertexElement &texElem = vertexDecl->addElement(1, 0, VertexElement::E_VET_FLOAT2, VertexElement::E_VES_TEXCOORD);
+
             size_t vertexSize = offset;
-            HardwareVertexBufferPtr vertexBuffer = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(vertexSize, vertexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
-            vertexBuffer->writeData(0, vertexSize * vertexCount, &vertices[0]);
+            HardwareVertexBufferPtr vb0 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(vertexSize, vertexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
+            vb0->writeData(0, vertexSize * vertexCount, &vertices[0]);
+
+            vertexSize = texElem.getSize();
+            HardwareVertexBufferPtr vb1 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(vertexSize, vertexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
+            vb1->writeData(0, vertexSize * vertexCount, &texcoords[0]);
+
             mVertexData = VertexData::create(vertexDecl);
-            mVertexData->addVertexBuffer(vertexBuffer);
+            mVertexData->addVertexBuffer(vb0);
+            mVertexData->addVertexBuffer(vb1);
 
             // 构造顶点索引缓冲区
             HardwareIndexBufferPtr indexBuffer = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(HardwareIndexBuffer::E_IT_16BITS, indexCount, HardwareBuffer::E_HBU_STATIC_WRITE_ONLY, false);
             indexBuffer->writeData(0, indexCount * sizeof(uint16_t), &indices[0]);
             mIndexData = IndexData::create(indexBuffer);
+
+            ret = true;
+        } while (0);
+
+        return ret;
+    }
+
+    bool SGText2D::updateTexcoord()
+    {
+        bool ret = false;
+
+        do 
+        {
+            if (mMaterial == nullptr || (mTexWidth == mMaterial->getTexture(0)->getTexWidth() &&
+                mTexHeight == mMaterial->getTexture(0)->getTexHeight()))
+            {
+                // 纹理大小没改变，不用更新UV了
+                break;
+            }
+
+            HardwareVertexBufferPtr vb = mVertexData->getVertexBuffer(1);
+            if (vb == nullptr)
+            {
+                T3D_LOG_ERROR("Vertex buffer is empty !!!");
+                break;
+            }
+
+            Texcoord *texcoords = (Texcoord *)vb->lock(HardwareBuffer::E_HBL_WRITE_ONLY);
+
+            int32_t texWidth = mMaterial->getTexture(0)->getTexWidth();
+            int32_t texHeight = mMaterial->getTexture(0)->getTexHeight();
+            size_t i = 0;
+            size_t size = vb->getVertexCount();
+
+            for (auto itr = mCharSet.begin(); itr != mCharSet.end() && i < size; ++itr)
+            {
+                Font::CharPtr ch = *itr;
+
+                // 计算顶点
+                uint16_t index = i;
+
+                // top-left
+                Texcoord &t0 = texcoords[i];
+                t0.texcoord[0] = Real(ch->mArea.left) / Real(texWidth);
+                t0.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
+                i++;
+
+                // bottom-left
+                Texcoord &t1 = texcoords[i];
+                t1.texcoord[0] = Real(ch->mArea.left) / Real(texWidth);
+                t1.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
+                i++;
+
+                // top-right
+                Texcoord &t2 = texcoords[i];
+                t2.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
+                t2.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
+                i++;
+
+                // bottom-right
+                Texcoord &t3 = texcoords[i];
+                t3.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
+                t3.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
+                i++;
+            }
+
+            vb->unlock();
+
+            mTexWidth = texWidth;
+            mTexHeight = texHeight;
 
             ret = true;
         } while (0);
