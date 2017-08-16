@@ -68,7 +68,7 @@ bool FontApp::applicationDidFinishLaunching()
         node1->addChild(text);
     }
 
-    y -= 2.0;
+    y -= 1.0;
     node1 = SGTransformNode::create();
     root->addChild(node1);
     node1->setScale(0.02, 0.02, 0.02);
@@ -78,7 +78,7 @@ bool FontApp::applicationDidFinishLaunching()
         node1->addChild(text);
     }
 
-    y -= 2.0;
+    y -= 1.0;
     node1 = SGTransformNode::create();
     root->addChild(node1);
     node1->setScale(0.02, 0.02, 0.02);
@@ -88,7 +88,7 @@ bool FontApp::applicationDidFinishLaunching()
         node1->addChild(text);
     }
 
-    y -= 2.0;
+    y -= 1.0;
     node1 = SGTransformNode::create();
     root->addChild(node1);
     node1->setScale(0.02, 0.02, 0.02);
@@ -98,7 +98,7 @@ bool FontApp::applicationDidFinishLaunching()
         node1->addChild(text);
     }
 
-    y -= 2.0;
+    y -= 1.0;
     node1 = SGTransformNode::create();
     root->addChild(node1);
     node1->setScale(0.02, 0.02, 0.02);
@@ -108,7 +108,7 @@ bool FontApp::applicationDidFinishLaunching()
         node1->addChild(text);
     }
 
-    y -= 2.0;
+    y -= 1.0;
     node1 = SGTransformNode::create();
     root->addChild(node1);
     node1->setScale(0.02, 0.02, 0.02);
@@ -133,6 +133,7 @@ bool FontApp::applicationDidFinishLaunching()
             1) 按下键盘空格实现向上调。\
             2) 落下时可控制Configurable Joint的参数。\
             3) 修改第一视角摄像机（Player内部Camera）在X轴的旋转范围", fontSize);
+        node1->addChild(text);
     }
 
     return true;
