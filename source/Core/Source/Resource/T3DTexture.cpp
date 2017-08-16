@@ -169,4 +169,33 @@ namespace Tiny3D
 
         return mPixelBuffer->copyTo(texture->getPixelBuffer(), dstRect, srcRect);
     }
+
+    bool Texture::saveToFile(const String &path, const String &fileType)
+    {
+        bool ret = false;
+
+        do 
+        {
+            if (mPixelBuffer == nullptr)
+            {
+                T3D_LOG_ERROR("Empty texture data !");
+                break;
+            }
+
+            Image image;
+            if (!mPixelBuffer->writeImage(image))
+            {
+                break;
+            }
+
+            if (!image.save(path, fileType))
+            {
+                break;
+            }
+
+            ret = true;
+        } while (0);
+
+        return ret;
+    }
 }

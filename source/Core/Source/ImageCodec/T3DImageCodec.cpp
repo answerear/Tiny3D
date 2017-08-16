@@ -88,25 +88,77 @@ namespace Tiny3D
     {
         bool ret = false;
 
+        FileDataStream fs;
+
+        do 
+        {
+            if (!fs.open(name.c_str(), FileDataStream::E_MODE_WRITE_ONLY))
+            {
+                T3D_LOG_ERROR("Open file %s failed when encoding image !", name.c_str());
+                break;
+            }
+
+            if (!encode(fs, image, eType))
+            {
+                break;
+            }
+
+            fs.close();
+
+            ret = true;
+        } while (0);
+
+        if (fs.isOpened())
+        {
+            fs.close();
+        }
+
         return ret;
     }
 
     bool ImageCodec::encode(DataStream &stream, const Image &image, ImageCodecBase::FileType eType /* = ImageCodecBase::E_FT_PNG */)
     {
-        bool ret =false;
+        bool ret = false;
+
+        do 
+        {
+            uint8_t *data = nullptr;
+            size_t size;
+            if (!encode(data, size, image, eType))
+            {
+                break;
+            }
+
+            stream.write(data, size);
+            T3D_SAFE_DELETE_ARRAY(data);
+
+            ret = true;
+        } while (0);
 
         return ret;
     }
 
-    bool ImageCodec::encode(uint8_t *data, size_t size, const Image &image, ImageCodecBase::FileType eType /* = ImageCodecBase::E_FT_PNG */)
+    bool ImageCodec::encode(uint8_t *&data, size_t &size, const Image &image, ImageCodecBase::FileType eType /* = ImageCodecBase::E_FT_PNG */)
     {
         bool ret = false;
-        const ImageCodecBasePtr &codec = getImageCodec(eType);
 
-        if (codec != nullptr)
+        do 
         {
-            ret = codec->encode(data, size, image);
-        }
+            const ImageCodecBasePtr &codec = getImageCodec(eType);
+
+            if (codec == nullptr)
+            {
+                T3D_LOG_ERROR("Could not find the destinate image codec !");
+                break;
+            }
+            
+            if (!codec->encode(data, size, image, eType))
+            {
+                break;
+            }
+
+            ret = true;
+        } while (0);
 
         return ret;
     }

@@ -37,7 +37,7 @@ namespace Tiny3D
 
         bool encode(const String &name, const Image &image, ImageCodecBase::FileType eType = ImageCodecBase::E_FT_PNG);
         bool encode(DataStream &stream, const Image &image, ImageCodecBase::FileType eType = ImageCodecBase::E_FT_PNG);
-        bool encode(uint8_t *data, size_t size, const Image &image, ImageCodecBase::FileType eType = ImageCodecBase::E_FT_PNG);
+        bool encode(uint8_t *&data, size_t &size, const Image &image, ImageCodecBase::FileType eType = ImageCodecBase::E_FT_PNG);
 
         bool decode(const String &name, Image &image, ImageCodecBase::FileType eType = ImageCodecBase::E_FT_UNKNOWN);
         bool decode(DataStream &stream, Image &image, ImageCodecBase::FileType eType = ImageCodecBase::E_FT_UNKNOWN);

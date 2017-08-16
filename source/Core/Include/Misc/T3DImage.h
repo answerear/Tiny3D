@@ -243,6 +243,11 @@ namespace Tiny3D
         bool isEmpty() const;
 
         /**
+        * @brief 获取三个颜色通道和一个透明通道的颜色mask
+        */
+        void getColorMask(uint32_t &redMask, uint32_t &greenMask, uint32_t &blueMask, uint32_t &alphaMask) const;
+
+        /**
          * @brief 根据色深计算图像行跨度
          */
         static int32_t calcPitch(int32_t width, int32_t bpp);
@@ -262,11 +267,6 @@ namespace Tiny3D
          * @brief 计算图像行跨度
          */
         int32_t calcPitch() const;
-
-        /**
-         * @brief 获取三个颜色通道和一个透明通道的颜色mask
-         */
-        void getColorMask(uint32_t &redMask, uint32_t &greenMask, uint32_t &blueMask, uint32_t &alphaMask) const;
 
         /**
          * @brief 获取当前像素格式下一个像素占用的字节数

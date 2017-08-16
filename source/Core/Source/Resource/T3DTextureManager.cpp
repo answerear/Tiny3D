@@ -70,6 +70,7 @@ namespace Tiny3D
 
     void TextureManager::unloadTexture(TexturePtr &texture)
     {
+        texture->saveToFile("test.png", "PNG");
         unload((ResourcePtr &)texture);
     }
 }

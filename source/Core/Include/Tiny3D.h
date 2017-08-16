@@ -33,6 +33,7 @@
 #include "Listener/T3DWindowEventListener.h"
 
 #include "Misc/T3DEntrance.h"
+#include "Misc/T3DMemoryTracer.h"
 #include "Misc/T3DColor4.h"
 #include "Misc/T3DCommon.h"
 #include "Misc/T3DPlugin.h"

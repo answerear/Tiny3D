@@ -18,6 +18,7 @@
  **************************************************************************************************/
 
 #include "Misc/T3DEntrance.h"
+#include "Misc/T3DMemoryTracer.h"
 #include "Misc/T3DPlugin.h"
 #include "Misc/T3DConfigFile.h"
 #include "Misc/T3DWindowEventHandler.h"
@@ -44,9 +45,10 @@ namespace Tiny3D
 
     T3D_INIT_SINGLETON(Entrance);
 
-    Entrance::Entrance(const String &appPath, const String &config /* = "Tiny3D.cfg" */)
+    Entrance::Entrance(const String &appPath, bool isMemoryTracing /* = false */, const String &config /* = "Tiny3D.cfg" */)
         : mSystem(new System())
         , mLogger(new Logger())
+        , mMemoryTracer(new MemoryTracer(isMemoryTracing))
         , mWindowEventHandler(new WindowEventHandler())
         , mDylibMgr(new DylibManager())
         , mArchiveMgr(new ArchiveManager())
@@ -92,15 +94,17 @@ namespace Tiny3D
 
         T3D_SAFE_DELETE(mSceneMgr);
 
-        T3D_SAFE_DELETE(mImageCodec);
         T3D_SAFE_DELETE(mFontMgr);
         T3D_SAFE_DELETE(mModelMgr);
         T3D_SAFE_DELETE(mMaterialMgr);
         T3D_SAFE_DELETE(mTextureMgr);
+        T3D_SAFE_DELETE(mImageCodec);
         T3D_SAFE_DELETE(mArchiveMgr);
         T3D_SAFE_DELETE(mDylibMgr);
-
         T3D_SAFE_DELETE(mWindowEventHandler);
+
+        mMemoryTracer->dumpMemoryInfo();
+        T3D_SAFE_DELETE(mMemoryTracer);
 
         stopLogging();
         T3D_SAFE_DELETE(mLogger);
@@ -221,7 +225,7 @@ namespace Tiny3D
         T3D_LOG_SET_EXPIRED(logSettings["Expired"].uint32Value());
         T3D_LOG_SET_MAX_CACHE_SIZE(logSettings["MaxCacheSize"].uint32Value());
         T3D_LOG_SET_MAX_CACHE_TIME(logSettings["MaxCacheTime"].uint32Value());
-        T3D_LOG_STARTUP(logSettings["AppID"].uint32Value(), logSettings["Tag"].stringValue(), false, false);
+        T3D_LOG_STARTUP(logSettings["AppID"].uint32Value(), logSettings["Tag"].stringValue(), false, true);
 
         T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "**************************** Tiny3D started *************************");
     }

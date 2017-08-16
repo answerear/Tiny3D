@@ -24,6 +24,7 @@
 #include "Resource/T3DFont.h"
 #include "Resource/T3DFontManager.h"
 #include "Resource/T3DMaterial.h"
+#include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DTexture.h"
 
 #include "Bound/T3DFrustumBound.h"
@@ -283,6 +284,12 @@ namespace Tiny3D
                 v3.diffuse = color;
                 v3.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
                 v3.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
+
+                T3D_LOG_INFO("code [%d]", ch->mCode);
+                T3D_LOG_INFO("top-left uv : (%f, %f)", v0.texcoord[0], v0.texcoord[1]);
+                T3D_LOG_INFO("bottom-left uv : (%f, %f)", v1.texcoord[0], v1.texcoord[1]);
+                T3D_LOG_INFO("top-right uv : (%f, %f)", v2.texcoord[0], v2.texcoord[1]);
+                T3D_LOG_INFO("bottom-right uv : (%f, %f)", v3.texcoord[0], v3.texcoord[1]);
 
                 left += ch->mArea.width();
 

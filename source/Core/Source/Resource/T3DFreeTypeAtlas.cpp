@@ -100,16 +100,6 @@ namespace Tiny3D
                 block->area.top = i / blockCols * config.blockHeight;
                 block->area.bottom = block->area.top + config.blockHeight - 1;
 
-                if (col + 1 >= blockCols)
-                {
-                    col = 0;
-                    row += 1;
-                }
-                else
-                {
-                    col += 1;
-                }
-
                 int32_t blockID = row * blockCols + col;
 
                 if (col < cols && row < rows)
@@ -121,6 +111,16 @@ namespace Tiny3D
                 {
                     // 不在初始纹理区域里，只能放到后备cache里，等需要扩展纹理的时候再动态调整到可用链表里
                     unavailable.insert(BlocksValue(blockID, block));
+                }
+
+                if (col + 1 >= blockCols)
+                {
+                    col = 0;
+                    row += 1;
+                }
+                else
+                {
+                    col += 1;
                 }
             }
 
@@ -375,8 +375,8 @@ namespace Tiny3D
 
             if (ch != nullptr)
             {
-                BlockPtr block = smart_pointer_cast<Block>(ch->mBlock);
-                FacePtr face = smart_pointer_cast<Face>(block->face);
+                Block *block = (Block *)(ch->mBlock);
+                Face *face = (Face *)(block->face);
                 material = face->material;
                 size.height = font->getFontHeight();
                 ret = true;
@@ -508,6 +508,8 @@ namespace Tiny3D
             T3D_ASSERT(block != nullptr);
 
             // 渲染到纹理指定区域
+            T3D_LOG_INFO("code [%d]", code);
+
             TexturePtr texture = face->material->getTexture(0);
             if (!font->renderAt(texture, dstRect))
             {

@@ -27,7 +27,7 @@ SampleApp::~SampleApp()
 
 int32_t SampleApp::go(const String &appPath)
 {
-    Entrance *entrance = new Entrance(appPath, "../media/config/Tiny3D.cfg");
+    Entrance *entrance = new Entrance(appPath, true, "../media/config/Tiny3D.cfg");
 
     entrance->setApplicationListener(this);
 

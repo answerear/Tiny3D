@@ -47,10 +47,11 @@ namespace Tiny3D
         struct Block : public Object
         {
             Block()
-                : size(0)
+                : face(nullptr)
+                , size(0)
             {}
 
-            ObjectPtr       face;       /// 区块所属的字体外观
+            Object          *face;      /// 区块所属的字体外观，为了避免循环引用到时无法释放，这里直接用指针，不用智能指针
             size_t          size;       /// 字体大小
             Rect            area;       /// block的区域
             Point           offset;     /// 字符起始位置

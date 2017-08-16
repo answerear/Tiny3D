@@ -40,10 +40,11 @@ namespace Tiny3D
         {
         public:
             Char()
-                : mCode(0)
+                : mBlock(nullptr)
+                , mCode(0)
             {}
 
-            ObjectPtr       mBlock;         /// 字符对应区块信息对象
+            Object          *mBlock;        /// 字符对应区块信息对象，为了避免循环引用到时无法释放，这里直接用指针，而非智能指针
             int32_t         mCode;          /// 字符编码
             Rect            mArea;          /// 字符对应材质中纹理信息
         };

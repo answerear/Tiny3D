@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,13 +15,14 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #include "ImageCodec/T3DImageCodecIMG.h"
 #include <FreeImage.h>
 #include <sstream>
 #include "Misc/T3DString.h"
 #include "Misc/T3DColor4.h"
+#include "Misc/T3DImage.h"
 
 
 namespace Tiny3D
@@ -123,9 +124,59 @@ namespace Tiny3D
         return E_FT_IMG;
     }
 
-    bool ImageCodecIMG::encode(uint8_t *&data, size_t &size, const Image &image)
+    bool ImageCodecIMG::encode(uint8_t *&data, size_t &size, const Image &image, FileType eFileType)
     {
-        return true;
+        bool ret = false;
+
+        FIBITMAP *dib = nullptr;
+        FIMEMORY *stream = nullptr;
+
+        do 
+        {
+            uint32_t redMask, greenMask, blueMask, alphaMask;
+            image.getColorMask(redMask, greenMask, blueMask, alphaMask);
+
+            dib = FreeImage_ConvertFromRawBitsEx(FALSE, (BYTE*)image.getData(), FIT_BITMAP,
+                image.getWidth(), image.getHeight(), image.getPitch(), image.getBPP(), 
+                redMask, greenMask, blueMask, TRUE);
+
+            stream = FreeImage_OpenMemory(0, 0);
+
+            FREE_IMAGE_FORMAT fif = (FREE_IMAGE_FORMAT)eFileType;
+
+            if (!FreeImage_SaveToMemory(fif, dib, stream))
+            {
+                T3D_LOG_ERROR("Encode image data to target format failed !");
+                break;
+            }
+
+            uint8_t *temp = nullptr;
+            if (!FreeImage_AcquireMemory(stream, &temp, (DWORD *)&size))
+            {
+                T3D_LOG_ERROR("Retreive encoding data from memory failed !");
+                break;
+            }
+
+            data = new uint8_t[size];
+            memcpy(data, temp, size);
+
+            ret = true;
+        } while (0);
+
+
+        if (stream != nullptr)
+        {
+            FreeImage_CloseMemory(stream);
+            stream = nullptr;
+        }
+
+        if (dib != nullptr)
+        {
+            FreeImage_Unload(dib);
+            dib = nullptr;
+        }
+
+        return ret;
     }
 
     bool ImageCodecIMG::decode(uint8_t *data, size_t size, Image &image, FileType eFileType)

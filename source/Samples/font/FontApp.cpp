@@ -55,25 +55,57 @@ bool FontApp::applicationDidFinishLaunching()
 
     T3D_FONT_MGR.setDefaultFontName("FZLanTingYuanS-DB1-GB.ttf");
 
+    Real y = 4.0;
     SGTransformNodePtr node1 = SGTransformNode::create();
     root->addChild(node1);
     node1->setScale(0.02, 0.02, 0.02);
 //     node1->setPosition(Vector2(480, 320));
-
+    node1->setPosition(0, y, 0);
     {
         SGText2DPtr text = SGText2D::create(u8"你好，Hi ! 这里要写长点", 40);
-//        SGText2DPtr text = SGText2D::create(u8"你好，Hi ! 这里要写长点，再长点", 40);
+//        SGText2DPtr text = SGText2D::create(u8"不知道", 40);
         node1->addChild(text);
     }
 
-//     node1 = SGTransformNode::create();
-//     root->addChild(node1);
-//     node1->setScale(0.02, 0.02, 0.02);
-//     node1->setPosition(0, 80.0, 0);
-//     {
-//         SGText2DPtr text = SGText2D::create(u8"，再长点，让其超过上限，重新分配纹理？不过不知道这样子是否足够了！这是第一个字体显示程序！", 40);
-//         node1->addChild(text);
-//     }
+    y -= 2.0;
+    node1 = SGTransformNode::create();
+    root->addChild(node1);
+    node1->setScale(0.02, 0.02, 0.02);
+    node1->setPosition(0, y, 0);
+    {
+        SGText2DPtr text = SGText2D::create(u8"，再长点，让其超过上限，", 40);
+        node1->addChild(text);
+    }
+
+    y -= 2.0;
+    node1 = SGTransformNode::create();
+    root->addChild(node1);
+    node1->setScale(0.02, 0.02, 0.02);
+    node1->setPosition(0, y, 0);
+    {
+        SGText2DPtr text = SGText2D::create(u8"重新分配纹理？", 40);
+        node1->addChild(text);
+    }
+
+    y -= 2.0;
+    node1 = SGTransformNode::create();
+    root->addChild(node1);
+    node1->setScale(0.02, 0.02, 0.02);
+    node1->setPosition(0, y, 0);
+    {
+        SGText2DPtr text = SGText2D::create(u8"不过不知道这样子是否足够了", 40);
+        node1->addChild(text);
+    }
+
+    y -= 2.0;
+    node1 = SGTransformNode::create();
+    root->addChild(node1);
+    node1->setScale(0.02, 0.02, 0.02);
+    node1->setPosition(0, y, 0);
+    {
+        SGText2DPtr text = SGText2D::create(u8"这是第一个字体显示程序！", 40);
+        node1->addChild(text);
+    }
 
     return true;
 }

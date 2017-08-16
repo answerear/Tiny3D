@@ -48,8 +48,13 @@ namespace Tiny3D
     class T3D_ENGINE_API Entrance : public Singleton<Entrance>
     {
     public:
-        /** Default constructor. */
-        Entrance(const String &appPath, const String &config = "Tiny3D.cfg");
+        /** 
+         * @brief 默认构造函数
+         * @param [in] appPath : 传入的程序路径，引擎中一切路径均以本路径作为参照
+         * @param [in] isMemoryTracing : 是否开启跟踪内存泄漏功能，该功能会在程序退出时候打印出泄漏的对象
+         * @param [in] config : 引擎配置文件
+         */
+        Entrance(const String &appPath, bool isMemoryTracing = false, const String &config = "Tiny3D.cfg");
 
         /** Destructor. */
         virtual ~Entrance();
@@ -173,6 +178,7 @@ namespace Tiny3D
 
         System                  *mSystem;
         Logger                  *mLogger;
+        MemoryTracer            *mMemoryTracer;
         WindowEventHandler      *mWindowEventHandler;
 
         DylibManager            *mDylibMgr;

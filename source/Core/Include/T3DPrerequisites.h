@@ -84,6 +84,7 @@ namespace Tiny3D
     class KeyboardEventListener;
     class JoystickEventListener;
 
+    class MemoryTracer;
     class WindowEventHandler;
 
     class Degree;
