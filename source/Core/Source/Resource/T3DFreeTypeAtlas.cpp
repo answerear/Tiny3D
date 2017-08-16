@@ -429,9 +429,16 @@ namespace Tiny3D
 
             if (block != nullptr)
             {
-                // 先判断是否够空间放入新的字符
-                if (block->offset.x + charSize.width > block->area.width()
-                    && block->offset.y + charSize.height > block->area.height())
+                // 判断是否需要换行
+                if (block->offset.x + charSize.width > block->area.width())
+                {
+                    // 没办法了，只能换行
+                    block->offset.x = 0;
+                    block->offset.y += charSize.height;
+                }
+
+                // 判断是否够空间放入新的字符
+                if (block->offset.y + charSize.height > block->area.height())
                 {
                     // block空间不足放这个字符，只能新建一个block
                     block = nullptr;
@@ -450,15 +457,6 @@ namespace Tiny3D
             {
                 // 咦~~~ 居然有空闲区域可以插入新的block，那不客气了，直接拿来用
                 // 由于上面已经通过 freetype 库加载了位图了，所以这里不用加载了
-
-                // 判断是否需要换行
-                if (block->offset.x + charSize.width > block->area.width())
-                {
-                    // 没办法了，只能换行
-                    block->offset.x = 0;
-                    block->offset.y += charSize.height;
-                }
-
                 uv.x = block->area.left + block->offset.x;
                 uv.y = block->area.top + block->offset.y;
 
@@ -552,6 +550,9 @@ namespace Tiny3D
 
                     // 这里肯定返回最后一个，因为只有最后一个才有可能是存在空闲区域的block
                     block = blockList.back();
+
+                    
+
                     face = temp;
                     found = true;
                     break;

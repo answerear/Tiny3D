@@ -28,7 +28,6 @@ FontApp::~FontApp()
 bool FontApp::applicationDidFinishLaunching()
 {
     Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
-//     renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
     renderer->setRenderMode(Renderer::E_RM_SOLID);
 
     SGNodePtr root = T3D_SCENE_MGR.getRoot();
@@ -55,6 +54,8 @@ bool FontApp::applicationDidFinishLaunching()
 
     T3D_FONT_MGR.setDefaultFontName("FZLanTingYuanS-DB1-GB.ttf");
 
+    size_t fontSize = 40;
+
     Real y = 4.0;
     SGTransformNodePtr node1 = SGTransformNode::create();
     root->addChild(node1);
@@ -62,7 +63,7 @@ bool FontApp::applicationDidFinishLaunching()
 //     node1->setPosition(Vector2(480, 320));
     node1->setPosition(0, y, 0);
     {
-        SGText2DPtr text = SGText2D::create(u8"你好，Hi ! 这里要写长点", 40);
+        SGText2DPtr text = SGText2D::create(u8"你好，Hi ! 这里要写长点", fontSize);
 //        SGText2DPtr text = SGText2D::create(u8"不知道", 40);
         node1->addChild(text);
     }
@@ -73,7 +74,7 @@ bool FontApp::applicationDidFinishLaunching()
     node1->setScale(0.02, 0.02, 0.02);
     node1->setPosition(0, y, 0);
     {
-        SGText2DPtr text = SGText2D::create(u8"，再长点，让其超过上限，", 40);
+        SGText2DPtr text = SGText2D::create(u8"，再长点，让其超过上限，", fontSize);
         node1->addChild(text);
     }
 
@@ -83,7 +84,7 @@ bool FontApp::applicationDidFinishLaunching()
     node1->setScale(0.02, 0.02, 0.02);
     node1->setPosition(0, y, 0);
     {
-        SGText2DPtr text = SGText2D::create(u8"重新分配纹理？", 40);
+        SGText2DPtr text = SGText2D::create(u8"重新分配纹理？", fontSize);
         node1->addChild(text);
     }
 
@@ -93,7 +94,7 @@ bool FontApp::applicationDidFinishLaunching()
     node1->setScale(0.02, 0.02, 0.02);
     node1->setPosition(0, y, 0);
     {
-        SGText2DPtr text = SGText2D::create(u8"不过不知道这样子是否足够了", 40);
+        SGText2DPtr text = SGText2D::create(u8"不过不知道这样子是否足够了", fontSize);
         node1->addChild(text);
     }
 
@@ -103,7 +104,7 @@ bool FontApp::applicationDidFinishLaunching()
     node1->setScale(0.02, 0.02, 0.02);
     node1->setPosition(0, y, 0);
     {
-        SGText2DPtr text = SGText2D::create(u8"这是第一个字体显示程序！", 40);
+        SGText2DPtr text = SGText2D::create(u8"这是第一个字体显示程序！", fontSize);
         node1->addChild(text);
     }
 

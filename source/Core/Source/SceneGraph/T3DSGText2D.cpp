@@ -256,7 +256,7 @@ namespace Tiny3D
                 v0.position[2] = 0.5;
                 v0.diffuse = color;
                 v0.texcoord[0] = Real(ch->mArea.left) / Real(texWidth);
-                v0.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
+                v0.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
 
                 // bottom-left
                 Vertex &v1 = vertices[i++];
@@ -265,7 +265,7 @@ namespace Tiny3D
                 v1.position[2] = 0.5;
                 v1.diffuse = color;
                 v1.texcoord[0] = Real(ch->mArea.left) / Real(texWidth);
-                v1.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
+                v1.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
 
                 // top-right
                 Vertex &v2 = vertices[i++];
@@ -274,7 +274,7 @@ namespace Tiny3D
                 v2.position[2] = 0.5;
                 v2.diffuse = color;
                 v2.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
-                v2.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
+                v2.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
 
                 // bottom-right
                 Vertex &v3 = vertices[i++];
@@ -283,7 +283,7 @@ namespace Tiny3D
                 v3.position[2] = 0.5;
                 v3.diffuse = color;
                 v3.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
-                v3.texcoord[1] = Real(ch->mArea.top) / Real(texHeight);
+                v3.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
 
                 T3D_LOG_INFO("code [%d]", ch->mCode);
                 T3D_LOG_INFO("top-left uv : (%f, %f)", v0.texcoord[0], v0.texcoord[1]);

@@ -289,9 +289,8 @@ namespace Tiny3D
 
             int32_t texHeight = texture->getTexHeight();
 
-            // 这里因为freetype中获取到的bitmap的Y正方向是朝上的，跟纹理UV坐标刚好反的，所以逐行相反复制
             uint8_t *srcLine = srcData;// +srcPitch * (srcHeight - 1);
-            uint8_t *dstLine = dstData + dstPitch * (dstRect.top + dstHeight - 1) + PIXEL_SIZE * dstRect.left;
+            uint8_t *dstLine = dstData + dstPitch * dstRect.top + PIXEL_SIZE * dstRect.left;
 
             for (int32_t y = 0; y < dstHeight; ++y)
             {
@@ -324,13 +323,14 @@ namespace Tiny3D
                     for (int32_t x = 0; x < dstWidth; ++x)
                     {
                         int32_t index = (x << PIXEL_SIZE_SHIFT);
-                        dstLine[index] = dstLine[index + 1] = dstLine[index + 3] = 0;
+                        dstLine[index] = dstLine[index + 1] = 0;
                         dstLine[index + 2] = 255;
+                        dstLine[index + 3] = 0;
                     }
 //                     memset(dstLine, 0, (dstWidth << PIXEL_SIZE_SHIFT));
                 }
 
-                dstLine -= dstPitch;
+                dstLine += dstPitch;
             }
 
 
