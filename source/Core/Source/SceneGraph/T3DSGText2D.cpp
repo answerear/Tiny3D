@@ -141,9 +141,9 @@ namespace Tiny3D
 
     void SGText2D::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
     {
-        updateTexcoord();
-        queue->addRenderable(RenderQueue::E_GRPID_SOLID, this);
-        return;
+//         updateTexcoord();
+//         queue->addRenderable(RenderQueue::E_GRPID_SOLID, this);
+//         return;
         if (isVisible())
         {
             // 可见物体，才需要判断是否在视景体内，否则根本不用判断了

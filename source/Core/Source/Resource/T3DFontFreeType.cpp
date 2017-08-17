@@ -320,14 +320,14 @@ namespace Tiny3D
                 }
                 else
                 {
-                    for (int32_t x = 0; x < dstWidth; ++x)
-                    {
-                        int32_t index = (x << PIXEL_SIZE_SHIFT);
-                        dstLine[index] = dstLine[index + 1] = 0;
-                        dstLine[index + 2] = 255;
-                        dstLine[index + 3] = 0;
-                    }
-//                     memset(dstLine, 0, (dstWidth << PIXEL_SIZE_SHIFT));
+//                     for (int32_t x = 0; x < dstWidth; ++x)
+//                     {
+//                         int32_t index = (x << PIXEL_SIZE_SHIFT);
+//                         dstLine[index] = dstLine[index + 1] = 0;
+//                         dstLine[index + 2] = 255;
+//                         dstLine[index + 3] = 0;
+//                     }
+                    memset(dstLine, 0, (dstWidth << PIXEL_SIZE_SHIFT));
                 }
 
                 dstLine += dstPitch;
