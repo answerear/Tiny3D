@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #include "Render/T3DRenderQueue.h"
 #include "Render/T3DRenderer.h"
@@ -63,14 +63,21 @@ namespace Tiny3D
     void RenderGroup::render(uint32_t groupID, const RendererPtr &renderer)
     {
         Renderer::RenderMode renderMode;
-        if (RenderQueue::E_GRPID_INDICATOR == groupID)
-        {
-            renderMode = renderer->getRenderMode();
-            renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
-        }
-        else if (RenderQueue::E_GRPID_OVERLAY == groupID)
+        if (RenderQueue::E_GRPID_OVERLAY == groupID)
         {
             renderer->getViewport()->getCamera()->setProjectionType(SGCamera::E_PT_ORTHOGRAPHIC);
+            renderer->getViewport()->getCamera()->getViewMatrix();
+            renderer->getViewport()->getCamera()->getProjectionMatrix();
+        }
+        else
+        {
+            if (RenderQueue::E_GRPID_INDICATOR == groupID)
+            {
+                renderMode = renderer->getRenderMode();
+                renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
+            }
+
+            renderer->getViewport()->getCamera()->setProjectionType(SGCamera::E_PT_PERSPECTIVE);
             renderer->getViewport()->getCamera()->getViewMatrix();
             renderer->getViewport()->getCamera()->getProjectionMatrix();
         }

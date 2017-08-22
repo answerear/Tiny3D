@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #ifndef __T3D_RENDERER_H__
 #define __T3D_RENDERER_H__
@@ -115,6 +115,8 @@ namespace Tiny3D
         void setTextureTransform(int32_t textureIdx, const Matrix4 &mat);
 
         virtual void makeProjectionMatrix(const Radian &rkFovY, Real aspect, Real nearDist, Real farDist, bool ortho, Matrix4 &mat) = 0;
+
+        virtual void makeViewportMatrix(ViewportPtr viewport, Matrix4 &mat) = 0;
 
         virtual void updateFrustum(const Matrix4 &m, Plane *plane, size_t planeCount) = 0;
 

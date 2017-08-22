@@ -35,7 +35,11 @@ bool FontApp::applicationDidFinishLaunching()
     // 相机变换结点
     SGTransformNodePtr node = SGTransformNode::create();
     root->addChild(node);
-    node->lookAt(Vector3(0.0, 0.0, 5.0), Vector3::ZERO, Vector3::UNIT_Y);
+    node->lookAt(Vector3(5.0, 5.0, 5.0), Vector3::ZERO, Vector3::UNIT_Y);
+
+    // 坐标
+    SGAxisPtr axis = SGAxis::create(50, 50, 50);
+    root->addChild(axis);
 
     {
         // 相机结点
@@ -44,7 +48,7 @@ bool FontApp::applicationDidFinishLaunching()
         camera->setProjectionType(SGCamera::E_PT_PERSPECTIVE);
 
         Radian fovY(Math::PI * Real(0.5));
-        Real ratio = Real(960) / Real(640);
+        Real ratio = Real(1334) / Real(750);
         camera->setPerspective(fovY, ratio, 0.5, 1000.0);
 
         // 视口
@@ -64,9 +68,10 @@ bool FontApp::applicationDidFinishLaunching()
 //     node1->setPosition(0, y, 0);
     SGTransform2DPtr node1 = SGTransform2D::create();
     root->addChild(node1);
-    node1->setScale(0.005, 0.005);
+    node1->setPosition(Vector2(-0, -0));
+//     node1->setScale(0.005, 0.005);
     {
-        SGText2DPtr text = SGText2D::create(u8"你好，Hi ! 这里要写长点", fontSize);
+        SGText2DPtr text = SGText2D::create(u8"你好，Hi ! 这里要写长点写多两个字", fontSize);
         node1->addChild(text);
     }
 

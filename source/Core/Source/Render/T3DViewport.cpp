@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,11 +15,13 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #include "Render/T3DViewport.h"
+#include "Render/T3DRenderer.h"
 #include "Render/T3DRenderTarget.h"
 #include "SceneGraph/T3DSGCamera.h"
+#include "Misc/T3DEntrance.h"
 
 
 namespace Tiny3D
@@ -79,5 +81,8 @@ namespace Tiny3D
         mActualTop = int32_t(nHeight * mTop);
         mActualWidth = int32_t(nWidth * mWidth);
         mActualHeight = int32_t(nHeight * mHeight);
+
+        RendererPtr renderer = T3D_ENTRANCE.getActiveRenderer();
+        renderer->makeViewportMatrix(this, mMatrix);
     }
 }

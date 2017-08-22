@@ -447,6 +447,40 @@ namespace Tiny3D
             mat[2][2] = q;
             mat[2][3] = qn;
             mat[3][3] = 1.0;
+
+//             Real tanThetaY = Math::Tan(rkFovY * Real(0.5));
+//             Real h = Real(1.0) / (nearDist * tanThetaY);
+//             Real w = h / aspect;
+//             Real q = Real(2.0) / (farDist - nearDist); //Real(1.0) / (nearDist - farDist);
+//             Real qn = - (farDist + nearDist) / (farDist - nearDist);
+// 
+//             mat.makeZero();
+// 
+//             // NB: This creates 'uniform' orthographic projection matrix,
+//             // which depth range [-1,1], right-handed rules
+//             //
+//             // [ A   0   0   C  ]
+//             // [ 0   B   0   D  ]
+//             // [ 0   0   q   qn ]
+//             // [ 0   0   0   1  ]
+//             //
+//             // A = 2 * / (right - left)
+//             // B = 2 * / (top - bottom)
+//             // C = - (right + left) / (right - left)
+//             // D = - (top + bottom) / (top - bottom)
+//             // q = - 2 / (far - near)
+//             // qn = - (far + near) / (far - near)
+//             Real A = Real(2.0) / aspect;
+//             Real B = Real(2.0) / Real(1.0);
+//             Real C = -Real(1.0);
+//             Real D = -Real(1.0) / Real(1.0);
+//             mat[0][0] = A;
+//             mat[0][3] = C;
+//             mat[1][1] = B;
+//             mat[1][3] = D;
+//             mat[2][2] = q;
+//             mat[2][3] = qn;
+//             mat[3][3] = 1.0;
         }
         else
         {
@@ -474,6 +508,18 @@ namespace Tiny3D
             mat[2][3] = qn;
             mat[3][2] = -1.0;
         }
+    }
+
+    void D3D9Renderer::makeViewportMatrix(ViewportPtr viewport, Matrix4 &mat)
+    {
+        mat.makeZero();
+        mat[0][0] = viewport->getActualWidth() * Real(0.5);
+        mat[1][1] = -viewport->getActualHeight() * Real(0.5);
+        mat[2][2] = Real(1.0);
+        mat[3][3] = Real(1.0);
+        mat[0][3] = viewport->getActualLeft() + viewport->getActualWidth() * Real(0.5);
+        mat[1][3] = viewport->getActualTop() + viewport->getActualHeight() * Real(0.5);
+        mat[2][3] = Real(0.0);
     }
 
     void D3D9Renderer::updateFrustum(const Matrix4 &m, Plane *plane, size_t planeCount)

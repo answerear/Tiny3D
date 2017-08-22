@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
 #ifndef __T3D_VIEWPORT_H__
 #define __T3D_VIEWPORT_H__
@@ -54,6 +54,8 @@ namespace Tiny3D
         int32_t getActualWidth() const;
         int32_t getActualHeight() const;
 
+        const Matrix4 &getViewportMatrix() const;
+
         void setDimensions(Real left, Real top, Real width, Real height);
 
         void setBackgroundColor(const Color4 &rkColor);
@@ -80,6 +82,8 @@ namespace Tiny3D
         int32_t mActualHeight;
 
         Color4  mBkgndColor;
+
+        Matrix4 mMatrix;        /// ÊÓ¿Ú±ä»»¾ØÕó
     };
 }
 

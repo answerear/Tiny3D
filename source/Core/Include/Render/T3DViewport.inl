@@ -74,6 +74,11 @@ namespace Tiny3D
         return mActualHeight;
     }
 
+    inline const Matrix4 &Viewport::getViewportMatrix() const
+    {
+        return mMatrix;
+    }
+
     inline void Viewport::setBackgroundColor(const Color4 &rkColor)
     {
         mBkgndColor = rkColor;

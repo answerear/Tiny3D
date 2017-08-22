@@ -30,11 +30,14 @@
 #include "Bound/T3DFrustumBound.h"
 
 #include "Render/T3DViewport.h"
+#include "Render/T3DRenderer.h"
 #include "Render/T3DRenderQueue.h"
 #include "Render/T3DVertexData.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Render/T3DHardwareIndexBuffer.h"
 #include "Render/T3DHardwareBufferManager.h"
+
+#include "Misc/T3DEntrance.h"
 
 
 namespace Tiny3D
@@ -87,11 +90,7 @@ namespace Tiny3D
             if (!text.empty())
             {
                 mText = text;
-
-                if (!updateVertices())
-                {
-                    break;
-                }
+                setDirty(true);
             }
 
             ret = true;
@@ -115,7 +114,7 @@ namespace Tiny3D
         if (text != mText)
         {
             mText = text;
-            updateVertices();
+            setDirty(true);
         }
     }
 
@@ -139,9 +138,19 @@ namespace Tiny3D
         return mAnchorPos;
     }
 
+    void SGText2D::updateTransform()
+    {
+        if (isDirty())
+        {
+            updateVertices();
+            setDirty(false);
+        }
+
+        SGNode::updateTransform();
+    }
+
     void SGText2D::frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue)
     {
-//         updateTexcoord();
 //         queue->addRenderable(RenderQueue::E_GRPID_SOLID, this);
 //         return;
         if (isVisible())
@@ -215,6 +224,10 @@ namespace Tiny3D
 
         do 
         {
+            Renderer *renderer = T3D_ENTRANCE.getActiveRenderer();
+            ViewportPtr viewport = renderer->getViewport();
+            SGCameraPtr camera = viewport->getCamera();
+
             mCharSet.clear();
 
             // 先更新字符集内容
@@ -240,9 +253,11 @@ namespace Tiny3D
 
             size_t i = 0;
             size_t c = 0;
-            Real left = -mAnchorPos.x() * mSize.width;
-            Real top =  (Real(1.0f) - mAnchorPos.y()) * mSize.height;
-            Real bottom = -mAnchorPos.y() * mSize.height;
+            Real height = Real(mSize.height) / Real(viewport->getActualHeight());// / camera->getAspectRatio();
+            Real left = 0.0;// -mAnchorPos.x() * Real(mSize.width) / Real(viewport->getActualWidth()) * camera->getAspectRatio();
+            Real top =  (Real(1.0) - mAnchorPos.y()) * height;
+            Real bottom = -mAnchorPos.y() * height;
+            Real z(0.0);
 
             Texture *texture = mMaterial->getTexture(0);
             int32_t texWidth = texture->getTexWidth();
@@ -258,11 +273,11 @@ namespace Tiny3D
                 // 计算顶点
                 uint16_t index = i;
 
+                Real width = Real(ch->mArea.width()) / Real(viewport->getActualWidth()) * camera->getAspectRatio();
+
                 // top-left
                 Vertex &v0 = vertices[i];
-                v0.position[0] = left;
-                v0.position[1] = top;
-                v0.position[2] = 0.5;
+                v0.position = Vector3(left, top, z);
                 v0.diffuse = color;
                 Texcoord &t0 = texcoords[i];
                 t0.texcoord[0] = Real(ch->mArea.left) / Real(texWidth);
@@ -271,9 +286,7 @@ namespace Tiny3D
 
                 // bottom-left
                 Vertex &v1 = vertices[i];
-                v1.position[0] = left;
-                v1.position[1] = bottom;
-                v1.position[2] = 0.5;
+                v1.position = Vector3(left, bottom, z);
                 v1.diffuse = color;
                 Texcoord &t1 = texcoords[i];
                 t1.texcoord[0] = Real(ch->mArea.left) / Real(texWidth);
@@ -282,9 +295,7 @@ namespace Tiny3D
 
                 // top-right
                 Vertex &v2 = vertices[i];
-                v2.position[0] = left + ch->mArea.width();
-                v2.position[1] = top;
-                v2.position[2] = 0.5;
+                v2.position = Vector3(left + width, top, z);
                 v2.diffuse = color;
                 Texcoord &t2 = texcoords[i];
                 t2.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
@@ -293,16 +304,14 @@ namespace Tiny3D
 
                 // bottom-right
                 Vertex &v3 = vertices[i];
-                v3.position[0] = left + ch->mArea.width();
-                v3.position[1] = bottom;
-                v3.position[2] = 0.5;
+                v3.position = Vector3(left + width, bottom, z);
                 v3.diffuse = color;
                 Texcoord &t3 = texcoords[i];
                 t3.texcoord[0] = Real(ch->mArea.right) / Real(texWidth);
                 t3.texcoord[1] = Real(ch->mArea.bottom) / Real(texHeight);
                 i++;
 
-                left += ch->mArea.width();
+                left += width;
 
                 // 索引
                 indices[c++] = index;

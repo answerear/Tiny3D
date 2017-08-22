@@ -124,6 +124,10 @@ namespace Tiny3D
         bool init(const String &text, size_t fontSize, const Color4 &texColor, const String &fontName);
 
         /**
+         */
+        virtual void updateTransform() override;
+
+        /**
          * @brief 从父类继承，重写以实现物体视景体外的剔除
          * @param [in] bound : 视景体区域
          * @param [in] queue : 渲染队列

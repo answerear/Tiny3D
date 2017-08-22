@@ -18,6 +18,8 @@
  **************************************************************************************************/
 
 #include "SceneGraph/T3DSGTransform2D.h"
+#include "Misc/T3DEntrance.h"
+#include "Render/T3DRenderer.h"
 
 
 namespace Tiny3D
@@ -78,13 +80,21 @@ namespace Tiny3D
             while (parent != nullptr && (parent->getNodeType() != E_NT_TRANSFORM2D))
                 parent = parent->getParent();
 
-            Vector3 pos(mPosition.x(), mPosition.y(), Real(0.0));
+            RendererPtr renderer = T3D_ENTRANCE.getActiveRenderer();
+            ViewportPtr viewport = renderer->getViewport();
+            Real width = viewport->getActualWidth() * Real(0.5);
+            Real height = viewport->getActualHeight() * Real(0.5);
+
+            Real x = mPosition.x() / width;
+            Real y = mPosition.y() / height;
+            Real z(0.0);
+            Vector3 pos(x, y, z);
             Vector3 scal(mScale.x(), mScale.y(), Real(1.0));
 
             if (parent != nullptr)
             {
                 SGTransform2D *node = (SGTransform2D *)parent;
-                const Transform &transform = node->getLocalToWorldTransform();                
+                const Transform &transform = node->getLocalToWorldTransform();
                 mWorldTransform.applyTransform(transform, pos, mOrientation, scal);
             }
             else
