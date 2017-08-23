@@ -435,8 +435,21 @@ namespace Tiny3D
         if (ortho)
         {
             // 正交投影
+//             Real tanThetaY = Math::Tan(rkFovY * Real(0.5));
+//             Real h = Real(1.0) / (nearDist * tanThetaY);
+//             Real w = h / aspect;
+//             Real q = Real(1.0) / (nearDist - farDist);
+//             Real qn = nearDist * q;
+// 
+//             mat.makeZero();
+//             mat[0][0] = w;
+//             mat[1][1] = h;
+//             mat[2][2] = q;
+//             mat[2][3] = qn;
+//             mat[3][3] = 1.0;
+
             Real tanThetaY = Math::Tan(rkFovY * Real(0.5));
-            Real h = Real(1.0) / (nearDist * tanThetaY);
+            Real h = Real(2.0);
             Real w = h / aspect;
             Real q = Real(1.0) / (nearDist - farDist);
             Real qn = nearDist * q;
@@ -451,7 +464,7 @@ namespace Tiny3D
 //             Real tanThetaY = Math::Tan(rkFovY * Real(0.5));
 //             Real h = Real(1.0) / (nearDist * tanThetaY);
 //             Real w = h / aspect;
-//             Real q = Real(2.0) / (farDist - nearDist); //Real(1.0) / (nearDist - farDist);
+//             Real q = - Real(2.0) / (farDist - nearDist); //Real(1.0) / (nearDist - farDist);
 //             Real qn = - (farDist + nearDist) / (farDist - nearDist);
 // 
 //             mat.makeZero();

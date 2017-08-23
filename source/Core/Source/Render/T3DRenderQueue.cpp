@@ -66,7 +66,7 @@ namespace Tiny3D
         if (RenderQueue::E_GRPID_OVERLAY == groupID)
         {
             renderer->getViewport()->getCamera()->setProjectionType(SGCamera::E_PT_ORTHOGRAPHIC);
-            renderer->getViewport()->getCamera()->getViewMatrix();
+            renderer->setViewTransform(Matrix4::IDENTITY);
             renderer->getViewport()->getCamera()->getProjectionMatrix();
         }
         else

@@ -18,6 +18,7 @@
  **************************************************************************************************/
 
 #include "SceneGraph/T3DSGTransform2D.h"
+#include "SceneGraph/T3DSGCamera.h"
 #include "Misc/T3DEntrance.h"
 #include "Render/T3DRenderer.h"
 
@@ -82,8 +83,10 @@ namespace Tiny3D
 
             RendererPtr renderer = T3D_ENTRANCE.getActiveRenderer();
             ViewportPtr viewport = renderer->getViewport();
-            Real width = viewport->getActualWidth() * Real(0.5);
-            Real height = viewport->getActualHeight() * Real(0.5);
+            SGCameraPtr camera = viewport->getCamera();
+
+            Real width = Real(viewport->getActualWidth()) / camera->getAspectRatio();// *Real(0.5);
+            Real height = Real(viewport->getActualHeight());
 
             Real x = mPosition.x() / width;
             Real y = mPosition.y() / height;

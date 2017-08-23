@@ -68,7 +68,7 @@ bool FontApp::applicationDidFinishLaunching()
 //     node1->setPosition(0, y, 0);
     SGTransform2DPtr node1 = SGTransform2D::create();
     root->addChild(node1);
-    node1->setPosition(Vector2(-0, -0));
+    node1->setPosition(Vector2(-667, -375));
 //     node1->setScale(0.005, 0.005);
     {
         SGText2DPtr text = SGText2D::create(u8"你好，Hi ! 这里要写长点写多两个字", fontSize);
