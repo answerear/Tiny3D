@@ -254,10 +254,10 @@ namespace Tiny3D
             size_t i = 0;
             size_t c = 0;
             Real height = Real(mSize.height) / Real(viewport->getActualHeight());// / camera->getAspectRatio();
-            Real left = 0.0;// -mAnchorPos.x() * Real(mSize.width) / Real(viewport->getActualWidth()) * camera->getAspectRatio();
+            Real left = -mAnchorPos.x() * Real(mSize.width) / Real(viewport->getActualWidth()) * camera->getAspectRatio();
             Real top =  (Real(1.0) - mAnchorPos.y()) * height;
             Real bottom = -mAnchorPos.y() * height;
-            Real z(0.0);
+            Real z(-0.5);
 
             Texture *texture = mMaterial->getTexture(0);
             int32_t texWidth = texture->getTexWidth();

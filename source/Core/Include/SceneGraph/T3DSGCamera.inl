@@ -25,6 +25,7 @@ namespace Tiny3D
         {
             mProjType = eType;
             mIsFrustumDirty = true;
+            mIsViewDirty = true;
         }
     }
 
