@@ -47,7 +47,7 @@ namespace Tiny3D
     };
 
 
-#define T3D_CONSOLE     Console::getInstance()
+    #define T3D_CONSOLE     Console::getInstance()
 }
 
 

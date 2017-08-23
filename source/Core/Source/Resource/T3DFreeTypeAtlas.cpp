@@ -342,7 +342,7 @@ namespace Tiny3D
         do 
         {
             UTF16String u16text;
-            TextCodec::getInstance().UTF8ToUTF16(text, u16text);
+            T3D_TEXT_CODEC.UTF8ToUTF16(text, u16text);
 
             FT_Face ftFace = font->getFontFace();
 

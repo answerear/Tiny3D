@@ -40,6 +40,9 @@ bool TextureApp::applicationDidFinishLaunching()
     root->addChild(node);
     node->lookAt(Vector3(05.0, 5.0, 5.0), Vector3::ZERO, Vector3::UNIT_Y);
 
+    Real width = mRenderWindow->getWidth();
+    Real height = mRenderWindow->getHeight();
+
     {
         // 相机结点
         SGCameraPtr camera = SGCamera::create();
@@ -47,7 +50,7 @@ bool TextureApp::applicationDidFinishLaunching()
         camera->setProjectionType(SGCamera::E_PT_PERSPECTIVE);
 
         Radian fovY(Math::PI * Real(0.5));
-        Real ratio = Real(960) / Real(640);
+        Real ratio = width / height;
         camera->setPerspective(fovY, ratio, 0.5, 1000.0);
 
         // 视口

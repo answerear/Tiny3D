@@ -103,6 +103,8 @@ namespace Tiny3D
     protected:
         uint16_t    m_ushCodeTable[65536][2];
     };
+
+    #define T3D_TEXT_CODEC      TextCodec::getInstance()
 }
 
 

@@ -21,8 +21,11 @@
 #include "SceneGraph/T3DSGCamera.h"
 #include "SceneGraph//T3DSGTransformNode.h"
 #include "SceneGraph/T3DSGRenderable.h"
+#include "SceneGraph/T3DSGTransform2D.h"
+#include "SceneGraph/T3DSGText2D.h"
 #include "Render/T3DRenderer.h"
 #include "Render/T3DRenderQueue.h"
+#include "Resource/T3DFontManager.h"
 
 
 namespace Tiny3D

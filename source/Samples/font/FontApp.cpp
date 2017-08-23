@@ -41,6 +41,9 @@ bool FontApp::applicationDidFinishLaunching()
     SGAxisPtr axis = SGAxis::create(50, 50, 50);
     root->addChild(axis);
 
+    Real width = mRenderWindow->getWidth();
+    Real height = mRenderWindow->getHeight();
+
     {
         // 相机结点
         SGCameraPtr camera = SGCamera::create();
@@ -48,7 +51,7 @@ bool FontApp::applicationDidFinishLaunching()
         camera->setProjectionType(SGCamera::E_PT_PERSPECTIVE);
 
         Radian fovY(Math::PI * Real(0.5));
-        Real ratio = Real(1334) / Real(750);
+        Real ratio = width / height;
         camera->setPerspective(fovY, ratio, 0.5, 1000.0);
 
         // 视口
@@ -57,7 +60,6 @@ bool FontApp::applicationDidFinishLaunching()
     }
 
     T3D_FONT_MGR.setDefaultFontName("FZLanTingYuanS-DB1-GB.ttf");
-
 
     size_t fontSize = 40;
 
@@ -68,10 +70,10 @@ bool FontApp::applicationDidFinishLaunching()
 //     node1->setPosition(0, y, 0);
     SGTransform2DPtr node1 = SGTransform2D::create();
     root->addChild(node1);
-    node1->setPosition(Vector2(-667, -375));
+    node1->setPosition(Vector2(0, 0));
 //     node1->setScale(0.005, 0.005);
     {
-        SGText2DPtr text = SGText2D::create(u8"你好，Hi ! 这里要写长点写多两个字", fontSize);
+        SGText2DPtr text = SGText2D::create("Hello world !", fontSize);
         node1->addChild(text);
     }
 
