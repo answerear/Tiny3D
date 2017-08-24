@@ -59,7 +59,7 @@ bool FontApp::applicationDidFinishLaunching()
         viewport->setBackgroundColor(Color4::BLACK);
     }
 
-    T3D_FONT_MGR.setDefaultFontName("FZLanTingYuanS-DB1-GB.ttf");
+//     T3D_FONT_MGR.setDefaultFontName("FZLanTingYuanS-DB1-GB.ttf");
 
     size_t fontSize = 40;
 

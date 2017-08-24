@@ -23,6 +23,8 @@
 #include "Misc/T3DConfigFile.h"
 #include "Misc/T3DWindowEventHandler.h"
 #include "Misc/T3DString.h"
+#include "SceneGraph/T3DSGTransform2D.h"
+#include "SceneGraph/T3DSGText2D.h"
 #include "Render/T3DRenderer.h"
 #include "Render/T3DRenderWindow.h"
 #include "Resource/T3DDylibManager.h"
@@ -87,6 +89,10 @@ namespace Tiny3D
 
     Entrance::~Entrance()
     {
+        mFPSText = nullptr;
+        mSPFText = nullptr;
+        mDrawText = nullptr;
+
         mActiveRenderer = nullptr;
         unloadPlugins();
 
@@ -232,7 +238,7 @@ namespace Tiny3D
 
     void Entrance::stopLogging()
     {
-        T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "------------------------------- Tiny3D shutdown --------------------------");
+        T3D_LOG_TRACE(Logger::E_LEVEL_INFO, "---------------------------- Tiny3D shutdown ------------------------");
         T3D_LOG_SHUTDOWN();
     }
 
@@ -261,6 +267,101 @@ namespace Tiny3D
             mArchiveMgr->loadArchive(path, type);
             ++i;
         }
+
+        // 设置默认字体
+        itr = resSettings.find("DefaultFont");
+        if (itr != resSettings.end())
+        {
+            const String &fontName = itr->second.stringValue();
+            T3D_FONT_MGR.setDefaultFontName(fontName);
+        }
+    }
+
+    void Entrance::initStatistics()
+    {
+        SGNodePtr root = mSceneMgr->getRoot();
+
+        RenderTarget *renderTarget = mActiveRenderer->getRenderTarget("MainWindow");
+
+        mFrameRate = Real(0.0);
+        mFrames = 0;
+        mLastTime = DateTime::currentMSecsSinceEpoch();
+        mDeltaTime = 0;
+        mBatchCounter = 0;
+        
+        Real x = 0;
+        Real y = 0;
+        Real width = renderTarget->getWidth();
+        Real height = renderTarget->getHeight();
+        Real halfW = width * Real(0.5);
+        Real halfH = height * Real(0.5);
+        Real rightMargin = 10;
+        Real lineSpace = 10;
+
+        size_t fontSize = 40;
+
+        // 显示FPS
+        SGTransform2DPtr node = SGTransform2D::create();
+        root->addChild(node);
+        mFPSText = SGText2D::create("00.000", fontSize);
+        node->addChild(mFPSText);
+        mFPSText->setAnchorPos(Vector2(1.0, 1.0));
+        Size textSize = mFPSText->getSize();
+        x = halfW - rightMargin;
+        y = -halfH + textSize.height + lineSpace;
+        node->setPosition(x, y);
+
+        // 显示SPF
+        node = SGTransform2D::create();
+        root->addChild(node);
+        mSPFText = SGText2D::create("0.000", fontSize);
+        node->addChild(mSPFText);
+        mSPFText->setAnchorPos(Vector2(1.0, 1.0));
+        textSize = mSPFText->getSize();
+        x = halfW - rightMargin;
+        y = y + textSize.height + lineSpace;
+        node->setPosition(x, y);
+
+        // 显示draw call
+        node = SGTransform2D::create();
+        root->addChild(node);
+        mDrawText = SGText2D::create("000", fontSize);
+        node->addChild(mDrawText);
+        mDrawText->setAnchorPos(Vector2(1.0, 1.0));
+        textSize = mDrawText->getSize();
+        x = halfW - rightMargin;
+        y = y + textSize.height + lineSpace;
+        node->setPosition(x, y);
+    }
+
+    void Entrance::calculatePerformance()
+    {
+        uint64_t current = DateTime::currentMSecsSinceEpoch();
+        mFrames++;
+        uint64_t dt = current - mLastTime;
+        mDeltaTime += dt;
+
+        char szText[32];
+
+        if (mDeltaTime >= 1000)
+        {
+            mFrameRate = Real(mFrames) / (Real(mDeltaTime) / Real(1000.0));
+            snprintf(szText, sizeof(szText), "%.3f", mFrameRate);
+            mFPSText->setText(szText);
+
+            Real spf = Real(1.0) / mFrameRate;
+            snprintf(szText, sizeof(szText), "%.3f", spf);
+            mSPFText->setText(szText);
+
+            mDeltaTime = 0;
+            mFrames = 0;
+        }
+
+        snprintf(szText, sizeof(szText), "%4lu", mBatchCounter);
+        mDrawText->setText(szText);
+
+        mBatchCounter = 0;
+        mLastTime = DateTime::currentMSecsSinceEpoch();
     }
 
     bool Entrance::initialize(bool autoCreateWindow, RenderWindow *&renderWindow)
@@ -288,6 +389,8 @@ namespace Tiny3D
             paramEx["vsync"] = renderSettings["VSync"];
             renderWindow = mActiveRenderer->createRenderWindow(param, paramEx);
         }
+
+        initStatistics();
 
         return (renderWindow != nullptr);
     }
@@ -393,6 +496,8 @@ namespace Tiny3D
         {
             ret = mActiveRenderer->renderOneFrame();
         }
+
+        calculatePerformance();
 
         return ret;
     }

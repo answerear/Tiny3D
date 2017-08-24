@@ -43,8 +43,6 @@ namespace Tiny3D
         void setRenderer(Renderer *renderer)    { mRenderer = renderer; }
 
     protected:
-        void calculate();
-
         SGNodePtr   mRoot;
         SGCameraPtr mCurCamera;
 

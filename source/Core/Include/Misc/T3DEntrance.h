@@ -33,17 +33,8 @@ namespace Tiny3D
     class ImageCodec;
 
     /**
-     * @brief The starting point class of the Tiny3D system.
-     * @remarks
-     *      The Tiny3D::Builder class represents a starting point for
-     *      the application. From here, the application can gain access to
-     *      fundamentals of the system, listing the renderer available,
-     *      management of saved configurations. An instance of Builder must be
-     *      created before any other Tiny3D operations are called.
-     *      Once an instance has been created, the same instance is accessible
-     *      throughout the life of that object by using Builder::getInstance()
-     *      (as a reference) or Builder::getInstancePtr() (as a pointer).
-     *      And then you should call Builder::run() for starting Tiny3D.
+     * @class Entrance
+     * @brief Tiny3D入口类
      */
     class T3D_ENGINE_API Entrance : public Singleton<Entrance>
     {
@@ -157,15 +148,48 @@ namespace Tiny3D
          */
         const String &getPluginsPath() const { return mPluginsPath; }
 
+        void addBatchCounter() { mBatchCounter++; }
+
     protected:
+        /**
+         * @brief 根据配置文件自动加载所有插件
+         */
         void loadPlugins();
+
+        /**
+         * @brief 卸载所有插件
+         */
         void unloadPlugins();
 
+        /**
+         * @brief 启动日志系统，可以开始打印日志
+         */
         void startLogging();
+
+        /**
+         * @brief 关闭日志系统，在之后无法打印日志
+         */
         void stopLogging();
 
+        /**
+         * @brief 创建和初始化所有档案结构对象
+         */
         void initArchives();
+
+        /**
+         * @brief 初始化配置文件里面指定的资源
+         */
         void initResources();
+
+        /**
+         * @brief 初始化统计系统
+         */
+        void initStatistics();
+
+        /**
+         * @brief 计算性能指标数据
+         */
+        void calculatePerformance();
 
     protected:
         typedef std::list<Plugin*>          PluginList;
@@ -205,7 +229,17 @@ namespace Tiny3D
 
         SceneManager    *mSceneMgr;
 
+        SGText2DPtr     mFPSText;           /// 用于显示FPS信息
+        SGText2DPtr     mSPFText;           /// 用于显示SPF信息
+        SGText2DPtr     mDrawText;          /// 用于显示draw call信息
+
         ImageCodec      *mImageCodec;
+
+        Real            mFrameRate;         /// 帧率
+        uint64_t        mFrames;            /// 总帧数
+        uint64_t        mDeltaTime;         /// 帧间隔时间
+        uint64_t        mLastTime;          /// 记录上一帧时刻
+        uint32_t        mBatchCounter;      /// 批次技术
 
         bool            mShutdown;
     };

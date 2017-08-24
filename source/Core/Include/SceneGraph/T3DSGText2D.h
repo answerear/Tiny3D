@@ -111,6 +111,21 @@ namespace Tiny3D
          */
         const Vector2 &getAnchorPos() const;
 
+        /**
+         * @brief 获取文本总宽度
+         */
+        int32_t getWidth() const;
+
+        /**
+         * @brief 获取文本总高度
+         */
+        int32_t getHeight() const;
+
+        /**
+         * @brief 获取文本大小
+         */
+        const Size &getSize() const;
+
     protected:
         /**
          * @brief 默认构造函数
@@ -197,6 +212,9 @@ namespace Tiny3D
         int32_t             mTexHeight;     /// 目前字体使用的纹理高度
     };
 }
+
+
+#include "T3DSGText2D.inl"
 
 
 #endif  /*__T3D_SG_SPRITE_H__*/

@@ -23,6 +23,7 @@
 #include "SceneGraph/T3DSGRenderable.h"
 #include "SceneGraph/T3DSGCamera.h"
 #include "SceneGraph/T3DSGLight.h"
+#include "Misc/T3DEntrance.h"
 
 
 namespace Tiny3D
@@ -121,6 +122,7 @@ namespace Tiny3D
                         renderer->drawVertexList(priType, vertexData, 0, primitiveCount);
                     }
 
+                    T3D_ENTRANCE.addBatchCounter();
                     ++i;
                 }
 

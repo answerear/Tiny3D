@@ -87,11 +87,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (!text.empty())
-            {
-                mText = text;
-                setDirty(true);
-            }
+            setText(text);
 
             ret = true;
         } while (0);
@@ -113,8 +109,18 @@ namespace Tiny3D
     {
         if (text != mText)
         {
-            mText = text;
-            setDirty(true);
+            mCharSet.clear();
+
+            // 先更新字符集内容
+            if (!mFont->updateContent(text, mMaterial, mCharSet, mSize))
+            {
+                T3D_LOG_ERROR("Upadte text content failed !");
+            }
+            else
+            {
+                mText = text;
+                setDirty(true);
+            }
         }
     }
 
@@ -228,15 +234,6 @@ namespace Tiny3D
             ViewportPtr viewport = renderer->getViewport();
             SGCameraPtr camera = viewport->getCamera();
 
-            mCharSet.clear();
-
-            // 先更新字符集内容
-            if (!mFont->updateContent(mText, mMaterial, mCharSet, mSize))
-            {
-                T3D_LOG_ERROR("Upadte text content failed !");
-                break;
-            }
-
             // 构建顶点
             size_t vertexCount = mCharSet.size() * 4;
             std::vector<Vertex> vertices;
@@ -253,10 +250,11 @@ namespace Tiny3D
 
             size_t i = 0;
             size_t c = 0;
-            Real height = Real(mSize.height) / Real(viewport->getActualHeight());// / camera->getAspectRatio();
-            Real left = -mAnchorPos.x() * Real(mSize.width) / Real(viewport->getActualWidth()) * camera->getAspectRatio();
-            Real top =  (Real(1.0) - mAnchorPos.y()) * height;
+            Real width = Real(mSize.width) / Real(viewport->getActualWidth()) * camera->getAspectRatio();
+            Real height = Real(mSize.height) / Real(viewport->getActualHeight());
+            Real left = -mAnchorPos.x() * width;
             Real bottom = -mAnchorPos.y() * height;
+            Real top =  bottom + height;
             Real z(-0.5);
 
             Texture *texture = mMaterial->getTexture(0);

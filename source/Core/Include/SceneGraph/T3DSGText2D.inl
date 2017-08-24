@@ -17,38 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************************************/
 
+
 namespace Tiny3D
 {
-    inline const String &RenderTarget::getName() const
+    inline int32_t SGText2D::getWidth() const
     {
-        return mName;
+        return mSize.width;
     }
 
-    inline void RenderTarget::getMetrics(int32_t &nWidth, int32_t &nHeight, 
-        int32_t &nColorDepth) const
+    inline int32_t SGText2D::getHeight() const
     {
-        nWidth = mWidth;
-        nHeight = mHeight;
-        nColorDepth = mColorDepth;
+        return mSize.height;
     }
 
-    inline int32_t RenderTarget::getWidth() const
+    inline const Size &SGText2D::getSize() const
     {
-        return mWidth;
-    }
-
-    inline int32_t RenderTarget::getHeight() const
-    {
-        return mHeight;
-    }
-
-    inline int32_t RenderTarget::getColorDepth() const
-    {
-        return mColorDepth;
-    }
-
-    inline uint32_t RenderTarget::getNumViewports() const
-    {
-        return (uint32_t)mViewportList.size();
+        return mSize;
     }
 }
