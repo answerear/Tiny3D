@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,29 +15,17 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
-#ifndef __T3D_D3D9_TEXTURE_MANAGER_H__
-#define __T3D_D3D9_TEXTURE_MANAGER_H__
+#ifndef __T3D_GL3P_HARDWARE_VERTEX_BUFFER_H__
+#define __T3D_GL3P_HARDWARE_VERTEX_BUFFER_H__
 
-
-#include "T3DD3D9Prerequisites.h"
 
 
 namespace Tiny3D
 {
-#if 0
-    class T3D_D3D9RENDERER_API D3D9TextureManager : public TextureManager
-    {
-    public:
-        D3D9TextureManager();
-        virtual ~D3D9TextureManager();
-
-    protected:
-        virtual TexturePtr createTexture(const String &name, int32_t width, int32_t height, int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType);
-    };
-#endif
+    
 }
 
 
-#endif  /*__T3D_D3D9_TEXTURE_MANAGER_H__*/
+#endif  /*__T3D_GL3P_HARDWARE_VERTEX_BUFFER_H__*/

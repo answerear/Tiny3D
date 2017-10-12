@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,7 +15,19 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
+
+#ifndef __T3D_GL3P_HARDWARE_INDEX_BUFFER_H__
+#define __T3D_GL3P_HARDWARE_INDEX_BUFFER_H__
 
 
-#include "T3DGL3PRenderer.h"
+#include "Render/T3DRenderer.h"
+#include "Render/T3DHardwareBufferManager.h"
+
+namespace Tiny3D
+{
+    
+}
+
+
+#endif  /*__T3D_GL3P_HARDWARE_INDEX_BUFFER_H__*/

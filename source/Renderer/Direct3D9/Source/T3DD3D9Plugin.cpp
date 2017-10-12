@@ -20,7 +20,6 @@
 #include "T3DD3D9Plugin.h"
 #include "Misc/T3DEntrance.h"
 #include "T3DD3d9Renderer.h"
-#include "T3DD3D9TextureManager.h"
 
 
 namespace Tiny3D

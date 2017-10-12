@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,28 +15,17 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
-#include "T3DD3D9TextureManager.h"
-#include "T3DD3D9Texture.h"
+#ifndef __T3D_GL3P_HARDWARE_PIXEL_BUFFER_H__
+#define __T3D_GL3P_HARDWARE_PIXEL_BUFFER_H__
+
 
 
 namespace Tiny3D
 {
-#if 0
-    D3D9TextureManager::D3D9TextureManager()
-    {
-
-    }
-
-    D3D9TextureManager::~D3D9TextureManager()
-    {
-
-    }
-
-    TexturePtr D3D9TextureManager::createTexture(const String &name, int32_t width, int32_t height, int32_t numMipMaps, PixelFormat format, Texture::TexUsage texUsage, Texture::TexType texType)
-    {
-        return D3D9Texture::create(name, width, height, numMipMaps, format, texUsage, texType);
-    }
-#endif
+    
 }
+
+
+#endif  /*__T3D_GL3P_HARDWARE_PIXEL_BUFFER_H__*/
