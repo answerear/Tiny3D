@@ -17,27 +17,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_D3D9_WINDOW_EVENT_HANDLER__
+#define __T3D_D3D9_WINDOW_EVENT_HANDLER__
+
+
 #include "T3DD3D9Prerequisites.h"
-#include "T3DD3D9Plugin.h"
-#include "Misc/T3DEntrance.h"
 
 
 namespace Tiny3D
 {
-    D3D9Plugin *gPlugin = nullptr;
-
-    extern "C"
+    class D3D9WindowEventHandler : public WindowEventHandler
     {
-        void T3D_D3D9RENDERER_API dllStartPlugin()
-        {
-            gPlugin = new D3D9Plugin();
-            Entrance::getInstance().installPlugin(gPlugin);
-        }
+    public:
+        D3D9WindowEventHandler();
+        virtual ~D3D9WindowEventHandler();
 
-        void T3D_D3D9RENDERER_API dllStopPlugin()
-        {
-            Entrance::getInstance().uninstallPlugin(gPlugin);
-            delete gPlugin;
-        }
-    }
+        virtual void pollEvents() override;
+
+        static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+    protected:
+        LRESULT WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    };
 }
+
+
+#endif  /*__T3D_D3D9_WINDOW_EVENT_HANDLER__*/

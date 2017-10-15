@@ -37,13 +37,13 @@ namespace Tiny3D
         virtual bool create(
             const String &name,
             const RenderWindowCreateParam &rkParam,
-            const RenderWindowCreateParamEx &rkParamEx);
+            const RenderWindowCreateParamEx &rkParamEx) override;
 
-        virtual void destroy();
+        virtual void destroy() override;
 
-        virtual void swapBuffers();
+        virtual void swapBuffers() override;
 
-        virtual bool isFullScreen() const;
+        virtual bool isFullScreen() const override;
 
         LPDIRECT3DDEVICE9 getD3DDevice()    { return mD3DDevice; }
 

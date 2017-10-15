@@ -248,7 +248,6 @@ namespace Tiny3D
                     Texture *tex = material->getTexture(i);
                     if (tex != nullptr)
                     {
-                        D3D9Texture *texture = (D3D9Texture *)tex;
                         HardwarePixelBufferPtr pixelBuffer = tex->getPixelBuffer();
                         D3D9HardwarePixelBuffer *pb = (D3D9HardwarePixelBuffer *)(HardwarePixelBuffer *)pixelBuffer;
                         mD3DDevice->SetTexture(0, pb->getD3DTexture());

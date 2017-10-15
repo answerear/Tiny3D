@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 #include "T3DD3D9Plugin.h"
-#include "Misc/T3DEntrance.h"
-#include "T3DD3d9Renderer.h"
+#include "T3DD3D9Renderer.h"
+#include "T3DD3D9WindowEventHandler.h"
 
 
 namespace Tiny3D
@@ -27,7 +27,6 @@ namespace Tiny3D
     D3D9Plugin::D3D9Plugin()
         : mName("Direct3D9 Renderer Plugin")
         , mRenderer(nullptr)
-        , mTextureMgr(nullptr)
     {
 
     }
@@ -56,10 +55,10 @@ namespace Tiny3D
             &staticVar, &hInstance);
 
         mRenderer = new D3D9Renderer(hInstance);
-
         Entrance::getInstance().addRenderer(mRenderer);
 
-//         mTextureMgr = new D3D9TextureManager();
+        mWinEventHandler = new D3D9WindowEventHandler();
+        Entrance::getInstance().setWindowEventHandler(mWinEventHandler);
 
         return true;
     }
@@ -77,7 +76,9 @@ namespace Tiny3D
     void D3D9Plugin::uninstall()
     {
         Entrance::getInstance().removeRenderer(mRenderer);
-
         T3D_SAFE_RELEASE(mRenderer);
+
+        Entrance::getInstance().setWindowEventHandler(nullptr);
+        T3D_SAFE_DELETE(mWinEventHandler);
     }
 }

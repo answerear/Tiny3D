@@ -51,7 +51,6 @@ namespace Tiny3D
         : mSystem(new System())
         , mLogger(new Logger())
         , mMemoryTracer(new MemoryTracer(isMemoryTracing))
-        , mWindowEventHandler(new WindowEventHandler())
         , mDylibMgr(new DylibManager())
         , mArchiveMgr(new ArchiveManager())
         , mMaterialMgr(new MaterialManager())
@@ -59,6 +58,7 @@ namespace Tiny3D
         , mTextureMgr(new TextureManager())
         , mFontMgr(new FontManager())
         , mActiveRenderer(nullptr)
+        , mWindowEventHandler(nullptr)
         , mAppListener(nullptr)
         , mSceneMgr(nullptr)
         , mImageCodec(new ImageCodec())
@@ -364,7 +364,7 @@ namespace Tiny3D
         mLastTime = DateTime::currentMSecsSinceEpoch();
     }
 
-    bool Entrance::initialize(bool autoCreateWindow, RenderWindow *&renderWindow)
+    bool Entrance::initialize(bool autoCreateWindow, RenderWindow *&renderWindow, bool showStat /* = false */)
     {
         if (mActiveRenderer == nullptr)
             return false;
@@ -390,7 +390,10 @@ namespace Tiny3D
             renderWindow = mActiveRenderer->createRenderWindow(param, paramEx);
         }
 
-        initStatistics();
+        if (showStat)
+        {
+            initStatistics();
+        }
 
         return (renderWindow != nullptr);
     }
@@ -469,6 +472,16 @@ namespace Tiny3D
         return window;
     }
 
+    void Entrance::setWindowEventHandler(WindowEventHandler *handler)
+    {
+        mWindowEventHandler = handler;
+    }
+
+    WindowEventHandler *Entrance::getWindowEventHandler()
+    {
+        return mWindowEventHandler;
+    }
+
     bool Entrance::run()
     {
         if (mAppListener != nullptr)
@@ -480,8 +493,9 @@ namespace Tiny3D
 
         while (!mShutdown)
         {
-            WindowEventHandler::getInstance().handleWindowMessage();
-            if (!renderOneFrame())
+            mWindowEventHandler->pollEvents();
+
+            if (!mShutdown && !renderOneFrame())
                 break;
         }
 
@@ -497,7 +511,7 @@ namespace Tiny3D
             ret = mActiveRenderer->renderOneFrame();
         }
 
-        calculatePerformance();
+//         calculatePerformance();
 
         return ret;
     }

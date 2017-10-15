@@ -18,8 +18,105 @@
  **************************************************************************************************/
 
 #include "T3DGL3PRenderWindow.h"
+#include "T3DGL3PWindowEventHandler.h"
 
 namespace Tiny3D
 {
+    GL3PRenderWindow::GL3PRenderWindow()
+        : mWindow(nullptr)
+        , mIsFullScreen(false)
+    {
+    }
 
+    GL3PRenderWindow::~GL3PRenderWindow()
+    {
+        destroy();
+    }
+
+    bool GL3PRenderWindow::create(const String &name, const RenderWindowCreateParam &rkCreateParams, const RenderWindowCreateParamEx &rkCreateParamEx)
+    {
+        bool ret = false;
+
+        do 
+        {
+            GLFWmonitor *primary = glfwGetPrimaryMonitor();
+            if (primary == nullptr)
+            {
+                T3D_LOG_ERROR("Retrieve primary monitor failed !");
+                break;
+            }
+
+            const GLFWvidmode *videoMode = glfwGetVideoMode(primary);
+            if (videoMode == nullptr)
+            {
+                T3D_LOG_ERROR("Retrieve video mode failed !");
+                break;
+            }
+
+            glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+            if (rkCreateParams._fullscreen)
+            {
+                mWindow = glfwCreateWindow(videoMode->width, videoMode->height,
+                    rkCreateParams._windowTitle.c_str(), primary, nullptr);
+            }
+            else
+            {
+                mWindow = glfwCreateWindow(rkCreateParams._windowWidth, rkCreateParams._windowHeight,
+                    rkCreateParams._windowTitle.c_str(), nullptr, nullptr);
+            }
+
+            if (mWindow == nullptr)
+            {
+                T3D_LOG_ERROR("Create window failed !");
+                break;
+            }
+
+            mIsActive = true;
+            mIsFullScreen = rkCreateParams._fullscreen;
+            mWidth = rkCreateParams._windowWidth;
+            mHeight = rkCreateParams._windowHeight;
+            mColorDepth = videoMode->redBits + videoMode->greenBits + videoMode->blueBits;
+            mName = name;
+
+            GL3PWindowEventHandler *handler = (GL3PWindowEventHandler *)Entrance::getInstance().getWindowEventHandler();
+            handler->setGLFWwindow(mWindow);
+
+            glfwSetWindowUserPointer(mWindow, this);
+
+            glfwMakeContextCurrent(mWindow);
+
+            int32_t w, h;
+            glfwGetFramebufferSize(mWindow, &w, &h);
+
+            ret = true;
+        } while (0);
+
+
+        return ret;
+    }
+
+    void GL3PRenderWindow::destroy()
+    {
+        if (mWindow != nullptr)
+        {
+            glfwDestroyWindow(mWindow);
+            mWindow = nullptr;
+        }
+
+        Entrance::getInstance().shutdown();
+    }
+
+    void GL3PRenderWindow::swapBuffers()
+    {
+        if (mWindow != nullptr)
+        {
+            glfwSwapBuffers(mWindow);
+        }
+    }
+
+    bool GL3PRenderWindow::isFullScreen() const
+    {
+        return mIsFullScreen;
+    }
 }

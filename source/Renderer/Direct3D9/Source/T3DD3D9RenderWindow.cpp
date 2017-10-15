@@ -18,10 +18,8 @@
  **************************************************************************************************/
 
 #include "T3DD3D9RenderWindow.h"
-#include "Misc/T3DEntrance.h"
-#include "Render/T3DRenderer.h"
 #include "T3DD3D9Renderer.h"
-#include "Misc/T3DWindowEventHandler.h"
+#include "T3DD3D9WindowEventHandler.h"
 
 
 namespace Tiny3D
@@ -82,8 +80,8 @@ namespace Tiny3D
         {
             WNDCLASSEX wc;
             wc.cbSize = sizeof(WNDCLASSEX);
-            wc.style = CS_HREDRAW | CS_VREDRAW;
-            wc.lpfnWndProc = WindowEventHandler::WndProc;
+            wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+            wc.lpfnWndProc = D3D9WindowEventHandler::WndProc;
             wc.cbClsExtra = 0;
             wc.cbWndExtra = 0;
             wc.hInstance = (HINSTANCE)instance;
@@ -96,7 +94,7 @@ namespace Tiny3D
 
             ::RegisterClassEx(&wc);
 
-            DWORD dwStyleEx = 0;
+            DWORD dwStyleEx = WS_EX_APPWINDOW;
             if (rkParam._fullscreen)
                 dwStyleEx |= WS_EX_TOPMOST;
 
@@ -124,7 +122,7 @@ namespace Tiny3D
             mName = name;
             mIsFullScreen = rkParam._fullscreen;
 
-            WindowEventHandler::getInstance().addRenderWindow(this);
+            Entrance::getInstance().getWindowEventHandler()->addRenderWindow(this);
 
             mIsExternal = false;
         }
@@ -310,7 +308,7 @@ namespace Tiny3D
 
         if (!mIsExternal)
         {
-            WindowEventHandler::getInstance().removeRenderWindow(this);
+            Entrance::getInstance().getWindowEventHandler()->removeRenderWindow(this);
 
             Entrance::getInstance().shutdown();
 

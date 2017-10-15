@@ -21,9 +21,27 @@
 #define __T3D_GL3P_PREREQUISITES_H__
 
 
+#include <T3DPlatform.h>
+#include <T3DLog.h>
+#include <Tiny3D.h>
+#include <glfw3.h>
+
+
+#if defined T3DGL3PRENDERER_EXPORT
+#define T3D_GL3PRENDERER_API        T3D_EXPORT_API
+#else
+#define T3D_GL3PRENDERER_API        T3D_IMPORT_API
+#endif
+
+
 namespace Tiny3D
 {
-    
+    class GL3PRenderer;
+    class GL3PRenderWindow;
+    class GL3PHardwareVertexBuffer;
+    class GL3PHardwareIndexBuffer;
+    class GL3PHardwarePixelBuffer;
+    class GL3PHardwareBufferManager;
 }
 
 

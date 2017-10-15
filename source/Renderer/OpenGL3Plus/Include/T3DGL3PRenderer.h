@@ -26,7 +26,65 @@
 
 namespace Tiny3D
 {
-    
+    class GL3PRenderer
+        : public Renderer
+        , public Singleton<GL3PRenderer>
+    {
+    public:
+        GL3PRenderer();
+        virtual ~GL3PRenderer();
+
+        virtual String getName() const override;
+
+        virtual RenderWindow *createRenderWindow(
+            const RenderWindowCreateParam &rkCreateParam,
+            const RenderWindowCreateParamEx &rkCreateParamEx) override;
+
+        virtual bool initialize() override;
+        virtual void uninitialize() override;
+
+        virtual bool beginRender(const Color4 &bkgndColor) override;
+        virtual bool endRender() override;
+
+        virtual bool queryCapability(Capability cap) override;
+        virtual void enableCapability(Capability cap, bool enabled = true) override;
+
+        virtual void setTransform(TransformState state, const Matrix4 &mat) override;
+
+        virtual const Matrix4 &getTransform(TransformState state) const override;
+
+        virtual void setLightEnabled(bool enable) override;
+        virtual void setAmbientLight(const Color4 &ambient) override;
+        virtual void addDynamicLight(size_t index, const SGLightPtr light) override;
+        virtual void removeDynamicLight(size_t index) override;
+        virtual void removeAllDynamicLights() override;
+
+        virtual void setMaterial(const MaterialPtr &material) override;
+
+        virtual void setCullingMode(CullingMode mode) override;
+        virtual void setRenderMode(RenderMode mode) override;
+
+        virtual void setViewport(const ViewportPtr &viewport) override;
+
+        virtual void drawVertexList(PrimitiveType primitiveType,
+            const VertexDataPtr &vertexData, uint32_t startIdx,
+            uint32_t primitiveCount) override;
+
+        virtual void drawIndexList(PrimitiveType primitiveType,
+            const VertexDataPtr &vertexData, const IndexDataPtr &indexData,
+            uint32_t startIdx, uint32_t pritimitiveCount) override;
+
+    protected:
+        virtual void makeProjectionMatrix(const Radian &rkFovY, Real aspect,
+            Real nearDist, Real farDist, bool ortho, Matrix4 &mat) override;
+
+        virtual void makeViewportMatrix(ViewportPtr viewport, Matrix4 &mat) override;
+
+        virtual void updateFrustum(const Matrix4 &m, Plane *plane, size_t planeCount) override;
+
+
+    protected:
+    };
 }
 
 

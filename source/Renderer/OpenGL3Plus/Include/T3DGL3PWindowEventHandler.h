@@ -17,27 +17,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DD3D9Prerequisites.h"
-#include "T3DD3D9Plugin.h"
-#include "Misc/T3DEntrance.h"
+#ifndef __T3D_GL3P_WINDOW_EVENT_HANDLER__
+#define __T3D_GL3P_WINDOW_EVENT_HANDLER__
+
+
+#include "T3DGL3PPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    D3D9Plugin *gPlugin = nullptr;
-
-    extern "C"
+    class GL3PWindowEventHandler : public WindowEventHandler
     {
-        void T3D_D3D9RENDERER_API dllStartPlugin()
-        {
-            gPlugin = new D3D9Plugin();
-            Entrance::getInstance().installPlugin(gPlugin);
-        }
+    public:
+        GL3PWindowEventHandler();
+        virtual ~GL3PWindowEventHandler();
 
-        void T3D_D3D9RENDERER_API dllStopPlugin()
-        {
-            Entrance::getInstance().uninstallPlugin(gPlugin);
-            delete gPlugin;
-        }
-    }
+        virtual void pollEvents() override;
+
+        void setGLFWwindow(GLFWwindow *window);
+
+    protected:
+        static void windowClosedCallback(GLFWwindow *window);
+        void handleWindowClosed(GLFWwindow *window);
+
+        static void windowSizeChangedCallback(GLFWwindow *window, int32_t width, int32_t height);
+        void handleWindowSizeChanged(GLFWwindow *window, int32_t width, int32_t height);
+
+    protected:
+        static GL3PWindowEventHandler   *mWinEventHandler;
+
+        GLFWwindow  *mWindow;
+    };
 }
+
+
+#endif  /*__T3D_GL3P_WINDOW_EVENT_HANDLER__*/

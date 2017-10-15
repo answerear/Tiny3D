@@ -33,18 +33,17 @@ namespace Tiny3D
         D3D9Plugin();
         virtual ~D3D9Plugin();
 
-        virtual const String &getName() const;
+        virtual const String &getName() const override;
 
-        virtual bool install();
-        virtual bool startup();
-        virtual void shutdown();
-        virtual void uninstall();
+        virtual bool install() override;
+        virtual bool startup() override;
+        virtual void shutdown() override;
+        virtual void uninstall() override;
 
     protected:
-        String      mName;
-
-        Renderer        *mRenderer;
-        TextureManager  *mTextureMgr;
+        String              mName;
+        Renderer            *mRenderer;
+        WindowEventHandler  *mWinEventHandler;
     };
 }
 

@@ -13,6 +13,11 @@ if (MSVC)
 	endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
+set(GLFW3_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies/glfw" CACHE PATH "GLFW3 library path")
+
+FIND_PACKAGE(OpenGL)
+find_package(GLFW3)
+
 # Setup project include files path
 include_directories(
 	"${TINY3D_CORE_SOURCE_DIR}/Include"
@@ -20,6 +25,7 @@ include_directories(
 	"${TINY3D_PLATFORM_SOURCE_DIR}/Include"
 	"${TINY3D_LOG_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
+	"${GLFW3_INCLUDE_DIR}"
 	)
 
 
@@ -44,9 +50,24 @@ target_link_libraries(
 	T3DLog
 	T3DPlatform
 	T3DCore
+	${GLFW3_LIBRARY}
 	)
 
 install(TARGETS ${LIB_NAME}
 	RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug
 	LIBRARY DESTINATION bin/Debug CONFIGURATIONS Debug
 	)
+
+if (GLFW3_FOUND)
+	install(FILES 
+		${GLFW3_BINARY} DESTINATION bin/Debug 
+		CONFIGURATIONS Debug
+		PATTERN "lib" EXCLUDE
+		)
+
+	install(FILES 
+		${GLFW3_BINARY} DESTINATION bin/Release 
+		CONFIGURATIONS Release
+		PATTERN "lib" EXCLUDE
+		)
+endif (GLFW3_FOUND)

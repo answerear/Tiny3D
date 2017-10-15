@@ -25,38 +25,20 @@
 #include "T3DTypedef.h"
 
 
-#if defined (T3D_OS_WINDOWS)
-#include <windows.h>
-#endif
-
-
 namespace Tiny3D
 {
-    class T3D_ENGINE_API WindowEventHandler 
-        : public Singleton<WindowEventHandler>
+    class T3D_ENGINE_API WindowEventHandler
     {
-        friend class Entrance;
-
     public:
         virtual ~WindowEventHandler();
 
-        void handleWindowMessage();
+        virtual void pollEvents() = 0;
 
         void addWindowEventListener(RenderWindowPtr window, WindowEventListener *listener);
         void removeWindowEventListener(RenderWindowPtr window, WindowEventListener *listener);
 
         void addRenderWindow(RenderWindowPtr window);
         void removeRenderWindow(RenderWindowPtr window);
-
-#if defined (T3D_OS_WINDOWS)
-        static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    protected:
-        LRESULT WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-#elif defined (T3D_OS_ANDROID)
-#elif defined (T3D_OS_IOS)
-#elif defined (T3D_OS_OSX)
-#elif defined (T3D_OS_LINUX)
-#endif
 
     protected:
         WindowEventHandler();

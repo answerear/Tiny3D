@@ -21,10 +21,29 @@
 #define __T3D_GL3P_PLUGIN_H__
 
 
+#include "T3DGL3PPrerequisites.h"
+
 
 namespace Tiny3D
 {
-    
+    class GL3PPlugin : public Plugin
+    {
+    public:
+        GL3PPlugin();
+        virtual ~GL3PPlugin();
+
+        virtual const String &getName() const override;
+
+        virtual bool install() override;
+        virtual bool startup() override;
+        virtual void shutdown() override;
+        virtual void uninstall() override;
+
+    protected:
+        String              mName;
+        Renderer            *mRenderer;
+        WindowEventHandler  *mWinEventHandler;
+    };
 }
 
 

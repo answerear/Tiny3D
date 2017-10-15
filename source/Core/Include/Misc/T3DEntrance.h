@@ -61,7 +61,7 @@ namespace Tiny3D
         bool loadPlugin(const String &name);
         void unloadPlugin(const String &name);
 
-        bool initialize(bool autoCreateWindow, RenderWindow *&renderWindow);
+        bool initialize(bool autoCreateWindow, RenderWindow *&renderWindow, bool showStat = false);
 
         /**
          * @brief Enumerate all available renderer in list.
@@ -106,6 +106,16 @@ namespace Tiny3D
         RenderWindow *createRenderWindow(
             const RenderWindowCreateParam &rkCreatedParam,
             const RenderWindowCreateParamEx &rkCreatedParamEx);
+
+        /**
+         * @brief 设置窗口事件处理对象
+         */
+        void setWindowEventHandler(WindowEventHandler *handler);
+
+        /**
+         * @brief 获取窗口事件处理对象
+         */
+        WindowEventHandler *getWindowEventHandler();
 
         /**
          * @brief Run Tiny3D
@@ -203,7 +213,6 @@ namespace Tiny3D
         System                  *mSystem;
         Logger                  *mLogger;
         MemoryTracer            *mMemoryTracer;
-        WindowEventHandler      *mWindowEventHandler;
 
         DylibManager            *mDylibMgr;
         ArchiveManager          *mArchiveMgr;
@@ -212,7 +221,8 @@ namespace Tiny3D
         TextureManager          *mTextureMgr;
         FontManager             *mFontMgr;
 
-        Renderer        *mActiveRenderer;
+        Renderer                *mActiveRenderer;
+        WindowEventHandler      *mWindowEventHandler;
 
         PluginList      mPluginList;
         RendererList    mRendererList;

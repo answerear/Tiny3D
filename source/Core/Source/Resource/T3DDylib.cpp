@@ -71,19 +71,32 @@ namespace Tiny3D
 
     bool Dylib::load()
     {
+        bool ret = false;
+
+        do 
+        {
 #if defined (T3D_OS_WINDOWS)
-        String name = mName + ".dll";
+            String name = mName + ".dll";
 #elif defined (T3D_OS_LINUX) || defined (T3D_OS_ANDROID)
-        String name = mName + ".so";
+            String name = mName + ".so";
 #elif defined (T3D_OS_MACOSX)
-        String name = mName + ".dylib";
+            String name = mName + ".dylib";
 #endif
 
-        String pluginsPath = Entrance::getInstance().getPluginsPath();
-        String path = Entrance::getInstance().getAppPath() + pluginsPath + name;
-        mHandle = DYLIB_LOAD(path.c_str());
-        mIsLoaded = true;
-        return true;
+            String pluginsPath = Entrance::getInstance().getPluginsPath();
+            String path = Entrance::getInstance().getAppPath() + pluginsPath + name;
+            mHandle = DYLIB_LOAD(path.c_str());
+
+            if (mHandle == nullptr)
+            {
+                T3D_LOG_ERROR("Load plugin failed !");
+                break;
+            }
+
+            ret = mIsLoaded = true;
+        } while (0);
+
+        return ret;
     }
 
     void Dylib::unload()

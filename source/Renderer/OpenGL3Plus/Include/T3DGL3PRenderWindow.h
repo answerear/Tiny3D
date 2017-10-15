@@ -21,9 +21,32 @@
 #define __T3D_GL3P_RENDER_WINDOW_H__
 
 
+#include "T3DGL3PPrerequisites.h"
+
+
 namespace Tiny3D
 {
-    
+    class GL3PRenderWindow : public RenderWindow
+    {
+    public:
+        GL3PRenderWindow();
+        virtual ~GL3PRenderWindow();
+
+        virtual bool create(
+            const String &name,
+            const RenderWindowCreateParam &rkCreateParams,
+            const RenderWindowCreateParamEx &rkCreateParamEx) override;
+
+        virtual void destroy() override;
+
+        virtual void swapBuffers() override;
+
+        virtual bool isFullScreen() const override;
+
+    protected:
+        GLFWwindow  *mWindow;
+        bool        mIsFullScreen;
+    };
 }
 
 

@@ -30,7 +30,7 @@ int32_t CubeApp::go(const String &appPath)
 {
 //     int32_t ret = SampleApp::go();
 
-    Entrance *entrance = new Entrance(appPath);
+    Entrance *entrance = new Entrance(appPath, false, "../media/config/Tiny3D.cfg");
     entrance->setApplicationListener(this);
     
     RenderWindow *renderWindow = nullptr;
@@ -66,7 +66,7 @@ int32_t CubeApp::go(const String &appPath)
     paramEx["externalHandle"] = (long_t)(wmInfo.info.win.window);
     renderWindow = entrance->createRenderWindow(param, paramEx);
     mRenderWindow = renderWindow;
-    WindowEventHandler::getInstance().addWindowEventListener(renderWindow, this);
+    Entrance::getInstance().getWindowEventHandler()->addWindowEventListener(renderWindow, this);
 //     Entrance::getInstance().run();
     run();
 

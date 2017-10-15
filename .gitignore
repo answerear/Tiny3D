@@ -2,3 +2,4 @@ build_vs2012/
 bin/
 /include/
 lib/
+/source/build_vs2015

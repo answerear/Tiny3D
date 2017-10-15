@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,26 +15,25 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ **************************************************************************************************/
 
-#include "T3DD3D9Prerequisites.h"
-#include "T3DD3D9Plugin.h"
-#include "Misc/T3DEntrance.h"
+#include "T3DGL3PPrerequisites.h"
+#include "T3DGL3PPlugin.h"
 
 
 namespace Tiny3D
 {
-    D3D9Plugin *gPlugin = nullptr;
+    GL3PPlugin *gPlugin = nullptr;
 
     extern "C"
     {
-        void T3D_D3D9RENDERER_API dllStartPlugin()
+        void T3D_GL3PRENDERER_API dllStartPlugin()
         {
-            gPlugin = new D3D9Plugin();
+            gPlugin = new GL3PPlugin();
             Entrance::getInstance().installPlugin(gPlugin);
         }
 
-        void T3D_D3D9RENDERER_API dllStopPlugin()
+        void T3D_GL3PRENDERER_API dllStopPlugin()
         {
             Entrance::getInstance().uninstallPlugin(gPlugin);
             delete gPlugin;
