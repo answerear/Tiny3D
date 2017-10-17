@@ -55,15 +55,17 @@ namespace Tiny3D
 
             glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
+            String title = rkCreateParams._windowTitle + " - OpenGL 3.3";
+
             if (rkCreateParams._fullscreen)
             {
                 mWindow = glfwCreateWindow(videoMode->width, videoMode->height,
-                    rkCreateParams._windowTitle.c_str(), primary, nullptr);
+                    title.c_str(), primary, nullptr);
             }
             else
             {
                 mWindow = glfwCreateWindow(rkCreateParams._windowWidth, rkCreateParams._windowHeight,
-                    rkCreateParams._windowTitle.c_str(), nullptr, nullptr);
+                    title.c_str(), nullptr, nullptr);
             }
 
             if (mWindow == nullptr)
@@ -86,8 +88,12 @@ namespace Tiny3D
 
             glfwMakeContextCurrent(mWindow);
 
-            int32_t w, h;
-            glfwGetFramebufferSize(mWindow, &w, &h);
+            glewExperimental = GL_TRUE;
+            if (glewInit() != GLEW_OK)
+            {
+                T3D_LOG_ERROR("Init GLEW failed !");
+                break;
+            }
 
             ret = true;
         } while (0);

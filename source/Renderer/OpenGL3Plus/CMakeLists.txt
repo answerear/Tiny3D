@@ -14,9 +14,11 @@ if (MSVC)
 endif (MSVC)
 
 set(GLFW3_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies/glfw" CACHE PATH "GLFW3 library path")
+set(GLEW_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies/glew" CACHE PATH "GLEW library path")
 
-FIND_PACKAGE(OpenGL)
+find_package(OpenGL)
 find_package(GLFW3)
+find_package(GLEW)
 
 # Setup project include files path
 include_directories(
@@ -26,6 +28,7 @@ include_directories(
 	"${TINY3D_LOG_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${GLFW3_INCLUDE_DIR}"
+    "${GLEW_INCLUDE_DIR}"
 	)
 
 
@@ -51,6 +54,7 @@ target_link_libraries(
 	T3DPlatform
 	T3DCore
 	${GLFW3_LIBRARY}
+    ${GLEW_LIBRARY}
 	)
 
 install(TARGETS ${LIB_NAME}

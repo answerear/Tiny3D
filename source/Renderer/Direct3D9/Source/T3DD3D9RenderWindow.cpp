@@ -117,8 +117,9 @@ namespace Tiny3D
 
             ::AdjustWindowRectEx(&rect, dwStyle, FALSE, dwStyleEx);
 
+            String title = rkParam._windowTitle + " - DX9";
             mHWnd = ::CreateWindowEx(dwStyleEx, TEXT(name.c_str()),
-                                     rkParam._windowTitle.c_str(), dwStyle,
+                                     title.c_str(), dwStyle,
                                      rect.left, rect.top, 
                                      rect.right - rect.left, rect.bottom - rect.top, 
                                      parentHWnd, NULL, instance, this);

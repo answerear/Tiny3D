@@ -24,6 +24,8 @@
 #include <T3DPlatform.h>
 #include <T3DLog.h>
 #include <Tiny3D.h>
+#define GLEW_STATIC
+#include <glew.h>
 #include <glfw3.h>
 
 
