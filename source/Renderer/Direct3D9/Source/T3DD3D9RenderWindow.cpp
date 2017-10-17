@@ -109,13 +109,22 @@ namespace Tiny3D
                            WS_SYSMENU | WS_MINIMIZEBOX;
             }
 
+            RECT rect = 
+            {
+                rkParam._windowLeft, rkParam._windowTop, 
+                rkParam._windowLeft + rkParam._windowWidth, rkParam._windowTop + rkParam._windowHeight
+            };
+
+            ::AdjustWindowRectEx(&rect, dwStyle, FALSE, dwStyleEx);
+
             mHWnd = ::CreateWindowEx(dwStyleEx, TEXT(name.c_str()),
                                      rkParam._windowTitle.c_str(), dwStyle,
-                                     rkParam._windowLeft, rkParam._windowTop, rkParam._windowWidth,
-                                     rkParam._windowHeight, parentHWnd, NULL, instance, this);
+                                     rect.left, rect.top, 
+                                     rect.right - rect.left, rect.bottom - rect.top, 
+                                     parentHWnd, NULL, instance, this);
 
             ::ShowWindow(mHWnd, SW_SHOWNORMAL);
-            ::UpdateWindow(mHWnd);
+            ::UpdateWindow(mHWnd);            
 
             mWidth = rkParam._windowWidth;
             mHeight = rkParam._windowHeight;
