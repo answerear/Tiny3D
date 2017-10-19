@@ -21,5 +21,48 @@
 
 namespace Tiny3D
 {
+    GL3PHardwareVertexBuffer::GL3PHardwareVertexBuffer(size_t vertexSize, size_t vertexCount, Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        : HardwareVertexBuffer(vertexSize, vertexCount, usage, useSystemMemory, useShadowBuffer)
+    {
+    }
 
+    GL3PHardwareVertexBuffer::~GL3PHardwareVertexBuffer()
+    {
+    }
+
+    void *GL3PHardwareVertexBuffer::lockImpl(size_t offset, size_t size, LockOptions options)
+    {
+        char *pLockedData = nullptr;
+        return pLockedData;
+    }
+
+    void GL3PHardwareVertexBuffer::unlockImpl()
+    {
+    }
+
+    bool GL3PHardwareVertexBuffer::readData(size_t offset, size_t size, void *dst)
+    {
+        bool ret = false;
+        void *src = lock(offset, size, HardwareBuffer::E_HBL_READ_ONLY);
+        if (src != nullptr)
+        {
+            memcpy(dst, src, size);
+            ret = true;
+        }
+        unlock();
+        return ret;
+    }
+
+    bool GL3PHardwareVertexBuffer::writeData(size_t offset, size_t size, const void *src, bool discardWholeBuffer /* = false */)
+    {
+        bool ret = false;
+        void *dst = lock(offset, size, discardWholeBuffer ? HardwareBuffer::E_HBL_DISCARD : HardwareBuffer::E_HBL_NORMAL);
+        if (dst != nullptr)
+        {
+            memcpy(dst, src, size);
+            ret = true;
+        }
+        unlock();
+        return ret;
+    }
 }

@@ -21,11 +21,22 @@
 #define __T3D_GL3P_HARDWARE_BUFFER_MANAGER_H__
 
 
-#include "Render/T3DHardwareBufferManager.h"
+#include "T3DGL3PPrerequisites.h"
 
 namespace Tiny3D
 {
-    
+    class GL3PHardwareBufferManager : public HardwareBufferManagerBase
+    {
+    public:
+        GL3PHardwareBufferManager();
+        virtual ~GL3PHardwareBufferManager();
+
+        virtual HardwareVertexBufferPtr createVertexBuffer(size_t vertexSize, size_t vertexCount, HardwareBuffer::Usage usage, bool useShadowBuffer) override;
+        virtual HardwareIndexBufferPtr createIndexBuffer(HardwareIndexBuffer::Type indexType, size_t indexCount, HardwareBuffer::Usage usage, bool useShadowBuffer) override;
+        virtual HardwarePixelBufferPtr createPixelBuffer(uint32_t width, uint32_t height, PixelFormat format, HardwareBuffer::Usage usage, bool useShadowBuffer) override;
+
+        virtual VertexDeclarationPtr createVertexDeclaration() override;
+    };
 }
 
 

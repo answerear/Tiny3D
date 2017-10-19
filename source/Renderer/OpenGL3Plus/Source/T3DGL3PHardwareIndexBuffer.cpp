@@ -21,5 +21,49 @@
 
 namespace Tiny3D
 {
+    GL3PHardwareIndexBuffer::GL3PHardwareIndexBuffer(Type indexType, size_t indexCount, HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        : HardwareIndexBuffer(indexType, indexCount, usage, useSystemMemory, useShadowBuffer)
+    {
+        
+    }
 
+    GL3PHardwareIndexBuffer::~GL3PHardwareIndexBuffer()
+    {
+    }
+
+    void *GL3PHardwareIndexBuffer::lockImpl(size_t offset, size_t size, LockOptions options)
+    {
+        char *pLockedData = nullptr;
+        return pLockedData;
+    }
+
+    void GL3PHardwareIndexBuffer::unlockImpl()
+    {
+    }
+
+    bool GL3PHardwareIndexBuffer::readData(size_t offset, size_t size, void *dst)
+    {
+        bool ret = false;
+        void *src = lock(offset, size, HardwareBuffer::E_HBL_READ_ONLY);
+        if (src != nullptr)
+        {
+            memcpy(dst, src, size);
+            ret = true;
+        }
+        unlock();
+        return ret;
+    }
+
+    bool GL3PHardwareIndexBuffer::writeData(size_t offset, size_t size, const void *src, bool discardWholeBuffer /* = false */)
+    {
+        bool ret = false;
+        void *dst = lock(offset, size, discardWholeBuffer ? HardwareBuffer::E_HBL_DISCARD : HardwareBuffer::E_HBL_NORMAL);
+        if (dst != nullptr)
+        {
+            memcpy(dst, src, size);
+            ret = true;
+        }
+        unlock();
+        return ret;
+    }
 }

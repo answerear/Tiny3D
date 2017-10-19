@@ -22,7 +22,6 @@
 
 
 #include "T3DD3D9Prerequisites.h"
-#include "Render/T3DHardwareVertexBuffer.h"
 
 
 namespace Tiny3D

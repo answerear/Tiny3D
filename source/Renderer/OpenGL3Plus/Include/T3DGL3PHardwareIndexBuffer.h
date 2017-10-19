@@ -21,12 +21,24 @@
 #define __T3D_GL3P_HARDWARE_INDEX_BUFFER_H__
 
 
-#include "Render/T3DRenderer.h"
-#include "Render/T3DHardwareBufferManager.h"
+#include "T3DGL3PPrerequisites.h"
 
 namespace Tiny3D
 {
-    
+    class GL3PHardwareIndexBuffer : public HardwareIndexBuffer
+    {
+    public:
+        GL3PHardwareIndexBuffer(Type indexType, size_t indexCount, HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer);
+        virtual ~GL3PHardwareIndexBuffer();
+
+        virtual void *lockImpl(size_t offset, size_t size, LockOptions options) override;
+        virtual void unlockImpl() override;
+
+        virtual bool readData(size_t offset, size_t size, void *dst) override;
+        virtual bool writeData(size_t offset, size_t size, const void *src, bool discardWholeBuffer /* = false */) override;
+
+    protected:
+    };
 }
 
 

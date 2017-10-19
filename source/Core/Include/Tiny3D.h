@@ -48,6 +48,7 @@
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareIndexBuffer.h"
 #include "Render/T3DHardwareVertexBuffer.h"
+#include "Render/T3DHardwarePixelBuffer.h"
 #include "Render/T3DRenderQueue.h"
 
 #include "Render/T3DIndexData.h"

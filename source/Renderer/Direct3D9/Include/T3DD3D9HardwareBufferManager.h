@@ -21,7 +21,7 @@
 #define __T3D_D3D9_HARDWARE_BUFFER_MANAGER_H__
 
 
-#include "Render/T3DHardwareBufferManager.h"
+#include "T3DD3D9Prerequisites.h"
 
 
 namespace Tiny3D

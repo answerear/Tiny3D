@@ -22,7 +22,6 @@
 
 
 #include "T3DD3D9Prerequisites.h"
-#include "Render/T3DHardwareIndexBuffer.h"
 
 
 namespace Tiny3D

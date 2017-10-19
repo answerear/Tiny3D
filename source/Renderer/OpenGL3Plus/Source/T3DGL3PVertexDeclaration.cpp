@@ -22,5 +22,69 @@
 
 namespace Tiny3D
 {
+    GL3PVertexDeclaration::GL3PVertexDeclaration()
+        : VertexDeclaration()
+    {
 
+    }
+
+    GL3PVertexDeclaration::~GL3PVertexDeclaration()
+    {
+    }
+
+    const VertexElement &GL3PVertexDeclaration::addElement(size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
+    {
+        mIsDirty = true;
+        return VertexDeclaration::addElement(stream, offset, type, semantic);
+    }
+
+    const VertexElement &GL3PVertexDeclaration::insertElement(size_t pos, size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
+    {
+        mIsDirty = true;
+        return VertexDeclaration::insertElement(pos, stream, offset, type, semantic);
+    }
+
+    bool GL3PVertexDeclaration::addElement(const VertexElement &vertexElement)
+    {
+        mIsDirty = true;
+        return VertexDeclaration::addElement(vertexElement);
+    }
+
+    bool GL3PVertexDeclaration::insertElement(size_t pos, const VertexElement &vertexElement)
+    {
+        mIsDirty = true;
+        return VertexDeclaration::insertElement(pos, vertexElement);
+    }
+
+
+    void GL3PVertexDeclaration::removeElement(size_t pos)
+    {
+        mIsDirty = true;
+        VertexDeclaration::removeElement(pos);
+    }
+
+    void GL3PVertexDeclaration::removeElement(VertexElement::Semantic semantic)
+    {
+        mIsDirty = true;
+        VertexDeclaration::removeElement(semantic);
+    }
+
+    void GL3PVertexDeclaration::removeAllElements()
+    {
+        mIsDirty = true;
+        VertexDeclaration::removeAllElements();
+    }
+
+    void GL3PVertexDeclaration::updateElement(size_t pos, size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic)
+    {
+        mIsDirty = true;
+        VertexDeclaration::updateElement(pos, stream, offset, type, semantic);
+    }
+
+    VertexDeclarationPtr GL3PVertexDeclaration::clone() const
+    {
+        VertexDeclarationPtr ptr = VertexDeclaration::clone();
+
+        return ptr;
+    }
 }
