@@ -18,12 +18,6 @@ endif (MSVC)
 # Setup project include files path
 include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Codec"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Console"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Device"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/IO"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Time"
 	)
 
 if (TINY3D_OS_WINDOWS)
@@ -60,6 +54,8 @@ set_project_files(Include\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Include/Console
 set_project_files(Include\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Include/Device/ .h)
 set_project_files(Include\\\\IO ${CMAKE_CURRENT_SOURCE_DIR}/Include/IO/ .h)
 set_project_files(Include\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Include/Time/ .h)
+set_project_files(Include\\\\Type ${CMAKE_CURRENT_SOURCE_DIR}/Include/Type/ .h)
+set_project_files(Include\\\\Type ${CMAKE_CURRENT_SOURCE_DIR}/Include/Type/ .inl)
 
 if (TINY3D_OS_WINDOWS)
 	set_project_files(Include\\\\Adapter\\\\Windows ${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Windows/ .h)
@@ -85,6 +81,7 @@ set_project_files(Source\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Source/Console/ 
 set_project_files(Source\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Source/Device/ .cpp)
 set_project_files(Source\\\\IO ${CMAKE_CURRENT_SOURCE_DIR}/Source/IO/ .cpp)
 set_project_files(Source\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Source/Time/ .cpp)
+set_project_files(Source\\\\Type ${CMAKE_CURRENT_SOURCE_DIR}/Source/Type/ .cpp)
 
 if (TINY3D_OS_WINDOWS)
 	set_project_files(Source\\\\Adapter\\\\Windows ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Windows/ .cpp)

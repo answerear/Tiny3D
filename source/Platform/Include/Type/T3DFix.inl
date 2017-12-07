@@ -1,4 +1,4 @@
-/***************************************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -15,36 +15,47 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- **************************************************************************************************/
-
-#ifndef __T3D_TEXT_CODEC_H__
-#define __T3D_TEXT_CODEC_H__
-
-
-#include "T3DSingleton.h"
-#include "T3DPlatformPrerequisites.h"
-
+ ******************************************************************************/
 
 namespace Tiny3D
 {
-    /**
-     * @brief 文本编码转换类
-     */
-    class T3D_PLATFORM_API TextCodec : public Singleton<TextCodec>
+    inline fix32::fix32()
     {
-        T3D_DISABLE_COPY(TextCodec);
 
-    public:
-        TextCodec(const String &strCodecFile);
-        virtual ~TextCodec();
+    }
 
-        bool UTF8ToUTF16(const UTF8String &src, UTF16String &dst);
+    inline fix32::fix32(float value)
+    {
 
-        bool UTF16ToUTF8(const UTF16String &src, UTF8String &dst);
-    };
+    }
 
-    #define T3D_TEXT_CODEC      TextCodec::getInstance()
+    inline fix32::fix32(double value)
+    {
+
+    }
+
+    inline fix32::~fix32()
+    {
+
+    }
+
+    inline fix64::fix64()
+    {
+
+    }
+
+    inline fix64::fix64(float value)
+    {
+
+    }
+
+    inline fix64::fix64(double value)
+    {
+
+    }
+
+    inline fix64::~fix64()
+    {
+
+    }
 }
-
-
-#endif  /*__T3D_TEXT_CODEC_H__*/

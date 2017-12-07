@@ -29,7 +29,12 @@
 #include <map>
 #include <algorithm>
 
-// #define __T3D_HIGH_PERCISION_FLOAT__
+#define __T3D_LOW_PRECISION_FIX__           0       // 32位定点数
+#define __T3D_HIGH_PRECISION_FIX__          1       // 64位定点数
+#define __T3D_LOW_PRECISION_FLOAT__         2       // 32位单精度浮点数
+#define __T3D_HIGH_PRECISION_FLOAT__        3       // 64位双精度浮点数
+
+#define __T3D_REAL_TYPE__   __T3D_LOW_PRECISION_FLOAT__ // 实数的精度类型
 
 
 typedef signed char         char_t;
@@ -51,6 +56,9 @@ typedef unsigned int        uint32_t;
 typedef signed long long    int64_t;
 typedef unsigned long long  uint64_t;
 
+typedef float               real32_t;
+typedef double              real64_t;
+
 
 typedef std::string         String;
 typedef std::wstring        WString;
@@ -61,10 +69,14 @@ typedef std::u32string      UTF32String;
 
 typedef void*               THandle;
 
-#if defined (__T3D_HIGH_PERCISION_FLOAT__)
-typedef double  Real;
-#else
-typedef float   Real;
+#if __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FIX__
+typedef fix32               real_t;
+#elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FIX__
+typedef fix64               real_t;
+#elif __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FLOAT__
+typedef float               real_t;
+#elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FLOAT__
+typedef double              real_t;
 #endif
 
 
