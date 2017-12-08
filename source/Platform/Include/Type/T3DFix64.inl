@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
-#include "Type/T3DFix.h"
-
-
+namespace Tiny3D
+{
+    
+}

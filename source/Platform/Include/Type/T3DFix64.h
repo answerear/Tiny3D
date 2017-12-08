@@ -17,23 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_FIX_H__
-#define __T3D_FIX_H__
+#ifndef __T3D_FIX64_H__
+#define __T3D_FIX64_H__
 
+#include "T3DType.h"
 #include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API fix32
-    {
-    public:
-        fix32();
-        fix32(float value);
-        fix32(double value);
-        ~fix32();
-    };
-
+	/**
+	 * @brief 64位定点数类
+	 */
     class T3D_PLATFORM_API fix64
     {
     public:
@@ -41,10 +36,13 @@ namespace Tiny3D
         fix64(float value);
         fix64(double value);
         ~fix64();
+
+	private:
+		int64_t	m;
     };
 }
 
-#include "T3DFix.inl"
+#include "T3DFix64.inl"
 
 
-#endif  /*__T3D_FIX_H__*/
+#endif  /*__T3D_FIX64_H__*/

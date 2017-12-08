@@ -17,26 +17,65 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PLATFORM_H__
-#define __T3D_PLATFORM_H__
+namespace Tiny3D
+{
+    inline fix32::fix32() : m(0)
+    {
 
+    }
 
-#include <T3DSystem.h>
+    inline fix32::fix32(float32_t value)
+    {
+		T3D_ASSERT(value <= 524287.0f &&value >= -524288.0f);
+		m = (int32_t)(value * 4096);
+    }
 
-#include <Codec/T3DTextCodec.h>
-#include <Console/T3DConsole.h>
-#include <Device/T3DDeviceInfo.h>
-#include <IO/T3DDir.h>
-#include <IO/T3DDataStream.h>
-#include <IO/T3DMemoryDataStream.h>
-#include <IO/T3DFileDataStream.h>
-#include <Time/T3DDateTime.h>
-#include <Time/T3DRunLoop.h>
-#include <Time/T3DRunLoopObserver.h>
-#include <Time/T3DTimer.h>
-#include <Time/T3DTimerObserver.h>
-#include <Type/T3DFix32.h>
-#include <Type/T3DFix64.h>
+    inline fix32::fix32(float64_t value)
+    {
+		T3D_ASSERT(value <= 524287.0 &&value >= -524288.0);
+		m = (int32_t)(value * 4096);
+    }
 
+	inline fix32::fix32(int32_t value)
+	{
+		T3D_ASSERT(value <= 524287 && value >= -524288);
+		m = (value << 12);
+	}
 
-#endif  /*__T3D_PLATFORM_H__*/
+	inline fix32::fix32(int64_t value)
+	{
+		T3D_ASSERT(value <= 524287 && value >= -524288);
+		m = (int32_t)(value << 12);
+	}
+
+	inline fix32::fix32(int32_t value, int32_t r)
+	{
+		m = value;
+	}
+
+	inline fix32::fix32(const fix32 &value)
+	{
+		m = value.m;
+	}
+
+    inline fix32::~fix32()
+    {
+
+    }
+
+	inline int32_t fix32::mantissa() const
+	{
+		return m;
+	}
+
+	inline int32_t &fix32::mantissa()
+	{
+		return m;
+	}
+
+	inline fix32 &fix32::operator =(const fix32 &value)
+	{
+		m = value.m;
+		return *this;
+	}
+}

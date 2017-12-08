@@ -17,45 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-namespace Tiny3D
-{
-    inline fix32::fix32()
-    {
 
-    }
+#include "Type/T3DFix32.h"
 
-    inline fix32::fix32(float value)
-    {
 
-    }
-
-    inline fix32::fix32(double value)
-    {
-
-    }
-
-    inline fix32::~fix32()
-    {
-
-    }
-
-    inline fix64::fix64()
-    {
-
-    }
-
-    inline fix64::fix64(float value)
-    {
-
-    }
-
-    inline fix64::fix64(double value)
-    {
-
-    }
-
-    inline fix64::~fix64()
-    {
-
-    }
-}

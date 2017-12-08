@@ -36,6 +36,12 @@
 
 #define __T3D_REAL_TYPE__   __T3D_LOW_PRECISION_FLOAT__ // 实数的精度类型
 
+namespace Tiny3D
+{
+	class fix32;
+	class fix64;
+}
+
 
 typedef signed char         char_t;
 typedef unsigned char       uchar_t;
@@ -56,9 +62,11 @@ typedef unsigned int        uint32_t;
 typedef signed long long    int64_t;
 typedef unsigned long long  uint64_t;
 
-typedef float               real32_t;
-typedef double              real64_t;
+typedef float               float32_t;
+typedef double              float64_t;
 
+typedef Tiny3D::fix32		fix32_t;
+typedef Tiny3D::fix64		fix64_t;
 
 typedef std::string         String;
 typedef std::wstring        WString;
@@ -70,23 +78,15 @@ typedef std::u32string      UTF32String;
 typedef void*               THandle;
 
 #if __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FIX__
-typedef fix32               real_t;
+typedef fix32_t             real_t;
 #elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FIX__
-typedef fix64               real_t;
+typedef fix64_t             real_t;
 #elif __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FLOAT__
-typedef float               real_t;
+typedef float32_t           real_t;
 #elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FLOAT__
-typedef double              real_t;
+typedef float64_t           real_t;
 #endif
 
-
-#if defined T3D_OS_WINDOWS
-#define T3D_EXPORT_API      __declspec(dllexport)
-#define T3D_IMPORT_API      __declspec(dllimport)
-#else
-#define T3D_EXPORT_API
-#define T3D_IMPORT_API
-#endif
 
 
 #endif  /*__T3D_TYPE_H__*/
