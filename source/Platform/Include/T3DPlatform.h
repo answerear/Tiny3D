@@ -35,8 +35,6 @@
 #include <Time/T3DRunLoopObserver.h>
 #include <Time/T3DTimer.h>
 #include <Time/T3DTimerObserver.h>
-#include <Type/T3DFix32.h>
-#include <Type/T3DFix64.h>
 
 
 #endif  /*__T3D_PLATFORM_H__*/

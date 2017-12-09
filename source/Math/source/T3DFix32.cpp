@@ -17,7 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+
+#include "T3DFix32.h"
+
+
 namespace Tiny3D
 {
-    
+	const fix32 fix32::ZERO(0);
+	const fix32 fix32::HALF(0.5f);
+	const fix32 fix32::ONE(1);
+	const fix32 fix32::MINUS_ONE(-1);
+	const fix32 fix32::INF(0x7FFFFFFF, 0);
+	const fix32 fix32::MINUSINF(0x80000000, 0);
 }

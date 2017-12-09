@@ -29,19 +29,6 @@
 #include <map>
 #include <algorithm>
 
-#define __T3D_LOW_PRECISION_FIX__           0       // 32位定点数
-#define __T3D_HIGH_PRECISION_FIX__          1       // 64位定点数
-#define __T3D_LOW_PRECISION_FLOAT__         2       // 32位单精度浮点数
-#define __T3D_HIGH_PRECISION_FLOAT__        3       // 64位双精度浮点数
-
-#define __T3D_REAL_TYPE__   __T3D_LOW_PRECISION_FLOAT__ // 实数的精度类型
-
-namespace Tiny3D
-{
-	class fix32;
-	class fix64;
-}
-
 
 typedef signed char         char_t;
 typedef unsigned char       uchar_t;
@@ -62,11 +49,6 @@ typedef unsigned int        uint32_t;
 typedef signed long long    int64_t;
 typedef unsigned long long  uint64_t;
 
-typedef float               float32_t;
-typedef double              float64_t;
-
-typedef Tiny3D::fix32		fix32_t;
-typedef Tiny3D::fix64		fix64_t;
 
 typedef std::string         String;
 typedef std::wstring        WString;
@@ -76,16 +58,6 @@ typedef std::u16string      UTF16String;
 typedef std::u32string      UTF32String;
 
 typedef void*               THandle;
-
-#if __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FIX__
-typedef fix32_t             real_t;
-#elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FIX__
-typedef fix64_t             real_t;
-#elif __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FLOAT__
-typedef float32_t           real_t;
-#elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FLOAT__
-typedef float64_t           real_t;
-#endif
 
 
 

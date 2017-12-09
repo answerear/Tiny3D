@@ -23,6 +23,8 @@
 
 #include "T3DMathPrerequisites.h"
 #include <math.h>
+#include "T3DFix32.h"
+#include "T3DFix64.h"
 
 
 namespace Tiny3D

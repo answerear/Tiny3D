@@ -20,7 +20,7 @@
 #ifndef __T3D_MACRO_H__
 #define __T3D_MACRO_H__
 
-
+#include "T3DType.h"
 #include <assert.h>
 
 

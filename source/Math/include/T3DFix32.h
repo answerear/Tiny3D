@@ -20,16 +20,15 @@
 #ifndef __T3D_FIX32_H__
 #define __T3D_FIX32_H__
 
-#include "T3DType.h"
-#include "T3DMacro.h"
-#include "T3DPlatformPrerequisites.h"
+#include "T3DMathPrerequisites.h"
 
 namespace Tiny3D
 {
 	/**
 	 * @brief 32位定点数类
+	 * @remarks 32位定点数构成是用高20位作为整数部分，低12位用来做小数部分
 	 */
-    class T3D_PLATFORM_API fix32
+    class T3D_MATH_API fix32
     {
     public:
 		static const fix32 ZERO;		// fix32(0.0f)
@@ -173,12 +172,19 @@ namespace Tiny3D
 		friend bool operator <=(float32_t value, const fix32 &fx);
 		friend bool operator >(const fix32 &fx, float32_t value);
 		friend bool operator >(float32_t value, const fix32 &fx);
+		friend bool operator <(const fix32 &fx, float32_t value);
+		friend bool operator <(float32_t value, const fix32 &fx);
 
 		operator float32_t() const;
+
+		// 位移运算符重载
+		friend fix32 operator <<(const fix32 &a, int32_t b);
+		friend fix32 operator >>(const fix32 &a, int32_t b);
 
 		fix32 &operator <<=(int32_t b);
 		fix32 &operator >>=(int32_t b);
 
+		// 其他一些简单辅助比较大小接口
 		bool eq_0() const;
 		bool ne_0() const;
 		bool gt_0() const;
@@ -192,6 +198,7 @@ namespace Tiny3D
 
 		bool is_integer() const;
 
+		// 转换64位整型
 		operator int64_t() const;
 
 	private:
