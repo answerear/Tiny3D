@@ -35,24 +35,7 @@
 
 #include "T3DPlatform.h"
 #include "T3DLog.h"
-
-#include "T3DSphere.h"
-#include "T3DAabb.h"
-#include "T3DObb.h"
-#include "T3DFrustum.h"
-
-
-#include "T3DRect.h"
-#include "T3DMath.h"
-#include "T3DMatrix2.h"
-#include "T3DMatrix3.h"
-#include "T3DMatrix4.h"
-#include "T3DQuaternion.h"
-#include "T3DVector2.h"
-#include "T3DVector3.h"
-#include "T3DVector4.h"
-#include "T3DPlane.h"
-
+#include "T3DMathLib.h"
 
 
 namespace Tiny3D

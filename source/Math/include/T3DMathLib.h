@@ -17,20 +17,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DConsole_Windows.h"
-#include <windows.h>
+#ifndef __T3D_MATH_LIB_H__
+#define __T3D_MATH_LIB_H__
 
 
-namespace Tiny3D
-{
-    Console_Windows::Console_Windows()
-    {
+#include "T3DSphere.h"
+#include "T3DAabb.h"
+#include "T3DObb.h"
+#include "T3DFrustum.h"
+#include "T3DRect.h"
+#include "T3DMath.h"
+#include "T3DMatrix2.h"
+#include "T3DMatrix3.h"
+#include "T3DMatrix4.h"
+#include "T3DQuaternion.h"
+#include "T3DVector2.h"
+#include "T3DVector3.h"
+#include "T3DVector4.h"
+#include "T3DPlane.h"
+#include "T3DRadian.h"
+#include "T3DDegree.h"
+#include "T3DFix32.h"
+#include "T3DFix64.h"
 
-    }
 
-    void Console_Windows::print(const char *pText)
-    {
-        printf(pText);
-        OutputDebugString(pText);
-    }
-}
+
+#endif  /*__T3D_MATH_LIB_H__*/
