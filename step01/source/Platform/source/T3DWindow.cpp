@@ -17,48 +17,53 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_TYPE_H__
-#define __T3D_TYPE_H__
+#include "T3DWindow.h"
+#include "Adapter/T3DFactoryInterface.h"
+#include "T3DSystem.h"
+#include <stdarg.h>
 
 
-#include <string>
-#include <memory>
-#include <vector>
-#include <list>
-#include <set>
-#include <map>
-#include <algorithm>
+namespace Tiny3D
+{
+    Window::Window(bool isGLWindow)
+    {
+        mWindow = T3D_PLATFORM_FACTORY.createPlatformWindow(isGLWindow);
+    }
 
+    Window::~Window()
+    {
+        T3D_SAFE_DELETE(mWindow);
+    }
 
-typedef signed char         char_t;
-typedef unsigned char       uchar_t;
-typedef signed short        short_t;
-typedef unsigned short      ushort_t;
-typedef signed int          int_t;
-typedef unsigned int        uint_t;
-typedef signed long         long_t;
-typedef unsigned long       ulong_t;
+    bool Window::create(const char *title, int32_t x, int32_t y,
+        int32_t w, int32_t h, bool isFullscreen, int32_t argc, ...)
+    {
+        bool ret = false;
 
-typedef signed char         int8_t;
-typedef unsigned char       uint8_t;
-typedef signed short        int16_t;
-typedef unsigned short      uint16_t;
-typedef signed int          int32_t;
-typedef unsigned int        uint32_t;
+        if (mWindow != nullptr)
+        {
+            va_list args;
+            va_start(args, argc);
+            ret = mWindow->create(title, x, y, w, h, isFullscreen, argc, args);
+            va_end(args);
+        }
+        
+        return ret;
+    }
 
-typedef signed long long    int64_t;
-typedef unsigned long long  uint64_t;
+    void Window::destroy()
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->destroy();
+        }
+    }
 
-
-typedef std::string         String;
-typedef std::wstring        WString;
-
-typedef std::string         UTF8String;
-typedef std::u16string      UTF16String;
-typedef std::u32string      UTF32String;
-
-typedef void*               THandle;
-
-
-
-#endif  /*__T3D_TYPE_H__*/
+    void Window::pollEvents()
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->pollEvents();
+        }
+    }
+}

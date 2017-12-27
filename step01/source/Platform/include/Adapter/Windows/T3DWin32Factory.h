@@ -17,4 +17,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "HelloApp.h"
+#ifndef __T3D_WIN32_FACTORY_H__
+#define __T3D_WIN32_FACTORY_H__
+
+
+#include "Adapter/T3DFactoryInterface.h"
+
+
+namespace Tiny3D
+{
+    class Win32Factory : public FactoryInterface
+    {
+    public:
+        Win32Factory();
+        virtual ~Win32Factory();
+
+        virtual IWindow *createPlatformWindow(bool isGLWindow) override;
+
+        virtual EPlatform getPlatform() override;
+
+    protected:
+
+    };
+}
+
+
+#endif  /*__T3D_WIN32_FACTORY_H__*/

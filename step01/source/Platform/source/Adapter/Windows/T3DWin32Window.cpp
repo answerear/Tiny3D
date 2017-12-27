@@ -17,48 +17,176 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_TYPE_H__
-#define __T3D_TYPE_H__
+#include "T3DWin32Window.h"
 
 
-#include <string>
-#include <memory>
-#include <vector>
-#include <list>
-#include <set>
-#include <map>
-#include <algorithm>
+namespace Tiny3D
+{
+    Win32Window::Win32Window()
+        : mHWnd(nullptr)
+        , mLeft(0)
+        , mTop(0)
+        , mWidth(0)
+        , mHeight(0)
+        , mIsExternal(false)
+    {
 
+    }
 
-typedef signed char         char_t;
-typedef unsigned char       uchar_t;
-typedef signed short        short_t;
-typedef unsigned short      ushort_t;
-typedef signed int          int_t;
-typedef unsigned int        uint_t;
-typedef signed long         long_t;
-typedef unsigned long       ulong_t;
+    Win32Window::~Win32Window()
+    {
+        destroy();
+    }
 
-typedef signed char         int8_t;
-typedef unsigned char       uint8_t;
-typedef signed short        int16_t;
-typedef unsigned short      uint16_t;
-typedef signed int          int32_t;
-typedef unsigned int        uint32_t;
+    bool Win32Window::create(const char *title, int32_t x, int32_t y,
+        int32_t w, int32_t h, bool isFullscreen,
+        HWND hParentWnd, HWND hExternalWnd, HINSTANCE hInstance)
+    {
+        if (hExternalWnd == nullptr)
+        {
+            // 不是外部窗口
+            WNDCLASSEX wc;
+            wc.cbSize = sizeof(WNDCLASSEX);
+            wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+            wc.lpfnWndProc = Win32Window::WndProc;
+            wc.cbClsExtra = 0;
+            wc.cbWndExtra = 0;
+            wc.hInstance = (HINSTANCE)hInstance;
+            wc.hIcon = ::LoadIcon(NULL, IDC_ICON);
+            wc.hCursor = ::LoadCursor(NULL, IDC_ARROW);
+            wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+            wc.lpszMenuName = NULL;
+            wc.lpszClassName = TEXT(title);
+            wc.hIconSm = ::LoadIcon(NULL, IDC_ICON);
 
-typedef signed long long    int64_t;
-typedef unsigned long long  uint64_t;
+            ::RegisterClassEx(&wc);
 
+            DWORD dwStyleEx = WS_EX_APPWINDOW;
+            if (isFullscreen)
+                dwStyleEx |= WS_EX_TOPMOST;
 
-typedef std::string         String;
-typedef std::wstring        WString;
+            DWORD dwStyle = WS_POPUP | WS_CLIPCHILDREN | WS_VISIBLE;
+            if (hParentWnd != nullptr)
+            {
+                dwStyle |= WS_CHILD;
+            }
+            else
+            {
+                dwStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION |
+                    WS_SYSMENU | WS_MINIMIZEBOX;
+            }
 
-typedef std::string         UTF8String;
-typedef std::u16string      UTF16String;
-typedef std::u32string      UTF32String;
+            RECT rect = { x, y, x + w, y + h };
 
-typedef void*               THandle;
+            ::AdjustWindowRectEx(&rect, dwStyle, FALSE, dwStyleEx);
 
+            mHWnd = ::CreateWindowEx(dwStyleEx, TEXT(title),
+                title, dwStyle,
+                rect.left, rect.top,
+                rect.right - rect.left, rect.bottom - rect.top,
+                hParentWnd, NULL, hInstance, this);
 
+            ::ShowWindow(mHWnd, SW_SHOWNORMAL);
+            ::UpdateWindow(mHWnd);
 
-#endif  /*__T3D_TYPE_H__*/
+            mLeft = x;
+            mTop = y;
+            mWidth = w;
+            mHeight = h;
+            mIsExternal = false;
+        }
+        else
+        {
+            // 外部窗口
+            mHWnd = hExternalWnd;
+            ::ShowWindow(mHWnd, SW_SHOWNORMAL);
+            ::UpdateWindow(mHWnd);
+
+            RECT rc;
+            ::GetClientRect(mHWnd, &rc);
+            mLeft = rc.left;
+            mTop = rc.top;
+            mWidth = rc.right - rc.left;
+            mHeight = rc.bottom - rc.top;
+            mIsExternal = true;
+        }
+
+        return (mHWnd != nullptr);
+    }
+
+    bool Win32Window::create(const char *title, int32_t x, int32_t y, 
+        int32_t w, int32_t h, bool isFullscreen, int32_t argc, va_list args)
+    {
+        if (mHWnd)
+            destroy();
+
+        // Windows平台上附加参数是3个
+        T3D_ASSERT(argc == 3);
+
+        // Param #1 程序实例
+        HINSTANCE hInstance = va_arg(args, HINSTANCE);
+
+        // Param #2 父窗口句柄
+        HWND hParentWnd = va_arg(args, HWND);
+
+        // Param #3 外部窗口句柄，看是否外部已经创建了窗口传入的句柄
+        HWND hExternalWnd = va_arg(args, HWND);
+
+        return create(title, x, y, w, h, isFullscreen, hParentWnd, hExternalWnd, hInstance);
+    }
+
+    void Win32Window::destroy()
+    {
+        if (!mIsExternal && mHWnd != nullptr)
+        {
+            ::DestroyWindow(mHWnd);
+            mHWnd = nullptr;
+        }
+    }
+
+    void Win32Window::pollEvents()
+    {
+        MSG msg;
+        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+
+    void *Win32Window::getNativeWinObject()
+    {
+        return mHWnd;
+    }
+
+    LRESULT Win32Window::WndProc(HWND hWnd, UINT uMsg, 
+        WPARAM wParam, LPARAM lParam)
+    {
+        if (uMsg == WM_CREATE)
+        {
+            LPCREATESTRUCT lpcs = (LPCREATESTRUCT)lParam;
+            Win32Window *win = (Win32Window *)(lpcs->lpCreateParams);
+            SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)win);
+            return 0;
+        }
+
+        Win32Window *win = (Win32Window *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+        return win->WindowProc(hWnd, uMsg, wParam, lParam);
+    }
+
+    LRESULT Win32Window::WindowProc(HWND hWnd, UINT uMsg, 
+        WPARAM wParam, LPARAM lParam)
+    {
+        switch (uMsg)
+        {
+        case WM_CLOSE:
+            {
+                destroy();
+                return 0;
+            }
+            break;
+        }
+
+        return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+    }
+}

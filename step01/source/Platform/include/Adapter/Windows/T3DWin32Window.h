@@ -21,7 +21,48 @@
 #define __T3D_WIN32_WINDOW_H__
 
 
+#include "Adapter/T3DWindowInterface.h"
+#include <windows.h>
 
+
+namespace Tiny3D
+{
+    class Win32Window : public IWindow
+    {
+        T3D_DISABLE_COPY(Win32Window);
+    public:
+        Win32Window();
+
+        virtual ~Win32Window();
+
+        virtual bool create(const char *title, int32_t x, int32_t y, 
+            int32_t w, int32_t h, bool isFullscreen, 
+            int32_t argc, va_list args) override;
+
+        virtual void destroy() override;
+
+        virtual void pollEvents() override;
+
+        virtual void *getNativeWinObject() override;
+
+    protected:
+        bool create(const char *title, int32_t x, int32_t y, int32_t w,
+            int32_t h, bool isFullscreen, HWND hParentWnd, HWND hExternalWnd,
+            HINSTANCE hInstance);
+
+        static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+        virtual LRESULT WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+    protected:
+        HWND    mHWnd;          // 窗口句柄
+        int32_t mLeft;          // 窗口左上角X坐标
+        int32_t mTop;           // 窗口左上角Y坐标
+        int32_t mWidth;         // 窗口宽度
+        int32_t mHeight;        // 窗口高度
+        bool    mIsExternal;    // 是否外部创建的窗口
+    };
+}
 
 
 #endif  /*__T3D_WIN32_WINDOW_H__*/

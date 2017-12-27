@@ -17,4 +17,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "HelloApp.h"
+#include "T3DWin32Factory.h"
+#include "T3DWin32Window.h"
+#include "T3DGLWindow.h"
+
+namespace Tiny3D
+{
+    Win32Factory::Win32Factory()
+    {
+
+    }
+
+    Win32Factory::~Win32Factory()
+    {
+
+    }
+
+    IWindow *Win32Factory::createPlatformWindow(bool isGLWindow)
+    {
+        IWindow *window = nullptr;
+
+        if (isGLWindow)
+        {
+
+        }
+        else
+        {
+            window = new Win32Window();
+        }
+
+        return window;
+    }
+
+    EPlatform Win32Factory::getPlatform()
+    {
+        return E_PLATFORM_WIN32;
+    }
+
+    FactoryInterface *createPlatformFactory()
+    {
+        return new Win32Factory();
+    }
+}

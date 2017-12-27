@@ -17,35 +17,61 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_GL_WINDOW_H__
-#define __T3D_GL_WINDOW_H__
+#ifndef __T3D_SINGLETON_H__
+#define __T3D_SINGLETON_H__
 
 
-#include "Adapter/T3DWindowInterface.h"
+#include "T3DType.h"
+#include "T3DMacro.h"
+
+#include <vector>
+
+
+#if defined (T3D_OS_WINDOWS)
+#pragma warning(disable:4661)
+#endif
+
+
+#define T3D_INIT_SINGLETON(T) Singleton<T>::pointer Singleton<T>::m_pInstance = nullptr
 
 
 namespace Tiny3D
 {
-    class GLWindow : public IWindow
+    template <typename T>
+    class Singleton
     {
-        T3D_DISABLE_COPY(GLWindow);
+        T3D_DISABLE_COPY(Singleton);
 
     public:
-        GLWindow();
+        typedef typename T  value_type;
+        typedef typename T* pointer;
+        typedef typename T& reference;
 
-        virtual ~GLWindow();
+        Singleton()
+        {
+            T3D_ASSERT(m_pInstance == nullptr);
+            m_pInstance = static_cast<pointer>(this);
+        }
 
-        virtual bool create(const char *title, int32_t x, int32_t y,
-            int32_t w, int32_t h, bool isFullscreen,
-            int32_t argc, va_list args) override;
+        virtual ~Singleton()
+        {
+            m_pInstance = nullptr;
+        }
 
-        virtual void destroy() override;
+        static reference getInstance()
+        {
+            return *m_pInstance;
+        }
 
-        virtual void pollEvents() override;
+        static pointer getInstancePtr()
+        {
+            return m_pInstance;
+        }
 
-        virtual void *getNativeWinObject() override;
+    protected:
+        static pointer m_pInstance;
     };
 }
 
 
-#endif  /*__T3D_GL_WINDOW_H__*/
+#endif  /*__T3D_SINGLETON_H__*/

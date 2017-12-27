@@ -17,59 +17,62 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_SYSTEM_H__
-#define __T3D_SYSTEM_H__
+#ifndef __T3D_WINDOW_INTERFACE_H__
+#define __T3D_WINDOW_INTERFACE_H__
 
 
-#include "T3DSingleton.h"
 #include "T3DPlatformPrerequisites.h"
+#include "T3DType.h"
+#include "T3DMacro.h"
 
 
 namespace Tiny3D
 {
-    class FactoryInterface;
-
     /**
-     * @class VSystem
-     * @brief 系统类.
-     * @note 该类对一些全局的单例创建和释放，为上层提供框架层和系统层统一接口.
+     * @brief 平台窗口抽象类
+     * @remarks 不同平台根据接口各自实现具体的操作
      */
-    class T3D_PLATFORM_API System : public Singleton<System>
+    class IWindow
     {
-        T3D_DISABLE_COPY(System);
+        T3D_DECLARE_INTERFACE(IWindow);
 
     public:
         /**
-         * @brief Constructor for VSystem.
+         * @brief 创建窗口.
+         * @param [in] x : 窗口位置
+         * @param [in] y : 窗口位置
+         * @param [in] w : 窗口宽度
+         * @param [in] h : 窗口高度
+         * @param [in] isFullscreen : 是否全屏
+         * @param [in] argc : 窗口附加参数数量
+         * @param [in] args : 附加参数列表
+         * @return 创建成功返回true，否则返回false.
+         * @remarks 各平台各自定义argc的值和args的内容
          */
-        System();
+        virtual bool create(const char *title, int32_t x, int32_t y,
+            int32_t w, int32_t h, bool isFullscreen, 
+            int32_t argc, va_list args) = 0;
 
         /**
-         * @brief Destructor for VSystem.
-         */
-        ~System();
-
-        /**
-         * @brief 每个程序循环调用处理.
+         * @brief 销毁窗口
          * @return void
          */
-        void process();
+        virtual void destroy() = 0;
 
         /**
-         * @brief 获取操作系统适配层工厂接口对象
+         * @brief 处理窗口事件
+         * @return void
          */
-        FactoryInterface &getPlatformFactory()
-        {
-            return (*mPlatformFactory);
-        }
+        virtual void pollEvents() = 0;
 
-    private:
-        FactoryInterface        *mPlatformFactory;
+        /**
+         * @brief 返回原生窗口对象
+         * @return 返回平台原生窗口对象或者句柄
+         * @remarks 不同平台返回不同的对象，根据各自平台各自解析
+         */
+        virtual void *getNativeWinObject() = 0;
     };
-
-    #define T3D_SYSTEM              (System::getInstance())
-    #define T3D_PLATFORM_FACTORY    (T3D_SYSTEM.getPlatformFactory())
 }
 
 
-#endif
+#endif  /*__T3D_WINDOW_INTERFACE_H__*/

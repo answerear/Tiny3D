@@ -17,48 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_TYPE_H__
-#define __T3D_TYPE_H__
+#ifndef __T3D_WINDOW_H__
+#define __T3D_WINDOW_H__
 
 
-#include <string>
-#include <memory>
-#include <vector>
-#include <list>
-#include <set>
-#include <map>
-#include <algorithm>
+#include "T3DPlatformPrerequisites.h"
+#include "Adapter/T3DWindowInterface.h"
 
 
-typedef signed char         char_t;
-typedef unsigned char       uchar_t;
-typedef signed short        short_t;
-typedef unsigned short      ushort_t;
-typedef signed int          int_t;
-typedef unsigned int        uint_t;
-typedef signed long         long_t;
-typedef unsigned long       ulong_t;
+namespace Tiny3D
+{
+    class T3D_PLATFORM_API Window
+    {
+        T3D_DISABLE_COPY(Window);
 
-typedef signed char         int8_t;
-typedef unsigned char       uint8_t;
-typedef signed short        int16_t;
-typedef unsigned short      uint16_t;
-typedef signed int          int32_t;
-typedef unsigned int        uint32_t;
+    public:
+        Window(bool isGLWindow);
 
-typedef signed long long    int64_t;
-typedef unsigned long long  uint64_t;
+        virtual ~Window();
 
+        bool create(const char *title, int32_t x, int32_t y, int32_t w, 
+            int32_t h, bool isFullscreen, int32_t argc, ...);
 
-typedef std::string         String;
-typedef std::wstring        WString;
+        void destroy();
 
-typedef std::string         UTF8String;
-typedef std::u16string      UTF16String;
-typedef std::u32string      UTF32String;
+        void pollEvents();
 
-typedef void*               THandle;
+    protected:
+        IWindow *mWindow;
+    };
+}
 
 
-
-#endif  /*__T3D_TYPE_H__*/
+#endif  /*__T3D_WINDOW_H__*/
