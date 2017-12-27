@@ -1,0 +1,13 @@
+#-------------------------------------------------------------------------------
+# This file is part of the CMake build system for Tiny3D
+#
+# The contents of this file are placed in the public domain. 
+# Feel free to make use of it in any way you like.
+#-------------------------------------------------------------------------------
+
+
+
+set(TINY3D_PLATFORM_INC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform/Include")
+
+add_subdirectory(hello)
+
