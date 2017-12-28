@@ -17,35 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "HelloApp.h"
+#ifndef __T3D_PREREQUISITES_H__
+#define __T3D_PREREQUISITES_H__
 
 
-HelloApp::HelloApp()
+
+#if defined T3DCORE_EXPORT
+    #define T3D_ENGINE_API        T3D_EXPORT_API
+#else
+    #define T3D_ENGINE_API        T3D_IMPORT_API
+#endif
+
+
+#include "T3DPlatform.h"
+
+namespace Tiny3D
 {
+    /// Core
+    class Engine;
 
+    class AppEventListener;
 }
 
-HelloApp::~HelloApp()
-{
 
-}
-
-bool HelloApp::applicationDidFinishLaunching()
-{
-    return true;
-}
-
-void HelloApp::applicationDidEnterBackground()
-{
-
-}
-
-void HelloApp::applicationWillEnterForeground()
-{
-
-}
-
-void HelloApp::applicationWillTerminate()
-{
-
-}
+#endif    /*__T3D_PREREQUISITES_H__*/

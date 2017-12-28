@@ -17,35 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "HelloApp.h"
+
+#ifndef __T3D_APP_EVENT_LISTENER_H__
+#define __T3D_APP_EVENT_LISTENER_H__
 
 
-HelloApp::HelloApp()
+#include "T3DPrerequisites.h"
+
+
+namespace Tiny3D
 {
+    class T3D_ENGINE_API AppEventListener
+    {
+    public:
+        T3D_DECLARE_INTERFACE(AppEventListener);
 
+        virtual bool applicationDidFinishLaunching() = 0;
+
+        virtual void applicationDidEnterBackground() = 0;
+
+        virtual void applicationWillEnterForeground() = 0;
+
+        virtual void applicationWillTerminate() = 0;
+    };
 }
 
-HelloApp::~HelloApp()
-{
 
-}
 
-bool HelloApp::applicationDidFinishLaunching()
-{
-    return true;
-}
-
-void HelloApp::applicationDidEnterBackground()
-{
-
-}
-
-void HelloApp::applicationWillEnterForeground()
-{
-
-}
-
-void HelloApp::applicationWillTerminate()
-{
-
-}
+#endif  /*__T3D_APP_EVENT_LISTENER_H__*/

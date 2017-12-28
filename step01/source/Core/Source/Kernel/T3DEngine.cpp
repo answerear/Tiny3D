@@ -17,21 +17,60 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PLATFORM_MACRO_H__
-#define __T3D_PLATFORM_MACRO_H__
 
+#include "Kernel/T3DEngine.h"
+#include "Application/T3DAppEventListener.h"
 
-#if defined T3DPLATFORM_EXPORT
-    #define T3D_PLATFORM_API    T3D_EXPORT_API
-#else
-    #define T3D_PLATFORM_API    T3D_IMPORT_API
-#endif
 
 namespace Tiny3D
 {
-    class System;
-    class Window;
-}
- 
+    Engine::Engine()
+        : mSystem(nullptr)
+        , mAppEventListener(nullptr)
+        , mWindow(nullptr)
+        , mShutdown(false)
+    {
 
-#endif  /*__T3D_PLATFORM_MACRO_H__*/
+    }
+
+    Engine::~Engine()
+    {
+        T3D_SAFE_DELETE(mWindow);
+        T3D_SAFE_DELETE(mSystem);
+    }
+
+    void Engine::setAppEventListener(AppEventListener *listener)
+    {
+        mAppEventListener = listener;
+    }
+
+    bool Engine::startup()
+    {
+        bool ret = false;
+
+        mSystem = new System();
+
+        mWindow = new Window(false);
+        mWindow->create("Demo_Hello", 100, 100, 800, 600, false, 3, NULL, NULL, NULL);
+
+        return ret;
+    }
+
+    bool Engine::run()
+    {
+        if (mAppEventListener != nullptr)
+        {
+            mAppEventListener->applicationDidFinishLaunching();
+        }
+
+        while (1)
+        {
+            if (mWindow == nullptr)
+            {
+                mWindow->pollEvents();
+            }
+        }
+
+        return true;
+    }
+}

@@ -17,35 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "HelloApp.h"
+
+#ifndef __TINY3D_H__
+#define __TINY3D_H__
 
 
-HelloApp::HelloApp()
-{
+#include "Kernel/T3DEngine.h"
 
-}
+#include "Application/T3DAppEventListener.h"
 
-HelloApp::~HelloApp()
-{
 
-}
-
-bool HelloApp::applicationDidFinishLaunching()
-{
-    return true;
-}
-
-void HelloApp::applicationDidEnterBackground()
-{
-
-}
-
-void HelloApp::applicationWillEnterForeground()
-{
-
-}
-
-void HelloApp::applicationWillTerminate()
-{
-
-}
+#endif  /*__TINY3D_H__*/

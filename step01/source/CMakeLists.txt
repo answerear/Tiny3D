@@ -75,7 +75,8 @@ include(ProjectCMakeModule)
 	
 
 add_subdirectory(Platform)
+add_subdirectory(Core)
 add_subdirectory(Samples)
-add_dependencies(Demo_Hello T3DPlatform)
+add_dependencies(Demo_Hello T3DCore T3DPlatform)
 
 

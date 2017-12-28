@@ -19,33 +19,14 @@
 
 #include "HelloApp.h"
 
-
-HelloApp::HelloApp()
+int main(int argc, char *argv[])
 {
-
-}
-
-HelloApp::~HelloApp()
-{
-
-}
-
-bool HelloApp::applicationDidFinishLaunching()
-{
-    return true;
-}
-
-void HelloApp::applicationDidEnterBackground()
-{
-
-}
-
-void HelloApp::applicationWillEnterForeground()
-{
-
-}
-
-void HelloApp::applicationWillTerminate()
-{
-
+    HelloApp *theApp = new HelloApp();
+    Tiny3D::Engine *theEngine = new Tiny3D::Engine();
+    theEngine->startup();
+    theEngine->setAppEventListener(theApp);
+    theEngine->run();
+    delete theEngine;
+    delete theApp;
+    return 0;
 }

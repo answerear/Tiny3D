@@ -17,6 +17,7 @@ message("${TINY3D_CORE_INC_DIR}")
 # Setup project include files path
 include_directories(
 	"${TINY3D_PLATFORM_INC_DIR}"
+	"${TINY3D_CORE_INC_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
 	)
 
@@ -38,8 +39,6 @@ add_executable(
 target_link_libraries(
 	${LIB_NAME}
 	T3DPlatform
-	T3DLog
-	T3DMath
 	T3DCore
 	)
 

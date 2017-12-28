@@ -21,12 +21,23 @@
 #define __HELLO_APP_H__
 
 
-#include "T3DPlatform.h"
+#include <Tiny3D.h>
 
 
-class HelloApp
+class HelloApp : public Tiny3D::AppEventListener
 {
+public:
+    HelloApp();
+    virtual ~HelloApp();
 
+protected:  /// from Tiny3D::ApplicationListener
+    virtual bool applicationDidFinishLaunching() override;
+
+    virtual void applicationDidEnterBackground() override;
+
+    virtual void applicationWillEnterForeground() override;
+
+    virtual void applicationWillTerminate() override;
 };
 
 

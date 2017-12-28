@@ -171,6 +171,9 @@ namespace Tiny3D
         }
 
         Win32Window *win = (Win32Window *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+        if (win == nullptr)
+            return DefWindowProc(hWnd, uMsg, wParam, lParam);
+
         return win->WindowProc(hWnd, uMsg, wParam, lParam);
     }
 
