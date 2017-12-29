@@ -17,48 +17,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_TYPE_H__
-#define __T3D_TYPE_H__
+#ifndef __T3D_ANDROID_WINDOW_H__
+#define __T3D_ANDROID_WINDOW_H__
 
 
-#include <string>
-#include <memory>
-#include <vector>
-#include <list>
-#include <set>
-#include <map>
-#include <algorithm>
+#include "Adapter/T3DWindowInterface.h"
 
 
-typedef signed char         char_t;
-typedef unsigned char       uchar_t;
-typedef signed short        short_t;
-typedef unsigned short      ushort_t;
-typedef signed int          int_t;
-typedef unsigned int        uint_t;
-typedef signed long         long_t;
-typedef unsigned long       ulong_t;
+namespace Tiny3D
+{
+    class AndroidWindow : public IWindow
+    {
+    public:
+        AndroidWindow();
+        virtual ~AndroidWindow();
 
-typedef signed char         int8_t;
-typedef unsigned char       uint8_t;
-typedef signed short        int16_t;
-typedef unsigned short      uint16_t;
-typedef signed int          int32_t;
-typedef unsigned int        uint32_t;
+        /**
+         * @brief 创建窗口.
+         * @param [in] x : 窗口位置
+         * @param [in] y : 窗口位置
+         * @param [in] w : 窗口宽度
+         * @param [in] h : 窗口高度
+         * @param [in] isFullscreen : 是否全屏
+         * @param [in] argc : 窗口附加参数数量
+         * @param [in] args : 附加参数列表
+         * @return 创建成功返回true，否则返回false.
+         * @remarks 各平台各自定义argc的值和args的内容
+         */
+        virtual bool create(const char *title, int32_t x, int32_t y,
+            int32_t w, int32_t h, bool isFullscreen, 
+            int32_t argc, va_list args) override;
 
-typedef signed long long    int64_t;
-typedef unsigned long long  uint64_t;
+        /**
+         * @brief 销毁窗口
+         * @return void
+         */
+        virtual void destroy() override;
+
+        /**
+         * @brief 处理窗口事件
+         * @return void
+         */
+        virtual void pollEvents() override;
+
+        /**
+         * @brief 返回原生窗口对象
+         * @return 返回平台原生窗口对象或者句柄
+         * @remarks 不同平台返回不同的对象，根据各自平台各自解析
+         */
+        virtual void *getNativeWinObject() override;
+    };
+}
 
 
-typedef std::string         String;
-typedef std::wstring        WString;
-
-typedef std::string         UTF8String;
-typedef std::u16string      UTF16String;
-typedef std::u32string      UTF32String;
-
-typedef void*               THandle;
-
-
-
-#endif  /*__T3D_TYPE_H__*/
+#endif  /*__T3D_ANDROID_WINDOW_H__*/

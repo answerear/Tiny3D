@@ -29,7 +29,7 @@
 #endif
 
 
-#include "T3DPlatform.h"
+#include <T3DPlatform.h>
 
 namespace Tiny3D
 {

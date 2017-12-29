@@ -32,7 +32,7 @@
 #endif
 
 
-#define T3D_INIT_SINGLETON(T) Singleton<T>::pointer Singleton<T>::m_pInstance = nullptr
+#define T3D_INIT_SINGLETON(T) template<> T::pointer Singleton<T>::m_pInstance = nullptr
 
 
 namespace Tiny3D
@@ -43,9 +43,9 @@ namespace Tiny3D
         T3D_DISABLE_COPY(Singleton);
 
     public:
-        typedef typename T  value_type;
-        typedef typename T* pointer;
-        typedef typename T& reference;
+        typedef T  value_type;
+        typedef T* pointer;
+        typedef T& reference;
 
         Singleton()
         {

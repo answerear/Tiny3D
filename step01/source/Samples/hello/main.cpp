@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef T3D_OS_ANDROID
+
 #include "HelloApp.h"
 
 int main(int argc, char *argv[])
@@ -30,3 +32,38 @@ int main(int argc, char *argv[])
     delete theApp;
     return 0;
 }
+
+#else
+
+#include <jni.h>
+#include <string>
+
+#include "HelloApp.h"
+
+extern "C"
+{
+//    JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)
+//    {
+//        JNIEnv *env = nullptr;
+//
+//        jint result = -1;
+//
+//        
+//    }
+    
+    JNIEXPORT void JNICALL Java_com_tiny3d_engine_Tiny3DJniInterface_init(JNIEnv *env, jobject obj)
+    {
+        HelloApp *theApp = new HelloApp();
+        Tiny3D::Engine *theEngine = new Tiny3D::Engine();
+        theEngine->startup();
+        theEngine->setAppEventListener(theApp);
+        theEngine->run();
+    }
+
+    JNIEXPORT void JNICALL Java_com_tiny3d_engine_Tiny3DJniInterface_render(JNIEnv *env, jobject obj)
+    {
+
+    }
+}
+
+#endif

@@ -17,39 +17,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Adapter/Android/T3DAndroidWindow.h"
+#ifndef __T3D_ANDROID_FACTORY_H__
+#define __T3D_ANDROID_FACTORY_H__
+
+
+#include "Adapter/T3DFactoryInterface.h"
 
 
 namespace Tiny3D
 {
-    AndroidWindow::AndroidWindow()
+    class AndroidFactory : public FactoryInterface
     {
-        
-    }
+    public:
+        AndroidFactory();
+        virtual ~AndroidFactory();
 
-    AndroidWindow::~AndroidWindow()
-    {
-    }
+        virtual IWindow *createPlatformWindow(bool isGLWindow) override;
 
-    bool AndroidWindow::create(const char *title, int32_t x, int32_t y,
-            int32_t w, int32_t h, bool isFullscreen, 
-            int32_t argc, va_list args)
-    {
-        return true;
-    }
+        virtual EPlatform getPlatform() override;
 
-    void AndroidWindow::destroy()
-    {
-    }
+    protected:
 
-    void AndroidWindow::pollEvents()
-    {
-    }
-
-    void *AndroidWindow::getNativeWinObject()
-    {
-        return nullptr;
-    }
+    };
 }
 
 
+#endif  /*__T3D_ANDROID_FACTORY_H__*/

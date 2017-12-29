@@ -17,61 +17,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Kernel/T3DEngine.h"
-#include "Application/T3DAppEventListener.h"
+#include "Adapter/Android/T3DAndroidFactory.h"
+#include "Adapter/Android/T3DAndroidWindow.h"
 
 
 namespace Tiny3D
 {
-    Engine::Engine()
-        : mSystem(nullptr)
-        , mAppEventListener(nullptr)
-        , mWindow(nullptr)
-        , mShutdown(false)
+    AndroidFactory::AndroidFactory()
     {
 
     }
 
-    Engine::~Engine()
+    AndroidFactory::~AndroidFactory()
     {
-        T3D_SAFE_DELETE(mWindow);
-        T3D_SAFE_DELETE(mSystem);
+
     }
 
-    void Engine::setAppEventListener(AppEventListener *listener)
+    IWindow *AndroidFactory::createPlatformWindow(bool isGLWindow)
     {
-        mAppEventListener = listener;
+        return new AndroidWindow();
     }
 
-    bool Engine::startup()
+    EPlatform AndroidFactory::getPlatform()
     {
-        bool ret = false;
-
-        mSystem = new System();
-
-        mWindow = new Window(false);
-        mWindow->create("Demo_Hello", 100, 100, 800, 600, false, 3, NULL, NULL, NULL);
-
-        return ret;
+        return E_PLATFORM_ANDROID;
     }
 
-    bool Engine::run()
+    FactoryInterface *createPlatformFactory()
     {
-        if (mAppEventListener != nullptr)
-        {
-            mAppEventListener->applicationDidFinishLaunching();
-        }
-
-#ifdef T3D_OS_DESKTOP
-        while (1)
-        {
-            if (mWindow == nullptr)
-            {
-                mWindow->pollEvents();
-            }
-        }
-#endif
-
-        return true;
+        return new AndroidFactory();
     }
 }
+

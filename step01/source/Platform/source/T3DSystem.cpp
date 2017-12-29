@@ -21,9 +21,12 @@
 #include "Adapter/T3DFactoryInterface.h"
 
 
+// template<> Tiny3D::System *Tiny3D::Singleton<Tiny3D::System>::m_pInstance = nullptr;
+
 namespace Tiny3D
 {
     T3D_INIT_SINGLETON(System);
+//     Singleton<System>::pointer Singleton<System>::m_pInstance = nullptr;
 
     System::System()
         : mPlatformFactory(nullptr)

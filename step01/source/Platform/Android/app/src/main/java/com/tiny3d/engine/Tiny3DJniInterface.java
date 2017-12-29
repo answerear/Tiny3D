@@ -6,7 +6,9 @@ package com.tiny3d.engine;
 
 public class Tiny3DJniInterface {
     static {
-        System.loadLibrary("Tiny3D");
+        System.loadLibrary("T3DPlatform");
+        System.loadLibrary("T3DCore");
+        System.loadLibrary("Demo_Hello");
     }
 
     public static native void init();

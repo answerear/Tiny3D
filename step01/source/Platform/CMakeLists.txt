@@ -132,5 +132,8 @@ elseif (TINY3D_OS_MACOSX)
 elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)
 elseif (TINY3D_OS_ANDROID)
+	target_link_libraries(
+		${LIB_NAME}
+		)
 endif (TINY3D_OS_WINDOWS)
 
