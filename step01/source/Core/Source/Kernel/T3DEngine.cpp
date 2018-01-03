@@ -54,7 +54,7 @@ namespace Tiny3D
 
         mSystem = new System();
 
-        if (window != nullptr)
+        if (window == nullptr)
         {
             mWindow = new Window(false);
             if (ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, false, 3, NULL, NULL, NULL))
