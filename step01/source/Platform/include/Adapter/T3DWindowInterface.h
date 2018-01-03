@@ -24,6 +24,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "T3DWindowEventListener.h"
 
 
 namespace Tiny3D
@@ -37,6 +38,11 @@ namespace Tiny3D
         T3D_DECLARE_INTERFACE(IWindow);
 
     public:
+        IWindow()
+            : mEventListener(nullptr)
+        {
+        }
+
         /**
          * @brief 创建窗口.
          * @param [in] x : 窗口位置
@@ -66,11 +72,31 @@ namespace Tiny3D
         virtual void pollEvents() = 0;
 
         /**
+         * @brief 渲染窗口
+         * @return void
+         */
+        virtual void render()
+        {
+            if (mEventListener != nullptr)
+            {
+                mEventListener->windowRender();
+            }
+        }
+
+        /**
          * @brief 返回原生窗口对象
          * @return 返回平台原生窗口对象或者句柄
          * @remarks 不同平台返回不同的对象，根据各自平台各自解析
          */
         virtual void *getNativeWinObject() = 0;
+
+        virtual void setWindowEventListener(WindowEventListener *listener)
+        {
+            mEventListener = listener;
+        }
+
+    protected:
+        WindowEventListener *mEventListener;
     };
 }
 

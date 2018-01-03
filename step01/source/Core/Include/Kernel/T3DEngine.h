@@ -52,9 +52,10 @@ namespace Tiny3D
 
         /**
          * @brief 启动引擎
+         * @param [in] window : 渲染窗口
          * @remarks 引擎的一切应用都要在调用本接口之后才有效。
          */
-        bool startup();
+        bool startup(Window *window = nullptr);
 
         /**
          * @brief 运行引擎
@@ -66,6 +67,7 @@ namespace Tiny3D
         AppEventListener    *mAppEventListener;     /// 应用事件监听者
         Window              *mWindow;               /// 窗口
         bool                mShutdown;              /// 引擎是否关闭
+        bool                mWindowCreated;         /// 窗口是否内部创建的
     };
 }
 

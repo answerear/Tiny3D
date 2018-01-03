@@ -30,22 +30,27 @@ set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
 
 
-if (T3D_OS_ANDROID)
+if (TINY3D_OS_ANDROID)
+	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
+	
     target_link_libraries(
-            ${LIB_NAME}
-            T3DPlatform
-            T3DCore
-            )
+        ${LIB_NAME}
+        T3DPlatform
+        T3DCore
+        )
 
-else (T3D_OS_ANDROID)
-    add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
+else (TINY3D_OS_ANDROID)
+    add_executable(
+		${BIN_NAME} WIN32 
+		${SOURCE_FILES}
+		)
 
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
         T3DCore
         )
-endif (T3D_OS_ANDROID)
+endif (TINY3D_OS_ANDROID)
 
 if (TINY3D_OS_WINDOWS)
 	install(TARGETS ${BIN_NAME}

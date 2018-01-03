@@ -28,13 +28,18 @@ namespace Tiny3D
         , mAppEventListener(nullptr)
         , mWindow(nullptr)
         , mShutdown(false)
+        , mWindowCreated(true)
     {
 
     }
 
     Engine::~Engine()
     {
-        T3D_SAFE_DELETE(mWindow);
+        if (mWindowCreated)
+        {
+            T3D_SAFE_DELETE(mWindow);
+        }
+
         T3D_SAFE_DELETE(mSystem);
     }
 
@@ -43,14 +48,25 @@ namespace Tiny3D
         mAppEventListener = listener;
     }
 
-    bool Engine::startup()
+    bool Engine::startup(Window *window /* = nullptr */)
     {
         bool ret = false;
 
         mSystem = new System();
 
-        mWindow = new Window(false);
-        mWindow->create("Demo_Hello", 100, 100, 800, 600, false, 3, NULL, NULL, NULL);
+        if (window != nullptr)
+        {
+            mWindow = new Window(false);
+            if (ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, false, 3, NULL, NULL, NULL))
+            {
+                mWindowCreated = true;
+            }
+        }
+        else
+        {
+            mWindow = window;
+            mWindowCreated = false;
+        }
 
         return ret;
     }
@@ -61,16 +77,11 @@ namespace Tiny3D
         {
             mAppEventListener->applicationDidFinishLaunching();
         }
-
-#ifdef T3D_OS_DESKTOP
-        while (1)
+        
+        if (mWindow != nullptr)
         {
-            if (mWindow == nullptr)
-            {
-                mWindow->pollEvents();
-            }
+            mWindow->pollEvents();
         }
-#endif
 
         return true;
     }

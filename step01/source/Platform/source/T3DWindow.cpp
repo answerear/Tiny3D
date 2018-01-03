@@ -35,6 +35,16 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mWindow);
     }
 
+    void Window::setWindowEventListener(WindowEventListener *listener)
+    {
+        mEventListener = listener;
+
+        if (mWindow != nullptr)
+        {
+            mWindow->setWindowEventListener(listener);
+        }
+    }
+
     bool Window::create(const char *title, int32_t x, int32_t y,
         int32_t w, int32_t h, bool isFullscreen, int32_t argc, ...)
     {

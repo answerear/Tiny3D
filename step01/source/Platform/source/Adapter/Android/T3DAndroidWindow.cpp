@@ -44,6 +44,10 @@ namespace Tiny3D
 
     void AndroidWindow::pollEvents()
     {
+        if (mEventListener != nullptr)
+        {
+            mEventListener->windowEventLoop();
+        }
     }
 
     void *AndroidWindow::getNativeWinObject()

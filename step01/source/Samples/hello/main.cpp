@@ -50,19 +50,25 @@ extern "C"
 //
 //        
 //    }
+    Tiny3D::Window *g_Window = nullptr;
     
     JNIEXPORT void JNICALL Java_com_tiny3d_engine_Tiny3DJniInterface_init(JNIEnv *env, jobject obj)
     {
         HelloApp *theApp = new HelloApp();
         Tiny3D::Engine *theEngine = new Tiny3D::Engine();
-        theEngine->startup();
+        Tiny3D::Window *window = new Tiny3D::Window(true);
+        g_Window = window;
+        theEngine->startup(window);
         theEngine->setAppEventListener(theApp);
         theEngine->run();
     }
 
     JNIEXPORT void JNICALL Java_com_tiny3d_engine_Tiny3DJniInterface_render(JNIEnv *env, jobject obj)
     {
-
+        if (g_Window != nullptr)
+        {
+            g_Window->render();
+        }
     }
 }
 
