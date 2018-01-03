@@ -22,5 +22,6 @@
 
 #include <T3DSystem.h>
 #include <T3DWindow.h>
+#include <T3DWindowEventListener.h>
 
 #endif  /*__T3D_PLATFORM_H__*/

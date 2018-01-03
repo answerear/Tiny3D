@@ -76,4 +76,12 @@ namespace Tiny3D
             mWindow->pollEvents();
         }
     }
+
+    void Window::render()
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->render();
+        }
+    }
 }

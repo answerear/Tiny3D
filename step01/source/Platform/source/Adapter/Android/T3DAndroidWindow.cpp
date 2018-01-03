@@ -46,7 +46,7 @@ namespace Tiny3D
     {
         if (mEventListener != nullptr)
         {
-            mEventListener->windowEventLoop();
+            mEventListener->windowRender();
         }
     }
 

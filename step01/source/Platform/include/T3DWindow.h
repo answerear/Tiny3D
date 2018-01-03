@@ -46,6 +46,8 @@ namespace Tiny3D
 
         void pollEvents();
 
+        void render();
+
     protected:
         IWindow *mWindow;
         WindowEventListener *mEventListener;
