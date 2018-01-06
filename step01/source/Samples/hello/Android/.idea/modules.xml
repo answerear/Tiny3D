@@ -4,7 +4,9 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Android.iml" filepath="$PROJECT_DIR$/Android.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../../Platform/Android/Tiny3D/Tiny3D.iml" filepath="$PROJECT_DIR$/../../../Platform/Android/Tiny3D/Tiny3D.iml" />
+      <module fileurl="file://C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\step01\source\Platform\Android\Tiny3D\Tiny3D.iml" filepath="C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\step01\source\Platform\Android\Tiny3D\Tiny3D.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../../Platform/Android/Tiny3DLib.iml" filepath="$PROJECT_DIR$/../../../Platform/Android/Tiny3DLib.iml" />
+      <module fileurl="file://C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\step01\source\Platform\Android\Tiny3DLib.iml" filepath="C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\step01\source\Platform\Android\Tiny3DLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
