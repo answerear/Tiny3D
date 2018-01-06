@@ -53,6 +53,9 @@ else (TINY3D_OS_IOS)
 	option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
 endif (TINY3D_OS_IOS)
 
+if (NOT TINY3D_OS_ANDROID)
+    option(TINY3D_BUILD_SAMPLES "Build samples" TRUE)
+endif (NOT TINY3D_OS_ANDROID)
 
 set(TINY3D_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Tiny3D binary path")
 set(TINY3D_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Tiny3D library path")
@@ -81,7 +84,9 @@ include(ProjectCMakeModule)
 
 add_subdirectory(Platform)
 add_subdirectory(Core)
-add_subdirectory(Samples)
-add_dependencies(Demo_Hello T3DCore T3DPlatform)
+add_dependencies(T3DCore T3DPlatform)
 
-
+if (TINY3D_BUILD_SAMPLES)
+    add_subdirectory(Samples)
+    add_dependencies(Demo_Hello T3DCore T3DPlatform)
+endif (TINY3D_BUILD_SAMPLES)

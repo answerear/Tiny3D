@@ -30,7 +30,7 @@ namespace Tiny3D
         , mShutdown(false)
         , mWindowCreated(true)
     {
-
+        mSystem = new System();
     }
 
     Engine::~Engine()
@@ -51,8 +51,6 @@ namespace Tiny3D
     bool Engine::startup(Window *window /* = nullptr */)
     {
         bool ret = false;
-
-        mSystem = new System();
 
         if (window == nullptr)
         {

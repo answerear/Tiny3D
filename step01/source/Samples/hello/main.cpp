@@ -47,12 +47,18 @@ extern "C"
 //        JNIEnv *env = nullptr;
 //
 //        jint result = -1;
+//        if (vm->GetEnv((void**)&env, JNI_VERSION_1_4) != JNI_OK)
+//        {
+//            return result;
+//        }
 //
-//        
+//        // 返回jni的版本
+//        return JNI_VERSION_1_4;
 //    }
+
     Tiny3D::Window *g_Window = nullptr;
     
-    JNIEXPORT void JNICALL Java_com_tiny3d_engine_Tiny3DJniInterface_init(JNIEnv *env, jobject obj)
+    JNIEXPORT void JNICALL Java_com_tiny3d_lib_Tiny3DJniInterface_init(JNIEnv *env, jobject obj)
     {
         HelloApp *theApp = new HelloApp();
         Tiny3D::Engine *theEngine = new Tiny3D::Engine();
@@ -63,7 +69,7 @@ extern "C"
         theEngine->run();
     }
 
-    JNIEXPORT void JNICALL Java_com_tiny3d_engine_Tiny3DJniInterface_render(JNIEnv *env, jobject obj)
+    JNIEXPORT void JNICALL Java_com_tiny3d_lib_Tiny3DJniInterface_render(JNIEnv *env, jobject obj)
     {
         if (g_Window != nullptr)
         {

@@ -1,9 +1,9 @@
-apply plugin: 'com.android.library'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
     defaultConfig {
-//        applicationId "com.tiny3d.library"
+        applicationId "com.tiny3d.hello"
         minSdkVersion 14
         targetSdkVersion 26
         versionCode 1
@@ -12,7 +12,7 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++11 -frtti -fexceptions"
-                arguments "-DTINY3D_BUILD_SAMPLES=FALSE"
+                arguments "-DTINY3D_BUILD_SAMPLES=TRUE"
             }
         }
     }
@@ -24,12 +24,13 @@ android {
     }
     externalNativeBuild {
         cmake {
-            path "../../../CMakeLists.txt"
+            path "../../../../CMakeLists.txt"
         }
     }
 }
 
 dependencies {
+    implementation project(':Tiny3DLib:Tiny3D')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:26.1.0'
     testImplementation 'junit:junit:4.12'
