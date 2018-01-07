@@ -30,6 +30,7 @@
 namespace Tiny3D
 {
     class System;
+    class Application;
     class Window;
 }
  

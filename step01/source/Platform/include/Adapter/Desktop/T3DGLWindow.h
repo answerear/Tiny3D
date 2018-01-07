@@ -41,8 +41,6 @@ namespace Tiny3D
 
         virtual void destroy() override;
 
-        virtual void pollEvents() override;
-
         virtual void *getNativeWinObject() override;
     };
 }

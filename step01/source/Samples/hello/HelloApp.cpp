@@ -20,7 +20,8 @@
 #include "HelloApp.h"
 
 
-HelloApp::HelloApp()
+HelloApp::HelloApp(bool isGLApp)
+    : Application(isGLApp)
 {
 
 }

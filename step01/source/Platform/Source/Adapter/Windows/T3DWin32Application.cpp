@@ -17,51 +17,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_WINDOW_EVENT_LISTENER_H__
-#define __T3D_WINDOW_EVENT_LISTENER_H__
 
-
-#include "T3DPlatformPrerequisites.h"
-#include "T3DType.h"
-#include "T3DMacro.h"
+#include "T3DWin32Application.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * @brief 窗口事件监听者
-     */
-    class T3D_PLATFORM_API WindowEventListener
+    Win32Application::Win32Application()
+        : mInstance(nullptr)
     {
-    public:
-        T3D_DECLARE_INTERFACE(WindowEventListener);
 
-        /**
-         * @brief 窗口大小改变通知
-         * @param [in] w : 新的窗口宽度
-         * @param [in] h : 新的窗口高度
-         * @return void
-         */
-        virtual void windowResized(int32_t w, int32_t h) = 0;
+    }
 
-        /**
-         * @brief 窗口移动通知
-         * @param [in] x : 新的窗口位置
-         * @param [in] y : 新的窗口位置
-         */
-        virtual void windowMoved(int32_t x, int32_t y) = 0;
+    Win32Application::~Win32Application()
+    {
 
-        /**
-         * @brief 窗口事件循环通知
-         */
-        virtual void windowRender() = 0;
+    }
 
-        /**
-         * @brief 
-         */
-        virtual void windowClosed() = 0;
-    };
+    bool Win32Application::init()
+    {
+        mInstance = ::GetModuleHandle(NULL);
+
+        return (mInstance != nullptr);
+    }
+
+    void Win32Application::pollEvents()
+    {
+        MSG msg;
+        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+
+    void Win32Application::release()
+    {
+
+    }
+
+    void *Win32Application::getNativeAppObject()
+    {
+        return mInstance;
+    }
 }
-
-
-#endif  /*__T3D_WINDOW_EVENT_LISTENER_H__*/

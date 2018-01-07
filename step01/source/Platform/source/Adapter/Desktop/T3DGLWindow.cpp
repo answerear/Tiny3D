@@ -42,11 +42,6 @@ namespace Tiny3D
 
     }
 
-    void GLWindow::pollEvents()
-    {
-
-    }
-
     void *GLWindow::getNativeWinObject()
     {
         return nullptr;

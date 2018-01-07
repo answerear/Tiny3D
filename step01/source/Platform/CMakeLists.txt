@@ -75,11 +75,6 @@ endif (TINY3D_OS_WINDOWS)
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 set_project_files(Source\\\\Adapter ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/ .cpp)
-set_project_files(Source\\\\Codec ${CMAKE_CURRENT_SOURCE_DIR}/Source/Codec/ .cpp)
-set_project_files(Source\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Source/Console/ .cpp)
-set_project_files(Source\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Source/Device/ .cpp)
-set_project_files(Source\\\\IO ${CMAKE_CURRENT_SOURCE_DIR}/Source/IO/ .cpp)
-set_project_files(Source\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Source/Time/ .cpp)
 
 if (TINY3D_OS_WINDOWS)
 	set_project_files(Source\\\\Adapter\\\\Windows ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Windows/ .cpp)

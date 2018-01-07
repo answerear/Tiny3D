@@ -17,51 +17,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_WINDOW_EVENT_LISTENER_H__
-#define __T3D_WINDOW_EVENT_LISTENER_H__
+
+#ifndef __T3D_ANDROID_APPLICATION_H__
+#define __T3D_ANDROID_APPLICATION_H__
 
 
-#include "T3DPlatformPrerequisites.h"
-#include "T3DType.h"
-#include "T3DMacro.h"
+#include "Adapter/T3DApplicationInterface.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * @brief 窗口事件监听者
-     */
-    class T3D_PLATFORM_API WindowEventListener
+    class AndroidApplication : public IApplication
     {
+    T3D_DISABLE_COPY(AndroidApplication);
+
     public:
-        T3D_DECLARE_INTERFACE(WindowEventListener);
+        /**
+         * Constructor
+         */
+        AndroidApplication();
 
         /**
-         * @brief 窗口大小改变通知
-         * @param [in] w : 新的窗口宽度
-         * @param [in] h : 新的窗口高度
-         * @return void
+         * Destructor
          */
-        virtual void windowResized(int32_t w, int32_t h) = 0;
+        virtual ~AndroidApplication();
 
-        /**
-         * @brief 窗口移动通知
-         * @param [in] x : 新的窗口位置
-         * @param [in] y : 新的窗口位置
-         */
-        virtual void windowMoved(int32_t x, int32_t y) = 0;
+        virtual bool init() override;
 
-        /**
-         * @brief 窗口事件循环通知
-         */
-        virtual void windowRender() = 0;
 
-        /**
-         * @brief 
-         */
-        virtual void windowClosed() = 0;
+        virtual void pollEvents() override;
+
+
+        virtual void release() override;
+
+
+        virtual void *getNativeAppObject() override;
+
+    protected:
+
     };
 }
 
 
-#endif  /*__T3D_WINDOW_EVENT_LISTENER_H__*/
+#endif  /*__T3D_ANDROID_APPLICATION_H__*/

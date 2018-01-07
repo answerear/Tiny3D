@@ -18,6 +18,7 @@
  ******************************************************************************/
 
 #include "Adapter/Android/T3DAndroidFactory.h"
+#include "Adapter/Android/T3DAndroidApplication.h"
 #include "Adapter/Android/T3DAndroidWindow.h"
 
 
@@ -33,6 +34,11 @@ namespace Tiny3D
 
     }
 
+    IApplication *AndroidFactory::createPlatformApplication(bool isGLApp)
+    {
+        return new AndroidApplication();
+    }
+
     IWindow *AndroidFactory::createPlatformWindow(bool isGLWindow)
     {
         return new AndroidWindow();
@@ -43,7 +49,7 @@ namespace Tiny3D
         return E_PLATFORM_ANDROID;
     }
 
-    FactoryInterface *createPlatformFactory()
+    IFactory *createPlatformFactory()
     {
         return new AndroidFactory();
     }

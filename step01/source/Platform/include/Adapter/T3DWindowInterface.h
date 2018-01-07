@@ -66,12 +66,6 @@ namespace Tiny3D
         virtual void destroy() = 0;
 
         /**
-         * @brief 处理窗口事件
-         * @return void
-         */
-        virtual void pollEvents() = 0;
-
-        /**
          * @brief 渲染窗口
          * @return void
          */

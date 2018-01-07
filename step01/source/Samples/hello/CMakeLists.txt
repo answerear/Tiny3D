@@ -29,6 +29,12 @@ set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
 
+if (TINY3D_OS_ANDROID)
+	set_project_files(source\\\\Android ${CMAKE_CURRENT_SOURCE_DIR}/Android/app/src/main/cpp/ .cpp)
+elseif (TINY3D_OS_IOS)
+else (TINY3D_OS_ANDROID)
+	set_project_files(source\\\\Desktop ${CMAKE_CURRENT_SOURCE_DIR}/Desktop/ .cpp)
+endif (TINY3D_OS_ANDROID)
 
 if (TINY3D_OS_ANDROID)
 	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})

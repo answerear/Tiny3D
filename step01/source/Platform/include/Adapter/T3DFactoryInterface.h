@@ -28,6 +28,7 @@
 namespace Tiny3D
 {
     class IWindow;
+    class IApplication;
 
     enum EPlatform
     {
@@ -40,19 +41,26 @@ namespace Tiny3D
     };
 
     /**
-     * @class IAdapterFactory
+     * @class IFactory
      * @brief 操作系统适配层工厂接口.
      * @note 不同操作系统平台需要实现继承该类实现具体平台接口
      */
-    class FactoryInterface
+    class IFactory
     {
-        T3D_DECLARE_INTERFACE(FactoryInterface);
+        T3D_DECLARE_INTERFACE(IFactory);
 
     public:
         /**
+         * @brief 创建操作系统平台相关的应用程序对象
+         * @param [in] isGLApp : 是否使用OpenGLde的应用程序
+         * @return 返回平台相关的应用程序对象，需要用户调用delete释放对象
+         */
+        virtual IApplication *createPlatformApplication(bool isGLApp) = 0;
+
+        /**
          * @brief 创建操作系统平台相关的窗口.
          * @param [in] isGLWindow : 是否OpenGL窗口
-         * @return 返回平台相关的窗口操作对象，需要用户调用delete释放资源
+         * @return 返回平台相关的窗口操作对象，需要用户调用delete释放对象
          */
         virtual IWindow *createPlatformWindow(bool isGLWindow) = 0;
 
@@ -68,7 +76,7 @@ namespace Tiny3D
      * @note 不同操作系统平台需要实现该接口以返回操作系统适配层工厂对象
      * @return 返回适配层工厂对象，需要用户调用delete释放资源
      */
-    FactoryInterface *createPlatformFactory();
+    IFactory *createPlatformFactory();
 }
 
 

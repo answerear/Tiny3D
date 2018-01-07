@@ -22,12 +22,13 @@
 
 
 #include "T3DPlatformPrerequisites.h"
-#include "Adapter/T3DWindowInterface.h"
 #include "T3DWindowEventListener.h"
 
 
 namespace Tiny3D
 {
+    class IWindow;
+
     class T3D_PLATFORM_API Window
     {
         T3D_DISABLE_COPY(Window);
@@ -43,8 +44,6 @@ namespace Tiny3D
             int32_t h, bool isFullscreen, int32_t argc, ...);
 
         void destroy();
-
-        void pollEvents();
 
         void render();
 

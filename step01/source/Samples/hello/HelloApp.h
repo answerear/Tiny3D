@@ -24,13 +24,13 @@
 #include <Tiny3D.h>
 
 
-class HelloApp : public Tiny3D::AppEventListener
+class HelloApp : public Tiny3D::Application
 {
 public:
-    HelloApp();
+    HelloApp(bool isGLApp);
     virtual ~HelloApp();
 
-protected:  /// from Tiny3D::ApplicationListener
+protected:  /// from Tiny3D::Application
     virtual bool applicationDidFinishLaunching() override;
 
     virtual void applicationDidEnterBackground() override;

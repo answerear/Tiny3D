@@ -18,19 +18,17 @@
  ******************************************************************************/
 
 #include "Kernel/T3DEngine.h"
-#include "Application/T3DAppEventListener.h"
 
 
 namespace Tiny3D
 {
+    T3D_INIT_SINGLETON(Engine);
+
     Engine::Engine()
-        : mSystem(nullptr)
-        , mAppEventListener(nullptr)
-        , mWindow(nullptr)
-        , mShutdown(false)
+        : mWindow(nullptr)
+        , mIsRunning(false)
         , mWindowCreated(true)
     {
-        mSystem = new System();
     }
 
     Engine::~Engine()
@@ -39,48 +37,83 @@ namespace Tiny3D
         {
             T3D_SAFE_DELETE(mWindow);
         }
-
-        T3D_SAFE_DELETE(mSystem);
-    }
-
-    void Engine::setAppEventListener(AppEventListener *listener)
-    {
-        mAppEventListener = listener;
     }
 
     bool Engine::startup(Window *window /* = nullptr */)
     {
         bool ret = false;
 
-        if (window == nullptr)
+        Application *theApp = Application::getInstancePtr();
+        if (theApp != nullptr)
         {
-            mWindow = new Window(false);
-            if (ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, false, 3, NULL, NULL, NULL))
+            ret = theApp->init();
+        }
+
+        if (ret)
+        {
+            if (window == nullptr)
             {
-                mWindowCreated = true;
+                mWindow = new Window(false);
+                if (ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, false, 3, NULL, NULL, NULL))
+                {
+                    mWindowCreated = true;
+
+                    mWindow->setWindowEventListener(this);
+                }
+            }
+            else
+            {
+                mWindow = window;
+                mWindowCreated = false;
+                mWindow->setWindowEventListener(this);
             }
         }
-        else
-        {
-            mWindow = window;
-            mWindowCreated = false;
-        }
+
+        mIsRunning = ret;
 
         return ret;
     }
 
     bool Engine::run()
     {
-        if (mAppEventListener != nullptr)
+        Application *theApp = Application::getInstancePtr();
+        theApp->applicationDidFinishLaunching();
+
+        while (mIsRunning)
         {
-            mAppEventListener->applicationDidFinishLaunching();
-        }
-        
-        if (mWindow != nullptr)
-        {
-            mWindow->pollEvents();
+            theApp->pollEvents();
+            mWindow->render();
         }
 
+        theApp->applicationWillTerminate();
+
         return true;
+    }
+
+    void Engine::renderOneFrame()
+    {
+        Application *theApp = Application::getInstancePtr();
+        theApp->pollEvents();
+        mWindow->render();
+    }
+
+    void Engine::windowResized(int32_t w, int32_t h)
+    {
+
+    }
+
+    void Engine::windowMoved(int32_t x, int32_t y)
+    {
+
+    }
+
+    void Engine::windowRender()
+    {
+
+    }
+
+    void Engine::windowClosed()
+    {
+        mIsRunning = false;
     }
 }

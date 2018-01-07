@@ -27,7 +27,7 @@
 
 namespace Tiny3D
 {
-    class FactoryInterface;
+    class IFactory;
 
     /**
      * @class VSystem
@@ -58,13 +58,13 @@ namespace Tiny3D
         /**
          * @brief 获取操作系统适配层工厂接口对象
          */
-        FactoryInterface &getPlatformFactory()
+        IFactory &getPlatformFactory()
         {
             return (*mPlatformFactory);
         }
 
     private:
-        FactoryInterface        *mPlatformFactory;
+        IFactory        *mPlatformFactory;
     };
 
     #define T3D_SYSTEM              (System::getInstance())

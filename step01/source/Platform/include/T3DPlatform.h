@@ -21,6 +21,7 @@
 #define __T3D_PLATFORM_H__
 
 #include <T3DSystem.h>
+#include <T3DApplication.h>
 #include <T3DWindow.h>
 #include <T3DWindowEventListener.h>
 

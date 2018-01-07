@@ -17,8 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_WINDOW_EVENT_LISTENER_H__
-#define __T3D_WINDOW_EVENT_LISTENER_H__
+
+#ifndef __T3D_APPLICATION_INTERFACE_H__
+#define __T3D_APPLICATION_INTERFACE_H__
 
 
 #include "T3DPlatformPrerequisites.h"
@@ -28,40 +29,34 @@
 
 namespace Tiny3D
 {
-    /**
-     * @brief 窗口事件监听者
-     */
-    class T3D_PLATFORM_API WindowEventListener
+    class T3D_PLATFORM_API IApplication
     {
     public:
-        T3D_DECLARE_INTERFACE(WindowEventListener);
+        T3D_DECLARE_INTERFACE(IApplication);
 
         /**
-         * @brief 窗口大小改变通知
-         * @param [in] w : 新的窗口宽度
-         * @param [in] h : 新的窗口高度
-         * @return void
+         * @brief 初始化应用程序
+         * @return 调用成功返回true，否则返回false
          */
-        virtual void windowResized(int32_t w, int32_t h) = 0;
+        virtual bool init() = 0;
 
         /**
-         * @brief 窗口移动通知
-         * @param [in] x : 新的窗口位置
-         * @param [in] y : 新的窗口位置
+         * @brief 轮询处理应用程序事件
          */
-        virtual void windowMoved(int32_t x, int32_t y) = 0;
+        virtual void pollEvents() = 0;
 
         /**
-         * @brief 窗口事件循环通知
+         * @brief 释放应用程序对象资源
          */
-        virtual void windowRender() = 0;
+        virtual void release() = 0;
 
         /**
-         * @brief 
+         * @brief 获取平台原生应用对象
          */
-        virtual void windowClosed() = 0;
+        virtual void *getNativeAppObject() = 0;
     };
 }
 
 
-#endif  /*__T3D_WINDOW_EVENT_LISTENER_H__*/
+
+#endif  /*__T3D_APPLICATION_INTERFACE_H__*/

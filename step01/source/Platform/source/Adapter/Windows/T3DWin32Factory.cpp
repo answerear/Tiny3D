@@ -18,6 +18,8 @@
  ******************************************************************************/
 
 #include "T3DWin32Factory.h"
+#include "T3DWin32Application.h"
+#include "T3DGLApplication.h"
 #include "T3DWin32Window.h"
 #include "T3DGLWindow.h"
 
@@ -31,6 +33,22 @@ namespace Tiny3D
     Win32Factory::~Win32Factory()
     {
 
+    }
+
+    IApplication *Win32Factory::createPlatformApplication(bool isGLApp)
+    {
+        IApplication *app = nullptr;
+
+        if (isGLApp)
+        {
+
+        }
+        else
+        {
+            app = new Win32Application();
+        }
+
+        return app;
     }
 
     IWindow *Win32Factory::createPlatformWindow(bool isGLWindow)
@@ -54,7 +72,7 @@ namespace Tiny3D
         return E_PLATFORM_WIN32;
     }
 
-    FactoryInterface *createPlatformFactory()
+    IFactory *createPlatformFactory()
     {
         return new Win32Factory();
     }

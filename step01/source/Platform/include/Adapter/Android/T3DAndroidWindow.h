@@ -55,12 +55,6 @@ namespace Tiny3D
         virtual void destroy() override;
 
         /**
-         * @brief 处理窗口事件
-         * @return void
-         */
-        virtual void pollEvents() override;
-
-        /**
          * @brief 返回原生窗口对象
          * @return 返回平台原生窗口对象或者句柄
          * @remarks 不同平台返回不同的对象，根据各自平台各自解析

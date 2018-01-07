@@ -17,51 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_WINDOW_EVENT_LISTENER_H__
-#define __T3D_WINDOW_EVENT_LISTENER_H__
 
+#include "../HelloApp.h"
 
-#include "T3DPlatformPrerequisites.h"
-#include "T3DType.h"
-#include "T3DMacro.h"
-
-
-namespace Tiny3D
+int main(int argc, char *argv[])
 {
-    /**
-     * @brief 窗口事件监听者
-     */
-    class T3D_PLATFORM_API WindowEventListener
-    {
-    public:
-        T3D_DECLARE_INTERFACE(WindowEventListener);
+    HelloApp *theApp = new HelloApp(false);
+    Tiny3D::Engine *theEngine = new Tiny3D::Engine();
 
-        /**
-         * @brief 窗口大小改变通知
-         * @param [in] w : 新的窗口宽度
-         * @param [in] h : 新的窗口高度
-         * @return void
-         */
-        virtual void windowResized(int32_t w, int32_t h) = 0;
+    theEngine->startup();
+    theEngine->run();
 
-        /**
-         * @brief 窗口移动通知
-         * @param [in] x : 新的窗口位置
-         * @param [in] y : 新的窗口位置
-         */
-        virtual void windowMoved(int32_t x, int32_t y) = 0;
+    delete theEngine;
+    delete theApp;
 
-        /**
-         * @brief 窗口事件循环通知
-         */
-        virtual void windowRender() = 0;
-
-        /**
-         * @brief 
-         */
-        virtual void windowClosed() = 0;
-    };
+    return 0;
 }
-
-
-#endif  /*__T3D_WINDOW_EVENT_LISTENER_H__*/

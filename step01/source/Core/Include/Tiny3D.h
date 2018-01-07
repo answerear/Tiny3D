@@ -24,7 +24,5 @@
 
 #include "Kernel/T3DEngine.h"
 
-#include "Application/T3DAppEventListener.h"
-
 
 #endif  /*__TINY3D_H__*/

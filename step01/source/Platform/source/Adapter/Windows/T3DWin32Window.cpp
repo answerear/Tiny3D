@@ -144,21 +144,6 @@ namespace Tiny3D
         }
     }
 
-    void Win32Window::pollEvents()
-    {
-        while (1)
-        {
-            MSG msg;
-            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-            {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-            }
-
-            render();
-        }
-    }
-
     void *Win32Window::getNativeWinObject()
     {
         return mHWnd;
@@ -190,6 +175,11 @@ namespace Tiny3D
         case WM_CLOSE:
             {
                 destroy();
+                if (mEventListener != nullptr)
+                {
+                    mEventListener->windowClosed();
+                }
+
                 return 0;
             }
             break;

@@ -17,23 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef T3D_OS_ANDROID
-
-#include "HelloApp.h"
-
-int main(int argc, char *argv[])
-{
-    HelloApp *theApp = new HelloApp();
-    Tiny3D::Engine *theEngine = new Tiny3D::Engine();
-    theEngine->startup();
-    theEngine->setAppEventListener(theApp);
-    theEngine->run();
-    delete theEngine;
-    delete theApp;
-    return 0;
-}
-
-#else
 
 #include <jni.h>
 #include <string>
@@ -56,26 +39,20 @@ extern "C"
 //        return JNI_VERSION_1_4;
 //    }
 
-    Tiny3D::Window *g_Window = nullptr;
     
     JNIEXPORT void JNICALL Java_com_tiny3d_lib_Tiny3DJniInterface_init(JNIEnv *env, jobject obj)
     {
-        HelloApp *theApp = new HelloApp();
+        bool isGL = true;
+        HelloApp *theApp = new HelloApp(isGL);
         Tiny3D::Engine *theEngine = new Tiny3D::Engine();
-        Tiny3D::Window *window = new Tiny3D::Window(true);
-        g_Window = window;
+        Tiny3D::Window *window = new Tiny3D::Window(isGL);
         theEngine->startup(window);
-        theEngine->setAppEventListener(theApp);
-        theEngine->run();
+
+        Tiny3D::Application::getInstancePtr()->applicationDidFinishLaunching();
     }
 
     JNIEXPORT void JNICALL Java_com_tiny3d_lib_Tiny3DJniInterface_render(JNIEnv *env, jobject obj)
     {
-        if (g_Window != nullptr)
-        {
-            g_Window->render();
-        }
+        Tiny3D::Engine::getInstancePtr()->renderOneFrame();
     }
 }
-
-#endif

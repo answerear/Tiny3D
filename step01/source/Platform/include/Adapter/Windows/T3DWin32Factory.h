@@ -26,11 +26,13 @@
 
 namespace Tiny3D
 {
-    class Win32Factory : public FactoryInterface
+    class Win32Factory : public IFactory
     {
     public:
         Win32Factory();
         virtual ~Win32Factory();
+
+        virtual IApplication *createPlatformApplication(bool isGLApp) override;
 
         virtual IWindow *createPlatformWindow(bool isGLWindow) override;
 

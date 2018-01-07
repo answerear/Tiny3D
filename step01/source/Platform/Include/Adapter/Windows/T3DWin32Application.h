@@ -17,51 +17,58 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_WINDOW_EVENT_LISTENER_H__
-#define __T3D_WINDOW_EVENT_LISTENER_H__
+
+#ifndef __T3D_WIN32_APPLICATION_H__
+#define __T3D_WIN32_APPLICATION_H__
 
 
-#include "T3DPlatformPrerequisites.h"
-#include "T3DType.h"
-#include "T3DMacro.h"
+#include "Adapter/T3DApplicationInterface.h"
+#include <windows.h>
 
 
 namespace Tiny3D
 {
-    /**
-     * @brief 窗口事件监听者
-     */
-    class T3D_PLATFORM_API WindowEventListener
+    class Win32Application : public IApplication
     {
+        T3D_DISABLE_COPY(Win32Application);
+
     public:
-        T3D_DECLARE_INTERFACE(WindowEventListener);
+        /**
+         * Constructor
+         */
+        Win32Application();
 
         /**
-         * @brief 窗口大小改变通知
-         * @param [in] w : 新的窗口宽度
-         * @param [in] h : 新的窗口高度
-         * @return void
+         * Destructor
          */
-        virtual void windowResized(int32_t w, int32_t h) = 0;
+        virtual ~Win32Application();
 
         /**
-         * @brief 窗口移动通知
-         * @param [in] x : 新的窗口位置
-         * @param [in] y : 新的窗口位置
+         * @brief 初始化应用程序
+         * @return 调用成功返回true，否则返回false
          */
-        virtual void windowMoved(int32_t x, int32_t y) = 0;
+        virtual bool init() override;
 
         /**
-         * @brief 窗口事件循环通知
+         * @brief 轮询处理应用程序事件
          */
-        virtual void windowRender() = 0;
+        virtual void pollEvents() override;
 
         /**
-         * @brief 
+         * @brief 释放应用程序对象资源
          */
-        virtual void windowClosed() = 0;
+        virtual void release() override;
+
+        /**
+         * @brief 获取平台原生应用对象
+         */
+        virtual void *getNativeAppObject() override;
+
+    protected:
+        HINSTANCE   mInstance;
     };
 }
 
 
-#endif  /*__T3D_WINDOW_EVENT_LISTENER_H__*/
+
+#endif  /*__T3D_WIN32_APPLICATION_H__*/

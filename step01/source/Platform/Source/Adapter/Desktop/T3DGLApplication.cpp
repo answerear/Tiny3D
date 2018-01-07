@@ -17,51 +17,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_WINDOW_EVENT_LISTENER_H__
-#define __T3D_WINDOW_EVENT_LISTENER_H__
 
-
-#include "T3DPlatformPrerequisites.h"
-#include "T3DType.h"
-#include "T3DMacro.h"
-
+#include "T3DGLApplication.h"
 
 namespace Tiny3D
 {
-    /**
-     * @brief 窗口事件监听者
-     */
-    class T3D_PLATFORM_API WindowEventListener
+    GLApplication::GLApplication()
     {
-    public:
-        T3D_DECLARE_INTERFACE(WindowEventListener);
 
-        /**
-         * @brief 窗口大小改变通知
-         * @param [in] w : 新的窗口宽度
-         * @param [in] h : 新的窗口高度
-         * @return void
-         */
-        virtual void windowResized(int32_t w, int32_t h) = 0;
+    }
 
-        /**
-         * @brief 窗口移动通知
-         * @param [in] x : 新的窗口位置
-         * @param [in] y : 新的窗口位置
-         */
-        virtual void windowMoved(int32_t x, int32_t y) = 0;
+    GLApplication::~GLApplication()
+    {
 
-        /**
-         * @brief 窗口事件循环通知
-         */
-        virtual void windowRender() = 0;
+    }
 
-        /**
-         * @brief 
-         */
-        virtual void windowClosed() = 0;
-    };
+    bool GLApplication::init()
+    {
+        bool ret = false;
+
+        return ret;
+    }
+
+    void GLApplication::pollEvents()
+    {
+
+    }
+
+    void GLApplication::release()
+    {
+
+    }
+
+    void *GLApplication::getNativeAppObject()
+    {
+        return nullptr;
+    }
 }
-
-
-#endif  /*__T3D_WINDOW_EVENT_LISTENER_H__*/

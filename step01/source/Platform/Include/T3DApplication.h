@@ -18,19 +18,50 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_APP_EVENT_LISTENER_H__
-#define __T3D_APP_EVENT_LISTENER_H__
+#ifndef __T3D_APPLICATION_H__
+#define __T3D_APPLICATION_H__
 
 
-#include "T3DPrerequisites.h"
-
+#include "T3DPlatformPrerequisites.h"
+#include "T3DSingleton.h"
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API AppEventListener
+    class System;
+    class IApplication;
+
+    class T3D_PLATFORM_API Application : public Singleton<Application>
     {
     public:
-        T3D_DECLARE_INTERFACE(AppEventListener);
+        /**
+         * Constructor
+         * @param [in] is GLApp : 是否OpenGL应用程序
+         */
+        Application(bool isGLApp);
+
+        /**
+         * Destructor
+         */
+        virtual ~Application();
+
+        /**
+         * @brief 应用初始化，这个由具体平台来调用，用户不需要调用
+         * @return 调用成功返回true，否则返回false
+         */
+        bool init();
+
+        /**
+         * @brief 应用事件处理
+         */
+        void pollEvents();
+
+        /**
+         * @brief 应用程序退出释放资源
+         * @return void
+         */
+        void release();
+
+        void *getNativeAppObject();
 
         virtual bool applicationDidFinishLaunching() = 0;
 
@@ -39,9 +70,13 @@ namespace Tiny3D
         virtual void applicationWillEnterForeground() = 0;
 
         virtual void applicationWillTerminate() = 0;
+
+    private:
+        System          *mSystem;       /// 具体平台系统对象
+        IApplication    *mApp;          /// 平台APP对象
     };
 }
 
 
 
-#endif  /*__T3D_APP_EVENT_LISTENER_H__*/
+#endif  /*__T3D_APPLICATION_H__*/

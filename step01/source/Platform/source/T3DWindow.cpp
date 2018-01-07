@@ -19,6 +19,7 @@
 
 #include "T3DWindow.h"
 #include "Adapter/T3DFactoryInterface.h"
+#include "Adapter/T3DWindowInterface.h"
 #include "T3DSystem.h"
 #include <stdarg.h>
 
@@ -66,14 +67,6 @@ namespace Tiny3D
         if (mWindow != nullptr)
         {
             mWindow->destroy();
-        }
-    }
-
-    void Window::pollEvents()
-    {
-        if (mWindow != nullptr)
-        {
-            mWindow->pollEvents();
         }
     }
 

@@ -30,7 +30,9 @@ namespace Tiny3D
     /**
      * @brief 引擎入口类
      */
-    class T3D_ENGINE_API Engine
+    class T3D_ENGINE_API Engine 
+        : public Singleton<Engine>
+        , public WindowEventListener
     {
         T3D_DISABLE_COPY(Engine);
 
@@ -46,11 +48,6 @@ namespace Tiny3D
         virtual ~Engine();
 
         /**
-         * @brief 设置应用事件监听者
-         */
-        void setAppEventListener(AppEventListener *listener);
-
-        /**
          * @brief 启动引擎
          * @param [in] window : 渲染窗口
          * @remarks 引擎的一切应用都要在调用本接口之后才有效。
@@ -62,15 +59,45 @@ namespace Tiny3D
          */
         bool run();
 
+        /**
+         * @brief 渲染一帧
+         */
+        void renderOneFrame();
+
     protected:
-        System              *mSystem;               /// 平台层系统对象
-        AppEventListener    *mAppEventListener;     /// 应用事件监听者
+        /**
+        * @brief 窗口大小改变通知
+        * @param [in] w : 新的窗口宽度
+        * @param [in] h : 新的窗口高度
+        * @return void
+        */
+        virtual void windowResized(int32_t w, int32_t h) override;
+
+        /**
+        * @brief 窗口移动通知
+        * @param [in] x : 新的窗口位置
+        * @param [in] y : 新的窗口位置
+        */
+        virtual void windowMoved(int32_t x, int32_t y) override;
+
+        /**
+        * @brief 窗口事件循环通知
+        */
+        virtual void windowRender() override;
+
+        /**
+        * @brief
+        */
+        virtual void windowClosed() override;
+
+    protected:
         Window              *mWindow;               /// 窗口
-        bool                mShutdown;              /// 引擎是否关闭
+        bool                mIsRunning;             /// 引擎是否在运行中
         bool                mWindowCreated;         /// 窗口是否内部创建的
     };
-}
 
+    #define T3D_ENGINE      (Engine::getInstance())
+}
 
 
 #endif  /*__T3D_APP_EVENT_LISTENER_H__*/

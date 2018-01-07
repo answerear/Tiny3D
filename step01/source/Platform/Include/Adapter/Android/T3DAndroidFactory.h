@@ -26,11 +26,13 @@
 
 namespace Tiny3D
 {
-    class AndroidFactory : public FactoryInterface
+    class AndroidFactory : public IFactory
     {
     public:
         AndroidFactory();
         virtual ~AndroidFactory();
+
+        virtual IApplication *createPlatformApplication(bool isGLApp) override;
 
         virtual IWindow *createPlatformWindow(bool isGLWindow) override;
 
