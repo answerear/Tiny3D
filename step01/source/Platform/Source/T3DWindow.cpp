@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -22,13 +22,27 @@
 #include "Adapter/T3DWindowInterface.h"
 #include "T3DSystem.h"
 #include <stdarg.h>
+#include <SDL.h>
 
 
 namespace Tiny3D
 {
-    Window::Window(bool isGLWindow)
+    const uint32_t Window::WINDOW_FULLSCREEN = SDL_WINDOW_FULLSCREEN;
+    const uint32_t Window::WINDOW_FULLSCREEN_DESKTOP = SDL_WINDOW_FULLSCREEN_DESKTOP;
+    const uint32_t Window::WINDOW_OPENGL = SDL_WINDOW_OPENGL;
+    const uint32_t Window::WINDOW_SHOWN = SDL_WINDOW_SHOWN;
+    const uint32_t Window::WINDOW_HIDDEN = SDL_WINDOW_HIDDEN;
+    const uint32_t Window::WINDOW_BORDERLESS = SDL_WINDOW_BORDERLESS;
+    const uint32_t Window::WINDOW_RESIZABLE = SDL_WINDOW_RESIZABLE;
+    const uint32_t Window::WINDOW_MINIMIZED = SDL_WINDOW_MINIMIZED;
+    const uint32_t Window::WINDOW_MAXIMIZED = SDL_WINDOW_MAXIMIZED;
+    const uint32_t Window::WINDOW_INPUT_GRABBED = SDL_WINDOW_INPUT_GRABBED;
+    const uint32_t Window::WINDOW_INPUT_FOCUS = SDL_WINDOW_INPUT_FOCUS;
+    const uint32_t Window::WINDOW_MOUSE_CAPTURE = SDL_WINDOW_MOUSE_CAPTURE;
+
+    Window::Window()
     {
-        mWindow = T3D_PLATFORM_FACTORY.createPlatformWindow(isGLWindow);
+        mWindow = T3D_PLATFORM_FACTORY.createPlatformWindow();
     }
 
     Window::~Window()
@@ -47,16 +61,13 @@ namespace Tiny3D
     }
 
     bool Window::create(const char *title, int32_t x, int32_t y,
-        int32_t w, int32_t h, bool isFullscreen, int32_t argc, ...)
+        int32_t w, int32_t h, uint32_t flags)
     {
         bool ret = false;
 
         if (mWindow != nullptr)
         {
-            va_list args;
-            va_start(args, argc);
-            ret = mWindow->create(title, x, y, w, h, isFullscreen, argc, args);
-            va_end(args);
+            ret = mWindow->create(title, x, y, w, h, flags);
         }
         
         return ret;
@@ -67,14 +78,6 @@ namespace Tiny3D
         if (mWindow != nullptr)
         {
             mWindow->destroy();
-        }
-    }
-
-    void Window::render()
-    {
-        if (mWindow != nullptr)
-        {
-            mWindow->render();
         }
     }
 }

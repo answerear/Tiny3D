@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -18,10 +18,8 @@
  ******************************************************************************/
 
 #include "T3DWin32Factory.h"
-#include "T3DWin32Application.h"
-#include "T3DGLApplication.h"
-#include "T3DWin32Window.h"
-#include "T3DGLWindow.h"
+#include "Adapter/T3DSDLApplication.h"
+#include "Adapter/T3DSDLWindow.h"
 
 namespace Tiny3D
 {
@@ -35,36 +33,14 @@ namespace Tiny3D
 
     }
 
-    IApplication *Win32Factory::createPlatformApplication(bool isGLApp)
+    IApplication *Win32Factory::createPlatformApplication()
     {
-        IApplication *app = nullptr;
-
-        if (isGLApp)
-        {
-
-        }
-        else
-        {
-            app = new Win32Application();
-        }
-
-        return app;
+        return new SDLApplication();
     }
 
-    IWindow *Win32Factory::createPlatformWindow(bool isGLWindow)
+    IWindow *Win32Factory::createPlatformWindow()
     {
-        IWindow *window = nullptr;
-
-        if (isGLWindow)
-        {
-
-        }
-        else
-        {
-            window = new Win32Window();
-        }
-
-        return window;
+        return new SDLWindow();
     }
 
     EPlatform Win32Factory::getPlatform()

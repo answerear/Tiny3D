@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,47 +17,58 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
-#include "T3DWin32Application.h"
-
+#include "Adapter/T3DSDLWindow.h"
+#include <SDL_syswm.h>
 
 namespace Tiny3D
 {
-    Win32Application::Win32Application()
-        : mInstance(nullptr)
+    SDLWindow::SDLWindow()
+        : mWindow(nullptr)
     {
 
     }
 
-    Win32Application::~Win32Application()
+    SDLWindow::~SDLWindow()
     {
 
     }
 
-    bool Win32Application::init()
+    bool SDLWindow::create(const char *title, int32_t x, int32_t y,
+        int32_t w, int32_t h, uint32_t flags)
     {
-        mInstance = ::GetModuleHandle(NULL);
+        bool ret = false;
 
-        return (mInstance != nullptr);
-    }
+        ret = (SDL_WasInit(SDL_INIT_VIDEO) == SDL_INIT_VIDEO);
 
-    void Win32Application::pollEvents()
-    {
-        MSG msg;
-        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        if (ret)
         {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            mWindow = SDL_CreateWindow(title, x, y, w, h, flags);
+            if (mWindow == nullptr)
+            {
+                ret = false;
+            }
+            else
+            {
+
+            }
+        }
+
+        return ret;
+    }
+
+    void SDLWindow::destroy()
+    {
+        if (mWindow != nullptr)
+        {
+            SDL_DestroyWindow(mWindow);
+            mWindow = nullptr;
         }
     }
 
-    void Win32Application::release()
+    void *SDLWindow::getNativeWinObject()
     {
-
-    }
-
-    void *Win32Application::getNativeAppObject()
-    {
-        return mInstance;
+        SDL_SysWMinfo info;
+        bool ret = (SDL_GetWindowWMInfo(mWindow, &info) == SDL_TRUE);
+        return info.info.win.window;
     }
 }

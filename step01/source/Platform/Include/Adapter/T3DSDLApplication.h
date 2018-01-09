@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,45 +17,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_SDL_APPLICATION_H__
+#define __T3D_SDL_APPLICATION_H__
 
-#ifndef __T3D_GL_APPLICATION_H__
-#define __T3D_GL_APPLICATION_H__
+#include "T3DApplicationInterface.h"
+#include <SDL.h>
 
-
-#include "T3DPlatformPrerequisites.h"
-#include "Adapter/T3DApplicationInterface.h"
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API GLApplication : public IApplication
+    class SDLApplication : public IApplication
     {
     public:
-        GLApplication();
-        virtual ~GLApplication();
+        SDLApplication();
+        virtual ~SDLApplication();
 
         /**
-         * @brief ³õÊ¼»¯Ó¦ÓÃ³ÌĞò
-         * @return µ÷ÓÃ³É¹¦·µ»Øtrue£¬·ñÔò·µ»Øfalse
+         * @brief åˆå§‹åŒ–åº”ç”¨ç¨‹åº
+         * @return è°ƒç”¨æˆåŠŸè¿”å›trueï¼Œå¦åˆ™è¿”å›false
          */
         virtual bool init() override;
 
         /**
-         * @brief ÂÖÑ¯´¦ÀíÓ¦ÓÃ³ÌĞòÊÂ¼ş
+         * @brief è½®è¯¢å¤„ç†åº”ç”¨ç¨‹åºäº‹ä»¶
+         * @return è¿”å›falseæ—¶è¡¨ç¤ºéœ€è¦é€€å‡ºç¨‹åº
          */
-        virtual void pollEvents() override;
+        virtual bool pollEvents() override;
 
         /**
-         * @brief ÊÍ·ÅÓ¦ÓÃ³ÌĞò¶ÔÏó×ÊÔ´
+         * @brief é‡Šæ”¾åº”ç”¨ç¨‹åºå¯¹è±¡èµ„æº
          */
         virtual void release() override;
 
         /**
-         * @brief »ñÈ¡Æ½Ì¨Ô­ÉúÓ¦ÓÃ¶ÔÏó
+         * @brief è·å–å¹³å°åŸç”Ÿåº”ç”¨å¯¹è±¡
          */
         virtual void *getNativeAppObject() override;
     };
 }
 
 
-
-#endif  /*__T3D_APPLICATION_H__*/
+#endif  /*__T3D_SDL_APPLICATION_H__*/

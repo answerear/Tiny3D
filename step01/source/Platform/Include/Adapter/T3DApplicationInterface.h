@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -35,23 +35,24 @@ namespace Tiny3D
         T3D_DECLARE_INTERFACE(IApplication);
 
         /**
-         * @brief ³õÊ¼»¯Ó¦ÓÃ³ÌĞò
-         * @return µ÷ÓÃ³É¹¦·µ»Øtrue£¬·ñÔò·µ»Øfalse
+         * @brief åˆå§‹åŒ–åº”ç”¨ç¨‹åº
+         * @return è°ƒç”¨æˆåŠŸè¿”å›trueï¼Œå¦åˆ™è¿”å›false
          */
         virtual bool init() = 0;
 
         /**
-         * @brief ÂÖÑ¯´¦ÀíÓ¦ÓÃ³ÌĞòÊÂ¼ş
+         * @brief è½®è¯¢å¤„ç†åº”ç”¨ç¨‹åºäº‹ä»¶
+         * @return è¿”å›falseæ—¶è¡¨ç¤ºéœ€è¦é€€å‡ºç¨‹åº
          */
-        virtual void pollEvents() = 0;
+        virtual bool pollEvents() = 0;
 
         /**
-         * @brief ÊÍ·ÅÓ¦ÓÃ³ÌĞò¶ÔÏó×ÊÔ´
+         * @brief é‡Šæ”¾åº”ç”¨ç¨‹åºå¯¹è±¡èµ„æº
          */
         virtual void release() = 0;
 
         /**
-         * @brief »ñÈ¡Æ½Ì¨Ô­ÉúÓ¦ÓÃ¶ÔÏó
+         * @brief è·å–å¹³å°åŸç”Ÿåº”ç”¨å¯¹è±¡
          */
         virtual void *getNativeAppObject() = 0;
     };

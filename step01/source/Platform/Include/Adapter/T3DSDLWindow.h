@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,50 +17,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_WIN32_WINDOW_H__
-#define __T3D_WIN32_WINDOW_H__
+#ifndef __T3D_SDL_WINDOW_H__
+#define __T3D_SDL_WINDOW_H__
 
 
-#include "Adapter/T3DWindowInterface.h"
-#include <windows.h>
-
+#include "T3DWindowInterface.h"
+#include <SDL.h>
 
 namespace Tiny3D
 {
-    class Win32Window : public IWindow
-    {
-        T3D_DISABLE_COPY(Win32Window);
-    public:
-        Win32Window();
+    class IWindow;
 
-        virtual ~Win32Window();
+    class T3D_PLATFORM_API SDLWindow : public IWindow
+    {
+        T3D_DISABLE_COPY(SDLWindow);
+
+    public:
+        SDLWindow();
+
+        virtual ~SDLWindow();
 
         virtual bool create(const char *title, int32_t x, int32_t y, 
-            int32_t w, int32_t h, bool isFullscreen, 
-            int32_t argc, va_list args) override;
+            int32_t w, int32_t h, uint32_t flags) override;
 
         virtual void destroy() override;
 
         virtual void *getNativeWinObject() override;
 
     protected:
-        bool create(const char *title, int32_t x, int32_t y, int32_t w,
-            int32_t h, bool isFullscreen, HWND hParentWnd, HWND hExternalWnd,
-            HINSTANCE hInstance);
-
-        static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-        virtual LRESULT WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-    protected:
-        HWND    mHWnd;          // ´°¿Ú¾ä±ú
-        int32_t mLeft;          // ´°¿Ú×óÉÏ½ÇX×ø±ê
-        int32_t mTop;           // ´°¿Ú×óÉÏ½ÇY×ø±ê
-        int32_t mWidth;         // ´°¿Ú¿í¶È
-        int32_t mHeight;        // ´°¿Ú¸ß¶È
-        bool    mIsExternal;    // ÊÇ·ñÍâ²¿´´½¨µÄ´°¿Ú
+        SDL_Window  *mWindow;
     };
 }
 
 
-#endif  /*__T3D_WIN32_WINDOW_H__*/
+#endif  /*__T3D_SDL_WINDOW_H__*/

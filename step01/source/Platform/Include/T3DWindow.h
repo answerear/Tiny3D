@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -34,18 +34,29 @@ namespace Tiny3D
         T3D_DISABLE_COPY(Window);
 
     public:
-        Window(bool isGLWindow);
+        static const uint32_t WINDOW_FULLSCREEN;
+        static const uint32_t WINDOW_FULLSCREEN_DESKTOP;
+        static const uint32_t WINDOW_OPENGL;
+        static const uint32_t WINDOW_SHOWN;
+        static const uint32_t WINDOW_HIDDEN;
+        static const uint32_t WINDOW_BORDERLESS;
+        static const uint32_t WINDOW_RESIZABLE;
+        static const uint32_t WINDOW_MINIMIZED;
+        static const uint32_t WINDOW_MAXIMIZED;
+        static const uint32_t WINDOW_INPUT_GRABBED;
+        static const uint32_t WINDOW_INPUT_FOCUS;
+        static const uint32_t WINDOW_MOUSE_CAPTURE;
+
+        Window();
 
         virtual ~Window();
 
         void setWindowEventListener(WindowEventListener *listener);
 
-        bool create(const char *title, int32_t x, int32_t y, int32_t w, 
-            int32_t h, bool isFullscreen, int32_t argc, ...);
+        bool create(const char *title, int32_t x, int32_t y, 
+            int32_t w, int32_t h, uint32_t flags);
 
         void destroy();
-
-        void render();
 
     protected:
         IWindow *mWindow;

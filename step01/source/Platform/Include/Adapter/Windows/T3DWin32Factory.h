@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -32,9 +32,9 @@ namespace Tiny3D
         Win32Factory();
         virtual ~Win32Factory();
 
-        virtual IApplication *createPlatformApplication(bool isGLApp) override;
+        virtual IApplication *createPlatformApplication() override;
 
-        virtual IWindow *createPlatformWindow(bool isGLWindow) override;
+        virtual IWindow *createPlatformWindow() override;
 
         virtual EPlatform getPlatform() override;
 

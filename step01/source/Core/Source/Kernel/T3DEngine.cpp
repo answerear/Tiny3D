@@ -53,8 +53,8 @@ namespace Tiny3D
         {
             if (window == nullptr)
             {
-                mWindow = new Window(false);
-                if (ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, false, 3, NULL, NULL, NULL))
+                mWindow = new Window();
+                if (ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, Window::WINDOW_SHOWN))
                 {
                     mWindowCreated = true;
 
@@ -81,8 +81,8 @@ namespace Tiny3D
 
         while (mIsRunning)
         {
-            theApp->pollEvents();
-            mWindow->render();
+            mIsRunning = theApp->pollEvents();
+            renderOneFrame();
         }
 
         theApp->applicationWillTerminate();
@@ -92,9 +92,7 @@ namespace Tiny3D
 
     void Engine::renderOneFrame()
     {
-        Application *theApp = Application::getInstancePtr();
-        theApp->pollEvents();
-        mWindow->render();
+        
     }
 
     void Engine::windowResized(int32_t w, int32_t h)

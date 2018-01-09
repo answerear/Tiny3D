@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -29,7 +29,7 @@
 namespace Tiny3D
 {
     /**
-     * @brief ´°¿ÚÊÂ¼ş¼àÌıÕß
+     * @brief çª—å£äº‹ä»¶ç›‘å¬è€…
      */
     class T3D_PLATFORM_API WindowEventListener
     {
@@ -37,22 +37,22 @@ namespace Tiny3D
         T3D_DECLARE_INTERFACE(WindowEventListener);
 
         /**
-         * @brief ´°¿Ú´óĞ¡¸Ä±äÍ¨Öª
-         * @param [in] w : ĞÂµÄ´°¿Ú¿í¶È
-         * @param [in] h : ĞÂµÄ´°¿Ú¸ß¶È
+         * @brief çª—å£å¤§å°æ”¹å˜é€šçŸ¥
+         * @param [in] w : æ–°çš„çª—å£å®½åº¦
+         * @param [in] h : æ–°çš„çª—å£é«˜åº¦
          * @return void
          */
         virtual void windowResized(int32_t w, int32_t h) = 0;
 
         /**
-         * @brief ´°¿ÚÒÆ¶¯Í¨Öª
-         * @param [in] x : ĞÂµÄ´°¿ÚÎ»ÖÃ
-         * @param [in] y : ĞÂµÄ´°¿ÚÎ»ÖÃ
+         * @brief çª—å£ç§»åŠ¨é€šçŸ¥
+         * @param [in] x : æ–°çš„çª—å£ä½ç½®
+         * @param [in] y : æ–°çš„çª—å£ä½ç½®
          */
         virtual void windowMoved(int32_t x, int32_t y) = 0;
 
         /**
-         * @brief ´°¿ÚÊÂ¼şÑ­»·Í¨Öª
+         * @brief çª—å£äº‹ä»¶å¾ªç¯é€šçŸ¥
          */
         virtual void windowRender() = 0;
 

@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -30,8 +30,8 @@
 namespace Tiny3D
 {
     /**
-     * @brief Æ½Ì¨´°¿Ú³éÏóÀà
-     * @remarks ²»Í¬Æ½Ì¨¸ù¾İ½Ó¿Ú¸÷×ÔÊµÏÖ¾ßÌåµÄ²Ù×÷
+     * @brief å¹³å°çª—å£æŠ½è±¡ç±»
+     * @remarks ä¸åŒå¹³å°æ ¹æ®æ¥å£å„è‡ªå®ç°å…·ä½“çš„æ“ä½œ
      */
     class IWindow
     {
@@ -44,29 +44,28 @@ namespace Tiny3D
         }
 
         /**
-         * @brief ´´½¨´°¿Ú.
-         * @param [in] x : ´°¿ÚÎ»ÖÃ
-         * @param [in] y : ´°¿ÚÎ»ÖÃ
-         * @param [in] w : ´°¿Ú¿í¶È
-         * @param [in] h : ´°¿Ú¸ß¶È
-         * @param [in] isFullscreen : ÊÇ·ñÈ«ÆÁ
-         * @param [in] argc : ´°¿Ú¸½¼Ó²ÎÊıÊıÁ¿
-         * @param [in] args : ¸½¼Ó²ÎÊıÁĞ±í
-         * @return ´´½¨³É¹¦·µ»Øtrue£¬·ñÔò·µ»Øfalse.
-         * @remarks ¸÷Æ½Ì¨¸÷×Ô¶¨ÒåargcµÄÖµºÍargsµÄÄÚÈİ
+         * @brief åˆ›å»ºçª—å£.
+         * @param [in] x : çª—å£ä½ç½®
+         * @param [in] y : çª—å£ä½ç½®
+         * @param [in] w : çª—å£å®½åº¦
+         * @param [in] h : çª—å£é«˜åº¦
+         * @param [in] isFullscreen : æ˜¯å¦å…¨å±
+         * @param [in] argc : çª—å£é™„åŠ å‚æ•°æ•°é‡
+         * @param [in] args : é™„åŠ å‚æ•°åˆ—è¡¨
+         * @return åˆ›å»ºæˆåŠŸè¿”å›trueï¼Œå¦åˆ™è¿”å›false.
+         * @remarks å„å¹³å°å„è‡ªå®šä¹‰argcçš„å€¼å’Œargsçš„å†…å®¹
          */
         virtual bool create(const char *title, int32_t x, int32_t y,
-            int32_t w, int32_t h, bool isFullscreen, 
-            int32_t argc, va_list args) = 0;
+            int32_t w, int32_t h, uint32_t flags) = 0;
 
         /**
-         * @brief Ïú»Ù´°¿Ú
+         * @brief é”€æ¯çª—å£
          * @return void
          */
         virtual void destroy() = 0;
 
         /**
-         * @brief äÖÈ¾´°¿Ú
+         * @brief æ¸²æŸ“çª—å£
          * @return void
          */
         virtual void render()
@@ -78,9 +77,9 @@ namespace Tiny3D
         }
 
         /**
-         * @brief ·µ»ØÔ­Éú´°¿Ú¶ÔÏó
-         * @return ·µ»ØÆ½Ì¨Ô­Éú´°¿Ú¶ÔÏó»òÕß¾ä±ú
-         * @remarks ²»Í¬Æ½Ì¨·µ»Ø²»Í¬µÄ¶ÔÏó£¬¸ù¾İ¸÷×ÔÆ½Ì¨¸÷×Ô½âÎö
+         * @brief è¿”å›åŸç”Ÿçª—å£å¯¹è±¡
+         * @return è¿”å›å¹³å°åŸç”Ÿçª—å£å¯¹è±¡æˆ–è€…å¥æŸ„
+         * @remarks ä¸åŒå¹³å°è¿”å›ä¸åŒçš„å¯¹è±¡ï¼Œæ ¹æ®å„è‡ªå¹³å°å„è‡ªè§£æ
          */
         virtual void *getNativeWinObject() = 0;
 

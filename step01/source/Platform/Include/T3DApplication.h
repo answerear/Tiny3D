@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -35,9 +35,8 @@ namespace Tiny3D
     public:
         /**
          * Constructor
-         * @param [in] is GLApp : ÊÇ·ñOpenGLÓ¦ÓÃ³ÌĞò
          */
-        Application(bool isGLApp);
+        Application();
 
         /**
          * Destructor
@@ -45,18 +44,18 @@ namespace Tiny3D
         virtual ~Application();
 
         /**
-         * @brief Ó¦ÓÃ³õÊ¼»¯£¬Õâ¸öÓÉ¾ßÌåÆ½Ì¨À´µ÷ÓÃ£¬ÓÃ»§²»ĞèÒªµ÷ÓÃ
-         * @return µ÷ÓÃ³É¹¦·µ»Øtrue£¬·ñÔò·µ»Øfalse
+         * @brief åº”ç”¨åˆå§‹åŒ–ï¼Œè¿™ä¸ªç”±å…·ä½“å¹³å°æ¥è°ƒç”¨ï¼Œç”¨æˆ·ä¸éœ€è¦è°ƒç”¨
+         * @return è°ƒç”¨æˆåŠŸè¿”å›trueï¼Œå¦åˆ™è¿”å›false
          */
         bool init();
 
         /**
-         * @brief Ó¦ÓÃÊÂ¼ş´¦Àí
+         * @brief åº”ç”¨äº‹ä»¶å¤„ç†
          */
-        void pollEvents();
+        bool pollEvents();
 
         /**
-         * @brief Ó¦ÓÃ³ÌĞòÍË³öÊÍ·Å×ÊÔ´
+         * @brief åº”ç”¨ç¨‹åºé€€å‡ºé‡Šæ”¾èµ„æº
          * @return void
          */
         void release();
@@ -72,8 +71,8 @@ namespace Tiny3D
         virtual void applicationWillTerminate() = 0;
 
     private:
-        System          *mSystem;       /// ¾ßÌåÆ½Ì¨ÏµÍ³¶ÔÏó
-        IApplication    *mApp;          /// Æ½Ì¨APP¶ÔÏó
+        System          *mSystem;       /// å…·ä½“å¹³å°ç³»ç»Ÿå¯¹è±¡
+        IApplication    *mApp;          /// å…·ä½“å¹³å°åº”ç”¨ç¨‹åºå¯¹è±¡
     };
 }
 

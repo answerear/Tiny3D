@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -22,22 +22,23 @@
 #include "T3DSystem.h"
 #include "Adapter/T3DFactoryInterface.h"
 #include "Adapter/T3DApplicationInterface.h"
+#include <SDL.h>
 
 
 namespace Tiny3D
 {
     T3D_INIT_SINGLETON(Application);
 
-    Application::Application(bool isGLApp)
+    Application::Application()
         : mSystem(new System())
-        , mApp(nullptr)
     {
-        mApp = T3D_PLATFORM_FACTORY.createPlatformApplication(isGLApp);
+        mApp = T3D_PLATFORM_FACTORY.createPlatformApplication();
     }
 
     Application::~Application()
     {
         T3D_SAFE_DELETE(mApp);
+        T3D_SAFE_DELETE(mSystem);
     }
 
     bool Application::init()
@@ -52,12 +53,16 @@ namespace Tiny3D
         return ret;
     }
 
-    void Application::pollEvents()
+    bool Application::pollEvents()
     {
+        bool ret = false;
+
         if (mApp != nullptr)
         {
-            mApp->pollEvents();
+            ret = mApp->pollEvents();
         }
+
+        return ret;
     }
 
     void Application::release()

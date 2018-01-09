@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -42,8 +42,8 @@ namespace Tiny3D
 
     /**
      * @class IFactory
-     * @brief ²Ù×÷ÏµÍ³ÊÊÅä²ã¹¤³§½Ó¿Ú.
-     * @note ²»Í¬²Ù×÷ÏµÍ³Æ½Ì¨ĞèÒªÊµÏÖ¼Ì³Ğ¸ÃÀàÊµÏÖ¾ßÌåÆ½Ì¨½Ó¿Ú
+     * @brief æ“ä½œç³»ç»Ÿé€‚é…å±‚å·¥å‚æ¥å£.
+     * @note ä¸åŒæ“ä½œç³»ç»Ÿå¹³å°éœ€è¦å®ç°ç»§æ‰¿è¯¥ç±»å®ç°å…·ä½“å¹³å°æ¥å£
      */
     class IFactory
     {
@@ -51,30 +51,28 @@ namespace Tiny3D
 
     public:
         /**
-         * @brief ´´½¨²Ù×÷ÏµÍ³Æ½Ì¨Ïà¹ØµÄÓ¦ÓÃ³ÌĞò¶ÔÏó
-         * @param [in] isGLApp : ÊÇ·ñÊ¹ÓÃOpenGLdeµÄÓ¦ÓÃ³ÌĞò
-         * @return ·µ»ØÆ½Ì¨Ïà¹ØµÄÓ¦ÓÃ³ÌĞò¶ÔÏó£¬ĞèÒªÓÃ»§µ÷ÓÃdeleteÊÍ·Å¶ÔÏó
+         * @brief åˆ›å»ºæ“ä½œç³»ç»Ÿå¹³å°ç›¸å…³çš„åº”ç”¨ç¨‹åºå¯¹è±¡
+         * @return è¿”å›å¹³å°ç›¸å…³çš„åº”ç”¨ç¨‹åºå¯¹è±¡ï¼Œéœ€è¦ç”¨æˆ·è°ƒç”¨deleteé‡Šæ”¾å¯¹è±¡
          */
-        virtual IApplication *createPlatformApplication(bool isGLApp) = 0;
+        virtual IApplication *createPlatformApplication() = 0;
 
         /**
-         * @brief ´´½¨²Ù×÷ÏµÍ³Æ½Ì¨Ïà¹ØµÄ´°¿Ú.
-         * @param [in] isGLWindow : ÊÇ·ñOpenGL´°¿Ú
-         * @return ·µ»ØÆ½Ì¨Ïà¹ØµÄ´°¿Ú²Ù×÷¶ÔÏó£¬ĞèÒªÓÃ»§µ÷ÓÃdeleteÊÍ·Å¶ÔÏó
+         * @brief åˆ›å»ºæ“ä½œç³»ç»Ÿå¹³å°ç›¸å…³çš„çª—å£.
+         * @return è¿”å›å¹³å°ç›¸å…³çš„çª—å£æ“ä½œå¯¹è±¡ï¼Œéœ€è¦ç”¨æˆ·è°ƒç”¨deleteé‡Šæ”¾å¯¹è±¡
          */
-        virtual IWindow *createPlatformWindow(bool isGLWindow) = 0;
+        virtual IWindow *createPlatformWindow() = 0;
 
         /**
-         * @brief »ñÈ¡µ±Ç°Æ½Ì¨ÀàĞÍ.
-         * @return ·µ»Øµ±Ç°Æ½Ì¨ÀàĞÍ
+         * @brief è·å–å½“å‰å¹³å°ç±»å‹.
+         * @return è¿”å›å½“å‰å¹³å°ç±»å‹
          */
         virtual EPlatform getPlatform() = 0;
     };
 
     /**
-     * @brief ´´½¨²Ù×÷ÏµÍ³Ïà¹ØµÄÊÊÅä²ã¹¤³§¶ÔÏó.
-     * @note ²»Í¬²Ù×÷ÏµÍ³Æ½Ì¨ĞèÒªÊµÏÖ¸Ã½Ó¿ÚÒÔ·µ»Ø²Ù×÷ÏµÍ³ÊÊÅä²ã¹¤³§¶ÔÏó
-     * @return ·µ»ØÊÊÅä²ã¹¤³§¶ÔÏó£¬ĞèÒªÓÃ»§µ÷ÓÃdeleteÊÍ·Å×ÊÔ´
+     * @brief åˆ›å»ºæ“ä½œç³»ç»Ÿç›¸å…³çš„é€‚é…å±‚å·¥å‚å¯¹è±¡.
+     * @note ä¸åŒæ“ä½œç³»ç»Ÿå¹³å°éœ€è¦å®ç°è¯¥æ¥å£ä»¥è¿”å›æ“ä½œç³»ç»Ÿé€‚é…å±‚å·¥å‚å¯¹è±¡
+     * @return è¿”å›é€‚é…å±‚å·¥å‚å¯¹è±¡ï¼Œéœ€è¦ç”¨æˆ·è°ƒç”¨deleteé‡Šæ”¾èµ„æº
      */
     IFactory *createPlatformFactory();
 }

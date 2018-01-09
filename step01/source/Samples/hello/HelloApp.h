@@ -27,7 +27,7 @@
 class HelloApp : public Tiny3D::Application
 {
 public:
-    HelloApp(bool isGLApp);
+    HelloApp();
     virtual ~HelloApp();
 
 protected:  /// from Tiny3D::Application

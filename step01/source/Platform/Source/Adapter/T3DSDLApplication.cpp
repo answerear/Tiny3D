@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -18,39 +18,66 @@
  ******************************************************************************/
 
 
-
-#include "Adapter/Android/T3DAndroidApplication.h"
-
+#include "Adapter/T3DSDLApplication.h"
+#include <windows.h>
 
 namespace Tiny3D
 {
-    AndroidApplication::AndroidApplication()
+    SDLApplication::SDLApplication()
     {
 
     }
 
-    AndroidApplication::~AndroidApplication()
+    SDLApplication::~SDLApplication()
     {
 
     }
 
-    bool AndroidApplication::init()
+    bool SDLApplication::init()
     {
-        return true;
+        bool ret = false;
+
+        ret = (SDL_Init(0) == 0);
+
+        if (!ret)
+        {
+            const char *error = SDL_GetError();
+        }
+
+        ret = ret && (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) == 0);
+        if (!ret)
+        {
+            const char *error = SDL_GetError();
+        }
+
+        return ret;
     }
 
-    void AndroidApplication::pollEvents()
+    bool SDLApplication::pollEvents()
     {
+        bool ret = true;
+        SDL_Event ev;
 
+        while (SDL_PollEvent(&ev) != 0)
+        {
+            if (ev.type == SDL_QUIT)
+            {
+                ret = false;
+                break;
+            }
+        }
+
+        return ret;
     }
 
-    void AndroidApplication::release()
+    void SDLApplication::release()
     {
-
+        SDL_Quit();
     }
 
-    void *AndroidApplication::getNativeAppObject()
+    void *SDLApplication::getNativeAppObject()
     {
         return nullptr;
     }
 }
+
