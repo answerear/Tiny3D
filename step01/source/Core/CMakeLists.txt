@@ -22,6 +22,7 @@ include_directories(
 	"${TINY3D_PLATFORM_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
+	"${SDL2_INCLUDE_DIR}"
 	)
 
 
@@ -47,11 +48,13 @@ if (TINY3D_OS_WINDOWS)
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
 			LINK_PRIVATE legacy_stdio_definitions
+			LINK_PRIVATE ${SDL2_LIBRARY}
 			)
 	else ()
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE ${SDL2_LIBRARY}
 			)
 	endif ()
 	
@@ -97,9 +100,15 @@ if (TINY3D_OS_WINDOWS)
 elseif (TINY3D_OS_MACOSX)
 elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)
+	target_link_libraries(
+			${LIB_NAME}
+			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE ${SDL2_LIBRARY}
+			)
 elseif (TINY3D_OS_ANDROID)
 	target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE ${SDL2_LIBRARY}
 			)
 endif (TINY3D_OS_WINDOWS)

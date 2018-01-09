@@ -93,7 +93,7 @@ FIND_LIBRARY(SDL2_LIBRARY_TEMP
   HINTS
   #$ENV{SDL2DIR}
   ${SDL2DIR}
-  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}
+  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID} prebuilt/iOS prebuilt/OSX
   PATHS
   /sw
   /opt/local
@@ -106,7 +106,7 @@ FIND_FILE(SDL2_BINARY
   HINTS ${Cg_BIN_SEARCH_PATH}
   #$ENV{SDL2DIR}
   ${SDL2DIR}
-  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}
+  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID} prebuilt/iOS prebuilt/OSX
 )
 
 
@@ -161,9 +161,9 @@ IF(SDL2_LIBRARY_TEMP)
   # I think it has something to do with the CACHE STRING.
   # So I use a temporary variable until the end so I can set the
   # "real" variable in one-shot.
-  IF(APPLE)
+  IF(APPLE AND NOT IOS)
     SET(SDL2_LIBRARY_TEMP ${SDL2_LIBRARY_TEMP} "-framework Cocoa")
-  ENDIF(APPLE)
+  ENDIF(APPLE AND NOT IOS)
 
   # For threads, as mentioned Apple doesn't need this.
   # In fact, there seems to be a problem if I used the Threads package

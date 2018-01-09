@@ -18,6 +18,7 @@ endif (MSVC)
 # Setup project include files path
 include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
+	"${SDL2_INCLUDE_DIR}"
 	)
 
 if (TINY3D_OS_WINDOWS)
@@ -96,17 +97,18 @@ elseif (TINY3D_OS_ANDROID)
 endif (TINY3D_OS_WINDOWS)
 
 
-if (TINY3D_BUILD_SHARED_LIBS)
-	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
-else (TINY3D_BUILD_SHARED_LIBS)
+#if (TINY3D_BUILD_SHARED_LIBS)
+#	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
+#else (TINY3D_BUILD_SHARED_LIBS)
 	add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
-endif (TINY3D_BUILD_SHARED_LIBS)
+#endif (TINY3D_BUILD_SHARED_LIBS)
 
+target_link_libraries(
+	${LIB_NAME}
+	)
 
 if (TINY3D_OS_WINDOWS)
-	target_link_libraries(
-		${LIB_NAME}
-		)
+
 
 	install(TARGETS ${LIB_NAME}
 		RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug
@@ -127,8 +129,5 @@ elseif (TINY3D_OS_MACOSX)
 elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)
 elseif (TINY3D_OS_ANDROID)
-	target_link_libraries(
-		${LIB_NAME}
-		)
 endif (TINY3D_OS_WINDOWS)
 
