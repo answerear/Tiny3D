@@ -38,9 +38,18 @@ set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
 
 if (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
     set (TINY3D_FRAMEWORKS
-        Foundation
+		Foundation
         QuartzCore
-        UIKit)
+        UIKit
+		OpenGLES
+		AVFoundation
+		AudioToolbox
+		ImageIO
+		CoreGraphics
+		MobileCoreServices
+		GameController
+		CoreMotion
+		)
 
     foreach(FW ${TINY3D_FRAMEWORKS})
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework ${FW}")

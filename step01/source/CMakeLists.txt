@@ -55,6 +55,7 @@ elseif (IOS)
 
 	set(TINY3D_OS_IOS TRUE CACHE STRING "iOS")
 
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ObjC")
     set (SDL2LIB_SUFFIXES "prebuilt/iOS")
 elseif (APPLE)
     message("Mac OS X")
@@ -64,6 +65,7 @@ elseif (APPLE)
 
 	set(TINY3D_OS_MACOSX TRUE CACHE STRING "Mac OS X")
 
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ObjC")
 	set (SDL2LIB_SUFFIXES "prebuilt/OSX")
 elseif (LINUX)
 	add_definitions(-DT3D_OS_LINUX)
