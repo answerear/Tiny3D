@@ -103,10 +103,6 @@ else (TINY3D_BUILD_SHARED_LIBS)
 	add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
 endif (TINY3D_BUILD_SHARED_LIBS)
 
-message("${SDL2_INCLUDE_DIR}")
-message("${SDL2_LIBRARY}")
-message("${SDL2_BINARY}")
-message("${SDL2MAIN_LIBRARY}")
 
 if (TINY3D_OS_WINDOWS)
 	target_link_libraries(
