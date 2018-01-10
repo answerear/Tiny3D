@@ -91,6 +91,7 @@ elseif (TINY3D_OS_ANDROID)
 
 	add_custom_command(TARGET ${BIN_NAME}
         PRE_LINK
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${T3D_ANDROID_LIB_PATH}
         COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${T3D_ANDROID_LIB_PATH}
         COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_LIBRARY} ${T3D_ANDROID_LIB_PATH}
         )
