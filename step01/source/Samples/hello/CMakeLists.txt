@@ -28,13 +28,13 @@ set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
 
-if (TINY3D_OS_ANDROID)
-	set_project_files(source\\\\Android ${CMAKE_CURRENT_SOURCE_DIR}/Android/app/src/main/cpp/ .cpp)
-elseif (TINY3D_OS_IOS)
-    set_project_files(source\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/iOS/ .cpp)
-else (TINY3D_OS_ANDROID)
-	set_project_files(source\\\\Desktop ${CMAKE_CURRENT_SOURCE_DIR}/Desktop/ .cpp)
-endif (TINY3D_OS_ANDROID)
+#if (TINY3D_OS_ANDROID)
+#	set_project_files(source\\\\Android ${CMAKE_CURRENT_SOURCE_DIR}/Android/app/src/main/cpp/ .cpp)
+#elseif (TINY3D_OS_IOS)
+#    set_project_files(source\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/iOS/ .cpp)
+#else (TINY3D_OS_ANDROID)
+#	set_project_files(source\\\\Desktop ${CMAKE_CURRENT_SOURCE_DIR}/Desktop/ .cpp)
+#endif (TINY3D_OS_ANDROID)
 
 if (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
     set (TINY3D_FRAMEWORKS
@@ -86,5 +86,15 @@ if (TINY3D_OS_WINDOWS)
 		LIBRARY DESTINATION bin/debug CONFIGURATIONS Debug
 		ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
 		)
-endif ()
+elseif (TINY3D_OS_ANDROID)
+    set(T3D_ANDROID_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Android/app/libs/${ANDROID_ABI}")
+
+	add_custom_command(TARGET ${BIN_NAME}
+        PRE_LINK
+        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${T3D_ANDROID_LIB_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_LIBRARY} ${T3D_ANDROID_LIB_PATH}
+        )
+
+       #addd()
+endif (TINY3D_OS_WINDOWS)
 

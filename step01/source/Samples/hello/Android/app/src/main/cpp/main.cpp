@@ -40,19 +40,19 @@ extern "C"
 //    }
 
     
-    JNIEXPORT void JNICALL Java_com_tiny3d_lib_Tiny3DJniInterface_init(JNIEnv *env, jobject obj)
-    {
-        bool isGL = true;
-        HelloApp *theApp = new HelloApp(isGL);
-        Tiny3D::Engine *theEngine = new Tiny3D::Engine();
-        Tiny3D::Window *window = new Tiny3D::Window(isGL);
-        theEngine->startup(window);
-
-        Tiny3D::Application::getInstancePtr()->applicationDidFinishLaunching();
-    }
-
-    JNIEXPORT void JNICALL Java_com_tiny3d_lib_Tiny3DJniInterface_render(JNIEnv *env, jobject obj)
-    {
-        Tiny3D::Engine::getInstancePtr()->renderOneFrame();
-    }
+//    JNIEXPORT void JNICALL Java_com_tiny3d_lib_Tiny3DJniInterface_init(JNIEnv *env, jobject obj)
+//    {
+//        bool isGL = true;
+//        HelloApp *theApp = new HelloApp(isGL);
+//        Tiny3D::Engine *theEngine = new Tiny3D::Engine();
+//        Tiny3D::Window *window = new Tiny3D::Window(isGL);
+//        theEngine->startup(window);
+//
+//        Tiny3D::Application::getInstancePtr()->applicationDidFinishLaunching();
+//    }
+//
+//    JNIEXPORT void JNICALL Java_com_tiny3d_lib_Tiny3DJniInterface_render(JNIEnv *env, jobject obj)
+//    {
+//        Tiny3D::Engine::getInstancePtr()->renderOneFrame();
+//    }
 }

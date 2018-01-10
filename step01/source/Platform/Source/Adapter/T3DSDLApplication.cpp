@@ -19,7 +19,7 @@
 
 
 #include "Adapter/T3DSDLApplication.h"
-#include <windows.h>
+
 
 namespace Tiny3D
 {

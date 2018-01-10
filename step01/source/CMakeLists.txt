@@ -26,21 +26,45 @@ endif()
 
 
 if (WIN32)
+    message("Windows")
+
 	add_definitions(-DT3D_OS_WINDOWS)
 	add_definitions(-DT3D_OS_DESKTOP)
+
 	set(TINY3D_OS_WINDOWS TRUE CACHE STRING "Windows")
+
+	set (SDL2LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")
 elseif (ANDROID)
+    message("Android")
+
 	add_definitions(-DT3D_OS_ANDROID)
 	add_definitions(-DT3D_OS_MOBILE)
+
 	set(TINY3D_OS_ANDROID TRUE CACHE STRING "Android")
+
+	set (SDL2LIB_SUFFIXES "prebuilt/Android/${ANDROID_ABI}")
+
+	set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+    set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
 elseif (IOS)
+    message("iOS")
+
 	add_definitions(-DT3D_OS_IOS)
 	add_definitions(-DT3D_OS_MOBILE)
+
 	set(TINY3D_OS_IOS TRUE CACHE STRING "iOS")
+
+    set (SDL2LIB_SUFFIXES "prebuilt/iOS")
 elseif (APPLE)
+    message("Mac OS X")
+
 	add_definitions(-DT3D_OS_MACOSX)
 	add_definitions(-DT3D_OS_DESKTOP)
+
 	set(TINY3D_OS_MACOSX TRUE CACHE STRING "Mac OS X")
+
+	set (SDL2LIB_SUFFIXES "prebuilt/OSX")
 elseif (LINUX)
 	add_definitions(-DT3D_OS_LINUX)
 	add_definitions(-DT3D_OS_DESKTOP)
@@ -83,7 +107,7 @@ include(ProjectCMakeModule)
 
 set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/SDL2" CACHE PATH "SDL2 library path")
 find_package(SDL2)
-	
+
 
 add_subdirectory(Platform)
 add_subdirectory(Core)

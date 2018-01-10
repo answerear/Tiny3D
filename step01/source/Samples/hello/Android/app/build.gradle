@@ -13,6 +13,7 @@ android {
             cmake {
                 cppFlags "-std=c++11 -frtti -fexceptions"
                 arguments "-DTINY3D_BUILD_SAMPLES=TRUE"
+                abiFilters 'x86', 'armeabi', 'armeabi-v7a'
             }
         }
     }
@@ -20,6 +21,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets{
+        main{
+            jniLibs.srcDirs = ['libs']
         }
     }
     externalNativeBuild {

@@ -32,9 +32,9 @@ namespace Tiny3D
         AndroidFactory();
         virtual ~AndroidFactory();
 
-        virtual IApplication *createPlatformApplication(bool isGLApp) override;
+        virtual IApplication *createPlatformApplication() override;
 
-        virtual IWindow *createPlatformWindow(bool isGLWindow) override;
+        virtual IWindow *createPlatformWindow() override;
 
         virtual EPlatform getPlatform() override;
 

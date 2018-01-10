@@ -88,12 +88,12 @@ FIND_PATH(SDL2_INCLUDE_DIR SDL.h
   /opt
 )
 
+message("SDL2 suffixes : ${SDL2LIB_SUFFIXES}")
+
 FIND_LIBRARY(SDL2_LIBRARY_TEMP
   NAMES SDL2
-  HINTS
-  #$ENV{SDL2DIR}
-  ${SDL2DIR}
-  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID} prebuilt/iOS prebuilt/OSX
+  HINTS ${SDL2DIR}
+  PATH_SUFFIXES lib64 lib ${SDL2LIB_SUFFIXES}
   PATHS
   /sw
   /opt/local
@@ -102,11 +102,9 @@ FIND_LIBRARY(SDL2_LIBRARY_TEMP
 )
 
 FIND_FILE(SDL2_BINARY
-  NAMES "SDL2.dll"
-  HINTS ${Cg_BIN_SEARCH_PATH}
-  #$ENV{SDL2DIR}
-  ${SDL2DIR}
-  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID} prebuilt/iOS prebuilt/OSX
+  NAMES "SDL2.dll" "libSDL2.so"
+  HINTS ${SDL2DIR}
+  PATH_SUFFIXES lib64 lib ${SDL2LIB_SUFFIXES}
 )
 
 
@@ -117,11 +115,11 @@ IF(NOT SDL2_BUILDING_LIBRARY)
     # seem to provide SDL2main for compatibility even though they don't
     # necessarily need it.
     FIND_LIBRARY(SDL2MAIN_LIBRARY
-      NAMES SDL2main
+      NAMES SDL2main main
       HINTS
       #$ENV{SDL2DIR}
 	  ${SDL2DIR}
-      PATH_SUFFIXES lib64 prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}
+      PATH_SUFFIXES lib64 ${SDL2LIB_SUFFIXES}
       PATHS
       /sw
       /opt/local

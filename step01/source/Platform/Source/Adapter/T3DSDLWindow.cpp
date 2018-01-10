@@ -18,7 +18,10 @@
  ******************************************************************************/
 
 #include "Adapter/T3DSDLWindow.h"
+
+#if defined (T3D_OS_WINDOWS)
 #include <SDL_syswm.h>
+#endif
 
 namespace Tiny3D
 {
@@ -42,6 +45,14 @@ namespace Tiny3D
 
         if (ret)
         {
+#ifndef T3D_OS_DESKTOP
+            SDL_DisplayMode dm;
+            if (SDL_GetCurrentDisplayMode(0, &dm) == 0)
+            {
+                w = dm.w;
+                h = dm.h;
+            }
+#endif
             mWindow = SDL_CreateWindow(title, x, y, w, h, flags);
             if (mWindow == nullptr)
             {
@@ -67,8 +78,12 @@ namespace Tiny3D
 
     void *SDLWindow::getNativeWinObject()
     {
+#if defined (T3D_OS_WINDOWS)
         SDL_SysWMinfo info;
         bool ret = (SDL_GetWindowWMInfo(mWindow, &info) == SDL_TRUE);
         return info.info.win.window;
+#else
+        return nullptr;
+#endif
     }
 }

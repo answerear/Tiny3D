@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,41 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Adapter/Android/T3DAndroidFactory.h"
-#include "Adapter/T3DSDLApplication.h"
-#include "Adapter/T3DSDLWindow.h"
 
+#include "HelloApp.h"
 
-namespace Tiny3D
+int main(int argc, char *argv[])
 {
-    AndroidFactory::AndroidFactory()
-    {
+    HelloApp *theApp = new HelloApp();
+    Tiny3D::Engine *theEngine = new Tiny3D::Engine();
 
-    }
+    theEngine->startup();
+    theEngine->run();
 
-    AndroidFactory::~AndroidFactory()
-    {
+    delete theEngine;
+    delete theApp;
 
-    }
-
-    IApplication *AndroidFactory::createPlatformApplication()
-    {
-        return new SDLApplication();
-    }
-
-    IWindow *AndroidFactory::createPlatformWindow()
-    {
-        return new SDLWindow();
-    }
-
-    EPlatform AndroidFactory::getPlatform()
-    {
-        return E_PLATFORM_ANDROID;
-    }
-
-    IFactory *createPlatformFactory()
-    {
-        return new AndroidFactory();
-    }
+    return 0;
 }
-
