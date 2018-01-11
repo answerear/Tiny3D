@@ -87,9 +87,19 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 
     set_target_properties(${BIN_NAME}
         PROPERTIES
-        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY
-        "iPhone Developer: Yu Wang"
+        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}
+#        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/iOS/Info.plist"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"
+        XCODE_ATTRIBUTE_SDKROOT "iphoneos"
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer: Yu Wang"
         )
+#    set_target_properties(${BIN_NAME}
+#        PROPERTIES
+#        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}
+#        MACOSX_BUNDLE_GUI_IDENTIFIER
+#        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY
+#        "iPhone Developer: Yu Wang"
+#        )
 else (TINY3D_OS_ANDROID)
     add_executable(
 		${BIN_NAME} WIN32 
