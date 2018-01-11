@@ -110,7 +110,6 @@ include(ProjectCMakeModule)
 set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/SDL2" CACHE PATH "SDL2 library path")
 find_package(SDL2)
 
-
 add_subdirectory(Platform)
 add_subdirectory(Core)
 add_dependencies(T3DCore T3DPlatform)

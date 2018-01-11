@@ -17,6 +17,7 @@ include_directories(
 	"${TINY3D_PLATFORM_INC_DIR}"
 	"${TINY3D_CORE_INC_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
+    "${SDL2_INCLUDE_DIR}"
 	)
 
 set (CMAKE_OSX_DEPLOYMENT_TARGET "8.0")
@@ -59,10 +60,23 @@ endif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 
 if (TINY3D_OS_ANDROID)
 	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
+
+    target_link_libraries(
+        ${LIB_NAME}
+        T3DPlatform
+        T3DCore
+        )
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
     add_executable(
         ${BIN_NAME} MACOSX_BUNDLE
         ${SOURCE_FILES}
+        )
+
+    target_link_libraries(
+        ${LIB_NAME}
+        T3DPlatform
+        T3DCore
+        ${SDL2_LIBRARY}
         )
 
     set_target_properties(${BIN_NAME}
@@ -81,13 +95,14 @@ else (TINY3D_OS_ANDROID)
 		${BIN_NAME} WIN32 
 		${SOURCE_FILES}
 		)
+
+    target_link_libraries(
+        ${LIB_NAME}
+        T3DPlatform
+        T3DCore
+        )
 endif (TINY3D_OS_ANDROID)
 
-target_link_libraries(
-    ${LIB_NAME}
-    T3DPlatform
-    T3DCore
-    )
 
 if (TINY3D_OS_WINDOWS)
 	install(TARGETS ${BIN_NAME}
