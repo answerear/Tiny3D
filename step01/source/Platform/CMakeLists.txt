@@ -29,7 +29,7 @@ if (TINY3D_OS_WINDOWS)
 elseif (TINY3D_OS_MACOSX)
 	include_directories(
 		"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Unix"
-		"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/MacOSX"
+		"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/OSX"
 		"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Desktop"
 		)
 elseif (TINY3D_OS_LINUX)
@@ -84,6 +84,12 @@ elseif (TINY3D_OS_MACOSX)
 	set_project_files(Source\\\\Adapter\\\\Unix ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Unix/ .cpp)
 	set_project_files(Source\\\\Adapter\\\\OSX ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/OSX/ .cpp)
 	set_project_files(Source\\\\Adapter\\\\Desktop ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Desktop/ .cpp)
+	
+	message(STATUS "Frameworks : ${TINY3D_FRAMEWORKS}")
+	foreach(FW ${TINY3D_FRAMEWORKS})
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework ${FW}")
+    endforeach()
+    message(STATUS "Link flags : ${CMAKE_EXE_LINKER_FLAGS}")
 elseif (TINY3D_OS_LINUX)
 	set_project_files(Source\\\\Adapter\\\\Unix ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Unix/ .cpp)
 	set_project_files(Source\\\\Adapter\\\\Linux ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Linux/ .cpp)
@@ -126,6 +132,19 @@ if (TINY3D_OS_WINDOWS)
 		PATTERN "Unix" EXCLUDE
 		PATTERN "Windows" EXCLUDE)
 elseif (TINY3D_OS_MACOSX)
+	target_link_libraries(
+		${LIB_NAME}
+		${SDL2_LIBRARY}
+		${FWK_COREAUDIO}
+	    ${FWK_AUDIOTOOLBOX}
+	    ${FWK_OPENAL}
+	    ${FWK_COCOA}
+	    ${FWK_OPENGL}
+	    ${FWK_COREVIDEO}
+	    ${FWK_IOKIT}
+	    ${FWK_FORCEFEEDBACK}
+	    ${FWK_CARBON}
+		)
 elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)
 	target_link_libraries(

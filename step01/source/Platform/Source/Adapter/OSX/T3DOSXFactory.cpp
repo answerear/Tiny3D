@@ -17,17 +17,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PLATFORM_H__
-#define __T3D_PLATFORM_H__
+#include "T3DOSXFactory.h"
+#include "Adapter/T3DSDLApplication.h"
+#include "Adapter/T3DSDLWindow.h"
 
-#include <T3DSystem.h>
-#include <T3DApplication.h>
-#include <T3DWindow.h>
-#include <T3DWindowEventListener.h>
+namespace Tiny3D
+{
+    OSXFactory::OSXFactory()
+    {
 
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
+    }
 
-#endif  /*__T3D_PLATFORM_H__*/
+    OSXFactory::~OSXFactory()
+    {
+
+    }
+
+    IApplication *OSXFactory::createPlatformApplication()
+    {
+        return new SDLApplication();
+    }
+
+    IWindow *OSXFactory::createPlatformWindow()
+    {
+        return new SDLWindow();
+    }
+
+    EPlatform OSXFactory::getPlatform()
+    {
+        return E_PLATFORM_IOS;
+    }
+
+    IFactory *createPlatformFactory()
+    {
+        return new OSXFactory();
+    }
+}

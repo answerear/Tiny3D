@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -41,7 +41,7 @@
 	#define T3D_EXPORT_API      __declspec(dllexport)
 	#define T3D_IMPORT_API      __declspec(dllimport)
 
-#elif defined T3D_OS_IOS || defined T3D_OS_MAC || defined T3D_OS_LINUX  // iOS or Mac OS x or Linux
+#elif defined T3D_OS_IOS || defined T3D_OS_OSX || defined T3D_OS_LINUX  // iOS or Mac OS x or Linux
 
     #ifdef DEBUG    // debug
         #define T3D_DEBUG

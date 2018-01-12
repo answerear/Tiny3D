@@ -104,8 +104,22 @@ if (TINY3D_OS_WINDOWS)
 		COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
 		)
 elseif (TINY3D_OS_MACOSX)
+	target_link_libraries(
+		${LIB_NAME}
+		LINK_PRIVATE ${SDL2_LIBRARY}
+		LINK_PRIVATE T3DPlatform
+	    ${FWK_COREAUDIO}
+	    ${FWK_AUDIOTOOLBOX}
+	    ${FWK_OPENAL}
+	    ${FWK_COCOA}
+	    ${FWK_OPENGL}
+	    ${FWK_COREVIDEO}
+	    ${FWK_IOKIT}
+	    ${FWK_FORCEFEEDBACK}
+	    ${FWK_CARBON}
+		)
 elseif (TINY3D_OS_LINUX)
-elseif (TINY3D_OS_IOS)
+elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 #	target_link_libraries(
 #        ${LIB_NAME}
 #        LINK_PRIVATE T3DPlatform

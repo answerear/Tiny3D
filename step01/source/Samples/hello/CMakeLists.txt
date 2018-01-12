@@ -37,26 +37,6 @@ set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
 #	set_project_files(source\\\\Desktop ${CMAKE_CURRENT_SOURCE_DIR}/Desktop/ .cpp)
 #endif (TINY3D_OS_ANDROID)
 
-if (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
-    set (TINY3D_FRAMEWORKS
-		Foundation
-        QuartzCore
-        UIKit
-		OpenGLES
-		AVFoundation
-		AudioToolbox
-		ImageIO
-		CoreGraphics
-		MobileCoreServices
-		GameController
-		CoreMotion
-		)
-
-    foreach(FW ${TINY3D_FRAMEWORKS})
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework ${FW}")
-    endforeach()
-
-endif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 
 if (TINY3D_OS_ANDROID)
 	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
@@ -67,39 +47,65 @@ if (TINY3D_OS_ANDROID)
         T3DCore
         )
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
+	
+
+    
     add_executable(
         ${BIN_NAME} MACOSX_BUNDLE
         ${SOURCE_FILES}
         )
+    
+	if (TINY3D_OS_IOS)
+	    foreach(FW ${TINY3D_FRAMEWORKS})
+	        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework ${FW}")
+	    endforeach()
+	    
+		target_link_libraries(
+	        ${LIB_NAME}
+	        T3DPlatform
+	        T3DCore
+	        ${SDL2_LIBRARY}
+	        )
 
-    target_link_libraries(
-        ${LIB_NAME}
-        T3DPlatform
-        T3DCore
-        ${SDL2_LIBRARY}
-        )
-
-    set_target_properties(${BIN_NAME}
-        PROPERTIES
-        XCODE_ATTRIBUTE_SDKROOT
-        "iphoneos"
-        )
-
-    set_target_properties(${BIN_NAME}
-        PROPERTIES
-        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}
-#        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/iOS/Info.plist"
-        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"
-        XCODE_ATTRIBUTE_SDKROOT "iphoneos"
-        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer: Yu Wang"
-        )
-#    set_target_properties(${BIN_NAME}
-#        PROPERTIES
-#        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}
-#        MACOSX_BUNDLE_GUI_IDENTIFIER
-#        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY
-#        "iPhone Developer: Yu Wang"
-#        )
+	    set_target_properties(${BIN_NAME}
+	        PROPERTIES
+	        XCODE_ATTRIBUTE_SDKROOT
+	        "iphoneos"
+	        )
+	
+	    set_target_properties(${BIN_NAME}
+	        PROPERTIES
+	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}
+	#        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/iOS/Info.plist"
+	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"
+	        XCODE_ATTRIBUTE_SDKROOT "iphoneos"
+			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"
+			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"
+	        )
+	elseif (TINY3D_OS_MACOSX)
+		target_link_libraries(
+	        ${LIB_NAME}
+	        T3DPlatform
+	        T3DCore
+	        ${SDL2_LIBRARY}
+	        ${FWK_COREAUDIO}
+		    ${FWK_AUDIOTOOLBOX}
+		    ${FWK_OPENAL}
+		    ${FWK_COCOA}
+		    ${FWK_OPENGL}
+		    ${FWK_COREVIDEO}
+		    ${FWK_IOKIT}
+		    ${FWK_FORCEFEEDBACK}
+		    ${FWK_CARBON}
+	        )
+		install(TARGETS ${BIN_NAME}
+			BUNDLE DESTINATION bin/debug CONFIGURATIONS Debug
+			RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug
+			LIBRARY DESTINATION bin/debug CONFIGURATIONS Debug
+			ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
+			)
+ 	endif (TINY3D_OS_IOS)
+ 	
 else (TINY3D_OS_ANDROID)
     add_executable(
 		${BIN_NAME} WIN32 
