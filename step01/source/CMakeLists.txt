@@ -61,6 +61,8 @@ elseif (IOS)
     set(SDL2LIB_SUFFIXES "prebuilt/iOS")
 elseif (APPLE AND NOT IOS)
     message(STATUS "Platform : Mac OS X")
+    
+    set(CMAKE_MACOSX_RPATH true)
 
 	add_definitions(-DT3D_OS_OSX)
 	add_definitions(-DT3D_OS_DESKTOP)

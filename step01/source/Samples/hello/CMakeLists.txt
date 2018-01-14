@@ -20,8 +20,6 @@ include_directories(
     "${SDL2_INCLUDE_DIR}"
 	)
 
-set (CMAKE_OSX_DEPLOYMENT_TARGET "8.0")
-
 # Setup project header files
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
 
@@ -98,6 +96,32 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 		    ${FWK_FORCEFEEDBACK}
 		    ${FWK_CARBON}
 	        )
+	        
+	    set_target_properties(${BIN_NAME}
+	        PROPERTIES
+	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}
+	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"
+			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"
+			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"
+	        )
+	        		
+	    #add_custom_command(TARGET ${BIN_NAME}
+	    #	POST_BUILD
+	    #	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DPlatform.dylib ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app/Contents/MacOS/
+	    #	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DCore.dylib ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app/Contents/MacOS/
+		#	COMMAND ${CMAKE_COMMAND} -E 
+		#	)
+		#fixup_bundle(${BIN_NAME} T3DPlatform T3DCore ${CMAKE_BINARY_OUTPUT_DIRECTORY_DEBUG})
+			
+		#install(SCRIPT "InstallBundle.txt -DBIN_NAME=${BIN_NAME} -DDIR=${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
+		
+		set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
+		set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
+		install(CODE "
+			include(BundleUtilities)
+			fixup_bundle(\"${APPS}\" \"\" \"${DIRS}\")
+			" COMPONENT Runtime)
+			
 		install(TARGETS ${BIN_NAME}
 			BUNDLE DESTINATION bin/debug CONFIGURATIONS Debug
 			RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug
