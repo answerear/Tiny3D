@@ -8,9 +8,9 @@
 set_project_name(Demo_Hello)
 
 
-if(MSVC)
+if (MSVC)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup ")
-endif(MSVC)
+endif (MSVC)
 
 # Setup project include files path
 include_directories(
@@ -27,16 +27,29 @@ set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
 
-#if (TINY3D_OS_ANDROID)
-#	set_project_files(source\\\\Android ${CMAKE_CURRENT_SOURCE_DIR}/Android/app/src/main/cpp/ .cpp)
-#elseif (TINY3D_OS_IOS)
-#    set_project_files(source\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/iOS/ .cpp)
-#else (TINY3D_OS_ANDROID)
-#	set_project_files(source\\\\Desktop ${CMAKE_CURRENT_SOURCE_DIR}/Desktop/ .cpp)
-#endif (TINY3D_OS_ANDROID)
 
 
-if (TINY3D_OS_ANDROID)
+if (TINY3D_OS_WINDOWS)
+	# Setup executable project for Windows.
+	add_executable(
+		${BIN_NAME} WIN32 
+		${SOURCE_FILES}
+		)
+
+    target_link_libraries(
+        ${LIB_NAME}
+        T3DPlatform
+        T3DCore
+        )
+       
+    # Setup install files and path for Windows.
+	install(TARGETS ${BIN_NAME}
+		RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug
+		LIBRARY DESTINATION bin/debug CONFIGURATIONS Debug
+		ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
+		)
+elseif (TINY3D_OS_ANDROID)
+	# Setup dynamic library (.so) project for Android. Because all libraries in Android is dynamics (.so).
 	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
 
     target_link_libraries(
@@ -44,20 +57,25 @@ if (TINY3D_OS_ANDROID)
         T3DPlatform
         T3DCore
         )
-elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
-	
+        
+    # Setup all files (.so) for Android APK
+    set(T3D_ANDROID_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Android/app/libs/${ANDROID_ABI}")
 
-    
+	add_custom_command(TARGET ${BIN_NAME}
+        PRE_LINK
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${T3D_ANDROID_LIB_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${T3D_ANDROID_LIB_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_LIBRARY} ${T3D_ANDROID_LIB_PATH}
+        )
+elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
+	# Setup executable project for iOS or Mac OS X.
     add_executable(
         ${BIN_NAME} MACOSX_BUNDLE
         ${SOURCE_FILES}
         )
     
 	if (TINY3D_OS_IOS)
-#	    foreach(FW ${TINY3D_FRAMEWORKS})
-#	        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework ${FW}")
-#	    endforeach()
-	    
+		# Setup all link libraries and frameworks for iOS.
 		target_link_libraries(
 	        ${LIB_NAME}
 	        T3DPlatform
@@ -65,50 +83,38 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	        ${SDL2_LIBRARY}
 	        ${SDL2_OSX_FRAMEWORKS}
 	        )
-
-	    set_target_properties(${BIN_NAME}
-	        PROPERTIES
-	        XCODE_ATTRIBUTE_SDKROOT
-	        "iphoneos"
-	        )
 	
+		# Setup all properties for this iOS project.
 	    set_target_properties(${BIN_NAME}
 	        PROPERTIES
-	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}
-	        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/iOS/Info.plist"
-	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"
-	        XCODE_ATTRIBUTE_SDKROOT "iphoneos"
-	        XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "9.0"
-	        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "F2KJRUV5HC"
-	        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
-			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"
-			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"
+	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}									# Bundle name for this app.
+	        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/iOS/Info.plist"	# Info.plist for this app.
+	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"							# Bundle ID for this app.
+	        XCODE_ATTRIBUTE_SDKROOT "iphoneos"										# SDK root for this app.
+	        XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "9.0"						# Minimum deployment target for this app.
+	        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "F2KJRUV5HC"							# Development team id for this app.
+	        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"					# Code sign identity for this app.
+			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
+			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
 	        )
 	elseif (TINY3D_OS_MACOSX)
+		# Setup all link libraries frameworks for Mac OS X
 		target_link_libraries(
 	        ${LIB_NAME}
 	        T3DPlatform
 	        T3DCore
 	        )
 	        
+	    # Setup all properties for this Mac OS X project.
 	    set_target_properties(${BIN_NAME}
 	        PROPERTIES
-	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}
-	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"
-			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"
-			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"
+	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}				# Bundle name for this app.
+	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"		# Info.plist for this app.
+			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"			# Long version string for this app.
+			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"			# Short version string for this app.
 	        )
 	        		
-	    #add_custom_command(TARGET ${BIN_NAME}
-	    #	POST_BUILD
-	    #	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DPlatform.dylib ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app/Contents/MacOS/
-	    #	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DCore.dylib ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app/Contents/MacOS/
-		#	COMMAND ${CMAKE_COMMAND} -E 
-		#	)
-		#fixup_bundle(${BIN_NAME} T3DPlatform T3DCore ${CMAKE_BINARY_OUTPUT_DIRECTORY_DEBUG})
-			
-		#install(SCRIPT "InstallBundle.txt -DBIN_NAME=${BIN_NAME} -DDIR=${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
-		
+	    # Setup installing files for making a *.app for this project 
 		set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
 		set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
 		install(CODE "
@@ -123,10 +129,10 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 			ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
 			)
  	endif (TINY3D_OS_IOS)
- 	
-else (TINY3D_OS_ANDROID)
-    add_executable(
-		${BIN_NAME} WIN32 
+elseif (TIN3YD_OS_LINUX)
+	# Setup executable project for Linux.
+	add_executable(
+		${BIN_NAME} 
 		${SOURCE_FILES}
 		)
 
@@ -135,25 +141,12 @@ else (TINY3D_OS_ANDROID)
         T3DPlatform
         T3DCore
         )
-endif (TINY3D_OS_ANDROID)
-
-
-if (TINY3D_OS_WINDOWS)
+       
+    # Setup install files and path for Windows.
 	install(TARGETS ${BIN_NAME}
 		RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug
 		LIBRARY DESTINATION bin/debug CONFIGURATIONS Debug
 		ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
 		)
-elseif (TINY3D_OS_ANDROID)
-    set(T3D_ANDROID_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Android/app/libs/${ANDROID_ABI}")
-
-	add_custom_command(TARGET ${BIN_NAME}
-        PRE_LINK
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${T3D_ANDROID_LIB_PATH}
-        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${T3D_ANDROID_LIB_PATH}
-        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_LIBRARY} ${T3D_ANDROID_LIB_PATH}
-        )
-
-       #addd()
 endif (TINY3D_OS_WINDOWS)
 
