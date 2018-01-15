@@ -108,10 +108,11 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	    # Setup all properties for this Mac OS X project.
 	    set_target_properties(${BIN_NAME}
 	        PROPERTIES
-	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}				# Bundle name for this app.
-	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"		# Info.plist for this app.
-			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"			# Long version string for this app.
-			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"			# Short version string for this app.
+	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}									# Bundle name for this app.
+	        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/OSX/Info.plist"	# Info.plist for this app.
+	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"							# Bundle ID for this app.
+			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
+			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
 	        )
 	        		
 	    # Setup installing files for making a *.app for this project 

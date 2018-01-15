@@ -7,17 +7,22 @@
 
 set_project_name(T3DCore)
 
+message(STATUS "Generating project : ${BIN_NAME}")
+
 if (MSVC)
+	# Add definition only for Windows.
 	if (TINY3D_BUILD_SHARED_LIBS)
 		add_definitions(-D${LIB_NAME_TOUPPER}_EXPORT -D_USRDLL)
 	endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
 
+# Setup all cmake variables for this project.
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform/Include")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
 
 
+# Setup search header path for this project.
 include_directories(
 	"${TINY3D_PLATFORM_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
@@ -26,24 +31,32 @@ include_directories(
 	)
 
 
-# Setup project header files
+# Setup header files for this project.
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 set_project_files(Include\\\\Kernel ${CMAKE_CURRENT_SOURCE_DIR}/Include/Kernel/ .h)
 
-# Setup project source files
+# Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 set_project_files(Source\\\\Kernel ${CMAKE_CURRENT_SOURCE_DIR}/Source/Kernel/ .cpp)
 
+
+# Setup all files for building this project.
 if (TINY3D_BUILD_SHARED_LIBS)
+	# Make dynamic library for this project.
 	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
 else (TINY3D_BUILD_SHARED_LIBS)
+	# Make static library for this project.
 	add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
 endif (TINY3D_BUILD_SHARED_LIBS)
 
 
 
 if (TINY3D_OS_WINDOWS)
+	# Windows
+	
+	# Setup link libraries for this project.
 	if (MSVC_VERSION GREATER_EQUAL 1900)
+		# Visual Studio version is 2015 or later.
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
@@ -51,6 +64,7 @@ if (TINY3D_OS_WINDOWS)
 			LINK_PRIVATE ${SDL2_LIBRARY}
 			)
 	else ()
+		# Visual Studio version is older than 2015
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
@@ -81,29 +95,14 @@ if (TINY3D_OS_WINDOWS)
 		PATTERN "OpenGLES3" EXCLUDE
 		)
 
-#	install(DIRECTORY
-#		${TINY3D_MEDIA_DIR}
-#		DESTINATION bin
-#		)
-
-#	install(FILES
-#		${FREEIMAGE_BINARY}
-#		DESTINATION bin/Debug
-#		CONFIGURATIONS Debug
-#		)
-
-#	add_custom_command(TARGET ${BIN_NAME}
-#		PRE_LINK 
-#		COMMAND ${CMAKE_COMMAND} -E copy ${FREEIMAGE_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-#		COMMAND ${CMAKE_COMMAND} -E copy ${FREEIMAGE_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-#		)
-
 	add_custom_command(TARGET ${BIN_NAME}
 		PRE_LINK 
 		COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
 		COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
 		)
 elseif (TINY3D_OS_MACOSX)
+	# Mac OS X
+	
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
@@ -111,16 +110,21 @@ elseif (TINY3D_OS_MACOSX)
 		LINK_PRIVATE ${SDL2_OSX_FRAMEWORKS}
 		)
 elseif (TINY3D_OS_LINUX)
+	# Linux
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
+	# iOS
 #	target_link_libraries(
 #        ${LIB_NAME}
 #        LINK_PRIVATE T3DPlatform
 #        LINK_PRIVATE ${SDL2_LIBRARY}
 #        )
 elseif (TINY3D_OS_ANDROID)
+	# Android
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE ${SDL2_BINARY}
         )
 endif (TINY3D_OS_WINDOWS)
+
+message(STATUS "Generating project : ${BIN_NAME} - done")
