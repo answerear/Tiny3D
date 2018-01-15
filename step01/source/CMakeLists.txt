@@ -26,6 +26,7 @@ endif()
 
 
 if (WIN32)
+	# Windows
     message(STATUS "Platform : Windows")
 
 	add_definitions(-DT3D_OS_WINDOWS)
@@ -33,8 +34,9 @@ if (WIN32)
 
 	set(TINY3D_OS_WINDOWS TRUE CACHE STRING "Windows")
 
-	set (SDL2LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")
+	set(SDL2LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")
 elseif (ANDROID)
+	# Android
     message(STATUS "Platform : Android")
 
 	add_definitions(-DT3D_OS_ANDROID)
@@ -42,12 +44,13 @@ elseif (ANDROID)
 
 	set(TINY3D_OS_ANDROID TRUE CACHE STRING "Android")
 
-	set (SDL2LIB_SUFFIXES "prebuilt/Android/${ANDROID_ABI}")
+	set(SDL2LIB_SUFFIXES "prebuilt/Android/${ANDROID_ABI}")
 
 	set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
     set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
     set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
-elseif (IOS)
+elseif (APPLE AND IOS)
+	# iOS
     message(STATUS "Platform : iOS")
 
 	add_definitions(-DT3D_OS_IOS)
@@ -57,40 +60,47 @@ elseif (IOS)
 	
 	set(CMAKE_OSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
 
-	#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ObjC")
     set(SDL2LIB_SUFFIXES "prebuilt/iOS")
 elseif (APPLE AND NOT IOS)
+	# Mac OS X
     message(STATUS "Platform : Mac OS X")
-    
-    set(CMAKE_MACOSX_RPATH true)
 
 	add_definitions(-DT3D_OS_OSX)
 	add_definitions(-DT3D_OS_DESKTOP)
 
 	set(TINY3D_OS_MACOSX TRUE CACHE STRING "Mac OS X")
+	
+    set(CMAKE_MACOSX_RPATH true)
 	set(SDL2LIB_SUFFIXES "prebuilt/OSX")
 elseif (LINUX)
+	# Linux
 	message(STATUS "Platform : Linux")
+	
 	add_definitions(-DT3D_OS_LINUX)
 	add_definitions(-DT3D_OS_DESKTOP)
+	
 	set(ITNY3D_OS_LINUX TRUE CACHE STRING "Linux")
 endif (WIN32)
 
 if (TINY3D_OS_IOS)
+	# Because in iOS, there only support static library. 
 	option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" FALSE)
 else (TINY3D_OS_IOS)
 	option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
 endif (TINY3D_OS_IOS)
 
 if (NOT TINY3D_OS_ANDROID)
+	# In Android, this switch is setted by build.gradle in Android Studio. 
     option(TINY3D_BUILD_SAMPLES "Build samples" TRUE)
 endif (NOT TINY3D_OS_ANDROID)
 
+# Set all relative directory
 set(TINY3D_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Tiny3D binary path")
 set(TINY3D_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Tiny3D library path")
 set(TINY3D_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Tiny3D include path")
 set(TINY3D_RES_DIR "${CMAKE_INSTALL_PREFIX}/resources" CACHE PATH "Tiny3D resourcs path")
 
+# Set this directory for debugging app
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin" CACHE STRING "Tiny3D binaries files" FORCE)
 
 foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
@@ -100,6 +110,7 @@ foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/lib/${OUTPUTCONFIG}")
 endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
 
+# Set cmake module path.
 set(CMAKE_MODULE_PATH
 	"${CMAKE_CURRENT_SOURCE_DIR}/CMake"
 	"${CMAKE_CURRENT_SOURCE_DIR}/CMake/Utils"
@@ -110,54 +121,20 @@ set(CMAKE_MODULE_PATH
 include(FindPkgMacros)
 include(ProjectCMakeModule)
 
+# Find SDL2 library for all projects.
 set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/SDL2" CACHE PATH "SDL2 library path")
 find_package(SDL2)
 
-if (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
-	if (TINY3D_OS_IOS)
-	    set(TINY3D_FRAMEWORKS
-			Foundation
-	        QuartzCore
-	        UIKit
-			OpenGLES
-			AVFoundation
-			AudioToolbox
-			ImageIO
-			CoreGraphics
-			MobileCoreServices
-			GameController
-			CoreMotion
-			)
-	elseif (TINY3D_OS_MACOSX)
-		find_library(FWK_COREAUDIO CoreAudio)
-		find_library(FWK_AUDIOTOOLBOX AudioToolBox)
-		find_library(FWK_OPENAL OpenAL)
-		find_library(FWK_COCOA Cocoa)
-		find_library(FWK_OPENGL OpenGL)
-		find_library(FWK_COREVIDEO CoreVideo)
-		find_library(FWK_IOKIT IOKit)
-		find_library(FWK_FORCEFEEDBACK ForceFeedback)
-		find_library(FWK_CARBON Carbon)
-		
-#		set(TINY3D_FRAMEWORKS
-#	        CoreAudio
-#	        AudioToolBox
-#	        OpenAL
-#	        Cocoa
-#	        OpenGL
-#	        CoreVideo
-#	        IOKit
-#	        ForceFeedback
-#	        Carbon
-#	      	)
-	endif (TINY3D_OS_IOS)
-endif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
-
+# Project Platform 
 add_subdirectory(Platform)
+# Project Core
 add_subdirectory(Core)
+
+# Set the dependencies for all projects.
 add_dependencies(T3DCore T3DPlatform)
 
 if (TINY3D_BUILD_SAMPLES)
+	# Build samples. Set all projects of samples.
     add_subdirectory(Samples)
     add_dependencies(Demo_Hello T3DCore T3DPlatform)
 endif (TINY3D_BUILD_SAMPLES)

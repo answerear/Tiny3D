@@ -135,15 +135,7 @@ elseif (TINY3D_OS_MACOSX)
 	target_link_libraries(
 		${LIB_NAME}
 		${SDL2_LIBRARY}
-		${FWK_COREAUDIO}
-	    ${FWK_AUDIOTOOLBOX}
-	    ${FWK_OPENAL}
-	    ${FWK_COCOA}
-	    ${FWK_OPENGL}
-	    ${FWK_COREVIDEO}
-	    ${FWK_IOKIT}
-	    ${FWK_FORCEFEEDBACK}
-	    ${FWK_CARBON}
+		${SDL2_OSX_FRAMEWORKS}
 		)
 elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)

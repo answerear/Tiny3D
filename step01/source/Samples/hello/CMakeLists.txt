@@ -54,15 +54,16 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
         )
     
 	if (TINY3D_OS_IOS)
-	    foreach(FW ${TINY3D_FRAMEWORKS})
-	        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework ${FW}")
-	    endforeach()
+#	    foreach(FW ${TINY3D_FRAMEWORKS})
+#	        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework ${FW}")
+#	    endforeach()
 	    
 		target_link_libraries(
 	        ${LIB_NAME}
 	        T3DPlatform
 	        T3DCore
 	        ${SDL2_LIBRARY}
+	        ${SDL2_OSX_FRAMEWORKS}
 	        )
 
 	    set_target_properties(${BIN_NAME}
@@ -85,16 +86,6 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	        ${LIB_NAME}
 	        T3DPlatform
 	        T3DCore
-	        ${SDL2_LIBRARY}
-	        ${FWK_COREAUDIO}
-		    ${FWK_AUDIOTOOLBOX}
-		    ${FWK_OPENAL}
-		    ${FWK_COCOA}
-		    ${FWK_OPENGL}
-		    ${FWK_COREVIDEO}
-		    ${FWK_IOKIT}
-		    ${FWK_FORCEFEEDBACK}
-		    ${FWK_CARBON}
 	        )
 	        
 	    set_target_properties(${BIN_NAME}

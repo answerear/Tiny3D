@@ -198,3 +198,58 @@ IF(SDL2_STATIC)
     SET(SDL2_LIBRARY ${SDL2_LINK_FLAGS})
   ENDIF()
 ENDIF(SDL2_STATIC)
+
+if (APPLE)
+	# Set all dependencies frameworks for SDL2
+	set(SDL2_OSX_FRAMEWORKS "")
+	
+	if (IOS)
+		find_library(FWK_FOUNDATION Foundation)
+		find_library(FWK_QUARTZCORE QuartzCore)
+		find_library(FWK_UIKIT UIKit)
+		find_library(FWK_OPENGLES OpenGLES)
+		find_library(FWK_AVFOUNDATION AVFoundation)
+		find_library(FWK_AUDIOTOOLBOX AudioToolbox)
+		find_library(FWK_IMAGEIO ImageIO)
+		find_library(FWK_COREGRAPHICS CoreGraphics)
+		find_library(FWK_MOBILECORESERVICES MobileCoreServices)
+		find_library(FWK_GAMECONTROLLER GameController)
+		find_library(FWK_COREMOTION CoreMotion)
+		
+		list(APPEND SDL2_OSX_FRAMEWORKS 
+			${FWK_FOUNDATION}
+			${FWK_QUARTZCORE}
+			${FWK_UIKIT}
+			${FWK_OPENGLES}
+			${FWK_AVFOUNDATION}
+			${FWK_AUDIOTOOLBOX}
+			${FWK_IMAGEIO}
+			${FWK_COREGRAPHICS}
+			${FWK_MOBILECORESERVICES}
+			${FWK_GAMECONTROLLER}
+			${FWK_COREMOTION}
+			)
+	else (IOS)
+		find_library(FWK_COREAUDIO CoreAudio)
+		find_library(FWK_AUDIOTOOLBOX AudioToolBox)
+		find_library(FWK_OPENAL OpenAL)
+		find_library(FWK_COCOA Cocoa)
+		find_library(FWK_OPENGL OpenGL)
+		find_library(FWK_COREVIDEO CoreVideo)
+		find_library(FWK_IOKIT IOKit)
+		find_library(FWK_FORCEFEEDBACK ForceFeedback)
+		find_library(FWK_CARBON Carbon)
+		
+		list(APPEND SDL2_OSX_FRAMEWORKS 
+			${FWK_COREAUDIO}
+			${FWK_AUDIOTOOLBOX}
+			${FWK_OPENAL}
+			${FWK_COCOA}
+			${FWK_OPENGL}
+			${FWK_COREVIDEO}
+			${FWK_IOKIT}
+			${FWK_FORCEFEEDBACK}
+			${FWK_CARBON}
+			)
+	endif (IOS)
+endif (APPLE)
