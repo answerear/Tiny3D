@@ -75,7 +75,7 @@ A Tiny 3D Engine
 
 ## 2.1 Windows开发环境
 
-　　我这里是直接用Win10和Visual Studio 2015作为开发工具的。Visual Studio 2015下载地址：https://www.visualstudio.com/zh-hans/vs/older-downloads/。下载完记得要安装各种C++相关模块即可。安装后，需要设置一下环境变量，过程如下图：
+　　我这里是直接用Win10和Visual Studio 2015作为开发工具的。Visual Studio 2015下载地址：https://www.visualstudio.com/zh-hans/vs/older-downloads/ 。下载完记得要安装各种C++相关模块即可。安装后，需要设置一下环境变量，过程如下图：
 
 首先在资源管理器中此电脑右键菜单选择属性，如下图2-1：
 
