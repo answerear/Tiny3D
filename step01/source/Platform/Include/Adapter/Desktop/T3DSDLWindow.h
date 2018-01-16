@@ -21,7 +21,7 @@
 #define __T3D_SDL_WINDOW_H__
 
 
-#include "T3DWindowInterface.h"
+#include "Adapter/T3DWindowInterface.h"
 #include <SDL.h>
 
 namespace Tiny3D

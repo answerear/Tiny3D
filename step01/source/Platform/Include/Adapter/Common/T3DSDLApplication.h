@@ -20,7 +20,7 @@
 #ifndef __T3D_SDL_APPLICATION_H__
 #define __T3D_SDL_APPLICATION_H__
 
-#include "T3DApplicationInterface.h"
+#include "Adapter/T3DApplicationInterface.h"
 #include <SDL.h>
 
 

@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 #include "Adapter/Android/T3DAndroidFactory.h"
-#include "Adapter/T3DSDLApplication.h"
-#include "Adapter/T3DSDLWindow.h"
+#include "Adapter/Common/T3DSDLApplication.h"
+#include "Adapter/Mobile/T3DSDLWindow.h"
 
 
 namespace Tiny3D

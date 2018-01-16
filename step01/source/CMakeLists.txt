@@ -33,6 +33,7 @@ if (WIN32)
 	add_definitions(-DT3D_OS_DESKTOP)
 
 	set(TINY3D_OS_WINDOWS TRUE CACHE STRING "Windows")
+	set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
 
 	set(SDL2LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")
 elseif (ANDROID)
@@ -43,6 +44,7 @@ elseif (ANDROID)
 	add_definitions(-DT3D_OS_MOBILE)
 
 	set(TINY3D_OS_ANDROID TRUE CACHE STRING "Android")
+    set(TINY3D_OS_MOBILE TRUE CACHE STRING "Mobile")
 
 	set(SDL2LIB_SUFFIXES "prebuilt/Android/${ANDROID_ABI}")
 
@@ -57,7 +59,8 @@ elseif (APPLE AND IOS)
 	add_definitions(-DT3D_OS_MOBILE)
 
 	set(TINY3D_OS_IOS TRUE CACHE STRING "iOS")
-	
+	set(TINY3D_OS_MOBILE TRUE CACHE STRING "Mobile")
+
 	set(CMAKE_OSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
 
     set(SDL2LIB_SUFFIXES "prebuilt/iOS")
@@ -69,7 +72,8 @@ elseif (APPLE AND NOT IOS)
 	add_definitions(-DT3D_OS_DESKTOP)
 
 	set(TINY3D_OS_MACOSX TRUE CACHE STRING "Mac OS X")
-	
+	set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
+
     set(CMAKE_MACOSX_RPATH true)
 	set(SDL2LIB_SUFFIXES "prebuilt/OSX")
 elseif (LINUX)
@@ -80,6 +84,7 @@ elseif (LINUX)
 	add_definitions(-DT3D_OS_DESKTOP)
 	
 	set(ITNY3D_OS_LINUX TRUE CACHE STRING "Linux")
+	set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
 endif (WIN32)
 
 if (TINY3D_OS_IOS)

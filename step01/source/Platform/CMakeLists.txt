@@ -21,6 +21,7 @@ endif (MSVC)
 # Setup search header path for this project.
 include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Common"
 	"${SDL2_INCLUDE_DIR}"
 	)
 
@@ -59,9 +60,12 @@ elseif (TINY3D_OS_ANDROID)
 endif (TINY3D_OS_WINDOWS)
 
 
+
+
 # Setup header files for this project.
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 set_project_files(Include\\\\Adapter ${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/ .h)
+set_project_files(Include\\\\Adapter\\\\Common ${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Common/ .h)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -87,10 +91,17 @@ elseif (TINY3D_OS_ANDROID)
 	set_project_files(Include\\\\Adapter\\\\Android ${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Android/ .h)
 endif (TINY3D_OS_WINDOWS)
 
+if (TINY3D_OS_DESKTOP)
+	set_project_files(Include\\\\Adapter\\\\Desktop ${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Desktop/ .h)
+elseif (TINY3D_OS_MOBILE)
+	set_project_files(Include\\\\Adapter\\\\Mobile ${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Mobile/ .h)
+endif (TINY3D_OS_DESKTOP)
+
 
 # Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 set_project_files(Source\\\\Adapter ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/ .cpp)
+set_project_files(Source\\\\Adapter\\\\Common ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Common/ .cpp)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -121,6 +132,11 @@ elseif (TINY3D_OS_ANDROID)
 	set_project_files(Source\\\\Adapter\\\\Android ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Android/ .cpp)
 endif (TINY3D_OS_WINDOWS)
 
+if (TINY3D_OS_DESKTOP)
+	set_project_files(Source\\\\Adapter\\\\Desktop ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Desktop/ .cpp)
+elseif (TINY3D_OS_MOBILE)
+	set_project_files(Source\\\\Adapter\\\\Mobile ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Mobile/ .cpp)
+endif (TINY3D_OS_DESKTOP)
 
 # Setup all files for building this project.
 if (TINY3D_BUILD_SHARED_LIBS)

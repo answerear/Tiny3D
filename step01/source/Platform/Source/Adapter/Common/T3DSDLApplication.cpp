@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 
-#include "Adapter/T3DSDLApplication.h"
+#include "Adapter/Common/T3DSDLApplication.h"
 
 
 namespace Tiny3D

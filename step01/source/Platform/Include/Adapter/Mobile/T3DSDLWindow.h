@@ -17,39 +17,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DWin32Factory.h"
-#include "Adapter/Common/T3DSDLApplication.h"
-#include "Adapter/Desktop/T3DSDLWindow.h"
+#ifndef __T3D_SDL_WINDOW_H__
+#define __T3D_SDL_WINDOW_H__
+
+
+#include "Adapter/T3DWindowInterface.h"
+#include <SDL.h>
 
 namespace Tiny3D
 {
-    Win32Factory::Win32Factory()
+    class IWindow;
+
+    class SDLWindow : public IWindow
     {
+        T3D_DISABLE_COPY(SDLWindow);
 
-    }
+    public:
+        SDLWindow();
 
-    Win32Factory::~Win32Factory()
-    {
+        virtual ~SDLWindow();
 
-    }
+        virtual bool create(const char *title, int32_t x, int32_t y, 
+            int32_t w, int32_t h, uint32_t flags) override;
 
-    IApplication *Win32Factory::createPlatformApplication()
-    {
-        return new SDLApplication();
-    }
+        virtual void destroy() override;
 
-    IWindow *Win32Factory::createPlatformWindow()
-    {
-        return new SDLWindow();
-    }
+        virtual void *getNativeWinObject() override;
 
-    EPlatform Win32Factory::getPlatform()
-    {
-        return E_PLATFORM_WIN32;
-    }
-
-    IFactory *createPlatformFactory()
-    {
-        return new Win32Factory();
-    }
+    protected:
+        SDL_Window  *mWindow;
+    };
 }
+
+
+#endif  /*__T3D_SDL_WINDOW_H__*/

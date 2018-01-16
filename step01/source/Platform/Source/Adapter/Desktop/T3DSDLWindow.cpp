@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Adapter/T3DSDLWindow.h"
+#include "Adapter/Desktop/T3DSDLWindow.h"
 
 #if defined (T3D_OS_WINDOWS)
 #include <SDL_syswm.h>
