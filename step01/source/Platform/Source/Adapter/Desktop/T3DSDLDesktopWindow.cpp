@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Adapter/Mobile/T3DSDLWindow.h"
+#include "Adapter/Desktop/T3DSDLDesktopWindow.h"
 
 #if defined (T3D_OS_WINDOWS)
 #include <SDL_syswm.h>
@@ -25,18 +25,18 @@
 
 namespace Tiny3D
 {
-    SDLWindow::SDLWindow()
-        : mWindow(nullptr)
+    SDLDesktopWindow::SDLDesktopWindow()
+        : mSDLWindow(nullptr)
     {
 
     }
 
-    SDLWindow::~SDLWindow()
+    SDLDesktopWindow::~SDLDesktopWindow()
     {
 
     }
 
-    bool SDLWindow::create(const char *title, int32_t x, int32_t y,
+    bool SDLDesktopWindow::create(const char *title, int32_t x, int32_t y,
         int32_t w, int32_t h, uint32_t flags)
     {
         bool ret = false;
@@ -45,16 +45,8 @@ namespace Tiny3D
 
         if (ret)
         {
-#ifndef T3D_OS_DESKTOP
-            SDL_DisplayMode dm;
-            if (SDL_GetCurrentDisplayMode(0, &dm) == 0)
-            {
-                w = dm.w;
-                h = dm.h;
-            }
-#endif
-            mWindow = SDL_CreateWindow(title, x, y, w, h, flags);
-            if (mWindow == nullptr)
+            mSDLWindow = SDL_CreateWindow(title, x, y, w, h, flags);
+            if (mSDLWindow == nullptr)
             {
                 ret = false;
                 std::string str = SDL_GetError();
@@ -74,20 +66,20 @@ namespace Tiny3D
         return ret;
     }
 
-    void SDLWindow::destroy()
+    void SDLDesktopWindow::destroy()
     {
-        if (mWindow != nullptr)
+        if (mSDLWindow != nullptr)
         {
-            SDL_DestroyWindow(mWindow);
-            mWindow = nullptr;
+            SDL_DestroyWindow(mSDLWindow);
+            mSDLWindow = nullptr;
         }
     }
 
-    void *SDLWindow::getNativeWinObject()
+    void *SDLDesktopWindow::getNativeWinObject()
     {
 #if defined (T3D_OS_WINDOWS)
         SDL_SysWMinfo info;
-        bool ret = (SDL_GetWindowWMInfo(mWindow, &info) == SDL_TRUE);
+        bool ret = (SDL_GetWindowWMInfo(mSDLWindow, &info) == SDL_TRUE);
         return info.info.win.window;
 #else
         return nullptr;

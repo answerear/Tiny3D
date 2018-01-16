@@ -19,7 +19,7 @@
 
 #include "T3DWin32Factory.h"
 #include "Adapter/Common/T3DSDLApplication.h"
-#include "Adapter/Desktop/T3DSDLWindow.h"
+#include "Adapter/Desktop/T3DSDLDesktopWindow.h"
 
 namespace Tiny3D
 {
@@ -40,7 +40,7 @@ namespace Tiny3D
 
     IWindow *Win32Factory::createPlatformWindow()
     {
-        return new SDLWindow();
+        return new SDLDesktopWindow();
     }
 
     EPlatform Win32Factory::getPlatform()

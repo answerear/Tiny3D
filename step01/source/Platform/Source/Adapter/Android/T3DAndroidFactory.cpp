@@ -19,7 +19,7 @@
 
 #include "Adapter/Android/T3DAndroidFactory.h"
 #include "Adapter/Common/T3DSDLApplication.h"
-#include "Adapter/Mobile/T3DSDLWindow.h"
+#include "Adapter/Mobile/T3DSDLMobileWindow.h"
 
 
 namespace Tiny3D
@@ -41,7 +41,7 @@ namespace Tiny3D
 
     IWindow *AndroidFactory::createPlatformWindow()
     {
-        return new SDLWindow();
+        return new SDLMobileWindow();
     }
 
     EPlatform AndroidFactory::getPlatform()

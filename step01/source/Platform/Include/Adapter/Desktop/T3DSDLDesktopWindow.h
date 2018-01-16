@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_SDL_WINDOW_H__
-#define __T3D_SDL_WINDOW_H__
+#ifndef __T3D_SDL_DESKTOP_WINDOW_H__
+#define __T3D_SDL_DESKTOP_WINDOW_H__
 
 
 #include "Adapter/T3DWindowInterface.h"
@@ -28,14 +28,14 @@ namespace Tiny3D
 {
     class IWindow;
 
-    class SDLWindow : public IWindow
+    class SDLDesktopWindow : public IWindow
     {
-        T3D_DISABLE_COPY(SDLWindow);
+        T3D_DISABLE_COPY(SDLDesktopWindow);
 
     public:
-        SDLWindow();
+        SDLDesktopWindow();
 
-        virtual ~SDLWindow();
+        virtual ~SDLDesktopWindow();
 
         virtual bool create(const char *title, int32_t x, int32_t y, 
             int32_t w, int32_t h, uint32_t flags) override;
@@ -45,9 +45,9 @@ namespace Tiny3D
         virtual void *getNativeWinObject() override;
 
     protected:
-        SDL_Window  *mWindow;
+        SDL_Window  *mSDLWindow;
     };
 }
 
 
-#endif  /*__T3D_SDL_WINDOW_H__*/
+#endif  /*__T3D_SDL_DESKTOP_WINDOW_H__*/
