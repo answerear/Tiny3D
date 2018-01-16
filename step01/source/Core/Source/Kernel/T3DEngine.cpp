@@ -27,19 +27,19 @@ namespace Tiny3D
     Engine::Engine()
         : mWindow(nullptr)
         , mIsRunning(false)
-        , mWindowCreated(true)
+//         , mWindowCreated(true)
     {
     }
 
     Engine::~Engine()
     {
-        if (mWindowCreated)
+//         if (mWindowCreated)
         {
             T3D_SAFE_DELETE(mWindow);
         }
     }
 
-    bool Engine::startup(Window *window /* = nullptr */)
+    bool Engine::startup(/*Window *window / * = nullptr * /*/)
     {
         bool ret = false;
 
@@ -51,22 +51,22 @@ namespace Tiny3D
 
         if (ret)
         {
-            if (window == nullptr)
+//             if (window == nullptr)
             {
                 mWindow = new Window();
                 if (ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, Window::WINDOW_SHOWN))
                 {
-                    mWindowCreated = true;
+//                     mWindowCreated = true;
 
-                    mWindow->setWindowEventListener(this);
+//                     mWindow->setWindowEventListener(this);
                 }
             }
-            else
-            {
-                mWindow = window;
-                mWindowCreated = false;
-                mWindow->setWindowEventListener(this);
-            }
+//             else
+//             {
+//                 mWindow = window;
+//                 mWindowCreated = false;
+//                 mWindow->setWindowEventListener(this);
+//             }
         }
 
         mIsRunning = ret;
@@ -95,23 +95,23 @@ namespace Tiny3D
         
     }
 
-    void Engine::windowResized(int32_t w, int32_t h)
-    {
-
-    }
-
-    void Engine::windowMoved(int32_t x, int32_t y)
-    {
-
-    }
-
-    void Engine::windowRender()
-    {
-
-    }
-
-    void Engine::windowClosed()
-    {
-        mIsRunning = false;
-    }
+//     void Engine::windowResized(int32_t w, int32_t h)
+//     {
+// 
+//     }
+// 
+//     void Engine::windowMoved(int32_t x, int32_t y)
+//     {
+// 
+//     }
+// 
+//     void Engine::windowRender()
+//     {
+// 
+//     }
+// 
+//     void Engine::windowClosed()
+//     {
+//         mIsRunning = false;
+//     }
 }

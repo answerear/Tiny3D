@@ -22,9 +22,9 @@
 #define __T3D_APPLICATION_INTERFACE_H__
 
 
-#include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "T3DPlatformPrerequisites.h"
 
 
 namespace Tiny3D

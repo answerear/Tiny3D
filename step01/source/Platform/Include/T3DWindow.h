@@ -21,8 +21,9 @@
 #define __T3D_WINDOW_H__
 
 
+#include "T3DType.h"
+#include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
-#include "T3DWindowEventListener.h"
 
 
 namespace Tiny3D
@@ -51,8 +52,6 @@ namespace Tiny3D
 
         virtual ~Window();
 
-        void setWindowEventListener(WindowEventListener *listener);
-
         bool create(const char *title, int32_t x, int32_t y, 
             int32_t w, int32_t h, uint32_t flags);
 
@@ -60,7 +59,6 @@ namespace Tiny3D
 
     protected:
         IWindow *mWindow;
-        WindowEventListener *mEventListener;
     };
 }
 

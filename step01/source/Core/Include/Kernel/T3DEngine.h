@@ -30,9 +30,7 @@ namespace Tiny3D
     /**
      * @brief 引擎入口类
      */
-    class T3D_ENGINE_API Engine 
-        : public Singleton<Engine>
-        , public WindowEventListener
+    class T3D_ENGINE_API Engine : public Singleton<Engine>
     {
         T3D_DISABLE_COPY(Engine);
 
@@ -49,10 +47,9 @@ namespace Tiny3D
 
         /**
          * @brief 启动引擎
-         * @param [in] window : 渲染窗口
          * @remarks 引擎的一切应用都要在调用本接口之后才有效。
          */
-        bool startup(Window *window = nullptr);
+        bool startup(/*Window *window = nullptr*/);
 
         /**
          * @brief 运行引擎
@@ -64,36 +61,35 @@ namespace Tiny3D
          */
         void renderOneFrame();
 
-    protected:
-        /**
-        * @brief 窗口大小改变通知
-        * @param [in] w : 新的窗口宽度
-        * @param [in] h : 新的窗口高度
-        * @return void
-        */
-        virtual void windowResized(int32_t w, int32_t h) override;
-
-        /**
-        * @brief 窗口移动通知
-        * @param [in] x : 新的窗口位置
-        * @param [in] y : 新的窗口位置
-        */
-        virtual void windowMoved(int32_t x, int32_t y) override;
-
-        /**
-        * @brief 窗口事件循环通知
-        */
-        virtual void windowRender() override;
-
-        /**
-        * @brief
-        */
-        virtual void windowClosed() override;
+//     protected:
+//         /**
+//         * @brief 窗口大小改变通知
+//         * @param [in] w : 新的窗口宽度
+//         * @param [in] h : 新的窗口高度
+//         * @return void
+//         */
+//         virtual void windowResized(int32_t w, int32_t h) override;
+// 
+//         /**
+//         * @brief 窗口移动通知
+//         * @param [in] x : 新的窗口位置
+//         * @param [in] y : 新的窗口位置
+//         */
+//         virtual void windowMoved(int32_t x, int32_t y) override;
+// 
+//         /**
+//         * @brief 窗口事件循环通知
+//         */
+//         virtual void windowRender() override;
+// 
+//         /**
+//         * @brief
+//         */
+//         virtual void windowClosed() override;
 
     protected:
         Window              *mWindow;               /// 窗口
         bool                mIsRunning;             /// 引擎是否在运行中
-        bool                mWindowCreated;         /// 窗口是否内部创建的
     };
 
     #define T3D_ENGINE      (Engine::getInstance())

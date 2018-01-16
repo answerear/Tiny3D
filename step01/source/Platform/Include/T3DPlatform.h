@@ -23,7 +23,6 @@
 #include <T3DSystem.h>
 #include <T3DApplication.h>
 #include <T3DWindow.h>
-#include <T3DWindowEventListener.h>
 
 #if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
 #include <SDL_main.h>

@@ -28,7 +28,7 @@ namespace Tiny3D
 {
     class IWindow;
 
-    class T3D_PLATFORM_API SDLWindow : public IWindow
+    class SDLWindow : public IWindow
     {
         T3D_DISABLE_COPY(SDLWindow);
 
