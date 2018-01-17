@@ -13,6 +13,7 @@ A Tiny 3D Engine
 
 - 了解整体目标
 - 了解整体架构设计
+- ​
 
 ## 1.1 整体目标
 
@@ -40,6 +41,8 @@ A Tiny 3D Engine
 20. FBX转自定义格式的工具。支持：支持在Windows上把FBX格式文件转换成自定义格式文件，方便引擎加载
 
 从上面简单罗列来看，已经有很多功能了，看起来不可能完成，但是这个就是我们目标，我们不去尝试，怎么就知道无法实现呢？接下来，让我们一起朝着这个目标出发，前进！！！
+
+
 
 ## 1.2 整体架构
 
@@ -73,6 +76,8 @@ A Tiny 3D Engine
 
 　　接下来先从大家平时用得最多的Windows平台开始搭建环境。
 
+
+
 ## 2.1 Windows开发环境
 
 　　我这里是直接用Win10和Visual Studio 2015作为开发工具的。Visual Studio 2015下载地址：https://www.visualstudio.com/zh-hans/vs/older-downloads/ 。下载完记得要安装各种C++相关模块即可。安装后，需要设置一下环境变量，过程如下图：
@@ -105,6 +110,8 @@ A Tiny 3D Engine
 
 　　至此Windows上的开发环境就已经搭建完了。稍后我们下一篇我们再用程序来实际验证我们的环境是否能正常使用。接下来我们继续下一个平台开发环境搭建——Android开发环境。
 
+
+
 ## 2.2 Android开发环境
 
 　　上一篇我们已经搭建了Win 10的开发环境，这一篇我们简单介绍Android开发环境的搭建。因为我们用C++作为主要开发语言，在Android上开发C++，必然要用到NDK。以前，在Android上使用NDK开发，主要也是用Makefile来编译，用Eclipse或者Visual GDB来来调试等。但是无论用那种方式，都会碰到各种繁琐的事情，要么构建麻烦，要么就是调试麻烦，很多人使用过的人都深有体会。而且这一条工具链对于我们之前说过的使用CMake也不是很友好和方便。而最近几年出现的Android Studio，特别是新版本的Android Studio，就很好解决了这个问题。Android Studio里面对native的开发主要就是使用CMake来生成工程并且用clang++来编译，这一套工具链恰好跟我们之前的开发环境目标很一致，所以我们在Android开发上果断选择Android Studio。
@@ -133,9 +140,13 @@ A Tiny 3D Engine
 
 　　至此，我们Android开发环境就搭建完成了。验证环境是否正常，我们留到后面一个简单程序来实现。最后我们来看看在Mac OS X上搭建iOS和Mac OS X开发环境
 
+
+
 ## 2.3 iOS和Mac OS X开发环境
 
 　　在Mac OS X搭建这个开发环境就相对容易多了，只要到App Store上安装最新版xcode就完事了。不过，想要发布还需要花费$99USD去苹果那里搞个开发者账号生成个发布证书才可以提交苹果审核发布的。这里就不想详细述说这些了。
+
+
 
 ## 2.4 Linux开发环境
 
@@ -152,6 +163,8 @@ A Tiny 3D Engine
 - 一个在Windows、Mac OS X、iOS、Android平台上都能运行起来的简单Demo——HelloApp
 
 　　上面各平台开发环境我们已经搭建好了，那我们接着需要做个程序来验证环境是否能正常运行。这里，我们通过一个简单的Demo来验证这个问题。在实现这个Demo过程中，我们也开始平台层的简单设计和实现，避免后面再返回来做设计了。
+
+
 
 ## 3.1 平台库（T3DPlatform）和核心库（T3DCore）设计
 
@@ -197,7 +210,7 @@ A Tiny 3D Engine
 
 看过上面靓图，我们就会发现其实我们对于各种操作系统相关的对象创建就是使用了抽象工厂模式。也许有人会问，为什么这里要用抽象工厂模式来设计呢？那这个问题就要回到抽象工厂模式能解决什么设计问题上了。
 
-### 3.1.3 适配模式的应用
+### 3.1.3 桥接模式的应用
 
 ## 3.2 T3DPlatform的实现
 
@@ -209,7 +222,7 @@ T3DMacro.h——定义了一些辅助宏，包括T3D_SAFE_DELETE、T3D_SAFE_DELE
 
 T3DPlatformPrerequisites.h——平台库需要依赖的一些只有平台库需要的宏以及平台库包的所有类的前置声明。
 
-下面我们看点代码片段：
+下面我们看看代码片段：
 
 T3DType.h
 ```c++
@@ -244,9 +257,188 @@ typedef std::u32string      UTF32String;
 typedef void*               THandle;
 ```
 
+T3DMacro.h
+
+```c++
+#if defined T3D_OS_WINDOWS      
+	// Win32
+
+    #ifdef _DEBUG   // debug
+        #define T3D_DEBUG
+    #else           // release
+        #undef T3D_DEBUG
+    #endif
+    
+    #pragma warning(disable:4996)
+    #pragma warning(disable:4251)
+    
+    #define snprintf    _snprintf
+    #define vsnprintf   _vsnprintf
+    
+    #define T3D_EXPORT_API      __declspec(dllexport)
+    #define T3D_IMPORT_API      __declspec(dllimport)
+
+#elif defined T3D_OS_IOS || defined T3D_OS_OSX || defined T3D_OS_LINUX  
+	// iOS or Mac OS x or Linux
+
+    #ifdef DEBUG    // debug
+        #define T3D_DEBUG
+    #else           // release
+        #undef T3D_DEBUG
+    #endif
+    
+    #define T3D_EXPORT_API
+    #define T3D_IMPORT_API
+
+#elif defined T3D_OS_ANDROID    
+	// Android
+
+    #ifdef NDK_DEBUG    // debug
+        #define T3D_DEBUG
+    #else               // release
+        #undef T3D_DEBUG
+    #endif
+    
+    #define T3D_EXPORT_API
+    #define T3D_IMPORT_API
+
+#endif
+
+// 重定义断言
+#ifndef T3D_ASSERT
+    #ifdef T3D_DEBUG
+        #define T3D_ASSERT(x)   assert(x)
+    #else
+        #define T3D_ASSERT(x)
+    #endif
+#endif
+
+// 声明接口类辅助宏
+#define T3D_DECLARE_INTERFACE(T)    \
+    public:     \
+        virtual ~T()    {}
+
+// 禁止复制拷贝对象辅助宏
+#define T3D_DISABLE_COPY(T) \
+    private:    \
+        T(const T &);   \
+        T &operator =(const T &);
+
+// 安全释放指针
+#define T3D_SAFE_DELETE(p)  \
+    if (p != nullptr)   \
+    {   \
+        delete p;   \
+        p = nullptr;    \
+    }
+
+// 安全释放数组
+#define T3D_SAFE_DELETE_ARRAY(p)    \
+    if (p != nullptr)   \
+    {   \
+        delete []p; \
+        p = nullptr;    \
+    }
+```
+
+T3DPlatformPrerequisites.h
+
+```c++
+#if defined T3DPLATFORM_EXPORT
+    #define T3D_PLATFORM_API    T3D_EXPORT_API
+#else
+    #define T3D_PLATFORM_API    T3D_IMPORT_API
+#endif
+
+namespace Tiny3D
+{
+    class System;
+    class Application;
+    class Window;
+}
+```
+
 
 
 ### 3.2.2 Application相关类实现
+
+　　前面我们看整体设计的时候，已经大概了解过有Application类，IApplication类，以及具体平台相关的Application类。这里我们要面临一个选择的问题。虽然我们是从造轮子开始的，但是我们不用连轮子上的橡胶也自己生产，毕竟我们不是专业跨平台窗口程序制作人员，所以这些造轮子所用的橡胶就交给第三方生产了。窗口系统有很多，但是我们选择基于三点原则：
+
+1. 跨平台，支持Windows、Mac OS X、Linux、iOS、Android等五种主流操作系统平台
+2. 简单能提供渲染的窗口，目标不是开发编辑器
+3. 同时支持Open GL和Direct X两种不同系列的API
+
+一开始考虑使用GLFW这个第三方库来实现应用和窗口系统的，但是后面发现GLFW首先只支持Open GL，其次其只支持桌面系统，对于手机终端系统暂无支持，结合上面三点原则，无法同时满足第一点和第三点，所以最后还是放弃了。经过一轮选择，最终选择了SDL2这个库。首先，它能满足跨平台，第一点原则上列出来的平台它都支持。其次，它能完美支持Open GL和Direct X两种不同系列的API。最后，SDL2也提供了不同平台的一些输入事件的封装，甚至更多的一些平台功能。综合分析，最后我们选择SDL2作为我们底层应用入口和窗口系统的构建基础。
+
+　　那接下来看看几个Application类提供一些什么功能。
+
+Application类
+
+```c++
+class T3D_PLATFORM_API Application : public Singleton<Application>
+{
+public:
+	/**
+ 	 * @brief 应用初始化，这个由具体平台来调用，用户不需要调用
+ 	 * @return 调用成功返回true，否则返回false
+ 	 */
+	bool init();
+
+	/**
+	 * @brief 应用事件处理
+	 */
+	bool pollEvents();
+
+	/**
+	 * @brief 应用程序退出释放资源
+	 * @return void
+	 */
+	void release();
+
+	/**
+	 * @brief 获取平台相关的应用程序对象
+	 * @return 返回平台相关的应用程序对象，不同平台各自去解析返回的指针
+	 */
+	void *getNativeAppObject();
+
+	/**
+	 * @brief 子类实现关注程序启动事件，引擎启动后被调用
+	 * @return 返回true，引擎会继续执行下去，返回false，引擎会退出
+	 */
+	virtual bool applicationDidFinishLaunching() = 0;
+
+	/**
+	 * @brief 子类实现关注程序退后台事件
+	 */
+	virtual void applicationDidEnterBackground() = 0;
+
+	/**
+	 * @brief 子类实现关注程序回到前台事件
+	 */
+	virtual void applicationWillEnterForeground() = 0;
+
+	/**
+	 * @brief 子类实现关注程序退出事件，在某些平台上没有该事件
+	 */
+	virtual void applicationWillTerminate() = 0;
+};
+```
+
+init() —— 初始化引用程序。目前主要调用IApplication具体操作系统相关子类对象实现来处理程序初始化的事情。
+
+pollEvents() —— 轮询应用程序事件。目前主要是调用IApplication具体操作系统相关子类对象实现来处理程序轮询事件的事情。
+
+release() —— 应用程序释放对应资源。目前主要是调用IApplication具体操作系统相关子类对象实现来处理程序退出的清理事情。
+
+getNatvieAppObject() —— 返回操作系统相关的用于标识程序的唯一句柄对象。目前主要是调用IApplication具体操作系统相关子类对象实现来返回平台相关句柄，这里有的平台可能是没有该标识。
+
+最后，一个很重要的实现，那就是在构造函数的时候，会对上述提到的System单例类实例化，让所有程序在启动时候就能识别出具体的操作系统平台，方便后续调用平台相关的接口。
+
+IApplication类
+
+　　上面再平台库设计的时候谈到过我们的Application类只是一个适配器，用于适配不同的平台实现
+
+　　各位可以直接查看源代码了解全部Application相关类的实现。
 
 ### 3.2.3 Window相关类实现
 
@@ -262,7 +454,8 @@ typedef void*               THandle;
 
 ## 3.5 跑起来吧，HelloApp！
 
-　　虽然我们是从造轮子起家，但是我们不用连轮子上的橡胶也自己生产，毕竟我们不是专业跨平台窗口程序制作人员，所以这些造轮子所用的橡胶就交给第三方生产了。窗口系统有很多，但是我们选择基于两点原则：
+　　
 
-1. 跨平台，支持Windows、Mac OS X、Linux、iOS、Android等五种主流系统
-2. 我们开发的不是开发编辑器，简单窗口就好了
+```
+
+```
