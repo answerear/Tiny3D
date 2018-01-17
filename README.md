@@ -141,17 +141,19 @@ A Tiny 3D Engine
 
 这部分暂时没有涉及，后续补充，To be continued
 
-# 三、第一个跨平台Demo
+# 三、Hello World
 
 本篇目标
 
-- 简单的平台层设计
+- 简单的平台库和核心库设计
+- 简单的平台库和核心库的实现
+- 项目文件组织结构
 - 验证开发环境能正常运作
-- 一个在Windows、Mac OS X、iOS、Android平台上都能运行起来的简单Demo
+- 一个在Windows、Mac OS X、iOS、Android平台上都能运行起来的简单Demo——HelloApp
 
 　　上面各平台开发环境我们已经搭建好了，那我们接着需要做个程序来验证环境是否能正常运行。这里，我们通过一个简单的Demo来验证这个问题。在实现这个Demo过程中，我们也开始平台层的简单设计和实现，避免后面再返回来做设计了。
 
-## 3.1 平台库和核心库设计
+## 3.1 平台库（T3DPlatform）和核心库（T3DCore）设计
 
 　　首先，我们把引擎层简单分成两个库，一个是引擎核心库——T3DCore，另外一个是平台相关抽象库——T3DPlatform。划分成两个库后，我们直接来看看类图的设计，有个更加直观的认识。类图设计如下图3-1：
 
@@ -185,17 +187,80 @@ A Tiny 3D Engine
 
 ### 3.1.2 抽象工厂模式的应用
 
-　　抽象工厂模式，这个估计有的人从上面的设计类图不能一下子就看出来。这个我们先来个抽象工厂模式的标准类图，如下图3-5：
+　　抽象工厂模式，这个从上图3-1应该能看出点端倪，下面我们详细来分析下这个设计。这个我们先来个抽象工厂模式的标准类图，如下图3-5：
 
 <center>图3-5 抽象工厂模式标准定义类图示例</center>
 
-接着我们放大本篇开始提到的Demo类设计图，如下图3-6：
+接着我们放大本篇开始提到的Demo中类设计图，如下图3-6：
 
 <center>图3-6 T3DPlatform库中使用到的抽象工厂模式类图</center>
 
 看过上面靓图，我们就会发现其实我们对于各种操作系统相关的对象创建就是使用了抽象工厂模式。也许有人会问，为什么这里要用抽象工厂模式来设计呢？那这个问题就要回到抽象工厂模式能解决什么设计问题上了。
 
 ### 3.1.3 适配模式的应用
+
+## 3.2 T3DPlatform的实现
+
+### 3.2.1 公用头文件
+
+T3DType.h——重定义了各种引擎需要用到的基本类型。
+
+T3DMacro.h——定义了一些辅助宏，包括T3D_SAFE_DELETE、T3D_SAFE_DELETE_ARRAY、T3D_EXPORT_API和T3D_IMPORT_API等通用的宏。
+
+T3DPlatformPrerequisites.h——平台库需要依赖的一些只有平台库需要的宏以及平台库包的所有类的前置声明。
+
+下面我们看点代码片段：
+
+T3DType.h
+```c++
+typedef signed char         char_t;
+typedef unsigned char       uchar_t;
+typedef signed short        short_t;
+typedef unsigned short      ushort_t;
+typedef signed int          int_t;
+typedef unsigned int        uint_t;
+typedef signed long         long_t;
+typedef unsigned long       ulong_t;
+
+typedef signed char         int8_t;
+typedef unsigned char       uint8_t;
+typedef signed short        int16_t;
+typedef unsigned short      uint16_t;
+typedef signed int          int32_t;
+typedef unsigned int        uint32_t;
+
+#ifndef T3D_OS_ANDROID	// Android平台已经定义了这两个类型了，所以Anroid平台忽略不重复定义了
+typedef signed long long    int64_t;
+typedef unsigned long long  uint64_t;
+#endif
+
+typedef std::string         String;
+typedef std::wstring        WString;
+
+typedef std::string         UTF8String;
+typedef std::u16string      UTF16String;
+typedef std::u32string      UTF32String;
+
+typedef void*               THandle;
+```
+
+
+
+### 3.2.2 Application相关类实现
+
+### 3.2.3 Window相关类实现
+
+## 3.3 T3DCore的实现
+
+## 3.4 项目文件组织结构
+
+### 3.4.1 一般的项目文件组织结构
+
+### 3.4.2 特别对待的Android工程
+
+### 3.4.3 辅助脚本
+
+## 3.5 跑起来吧，HelloApp！
 
 　　虽然我们是从造轮子起家，但是我们不用连轮子上的橡胶也自己生产，毕竟我们不是专业跨平台窗口程序制作人员，所以这些造轮子所用的橡胶就交给第三方生产了。窗口系统有很多，但是我们选择基于两点原则：
 
