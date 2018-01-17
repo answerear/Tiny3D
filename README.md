@@ -156,65 +156,126 @@ A Tiny 3D Engine
 
 本篇目标
 
+- 项目文件组织结构
 - 简单的平台库和核心库设计
 - 简单的平台库和核心库的实现
-- 项目文件组织结构
 - 验证开发环境能正常运作
 - 一个在Windows、Mac OS X、iOS、Android平台上都能运行起来的简单Demo——HelloApp
 
 　　上面各平台开发环境我们已经搭建好了，那我们接着需要做个程序来验证环境是否能正常运行。这里，我们通过一个简单的Demo来验证这个问题。在实现这个Demo过程中，我们也开始平台层的简单设计和实现，避免后面再返回来做设计了。
 
+## 3.1 项目文件组织结构
+
+　　现在就让我们从项目文件组织结构开始，一步步完善我们的引擎，逐步向目标靠近。既然是写代码，肯定需要存放源码文件，这个怎样存放源代码文件、第三方库文件、资源文件，这个就需要我们考虑了。其实，这个问题还比较简单，不用过多考虑，为什么呢？因为我们使用的CMake生成工程就已经给我们大概规范好了源码存放文件的结构了。下面，我们通过简单的图来看看如何存放。
 
 
-## 3.1 平台库（T3DPlatform）和核心库（T3DCore）设计
 
-　　首先，我们把引擎层简单分成两个库，一个是引擎核心库——T3DCore，另外一个是平台相关抽象库——T3DPlatform。划分成两个库后，我们直接来看看类图的设计，有个更加直观的认识。类图设计如下图3-1：
+### 3.1.1 一般的项目文件组织结构
 
-![图3-1 平台层和核心层简单类设计UML图](doc/images/s01-class-design.png)
+### 3.1.2 特别对待的Android工程
 
-<center>图3-1 Demo的平台层简单类图</center>
+### 3.13 辅助脚本
 
-看到图3-1，各位看官是否觉得这里面的设计有似曾相识的感觉？是的，这里面用到了GOF提出的24中设计模式中的三种：单例模式、抽象工厂模式、适配模式。
+## 3.2 平台库（T3DPlatform）和核心库（T3DCore）设计
 
-### 3.1.1 单例模式的应用
+　　首先，我们把引擎层简单分成两个库，一个是引擎核心库——T3DCore，另外一个是平台相关抽象库——T3DPlatform。划分成两个库后，我们先来看T3DPlatform库的类图的设计，如下图3-1：
 
-　　唯一的应用对象——Application类。每个程序或者进程有且仅有一个应用对象，所以在这里我们直接用单例模式来设计Application类，避免应用对象多实例导致任何错误的出现。我们局部放大来详细看看这个单例的具体设计，如下图3-2：
+![图3-1 T3DPlatform库类图设计](doc/images/s01-platform-design.png)
 
-<center>图3-2 T3DPlatform库Application类单例模式类图</center>
+<center>图3-1 T3DPlatform库类图设计</center>
 
-这个Application类提供了应用程序初始化、事件轮询、释放资源等基本接口操作，同时也提供一些基本程序事件回调。我们把Application类放到T3DPlatform库里面应用层（使用引擎方）可以通过继承Application类做到同样是单例的实现，并且该对象是用应用层（使用引擎方）负责创建实例化。此外，我们这个Application类除了是一个单例模式应用外，也用了适配模式来适配不同操作系统之间的差异，具体在后面的适配模式的应用里面会讲到。
+看到图3-1，各位看官是否觉得这里面的设计有似曾相识的感觉？是的，这里面用到了GoF提出的24中设计模式中的三种：单例模式、抽象工厂模式、桥接模式。在后面我们详细介绍，现在我们再来看看T3DCore的类图设计，这样子有个稍微全面的认识，如下图3-2：
 
-　　唯一的系统对象——System类。每个操作系统平台有且仅有一个这种对象，所以在这里我们也是直接使用单例模式来设计System类。我们局部放大来详细看看这个单例的具体设计，如下图3-3：
+![图3-2 T3DCore库类图设计](doc/images/s01-core-design.png)
 
-<center>图3-3 T3DPlatform库System类单例模式类图</center>
+<center>图3-2 T3DCore库类图设计</center>
+
+从上图看出来，T3DCore库在本篇里面仅仅有一个Engine类，其负责创建Window对象，并且调用Application一些事件接口，通知引擎发生的最重要事情。各位看完这两个库的类图设计后，接下来我们详细讲讲一些中间用到的设计模式及其使用的目的。
+
+### 3.2.1 单例模式的应用
+
+　　先来看看标准的单例模式的定义是：
+
+> 单例模式（Singleton），保证一个类仅有一个实例，并提供一个访问它的全局访问点。
+
+看完定义，我们来看看标准的单例类图是什么样的，如下图3-2：
+
+![图3-3 单例模式标准类图示例](doc/images/Singleton.png)
+
+<center>图3-3 单例模式标准定义类图示例</center>
+
+从标准定义可以看到单例的对象是通过在Singleton内部创建Singleton对象出来，所以这里构造函数是私有访问权限，防止外部创建。然而，按照这个标准来实现单例，会有一个小小的问题，那就是如果存在多个单例，那么这个全局的instance创建顺序就不由我们控制了，这样子就会出现一些意想不到的问题。因此，为了避免这个问题的出现，我们稍微对其做一点点改造，那就是把Singleton构造函数改造成公有，由一个地方统一创建这个单例对象，这样子就能由我们控制这些全局对象的创建顺序。当然，单例模式其实就是一种全局，相对来说，我们还是减少这种单例模式的使用，避免到处都是全局对象，造成全局污染。下面我们从上面设计图看出来存在三个这样的单例对象，我们逐个来说明下如此设计的目的。
+
+　　唯一的应用对象——Application类。每个程序或者进程有且仅有一个应用对象，所以在这里我们直接用单例模式来设计Application类，避免应用对象多实例导致任何错误的出现。我们局部放大来详细看看这个单例的具体设计，如下图3-4：
+
+![图3-4 T3DPlatform库Application相关类设计图](doc/images/s01-application-design.png)
+
+<center>图3-4 T3DPlatform库Application相关类图</center>
+
+这个Application类提供了应用程序初始化、事件轮询、释放资源等基本接口操作，同时也提供一些基本程序事件回调。我们把Application类放到T3DPlatform库里面应用层（使用引擎方）可以通过继承Application类做到同样是单例的实现，并且该对象是用应用层（使用引擎方）负责创建实例化。此外，我们这个Application类除了是一个单例模式应用外，也用了桥接模式来屏蔽不同操作系统之间的差异，具体在后面的桥接模式的应用里面会讲到。
+
+　　唯一的系统对象——System类。每个操作系统平台有且仅有一个这种对象，所以在这里我们也是直接使用单例模式来设计System类。我们局部放大来详细看看这个单例的具体设计，如下图3-5：
+
+![图3-5 T3DPlatform库System类图设计](doc/images/s01-system-design.png)
+
+<center>图3-5 T3DPlatform库System类单例模式类图</center>
 
 这里的System类，作为操作系统相关操作的入口，其实是指具体跟操作系统平台相关的一些初始化、创建操作系统相关工厂对象以及内部轮询操作的接口的实现。我们把System类放到T3DPlatform库里面。这个System单例对象会在Application对象创建的时候在Application对象内部创建出来，做到第一时间创建平台相关工厂对象，避免后续各种调用平台相关功能的时候因为没有System对象而无法使用。后续随着我们的引擎的逐步构建，System类里面的操作系统相关的接口会逐步增多，后面碰到的时候，我们再讲。
 
-　　唯一的引擎对象——Engine类。这里的引擎类就是我们的引擎入口了。这个当然是有且仅有一个这种对象了，引擎嘛，肯定是唯一的。我们局部放大来详细看看这个单例的具体设计，如下图3-4：
-
-<center>图3-4 T3DCore库Engine类单例模式类图</center>
-
-目前这个类很简单，仅仅提供了发动引擎操作、运行引擎操作、渲染单帧操作三个接口给应用使用。但是后续随着我们的引擎的逐步构建，功能逐步增加，Engine类里面的接口会逐步增加，后面我们再增加接口的时候再来谈谈具体的接口设计和实现。
+　　唯一的引擎对象——Engine类。这里的引擎类就是我们的引擎入口了。这个当然是有且仅有一个这种对象了，引擎嘛，肯定是唯一的。这个我们直接从上面图3-2可以比较直观的看到类图设计。目前这个类很简单，仅仅提供了发动引擎操作、运行引擎操作、渲染单帧操作三个接口给应用使用。但是后续随着我们的引擎的逐步构建，功能逐步增加，Engine类里面的接口会逐步增加，后面我们再增加接口的时候再来谈谈具体的接口设计和实现。
 
 　　到目前为止，我们就讲完了三个使用了单例模式的类的设计，本篇后面部分会有这三个类的接口设计和讲解。接下来我们看看前文提到的另外两种模式。
 
-### 3.1.2 抽象工厂模式的应用
+### 3.2.2 抽象工厂模式的应用
 
-　　抽象工厂模式，这个从上图3-1应该能看出点端倪，下面我们详细来分析下这个设计。这个我们先来个抽象工厂模式的标准类图，如下图3-5：
+　　抽象工厂模式，这个从上图3-1应该能看出点端倪，下面我们详细来分析下这个设计。首先，什么是抽象工厂模式？我们直接看看定义：
 
-<center>图3-5 抽象工厂模式标准定义类图示例</center>
+> 抽象工厂模式（Abstract Factory），提供一个创建一系列相关或相互依赖对象的接口，而无需指定它们具体的类。
 
-接着我们放大本篇开始提到的Demo中类设计图，如下图3-6：
+接着我们来看看抽象工厂模式的标准类图，如下图3-5：
 
-<center>图3-6 T3DPlatform库中使用到的抽象工厂模式类图</center>
+![图3-6 抽象工厂模式标准定义类图示例](doc/images/AbstractFactory.png)
 
-看过上面靓图，我们就会发现其实我们对于各种操作系统相关的对象创建就是使用了抽象工厂模式。也许有人会问，为什么这里要用抽象工厂模式来设计呢？那这个问题就要回到抽象工厂模式能解决什么设计问题上了。
+<center>图3-6 抽象工厂模式标准定义类图示例</center>
 
-### 3.1.3 桥接模式的应用
+我们来看看本篇开始提到的T3DPlatform中的类设计图，如下图3-7：
 
-## 3.2 T3DPlatform的实现
+![图3-7 T3DPlatform库中使用到的抽象工厂模式类图](doc/images/s01-factory-design.png)
 
-### 3.2.1 公用头文件
+<center>图3-7 T3DPlatform库中使用到的抽象工厂模式类图</center>
+
+看过上图，我们就会发现其实我们对于各种操作系统相关的对象创建就是使用了抽象工厂模式。好，接下来我们逐个列出来我们实际抽象工厂模式应用中的类和抽象工厂模式定义中的对应关系。如下表3-1
+
+| 抽象工厂模式定义中的类                       | 实际应用中的类                                  |
+| --------------------------------- | ---------------------------------------- |
+| Client                            | Application和Window                       |
+| AbstractFactory                   | IFactory                                 |
+| ConcreteFactory1和ConcreteFactory2 | Win32Factory、OSXFactory、iOSFactory、AndroidFactory |
+| AbstractProductA                  | IApplication                             |
+| AbstractProductB                  | IWindow                                  |
+| ProductA1和ProductA2               | SDLApplication                           |
+| ProductB1和ProductB2               | SDLDesktopWindow和SDLMobileWindow         |
+
+<center>表3-1</center>
+
+从表3-1我们可以找出所有实际应用的类在定义中的类影子。为什么要用抽象工厂模式呢？因为每个操作系统平台对于窗口、应用等实现都有差异，抽象类IApplication（AbstractProductA）和IWindow（AbstractProductB）抽取了公用接口，让各平台相关子类各自去实现具体的接口，这样子Application（Client）和Window（Client）都无需关注具体平台实现，仅仅是调用就能达到具体的功能目的。同时，这里Application类和Window类使用了另外一种模式来进一步隐藏操作系统相关的操作，这个就是接下来要讲的桥接模式。
+
+### 3.2.3 桥接模式的应用
+
+　　桥接模式，估计很多人对这个模式都比较陌生，没有前面提到那两种设计模式那么常用。那么我们先来看看桥接模式的定义是什么：
+
+> 桥接模式（Bridge），将抽象部分与它的实现部分分离，使他们都可以独立地变化。
+>
+
+看完定义，我们再直观的看看标准定义的类图是怎样的，如下图3-8：
+
+![图3-8 桥接模式标准定义类图示例](doc/images/Bridge.png)
+
+<center>图3-8 桥接模式标准定义类图</center>
+
+## 3.3 T3DPlatform的实现
+
+### 3.3.1 公用头文件
 
 T3DType.h——重定义了各种引擎需要用到的基本类型。
 
@@ -358,9 +419,56 @@ namespace Tiny3D
 }
 ```
 
+　　涉及源码文件：
 
+- Source/Platform/Include/T3DType.h
+- Source/Platform/Include/T3DMacro.h
+- Source/Platform/Include/T3DPlatformPrerequisites.h
 
-### 3.2.2 Application相关类实现
+### 3.3.2 Singleton类实现
+
+　　Singleton类在这里作为所有单例的基类，而且这是个模板类，可以适应各种类型。这里让所有单例类从这里继承，Singleton类封装各种单例行为。下面我们简单看看Singleton类实现：
+
+```c++
+template <typename T>
+class Singleton
+{
+public:
+    typedef T  value_type;
+    typedef T* pointer;
+    typedef T& reference;
+
+    Singleton()
+    {
+        T3D_ASSERT(m_pInstance == nullptr);
+        m_pInstance = static_cast<pointer>(this);
+    }
+
+    virtual ~Singleton()
+    {
+        m_pInstance = nullptr;
+    }
+
+    static reference getInstance()
+    {
+        return *m_pInstance;
+    }
+
+    static pointer getInstancePtr()
+    {
+        return m_pInstance;
+    }
+
+protected:
+    static pointer m_pInstance;
+};
+```
+
+详细的实现各位看官请参阅源码：
+
+- Source/Platform/Include/T3DSingleton.h
+
+### 3.3.3 Application相关类实现
 
 　　前面我们看整体设计的时候，已经大概了解过有Application类，IApplication类，以及具体平台相关的Application类。这里我们要面临一个选择的问题。虽然我们是从造轮子开始的，但是我们不用连轮子上的橡胶也自己生产，毕竟我们不是专业跨平台窗口程序制作人员，所以这些造轮子所用的橡胶就交给第三方生产了。窗口系统有很多，但是我们选择基于三点原则：
 
@@ -436,21 +544,29 @@ getNatvieAppObject() —— 返回操作系统相关的用于标识程序的唯�
 
 IApplication类
 
-　　上面再平台库设计的时候谈到过我们的Application类只是一个适配器，用于适配不同的平台实现
+　　上面再平台库设计的时候谈到过我们的Application类只是一个桥接者，而IApplication类才是实现者的抽象接口类，各操作系统平台或者第三方库负责继承出子类来实现各自接口跟平台相关的功能。具体的在这里不逐一列出来了，详情还请各位看官直接参阅源码IApplicationInterface.h。
 
-　　各位可以直接查看源代码了解全部Application相关类的实现。
+SDLApplication类
 
-### 3.2.3 Window相关类实现
+　　参考上面类图设计，还有一个SDLApplication类，这个我们直接使用SDL2这个第三方库来实现应用程序初始化、事件轮询以及程序释放资源等这些功能。这个类是IApplication具体的实现类。为什么这里我们没有各种平台相关的IApplication子类，而只有一个SDLApplication类呢？因为SDL已经替我们实现了各种操作系统平台相关的事情，所以我们这里只需要简单的封装一下就能达到最初设计的目的了。具体的在这里也不一一列出来了，详情还请各位看官直接参阅源码SDLApplication.h和SDLApplication.cpp。而关于SDL2库的使用，可以直接到其官网 www.libsdl.org 上查阅。如果各位有兴趣，可以自己派生子类实现各种平台的行为或者使用其他第三方库来实现IApplication各种接口行为。
 
-## 3.3 T3DCore的实现
+　　涉及源码文件：
 
-## 3.4 项目文件组织结构
+- Source/Platform/Include/T3DApplication.h
+- Source/Platform/Source/T3DApplication.cpp
+- Source/Platform/Include/Adapter/T3DApplicationInterface.h
+- Source/Platform/Include/Adapter/T3DSDLApplication.h
+- Source/Platform/Source/Adapter/T3DSDLApplication.cpp
 
-### 3.4.1 一般的项目文件组织结构
+### 3.3.4 Window相关类实现
 
-### 3.4.2 特别对待的Android工程
+### 3.3.5 各操作系统平台相关工厂类实现
 
-### 3.4.3 辅助脚本
+### 3.3.6 System类平台库的总入口
+
+## 3.4 T3DCore的实现
+
+### 
 
 ## 3.5 跑起来吧，HelloApp！
 
