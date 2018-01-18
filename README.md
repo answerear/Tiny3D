@@ -13,7 +13,6 @@ A Tiny 3D Engine
 
 - 了解整体目标
 - 了解整体架构设计
-- ​
 
 ## 1.1 整体目标
 
@@ -166,15 +165,142 @@ A Tiny 3D Engine
 
 ## 3.1 项目文件组织结构
 
-　　现在就让我们从项目文件组织结构开始，一步步完善我们的引擎，逐步向目标靠近。既然是写代码，肯定需要存放源码文件，这个怎样存放源代码文件、第三方库文件、资源文件，这个就需要我们考虑了。其实，这个问题还比较简单，不用过多考虑，为什么呢？因为我们使用的CMake生成工程就已经给我们大概规范好了源码存放文件的结构了。下面，我们通过简单的图来看看如何存放。
+　　现在就让我们从项目文件组织结构开始，一步步完善引擎，逐步向目标靠近。既然是写代码，肯定需要存放源码文件，怎样存放源代码文件、第三方库文件、资源文件，这个就需要我们考虑了。其实，这个问题还比较简单，不用过多考虑，为什么呢？因为我们使用的CMake生成工程就已经给我们大概规范好了源码存放文件的结构了。下面，我们通过简单的图来看看如何存放。
 
-
+```
+.
+├─dependencies
+│  └─SDL2
+│      ├─include
+│      │  └─SDL2
+│      └─prebuilt
+│          ├─Android
+│          │  ├─armeabi
+│          │  ├─armeabi-v7a
+│          │  └─x86
+│          ├─iOS
+│          ├─OSX
+│          └─win32
+│              ├─x64
+│              └─x86
+└─source
+    ├─CMake
+    │  ├─Packages
+    │  ├─Toolchains
+    │  └─Utils
+    ├─Core
+    │  ├─Include
+    │  │  └─Kernel
+    │  └─Source
+    │      └─Kernel
+    ├─Platform
+    │  ├─Android
+    │  ├─Include
+    │  │  └─Adapter
+    │  │      ├─Android
+    │  │      ├─Common
+    │  │      ├─Desktop
+    │  │      ├─iOS
+    │  │      ├─Mobile
+    │  │      ├─OSX
+    │  │      └─Windows
+    │  └─Source
+    │      └─Adapter
+    │          ├─Android
+    │          ├─Common
+    │          ├─Desktop
+    │          ├─iOS
+    │          ├─Mobile
+    │          ├─OSX
+    │          └─Windows
+    ├─Projects
+    └─Samples
+        └─hello
+            ├─Android
+            ├─iOS
+            └─OSX
+```
 
 ### 3.1.1 一般的项目文件组织结构
 
-### 3.1.2 特别对待的Android工程
+　　Dependencies文件夹，存放第三方库的文件夹，子文件夹根据不同的库名称来区分，如SDL2。在SDL2里面进一步划分为：
 
-### 3.13 辅助脚本
+- include文件夹，存放了第三方库提供的头文件，这里是SDL2库提供的头文件。
+- prebuilt文件夹，里面按照不同平台来进一步划分文件夹：
+  - Android文件夹，存放Android平台的已经编译好的库文件。由于Android平台有针对不同CPU架构的库，所以进一步划分成（不局限于以下列出来的，因为SDL2库只提供了这三种CPU架构，有的库提供更多CPU架构，所以有的库会有更多文件夹）：
+    - armeabi文件夹，一般存放的是\*.so或者\*.a。
+    - armeabi-v7a文件夹，一般存放的是\*.so或者\*.a。
+    - x86文件夹，一般存放的是\*.so或者\*.a。
+  - Win32文件夹，存放Windows平台的已经编译好的库文件。由于Win32平台有分别针对不同CPU架构的库，所以进一步划分成：
+    - x86文件夹，存放x86结构的\*.dll或者\*.lib。
+    - x64文件夹，存放x64结构的\*.dll或者\*.lib。
+  - iOS文件夹，存放iOS平台的已经编译好的库文件。虽然iOS平台也有多种CPU架构的区别，但是苹果提供了一个库文件可以集成所有CPU架构在一起，所以这里一般不需要进一步划分子文件夹来区分不同的CPU架构了。这里面一般存放的是\*.a或者\*.framework。因为iOS不支持动态库，所以这里面一般没有\*.so或者*.dylib。
+  - OSX文件夹，存放Mac OS X平台的已经编译好的库文件。Mac OS X平台也跟iOS类似，因为苹果提供了合并多种CPU架构在一个库里面的支持，所以这里面一般也是不需要进一步划分子文件夹来区分不同的CPU架构的。这里面一般存放的是\*.a、*.dylib或者\*.framework。
+
+　　Source文件夹，这里就是存放所有源代码的地方。在这里面，会进一步按照引擎提供的库来划分文件夹：
+
+- Core文件夹，里面就是存放T3DCore这个库的所有源码文件。在Core里面，又进一步划分：
+  - Include文件夹，用来存放T3DCore库对外的头文件。因为一个库还有许多小的功能模块，所以里面进一步划分为：
+    - Kernel文件夹，引擎核心功能头文件。
+  - Source文件夹，用来存放T3DCore的源码文件和不对外公开的头文件。
+    - Kernel文件件，引擎核心功能源码文件。
+- Platform文件夹，里面就是存放T3DPlatform这个库的所有源码文件。在Platform里面，又进一步划分：
+  - Include文件夹，用来存放T3DPlatform库对外的头文件。而Platform因为跟平台有关，下面进一步划分为：
+    - Adapter文件夹，存放各种平台抽象出来接口类的头文件，以及每种平台或者公用实现的头文件，进一步划分为：
+      - Android文件夹，存放Android平台相关实现的头文件。
+      - Common文件夹，存放所有平台公用实现的头文件。
+      - Desktop文件夹，存放跟桌面系统公用实现的头文件。
+      - iOS文件夹，存放iOS平台相关实现的头文件。
+      - Mobile文件夹，存放移动终端平台相关实现的头文件。
+      - OSX文件夹，存放Mac OS X平台相关的头文件。
+      - Windows文件夹，存放Windows平台相关的头文件。
+  - Source文件夹，用来存放T3DCore库的源码文件以及内部使用的头文件。具体结构跟Include底下的文件夹组织结构类似，这里就不详细列出来了，请各位参考Include低下文件夹组织结构说明。
+  - Android文件夹，这里是Android特有的文件，这里先忽略这个，后面会有详细说明。
+- Samples文件夹，存放所有验证引擎的例子程序源码，是所有Sample工程入口。里面进一步按照不同的Sample Application来进一步划分，目前里面只有：
+  - Hello文件夹，存放HelloApp相关的源码文件，里面按照不同平台需要的配置文件进一步划分：
+    - iOS文件夹，存放HelloApp在iOS平台用到的各种配置文件。
+    - OSX文件夹，存放HelloApp在Mac OS X平台用到的各种配置文件。
+    - Android文件夹，这个稍后特别说明。
+- CMake文件夹，存放CMake公用脚本文件，给每个工程使用，用于生成不同平台的工程文件。具体这里就不说了，有兴趣的可以直接到CMake官网看教程。
+- Projects文件夹，这里不是工程文件，我们工程文件是通过CMake来生成出来的。这里面仅仅是一些不同平台的辅助脚本，后面会详细说一下，这里先忽略。
+
+### 3.1.2 特别的Android工程
+
+　　本篇开头说过，我们工程都是通过CMake生成的，但是在Android上却是例外。为什么呢？因为Android工程比较特殊，程序的入口是用Java写的，而Android工程原生对native支持并不好，所以只能先通过Android Studio生成工程，然后再用CMake来生成对应的native工程来做native的开发。好，既然这么特别，我们下面一步步来看看如何生成这个Android Studio的工程。
+
+### 3.1.3 辅助脚本
+
+　　本篇前面提到过Projects这个文件夹，那么这个文件夹里面存放了什么呢？我们来看看。
+
+　　generate-android.txt，这个文件什么都没有，仅仅是说明，因为我们无法通过CMake去完整生成整个Android工程，而是通过Android Studio来生成工程的，这个上面说过了，这里就不多说了。
+
+　　generate-vs2015.bat，这个在Windows上生成Visual Studio 2015的解决方案文件，在命令行运行则可以生成并且打开相应的工程。代码如下：
+
+```bash
+cd ..
+rmdir /Q /S vs2015
+mkdir vs2015 && cd vs2015
+cmake -G "Visual Studio 14 2015" ../
+devenv Tiny3D.sln
+cd ../Projects
+```
+
+　　generate-xcode-ios.sh，这个是在Mac OS X下生成iOS真机的xcode工程脚本，在命令行运行则可以生成并且打开相应的工程。代码如下：
+
+```bash
+cd ../
+rm -rf xcode-ios
+mkdir -p xcode-ios && cd xcode-ios
+cmake -GXcode -DCMAKE_TOOLCHAIN_FILE=../CMake/Toolchains/iOS.cmake -DIOS_PLATFORM=OS -DCMAKE_OSX_ARCHITECTURES=arm64 ../
+open Tiny3D.xcodeproj
+cd ..
+```
+
+　　generate-xcode-simulator.sh，这个是在Mac OS X平台下生成iOS模拟器的xcode工程脚本，在命令行运行则可以生成并且开打相应的工程，代码跟上面类似，这里不列出来了，详情请自行查看源码。
+
+　　generate-xcode-osx.sh，这个是在Mac OS X平台下生成OSX的xcode工程脚本，在命令行运行则可以生成并且打开相应的工程，代码也跟generate-xcode-ios.sh类似，这里也不列出来了。
+
+　　通过以上脚本，可以直接在命令行直接执行生成各种平台工程并且打开，不用每次都去运行CMake-GUI或者逐个敲入CMake命令来执行生成工程的事情，进一步提高我们的开发效率。好了，下面我们直接进入我们的代码设计阶段了。
 
 ## 3.2 平台库（T3DPlatform）和核心库（T3DCore）设计
 
@@ -272,6 +398,14 @@ A Tiny 3D Engine
 ![图3-8 桥接模式标准定义类图示例](doc/images/Bridge.png)
 
 <center>图3-8 桥接模式标准定义类图</center>
+
+看完定义和类图，应该有个较直观的认识了。那为什么要用桥接模式呢？按照开篇时候提到的目标导向，所以从这个设计主要是为了解决什么问题来看。其实主要是基于以下几个目的：
+
+- T3DPlatform作为一个库，对外需要隐藏操作系统实现细节
+- T3DPlatform作为一个库，对外需要隐藏依赖操作系统的头文件
+- 虽然目前只支持5中操作系统，但是将来要扩展，对T3DPlaform库对外接口可以无修改的桥接到新支持的操作系统上
+
+基于以上三个目的，我们对照着桥接模式的定义，刚好发现其能够把功能作为抽象部分剥离出来，而具体操作系统的实现是另外一部分，这样刚好可以让相互之间都能独立变化，而互不影响。不过这里还有一点点区别，那就是我们的Window类，并没有RefinedAbstraction子类，而Application类的RefinedAbstraction类交给最后上层写App层的来负责实现。为什么Window类没有RefinedAbstraction子类呢？因为这个窗口系统是个简单窗口系统，主要就是给渲染器一个渲染目标，这里基本上不存在什么变化，所以这里就简单化了。当然，如果后续要很复杂的需求，那我们再去修改这部分。毕竟设计模式是死的，用的人是活的，要灵活运用才行。这里就不再给出细节的类图了，大家可以直接看图3-1或者图3-7。
 
 ## 3.3 T3DPlatform的实现
 
@@ -555,8 +689,8 @@ SDLApplication类
 - Source/Platform/Include/T3DApplication.h
 - Source/Platform/Source/T3DApplication.cpp
 - Source/Platform/Include/Adapter/T3DApplicationInterface.h
-- Source/Platform/Include/Adapter/T3DSDLApplication.h
-- Source/Platform/Source/Adapter/T3DSDLApplication.cpp
+- Source/Platform/Include/Adapter/Common/T3DSDLApplication.h
+- Source/Platform/Source/Adapter/Common/T3DSDLApplication.cpp
 
 ### 3.3.4 Window相关类实现
 
@@ -570,8 +704,3 @@ SDLApplication类
 
 ## 3.5 跑起来吧，HelloApp！
 
-　　
-
-```
-
-```
