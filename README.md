@@ -268,6 +268,162 @@ A Tiny 3D Engine
 
 　　本篇开头说过，我们工程都是通过CMake生成的，但是在Android上却是例外。为什么呢？因为Android工程比较特殊，程序的入口是用Java写的，而Android工程原生对native支持并不好，所以只能先通过Android Studio生成工程，然后再用CMake来生成对应的native工程来做native的开发。好，既然这么特别，我们下面一步步来看看如何生成这个Android Studio的工程。
 
+#### 3.1.2.1 库工程
+
+ 　　首先，我们用Android Studio创建编译aar库和so库的工程，并且在里面创建一个Module，这样做主要是两个目的：
+
+- 方便后续所有Samples工程引用Module，可以共享Module工程，不用重复新建工程和复制代码
+- 可以单独编译aar库和so库文件，独立发布
+
+下面我们一步步来建立：
+
+新建一个工程，选择“Start a new Android Studio project”项，如下图3-1：
+
+![图3-1 新建Android工程](doc/images/s01-android-create-proj-01.png)
+
+<center>图3-1 新建Android工程</center>
+
+出现“Create New Project”窗口。把里面各字段按照如下填入：
+
+- Application Name里面填入Tiny3DLib，表示这个工程名称；
+- Company domain里面填入公司域名，这里我们随便填就好了；
+- Project location里面填入工程路径，我们按照上面项目组织结构来看，我们这个属于平台库里面的，直接放到source/Platform/Android这个文件夹下；
+- Package name里面填入我们的包名com.tiny3d.library；
+- 勾上“Include C++ support”，因为我们要用native开发；
+
+如下图3-2：
+
+![图3-2 Create Android Project](doc/images/s01-android-create-proj-02.png)
+
+<center>图3-2 Create Android Project</center>
+
+填完上述的信息后，点击Next，进入选择Android设备和SDK最低版本等信息界面。因为这里只需要支持手机终端，所以只选择“Phone and Tablet”，如下图3-3选择：
+
+![图3-3 Create Android Project](doc/images/s01-android-create-proj-03.png)
+
+<center>图3-3 Create Android Project</center>
+
+选择完支持平台和SDK后，点击“Next”，进入选择添加Activity界面。在这里，我们因为是库，所以直接选择“Add Not Activity”。如下图3-4：
+
+![图3-4 Create New Project](doc/images/s01-android-create-proj-04.png)
+
+<center>图3-4 Create Android Project</center>
+
+选择完Activity后，点击"Next"进入配置C++支持界面。在这里的C++ Standard里面选择"C++ 11"，因为引擎使用C++ 11语法来实现。在下面的Exceptions Support和RTTI都勾上，当然这两个也可以后续在build.gradle里面再添加，这个只是编译选项而已。如下图3-4：
+
+![图3-5 Create New Project](doc/images/s01-android-create-proj-05.png)
+
+<center>图3-5 Create New Project</center>
+
+最后点击“Finish“完成创建新项目。这个项目是给编译库使用的，但是库所属的Module还没有创建，所以我们要创建一个Module，方便后面所有Samples项目引用，而不是导入。
+
+　　接下来，在刚才新建的项目里面新创建一个Module。这里简单说一下，Android Studio里面的Project其实是相当于很多项目的集合，跟Visual Studio里面的Solution解决方案类似，只是它里面还附带创建一个app类型的工程而已。下面继续一步步新建Module：
+
+在菜单里面新建一个Module，如下图3-6：
+
+![图3-6 新建Module](doc/images/s01-android-new-module-01.png)
+
+<center>图3-6 新建Module</center>
+
+点击后会出现一个"Create New Module"窗口，在里面选择"Android Library"，如下图3-7：
+
+![图3-7 Create New Module](doc/images/s01-android-new-module-02.png)
+
+<center>图3-7 Create New Module</center>
+
+点击"Next"后，进入配置新Module信息界面，填写如下信息：
+
+- Application/Library name里面填入Tiny3D，表示库名称；
+- Module name里面填入Tiny3D，表示项目名称；
+- Package name里面填入com.tiny3d.lib，表示包名；
+- Minimum SDK选择最低支持的SDK版本；
+
+如下图3-8：
+
+![图3-8 Create New Module](doc/images/s01-android-new-module-03.png)
+
+<center>图3-8 Create New Module</center>
+
+点击"Finish"后，完成新建Module工作。
+
+自此，这里就完成了工程的创建了，但是还要稍作修改才能进一步应用。首先，我们这里是一个库，是被其他App项目引用的，所以这里要简单修改一下app/build.gradle。修改如下图3-9：
+
+![图3-9 修改构建脚本](doc/images/s01-android-new-module-04.png)
+
+<center>图3-9 修改构建脚本</center>
+
+如上图所示，需要修改一下几点：
+
+- 把apply plugin'com.android.application'修改成apply plugin 'com.android.library'
+- 注释掉applicationId 'com.tiny3d.library'，因为我们是库，不是应用程序
+- 添加CMake参数，arguments "-DTINY3D_BUILD_SAMPLES=FALSE"，表示告知CMake脚本不构建Samples程序，这个我们留在后面创建的Samples App工程里面去构建，这样子能做到单独构建出独立的库来
+- 添加支持的CPU架构，加入abiFilters "x86 armeabi armeabi-v7a"，因为这里我们使用的SDL2只有这三种CPU架构，SDL2的构建需要依赖这三个配置值
+- 修改CMake使用的脚本路径，让其指向我们根目录下的CMakeLists.txt，可以直接构建所有的相关的库
+
+通过以上的修改，就完成了基本的配置了。最后加入依赖的SDL2的Java源码以及引擎从SDL2派生出来的Activity类，方便应用层直接从引擎类派生，而对SDL2的存在是透明的。
+
+　　搞完以上配置后，我们到菜单里面Clean一下，重新Make Project，就能生成最终的\*.so和\*.aar了。
+
+#### 3.1.2.2 应用工程
+
+　　创建完库工程后，接下来要创建应用工程，因为只有应用程序才是真正能够运行起来的程序。下面一步步来看如何创建应用工程以及如何引用库工程。
+
+启动另外一个Android Studio进程，选择"Start a new Android Studio project"，如下图3-10：
+
+![图3-10 新建应用程序工程](doc/images/s01-android-create-proj-01.png)
+
+<center>图3-10 新建应用程序工程</center>
+
+在出现的"Create New Project"窗口，如下图3-11设置：
+
+![图3-11 Create New App Project](doc/images/s0-android-new-app-01.png)
+
+<center>图3-11 Create New App Project</center>
+
+设置完后，点击"Next"，进入选择支持设备和最小SDK版本界面，按照如下图3-12设置：
+
+![图3-12 Create New App Project](doc/images/s01-android-create-proj-03.png)
+
+<center>图3-12 Create New App Project</center>
+
+点击"Next"，进入选择Activity界面，如下图3-13设置：
+
+![图3-13 Create New App Project](doc/images/s01-android-create-proj-04.png)
+
+<center>图3-13 Create New App Project</center>
+
+点击"Next"后，进入最后C++配置界面，如下图3-14设置：
+
+![图3-14 Create New App Project](doc/images/s01-android-create-proj-05.png)
+
+<center>图3-14 Create New App Project</center>
+
+最后点击"Finish"，完成新建App工程。
+
+　　新建完工程后，我们要引入刚才上面新建的Module工程，这样子以后所有Samples都可以共用同一个Module工程（注意：这里不是Import而是一个简单的引用，不会改变任何工程路径）。打开settings.gradle配置文件，如下图3-15添加入红框部分脚本：
+
+![图3-15 引入Module工程修改](doc/images/s0-android-import-module-01.png)
+
+<center>图3-15 引入Module工程修改</center>
+
+接着点击菜单Refresh Linked C++ Project，刷新后就会有一个Tiny3D的工程出现在主工程里面。然后打开build.gradle(Module:app)配置文件，如下图3-16修改：
+
+![图3-16 修改App的构建脚本](doc/images/s0-android-import-module-02.png)
+
+<center>图3-16 修改App的构建脚本</center>
+
+按照上图修改，最后再加入我们Samples的一个Activity类。这样子工程修改完毕。
+
+　　大功告成！等等，不对，还漏了一样没修改。那就是程序配置的AndroidManifest.xml。打开在app下的AndroidManifest.xml，如下图3-17修改：
+
+![图3-17 修改AndroidManifest.xml](doc/images/s01-android-manifest.png)
+
+<center>图3-17 修改AndroidManifest.xml</center>
+
+经过上面的修改，这样子才真的大功告成。然后就是菜单里面"Build APK"，就能最终得到第一个Android程序的安装包Hello.apk了。
+
+　　接下来不管是用Genymotion模拟器还是用真机，都可以完美的运行了。
+
 ### 3.1.3 辅助脚本
 
 　　本篇前面提到过Projects这个文件夹，那么这个文件夹里面存放了什么呢？我们来看看。
@@ -693,6 +849,8 @@ SDLApplication类
 - Source/Platform/Source/Adapter/Common/T3DSDLApplication.cpp
 
 ### 3.3.4 Window相关类实现
+
+
 
 ### 3.3.5 各操作系统平台相关工厂类实现
 
