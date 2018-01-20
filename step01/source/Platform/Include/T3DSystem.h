@@ -40,12 +40,12 @@ namespace Tiny3D
 
     public:
         /**
-         * @brief Constructor for VSystem.
+         * @brief Constructor for System.
          */
         System();
 
         /**
-         * @brief Destructor for VSystem.
+         * @brief Destructor for System.
          */
         ~System();
 

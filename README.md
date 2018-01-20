@@ -834,13 +834,13 @@ getNatvieAppObject() —— 返回操作系统相关的用于标识程序的唯�
 
 IApplication类
 
-　　上面再平台库设计的时候谈到过我们的Application类只是一个桥接者，而IApplication类才是实现者的抽象接口类，各操作系统平台或者第三方库负责继承出子类来实现各自接口跟平台相关的功能。具体的在这里不逐一列出来了，详情还请各位看官直接参阅源码IApplicationInterface.h。
+　　上面再平台库设计的时候谈到过我们的Application类只是桥接模式里面的抽象类，而IApplication类才是实现者的接口类，各操作系统平台或者第三方库负责继承出子类来实现各自接口跟平台相关的功能。具体的在这里不逐一列出来了，详情还请各位看官直接参阅源码IApplicationInterface.h。
 
 SDLApplication类
 
-　　参考上面类图设计，还有一个SDLApplication类，这个我们直接使用SDL2这个第三方库来实现应用程序初始化、事件轮询以及程序释放资源等这些功能。这个类是IApplication具体的实现类。为什么这里我们没有各种平台相关的IApplication子类，而只有一个SDLApplication类呢？因为SDL已经替我们实现了各种操作系统平台相关的事情，所以我们这里只需要简单的封装一下就能达到最初设计的目的了。具体的在这里也不一一列出来了，详情还请各位看官直接参阅源码SDLApplication.h和SDLApplication.cpp。而关于SDL2库的使用，可以直接到其官网 www.libsdl.org 上查阅。如果各位有兴趣，可以自己派生子类实现各种平台的行为或者使用其他第三方库来实现IApplication各种接口行为。
+　　参考上面类图设计，还有一个SDLApplication类，这个我们直接使用SDL2这个第三方库来实现应用程序初始化、事件轮询以及程序释放资源等这些功能。这个类是IApplication具体的实现类。为什么这里我们没有各种平台相关的IApplication子类，而只有一个SDLApplication类呢？因为SDL2已经替我们实现了各种操作系统平台相关的事情，所以我们这里只需要简单的封装一下就能达到最初设计的目的了。具体的在这里也不一一列出来了，详情还请各位看官直接参阅源码SDLApplication.h和SDLApplication.cpp。而关于SDL2库的使用，可以直接到其官网 www.libsdl.org 上查阅。如果各位有兴趣，可以自己派生子类实现各种平台的行为或者使用其他第三方库来实现IApplication各种接口行为。
 
-　　涉及源码文件：
+涉及源码文件：
 
 - Source/Platform/Include/T3DApplication.h
 - Source/Platform/Source/T3DApplication.cpp
@@ -850,11 +850,199 @@ SDLApplication类
 
 ### 3.3.4 Window相关类实现
 
+　　上面Application相关类的时候讲过本引擎使用SDL2作为统一窗口系统，所以窗口系统也离不开SDL2。移动终端和桌面应用还是有一些区别，主要是窗口系统大小已经全屏的区别。所以这里还进一步划分成支持桌面平台的SDLDesktopWindow类和支持移动终端平台的SDLMobileWindow类。全部都遵循了IWindow接口类规范，实现了对应的接口。同样的，Window类也使用了桥接模式来隐藏平台相关的实现。因为外部使用到的就是Window类，所以下面主要看看Window类的接口。
 
+Window类
+
+```c++
+class T3D_PLATFORM_API Window
+{
+    T3D_DISABLE_COPY(Window);
+
+public:
+    static const uint32_t WINDOW_FULLSCREEN;
+    static const uint32_t WINDOW_FULLSCREEN_DESKTOP;
+    static const uint32_t WINDOW_OPENGL;
+    static const uint32_t WINDOW_SHOWN;
+    static const uint32_t WINDOW_HIDDEN;
+    static const uint32_t WINDOW_BORDERLESS;
+    static const uint32_t WINDOW_RESIZABLE;
+    static const uint32_t WINDOW_MINIMIZED;
+    static const uint32_t WINDOW_MAXIMIZED;
+    static const uint32_t WINDOW_INPUT_GRABBED;
+    static const uint32_t WINDOW_INPUT_FOCUS;
+    static const uint32_t WINDOW_MOUSE_CAPTURE;
+
+    /** Constructor */
+    Window();
+
+    /** Destructor */
+    virtual ~Window();
+
+    /**
+     * @brief 创建窗口.
+     * @param [in] x : 窗口位置
+     * @param [in] y : 窗口位置
+     * @param [in] w : 窗口宽度
+     * @param [in] h : 窗口高度
+     * @param [in] flags : 创建窗口需要的一些标记位，可使用或操作合并标记
+     * @return 创建成功返回true，否则返回false.
+     */
+    bool create(const char *title, int32_t x, int32_t y,
+        int32_t w, int32_t h, uint32_t flags);
+
+    /**
+     * @brief 销毁窗口.
+     * @remarks 析构函数同样会自动调用
+     */
+    void destroy();
+
+protected:
+    IWindow *mWindow;
+};
+```
+
+其实Window类目前很简单，仅有两个接口：
+
+create() —— 创建窗口；
+
+destroy() —— 销毁窗口；
+
+IWindow类
+
+　　上面再平台库设计的时候谈到过我们的Window类只是桥接模式里面的抽象类，而IWindow类才是实现者的接口类，各操作系统平台或者第三方库负责继承出子类来实现各自接口跟平台相关的功能。接口详细的可以参考源代码，这里不详细列出来了，跟Window类接口是大同小异。下面看看IWindow类的两个子类。
+
+SDLDesktopWindow类和SDLMobileWindow类
+
+　　其实这两个类差别不大，主要就是创建窗口的时候是按照指定尺寸来创建还是忽略指定尺寸来创建。具体代码列出来比较下就一清二楚了
+
+SDLDesktopWindow创建代码片段：
+
+```c++
+mSDLWindow = SDL_CreateWindow(title, x, y, w, h, flags);
+```
+
+SDLMobileWindow创建代码片段：
+
+```c++
+SDL_DisplayMode dm;
+if (SDL_GetCurrentDisplayMode(0, &dm) == 0)
+{
+    w = dm.w;
+    h = dm.h;
+}
+
+mSDLWindow = SDL_CreateWindow(title, x, y, w, h, flags);
+```
+
+从上面两段代码片段来看，主要就是是桌面系统直接按照用户输入的窗口尺寸创建，而移动终端系统按照屏幕尺寸来创建，直接忽略了全屏参数。
+
+涉及源码文件：
+
+- Source/Platform/Include/T3DWindow.h
+- Source/Platform/Source/T3DWindow.cpp
+- Source/Platform/Include/Adapter/T3DWindowInterface.h
+- Source/Platform/Include/Adapter/Desktop/T3DSDLDesktopWindow.h
+- Source/Platform/Source/Adapter/Desktop/T3DSDLDesktopWindow.cpp
+- Source/Platform/Include/Adapter/Mobile/T3DSDLMobileWindow.h
+- Source/Platform/Source/Adapter/Mobile/T3DSDLMobileWindow.cpp
 
 ### 3.3.5 各操作系统平台相关工厂类实现
 
+　　上面提到平台工厂类是个抽象工厂模式中的工厂基类，IFactory类目前只有简单的三个接口。这里简单代码列一下：
+
+```c++
+class IFactory
+{
+    T3D_DECLARE_INTERFACE(IFactory);
+
+public:
+    /**
+     * @brief 创建操作系统平台相关的应用程序对象
+     * @return 返回平台相关的应用程序对象，需要用户调用delete释放对象
+     */
+    virtual IApplication *createPlatformApplication() = 0;
+
+    /**
+     * @brief 创建操作系统平台相关的窗口.
+     * @return 返回平台相关的窗口操作对象，需要用户调用delete释放对象
+     */
+    virtual IWindow *createPlatformWindow() = 0;
+
+    /**
+     * @brief 获取当前平台类型.
+     * @return 返回当前平台类型
+     */
+    virtual EPlatform getPlatform() = 0;
+};
+
+/**
+ * @brief 创建操作系统相关的适配层工厂对象.
+ * @note 不同操作系统平台需要实现该接口以返回操作系统适配层工厂对象
+ * @return 返回适配层工厂对象，需要用户调用delete释放资源
+ */
+IFactory *createPlatformFactory();
+```
+
+其他接口看注释就知道了，就不一一细说了，这里稍微说一下createPlatformFactory()这个独立的全局函数。这个接口需要不同平台的实现的时候实现创建出来抽象工厂对象，这样就能实现不同平台的具体对象的实例创建。
+
+- Win32Factory类 —— 实现Windows系统上平台相关对象的实例创建
+- OSXFactory类 —— 实现Mac OS X系统上平台相关对象的实例创建
+- iOSFactory类 —— 实现iOS系统上平台相关对象的实例创建
+- AndroidFactory类 —— 实现Android系统上平台相关对象的实例创建
+
+涉及源码文件：
+
+- Source/Platform/Include/T3DFactoryInterface.h
+- Source/Platform/Include/Adapter/Windows/Win32Factory.h
+- Source/Platform/Source/Adapter/Windows/Win32Factory.cpp
+- Source/Platform/Include/Adapter/OSX/OSXFactory.h
+- Source/Platform/Source/Adapter/OSX/OSXFactory.cpp
+- Source/Platform/Include/Adapter/iOS/iOSFactory.h
+- Source/Platform/Source/Adapter/iOS/iOSFactory.cpp
+- Source/Platform/Include/Adapter/Android/AndroidFactory.h
+- Source/Platform/Source/Adapter/Android/AndroidFactory.cpp
+
 ### 3.3.6 System类平台库的总入口
+
+　　到了T3DPlatform库的入口类了，要使用T3DPlatform库，需要先生成System类对象才能使用。System类之前提到其实一个单例类，但是为了避免全局对象初始化顺序的问题，所以这里的单例都不是传统的静态对象或者全局对象，而是还是通过new操作从堆上分配的。那System类从哪里生成出来呢？那就是程序的入口，Applicatoin类的构造函数就会把System类对象构造出来。下面来看看System类的定义代码片段：
+
+```c++
+class T3D_PLATFORM_API System : public Singleton<System>
+{
+    T3D_DISABLE_COPY(System);
+
+public:
+    /**
+     * @brief Constructor for System.
+     */
+    System();
+
+    /**
+     * @brief Destructor for System.
+     */
+    ~System();
+
+    /**
+     * @brief 每个程序循环调用处理.
+     * @return void
+     */
+    void process();
+
+    /**
+     * @brief 获取操作系统适配层工厂接口对象
+     */
+    IFactory &getPlatformFactory()
+    {
+        return (*mPlatformFactory);
+    }
+
+private:
+    IFactory        *mPlatformFactory;
+};
+```
+
+目前暂时比较简单，所以接口只有两个，一个是process()，一个是getPlatformFactory()。这里就不多说了，简单说一下process()接口，主要就是跟在Application类对应调用pollEvents()接口的地方一起调用，给System一个轮询处理的入口。
 
 ## 3.4 T3DCore的实现
 

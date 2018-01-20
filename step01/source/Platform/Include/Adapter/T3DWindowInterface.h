@@ -43,11 +43,8 @@ namespace Tiny3D
          * @param [in] y : 窗口位置
          * @param [in] w : 窗口宽度
          * @param [in] h : 窗口高度
-         * @param [in] isFullscreen : 是否全屏
-         * @param [in] argc : 窗口附加参数数量
-         * @param [in] args : 附加参数列表
+         * @param [in] flags : 创建窗口需要的一些标记位，可使用或操作合并标记
          * @return 创建成功返回true，否则返回false.
-         * @remarks 各平台各自定义argc的值和args的内容
          */
         virtual bool create(const char *title, int32_t x, int32_t y,
             int32_t w, int32_t h, uint32_t flags) = 0;

@@ -48,13 +48,28 @@ namespace Tiny3D
         static const uint32_t WINDOW_INPUT_FOCUS;
         static const uint32_t WINDOW_MOUSE_CAPTURE;
 
+        /** Constructor */
         Window();
 
+        /** Destructor */
         virtual ~Window();
 
-        bool create(const char *title, int32_t x, int32_t y, 
+        /**
+         * @brief 创建窗口.
+         * @param [in] x : 窗口位置
+         * @param [in] y : 窗口位置
+         * @param [in] w : 窗口宽度
+         * @param [in] h : 窗口高度
+         * @param [in] flags : 创建窗口需要的一些标记位，可使用或操作合并标记
+         * @return 创建成功返回true，否则返回false.
+         */
+        bool create(const char *title, int32_t x, int32_t y,
             int32_t w, int32_t h, uint32_t flags);
 
+        /**
+         * @brief 销毁窗口.
+         * @remarks 析构函数同样会自动调用
+         */
         void destroy();
 
     protected:
