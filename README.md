@@ -149,7 +149,7 @@ A Tiny 3D Engine
 
 ## 2.4 Linux开发环境
 
-这部分暂时没有涉及，后续补充，To be continued
+　　Linux有很多版本，这里直接选择Ubuntu 17.10版本。在这里上面，直接通过apt-get install libsdl2-2.0命令来获得SDL2版本。通过apt-get install cmake和apt-get install cmake-qt-gui安装命令行的CMake和CMake GUI工具。然后选择一个IDE作为开发和调试环境，通过apt-get install codeblocks。最后安装目前最新的编译环境llvm和编译器clang和clang++
 
 # 三、Hello World
 
@@ -460,17 +460,17 @@ cd ..
 
 ## 3.2 平台库（T3DPlatform）和核心库（T3DCore）设计
 
-　　首先，我们把引擎层简单分成两个库，一个是引擎核心库——T3DCore，另外一个是平台相关抽象库——T3DPlatform。划分成两个库后，我们先来看T3DPlatform库的类图的设计，如下图3-1：
+　　首先，我们把引擎层简单分成两个库，一个是引擎核心库——T3DCore，另外一个是平台相关抽象库——T3DPlatform。划分成两个库后，我们先来看T3DPlatform库的类图的设计，如下图3-18：
 
-![图3-1 T3DPlatform库类图设计](doc/images/s01-platform-design.png)
+![图3-18 T3DPlatform库类图设计](doc/images/s01-platform-design.png)
 
-<center>图3-1 T3DPlatform库类图设计</center>
+<center>图3-18 T3DPlatform库类图设计</center>
 
-看到图3-1，各位看官是否觉得这里面的设计有似曾相识的感觉？是的，这里面用到了GoF提出的24中设计模式中的三种：单例模式、抽象工厂模式、桥接模式。在后面我们详细介绍，现在我们再来看看T3DCore的类图设计，这样子有个稍微全面的认识，如下图3-2：
+看到图3-1，各位看官是否觉得这里面的设计有似曾相识的感觉？是的，这里面用到了GoF提出的24中设计模式中的三种：单例模式、抽象工厂模式、桥接模式。在后面我们详细介绍，现在我们再来看看T3DCore的类图设计，这样子有个稍微全面的认识，如下图3-19：
 
-![图3-2 T3DCore库类图设计](doc/images/s01-core-design.png)
+![图3-19 T3DCore库类图设计](doc/images/s01-core-design.png)
 
-<center>图3-2 T3DCore库类图设计</center>
+<center>图3-19 T3DCore库类图设计</center>
 
 从上图看出来，T3DCore库在本篇里面仅仅有一个Engine类，其负责创建Window对象，并且调用Application一些事件接口，通知引擎发生的最重要事情。各位看完这两个库的类图设计后，接下来我们详细讲讲一些中间用到的设计模式及其使用的目的。
 
@@ -480,27 +480,27 @@ cd ..
 
 > 单例模式（Singleton），保证一个类仅有一个实例，并提供一个访问它的全局访问点。
 
-看完定义，我们来看看标准的单例类图是什么样的，如下图3-2：
+看完定义，我们来看看标准的单例类图是什么样的，如下图3-20：
 
-![图3-3 单例模式标准类图示例](doc/images/Singleton.png)
+![图3-20 单例模式标准类图示例](doc/images/Singleton.png)
 
-<center>图3-3 单例模式标准定义类图示例</center>
+<center>图3-20 单例模式标准定义类图示例</center>
 
 从标准定义可以看到单例的对象是通过在Singleton内部创建Singleton对象出来，所以这里构造函数是私有访问权限，防止外部创建。然而，按照这个标准来实现单例，会有一个小小的问题，那就是如果存在多个单例，那么这个全局的instance创建顺序就不由我们控制了，这样子就会出现一些意想不到的问题。因此，为了避免这个问题的出现，我们稍微对其做一点点改造，那就是把Singleton构造函数改造成公有，由一个地方统一创建这个单例对象，这样子就能由我们控制这些全局对象的创建顺序。当然，单例模式其实就是一种全局，相对来说，我们还是减少这种单例模式的使用，避免到处都是全局对象，造成全局污染。下面我们从上面设计图看出来存在三个这样的单例对象，我们逐个来说明下如此设计的目的。
 
-　　唯一的应用对象——Application类。每个程序或者进程有且仅有一个应用对象，所以在这里我们直接用单例模式来设计Application类，避免应用对象多实例导致任何错误的出现。我们局部放大来详细看看这个单例的具体设计，如下图3-4：
+　　唯一的应用对象——Application类。每个程序或者进程有且仅有一个应用对象，所以在这里我们直接用单例模式来设计Application类，避免应用对象多实例导致任何错误的出现。我们局部放大来详细看看这个单例的具体设计，如下图3-21：
 
-![图3-4 T3DPlatform库Application相关类设计图](doc/images/s01-application-design.png)
+![图3-21 T3DPlatform库Application相关类设计图](doc/images/s01-application-design.png)
 
-<center>图3-4 T3DPlatform库Application相关类图</center>
+<center>图3-21 T3DPlatform库Application相关类图</center>
 
 这个Application类提供了应用程序初始化、事件轮询、释放资源等基本接口操作，同时也提供一些基本程序事件回调。我们把Application类放到T3DPlatform库里面应用层（使用引擎方）可以通过继承Application类做到同样是单例的实现，并且该对象是用应用层（使用引擎方）负责创建实例化。此外，我们这个Application类除了是一个单例模式应用外，也用了桥接模式来屏蔽不同操作系统之间的差异，具体在后面的桥接模式的应用里面会讲到。
 
-　　唯一的系统对象——System类。每个操作系统平台有且仅有一个这种对象，所以在这里我们也是直接使用单例模式来设计System类。我们局部放大来详细看看这个单例的具体设计，如下图3-5：
+　　唯一的系统对象——System类。每个操作系统平台有且仅有一个这种对象，所以在这里我们也是直接使用单例模式来设计System类。我们局部放大来详细看看这个单例的具体设计，如下图3-22：
 
-![图3-5 T3DPlatform库System类图设计](doc/images/s01-system-design.png)
+![图3-22 T3DPlatform库System类图设计](doc/images/s01-system-design.png)
 
-<center>图3-5 T3DPlatform库System类单例模式类图</center>
+<center>图3-22 T3DPlatform库System类单例模式类图</center>
 
 这里的System类，作为操作系统相关操作的入口，其实是指具体跟操作系统平台相关的一些初始化、创建操作系统相关工厂对象以及内部轮询操作的接口的实现。我们把System类放到T3DPlatform库里面。这个System单例对象会在Application对象创建的时候在Application对象内部创建出来，做到第一时间创建平台相关工厂对象，避免后续各种调用平台相关功能的时候因为没有System对象而无法使用。后续随着我们的引擎的逐步构建，System类里面的操作系统相关的接口会逐步增多，后面碰到的时候，我们再讲。
 
@@ -514,17 +514,17 @@ cd ..
 
 > 抽象工厂模式（Abstract Factory），提供一个创建一系列相关或相互依赖对象的接口，而无需指定它们具体的类。
 
-接着我们来看看抽象工厂模式的标准类图，如下图3-5：
+接着我们来看看抽象工厂模式的标准类图，如下图3-23：
 
-![图3-6 抽象工厂模式标准定义类图示例](doc/images/AbstractFactory.png)
+![图3-23 抽象工厂模式标准定义类图示例](doc/images/AbstractFactory.png)
 
-<center>图3-6 抽象工厂模式标准定义类图示例</center>
+<center>图3-23 抽象工厂模式标准定义类图示例</center>
 
-我们来看看本篇开始提到的T3DPlatform中的类设计图，如下图3-7：
+我们来看看本篇开始提到的T3DPlatform中的类设计图，如下图3-24：
 
-![图3-7 T3DPlatform库中使用到的抽象工厂模式类图](doc/images/s01-factory-design.png)
+![图3-24 T3DPlatform库中使用到的抽象工厂模式类图](doc/images/s01-factory-design.png)
 
-<center>图3-7 T3DPlatform库中使用到的抽象工厂模式类图</center>
+<center>图3-24 T3DPlatform库中使用到的抽象工厂模式类图</center>
 
 看过上图，我们就会发现其实我们对于各种操作系统相关的对象创建就是使用了抽象工厂模式。好，接下来我们逐个列出来我们实际抽象工厂模式应用中的类和抽象工厂模式定义中的对应关系。如下表3-1
 
@@ -549,11 +549,11 @@ cd ..
 > 桥接模式（Bridge），将抽象部分与它的实现部分分离，使他们都可以独立地变化。
 >
 
-看完定义，我们再直观的看看标准定义的类图是怎样的，如下图3-8：
+看完定义，我们再直观的看看标准定义的类图是怎样的，如下图3-25：
 
-![图3-8 桥接模式标准定义类图示例](doc/images/Bridge.png)
+![图3-25 桥接模式标准定义类图示例](doc/images/Bridge.png)
 
-<center>图3-8 桥接模式标准定义类图</center>
+<center>图3-25 桥接模式标准定义类图</center>
 
 看完定义和类图，应该有个较直观的认识了。那为什么要用桥接模式呢？按照开篇时候提到的目标导向，所以从这个设计主要是为了解决什么问题来看。其实主要是基于以下几个目的：
 
@@ -1042,11 +1042,70 @@ private:
 };
 ```
 
-目前暂时比较简单，所以接口只有两个，一个是process()，一个是getPlatformFactory()。这里就不多说了，简单说一下process()接口，主要就是跟在Application类对应调用pollEvents()接口的地方一起调用，给System一个轮询处理的入口。
+目前暂时比较简单，所以接口只有两个，一个是process()，一个是getPlatformFactory()。这里就不多说了，简单说一下process()接口，主要就是跟在Application类对应调用pollEvents()接口的地方一起调用，给System一个每帧处理的入口。下面看看如何创建System对象代码片段：
+
+```c++
+Application::Application()
+    : mSystem(new System())
+{
+    mApp = T3D_PLATFORM_FACTORY.createPlatformApplication();
+}
+```
+
+这个就是在Application类构造的时候把System对象第一个创建出来，只有这样才能之后使用各种平台相关的接口。
 
 ## 3.4 T3DCore的实现
 
-### 
+ 　　上面讲完了T3DPlatform的实现了，接下来讲讲T3DCore实现。目前T3DCore里面只有一个Engine类。所以比较简单。这里简单介绍下，公用头文件只有两个：一个是整体对外的Tiny3D.h，给外部应用层一个统一的头文件；另外一个是T3DPrerequisites.h，给T3DCore库提供一些类前置声明和一些区分DLL和导入DLL辅助宏。
+
+　　接下来简单讲下Engine类。先简单看看代码片段：
+
+```c++
+class T3D_ENGINE_API Engine : public Singleton<Engine>
+{
+    T3D_DISABLE_COPY(Engine);
+
+public:
+    /**
+     * @brief 构造函数
+     */
+    Engine();
+
+    /**
+     * @brief 析构函数
+     */
+    virtual ~Engine();
+
+    /**
+     * @brief 启动引擎
+     * @remarks 引擎的一切应用都要在调用本接口之后才有效。
+     */
+    bool startup();
+
+    /**
+     * @brief 运行引擎
+     */
+    bool run();
+
+    /**
+     * @brief 渲染一帧
+     */
+    void renderOneFrame();
+    
+protected:
+    Window              *mWindow;               /// 窗口
+    bool                mIsRunning;             /// 引擎是否在运行中
+};
+```
+
+Engine类首先是一个实用单例模式的单例类，所以从Singleton类派生出来。按照之前提到的，这里的单例不是全局对象或者静态对象，而是要用户自己new出来的一个堆对象。这里Engine对象是需要引擎使用者去实例化出来的，这个引擎需要在Application类实例化之后实例化。为什么呢？因为Application也是个单例类，也是需要引擎使用者去实例化，只是Application类构造时负责了System对象的构造，所以必须要Application类先实例化。
+
+starup() —— 启动引擎接口，这个接口就好比汽车的点火操作，主要是引擎做一些初始化的操作；
+
+run() —— 运行引擎接口，这个接口就好比汽车油门，主要就是让引擎运行起来。这个接口直到引擎运行结束了才会退出，所以这个接口会一直阻塞在里面直到引擎被各种原因触发的退出才返回。
+
+renderOneFrame() —— 简单渲染一帧，目前暂时没功能，因为我们还没有渲染功能呢。这个是为后面不用引擎自带循环的情况下使用。主要使用场景就是使用系统GUI开发编辑器的时候。因为GUI系统都要自己的循环或者渲染入口，而不需要使用引擎自带的循环。
 
 ## 3.5 跑起来吧，HelloApp！
 
+　　经过一轮设计和实现分析，下面就是见证第一个Demo运行的时刻了。代码写完后，直接用辅助脚在相关平台或者cross-platform情况下运行脚本生成对应的工程，然后build & run就能看到Demo运行效果了。因为移动终端就是个黑屏，所以看不出来什么效果，这里简单截三个桌面系统的窗口来看看效果。
