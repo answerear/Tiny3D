@@ -17,39 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DOSXFactory.h"
-#include "Adapter/Common/T3DSDLApplication.h"
-#include "Adapter/Desktop/T3DSDLDesktopWindow.h"
+#ifndef __T3D_LINUX_FACTORY_H__
+#define __T3D_LINUX_FACTORY_H__
+
+
+#include "Adapter/T3DFactoryInterface.h"
+
 
 namespace Tiny3D
 {
-    OSXFactory::OSXFactory()
+    class LinuxFactory : public IFactory
     {
+    public:
+        LinuxFactory();
+        virtual ~LinuxFactory();
 
-    }
+        virtual IApplication *createPlatformApplication() override;
 
-    OSXFactory::~OSXFactory()
-    {
+        virtual IWindow *createPlatformWindow() override;
 
-    }
+        virtual EPlatform getPlatform() override;
 
-    IApplication *OSXFactory::createPlatformApplication()
-    {
-        return new SDLApplication();
-    }
+    protected:
 
-    IWindow *OSXFactory::createPlatformWindow()
-    {
-        return new SDLDesktopWindow();
-    }
-
-    EPlatform OSXFactory::getPlatform()
-    {
-        return E_PLATFORM_OSX;
-    }
-
-    IFactory *createPlatformFactory()
-    {
-        return new OSXFactory();
-    }
+    };
 }
+
+
+#endif  /*__T3D_LINUX_FACTORY_H__*/

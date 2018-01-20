@@ -179,6 +179,9 @@ elseif (TINY3D_OS_MACOSX)
 		)
 elseif (TINY3D_OS_LINUX)
 	# Linux
+	target_link_libraries(
+		${LIB_NAME}
+		)
 elseif (TINY3D_OS_IOS)
 	# iOS
 	target_link_libraries(

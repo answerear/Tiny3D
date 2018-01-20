@@ -76,15 +76,16 @@ elseif (APPLE AND NOT IOS)
 
     set(CMAKE_MACOSX_RPATH true)
 	set(SDL2LIB_SUFFIXES "prebuilt/OSX")
-elseif (LINUX)
+elseif (UNIX AND NOT APPLE)
 	# Linux
 	message(STATUS "Platform : Linux")
 	
 	add_definitions(-DT3D_OS_LINUX)
 	add_definitions(-DT3D_OS_DESKTOP)
 	
-	set(ITNY3D_OS_LINUX TRUE CACHE STRING "Linux")
+	set(TINY3D_OS_LINUX TRUE CACHE STRING "Linux")
 	set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
+	set(SDL2LIB_SUFFIXES "prebuilt/Linux")
 endif (WIN32)
 
 if (TINY3D_OS_IOS)

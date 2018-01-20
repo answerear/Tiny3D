@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -34,7 +34,7 @@ namespace Tiny3D
     {
         E_PLATFORM_UNKNOWN = 0,
         E_PLATFORM_WIN32,
-        E_PLATFORM_MACOSX,
+        E_PLATFORM_OSX,
         E_PLATFORM_LINUX,
         E_PLATFORM_IOS,
         E_PLATFORM_ANDROID,

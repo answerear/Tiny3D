@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 #include "T3DiOSFactory.h"
-#include "Adapter/T3DSDLApplication.h"
-#include "Adapter/T3DSDLWindow.h"
+#include "Adapter/Common/T3DSDLApplication.h"
+#include "Adapter/Mobile/T3DSDLMobileWindow.h"
 
 namespace Tiny3D
 {
@@ -40,7 +40,7 @@ namespace Tiny3D
 
     IWindow *iOSFactory::createPlatformWindow()
     {
-        return new SDLWindow();
+        return new SDLMobileWindow();
     }
 
     EPlatform iOSFactory::getPlatform()

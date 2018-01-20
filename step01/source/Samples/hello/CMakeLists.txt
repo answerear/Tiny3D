@@ -130,7 +130,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 			ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
 			)
  	endif (TINY3D_OS_IOS)
-elseif (TIN3YD_OS_LINUX)
+elseif (TINY3D_OS_LINUX)
 	# Setup executable project for Linux.
 	add_executable(
 		${BIN_NAME} 

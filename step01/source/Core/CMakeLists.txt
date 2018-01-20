@@ -111,6 +111,11 @@ elseif (TINY3D_OS_MACOSX)
 		)
 elseif (TINY3D_OS_LINUX)
 	# Linux
+	target_link_libraries(
+		${LIB_NAME}
+		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE ${SDL2_LIBRARY}
+		)
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	# iOS
 #	target_link_libraries(
