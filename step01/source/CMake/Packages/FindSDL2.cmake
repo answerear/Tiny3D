@@ -77,15 +77,15 @@ FIND_PATH(SDL2_INCLUDE_DIR SDL.h
   #$ENV{SDL2DIR}
   ${SDL2DIR}
   PATH_SUFFIXES include/SDL2 include
-  PATHS
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local/include/SDL2
-  /usr/include/SDL2
-  /sw # Fink
-  /opt/local # DarwinPorts
-  /opt/csw # Blastwave
-  /opt
+#  PATHS
+#  ~/Library/Frameworks
+#  /Library/Frameworks
+#  /usr/local/include/SDL2
+#  /usr/include/SDL2
+#  /sw # Fink
+#  /opt/local # DarwinPorts
+#  /opt/csw # Blastwave
+#  /opt
 )
 
 
@@ -93,11 +93,11 @@ FIND_LIBRARY(SDL2_LIBRARY_TEMP
   NAMES SDL2
   HINTS ${SDL2DIR}
   PATH_SUFFIXES lib64 lib ${SDL2LIB_SUFFIXES}
-  PATHS
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
+#  PATHS
+#  /sw
+#  /opt/local
+#  /opt/csw
+#  /opt
 )
 
 FIND_FILE(SDL2_BINARY
