@@ -1106,6 +1106,30 @@ run() —— 运行引擎接口，这个接口就好比汽车油门，主要就�
 
 renderOneFrame() —— 简单渲染一帧，目前暂时没功能，因为我们还没有渲染功能呢。这个是为后面不用引擎自带循环的情况下使用。主要使用场景就是使用系统GUI开发编辑器的时候。因为GUI系统都要自己的循环或者渲染入口，而不需要使用引擎自带的循环。
 
-## 3.5 跑起来吧，HelloApp！
+## 3.5 跑起来吧，Demo_Hello！
 
-　　经过一轮设计和实现分析，下面就是见证第一个Demo运行的时刻了。代码写完后，直接用辅助脚在相关平台或者cross-platform情况下运行脚本生成对应的工程，然后build & run就能看到Demo运行效果了。因为移动终端就是个黑屏，所以看不出来什么效果，这里简单截三个桌面系统的窗口来看看效果。
+　　经过一轮设计和实现分析，下面就是见证第一个Demo运行的时刻了。代码写完后，直接用辅助脚在相关平台或者cross-platform情况下运行脚本生成对应的工程，然后Build & Run就能看到Demo运行效果了。因为移动终端就是个黑屏，所以看不出来什么效果，这里简单截三个桌面系统的窗口来看看效果。
+
+Windows上运行效果如下图3-26：
+
+
+
+![图3-26 Demo_Hello在Windows上运行效果图](doc/images/s01-Windows.png)
+
+<center>图3-26 Demo_Hello在Windows上运行效果图</center>
+
+Mac OS X上运行效果如下图3-27：
+
+![图3-27 Demo_Hello在Mac OS X上运行效果图](doc\images\s01-OSX.png)
+
+<center>图3-27 Demo_Hello在Mac OS X上运行效果图</center>
+
+Ubuntu 17.10上运行效果如下图3-28：
+
+![图3-28 Demo_Hello在Ubuntu 17.10运行效果图](doc/images/s01-Linux.png)
+
+<center>图3-28 Demo_Hello在Ubuntu 17.10运行效果图</center>
+
+这里在不同的平台有不同的背景色是因为Demo_Hello里面没有去设置背景颜色，全部都是用系统默认颜色，所以会有的是黑色，有的是白色。
+
+# 四、日志系统

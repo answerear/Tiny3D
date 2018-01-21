@@ -24,7 +24,6 @@ if (CMAKE_BINARY_DIR MATCHES " ")
 	message("Your Build Directory contains spaces. If you experience problems when compiling, this can be the cause.")
 endif()
 
-set(CMAKE_CXX_FLAGS "-std=c++11")
 
 if (WIN32)
 	# Windows
@@ -37,6 +36,8 @@ if (WIN32)
 	set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
 
 	set(SDL2LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")
+
+	set(CMAKE_CXX_FLAGS "-std=c++11")
 elseif (ANDROID)
 	# Android
     message(STATUS "Platform : Android")
@@ -65,6 +66,8 @@ elseif (APPLE AND IOS)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
 
     set(SDL2LIB_SUFFIXES "prebuilt/iOS")
+
+    set(CMAKE_CXX_FLAGS "-std=c++11")
 elseif (APPLE AND NOT IOS)
 	# Mac OS X
     message(STATUS "Platform : Mac OS X")
@@ -77,6 +80,8 @@ elseif (APPLE AND NOT IOS)
 
     set(CMAKE_MACOSX_RPATH true)
 	set(SDL2LIB_SUFFIXES "prebuilt/OSX")
+
+	set(CMAKE_CXX_FLAGS "-std=c++11")
 elseif (UNIX AND NOT APPLE)
 	# Linux
 	message(STATUS "Platform : Linux")
@@ -87,6 +92,8 @@ elseif (UNIX AND NOT APPLE)
 	set(TINY3D_OS_LINUX TRUE CACHE STRING "Linux")
 	set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
 	set(SDL2LIB_SUFFIXES "prebuilt/Linux")
+
+	set(CMAKE_CXX_FLAGS "-std=c++11")
 endif (WIN32)
 
 if (TINY3D_OS_IOS)
