@@ -8,6 +8,10 @@
 /step01/source/xcode-osx
 /step01/source/codeblocks-linux
 /step02/source/vs2015
+/step02/source/xcode-ios
+/step02/source/xcode-simulator
+/step02/source/xcode-osx
+/step02/source/codeblocks-linux
 /step02/source/bin
 /step02/source/lib
 /step02/source/Samples/hello/Android/app/libs
