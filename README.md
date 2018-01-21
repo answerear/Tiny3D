@@ -149,7 +149,7 @@ A Tiny 3D Engine
 
 ## 2.4 Linux开发环境
 
-　　Linux有很多版本，这里直接选择Ubuntu 17.10版本。在这里上面，直接通过apt-get install libsdl2-2.0命令来获得SDL2版本。通过apt-get install cmake和apt-get install cmake-qt-gui安装命令行的CMake和CMake GUI工具。然后选择一个IDE作为开发和调试环境，通过apt-get install codeblocks。最后安装目前最新的编译环境llvm和编译器clang和clang++
+　　Linux有很多版本，这里直接选择Ubuntu 17.10版本。在这里上面，直接通过apt-get install libsdl2-2.0命令来获得SDL2版本。通过apt-get install cmake和apt-get install cmake-qt-gui安装命令行的CMake和CMake GUI工具。然后选择一个IDE作为开发和调试环境，通过apt-get install codeblocks。最后安装目前最新的编译环境llvm和编译器clang和clang++，通过apt-get install llvm和apt-get install clang就可以安装了。在Linux系统上最好就是这个apt了，只要设置好软件源，就可以安装或者更新到需要的软件。
 
 # 三、Hello World
 
