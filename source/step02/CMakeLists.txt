@@ -25,6 +25,10 @@ if (CMAKE_BINARY_DIR MATCHES " ")
 endif()
 
 
+# 定义扩展错误码的开始值
+add_definitions(-DT3D_ERR_EXTEND=0x1000)
+
+
 if (WIN32)
     # Windows
     message(STATUS "Platform : Windows")

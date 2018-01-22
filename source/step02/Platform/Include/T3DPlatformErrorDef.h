@@ -17,19 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PLATFORM_H__
-#define __T3D_PLATFORM_H__
+#ifndef __T3D_PLATFORM_ERROR_DEF_H__
+#define __T3D_PLATFORM_ERROR_DEF_H__
 
-#include <T3DType.h>
-#include <T3DMacro.h>
-#include <T3DPlatformErrorDef.h>
-#include <T3DSystem.h>
-#include <T3DApplication.h>
-#include <T3DWindow.h>
 
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
+#include "T3DMacro.h"
 
-#endif  /*__T3D_PLATFORM_H__*/
+
+namespace Tiny3D
+{
+
+};
+
+#endif  /*__T3D_PLATFORM_ERROR_DEF_H__*/

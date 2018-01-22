@@ -31,26 +31,37 @@ namespace Tiny3D
     const TINSTANCE EventManager::MULTICAST_INSTANCE = (const TINSTANCE)1;
 
     EventManager::EventManager(uint32_t maxEvents, int32_t maxHandlingDuration,
-        int32_t maxCallStacks)
+        int32_t maxCallStacks, HandleEventMode mode)
+        : mMaxHandlingDuration(maxHandlingDuration)
+        , mMaxCallStackLevel(maxCallStacks)
+        , mHandlingMode(mode)
     {
+        mEventHandlers.reserve(128);
+        mEventHandlers.resize(128);
 
+        mEventFilters.reserve(maxEvents);
+        mEventFilters.resize(maxEvents);
     }
 
     EventManager::~EventManager()
     {
-
+        mEventHandlers.clear();
+        clearEventQueue();
     }
 
-    bool EventManager::sendEvent(uint32_t evid, EventParam *param, 
+    int32_t EventManager::sendEvent(uint32_t evid, EventParam *param, 
         TINSTANCE receiver, TINSTANCE sender)
     {
-        return true;
+        if (T3D_INVALID_INSTANCE == receiver)
+            return 0;
+
+        return 0;
     }
 
-    bool EventManager::postEvent(uint32_t evid, EventParam *param, 
+    int32_t EventManager::postEvent(uint32_t evid, EventParam *param,
         TINSTANCE receiver, TINSTANCE sender)
     {
-        return true;
+        return 0;
     }
 
     bool EventManager::getEventHandler(TINSTANCE instance, 

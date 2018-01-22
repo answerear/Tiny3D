@@ -25,40 +25,6 @@
 
 namespace Tiny3D
 {
-//     class T3D_FRAMEWORK_API EventInstance
-//     {
-//     public:
-//         static const EventInstance INVALID_INSTANCE;
-//         static const EventInstance BROADCAST_INSTANCE;
-// 
-//         long_t  ref;
-//         int32_t idx;
-// 
-//         EventInstance()
-//             : ref(0)
-//             , idx(0)
-//         {}
-// 
-//         EventInstance(long_t r, int32_t i)
-//             : ref(r)
-//             , idx(i)
-//         {}
-// 
-//         bool operator ==(const EventInstance &other)
-//         {
-//             return (idx == other.idx && ref == other.ref);
-//         }
-// 
-//         bool operator !=(const EventInstance &other)
-//         {
-//             return (idx != other.idx || ref != other.ref);
-//         }
-// 
-//         bool operator <(const EventInstance &other)
-//         {
-//             return (idx < other.idx || (idx == other.idx && ref < other.ref));
-//         }
-//     };
     struct _TINSTANCE
     {
         _TINSTANCE()

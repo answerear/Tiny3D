@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,19 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PLATFORM_H__
-#define __T3D_PLATFORM_H__
+#ifndef __T3D_EVENT_PARAM_H__
+#define __T3D_EVENT_PARAM_H__
 
-#include <T3DType.h>
-#include <T3DMacro.h>
-#include <T3DPlatformErrorDef.h>
-#include <T3DSystem.h>
-#include <T3DApplication.h>
-#include <T3DWindow.h>
 
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
+#include "T3DEventPrerequisites.h"
 
-#endif  /*__T3D_PLATFORM_H__*/
+
+namespace Tiny3D
+{
+    class T3D_FRAMEWORK_API EventParam
+    {
+        T3D_DECLARE_INTERFACE(EventParam);
+
+    public:
+        virtual EventParam *clone() = 0;
+    };
+}
+
+
+#endif  /*__T3D_EVENT_PARAM_H__*/

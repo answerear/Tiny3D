@@ -38,25 +38,25 @@ namespace Tiny3D
         T3D_EVENT_MGR.unregisterHandler(mInstance);
     }
 
-    bool EventHandler::sendEvent(uint32_t evid, EventParam *param, 
+    int32_t EventHandler::sendEvent(uint32_t evid, EventParam *param,
         TINSTANCE receiver)
     {
         return T3D_EVENT_MGR.sendEvent(evid, param, receiver, mInstance);
     }
 
-    bool EventHandler::postEvent(uint32_t evid, EventParam *param, 
+    int32_t EventHandler::postEvent(uint32_t evid, EventParam *param,
         TINSTANCE receiver)
     {
         return T3D_EVENT_MGR.postEvent(evid, param, receiver, mInstance);
     }
 
-    bool EventHandler::sendEvent(uint32_t evid, EventParam *param)
+    int32_t EventHandler::sendEvent(uint32_t evid, EventParam *param)
     {
         return T3D_EVENT_MGR.sendEvent(evid, param, 
             T3D_MULTICAST_INSTANCE, mInstance);
     }
 
-    bool EventHandler::postEvent(uint32_t evid, EventParam *param)
+    int32_t EventHandler::postEvent(uint32_t evid, EventParam *param)
     {
         return T3D_EVENT_MGR.postEvent(evid, param, 
             T3D_MULTICAST_INSTANCE, mInstance);

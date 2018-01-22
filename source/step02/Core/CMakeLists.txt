@@ -16,6 +16,7 @@ if (MSVC)
 	endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
+add_definitions(-DT3D_ERR_CORE=0x5000)
 
 # Setup all cmake variables for this project.
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform/Include")

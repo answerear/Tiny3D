@@ -121,4 +121,9 @@
     }
 
 
+#define T3D_ERR_NONE            0
+#define T3D_ERR_OK              T3D_ERR_NONE
+#define T3D_ERR_SUCCESS         T3D_ERR_NONE
+#define T3D_ERR_FAIL            1
+
 #endif  /*__T3D_MACRO_H__*/

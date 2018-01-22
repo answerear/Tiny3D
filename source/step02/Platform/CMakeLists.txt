@@ -18,6 +18,8 @@ if (MSVC)
 endif (MSVC)
 
 
+add_definitions(-DT3D_ERR_PLATFORM=0x1000)
+
 # Setup search header path for this project.
 include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"

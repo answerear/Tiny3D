@@ -17,19 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PLATFORM_H__
-#define __T3D_PLATFORM_H__
+#ifndef __T3D_PREREQUISITES_H__
+#define __T3D_PREREQUISITES_H__
 
-#include <T3DType.h>
-#include <T3DMacro.h>
-#include <T3DPlatformErrorDef.h>
-#include <T3DSystem.h>
-#include <T3DApplication.h>
-#include <T3DWindow.h>
 
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
+
+#if defined T3DCORE_EXPORT
+    #define T3D_ENGINE_API        T3D_EXPORT_API
 #else
+    #define T3D_ENGINE_API        T3D_IMPORT_API
 #endif
 
-#endif  /*__T3D_PLATFORM_H__*/
+
+#include <T3DPlatform.h>
+
+namespace Tiny3D
+{
+    /// Core
+    class Engine;
+
+//     class AppEventListener;
+}
+
+
+#endif    /*__T3D_PREREQUISITES_H__*/

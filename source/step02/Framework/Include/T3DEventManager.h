@@ -56,17 +56,27 @@ namespace Tiny3D
         static const TINSTANCE BROADCAST_INSTANCE;  /// 全局广播实例句柄
         static const TINSTANCE MULTICAST_INSTANCE;  /// 面向事件多播实例句柄
 
+        /**
+         * @brief 因为时间过长被中断后续未处理事件的处理方式
+         */
+        enum HandleEventMode
+        {
+            HEM_DISCARD = 0,    /// 处理不完倍打断后直接丢弃
+            HEM_QUEUE,          /// 处理不完的放队列下次继续
+        };
+
         /** 
          * @brief Constructor 
          * @param [in] maxEvents : 所有事件的数量
          * @param [in] maxHandlingDuration : 处理事件的最长事件
          * @param [in] maxCallStacks : 能嵌套处理事件调用栈的最大深度
+         * @param [in] flags : 处理标记
          * @see
          *  - getMaxHandlingDuration()
          *  - getMaxCallStackLevel()
          */
         EventManager(uint32_t maxEvents, int32_t maxHandlingDuration,
-            int32_t maxCallStacks);
+            int32_t maxCallStacks, HandleEventMode mode);
 
         /** Destructor */
         virtual ~EventManager();
@@ -78,19 +88,19 @@ namespace Tiny3D
          * @param [in] receiver : 事件接收者实例。
          * @param [in] sender : 事件发送者实例
          * @return 
-         *  - 当receiver是固定实例时，有事件接收者处理则返回true，
-         *  否则返回false表示事件ID错误、事件接收者错误或者接收者没处理事件。
-         *  - 当receiver是T3D_INVALID_INSTANCE时，有事件接收者处理则返回true，
-         *  否则返回false表示事件ID错误、事件接收者错误或者接收者没处理事件。
-         *  - 当receiver是T3D_BROADCAST_INSTANCE时，如果所有对象都被触发到并且
-         *  处理完则返回true，如果中间因为某个事件处理函数太长事件导致后续事件
-         *  无法处理，则返回false表示有事件未处理完。
-         *  - 当嵌套调用sendEvent多次后，导致调用栈过深时，也会返回false。 调用栈
-         *  层次可以通过getMaxCallStackLevel()获得。
+         *  - T3D_ERR_FWK_INVALID_RECVER : 无效的接收者实例句柄。
+         *  - T3D_ERR_FWK_INVALID_SENDER : 无效的发送者实例句柄。
+         *  - T3D_ERR_FWK_HANDLING_TIMEOVER : 当receiver是T3D_BROADCAST_INSTANCE
+         *      如果中间某个事件处理函数处理时间太长或者数量太多导致整体时间超出
+         *      了通过getMaxHandlingDuration()返回的时间，则返回该值。
+         *  - T3D_ERR_FWK_CALLSTACK_OVERFLOW : 当嵌套调用sendEvent多次后，导致
+         *      调用栈超过通过getMaxCallStackLevel()获得的最大层次后则返回该值。
+         *  - T3D_ERR_FWK_INVALID_EVID : 错误事件ID
          * @see
          *  - getMaxCallStackLevel()
+         *  - getMaxHandlingDuration()
          */
-        bool sendEvent(uint32_t evid, EventParam *param, 
+        int32_t sendEvent(uint32_t evid, EventParam *param, 
             TINSTANCE receiver, TINSTANCE sender);
 
         /**
@@ -99,17 +109,20 @@ namespace Tiny3D
          * @param [in] param : 事件附加参数
          * @param [in] receiver : 事件接收者实例
          * @param [in] sender : 事件发送者实例
-         * @return 只要事件ID没错误，都返回true，否则返回false。
-         * @note 需要注意一点就是调用返回true也不代表接收者一定能接收到。
-         *      因为这个接口是把所有事件存放到事件队列，然后在dispatch()调用的
-         *      地方统一派发，但是如果事件队列事件太多导致处理事件太长，或者
-         *      某一个事件影响处理事件太长影响到整个队列处理时间，则后续的事件
-         *      会被丢弃。详细的派发事件整体时间可以通过调用
-         *      getMaxHandlingDuration()接口查询获得。
+         * @return 只要事件ID没错误，都返回T3D_OK。
+         * @note 需要注意一点就是调用返回T3D_OK也不代表接收者一定能接收到。
+         *      因为这个接口是把所有事件存放到事件队列，然后在dispatchEvent()
+         *      调用的地方统一派发，但是如果事件队列事件太多导致处理时间太长，
+         *      或者某一个事件影响处理时间太长影响到整个队列处理时间，则后续的
+         *      事件会被丢弃或者下一次调用dispatchEvent()接口再次派发。 详细的派
+         *      发事件整体时间可以通过调用getMaxHandlingDuration()接口查询获得。
+         *      对于被中断的处理，会根据构造函数传入的flags来决定后续事件的处理
+         *      方式。 
          * @see
          *  - getMaxHandlingDuration()
+         *  - getHandlingEventMode()
          */
-        bool postEvent(uint32_t evid, EventParam *param, 
+        int32_t postEvent(uint32_t evid, EventParam *param, 
             TINSTANCE receiver, TINSTANCE sender);
 
         /**
@@ -177,6 +190,11 @@ namespace Tiny3D
          * @brief 获取当前处理事件嵌套的调用栈层次深度。
          */
         int32_t getMaxCallStackLevel() { return mMaxCallStackLevel; }
+
+        /**
+         * @brief 获取当前待超时没有处理完后续事件处理模式
+         */
+        HandleEventMode getHandlingEventMode() { return mHandlingMode; }
 
     protected:
         /**
@@ -252,6 +270,8 @@ namespace Tiny3D
         int32_t         mCurrentQueue;              /// 当前待处理事件队列
         uint32_t        mMaxHandlingDuration;       /// 处理事件持续最大时间
         uint32_t        mMaxCallStackLevel;         /// 处理事件嵌套调用栈层级
+
+        HandleEventMode mHandlingMode;              /// 被打断后续事件处理方式
 
         bool            mIsDispatchPaused;          /// 暂停派发事件标识
         EventList       mEventCache;                /// 暂存事件缓存

@@ -43,22 +43,22 @@ namespace Tiny3D
         /**
          * @brief 发送同步事件给指定对象
          */
-        bool sendEvent(uint32_t evid, EventParam *param, TINSTANCE receiver);
+        int32_t sendEvent(uint32_t evid, EventParam *param, TINSTANCE receiver);
 
         /**
          * @brief 发送异步事件给指定对象
          */
-        bool postEvent(uint32_t evid, EventParam *param, TINSTANCE receiver);
+        int32_t postEvent(uint32_t evid, EventParam *param, TINSTANCE receiver);
 
         /**
          * @brief 发送同步事件给关注事件的对象
          */
-        bool sendEvent(uint32_t evid, EventParam *param);
+        int32_t sendEvent(uint32_t evid, EventParam *param);
 
         /**
          * @brief 发送异步事件给关注事件的对象
          */
-        bool postEvent(uint32_t evid, EventParam *param);
+        int32_t postEvent(uint32_t evid, EventParam *param);
 
         /**
          * @brief 获取实例句柄
