@@ -18,16 +18,129 @@
  ******************************************************************************/
 
 #include "T3DEventHandler.h"
+#include "T3DEventMacro.h"
+#include "T3DEventManager.h"
 
 namespace Tiny3D
 {
-    EventHandler::EventHandler()
+    EventHandler::EventHandler(bool canAutoRegister /* = true */)
+        : mInstance(T3D_INVALID_INSTANCE)
     {
-
+        if (canAutoRegister)
+        {
+            mInstance = T3D_EVENT_MGR.registerHandler(this);
+        }
     }
 
     EventHandler::~EventHandler()
     {
+        unregisterAllEvent();
+        T3D_EVENT_MGR.unregisterHandler(mInstance);
+    }
 
+    bool EventHandler::sendEvent(uint32_t evid, EventParam *param, 
+        TINSTANCE receiver)
+    {
+        return T3D_EVENT_MGR.sendEvent(evid, param, receiver, mInstance);
+    }
+
+    bool EventHandler::postEvent(uint32_t evid, EventParam *param, 
+        TINSTANCE receiver)
+    {
+        return T3D_EVENT_MGR.postEvent(evid, param, receiver, mInstance);
+    }
+
+    bool EventHandler::sendEvent(uint32_t evid, EventParam *param)
+    {
+        return T3D_EVENT_MGR.sendEvent(evid, param, 
+            T3D_MULTICAST_INSTANCE, mInstance);
+    }
+
+    bool EventHandler::postEvent(uint32_t evid, EventParam *param)
+    {
+        return T3D_EVENT_MGR.postEvent(evid, param, 
+            T3D_MULTICAST_INSTANCE, mInstance);
+    }
+
+    TINSTANCE EventHandler::registerHandler()
+    {
+        if (mInstance == T3D_INVALID_INSTANCE)
+        {
+            mInstance = T3D_EVENT_MGR.registerHandler(this);
+        }
+
+        return mInstance;
+    }
+
+    bool EventHandler::unregisterHandler()
+    {
+        bool ret = T3D_EVENT_MGR.unregisterHandler(mInstance);
+
+        if (ret)
+        {
+            mInstance = T3D_INVALID_INSTANCE;
+        }
+
+        return ret;
+    }
+
+    void EventHandler::setupEventFilter()
+    {
+
+    }
+
+    bool EventHandler::registerEvent(uint32_t evid)
+    {
+        bool ret = T3D_EVENT_MGR.registerEvent(evid, mInstance);
+
+        if (ret)
+        {
+            mEventList.push_back(evid);
+        }
+
+        return ret;
+    }
+
+    bool EventHandler::unregisterEvent(uint32_t evid)
+    {
+        bool ret = T3D_EVENT_MGR.unregisterEvent(evid, mInstance);
+
+        if (ret)
+        {
+            auto itr = mEventList.begin();
+
+            while (itr != mEventList.end())
+            {
+                if (evid == *itr)
+                {
+                    mEventList.erase(itr);
+                    break;
+                }
+
+                ++itr;
+            }
+        }
+
+        return ret;
+    }
+
+    void EventHandler::unregisterAllEvent()
+    {
+        auto itr = mEventList.begin();
+
+        while (itr != mEventList.end())
+        {
+            T3D_EVENT_MGR.unregisterEvent(*itr, mInstance);
+            ++itr;
+        }
+
+        mEventList.clear();
+    }
+
+    bool EventHandler::processEvent(uint32_t evid, EventParam *param, 
+        TINSTANCE sender)
+    {
+        // 都跑到基类了，还没有人处理过这个事件，那只能不处理了，返回false
+        return false;
     }
 }

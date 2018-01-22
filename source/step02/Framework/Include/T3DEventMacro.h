@@ -22,12 +22,13 @@
 
 
 #include "T3DEventPrerequisites.h"
-#include "T3DEventManager.h"
+
 
 namespace Tiny3D
 {
-    #define T3D_INVALID_INSTANCE EventManager::INVALID_INSTANCE
-    #define T3D_BROADCAST_INSTANCE EventManager::BROADCAST_INSTANCE
+    #define T3D_INVALID_INSTANCE        EventManager::INVALID_INSTANCE
+    #define T3D_BROADCAST_INSTANCE      EventManager::BROADCAST_INSTANCE
+    #define T3D_MULTICAST_INSTANCE      EventManager::MULTICAST_INSTANCE
 }
 
 

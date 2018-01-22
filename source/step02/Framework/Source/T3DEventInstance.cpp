@@ -21,6 +21,4 @@
 
 namespace Tiny3D
 {
-    const EventInstance EventInstance::INVALID_INSTANCE(0, 0);
-    const EventInstance EventInstance::BROADCAST_INSTANCE(0xFFFFFFFF, 0);
 }

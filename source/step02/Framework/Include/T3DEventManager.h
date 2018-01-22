@@ -22,7 +22,6 @@
 
 
 #include "T3DEventPrerequisites.h"
-#include "T3DEventInstance.h"
 
 
 namespace Tiny3D
@@ -38,9 +37,10 @@ namespace Tiny3D
         /** 事件项 */
         struct EventItem
         {
-            EventItem(uint32_t evid, EventParam *pEventParam, TINSTANCE receiver, TINSTANCE sender)
+            EventItem(uint32_t evid, EventParam *param, 
+                TINSTANCE receiver, TINSTANCE sender)
                 : mEventID(evid)
-                , mEventParam(pEventParam)
+                , mEventParam(param)
                 , mReceiver(receiver)
                 , mSender(sender)
             {}
@@ -52,6 +52,10 @@ namespace Tiny3D
         };
 
     public:
+        static const TINSTANCE INVALID_INSTANCE;    /// 无效实例句柄
+        static const TINSTANCE BROADCAST_INSTANCE;  /// 全局广播实例句柄
+        static const TINSTANCE MULTICAST_INSTANCE;  /// 面向事件多播实例句柄
+
         /** 
          * @brief Constructor 
          * @param [in] maxEvents : 所有事件的数量
@@ -162,17 +166,17 @@ namespace Tiny3D
         /**
          * @brief 事件派发是否被暂停
          */
-        bool isPaused();
+        bool isPaused() { return mIsDispatchPaused; }
 
         /**
          * @brief 获取当前处理事件时间的限制。
          */
-        int32_t getMaxHandlingDuration();
+        int32_t getMaxHandlingDuration() { return mMaxHandlingDuration; }
 
         /**
          * @brief 获取当前处理事件嵌套的调用栈层次深度。
          */
-        int32_t getMaxCallStackLevel();
+        int32_t getMaxCallStackLevel() { return mMaxCallStackLevel; }
 
     protected:
         /**
@@ -240,15 +244,17 @@ namespace Tiny3D
         typedef std::vector<EventInstSet>   EventFilterList;
         typedef EventFilterList::iterator   EventFilterListItr;
 
-        HandlerList	m_EventHandlers;                    /// 事件处理对象链表
-        EventList   m_EventQueue[T3D_MAX_EVENT_QUEUE];  /// 待处理事件队列
+        HandlerList	mEventHandlers;                     /// 事件处理对象链表
+        EventList   mEventQueue[T3D_MAX_EVENT_QUEUE];   /// 待处理事件队列
 
-        EventFilterList	m_EventFilters;                 /// 事件过滤表
+        EventFilterList	mEventFilters;                  /// 事件过滤表
 
-        int32_t			m_nCurrentQueue;                /// 当前待处理事件队列
+        int32_t         mCurrentQueue;              /// 当前待处理事件队列
+        uint32_t        mMaxHandlingDuration;       /// 处理事件持续最大时间
+        uint32_t        mMaxCallStackLevel;         /// 处理事件嵌套调用栈层级
 
-        EventList		m_EventCache;                   /// 暂存事件缓存
-        bool			m_bDispatchPaused;              /// 暂停派发事件标识
+        bool            mIsDispatchPaused;          /// 暂停派发事件标识
+        EventList       mEventCache;                /// 暂存事件缓存
     };
 
     #define T3D_EVENT_MGR   (EventManager::getInstance())

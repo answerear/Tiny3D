@@ -29,8 +29,93 @@ namespace Tiny3D
     class T3D_FRAMEWORK_API EventHandler
     {
     public:
-        EventHandler();
+        /**
+         * @brief Constructor
+         * @param [in] canAutoRegister : 是否自动注册启动事件收发功能
+         */
+        EventHandler(bool canAutoRegister = true);
+
+        /**
+         * @brief Destructor
+         */
         virtual ~EventHandler();
+
+        /**
+         * @brief 发送同步事件给指定对象
+         */
+        bool sendEvent(uint32_t evid, EventParam *param, TINSTANCE receiver);
+
+        /**
+         * @brief 发送异步事件给指定对象
+         */
+        bool postEvent(uint32_t evid, EventParam *param, TINSTANCE receiver);
+
+        /**
+         * @brief 发送同步事件给关注事件的对象
+         */
+        bool sendEvent(uint32_t evid, EventParam *param);
+
+        /**
+         * @brief 发送异步事件给关注事件的对象
+         */
+        bool postEvent(uint32_t evid, EventParam *param);
+
+        /**
+         * @brief 获取实例句柄
+         */
+        TINSTANCE getInstance() const { return mInstance; }
+
+    protected:
+        /**
+         * @brief 注册对象，返回实例句柄，只有注册才能有效收发事件
+         */
+        TINSTANCE registerHandler();
+
+        /**
+         * @brief 反注册对象，调用后无法再继续收发事件
+         */
+        bool unregisterHandler();
+
+        /**
+         * @brief 建立事件过滤器，只有在过滤器里面的才会收到不定对象的事件通知
+         */
+        virtual void setupEventFilter();
+
+        /**
+         * @brief 注册关注的事件到过滤器里面
+         * @param [in] evid : 事件ID 
+         */
+        bool registerEvent(uint32_t evid);
+
+        /**
+         * @brief 反注册关注的事件，反注册后，过滤器里面没有该事件
+         * @param [in] evid : 事件ID
+         */
+        bool unregisterEvent(uint32_t evid);
+
+        /**
+         * @brief 反注册所有关注的事件
+         */
+        void unregisterAllEvent();
+
+        /**
+         * @brief 统一处理事件函数
+         * @param [in] evid : 事件ID
+         * @param [in] param : 事件附加参数对象
+         * @param [in] sender : 事件发送实例句柄
+         * @return 有处理事件返回true，否则返回false。
+         */
+        virtual bool processEvent(uint32_t evid, EventParam *param, 
+            TINSTANCE sender);
+
+    private:
+        typedef std::list<uint32_t>         EventList;
+        typedef EventList::iterator         EventListItr;
+        typedef EventList::const_iterator   EventListConstItr;
+
+        TINSTANCE   mInstance;      /// 实例句柄
+
+        EventList   mEventList;     /// 本实例关注的事件列表
     };
 }
 

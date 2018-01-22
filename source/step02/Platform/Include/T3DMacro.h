@@ -34,6 +34,7 @@
 
     #pragma warning(disable:4996)
     #pragma warning(disable:4251)
+    #pragma warning(disable:4819)   // UTF-8 encode will trigger warning
 
     #define snprintf    _snprintf
     #define vsnprintf   _vsnprintf
