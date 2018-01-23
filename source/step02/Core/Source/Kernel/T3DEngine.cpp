@@ -29,6 +29,7 @@ namespace Tiny3D
         , mIsRunning(false)
 //         , mWindowCreated(true)
     {
+        mEventMgr = new EventManager(10);
     }
 
     Engine::~Engine()
@@ -37,6 +38,8 @@ namespace Tiny3D
         {
             T3D_SAFE_DELETE(mWindow);
         }
+
+        T3D_SAFE_DELETE(mEventMgr);
     }
 
     bool Engine::startup(/*Window *window / * = nullptr * /*/)
@@ -81,7 +84,12 @@ namespace Tiny3D
 
         while (mIsRunning)
         {
+            // 轮询系统事件
             mIsRunning = theApp->pollEvents();
+            // 系统平台层轮询
+            T3D_SYSTEM.update();
+            // 事件系统派发事件
+            T3D_EVENT_MGR.dispatchEvent();
             renderOneFrame();
         }
 

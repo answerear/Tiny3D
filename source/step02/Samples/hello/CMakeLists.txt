@@ -15,6 +15,7 @@ endif (MSVC)
 # Setup project include files path
 include_directories(
 	"${TINY3D_PLATFORM_INC_DIR}"
+	"${TINY3D_FRAMEWORK_INC_DIR}"
 	"${TINY3D_CORE_INC_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"

@@ -30,6 +30,8 @@
 
 
 #include <T3DPlatform.h>
+#include <T3DFramework.h>
+
 
 namespace Tiny3D
 {

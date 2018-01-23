@@ -38,6 +38,12 @@ namespace Tiny3D
     #define T3D_ERR_FWK_HANDLING_TIMEOVER       (T3D_ERR_FRAMEWORK + 4)
     /// 事件嵌套超出栈调用层次，被打断了
     #define T3D_ERR_FWK_CALLSTACK_OVERFLOW      (T3D_ERR_FRAMEWORK + 5)
+    /// 没有任何对象处理
+    #define T3D_ERR_FWK_NONE_HANDLER            (T3D_ERR_FRAMEWORK + 6)
+    /// 无法马上处理，因为被暂停派发了
+    #define T3D_ERR_FWK_SUSPENDED               (T3D_ERR_FRAMEWORK + 7)
+    /// 重复实例句柄
+    #define T3D_ERR_FWK_DUPLICATE_INSTANCE      (T3D_ERR_FRAMEWORK + 8)
 }
 
 

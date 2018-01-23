@@ -61,14 +61,12 @@ if (TINY3D_OS_WINDOWS)
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
 			LINK_PRIVATE legacy_stdio_definitions
-			LINK_PRIVATE ${SDL2_LIBRARY}
 			)
 	else ()
 		# Visual Studio version is older than 2015
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
-			LINK_PRIVATE ${SDL2_LIBRARY}
 			)
 	endif ()
 	

@@ -19,7 +19,9 @@
 
 #include "T3DEventHandler.h"
 #include "T3DEventMacro.h"
+#include "T3DEventErrorDef.h"
 #include "T3DEventManager.h"
+
 
 namespace Tiny3D
 {
@@ -72,7 +74,7 @@ namespace Tiny3D
         return mInstance;
     }
 
-    bool EventHandler::unregisterHandler()
+    int32_t EventHandler::unregisterHandler()
     {
         bool ret = T3D_EVENT_MGR.unregisterHandler(mInstance);
 
@@ -89,11 +91,11 @@ namespace Tiny3D
 
     }
 
-    bool EventHandler::registerEvent(uint32_t evid)
+    int32_t EventHandler::registerEvent(uint32_t evid)
     {
-        bool ret = T3D_EVENT_MGR.registerEvent(evid, mInstance);
+        int32_t ret = T3D_EVENT_MGR.registerEvent(evid, mInstance);
 
-        if (ret)
+        if (T3D_ERR_OK == ret)
         {
             mEventList.push_back(evid);
         }
@@ -101,11 +103,11 @@ namespace Tiny3D
         return ret;
     }
 
-    bool EventHandler::unregisterEvent(uint32_t evid)
+    int32_t EventHandler::unregisterEvent(uint32_t evid)
     {
-        bool ret = T3D_EVENT_MGR.unregisterEvent(evid, mInstance);
+        int32_t ret = T3D_EVENT_MGR.unregisterEvent(evid, mInstance);
 
-        if (ret)
+        if (T3D_ERR_OK == ret)
         {
             auto itr = mEventList.begin();
 
@@ -137,10 +139,10 @@ namespace Tiny3D
         mEventList.clear();
     }
 
-    bool EventHandler::processEvent(uint32_t evid, EventParam *param, 
+    int32_t EventHandler::processEvent(uint32_t evid, EventParam *param, 
         TINSTANCE sender)
     {
-        // 都跑到基类了，还没有人处理过这个事件，那只能不处理了，返回false
-        return false;
+        // 都跑到基类了，还没有人处理过这个事件，那只能不处理了
+        return T3D_ERR_FWK_NONE_HANDLER;
     }
 }

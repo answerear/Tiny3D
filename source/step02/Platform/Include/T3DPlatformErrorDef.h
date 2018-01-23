@@ -21,12 +21,12 @@
 #define __T3D_PLATFORM_ERROR_DEF_H__
 
 
-#include "T3DMacro.h"
+#include "T3DCommonErrorDef.h"
 
 
 namespace Tiny3D
 {
-
+    
 };
 
 #endif  /*__T3D_PLATFORM_ERROR_DEF_H__*/

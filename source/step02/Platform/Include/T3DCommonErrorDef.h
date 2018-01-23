@@ -1,4 +1,4 @@
-Ôªø/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,30 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_EVENT_INSTANCE_H__
-#define __T3D_EVENT_INSTANCE_H__
+#ifndef __T3D_COMMON_ERROR_DEF_H__
+#define __T3D_COMMON_ERROR_DEF_H__
 
 
-#include "T3DEventPrerequisites.h"
+#include "T3DMacro.h"
+
 
 namespace Tiny3D
 {
-    struct _TINSTANCE
-    {
-        _TINSTANCE()
-            : obj(nullptr)
-            , slot(0)
-        {}
+    /// ≥…π¶
+    #define T3D_ERR_NONE                    0
+    #define T3D_ERR_OK                      T3D_ERR_NONE
+    #define T3D_ERR_SUCCESS                 T3D_ERR_NONE
+    /// Õ®”√¥ÌŒÛ
+    #define T3D_ERR_FAIL                    1
+    /// ø’÷∏’ÎªÚ’ﬂ∑«∑®÷∏’Î
+    #define T3D_ERR_INVALID_POINTER         2
+    /// Œﬁ–ßµƒ∂® ±∆˜ID
+    #define T3D_ERR_INVALID_TIMERID         3
+};
 
-        _TINSTANCE(void* o, int32_t i)
-            : obj(o)
-            , slot(i)
-        {}
-
-        void    *obj;
-        int32_t slot;
-    };
-}
-
-
-#endif  /*__T3D_EVENT_INSTANCE_H__*/
+#endif  /*__T3D_COMMON_ERROR_DEF_H__*/

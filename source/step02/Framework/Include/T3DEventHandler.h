@@ -28,6 +28,8 @@ namespace Tiny3D
 {
     class T3D_FRAMEWORK_API EventHandler
     {
+        friend class EventManager;
+
     public:
         /**
          * @brief Constructor
@@ -74,7 +76,7 @@ namespace Tiny3D
         /**
          * @brief 反注册对象，调用后无法再继续收发事件
          */
-        bool unregisterHandler();
+        int32_t unregisterHandler();
 
         /**
          * @brief 建立事件过滤器，只有在过滤器里面的才会收到不定对象的事件通知
@@ -85,13 +87,13 @@ namespace Tiny3D
          * @brief 注册关注的事件到过滤器里面
          * @param [in] evid : 事件ID 
          */
-        bool registerEvent(uint32_t evid);
+        int32_t registerEvent(uint32_t evid);
 
         /**
          * @brief 反注册关注的事件，反注册后，过滤器里面没有该事件
          * @param [in] evid : 事件ID
          */
-        bool unregisterEvent(uint32_t evid);
+        int32_t unregisterEvent(uint32_t evid);
 
         /**
          * @brief 反注册所有关注的事件
@@ -105,7 +107,7 @@ namespace Tiny3D
          * @param [in] sender : 事件发送实例句柄
          * @return 有处理事件返回true，否则返回false。
          */
-        virtual bool processEvent(uint32_t evid, EventParam *param, 
+        virtual int32_t processEvent(uint32_t evid, EventParam *param, 
             TINSTANCE sender);
 
     private:

@@ -19,6 +19,7 @@
 
 #include "T3DSystem.h"
 #include "Adapter/T3DFactoryInterface.h"
+#include "Time/T3DTimerManager.h"
 
 
 namespace Tiny3D
@@ -29,15 +30,17 @@ namespace Tiny3D
         : mPlatformFactory(nullptr)
     {
         mPlatformFactory = createPlatformFactory();
+        mTimerMgr = new TimerManager();
     }
 
     System::~System()
     {
+        T3D_SAFE_DELETE(mTimerMgr);
         T3D_SAFE_DELETE(mPlatformFactory);
     }
 
-    void System::process()
+    void System::update()
     {
-        
+        mTimerMgr->update();
     }
 }

@@ -88,6 +88,8 @@ namespace Tiny3D
 //         virtual void windowClosed() override;
 
     protected:
+        EventManager        *mEventMgr;             /// 事件管理器对象
+
         Window              *mWindow;               /// 窗口
         bool                mIsRunning;             /// 引擎是否在运行中
     };

@@ -20,7 +20,10 @@
 
 #include "T3DEventManager.h"
 #include "T3DEventMacro.h"
+#include "T3DEventErrorDef.h"
 #include "T3DEventInstance.h"
+#include "T3DEventHandler.h"
+#include "T3DEventParam.h"
 
 namespace Tiny3D
 {
@@ -30,10 +33,13 @@ namespace Tiny3D
     const TINSTANCE EventManager::BROADCAST_INSTANCE = (const TINSTANCE)-1;
     const TINSTANCE EventManager::MULTICAST_INSTANCE = (const TINSTANCE)1;
 
+
     EventManager::EventManager(uint32_t maxEvents, int32_t maxHandlingDuration,
         int32_t maxCallStacks, HandleEventMode mode)
         : mMaxHandlingDuration(maxHandlingDuration)
+        , mStartHandleTime(0)
         , mMaxCallStackLevel(maxCallStacks)
+        , mCurrentCallStack(0)
         , mHandlingMode(mode)
     {
         mEventHandlers.reserve(128);
@@ -52,73 +58,629 @@ namespace Tiny3D
     int32_t EventManager::sendEvent(uint32_t evid, EventParam *param, 
         TINSTANCE receiver, TINSTANCE sender)
     {
-        if (T3D_INVALID_INSTANCE == receiver)
-            return 0;
+        int32_t ret = T3D_ERR_OK;
 
-        return 0;
+        do
+        {
+            if (evid >= mEventFilters.size())
+            {
+                // 无效事件ID
+                ret = T3D_ERR_FWK_INVALID_EVID;
+                break;
+            }
+
+            if (T3D_INVALID_INSTANCE == receiver)
+            {
+                // 无效接收者
+                ret = T3D_ERR_FWK_INVALID_RECVER;
+                break;
+            }
+
+            if (T3D_INVALID_INSTANCE == sender)
+            {
+                // 无效发送者
+                ret = T3D_ERR_FWK_INVALID_SENDER;
+                break;
+            }
+
+            if (T3D_BROADCAST_INSTANCE == receiver)
+            {
+                // 广播
+                ret = broadcastEvent(evid, param, sender);
+            }
+            else if (T3D_MULTICAST_INSTANCE == receiver)
+            {
+                // 多播
+                ret = multicastEvent(evid, param, sender);
+            }
+            else
+            {
+                // 单播
+                ret = singlecastEvent(evid, param, receiver, sender);
+            }
+
+        } while (0);
+
+        return ret;
+    }
+
+    int32_t EventManager::broadcastEvent(uint32_t evid, EventParam *param,
+        TINSTANCE sender)
+    {
+        int32_t ret = T3D_ERR_FWK_NONE_HANDLER;
+
+        if (mIsDispatchPaused)
+        {
+            // 被暂停了派发了，只能全部cache起来，留到恢复再派发
+            auto itr = mEventHandlers.begin();
+
+            while (itr != mEventHandlers.end())
+            {
+                TINSTANCE receiver = (*itr)->getInstance();
+                EventItem item(evid, param->clone(), receiver, sender);
+                mEventCache.push_back(item);
+                ret = T3D_ERR_FWK_SUSPENDED;
+                ++itr;
+            }
+        }
+        else
+        {
+            mCurrentCallStack++;
+
+            do 
+            {
+                if (mCurrentCallStack > mMaxCallStackLevel)
+                {
+                    // 栈太深了，不处理后续的事件了
+                    ret = T3D_ERR_FWK_CALLSTACK_OVERFLOW;
+                    break;
+                }
+
+                // 直接广播给全局所有注册的对象
+                auto itr = mEventHandlers.begin();
+
+                while (itr != mEventHandlers.end())
+                {
+                    EventHandler *handler = *itr;
+                    // 没有暂停，那全部给派发吧
+                    handler->processEvent(evid, param, sender);
+                    ret = T3D_ERR_OK;
+                    ++itr;
+                }
+            } while (0);
+
+            mCurrentCallStack--;
+        }
+
+        return ret;
+    }
+
+    int32_t EventManager::multicastEvent(uint32_t evid, EventParam *param,
+        TINSTANCE sender)
+    {
+        int32_t ret = T3D_ERR_FWK_NONE_HANDLER;
+
+        if (mIsDispatchPaused)
+        {
+            // 被暂停了派发，只能全部cache起来，留到恢复再派发
+            const EventInstSet &instSet = mEventFilters[evid];
+            auto itr = instSet.begin();
+
+            while (itr != instSet.end())
+            {
+                TINSTANCE receiver = *itr;
+                EventHandler *handler = nullptr;
+
+                // 这里通过getEventHandler调用是为了找到合法的对象
+                if (getEventHandler(receiver, handler))
+                {
+                    EventItem item(evid, param->clone(), receiver, sender);
+                    mEventCache.push_back(item);
+                    ret = T3D_ERR_FWK_SUSPENDED;
+                }
+
+                ++itr;
+            }
+        }
+        else
+        {
+            mCurrentCallStack++;
+
+            do 
+            {
+                if (mCurrentCallStack > mMaxCallStackLevel)
+                {
+                    ret = T3D_ERR_FWK_CALLSTACK_OVERFLOW;
+                    break;
+                }
+
+                // 找到广播给关注事件的对象
+                const EventInstSet &instSet = mEventFilters[evid];
+                auto itr = instSet.begin();
+
+                while (itr != instSet.end())
+                {
+                    TINSTANCE receiver = *itr;
+                    EventHandler *handler = nullptr;
+
+                    // 这里通过getEventHandler调用是为了找到合法的对象
+                    if (getEventHandler(receiver, handler))
+                    {
+                        handler->processEvent(evid, param, sender);
+                        ret = T3D_ERR_OK;
+                    }
+
+                    ++itr;
+                }
+            } while (0);
+
+            mCurrentCallStack--;
+        }
+
+        return ret;
+    }
+
+    int32_t EventManager::singlecastEvent(uint32_t evid, EventParam *param,
+        TINSTANCE receiver, TINSTANCE sender)
+    {
+        int32_t ret = T3D_ERR_FWK_NONE_HANDLER;
+
+        if (mIsDispatchPaused)
+        {
+            EventItem item(evid, param->clone(), receiver, sender);
+            mEventCache.push_back(item);
+            ret = T3D_ERR_FWK_SUSPENDED;
+        }
+        else
+        {
+            mCurrentCallStack++;
+
+            do 
+            {
+                if (mCurrentCallStack > mMaxCallStackLevel)
+                {
+                    ret = T3D_ERR_FWK_CALLSTACK_OVERFLOW;
+                    break;
+                }
+
+                // 找到对应对象，只给指定对象发送事件
+                EventHandler *handler = nullptr;
+                if (getEventHandler(receiver, handler))
+                {
+                    ret = handler->processEvent(evid, param, sender);
+                }
+            } while (0);
+
+            mCurrentCallStack--;
+        }
+
+        return ret;
     }
 
     int32_t EventManager::postEvent(uint32_t evid, EventParam *param,
         TINSTANCE receiver, TINSTANCE sender)
     {
-        return 0;
+        int32_t ret = T3D_ERR_OK;
+
+        do 
+        {
+            if (evid >= mEventFilters.size())
+            {
+                // 无效事件ID
+                ret = T3D_ERR_FWK_INVALID_EVID;
+                break;
+            }
+
+            if (T3D_INVALID_INSTANCE == receiver)
+            {
+                // 无效接收者
+                ret = T3D_ERR_FWK_INVALID_RECVER;
+                break;
+            }
+
+            if (T3D_INVALID_INSTANCE == sender)
+            {
+                // 无效发送者
+                ret = T3D_ERR_FWK_INVALID_SENDER;
+                break;
+            }
+
+            if (T3D_BROADCAST_INSTANCE == receiver)
+            {
+                // 广播
+                ret = pushBroadcastEvent(evid, param, sender);
+            }
+            else if (T3D_MULTICAST_INSTANCE == receiver)
+            {
+                // 多播
+                ret = pushMulticastEvent(evid, param, sender);
+            }
+            else
+            {
+                // 单播
+                ret = pushSinglecastEvent(evid, param, receiver, sender);
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    int32_t EventManager::pushBroadcastEvent(uint32_t evid, EventParam *param,
+        TINSTANCE sender)
+    {
+        int32_t ret = T3D_ERR_FWK_NONE_HANDLER;
+
+        if (mIsDispatchPaused)
+        {
+            auto itr = mEventHandlers.begin();
+
+            while (itr != mEventHandlers.end())
+            {
+                EventHandler *handler = *itr;
+                EventItem item(evid, param, handler->getInstance(), sender);
+                mEventCache.push_back(item);
+                ret = T3D_ERR_FWK_SUSPENDED;
+                ++itr;
+            }
+        }
+        else
+        {
+            auto itr = mEventHandlers.begin();
+
+            while (itr != mEventHandlers.end())
+            {
+                EventHandler *handler = *itr;
+                EventItem item(evid, param, handler->getInstance(), sender);
+                mEventQueue[mCurrentQueue].push_back(item);
+                ret = T3D_ERR_OK;
+                ++itr;
+            }
+        }
+
+        return ret;
+    }
+
+    int32_t EventManager::pushMulticastEvent(uint32_t evid, EventParam *param,
+        TINSTANCE sender)
+    {
+        int32_t ret = T3D_ERR_FWK_NONE_HANDLER;
+
+        if (mIsDispatchPaused)
+        {
+            const EventInstSet &instSet = mEventFilters[evid];
+            auto itr = instSet.begin();
+
+            while (itr != instSet.end())
+            {
+                TINSTANCE recv = *itr;
+                EventItem item(evid, param, recv, sender);
+                mEventCache.push_back(item);
+                ret = T3D_ERR_FWK_SUSPENDED;
+                ++itr;
+            }
+        }
+        else
+        {
+            const EventInstSet &instSet = mEventFilters[evid];
+            auto itr = instSet.begin();
+
+            while (itr != instSet.end())
+            {
+                TINSTANCE recv = *itr;
+                EventItem item(evid, param, recv, sender);
+                mEventQueue[mCurrentQueue].push_back(item);
+                ret = T3D_ERR_OK;
+                ++itr;
+            }
+        }
+
+        return ret;
+    }
+
+    int32_t EventManager::pushSinglecastEvent(uint32_t evid, EventParam *param,
+        TINSTANCE receiver, TINSTANCE sender)
+    {
+        int32_t ret = T3D_ERR_OK;
+
+        if (mIsDispatchPaused)
+        {
+            EventItem item(evid, param, receiver, sender);
+            mEventCache.push_back(item);
+            ret = T3D_ERR_FWK_SUSPENDED;
+        }
+        else
+        {
+            EventItem item(evid, param, receiver, sender);
+            mEventQueue[mCurrentQueue].push_back(item);
+        }
+
+        return ret;
     }
 
     bool EventManager::getEventHandler(TINSTANCE instance, 
         EventHandler *&handler)
     {
-        return true;
+        if (instance == T3D_INVALID_INSTANCE)
+            return false;
+
+        bool ret = false;
+        void *obj = instance->obj;
+
+        if (instance->slot >= 0)
+        {
+            size_t idx = instance->slot;
+            if (idx < mEventHandlers.size()
+                && mEventHandlers[idx] != nullptr
+                && mEventHandlers[idx] == (EventHandler *)obj)
+            {
+                handler = (EventHandler *)obj;
+                ret = true;
+            }
+        }
+
+        return ret;
     }
 
     bool EventManager::isValidHandler(EventHandler *handler)
     {
-        return false;
+        if (nullptr == handler)
+            return false;
+
+        bool ret = false;
+        TINSTANCE instance = handler->getInstance();
+        void *obj = instance->obj;
+
+        if (instance->slot >= 0)
+        {
+            size_t idx = instance->slot;
+            if (idx < mEventHandlers.size()
+                && mEventHandlers[idx] != nullptr
+                && mEventHandlers[idx] == (EventHandler *)obj)
+            {
+                ret = true;
+            }
+        }
+
+        return ret;
     }
 
-    bool EventManager::dispatchEvent()
+    int32_t EventManager::dispatchEvent()
     {
-        return false;
+        int32_t ret = T3D_ERR_OK;
+
+        do 
+        {
+            if (mIsDispatchPaused)
+                break;
+
+            int32_t index = mCurrentQueue;
+            mCurrentQueue = (++mCurrentQueue) % MAX_EVENT_QUEUE;
+
+            if (mEventQueue[index].empty())
+                break;
+
+            while (!mEventQueue[index].empty())
+            {
+                const EventItem &item = mEventQueue[index].front();
+
+                mCurrentCallStack++;
+                if (mCurrentCallStack > mMaxCallStackLevel)
+                {
+                    ret = T3D_ERR_FWK_CALLSTACK_OVERFLOW;
+                    break;
+                }
+
+                if (ret != T3D_ERR_FWK_CALLSTACK_OVERFLOW)
+                {
+                    EventHandler *handler = nullptr;
+                    if (getEventHandler(item.mReceiver, handler))
+                    {
+                        handler->processEvent(item.mEventID, item.mEventParam,
+                            item.mSender);
+                    }
+                    mCurrentCallStack--;
+                }                
+
+                delete item.mEventParam;
+                mEventQueue[index].pop_front();
+            }
+
+        } while (0);
+
+        return ret;
     }
 
     void EventManager::pauseDispatching()
     {
-
+        mIsDispatchPaused = true;
     }
 
-    bool EventManager::resumeDispatching(bool dispatchImmdiately)
+    int32_t EventManager::resumeDispatching(bool dispatchImmdiately)
     {
-        return false;
+        int32_t ret = T3D_ERR_OK;
+
+        mIsDispatchPaused = false;
+
+        if (dispatchImmdiately)
+        {
+            // 马上派发缓存中的所有事件
+            auto itr = mEventCache.begin();
+
+            while (itr != mEventCache.end())
+            {
+                mCurrentCallStack++;
+
+                if (mCurrentCallStack > mMaxCallStackLevel)
+                {
+                    ret = T3D_ERR_FWK_CALLSTACK_OVERFLOW;
+                    break;
+                }
+
+                if (ret != T3D_ERR_FWK_CALLSTACK_OVERFLOW)
+                {
+                    EventHandler *handler = nullptr;
+
+                    if (getEventHandler(itr->mReceiver, handler))
+                    {
+                        handler->processEvent(itr->mEventID, itr->mEventParam,
+                            itr->mSender);
+                    }
+
+                    mCurrentCallStack--;
+                }
+
+                delete itr->mEventParam;
+                ++itr;
+            }
+
+            mEventCache.clear();
+        }
+        else
+        {
+            // 不马上派发，重新放回事件队列里
+            auto itr = mEventCache.begin();
+
+            while (itr != mEventCache.end())
+            {
+                const EventItem &item = *itr;
+                mEventQueue[mCurrentQueue].push_back(item);
+                ++itr;
+            }
+
+            mEventCache.clear();
+        }
+
+        return ret;
     }
 
     TINSTANCE EventManager::registerHandler(EventHandler *handler)
     {
-        TINSTANCE instance = T3D_INVALID_INSTANCE;
+        bool found = false;
+        size_t slot = 0;
+        auto itr = mEventHandlers.begin();
 
-        return instance;
+        // 查找一个空闲的slot
+        while (itr != mEventHandlers.end())
+        {
+            if (nullptr == *itr)
+            {
+                mEventHandlers[slot] = handler;
+                found = true;
+                break;
+            }
+
+            ++itr;
+            ++slot;
+        }
+
+        if (!found)
+        {
+            // 没有空闲的slot，只能扩展一个
+            slot = mEventHandlers.size();
+            mEventHandlers.push_back(handler);
+        }
+
+        return new _TINSTANCE(handler, slot);
     }
 
-    bool EventManager::unregisterHandler(TINSTANCE instance)
+    int32_t EventManager::unregisterHandler(TINSTANCE instance)
     {
-        return false;
+        int32_t ret = T3D_ERR_FWK_INVALID_INSTANCE;
+
+        do 
+        {
+            if (T3D_INVALID_INSTANCE == instance)
+            {
+                ret = T3D_ERR_FWK_INVALID_INSTANCE;
+                break;
+            }
+
+            int32_t idx = instance->slot;
+            void *obj = instance->obj;
+            if (mEventHandlers[idx] == (EventHandler *)obj)
+            {
+                mEventHandlers[idx] = nullptr;
+                ret = T3D_ERR_OK;
+            }
+        } while (0);
+
+        return ret;
     }
 
-    bool EventManager::registerEvent(uint32_t evid, TINSTANCE instance)
+    int32_t EventManager::registerEvent(uint32_t evid, TINSTANCE instance)
     {
-        return false;
+        int32_t ret = T3D_ERR_FWK_INVALID_INSTANCE;
+
+        do 
+        {
+            if (evid >= mEventFilters.size())
+            {
+                ret = T3D_ERR_FWK_INVALID_EVID;
+                break;
+            }
+
+            if (T3D_INVALID_INSTANCE == instance)
+            {
+                ret = T3D_ERR_FWK_INVALID_INSTANCE;
+                break;
+            }
+
+            EventInstSet &instSet = mEventFilters[evid];
+            std::pair<EventInstSetItr, bool> r = instSet.insert(instance);
+            if (r.second)
+            {
+                ret = T3D_ERR_OK;
+            }
+            else
+            {
+                ret = T3D_ERR_FWK_DUPLICATE_INSTANCE;
+            }
+        } while (0);
+
+        return ret;
     }
 
-    bool EventManager::unregisterEvent(uint32_t evid, TINSTANCE instance)
+    int32_t EventManager::unregisterEvent(uint32_t evid, TINSTANCE instance)
     {
-        return false;
-    }
+        int32_t ret = T3D_ERR_FWK_INVALID_INSTANCE;
 
-    bool EventManager::peekEvent(EventItem &Item, bool bRemovable /* = true */)
-    {
-        return false;
+        do 
+        {
+            if (evid >= mEventFilters.size())
+            {
+                ret = T3D_ERR_FWK_INVALID_EVID;
+                break;
+            }
+
+            if (T3D_INVALID_INSTANCE == instance)
+            {
+                ret = T3D_ERR_FWK_INVALID_INSTANCE;
+                break;
+            }
+
+            EventInstSet &instSet = mEventFilters[evid];
+            instSet.erase(instance);
+            ret = T3D_ERR_OK;
+        } while (0);
+
+        return ret;
     }
 
     void EventManager::clearEventQueue()
     {
+        int32_t i = 0;
 
+        for (i = 0; i < MAX_EVENT_QUEUE; ++i)
+        {
+            EventListItr itr = mEventQueue[i].begin();
+            while (itr != mEventQueue[i].end())
+            {
+                EventItem &item = *itr;
+                delete item.mEventParam;
+                ++itr;
+            }
+
+            mEventQueue[i].clear();
+        }
     }
 }

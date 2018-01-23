@@ -53,7 +53,7 @@ namespace Tiny3D
          * @brief 每个程序循环调用处理.
          * @return void
          */
-        void process();
+        void update();
 
         /**
          * @brief 获取操作系统适配层工厂接口对象
@@ -65,6 +65,7 @@ namespace Tiny3D
 
     private:
         IFactory        *mPlatformFactory;
+        TimerManager    *mTimerMgr;
     };
 
     #define T3D_SYSTEM              (System::getInstance())

@@ -20,12 +20,14 @@ add_definitions(-DT3D_ERR_CORE=0x5000)
 
 # Setup all cmake variables for this project.
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform/Include")
+set(TINY3D_FRAMEWORK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Framework/Include")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies")
 
 
 # Setup search header path for this project.
 include_directories(
 	"${TINY3D_PLATFORM_DIR}"
+	"${TINY3D_FRAMEWORK_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
 	"${SDL2_INCLUDE_DIR}"
@@ -61,6 +63,7 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE T3DFramework
 			LINK_PRIVATE legacy_stdio_definitions
 			LINK_PRIVATE ${SDL2_LIBRARY}
 			)
@@ -69,6 +72,7 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE T3DFramework
 			LINK_PRIVATE ${SDL2_LIBRARY}
 			)
 	endif ()
@@ -107,6 +111,7 @@ elseif (TINY3D_OS_MACOSX)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DFramework
 		LINK_PRIVATE ${SDL2_LIBRARY}
 		LINK_PRIVATE ${SDL2_OSX_FRAMEWORKS}
 		)
@@ -129,6 +134,7 @@ elseif (TINY3D_OS_ANDROID)
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DFramework
         LINK_PRIVATE ${SDL2_BINARY}
         )
 endif (TINY3D_OS_WINDOWS)

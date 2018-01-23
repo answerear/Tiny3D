@@ -24,6 +24,9 @@ add_definitions(-DT3D_ERR_PLATFORM=0x1000)
 include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Common"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Application"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Window"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Time"
 	"${SDL2_INCLUDE_DIR}"
 	)
 
@@ -68,6 +71,9 @@ endif (TINY3D_OS_WINDOWS)
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 set_project_files(Include\\\\Adapter ${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/ .h)
 set_project_files(Include\\\\Adapter\\\\Common ${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Common/ .h)
+set_project_files(Include\\\\Application ${CMAKE_CURRENT_SOURCE_DIR}/Include/Application/ .h)
+set_project_files(Include\\\\Window ${CMAKE_CURRENT_SOURCE_DIR}/Include/Window/ .h)
+set_project_files(Include\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Include/Time/ .h)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -104,6 +110,9 @@ endif (TINY3D_OS_DESKTOP)
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 set_project_files(Source\\\\Adapter ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/ .cpp)
 set_project_files(Source\\\\Adapter\\\\Common ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Common/ .cpp)
+set_project_files(Source\\\\Application ${CMAKE_CURRENT_SOURCE_DIR}/Source/Application/ .cpp)
+set_project_files(Source\\\\Window ${CMAKE_CURRENT_SOURCE_DIR}/Source/Window/ .cpp)
+set_project_files(Source\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Source/Time/ .cpp)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows

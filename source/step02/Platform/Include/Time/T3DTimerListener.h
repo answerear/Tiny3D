@@ -17,30 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_EVENT_INSTANCE_H__
-#define __T3D_EVENT_INSTANCE_H__
+#ifndef __T3D_TIMER_LISTENER_H__
+#define __T3D_TIMER_LISTENER_H__
 
 
-#include "T3DEventPrerequisites.h"
+#include "T3DPlatformPrerequisites.h"
+#include "T3DType.h"
+#include "T3DMacro.h"
 
 namespace Tiny3D
 {
-    struct _TINSTANCE
+    class T3D_PLATFORM_API ITimerListener
     {
-        _TINSTANCE()
-            : obj(nullptr)
-            , slot(0)
-        {}
+        T3D_DECLARE_INTERFACE(ITimerListener);
 
-        _TINSTANCE(void* o, int32_t i)
-            : obj(o)
-            , slot(i)
-        {}
-
-        void    *obj;
-        int32_t slot;
+    public:
+        virtual void onTimer(uint32_t timerID, uint64_t dt) = 0;
     };
 }
 
 
-#endif  /*__T3D_EVENT_INSTANCE_H__*/
+#endif  /*__T3D_TIMER_LISTENER_H__*/

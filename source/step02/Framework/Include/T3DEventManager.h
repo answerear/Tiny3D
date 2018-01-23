@@ -26,7 +26,6 @@
 
 namespace Tiny3D
 {
-    const int32_t T3D_MAX_EVENT_QUEUE = 2;	/// 最大事件队列数
 
     class T3D_FRAMEWORK_API EventManager : public Singleton<EventManager>
     {
@@ -56,8 +55,16 @@ namespace Tiny3D
         static const TINSTANCE BROADCAST_INSTANCE;  /// 全局广播实例句柄
         static const TINSTANCE MULTICAST_INSTANCE;  /// 面向事件多播实例句柄
 
+        enum
+        {
+            MAX_EVENT_QUEUE = 2,            /// 最大事件队列数
+            MAX_HANDLING_DURATION = 30,     /// 默认最大处理时间，30ms
+            MAX_CALLSTACK_LEVEL = 10,       /// 最大事件嵌套调用栈层级，10层
+        };
+
         /**
-         * @brief 因为时间过长被中断后续未处理事件的处理方式
+         * @brief 因为时间过长被中断后续未处理事件的处理方式，对于栈太深的情况，
+         *      直接丢弃了
          */
         enum HandleEventMode
         {
@@ -70,13 +77,15 @@ namespace Tiny3D
          * @param [in] maxEvents : 所有事件的数量
          * @param [in] maxHandlingDuration : 处理事件的最长事件
          * @param [in] maxCallStacks : 能嵌套处理事件调用栈的最大深度
-         * @param [in] flags : 处理标记
+         * @param [in] mode : 碰到事件无法处理完成时的处理方式，默认丢弃全部
          * @see
          *  - getMaxHandlingDuration()
          *  - getMaxCallStackLevel()
          */
-        EventManager(uint32_t maxEvents, int32_t maxHandlingDuration,
-            int32_t maxCallStacks, HandleEventMode mode);
+        EventManager(uint32_t maxEvents, 
+            int32_t maxHandlingDuration = MAX_HANDLING_DURATION,
+            int32_t maxCallStacks = MAX_CALLSTACK_LEVEL, 
+            HandleEventMode mode = HEM_DISCARD);
 
         /** Destructor */
         virtual ~EventManager();
@@ -88,6 +97,7 @@ namespace Tiny3D
          * @param [in] receiver : 事件接收者实例。
          * @param [in] sender : 事件发送者实例
          * @return 
+         *  - T3D_ERR_OK : 调用成功返回
          *  - T3D_ERR_FWK_INVALID_RECVER : 无效的接收者实例句柄。
          *  - T3D_ERR_FWK_INVALID_SENDER : 无效的发送者实例句柄。
          *  - T3D_ERR_FWK_HANDLING_TIMEOVER : 当receiver是T3D_BROADCAST_INSTANCE
@@ -96,6 +106,7 @@ namespace Tiny3D
          *  - T3D_ERR_FWK_CALLSTACK_OVERFLOW : 当嵌套调用sendEvent多次后，导致
          *      调用栈超过通过getMaxCallStackLevel()获得的最大层次后则返回该值。
          *  - T3D_ERR_FWK_INVALID_EVID : 错误事件ID
+         *  - 其他错误是事件处理函数内部返回的，需要具体事件来解析
          * @see
          *  - getMaxCallStackLevel()
          *  - getMaxHandlingDuration()
@@ -109,7 +120,9 @@ namespace Tiny3D
          * @param [in] param : 事件附加参数
          * @param [in] receiver : 事件接收者实例
          * @param [in] sender : 事件发送者实例
-         * @return 只要事件ID没错误，都返回T3D_OK。
+         * @return 
+         *  - T3D_ERR_OK : 只要事件ID没错误，都返回该值
+         *  - T3D_ERR_INVALID_EVID : 无效事件ID
          * @note 需要注意一点就是调用返回T3D_OK也不代表接收者一定能接收到。
          *      因为这个接口是把所有事件存放到事件队列，然后在dispatchEvent()
          *      调用的地方统一派发，但是如果事件队列事件太多导致处理时间太长，
@@ -142,16 +155,15 @@ namespace Tiny3D
 
         /**
          * @brief 派发事件，用于派发事件队列里面的事件
-         * @return 当事件全部派发完，则返回true，如果事件处理事件过长，超过
-         *  getMaxHandlingDuration()返回值时，则会中断处理返回false。 剩余没有
-         *  来得及处理的事件会在下一次调用dispatchEvent时候优先派发。 同样的，
-         *  如果调用栈太深，也会中断处理返回false。 调用栈层次可以通过
-         *  getMaxCallStackLevel()获得。
+         * @return 
+         *  - T3D_ERR_OK : 当事件全部派发完或者没有事件要派发时返回本值
+         *  - T3D_ERR_FWK_HANDLING_TIMEOVER : 事件处理时间过长返回本值
+         *  - T3D_ERR_FWK_CALLSTACK_OVERFLOW : 事件嵌套栈溢出返回本值
          * @see
          *  - getMaxHandlingDuration()
          *  - getMaxCallStackLevel()
          */
-        bool dispatchEvent();
+        int32_t dispatchEvent();
 
         /**
          * @brief 暂停事件派发
@@ -165,6 +177,14 @@ namespace Tiny3D
         /**
          * @brief 继续事件派发
          * @param [in] dispatchImmdiately : 是否马上派发队列里所有事件
+         * @return
+         *  - T3D_ERR_OK : 当dispatchImmdiately是false的时候，一定返回本值；当
+         *              dispatchImmdiately是true的时候，只有所有堆积的事件都派发
+         *              完了，才返回本值
+         *  - T3D_ERR_FWK_HANDLING_TIMEOVER : 当dispatchImmdiately是true的时候，
+         *              事件处理时间过长返回本值。
+         *  - T3D_ERR_FWK_CALLSTACK_OVERFLOW : 当dispatchImmdiately是true的时候，
+         *              事件嵌套栈溢出返回本值。
          * @note 当dispatchImmdiately为true的时候，会马上派发事件，但是如果事件
          *  处理事件太长，超过了getMaxHandlingDuration()返回值，则会直接中断派发
          *  并且返回false。 同样的，如果嵌套事件处理调用栈超过了
@@ -174,7 +194,7 @@ namespace Tiny3D
          *  - getMaxHandlingDuration()
          *  - getMaxCallStackLevel()
          */
-        bool resumeDispatching(bool dispatchImmdiately);
+        int32_t resumeDispatching(bool dispatchImmdiately);
 
         /**
          * @brief 事件派发是否被暂停
@@ -210,41 +230,70 @@ namespace Tiny3D
         /**
          * @brief 反注册事件处理对象
          * @param [in] instance : 实例句柄
-         * @return 实例句柄有效合法时并调用成功返回true，否则返回false。
+         * @return
+         *  - T3D_ERR_OK : 反注册成功返回本值
+         *  - T3D_ERR_FWK_INVALID_INSTANCE : 无效实例句柄
          */
-        bool unregisterHandler(TINSTANCE instance);
+        int32_t unregisterHandler(TINSTANCE instance);
 
         /**
         * @brief 注册事件
         * @note 注册事件后，可以只接收到关注的事件，不关注的事件无法接收到
         * @param [in] evid : 事件ID
         * @param [in] instance : 关注该事件ID的实例句柄
-        * @return 函数调用成功返回true，否则返回false.
+        * @return
+        *   - T3D_ERR_OK : 注册成功返回该值
+        *   - T3D_ERR_FWK_INVALID_EVID : 无效的事件ID返回该值
+        *   - T3D_ERR_FWK_DUPLICATE_INSTANCE : 该instance已经注册过了返回该值
+        *   - T3D_INVALID_INSTANCE : 无效实例句柄返回该值
         */
-        bool registerEvent(uint32_t evid, TINSTANCE instance);
+        int32_t registerEvent(uint32_t evid, TINSTANCE instance);
 
         /**
         * @brief 反注册事件
         * @note 反注册事件后，事件处理对象无法收到该事件
         * @param [in] evid : 事件ID
         * @param [in] instance : 关注该事件ID的处理对象
-        * @return 函数调用成功返回true，否则返回false.
+        * @return
+        *   - T3D_ERR_OK : 反注册成功返回该值
+        *   - T3D_ERR_FWK_INVALID_EVID : 无效的事件ID返回该值
+        *   - T3D_INVALID_INSTANCE : 无效实例句柄返回该值
         */
-        bool unregisterEvent(uint32_t evid, TINSTANCE instance);
-
-        /**
-        * @brief 获取当前待处理事件队列的第一个事件.
-        * @param [in] Item : 事件项
-        * @param [in] bRemovable : 是否移除该事件，默认为移除该事件.
-        * @return 调用成功返回true，否则返回false.
-        */
-        bool peekEvent(EventItem &Item, bool bRemovable = true);
+        int32_t unregisterEvent(uint32_t evid, TINSTANCE instance);
 
         /**
         * @brief 清除所有事件队列中的事件.
         * @return void
         */
         void clearEventQueue();
+
+    private:
+        /**
+         * @brief 广播事件
+         */
+        int32_t broadcastEvent(uint32_t evid, EventParam *param, 
+            TINSTANCE sender);
+
+        /**
+         * @brief 多播事件
+         */
+        int32_t multicastEvent(uint32_t evid, EventParam *param, 
+            TINSTANCE sender);
+
+        /**
+         * @brief 单播事件
+         */
+        int32_t singlecastEvent(uint32_t evid, EventParam *param, 
+            TINSTANCE receiver, TINSTANCE sender);
+
+        int32_t pushBroadcastEvent(uint32_t evid, EventParam *param,
+            TINSTANCE sender);
+
+        int32_t pushMulticastEvent(uint32_t evid, EventParam *param,
+            TINSTANCE sender);
+
+        int32_t pushSinglecastEvent(uint32_t evid, EventParam *param,
+            TINSTANCE receiver, TINSTANCE sender);
 
     private:
         typedef std::vector<EventHandler*>  HandlerList;
@@ -262,14 +311,16 @@ namespace Tiny3D
         typedef std::vector<EventInstSet>   EventFilterList;
         typedef EventFilterList::iterator   EventFilterListItr;
 
-        HandlerList	mEventHandlers;                     /// 事件处理对象链表
-        EventList   mEventQueue[T3D_MAX_EVENT_QUEUE];   /// 待处理事件队列
+        HandlerList	mEventHandlers;                 /// 事件处理对象链表
+        EventList   mEventQueue[MAX_EVENT_QUEUE];   /// 待处理事件队列
 
-        EventFilterList	mEventFilters;                  /// 事件过滤表
+        EventFilterList	mEventFilters;              /// 事件过滤表
 
         int32_t         mCurrentQueue;              /// 当前待处理事件队列
         uint32_t        mMaxHandlingDuration;       /// 处理事件持续最大时间
+        int64_t         mStartHandleTime;           /// 开始处理事件时间
         uint32_t        mMaxCallStackLevel;         /// 处理事件嵌套调用栈层级
+        int32_t         mCurrentCallStack;          /// 当前栈深度
 
         HandleEventMode mHandlingMode;              /// 被打断后续事件处理方式
 
