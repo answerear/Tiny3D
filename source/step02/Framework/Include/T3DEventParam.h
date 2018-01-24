@@ -31,6 +31,11 @@ namespace Tiny3D
         T3D_DECLARE_INTERFACE(EventParam);
 
     public:
+        /**
+         * @brief 克隆接口
+         * @note 所有子类都要实现以克隆一个深拷贝的子类对象出来。 主要用于异步
+         *      事件派发时候能保存一个深拷贝的副本
+         */
         virtual EventParam *clone() = 0;
     };
 }
