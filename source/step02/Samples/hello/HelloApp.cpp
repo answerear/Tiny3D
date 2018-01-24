@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 #include "HelloApp.h"
-
+#include <windows.h>
 
 HelloApp::HelloApp()
     : Application()
@@ -50,3 +50,4 @@ void HelloApp::applicationWillTerminate()
 {
 
 }
+

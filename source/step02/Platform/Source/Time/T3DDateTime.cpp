@@ -48,7 +48,7 @@ namespace Tiny3D
 
     }
 
-    uint64_t DateTime::toMSecsSinceEpoch() const
+    int64_t DateTime::toMSecsSinceEpoch() const
     {
         tm dt;
         dt.tm_year = mYear - 1900;
@@ -60,21 +60,21 @@ namespace Tiny3D
         dt.tm_isdst = 0;
 
         time_t t = mktime(&dt);
-        uint64_t time = (uint64_t)t * 1000 + mMillisecond;
+        int64_t time = (int64_t)t * 1000 + mMillisecond;
         return time;
     }
 
-    std::string DateTime::toString() const
+    String DateTime::toString() const
     {
         char text[128];
         snprintf(text, 128, "%d-%02d-%02d %02d:%02d:%02d.%03d", 
             mYear, mMonth, mDay, mHour, mMinute, mSecond, mMillisecond);
-        std::string s(text);
+        String s(text);
 
         return s;
     }
 
-    std::string DateTime::timeToString(TimeFormat eFormat) const
+    String DateTime::timeToString(TimeFormat eFormat) const
     {
         char text[128];
         switch (eFormat)
@@ -102,11 +102,11 @@ namespace Tiny3D
             break;
         }
 
-        std::string s(text);
+        String s(text);
         return s;
     }
 
-    std::string DateTime::dateToString(DateFormat eFormat) const
+    String DateTime::dateToString(DateFormat eFormat) const
     {
         char text[128];
         switch (eFormat)
@@ -130,7 +130,7 @@ namespace Tiny3D
             break;
         }
 
-        std::string s(text);
+        String s(text);
         return s;
     }
 
@@ -230,7 +230,7 @@ namespace Tiny3D
             t->tm_hour, t->tm_min, t->tm_sec, millisecond);
     }
 
-    uint64_t DateTime::currentSecsSinceEpoch()
+    int64_t DateTime::currentSecsSinceEpoch()
     {
         timeb timebuffer;
         ftime(&timebuffer);
@@ -239,7 +239,7 @@ namespace Tiny3D
         return time;
     }
 
-    uint64_t DateTime::currentMSecsSinceEpoch()
+    int64_t DateTime::currentMSecsSinceEpoch()
     {
         timeb timebuffer;
         ftime(&timebuffer);
@@ -249,7 +249,7 @@ namespace Tiny3D
         return t;
     }
 
-    DateTime DateTime::fromMSecsSinceEpoch(uint64_t msecs)
+    DateTime DateTime::fromMSecsSinceEpoch(int64_t msecs)
     {
         time_t s = msecs / 1000;
         int32_t ms = msecs % 1000;
@@ -258,7 +258,7 @@ namespace Tiny3D
             t->tm_hour, t->tm_min, t->tm_sec, ms);
     }
 
-    DateTime DateTime::fromSecsSinceEpoch(uint64_t sces)
+    DateTime DateTime::fromSecsSinceEpoch(int64_t sces)
     {
         time_t s = sces;
         tm *t = localtime(&s);

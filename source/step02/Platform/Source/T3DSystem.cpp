@@ -41,6 +41,6 @@ namespace Tiny3D
 
     void System::update()
     {
-        mTimerMgr->update();
+        mTimerMgr->pollEvents();
     }
 }

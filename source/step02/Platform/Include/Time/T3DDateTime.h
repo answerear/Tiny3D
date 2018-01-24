@@ -73,7 +73,7 @@ namespace Tiny3D
         * @brief 把QGDateTime中时间转换成从1970年1月1日开始的毫秒数.
         * @return 返回时间毫秒数.
         */
-        uint64_t toMSecsSinceEpoch() const;
+        int64_t toMSecsSinceEpoch() const;
 
         /**
         * @brief 把QGDataTime中时间转成字符串.
@@ -143,27 +143,27 @@ namespace Tiny3D
         * @brief 静态接口，获取从1970年1月1日到现在的时间秒数
         * @return 返回时间秒数
         */
-        static uint64_t currentSecsSinceEpoch();
+        static int64_t currentSecsSinceEpoch();
 
         /**
         * @brief 静态接口，获取从1970年1月1日到现在的时间毫秒数.
         * @return 返回时间毫秒数.
         */
-        static uint64_t currentMSecsSinceEpoch();
+        static int64_t currentMSecsSinceEpoch();
 
         /**
         * @brief 静态接口，把从1970年1月1日开始的毫秒数转换成QGDateTime对象.
         * @param [in] msecs : 从1970年1月1日开始的毫秒数
         * @return 返回QGDateTime对象.
         */
-        static DateTime fromMSecsSinceEpoch(uint64_t msecs);
+        static DateTime fromMSecsSinceEpoch(int64_t msecs);
 
         /**
         * @brief 静态接口，把从1970年1月1日开始的秒数转换成QGDateTime对象.
         * @param [in] msecs : 从1970年1月1日开始的秒数
         * @return 返回QGDateTime对象.
         */
-        static DateTime fromSecsSinceEpoch(uint64_t sces);
+        static DateTime fromSecsSinceEpoch(int64_t sces);
 
     public:
         /** 返回年 */

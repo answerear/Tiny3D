@@ -27,6 +27,8 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include <thread>
+#include <mutex>
 
 
 typedef signed char         char_t;
@@ -60,6 +62,12 @@ typedef std::u32string      UTF32String;
 
 typedef void*               THandle;
 
+typedef std::thread                     TThread;
+typedef std::mutex                      TMutex;
+typedef std::recursive_mutex            TRecursiveMutex;
+
+template <typename T>
+using TAutoLock = std::unique_lock<T>;
 
 
 #endif  /*__T3D_TYPE_H__*/
