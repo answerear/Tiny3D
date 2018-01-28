@@ -23,6 +23,7 @@
 #include "T3DDateTime.h"
 #include "T3DPlatformErrorDef.h"
 #include <chrono>
+#include <functional>
 
 namespace Tiny3D
 {
@@ -77,7 +78,7 @@ namespace Tiny3D
     {
         int32_t ret = T3D_ERR_OK;
 
-        do 
+        do
         {
             if (INVALID_TIMER_ID == timerID)
             {
@@ -151,6 +152,8 @@ namespace Tiny3D
             // 挂起10ms
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
+
+        int a = 0;
     }
 
     int32_t TimerManager::pollEvents()

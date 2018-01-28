@@ -43,7 +43,10 @@ bool HelloApp::applicationDidFinishLaunching()
     Tiny3D::DateTime time = Tiny3D::DateTime::currentDateTime();
     printf("%s_%s\n", time.dateToString().c_str(), time.timeToString().c_str());
     Tiny3D::DateTime timeUTC = Tiny3D::DateTime::currentDateTimeUTC();
-    printf("UTC %s_%s", timeUTC.dateToString().c_str(), timeUTC.timeToString().c_str());
+    printf("UTC %s_%s\n", timeUTC.dateToString().c_str(), timeUTC.timeToString().c_str());
+	
+	mTimerID1 = Tiny3D::T3D_TIMER_MGR.startTimer(2000, true, this);
+	mTimerID2 = Tiny3D::T3D_TIMER_MGR.startTimer(5000, false, this);
 
     return true;
 }
@@ -61,5 +64,18 @@ void HelloApp::applicationWillEnterForeground()
 void HelloApp::applicationWillTerminate()
 {
 
+}
+
+void HelloApp::onTimer(uint32_t timerID, int32_t dt)
+{
+	if (timerID == mTimerID1)
+	{
+		printf("onTimer : TimerID #1 : %u, dt : %d\n", timerID ,dt);
+	}
+	else if (timerID == mTimerID2)
+	{
+		Tiny3D::T3D_TIMER_MGR.stopTimer(mTimerID1);
+		printf("onTimer : TimerID #2 : %u, dt : %d\n", timerID ,dt);
+	}
 }
 

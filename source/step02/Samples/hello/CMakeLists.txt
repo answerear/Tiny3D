@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # This file is part of the CMake build system for Tiny3D
 #
-# The contents of this file are placed in the public domain. 
+# The contents of this file are placed in the public domain.
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
@@ -33,16 +33,17 @@ set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
 if (TINY3D_OS_WINDOWS)
 	# Setup executable project for Windows.
 	add_executable(
-		${BIN_NAME} WIN32 
+		${BIN_NAME} WIN32
 		${SOURCE_FILES}
 		)
 
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+        T3DFramework
         T3DCore
         )
-       
+
     # Setup install files and path for Windows.
 	install(TARGETS ${BIN_NAME}
 		RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug
@@ -56,9 +57,10 @@ elseif (TINY3D_OS_ANDROID)
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+        T3DFramework
         T3DCore
         )
-        
+
     # Setup all files (.so) for Android APK
     set(T3D_ANDROID_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Android/app/libs/${ANDROID_ABI}")
 
@@ -74,17 +76,18 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
         ${BIN_NAME} MACOSX_BUNDLE
         ${SOURCE_FILES}
         )
-    
+
 	if (TINY3D_OS_IOS)
 		# Setup all link libraries and frameworks for iOS.
 		target_link_libraries(
 	        ${LIB_NAME}
 	        T3DPlatform
+			T3DFramework
 	        T3DCore
 	        ${SDL2_LIBRARY}
 	        ${SDL2_OSX_FRAMEWORKS}
 	        )
-	
+
 		# Setup all properties for this iOS project.
 	    set_target_properties(${BIN_NAME}
 	        PROPERTIES
@@ -103,9 +106,10 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 		target_link_libraries(
 	        ${LIB_NAME}
 	        T3DPlatform
+	        T3DFramework
 	        T3DCore
 	        )
-	        
+
 	    # Setup all properties for this Mac OS X project.
 	    set_target_properties(${BIN_NAME}
 	        PROPERTIES
@@ -115,15 +119,15 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
 			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
 	        )
-	        		
-	    # Setup installing files for making a *.app for this project 
+
+	    # Setup installing files for making a *.app for this project
 		set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
 		set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
 		install(CODE "
 			include(BundleUtilities)
 			fixup_bundle(\"${APPS}\" \"\" \"${DIRS}\")
 			" COMPONENT Runtime)
-			
+
 		install(TARGETS ${BIN_NAME}
 			BUNDLE DESTINATION bin/debug CONFIGURATIONS Debug
 			RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug
@@ -134,16 +138,17 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 elseif (TINY3D_OS_LINUX)
 	# Setup executable project for Linux.
 	add_executable(
-		${BIN_NAME} 
+		${BIN_NAME}
 		${SOURCE_FILES}
 		)
 
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+        T3DFramework
         T3DCore
         )
-       
+
     # Setup install files and path for Windows.
 	install(TARGETS ${BIN_NAME}
 		RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug

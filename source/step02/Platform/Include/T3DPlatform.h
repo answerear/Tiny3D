@@ -30,9 +30,5 @@
 #include <Time/T3DDateTime.h>
 #include <Time/T3DTimerListener.h>
 
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
 
 #endif  /*__T3D_PLATFORM_H__*/

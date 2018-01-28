@@ -20,6 +20,7 @@
 #include "T3DOSXFactory.h"
 #include "Adapter/Common/T3DSDLApplication.h"
 #include "Adapter/Desktop/T3DSDLDesktopWindow.h"
+#include "Adapter/Unix/T3DUnixTime.h"
 
 namespace Tiny3D
 {
@@ -42,6 +43,11 @@ namespace Tiny3D
     {
         return new SDLDesktopWindow();
     }
+	
+	ITime *OSXFactory::createPlatformTime()
+	{
+		return new UnixTime();
+	}
 
     EPlatform OSXFactory::getPlatform()
     {

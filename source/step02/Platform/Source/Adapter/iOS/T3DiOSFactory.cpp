@@ -20,6 +20,7 @@
 #include "T3DiOSFactory.h"
 #include "Adapter/Common/T3DSDLApplication.h"
 #include "Adapter/Mobile/T3DSDLMobileWindow.h"
+#include "Adapter/Unix/T3DUnixTime.h"
 
 namespace Tiny3D
 {
@@ -43,6 +44,11 @@ namespace Tiny3D
         return new SDLMobileWindow();
     }
 
+	ITime *iOSFactory::createPlatformTime()
+	{
+		return new UnixTime();
+	}
+	
     EPlatform iOSFactory::getPlatform()
     {
         return E_PLATFORM_IOS;

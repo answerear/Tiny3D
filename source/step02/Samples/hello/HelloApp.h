@@ -23,8 +23,7 @@
 
 #include <Tiny3D.h>
 
-
-class HelloApp : public Tiny3D::Application
+class HelloApp : public Tiny3D::Application, public Tiny3D::ITimerListener
 {
 public:
     HelloApp();
@@ -38,6 +37,12 @@ protected:  /// from Tiny3D::Application
     virtual void applicationWillEnterForeground() override;
 
     virtual void applicationWillTerminate() override;
+	
+	virtual void onTimer(uint32_t timerID, int32_t dt) override;
+	
+protected:
+	uint32_t	mTimerID1;
+	uint32_t	mTimerID2;
 };
 
 

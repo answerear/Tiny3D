@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # This file is part of the CMake build system for Tiny3D
 #
-# The contents of this file are placed in the public domain. 
+# The contents of this file are placed in the public domain.
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ endif (TINY3D_BUILD_SHARED_LIBS)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
-	
+
 	# Setup link libraries for this project.
 	if (MSVC_VERSION GREATER_EQUAL 1900)
 		# Visual Studio version is 2015 or later.
@@ -76,7 +76,7 @@ if (TINY3D_OS_WINDOWS)
 			LINK_PRIVATE ${SDL2_LIBRARY}
 			)
 	endif ()
-	
+
 
 	install(TARGETS ${LIB_NAME}
 		RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug
@@ -84,7 +84,7 @@ if (TINY3D_OS_WINDOWS)
 		ARCHIVE DESTINATION lib/Debug CONFIGURATIONS Debug
 		)
 
-	install(DIRECTORY 
+	install(DIRECTORY
 		${CMAKE_CURRENT_SOURCE_DIR}/Include/ DESTINATION include/Core
 		FILE_PERMISSIONS GROUP_READ OWNER_READ
 		PATTERN "Android" EXCLUDE
@@ -101,13 +101,13 @@ if (TINY3D_OS_WINDOWS)
 		)
 
 	add_custom_command(TARGET ${BIN_NAME}
-		PRE_LINK 
+		PRE_LINK
 		COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
 		COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
 		)
 elseif (TINY3D_OS_MACOSX)
 	# Mac OS X
-	
+
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
@@ -120,6 +120,7 @@ elseif (TINY3D_OS_LINUX)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DFramework
 		LINK_PRIVATE ${SDL2_LIBRARY}
 		)
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
