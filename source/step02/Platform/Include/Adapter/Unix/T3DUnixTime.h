@@ -17,47 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Adapter/Android/T3DAndroidFactory.h"
-#include "Adapter/Common/T3DSDLApplication.h"
-#include "Adapter/Mobile/T3DSDLMobileWindow.h"
-#include "Adapter/Unix/T3DUnixTime.h"
+#ifndef __T3D_UNIX_TIME_H__
+#define __T3D_UNIX_TIME_H__
+
+
+#include "Adapter/T3DTimeInterface.h"
 
 
 namespace Tiny3D
 {
-    AndroidFactory::AndroidFactory()
+    class UnixTime : public ITime
     {
+    public:
+        UnixTime();
+        virtual ~UnixTime();
 
-    }
+        virtual int64_t currentSecsSinceEpoch() override;
 
-    AndroidFactory::~AndroidFactory()
-    {
-
-    }
-
-    IApplication *AndroidFactory::createPlatformApplication()
-    {
-        return new SDLApplication();
-    }
-
-    IWindow *AndroidFactory::createPlatformWindow()
-    {
-        return new SDLMobileWindow();
-    }
-
-    ITime *AndroidFactory::createPlatformTime()
-    {
-        return new UnixTime();
-    }
-
-    EPlatform AndroidFactory::getPlatform()
-    {
-        return E_PLATFORM_ANDROID;
-    }
-
-    IFactory *createPlatformFactory()
-    {
-        return new AndroidFactory();
-    }
+        virtual int64_t currentMSecsSinceEpoch() override;
+    };
 }
 
+
+#endif  /*__T3D_UNIX_TIME_H__*/

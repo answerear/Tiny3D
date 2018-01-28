@@ -19,10 +19,15 @@
 
 #include "T3DDateTime.h"
 #include <time.h>
-#include <sys/timeb.h>
+#include "Adapter/T3DTimeInterface.h"
+#include "T3DSystem.h"
+#include "Adapter/T3DFactoryInterface.h"
+// #include <sys/timeb.h>
 
 namespace Tiny3D
 {
+    ITime *DateTime::mTime = nullptr;
+
     DateTime::DateTime()
         : mYear(0)
         , mMonth(0)
@@ -208,23 +213,27 @@ namespace Tiny3D
 
     DateTime DateTime::currentDateTime()
     {
-        timeb timebuffer;
-        ftime(&timebuffer);
-        time_t time = timebuffer.time;
-        int32_t millisecond = timebuffer.millitm;
-        int32_t timezone = timebuffer.timezone * 60;
-        time = time - timezone;
-        tm *t = gmtime(&time);
+//         timeb timebuffer;
+//         ftime(&timebuffer);
+//         time_t time = timebuffer.time;
+//         int32_t millisecond = timebuffer.millitm;
+//         int32_t timezone = timebuffer.timezone * 60;
+//         time = time - timezone;
+        time_t time = getTime()->currentSecsSinceEpoch();
+        int32_t millisecond = time % 1000;
+        tm *t = localtime(&time);
         return DateTime(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, 
             t->tm_hour, t->tm_min, t->tm_sec, millisecond);
     }
 
     DateTime DateTime::currentDateTimeUTC()
     {
-        timeb timebuffer;
-        ftime(&timebuffer);
-        time_t time = timebuffer.time;
-        int32_t millisecond = timebuffer.millitm;
+//         timeb timebuffer;
+//         ftime(&timebuffer);
+//         time_t time = timebuffer.time;
+//         int32_t millisecond = timebuffer.millitm;
+        time_t time = getTime()->currentSecsSinceEpoch();
+        int32_t millisecond = time % 1000;
         tm *t = gmtime(&time);
         return DateTime(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, 
             t->tm_hour, t->tm_min, t->tm_sec, millisecond);
@@ -232,21 +241,22 @@ namespace Tiny3D
 
     int64_t DateTime::currentSecsSinceEpoch()
     {
-        timeb timebuffer;
-        ftime(&timebuffer);
-        time_t time = timebuffer.time;
-
-        return time;
+//         timeb timebuffer;
+//         ftime(&timebuffer);
+//         time_t time = timebuffer.time;
+//         return time;
+        return getTime()->currentSecsSinceEpoch();
     }
 
     int64_t DateTime::currentMSecsSinceEpoch()
     {
-        timeb timebuffer;
-        ftime(&timebuffer);
-        time_t time = timebuffer.time;
-        int32_t millisecond = timebuffer.millitm;
-        uint64_t t = (uint64_t)time * 1000 + millisecond;
-        return t;
+//         timeb timebuffer;
+//         ftime(&timebuffer);
+//         time_t time = timebuffer.time;
+//         int32_t millisecond = timebuffer.millitm;
+//         uint64_t t = (uint64_t)time * 1000 + millisecond;
+//         return t;
+        return getTime()->currentMSecsSinceEpoch();
     }
 
     DateTime DateTime::fromMSecsSinceEpoch(int64_t msecs)
@@ -264,5 +274,15 @@ namespace Tiny3D
         tm *t = localtime(&s);
         return DateTime(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, 
             t->tm_hour, t->tm_min, t->tm_sec, 0);
+    }
+
+    ITime *DateTime::getTime()
+    {
+        if (mTime == nullptr)
+        {
+            mTime = T3D_PLATFORM_FACTORY.createPlatformTime();
+        }
+
+        return mTime;
     }
 }

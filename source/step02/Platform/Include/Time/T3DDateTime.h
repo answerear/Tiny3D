@@ -27,6 +27,8 @@
 
 namespace Tiny3D
 {
+    class ITime;
+
     /**
     * @class DateTime
     * @brief 各种时间相关操作的类.
@@ -182,6 +184,8 @@ namespace Tiny3D
         int32_t Millisecond() const { return mMillisecond; }
 
     private:
+        static ITime *getTime();
+
         int32_t mYear;
         int32_t mMonth;
         int32_t mDay;
@@ -189,6 +193,8 @@ namespace Tiny3D
         int32_t mMinute;
         int32_t mSecond;
         int32_t mMillisecond;
+
+        static ITime    *mTime;
     };
 }
 

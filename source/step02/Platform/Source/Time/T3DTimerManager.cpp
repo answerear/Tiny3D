@@ -111,39 +111,42 @@ namespace Tiny3D
     {
         while (mIsRunning)
         {
-            int64_t timestamp = DateTime::currentMSecsSinceEpoch();
-
-            TAutoLock<TMutex> lockL(mTimerListMutex);
-
-            auto itr = mTimerList.begin();
-
-            while (itr != mTimerList.end())
+            if (!mTimerList.empty())
             {
-                uint32_t timerID = itr->first;
-                auto itrCur = itr++;
+                int64_t timestamp = DateTime::currentMSecsSinceEpoch();
 
-                Timer &timer = itrCur->second;
-                int32_t dt = int32_t(timestamp - timer.timestamp);
+                TAutoLock<TMutex> lockL(mTimerListMutex);
 
-                if (dt >= timer.interval)
+                auto itr = mTimerList.begin();
+
+                while (itr != mTimerList.end())
                 {
-                    timer.timestamp = timestamp;
+                    uint32_t timerID = itr->first;
+                    auto itrCur = itr++;
 
-                    // 放到事件队列里
-                    TimerEvent ev = { timerID, dt, timer.listener };
+                    Timer &timer = itrCur->second;
+                    int32_t dt = int32_t(timestamp - timer.timestamp);
 
-                    if (!timer.repeat)
+                    if (dt >= timer.interval)
                     {
-                        // 不循环的定时器，直接删掉
-                        mTimerList.erase(itrCur);
+                        timer.timestamp = timestamp;
+
+                        // 放到事件队列里
+                        TimerEvent ev = { timerID, dt, timer.listener };
+
+                        if (!timer.repeat)
+                        {
+                            // 不循环的定时器，直接删掉
+                            mTimerList.erase(itrCur);
+                        }
+
+                        TAutoLock<TRecursiveMutex> lockQ(mEventListMutex);
+                        mTimerEventQueue.push_back(ev);
                     }
-
-                    TAutoLock<TRecursiveMutex> lockQ(mEventListMutex);
-                    mTimerEventQueue.push_back(ev);
                 }
-            }
 
-            lockL.unlock();
+                lockL.unlock();
+            }
 
             // 挂起10ms
             std::this_thread::sleep_for(std::chrono::milliseconds(10));

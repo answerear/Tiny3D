@@ -17,47 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Adapter/Android/T3DAndroidFactory.h"
-#include "Adapter/Common/T3DSDLApplication.h"
-#include "Adapter/Mobile/T3DSDLMobileWindow.h"
-#include "Adapter/Unix/T3DUnixTime.h"
+#ifndef __T3D_TIME_INTERFACE_H__
+#define __T3D_TIME_INTERFACE_H__
+
+
+#include "T3DPlatformPrerequisites.h"
+#include "T3DType.h"
+#include "T3DMacro.h"
 
 
 namespace Tiny3D
 {
-    AndroidFactory::AndroidFactory()
+    class ITime
     {
+    public:
+        T3D_DECLARE_INTERFACE(ITime);
 
-    }
+        virtual int64_t currentSecsSinceEpoch() = 0;
 
-    AndroidFactory::~AndroidFactory()
-    {
-
-    }
-
-    IApplication *AndroidFactory::createPlatformApplication()
-    {
-        return new SDLApplication();
-    }
-
-    IWindow *AndroidFactory::createPlatformWindow()
-    {
-        return new SDLMobileWindow();
-    }
-
-    ITime *AndroidFactory::createPlatformTime()
-    {
-        return new UnixTime();
-    }
-
-    EPlatform AndroidFactory::getPlatform()
-    {
-        return E_PLATFORM_ANDROID;
-    }
-
-    IFactory *createPlatformFactory()
-    {
-        return new AndroidFactory();
-    }
+        virtual int64_t currentMSecsSinceEpoch() = 0;
+    };
 }
 
+
+#endif  /*__T3D_TIME_INTERFACE_H__*/

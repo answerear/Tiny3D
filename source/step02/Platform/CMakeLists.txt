@@ -136,7 +136,7 @@ elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)
 	# iOS
 	set_project_files(Source\\\\Adapter\\\\Unix ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Unix/ .cpp)
-	set_project_files("Source\\\\Adapter\\\\iOS" "${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/" .cpp)
+	set_project_files(Source\\\\Adapter\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/ .cpp)
 elseif (TINY3D_OS_ANDROID)
 	# Android
 	set_project_files(Source\\\\Adapter\\\\Unix ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Unix/ .cpp)

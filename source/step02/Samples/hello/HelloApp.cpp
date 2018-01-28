@@ -18,21 +18,33 @@
  ******************************************************************************/
 
 #include "HelloApp.h"
-#include <windows.h>
+//#include <windows.h>
 
 HelloApp::HelloApp()
     : Application()
 {
-
+//    ::AllocConsole();
+//    freopen("CONIN$", "r+t", stdin);
+//    freopen("CONOUT$", "w+t", stdout);
 }
 
 HelloApp::~HelloApp()
 {
-
+//    ::FreeConsole();
 }
 
 bool HelloApp::applicationDidFinishLaunching()
 {
+    Tiny3D::DateTime current;
+    int64_t t = current.currentMSecsSinceEpoch();
+    printf("Epoch ms : %lld\n", t);
+    t = current.currentSecsSinceEpoch();
+    printf("Epoch s : %lld\n", t);
+    Tiny3D::DateTime time = Tiny3D::DateTime::currentDateTime();
+    printf("%s_%s\n", time.dateToString().c_str(), time.timeToString().c_str());
+    Tiny3D::DateTime timeUTC = Tiny3D::DateTime::currentDateTimeUTC();
+    printf("UTC %s_%s", timeUTC.dateToString().c_str(), timeUTC.timeToString().c_str());
+
     return true;
 }
 
