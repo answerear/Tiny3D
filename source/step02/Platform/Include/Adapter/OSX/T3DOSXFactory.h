@@ -32,15 +32,47 @@ namespace Tiny3D
         OSXFactory();
         virtual ~OSXFactory();
 
-        virtual IApplication *createPlatformApplication() override;
-
-        virtual IWindow *createPlatformWindow() override;
-
+		/**
+		 * @brief 创建操作系统平台相关的应用程序对象
+		 * @return 返回平台相关的应用程序对象，需要用户调用delete释放对象
+		 */
+		virtual IApplication *createPlatformApplication() override;
+		
+		/**
+		 * @brief 创建操作系统平台相关的窗口.
+		 * @return 返回平台相关的窗口操作对象，需要用户调用delete释放对象
+		 */
+		virtual IWindow *createPlatformWindow() override;
+		
+		/**
+		 * @brief 创建操作系统平台相关的时间对象.
+		 * @return 返回平台相关的时间对象，需要用户调用delete释放对象
+		 */
 		virtual ITime *createPlatformTime() override;
 		
-        virtual EPlatform getPlatform() override;
-
-    protected:
+		/**
+		 * @brief 创建操作系统平台相关的路径搜索对象.
+		 * @return 返回平台相关的路径搜索对象，需要用户调用delete释放对象
+		 */
+		virtual IDir *createPlatformDir() override;
+		
+		/**
+		 * @brief 创建操作系统平台相关的设备信息对象.
+		 * @return 返回平台相关的设备信息对象，需要用户调用delete释放对象
+		 */
+		virtual IDeviceInfo *createPlatformDeviceInfo() override;
+		
+		/**
+		 * @brief 创建操作系统平台相关的控制台对象.
+		 * @return 返回平台相关的控制台对象，需要用户调用delete释放对象
+		 */
+		virtual IConsole *createPlatformConsole() override;
+		
+		/**
+		 * @brief 获取当前平台类型.
+		 * @return 返回当前平台类型
+		 */
+		virtual EPlatform getPlatform() override;
 
     };
 }

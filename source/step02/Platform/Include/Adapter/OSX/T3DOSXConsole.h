@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************************************/
 
-#ifndef __T3D_CONSOLE_ADAPTER_WINDOWS_H__
-#define __T3D_CONSOLE_ADAPTER_WINDOWS_H__
+#ifndef __T3D_OSX_CONSOLE_H__
+#define __T3D_OSX_CONSOLE_H__
 
 
 #include "Adapter/T3DConsoleInterface.h"
@@ -26,12 +26,12 @@
 
 namespace Tiny3D
 {
-    class Console_Windows : public ConsoleInterface
+    class OSXConsole : public IConsole
     {
-        T3D_DISABLE_COPY(Console_Windows);
+        T3D_DISABLE_COPY(OSXConsole);
 
     public:
-        Console_Windows();
+        OSXConsole();
 
     protected:
         virtual void print(const char *pText);
@@ -39,4 +39,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_CONSOLE_ADAPTER_WINDOWS_H__*/
+#endif  /*__T3D_OSX_CONSOLE_H__*/

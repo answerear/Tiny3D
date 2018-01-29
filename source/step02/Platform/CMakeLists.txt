@@ -129,6 +129,7 @@ elseif (TINY3D_OS_MACOSX)
 	# Mac OS X
 	set_project_files(Source\\\\Adapter\\\\Unix ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Unix/ .cpp)
 	set_project_files(Source\\\\Adapter\\\\OSX ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/OSX/ .cpp)
+	set_project_files(Source\\\\Adapter\\\\OSX ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/OSX/ .mm)
 	set_project_files(Source\\\\Adapter\\\\Desktop ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Desktop/ .cpp)
 	
 	#foreach(FW ${TINY3D_FRAMEWORKS})
@@ -144,6 +145,7 @@ elseif (TINY3D_OS_IOS)
 	# iOS
 	set_project_files(Source\\\\Adapter\\\\Unix ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Unix/ .cpp)
 	set_project_files(Source\\\\Adapter\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/ .cpp)
+	set_project_files(Source\\\\Adapter\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/ .mm)
 elseif (TINY3D_OS_ANDROID)
 	# Android
 	set_project_files(Source\\\\Adapter\\\\Unix ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Unix/ .cpp)

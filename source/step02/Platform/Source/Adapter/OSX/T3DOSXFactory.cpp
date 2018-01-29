@@ -21,6 +21,9 @@
 #include "Adapter/Common/T3DSDLApplication.h"
 #include "Adapter/Desktop/T3DSDLDesktopWindow.h"
 #include "Adapter/Unix/T3DUnixTime.h"
+#include "Adapter/Unix/T3DUnixDir.h"
+#include "Adapter/OSX/T3DOSXDeviceInfo.h"
+#include "Adapter/OSX/T3DOSXConsole.h"
 
 namespace Tiny3D
 {
@@ -47,6 +50,21 @@ namespace Tiny3D
 	ITime *OSXFactory::createPlatformTime()
 	{
 		return new UnixTime();
+	}
+	
+	IDir *OSXFactory::createPlatformDir()
+	{
+		return new UnixDir();
+	}
+	
+	IDeviceInfo *OSXFactory::createPlatformDeviceInfo()
+	{
+		return new OSXDeviceInfo();
+	}
+	
+	IConsole *OSXFactory::createPlatformConsole()
+	{
+		return new OSXConsole();
 	}
 
     EPlatform OSXFactory::getPlatform()
