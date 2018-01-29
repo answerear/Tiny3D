@@ -30,6 +30,9 @@ namespace Tiny3D
     class IWindow;
     class IApplication;
     class ITime;
+    class IDir;
+    class IDeviceInfo;
+    class IConsole;
 
     enum EPlatform
     {
@@ -68,6 +71,24 @@ namespace Tiny3D
          * @return 返回平台相关的时间对象，需要用户调用delete释放对象
          */
         virtual ITime *createPlatformTime() = 0;
+
+        /**
+         * @brief 创建操作系统平台相关的路径搜索对象.
+         * @return 返回平台相关的路径搜索对象，需要用户调用delete释放对象
+         */
+        virtual IDir *createPlatformDir() = 0;
+
+        /**
+         * @brief 创建操作系统平台相关的设备信息对象.
+         * @return 返回平台相关的设备信息对象，需要用户调用delete释放对象
+         */
+        virtual IDeviceInfo *createPlatformDeviceInfo() = 0;
+
+        /**
+         * @brief 创建操作系统平台相关的控制台对象.
+         * @return 返回平台相关的控制台对象，需要用户调用delete释放对象
+         */
+        virtual IConsole *createPlatformConsole() = 0;
 
         /**
          * @brief 获取当前平台类型.

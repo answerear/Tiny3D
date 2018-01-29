@@ -25,54 +25,60 @@ namespace Tiny3D
     T3D_INIT_SINGLETON(Engine);
 
     Engine::Engine()
-        : mWindow(nullptr)
+        : mEventMgr(nullptr)
+        , mLogger(nullptr)
+        , mWindow(nullptr)
         , mIsRunning(false)
-//         , mWindowCreated(true)
     {
+        mLogger = new Logger();
         mEventMgr = new EventManager(10);
     }
 
     Engine::~Engine()
     {
-//         if (mWindowCreated)
-        {
-            T3D_SAFE_DELETE(mWindow);
-        }
-
+        T3D_SAFE_DELETE(mWindow);
         T3D_SAFE_DELETE(mEventMgr);
+
+        mLogger->shutdown();
+        T3D_SAFE_DELETE(mLogger);
     }
 
-    bool Engine::startup(/*Window *window / * = nullptr * /*/)
+    int32_t Engine::startup()
     {
-        bool ret = false;
+        int32_t ret = T3D_ERR_FAIL;
 
-        Application *theApp = Application::getInstancePtr();
-        if (theApp != nullptr)
+        do 
         {
-            ret = theApp->init();
-        }
-
-        if (ret)
-        {
-//             if (window == nullptr)
+            if (mLogger != nullptr)
             {
-                mWindow = new Window();
-                if (ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, Window::WINDOW_SHOWN))
-                {
-//                     mWindowCreated = true;
-
-//                     mWindow->setWindowEventListener(this);
-                }
+                mLogger->startup(1000, "Engine", true, true);
             }
-//             else
-//             {
-//                 mWindow = window;
-//                 mWindowCreated = false;
-//                 mWindow->setWindowEventListener(this);
-//             }
-        }
 
-        mIsRunning = ret;
+            T3D_LOG_INFO("Start Tiny3D ......");
+
+            Application *theApp = Application::getInstancePtr();
+            if (theApp == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            ret = theApp->init();
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+
+            mWindow = new Window();
+            ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, Window::WINDOW_SHOWN);
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+
+            mIsRunning = true;
+            ret = T3D_ERR_OK;
+        } while (0);
 
         return ret;
     }

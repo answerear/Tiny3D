@@ -21,6 +21,9 @@
 #include "Adapter/Common/T3DSDLApplication.h"
 #include "Adapter/Desktop/T3DSDLDesktopWindow.h"
 #include "Adapter/Windows/T3DWin32Time.h"
+#include "Adapter/Windows/T3DWin32Dir.h"
+#include "Adapter/Windows/T3DWin32DeviceInfo.h"
+#include "Adapter/Windows/T3DWin32Console.h"
 
 
 namespace Tiny3D
@@ -48,6 +51,21 @@ namespace Tiny3D
     ITime *Win32Factory::createPlatformTime()
     {
         return new Win32Time();
+    }
+
+    IDir *Win32Factory::createPlatformDir()
+    {
+        return new Win32Dir();
+    }
+
+    IDeviceInfo *Win32Factory::createPlatformDeviceInfo()
+    {
+        return new Win32DeviceInfo();
+    }
+
+    IConsole *Win32Factory::createPlatformConsole()
+    {
+        return new Win32Console();
     }
 
     EPlatform Win32Factory::getPlatform()

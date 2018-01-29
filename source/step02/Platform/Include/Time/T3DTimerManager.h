@@ -24,6 +24,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DSingleton.h"
 
+
 namespace Tiny3D
 {
     class ITimerListener;
@@ -54,10 +55,12 @@ namespace Tiny3D
 
         int32_t stopTimer(uint32_t timerID);
 
-        void update();
-
     protected:
+        int32_t init();
+
         int32_t pollEvents();
+
+        void update();
 
         struct Timer
         {
@@ -97,6 +100,8 @@ namespace Tiny3D
     };
 
     #define T3D_TIMER_MGR       TimerManager::getInstance()
+
+    #define T3D_INVALID_TIMER_ID    TimerManager::INVALID_TIMER_ID
 }
 
 

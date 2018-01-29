@@ -20,6 +20,10 @@
 #include "T3DSystem.h"
 #include "Adapter/T3DFactoryInterface.h"
 #include "Time/T3DTimerManager.h"
+#include "IO/T3DDir.h"
+#include "Console/T3DConsole.h"
+#include "Device/T3DDeviceInfo.h"
+#include "T3DCommonErrorDef.h"
 
 
 namespace Tiny3D
@@ -28,15 +32,31 @@ namespace Tiny3D
 
     System::System()
         : mPlatformFactory(nullptr)
+        , mConsole(nullptr)
+        , mDeviceInfo(nullptr)
     {
         mPlatformFactory = createPlatformFactory();
+        Dir::getNativeSeparator();
+        mConsole = new Console();
+        mDeviceInfo = new DeviceInfo();
         mTimerMgr = new TimerManager();
     }
 
     System::~System()
     {
         T3D_SAFE_DELETE(mTimerMgr);
+        T3D_SAFE_DELETE(mDeviceInfo);
+        T3D_SAFE_DELETE(mConsole);
         T3D_SAFE_DELETE(mPlatformFactory);
+    }
+
+    int32_t System::init()
+    {
+        int32_t ret = T3D_ERR_OK;
+
+        ret  = mTimerMgr->init();
+
+        return ret;
     }
 
     void System::update()

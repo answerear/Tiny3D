@@ -49,7 +49,7 @@ namespace Tiny3D
          * @brief 启动引擎
          * @remarks 引擎的一切应用都要在调用本接口之后才有效。
          */
-        bool startup(/*Window *window = nullptr*/);
+        int32_t startup();
 
         /**
          * @brief 运行引擎
@@ -61,34 +61,9 @@ namespace Tiny3D
          */
         void renderOneFrame();
 
-//     protected:
-//         /**
-//         * @brief 窗口大小改变通知
-//         * @param [in] w : 新的窗口宽度
-//         * @param [in] h : 新的窗口高度
-//         * @return void
-//         */
-//         virtual void windowResized(int32_t w, int32_t h) override;
-// 
-//         /**
-//         * @brief 窗口移动通知
-//         * @param [in] x : 新的窗口位置
-//         * @param [in] y : 新的窗口位置
-//         */
-//         virtual void windowMoved(int32_t x, int32_t y) override;
-// 
-//         /**
-//         * @brief 窗口事件循环通知
-//         */
-//         virtual void windowRender() override;
-// 
-//         /**
-//         * @brief
-//         */
-//         virtual void windowClosed() override;
-
     protected:
         EventManager        *mEventMgr;             /// 事件管理器对象
+        Logger              *mLogger;               /// 日志对象
 
         Window              *mWindow;               /// 窗口
         bool                mIsRunning;             /// 引擎是否在运行中

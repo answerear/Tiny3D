@@ -16,6 +16,7 @@ endif (MSVC)
 include_directories(
 	"${TINY3D_PLATFORM_INC_DIR}"
 	"${TINY3D_FRAMEWORK_INC_DIR}"
+	"${TINY3D_LOG_INC_DIR}"
 	"${TINY3D_CORE_INC_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
@@ -40,6 +41,7 @@ if (TINY3D_OS_WINDOWS)
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+        T3DLog
         T3DFramework
         T3DCore
         )
@@ -57,6 +59,7 @@ elseif (TINY3D_OS_ANDROID)
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+        T3DLog
         T3DFramework
         T3DCore
         )
@@ -82,7 +85,8 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 		target_link_libraries(
 	        ${LIB_NAME}
 	        T3DPlatform
-			T3DFramework
+	        T3DLog
+            T3DFramework
 	        T3DCore
 	        ${SDL2_LIBRARY}
 	        ${SDL2_OSX_FRAMEWORKS}
@@ -106,6 +110,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 		target_link_libraries(
 	        ${LIB_NAME}
 	        T3DPlatform
+	        T3DLog
 	        T3DFramework
 	        T3DCore
 	        )
@@ -145,6 +150,7 @@ elseif (TINY3D_OS_LINUX)
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+        T3DLog
         T3DFramework
         T3DCore
         )

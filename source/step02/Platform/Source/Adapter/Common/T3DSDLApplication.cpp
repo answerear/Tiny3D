@@ -19,7 +19,7 @@
 
 
 #include "Adapter/Common/T3DSDLApplication.h"
-
+#include "T3DPlatformErrorDef.h"
 
 namespace Tiny3D
 {
@@ -33,23 +33,26 @@ namespace Tiny3D
 
     }
 
-    bool SDLApplication::init()
+    int32_t SDLApplication::init()
     {
-        bool ret = false;
+        int32_t ret = T3D_ERR_FAIL;
 
-        ret = (SDL_Init(0) == 0);
-
-        if (!ret)
+        do 
         {
-            const char *error = SDL_GetError();
-            int a = 0;
-        }
+            if (SDL_Init(0) != 0)
+            {
+                const char *error = SDL_GetError();
+                break;
+            }
 
-        ret = ret && (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) == 0);
-        if (!ret)
-        {
-            const char *error = SDL_GetError();
-        }
+            if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0)
+            {
+                const char *error = SDL_GetError();
+                break;
+            }
+
+            ret = T3D_ERR_OK;
+        } while (0);
 
         return ret;
     }

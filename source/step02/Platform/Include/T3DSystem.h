@@ -50,6 +50,12 @@ namespace Tiny3D
         ~System();
 
         /**
+         * @brief 初始化系统
+         * @note 没有调用初始化之前，部分功能无法使用
+         */
+        int32_t init();
+
+        /**
          * @brief 每个程序循环调用处理.
          * @return void
          */
@@ -66,6 +72,8 @@ namespace Tiny3D
     private:
         IFactory        *mPlatformFactory;
         TimerManager    *mTimerMgr;
+        Console         *mConsole;
+        DeviceInfo      *mDeviceInfo;
     };
 
     #define T3D_SYSTEM              (System::getInstance())

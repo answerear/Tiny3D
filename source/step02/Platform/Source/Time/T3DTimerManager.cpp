@@ -34,7 +34,7 @@ namespace Tiny3D
     TimerManager::TimerManager()
         : mTimerID(0)
         , mIsRunning(true)
-        , mPollThread(std::bind(&TimerManager::update, this))
+        , mPollThread()
         , mTimerListMutex()
         , mEventListMutex()
     {
@@ -104,6 +104,15 @@ namespace Tiny3D
                 }
             }
         } while (0);
+
+        return ret;
+    }
+
+    int32_t TimerManager::init()
+    {
+        int32_t ret = T3D_ERR_OK;
+
+        mPollThread = TThread(std::bind(&TimerManager::update, this));
 
         return ret;
     }

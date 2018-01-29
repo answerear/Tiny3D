@@ -29,6 +29,12 @@
 #include <Time/T3DTimerManager.h>
 #include <Time/T3DDateTime.h>
 #include <Time/T3DTimerListener.h>
+#include <IO/T3DDataStream.h>
+#include <IO/T3DFileDataStream.h>
+#include <IO/T3DMemoryDataStream.h>
+#include <IO/T3DDir.h>
+#include <Console/T3DConsole.h>
+#include <Device/T3DDeviceInfo.h>
 
 
 #endif  /*__T3D_PLATFORM_H__*/

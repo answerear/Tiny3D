@@ -35,6 +35,12 @@ namespace Tiny3D
     class TimerManager;
     class ITimerListener;
     class DateTime;
+    class Console;
+    class DeviceInfo;
+    class Dir;
+    class DataStream;
+    class FileDataStream;
+    class MemoryDataStream;
 }
  
 

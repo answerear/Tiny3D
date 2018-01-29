@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 
 
 typedef signed char         char_t;
@@ -65,6 +66,7 @@ typedef void*               THandle;
 typedef std::thread                     TThread;
 typedef std::mutex                      TMutex;
 typedef std::recursive_mutex            TRecursiveMutex;
+typedef std::condition_variable         TCondVariable;
 
 template <typename T>
 using TAutoLock = std::unique_lock<T>;

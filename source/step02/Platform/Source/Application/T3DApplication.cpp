@@ -22,7 +22,7 @@
 #include "T3DSystem.h"
 #include "Adapter/T3DFactoryInterface.h"
 #include "Adapter/T3DApplicationInterface.h"
-#include <SDL.h>
+#include "T3DPlatformErrorDef.h"
 
 
 namespace Tiny3D
@@ -41,14 +41,26 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mSystem);
     }
 
-    bool Application::init()
+    int32_t Application::init()
     {
-        bool ret = false;
+        int32_t ret = T3D_ERR_FAIL;
 
-        if (mApp != nullptr)
+        do 
         {
+            if (mApp == nullptr || mSystem == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
             ret = mApp->init();
-        }
+            if (ret != T3D_ERR_OK)
+                break;
+
+            ret = mSystem->init();
+            if (ret != T3D_ERR_OK)
+                break;
+        } while (0);
 
         return ret;
     }
