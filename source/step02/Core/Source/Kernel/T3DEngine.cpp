@@ -55,6 +55,14 @@ namespace Tiny3D
             }
 
             T3D_LOG_INFO("Start Tiny3D ......");
+            T3D_LOG_INFO("Operating System : %s", T3D_DEVICE_INFO.getOSVersion().c_str());
+            T3D_LOG_INFO("Device Version : %s", T3D_DEVICE_INFO.getDeviceVersion().c_str());
+            T3D_LOG_INFO("System Information : \n%s", T3D_DEVICE_INFO.getSystemInfo().c_str());
+            T3D_LOG_INFO("CPU Type : %s", T3D_DEVICE_INFO.getCPUType().c_str());
+            T3D_LOG_INFO("Number of Processor : %u", T3D_DEVICE_INFO.getNumberOfProcessors());
+            T3D_LOG_INFO("Memory : %uMB", T3D_DEVICE_INFO.getMemoryCapacity());
+            T3D_LOG_INFO("Mac Address : %s", T3D_DEVICE_INFO.getMacAddress().c_str());
+            T3D_LOG_INFO("Device ID : %s", T3D_DEVICE_INFO.getDeviceID().c_str());
 
             Application *theApp = Application::getInstancePtr();
             if (theApp == nullptr)
@@ -108,24 +116,4 @@ namespace Tiny3D
     {
         
     }
-
-//     void Engine::windowResized(int32_t w, int32_t h)
-//     {
-// 
-//     }
-// 
-//     void Engine::windowMoved(int32_t x, int32_t y)
-//     {
-// 
-//     }
-// 
-//     void Engine::windowRender()
-//     {
-// 
-//     }
-// 
-//     void Engine::windowClosed()
-//     {
-//         mIsRunning = false;
-//     }
 }

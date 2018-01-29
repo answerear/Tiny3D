@@ -40,17 +40,27 @@ namespace Tiny3D
         /**
          * @brief 获取软件版本号字符串
          */
-        virtual String getSoftwareVersion() const = 0;
+        virtual const String &getSoftwareVersion() const = 0;
+
+        /**
+         * @brief 设置软件版本号字符串
+         */
+        virtual void setSoftwareVersion(const char *version) = 0;
 
         /**
          * @brief 获取操作系统版本号字符串
          */
-        virtual String getOSVersion() const = 0;
+        virtual const String &getOSVersion() const = 0;
 
         /**
          * @brief 获取设备机型版本信息字符串
          */
-        virtual String getDeviceVersion() const = 0;
+        virtual const String &getDeviceVersion() const = 0;
+
+        /**
+         * @brief 获取系统详细信息字符串
+         */
+        virtual const String &getSystemInfo() const = 0;
 
         /**
          * @brief 获取屏幕宽度.
@@ -70,12 +80,12 @@ namespace Tiny3D
         /**
          * @brief 获取设备mac地址.
          */
-        virtual String getMacAddress() const = 0;
+        virtual const String &getMacAddress() const = 0;
 
         /**
          * @brief 获取CPU类型信息.
          */
-        virtual String getCPUType() const = 0;
+        virtual const String &getCPUType() const = 0;
 
         /**
          * @brief 获取CPU核数.
@@ -90,7 +100,7 @@ namespace Tiny3D
         /**
          * @brief 获取设备ID.
          */
-        virtual String getDeviceID() const = 0;
+        virtual const String &getDeviceID() const = 0;
     };
 }
 

@@ -37,62 +37,83 @@ namespace Tiny3D
         /**
          * @brief 获取平台类型
          */
-        virtual uint32_t getPlatform() const;
+        virtual uint32_t getPlatform() const override;
 
         /**
          * @brief 获取软件版本号字符串
          */
-        virtual String getSoftwareVersion() const;
+        virtual const String &getSoftwareVersion() const override;
+
+        /**
+        * @brief 设置软件版本号字符串
+        */
+        virtual void setSoftwareVersion(const char *version) override;
 
         /**
          * @brief 获取操作系统版本号字符串
          */
-        virtual String getOSVersion() const;
+        virtual const String &getOSVersion() const override;
+
+        /**
+        * @brief 获取系统详细信息字符串
+        */
+        virtual const String &getSystemInfo() const override;
 
         /**
          * @brief 获取设备机型版本信息字符串
          */
-        virtual String getDeviceVersion() const;
+        virtual const String &getDeviceVersion() const override;
 
         /**
          * @brief 获取屏幕宽度.
          */
-        virtual int32_t getScreenWidth() const;
+        virtual int32_t getScreenWidth() const override;
 
         /**
          * @brief 获取屏幕高度.
          */
-        virtual int32_t getScreenHeight() const;
+        virtual int32_t getScreenHeight() const override;
 
         /**
          * @brief 获取屏幕像素密度.
          */
-        virtual float getScreenDPI() const;
+        virtual float getScreenDPI() const override;
 
         /**
          * @brief 获取设备mac地址.
          */
-        virtual String getMacAddress() const;
+        virtual const String &getMacAddress() const override;
 
         /**
          * @brief 获取CPU类型信息.
          */
-        virtual String getCPUType() const;
+        virtual const String &getCPUType() const override;
 
         /**
          * @brief 获取CPU核数
          */
-        virtual int32_t getNumberOfProcessors() const;
+        virtual int32_t getNumberOfProcessors() const override;
 
         /**
          * @brief 获取内存信息.
          */
-        virtual uint32_t getMemoryCapacity() const;
+        virtual uint32_t getMemoryCapacity() const override;
 
         /**
          * @brief 获取设备ID.
          */
-        virtual String getDeviceID() const;
+        virtual const String &getDeviceID() const override;
+
+    private:
+        String getOSInfo() const;
+
+        String              mSWVersion;
+        mutable String      mOSVersion;
+        mutable String      mHWVersion;
+        mutable String      mSystemInfo;
+        mutable String      mCPUType;
+        mutable String      mMacAddress;
+        mutable uint32_t    mNumberOfProcessor;
     };
 }
 

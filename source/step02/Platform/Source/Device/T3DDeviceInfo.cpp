@@ -73,30 +73,30 @@ namespace Tiny3D
             switch (mDeviceInfo->getPlatform())
             {
             case PLATFORM_WINDOWS:
-            {
-                strPlatform = Windows;
-            }
-            break;
+                {
+                    strPlatform = Windows;
+                }
+                break;
             case PLATFORM_MACOSX:
-            {
-                strPlatform = MacOSX;
-            }
-            break;
+                {
+                    strPlatform = MacOSX;
+                }
+                break;
             case PLATFORM_LINUX:
-            {
-                strPlatform = Linux;
-            }
-            break;
+                {
+                    strPlatform = Linux;
+                }
+                break;
             case PLATFORM_IOS:
-            {
-                strPlatform = iOS;
-            }
-            break;
+                {
+                    strPlatform = iOS;
+                }
+                break;
             case PLATFORM_ANDROID:
-            {
-                strPlatform = Android;
-            }
-            break;
+                {
+                    strPlatform = Android;
+                }
+                break;
             }
         }
 
@@ -110,6 +110,14 @@ namespace Tiny3D
             return mDeviceInfo->getSoftwareVersion();
         }
         return "";
+    }
+
+    void DeviceInfo::setSoftwareVersion(const char *version)
+    {
+        if (mDeviceInfo != nullptr)
+        {
+            mDeviceInfo->setSoftwareVersion(version);
+        }
     }
 
     String DeviceInfo::getOSVersion() const
@@ -126,6 +134,15 @@ namespace Tiny3D
         if (mDeviceInfo != nullptr)
         {
             return mDeviceInfo->getDeviceVersion();
+        }
+        return "";
+    }
+
+    String DeviceInfo::getSystemInfo() const
+    {
+        if (mDeviceInfo != nullptr)
+        {
+            return mDeviceInfo->getSystemInfo();
         }
         return "";
     }

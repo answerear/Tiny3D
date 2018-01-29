@@ -68,6 +68,11 @@ namespace Tiny3D
         String getSoftwareVersion() const;
 
         /**
+         * @brief 设置软件版本号字符串
+         */
+        void setSoftwareVersion(const char *version);
+
+        /**
          * @brief 获取操作系统版本号字符串
          */
         String getOSVersion() const;
@@ -76,6 +81,11 @@ namespace Tiny3D
          * @brief 获取设备机型版本信息字符串
          */
         String getDeviceVersion() const;
+
+        /**
+         * @brief 获取系统详细信息
+         */
+        String getSystemInfo() const;
 
         /**
          * @brief 获取屏幕宽度.
