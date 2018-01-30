@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -86,12 +86,12 @@ namespace Tiny3D
         /**
          * @brief 获取CPU核数
          */
-        virtual int32_t getNumberOfProcessors() const;
+        virtual int32_t getNumberOfProcessors() const override;
 
         /**
          * @brief 获取内存信息.
          */
-        virtual uint32_t getMemoryCapacity() const;
+        virtual uint32_t getMemoryCapacity() const override;
 
         /**
          * @brief 获取设备ID.
@@ -99,9 +99,15 @@ namespace Tiny3D
         virtual const String &getDeviceID() const override;
 		
 	private:
+        String getCPUArchitecture() const;
+        
 		mutable	String	    mOSVersion;
+        mutable String      mSWVersion;
         mutable String      mHWVersion;
         mutable String      mCPUType;
+        mutable String      mSystemInfo;
+        mutable String      mMacAddress;
+        mutable String      mDeviceID;
 		mutable int32_t	    mNumberOfProcessor;
 		mutable uint32_t	mMemoryCapacity;
     };
