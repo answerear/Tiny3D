@@ -1,4 +1,4 @@
-﻿/***************************************************************************************************
+/***************************************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************************************/
 
-#ifndef __T3D_CONSOLE_ADAPTER_WINDOWS_H__
-#define __T3D_CONSOLE_ADAPTER_WINDOWS_H__
+#ifndef __T3D_IOS_CONSOLE_H__
+#define __T3D_IOS_CONSOLE_H__
 
 
 #include "Adapter/T3DConsoleInterface.h"
@@ -26,12 +26,12 @@
 
 namespace Tiny3D
 {
-    class Console_Windows : public ConsoleInterface
+    class iOSConsole : public IConsole
     {
-        T3D_DISABLE_COPY(Console_Windows);
+        T3D_DISABLE_COPY(iOSConsole);
 
     public:
-        Console_Windows();
+        iOSConsole();
 
     protected:
         virtual void print(const char *pText);
@@ -39,4 +39,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_CONSOLE_ADAPTER_WINDOWS_H__*/
+#endif  /*__T3D_IOS_CONSOLE_H__*/

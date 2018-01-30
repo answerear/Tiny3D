@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_DEVICE_INFO_WINDOWS_H__
-#define __T3D_DEVICE_INFO_WINDOWS_H__
+#ifndef __T3D_IOS_DEVICE_INFO_H__
+#define __T3D_IOS_DEVICE_INFO_H__
 
 
 #include "Adapter/T3DDeviceInfoInterface.h"
@@ -26,75 +26,90 @@
 
 namespace Tiny3D
 {
-    class DeviceInfo_Windows : public DeviceInfoInterface
+    class iOSDeviceInfo : public IDeviceInfo
     {
-        T3D_DISABLE_COPY(DeviceInfo_Windows);
+        T3D_DISABLE_COPY(iOSDeviceInfo);
 
     public:
-        DeviceInfo_Windows();
-        virtual ~DeviceInfo_Windows();
+        iOSDeviceInfo();
+        virtual ~iOSDeviceInfo();
 
         /**
          * @brief 获取平台类型
          */
-        virtual uint32_t getPlatform() const;
+        virtual uint32_t getPlatform() const override;
 
         /**
          * @brief 获取软件版本号字符串
          */
-        virtual String getSoftwareVersion() const;
+        virtual const String &getSoftwareVersion() const override;
+		
+		/**
+		 * @brief 设置软件版本号字符串
+		 */
+		virtual void setSoftwareVersion(const char *version) override;
 
         /**
          * @brief 获取操作系统版本号字符串
          */
-        virtual String getOSVersion() const;
+        virtual const String &getOSVersion() const override;
 
+		/**
+		 * @brief 获取系统详细信息字符串
+		 */
+		virtual const String &getSystemInfo() const override;
+		
         /**
          * @brief 获取设备机型版本信息字符串
          */
-        virtual String getDeviceVersion() const;
+        virtual const String &getDeviceVersion() const override;
 
         /**
          * @brief 获取屏幕宽度.
          */
-        virtual int32_t getScreenWidth() const;
+        virtual int32_t getScreenWidth() const override;
 
         /**
          * @brief 获取屏幕高度.
          */
-        virtual int32_t getScreenHeight() const;
+        virtual int32_t getScreenHeight() const override;
 
         /**
          * @brief 获取屏幕像素密度.
          */
-        virtual float getScreenDPI() const;
+        virtual float getScreenDPI() const override;
 
         /**
          * @brief 获取设备mac地址.
          */
-        virtual String getMacAddress() const;
+        virtual const String &getMacAddress() const override;
 
         /**
          * @brief 获取CPU类型信息.
          */
-        virtual String getCPUType() const;
+        virtual const String &getCPUType() const override;
 
         /**
          * @brief 获取CPU核数
          */
-        virtual int32_t getNumberOfProcessors() const;
+        virtual int32_t getNumberOfProcessors() const override;
 
         /**
          * @brief 获取内存信息.
          */
-        virtual uint32_t getMemoryCapacity() const;
+        virtual uint32_t getMemoryCapacity() const override;
 
         /**
          * @brief 获取设备ID.
          */
-        virtual String getDeviceID() const;
+        virtual const String &getDeviceID() const override;
+		
+    private:
+        mutable String  mOSVersion;
+        mutable String  mSWVersion;
+        mutable String  mHWVersion;
     };
 }
 
 
-#endif  /*__T3D_DEVICE_INFO_WINDOWS_H__*/
+#endif  /*__T3D_IOS_DEVICE_INFO_H__*/
