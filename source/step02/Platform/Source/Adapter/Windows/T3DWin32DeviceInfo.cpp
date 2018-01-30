@@ -28,6 +28,10 @@
 
 namespace Tiny3D
 {
+    #define __USE_MAC_FOR_DEVICE_ID__                   0
+    #define __USE_CPUID_FOR_DEVICE_ID__                 0
+    #define __USE_MAINBOARD_UUID_FOR_DEVICE_ID__        1
+
     Win32DeviceInfo::Win32DeviceInfo()
         : mSWVersion()
         , mOSVersion()
@@ -51,6 +55,46 @@ namespace Tiny3D
 
     const String &Win32DeviceInfo::getSoftwareVersion() const
     {
+        if (mSWVersion.empty())
+        {
+            do 
+            {
+                char strfile[MAX_PATH];
+                //这里取得自己的文件名
+                GetModuleFileName(NULL, strfile, sizeof(strfile));
+
+                DWORD dwVersize = 0;
+                DWORD dwHandle = 0;
+
+                dwVersize = GetFileVersionInfoSize(strfile, &dwHandle);
+                if (dwVersize == 0)
+                {
+                    break;
+                }
+
+                char szVerBuf[8192] = { 0 };
+                if (GetFileVersionInfo(strfile, 0, dwVersize, szVerBuf))
+                {
+                    VS_FIXEDFILEINFO* pInfo;
+                    UINT nInfoLen;
+
+                    if (VerQueryValue(szVerBuf, "\\", 
+                        (LPVOID*)&pInfo, &nInfoLen))
+                    {
+                        int nHMS = HIWORD(pInfo->dwFileVersionMS);
+                        int nLMS = LOWORD(pInfo->dwFileVersionMS);
+                        int nHLS = HIWORD(pInfo->dwFileVersionLS);
+                        int nLLS = LOWORD(pInfo->dwFileVersionLS);
+
+                        char verBuf[256];
+                        memset(verBuf, 0, 256);
+                        snprintf(verBuf, 199, "%d.%d.%d", nHMS, nLMS, nHLS);
+                        mSWVersion = verBuf;
+                    }
+                }
+            } while (0);
+        }
+
         return mSWVersion;
     }
 
@@ -392,9 +436,7 @@ namespace Tiny3D
             }
             // CPU Type
             ss << "CPU Type : " << getCPUType() << "\n";
-            // CPU Level
-            ss << "CPU Level : " << info.wProcessorLevel << "\n";
-            // CPU Revision
+            // OS Revision
             ss << "OS Revision : " << getDeviceVersion() << "\n";
             // Number of CPU Processor
             ss << "Number of CPU Processor : " << info.dwNumberOfProcessors << "\n";
@@ -575,6 +617,149 @@ namespace Tiny3D
 
     const String &Win32DeviceInfo::getDeviceID() const
     {
-        return getMacAddress();
+        if (mDeviceID.empty())
+        {
+#if __USE_MAC_FOR_DEVICE_ID__
+            mDeviceID = getMacAddress();
+#elif __USE_CPUID_FOR_DEVICE_ID__
+            mDeviceID = getCPUID();
+#elif __USE_MAINBOARD_UUID_FOR_DEVICE_ID__
+            mDeviceID = getMainboardUUID();
+#endif
+        }
+
+        return mDeviceID;
+    }
+
+    String Win32DeviceInfo::getCPUID() const
+    {
+        unsigned long s1 = 0;
+        unsigned long s2 = 0;
+        unsigned long s3 = 0;
+        unsigned long s4 = 0;
+        __asm
+        {
+            mov eax, 00h
+            xor edx, edx
+            cpuid
+            mov s1, edx
+            mov s2, eax
+        }
+        __asm
+        {
+            mov eax, 01h
+            xor ecx, ecx
+            xor edx, edx
+            cpuid
+            mov s3, edx
+            mov s4, ecx
+        }
+
+        char buf[100];
+        sprintf(buf, "%08X%08X%08X%08X", s1, s2, s3, s4);
+        return buf;
+    }
+
+    String Win32DeviceInfo::getMainboardUUID() const
+    {
+        char lpszBaseBoard[128] = { 0 };
+        BOOL   bret = FALSE;
+        HANDLE hReadPipe = NULL; //读取管道
+        HANDLE hWritePipe = NULL; //写入管道
+        PROCESS_INFORMATION pi;   //进程信息
+
+        do
+        {
+            const long MAX_COMMAND_SIZE = 10000; // 命令行输出缓冲大小	
+            char szFetCmd[] = "wmic csproduct get UUID"; // 获取主板序列号命令行	
+            const String strEnSearch = "UUID"; // 主板序列号的前导信息
+
+
+            STARTUPINFO			si;	  //控制命令行窗口信息
+            SECURITY_ATTRIBUTES sa;   //安全属性
+
+            char			szBuffer[MAX_COMMAND_SIZE + 1] = { 0 }; // 放置命令行结果的输出缓冲区
+            String			strBuffer;
+            unsigned long	count = 0;
+            long			ipos = 0;
+
+            memset(&pi, 0, sizeof(pi));
+            memset(&si, 0, sizeof(si));
+            memset(&sa, 0, sizeof(sa));
+
+            pi.hProcess = NULL;
+            pi.hThread = NULL;
+            si.cb = sizeof(STARTUPINFO);
+            sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+            sa.lpSecurityDescriptor = NULL;
+            sa.bInheritHandle = TRUE;
+
+            //1.0 创建管道
+            bret = CreatePipe(&hReadPipe, &hWritePipe, &sa, 0);
+            if (!bret)
+            {
+                break;
+            }
+
+            //2.0 设置命令行窗口的信息为指定的读写管道
+            GetStartupInfo(&si);
+            si.hStdError = hWritePipe;
+            si.hStdOutput = hWritePipe;
+            si.wShowWindow = SW_HIDE; //隐藏命令行窗口
+            si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+
+            //3.0 创建获取命令行的进程
+            bret = CreateProcess(NULL, szFetCmd, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi);
+            if (!bret)
+            {
+                break;
+            }
+
+            //4.0 读取返回的数据
+            WaitForSingleObject(pi.hProcess, 500/*INFINITE*/);
+            bret = ReadFile(hReadPipe, szBuffer, MAX_COMMAND_SIZE, &count, 0);
+            if (!bret)
+            {
+                break;
+            }
+
+            //5.0 查找主板序列号
+            bret = FALSE;
+            strBuffer = szBuffer;
+            ipos = strBuffer.find(strEnSearch);
+
+            if (ipos < 0) // 没有找到
+            {
+                break;
+            }
+            else
+            {
+                strBuffer = strBuffer.substr(ipos + strEnSearch.length());
+            }
+
+            memset(szBuffer, 0x00, sizeof(szBuffer));
+            strcpy_s(szBuffer, strBuffer.c_str());
+
+            //去掉中间的空格 \r \n
+            int j = 0;
+            for (int i = 0; i < strlen(szBuffer); i++)
+            {
+                if (szBuffer[i] != ' ' && szBuffer[i] != '\n' && szBuffer[i] != '\r')
+                {
+                    lpszBaseBoard[j] = szBuffer[i];
+                    j++;
+                }
+            }
+
+            bret = TRUE;
+        } while (0);
+
+        //关闭所有的句柄
+        CloseHandle(hWritePipe);
+        CloseHandle(hReadPipe);
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        
+        return lpszBaseBoard;
     }
 }

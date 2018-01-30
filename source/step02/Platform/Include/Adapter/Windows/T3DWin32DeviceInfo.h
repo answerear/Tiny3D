@@ -107,12 +107,17 @@ namespace Tiny3D
     private:
         String getOSInfo() const;
 
-        String              mSWVersion;
+        String getMainboardUUID() const;
+
+        String getCPUID() const;
+
+        mutable String      mSWVersion;
         mutable String      mOSVersion;
         mutable String      mHWVersion;
         mutable String      mSystemInfo;
         mutable String      mCPUType;
         mutable String      mMacAddress;
+        mutable String      mDeviceID;
         mutable uint32_t    mNumberOfProcessor;
     };
 }
