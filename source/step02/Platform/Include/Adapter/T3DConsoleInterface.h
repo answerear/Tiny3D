@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -37,8 +37,8 @@ namespace Tiny3D
 
     public:
         /**
-         * @brief Êä³öÎÄ±¾µ½¿ØÖÆÌ¨.
-         * @param [in] pText : ÒÔ'\0'½áÎ²µÄ×Ö·û´®ÎÄ±¾
+         * @brief è¾“å‡ºæ–‡æœ¬åˆ°æ§åˆ¶å°.
+         * @param [in] pText : ä»¥'\0'ç»“å°¾çš„å­—ç¬¦ä¸²æ–‡æœ¬
          */
         virtual void print(const char *pText) = 0;
     };

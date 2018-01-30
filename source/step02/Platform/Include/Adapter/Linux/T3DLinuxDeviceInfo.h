@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -35,62 +35,62 @@ namespace Tiny3D
         virtual ~DeviceInfo_Windows();
 
         /**
-         * @brief »ñÈ¡Æ½Ì¨ÀàĞÍ
+         * @brief è·å–å¹³å°ç±»å‹
          */
         virtual uint32_t getPlatform() const;
 
         /**
-         * @brief »ñÈ¡Èí¼ş°æ±¾ºÅ×Ö·û´®
+         * @brief è·å–è½¯ä»¶ç‰ˆæœ¬å·å­—ç¬¦ä¸²
          */
         virtual String getSoftwareVersion() const;
 
         /**
-         * @brief »ñÈ¡²Ù×÷ÏµÍ³°æ±¾ºÅ×Ö·û´®
+         * @brief è·å–æ“ä½œç³»ç»Ÿç‰ˆæœ¬å·å­—ç¬¦ä¸²
          */
         virtual String getOSVersion() const;
 
         /**
-         * @brief »ñÈ¡Éè±¸»úĞÍ°æ±¾ĞÅÏ¢×Ö·û´®
+         * @brief è·å–è®¾å¤‡æœºå‹ç‰ˆæœ¬ä¿¡æ¯å­—ç¬¦ä¸²
          */
         virtual String getDeviceVersion() const;
 
         /**
-         * @brief »ñÈ¡ÆÁÄ»¿í¶È.
+         * @brief è·å–å±å¹•å®½åº¦.
          */
         virtual int32_t getScreenWidth() const;
 
         /**
-         * @brief »ñÈ¡ÆÁÄ»¸ß¶È.
+         * @brief è·å–å±å¹•é«˜åº¦.
          */
         virtual int32_t getScreenHeight() const;
 
         /**
-         * @brief »ñÈ¡ÆÁÄ»ÏñËØÃÜ¶È.
+         * @brief è·å–å±å¹•åƒç´ å¯†åº¦.
          */
         virtual float getScreenDPI() const;
 
         /**
-         * @brief »ñÈ¡Éè±¸macµØÖ·.
+         * @brief è·å–è®¾å¤‡macåœ°å€.
          */
         virtual String getMacAddress() const;
 
         /**
-         * @brief »ñÈ¡CPUÀàĞÍĞÅÏ¢.
+         * @brief è·å–CPUç±»å‹ä¿¡æ¯.
          */
         virtual String getCPUType() const;
 
         /**
-         * @brief »ñÈ¡CPUºËÊı
+         * @brief è·å–CPUæ ¸æ•°
          */
         virtual int32_t getNumberOfProcessors() const;
 
         /**
-         * @brief »ñÈ¡ÄÚ´æĞÅÏ¢.
+         * @brief è·å–å†…å­˜ä¿¡æ¯.
          */
         virtual uint32_t getMemoryCapacity() const;
 
         /**
-         * @brief »ñÈ¡Éè±¸ID.
+         * @brief è·å–è®¾å¤‡ID.
          */
         virtual String getDeviceID() const;
     };

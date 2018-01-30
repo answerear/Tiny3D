@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -80,7 +80,7 @@ namespace Tiny3D
                 DWORD dwSize;
                 char szName[64];
 
-                // »ñÈ¡²Ù×÷ÏµÍ³Ãû³Æ
+                // è·å–æ“ä½œç³»ç»Ÿåç§°
                 dwSize = 64;
                 lResult = RegQueryValueEx(hKey, "ProductName", NULL,
                     &dwType, (BYTE *)szName, &dwSize);
@@ -90,7 +90,7 @@ namespace Tiny3D
                     break;
                 }
 
-                // »ñÈ¡CSDVersion
+                // è·å–CSDVersion
                 dwSize = 64;
                 char szCSDVersion[64];
                 lResult = RegQueryValueEx(hKey, "CSDVersion", NULL,
@@ -101,7 +101,7 @@ namespace Tiny3D
                     break;
                 }
 
-                // »ñÈ¡CurrentVersion
+                // è·å–CurrentVersion
                 dwSize = 64;
                 char szVersion[64];
                 lResult = RegQueryValueEx(hKey, "CurrentVersion", NULL,
@@ -112,7 +112,7 @@ namespace Tiny3D
                     break;
                 }
 
-                // »ñÈ¡CurrentBuildNumber
+                // è·å–CurrentBuildNumber
                 dwSize = 64;
                 char szBuild[64];
                 lResult = RegQueryValueEx(hKey, "CurrentBuild", NULL,
@@ -148,7 +148,7 @@ namespace Tiny3D
 
         if (::GetVersionEx((OSVERSIONINFO *)&os))
         {
-            // ÏÂÃæ¸ù¾İ°æ±¾ĞÅÏ¢ÅĞ¶Ï²Ù×÷ÏµÍ³Ãû³Æ
+            // ä¸‹é¢æ ¹æ®ç‰ˆæœ¬ä¿¡æ¯åˆ¤æ–­æ“ä½œç³»ç»Ÿåç§°
             if (os.dwMajorVersion == 10)
             {
                 if (os.dwMinorVersion == 0)
@@ -323,7 +323,7 @@ namespace Tiny3D
 
             if (version.empty())
             {
-                // Î´Öª°æ±¾£¬Ö±½ÓÊä³ö°æ±¾ºÅ
+                // æœªçŸ¥ç‰ˆæœ¬ï¼Œç›´æ¥è¾“å‡ºç‰ˆæœ¬å·
                 std::stringstream ss;
                 ss << os.dwMajorVersion << "." << os.dwMinorVersion
                     << "." << os.dwBuildNumber;
@@ -438,7 +438,7 @@ namespace Tiny3D
                     break;
                 }
 
-                //   ·ÖÅäÍø¿¨ĞÅÏ¢ÄÚ´æ  
+                //   åˆ†é…ç½‘å¡ä¿¡æ¯å†…å­˜  
                 pAdapterInfo = (PIP_ADAPTER_INFO)GlobalAlloc(GPTR, AdapterInfoSize);
                 if (pAdapterInfo == NULL)
                 {
@@ -454,11 +454,11 @@ namespace Tiny3D
                 std::string strMac;
                 for (PIP_ADAPTER_INFO pAdapter = pAdapterInfo; pAdapter != NULL; pAdapter = pAdapter->Next)
                 {
-                    // È·±£ÊÇÒÔÌ«Íø 
+                    // ç¡®ä¿æ˜¯ä»¥å¤ªç½‘ 
                     if (pAdapter->Type != MIB_IF_TYPE_ETHERNET)
                         continue;
 
-                    // È·±£MACµØÖ·µÄ³¤¶ÈÎª 00-00-00-00-00-00 
+                    // ç¡®ä¿MACåœ°å€çš„é•¿åº¦ä¸º 00-00-00-00-00-00 
                     if (pAdapter->AddressLength != 6)
                         continue;
 

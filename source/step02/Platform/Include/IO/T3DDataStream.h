@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -34,71 +34,71 @@ namespace Tiny3D
 
     public:
         /**
-         * @brief ´ÓÊı¾İÁ÷ÖĞ¶ÁÊı¾İµ½»º³åÇø.
-         * @param [in] pBuffer : Êı¾İ»º³åÇø
-         * @param [in] nSize : Êı¾İ»º³åÇø´óĞ¡
-         * @return ·µ»Ø¶ÁÈ¡µ½µÄÊı¾İ´óĞ¡.
+         * @brief ä»æ•°æ®æµä¸­è¯»æ•°æ®åˆ°ç¼“å†²åŒº.
+         * @param [in] pBuffer : æ•°æ®ç¼“å†²åŒº
+         * @param [in] nSize : æ•°æ®ç¼“å†²åŒºå¤§å°
+         * @return è¿”å›è¯»å–åˆ°çš„æ•°æ®å¤§å°.
          */
         virtual size_t read(void *pBuffer, size_t nSize) = 0;
 
         /**
-         * @brief Ğ´»º³åÇøÊı¾İµ½Êı¾İÁ÷ÖĞ.
-         * @param [in] pBuffer : Êı¾İ»º³åÇø
-         * @param [in] nSize : Êı¾İ»º³åÇø´óĞ¡
-         * @return ·µ»ØĞ´ÈëµÄÊı¾İ´óĞ¡.
+         * @brief å†™ç¼“å†²åŒºæ•°æ®åˆ°æ•°æ®æµä¸­.
+         * @param [in] pBuffer : æ•°æ®ç¼“å†²åŒº
+         * @param [in] nSize : æ•°æ®ç¼“å†²åŒºå¤§å°
+         * @return è¿”å›å†™å…¥çš„æ•°æ®å¤§å°.
          */
         virtual size_t write(void *pBuffer, size_t nSize) = 0;
 
         /**
-         * @brief °ÑÊı¾İÁ÷Ö¸ÕëÒÆ¶¯µ½Ö¸¶¨Î»ÖÃ.
-         * @param [in] llPos : Ö¸¶¨Æ«ÒÆÎ»ÖÃ
-         * @param [in] relative : ÊÇ·ñÏà¶ÔÎ»ÖÃ
-         * @return µ±µ÷ÓÃ³É¹¦Ê±£¬·µ»Øtrue
+         * @brief æŠŠæ•°æ®æµæŒ‡é’ˆç§»åŠ¨åˆ°æŒ‡å®šä½ç½®.
+         * @param [in] llPos : æŒ‡å®šåç§»ä½ç½®
+         * @param [in] relative : æ˜¯å¦ç›¸å¯¹ä½ç½®
+         * @return å½“è°ƒç”¨æˆåŠŸæ—¶ï¼Œè¿”å›true
          */
         virtual bool seek(long_t lPos, bool relative) = 0;
 
         /**
-         * @brief »ñÈ¡µ±Ç°Êı¾İÁ÷¶ÁĞ´Î»ÖÃ.
-         * @return ·µ»Øµ±Ç°Êı¾İÁ÷¶ÁĞ´Î»ÖÃ.
+         * @brief è·å–å½“å‰æ•°æ®æµè¯»å†™ä½ç½®.
+         * @return è¿”å›å½“å‰æ•°æ®æµè¯»å†™ä½ç½®.
          */
         virtual long_t tell() const = 0;
 
         /**
-         * @brief »ñÈ¡Êı¾İÁ÷µÄ´óĞ¡.
-         * @return ·µ»Øµ±Ç°Êı¾İÁ÷µÄ´óĞ¡
+         * @brief è·å–æ•°æ®æµçš„å¤§å°.
+         * @return è¿”å›å½“å‰æ•°æ®æµçš„å¤§å°
          */
         virtual long_t size() const = 0;
 
         /**
-         * @brief ÊÇ·ñµ½Êı¾İÁ÷Ä©Î².
-         * @return µ½Ä©Î²·µ»Øtrue£¬·ñÔò·µ»Øfalse.
+         * @brief æ˜¯å¦åˆ°æ•°æ®æµæœ«å°¾.
+         * @return åˆ°æœ«å°¾è¿”å›trueï¼Œå¦åˆ™è¿”å›false.
          */
         virtual bool eof() const = 0;
 
         /**
-         * @brief Ò»´Î°ÑÕû¸öÊı¾İÁ÷¶ÁÈ¡Íê²¢·µ»ØÕâ¿ébuffer
-         * @note ·µ»ØµÄpDataÄÚ²¿¹ÜÀí£¬Íâ²¿²»ÓÃ¸ºÔğÊÍ·Å
-         * @param [in][out] pData : ·µ»Ø¶ÁÈ¡µÄÊı¾İÊ×µØÖ·
-         * @return ·µ»Ø¶ÁÈ¡µÄ³¤¶È
+         * @brief ä¸€æ¬¡æŠŠæ•´ä¸ªæ•°æ®æµè¯»å–å®Œå¹¶è¿”å›è¿™å—buffer
+         * @note è¿”å›çš„pDataå†…éƒ¨ç®¡ç†ï¼Œå¤–éƒ¨ä¸ç”¨è´Ÿè´£é‡Šæ”¾
+         * @param [in][out] pData : è¿”å›è¯»å–çš„æ•°æ®é¦–åœ°å€
+         * @return è¿”å›è¯»å–çš„é•¿åº¦
          */
         virtual size_t read(uint8_t *&pData) = 0;
 
         /**
-         * @brief ¶ÁÈ¡Ò»ĞĞÎÄ±¾
-         * @param [in] trim : ÊÇ·ñ²Ã¼ôµôÇ°ºóµÄtab¡¢¿Õ¸ñµÈÎŞĞ§×Ö·û
-         * @return ·µ»ØÒ»ĞĞÎÄ±¾
+         * @brief è¯»å–ä¸€è¡Œæ–‡æœ¬
+         * @param [in] trim : æ˜¯å¦è£å‰ªæ‰å‰åçš„tabã€ç©ºæ ¼ç­‰æ— æ•ˆå­—ç¬¦
+         * @return è¿”å›ä¸€è¡Œæ–‡æœ¬
          */
         String readLine(bool trim = true);
 
         /**
-         * @brief Ğ´Ò»ĞĞÎÄ±¾
-         * @param [in] strLine : ÎÄ±¾´®
-         * @return ·µ»ØĞ´ÈëÎÄ±¾³¤¶È
+         * @brief å†™ä¸€è¡Œæ–‡æœ¬
+         * @param [in] strLine : æ–‡æœ¬ä¸²
+         * @return è¿”å›å†™å…¥æ–‡æœ¬é•¿åº¦
          */
         size_t writeLine(const String &strLine);
 
         /**
-         * @brief Êä³ö»ù±¾ÀàĞÍÖµµ½Êı¾İÁ÷
+         * @brief è¾“å‡ºåŸºæœ¬ç±»å‹å€¼åˆ°æ•°æ®æµ
          */
         DataStream &operator<<(bool val);
         DataStream &operator<<(int8_t val);
@@ -115,7 +115,7 @@ namespace Tiny3D
         DataStream &operator<<(const String &s);
 
         /**
-         * @brief ÊäÈëÊı¾İÁ÷µ½»ù±¾ÀàĞÍÖµ
+         * @brief è¾“å…¥æ•°æ®æµåˆ°åŸºæœ¬ç±»å‹å€¼
          */
         DataStream &operator>>(bool &val);
         DataStream &operator>>(int8_t &val);

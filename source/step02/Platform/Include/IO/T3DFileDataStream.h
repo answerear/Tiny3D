@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -30,8 +30,8 @@ namespace Tiny3D
 {
     /**
      * @class T3DFileDataStream
-     * @brief ÎÄ¼şÁ÷Àà.
-     * @note ¸ÃÀàÌá¹©ÎÄ¼şÁ÷¶ÁĞ´²Ù×÷.
+     * @brief æ–‡ä»¶æµç±».
+     * @note è¯¥ç±»æä¾›æ–‡ä»¶æµè¯»å†™æ“ä½œ.
      */
     class T3D_PLATFORM_API FileDataStream : public DataStream
     {
@@ -39,23 +39,23 @@ namespace Tiny3D
 
     public:
         /**
-         * @brief ÎÄ¼şÁ÷´ò¿ªÄ£Ê½
+         * @brief æ–‡ä»¶æµæ‰“å¼€æ¨¡å¼
          */
         enum EOpenMode
         {
-            /// ÎÄ¼şÃ»ÓĞ´ò¿ª
+            /// æ–‡ä»¶æ²¡æœ‰æ‰“å¼€
             E_MODE_NOT_OPEN = 0x00000000L,
-            /// Ö»¶Á·½Ê½´ò¿ª
+            /// åªè¯»æ–¹å¼æ‰“å¼€
             E_MODE_READ_ONLY = 0x00000001L,
-            /// Ö»Ğ´·½Ê½´ò¿ª
+            /// åªå†™æ–¹å¼æ‰“å¼€
             E_MODE_WRITE_ONLY = 0x00000002L,
-            /// ¶ÁĞ´·½Ê½´ò¿ª
+            /// è¯»å†™æ–¹å¼æ‰“å¼€
             E_MODE_READ_WRITE = E_MODE_READ_ONLY | E_MODE_WRITE_ONLY,
-            /// ×·¼Ó·½Ê½´ò¿ª
+            /// è¿½åŠ æ–¹å¼æ‰“å¼€
             E_MODE_APPEND = 0x00000004L,
-            /// ÎÄ¼şÒÑ¾­´æÔÚÊ±Çå¿ÕÔ­À´ÄÚÈİ´ò¿ª
+            /// æ–‡ä»¶å·²ç»å­˜åœ¨æ—¶æ¸…ç©ºåŸæ¥å†…å®¹æ‰“å¼€
             E_MODE_TRUNCATE = 0x00000008L,
-            /// ÎÄ±¾ÎÄ¼ş
+            /// æ–‡æœ¬æ–‡ä»¶
             E_MODE_TEXT = 0x00000010L,
         };
 
@@ -70,81 +70,81 @@ namespace Tiny3D
         virtual ~FileDataStream();
 
         /**
-         * @brief ´ò¿ªÎÄ¼şÁ÷.
-         * @param [in] szFileName : ÎÄ¼şÃû
-         * @param [in] eMode : ´ò¿ª·½Ê½
-         * @return ´ò¿ª³É¹¦·µ»Øtrue£¬·ñÔò·µ»Øfalse.
+         * @brief æ‰“å¼€æ–‡ä»¶æµ.
+         * @param [in] szFileName : æ–‡ä»¶å
+         * @param [in] eMode : æ‰“å¼€æ–¹å¼
+         * @return æ‰“å¼€æˆåŠŸè¿”å›trueï¼Œå¦åˆ™è¿”å›false.
          * @see enum EOpenMode
          */
         bool open(const char *szFileName, uint32_t unMode);
 
         /**
-         * @brief ¹Ø±ÕÎÄ¼şÁ÷.
+         * @brief å…³é—­æ–‡ä»¶æµ.
          * @return void
          */
         void close();
 
         /**
-         * @brief ¶ÁÈ¡ÎÄ¼şÁ÷.
-         * @param [in] pBuffer : Êı¾İ»º³åÇø
-         * @param [in] nSize : Êı¾İ»º³åÇø´óĞ¡
-         * @return ¶ÁÈ¡µ½µÄÊı¾İ´óĞ¡.
+         * @brief è¯»å–æ–‡ä»¶æµ.
+         * @param [in] pBuffer : æ•°æ®ç¼“å†²åŒº
+         * @param [in] nSize : æ•°æ®ç¼“å†²åŒºå¤§å°
+         * @return è¯»å–åˆ°çš„æ•°æ®å¤§å°.
          */
         virtual size_t read(void *pBuffer, size_t nSize) override;
 
         /**
-         * @brief Ğ´ÈëÎÄ¼şÁ÷.
-         * @param [in] pBuffer : ´ıĞ´ÈëÊı¾İ»º³åÇø
-         * @param [in] nSize : Êı¾İ»º³åÇø´óĞ¡
-         * @return Ğ´ÈëµÄÊı¾İ´óĞ¡
+         * @brief å†™å…¥æ–‡ä»¶æµ.
+         * @param [in] pBuffer : å¾…å†™å…¥æ•°æ®ç¼“å†²åŒº
+         * @param [in] nSize : æ•°æ®ç¼“å†²åŒºå¤§å°
+         * @return å†™å…¥çš„æ•°æ®å¤§å°
          */
         virtual size_t write(void *pBuffer, size_t nSize) override;
 
         /**
-         * @brief °ÑÎÄ¼ş»º´æÔÚÄÚ´æµÄÄÚÈİÈ«²¿Ç¿ÖÆĞ´µ½ÎÄ¼şÖĞ
+         * @brief æŠŠæ–‡ä»¶ç¼“å­˜åœ¨å†…å­˜çš„å†…å®¹å…¨éƒ¨å¼ºåˆ¶å†™åˆ°æ–‡ä»¶ä¸­
          */
         void flush();
 
         /**
-         * @brief ÉèÖÃÎÄ¼şÁ÷¶ÁĞ´Æ«ÒÆÎ»ÖÃ.
-         * @param [in] llPos : Æ«ÒÆÎ»ÖÃ
-         * @return µ±µ÷ÓÃ³É¹¦Ê±£¬·µ»Øµ±Ç°¶ÁĞ´Î»ÖÃ£¬Èô´íÎóÊ±£¬·µ»Ø-1
+         * @brief è®¾ç½®æ–‡ä»¶æµè¯»å†™åç§»ä½ç½®.
+         * @param [in] llPos : åç§»ä½ç½®
+         * @return å½“è°ƒç”¨æˆåŠŸæ—¶ï¼Œè¿”å›å½“å‰è¯»å†™ä½ç½®ï¼Œè‹¥é”™è¯¯æ—¶ï¼Œè¿”å›-1
          */
         virtual bool seek(long_t lPos, bool relative) override;
 
         /**
-         * @brief »ñÈ¡µ±Ç°ÎÄ¼şÁ÷µ±Ç°¶ÁĞ´Î»ÖÃ.
-         * @return ·µ»ØÎÄ¼şÁ÷µ±Ç°¶ÁĞ´Î»ÖÃ
+         * @brief è·å–å½“å‰æ–‡ä»¶æµå½“å‰è¯»å†™ä½ç½®.
+         * @return è¿”å›æ–‡ä»¶æµå½“å‰è¯»å†™ä½ç½®
          */
         virtual long_t tell() const override;
 
         /**
-         * @brief »ñÈ¡ÎÄ¼ş´óĞ¡.
-         * @return ·µ»ØÎÄ¼ş´óĞ¡
+         * @brief è·å–æ–‡ä»¶å¤§å°.
+         * @return è¿”å›æ–‡ä»¶å¤§å°
          */
         virtual long_t size() const override;
 
         /**
-         * @brief »ñÈ¡ÊÇ·ñµ½ÎÄ¼şÁ÷Ä©Î².
-         * @return ÒÑµ½ÎÄ¼şÁ÷Ä©Î²
+         * @brief è·å–æ˜¯å¦åˆ°æ–‡ä»¶æµæœ«å°¾.
+         * @return å·²åˆ°æ–‡ä»¶æµæœ«å°¾
          */
         virtual bool eof() const override;
 
         /**
-         * @brief Ò»´Î°ÑÕû¸öÊı¾İÁ÷¶ÁÈ¡Íê²¢·µ»ØÕâ¿ébuffer
-         * @note ·µ»ØµÄpDataÄÚ²¿¹ÜÀí£¬Íâ²¿²»ÓÃ¸ºÔğÊÍ·Å
-         * @param [in][out] pData : ·µ»Ø¶ÁÈ¡µÄÊı¾İÊ×µØÖ·
-         * @return ·µ»Ø¶ÁÈ¡µÄ³¤¶È
+         * @brief ä¸€æ¬¡æŠŠæ•´ä¸ªæ•°æ®æµè¯»å–å®Œå¹¶è¿”å›è¿™å—buffer
+         * @note è¿”å›çš„pDataå†…éƒ¨ç®¡ç†ï¼Œå¤–éƒ¨ä¸ç”¨è´Ÿè´£é‡Šæ”¾
+         * @param [in][out] pData : è¿”å›è¯»å–çš„æ•°æ®é¦–åœ°å€
+         * @return è¿”å›è¯»å–çš„é•¿åº¦
          */
         virtual size_t read(uint8_t *&pData) override;
 
         bool isOpened() const   { return m_bIsOpened; }
 
     protected:
-        FILE                *m_pFileHandle;     /**< ÎÄ¼ş²Ù×÷Ö¸Õë */
-        mutable long_t      m_lSize;            /**< ÎÄ¼ş´óĞ¡ */
-        bool                m_bIsOpened;        /**< ÎÄ¼şÊÇ·ñ´ò¿ª */
-        uint8_t             *m_pData;           /**< ¶ÁÈ¡»ØÀ´µÄÊı¾İ */
+        FILE                *m_pFileHandle;     /**< æ–‡ä»¶æ“ä½œæŒ‡é’ˆ */
+        mutable long_t      m_lSize;            /**< æ–‡ä»¶å¤§å° */
+        bool                m_bIsOpened;        /**< æ–‡ä»¶æ˜¯å¦æ‰“å¼€ */
+        uint8_t             *m_pData;           /**< è¯»å–å›æ¥çš„æ•°æ® */
     };
 }
 

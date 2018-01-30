@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -35,72 +35,72 @@ namespace Tiny3D
         virtual ~Win32DeviceInfo();
 
         /**
-         * @brief »ñÈ¡Æ½Ì¨ÀàĞÍ
+         * @brief è·å–å¹³å°ç±»å‹
          */
         virtual uint32_t getPlatform() const override;
 
         /**
-         * @brief »ñÈ¡Èí¼ş°æ±¾ºÅ×Ö·û´®
+         * @brief è·å–è½¯ä»¶ç‰ˆæœ¬å·å­—ç¬¦ä¸²
          */
         virtual const String &getSoftwareVersion() const override;
 
         /**
-        * @brief ÉèÖÃÈí¼ş°æ±¾ºÅ×Ö·û´®
+        * @brief è®¾ç½®è½¯ä»¶ç‰ˆæœ¬å·å­—ç¬¦ä¸²
         */
         virtual void setSoftwareVersion(const char *version) override;
 
         /**
-         * @brief »ñÈ¡²Ù×÷ÏµÍ³°æ±¾ºÅ×Ö·û´®
+         * @brief è·å–æ“ä½œç³»ç»Ÿç‰ˆæœ¬å·å­—ç¬¦ä¸²
          */
         virtual const String &getOSVersion() const override;
 
         /**
-        * @brief »ñÈ¡ÏµÍ³ÏêÏ¸ĞÅÏ¢×Ö·û´®
+        * @brief è·å–ç³»ç»Ÿè¯¦ç»†ä¿¡æ¯å­—ç¬¦ä¸²
         */
         virtual const String &getSystemInfo() const override;
 
         /**
-         * @brief »ñÈ¡Éè±¸»úĞÍ°æ±¾ĞÅÏ¢×Ö·û´®
+         * @brief è·å–è®¾å¤‡æœºå‹ç‰ˆæœ¬ä¿¡æ¯å­—ç¬¦ä¸²
          */
         virtual const String &getDeviceVersion() const override;
 
         /**
-         * @brief »ñÈ¡ÆÁÄ»¿í¶È.
+         * @brief è·å–å±å¹•å®½åº¦.
          */
         virtual int32_t getScreenWidth() const override;
 
         /**
-         * @brief »ñÈ¡ÆÁÄ»¸ß¶È.
+         * @brief è·å–å±å¹•é«˜åº¦.
          */
         virtual int32_t getScreenHeight() const override;
 
         /**
-         * @brief »ñÈ¡ÆÁÄ»ÏñËØÃÜ¶È.
+         * @brief è·å–å±å¹•åƒç´ å¯†åº¦.
          */
         virtual float getScreenDPI() const override;
 
         /**
-         * @brief »ñÈ¡Éè±¸macµØÖ·.
+         * @brief è·å–è®¾å¤‡macåœ°å€.
          */
         virtual const String &getMacAddress() const override;
 
         /**
-         * @brief »ñÈ¡CPUÀàĞÍĞÅÏ¢.
+         * @brief è·å–CPUç±»å‹ä¿¡æ¯.
          */
         virtual const String &getCPUType() const override;
 
         /**
-         * @brief »ñÈ¡CPUºËÊı
+         * @brief è·å–CPUæ ¸æ•°
          */
         virtual int32_t getNumberOfProcessors() const override;
 
         /**
-         * @brief »ñÈ¡ÄÚ´æĞÅÏ¢.
+         * @brief è·å–å†…å­˜ä¿¡æ¯.
          */
         virtual uint32_t getMemoryCapacity() const override;
 
         /**
-         * @brief »ñÈ¡Éè±¸ID.
+         * @brief è·å–è®¾å¤‡ID.
          */
         virtual const String &getDeviceID() const override;
 

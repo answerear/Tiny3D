@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -28,39 +28,39 @@ namespace Tiny3D
 {
     /**
      * @class T3DMemoryDataStream
-     * @brief ÄÚ´æÊı¾İÁ÷Àà.
-     * @note ¸ÃÀàÌá¹©»ùÓÚÄÚ´æÊı¾İÁ÷µÄ´æ´¢·ÃÎÊ.
+     * @brief å†…å­˜æ•°æ®æµç±».
+     * @note è¯¥ç±»æä¾›åŸºäºå†…å­˜æ•°æ®æµçš„å­˜å‚¨è®¿é—®.
      */
     class T3D_PLATFORM_API MemoryDataStream : public DataStream
     {
     public:
-        static const uint32_t MEMORY_BUFFER_SIZE;   /**< Ä¬ÈÏÄÚ´æÁ÷´óĞ¡ */
+        static const uint32_t MEMORY_BUFFER_SIZE;   /**< é»˜è®¤å†…å­˜æµå¤§å° */
 
         MemoryDataStream();
 
         /**
          * @brief Constructor for T3DMemoryDataStream.
-         * @note ¸Ã¹¹Ôìº¯ÊıÄÚ²¿²»×Ô¶¯·ÇÅä¿Õ¼ä£¬Ö±½Ó¶Ô´«ÈëµÄ»º³åÇø²Ù×÷
-         * @param [in] pBuffer : Êı¾İ»º³å
-         * @param [in] unSize : »º³å´óĞ¡
-         * @param [in] reallocate : ÊÇ·ñÄÚ²¿ÖØĞÂ·ÖÅä¿Õ¼ä£¬
-         *                          Ä¬ÈÏÓÉÀàÄÚ²¿ÖØĞÂ·ÖÅä¿Õ¼ä´æ´¢Êı¾İ
+         * @note è¯¥æ„é€ å‡½æ•°å†…éƒ¨ä¸è‡ªåŠ¨éé…ç©ºé—´ï¼Œç›´æ¥å¯¹ä¼ å…¥çš„ç¼“å†²åŒºæ“ä½œ
+         * @param [in] pBuffer : æ•°æ®ç¼“å†²
+         * @param [in] unSize : ç¼“å†²å¤§å°
+         * @param [in] reallocate : æ˜¯å¦å†…éƒ¨é‡æ–°åˆ†é…ç©ºé—´ï¼Œ
+         *                          é»˜è®¤ç”±ç±»å†…éƒ¨é‡æ–°åˆ†é…ç©ºé—´å­˜å‚¨æ•°æ®
          */
         MemoryDataStream(uchar_t *pBuffer, size_t unSize, bool reallocate = true);
 
         /**
          * @brief Constructor for T3DMemoryDataStream.
-         * @note ÄÚ²¿×Ô¶¯·ÖÅä¿Õ¼ä.
-         * @param [in] unSize : ·ÖÅä¿Õ¼ä´óĞ¡£¬
-         *                      Ä¬ÈÏÎªV_MEMORY_DATA_STREAM_BUFFER_SIZE.
+         * @note å†…éƒ¨è‡ªåŠ¨åˆ†é…ç©ºé—´.
+         * @param [in] unSize : åˆ†é…ç©ºé—´å¤§å°ï¼Œ
+         *                      é»˜è®¤ä¸ºV_MEMORY_DATA_STREAM_BUFFER_SIZE.
          * @see V_MEMORY_DATA_STREAM_BUFFER_SIZE
          */
         MemoryDataStream(size_t unSize);
 
         /**
          * @brief Constructor for T3DMemoryDataStream.
-         * @note ¿½±´¹¹Ôì.
-         * @param [in] other : Ô´¶ÔÏó
+         * @note æ‹·è´æ„é€ .
+         * @param [in] other : æºå¯¹è±¡
          */
         MemoryDataStream(const MemoryDataStream &other);
 
@@ -70,56 +70,56 @@ namespace Tiny3D
         virtual ~MemoryDataStream();
 
         /**
-         * @brief ÖØÔØ¸³Öµ²Ù×÷·û.
+         * @brief é‡è½½èµ‹å€¼æ“ä½œç¬¦.
          */
         MemoryDataStream &operator =(const MemoryDataStream &other);
 
         /**
-         * @brief ¶ÁÈ¡ÄÚ´æÊı¾İÁ÷.
-         * @param [in] pBuffer : Êı¾İ»º³åÇø
-         * @param [in] nSize : Êı¾İ»º³åÇø´óĞ¡
-         * @return ¶ÁÈ¡µ½µÄÊı¾İ´óĞ¡
+         * @brief è¯»å–å†…å­˜æ•°æ®æµ.
+         * @param [in] pBuffer : æ•°æ®ç¼“å†²åŒº
+         * @param [in] nSize : æ•°æ®ç¼“å†²åŒºå¤§å°
+         * @return è¯»å–åˆ°çš„æ•°æ®å¤§å°
          */
         virtual size_t read(void *pBuffer, size_t nSize) override;
 
         /**
-         * @brief Ğ´ÈëÄÚ´æÊı¾İÁ÷.
-         * @param [in] pBuffer : Êı¾İ»º³åÇø
-         * @param [in] nSize : Êı¾İ»º³åÇø´óĞ¡
-         * @return Ğ´ÈëÊı¾İ´óĞ¡
+         * @brief å†™å…¥å†…å­˜æ•°æ®æµ.
+         * @param [in] pBuffer : æ•°æ®ç¼“å†²åŒº
+         * @param [in] nSize : æ•°æ®ç¼“å†²åŒºå¤§å°
+         * @return å†™å…¥æ•°æ®å¤§å°
          */
         virtual size_t write(void *pBuffer, size_t nSize) override;
 
         /**
-         * @brief ÉèÖÃÄÚ´æÊı¾İÁ÷¶ÁĞ´Æ«ÒÆÎ»ÖÃ.
-         * @param [in] unPos : Æ«ÒÆÎ»ÖÃ
-         * @return µ±µ÷ÓÃ³É¹¦Ê±£¬·µ»Øtrue
+         * @brief è®¾ç½®å†…å­˜æ•°æ®æµè¯»å†™åç§»ä½ç½®.
+         * @param [in] unPos : åç§»ä½ç½®
+         * @return å½“è°ƒç”¨æˆåŠŸæ—¶ï¼Œè¿”å›true
          */
         virtual bool seek(long_t lPos, bool relative) override;
 
         /**
-         * @brief »ñÈ¡µ±Ç°ÄÚ´æÊı¾İÁ÷¶ÁĞ´Æ«ÒÆÎ»ÖÃ.
-         * @return ·µ»Ø¶ÁĞ´Æ«ÒÆÎ»ÖÃ
+         * @brief è·å–å½“å‰å†…å­˜æ•°æ®æµè¯»å†™åç§»ä½ç½®.
+         * @return è¿”å›è¯»å†™åç§»ä½ç½®
          */
         virtual long_t tell() const override;
 
         /**
-         * @brief »ñÈ¡ÄÚ´æÊı¾İÁ÷´óĞ¡.
-         * @return ·µ»ØÄÚ´æÊı¾İÁ÷´óĞ¡
+         * @brief è·å–å†…å­˜æ•°æ®æµå¤§å°.
+         * @return è¿”å›å†…å­˜æ•°æ®æµå¤§å°
          */
         virtual long_t size() const override;
 
         /**
-         * @brief ÊÇ·ñµ½´ïÄÚ´æÊı¾İÁ÷Ä©Î².
-         * @return µ½´ïÄ©Î²·µ»Øtrue£¬·ñÔò·µ»Øfalse.
+         * @brief æ˜¯å¦åˆ°è¾¾å†…å­˜æ•°æ®æµæœ«å°¾.
+         * @return åˆ°è¾¾æœ«å°¾è¿”å›trueï¼Œå¦åˆ™è¿”å›false.
          */
         virtual bool eof() const override;
 
         /**
-         * @brief Ò»´Î°ÑÕû¸öÊı¾İÁ÷¶ÁÈ¡Íê²¢·µ»ØÕâ¿ébuffer
-         * @note ·µ»ØµÄpDataÄÚ²¿¹ÜÀí£¬Íâ²¿²»ÓÃ¸ºÔğÊÍ·Å
-         * @param [in][out] pData : ·µ»Ø¶ÁÈ¡µÄÊı¾İÊ×µØÖ·
-         * @return ·µ»Ø¶ÁÈ¡µÄ³¤¶È
+         * @brief ä¸€æ¬¡æŠŠæ•´ä¸ªæ•°æ®æµè¯»å–å®Œå¹¶è¿”å›è¿™å—buffer
+         * @note è¿”å›çš„pDataå†…éƒ¨ç®¡ç†ï¼Œå¤–éƒ¨ä¸ç”¨è´Ÿè´£é‡Šæ”¾
+         * @param [in][out] pData : è¿”å›è¯»å–çš„æ•°æ®é¦–åœ°å€
+         * @return è¿”å›è¯»å–çš„é•¿åº¦
          */
         virtual size_t read(uint8_t *&pData) override;
 
@@ -131,11 +131,11 @@ namespace Tiny3D
         void copy(const MemoryDataStream &other);
 
     protected:
-        uchar_t     *m_pBuffer;     /**< Êı¾İ»º³åÇø */
-        long_t      m_lSize;        /**< Êı¾İ»º³åÇø´óĞ¡ */
-        long_t      m_lCurPos;      /**< µ±Ç°¶ÁĞ´Î»ÖÃ */
+        uchar_t     *m_pBuffer;     /**< æ•°æ®ç¼“å†²åŒº */
+        long_t      m_lSize;        /**< æ•°æ®ç¼“å†²åŒºå¤§å° */
+        long_t      m_lCurPos;      /**< å½“å‰è¯»å†™ä½ç½® */
 
-        bool        m_bCreated;     /**< ÊÇ·ñÄÚ´æ´´½¨±ê¼Ç */
+        bool        m_bCreated;     /**< æ˜¯å¦å†…å­˜åˆ›å»ºæ ‡è®° */
     };
 }
 
