@@ -24,53 +24,70 @@
 
 namespace Tiny3D
 {
-	class UnixDir : public IDir
-	{
-	public:
-		UnixDir();
-		virtual ~UnixDir();
-		
-		virtual bool findFile(const String &strPath) override;
-		
-		virtual bool findNextFile() override;
-		
-		virtual void close() override;
-		
-		virtual String getRoot() const override;
-		
-		virtual String getFileName() const override;
-		
-		virtual String getFilePath() const override;
-		
-		virtual String getFileTitle() const override;
-		
-		virtual uint32_t getLength() const override;
-		
-		virtual bool isDots() const override;
-		
-		virtual bool isDirectory() const override;
-		
-		virtual long_t getCreationTime() const override;
-		
-		virtual long_t getLastAccessTime() const override;
-		
-		virtual long_t getLastWriteTime() const override;
-		
-		virtual bool makeDir(const String &strDir) override;
-		
-		virtual bool removeDir(const String &strDir) override;
-		
-		virtual bool remove(const String &strFileName) override;
-		
-		virtual bool exists(const String &strPath) const override;
-		
-		virtual String getCachePath() const override;
-		
-		virtual String getAppPath() const override;
-		
-		virtual char getNativeSeparator() const override;
-	};
+    class UnixDir : public IDir
+    {
+    public:
+        UnixDir();
+        virtual ~UnixDir();
+        
+        virtual bool findFile(const String &strPath) override;
+        
+        virtual bool findNextFile() override;
+        
+        virtual void close() override;
+        
+        virtual String getRoot() const override;
+        
+        virtual String getFileName() const override;
+        
+        virtual String getFilePath() const override;
+        
+        virtual String getFileTitle() const override;
+        
+        virtual uint32_t getLength() const override;
+        
+        virtual bool isDots() const override;
+        
+        virtual bool isDirectory() const override;
+        
+        virtual long_t getCreationTime() const override;
+        
+        virtual long_t getLastAccessTime() const override;
+        
+        virtual long_t getLastWriteTime() const override;
+        
+        virtual bool makeDir(const String &strDir) override;
+        
+        virtual bool removeDir(const String &strDir) override;
+        
+        virtual bool remove(const String &strFileName) override;
+        
+        virtual bool exists(const String &strPath) const override;
+        
+        virtual String getCachePath() const override;
+        
+        virtual String getAppPath() const override;
+        
+        virtual char getNativeSeparator() const override;
+        
+    protected:
+        bool extractRoot(const String &strPath, String &strRoot);
+        bool extractExt(const String &strName, String &strExt);
+        bool extractFileName(const String &strPath, String &strName, 
+            String &strTitle) const;
+        
+    protected:
+        DIR     *m_pDir;
+        dirent  *m_pDirent;
+        
+        mutable bool    m_bExtractName;
+        
+        std::string m_strExt;
+        std::string m_strRoot;
+        mutable std::string m_strName;
+        mutable std::string m_strTitle;
+    };
 }
 
 
-#endif	/*__T3D_UNIX_DIR_H__*/
+#endif  /*__T3D_UNIX_DIR_H__*/
