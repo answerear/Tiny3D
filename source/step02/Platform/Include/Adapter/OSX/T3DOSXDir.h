@@ -17,18 +17,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Adapter/OSX/T3DOSXConsole.h"
+#ifndef __T3D_OSX_DIR_H__
+#define __T3D_OSX_DIR_H__
 
+#include "Adapter/Unix/T3DUnixDir.h"
 
 namespace Tiny3D
 {
-    OSXConsole::OSXConsole()
+    class OSXDir : public UnixDir
     {
-
-    }
-
-    void OSXConsole::print(const char *pText)
-    {
-        printf("%s", pText);
-    }
+    public:
+        OSXDir();
+        virtual ~OSXDir();
+		
+		virtual long_t getCreationTime() const override;
+		
+		virtual long_t getLastAccessTime() const override;
+		
+		virtual long_t getLastWriteTime() const override;
+		
+		/**
+		 * @brief 获取应用程序缓存数据存储路径，不同平台指定对应的路径
+		 * @return 返回应用程序缓存数据存储路径.
+		 */
+		virtual String getCachePath() const override;
+		
+		/**
+		 * @brief 获取应用程序路径
+		 * @return 返回应用程序路径
+		 */
+		virtual String getAppPath() const override;
+		
+	private:
+		mutable	String	mAppPath;
+		mutable	String	mCachePath;
+    };
 }
+
+
+#endif  /*__T3D_UNIX_DIR_H__*/

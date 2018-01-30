@@ -51,12 +51,6 @@ namespace Tiny3D
         
         virtual bool isDirectory() const override;
         
-        virtual long_t getCreationTime() const override;
-        
-        virtual long_t getLastAccessTime() const override;
-        
-        virtual long_t getLastWriteTime() const override;
-        
         virtual bool makeDir(const String &strDir) override;
         
         virtual bool removeDir(const String &strDir) override;
@@ -64,10 +58,6 @@ namespace Tiny3D
         virtual bool remove(const String &strFileName) override;
         
         virtual bool exists(const String &strPath) const override;
-        
-        virtual String getCachePath() const override;
-        
-        virtual String getAppPath() const override;
         
         virtual char getNativeSeparator() const override;
         

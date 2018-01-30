@@ -49,6 +49,19 @@ namespace Tiny3D
 
         do 
         {
+            Application *theApp = Application::getInstancePtr();
+            if (theApp == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+            
+            ret = theApp->init();
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+            
             if (mLogger != nullptr)
             {
                 mLogger->startup(1000, "Engine", true, true);
@@ -63,19 +76,6 @@ namespace Tiny3D
             T3D_LOG_INFO("Memory : %uMB", T3D_DEVICE_INFO.getMemoryCapacity());
             T3D_LOG_INFO("Mac Address : %s", T3D_DEVICE_INFO.getMacAddress().c_str());
             T3D_LOG_INFO("Device ID : %s", T3D_DEVICE_INFO.getDeviceID().c_str());
-
-            Application *theApp = Application::getInstancePtr();
-            if (theApp == nullptr)
-            {
-                ret = T3D_ERR_INVALID_POINTER;
-                break;
-            }
-
-            ret = theApp->init();
-            if (ret != T3D_ERR_OK)
-            {
-                break;
-            }
 
             mWindow = new Window();
             ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, Window::WINDOW_SHOWN);

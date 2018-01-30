@@ -165,27 +165,12 @@ namespace Tiny3D
         return (result == 0 && S_ISDIR(s.st_mode));
     }
     
-    long_t UnixDir::getCreationTime() const
-    {
-        return 0;
-    }
-    
-    long_t UnixDir::getLastAccessTime() const
-    {
-        return 0;
-    }
-    
-    long_t UnixDir::getLastWriteTime() const
-    {
-        return 0;
-    }
-    
     bool UnixDir::makeDir(const String &strDir)
     {
         if (strDir.empty() || strDir == "")
             return false;
         
-        return (mkdir(strDir.c_str(), S_IRWXU) == 0);
+		return (::mkdir(strDir.c_str(), S_IRWXU) == 0);
     }
     
     bool UnixDir::removeDir(const String &strDir)
@@ -193,7 +178,7 @@ namespace Tiny3D
         if (strDir.empty() || strDir == "")
             return false;
         
-        return (rmdir(strDir.c_str()) == 0);
+		return (::rmdir(strDir.c_str()) == 0);
     }
     
     bool UnixDir::remove(const String &strFileName)
@@ -201,7 +186,7 @@ namespace Tiny3D
         if (strFileName.empty() || strFileName == "")
             return false;
         
-        return (remove(strFileName.c_str()) == 0);
+		return (::remove(strFileName.c_str()) == 0);
     }
     
     bool UnixDir::exists(const String &strPath) const
@@ -211,19 +196,9 @@ namespace Tiny3D
         return (result == 0);
     }
     
-    String UnixDir::getCachePath() const
-    {
-        return "";
-    }
-    
-    String UnixDir::getAppPath() const
-    {
-        return "";
-    }
-    
     char UnixDir::getNativeSeparator() const
     {
-        return 0;
+        return '/';
     }
     
     bool UnixDir::extractRoot(const String &strPath, String &strRoot)

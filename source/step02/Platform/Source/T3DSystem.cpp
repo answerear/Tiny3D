@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -54,8 +54,21 @@ namespace Tiny3D
     {
         int32_t ret = T3D_ERR_OK;
 
-        ret  = mTimerMgr->init();
-
+        do
+        {
+            String strCachePath = Dir::getCachePath();
+            if (!Dir::exists(strCachePath))
+            {
+                if (!Dir::makeDir(strCachePath))
+                    break;
+            }
+            
+            ret  = mTimerMgr->init();
+            if (ret != T3D_ERR_OK)
+                break;
+            
+        } while (0);
+        
         return ret;
     }
 
