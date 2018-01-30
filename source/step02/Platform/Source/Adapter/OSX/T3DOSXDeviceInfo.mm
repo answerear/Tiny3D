@@ -69,7 +69,19 @@ namespace Tiny3D
 
     const String &OSXDeviceInfo::getDeviceVersion() const
     {
-        return "PC";
+        if (mHWVersion.empty())
+        {
+            int mib[2];
+            mib[0] = CTL_HW;
+            mib[1] = HW_MODEL;
+            char buf[64];
+            size_t buflen = 64;
+            sysctl(mib, 2, buf, &buflen, nullptr, 0);
+            if (buflen != 0)
+                mHWVersion = buf;
+        }
+        
+        return mHWVersion;
     }
 	
 	const String &OSXDeviceInfo::getSystemInfo() const
@@ -100,39 +112,29 @@ namespace Tiny3D
 
     const String &OSXDeviceInfo::getCPUType() const
     {
-		NSMutableString *cpu = [[NSMutableString alloc] init];
-		size_t size;
-		cpu_type_t type;
-		cpu_subtype_t subtype;
-		size = sizeof(type);
-		sysctlbyname("hw.cputype", &type, &size, NULL, 0);
+        if (mCPUType.empty())
+        {
+            char buf[64];
+            size_t buflen = 64;
+            sysctlbyname("machdep.cpu.brand_string", &buf, &buflen, nullptr, 0);
+            
+            if (buflen != 0)
+            {
+                mCPUType = buf;
+            }
+        }
 		
-		size = sizeof(subtype);
-		sysctlbyname("hw.cpusubtype", &subtype, &size, NULL, 0);
-		
-		// values for cputype and cpusubtype defined in mach/machine.h
-		if (type == CPU_TYPE_X86)
-		{
-			[cpu appendString:@"x86 "];
-		}
-		else if (type == CPU_TYPE_X86_64)
-		{
-			
-		}
-		else if (type == CPU_TYPE_ARM)
-		{
-			[cpu appendString:@"ARM"];
-			[cpu appendFormat:@",Type:%d",subtype];
-		}
-		
-        return "Intel Core i5";
+        return mCPUType;
     }
 
     int32_t OSXDeviceInfo::getNumberOfProcessors() const
     {
 		if (mNumberOfProcessor == 0)
 		{
-			mNumberOfProcessor = [NSProcessInfo processInfo].processorCount;
+            int numberOfProcessors = 0;
+            size_t size = sizeof(numberOfProcessors);
+            sysctlbyname("hw.physicalcpu", &numberOfProcessors, &size, nullptr, 0);
+            mNumberOfProcessor = numberOfProcessors;
 		}
 		
         return mNumberOfProcessor;
@@ -142,9 +144,15 @@ namespace Tiny3D
     {
 		if (mMemoryCapacity == 0)
 		{
-			uint64_t totalMemory = [NSProcessInfo processInfo].physicalMemory;
+            int mib[2];
+            mib[0] = CTL_HW;
+            mib[1] = HW_MEMSIZE;
+			uint64_t totalMemory = 0;
+            size_t size = sizeof(totalMemory);
+            sysctl(mib, 2, &totalMemory, &size, nullptr, 0);
 			mMemoryCapacity = (uint32_t)(totalMemory / (1024 * 1024));
 		}
+        
         return mMemoryCapacity;
     }
 

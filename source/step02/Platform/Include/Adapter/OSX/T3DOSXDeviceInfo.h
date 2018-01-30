@@ -99,8 +99,10 @@ namespace Tiny3D
         virtual const String &getDeviceID() const override;
 		
 	private:
-		mutable	String	mOSVersion;
-		mutable int32_t	mNumberOfProcessor;
+		mutable	String	    mOSVersion;
+        mutable String      mHWVersion;
+        mutable String      mCPUType;
+		mutable int32_t	    mNumberOfProcessor;
 		mutable uint32_t	mMemoryCapacity;
     };
 }
