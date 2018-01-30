@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -21,6 +21,7 @@
 #define __T3D_UNIX_DIR_H__
 
 #include "Adapter/T3DDirInterface.h"
+#include <dirent.h>
 
 namespace Tiny3D
 {

@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -18,6 +18,8 @@
  ******************************************************************************/
 
 #include "Adapter/Unix/T3DUnixDir.h"
+#include <sys/stat.h>
+#include <unistd.h>
 
 
 namespace Tiny3D
@@ -55,7 +57,7 @@ namespace Tiny3D
         }
         
         m_pDirent = readdir(m_pDir);
-        if (m_pDirent != NULL && !IsDirectory())
+        if (m_pDirent != NULL && !isDirectory())
         {
             String strName = m_pDirent->d_name;
             String strExt;
