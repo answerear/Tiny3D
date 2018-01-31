@@ -19,7 +19,11 @@
 
 #include "Adapter/iOS/T3DiOSDeviceInfo.h"
 #include "Adapter/T3DFactoryInterface.h"
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <sstream>
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 namespace Tiny3D
 {
@@ -59,17 +63,48 @@ namespace Tiny3D
 
     const String &iOSDeviceInfo::getOSVersion() const
     {
-        return "Windows 7";
+        if (mOSVersion.empty())
+        {
+            NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+            String version = [[UIDevice currentDevice].systemVersion UTF8String];
+            [pool release];
+            mOSVersion = "iOS " + version;
+        }
+        
+        return mOSVersion;
     }
 
     const String &iOSDeviceInfo::getDeviceVersion() const
     {
-        return "PC";
+        if (mHWVersion.empty())
+        {
+            char buf[64];
+            size_t buflen = 64;
+            sysctlbyname("hw.machine", buf, &buflen, nullptr, 0);
+            mHWVersion = buf;
+        }
+        
+        return mHWVersion;
     }
 
     const String &iOSDeviceInfo::getSystemInfo() const
     {
-        return "";
+        if (mSystemInfo.empty())
+        {
+            // OS Version
+            std::stringstream ss;
+            ss<<"Operating System : "<<getOSVersion()<<"\n";
+            // CPU Architecture
+            // CPU Type
+            ss<<"CPU Type : "<<getCPUType()<<"\n";
+            // Device Version
+            ss<<"Device Version : "<<getDeviceVersion()<<"\n";
+            // Number of CPU Processor
+            ss<<"CPU Processor : "<<getNumberOfProcessors()<<"\n";
+            mSystemInfo = ss.str();
+        }
+        
+        return mSystemInfo;
     }
 
     int32_t iOSDeviceInfo::getScreenWidth() const

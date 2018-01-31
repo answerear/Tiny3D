@@ -108,6 +108,7 @@ namespace Tiny3D
         mutable String  mOSVersion;
         mutable String  mSWVersion;
         mutable String  mHWVersion;
+        mutable String  mSystemInfo;
     };
 }
 
