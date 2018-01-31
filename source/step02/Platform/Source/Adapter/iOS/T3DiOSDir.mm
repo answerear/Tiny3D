@@ -88,28 +88,46 @@ namespace Tiny3D
     
     String iOSDir::getCachePath() const
     {
-        if (mCachePath.empty())
+        String cachePath;
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+        NSArray *pathes = NSSearchPathForDirectoriesInDomains(NSCachesDirectory,
+                                                              NSUserDomainMask,
+                                                              YES);
+        
+        if ([pathes count] > 0)
         {
-            NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-            NSString *path = [[NSBundle mainBundle] bundlePath];
-            mCachePath = [path UTF8String] + String("/Cache/");
-            [pool release];
+            NSString *path = [pathes objectAtIndex:0];
+            cachePath = [path UTF8String] + String("/");
         }
         
-        return mCachePath;
+        [pool release];
+        return cachePath;
     }
     
     String iOSDir::getAppPath() const
     {
-        if (mAppPath.empty())
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+        NSString *path = [[NSBundle mainBundle] resourcePath];
+        String appPath = [path UTF8String] + String("/");
+        [pool release];
+        return appPath;
+    }
+    
+    String iOSDir::getWritablePath() const
+    {
+        String writablePath;
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+        NSArray *pathes = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
+                                                             NSUserDomainMask,
+                                                             YES);
+        if ([pathes count] > 0)
         {
-            NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-            NSString *path = [[NSBundle mainBundle] bundlePath];
-            mAppPath = [path UTF8String] + String("/");
-            [pool release];
+            NSString *path = [pathes objectAtIndex:0];
+            writablePath = [path UTF8String] + String("/");
         }
         
-        return mAppPath;
+        [pool release];
+        return writablePath;
     }
 }
 
