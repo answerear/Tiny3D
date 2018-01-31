@@ -88,28 +88,22 @@ namespace Tiny3D
     
     String OSXDir::getCachePath() const
     {
-        if (mCachePath.empty())
-        {
-            NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-            NSString *path = [[NSBundle mainBundle] bundlePath];
-            mCachePath = [path UTF8String] + String("/Cache/");
-            [pool release];
-        }
-        
-        return mCachePath;
+        return getAppPath() + "/Caches/";
     }
     
     String OSXDir::getAppPath() const
     {
-        if (mAppPath.empty())
-        {
-            NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-            NSString *path = [[NSBundle mainBundle] bundlePath];
-            mAppPath = [path UTF8String] + String("/");
-            [pool release];
-        }
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+        NSString *path = [[NSBundle mainBundle] bundlePath];
+        String appPath = [path UTF8String] + String("/");
+        [pool release];
         
-        return mAppPath;
+        return appPath;
+    }
+    
+    String OSXDir::getWritablePath() const
+    {
+        return getAppPath() + "/Documents/";
     }
 }
 
