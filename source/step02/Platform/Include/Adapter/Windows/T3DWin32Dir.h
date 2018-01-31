@@ -36,36 +36,139 @@ namespace Tiny3D
         virtual ~Win32Dir();
 
     protected:
-        virtual bool findFile(const String &strPath);
-        virtual bool findNextFile();
-        virtual void close();
+        /**
+         * @brief 开始枚举搜索指定目录下的文件.
+         * @param [in] strPath : 指定目录文件格式字符串
+         * @return 调用成功返回true，失败返回false.
+         */
+        virtual bool findFile(const String &strPath) override;
 
-        virtual String getRoot() const;
-        virtual String getFileName() const;
-        virtual String getFilePath() const;
-        virtual String getFileTitle() const;
+        /**
+         * @brief 搜索下一个文件.
+         * @return 枚举没结束返回true，否则返回false表示枚举结束.
+         */
+        virtual bool findNextFile() override;
 
-        virtual uint32_t getLength() const;
+        /**
+         * @brief 结束当前枚举搜索.
+         * @return void
+         */
+        virtual void close() override;
 
-        virtual bool isDots() const;
-        virtual bool isDirectory() const;
+        /**
+         * @brief 获取枚举目录的完整路径.
+         * @return 返回枚举目录的路径，返回类型std::string.
+         */
+        virtual String getRoot() const override;
 
-        virtual long_t getCreationTime() const;
-        virtual long_t getLastAccessTime() const;
-        virtual long_t getLastWriteTime() const;
+        /**
+         * @brief 获取当前枚举到的完整文件名.
+         * @return 返回当前枚举到的完整文件名，类型std::string.
+         */
+        virtual String getFileName() const override;
 
-        virtual bool makeDir(const String &strDir);
-        virtual bool removeDir(const String &strDir);
+        /**
+         * @brief 获取当前枚举到的文件的全路径名，包括完整文件名.
+         * @return 返回当前枚举到的文件的全路径名，类型std::string.
+         */
+        virtual String getFilePath() const override;
 
-        virtual bool remove(const String &strFileName);
-        virtual bool exists(const String &strPath) const;
+        /**
+         * @brief 获取当前枚举到的文件文件名，不包括扩展名.
+         * @return 返回当前枚举到的文件文件名，类型std::string.
+         */
+        virtual String getFileTitle() const override;
 
-        virtual String getCachePath() const;
-        virtual String getAppPath() const;
-        virtual char getNativeSeparator() const;
+        /**
+         * @brief 获取当前枚举到的文件大小.
+         * @return 返回当前枚举到的文件大小.
+         */
+        virtual uint32_t getLength() const override;
+
+        /**
+         * @brief 判断当前枚举到的文件是否点目录，包括'.'和'..' .
+         * @return 点目录返回true，否则返回false.
+         */
+        virtual bool isDots() const override;
+
+        /**
+         * @brief 判断当前枚举到的文件是否文件夹.
+         * @return 文件返回true，否则返回false.
+         */
+        virtual bool isDirectory() const override;
+
+        /**
+         * @brief 获取当前枚举到的文件的创建时间戳.
+         * @return 返回文件创建时间戳，该时间是从1970年1月1日到当前的秒数
+         */
+        virtual long_t getCreationTime() const override;
+
+        /**
+         * @brief 获取当前枚举到的文件的最后访问时间戳.
+         * @return 返回文件最后访问时间戳，该时间是从1970年1月1日到当前的秒数
+         */
+        virtual long_t getLastAccessTime() const override;
+
+        /**
+         * @brief 获取当前枚举到的文件的最后修改时间戳.
+         * @return 返回文件最后修改时间戳，该时间是从1970年1月1日到当前的秒数
+         */
+        virtual long_t getLastWriteTime() const override;
+
+        /**
+        * @brief 创建文件夹.
+        * @note 该接口不能创建多级文件夹.
+        * @param [in] strDir : 文件夹路径名称
+        * @return 调用成功返回true，否则返回false.
+        */
+        virtual bool makeDir(const String &strDir) override;
+
+        /**
+        * @brief 删除文件夹.
+        * @note 该接口不能删除多级文件夹.
+        * @param [in] strDir : 文件夹路径名称
+        * @return 调用成功返回true，否则返回false.
+        */
+        virtual bool removeDir(const String &strDir) override;
+
+        /**
+        * @brief 删除文件.
+        * @param [in] strFileName : 需要删除文件的名称.
+        * @return 调用成功返回true，否则返回false.
+        */
+        virtual bool remove(const String &strFileName) override;
+
+        /**
+        * @brief 判断路径对应的文件是否存在.
+        * @param [in] strPath : 完整路径名
+        * @return 文件存在返回true，否则返回false.
+        */
+        virtual bool exists(const String &strPath) const override;
+
+        /**
+        * @brief 获取应用程序缓存数据存储路径，不同平台指定对应的路径
+        * @return 返回应用程序缓存数据存储路径.
+        */
+        virtual String getCachePath() const override;
+
+        /**
+        * @brief 获取应用程序路径
+        * @return 返回应用程序路径
+        */
+        virtual String getAppPath() const override;
+
+        /**
+        * @brief 获取应用程序可写路径，不同平台指定对应的路径
+        * @return 返回应用程序可写路径.
+        */
+        virtual String getWritablePath() const override;
+
+        virtual char getNativeSeparator() const override;
 
         bool extractRoot(const String &strFilePath, String &strRoot);
-        bool extractFileName(const String &strFilePath, String &strName, String &strTitle) const;
+
+        bool extractFileName(const String &strFilePath, 
+            String &strName, String &strTitle) const;
 
     protected:
         HANDLE              m_hFindFile;

@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <errno.h>
+#include <io.h>
 
 #pragma warning(disable:4244)
 #pragma warning(disable:4996)
@@ -280,10 +281,15 @@ namespace Tiny3D
 
     bool Win32Dir::exists(const String &strPath) const
     {
-        return true;
+        return (::access(strPath.c_str(), 0) == 0);
     }
 
     String Win32Dir::getCachePath() const
+    {
+        return getAppPath() + "\\Caches\\";
+    }
+
+    String Win32Dir::getAppPath() const
     {
         char szBuf[MAX_PATH];
 #ifdef UNICODE
@@ -304,9 +310,9 @@ namespace Tiny3D
         return String(szBuf);
     }
 
-    String Win32Dir::getAppPath() const
+    String Win32Dir::getWritablePath() const
     {
-        return getCachePath();
+        return getAppPath() + "\\Save\\";
     }
 
     char Win32Dir::getNativeSeparator() const

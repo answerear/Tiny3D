@@ -28,6 +28,10 @@ namespace Tiny3D
 {
     IDir *Dir::sDir = nullptr;
 
+    String Dir::sCachePath;
+    String Dir::sAppPath;
+    String Dir::sWritablePath;
+
     char Dir::NATIVE_SEPARATOR = 0;
 
     Dir::Dir()
@@ -220,30 +224,52 @@ namespace Tiny3D
         return false;
     }
 
-    String Dir::getCachePath()
+    const String &Dir::getCachePath()
     {
-        if (nullptr == sDir)
-            sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
-
-        if (sDir != nullptr)
+        if (sCachePath.empty())
         {
-            return sDir->getCachePath();
+            if (nullptr == sDir)
+                sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
+
+            if (sDir != nullptr)
+            {
+                sCachePath = sDir->getCachePath();
+            }
         }
 
-        return "";
+        return sCachePath;
     }
 
-    String Dir::getAppPath()
+    const String &Dir::getAppPath()
     {
-        if (nullptr == sDir)
-            sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
-
-        if (sDir != nullptr)
+        if (sAppPath.empty())
         {
-            return sDir->getAppPath();
+            if (nullptr == sDir)
+                sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
+
+            if (sDir != nullptr)
+            {
+                sAppPath = sDir->getAppPath();
+            }
         }
 
-        return "";
+        return sAppPath;
+    }
+
+    const String &Dir::getWritablePath()
+    {
+        if (sWritablePath.empty())
+        {
+            if (nullptr == sDir)
+                sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
+
+            if (sDir != nullptr)
+            {
+                sWritablePath = sDir->getWritablePath();
+            }
+        }
+
+        return sWritablePath;
     }
 
     char Dir::getNativeSeparator()

@@ -161,13 +161,19 @@ namespace Tiny3D
          * @brief 获取应用程序缓存数据存储路径，不同平台指定对应的路径，以对上层透明处理.
          * @return 返回应用程序缓存数据存储路径.
          */
-        static String getCachePath();
+        static const String &getCachePath();
 
         /**
          * @brief 获取应用程序路径.
          * @return 返回应用程序路径.
          */
-        static String getAppPath();
+        static const String &getAppPath();
+
+        /**
+         * @brief 获取应用程序可写路径.
+         * @return 返回应用程序可写路径.
+         */
+        static const String &getWritablePath();
 
         /**
          * @brief 获取系统相关的路径分隔符
@@ -176,6 +182,10 @@ namespace Tiny3D
 
     protected:
         IDir    *mDir;
+
+        static String  sCachePath;
+        static String  sAppPath;
+        static String  sWritablePath;
 
         static IDir *sDir;
     };

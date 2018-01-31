@@ -72,7 +72,7 @@ namespace Tiny3D
                     break;
                 }
 
-                char szVerBuf[8192] = { 0 };
+                char szVerBuf[64] = { 0 };
                 if (GetFileVersionInfo(strfile, 0, dwVersize, szVerBuf))
                 {
                     VS_FIXEDFILEINFO* pInfo;

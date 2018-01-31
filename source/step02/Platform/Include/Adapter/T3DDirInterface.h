@@ -158,6 +158,12 @@ namespace Tiny3D
          */
         virtual String getAppPath() const = 0;
 
+        /**
+         * @brief 获取应用程序可写路径，不同平台指定对应的路径
+         * @return 返回应用程序可写路径.
+         */
+        virtual String getWritablePath() const = 0;
+
         virtual char getNativeSeparator() const = 0;
     };
 }
