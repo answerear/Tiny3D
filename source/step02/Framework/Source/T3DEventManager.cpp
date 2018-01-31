@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -36,7 +36,8 @@ namespace Tiny3D
 
     EventManager::EventManager(uint32_t maxEvents, int32_t maxHandlingDuration,
         int32_t maxCallStacks, HandleEventMode mode)
-        : mMaxHandlingDuration(maxHandlingDuration)
+        : mCurrentQueue(0)
+		, mMaxHandlingDuration(maxHandlingDuration)
         , mStartHandleTime(0)
         , mMaxCallStackLevel(maxCallStacks)
         , mCurrentCallStack(0)

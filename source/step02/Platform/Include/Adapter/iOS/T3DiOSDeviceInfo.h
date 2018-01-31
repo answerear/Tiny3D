@@ -109,6 +109,10 @@ namespace Tiny3D
         mutable String  mSWVersion;
         mutable String  mHWVersion;
         mutable String  mSystemInfo;
+		mutable	String	mDeviceID;
+		
+		mutable int32_t		mCPUProcessors;
+		mutable uint32_t	mMemoryCapacity;
     };
 }
 
