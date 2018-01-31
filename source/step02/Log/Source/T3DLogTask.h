@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -33,9 +33,9 @@ namespace Tiny3D
     public:
         enum Type
         {
-            E_TYPE_NONE = 0,        /// Ã»ÓÐÀàÐÍ
-            E_TYPE_CHECK_EXPIRED,   /// ¼ì²é¹ýÆÚÈÕÖ¾ÎÄ¼þ
-            E_TYPE_FLUSH_CACHE,     /// °Ñ»º´æÈÕÖ¾Ð´»ØÎÄ¼þ
+            E_TYPE_NONE = 0,        /// æ²¡æœ‰ç±»åž‹
+            E_TYPE_CHECK_EXPIRED,   /// æ£€æŸ¥è¿‡æœŸæ—¥å¿—æ–‡ä»¶
+            E_TYPE_FLUSH_CACHE,     /// æŠŠç¼“å­˜æ—¥å¿—å†™å›žæ–‡ä»¶
             E_TYPE_MAX
         };
 

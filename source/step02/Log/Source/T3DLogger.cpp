@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -120,16 +120,16 @@ namespace Tiny3D
 
         if (mStrategy.eLevel != E_LEVEL_OFF || force)
         {
-            /// ²»ÊÇ¹Ø±ÕÈÕÖ¾Êä³ö£¬ĞèÒªÏÈ´ò¿ªÈÕÖ¾
+            /// ä¸æ˜¯å…³é—­æ—¥å¿—è¾“å‡ºï¼Œéœ€è¦å…ˆæ‰“å¼€æ—¥å¿—
             if (openLogFile())
             {
-                /// Æô¶¯¶¨Ê±Æ÷£¬¶¨Ê±Ìá½»Ğ´»ØÒì²½ÈÎÎñ
+                /// å¯åŠ¨å®šæ—¶å™¨ï¼Œå®šæ—¶æäº¤å†™å›å¼‚æ­¥ä»»åŠ¡
                 stopFlushTimer();
                 startFlushTimer();
             }
         }
 
-        /// ²»¹ÜÊÇ·ñÒªÊä³öÈÕÖ¾£¬¶¼Ìá½»Ò»¸ö¼ì²é¹ıÆÚÈÕÖ¾ÎÄ¼şµÄÒì²½ÈÎÎñ
+        /// ä¸ç®¡æ˜¯å¦è¦è¾“å‡ºæ—¥å¿—ï¼Œéƒ½æäº¤ä¸€ä¸ªæ£€æŸ¥è¿‡æœŸæ—¥å¿—æ–‡ä»¶çš„å¼‚æ­¥ä»»åŠ¡
         commitCheckExpiredTask();
 
         return true;
@@ -148,13 +148,13 @@ namespace Tiny3D
         vsnprintf(content, sizeof(content)-1, fmt, args);
         va_end(args);
 
-        /// ½ØÈ¡Â·¾¶£¬Ö±½Ó»ñÈ¡Ô´ÂëÎÄ¼şÃû
+        /// æˆªå–è·¯å¾„ï¼Œç›´æ¥è·å–æºç æ–‡ä»¶å
         String name = getFileName(filename);
 
-        /// Éú³ÉÒ»ÌõÈÕÖ¾Ïî
+        /// ç”Ÿæˆä¸€æ¡æ—¥å¿—é¡¹
         LogItem *item = new LogItem(level, name.c_str(), line, content);
         
-        /// Êä³öµ½¿ØÖÆÌ¨
+        /// è¾“å‡ºåˆ°æ§åˆ¶å°
         if (mIsOutputConsole)
         {
             item->outputConsole();
@@ -170,13 +170,13 @@ namespace Tiny3D
 
     void Logger::shutdown()
     {
-        /// Í£Ö¹»º´æĞ´»ØÎÄ¼ş¼ä¸ô¶¨Ê±Æ÷
+        /// åœæ­¢ç¼“å­˜å†™å›æ–‡ä»¶é—´éš”å®šæ—¶å™¨
         stopFlushTimer();
 
-        /// °ÑËùÓĞ»º´æ¶¼Í¬²½Ğ´»ØÎÄ¼şÖĞ
+        /// æŠŠæ‰€æœ‰ç¼“å­˜éƒ½åŒæ­¥å†™å›æ–‡ä»¶ä¸­
         flushCache();
 
-        /// ¹Ø±ÕÎÄ¼ş
+        /// å…³é—­æ–‡ä»¶
         closeLogFile();
     }
 
@@ -259,7 +259,7 @@ namespace Tiny3D
 
     bool Logger::openLogFile()
     {
-        /// ÏÈ´´½¨ÈÕÖ¾ÎÄ¼ş¼Ğ
+        /// å…ˆåˆ›å»ºæ—¥å¿—æ–‡ä»¶å¤¹
         String logPath = getLogPath();
         Dir dir;
         dir.makeDir(logPath);
@@ -286,7 +286,7 @@ namespace Tiny3D
 
             if (item->getHour() != mCurLogFileTime.Hour())
             {
-                // ¿çÔ½µ½ÏÂÒ»¸öĞ¡Ê±£¬ÖØĞÂĞ´Ò»¸öĞÂÎÄ¼ş
+                // è·¨è¶Šåˆ°ä¸‹ä¸€ä¸ªå°æ—¶ï¼Œé‡æ–°å†™ä¸€ä¸ªæ–°æ–‡ä»¶
                 closeLogFile();
                 openLogFile();
             }
@@ -310,10 +310,10 @@ namespace Tiny3D
 
     void Logger::flushCache()
     {
-        /// ÏÈÍ£Ö¹ºóÌ¨¹¤×÷Ïß³Ì£¬Í¬²½Ğ´»ØËùÓĞÊı¾İ
+        /// å…ˆåœæ­¢åå°å·¥ä½œçº¿ç¨‹ï¼ŒåŒæ­¥å†™å›æ‰€æœ‰æ•°æ®
         stopAsyncTask();
 
-        /// ÉèÖÃµ±Ç°ÈÕÖ¾¼¶±ğ£¬Ö±½ÓÏÈ¹Ø±Õ£¬±ÜÃâÔÙĞ´ÈëÈÕÖ¾
+        /// è®¾ç½®å½“å‰æ—¥å¿—çº§åˆ«ï¼Œç›´æ¥å…ˆå…³é—­ï¼Œé¿å…å†å†™å…¥æ—¥å¿—
         Level eLevel = mStrategy.eLevel;
         mStrategy.eLevel = E_LEVEL_OFF;
 
@@ -328,7 +328,7 @@ namespace Tiny3D
 
         writeLogFile(cache);
 
-        /// »Ö¸´µ±Ç°ÈÕÖ¾¼¶±ğ
+        /// æ¢å¤å½“å‰æ—¥å¿—çº§åˆ«
         mStrategy.eLevel = eLevel;
     }
 
@@ -417,7 +417,7 @@ namespace Tiny3D
             }
             else
             {
-                // ¹ÒÆğ10ms
+                // æŒ‚èµ·10ms
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
@@ -429,7 +429,7 @@ namespace Tiny3D
     {
         if (!mWorkingThread.joinable())
         {
-            /// Æô¶¯Òì²½Ïß³Ì
+            /// å¯åŠ¨å¼‚æ­¥çº¿ç¨‹
             mWorkingThread = std::thread(std::bind(&Logger::workingProcedure, this));
             mIsRunning = true;
             mIsTerminated = false;
@@ -437,10 +437,10 @@ namespace Tiny3D
         }
         else
         {
-            // Òì²½Ïß³ÌÒÑ¾­Æô¶¯ÁË
+            // å¼‚æ­¥çº¿ç¨‹å·²ç»å¯åŠ¨äº†
             if (mIsSuspended)
             {
-                /// Òì²½Ïß³Ì±»¹ÒÆğ£¬Ôò»½ĞÑ
+                /// å¼‚æ­¥çº¿ç¨‹è¢«æŒ‚èµ·ï¼Œåˆ™å”¤é†’
                 wakeAsyncTask();
             }
         }
@@ -452,11 +452,11 @@ namespace Tiny3D
         {
             if (mIsSuspended)
             {
-                /// Òì²½ÈÎÎñÏß³Ì¹ÒÆğÖĞ£¬Ö±½Ó»½ĞÑ
+                /// å¼‚æ­¥ä»»åŠ¡çº¿ç¨‹æŒ‚èµ·ä¸­ï¼Œç›´æ¥å”¤é†’
                 wakeAsyncTask();
             }
 
-            /// Ã»¹ÒÆğ£¬Ö±½ÓÍ£µô
+            /// æ²¡æŒ‚èµ·ï¼Œç›´æ¥åœæ‰
             mIsTerminated = true;
             mWorkingThread.join();
             mIsRunning = false;

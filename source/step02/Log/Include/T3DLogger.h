@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -58,10 +58,10 @@ namespace Tiny3D
 
         struct Strategy
         {
-            Level       eLevel;         /// µ±Ç°ÈÕÖ¾Êä³öµÄ¼¶±ğ£¬¸ßÓÚ¸Ã¼¶±ğµÄÈÕÖ¾¶¼²»Êä³ö
-            uint32_t    unMaxCacheSize; /// ÈÕÖ¾ÄÚÈİ×î´ó»º´æÄÚ´æ´óĞ¡£¬³¬¹ı¸Ã´óĞ¡£¬ÂíÉÏÌá½»Òì²½Ïß³ÌĞ´»ØÎÄ¼ş
-            uint32_t    unMaxCacheTime; /// ÈÕÖ¾ÄÚÈİ»º´æ×î³¤ÊÂ¼ş£¬³¬¹ı¸ÃÊ±¼ä¼ä¸ô£¬ÂíÉÏÌá½»Òì²½Ïß³ÌĞ´»ØÎÄ¼ş
-            uint32_t    unExpired;      /// ¹ıÆÚÊ±¼ä£¬´Ó½ñÌì¿ªÊ¼»ØËİ¹ıÈ¥unExpiredÌì
+            Level       eLevel;         /// å½“å‰æ—¥å¿—è¾“å‡ºçš„çº§åˆ«ï¼Œé«˜äºè¯¥çº§åˆ«çš„æ—¥å¿—éƒ½ä¸è¾“å‡º
+            uint32_t    unMaxCacheSize; /// æ—¥å¿—å†…å®¹æœ€å¤§ç¼“å­˜å†…å­˜å¤§å°ï¼Œè¶…è¿‡è¯¥å¤§å°ï¼Œé©¬ä¸Šæäº¤å¼‚æ­¥çº¿ç¨‹å†™å›æ–‡ä»¶
+            uint32_t    unMaxCacheTime; /// æ—¥å¿—å†…å®¹ç¼“å­˜æœ€é•¿äº‹ä»¶ï¼Œè¶…è¿‡è¯¥æ—¶é—´é—´éš”ï¼Œé©¬ä¸Šæäº¤å¼‚æ­¥çº¿ç¨‹å†™å›æ–‡ä»¶
+            uint32_t    unExpired;      /// è¿‡æœŸæ—¶é—´ï¼Œä»ä»Šå¤©å¼€å§‹å›æº¯è¿‡å»unExpiredå¤©
         };
 
     public:
@@ -76,125 +76,125 @@ namespace Tiny3D
         virtual ~Logger();
 
         /**
-         * @brief ÉèÖÃÈÕÖ¾²ßÂÔ
+         * @brief è®¾ç½®æ—¥å¿—ç­–ç•¥
          */
         void setStrategy(const Strategy &strategy);
 
         /**
-         * @brief ÉèÖÃµ±Ç°ÈÕÖ¾Êä³öµÄ×î¸ß¼¶±ğ£¬¸ßÓÚ¸Ã¼¶±ğµÄÈÕÖ¾±»ºöÂÔ²»Êä³ö
+         * @brief è®¾ç½®å½“å‰æ—¥å¿—è¾“å‡ºçš„æœ€é«˜çº§åˆ«ï¼Œé«˜äºè¯¥çº§åˆ«çš„æ—¥å¿—è¢«å¿½ç•¥ä¸è¾“å‡º
          */
         void setLevel(Level eLevel);
 
         /**
-         * @brief ÉèÖÃ×î´ó»º´æ´óĞ¡£¬´óÓÚ¸Ã´óĞ¡µÄ»º´æÈÕÖ¾»áÂíÉÏÌá½»Òì²½Ïß³ÌĞ´»ØÎÄ¼ş
+         * @brief è®¾ç½®æœ€å¤§ç¼“å­˜å¤§å°ï¼Œå¤§äºè¯¥å¤§å°çš„ç¼“å­˜æ—¥å¿—ä¼šé©¬ä¸Šæäº¤å¼‚æ­¥çº¿ç¨‹å†™å›æ–‡ä»¶
          */
         void setMaxCacheSize(uint32_t unMaxCacheSize);
 
         /**
-         * @brief ÉèÖÃ×î´ó»º´æÊ±¼ä¼ä¸ô£¬³¬¹ı¸ÃÊ±¼ä¼ä¸ô»º´æÈÕÖ¾»áÂíÉÏÌá½»Òì²½Ïß³ÌĞ´»ØÎÄ¼ş
+         * @brief è®¾ç½®æœ€å¤§ç¼“å­˜æ—¶é—´é—´éš”ï¼Œè¶…è¿‡è¯¥æ—¶é—´é—´éš”ç¼“å­˜æ—¥å¿—ä¼šé©¬ä¸Šæäº¤å¼‚æ­¥çº¿ç¨‹å†™å›æ–‡ä»¶
          */
         void setMaxCacheTime(uint32_t unMaxCacheTime);
 
         /**
-         * @brief ÉèÖÃ¹ıÆÚÊ±¼ä£¬´Ó½ñÌì¿ªÊ¼»ØËİ¹ıÈ¥unExpiredÌì
+         * @brief è®¾ç½®è¿‡æœŸæ—¶é—´ï¼Œä»ä»Šå¤©å¼€å§‹å›æº¯è¿‡å»unExpiredå¤©
          */
         void setExpired(uint32_t unExpired);
 
         /**
-         * @brief Æô¶¯ÈÕÖ¾Ä£¿é
-         * @param [in] appID : ±êÊ¶µ±Ç°Ó¦ÓÃ³ÌĞòµÄID£¬ÒÔ±ãÇø·ÖÈÕÖ¾ÎÄ¼ş
-         * @param [in] tag : ¶îÍâµÄÓ¦ÓÃ³ÌĞò±êÇ©£¬¸øÈÕÖ¾ÎÄ¼şÃû¸½¼Ó¶îÍâĞÅÏ¢ÒÔ×÷Çø±ğ
-         * @param [in] force : ÊÇ·ñºöÂÔÈÕÖ¾¼¶±ğ£¬È«Á¿ÈÕÖ¾Êä³ö
-         * @return µ÷ÓÃ³É¹¦·µ»Øtrue
-         * @note µ÷ÓÃ¸Ãº¯ÊıÇ°£¬ÇëÏÈÍ¨¹ısetStrategy()»òÕßsetLevel()¡¢setMaxCacheSize()¡¢setMaxCacheTime()ÉèÖÃºÃÈÕÖ¾Êä³ö²ßÂÔ£¬
-         *      ·ñÔò»áÓÃÄ¬ÈÏ²ßÂÔ
+         * @brief å¯åŠ¨æ—¥å¿—æ¨¡å—
+         * @param [in] appID : æ ‡è¯†å½“å‰åº”ç”¨ç¨‹åºçš„IDï¼Œä»¥ä¾¿åŒºåˆ†æ—¥å¿—æ–‡ä»¶
+         * @param [in] tag : é¢å¤–çš„åº”ç”¨ç¨‹åºæ ‡ç­¾ï¼Œç»™æ—¥å¿—æ–‡ä»¶åé™„åŠ é¢å¤–ä¿¡æ¯ä»¥ä½œåŒºåˆ«
+         * @param [in] force : æ˜¯å¦å¿½ç•¥æ—¥å¿—çº§åˆ«ï¼Œå…¨é‡æ—¥å¿—è¾“å‡º
+         * @return è°ƒç”¨æˆåŠŸè¿”å›true
+         * @note è°ƒç”¨è¯¥å‡½æ•°å‰ï¼Œè¯·å…ˆé€šè¿‡setStrategy()æˆ–è€…setLevel()ã€setMaxCacheSize()ã€setMaxCacheTime()è®¾ç½®å¥½æ—¥å¿—è¾“å‡ºç­–ç•¥ï¼Œ
+         *      å¦åˆ™ä¼šç”¨é»˜è®¤ç­–ç•¥
          */
         bool startup(uint32_t appID, const String &tag, bool force = false, bool outputConsole = false);
 
         /**
-         * @brief Êä³öÈÕÖ¾
-         * @param [in] level : Êä³öÈÕÖ¾ÏàÓ¦¼¶±ğ
-         * @param [in] filename : Êä³öÈÕÖ¾µÄÔ´ÂëÎÄ¼ş
-         * @param [in] line : Êä³öÈÕÖ¾¶ÔÓ¦Ô´ÂëÎÄ¼şµÄĞĞÊı
-         * @param [in] fmt : ¸ñÊ½»¯×Ö·û´®
-         * @param [in] var_list : ¿É±ä²ÎÊı
+         * @brief è¾“å‡ºæ—¥å¿—
+         * @param [in] level : è¾“å‡ºæ—¥å¿—ç›¸åº”çº§åˆ«
+         * @param [in] filename : è¾“å‡ºæ—¥å¿—çš„æºç æ–‡ä»¶
+         * @param [in] line : è¾“å‡ºæ—¥å¿—å¯¹åº”æºç æ–‡ä»¶çš„è¡Œæ•°
+         * @param [in] fmt : æ ¼å¼åŒ–å­—ç¬¦ä¸²
+         * @param [in] var_list : å¯å˜å‚æ•°
          * @return void
          */
         void trace(Level level, const char *filename, int32_t line, const char *fmt, ...);
 
         /**
-         * @brief ¹Ø±ÕÈÕÖ¾Ä£¿é
+         * @brief å…³é—­æ—¥å¿—æ¨¡å—
          */
         void shutdown();
 
         /**
-         * @brief ³ÌĞò½øÈëºóÌ¨µ÷ÓÃ
+         * @brief ç¨‹åºè¿›å…¥åå°è°ƒç”¨
          */
         void enterBackground();
 
         /**
-         * @brief ³ÌĞò»Øµ½Ç°Ì¨µ÷ÓÃ
+         * @brief ç¨‹åºå›åˆ°å‰å°è°ƒç”¨
          */
         void enterForeground();
 
         /**
-         * @brief ¸ù¾İÈÕÖ¾ÎÄ±¾»ñÈ¡ÈÕÖ¾¼¶±ğÃ¶¾ÙÖµ
+         * @brief æ ¹æ®æ—¥å¿—æ–‡æœ¬è·å–æ—¥å¿—çº§åˆ«æšä¸¾å€¼
          */
         Level toLevelValue(const String &level);
 
         /**
-         * @brief ¸ù¾İÈÕÖ¾¼¶±ğÃ¶¾ÙÖµ»ñÈ¡ÎÄ±¾
+         * @brief æ ¹æ®æ—¥å¿—çº§åˆ«æšä¸¾å€¼è·å–æ–‡æœ¬
          */
         String toLevelString(Level eLevel);
 
     private:
-        /// »ñÈ¡ÈÕÖ¾ÎÄ¼ş´æ·ÅÂ·¾¶
+        /// è·å–æ—¥å¿—æ–‡ä»¶å­˜æ”¾è·¯å¾„
         String getLogPath() const;
 
-        /// ¹¹ÔìÈÕÖ¾ÎÄ¼şÃû
+        /// æ„é€ æ—¥å¿—æ–‡ä»¶å
         String makeLogFileName(uint32_t appID, const String &tag, const DateTime &dt);
 
-        /// ´ò¿ªÈÕÖ¾ÎÄ¼ş
+        /// æ‰“å¼€æ—¥å¿—æ–‡ä»¶
         bool openLogFile();
-        /// ¸ù¾İ»º´æ»º³åÇøË÷ÒıĞ´ÎÄ¼ş
+        /// æ ¹æ®ç¼“å­˜ç¼“å†²åŒºç´¢å¼•å†™æ–‡ä»¶
         void writeLogFile(std::vector<LogItem*> &cache);
-        /// ¹Ø±ÕÈÕÖ¾ÎÄ¼ş
+        /// å…³é—­æ—¥å¿—æ–‡ä»¶
         void closeLogFile();
 
-        /// °ÑËùÓĞ»º´æ¶¼Ğ´»ØÎÄ¼ş
+        /// æŠŠæ‰€æœ‰ç¼“å­˜éƒ½å†™å›æ–‡ä»¶
         void flushCache();
 
-        /// Æô¶¯Ğ´»Ø»º´æÊ±¼ä¼ä¸ô¶¨Ê±Æ÷
+        /// å¯åŠ¨å†™å›ç¼“å­˜æ—¶é—´é—´éš”å®šæ—¶å™¨
         void startFlushTimer();
-        /// Í£Ö¹Ğ´»Ø»º´æÊ±¼ä¼ä¸ô¶¨Ê±Æ÷
+        /// åœæ­¢å†™å›ç¼“å­˜æ—¶é—´é—´éš”å®šæ—¶å™¨
         void stopFlushTimer();
 
-        /// ¶¨Ê±Æ÷»Øµ÷£¬¼Ì³Ğ×ÔRunLoopObserver
+        /// å®šæ—¶å™¨å›è°ƒï¼Œç»§æ‰¿è‡ªRunLoopObserver
         virtual void onTimer(uint32_t timerID, int32_t dt) override;
 
         String getFileName(const String &path) const;
 
-        /// Òì²½Ïß³Ìµ÷ÓÃµÄ¹¤×÷¹ı³Ì
+        /// å¼‚æ­¥çº¿ç¨‹è°ƒç”¨çš„å·¥ä½œè¿‡ç¨‹
         //static int32_t asyncWorkingProcedure(Logger *pThis);
         void workingProcedure();
 
-        /// Æô¶¯Òì²½ÈÎÎñ£¬Èç¹ûÒì²½Ïß³Ì²»´æÔÚÔò´´½¨£¬Èç¹ûÏß³Ì±»¹ÒÆğ£¬Ôò»½ĞÑ
+        /// å¯åŠ¨å¼‚æ­¥ä»»åŠ¡ï¼Œå¦‚æœå¼‚æ­¥çº¿ç¨‹ä¸å­˜åœ¨åˆ™åˆ›å»ºï¼Œå¦‚æœçº¿ç¨‹è¢«æŒ‚èµ·ï¼Œåˆ™å”¤é†’
         void startAsyncTask();
-        /// Í£Ö¹Òì²½ÈÎÎñ
+        /// åœæ­¢å¼‚æ­¥ä»»åŠ¡
         void stopAsyncTask();
-        /// ¹ÒÆğÒì²½ÈÎÎñÏß³Ì
+        /// æŒ‚èµ·å¼‚æ­¥ä»»åŠ¡çº¿ç¨‹
         void suspendAsyncTask();
-        /// »½ĞÑÒì²½ÈÎÎñÏß³Ì
+        /// å”¤é†’å¼‚æ­¥ä»»åŠ¡çº¿ç¨‹
         void wakeAsyncTask();
 
-        /// Ìá½»¼ì²é¹ıÆÚÈÕÖ¾Òì²½ÈÎÎñ
+        /// æäº¤æ£€æŸ¥è¿‡æœŸæ—¥å¿—å¼‚æ­¥ä»»åŠ¡
         void commitCheckExpiredTask();
-        /// Ìá½»°Ñ»º´æĞ´»ØÎÄ¼şÒì²½ÈÎÎñ
+        /// æäº¤æŠŠç¼“å­˜å†™å›æ–‡ä»¶å¼‚æ­¥ä»»åŠ¡
         void commitFlushCacheTask();
 
-        /// ´¦Àí¼ì²é¹ıÆÚÈÕÖ¾Òì²½ÈÎÎñ
+        /// å¤„ç†æ£€æŸ¥è¿‡æœŸæ—¥å¿—å¼‚æ­¥ä»»åŠ¡
         int32_t processCheckExpiredTask(LogTask *task);
-        /// ´¦Àí°Ñ»º´æĞ´»ØÎÄ¼şÒì²½ÈÎÎñ
+        /// å¤„ç†æŠŠç¼“å­˜å†™å›æ–‡ä»¶å¼‚æ­¥ä»»åŠ¡
         int32_t processFlushCacheTask(LogTask *task);
 
     private:
@@ -206,34 +206,34 @@ namespace Tiny3D
         typedef TaskQueue::iterator         TaskQueueItr;
         typedef TaskQueue::const_iterator   TaskQueueConstItr;
 
-        uint32_t            mFlushCacheTimerID; /// Ğ´»Ø¶¨Ê±Æ÷ID
+        uint32_t            mFlushCacheTimerID; /// å†™å›å®šæ—¶å™¨ID
 
-        uint32_t            mAppID;             /// Ó¦ÓÃ³ÌĞò±êÊ¶
-        String              mTag;               /// Ó¦ÓÃ³ÌĞò¶îÍâĞÅÏ¢±êÇ©
+        uint32_t            mAppID;             /// åº”ç”¨ç¨‹åºæ ‡è¯†
+        String              mTag;               /// åº”ç”¨ç¨‹åºé¢å¤–ä¿¡æ¯æ ‡ç­¾
 
-        Strategy            mStrategy;          /// ÈÕÖ¾Êä³öÏà¹Ø²ßÂÔ
+        Strategy            mStrategy;          /// æ—¥å¿—è¾“å‡ºç›¸å…³ç­–ç•¥
 
-        DateTime            mCurLogFileTime;    /// µ±Ç°ÈÕÖ¾ÎÄ¼şµÄÊ±¼ä£¬ÓÃÓÚ¿çĞ¡Ê±ÇĞ»»ÈÕÖ¾ÎÄ¼ş
+        DateTime            mCurLogFileTime;    /// å½“å‰æ—¥å¿—æ–‡ä»¶çš„æ—¶é—´ï¼Œç”¨äºè·¨å°æ—¶åˆ‡æ¢æ—¥å¿—æ–‡ä»¶
 
-        ItemCache           mItemCache;         /// »º´æÈÕÖ¾¼ÇÂ¼£¬µ½´ïÒ»¶¨ÊıÁ¿»òÕßÊ±¼äÊ±Ìá½»Òì²½Ğ´»Ø´¦Àí
-        TaskQueue           mTaskQueue;         /// Òì²½ÈÎÎñ¶ÓÁĞ
+        ItemCache           mItemCache;         /// ç¼“å­˜æ—¥å¿—è®°å½•ï¼Œåˆ°è¾¾ä¸€å®šæ•°é‡æˆ–è€…æ—¶é—´æ—¶æäº¤å¼‚æ­¥å†™å›å¤„ç†
+        TaskQueue           mTaskQueue;         /// å¼‚æ­¥ä»»åŠ¡é˜Ÿåˆ—
 
-        FileDataStream      mFileStream;        /// ÎÄ¼şÊä³ö¶ÔÏó
+        FileDataStream      mFileStream;        /// æ–‡ä»¶è¾“å‡ºå¯¹è±¡
 
-        std::thread         mWorkingThread;     /// Òì²½¹¤×÷Ïß³Ì£¬ÓÃÓÚÇå³ı¹ıÆÚÈÕÖ¾ÎÄ¼ş¡¢Ğ´ÈëÈÕÖ¾ÎÄ¼şµÈÒì²½²Ù×÷
+        std::thread         mWorkingThread;     /// å¼‚æ­¥å·¥ä½œçº¿ç¨‹ï¼Œç”¨äºæ¸…é™¤è¿‡æœŸæ—¥å¿—æ–‡ä»¶ã€å†™å…¥æ—¥å¿—æ–‡ä»¶ç­‰å¼‚æ­¥æ“ä½œ
 
-        std::mutex              mWaitMutex;     /// ÓÃÓÚ¹ÒÆğÏß³Ì»¥³âÁ¿
-        std::condition_variable mWaitCond;      /// Òì²½Ïß³ÌÌõ¼ş±äÁ¿
+        std::mutex              mWaitMutex;     /// ç”¨äºæŒ‚èµ·çº¿ç¨‹äº’æ–¥é‡
+        std::condition_variable mWaitCond;      /// å¼‚æ­¥çº¿ç¨‹æ¡ä»¶å˜é‡
 
-        std::mutex          mTaskMutex;         /// Òì²½ÈÎÎñ»¥³âÁ¿
+        std::mutex          mTaskMutex;         /// å¼‚æ­¥ä»»åŠ¡äº’æ–¥é‡
 
-        int32_t             mTaskType;          /// µ±Ç°´¦ÀíÈÎÎñ
+        int32_t             mTaskType;          /// å½“å‰å¤„ç†ä»»åŠ¡
 
-        bool                mIsForced;          /// ÊÇ·ñÇ¿ÖÆÊä³ö
-        bool                mIsOutputConsole;   /// ÊÇ·ñÍ¬²½Êä³öµ½¿ØÖÆÌ¨
-        bool                mIsRunning;         /// ÈÕÖ¾ÏµÍ³ÊÇ·ñÔËĞĞÖĞ
-        bool                mIsTerminated;      /// Òì²½Ïß³ÌÊÇ·ñ±»ÖÕÖ¹
-        bool                mIsSuspended;       /// ÊÇ·ñ±»¹ÒÆğ
+        bool                mIsForced;          /// æ˜¯å¦å¼ºåˆ¶è¾“å‡º
+        bool                mIsOutputConsole;   /// æ˜¯å¦åŒæ­¥è¾“å‡ºåˆ°æ§åˆ¶å°
+        bool                mIsRunning;         /// æ—¥å¿—ç³»ç»Ÿæ˜¯å¦è¿è¡Œä¸­
+        bool                mIsTerminated;      /// å¼‚æ­¥çº¿ç¨‹æ˜¯å¦è¢«ç»ˆæ­¢
+        bool                mIsSuspended;       /// æ˜¯å¦è¢«æŒ‚èµ·
     };
 }
 
