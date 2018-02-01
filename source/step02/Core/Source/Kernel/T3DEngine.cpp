@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -98,11 +98,11 @@ namespace Tiny3D
 
         while (mIsRunning)
         {
-            // ��ѯϵͳ�¼�
+            // 轮询系统事件
             mIsRunning = theApp->pollEvents();
-            // ϵͳƽ̨����ѯ
+            // 系统平台层轮询
             T3D_SYSTEM.update();
-            // �¼�ϵͳ�ɷ��¼�
+            // 事件系统派发事件
             T3D_EVENT_MGR.dispatchEvent();
             renderOneFrame();
         }

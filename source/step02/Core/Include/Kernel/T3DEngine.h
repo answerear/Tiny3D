@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -28,7 +28,7 @@
 namespace Tiny3D
 {
     /**
-     * @brief ÒıÇæÈë¿ÚÀà
+     * @brief å¼•æ“å…¥å£ç±»
      */
     class T3D_ENGINE_API Engine : public Singleton<Engine>
     {
@@ -36,37 +36,37 @@ namespace Tiny3D
 
     public:
         /**
-         * @brief ¹¹Ôìº¯Êı
+         * @brief æ„é€ å‡½æ•°
          */
         Engine();
 
         /**
-         * @brief Îö¹¹º¯Êı
+         * @brief ææ„å‡½æ•°
          */
         virtual ~Engine();
 
         /**
-         * @brief Æô¶¯ÒıÇæ
-         * @remarks ÒıÇæµÄÒ»ÇĞÓ¦ÓÃ¶¼ÒªÔÚµ÷ÓÃ±¾½Ó¿ÚÖ®ºó²ÅÓĞĞ§¡£
+         * @brief å¯åŠ¨å¼•æ“
+         * @remarks å¼•æ“çš„ä¸€åˆ‡åº”ç”¨éƒ½è¦åœ¨è°ƒç”¨æœ¬æ¥å£ä¹‹åæ‰æœ‰æ•ˆã€‚
          */
         int32_t startup();
 
         /**
-         * @brief ÔËĞĞÒıÇæ
+         * @brief è¿è¡Œå¼•æ“
          */
         bool run();
 
         /**
-         * @brief äÖÈ¾Ò»Ö¡
+         * @brief æ¸²æŸ“ä¸€å¸§
          */
         void renderOneFrame();
 
     protected:
-        EventManager        *mEventMgr;             /// ÊÂ¼ş¹ÜÀíÆ÷¶ÔÏó
-        Logger              *mLogger;               /// ÈÕÖ¾¶ÔÏó
+        EventManager        *mEventMgr;             /// äº‹ä»¶ç®¡ç†å™¨å¯¹è±¡
+        Logger              *mLogger;               /// æ—¥å¿—å¯¹è±¡
 
-        Window              *mWindow;               /// ´°¿Ú
-        bool                mIsRunning;             /// ÒıÇæÊÇ·ñÔÚÔËĞĞÖĞ
+        Window              *mWindow;               /// çª—å£
+        bool                mIsRunning;             /// å¼•æ“æ˜¯å¦åœ¨è¿è¡Œä¸­
     };
 
     #define T3D_ENGINE      (Engine::getInstance())
