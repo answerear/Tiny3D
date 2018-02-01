@@ -21,6 +21,9 @@
 #include "Adapter/Common/T3DSDLApplication.h"
 #include "Adapter/Desktop/T3DSDLDesktopWindow.h"
 #include "Adapter/Unix/T3DUnixTime.h"
+#include "Adapter/Linux/T3DLinuxDir.h"
+#include "Adapter/Linux/T3DLinuxConsole.h"
+#include "Adapter/Linux/T3DLinuxDeviceInfo.h"
 
 namespace Tiny3D
 {
@@ -47,6 +50,21 @@ namespace Tiny3D
     ITime *LinuxFactory::createPlatformTime()
     {
         return new UnixTime();
+    }
+
+    IDir *LinuxFactory::createPlatformDir()
+    {
+        return new LinuxDir();
+    }
+
+    IDeviceInfo *LinuxFactory::createPlatformDeviceInfo()
+    {
+        return new LinuxDeviceInfo();
+    }
+
+    IConsole *LinuxFactory::createPlatformConsole()
+    {
+        return new LinuxConsole();
     }
 
     EPlatform LinuxFactory::getPlatform()

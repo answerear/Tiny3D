@@ -18,6 +18,8 @@
  ******************************************************************************/
 
 #include "IO/T3DDataStream.h"
+#include <string.h>
+#include <memory.h>
 
 
 namespace Tiny3D

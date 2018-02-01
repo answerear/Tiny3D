@@ -30,6 +30,8 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <string.h>
+#include <memory.h>
 
 
 typedef signed char         char_t;

@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # This file is part of the CMake build system for Tiny3D
 #
-# The contents of this file are placed in the public domain. 
+# The contents of this file are placed in the public domain.
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
@@ -131,7 +131,7 @@ elseif (TINY3D_OS_MACOSX)
 	set_project_files(Source\\\\Adapter\\\\OSX ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/OSX/ .cpp)
 	set_project_files(Source\\\\Adapter\\\\OSX ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/OSX/ .mm)
 	set_project_files(Source\\\\Adapter\\\\Desktop ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Desktop/ .cpp)
-	
+
 	#foreach(FW ${TINY3D_FRAMEWORKS})
     #    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework ${FW}")
     #endforeach()
@@ -183,7 +183,7 @@ if (TINY3D_OS_WINDOWS)
 		ARCHIVE DESTINATION lib/Debug CONFIGURATIONS Debug
 		)
 
-	install(DIRECTORY 
+	install(DIRECTORY
 		${CMAKE_CURRENT_SOURCE_DIR}/Include/ DESTINATION include/Platform
 		FILE_PERMISSIONS GROUP_READ OWNER_READ
 		PATTERN "Android" EXCLUDE
@@ -203,6 +203,7 @@ elseif (TINY3D_OS_LINUX)
 	# Linux
 	target_link_libraries(
 		${LIB_NAME}
+		LINK_PRIVATE ${SDL2_LIBRARY}
 		)
 elseif (TINY3D_OS_IOS)
 	# iOS

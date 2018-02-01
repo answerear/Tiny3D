@@ -17,78 +17,87 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DDeviceInfo_Windows.h"
+#include "Adapter/Linux/T3DLinuxDeviceInfo.h"
 #include "Adapter/T3DFactoryInterface.h"
 
 
 namespace Tiny3D
 {
-    DeviceInfo_Windows::DeviceInfo_Windows()
+    LinuxDeviceInfo::LinuxDeviceInfo()
     {
 
     }
 
-    DeviceInfo_Windows::~DeviceInfo_Windows()
+    LinuxDeviceInfo::~LinuxDeviceInfo()
     {
 
     }
 
-    uint32_t DeviceInfo_Windows::getPlatform() const
+    uint32_t LinuxDeviceInfo::getPlatform() const
     {
-        return E_PLATFORM_WIN32;
+        return E_PLATFORM_LINUX;
     }
 
-    String DeviceInfo_Windows::getSoftwareVersion() const
+    const String &LinuxDeviceInfo::getSoftwareVersion() const
     {
         return "3.0.0.0";
     }
 
-    String DeviceInfo_Windows::getOSVersion() const
+    void LinuxDeviceInfo::setSoftwareVersion(const char *version)
+    {
+    }
+
+    const String &LinuxDeviceInfo::getOSVersion() const
     {
         return "Windows 7";
     }
 
-    String DeviceInfo_Windows::getDeviceVersion() const
+    const String &LinuxDeviceInfo::getDeviceVersion() const
     {
         return "PC";
     }
 
-    int32_t DeviceInfo_Windows::getScreenWidth() const
+    const String &LinuxDeviceInfo::getSystemInfo() const
+    {
+        return "";
+    }
+
+    int32_t LinuxDeviceInfo::getScreenWidth() const
     {
         return 0;
     }
 
-    int32_t DeviceInfo_Windows::getScreenHeight() const
+    int32_t LinuxDeviceInfo::getScreenHeight() const
     {
         return 0;
     }
 
-    float DeviceInfo_Windows::getScreenDPI() const
+    float LinuxDeviceInfo::getScreenDPI() const
     {
         return 0.0f;
     }
 
-    String DeviceInfo_Windows::getMacAddress() const
+    const String &LinuxDeviceInfo::getMacAddress() const
     {
         return "12-34-56-78-9A-BC";
     }
 
-    String DeviceInfo_Windows::getCPUType() const
+    const String &LinuxDeviceInfo::getCPUType() const
     {
         return "Intel Core i5";
     }
 
-    int32_t DeviceInfo_Windows::getNumberOfProcessors() const
+    int32_t LinuxDeviceInfo::getNumberOfProcessors() const
     {
         return 1;
     }
 
-    uint32_t DeviceInfo_Windows::getMemoryCapacity() const
+    uint32_t LinuxDeviceInfo::getMemoryCapacity() const
     {
         return 0x80000000;
     }
 
-    String DeviceInfo_Windows::getDeviceID() const
+    const String &LinuxDeviceInfo::getDeviceID() const
     {
         return "12-34-56-78-9A-BC";
     }

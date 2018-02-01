@@ -18,6 +18,7 @@
  ******************************************************************************/
 
 #include "IO/T3DMemoryDataStream.h"
+#include <memory.h>
 
 
 namespace Tiny3D
@@ -33,7 +34,7 @@ namespace Tiny3D
 
     }
 
-    MemoryDataStream::MemoryDataStream(uchar_t *pBuffer, size_t unSize, 
+    MemoryDataStream::MemoryDataStream(uchar_t *pBuffer, size_t unSize,
         bool reallocate /* = true */)
         : m_pBuffer(pBuffer)
         , m_lSize(unSize)
@@ -88,7 +89,7 @@ namespace Tiny3D
     size_t MemoryDataStream::write(void *pBuffer, size_t nSize)
     {
         long_t lSpace = m_lSize - m_lCurPos - 1;
-        long_t lBytesOfWritten = 
+        long_t lBytesOfWritten =
             (long_t)nSize > lSpace ? lSpace : (long_t)nSize;
         memcpy(m_pBuffer + m_lCurPos, pBuffer, lBytesOfWritten);
         m_lCurPos += lBytesOfWritten;
@@ -140,7 +141,7 @@ namespace Tiny3D
         return m_lSize;
     }
 
-    void MemoryDataStream::setBuffer(uint8_t *buffer, size_t bufSize, 
+    void MemoryDataStream::setBuffer(uint8_t *buffer, size_t bufSize,
         bool reallocate /* = true */)
     {
         if (reallocate)
