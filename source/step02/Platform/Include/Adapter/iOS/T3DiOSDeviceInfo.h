@@ -108,11 +108,16 @@ namespace Tiny3D
         mutable String  mOSVersion;
         mutable String  mSWVersion;
         mutable String  mHWVersion;
+        mutable String  mCPUType;
         mutable String  mSystemInfo;
 		mutable	String	mDeviceID;
 		
 		mutable int32_t		mCPUProcessors;
 		mutable uint32_t	mMemoryCapacity;
+        
+        int32_t mScreenWidth;
+        int32_t mScreenHeight;
+        float   mDPI;
     };
 }
 

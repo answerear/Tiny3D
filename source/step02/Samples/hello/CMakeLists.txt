@@ -81,6 +81,8 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
         )
 
 	if (TINY3D_OS_IOS)
+        find_library(FWK_SECURITY Security)
+
 		# Setup all link libraries and frameworks for iOS.
 		target_link_libraries(
 	        ${LIB_NAME}
@@ -90,6 +92,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	        T3DCore
 	        ${SDL2_LIBRARY}
 	        ${SDL2_OSX_FRAMEWORKS}
+            ${FWK_SECURITY}
 	        )
 
 		# Setup all properties for this iOS project.

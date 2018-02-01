@@ -26,14 +26,40 @@
 #include <sstream>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#include "UICKeyChainStore.h"
 
 namespace Tiny3D
 {
     iOSDeviceInfo::iOSDeviceInfo()
         : mCPUProcessors(0)
         , mMemoryCapacity(0)
+        , mScreenWidth(0)
+        , mScreenHeight(0)
+        , mDPI(0.0f)
     {
-
+        CGSize size = [UIScreen mainScreen].bounds.size;
+        CGFloat scale = 1.0f;
+        
+        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
+        {
+            scale = [UIScreen mainScreen].scale;
+        }
+        
+        mScreenWidth = scale * size.width;
+        mScreenHeight = scale * size.height;
+        
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+        {
+            mDPI = 132 * scale;
+        }
+        else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+        {
+            mDPI = 163 * scale;
+        }
+        else
+        {
+            mDPI = 160 * scale;
+        }
     }
 
     iOSDeviceInfo::~iOSDeviceInfo()
@@ -247,12 +273,16 @@ namespace Tiny3D
             std::stringstream ss;
             ss<<"Operating System : "<<getOSVersion()<<"\n";
             // CPU Architecture
+            ss<<"CPU Architecture : "<<getCPUType()<<"\n";
             // CPU Type
             ss<<"CPU Type : "<<getCPUType()<<"\n";
             // Device Version
             ss<<"Device Version : "<<getDeviceVersion()<<"\n";
             // Number of CPU Processor
             ss<<"CPU Processor : "<<getNumberOfProcessors()<<"\n";
+            // Screen size & dpi
+            ss<<"Screen Size : "<<mScreenWidth<<"x"<<mScreenHeight<<"\n";
+            ss<<"Screen DPI : "<<mDPI<<"\n";
             mSystemInfo = ss.str();
         }
         
@@ -261,17 +291,17 @@ namespace Tiny3D
 
     int32_t iOSDeviceInfo::getScreenWidth() const
     {
-        return 0;
+        return mScreenWidth;
     }
 
     int32_t iOSDeviceInfo::getScreenHeight() const
     {
-        return 0;
+        return mScreenHeight;
     }
 
     float iOSDeviceInfo::getScreenDPI() const
     {
-        return 0.0f;
+        return mDPI;
     }
 
     const String &iOSDeviceInfo::getMacAddress() const
@@ -281,7 +311,155 @@ namespace Tiny3D
 
     const String &iOSDeviceInfo::getCPUType() const
     {
-        return "Intel Core i5";
+        if (mCPUType.empty())
+        {
+            cpu_type_t type;
+            size_t size = sizeof(type);
+            sysctlbyname("hw.cputype", &type, &size, nullptr, 0);
+            
+            cpu_subtype_t subtype;
+            size = sizeof(subtype);
+            sysctlbyname("hw.cpusubtype", &subtype, &size, nullptr, 0);
+            
+            std::stringstream ss;
+            
+            if (CPU_TYPE_X86 == type)
+            {
+                ss<<"x86";
+            }
+            else if (CPU_TYPE_X86_64 == type)
+            {
+                ss<<"x86_64";
+            }
+            else if (CPU_TYPE_ARM == type)
+            {
+                ss<<"ARM";
+            }
+            else if (CPU_TYPE_ARM64 == type)
+            {
+                ss<<"ARM64";
+            }
+            else if (CPU_TYPE_POWERPC == type)
+            {
+                ss<<"PowerPC";
+            }
+            else if (CPU_TYPE_POWERPC64 == type)
+            {
+                ss<<"PowerPC 64";
+            }
+            else if (CPU_TYPE_SPARC == type)
+            {
+                ss<<"Sparc";
+            }
+            else
+            {
+                ss<<"Unknown : "<<type;
+            }
+            
+            if (CPU_SUBTYPE_386 == subtype)
+            {
+                ss<<"(386)";
+            }
+            else if (CPU_SUBTYPE_486 == subtype)
+            {
+                ss<<"(486)";
+            }
+            else if (CPU_SUBTYPE_586 == subtype)
+            {
+                ss<<"(586)";
+            }
+            else if (CPU_SUBTYPE_ARM_V6 == subtype)
+            {
+                ss<<"v6";
+            }
+            else if (CPU_SUBTYPE_ARM_V7 == subtype)
+            {
+                ss<<"v7";
+            }
+            else if (CPU_SUBTYPE_PENT == subtype)
+            {
+                ss<<"(Pentium)";
+            }
+            else if (CPU_SUBTYPE_PENTPRO == subtype)
+            {
+                ss<<"(Pentium Pro)";
+            }
+            else if (CPU_SUBTYPE_PENTII_M3 == subtype)
+            {
+                ss<<"(Pentium M3)";
+            }
+            else if (CPU_SUBTYPE_PENTII_M5 == subtype)
+            {
+                ss<<"(Pentium M5)";
+            }
+            else if (CPU_SUBTYPE_CELERON == subtype)
+            {
+                ss<<"(Celeron)";
+            }
+            else if (CPU_SUBTYPE_CELERON_MOBILE == subtype)
+            {
+                ss<<"(Celeron Mobile)";
+            }
+            else if (CPU_SUBTYPE_PENTIUM_3 == subtype)
+            {
+                ss<<"(Pentium 3)";
+            }
+            else if (CPU_SUBTYPE_PENTIUM_3_M == subtype)
+            {
+                ss<<"(Pentium 3 M)";
+            }
+            else if (CPU_SUBTYPE_PENTIUM_3_XEON == subtype)
+            {
+                ss<<"(Pentium 3 XEON)";
+            }
+            else if (CPU_SUBTYPE_PENTIUM_M == subtype)
+            {
+                ss<<"(Pentium M)";
+            }
+            else if (CPU_SUBTYPE_PENTIUM_4 == subtype)
+            {
+                ss<<"(Pentium 4)";
+            }
+            else if (CPU_SUBTYPE_PENTIUM_4_M == subtype)
+            {
+                ss<<"(Pentium 4 M)";
+            }
+            else if (CPU_SUBTYPE_ITANIUM == subtype)
+            {
+                ss<<"(Itanium)";
+            }
+            else if (CPU_SUBTYPE_ITANIUM_2 == subtype)
+            {
+                ss<<"(Itanium 2)";
+            }
+            else if (CPU_SUBTYPE_XEON == subtype)
+            {
+                ss<<"(XEON)";
+            }
+            else if (CPU_SUBTYPE_XEON_MP == subtype)
+            {
+                ss<<"(XEON MP)";
+            }
+            else if (CPU_SUBTYPE_ARM_V8 == subtype)
+            {
+                ss<<"v8";
+            }
+            else if (CPU_SUBTYPE_ARM64_V8 == subtype)
+            {
+                ss<<"v8";
+            }
+            else if (CPU_SUBTYPE_ARM64_ALL == subtype)
+            {
+            }
+            else
+            {
+                ss<<"("<<subtype<<")";
+            }
+            
+            mCPUType = ss.str();
+        }
+        
+        return mCPUType;
     }
 
     int32_t iOSDeviceInfo::getNumberOfProcessors() const
@@ -301,11 +479,39 @@ namespace Tiny3D
         if (mMemoryCapacity == 0)
         {
             NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-            mMemoryCapacity = [[NSProcessInfo processInfo] physicalMemory];
+            int64_t size = [NSProcessInfo processInfo].physicalMemory;
             [pool release];
+            mMemoryCapacity = (uint32_t)(size / (1024 * 1024));
         }
         
         return mMemoryCapacity;
+    }
+    
+    NSString *getAccessGroup()
+    {
+        NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
+                               (NSString *)kSecClassGenericPassword,
+                               kSecClass,
+                               @"bundleSeedID",
+                               kSecAttrAccount,
+                               @"",
+                               kSecAttrService,
+                               (id)kCFBooleanTrue,
+                               kSecReturnAttributes,
+                               nil];
+        CFDictionaryRef result = nil;
+        OSStatus status = SecItemCopyMatching((CFDictionaryRef)query,
+                                              (CFTypeRef *)&result);
+        if (status == errSecItemNotFound)
+            status = SecItemAdd((CFDictionaryRef)query, (CFTypeRef *)&result);
+        if (status != errSecSuccess)
+            return nil;
+        
+        NSString *accessGroup = [NSString
+                                 stringWithString:[(NSDictionary *)result
+                                  objectForKey:(NSString*)kSecAttrAccessGroup]];
+        CFRelease(result);
+        return accessGroup;
     }
 
     const String &iOSDeviceInfo::getDeviceID() const
@@ -313,9 +519,21 @@ namespace Tiny3D
         if (mDeviceID.empty())
         {
             NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-            NSString *uuid = [[[UIDevice currentDevice] identifierForVendor]
-                              UUIDString];
-            mDeviceID = [uuid UTF8String];
+            
+            NSString *accessGroup = getAccessGroup();
+            UICKeyChainStore *keychain = [UICKeyChainStore
+                                          keyChainStoreWithService:accessGroup];
+            NSString *Identifier = [keychain stringForKey:@"uuid"];
+            
+            if (nil == Identifier || [Identifier isEqualToString:@""])
+            {
+                NSString *uuid = [[[UIDevice currentDevice] identifierForVendor]
+                                  UUIDString];
+                Identifier = uuid;
+                keychain[@"uuid"] = Identifier;
+            }
+            
+            mDeviceID = [Identifier UTF8String];
             [pool release];
         }
         

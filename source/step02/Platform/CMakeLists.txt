@@ -146,6 +146,8 @@ elseif (TINY3D_OS_IOS)
 	set_project_files(Source\\\\Adapter\\\\Unix ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Unix/ .cpp)
 	set_project_files(Source\\\\Adapter\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/ .cpp)
 	set_project_files(Source\\\\Adapter\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/ .mm)
+    set_project_files(Include\\\\Adapter\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/ .h)
+    set_project_files(Source\\\\Adapter\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/ .m)
 elseif (TINY3D_OS_ANDROID)
 	# Android
 	set_project_files(Source\\\\Adapter\\\\Unix ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Unix/ .cpp)
@@ -205,7 +207,7 @@ elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)
 	# iOS
 	target_link_libraries(
-		${LIB_NAME}
+        ${LIB_NAME}
 		)
 elseif (TINY3D_OS_ANDROID)
 	# Android

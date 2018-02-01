@@ -110,6 +110,10 @@ namespace Tiny3D
         mutable String      mDeviceID;
 		mutable int32_t	    mNumberOfProcessor;
 		mutable uint32_t	mMemoryCapacity;
+        
+        int32_t mScreenWidth;
+        int32_t mScreenHeight;
+        float   mDPI;
     };
 }
 

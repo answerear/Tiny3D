@@ -19,11 +19,12 @@
 
 #include "Adapter/OSX/T3DOSXDeviceInfo.h"
 #include "Adapter/T3DFactoryInterface.h"
-#import <Foundation/Foundation.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <mach/machine.h>
 #include <sstream>
+
+#import <AppKit/AppKit.h>
 
 namespace Tiny3D
 {
@@ -37,7 +38,21 @@ namespace Tiny3D
 		, mNumberOfProcessor(0)
 		, mMemoryCapacity(0)
     {
-
+        NSRect screenRect = [NSScreen mainScreen].frame;
+        CGFloat scale = 1.0f;
+        
+        if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)])
+        {
+            scale = [[NSScreen mainScreen] backingScaleFactor];
+        }
+        
+        NSValue *value = [[NSScreen mainScreen].deviceDescription objectForKey:NSDeviceResolution];
+        NSSize size;
+        [value getValue:&size size:sizeof(size)];
+        mDPI = size.width;
+        
+        mScreenWidth = scale * screenRect.size.width;
+        mScreenHeight = scale * screenRect.size.height;
     }
 
     OSXDeviceInfo::~OSXDeviceInfo()
@@ -114,6 +129,10 @@ namespace Tiny3D
             ss<<"OS Revision : "<<getDeviceVersion()<<"\n";
             // Number of CPU Processors
             ss<<"Number of CPU Processors : "<<getNumberOfProcessors()<<"\n";
+            // Screen size & DPI
+            ss<<"Screen size : "<<mScreenWidth<<"x"<<mScreenHeight<<"\n";
+            ss<<"Screen DPI : "<<mDPI<<"\n";
+            
             mSystemInfo = ss.str();
         }
         
@@ -125,7 +144,7 @@ namespace Tiny3D
         cpu_type_t type;
         size_t size = sizeof(type);
         sysctlbyname("hw.cputype", &type, &size, nullptr, 0);
-        cpu_type_t subtype;
+        cpu_subtype_t subtype;
         size = sizeof(subtype);
         sysctlbyname("hw.cpusubtype", &subtype, &size, nullptr, 0);
         std::stringstream ss;
@@ -253,7 +272,7 @@ namespace Tiny3D
         }
         else if (CPU_SUBTYPE_ARM64_V8 == subtype)
         {
-            ss<<"64v8";
+            ss<<"v8";
         }
         else if (CPU_SUBTYPE_ARM64_ALL == subtype)
         {
@@ -269,17 +288,17 @@ namespace Tiny3D
 
     int32_t OSXDeviceInfo::getScreenWidth() const
     {
-        return 0;
+        return mScreenWidth;
     }
 
     int32_t OSXDeviceInfo::getScreenHeight() const
     {
-        return 0;
+        return mScreenHeight;
     }
 
     float OSXDeviceInfo::getScreenDPI() const
     {
-        return 0.0f;
+        return mDPI;
     }
 
     const String &OSXDeviceInfo::getMacAddress() const
