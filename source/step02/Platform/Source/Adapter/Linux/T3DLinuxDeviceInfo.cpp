@@ -19,18 +19,154 @@
 
 #include "Adapter/Linux/T3DLinuxDeviceInfo.h"
 #include "Adapter/T3DFactoryInterface.h"
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <sstream>
 
 
 namespace Tiny3D
 {
     LinuxDeviceInfo::LinuxDeviceInfo()
     {
-
+        collectSystemInfo();
     }
 
     LinuxDeviceInfo::~LinuxDeviceInfo()
     {
 
+    }
+
+    void LinuxDeviceInfo::collectSystemInfo()
+    {
+        // Operating System 相关信息
+        collectOSInfo();
+
+        // CPU相关信息
+        collectCPUInfo();
+
+        // 内存相关信息
+        collectMemoryInfo();
+    }
+
+    void LinuxDeviceInfo::collectOSInfo()
+    {
+        FILE *fp = nullptr;
+
+        do
+        {
+            fp = fopen("/proc/version", "r");
+            if (fp == nullptr)
+            {
+                break;
+            }
+
+            while (!feof(fp))
+            {
+                char buf[128] = {0};
+                fgets(buf, sizeof(buf)-1, fp);
+                mOSVersion = buf;
+                break;
+            }
+        } while(0);
+
+        if (fp != nullptr)
+        {
+            fclose(fp);
+        }
+    }
+
+    void LinuxDeviceInfo::collectCPUInfo()
+    {
+        FILE *fp = nullptr;
+
+        do
+        {
+            fp = fopen("/proc/cpuinfo", "r");
+            if (fp == nullptr)
+            {
+                break;
+            }
+
+            while (!feof(fp))
+            {
+                char buf[128] = {0};
+                fgets(buf, sizeof(buf)-1, fp);
+                String name = buf;
+                if (name.find("model name") != String::npos)
+                {
+                    mCPUType = trim(name);
+                }
+                else if (name.find("cpu cores") != String::npos)
+                {
+                    String cores = trim(name);
+                    mCPUCores = atoi(cores.c_str());
+                }
+            }
+        } while(0);
+
+        if (fp != nullptr)
+        {
+            fclose(fp);
+        }
+    }
+
+    void LinuxDeviceInfo::collectMemoryInfo()
+    {
+        FILE *fp = nullptr;
+
+        do
+        {
+            fp = fopen("/proc/meminfo", "r");
+            if (fp == nullptr)
+            {
+                break;
+            }
+
+            while (!feof(fp))
+            {
+                char buf[128] = {0};
+                fgets(buf, sizeof(buf)-1, fp);
+                String name = buf;
+                if (name.find("MemTotal") != String::npos)
+                {
+                    String capacity = trim(name);
+                    String total = capacity.substr(0, capacity.find("KB"));
+                    mMemoryCapacity = atoi(total.c_str());
+                }
+                break;
+            }
+        } while(0);
+
+        if (fp != nullptr)
+        {
+            fclose(fp);
+        }
+    }
+
+    String LinuxDeviceInfo::trim(const String &text)
+    {
+        String name;
+
+        do
+        {
+            size_t start = text.find(':');
+            if (start == String::npos)
+                break;
+
+            while (text[start] == ' ')
+            {
+                start++;
+            }
+
+            size_t i = start;
+            while (text[i] != '\n')
+            {
+                name.append(1, text[i]);
+                i++;
+            }
+        } while(0);
+
+        return name;
     }
 
     uint32_t LinuxDeviceInfo::getPlatform() const
@@ -40,21 +176,22 @@ namespace Tiny3D
 
     const String &LinuxDeviceInfo::getSoftwareVersion() const
     {
-        return "3.0.0.0";
+        return mSWVersion;
     }
 
     void LinuxDeviceInfo::setSoftwareVersion(const char *version)
     {
+
     }
 
     const String &LinuxDeviceInfo::getOSVersion() const
     {
-        return "Windows 7";
+        return mOSVersion;
     }
 
     const String &LinuxDeviceInfo::getDeviceVersion() const
     {
-        return "PC";
+        return mHWVersion;
     }
 
     const String &LinuxDeviceInfo::getSystemInfo() const
@@ -84,17 +221,17 @@ namespace Tiny3D
 
     const String &LinuxDeviceInfo::getCPUType() const
     {
-        return "Intel Core i5";
+        return mCPUType;
     }
 
     int32_t LinuxDeviceInfo::getNumberOfProcessors() const
     {
-        return 1;
+        return mCPUCores;
     }
 
     uint32_t LinuxDeviceInfo::getMemoryCapacity() const
     {
-        return 0x80000000;
+        return mMemoryCapacity;
     }
 
     const String &LinuxDeviceInfo::getDeviceID() const

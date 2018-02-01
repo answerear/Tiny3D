@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # This file is part of the CMake build system for Tiny3D
 #
-# The contents of this file are placed in the public domain. 
+# The contents of this file are placed in the public domain.
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
@@ -90,26 +90,26 @@ elseif (APPLE AND NOT IOS)
 elseif (UNIX AND NOT APPLE)
     # Linux
     message(STATUS "Platform : Linux")
-    
+
     add_definitions(-DT3D_OS_LINUX)
     add_definitions(-DT3D_OS_DESKTOP)
-    
+
     set(TINY3D_OS_LINUX TRUE CACHE STRING "Linux")
     set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
     set(SDL2LIB_SUFFIXES "prebuilt/Linux")
 
-    set(CMAKE_CXX_FLAGS "-std=c++11")
+    set(CMAKE_CXX_FLAGS "-std=c++11 -g")
 endif (WIN32)
 
 if (TINY3D_OS_IOS)
-    # Because in iOS, there only support static library. 
+    # Because in iOS, there only support static library.
     option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" FALSE)
 else (TINY3D_OS_IOS)
     option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
 endif (TINY3D_OS_IOS)
 
 if (NOT TINY3D_OS_ANDROID)
-    # In Android, this switch is setted by build.gradle in Android Studio. 
+    # In Android, this switch is setted by build.gradle in Android Studio.
     option(TINY3D_BUILD_SAMPLES "Build samples" TRUE)
 endif (NOT TINY3D_OS_ANDROID)
 
@@ -144,7 +144,7 @@ include(ProjectCMakeModule)
 set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/SDL2" CACHE PATH "SDL2 library path")
 find_package(SDL2)
 
-# Project Platform 
+# Project Platform
 add_subdirectory(Platform)
 # Project Log
 add_subdirectory(Log)

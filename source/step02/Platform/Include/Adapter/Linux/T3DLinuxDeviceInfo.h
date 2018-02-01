@@ -100,6 +100,30 @@ namespace Tiny3D
          * @brief 获取设备ID.
          */
         virtual const String &getDeviceID() const override;
+
+    private:
+        /**
+         * @brief 收集信息
+         */
+         void collectSystemInfo();
+
+         void collectOSInfo();
+
+         void collectCPUInfo();
+
+         void collectMemoryInfo();
+
+         String trim(const String &text);
+
+    private:
+        mutable String  mOSVersion;
+        mutable String  mSWVersion;
+        mutable String  mHWVersion;
+        mutable String  mCPUType;
+        mutable String  mSystemInfo;
+
+        int32_t     mCPUCores;
+        uint32_t    mMemoryCapacity;
     };
 }
 
