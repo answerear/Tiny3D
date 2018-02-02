@@ -17,21 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************************************/
 
-#ifndef __T3D_CONSOLE_ADAPTER_WINDOWS_H__
-#define __T3D_CONSOLE_ADAPTER_WINDOWS_H__
+#ifndef __T3D_ANDROID_CONSOLE_H__
+#define __T3D_ANDROID_CONSOLE_H__
 
 
 #include "Adapter/T3DConsoleInterface.h"
-
+#include <android/log.h>
 
 namespace Tiny3D
 {
-    class Console_Windows : public ConsoleInterface
+    #define LOGD(...)   __android_log_print(ANDROID_LOG_DEBUG, __VA_ARGS__)
+    #define LOGI(...)   __android_log_print(ANDROID_LOG_INFO, __VA_ARGS__)
+    #define LOGW(...)   __android_log_print(ANDROID_LOG_WARNING, __VA_ARGS__)
+    #define LOGE(...)   __android_log_print(ANDROID_LOG_ERROR, __VA_ARGS__)
+
+    class AndroidConsole : public IConsole
     {
-        T3D_DISABLE_COPY(Console_Windows);
+        T3D_DISABLE_COPY(AndroidConsole);
 
     public:
-        Console_Windows();
+        AndroidConsole();
 
     protected:
         virtual void print(const char *pText);
@@ -39,4 +44,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_CONSOLE_ADAPTER_WINDOWS_H__*/
+#endif  /*__T3D_ANDROID_CONSOLE_H__*/

@@ -21,6 +21,9 @@
 #include "Adapter/Common/T3DSDLApplication.h"
 #include "Adapter/Mobile/T3DSDLMobileWindow.h"
 #include "Adapter/Unix/T3DUnixTime.h"
+#include "Adapter/Android/T3DAndroidDir.h"
+#include "Adapter/Android/T3DAndroidConsole.h"
+#include "Adapter/Android/T3DAndroidDeviceInfo.h"
 
 
 namespace Tiny3D
@@ -48,6 +51,21 @@ namespace Tiny3D
     ITime *AndroidFactory::createPlatformTime()
     {
         return new UnixTime();
+    }
+
+    IDir *AndroidFactory::createPlatformDir()
+    {
+        return new AndroidDir();
+    }
+
+    IDeviceInfo *AndroidFactory::createPlatformDeviceInfo()
+    {
+        return new AndroidDeviceInfo();
+    }
+
+    IConsole *AndroidFactory::createPlatformConsole()
+    {
+        return new AndroidConsole();
     }
 
     EPlatform AndroidFactory::getPlatform()

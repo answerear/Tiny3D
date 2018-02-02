@@ -17,78 +17,83 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DDeviceInfo_Windows.h"
+#include "Adapter/Android/T3DAndroidDeviceInfo.h"
 #include "Adapter/T3DFactoryInterface.h"
 
 
 namespace Tiny3D
 {
-    DeviceInfo_Windows::DeviceInfo_Windows()
+    AndroidDeviceInfo::AndroidDeviceInfo()
     {
 
     }
 
-    DeviceInfo_Windows::~DeviceInfo_Windows()
+    AndroidDeviceInfo::~AndroidDeviceInfo()
     {
 
     }
 
-    uint32_t DeviceInfo_Windows::getPlatform() const
+    uint32_t AndroidDeviceInfo::getPlatform() const
     {
-        return E_PLATFORM_WIN32;
+        return E_PLATFORM_ANDROID;
     }
 
-    String DeviceInfo_Windows::getSoftwareVersion() const
+    const String &AndroidDeviceInfo::getSoftwareVersion() const
     {
         return "3.0.0.0";
     }
 
-    String DeviceInfo_Windows::getOSVersion() const
+    void AndroidDeviceInfo::setSoftwareVersion(const char *version)
+    {
+
+    }
+
+    const String &AndroidDeviceInfo::getOSVersion() const
     {
         return "Windows 7";
     }
 
-    String DeviceInfo_Windows::getDeviceVersion() const
+    const String &AndroidDeviceInfo::getDeviceVersion() const
     {
         return "PC";
     }
 
-    int32_t DeviceInfo_Windows::getScreenWidth() const
+    int32_t AndroidDeviceInfo::getScreenWidth() const
     {
         return 0;
     }
 
-    int32_t DeviceInfo_Windows::getScreenHeight() const
+    int32_t AndroidDeviceInfo::getScreenHeight() const
     {
         return 0;
     }
 
-    float DeviceInfo_Windows::getScreenDPI() const
+    float AndroidDeviceInfo::getScreenDPI() const
     {
         return 0.0f;
     }
 
-    String DeviceInfo_Windows::getMacAddress() const
-    {
-        return "12-34-56-78-9A-BC";
-    }
-
-    String DeviceInfo_Windows::getCPUType() const
+    const String &AndroidDeviceInfo::getCPUType() const
     {
         return "Intel Core i5";
     }
 
-    int32_t DeviceInfo_Windows::getNumberOfProcessors() const
+    const String &AndroidDeviceInfo::getCPUArchitecture() const
+    {
+        return "ARM";
+    }
+
+    int32_t AndroidDeviceInfo::getCPUCores() const
     {
         return 1;
     }
 
-    uint32_t DeviceInfo_Windows::getMemoryCapacity() const
+    uint32_t AndroidDeviceInfo::getSystemRAM() const
     {
         return 0x80000000;
     }
 
-    String DeviceInfo_Windows::getDeviceID() const
+    const String &AndroidDeviceInfo::getDeviceID() const
     {
         return "12-34-56-78-9A-BC";
     }

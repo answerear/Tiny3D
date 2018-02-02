@@ -216,6 +216,7 @@ elseif (TINY3D_OS_ANDROID)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE ${SDL2_BINARY}
+		log
 		)
 endif (TINY3D_OS_WINDOWS)
 

@@ -17,20 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DConsole_Windows.h"
-#include <windows.h>
+#include "Adapter/Android/T3DAndroidConsole.h"
 
 
 namespace Tiny3D
 {
-    Console_Windows::Console_Windows()
+    AndroidConsole::AndroidConsole()
     {
 
     }
 
-    void Console_Windows::print(const char *pText)
+    void AndroidConsole::print(const char *pText)
     {
-        printf(pText);
-        OutputDebugString(pText);
+        LOGD("Tiny3D", "%s", pText);
     }
 }
