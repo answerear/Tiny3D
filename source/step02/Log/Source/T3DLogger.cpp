@@ -110,7 +110,7 @@ namespace Tiny3D
         setLevel(strategy.eLevel);
     }
 
-    bool Logger::startup(uint32_t appID, const String &tag, 
+    bool Logger::startup(uint32_t appID, const String &tag,
         bool force /* = false */, bool outputConsole /* = false */)
     {
         mAppID = appID;
@@ -135,7 +135,7 @@ namespace Tiny3D
         return true;
     }
 
-    void Logger::trace(Level level, const char *filename, int32_t line, 
+    void Logger::trace(Level level, const char *filename, int32_t line,
         const char *fmt, ...)
     {
         if (!mIsForced && level > mStrategy.eLevel)
@@ -153,7 +153,7 @@ namespace Tiny3D
 
         /// 生成一条日志项
         LogItem *item = new LogItem(level, name.c_str(), line, content);
-        
+
         /// 输出到控制台
         if (mIsOutputConsole)
         {
@@ -228,9 +228,9 @@ namespace Tiny3D
 
     String Logger::toLevelString(Level eLevel)
     {
-        String level[E_LEVEL_MAX] = 
+        String level[E_LEVEL_MAX] =
         {
-            LEVEL_OFF, LEVEL_FATAL, LEVEL_CRITICAL, LEVEL_ERROR, 
+            LEVEL_OFF, LEVEL_FATAL, LEVEL_CRITICAL, LEVEL_ERROR,
             LEVEL_WARNING, LEVEL_INFO, LEVEL_DEBUG
         };
 
@@ -244,7 +244,7 @@ namespace Tiny3D
         return path;
     }
 
-    String Logger::makeLogFileName(uint32_t appID, const String &tag, 
+    String Logger::makeLogFileName(uint32_t appID, const String &tag,
         const DateTime &dt)
     {
         String logPath = getLogPath();
@@ -266,7 +266,7 @@ namespace Tiny3D
 
         DateTime dt = DateTime::currentDateTime();
         String filename = makeLogFileName(mAppID, mTag, dt);
-        bool ret = mFileStream.open(filename.c_str(), 
+        bool ret = mFileStream.open(filename.c_str(),
             FileDataStream::E_MODE_APPEND | FileDataStream::E_MODE_TEXT);
         if (ret)
         {
@@ -334,7 +334,7 @@ namespace Tiny3D
 
     void Logger::startFlushTimer()
     {
-        mFlushCacheTimerID = T3D_TIMER_MGR.startTimer(mStrategy.unMaxCacheTime, 
+        mFlushCacheTimerID = T3D_TIMER_MGR.startTimer(mStrategy.unMaxCacheTime,
             true, this);
     }
 
@@ -450,6 +450,8 @@ namespace Tiny3D
     {
         if (mIsRunning && mWorkingThread.joinable())
         {
+            mIsTerminated = true;
+
             if (mIsSuspended)
             {
                 /// 异步任务线程挂起中，直接唤醒
@@ -457,7 +459,6 @@ namespace Tiny3D
             }
 
             /// 没挂起，直接停掉
-            mIsTerminated = true;
             mWorkingThread.join();
             mIsRunning = false;
             mIsTerminated = false;
@@ -469,7 +470,9 @@ namespace Tiny3D
         std::unique_lock<std::mutex> lock(mWaitMutex);
         mIsSuspended = true;
         while (mIsSuspended)
+        {
             mWaitCond.wait(lock);
+        }
     }
 
     void Logger::wakeAsyncTask()

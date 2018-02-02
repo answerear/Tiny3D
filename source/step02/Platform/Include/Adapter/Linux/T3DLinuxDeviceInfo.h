@@ -113,17 +113,26 @@ namespace Tiny3D
 
          void collectMemoryInfo();
 
+         void collectDeviceInfo();
+
+         void collectScreenInfo();
+
          String trim(const String &text);
 
     private:
-        mutable String  mOSVersion;
-        mutable String  mSWVersion;
-        mutable String  mHWVersion;
-        mutable String  mCPUType;
-        mutable String  mSystemInfo;
+        String  mOSVersion;
+        String  mSWVersion;
+        String  mHWVersion;
+        String  mCPUType;
+        String  mCPUArchitecture;
+        String  mSystemInfo;
+        String  mDeviceID;
 
         int32_t     mCPUCores;
         uint32_t    mMemoryCapacity;
+        int32_t     mScreenWidth;
+        int32_t     mScreenHeight;
+        float       mDPI;
     };
 }
 

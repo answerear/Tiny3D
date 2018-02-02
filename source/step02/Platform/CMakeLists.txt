@@ -203,6 +203,7 @@ elseif (TINY3D_OS_LINUX)
 	# Linux
 	target_link_libraries(
 		${LIB_NAME}
+		LINK_PRIVATE X11
 		LINK_PRIVATE ${SDL2_LIBRARY}
 		)
 elseif (TINY3D_OS_IOS)

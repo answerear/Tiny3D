@@ -19,8 +19,11 @@
 
 #include "Adapter/Linux/T3DLinuxDeviceInfo.h"
 #include "Adapter/T3DFactoryInterface.h"
+
 #include <sys/types.h>
 #include <sys/sysctl.h>
+#include <sys/utsname.h>
+#include <X11/Xlib.h>
 #include <sstream>
 
 
@@ -38,6 +41,13 @@ namespace Tiny3D
 
     void LinuxDeviceInfo::collectSystemInfo()
     {
+        struct utsname name;
+        if (uname(&name) == 0)
+        {
+            mHWVersion = name.release;
+            mCPUArchitecture = name.machine;
+        }
+
         // Operating System 相关信息
         collectOSInfo();
 
@@ -46,6 +56,12 @@ namespace Tiny3D
 
         // 内存相关信息
         collectMemoryInfo();
+
+        // 设备信息
+        collectDeviceInfo();
+
+        // 屏幕信息
+        collectScreenInfo();
     }
 
     void LinuxDeviceInfo::collectOSInfo()
@@ -131,8 +147,37 @@ namespace Tiny3D
                 {
                     String capacity = trim(name);
                     String total = capacity.substr(0, capacity.find("KB"));
-                    mMemoryCapacity = atoi(total.c_str());
+                    int64_t memoryCapacity = atoi(total.c_str());
+                    mMemoryCapacity = memoryCapacity / 1024;
+                    break;
                 }
+            }
+        } while(0);
+
+        if (fp != nullptr)
+        {
+            fclose(fp);
+        }
+    }
+
+    void LinuxDeviceInfo::collectDeviceInfo()
+    {
+        FILE *fp = nullptr;
+
+        do
+        {
+            fp = fopen("/sys/class/dmi/id/product_uuid", "r");
+            if (fp == nullptr)
+            {
+                break;
+            }
+
+            while (!feof(fp))
+            {
+                char buf[256] = {0};
+                fgets(buf, sizeof(buf)-1, fp);
+                mDeviceID = buf;
+                mDeviceID[mDeviceID.length()-1] = '\0';
                 break;
             }
         } while(0);
@@ -143,13 +188,32 @@ namespace Tiny3D
         }
     }
 
+    void LinuxDeviceInfo::collectScreenInfo()
+    {
+        Display *display;
+        char *displayName = nullptr;
+        display = XOpenDisplay(displayName);
+        int w = DisplayWidth(display, 0);
+        int h = DisplayHeight(display, 0);
+
+        mScreenWidth = w;
+        mScreenHeight = h;
+
+        // DPI
+        int W = DisplayWidthMM(display, 0);
+        int H = DisplayHeightMM(display, 0);
+        mDPI = double(w) * 25.4 / double(W);
+
+        XCloseDisplay(display);
+    }
+
     String LinuxDeviceInfo::trim(const String &text)
     {
         String name;
 
         do
         {
-            size_t start = text.find(':');
+            size_t start = text.find(':') + 1;
             if (start == String::npos)
                 break;
 
@@ -201,17 +265,17 @@ namespace Tiny3D
 
     int32_t LinuxDeviceInfo::getScreenWidth() const
     {
-        return 0;
+        return mScreenWidth;
     }
 
     int32_t LinuxDeviceInfo::getScreenHeight() const
     {
-        return 0;
+        return mScreenHeight;
     }
 
     float LinuxDeviceInfo::getScreenDPI() const
     {
-        return 0.0f;
+        return mDPI;
     }
 
     const String &LinuxDeviceInfo::getMacAddress() const
@@ -236,6 +300,6 @@ namespace Tiny3D
 
     const String &LinuxDeviceInfo::getDeviceID() const
     {
-        return "12-34-56-78-9A-BC";
+        return mDeviceID;
     }
 }
