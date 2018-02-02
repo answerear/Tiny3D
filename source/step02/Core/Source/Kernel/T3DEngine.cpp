@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -47,7 +47,7 @@ namespace Tiny3D
     {
         int32_t ret = T3D_ERR_FAIL;
 
-        do 
+        do
         {
             Application *theApp = Application::getInstancePtr();
             if (theApp == nullptr)
@@ -55,27 +55,20 @@ namespace Tiny3D
                 ret = T3D_ERR_INVALID_POINTER;
                 break;
             }
-            
+
             ret = theApp->init();
             if (ret != T3D_ERR_OK)
             {
                 break;
             }
-            
+
             if (mLogger != nullptr)
             {
                 mLogger->startup(1000, "Engine", true, true);
             }
 
             T3D_LOG_INFO("Start Tiny3D ...... version %s", T3D_DEVICE_INFO.getSoftwareVersion().c_str());
-            T3D_LOG_INFO("Operating System : %s", T3D_DEVICE_INFO.getOSVersion().c_str());
-            T3D_LOG_INFO("Device Version : %s", T3D_DEVICE_INFO.getDeviceVersion().c_str());
             T3D_LOG_INFO("System Information : \n%s", T3D_DEVICE_INFO.getSystemInfo().c_str());
-            T3D_LOG_INFO("CPU Type : %s", T3D_DEVICE_INFO.getCPUType().c_str());
-            T3D_LOG_INFO("Number of Processor : %u", T3D_DEVICE_INFO.getNumberOfProcessors());
-            T3D_LOG_INFO("Memory : %uMB", T3D_DEVICE_INFO.getMemoryCapacity());
-            T3D_LOG_INFO("Mac Address : %s", T3D_DEVICE_INFO.getMacAddress().c_str());
-            T3D_LOG_INFO("Device ID : %s", T3D_DEVICE_INFO.getDeviceID().c_str());
 
             mWindow = new Window();
             ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, Window::WINDOW_SHOWN);
@@ -114,6 +107,6 @@ namespace Tiny3D
 
     void Engine::renderOneFrame()
     {
-        
+
     }
 }

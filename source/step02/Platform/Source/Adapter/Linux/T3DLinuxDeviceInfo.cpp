@@ -55,7 +55,7 @@ namespace Tiny3D
         collectCPUInfo();
 
         // 内存相关信息
-        collectMemoryInfo();
+        collectRAMInfo();
 
         // 设备信息
         collectDeviceInfo();
@@ -126,7 +126,7 @@ namespace Tiny3D
         }
     }
 
-    void LinuxDeviceInfo::collectMemoryInfo()
+    void LinuxDeviceInfo::collectRAMInfo()
     {
         FILE *fp = nullptr;
 
@@ -148,7 +148,7 @@ namespace Tiny3D
                     String capacity = trim(name);
                     String total = capacity.substr(0, capacity.find("KB"));
                     int64_t memoryCapacity = atoi(total.c_str());
-                    mMemoryCapacity = memoryCapacity / 1024;
+                    mSystemRAM = memoryCapacity / 1024;
                     break;
                 }
             }
@@ -177,7 +177,8 @@ namespace Tiny3D
                 char buf[256] = {0};
                 fgets(buf, sizeof(buf)-1, fp);
                 mDeviceID = buf;
-                mDeviceID[mDeviceID.length()-1] = '\0';
+                size_t len = mDeviceID.length();
+                mDeviceID.erase(len - 1);
                 break;
             }
         } while(0);
@@ -202,7 +203,7 @@ namespace Tiny3D
         // DPI
         int W = DisplayWidthMM(display, 0);
         int H = DisplayHeightMM(display, 0);
-        mDPI = double(w) * 25.4 / double(W);
+        mScreenDPI = double(w) * 25.4 / double(W);
 
         XCloseDisplay(display);
     }
@@ -258,11 +259,6 @@ namespace Tiny3D
         return mHWVersion;
     }
 
-    const String &LinuxDeviceInfo::getSystemInfo() const
-    {
-        return "";
-    }
-
     int32_t LinuxDeviceInfo::getScreenWidth() const
     {
         return mScreenWidth;
@@ -275,12 +271,7 @@ namespace Tiny3D
 
     float LinuxDeviceInfo::getScreenDPI() const
     {
-        return mDPI;
-    }
-
-    const String &LinuxDeviceInfo::getMacAddress() const
-    {
-        return "12-34-56-78-9A-BC";
+        return mScreenDPI;
     }
 
     const String &LinuxDeviceInfo::getCPUType() const
@@ -288,14 +279,19 @@ namespace Tiny3D
         return mCPUType;
     }
 
-    int32_t LinuxDeviceInfo::getNumberOfProcessors() const
+    const String &LinuxDeviceInfo::getCPUArchitecture() const
+    {
+        return mCPUArchitecture;
+    }
+
+    int32_t LinuxDeviceInfo::getCPUCores() const
     {
         return mCPUCores;
     }
 
-    uint32_t LinuxDeviceInfo::getMemoryCapacity() const
+    uint32_t LinuxDeviceInfo::getSystemRAM() const
     {
-        return mMemoryCapacity;
+        return mSystemRAM;
     }
 
     const String &LinuxDeviceInfo::getDeviceID() const

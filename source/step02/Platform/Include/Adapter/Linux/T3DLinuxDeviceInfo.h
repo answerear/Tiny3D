@@ -59,8 +59,6 @@ namespace Tiny3D
          */
         virtual const String &getDeviceVersion() const override;
 
-        virtual const String &getSystemInfo() const override;
-
         /**
          * @brief 获取屏幕宽度.
          */
@@ -77,11 +75,6 @@ namespace Tiny3D
         virtual float getScreenDPI() const override;
 
         /**
-         * @brief 获取设备mac地址.
-         */
-        virtual const String &getMacAddress() const override;
-
-        /**
          * @brief 获取CPU类型信息.
          */
         virtual const String &getCPUType() const override;
@@ -89,12 +82,17 @@ namespace Tiny3D
         /**
          * @brief 获取CPU核数
          */
-        virtual int32_t getNumberOfProcessors() const override;
+        virtual int32_t getCPUCores() const override;
+
+        /**
+         * @brief 获取CPU架构
+         */
+        virtual const String &getCPUArchitecture() const override;
 
         /**
          * @brief 获取内存信息.
          */
-        virtual uint32_t getMemoryCapacity() const override;
+        virtual uint32_t getSystemRAM() const override;
 
         /**
          * @brief 获取设备ID.
@@ -111,7 +109,7 @@ namespace Tiny3D
 
          void collectCPUInfo();
 
-         void collectMemoryInfo();
+         void collectRAMInfo();
 
          void collectDeviceInfo();
 
@@ -129,10 +127,10 @@ namespace Tiny3D
         String  mDeviceID;
 
         int32_t     mCPUCores;
-        uint32_t    mMemoryCapacity;
+        uint32_t    mSystemRAM;
         int32_t     mScreenWidth;
         int32_t     mScreenHeight;
-        float       mDPI;
+        float       mScreenDPI;
     };
 }
 

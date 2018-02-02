@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -21,6 +21,8 @@
 #include "Adapter/T3DDeviceInfoInterface.h"
 #include "Adapter/T3DFactoryInterface.h"
 #include "T3DSystem.h"
+
+#include <sstream>
 
 
 namespace Tiny3D
@@ -140,11 +142,30 @@ namespace Tiny3D
 
     String DeviceInfo::getSystemInfo() const
     {
-        if (mDeviceInfo != nullptr)
-        {
-            return mDeviceInfo->getSystemInfo();
-        }
-        return "";
+        std::stringstream ss;
+
+        // OS Version
+        ss<<"Operating System : "<<getOSVersion()<<"\n";
+        // Device Version
+        ss<<"Device Version : "<<getDeviceVersion()<<"\n";
+        // Device ID
+        ss<<"Device ID : "<<getDeviceID()<<"\n";
+        // CPU Type
+        ss<<"CPU Type : "<<getCPUType()<<"\n";
+        // CPU Architecture
+        ss<<"CPU Architecture : "<<getCPUArchitecture()<<"\n";
+        // CPU Cores
+        ss<<"CPU Cores : "<<getCPUCores()<<"\n";
+        // System RAM
+        ss<<"System RAM : "<<getSystemRAM()<<"MB\n";
+        // Screen size & DPI
+        ss<<"Screen Size : "<<getScreenWidth()<<"x"<<getScreenHeight()<<"\n";
+        ss<<"Screen DPI : "<<getScreenDPI()<<"\n";
+
+        String str = ss.str();
+        size_t len = str.length();
+        const char *txt = str.c_str();
+        return str;
     }
 
     int32_t DeviceInfo::getScreenWidth() const
@@ -174,15 +195,6 @@ namespace Tiny3D
         return 0.0f;
     }
 
-    String DeviceInfo::getMacAddress() const
-    {
-        if (mDeviceInfo != nullptr)
-        {
-            return mDeviceInfo->getMacAddress();
-        }
-        return "";
-    }
-
     String DeviceInfo::getCPUType() const
     {
         if (mDeviceInfo != nullptr)
@@ -192,20 +204,30 @@ namespace Tiny3D
         return "";
     }
 
-    int32_t DeviceInfo::getNumberOfProcessors() const
+    String DeviceInfo::getCPUArchitecture() const
     {
         if (mDeviceInfo != nullptr)
         {
-            return mDeviceInfo->getNumberOfProcessors();
+            return mDeviceInfo->getCPUArchitecture();
+        }
+
+        return "";
+    }
+
+    int32_t DeviceInfo::getCPUCores() const
+    {
+        if (mDeviceInfo != nullptr)
+        {
+            return mDeviceInfo->getCPUCores();
         }
         return 1;
     }
 
-    uint32_t DeviceInfo::getMemoryCapacity() const
+    uint32_t DeviceInfo::getSystemRAM() const
     {
         if (mDeviceInfo != nullptr)
         {
-            return mDeviceInfo->getMemoryCapacity();
+            return mDeviceInfo->getSystemRAM();
         }
         return 0;
     }

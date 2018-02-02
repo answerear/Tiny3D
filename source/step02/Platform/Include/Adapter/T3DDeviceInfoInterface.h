@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -58,11 +58,6 @@ namespace Tiny3D
         virtual const String &getDeviceVersion() const = 0;
 
         /**
-         * @brief 获取系统详细信息字符串
-         */
-        virtual const String &getSystemInfo() const = 0;
-
-        /**
          * @brief 获取屏幕宽度.
          */
         virtual int32_t getScreenWidth() const = 0;
@@ -78,24 +73,24 @@ namespace Tiny3D
         virtual float getScreenDPI() const = 0;
 
         /**
-         * @brief 获取设备mac地址.
-         */
-        virtual const String &getMacAddress() const = 0;
-
-        /**
          * @brief 获取CPU类型信息.
          */
         virtual const String &getCPUType() const = 0;
 
         /**
-         * @brief 获取CPU核数.
+         * @brief 获取CPU架构
          */
-        virtual int32_t getNumberOfProcessors() const = 0;
+        virtual const String &getCPUArchitecture() const = 0;
 
         /**
-         * @brief 获取内存信息.
+         * @brief 获取CPU核数.
          */
-        virtual uint32_t getMemoryCapacity() const = 0;
+        virtual int32_t getCPUCores() const = 0;
+
+        /**
+         * @brief 获取系统内存总数.
+         */
+        virtual uint32_t getSystemRAM() const = 0;
 
         /**
          * @brief 获取设备ID.
