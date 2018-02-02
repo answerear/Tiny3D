@@ -36,11 +36,28 @@ namespace Tiny3D
         : mSWVersion()
         , mOSVersion()
         , mHWVersion()
-        , mSystemInfo()
         , mCPUType()
-        , mNumberOfProcessor(0)
+        , mCPUArchitecture()
+        , mCPUCores(0)
+        , mSystemRAM(0)
+        , mScreenWidth(0)
+        , mScreenHeight(0)
+        , mScreenDPI(0.0f)
     {
+        // 收集操作系统信息
+        collectOSInfo();
 
+        // 收集CPU信息
+        collectCPUInfo();
+
+        // 收集系统RAM信息
+        collectRAMInfo();
+
+        // 收集设备信息
+        collectDeviceInfo();
+
+        // 收集屏幕信息
+        collectScreenInfo();
     }
 
     Win32DeviceInfo::~Win32DeviceInfo()
@@ -48,16 +65,12 @@ namespace Tiny3D
 
     }
 
-    uint32_t Win32DeviceInfo::getPlatform() const
+    void Win32DeviceInfo::collectOSInfo()
     {
-        return E_PLATFORM_WIN32;
-    }
-
-    const String &Win32DeviceInfo::getSoftwareVersion() const
-    {
+        // Software Version
         if (mSWVersion.empty())
         {
-            do 
+            do
             {
                 char strfile[MAX_PATH];
                 //这里取得自己的文件名
@@ -78,7 +91,7 @@ namespace Tiny3D
                     VS_FIXEDFILEINFO* pInfo;
                     UINT nInfoLen;
 
-                    if (VerQueryValue(szVerBuf, "\\", 
+                    if (VerQueryValue(szVerBuf, "\\",
                         (LPVOID*)&pInfo, &nInfoLen))
                     {
                         int nHMS = HIWORD(pInfo->dwFileVersionMS);
@@ -95,19 +108,10 @@ namespace Tiny3D
             } while (0);
         }
 
-        return mSWVersion;
-    }
-
-    void Win32DeviceInfo::setSoftwareVersion(const char *version)
-    {
-        mSWVersion = version;
-    }
-
-    const String &Win32DeviceInfo::getOSVersion() const
-    {
+        // Operating System
         if (mOSVersion.empty())
         {
-            do 
+            do
             {
                 PVOID oldWow64State = NULL;
 
@@ -115,7 +119,7 @@ namespace Tiny3D
                 LONG lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
                     "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
                     0,
-                    KEY_ALL_ACCESS|KEY_WOW64_64KEY,
+                    KEY_ALL_ACCESS | KEY_WOW64_64KEY,
                     &hKey);
                 if (lResult != ERROR_SUCCESS)
                     break;
@@ -178,7 +182,184 @@ namespace Tiny3D
                 mOSVersion = getOSInfo();
             }
         }
+    }
 
+    void Win32DeviceInfo::collectCPUInfo()
+    {
+        SYSTEM_INFO info;
+        ::GetSystemInfo(&info);
+
+        // CPU Type
+        if (mCPUType.empty())
+        {
+            do
+            {
+                char strBuf[100];
+                HKEY hKey;
+                DWORD dwSize;
+                LONG lReturn = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                    "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",
+                    0,
+                    KEY_READ,
+                    &hKey);
+
+                if (lReturn != ERROR_SUCCESS)
+                {
+                    break;
+                }
+
+                lReturn = RegQueryValueEx(hKey, "ProcessorNameString",
+                    NULL, NULL, (BYTE *)strBuf, &dwSize);
+
+                if (lReturn != ERROR_SUCCESS)
+                {
+                    break;
+                }
+
+                RegCloseKey(hKey);
+
+                mCPUType = strBuf;
+            } while (0);
+
+            if (mCPUType.empty())
+            {
+                if (info.dwProcessorType == PROCESSOR_INTEL_386)
+                {
+                    mCPUType = "Intel 386";
+                }
+                else if (info.dwProcessorType == PROCESSOR_INTEL_486)
+                {
+                    mCPUType = "Intel 486";
+                }
+                else if (info.dwProcessorType == PROCESSOR_INTEL_PENTIUM)
+                {
+                    mCPUType = "Intel Pentium";
+                }
+                else if (info.dwProcessorType == PROCESSOR_INTEL_IA64)
+                {
+                    mCPUType = "Intel Itanium";
+                }
+                else if (info.dwProcessorType == PROCESSOR_AMD_X8664)
+                {
+                    mCPUType = "AMD x86_64";
+                }
+                else
+                {
+                    std::stringstream ss;
+                    ss << info.dwProcessorType;
+                    mCPUType = ss.str();
+                }
+            }
+        }
+
+        // CPU Architecture
+        if (mCPUArchitecture.empty())
+        {
+            std::stringstream ss;
+
+            // CPU Architecture
+            if (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
+            {
+                ss << "CPU Architecture : x64 (AMD or Intel)\n";
+            }
+            else if (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM)
+            {
+                ss << "CPU Architecture : ARM\n";
+            }
+            else if (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)
+            {
+                ss << "CPU Architecture : Intel Itanium\n";
+            }
+            else if (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
+            {
+                ss << "CPU Architecture : Intel\n";
+            }
+            else
+            {
+                ss << "Unknown architecture\n";
+            }
+        }
+
+        // CPU Cores
+        if (mCPUCores == 0)
+        {
+            mCPUCores = info.dwNumberOfProcessors;
+        }
+    }
+
+    void Win32DeviceInfo::collectRAMInfo()
+    {
+        if (mSystemRAM == 0)
+        {
+            MEMORYSTATUSEX statex;
+            statex.dwLength = sizeof(statex);
+            GlobalMemoryStatusEx(&statex);
+            mSystemRAM = statex.ullTotalPhys / (1024 * 1024);
+        }
+    }
+
+    void Win32DeviceInfo::collectDeviceInfo()
+    {
+        // Device Version
+        if (mHWVersion.empty())
+        {
+            OSVERSIONINFOEX os;
+            os.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+            String version;
+
+            if (::GetVersionEx((OSVERSIONINFO *)&os))
+            {
+                std::stringstream ss;
+                ss << os.dwMajorVersion << "." << os.dwMinorVersion
+                    << "." << os.dwBuildNumber;
+                mHWVersion = ss.str();
+            }
+        }
+
+        // Device ID
+        if (mDeviceID.empty())
+        {
+#if __USE_MAC_FOR_DEVICE_ID__
+            mDeviceID = getMacAddress();
+#elif __USE_CPUID_FOR_DEVICE_ID__
+            mDeviceID = getCPUID();
+#elif __USE_MAINBOARD_UUID_FOR_DEVICE_ID__
+            mDeviceID = getMainboardUUID();
+#endif
+        }
+    }
+
+    void Win32DeviceInfo::collectScreenInfo()
+    {
+        mScreenWidth = ::GetSystemMetrics(SM_CXSCREEN);
+        mScreenHeight = ::GetSystemMetrics(SM_CYSCREEN);
+
+        HDC hdcScreen = GetDC(NULL);
+        // Pixel per inch
+        double fDPIX = (double)GetDeviceCaps(hdcScreen, LOGPIXELSX);
+        double fDPIY = (double)GetDeviceCaps(hdcScreen, LOGPIXELSY);
+        ReleaseDC(NULL, hdcScreen);
+
+        mScreenDPI = (float)fDPIX;
+    }
+
+    uint32_t Win32DeviceInfo::getPlatform() const
+    {
+        return E_PLATFORM_WIN32;
+    }
+
+    const String &Win32DeviceInfo::getSoftwareVersion() const
+    {
+        return mSWVersion;
+    }
+
+    void Win32DeviceInfo::setSoftwareVersion(const char *version)
+    {
+        mSWVersion = version;
+    }
+
+    const String &Win32DeviceInfo::getOSVersion() const
+    {
         return mOSVersion;
     }
 
@@ -386,249 +567,111 @@ namespace Tiny3D
 
     const String &Win32DeviceInfo::getDeviceVersion() const
     {
-        if (mHWVersion.empty())
-        {
-            OSVERSIONINFOEX os;
-            os.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-            String version;
-
-            if (::GetVersionEx((OSVERSIONINFO *)&os))
-            {
-                std::stringstream ss;
-                ss << os.dwMajorVersion << "." << os.dwMinorVersion 
-                    << "." << os.dwBuildNumber;
-                mHWVersion = ss.str();
-            }
-        }
-
         return mHWVersion;
-    }
-
-    const String &Win32DeviceInfo::getSystemInfo() const
-    {
-        if (mSystemInfo.empty())
-        {
-            SYSTEM_INFO info;
-            ::GetSystemInfo(&info);
-            std::stringstream ss;
-            // OS Version
-            ss << "Operating System : " << getOSVersion() << "\n";
-            // CPU Architecture
-            if (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-            {
-                ss << "CPU Architecture : x64 (AMD or Intel)\n";
-            }
-            else if (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM)
-            {
-                ss << "CPU Architecture : ARM\n";
-            }
-            else if (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)
-            {
-                ss << "CPU Architecture : Intel Itanium\n";
-            }
-            else if (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
-            {
-                ss << "CPU Architecture : Intel\n";
-            }
-            else
-            {
-                ss << "Unknown architecture\n";
-            }
-            // CPU Type
-            ss << "CPU Type : " << getCPUType() << "\n";
-            // OS Revision
-            ss << "OS Revision : " << getDeviceVersion() << "\n";
-            // Number of CPU Processor
-            ss << "Number of CPU Processor : " << info.dwNumberOfProcessors << "\n";
-            mSystemInfo = ss.str();
-        }
-
-        return mSystemInfo;
     }
 
     int32_t Win32DeviceInfo::getScreenWidth() const
     {
-        return 0;
+        return mScreenWidth;
     }
 
     int32_t Win32DeviceInfo::getScreenHeight() const
     {
-        return 0;
+        return mScreenHeight;
     }
 
     float Win32DeviceInfo::getScreenDPI() const
     {
-        return 0.0f;
-    }
-
-    const String &Win32DeviceInfo::getMacAddress() const
-    {
-        if (mMacAddress.empty())
-        {
-            do 
-            {
-                PIP_ADAPTER_INFO pAdapterInfo;
-                DWORD AdapterInfoSize;
-                char szMac[32] = { 0 };
-                DWORD Err;
-
-                AdapterInfoSize = 0;
-                Err = GetAdaptersInfo(NULL, &AdapterInfoSize);
-
-                if ((Err != 0) && (Err != ERROR_BUFFER_OVERFLOW))
-                {
-                    break;
-                }
-
-                //   分配网卡信息内存  
-                pAdapterInfo = (PIP_ADAPTER_INFO)GlobalAlloc(GPTR, AdapterInfoSize);
-                if (pAdapterInfo == NULL)
-                {
-                    break;
-                }
-
-                if (GetAdaptersInfo(pAdapterInfo, &AdapterInfoSize) != 0)
-                {
-                    GlobalFree(pAdapterInfo);
-                    break;
-                }
-
-                std::string strMac;
-                for (PIP_ADAPTER_INFO pAdapter = pAdapterInfo; pAdapter != NULL; pAdapter = pAdapter->Next)
-                {
-                    // 确保是以太网 
-                    if (pAdapter->Type != MIB_IF_TYPE_ETHERNET)
-                        continue;
-
-                    // 确保MAC地址的长度为 00-00-00-00-00-00 
-                    if (pAdapter->AddressLength != 6)
-                        continue;
-
-                    char acMAC[128] = { 0 };
-
-                    sprintf(acMAC, "%02X-%02X-%02X-%02X-%02X-%02X",
-                        (int)(pAdapter->Address[0]),
-                        (int)(pAdapter->Address[1]),
-                        (int)(pAdapter->Address[2]),
-                        (int)(pAdapter->Address[3]),
-                        (int)(pAdapter->Address[4]),
-                        (int)(pAdapter->Address[5]));
-
-                    mMacAddress = acMAC;
-                    break;
-                }
-
-                GlobalFree(pAdapterInfo);
-            } while (0);
-        }
-
-        return mMacAddress;
+        return mScreenDPI;
     }
 
     const String &Win32DeviceInfo::getCPUType() const
     {
-        if (mCPUType.empty())
-        {
-            do 
-            {
-                char strBuf[100];
-                HKEY hKey;
-                DWORD dwSize;
-                LONG lReturn = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                    "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",
-                    0,
-                    KEY_READ,
-                    &hKey);
-
-                if (lReturn != ERROR_SUCCESS)
-                {
-                    break;
-                }
-
-                lReturn = RegQueryValueEx(hKey, "ProcessorNameString",
-                    NULL, NULL, (BYTE *)strBuf, &dwSize);
-
-                if (lReturn != ERROR_SUCCESS)
-                {
-                    break;
-                }
-
-                RegCloseKey(hKey);
-
-                mCPUType = strBuf;
-            } while (0);
-
-            if (mCPUType.empty())
-            {
-                SYSTEM_INFO info;
-                ::GetSystemInfo(&info);
-
-                if (info.dwProcessorType == PROCESSOR_INTEL_386)
-                {
-                    mCPUType = "Intel 386";
-                }
-                else if (info.dwProcessorType == PROCESSOR_INTEL_486)
-                {
-                    mCPUType = "Intel 486";
-                }
-                else if (info.dwProcessorType == PROCESSOR_INTEL_PENTIUM)
-                {
-                    mCPUType = "Intel Pentium";
-                }
-                else if (info.dwProcessorType == PROCESSOR_INTEL_IA64)
-                {
-                    mCPUType = "Intel Itanium";
-                }
-                else if (info.dwProcessorType == PROCESSOR_AMD_X8664)
-                {
-                    mCPUType = "AMD x86_64";
-                }
-                else
-                {
-                    std::stringstream ss;
-                    ss << info.dwProcessorType;
-                    mCPUType = ss.str();
-                }
-            }
-        }
-
         return mCPUType;
     }
 
-    int32_t Win32DeviceInfo::getNumberOfProcessors() const
+    const String &Win32DeviceInfo::getCPUArchitecture() const
     {
-        if (mNumberOfProcessor == 0)
-        {
-            SYSTEM_INFO info;
-            ::GetSystemInfo(&info);
-            mNumberOfProcessor = info.dwNumberOfProcessors;
-        }
-
-        return mNumberOfProcessor;
+        return mCPUArchitecture;
     }
 
-    uint32_t Win32DeviceInfo::getMemoryCapacity() const
+    int32_t Win32DeviceInfo::getCPUCores() const
     {
-        MEMORYSTATUSEX statex;
-        statex.dwLength = sizeof(statex);
-        GlobalMemoryStatusEx(&statex);
-        return statex.ullTotalPhys / (1024 * 1024);
+        return mCPUCores;
+    }
+
+    uint32_t Win32DeviceInfo::getSystemRAM() const
+    {
+        return mSystemRAM;
     }
 
     const String &Win32DeviceInfo::getDeviceID() const
     {
-        if (mDeviceID.empty())
-        {
-#if __USE_MAC_FOR_DEVICE_ID__
-            mDeviceID = getMacAddress();
-#elif __USE_CPUID_FOR_DEVICE_ID__
-            mDeviceID = getCPUID();
-#elif __USE_MAINBOARD_UUID_FOR_DEVICE_ID__
-            mDeviceID = getMainboardUUID();
-#endif
-        }
-
         return mDeviceID;
+    }
+
+
+    String Win32DeviceInfo::getMacAddress() const
+    {
+        String macdress;
+
+        do
+        {
+            PIP_ADAPTER_INFO pAdapterInfo;
+            DWORD AdapterInfoSize;
+            char szMac[32] = { 0 };
+            DWORD Err;
+
+            AdapterInfoSize = 0;
+            Err = GetAdaptersInfo(NULL, &AdapterInfoSize);
+
+            if ((Err != 0) && (Err != ERROR_BUFFER_OVERFLOW))
+            {
+                break;
+            }
+
+            //   分配网卡信息内存  
+            pAdapterInfo = (PIP_ADAPTER_INFO)GlobalAlloc(GPTR, AdapterInfoSize);
+            if (pAdapterInfo == NULL)
+            {
+                break;
+            }
+
+            if (GetAdaptersInfo(pAdapterInfo, &AdapterInfoSize) != 0)
+            {
+                GlobalFree(pAdapterInfo);
+                break;
+            }
+
+            std::string strMac;
+            for (PIP_ADAPTER_INFO pAdapter = pAdapterInfo; pAdapter != NULL; pAdapter = pAdapter->Next)
+            {
+                // 确保是以太网 
+                if (pAdapter->Type != MIB_IF_TYPE_ETHERNET)
+                    continue;
+
+                // 确保MAC地址的长度为 00-00-00-00-00-00 
+                if (pAdapter->AddressLength != 6)
+                    continue;
+
+                char acMAC[128] = { 0 };
+
+                sprintf(acMAC, "%02X-%02X-%02X-%02X-%02X-%02X",
+                    (int)(pAdapter->Address[0]),
+                    (int)(pAdapter->Address[1]),
+                    (int)(pAdapter->Address[2]),
+                    (int)(pAdapter->Address[3]),
+                    (int)(pAdapter->Address[4]),
+                    (int)(pAdapter->Address[5]));
+
+                macdress = acMAC;
+                break;
+            }
+
+            GlobalFree(pAdapterInfo);
+        } while (0);
+
+        return macdress;
     }
 
     String Win32DeviceInfo::getCPUID() const

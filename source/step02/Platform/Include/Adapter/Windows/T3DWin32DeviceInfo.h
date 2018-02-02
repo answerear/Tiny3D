@@ -53,12 +53,7 @@ namespace Tiny3D
          * @brief 获取操作系统版本号字符串
          */
         virtual const String &getOSVersion() const override;
-
-        /**
-        * @brief 获取系统详细信息字符串
-        */
-        virtual const String &getSystemInfo() const override;
-
+        
         /**
          * @brief 获取设备机型版本信息字符串
          */
@@ -80,24 +75,24 @@ namespace Tiny3D
         virtual float getScreenDPI() const override;
 
         /**
-         * @brief 获取设备mac地址.
-         */
-        virtual const String &getMacAddress() const override;
-
-        /**
          * @brief 获取CPU类型信息.
          */
         virtual const String &getCPUType() const override;
 
         /**
+        * @brief 获取CPU架构.
+        */
+        virtual const String &getCPUArchitecture() const override;
+
+        /**
          * @brief 获取CPU核数
          */
-        virtual int32_t getNumberOfProcessors() const override;
+        virtual int32_t getCPUCores() const override;
 
         /**
          * @brief 获取内存信息.
          */
-        virtual uint32_t getMemoryCapacity() const override;
+        virtual uint32_t getSystemRAM() const override;
 
         /**
          * @brief 获取设备ID.
@@ -107,18 +102,48 @@ namespace Tiny3D
     private:
         String getOSInfo() const;
 
+        String getMacAddress() const;
+
         String getMainboardUUID() const;
 
         String getCPUID() const;
 
-        mutable String      mSWVersion;
-        mutable String      mOSVersion;
-        mutable String      mHWVersion;
-        mutable String      mSystemInfo;
-        mutable String      mCPUType;
-        mutable String      mMacAddress;
-        mutable String      mDeviceID;
-        mutable uint32_t    mNumberOfProcessor;
+        /**
+         * @brief 收集操作系统信息
+         */
+        void collectOSInfo();
+
+        /**
+         * @brief 收集CPU信息
+         */
+        void collectCPUInfo();
+
+        /**
+         * @brief 收集内存信息
+         */
+        void collectRAMInfo();
+
+        /**
+         * @brief 收集设备硬件信息
+         */
+        void collectDeviceInfo();
+
+        /**
+         * @brief 收集屏幕信息
+         */
+        void collectScreenInfo();
+
+        String      mSWVersion;
+        String      mOSVersion;
+        String      mHWVersion;
+        String      mCPUType;
+        String      mCPUArchitecture;
+        String      mDeviceID;
+        int32_t     mCPUCores;
+        uint32_t    mSystemRAM;
+        int32_t     mScreenWidth;
+        int32_t     mScreenHeight;
+        float       mScreenDPI;
     };
 }
 
