@@ -123,7 +123,6 @@ namespace Tiny3D
         String  mHWVersion;
         String  mCPUType;
         String  mCPUArchitecture;
-        String  mSystemInfo;
         String  mDeviceID;
 
         int32_t     mCPUCores;

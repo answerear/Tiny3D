@@ -98,6 +98,40 @@ namespace Tiny3D
          * @brief 获取设备ID.
          */
         virtual const String &getDeviceID() const override;
+
+    private:
+        /**
+         * @brief 收集信息
+         */
+        void collectSystemInfo();
+
+        void collectOSInfo();
+
+        void collectCPUInfo();
+
+        void collectRAMInfo();
+
+        void collectDeviceInfo();
+
+        void collectScreenInfo();
+
+        String trim(const String &text);
+
+        void getSoftwareVersionByJNI();
+
+    private:
+        String  mOSVersion;
+        String  mSWVersion;
+        String  mHWVersion;
+        String  mCPUType;
+        String  mCPUArchitecture;
+        String  mDeviceID;
+
+        int32_t     mCPUCores;
+        uint32_t    mSystemRAM;
+        int32_t     mScreenWidth;
+        int32_t     mScreenHeight;
+        float      mScreenDPI;
     };
 }
 

@@ -240,7 +240,7 @@ namespace Tiny3D
     String Logger::getLogPath() const
     {
         String cachePath = Dir::getCachePath();
-        String path = cachePath + "Log" + Dir::NATIVE_SEPARATOR;
+        String path = cachePath + Dir::NATIVE_SEPARATOR + "Log" + Dir::NATIVE_SEPARATOR;
         return path;
     }
 
@@ -357,8 +357,17 @@ namespace Tiny3D
 
     String Logger::getFileName(const String &path) const
     {
-        int32_t pos = path.rfind(Dir::NATIVE_SEPARATOR) + 1;
-        String name = path.substr(pos, path.length()- pos+1);
+        String name;
+        int32_t pos = path.rfind("\\");
+        if (pos == String::npos)
+        {
+            pos = path.rfind("/");
+        }
+        if (pos != String::npos)
+        {
+            name = path.substr(pos+1);
+        }
+
         return name;
     }
 

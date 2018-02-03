@@ -21,6 +21,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <SDL.h>
+
 namespace Tiny3D
 {
     AndroidDir::AndroidDir()
@@ -87,18 +89,22 @@ namespace Tiny3D
     
     String AndroidDir::getCachePath() const
     {
-        return getAppPath() + "/Caches/";
+        return getAppPath() + "/cache";
     }
     
     String AndroidDir::getAppPath() const
     {
-        String appPath;
+        String internalPath = SDL_AndroidGetInternalStoragePath();
+        size_t pos = internalPath.rfind("/");
+        String externalPath = SDL_AndroidGetExternalStoragePath();
+        String appPath = internalPath.substr(0, pos);
         return appPath;
     }
     
     String AndroidDir::getWritablePath() const
     {
-        return getAppPath() + "/Save/";
+        String externalPath = SDL_AndroidGetExternalStoragePath();
+        return getAppPath() + "/files";
     }
 }
 

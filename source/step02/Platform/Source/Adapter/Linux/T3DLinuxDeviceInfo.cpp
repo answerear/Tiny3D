@@ -30,6 +30,17 @@
 namespace Tiny3D
 {
     LinuxDeviceInfo::LinuxDeviceInfo()
+        : mOSVersion()
+        , mSWVersion()
+        , mHWVersion()
+        , mCPUType()
+        , mCPUArchitecture()
+        , mDeviceID()
+        , mCPUCores(0)
+        , mSystemRAM(0)
+        , mScreenWidth(0)
+        , mScreenHeight(0)
+        , mScreenDPI(0.0f)
     {
         collectSystemInfo();
     }
@@ -246,7 +257,7 @@ namespace Tiny3D
 
     void LinuxDeviceInfo::setSoftwareVersion(const char *version)
     {
-
+        mSWVersion = version;
     }
 
     const String &LinuxDeviceInfo::getOSVersion() const
