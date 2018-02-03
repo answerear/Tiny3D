@@ -44,6 +44,16 @@ namespace Tiny3D
         , mScreenHeight(0)
         , mScreenDPI(0.0f)
     {
+        collectSystemInfo();
+    }
+
+    Win32DeviceInfo::~Win32DeviceInfo()
+    {
+
+    }
+
+    void Win32DeviceInfo::collectSystemInfo()
+    {
         // 收集操作系统信息
         collectOSInfo();
 
@@ -58,11 +68,6 @@ namespace Tiny3D
 
         // 收集屏幕信息
         collectScreenInfo();
-    }
-
-    Win32DeviceInfo::~Win32DeviceInfo()
-    {
-
     }
 
     void Win32DeviceInfo::collectOSInfo()
@@ -260,24 +265,26 @@ namespace Tiny3D
             // CPU Architecture
             if (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
             {
-                ss << "CPU Architecture : x64 (AMD or Intel)\n";
+                ss << "CPU Architecture : x64 (AMD or Intel)";
             }
             else if (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM)
             {
-                ss << "CPU Architecture : ARM\n";
+                ss << "CPU Architecture : ARM";
             }
             else if (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)
             {
-                ss << "CPU Architecture : Intel Itanium\n";
+                ss << "CPU Architecture : Intel Itanium";
             }
             else if (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
             {
-                ss << "CPU Architecture : Intel\n";
+                ss << "CPU Architecture : Intel";
             }
             else
             {
-                ss << "Unknown architecture\n";
+                ss << "Unknown architecture";
             }
+
+            mCPUArchitecture = ss.str();
         }
 
         // CPU Cores

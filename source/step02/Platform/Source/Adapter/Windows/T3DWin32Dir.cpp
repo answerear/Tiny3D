@@ -286,7 +286,7 @@ namespace Tiny3D
 
     String Win32Dir::getCachePath() const
     {
-        return getAppPath() + "\\Caches\\";
+        return getAppPath() + "\\Caches";
     }
 
     String Win32Dir::getAppPath() const
@@ -305,6 +305,7 @@ namespace Tiny3D
             ptr = strchr(ptr, '\\');
             ptr++;
         }
+        ptr--;
         *ptr = 0;
 
         return String(szBuf);
@@ -312,7 +313,7 @@ namespace Tiny3D
 
     String Win32Dir::getWritablePath() const
     {
-        return getAppPath() + "\\Save\\";
+        return getAppPath() + "\\Save";
     }
 
     char Win32Dir::getNativeSeparator() const

@@ -108,6 +108,8 @@ namespace Tiny3D
 
         String getCPUID() const;
 
+        void collectSystemInfo();
+
         /**
          * @brief 收集操作系统信息
          */

@@ -240,7 +240,7 @@ namespace Tiny3D
     String Logger::getLogPath() const
     {
         String cachePath = Dir::getCachePath();
-        String path = cachePath + Dir::NATIVE_SEPARATOR + "Log" + Dir::NATIVE_SEPARATOR;
+        String path = cachePath + Dir::NATIVE_SEPARATOR + "Log";
         return path;
     }
 
@@ -253,7 +253,7 @@ namespace Tiny3D
         ss<<appID<<"_"<<tag<<"_"
             <<dt.dateToString(DateTime::DF_YY_MM_DD)<<"_"<<dt.Hour()<<".log";
 
-        String fullPath = logPath + ss.str();
+        String fullPath = logPath + Dir::NATIVE_SEPARATOR + ss.str();
         return fullPath;
     }
 
@@ -529,7 +529,7 @@ namespace Tiny3D
         Dir dir;
         String logPath = getLogPath();
 
-        String path = logPath + "/*.log";
+        String path = logPath + Dir::NATIVE_SEPARATOR + "*.log";
 
         bool working = dir.findFile(path);
         while (working)
