@@ -97,7 +97,7 @@ namespace Tiny3D
         if ([pathes count] > 0)
         {
             NSString *path = [pathes objectAtIndex:0];
-            cachePath = [path UTF8String] + String("/");
+            cachePath = [path UTF8String];
         }
         
         [pool release];
@@ -108,7 +108,7 @@ namespace Tiny3D
     {
         NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
         NSString *path = [[NSBundle mainBundle] resourcePath];
-        String appPath = [path UTF8String] + String("/");
+        String appPath = [path UTF8String];
         [pool release];
         return appPath;
     }
@@ -123,7 +123,7 @@ namespace Tiny3D
         if ([pathes count] > 0)
         {
             NSString *path = [pathes objectAtIndex:0];
-            writablePath = [path UTF8String] + String("/");
+            writablePath = [path UTF8String];
         }
         
         [pool release];

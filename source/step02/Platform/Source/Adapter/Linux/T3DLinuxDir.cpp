@@ -87,7 +87,7 @@ namespace Tiny3D
 
     String LinuxDir::getCachePath() const
     {
-        return getAppPath() + "/Caches/";
+        return getAppPath() + "/Caches";
     }
 
     String LinuxDir::getAppPath() const
@@ -97,7 +97,7 @@ namespace Tiny3D
 
     String LinuxDir::getWritablePath() const
     {
-        return getAppPath() + "/Documents/";
+        return getAppPath() + "/Documents";
     }
 }
 

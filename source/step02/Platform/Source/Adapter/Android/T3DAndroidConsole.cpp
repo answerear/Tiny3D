@@ -29,7 +29,7 @@ namespace Tiny3D
 
     void AndroidConsole::print(const char *pText)
     {
-        LOGD("Tiny3D", "%s", pText);
+        LOGD("%s", pText);
         printf("%s", pText);
     }
 }

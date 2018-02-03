@@ -88,14 +88,14 @@ namespace Tiny3D
     
     String OSXDir::getCachePath() const
     {
-        return getAppPath() + "/Caches/";
+        return getAppPath() + "/Caches";
     }
     
     String OSXDir::getAppPath() const
     {
         NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
         NSString *path = [[NSBundle mainBundle] bundlePath];
-        String appPath = [path UTF8String] + String("/");
+        String appPath = [path UTF8String];
         [pool release];
         
         return appPath;
@@ -103,7 +103,7 @@ namespace Tiny3D
     
     String OSXDir::getWritablePath() const
     {
-        return getAppPath() + "/Documents/";
+        return getAppPath() + "/Documents";
     }
 }
 

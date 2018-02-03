@@ -26,10 +26,10 @@
 
 namespace Tiny3D
 {
-    #define LOGD(...)   __android_log_print(ANDROID_LOG_DEBUG, __VA_ARGS__)
-    #define LOGI(...)   __android_log_print(ANDROID_LOG_INFO, __VA_ARGS__)
-    #define LOGW(...)   __android_log_print(ANDROID_LOG_WARNING, __VA_ARGS__)
-    #define LOGE(...)   __android_log_print(ANDROID_LOG_ERROR, __VA_ARGS__)
+    #define LOGD(...)   __android_log_print(ANDROID_LOG_DEBUG, "Tiny3D", __VA_ARGS__)
+    #define LOGI(...)   __android_log_print(ANDROID_LOG_INFO, "Tiny3D", __VA_ARGS__)
+    #define LOGW(...)   __android_log_print(ANDROID_LOG_WARNING, "Tiny3D", __VA_ARGS__)
+    #define LOGE(...)   __android_log_print(ANDROID_LOG_ERROR, "Tiny3D", __VA_ARGS__)
 
     class AndroidConsole : public IConsole
     {
