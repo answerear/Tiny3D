@@ -92,7 +92,15 @@ namespace Tiny3D
 
     String LinuxDir::getAppPath() const
     {
-        return "";
+        String appPath;
+        char path[PATH_MAX+1] = {0};
+
+        if (getcwd(path, PATH_MAX) != nullptr)
+        {
+            appPath = path;
+        }
+
+        return appPath;
     }
 
     String LinuxDir::getWritablePath() const

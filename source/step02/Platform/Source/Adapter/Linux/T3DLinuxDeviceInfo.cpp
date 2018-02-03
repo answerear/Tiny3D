@@ -202,6 +202,7 @@ namespace Tiny3D
 
     void LinuxDeviceInfo::collectScreenInfo()
     {
+        // Screen Resolution
         Display *display;
         char *displayName = nullptr;
         display = XOpenDisplay(displayName);
@@ -214,7 +215,10 @@ namespace Tiny3D
         // DPI
         int W = DisplayWidthMM(display, 0);
         int H = DisplayHeightMM(display, 0);
-        mScreenDPI = double(w) * 25.4 / double(W);
+        if (W != 0)
+        {
+            mScreenDPI = double(w) * 25.4 / double(W);
+        }
 
         XCloseDisplay(display);
     }
