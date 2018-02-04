@@ -61,6 +61,10 @@ namespace Tiny3D
          */
         void renderOneFrame();
 
+        void appDidEnterBackground();
+
+        void appWillEnterForeground();
+
     protected:
         EventManager        *mEventMgr;             /// 事件管理器对象
         Logger              *mLogger;               /// 日志对象

@@ -74,6 +74,8 @@ namespace Tiny3D
         System          *mSystem;       /// 具体平台系统对象
         IApplication    *mApp;          /// 具体平台应用程序对象
     };
+
+    #define T3D_APPLICATION     (Application::getInstance())
 }
 
 

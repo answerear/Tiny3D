@@ -20,6 +20,8 @@
 
 #include "Adapter/Common/T3DSDLApplication.h"
 #include "T3DPlatformErrorDef.h"
+#include "T3DApplication.h"
+
 
 namespace Tiny3D
 {
@@ -64,9 +66,22 @@ namespace Tiny3D
 
         while (SDL_PollEvent(&ev) != 0)
         {
-            if (ev.type == SDL_QUIT)
+            switch (ev.type)
             {
-                ret = false;
+            case SDL_QUIT:
+                {
+                    ret = false;
+                }
+                break;
+            case SDL_APP_DIDENTERBACKGROUND:
+                {
+                    T3D_APPLICATION.applicationDidEnterBackground();
+                }
+                break;
+            case SDL_APP_WILLENTERFOREGROUND:
+                {
+                    T3D_APPLICATION.applicationWillEnterForeground();
+                }
                 break;
             }
         }

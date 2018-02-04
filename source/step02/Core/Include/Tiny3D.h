@@ -22,7 +22,7 @@
 #define __TINY3D_H__
 
 
-#include "Kernel/T3DEngine.h"
+#include <Kernel/T3DEngine.h>
 
 
 #endif  /*__TINY3D_H__*/

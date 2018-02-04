@@ -19,6 +19,9 @@
 
 #include "HelloApp.h"
 
+
+using namespace Tiny3D;
+
 HelloApp::HelloApp()
     : Application()
 {
@@ -30,20 +33,20 @@ HelloApp::~HelloApp()
 
 bool HelloApp::applicationDidFinishLaunching()
 {
-    mTimerID1 = Tiny3D::T3D_TIMER_MGR.startTimer(2000, true, this);
-    mTimerID2 = Tiny3D::T3D_TIMER_MGR.startTimer(5000, false, this);
+    mTimerID1 = T3D_TIMER_MGR.startTimer(2000, true, this);
+    mTimerID2 = T3D_TIMER_MGR.startTimer(5000, false, this);
 
     return true;
 }
 
 void HelloApp::applicationDidEnterBackground()
 {
-
+    T3D_ENGINE.appDidEnterBackground();
 }
 
 void HelloApp::applicationWillEnterForeground()
 {
-
+    T3D_ENGINE.appWillEnterForeground();
 }
 
 void HelloApp::applicationWillTerminate()
@@ -53,14 +56,14 @@ void HelloApp::applicationWillTerminate()
 
 void HelloApp::onTimer(uint32_t timerID, int32_t dt)
 {
-	if (timerID == mTimerID1)
-	{
-		T3D_LOG_INFO("onTimer : TimerID #1 : %u, dt : %d", timerID ,dt);
-	}
-	else if (timerID == mTimerID2)
-	{
-		Tiny3D::T3D_TIMER_MGR.stopTimer(mTimerID1);
-        T3D_LOG_INFO("onTimer : TimerID #2 : %u, dt : %d", timerID ,dt);
-	}
+    if (timerID == mTimerID1)
+    {
+        T3D_LOG_INFO("onTimer : TimerID #1 : %u, dt : %d", timerID, dt);
+    }
+    else if (timerID == mTimerID2)
+    {
+        T3D_TIMER_MGR.stopTimer(mTimerID1);
+        T3D_LOG_INFO("onTimer : TimerID #2 : %u, dt : %d", timerID, dt);
+    }
 }
 

@@ -214,6 +214,11 @@ namespace Tiny3D
                     mCPUType = trim(name);
                     break;
                 }
+                else if (name.find("model name") != String::npos)
+                {
+                    mCPUType = trim(name);
+                    break;
+                }
             }
         } while(0);
 

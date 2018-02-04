@@ -109,4 +109,14 @@ namespace Tiny3D
     {
 
     }
+
+    void Engine::appWillEnterForeground()
+    {
+        T3D_LOG_ENTER_BACKGROUND();
+    }
+
+    void Engine::appDidEnterBackground()
+    {
+        T3D_LOG_ENTER_FOREGROUND();
+    }
 }
