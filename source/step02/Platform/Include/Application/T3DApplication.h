@@ -70,6 +70,8 @@ namespace Tiny3D
 
         virtual void applicationWillTerminate() = 0;
 
+        virtual void applicationLowMemory() = 0;
+
     private:
         System          *mSystem;       /// 具体平台系统对象
         IApplication    *mApp;          /// 具体平台应用程序对象

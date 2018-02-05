@@ -72,7 +72,7 @@ namespace Tiny3D
         return ret;
     }
 
-    void System::update()
+    void System::poll()
     {
         mTimerMgr->pollEvents();
     }

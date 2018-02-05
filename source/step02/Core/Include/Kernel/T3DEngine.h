@@ -46,10 +46,10 @@ namespace Tiny3D
         virtual ~Engine();
 
         /**
-         * @brief 启动引擎
+         * @brief 初始化引擎
          * @remarks 引擎的一切应用都要在调用本接口之后才有效。
          */
-        int32_t startup();
+        int32_t init();
 
         /**
          * @brief 运行引擎

@@ -54,6 +54,11 @@ void HelloApp::applicationWillTerminate()
 
 }
 
+void HelloApp::applicationLowMemory()
+{
+
+}
+
 void HelloApp::onTimer(uint32_t timerID, int32_t dt)
 {
     if (timerID == mTimerID1)

@@ -43,7 +43,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mLogger);
     }
 
-    int32_t Engine::startup()
+    int32_t Engine::init()
     {
         int32_t ret = T3D_ERR_FAIL;
 
@@ -93,10 +93,14 @@ namespace Tiny3D
         {
             // 轮询系统事件
             mIsRunning = theApp->pollEvents();
-            // 系统平台层轮询
-            T3D_SYSTEM.update();
+
+            if (!mIsRunning)
+                break;
+
             // 事件系统派发事件
             T3D_EVENT_MGR.dispatchEvent();
+
+            // 渲染一帧
             renderOneFrame();
         }
 

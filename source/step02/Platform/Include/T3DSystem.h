@@ -59,7 +59,7 @@ namespace Tiny3D
          * @brief 每个程序循环调用处理.
          * @return void
          */
-        void update();
+        void poll();
 
         /**
          * @brief 获取操作系统适配层工厂接口对象

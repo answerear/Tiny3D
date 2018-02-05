@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -42,6 +42,11 @@ namespace Tiny3D
         case SDL_APP_TERMINATING:
             {
                 T3D_APPLICATION.applicationWillTerminate();
+            }
+            break;
+        case SDL_APP_LOWMEMORY:
+            {
+                T3D_APPLICATION.applicationLowMemory();
             }
             break;
         }

@@ -74,6 +74,12 @@ namespace Tiny3D
             ret = mApp->pollEvents();
         }
 
+        if (ret)
+        {
+            // 系统平台层轮询
+            T3D_SYSTEM.poll();
+        }
+
         return ret;
     }
 
