@@ -159,15 +159,15 @@ add_subdirectory(Platform)
 # Project Log
 add_subdirectory(Log)
 # Project Framework
-add_subdirectory(Framework)
+#add_subdirectory(Framework)
 # Project Core
 add_subdirectory(Core)
 
 # Set the dependencies for all projects.
-add_dependencies(T3DCore T3DFramework T3DLog T3DPlatform)
+add_dependencies(T3DCore T3DLog T3DPlatform)
 
 if (TINY3D_BUILD_SAMPLES)
     # Build samples. Set all projects of samples.
     add_subdirectory(Samples)
-    add_dependencies(Demo_Hello T3DCore T3DFramework T3DLog T3DPlatform)
+    add_dependencies(Demo_Hello T3DCore T3DLog T3DPlatform)
 endif (TINY3D_BUILD_SAMPLES)

@@ -66,7 +66,7 @@ namespace Tiny3D
         void appWillEnterForeground();
 
     protected:
-        EventManager        *mEventMgr;             /// 事件管理器对象
+//         EventManager        *mEventMgr;             /// 事件管理器对象
         Logger              *mLogger;               /// 日志对象
 
         Window              *mWindow;               /// 窗口
