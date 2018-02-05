@@ -182,12 +182,23 @@ namespace Tiny3D
 
     void Logger::enterBackground()
     {
-
+        // 强制输出缓存中日志到文件中
+        if (mStrategy.eLevel != E_LEVEL_OFF || mIsForced)
+        {
+            stopFlushTimer();
+            flushCache();
+            closeLogFile();
+        }
     }
 
     void Logger::enterForeground()
     {
-
+        // 重启写日志定时器
+        if (mStrategy.eLevel != E_LEVEL_OFF || mIsForced)
+        {
+            openLogFile();
+            startFlushTimer();
+        }
     }
 
     Logger::Level Logger::toLevelValue(const String &level)
