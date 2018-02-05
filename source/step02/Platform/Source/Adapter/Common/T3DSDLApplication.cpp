@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -25,6 +25,30 @@
 
 namespace Tiny3D
 {
+    static int AppEventWatcher(void *userdata, SDL_Event *event)
+    {
+        switch (event->type)
+        {
+        case SDL_APP_DIDENTERBACKGROUND:
+            {
+                T3D_APPLICATION.applicationDidEnterBackground();
+            }
+            break;
+        case SDL_APP_WILLENTERFOREGROUND:
+            {
+                T3D_APPLICATION.applicationWillEnterForeground();
+            }
+            break;
+        case SDL_APP_TERMINATING:
+            {
+                T3D_APPLICATION.applicationWillTerminate();
+            }
+            break;
+        }
+        
+        return 0;
+    }
+    
     SDLApplication::SDLApplication()
     {
 
@@ -52,6 +76,8 @@ namespace Tiny3D
                 const char *error = SDL_GetError();
                 break;
             }
+            
+            SDL_AddEventWatch(AppEventWatcher, nullptr);
 
             ret = T3D_ERR_OK;
         } while (0);
@@ -71,16 +97,6 @@ namespace Tiny3D
             case SDL_QUIT:
                 {
                     ret = false;
-                }
-                break;
-            case SDL_APP_DIDENTERBACKGROUND:
-                {
-                    T3D_APPLICATION.applicationDidEnterBackground();
-                }
-                break;
-            case SDL_APP_WILLENTERFOREGROUND:
-                {
-                    T3D_APPLICATION.applicationWillEnterForeground();
                 }
                 break;
             }
