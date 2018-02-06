@@ -37,13 +37,17 @@ MovingEntity::MovingEntity()
 
 MovingEntity::~MovingEntity()
 {
-    T3D_TIMER_MGR.stopTimer(mWalkTimerID);
+    if (mWalkTimerID != T3D_INVALID_TIMER_ID)
+    {
+        T3D_TIMER_MGR.stopTimer(mWalkTimerID);
+    }
 }
 
 void MovingEntity::onTimer(uint32_t timerID, int32_t dt)
 {
     if (timerID == mWalkTimerID)
     {
+        mWalkTimerID = T3D_INVALID_TIMER_ID;
         onIdle();
     }
 }
@@ -52,7 +56,7 @@ int32_t MovingEntity::onMove(EventParam *param, TINSTANCE sender)
 {
     // 开始行走5秒
     T3D_LOG_INFO("Moving entity start walking for 5 seconds......");
-    T3D_TIMER_MGR.startTimer(5000, false, this);
+    mWalkTimerID = T3D_TIMER_MGR.startTimer(5000, false, this);
     return T3D_ERR_OK;
 }
 

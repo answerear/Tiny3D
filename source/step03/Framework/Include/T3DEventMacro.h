@@ -33,6 +33,8 @@ namespace Tiny3D
     // 声明事件MAP
     #define T3D_DECLARE_EVENT_MAP() \
         public: \
+            int32_t eventProc(uint32_t evid, EventParam *param, TINSTANCE sender);  \
+        protected:  \
 	        virtual int32_t processEvent(uint32_t evid, EventParam *param, TINSTANCE sender) override; 
 
     // 声明事件处理函数
@@ -47,9 +49,16 @@ namespace Tiny3D
     #define T3D_BEGIN_EVENT_MAP(theClass, classBase) \
 	    int32_t theClass::processEvent(uint32_t evid, EventParam *param, TINSTANCE sender) \
 	    { \
-		    int32_t ret = T3D_ERR_OK;   \
-            typedef int32_t (EventHandler::*Func)(uint32_t, EventParam*, TINSTANCE);  \
-            Func baseFunc = static_cast<Func>(&classBase::processEvent); 
+		    int32_t ret = eventProc(evid, param, sender);   \
+            if (ret == T3D_ERR_FWK_NONE_HANDLER)    \
+            {   \
+                ret = classBase::processEvent(evid, param, sender); \
+            }   \
+            return ret; \
+        }   \
+        int32_t theClass::eventProc(uint32_t evid, EventParam *param, TINSTANCE sender) \
+        {   \
+            int32_t ret = T3D_ERR_FWK_NONE_HANDLER; \
 
     // 事件处理函数响应调用
     #define T3D_ON_EVENT(eid, func)	\
@@ -60,10 +69,6 @@ namespace Tiny3D
 
     // 结束事件处理函数
     #define T3D_END_EVENT_MAP()	\
-            if (ret != T3D_ERR_OK)   \
-            {   \
-                ret = (this->*baseFunc)(evid, param, sender); \
-            }   \
             return ret; \
         }
 

@@ -26,6 +26,7 @@
 
 namespace Tiny3D
 {
+    #define T3D_ERR_FRAMEWORK                   0x2000
     /// 无效的实例句柄
     #define T3D_ERR_FWK_INVALID_INSTANCE        T3D_ERR_FRAMEWORK
     /// 无效的接收者
