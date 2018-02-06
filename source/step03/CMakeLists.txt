@@ -169,5 +169,5 @@ add_dependencies(T3DCore T3DFramework T3DLog T3DPlatform)
 if (TINY3D_BUILD_SAMPLES)
     # Build samples. Set all projects of samples.
     add_subdirectory(Samples)
-    add_dependencies(Demo_Hello T3DCore T3DFramework T3DLog T3DPlatform)
+    add_dependencies(HelloApp T3DCore T3DFramework T3DLog T3DPlatform)
 endif (TINY3D_BUILD_SAMPLES)
