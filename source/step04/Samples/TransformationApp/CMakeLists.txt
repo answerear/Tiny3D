@@ -5,19 +5,18 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(HelloApp)
+set_project_name(TransformationApp)
 
 
 if (MSVC)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup ")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup ")
 endif (MSVC)
 
 # Setup project include files path
 include_directories(
 	"${TINY3D_PLATFORM_INC_DIR}"
-	"${TINY3D_FRAMEWORK_INC_DIR}"
 	"${TINY3D_LOG_INC_DIR}"
-	"${TINY3D_CORE_INC_DIR}"
+    "${TINY3D_MATH_INC_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
 	)
@@ -42,8 +41,7 @@ if (TINY3D_OS_WINDOWS)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
-        T3DFramework
-        T3DCore
+        T3DMath
         )
 
     # Setup install files and path for Windows.
@@ -54,25 +52,7 @@ if (TINY3D_OS_WINDOWS)
 		)
 elseif (TINY3D_OS_ANDROID)
 	# Setup dynamic library (.so) project for Android. Because all libraries in Android is dynamics (.so).
-	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
-
-    target_link_libraries(
-        ${LIB_NAME}
-        T3DPlatform
-        T3DLog
-        T3DFramework
-        T3DCore
-        )
-
-    # Setup all files (.so) for Android APK
-    set(T3D_ANDROID_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Android/app/libs/${ANDROID_ABI}")
-
-	add_custom_command(TARGET ${BIN_NAME}
-        PRE_LINK
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${T3D_ANDROID_LIB_PATH}
-        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${T3D_ANDROID_LIB_PATH}
-        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_LIBRARY} ${T3D_ANDROID_LIB_PATH}
-        )
+    message(FATAL_ERROR "This sample does not be supported in Android !!!")
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	# Setup executable project for iOS or Mac OS X.
     add_executable(
@@ -81,41 +61,14 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
         )
 
 	if (TINY3D_OS_IOS)
-        find_library(FWK_SECURITY Security)
-
-		# Setup all link libraries and frameworks for iOS.
-		target_link_libraries(
-	        ${LIB_NAME}
-	        T3DPlatform
-	        T3DLog
-            T3DFramework
-	        T3DCore
-	        ${SDL2_LIBRARY}
-	        ${SDL2_OSX_FRAMEWORKS}
-            ${FWK_SECURITY}
-	        )
-
-		# Setup all properties for this iOS project.
-	    set_target_properties(${BIN_NAME}
-	        PROPERTIES
-	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}									# Bundle name for this app.
-	        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/iOS/Info.plist"	# Info.plist for this app.
-	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"							# Bundle ID for this app.
-	        XCODE_ATTRIBUTE_SDKROOT "iphoneos"										# SDK root for this app.
-	        XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "9.0"						# Minimum deployment target for this app.
-	        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "F2KJRUV5HC"							# Development team id for this app.
-	        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"					# Code sign identity for this app.
-			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
-			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
-	        )
+        message(FATAL_ERROR "This sample does not be supported in iOS !!!")
 	elseif (TINY3D_OS_MACOSX)
 		# Setup all link libraries frameworks for Mac OS X
 		target_link_libraries(
 	        ${LIB_NAME}
 	        T3DPlatform
 	        T3DLog
-	        T3DFramework
-	        T3DCore
+            T3DMath
 	        )
 
 	    # Setup all properties for this Mac OS X project.
@@ -154,8 +107,7 @@ elseif (TINY3D_OS_LINUX)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
-        T3DFramework
-        T3DCore
+        T3DMath
         )
 
     # Setup install files and path for Windows.
