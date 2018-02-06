@@ -11,7 +11,7 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++11 -frtti -fexceptions"
+                cppFlags "-std=c++11 -frtti -fexceptions -Wno-undefined-var-template"
                 arguments "-DTINY3D_BUILD_SAMPLES=TRUE"
                 abiFilters 'x86', 'armeabi', 'armeabi-v7a'
             }
