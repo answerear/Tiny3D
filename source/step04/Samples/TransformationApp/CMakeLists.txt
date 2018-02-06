@@ -56,7 +56,8 @@ elseif (TINY3D_OS_ANDROID)
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	# Setup executable project for iOS or Mac OS X.
     add_executable(
-        ${BIN_NAME} MACOSX_BUNDLE
+#        ${BIN_NAME} MACOSX_BUNDLE
+        ${BIN_NAME}
         ${SOURCE_FILES}
         )
 
@@ -72,22 +73,22 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	        )
 
 	    # Setup all properties for this Mac OS X project.
-	    set_target_properties(${BIN_NAME}
-	        PROPERTIES
-	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}									# Bundle name for this app.
-	        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/OSX/Info.plist"	# Info.plist for this app.
-	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"							# Bundle ID for this app.
-			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
-			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
-	        )
+#	    set_target_properties(${BIN_NAME}
+#	        PROPERTIES
+#	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}									# Bundle name for this app.
+#	        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/OSX/Info.plist"	# Info.plist for this app.
+#	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"							# Bundle ID for this app.
+#			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
+#			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
+#	        )
 
 	    # Setup installing files for making a *.app for this project
-		set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
-		set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
-		install(CODE "
-			include(BundleUtilities)
-			fixup_bundle(\"${APPS}\" \"\" \"${DIRS}\")
-			" COMPONENT Runtime)
+#		set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
+#		set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
+#		install(CODE "
+#			include(BundleUtilities)
+#			fixup_bundle(\"${APPS}\" \"\" \"${DIRS}\")
+#			" COMPONENT Runtime)
 
 		install(TARGETS ${BIN_NAME}
 			BUNDLE DESTINATION bin/debug CONFIGURATIONS Debug

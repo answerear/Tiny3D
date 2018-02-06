@@ -22,10 +22,119 @@
 
 
 #include "T3DMathPrerequisites.h"
+#include "T3DVector2.h"
 
 
 namespace Tiny3D
 {
+    template <typename T>
+    struct TPoint
+    {
+        T x, y;
+        
+        TPoint()
+        : x(0)
+        , y(0)
+        {
+            
+        }
+        
+        TPoint(const T &_x, const T &_y)
+        : x(_x)
+        , y(_y)
+        {
+            
+        }
+        
+        template <typename T1>
+        explicit TPoint(const TPoint<T1> &other)
+        {
+            x = (T)other.x;
+            y = (T)other.y;
+        }
+        
+        template <typename T1>
+        TPoint<T> &operator =(const TPoint<T1> &other)
+        {
+            x = (T)other.x;
+            y = (T)other.y;
+            return *this;
+        }
+        
+        bool isZero() const
+        {
+            return (x == 0 && y == 0);
+        }
+        
+        void setZero()
+        {
+            x = 0, y = 0;
+        }
+        
+        bool operator ==(const TPoint &other) const
+        {
+            return (x == other.x && y == other.y);
+        }
+        
+        bool operator !=(const TPoint &other) const
+        {
+            return !(*this == other);
+        }
+        
+        TPoint operator -() const
+        {
+            return TPoint(-x, -y);
+        }
+        
+        TPoint operator +(const TPoint &other) const
+        {
+            return TPoint(x + other.x, y + other.y);
+        }
+        
+        TPoint &operator +=(const TPoint &other)
+        {
+            x += other.x;
+            y += other.y;
+            return *this;
+        }
+        
+        TPoint operator -(const TPoint &other) const
+        {
+            return TPoint(x - other.x, y - other.y);
+        }
+        
+        TPoint &operator -=(const TPoint &other)
+        {
+            x -= other.x;
+            y -= other.y;
+            return *this;
+        }
+        
+        TPoint operator *(const T &scale) const
+        {
+            return TPoint(x * scale, y * scale);
+        }
+        
+        TPoint &operator *=(const T &scale)
+        {
+            x *= scale;
+            y *= scale;
+            return *this;
+        }
+        
+        TPoint operator /(const T &scale) const
+        {
+            return TPoint(x / scale, y / scale);
+        }
+        
+        TPoint &operator /=(const T &scale)
+        {
+            x /= scale;
+            y /= scale;
+            return *this;
+        }
+    };
+
     template <typename T>
     struct TSize
     {
@@ -136,116 +245,6 @@ namespace Tiny3D
             return *this;
         }
     };
-
-
-    template <typename T>
-    struct TPoint
-    {
-        T x, y;
-
-        TPoint()
-            : x(0)
-            , y(0)
-        {
-
-        }
-
-        TPoint(const T &_x, const T &_y)
-            : x(_x)
-            , y(_y)
-        {
-
-        }
-
-        template <typename T1>
-        explicit TPoint(const TPoint<T1> &other)
-        {
-            x = (T)other.x;
-            y = (T)other.y:
-        }
-
-        template <typename T1>
-        TPoint<T> &operator =(const TPoint<T1> &other)
-        {
-            x = (T)other.x;
-            y = (T)other.y;
-            return *this;
-        }
-
-        bool isZero() const
-        {
-            return (x == 0 && y == 0);
-        }
-
-        void setZero()
-        {
-            x = 0, y = 0;
-        }
-
-        bool operator ==(const TPoint &other) const
-        {
-            return (x == othre.x && y == other.y);
-        }
-
-        bool operator !=(const TPoint &other) const
-        {
-            return !(*this == other);
-        }
-
-        TPoint operator -() const
-        {
-            return TPoint(-x, -y);
-        }
-
-        TPoint operator +(const TPoint &other) const
-        {
-            return TPoint(x + other.x, y + other.y);
-        }
-
-        TPoint &operator +=(const TPoint &other)
-        {
-            x += other.x;
-            y += other.y;
-            return *this;
-        }
-
-        TPoint operator -(const TPoint &other) const
-        {
-            return TPoint(x - other.x, y - other.y);
-        }
-
-        TPoint &operator -=(const TPoint &other)
-        {
-            x -= other.x;
-            y -= other.y;
-            return *this;
-        }
-
-        TPoint operator *(const T &scale) const
-        {
-            return TPoint(x * scale, y * scale);
-        }
-
-        TPoint &operator *=(const T &scale)
-        {
-            x *= scale;
-            y *= scale;
-            return *this;
-        }
-
-        TPoint operator /(const T &scale) const
-        {
-            return TPoint(x / scale, y / scale);
-        }
-
-        TPoint &operator /=(const T &scale)
-        {
-            x /= scale;
-            y /= scale;
-            return *this;
-        }
-    };
-
 
     template <typename T>
     struct TRect
