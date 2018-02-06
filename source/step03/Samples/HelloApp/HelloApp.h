@@ -23,7 +23,9 @@
 
 #include <Tiny3D.h>
 
-class HelloApp : public Tiny3D::Application, public Tiny3D::ITimerListener
+class Scene;
+
+class HelloApp : public Tiny3D::Application
 {
 public:
     HelloApp();
@@ -39,12 +41,9 @@ protected:  /// from Tiny3D::Application
     virtual void applicationWillTerminate() override;
 
     virtual void applicationLowMemory() override;
-	
-	virtual void onTimer(uint32_t timerID, int32_t dt) override;
-	
+
 protected:
-	uint32_t	mTimerID1;
-	uint32_t	mTimerID2;
+    Scene   *mScene;
 };
 
 

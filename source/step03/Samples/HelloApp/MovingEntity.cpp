@@ -1,4 +1,4 @@
-ï»¿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,28 +17,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_EVENT_PREREQUISITES_H__
-#define __T3D_EVENT_PREREQUISITES_H__
+
+#include "MovingEntity.h"
+
+T3D_BEGIN_EVENT_FILTER(MovingEntity, EventHandler)
+    T3D_EVENT_FILTER(EV_ENTITY_MOVE)
+T3D_END_EVENT_FILTER()
+
+T3D_BEGIN_EVENT_MAP(MovingEntity, EventHandler)
+    T3D_ON_EVENT(EV_ENTITY_MOVE, onMove)
+T3D_END_EVENT_MAP()
 
 
-#if defined T3DFRAMEWORK_EXPORT
-    #define T3D_FRAMEWORK_API        T3D_EXPORT_API
-#else
-    #define T3D_FRAMEWORK_API        T3D_IMPORT_API
-#endif
-
-
-#include <T3DPlatform.h>
-#include <functional>
-
-namespace Tiny3D
+MovingEntity::MovingEntity()
+    : mWalkTimerID(T3D_INVALID_TIMER_ID)
 {
-    typedef struct _TINSTANCE* TINSTANCE;
-
-    class EventHandler;
-    class EventParam;
-    class EventManager;
+    T3D_SETUP_EVENT_FILTER();
 }
 
+MovingEntity::~MovingEntity()
+{
+    T3D_TIMER_MGR.stopTimer(mWalkTimerID);
+}
 
-#endif  /*__T3D_EVENT_PREREQUISITES_H__*/
+void MovingEntity::onTimer(uint32_t timerID, int32_t dt)
+{
+    if (timerID == mWalkTimerID)
+    {
+        onIdle();
+    }
+}
+
+int32_t MovingEntity::onMove(EventParam *param, TINSTANCE sender)
+{
+    // ¿ªÊ¼ÐÐ×ß5Ãë
+    T3D_LOG_INFO("Moving entity start walking for 5 seconds......");
+    T3D_TIMER_MGR.startTimer(5000, false, this);
+    return T3D_ERR_OK;
+}
+

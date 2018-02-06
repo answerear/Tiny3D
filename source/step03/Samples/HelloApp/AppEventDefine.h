@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,28 +17,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_EVENT_PREREQUISITES_H__
-#define __T3D_EVENT_PREREQUISITES_H__
+#ifndef __APP_EVENT_DEFINE_H__
+#define __APP_EVENT_DEFINE_H__
 
 
-#if defined T3DFRAMEWORK_EXPORT
-    #define T3D_FRAMEWORK_API        T3D_EXPORT_API
-#else
-    #define T3D_FRAMEWORK_API        T3D_IMPORT_API
-#endif
+#include <Tiny3D.h>
 
 
-#include <T3DPlatform.h>
-#include <functional>
+using namespace Tiny3D;
 
-namespace Tiny3D
+
+enum APP_EVENT
 {
-    typedef struct _TINSTANCE* TINSTANCE;
+    EV_NONE = 0,
+    EV_PLAYER_ATTACK,
+    EV_PLAYER_DEFEND,
+    EV_MONSTER_ATTACK,
+    EV_MONSTER_DEFEND,
+    EV_MONSTER_ESCAPE,
+    EV_ENTITY_MOVE,
 
-    class EventHandler;
-    class EventParam;
-    class EventManager;
-}
+    MAX_EVENTS
+};
 
 
-#endif  /*__T3D_EVENT_PREREQUISITES_H__*/
+#endif  /*__APP_EVENT_DEFINE_H__*/

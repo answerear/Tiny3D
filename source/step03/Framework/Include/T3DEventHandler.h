@@ -67,6 +67,16 @@ namespace Tiny3D
          */
         TINSTANCE getInstance() const { return mInstance; }
 
+        /**
+        * @brief 统一处理事件函数
+        * @param [in] evid : 事件ID
+        * @param [in] param : 事件附加参数对象
+        * @param [in] sender : 事件发送实例句柄
+        * @return 有处理事件返回true，否则返回false。
+        */
+        virtual int32_t processEvent(uint32_t evid, EventParam *param,
+            TINSTANCE sender);
+
     protected:
         /**
          * @brief 注册对象，返回实例句柄，只有注册才能有效收发事件
@@ -81,7 +91,7 @@ namespace Tiny3D
         /**
          * @brief 建立事件过滤器，只有在过滤器里面的才会收到不定对象的事件通知
          */
-        virtual void setupEventFilter();
+        int32_t setupEventFilter();
 
         /**
          * @brief 注册关注的事件到过滤器里面
@@ -99,16 +109,6 @@ namespace Tiny3D
          * @brief 反注册所有关注的事件
          */
         void unregisterAllEvent();
-
-        /**
-         * @brief 统一处理事件函数
-         * @param [in] evid : 事件ID
-         * @param [in] param : 事件附加参数对象
-         * @param [in] sender : 事件发送实例句柄
-         * @return 有处理事件返回true，否则返回false。
-         */
-        virtual int32_t processEvent(uint32_t evid, EventParam *param, 
-            TINSTANCE sender);
 
     private:
         typedef std::list<uint32_t>         EventList;

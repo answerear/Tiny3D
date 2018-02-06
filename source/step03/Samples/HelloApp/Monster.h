@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,28 +17,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_EVENT_PREREQUISITES_H__
-#define __T3D_EVENT_PREREQUISITES_H__
+#ifndef __MONSTER_H__
+#define __MONSTER_H__
 
 
-#if defined T3DFRAMEWORK_EXPORT
-    #define T3D_FRAMEWORK_API        T3D_EXPORT_API
-#else
-    #define T3D_FRAMEWORK_API        T3D_IMPORT_API
-#endif
+#include "MovingEntity.h"
 
 
-#include <T3DPlatform.h>
-#include <functional>
-
-namespace Tiny3D
+class Monster : public MovingEntity
 {
-    typedef struct _TINSTANCE* TINSTANCE;
+    T3D_DECLARE_EVENT_MAP();
+    T3D_DECLARE_EVENT_FILTER();
 
-    class EventHandler;
-    class EventParam;
-    class EventManager;
-}
+public:
+    Monster();
+    virtual ~Monster();
+
+protected:
+    virtual void onIdle() override;
+
+    T3D_DECLARE_EVENT_HANDLE(onPlayerAttack);
+    T3D_DECLARE_EVENT_HANDLE(onPlayerDefend);
+
+    int32_t mAttackCount;
+};
 
 
-#endif  /*__T3D_EVENT_PREREQUISITES_H__*/
+#endif  /*__MONSTER_H__*/

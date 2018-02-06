@@ -29,6 +29,69 @@ namespace Tiny3D
     #define T3D_INVALID_INSTANCE        EventManager::INVALID_INSTANCE
     #define T3D_BROADCAST_INSTANCE      EventManager::BROADCAST_INSTANCE
     #define T3D_MULTICAST_INSTANCE      EventManager::MULTICAST_INSTANCE
+
+    // 声明事件MAP
+    #define T3D_DECLARE_EVENT_MAP() \
+        public: \
+	        virtual int32_t processEvent(uint32_t evid, EventParam *param, TINSTANCE sender) override; 
+
+    // 声明事件处理函数
+    #define T3D_DECLARE_EVENT_HANDLE(func)	\
+            int32_t func(EventParam *param, TINSTANCE sender);
+
+    #define T3D_DECLARE_EVENT_FILTER()	\
+	    protected:	\
+		    int32_t setupEventFilter();
+
+    // 开始实现事件处理函数
+    #define T3D_BEGIN_EVENT_MAP(theClass, classBase) \
+	    int32_t theClass::processEvent(uint32_t evid, EventParam *param, TINSTANCE sender) \
+	    { \
+		    int32_t ret = T3D_ERR_OK;   \
+            typedef int32_t (EventHandler::*Func)(uint32_t, EventParam*, TINSTANCE);  \
+            Func baseFunc = static_cast<Func>(&classBase::processEvent); 
+
+    // 事件处理函数响应调用
+    #define T3D_ON_EVENT(eid, func)	\
+		    if (eid == evid)	\
+		    {	\
+			    ret = func(param, sender);	\
+		    }
+
+    // 结束事件处理函数
+    #define T3D_END_EVENT_MAP()	\
+            if (ret != T3D_ERR_OK)   \
+            {   \
+                ret = (this->*baseFunc)(evid, param, sender); \
+            }   \
+            return ret; \
+        }
+
+
+    // 开始注册事件过滤
+    #define T3D_BEGIN_EVENT_FILTER(theClass, classBase)	\
+	    int32_t theClass::setupEventFilter()	\
+	    {	\
+		    classBase::setupEventFilter();	\
+            int32_t ret = T3D_ERR_OK;   \
+            do  \
+            {   
+
+    // 注册事件过滤
+    #define T3D_EVENT_FILTER(eid)	\
+		        ret = registerEvent(eid);   \
+                if (ret != T3D_ERR_OK)  \
+                    break;
+
+    // 结束事件过滤
+    #define T3D_END_EVENT_FILTER()	\
+            } while (0);    \
+            return ret; \
+	    }
+
+    // 建立事件过滤
+    #define T3D_SETUP_EVENT_FILTER()	\
+	    setupEventFilter();
 }
 
 

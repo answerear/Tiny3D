@@ -24,14 +24,14 @@ namespace Tiny3D
 {
     T3D_INIT_SINGLETON(Engine);
 
-    Engine::Engine()
+    Engine::Engine(int32_t maxEvents)
         : mLogger(nullptr)
         , mEventMgr(nullptr)
         , mWindow(nullptr)
         , mIsRunning(false)
     {
         mLogger = new Logger();
-        mEventMgr = new EventManager(10);
+        mEventMgr = new EventManager(maxEvents);
     }
 
     Engine::~Engine()

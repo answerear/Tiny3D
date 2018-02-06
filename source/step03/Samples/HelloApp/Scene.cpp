@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,28 +17,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_EVENT_PREREQUISITES_H__
-#define __T3D_EVENT_PREREQUISITES_H__
+
+#include "Scene.h"
+#include "Player.h"
+#include "Monster.h"
 
 
-#if defined T3DFRAMEWORK_EXPORT
-    #define T3D_FRAMEWORK_API        T3D_EXPORT_API
-#else
-    #define T3D_FRAMEWORK_API        T3D_IMPORT_API
-#endif
-
-
-#include <T3DPlatform.h>
-#include <functional>
-
-namespace Tiny3D
+Scene::Scene()
+    : mTimerID(T3D_INVALID_TIMER_ID)
+    , mPlayer(nullptr)
+    , mMonster(nullptr)
 {
-    typedef struct _TINSTANCE* TINSTANCE;
 
-    class EventHandler;
-    class EventParam;
-    class EventManager;
 }
 
+Scene::~Scene()
+{
+    if (mTimerID != T3D_INVALID_TIMER_ID)
+    {
+        T3D_TIMER_MGR.stopTimer(mTimerID);
+        mTimerID = T3D_INVALID_TIMER_ID;
+    }
 
-#endif  /*__T3D_EVENT_PREREQUISITES_H__*/
+    T3D_SAFE_DELETE(mPlayer);
+    T3D_SAFE_DELETE(mMonster);
+}
+
+void Scene::init()
+{
+    mPlayer = new Player();
+    mMonster = new Monster();
+
+    mTimerID = T3D_TIMER_MGR.startTimer(2000, false, this);
+}
+
+void Scene::onTimer(uint32_t timerID, int32_t dt)
+{
+    if (timerID == mTimerID)
+    {
+        postEvent(EV_ENTITY_MOVE, nullptr);
+    }
+}
+

@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,28 +17,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_EVENT_PREREQUISITES_H__
-#define __T3D_EVENT_PREREQUISITES_H__
+#ifndef __SCENE_H__
+#define __SCENE_H__
 
 
-#if defined T3DFRAMEWORK_EXPORT
-    #define T3D_FRAMEWORK_API        T3D_EXPORT_API
-#else
-    #define T3D_FRAMEWORK_API        T3D_IMPORT_API
-#endif
+#include "AppEventDefine.h"
+
+class Player;
+class Monster;
 
 
-#include <T3DPlatform.h>
-#include <functional>
-
-namespace Tiny3D
+class Scene : public EventHandler, public ITimerListener
 {
-    typedef struct _TINSTANCE* TINSTANCE;
+public:
+    Scene();
+    virtual ~Scene();
 
-    class EventHandler;
-    class EventParam;
-    class EventManager;
-}
+    void init();
+
+protected:
+    virtual void onTimer(uint32_t timerID, int32_t dt) override;
+
+    uint32_t    mTimerID;
+
+    Player      *mPlayer;
+    Monster     *mMonster;
+};
 
 
-#endif  /*__T3D_EVENT_PREREQUISITES_H__*/
+#endif  /*__SCENE_H__*/

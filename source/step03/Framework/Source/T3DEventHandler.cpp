@@ -86,9 +86,9 @@ namespace Tiny3D
         return ret;
     }
 
-    void EventHandler::setupEventFilter()
+    int32_t EventHandler::setupEventFilter()
     {
-
+        return T3D_ERR_OK;
     }
 
     int32_t EventHandler::registerEvent(uint32_t evid)

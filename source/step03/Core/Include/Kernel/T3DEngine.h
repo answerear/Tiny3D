@@ -38,7 +38,7 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        Engine();
+        Engine(int32_t maxEvents);
 
         /**
          * @brief 析构函数
