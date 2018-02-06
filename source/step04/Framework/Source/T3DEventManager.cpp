@@ -42,6 +42,7 @@ namespace Tiny3D
         , mMaxCallStackLevel(maxCallStacks)
         , mCurrentCallStack(0)
         , mHandlingMode(mode)
+        , mIsDispatchPaused(false)
     {
         mEventHandlers.reserve(128);
         mEventHandlers.resize(128);

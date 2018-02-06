@@ -29,6 +29,7 @@
 
 
 #include <T3DPlatform.h>
+#include <functional>
 
 namespace Tiny3D
 {

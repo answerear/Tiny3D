@@ -21,6 +21,7 @@
 #define __T3D_FRAMEWORK_H__
 
 
+#include <T3DEventErrorDef.h>
 #include <T3DEventMacro.h>
 #include <T3DEventParam.h>
 #include <T3DEventHandler.h>
