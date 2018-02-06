@@ -68,7 +68,7 @@ elseif (APPLE AND IOS)
 
     set(SDL2LIB_SUFFIXES "prebuilt/iOS")
 
-    set(CMAKE_CXX_FLAGS "-std=c++11")
+    set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-undefined-var-template")
 elseif (APPLE AND NOT IOS)
     # Mac OS X
     message(STATUS "Platform : Mac OS X")
@@ -82,7 +82,7 @@ elseif (APPLE AND NOT IOS)
     set(CMAKE_MACOSX_RPATH true)
     set(SDL2LIB_SUFFIXES "prebuilt/OSX")
 
-    set(CMAKE_CXX_FLAGS "-std=c++11")
+    set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-undefined-var-template")
 elseif (UNIX AND NOT APPLE)
     # Linux
     message(STATUS "Platform : Linux")
@@ -94,7 +94,7 @@ elseif (UNIX AND NOT APPLE)
     set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
     set(SDL2LIB_SUFFIXES "prebuilt/Linux")
 
-    set(CMAKE_CXX_FLAGS "-std=c++11")
+    set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-undefined-var-template")
 endif (WIN32)
 
 if (TINY3D_OS_IOS)
