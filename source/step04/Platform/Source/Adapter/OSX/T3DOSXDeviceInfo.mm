@@ -73,8 +73,7 @@ namespace Tiny3D
                                  objectForKey:@"CFBundleVersion"];
                 if (str != nil)
                 {
-                    mSWVersion = [[str
-                                   objectForKey:@"CFBundleVersion"] UTF8String];
+                    mSWVersion = [str UTF8String];
                 }
             }
         }
