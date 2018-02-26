@@ -1174,4 +1174,11 @@ Ubuntu 17.10上运行效果如下图3-28：
 
 　　为什么要引入的是基于事件通信的框架而不是别的方式？其实这个没有什么准则了。这里主要从解耦和并行开发上来考虑的。先来看看什么是基于事件通信的框架。大家应该很熟悉Windows系统，Windows系统里面的窗口就是基于消息通信的，窗口与窗口之间的通信都是通过SendMessage(HWND, UINT, WPARAM, LPARAM)或者PostMessage(HWND, UINT, WPARAM, LPARAM)这两个接口来发送消息，通过实现WndProc(HWND, UINT, WPARAM, LPARAM)来响应消息处理。这里的基于事件也就是类似于Windows的窗口系统里面的消息机制。看到这里，可能有人会有疑问，这样的通信，为何不直接用观察者模式来实现？一个通过AddObserver(IObserver *)添加观察者和RemoveObserver(IObserver *)删除观察者，另外一个通过IObserver::doSomething()来通知观察者事情的发生就完事了，这样子不是更加简单吗？既然如此，那就来比较下这两种方式的优劣吧：
 
-# 六、3D基础——数学库
+# 六、3D数学——向量
+
+# 七、3D数学——矩阵
+
+# 八、3D数学——四元数
+
+# 九、3D数学——包围盒
+
