@@ -1120,7 +1120,7 @@ Windows上运行效果如下图3-26：
 
 Mac OS X上运行效果如下图3-27：
 
-![图3-27 Demo_Hello在Mac OS X上运行效果图](doc\images\s01-OSX.png)
+![图3-27 Demo_Hello在Mac OS X上运行效果图](doc/images/s01-OSX.png)
 
 <center>图3-27 Demo_Hello在Mac OS X上运行效果图</center>
 
