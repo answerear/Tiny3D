@@ -1172,15 +1172,142 @@ Ubuntu 17.10上运行效果如下图3-28：
 
 ### 4.2.1 简单的Console
 
-　　首先，我们来看看这个控制台相关类设计，如下图4-2：
+　　首先，先说下我们控制台有什么功能。其实功能很简单，就只有一个，就是把文本输出到对应平台的控制台上，方便调试。我们看看各自平台和对应IDE环境下，控制台输出具体是哪里。
+
+- 在Windows上，使用Visual Studio，控制台就是输出到Visual Studio的Console窗口里。
+- 在Mac OS X上，使用XCode，控制台就是输出到XCode的控制台窗口。
+- 在Linux上，不管使用什么IDE或者不使用，控制台都是指命令行窗口。
+- 在iOS上，使用XCode，控制台跟Mac OS X一样，输出到XCode的控制台窗口。
+- 在Android上，不管使用什么IDE或者不使用，控制台都是指logcat。
+
+　　接着，我们来看看这个控制台相关类设计，如下图4-2：
 
 ![图4-2 控制台相关设计类图](doc/images/s02-console-design.png)
 
 <center>图4-2 控制台相关类图设计</center>
 
+　　从类图可以看到，Console又一次用到了抽象工厂模式来设计其结构。接下来我们直接看代码吧，因为这个也比较简单，通过代码看看有什么接口及其功能。
 
+```c++
+class T3D_PLATFORM_API Console : public Singleton<Console>
+{
+    T3D_DISABLE_COPY(Console);
+
+public:
+    static const uint32_t MAX_CONTENT_SIZE;
+
+    Console();
+    virtual ~Console();
+
+    void print(const char *pText, ...);
+
+protected:
+    IConsole    *mConsole;
+};
+```
+
+Console类，这个类主要就是提供一个输出接口：
+
+　　**void print(const char *pText, ...)**
+
+该接口主要就是打印文本到对应控制台上。从这里面可以看出来，Console类里面有个成员IConsole类的对象，这个就是对应各自平台实现的对象，会根据不同平台的工厂类生成平台相关的IConsole对象。接下来，我们看看这个IConsole类。
+
+```c++
+class IConsole
+{
+    T3D_DECLARE_INTERFACE(IConsole);
+
+public:
+    /**
+     * @brief 输出文本到控制台.
+     * @param [in] pText : 以'\0'结尾的字符串文本
+     */
+    virtual void print(const char *pText) = 0;
+};
+```
+
+IConsole类，其实就是定义一个抽象接口：
+
+　　**void print(const char *pText)**
+
+该接口主要就是一种规范，让每个平台各自实现其平台相关功能。各自平台的Win32Console类、OSXConsole类、LinuxConsole类、iOSConsole类和AndroidConsole类相关的实现，各位请直接查看源码。
 
 ### 4.2.2 获取设备信息
+
+```c++
+class IDeviceInfo
+{
+    T3D_DECLARE_INTERFACE(IDeviceInfo);
+
+public:
+    /**
+     * @brief 获取平台类型
+     */
+    virtual uint32_t getPlatform() const = 0;
+
+    /**
+     * @brief 获取软件版本号字符串
+     */
+    virtual const String &getSoftwareVersion() const = 0;
+
+    /**
+     * @brief 设置软件版本号字符串
+     */
+    virtual void setSoftwareVersion(const char *version) = 0;
+
+    /**
+     * @brief 获取操作系统版本号字符串
+     */
+    virtual const String &getOSVersion() const = 0;
+
+    /**
+     * @brief 获取设备机型版本信息字符串
+     */
+    virtual const String &getDeviceVersion() const = 0;
+
+    /**
+     * @brief 获取屏幕宽度.
+     */
+    virtual int32_t getScreenWidth() const = 0;
+
+    /**
+     * @brief 获取屏幕高度.
+     */
+    virtual int32_t getScreenHeight() const = 0;
+
+    /**
+     * @brief 获取屏幕像素密度.
+     */
+    virtual float getScreenDPI() const = 0;
+
+    /**
+     * @brief 获取CPU类型信息.
+     */
+    virtual const String &getCPUType() const = 0;
+
+    /**
+     * @brief 获取CPU架构
+     */
+    virtual const String &getCPUArchitecture() const = 0;
+
+    /**
+     * @brief 获取CPU核数.
+     */
+    virtual int32_t getCPUCores() const = 0;
+
+    /**
+     * @brief 获取系统内存总数.
+     */
+    virtual uint32_t getSystemRAM() const = 0;
+
+    /**
+     * @brief 获取设备ID.
+     */
+    virtual const String &getDeviceID() const = 0;
+};
+```
+
+
 
 ### 4.2.3 IO类
 
