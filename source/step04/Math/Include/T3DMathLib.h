@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -21,25 +21,9 @@
 #define __T3D_MATH_LIB_H__
 
 
-#include "T3DSphere.h"
-#include "T3DAabb.h"
-#include "T3DObb.h"
-#include "T3DFrustum.h"
-#include "T3DRect.h"
-#include "T3DMath.h"
-#include "T3DMatrix2.h"
-#include "T3DMatrix3.h"
-#include "T3DMatrix4.h"
-#include "T3DQuaternion.h"
-#include "T3DVector2.h"
-#include "T3DVector3.h"
-#include "T3DVector4.h"
-#include "T3DPlane.h"
-#include "T3DRadian.h"
-#include "T3DDegree.h"
+#include "T3DMathPrerequisites.h"
 #include "T3DFix32.h"
 #include "T3DFix64.h"
-
 
 
 #endif  /*__T3D_MATH_LIB_H__*/

@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -55,11 +55,6 @@ namespace Tiny3D
     inline fix64::fix64(const fix64 &value)
     {
         m = value.m;
-    }
-
-    inline fix64::~fix64()
-    {
-
     }
 
     //--------------------------------------------------------------------------
@@ -603,5 +598,18 @@ namespace Tiny3D
     inline fix64::operator int64_t() const
     {
         return (m << DECIMAL_BITS);
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline fix64 &fix64::operator =(const fix32 &fx)
+    {
+        m = (((fx.mantissa() >> 12) << DECIMAL_BITS) | (fx.mantissa() & 0x1000));
+        return *this;
+    }
+
+    inline fix64::operator fix32() const
+    {
+        return m;
     }
 }

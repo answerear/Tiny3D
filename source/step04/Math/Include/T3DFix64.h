@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -21,24 +21,25 @@
 #define __T3D_FIX64_H__
 
 #include "T3DMathPrerequisites.h"
+#include "T3DFix32.h"
 
 namespace Tiny3D
 {
     /**
-     * @brief 64Î»¶¨µãÊıÀà
-     * @remarks 64Î»¶¨µãÊı¹¹³ÉÊÇÓÃ¸ß40Î»×÷ÎªÕûÊı²¿·Ö£¬µÍ24Î»ÓÃÀ´×öĞ¡Êı²¿·Ö
+     * @brief 64ä½å®šç‚¹æ•°ç±»
+     * @remarks 64ä½å®šç‚¹æ•°æ„æˆæ˜¯ç”¨é«˜40ä½ä½œä¸ºæ•´æ•°éƒ¨åˆ†ï¼Œä½24ä½ç”¨æ¥åšå°æ•°éƒ¨åˆ†
      */
     class T3D_MATH_API fix64
     {
     public:
-        static const int32_t INTEGER_BITS;      // ÕûÊıÎ»Êı
-        static const int32_t DECIMAL_BITS;      // Ğ¡ÊıÎ»Êı
+        static const int32_t INTEGER_BITS;      // æ•´æ•°ä½æ•°
+        static const int32_t DECIMAL_BITS;      // å°æ•°ä½æ•°
 
-        static const int64_t MAX_INT_VALUE;     // ×î´óµÄÕûĞÍÊı
-        static const int64_t MIN_INT_VALUE;     // ×îĞ¡µÄÕûĞÍÊı
+        static const int64_t MAX_INT_VALUE;     // æœ€å¤§çš„æ•´å‹æ•°
+        static const int64_t MIN_INT_VALUE;     // æœ€å°çš„æ•´å‹æ•°
 
-        static const float32_t MAX_FLOAT_VALUE; // ×î´óµÄ¸¡µãÊı
-        static const float32_t MIN_FLOAT_VALUE; // ×îĞ¡µÄ¸¡µãÊı
+        static const float32_t MAX_FLOAT_VALUE; // æœ€å¤§çš„æµ®ç‚¹æ•°
+        static const float32_t MIN_FLOAT_VALUE; // æœ€å°çš„æµ®ç‚¹æ•°
 
         static const fix64 ZERO;        // fix64(0.0f)
         static const fix64 HALF;        // fix64(0.5f)
@@ -47,62 +48,32 @@ namespace Tiny3D
         static const fix64 INF;         // fix64(Infinity)
         static const fix64 MINUSINF;    // fix64(-Infinity)
 
-        /**
-         * @brief Ä¬ÈÏ¹¹Ôìº¯Êı
-         */
+        /// é»˜è®¤æ„é€ å‡½æ•°
         fix64();
-
-        /**
-        * @brief µ¥¾«¶È¸¡µãÊı²ÎÊıµÄ¹¹Ôìº¯Êı
-        */
+        /// å•ç²¾åº¦æµ®ç‚¹æ•°å‚æ•°çš„æ„é€ å‡½æ•°
         fix64(float32_t value);
-
-        /**
-        * @brief Ë«¾«¶È¸¡µãÊı²ÎÊıµÄ¹¹Ôìº¯Êı
-        */
+        /// åŒç²¾åº¦æµ®ç‚¹æ•°å‚æ•°çš„æ„é€ å‡½æ•°
         fix64(float64_t value);
-
-        /**
-        * @brief ÓÃ32Î»ÕûÊı¹¹Ôì¶¨µãÊı£¬32Î»·ÖÅä£º20.12
-        * @param [in] value : ÕûĞÍÊı
-        */
+        /// ç”¨32ä½æ•´æ•°æ„é€ å®šç‚¹æ•°ï¼Œ32ä½åˆ†é…ï¼š20.12
         fix64(int32_t value);
-
-        /**
-        * @brief ÓÃ64Î»ÕûÊı¹¹Ôì¶¨µãÊı£¬64Î»·ÖÅä£º40.24
-        * @param [in] value : ÕûĞÍÊı
-        */
+        /// ç”¨64ä½æ•´æ•°æ„é€ å®šç‚¹æ•°ï¼Œ64ä½åˆ†é…ï¼š40.24
         fix64(int64_t value);
-
-        /**
-        * @brief ÓÃ32Î»ÕûÊıÖ±½Ó¸³Öµ¶¨µãÊıÀ´¹¹Ôì
-        */
+        /// ç”¨32ä½æ•´æ•°ç›´æ¥èµ‹å€¼å®šç‚¹æ•°æ¥æ„é€ 
         fix64(int64_t value, int32_t r);
-
-        /**
-        * @brief ¿½±´¹¹Ôìº¯Êı
-        */
+        /// æ‹·è´æ„é€ å‡½æ•°
         fix64(const fix64 &value);
-
-        /**
-        * @brief Îö¹¹º¯Êı
-        */
-        ~fix64();
-
-        /**
-        * @brief »ñÈ¡¶¨µãÊıµÄÕûĞÍÖµ
-        */
+        
+        /// è·å–å®šç‚¹æ•°çš„æ•´å‹å€¼
         int64_t mantissa() const;
-
-        /**
-        * @brief »ñÈ¡¶¨µãÊıµÄÕûĞÍÖµ
-        */
+        /// è·å–å®šç‚¹æ•°çš„æ•´å‹å€¼
         int64_t &mantissa();
 
+        /// é‡è½½å–æ­£æ•°æ“ä½œç¬¦
         fix64 operator +() const;
+        /// é‡è½½å–åæ“ä½œç¬¦
         fix64 operator -() const;
 
-        // fix64ºÍfix64Ö®¼äµÄÔËËã·ûÖØÔØ
+        /// fix64å’Œfix64ä¹‹é—´çš„è¿ç®—ç¬¦é‡è½½
         fix64 &operator =(const fix64 &value);
 
         fix64 &operator +=(const fix64 &value);
@@ -122,7 +93,7 @@ namespace Tiny3D
         friend bool operator >(const fix64 &fx, const fix64 &gx);
         friend bool operator <(const fix64 &fx, const fix64 &gx);
 
-        // fix64ºÍint32_tÖ®¼äµÄÔËËã·ûÖØÔØ
+        /// fix64å’Œint32_tä¹‹é—´çš„è¿ç®—ç¬¦é‡è½½
         fix64 &operator =(int32_t value);
 
         fix64 &operator +=(int32_t value);
@@ -152,9 +123,10 @@ namespace Tiny3D
         friend bool operator <(const fix64 &fx, int32_t value);
         friend bool operator <(int32_t value, const fix64 &fx);
 
+        /// è½¬æˆ32ä½æ•´å‹
         operator int32_t() const;
 
-        // fix64ºÍfloat32_tÖ®¼äµÄÔËËã·ûÖØÔØ
+        /// fix64å’Œfloat32_tä¹‹é—´çš„è¿ç®—ç¬¦é‡è½½
         fix64 &operator =(float32_t value);
 
         fix64 &operator +=(float32_t value);
@@ -186,31 +158,38 @@ namespace Tiny3D
 
         operator float32_t() const;
 
-        // Î»ÒÆÔËËã·ûÖØÔØ
+        /// ä½ç§»è¿ç®—ç¬¦é‡è½½
         friend fix64 operator <<(const fix64 &a, int32_t b);
         friend fix64 operator >> (const fix64 &a, int32_t b);
 
         fix64 &operator <<=(int32_t b);
         fix64 &operator >>=(int32_t b);
 
-        // ÆäËûÒ»Ğ©¼òµ¥¸¨Öú±È½Ï´óĞ¡½Ó¿Ú
+        /// æ˜¯å¦ç­‰äº0
         bool eq_0() const;
+        /// æ˜¯å¦ä¸ç­‰äº0
         bool ne_0() const;
+        /// æ˜¯å¦å¤§äº0
         bool gt_0() const;
+        /// æ˜¯å¦å¤§äºç­‰äº0
         bool ge_0() const;
+        /// æ˜¯å¦å°äº0
         bool lt_0() const;
+        /// æ˜¯å¦å°äºç­‰äº0
         bool le_0() const;
+        /// æ˜¯å¦ç­‰äº1
         bool eq_1() const;
-
+        /// æ˜¯å¦æ— é™å¤§
         bool is_INF() const;
+        /// æ˜¯å¦æ— é™å°
         bool is_MINUSINF() const;
-
+        /// æ˜¯å¦æ•´æ•°
         bool is_integer() const;
 
-        // ×ª»»64Î»ÕûĞÍ
+        /// è½¬æ¢64ä½æ•´å‹
         operator int64_t() const;
 
-        // 64Î»¾«¶ÈµÄ¶¨µãÊıfix64Óë32Î»¾«¶ÈµÄ¶¨µãÊıfix32Ö®¼äµÄ×ª»»ÖØÔØ
+        /// 64ä½ç²¾åº¦çš„å®šç‚¹æ•°fix64ä¸32ä½ç²¾åº¦çš„å®šç‚¹æ•°fix32ä¹‹é—´çš„è½¬æ¢é‡è½½
         fix64 &operator =(const fix32 &fx);
         operator fix32() const;
 

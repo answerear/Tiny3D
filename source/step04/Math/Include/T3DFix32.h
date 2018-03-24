@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -24,185 +24,167 @@
 
 namespace Tiny3D
 {
-	/**
-	 * @brief 32Î»¶¨µãÊýÀà
-	 * @remarks 32Î»¶¨µãÊý¹¹³ÉÊÇÓÃ¸ß20Î»×÷ÎªÕûÊý²¿·Ö£¬µÍ12Î»ÓÃÀ´×öÐ¡Êý²¿·Ö
-	 */
+    /**
+     * @brief 32ä½å®šç‚¹æ•°ç±»
+     * @remarks 32ä½å®šç‚¹æ•°æž„æˆæ˜¯ç”¨é«˜20ä½ä½œä¸ºæ•´æ•°éƒ¨åˆ†ï¼Œä½Ž12ä½ç”¨æ¥åšå°æ•°éƒ¨åˆ†
+     */
     class T3D_MATH_API fix32
     {
     public:
-		static const fix32 ZERO;		// fix32(0.0f)
-		static const fix32 HALF;		// fix32(0.5f)
-		static const fix32 ONE;			// fix32(1.0f)
-		static const fix32 MINUS_ONE;	// fix32(-1.0f)
-		static const fix32 INF;			// fix32(Infinity)
-		static const fix32 MINUSINF;	// fix32(-Infinity)
+        static const fix32 ZERO;        // fix32(0.0f)
+        static const fix32 HALF;        // fix32(0.5f)
+        static const fix32 ONE;         // fix32(1.0f)
+        static const fix32 MINUS_ONE;   // fix32(-1.0f)
+        static const fix32 INF;         // fix32(Infinity)
+        static const fix32 MINUSINF;    // fix32(-Infinity)
 
-		/**
-		 * @brief Ä¬ÈÏ¹¹Ôìº¯Êý
-		 */
+        /// é»˜è®¤æž„é€ å‡½æ•°
         fix32();
-
-		/**
-		 * @brief µ¥¾«¶È¸¡µãÊý²ÎÊýµÄ¹¹Ôìº¯Êý
-		 */
+        /// å•ç²¾åº¦æµ®ç‚¹æ•°å‚æ•°çš„æž„é€ å‡½æ•°
         fix32(float32_t value);
+        /// åŒç²¾åº¦æµ®ç‚¹æ•°å‚æ•°çš„æž„é€ å‡½æ•°
+        fix32(float64_t value);
+        /// ç”¨32ä½æ•´æ•°æž„é€ å®šç‚¹æ•°ï¼Œ32ä½åˆ†é…ï¼š20.12
+        fix32(int32_t value);
+        /// ç”¨64ä½æ•´æ•°æž„é€ å®šç‚¹æ•°ï¼Œ64ä½åˆ†é…ï¼š40.24
+        fix32(int64_t value);
 
-		/**
-		 * @brief Ë«¾«¶È¸¡µãÊý²ÎÊýµÄ¹¹Ôìº¯Êý
-		 */
-		fix32(float64_t value);
+        /// ç”¨32ä½æ•´æ•°ç›´æŽ¥èµ‹å€¼å®šç‚¹æ•°æ¥æž„é€ 
+        fix32(int32_t value, int32_t r);
 
-		/**
-		 * @brief ÓÃ32Î»ÕûÊý¹¹Ôì¶¨µãÊý£¬32Î»·ÖÅä£º20.12
-		 * @param [in] value : ÕûÐÍÊý
-	     */
-		fix32(int32_t value);
+        /// æ‹·è´æž„é€ å‡½æ•°
+        fix32(const fix32 &value);
+        
+        /// èŽ·å–å®šç‚¹æ•°çš„æ•´åž‹å€¼
+        int32_t mantissa() const;
 
-		/**
-		 * @brief ÓÃ64Î»ÕûÊý¹¹Ôì¶¨µãÊý£¬64Î»·ÖÅä£º40.24
-		 * @param [in] value : ÕûÐÍÊý
-		 */
-		fix32(int64_t value);
+        /// èŽ·å–å®šç‚¹æ•°çš„æ•´åž‹å€¼ 
+        int32_t &mantissa();
 
-		/**
-		 * @brief ÓÃ32Î»ÕûÊýÖ±½Ó¸³Öµ¶¨µãÊýÀ´¹¹Ôì
-		 */
-		fix32(int32_t value, int32_t r);
+        /// é‡è½½å–æ­£æ•°æ“ä½œç¬¦
+        fix32 operator +() const;
+        /// é‡è½½å–åæ“ä½œç¬¦
+        fix32 operator -() const;
 
-		/**
-		 * @brief ¿½±´¹¹Ôìº¯Êý
-		 */
-		fix32(const fix32 &value);
+        /// fix32å’Œfix32ä¹‹é—´çš„è¿ç®—ç¬¦é‡è½½
+        fix32 &operator =(const fix32 &value);
 
-		/**
-		 * @brief Îö¹¹º¯Êý
-		 */
-		~fix32();
+        fix32 &operator +=(const fix32 &value);
+        fix32 &operator -=(const fix32 &value);
+        fix32 &operator *=(const fix32 &value);
+        fix32 &operator /=(const fix32 &value);
 
-		/**
-		 * @brief »ñÈ¡¶¨µãÊýµÄÕûÐÍÖµ
-		 */
-		int32_t mantissa() const;
+        friend fix32 operator +(const fix32 &fx, const fix32 &gx);
+        friend fix32 operator -(const fix32 &fx, const fix32 &gx);
+        friend fix32 operator *(const fix32 &fx, const fix32 &gx);
+        friend fix32 operator /(const fix32 &fx, const fix32 &gx);
 
-		/**
-		 * @brief »ñÈ¡¶¨µãÊýµÄÕûÐÍÖµ 
-		 */
-		int32_t &mantissa();
+        friend bool operator ==(const fix32 &fx, const fix32 &gx);
+        friend bool operator !=(const fix32 &fx, const fix32 &gx);
+        friend bool operator >=(const fix32 &fx, const fix32 &gx);
+        friend bool operator <=(const fix32 &fx, const fix32 &gx);
+        friend bool operator >(const fix32 &fx, const fix32 &gx);
+        friend bool operator <(const fix32 &fx, const fix32 &gx);
 
-		fix32 operator +() const;
-		fix32 operator -() const;
+        /// fix32å’Œint32_tä¹‹é—´çš„è¿ç®—ç¬¦é‡è½½
+        fix32 &operator =(int32_t value);
 
-		// fix32ºÍfix32Ö®¼äµÄÔËËã·ûÖØÔØ
-		fix32 &operator =(const fix32 &value);
+        fix32 &operator +=(int32_t value);
+        fix32 &operator -=(int32_t value);
+        fix32 &operator *=(int32_t value);
+        fix32 &operator /=(int32_t value);
 
-		fix32 &operator +=(const fix32 &value);
-		fix32 &operator -=(const fix32 &value);
-		fix32 &operator *=(const fix32 &value);
-		fix32 &operator /=(const fix32 &value);
+        friend fix32 operator +(const fix32 &fx, int32_t value);
+        friend fix32 operator +(int32_t value, const fix32 &fx);
+        friend fix32 operator -(const fix32 &fx, int32_t value);
+        friend fix32 operator -(int32_t value, const fix32 &fx);
+        friend fix32 operator *(const fix32 &fx, int32_t value);
+        friend fix32 operator *(int32_t value, const fix32 &fx);
+        friend fix32 operator /(const fix32 &fx, int32_t value);
+        friend fix32 operator /(int32_t value, const fix32 &fx);
 
-		friend fix32 operator +(const fix32 &fx, const fix32 &gx);
-		friend fix32 operator -(const fix32 &fx, const fix32 &gx);
-		friend fix32 operator *(const fix32 &fx, const fix32 &gx);
-		friend fix32 operator /(const fix32 &fx, const fix32 &gx);
+        friend bool operator ==(const fix32 &fx, int32_t value);
+        friend bool operator ==(int32_t value, const fix32 &fx);
+        friend bool operator !=(const fix32 &fx, int32_t value);
+        friend bool operator !=(int32_t value, const fix32 &fx);
+        friend bool operator >=(const fix32 &fx, int32_t value);
+        friend bool operator >=(int32_t value, const fix32 &fx);
+        friend bool operator <=(const fix32 &fx, int32_t value);
+        friend bool operator <=(int32_t value, const fix32 &fx);
+        friend bool operator >(const fix32 &fx, int32_t value);
+        friend bool operator >(int32_t value, const fix32 &fx);
+        friend bool operator <(const fix32 &fx, int32_t value);
+        friend bool operator <(int32_t value, const fix32 &fx);
 
-		friend bool operator ==(const fix32 &fx, const fix32 &gx);
-		friend bool operator !=(const fix32 &fx, const fix32 &gx);
-		friend bool operator >=(const fix32 &fx, const fix32 &gx);
-		friend bool operator <=(const fix32 &fx, const fix32 &gx);
-		friend bool operator >(const fix32 &fx, const fix32 &gx);
-		friend bool operator <(const fix32 &fx, const fix32 &gx);
+        /// å¼ºè½¬æˆ32ä½æ•´åž‹
+        operator int32_t() const;
 
-		// fix32ºÍint32_tÖ®¼äµÄÔËËã·ûÖØÔØ
-		fix32 &operator =(int32_t value);
+        /// fix32å’Œfloat32_tä¹‹é—´çš„è¿ç®—ç¬¦é‡è½½
+        fix32 &operator =(float32_t value);
 
-		fix32 &operator +=(int32_t value);
-		fix32 &operator -=(int32_t value);
-		fix32 &operator *=(int32_t value);
-		fix32 &operator /=(int32_t value);
+        fix32 &operator +=(float32_t value);
+        fix32 &operator -=(float32_t value);
+        fix32 &operator *=(float32_t value);
+        fix32 &operator /=(float32_t value);
 
-		friend fix32 operator +(const fix32 &fx, int32_t value);
-		friend fix32 operator +(int32_t value, const fix32 &fx);
-		friend fix32 operator -(const fix32 &fx, int32_t value);
-		friend fix32 operator -(int32_t value, const fix32 &fx);
-		friend fix32 operator *(const fix32 &fx, int32_t value);
-		friend fix32 operator *(int32_t value, const fix32 &fx);
-		friend fix32 operator /(const fix32 &fx, int32_t value);
-		friend fix32 operator /(int32_t value, const fix32 &fx);
+        friend fix32 operator +(const fix32 &fx, float32_t value);
+        friend fix32 operator +(float32_t value, const fix32 &fx);
+        friend fix32 operator -(const fix32 &fx, float32_t value);
+        friend fix32 operator -(float32_t value, const fix32 &fx);
+        friend fix32 operator *(const fix32 &fx, float32_t value);
+        friend fix32 operator *(float32_t value, const fix32 &fx);
+        friend fix32 operator /(const fix32 &fx, float32_t value);
+        friend fix32 operator /(float32_t value, const fix32 &fx);
 
-		friend bool operator ==(const fix32 &fx, int32_t value);
-		friend bool operator ==(int32_t value, const fix32 &fx);
-		friend bool operator !=(const fix32 &fx, int32_t value);
-		friend bool operator !=(int32_t value, const fix32 &fx);
-		friend bool operator >=(const fix32 &fx, int32_t value);
-		friend bool operator >=(int32_t value, const fix32 &fx);
-		friend bool operator <=(const fix32 &fx, int32_t value);
-		friend bool operator <=(int32_t value, const fix32 &fx);
-		friend bool operator >(const fix32 &fx, int32_t value);
-		friend bool operator >(int32_t value, const fix32 &fx);
-		friend bool operator <(const fix32 &fx, int32_t value);
-		friend bool operator <(int32_t value, const fix32 &fx);
+        friend bool operator ==(const fix32 &fx, float32_t value);
+        friend bool operator ==(float32_t value, const fix32 &fx);
+        friend bool operator !=(const fix32 &fx, float32_t value);
+        friend bool operator !=(float32_t value, const fix32 &fx);
+        friend bool operator >=(const fix32 &fx, float32_t value);
+        friend bool operator >=(float32_t value, const fix32 &fx);
+        friend bool operator <=(const fix32 &fx, float32_t value);
+        friend bool operator <=(float32_t value, const fix32 &fx);
+        friend bool operator >(const fix32 &fx, float32_t value);
+        friend bool operator >(float32_t value, const fix32 &fx);
+        friend bool operator <(const fix32 &fx, float32_t value);
+        friend bool operator <(float32_t value, const fix32 &fx);
 
-		operator int32_t() const;
+        /// è½¬æˆ32ä½å•ç²¾åº¦æµ®ç‚¹åž‹
+        operator float32_t() const;
 
-		// fix32ºÍfloat32_tÖ®¼äµÄÔËËã·ûÖØÔØ
-		fix32 &operator =(float32_t value);
+        /// ä½ç§»è¿ç®—ç¬¦é‡è½½
+        friend fix32 operator <<(const fix32 &a, int32_t b);
+        friend fix32 operator >>(const fix32 &a, int32_t b);
 
-		fix32 &operator +=(float32_t value);
-		fix32 &operator -=(float32_t value);
-		fix32 &operator *=(float32_t value);
-		fix32 &operator /=(float32_t value);
+        fix32 &operator <<=(int32_t b);
+        fix32 &operator >>=(int32_t b);
 
-		friend fix32 operator +(const fix32 &fx, float32_t value);
-		friend fix32 operator +(float32_t value, const fix32 &fx);
-		friend fix32 operator -(const fix32 &fx, float32_t value);
-		friend fix32 operator -(float32_t value, const fix32 &fx);
-		friend fix32 operator *(const fix32 &fx, float32_t value);
-		friend fix32 operator *(float32_t value, const fix32 &fx);
-		friend fix32 operator /(const fix32 &fx, float32_t value);
-		friend fix32 operator /(float32_t value, const fix32 &fx);
+        /// æ˜¯å¦ç­‰äºŽ0
+        bool eq_0() const;
+        /// æ˜¯å¦ä¸ç­‰äºŽ0
+        bool ne_0() const;
+        /// æ˜¯å¦å¤§äºŽ0
+        bool gt_0() const;
+        /// æ˜¯å¦å¤§äºŽç­‰äºŽ0
+        bool ge_0() const;
+        /// æ˜¯å¦å°äºŽ0
+        bool lt_0() const;
+        /// æ˜¯å¦å°äºŽç­‰äºŽ0
+        bool le_0() const;
+        /// æ˜¯å¦ç­‰äºŽ1
+        bool eq_1() const;
+        /// æ˜¯å¦æ— é™å¤§
+        bool is_INF() const;
+        /// æ˜¯å¦æ— é™å°
+        bool is_MINUSINF() const;
+        /// æ˜¯å¦æ•´æ•°
+        bool is_integer() const;
 
-		friend bool operator ==(const fix32 &fx, float32_t value);
-		friend bool operator ==(float32_t value, const fix32 &fx);
-		friend bool operator !=(const fix32 &fx, float32_t value);
-		friend bool operator !=(float32_t value, const fix32 &fx);
-		friend bool operator >=(const fix32 &fx, float32_t value);
-		friend bool operator >=(float32_t value, const fix32 &fx);
-		friend bool operator <=(const fix32 &fx, float32_t value);
-		friend bool operator <=(float32_t value, const fix32 &fx);
-		friend bool operator >(const fix32 &fx, float32_t value);
-		friend bool operator >(float32_t value, const fix32 &fx);
-		friend bool operator <(const fix32 &fx, float32_t value);
-		friend bool operator <(float32_t value, const fix32 &fx);
+        /// è½¬æ¢64ä½æ•´åž‹
+        operator int64_t() const;
 
-		operator float32_t() const;
-
-		// Î»ÒÆÔËËã·ûÖØÔØ
-		friend fix32 operator <<(const fix32 &a, int32_t b);
-		friend fix32 operator >>(const fix32 &a, int32_t b);
-
-		fix32 &operator <<=(int32_t b);
-		fix32 &operator >>=(int32_t b);
-
-		// ÆäËûÒ»Ð©¼òµ¥¸¨Öú±È½Ï´óÐ¡½Ó¿Ú
-		bool eq_0() const;
-		bool ne_0() const;
-		bool gt_0() const;
-		bool ge_0() const;
-		bool lt_0() const;
-		bool le_0() const;
-		bool eq_1() const;
-
-		bool is_INF() const;
-		bool is_MINUSINF() const;
-
-		bool is_integer() const;
-
-		// ×ª»»64Î»ÕûÐÍ
-		operator int64_t() const;
-
-	private:
-		int32_t	m;
+    private:
+        int32_t m;
     };
 }
 

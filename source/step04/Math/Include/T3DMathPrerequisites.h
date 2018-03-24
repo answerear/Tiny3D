@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -36,12 +36,12 @@
 #include "T3DLog.h"
 
 
-#define __T3D_LOW_PRECISION_FIX__           0       // 32Î»¶¨µãÊı
-#define __T3D_HIGH_PRECISION_FIX__          1       // 64Î»¶¨µãÊı
-#define __T3D_LOW_PRECISION_FLOAT__         2       // 32Î»µ¥¾«¶È¸¡µãÊı
-#define __T3D_HIGH_PRECISION_FLOAT__        3       // 64Î»Ë«¾«¶È¸¡µãÊı
+#define __T3D_LOW_PRECISION_FIX__           0       // 32ä½å®šç‚¹æ•°
+#define __T3D_HIGH_PRECISION_FIX__          1       // 64ä½å®šç‚¹æ•°
+#define __T3D_LOW_PRECISION_FLOAT__         2       // 32ä½å•ç²¾åº¦æµ®ç‚¹æ•°
+#define __T3D_HIGH_PRECISION_FLOAT__        3       // 64ä½åŒç²¾åº¦æµ®ç‚¹æ•°
 
-#define __T3D_REAL_TYPE__   __T3D_LOW_PRECISION_FLOAT__ // ÊµÊıµÄ¾«¶ÈÀàĞÍ
+#define __T3D_REAL_TYPE__   __T3D_LOW_PRECISION_FLOAT__ // å®æ•°çš„ç²¾åº¦ç±»å‹
 
 
 namespace Tiny3D
@@ -51,21 +51,6 @@ namespace Tiny3D
 
     class Degree;
     class Radian;
-    class Math;
-    class Matrix2;
-    class Matrix3;
-    class Matrix4;
-    class Quaternion;
-    class Vector2;
-    class Vector3;
-    class Vector4;
-
-    class Frustum;
-    class Aabb;
-    class Obb;
-    class Sphere;
-    class Plane;
-    class Transform;
 }
 
 typedef float               float32_t;
