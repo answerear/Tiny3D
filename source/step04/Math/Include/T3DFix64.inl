@@ -24,16 +24,22 @@ namespace Tiny3D
 
     }
 
+    inline fix64::fix64(const fix32 &fx)
+    {
+        float32_t value = (float32_t)fx;
+        m = (int64_t)(value * (1 << DECIMAL_BITS));
+    }
+
     inline fix64::fix64(float32_t value)
     {
-        T3D_ASSERT(value <= MAX_FLOAT_VALUE &&value >= MIN_FLOAT_VALUE);
-        m = (int32_t)(value * (1 << DECIMAL_BITS));
+        T3D_ASSERT(value <= MAX_FLOAT_VALUE && value >= MIN_FLOAT_VALUE);
+        m = (int64_t)(value * (1 << DECIMAL_BITS));
     }
 
     inline fix64::fix64(float64_t value)
     {
-        T3D_ASSERT(value <= MAX_FLOAT_VALUE &&value >= MIN_FLOAT_VALUE);
-        m = (int32_t)(value * (1 << DECIMAL_BITS));
+        T3D_ASSERT(value <= MAX_FLOAT_VALUE && value >= MIN_FLOAT_VALUE);
+        m = (int64_t)(value * (1 << DECIMAL_BITS));
     }
 
     inline fix64::fix64(int32_t value)
@@ -604,12 +610,14 @@ namespace Tiny3D
 
     inline fix64 &fix64::operator =(const fix32 &fx)
     {
-        m = (((fx.mantissa() >> 12) << DECIMAL_BITS) | (fx.mantissa() & 0x1000));
+        float32_t value = (float32_t)fx;
+        m = (int64_t)(value * (1 << DECIMAL_BITS));
         return *this;
     }
 
     inline fix64::operator fix32() const
     {
-        return m;
+        float32_t value = (float32_t)m / 16777216.0f;
+        return fix32(value);
     }
 }

@@ -23,6 +23,15 @@
 
 namespace Tiny3D
 {
+    const int32_t fix32::INTEGER_BITS = 20;
+    const int32_t fix32::DECIMAL_BITS = 12;
+
+    const int32_t fix32::MAX_INT_VALUE = (0x7FFFFFFF >> fix32::DECIMAL_BITS); // 524287
+    const int32_t fix32::MIN_INT_VALUE = (0x80000000 >> fix32::DECIMAL_BITS); // -524288
+
+    const float32_t fix32::MAX_FLOAT_VALUE = (fix32::MAX_INT_VALUE * 1.0f); // 524287.0f
+    const float32_t fix32::MIN_FLOAT_VALUE = (fix32::MIN_INT_VALUE * 1.0f); // -524288.0f
+
     const fix32 fix32::ZERO(0);
     const fix32 fix32::HALF(0.5f);
     const fix32 fix32::ONE(1);

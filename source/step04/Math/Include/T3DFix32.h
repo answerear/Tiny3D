@@ -31,6 +31,15 @@ namespace Tiny3D
     class T3D_MATH_API fix32
     {
     public:
+        static const int32_t INTEGER_BITS;      // 整数位数
+        static const int32_t DECIMAL_BITS;      // 小数位数
+
+        static const int32_t MAX_INT_VALUE;     // 最大的整型数
+        static const int32_t MIN_INT_VALUE;     // 最小的整型数
+
+        static const float32_t MAX_FLOAT_VALUE; // 最大的浮点数
+        static const float32_t MIN_FLOAT_VALUE; // 最小的浮点数
+
         static const fix32 ZERO;        // fix32(0.0f)
         static const fix32 HALF;        // fix32(0.5f)
         static const fix32 ONE;         // fix32(1.0f)

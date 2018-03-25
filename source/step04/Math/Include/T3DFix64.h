@@ -50,6 +50,8 @@ namespace Tiny3D
 
         /// 默认构造函数
         fix64();
+        /// 用32位定点数构造64位定点数
+        fix64(const fix32 &fx);
         /// 单精度浮点数参数的构造函数
         fix64(float32_t value);
         /// 双精度浮点数参数的构造函数
@@ -58,7 +60,7 @@ namespace Tiny3D
         fix64(int32_t value);
         /// 用64位整数构造定点数，64位分配：40.24
         fix64(int64_t value);
-        /// 用32位整数直接赋值定点数来构造
+        /// 用64位整数直接赋值定点数来构造
         fix64(int64_t value, int32_t r);
         /// 拷贝构造函数
         fix64(const fix64 &value);

@@ -26,26 +26,26 @@ namespace Tiny3D
 
     inline fix32::fix32(float32_t value)
     {
-        T3D_ASSERT(value <= 524287.0f &&value >= -524288.0f);
-        m = (int32_t)(value * 4096);
+        T3D_ASSERT(value <= MAX_FLOAT_VALUE &&value >= MIN_FLOAT_VALUE);
+        m = (int32_t)(value * (1 << DECIMAL_BITS));
     }
 
     inline fix32::fix32(float64_t value)
     {
-        T3D_ASSERT(value <= 524287.0 &&value >= -524288.0);
-        m = (int32_t)(value * 4096);
+        T3D_ASSERT(value <= MAX_FLOAT_VALUE &&value >= MIN_FLOAT_VALUE);
+        m = (int32_t)(value * (1 << DECIMAL_BITS));
     }
 
     inline fix32::fix32(int32_t value)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        m = (value << 12);
+        T3D_ASSERT(value <= MAX_INT_VALUE && value >= MIN_INT_VALUE);
+        m = (value << DECIMAL_BITS);
     }
 
     inline fix32::fix32(int64_t value)
     {
         T3D_ASSERT(value <= 8796093022207 && value >= -8796093022208);
-        m = (int32_t)((value + 2048) >> 12);
+        m = (int32_t)((value + 2048) >> DECIMAL_BITS);
     }
 
     inline fix32::fix32(int32_t value, int32_t r)
@@ -114,7 +114,7 @@ namespace Tiny3D
 
     inline bool fix32::eq_1() const
     {
-        return (m == 0x00001000);
+        return (m == (1 << DECIMAL_BITS));
     }
 
     inline bool fix32::is_INF() const
@@ -129,7 +129,7 @@ namespace Tiny3D
 
     inline bool fix32::is_integer() const
     {
-        return ((m & 0x00000FFF) == 0);
+        return ((m & ((1 << DECIMAL_BITS) - 1)) == 0);
     }
 
     //--------------------------------------------------------------------------
@@ -180,11 +180,11 @@ namespace Tiny3D
             return fix32::INF;
 
         int64_t value = fx.m;
-        value <<= 12;
+        value <<= fix32::DECIMAL_BITS;
         value /= gx.m;
 
-        T3D_ASSERT(value <= (int64_t)2147483647 
-            && value >= -(int64_t)2147483648);
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
         return fix32((int32_t)value, 0);
     }
 
@@ -244,37 +244,37 @@ namespace Tiny3D
 
     inline fix32 &fix32::operator =(int32_t value)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        m = (value << 12);
+        T3D_ASSERT(value <= MAX_INT_VALUE && value >= MIN_INT_VALUE);
+        m = (value << DECIMAL_BITS);
         return *this;
     }
 
     inline fix32 operator +(const fix32 &fx, int32_t value)
     {
-        T3D_ASSERT(((fx.m ^ (value << 12)) & 0x80000000) 
-            || !((fx.m ^ (fx.m + (value << 12))) & 0x80000000));
-        return fix32(fx.m + (value << 12), 0);
+        T3D_ASSERT(((fx.m ^ (value << fix32::DECIMAL_BITS)) & 0x80000000)
+            || !((fx.m ^ (fx.m + (value << fix32::DECIMAL_BITS))) & 0x80000000));
+        return fix32(fx.m + (value << fix32::DECIMAL_BITS), 0);
     }
 
     inline fix32 operator +(int32_t value, const fix32 &fx)
     {
-        T3D_ASSERT(((fx.m ^ (value << 12)) & 0x80000000) 
-            || !((fx.m ^ (fx.m + (value << 12))) & 0x80000000));
-        return fix32(fx.m + (value << 12), 0);
+        T3D_ASSERT(((fx.m ^ (value << fix32::DECIMAL_BITS)) & 0x80000000)
+            || !((fx.m ^ (fx.m + (value << fix32::DECIMAL_BITS))) & 0x80000000));
+        return fix32(fx.m + (value << fix32::DECIMAL_BITS), 0);
     }
 
     inline fix32 operator - (const fix32 &fx, int32_t value)
     {
-        T3D_ASSERT(((fx.m ^ (value << 12)) & 0x80000000) 
-            || !((fx.m ^ (fx.m + (value << 12))) & 0x80000000));
-        return fix32(fx.m - (value << 12), 0);
+        T3D_ASSERT(((fx.m ^ (value << fix32::DECIMAL_BITS)) & 0x80000000)
+            || !((fx.m ^ (fx.m + (value << fix32::DECIMAL_BITS))) & 0x80000000));
+        return fix32(fx.m - (value << fix32::DECIMAL_BITS), 0);
     }
 
     inline fix32 operator -(int32_t value, const fix32 &fx)
     {
-        T3D_ASSERT(((fx.m ^ (value << 12)) & 0x80000000) 
-            || !((fx.m ^ (fx.m + (value << 12))) & 0x80000000));
-        return fix32((value << 12) - fx.m, 0);
+        T3D_ASSERT(((fx.m ^ (value << fix32::DECIMAL_BITS)) & 0x80000000)
+            || !((fx.m ^ (fx.m + (value << fix32::DECIMAL_BITS))) & 0x80000000));
+        return fix32((value << fix32::DECIMAL_BITS) - fx.m, 0);
     }
 
     inline fix32 operator *(const fix32 &fx, int32_t value)
@@ -297,7 +297,8 @@ namespace Tiny3D
 
     inline fix32 operator /(const fix32 &fx, int32_t value)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
         
         if (value == 0)
         {
@@ -317,7 +318,8 @@ namespace Tiny3D
             return (value < 0 ? fix32::MINUSINF : fix32::INF);
         }
         
-        return fix32((int32_t)(((int64_t)value << 12) / fx.m), 0);
+        return fix32((int32_t)(((int64_t)value << fix32::DECIMAL_BITS) 
+            / fx.m), 0);
     }
 
     inline fix32 &fix32::operator +=(int32_t value)
@@ -342,74 +344,86 @@ namespace Tiny3D
 
     inline bool operator ==(const fix32 &fx, int32_t value)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        return (fx.m == (value << 12));
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
+        return (fx.m == (value << fix32::DECIMAL_BITS));
     }
 
     inline bool operator ==(int32_t value, const fix32 &fx)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        return (fx.m == (value << 12));
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
+        return (fx.m == (value << fix32::DECIMAL_BITS));
     }
 
     inline bool operator !=(const fix32 &fx, int32_t value)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        return (fx.m != (value << 12));
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
+        return (fx.m != (value << fix32::DECIMAL_BITS));
     }
 
     inline bool operator !=(int32_t value, const fix32 &fx)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        return (fx.m != (value << 12));
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
+        return (fx.m != (value << fix32::DECIMAL_BITS));
     }
 
     inline bool operator >=(const fix32 &fx, int32_t value)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        return (fx.m >= (value << 12));
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
+        return (fx.m >= (value << fix32::DECIMAL_BITS));
     }
 
     inline bool operator >=(int32_t value, const fix32 &fx)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        return ((value << 12) >= fx.m);
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
+        return ((value << fix32::DECIMAL_BITS) >= fx.m);
     }
 
     inline bool operator <=(const fix32 &fx, int32_t value)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        return (fx.m <= (value << 12));
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
+        return (fx.m <= (value << fix32::DECIMAL_BITS));
     }
 
     inline bool operator <=(int32_t value, const fix32 &fx)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        return ((value << 12) <= fx.m);
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
+        return ((value << fix32::DECIMAL_BITS) <= fx.m);
     }
 
     inline bool operator >(const fix32 &fx, int32_t value)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        return (fx.m > (value << 12));
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
+        return (fx.m > (value << fix32::DECIMAL_BITS));
     }
 
     inline bool operator >(int32_t value, const fix32 &fx)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        return ((value << 12) > fx.m);
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
+        return ((value << fix32::DECIMAL_BITS) > fx.m);
     }
 
     inline bool operator <(const fix32 &fx, int32_t value)
     {
-        T3D_ASSERT(value <= 524287 && value >= -524288);
-        return (fx.m < (value << 12));
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
+        return (fx.m < (value << fix32::DECIMAL_BITS));
     }
 
     inline bool operator <(int32_t value, const fix32 &fx)
     {
-    T3D_ASSERT(value <= 524287 && value >= -524288);
-    return ((value << 12) < fx.m);
+        T3D_ASSERT(value <= fix32::MAX_INT_VALUE 
+            && value >= fix32::MIN_INT_VALUE);
+        return ((value << fix32::DECIMAL_BITS) < fx.m);
     }
 
     inline fix32::operator int32_t() const
@@ -421,8 +435,9 @@ namespace Tiny3D
 
     inline fix32 &fix32::operator =(float32_t value)
     {
-        T3D_ASSERT(value <= 524287.0f && value >= -524288.0f);
-        m = (int32_t)(value * 4096);
+        T3D_ASSERT(value <= fix32::MAX_FLOAT_VALUE 
+            && value >= fix32::MIN_FLOAT_VALUE);
+        m = (int32_t)(value * (1 << fix32::DECIMAL_BITS));
         return *this;
     }
 
@@ -548,7 +563,7 @@ namespace Tiny3D
 
     inline fix32::operator float32_t() const
     {
-        return (float32_t)m / 4096.0f;
+        return (float32_t)m / float32_t(1 << DECIMAL_BITS);
     }
 
     //--------------------------------------------------------------------------
@@ -579,6 +594,6 @@ namespace Tiny3D
 
     inline fix32::operator int64_t() const
     {
-        return ((int64_t)m << 12);
+        return ((int64_t)m << DECIMAL_BITS);
     }
 }
