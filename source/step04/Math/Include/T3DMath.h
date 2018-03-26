@@ -34,44 +34,47 @@ namespace Tiny3D
     class T3D_MATH_API Math
     {
     public:
-        /// Square.
-        static Real Sqr(Real fValue);
-        /// Square root.
-        static Real Sqrt(Real fValue);
+        /// 求平方.
+        static Real sqr(Real value);
+        /// 求平方根.
+        static Real sqrt(Real value);
+        /// 求平方根倒数.
+        static Real invSqrt(Real value);
 
-        static Real InvSqrt(Real fValue);
+        /// 求绝对值
+        static Real abs(Real value);
+        static Degree abs(const Degree& value);
+        static Radian abs(const Radian& value);
 
-        static Real Abs (Real fValue);
-        static Degree Abs (const Degree& dValue);
-        static Radian Abs (const Radian& rValue);
+        /// 根据误差值判断两个实数是否相等.
+        static bool realEqual(Real a, Real b, 
+            Real tolerance = std::numeric_limits<Real>::epsilon());
 
-        /// Compare 2 reals, using tolerance for inaccuracies.
-        static bool RealEqual(Real a, Real b, Real tolerance = std::numeric_limits<Real>::epsilon());
+        /// 通过角度求正弦值.
+        static Real sin(const Degree &degrees);
+        /// 通过弧度求正弦值.
+        static Real sin(const Radian &radians);
+        /// 通过角度求余弦值.
+        static Real cos(const Degree &degrees);
+        /// 通过弧度求余弦值.
+        static Real cos(const Radian &radians);
+        /// 通过角度求正切值.
+        static Real tan(const Degree &degrees);
+        /// 通过弧度求正切值.
+        static Real tan(const Radian &radians);
 
-        /// Sine in degree.
-        static Real Sin(const Degree &degrees);
-        /// Sine in radian.
-        static Real Sin(const Radian &radians);
-        /// Cosine in degree.
-        static Real Cos(const Degree &degrees);
-        /// Cosine in radian.
-        static Real Cos(const Radian &radians);
-        /// Tangent in degree.
-        static Real Tan(const Degree &degrees);
-        /// Tangent in radians.
-        static Real Tan(const Radian &radians);
+        /// 求反正弦.
+        static Radian asin(Real value);
+        /// 求反余弦.
+        static Radian acos(Real value);
+        /// 求反正切.
+        static Radian atan(Real value);
+        /// 通过 y/x 求反正切
+        static Radian atan2(Real fY, Real fX);
 
-        /// Arc-sine.
-        static Radian ASin(Real fValue);
-        /// Arc-cosine.
-        static Radian ACos(Real fValue);
-        /// Arc-tangent.
-        static Radian ATan(Real fValue);
-        /// Arc-tangent of y/x
-        static Radian ATan2(Real fY, Real fX);
+        static Real degreesToRadians(Real degrees);
+        static Real radiansToDegrees(Real radians);
 
-        static Real DegreesToRadians(Real degrees);
-        static Real RadiansToDegrees(Real radians);
     public:
         static const Real POS_INFINITY;
         static const Real NEG_INFINITY;

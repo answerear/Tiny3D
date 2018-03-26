@@ -2,31 +2,31 @@
 
 namespace Tiny3D
 {
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
-    inline Real Math::DegreesToRadians(Real degrees)
+    inline Real Math::degreesToRadians(Real degrees)
     {
         return degrees * DEGREES_TO_RADIANS;
     }
 
-    inline Real Math::RadiansToDegrees(Real radians)
+    inline Real Math::radiansToDegrees(Real radians)
     {
         return radians * RADIANS_TO_DEGREES;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
     inline Real Radian::valueDegrees() const
     {
-        return Math::RadiansToDegrees(m_fRadian);
+        return Math::radiansToDegrees(m_fRadian);
     }
 
     inline Real Degree::valueRadians() const
     {
-        return Math::DegreesToRadians(m_fDegree);
+        return Math::degreesToRadians(m_fDegree);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
     inline Radian::Radian(const Degree &degree)
         : m_fRadian(degree.valueRadians())
@@ -62,7 +62,7 @@ namespace Tiny3D
         return *this;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
     inline Degree::Degree(const Radian &radian)
         : m_fDegree(radian.valueDegrees())
@@ -98,39 +98,40 @@ namespace Tiny3D
         return *this;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
-    inline Real Math::Sqr(Real fValue)
+    inline Real Math::sqr(Real value)
     {
-        return fValue * fValue;
+        return value * value;
     }
 
-    inline Real Math::Sqrt(Real fValue)
+    inline Real Math::sqrt(Real value)
     {
-        return sqrt(fValue);
+        return ::sqrt(value);
     }
 
-    inline Real Math::InvSqrt(Real fValue)
+    inline Real Math::invSqrt(Real value)
     {
-        return Real(1.0) / sqrt(fValue);
+        return Real(1.0) / ::sqrt(value);
     }
 
-    inline Real Math::Abs(Real fValue)
+    inline Real Math::abs(Real value)
     { 
-        return Real(fabs(fValue)); 
+        return Real(fabs(value));
     }
 
-    inline Degree Math::Abs(const Degree &dValue)
+    inline Degree Math::abs(const Degree &value)
     { 
-        return Degree(fabs(dValue.valueDegrees())); 
+        return Degree(fabs(value.valueDegrees())); 
     }
 
-    inline Radian Math::Abs(const Radian& rValue)
+    inline Radian Math::abs(const Radian& value)
     { 
-        return Radian(fabs(rValue.valueRadians())); 
+        return Radian(fabs(value.valueRadians()));
     }
 
-    inline bool Math::RealEqual(Real a, Real b, Real tolerance /* = std::numeric_limits<Real>::epsilon() */)
+    inline bool Math::realEqual(Real a, Real b, 
+        Real tolerance /* = std::numeric_limits<Real>::epsilon() */)
     {
         if (fabs(b-a) <= tolerance)
             return true;
@@ -138,54 +139,54 @@ namespace Tiny3D
             return false;
     }
 
-    inline Real Math::Sin(const Degree &degrees)
+    inline Real Math::sin(const Degree &degrees)
     {
-        return Real(sin(degrees.valueRadians()));
+        return Real(::sin(degrees.valueRadians()));
     }
 
-    inline Real Math::Sin(const Radian &radians)
+    inline Real Math::sin(const Radian &radians)
     {
-        return Real(sin(radians.valueRadians()));
+        return Real(::sin(radians.valueRadians()));
     }
 
-    inline Real Math::Cos(const Degree &degrees)
+    inline Real Math::cos(const Degree &degrees)
     {
-        return Real(cos(degrees.valueRadians()));
+        return Real(::cos(degrees.valueRadians()));
     }
 
-    inline Real Math::Cos(const Radian &radians)
+    inline Real Math::cos(const Radian &radians)
     {
-        return Real(cos(radians.valueRadians()));
+        return Real(::cos(radians.valueRadians()));
     }
 
-    inline Real Math::Tan(const Degree &degrees)
+    inline Real Math::tan(const Degree &degrees)
     {
-        return Real(tan(degrees.valueRadians()));
+        return Real(::tan(degrees.valueRadians()));
     }
 
-    inline Real Math::Tan(const Radian &radians)
+    inline Real Math::tan(const Radian &radians)
     {
-        return Real(tan(radians.valueRadians()));
+        return Real(::tan(radians.valueRadians()));
     }
 
-    inline Radian Math::ASin(Real fValue)
+    inline Radian Math::asin(Real fValue)
     {
-        return Radian(asin(fValue));
+        return Radian(::asin(fValue));
     }
 
-    inline Radian Math::ACos(Real fValue)
+    inline Radian Math::acos(Real fValue)
     {
-        return Radian(acos(fValue));
+        return Radian(::acos(fValue));
     }
 
-    inline Radian Math::ATan(Real fValue)
+    inline Radian Math::atan(Real fValue)
     {
-        return Radian(atan(fValue));
+        return Radian(::atan(fValue));
     }
 
-    inline Radian Math::ATan2(Real fY, Real fX)
+    inline Radian Math::atan2(Real fY, Real fX)
     {
-        return Radian(atan2(fY, fX));
+        return Radian(::atan2(fY, fX));
     }
 }
 
