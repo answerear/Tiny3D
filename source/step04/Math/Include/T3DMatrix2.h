@@ -28,7 +28,7 @@
 
 namespace Tiny3D
 {
-    /// 行优先存储构成的2x2方阵
+    /// 行优先存储构成的2x2方阵.
     class T3D_MATH_API Matrix2
     {
     public:
@@ -65,7 +65,7 @@ namespace Tiny3D
         /// 从矩阵提取出旋转弧度.
         Radian toAngle() const;
 
-        /// 获取矩阵数值数组首地址.
+        /// 获取矩阵元素数组首地址.
         operator const Real *() const;
         operator Real *();
 
@@ -150,10 +150,10 @@ namespace Tiny3D
         /// 计算矩阵行列式.
         Real determinant() const;
 
-        /// 二次型 ret = (U ^ T) * (M * V).
+        /// 二次型 ret = (U ^ T) * M * V.
         Real qform(const Vector2 &rkU, const Vector2 &rkV) const;
 
-        /// 矩阵正交化，使用 Gram-Schmidt 算法
+        /// 矩阵标准正交化，使用 Gram-Schmidt 算法
         void orthonormalize();
 
         /// 特征分解
@@ -168,7 +168,7 @@ namespace Tiny3D
         int32_t compareArrays(const Matrix2 &other) const;
 
     private:
-        Real    mTuple[4];       /// 以行优先存储的矩阵元素
+        Real    mTuples[4];       /// 以行优先存储的矩阵元素
     };
 
     /// 重载乘法运算符，实现一个标量跟矩阵相乘
