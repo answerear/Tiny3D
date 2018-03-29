@@ -51,6 +51,16 @@ namespace Tiny3D
 
     class Degree;
     class Radian;
+
+    class Vector2;
+    class Vector3;
+    class Vector4;
+
+    class Quaternion;
+
+    class Matrix2;
+    class Matrix3;
+    class Matrix4;
 }
 
 typedef float               float32_t;

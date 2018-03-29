@@ -164,9 +164,9 @@ namespace Tiny3D
         /// 矩阵标准正交化，使用 Gram-Schmidt 算法
         void orthonormalize();
 
-        /// The matrix must be orthonormal.  The decomposition is yaw*pitch*roll 
-        /// where yaw is rotation about the Up vector, pitch is rotation about 
-        /// the Right axis, and roll is rotation about the Direction axis.
+        /// 这个矩阵必须是正交矩阵. 它分解为 Yaw * Pitch * Roll 
+        /// 其中 Yaw 是绕向上的向量(Y轴)旋转；Pitch 是绕向右的向量(X轴)旋转； 
+        /// Roll 是绕向前的向量(Z轴)旋转.
         ///
         ///        +-                       -+
         ///        |    1       0       0    |
@@ -185,14 +185,39 @@ namespace Tiny3D
         /// R(z) = |  sin(z)  cos(z)    0    |
         ///        |    0       0       1    |
         ///        +-                       -+
-        ///
-        void fromEulerAnglesXYZ(const Radian &rkPitch, const Radian &rkYaw, const Radian &rkRoll);
-        void fromEulerAnglesXZY(const Radian &rkPitch, const Radian &rkRoll, const Radian &rkYaw);
-        void fromEulerAnglesYXZ(const Radian &rkYaw, const Radian &rkPitch, const Radian &rkRoll);
-        void fromEulerAnglesYZX(const Radian &rkYaw, const Radian &rkRoll, const Radian &rkPitch);
-        void fromEulerAnglesZXY(const Radian &rkRoll, const Radian &rkPitch, const Radian &rkYaw);
-        void fromEulerAnglesZYX(const Radian &krRoll, const Radian &rkYaw, const Radian &rkPitch);
 
+        /// 先绕X轴旋转，再绕Y轴旋转，最后绕Z轴旋转获得一个欧拉角旋转矩阵
+        void fromEulerAnglesXYZ(
+            const Radian &rkPitch, 
+            const Radian &rkYaw, 
+            const Radian &rkRoll);
+        /// 先绕X轴旋转，再绕Z轴旋转，最后绕Z轴旋转获得一个欧拉角旋转矩阵
+        void fromEulerAnglesXZY(
+            const Radian &rkPitch, 
+            const Radian &rkRoll, 
+            const Radian &rkYaw);
+        /// 先绕Y轴旋转，再绕X轴旋转，最后绕Z轴旋转获得一个欧拉角旋转矩阵
+        void fromEulerAnglesYXZ(
+            const Radian &rkYaw, 
+            const Radian &rkPitch, 
+            const Radian &rkRoll);
+        /// 先绕Y轴旋转，再绕Z轴旋转，最后绕X轴旋转获得一个欧拉角旋转矩阵
+        void fromEulerAnglesYZX(
+            const Radian &rkYaw, 
+            const Radian &rkRoll, 
+            const Radian &rkPitch);
+        /// 先绕Z轴旋转，再绕X轴旋转，最后绕Y轴旋转获得一个欧拉角旋转矩阵
+        void fromEulerAnglesZXY(
+            const Radian &rkRoll, 
+            const Radian &rkPitch, 
+            const Radian &rkYaw);
+        /// 先绕Z轴旋转，再绕Y轴旋转，最后绕X轴旋转获得一个欧拉角旋转矩阵
+        void fromEulerAnglesZYX(
+            const Radian &krRoll, 
+            const Radian &rkYaw, 
+            const Radian &rkPitch);
+
+        /// 从一个欧拉角旋转矩阵获取出三个轴的旋转弧度
         bool toEulerAnglesXYZ(Radian &rPitch, Radian &rYaw, Radian &rRoll) const;
         bool toEulerAnglesXZY(Radian &rPitch, Radian &rRoll, Radian &rYaw) const;
         bool toEulerAnglesYXZ(Radian &rYaw, Radian &rPitch, Radian &rRoll) const;
@@ -200,7 +225,12 @@ namespace Tiny3D
         bool toEulerAnglesZXY(Radian &rRoll, Radian &rPitch, Radian &rYaw) const;
         bool toEulerAnglesZYX(Radian &rRoll, Radian &rYaw, Radian &rPitch) const;
 
-        void QDUDecomposition(Matrix3 &kQ, Vector3 &kD, Vector3 &kU) const;
+        /// 矩阵分解成一个旋转矩阵、一个缩放矩阵、一个切变矩阵
+        /// 其中 
+        ///   rQ 表示分解出来的旋转矩阵
+        ///   rD 表示分解出来的缩放对角矩阵中对角线上元素构成的向量
+        ///   rU 表示分解出来的切变矩阵中上三角矩阵的元素构成的向量
+        void QDUDecomposition(Matrix3 &rQ, Vector3 &rD, Vector3 &rU) const;
 
     public:
         static const Matrix3 ZERO;

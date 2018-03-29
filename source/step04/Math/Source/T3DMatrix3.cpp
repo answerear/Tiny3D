@@ -22,8 +22,14 @@
 
 namespace Tiny3D
 {
-    const Matrix3 Matrix3::ZERO(Real(0.0), Real(0.0), Real(0.0), Real(0.0), Real(0.0), Real(0.0), Real(0.0), Real(0.0), Real(0.0));
-    const Matrix3 Matrix3::IDENTITY(Real(1.0), Real(0.0), Real(0.0), Real(0.0), Real(1.0), Real(0.0), Real(0.0), Real(0.0), Real(1.0));
+    const Matrix3 Matrix3::ZERO(
+        Real(0.0), Real(0.0), Real(0.0), 
+        Real(0.0), Real(0.0), Real(0.0), 
+        Real(0.0), Real(0.0), Real(0.0));
+    const Matrix3 Matrix3::IDENTITY(
+        Real(1.0), Real(0.0), Real(0.0), 
+        Real(0.0), Real(1.0), Real(0.0), 
+        Real(0.0), Real(0.0), Real(1.0));
 
     void Matrix3::toAxisAngle(Vector3 &rAxis, Radian &rRadians) const
     {
@@ -72,7 +78,8 @@ namespace Tiny3D
                     if (mTuples[0] >= mTuples[8])
                     {
                         // r00 is maximum diagonal term
-                        rAxis.x() = 0.5f * Math::sqrt(mTuples[0] - mTuples[4] - mTuples[8] + 1.0f);
+                        rAxis.x() = 0.5f * Math::sqrt(mTuples[0] - mTuples[4] 
+                            - mTuples[8] + 1.0f);
                         fHalfInverse = 0.5f / rAxis.x();
                         rAxis.y() = fHalfInverse * mTuples[1];
                         rAxis.z() = fHalfInverse * mTuples[2];
@@ -80,7 +87,8 @@ namespace Tiny3D
                     else
                     {
                         // r22 is maximum diagonal term
-                        rAxis.z() = 0.5f * Math::sqrt(mTuples[8] - mTuples[0] - mTuples[4] + 1.0f);
+                        rAxis.z() = 0.5f * Math::sqrt(mTuples[8] - mTuples[0] 
+                            - mTuples[4] + 1.0f);
                         fHalfInverse = 0.5f / rAxis.z();
                         rAxis.x() = fHalfInverse * mTuples[2];
                         rAxis.y() = fHalfInverse * mTuples[5];
@@ -89,18 +97,20 @@ namespace Tiny3D
                 else
                 {
                     // r11 > r00
-                    if ( mTuples[4] >= mTuples[8] )
+                    if (mTuples[4] >= mTuples[8])
                     {
                         // r11 is maximum diagonal term
-                        rAxis.y() = 0.5f * Math::sqrt(mTuples[4] - mTuples[0] - mTuples[8] + 1.0f);
-                        fHalfInverse  = 0.5f / rAxis.y();
+                        rAxis.y() = 0.5f * Math::sqrt(mTuples[4] - mTuples[0] 
+                            - mTuples[8] + 1.0f);
+                        fHalfInverse = 0.5f / rAxis.y();
                         rAxis.x() = fHalfInverse * mTuples[1];
                         rAxis.z() = fHalfInverse * mTuples[5];
                     }
                     else
                     {
                         // r22 is maximum diagonal term
-                        rAxis.z() = 0.5f * Math::sqrt(mTuples[8] - mTuples[0] - mTuples[4] + 1.0f);
+                        rAxis.z() = 0.5f * Math::sqrt(mTuples[8] - mTuples[0] 
+                            - mTuples[4] + 1.0f);
                         fHalfInverse = 0.5f / rAxis.z();
                         rAxis.x() = fHalfInverse * mTuples[2];
                         rAxis.y() = fHalfInverse * mTuples[5];
@@ -205,35 +215,41 @@ namespace Tiny3D
         // product of vectors A and B.
 
         // compute q0
-        Real fLength = Math::sqrt(mTuples[0]*mTuples[0] + mTuples[3]*mTuples[3] + mTuples[6]*mTuples[6]);
+        Real fLength = Math::sqrt(mTuples[0] * mTuples[0] 
+            + mTuples[3] * mTuples[3] + mTuples[6] * mTuples[6]);
 
         mTuples[0] /= fLength;
         mTuples[3] /= fLength;
         mTuples[6] /= fLength;
 
         // compute q1
-        Real fDot0 = mTuples[0]*mTuples[1] + mTuples[3]*mTuples[4] + mTuples[6]*mTuples[7];
+        Real fDot0 = mTuples[0] * mTuples[1] + mTuples[3] * mTuples[4] 
+            + mTuples[6] * mTuples[7];
 
         mTuples[1] -= fDot0*mTuples[0];
         mTuples[4] -= fDot0*mTuples[3];
         mTuples[7] -= fDot0*mTuples[6];
 
-        fLength = Math::sqrt(mTuples[1]*mTuples[1] + mTuples[4]*mTuples[4] + mTuples[7]*mTuples[7]);
+        fLength = Math::sqrt(mTuples[1] * mTuples[1] + mTuples[4] * mTuples[4] 
+            + mTuples[7] * mTuples[7]);
 
         mTuples[1] /= fLength;
         mTuples[4] /= fLength;
         mTuples[7] /= fLength;
 
         // compute q2
-        Real fDot1 = mTuples[1]*mTuples[2] + mTuples[4]*mTuples[5] + mTuples[7]*mTuples[8];
+        Real fDot1 = mTuples[1] * mTuples[2] + mTuples[4] * mTuples[5] 
+            + mTuples[7] * mTuples[8];
 
-        fDot0 = mTuples[0]*mTuples[2] + mTuples[3]*mTuples[5] + mTuples[6]*mTuples[8];
+        fDot0 = mTuples[0] * mTuples[2] + mTuples[3] * mTuples[5] 
+            + mTuples[6] * mTuples[8];
 
         mTuples[2] -= fDot0*mTuples[0] + fDot1*mTuples[1];
         mTuples[5] -= fDot0*mTuples[3] + fDot1*mTuples[4];
         mTuples[8] -= fDot0*mTuples[6] + fDot1*mTuples[7];
 
-        fLength = Math::sqrt(mTuples[2]*mTuples[2] + mTuples[5]*mTuples[5] + mTuples[8]*mTuples[8]);
+        fLength = Math::sqrt(mTuples[2] * mTuples[2] + mTuples[5] * mTuples[5] 
+            + mTuples[8] * mTuples[8]);
 
         mTuples[2] /= fLength;
         mTuples[5] /= fLength;
@@ -468,12 +484,12 @@ namespace Tiny3D
         return true;
     }
 
-    void Matrix3::QDUDecomposition (Matrix3& kQ,
-                                    Vector3& kD, Vector3& kU) const
+    void Matrix3::QDUDecomposition (Matrix3& kQ, Vector3& kD, Vector3& kU) const
     {
-        // Factor M = QR = QDU where Q is orthogonal, D is diagonal,
-        // and U is upper triangular with ones on its diagonal.  Algorithm uses
-        // Gram-Schmidt orthogonalization (the QR algorithm).
+        // Factor M = QR = QDU where Q is orthogonal (rotation), D is diagonal
+        // (scaling), and U is upper triangular with ones on its diagonal 
+        // (shear).  Algorithm uses Gram-Schmidt orthogonalization (the QR 
+        // algorithm).
         //
         // If M = [ m0 | m1 | m2 ] and Q = [ q0 | q1 | q2 ], then
         //
@@ -499,45 +515,49 @@ namespace Tiny3D
         // U stores the entries U[0] = u01, U[1] = u02, U[2] = u12
 
         // build orthogonal matrix Q
-        Real fInvLength = Math::invSqrt(m3x3[0][0]*m3x3[0][0] + m3x3[1][0]*m3x3[1][0] + m3x3[2][0]*m3x3[2][0]);
+        Real fInvLength = Math::invSqrt(m3x3[0][0] * m3x3[0][0] 
+            + m3x3[1][0] * m3x3[1][0] + m3x3[2][0] * m3x3[2][0]);
 
-        kQ[0][0] = m3x3[0][0]*fInvLength;
-        kQ[1][0] = m3x3[1][0]*fInvLength;
-        kQ[2][0] = m3x3[2][0]*fInvLength;
+        kQ[0][0] = m3x3[0][0] * fInvLength;
+        kQ[1][0] = m3x3[1][0] * fInvLength;
+        kQ[2][0] = m3x3[2][0] * fInvLength;
 
-        Real fDot = kQ[0][0]*m3x3[0][1] + kQ[1][0]*m3x3[1][1] +
-                    kQ[2][0]*m3x3[2][1];
-        kQ[0][1] = m3x3[0][1]-fDot*kQ[0][0];
-        kQ[1][1] = m3x3[1][1]-fDot*kQ[1][0];
-        kQ[2][1] = m3x3[2][1]-fDot*kQ[2][0];
-        fInvLength = Math::invSqrt(kQ[0][1]*kQ[0][1] + kQ[1][1]*kQ[1][1] + kQ[2][1]*kQ[2][1]);
+        Real fDot = kQ[0][0] * m3x3[0][1] + kQ[1][0] * m3x3[1][1] 
+            + kQ[2][0] * m3x3[2][1];
+        kQ[0][1] = m3x3[0][1] - fDot * kQ[0][0];
+        kQ[1][1] = m3x3[1][1] - fDot * kQ[1][0];
+        kQ[2][1] = m3x3[2][1] - fDot * kQ[2][0];
+        fInvLength = Math::invSqrt(kQ[0][1] * kQ[0][1] + kQ[1][1] * kQ[1][1] 
+            + kQ[2][1] * kQ[2][1]);
 
         kQ[0][1] *= fInvLength;
         kQ[1][1] *= fInvLength;
         kQ[2][1] *= fInvLength;
 
-        fDot = kQ[0][0]*m3x3[0][2] + kQ[1][0]*m3x3[1][2] +
-               kQ[2][0]*m3x3[2][2];
-        kQ[0][2] = m3x3[0][2]-fDot*kQ[0][0];
-        kQ[1][2] = m3x3[1][2]-fDot*kQ[1][0];
-        kQ[2][2] = m3x3[2][2]-fDot*kQ[2][0];
-        fDot = kQ[0][1]*m3x3[0][2] + kQ[1][1]*m3x3[1][2] +
-               kQ[2][1]*m3x3[2][2];
-        kQ[0][2] -= fDot*kQ[0][1];
-        kQ[1][2] -= fDot*kQ[1][1];
-        kQ[2][2] -= fDot*kQ[2][1];
-        fInvLength = Math::invSqrt(kQ[0][2]*kQ[0][2] + kQ[1][2]*kQ[1][2] + kQ[2][2]*kQ[2][2]);
+        fDot = kQ[0][0] * m3x3[0][2] + kQ[1][0] * m3x3[1][2] +
+               kQ[2][0] * m3x3[2][2];
+        kQ[0][2] = m3x3[0][2] - fDot * kQ[0][0];
+        kQ[1][2] = m3x3[1][2] - fDot * kQ[1][0];
+        kQ[2][2] = m3x3[2][2] - fDot * kQ[2][0];
+        fDot = kQ[0][1] * m3x3[0][2] + kQ[1][1] * m3x3[1][2] +
+            kQ[2][1] * m3x3[2][2];
+        kQ[0][2] -= fDot * kQ[0][1];
+        kQ[1][2] -= fDot * kQ[1][1];
+        kQ[2][2] -= fDot * kQ[2][1];
+        fInvLength = Math::invSqrt(kQ[0][2] * kQ[0][2] + kQ[1][2] * kQ[1][2] 
+            + kQ[2][2] * kQ[2][2]);
 
         kQ[0][2] *= fInvLength;
         kQ[1][2] *= fInvLength;
         kQ[2][2] *= fInvLength;
 
         // guarantee that orthogonal matrix has determinant 1 (no reflections)
-        Real fDet = kQ[0][0]*kQ[1][1]*kQ[2][2] + kQ[0][1]*kQ[1][2]*kQ[2][0] +
-                    kQ[0][2]*kQ[1][0]*kQ[2][1] - kQ[0][2]*kQ[1][1]*kQ[2][0] -
-                    kQ[0][1]*kQ[1][0]*kQ[2][2] - kQ[0][0]*kQ[1][2]*kQ[2][1];
+        Real fDet = kQ[0][0] * kQ[1][1] * kQ[2][2] 
+            + kQ[0][1] * kQ[1][2] * kQ[2][0] + kQ[0][2] * kQ[1][0] * kQ[2][1] 
+            - kQ[0][2] * kQ[1][1] * kQ[2][0] - kQ[0][1] * kQ[1][0] * kQ[2][2] 
+            - kQ[0][0] * kQ[1][2] * kQ[2][1];
 
-        if ( fDet < 0.0 )
+        if (fDet < 0.0)
         {
             for (size_t iRow = 0; iRow < 3; iRow++)
                 for (size_t iCol = 0; iCol < 3; iCol++)
@@ -546,18 +566,18 @@ namespace Tiny3D
 
         // build "right" matrix R
         Matrix3 kR;
-        kR[0][0] = kQ[0][0]*m3x3[0][0] + kQ[1][0]*m3x3[1][0] +
-                   kQ[2][0]*m3x3[2][0];
-        kR[0][1] = kQ[0][0]*m3x3[0][1] + kQ[1][0]*m3x3[1][1] +
-                   kQ[2][0]*m3x3[2][1];
-        kR[1][1] = kQ[0][1]*m3x3[0][1] + kQ[1][1]*m3x3[1][1] +
-                   kQ[2][1]*m3x3[2][1];
-        kR[0][2] = kQ[0][0]*m3x3[0][2] + kQ[1][0]*m3x3[1][2] +
-                   kQ[2][0]*m3x3[2][2];
-        kR[1][2] = kQ[0][1]*m3x3[0][2] + kQ[1][1]*m3x3[1][2] +
-                   kQ[2][1]*m3x3[2][2];
-        kR[2][2] = kQ[0][2]*m3x3[0][2] + kQ[1][2]*m3x3[1][2] +
-                   kQ[2][2]*m3x3[2][2];
+        kR[0][0] = kQ[0][0] * m3x3[0][0] + kQ[1][0] * m3x3[1][0] 
+            + kQ[2][0] * m3x3[2][0];
+        kR[0][1] = kQ[0][0] * m3x3[0][1] + kQ[1][0] * m3x3[1][1] 
+            + kQ[2][0] * m3x3[2][1];
+        kR[1][1] = kQ[0][1] * m3x3[0][1] + kQ[1][1] * m3x3[1][1] 
+            + kQ[2][1] * m3x3[2][1];
+        kR[0][2] = kQ[0][0] * m3x3[0][2] + kQ[1][0] * m3x3[1][2] 
+            + kQ[2][0] * m3x3[2][2];
+        kR[1][2] = kQ[0][1] * m3x3[0][2] + kQ[1][1] * m3x3[1][2] 
+            + kQ[2][1] * m3x3[2][2];
+        kR[2][2] = kQ[0][2] * m3x3[0][2] + kQ[1][2] * m3x3[1][2] 
+            + kQ[2][2] * m3x3[2][2];
 
         // the scaling component
         kD[0] = kR[0][0];
@@ -565,9 +585,9 @@ namespace Tiny3D
         kD[2] = kR[2][2];
 
         // the shear component
-        Real fInvD0 = 1.0f/kD[0];
-        kU[0] = kR[0][1]*fInvD0;
-        kU[1] = kR[0][2]*fInvD0;
-        kU[2] = kR[1][2]/kD[1];
+        Real fInvD0 = 1.0f / kD[0];
+        kU[0] = kR[0][1] * fInvD0;
+        kU[1] = kR[0][2] * fInvD0;
+        kU[2] = kR[1][2] / kD[1];
     }
 }
