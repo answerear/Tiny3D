@@ -187,35 +187,35 @@ namespace Tiny3D
 
     inline Quaternion Quaternion::operator +(const Quaternion &other) const
     {
-        return Quaternion(_w+other._w, _x+other._x, _y+other._y, _z+other._z);
+        return Quaternion(_w + other._w, _x + other._x, _y + other._y, _z + other._z);
     }
 
     inline Quaternion Quaternion::operator -(const Quaternion &other) const
     {
-        return Quaternion(_w-other._w, _x-other._x, _y-other._y, _z-other._z);
+        return Quaternion(_w - other._w, _x - other._x, _y - other._y, _z - other._z);
     }
 
     inline Quaternion Quaternion::operator *(const Quaternion &other) const
     {
         return Quaternion
-            (
+        (
             _w * other._w - _x * other._x - _y * other._y - _z * other._z,
             _w * other._x + _x * other._w + _y * other._z - _z * other._y,
             _w * other._y + _y * other._w + _z * other._x - _x * other._z,
             _w * other._z + _z * other._w + _x * other._y - _y * other._x
-            );
+        );
     }
 
-    inline Quaternion Quaternion::operator *(Real fScalar) const
+    inline Quaternion Quaternion::operator *(Real scalar) const
     {
-        return Quaternion(_w*fScalar, _x*fScalar, _y*fScalar, _z*fScalar);
+        return Quaternion(_w*scalar, _x*scalar, _y*scalar, _z*scalar);
     }
 
-    inline Quaternion Quaternion::operator /(Real fScalar) const
+    inline Quaternion Quaternion::operator /(Real scalar) const
     {
         Real fInvertScalar = 0.0f;
-        if (fScalar != 0.0)
-            fInvertScalar = 1.0f / fScalar;
+        if (scalar != 0.0)
+            fInvertScalar = 1.0f / scalar;
         return Quaternion(_w * fInvertScalar, _x * fInvertScalar, _y * fInvertScalar, _z * fInvertScalar);
     }
 
@@ -247,20 +247,20 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Quaternion &Quaternion::operator *=(Real fScalar)
+    inline Quaternion &Quaternion::operator *=(Real scalar)
     {
-        _w *= fScalar;
-        _x *= fScalar;
-        _y *= fScalar;
-        _z *= fScalar;
+        _w *= scalar;
+        _x *= scalar;
+        _y *= scalar;
+        _z *= scalar;
         return *this;
     }
 
-    inline Quaternion &Quaternion::operator /=(Real fScalar)
+    inline Quaternion &Quaternion::operator /=(Real scalar)
     {
         Real fInvertScalar = 0.0f;
-        if (fScalar != 0.0)
-            fInvertScalar = 1.0f / fScalar;
+        if (scalar != 0.0)
+            fInvertScalar = 1.0f / scalar;
         _w *= fInvertScalar;
         _x *= fInvertScalar;
         _y *= fInvertScalar;
@@ -329,8 +329,8 @@ namespace Tiny3D
     inline Vector3 Quaternion::xAxis() const
     {
         //Real fTx  = 2.0*x;
-        Real fTy  = 2.0f*_y;
-        Real fTz  = 2.0f*_z;
+        Real fTy = 2.0f*_y;
+        Real fTz = 2.0f*_z;
         Real fTwy = fTy*_w;
         Real fTwz = fTz*_w;
         Real fTxy = fTy*_x;
@@ -338,14 +338,14 @@ namespace Tiny3D
         Real fTyy = fTy*_y;
         Real fTzz = fTz*_z;
 
-        return Vector3(1.0f-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
+        return Vector3(1.0f - (fTyy + fTzz), fTxy + fTwz, fTxz - fTwy);
     }
 
     inline Vector3 Quaternion::yAxis() const
     {
-        Real fTx  = 2.0f*_x;
-        Real fTy  = 2.0f*_y;
-        Real fTz  = 2.0f*_z;
+        Real fTx = 2.0f*_x;
+        Real fTy = 2.0f*_y;
+        Real fTz = 2.0f*_z;
         Real fTwx = fTx*_w;
         Real fTwz = fTz*_w;
         Real fTxx = fTx*_x;
@@ -353,14 +353,14 @@ namespace Tiny3D
         Real fTyz = fTz*_y;
         Real fTzz = fTz*_z;
 
-        return Vector3(fTxy-fTwz, 1.0f-(fTxx+fTzz), fTyz+fTwx);
+        return Vector3(fTxy - fTwz, 1.0f - (fTxx + fTzz), fTyz + fTwx);
     }
 
     inline Vector3 Quaternion::zAxis() const
     {
-        Real fTx  = 2.0f*_x;
-        Real fTy  = 2.0f*_y;
-        Real fTz  = 2.0f*_z;
+        Real fTx = 2.0f*_x;
+        Real fTy = 2.0f*_y;
+        Real fTz = 2.0f*_z;
         Real fTwx = fTx*_w;
         Real fTwy = fTy*_w;
         Real fTxx = fTx*_x;
@@ -368,7 +368,7 @@ namespace Tiny3D
         Real fTyy = fTy*_y;
         Real fTyz = fTz*_y;
 
-        return Vector3(fTxz+fTwy, fTyz-fTwx, 1.0f-(fTxx+fTyy));
+        return Vector3(fTxz + fTwy, fTyz - fTwx, 1.0f - (fTxx + fTyy));
     }
 
     inline Quaternion &Quaternion::lerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes)
@@ -377,14 +377,14 @@ namespace Tiny3D
         Quaternion q = (rkP * fScale) + (rkQ * fTimes);
         q.normalize();
         return (*this = q);
-//         Real fCos = rkP.dot(rkQ);
-//         *this = rkP + fTimes * (rkQ - rkP);
-//         normalize();
-//         return *this;
+        //         Real fCos = rkP.dot(rkQ);
+        //         *this = rkP + fTimes * (rkQ - rkP);
+        //         normalize();
+        //         return *this;
     }
 
-    inline Quaternion operator *(Real fScalar, const Quaternion &rkQ)
+    inline Quaternion operator *(Real scalar, const Quaternion &rkQ)
     {
-        return Quaternion(fScalar*rkQ.x(), fScalar*rkQ.y(), fScalar*rkQ.z(), fScalar*rkQ.w());
+        return Quaternion(scalar*rkQ.x(), scalar*rkQ.y(), scalar*rkQ.z(), scalar*rkQ.w());
     }
 }

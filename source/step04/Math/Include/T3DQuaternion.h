@@ -31,87 +31,81 @@ namespace Tiny3D
     class T3D_MATH_API Quaternion
     {
     public:
-        /// Default constructor, initialize to identity rotation.
+        /// 默认构造函数，构造一个单位四元数(1,0,0,0)对象.
         Quaternion();
-        /// Copy constructor.
+        /// 拷贝构造函数.
         Quaternion(const Quaternion &other);
-        /// Create and initialize from an explicit list of values.
-        Quaternion(Real fW, Real fX, Real fY, Real fZ);
-        /// Create a quaternion from a rotation matrix.
+        /// 指定四元数四个值构造对象.
+        Quaternion(Real w, Real x, Real y, Real z);
+        /// 通过一个旋转矩阵构造一个四元数对象.
         Quaternion(const Matrix3 &rkRot);
-        /// Create a quaternion from an angle and axis.
+        /// 指定旋转轴和旋转弧度构造一个四元数对象.
         Quaternion(const Radian &rkAngle, const Vector3 &rkAxis);
-        /// Create a quaternion from 3 orthonormal local axis.
+        /// 通过指定3个正交轴构造一个四元数对象.
         Quaternion(const Vector3 &rkXAxis, const Vector3 &rkYAxis, const Vector3 &rkZAxis);
-        /// Create a quaternion from 3 orthonormal local axis.
+        /// 通过指定3个正交轴数组首地址构造一个四元数对象(X-axis, Y-axis, Z-axis).
         Quaternion(const Vector3 *akAxis);
-        /// Create a quaternion from 4 manual /w/x/y/z values.
+        /// 通过指定4个元素的数组首地址构造一个四元数对象(w, x, y, z).
         Quaternion(Real *pValues);
 
-        /// Get array of quaternion members in w,x,y,z order (constant).
+        /// 获取四元数元素数值数组首地址，按照w, x, y, z顺序返回.
         operator const Real *() const;
-        /// Get array of quaternion members in w,x,y,z order.
         operator Real *();
 
-        /// Get a member (constant).
+        /// 根据下标获取四元数元素数值.
         Real operator [](int32_t i) const;
-        /// Get a member.
         Real &operator [](int32_t i);
 
-        /// Get X (constant).
+        /// 获取X元素值.
         Real x() const;
-        /// Get X.
         Real &x();
 
-        /// Get Y (constant).
+        /// 获取Y元素值.
         Real y() const;
-        /// Get Y
         Real &y();
 
-        /// Get Z (constant).
+        /// 获取Z元素值.
         Real z() const;
-        /// Get Z
         Real &z();
 
-        /// Get W (constant).
+        /// 获取W元素值.
         Real w() const;
-        /// Get W
         Real &w();
 
-        /// Comparison (equal to).
+        /// 重载相等运算符.
         bool operator ==(const Quaternion &other) const;
-        /// Comparison (not equal to).
+        /// 重载不等运算符.
         bool operator !=(const Quaternion &other) const;
 
-        /// Assignment.
+        /// 重载赋值运算符.
         Quaternion &operator =(const Quaternion &other);
 
-        /// Addition.
+        /// 重载加法运算符.
         Quaternion operator +(const Quaternion &other) const;
-        /// Subtraction.
+        /// 重载减法运算符.
         Quaternion operator -(const Quaternion &other) const;
-        /// Multiplication.
+        /// 重载乘法运算符，实现跟另一个四元数的叉乘.
         Quaternion operator *(const Quaternion &other) const;
-        /// Scalar multiplication.
-        Quaternion operator *(Real fScalar) const;
-        /// Scalar division.
-        Quaternion operator /(Real fScalar) const;
+        /// 重载乘法运算符，实现跟一个标量相乘.
+        Quaternion operator *(Real scalar) const;
+        /// 重载除法运算符，实现跟一个标量相除.
+        Quaternion operator /(Real scalar) const;
 
-        /// Add and assign.
+        /// 重载加法赋值运算符.
         Quaternion &operator +=(const Quaternion &other);
-        /// Subtract and assign.
+        /// 重载减法赋值运算符.
         Quaternion &operator -=(const Quaternion &other);
-        /// Multiply and assign.
+        /// 重载乘法赋值运算符，实现跟另一个四元数的叉乘.
         Quaternion &operator *=(const Quaternion &other);
-        /// Scalar multiply and assign.
-        Quaternion &operator *=(Real fScalar);
-        /// Scalar divide and assign.
-        Quaternion &operator /=(Real fScalar);
+        /// 重载乘法赋值运算符，实现跟一个标量相乘.
+        Quaternion &operator *=(Real scalar);
+        /// 重载除法赋值运算符，实现跟一个标量相乘.
+        Quaternion &operator /=(Real scalar);
 
-        /// Negation.
+        /// 重载取反运算符.
         Quaternion operator -() const;
 
-        /// Rotation of a vector by a quaternion
+        /// Rotation of a vector by a quaternion.
         Vector3 operator* (const Vector3 &rkVector) const;
 
         /// Calculate dot product.
@@ -173,7 +167,7 @@ namespace Tiny3D
         Real    _z;
     };
 
-    Quaternion operator *(Real fScalar, const Quaternion &rkQ);
+    Quaternion operator *(Real scalar, const Quaternion &rkQ);
 }
 
 
