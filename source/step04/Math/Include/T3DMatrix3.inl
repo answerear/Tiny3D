@@ -16,14 +16,15 @@ namespace Tiny3D
         mTuples[6] = Real(0.0), mTuples[7] = Real(0.0), mTuples[8] = Real(1.0);
     }
 
-    inline void Matrix3::makeDiagonal(Real fM00, Real fM11, Real fM22)
+    inline void Matrix3::makeDiagonal(Real m00, Real m11, Real m22)
     {
-        mTuples[0] = fM00, mTuples[1] = Real(0.0), mTuples[2] = Real(0.0);
-        mTuples[3] = Real(0.0), mTuples[4] = fM11, mTuples[5] = Real(0.0);
-        mTuples[6] = Real(0.0), mTuples[7] = Real(0.0), mTuples[8] = fM11;
+        mTuples[0] = m00, mTuples[1] = Real(0.0), mTuples[2] = Real(0.0);
+        mTuples[3] = Real(0.0), mTuples[4] = m11, mTuples[5] = Real(0.0);
+        mTuples[6] = Real(0.0), mTuples[7] = Real(0.0), mTuples[8] = m22;
     }
 
-    inline void Matrix3::makeTensorProduct(const Vector3 &rkU, const Vector3 &rkV)
+    inline void Matrix3::makeTensorProduct(const Vector3 &rkU, 
+        const Vector3 &rkV)
     {
         mTuples[0] = rkU[0] * rkV[0];
         mTuples[1] = rkU[0] * rkV[1];
@@ -36,7 +37,8 @@ namespace Tiny3D
         mTuples[8] = rkU[2] * rkV[2];
     }
 
-    inline void Matrix3::fromAxisAngle(const Vector3 &rkAxis, const Radian &radians)
+    inline void Matrix3::fromAxisAngle(const Vector3 &rkAxis, 
+        const Radian &radians)
     {
         Real fCos = Math::cos(radians);
         Real fSin = Math::sin(radians);
@@ -53,18 +55,18 @@ namespace Tiny3D
 
         mTuples[0] = fX2 * fOneMinusCos + fCos;
         mTuples[1] = fXYM - fZSin;
-        mTuples[2] = fXZM+fYSin;
-        mTuples[3] = fXYM+fZSin;
-        mTuples[4] = fY2*fOneMinusCos+fCos;
-        mTuples[5] = fYZM-fXSin;
-        mTuples[6] = fXZM-fYSin;
-        mTuples[7] = fYZM+fXSin;
-        mTuples[8] = fZ2*fOneMinusCos+fCos;
+        mTuples[2] = fXZM + fYSin;
+        mTuples[3] = fXYM + fZSin;
+        mTuples[4] = fY2 * fOneMinusCos + fCos;
+        mTuples[5] = fYZM - fXSin;
+        mTuples[6] = fXZM - fYSin;
+        mTuples[7] = fYZM + fXSin;
+        mTuples[8] = fZ2 * fOneMinusCos + fCos;
     }
 
-    inline Matrix3::Matrix3(bool bZero /* = true */)
+    inline Matrix3::Matrix3(bool isZero /* = true */)
     {
-        if (bZero)
+        if (isZero)
         {
             makeZero();
         }
@@ -79,42 +81,46 @@ namespace Tiny3D
         memcpy(mTuples, other.mTuples, sizeof(mTuples));
     }
 
-    inline Matrix3::Matrix3(Real fM00, Real fM01, Real fM02, Real fM10, Real fM11, Real fM12, Real fM20, Real fM21, Real fM22)
+    inline Matrix3::Matrix3(
+        Real m00, Real m01, Real m02, 
+        Real m10, Real m11, Real m12, 
+        Real m20, Real m21, Real m22)
     {
-        mTuples[0] = fM00;
-        mTuples[1] = fM01;
-        mTuples[2] = fM02;
-        mTuples[3] = fM10;
-        mTuples[4] = fM11;
-        mTuples[5] = fM12;
-        mTuples[6] = fM20;
-        mTuples[7] = fM21;
-        mTuples[8] = fM22;
+        mTuples[0] = m00;
+        mTuples[1] = m01;
+        mTuples[2] = m02;
+        mTuples[3] = m10;
+        mTuples[4] = m11;
+        mTuples[5] = m12;
+        mTuples[6] = m20;
+        mTuples[7] = m21;
+        mTuples[8] = m22;
     }
 
-    inline Matrix3::Matrix3(Real afEntry[9], bool bRowMajor)
+    inline Matrix3::Matrix3(Real tuples[9], bool isRowMajor)
     {
-        if (bRowMajor)
+        if (isRowMajor)
         {
-            memcpy(mTuples, afEntry, sizeof(mTuples));
+            memcpy(mTuples, tuples, sizeof(mTuples));
         }
         else
         {
-            mTuples[0] = afEntry[0];
-            mTuples[1] = afEntry[3];
-            mTuples[2] = afEntry[6];
-            mTuples[3] = afEntry[1];
-            mTuples[4] = afEntry[4];
-            mTuples[5] = afEntry[7];
-            mTuples[6] = afEntry[2];
-            mTuples[7] = afEntry[5];
-            mTuples[8] = afEntry[8];
+            mTuples[0] = tuples[0];
+            mTuples[1] = tuples[3];
+            mTuples[2] = tuples[6];
+            mTuples[3] = tuples[1];
+            mTuples[4] = tuples[4];
+            mTuples[5] = tuples[7];
+            mTuples[6] = tuples[2];
+            mTuples[7] = tuples[5];
+            mTuples[8] = tuples[8];
         }
     }
 
-    inline Matrix3::Matrix3(const Vector3 &rkU, const Vector3 &rkV, const Vector3 &rkW, bool bColumns)
+    inline Matrix3::Matrix3(const Vector3 &rkU, const Vector3 &rkV, 
+        const Vector3 &rkW, bool isColumns)
     {
-        if (bColumns)
+        if (isColumns)
         {
             mTuples[0] = rkU[0];
             mTuples[1] = rkV[0];
@@ -140,9 +146,9 @@ namespace Tiny3D
         }
     }
 
-    inline Matrix3::Matrix3(const Vector3 *akV, bool bColumns)
+    inline Matrix3::Matrix3(const Vector3 *akV, bool isColumns)
     {
-        if (bColumns)
+        if (isColumns)
         {
             mTuples[0] = akV[0][0];
             mTuples[1] = akV[1][0];
@@ -168,9 +174,9 @@ namespace Tiny3D
         }
     }
 
-    inline Matrix3::Matrix3(Real fM00, Real fM11, Real fM22)
+    inline Matrix3::Matrix3(Real m00, Real m11, Real m22)
     {
-        makeDiagonal(fM00, fM11, fM22);
+        makeDiagonal(m00, m11, m22);
     }
 
     inline Matrix3::Matrix3(const Vector3 &rkAxis, const Radian &rkRadians)
@@ -344,21 +350,21 @@ namespace Tiny3D
             );
     }
 
-    inline Matrix3 Matrix3::operator *(Real fScalar) const
+    inline Matrix3 Matrix3::operator *(Real scalar) const
     {
         return Matrix3(
-            mTuples[0] * fScalar, mTuples[1] * fScalar, mTuples[2] * fScalar,
-            mTuples[3] * fScalar, mTuples[4] * fScalar, mTuples[5] * fScalar,
-            mTuples[6] * fScalar, mTuples[7] * fScalar, mTuples[8] * fScalar);
+            mTuples[0] * scalar, mTuples[1] * scalar, mTuples[2] * scalar,
+            mTuples[3] * scalar, mTuples[4] * scalar, mTuples[5] * scalar,
+            mTuples[6] * scalar, mTuples[7] * scalar, mTuples[8] * scalar);
     }
 
-    inline Matrix3 Matrix3::operator /(Real fScalar) const
+    inline Matrix3 Matrix3::operator /(Real scalar) const
     {
-        if (fScalar != 0.0)
+        if (scalar != 0.0)
             return Matrix3(
-                mTuples[0] / fScalar, mTuples[1] / fScalar, mTuples[2] / fScalar, 
-                mTuples[3] / fScalar, mTuples[4] / fScalar, mTuples[5] / fScalar,
-                mTuples[6] / fScalar, mTuples[7] / fScalar, mTuples[8] / fScalar);
+                mTuples[0] / scalar, mTuples[1] / scalar, mTuples[2] / scalar, 
+                mTuples[3] / scalar, mTuples[4] / scalar, mTuples[5] / scalar,
+                mTuples[6] / scalar, mTuples[7] / scalar, mTuples[8] / scalar);
         return ZERO;
     }
 
@@ -398,33 +404,33 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Matrix3 &Matrix3::operator *=(Real fScalar)
+    inline Matrix3 &Matrix3::operator *=(Real scalar)
     {
-        mTuples[0] *= fScalar;
-        mTuples[1] *= fScalar;
-        mTuples[2] *= fScalar;
-        mTuples[3] *= fScalar;
-        mTuples[4] *= fScalar;
-        mTuples[5] *= fScalar;
-        mTuples[6] *= fScalar;
-        mTuples[7] *= fScalar;
-        mTuples[8] *= fScalar;
+        mTuples[0] *= scalar;
+        mTuples[1] *= scalar;
+        mTuples[2] *= scalar;
+        mTuples[3] *= scalar;
+        mTuples[4] *= scalar;
+        mTuples[5] *= scalar;
+        mTuples[6] *= scalar;
+        mTuples[7] *= scalar;
+        mTuples[8] *= scalar;
         return *this;
     }
 
-    inline Matrix3 &Matrix3::operator /=(Real fScalar)
+    inline Matrix3 &Matrix3::operator /=(Real scalar)
     {
-        if (fScalar != 0.0)
+        if (scalar != 0.0)
         {
-            mTuples[0] /= fScalar;
-            mTuples[1] /= fScalar;
-            mTuples[2] /= fScalar;
-            mTuples[3] /= fScalar;
-            mTuples[4] /= fScalar;
-            mTuples[5] /= fScalar;
-            mTuples[6] /= fScalar;
-            mTuples[7] /= fScalar;
-            mTuples[8] /= fScalar;
+            mTuples[0] /= scalar;
+            mTuples[1] /= scalar;
+            mTuples[2] /= scalar;
+            mTuples[3] /= scalar;
+            mTuples[4] /= scalar;
+            mTuples[5] /= scalar;
+            mTuples[6] /= scalar;
+            mTuples[7] /= scalar;
+            mTuples[8] /= scalar;
         }
         else
         {
@@ -700,9 +706,9 @@ namespace Tiny3D
         *this = matZ * (matY * matX);
     }
 
-    inline Matrix3 operator *(Real fScalar, const Matrix3 &rkM)
+    inline Matrix3 operator *(Real scalar, const Matrix3 &rkM)
     {
-        return rkM * fScalar;
+        return rkM * scalar;
     }
 
     inline Vector3 operator *(const Vector3 &rkV, const Matrix3 &rkM)

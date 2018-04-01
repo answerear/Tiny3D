@@ -4,48 +4,48 @@ namespace Tiny3D
 {
     inline void Matrix4::makeIdentity()
     {
-        _m4x4[0][0] = 1.0;
-        _m4x4[0][1] = 0.0;
-        _m4x4[0][2] = 0.0;
-        _m4x4[0][3] = 0.0;
-        _m4x4[1][0] = 0.0;
-        _m4x4[1][1] = 1.0;
-        _m4x4[1][2] = 0.0;
-        _m4x4[1][3] = 0.0;
-        _m4x4[2][0] = 0.0;
-        _m4x4[2][1] = 0.0;
-        _m4x4[2][2] = 1.0;
-        _m4x4[2][3] = 0.0;
-        _m4x4[3][0] = 0.0;
-        _m4x4[3][1] = 0.0;
-        _m4x4[3][2] = 0.0;
-        _m4x4[3][3] = 1.0;
+        m4x4[0][0] = 1.0;
+        m4x4[0][1] = 0.0;
+        m4x4[0][2] = 0.0;
+        m4x4[0][3] = 0.0;
+        m4x4[1][0] = 0.0;
+        m4x4[1][1] = 1.0;
+        m4x4[1][2] = 0.0;
+        m4x4[1][3] = 0.0;
+        m4x4[2][0] = 0.0;
+        m4x4[2][1] = 0.0;
+        m4x4[2][2] = 1.0;
+        m4x4[2][3] = 0.0;
+        m4x4[3][0] = 0.0;
+        m4x4[3][1] = 0.0;
+        m4x4[3][2] = 0.0;
+        m4x4[3][3] = 1.0;
     }
 
     inline void Matrix4::makeZero()
     {
-        _m4x4[0][0] = _m4x4[0][1] = _m4x4[0][2] = _m4x4[0][3] = 0.0;
-        _m4x4[1][0] = _m4x4[1][1] = _m4x4[1][2] = _m4x4[1][3] = 0.0;
-        _m4x4[2][0] = _m4x4[2][1] = _m4x4[2][2] = _m4x4[2][3] = 0.0;
-        _m4x4[3][0] = _m4x4[3][1] = _m4x4[3][2] = _m4x4[3][3] = 0.0;
+        m4x4[0][0] = m4x4[0][1] = m4x4[0][2] = m4x4[0][3] = 0.0;
+        m4x4[1][0] = m4x4[1][1] = m4x4[1][2] = m4x4[1][3] = 0.0;
+        m4x4[2][0] = m4x4[2][1] = m4x4[2][2] = m4x4[2][3] = 0.0;
+        m4x4[3][0] = m4x4[3][1] = m4x4[3][2] = m4x4[3][3] = 0.0;
     }
 
     inline Matrix4 &Matrix4::operator =(const Matrix4 &other)
     {
-        memcpy(_m16, other._m16, sizeof(_m16));
+        memcpy(mTuples, other.mTuples, sizeof(mTuples));
         return *this;
     }
 
     inline void Matrix4::operator =(const Matrix3 &rkMat)
     {
-        _m4x4[0][0] = rkMat[0][0], _m4x4[0][1] = rkMat[0][1], _m4x4[0][2] = rkMat[0][2];
-        _m4x4[1][0] = rkMat[1][0], _m4x4[1][1] = rkMat[1][1], _m4x4[1][2] = rkMat[1][2];
-        _m4x4[2][0] = rkMat[2][0], _m4x4[2][1] = rkMat[2][1], _m4x4[2][2] = rkMat[2][2];
+        m4x4[0][0] = rkMat[0][0], m4x4[0][1] = rkMat[0][1], m4x4[0][2] = rkMat[0][2];
+        m4x4[1][0] = rkMat[1][0], m4x4[1][1] = rkMat[1][1], m4x4[1][2] = rkMat[1][2];
+        m4x4[2][0] = rkMat[2][0], m4x4[2][1] = rkMat[2][1], m4x4[2][2] = rkMat[2][2];
     }
 
-    inline Matrix4::Matrix4(bool bZero /* = true */)
+    inline Matrix4::Matrix4(bool isZero /* = true */)
     {
-        if (bZero)
+        if (isZero)
             makeZero();
         else
             makeIdentity();
@@ -53,7 +53,7 @@ namespace Tiny3D
 
     inline Matrix4::Matrix4(const Matrix4 &other)
     {
-        memcpy(_m16, other._m16, sizeof(_m16));
+        memcpy(mTuples, other.mTuples, sizeof(mTuples));
     }
 
     inline Matrix4::Matrix4(
@@ -62,30 +62,30 @@ namespace Tiny3D
         Real other0, Real other1, Real other2, Real other3, 
         Real m30, Real m31, Real m32, Real m33)
     {
-        _m4x4[0][0] = m00;
-        _m4x4[0][1] = m01;
-        _m4x4[0][2] = m02;
-        _m4x4[0][3] = m03;
-        _m4x4[1][0] = m10;
-        _m4x4[1][1] = m11;
-        _m4x4[1][2] = m12;
-        _m4x4[1][3] = m13;
-        _m4x4[2][0] = other0;
-        _m4x4[2][1] = other1;
-        _m4x4[2][2] = other2;
-        _m4x4[2][3] = other3;
-        _m4x4[3][0] = m30;
-        _m4x4[3][1] = m31;
-        _m4x4[3][2] = m32;
-        _m4x4[3][3] = m33;
+        m4x4[0][0] = m00;
+        m4x4[0][1] = m01;
+        m4x4[0][2] = m02;
+        m4x4[0][3] = m03;
+        m4x4[1][0] = m10;
+        m4x4[1][1] = m11;
+        m4x4[1][2] = m12;
+        m4x4[1][3] = m13;
+        m4x4[2][0] = other0;
+        m4x4[2][1] = other1;
+        m4x4[2][2] = other2;
+        m4x4[2][3] = other3;
+        m4x4[3][0] = m30;
+        m4x4[3][1] = m31;
+        m4x4[3][2] = m32;
+        m4x4[3][3] = m33;
     }
 
     inline Matrix4::Matrix4(const Matrix3 &rkMat)
     {
         operator =(rkMat);
-        _m4x4[0][3] = _m4x4[1][3] = _m4x4[2][3] = 0.0;
-        _m4x4[3][3] = 1.0;
-        _m4x4[3][0] = _m4x4[3][1] = _m4x4[3][2] = 0.0;
+        m4x4[0][3] = m4x4[1][3] = m4x4[2][3] = 0.0;
+        m4x4[3][3] = 1.0;
+        m4x4[3][0] = m4x4[3][1] = m4x4[3][2] = 0.0;
     }
 
     inline Matrix4::Matrix4(const Quaternion &rkRot)
@@ -93,70 +93,70 @@ namespace Tiny3D
         Matrix3 mat;
         rkRot.toRotationMatrix(mat);
         operator =(mat);
-        _m4x4[0][3] = _m4x4[1][3] = _m4x4[2][3] = 0.0;
-        _m4x4[3][3] = 1.0;
-        _m4x4[3][0] = _m4x4[3][1] = _m4x4[3][2] = 0.0;
+        m4x4[0][3] = m4x4[1][3] = m4x4[2][3] = 0.0;
+        m4x4[3][3] = 1.0;
+        m4x4[3][0] = m4x4[3][1] = m4x4[3][2] = 0.0;
     }
 
     inline Matrix4::Matrix4(const Vector3 &rkPos)
     {
-        _m4x4[0][0] = 1.0, _m4x4[0][1] = 0.0, _m4x4[0][2] = 0.0, _m4x4[0][3] = rkPos.x();
-        _m4x4[1][0] = 0.0, _m4x4[1][1] = 1.0, _m4x4[1][2] = 0.0, _m4x4[1][3] = rkPos.y();
-        _m4x4[2][0] = 0.0, _m4x4[2][1] = 0.0, _m4x4[2][2] = 1.0, _m4x4[2][3] = rkPos.z();
-        _m4x4[3][0] = 0.0, _m4x4[3][1] = 0.0, _m4x4[3][2] = 0.0, _m4x4[3][3] = 1.0;
+        m4x4[0][0] = 1.0, m4x4[0][1] = 0.0, m4x4[0][2] = 0.0, m4x4[0][3] = rkPos.x();
+        m4x4[1][0] = 0.0, m4x4[1][1] = 1.0, m4x4[1][2] = 0.0, m4x4[1][3] = rkPos.y();
+        m4x4[2][0] = 0.0, m4x4[2][1] = 0.0, m4x4[2][2] = 1.0, m4x4[2][3] = rkPos.z();
+        m4x4[3][0] = 0.0, m4x4[3][1] = 0.0, m4x4[3][2] = 0.0, m4x4[3][3] = 1.0;
     }
 
     inline Matrix4::Matrix4(Real m00, Real m11, Real m22, Real m33)
     {
-        _m4x4[0][0] = m00, _m4x4[0][1] = 0.0, _m4x4[0][2] = 0.0, _m4x4[0][3] = 0.0;
-        _m4x4[1][0] = 0.0, _m4x4[1][1] = m11, _m4x4[1][2] = 0.0, _m4x4[1][3] = 0.0;
-        _m4x4[2][0] = 0.0, _m4x4[2][1] = 0.0, _m4x4[2][2] = m22, _m4x4[2][3] = 0.0;
-        _m4x4[3][0] = 0.0, _m4x4[3][1] = 0.0, _m4x4[3][2] = 0.0, _m4x4[3][3] = m33;
+        m4x4[0][0] = m00, m4x4[0][1] = 0.0, m4x4[0][2] = 0.0, m4x4[0][3] = 0.0;
+        m4x4[1][0] = 0.0, m4x4[1][1] = m11, m4x4[1][2] = 0.0, m4x4[1][3] = 0.0;
+        m4x4[2][0] = 0.0, m4x4[2][1] = 0.0, m4x4[2][2] = m22, m4x4[2][3] = 0.0;
+        m4x4[3][0] = 0.0, m4x4[3][1] = 0.0, m4x4[3][2] = 0.0, m4x4[3][3] = m33;
     }
 
     inline Matrix4::Matrix4(const Vector3 &X, const Vector3 &Y, const Vector3 &Z)
     {
-        _m4x4[0][0] = X[0], _m4x4[0][1] = Y[0], _m4x4[0][2] = Z[0], _m4x4[0][3] = 0.0f;
-        _m4x4[1][0] = X[1], _m4x4[1][1] = Y[1], _m4x4[1][2] = Z[1], _m4x4[1][3] = 0.0f;
-        _m4x4[2][0] = X[2], _m4x4[2][1] = Y[2], _m4x4[2][2] = Z[2], _m4x4[2][3] = 0.0f;
-        _m4x4[3][0] = 0.0f, _m4x4[3][1] = 0.0f, _m4x4[3][2] = 0.0f, _m4x4[3][3] = 1.0f;
+        m4x4[0][0] = X[0], m4x4[0][1] = Y[0], m4x4[0][2] = Z[0], m4x4[0][3] = 0.0f;
+        m4x4[1][0] = X[1], m4x4[1][1] = Y[1], m4x4[1][2] = Z[1], m4x4[1][3] = 0.0f;
+        m4x4[2][0] = X[2], m4x4[2][1] = Y[2], m4x4[2][2] = Z[2], m4x4[2][3] = 0.0f;
+        m4x4[3][0] = 0.0f, m4x4[3][1] = 0.0f, m4x4[3][2] = 0.0f, m4x4[3][3] = 1.0f;
     }
 
     inline Matrix4::operator const Real *() const
     {
-        return _m16;
+        return mTuples;
     }
 
     inline Matrix4::operator Real *()
     {
-        return _m16;
+        return mTuples;
     }
 
-    inline const Real *Matrix4::operator [](int32_t nRow) const
+    inline const Real *Matrix4::operator [](int32_t row) const
     {
-        T3D_ASSERT(nRow >= 0 && nRow < 4);
-        return _m4x4[nRow];
+        T3D_ASSERT(row >= 0 && row < 4);
+        return m4x4[row];
     }
 
-    inline Real *Matrix4::operator [](int32_t nRow)
+    inline Real *Matrix4::operator [](int32_t row)
     {
-        T3D_ASSERT(nRow >= 0 && nRow < 4);
-        return _m4x4[nRow];
+        T3D_ASSERT(row >= 0 && row < 4);
+        return m4x4[row];
     }
 
-    inline Real Matrix4::operator ()(int32_t nRow, int32_t nCol) const
+    inline Real Matrix4::operator ()(int32_t row, int32_t col) const
     {
-        return _m4x4[nRow][nCol];
+        return m4x4[row][col];
     }
 
-    inline Real &Matrix4::operator ()(int32_t nRow, int32_t nCol)
+    inline Real &Matrix4::operator ()(int32_t row, int32_t col)
     {
-        return _m4x4[nRow][nCol];
+        return m4x4[row][col];
     }
 
     inline int32_t Matrix4::compareArrays(const Matrix4 &other) const
     {
-        return memcmp(_m16, other._m16, sizeof(_m16));
+        return memcmp(mTuples, other.mTuples, sizeof(mTuples));
     }
 
     inline bool Matrix4::operator ==(const Matrix4 &other) const
@@ -192,150 +192,151 @@ namespace Tiny3D
     inline Matrix4 Matrix4::operator +(const Matrix4 &other) const
     {
         return Matrix4(
-            _m4x4[0][0] + other._m4x4[0][0], _m4x4[0][1] + other._m4x4[0][1], _m4x4[0][2] + other._m4x4[0][2], _m4x4[0][3] + other._m4x4[0][3],
-            _m4x4[1][0] + other._m4x4[1][0], _m4x4[1][1] + other._m4x4[1][1], _m4x4[1][2] + other._m4x4[1][2], _m4x4[1][3] + other._m4x4[1][3],
-            _m4x4[2][0] + other._m4x4[2][0], _m4x4[2][1] + other._m4x4[2][1], _m4x4[2][2] + other._m4x4[2][2], _m4x4[2][3] + other._m4x4[2][3],
-            _m4x4[3][0] + other._m4x4[3][0], _m4x4[3][1] + other._m4x4[3][1], _m4x4[3][2] + other._m4x4[3][2], _m4x4[3][3] + other._m4x4[3][3]);
+            m4x4[0][0] + other.m4x4[0][0], m4x4[0][1] + other.m4x4[0][1], m4x4[0][2] + other.m4x4[0][2], m4x4[0][3] + other.m4x4[0][3],
+            m4x4[1][0] + other.m4x4[1][0], m4x4[1][1] + other.m4x4[1][1], m4x4[1][2] + other.m4x4[1][2], m4x4[1][3] + other.m4x4[1][3],
+            m4x4[2][0] + other.m4x4[2][0], m4x4[2][1] + other.m4x4[2][1], m4x4[2][2] + other.m4x4[2][2], m4x4[2][3] + other.m4x4[2][3],
+            m4x4[3][0] + other.m4x4[3][0], m4x4[3][1] + other.m4x4[3][1], m4x4[3][2] + other.m4x4[3][2], m4x4[3][3] + other.m4x4[3][3]
+        );
     }
 
     inline Matrix4 Matrix4::operator -(const Matrix4 &other) const
     {
         return Matrix4(
-            _m4x4[0][0] - other._m4x4[0][0], _m4x4[0][1] - other._m4x4[0][1], _m4x4[0][2] - other._m4x4[0][2], _m4x4[0][3] - other._m4x4[0][3],
-            _m4x4[1][0] - other._m4x4[1][0], _m4x4[1][1] - other._m4x4[1][1], _m4x4[1][2] - other._m4x4[1][2], _m4x4[1][3] - other._m4x4[1][3],
-            _m4x4[2][0] - other._m4x4[2][0], _m4x4[2][1] - other._m4x4[2][1], _m4x4[2][2] - other._m4x4[2][2], _m4x4[2][3] - other._m4x4[2][3],
-            _m4x4[3][0] - other._m4x4[3][0], _m4x4[3][1] - other._m4x4[3][1], _m4x4[3][2] - other._m4x4[3][2], _m4x4[3][3] - other._m4x4[3][3]
+            m4x4[0][0] - other.m4x4[0][0], m4x4[0][1] - other.m4x4[0][1], m4x4[0][2] - other.m4x4[0][2], m4x4[0][3] - other.m4x4[0][3],
+            m4x4[1][0] - other.m4x4[1][0], m4x4[1][1] - other.m4x4[1][1], m4x4[1][2] - other.m4x4[1][2], m4x4[1][3] - other.m4x4[1][3],
+            m4x4[2][0] - other.m4x4[2][0], m4x4[2][1] - other.m4x4[2][1], m4x4[2][2] - other.m4x4[2][2], m4x4[2][3] - other.m4x4[2][3],
+            m4x4[3][0] - other.m4x4[3][0], m4x4[3][1] - other.m4x4[3][1], m4x4[3][2] - other.m4x4[3][2], m4x4[3][3] - other.m4x4[3][3]
         );
     }
 
     inline Matrix4 Matrix4::operator *(const Matrix4 &other) const
     {
         return Matrix4(
-            _m4x4[0][0] * other._m4x4[0][0] + _m4x4[0][1] * other._m4x4[1][0] + _m4x4[0][2] * other._m4x4[2][0] + _m4x4[0][3] * other._m4x4[3][0],
-            _m4x4[0][0] * other._m4x4[0][1] + _m4x4[0][1] * other._m4x4[1][1] + _m4x4[0][2] * other._m4x4[2][1] + _m4x4[0][3] * other._m4x4[3][1],
-            _m4x4[0][0] * other._m4x4[0][2] + _m4x4[0][1] * other._m4x4[1][2] + _m4x4[0][2] * other._m4x4[2][2] + _m4x4[0][3] * other._m4x4[3][2],
-            _m4x4[0][0] * other._m4x4[0][3] + _m4x4[0][1] * other._m4x4[1][3] + _m4x4[0][2] * other._m4x4[2][3] + _m4x4[0][3] * other._m4x4[3][3],
+            m4x4[0][0] * other.m4x4[0][0] + m4x4[0][1] * other.m4x4[1][0] + m4x4[0][2] * other.m4x4[2][0] + m4x4[0][3] * other.m4x4[3][0],
+            m4x4[0][0] * other.m4x4[0][1] + m4x4[0][1] * other.m4x4[1][1] + m4x4[0][2] * other.m4x4[2][1] + m4x4[0][3] * other.m4x4[3][1],
+            m4x4[0][0] * other.m4x4[0][2] + m4x4[0][1] * other.m4x4[1][2] + m4x4[0][2] * other.m4x4[2][2] + m4x4[0][3] * other.m4x4[3][2],
+            m4x4[0][0] * other.m4x4[0][3] + m4x4[0][1] * other.m4x4[1][3] + m4x4[0][2] * other.m4x4[2][3] + m4x4[0][3] * other.m4x4[3][3],
 
-            _m4x4[1][0] * other._m4x4[0][0] + _m4x4[1][1] * other._m4x4[1][0] + _m4x4[1][2] * other._m4x4[2][0] + _m4x4[1][3] * other._m4x4[3][0],
-            _m4x4[1][0] * other._m4x4[0][1] + _m4x4[1][1] * other._m4x4[1][1] + _m4x4[1][2] * other._m4x4[2][1] + _m4x4[1][3] * other._m4x4[3][1],
-            _m4x4[1][0] * other._m4x4[0][2] + _m4x4[1][1] * other._m4x4[1][2] + _m4x4[1][2] * other._m4x4[2][2] + _m4x4[1][3] * other._m4x4[3][2],
-            _m4x4[1][0] * other._m4x4[0][3] + _m4x4[1][1] * other._m4x4[1][3] + _m4x4[1][2] * other._m4x4[2][3] + _m4x4[1][3] * other._m4x4[3][3],
+            m4x4[1][0] * other.m4x4[0][0] + m4x4[1][1] * other.m4x4[1][0] + m4x4[1][2] * other.m4x4[2][0] + m4x4[1][3] * other.m4x4[3][0],
+            m4x4[1][0] * other.m4x4[0][1] + m4x4[1][1] * other.m4x4[1][1] + m4x4[1][2] * other.m4x4[2][1] + m4x4[1][3] * other.m4x4[3][1],
+            m4x4[1][0] * other.m4x4[0][2] + m4x4[1][1] * other.m4x4[1][2] + m4x4[1][2] * other.m4x4[2][2] + m4x4[1][3] * other.m4x4[3][2],
+            m4x4[1][0] * other.m4x4[0][3] + m4x4[1][1] * other.m4x4[1][3] + m4x4[1][2] * other.m4x4[2][3] + m4x4[1][3] * other.m4x4[3][3],
 
-            _m4x4[2][0] * other._m4x4[0][0] + _m4x4[2][1] * other._m4x4[1][0] + _m4x4[2][2] * other._m4x4[2][0] + _m4x4[2][3] * other._m4x4[3][0],
-            _m4x4[2][0] * other._m4x4[0][1] + _m4x4[2][1] * other._m4x4[1][1] + _m4x4[2][2] * other._m4x4[2][1] + _m4x4[2][3] * other._m4x4[3][1],
-            _m4x4[2][0] * other._m4x4[0][2] + _m4x4[2][1] * other._m4x4[1][2] + _m4x4[2][2] * other._m4x4[2][2] + _m4x4[2][3] * other._m4x4[3][2],
-            _m4x4[2][0] * other._m4x4[0][3] + _m4x4[2][1] * other._m4x4[1][3] + _m4x4[2][2] * other._m4x4[2][3] + _m4x4[2][3] * other._m4x4[3][3],
+            m4x4[2][0] * other.m4x4[0][0] + m4x4[2][1] * other.m4x4[1][0] + m4x4[2][2] * other.m4x4[2][0] + m4x4[2][3] * other.m4x4[3][0],
+            m4x4[2][0] * other.m4x4[0][1] + m4x4[2][1] * other.m4x4[1][1] + m4x4[2][2] * other.m4x4[2][1] + m4x4[2][3] * other.m4x4[3][1],
+            m4x4[2][0] * other.m4x4[0][2] + m4x4[2][1] * other.m4x4[1][2] + m4x4[2][2] * other.m4x4[2][2] + m4x4[2][3] * other.m4x4[3][2],
+            m4x4[2][0] * other.m4x4[0][3] + m4x4[2][1] * other.m4x4[1][3] + m4x4[2][2] * other.m4x4[2][3] + m4x4[2][3] * other.m4x4[3][3],
 
-            _m4x4[3][0] * other._m4x4[0][0] + _m4x4[3][1] * other._m4x4[1][0] + _m4x4[3][2] * other._m4x4[2][0] + _m4x4[3][3] * other._m4x4[3][0],
-            _m4x4[3][0] * other._m4x4[0][1] + _m4x4[3][1] * other._m4x4[1][1] + _m4x4[3][2] * other._m4x4[2][1] + _m4x4[3][3] * other._m4x4[3][1],
-            _m4x4[3][0] * other._m4x4[0][2] + _m4x4[3][1] * other._m4x4[1][2] + _m4x4[3][2] * other._m4x4[2][2] + _m4x4[3][3] * other._m4x4[3][2],
-            _m4x4[3][0] * other._m4x4[0][3] + _m4x4[3][1] * other._m4x4[1][3] + _m4x4[3][2] * other._m4x4[2][3] + _m4x4[3][3] * other._m4x4[3][3]
+            m4x4[3][0] * other.m4x4[0][0] + m4x4[3][1] * other.m4x4[1][0] + m4x4[3][2] * other.m4x4[2][0] + m4x4[3][3] * other.m4x4[3][0],
+            m4x4[3][0] * other.m4x4[0][1] + m4x4[3][1] * other.m4x4[1][1] + m4x4[3][2] * other.m4x4[2][1] + m4x4[3][3] * other.m4x4[3][1],
+            m4x4[3][0] * other.m4x4[0][2] + m4x4[3][1] * other.m4x4[1][2] + m4x4[3][2] * other.m4x4[2][2] + m4x4[3][3] * other.m4x4[3][2],
+            m4x4[3][0] * other.m4x4[0][3] + m4x4[3][1] * other.m4x4[1][3] + m4x4[3][2] * other.m4x4[2][3] + m4x4[3][3] * other.m4x4[3][3]
             );
     }
 
-    inline Matrix4 Matrix4::operator *(Real fScalar) const
+    inline Matrix4 Matrix4::operator *(Real scalar) const
     {
         return Matrix4(
-            _m4x4[0][0] * fScalar, _m4x4[0][1] * fScalar, _m4x4[0][2] * fScalar, _m4x4[0][3] * fScalar,
-            _m4x4[1][0] * fScalar, _m4x4[1][1] * fScalar, _m4x4[1][2] * fScalar, _m4x4[1][3] * fScalar,
-            _m4x4[2][0] * fScalar, _m4x4[2][1] * fScalar, _m4x4[2][2] * fScalar, _m4x4[2][3] * fScalar,
-            _m4x4[3][0] * fScalar, _m4x4[3][1] * fScalar, _m4x4[3][2] * fScalar, _m4x4[3][3] * fScalar
+            m4x4[0][0] * scalar, m4x4[0][1] * scalar, m4x4[0][2] * scalar, m4x4[0][3] * scalar,
+            m4x4[1][0] * scalar, m4x4[1][1] * scalar, m4x4[1][2] * scalar, m4x4[1][3] * scalar,
+            m4x4[2][0] * scalar, m4x4[2][1] * scalar, m4x4[2][2] * scalar, m4x4[2][3] * scalar,
+            m4x4[3][0] * scalar, m4x4[3][1] * scalar, m4x4[3][2] * scalar, m4x4[3][3] * scalar
             );
     }
 
-    inline Matrix4 Matrix4::operator /(Real fScalar) const
+    inline Matrix4 Matrix4::operator /(Real scalar) const
     {
         Real fInvertScalar = 0.0;
-        if (fScalar != 0.0)
-            fInvertScalar = Real(1.0) / fScalar;
+        if (scalar != 0.0)
+            fInvertScalar = Real(1.0) / scalar;
         return Matrix4(
-            _m4x4[0][0] * fInvertScalar, _m4x4[0][1] * fInvertScalar, _m4x4[0][2] * fInvertScalar, _m4x4[0][3] * fInvertScalar,
-            _m4x4[1][0] * fInvertScalar, _m4x4[1][1] * fInvertScalar, _m4x4[1][2] * fInvertScalar, _m4x4[1][3] * fInvertScalar,
-            _m4x4[2][0] * fInvertScalar, _m4x4[2][1] * fInvertScalar, _m4x4[2][2] * fInvertScalar, _m4x4[2][3] * fInvertScalar,
-            _m4x4[3][0] * fInvertScalar, _m4x4[3][1] * fInvertScalar, _m4x4[3][2] * fInvertScalar, _m4x4[3][3] * fInvertScalar
+            m4x4[0][0] * fInvertScalar, m4x4[0][1] * fInvertScalar, m4x4[0][2] * fInvertScalar, m4x4[0][3] * fInvertScalar,
+            m4x4[1][0] * fInvertScalar, m4x4[1][1] * fInvertScalar, m4x4[1][2] * fInvertScalar, m4x4[1][3] * fInvertScalar,
+            m4x4[2][0] * fInvertScalar, m4x4[2][1] * fInvertScalar, m4x4[2][2] * fInvertScalar, m4x4[2][3] * fInvertScalar,
+            m4x4[3][0] * fInvertScalar, m4x4[3][1] * fInvertScalar, m4x4[3][2] * fInvertScalar, m4x4[3][3] * fInvertScalar
             );
     }
 
     inline Matrix4 Matrix4::operator -() const
     {
         return Matrix4(
-            -_m4x4[0][0], -_m4x4[0][1], -_m4x4[0][2], -_m4x4[0][3],
-            -_m4x4[1][0], -_m4x4[1][1], -_m4x4[1][2], -_m4x4[1][3],
-            -_m4x4[2][0], -_m4x4[2][1], -_m4x4[2][2], -_m4x4[2][3],
-            -_m4x4[3][0], -_m4x4[3][1], -_m4x4[3][2], -_m4x4[3][3]
+            -m4x4[0][0], -m4x4[0][1], -m4x4[0][2], -m4x4[0][3],
+            -m4x4[1][0], -m4x4[1][1], -m4x4[1][2], -m4x4[1][3],
+            -m4x4[2][0], -m4x4[2][1], -m4x4[2][2], -m4x4[2][3],
+            -m4x4[3][0], -m4x4[3][1], -m4x4[3][2], -m4x4[3][3]
             );
     }
 
     inline Matrix4 &Matrix4::operator +=(const Matrix4 &other)
     {
-        _m4x4[0][0] += other._m4x4[0][0];
-        _m4x4[0][1] += other._m4x4[0][1];
-        _m4x4[0][2] += other._m4x4[0][2];
-        _m4x4[0][3] += other._m4x4[0][3];
+        m4x4[0][0] += other.m4x4[0][0];
+        m4x4[0][1] += other.m4x4[0][1];
+        m4x4[0][2] += other.m4x4[0][2];
+        m4x4[0][3] += other.m4x4[0][3];
 
-        _m4x4[1][0] += other._m4x4[1][0];
-        _m4x4[1][1] += other._m4x4[1][1];
-        _m4x4[1][2] += other._m4x4[1][2];
-        _m4x4[1][3] += other._m4x4[1][3];
+        m4x4[1][0] += other.m4x4[1][0];
+        m4x4[1][1] += other.m4x4[1][1];
+        m4x4[1][2] += other.m4x4[1][2];
+        m4x4[1][3] += other.m4x4[1][3];
 
-        _m4x4[2][0] += other._m4x4[2][0];
-        _m4x4[2][1] += other._m4x4[2][1];
-        _m4x4[2][2] += other._m4x4[2][2];
-        _m4x4[2][3] += other._m4x4[2][3];
+        m4x4[2][0] += other.m4x4[2][0];
+        m4x4[2][1] += other.m4x4[2][1];
+        m4x4[2][2] += other.m4x4[2][2];
+        m4x4[2][3] += other.m4x4[2][3];
 
-        _m4x4[3][0] += other._m4x4[3][0];
-        _m4x4[3][1] += other._m4x4[3][1];
-        _m4x4[3][2] += other._m4x4[3][2];
-        _m4x4[3][3] += other._m4x4[3][3];
+        m4x4[3][0] += other.m4x4[3][0];
+        m4x4[3][1] += other.m4x4[3][1];
+        m4x4[3][2] += other.m4x4[3][2];
+        m4x4[3][3] += other.m4x4[3][3];
 
         return *this;
     }
 
     inline Matrix4 &Matrix4::operator -=(const Matrix4 &other)
     {
-        _m4x4[0][0] -= other._m4x4[0][0];
-        _m4x4[0][1] -= other._m4x4[0][1];
-        _m4x4[0][2] -= other._m4x4[0][2];
-        _m4x4[0][3] -= other._m4x4[0][3];
+        m4x4[0][0] -= other.m4x4[0][0];
+        m4x4[0][1] -= other.m4x4[0][1];
+        m4x4[0][2] -= other.m4x4[0][2];
+        m4x4[0][3] -= other.m4x4[0][3];
 
-        _m4x4[1][0] -= other._m4x4[1][0];
-        _m4x4[1][1] -= other._m4x4[1][1];
-        _m4x4[1][2] -= other._m4x4[1][2];
-        _m4x4[1][3] -= other._m4x4[1][3];
+        m4x4[1][0] -= other.m4x4[1][0];
+        m4x4[1][1] -= other.m4x4[1][1];
+        m4x4[1][2] -= other.m4x4[1][2];
+        m4x4[1][3] -= other.m4x4[1][3];
 
-        _m4x4[2][0] -= other._m4x4[2][0];
-        _m4x4[2][1] -= other._m4x4[2][1];
-        _m4x4[2][2] -= other._m4x4[2][2];
-        _m4x4[2][3] -= other._m4x4[2][3];
+        m4x4[2][0] -= other.m4x4[2][0];
+        m4x4[2][1] -= other.m4x4[2][1];
+        m4x4[2][2] -= other.m4x4[2][2];
+        m4x4[2][3] -= other.m4x4[2][3];
 
-        _m4x4[3][0] -= other._m4x4[3][0];
-        _m4x4[3][1] -= other._m4x4[3][1];
-        _m4x4[3][2] -= other._m4x4[3][2];
-        _m4x4[3][3] -= other._m4x4[3][3];
+        m4x4[3][0] -= other.m4x4[3][0];
+        m4x4[3][1] -= other.m4x4[3][1];
+        m4x4[3][2] -= other.m4x4[3][2];
+        m4x4[3][3] -= other.m4x4[3][3];
 
         return *this;
     }
 
-    inline Matrix4 &Matrix4::operator *=(Real fScalar)
+    inline Matrix4 &Matrix4::operator *=(Real scalar)
     {
-        _m4x4[0][0] *= fScalar, _m4x4[0][1] *= fScalar, _m4x4[0][2] *= fScalar, _m4x4[0][3] *= fScalar;
-        _m4x4[1][0] *= fScalar, _m4x4[1][1] *= fScalar, _m4x4[1][2] *= fScalar, _m4x4[1][3] *= fScalar;
-        _m4x4[2][0] *= fScalar, _m4x4[2][1] *= fScalar, _m4x4[2][2] *= fScalar, _m4x4[2][3] *= fScalar;
-        _m4x4[3][0] *= fScalar, _m4x4[3][1] *= fScalar, _m4x4[3][2] *= fScalar, _m4x4[3][3] *= fScalar;
+        m4x4[0][0] *= scalar, m4x4[0][1] *= scalar, m4x4[0][2] *= scalar, m4x4[0][3] *= scalar;
+        m4x4[1][0] *= scalar, m4x4[1][1] *= scalar, m4x4[1][2] *= scalar, m4x4[1][3] *= scalar;
+        m4x4[2][0] *= scalar, m4x4[2][1] *= scalar, m4x4[2][2] *= scalar, m4x4[2][3] *= scalar;
+        m4x4[3][0] *= scalar, m4x4[3][1] *= scalar, m4x4[3][2] *= scalar, m4x4[3][3] *= scalar;
 
         return *this;
     }
 
-    inline Matrix4 &Matrix4::operator /=(Real fScalar)
+    inline Matrix4 &Matrix4::operator /=(Real scalar)
     {
         Real fInvertScalar = 0.0;
-        if (fScalar != 0.0)
-            fInvertScalar = Real(1.0) / fScalar;
+        if (scalar != 0.0)
+            fInvertScalar = Real(1.0) / scalar;
         
-        _m4x4[0][0] *= fInvertScalar, _m4x4[0][1] *= fInvertScalar, _m4x4[0][2] *= fInvertScalar, _m4x4[0][3] *= fInvertScalar;
-        _m4x4[1][0] *= fInvertScalar, _m4x4[1][1] *= fInvertScalar, _m4x4[1][2] *= fInvertScalar, _m4x4[1][3] *= fInvertScalar;
-        _m4x4[2][0] *= fInvertScalar, _m4x4[2][1] *= fInvertScalar, _m4x4[2][2] *= fInvertScalar, _m4x4[2][3] *= fInvertScalar;
-        _m4x4[3][0] *= fInvertScalar, _m4x4[3][1] *= fInvertScalar, _m4x4[3][2] *= fInvertScalar, _m4x4[3][3] *= fInvertScalar;
+        m4x4[0][0] *= fInvertScalar, m4x4[0][1] *= fInvertScalar, m4x4[0][2] *= fInvertScalar, m4x4[0][3] *= fInvertScalar;
+        m4x4[1][0] *= fInvertScalar, m4x4[1][1] *= fInvertScalar, m4x4[1][2] *= fInvertScalar, m4x4[1][3] *= fInvertScalar;
+        m4x4[2][0] *= fInvertScalar, m4x4[2][1] *= fInvertScalar, m4x4[2][2] *= fInvertScalar, m4x4[2][3] *= fInvertScalar;
+        m4x4[3][0] *= fInvertScalar, m4x4[3][1] *= fInvertScalar, m4x4[3][2] *= fInvertScalar, m4x4[3][3] *= fInvertScalar;
 
         return *this;
     }
@@ -343,56 +344,56 @@ namespace Tiny3D
     inline Vector4 Matrix4::operator *(const Vector4 &rkV) const
     {
         return Vector4(
-            _m4x4[0][0] * rkV.x() + _m4x4[0][1] * rkV.y() + _m4x4[0][2] * rkV.z() + _m4x4[0][3] * rkV.w(), 
-            _m4x4[1][0] * rkV.x() + _m4x4[1][1] * rkV.y() + _m4x4[1][2] * rkV.z() + _m4x4[1][3] * rkV.w(),
-            _m4x4[2][0] * rkV.x() + _m4x4[2][1] * rkV.y() + _m4x4[2][2] * rkV.z() + _m4x4[2][3] * rkV.w(),
-            _m4x4[3][0] * rkV.x() + _m4x4[3][1] * rkV.y() + _m4x4[3][2] * rkV.z() + _m4x4[3][3] * rkV.w()
+            m4x4[0][0] * rkV.x() + m4x4[0][1] * rkV.y() + m4x4[0][2] * rkV.z() + m4x4[0][3] * rkV.w(), 
+            m4x4[1][0] * rkV.x() + m4x4[1][1] * rkV.y() + m4x4[1][2] * rkV.z() + m4x4[1][3] * rkV.w(),
+            m4x4[2][0] * rkV.x() + m4x4[2][1] * rkV.y() + m4x4[2][2] * rkV.z() + m4x4[2][3] * rkV.w(),
+            m4x4[3][0] * rkV.x() + m4x4[3][1] * rkV.y() + m4x4[3][2] * rkV.z() + m4x4[3][3] * rkV.w()
             );
     }
 
     inline Vector3 Matrix4::operator *(const Vector3 &rkV) const
     {
-        Real w = _m4x4[3][0] * rkV.x() + _m4x4[3][1] * rkV.y() + _m4x4[3][2] * rkV.z() + _m4x4[3][3] * Real(1.0);
+        Real w = m4x4[3][0] * rkV.x() + m4x4[3][1] * rkV.y() + m4x4[3][2] * rkV.z() + m4x4[3][3] * Real(1.0);
 
         if (w != Real(0.0))
         {
             return Vector3(
-                (_m4x4[0][0] * rkV.x() + _m4x4[0][1] * rkV.y() + _m4x4[0][2] * rkV.z() + _m4x4[0][3] * Real(1.0)) / w, 
-                (_m4x4[1][0] * rkV.x() + _m4x4[1][1] * rkV.y() + _m4x4[1][2] * rkV.z() + _m4x4[1][3] * Real(1.0)) / w,
-                (_m4x4[2][0] * rkV.x() + _m4x4[2][1] * rkV.y() + _m4x4[2][2] * rkV.z() + _m4x4[2][3] * Real(1.0)) / w
+                (m4x4[0][0] * rkV.x() + m4x4[0][1] * rkV.y() + m4x4[0][2] * rkV.z() + m4x4[0][3] * Real(1.0)) / w, 
+                (m4x4[1][0] * rkV.x() + m4x4[1][1] * rkV.y() + m4x4[1][2] * rkV.z() + m4x4[1][3] * Real(1.0)) / w,
+                (m4x4[2][0] * rkV.x() + m4x4[2][1] * rkV.y() + m4x4[2][2] * rkV.z() + m4x4[2][3] * Real(1.0)) / w
                 );
         }
         
         return Vector3(
-            _m4x4[0][0] * rkV.x() + _m4x4[0][1] * rkV.y() + _m4x4[0][2] * rkV.z() + _m4x4[0][3] * Real(1.0),
-            _m4x4[1][0] * rkV.x() + _m4x4[1][1] * rkV.y() + _m4x4[1][2] * rkV.z() + _m4x4[1][3] * Real(1.0),
-            _m4x4[2][0] * rkV.x() + _m4x4[2][1] * rkV.y() + _m4x4[2][2] * rkV.z() + _m4x4[2][3] * Real(1.0)
+            m4x4[0][0] * rkV.x() + m4x4[0][1] * rkV.y() + m4x4[0][2] * rkV.z() + m4x4[0][3] * Real(1.0),
+            m4x4[1][0] * rkV.x() + m4x4[1][1] * rkV.y() + m4x4[1][2] * rkV.z() + m4x4[1][3] * Real(1.0),
+            m4x4[2][0] * rkV.x() + m4x4[2][1] * rkV.y() + m4x4[2][2] * rkV.z() + m4x4[2][3] * Real(1.0)
             );
     }
 
     inline Matrix4 Matrix4::transpose() const
     {
         return Matrix4(
-            _m4x4[0][0], _m4x4[1][0], _m4x4[2][0], _m4x4[3][0],
-            _m4x4[0][1], _m4x4[1][1], _m4x4[2][1], _m4x4[3][1],
-            _m4x4[0][2], _m4x4[1][2], _m4x4[2][2], _m4x4[3][2],
-            _m4x4[0][3], _m4x4[1][3], _m4x4[2][3], _m4x4[3][3]
+            m4x4[0][0], m4x4[1][0], m4x4[2][0], m4x4[3][0],
+            m4x4[0][1], m4x4[1][1], m4x4[2][1], m4x4[3][1],
+            m4x4[0][2], m4x4[1][2], m4x4[2][2], m4x4[3][2],
+            m4x4[0][3], m4x4[1][3], m4x4[2][3], m4x4[3][3]
             );
     }
     inline bool Matrix4::isAffine() const
     {
-        return _m4x4[3][0] == 0.0 && _m4x4[3][1] == 0.0 && _m4x4[3][2] == 0.0 && _m4x4[3][3] == 1.0;
+        return m4x4[3][0] == 0.0 && m4x4[3][1] == 0.0 && m4x4[3][2] == 0.0 && m4x4[3][3] == 1.0;
     }
 
     inline bool Matrix4::hasScale() const
     {
-        Real t = _m4x4[0][0] * _m4x4[0][0] + _m4x4[1][0] * _m4x4[1][0] + _m4x4[2][0] * _m4x4[2][0];
+        Real t = m4x4[0][0] * m4x4[0][0] + m4x4[1][0] * m4x4[1][0] + m4x4[2][0] * m4x4[2][0];
         if (!Math::realEqual(t, 1.0, (Real)1e-04))
             return true;
-        t = _m4x4[0][1] * _m4x4[0][1] + _m4x4[1][1] * _m4x4[1][1] + _m4x4[2][1] * _m4x4[2][1];
+        t = m4x4[0][1] * m4x4[0][1] + m4x4[1][1] * m4x4[1][1] + m4x4[2][1] * m4x4[2][1];
         if (!Math::realEqual(t, 1.0, (Real)1e-04))
             return true;
-        t = _m4x4[0][2] * _m4x4[0][2] + _m4x4[1][2] * _m4x4[1][2] + _m4x4[2][2] * _m4x4[2][2];
+        t = m4x4[0][2] * m4x4[0][2] + m4x4[1][2] * m4x4[1][2] + m4x4[2][2] * m4x4[2][2];
         if (!Math::realEqual(t, 1.0, (Real)1e-04))
             return true;
 
@@ -404,35 +405,35 @@ namespace Tiny3D
         T3D_ASSERT(isAffine() && other.isAffine());
 
         return Matrix4(
-            _m4x4[0][0] * other._m4x4[0][0] + _m4x4[0][1] * other._m4x4[1][0] + _m4x4[0][2] * other._m4x4[2][0],
-            _m4x4[0][0] * other._m4x4[0][1] + _m4x4[0][1] * other._m4x4[1][1] + _m4x4[0][2] * other._m4x4[2][1],
-            _m4x4[0][0] * other._m4x4[0][2] + _m4x4[0][1] * other._m4x4[1][2] + _m4x4[0][2] * other._m4x4[2][2],
-            _m4x4[0][0] * other._m4x4[0][3] + _m4x4[0][1] * other._m4x4[1][3] + _m4x4[0][2] * other._m4x4[2][3] + _m4x4[0][3],
+            m4x4[0][0] * other.m4x4[0][0] + m4x4[0][1] * other.m4x4[1][0] + m4x4[0][2] * other.m4x4[2][0],
+            m4x4[0][0] * other.m4x4[0][1] + m4x4[0][1] * other.m4x4[1][1] + m4x4[0][2] * other.m4x4[2][1],
+            m4x4[0][0] * other.m4x4[0][2] + m4x4[0][1] * other.m4x4[1][2] + m4x4[0][2] * other.m4x4[2][2],
+            m4x4[0][0] * other.m4x4[0][3] + m4x4[0][1] * other.m4x4[1][3] + m4x4[0][2] * other.m4x4[2][3] + m4x4[0][3],
 
-            _m4x4[1][0] * other._m4x4[0][0] + _m4x4[1][1] * other._m4x4[1][0] + _m4x4[1][2] * other._m4x4[2][0],
-            _m4x4[1][0] * other._m4x4[0][1] + _m4x4[1][1] * other._m4x4[1][1] + _m4x4[1][2] * other._m4x4[2][1],
-            _m4x4[1][0] * other._m4x4[0][2] + _m4x4[1][1] * other._m4x4[1][2] + _m4x4[1][2] * other._m4x4[2][2],
-            _m4x4[1][0] * other._m4x4[0][3] + _m4x4[1][1] * other._m4x4[1][3] + _m4x4[1][2] * other._m4x4[2][3] + _m4x4[1][3],
+            m4x4[1][0] * other.m4x4[0][0] + m4x4[1][1] * other.m4x4[1][0] + m4x4[1][2] * other.m4x4[2][0],
+            m4x4[1][0] * other.m4x4[0][1] + m4x4[1][1] * other.m4x4[1][1] + m4x4[1][2] * other.m4x4[2][1],
+            m4x4[1][0] * other.m4x4[0][2] + m4x4[1][1] * other.m4x4[1][2] + m4x4[1][2] * other.m4x4[2][2],
+            m4x4[1][0] * other.m4x4[0][3] + m4x4[1][1] * other.m4x4[1][3] + m4x4[1][2] * other.m4x4[2][3] + m4x4[1][3],
 
-            _m4x4[2][0] * other._m4x4[0][0] + _m4x4[2][1] * other._m4x4[1][0] + _m4x4[2][2] * other._m4x4[2][0],
-            _m4x4[2][0] * other._m4x4[0][1] + _m4x4[2][1] * other._m4x4[1][1] + _m4x4[2][2] * other._m4x4[2][1],
-            _m4x4[2][0] * other._m4x4[0][2] + _m4x4[2][1] * other._m4x4[1][2] + _m4x4[2][2] * other._m4x4[2][2],
-            _m4x4[2][0] * other._m4x4[0][3] + _m4x4[2][1] * other._m4x4[1][3] + _m4x4[2][2] * other._m4x4[2][3] + _m4x4[2][3],
+            m4x4[2][0] * other.m4x4[0][0] + m4x4[2][1] * other.m4x4[1][0] + m4x4[2][2] * other.m4x4[2][0],
+            m4x4[2][0] * other.m4x4[0][1] + m4x4[2][1] * other.m4x4[1][1] + m4x4[2][2] * other.m4x4[2][1],
+            m4x4[2][0] * other.m4x4[0][2] + m4x4[2][1] * other.m4x4[1][2] + m4x4[2][2] * other.m4x4[2][2],
+            m4x4[2][0] * other.m4x4[0][3] + m4x4[2][1] * other.m4x4[1][3] + m4x4[2][2] * other.m4x4[2][3] + m4x4[2][3],
 
             0.0, 0.0, 0.0, 1.0);
     }
 
     inline void Matrix4::extractMatrix(Matrix3 &m3x3) const
     {
-        m3x3[0][0] = _m4x4[0][0];
-        m3x3[0][1] = _m4x4[0][1];
-        m3x3[0][2] = _m4x4[0][2];
-        m3x3[1][0] = _m4x4[1][0];
-        m3x3[1][1] = _m4x4[1][1];
-        m3x3[1][2] = _m4x4[1][2];
-        m3x3[2][0] = _m4x4[2][0];
-        m3x3[2][1] = _m4x4[2][1];
-        m3x3[2][2] = _m4x4[2][2];
+        m3x3[0][0] = m4x4[0][0];
+        m3x3[0][1] = m4x4[0][1];
+        m3x3[0][2] = m4x4[0][2];
+        m3x3[1][0] = m4x4[1][0];
+        m3x3[1][1] = m4x4[1][1];
+        m3x3[1][2] = m4x4[1][2];
+        m3x3[2][0] = m4x4[2][0];
+        m3x3[2][1] = m4x4[2][1];
+        m3x3[2][2] = m4x4[2][2];
     }
 
     inline Quaternion Matrix4::extractQuaternion() const
@@ -444,7 +445,7 @@ namespace Tiny3D
 
     inline Vector3 Matrix4::extractTranslation() const
     {
-        return Vector3(_m4x4[0][3], _m4x4[1][3], _m4x4[2][3]);
+        return Vector3(m4x4[0][3], m4x4[1][3], m4x4[2][3]);
     }
 
     inline void Matrix4::decomposition(Vector3 &position, Vector3 &scale, Quaternion &orientation) const
@@ -459,37 +460,37 @@ namespace Tiny3D
         m3x3.QDUDecomposition(matQ, scale, vecU); 
 
         orientation = Quaternion( matQ );
-        position = Vector3(_m4x4[0][3], _m4x4[1][3], _m4x4[2][3]);
+        position = Vector3(m4x4[0][3], m4x4[1][3], m4x4[2][3]);
     }
 
     inline void Matrix4::makeTranslate(const Vector3 &position)
     {
-        _m4x4[0][0] = 1.0, _m4x4[0][1] = 0.0, _m4x4[0][2] = 0.0, _m4x4[0][3] = position.x();
-        _m4x4[1][0] = 0.0, _m4x4[1][1] = 1.0, _m4x4[1][2] = 0.0, _m4x4[1][3] = position.y();
-        _m4x4[2][0] = 0.0, _m4x4[2][1] = 0.0, _m4x4[2][2] = 1.0, _m4x4[2][3] = position.z();
-        _m4x4[3][0] = 0.0, _m4x4[3][1] = 0.0, _m4x4[3][2] = 0.0, _m4x4[3][3] = 1.0;
+        m4x4[0][0] = 1.0, m4x4[0][1] = 0.0, m4x4[0][2] = 0.0, m4x4[0][3] = position.x();
+        m4x4[1][0] = 0.0, m4x4[1][1] = 1.0, m4x4[1][2] = 0.0, m4x4[1][3] = position.y();
+        m4x4[2][0] = 0.0, m4x4[2][1] = 0.0, m4x4[2][2] = 1.0, m4x4[2][3] = position.z();
+        m4x4[3][0] = 0.0, m4x4[3][1] = 0.0, m4x4[3][2] = 0.0, m4x4[3][3] = 1.0;
     }
 
     inline void Matrix4::makeTranslate(Real tx, Real ty, Real tz)
     {
-        _m4x4[0][0] = 1.0, _m4x4[0][1] = 0.0, _m4x4[0][2] = 0.0, _m4x4[0][3] = tx;
-        _m4x4[1][0] = 0.0, _m4x4[1][1] = 1.0, _m4x4[1][2] = 0.0, _m4x4[1][3] = ty;
-        _m4x4[2][0] = 0.0, _m4x4[2][1] = 0.0, _m4x4[2][2] = 1.0, _m4x4[2][3] = tz;
-        _m4x4[3][0] = 0.0, _m4x4[3][1] = 0.0, _m4x4[3][2] = 0.0, _m4x4[3][3] = 1.0;
+        m4x4[0][0] = 1.0, m4x4[0][1] = 0.0, m4x4[0][2] = 0.0, m4x4[0][3] = tx;
+        m4x4[1][0] = 0.0, m4x4[1][1] = 1.0, m4x4[1][2] = 0.0, m4x4[1][3] = ty;
+        m4x4[2][0] = 0.0, m4x4[2][1] = 0.0, m4x4[2][2] = 1.0, m4x4[2][3] = tz;
+        m4x4[3][0] = 0.0, m4x4[3][1] = 0.0, m4x4[3][2] = 0.0, m4x4[3][3] = 1.0;
     }
 
     inline void Matrix4::setScale(const Vector3 &scale)
     {
-        _m4x4[0][0] = scale.x();
-        _m4x4[1][1] = scale.y();
-        _m4x4[2][2] = scale.z();
+        m4x4[0][0] = scale.x();
+        m4x4[1][1] = scale.y();
+        m4x4[2][2] = scale.z();
     }
 
     inline void Matrix4::setTranslate(const Vector3 &position)
     {
-        _m4x4[0][3] = position.x();
-        _m4x4[1][3] = position.y();
-        _m4x4[2][3] = position.z();
+        m4x4[0][3] = position.x();
+        m4x4[1][3] = position.y();
+        m4x4[2][3] = position.z();
     }
 
     inline Vector3 Matrix4::transformAffine(const Vector3 &v) const
@@ -497,9 +498,9 @@ namespace Tiny3D
         T3D_ASSERT(isAffine());
 
         return Vector3(
-            _m4x4[0][0] * v.x() + _m4x4[0][1] * v.y() + _m4x4[0][2] * v.z() + _m4x4[0][3], 
-            _m4x4[1][0] * v.x() + _m4x4[1][1] * v.y() + _m4x4[1][2] * v.z() + _m4x4[1][3],
-            _m4x4[2][0] * v.x() + _m4x4[2][1] * v.y() + _m4x4[2][2] * v.z() + _m4x4[2][3]);
+            m4x4[0][0] * v.x() + m4x4[0][1] * v.y() + m4x4[0][2] * v.z() + m4x4[0][3], 
+            m4x4[1][0] * v.x() + m4x4[1][1] * v.y() + m4x4[1][2] * v.z() + m4x4[1][3],
+            m4x4[2][0] * v.x() + m4x4[2][1] * v.y() + m4x4[2][2] * v.z() + m4x4[2][3]);
     }
 
     inline Vector4 Matrix4::transformAffine(const Vector4 &v) const
@@ -507,29 +508,19 @@ namespace Tiny3D
         T3D_ASSERT(isAffine());
 
         return Vector4(
-            _m4x4[0][0] * v.x() + _m4x4[0][1] * v.y() + _m4x4[0][2] * v.z() + _m4x4[0][3] * v.w(), 
-            _m4x4[1][0] * v.x() + _m4x4[1][1] * v.y() + _m4x4[1][2] * v.z() + _m4x4[1][3] * v.w(),
-            _m4x4[2][0] * v.x() + _m4x4[2][1] * v.y() + _m4x4[2][2] * v.z() + _m4x4[2][3] * v.w(),
+            m4x4[0][0] * v.x() + m4x4[0][1] * v.y() + m4x4[0][2] * v.z() + m4x4[0][3] * v.w(), 
+            m4x4[1][0] * v.x() + m4x4[1][1] * v.y() + m4x4[1][2] * v.z() + m4x4[1][3] * v.w(),
+            m4x4[2][0] * v.x() + m4x4[2][1] * v.y() + m4x4[2][2] * v.z() + m4x4[2][3] * v.w(),
             v.w());
     }
 
-    inline void Matrix4::printLog(const String &prefix) const
-    {
-        T3D_LOG_DEBUG("%s %8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f % 8f", prefix.c_str(),
-            _m4x4[0][0], _m4x4[0][1], _m4x4[0][2], _m4x4[0][3],
-            _m4x4[1][0], _m4x4[1][1], _m4x4[1][2], _m4x4[1][3],
-            _m4x4[2][0], _m4x4[2][1], _m4x4[2][2], _m4x4[2][3],
-            _m4x4[3][0], _m4x4[3][1], _m4x4[3][2], _m4x4[3][3]);
-    }
-
-
-    inline Matrix4 operator *(Real fScalar, const Matrix4 &rkM)
+    inline Matrix4 operator *(Real scalar, const Matrix4 &rkM)
     {
         return Matrix4(
-            fScalar * rkM[0][0], fScalar * rkM[0][1], fScalar * rkM[0][2], fScalar * rkM[0][3],
-            fScalar * rkM[1][0], fScalar * rkM[1][1], fScalar * rkM[1][2], fScalar * rkM[1][3],
-            fScalar * rkM[2][0], fScalar * rkM[2][1], fScalar * rkM[2][2], fScalar * rkM[2][3],
-            fScalar * rkM[3][0], fScalar * rkM[3][1], fScalar * rkM[3][2], fScalar * rkM[3][3]
+            scalar * rkM[0][0], scalar * rkM[0][1], scalar * rkM[0][2], scalar * rkM[0][3],
+            scalar * rkM[1][0], scalar * rkM[1][1], scalar * rkM[1][2], scalar * rkM[1][3],
+            scalar * rkM[2][0], scalar * rkM[2][1], scalar * rkM[2][2], scalar * rkM[2][3],
+            scalar * rkM[3][0], scalar * rkM[3][1], scalar * rkM[3][2], scalar * rkM[3][3]
             );
     }
 

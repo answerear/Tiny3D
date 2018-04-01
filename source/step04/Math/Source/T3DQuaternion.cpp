@@ -116,80 +116,8 @@ namespace Tiny3D
         rRot[2][2] = 1.0f - (fTxx + fTyy);
     }
 
-    Radian Quaternion::getPitch(bool reprojectAxis /* = true */) const
-    {
-        if (reprojectAxis)
-        {
-            // pitch = atan2(localy.z, localy.y)
-            // pick parts of yAxis() implementation that we need
-            Real fTx  = 2.0f * _x;
-            //          Real fTy  = 2.0f*y;
-            Real fTz  = 2.0f * _z;
-            Real fTwx = fTx * _w;
-            Real fTxx = fTx * _x;
-            Real fTyz = fTz * _y;
-            Real fTzz = fTz * _z;
-
-            // Vector3(fTxy-fTwz, 1.0-(fTxx+fTzz), fTyz+fTwx);
-            return Radian(Math::atan2(fTyz+fTwx, 1.0f-(fTxx+fTzz)));
-        }
-        else
-        {
-            // internal version
-            return Radian(Math::atan2(2*(_y*_z + _w*_x), _w*_w - _x*_x - _y*_y + _z*_z));
-        }
-    }
-
-    Radian Quaternion::getYaw(bool reprojectAxis) const
-    {
-        if (reprojectAxis)
-        {
-            // yaw = atan2(localz.x, localz.z)
-            // pick parts of zAxis() implementation that we need
-            Real fTx  = 2.0f * _x;
-            Real fTy  = 2.0f * _y;
-            Real fTz  = 2.0f * _z;
-            Real fTwy = fTy * _w;
-            Real fTxx = fTx * _x;
-            Real fTxz = fTz * _x;
-            Real fTyy = fTy * _y;
-
-            // Vector3(fTxz+fTwy, fTyz-fTwx, 1.0-(fTxx+fTyy));
-
-            return Radian(Math::atan2(fTxz+fTwy, 1.0f-(fTxx+fTyy)));
-        }
-        else
-        {
-            // internal version
-            return Radian(Math::asin(-2*(_x*_z - _w*_y)));
-        }
-    }
-
-    Radian Quaternion::getRoll(bool reprojectAxis) const
-    {
-        if (reprojectAxis)
-        {
-            // roll = atan2(localx.y, localx.x)
-            // pick parts of xAxis() implementation that we need
-            //          Real fTx  = 2.0*x;
-            Real fTy  = 2.0f * _y;
-            Real fTz  = 2.0f * _z;
-            Real fTwz = fTz * _w;
-            Real fTxy = fTy * _x;
-            Real fTyy = fTy * _y;
-            Real fTzz = fTz * _z;
-
-            // Vector3(1.0-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
-
-            return Radian(Math::atan2(fTxy+fTwz, 1.0f-(fTyy+fTzz)));
-        }
-        else
-        {
-            return Radian(Math::atan2(2*(_x*_y + _w*_z), _w*_w + _x*_x - _y*_y - _z*_z));
-        }
-    }
-
-    Quaternion &Quaternion::slerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes, bool shortestPath, Real fThreshold /* = 1e-03 */)
+    Quaternion &Quaternion::slerp(const Quaternion &rkP, const Quaternion &rkQ, 
+        Real times, bool shortestPath, Real threshold /* = 1e-03 */)
     {
         Real fCos = rkP.dot(rkQ);
         Quaternion rkT;
@@ -205,25 +133,26 @@ namespace Tiny3D
             rkT = rkQ;
         }
 
-        if (Math::abs(fCos) < 1 - fThreshold)
+        if (Math::abs(fCos) < 1 - threshold)
         {
             // Standard case (slerp)
             Real fSin = Math::sqrt(1 - Math::sqr(fCos));
             Radian fAngle = Math::atan2(fSin, fCos);
             Real fInvSin = 1.0f / fSin;
-            Real fCoeff0 = Math::sin((1.0f - fTimes) * fAngle) * fInvSin;
-            Real fCoeff1 = Math::sin(fTimes * fAngle) * fInvSin;
+            Real fCoeff0 = Math::sin((1.0f - times) * fAngle) * fInvSin;
+            Real fCoeff1 = Math::sin(times * fAngle) * fInvSin;
             *this = fCoeff0 * rkP + fCoeff1 * rkT;
         }
         else
         {
             // There are two situations:
-            // 1. "rkP" and "rkQ" are very close (fCos ~= +1), so we can do a linear
-            //    interpolation safely.
-            // 2. "rkP" and "rkQ" are almost inverse of each other (fCos ~= -1), there
-            //    are an infinite number of possibilities interpolation. but we haven't
-            //    have method to fix this case, so just use linear interpolation here.
-            Quaternion t = (1.0f - fTimes) * rkP + fTimes * rkT;
+            // 1. "rkP" and "rkQ" are very close (fCos ~= +1), so we can do a 
+            //    linear interpolation safely.
+            // 2. "rkP" and "rkQ" are almost inverse of each other (fCos ~= -1), 
+            //    there are an infinite number of possibilities interpolation. 
+            //    but we haven't have method to fix this case, so just use 
+            //    linear interpolation here.
+            Quaternion t = (1.0f - times) * rkP + times * rkT;
             // taking the complement requires renormalisation
             t.normalize();
             *this = t;

@@ -2,7 +2,8 @@
 
 namespace Tiny3D
 {
-    inline void Quaternion::fromAngleAxis(const Radian &rkRadians, const Vector3 &rkAxis)
+    inline void Quaternion::fromAngleAxis(const Radian &rkRadians, 
+        const Vector3 &rkAxis)
     {
         Radian fHalfAngle(0.5f * rkRadians.valueRadians());
         Real fSin = Math::sin(fHalfAngle);
@@ -12,7 +13,8 @@ namespace Tiny3D
         _z = fSin * rkAxis.z();
     }
 
-    inline void Quaternion::fromAxis(const Vector3 &rkXAxis, const Vector3 &rkYAxis, const Vector3 &rkZAxis)
+    inline void Quaternion::fromAxis(const Vector3 &rkXAxis, 
+        const Vector3 &rkYAxis, const Vector3 &rkZAxis)
     {
         Matrix3 kRot;
 
@@ -67,11 +69,11 @@ namespace Tiny3D
         _z = other._z;
     }
 
-    inline Quaternion::Quaternion(Real fW, Real fX, Real fY, Real fZ)
-        : _w(fW)
-        , _x(fX)
-        , _y(fY)
-        , _z(fZ)
+    inline Quaternion::Quaternion(Real w, Real x, Real y, Real z)
+        : _w(w)
+        , _x(x)
+        , _y(y)
+        , _z(z)
     {
 
     }
@@ -86,7 +88,8 @@ namespace Tiny3D
         fromAngleAxis(rkAngle, rkAxis);
     }
 
-    inline Quaternion::Quaternion(const Vector3 &rkXAxis, const Vector3 &rkYAxis, const Vector3 &rkZAxis)
+    inline Quaternion::Quaternion(const Vector3 &rkXAxis, 
+        const Vector3 &rkYAxis, const Vector3 &rkZAxis)
     {
         fromAxis(rkXAxis, rkYAxis, rkZAxis);
     }
@@ -96,11 +99,11 @@ namespace Tiny3D
         fromAxis(akAxis);
     }
 
-    inline Quaternion::Quaternion(Real *pValues)
-        : _w(pValues[0])
-        , _x(pValues[1])
-        , _y(pValues[2])
-        , _z(pValues[3])
+    inline Quaternion::Quaternion(Real *values)
+        : _w(values[0])
+        , _x(values[1])
+        , _y(values[2])
+        , _z(values[3])
     {
     }
 
@@ -168,7 +171,10 @@ namespace Tiny3D
 
     inline bool Quaternion::operator ==(const Quaternion &other) const
     {
-        return (_w == other._w && _x == other._x && _y == other._y && _z == other._z);
+        return (_w == other._w 
+            && _x == other._x 
+            && _y == other._y 
+            && _z == other._z);
     }
 
     inline bool Quaternion::operator !=(const Quaternion &other) const
@@ -187,12 +193,22 @@ namespace Tiny3D
 
     inline Quaternion Quaternion::operator +(const Quaternion &other) const
     {
-        return Quaternion(_w + other._w, _x + other._x, _y + other._y, _z + other._z);
+        return Quaternion(
+            _w + other._w, 
+            _x + other._x,
+            _y + other._y, 
+            _z + other._z
+        );
     }
 
     inline Quaternion Quaternion::operator -(const Quaternion &other) const
     {
-        return Quaternion(_w - other._w, _x - other._x, _y - other._y, _z - other._z);
+        return Quaternion(
+            _w - other._w, 
+            _x - other._x, 
+            _y - other._y, 
+            _z - other._z
+        );
     }
 
     inline Quaternion Quaternion::operator *(const Quaternion &other) const
@@ -216,7 +232,10 @@ namespace Tiny3D
         Real fInvertScalar = 0.0f;
         if (scalar != 0.0)
             fInvertScalar = 1.0f / scalar;
-        return Quaternion(_w * fInvertScalar, _x * fInvertScalar, _y * fInvertScalar, _z * fInvertScalar);
+        return Quaternion(_w * fInvertScalar, 
+            _x * fInvertScalar, 
+            _y * fInvertScalar, 
+            _z * fInvertScalar);
     }
 
     inline Quaternion &Quaternion::operator +=(const Quaternion &other)
@@ -310,7 +329,11 @@ namespace Tiny3D
         if (fNorm > 0.0)
         {
             Real fInvNorm = 1.0f / fNorm;
-            return Quaternion(_w * fInvNorm, -_x * fInvNorm, -_y * fInvNorm, -_z * fInvNorm);
+            return Quaternion(
+                 _w * fInvNorm,
+                -_x * fInvNorm, 
+                -_y * fInvNorm, 
+                -_z * fInvNorm);
         }
         else
         {
@@ -326,65 +349,135 @@ namespace Tiny3D
         rDegree = rAngle;
     }
 
+    inline Radian Quaternion::getPitch(bool reprojectAxis /* = true */) const
+    {
+        if (reprojectAxis)
+        {
+            // pitch = atan2(localy.z, localy.y)
+            // pick parts of yAxis() implementation that we need
+            Real fTx = 2.0f * _x;
+            //          Real fTy  = 2.0f*y;
+            Real fTz = 2.0f * _z;
+            Real fTwx = fTx * _w;
+            Real fTxx = fTx * _x;
+            Real fTyz = fTz * _y;
+            Real fTzz = fTz * _z;
+
+            // Vector3(fTxy-fTwz, 1.0-(fTxx+fTzz), fTyz+fTwx);
+            return Radian(Math::atan2(fTyz + fTwx, 1.0f - (fTxx + fTzz)));
+        }
+        else
+        {
+            // internal version
+            return Radian(Math::atan2(2 * (_y * _z + _w * _x),
+                _w * _w - _x * _x - _y * _y + _z * _z));
+        }
+    }
+
+    inline Radian Quaternion::getYaw(bool reprojectAxis) const
+    {
+        if (reprojectAxis)
+        {
+            // yaw = atan2(localz.x, localz.z)
+            // pick parts of zAxis() implementation that we need
+            Real fTx = 2.0f * _x;
+            Real fTy = 2.0f * _y;
+            Real fTz = 2.0f * _z;
+            Real fTwy = fTy * _w;
+            Real fTxx = fTx * _x;
+            Real fTxz = fTz * _x;
+            Real fTyy = fTy * _y;
+
+            // Vector3(fTxz+fTwy, fTyz-fTwx, 1.0-(fTxx+fTyy));
+
+            return Radian(Math::atan2(
+                fTxz + fTwy,
+                1.0f - (fTxx + fTyy)));
+        }
+        else
+        {
+            // internal version
+            return Radian(Math::asin(-2 * (_x * _z - _w * _y)));
+        }
+    }
+
+    inline Radian Quaternion::getRoll(bool reprojectAxis) const
+    {
+        if (reprojectAxis)
+        {
+            // roll = atan2(localx.y, localx.x)
+            // pick parts of xAxis() implementation that we need
+            //          Real fTx  = 2.0*x;
+            Real fTy = 2.0f * _y;
+            Real fTz = 2.0f * _z;
+            Real fTwz = fTz * _w;
+            Real fTxy = fTy * _x;
+            Real fTyy = fTy * _y;
+            Real fTzz = fTz * _z;
+
+            // Vector3(1.0-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
+
+            return Radian(Math::atan2(fTxy + fTwz, 1.0f - (fTyy + fTzz)));
+        }
+        else
+        {
+            return Radian(Math::atan2(
+                2 * (_x * _y + _w * _z),
+                _w * _w + _x * _x - _y * _y - _z * _z));
+        }
+    }
+
     inline Vector3 Quaternion::xAxis() const
     {
         //Real fTx  = 2.0*x;
-        Real fTy = 2.0f*_y;
-        Real fTz = 2.0f*_z;
-        Real fTwy = fTy*_w;
-        Real fTwz = fTz*_w;
-        Real fTxy = fTy*_x;
-        Real fTxz = fTz*_x;
-        Real fTyy = fTy*_y;
-        Real fTzz = fTz*_z;
+        Real fTy = 2.0f * _y;
+        Real fTz = 2.0f * _z;
+        Real fTwy = fTy * _w;
+        Real fTwz = fTz * _w;
+        Real fTxy = fTy * _x;
+        Real fTxz = fTz * _x;
+        Real fTyy = fTy * _y;
+        Real fTzz = fTz * _z;
 
         return Vector3(1.0f - (fTyy + fTzz), fTxy + fTwz, fTxz - fTwy);
     }
 
     inline Vector3 Quaternion::yAxis() const
     {
-        Real fTx = 2.0f*_x;
-        Real fTy = 2.0f*_y;
-        Real fTz = 2.0f*_z;
-        Real fTwx = fTx*_w;
-        Real fTwz = fTz*_w;
-        Real fTxx = fTx*_x;
-        Real fTxy = fTy*_x;
-        Real fTyz = fTz*_y;
-        Real fTzz = fTz*_z;
+        Real fTx = 2.0f * _x;
+        Real fTy = 2.0f * _y;
+        Real fTz = 2.0f * _z;
+        Real fTwx = fTx * _w;
+        Real fTwz = fTz * _w;
+        Real fTxx = fTx * _x;
+        Real fTxy = fTy * _x;
+        Real fTyz = fTz * _y;
+        Real fTzz = fTz * _z;
 
         return Vector3(fTxy - fTwz, 1.0f - (fTxx + fTzz), fTyz + fTwx);
     }
 
     inline Vector3 Quaternion::zAxis() const
     {
-        Real fTx = 2.0f*_x;
-        Real fTy = 2.0f*_y;
-        Real fTz = 2.0f*_z;
-        Real fTwx = fTx*_w;
-        Real fTwy = fTy*_w;
-        Real fTxx = fTx*_x;
-        Real fTxz = fTz*_x;
-        Real fTyy = fTy*_y;
-        Real fTyz = fTz*_y;
+        Real fTx = 2.0f * _x;
+        Real fTy = 2.0f * _y;
+        Real fTz = 2.0f * _z;
+        Real fTwx = fTx * _w;
+        Real fTwy = fTy * _w;
+        Real fTxx = fTx * _x;
+        Real fTxz = fTz * _x;
+        Real fTyy = fTy * _y;
+        Real fTyz = fTz * _y;
 
         return Vector3(fTxz + fTwy, fTyz - fTwx, 1.0f - (fTxx + fTyy));
     }
 
-    inline Quaternion &Quaternion::lerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes)
-    {
-        Real fScale = 1.0f - fTimes;
-        Quaternion q = (rkP * fScale) + (rkQ * fTimes);
-        q.normalize();
-        return (*this = q);
-        //         Real fCos = rkP.dot(rkQ);
-        //         *this = rkP + fTimes * (rkQ - rkP);
-        //         normalize();
-        //         return *this;
-    }
-
     inline Quaternion operator *(Real scalar, const Quaternion &rkQ)
     {
-        return Quaternion(scalar*rkQ.x(), scalar*rkQ.y(), scalar*rkQ.z(), scalar*rkQ.w());
+        return Quaternion(
+            scalar * rkQ.x(), 
+            scalar * rkQ.y(), 
+            scalar * rkQ.z(), 
+            scalar * rkQ.w());
     }
 }

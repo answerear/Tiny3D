@@ -22,8 +22,17 @@
 
 
 #include "T3DMathPrerequisites.h"
+#include "T3DMath.h"
 #include "T3DFix32.h"
 #include "T3DFix64.h"
+#include "T3DDegree.h"
+#include "T3DRadian.h"
+#include "T3DVector2.h"
+#include "T3DVector3.h"
+#include "T3DVector4.h"
+#include "T3DMatrix2.h"
+#include "T3DMatrix3.h"
+#include "T3DMatrix4.h"
 
 
 #endif  /*__T3D_MATH_LIB_H__*/

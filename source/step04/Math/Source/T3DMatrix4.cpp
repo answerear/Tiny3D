@@ -46,10 +46,10 @@ namespace Tiny3D
 
     Matrix4 Matrix4::inverse() const
     {
-        Real m00 = _m4x4[0][0], m01 = _m4x4[0][1], m02 = _m4x4[0][2], m03 = _m4x4[0][3];
-        Real m10 = _m4x4[1][0], m11 = _m4x4[1][1], m12 = _m4x4[1][2], m13 = _m4x4[1][3];
-        Real m20 = _m4x4[2][0], m21 = _m4x4[2][1], m22 = _m4x4[2][2], m23 = _m4x4[2][3];
-        Real m30 = _m4x4[3][0], m31 = _m4x4[3][1], m32 = _m4x4[3][2], m33 = _m4x4[3][3];
+        Real m00 = m4x4[0][0], m01 = m4x4[0][1], m02 = m4x4[0][2], m03 = m4x4[0][3];
+        Real m10 = m4x4[1][0], m11 = m4x4[1][1], m12 = m4x4[1][2], m13 = m4x4[1][3];
+        Real m20 = m4x4[2][0], m21 = m4x4[2][1], m22 = m4x4[2][2], m23 = m4x4[2][3];
+        Real m30 = m4x4[3][0], m31 = m4x4[3][1], m32 = m4x4[3][2], m33 = m4x4[3][3];
 
         Real v0 = m20 * m31 - m21 * m30;
         Real v1 = m20 * m32 - m22 * m30;
@@ -110,14 +110,14 @@ namespace Tiny3D
     {
         T3D_ASSERT(isAffine());
 
-        Real m10 = _m4x4[1][0], m11 = _m4x4[1][1], m12 = _m4x4[1][2];
-        Real m20 = _m4x4[2][0], m21 = _m4x4[2][1], m22 = _m4x4[2][2];
+        Real m10 = m4x4[1][0], m11 = m4x4[1][1], m12 = m4x4[1][2];
+        Real m20 = m4x4[2][0], m21 = m4x4[2][1], m22 = m4x4[2][2];
 
         Real t00 = m22 * m11 - m21 * m12;
         Real t10 = m20 * m12 - m22 * m10;
         Real t20 = m21 * m10 - m20 * m11;
 
-        Real m00 = _m4x4[0][0], m01 = _m4x4[0][1], m02 = _m4x4[0][2];
+        Real m00 = m4x4[0][0], m01 = m4x4[0][1], m02 = m4x4[0][2];
 
         Real invDet = 1 / (m00 * t00 + m01 * t10 + m02 * t20);
 
@@ -141,7 +141,7 @@ namespace Tiny3D
         Real r21 = m01 * m20 - m00 * m21;
         Real r22 = m00 * m11 - m01 * m10;
 
-        Real m03 = _m4x4[0][3], m13 = _m4x4[1][3], m23 = _m4x4[2][3];
+        Real m03 = m4x4[0][3], m13 = m4x4[1][3], m23 = m4x4[2][3];
 
         Real r03 = - (r00 * m03 + r01 * m13 + r02 * m23);
         Real r13 = - (r10 * m03 + r11 * m13 + r12 * m23);
@@ -181,10 +181,10 @@ namespace Tiny3D
     Real Matrix4::determinant() const
     {
         return
-            _m4x4[0][0] * MINOR(*this, 1, 2, 3, 1, 2, 3) -
-            _m4x4[0][1] * MINOR(*this, 1, 2, 3, 0, 2, 3) +
-            _m4x4[0][2] * MINOR(*this, 1, 2, 3, 0, 1, 3) -
-            _m4x4[0][3] * MINOR(*this, 1, 2, 3, 0, 1, 2);
+            m4x4[0][0] * MINOR(*this, 1, 2, 3, 1, 2, 3) -
+            m4x4[0][1] * MINOR(*this, 1, 2, 3, 0, 2, 3) +
+            m4x4[0][2] * MINOR(*this, 1, 2, 3, 0, 1, 3) -
+            m4x4[0][3] * MINOR(*this, 1, 2, 3, 0, 1, 2);
     }
 
     void Matrix4::makeTransform(const Vector3 &position, const Vector3 &scale, const Quaternion &orientation)
@@ -198,26 +198,26 @@ namespace Tiny3D
         orientation.toRotationMatrix(rot3x3);
 
         // Set up final matrix with scale, rotation and translation
-        _m4x4[0][0] = scale.x() * rot3x3[0][0];
-        _m4x4[0][1] = scale.y() * rot3x3[0][1];
-        _m4x4[0][2] = scale.z() * rot3x3[0][2];
-        _m4x4[0][3] = position.x();
+        m4x4[0][0] = scale.x() * rot3x3[0][0];
+        m4x4[0][1] = scale.y() * rot3x3[0][1];
+        m4x4[0][2] = scale.z() * rot3x3[0][2];
+        m4x4[0][3] = position.x();
 
-        _m4x4[1][0] = scale.x() * rot3x3[1][0];
-        _m4x4[1][1] = scale.y() * rot3x3[1][1];
-        _m4x4[1][2] = scale.z() * rot3x3[1][2];
-        _m4x4[1][3] = position.y();
+        m4x4[1][0] = scale.x() * rot3x3[1][0];
+        m4x4[1][1] = scale.y() * rot3x3[1][1];
+        m4x4[1][2] = scale.z() * rot3x3[1][2];
+        m4x4[1][3] = position.y();
 
-        _m4x4[2][0] = scale.x() * rot3x3[2][0];
-        _m4x4[2][1] = scale.y() * rot3x3[2][1];
-        _m4x4[2][2] = scale.z() * rot3x3[2][2];
-        _m4x4[2][3] = position.z();
+        m4x4[2][0] = scale.x() * rot3x3[2][0];
+        m4x4[2][1] = scale.y() * rot3x3[2][1];
+        m4x4[2][2] = scale.z() * rot3x3[2][2];
+        m4x4[2][3] = position.z();
 
         // No projection term
-        _m4x4[3][0] = 0.0;
-        _m4x4[3][1] = 0.0;
-        _m4x4[3][2] = 0.0;
-        _m4x4[3][3] = 1.0;
+        m4x4[3][0] = 0.0;
+        m4x4[3][1] = 0.0;
+        m4x4[3][2] = 0.0;
+        m4x4[3][3] = 1.0;
     }
 
     void Matrix4::makeInverseTransform(const Vector3& position, const Vector3& scale, const Quaternion& orientation)
@@ -237,25 +237,25 @@ namespace Tiny3D
         invRot.toRotationMatrix(rot3x3);
 
         // Set up final matrix with scale, rotation and translation
-        _m4x4[0][0] = invScale.x() * rot3x3[0][0];
-        _m4x4[0][1] = invScale.x() * rot3x3[0][1];
-        _m4x4[0][2] = invScale.x() * rot3x3[0][2];
-        _m4x4[0][3] = invTranslate.x();
+        m4x4[0][0] = invScale.x() * rot3x3[0][0];
+        m4x4[0][1] = invScale.x() * rot3x3[0][1];
+        m4x4[0][2] = invScale.x() * rot3x3[0][2];
+        m4x4[0][3] = invTranslate.x();
 
-        _m4x4[1][0] = invScale.y() * rot3x3[1][0];
-        _m4x4[1][1] = invScale.y() * rot3x3[1][1];
-        _m4x4[1][2] = invScale.y() * rot3x3[1][2];
-        _m4x4[1][3] = invTranslate.y();
+        m4x4[1][0] = invScale.y() * rot3x3[1][0];
+        m4x4[1][1] = invScale.y() * rot3x3[1][1];
+        m4x4[1][2] = invScale.y() * rot3x3[1][2];
+        m4x4[1][3] = invTranslate.y();
 
-        _m4x4[2][0] = invScale.z() * rot3x3[2][0];
-        _m4x4[2][1] = invScale.z() * rot3x3[2][1];
-        _m4x4[2][2] = invScale.z() * rot3x3[2][2];
-        _m4x4[2][3] = invTranslate.z();
+        m4x4[2][0] = invScale.z() * rot3x3[2][0];
+        m4x4[2][1] = invScale.z() * rot3x3[2][1];
+        m4x4[2][2] = invScale.z() * rot3x3[2][2];
+        m4x4[2][3] = invTranslate.z();
 
         // No projection term
-        _m4x4[3][0] = 0.0;
-        _m4x4[3][1] = 0.0;
-        _m4x4[3][2] = 0.0;
-        _m4x4[3][3] = 1.0;
+        m4x4[3][0] = 0.0;
+        m4x4[3][1] = 0.0;
+        m4x4[3][2] = 0.0;
+        m4x4[3][3] = 1.0;
     }
 }

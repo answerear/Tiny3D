@@ -42,11 +42,14 @@ namespace Tiny3D
         /// 指定旋转轴和旋转弧度构造一个四元数对象.
         Quaternion(const Radian &rkAngle, const Vector3 &rkAxis);
         /// 通过指定3个正交轴构造一个四元数对象.
-        Quaternion(const Vector3 &rkXAxis, const Vector3 &rkYAxis, const Vector3 &rkZAxis);
-        /// 通过指定3个正交轴数组首地址构造一个四元数对象(X-axis, Y-axis, Z-axis).
+        Quaternion(
+            const Vector3 &rkXAxis, 
+            const Vector3 &rkYAxis, 
+            const Vector3 &rkZAxis);
+        /// 通过指定3个正交向量数组首地址构造一个四元数对象(XYZ顺序).
         Quaternion(const Vector3 *akAxis);
         /// 通过指定4个元素的数组首地址构造一个四元数对象(w, x, y, z).
-        Quaternion(Real *pValues);
+        Quaternion(Real *values);
 
         /// 获取四元数元素数值数组首地址，按照w, x, y, z顺序返回.
         operator const Real *() const;
@@ -105,60 +108,61 @@ namespace Tiny3D
         /// 重载取反运算符.
         Quaternion operator -() const;
 
-        /// Rotation of a vector by a quaternion.
+        /// 通过四元数旋转一个向量.
         Vector3 operator* (const Vector3 &rkVector) const;
 
-        /// Calculate dot product.
+        /// 计算四元数点积.
         Real dot(const Quaternion &other) const;
 
-        /// Returns the normal length of this quaternion.
+        /// 计算四元数的范数的平方.
         Real norm() const;
-        /// Normalize the quaternion.
+        /// 规范化四元数，返回四元数长度.
         Real normalize();
 
-        /// Inverses this quaternion.
+        /// 计算四元数的逆.
         Quaternion inverse() const;
 
-        /// Create quaternion from rotation angle and axis.
+        /// 根据指定旋转弧度和旋转轴构造一个四元数.
         void fromAngleAxis(const Radian &rkRadians, const Vector3 &rkAxis);
-        /// Create a quaternion from 3 orthonormal local axis.
-        void fromAxis(const Vector3 &rkXAxis, const Vector3 &rkYAxis, const Vector3 &rkZAxis);
-        /// Create a quaternion from 3 orthonormal local axis.
+        /// 根据指定三个正交向量构造一个四元数.
+        void fromAxis(
+            const Vector3 &rkXAxis, 
+            const Vector3 &rkYAxis, 
+            const Vector3 &rkZAxis);
+        /// 根据指定三个正交向量数组首地址构造一个四元数.
         void fromAxis(const Vector3 *akAxis);
-        /// Create a quaternion from a rotation matrix.
+        /// 根据一个旋转矩阵构造一个四元数.
         void fromRotationMatrix(const Matrix3 &rkRot);
 
-        /// Fills an angle (radians) around an axis (unit vector).
+        /// 把四元数转成一个旋转角(弧度)和一个单位向量表示的旋转轴.
         void toAngleAxis(Radian &rAngle, Vector3 &rAxis) const;
-        /// Fills an angle (degrees) around an axis (unit vector).
+        /// 把四元数转成一个旋转角(角度)和一个单位向量表示的旋转轴.
         void toAngleAxis(Degree &rAngle, Vector3 &rAxis) const;
-        /// Gets the 3 orthonormal axis defining the quaternion.
+        /// 把四元数转成三个正交单位向量.
         void toAngleAxis(Vector3 *aAxis) const;
-        /// Gets a rotation matrix from this quaternion.
+        /// 把四元数转成一个旋转矩阵.
         void toRotationMatrix(Matrix3 &rRot) const;
 
-        /// Calculate the local pitch element of this quaternion.
+        /// 获取绕X轴旋转(俯仰角)的角度(单位：弧度).
         Radian getPitch(bool reprojectAxis = true) const;
-        /// Calculate the local roll element of this quaternion.
+        /// 获取绕Z轴旋转(翻滚角)的角度(单位：弧度).
         Radian getRoll(bool reprojectAxis = true) const;
-        /// Calculate the local yaw element of this quaternion.
+        /// 获取绕Y轴旋转(偏航角)的角度(单位：弧度).
         Radian getYaw(bool reprojectAxis = true) const;
 
-        /// Returns the X orthonormal axis defining the quaternion.
+        /// 获取X正交轴.
         Vector3 xAxis() const;
-        /// Returns the Y orthonormal axis defining the quaternion.
+        /// 获取Y正交轴.
         Vector3 yAxis() const;
-        /// Returns the Z orthonormal axis defining the quaternion.
+        /// 获取Z正交轴.
         Vector3 zAxis() const;
 
-        /// Set this quaternion to the linear interpolation between two quaternions.
-        Quaternion &lerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes);
+        /// 两个四元数球面线性插值构造一个四元数.
+        Quaternion &slerp(const Quaternion &rkP, const Quaternion &rkQ, 
+            Real times, bool shortestPath, Real threshold = 1e-03);
 
-        /// Set this quaternion to the result of the spherical interpolation between two quaternions.
-        Quaternion &slerp(const Quaternion &rkP, const Quaternion &rkQ, Real fTimes, bool shortestPath, Real fThreshold = 1e-03);
-
-        static const Quaternion IDENTITY;
-        static const Quaternion ZERO;
+        static const Quaternion IDENTITY;       /// 单位四元数
+        static const Quaternion ZERO;           /// 零四元数
 
     private:
         Real    _w;
@@ -167,6 +171,7 @@ namespace Tiny3D
         Real    _z;
     };
 
+    /// 重载乘法运算符，实现一个标量跟四元数相乘
     Quaternion operator *(Real scalar, const Quaternion &rkQ);
 }
 

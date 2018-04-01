@@ -69,7 +69,7 @@ namespace Tiny3D
         operator const Real *() const;
         operator Real *();
 
-        /// 根据下标获取矩阵对应元素值.
+        /// 根据获取矩阵对应行的元素值.
         const Real *operator [](int32_t row) const;
         Real *operator [](int32_t row);
 
