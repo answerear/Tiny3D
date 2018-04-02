@@ -66,8 +66,8 @@ namespace Tiny3D
 typedef float               float32_t;
 typedef double              float64_t;
 
-typedef Tiny3D::fix32		fix32_t;
-typedef Tiny3D::fix64		fix64_t;
+typedef Tiny3D::fix32       fix32_t;
+typedef Tiny3D::fix64       fix64_t;
 
 #if __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FIX__
 typedef fix32_t             Real;
