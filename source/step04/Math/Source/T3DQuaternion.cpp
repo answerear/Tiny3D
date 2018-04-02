@@ -34,12 +34,12 @@ namespace Tiny3D
         Real fTrace = rkRot[0][0] + rkRot[1][1] + rkRot[2][2];
         Real fRoot;
 
-        if (fTrace > 0.0)
+        if (fTrace > REAL_ZERO)
         {
             // |w| > 1/2, may as well choose w > 1/2
-            fRoot = Math::sqrt(fTrace + 1.0f);  // 2w
-            _w = 0.5f * fRoot;
-            fRoot = 0.5f / fRoot;  // 1/(4w)
+            fRoot = Math::sqrt(fTrace + REAL_ONE);  // 2w
+            _w = REAL_HALF * fRoot;
+            fRoot = REAL_HALF / fRoot;  // 1/(4w)
             _x = (rkRot[2][1] - rkRot[1][2]) * fRoot;
             _y = (rkRot[0][2] - rkRot[2][0]) * fRoot;
             _z = (rkRot[1][0] - rkRot[0][1]) * fRoot;
@@ -56,7 +56,7 @@ namespace Tiny3D
             size_t j = s_iNext[i];
             size_t k = s_iNext[j];
 
-            fRoot = Math::sqrt(rkRot[i][i] - rkRot[j][j] - rkRot[k][k] + 1.0f);
+            fRoot = Math::sqrt(rkRot[i][i] - rkRot[j][j] - rkRot[k][k] + REAL_ONE);
             Real* apkQuat[3] = {&_x, &_y, &_z};
             *apkQuat[i] = 0.5f * fRoot;
             fRoot = 0.5f / fRoot;
@@ -72,10 +72,10 @@ namespace Tiny3D
         //   q = cos(A/2)+sin(A/2)*(x*i+y*j+z*k)
 
         Real fSqrLength = _x * _x + _y * _y + _z * _z;
-        if (fSqrLength > 0.0)
+        if (fSqrLength > REAL_ZERO)
         {
             rAngle = Real(2.0) * Math::acos(_w).valueRadians();
-            Real fInvLength = Real(1.0) / Math::sqrt(fSqrLength);
+            Real fInvLength = REAL_ONE / Math::sqrt(fSqrLength);
             rAxis.x() = _x * fInvLength;
             rAxis.y() = _y * fInvLength;
             rAxis.z() = _z * fInvLength;
@@ -84,9 +84,9 @@ namespace Tiny3D
         {
             // angle is 0 (mod 2*pi), so any axis will do
             rAngle = Radian(0.0);
-            rAxis.x() = 1.0;
-            rAxis.y() = 0.0;
-            rAxis.z() = 0.0;
+            rAxis.x() = REAL_ONE;
+            rAxis.y() = REAL_ZERO;
+            rAxis.z() = REAL_ZERO;
         }
     }
 
@@ -105,15 +105,15 @@ namespace Tiny3D
         Real fTyz = fTz * _y;
         Real fTzz = fTz * _z;
 
-        rRot[0][0] = 1.0f - (fTyy + fTzz);
+        rRot[0][0] = REAL_ONE - (fTyy + fTzz);
         rRot[0][1] = fTxy - fTwz;
         rRot[0][2] = fTxz + fTwy;
         rRot[1][0] = fTxy + fTwz;
-        rRot[1][1] = 1.0f - (fTxx + fTzz);
+        rRot[1][1] = REAL_ONE - (fTxx + fTzz);
         rRot[1][2] = fTyz - fTwx;
         rRot[2][0] = fTxz - fTwy;
         rRot[2][1] = fTyz + fTwx;
-        rRot[2][2] = 1.0f - (fTxx + fTyy);
+        rRot[2][2] = REAL_ONE - (fTxx + fTyy);
     }
 
     Quaternion &Quaternion::slerp(const Quaternion &rkP, const Quaternion &rkQ, 
@@ -123,7 +123,7 @@ namespace Tiny3D
         Quaternion rkT;
 
         // Do we need to invert rotation?
-        if (fCos < 0.0f && shortestPath)
+        if (fCos < REAL_ZERO && shortestPath)
         {
             fCos = -fCos;
             rkT = -rkQ;
@@ -138,8 +138,8 @@ namespace Tiny3D
             // Standard case (slerp)
             Real fSin = Math::sqrt(1 - Math::sqr(fCos));
             Radian fAngle = Math::atan2(fSin, fCos);
-            Real fInvSin = 1.0f / fSin;
-            Real fCoeff0 = Math::sin((1.0f - times) * fAngle) * fInvSin;
+            Real fInvSin = REAL_ONE / fSin;
+            Real fCoeff0 = Math::sin((REAL_ONE - times) * fAngle) * fInvSin;
             Real fCoeff1 = Math::sin(times * fAngle) * fInvSin;
             *this = fCoeff0 * rkP + fCoeff1 * rkT;
         }

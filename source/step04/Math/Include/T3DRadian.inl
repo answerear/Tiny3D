@@ -1,26 +1,26 @@
 ﻿
 
 inline Radian::Radian(Real fRadian)
-        : m_fRadian(fRadian)
+        : mRadian(fRadian)
 {
 
 }
 
 inline Radian::Radian(const Radian &other)
-    : m_fRadian(other.m_fRadian)
+    : mRadian(other.mRadian)
 {
 
 }
 
 inline Radian &Radian::operator =(Real fRadian)
 {
-    m_fRadian = fRadian;
+    mRadian = fRadian;
     return *this;
 }
 
 inline Radian &Radian::operator =(const Radian &other)
 {
-    m_fRadian = other.m_fRadian;
+    mRadian = other.mRadian;
     return *this;
 }
 
@@ -31,88 +31,88 @@ inline const Radian &Radian::operator +() const
 
 inline Radian Radian::operator -() const
 {
-    return Radian(-m_fRadian);
+    return Radian(-mRadian);
 }
 
 inline bool Radian::operator ==(const Radian &other) const
 {
-    return (m_fRadian == other.m_fRadian);
+    return (mRadian == other.mRadian);
 }
 
 inline bool Radian::operator !=(const Radian &other) const
 {
-    return (m_fRadian != other.m_fRadian);
+    return (mRadian != other.mRadian);
 }
 
 inline bool Radian::operator <(const Radian &other) const
 {
-    return (m_fRadian < other.m_fRadian);
+    return (mRadian < other.mRadian);
 }
 
 inline bool Radian::operator <=(const Radian &other) const
 {
-    return (m_fRadian <= other.m_fRadian);
+    return (mRadian <= other.mRadian);
 }
 
 inline bool Radian::operator >(const Radian &other) const
 {
-    return (m_fRadian > other.m_fRadian);
+    return (mRadian > other.mRadian);
 }
 
 inline bool Radian::operator >=(const Radian &other) const
 {
-    return (m_fRadian >= other.m_fRadian);
+    return (mRadian >= other.mRadian);
 }
 
 inline Radian Radian::operator +(const Radian &other) const
 {
-    return Radian(m_fRadian + other.m_fRadian);
+    return Radian(mRadian + other.mRadian);
 }
 
 inline Radian Radian::operator -(const Radian &other) const
 {
-    return Radian(m_fRadian - other.m_fRadian);
+    return Radian(mRadian - other.mRadian);
 }
 
 inline Radian &Radian::operator +=(const Radian &other)
 {
-    m_fRadian += other.m_fRadian;
+    mRadian += other.mRadian;
     return *this;
 }
 
 inline Radian &Radian::operator -=(const Radian &other)
 {
-    m_fRadian -= other.m_fRadian;
+    mRadian -= other.mRadian;
     return *this;
 }
 
-inline Radian Radian::operator *(Real fScalar) const
+inline Radian Radian::operator *(Real scalar) const
 {
-    return Radian(m_fRadian * fScalar);
+    return Radian(mRadian * scalar);
 }
 
-inline Radian Radian::operator /(Real fScalar) const
+inline Radian Radian::operator /(Real scalar) const
 {
-    if (fScalar != 0.0)
-        return Radian(m_fRadian / fScalar);
+    if (scalar != REAL_ZERO)
+        return Radian(mRadian / scalar);
     return Radian();
 }
 
-inline Radian &Radian::operator *=(Real fScalar)
+inline Radian &Radian::operator *=(Real scalar)
 {
-    m_fRadian *= fScalar;
+    mRadian *= scalar;
     return *this;
 }
 
-inline Radian &Radian::operator /=(Real fScalar)
+inline Radian &Radian::operator /=(Real scalar)
 {
-    if (fScalar != 0.0)
+    if (scalar != Real(0.0))
     {
-        m_fRadian /= fScalar;
+        mRadian /= scalar;
     }
     else
     {
-        m_fRadian = 0.0;
+        mRadian = REAL_ZERO;
     }
 
     return *this;
@@ -120,7 +120,7 @@ inline Radian &Radian::operator /=(Real fScalar)
 
 inline Real Radian::valueRadians() const
 {
-    return m_fRadian;
+    return mRadian;
 }
 
 

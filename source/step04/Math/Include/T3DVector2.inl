@@ -143,7 +143,7 @@ namespace Tiny3D
     {
         Vector2 result;
 
-        if (scalar != 0.0)
+        if (scalar != REAL_ZERO)
         {
             result._x = _x / scalar;
             result._y = _y / scalar;
@@ -195,15 +195,15 @@ namespace Tiny3D
 
     inline Vector2 &Vector2::operator /=(Real scalar)
     {
-        if (scalar != 0.0)
+        if (scalar != REAL_ZERO)
         {
             _x = _x / scalar;
             _y = _y / scalar;
         }
         else
         {
-            _x = 0.0;
-            _y = 0.0;
+            _x = REAL_ZERO;
+            _y = REAL_ZERO;
         }
 
         return *this;
@@ -243,16 +243,16 @@ namespace Tiny3D
     {
         Real len = length();
 
-        if (len > 0.0)
+        if (len > REAL_ZERO)
         {
             _x /= len;
             _y /= len;
         }
         else
         {
-            len = 0.0f;
-            _x = 0.0;
-            _y = 0.0;
+            len = REAL_ZERO;
+            _x = REAL_ZERO;
+            _y = REAL_ZERO;
         }
 
         return len;

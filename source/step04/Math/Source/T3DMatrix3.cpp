@@ -122,9 +122,9 @@ namespace Tiny3D
         {
             // The angle is 0 and the matrix is the identity.  Any axis will
             // work, so just use the x-axis.
-            rAxis.x() = 1.0;
-            rAxis.y() = 0.0;
-            rAxis.z() = 0.0;
+            rAxis.x() = 1.0f;
+            rAxis.y() = REAL_ZERO;
+            rAxis.z() = REAL_ZERO;
         }
     }
 
@@ -557,7 +557,7 @@ namespace Tiny3D
             - kQ[0][2] * kQ[1][1] * kQ[2][0] - kQ[0][1] * kQ[1][0] * kQ[2][2] 
             - kQ[0][0] * kQ[1][2] * kQ[2][1];
 
-        if (fDet < 0.0)
+        if (fDet < REAL_ZERO)
         {
             for (size_t iRow = 0; iRow < 3; iRow++)
                 for (size_t iCol = 0; iCol < 3; iCol++)

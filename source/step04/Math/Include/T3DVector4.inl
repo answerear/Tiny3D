@@ -146,7 +146,7 @@ namespace Tiny3D
     {
         Vector4 result;
 
-        if (scalar != 0.0)
+        if (scalar != REAL_ZERO)
         {
             result._x = _x / scalar;
             result._y = _y / scalar;
@@ -191,7 +191,7 @@ namespace Tiny3D
 
     inline Vector4 &Vector4::operator /=(Real fScalar)
     {
-        if (fScalar != 0.0)
+        if (fScalar != REAL_ZERO)
         {
             _x /= fScalar;
             _y /= fScalar;
@@ -200,10 +200,10 @@ namespace Tiny3D
         }
         else
         {
-            _x = 0.0;
-            _y = 0.0;
-            _z = 0.0;
-            _w = 0.0;
+            _x = REAL_ZERO;
+            _y = REAL_ZERO;
+            _z = REAL_ZERO;
+            _w = REAL_ZERO;
         }
         return *this;
     }
@@ -245,7 +245,7 @@ namespace Tiny3D
     {
         Real fLength = length();
 
-        if (fLength > 0.0)
+        if (fLength > REAL_ZERO)
         {
             _x /= fLength;
             _y /= fLength;
@@ -254,11 +254,11 @@ namespace Tiny3D
         }
         else
         {
-            fLength = 0.0;
-            _x = 0.0;
-            _y = 0.0;
-            _z = 0.0;
-            _w = 0.0;
+            fLength = REAL_ZERO;
+            _x = REAL_ZERO;
+            _y = REAL_ZERO;
+            _z = REAL_ZERO;
+            _w = REAL_ZERO;
         }
 
         return fLength;

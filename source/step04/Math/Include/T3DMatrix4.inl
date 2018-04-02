@@ -4,30 +4,30 @@ namespace Tiny3D
 {
     inline void Matrix4::makeIdentity()
     {
-        m4x4[0][0] = 1.0;
-        m4x4[0][1] = 0.0;
-        m4x4[0][2] = 0.0;
-        m4x4[0][3] = 0.0;
-        m4x4[1][0] = 0.0;
-        m4x4[1][1] = 1.0;
-        m4x4[1][2] = 0.0;
-        m4x4[1][3] = 0.0;
-        m4x4[2][0] = 0.0;
-        m4x4[2][1] = 0.0;
-        m4x4[2][2] = 1.0;
-        m4x4[2][3] = 0.0;
-        m4x4[3][0] = 0.0;
-        m4x4[3][1] = 0.0;
-        m4x4[3][2] = 0.0;
-        m4x4[3][3] = 1.0;
+        m4x4[0][0] = REAL_ONE;
+        m4x4[0][1] = REAL_ZERO;
+        m4x4[0][2] = REAL_ZERO;
+        m4x4[0][3] = REAL_ZERO;
+        m4x4[1][0] = REAL_ZERO;
+        m4x4[1][1] = REAL_ONE;
+        m4x4[1][2] = REAL_ZERO;
+        m4x4[1][3] = REAL_ZERO;
+        m4x4[2][0] = REAL_ZERO;
+        m4x4[2][1] = REAL_ZERO;
+        m4x4[2][2] = REAL_ONE;
+        m4x4[2][3] = REAL_ZERO;
+        m4x4[3][0] = REAL_ZERO;
+        m4x4[3][1] = REAL_ZERO;
+        m4x4[3][2] = REAL_ZERO;
+        m4x4[3][3] = REAL_ONE;
     }
 
     inline void Matrix4::makeZero()
     {
-        m4x4[0][0] = m4x4[0][1] = m4x4[0][2] = m4x4[0][3] = 0.0;
-        m4x4[1][0] = m4x4[1][1] = m4x4[1][2] = m4x4[1][3] = 0.0;
-        m4x4[2][0] = m4x4[2][1] = m4x4[2][2] = m4x4[2][3] = 0.0;
-        m4x4[3][0] = m4x4[3][1] = m4x4[3][2] = m4x4[3][3] = 0.0;
+        m4x4[0][0] = m4x4[0][1] = m4x4[0][2] = m4x4[0][3] = REAL_ZERO;
+        m4x4[1][0] = m4x4[1][1] = m4x4[1][2] = m4x4[1][3] = REAL_ZERO;
+        m4x4[2][0] = m4x4[2][1] = m4x4[2][2] = m4x4[2][3] = REAL_ZERO;
+        m4x4[3][0] = m4x4[3][1] = m4x4[3][2] = m4x4[3][3] = REAL_ZERO;
     }
 
     inline Matrix4 &Matrix4::operator =(const Matrix4 &other)
@@ -83,9 +83,9 @@ namespace Tiny3D
     inline Matrix4::Matrix4(const Matrix3 &rkMat)
     {
         operator =(rkMat);
-        m4x4[0][3] = m4x4[1][3] = m4x4[2][3] = 0.0;
-        m4x4[3][3] = 1.0;
-        m4x4[3][0] = m4x4[3][1] = m4x4[3][2] = 0.0;
+        m4x4[0][3] = m4x4[1][3] = m4x4[2][3] = REAL_ZERO;
+        m4x4[3][3] = REAL_ONE;
+        m4x4[3][0] = m4x4[3][1] = m4x4[3][2] = REAL_ZERO;
     }
 
     inline Matrix4::Matrix4(const Quaternion &rkRot)
@@ -93,33 +93,33 @@ namespace Tiny3D
         Matrix3 mat;
         rkRot.toRotationMatrix(mat);
         operator =(mat);
-        m4x4[0][3] = m4x4[1][3] = m4x4[2][3] = 0.0;
-        m4x4[3][3] = 1.0;
-        m4x4[3][0] = m4x4[3][1] = m4x4[3][2] = 0.0;
+        m4x4[0][3] = m4x4[1][3] = m4x4[2][3] = REAL_ZERO;
+        m4x4[3][3] = REAL_ONE;
+        m4x4[3][0] = m4x4[3][1] = m4x4[3][2] = REAL_ZERO;
     }
 
     inline Matrix4::Matrix4(const Vector3 &rkPos)
     {
-        m4x4[0][0] = 1.0, m4x4[0][1] = 0.0, m4x4[0][2] = 0.0, m4x4[0][3] = rkPos.x();
-        m4x4[1][0] = 0.0, m4x4[1][1] = 1.0, m4x4[1][2] = 0.0, m4x4[1][3] = rkPos.y();
-        m4x4[2][0] = 0.0, m4x4[2][1] = 0.0, m4x4[2][2] = 1.0, m4x4[2][3] = rkPos.z();
-        m4x4[3][0] = 0.0, m4x4[3][1] = 0.0, m4x4[3][2] = 0.0, m4x4[3][3] = 1.0;
+        m4x4[0][0] = REAL_ONE,  m4x4[0][1] = REAL_ZERO, m4x4[0][2] = REAL_ZERO, m4x4[0][3] = rkPos.x();
+        m4x4[1][0] = REAL_ZERO, m4x4[1][1] = REAL_ONE,  m4x4[1][2] = REAL_ZERO, m4x4[1][3] = rkPos.y();
+        m4x4[2][0] = REAL_ZERO, m4x4[2][1] = REAL_ZERO, m4x4[2][2] = REAL_ONE,  m4x4[2][3] = rkPos.z();
+        m4x4[3][0] = REAL_ZERO, m4x4[3][1] = REAL_ZERO, m4x4[3][2] = REAL_ZERO, m4x4[3][3] = REAL_ONE;
     }
 
     inline Matrix4::Matrix4(Real m00, Real m11, Real m22, Real m33)
     {
-        m4x4[0][0] = m00, m4x4[0][1] = 0.0, m4x4[0][2] = 0.0, m4x4[0][3] = 0.0;
-        m4x4[1][0] = 0.0, m4x4[1][1] = m11, m4x4[1][2] = 0.0, m4x4[1][3] = 0.0;
-        m4x4[2][0] = 0.0, m4x4[2][1] = 0.0, m4x4[2][2] = m22, m4x4[2][3] = 0.0;
-        m4x4[3][0] = 0.0, m4x4[3][1] = 0.0, m4x4[3][2] = 0.0, m4x4[3][3] = m33;
+        m4x4[0][0] = m00,       m4x4[0][1] = REAL_ZERO, m4x4[0][2] = REAL_ZERO, m4x4[0][3] = REAL_ZERO;
+        m4x4[1][0] = REAL_ZERO, m4x4[1][1] = m11,       m4x4[1][2] = REAL_ZERO, m4x4[1][3] = REAL_ZERO;
+        m4x4[2][0] = REAL_ZERO, m4x4[2][1] = REAL_ZERO, m4x4[2][2] = m22,       m4x4[2][3] = REAL_ZERO;
+        m4x4[3][0] = REAL_ZERO, m4x4[3][1] = REAL_ZERO, m4x4[3][2] = REAL_ZERO, m4x4[3][3] = m33;
     }
 
     inline Matrix4::Matrix4(const Vector3 &X, const Vector3 &Y, const Vector3 &Z)
     {
-        m4x4[0][0] = X[0], m4x4[0][1] = Y[0], m4x4[0][2] = Z[0], m4x4[0][3] = 0.0f;
-        m4x4[1][0] = X[1], m4x4[1][1] = Y[1], m4x4[1][2] = Z[1], m4x4[1][3] = 0.0f;
-        m4x4[2][0] = X[2], m4x4[2][1] = Y[2], m4x4[2][2] = Z[2], m4x4[2][3] = 0.0f;
-        m4x4[3][0] = 0.0f, m4x4[3][1] = 0.0f, m4x4[3][2] = 0.0f, m4x4[3][3] = 1.0f;
+        m4x4[0][0] = X[0],      m4x4[0][1] = Y[0],      m4x4[0][2] = Z[0],      m4x4[0][3] = REAL_ZERO;
+        m4x4[1][0] = X[1],      m4x4[1][1] = Y[1],      m4x4[1][2] = Z[1],      m4x4[1][3] = REAL_ZERO;
+        m4x4[2][0] = X[2],      m4x4[2][1] = Y[2],      m4x4[2][2] = Z[2],      m4x4[2][3] = REAL_ZERO;
+        m4x4[3][0] = REAL_ZERO, m4x4[3][1] = REAL_ZERO, m4x4[3][2] = REAL_ZERO, m4x4[3][3] = REAL_ONE;
     }
 
     inline Matrix4::operator const Real *() const
@@ -247,8 +247,8 @@ namespace Tiny3D
     inline Matrix4 Matrix4::operator /(Real scalar) const
     {
         Real fInvertScalar = 0.0;
-        if (scalar != 0.0)
-            fInvertScalar = Real(1.0) / scalar;
+        if (scalar != REAL_ZERO)
+            fInvertScalar = REAL_ONE / scalar;
         return Matrix4(
             m4x4[0][0] * fInvertScalar, m4x4[0][1] * fInvertScalar, m4x4[0][2] * fInvertScalar, m4x4[0][3] * fInvertScalar,
             m4x4[1][0] * fInvertScalar, m4x4[1][1] * fInvertScalar, m4x4[1][2] * fInvertScalar, m4x4[1][3] * fInvertScalar,
@@ -330,8 +330,8 @@ namespace Tiny3D
     inline Matrix4 &Matrix4::operator /=(Real scalar)
     {
         Real fInvertScalar = 0.0;
-        if (scalar != 0.0)
-            fInvertScalar = Real(1.0) / scalar;
+        if (scalar != REAL_ZERO)
+            fInvertScalar = REAL_ONE / scalar;
         
         m4x4[0][0] *= fInvertScalar, m4x4[0][1] *= fInvertScalar, m4x4[0][2] *= fInvertScalar, m4x4[0][3] *= fInvertScalar;
         m4x4[1][0] *= fInvertScalar, m4x4[1][1] *= fInvertScalar, m4x4[1][2] *= fInvertScalar, m4x4[1][3] *= fInvertScalar;
@@ -382,19 +382,19 @@ namespace Tiny3D
     }
     inline bool Matrix4::isAffine() const
     {
-        return m4x4[3][0] == 0.0 && m4x4[3][1] == 0.0 && m4x4[3][2] == 0.0 && m4x4[3][3] == 1.0;
+        return m4x4[3][0] == REAL_ZERO && m4x4[3][1] == REAL_ZERO && m4x4[3][2] == REAL_ZERO && m4x4[3][3] == REAL_ONE;
     }
 
     inline bool Matrix4::hasScale() const
     {
         Real t = m4x4[0][0] * m4x4[0][0] + m4x4[1][0] * m4x4[1][0] + m4x4[2][0] * m4x4[2][0];
-        if (!Math::realEqual(t, 1.0, (Real)1e-04))
+        if (!Math::realEqual(t, REAL_ONE, Real(1e-04)))
             return true;
         t = m4x4[0][1] * m4x4[0][1] + m4x4[1][1] * m4x4[1][1] + m4x4[2][1] * m4x4[2][1];
-        if (!Math::realEqual(t, 1.0, (Real)1e-04))
+        if (!Math::realEqual(t, REAL_ONE, Real(1e-04)))
             return true;
         t = m4x4[0][2] * m4x4[0][2] + m4x4[1][2] * m4x4[1][2] + m4x4[2][2] * m4x4[2][2];
-        if (!Math::realEqual(t, 1.0, (Real)1e-04))
+        if (!Math::realEqual(t, REAL_ONE, Real(1e-04)))
             return true;
 
         return false;
@@ -420,7 +420,7 @@ namespace Tiny3D
             m4x4[2][0] * other.m4x4[0][2] + m4x4[2][1] * other.m4x4[1][2] + m4x4[2][2] * other.m4x4[2][2],
             m4x4[2][0] * other.m4x4[0][3] + m4x4[2][1] * other.m4x4[1][3] + m4x4[2][2] * other.m4x4[2][3] + m4x4[2][3],
 
-            0.0, 0.0, 0.0, 1.0);
+            REAL_ZERO, REAL_ZERO, REAL_ZERO, REAL_ONE);
     }
 
     inline void Matrix4::extractMatrix(Matrix3 &m3x3) const
@@ -465,18 +465,18 @@ namespace Tiny3D
 
     inline void Matrix4::makeTranslate(const Vector3 &position)
     {
-        m4x4[0][0] = 1.0, m4x4[0][1] = 0.0, m4x4[0][2] = 0.0, m4x4[0][3] = position.x();
-        m4x4[1][0] = 0.0, m4x4[1][1] = 1.0, m4x4[1][2] = 0.0, m4x4[1][3] = position.y();
-        m4x4[2][0] = 0.0, m4x4[2][1] = 0.0, m4x4[2][2] = 1.0, m4x4[2][3] = position.z();
-        m4x4[3][0] = 0.0, m4x4[3][1] = 0.0, m4x4[3][2] = 0.0, m4x4[3][3] = 1.0;
+        m4x4[0][0] = REAL_ONE, m4x4[0][1] = REAL_ZERO, m4x4[0][2] = REAL_ZERO, m4x4[0][3] = position.x();
+        m4x4[1][0] = REAL_ZERO, m4x4[1][1] = REAL_ONE, m4x4[1][2] = REAL_ZERO, m4x4[1][3] = position.y();
+        m4x4[2][0] = REAL_ZERO, m4x4[2][1] = REAL_ZERO, m4x4[2][2] = REAL_ONE, m4x4[2][3] = position.z();
+        m4x4[3][0] = REAL_ZERO, m4x4[3][1] = REAL_ZERO, m4x4[3][2] = REAL_ZERO, m4x4[3][3] = REAL_ONE;
     }
 
     inline void Matrix4::makeTranslate(Real tx, Real ty, Real tz)
     {
-        m4x4[0][0] = 1.0, m4x4[0][1] = 0.0, m4x4[0][2] = 0.0, m4x4[0][3] = tx;
-        m4x4[1][0] = 0.0, m4x4[1][1] = 1.0, m4x4[1][2] = 0.0, m4x4[1][3] = ty;
-        m4x4[2][0] = 0.0, m4x4[2][1] = 0.0, m4x4[2][2] = 1.0, m4x4[2][3] = tz;
-        m4x4[3][0] = 0.0, m4x4[3][1] = 0.0, m4x4[3][2] = 0.0, m4x4[3][3] = 1.0;
+        m4x4[0][0] = REAL_ONE, m4x4[0][1] = REAL_ZERO, m4x4[0][2] = REAL_ZERO, m4x4[0][3] = tx;
+        m4x4[1][0] = REAL_ZERO, m4x4[1][1] = REAL_ONE, m4x4[1][2] = REAL_ZERO, m4x4[1][3] = ty;
+        m4x4[2][0] = REAL_ZERO, m4x4[2][1] = REAL_ZERO, m4x4[2][2] = REAL_ONE, m4x4[2][3] = tz;
+        m4x4[3][0] = REAL_ZERO, m4x4[3][1] = REAL_ZERO, m4x4[3][2] = REAL_ZERO, m4x4[3][3] = REAL_ONE;
     }
 
     inline void Matrix4::setScale(const Vector3 &scale)

@@ -1,25 +1,25 @@
 ﻿
 
 inline Degree::Degree(Real fDegree /* = 0.0 */)
-    : m_fDegree(fDegree)
+    : mDegree(fDegree)
 {
 
 }
 
 inline Degree::Degree(const Degree &other)
 {
-    m_fDegree = other.m_fDegree;
+    mDegree = other.mDegree;
 }
 
 inline Degree &Degree::operator =(Real fDegree)
 {
-    m_fDegree = fDegree;
+    mDegree = fDegree;
     return *this;
 }
 
 inline Degree &Degree::operator =(const Degree &other)
 {
-    m_fDegree = other.m_fDegree;
+    mDegree = other.mDegree;
     return *this;
 }
 
@@ -30,94 +30,94 @@ inline const Degree &Degree::operator +() const
 
 inline Degree Degree::operator -() const
 {
-    return Degree(-m_fDegree);
+    return Degree(-mDegree);
 }
 
 inline bool Degree::operator ==(const Degree &other) const
 {
-    return (m_fDegree == other.m_fDegree);
+    return (mDegree == other.mDegree);
 }
 
 inline bool Degree::operator !=(const Degree &other) const
 {
-    return (m_fDegree != other.m_fDegree);
+    return (mDegree != other.mDegree);
 }
 
 inline bool Degree::operator <(const Degree &other) const
 {
-    return (m_fDegree < other.m_fDegree);
+    return (mDegree < other.mDegree);
 }
 
 inline bool Degree::operator <=(const Degree &other) const
 {
-    return (m_fDegree <= other.m_fDegree);
+    return (mDegree <= other.mDegree);
 }
 
 inline bool Degree::operator >(const Degree &other) const
 {
-    return (m_fDegree > other.m_fDegree);
+    return (mDegree > other.mDegree);
 }
 
 inline bool Degree::operator >=(const Degree &other) const
 {
-    return (m_fDegree >= other.m_fDegree);
+    return (mDegree >= other.mDegree);
 }
 
 inline Degree Degree::operator +(const Degree &other) const
 {
-    return Degree(m_fDegree + other.m_fDegree);
+    return Degree(mDegree + other.mDegree);
 }
 
 inline Degree Degree::operator -(const Degree &other) const
 {
-    return Degree(m_fDegree - other.m_fDegree);
+    return Degree(mDegree - other.mDegree);
 }
 
 inline Degree &Degree::operator +=(const Degree &other)
 {
-    m_fDegree += other.m_fDegree;
+    mDegree += other.mDegree;
     return *this;
 }
 
 inline Degree &Degree::operator -=(const Degree &other)
 {
-    m_fDegree -= other.m_fDegree;
+    mDegree -= other.mDegree;
     return *this;
 }
 
-inline Degree Degree::operator *(Real fScalar) const
+inline Degree Degree::operator *(Real scalar) const
 {
-    return Degree(m_fDegree * fScalar);
+    return Degree(mDegree * scalar);
 }
 
-inline Degree Degree::operator /(Real fScalar) const
+inline Degree Degree::operator /(Real scalar) const
 {
-    if (fScalar != 0.0)
-        return Degree(m_fDegree / fScalar);
+    if (scalar != REAL_ZERO)
+        return Degree(mDegree / scalar);
     return Degree();
 }
 
-inline Degree &Degree::operator *=(Real fScalar)
+inline Degree &Degree::operator *=(Real scalar)
 {
-    m_fDegree *= fScalar;
+    mDegree *= scalar;
     return *this;
 }
 
-inline Degree &Degree::operator /=(Real fScalar)
+inline Degree &Degree::operator /=(Real scalar)
 {
-    if (fScalar != 0.0)
+    if (scalar != REAL_ZERO)
     {
-        m_fDegree /= fScalar;
+        mDegree /= scalar;
     }
     else
     {
-        m_fDegree = 0.0;
+        mDegree = REAL_ZERO;
     }
     return *this;
 }
 
 inline Real Degree::valueDegrees() const
 {
-    return m_fDegree;
+    return mDegree;
 }
 

@@ -83,14 +83,14 @@ namespace Tiny3D
         Degree &operator -=(const Radian &radian);
 
         /// 重载乘法操作符，跟一个标量实数相乘
-        Degree operator *(Real fScalar) const;
+        Degree operator *(Real scalar) const;
         /// 重载除法操作符，跟一个标量实数相除
-        Degree operator /(Real fScalar) const;
+        Degree operator /(Real scalar) const;
 
         /// 重载乘法赋值操作符，跟一个标量实数相乘
-        Degree &operator *=(Real fScalar);
+        Degree &operator *=(Real scalar);
         /// 重载除法赋值操作符，跟一个标量实数相除
-        Degree &operator /=(Real fScalar);
+        Degree &operator /=(Real scalar);
 
         /// 获取真实的角度值，返回一个实数值
         Real valueDegrees() const;
@@ -98,15 +98,15 @@ namespace Tiny3D
         Real valueRadians() const;
 
     private:
-        Real    m_fDegree;
+        Real    mDegree;
     };
 
     #include "T3DDegree.inl"
 
     /// 重载标量和角度乘法操作符
-    inline Degree operator *(Real fScalar, const Degree &degree)
+    inline Degree operator *(Real scalar, const Degree &degree)
     {
-        return Degree(fScalar * degree.valueDegrees());
+        return Degree(scalar * degree.valueDegrees());
     }
 }
 

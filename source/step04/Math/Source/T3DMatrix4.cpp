@@ -214,10 +214,10 @@ namespace Tiny3D
         m4x4[2][3] = position.z();
 
         // No projection term
-        m4x4[3][0] = 0.0;
-        m4x4[3][1] = 0.0;
-        m4x4[3][2] = 0.0;
-        m4x4[3][3] = 1.0;
+        m4x4[3][0] = REAL_ZERO;
+        m4x4[3][1] = REAL_ZERO;
+        m4x4[3][2] = REAL_ZERO;
+        m4x4[3][3] = REAL_ONE;
     }
 
     void Matrix4::makeInverseTransform(const Vector3& position, const Vector3& scale, const Quaternion& orientation)
@@ -253,9 +253,9 @@ namespace Tiny3D
         m4x4[2][3] = invTranslate.z();
 
         // No projection term
-        m4x4[3][0] = 0.0;
-        m4x4[3][1] = 0.0;
-        m4x4[3][2] = 0.0;
-        m4x4[3][3] = 1.0;
+        m4x4[3][0] = REAL_ZERO;
+        m4x4[3][1] = REAL_ZERO;
+        m4x4[3][2] = REAL_ZERO;
+        m4x4[3][3] = REAL_ONE;
     }
 }

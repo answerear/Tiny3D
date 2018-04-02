@@ -71,12 +71,24 @@ typedef Tiny3D::fix64		fix64_t;
 
 #if __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FIX__
 typedef fix32_t             Real;
+#define REAL_ZERO           fix32_t::ZERO
+#define REAL_ONE            fix32_t::ONE
+#define REAL_HALF           fix32_t::HALF
 #elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FIX__
 typedef fix64_t             Real;
+#define REAL_ZERO           fix64_t::ZERO
+#define REAL_ONE            fix64_t::ONE
+#define REAL_HALF           fix64_t::HALF
 #elif __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FLOAT__
 typedef float32_t           Real;
+#define REAL_ZERO           0.0f
+#define REAL_ONE            1.0f
+#define REAL_HALF           0.5f
 #elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FLOAT__
 typedef float64_t           Real;
+#define REAL_ZERO           0.0
+#define REAL_ONE            1.0
+#define REAL_HALF           0.5
 #endif
 
 

@@ -18,83 +18,83 @@ namespace Tiny3D
 
     inline Real Radian::valueDegrees() const
     {
-        return Math::radiansToDegrees(m_fRadian);
+        return Math::radiansToDegrees(mRadian);
     }
 
     inline Real Degree::valueRadians() const
     {
-        return Math::degreesToRadians(m_fDegree);
+        return Math::degreesToRadians(mDegree);
     }
 
     ////////////////////////////////////////////////////////////////////////////
 
     inline Radian::Radian(const Degree &degree)
-        : m_fRadian(degree.valueRadians())
+        : mRadian(degree.valueRadians())
     {
 
     }
 
     inline Radian &Radian::operator =(const Degree &degree)
     {
-        m_fRadian = degree.valueRadians();
+        mRadian = degree.valueRadians();
         return *this;
     }
 
     inline Radian Radian::operator +(const Degree &degree) const
     {
-        return Radian(m_fRadian + degree.valueRadians());
+        return Radian(mRadian + degree.valueRadians());
     }
 
     inline Radian Radian::operator -(const Degree &degree) const
     {
-        return Radian(m_fRadian - degree.valueRadians());
+        return Radian(mRadian - degree.valueRadians());
     }
 
     inline Radian &Radian::operator +=(const Degree &degree)
     {
-        m_fRadian += degree.valueRadians();
+        mRadian += degree.valueRadians();
         return *this;
     }
 
     inline Radian &Radian::operator -=(const Degree &degree)
     {
-        m_fRadian -= degree.valueRadians();
+        mRadian -= degree.valueRadians();
         return *this;
     }
 
     ////////////////////////////////////////////////////////////////////////////
 
     inline Degree::Degree(const Radian &radian)
-        : m_fDegree(radian.valueDegrees())
+        : mDegree(radian.valueDegrees())
     {
 
     }
 
     inline Degree &Degree::operator =(const Radian &radian)
     {
-        m_fDegree = radian.valueDegrees();
+        mDegree = radian.valueDegrees();
         return *this;
     }
 
     inline Degree Degree::operator +(const Radian &radian) const
     {
-        return Degree(m_fDegree + radian.valueDegrees());
+        return Degree(mDegree + radian.valueDegrees());
     }
 
     inline Degree Degree::operator -(const Radian &radian) const
     {
-        return Degree(m_fDegree - radian.valueDegrees());
+        return Degree(mDegree - radian.valueDegrees());
     }
 
     inline Degree &Degree::operator +=(const Radian &radian)
     {
-        m_fDegree += radian.valueDegrees();
+        mDegree += radian.valueDegrees();
         return *this;
     }
 
     inline Degree &Degree::operator -=(const Radian &radian)
     {
-        m_fDegree -= radian.valueDegrees();
+        mDegree -= radian.valueDegrees();
         return *this;
     }
 

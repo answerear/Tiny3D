@@ -230,7 +230,7 @@ namespace Tiny3D
     inline Quaternion Quaternion::operator /(Real scalar) const
     {
         Real fInvertScalar = 0.0f;
-        if (scalar != 0.0)
+        if (scalar != REAL_ZERO)
             fInvertScalar = 1.0f / scalar;
         return Quaternion(_w * fInvertScalar, 
             _x * fInvertScalar, 
@@ -278,7 +278,7 @@ namespace Tiny3D
     inline Quaternion &Quaternion::operator /=(Real scalar)
     {
         Real fInvertScalar = 0.0f;
-        if (scalar != 0.0)
+        if (scalar != REAL_ZERO)
             fInvertScalar = 1.0f / scalar;
         _w *= fInvertScalar;
         _x *= fInvertScalar;
@@ -326,7 +326,7 @@ namespace Tiny3D
     inline Quaternion Quaternion::inverse() const
     {
         Real fNorm = _w * _w + _x * _x + _y * _y + _z * _z;
-        if (fNorm > 0.0)
+        if (fNorm > REAL_ZERO)
         {
             Real fInvNorm = 1.0f / fNorm;
             return Quaternion(

@@ -360,7 +360,7 @@ namespace Tiny3D
 
     inline Matrix3 Matrix3::operator /(Real scalar) const
     {
-        if (scalar != 0.0)
+        if (scalar != REAL_ZERO)
             return Matrix3(
                 mTuples[0] / scalar, mTuples[1] / scalar, mTuples[2] / scalar, 
                 mTuples[3] / scalar, mTuples[4] / scalar, mTuples[5] / scalar,
@@ -420,7 +420,7 @@ namespace Tiny3D
 
     inline Matrix3 &Matrix3::operator /=(Real scalar)
     {
-        if (scalar != 0.0)
+        if (scalar != REAL_ZERO)
         {
             mTuples[0] /= scalar;
             mTuples[1] /= scalar;
@@ -487,7 +487,7 @@ namespace Tiny3D
     {
         Matrix3 matInverse;
         Real fDet = mTuples[0] * mTuples[3] - mTuples[1] * mTuples[2];
-        if (fDet != 0.0)
+        if (fDet != REAL_ZERO)
         {
             matInverse.mTuples[0] = mTuples[3] / fDet;
             matInverse.mTuples[1] = -mTuples[1] / fDet;
