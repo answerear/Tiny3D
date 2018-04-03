@@ -36,31 +36,13 @@
 #include "T3DLog.h"
 
 
-#define __T3D_LOW_PRECISION_FIX__           0       // 32位定点数
-#define __T3D_HIGH_PRECISION_FIX__          1       // 64位定点数
-#define __T3D_LOW_PRECISION_FLOAT__         2       // 32位单精度浮点数
-#define __T3D_HIGH_PRECISION_FLOAT__        3       // 64位双精度浮点数
-
-#define __T3D_REAL_TYPE__   __T3D_LOW_PRECISION_FLOAT__ // 实数的精度类型
-
-
 namespace Tiny3D
 {
     class fix32;
     class fix64;
 
-    class Degree;
-    class Radian;
-
-    class Vector2;
-    class Vector3;
-    class Vector4;
-
-    class Quaternion;
-
-    class Matrix2;
-    class Matrix3;
-    class Matrix4;
+    template <typename T> class TDegree;
+    template <typename T> class TRadian;
 }
 
 typedef float               float32_t;
@@ -68,28 +50,6 @@ typedef double              float64_t;
 
 typedef Tiny3D::fix32       fix32_t;
 typedef Tiny3D::fix64       fix64_t;
-
-#if __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FIX__
-typedef fix32_t             Real;
-#define REAL_ZERO           fix32_t::ZERO
-#define REAL_ONE            fix32_t::ONE
-#define REAL_HALF           fix32_t::HALF
-#elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FIX__
-typedef fix64_t             Real;
-#define REAL_ZERO           fix64_t::ZERO
-#define REAL_ONE            fix64_t::ONE
-#define REAL_HALF           fix64_t::HALF
-#elif __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FLOAT__
-typedef float32_t           Real;
-#define REAL_ZERO           0.0f
-#define REAL_ONE            1.0f
-#define REAL_HALF           0.5f
-#elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FLOAT__
-typedef float64_t           Real;
-#define REAL_ZERO           0.0
-#define REAL_ONE            1.0
-#define REAL_HALF           0.5
-#endif
 
 
 #endif    /*__T3D_MATH_PREREQUISITES_H__*/

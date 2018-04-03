@@ -28,151 +28,153 @@
 
 namespace Tiny3D
 {
-    class T3D_MATH_API Quaternion
+    template <typename T>
+    class TQuaternion
     {
     public:
         /// 默认构造函数，构造一个单位四元数(1,0,0,0)对象.
-        Quaternion();
+        TQuaternion();
         /// 拷贝构造函数.
-        Quaternion(const Quaternion &other);
+        TQuaternion(const TQuaternion &other);
         /// 指定四元数四个值构造对象.
-        Quaternion(Real w, Real x, Real y, Real z);
+        TQuaternion(T w, T x, T y, T z);
         /// 通过一个旋转矩阵构造一个四元数对象.
-        Quaternion(const Matrix3 &rkRot);
+        TQuaternion(const TMatrix3<T> &rkRot);
         /// 指定旋转轴和旋转弧度构造一个四元数对象.
-        Quaternion(const Radian &rkAngle, const Vector3 &rkAxis);
+        TQuaternion(const TRadian<T> &rkAngle, const TVector3<T> &rkAxis);
         /// 通过指定3个正交轴构造一个四元数对象.
-        Quaternion(
-            const Vector3 &rkXAxis, 
-            const Vector3 &rkYAxis, 
-            const Vector3 &rkZAxis);
+        TQuaternion(
+            const TVector3<T> &rkXAxis, 
+            const TVector3<T> &rkYAxis, 
+            const TVector3<T> &rkZAxis);
         /// 通过指定3个正交向量数组首地址构造一个四元数对象(XYZ顺序).
-        Quaternion(const Vector3 *akAxis);
+        TQuaternion(const TVector3<T> *akAxis);
         /// 通过指定4个元素的数组首地址构造一个四元数对象(w, x, y, z).
-        Quaternion(Real *values);
+        TQuaternion(T *values);
 
         /// 获取四元数元素数值数组首地址，按照w, x, y, z顺序返回.
-        operator const Real *() const;
-        operator Real *();
+        operator const T *() const;
+        operator T *();
 
         /// 根据下标获取四元数元素数值.
-        Real operator [](int32_t i) const;
-        Real &operator [](int32_t i);
+        T operator [](int32_t i) const;
+        T &operator [](int32_t i);
 
         /// 获取X元素值.
-        Real x() const;
-        Real &x();
+        T x() const;
+        T &x();
 
         /// 获取Y元素值.
-        Real y() const;
-        Real &y();
+        T y() const;
+        T &y();
 
         /// 获取Z元素值.
-        Real z() const;
-        Real &z();
+        T z() const;
+        T &z();
 
         /// 获取W元素值.
-        Real w() const;
-        Real &w();
+        T w() const;
+        T &w();
 
         /// 重载相等运算符.
-        bool operator ==(const Quaternion &other) const;
+        bool operator ==(const TQuaternion &other) const;
         /// 重载不等运算符.
-        bool operator !=(const Quaternion &other) const;
+        bool operator !=(const TQuaternion &other) const;
 
         /// 重载赋值运算符.
-        Quaternion &operator =(const Quaternion &other);
+        TQuaternion &operator =(const TQuaternion &other);
 
         /// 重载加法运算符.
-        Quaternion operator +(const Quaternion &other) const;
+        TQuaternion operator +(const TQuaternion &other) const;
         /// 重载减法运算符.
-        Quaternion operator -(const Quaternion &other) const;
+        TQuaternion operator -(const TQuaternion &other) const;
         /// 重载乘法运算符，实现跟另一个四元数的叉乘.
-        Quaternion operator *(const Quaternion &other) const;
+        TQuaternion operator *(const TQuaternion &other) const;
         /// 重载乘法运算符，实现跟一个标量相乘.
-        Quaternion operator *(Real scalar) const;
+        TQuaternion operator *(T scalar) const;
         /// 重载除法运算符，实现跟一个标量相除.
-        Quaternion operator /(Real scalar) const;
+        TQuaternion operator /(T scalar) const;
 
         /// 重载加法赋值运算符.
-        Quaternion &operator +=(const Quaternion &other);
+        TQuaternion &operator +=(const TQuaternion &other);
         /// 重载减法赋值运算符.
-        Quaternion &operator -=(const Quaternion &other);
+        TQuaternion &operator -=(const TQuaternion &other);
         /// 重载乘法赋值运算符，实现跟另一个四元数的叉乘.
-        Quaternion &operator *=(const Quaternion &other);
+        TQuaternion &operator *=(const TQuaternion &other);
         /// 重载乘法赋值运算符，实现跟一个标量相乘.
-        Quaternion &operator *=(Real scalar);
+        TQuaternion &operator *=(T scalar);
         /// 重载除法赋值运算符，实现跟一个标量相乘.
-        Quaternion &operator /=(Real scalar);
+        TQuaternion &operator /=(T scalar);
 
         /// 重载取反运算符.
-        Quaternion operator -() const;
+        TQuaternion operator -() const;
 
         /// 通过四元数旋转一个向量.
-        Vector3 operator* (const Vector3 &rkVector) const;
+        TVector3<T> operator* (const TVector3<T> &rkVector) const;
 
         /// 计算四元数点积.
-        Real dot(const Quaternion &other) const;
+        T dot(const TQuaternion &other) const;
 
         /// 计算四元数的范数的平方.
-        Real norm() const;
+        T norm() const;
         /// 规范化四元数，返回四元数长度.
-        Real normalize();
+        T normalize();
 
         /// 计算四元数的逆.
-        Quaternion inverse() const;
+        TQuaternion inverse() const;
 
         /// 根据指定旋转弧度和旋转轴构造一个四元数.
-        void fromAngleAxis(const Radian &rkRadians, const Vector3 &rkAxis);
+        void fromAngleAxis(const TRadian<T> &rkRadians, const TVector3<T> &rkAxis);
         /// 根据指定三个正交向量构造一个四元数.
         void fromAxis(
-            const Vector3 &rkXAxis, 
-            const Vector3 &rkYAxis, 
-            const Vector3 &rkZAxis);
+            const TVector3<T> &rkXAxis, 
+            const TVector3<T> &rkYAxis, 
+            const TVector3<T> &rkZAxis);
         /// 根据指定三个正交向量数组首地址构造一个四元数.
-        void fromAxis(const Vector3 *akAxis);
+        void fromAxis(const TVector3<T> *akAxis);
         /// 根据一个旋转矩阵构造一个四元数.
-        void fromRotationMatrix(const Matrix3 &rkRot);
+        void fromRotationMatrix(const TMatrix3<T> &rkRot);
 
         /// 把四元数转成一个旋转角(弧度)和一个单位向量表示的旋转轴.
-        void toAngleAxis(Radian &rAngle, Vector3 &rAxis) const;
+        void toAngleAxis(TRadian<T> &rAngle, TVector3<T> &rAxis) const;
         /// 把四元数转成一个旋转角(角度)和一个单位向量表示的旋转轴.
-        void toAngleAxis(Degree &rAngle, Vector3 &rAxis) const;
+        void toAngleAxis(TDegree<T> &rAngle, TVector3<T> &rAxis) const;
         /// 把四元数转成三个正交单位向量.
-        void toAngleAxis(Vector3 *aAxis) const;
+        void toAngleAxis(TVector3<T> *aAxis) const;
         /// 把四元数转成一个旋转矩阵.
-        void toRotationMatrix(Matrix3 &rRot) const;
+        void toRotationMatrix(TMatrix3<T> &rRot) const;
 
         /// 获取绕X轴旋转(俯仰角)的角度(单位：弧度).
-        Radian getPitch(bool reprojectAxis = true) const;
+        TRadian<T> getPitch(bool reprojectAxis = true) const;
         /// 获取绕Z轴旋转(翻滚角)的角度(单位：弧度).
-        Radian getRoll(bool reprojectAxis = true) const;
+        TRadian<T> getRoll(bool reprojectAxis = true) const;
         /// 获取绕Y轴旋转(偏航角)的角度(单位：弧度).
-        Radian getYaw(bool reprojectAxis = true) const;
+        TRadian<T> getYaw(bool reprojectAxis = true) const;
 
         /// 获取X正交轴.
-        Vector3 xAxis() const;
+        TVector3<T> xAxis() const;
         /// 获取Y正交轴.
-        Vector3 yAxis() const;
+        TVector3<T> yAxis() const;
         /// 获取Z正交轴.
-        Vector3 zAxis() const;
+        TVector3<T> zAxis() const;
 
         /// 两个四元数球面线性插值构造一个四元数.
-        Quaternion &slerp(const Quaternion &rkP, const Quaternion &rkQ, 
-            Real times, bool shortestPath, Real threshold = 1e-03);
+        TQuaternion &slerp(const TQuaternion &rkP, const TQuaternion &rkQ, 
+            T times, bool shortestPath, T threshold = 1e-03);
 
-        static const Quaternion IDENTITY;       /// 单位四元数
-        static const Quaternion ZERO;           /// 零四元数
+        static const TQuaternion IDENTITY;       /// 单位四元数
+        static const TQuaternion ZERO;           /// 零四元数
 
     private:
-        Real    _w;
-        Real    _x;
-        Real    _y;
-        Real    _z;
+        T    _w;
+        T    _x;
+        T    _y;
+        T    _z;
     };
 
     /// 重载乘法运算符，实现一个标量跟四元数相乘
-    Quaternion operator *(Real scalar, const Quaternion &rkQ);
+    template <typename T>
+    TQuaternion<T> operator *(T scalar, const TQuaternion<T> &rkQ);
 }
 
 

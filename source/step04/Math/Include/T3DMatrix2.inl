@@ -19,31 +19,35 @@
 
 namespace Tiny3D
 {
-    inline void Matrix2::makeZero()
+    template <typename T>
+    inline void TMatrix2<T>::makeZero()
     {
-        mTuples[0] = Real(0.0);
-        mTuples[1] = Real(0.0);
-        mTuples[2] = Real(0.0);
-        mTuples[3] = Real(0.0);
+        mTuples[0] = T(0.0);
+        mTuples[1] = T(0.0);
+        mTuples[2] = T(0.0);
+        mTuples[3] = T(0.0);
     }
 
-    inline void Matrix2::makeIdentity()
+    template <typename T>
+    inline void TMatrix2<T>::makeIdentity()
     {
-        mTuples[0] = Real(1.0);
-        mTuples[1] = Real(0.0);
-        mTuples[2] = Real(0.0);
-        mTuples[3] = Real(1.0);
+        mTuples[0] = T(1.0);
+        mTuples[1] = T(0.0);
+        mTuples[2] = T(0.0);
+        mTuples[3] = T(1.0);
     }
 
-    inline void Matrix2::makeDiagonal(Real m00, Real m11)
+    template <typename T>
+    inline void TMatrix2<T>::makeDiagonal(T m00, T m11)
     {
         mTuples[0] = m00;
-        mTuples[1] = Real(0.0);
-        mTuples[2] = Real(0.0);
+        mTuples[1] = T(0.0);
+        mTuples[2] = T(0.0);
         mTuples[3] = m11;
     }
 
-    inline void Matrix2::makeTensorProduct(const Vector2 &rkU, const Vector2 &rkV)
+    template <typename T>
+    inline void TMatrix2<T>::makeTensorProduct(const TVector2<T> &rkU, const TVector2<T> &rkV)
     {
         mTuples[0] = rkU[0] * rkV[0];
         mTuples[1] = rkU[0] * rkV[1];
@@ -51,20 +55,23 @@ namespace Tiny3D
         mTuples[3] = rkU[1] * rkV[1];
     }
 
-    inline void Matrix2::fromAngle(const Radian &radians)
+    template <typename T>
+    inline void TMatrix2<T>::fromAngle(const TRadian<T> &radians)
     {
-        mTuples[0] = Math::cos(radians);
-        mTuples[2] = Math::sin(radians);
+        mTuples[0] = TMath<T>::cos(radians);
+        mTuples[2] = TMath<T>::sin(radians);
         mTuples[1] = -mTuples[2];
         mTuples[3] = mTuples[0];
     }
 
-    inline Radian Matrix2::toAngle() const
+    template <typename T>
+    inline TRadian<T> TMatrix2<T>::toAngle() const
     {
-        return Math::atan2(mTuples[2], mTuples[0]);
+        return TMath<T>::atan2(mTuples[2], mTuples[0]);
     }
 
-    inline Matrix2::Matrix2(bool isZero /* = true */)
+    template <typename T>
+    inline TMatrix2<T>::TMatrix2(bool isZero /* = true */)
     {
         if (isZero)
         {
@@ -76,12 +83,14 @@ namespace Tiny3D
         }
     }
 
-    inline Matrix2::Matrix2(const Matrix2 &other)
+    template <typename T>
+    inline TMatrix2<T>::TMatrix2(const TMatrix2 &other)
     {
         memcpy(mTuples, other.mTuples, sizeof(mTuples));
     }
 
-    inline Matrix2::Matrix2(Real m00, Real m01, Real m10, Real m11)
+    template <typename T>
+    inline TMatrix2<T>::TMatrix2(T m00, T m01, T m10, T m11)
     {
         mTuples[0] = m00;
         mTuples[1] = m01;
@@ -89,7 +98,8 @@ namespace Tiny3D
         mTuples[3] = m11;
     }
 
-    inline Matrix2::Matrix2(Real tuple[4], bool isRowMajor)
+    template <typename T>
+    inline TMatrix2<T>::TMatrix2(T tuple[4], bool isRowMajor)
     {
         if (isRowMajor)
         {
@@ -104,7 +114,8 @@ namespace Tiny3D
         }
     }
 
-    inline Matrix2::Matrix2(const Vector2 &rkU, const Vector2 &rkV, bool isColumns)
+    template <typename T>
+    inline TMatrix2<T>::TMatrix2(const TVector2<T> &rkU, const TVector2<T> &rkV, bool isColumns)
     {
         if (isColumns)
         {
@@ -122,7 +133,8 @@ namespace Tiny3D
         }
     }
 
-    inline Matrix2::Matrix2(const Vector2 *akV, bool isColumns)
+    template <typename T>
+    inline TMatrix2<T>::TMatrix2(const TVector2<T> *akV, bool isColumns)
     {
         if (isColumns)
         {
@@ -140,56 +152,66 @@ namespace Tiny3D
         }
     }
 
-    inline Matrix2::Matrix2(Real m00, Real m11)
+    template <typename T>
+    inline TMatrix2<T>::TMatrix2(T m00, T m11)
     {
         makeDiagonal(m00, m11);
     }
 
-    inline Matrix2::Matrix2(const Radian &rkRadians)
+    template <typename T>
+    inline TMatrix2<T>::TMatrix2(const TRadian<T> &rkRadians)
     {
         fromAngle(rkRadians);
     }
 
-    inline Matrix2::Matrix2(const Vector2 &rkU, const Vector2 &rkV)
+    template <typename T>
+    inline TMatrix2<T>::TMatrix2(const TVector2<T> &rkU, const TVector2<T> &rkV)
     {
         makeTensorProduct(rkU, rkV);
     }
 
-    inline Matrix2::operator const Real *() const
+    template <typename T>
+    inline TMatrix2<T>::operator const T *() const
     {
         return mTuples;
     }
 
-    inline Matrix2::operator Real *()
+    template <typename T>
+    inline TMatrix2<T>::operator T *()
     {
         return mTuples;
     }
 
-    inline const Real *Matrix2::operator [](int32_t row) const
+    template <typename T>
+    inline const T *TMatrix2<T>::operator [](int32_t row) const
     {
         T3D_ASSERT(row >= 0 && row < 2);
         return &mTuples[row << 1];
     }
 
-    inline Real *Matrix2::operator [](int32_t row)
+    template <typename T>
+    inline T *TMatrix2<T>::operator [](int32_t row)
     {
         T3D_ASSERT(row >= 0 && row < 2);
         return &mTuples[row << 1];
     }
 
-    inline Real Matrix2::operator ()(int32_t row, int32_t col) const
+    template <typename T>
+    inline T TMatrix2<T>::operator ()(int32_t row, int32_t col) const
     {
         T3D_ASSERT(row >= 0 && row < 2 && col >= 0 && col < 2);
         return mTuples[(row << 1) + col];
     }
 
-    inline Real &Matrix2::operator ()(int32_t row, int32_t col)
+    template <typename T>
+    inline T &TMatrix2<T>::operator ()(int32_t row, int32_t col)
     {
         T3D_ASSERT(row >= 0 && row < 2 && col >= 0 && col < 2);
         return mTuples[(row << 1) + col];
     }
 
-    inline void Matrix2::setRow(int32_t row, const Vector2 &rkV)
+    template <typename T>
+    inline void TMatrix2<T>::setRow(int32_t row, const TVector2<T> &rkV)
     {
         T3D_ASSERT(row >= 0 && row < 2);
         int32_t i = row << 1;
@@ -197,27 +219,31 @@ namespace Tiny3D
         mTuples[i+1] = rkV[1];
     }
 
-    inline Vector2 Matrix2::getRow(int32_t row) const
+    template <typename T>
+    inline TVector2<T> TMatrix2<T>::getRow(int32_t row) const
     {
         T3D_ASSERT(row >= 0 && row < 2);
         int32_t i = row << 1;
-        return Vector2(mTuples[i], mTuples[i+1]);
+        return TVector2<T>(mTuples[i], mTuples[i+1]);
     }
 
-    inline void Matrix2::setColumn(int32_t col, const Vector2 &rkV)
+    template <typename T>
+    inline void TMatrix2<T>::setColumn(int32_t col, const TVector2<T> &rkV)
     {
         T3D_ASSERT(col >= 0 && col < 2);
         mTuples[col] = rkV[0];
         mTuples[2+ col] = rkV[1];
     }
 
-    inline Vector2 Matrix2::getColumn(int32_t col) const
+    template <typename T>
+    inline TVector2<T> TMatrix2<T>::getColumn(int32_t col) const
     {
         T3D_ASSERT(col >= 0 && col < 2);
-        return Vector2(mTuples[col], mTuples[2+ col]);
+        return TVector2<T>(mTuples[col], mTuples[2+ col]);
     }
 
-    inline void Matrix2::getColumnMajor(Real *columns) const
+    template <typename T>
+    inline void TMatrix2<T>::getColumnMajor(T *columns) const
     {
         columns[0] = mTuples[0];
         columns[1] = mTuples[2];
@@ -225,94 +251,109 @@ namespace Tiny3D
         columns[3] = mTuples[3];
     }
 
-    inline Matrix2 &Matrix2::operator =(const Matrix2 &other)
+    template <typename T>
+    inline TMatrix2<T> &TMatrix2<T>::operator =(const TMatrix2 &other)
     {
         memcpy(mTuples, other.mTuples, sizeof(mTuples));
         return *this;
     }
 
-    inline int32_t Matrix2::compareArrays(const Matrix2 &other) const
+    template <typename T>
+    inline int32_t TMatrix2<T>::compareArrays(const TMatrix2 &other) const
     {
         return memcmp(mTuples, other.mTuples, sizeof(mTuples));
     }
 
-    inline bool Matrix2::operator ==(const Matrix2 &other) const
+    template <typename T>
+    inline bool TMatrix2<T>::operator ==(const TMatrix2 &other) const
     {
         return (compareArrays(other) == 0);
     }
 
-    inline bool Matrix2::operator !=(const Matrix2 &other) const
+    template <typename T>
+    inline bool TMatrix2<T>::operator !=(const TMatrix2 &other) const
     {
         return (compareArrays(other) != 0);
     }
 
-    inline bool Matrix2::operator <(const Matrix2 &other) const
+    template <typename T>
+    inline bool TMatrix2<T>::operator <(const TMatrix2 &other) const
     {
         return (compareArrays(other) < 0);
     }
 
-    inline bool Matrix2::operator <=(const Matrix2 &other) const
+    template <typename T>
+    inline bool TMatrix2<T>::operator <=(const TMatrix2 &other) const
     {
         return (compareArrays(other) <= 0);
     }
 
-    inline bool Matrix2::operator >(const Matrix2 &other) const
+    template <typename T>
+    inline bool TMatrix2<T>::operator >(const TMatrix2 &other) const
     {
         return (compareArrays(other) > 0);
     }
 
-    inline bool Matrix2::operator >=(const Matrix2 &other) const
+    template <typename T>
+    inline bool TMatrix2<T>::operator >=(const TMatrix2 &other) const
     {
         return (compareArrays(other) >= 0);
     }
 
-    inline Matrix2 Matrix2::operator +(const Matrix2 &other) const
+    template <typename T>
+    inline TMatrix2<T> TMatrix2<T>::operator +(const TMatrix2 &other) const
     {
-        return Matrix2(
+        return TMatrix2(
             mTuples[0] + other.mTuples[0],
             mTuples[1] + other.mTuples[1],
             mTuples[2] + other.mTuples[2],
             mTuples[3] + other.mTuples[3]);
     }
 
-    inline Matrix2 Matrix2::operator -(const Matrix2 &other) const
+    template <typename T>
+    inline TMatrix2<T> TMatrix2<T>::operator -(const TMatrix2 &other) const
     {
-        return Matrix2(
+        return TMatrix2(
             mTuples[0] - other.mTuples[0],
             mTuples[1] - other.mTuples[1],
             mTuples[2] - other.mTuples[2],
             mTuples[3] - other.mTuples[3]);
     }
 
-    inline Matrix2 Matrix2::operator *(const Matrix2 &other) const
+    template <typename T>
+    inline TMatrix2<T> TMatrix2<T>::operator *(const TMatrix2 &other) const
     {
-        return Matrix2(
+        return TMatrix2(
             mTuples[0] * other.mTuples[0] + mTuples[1] * other.mTuples[2],
             mTuples[0] * other.mTuples[1] + mTuples[1] * other.mTuples[3],
             mTuples[2] * other.mTuples[0] + mTuples[2] * other.mTuples[2],
             mTuples[2] * other.mTuples[1] + mTuples[2] * other.mTuples[3]);
     }
 
-    inline Matrix2 Matrix2::operator *(Real scalar) const
+    template <typename T>
+    inline TMatrix2<T> TMatrix2<T>::operator *(T scalar) const
     {
-        return Matrix2(mTuples[0] * scalar, mTuples[1] * scalar, 
+        return TMatrix2(mTuples[0] * scalar, mTuples[1] * scalar, 
             mTuples[2] * scalar, mTuples[3] * scalar);
     }
 
-    inline Matrix2 Matrix2::operator /(Real scalar) const
+    template <typename T>
+    inline TMatrix2<T> TMatrix2<T>::operator /(T scalar) const
     {
-        if (scalar != REAL_ZERO)
-            return Matrix2(mTuples[0] / scalar, mTuples[1] / scalar,
+        if (scalar != TReal<T>::ZERO)
+            return TMatrix2(mTuples[0] / scalar, mTuples[1] / scalar,
                 mTuples[2] / scalar, mTuples[3] / scalar);
         return ZERO;
     }
 
-    inline Matrix2 Matrix2::operator -() const
+    template <typename T>
+    inline TMatrix2<T> TMatrix2<T>::operator -() const
     {
-        return Matrix2(-mTuples[0], -mTuples[1], -mTuples[2], -mTuples[3]);
+        return TMatrix2(-mTuples[0], -mTuples[1], -mTuples[2], -mTuples[3]);
     }
 
-    inline Matrix2 &Matrix2::operator +=(const Matrix2 &other)
+    template <typename T>
+    inline TMatrix2<T> &TMatrix2<T>::operator +=(const TMatrix2 &other)
     {
         mTuples[0] += other.mTuples[0];
         mTuples[1] += other.mTuples[1];
@@ -321,7 +362,8 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Matrix2 &Matrix2::operator -=(const Matrix2 &other)
+    template <typename T>
+    inline TMatrix2<T> &TMatrix2<T>::operator -=(const TMatrix2 &other)
     {
         mTuples[0] -= other.mTuples[0];
         mTuples[1] -= other.mTuples[1];
@@ -330,7 +372,8 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Matrix2 &Matrix2::operator *=(Real fScalar)
+    template <typename T>
+    inline TMatrix2<T> &TMatrix2<T>::operator *=(T fScalar)
     {
         mTuples[0] *= fScalar;
         mTuples[1] *= fScalar;
@@ -339,9 +382,10 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Matrix2 &Matrix2::operator /=(Real scalar)
+    template <typename T>
+    inline TMatrix2<T> &TMatrix2<T>::operator /=(T scalar)
     {
-        if (scalar != REAL_ZERO)
+        if (scalar != TReal<T>::ZERO)
         {
             mTuples[0] /= scalar;
             mTuples[1] /= scalar;
@@ -355,40 +399,45 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Vector2 Matrix2::operator *(const Vector2 &rkV) const
+    template <typename T>
+    inline TVector2<T> TMatrix2<T>::operator *(const TVector2<T> &rkV) const
     {
-        return Vector2(mTuples[0] * rkV[0] + mTuples[1] * rkV[1], 
+        return TVector2<T>(mTuples[0] * rkV[0] + mTuples[1] * rkV[1], 
             mTuples[2] * rkV[0] + mTuples[3] * rkV[1]);
     }
 
-    inline Matrix2 Matrix2::transpose() const
+    template <typename T>
+    inline TMatrix2<T> TMatrix2<T>::transpose() const
     {
-        return Matrix2(mTuples[0], mTuples[2], mTuples[1], mTuples[3]);
+        return TMatrix2(mTuples[0], mTuples[2], mTuples[1], mTuples[3]);
     }
 
-    inline Matrix2 Matrix2::transposeTimes(const Matrix2 &other) const
+    template <typename T>
+    inline TMatrix2<T> TMatrix2<T>::transposeTimes(const TMatrix2 &other) const
     {
-        return Matrix2(
+        return TMatrix2(
             mTuples[0] * other.mTuples[0] + mTuples[2] * other.mTuples[2],
             mTuples[0] * other.mTuples[1] + mTuples[2] * other.mTuples[3],
             mTuples[1] * other.mTuples[0] + mTuples[3] * other.mTuples[2],
             mTuples[1] * other.mTuples[1] + mTuples[3] * other.mTuples[3]);
     }
 
-    inline Matrix2 Matrix2::timesTranspose(const Matrix2 &other) const
+    template <typename T>
+    inline TMatrix2<T> TMatrix2<T>::timesTranspose(const TMatrix2 &other) const
     {
-        return Matrix2(
+        return TMatrix2(
             mTuples[0] * other.mTuples[0] + mTuples[1] * other.mTuples[2],
             mTuples[2] * other.mTuples[0] + mTuples[2] * other.mTuples[2],
             mTuples[0] * other.mTuples[1] + mTuples[1] * other.mTuples[3],
             mTuples[2] * other.mTuples[1] + mTuples[2] * other.mTuples[3]);
     }
 
-    inline Matrix2 Matrix2::inverse() const
+    template <typename T>
+    inline TMatrix2<T> TMatrix2<T>::inverse() const
     {
-        Matrix2 mat;
-        Real det = mTuples[0] * mTuples[3] - mTuples[1] * mTuples[2];
-        if (det != REAL_ZERO)
+        TMatrix2 mat;
+        T det = mTuples[0] * mTuples[3] - mTuples[1] * mTuples[2];
+        if (det != TReal<T>::ZERO)
         {
             mat.mTuples[0] = mTuples[3] / det;
             mat.mTuples[1] = -mTuples[1] / det;
@@ -398,22 +447,26 @@ namespace Tiny3D
         return mat;
     }
 
-    inline Matrix2 Matrix2::adjoint() const
+    template <typename T>
+    inline TMatrix2<T> TMatrix2<T>::adjoint() const
     {
-        return Matrix2(mTuples[3], -mTuples[1], -mTuples[2], mTuples[0]);
+        return TMatrix2(mTuples[3], -mTuples[1], -mTuples[2], mTuples[0]);
     }
 
-    inline Real Matrix2::determinant() const
+    template <typename T>
+    inline T TMatrix2<T>::determinant() const
     {
         return mTuples[0] * mTuples[3] - mTuples[1] * mTuples[2];
     }
 
-    inline Real Matrix2::qform(const Vector2 &rkU, const Vector2 &rkV) const
+    template <typename T>
+    inline T TMatrix2<T>::qform(const TVector2<T> &rkU, const TVector2<T> &rkV) const
     {
         return rkU.dot((*this) * rkV);
     }
 
-    inline void Matrix2::orthonormalize()
+    template <typename T>
+    inline void TMatrix2<T>::orthonormalize()
     {
         // Algorithm uses Gram-Schmidt orthogonalization.  
         // If 'this' matrix is M = [m0|m1], then orthonormal output matrix is 
@@ -426,37 +479,38 @@ namespace Tiny3D
         // of vectors A and B.
         
         // compute q0
-        Real len = Math::sqrt(mTuples[0] * mTuples[0] + mTuples[2] * mTuples[2]);
+        T len = TMath<T>::sqrt(mTuples[0] * mTuples[0] + mTuples[2] * mTuples[2]);
         mTuples[0] /= len;
         mTuples[2] /= len;
 
         // compute q1
-        Real dot0 = mTuples[0] * mTuples[1] + mTuples[2] * mTuples[3];
+        T dot0 = mTuples[0] * mTuples[1] + mTuples[2] * mTuples[3];
         mTuples[1] -= dot0 * mTuples[0];
         mTuples[3] -= dot0 * mTuples[2];
 
-        len = Math::sqrt(mTuples[1] * mTuples[1] + mTuples[3] * mTuples[3]);
+        len = TMath<T>::sqrt(mTuples[1] * mTuples[1] + mTuples[3] * mTuples[3]);
         mTuples[1] /= len;
         mTuples[3] /= len;
     }
 
-    inline void Matrix2::eigendecomposition(Matrix2 &rRot, Matrix2 &rDiag) const
+    template <typename T>
+    inline void TMatrix2<T>::eigendecomposition(TMatrix2 &rRot, TMatrix2 &rDiag) const
     {
-        Real trace = mTuples[0] + mTuples[3];
-        Real diff = mTuples[0] - mTuples[3];
-        Real discr = Math::sqrt(diff * diff + ((mTuples[1] * mTuples[1]) * 4));
-        Real val0 = (trace - discr) / 2;
-        Real val1 = (trace + discr) / 2;
+        T trace = mTuples[0] + mTuples[3];
+        T diff = mTuples[0] - mTuples[3];
+        T discr = TMath<T>::sqrt(diff * diff + ((mTuples[1] * mTuples[1]) * 4));
+        T val0 = (trace - discr) / 2;
+        T val1 = (trace + discr) / 2;
         rDiag.makeDiagonal(val0, val1);
         
-        Vector2 kRow0(mTuples[0] - val0, mTuples[1]);
-        Vector2 kRow1(mTuples[1], mTuples[3] - val0);
-        Real len0 = kRow0.length();
-        Real len1 = kRow1.length();
+        TVector2<T> kRow0(mTuples[0] - val0, mTuples[1]);
+        TVector2<T> kRow1(mTuples[1], mTuples[3] - val0);
+        T len0 = kRow0.length();
+        T len1 = kRow1.length();
         
         if (len0 > len1)
         {
-            if (len0 > REAL_ZERO)
+            if (len0 > TReal<T>::ZERO)
             {
                 rRot.mTuples[0] = kRow0[1];
                 rRot.mTuples[1] = kRow0[0];
@@ -470,7 +524,7 @@ namespace Tiny3D
         }
         else
         {
-            if (len1 > REAL_ZERO)
+            if (len1 > TReal<T>::ZERO)
             {
                 rRot.mTuples[0] = kRow1[1];
                 rRot.mTuples[1] = kRow1[0];
@@ -484,14 +538,22 @@ namespace Tiny3D
         }
     }
 
-    inline Matrix2 operator *(Real scalar, const Matrix2 &rkM)
+    template <typename T>
+    inline TMatrix2<T> operator *(T scalar, const TMatrix2<T> &rkM)
     {
         return rkM * scalar;
     }
 
-    inline Vector2 operator *(const Vector2 &rkV, const Matrix2 &rkM)
+    template <typename T>
+    inline TVector2<T> operator *(const TVector2<T> &rkV, const TMatrix2<T> &rkM)
     {
-        return Vector2(rkV[0] * rkM[0][0] + rkV[1] * rkM[1][0], 
+        return TVector2<T>(rkV[0] * rkM[0][0] + rkV[1] * rkM[1][0], 
             rkV[0] * rkM[0][1] + rkV[1] * rkM[1][1]);
     }
+
+    template <typename T>
+    const TMatrix2<T> TMatrix2<T>::ZERO(0.0, 0.0, 0.0, 0.0);
+
+    template <typename T>
+    const TMatrix2<T> TMatrix2<T>::IDENTITY(1.0, 0.0, 0.0, 1.0);
 }

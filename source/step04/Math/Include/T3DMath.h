@@ -31,58 +31,59 @@
 
 namespace Tiny3D
 {
-    class T3D_MATH_API Math
+    template <typename T>
+    class TMath
     {
     public:
         /// 求平方.
-        static Real sqr(Real value);
+        static T sqr(T value);
         /// 求平方根.
-        static Real sqrt(Real value);
+        static T sqrt(T value);
         /// 求平方根倒数.
-        static Real invSqrt(Real value);
+        static T invSqrt(T value);
 
         /// 求绝对值
-        static Real abs(Real value);
-        static Degree abs(const Degree& value);
-        static Radian abs(const Radian& value);
+        static T abs(T value);
+        static TDegree<T> abs(const TDegree<T>& value);
+        static TRadian<T> abs(const TRadian<T>& value);
 
         /// 根据误差值判断两个实数是否相等.
-        static bool realEqual(Real a, Real b, 
-            Real tolerance = std::numeric_limits<Real>::epsilon());
+        static bool realEqual(T a, T b, 
+            T tolerance = std::numeric_limits<T>::epsilon());
 
         /// 通过角度求正弦值.
-        static Real sin(const Degree &degrees);
+        static T sin(const TDegree<T> &degrees);
         /// 通过弧度求正弦值.
-        static Real sin(const Radian &radians);
+        static T sin(const TRadian<T> &radians);
         /// 通过角度求余弦值.
-        static Real cos(const Degree &degrees);
+        static T cos(const TDegree<T> &degrees);
         /// 通过弧度求余弦值.
-        static Real cos(const Radian &radians);
+        static T cos(const TRadian<T> &radians);
         /// 通过角度求正切值.
-        static Real tan(const Degree &degrees);
+        static T tan(const TDegree<T> &degrees);
         /// 通过弧度求正切值.
-        static Real tan(const Radian &radians);
+        static T tan(const TRadian<T> &radians);
 
         /// 求反正弦.
-        static Radian asin(Real value);
+        static TRadian<T> asin(T value);
         /// 求反余弦.
-        static Radian acos(Real value);
+        static TRadian<T> acos(T value);
         /// 求反正切.
-        static Radian atan(Real value);
+        static TRadian<T> atan(T value);
         /// 通过 y/x 求反正切
-        static Radian atan2(Real fY, Real fX);
+        static TRadian<T> atan2(T y, T x);
 
-        static Real degreesToRadians(Real degrees);
-        static Real radiansToDegrees(Real radians);
+        static T degreesToRadians(T degrees);
+        static T radiansToDegrees(T radians);
 
     public:
-        static const Real POS_INFINITY;
-        static const Real NEG_INFINITY;
-        static const Real PI;
-        static const Real TWO_PI;
-        static const Real HALF_PI;
-        static const Real DEGREES_TO_RADIANS;
-        static const Real RADIANS_TO_DEGREES;
+        static const T POS_INFINITY;
+        static const T NEG_INFINITY;
+        static const T PI;
+        static const T TWO_PI;
+        static const T HALF_PI;
+        static const T DEGREES_TO_RADIANS;
+        static const T RADIANS_TO_DEGREES;
     };
 }
 

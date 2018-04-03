@@ -29,153 +29,156 @@
 namespace Tiny3D
 {
     /// 行优先存储构成的2x2方阵.
-    class T3D_MATH_API Matrix2
+    template <typename T>
+    class TMatrix2
     {
     public:
         /// 构造一个零矩阵或者单位矩阵.
-        Matrix2(bool isZero = true);
+        TMatrix2(bool isZero = true);
         /// 拷贝构造函数.
-        Matrix2(const Matrix2 &other);
+        TMatrix2(const TMatrix2 &other);
         /// 通过指定行列值构造矩阵.
-        Matrix2(Real m00, Real m01, Real m10, Real m11);
+        TMatrix2(T m00, T m01, T m10, T m11);
         /// 通过一个指定行优先或者列优先的数组指定矩阵值来构造对象.
-        Matrix2(Real tuple[4], bool isRowMajor);
+        TMatrix2(T tuple[4], bool isRowMajor);
         /// 通过指定两个行向量或者列向量构造对象.
-        Matrix2(const Vector2 &rkU, const Vector2 &rkV, bool isColumns);
+        TMatrix2(const TVector2<T> &rkU, const TVector2<T> &rkV, bool isColumns);
         /// 通过指定指定一个行向量或者列向量数组构造对象.
-        Matrix2(const Vector2 *akV, bool isColumns);
+        TMatrix2(const TVector2<T> *akV, bool isColumns);
         /// 通过指定对角元素值构造对角矩阵.
-        Matrix2(Real m00, Real m11);
+        TMatrix2(T m00, T m11);
         /// 通过指定弧度构造一个旋转矩阵.
-        Matrix2(const Radian &rkRadians);
+        TMatrix2(const TRadian<T> &rkRadians);
         /// 通过两个向量张量积构造矩阵 M = U * (V ^ T).
-        Matrix2(const Vector2 &rkU, const Vector2 &rkV);
+        TMatrix2(const TVector2<T> &rkU, const TVector2<T> &rkV);
 
         /// 构造零矩阵.
         void makeZero();
         /// 构造单位矩阵.
         void makeIdentity();
         /// 构造对角矩阵.
-        void makeDiagonal(Real m00, Real m11);
+        void makeDiagonal(T m00, T m11);
         /// 通过两个向量张量积构造矩阵 M = U * (V ^ T).
-        void makeTensorProduct(const Vector2 &rkU, const Vector2 &rkV);
+        void makeTensorProduct(const TVector2<T> &rkU, const TVector2<T> &rkV);
 
         /// 通过一个弧度构造旋转矩阵.
-        void fromAngle(const Radian &radians);
+        void fromAngle(const TRadian<T> &radians);
         /// 从矩阵提取出旋转弧度.
-        Radian toAngle() const;
+        TRadian<T> toAngle() const;
 
         /// 获取矩阵元素数组首地址.
-        operator const Real *() const;
-        operator Real *();
+        operator const T *() const;
+        operator T *();
 
         /// 根据获取矩阵对应行的元素值.
-        const Real *operator [](int32_t row) const;
-        Real *operator [](int32_t row);
+        const T *operator [](int32_t row) const;
+        T *operator [](int32_t row);
 
         /// 通过指定行和列获取对应的元素.
-        Real operator ()(int32_t row, int32_t col) const;
-        Real &operator ()(int32_t row, int32_t col);
+        T operator ()(int32_t row, int32_t col) const;
+        T &operator ()(int32_t row, int32_t col);
 
         /// 设置矩阵指定行向量.
-        void setRow(int32_t row, const Vector2 &rkV);
+        void setRow(int32_t row, const TVector2<T> &rkV);
         /// 获取矩阵指定行向量.
-        Vector2 getRow(int32_t row) const;
+        TVector2<T> getRow(int32_t row) const;
 
         /// 设置矩阵指定列向量.
-        void setColumn(int32_t col, const Vector2 &rkV);
+        void setColumn(int32_t col, const TVector2<T> &rkV);
         /// 获取矩阵指定列向量.
-        Vector2 getColumn(int32_t col) const;
+        TVector2<T> getColumn(int32_t col) const;
 
         /// 按照列向量优先获取矩阵数据.
-        void getColumnMajor(Real *columns) const;
+        void getColumnMajor(T *columns) const;
 
         /// 重载赋值运算符.
-        Matrix2 &operator =(const Matrix2 &other);
+        TMatrix2 &operator =(const TMatrix2 &other);
 
         /// 重载相等运算符.
-        bool operator ==(const Matrix2 &other) const;
+        bool operator ==(const TMatrix2 &other) const;
         /// 重载不等运算符.
-        bool operator !=(const Matrix2 &other) const;
+        bool operator !=(const TMatrix2 &other) const;
         /// 重载小于运算符.
-        bool operator <(const Matrix2 &other) const;
+        bool operator <(const TMatrix2 &other) const;
         /// 重载小于等于运算符.
-        bool operator <=(const Matrix2 &other) const;
+        bool operator <=(const TMatrix2 &other) const;
         /// 重载大于运算符.
-        bool operator >(const Matrix2 &other) const;
+        bool operator >(const TMatrix2 &other) const;
         /// 重载大于等于运算符.
-        bool operator >=(const Matrix2 &other) const;
+        bool operator >=(const TMatrix2 &other) const;
 
         /// 重载加法运算符.
-        Matrix2 operator +(const Matrix2 &other) const;
+        TMatrix2 operator +(const TMatrix2 &other) const;
         /// 重载减法运算符.
-        Matrix2 operator -(const Matrix2 &other) const;
+        TMatrix2 operator -(const TMatrix2 &other) const;
 
         /// 重载乘法运算符，实现两个矩阵相乘.
-        Matrix2 operator *(const Matrix2 &other) const;
+        TMatrix2 operator *(const TMatrix2 &other) const;
 
         /// 重载乘法运算符，实现矩阵跟一个标量相乘 M1 = M * scalar.
-        Matrix2 operator *(Real scalar) const;
+        TMatrix2 operator *(T scalar) const;
         /// 重载除法运算符，实现矩阵跟一个标量相除 M1 = M / scalar.
-        Matrix2 operator /(Real scalar) const;
+        TMatrix2 operator /(T scalar) const;
 
         /// 重载取反运算符.
-        Matrix2 operator -() const;
+        TMatrix2 operator -() const;
 
         /// 重载加法赋值运算符.
-        Matrix2 &operator +=(const Matrix2 &other);
+        TMatrix2 &operator +=(const TMatrix2 &other);
         /// 重载减法赋值运算符.
-        Matrix2 &operator -=(const Matrix2 &other);
+        TMatrix2 &operator -=(const TMatrix2 &other);
         /// 重载乘法赋值运算符，实现矩阵跟一个标量相乘 M = M * scalar.
-        Matrix2 &operator *=(Real scalar);
+        TMatrix2 &operator *=(T scalar);
         /// 重载除法赋值运算符，实现矩阵跟一个标量相除 M = M / scalar.
-        Matrix2 &operator /=(Real scalar);
+        TMatrix2 &operator /=(T scalar);
 
         /// 重载乘法运算符，实现矩阵左乘向量 M = M * V.
-        Vector2 operator *(const Vector2 &rkV) const;
+        TVector2<T> operator *(const TVector2<T> &rkV) const;
 
         /// 矩阵转置 M = M ^ T.
-        Matrix2 transpose() const;
+        TMatrix2 transpose() const;
         /// 矩阵转置后乘以另外一个矩阵 M2 = (M ^ T) * M1.
-        Matrix2 transposeTimes(const Matrix2 &other) const;
+        TMatrix2 transposeTimes(const TMatrix2 &other) const;
         /// 矩阵乘以另一个矩阵的转置矩阵 M2 = M * (M1 ^ T).
-        Matrix2 timesTranspose(const Matrix2 &other) const;
+        TMatrix2 timesTranspose(const TMatrix2 &other) const;
 
         /// 计算矩阵的逆.
-        Matrix2 inverse() const;
+        TMatrix2 inverse() const;
 
         /// 计算矩阵的伴随矩阵.
-        Matrix2 adjoint() const;
+        TMatrix2 adjoint() const;
 
         /// 计算矩阵行列式.
-        Real determinant() const;
+        T determinant() const;
 
         /// 二次型 ret = (U ^ T) * M * V.
-        Real qform(const Vector2 &rkU, const Vector2 &rkV) const;
+        T qform(const TVector2<T> &rkU, const TVector2<T> &rkV) const;
 
         /// 矩阵标准正交化，使用 Gram-Schmidt 算法
         void orthonormalize();
 
         /// 特征分解
-        void eigendecomposition(Matrix2 &rRot, Matrix2 &rDiag) const;
+        void eigendecomposition(TMatrix2 &rRot, TMatrix2 &rDiag) const;
 
     public:
-        static const Matrix2 ZERO;      /// 零矩阵
-        static const Matrix2 IDENTITY;  /// 单位矩阵
+        static const TMatrix2 ZERO;      /// 零矩阵
+        static const TMatrix2 IDENTITY;  /// 单位矩阵
 
     private:
         /// 比较矩阵
-        int32_t compareArrays(const Matrix2 &other) const;
+        int32_t compareArrays(const TMatrix2 &other) const;
 
     private:
-        Real    mTuples[4];       /// 以行优先存储的矩阵元素
+        T    mTuples[4];       /// 以行优先存储的矩阵元素
     };
 
     /// 重载乘法运算符，实现一个标量跟矩阵相乘
-    Matrix2 operator *(Real scalar, const Matrix2 &rkM);
+    template <typename T>
+    TMatrix2<T> operator *(T scalar, const TMatrix2<T> &rkM);
 
     /// 重载乘法运算符，实现一个向量跟矩阵相乘
-    Vector2 operator *(const Vector2 &rkV, const Matrix2 &rkM);
+    template <typename T>
+    TVector2<T> operator *(const TVector2<T> &rkV, const TMatrix2<T> &rkM);
 }
 
 

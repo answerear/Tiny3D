@@ -19,131 +19,154 @@
 
 namespace Tiny3D
 {
-    inline Vector2::Vector2()
+    template <typename T>
+    inline TVector2<T>::TVector2()
         : _x(0.0)
         , _y(0.0)
     {
 
     }
 
-    inline Vector2::Vector2(Real x, Real y)
+    template <typename T>
+    inline TVector2<T>::TVector2(T x, T y)
         : _x(x)
         , _y(y)
     {
 
     }
 
-    inline Vector2::Vector2(const Vector2 &other)
+    template <typename T>
+    inline TVector2<T>::TVector2(const TVector2 &other)
         : _x(other._x)
         , _y(other._y)
     {
 
     }
 
-    inline Vector2::operator const Real *() const
+    template <typename T>
+    inline TVector2<T>::operator const T *() const
     {
         return &_x;
     }
 
-    inline Vector2::operator Real *()
+    template <typename T>
+    inline TVector2<T>::operator T *()
     {
         return &_x;
     }
 
-    inline Real Vector2::operator [](int32_t i) const
+    template <typename T>
+    inline T TVector2<T>::operator [](int32_t i) const
     {
         T3D_ASSERT(i < 2);
         return *(&_x+i);
     }
 
-    inline Real &Vector2::operator [](int32_t i)
+    template <typename T>
+    inline T &TVector2<T>::operator [](int32_t i)
     {
         T3D_ASSERT(i < 2);
         return *(&_x+i);
     }
 
-    inline Real Vector2::x() const
+    template <typename T>
+    inline T TVector2<T>::x() const
     {
         return _x;
     }
 
-    inline Real &Vector2::x()
+    template <typename T>
+    inline T &TVector2<T>::x()
     {
         return _x;
     }
 
-    inline Real Vector2::y() const
+    template <typename T>
+    inline T TVector2<T>::y() const
     {
         return _y;
     }
 
-    inline Real &Vector2::y()
+    template <typename T>
+    inline T &TVector2<T>::y()
     {
         return _y;
     }
 
-    inline Vector2 &Vector2::operator =(const Vector2 &other)
+    template <typename T>
+    inline TVector2<T> &TVector2<T>::operator =(const TVector2 &other)
     {
         _x = other._x;
         _y = other._y;
         return *this;
     }
 
-    inline bool Vector2::operator ==(const Vector2 &other) const
+    template <typename T>
+    inline bool TVector2<T>::operator ==(const TVector2 &other) const
     {
         return (_x == other._x && _y == other._y);
     }
 
-    inline bool Vector2::operator !=(const Vector2 &other) const
+    template <typename T>
+    inline bool TVector2<T>::operator !=(const TVector2 &other) const
     {
         return (_x != other._x || _y != other._y);
     }
 
-    inline int32_t Vector2::compareArrays(const Vector2 &other) const
+    template <typename T>
+    inline int32_t TVector2<T>::compareArrays(const TVector2 &other) const
     {
-        return memcmp(&_x, &other._x, 2*sizeof(Real));
+        return memcmp(&_x, &other._x, 2*sizeof(T));
     }
 
-    inline bool Vector2::operator <(const Vector2 &other) const
+    template <typename T>
+    inline bool TVector2<T>::operator <(const TVector2 &other) const
     {
         return compareArrays(other) < 0;
     }
 
-    inline bool Vector2::operator <=(const Vector2 &other) const
+    template <typename T>
+    inline bool TVector2<T>::operator <=(const TVector2 &other) const
     {
         return compareArrays(other) <= 0;
     }
 
-    inline bool Vector2::operator >(const Vector2 &other) const
+    template <typename T>
+    inline bool TVector2<T>::operator >(const TVector2 &other) const
     {
         return compareArrays(other) > 0;
     }
 
-    inline bool Vector2::operator >=(const Vector2 &other) const
+    template <typename T>
+    inline bool TVector2<T>::operator >=(const TVector2 &other) const
     {
         return compareArrays(other) >= 0;
     }
 
-    inline Vector2 Vector2::operator +(const Vector2 &other) const
+    template <typename T>
+    inline TVector2<T> TVector2<T>::operator +(const TVector2 &other) const
     {
-        return Vector2(_x + other._x, _y + other._y);
+        return TVector2(_x + other._x, _y + other._y);
     }
 
-    inline Vector2 Vector2::operator -(const Vector2 &other) const
+    template <typename T>
+    inline TVector2<T> TVector2<T>::operator -(const TVector2 &other) const
     {
-        return Vector2(_x - other._x, _y - other._y);
+        return TVector2(_x - other._x, _y - other._y);
     }
 
-    inline Vector2 Vector2::operator *(Real fScalar) const
+    template <typename T>
+    inline TVector2<T> TVector2<T>::operator *(T scalar) const
     {
-        return Vector2(fScalar * _x, fScalar * _y);
+        return TVector2(scalar * _x, scalar * _y);
     }
 
-    inline Vector2 Vector2::operator /(Real scalar) const
+    template <typename T>
+    inline TVector2<T> TVector2<T>::operator /(T scalar) const
     {
-        Vector2 result;
+        TVector2 result;
 
-        if (scalar != REAL_ZERO)
+        if (scalar != TReal<T>::ZERO)
         {
             result._x = _x / scalar;
             result._y = _y / scalar;
@@ -152,114 +175,144 @@ namespace Tiny3D
         return result;
     }
 
-    inline Vector2 Vector2::operator *(const Vector2 &other) const
+    template <typename T>
+    inline TVector2<T> TVector2<T>::operator *(const TVector2 &other) const
     {
-        Vector2 v;
+        TVector2 v;
         v.x() = _x * other._x;
         v.y() = _y * other._y;
         return v;
     }
 
-    inline Vector2 Vector2::operator -() const
+    template <typename T>
+    inline TVector2<T> TVector2<T>::operator -() const
     {
-        return Vector2(-_x, -_y);
+        return TVector2(-_x, -_y);
     }
 
-    inline Vector2 &Vector2::operator +=(const Vector2 &other)
+    template <typename T>
+    inline TVector2<T> &TVector2<T>::operator +=(const TVector2 &other)
     {
         _x += other._x;
         _y += other._y;
         return *this;
     }
 
-    inline Vector2 &Vector2::operator -=(const Vector2 &other)
+    template <typename T>
+    inline TVector2<T> &TVector2<T>::operator -=(const TVector2 &other)
     {
         _x -= other._x;
         _y -= other._y;
         return *this;
     }
 
-    inline Vector2 &Vector2::operator *=(Real fScalar)
+    template <typename T>
+    inline TVector2<T> &TVector2<T>::operator *=(T scalar)
     {
-        _x *= fScalar;
-        _y *= fScalar;
+        _x *= scalar;
+        _y *= scalar;
         return *this;
     }
 
-    inline Vector2 &Vector2::operator *=(const Vector2 &other)
+    template <typename T>
+    inline TVector2<T> &TVector2<T>::operator *=(const TVector2 &other)
     {
         _x *= other._x;
         _y *= other._y;
         return *this;
     }
 
-    inline Vector2 &Vector2::operator /=(Real scalar)
+    template <typename T>
+    inline TVector2<T> &TVector2<T>::operator /=(T scalar)
     {
-        if (scalar != REAL_ZERO)
+        if (scalar != TReal<T>::ZERO)
         {
             _x = _x / scalar;
             _y = _y / scalar;
         }
         else
         {
-            _x = REAL_ZERO;
-            _y = REAL_ZERO;
+            _x = TReal<T>::ZERO;
+            _y = TReal<T>::ZERO;
         }
 
         return *this;
     }
 
-    inline Real Vector2::length() const
+    template <typename T>
+    inline T TVector2<T>::length() const
     {
-        return Math::sqrt(_x * _x + _y * _y);
+        return TMath<T>::sqrt(_x * _x + _y * _y);
     }
 
-    inline Real Vector2::squaredLength() const
+    template <typename T>
+    inline T TVector2<T>::squaredLength() const
     {
         return _x * _x + _y * _y;
     }
 
-    inline Real Vector2::distance(const Vector2 &other) const
+    template <typename T>
+    inline T TVector2<T>::distance(const TVector2 &other) const
     {
         return (*this - other).length();
     }
 
-    inline Real Vector2::squaredDistance(const Vector2 &other) const
+    template <typename T>
+    inline T TVector2<T>::squaredDistance(const TVector2 &other) const
     {
         return (*this - other).squaredLength();
     }
 
-    inline Real Vector2::dot(const Vector2 &other) const
+    template <typename T>
+    inline T TVector2<T>::dot(const TVector2 &other) const
     {
         return (_x * other._x + _y * other._y);
     }
 
-    inline Real Vector2::cross(const Vector2 &other) const
+    template <typename T>
+    inline T TVector2<T>::cross(const TVector2 &other) const
     {
         return (_x * other._y - _y * other._x);
     }
 
-    inline Real Vector2::normalize()
+    template <typename T>
+    inline T TVector2<T>::normalize()
     {
-        Real len = length();
+        T len = length();
 
-        if (len > REAL_ZERO)
+        if (len > TReal<T>::ZERO)
         {
             _x /= len;
             _y /= len;
         }
         else
         {
-            len = REAL_ZERO;
-            _x = REAL_ZERO;
-            _y = REAL_ZERO;
+            len = TReal<T>::ZERO;
+            _x = TReal<T>::ZERO;
+            _y = TReal<T>::ZERO;
         }
 
         return len;
     }
 
-    inline Vector2 Vector2::perp() const
+    template <typename T>
+    inline TVector2<T> TVector2<T>::perp() const
     {
-        return Vector2(_x, -_y);
+        return TVector2(_x, -_y);
     }
+
+    template <typename T>
+    const TVector2<T> TVector2<T>::ZERO(0.0, 0.0);
+
+    template <typename T>
+    const TVector2<T> TVector2<T>::UNIT_X(1.0, 0.0);
+
+    template <typename T>
+    const TVector2<T> TVector2<T>::UNIT_Y(0.0, 1.0);
+
+    template <typename T>
+    const TVector2<T> TVector2<T>::NEGATIVE_UNIT_X(-1.0, 0.0);
+
+    template <typename T>
+    const TVector2<T> TVector2<T>::NEGATIVE_UNIT_Y(0.0, -1.0);
 }

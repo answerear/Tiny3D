@@ -19,7 +19,8 @@
 
 namespace Tiny3D
 {
-    inline Vector3::Vector3()
+    template <typename T>
+    inline TVector3<T>::TVector3()
         : _x(0.0)
         , _y(0.0)
         , _z(0.0)
@@ -27,7 +28,8 @@ namespace Tiny3D
 
     }
 
-    inline Vector3::Vector3(Real x, Real y, Real z)
+    template <typename T>
+    inline TVector3<T>::TVector3(T x, T y, T z)
         : _x(x)
         , _y(y)
         , _z(z)
@@ -35,7 +37,8 @@ namespace Tiny3D
 
     }
 
-    inline Vector3::Vector3(const Vector3 &other)
+    template <typename T>
+    inline TVector3<T>::TVector3(const TVector3 &other)
         : _x(other._x)
         , _y(other._y)
         , _z(other._z)
@@ -43,59 +46,70 @@ namespace Tiny3D
 
     }
 
-    inline Vector3::operator const Real *() const
+    template <typename T>
+    inline TVector3<T>::operator const T *() const
     {
         return &_x;
     }
 
-    inline Vector3::operator Real *()
+    template <typename T>
+    inline TVector3<T>::operator T *()
     {
         return &_x;
     }
 
-    inline Real Vector3::operator [](int32_t i) const
+    template <typename T>
+    inline T TVector3<T>::operator [](int32_t i) const
     {
         T3D_ASSERT(i < 3);
         return *(&_x+i);
     }
 
-    inline Real &Vector3::operator [](int32_t i)
+    template <typename T>
+    inline T &TVector3<T>::operator [](int32_t i)
     {
         T3D_ASSERT(i < 3);
         return *(&_x+i);
     }
 
-    inline Real Vector3::x() const
+    template <typename T>
+    inline T TVector3<T>::x() const
     {
         return _x;
     }
 
-    inline Real &Vector3::x()
+    template <typename T>
+    inline T &TVector3<T>::x()
     {
         return _x;
     }
 
-    inline Real Vector3::y() const
+    template <typename T>
+    inline T TVector3<T>::y() const
     {
         return _y;
     }
 
-    inline Real &Vector3::y()
+    template <typename T>
+    inline T &TVector3<T>::y()
     {
         return _y;
     }
 
-    inline Real Vector3::z() const
+    template <typename T>
+    inline T TVector3<T>::z() const
     {
         return _z;
     }
 
-    inline Real &Vector3::z()
+    template <typename T>
+    inline T &TVector3<T>::z()
     {
         return _z;
     }
 
-    inline Vector3 &Vector3::operator =(const Vector3 &other)
+    template <typename T>
+    inline TVector3<T> &TVector3<T>::operator =(const TVector3 &other)
     {
         _x = other._x;
         _y = other._y;
@@ -103,61 +117,72 @@ namespace Tiny3D
         return *this;
     }
 
-    inline bool Vector3::operator ==(const Vector3 &other) const
+    template <typename T>
+    inline bool TVector3<T>::operator ==(const TVector3 &other) const
     {
         return (_x == other._x && _y == other._y && _z == other._z);
     }
 
-    inline bool Vector3::operator !=(const Vector3 &other) const
+    template <typename T>
+    inline bool TVector3<T>::operator !=(const TVector3 &other) const
     {
         return (_x != other._x || _y != other._y || _z != other._z);
     }
 
-    inline int32_t Vector3::compareArrays(const Vector3 &other) const
+    template <typename T>
+    inline int32_t TVector3<T>::compareArrays(const TVector3 &other) const
     {
-        return memcmp(&_x, &other._x, 3*sizeof(Real));
+        return memcmp(&_x, &other._x, 3*sizeof(T));
     }
 
-    inline bool Vector3::operator <(const Vector3 &other) const
+    template <typename T>
+    inline bool TVector3<T>::operator <(const TVector3 &other) const
     {
         return compareArrays(other) < 0;
     }
 
-    inline bool Vector3::operator <=(const Vector3 &other) const
+    template <typename T>
+    inline bool TVector3<T>::operator <=(const TVector3 &other) const
     {
         return compareArrays(other) <= 0;
     }
 
-    inline bool Vector3::operator >(const Vector3 &other) const
+    template <typename T>
+    inline bool TVector3<T>::operator >(const TVector3 &other) const
     {
         return compareArrays(other) > 0;
     }
 
-    inline bool Vector3::operator >=(const Vector3 &other) const
+    template <typename T>
+    inline bool TVector3<T>::operator >=(const TVector3 &other) const
     {
         return compareArrays(other) >= 0;
     }
 
-    inline Vector3 Vector3::operator +(const Vector3 &other) const
+    template <typename T>
+    inline TVector3<T> TVector3<T>::operator +(const TVector3 &other) const
     {
-        return Vector3(_x + other._x, _y + other._y, _z + other._z);
+        return TVector3(_x + other._x, _y + other._y, _z + other._z);
     }
 
-    inline Vector3 Vector3::operator -(const Vector3 &other) const
+    template <typename T>
+    inline TVector3<T> TVector3<T>::operator -(const TVector3 &other) const
     {
-        return Vector3(_x - other._x, _y - other._y, _z - other._z);
+        return TVector3(_x - other._x, _y - other._y, _z - other._z);
     }
 
-    inline Vector3 Vector3::operator *(Real scalar) const
+    template <typename T>
+    inline TVector3<T> TVector3<T>::operator *(T scalar) const
     {
-        return Vector3(scalar * _x, scalar * _y, scalar * _z);
+        return TVector3(scalar * _x, scalar * _y, scalar * _z);
     }
 
-    inline Vector3 Vector3::operator /(Real scalar) const
+    template <typename T>
+    inline TVector3<T> TVector3<T>::operator /(T scalar) const
     {
-        Vector3 result;
+        TVector3 result;
 
-        if (scalar != REAL_ZERO)
+        if (scalar != TReal<T>::ZERO)
         {
             result._x = _x / scalar;
             result._y = _y / scalar;
@@ -167,21 +192,24 @@ namespace Tiny3D
         return result;
     }
 
-    inline Vector3 Vector3::operator *(const Vector3 &other) const
+    template <typename T>
+    inline TVector3<T> TVector3<T>::operator *(const TVector3 &other) const
     {
-        Vector3 v;
+        TVector3 v;
         v.x() = _x * other._x;
         v.y() = _y * other._y;
         v.z() = _z * other._z;
         return v;
     }
 
-    inline Vector3 Vector3::operator -() const
+    template <typename T>
+    inline TVector3<T> TVector3<T>::operator -() const
     {
-        return Vector3(-_x, -_y, -_z);
+        return TVector3(-_x, -_y, -_z);
     }
 
-    inline Vector3 &Vector3::operator +=(const Vector3 &other)
+    template <typename T>
+    inline TVector3<T> &TVector3<T>::operator +=(const TVector3 &other)
     {
         _x += other._x;
         _y += other._y;
@@ -189,7 +217,8 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Vector3 &Vector3::operator -=(const Vector3 &other)
+    template <typename T>
+    inline TVector3<T> &TVector3<T>::operator -=(const TVector3 &other)
     {
         _x -= other._x;
         _y -= other._y;
@@ -197,15 +226,17 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Vector3 &Vector3::operator *=(Real fScalar)
+    template <typename T>
+    inline TVector3<T> &TVector3<T>::operator *=(T scalar)
     {
-        _x *= fScalar;
-        _y *= fScalar;
-        _z *= fScalar;
+        _x *= scalar;
+        _y *= scalar;
+        _z *= scalar;
         return *this;
     }
 
-    inline Vector3 &Vector3::operator *=( const Vector3 &rkVector)
+    template <typename T>
+    inline TVector3<T> &TVector3<T>::operator *=( const TVector3 &rkVector)
     {
         _x *= rkVector._x;
         _y *= rkVector._y;
@@ -213,10 +244,10 @@ namespace Tiny3D
         return *this;
     }
 
-
-    inline Vector3 &Vector3::operator /=(Real scalar)
+    template <typename T>
+    inline TVector3<T> &TVector3<T>::operator /=(T scalar)
     {
-        if (scalar != REAL_ZERO)
+        if (scalar != TReal<T>::ZERO)
         {
             _x /= scalar;
             _y /= scalar;
@@ -224,51 +255,58 @@ namespace Tiny3D
         }
         else
         {
-            _x = REAL_ZERO;
-            _y = REAL_ZERO;
-            _z = REAL_ZERO;
+            _x = TReal<T>::ZERO;
+            _y = TReal<T>::ZERO;
+            _z = TReal<T>::ZERO;
         }
 
         return *this;
     }
 
-    inline Real Vector3::length() const
+    template <typename T>
+    inline T TVector3<T>::length() const
     {
-        return Math::sqrt(_x * _x + _y * _y + _z * _z);
+        return TMath<T>::sqrt(_x * _x + _y * _y + _z * _z);
     }
 
-    inline Real Vector3::squaredLength() const
+    template <typename T>
+    inline T TVector3<T>::squaredLength() const
     {
         return (_x * _x + _y * _y + _z * _z);
     }
 
-    inline Real Vector3::distance(const Vector3 &other) const
+    template <typename T>
+    inline T TVector3<T>::distance(const TVector3 &other) const
     {
         return (*this - other).length();
     }
 
-    inline Real Vector3::squaredDistance(const Vector3 &other) const
+    template <typename T>
+    inline T TVector3<T>::squaredDistance(const TVector3 &other) const
     {
         return (*this - other).squaredLength();
     }
 
-    inline Real Vector3::dot(const Vector3 &other) const
+    template <typename T>
+    inline T TVector3<T>::dot(const TVector3 &other) const
     {
         return (_x * other._x + _y * other._y + _z * other._z);
     }
 
-    inline Vector3 Vector3::cross(const Vector3 &other) const
+    template <typename T>
+    inline TVector3<T> TVector3<T>::cross(const TVector3 &other) const
     {
-        return Vector3(_y * other._z - _z * other._y,
+        return TVector3(_y * other._z - _z * other._y,
             _z * other._x - _x * other._z,
             _x * other._y - _y * other._x);
     }
 
-    inline Real Vector3::normalize()
+    template <typename T>
+    inline T TVector3<T>::normalize()
     {
-        Real len = length();
+        T len = length();
 
-        if (len > REAL_ZERO)
+        if (len > TReal<T>::ZERO)
         {
             _x /= len;
             _y /= len;
@@ -276,17 +314,42 @@ namespace Tiny3D
         }
         else
         {
-            len = REAL_ZERO;
-            _x = REAL_ZERO;
-            _y = REAL_ZERO;
-            _z = REAL_ZERO;
+            len = TReal<T>::ZERO;
+            _x = TReal<T>::ZERO;
+            _y = TReal<T>::ZERO;
+            _z = TReal<T>::ZERO;
         }
 
         return len;
     }
 
-    inline Vector3 operator *(Real scalar, const Vector3 &rkV)
+    template <typename T>
+    inline TVector3<T> operator *(T scalar, const TVector3<T> &rkV)
     {
-        return Vector3(scalar * rkV.x(), scalar * rkV.y(), scalar * rkV.z());
+        return TVector3<T>(scalar * rkV.x(), scalar * rkV.y(), scalar * rkV.z());
     }
+
+    template <typename T>
+    const TVector3<T> TVector3<T>::ZERO(0.0, 0.0, 0.0);
+
+    template <typename T>
+    const TVector3<T> TVector3<T>::UNIT_SCALE(1.0, 1.0, 1.0);
+
+    template <typename T>
+    const TVector3<T> TVector3<T>::UNIT_X(1.0, 0.0, 0.0);
+
+    template <typename T>
+    const TVector3<T> TVector3<T>::UNIT_Y(0.0, 1.0, 0.0);
+
+    template <typename T>
+    const TVector3<T> TVector3<T>::UNIT_Z(0.0, 0.0, 1.0);
+
+    template <typename T>
+    const TVector3<T> TVector3<T>::NEGATIVE_UNIT_X(-1.0, 0.0, 0.0);
+
+    template <typename T>
+    const TVector3<T> TVector3<T>::NEGATIVE_UNIT_Y(0.0, -1.0, 0.0);
+
+    template <typename T>
+    const TVector3<T> TVector3<T>::NEGATIVE_UNIT_Z(0.0, 0.0, -1.0);
 }

@@ -32,6 +32,8 @@ namespace Tiny3D
 
     inline fix64::fix64(float32_t value)
     {
+        float a = MIN_FLOAT_VALUE;
+        float b = MAX_FLOAT_VALUE;
         T3D_ASSERT(value <= MAX_FLOAT_VALUE && value >= MIN_FLOAT_VALUE);
         m = (int64_t)(value * (1 << DECIMAL_BITS));
     }

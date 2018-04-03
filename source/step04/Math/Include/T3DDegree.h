@@ -27,86 +27,88 @@
 namespace Tiny3D
 {
     /// 角度类，用于表示角度
-    class T3D_MATH_API Degree
+    template <typename T>
+    class TDegree
     {
     public:
         /// 指定实数角度值的构造函数
-        explicit Degree(Real fDegree = 0.0);
+        explicit TDegree(T degree = TReal<T>::ZERO);
         /// 指定弧度对象的构造函数
-        Degree(const Radian &radian);
+        TDegree(const TRadian<T> &radian);
         /// 拷贝构造函数
-        Degree(const Degree &other);
+        TDegree(const TDegree &other);
 
         /// 重载赋值操作符，从一个实数角度赋值
-        Degree &operator =(Real fDegree);
+        TDegree &operator =(T degree);
         /// 重载赋值操作符，从另外一个角度对象赋值
-        Degree &operator =(const Degree &other);
+        TDegree &operator =(const TDegree &other);
         /// 重载赋值操作符，从一个弧度对象赋值
-        Degree &operator =(const Radian &radian);
+        TDegree &operator =(const TRadian<T> &radian);
 
         /// 重载取正数操作符
-        const Degree &operator +() const;
+        const TDegree &operator +() const;
         /// 重载取反操作符
-        Degree operator -() const;
+        TDegree operator -() const;
 
         /// 重载相等操作符
-        bool operator ==(const Degree &other) const;
+        bool operator ==(const TDegree &other) const;
         /// 重载不等操作符
-        bool operator !=(const Degree &other) const;
+        bool operator !=(const TDegree &other) const;
         /// 重载小于操作符
-        bool operator <(const Degree &other) const;
+        bool operator <(const TDegree &other) const;
         /// 重载小于等于操作符
-        bool operator <=(const Degree &other) const;
+        bool operator <=(const TDegree &other) const;
         /// 重载大于操作符
-        bool operator >(const Degree &other) const;
+        bool operator >(const TDegree &other) const;
         /// 重载大于等于操作符
-        bool operator >=(const Degree &other) const;
+        bool operator >=(const TDegree &other) const;
 
         /// 重载加法操作符，跟另一个角度对象相加
-        Degree operator +(const Degree &other) const;
+        TDegree operator +(const TDegree &other) const;
         /// 重载减法操作符，跟另一个角度对象相减
-        Degree operator -(const Degree &other) const;
+        TDegree operator -(const TDegree &other) const;
 
         /// 重载加法操作符，跟另一个弧度对象相加
-        Degree operator +(const Radian &radian) const;
+        TDegree operator +(const TRadian<T> &radian) const;
         /// 重载减法操作符，跟另一个弧度对象相减
-        Degree operator -(const Radian &radian) const;
+        TDegree operator -(const TRadian<T> &radian) const;
 
         /// 重载加法赋值操作符，跟另一个角度对象相加
-        Degree &operator +=(const Degree &other);
+        TDegree &operator +=(const TDegree &other);
         /// 重载减法赋值操作符，跟另一个角度对象相减
-        Degree &operator -=(const Degree &other);
+        TDegree &operator -=(const TDegree &other);
 
         /// 重载加法赋值操作符，跟另一个弧度对象相加
-        Degree &operator +=(const Radian &radian);
+        TDegree &operator +=(const TRadian<T> &radian);
         /// 重载减法赋值操作符，跟另一个弧度对象相减
-        Degree &operator -=(const Radian &radian);
+        TDegree &operator -=(const TRadian<T> &radian);
 
         /// 重载乘法操作符，跟一个标量实数相乘
-        Degree operator *(Real scalar) const;
+        TDegree operator *(T scalar) const;
         /// 重载除法操作符，跟一个标量实数相除
-        Degree operator /(Real scalar) const;
+        TDegree operator /(T scalar) const;
 
         /// 重载乘法赋值操作符，跟一个标量实数相乘
-        Degree &operator *=(Real scalar);
+        TDegree &operator *=(T scalar);
         /// 重载除法赋值操作符，跟一个标量实数相除
-        Degree &operator /=(Real scalar);
+        TDegree &operator /=(T scalar);
 
         /// 获取真实的角度值，返回一个实数值
-        Real valueDegrees() const;
+        T valueDegrees() const;
         /// 获取真实的弧度制，返回一个实数值
-        Real valueRadians() const;
+        T valueRadians() const;
 
     private:
-        Real    mDegree;
+        T    mDegree;
     };
 
     #include "T3DDegree.inl"
 
     /// 重载标量和角度乘法操作符
-    inline Degree operator *(Real scalar, const Degree &degree)
+    template <typename T>
+    inline TDegree<T> operator *(T scalar, const TDegree<T> &degree)
     {
-        return Degree(scalar * degree.valueDegrees());
+        return TDegree<T>(scalar * degree.valueDegrees());
     }
 }
 

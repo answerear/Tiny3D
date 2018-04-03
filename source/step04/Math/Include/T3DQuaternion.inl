@@ -2,21 +2,23 @@
 
 namespace Tiny3D
 {
-    inline void Quaternion::fromAngleAxis(const Radian &rkRadians, 
-        const Vector3 &rkAxis)
+    template <typename T>
+    inline void TQuaternion<T>::fromAngleAxis(const TRadian<T> &rkRadians, 
+        const TVector3<T> &rkAxis)
     {
-        Radian fHalfAngle(0.5f * rkRadians.valueRadians());
-        Real fSin = Math::sin(fHalfAngle);
-        _w = Math::cos(fHalfAngle);
+        TRadian<T> fHalfAngle(0.5f * rkRadians.valueRadians());
+        T fSin = TMath<T>::sin(fHalfAngle);
+        _w = TMath<T>::cos(fHalfAngle);
         _x = fSin * rkAxis.x();
         _y = fSin * rkAxis.y();
         _z = fSin * rkAxis.z();
     }
 
-    inline void Quaternion::fromAxis(const Vector3 &rkXAxis, 
-        const Vector3 &rkYAxis, const Vector3 &rkZAxis)
+    template <typename T>
+    inline void TQuaternion<T>::fromAxis(const TVector3<T> &rkXAxis, 
+        const TVector3<T> &rkYAxis, const TVector3<T> &rkZAxis)
     {
-        Matrix3 kRot;
+        TMatrix3<T> kRot;
 
         kRot[0][0] = rkXAxis.x();
         kRot[1][0] = rkXAxis.y();
@@ -33,9 +35,10 @@ namespace Tiny3D
         fromRotationMatrix(kRot);
     }
 
-    inline void Quaternion::fromAxis(const Vector3 *akAxis)
+    template <typename T>
+    inline void TQuaternion<T>::fromAxis(const TVector3<T> *akAxis)
     {
-        Matrix3 kRot;
+        TMatrix3<T> kRot;
 
         kRot[0][0] = akAxis[0].x();
         kRot[1][0] = akAxis[0].y();
@@ -52,7 +55,8 @@ namespace Tiny3D
         fromRotationMatrix(kRot);
     }
 
-    inline Quaternion::Quaternion()
+    template <typename T>
+    inline TQuaternion<T>::TQuaternion()
         : _w(0.0)
         , _x(0.0)
         , _y(0.0)
@@ -61,7 +65,8 @@ namespace Tiny3D
 
     }
 
-    inline Quaternion::Quaternion(const Quaternion &other)
+    template <typename T>
+    inline TQuaternion<T>::TQuaternion(const TQuaternion &other)
     {
         _w = other._w;
         _x = other._x;
@@ -69,7 +74,8 @@ namespace Tiny3D
         _z = other._z;
     }
 
-    inline Quaternion::Quaternion(Real w, Real x, Real y, Real z)
+    template <typename T>
+    inline TQuaternion<T>::TQuaternion(T w, T x, T y, T z)
         : _w(w)
         , _x(x)
         , _y(y)
@@ -78,28 +84,33 @@ namespace Tiny3D
 
     }
 
-    inline Quaternion::Quaternion(const Matrix3 &rkRot)
+    template <typename T>
+    inline TQuaternion<T>::TQuaternion(const TMatrix3<T> &rkRot)
     {
         fromRotationMatrix(rkRot);
     }
 
-    inline Quaternion::Quaternion(const Radian &rkAngle, const Vector3 &rkAxis)
+    template <typename T>
+    inline TQuaternion<T>::TQuaternion(const TRadian<T> &rkAngle, const TVector3<T> &rkAxis)
     {
         fromAngleAxis(rkAngle, rkAxis);
     }
 
-    inline Quaternion::Quaternion(const Vector3 &rkXAxis, 
-        const Vector3 &rkYAxis, const Vector3 &rkZAxis)
+    template <typename T>
+    inline TQuaternion<T>::TQuaternion(const TVector3<T> &rkXAxis, 
+        const TVector3<T> &rkYAxis, const TVector3<T> &rkZAxis)
     {
         fromAxis(rkXAxis, rkYAxis, rkZAxis);
     }
 
-    inline Quaternion::Quaternion(const Vector3 *akAxis)
+    template <typename T>
+    inline TQuaternion<T>::TQuaternion(const TVector3<T> *akAxis)
     {
         fromAxis(akAxis);
     }
 
-    inline Quaternion::Quaternion(Real *values)
+    template <typename T>
+    inline TQuaternion<T>::TQuaternion(T *values)
         : _w(values[0])
         , _x(values[1])
         , _y(values[2])
@@ -107,69 +118,82 @@ namespace Tiny3D
     {
     }
 
-    inline Quaternion::operator const Real *() const
+    template <typename T>
+    inline TQuaternion<T>::operator const T *() const
     {
         return &_w;
     }
 
-    inline Quaternion::operator Real *()
+    template <typename T>
+    inline TQuaternion<T>::operator T *()
     {
         return &_w;
     }
 
-    inline Real Quaternion::operator [](int32_t i) const
+    template <typename T>
+    inline T TQuaternion<T>::operator [](int32_t i) const
     {
         T3D_ASSERT(i >= 0 && i < 4);
         return *(&_w + i);
     }
 
-    inline Real &Quaternion::operator [](int32_t i)
+    template <typename T>
+    inline T &TQuaternion<T>::operator [](int32_t i)
     {
         T3D_ASSERT(i >= 0 && i < 4);
         return *(&_w + i);
     }
 
-    inline Real Quaternion::x() const
+    template <typename T>
+    inline T TQuaternion<T>::x() const
     {
         return _x;
     }
 
-    inline Real &Quaternion::x()
+    template <typename T>
+    inline T &TQuaternion<T>::x()
     {
         return _x;
     }
 
-    inline Real Quaternion::y() const
+    template <typename T>
+    inline T TQuaternion<T>::y() const
     {
         return _y;
     }
 
-    inline Real &Quaternion::y()
+    template <typename T>
+    inline T &TQuaternion<T>::y()
     {
         return _y;
     }
 
-    inline Real Quaternion::z() const
+    template <typename T>
+    inline T TQuaternion<T>::z() const
     {
         return _z;
     }
 
-    inline Real &Quaternion::z()
+    template <typename T>
+    inline T &TQuaternion<T>::z()
     {
         return _z;
     }
 
-    inline Real Quaternion::w() const
+    template <typename T>
+    inline T TQuaternion<T>::w() const
     {
         return _w;
     }
 
-    inline Real &Quaternion::w()
+    template <typename T>
+    inline T &TQuaternion<T>::w()
     {
         return _w;
     }
 
-    inline bool Quaternion::operator ==(const Quaternion &other) const
+    template <typename T>
+    inline bool TQuaternion<T>::operator ==(const TQuaternion &other) const
     {
         return (_w == other._w 
             && _x == other._x 
@@ -177,12 +201,14 @@ namespace Tiny3D
             && _z == other._z);
     }
 
-    inline bool Quaternion::operator !=(const Quaternion &other) const
+    template <typename T>
+    inline bool TQuaternion<T>::operator !=(const TQuaternion &other) const
     {
         return !operator ==(other);
     }
 
-    inline Quaternion &Quaternion::operator =(const Quaternion &other)
+    template <typename T>
+    inline TQuaternion<T> &TQuaternion<T>::operator =(const TQuaternion &other)
     {
         _w = other._w;
         _x = other._x;
@@ -191,9 +217,10 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Quaternion Quaternion::operator +(const Quaternion &other) const
+    template <typename T>
+    inline TQuaternion<T> TQuaternion<T>::operator +(const TQuaternion &other) const
     {
-        return Quaternion(
+        return TQuaternion(
             _w + other._w, 
             _x + other._x,
             _y + other._y, 
@@ -201,9 +228,10 @@ namespace Tiny3D
         );
     }
 
-    inline Quaternion Quaternion::operator -(const Quaternion &other) const
+    template <typename T>
+    inline TQuaternion<T> TQuaternion<T>::operator -(const TQuaternion &other) const
     {
-        return Quaternion(
+        return TQuaternion(
             _w - other._w, 
             _x - other._x, 
             _y - other._y, 
@@ -211,9 +239,10 @@ namespace Tiny3D
         );
     }
 
-    inline Quaternion Quaternion::operator *(const Quaternion &other) const
+    template <typename T>
+    inline TQuaternion<T> TQuaternion<T>::operator *(const TQuaternion &other) const
     {
-        return Quaternion
+        return TQuaternion
         (
             _w * other._w - _x * other._x - _y * other._y - _z * other._z,
             _w * other._x + _x * other._w + _y * other._z - _z * other._y,
@@ -222,23 +251,26 @@ namespace Tiny3D
         );
     }
 
-    inline Quaternion Quaternion::operator *(Real scalar) const
+    template <typename T>
+    inline TQuaternion<T> TQuaternion<T>::operator *(T scalar) const
     {
-        return Quaternion(_w*scalar, _x*scalar, _y*scalar, _z*scalar);
+        return TQuaternion(_w*scalar, _x*scalar, _y*scalar, _z*scalar);
     }
 
-    inline Quaternion Quaternion::operator /(Real scalar) const
+    template <typename T>
+    inline TQuaternion<T> TQuaternion<T>::operator /(T scalar) const
     {
-        Real fInvertScalar = 0.0f;
-        if (scalar != REAL_ZERO)
+        T fInvertScalar = 0.0f;
+        if (scalar != TReal<T>::ZERO)
             fInvertScalar = 1.0f / scalar;
-        return Quaternion(_w * fInvertScalar, 
+        return TQuaternion(_w * fInvertScalar, 
             _x * fInvertScalar, 
             _y * fInvertScalar, 
             _z * fInvertScalar);
     }
 
-    inline Quaternion &Quaternion::operator +=(const Quaternion &other)
+    template <typename T>
+    inline TQuaternion<T> &TQuaternion<T>::operator +=(const TQuaternion &other)
     {
         _w += other._w;
         _x += other._x;
@@ -247,7 +279,8 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Quaternion &Quaternion::operator -=(const Quaternion &other)
+    template <typename T>
+    inline TQuaternion<T> &TQuaternion<T>::operator -=(const TQuaternion &other)
     {
         _w -= other._w;
         _x -= other._x;
@@ -256,17 +289,19 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Quaternion &Quaternion::operator *=(const Quaternion &other)
+    template <typename T>
+    inline TQuaternion<T> &TQuaternion<T>::operator *=(const TQuaternion &other)
     {
-        Real w = _w * other._w - _x * other._x - _y * other._y - _z * other._z;
-        Real x = _w * other._x + _x * other._w + _y * other._z - _z * other._y;
-        Real y = _w * other._y + _y * other._w + _z * other._x - _x * other._z;
-        Real z = _w * other._z + _z * other._w + _x * other._y - _y * other._x;
+        T w = _w * other._w - _x * other._x - _y * other._y - _z * other._z;
+        T x = _w * other._x + _x * other._w + _y * other._z - _z * other._y;
+        T y = _w * other._y + _y * other._w + _z * other._x - _x * other._z;
+        T z = _w * other._z + _z * other._w + _x * other._y - _y * other._x;
         _w = w, _x = x, _y = y, _z = z;
         return *this;
     }
 
-    inline Quaternion &Quaternion::operator *=(Real scalar)
+    template <typename T>
+    inline TQuaternion<T> &TQuaternion<T>::operator *=(T scalar)
     {
         _w *= scalar;
         _x *= scalar;
@@ -275,11 +310,12 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Quaternion &Quaternion::operator /=(Real scalar)
+    template <typename T>
+    inline TQuaternion<T> &TQuaternion<T>::operator /=(T scalar)
     {
-        Real fInvertScalar = 0.0f;
-        if (scalar != REAL_ZERO)
-            fInvertScalar = 1.0f / scalar;
+        T fInvertScalar = TReal<T>::ZERO;
+        if (scalar != TReal<T>::ZERO)
+            fInvertScalar = TReal<T>::ONE / scalar;
         _w *= fInvertScalar;
         _x *= fInvertScalar;
         _y *= fInvertScalar;
@@ -287,16 +323,18 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Quaternion Quaternion::operator -() const
+    template <typename T>
+    inline TQuaternion<T> TQuaternion<T>::operator -() const
     {
-        return Quaternion(-_w, -_x, -_y, -_z);
+        return TQuaternion(-_w, -_x, -_y, -_z);
     }
 
-    inline Vector3 Quaternion::operator* (const Vector3& v) const
+    template <typename T>
+    inline TVector3<T> TQuaternion<T>::operator* (const TVector3<T>& v) const
     {
         // nVidia SDK implementation
-        Vector3 uv, uuv;
-        Vector3 qvec(_x, _y, _z);
+        TVector3<T> uv, uuv;
+        TVector3<T> qvec(_x, _y, _z);
         uv = qvec.cross(v);
         uuv = qvec.cross(uv);
         uv *= (2.0f * _w);
@@ -305,31 +343,35 @@ namespace Tiny3D
         return v + uv + uuv;
     }
 
-    inline Real Quaternion::dot(const Quaternion &other) const
+    template <typename T>
+    inline T TQuaternion<T>::dot(const TQuaternion &other) const
     {
         return (_x * other._x + _y * other._y + _z * other._z + _w * other._w);
     }
 
-    inline Real Quaternion::norm() const
+    template <typename T>
+    inline T TQuaternion<T>::norm() const
     {
         return _w * _w + _x * _x + _y * _y + _z * _z;
     }
 
-    inline Real Quaternion::normalize()
+    template <typename T>
+    inline T TQuaternion<T>::normalize()
     {
-        Real len = norm();
-        Real factor = 1.0f / Math::sqrt(len);
+        T len = norm();
+        T factor = 1.0f / TMath<T>::sqrt(len);
         *this = *this * factor;
         return len;
     }
 
-    inline Quaternion Quaternion::inverse() const
+    template <typename T>
+    inline TQuaternion<T> TQuaternion<T>::inverse() const
     {
-        Real fNorm = _w * _w + _x * _x + _y * _y + _z * _z;
-        if (fNorm > REAL_ZERO)
+        T fNorm = _w * _w + _x * _x + _y * _y + _z * _z;
+        if (fNorm > TReal<T>::ZERO)
         {
-            Real fInvNorm = 1.0f / fNorm;
-            return Quaternion(
+            T fInvNorm = TReal<T>::ONE / fNorm;
+            return TQuaternion(
                  _w * fInvNorm,
                 -_x * fInvNorm, 
                 -_y * fInvNorm, 
@@ -342,142 +384,295 @@ namespace Tiny3D
         }
     }
 
-    inline void Quaternion::toAngleAxis(Degree &rDegree, Vector3 &rAxis) const
+    template <typename T>
+    inline void TQuaternion<T>::toAngleAxis(TDegree<T> &rDegree, TVector3<T> &rAxis) const
     {
-        Radian rAngle;
+        TRadian<T> rAngle;
         toAngleAxis(rAngle, rAxis);
         rDegree = rAngle;
     }
 
-    inline Radian Quaternion::getPitch(bool reprojectAxis /* = true */) const
+    template <typename T>
+    inline TRadian<T> TQuaternion<T>::getPitch(bool reprojectAxis /* = true */) const
     {
         if (reprojectAxis)
         {
             // pitch = atan2(localy.z, localy.y)
             // pick parts of yAxis() implementation that we need
-            Real fTx = 2.0f * _x;
-            //          Real fTy  = 2.0f*y;
-            Real fTz = 2.0f * _z;
-            Real fTwx = fTx * _w;
-            Real fTxx = fTx * _x;
-            Real fTyz = fTz * _y;
-            Real fTzz = fTz * _z;
+            T fTx = 2.0f * _x;
+            //          T fTy  = 2.0f*y;
+            T fTz = 2.0f * _z;
+            T fTwx = fTx * _w;
+            T fTxx = fTx * _x;
+            T fTyz = fTz * _y;
+            T fTzz = fTz * _z;
 
-            // Vector3(fTxy-fTwz, 1.0-(fTxx+fTzz), fTyz+fTwx);
-            return Radian(Math::atan2(fTyz + fTwx, 1.0f - (fTxx + fTzz)));
+            // TVector3<T>(fTxy-fTwz, 1.0-(fTxx+fTzz), fTyz+fTwx);
+            return TRadian<T>(TMath<T>::atan2(fTyz + fTwx, 1.0f - (fTxx + fTzz)));
         }
         else
         {
             // internal version
-            return Radian(Math::atan2(2 * (_y * _z + _w * _x),
+            return TRadian<T>(TMath<T>::atan2(2 * (_y * _z + _w * _x),
                 _w * _w - _x * _x - _y * _y + _z * _z));
         }
     }
 
-    inline Radian Quaternion::getYaw(bool reprojectAxis) const
+    template <typename T>
+    inline TRadian<T> TQuaternion<T>::getYaw(bool reprojectAxis) const
     {
         if (reprojectAxis)
         {
             // yaw = atan2(localz.x, localz.z)
             // pick parts of zAxis() implementation that we need
-            Real fTx = 2.0f * _x;
-            Real fTy = 2.0f * _y;
-            Real fTz = 2.0f * _z;
-            Real fTwy = fTy * _w;
-            Real fTxx = fTx * _x;
-            Real fTxz = fTz * _x;
-            Real fTyy = fTy * _y;
+            T fTx = 2.0f * _x;
+            T fTy = 2.0f * _y;
+            T fTz = 2.0f * _z;
+            T fTwy = fTy * _w;
+            T fTxx = fTx * _x;
+            T fTxz = fTz * _x;
+            T fTyy = fTy * _y;
 
-            // Vector3(fTxz+fTwy, fTyz-fTwx, 1.0-(fTxx+fTyy));
+            // TVector3<T>(fTxz+fTwy, fTyz-fTwx, 1.0-(fTxx+fTyy));
 
-            return Radian(Math::atan2(
+            return TRadian<T>(TMath<T>::atan2(
                 fTxz + fTwy,
                 1.0f - (fTxx + fTyy)));
         }
         else
         {
             // internal version
-            return Radian(Math::asin(-2 * (_x * _z - _w * _y)));
+            return TRadian<T>(TMath<T>::asin(-2 * (_x * _z - _w * _y)));
         }
     }
 
-    inline Radian Quaternion::getRoll(bool reprojectAxis) const
+    template <typename T>
+    inline TRadian<T> TQuaternion<T>::getRoll(bool reprojectAxis) const
     {
         if (reprojectAxis)
         {
             // roll = atan2(localx.y, localx.x)
             // pick parts of xAxis() implementation that we need
-            //          Real fTx  = 2.0*x;
-            Real fTy = 2.0f * _y;
-            Real fTz = 2.0f * _z;
-            Real fTwz = fTz * _w;
-            Real fTxy = fTy * _x;
-            Real fTyy = fTy * _y;
-            Real fTzz = fTz * _z;
+            //          T fTx  = 2.0*x;
+            T fTy = 2.0f * _y;
+            T fTz = 2.0f * _z;
+            T fTwz = fTz * _w;
+            T fTxy = fTy * _x;
+            T fTyy = fTy * _y;
+            T fTzz = fTz * _z;
 
-            // Vector3(1.0-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
+            // TVector3<T>(1.0-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
 
-            return Radian(Math::atan2(fTxy + fTwz, 1.0f - (fTyy + fTzz)));
+            return TRadian<T>(TMath<T>::atan2(fTxy + fTwz, 1.0f - (fTyy + fTzz)));
         }
         else
         {
-            return Radian(Math::atan2(
+            return TRadian<T>(TMath<T>::atan2(
                 2 * (_x * _y + _w * _z),
                 _w * _w + _x * _x - _y * _y - _z * _z));
         }
     }
 
-    inline Vector3 Quaternion::xAxis() const
+    template <typename T>
+    inline TVector3<T> TQuaternion<T>::xAxis() const
     {
-        //Real fTx  = 2.0*x;
-        Real fTy = 2.0f * _y;
-        Real fTz = 2.0f * _z;
-        Real fTwy = fTy * _w;
-        Real fTwz = fTz * _w;
-        Real fTxy = fTy * _x;
-        Real fTxz = fTz * _x;
-        Real fTyy = fTy * _y;
-        Real fTzz = fTz * _z;
+        //T fTx  = 2.0*x;
+        T fTy = 2.0f * _y;
+        T fTz = 2.0f * _z;
+        T fTwy = fTy * _w;
+        T fTwz = fTz * _w;
+        T fTxy = fTy * _x;
+        T fTxz = fTz * _x;
+        T fTyy = fTy * _y;
+        T fTzz = fTz * _z;
 
-        return Vector3(1.0f - (fTyy + fTzz), fTxy + fTwz, fTxz - fTwy);
+        return TVector3<T>(1.0f - (fTyy + fTzz), fTxy + fTwz, fTxz - fTwy);
     }
 
-    inline Vector3 Quaternion::yAxis() const
+    template <typename T>
+    inline TVector3<T> TQuaternion<T>::yAxis() const
     {
-        Real fTx = 2.0f * _x;
-        Real fTy = 2.0f * _y;
-        Real fTz = 2.0f * _z;
-        Real fTwx = fTx * _w;
-        Real fTwz = fTz * _w;
-        Real fTxx = fTx * _x;
-        Real fTxy = fTy * _x;
-        Real fTyz = fTz * _y;
-        Real fTzz = fTz * _z;
+        T fTx = 2.0f * _x;
+        T fTy = 2.0f * _y;
+        T fTz = 2.0f * _z;
+        T fTwx = fTx * _w;
+        T fTwz = fTz * _w;
+        T fTxx = fTx * _x;
+        T fTxy = fTy * _x;
+        T fTyz = fTz * _y;
+        T fTzz = fTz * _z;
 
-        return Vector3(fTxy - fTwz, 1.0f - (fTxx + fTzz), fTyz + fTwx);
+        return TVector3<T>(fTxy - fTwz, 1.0f - (fTxx + fTzz), fTyz + fTwx);
     }
 
-    inline Vector3 Quaternion::zAxis() const
+    template <typename T>
+    inline TVector3<T> TQuaternion<T>::zAxis() const
     {
-        Real fTx = 2.0f * _x;
-        Real fTy = 2.0f * _y;
-        Real fTz = 2.0f * _z;
-        Real fTwx = fTx * _w;
-        Real fTwy = fTy * _w;
-        Real fTxx = fTx * _x;
-        Real fTxz = fTz * _x;
-        Real fTyy = fTy * _y;
-        Real fTyz = fTz * _y;
+        T fTx = 2.0f * _x;
+        T fTy = 2.0f * _y;
+        T fTz = 2.0f * _z;
+        T fTwx = fTx * _w;
+        T fTwy = fTy * _w;
+        T fTxx = fTx * _x;
+        T fTxz = fTz * _x;
+        T fTyy = fTy * _y;
+        T fTyz = fTz * _y;
 
-        return Vector3(fTxz + fTwy, fTyz - fTwx, 1.0f - (fTxx + fTyy));
+        return TVector3<T>(fTxz + fTwy, fTyz - fTwx, 1.0f - (fTxx + fTyy));
     }
 
-    inline Quaternion operator *(Real scalar, const Quaternion &rkQ)
+    template <typename T>
+    inline TQuaternion<T> operator *(T scalar, const TQuaternion<T> &rkQ)
     {
-        return Quaternion(
+        return TQuaternion<T>(
             scalar * rkQ.x(), 
             scalar * rkQ.y(), 
             scalar * rkQ.z(), 
             scalar * rkQ.w());
+    }
+
+    template <typename T>
+    const TQuaternion<T> TQuaternion<T>::IDENTITY(1.0, 0.0, 0.0, 0.0);
+
+    template <typename T>
+    const TQuaternion<T> TQuaternion<T>::ZERO(0.0, 0.0, 0.0, 0.0);
+
+    template <typename T>
+    void TQuaternion<T>::fromRotationMatrix(const TMatrix3<T> &rkRot)
+    {
+        // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
+        // article "TQuaternion Calculus and Fast Animation".
+
+        T fTrace = rkRot[0][0] + rkRot[1][1] + rkRot[2][2];
+        T fRoot;
+
+        if (fTrace > TReal<T>::ZERO)
+        {
+            // |w| > 1/2, may as well choose w > 1/2
+            fRoot = TMath<T>::sqrt(fTrace + TReal<T>::ONE);  // 2w
+            _w = TReal<T>::HALF * fRoot;
+            fRoot = TReal<T>::HALF / fRoot;  // 1/(4w)
+            _x = (rkRot[2][1] - rkRot[1][2]) * fRoot;
+            _y = (rkRot[0][2] - rkRot[2][0]) * fRoot;
+            _z = (rkRot[1][0] - rkRot[0][1]) * fRoot;
+        }
+        else
+        {
+            // |w| <= 1/2
+            static size_t s_iNext[3] = { 1, 2, 0 };
+            size_t i = 0;
+            if (rkRot[1][1] > rkRot[0][0])
+                i = 1;
+            if (rkRot[2][2] > rkRot[i][i])
+                i = 2;
+            size_t j = s_iNext[i];
+            size_t k = s_iNext[j];
+
+            fRoot = TMath<T>::sqrt(rkRot[i][i] - rkRot[j][j] - rkRot[k][k] + TReal<T>::ONE);
+            T* apkQuat[3] = { &_x, &_y, &_z };
+            *apkQuat[i] = 0.5f * fRoot;
+            fRoot = 0.5f / fRoot;
+            _w = (rkRot[k][j] - rkRot[j][k]) * fRoot;
+            *apkQuat[j] = (rkRot[j][i] + rkRot[i][j]) * fRoot;
+            *apkQuat[k] = (rkRot[k][i] + rkRot[i][k]) * fRoot;
+        }
+    }
+
+    template <typename T>
+    void TQuaternion<T>::toAngleAxis(TRadian<T> &rAngle, TVector3<T> &rAxis) const
+    {
+        // The quaternion representing the rotation is
+        //   q = cos(A/2)+sin(A/2)*(x*i+y*j+z*k)
+
+        T fSqrLength = _x * _x + _y * _y + _z * _z;
+        if (fSqrLength > TReal<T>::ZERO)
+        {
+            rAngle = T(2.0) * TMath<T>::acos(_w).valueRadians();
+            T fInvLength = TReal<T>::ONE / TMath<T>::sqrt(fSqrLength);
+            rAxis.x() = _x * fInvLength;
+            rAxis.y() = _y * fInvLength;
+            rAxis.z() = _z * fInvLength;
+        }
+        else
+        {
+            // angle is 0 (mod 2*pi), so any axis will do
+            rAngle = TRadian<T>(0.0);
+            rAxis.x() = TReal<T>::ONE;
+            rAxis.y() = TReal<T>::ZERO;
+            rAxis.z() = TReal<T>::ZERO;
+        }
+    }
+
+    template <typename T>
+    void TQuaternion<T>::toRotationMatrix(TMatrix3<T> &rRot) const
+    {
+        T fTx = _x + _x;
+        T fTy = _y + _y;
+        T fTz = _z + _z;
+        T fTwx = fTx * _w;
+        T fTwy = fTy * _w;
+        T fTwz = fTz * _w;
+        T fTxx = fTx * _x;
+        T fTxy = fTy * _x;
+        T fTxz = fTz * _x;
+        T fTyy = fTy * _y;
+        T fTyz = fTz * _y;
+        T fTzz = fTz * _z;
+
+        rRot[0][0] = TReal<T>::ONE - (fTyy + fTzz);
+        rRot[0][1] = fTxy - fTwz;
+        rRot[0][2] = fTxz + fTwy;
+        rRot[1][0] = fTxy + fTwz;
+        rRot[1][1] = TReal<T>::ONE - (fTxx + fTzz);
+        rRot[1][2] = fTyz - fTwx;
+        rRot[2][0] = fTxz - fTwy;
+        rRot[2][1] = fTyz + fTwx;
+        rRot[2][2] = TReal<T>::ONE - (fTxx + fTyy);
+    }
+
+    template <typename T>
+    TQuaternion<T> &TQuaternion<T>::slerp(const TQuaternion &rkP, const TQuaternion &rkQ,
+        T times, bool shortestPath, T threshold /* = 1e-03 */)
+    {
+        T fCos = rkP.dot(rkQ);
+        TQuaternion rkT;
+
+        // Do we need to invert rotation?
+        if (fCos < TReal<T>::ZERO && shortestPath)
+        {
+            fCos = -fCos;
+            rkT = -rkQ;
+        }
+        else
+        {
+            rkT = rkQ;
+        }
+
+        if (TMath<T>::abs(fCos) < 1 - threshold)
+        {
+            // Standard case (slerp)
+            T fSin = TMath<T>::sqrt(1 - TMath<T>::sqr(fCos));
+            TRadian<T> fAngle = TMath<T>::atan2(fSin, fCos);
+            T fInvSin = TReal<T>::ONE / fSin;
+            T fCoeff0 = TMath<T>::sin((TReal<T>::ONE - times) * fAngle) * fInvSin;
+            T fCoeff1 = TMath<T>::sin(times * fAngle) * fInvSin;
+            *this = fCoeff0 * rkP + fCoeff1 * rkT;
+        }
+        else
+        {
+            // There are two situations:
+            // 1. "rkP" and "rkQ" are very close (fCos ~= +1), so we can do a 
+            //    linear interpolation safely.
+            // 2. "rkP" and "rkQ" are almost inverse of each other (fCos ~= -1), 
+            //    there are an infinite number of possibilities interpolation. 
+            //    but we haven't have method to fix this case, so just use 
+            //    linear interpolation here.
+            TQuaternion t = (1.0f - times) * rkP + times * rkT;
+            // taking the complement requires renormalisation
+            t.normalize();
+            *this = t;
+        }
+
+        return *this;
     }
 }

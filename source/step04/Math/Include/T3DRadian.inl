@@ -1,124 +1,145 @@
 ﻿
 
-inline Radian::Radian(Real fRadian)
-        : mRadian(fRadian)
+template <typename T>
+inline TRadian<T>::TRadian(T radian)
+        : mRadian(radian)
 {
 
 }
 
-inline Radian::Radian(const Radian &other)
+template <typename T>
+inline TRadian<T>::TRadian(const TRadian &other)
     : mRadian(other.mRadian)
 {
 
 }
 
-inline Radian &Radian::operator =(Real fRadian)
+template <typename T>
+inline TRadian<T> &TRadian<T>::operator =(T radian)
 {
-    mRadian = fRadian;
+    mRadian = radian;
     return *this;
 }
 
-inline Radian &Radian::operator =(const Radian &other)
+template <typename T>
+inline TRadian<T> &TRadian<T>::operator =(const TRadian &other)
 {
     mRadian = other.mRadian;
     return *this;
 }
 
-inline const Radian &Radian::operator +() const
+template <typename T>
+inline const TRadian<T> &TRadian<T>::operator +() const
 {
     return *this;
 }
 
-inline Radian Radian::operator -() const
+template <typename T>
+inline TRadian<T> TRadian<T>::operator -() const
 {
-    return Radian(-mRadian);
+    return TRadian(-mRadian);
 }
 
-inline bool Radian::operator ==(const Radian &other) const
+template <typename T>
+inline bool TRadian<T>::operator ==(const TRadian &other) const
 {
     return (mRadian == other.mRadian);
 }
 
-inline bool Radian::operator !=(const Radian &other) const
+template <typename T>
+inline bool TRadian<T>::operator !=(const TRadian &other) const
 {
     return (mRadian != other.mRadian);
 }
 
-inline bool Radian::operator <(const Radian &other) const
+template <typename T>
+inline bool TRadian<T>::operator <(const TRadian &other) const
 {
     return (mRadian < other.mRadian);
 }
 
-inline bool Radian::operator <=(const Radian &other) const
+template <typename T>
+inline bool TRadian<T>::operator <=(const TRadian &other) const
 {
     return (mRadian <= other.mRadian);
 }
 
-inline bool Radian::operator >(const Radian &other) const
+template <typename T>
+inline bool TRadian<T>::operator >(const TRadian &other) const
 {
     return (mRadian > other.mRadian);
 }
 
-inline bool Radian::operator >=(const Radian &other) const
+template <typename T>
+inline bool TRadian<T>::operator >=(const TRadian &other) const
 {
     return (mRadian >= other.mRadian);
 }
 
-inline Radian Radian::operator +(const Radian &other) const
+template <typename T>
+inline TRadian<T> TRadian<T>::operator +(const TRadian &other) const
 {
-    return Radian(mRadian + other.mRadian);
+    return TRadian(mRadian + other.mRadian);
 }
 
-inline Radian Radian::operator -(const Radian &other) const
+template <typename T>
+inline TRadian<T> TRadian<T>::operator -(const TRadian &other) const
 {
-    return Radian(mRadian - other.mRadian);
+    return TRadian(mRadian - other.mRadian);
 }
 
-inline Radian &Radian::operator +=(const Radian &other)
+template <typename T>
+inline TRadian<T> &TRadian<T>::operator +=(const TRadian &other)
 {
     mRadian += other.mRadian;
     return *this;
 }
 
-inline Radian &Radian::operator -=(const Radian &other)
+template <typename T>
+inline TRadian<T> &TRadian<T>::operator -=(const TRadian &other)
 {
     mRadian -= other.mRadian;
     return *this;
 }
 
-inline Radian Radian::operator *(Real scalar) const
+template <typename T>
+inline TRadian<T> TRadian<T>::operator *(T scalar) const
 {
-    return Radian(mRadian * scalar);
+    return TRadian(mRadian * scalar);
 }
 
-inline Radian Radian::operator /(Real scalar) const
+template <typename T>
+inline TRadian<T> TRadian<T>::operator /(T scalar) const
 {
-    if (scalar != REAL_ZERO)
-        return Radian(mRadian / scalar);
-    return Radian();
+    if (scalar != TReal<T>::ZERO)
+        return TRadian(mRadian / scalar);
+    return TRadian();
 }
 
-inline Radian &Radian::operator *=(Real scalar)
+template <typename T>
+inline TRadian<T> &TRadian<T>::operator *=(T scalar)
 {
     mRadian *= scalar;
     return *this;
 }
 
-inline Radian &Radian::operator /=(Real scalar)
+template <typename T>
+inline TRadian<T> &TRadian<T>::operator /=(T scalar)
 {
-    if (scalar != Real(0.0))
+    if (scalar != TReal<T>::ZERO)
     {
         mRadian /= scalar;
     }
     else
     {
-        mRadian = REAL_ZERO;
+        mRadian = TReal<T>::ZERO;
     }
 
     return *this;
 }
 
-inline Real Radian::valueRadians() const
+template <typename T>
+inline T TRadian<T>::valueRadians() const
 {
     return mRadian;
 }

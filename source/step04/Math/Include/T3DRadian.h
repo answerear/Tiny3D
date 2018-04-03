@@ -27,86 +27,88 @@
 namespace Tiny3D
 {
     /// 弧度类，用于表示弧度
-    class T3D_MATH_API Radian
+    template <typename T>
+    class TRadian
     {
     public:
         /// 指定实数弧度制的构造函数.
-        explicit Radian(Real fRadian = 0.0);
+        explicit TRadian(T radian = TReal<T>::ZERO);
         /// 指定角度对象的构造函数
-        Radian(const Degree &degree);
+        TRadian(const TDegree<T> &degree);
         /// 拷贝构造函数
-        Radian(const Radian &other);
+        TRadian(const TRadian &other);
 
         /// 重载赋值操作符，从一个实数弧度赋值
-        Radian &operator =(Real fRadian);
+        TRadian &operator =(T radian);
         /// 重载赋值操作符，从一个弧度对象赋值
-        Radian &operator =(const Radian &other);
+        TRadian &operator =(const TRadian &other);
         /// 重载赋值操作符，从一个角度对象赋值
-        Radian &operator =(const Degree &degree);
+        TRadian &operator =(const TDegree<T> &degree);
 
         /// 重载取正数操作符
-        const Radian &operator +() const;
+        const TRadian &operator +() const;
         /// 重载取反操作符
-        Radian operator -() const;
+        TRadian operator -() const;
 
         /// 重载相等操作符
-        bool operator ==(const Radian &other) const;
+        bool operator ==(const TRadian &other) const;
         /// 重载不等操作符
-        bool operator !=(const Radian &other) const;
+        bool operator !=(const TRadian &other) const;
         /// 重载小于操作符
-        bool operator <(const Radian &other) const;
+        bool operator <(const TRadian &other) const;
         /// 重载小于等于操作符
-        bool operator <=(const Radian &other) const;
+        bool operator <=(const TRadian &other) const;
         /// 重载大于操作符
-        bool operator >(const Radian &other) const;
+        bool operator >(const TRadian &other) const;
         /// 重载大于等于操作符
-        bool operator >=(const Radian &other) const;
+        bool operator >=(const TRadian &other) const;
 
         /// 重载加法操作符，跟另一个弧度对象相加
-        Radian operator +(const Radian &other) const;
+        TRadian operator +(const TRadian &other) const;
         /// 重载减法操作符，跟另一个弧度对象相减
-        Radian operator -(const Radian &other) const;
+        TRadian operator -(const TRadian &other) const;
 
         /// 重载加法操作符，跟另一个角度对象相加
-        Radian operator +(const Degree &degree) const;
+        TRadian operator +(const TDegree<T> &degree) const;
         /// 重载减法操作符，跟另一个角度对象相减
-        Radian operator -(const Degree &degree) const;
+        TRadian operator -(const TDegree<T> &degree) const;
 
         /// 重载加法赋值操作符，跟另一个弧度对象相加
-        Radian &operator +=(const Radian &other);
+        TRadian &operator +=(const TRadian &other);
         /// 重载减法赋值操作符，跟另一个弧度对象相减
-        Radian &operator -=(const Radian &other);
+        TRadian &operator -=(const TRadian &other);
 
         /// 重载加法赋值操作符，跟另一个角度对象相加
-        Radian &operator +=(const Degree &degree);
+        TRadian &operator +=(const TDegree<T> &degree);
         /// 重载减法赋值操作符，跟另一个角度对象相减
-        Radian &operator -=(const Degree &degree);
+        TRadian &operator -=(const TDegree<T> &degree);
 
         /// 重载乘法操作符，跟一个标量相乘
-        Radian operator *(Real scalar) const;
+        TRadian operator *(T scalar) const;
         /// 重载除法操作符，跟一个标量相除
-        Radian operator /(Real scalar) const;
+        TRadian operator /(T scalar) const;
 
         /// 重载乘法赋值操作符，跟一个标量相乘
-        Radian &operator *=(Real scalar);
+        TRadian &operator *=(T scalar);
         /// 重载除法赋值操作符，跟一个标量相除
-        Radian &operator /=(Real scalar);
+        TRadian &operator /=(T scalar);
 
         /// 获取真实的角度值，返回一个实数值
-        Real valueDegrees() const;
+        T valueDegrees() const;
         /// 获取真实的弧度制，返回一个实数值
-        Real valueRadians() const;
+        T valueRadians() const;
 
     private:
-        Real    mRadian;
+        T    mRadian;
     };
 
     #include "T3DRadian.inl"
 
     /// 重载标量和弧度乘法操作符
-    inline Radian operator *(Real scalar, const Radian &radians)
+    template <typename T>
+    inline TRadian<T> operator *(T scalar, const TRadian<T> &radians)
     {
-        return Radian(scalar * radians.valueRadians());
+        return TRadian<T>(scalar * radians.valueRadians());
     }
 }
 

@@ -28,109 +28,110 @@
 namespace Tiny3D
 {
     /// 2D向量类
-    class T3D_MATH_API Vector2
+    template <typename T>
+    class TVector2
     {
     public:
         /// 默认构造函数
-        Vector2();
+        TVector2();
         /// 通过x, y构造对象.
-        Vector2(Real x, Real y);
+        TVector2(T x, T y);
         /// 拷贝构造
-        Vector2(const Vector2 &other);
+        TVector2(const TVector2 &other);
 
         /// 返回成员变量的数组首地址.
-        operator const Real *() const;
-        operator Real *();
+        operator const T *() const;
+        operator T *();
 
         /// 根据下标获取向量分量.
-        Real operator [](int32_t i) const;
-        Real &operator [](int32_t i);
+        T operator [](int32_t i) const;
+        T &operator [](int32_t i);
 
         /// 获取x分量.
-        Real x() const;
-        Real &x();
+        T x() const;
+        T &x();
 
         /// 获取y分量.
-        Real y() const;
-        Real &y();
+        T y() const;
+        T &y();
 
         /// 重载赋值运算符
-        Vector2 &operator =(const Vector2 &other);
+        TVector2 &operator =(const TVector2 &other);
 
         /// 重载相等运算符.
-        bool operator ==(const Vector2 &other) const;
+        bool operator ==(const TVector2 &other) const;
         /// 重载不等运算符.
-        bool operator !=(const Vector2 &other) const;
+        bool operator !=(const TVector2 &other) const;
         /// 重载小于运算符.
-        bool operator <(const Vector2 &other) const;
+        bool operator <(const TVector2 &other) const;
         /// 重载小于等于运算符.
-        bool operator <=(const Vector2 &other) const;
+        bool operator <=(const TVector2 &other) const;
         /// 重载大于运算符.
-        bool operator >(const Vector2 &other) const;
+        bool operator >(const TVector2 &other) const;
         /// 重载大于等于运算符.
-        bool operator >=(const Vector2 &other) const;
+        bool operator >=(const TVector2 &other) const;
 
         /// 重载加法运算符.
-        Vector2 operator +(const Vector2 &other) const;
+        TVector2 operator +(const TVector2 &other) const;
         /// 重载减法运算符.
-        Vector2 operator -(const Vector2 &other) const;
+        TVector2 operator -(const TVector2 &other) const;
         /// 重载乘法运算符，跟一个标量相乘.
-        Vector2 operator *(Real scalar) const;
+        TVector2 operator *(T scalar) const;
         /// 重载除法运算符，跟一个标量相除.
-        Vector2 operator /(Real scalar) const;
+        TVector2 operator /(T scalar) const;
         /// 重载乘法运算符，分别跟另一个向量的对应分量相乘
         /// x1 = x1 * x2, y1 = y1 * y2
-        Vector2 operator *(const Vector2 &other) const;
+        TVector2 operator *(const TVector2 &other) const;
 
         /// 重载取相反运算符.
-        Vector2 operator -() const;
+        TVector2 operator -() const;
 
         /// 重载加法赋值运算符，跟另一个向量相加.
-        Vector2 &operator +=(const Vector2 &other);
+        TVector2 &operator +=(const TVector2 &other);
         /// 重载减法赋值运算符，跟另一个向量相减.
-        Vector2 &operator -=(const Vector2 &other);
+        TVector2 &operator -=(const TVector2 &other);
         /// 重载乘法赋值运算符，跟一个标量相乘.
-        Vector2 &operator *=(Real scalar);
+        TVector2 &operator *=(T scalar);
         /// 重载乘法赋值运算符，跟另一个向量对应分量分别相乘
-        Vector2 &operator *=(const Vector2 &other);
+        TVector2 &operator *=(const TVector2 &other);
         /// 重载除法赋值运算符，跟一个标量相除.
-        Vector2 &operator /=(Real fScalar);
+        TVector2 &operator /=(T fScalar);
 
         /// 获取向量长度, sqrt(x*x + y*y).
-        Real length() const;
+        T length() const;
         /// 获取向量长度的平方值, x*x + y*y.
-        Real squaredLength() const;
+        T squaredLength() const;
 
         /// 获取两向量的距离.
-        Real distance(const Vector2 &other) const;
+        T distance(const TVector2 &other) const;
         /// 获取两向量的距离平方.
-        Real squaredDistance(const Vector2 &other) const;
+        T squaredDistance(const TVector2 &other) const;
 
         /// 点积、点乘、内积.
-        Real dot(const Vector2 &other) const;
+        T dot(const TVector2 &other) const;
 
         /// 外积、叉乘.
-        Real cross(const Vector2 &other) const;
+        T cross(const TVector2 &other) const;
 
         /// 规范化.
-        Real normalize();
+        T normalize();
 
         /// 计算垂直向量 (y,-x).
-        Vector2 perp() const;
+        TVector2 perp() const;
 
-        static const Vector2 ZERO;              /// 零向量
-        static const Vector2 UNIT_X;            /// X轴单位向量
-        static const Vector2 UNIT_Y;            /// Y轴单位向量
-        static const Vector2 NEGATIVE_UNIT_X;   /// X轴负方向单位向量
-        static const Vector2 NEGATIVE_UNIT_Y;   /// Y轴负方向单位向量
+        static const TVector2 ZERO;              /// 零向量
+        static const TVector2 UNIT_X;            /// X轴单位向量
+        static const TVector2 UNIT_Y;            /// Y轴单位向量
+        static const TVector2 NEGATIVE_UNIT_X;   /// X轴负方向单位向量
+        static const TVector2 NEGATIVE_UNIT_Y;   /// Y轴负方向单位向量
 
     private:
         /// 比较大小
-        int32_t compareArrays(const Vector2 &other) const;
+        int32_t compareArrays(const TVector2 &other) const;
 
     private:
-        Real _x;    /// x分量
-        Real _y;    /// y分量
+        T _x;    /// x分量
+        T _y;    /// y分量
     };
 }
 

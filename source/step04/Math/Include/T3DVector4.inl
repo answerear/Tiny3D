@@ -19,7 +19,8 @@
 
 namespace Tiny3D
 {
-    inline Vector4::Vector4()
+    template <typename T>
+    inline TVector4<T>::TVector4()
         : _x(0.0)
         , _y(0.0)
         , _z(0.0)
@@ -28,7 +29,8 @@ namespace Tiny3D
 
     }
 
-    inline Vector4::Vector4(Real x, Real y, Real z, Real w)
+    template <typename T>
+    inline TVector4<T>::TVector4(T x, T y, T z, T w)
         : _x(x)
         , _y(y)
         , _z(z)
@@ -37,7 +39,8 @@ namespace Tiny3D
 
     }
 
-    inline Vector4::Vector4(const Vector4 &other)
+    template <typename T>
+    inline TVector4<T>::TVector4(const TVector4 &other)
         : _x(other._x)
         , _y(other._y)
         , _z(other._z)
@@ -46,69 +49,82 @@ namespace Tiny3D
 
     }
 
-    inline Vector4::operator const Real *() const
+    template <typename T>
+    inline TVector4<T>::operator const T *() const
     {
         return &_x;
     }
 
-    inline Vector4::operator Real *()
+    template <typename T>
+    inline TVector4<T>::operator T *()
     {
         return &_x;
     }
 
-    inline Real Vector4::operator [](int32_t i) const
+    template <typename T>
+    inline T TVector4<T>::operator [](int32_t i) const
     {
         T3D_ASSERT(i < 4);
         return *(&_x+i);
     }
 
-    inline Real &Vector4::operator [](int32_t i)
+    template <typename T>
+    inline T &TVector4<T>::operator [](int32_t i)
     {
         T3D_ASSERT(i < 4);
         return *(&_x+i);
     }
 
-    inline Real Vector4::x() const
+    template <typename T>
+    inline T TVector4<T>::x() const
     {
         return _x;
     }
 
-    inline Real &Vector4::x()
+    template <typename T>
+    inline T &TVector4<T>::x()
     {
         return _x;
     }
 
-    inline Real Vector4::y() const
+    template <typename T>
+    inline T TVector4<T>::y() const
     {
         return _y;
     }
 
-    inline Real &Vector4::y()
+    template <typename T>
+    inline T &TVector4<T>::y()
     {
         return _y;
     }
 
-    inline Real Vector4::z() const
+    template <typename T>
+    inline T TVector4<T>::z() const
     {
         return _z;
     }
 
-    inline Real &Vector4::z()
+    template <typename T>
+    inline T &TVector4<T>::z()
     {
         return _z;
     }
 
-    inline Real Vector4::w() const
+    template <typename T>
+    inline T TVector4<T>::w() const
     {
         return _w;
     }
 
-    inline Real &Vector4::w()
+    template <typename T>
+    inline T &TVector4<T>::w()
     {
         return _w;
     }
 
-    inline Vector4 &Vector4::operator =(const Vector4 &other)
+    template <typename T>
+    inline TVector4<T> &TVector4<T>::operator =(const TVector4 &other)
     {
         _x = other._x;
         _y = other._y;
@@ -117,36 +133,42 @@ namespace Tiny3D
         return *this;
     }
 
-    inline bool Vector4::operator ==(const Vector4 &other) const
+    template <typename T>
+    inline bool TVector4<T>::operator ==(const TVector4 &other) const
     {
         return (_x == other._x && _y == other._y && _z == other._z && _w == other._w);
     }
 
-    inline bool Vector4::operator !=(const Vector4 &other) const
+    template <typename T>
+    inline bool TVector4<T>::operator !=(const TVector4 &other) const
     {
         return (_x != other._x || _y != other._y || _z != other._z || _w != other._w);
     }
 
-    inline Vector4 Vector4::operator +(const Vector4 &other) const
+    template <typename T>
+    inline TVector4<T> TVector4<T>::operator +(const TVector4 &other) const
     {
-        return Vector4(_x + other._x, _y + other._y, _z + other._z, _w + other._w);
+        return TVector4(_x + other._x, _y + other._y, _z + other._z, _w + other._w);
     }
 
-    inline Vector4 Vector4::operator -(const Vector4 &other) const
+    template <typename T>
+    inline TVector4<T> TVector4<T>::operator -(const TVector4 &other) const
     {
-        return Vector4(_x - other._x, _y - other._y, _z - other._z, _w - other._w);
+        return TVector4(_x - other._x, _y - other._y, _z - other._z, _w - other._w);
     }
 
-    inline Vector4 Vector4::operator *(Real scalar) const
+    template <typename T>
+    inline TVector4<T> TVector4<T>::operator *(T scalar) const
     {
-        return Vector4(scalar * _x, scalar * _y, scalar * _z, scalar * _w);
+        return TVector4(scalar * _x, scalar * _y, scalar * _z, scalar * _w);
     }
 
-    inline Vector4 Vector4::operator /(Real scalar) const
+    template <typename T>
+    inline TVector4<T> TVector4<T>::operator /(T scalar) const
     {
-        Vector4 result;
+        TVector4 result;
 
-        if (scalar != REAL_ZERO)
+        if (scalar != TReal<T>::ZERO)
         {
             result._x = _x / scalar;
             result._y = _y / scalar;
@@ -157,12 +179,14 @@ namespace Tiny3D
         return result;
     }
 
-    inline Vector4 Vector4::operator -() const
+    template <typename T>
+    inline TVector4<T> TVector4<T>::operator -() const
     {
-        return Vector4(-_x, -_y, -_z, -_w);
+        return TVector4(-_x, -_y, -_z, -_w);
     }
 
-    inline Vector4 &Vector4::operator +=(const Vector4 &other)
+    template <typename T>
+    inline TVector4<T> &TVector4<T>::operator +=(const TVector4 &other)
     {
         _x += other._x;
         _y += other._y;
@@ -171,7 +195,8 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Vector4 &Vector4::operator -=(const Vector4 &other)
+    template <typename T>
+    inline TVector4<T> &TVector4<T>::operator -=(const TVector4 &other)
     {
         _x -= other._x;
         _y -= other._y;
@@ -180,7 +205,8 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Vector4 &Vector4::operator *=(Real fScalar)
+    template <typename T>
+    inline TVector4<T> &TVector4<T>::operator *=(T fScalar)
     {
         _x *= fScalar;
         _y *= fScalar;
@@ -189,9 +215,10 @@ namespace Tiny3D
         return *this;
     }
 
-    inline Vector4 &Vector4::operator /=(Real fScalar)
+    template <typename T>
+    inline TVector4<T> &TVector4<T>::operator /=(T fScalar)
     {
-        if (fScalar != REAL_ZERO)
+        if (fScalar != TReal<T>::ZERO)
         {
             _x /= fScalar;
             _y /= fScalar;
@@ -200,52 +227,59 @@ namespace Tiny3D
         }
         else
         {
-            _x = REAL_ZERO;
-            _y = REAL_ZERO;
-            _z = REAL_ZERO;
-            _w = REAL_ZERO;
+            _x = TReal<T>::ZERO;
+            _y = TReal<T>::ZERO;
+            _z = TReal<T>::ZERO;
+            _w = TReal<T>::ZERO;
         }
         return *this;
     }
 
-    inline Real Vector4::length() const
+    template <typename T>
+    inline T TVector4<T>::length() const
     {
-        return Math::sqrt(_x * _x + _y * _y + _z * _z + _w * _w);
+        return TMath<T>::sqrt(_x * _x + _y * _y + _z * _z + _w * _w);
     }
 
-    inline Real Vector4::squaredLength() const
+    template <typename T>
+    inline T TVector4<T>::squaredLength() const
     {
         return _x * _x + _y * _y + _z * _z + _w * _w;
     }
 
-    inline Real Vector4::distance(const Vector4 &other) const
+    template <typename T>
+    inline T TVector4<T>::distance(const TVector4 &other) const
     {
         return (*this - other).length();
     }
 
-    inline Real Vector4::squaredDistance(const Vector4 &other) const
+    template <typename T>
+    inline T TVector4<T>::squaredDistance(const TVector4 &other) const
     {
         return (*this - other).squaredLength();
     }
 
-    inline Real Vector4::dot(const Vector4 &other) const
+    template <typename T>
+    inline T TVector4<T>::dot(const TVector4 &other) const
     {
         return (_x * other._x + _y * other._y + _z * other._z + _w * other._w);
     }
 
-    inline Vector4 Vector4::cross(const Vector4 &other) const
+    template <typename T>
+    inline TVector4<T> TVector4<T>::cross(const TVector4 &other) const
     {
-        return Vector4(_y * other._z - _z * other._y,
+        return TVector4(_y * other._z - _z * other._y,
             _z * other._w - _w * other._z,
             _w * other._x - _x * other._w,
             _x * other._y - _y * other._x);
     }
 
-    inline Real Vector4::normalize()
+    template <typename T>
+    inline T TVector4<T>::normalize()
     {
-        Real fLength = length();
+        T fLength = length();
 
-        if (fLength > REAL_ZERO)
+        if (fLength > TReal<T>::ZERO)
         {
             _x /= fLength;
             _y /= fLength;
@@ -254,13 +288,16 @@ namespace Tiny3D
         }
         else
         {
-            fLength = REAL_ZERO;
-            _x = REAL_ZERO;
-            _y = REAL_ZERO;
-            _z = REAL_ZERO;
-            _w = REAL_ZERO;
+            fLength = TReal<T>::ZERO;
+            _x = TReal<T>::ZERO;
+            _y = TReal<T>::ZERO;
+            _z = TReal<T>::ZERO;
+            _w = TReal<T>::ZERO;
         }
 
         return fLength;
     }
+
+    template <typename T>
+    const TVector4<T> TVector4<T>::ZERO(0.0, 0.0, 0.0, 0.0);
 }

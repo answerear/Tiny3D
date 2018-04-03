@@ -3,96 +3,109 @@
 namespace Tiny3D
 {
     ////////////////////////////////////////////////////////////////////////////
-
-    inline Real Math::degreesToRadians(Real degrees)
+    template <typename T>
+    inline T TMath<T>::degreesToRadians(T degrees)
     {
         return degrees * DEGREES_TO_RADIANS;
     }
 
-    inline Real Math::radiansToDegrees(Real radians)
+    template <typename T>
+    inline T TMath<T>::radiansToDegrees(T radians)
     {
         return radians * RADIANS_TO_DEGREES;
     }
 
     ////////////////////////////////////////////////////////////////////////////
-
-    inline Real Radian::valueDegrees() const
+    template <typename T>
+    inline T TRadian<T>::valueDegrees() const
     {
-        return Math::radiansToDegrees(mRadian);
+        return TMath<T>::radiansToDegrees(mRadian);
     }
 
-    inline Real Degree::valueRadians() const
+    template <typename T>
+    inline T TDegree<T>::valueRadians() const
     {
-        return Math::degreesToRadians(mDegree);
+        return TMath<T>::degreesToRadians(mDegree);
     }
 
     ////////////////////////////////////////////////////////////////////////////
 
-    inline Radian::Radian(const Degree &degree)
+    template <typename T>
+    inline TRadian<T>::TRadian(const TDegree<T> &degree)
         : mRadian(degree.valueRadians())
     {
 
     }
 
-    inline Radian &Radian::operator =(const Degree &degree)
+    template <typename T>
+    inline TRadian<T> &TRadian<T>::operator =(const TDegree<T> &degree)
     {
         mRadian = degree.valueRadians();
         return *this;
     }
 
-    inline Radian Radian::operator +(const Degree &degree) const
+    template <typename T>
+    inline TRadian<T> TRadian<T>::operator +(const TDegree<T> &degree) const
     {
-        return Radian(mRadian + degree.valueRadians());
+        return TRadian(mRadian + degree.valueRadians());
     }
 
-    inline Radian Radian::operator -(const Degree &degree) const
+    template <typename T>
+    inline TRadian<T> TRadian<T>::operator -(const TDegree<T> &degree) const
     {
-        return Radian(mRadian - degree.valueRadians());
+        return TRadian(mRadian - degree.valueRadians());
     }
 
-    inline Radian &Radian::operator +=(const Degree &degree)
+    template <typename T>
+    inline TRadian<T> &TRadian<T>::operator +=(const TDegree<T> &degree)
     {
         mRadian += degree.valueRadians();
         return *this;
     }
 
-    inline Radian &Radian::operator -=(const Degree &degree)
+    template <typename T>
+    inline TRadian<T> &TRadian<T>::operator -=(const TDegree<T> &degree)
     {
         mRadian -= degree.valueRadians();
         return *this;
     }
 
     ////////////////////////////////////////////////////////////////////////////
-
-    inline Degree::Degree(const Radian &radian)
+    template <typename T>
+    inline TDegree<T>::TDegree(const TRadian<T> &radian)
         : mDegree(radian.valueDegrees())
     {
 
     }
 
-    inline Degree &Degree::operator =(const Radian &radian)
+    template <typename T>
+    inline TDegree<T> &TDegree<T>::operator =(const TRadian<T> &radian)
     {
         mDegree = radian.valueDegrees();
         return *this;
     }
 
-    inline Degree Degree::operator +(const Radian &radian) const
+    template <typename T>
+    inline TDegree<T> TDegree<T>::operator +(const TRadian<T> &radian) const
     {
-        return Degree(mDegree + radian.valueDegrees());
+        return TDegree(mDegree + radian.valueDegrees());
     }
 
-    inline Degree Degree::operator -(const Radian &radian) const
+    template <typename T>
+    inline TDegree<T> TDegree<T>::operator -(const TRadian<T> &radian) const
     {
-        return Degree(mDegree - radian.valueDegrees());
+        return TDegree(mDegree - radian.valueDegrees());
     }
 
-    inline Degree &Degree::operator +=(const Radian &radian)
+    template <typename T>
+    inline TDegree<T> &TDegree<T>::operator +=(const TRadian<T> &radian)
     {
         mDegree += radian.valueDegrees();
         return *this;
     }
 
-    inline Degree &Degree::operator -=(const Radian &radian)
+    template <typename T>
+    inline TDegree<T> &TDegree<T>::operator -=(const TRadian<T> &radian)
     {
         mDegree -= radian.valueDegrees();
         return *this;
@@ -100,38 +113,45 @@ namespace Tiny3D
 
     ////////////////////////////////////////////////////////////////////////////
 
-    inline Real Math::sqr(Real value)
+    template <typename T>
+    inline T TMath<T>::sqr(T value)
     {
         return value * value;
     }
 
-    inline Real Math::sqrt(Real value)
+    template <typename T>
+    inline T TMath<T>::sqrt(T value)
     {
         return ::sqrt(value);
     }
 
-    inline Real Math::invSqrt(Real value)
+    template <typename T>
+    inline T TMath<T>::invSqrt(T value)
     {
-        return Real(1.0) / ::sqrt(value);
+        return TReal<T>::ONE / ::sqrt(value);
     }
 
-    inline Real Math::abs(Real value)
+    template <typename T>
+    inline T TMath<T>::abs(T value)
     { 
-        return Real(fabs(value));
+        return T(fabs(value));
     }
 
-    inline Degree Math::abs(const Degree &value)
+    template <typename T>
+    inline TDegree<T> TMath<T>::abs(const TDegree<T> &value)
     { 
-        return Degree(fabs(value.valueDegrees())); 
+        return TDegree<T>(fabs(value.valueDegrees())); 
     }
 
-    inline Radian Math::abs(const Radian& value)
+    template <typename T>
+    inline TRadian<T> TMath<T>::abs(const TRadian<T>& value)
     { 
-        return Radian(fabs(value.valueRadians()));
+        return TRadian(fabs(value.valueRadians()));
     }
 
-    inline bool Math::realEqual(Real a, Real b, 
-        Real tolerance /* = std::numeric_limits<Real>::epsilon() */)
+    template <typename T>
+    inline bool TMath<T>::realEqual(T a, T b, 
+        T tolerance /* = std::numeric_limits<TReal>::epsilon() */)
     {
         if (fabs(b-a) <= tolerance)
             return true;
@@ -139,54 +159,86 @@ namespace Tiny3D
             return false;
     }
 
-    inline Real Math::sin(const Degree &degrees)
+    template <typename T>
+    inline T TMath<T>::sin(const TDegree<T> &degrees)
     {
-        return Real(::sin(degrees.valueRadians()));
+        return T(::sin(degrees.valueRadians()));
     }
 
-    inline Real Math::sin(const Radian &radians)
+    template <typename T>
+    inline T TMath<T>::sin(const TRadian<T> &radians)
     {
-        return Real(::sin(radians.valueRadians()));
+        return T(::sin(radians.valueRadians()));
     }
 
-    inline Real Math::cos(const Degree &degrees)
+    template <typename T>
+    inline T TMath<T>::cos(const TDegree<T> &degrees)
     {
-        return Real(::cos(degrees.valueRadians()));
+        return T(::cos(degrees.valueRadians()));
     }
 
-    inline Real Math::cos(const Radian &radians)
+    template <typename T>
+    inline T TMath<T>::cos(const TRadian<T> &radians)
     {
-        return Real(::cos(radians.valueRadians()));
+        return T(::cos(radians.valueRadians()));
     }
 
-    inline Real Math::tan(const Degree &degrees)
+    template <typename T>
+    inline T TMath<T>::tan(const TDegree<T> &degrees)
     {
-        return Real(::tan(degrees.valueRadians()));
+        return T(::tan(degrees.valueRadians()));
     }
 
-    inline Real Math::tan(const Radian &radians)
+    template <typename T>
+    inline T TMath<T>::tan(const TRadian<T> &radians)
     {
-        return Real(::tan(radians.valueRadians()));
+        return T(::tan(radians.valueRadians()));
     }
 
-    inline Radian Math::asin(Real fValue)
+    template <typename T>
+    inline TRadian<T> TMath<T>::asin(T value)
     {
-        return Radian(::asin(fValue));
+        return TRadian(::asin(value));
     }
 
-    inline Radian Math::acos(Real fValue)
+    template <typename T>
+    inline TRadian<T> TMath<T>::acos(T value)
     {
-        return Radian(::acos(fValue));
+        return TRadian(::acos(value));
     }
 
-    inline Radian Math::atan(Real fValue)
+    template <typename T>
+    inline TRadian<T> TMath<T>::atan(T value)
     {
-        return Radian(::atan(fValue));
+        return TRadian(::atan(value));
     }
 
-    inline Radian Math::atan2(Real fY, Real fX)
+    template <typename T>
+    inline TRadian<T> TMath<T>::atan2(T y, T x)
     {
-        return Radian(::atan2(fY, fX));
+        return TRadian(::atan2(y, x));
     }
+
+    template <typename T>
+    const T TMath<T>::POS_INFINITY = TReal<T>::INF;
+
+    template <typename T>
+    const T TMath<T>::NEG_INFINITY = TReal<T>::MINUSINF;
+
+    template <typename T>
+    const T TMath<T>::PI = T(4.0f * ::atan(TReal<T>::ONE));
+
+    template <typename T>
+    const T TMath<T>::TWO_PI = T(2.0f * PI);
+
+    template <typename T>
+    const T TMath<T>::HALF_PI = T(TReal<T>::HALF * PI);
+
+    template <typename T>
+    const T TMath<T>::DEGREES_TO_RADIANS = PI / T(180.0f);
+
+    template <typename T>
+    const T TMath<T>::RADIANS_TO_DEGREES = T(180.0f) / PI;
+
 }
 

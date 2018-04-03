@@ -28,95 +28,96 @@
 namespace Tiny3D
 {
     /// 4D向量类
-    class T3D_MATH_API Vector4
+    template <typename T>
+    class TVector4
     {
     public:
         /// 默认构造函数
-        Vector4();
+        TVector4();
         /// 通过 X, Y, Z, W 构造对象
-        Vector4(Real x, Real y, Real z, Real w);
+        TVector4(T x, T y, T z, T w);
         /// 拷贝构造函数
-        Vector4(const Vector4 &other);
+        TVector4(const TVector4 &other);
 
         /// 返回成员变量的数组首地址.
-        operator const Real *() const;
-        operator Real *();
+        operator const T *() const;
+        operator T *();
 
         /// 根据下标获取向量分量.
-        Real operator [](int32_t i) const;
-        Real &operator [](int32_t i);
+        T operator [](int32_t i) const;
+        T &operator [](int32_t i);
 
         /// 获取x分量.
-        Real x() const;
-        Real &x();
+        T x() const;
+        T &x();
 
         /// 获取y分量.
-        Real y() const;
-        Real &y();
+        T y() const;
+        T &y();
 
         /// 获取z分量.
-        Real z() const;
-        Real &z();
+        T z() const;
+        T &z();
 
         /// 获取w分量.
-        Real w() const;
-        Real &w();
+        T w() const;
+        T &w();
 
         /// 重载赋值运算符
-        Vector4 &operator =(const Vector4 &other);
+        TVector4 &operator =(const TVector4 &other);
 
         /// 重载相等运算符.
-        bool operator ==(const Vector4 &other) const;
+        bool operator ==(const TVector4 &other) const;
         /// 重载不等运算符.
-        bool operator !=(const Vector4 &other) const;
+        bool operator !=(const TVector4 &other) const;
 
         /// 重载加法运算符.
-        Vector4 operator +(const Vector4 &other) const;
+        TVector4 operator +(const TVector4 &other) const;
         /// 重载减法运算符.
-        Vector4 operator -(const Vector4 &other) const;
+        TVector4 operator -(const TVector4 &other) const;
         /// 重载乘法运算符，跟一个标量相乘.
-        Vector4 operator *(Real scalar) const;
+        TVector4 operator *(T scalar) const;
         /// 重载除法运算符，跟一个标量相除.
-        Vector4 operator /(Real scalar) const;
+        TVector4 operator /(T scalar) const;
 
         /// 重载取相反运算符.
-        Vector4 operator -() const;
+        TVector4 operator -() const;
 
         /// 重载加法赋值运算符，跟另一个向量相加.
-        Vector4 &operator +=(const Vector4 &other);
+        TVector4 &operator +=(const TVector4 &other);
         /// 重载减法赋值运算符，跟另一个向量相减.
-        Vector4 &operator -=(const Vector4 &other);
+        TVector4 &operator -=(const TVector4 &other);
         /// 重载乘法赋值运算符，跟一个标量相乘.
-        Vector4 &operator *=(Real scalar);
+        TVector4 &operator *=(T scalar);
         /// 重载除法赋值运算符，跟一个标量相除.
-        Vector4 &operator /=(Real scalar);
+        TVector4 &operator /=(T scalar);
 
         /// 获取向量长度, sqrt(x*x + y*y + z*z + w*w).
-        Real length() const;
+        T length() const;
         /// 获取向量长度的平方值, x*x + y*y + z*z + w*w.
-        Real squaredLength() const;
+        T squaredLength() const;
 
         /// 获取两向量的距离.
-        Real distance(const Vector4 &other) const;
+        T distance(const TVector4 &other) const;
         /// 获取两向量的距离平方.
-        Real squaredDistance(const Vector4 &other) const;
+        T squaredDistance(const TVector4 &other) const;
 
         /// 点积、点乘、内积.
-        Real dot(const Vector4 &other) const;
+        T dot(const TVector4 &other) const;
 
         /// 外积、叉乘.
-        Vector4 cross(const Vector4 &other) const;
+        TVector4 cross(const TVector4 &other) const;
 
         /// 规范化.
-        Real normalize();
+        T normalize();
 
-        static const Vector4 ZERO;      /// 零向量
+        static const TVector4 ZERO;      /// 零向量
 
     private:
-        Real    _x;
-        Real    _y;
-        Real    _z;
-        Real    _w;
+        T    _x;
+        T    _y;
+        T    _z;
+        T    _w;
     };
 }
 
