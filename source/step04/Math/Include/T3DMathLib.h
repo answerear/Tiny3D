@@ -35,8 +35,11 @@
 #include "T3DMatrix3.h"
 #include "T3DQuaternion.h"
 #include "T3DMatrix4.h"
+#include "T3DRay.h"
 
 
+namespace Tiny3D
+{
 #define __T3D_LOW_PRECISION_FLOAT__         0       // 32位单精度浮点数
 #define __T3D_HIGH_PRECISION_FLOAT__        1       // 64位双精度浮点数
 #define __T3D_LOW_PRECISION_FIX__           2       // 32位定点数
@@ -44,8 +47,6 @@
 
 #define __T3D_REAL_TYPE__   __T3D_LOW_PRECISION_FLOAT__ // 实数的精度类型
 
-namespace Tiny3D
-{
 #if __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FIX__
     typedef fix32_t     Real;
 #elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FIX__
@@ -55,6 +56,7 @@ namespace Tiny3D
 #elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FLOAT__
     typedef float64_t   Real;
 #endif
+
 
 typedef TDegree<Real>       Degree;
 typedef TRadian<Real>       Radian;
@@ -66,6 +68,7 @@ typedef TMatrix2<Real>      Matrix2;
 typedef TMatrix3<Real>      Matrix3;
 typedef TMatrix4<Real>      Matrix4;
 typedef TQuaternion<Real>   Quaternion;
+typedef TRay<Real>          Ray;
 
 
 #define REAL_ZERO           TReal<Real>::ZERO
