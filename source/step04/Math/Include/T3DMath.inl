@@ -1,4 +1,4 @@
-﻿
+
 
 namespace Tiny3D
 {
@@ -146,7 +146,7 @@ namespace Tiny3D
     template <typename T>
     inline TRadian<T> TMath<T>::abs(const TRadian<T>& value)
     { 
-        return TRadian(fabs(value.valueRadians()));
+        return TRadian<T>(fabs(value.valueRadians()));
     }
 
     template <typename T>
@@ -198,25 +198,25 @@ namespace Tiny3D
     template <typename T>
     inline TRadian<T> TMath<T>::asin(T value)
     {
-        return TRadian(::asin(value));
+        return TRadian<T>(::asin(value));
     }
 
     template <typename T>
     inline TRadian<T> TMath<T>::acos(T value)
     {
-        return TRadian(::acos(value));
+        return TRadian<T>(::acos(value));
     }
 
     template <typename T>
     inline TRadian<T> TMath<T>::atan(T value)
     {
-        return TRadian(::atan(value));
+        return TRadian<T>(::atan(value));
     }
 
     template <typename T>
     inline TRadian<T> TMath<T>::atan2(T y, T x)
     {
-        return TRadian(::atan2(y, x));
+        return TRadian<T>(::atan2(y, x));
     }
 
     template <typename T>
