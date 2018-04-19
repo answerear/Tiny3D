@@ -1535,7 +1535,7 @@ $$
 \begin{align} 
 &\vec{a}=
 \begin{bmatrix}
-1 \\ 2
+1 \\\\ 2
 \end{bmatrix}
 \qquad  a_1=a_x=1 \quad a_2=a_y=2
 \\
