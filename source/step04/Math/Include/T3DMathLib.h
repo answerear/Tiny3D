@@ -37,6 +37,7 @@
 #include "T3DMatrix4.h"
 #include "T3DRay.h"
 #include "T3DSphere.h"
+#include "T3DPlane.h"
 
 
 namespace Tiny3D
@@ -71,6 +72,7 @@ typedef TMatrix4<Real>      Matrix4;
 typedef TQuaternion<Real>   Quaternion;
 typedef TRay<Real>          Ray;
 typedef TSphere<Real>       Sphere;
+typedef TPlane<Real>        Plane;
 
 
 #define REAL_ZERO           TReal<Real>::ZERO

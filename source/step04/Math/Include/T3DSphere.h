@@ -23,6 +23,7 @@
 
 #include "T3DMathPrerequisites.h"
 #include "T3DVector3.h"
+#include "T3DReal.h"
 
 
 namespace Tiny3D
@@ -33,7 +34,7 @@ namespace Tiny3D
     {
         /// 默认构造函数
         TSphere()
-            : mCenter(T(0), T(0))
+            : mCenter(TReal<T>::ZERO, TReal<T>::ZERO)
             , mRadius(0)
         {
         }
