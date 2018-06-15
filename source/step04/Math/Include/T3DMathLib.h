@@ -38,6 +38,7 @@
 #include "T3DRay.h"
 #include "T3DSphere.h"
 #include "T3DPlane.h"
+#include "T3DAabb.h"
 
 
 namespace Tiny3D
@@ -73,6 +74,7 @@ typedef TQuaternion<Real>   Quaternion;
 typedef TRay<Real>          Ray;
 typedef TSphere<Real>       Sphere;
 typedef TPlane<Real>        Plane;
+typedef TAabb<Real>         Aabb;
 
 
 #define REAL_ZERO           TReal<Real>::ZERO
