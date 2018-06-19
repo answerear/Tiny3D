@@ -36,11 +36,13 @@
 #include "T3DQuaternion.h"
 #include "T3DMatrix4.h"
 #include "T3DRay.h"
-#include "T3DSphere.h"
 #include "T3DPlane.h"
+#include "T3DTriangle.h"
+#include "T3DSphere.h"
 #include "T3DAabb.h"
 #include "T3DObb.h"
 #include "T3DFrustum.h"
+#include "T3DIntrRayTriangle.h"
 
 
 namespace Tiny3D
@@ -74,11 +76,14 @@ typedef TMatrix3<Real>      Matrix3;
 typedef TMatrix4<Real>      Matrix4;
 typedef TQuaternion<Real>   Quaternion;
 typedef TRay<Real>          Ray;
-typedef TSphere<Real>       Sphere;
+typedef TTriangle<Real>     Triangle;
 typedef TPlane<Real>        Plane;
+typedef TSphere<Real>       Sphere;
 typedef TAabb<Real>         Aabb;
 typedef TObb<Real>          Obb;
 typedef TFrustum<Real>      Frustum;
+
+typedef TIntrRayTriangle<Real>  IntrRayTriangle;
 
 
 #define REAL_ZERO           TReal<Real>::ZERO
