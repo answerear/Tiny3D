@@ -45,6 +45,44 @@ namespace Tiny3D
     }
 
     template <typename T>
+    void TAabb<T>::build(TVector3<T> points[], size_t count)
+    {
+        mMaxX = TReal<T>::MINUS_INF;
+        mMaxY = TReal<T>::MINUS_INF;
+        mMaxZ = TReal<T>::MINUS_INF;
+        mMinX = TReal<T>::INF;
+        mMinY = TReal<T>::INF;
+        mMinZ = TReal<T>::INF;
+
+        size_t i = 0;
+        for (i = 0; i < count; ++i)
+        {
+            if (points[i].x() > mMaxX)
+                mMaxX = points[i].x();
+            if (points[i].x() < mMinX)
+                mMinX = points[i].x();
+            if (points[i].y() > mMaxY)
+                mMaxY = points[i].y();
+            if (points[i].y() < mMinY)
+                mMinY = points[i].y();
+            if (points[i].z() > mMaxZ)
+                mMaxZ = points[i].z();
+            if (points[i].z() < mMinZ)
+                mMinZ = points[i].z();
+        }
+
+        TVector3<T> center(
+            (mMinX + mMaxX) * TReal<T>::HALF,
+            (mMinY + mMaxY) * TReal<T>::HALF,
+            (mMinZ + mMaxZ) * TReal<T>::HALF
+            );
+        mSphere.setCenter(center);
+            
+        TVector3<T> D(mMaxX - mMinX, mMaxY - mMinY, mMaxZ - mMinZ);
+        mSphere.setRadius(D.length() * TReal<T>::HALF);
+    }
+
+    template <typename T>
     inline T TAabb<T>::getWidth() const
     {
         return mMaxX - mMinX;

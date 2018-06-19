@@ -103,12 +103,12 @@ namespace Tiny3D
         /// 获取向量长度, sqrt(x * x + y * y + z * z).
         T length() const;
         /// 获取向量长度的平方值, x * x + y * y + z * z.
-        T squaredLength() const;
+        T length2() const;
 
         /// 获取两向量的距离.
         T distance(const TVector3 &other) const;
         /// 获取两向量的距离平方.
-        T squaredDistance(const TVector3 &other) const;
+        T distance2(const TVector3 &other) const;
 
         /// 点积、点乘、内积.
         T dot(const TVector3 &other) const;

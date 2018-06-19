@@ -39,6 +39,8 @@
 #include "T3DSphere.h"
 #include "T3DPlane.h"
 #include "T3DAabb.h"
+#include "T3DObb.h"
+#include "T3DFrustum.h"
 
 
 namespace Tiny3D
@@ -75,6 +77,8 @@ typedef TRay<Real>          Ray;
 typedef TSphere<Real>       Sphere;
 typedef TPlane<Real>        Plane;
 typedef TAabb<Real>         Aabb;
+typedef TObb<Real>          Obb;
+typedef TFrustum<Real>      Frustum;
 
 
 #define REAL_ZERO           TReal<Real>::ZERO

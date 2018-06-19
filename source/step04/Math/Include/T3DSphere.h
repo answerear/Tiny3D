@@ -23,6 +23,7 @@
 
 #include "T3DMathPrerequisites.h"
 #include "T3DVector3.h"
+#include "T3DMatrix3.h"
 #include "T3DReal.h"
 
 
@@ -32,71 +33,67 @@ namespace Tiny3D
     template <typename T>
     class TSphere
     {
-        /// 默认构造函数
-        TSphere()
-            : mCenter(TReal<T>::ZERO, TReal<T>::ZERO)
-            , mRadius(0)
+    public:
+        enum BuildOption
         {
-        }
+            E_BUILD_WELZL = 0,      /// Welzl最小包围球算法
+            E_BUILD_RITTER = 1,     /// Ritter包围球算法
+            E_BUILD_AVERAGE = 2,    /// 均值法
+        };
 
+        /// 默认构造函数
+        TSphere();
+        /// 通过空间一个点构造包围球
+        TSphere(const TVector3<T> &p0);
+        /// 通过空间两点构造包围球
+        TSphere(const TVector3<T> &p0, const TVector3<T> &p1);
+        /// 通过空间三点构造包围球
+        TSphere(const TVector3<T> &p0, const TVector3<T> &p1,
+            const TVector3<T> &p2);
+        /// 通过空间四点构造包围球
+        TSphere(const TVector3<T> &p0, const TVector3<T> &p1,
+            const TVector3<T> &p2, const TVector3<T> &p3);
         /// 初始化原点和半径的构造函数
-        TSphere(const TVector3<T> &center, const T &radius)
-            : mCenter(center)
-            , mRadius(radius)
-        {
-        }
+        TSphere(const TVector3<T> &center, const T &radius);
 
         /// 拷贝构造函数
-        TSphere(const TSphere &sphere)
-            : mCenter(sphere.mCenter)
-            , mRadius(sphere.mRadius)
-        {
-        }
+        TSphere(const TSphere &sphere);
 
         /// 重载赋值运算符
-        TSphere &operator =(const TSphere &sphere)
-        {
-            mCenter = sphere.mCenter;
-            mRadius = sphere.mRadius;
-            return *this;
-        }
+        TSphere &operator =(const TSphere &sphere);
+
+        /// 通过多个点构造包围球
+        void build(TVector3<T> points[], size_t count, 
+            BuildOption option = E_BUILD_WELZL);
         
         /// 获取球心
-        const TVector3<T> &getCenter() const
-        {
-            return mCenter;
-        }
-
-        TVector3<T> &getCenter()
-        {
-            return mCenter;
-        }
+        const TVector3<T> &getCenter() const;
+        TVector3<T> &getCenter();
 
         /// 获取半径
-        const T &getRadius() const
-        {
-            return mRadius;
-        }
+        const T &getRadius() const;
+        T &getRadius();
 
-        T &getRadius()
-        {
-            return mRadius;
-        }
-
-        /// 设置球心
-        void setCenter(const TVector3<T> &center)
-        {
-            mCenter = center;
-        }
+            /// 设置球心
+        void setCenter(const TVector3<T> &center);
 
         /// 设置半径
-        void setRadius(const T &radius)
-        {
-            mRadius = radius;
-        }
+        void setRadius(const T &radius);
 
         /// 检测指定点是否在球内部
         bool contains(const TVector3<T> &point) const;
+
+    protected:
+        /// Welzl最小包围球算法生成包围球
+        void buildByWelzl(TVector3<T> points[], size_t count);
+
+        TSphere recurseMinSphere(TVector3<T> *points[], size_t count, size_t b);
+
+        /// Ritter逼近修正算法生成包围球
+        void buildByRitter(TVector3<T> points[], size_t count);
+
+        /// 简单粗暴的均值法生成包围球
+        void buildByAverage(TVector3<T> points[], size_t count);
 
     private:
         TVector3<T> mCenter;    /// 球心
