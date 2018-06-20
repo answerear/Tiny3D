@@ -70,6 +70,23 @@ bool TransformationApp::applicationDidFinishLaunching()
     p4 = m4 * p4;
     p4 = p4 * m4;
 
+    // test
+    m3[0][0] = 0.707, m3[0][1] = 1.25, m3[0][2] = 0;
+    m3[1][0] = -0.707, m3[1][1] = 1.25, m3[1][2] = 0;
+    m3[2][0] = 0, m3[2][1] = 0, m3[2][2] = 1;
+
+    Matrix3 Q;
+    Vector3 S, T;
+    m3.QDUDecomposition(Q, S, T);
+    
+    Vector3 axis;
+    Radian radians;
+    Q.toAxisAngle(axis, radians);
+    degree = radians;
+
+    Matrix3 Mr(Vector3::UNIT_Z, Radian(Degree(45)));
+    Matrix3 Ms(S[0], S[1], S[2]);
+    Matrix3 R = Mr * Ms;
     return true;
 }
 
