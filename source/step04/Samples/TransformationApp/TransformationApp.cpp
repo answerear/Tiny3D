@@ -127,6 +127,10 @@ bool TransformationApp::applicationDidFinishLaunching()
 
     Q1.fromRotationMatrix(R1);
 
+    Matrix3 Ry(Vector3::UNIT_Y, Radian(30));
+    Matrix3 Rx(Vector3::UNIT_X, Radian(30));
+    R = Ry * Rx;
+
     return true;
 }
 
