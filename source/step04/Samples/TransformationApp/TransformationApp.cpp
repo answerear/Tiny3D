@@ -127,9 +127,11 @@ bool TransformationApp::applicationDidFinishLaunching()
 
     Q1.fromRotationMatrix(R1);
 
-    Matrix3 Ry(Vector3::UNIT_Y, Radian(30));
-    Matrix3 Rx(Vector3::UNIT_X, Radian(30));
+    Matrix3 Ry(Vector3::UNIT_Y, Degree(30));
+    Matrix3 Rx(Vector3::UNIT_X, Degree(30));
     R = Ry * Rx;
+
+//     Rx.fromEulerAnglesXYZ(Degree(30), Degree(0), Degree(0));
 
     return true;
 }
