@@ -43,17 +43,17 @@ namespace Tiny3D
             return mRay;
         }
 
-        const TTriangle *getTriangle() const
+        const TTriangle<T> *getTriangle() const
         {
             return mTriangle;
         }
 
-        void setRay(const TRay *ray)
+        void setRay(const TRay<T> *ray)
         {
             mRay = ray;
         }
 
-        void setTriangle(const TTriangle *triangle)
+        void setTriangle(const TTriangle<T> *triangle)
         {
             mTriangle = triangle;
         }
