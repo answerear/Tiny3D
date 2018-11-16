@@ -158,7 +158,7 @@ namespace Tiny3D
         /// 获取Z正交轴.
         TVector3<T> zAxis() const;
 
-        /// 两个四元数球面线性插值构造一个四元数.
+        /// 两个四元数球面插值构造一个四元数.
         TQuaternion &slerp(const TQuaternion &rkP, const TQuaternion &rkQ, 
             T times, bool shortestPath, T threshold = 1e-03);
 

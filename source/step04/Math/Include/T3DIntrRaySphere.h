@@ -22,6 +22,8 @@
 
 
 #include "T3DMathPrerequisites.h"
+#include "T3DRay.h"
+#include "T3DSphere.h"
 
 
 namespace Tiny3D
@@ -30,6 +32,28 @@ namespace Tiny3D
     class TIntrRaySphere
     {
     public:
+        TIntrRaySphere(const TRay<T> &ray, const TSphere<T> &sphere);
+        TIntrRaySphere(const TRay<T> *ray, const TSphere<T> *sphere);
+
+        const TRay<T> &getRay() const
+        {
+            return mRay;
+        }
+
+        const TSphere<T> &getSphere() const
+        {
+            return mSphere;
+        }
+
+        bool test();
+
+        bool test(TVector3<T> &intersection);
+
+        bool test(T &distance);
+
+    protected:
+        const TRay<T>       &mRay;
+        const TSphere<T>    &mSphere;
     };
 }
 

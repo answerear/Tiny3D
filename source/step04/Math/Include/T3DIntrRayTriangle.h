@@ -22,6 +22,7 @@
 
 
 #include "T3DMathPrerequisites.h"
+#include "T3DMath.h"
 #include "T3DRay.h"
 #include "T3DTriangle.h"
 
@@ -58,9 +59,16 @@ namespace Tiny3D
             mTriangle = triangle;
         }
 
+        const TVector3<T> &getResult() const
+        {
+            return mResult;
+        }
+
     private:
         const TRay<T>       *mRay;
         const TTriangle<T>  *mTriangle;
+
+        TVector3<T>         mResult;
     };
 }
 

@@ -20,6 +20,43 @@
 
 namespace Tiny3D
 {
+    template <typename T>
+    inline TIntrRaySphere::TIntrRaySphere(
+        const TRay<T> &ray, 
+        const TSphere<T> &sphere)
+        : mRay(&ray)
+        , mSphere(&sphere)
+    {
 
+    }
+
+    template <typename T>
+    inline TIntrRaySphere::TIntrRaySphere(
+        const TRay<T> *ray, 
+        const TSphere<T> *sphere)
+        : mRay(ray)
+        , mSphere(sphere)
+    {
+
+    }
+
+    template <typename T>
+    bool TIntrRaySphere::test()
+    {
+
+        return true;
+    }
+
+    template <typename T>
+    bool TIntrRaySphere::test(TVector3<T> &intersection)
+    {
+        return true;
+    }
+
+    template <typename T>
+    bool TIntrRaySphere::test(T &distance)
+    {
+        return true;
+    }
 }
 

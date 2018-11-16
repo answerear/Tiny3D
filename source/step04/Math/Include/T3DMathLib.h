@@ -43,6 +43,7 @@
 #include "T3DObb.h"
 #include "T3DFrustum.h"
 #include "T3DIntrRayTriangle.h"
+#include "T3DIntrRaySphere.h"
 
 
 namespace Tiny3D
@@ -84,6 +85,7 @@ typedef TObb<Real>          Obb;
 typedef TFrustum<Real>      Frustum;
 
 typedef TIntrRayTriangle<Real>  IntrRayTriangle;
+typedef TIntrRaySphere<Real>    IntrRaySphere;
 
 
 #define REAL_ZERO           TReal<Real>::ZERO
