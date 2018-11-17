@@ -59,7 +59,7 @@ namespace Tiny3D
             mTriangle = triangle;
         }
 
-        const TVector3<T> &getResult() const
+        const TVector3<T> &getClosestPoint() const
         {
             return mResult;
         }

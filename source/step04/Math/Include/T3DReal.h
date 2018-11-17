@@ -37,6 +37,7 @@ namespace Tiny3D
         static const T MINUS_ONE;
         static const T INF;
         static const T MINUS_INF;
+        static const T EPSILON;
     };
 
     template <typename T> const T TReal<T>::ZERO;
@@ -45,6 +46,7 @@ namespace Tiny3D
     template <typename T> const T TReal<T>::MINUS_ONE;
     template <typename T> const T TReal<T>::INF;
     template <typename T> const T TReal<T>::MINUS_INF;
+    template <typename T> const T TReal<T>::EPSILON;
 
     template <>
     class T3D_MATH_API TReal<float32_t>
@@ -56,6 +58,7 @@ namespace Tiny3D
         static const float32_t MINUS_ONE;
         static const float32_t INF;
         static const float32_t MINUS_INF;
+        static const float32_t EPSILON;
     };
 
     template <>
@@ -68,6 +71,7 @@ namespace Tiny3D
         static const float64_t MINUS_ONE;
         static const float64_t INF;
         static const float64_t MINUS_INF;
+        static const float64_t EPSILON;
     };
 
     template <>
@@ -80,6 +84,7 @@ namespace Tiny3D
         static const fix32_t MINUS_ONE;
         static const fix32_t INF;
         static const fix32_t MINUS_INF;
+        static const fix32_t EPSILON;
     };
 
     template <>
@@ -92,6 +97,7 @@ namespace Tiny3D
         static const fix64_t MINUS_ONE;
         static const fix64_t INF;
         static const fix64_t MINUS_INF;
+        static const fix64_t EPSILON;
     };
 }
 

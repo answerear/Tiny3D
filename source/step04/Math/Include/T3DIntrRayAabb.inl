@@ -19,6 +19,50 @@
 
 namespace Tiny3D
 {
+    template <typename T>
+    inline TIntrRayAabb<T>::TIntrRayAabb()
+        : mRay(nullptr)
+        , mAabb(nullptr)
+    {
 
+    }
+
+    template <typename T>
+    inline TIntrRayAabb<T>::TIntrRayAabb(
+        const TRay<T> *ray, 
+        const TAabb<T> *aabb)
+        : mRay(ray)
+        , mAabb(aabb)
+    {
+
+    }
+
+    template <typename T>
+    inline TIntrRayAabb<T>::TIntrRayAabb(
+        const TRay<T> &ray,
+        const TAabb<T> &aabb)
+        : mRay(&ray)
+        , mAabb(&aabb)
+    {
+
+    }
+
+    template <typename T>
+    bool TIntrRayAabb<T>::test()
+    {
+        return true;
+    }
+
+    template <typename T>
+    bool TIntrRayAabb<T>::test(TVector3<T> &intersection)
+    {
+        return true;
+    }
+
+    template <typename T>
+    bool TIntrRayAabb<T>::test(T &distance)
+    {
+        return true;
+    }
 }
 

@@ -32,17 +32,28 @@ namespace Tiny3D
     class TIntrRaySphere
     {
     public:
+        TIntrRaySphere();
         TIntrRaySphere(const TRay<T> &ray, const TSphere<T> &sphere);
         TIntrRaySphere(const TRay<T> *ray, const TSphere<T> *sphere);
 
-        const TRay<T> &getRay() const
+        const TRay<T> *getRay() const
         {
             return mRay;
         }
 
-        const TSphere<T> &getSphere() const
+        const TSphere<T> *getSphere() const
         {
             return mSphere;
+        }
+
+        void setRay(const TRay<T> *ray)
+        {
+            mRay = ray;
+        }
+
+        void setSphere(const TSphere<T> *sphere)
+        {
+            mSphere = sphere;
         }
 
         bool test();
@@ -52,8 +63,8 @@ namespace Tiny3D
         bool test(T &distance);
 
     protected:
-        const TRay<T>       &mRay;
-        const TSphere<T>    &mSphere;
+        const TRay<T>       *mRay;
+        const TSphere<T>    *mSphere;
     };
 }
 

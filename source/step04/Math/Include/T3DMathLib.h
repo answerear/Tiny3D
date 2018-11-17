@@ -22,6 +22,7 @@
 
 
 #include "T3DMathPrerequisites.h"
+
 #include "T3DFix32.h"
 #include "T3DFix64.h"
 #include "T3DReal.h"
@@ -42,8 +43,10 @@
 #include "T3DAabb.h"
 #include "T3DObb.h"
 #include "T3DFrustum.h"
+
 #include "T3DIntrRayTriangle.h"
 #include "T3DIntrRaySphere.h"
+#include "T3DIntrRayAabb.h"
 
 
 namespace Tiny3D
@@ -86,7 +89,7 @@ typedef TFrustum<Real>      Frustum;
 
 typedef TIntrRayTriangle<Real>  IntrRayTriangle;
 typedef TIntrRaySphere<Real>    IntrRaySphere;
-
+typedef TIntrRayAabb<Real>      IntrRayAabb;
 
 #define REAL_ZERO           TReal<Real>::ZERO
 #define REAL_HALF           TReal<Real>::HALF
