@@ -17,57 +17,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_INTR_RAY_TRIANGLE_H__
-#define __T3D_INTR_RAY_TRIANGLE_H__
+#ifndef __T3D_INTR_AABB_OBB_H__
+#define __T3D_INTR_AABB_OBB_H__
 
 
 #include "T3DMathPrerequisites.h"
-#include "T3DMath.h"
-#include "T3DRay.h"
-#include "T3DTriangle.h"
+#include "T3DAabb.h"
+#include "T3DObb.h"
 
 
 namespace Tiny3D
 {
     template <typename T>
-    class TIntrRayTriangle
+    class TIntrAabbObb
     {
     public:
-        TIntrRayTriangle();
-        TIntrRayTriangle(const TRay<T> *ray, const TTriangle<T> *triangle);
-        TIntrRayTriangle(const TRay<T> &ray, const TTriangle<T> &triangle);
+        TIntrAabbObb();
+        TIntrAabbObb(const TAabb<T> *aabb, const TObb<T> *obb);
+        TIntrAabbObb(const TAabb<T> &aabb, const TObb<T> &obb);
 
         bool test();
-        bool test(TVector3<T> &intersection);
 
-        const TRay<T> *getRay() const
+        const TAabb<T> *getAabb() const
         {
-            return mRay;
+            return mAabb;
         }
 
-        const TTriangle<T> *getTriangle() const
+        const TObb<T> *getObb() const
         {
-            return mTriangle;
+            return mObb;
         }
 
-        void setRay(const TRay<T> *ray)
+        void setAabb(const TAabb<T> *aabb)
         {
-            mRay = ray;
+            mAabb = aabb;
         }
 
-        void setTriangle(const TTriangle<T> *triangle)
+        void setObb(const TObb<T> *obb)
         {
-            mTriangle = triangle;
+            mObb = obb;
         }
 
     private:
-        const TRay<T>       *mRay;
-        const TTriangle<T>  *mTriangle;
+        const TAabb<T>  *mAabb;
+        const TObb<T>   *mObb;
     };
 }
 
 
-#include "T3DIntrRayTriangle.inl"
+#include "T3DIntrAabbObb.inl"
 
 
-#endif  /*__T3D_INTR_RAY_TRIANGLE_H__*/
+#endif  /*__T3D_INTR_AABB_OBB_H__*/

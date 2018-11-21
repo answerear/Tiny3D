@@ -17,57 +17,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_INTR_RAY_TRIANGLE_H__
-#define __T3D_INTR_RAY_TRIANGLE_H__
+#ifndef __T3D_INTR_SPHERE_AABB_H__
+#define __T3D_INTR_SPHERE_AABB_H__
 
 
 #include "T3DMathPrerequisites.h"
-#include "T3DMath.h"
-#include "T3DRay.h"
-#include "T3DTriangle.h"
+#include "T3DSphere.h"
+#include "T3DAabb.h"
 
 
 namespace Tiny3D
 {
     template <typename T>
-    class TIntrRayTriangle
+    class TIntrSphereAabb
     {
     public:
-        TIntrRayTriangle();
-        TIntrRayTriangle(const TRay<T> *ray, const TTriangle<T> *triangle);
-        TIntrRayTriangle(const TRay<T> &ray, const TTriangle<T> &triangle);
+        TIntrSphereAabb();
+        TIntrSphereAabb(const TSphere<T> *sphere, const TAabb<T> *box);
+        TIntrSphereAabb(const TSphere<T> &sphere, const TAabb<T> &box);
 
         bool test();
-        bool test(TVector3<T> &intersection);
 
-        const TRay<T> *getRay() const
+        const TSphere<T> *getSphere() const
         {
-            return mRay;
+            return mSphere;
         }
 
-        const TTriangle<T> *getTriangle() const
+        const TAabb<T> *getBox() const
         {
-            return mTriangle;
+            return mBox;
         }
 
-        void setRay(const TRay<T> *ray)
+        void setSphere(const TRay<T> *sphere)
         {
-            mRay = ray;
+            mSphere = sphere;
         }
 
-        void setTriangle(const TTriangle<T> *triangle)
+        void setBox(const TAabb<T> *box)
         {
-            mTriangle = triangle;
+            mBox = box;
         }
 
     private:
-        const TRay<T>       *mRay;
-        const TTriangle<T>  *mTriangle;
+        const TSphere<T>    *mSphere;
+        const TAabb<T>      *mBox;
     };
 }
 
 
-#include "T3DIntrRayTriangle.inl"
+#include "T3DIntrSphereAabb.inl"
 
 
-#endif  /*__T3D_INTR_RAY_TRIANGLE_H__*/
+#endif  /*__T3D_INTR_SPHERE_AABB_H__*/

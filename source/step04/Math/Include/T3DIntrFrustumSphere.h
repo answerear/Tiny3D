@@ -17,57 +17,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_INTR_RAY_TRIANGLE_H__
-#define __T3D_INTR_RAY_TRIANGLE_H__
+#ifndef __T3D_INTR_FRUSTUM_SPHERE_H__
+#define __T3D_INTR_FRUSTUM_SPHERE_H__
 
 
 #include "T3DMathPrerequisites.h"
-#include "T3DMath.h"
-#include "T3DRay.h"
-#include "T3DTriangle.h"
+#include "T3DSphere.h"
+#include "T3DFrustum.h"
 
 
 namespace Tiny3D
 {
     template <typename T>
-    class TIntrRayTriangle
+    class TIntrFrustumSphere
     {
     public:
-        TIntrRayTriangle();
-        TIntrRayTriangle(const TRay<T> *ray, const TTriangle<T> *triangle);
-        TIntrRayTriangle(const TRay<T> &ray, const TTriangle<T> &triangle);
+        TIntrFrustumSphere();
+        TIntrFrustumSphere(const TFrustum<T> *frustum, const TSphere<T> *sphere);
+        TIntrFrustumSphere(const TFrustum<T> &frustum, const TSphere<T> &sphere);
 
         bool test();
-        bool test(TVector3<T> &intersection);
 
-        const TRay<T> *getRay() const
+        const TFrustum<T> *getFrustum() const
         {
-            return mRay;
+            return mFrustum;
         }
 
-        const TTriangle<T> *getTriangle() const
+        const TSphere<T> *getSphere() const
         {
-            return mTriangle;
+            return mSphere;
         }
 
-        void setRay(const TRay<T> *ray)
+        void setFrustum(const TFrustum<T> *frustum)
         {
-            mRay = ray;
+            mFrustum = frustum;
         }
 
-        void setTriangle(const TTriangle<T> *triangle)
+        void setSphere(const TTriangle<T> *sphere)
         {
-            mTriangle = triangle;
+            mSphere = sphere;
         }
 
     private:
-        const TRay<T>       *mRay;
-        const TTriangle<T>  *mTriangle;
+        const TFrustum<T>   *mFrustum;
+        const TSphere<T>    *mSphere;
     };
 }
 
 
-#include "T3DIntrRayTriangle.inl"
+#include "T3DIntrFrustumSphere.inl"
 
 
-#endif  /*__T3D_INTR_RAY_TRIANGLE_H__*/
+#endif  /*__T3D_INTR_FRUSTUM_SPHERE_H__*/

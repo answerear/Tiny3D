@@ -49,6 +49,20 @@
 #include "T3DIntrRayAabb.h"
 #include "T3DIntrRayObb.h"
 
+#include "T3DIntrSphereTriangle.h"
+#include "T3DIntrSphereSphere.h"
+#include "T3DIntrSphereObb.h"
+#include "T3DIntrSphereAabb.h"
+
+#include "T3DIntrAabbAabb.h"
+#include "T3DIntrAabbObb.h"
+
+#include "T3DIntrObbObb.h"
+
+#include "T3DIntrFrustumAabb.h"
+#include "T3DIntrFrustumObb.h"
+#include "T3DIntrFrustumSphere.h"
+
 
 namespace Tiny3D
 {
@@ -92,6 +106,19 @@ typedef TIntrRayTriangle<Real>  IntrRayTriangle;
 typedef TIntrRaySphere<Real>    IntrRaySphere;
 typedef TIntrRayAabb<Real>      IntrRayAabb;
 typedef TIntrRayObb<Real>       IntrRayObb;
+
+typedef TIntrSphereTriangle<Real>   IntrSphereTriangle;
+typedef TIntrSphereSphere<Real>     IntrSphereSphere;
+typedef TIntrSphereAabb<Real>       IntrSphereAabb;
+typedef TIntrSphereObb<Real>        IntrShpereObb;
+
+typedef TIntrAabbAabb<Real>         IntrAabbAabb;
+typedef TIntrAabbObb<Real>          IntrAabbObb;
+typedef TIntrObbObb<Real>           IntrObbObb;
+
+typedef TIntrFrustumSphere<Real>    IntrFrustumSphere;
+typedef TIntrFrustumAabb<Real>      IntrFrustumAabb;
+typedef TIntrFrustumObb<Real>       IntrFrustumObb;
 
 
 #define REAL_ZERO           TReal<Real>::ZERO

@@ -17,57 +17,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_INTR_RAY_TRIANGLE_H__
-#define __T3D_INTR_RAY_TRIANGLE_H__
-
-
-#include "T3DMathPrerequisites.h"
-#include "T3DMath.h"
-#include "T3DRay.h"
-#include "T3DTriangle.h"
-
 
 namespace Tiny3D
 {
     template <typename T>
-    class TIntrRayTriangle
+    inline TIntrSphereAabb<T>::TIntrSphereAabb()
+        : mSphere(nullptr)
+        , mBox(nullptr)
     {
-    public:
-        TIntrRayTriangle();
-        TIntrRayTriangle(const TRay<T> *ray, const TTriangle<T> *triangle);
-        TIntrRayTriangle(const TRay<T> &ray, const TTriangle<T> &triangle);
 
-        bool test();
-        bool test(TVector3<T> &intersection);
+    }
 
-        const TRay<T> *getRay() const
-        {
-            return mRay;
-        }
+    template <typename T>
+    inline TIntrSphereAabb<T>::TIntrSphereAabb(
+        const TSphere<T> &sphere,
+        const TAabb<T> &box)
+        : mSphere(&sphere)
+        , mBox(&box)
+    {
 
-        const TTriangle<T> *getTriangle() const
-        {
-            return mTriangle;
-        }
+    }
 
-        void setRay(const TRay<T> *ray)
-        {
-            mRay = ray;
-        }
+    template <typename T>
+    inline TIntrSphereAabb<T>::TIntrSphereAabb(
+        const TSphere<T> *sphere,
+        const TAabb<T> *box)
+        : mSphere(sphere)
+        , mBox(box)
+    {
 
-        void setTriangle(const TTriangle<T> *triangle)
-        {
-            mTriangle = triangle;
-        }
+    }
 
-    private:
-        const TRay<T>       *mRay;
-        const TTriangle<T>  *mTriangle;
-    };
+    template <typename T>
+    bool TIntrSphereAabb<T>::test()
+    {
+        if (mSphere == nullptr || mBox == nullptr)
+            return false;
+
+        return true;
+    }
 }
 
-
-#include "T3DIntrRayTriangle.inl"
-
-
-#endif  /*__T3D_INTR_RAY_TRIANGLE_H__*/

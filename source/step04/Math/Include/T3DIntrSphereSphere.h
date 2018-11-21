@@ -17,57 +17,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_INTR_RAY_TRIANGLE_H__
-#define __T3D_INTR_RAY_TRIANGLE_H__
+#ifndef __T3D_INTR_SHPERE_SPHERE_H__
+#define __T3D_INTR_SHPERE_SPHERE_H__
 
 
 #include "T3DMathPrerequisites.h"
 #include "T3DMath.h"
-#include "T3DRay.h"
-#include "T3DTriangle.h"
+#include "T3DSphere.h"
 
 
 namespace Tiny3D
 {
     template <typename T>
-    class TIntrRayTriangle
+    class TIntrSphereSphere
     {
     public:
-        TIntrRayTriangle();
-        TIntrRayTriangle(const TRay<T> *ray, const TTriangle<T> *triangle);
-        TIntrRayTriangle(const TRay<T> &ray, const TTriangle<T> &triangle);
+        TIntrSphereSphere();
+        TIntrSphereSphere(const TSphere<T> *s0, const TSphere<T> *s1);
+        TIntrSphereSphere(const TSphere<T> &s0, const TSphere<T> &s1);
 
         bool test();
-        bool test(TVector3<T> &intersection);
 
-        const TRay<T> *getRay() const
+        const TSphere<T> *getSphere0() const
         {
-            return mRay;
+            return mSphere0;
         }
 
-        const TTriangle<T> *getTriangle() const
+        const TSphere<T> *getSphere1() const
         {
-            return mTriangle;
+            return mSphere1;
         }
 
-        void setRay(const TRay<T> *ray)
+        void setSphere0(const TSphere<T> *sphere)
         {
-            mRay = ray;
+            mSphere0 = sphere;
         }
 
-        void setTriangle(const TTriangle<T> *triangle)
+        void setSphere1(const TSphere<T> *sphere)
         {
-            mTriangle = triangle;
+            mSphere1 = sphere;
         }
 
     private:
-        const TRay<T>       *mRay;
-        const TTriangle<T>  *mTriangle;
+        const TSphere<T>    *mSphere0;
+        const TSphere<T>    *mSphere1;
     };
 }
 
 
-#include "T3DIntrRayTriangle.inl"
+#include "T3DIntrSphereSphere.inl"
 
 
-#endif  /*__T3D_INTR_RAY_TRIANGLE_H__*/
+#endif  /*__T3D_INTR_SHPERE_SPHERE_H__*/
