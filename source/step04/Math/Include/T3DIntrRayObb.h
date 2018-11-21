@@ -22,6 +22,9 @@
 
 
 #include "T3DMathPrerequisites.h"
+#include "T3DMath.h"
+#include "T3DObb.h"
+#include "T3DRay.h"
 
 
 namespace Tiny3D
@@ -30,6 +33,37 @@ namespace Tiny3D
     class TIntrRayObb
     {
     public:
+        TIntrRayObb();
+        TIntrRayObb(const TRay<T> *ray, const TObb<T> *obb);
+        TIntrRayObb(const TRay<T> &ray, const TObb<T> &obb);
+
+        bool test();
+        bool test(TVector3<T> &intersection);
+        bool test(T &distance);
+
+        const TRay<T> *getRay() const
+        {
+            return mRay;
+        }
+
+        const TAabb<T> *getObb() const
+        {
+            return mObb;
+        }
+
+        void setRay(const TRay<T> *ray)
+        {
+            mRay = ray;
+        }
+
+        void setObb(const TObb<T> *obb)
+        {
+            mObb = obb;
+        }
+
+    protected:
+        const TRay<T>   *mRay;
+        const TObb<T>   *mObb;
     };
 }
 
