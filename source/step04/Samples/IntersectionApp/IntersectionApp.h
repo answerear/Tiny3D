@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,8 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DEventInstance.h"
+#ifndef __TRANSFORMATION_APP_H__
+#define __TRANSFORMATION_APP_H__
 
-namespace Tiny3D
+#include <T3DPlatform.h>
+#include <T3DLog.h>
+#include <T3DMathLib.h>
+
+
+class TransformationApp : public Tiny3D::Application
 {
-}
+public:
+    TransformationApp();
+    virtual ~TransformationApp();
+
+protected:  // from Tiny3D::Application
+    virtual bool applicationDidFinishLaunching() override;
+
+    virtual void applicationDidEnterBackground() override;
+
+    virtual void applicationWillEnterForeground() override;
+
+    virtual void applicationWillTerminate() override;
+
+    virtual void applicationLowMemory() override;
+};
+
+
+#endif  /*__TRANSFORMATION_APP_H__*/

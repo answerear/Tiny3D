@@ -31,7 +31,6 @@
 
 #include <T3DPlatform.h>
 #include <T3DLog.h>
-#include <T3DFramework.h>
 
 #if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
 #include <SDL_main.h>

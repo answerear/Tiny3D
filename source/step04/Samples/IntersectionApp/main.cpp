@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,4 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DEventParam.h"
+
+#include "TransformationApp.h"
+
+int main(int argc, char *argv[])
+{
+    Tiny3D::Application *theApp = new TransformationApp();
+    theApp->init();
+    theApp->applicationDidFinishLaunching();
+    delete theApp;
+    return 0;
+}

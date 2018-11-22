@@ -26,18 +26,15 @@ namespace Tiny3D
 
     Engine::Engine()
         : mLogger(nullptr)
-        , mEventMgr(nullptr)
         , mWindow(nullptr)
         , mIsRunning(false)
     {
         mLogger = new Logger();
-        mEventMgr = new EventManager(10);
     }
 
     Engine::~Engine()
     {
         T3D_SAFE_DELETE(mWindow);
-        T3D_SAFE_DELETE(mEventMgr);
 
         mLogger->shutdown();
         T3D_SAFE_DELETE(mLogger);
@@ -96,9 +93,6 @@ namespace Tiny3D
 
             if (!mIsRunning)
                 break;
-
-            // 事件系统派发事件
-            T3D_EVENT_MGR.dispatchEvent();
 
             // 渲染一帧
             renderOneFrame();
