@@ -19,7 +19,6 @@
 
 #include <SDL_video.h>
 #include "Adapter/Mobile/T3DSDLMobileWindow.h"
-#include "T3DPlatformErrorDef.h"
 
 #if defined (T3D_OS_WINDOWS)
 #include <SDL_syswm.h>
@@ -38,35 +37,39 @@ namespace Tiny3D
 
     }
 
-    int32_t SDLMobileWindow::create(const char *title, int32_t x, int32_t y,
+    bool SDLMobileWindow::create(const char *title, int32_t x, int32_t y,
         int32_t w, int32_t h, uint32_t flags)
     {
-        int32_t ret = T3D_ERR_FAIL;
+        bool ret = false;
 
-        do
+        ret = (SDL_WasInit(SDL_INIT_VIDEO) == SDL_INIT_VIDEO);
+
+        if (ret)
         {
-            if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO)
-            {
-                break;
-            }
-            
             SDL_DisplayMode dm;
             if (SDL_GetCurrentDisplayMode(0, &dm) == 0)
             {
                 w = dm.w;
                 h = dm.h;
             }
-            
+			
             mSDLWindow = SDL_CreateWindow(title, x, y, w, h, flags);
             if (mSDLWindow == nullptr)
             {
-                ret = T3D_ERR_INVALID_POINTER;
+                ret = false;
                 std::string str = SDL_GetError();
-                break;
+                int a = 0;
             }
-            
-            ret = T3D_ERR_OK;
-        } while (0);
+            else
+            {
+
+            }
+        }
+        else
+        {
+            std::string str = SDL_GetError();
+            int a = 0;
+        }
 
         return ret;
     }

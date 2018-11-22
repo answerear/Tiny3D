@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -20,10 +20,6 @@
 #include "T3DLinuxFactory.h"
 #include "Adapter/Common/T3DSDLApplication.h"
 #include "Adapter/Desktop/T3DSDLDesktopWindow.h"
-#include "Adapter/Unix/T3DUnixTime.h"
-#include "Adapter/Linux/T3DLinuxDir.h"
-#include "Adapter/Linux/T3DLinuxConsole.h"
-#include "Adapter/Linux/T3DLinuxDeviceInfo.h"
 
 namespace Tiny3D
 {
@@ -45,26 +41,6 @@ namespace Tiny3D
     IWindow *LinuxFactory::createPlatformWindow()
     {
         return new SDLDesktopWindow();
-    }
-
-    ITime *LinuxFactory::createPlatformTime()
-    {
-        return new UnixTime();
-    }
-
-    IDir *LinuxFactory::createPlatformDir()
-    {
-        return new LinuxDir();
-    }
-
-    IDeviceInfo *LinuxFactory::createPlatformDeviceInfo()
-    {
-        return new LinuxDeviceInfo();
-    }
-
-    IConsole *LinuxFactory::createPlatformConsole()
-    {
-        return new LinuxConsole();
     }
 
     EPlatform LinuxFactory::getPlatform()

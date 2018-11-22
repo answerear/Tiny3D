@@ -23,8 +23,6 @@
 
 #include <Tiny3D.h>
 
-class Scene;
-
 class HelloApp : public Tiny3D::Application
 {
 public:
@@ -39,11 +37,8 @@ protected:  /// from Tiny3D::Application
     virtual void applicationWillEnterForeground() override;
 
     virtual void applicationWillTerminate() override;
-
-    virtual void applicationLowMemory() override;
-
+	
 protected:
-    Scene   *mScene;
 };
 
 

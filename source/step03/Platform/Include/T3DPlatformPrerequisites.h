@@ -32,15 +32,6 @@ namespace Tiny3D
     class System;
     class Application;
     class Window;
-    class TimerManager;
-    class ITimerListener;
-    class DateTime;
-    class Console;
-    class DeviceInfo;
-    class Dir;
-    class DataStream;
-    class FileDataStream;
-    class MemoryDataStream;
 }
  
 

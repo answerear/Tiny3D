@@ -18,13 +18,12 @@
  ******************************************************************************/
 
 #include "HelloApp.h"
-#include "Scene.h"
 
 
+using namespace Tiny3D;
 
 HelloApp::HelloApp()
     : Application()
-    , mScene(nullptr)
 {
 }
 
@@ -34,20 +33,15 @@ HelloApp::~HelloApp()
 
 bool HelloApp::applicationDidFinishLaunching()
 {
-    mScene = new Scene();
-    mScene->init();
-
     return true;
 }
 
 void HelloApp::applicationDidEnterBackground()
 {
-    T3D_ENGINE.appDidEnterBackground();
 }
 
 void HelloApp::applicationWillEnterForeground()
 {
-    T3D_ENGINE.appWillEnterForeground();
 }
 
 void HelloApp::applicationWillTerminate()
@@ -55,8 +49,5 @@ void HelloApp::applicationWillTerminate()
 
 }
 
-void HelloApp::applicationLowMemory()
-{
 
-}
 
