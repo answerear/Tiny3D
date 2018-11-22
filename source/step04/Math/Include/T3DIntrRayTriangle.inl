@@ -58,7 +58,7 @@ namespace Tiny3D
         // 1. 计算射线和包含该三角形的平面的交点
         // 2. 通过计算交点的重心坐标，来判断它是否在三角形中
         
-        // 计算逆时针的变向量
+        // 计算逆时针的边向量
         TVector3<T> e1 = mTriangle[1] - mTriangle[0];
         TVector3<T> e2 = mTriangle[2] - mTriangle[1];
 
@@ -105,9 +105,9 @@ namespace Tiny3D
         T u0, u1, u2;
         T v0, v1, v2;
 
-        if (Math<T>::abs(n.x()) > Math<T>::abs(n.y()))
+        if (TMath<T>::abs(n.x()) > TMath<T>::abs(n.y()))
         {
-            if (Math<T>::abs(n.x()) > Math<T>::abs(n.z()))
+            if (TMath<T>::abs(n.x()) > TMath<T>::abs(n.z()))
             {
                 u0 = p.y() - mTriangle[0].y();
                 u1 = mTriangle[1].y() - mTriangle[0].y();
@@ -130,7 +130,7 @@ namespace Tiny3D
         }
         else
         {
-            if (Math<T>::abs(n.y()) > Math<T>::abs(n.z))
+            if (TMath<T>::abs(n.y()) > TMath<T>::abs(n.z))
             {
                 u0 = p.x() - mTriangle[0].x();
                 u1 = mTriangle[1].x() - mTriangle[0].x();
@@ -239,9 +239,9 @@ namespace Tiny3D
         T u0, u1, u2;
         T v0, v1, v2;
 
-        if (Math<T>::abs(n.x()) > Math<T>::abs(n.y()))
+        if (TMath<T>::abs(n.x()) > TMath<T>::abs(n.y()))
         {
-            if (Math<T>::abs(n.x()) > Math<T>::abs(n.z()))
+            if (TMath<T>::abs(n.x()) > TMath<T>::abs(n.z()))
             {
                 u0 = p.y() - mTriangle[0].y();
                 u1 = mTriangle[1].y() - mTriangle[0].y();
@@ -264,7 +264,7 @@ namespace Tiny3D
         }
         else
         {
-            if (Math<T>::abs(n.y()) > Math<T>::abs(n.z))
+            if (TMath<T>::abs(n.y()) > TMath<T>::abs(n.z))
             {
                 u0 = p.x() - mTriangle[0].x();
                 u1 = mTriangle[1].x() - mTriangle[0].x();

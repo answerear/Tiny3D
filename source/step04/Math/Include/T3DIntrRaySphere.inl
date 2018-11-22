@@ -123,7 +123,7 @@ namespace Tiny3D
         }
         else
         {
-            T d = Math<T>::sqrt(d2);
+            T d = TMath<T>::sqrt(d2);
             t0 = proj - d;
             t1 = proj + d;
         }
@@ -162,7 +162,7 @@ namespace Tiny3D
             return false;
         }
 
-        distance = Math<T>::sqrt(d2);
+        distance = TMath<T>::sqrt(d2);
 
         return true;
     }

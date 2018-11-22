@@ -67,7 +67,7 @@ namespace Tiny3D
         T minX, minY, minZ;
         T maxX, maxY, maxZ;
 
-        if (Math<T>::abs(dx) < TReal<T>::EPSILON)
+        if (TMath<T>::abs(dx) < TReal<T>::EPSILON)
         {
             if (ox < mAabb->getMinX() 
                 || ox > mAabb->getMaxX())
@@ -90,7 +90,7 @@ namespace Tiny3D
             }
         }
 
-        if (Math<T>::abs(dy) < TReal<T>::EPSILON)
+        if (TMath<T>::abs(dy) < TReal<T>::EPSILON)
         {
             if (oy < mAabb->getMinY()
                 || oy > mAabb->getMaxY())
@@ -113,7 +113,7 @@ namespace Tiny3D
             }
         }
 
-        if (Math<T>::abs(dz) < TReal<T>::EPSILON)
+        if (TMath<T>::abs(dz) < TReal<T>::EPSILON)
         {
             if (oz < mAabb->getMinZ()
                 || oz > mAabb->getMaxZ())

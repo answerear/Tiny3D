@@ -17,45 +17,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_INTR_RAY_PLANE_H__
+#define __T3D_INTR_RAY_PLANE_H__
+
+
+#include "T3DMathPrerequisites.h"
+#include "T3DRay.h"
+#include "T3DPlane.h"
+
 
 namespace Tiny3D
 {
     template <typename T>
-    inline TIntrSphereSphere<T>::TIntrSphereSphere()
-        : mSphere0(nullptr)
-        , mSphere1(nullptr)
+    class TIntrRayPlane
     {
+    public:
+        TIntrRayPlane();
+        TIntrRayPlane(const TRay<T> *ray, const TPlane<T> *plane);
+        TIntrRayPlane(const TRay<T> &ray, const TPlane<T> &plane);
 
-    }
+        bool test();
+        bool test(TVector3<T> &intersection);
+        bool test(T &distance);
 
-    template <typename T>
-    inline TIntrSphereSphere<T>::TIntrSphereSphere(
-        const TSphere<T> &s0,
-        const TSphere<T> &s1)
-        : mSphere0(&s0)
-        , mSphere1(&s1)
-    {
+        const TRay<T> *getRay() const
+        {
+            return mRay;
+        }
 
-    }
+        const TPlane<T> *getPlane() const
+        {
+            return mPlane;
+        }
 
-    template <typename T>
-    inline TIntrSphereSphere<T>::TIntrSphereSphere(
-        const TSphere<T> *s0,
-        const TSphere<T> *s1)
-        : mSphere0(s0)
-        , mSphere1(s1)
-    {
+        void setRay(const TRay<T> *ray)
+        {
+            mRay = ray;
+        }
 
-    }
+        void setTriangle(const TPlane<T> *plane)
+        {
+            mPlane = plane;
+        }
 
-    template <typename T>
-    bool TIntrSphereSphere<T>::test()
-    {
-        if (mSphere0 == nullptr || mSphere1 == nullptr)
-            return false;
-
-        return (mSphere0->getCenter() - mSphere1->getCenter()
-            < mSphere0->getRadius() + mSphere1->getRadius());
-    }
+    private:
+        const TRay<T>       *mRay;
+        const TPlane<T>     *mPlane;
+    };
 }
 
+
+#include "T3DIntrRayPlane.inl"
+
+
+#endif  /*__T3D_INTR_RAY_PLANE_H__*/
