@@ -17,32 +17,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PREREQUISITES_H__
-#define __T3D_PREREQUISITES_H__
+#ifndef __T3D_MATH_PREREQUISITES_H__
+#define __T3D_MATH_PREREQUISITES_H__
 
 
+#include "T3DMacro.h"
+#include <stdarg.h>
 
-#if defined T3DCORE_EXPORT
-    #define T3D_ENGINE_API        T3D_EXPORT_API
+
+#if defined T3DMATH_EXPORT
+    #define T3D_MATH_API        T3D_EXPORT_API
 #else
-    #define T3D_ENGINE_API        T3D_IMPORT_API
+    #define T3D_MATH_API        T3D_IMPORT_API
 #endif
 
 
-#include <T3DPlatform.h>
-#include <T3DLog.h>
-#include <T3DFramework.h>
+#include "T3DPlatform.h"
+#include "T3DLog.h"
 
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
 
 namespace Tiny3D
 {
-    /// Core
-    class Engine;
+    class fix32;
+    class fix64;
+
+    template <typename T> class TDegree;
+    template <typename T> class TRadian;
 }
 
+typedef float               float32_t;
+typedef double              float64_t;
 
-#endif    /*__T3D_PREREQUISITES_H__*/
+typedef Tiny3D::fix32       fix32_t;
+typedef Tiny3D::fix64       fix64_t;
+
+
+#endif    /*__T3D_MATH_PREREQUISITES_H__*/

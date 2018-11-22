@@ -17,32 +17,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PREREQUISITES_H__
-#define __T3D_PREREQUISITES_H__
+#ifndef __T3D_TRIANGLE_H__
+#define __T3D_TRIANGLE_H__
 
 
+#include "T3DMathPrerequisites.h"
+#include "T3DVector3.h"
 
-#if defined T3DCORE_EXPORT
-    #define T3D_ENGINE_API        T3D_EXPORT_API
-#else
-    #define T3D_ENGINE_API        T3D_IMPORT_API
-#endif
-
-
-#include <T3DPlatform.h>
-#include <T3DLog.h>
-#include <T3DFramework.h>
-
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
 
 namespace Tiny3D
 {
-    /// Core
-    class Engine;
+    template <typename T>
+    class TTriangle
+    {
+    public:
+        TTriangle();
+        TTriangle(const TVector3<T> *vertices);
+        TTriangle(const T *vertices);
+        
+        const TVector3<T> *getVertices() const
+        {
+            return mVertices;
+        }
+
+        TVector3<T> *getVertices()
+        {
+            return mVertices;
+        }
+
+        void setVertices(const TVector3<T> *vertices);
+        void setVertices(const T *vertices);
+
+        const TVector3<T> &operator [](size_t idx) const;
+        TVector3<T> &operator [](size_t idx);
+
+    private:
+        TVector3<T> mVertices[3];
+    };
 }
 
+#include "T3DTriangle.inl"
 
-#endif    /*__T3D_PREREQUISITES_H__*/
+#endif  /*__T3D_TRIANGLE_H__*/

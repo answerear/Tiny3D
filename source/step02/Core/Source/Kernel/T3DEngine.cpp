@@ -25,18 +25,19 @@ namespace Tiny3D
     T3D_INIT_SINGLETON(Engine);
 
     Engine::Engine()
-        :  mLogger(nullptr)
+        : mLogger(nullptr)
+        , mEventMgr(nullptr)
         , mWindow(nullptr)
         , mIsRunning(false)
     {
         mLogger = new Logger();
-//         mEventMgr = new EventManager(10);
+        mEventMgr = new EventManager(10);
     }
 
     Engine::~Engine()
     {
         T3D_SAFE_DELETE(mWindow);
-//         T3D_SAFE_DELETE(mEventMgr);
+        T3D_SAFE_DELETE(mEventMgr);
 
         mLogger->shutdown();
         T3D_SAFE_DELETE(mLogger);
@@ -97,7 +98,7 @@ namespace Tiny3D
                 break;
 
             // 事件系统派发事件
-//             T3D_EVENT_MGR.dispatchEvent();
+            T3D_EVENT_MGR.dispatchEvent();
 
             // 渲染一帧
             renderOneFrame();

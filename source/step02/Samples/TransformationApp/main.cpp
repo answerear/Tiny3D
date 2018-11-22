@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,32 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PREREQUISITES_H__
-#define __T3D_PREREQUISITES_H__
 
+#include "TransformationApp.h"
 
-
-#if defined T3DCORE_EXPORT
-    #define T3D_ENGINE_API        T3D_EXPORT_API
-#else
-    #define T3D_ENGINE_API        T3D_IMPORT_API
-#endif
-
-
-#include <T3DPlatform.h>
-#include <T3DLog.h>
-#include <T3DFramework.h>
-
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
-
-namespace Tiny3D
+int main(int argc, char *argv[])
 {
-    /// Core
-    class Engine;
+    Tiny3D::Application *theApp = new TransformationApp();
+    theApp->init();
+    theApp->applicationDidFinishLaunching();
+    delete theApp;
+    return 0;
 }
-
-
-#endif    /*__T3D_PREREQUISITES_H__*/

@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,32 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PREREQUISITES_H__
-#define __T3D_PREREQUISITES_H__
-
-
-
-#if defined T3DCORE_EXPORT
-    #define T3D_ENGINE_API        T3D_EXPORT_API
-#else
-    #define T3D_ENGINE_API        T3D_IMPORT_API
-#endif
-
+#ifndef __TRANSFORMATION_APP_H__
+#define __TRANSFORMATION_APP_H__
 
 #include <T3DPlatform.h>
 #include <T3DLog.h>
-#include <T3DFramework.h>
+#include <T3DMathLib.h>
 
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
 
-namespace Tiny3D
+class TransformationApp : public Tiny3D::Application
 {
-    /// Core
-    class Engine;
-}
+public:
+    TransformationApp();
+    virtual ~TransformationApp();
+
+protected:  // from Tiny3D::Application
+    virtual bool applicationDidFinishLaunching() override;
+
+    virtual void applicationDidEnterBackground() override;
+
+    virtual void applicationWillEnterForeground() override;
+
+    virtual void applicationWillTerminate() override;
+
+    virtual void applicationLowMemory() override;
+};
 
 
-#endif    /*__T3D_PREREQUISITES_H__*/
+#endif  /*__TRANSFORMATION_APP_H__*/

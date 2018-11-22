@@ -17,32 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PREREQUISITES_H__
-#define __T3D_PREREQUISITES_H__
 
+#include "T3DFix32.h"
 
-
-#if defined T3DCORE_EXPORT
-    #define T3D_ENGINE_API        T3D_EXPORT_API
-#else
-    #define T3D_ENGINE_API        T3D_IMPORT_API
-#endif
-
-
-#include <T3DPlatform.h>
-#include <T3DLog.h>
-#include <T3DFramework.h>
-
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
 
 namespace Tiny3D
 {
-    /// Core
-    class Engine;
+    const int32_t fix32::INTEGER_BITS = 20;
+    const int32_t fix32::DECIMAL_BITS = 12;
+
+    const int32_t fix32::MAX_INT_VALUE = 524287; // 524287
+    const int32_t fix32::MIN_INT_VALUE = -524288; // -524288
+
+    const float32_t fix32::MAX_FLOAT_VALUE = (fix32::MAX_INT_VALUE * 1.0f); // 524287.0f
+    const float32_t fix32::MIN_FLOAT_VALUE = (fix32::MIN_INT_VALUE * 1.0f); // -524288.0f
+
+    const fix32 fix32::ZERO(0);
+    const fix32 fix32::HALF(0.5f);
+    const fix32 fix32::ONE(1);
+    const fix32 fix32::MINUS_ONE(-1);
+    const fix32 fix32::INF(0x7FFFFFFF, 0);
+    const fix32 fix32::MINUSINF(0x80000000, 0);
 }
-
-
-#endif    /*__T3D_PREREQUISITES_H__*/

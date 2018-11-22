@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -66,8 +66,16 @@ namespace Tiny3D
         
         if (mSWVersion.empty())
         {
-            mSWVersion = [[[[NSBundle mainBundle] infoDictionary]
-                           objectForKey:@"CFBundleVersion"] UTF8String];
+            NSBundle *bundle = [NSBundle mainBundle];
+            if (bundle != nil)
+            {
+                NSString *str = [[bundle infoDictionary]
+                                 objectForKey:@"CFBundleVersion"];
+                if (str != nil)
+                {
+                    mSWVersion = [str UTF8String];
+                }
+            }
         }
         
         if (mOSVersion.empty())

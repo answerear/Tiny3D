@@ -20,6 +20,7 @@
 #ifndef __T3D_TYPE_H__
 #define __T3D_TYPE_H__
 
+#include <typeinfo>
 #include <string>
 #include <memory>
 #include <vector>

@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,32 +17,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PREREQUISITES_H__
-#define __T3D_PREREQUISITES_H__
+#ifndef __T3D_FRUSTUM_H__
+#define __T3D_FRUSTUM_H__
 
 
+#include "T3DMathPrerequisites.h"
+#include "T3DPlane.h"
 
-#if defined T3DCORE_EXPORT
-    #define T3D_ENGINE_API        T3D_EXPORT_API
-#else
-    #define T3D_ENGINE_API        T3D_IMPORT_API
-#endif
-
-
-#include <T3DPlatform.h>
-#include <T3DLog.h>
-#include <T3DFramework.h>
-
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
 
 namespace Tiny3D
 {
-    /// Core
-    class Engine;
+    template <typename T>
+    class TFrustum
+    {
+    public:
+        enum Face
+        {
+            E_FACE_TOP = 0,
+            E_FACE_BOTTOM,
+            E_FACE_LEFT,
+            E_FACE_RIGHT,
+            E_FACE_NEAR,
+            E_FACE_FAR,
+            E_MAX_FACE
+        };
+
+        TFrustum()
+        {
+        }
+
+        void setFace(Face face, const TPlane<T> &plane)
+        {
+            T3D_ASSERT(face >= 0 && face < E_MAX_FACE);
+            mFace[face] = plane;
+        }
+
+        const TPlane<T> &getFace(Face face) const
+        {
+            T3D_ASSERT(face >= 0 && face < E_MAX_FACE);
+            return mFace[face];
+        }
+
+    protected:
+        TPlane<T>   mFace[E_MAX_FACE];
+    };
 }
 
 
-#endif    /*__T3D_PREREQUISITES_H__*/
+#endif  /*__T3D_FRUSTUM_H__*/

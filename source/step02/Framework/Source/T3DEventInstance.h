@@ -17,32 +17,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PREREQUISITES_H__
-#define __T3D_PREREQUISITES_H__
+#ifndef __T3D_EVENT_INSTANCE_H__
+#define __T3D_EVENT_INSTANCE_H__
 
 
-
-#if defined T3DCORE_EXPORT
-    #define T3D_ENGINE_API        T3D_EXPORT_API
-#else
-    #define T3D_ENGINE_API        T3D_IMPORT_API
-#endif
-
-
-#include <T3DPlatform.h>
-#include <T3DLog.h>
-#include <T3DFramework.h>
-
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
+#include "T3DEventPrerequisites.h"
 
 namespace Tiny3D
 {
-    /// Core
-    class Engine;
+    struct _TINSTANCE
+    {
+        _TINSTANCE()
+            : obj(nullptr)
+            , slot(0)
+        {}
+
+        _TINSTANCE(void* o, int32_t i)
+            : obj(o)
+            , slot(i)
+        {}
+
+        void    *obj;
+        int32_t slot;
+    };
 }
 
 
-#endif    /*__T3D_PREREQUISITES_H__*/
+#endif  /*__T3D_EVENT_INSTANCE_H__*/

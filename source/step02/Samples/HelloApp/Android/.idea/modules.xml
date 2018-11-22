@@ -3,9 +3,13 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Android.iml" filepath="$PROJECT_DIR$/Android.iml" />
+      <module fileurl="file://C:\Users\aaronwang.TENCENT\Documents\Tiny3D\steps\source\step04\Samples\HelloApp\Android\Android.iml" filepath="C:\Users\aaronwang.TENCENT\Documents\Tiny3D\steps\source\step04\Samples\HelloApp\Android\Android.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../../Platform/Android/Tiny3D/Tiny3D.iml" filepath="$PROJECT_DIR$/../../../Platform/Android/Tiny3D/Tiny3D.iml" />
+      <module fileurl="file://C:\Users\aaronwang.TENCENT\Documents\Tiny3D\steps\source\step04\Platform\Android\Tiny3D\Tiny3D.iml" filepath="C:\Users\aaronwang.TENCENT\Documents\Tiny3D\steps\source\step04\Platform\Android\Tiny3D\Tiny3D.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../../Platform/Android/Tiny3DLib.iml" filepath="$PROJECT_DIR$/../../../Platform/Android/Tiny3DLib.iml" />
+      <module fileurl="file://C:\Users\aaronwang.TENCENT\Documents\Tiny3D\steps\source\step04\Platform\Android\Tiny3DLib.iml" filepath="C:\Users\aaronwang.TENCENT\Documents\Tiny3D\steps\source\step04\Platform\Android\Tiny3DLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\aaronwang.TENCENT\Documents\Tiny3D\steps\source\step04\Samples\HelloApp\Android\app\app.iml" filepath="C:\Users\aaronwang.TENCENT\Documents\Tiny3D\steps\source\step04\Samples\HelloApp\Android\app\app.iml" />
     </modules>
   </component>
 </project>
