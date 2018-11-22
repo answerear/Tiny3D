@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -19,41 +19,10 @@
 
 
 #include "Adapter/Common/T3DSDLApplication.h"
-#include "T3DPlatformErrorDef.h"
-#include "T3DApplication.h"
 
 
 namespace Tiny3D
 {
-    static int AppEventWatcher(void *userdata, SDL_Event *event)
-    {
-        switch (event->type)
-        {
-        case SDL_APP_DIDENTERBACKGROUND:
-            {
-                T3D_APPLICATION.applicationDidEnterBackground();
-            }
-            break;
-        case SDL_APP_WILLENTERFOREGROUND:
-            {
-                T3D_APPLICATION.applicationWillEnterForeground();
-            }
-            break;
-        case SDL_APP_TERMINATING:
-            {
-                T3D_APPLICATION.applicationWillTerminate();
-            }
-            break;
-        case SDL_APP_LOWMEMORY:
-            {
-                T3D_APPLICATION.applicationLowMemory();
-            }
-            break;
-        }
-        
-        return 0;
-    }
-    
     SDLApplication::SDLApplication()
     {
 
@@ -64,28 +33,23 @@ namespace Tiny3D
 
     }
 
-    int32_t SDLApplication::init()
+    bool SDLApplication::init()
     {
-        int32_t ret = T3D_ERR_FAIL;
+        bool ret = false;
 
-        do 
+        ret = (SDL_Init(0) == 0);
+
+        if (!ret)
         {
-            if (SDL_Init(0) != 0)
-            {
-                const char *error = SDL_GetError();
-                break;
-            }
+            const char *error = SDL_GetError();
+            int a = 0;
+        }
 
-            if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0)
-            {
-                const char *error = SDL_GetError();
-                break;
-            }
-            
-            SDL_AddEventWatch(AppEventWatcher, nullptr);
-
-            ret = T3D_ERR_OK;
-        } while (0);
+        ret = ret && (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) == 0);
+        if (!ret)
+        {
+            const char *error = SDL_GetError();
+        }
 
         return ret;
     }
@@ -97,12 +61,9 @@ namespace Tiny3D
 
         while (SDL_PollEvent(&ev) != 0)
         {
-            switch (ev.type)
+            if (ev.type == SDL_QUIT)
             {
-            case SDL_QUIT:
-                {
-                    ret = false;
-                }
+                ret = false;
                 break;
             }
         }

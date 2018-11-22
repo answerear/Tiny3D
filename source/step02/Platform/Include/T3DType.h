@@ -20,7 +20,7 @@
 #ifndef __T3D_TYPE_H__
 #define __T3D_TYPE_H__
 
-#include <typeinfo>
+
 #include <string>
 #include <memory>
 #include <vector>
@@ -28,11 +28,6 @@
 #include <set>
 #include <map>
 #include <algorithm>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-#include <string.h>
-#include <memory.h>
 
 
 typedef signed char         char_t;
@@ -66,13 +61,6 @@ typedef std::u32string      UTF32String;
 
 typedef void*               THandle;
 
-typedef std::thread                     TThread;
-typedef std::mutex                      TMutex;
-typedef std::recursive_mutex            TRecursiveMutex;
-typedef std::condition_variable         TCondVariable;
-
-template <typename T>
-using TAutoLock = std::unique_lock<T>;
 
 
 #endif  /*__T3D_TYPE_H__*/

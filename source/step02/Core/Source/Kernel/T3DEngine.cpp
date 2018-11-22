@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -25,61 +25,51 @@ namespace Tiny3D
     T3D_INIT_SINGLETON(Engine);
 
     Engine::Engine()
-        : mLogger(nullptr)
-        , mEventMgr(nullptr)
-        , mWindow(nullptr)
+        : mWindow(nullptr)
         , mIsRunning(false)
+//         , mWindowCreated(true)
     {
-        mLogger = new Logger();
-        mEventMgr = new EventManager(10);
     }
 
     Engine::~Engine()
     {
-        T3D_SAFE_DELETE(mWindow);
-        T3D_SAFE_DELETE(mEventMgr);
-
-        mLogger->shutdown();
-        T3D_SAFE_DELETE(mLogger);
+//         if (mWindowCreated)
+        {
+            T3D_SAFE_DELETE(mWindow);
+        }
     }
 
-    int32_t Engine::init()
+    bool Engine::startup(/*Window *window / * = nullptr * /*/)
     {
-        int32_t ret = T3D_ERR_FAIL;
+        bool ret = false;
 
-        do
+        Application *theApp = Application::getInstancePtr();
+        if (theApp != nullptr)
         {
-            Application *theApp = Application::getInstancePtr();
-            if (theApp == nullptr)
-            {
-                ret = T3D_ERR_INVALID_POINTER;
-                break;
-            }
-
             ret = theApp->init();
-            if (ret != T3D_ERR_OK)
+        }
+
+        if (ret)
+        {
+//             if (window == nullptr)
             {
-                break;
+                mWindow = new Window();
+                if (ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, Window::WINDOW_SHOWN))
+                {
+//                     mWindowCreated = true;
+
+//                     mWindow->setWindowEventListener(this);
+                }
             }
+//             else
+//             {
+//                 mWindow = window;
+//                 mWindowCreated = false;
+//                 mWindow->setWindowEventListener(this);
+//             }
+        }
 
-            if (mLogger != nullptr)
-            {
-                mLogger->startup(1000, "Engine", true, true);
-            }
-
-            T3D_LOG_INFO("Start Tiny3D ...... version %s", T3D_DEVICE_INFO.getSoftwareVersion().c_str());
-            T3D_LOG_INFO("System Information : \n%s", T3D_DEVICE_INFO.getSystemInfo().c_str());
-
-            mWindow = new Window();
-            ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, Window::WINDOW_SHOWN);
-            if (ret != T3D_ERR_OK)
-            {
-                break;
-            }
-
-            mIsRunning = true;
-            ret = T3D_ERR_OK;
-        } while (0);
+        mIsRunning = ret;
 
         return ret;
     }
@@ -91,16 +81,7 @@ namespace Tiny3D
 
         while (mIsRunning)
         {
-            // 轮询系统事件
             mIsRunning = theApp->pollEvents();
-
-            if (!mIsRunning)
-                break;
-
-            // 事件系统派发事件
-            T3D_EVENT_MGR.dispatchEvent();
-
-            // 渲染一帧
             renderOneFrame();
         }
 
@@ -111,16 +92,26 @@ namespace Tiny3D
 
     void Engine::renderOneFrame()
     {
-
+        
     }
 
-    void Engine::appWillEnterForeground()
-    {
-        T3D_LOG_ENTER_FOREGROUND();
-    }
-
-    void Engine::appDidEnterBackground()
-    {
-        T3D_LOG_ENTER_BACKGROUND();
-    }
+//     void Engine::windowResized(int32_t w, int32_t h)
+//     {
+// 
+//     }
+// 
+//     void Engine::windowMoved(int32_t x, int32_t y)
+//     {
+// 
+//     }
+// 
+//     void Engine::windowRender()
+//     {
+// 
+//     }
+// 
+//     void Engine::windowClosed()
+//     {
+//         mIsRunning = false;
+//     }
 }

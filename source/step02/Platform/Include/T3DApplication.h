@@ -45,9 +45,9 @@ namespace Tiny3D
 
         /**
          * @brief 应用初始化，这个由具体平台来调用，用户不需要调用
-         * @return 调用成功返回T3D_ERR_OK
+         * @return 调用成功返回true，否则返回false
          */
-        int32_t init();
+        bool init();
 
         /**
          * @brief 应用事件处理
@@ -70,14 +70,10 @@ namespace Tiny3D
 
         virtual void applicationWillTerminate() = 0;
 
-        virtual void applicationLowMemory() = 0;
-
     private:
         System          *mSystem;       /// 具体平台系统对象
         IApplication    *mApp;          /// 具体平台应用程序对象
     };
-
-    #define T3D_APPLICATION     (Application::getInstance())
 }
 
 

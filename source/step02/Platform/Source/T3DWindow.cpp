@@ -21,7 +21,6 @@
 #include "Adapter/T3DFactoryInterface.h"
 #include "Adapter/T3DWindowInterface.h"
 #include "T3DSystem.h"
-#include "T3DPlatformErrorDef.h"
 #include <stdarg.h>
 #include <SDL.h>
 
@@ -51,10 +50,10 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mWindow);
     }
 
-    int32_t Window::create(const char *title, int32_t x, int32_t y,
+    bool Window::create(const char *title, int32_t x, int32_t y,
         int32_t w, int32_t h, uint32_t flags)
     {
-        int32_t ret = T3D_ERR_FAIL;
+        bool ret = false;
 
         if (mWindow != nullptr)
         {

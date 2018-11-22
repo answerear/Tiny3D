@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -18,7 +18,6 @@
  ******************************************************************************/
 
 #include "Adapter/Desktop/T3DSDLDesktopWindow.h"
-#include "T3DPlatformErrorDef.h"
 
 #if defined (T3D_OS_WINDOWS)
 #include <SDL_syswm.h>
@@ -37,29 +36,32 @@ namespace Tiny3D
 
     }
 
-    int32_t SDLDesktopWindow::create(const char *title, int32_t x, int32_t y,
+    bool SDLDesktopWindow::create(const char *title, int32_t x, int32_t y,
         int32_t w, int32_t h, uint32_t flags)
     {
-        int32_t ret = T3D_ERR_FAIL;
+        bool ret = false;
 
-        do 
+        ret = (SDL_WasInit(SDL_INIT_VIDEO) == SDL_INIT_VIDEO);
+
+        if (ret)
         {
-            if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO)
-            {
-                
-                break;
-            }
-
             mSDLWindow = SDL_CreateWindow(title, x, y, w, h, flags);
             if (mSDLWindow == nullptr)
             {
-                ret = T3D_ERR_INVALID_POINTER;
+                ret = false;
                 std::string str = SDL_GetError();
-                break;
+                int a = 0;
             }
+            else
+            {
 
-            ret = T3D_ERR_OK;
-        } while (0);
+            }
+        }
+        else
+        {
+            std::string str = SDL_GetError();
+            int a = 0;
+        }
 
         return ret;
     }

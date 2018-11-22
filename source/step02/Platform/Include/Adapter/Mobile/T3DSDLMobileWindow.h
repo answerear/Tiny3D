@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -37,7 +37,7 @@ namespace Tiny3D
 
         virtual ~SDLMobileWindow();
 
-        virtual int32_t create(const char *title, int32_t x, int32_t y,
+        virtual bool create(const char *title, int32_t x, int32_t y, 
             int32_t w, int32_t h, uint32_t flags) override;
 
         virtual void destroy() override;

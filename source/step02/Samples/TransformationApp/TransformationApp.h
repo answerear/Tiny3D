@@ -21,7 +21,6 @@
 #define __TRANSFORMATION_APP_H__
 
 #include <T3DPlatform.h>
-#include <T3DLog.h>
 #include <T3DMathLib.h>
 
 
@@ -39,8 +38,6 @@ protected:  // from Tiny3D::Application
     virtual void applicationWillEnterForeground() override;
 
     virtual void applicationWillTerminate() override;
-
-    virtual void applicationLowMemory() override;
 };
 
 

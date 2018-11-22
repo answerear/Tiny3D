@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     HelloApp *theApp = new HelloApp();
     Tiny3D::Engine *theEngine = new Tiny3D::Engine();
 
-    theEngine->init();
+    theEngine->startup();
     theEngine->run();
 
     delete theEngine;
