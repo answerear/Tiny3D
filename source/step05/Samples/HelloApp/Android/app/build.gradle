@@ -13,7 +13,7 @@ android {
             cmake {
                 cppFlags "-std=c++11 -frtti -fexceptions -Wno-undefined-var-template"
                 arguments "-DTINY3D_BUILD_SAMPLES=TRUE"
-                abiFilters 'x86', 'armeabi', 'armeabi-v7a'
+                abiFilters 'x86', 'armeabi-v7a'
             }
         }
     }
