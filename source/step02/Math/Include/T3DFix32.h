@@ -46,6 +46,7 @@ namespace Tiny3D
         static const fix32 MINUS_ONE;   // fix32(-1.0f)
         static const fix32 INF;         // fix32(Infinity)
         static const fix32 MINUSINF;    // fix32(-Infinity)
+        static const fix32 EPSILON;     // fix32(1, 0)
 
         /// 默认构造函数
         fix32();

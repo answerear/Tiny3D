@@ -38,4 +38,5 @@ namespace Tiny3D
     const fix32 fix32::MINUS_ONE(-1);
     const fix32 fix32::INF(0x7FFFFFFF, 0);
     const fix32 fix32::MINUSINF(0x80000000, 0);
+    const fix32 fix32::EPSILON(1, 0);
 }

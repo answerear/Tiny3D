@@ -44,13 +44,13 @@ namespace Tiny3D
     const fix32_t TReal<fix32_t>::MINUS_ONE = fix32_t::MINUS_ONE;
     const fix32_t TReal<fix32_t>::INF = fix32_t::INF;
     const fix32_t TReal<fix32_t>::MINUS_INF = fix32_t::MINUSINF;
-    const fix32_t TReal<fix32_t>::EPSILON = 1e-5;
+    const fix32_t TReal<fix32_t>::EPSILON = fix32_t::EPSILON;
 
-    const fix64_t TReal<fix64_t>::ZERO = fix32_t::ZERO;
-    const fix64_t TReal<fix64_t>::ONE = fix32_t::ONE;
-    const fix64_t TReal<fix64_t>::HALF = fix32_t::HALF;
-    const fix64_t TReal<fix64_t>::MINUS_ONE = fix32_t::MINUS_ONE;
-    const fix64_t TReal<fix64_t>::INF = fix32_t::INF;
-    const fix64_t TReal<fix64_t>::MINUS_INF = fix32_t::MINUSINF;
-    const fix64_t TReal<fix64_t>::EPSILON = 1e-5;
+    const fix64_t TReal<fix64_t>::ZERO = fix64_t::ZERO;
+    const fix64_t TReal<fix64_t>::ONE = fix64_t::ONE;
+    const fix64_t TReal<fix64_t>::HALF = fix64_t::HALF;
+    const fix64_t TReal<fix64_t>::MINUS_ONE = fix64_t::MINUS_ONE;
+    const fix64_t TReal<fix64_t>::INF = fix64_t::INF;
+    const fix64_t TReal<fix64_t>::MINUS_INF = fix64_t::MINUSINF;
+    const fix64_t TReal<fix64_t>::EPSILON = fix64_t::EPSILON;
 }

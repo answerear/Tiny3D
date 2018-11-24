@@ -37,6 +37,7 @@ namespace Tiny3D
     const fix64 fix64::MINUS_ONE = fix64(-1);
     const fix64 fix64::INF = fix64(0x7FFFFFFFFFFFFFFFLL, 0);
     const fix64 fix64::MINUSINF = fix64(0x8000000000000000LL, 0);
+    const fix64 fix64::EPSILON = fix64(16, 0);
 }
 
 

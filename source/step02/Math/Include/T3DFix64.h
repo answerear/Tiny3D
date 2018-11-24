@@ -47,6 +47,7 @@ namespace Tiny3D
         static const fix64 MINUS_ONE;   // fix64(-1.0f)
         static const fix64 INF;         // fix64(Infinity)
         static const fix64 MINUSINF;    // fix64(-Infinity)
+        static const fix64 EPSILON;     // fix64(16, 0);
 
         /// 默认构造函数
         fix64();
