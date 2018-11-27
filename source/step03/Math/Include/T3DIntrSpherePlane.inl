@@ -54,8 +54,7 @@ namespace Tiny3D
         if (mSphere == nullptr || mPlane == nullptr)
             return -1;
 
-        T d = mPlane->getNormal().dot(mSphere->getCenter())
-            + mPlane->getDistance();
+        T d = mPlane->fastDistanceToPoint(mSphere->getCenter());
 
         // 完全在平面正面
         if (d >= mSphere->getRadius())
