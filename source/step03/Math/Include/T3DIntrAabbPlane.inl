@@ -17,55 +17,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_INTR_SPHERE_AABB_H__
-#define __T3D_INTR_SPHERE_AABB_H__
-
-
-#include "T3DMathPrerequisites.h"
-#include "T3DSphere.h"
-#include "T3DAabb.h"
-
 
 namespace Tiny3D
 {
     template <typename T>
-    class TIntrSphereAabb
+    inline TIntrAabbPlane<T>::TIntrAabbPlane()
+        : mBox(nullptr)
+        , mPlane(nullptr)
     {
-    public:
-        TIntrSphereAabb();
-        TIntrSphereAabb(const TSphere<T> *sphere, const TAabb<T> *box);
-        TIntrSphereAabb(const TSphere<T> &sphere, const TAabb<T> &box);
 
-        bool test();
+    }
 
-        const TSphere<T> *getSphere() const
-        {
-            return mSphere;
-        }
+    template <typename T>
+    inline TIntrAabbPlane<T>::TIntrAabbPlane(
+        const TAabb<T> &box, 
+        const TPlane<T> &plane)
+        : mBox(&box)
+        , mPlane(&plane)
+    {
 
-        const TAabb<T> *getBox() const
-        {
-            return mBox;
-        }
+    }
 
-        void setSphere(const TSphere<T> *sphere)
-        {
-            mSphere = sphere;
-        }
+    template <typename T>
+    inline TIntrAabbPlane<T>::TIntrAabbPlane(
+        const TAabb<T> *box0,
+        const TPlane<T> *plane)
+        : mBox(box)
+        , mPlane(plane)
+    {
 
-        void setBox(const TAabb<T> *box)
-        {
-            mBox = box;
-        }
+    }
 
-    private:
-        const TSphere<T>    *mSphere;
-        const TAabb<T>      *mBox;
-    };
+    template <typename T>
+    int32_t TIntrAabbPlane<T>::test()
+    {
+        if (mBox == nullptr || mPlane == nullptr)
+            return -1;
+
+        
+        return 0;
+    }
 }
 
-
-#include "T3DIntrSphereAabb.inl"
-
-
-#endif  /*__T3D_INTR_SPHERE_AABB_H__*/

@@ -17,35 +17,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_INTR_SPHERE_AABB_H__
-#define __T3D_INTR_SPHERE_AABB_H__
+#ifndef __T3D_INTR_SPHERE_PLANE_H__
+#define __T3D_INTR_SPHERE_PLANE_H__
 
 
 #include "T3DMathPrerequisites.h"
 #include "T3DSphere.h"
-#include "T3DAabb.h"
+#include "T3DPlane.h"
 
 
 namespace Tiny3D
 {
     template <typename T>
-    class TIntrSphereAabb
+    class TIntrSpherePlane
     {
     public:
-        TIntrSphereAabb();
-        TIntrSphereAabb(const TSphere<T> *sphere, const TAabb<T> *box);
-        TIntrSphereAabb(const TSphere<T> &sphere, const TAabb<T> &box);
+        TIntrSpherePlane();
+        TIntrSpherePlane(const TSphere<T> *sphere, const TPlane<T> *plane);
+        TIntrSpherePlane(const TSphere<T> &sphere, const TPlane<T> &plane);
 
-        bool test();
+        /**
+         * @brief 相交检测
+         * @return 
+         *  -  1 : 表示球与平面不相交且位于平面正面
+         *  -  0 : 表示球与平面相交
+         *  - -1 : 表示球与平面不相交且位于平面的背面
+         */
+        int32_t test();
 
         const TSphere<T> *getSphere() const
         {
             return mSphere;
         }
 
-        const TAabb<T> *getBox() const
+        const TPlane<T> *getPlane() const
         {
-            return mBox;
+            return mPlane;
         }
 
         void setSphere(const TSphere<T> *sphere)
@@ -53,19 +60,19 @@ namespace Tiny3D
             mSphere = sphere;
         }
 
-        void setBox(const TAabb<T> *box)
+        void setPlane(const TPlane<T> *plane)
         {
-            mBox = box;
+            mPlane = plane;
         }
 
     private:
         const TSphere<T>    *mSphere;
-        const TAabb<T>      *mBox;
+        const TPlane<T>     *mPlane;
     };
 }
 
 
-#include "T3DIntrSphereAabb.inl"
+#include "T3DIntrSpherePlane.inl"
 
 
-#endif  /*__T3D_INTR_SPHERE_AABB_H__*/
+#endif  /*__T3D_INTR_SPHERE_PLANE_H__*/

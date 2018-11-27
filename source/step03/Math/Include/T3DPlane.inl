@@ -116,9 +116,31 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline typename TPlane<T>::Side TPlane<T>::sideForPoint(const TVector3<T> &rkPos) const
+    inline T TPlane<T>::fastDistanceToPoint(const TVector3<T> &rkPos) const
+    {
+        return normal.dot(rkPos) + mCoeff[3];
+    }
+
+    template <typename T>
+    inline typename TPlane<T>::Side TPlane<T>::sideForPoint(
+        const TVector3<T> &rkPos) const
     {
         T distance = distanceToPoint(rkPos);
+        TPlane<T>::Side side = E_SIDE_NONE;
+
+        if (distance < TReal<T>::ZERO)
+            side = E_SIDE_NEGATIVE;
+        else if (distance > TReal<T>::ZERO)
+            side = E_SIDE_POSITIVE;
+
+        return side;
+    }
+
+    template <typename T>
+    inline typename TPlane<T>::Side TPlane<T>::fastSideForPoint(
+        const TVector3<T> &rkPos) const
+    {
+        T distance = fastDistanceToPoint(rkPos);
         TPlane<T>::Side side = E_SIDE_NONE;
 
         if (distance < TReal<T>::ZERO)

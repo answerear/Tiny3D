@@ -17,40 +17,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_INTR_SPHERE_AABB_H__
-#define __T3D_INTR_SPHERE_AABB_H__
+#ifndef __T3D_INTR_AABB_PLANE_H__
+#define __T3D_INTR_AABB_PLANE_H__
 
 
 #include "T3DMathPrerequisites.h"
-#include "T3DSphere.h"
 #include "T3DAabb.h"
+#include "T3DPlane.h"
 
 
 namespace Tiny3D
 {
     template <typename T>
-    class TIntrSphereAabb
+    class TIntrAabbPlane
     {
     public:
-        TIntrSphereAabb();
-        TIntrSphereAabb(const TSphere<T> *sphere, const TAabb<T> *box);
-        TIntrSphereAabb(const TSphere<T> &sphere, const TAabb<T> &box);
+        TIntrAabbPlane();
+        TIntrAabbPlane(const TAabb<T> *box, const TPlane<T> *plane);
+        TIntrAabbPlane(const TAabb<T> &box, const TPlane<T> &plane);
 
-        bool test();
-
-        const TSphere<T> *getSphere() const
-        {
-            return mSphere;
-        }
+        int32_t test();
 
         const TAabb<T> *getBox() const
         {
             return mBox;
         }
 
-        void setSphere(const TSphere<T> *sphere)
+        const TAabb<T> *getPlane() const
         {
-            mSphere = sphere;
+            return mBox1;
         }
 
         void setBox(const TAabb<T> *box)
@@ -58,14 +53,19 @@ namespace Tiny3D
             mBox = box;
         }
 
+        void setPlane(const TPlane<T> *plane)
+        {
+            mPlane = plane;
+        }
+
     private:
-        const TSphere<T>    *mSphere;
-        const TAabb<T>      *mBox;
+        const TAabb<T>  *mBox;
+        const TPlane<T> *mPlane;
     };
 }
 
 
-#include "T3DIntrSphereAabb.inl"
+#include "T3DIntrAabbPlane.inl"
 
 
-#endif  /*__T3D_INTR_SPHERE_AABB_H__*/
+#endif  /*__T3D_INTR_AABB_AABB_H__*/
