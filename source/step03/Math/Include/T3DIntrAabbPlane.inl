@@ -49,12 +49,53 @@ namespace Tiny3D
     }
 
     template <typename T>
-    int32_t TIntrAabbPlane<T>::test()
+    inline int32_t TIntrAabbPlane<T>::test()
     {
         if (mBox == nullptr || mPlane == nullptr)
             return -1;
 
-        
+        T minD, maxD;
+        const TVector3<T> &n = mPlane->getNormal();
+
+        if (n.x() > TReal<T>::ZERO)
+        {
+            minD = n.x() * mBox->getMinX();
+            maxD = n.x() * mBox->getMaxX();
+        }
+        else
+        {
+            minD = n.x() * mBox->getMaxX();
+            maxD = n.x() * mBox->getMinX();
+        }
+
+        if (n.y() > TReal<T>::ZERO)
+        {
+            minD += n.y() * mBox->getMinY();
+            maxD += n.y() * mBox->getMaxY();
+        }
+        else
+        {
+            minD += n.y() * mBox->getMaxY();
+            maxD += n.y() * mBox->getMinY();
+        }
+
+        if (n.z() > TReal<T>::ZERO)
+        {
+            minD += n.z() * mBox->getMinZ();
+            maxD += n.z() * mBox->getMaxZ();
+        }
+        else
+        {
+            minD += n.z() * mBox->getMaxZ();
+            maxD += n.z() * mBox->getMinZ();
+        }
+
+        if (minD >= mPlane->getDistance())
+            return 1;
+
+        if (maxD <= mPlane->getDistance())
+            return -1;
+
         return 0;
     }
 }

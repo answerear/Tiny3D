@@ -17,38 +17,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_INTR_AABB_PLANE_H__
-#define __T3D_INTR_AABB_PLANE_H__
+#ifndef __T3D_INTR_OBB_PLANE_H__
+#define __T3D_INTR_OBB_PLANE_H__
 
 
 #include "T3DMathPrerequisites.h"
-#include "T3DAabb.h"
+#include "T3DObb.h"
 #include "T3DPlane.h"
 
 
 namespace Tiny3D
 {
     template <typename T>
-    class TIntrAabbPlane
+    class TIntrObbPlane
     {
     public:
-        TIntrAabbPlane();
-        TIntrAabbPlane(const TAabb<T> *box, const TPlane<T> *plane);
-        TIntrAabbPlane(const TAabb<T> &box, const TPlane<T> &plane);
+        TIntrObbPlane();
+        TIntrObbPlane(const TObb<T> *box, const TPlane<T> *plane);
+        TIntrObbPlane(const TObb<T> &box, const TPlane<T> &plane);
 
         int32_t test();
 
-        const TAabb<T> *getBox() const
+        const TObb<T> *getBox0() const
         {
             return mBox;
         }
 
-        const TAabb<T> *getPlane() const
+        const TPlane<T> *getBox1() const
         {
-            return mBox1;
+            return mPlane;
         }
 
-        void setBox(const TAabb<T> *box)
+        void setBox(const TObb<T> *box)
         {
             mBox = box;
         }
@@ -59,13 +59,13 @@ namespace Tiny3D
         }
 
     private:
-        const TAabb<T>  *mBox;
+        const TObb<T>   *mBox;
         const TPlane<T> *mPlane;
     };
 }
 
 
-#include "T3DIntrAabbPlane.inl"
+#include "T3DIntrObbPlane.inl"
 
 
-#endif  /*__T3D_INTR_AABB_PLANE_H__*/
+#endif  /*__T3D_INTR_OBB_PLANE_H__*/

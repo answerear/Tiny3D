@@ -18,5 +18,6 @@ add_subdirectory(HelloApp)
 
 if (TINY3D_OS_DESKTOP)
 	add_subdirectory(TransformationApp)
+	add_subdirectory(IntersectionApp)
 endif (TINY3D_OS_DESKTOP)
 

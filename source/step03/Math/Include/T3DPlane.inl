@@ -126,7 +126,7 @@ namespace Tiny3D
         const TVector3<T> &rkPos) const
     {
         T distance = distanceToPoint(rkPos);
-        TPlane<T>::Side side = E_SIDE_NONE;
+        TPlane<T>::Side side = E_SIDE_INTERSECT;
 
         if (distance < TReal<T>::ZERO)
             side = E_SIDE_NEGATIVE;
@@ -141,7 +141,7 @@ namespace Tiny3D
         const TVector3<T> &rkPos) const
     {
         T distance = fastDistanceToPoint(rkPos);
-        TPlane<T>::Side side = E_SIDE_NONE;
+        TPlane<T>::Side side = E_SIDE_INTERSECT;
 
         if (distance < TReal<T>::ZERO)
             side = E_SIDE_NEGATIVE;

@@ -18,53 +18,71 @@
  ******************************************************************************/
 
 
+#include "T3DMatrix4.h"
+#include "T3DIntrAabbPlane.h"
+
+
 namespace Tiny3D
 {
     template <typename T>
-    inline TIntrSpherePlane<T>::TIntrSpherePlane()
-        : mSphere(nullptr)
+    inline TIntrObbPlane<T>::TIntrObbPlane()
+        : mBox(nullptr)
         , mPlane(nullptr)
     {
 
     }
 
     template <typename T>
-    inline TIntrSpherePlane<T>::TIntrSpherePlane(
-        const TSphere<T> &sphere,
+    inline TIntrObbPlane<T>::TIntrObbPlane(
+        const TObb<T> &box,
         const TPlane<T> &plane)
-        : mSphere(&sphere)
+        : mBox(&box)
         , mPlane(&plane)
     {
 
     }
 
     template <typename T>
-    inline TIntrSpherePlane<T>::TIntrSpherePlane(
-        const TSphere<T> *sphere,
-        const TPlane<T> *box)
-        : mSphere(sphere)
+    inline TIntrObbPlane<T>::TIntrObbPlane(
+        const TObb<T> *box,
+        const TPlane<T> *plane)
+        : mBox(box)
         , mPlane(plane)
     {
 
     }
 
     template <typename T>
-    inline int32_t TIntrSpherePlane<T>::test()
+    int32_t TIntrObbPlane<T>::test()
     {
-        if (mSphere == nullptr || mPlane == nullptr)
+        if (mBox == nullptr || mPlane == nullptr)
             return -1;
 
-        T d = mPlane->fastDistanceToPoint(mSphere->getCenter());
+        // 先把平面变换到OBB空间
 
-        // 完全在平面正面
-        if (d >= mSphere->getRadius())
-            return 1;
+        // 构造变换矩阵
+        TMatrix3<T> m(mObb->getAxis(0), mObb->getAxis(1), mObb->getAxis(2), true);
+        m = m.inverse();
 
-        // 完全在平面背面
-        if (d <= -mSphere->getRadius())
-            return -1;
+        // 构造变换后平面
+        TVector3<T> n = m * mPlane->getNormal();
+        n.normalize();
+        TPlane<T> plane(n, mPlane->getDistance());
 
-        return 0;
+        // 构造一个AABB
+        T minX = -mObb->getExtent(0) * TReal<T>::HALF;
+        T maxX = mObb->getExtent(0) * TReal<T>::HALF;
+        T minY = -mObb->getExtent(1) * TReal<T>::HALF;
+        T maxY = mObb->getExtent(1) * TReal<T>::HALF;
+        T minZ = -mObb->getExtent(2) * TReal<T>::HALF;
+        T maxZ = mObb->getExtent(2) * TReal<T>::HALF;
+
+        TAabb<T> aabb(minX, maxX, minY, maxY, minZ, maxZ);
+
+        // 构造一个平面和AABB检测器对象
+        TIntrAabbPlane<T> intr(aabb, plane);
+
+        return intr.test();
     }
 }
 

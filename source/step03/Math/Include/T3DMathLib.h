@@ -45,13 +45,14 @@
 #include "T3DFrustum.h"
 
 #include "T3DIntrRayTriangle.h"
+#include "T3DIntrRayPlane.h"
 #include "T3DIntrRaySphere.h"
 #include "T3DIntrRayAabb.h"
 #include "T3DIntrRayObb.h"
 
 #include "T3DIntrSphereTriangle.h"
-#include "T3DIntrSphereSphere.h"
 #include "T3DIntrSpherePlane.h"
+#include "T3DIntrSphereSphere.h"
 #include "T3DIntrSphereObb.h"
 #include "T3DIntrSphereAabb.h"
 
@@ -59,6 +60,7 @@
 #include "T3DIntrAabbAabb.h"
 #include "T3DIntrAabbObb.h"
 
+#include "T3DIntrObbPlane.h"
 #include "T3DIntrObbObb.h"
 
 #include "T3DIntrFrustumAabb.h"
@@ -107,6 +109,7 @@ typedef TObb<Real>          Obb;
 typedef TFrustum<Real>      Frustum;
 
 typedef TIntrRayTriangle<Real>      IntrRayTriangle;
+typedef TIntrRayPlane<Real>         IntrRayPlane;
 typedef TIntrRaySphere<Real>        IntrRaySphere;
 typedef TIntrRayAabb<Real>          IntrRayAabb;
 typedef TIntrRayObb<Real>           IntrRayObb;
@@ -120,6 +123,8 @@ typedef TIntrSphereObb<Real>        IntrShpereObb;
 typedef TIntrAabbPlane<Real>        IntrAabbPlane;
 typedef TIntrAabbAabb<Real>         IntrAabbAabb;
 typedef TIntrAabbObb<Real>          IntrAabbObb;
+
+typedef TIntrObbPlane<Real>         IntrObbPlane;
 typedef TIntrObbObb<Real>           IntrObbObb;
 
 typedef TIntrFrustumSphere<Real>    IntrFrustumSphere;

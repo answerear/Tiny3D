@@ -37,7 +37,7 @@ namespace Tiny3D
     public:
         enum Side
         {
-            E_SIDE_NONE = 0,
+            E_SIDE_INTERSECT = 0,
             E_SIDE_POSITIVE,
             E_SIDE_NEGATIVE,
         };
