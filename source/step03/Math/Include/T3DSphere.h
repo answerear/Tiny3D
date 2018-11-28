@@ -63,7 +63,7 @@ namespace Tiny3D
         TSphere &operator =(const TSphere &sphere);
 
         /// 通过多个点构造包围球
-        void build(TVector3<T> points[], size_t count, 
+        void build(const TVector3<T> points[], size_t count, 
             BuildOption option = E_BUILD_WELZL);
         
         /// 获取球心
@@ -85,15 +85,15 @@ namespace Tiny3D
 
     protected:
         /// Welzl最小包围球算法生成包围球
-        void buildByWelzl(TVector3<T> points[], size_t count);
+        void buildByWelzl(const TVector3<T> points[], size_t count);
 
-        TSphere recurseMinSphere(TVector3<T> *points[], size_t count, size_t b);
+        TSphere recurseMinSphere(TVector3<T> *points[], size_t count, size_t b = 0);
 
         /// Ritter逼近修正算法生成包围球
-        void buildByRitter(TVector3<T> points[], size_t count);
+        void buildByRitter(const TVector3<T> points[], size_t count);
 
         /// 简单粗暴的均值法生成包围球
-        void buildByAverage(TVector3<T> points[], size_t count);
+        void buildByAverage(const TVector3<T> points[], size_t count);
 
     private:
         TVector3<T> mCenter;    /// 球心

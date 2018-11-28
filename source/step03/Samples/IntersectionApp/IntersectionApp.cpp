@@ -22,6 +22,48 @@
 
 using namespace Tiny3D;
 
+const size_t TriVerticesCount = 3;
+
+const Vector3 TriangleVertices0[TriVerticesCount] =
+{
+    Vector3(-REAL_ONE, -REAL_ONE, REAL_ZERO),
+    Vector3(REAL_ONE, -REAL_ONE, REAL_ZERO),
+    Vector3(REAL_ZERO, REAL_ONE, REAL_ZERO)
+};
+
+const Vector3 TriangleVertices1[TriVerticesCount] =
+{
+    Vector3(Real(3), -REAL_ONE, REAL_ZERO),
+    Vector3(Real(5), -REAL_ONE, REAL_ZERO),
+    Vector3(Real(4), REAL_ONE, REAL_ZERO)
+};
+
+const size_t BoxVerticesCount = 8;
+
+const Vector3 BoxVertices0[BoxVerticesCount] =
+{
+    Vector3( REAL_HALF,  REAL_HALF,  REAL_HALF),
+    Vector3( REAL_HALF, -REAL_HALF,  REAL_HALF),
+    Vector3(-REAL_HALF,  REAL_HALF,  REAL_HALF),
+    Vector3(-REAL_HALF, -REAL_HALF,  REAL_HALF),
+    Vector3( REAL_HALF,  REAL_HALF, -REAL_HALF),
+    Vector3( REAL_HALF, -REAL_HALF, -REAL_HALF),
+    Vector3(-REAL_HALF,  REAL_HALF, -REAL_HALF),
+    Vector3(-REAL_HALF, -REAL_HALF, -REAL_HALF),
+};
+
+const Vector3 BoxVertices1[BoxVerticesCount] = 
+{
+    Vector3(Real(4),  REAL_HALF,  REAL_HALF),
+    Vector3(Real(4), -REAL_HALF,  REAL_HALF),
+    Vector3(Real(3),  REAL_HALF,  REAL_HALF),
+    Vector3(Real(3), -REAL_HALF,  REAL_HALF),
+    Vector3(Real(4),  REAL_HALF, -REAL_HALF),
+    Vector3(Real(4), -REAL_HALF, -REAL_HALF),
+    Vector3(Real(3),  REAL_HALF, -REAL_HALF),
+    Vector3(Real(3), -REAL_HALF, -REAL_HALF),
+};
+
 
 IntersectionApp::IntersectionApp()
     : Application()
@@ -34,6 +76,7 @@ IntersectionApp::~IntersectionApp()
 
 
 /*******************************************************************************
+
                                     Y
                                     |
                                     |
@@ -54,13 +97,21 @@ IntersectionApp::~IntersectionApp()
                              /
                             /
                            Z
+
  ******************************************************************************/
 bool IntersectionApp::applicationDidFinishLaunching()
 {
-    // 朝向屏幕里面的射线
-    Ray ray(Vector3::ZERO, Vector3::NEGATIVE_UNIT_Z * Real(1000));
+    // 射线和三角形相交检测
+    testRayTriangle();
 
-    // AABB
+    // 射线和平面相交检测
+    testRayPlane();
+
+    // 射线和球相交性检测
+    testRaySphere();
+
+    // 射线和AABB相交性检测
+    testRayAabb();
 
     return true;
 }
@@ -78,4 +129,110 @@ void IntersectionApp::applicationWillTerminate()
 
 }
 
+void IntersectionApp::testRayTriangle()
+{
+    // 位于 (0, 0, 5) 位置起点，朝向 -Z 方向的射线
+    Ray ray(
+        Vector3(REAL_ZERO, REAL_ZERO, Real(5)),
+        Vector3::NEGATIVE_UNIT_Z * Real(1000));
+
+    // Triangle #0
+    Triangle triangle0(TriangleVertices0);
+
+    // 这个Ray和Triangle是相交的
+    IntrRayTriangle intr(ray, triangle0);
+    bool isIntersection = intr.test();
+    printf("Ray and Triangle #0 intersection result is %d\n", isIntersection);
+
+    // Triangle #1
+    Triangle triangle1(TriangleVertices1);
+
+    // 这个Ray和Triangle是不相交的
+    intr.setTriangle(&triangle1);
+    isIntersection = intr.test();
+    printf("Ray and Triangle #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::testRayPlane()
+{
+    // 位于 (0, 0, 5) 位置起点，朝向 -Z 方向的射线
+    Ray ray(
+        Vector3(REAL_ZERO, REAL_ZERO, Real(5)),
+        Vector3::NEGATIVE_UNIT_Z * Real(1000));
+
+    // Plane #0
+    Plane plane0(
+        TriangleVertices0[0], 
+        TriangleVertices0[1], 
+        TriangleVertices0[2]);
+
+    // 这个Ray和Plane是相交的
+    IntrRayPlane intr(ray, plane0);
+    bool isIntersection = intr.test();
+    printf("Ray and Plane #0 intersection result is %d\n", isIntersection);
+
+    // Plane #1
+    Plane plane1(
+        Vector3(Real(4), REAL_ONE, REAL_ONE), 
+        Vector3(Real(4), -REAL_ONE, REAL_ZERO),
+        Vector3(Real(4), REAL_ONE, REAL_ZERO));
+
+    // 这个Ray和Plane是不相交的
+    intr.setPlane(&plane1);
+    isIntersection = intr.test();
+    printf("Ray and Plane #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::testRaySphere()
+{
+    // 位于 (0, 0, 5) 位置起点，朝向 -Z 方向的射线
+    Ray ray(
+        Vector3(REAL_ZERO, REAL_ZERO, Real(5)),
+        Vector3::NEGATIVE_UNIT_Z * Real(1000));
+
+    // Sphere #0
+    Sphere sphere0;
+    sphere0.build(BoxVertices0, BoxVerticesCount);
+
+    // 这个Ray和Sphere是相交的
+    IntrRaySphere intr(ray, sphere0);
+    bool isIntersection = intr.test();
+    printf("Ray and Sphere #0 intersection result is %d\n", isIntersection);
+
+    // Sphere #1
+    Sphere sphere1;
+    sphere1.build(BoxVertices1, BoxVerticesCount);
+
+    // 这个Ray和Sphere是不相交的
+    intr.setSphere(&sphere1);
+    isIntersection = intr.test();
+    printf("Ray and Sphere #1 intersection result is %d\n", isIntersection);
+}
+
+
+void IntersectionApp::testRayAabb()
+{
+    // 位于 (0, 0, 5) 位置起点，朝向 -Z 方向的射线
+    Ray ray(
+        Vector3(REAL_ZERO, REAL_ZERO, Real(5)), 
+        Vector3::NEGATIVE_UNIT_Z * Real(1000));
+
+    // AABB #0
+    Aabb box0;
+    box0.build(BoxVertices0, BoxVerticesCount);
+
+    // 这个Ray和AABB是相交的
+    IntrRayAabb intr(ray, box0);
+    bool isIntersection = intr.test();
+    printf("Ray and AABB #0 intersection result is %d\n", isIntersection);
+
+    // AABB #1
+    Aabb box1;
+    box1.build(BoxVertices1, BoxVerticesCount);
+
+    // 这个Ray和AABB是不相交的
+    intr.setAabb(&box1);
+    isIntersection = intr.test();
+    printf("Ray and AABB #1 intersection result is %d\n", isIntersection);
+}
 

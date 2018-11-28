@@ -59,8 +59,9 @@ namespace Tiny3D
         // 2. 通过计算交点的重心坐标，来判断它是否在三角形中
         
         // 计算逆时针的边向量
-        TVector3<T> e1 = mTriangle[1] - mTriangle[0];
-        TVector3<T> e2 = mTriangle[2] - mTriangle[1];
+        const TTriangle<T> &triangle = *mTriangle;
+        TVector3<T> e1 = triangle[1] - triangle[0];
+        TVector3<T> e2 = triangle[2] - triangle[1];
 
         // 计算表面法向量
         TVector3<T> n = e1.cross(e2);
@@ -77,7 +78,7 @@ namespace Tiny3D
 
         // 计算平面方程的 d 值，在右边使用带 d 的平面方程
         // Ax + By + Cz = d
-        float d = n.dot(mTriangle[0]);
+        float d = n.dot(triangle[0]);
 
         // 计算和包含三角形的平面的参数交点
         float t = d - n.dot(mRay->getOrigin());
@@ -109,46 +110,46 @@ namespace Tiny3D
         {
             if (TMath<T>::abs(n.x()) > TMath<T>::abs(n.z()))
             {
-                u0 = p.y() - mTriangle[0].y();
-                u1 = mTriangle[1].y() - mTriangle[0].y();
-                u2 = mTriangle[2].y() - mTriangle[0].y();
+                u0 = p.y() - triangle[0].y();
+                u1 = triangle[1].y() - triangle[0].y();
+                u2 = triangle[2].y() - triangle[0].y();
 
-                v0 = p.z() - mTriangle[0].z();
-                v1 = mTriangle[1].z() - mTriangle[0].z();
-                v2 = mTriangle[2].z() - mTriangle[0].z();
+                v0 = p.z() - triangle[0].z();
+                v1 = triangle[1].z() - triangle[0].z();
+                v2 = triangle[2].z() - triangle[0].z();
             }
             else
             {
-                u0 = p.x() - mTriangle[0].x();
-                u1 = mTriangle[1].x() - mTriangle[0].x();
-                u2 = mTriangle[2].x() - mTriangle[0].x();
+                u0 = p.x() - triangle[0].x();
+                u1 = triangle[1].x() - triangle[0].x();
+                u2 = triangle[2].x() - triangle[0].x();
 
-                v0 = p.y() - mTriangle[0].y();
-                v1 = mTriangle[1].y() - mTriangle[0].y();
-                v2 = mTriangle[2].y() - mTriangle[0].y();
+                v0 = p.y() - triangle[0].y();
+                v1 = triangle[1].y() - triangle[0].y();
+                v2 = triangle[2].y() - triangle[0].y();
             }
         }
         else
         {
-            if (TMath<T>::abs(n.y()) > TMath<T>::abs(n.z))
+            if (TMath<T>::abs(n.y()) > TMath<T>::abs(n.z()))
             {
-                u0 = p.x() - mTriangle[0].x();
-                u1 = mTriangle[1].x() - mTriangle[0].x();
-                u2 = mTriangle[2].x() - mTriangle[0].x();
+                u0 = p.x() - triangle[0].x();
+                u1 = triangle[1].x() - triangle[0].x();
+                u2 = triangle[2].x() - triangle[0].x();
 
-                v0 = p.z() - mTriangle[0].z();
-                v1 = mTriangle[1].z() - mTriangle[0].z();
-                v2 = mTriangle[2].z() - mTriangle[0].z();
+                v0 = p.z() - triangle[0].z();
+                v1 = triangle[1].z() - triangle[0].z();
+                v2 = triangle[2].z() - triangle[0].z();
             }
             else
             {
-                u0 = p.x() - mTriangle[0].x();
-                u1 = mTriangle[1].x() - mTriangle[0].x();
-                u2 = mTriangle[2].x() - mTriangle[0].x();
+                u0 = p.x() - triangle[0].x();
+                u1 = triangle[1].x() - triangle[0].x();
+                u2 = triangle[2].x() - triangle[0].x();
 
-                v0 = p.y() - mTriangle[0].y();
-                v1 = mTriangle[1].y() - mTriangle[0].y();
-                v2 = mTriangle[2].y() - mTriangle[0].y();
+                v0 = p.y() - triangle[0].y();
+                v1 = triangle[1].y() - triangle[0].y();
+                v2 = triangle[2].y() - triangle[0].y();
             }
         }
 

@@ -22,12 +22,12 @@ namespace Tiny3D
 {
     template <typename T>
     inline TAabb<T>::TAabb()
-        : mMinX(TReal::ZERO)
-        , mMaxX(TReal::ZERO)
-        , mMinY(TReal::ZERO)
-        , mMaxY(TReal::ZERO)
-        , mMinZ(TReal::ZERO)
-        , mMaxZ(TReal::ZERO)
+        : mMinX(TReal<T>::ZERO)
+        , mMaxX(TReal<T>::ZERO)
+        , mMinY(TReal<T>::ZERO)
+        , mMaxY(TReal<T>::ZERO)
+        , mMinZ(TReal<T>::ZERO)
+        , mMaxZ(TReal<T>::ZERO)
     {
 
     }
@@ -45,7 +45,7 @@ namespace Tiny3D
     }
 
     template <typename T>
-    void TAabb<T>::build(TVector3<T> points[], size_t count)
+    void TAabb<T>::build(const TVector3<T> points[], size_t count)
     {
         mMaxX = TReal<T>::MINUS_INF;
         mMaxY = TReal<T>::MINUS_INF;

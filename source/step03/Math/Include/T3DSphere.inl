@@ -22,7 +22,7 @@ namespace Tiny3D
 {
     template <typename T>
     inline TSphere<T>::TSphere()
-        : mCenter(TReal<T>::ZERO, TReal<T>::ZERO)
+        : mCenter(TReal<T>::ZERO, TReal<T>::ZERO, TReal<T>::ZERO)
         , mRadius(0)
     {
     }
@@ -101,25 +101,25 @@ namespace Tiny3D
     template <typename T>
     inline TSphere<T> &TSphere<T>::operator =(const TSphere &other)
     {
-        mCenter = sphere.mCenter;
-        mRadius = sphere.mRadius;
+        mCenter = other.mCenter;
+        mRadius = other.mRadius;
         return *this;
     }
 
     template <typename T>
-    inline void TSphere<T>::build(TVector3<T> points[], size_t count, 
+    inline void TSphere<T>::build(const TVector3<T> points[], size_t count, 
         BuildOption option /* = E_BUILD_WELZL */)
     {
         switch (option)
         {
         case E_BUILD_WELZL:
-            buildByWelzl(points);
+            buildByWelzl(points, count);
             break;
         case E_BUILD_RITTER:
-            buildByRitter(points);
+            buildByRitter(points, count);
             break;
         case E_BUILD_AVERAGE:
-            buildByAverage(points);
+            buildByAverage(points, count);
             break;
         default:
             break;
@@ -169,14 +169,14 @@ namespace Tiny3D
     }
 
     template <typename T>
-    void TSphere<T>::buildByWelzl(TVector3<T> points[], size_t count)
+    void TSphere<T>::buildByWelzl(const TVector3<T> points[], size_t count)
     {
         TVector3<T> **ptr = new TVector3<T>*[count];
 
         size_t i = 0;
         for (i = 0; i < count; ++i)
         {
-            ptr[i] = &points[i];
+            ptr[i] = (TVector3<T>*)(&points[i]);
         }
 
         *this = recurseMinSphere(ptr, count);
@@ -187,7 +187,7 @@ namespace Tiny3D
     template <typename T>
     TSphere<T> TSphere<T>::recurseMinSphere(
         TVector3<T> *points[], 
-        size_t count, 
+        size_t count,
         size_t b)
     {
         TSphere<T> sphere;
@@ -234,7 +234,7 @@ namespace Tiny3D
     }
 
     template <typename T>
-    void TSphere<T>::buildByRitter(TVector3<T> points[], size_t count)
+    void TSphere<T>::buildByRitter(const TVector3<T> points[], size_t count)
     {
         // 先找出在x，y，z三个轴方向上距离最大的点作为半径
         T maxX = TReal<T>::ZERO;
@@ -248,37 +248,37 @@ namespace Tiny3D
         size_t i = 0;
         for (i = 0; i < count; ++i)
         {
-            if (points[i].x > maxX)
+            if (points[i].x() > maxX)
             {
                 maxX = points[i].x();
                 x1 = i;
             }
                 
-            if (points[i].x < minX)
+            if (points[i].x() < minX)
             {
                 minX = points[i].x();
                 x0 = i;
             }
                 
-            if (points[i].y > maxY)
+            if (points[i].y() > maxY)
             {
                 maxY = points[i].y();
                 y1 = i;
             }
                 
-            if (points[i].y < minY)
+            if (points[i].y() < minY)
             {
                 minY = points[i].y();
                 y0 = i;
             }
                 
-            if (points[i].z > maxZ)
+            if (points[i].z() > maxZ)
             {
                 maxZ = points[i].z();
                 z1 = i;
             }
                 
-            if (points[i].z < minZ)
+            if (points[i].z() < minZ)
             {
                 minZ = points[i].z();
                 z0 = i;
@@ -305,9 +305,9 @@ namespace Tiny3D
         }
 
         TVector3<T> center(
-            (points[max].x + points[min].x) * TReal<T>::HALF,
-            (points[max].y + points[min].y) * TReal<T>::HALF,
-            (points[max].z + points[min].z) * TReal<T>::HALF);
+            (points[max].x() + points[min].x()) * TReal<T>::HALF,
+            (points[max].y() + points[min].y()) * TReal<T>::HALF,
+            (points[max].z() + points[min].z()) * TReal<T>::HALF);
 
         T radius = TMath<T>::sqrt(d);
 
@@ -330,14 +330,14 @@ namespace Tiny3D
     }
 
     template <typename T>
-    void TSphere<T>::buildByAverage(TVector3<T> points[], size_t count)
+    void TSphere<T>::buildByAverage(const TVector3<T> points[], size_t count)
     {
         TVector3<T> center;
         T radius = TReal<T>::MINUS_ONE;
 
         if (count > 0)
         {
-            center = TReal<T>::ZERO;
+            center = TVector3<T>::ZERO;
             size_t i = 0;
             for (i = 0; i < count; ++i)
                 center += points[i];

@@ -38,6 +38,18 @@ protected:  // from Tiny3D::Application
     virtual void applicationWillEnterForeground() override;
 
     virtual void applicationWillTerminate() override;
+
+    // 射线和三角形相交检测
+    void testRayTriangle();
+
+    // 射线和平面相交检测
+    void testRayPlane();
+
+    // 射线和球体相交检测
+    void testRaySphere();
+
+    // 射线和AABB相交检测
+    void testRayAabb();
 };
 
 

@@ -139,10 +139,10 @@ namespace Tiny3D
         T t0, t1;
 
         // 射线进入平面处（最靠近的平面）的最大t值 
-        t0 = max(minZ, max(minX, minY));
+        t0 = TMath<T>::max(minZ, TMath<T>::max(minX, minY));
 
         // 射线离开平面处（最远离的平面）的最小t值
-        t1 = min(maxZ, min(maxX, maxY));
+        t1 = TMath<T>::min(maxZ, TMath<T>::min(maxX, maxY));
 
         return (t0 < t1);
     }

@@ -57,7 +57,7 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline void TObb<T>::build(TVector3<T> points[], size_t count, 
+    inline void TObb<T>::build(const TVector3<T> points[], size_t count, 
         BuildOption option /* = E_BUILD_AABB */)
     {
         switch (option)
@@ -145,7 +145,7 @@ namespace Tiny3D
     }
 
     template <typename T>
-    void TObb<T>::buildByAABB(TVector3<T> points[], size_t count)
+    void TObb<T>::buildByAABB(const TVector3<T> points[], size_t count)
     {
         T maxX = TReal<T>::MINUS_INF;
         T maxY = TReal<T>::MINUS_INF;
@@ -185,9 +185,10 @@ namespace Tiny3D
     }
 
     template <typename T>
-    void TObb<T>::buildByCovariance(TVector3<T> points, size_t count)
+    void TObb<T>::buildByCovariance(const TVector3<T> points, size_t count)
     {
-
+        // 暂未实现
+        T3D_ASSERT(0);
     }
 }
 
