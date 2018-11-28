@@ -185,7 +185,7 @@ namespace Tiny3D
     }
 
     template <typename T>
-    void TObb<T>::buildByCovariance(const TVector3<T> points, size_t count)
+    void TObb<T>::buildByCovariance(const TVector3<T> points[], size_t count)
     {
         // 暂未实现
         T3D_ASSERT(0);

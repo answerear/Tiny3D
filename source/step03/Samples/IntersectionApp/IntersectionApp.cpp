@@ -27,15 +27,15 @@ const size_t TriVerticesCount = 3;
 const Vector3 TriangleVertices0[TriVerticesCount] =
 {
     Vector3(-REAL_ONE, -REAL_ONE, REAL_ZERO),
-    Vector3(REAL_ONE, -REAL_ONE, REAL_ZERO),
-    Vector3(REAL_ZERO, REAL_ONE, REAL_ZERO)
+    Vector3( REAL_ONE, -REAL_ONE, REAL_ZERO),
+    Vector3( REAL_ZERO, REAL_ONE, REAL_ZERO)
 };
 
 const Vector3 TriangleVertices1[TriVerticesCount] =
 {
     Vector3(Real(3), -REAL_ONE, REAL_ZERO),
     Vector3(Real(5), -REAL_ONE, REAL_ZERO),
-    Vector3(Real(4), REAL_ONE, REAL_ZERO)
+    Vector3(Real(4),  REAL_ONE, REAL_ZERO)
 };
 
 const size_t BoxVerticesCount = 8;
@@ -62,6 +62,18 @@ const Vector3 BoxVertices1[BoxVerticesCount] =
     Vector3(Real(4), -REAL_HALF, -REAL_HALF),
     Vector3(Real(3),  REAL_HALF, -REAL_HALF),
     Vector3(Real(3), -REAL_HALF, -REAL_HALF),
+};
+
+const Vector3 BoxVertices2[BoxVerticesCount] =
+{
+    Vector3( REAL_ONE,  REAL_HALF,  REAL_HALF),
+    Vector3( REAL_ONE, -REAL_HALF,  REAL_HALF),
+    Vector3(REAL_ZERO,  REAL_HALF,  REAL_HALF),
+    Vector3(REAL_ZERO, -REAL_HALF,  REAL_HALF),
+    Vector3( REAL_ONE,  REAL_HALF, -REAL_HALF),
+    Vector3( REAL_ONE, -REAL_HALF, -REAL_HALF),
+    Vector3(REAL_ZERO,  REAL_HALF, -REAL_HALF),
+    Vector3(REAL_ZERO, -REAL_HALF, -REAL_HALF),
 };
 
 
@@ -236,3 +248,99 @@ void IntersectionApp::testRayAabb()
     printf("Ray and AABB #1 intersection result is %d\n", isIntersection);
 }
 
+void IntersectionApp::testRayObb()
+{
+    // 位于 (0, 0, 5) 位置起点，朝向 -Z 方向的射线
+    Ray ray(
+        Vector3(REAL_ZERO, REAL_ZERO, Real(5)),
+        Vector3::NEGATIVE_UNIT_Z * Real(1000));
+
+    // 构造旋转矩阵
+    Matrix3 m;
+    m.fromAxisAngle(Vector3::UNIT_Y, Degree(30));
+
+    Vector3 points[BoxVerticesCount];
+    size_t i = 0;
+    for (i = 0; i < BoxVerticesCount; ++i)
+    {
+        points[i] = m * BoxVertices0[i];
+    }
+
+    // OBB #0
+    Obb box0;
+    box0.build(points, BoxVerticesCount);
+    
+    // 这个Ray和OBB是相交的
+    IntrRayObb intr(ray, box0);
+    bool isIntersection = intr.test();
+    printf("Ray and OBB #0 intersection result is %d\n", isIntersection);
+
+    for (i = 0; i < BoxVerticesCount; ++i)
+    {
+        points[i] = m * BoxVertices1[i];
+    }
+
+    // OBB #1
+    Obb box1;
+    box1.build(points, BoxVerticesCount);
+
+    // 这个Ray和OBB是不相交的
+    intr.setObb(&box1);
+    isIntersection = intr.test();
+    printf("Ray and OBB #1 intersection result is $d\n", isIntersection);
+}
+
+void IntersectionApp::testSphereSphere()
+{
+    // Sphere #0
+    Sphere sphere0;
+    sphere0.build(BoxVertices0, BoxVerticesCount);
+
+    // Sphere #1
+    Sphere sphere1;
+    sphere1.build(BoxVertices2, BoxVerticesCount);
+
+    // 这两个sphere是相交的
+    IntrSphereSphere intr(sphere0, sphere1);
+    bool isIntersection = intr.test();
+    printf("Sphere #0 and Sphere #1 intersection result is %d\n", isIntersection);
+
+    // Sphere #2
+    Sphere sphere2;
+    sphere2.build(BoxVertices1, BoxVerticesCount);
+
+    // 这两个sphere是不相交的
+    intr.setSphere1(&sphere2);
+    isIntersection = intr.test();
+    printf("Sphere #0 and Sphere #2 intersection result is%d\n", isIntersection);
+}
+
+void IntersectionApp::testSpherePlane()
+{
+
+}
+
+void IntersectionApp::testAabbPlane()
+{
+
+}
+
+void IntersectionApp::testObbPlane()
+{
+
+}
+
+void IntersectionApp::testFrustumSphere()
+{
+
+}
+
+void IntersectionApp::testFrustumAabb()
+{
+
+}
+
+void IntersectionApp::testFrustumObb()
+{
+
+}

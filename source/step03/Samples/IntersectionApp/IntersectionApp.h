@@ -50,6 +50,30 @@ protected:  // from Tiny3D::Application
 
     // 射线和AABB相交检测
     void testRayAabb();
+
+    // 射线和OBB相交检测
+    void testRayObb();
+
+    // 两个球相交检测
+    void testSphereSphere();
+
+    // 球和平面相交检测
+    void testSpherePlane();
+
+    // AABB和平面相交检测
+    void testAabbPlane();
+
+    // OBB和平面相交检测
+    void testObbPlane();
+
+    // 视锥体和球相交检测
+    void testFrustumSphere();
+
+    // 视锥体和AABB相交检测
+    void testFrustumAabb();
+
+    // 视锥体和OBB相交检测
+    void testFrustumObb();
 };
 
 

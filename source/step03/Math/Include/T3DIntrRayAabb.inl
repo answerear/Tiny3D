@@ -64,8 +64,12 @@ namespace Tiny3D
         T dy = mRay->getDirection().y();
         T dz = mRay->getDirection().z();
 
-        T minX, minY, minZ;
-        T maxX, maxY, maxZ;
+        T minX = TReal<T>::MINUS_INF;
+        T minY = TReal<T>::MINUS_INF;
+        T minZ = TReal<T>::MINUS_INF;
+        T maxX = TReal<T>::INF;
+        T maxY = TReal<T>::INF;
+        T maxZ = TReal<T>::INF;
 
         if (TMath<T>::abs(dx) < TReal<T>::EPSILON)
         {
