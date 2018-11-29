@@ -348,7 +348,7 @@ void IntersectionApp::testSphereSphere()
     // 这两个sphere是不相交的
     intr.setSphere1(&sphere2);
     isIntersection = intr.test();
-    printf("Sphere #0 and Sphere #2 intersection result is%d\n", isIntersection);
+    printf("Sphere #0 and Sphere #2 intersection result is %d\n", isIntersection);
 }
 
 void IntersectionApp::testSpherePlane()

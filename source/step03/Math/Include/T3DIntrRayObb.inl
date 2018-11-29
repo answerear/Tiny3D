@@ -64,12 +64,12 @@ namespace Tiny3D
         TRay<T> ray(origin, dir);
 
         // 构造一个AABB
-        T minX = -mObb->getExtent(0) * TReal<T>::HALF;
-        T maxX = mObb->getExtent(0) * TReal<T>::HALF;
-        T minY = -mObb->getExtent(1) * TReal<T>::HALF;
-        T maxY = mObb->getExtent(1) * TReal<T>::HALF;
-        T minZ = -mObb->getExtent(2) * TReal<T>::HALF;
-        T maxZ = mObb->getExtent(2) * TReal<T>::HALF;
+        T minX = mObb->getCenter().x() - mObb->getExtent(0) * TReal<T>::HALF;
+        T maxX = mObb->getCenter().x() + mObb->getExtent(0) * TReal<T>::HALF;
+        T minY = mObb->getCenter().y() - mObb->getExtent(1) * TReal<T>::HALF;
+        T maxY = mObb->getCenter().y() + mObb->getExtent(1) * TReal<T>::HALF;
+        T minZ = mObb->getCenter().z() - mObb->getExtent(2) * TReal<T>::HALF;
+        T maxZ = mObb->getCenter().z() + mObb->getExtent(2) * TReal<T>::HALF;
 
         TAabb<T> aabb(minX, maxX, minY, maxY, minZ, maxZ);
 

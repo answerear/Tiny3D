@@ -560,14 +560,48 @@ namespace Tiny3D
         sum -= value;
         matInverse[1][0] = sum;
 
-//         T fDet = mTuples[0] * mTuples[3] - mTuples[1] * mTuples[2];
-//         if (fDet != TReal<T>::ZERO)
-//         {
-//             matInverse.mTuples[0] = mTuples[3] / fDet;
-//             matInverse.mTuples[1] = -mTuples[1] / fDet;
-//             matInverse.mTuples[2] = -mTuples[2] / fDet;
-//             matInverse.mTuples[3] = mTuples[0] / fDet;
-//         }
+        value = mTuples[0] * mTuples[8];
+        sum = value;
+        value = mTuples[2] * mTuples[6];
+        sum -= value;
+        matInverse[1][1] = sum;
+
+        value = mTuples[2] * mTuples[3];
+        sum = value;
+        value = mTuples[0] * mTuples[5];
+        sum -= value;
+        matInverse[1][2] = sum;
+
+        value = mTuples[3] * mTuples[7];
+        sum = value;
+        value = mTuples[4] * mTuples[6];
+        sum -= value;
+        matInverse[2][0] = sum;
+
+        value = mTuples[1] * mTuples[6];
+        sum = value;
+        value = mTuples[0] * mTuples[7];
+        sum -= value;
+        matInverse[2][1] = sum;
+
+        value = mTuples[0] * mTuples[4];
+        sum = value;
+        value = mTuples[1] * mTuples[3];
+        sum -= value;
+        matInverse[2][2] = sum;
+
+        value = mTuples[0] * matInverse[0][0];
+        sum = value;
+        value = mTuples[1] * matInverse[1][0];
+        sum += value;
+        value = mTuples[2] * matInverse[2][0];
+        sum += value;
+
+        if (TMath<T>::abs(sum) == TReal<T>::ZERO)
+            return ZERO;
+
+        matInverse /= sum;
+
         return matInverse;
     }
 
