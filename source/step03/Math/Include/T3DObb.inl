@@ -157,31 +157,31 @@ namespace Tiny3D
         size_t i = 0;
         for (i = 0; i < count; ++i)
         {
-            if (points[i].x() > mMaxX)
+            if (points[i].x() > maxX)
                 maxX = points[i].x();
-            if (points[i].x() < mMinX)
+            if (points[i].x() < minX)
                 minX = points[i].x();
-            if (points[i].y() > mMaxY)
+            if (points[i].y() > maxY)
                 maxY = points[i].y();
-            if (points[i].y() < mMinY)
+            if (points[i].y() < minY)
                 minY = points[i].y();
-            if (points[i].z() > mMaxZ)
+            if (points[i].z() > maxZ)
                 maxZ = points[i].z();
-            if (points[i].z() < mMinZ)
+            if (points[i].z() < minZ)
                 minZ = points[i].z();
         }
 
-        mCenter[0] = (mMinX + mMaxX) * TReal<T>::HALF;
-        mCenter[1] = (mMinY + mMaxY) * TReal<T>::HALF;
-        mCenter[2] = (mMinZ + mMaxZ) * TReal<T>::HALF;
+        mCenter[0] = (minX + maxX) * TReal<T>::HALF;
+        mCenter[1] = (minY + maxY) * TReal<T>::HALF;
+        mCenter[2] = (minZ + maxZ) * TReal<T>::HALF;
 
         mAxis[0] = TVector3<T>::UNIT_X;
         mAxis[1] = TVector3<T>::UNIT_Y;
         mAxis[2] = TVector3<T>::UNIT_Z;
 
-        mExtent[0] = (mMaxX - mMinX) * TReal<T>::HALF;
-        mExtent[1] = (mMaxY - mMinY) * TReal<T>::HALF;
-        mExtent[2] = (mMaxZ - mMinZ) * TReal<T>::HALF;
+        mExtent[0] = (maxX - minX) * TReal<T>::HALF;
+        mExtent[1] = (maxY - minY) * TReal<T>::HALF;
+        mExtent[2] = (maxZ - minZ) * TReal<T>::HALF;
     }
 
     template <typename T>

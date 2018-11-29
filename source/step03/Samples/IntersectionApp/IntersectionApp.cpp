@@ -76,6 +76,18 @@ const Vector3 BoxVertices2[BoxVerticesCount] =
     Vector3(REAL_ZERO, -REAL_HALF, -REAL_HALF),
 };
 
+const Vector3 BoxVertices3[BoxVerticesCount] =
+{
+    Vector3(Real(60),  REAL_HALF,  REAL_HALF),
+    Vector3(Real(60), -REAL_HALF,  REAL_HALF),
+    Vector3(Real(50),  REAL_HALF,  REAL_HALF),
+    Vector3(Real(50), -REAL_HALF,  REAL_HALF),
+    Vector3(Real(60),  REAL_HALF, -REAL_HALF),
+    Vector3(Real(60), -REAL_HALF, -REAL_HALF),
+    Vector3(Real(50),  REAL_HALF, -REAL_HALF),
+    Vector3(Real(50), -REAL_HALF, -REAL_HALF),
+};
+
 
 IntersectionApp::IntersectionApp()
     : Application()
@@ -119,11 +131,35 @@ bool IntersectionApp::applicationDidFinishLaunching()
     // 射线和平面相交检测
     testRayPlane();
 
-    // 射线和球相交性检测
+    // 射线和球体相交检测
     testRaySphere();
 
-    // 射线和AABB相交性检测
+    // 射线和AABB相交检测
     testRayAabb();
+
+    // 射线和OBB相交检测
+    testRayObb();
+
+    // 两个球相交检测
+    testSphereSphere();
+
+    // 球和平面相交检测
+    testSpherePlane();
+
+    // AABB和平面相交检测
+    testAabbPlane();
+
+    // OBB和平面相交检测
+    testObbPlane();
+
+    // 视锥体和球相交检测
+    testFrustumSphere();
+
+    // 视锥体和AABB相交检测
+    testFrustumAabb();
+
+    // 视锥体和OBB相交检测
+    testFrustumObb();
 
     return true;
 }
@@ -317,30 +353,225 @@ void IntersectionApp::testSphereSphere()
 
 void IntersectionApp::testSpherePlane()
 {
+    // Sphere
+    Sphere sphere;
+    sphere.build(BoxVertices0, BoxVerticesCount);
 
+    // Plane #0
+    Plane plane0(
+        TriangleVertices0[0],
+        TriangleVertices0[1],
+        TriangleVertices0[2]);
+
+    // 这个Sphere和Plane是相交的
+    IntrSpherePlane intr(sphere, plane0);
+    bool isIntersection = intr.test();
+    printf("Sphere and Plane #0 intersection result is %d\n", isIntersection);
+
+    // Plane #1
+    Plane plane1(
+        Vector3(Real(4), REAL_ONE, REAL_ONE),
+        Vector3(Real(4), -REAL_ONE, REAL_ZERO),
+        Vector3(Real(4), REAL_ONE, REAL_ZERO));
+
+    // 这个Sphere和Plane是不相交的
+    intr.setPlane(&plane1);
+    isIntersection = intr.test();
+    printf("Sphere and Plane #1 intersection result is %d\n", isIntersection);
 }
 
 void IntersectionApp::testAabbPlane()
 {
+    // Box
+    Aabb box;
+    box.build(BoxVertices0, BoxVerticesCount);
 
+    // Plane #0
+    Plane plane0(
+        TriangleVertices0[0],
+        TriangleVertices0[1],
+        TriangleVertices0[2]);
+
+    // 这个AABB和Plane是相交的
+    IntrAabbPlane intr(box, plane0);
+    bool isIntersection = intr.test();
+    printf("AABB and Plane #0 intersection result is %d\n", isIntersection);
+
+    // Plane #1
+    Plane plane1(
+        Vector3(Real(4), REAL_ONE, REAL_ONE),
+        Vector3(Real(4), -REAL_ONE, REAL_ZERO),
+        Vector3(Real(4), REAL_ONE, REAL_ZERO));
+
+    // 这个AABB和Plane是不相交的
+    intr.setPlane(&plane1);
+    isIntersection = intr.test();
+    printf("AABB and Plane #1 intersection result is %d\n", isIntersection);
 }
 
 void IntersectionApp::testObbPlane()
 {
+    // 构造旋转矩阵
+    Matrix3 m;
+    m.fromAxisAngle(Vector3::UNIT_Y, Degree(30));
 
+    Vector3 points[BoxVerticesCount];
+    size_t i = 0;
+    for (i = 0; i < BoxVerticesCount; ++i)
+    {
+        points[i] = m * BoxVertices0[i];
+    }
+
+    // OBB
+    Obb box;
+    box.build(points, BoxVerticesCount);
+
+    // Plane #0
+    Plane plane0(
+        TriangleVertices0[0],
+        TriangleVertices0[1],
+        TriangleVertices0[2]);
+
+    // 这个OBB和Plane是相交的
+    IntrObbPlane intr(box, plane0);
+    bool isIntersection = intr.test();
+    printf("OBB and Plane #0 intersection result is %d\n", isIntersection);
+
+    // Plane #1
+    Plane plane1(
+        Vector3(Real(5), REAL_ONE, REAL_ONE),
+        Vector3(Real(5), -REAL_ONE, REAL_ZERO),
+        Vector3(Real(5), REAL_ONE, REAL_ZERO));
+
+    // 这个OBB和Plane是不相交的
+    intr.setPlane(&plane1);
+    isIntersection = intr.test();
+    printf("OBB and Plane #1 intersection result is %d\n", isIntersection);
 }
 
 void IntersectionApp::testFrustumSphere()
 {
+    Frustum frustum;
+    buildFrustum(frustum);
 
+    // Sphere #0
+    Sphere sphere0;
+    sphere0.build(BoxVertices0, BoxVerticesCount);
+
+    // 这个Frustum和Sphere是相交的
+    IntrFrustumSphere intr(frustum, sphere0);
+    bool isIntersection = intr.test();
+    printf("Frustum and Sphere #0 intersection result is %d\n", isIntersection);
+
+    // Sphere #1
+    Sphere sphere1;
+    sphere1.build(BoxVertices3, BoxVerticesCount);
+
+    // 这个Frustum和Sphere是不相交的
+    intr.setSphere(&sphere1);
+    isIntersection = intr.test();
+    printf("Frustum and Sphere #1 intersection result is %d\n", isIntersection);
 }
 
 void IntersectionApp::testFrustumAabb()
 {
+    Frustum frustum;
+    buildFrustum(frustum);
 
+    // AABB #0
+    Aabb box0;
+    box0.build(BoxVertices0, BoxVerticesCount);
+
+    // 这个Frustum和AABB是相交的
+    IntrFrustumAabb intr(frustum, box0);
+    bool isIntersection = intr.test();
+    printf("Frustum and AABB #0 intersection result is %d\n", isIntersection);
+
+    // AABB #1
+    Aabb box1;
+    box1.build(BoxVertices3, BoxVerticesCount);
+
+    // 这个Frustum和Sphere是不相交的
+    intr.setBox(&box1);
+    isIntersection = intr.test();
+    printf("Frustum and AABB #1 intersection result is %d\n", isIntersection);
 }
 
 void IntersectionApp::testFrustumObb()
 {
+    Frustum frustum;
+    buildFrustum(frustum);
 
+    // 构造旋转矩阵
+    Matrix3 m;
+    m.fromAxisAngle(Vector3::UNIT_Y, Degree(30));
+
+    Vector3 points[BoxVerticesCount];
+    size_t i = 0;
+    for (i = 0; i < BoxVerticesCount; ++i)
+    {
+        points[i] = m * BoxVertices0[i];
+    }
+
+    // OBB #0
+    Obb box0;
+    box0.build(points, BoxVerticesCount);
+
+    // 这个Frustum和AABB是相交的
+    IntrFrustumObb intr(frustum, box0);
+    bool isIntersection = intr.test();
+    printf("Frustum and OBB #0 intersection result is %d\n", isIntersection);
+
+    for (i = 0; i < BoxVerticesCount; ++i)
+    {
+        points[i] = m * BoxVertices3[i];
+    }
+
+    // OBB #1
+    Obb box1;
+    box1.build(points, BoxVerticesCount);
+
+    // 这个Frustum和Sphere是不相交的
+    intr.setBox(&box1);
+    isIntersection = intr.test();
+    printf("Frustum and OBB #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::buildFrustum(Frustum &frustum)
+{
+    // 构造Frustum的六个平面
+
+    // 近平面
+    Plane near(Vector3::NEGATIVE_UNIT_Z, Vector3(0, 0, 10));
+
+    // 远平面
+    Plane far(Vector3::UNIT_Z, Vector3(0, 0, -10));
+
+    // 上平面
+    Matrix3 m0(Vector3::UNIT_X, Radian(Math::PI / Real(6.0f)));
+    Vector3 axis0 = m0 * Vector3::NEGATIVE_UNIT_Y;
+    Plane top(axis0, Vector3(0, 10, 0));
+
+    // 下平面
+    Matrix3 m1(Vector3::UNIT_X, -Radian(Math::PI / Real(6.0f)));
+    Vector3 axis1 = m1 * Vector3::UNIT_Y;
+    Plane bottom(axis1, Vector3(0, -10, 0));
+
+    // 左平面
+    Matrix3 m2(Vector3::UNIT_Y, Radian(Math::PI / Real(6.0f)));
+    Vector3 axis2 = m2 * Vector3::UNIT_X;
+    Plane left(axis2, Vector3(-10, 0, 0));
+
+    // 右平面
+    Matrix3 m3(Vector3::UNIT_Y, -Radian(Math::PI / Real(6.0f)));
+    Vector3 axis3 = m2 * Vector3::NEGATIVE_UNIT_X;
+    Plane right(axis3, Vector3(10, 0, 0));
+
+    // Frustum
+    frustum.setFace(Frustum::E_FACE_NEAR, near);
+    frustum.setFace(Frustum::E_FACE_FAR, far);
+    frustum.setFace(Frustum::E_FACE_TOP, top);
+    frustum.setFace(Frustum::E_FACE_BOTTOM, bottom);
+    frustum.setFace(Frustum::E_FACE_LEFT, left);
+    frustum.setFace(Frustum::E_FACE_RIGHT, right);
 }

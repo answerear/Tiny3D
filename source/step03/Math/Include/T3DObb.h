@@ -71,7 +71,7 @@ namespace Tiny3D
     protected:
         void buildByAABB(const TVector3<T> points[], size_t count);
 
-        void buildByCovariance(const TVector3<T> points, size_t count);
+        void buildByCovariance(const TVector3<T> points[], size_t count);
 
     private:
         TVector3<T> mCenter;

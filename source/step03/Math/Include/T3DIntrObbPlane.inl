@@ -61,7 +61,7 @@ namespace Tiny3D
         // 先把平面变换到OBB空间
 
         // 构造变换矩阵
-        TMatrix3<T> m(mObb->getAxis(0), mObb->getAxis(1), mObb->getAxis(2), true);
+        TMatrix3<T> m(mBox->getAxis(0), mBox->getAxis(1), mBox->getAxis(2), true);
         m = m.inverse();
 
         // 构造变换后平面
@@ -70,12 +70,12 @@ namespace Tiny3D
         TPlane<T> plane(n, mPlane->getDistance());
 
         // 构造一个AABB
-        T minX = -mObb->getExtent(0) * TReal<T>::HALF;
-        T maxX = mObb->getExtent(0) * TReal<T>::HALF;
-        T minY = -mObb->getExtent(1) * TReal<T>::HALF;
-        T maxY = mObb->getExtent(1) * TReal<T>::HALF;
-        T minZ = -mObb->getExtent(2) * TReal<T>::HALF;
-        T maxZ = mObb->getExtent(2) * TReal<T>::HALF;
+        T minX = -mBox->getExtent(0) * TReal<T>::HALF;
+        T maxX = mBox->getExtent(0) * TReal<T>::HALF;
+        T minY = -mBox->getExtent(1) * TReal<T>::HALF;
+        T maxY = mBox->getExtent(1) * TReal<T>::HALF;
+        T minZ = -mBox->getExtent(2) * TReal<T>::HALF;
+        T maxZ = mBox->getExtent(2) * TReal<T>::HALF;
 
         TAabb<T> aabb(minX, maxX, minY, maxY, minZ, maxZ);
 

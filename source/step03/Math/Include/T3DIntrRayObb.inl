@@ -42,8 +42,8 @@ namespace Tiny3D
 
     template <typename T>
     inline TIntrRayObb<T>::TIntrRayObb(const TRay<T> &ray, const TObb<T> &obb)
-        : mRay(*ray)
-        , mObb(*obb)
+        : mRay(&ray)
+        , mObb(&obb)
     {
 
     }
@@ -58,8 +58,8 @@ namespace Tiny3D
         m = m.inverse();
 
         // 构造变换后射线
-        T origin = m * mRay->getOrigin();
-        T dir = m * mRay->getDirection();
+        TVector3<T> origin = m * mRay->getOrigin();
+        TVector3<T> dir = m * mRay->getDirection();
 
         TRay<T> ray(origin, dir);
 

@@ -118,6 +118,7 @@ namespace Tiny3D
     template <typename T>
     inline T TPlane<T>::fastDistanceToPoint(const TVector3<T> &rkPos) const
     {
+        TVector3<T> normal(mCoeff[0], mCoeff[1], mCoeff[2]);
         return normal.dot(rkPos) + mCoeff[3];
     }
 

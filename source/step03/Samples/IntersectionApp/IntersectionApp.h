@@ -74,6 +74,8 @@ protected:  // from Tiny3D::Application
 
     // 视锥体和OBB相交检测
     void testFrustumObb();
+
+    void buildFrustum(Tiny3D::Frustum &frustum);
 };
 
 
