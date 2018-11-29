@@ -323,7 +323,7 @@ void IntersectionApp::testRayObb()
     // 这个Ray和OBB是不相交的
     intr.setObb(&box1);
     isIntersection = intr.test();
-    printf("Ray and OBB #1 intersection result is $d\n", isIntersection);
+    printf("Ray and OBB #1 intersection result is %d\n", isIntersection);
 }
 
 void IntersectionApp::testSphereSphere()

@@ -534,14 +534,40 @@ namespace Tiny3D
     inline TMatrix3<T> TMatrix3<T>::inverse() const
     {
         TMatrix3 matInverse;
-        T fDet = mTuples[0] * mTuples[3] - mTuples[1] * mTuples[2];
-        if (fDet != TReal<T>::ZERO)
-        {
-            matInverse.mTuples[0] = mTuples[3] / fDet;
-            matInverse.mTuples[1] = -mTuples[1] / fDet;
-            matInverse.mTuples[2] = -mTuples[2] / fDet;
-            matInverse.mTuples[3] = mTuples[0] / fDet;
-        }
+
+        T sum, value;
+        value = mTuples[4] * mTuples[8];
+        sum = value;
+        value = mTuples[5] * mTuples[7];
+        sum -= value;
+        matInverse[0][0] = sum;
+
+        value = mTuples[2] * mTuples[7];
+        sum = value;
+        value = mTuples[1] * mTuples[8];
+        sum -= value;
+        matInverse[0][1] = sum;
+
+        value = mTuples[1] * mTuples[5];
+        sum = value;
+        value = mTuples[2] * mTuples[4];
+        sum -= value;
+        matInverse[0][2] = sum;
+
+        value = mTuples[5] * mTuples[6];
+        sum = value;
+        value = mTuples[3] * mTuples[8];
+        sum -= value;
+        matInverse[1][0] = sum;
+
+//         T fDet = mTuples[0] * mTuples[3] - mTuples[1] * mTuples[2];
+//         if (fDet != TReal<T>::ZERO)
+//         {
+//             matInverse.mTuples[0] = mTuples[3] / fDet;
+//             matInverse.mTuples[1] = -mTuples[1] / fDet;
+//             matInverse.mTuples[2] = -mTuples[2] / fDet;
+//             matInverse.mTuples[3] = mTuples[0] / fDet;
+//         }
         return matInverse;
     }
 
@@ -549,11 +575,11 @@ namespace Tiny3D
     inline T TMatrix3<T>::determinant() const
     {
         // This 3x3 matrix : 
-        //        +-       -+
-        //    A = | A0 A1 A2|
-        //        | A3 A4 A5|
-        //        | A6 A7 A8|
-        //        +-       -+
+        //        +-        -+
+        //    A = | A0 A1 A2 |
+        //        | A3 A4 A5 |
+        //        | A6 A7 A8 |
+        //        +-        -+
         // 
         // det(A) = A0 * A4 * A8 + A1 * A5 * A6 + A2 * A3 * A7 - A2 * A4 * A6 - A1 * A3 * A8 - A0 * A5 * A7
         // equal to
