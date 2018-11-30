@@ -255,100 +255,122 @@ namespace Tiny3D
     void TSphere<T>::buildByRitter(const TVector3<T> points[], size_t count)
     {
         // 先找出在x，y，z三个轴方向上距离最大的点作为半径
-        T maxX = TReal<T>::MINUS_INF;
-        T maxY = TReal<T>::MINUS_INF;
-        T maxZ = TReal<T>::MINUS_INF;
-        T minX = TReal<T>::INF;
-        T minY = TReal<T>::INF;
-        T minZ = TReal<T>::INF;
-        size_t x0, y0, z0, x1, y1, z1;
+//         T maxX = TReal<T>::MINUS_INF;
+//         T maxY = TReal<T>::MINUS_INF;
+//         T maxZ = TReal<T>::MINUS_INF;
+//         T minX = TReal<T>::INF;
+//         T minY = TReal<T>::INF;
+//         T minZ = TReal<T>::INF;
+//         size_t x0, y0, z0, x1, y1, z1;
+// 
+//         size_t i = 0;
+//         for (i = 0; i < count; ++i)
+//         {
+//             if (points[i].x() > maxX)
+//             {
+//                 maxX = points[i].x();
+//                 x1 = i;
+//             }
+//                 
+//             if (points[i].x() < minX)
+//             {
+//                 minX = points[i].x();
+//                 x0 = i;
+//             }
+//                 
+//             if (points[i].y() > maxY)
+//             {
+//                 maxY = points[i].y();
+//                 y1 = i;
+//             }
+//                 
+//             if (points[i].y() < minY)
+//             {
+//                 minY = points[i].y();
+//                 y0 = i;
+//             }
+//                 
+//             if (points[i].z() > maxZ)
+//             {
+//                 maxZ = points[i].z();
+//                 z1 = i;
+//             }
+//                 
+//             if (points[i].z() < minZ)
+//             {
+//                 minZ = points[i].z();
+//                 z0 = i;
+//             }
+//         }
 
-        size_t i = 0;
-        for (i = 0; i < count; ++i)
+//         T dx = maxX - minX;
+//         T dy = maxY - minY;
+//         T dz = maxZ - minZ;
+
+        size_t x0 = 0, x1 = 0;
+        size_t y0 = 0, y1 = 0;
+        size_t z0 = 0, z1 = 0;
+
+        size_t i;
+        for (i = 1; i < count; ++i)
         {
-            if (points[i].x() > maxX)
-            {
-                maxX = points[i].x();
-                x1 = i;
-            }
-                
-            if (points[i].x() < minX)
-            {
-                minX = points[i].x();
+            if (points[i].x() < points[x0].x())
                 x0 = i;
-            }
-                
-            if (points[i].y() > maxY)
-            {
-                maxY = points[i].y();
-                y1 = i;
-            }
-                
-            if (points[i].y() < minY)
-            {
-                minY = points[i].y();
+            if (points[i].x() > points[x1].x())
+                x1 = i;
+            if (points[i].y() < points[y0].y())
                 y0 = i;
-            }
-                
-            if (points[i].z() > maxZ)
-            {
-                maxZ = points[i].z();
-                z1 = i;
-            }
-                
-            if (points[i].z() < minZ)
-            {
-                minZ = points[i].z();
+            if (points[i].y() > points[y1].y())
+                y1 = i;
+            if (points[i].z() < points[z0].z())
                 z0 = i;
-            }
+            if (points[i].z() > points[z1].z())
+                z1 = i;
         }
 
-        T dx = maxX - minX;
-        T dy = maxY - minY;
-        T dz = maxZ - minZ;
-//         TVector3<T> temp = points[x1] - points[x0];
-//         T dx = temp.dot(temp);
-// 
-//         temp = points[y1] - points[y0];
-//         T dy = temp.dot(temp);
-// 
-//         temp = points[z1] - points[z0];
-//         T dz = temp.dot(temp);
+        TVector3<T> temp = points[x1] - points[x0];
+        T dx = temp.length2();
+
+        temp = points[y1] - points[y0];
+        T dy = temp.length2();
+
+        temp = points[z1] - points[z0];
+        T dz = temp.length2();
 
         size_t max = x1, min = x0;
-        T d = dx;
 
         if (dz > dx && dz > dy)
         {
             max = z1;
             min = z0;
-            d = dz;
         }
         else if (dy > dx && dy > dz)
         {
             max = y1;
             min = y0;
-            d = dy;
         }
 
-        TVector3<T> center(
-            (points[max].x() + points[min].x()) * TReal<T>::HALF,
-            (points[max].y() + points[min].y()) * TReal<T>::HALF,
-            (points[max].z() + points[min].z()) * TReal<T>::HALF);
+        TVector3<T> center((points[max] + points[min]) * TReal<T>::HALF);
+        T d2 = (points[max] - center).length2();
 
-        T radius = TMath<T>::sqrt(d);
+        T radius = TMath<T>::sqrt(d2);
 
         // 遍历所有顶点来修正，以得到一个逼近的包围球
         for (i = 0; i < count; ++i)
         {
-            T d2 = points[i].distance2(center);
+            //T d2 = points[i].distance2(center);
+            TVector3<T> dist = points[i] - center;
+            d2 = dist.length2();
             if (d2 > radius * radius)
             {
-                d = TMath<T>::sqrt(d2);
+                T d = TMath<T>::sqrt(d2);
                 T newRadius = (d + radius) * TReal<T>::HALF;
-                T l = (d - radius) * TReal<T>::HALF;
+                T k = (newRadius - radius) / d;
                 radius = newRadius;
-                center = center + (points[i] - center) * l;
+                center += dist * k;
+//                 T l = (d - radius) * TReal<T>::HALF;
+//                 radius = newRadius;
+//                 center = center + (points[i] - center) * l;
             }
         }
 
