@@ -240,7 +240,7 @@ void IntersectionApp::testRaySphere()
 
     // Sphere #0
     Sphere sphere0;
-    sphere0.build(BoxVertices0, BoxVerticesCount);
+    sphere0.build(BoxVertices0, BoxVerticesCount, Sphere::E_BUILD_RITTER);
 
     // 这个Ray和Sphere是相交的
     IntrRaySphere intr(ray, sphere0);

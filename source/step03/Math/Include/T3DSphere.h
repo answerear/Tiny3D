@@ -48,11 +48,11 @@ namespace Tiny3D
         /// 通过空间两点构造包围球
         TSphere(const TVector3<T> &p0, const TVector3<T> &p1);
         /// 通过空间三点构造包围球
-        TSphere(const TVector3<T> &p0, const TVector3<T> &p1,
-            const TVector3<T> &p2);
-        /// 通过空间四点构造包围球
-        TSphere(const TVector3<T> &p0, const TVector3<T> &p1,
-            const TVector3<T> &p2, const TVector3<T> &p3);
+//         TSphere(const TVector3<T> &p0, const TVector3<T> &p1,
+//             const TVector3<T> &p2);
+//         /// 通过空间四点构造包围球
+//         TSphere(const TVector3<T> &p0, const TVector3<T> &p1,
+//             const TVector3<T> &p2, const TVector3<T> &p3);
         /// 初始化原点和半径的构造函数
         TSphere(const TVector3<T> &center, const T &radius);
 
@@ -65,6 +65,14 @@ namespace Tiny3D
         /// 通过多个点构造包围球
         void build(const TVector3<T> points[], size_t count, 
             BuildOption option = E_BUILD_WELZL);
+
+        /// 通过空间三点构造包围球
+        bool build(const TVector3<T> &p0, const TVector3<T> &p1,
+            const TVector3<T> &p2);
+
+        /// 通过空间四点构造包围球
+        bool build(const TVector3<T> &p0, const TVector3<T> &p1,
+            const TVector3<T> &p2, const TVector3<T> &p3);
         
         /// 获取球心
         const TVector3<T> &getCenter() const;

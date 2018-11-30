@@ -50,7 +50,7 @@ namespace Tiny3D
     template <typename T>
     inline TPlane<T>::TPlane(const TVector3<T> &rkPos1, const TVector3<T> &rkPos2, const TVector3<T> &rkPos3)
     {
-        TVector3<T> normal = (rkPos2 - rkPos1).cross(rkPos3 - rkPos1);
+        TVector3<T> normal = (rkPos2 - rkPos1).cross(rkPos3 - rkPos2);
         normal.normalize();
 
         mCoeff[0] = normal[0];
