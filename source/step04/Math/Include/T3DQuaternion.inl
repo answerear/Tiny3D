@@ -1,4 +1,21 @@
-﻿
+﻿/*******************************************************************************
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * Copyright (C) 2015-2017  Answer Wong
+ * For latest info, see https://github.com/asnwerear/Tiny3D
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 namespace Tiny3D
 {
@@ -91,7 +108,8 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline TQuaternion<T>::TQuaternion(const TRadian<T> &rkAngle, const TVector3<T> &rkAxis)
+    inline TQuaternion<T>::TQuaternion(const TRadian<T> &rkAngle, 
+        const TVector3<T> &rkAxis)
     {
         fromAngleAxis(rkAngle, rkAxis);
     }
@@ -218,7 +236,8 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline TQuaternion<T> TQuaternion<T>::operator +(const TQuaternion &other) const
+    inline TQuaternion<T> TQuaternion<T>::operator +(
+        const TQuaternion &other) const
     {
         return TQuaternion(
             _w + other._w, 
@@ -229,7 +248,8 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline TQuaternion<T> TQuaternion<T>::operator -(const TQuaternion &other) const
+    inline TQuaternion<T> TQuaternion<T>::operator -(
+        const TQuaternion &other) const
     {
         return TQuaternion(
             _w - other._w, 
@@ -240,7 +260,8 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline TQuaternion<T> TQuaternion<T>::operator *(const TQuaternion &other) const
+    inline TQuaternion<T> TQuaternion<T>::operator *(
+        const TQuaternion &other) const
     {
         return TQuaternion
         (
@@ -262,7 +283,7 @@ namespace Tiny3D
     {
         T fInvertScalar = 0.0f;
         if (scalar != TReal<T>::ZERO)
-            fInvertScalar = 1.0f / scalar;
+            fInvertScalar = TReal<T>::ONE / scalar;
         return TQuaternion(_w * fInvertScalar, 
             _x * fInvertScalar, 
             _y * fInvertScalar, 
@@ -337,8 +358,8 @@ namespace Tiny3D
         TVector3<T> qvec(_x, _y, _z);
         uv = qvec.cross(v);
         uuv = qvec.cross(uv);
-        uv *= (2.0f * _w);
-        uuv *= 2.0f;
+        uv *= (T(2.0f) * _w);
+        uuv *= T(2.0f);
 
         return v + uv + uuv;
     }
@@ -359,7 +380,7 @@ namespace Tiny3D
     inline T TQuaternion<T>::normalize()
     {
         T len = norm();
-        T factor = 1.0f / TMath<T>::sqrt(len);
+        T factor = TReal<T>::ONE / TMath<T>::sqrt(len);
         *this = *this * factor;
         return len;
     }
@@ -385,7 +406,8 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline void TQuaternion<T>::toAngleAxis(TDegree<T> &rDegree, TVector3<T> &rAxis) const
+    inline void TQuaternion<T>::toAngleAxis(TDegree<T> &rDegree, 
+        TVector3<T> &rAxis) const
     {
         TRadian<T> rAngle;
         toAngleAxis(rAngle, rAxis);
@@ -393,22 +415,24 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline TRadian<T> TQuaternion<T>::getPitch(bool reprojectAxis /* = true */) const
+    inline TRadian<T> TQuaternion<T>::getPitch(
+        bool reprojectAxis /* = true */) const
     {
         if (reprojectAxis)
         {
             // pitch = atan2(localy.z, localy.y)
             // pick parts of yAxis() implementation that we need
-            T fTx = 2.0f * _x;
+            T fTx = T(2.0f) * _x;
             //          T fTy  = 2.0f*y;
-            T fTz = 2.0f * _z;
+            T fTz = T(2.0f) * _z;
             T fTwx = fTx * _w;
             T fTxx = fTx * _x;
             T fTyz = fTz * _y;
             T fTzz = fTz * _z;
 
             // TVector3<T>(fTxy-fTwz, 1.0-(fTxx+fTzz), fTyz+fTwx);
-            return TRadian<T>(TMath<T>::atan2(fTyz + fTwx, 1.0f - (fTxx + fTzz)));
+            return TRadian<T>(TMath<T>::atan2(fTyz + fTwx, 
+                TReal<T>::ONE - (fTxx + fTzz)));
         }
         else
         {
@@ -425,9 +449,9 @@ namespace Tiny3D
         {
             // yaw = atan2(localz.x, localz.z)
             // pick parts of zAxis() implementation that we need
-            T fTx = 2.0f * _x;
-            T fTy = 2.0f * _y;
-            T fTz = 2.0f * _z;
+            T fTx = T(2.0f) * _x;
+            T fTy = T(2.0f) * _y;
+            T fTz = T(2.0f) * _z;
             T fTwy = fTy * _w;
             T fTxx = fTx * _x;
             T fTxz = fTz * _x;
@@ -435,9 +459,8 @@ namespace Tiny3D
 
             // TVector3<T>(fTxz+fTwy, fTyz-fTwx, 1.0-(fTxx+fTyy));
 
-            return TRadian<T>(TMath<T>::atan2(
-                fTxz + fTwy,
-                1.0f - (fTxx + fTyy)));
+            return TRadian<T>(TMath<T>::atan2(fTxz + fTwy, 
+                TReal<T>::ONE - (fTxx + fTyy)));
         }
         else
         {
@@ -454,8 +477,8 @@ namespace Tiny3D
             // roll = atan2(localx.y, localx.x)
             // pick parts of xAxis() implementation that we need
             //          T fTx  = 2.0*x;
-            T fTy = 2.0f * _y;
-            T fTz = 2.0f * _z;
+            T fTy = T(2.0f) * _y;
+            T fTz = T(2.0f) * _z;
             T fTwz = fTz * _w;
             T fTxy = fTy * _x;
             T fTyy = fTy * _y;
@@ -463,7 +486,8 @@ namespace Tiny3D
 
             // TVector3<T>(1.0-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
 
-            return TRadian<T>(TMath<T>::atan2(fTxy + fTwz, 1.0f - (fTyy + fTzz)));
+            return TRadian<T>(TMath<T>::atan2(fTxy + fTwz, 
+                TMath<T>::ONE - (fTyy + fTzz)));
         }
         else
         {
@@ -477,8 +501,8 @@ namespace Tiny3D
     inline TVector3<T> TQuaternion<T>::xAxis() const
     {
         //T fTx  = 2.0*x;
-        T fTy = 2.0f * _y;
-        T fTz = 2.0f * _z;
+        T fTy = T(2.0f) * _y;
+        T fTz = T(2.0f) * _z;
         T fTwy = fTy * _w;
         T fTwz = fTz * _w;
         T fTxy = fTy * _x;
@@ -486,15 +510,15 @@ namespace Tiny3D
         T fTyy = fTy * _y;
         T fTzz = fTz * _z;
 
-        return TVector3<T>(1.0f - (fTyy + fTzz), fTxy + fTwz, fTxz - fTwy);
+        return TVector3<T>(TReal<T>::ONE - (fTyy + fTzz), fTxy + fTwz, fTxz - fTwy);
     }
 
     template <typename T>
     inline TVector3<T> TQuaternion<T>::yAxis() const
     {
-        T fTx = 2.0f * _x;
-        T fTy = 2.0f * _y;
-        T fTz = 2.0f * _z;
+        T fTx = T(2.0f) * _x;
+        T fTy = T(2.0f) * _y;
+        T fTz = T(2.0f) * _z;
         T fTwx = fTx * _w;
         T fTwz = fTz * _w;
         T fTxx = fTx * _x;
@@ -508,9 +532,9 @@ namespace Tiny3D
     template <typename T>
     inline TVector3<T> TQuaternion<T>::zAxis() const
     {
-        T fTx = 2.0f * _x;
-        T fTy = 2.0f * _y;
-        T fTz = 2.0f * _z;
+        T fTx = T(2.0f) * _x;
+        T fTy = T(2.0f) * _y;
+        T fTz = T(2.0f) * _z;
         T fTwx = fTx * _w;
         T fTwy = fTy * _w;
         T fTxx = fTx * _x;
@@ -570,8 +594,8 @@ namespace Tiny3D
 
             fRoot = TMath<T>::sqrt(rkRot[i][i] - rkRot[j][j] - rkRot[k][k] + TReal<T>::ONE);
             T* apkQuat[3] = { &_x, &_y, &_z };
-            *apkQuat[i] = 0.5f * fRoot;
-            fRoot = 0.5f / fRoot;
+            *apkQuat[i] = TReal<T>::HALF * fRoot;
+            fRoot = TReal<T>::HALF / fRoot;
             _w = (rkRot[k][j] - rkRot[j][k]) * fRoot;
             *apkQuat[j] = (rkRot[j][i] + rkRot[i][j]) * fRoot;
             *apkQuat[k] = (rkRot[k][i] + rkRot[i][k]) * fRoot;
@@ -587,7 +611,7 @@ namespace Tiny3D
         T fSqrLength = _x * _x + _y * _y + _z * _z;
         if (fSqrLength > TReal<T>::ZERO)
         {
-            rAngle = T(2.0) * TMath<T>::acos(_w).valueRadians();
+            rAngle = T(2.0f) * TMath<T>::acos(_w).valueRadians();
             T fInvLength = TReal<T>::ONE / TMath<T>::sqrt(fSqrLength);
             rAxis.x() = _x * fInvLength;
             rAxis.y() = _y * fInvLength;
@@ -631,9 +655,35 @@ namespace Tiny3D
     }
 
     template <typename T>
-    TQuaternion<T> &TQuaternion<T>::slerp(const TQuaternion &rkP, const TQuaternion &rkQ,
-        T times, bool shortestPath, T threshold /* = 1e-03 */)
+    TQuaternion<T> &TQuaternion<T>::slerp(const TQuaternion &rkP, 
+        const TQuaternion &rkQ, T times, bool shortestPath /* = true */, 
+        T epsilon /* = TReal<T>::EPSILON */)
     {
+        // 理论上的四元数 slerp 形式：
+        //
+        //      slerp(q0, q1, t) = (q1 * q0^(-1))^t q0
+        //
+        // 实际程序中使用的 slerp 形式：
+        // 
+        //                          sin((1 - t)ω)          sin(tω)
+        //      slerp(q0, q1, t) = --------------- * q0 + --------- * q1
+        //                              sin(ω)             sin(ω)
+        //
+        // 其中 cos(ω) 由以下求得：
+        //      
+        //                q0 * q1
+        //      cos(ω) = ---------
+        //               |q0|*|q1|
+        //
+        // 这里存在两个问题：
+        // 
+        //  * 当结果是负值时，我们将2个四元数的其中一个取反，取反它的系数和向量
+        //    部分，并不会改变它代表的朝向。而经过这一步操作，可以保证这个旋转走
+        //    的是最短路径
+        //  * 当 q0 和 q1 的角度差非常小，小到导致 sin(ω) = 0 时，会出现第二个
+        //    问题。如果这个情况出现了，当我们除以 sin(ω) 时就会得到一个
+        //    未定义的记过。在这个情况下，我们可以回退回去使用q0和q1的线性插值。
+
         T fCos = rkP.dot(rkQ);
         TQuaternion rkT;
 
@@ -648,7 +698,7 @@ namespace Tiny3D
             rkT = rkQ;
         }
 
-        if (TMath<T>::abs(fCos) < 1 - threshold)
+        if (TMath<T>::abs(fCos) < TReal<T>::ONE - epsilon)
         {
             // Standard case (slerp)
             T fSin = TMath<T>::sqrt(1 - TMath<T>::sqr(fCos));
@@ -667,7 +717,7 @@ namespace Tiny3D
             //    there are an infinite number of possibilities interpolation. 
             //    but we haven't have method to fix this case, so just use 
             //    linear interpolation here.
-            TQuaternion t = (1.0f - times) * rkP + times * rkT;
+            TQuaternion t = (TReal<T>::ONE - times) * rkP + times * rkT;
             // taking the complement requires renormalisation
             t.normalize();
             *this = t;

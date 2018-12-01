@@ -37,7 +37,7 @@ namespace Tiny3D
     public:
         enum Side
         {
-            E_SIDE_NONE = 0,
+            E_SIDE_INTERSECT = 0,
             E_SIDE_POSITIVE,
             E_SIDE_NEGATIVE,
         };
@@ -59,7 +59,13 @@ namespace Tiny3D
 
         T distanceToPoint(const TVector3<T> &rkPos) const;
 
+        // 快速求点到平面距离，因为这里假设平面法线已经是单位向量
+        T fastDistanceToPoint(const TVector3<T> &rkPos) const;
+
         Side sideForPoint(const TVector3<T> &rkPos) const;
+
+        // 快速求点在平面的正面和反面
+        Side fastSideForPoint(const TVector3<T> &rkPos) const;
 
         TVector3<T> getNormal() const;
         T getDistance() const;

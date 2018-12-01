@@ -56,7 +56,7 @@ namespace Tiny3D
 
         T dot = mRay->getDirection().dot(mPlane->getNormal());
 
-        if (dot <= TReal<T>::ZERO)
+        if (dot >= TReal<T>::ZERO)
         {
             // 没有交点
             return false;
@@ -73,7 +73,7 @@ namespace Tiny3D
 
         T dot = mRay->getDirection().dot(mPlane->getNormal());
 
-        if (dot <= TReal<T>::ZERO)
+        if (dot >= TReal<T>::ZERO)
         {
             // 没有交点
             return false;
@@ -95,7 +95,7 @@ namespace Tiny3D
 
         T dot = mRay->getDirection().dot(mPlane->getNormal());
 
-        if (dot <= TReal<T>::ZERO)
+        if (dot >= TReal<T>::ZERO)
         {
             // 没有交点
             return false;

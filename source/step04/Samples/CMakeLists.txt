@@ -15,6 +15,7 @@ set(TINY3D_CORE_INC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Core/Include")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
 
 add_subdirectory(HelloApp)
+add_subdirectory(PlatformApp)
 
 if (TINY3D_OS_DESKTOP)
 	add_subdirectory(TransformationApp)

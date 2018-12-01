@@ -60,7 +60,6 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
-            LINK_PRIVATE T3DLog
 			LINK_PRIVATE legacy_stdio_definitions
 			)
 	else ()
@@ -68,7 +67,6 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
-            LINK_PRIVATE T3DLog
 			)
 	endif ()
 	
@@ -100,28 +98,24 @@ elseif (TINY3D_OS_MACOSX)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
-        LINK_PRIVATE T3DLog
 		)
 elseif (TINY3D_OS_LINUX)
 	# Linux
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
-        LINK_PRIVATE T3DLog
 		)
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	# iOS
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
-        LINK_PRIVATE T3DLog
         )
 elseif (TINY3D_OS_ANDROID)
 	# Android
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
-        LINK_PRIVATE T3DLog
         )
 endif (TINY3D_OS_WINDOWS)
 

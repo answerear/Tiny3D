@@ -284,7 +284,7 @@ namespace Tiny3D
     template <typename T>
     inline T TVector3<T>::distance2(const TVector3 &other) const
     {
-        return (*this - other).squaredLength();
+        return (*this - other).length2();
     }
 
     template <typename T>

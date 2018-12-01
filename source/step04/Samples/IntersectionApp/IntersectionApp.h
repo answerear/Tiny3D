@@ -17,19 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __TRANSFORMATION_APP_H__
-#define __TRANSFORMATION_APP_H__
+#ifndef __INTERSECTION_APP_H__
+#define __INTERSECTION_APP_H__
 
 #include <T3DPlatform.h>
-#include <T3DLog.h>
 #include <T3DMathLib.h>
 
 
-class TransformationApp : public Tiny3D::Application
+class IntersectionApp : public Tiny3D::Application
 {
 public:
-    TransformationApp();
-    virtual ~TransformationApp();
+    IntersectionApp();
+    virtual ~IntersectionApp();
 
 protected:  // from Tiny3D::Application
     virtual bool applicationDidFinishLaunching() override;
@@ -40,8 +39,44 @@ protected:  // from Tiny3D::Application
 
     virtual void applicationWillTerminate() override;
 
-    virtual void applicationLowMemory() override;
+    // 射线和三角形相交检测
+    void testRayTriangle();
+
+    // 射线和平面相交检测
+    void testRayPlane();
+
+    // 射线和球体相交检测
+    void testRaySphere();
+
+    // 射线和AABB相交检测
+    void testRayAabb();
+
+    // 射线和OBB相交检测
+    void testRayObb();
+
+    // 两个球相交检测
+    void testSphereSphere();
+
+    // 球和平面相交检测
+    void testSpherePlane();
+
+    // AABB和平面相交检测
+    void testAabbPlane();
+
+    // OBB和平面相交检测
+    void testObbPlane();
+
+    // 视锥体和球相交检测
+    void testFrustumSphere();
+
+    // 视锥体和AABB相交检测
+    void testFrustumAabb();
+
+    // 视锥体和OBB相交检测
+    void testFrustumObb();
+
+    void buildFrustum(Tiny3D::Frustum &frustum);
 };
 
 
-#endif  /*__TRANSFORMATION_APP_H__*/
+#endif  /*__INTERSECTION_APP_H__*/

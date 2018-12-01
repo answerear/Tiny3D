@@ -160,7 +160,7 @@ namespace Tiny3D
 
         /// 两个四元数球面插值构造一个四元数.
         TQuaternion &slerp(const TQuaternion &rkP, const TQuaternion &rkQ, 
-            T times, bool shortestPath, T threshold = 1e-03);
+            T times, bool shortestPath = true, T epsilon = TReal<T>::EPSILON);
 
         static const TQuaternion IDENTITY;       /// 单位四元数
         static const TQuaternion ZERO;           /// 零四元数

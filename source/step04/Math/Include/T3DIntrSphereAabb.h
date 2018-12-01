@@ -48,7 +48,7 @@ namespace Tiny3D
             return mBox;
         }
 
-        void setSphere(const TRay<T> *sphere)
+        void setSphere(const TSphere<T> *sphere)
         {
             mSphere = sphere;
         }

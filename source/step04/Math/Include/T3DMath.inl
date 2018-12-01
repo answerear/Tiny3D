@@ -220,6 +220,18 @@ namespace Tiny3D
     }
 
     template <typename T>
+    inline T TMath<T>::min(T a, T b)
+    {
+        return (a < b ? a : b);
+    }
+
+    template <typename T>
+    inline T TMath<T>::max(T a, T b)
+    {
+        return (a > b ? a : b);
+    }
+
+    template <typename T>
     const T TMath<T>::POS_INFINITY = TReal<T>::INF;
 
     template <typename T>

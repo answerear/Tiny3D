@@ -18,6 +18,9 @@
  ******************************************************************************/
 
 
+#include "T3DIntrAabbPlane.h"
+
+
 namespace Tiny3D
 {
     template <typename T>
@@ -49,11 +52,45 @@ namespace Tiny3D
     }
 
     template <typename T>
-    bool TIntrFrustumAabb<T>::test()
+    inline bool TIntrFrustumAabb<T>::test()
     {
         if (mFrustum == nullptr || mBox == nullptr)
             return false;
 
+        TIntrAabbPlane<T> intr;
+        int32_t result;
+
+        intr.setBox(mBox);
+
+        intr.setPlane(&mFrustum->getFace(TFrustum<T>::E_FACE_NEAR));
+        result = intr.test();
+        if (result < 0)
+            return false;
+
+        intr.setPlane(&mFrustum->getFace(TFrustum<T>::E_FACE_FAR));
+        result = intr.test();
+        if (result < 0)
+            return false;
+
+        intr.setPlane(&mFrustum->getFace(TFrustum<T>::E_FACE_LEFT));
+        result = intr.test();
+        if (result < 0)
+            return false;
+
+        intr.setPlane(&mFrustum->getFace(TFrustum<T>::E_FACE_RIGHT));
+        result = intr.test();
+        if (result < 0)
+            return false;
+
+        intr.setPlane(&mFrustum->getFace(TFrustum<T>::E_FACE_TOP));
+        result = intr.test();
+        if (result < 0)
+            return false;
+
+        intr.setPlane(&mFrustum->getFace(TFrustum<T>::E_FACE_BOTTOM));
+        result = intr.test();
+        if (result < 0)
+            return false;
 
         return true;
     }
