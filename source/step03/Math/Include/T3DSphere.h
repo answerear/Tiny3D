@@ -64,7 +64,7 @@ namespace Tiny3D
 
         /// 通过多个点构造包围球
         void build(const TVector3<T> points[], size_t count, 
-            BuildOption option = E_BUILD_WELZL);
+            BuildOption option = E_BUILD_RITTER);
 
         /// 通过空间三点构造包围球
         bool build(const TVector3<T> &p0, const TVector3<T> &p1,

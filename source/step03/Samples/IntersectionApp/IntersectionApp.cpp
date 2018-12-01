@@ -240,7 +240,7 @@ void IntersectionApp::testRaySphere()
 
     // Sphere #0
     Sphere sphere0;
-    sphere0.build(BoxVertices0, BoxVerticesCount, Sphere::E_BUILD_WELZL);
+    sphere0.build(BoxVertices0, BoxVerticesCount);
 
     // 这个Ray和Sphere是相交的
     IntrRaySphere intr(ray, sphere0);
@@ -365,7 +365,7 @@ void IntersectionApp::testSpherePlane()
 
     // 这个Sphere和Plane是相交的
     IntrSpherePlane intr(sphere, plane0);
-    bool isIntersection = intr.test();
+    int32_t isIntersection = intr.test();
     printf("Sphere and Plane #0 intersection result is %d\n", isIntersection);
 
     // Plane #1
@@ -394,7 +394,7 @@ void IntersectionApp::testAabbPlane()
 
     // 这个AABB和Plane是相交的
     IntrAabbPlane intr(box, plane0);
-    bool isIntersection = intr.test();
+    int32_t isIntersection = intr.test();
     printf("AABB and Plane #0 intersection result is %d\n", isIntersection);
 
     // Plane #1
@@ -434,7 +434,7 @@ void IntersectionApp::testObbPlane()
 
     // 这个OBB和Plane是相交的
     IntrObbPlane intr(box, plane0);
-    bool isIntersection = intr.test();
+    int32_t isIntersection = intr.test();
     printf("OBB and Plane #0 intersection result is %d\n", isIntersection);
 
     // Plane #1

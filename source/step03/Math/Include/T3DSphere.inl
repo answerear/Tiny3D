@@ -192,6 +192,13 @@ namespace Tiny3D
         *this = recurseMinSphere(ptr, count);
 
         delete []ptr;
+
+        for (i = 0; i < count; ++i)
+        {
+            TVector3<T> dist = points[i] - mCenter;
+            T radius = dist.length();
+            T3D_ASSERT(radius <= mRadius);
+        }
     }
 
     template <typename T>
@@ -255,58 +262,6 @@ namespace Tiny3D
     void TSphere<T>::buildByRitter(const TVector3<T> points[], size_t count)
     {
         // 先找出在x，y，z三个轴方向上距离最大的点作为半径
-//         T maxX = TReal<T>::MINUS_INF;
-//         T maxY = TReal<T>::MINUS_INF;
-//         T maxZ = TReal<T>::MINUS_INF;
-//         T minX = TReal<T>::INF;
-//         T minY = TReal<T>::INF;
-//         T minZ = TReal<T>::INF;
-//         size_t x0, y0, z0, x1, y1, z1;
-// 
-//         size_t i = 0;
-//         for (i = 0; i < count; ++i)
-//         {
-//             if (points[i].x() > maxX)
-//             {
-//                 maxX = points[i].x();
-//                 x1 = i;
-//             }
-//                 
-//             if (points[i].x() < minX)
-//             {
-//                 minX = points[i].x();
-//                 x0 = i;
-//             }
-//                 
-//             if (points[i].y() > maxY)
-//             {
-//                 maxY = points[i].y();
-//                 y1 = i;
-//             }
-//                 
-//             if (points[i].y() < minY)
-//             {
-//                 minY = points[i].y();
-//                 y0 = i;
-//             }
-//                 
-//             if (points[i].z() > maxZ)
-//             {
-//                 maxZ = points[i].z();
-//                 z1 = i;
-//             }
-//                 
-//             if (points[i].z() < minZ)
-//             {
-//                 minZ = points[i].z();
-//                 z0 = i;
-//             }
-//         }
-
-//         T dx = maxX - minX;
-//         T dy = maxY - minY;
-//         T dz = maxZ - minZ;
-
         size_t x0 = 0, x1 = 0;
         size_t y0 = 0, y1 = 0;
         size_t z0 = 0, z1 = 0;
@@ -352,7 +307,6 @@ namespace Tiny3D
 
         TVector3<T> center((points[max] + points[min]) * TReal<T>::HALF);
         T d2 = (points[max] - center).length2();
-
         T radius = TMath<T>::sqrt(d2);
 
         // 遍历所有顶点来修正，以得到一个逼近的包围球
@@ -368,14 +322,18 @@ namespace Tiny3D
                 T k = (newRadius - radius) / d;
                 radius = newRadius;
                 center += dist * k;
-//                 T l = (d - radius) * TReal<T>::HALF;
-//                 radius = newRadius;
-//                 center = center + (points[i] - center) * l;
             }
         }
 
         mCenter = center;
         mRadius = radius;
+
+//         for (i = 0; i < count; ++i)
+//         {
+//             TVector3<T> dist = points[i] - center;
+//             T d2 = dist.length();
+//             T3D_ASSERT(d2 <= radius);
+//         }
     }
 
     template <typename T>
