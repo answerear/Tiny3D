@@ -17,140 +17,566 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "TransformationApp.h"
+#include "IntersectionApp.h"
 
 
 using namespace Tiny3D;
 
+const size_t TriVerticesCount = 3;
 
-TransformationApp::TransformationApp()
+const Vector3 TriangleVertices0[TriVerticesCount] =
+{
+    Vector3(-REAL_ONE, -REAL_ONE, REAL_ZERO),
+    Vector3( REAL_ONE, -REAL_ONE, REAL_ZERO),
+    Vector3( REAL_ZERO, REAL_ONE, REAL_ZERO)
+};
+
+const Vector3 TriangleVertices1[TriVerticesCount] =
+{
+    Vector3(Real(3), -REAL_ONE, REAL_ZERO),
+    Vector3(Real(5), -REAL_ONE, REAL_ZERO),
+    Vector3(Real(4),  REAL_ONE, REAL_ZERO)
+};
+
+const size_t BoxVerticesCount = 8;
+
+const Vector3 BoxVertices0[BoxVerticesCount] =
+{
+    Vector3( REAL_HALF,  REAL_HALF,  REAL_HALF),
+    Vector3( REAL_HALF, -REAL_HALF,  REAL_HALF),
+    Vector3(-REAL_HALF,  REAL_HALF,  REAL_HALF),
+    Vector3(-REAL_HALF, -REAL_HALF,  REAL_HALF),
+    Vector3( REAL_HALF,  REAL_HALF, -REAL_HALF),
+    Vector3( REAL_HALF, -REAL_HALF, -REAL_HALF),
+    Vector3(-REAL_HALF,  REAL_HALF, -REAL_HALF),
+    Vector3(-REAL_HALF, -REAL_HALF, -REAL_HALF),
+};
+
+const Vector3 BoxVertices1[BoxVerticesCount] = 
+{
+    Vector3(Real(4),  REAL_HALF,  REAL_HALF),
+    Vector3(Real(4), -REAL_HALF,  REAL_HALF),
+    Vector3(Real(3),  REAL_HALF,  REAL_HALF),
+    Vector3(Real(3), -REAL_HALF,  REAL_HALF),
+    Vector3(Real(4),  REAL_HALF, -REAL_HALF),
+    Vector3(Real(4), -REAL_HALF, -REAL_HALF),
+    Vector3(Real(3),  REAL_HALF, -REAL_HALF),
+    Vector3(Real(3), -REAL_HALF, -REAL_HALF),
+};
+
+const Vector3 BoxVertices2[BoxVerticesCount] =
+{
+    Vector3( REAL_ONE,  REAL_HALF,  REAL_HALF),
+    Vector3( REAL_ONE, -REAL_HALF,  REAL_HALF),
+    Vector3(REAL_ZERO,  REAL_HALF,  REAL_HALF),
+    Vector3(REAL_ZERO, -REAL_HALF,  REAL_HALF),
+    Vector3( REAL_ONE,  REAL_HALF, -REAL_HALF),
+    Vector3( REAL_ONE, -REAL_HALF, -REAL_HALF),
+    Vector3(REAL_ZERO,  REAL_HALF, -REAL_HALF),
+    Vector3(REAL_ZERO, -REAL_HALF, -REAL_HALF),
+};
+
+const Vector3 BoxVertices3[BoxVerticesCount] =
+{
+    Vector3(Real(60),  REAL_HALF,  REAL_HALF),
+    Vector3(Real(60), -REAL_HALF,  REAL_HALF),
+    Vector3(Real(50),  REAL_HALF,  REAL_HALF),
+    Vector3(Real(50), -REAL_HALF,  REAL_HALF),
+    Vector3(Real(60),  REAL_HALF, -REAL_HALF),
+    Vector3(Real(60), -REAL_HALF, -REAL_HALF),
+    Vector3(Real(50),  REAL_HALF, -REAL_HALF),
+    Vector3(Real(50), -REAL_HALF, -REAL_HALF),
+};
+
+
+IntersectionApp::IntersectionApp()
     : Application()
 {
 }
 
-TransformationApp::~TransformationApp()
+IntersectionApp::~IntersectionApp()
 {
 }
 
-bool TransformationApp::applicationDidFinishLaunching()
+
+/*******************************************************************************
+
+                                    Y
+                                    |
+                                    |
+                                    |
+                                    |
+                                    |
+                                    |
+                                    |
+                                    |
+                                    |
+                                    |______________________________ X
+                                   / 
+                                  /  O
+                                 /
+                                /
+                               /
+                              /
+                             /
+                            /
+                           Z
+
+ ******************************************************************************/
+bool IntersectionApp::applicationDidFinishLaunching()
 {
-    Degree degree;
-    Radian radian;
+    // 射线和三角形相交检测
+    testRayTriangle();
 
-    String s = typeid(degree).name();
-    T3D_LOG_INFO("TT %s", s.c_str());
+    // 射线和平面相交检测
+    testRayPlane();
 
-    Real a = REAL_ZERO;
+    // 射线和球体相交检测
+    testRaySphere();
 
-    a = Math::sin(radian);
+    // 射线和AABB相交检测
+    testRayAabb();
 
-    Vector2 p2(REAL_ONE, REAL_ZERO);
+    // 射线和OBB相交检测
+    testRayObb();
 
-    Real scalar = REAL_ONE;
-    Vector3 p3 = Vector3::UNIT_X;
-    p3 = scalar * p3;
-    Vector3 t = Vector3::UNIT_Y;
-    t = p3.cross(t);
+    // 两个球相交检测
+    testSphereSphere();
 
-    Vector4 p4(REAL_ONE, REAL_ZERO, REAL_ZERO, REAL_ZERO);
-    Vector4 t4(REAL_ZERO, REAL_ONE, REAL_ZERO, REAL_ZERO);
-    t4 = p4.cross(t4);
+    // 球和平面相交检测
+    testSpherePlane();
 
-    Matrix2 m2;
-    p2 = m2 * p2;
+    // AABB和平面相交检测
+    testAabbPlane();
 
-    Matrix3 m3;
-    p3 = m3 * p3;
+    // OBB和平面相交检测
+    testObbPlane();
 
-    Quaternion q;
-    q = scalar * q;
+    // 视锥体和球相交检测
+    testFrustumSphere();
 
-    Matrix4 m4;
-    m4 = scalar * m4;
-    p4 = m4 * p4;
-    p4 = p4 * m4;
+    // 视锥体和AABB相交检测
+    testFrustumAabb();
 
-    // test
-    m3[0][0] = 0.707, m3[0][1] = 1.25, m3[0][2] = 0;
-    m3[1][0] = -0.707, m3[1][1] = 1.25, m3[1][2] = 0;
-    m3[2][0] = 0, m3[2][1] = 0, m3[2][2] = 1;
-
-    Matrix3 R;
-    Vector3 S, T;
-    m3.QDUDecomposition(R, S, T);
-    
-    Vector3 axis;
-    Radian radians;
-    R.toAxisAngle(axis, radians);
-    degree = radians;
-
-    Matrix3 Mr(Vector3::UNIT_Z, Radian(Degree(45)));
-    Matrix3 Ms(S[0], S[1], S[2]);
-    R = Mr * Ms;
-
-    m4[0][0] = Math::sqrt(2); m4[0][1] = Math::sqrt(2); m4[0][2] = REAL_ZERO; m4[0][3] = -2;
-    m4[1][0] = -Math::sqrt(2); m4[1][1] = Math::sqrt(2); m4[1][2] = REAL_ZERO; m4[1][3] = -2;
-    m4[2][0] = REAL_ZERO; m4[2][1] = REAL_ZERO; m4[2][2] = 2; m4[2][3] = REAL_ZERO;
-    m4[3][0] = REAL_ZERO; m4[3][1] = REAL_ZERO; m4[3][2] = REAL_ZERO; m4[3][3] = REAL_ONE;
-
-    Quaternion Q;
-    m4.decomposition(T, S, Q);
-    Q.toRotationMatrix(R);
-
-    Vector3 T1, S1;
-    Quaternion Q1;
-    Matrix3 R1;
-    T1[0] = m4[0][3]; T1[1] = m4[1][3]; T1[2] = m4[2][3];
-    Real length = Math::sqrt(m4[0][0] * m4[0][0] + m4[1][0] * m4[1][0] + m4[2][0] * m4[2][0]);
-    Real invLength = REAL_ONE / length;
-    R1[0][0] = m4[0][0] * invLength; 
-    R1[1][0] = m4[1][0] * invLength; 
-    R1[2][0] = m4[2][0] * invLength;
-
-    S1[0] = length;
-
-    length = Math::sqrt(m4[0][1] * m4[0][1] + m4[1][1] * m4[1][1] + m4[2][1] * m4[2][1]);
-    invLength = REAL_ONE / length;
-    R1[0][1] = m4[0][1] * invLength;
-    R1[1][1] = m4[1][1] * invLength;
-    R1[2][1] = m4[2][1] * invLength;
-
-    S1[1] = length;
-
-    invLength = Math::sqrt(m4[0][2] * m4[0][2] + m4[1][2] * m4[1][2] + m4[2][2] * m4[2][2]);
-    invLength = REAL_ONE / length;
-    R1[0][2] = m4[0][2] * invLength;
-    R1[1][2] = m4[1][2] * invLength;
-    R1[2][2] = m4[2][2] * invLength;
-
-    S1[2] = length;
-
-    Q1.fromRotationMatrix(R1);
-
-    Matrix3 Ry(Vector3::UNIT_Y, Degree(30));
-    Matrix3 Rx(Vector3::UNIT_X, Degree(30));
-    R = Ry * Rx;
-
-//     Rx.fromEulerAnglesXYZ(Degree(30), Degree(0), Degree(0));
+    // 视锥体和OBB相交检测
+    testFrustumObb();
 
     return true;
 }
 
-void TransformationApp::applicationDidEnterBackground()
+void IntersectionApp::applicationDidEnterBackground()
 {
 }
 
-void TransformationApp::applicationWillEnterForeground()
+void IntersectionApp::applicationWillEnterForeground()
 {
 }
 
-void TransformationApp::applicationWillTerminate()
-{
-
-}
-
-void TransformationApp::applicationLowMemory()
+void IntersectionApp::applicationWillTerminate()
 {
 
 }
 
+void IntersectionApp::applicationLowMemory()
+{
+
+}
+
+void IntersectionApp::testRayTriangle()
+{
+    // 位于 (0, 0, 5) 位置起点，朝向 -Z 方向的射线
+    Ray ray(
+        Vector3(REAL_ZERO, REAL_ZERO, Real(5)),
+        Vector3::NEGATIVE_UNIT_Z * Real(1000));
+
+    // Triangle #0
+    Triangle triangle0(TriangleVertices0);
+
+    // 这个Ray和Triangle是相交的
+    IntrRayTriangle intr(ray, triangle0);
+    bool isIntersection = intr.test();
+    printf("Ray and Triangle #0 intersection result is %d\n", isIntersection);
+
+    // Triangle #1
+    Triangle triangle1(TriangleVertices1);
+
+    // 这个Ray和Triangle是不相交的
+    intr.setTriangle(&triangle1);
+    isIntersection = intr.test();
+    printf("Ray and Triangle #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::testRayPlane()
+{
+    // 位于 (0, 0, 5) 位置起点，朝向 -Z 方向的射线
+    Ray ray(
+        Vector3(REAL_ZERO, REAL_ZERO, Real(5)),
+        Vector3::NEGATIVE_UNIT_Z * Real(1000));
+
+    // Plane #0
+    Plane plane0(
+        TriangleVertices0[0], 
+        TriangleVertices0[1], 
+        TriangleVertices0[2]);
+
+    // 这个Ray和Plane是相交的
+    IntrRayPlane intr(ray, plane0);
+    bool isIntersection = intr.test();
+    printf("Ray and Plane #0 intersection result is %d\n", isIntersection);
+
+    // Plane #1
+    Plane plane1(
+        Vector3(Real(4), REAL_ONE, REAL_ONE), 
+        Vector3(Real(4), -REAL_ONE, REAL_ZERO),
+        Vector3(Real(4), REAL_ONE, REAL_ZERO));
+
+    // 这个Ray和Plane是不相交的
+    intr.setPlane(&plane1);
+    isIntersection = intr.test();
+    printf("Ray and Plane #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::testRaySphere()
+{
+    // 位于 (0, 0, 5) 位置起点，朝向 -Z 方向的射线
+    Ray ray(
+        Vector3(REAL_ZERO, REAL_ZERO, Real(5)),
+        Vector3::NEGATIVE_UNIT_Z * Real(1000));
+
+    // Sphere #0
+    Sphere sphere0;
+    sphere0.build(BoxVertices0, BoxVerticesCount);
+
+    // 这个Ray和Sphere是相交的
+    IntrRaySphere intr(ray, sphere0);
+    bool isIntersection = intr.test();
+    printf("Ray and Sphere #0 intersection result is %d\n", isIntersection);
+
+    // Sphere #1
+    Sphere sphere1;
+    sphere1.build(BoxVertices1, BoxVerticesCount);
+
+    // 这个Ray和Sphere是不相交的
+    intr.setSphere(&sphere1);
+    isIntersection = intr.test();
+    printf("Ray and Sphere #1 intersection result is %d\n", isIntersection);
+}
+
+
+void IntersectionApp::testRayAabb()
+{
+    // 位于 (0, 0, 5) 位置起点，朝向 -Z 方向的射线
+    Ray ray(
+        Vector3(REAL_ZERO, REAL_ZERO, Real(5)), 
+        Vector3::NEGATIVE_UNIT_Z * Real(1000));
+
+    // AABB #0
+    Aabb box0;
+    box0.build(BoxVertices0, BoxVerticesCount);
+
+    // 这个Ray和AABB是相交的
+    IntrRayAabb intr(ray, box0);
+    bool isIntersection = intr.test();
+    printf("Ray and AABB #0 intersection result is %d\n", isIntersection);
+
+    // AABB #1
+    Aabb box1;
+    box1.build(BoxVertices1, BoxVerticesCount);
+
+    // 这个Ray和AABB是不相交的
+    intr.setAabb(&box1);
+    isIntersection = intr.test();
+    printf("Ray and AABB #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::testRayObb()
+{
+    // 位于 (0, 0, 5) 位置起点，朝向 -Z 方向的射线
+    Ray ray(
+        Vector3(REAL_ZERO, REAL_ZERO, Real(5)),
+        Vector3::NEGATIVE_UNIT_Z * Real(1000));
+
+    // 构造旋转矩阵
+    Matrix3 m;
+    m.fromAxisAngle(Vector3::UNIT_Y, Degree(30));
+
+    Vector3 points[BoxVerticesCount];
+    size_t i = 0;
+    for (i = 0; i < BoxVerticesCount; ++i)
+    {
+        points[i] = m * BoxVertices0[i];
+    }
+
+    // OBB #0
+    Obb box0;
+    box0.build(points, BoxVerticesCount);
+    
+    // 这个Ray和OBB是相交的
+    IntrRayObb intr(ray, box0);
+    bool isIntersection = intr.test();
+    printf("Ray and OBB #0 intersection result is %d\n", isIntersection);
+
+    for (i = 0; i < BoxVerticesCount; ++i)
+    {
+        points[i] = m * BoxVertices1[i];
+    }
+
+    // OBB #1
+    Obb box1;
+    box1.build(points, BoxVerticesCount);
+
+    // 这个Ray和OBB是不相交的
+    intr.setObb(&box1);
+    isIntersection = intr.test();
+    printf("Ray and OBB #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::testSphereSphere()
+{
+    // Sphere #0
+    Sphere sphere0;
+    sphere0.build(BoxVertices0, BoxVerticesCount);
+
+    // Sphere #1
+    Sphere sphere1;
+    sphere1.build(BoxVertices2, BoxVerticesCount);
+
+    // 这两个sphere是相交的
+    IntrSphereSphere intr(sphere0, sphere1);
+    bool isIntersection = intr.test();
+    printf("Sphere #0 and Sphere #1 intersection result is %d\n", isIntersection);
+
+    // Sphere #2
+    Sphere sphere2;
+    sphere2.build(BoxVertices1, BoxVerticesCount);
+
+    // 这两个sphere是不相交的
+    intr.setSphere1(&sphere2);
+    isIntersection = intr.test();
+    printf("Sphere #0 and Sphere #2 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::testSpherePlane()
+{
+    // Sphere
+    Sphere sphere;
+    sphere.build(BoxVertices0, BoxVerticesCount);
+
+    // Plane #0
+    Plane plane0(
+        TriangleVertices0[0],
+        TriangleVertices0[1],
+        TriangleVertices0[2]);
+
+    // 这个Sphere和Plane是相交的
+    IntrSpherePlane intr(sphere, plane0);
+    int32_t isIntersection = intr.test();
+    printf("Sphere and Plane #0 intersection result is %d\n", isIntersection);
+
+    // Plane #1
+    Plane plane1(
+        Vector3(Real(4), REAL_ONE, REAL_ONE),
+        Vector3(Real(4), -REAL_ONE, REAL_ZERO),
+        Vector3(Real(4), REAL_ONE, REAL_ZERO));
+
+    // 这个Sphere和Plane是不相交的
+    intr.setPlane(&plane1);
+    isIntersection = intr.test();
+    printf("Sphere and Plane #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::testAabbPlane()
+{
+    // Box
+    Aabb box;
+    box.build(BoxVertices0, BoxVerticesCount);
+
+    // Plane #0
+    Plane plane0(
+        TriangleVertices0[0],
+        TriangleVertices0[1],
+        TriangleVertices0[2]);
+
+    // 这个AABB和Plane是相交的
+    IntrAabbPlane intr(box, plane0);
+    int32_t isIntersection = intr.test();
+    printf("AABB and Plane #0 intersection result is %d\n", isIntersection);
+
+    // Plane #1
+    Plane plane1(
+        Vector3(Real(4), REAL_ONE, REAL_ONE),
+        Vector3(Real(4), -REAL_ONE, REAL_ZERO),
+        Vector3(Real(4), REAL_ONE, REAL_ZERO));
+
+    // 这个AABB和Plane是不相交的
+    intr.setPlane(&plane1);
+    isIntersection = intr.test();
+    printf("AABB and Plane #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::testObbPlane()
+{
+    // 构造旋转矩阵
+    Matrix3 m;
+    m.fromAxisAngle(Vector3::UNIT_Y, Degree(30));
+
+    Vector3 points[BoxVerticesCount];
+    size_t i = 0;
+    for (i = 0; i < BoxVerticesCount; ++i)
+    {
+        points[i] = m * BoxVertices0[i];
+    }
+
+    // OBB
+    Obb box;
+    box.build(points, BoxVerticesCount);
+
+    // Plane #0
+    Plane plane0(
+        TriangleVertices0[0],
+        TriangleVertices0[1],
+        TriangleVertices0[2]);
+
+    // 这个OBB和Plane是相交的
+    IntrObbPlane intr(box, plane0);
+    int32_t isIntersection = intr.test();
+    printf("OBB and Plane #0 intersection result is %d\n", isIntersection);
+
+    // Plane #1
+    Plane plane1(
+        Vector3(Real(5), REAL_ONE, REAL_ONE),
+        Vector3(Real(5), -REAL_ONE, REAL_ZERO),
+        Vector3(Real(5), REAL_ONE, REAL_ZERO));
+
+    // 这个OBB和Plane是不相交的
+    intr.setPlane(&plane1);
+    isIntersection = intr.test();
+    printf("OBB and Plane #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::testFrustumSphere()
+{
+    Frustum frustum;
+    buildFrustum(frustum);
+
+    // Sphere #0
+    Sphere sphere0;
+    sphere0.build(BoxVertices0, BoxVerticesCount);
+
+    // 这个Frustum和Sphere是相交的
+    IntrFrustumSphere intr(frustum, sphere0);
+    bool isIntersection = intr.test();
+    printf("Frustum and Sphere #0 intersection result is %d\n", isIntersection);
+
+    // Sphere #1
+    Sphere sphere1;
+    sphere1.build(BoxVertices3, BoxVerticesCount);
+
+    // 这个Frustum和Sphere是不相交的
+    intr.setSphere(&sphere1);
+    isIntersection = intr.test();
+    printf("Frustum and Sphere #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::testFrustumAabb()
+{
+    Frustum frustum;
+    buildFrustum(frustum);
+
+    // AABB #0
+    Aabb box0;
+    box0.build(BoxVertices0, BoxVerticesCount);
+
+    // 这个Frustum和AABB是相交的
+    IntrFrustumAabb intr(frustum, box0);
+    bool isIntersection = intr.test();
+    printf("Frustum and AABB #0 intersection result is %d\n", isIntersection);
+
+    // AABB #1
+    Aabb box1;
+    box1.build(BoxVertices3, BoxVerticesCount);
+
+    // 这个Frustum和Sphere是不相交的
+    intr.setBox(&box1);
+    isIntersection = intr.test();
+    printf("Frustum and AABB #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::testFrustumObb()
+{
+    Frustum frustum;
+    buildFrustum(frustum);
+
+    // 构造旋转矩阵
+    Matrix3 m;
+    m.fromAxisAngle(Vector3::UNIT_Y, Degree(30));
+
+    Vector3 points[BoxVerticesCount];
+    size_t i = 0;
+    for (i = 0; i < BoxVerticesCount; ++i)
+    {
+        points[i] = m * BoxVertices0[i];
+    }
+
+    // OBB #0
+    Obb box0;
+    box0.build(points, BoxVerticesCount);
+
+    // 这个Frustum和AABB是相交的
+    IntrFrustumObb intr(frustum, box0);
+    bool isIntersection = intr.test();
+    printf("Frustum and OBB #0 intersection result is %d\n", isIntersection);
+
+    for (i = 0; i < BoxVerticesCount; ++i)
+    {
+        points[i] = m * BoxVertices3[i];
+    }
+
+    // OBB #1
+    Obb box1;
+    box1.build(points, BoxVerticesCount);
+
+    // 这个Frustum和Sphere是不相交的
+    intr.setBox(&box1);
+    isIntersection = intr.test();
+    printf("Frustum and OBB #1 intersection result is %d\n", isIntersection);
+}
+
+void IntersectionApp::buildFrustum(Frustum &frustum)
+{
+    // 构造Frustum的六个平面
+
+    // 近平面
+    Plane near(Vector3::NEGATIVE_UNIT_Z, Vector3(0, 0, 10));
+
+    // 远平面
+    Plane far(Vector3::UNIT_Z, Vector3(0, 0, -10));
+
+    // 上平面
+    Matrix3 m0(Vector3::UNIT_X, Radian(Math::PI / Real(6.0f)));
+    Vector3 axis0 = m0 * Vector3::NEGATIVE_UNIT_Y;
+    Plane top(axis0, Vector3(0, 10, 0));
+
+    // 下平面
+    Matrix3 m1(Vector3::UNIT_X, -Radian(Math::PI / Real(6.0f)));
+    Vector3 axis1 = m1 * Vector3::UNIT_Y;
+    Plane bottom(axis1, Vector3(0, -10, 0));
+
+    // 左平面
+    Matrix3 m2(Vector3::UNIT_Y, Radian(Math::PI / Real(6.0f)));
+    Vector3 axis2 = m2 * Vector3::UNIT_X;
+    Plane left(axis2, Vector3(-10, 0, 0));
+
+    // 右平面
+    Matrix3 m3(Vector3::UNIT_Y, -Radian(Math::PI / Real(6.0f)));
+    Vector3 axis3 = m2 * Vector3::NEGATIVE_UNIT_X;
+    Plane right(axis3, Vector3(10, 0, 0));
+
+    // Frustum
+    frustum.setFace(Frustum::E_FACE_NEAR, near);
+    frustum.setFace(Frustum::E_FACE_FAR, far);
+    frustum.setFace(Frustum::E_FACE_TOP, top);
+    frustum.setFace(Frustum::E_FACE_BOTTOM, bottom);
+    frustum.setFace(Frustum::E_FACE_LEFT, left);
+    frustum.setFace(Frustum::E_FACE_RIGHT, right);
+}

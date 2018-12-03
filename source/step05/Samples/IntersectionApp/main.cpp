@@ -18,11 +18,11 @@
  ******************************************************************************/
 
 
-#include "TransformationApp.h"
+#include "IntersectionApp.h"
 
 int main(int argc, char *argv[])
 {
-    Tiny3D::Application *theApp = new TransformationApp();
+    Tiny3D::Application *theApp = new IntersectionApp();
     theApp->init();
     theApp->applicationDidFinishLaunching();
     delete theApp;

@@ -22,7 +22,7 @@ namespace Tiny3D
 {
     template <typename T>
     inline TSphere<T>::TSphere()
-        : mCenter(TReal<T>::ZERO, TReal<T>::ZERO)
+        : mCenter(TReal<T>::ZERO, TReal<T>::ZERO, TReal<T>::ZERO)
         , mRadius(0)
     {
     }
@@ -44,7 +44,7 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline TSphere<T>::TSphere(const TVector3<T> &p0, const TVector3<T> &p1, 
+    inline bool TSphere<T>::build(const TVector3<T> &p0, const TVector3<T> &p1, 
         const TVector3<T> &p2)
     {
         TVector3<T> a = p1 - p0;
@@ -53,15 +53,20 @@ namespace Tiny3D
         TVector3<T> n = a.cross(b);
         T denominator = 2 * n.dot(n);
 
+        if (denominator == TReal<T>::ZERO)
+            return false;
+
         TVector3<T> o = (b.dot(b) * (n.cross(a))
             + (a.dot(a) * (b.cross(n)))) / denominator;
 
         mRadius = o.normalize();
         mCenter = p0 + o;
+
+        return true;
     }
     
     template <typename T>
-    inline TSphere<T>::TSphere(const TVector3<T> &p0, const TVector3<T> &p1, 
+    inline bool TSphere<T>::build(const TVector3<T> &p0, const TVector3<T> &p1, 
         const TVector3<T> &p2, const TVector3<T> &p3)
     {
         TVector3<T> a = p1 - p0;
@@ -75,6 +80,9 @@ namespace Tiny3D
 
         T denominator = 2 * M.determinant();
 
+        if (denominator == TReal<T>::ZERO)
+            return false;
+
         TVector3<T> n = a.cross(b);
 
         TVector3<T> o = (c.dot(c) * n + (b.dot(b) * c.cross(a))
@@ -82,6 +90,8 @@ namespace Tiny3D
 
         mRadius = o.normalize();
         mCenter = p0 + o;
+
+        return true;
     }
 
     template <typename T>
@@ -101,25 +111,25 @@ namespace Tiny3D
     template <typename T>
     inline TSphere<T> &TSphere<T>::operator =(const TSphere &other)
     {
-        mCenter = sphere.mCenter;
-        mRadius = sphere.mRadius;
+        mCenter = other.mCenter;
+        mRadius = other.mRadius;
         return *this;
     }
 
     template <typename T>
-    inline void TSphere<T>::build(TVector3<T> points[], size_t count, 
+    inline void TSphere<T>::build(const TVector3<T> points[], size_t count, 
         BuildOption option /* = E_BUILD_WELZL */)
     {
         switch (option)
         {
         case E_BUILD_WELZL:
-            buildByWelzl(points);
+            buildByWelzl(points, count);
             break;
         case E_BUILD_RITTER:
-            buildByRitter(points);
+            buildByRitter(points, count);
             break;
         case E_BUILD_AVERAGE:
-            buildByAverage(points);
+            buildByAverage(points, count);
             break;
         default:
             break;
@@ -169,25 +179,32 @@ namespace Tiny3D
     }
 
     template <typename T>
-    void TSphere<T>::buildByWelzl(TVector3<T> points[], size_t count)
+    void TSphere<T>::buildByWelzl(const TVector3<T> points[], size_t count)
     {
         TVector3<T> **ptr = new TVector3<T>*[count];
 
         size_t i = 0;
         for (i = 0; i < count; ++i)
         {
-            ptr[i] = &points[i];
+            ptr[i] = (TVector3<T>*)(&points[i]);
         }
 
         *this = recurseMinSphere(ptr, count);
 
         delete []ptr;
+
+        for (i = 0; i < count; ++i)
+        {
+            TVector3<T> dist = points[i] - mCenter;
+            T radius = dist.length();
+            T3D_ASSERT(radius <= mRadius);
+        }
     }
 
     template <typename T>
     TSphere<T> TSphere<T>::recurseMinSphere(
         TVector3<T> *points[], 
-        size_t count, 
+        size_t count,
         size_t b)
     {
         TSphere<T> sphere;
@@ -204,10 +221,18 @@ namespace Tiny3D
             sphere = Sphere(*points[-1], *points[-2]);
             break;
         case 3:
-            sphere = Sphere(*points[-1], *points[-2], *points[-3]);
+//             sphere = Sphere(*points[-1], *points[-2], *points[-3]);
+            if (!sphere.build(*points[-1], *points[-2], *points[-3]))
+            {
+                recurseMinSphere(points + 1, 3, b);
+            }
             break;
         case 4:
-            sphere = Sphere(*points[-1], *points[-2], *points[-3], *points[-4]);
+//             sphere = Sphere(*points[-1], *points[-2], *points[-3], *points[-4]);
+            if (!sphere.build(*points[-1], *points[-2], *points[-3], *points[-4]))
+            {
+                recurseMinSphere(points + 1, 4, b);
+            }
             return sphere;
             break;
         }
@@ -234,110 +259,92 @@ namespace Tiny3D
     }
 
     template <typename T>
-    void TSphere<T>::buildByRitter(TVector3<T> points[], size_t count)
+    void TSphere<T>::buildByRitter(const TVector3<T> points[], size_t count)
     {
         // 先找出在x，y，z三个轴方向上距离最大的点作为半径
-        T maxX = TReal<T>::ZERO;
-        T maxY = TReal<T>::ZERO;
-        T maxZ = TReal<T>::ZERO;
-        T minX = TReal<T>::MINUS_ONE;
-        T minY = TReal<T>::MINUS_ONE;
-        T minZ = TReal<T>::MINUS_ONE;
-        size_t x0, y0, z0, x1, y1, z1;
+        size_t x0 = 0, x1 = 0;
+        size_t y0 = 0, y1 = 0;
+        size_t z0 = 0, z1 = 0;
 
-        size_t i = 0;
-        for (i = 0; i < count; ++i)
+        size_t i;
+        for (i = 1; i < count; ++i)
         {
-            if (points[i].x > maxX)
-            {
-                maxX = points[i].x();
-                x1 = i;
-            }
-                
-            if (points[i].x < minX)
-            {
-                minX = points[i].x();
+            if (points[i].x() < points[x0].x())
                 x0 = i;
-            }
-                
-            if (points[i].y > maxY)
-            {
-                maxY = points[i].y();
-                y1 = i;
-            }
-                
-            if (points[i].y < minY)
-            {
-                minY = points[i].y();
+            if (points[i].x() > points[x1].x())
+                x1 = i;
+            if (points[i].y() < points[y0].y())
                 y0 = i;
-            }
-                
-            if (points[i].z > maxZ)
-            {
-                maxZ = points[i].z();
-                z1 = i;
-            }
-                
-            if (points[i].z < minZ)
-            {
-                minZ = points[i].z();
+            if (points[i].y() > points[y1].y())
+                y1 = i;
+            if (points[i].z() < points[z0].z())
                 z0 = i;
-            }
+            if (points[i].z() > points[z1].z())
+                z1 = i;
         }
 
-        T dx = maxX - minX;
-        T dy = maxY - minY;
-        T dz = maxZ - minZ;
+        TVector3<T> temp = points[x1] - points[x0];
+        T dx = temp.length2();
+
+        temp = points[y1] - points[y0];
+        T dy = temp.length2();
+
+        temp = points[z1] - points[z0];
+        T dz = temp.length2();
+
         size_t max = x1, min = x0;
-        T d;
 
         if (dz > dx && dz > dy)
         {
             max = z1;
             min = z0;
-            d = dz;
         }
         else if (dy > dx && dy > dz)
         {
             max = y1;
             min = y0;
-            d = dy;
         }
 
-        TVector3<T> center(
-            (points[max].x + points[min].x) * TReal<T>::HALF,
-            (points[max].y + points[min].y) * TReal<T>::HALF,
-            (points[max].z + points[min].z) * TReal<T>::HALF);
-
-        T radius = TMath<T>::sqrt(d);
+        TVector3<T> center((points[max] + points[min]) * TReal<T>::HALF);
+        T d2 = (points[max] - center).length2();
+        T radius = TMath<T>::sqrt(d2);
 
         // 遍历所有顶点来修正，以得到一个逼近的包围球
         for (i = 0; i < count; ++i)
         {
-            T d2 = points[i].distance2(center);
+            //T d2 = points[i].distance2(center);
+            TVector3<T> dist = points[i] - center;
+            d2 = dist.length2();
             if (d2 > radius * radius)
             {
-                d = TMath<T>::sqrt(d2);
+                T d = TMath<T>::sqrt(d2);
                 T newRadius = (d + radius) * TReal<T>::HALF;
-                T l = (d - radius) * TReal<T>::HALF;
+                T k = (newRadius - radius) / d;
                 radius = newRadius;
-                center = center + (points[i] - center) * l;
+                center += dist * k;
             }
         }
 
         mCenter = center;
         mRadius = radius;
+
+//         for (i = 0; i < count; ++i)
+//         {
+//             TVector3<T> dist = points[i] - center;
+//             T d2 = dist.length();
+//             T3D_ASSERT(d2 <= radius);
+//         }
     }
 
     template <typename T>
-    void TSphere<T>::buildByAverage(TVector3<T> points[], size_t count)
+    void TSphere<T>::buildByAverage(const TVector3<T> points[], size_t count)
     {
         TVector3<T> center;
         T radius = TReal<T>::MINUS_ONE;
 
         if (count > 0)
         {
-            center = TReal<T>::ZERO;
+            center = TVector3<T>::ZERO;
             size_t i = 0;
             for (i = 0; i < count; ++i)
                 center += points[i];

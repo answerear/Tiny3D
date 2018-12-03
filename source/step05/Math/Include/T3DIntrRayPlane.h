@@ -55,7 +55,7 @@ namespace Tiny3D
             mRay = ray;
         }
 
-        void setTriangle(const TPlane<T> *plane)
+        void setPlane(const TPlane<T> *plane)
         {
             mPlane = plane;
         }

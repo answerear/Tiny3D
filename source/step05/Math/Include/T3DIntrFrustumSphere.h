@@ -53,7 +53,7 @@ namespace Tiny3D
             mFrustum = frustum;
         }
 
-        void setSphere(const TTriangle<T> *sphere)
+        void setSphere(const TSphere<T> *sphere)
         {
             mSphere = sphere;
         }

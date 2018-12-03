@@ -76,6 +76,9 @@ namespace Tiny3D
         static T degreesToRadians(T degrees);
         static T radiansToDegrees(T radians);
 
+        static T max(T a, T b);
+        static T min(T a, T b);
+
     public:
         static const T POS_INFINITY;
         static const T NEG_INFINITY;

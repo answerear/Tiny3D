@@ -33,7 +33,6 @@
 
 
 #include "T3DPlatform.h"
-#include "T3DLog.h"
 
 
 namespace Tiny3D

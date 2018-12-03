@@ -38,7 +38,7 @@ bool TransformationApp::applicationDidFinishLaunching()
     Radian radian;
 
     String s = typeid(degree).name();
-    T3D_LOG_INFO("TT %s", s.c_str());
+    printf("TT %s", s.c_str());
 
     Real a = REAL_ZERO;
 

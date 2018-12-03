@@ -46,7 +46,7 @@ namespace Tiny3D
             const TVector3<T> &rkAxis1, const TVector3<T> &rkAxis2,
             T fExtent0, T fExtent1, T fExtent2);
 
-        void build(TVector3<T> points[], size_t count, 
+        void build(const TVector3<T> points[], size_t count, 
             BuildOption option = E_BUILD_AABB);
 
         void computeVertices(TVector3<T> *akVertex) const;
@@ -69,9 +69,9 @@ namespace Tiny3D
         void setExtent(int32_t idx, T fExtent);
 
     protected:
-        void buildByAABB(TVector3<T> points[], size_t count);
+        void buildByAABB(const TVector3<T> points[], size_t count);
 
-        void buildByCovariance(TVector3<T> points, size_t count);
+        void buildByCovariance(const TVector3<T> points[], size_t count);
 
     private:
         TVector3<T> mCenter;

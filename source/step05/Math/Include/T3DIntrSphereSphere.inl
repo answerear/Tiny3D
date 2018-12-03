@@ -54,8 +54,10 @@ namespace Tiny3D
         if (mSphere0 == nullptr || mSphere1 == nullptr)
             return false;
 
-        return (mSphere0->getCenter() - mSphere1->getCenter()
-            < mSphere0->getRadius() + mSphere1->getRadius());
+        T r = mSphere0->getRadius() + mSphere1->getRadius();
+        T r2 = r * r;
+
+        return ((mSphere0->getCenter() - mSphere1->getCenter()).length2() < r2); 
     }
 }
 

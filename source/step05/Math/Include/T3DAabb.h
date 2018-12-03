@@ -36,7 +36,7 @@ namespace Tiny3D
         TAabb();
         TAabb(T fXMin, T fXMax, T fYMin, T fYMax, T fZMin, T fZMax);
 
-        void build(TVector3<T> points[], size_t count);
+        void build(const TVector3<T> points[], size_t count);
 
         T getWidth() const;
         T getHeight() const;
