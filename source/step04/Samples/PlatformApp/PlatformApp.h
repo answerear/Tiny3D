@@ -23,7 +23,7 @@
 
 #include <Tiny3D.h>
 
-class PlatformApp : public Tiny3D::Application
+class PlatformApp : public Tiny3D::Application, Tiny3D::ITimerListener
 {
 public:
     PlatformApp();
@@ -39,8 +39,13 @@ protected:  /// from Tiny3D::Application
     virtual void applicationWillTerminate() override;
 
     virtual void applicationLowMemory() override;
+
+protected:  /// from Tiny3D::ITimerListener
+    virtual void onTimer(uint32_t timerID, int32_t dt);
 	
 protected:
+    uint32_t    mOnceTimerID;
+    uint32_t    mLoopTimerID;
 };
 
 

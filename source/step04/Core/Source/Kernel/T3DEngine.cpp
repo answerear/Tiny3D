@@ -65,7 +65,6 @@ namespace Tiny3D
             }
 
             T3D_LOG_INFO("Start Tiny3D ...... version %s", T3D_DEVICE_INFO.getSoftwareVersion().c_str());
-            T3D_LOG_INFO("System Information : \n%s", T3D_DEVICE_INFO.getSystemInfo().c_str());
 
             mWindow = new Window();
             ret = mWindow->create(title.c_str(), 100, 100, 800, 600, Window::WINDOW_SHOWN);

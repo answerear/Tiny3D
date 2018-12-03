@@ -24,6 +24,8 @@ using namespace Tiny3D;
 
 PlatformApp::PlatformApp()
     : Application()
+    , mOnceTimerID(T3D_INVALID_TIMER_ID)
+    , mLoopTimerID(T3D_INVALID_TIMER_ID)
 {
 }
 
@@ -33,6 +35,11 @@ PlatformApp::~PlatformApp()
 
 bool PlatformApp::applicationDidFinishLaunching()
 {
+    T3D_LOG_INFO("System Information : \n%s", T3D_DEVICE_INFO.getSystemInfo().c_str());
+
+    mOnceTimerID = T3D_TIMER_MGR.startTimer(5000, false, this);
+    mLoopTimerID = T3D_TIMER_MGR.startTimer(1000, true, this);
+
     return true;
 }
 
@@ -56,4 +63,15 @@ void PlatformApp::applicationLowMemory()
 
 }
 
+void PlatformApp::onTimer(uint32_t timerID, int32_t dt)
+{
+    if (timerID == mOnceTimerID)
+    {
+        T3D_LOG_INFO("Once timer [%u] interval : %d", timerID, dt);
+    }
+    else if (timerID == mLoopTimerID)
+    {
+        T3D_LOG_INFO("Loop timer [%u] interval : %d", timerID, dt);
+    }
+}
 
