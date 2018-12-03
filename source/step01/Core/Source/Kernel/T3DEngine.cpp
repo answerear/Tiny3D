@@ -54,7 +54,7 @@ namespace Tiny3D
 //             if (window == nullptr)
             {
                 mWindow = new Window();
-                if (ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, Window::WINDOW_SHOWN))
+                if (ret = mWindow->create("HelloApp", 100, 100, 800, 600, Window::WINDOW_SHOWN))
                 {
 //                     mWindowCreated = true;
 

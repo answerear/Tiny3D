@@ -49,7 +49,7 @@ namespace Tiny3D
          * @brief 初始化引擎
          * @remarks 引擎的一切应用都要在调用本接口之后才有效。
          */
-        int32_t init();
+        int32_t init(const String &title);
 
         /**
          * @brief 运行引擎

@@ -40,7 +40,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mLogger);
     }
 
-    int32_t Engine::init()
+    int32_t Engine::init(const String &title)
     {
         int32_t ret = T3D_ERR_FAIL;
 
@@ -68,7 +68,7 @@ namespace Tiny3D
             T3D_LOG_INFO("System Information : \n%s", T3D_DEVICE_INFO.getSystemInfo().c_str());
 
             mWindow = new Window();
-            ret = mWindow->create("Demo_Hello", 100, 100, 800, 600, Window::WINDOW_SHOWN);
+            ret = mWindow->create(title.c_str(), 100, 100, 800, 600, Window::WINDOW_SHOWN);
             if (ret != T3D_ERR_OK)
             {
                 break;
