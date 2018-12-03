@@ -17,28 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __TRANSFORMATION_APP_H__
-#define __TRANSFORMATION_APP_H__
 
-#include <T3DPlatform.h>
-#include <T3DMathLib.h>
+#ifndef __ENTITY_H__
+#define __ENTITY_H__
 
 
-class TransformationApp : public Tiny3D::Application
+#include <Tiny3D.h>
+
+using namespace Tiny3D;
+
+enum Event
+{
+    EV_ATTACKED = 1,
+    EV_CHANGE_STATE,
+};
+
+class Entity : public EventHandler
 {
 public:
-    TransformationApp();
-    virtual ~TransformationApp();
+    Entity();
+    virtual ~Entity();
 
-protected:  // from Tiny3D::Application
-    virtual bool applicationDidFinishLaunching() override;
+    virtual void attack() = 0;
+    virtual void defend() = 0;
+    virtual void walk() = 0;
+    virtual void idle() = 0;
 
-    virtual void applicationDidEnterBackground() override;
-
-    virtual void applicationWillEnterForeground() override;
-
-    virtual void applicationWillTerminate() override;
+protected:
+    bool onAttacked(EventParam *param, TINSTANCE sender);
 };
 
 
-#endif  /*__TRANSFORMATION_APP_H__*/
+#endif  /*__ENTITY_H__*/
+

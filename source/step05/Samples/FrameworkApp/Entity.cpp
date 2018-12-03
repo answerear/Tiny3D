@@ -17,28 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __TRANSFORMATION_APP_H__
-#define __TRANSFORMATION_APP_H__
 
-#include <T3DPlatform.h>
-#include <T3DMathLib.h>
+#include "PlatformApp.h"
 
-
-class TransformationApp : public Tiny3D::Application
+int main(int argc, char *argv[])
 {
-public:
-    TransformationApp();
-    virtual ~TransformationApp();
+    PlatformApp *theApp = new PlatformApp();
+    Tiny3D::Engine *theEngine = new Tiny3D::Engine();
 
-protected:  // from Tiny3D::Application
-    virtual bool applicationDidFinishLaunching() override;
+    theEngine->init("PlatformApp");
+    theEngine->run();
 
-    virtual void applicationDidEnterBackground() override;
+    delete theEngine;
+    delete theApp;
 
-    virtual void applicationWillEnterForeground() override;
-
-    virtual void applicationWillTerminate() override;
-};
-
-
-#endif  /*__TRANSFORMATION_APP_H__*/
+    return 0;
+}
