@@ -128,12 +128,11 @@ namespace Tiny3D
 
     void EventHandler::unregisterAllEvent()
     {
-        auto itr = mEventList.begin();
-
-        while (itr != mEventList.end())
+        while (!mEventList.empty())
         {
-            T3D_EVENT_MGR.unregisterEvent(*itr, mInstance);
-            ++itr;
+            auto eventID = mEventList.back();
+            T3D_EVENT_MGR.unregisterEvent(eventID, mInstance);
+            mEventList.pop_back();
         }
 
         mEventList.clear();

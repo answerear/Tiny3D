@@ -86,6 +86,7 @@ bool Player::onAttacked(EventParam *param, TINSTANCE sender)
     {
         mHP -= attackParam->DecreaseHP;
         T3D_LOG_INFO("Player [%s] was attacked, HP [%d] ! State [%d]", mName.c_str(), mHP, mState);
+        fire(sender);
     }
 
     return true;

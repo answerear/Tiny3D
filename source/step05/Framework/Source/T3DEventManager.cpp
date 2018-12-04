@@ -319,7 +319,8 @@ namespace Tiny3D
             while (itr != mEventHandlers.end())
             {
                 EventHandler *handler = *itr;
-                EventItem item(evid, param, handler->getInstance(), sender);
+                EventParam *para = param->clone();
+                EventItem item(evid, para, handler->getInstance(), sender);
                 mEventCache.push_back(item);
                 ret = T3D_ERR_FWK_SUSPENDED;
                 ++itr;
@@ -332,7 +333,8 @@ namespace Tiny3D
             while (itr != mEventHandlers.end())
             {
                 EventHandler *handler = *itr;
-                EventItem item(evid, param, handler->getInstance(), sender);
+                EventParam *para = param->clone();
+                EventItem item(evid, para, handler->getInstance(), sender);
                 mEventQueue[mCurrentQueue].push_back(item);
                 ret = T3D_ERR_OK;
                 ++itr;
@@ -355,7 +357,8 @@ namespace Tiny3D
             while (itr != instSet.end())
             {
                 TINSTANCE recv = *itr;
-                EventItem item(evid, param, recv, sender);
+                EventParam *para = param->clone();
+                EventItem item(evid, para, recv, sender);
                 mEventCache.push_back(item);
                 ret = T3D_ERR_FWK_SUSPENDED;
                 ++itr;
@@ -369,7 +372,8 @@ namespace Tiny3D
             while (itr != instSet.end())
             {
                 TINSTANCE recv = *itr;
-                EventItem item(evid, param, recv, sender);
+                EventParam *para = param->clone();
+                EventItem item(evid, para, recv, sender);
                 mEventQueue[mCurrentQueue].push_back(item);
                 ret = T3D_ERR_OK;
                 ++itr;
@@ -386,13 +390,15 @@ namespace Tiny3D
 
         if (mIsDispatchPaused)
         {
-            EventItem item(evid, param, receiver, sender);
+            EventParam *para = param->clone();
+            EventItem item(evid, para, receiver, sender);
             mEventCache.push_back(item);
             ret = T3D_ERR_FWK_SUSPENDED;
         }
         else
         {
-            EventItem item(evid, param, receiver, sender);
+            EventParam *para = param->clone();
+            EventItem item(evid, para, receiver, sender);
             mEventQueue[mCurrentQueue].push_back(item);
         }
 

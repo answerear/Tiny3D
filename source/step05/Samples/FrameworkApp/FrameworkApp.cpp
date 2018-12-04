@@ -33,14 +33,12 @@ FrameworkApp::FrameworkApp()
 
 FrameworkApp::~FrameworkApp()
 {
-    T3D_SAFE_DELETE(mEnemy);
-    T3D_SAFE_DELETE(mPlayer);
 }
 
 bool FrameworkApp::applicationDidFinishLaunching()
 {
-    mPlayer = new Player("Thomas");
-    mEnemy = new Enemy("Monster");
+    mPlayer = new Player("James");
+    mEnemy = new Enemy("Kobe");
 
     mEnemy->idle();
     mPlayer->attack(mEnemy->getInstance());
@@ -60,7 +58,8 @@ void FrameworkApp::applicationWillEnterForeground()
 
 void FrameworkApp::applicationWillTerminate()
 {
-
+    T3D_SAFE_DELETE(mEnemy);
+    T3D_SAFE_DELETE(mPlayer);
 }
 
 void FrameworkApp::applicationLowMemory()
