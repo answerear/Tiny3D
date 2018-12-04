@@ -22,7 +22,7 @@
 
 int main(int argc, char *argv[])
 {
-    PlatformApp *theApp = new PlatformApp();
+    FrameworkApp *theApp = new FrameworkApp();
     Tiny3D::Engine *theEngine = new Tiny3D::Engine();
 
     theEngine->init("FrameworkApp");

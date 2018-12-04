@@ -18,18 +18,42 @@
  ******************************************************************************/
 
 
-#include "PlatformApp.h"
+#include "Player.h"
 
-int main(int argc, char *argv[])
+T3D_BEGIN_EVENT_FILTER(Player, Entity)
+T3D_END_EVENT_FILTER()
+
+T3D_BEGIN_EVENT_MAP(Player, Entity)
+T3D_END_EVENT_MAP()
+
+
+Player::Player(const String &name)
+    : Entity(name)
 {
-    PlatformApp *theApp = new PlatformApp();
-    Tiny3D::Engine *theEngine = new Tiny3D::Engine();
 
-    theEngine->init("PlatformApp");
-    theEngine->run();
+}
 
-    delete theEngine;
-    delete theApp;
+Player::~Player()
+{
 
-    return 0;
+}
+
+void Player::fire(TINSTANCE target)
+{
+
+}
+
+void Player::attack(TINSTANCE target)
+{
+
+}
+
+void Player::defend(TINSTANCE attacker)
+{
+
+}
+
+void Player::idle()
+{
+
 }

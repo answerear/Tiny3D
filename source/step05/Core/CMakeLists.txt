@@ -20,6 +20,7 @@ add_definitions(-DT3D_ERR_CORE=0x5000)
 
 # Setup all cmake variables for this project.
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
+set(TINY3D_MATH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Math")
 set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
 set(TINY3D_FRAMEWORK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Framework")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies")
@@ -28,6 +29,7 @@ set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies")
 # Setup search header path for this project.
 include_directories(
 	"${TINY3D_PLATFORM_DIR}/Include"
+	"${TINY3D_MATH_DIR}/Include"
 	"${TINY3D_LOG_DIR}/Include"
 	"${TINY3D_FRAMEWORK_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"

@@ -18,28 +18,19 @@
  ******************************************************************************/
 
 
-#ifndef __PLAYER_H__
-#define __PLAYER_H__
+#ifndef __APP_EVENT_DEFINE_H__
+#define __APP_EVENT_DEFINE_H__
 
 
-#include "Entity.h"
+#include <Tiny3D.h>
 
 
-class Player : public Entity
+enum AppEvent
 {
-    T3D_DECLARE_EVENT_FILTER();
-    T3D_DECLARE_EVENT_MAP();
-
-public:
-    Player(const String &name);
-    virtual ~Player();
-
-protected:
-    virtual void fire(TINSTANCE target) override;
-    virtual void attack(TINSTANCE target) override;
-    virtual void defend(TINSTANCE attacker) override;
-    virtual void idle() override;
+    EV_RESERVED = 0,
+    EV_ATTACKED,
+    EV_DEFEND,
 };
 
 
-#endif  /*__PLAYER_H__*/
+#endif  /*__APP_EVENT_DEFINE_H__*/

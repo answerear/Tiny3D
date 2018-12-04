@@ -18,18 +18,31 @@
  ******************************************************************************/
 
 
-#include "PlatformApp.h"
+#ifndef __ENEMY_H__
+#define __ENEMY_H__
 
-int main(int argc, char *argv[])
+
+#include "Entity.h"
+
+
+class Enemy : public Entity
 {
-    PlatformApp *theApp = new PlatformApp();
-    Tiny3D::Engine *theEngine = new Tiny3D::Engine();
+    T3D_DECLARE_EVENT_FILTER();
+    T3D_DECLARE_EVENT_MAP();
 
-    theEngine->init("PlatformApp");
-    theEngine->run();
+public:
+    Enemy(const String &name);
+    virtual ~Enemy();
 
-    delete theEngine;
-    delete theApp;
+protected:
+    virtual void fire(TINSTANCE target) override;
+    virtual void attack(TINSTANCE target) override;
+    virtual void defend(TINSTANCE attacker) override;
+    virtual void idle() override;
 
-    return 0;
-}
+    bool onAttacked(EventParam *param, TINSTANCE sender);
+    bool onDefended(EventParam *param, TINSTANCE sender);
+};
+
+
+#endif  /*__ENEMY_H__*/

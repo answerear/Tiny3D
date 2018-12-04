@@ -18,28 +18,64 @@
  ******************************************************************************/
 
 
-#ifndef __PLAYER_H__
-#define __PLAYER_H__
+#ifndef __APP_EVENT_PARAM_H__
+#define __APP_EVENT_PARAM_H__
 
 
-#include "Entity.h"
+#include <Tiny3D.h>
 
+using namespace Tiny3D;
 
-class Player : public Entity
+class AttackParam : public EventParam
 {
-    T3D_DECLARE_EVENT_FILTER();
-    T3D_DECLARE_EVENT_MAP();
-
 public:
-    Player(const String &name);
-    virtual ~Player();
+    AttackParam()
+        : DecreaseHP(0)
+        , IsNormal(true)
+    {
+    }
+
+    AttackParam(int32_t decreaseHP, bool isNormal)
+        : DecreaseHP(decreaseHP)
+        , IsNormal(isNormal)
+    {
+    }
+
+    virtual ~AttackParam()
+    {
+    }
 
 protected:
-    virtual void fire(TINSTANCE target) override;
-    virtual void attack(TINSTANCE target) override;
-    virtual void defend(TINSTANCE attacker) override;
-    virtual void idle() override;
+    virtual EventParam *clone() override
+    {
+        AttackParam *param = new AttackParam(DecreaseHP, IsNormal);
+        return param;
+    }
+
+public:
+    int32_t DecreaseHP;
+    bool    IsNormal;
 };
 
 
-#endif  /*__PLAYER_H__*/
+class DefendParam : public EventParam
+{
+public:
+    DefendParam()
+    {
+    }
+
+    virtual ~DefendParam()
+    {
+    }
+
+protected:
+    virtual EventParam *clone() override
+    {
+        DefendParam *param = new DefendParam();
+        return param;
+    }
+};
+
+
+#endif  /*__APP_EVENT_PARAM_H__*/

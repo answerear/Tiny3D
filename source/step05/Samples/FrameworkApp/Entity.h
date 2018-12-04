@@ -23,28 +23,43 @@
 
 
 #include <Tiny3D.h>
+#include "AppEventDefine.h"
+#include "AppEventParam.h"
+
 
 using namespace Tiny3D;
 
-enum Event
-{
-    EV_ATTACKED = 1,
-    EV_CHANGE_STATE,
-};
 
 class Entity : public EventHandler
 {
+    T3D_DECLARE_EVENT_FILTER();
+    T3D_DECLARE_EVENT_MAP();
+
 public:
-    Entity();
+    enum State
+    {
+        ST_NONE = 0,
+        ST_IDLE,
+        ST_FIRING,
+        ST_ATTACKING,
+        ST_DEFENDING,
+    };
+
+    Entity(const String &name);
     virtual ~Entity();
 
-    virtual void attack() = 0;
-    virtual void defend() = 0;
-    virtual void walk() = 0;
+    virtual void fire(TINSTANCE target) = 0;
+    virtual void attack(TINSTANCE target) = 0;
+    virtual void defend(TINSTANCE attacker) = 0;
     virtual void idle() = 0;
 
 protected:
-    bool onAttacked(EventParam *param, TINSTANCE sender);
+    String      mName;
+
+    int32_t     mHP;
+    int32_t     mMP;
+
+    State       mState;
 };
 
 

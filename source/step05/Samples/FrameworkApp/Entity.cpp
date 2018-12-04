@@ -18,18 +18,28 @@
  ******************************************************************************/
 
 
-#include "PlatformApp.h"
+#include "Entity.h"
 
-int main(int argc, char *argv[])
+
+T3D_BEGIN_EVENT_FILTER(Entity, EventHandler)
+T3D_END_EVENT_FILTER()
+
+T3D_BEGIN_EVENT_MAP(Entity, EventHandler)
+T3D_END_EVENT_MAP()
+
+
+Entity::Entity(const String &name)
+    : mName(name)
+    , mHP(0)
+    , mMP(0)
+    , mState(ST_NONE)
 {
-    PlatformApp *theApp = new PlatformApp();
-    Tiny3D::Engine *theEngine = new Tiny3D::Engine();
 
-    theEngine->init("PlatformApp");
-    theEngine->run();
-
-    delete theEngine;
-    delete theApp;
-
-    return 0;
 }
+
+Entity::~Entity()
+{
+
+}
+
+

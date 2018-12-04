@@ -18,18 +18,45 @@
  ******************************************************************************/
 
 
-#include "PlatformApp.h"
+#include "Enemy.h"
 
-int main(int argc, char *argv[])
+T3D_BEGIN_EVENT_FILTER(Enemy, Entity)
+T3D_END_EVENT_FILTER()
+
+T3D_BEGIN_EVENT_MAP(Enemy, Entity)
+T3D_END_EVENT_MAP()
+
+
+Enemy::Enemy(const String &name)
+    : Entity(name)
 {
-    PlatformApp *theApp = new PlatformApp();
-    Tiny3D::Engine *theEngine = new Tiny3D::Engine();
 
-    theEngine->init("PlatformApp");
-    theEngine->run();
-
-    delete theEngine;
-    delete theApp;
-
-    return 0;
 }
+
+Enemy::~Enemy()
+{
+
+}
+
+void Enemy::fire(TINSTANCE instance)
+{
+    mState = ST_FIRING;
+    T3D_LOG_INFO("Enemy [%s] fire skill. State [%d]", mName.c_str(), mState);
+}
+
+void Enemy::attack(TINSTANCE instance)
+{
+    mState = ST_ATTACKING;
+    T3D_LOG_INFO("Enemy [%s] attack !", mName.c_str(), mState);
+}
+
+void Enemy::defend(TINSTANCE attacker)
+{
+
+}
+
+void Enemy::idle()
+{
+
+}
+
