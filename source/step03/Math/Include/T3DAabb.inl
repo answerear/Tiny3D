@@ -157,7 +157,7 @@ namespace Tiny3D
     template <typename T>
     inline void TAabb<T>::setWidth(T fWidth)
     {
-        T ex = fWidth * TReal::HALF;
+        T ex = fWidth * TReal<T>::HALF;
         mMinX = mSphere.getCenter().x() - ex;
         mMaxX = mSphere.getCenter().x() + ex;
     }
@@ -165,7 +165,7 @@ namespace Tiny3D
     template <typename T>
     inline void TAabb<T>::setHeight(T fHeight)
     {
-        T ex = fHeight * TReal::HALF;
+        T ex = fHeight * TReal<T>::HALF;
         mMinY = mSphere.getCenter().y() - ex;
         mMaxY = mSphere.getCenter().y() + ex;
     }
@@ -173,7 +173,7 @@ namespace Tiny3D
     template <typename T>
     inline void TAabb<T>::setDepth(T fDepth)
     {
-        T ex = fDepth * TReal::HALF;
+        T ex = fDepth * TReal<T>::HALF;
         mMinZ = mSphere.getCenter().z() - ex;
         mMaxZ = mSphere.getCenter().z() + ex;
     }
@@ -182,72 +182,72 @@ namespace Tiny3D
     inline void TAabb<T>::setMinX(T x)
     {
         mMinX = x;
-        mSphere.getCenter().x() = (mMaxX + mMinX) * TReal::HALF;
+        mSphere.getCenter().x() = (mMaxX + mMinX) * TReal<T>::HALF;
         T fWidth = mMaxX - mMinX;
         T fHeight = mMaxY - mMinY;
         T fDepth = mMaxZ - mMinZ;
         mSphere.getRadius() = TMath<T>::sqrt(fWidth * fWidth + fHeight * fHeight
-            + fDepth * fDepth) * TReal::HALF;
+            + fDepth * fDepth) * TReal<T>::HALF;
     }
 
     template <typename T>
     inline void TAabb<T>::setMaxX(T x)
     {
         mMaxX = x;
-        mSphere.getCenter().x() = (mMaxX + mMinX) * TReal::HALF;
+        mSphere.getCenter().x() = (mMaxX + mMinX) * TReal<T>::HALF;
         T fWidth = mMaxX - mMinX;
         T fHeight = mMaxY - mMinY;
         T fDepth = mMaxZ - mMinZ;
         mSphere.getRadius() = TMath<T>::sqrt(fWidth * fWidth + fHeight * fHeight
-            + fDepth * fDepth) * TReal::HALF;
+            + fDepth * fDepth) * TReal<T>::HALF;
     }
 
     template <typename T>
     inline void TAabb<T>::setMinY(T y)
     {
         mMinY = y;
-        mSphere.getCenter().y() = (mMaxY + mMinY) * TReal::HALF;
+        mSphere.getCenter().y() = (mMaxY + mMinY) * TReal<T>::HALF;
         T fWidth = mMaxX - mMinX;
         T fHeight = mMaxY - mMinY;
         T fDepth = mMaxZ - mMinZ;
         mSphere.getRadius() = TMath<T>::sqrt(fWidth * fWidth + fHeight * fHeight
-            + fDepth * fDepth) * TReal::HALF;
+            + fDepth * fDepth) * TReal<T>::HALF;
     }
 
     template <typename T>
     inline void TAabb<T>::setMaxY(T y)
     {
         mMaxY = y;
-        mSphere.getCenter().y() = (mMaxY + mMinY) * TReal::HALF;
+        mSphere.getCenter().y() = (mMaxY + mMinY) * TReal<T>::HALF;
         T fWidth = mMaxX - mMinX;
         T fHeight = mMaxY - mMinY;
         T fDepth = mMaxZ - mMinZ;
         mSphere.getRadius() = TMath<T>::sqrt(fWidth * fWidth + fHeight * fHeight
-            + fDepth * fDepth) * TReal::HALF;
+            + fDepth * fDepth) * TReal<T>::HALF;
     }
 
     template <typename T>
     inline void TAabb<T>::setMinZ(T z)
     {
         mMinZ = z;
-        mSphere.getCenter().z() = (mMaxZ + mMinZ) * TReal::HALF;
+        mSphere.getCenter().z() = (mMaxZ + mMinZ) * TReal<T>::HALF;
         T fWidth = mMaxX - mMinX;
         T fHeight = mMaxY - mMinY;
         T fDepth = mMaxZ - mMinZ;
         mSphere.getRadius() = TMath<T>::sqrt(fWidth * fWidth + fHeight * fHeight
-            + fDepth * fDepth) * TReal::HALF;
+            + fDepth * fDepth) * TReal<T>::HALF;
     }
 
     template <typename T>
     inline void TAabb<T>::setMaxZ(T z)
     {
         mMaxZ = z;
-        mSphere.getCenter().z() = (mMaxZ + mMinZ) * TReal::HALF;
+        mSphere.getCenter().z() = (mMaxZ + mMinZ) * TReal<T>::HALF;
         T fWidth = mMaxX - mMinX;
         T fHeight = mMaxY - mMinY;
         T fDepth = mMaxZ - mMinZ;
         mSphere.getRadius() = TMath<T>::sqrt(fWidth * fWidth + fHeight * fHeight
-            + fDepth * fDepth) * TReal::HALF;
+            + fDepth * fDepth) * TReal<T>::HALF;
     }
 
     template <typename T>
@@ -261,7 +261,7 @@ namespace Tiny3D
         mMaxZ = vMax.z();
 
         TVector3<T> temp = vMax - vMin;
-        TVector3<T> center = temp * TReal::HALF + vMin;
+        TVector3<T> center = temp * TReal<T>::HALF + vMin;
         T radius = temp.length();
         mSphere.setCenter(center);
         mSphere.setRadius(radius);

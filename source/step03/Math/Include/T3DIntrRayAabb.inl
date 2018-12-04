@@ -443,7 +443,7 @@ namespace Tiny3D
         // 是否在AABB内
         if (inside)
         {
-            intersection = TVector3<T>::ZERO;
+            distance = TReal<T>::ZERO;
             return true;
         }
 

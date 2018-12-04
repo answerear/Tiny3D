@@ -212,13 +212,13 @@ namespace Tiny3D
         switch (b)
         {
         case 0:
-            sphere = Sphere();
+            sphere = TSphere<T>();
             break;
         case 1:
-            sphere = Sphere(*points[-1]);
+            sphere = TSphere<T>(*points[-1]);
             break;
         case 2:
-            sphere = Sphere(*points[-1], *points[-2]);
+            sphere = TSphere<T>(*points[-1], *points[-2]);
             break;
         case 3:
 //             sphere = Sphere(*points[-1], *points[-2], *points[-3]);
@@ -246,9 +246,9 @@ namespace Tiny3D
                 size_t j = 0;
                 for (j = i; j > 0; --j)
                 {
-                    TVector3<T> *T = points[j];
+                    TVector3<T> *t = points[j];
                     points[j] = points[j - 1];
-                    points[j - 1] = T;
+                    points[j - 1] = t;
                 }
 
                 sphere = recurseMinSphere(points + 1, i, b + 1);

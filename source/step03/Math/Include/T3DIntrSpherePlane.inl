@@ -41,7 +41,7 @@ namespace Tiny3D
     template <typename T>
     inline TIntrSpherePlane<T>::TIntrSpherePlane(
         const TSphere<T> *sphere,
-        const TPlane<T> *box)
+        const TPlane<T> *plane)
         : mSphere(sphere)
         , mPlane(plane)
     {

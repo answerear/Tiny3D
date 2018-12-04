@@ -40,7 +40,7 @@ namespace Tiny3D
 
     template <typename T>
     inline TIntrAabbPlane<T>::TIntrAabbPlane(
-        const TAabb<T> *box0,
+        const TAabb<T> *box,
         const TPlane<T> *plane)
         : mBox(box)
         , mPlane(plane)

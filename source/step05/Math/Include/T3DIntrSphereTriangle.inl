@@ -22,8 +22,8 @@ namespace Tiny3D
 {
     template <typename T>
     inline TIntrSphereTriangle<T>::TIntrSphereTriangle()
-        : mRay(nullptr)
-        , mSphere(nullptr)
+        : mSphere(nullptr)
+        , mTriangle(nullptr)
     {
 
     }

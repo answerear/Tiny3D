@@ -45,7 +45,7 @@ namespace Tiny3D
 
         const TAabb<T> *getPlane() const
         {
-            return mBox1;
+            return mBox;
         }
 
         void setBox(const TAabb<T> *box)

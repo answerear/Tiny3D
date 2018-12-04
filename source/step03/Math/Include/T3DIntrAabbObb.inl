@@ -22,8 +22,8 @@ namespace Tiny3D
 {
     template <typename T>
     inline TIntrAabbObb<T>::TIntrAabbObb()
-        : mRay(nullptr)
-        , mSphere(nullptr)
+        : mAabb(nullptr)
+        , mObb(nullptr)
     {
 
     }
