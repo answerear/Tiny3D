@@ -23,6 +23,10 @@
 
 #include <Tiny3D.h>
 
+
+class Entity;
+
+
 class FrameworkApp : public Tiny3D::Application
 {
 public:
@@ -40,6 +44,8 @@ protected:  /// from Tiny3D::Application
 
     virtual void applicationLowMemory() override;
 
+    Entity  *mPlayer;
+    Entity  *mEnemy;
 };
 
 

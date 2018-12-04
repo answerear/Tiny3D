@@ -30,8 +30,8 @@ T3D_END_EVENT_MAP()
 
 Entity::Entity(const String &name)
     : mName(name)
-    , mHP(0)
-    , mMP(0)
+    , mHP(100)
+    , mMP(100)
     , mState(ST_NONE)
 {
 

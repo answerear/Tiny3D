@@ -21,16 +21,20 @@
 #include "Player.h"
 
 T3D_BEGIN_EVENT_FILTER(Player, Entity)
+    T3D_EVENT_FILTER(EV_ATTACKED)
+    T3D_EVENT_FILTER(EV_DEFEND)
 T3D_END_EVENT_FILTER()
 
 T3D_BEGIN_EVENT_MAP(Player, Entity)
+T3D_ON_EVENT(EV_ATTACKED, onAttacked)
+T3D_ON_EVENT(EV_DEFEND, onDefended)
 T3D_END_EVENT_MAP()
 
 
 Player::Player(const String &name)
     : Entity(name)
 {
-
+    T3D_SETUP_EVENT_FILTER();
 }
 
 Player::~Player()
@@ -40,20 +44,55 @@ Player::~Player()
 
 void Player::fire(TINSTANCE target)
 {
-
+    mState = ST_FIRING;
+    T3D_LOG_INFO("Player [%s] fire skill. State [%d]", mName.c_str(), mState);
+    AttackParam param(20, false);
+    postEvent(EV_ATTACKED, &param, target);
 }
 
 void Player::attack(TINSTANCE target)
 {
-
+    mState = ST_ATTACKING;
+    T3D_LOG_INFO("Player [%s] attack ! State [%d]", mName.c_str(), mState);
+    AttackParam param(10, true);
+    postEvent(EV_ATTACKED, &param, target);
 }
 
 void Player::defend(TINSTANCE attacker)
 {
-
+    mState = ST_DEFENDING;
+    T3D_LOG_INFO("Player [%s] defend ! State [%d]", mName.c_str(), mState);
+    DefendParam param;
+    sendEvent(EV_DEFEND, &param, attacker);
 }
 
 void Player::idle()
 {
-
+    mState = ST_IDLE;
 }
+
+bool Player::onAttacked(EventParam *param, TINSTANCE sender)
+{
+    AttackParam *attackParam = static_cast<AttackParam*>(param);
+
+    if (attackParam->IsNormal)
+    {
+        mHP -= attackParam->DecreaseHP;
+        T3D_LOG_INFO("Player [%s] was attacked, HP [%d] ! State [%d]", mName.c_str(), mHP, mState);
+        defend(sender);
+        fire(sender);
+    }
+    else
+    {
+        mHP -= attackParam->DecreaseHP;
+        T3D_LOG_INFO("Player [%s] was attacked, HP [%d] ! State [%d]", mName.c_str(), mHP, mState);
+    }
+
+    return true;
+}
+
+bool Player::onDefended(EventParam *param, TINSTANCE sender)
+{
+    return true;
+}
+

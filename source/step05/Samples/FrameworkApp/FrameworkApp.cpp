@@ -18,21 +18,33 @@
  ******************************************************************************/
 
 #include "FrameworkApp.h"
+#include "Player.h"
+#include "Enemy.h"
 
 
 using namespace Tiny3D;
 
 FrameworkApp::FrameworkApp()
     : Application()
+    , mPlayer(nullptr)
+    , mEnemy(nullptr)
 {
 }
 
 FrameworkApp::~FrameworkApp()
 {
+    T3D_SAFE_DELETE(mEnemy);
+    T3D_SAFE_DELETE(mPlayer);
 }
 
 bool FrameworkApp::applicationDidFinishLaunching()
 {
+    mPlayer = new Player("Thomas");
+    mEnemy = new Enemy("Monster");
+
+    mEnemy->idle();
+    mPlayer->attack(mEnemy->getInstance());
+
     return true;
 }
 

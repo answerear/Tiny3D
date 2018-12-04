@@ -39,6 +39,9 @@ protected:
     virtual void attack(TINSTANCE target) override;
     virtual void defend(TINSTANCE attacker) override;
     virtual void idle() override;
+
+    bool onAttacked(EventParam *param, TINSTANCE sender);
+    bool onDefended(EventParam *param, TINSTANCE sender);
 };
 
 
