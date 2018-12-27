@@ -21,7 +21,6 @@
 #define __T3D_CONSTRUCT_H__
 
 
-#include "T3DPlatformPrerequisites.h"
 #include <new.h>
 
 namespace Tiny3D
