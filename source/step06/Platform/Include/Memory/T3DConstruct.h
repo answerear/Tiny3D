@@ -66,8 +66,14 @@ namespace Tiny3D
     template <typename ForwardIterator>
     inline void __Destroy(ForwardIterator first, ForwardIterator last)
     {
-
+        __Destroy(first, last, __value_type(first));
     }
+
+    inline void _Destroy(char*, char*) {}
+    inline void _Destroy(int*, int*) {}
+    inline void _Destroy(long*, long*) {}
+    inline void _Destroy(float*, float*) {}
+    inline void _Destroy(wchar_t*, wchar_t*) {}
 }
 
 

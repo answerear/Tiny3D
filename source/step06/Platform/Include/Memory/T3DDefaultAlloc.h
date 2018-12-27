@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_ALLOCATOR_H__
-#define __T3D_ALLOCATOR_H__
+#ifndef __T3D_DEFAULT_ALLOCATOR_H__
+#define __T3D_DEFAULT_ALLOCATOR_H__
 
 
 #include "T3DPlatformPrerequisites.h"
@@ -26,16 +26,8 @@
 
 namespace Tiny3D
 {
-    template <typename T, typename Alloc>
-    class Allocator
-    {
-    public:
-        static T *allocate(size_t n);
-        static T *allocate();
-        static void deallocate(T *p, size_t n);
-        static void deallocate(T *p)
-    };
+    
 }
 
 
-#endif  /*__T3D_ALLOCATOR_H__*/
+#endif  /*__T3D_DEFAULT_ALLOCATOR_H__*/
