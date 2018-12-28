@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_VECTOR_H__
-#define __T3D_VECTOR_H__
+#ifndef __T3D_DYNAMIC_ARRAY_H__
+#define __T3D_DYNAMIC_ARRAY_H__
 
 
-#endif  /*__T3D_VECTOR_H__*/
+#endif  /*__T3D_DYNAMIC_ARRAY_H__*/
