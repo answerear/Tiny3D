@@ -17,35 +17,54 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PREREQUISITES_H__
-#define __T3D_PREREQUISITES_H__
+
+#ifndef __T3D_OBJECT_H__
+#define __T3D_OBJECT_H__
 
 
+#include "T3DPrerequisites.h"
 
-#if defined T3DCORE_EXPORT
-    #define T3D_ENGINE_API        T3D_EXPORT_API
-#else
-    #define T3D_ENGINE_API        T3D_IMPORT_API
-#endif
-
-
-#include <T3DPlatform.h>
-#include <T3DMathLib.h>
-#include <T3DLog.h>
-#include <T3DFramework.h>
-
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
 
 namespace Tiny3D
 {
-    /// Core
-    class Engine;
+    /**
+     * @brief 引擎所有对象基类
+     */
+    class T3D_ENGINE_API Object
+    {
+    public:
+        /**
+         * @brief 构造函数
+         */
+        Object();
 
-    class Resource;
+        /**
+         * @brief 析构函数
+         */
+        virtual ~Object();
+
+        /**
+         * @brief 持有对象，让对象引用计数加一
+         */
+        Object *acquire();
+
+        /**
+         * @brief 释放对象，让对象引用计数减一
+         */
+        void release();
+
+        /**
+         * @brief 返回对象当前引用计数
+         */
+        uint32_t referCount() const
+        {
+            return mReferCount;
+        }
+
+    private:
+        uint32_t    mReferCount;
+    };
 }
 
 
-#endif    /*__T3D_PREREQUISITES_H__*/
+#endif  /*__T3D_OBJECT_H__*/
