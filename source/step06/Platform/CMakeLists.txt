@@ -78,8 +78,6 @@ set_project_files(Include\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Include/Time/ .h)
 set_project_files(Include\\\\IO ${CMAKE_CURRENT_SOURCE_DIR}/Include/IO/ .h)
 set_project_files(Include\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Include/Device/ .h)
 set_project_files(Include\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Include/Console/ .h)
-set_project_files(Include\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Include/DataStruct/ .h)
-set_project_files(Include\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Include/Memory/ .h)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -122,8 +120,6 @@ set_project_files(Source\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Source/Time/ .cpp)
 set_project_files(Source\\\\IO ${CMAKE_CURRENT_SOURCE_DIR}/Source/IO/ .cpp)
 set_project_files(Source\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Source/Device/ .cpp)
 set_project_files(Source\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Source/Console/ .cpp)
-set_project_files(Source\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Source/DataStruct/ .cpp)
-set_project_files(Source\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Source/Memory/ .cpp)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
