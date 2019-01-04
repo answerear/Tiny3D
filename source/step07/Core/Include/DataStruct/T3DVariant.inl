@@ -18,38 +18,27 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_TYPEDEF_H__
-#define __T3D_TYPEDEF_H__
-
-#include "Kernel/T3DSmartPtr.h"
-
 namespace Tiny3D
 {
-    #define T3D_INVALID_ID      0
+    inline bool Variant::isValid() const
+    {
+        return (mType != E_NONE);
+    }
 
-    typedef uint32_t    ID;
+    inline Variant::Variant()
+        : mType(E_NONE)
+        , mValueSize(0)
+    {
+        memset(mValue, 0, sizeof(mValue));
+    }
 
-    T3D_DECLARE_SMART_PTR(Object);
+    inline Variant::Variant(bool value)
+        : mType(E_BOOL)
+        , mValueSize(sizeof(bool))
+    {
+        memset(mValue, 0, sizeof(mValue));
+        mBoolValue = value;
+    }
 
-    T3D_DECLARE_SMART_PTR(Resource);
-    T3D_DECLARE_SMART_PTR(ResourceManager);
-    T3D_DECLARE_SMART_PTR(Dylib);
-    T3D_DECLARE_SMART_PTR(DylibManager);
 
-    typedef TArray<Variant>                 VariantArray;
-    typedef VariantArray::iterator          VariantArrayItr;
-    typedef VariantArray::const_iterator    VariantArrayConstItr;
-
-    typedef TList<Variant>                  VariantList;
-    typedef VariantList::iterator           VariantListItr;
-    typedef VariantList::const_iterator     VariantListConstItr;
-
-    typedef TMap<Variant, Variant>          VariantMap;
-    typedef VariantMap::iterator            VariantMapItr;
-    typedef VariantMap::const_iterator      VariantMapConstItr;
-
-    typedef TPair<Variant, Variant>         VariantMapValue;
 }
-
-
-#endif  /*__T3D_TYPEDEF_H__*/

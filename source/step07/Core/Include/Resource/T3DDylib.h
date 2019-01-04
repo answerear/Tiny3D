@@ -18,38 +18,47 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_TYPEDEF_H__
-#define __T3D_TYPEDEF_H__
+#ifndef __T3D_DYLIB_H__
+#define __T3D_DYLIB_H__
 
-#include "Kernel/T3DSmartPtr.h"
+
+#include "T3DResource.h"
+
 
 namespace Tiny3D
 {
-    #define T3D_INVALID_ID      0
+    class T3D_ENGINE_API Dylib : public Resource
+    {
+    public:
+        /** 创建 Dylib 对象 */
+        static DylibPtr create(const String &name);
 
-    typedef uint32_t    ID;
+        /** 析构函数 */
+        virtual ~Dylib();
 
-    T3D_DECLARE_SMART_PTR(Object);
+        /** 重写 Resource::getType() */
+        virtual Type getType() const override;
 
-    T3D_DECLARE_SMART_PTR(Resource);
-    T3D_DECLARE_SMART_PTR(ResourceManager);
-    T3D_DECLARE_SMART_PTR(Dylib);
-    T3D_DECLARE_SMART_PTR(DylibManager);
+        /** 根据名称获取对应符号地址 */
+        virtual void *getSymbol(const String &name) const;
 
-    typedef TArray<Variant>                 VariantArray;
-    typedef VariantArray::iterator          VariantArrayItr;
-    typedef VariantArray::const_iterator    VariantArrayConstItr;
+    protected:
+        /** 构造函数 */
+        Dylib(const String &name);
 
-    typedef TList<Variant>                  VariantList;
-    typedef VariantList::iterator           VariantListItr;
-    typedef VariantList::const_iterator     VariantListConstItr;
+        /** 重写 Resource::load() */
+        virtual bool load() override;
 
-    typedef TMap<Variant, Variant>          VariantMap;
-    typedef VariantMap::iterator            VariantMapItr;
-    typedef VariantMap::const_iterator      VariantMapConstItr;
+        /** 重写 Resource::unlaod() */
+        virtual void unload() override;
 
-    typedef TPair<Variant, Variant>         VariantMapValue;
+        /** 重写 Resource::clone() */
+        virtual ResourcePtr clone() const override;
+
+    protected:
+        THandle mHandle;
+    };
 }
 
 
-#endif  /*__T3D_TYPEDEF_H__*/
+#endif  /*__T3D_DYLIB_H__*/

@@ -174,6 +174,7 @@ namespace Tiny3D
 
             return *this;
         }
+
     protected:
         Object  *mReferObject;
     };
