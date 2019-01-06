@@ -17,8 +17,6 @@ if (MSVC)
 endif (MSVC)
 
 
-add_definitions(-DT3D_ERR_FRAMEWORK=0x2000)
-
 
 # Setup all cmake variables for this project.
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")

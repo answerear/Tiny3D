@@ -22,6 +22,10 @@
 
 namespace Tiny3D
 {
+    VariantArray    Variant::INVALID_ARRAY;
+    VariantList     Variant::INVALID_LIST;
+    VariantMap      Variant::INVALID_MAP;
+
     void Variant::copy(const Variant &other)
     {
         mType = other.mType;

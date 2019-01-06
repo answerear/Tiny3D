@@ -32,7 +32,7 @@ namespace Tiny3D
         T3D_DECLARE_INTERFACE(ITimerListener);
 
     public:
-        virtual void onTimer(uint32_t timerID, int32_t dt) = 0;
+        virtual void onTimer(ID timerID, int32_t dt) = 0;
     };
 }
 

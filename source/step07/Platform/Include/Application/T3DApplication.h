@@ -47,7 +47,7 @@ namespace Tiny3D
          * @brief 应用初始化，这个由具体平台来调用，用户不需要调用
          * @return 调用成功返回T3D_ERR_OK
          */
-        int32_t init();
+        TResult init();
 
         /**
          * @brief 应用事件处理

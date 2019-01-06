@@ -68,6 +68,12 @@ typedef std::u32string      UTF32String;
 
 typedef void*               THandle;
 
+typedef int32_t             TResult;
+
+typedef uint32_t            ID;
+
+#define T3D_INVALID_ID      0
+
 typedef std::thread                     TThread;
 typedef std::mutex                      TMutex;
 typedef std::recursive_mutex            TRecursiveMutex;

@@ -25,16 +25,15 @@
 
 namespace Tiny3D
 {
-    #define T3D_INVALID_ID      0
-
-    typedef uint32_t    ID;
-
     T3D_DECLARE_SMART_PTR(Object);
 
     T3D_DECLARE_SMART_PTR(Resource);
     T3D_DECLARE_SMART_PTR(ResourceManager);
     T3D_DECLARE_SMART_PTR(Dylib);
     T3D_DECLARE_SMART_PTR(DylibManager);
+    T3D_DECLARE_SMART_PTR(Archive);
+    T3D_DECLARE_SMART_PTR(FileSystemArchive);
+    T3D_DECLARE_SMART_PTR(ArchiveManager);
 
     typedef TArray<Variant>                 VariantArray;
     typedef VariantArray::iterator          VariantArrayItr;
@@ -49,6 +48,8 @@ namespace Tiny3D
     typedef VariantMap::const_iterator      VariantMapConstItr;
 
     typedef TPair<Variant, Variant>         VariantMapValue;
+
+    typedef VariantMap                      Settings;
 }
 
 

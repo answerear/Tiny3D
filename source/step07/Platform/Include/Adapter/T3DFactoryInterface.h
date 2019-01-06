@@ -30,6 +30,7 @@ namespace Tiny3D
     class IWindow;
     class IApplication;
     class ITime;
+    class ITimerService;
     class IDir;
     class IDeviceInfo;
     class IConsole;
@@ -71,6 +72,12 @@ namespace Tiny3D
          * @return 返回平台相关的时间对象，需要用户调用delete释放对象
          */
         virtual ITime *createPlatformTime() = 0;
+
+        /**
+         * @brief 创建操作系统平台相关的定时器服务对象.
+         * @return 返回平台相关的定时器服务对象，需要用户调用delete释放对象
+         */
+        virtual ITimerService *createPlatformTimerService() = 0;
 
         /**
          * @brief 创建操作系统平台相关的路径搜索对象.

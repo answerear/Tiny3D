@@ -110,7 +110,7 @@ namespace Tiny3D
         setLevel(strategy.eLevel);
     }
 
-    bool Logger::startup(uint32_t appID, const String &tag,
+    TResult Logger::startup(ID appID, const String &tag,
         bool force /* = false */, bool outputConsole /* = false */)
     {
         mAppID = appID;
@@ -132,7 +132,7 @@ namespace Tiny3D
         /// 不管是否要输出日志，都提交一个检查过期日志文件的异步任务
         commitCheckExpiredTask();
 
-        return true;
+        return T3D_ERR_OK;
     }
 
     void Logger::trace(Level level, const char *filename, int32_t line,
@@ -287,9 +287,9 @@ namespace Tiny3D
         return ret;
     }
 
-    void Logger::writeLogFile(std::vector<LogItem*> &cache)
+    void Logger::writeLogFile(TArray<LogItem*> &cache)
     {
-        std::vector<LogItem*>::iterator itr = cache.begin();
+        TArray<LogItem*>::iterator itr = cache.begin();
 
         while (itr != cache.end() && !mIsTerminated)
         {
@@ -328,8 +328,8 @@ namespace Tiny3D
         Level eLevel = mStrategy.eLevel;
         mStrategy.eLevel = E_LEVEL_OFF;
 
-        std::vector<LogItem *> cache(mItemCache.size());
-        std::vector<LogItem *>::iterator itr = cache.begin();
+        TArray<LogItem *> cache(mItemCache.size());
+        TArray<LogItem *>::iterator itr = cache.begin();
         while (itr != cache.end())
         {
             *itr = mItemCache.front();
@@ -358,7 +358,7 @@ namespace Tiny3D
         }
     }
 
-    void Logger::onTimer(uint32_t timerID, int32_t dt)
+    void Logger::onTimer(ID timerID, int32_t dt)
     {
         if (timerID == mFlushCacheTimerID)
         {
@@ -460,7 +460,7 @@ namespace Tiny3D
             // 异步线程已经启动了
             if (mIsSuspended)
             {
-                /// 异步线程被挂起，则唤醒
+                // 异步线程被挂起，则唤醒
                 wakeAsyncTask();
             }
         }
@@ -474,11 +474,11 @@ namespace Tiny3D
 
             if (mIsSuspended)
             {
-                /// 异步任务线程挂起中，直接唤醒
+                // 异步任务线程挂起中，直接唤醒
                 wakeAsyncTask();
             }
 
-            /// 没挂起，直接停掉
+            // 没挂起，直接停掉
             mWorkingThread.join();
             mIsRunning = false;
             mIsTerminated = false;
@@ -487,7 +487,7 @@ namespace Tiny3D
 
     void Logger::suspendAsyncTask()
     {
-        std::unique_lock<std::mutex> lock(mWaitMutex);
+        TAutoLock<TMutex> lock(mWaitMutex);
         mIsSuspended = true;
         while (mIsSuspended)
         {
@@ -497,7 +497,7 @@ namespace Tiny3D
 
     void Logger::wakeAsyncTask()
     {
-        std::unique_lock<std::mutex> lock(mWaitMutex);
+        TAutoLock<TMutex> lock(mWaitMutex);
         mIsSuspended = false;
         mWaitCond.notify_all();
     }
@@ -532,7 +532,7 @@ namespace Tiny3D
         startAsyncTask();
     }
 
-    int32_t Logger::processCheckExpiredTask(LogTask *task)
+    TResult Logger::processCheckExpiredTask(LogTask *task)
     {
         mTaskType = LogTask::E_TYPE_CHECK_EXPIRED;
         uint64_t currentTime = DateTime::currentSecsSinceEpoch();
@@ -567,10 +567,10 @@ namespace Tiny3D
         delete task;
         mTaskType = LogTask::E_TYPE_NONE;
 
-        return 0;
+        return T3D_ERR_OK;
     }
 
-    int32_t Logger::processFlushCacheTask(LogTask *task)
+    TResult Logger::processFlushCacheTask(LogTask *task)
     {
         mTaskType = LogTask::E_TYPE_FLUSH_CACHE;
 
@@ -579,6 +579,6 @@ namespace Tiny3D
         delete task;
         mTaskType = LogTask::E_TYPE_NONE;
 
-        return 0;
+        return T3D_ERR_OK;
     }
 }

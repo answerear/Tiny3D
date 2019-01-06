@@ -36,7 +36,7 @@ namespace Tiny3D
         /** 事件项 */
         struct EventItem
         {
-            EventItem(uint32_t evid, EventParam *param, 
+            EventItem(EventID evid, EventParam *param,
                 TINSTANCE receiver, TINSTANCE sender)
                 : mEventID(evid)
                 , mEventParam(param)
@@ -44,7 +44,7 @@ namespace Tiny3D
                 , mSender(sender)
             {}
 
-            uint32_t        mEventID;       /// 事件ID
+            EventID         mEventID;       /// 事件ID
             EventParam      *mEventParam;   /// 事件参数对象
             TINSTANCE       mReceiver;      /// 事件接收者实例句柄
             TINSTANCE       mSender;        /// 事件发送者实例句柄
@@ -111,7 +111,7 @@ namespace Tiny3D
          *  - getMaxCallStackLevel()
          *  - getMaxHandlingDuration()
          */
-        int32_t sendEvent(uint32_t evid, EventParam *param, 
+        TResult sendEvent(EventID evid, EventParam *param,
             TINSTANCE receiver, TINSTANCE sender);
 
         /**
@@ -135,7 +135,7 @@ namespace Tiny3D
          *  - getMaxHandlingDuration()
          *  - getHandlingEventMode()
          */
-        int32_t postEvent(uint32_t evid, EventParam *param, 
+        TResult postEvent(EventID evid, EventParam *param,
             TINSTANCE receiver, TINSTANCE sender);
 
         /**
@@ -163,7 +163,7 @@ namespace Tiny3D
          *  - getMaxHandlingDuration()
          *  - getMaxCallStackLevel()
          */
-        int32_t dispatchEvent();
+        TResult dispatchEvent();
 
         /**
          * @brief 暂停事件派发
@@ -194,7 +194,7 @@ namespace Tiny3D
          *  - getMaxHandlingDuration()
          *  - getMaxCallStackLevel()
          */
-        int32_t resumeDispatching(bool dispatchImmdiately);
+        TResult resumeDispatching(bool dispatchImmdiately);
 
         /**
          * @brief 事件派发是否被暂停
@@ -234,7 +234,7 @@ namespace Tiny3D
          *  - T3D_ERR_OK : 反注册成功返回本值
          *  - T3D_ERR_FWK_INVALID_INSTANCE : 无效实例句柄
          */
-        int32_t unregisterHandler(TINSTANCE instance);
+        TResult unregisterHandler(TINSTANCE instance);
 
         /**
         * @brief 注册事件
@@ -247,7 +247,7 @@ namespace Tiny3D
         *   - T3D_ERR_FWK_DUPLICATE_INSTANCE : 该instance已经注册过了返回该值
         *   - T3D_INVALID_INSTANCE : 无效实例句柄返回该值
         */
-        int32_t registerEvent(uint32_t evid, TINSTANCE instance);
+        TResult registerEvent(EventID evid, TINSTANCE instance);
 
         /**
         * @brief 反注册事件
@@ -259,7 +259,7 @@ namespace Tiny3D
         *   - T3D_ERR_FWK_INVALID_EVID : 无效的事件ID返回该值
         *   - T3D_INVALID_INSTANCE : 无效实例句柄返回该值
         */
-        int32_t unregisterEvent(uint32_t evid, TINSTANCE instance);
+        TResult unregisterEvent(EventID evid, TINSTANCE instance);
 
         /**
         * @brief 清除所有事件队列中的事件.
@@ -271,44 +271,44 @@ namespace Tiny3D
         /**
          * @brief 广播事件
          */
-        int32_t broadcastEvent(uint32_t evid, EventParam *param, 
+        TResult broadcastEvent(EventID evid, EventParam *param,
             TINSTANCE sender);
 
         /**
          * @brief 多播事件
          */
-        int32_t multicastEvent(uint32_t evid, EventParam *param, 
+        TResult multicastEvent(EventID evid, EventParam *param,
             TINSTANCE sender);
 
         /**
          * @brief 单播事件
          */
-        int32_t singlecastEvent(uint32_t evid, EventParam *param, 
+        TResult singlecastEvent(EventID evid, EventParam *param,
             TINSTANCE receiver, TINSTANCE sender);
 
-        int32_t pushBroadcastEvent(uint32_t evid, EventParam *param,
+        TResult pushBroadcastEvent(EventID evid, EventParam *param,
             TINSTANCE sender);
 
-        int32_t pushMulticastEvent(uint32_t evid, EventParam *param,
+        TResult pushMulticastEvent(EventID evid, EventParam *param,
             TINSTANCE sender);
 
-        int32_t pushSinglecastEvent(uint32_t evid, EventParam *param,
+        TResult pushSinglecastEvent(EventID evid, EventParam *param,
             TINSTANCE receiver, TINSTANCE sender);
 
     private:
-        typedef std::vector<EventHandler*>  HandlerList;
+        typedef TArray<EventHandler*>       HandlerList;
         typedef HandlerList::iterator       HandlerListItr;
         typedef HandlerList::const_iterator HandlerListConstItr;
 
-        typedef std::list<EventItem>        EventList;
+        typedef TList<EventItem>            EventList;
         typedef EventList::iterator         EventListItr;
         typedef EventList::const_iterator   EventListConstItr;
 
-        typedef std::set<TINSTANCE>         EventInstSet;
+        typedef TSet<TINSTANCE>             EventInstSet;
         typedef EventInstSet::iterator      EventInstSetItr;
         typedef EventInstSet::value_type	EventInstSetValue;
 
-        typedef std::vector<EventInstSet>   EventFilterList;
+        typedef TArray<EventInstSet>        EventFilterList;
         typedef EventFilterList::iterator   EventFilterListItr;
 
         HandlerList	mEventHandlers;                 /// 事件处理对象链表

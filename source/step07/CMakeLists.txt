@@ -25,9 +25,6 @@ if (CMAKE_BINARY_DIR MATCHES " ")
 endif()
 
 
-# 定义扩展错误码的开始值
-add_definitions(-DT3D_ERR_EXTEND=0x1000)
-
 set(TINY3D_OS "")
 
 if (WIN32)
@@ -145,6 +142,15 @@ set(CMAKE_MODULE_PATH
     "${CMAKE_CURRENT_SOURCE_DIR}/CMake/Utils"
     "${CMAKE_CURRENT_SOURCE_DIR}/CMake/Packages"
     )
+
+# Platform error code
+add_definitions(-DT3D_ERR_PLATFORM=0x00001000)
+# Log error code
+add_definitions(-DT3D_ERR_LOG=0x00002000)
+# Framework error code
+add_definitions(-DT3D_ERR_FRAMEWORK=0x00003000)
+# Core error code
+add_definitions(-DT3D_ERR_CORE=0x00004000)
 
 
 include(FindPkgMacros)

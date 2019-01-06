@@ -40,25 +40,25 @@ namespace Tiny3D
         T3D_EVENT_MGR.unregisterHandler(mInstance);
     }
 
-    int32_t EventHandler::sendEvent(uint32_t evid, EventParam *param,
+    TResult EventHandler::sendEvent(EventID evid, EventParam *param,
         TINSTANCE receiver)
     {
         return T3D_EVENT_MGR.sendEvent(evid, param, receiver, mInstance);
     }
 
-    int32_t EventHandler::postEvent(uint32_t evid, EventParam *param,
+    TResult EventHandler::postEvent(EventID evid, EventParam *param,
         TINSTANCE receiver)
     {
         return T3D_EVENT_MGR.postEvent(evid, param, receiver, mInstance);
     }
 
-    int32_t EventHandler::sendEvent(uint32_t evid, EventParam *param)
+    TResult EventHandler::sendEvent(EventID evid, EventParam *param)
     {
         return T3D_EVENT_MGR.sendEvent(evid, param, 
             T3D_MULTICAST_INSTANCE, mInstance);
     }
 
-    int32_t EventHandler::postEvent(uint32_t evid, EventParam *param)
+    TResult EventHandler::postEvent(EventID evid, EventParam *param)
     {
         return T3D_EVENT_MGR.postEvent(evid, param, 
             T3D_MULTICAST_INSTANCE, mInstance);
@@ -74,11 +74,11 @@ namespace Tiny3D
         return mInstance;
     }
 
-    int32_t EventHandler::unregisterHandler()
+    TResult EventHandler::unregisterHandler()
     {
-        bool ret = T3D_EVENT_MGR.unregisterHandler(mInstance);
+        TResult ret = T3D_EVENT_MGR.unregisterHandler(mInstance);
 
-        if (ret)
+        if (ret != T3D_ERR_OK)
         {
             mInstance = T3D_INVALID_INSTANCE;
         }
@@ -86,14 +86,14 @@ namespace Tiny3D
         return ret;
     }
 
-    int32_t EventHandler::setupEventFilter()
+    TResult EventHandler::setupEventFilter()
     {
         return T3D_ERR_OK;
     }
 
-    int32_t EventHandler::registerEvent(uint32_t evid)
+    TResult EventHandler::registerEvent(EventID evid)
     {
-        int32_t ret = T3D_EVENT_MGR.registerEvent(evid, mInstance);
+        TResult ret = T3D_EVENT_MGR.registerEvent(evid, mInstance);
 
         if (T3D_ERR_OK == ret)
         {
@@ -103,9 +103,9 @@ namespace Tiny3D
         return ret;
     }
 
-    int32_t EventHandler::unregisterEvent(uint32_t evid)
+    TResult EventHandler::unregisterEvent(EventID evid)
     {
-        int32_t ret = T3D_EVENT_MGR.unregisterEvent(evid, mInstance);
+        TResult ret = T3D_EVENT_MGR.unregisterEvent(evid, mInstance);
 
         if (T3D_ERR_OK == ret)
         {
@@ -138,7 +138,7 @@ namespace Tiny3D
         mEventList.clear();
     }
 
-    int32_t EventHandler::processEvent(uint32_t evid, EventParam *param, 
+    TResult EventHandler::processEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
     {
         // 都跑到基类了，还没有人处理过这个事件，那只能不处理了

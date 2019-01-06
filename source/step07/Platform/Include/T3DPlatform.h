@@ -22,6 +22,7 @@
 
 #include <T3DType.h>
 #include <T3DMacro.h>
+#include <T3DCommonErrorDef.h>
 #include <T3DPlatformErrorDef.h>
 #include <T3DSystem.h>
 #include <Application/T3DApplication.h>

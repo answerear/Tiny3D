@@ -65,12 +65,22 @@ namespace Tiny3D
 
         void appWillEnterForeground();
 
+        const String &getAppPath() const { return mAppPath;  }
+
+        const String &getAppName() const { return mAppName; }
+
+        const String &getPluginsPath() const { return mPluginsPath; }
+
     protected:
         Logger              *mLogger;               /// 日志对象
         EventManager        *mEventMgr;             /// 事件管理器对象
 
         Window              *mWindow;               /// 窗口
         bool                mIsRunning;             /// 引擎是否在运行中
+
+        String              mAppPath;           /**< 程序路径 */
+        String              mAppName;           /**< 程序名称 */
+        String              mPluginsPath;       /**< 插件路径 */
     };
 
     #define T3D_ENGINE      (Engine::getInstance())

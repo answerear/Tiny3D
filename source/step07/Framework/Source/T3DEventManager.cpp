@@ -33,6 +33,7 @@ namespace Tiny3D
     const TINSTANCE EventManager::BROADCAST_INSTANCE = (const TINSTANCE)-1;
     const TINSTANCE EventManager::MULTICAST_INSTANCE = (const TINSTANCE)1;
 
+    //--------------------------------------------------------------------------
 
     EventManager::EventManager(uint32_t maxEvents, int32_t maxHandlingDuration,
         int32_t maxCallStacks, HandleEventMode mode)
@@ -57,10 +58,12 @@ namespace Tiny3D
         clearEventQueue();
     }
 
-    int32_t EventManager::sendEvent(uint32_t evid, EventParam *param, 
+    //--------------------------------------------------------------------------
+
+    TResult EventManager::sendEvent(EventID evid, EventParam *param,
         TINSTANCE receiver, TINSTANCE sender)
     {
-        int32_t ret = T3D_ERR_OK;
+        TResult ret = T3D_ERR_OK;
 
         do
         {
@@ -106,10 +109,10 @@ namespace Tiny3D
         return ret;
     }
 
-    int32_t EventManager::broadcastEvent(uint32_t evid, EventParam *param,
+    TResult EventManager::broadcastEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
     {
-        int32_t ret = T3D_ERR_FWK_NONE_HANDLER;
+        TResult ret = T3D_ERR_FWK_NONE_HANDLER;
 
         if (mIsDispatchPaused)
         {
@@ -157,10 +160,10 @@ namespace Tiny3D
         return ret;
     }
 
-    int32_t EventManager::multicastEvent(uint32_t evid, EventParam *param,
+    TResult EventManager::multicastEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
     {
-        int32_t ret = T3D_ERR_FWK_NONE_HANDLER;
+        TResult ret = T3D_ERR_FWK_NONE_HANDLER;
 
         if (mIsDispatchPaused)
         {
@@ -222,10 +225,10 @@ namespace Tiny3D
         return ret;
     }
 
-    int32_t EventManager::singlecastEvent(uint32_t evid, EventParam *param,
+    TResult EventManager::singlecastEvent(EventID evid, EventParam *param,
         TINSTANCE receiver, TINSTANCE sender)
     {
-        int32_t ret = T3D_ERR_FWK_NONE_HANDLER;
+        TResult ret = T3D_ERR_FWK_NONE_HANDLER;
 
         if (mIsDispatchPaused)
         {
@@ -259,10 +262,12 @@ namespace Tiny3D
         return ret;
     }
 
-    int32_t EventManager::postEvent(uint32_t evid, EventParam *param,
+    //--------------------------------------------------------------------------
+
+    TResult EventManager::postEvent(EventID evid, EventParam *param,
         TINSTANCE receiver, TINSTANCE sender)
     {
-        int32_t ret = T3D_ERR_OK;
+        TResult ret = T3D_ERR_OK;
 
         do 
         {
@@ -307,10 +312,10 @@ namespace Tiny3D
         return ret;
     }
 
-    int32_t EventManager::pushBroadcastEvent(uint32_t evid, EventParam *param,
+    TResult EventManager::pushBroadcastEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
     {
-        int32_t ret = T3D_ERR_FWK_NONE_HANDLER;
+        TResult ret = T3D_ERR_FWK_NONE_HANDLER;
 
         if (mIsDispatchPaused)
         {
@@ -344,10 +349,10 @@ namespace Tiny3D
         return ret;
     }
 
-    int32_t EventManager::pushMulticastEvent(uint32_t evid, EventParam *param,
+    TResult EventManager::pushMulticastEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
     {
-        int32_t ret = T3D_ERR_FWK_NONE_HANDLER;
+        TResult ret = T3D_ERR_FWK_NONE_HANDLER;
 
         if (mIsDispatchPaused)
         {
@@ -383,10 +388,10 @@ namespace Tiny3D
         return ret;
     }
 
-    int32_t EventManager::pushSinglecastEvent(uint32_t evid, EventParam *param,
+    TResult EventManager::pushSinglecastEvent(EventID evid, EventParam *param,
         TINSTANCE receiver, TINSTANCE sender)
     {
-        int32_t ret = T3D_ERR_OK;
+        TResult ret = T3D_ERR_OK;
 
         if (mIsDispatchPaused)
         {
@@ -404,6 +409,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     bool EventManager::getEventHandler(TINSTANCE instance, 
         EventHandler *&handler)
@@ -452,9 +459,11 @@ namespace Tiny3D
         return ret;
     }
 
-    int32_t EventManager::dispatchEvent()
+    //--------------------------------------------------------------------------
+
+    TResult EventManager::dispatchEvent()
     {
-        int32_t ret = T3D_ERR_OK;
+        TResult ret = T3D_ERR_OK;
 
         do 
         {
@@ -503,9 +512,9 @@ namespace Tiny3D
         mIsDispatchPaused = true;
     }
 
-    int32_t EventManager::resumeDispatching(bool dispatchImmdiately)
+    TResult EventManager::resumeDispatching(bool dispatchImmdiately)
     {
-        int32_t ret = T3D_ERR_OK;
+        TResult ret = T3D_ERR_OK;
 
         mIsDispatchPaused = false;
 
@@ -561,6 +570,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TINSTANCE EventManager::registerHandler(EventHandler *handler)
     {
         bool found = false;
@@ -591,9 +602,9 @@ namespace Tiny3D
         return new _TINSTANCE(handler, slot);
     }
 
-    int32_t EventManager::unregisterHandler(TINSTANCE instance)
+    TResult EventManager::unregisterHandler(TINSTANCE instance)
     {
-        int32_t ret = T3D_ERR_FWK_INVALID_INSTANCE;
+        TResult ret = T3D_ERR_FWK_INVALID_INSTANCE;
 
         do 
         {
@@ -615,9 +626,9 @@ namespace Tiny3D
         return ret;
     }
 
-    int32_t EventManager::registerEvent(uint32_t evid, TINSTANCE instance)
+    TResult EventManager::registerEvent(EventID evid, TINSTANCE instance)
     {
-        int32_t ret = T3D_ERR_FWK_INVALID_INSTANCE;
+        TResult ret = T3D_ERR_FWK_INVALID_INSTANCE;
 
         do 
         {
@@ -648,9 +659,9 @@ namespace Tiny3D
         return ret;
     }
 
-    int32_t EventManager::unregisterEvent(uint32_t evid, TINSTANCE instance)
+    TResult EventManager::unregisterEvent(EventID evid, TINSTANCE instance)
     {
-        int32_t ret = T3D_ERR_FWK_INVALID_INSTANCE;
+        TResult ret = T3D_ERR_FWK_INVALID_INSTANCE;
 
         do 
         {

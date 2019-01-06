@@ -38,7 +38,6 @@ namespace Tiny3D
         {
             E_TYPE_UNKNOWN = 0,
             E_TYPE_DYLIB,       /**< 动态库 */
-            E_TYPE_ARCHIVE,     /**< 文件档案系统 */
         };
 
         /** 析构函数 */
@@ -94,13 +93,13 @@ namespace Tiny3D
          * @brief 加载资源
          * @remarks 每种类型资源需要各自实现其加载逻辑，资源只有加载后才能使用
          */
-        virtual TResult load() = 0;
+        virtual bool load() = 0;
 
         /** 
          * @brief 卸载资源
          * @remarks 每种类型资源需要各自实现其卸载逻辑，资源卸载后就不能再使用了
          */
-        virtual TResult unload() = 0;
+        virtual void unload() = 0;
 
         /** 
          * @brief 克隆资源

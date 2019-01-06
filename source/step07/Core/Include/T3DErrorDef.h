@@ -17,27 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_PREREQUISITES_H__
-#define __T3D_PREREQUISITES_H__
+#ifndef __T3D_ERROR_DEF_H__
+#define __T3D_ERROR_DEF_H__
 
 
+#include "T3DPrerequisites.h"
 
-#if defined T3DCORE_EXPORT
-    #define T3D_ENGINE_API        T3D_EXPORT_API
-#else
-    #define T3D_ENGINE_API        T3D_IMPORT_API
-#endif
-
-
-#include <T3DPlatform.h>
 
 namespace Tiny3D
 {
-    /// Core
-    class Engine;
-
-//     class AppEventListener;
+    enum CoreErrorCode
+    {
+        T3D_ERR_CFG_FILE_PARSING_XML    = T3D_ERR_CORE,     /**< 解析 XML 出错 */
+        T3D_ERR_CFG_FILE_XML_FORMAT     = T3D_ERR_CORE + 1, /**< 错误 XML 格式 */
+        T3D_ERR_CFG_FILE_BUILDING_XML   = T3D_ERR_CORE + 2, /**< 构建 XML 出错 */
+        T3D_ERR_PLUGIN_LOAD_FAILED      = T3D_ERR_CORE + 3, /**< 加载插件出错 */
+    };
 }
 
 
-#endif    /*__T3D_PREREQUISITES_H__*/
+#endif    /*__T3D_ERROR_DEF_H__*/

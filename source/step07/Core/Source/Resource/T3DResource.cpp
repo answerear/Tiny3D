@@ -36,9 +36,4 @@ namespace Tiny3D
         if (mIsLoaded)
             unload();
     }
-
-    void Resource::unload()
-    {
-
-    }
 }

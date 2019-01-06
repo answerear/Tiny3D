@@ -64,9 +64,9 @@ namespace Tiny3D
 
     }
 
-    int32_t SDLApplication::init()
+    TResult SDLApplication::init()
     {
-        int32_t ret = T3D_ERR_FAIL;
+        TResult ret = T3D_ERR_FAIL;
 
         do 
         {

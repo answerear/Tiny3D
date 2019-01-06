@@ -35,6 +35,8 @@ namespace Tiny3D
 {
     typedef struct _TINSTANCE* TINSTANCE;
 
+    typedef ID EventID;
+
     class EventHandler;
     class EventParam;
     class EventManager;

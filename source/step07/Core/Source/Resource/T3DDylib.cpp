@@ -20,6 +20,8 @@
 
 #include "Resource/T3DDylib.h"
 #include "Kernel/T3DEngine.h"
+#include "T3DErrorDef.h"
+
 
 #if defined (T3D_OS_WINDOWS)
     #include <windows.h>
@@ -69,9 +71,9 @@ namespace Tiny3D
         return DYLIB_GETSYM(mHandle, name.c_str());
     }
 
-    bool Dylib::load()
+    TResult Dylib::load()
     {
-        bool ret = false;
+        TResult ret = T3D_ERR_OK;
 
         do 
         {
@@ -89,21 +91,26 @@ namespace Tiny3D
 
             if (mHandle == nullptr)
             {
+                ret = T3D_ERR_PLUGIN_LOAD_FAILED;
                 T3D_LOG_ERROR("Load plugin failed !");
                 break;
             }
 
-            ret = mIsLoaded = true;
+            mIsLoaded = true;
         } while (0);
+
+        return ret;
     }
 
-    void Dylib::unload()
+    TResult Dylib::unload()
     {
         if (mIsLoaded)
         {
             DYLIB_UNLOAD(mHandle);
             mIsLoaded = false;
         }
+
+        return T3D_ERR_OK;
     }
 
     ResourcePtr Dylib::clone() const

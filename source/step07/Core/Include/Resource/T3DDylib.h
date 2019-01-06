@@ -47,10 +47,10 @@ namespace Tiny3D
         Dylib(const String &name);
 
         /** 重写 Resource::load() */
-        virtual bool load() override;
+        virtual TResult load() override;
 
         /** 重写 Resource::unlaod() */
-        virtual void unload() override;
+        virtual TResult unload() override;
 
         /** 重写 Resource::clone() */
         virtual ResourcePtr clone() const override;

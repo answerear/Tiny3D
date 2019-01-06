@@ -21,12 +21,15 @@
 #define __T3D_PLATFORM_ERROR_DEF_H__
 
 
+#include "T3DPlatformPrerequisites.h"
 #include "T3DCommonErrorDef.h"
-
 
 namespace Tiny3D
 {
-    
+    enum PlatformErrorCode
+    {
+        // Platform 模块错误码从 T3D_ERR_PLATFORM 开始
+    };
 };
 
 #endif  /*__T3D_PLATFORM_ERROR_DEF_H__*/

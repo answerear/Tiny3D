@@ -38,6 +38,8 @@ namespace Tiny3D
 
         virtual ITime *createPlatformTime() override;
 
+        virtual ITimerService *createPlatformTimerService() override;
+
         virtual IDir *createPlatformDir() override;
 
         virtual IDeviceInfo *createPlatformDeviceInfo() override;

@@ -46,7 +46,7 @@ namespace Tiny3D
          * @param [in] flags : 创建窗口需要的一些标记位，可使用或操作合并标记
          * @return 创建成功返回T3D_ERR_OK.
          */
-        virtual int32_t create(const char *title, int32_t x, int32_t y,
+        virtual TResult create(const char *title, int32_t x, int32_t y,
             int32_t w, int32_t h, uint32_t flags) = 0;
 
         /**

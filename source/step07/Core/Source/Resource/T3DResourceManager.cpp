@@ -242,7 +242,7 @@ namespace Tiny3D
         return res;
     }
 
-    bool ResourceManager::getResources(const String &name, std::list<ResourcePtr> &rList) const
+    bool ResourceManager::getResources(const String &name, TList<ResourcePtr> &rList) const
     {
         bool bRet = false;
         auto i = mResourcesCache.find(name);

@@ -17,37 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_TIMER_MANAGER_H__
-#define __T3D_TIMER_MANAGER_H__
+#ifndef __T3D_TIMER_INTERFACE_H__
+#define __T3D_TIMER_INTERFACE_H__
 
 
 #include "T3DPlatformPrerequisites.h"
-#include "T3DSingleton.h"
-#include "T3DPlatformErrorDef.h"
+#include "T3DType.h"
+#include "T3DMacro.h"
 
 
 namespace Tiny3D
 {
     class ITimerListener;
-    class ITimerService;
 
-    class T3D_PLATFORM_API TimerManager : public Singleton<TimerManager>
+    class ITimerService
     {
-        friend class System;
-
-    private:
-        /**
-         * @brief 构造函数
-         */
-        TimerManager();
-
     public:
-        static const ID INVALID_TIMER_ID;
+        T3D_DECLARE_INTERFACE(ITimerService);
 
-        /**
-         * @brief 析构函数
-         */
-        virtual ~TimerManager();
+        static const ID INVALID_TIMER_ID;   /**< 无效定时器ID */
 
         /**
          * @brief 启动定时器
@@ -56,34 +44,27 @@ namespace Tiny3D
          * @param [in] listener : 定时器回调对象
          * @return 调用成功返回有效定时器ID，否则返回T3D_INVALID_TIMER_ID
          */
-        ID startTimer(uint32_t interval, bool repeat, ITimerListener *listener);
+        virtual ID startTimer(uint32_t interval, bool repeat, 
+            ITimerListener *listener) = 0;
 
         /**
          * @brief 停止定时器
          * @param [in] timerID : 有效定时器ID，通过startTimer返回
          * @return 调用成功返回T3D_ERR_OK
          */
-        TResult stopTimer(ID timerID);
+        virtual TResult stopTimer(ID timerID) = 0;
 
-    protected:
         /**
          * @brief 初始化定时器服务
          */
-        TResult init();
+        virtual TResult init() = 0;
 
         /**
          * @brief 轮询是否有定时器事件触发
          */
-        TResult pollEvents();
-
-    protected:
-        ITimerService   *mTimerService;
+        virtual TResult pollEvents() = 0;
     };
-
-    #define T3D_TIMER_MGR       TimerManager::getInstance()
-
-    #define T3D_INVALID_TIMER_ID    TimerManager::INVALID_TIMER_ID
 }
 
 
-#endif  /*__T3D_TIMER_MANAGER_H__*/
+#endif  /*__T3D_TIMER_INTERFACE_H__*/

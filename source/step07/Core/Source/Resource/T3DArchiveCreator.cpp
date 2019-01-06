@@ -17,23 +17,5 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_EVENT_PARAM_H__
-#define __T3D_EVENT_PARAM_H__
 
-
-#include "T3DEventPrerequisites.h"
-
-
-namespace Tiny3D
-{
-    class T3D_FRAMEWORK_API EventParam
-    {
-        T3D_DECLARE_INTERFACE(EventParam);
-
-    public:
-        virtual EventParam *clone() = 0;
-    };
-}
-
-
-#endif  /*__T3D_EVENT_PARAM_H__*/
+#include "Resource/T3DArchiveCreator.h"

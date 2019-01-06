@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,26 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_COMMON_ERROR_DEF_H__
-#define __T3D_COMMON_ERROR_DEF_H__
+#ifndef __T3D_LOG_ERROR_DEF_H__
+#define __T3D_LOG_ERROR_DEF_H__
 
 
-#include "T3DMacro.h"
+#include "T3DLogPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    enum CommonErrorCode
+    enum LogErrorCode
     {
-        T3D_ERR_NONE                = 0,            /**< Ã»ÓÐ´íÎó */
-        T3D_ERR_OK                  = T3D_ERR_NONE, /**< ³É¹¦ */
-        T3D_ERR_SUCCESS             = T3D_ERR_NONE, /**< ³É¹¦ */
-        T3D_ERR_FAIL                = 0x00000001,   /**< Í¨ÓÃ´íÎó */
-        T3D_ERR_INVALID_POINTER     = 0x00000002,   /**< ¿ÕÖ¸Õë»òÕß·Ç·¨Ö¸Õë */
-        T3D_ERR_INVALID_TIMERID     = 0x00000003,   /**< ÎÞÐ§¶¨Ê±Æ÷ID */
-        T3D_ERR_FILE_NOT_EXIST      = 0x00000004,   /**< ÎÄ¼þ²»´æÔÚ */
-        T3D_ERR_FILE_DATA_MISSING   = 0x00000005,   /**< ÎÄ¼þÄÚÈÝÈ±Ê§ */
+        // Logæ¨¡å—é”™è¯¯ç ä»Ž T3D_ERR_LOG å¼€å§‹
     };
-};
+}
 
-#endif  /*__T3D_COMMON_ERROR_DEF_H__*/
+
+#endif  /*__T3D_LOG_ERROR_DEF_H__*/

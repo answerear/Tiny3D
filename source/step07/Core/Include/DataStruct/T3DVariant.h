@@ -157,6 +157,9 @@ namespace Tiny3D
         /** 获取类型 */
         Type valueType() const;
 
+        /** 获取类型大小 */
+        int32_t valueSize() const;
+
         static VariantArray   INVALID_ARRAY;    /**< 无效数组 */
         static VariantList    INVALID_LIST;     /**< 无效链表 */
         static VariantMap     INVALID_MAP;      /**< 无效map */
@@ -191,6 +194,8 @@ namespace Tiny3D
             ulong_t     mULongValue;
             float32_t   mFloat32Value;
             float64_t   mFloat64Value;
+            fix32_t     mFix32Value;
+            fix64_t     mFix64Value;
             char        mCharValue;
             wchar_t     mWCharValue;
             char        *mStrValue;

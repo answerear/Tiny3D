@@ -41,9 +41,9 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mSystem);
     }
 
-    int32_t Application::init()
+    TResult Application::init()
     {
-        int32_t ret = T3D_ERR_FAIL;
+        TResult ret = T3D_ERR_FAIL;
 
         do 
         {

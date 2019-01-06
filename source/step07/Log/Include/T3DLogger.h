@@ -105,11 +105,13 @@ namespace Tiny3D
          * @param [in] appID : 标识当前应用程序的ID，以便区分日志文件
          * @param [in] tag : 额外的应用程序标签，给日志文件名附加额外信息以作区别
          * @param [in] force : 是否忽略日志级别，全量日志输出
-         * @return 调用成功返回true
-         * @note 调用该函数前，请先通过setStrategy()或者setLevel()、setMaxCacheSize()、setMaxCacheTime()设置好日志输出策略，
+         * @return 调用成功返回T3D_ERR_OK
+         * @note 调用该函数前，请先通过setStrategy()或者setLevel()、
+         *      setMaxCacheSize()、setMaxCacheTime()设置好日志输出策略，
          *      否则会用默认策略
          */
-        bool startup(uint32_t appID, const String &tag, bool force = false, bool outputConsole = false);
+        TResult startup(ID appID, const String &tag, bool force = false, 
+            bool outputConsole = false);
 
         /**
          * @brief 输出日志
@@ -152,7 +154,7 @@ namespace Tiny3D
         String getLogPath() const;
 
         /// 构造日志文件名
-        String makeLogFileName(uint32_t appID, const String &tag, const DateTime &dt);
+        String makeLogFileName(ID appID, const String &tag, const DateTime &dt);
 
         /// 打开日志文件
         bool openLogFile();
@@ -170,7 +172,7 @@ namespace Tiny3D
         void stopFlushTimer();
 
         /// 定时器回调，继承自RunLoopObserver
-        virtual void onTimer(uint32_t timerID, int32_t dt) override;
+        virtual void onTimer(ID timerID, int32_t dt) override;
 
         String getFileName(const String &path) const;
 
@@ -193,22 +195,22 @@ namespace Tiny3D
         void commitFlushCacheTask();
 
         /// 处理检查过期日志异步任务
-        int32_t processCheckExpiredTask(LogTask *task);
+        TResult processCheckExpiredTask(LogTask *task);
         /// 处理把缓存写回文件异步任务
-        int32_t processFlushCacheTask(LogTask *task);
+        TResult processFlushCacheTask(LogTask *task);
 
     private:
-        typedef std::list<LogItem*>         ItemCache;
+        typedef TList<LogItem*>             ItemCache;
         typedef ItemCache::iterator         ItemCacheItr;
         typedef ItemCache::const_iterator   ItemCacheConstItr;
 
-        typedef std::list<LogTask*>         TaskQueue;
+        typedef TList<LogTask*>             TaskQueue;
         typedef TaskQueue::iterator         TaskQueueItr;
         typedef TaskQueue::const_iterator   TaskQueueConstItr;
 
-        uint32_t            mFlushCacheTimerID; /// 写回定时器ID
+        ID                  mFlushCacheTimerID; /// 写回定时器ID
 
-        uint32_t            mAppID;             /// 应用程序标识
+        ID                  mAppID;             /// 应用程序标识
         String              mTag;               /// 应用程序额外信息标签
 
         Strategy            mStrategy;          /// 日志输出相关策略
@@ -220,12 +222,12 @@ namespace Tiny3D
 
         FileDataStream      mFileStream;        /// 文件输出对象
 
-        std::thread         mWorkingThread;     /// 异步工作线程，用于清除过期日志文件、写入日志文件等异步操作
+        TThread             mWorkingThread;     /// 异步工作线程，用于清除过期日志文件、写入日志文件等异步操作
 
-        std::mutex              mWaitMutex;     /// 用于挂起线程互斥量
-        std::condition_variable mWaitCond;      /// 异步线程条件变量
+        TMutex              mWaitMutex;     /// 用于挂起线程互斥量
+        TCondVariable       mWaitCond;      /// 异步线程条件变量
 
-        std::mutex          mTaskMutex;         /// 异步任务互斥量
+        TMutex              mTaskMutex;         /// 异步任务互斥量
 
         int32_t             mTaskType;          /// 当前处理任务
 
