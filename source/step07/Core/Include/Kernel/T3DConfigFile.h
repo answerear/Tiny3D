@@ -43,9 +43,12 @@ namespace Tiny3D
     public:
         /** 
          * @brief 构造函数
-         * @param [in] filename : 要读取的文件名，包含路径
+         * @param [in] filename : 配置文件名
+         * @param [in] archive : 配置文件所在的档案结构。 默认值为nullptr。
+         *          当为默认值时，filename 需要是绝对路径。 如果指定档案结构对象，
+         *          则 filename 是相对档案结构根目录的相对路径。
          */
-        ConfigFile(const String &filename);
+        ConfigFile(const String &filename, ArchivePtr archive = nullptr);
 
         /** 
          * @brief 析构函数 
@@ -131,7 +134,8 @@ namespace Tiny3D
         bool buildBinVariant(DataStream &stream, const Variant &value);
 
     private:
-        String  mFilename;
+        String      mFilename;  /**< 配置文件名 */
+        ArchivePtr  mArchive;   /**< 配置文件所在的档案结构对象 */
     };
 }
 

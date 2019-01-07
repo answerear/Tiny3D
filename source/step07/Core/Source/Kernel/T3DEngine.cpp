@@ -20,6 +20,7 @@
 #include "Kernel/T3DEngine.h"
 #include "Resource/T3DArchiveManager.h"
 #include "Resource/T3DFileSystemArchive.h"
+#include "Resource/T3DZipArchieve.h"
 
 
 namespace Tiny3D
@@ -246,8 +247,11 @@ namespace Tiny3D
     {
         mArchiveMgr = ArchiveManager::create();
 
-        FileSystemArchiveCreator *creator = new FileSystemArchiveCreator();
-        mArchiveMgr->addArchiveCreator(creator);
+        FileSystemArchiveCreator *fsCreator = new FileSystemArchiveCreator();
+        mArchiveMgr->addArchiveCreator(fsCreator);
+
+        ZipArchiveCreator *zipCreator = new ZipArchiveCreator();
+        mArchiveMgr->addArchiveCreator(zipCreator);
 
         return T3D_ERR_OK;
     }

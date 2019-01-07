@@ -44,8 +44,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ConfigFile::ConfigFile(const String &filename)
+    ConfigFile::ConfigFile(const String &filename, ArchivePtr archive /* = nullptr */)
         : mFilename(filename)
+        , mArchive(archive)
     {
 
     }
@@ -63,28 +64,50 @@ namespace Tiny3D
 
         do 
         {
-            FileDataStream fs;
-            if (!fs.open(mFilename.c_str(), FileDataStream::E_MODE_READ_ONLY))
-            {
-                ret = T3D_ERR_FILE_NOT_EXIST;
-                T3D_LOG_ERROR("Open config file [%s] failed !", 
-                    mFilename.c_str());
-                break;
-            }
+            MemoryDataStream stream;
+            char *content = nullptr;
+            size_t contentSize = 0;
 
-            size_t contentSize = fs.size();
-            char *content = new char[contentSize];
-            if (fs.read(content, contentSize) != contentSize)
+            if (mArchive != nullptr)
             {
+                // 从档案结构系统中获取文件内容
+                ret = mArchive->read(mFilename, stream);
+                if (ret != T3D_ERR_OK)
+                {
+                    T3D_LOG_ERROR("Read config file [%s] failed !",
+                        mFilename.c_str());
+                    break;
+                }
+
+                stream.getBuffer((uint8_t *&)content, contentSize);
+            }
+            else
+            {
+                // 配置文件不在某种档案结构管理里面，就在本地文件系统，直接访问。
+                FileDataStream fs;
+                if (!fs.open(mFilename.c_str(), FileDataStream::E_MODE_READ_ONLY))
+                {
+                    ret = T3D_ERR_FILE_NOT_EXIST;
+                    T3D_LOG_ERROR("Open config file [%s] failed !",
+                        mFilename.c_str());
+                    break;
+                }
+
+                contentSize = fs.size();
+                content = new char[contentSize];
+                if (fs.read(content, contentSize) != contentSize)
+                {
+                    fs.close();
+                    ret = T3D_ERR_FILE_DATA_MISSING;
+                    T3D_LOG_ERROR("Read config file [%s] data failed !",
+                        mFilename.c_str());
+                    break;
+                }
+
                 fs.close();
-                ret = T3D_ERR_FILE_DATA_MISSING;
-                T3D_LOG_ERROR("Read config file [%s] data failed !", 
-                    mFilename.c_str());
-                break;
             }
-
-            fs.close();
-
+            
+            // 解析 XML 格式
             tinyxml2::XMLDocument doc;
             if (doc.Parse(content, contentSize) != tinyxml2::XML_NO_ERROR)
             {
@@ -360,6 +383,7 @@ namespace Tiny3D
         
         do 
         {
+            // 构建 XML 格式文件
             tinyxml2::XMLDocument doc;
             ret = buildXML(doc, settings);
             if (ret != T3D_ERR_OK)
@@ -367,10 +391,53 @@ namespace Tiny3D
                 break;
             }
 
-            if (doc.SaveFile(mFilename.c_str()) != tinyxml2::XML_NO_ERROR)
+            // 构造内存文件，下面再根据具体的情况是写入对应的档案文件中
+            tinyxml2::XMLPrinter printer;
+            if (!doc.Accept(&printer))
             {
                 ret = T3D_ERR_CFG_FILE_XML_FORMAT;
+                T3D_LOG_ERROR("Write config file [%s] to memory failed !",
+                    mFilename.c_str());
                 break;
+            }
+
+            const char *content = printer.CStr();
+            size_t contentSize = printer.CStrSize();
+
+            if (mArchive != nullptr)
+            {
+                // 保存到档案系统中的文件
+                MemoryDataStream stream((uchar_t*)content, contentSize);
+                ret = mArchive->write(mFilename, stream);
+                if (ret != T3D_ERR_OK)
+                {
+                    T3D_LOG_ERROR("Write config file [%s] failed !",
+                        mFilename.c_str());
+                    break;
+                }
+            }
+            else
+            {
+                // 保存到本地文件系统中的文件
+                FileDataStream fs;
+                if (!fs.open(mFilename.c_str(), FileDataStream::E_MODE_WRITE_ONLY))
+                {
+                    ret = T3D_ERR_FILE_NOT_EXIST;
+                    T3D_LOG_ERROR("Open config file [%s] failed !",
+                        mFilename.c_str());
+                    break;
+                }
+
+                if (fs.write((void *)content, contentSize) != contentSize)
+                {
+                    fs.close();
+                    ret = T3D_ERR_FILE_DATA_MISSING;
+                    T3D_LOG_ERROR("Write config file [%s] failed !",
+                        mFilename.c_str());
+                    break;
+                }
+
+                fs.close();
             }
         } while (0);
         
