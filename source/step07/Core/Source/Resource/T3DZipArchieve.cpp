@@ -19,6 +19,7 @@
 
 
 #include "Resource/T3DZipArchieve.h"
+#include "Support/unzip/unzip.h"
 
 
 namespace Tiny3D
