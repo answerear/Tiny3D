@@ -18,103 +18,96 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RESOURCE_H__
-#define __T3D_RESOURCE_H__
-
-
-#include "Kernel/T3DObject.h"
-#include "T3DTypedef.h"
+#include "Resource/T3DZipArchieve.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API Resource : public Object
+    //--------------------------------------------------------------------------
+
+    const char * const ZipArchive::ARCHIVE_TYPE = "Zip";
+
+    //--------------------------------------------------------------------------
+
+    String ZipArchiveCreator::getType() const
     {
-        friend class ResourceManager;
+        return ZipArchive::ARCHIVE_TYPE;
+    }
 
-    public:
-        /** 资源类型枚举 */
-        enum Type
-        {
-            E_TYPE_UNKNOWN = 0,
-            E_TYPE_DYLIB,       /**< 动态库 */
-        };
+    ArchivePtr ZipArchiveCreator::createObject(int32_t argc, ...) const
+    {
+        va_list params;
+        va_start(params, argc);
+        String name = va_arg(params, char *);
+        va_end(params);
+        return ZipArchive::create(name);
+    }
 
-        /** 析构函数 */
-        virtual ~Resource();
+    //--------------------------------------------------------------------------
 
-        /** 获取资源类型 */
-        virtual Type getType() const = 0;
+    ZipArchivePtr ZipArchive::create(const String &name)
+    {
+        ZipArchivePtr archive = new ZipArchive(name);
+        archive->release();
+        return archive;
+    }
 
-        /** 获取资源唯一ID */
-        ID getID() const
-        {
-            return mID;
-        }
-        
-        /** 获取克隆资源唯一ID，当该资源是从其他资源克隆出来时，该ID才有效 */
-        ID getCloneID() const
-        {
-            return mCloneID;
-        }
+    //--------------------------------------------------------------------------
 
-        /** 是否克隆资源 */
-        bool isCloned() const
-        {
-            return (mCloneID != T3D_INVALID_ID);
-        }
+    ZipArchive::ZipArchive(const String &name)
+        : Archive(name)
+    {
 
-        /** 获取资源大小 */
-        size_t getSize() const
-        {
-            return mSize;
-        }
+    }
 
-        /** 获取资源名称 */
-        const String &getName() const
-        {
-            return mName;
-        }
+    ZipArchive::~ZipArchive()
+    {
 
-        /** 获取资源是否加载 */
-        bool isLoaded() const
-        {
-            return mIsLoaded;
-        }
+    }
 
-    protected:
-        /** 
-         * @brief 构造函数
-         * @remarks 本类不能直接实例化，所以只能隐藏构造函数 
-         */
-        Resource(const String &name);
+    //--------------------------------------------------------------------------
 
-        /** 
-         * @brief 加载资源
-         * @remarks 每种类型资源需要各自实现其加载逻辑，资源只有加载后才能使用
-         */
-        virtual bool load() = 0;
+    TResult ZipArchive::load()
+    {
+        return T3D_ERR_OK;
+    }
 
-        /** 
-         * @brief 卸载资源
-         * @remarks 每种类型资源需要各自实现其卸载逻辑，资源卸载后就不能再使用了
-         */
-        virtual void unload() = 0;
+    TResult ZipArchive::unload()
+    {
+        return T3D_ERR_OK;
+    }
 
-        /** 
-         * @brief 克隆资源
-         * @remarks 每种类型资源需要各自实现其克隆逻辑，克隆出一个新资源对象
-         */
-        virtual ResourcePtr clone() const = 0;
+    ResourcePtr ZipArchive::clone() const
+    {
+        ArchivePtr archive = create(mName);
+        return archive;
+    }
 
-    protected:
-        ID      mID;        /**< 资源ID */
-        ID      mCloneID;   /**< 如果资源是从其他资源克隆出来的，该ID才有效 */
-        size_t  mSize;      /**< 资源大小 */
-        bool    mIsLoaded;  /**< 资源是否加载标记 */
-        String  mName;      /**< 资源名称 */
-    };
+    //--------------------------------------------------------------------------
+
+    String ZipArchive::getArchiveType() const
+    {
+        return ARCHIVE_TYPE;
+    }
+
+    String ZipArchive::getLocation() const
+    {
+        return mName;
+    }
+
+    bool ZipArchive::exists(const String &name) const
+    {
+        return false;
+    }
+
+    TResult ZipArchive::read(const String &name, MemoryDataStream &stream)
+    {
+        return T3D_ERR_OK;
+    }
+
+    TResult ZipArchive::write(const String &name, const MemoryDataStream &stream)
+    {
+        return T3D_ERR_OK;
+    }
 }
 
-
-#endif  /*__T3D_RESOURCE_H__*/

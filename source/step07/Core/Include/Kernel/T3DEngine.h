@@ -23,6 +23,7 @@
 
 
 #include "T3DPrerequisites.h"
+#include "T3DTypeDef.h"
 
 
 namespace Tiny3D
@@ -49,7 +50,7 @@ namespace Tiny3D
          * @brief 初始化引擎
          * @remarks 引擎的一切应用都要在调用本接口之后才有效。
          */
-        int32_t init(const String &title);
+        TResult init(const String &title);
 
         /**
          * @brief 运行引擎
@@ -72,11 +73,39 @@ namespace Tiny3D
         const String &getPluginsPath() const { return mPluginsPath; }
 
     protected:
-        Logger              *mLogger;               /// 日志对象
-        EventManager        *mEventMgr;             /// 事件管理器对象
+        /**
+         * @brief 初始化应用程序
+         */
+        TResult initApplication();
 
-        Window              *mWindow;               /// 窗口
-        bool                mIsRunning;             /// 引擎是否在运行中
+        /** 
+         * @brief 初始化日志系统 
+         */
+        TResult initLogSystem();
+
+        /**
+         * @brief 初始化事件系统
+         */
+        TResult initEventSystem();
+
+        /**
+         * @brief 创建渲染窗口
+         */
+        TResult createRenderWindow(const String &title);
+
+        /**
+         * @brief 初始化档案结构系统
+         */
+        TResult initArchives();
+
+    protected:
+        Logger              *mLogger;           /**< 日志对象 */
+        EventManager        *mEventMgr;         /**< 事件管理器对象 */
+
+        Window              *mWindow;           /**< 窗口 */
+        bool                mIsRunning;         /**< 引擎是否在运行中 */
+
+        ArchiveManagerPtr   mArchiveMgr;        /**< 档案管理对象 */
 
         String              mAppPath;           /**< 程序路径 */
         String              mAppName;           /**< 程序名称 */

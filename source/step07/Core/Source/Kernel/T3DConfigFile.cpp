@@ -22,6 +22,8 @@
 #include "DataStruct/T3DVariant.h"
 #include "Support/tinyxml2/tinyxml2.h"
 #include "T3DErrorDef.h"
+#include "Resource/T3DArchive.h"
+#include "Resource/T3DArchiveManager.h"
 
 
 namespace Tiny3D
@@ -98,27 +100,30 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult ConfigFile::parseXML(const tinyxml2::XMLDocument &doc, Settings &settings)
+    TResult ConfigFile::parseXML(const tinyxml2::XMLDocument &doc, 
+        Settings &settings)
     {
         TResult ret = T3D_ERR_OK;
 
         do 
         {
-            const tinyxml2::XMLElement *plist = doc.FirstChildElement(TAG_NAME_PLIST);
+            const tinyxml2::XMLElement *plist 
+                = doc.FirstChildElement(TAG_NAME_PLIST);
             if (plist == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR("Parse xml file [%s] failed ! Get xml node [plist] failed !", 
-                    mFilename.c_str());
+                T3D_LOG_ERROR("Parse xml file [%s] failed ! Get xml node \
+                    [plist] failed !", mFilename.c_str());
                 break;
             }
 
-            const tinyxml2::XMLElement *root = plist->FirstChildElement(TAG_NAME_DICT);
+            const tinyxml2::XMLElement *root 
+                = plist->FirstChildElement(TAG_NAME_DICT);
             if (root == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR("Parse xml file [%s] failed ! Get xml node [dict] failed !", 
-                    mFilename.c_str());
+                T3D_LOG_ERROR("Parse xml file [%s] failed ! Get xml node \
+                    [dict] failed !", mFilename.c_str());
                 break;
             }
 
@@ -128,7 +133,8 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult ConfigFile::parseXMLDict(const tinyxml2::XMLElement *root, VariantMap &dict)
+    TResult ConfigFile::parseXMLDict(const tinyxml2::XMLElement *root, 
+        VariantMap &dict)
     {
         TResult ret = T3D_ERR_OK;
 
@@ -146,8 +152,8 @@ namespace Tiny3D
                 {
                     // wrong format
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error key node !", 
-                        mFilename.c_str());
+                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error key \
+                        node !", mFilename.c_str());
                     break;
                 }
                 else
@@ -173,7 +179,8 @@ namespace Tiny3D
                 {
                     // wrong format
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error dict node !");
+                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error dict \
+                        node !");
                     break;
                 }
             }
@@ -193,7 +200,8 @@ namespace Tiny3D
                 {
                     // wrong format
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error array node !");
+                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error array \
+                        node !");
                     break;
                 }
             }
@@ -208,7 +216,8 @@ namespace Tiny3D
                 else
                 {
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error string node !");
+                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error string \
+                        node !");
                     break;
                 }
             }
@@ -223,7 +232,8 @@ namespace Tiny3D
                 else
                 {
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error integer node !");
+                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error integer \
+                        node !");
                     break;
                 }
             }
@@ -238,7 +248,8 @@ namespace Tiny3D
                 else
                 {
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error real node !");
+                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error real \
+                        node !");
                     break;
                 }
             }
@@ -253,7 +264,8 @@ namespace Tiny3D
                 else
                 {
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error boolean node !");
+                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error boolean \
+                        node !");
                     break;
                 }
             }
@@ -270,7 +282,8 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult ConfigFile::parseXMLArray(const tinyxml2::XMLElement *root, VariantArray &arr)
+    TResult ConfigFile::parseXMLArray(const tinyxml2::XMLElement *root, 
+        VariantArray &arr)
     {
         TResult ret = T3D_ERR_OK;
 
@@ -361,6 +374,194 @@ namespace Tiny3D
             }
         } while (0);
         
+        return ret;
+    }
+
+    TResult ConfigFile::buildXML(tinyxml2::XMLDocument &doc, 
+        const Settings &settings)
+    {
+        tinyxml2::XMLDeclaration *decl = doc.NewDeclaration();
+        doc.LinkEndChild(decl);
+
+        // plist tag
+        tinyxml2::XMLElement *plist = doc.NewElement(TAG_NAME_PLIST);
+        doc.LinkEndChild(plist);
+
+        // root tag
+        tinyxml2::XMLElement *root = doc.NewElement(TAG_NAME_DICT);
+
+        TResult ret = buildXMLDict(doc, root, settings);
+
+        if (ret == T3D_ERR_OK)
+        {
+            plist->LinkEndChild(root);
+        }
+
+        return ret;
+    }
+
+    TResult ConfigFile::buildXMLDict(tinyxml2::XMLDocument &doc,
+        tinyxml2::XMLElement *root, const VariantMap &dict)
+    {
+        TResult ret = T3D_ERR_OK;
+        VariantMapConstItr itr = dict.begin();
+
+        while (itr != dict.end())
+        {
+            tinyxml2::XMLElement *child = doc.NewElement(TAG_NAME_KEY);
+
+            const Variant &key = itr->first;
+            const Variant &value = itr->second;
+
+            tinyxml2::XMLText *text = doc.NewText(key.stringValue().c_str());
+            child->LinkEndChild(text);
+            root->LinkEndChild(child);
+
+            ret = buildXMLVariant(doc, root, value);
+            if (ret != T3D_ERR_OK)
+                break;
+
+            ++itr;
+        }
+
+        return ret;
+    }
+
+    TResult ConfigFile::buildXMLArray(tinyxml2::XMLDocument &doc,
+        tinyxml2::XMLElement *root, const VariantArray &arr)
+    {
+        TResult ret = T3D_ERR_OK;
+        tinyxml2::XMLElement *child = nullptr;
+        VariantArrayConstItr itr = arr.begin();
+
+        while (itr != arr.end())
+        {
+            const Variant &value = *itr;
+
+            ret = buildXMLVariant(doc, root, value);
+            if (ret != T3D_ERR_OK)
+                break;
+
+            ++itr;
+        }
+
+        return ret;
+    }
+
+    TResult ConfigFile::buildXMLList(tinyxml2::XMLDocument &doc, 
+        tinyxml2::XMLElement *root, const VariantList &list)
+    {
+        TResult ret = T3D_ERR_OK;
+        tinyxml2::XMLElement *child = nullptr;
+        VariantListConstItr itr = list.begin();
+
+        while (itr != list.end())
+        {
+            const Variant &value = *itr;
+
+            ret = buildXMLVariant(doc, root, value);
+            if (ret != T3D_ERR_OK)
+                break;
+
+            ++itr;
+        }
+
+        return ret;
+    }
+
+    TResult ConfigFile::buildXMLVariant(tinyxml2::XMLDocument &doc, 
+        tinyxml2::XMLElement *root, const Variant &value)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        do 
+        {
+            tinyxml2::XMLElement *child = nullptr;
+            tinyxml2::XMLText *text = nullptr;
+
+            if (value.valueType() == Variant::E_BOOL)
+            {
+                bool val = value.boolValue();
+
+                if (val)
+                    child = doc.NewElement(TAG_NAME_TRUE);
+                else
+                    child = doc.NewElement(TAG_NAME_FALSE);
+
+                root->LinkEndChild(child);
+            }
+            else if (value.valueType() == Variant::E_INT8
+                || value.valueType() == Variant::E_UINT8
+                || value.valueType() == Variant::E_INT16
+                || value.valueType() == Variant::E_UINT16
+                || value.valueType() == Variant::E_INT32
+                || value.valueType() == Variant::E_UINT32
+                || value.valueType() == Variant::E_INT64
+                || value.valueType() == Variant::E_UINT64
+                || value.valueType() == Variant::E_LONG
+                || value.valueType() == Variant::E_ULONG)
+            {
+                long_t val = value.longValue();
+                child = doc.NewElement(TAG_NAME_INTEGER);
+                char buf[64] = { 0 };
+                ltoa(val, buf, 10);
+                text = doc.NewText(buf);
+                child->LinkEndChild(text);
+                root->LinkEndChild(child);
+            }
+            else if (value.valueType() == Variant::E_FLOAT32
+                || value.valueType() == Variant::E_FLOAT64
+                || value.valueType() == Variant::E_FIX32
+                || value.valueType() == Variant::E_FIX64)
+            {
+                Real val = value.float32Value();
+                child = doc.NewElement(TAG_NAME_REAL);
+                char buf[64] = { 0 };
+                snprintf(buf, sizeof(buf) - 1, "%f", val);
+                text = doc.NewText(buf);
+                child->LinkEndChild(text);
+                root->LinkEndChild(child);
+            }
+            else if (value.valueType() == Variant::E_STRING)
+            {
+                String val = value.stringValue();
+                child = doc.NewElement(TAG_NAME_STRING);
+                text = doc.NewText(val.c_str());
+                child->LinkEndChild(text);
+                root->LinkEndChild(child);
+            }
+            else if (value.valueType() == Variant::E_ARRAY)
+            {
+                const VariantArray &val = value.arrayValue();
+                child = doc.NewElement(TAG_NAME_ARRAY);
+                ret = buildXMLArray(doc, child, val);
+                if (ret == T3D_ERR_OK)
+                    root->LinkEndChild(child);
+                else
+                    break;
+            }
+            else if (value.valueType() == Variant::E_LIST)
+            {
+                const VariantList &val = value.listValue();
+                child = doc.NewElement(TAG_NAME_ARRAY);
+                ret = buildXMLList(doc, child, val);
+                if (ret == T3D_ERR_OK)
+                    root->LinkEndChild(child);
+                else
+                    break;
+            }
+            else if (value.valueType() == Variant::E_MAP)
+            {
+                const VariantMap &val = value.mapValue();
+                child = doc.NewElement(TAG_NAME_DICT);
+                ret = buildXMLDict(doc, child, val);
+                if (ret == T3D_ERR_OK)
+                    root->LinkEndChild(child);
+                else
+                    break;
+            }
+        } while (0);
+
         return ret;
     }
 }

@@ -52,8 +52,9 @@ namespace Tiny3D
     class Dylib;
     class DylibManager;
     class Archive;
-    class ArchiveManager;
     class FileSystemArchive;
+    class ZipArchive;
+    class ArchiveManager;
 }
 
 

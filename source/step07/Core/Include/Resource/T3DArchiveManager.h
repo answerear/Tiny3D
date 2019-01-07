@@ -37,8 +37,8 @@ namespace Tiny3D
         , public ResourceManager
     {
     public:
-        /** 构造函数 */
-        ArchiveManager();
+        /** 创建 ArchiveManager 对象 */
+        static ArchiveManagerPtr create();
 
         /** 析构函数 */
         virtual ~ArchiveManager();
@@ -75,6 +75,12 @@ namespace Tiny3D
         bool getArchive(const String &name, ArchivePtr &archive);
 
     protected:
+        /** 构造函数 */
+        ArchiveManager();
+
+        /** 
+         * @brief 重写 Resource::create() 接口 
+         */
         virtual ResourcePtr create(const String &name, int32_t argc, 
             va_list args) override;
 

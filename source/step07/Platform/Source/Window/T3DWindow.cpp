@@ -51,10 +51,10 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mWindow);
     }
 
-    int32_t Window::create(const char *title, int32_t x, int32_t y,
+    TResult Window::create(const char *title, int32_t x, int32_t y,
         int32_t w, int32_t h, uint32_t flags)
     {
-        int32_t ret = T3D_ERR_FAIL;
+        TResult ret = T3D_ERR_FAIL;
 
         if (mWindow != nullptr)
         {

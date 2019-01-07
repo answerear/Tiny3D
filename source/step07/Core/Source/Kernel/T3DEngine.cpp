@@ -18,20 +18,23 @@
  ******************************************************************************/
 
 #include "Kernel/T3DEngine.h"
+#include "Resource/T3DArchiveManager.h"
+#include "Resource/T3DFileSystemArchive.h"
 
 
 namespace Tiny3D
 {
     T3D_INIT_SINGLETON(Engine);
 
+    //--------------------------------------------------------------------------
+
     Engine::Engine()
         : mLogger(nullptr)
         , mEventMgr(nullptr)
         , mWindow(nullptr)
         , mIsRunning(false)
+        , mArchiveMgr(nullptr)
     {
-        mLogger = new Logger();
-        mEventMgr = new EventManager(10);
     }
 
     Engine::~Engine()
@@ -43,35 +46,44 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mLogger);
     }
 
-    int32_t Engine::init(const String &title)
+    //--------------------------------------------------------------------------
+
+    TResult Engine::init(const String &title)
     {
-        int32_t ret = T3D_ERR_FAIL;
+        TResult ret = T3D_ERR_FAIL;
 
         do
         {
-            Application *theApp = Application::getInstancePtr();
-            if (theApp == nullptr)
-            {
-                ret = T3D_ERR_INVALID_POINTER;
-                break;
-            }
-
-            ret = theApp->init();
+            // 初始化应用程序框架，这个需要放在最前面，否则平台相关接口均不能用
+            ret = initApplication();
             if (ret != T3D_ERR_OK)
             {
                 break;
             }
 
-            if (mLogger != nullptr)
+            // 初始化日志系统，这个需要放在前面，避免日志无法输出
+            ret = initLogSystem();
+            if (ret != T3D_ERR_OK)
             {
-                mLogger->startup(1000, "Engine", true, true);
+                break;
             }
 
-            T3D_LOG_INFO("Start Tiny3D ...... version %s", T3D_DEVICE_INFO.getSoftwareVersion().c_str());
-            T3D_LOG_INFO("System Information : \n%s", T3D_DEVICE_INFO.getSystemInfo().c_str());
+            // 初始化事件系统
+            ret = initEventSystem();
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
 
-            mWindow = new Window();
-            ret = mWindow->create(title.c_str(), 100, 100, 800, 600, Window::WINDOW_SHOWN);
+            // 初始化档案系统
+            ret = initArchives();
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+
+            // 创建渲染窗口
+            ret = createRenderWindow(title);
             if (ret != T3D_ERR_OK)
             {
                 break;
@@ -149,6 +161,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Engine::appWillEnterForeground()
     {
         T3D_LOG_ENTER_FOREGROUND();
@@ -157,5 +171,84 @@ namespace Tiny3D
     void Engine::appDidEnterBackground()
     {
         T3D_LOG_ENTER_BACKGROUND();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Engine::initApplication()
+    {
+        TResult ret = T3D_ERR_OK;
+
+        do
+        {
+            Application *theApp = Application::getInstancePtr();
+            if (theApp == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            ret = theApp->init();
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    TResult Engine::initLogSystem()
+    {
+        TResult ret = T3D_ERR_FAIL;
+
+        mLogger = new Logger();
+
+        if (mLogger != nullptr)
+        {
+            ret = mLogger->startup(1000, "Engine", true, true);
+        }
+
+        T3D_LOG_INFO("Start Tiny3D ...... version %s",
+            T3D_DEVICE_INFO.getSoftwareVersion().c_str());
+
+        T3D_LOG_INFO("System Information : \n%s",
+            T3D_DEVICE_INFO.getSystemInfo().c_str());
+
+        return ret;
+    }
+
+    TResult Engine::initEventSystem()
+    {
+        mEventMgr = new EventManager(10);
+        return T3D_ERR_OK;
+    }
+
+    TResult Engine::createRenderWindow(const String &title)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        do 
+        {
+            mWindow = new Window();
+            ret = mWindow->create(title.c_str(), 100, 100, 800, 600,
+                Window::WINDOW_SHOWN);
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+        } while (0);
+        
+        return ret;
+    }
+
+    TResult Engine::initArchives()
+    {
+        mArchiveMgr = ArchiveManager::create();
+
+        FileSystemArchiveCreator *creator = new FileSystemArchiveCreator();
+        mArchiveMgr->addArchiveCreator(creator);
+
+        return T3D_ERR_OK;
     }
 }

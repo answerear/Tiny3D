@@ -94,17 +94,21 @@ namespace Tiny3D
         TResult buildXML(tinyxml2::XMLDocument &doc, const Settings &settings);
 
         /** 从字典结构容器构建XML */
-        bool buildXMLDict(tinyxml2::XMLDocument &doc, 
+        TResult buildXMLDict(tinyxml2::XMLDocument &doc, 
             tinyxml2::XMLElement *root,
             const VariantMap &dict);
 
         /** 从数组结构容器构建XML */
-        bool buildXMLArray(tinyxml2::XMLDocument &doc, 
+        TResult buildXMLArray(tinyxml2::XMLDocument &doc, 
             tinyxml2::XMLElement *root,
             const VariantArray &arr);
 
+        TResult buildXMLList(tinyxml2::XMLDocument &doc,
+            tinyxml2::XMLElement *root,
+            const VariantList &list);
+
         /** 根据可变类型对象构建XML */
-        bool buildXMLVariant(tinyxml2::XMLDocument &doc, 
+        TResult buildXMLVariant(tinyxml2::XMLDocument &doc, 
             tinyxml2::XMLElement *root,
             const Variant &value);
 
@@ -125,6 +129,7 @@ namespace Tiny3D
 
         /** 用可变类型对象构建二进制数据 */
         bool buildBinVariant(DataStream &stream, const Variant &value);
+
     private:
         String  mFilename;
     };

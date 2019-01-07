@@ -222,7 +222,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Variant::~Variant()
+    inline Variant::~Variant()
     {
         releaseMemory();
     }

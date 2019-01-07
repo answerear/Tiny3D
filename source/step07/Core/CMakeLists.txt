@@ -34,8 +34,13 @@ include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
 	"${SDL2_INCLUDE_DIR}"
+	"${TINY3D_DEP_DIR}/zlib/include"	# only for windows
 	)
 
+if (TINY3D_OS_WINDOWS)
+	
+	set(TINY3D_ZLIB_LIBRARY "${TINY3D_DEP_DIR}/zlib/prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}/zlibstatic.lib")
+endif (TINY3D_OS_WINDOWS)
 
 # Setup header files for this project.
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
@@ -53,6 +58,10 @@ set_project_files(Source\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Source/DataSt
 # tinyxml2
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .cpp)
+
+# unzip
+set_project_files(Source\\\\Support\\\\unzip ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/unzip/ .h)
+set_project_files(Source\\\\Support\\\\unzip ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/unzip/ .c)
 
 # Setup all files for building this project.
 if (TINY3D_BUILD_SHARED_LIBS)
@@ -79,6 +88,7 @@ if (TINY3D_OS_WINDOWS)
 			LINK_PRIVATE T3DMath
 			LINK_PRIVATE legacy_stdio_definitions
 			LINK_PRIVATE ${SDL2_LIBRARY}
+			LINK_PRIVATE ${TINY3D_ZLIB_LIBRARY}
 			)
 	else ()
 		# Visual Studio version is older than 2015
@@ -89,6 +99,7 @@ if (TINY3D_OS_WINDOWS)
 			LINK_PRIVATE T3DFramework
 			LINK_PRIVATE T3DMath
 			LINK_PRIVATE ${SDL2_LIBRARY}
+			LINK_PRIVATE ${TINY3D_ZLIB_LIBRARY}
 			)
 	endif ()
 
@@ -131,6 +142,7 @@ elseif (TINY3D_OS_MACOSX)
 		LINK_PRIVATE T3DMath
 		LINK_PRIVATE ${SDL2_LIBRARY}
 		LINK_PRIVATE ${SDL2_OSX_FRAMEWORKS}
+		LINK_PRIVATE zlib
 		)
 elseif (TINY3D_OS_LINUX)
 	# Linux
@@ -141,6 +153,7 @@ elseif (TINY3D_OS_LINUX)
 		LINK_PRIVATE T3DFramework
 		LINK_PRIVATE T3DMath
 		LINK_PRIVATE ${SDL2_LIBRARY}
+		LINK_PRIVATE zlib
 		)
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	# iOS
@@ -158,6 +171,7 @@ elseif (TINY3D_OS_ANDROID)
         LINK_PRIVATE T3DFramework
 		LINK_PRIVATE T3DMath
         LINK_PRIVATE ${SDL2_BINARY}
+		LINK_PRIVATE zlib
         )
 endif (TINY3D_OS_WINDOWS)
 

@@ -34,7 +34,7 @@ namespace Tiny3D
     class T3D_ENGINE_API FileSystemArchive : public Archive
     {
     public:
-        static const char * const ARCHIEVE_TYPE;    /**< 档案类型 */
+        static const char * const ARCHIVE_TYPE; /**< 档案类型 */
 
         /**
          * @brief 创建对象
@@ -132,6 +132,9 @@ namespace Tiny3D
         FileStreamCache mFileStreamCache;   /**< 使用中的文件流缓存 */
     };
 
+    /**
+     * @brief 文件系统档案结构构建器类，用于构建文件系统档案结构对象
+     */
     class T3D_ENGINE_API FileSystemArchiveCreator : public ArchiveCreator
     {
     public:

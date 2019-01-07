@@ -29,6 +29,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ArchiveManagerPtr ArchiveManager::create()
+    {
+        ArchiveManagerPtr mgr = new ArchiveManager();
+        mgr->release();
+        return mgr;
+    }
+
+    //--------------------------------------------------------------------------
+
     ArchiveManager::ArchiveManager()
     {
 

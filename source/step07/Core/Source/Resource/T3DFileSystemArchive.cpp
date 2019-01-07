@@ -24,13 +24,13 @@
 
 namespace Tiny3D
 {
-    const char * const FileSystemArchive::ARCHIEVE_TYPE = "FileSystem";
+    const char * const FileSystemArchive::ARCHIVE_TYPE = "FileSystem";
 
     //--------------------------------------------------------------------------
 
     String FileSystemArchiveCreator::getType() const
     {
-        return FileSystemArchive::ARCHIEVE_TYPE;
+        return FileSystemArchive::ARCHIVE_TYPE;
     }
 
     ArchivePtr FileSystemArchiveCreator::createObject(int32_t argc, ...) const
@@ -88,7 +88,7 @@ namespace Tiny3D
 
     String FileSystemArchive::getArchiveType() const
     {
-        return ARCHIEVE_TYPE;
+        return ARCHIVE_TYPE;
     }
 
     String FileSystemArchive::getLocation() const

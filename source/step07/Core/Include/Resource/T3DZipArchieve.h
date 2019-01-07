@@ -18,103 +18,99 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RESOURCE_H__
-#define __T3D_RESOURCE_H__
+#ifndef __T3D_ZIP_ARCHIVE_H__
+#define __T3D_ZIP_ARCHIVE_H__
 
 
-#include "Kernel/T3DObject.h"
-#include "T3DTypedef.h"
+#include "Resource/T3DArchive.h"
+#include "Resource/T3DArchiveCreator.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API Resource : public Object
+    /**
+     * @brief zip 压缩档案结构类，用于访问 zip 压缩包里面的文件
+     */
+    class T3D_ENGINE_API ZipArchive : public Archive
     {
-        friend class ResourceManager;
-
     public:
-        /** 资源类型枚举 */
-        enum Type
-        {
-            E_TYPE_UNKNOWN = 0,
-            E_TYPE_DYLIB,       /**< 动态库 */
-        };
+        static const char * const ARCHIVE_TYPE; /**< 档案类型 */
 
-        /** 析构函数 */
-        virtual ~Resource();
+        /**
+         * @brief 创建对象
+         */
+        static ZipArchivePtr create(const String &name);
 
-        /** 获取资源类型 */
-        virtual Type getType() const = 0;
+        /**
+         * @brief 析构函数
+         */
+        virtual ~ZipArchive();
 
-        /** 获取资源唯一ID */
-        ID getID() const
-        {
-            return mID;
-        }
-        
-        /** 获取克隆资源唯一ID，当该资源是从其他资源克隆出来时，该ID才有效 */
-        ID getCloneID() const
-        {
-            return mCloneID;
-        }
-
-        /** 是否克隆资源 */
-        bool isCloned() const
-        {
-            return (mCloneID != T3D_INVALID_ID);
-        }
-
-        /** 获取资源大小 */
-        size_t getSize() const
-        {
-            return mSize;
-        }
-
-        /** 获取资源名称 */
-        const String &getName() const
-        {
-            return mName;
-        }
-
-        /** 获取资源是否加载 */
-        bool isLoaded() const
-        {
-            return mIsLoaded;
-        }
+        /**
+         * @brief 获取档案类型
+         */
+        virtual String getArchiveType() const override;
 
     protected:
-        /** 
+        /**
+         * @brief 重写 Resource::load() 接口
+         */
+        virtual TResult load() override;
+
+        /**
+         * @brief 重写 Resource::unload() 接口
+         */
+        virtual TResult unload() override;
+
+        /**
+         * @brief 重写 Resource::clone() 接口
+         */
+        virtual ResourcePtr clone() const override;
+
+        /**
+         * @brief 重写 Archieve::getLocation() 接口
+         */
+        virtual String getLocation() const override;
+
+        /**
+         * @brief 重写 Archieve::exists() 接口
+         */
+        virtual bool exists(const String &name) const override;
+
+        /**
+         * @brief 重写 Archieve::read() 接口
+         */
+        virtual TResult read(const String &name, MemoryDataStream &stream) override;
+
+        /**
+         * @brief 重写 Archieve::write() 接口
+         */
+        virtual TResult write(const String &name, const MemoryDataStream &stream) override;
+
+        /**
          * @brief 构造函数
-         * @remarks 本类不能直接实例化，所以只能隐藏构造函数 
          */
-        Resource(const String &name);
+        ZipArchive(const String &name);
+    };
 
-        /** 
-         * @brief 加载资源
-         * @remarks 每种类型资源需要各自实现其加载逻辑，资源只有加载后才能使用
+
+    /**
+     * @brief zip 压缩文件系统档案结构构建器类，用于构建 zip 档案结构对象
+     */
+    class T3D_ENGINE_API ZipArchiveCreator : public ArchiveCreator
+    {
+    public:
+        /**
+         * @brief 重写 ArchieveCreator::getType() 接口
          */
-        virtual bool load() = 0;
+        virtual String getType() const override;
 
-        /** 
-         * @brief 卸载资源
-         * @remarks 每种类型资源需要各自实现其卸载逻辑，资源卸载后就不能再使用了
+        /**
+         * @brief 重写 ArchieveCreator::createObject() 接口
          */
-        virtual void unload() = 0;
-
-        /** 
-         * @brief 克隆资源
-         * @remarks 每种类型资源需要各自实现其克隆逻辑，克隆出一个新资源对象
-         */
-        virtual ResourcePtr clone() const = 0;
-
-    protected:
-        ID      mID;        /**< 资源ID */
-        ID      mCloneID;   /**< 如果资源是从其他资源克隆出来的，该ID才有效 */
-        size_t  mSize;      /**< 资源大小 */
-        bool    mIsLoaded;  /**< 资源是否加载标记 */
-        String  mName;      /**< 资源名称 */
+        virtual ArchivePtr createObject(int32_t argc, ...) const override;
     };
 }
 
 
-#endif  /*__T3D_RESOURCE_H__*/
+#endif  /*__T3D_ZIP_ARCHIVE_H__*/

@@ -100,7 +100,7 @@ namespace Tiny3D
          * @brief 卸载资源
          * @remarks 每种类型资源需要各自实现其卸载逻辑，资源卸载后就不能再使用了
          */
-        virtual TResult unload() = 0;
+        virtual TResult unload();
 
         /** 
          * @brief 克隆资源

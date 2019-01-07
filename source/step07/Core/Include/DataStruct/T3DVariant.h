@@ -87,7 +87,7 @@ namespace Tiny3D
         Variant &operator =(const Variant &other);
 
         /** 析构函数 */
-        virtual ~Variant();
+        ~Variant();
 
         /** 设置数值 */
         void setBool(bool value);
