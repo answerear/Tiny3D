@@ -45,5 +45,6 @@
 
 // DataStruct
 #include <DataStruct/T3DVariant.h>
+#include <DataStruct/T3DString.h>
 
 #endif  /*__TINY3D_H__*/
