@@ -571,7 +571,7 @@ namespace Tiny3D
                 long_t val = value.longValue();
                 child = doc.NewElement(TAG_NAME_INTEGER);
                 char buf[64] = { 0 };
-                ltoa(val, buf, 10);
+                snprintf(buf, sizeof(buf) - 1, "%ld", val);
                 text = doc.NewText(buf);
                 child->LinkEndChild(text);
                 root->LinkEndChild(child);

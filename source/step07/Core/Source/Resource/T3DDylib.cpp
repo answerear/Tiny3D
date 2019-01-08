@@ -33,6 +33,8 @@
     #define DYLIB_UNLOAD(handle)        FreeLibrary((HMODULE)handle)
     #define DYLIB_ERROR()               "Unknown Error"
 #elif defined (T3D_OS_LINUX) || defined (T3D_OS_MACOSX) || defined (T3D_OS_ANDROID) || defined (T3D_OS_IOS)
+    #include <dlfcn.h>
+
     typedef void*       DYLIB_HANDLE;
 
     #define DYLIB_LOAD(name)            dlopen(name, RTLD_NOW)

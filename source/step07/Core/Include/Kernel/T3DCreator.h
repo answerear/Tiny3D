@@ -23,7 +23,6 @@
 
 
 #include "T3DPrerequisites.h"
-#include "Kernel/T3DSmartPtr.h"
 
 
 namespace Tiny3D

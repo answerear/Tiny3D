@@ -18,4 +18,6 @@
  ******************************************************************************/
 
 
+#include "Kernel/T3DObject.h"
+#include "Kernel/T3DSmartPtr.h"
 #include "Resource/T3DArchiveCreator.h"

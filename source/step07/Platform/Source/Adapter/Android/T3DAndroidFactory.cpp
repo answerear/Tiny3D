@@ -19,6 +19,7 @@
 
 #include "Adapter/Android/T3DAndroidFactory.h"
 #include "Adapter/Common/T3DSDLApplication.h"
+#include "Adapter/Common/T3DTimerService.h"
 #include "Adapter/Mobile/T3DSDLMobileWindow.h"
 #include "Adapter/Unix/T3DUnixTime.h"
 #include "Adapter/Android/T3DAndroidDir.h"
@@ -51,6 +52,11 @@ namespace Tiny3D
     ITime *AndroidFactory::createPlatformTime()
     {
         return new UnixTime();
+    }
+
+    ITimerService *AndroidFactory::createPlatformTimerService()
+    {
+        return new TimerService();
     }
 
     IDir *AndroidFactory::createPlatformDir()

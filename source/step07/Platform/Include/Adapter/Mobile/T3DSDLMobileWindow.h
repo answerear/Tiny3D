@@ -37,7 +37,7 @@ namespace Tiny3D
 
         virtual ~SDLMobileWindow();
 
-        virtual int32_t create(const char *title, int32_t x, int32_t y,
+        virtual TResult create(const char *title, int32_t x, int32_t y,
             int32_t w, int32_t h, uint32_t flags) override;
 
         virtual void destroy() override;

@@ -38,10 +38,10 @@ namespace Tiny3D
 
     }
 
-    int32_t SDLMobileWindow::create(const char *title, int32_t x, int32_t y,
+    TResult SDLMobileWindow::create(const char *title, int32_t x, int32_t y,
         int32_t w, int32_t h, uint32_t flags)
     {
-        int32_t ret = T3D_ERR_FAIL;
+        TResult ret = T3D_ERR_FAIL;
 
         do
         {

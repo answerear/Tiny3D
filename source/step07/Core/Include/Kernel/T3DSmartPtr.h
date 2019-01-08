@@ -26,7 +26,14 @@
 #include <type_traits>
 
 
+#if defined (T3D_OS_WINDOWS)
 #if _MSC_VER >= 1900
+namespace std
+{
+    struct _Static_tag {};
+}
+#endif
+#else
 namespace std
 {
     struct _Static_tag {};
