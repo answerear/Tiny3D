@@ -91,6 +91,9 @@ namespace Tiny3D
          * @brief 构造函数
          */
         ZipArchive(const String &name);
+
+    protected:
+        THandle     mZipFile;   /**< zip 压缩文件句柄 */
     };
 
 

@@ -28,10 +28,18 @@ namespace Tiny3D
 {
     enum CoreErrorCode
     {
-        T3D_ERR_CFG_FILE_PARSING_XML    = T3D_ERR_CORE,     /**< 解析 XML 出错 */
-        T3D_ERR_CFG_FILE_XML_FORMAT     = T3D_ERR_CORE + 1, /**< 错误 XML 格式 */
-        T3D_ERR_CFG_FILE_BUILDING_XML   = T3D_ERR_CORE + 2, /**< 构建 XML 出错 */
-        T3D_ERR_PLUGIN_LOAD_FAILED      = T3D_ERR_CORE + 3, /**< 加载插件出错 */
+        T3D_ERR_CFG_FILE_PARSING_XML    = T3D_ERR_CORE + 0x0000, /**< 解析 XML 出错 */
+        T3D_ERR_CFG_FILE_XML_FORMAT     = T3D_ERR_CORE + 0x0001, /**< 错误 XML 格式 */
+        T3D_ERR_CFG_FILE_BUILDING_XML   = T3D_ERR_CORE + 0x0002, /**< 构建 XML 出错 */
+
+        T3D_ERR_PLUGIN_LOAD_FAILED      = T3D_ERR_CORE + 0x0020, /**< 加载插件出错 */
+
+        T3D_ERR_ZIP_FILE_INFO           = T3D_ERR_CORE + 0x0040, /**< 获取 zip 文件信息出错 */
+        T3D_ERR_ZIP_FILE_GOTO_FILE      = T3D_ERR_CORE + 0x0041, /**< 跳转到第一个压缩文件失败 */
+        T3D_ERR_ZIP_FILE_LOCATE_FILE    = T3D_ERR_CORE + 0x0042, /**< 定位指定文件失败 */
+        T3D_ERR_ZIP_FILE_GET_FILE_INFO  = T3D_ERR_CORE + 0x0043, /**< 获取 zip 中的文件信息出错 */
+        T3D_ERR_ZIP_FILE_READ_DATA      = T3D_ERR_CORE + 0x0044, /**< 获取 zip 中的单个文件数据出错 */
+        T3D_ERR_ZIP_FILE_NOT_SUPPORT    = T3D_ERR_CORE + 0x0045, /**< 不支持该功能 */
     };
 }
 

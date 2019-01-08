@@ -60,8 +60,8 @@ set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Sour
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .cpp)
 
 # unzip
-set_project_files(Source\\\\Support\\\\unzip ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/unzip/ .h)
-set_project_files(Source\\\\Support\\\\unzip ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/unzip/ .c)
+set_project_files(Source\\\\Support\\\\minizip ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/minizip/ .h)
+set_project_files(Source\\\\Support\\\\minizip ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/minizip/ .c)
 
 # Setup all files for building this project.
 if (TINY3D_BUILD_SHARED_LIBS)
