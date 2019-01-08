@@ -21,6 +21,8 @@
 #include "Resource/T3DArchiveManager.h"
 #include "Resource/T3DFileSystemArchive.h"
 #include "Resource/T3DZipArchieve.h"
+#include "Kernel/T3DConfigFile.h"
+#include "DataStruct/T3DString.h"
 
 
 namespace Tiny3D
@@ -49,12 +51,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::init(const String &title)
+    TResult Engine::init(const String &appPath, 
+        const String &config /* = "Tiny3D.cfg" */)
     {
         TResult ret = T3D_ERR_FAIL;
 
         do
         {
+            // 获取应用程序路径、应用程序名称
+            StringUtil::split(appPath, mAppPath, mAppName);
+
             // 初始化应用程序框架，这个需要放在最前面，否则平台相关接口均不能用
             ret = initApplication();
             if (ret != T3D_ERR_OK)
@@ -83,8 +89,10 @@ namespace Tiny3D
                 break;
             }
 
+            ret = loadConfig(config);
+
             // 创建渲染窗口
-            ret = createRenderWindow(title);
+            ret = createRenderWindow("Demo");
             if (ret != T3D_ERR_OK)
             {
                 break;
@@ -254,5 +262,25 @@ namespace Tiny3D
         mArchiveMgr->addArchiveCreator(zipCreator);
 
         return T3D_ERR_OK;
+    }
+
+    TResult Engine::loadConfig(const String &cfgPath)
+    {
+        TResult ret = T3D_ERR_OK;
+
+#if defined (T3D_OS_ANDROID)
+        // Android，只能读取apk包里面的文件
+        String apkPath;
+        ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Archive");
+        ConfigFile cfgFile(cfgPath, archive);
+        ret = cfgFile.loadXML(mSettings);
+#else
+        // 其他不需要从 apk 包里面读取文件的
+        String path = mAppPath + cfgPath;
+        ConfigFile cfgFile(path);
+        ret = cfgFile.loadXML(mSettings);
+#endif
+
+        return ret;
     }
 }

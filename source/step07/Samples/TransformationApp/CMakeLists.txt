@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(TransformationApp)
+set_project_name(Demo_TransformationApp)
 
 
 if (MSVC)

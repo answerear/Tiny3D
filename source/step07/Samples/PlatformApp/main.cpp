@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     PlatformApp *theApp = new PlatformApp();
     Tiny3D::Engine *theEngine = new Tiny3D::Engine();
 
-    theEngine->init("PlatformApp");
+    theEngine->init(argv[0]);
     theEngine->run();
 
     delete theEngine;

@@ -24,6 +24,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypeDef.h"
+#include "DataStruct/T3DVariant.h"
 
 
 namespace Tiny3D
@@ -48,9 +49,11 @@ namespace Tiny3D
 
         /**
          * @brief 初始化引擎
+         * @param [in] appPath : 应用程序路径
+         * @param [in] config : 配置文件
          * @remarks 引擎的一切应用都要在调用本接口之后才有效。
          */
-        TResult init(const String &title);
+        TResult init(const String &appPath, const String &config = "Tiny3D.cfg");
 
         /**
          * @brief 运行引擎
@@ -62,14 +65,29 @@ namespace Tiny3D
          */
         void renderOneFrame();
 
+        /**
+         * @brief 程序进入后台调用本接口告知引擎
+         */
         void appDidEnterBackground();
 
+        /**
+         * @brief 程序回到前台调用本接口告知引擎
+         */
         void appWillEnterForeground();
 
+        /**
+         * @brief 获取应用程序路径，不包含程序名称
+         */
         const String &getAppPath() const { return mAppPath;  }
 
+        /**
+         * @brief 获取应用程序名称，不包含路径
+         */
         const String &getAppName() const { return mAppName; }
 
+        /**
+         * @brief 获取插件路径
+         */
         const String &getPluginsPath() const { return mPluginsPath; }
 
     protected:
@@ -89,14 +107,21 @@ namespace Tiny3D
         TResult initEventSystem();
 
         /**
-         * @brief 创建渲染窗口
-         */
-        TResult createRenderWindow(const String &title);
-
-        /**
          * @brief 初始化档案结构系统
          */
         TResult initArchives();
+
+        /**
+         * @brief 加载配置文件
+         * @param [in] cfgPath : 配置文件名
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        TResult loadConfig(const String &cfgPath);
+
+        /**
+         * @brief 创建渲染窗口
+         */
+        TResult createRenderWindow(const String &title);
 
     protected:
         Logger              *mLogger;           /**< 日志对象 */
@@ -110,6 +135,8 @@ namespace Tiny3D
         String              mAppPath;           /**< 程序路径 */
         String              mAppName;           /**< 程序名称 */
         String              mPluginsPath;       /**< 插件路径 */
+
+        Settings            mSettings;          /**< 引擎配置项 */
     };
 
     #define T3D_ENGINE      (Engine::getInstance())

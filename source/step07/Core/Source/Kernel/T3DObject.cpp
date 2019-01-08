@@ -23,7 +23,7 @@
 namespace Tiny3D
 {
     Object::Object()
-        : mReferCount(0)
+        : mReferCount(1)
     {
 
     }

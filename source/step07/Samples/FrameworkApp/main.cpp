@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     FrameworkApp *theApp = new FrameworkApp();
     Tiny3D::Engine *theEngine = new Tiny3D::Engine();
 
-    theEngine->init("FrameworkApp");
+    theEngine->init(argv[0]);
     theEngine->run();
 
     delete theEngine;
