@@ -132,7 +132,7 @@ if (TINY3D_OS_WINDOWS)
 		COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
 		)
 	
-	ADD_CUSTOM_COMMAND(TARGET ${BIN_NAME}
+	add_custom_command(TARGET ${BIN_NAME}
 		POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Tiny3D.cfg
 		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Tiny3D.cfg
@@ -180,6 +180,13 @@ elseif (TINY3D_OS_ANDROID)
         LINK_PRIVATE ${SDL2_BINARY}
 		LINK_PRIVATE z
         )
+	
+	add_custom_command(TARGET ${BIN_NAME}
+		POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Tiny3D.cfg ${CMAKE_CURRENT_BINARY_DIR}/../../../../../src/main/assets/Tiny3D.cfg
+	#	COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Tiny3D.cfg
+	#	#COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../assets
+		)
 endif (TINY3D_OS_WINDOWS)
 
 message(STATUS "Generating project : ${BIN_NAME} - done")
