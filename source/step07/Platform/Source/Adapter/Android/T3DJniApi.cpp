@@ -17,47 +17,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_ANDROID_DIR_H__
-#define __T3D_ANDROID_DIR_H__
+#include "Adapter/Android/T3DJniApi.h"
 
-#include "Adapter/Unix/T3DUnixDir.h"
 
 namespace Tiny3D
 {
-    class AndroidDir : public UnixDir
+    bool GetClassStaticMethodID(JNIEnv *pEnv, JNICallParam &param, const char *className, const char *methodName, const char *methodParam)
     {
-    public:
-		AndroidDir();
-        virtual ~AndroidDir();
-		
-		virtual long_t getCreationTime() const override;
-		
-		virtual long_t getLastAccessTime() const override;
-		
-		virtual long_t getLastWriteTime() const override;
-		
-		/**
-		 * @brief 获取应用程序缓存数据存储路径，不同平台指定对应的路径
-		 * @return 返回应用程序缓存数据存储路径.
-		 */
-		virtual String getCachePath() const override;
-		
-		/**
-		 * @brief 获取应用程序路径
-		 * @return 返回应用程序路径
-		 */
-		virtual String getAppPath() const override;
-        
-        /**
-         * @brief 获取应用程序可写路径，不同平台指定对应的路径
-         * @return 返回应用程序可写路径.
-         */
-        virtual String getWritablePath() const override;
+        bool ret = false;
 
-	protected:
-    	String	mApkPath;
-    };
+        do
+        {
+            if (pEnv == nullptr)
+                break;
+
+            param.classID = pEnv->FindClass(className);
+            if (param.classID == 0)
+                break;
+
+            param.methodID = pEnv->GetStaticMethodID(param.classID, methodName, methodParam);
+            if (param.methodID == 0)
+                break;
+
+            ret = true;
+        } while (0);
+
+        return ret;
+    }
+
+    void DeleteLocalRef(JNIEnv *pEnv, JNICallParam &param)
+    {
+        if (pEnv != nullptr && param.classID)
+        {
+            pEnv->DeleteLocalRef(param.classID);
+        }
+    }
 }
-
-
-#endif  /*__T3D_ANDROID_DIR_H__*/

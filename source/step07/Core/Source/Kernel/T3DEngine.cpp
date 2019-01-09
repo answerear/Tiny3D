@@ -275,9 +275,9 @@ namespace Tiny3D
 
 #if defined (T3D_OS_ANDROID)
         // Android，只能读取apk包里面的文件
-        String apkPath;
-        ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Archive");
-        ConfigFile cfgFile(cfgPath, archive);
+        String apkPath = Dir::getAppPath();
+        ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Zip");
+        ConfigFile cfgFile("assets/" + cfgPath, archive);
         ret = cfgFile.loadXML(mSettings);
 #else
         // 其他不需要从 apk 包里面读取文件的

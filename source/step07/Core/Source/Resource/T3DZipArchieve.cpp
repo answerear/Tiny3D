@@ -189,13 +189,24 @@ namespace Tiny3D
                 break;
             }
 
+            // 打开当前文件
+            zret = unzOpenCurrentFile(mZipFile);
+            if (zret != UNZ_OK)
+            {
+                ret = T3D_ERR_ZIP_FILE_OPEN_FILE;
+                T3D_LOG_ERROR("Open current file [%s] in zip file [%s] failed !\
+                    Error : %d", name.c_str(), mName.c_str(), zret);
+                break;
+            }
+
             // 读取文件内容
-            uint64_t contentSize = fileInfo.compressed_size;
+            uint64_t contentSize = fileInfo.uncompressed_size;
             uchar_t *content = new uchar_t[contentSize];
 
             zret = unzReadCurrentFile(mZipFile, content, contentSize);
-            if (zret != UNZ_OK)
+            if (zret < 0)
             {
+                unzCloseCurrentFile(mZipFile);
                 ret = T3D_ERR_ZIP_FILE_READ_DATA;
                 T3D_LOG_ERROR("Get file [%s] data in zip file [%s] failed ! \
                     Error : %d", name.c_str(), mName.c_str(), zret);

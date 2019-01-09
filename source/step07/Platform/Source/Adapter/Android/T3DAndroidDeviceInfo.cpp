@@ -25,47 +25,10 @@
 #include <sstream>
 
 #include <SDL.h>
-#include <jni.h>
+#include "Adapter/Android/T3DJniApi.h"
 
 namespace Tiny3D
 {
-    struct JNICallParam
-    {
-        jclass classID;
-        jmethodID methodID;
-    };
-
-    static bool GetClassStaticMethodID(JNIEnv *pEnv, JNICallParam &param, const char *className, const char *methodName, const char *methodParam)
-    {
-        bool ret = false;
-
-        do
-        {
-            if (pEnv == nullptr)
-                break;
-
-            param.classID = pEnv->FindClass(className);
-            if (param.classID == 0)
-                break;
-
-            param.methodID = pEnv->GetStaticMethodID(param.classID, methodName, methodParam);
-            if (param.methodID == 0)
-                break;
-
-            ret = true;
-        } while (0);
-
-        return ret;
-    }
-
-    static void DeleteLocalRef(JNIEnv *pEnv, JNICallParam &param)
-    {
-        if (pEnv != nullptr && param.classID)
-        {
-            pEnv->DeleteLocalRef(param.classID);
-        }
-    }
-
     AndroidDeviceInfo::AndroidDeviceInfo()
         : mOSVersion()
         , mSWVersion()

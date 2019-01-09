@@ -40,6 +40,7 @@ namespace Tiny3D
         T3D_ERR_ZIP_FILE_GET_FILE_INFO  = T3D_ERR_CORE + 0x0043, /**< 获取 zip 中的文件信息出错 */
         T3D_ERR_ZIP_FILE_READ_DATA      = T3D_ERR_CORE + 0x0044, /**< 获取 zip 中的单个文件数据出错 */
         T3D_ERR_ZIP_FILE_NOT_SUPPORT    = T3D_ERR_CORE + 0x0045, /**< 不支持该功能 */
+        T3D_ERR_ZIP_FILE_OPEN_FILE      = T3D_ERR_CORE + 0x0046, /**< 打开当前被压缩的文件失败 */
     };
 }
 

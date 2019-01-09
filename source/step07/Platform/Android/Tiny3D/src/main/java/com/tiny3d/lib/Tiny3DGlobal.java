@@ -64,6 +64,10 @@ public class Tiny3DGlobal {
         mScreenDPI = (float) dm.densityDpi;
     }
 
+    public String getApkPath() {
+        return mAppContext.getPackageResourcePath();
+    }
+
     public String getSoftwareVersion() {
         String version = null;
         String build = null;
@@ -169,6 +173,11 @@ public class Tiny3DGlobal {
         }
 
         return strBufIMEI.toString();
+    }
+
+    public static String GetApkPath()
+    {
+        return Tiny3DGlobal.Instance().getApkPath();
     }
 
     public static String GetSoftwareVersion()

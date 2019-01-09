@@ -22,12 +22,33 @@
 #include <unistd.h>
 
 #include <SDL.h>
+#include "Adapter/Android/T3DJniApi.h"
 
 namespace Tiny3D
 {
     AndroidDir::AndroidDir()
     {
-        
+        JNIEnv *pEnv = (JNIEnv *)SDL_AndroidGetJNIEnv();
+        if (pEnv != nullptr) {
+            JNICallParam param;
+
+            // Software Version
+            if (GetClassStaticMethodID(pEnv, param, "com/tiny3d/lib/Tiny3DGlobal",
+                                       "GetApkPath", "()Ljava/lang/String;")) {
+                jstring jstr = (jstring) pEnv->CallStaticObjectMethod(param.classID,
+                                                                      param.methodID);
+                jboolean isCopy;
+                const char *apkPath = pEnv->GetStringUTFChars(jstr, &isCopy);
+
+                if (apkPath != nullptr) {
+                    mApkPath = apkPath;
+                    pEnv->ReleaseStringUTFChars(jstr, apkPath);
+                }
+
+                pEnv->DeleteLocalRef(jstr);
+            }
+            DeleteLocalRef(pEnv, param);
+        }
     }
 
     AndroidDir::~AndroidDir()
@@ -89,16 +110,15 @@ namespace Tiny3D
     
     String AndroidDir::getCachePath() const
     {
-        return getAppPath() + "/cache";
+        String internalPath = SDL_AndroidGetInternalStoragePath();
+        size_t pos = internalPath.rfind("/");
+        String appPath = internalPath.substr(0, pos);
+        return appPath + "/cache";
     }
     
     String AndroidDir::getAppPath() const
     {
-        String internalPath = SDL_AndroidGetInternalStoragePath();
-        size_t pos = internalPath.rfind("/");
-        String externalPath = SDL_AndroidGetExternalStoragePath();
-        String appPath = internalPath.substr(0, pos);
-        return appPath;
+        return mApkPath;
     }
     
     String AndroidDir::getWritablePath() const

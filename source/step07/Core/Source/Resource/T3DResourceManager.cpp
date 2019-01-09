@@ -106,9 +106,9 @@ namespace Tiny3D
 
             if (res != nullptr)
             {
-                bool ret = res->load();
+                TResult ret = res->load();
 
-                if (ret)
+                if (ret == T3D_ERR_OK)
                 {
                     Resources resources;
                     resources.insert(ResourcesValue(0, res));
