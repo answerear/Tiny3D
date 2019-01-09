@@ -22,6 +22,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            packagingOptions{
+                doNotStrip "**/*/*.so"
+            }
+        }
     }
     sourceSets{
         main{
@@ -37,6 +42,9 @@ android {
 }
 
 dependencies {
+//    debugCompile project(':Tiny3DLib:Tiny3D', configuration:'debug')
+//    releaseCompile project(':Tiny3DLib:Tiny3D', configuration:'release')
+
     implementation project(':Tiny3DLib:Tiny3D')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
