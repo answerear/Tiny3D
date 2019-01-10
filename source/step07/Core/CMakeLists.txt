@@ -162,7 +162,7 @@ elseif (TINY3D_OS_LINUX)
 		LINK_PRIVATE ${SDL2_LIBRARY}
 		LINK_PRIVATE z
 		)
-elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
+elseif (TINY3D_OS_IOS)
 	# iOS
 #	target_link_libraries(
 #        ${LIB_NAME}

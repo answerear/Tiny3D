@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -19,6 +19,7 @@
 
 #include "T3DiOSFactory.h"
 #include "Adapter/Common/T3DSDLApplication.h"
+#include "Adapter/Common/T3DTimerService.h"
 #include "Adapter/Mobile/T3DSDLMobileWindow.h"
 #include "Adapter/Unix/T3DUnixTime.h"
 #include "Adapter/iOS/T3DiOSDir.h"
@@ -51,6 +52,11 @@ namespace Tiny3D
 	{
 		return new UnixTime();
 	}
+    
+    ITimerService *iOSFactory::createPlatformTimerService()
+    {
+        return new TimerService();
+    }
 	
 	IDir *iOSFactory::createPlatformDir()
 	{
