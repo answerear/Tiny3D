@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -50,6 +50,12 @@ namespace Tiny3D
 		 */
 		virtual ITime *createPlatformTime() override;
 		
+        /**
+         * @brief 创建操作系统平台相关的定时器服务对象.
+         * @return 返回平台相关的定时器服务对象，需要用户调用delete释放对象
+         */
+        virtual ITimerService *createPlatformTimerService() override;
+        
 		/**
 		 * @brief 创建操作系统平台相关的路径搜索对象.
 		 * @return 返回平台相关的路径搜索对象，需要用户调用delete释放对象

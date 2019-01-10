@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -32,7 +32,7 @@
     #define DYLIB_GETSYM(handle, name)  GetProcAddress((HMODULE)handle, name)
     #define DYLIB_UNLOAD(handle)        FreeLibrary((HMODULE)handle)
     #define DYLIB_ERROR()               "Unknown Error"
-#elif defined (T3D_OS_LINUX) || defined (T3D_OS_MACOSX) || defined (T3D_OS_ANDROID) || defined (T3D_OS_IOS)
+#elif defined (T3D_OS_LINUX) || defined (T3D_OS_OSX) || defined (T3D_OS_ANDROID) || defined (T3D_OS_IOS)
     #include <dlfcn.h>
 
     typedef void*       DYLIB_HANDLE;
@@ -83,7 +83,7 @@ namespace Tiny3D
             String name = mName + ".dll";
 #elif defined (T3D_OS_LINUX) || defined (T3D_OS_ANDROID)
             String name = mName + ".so";
-#elif defined (T3D_OS_MACOSX)
+#elif defined (T3D_OS_OSX)
             String name = mName + ".dylib";
 #endif
 
