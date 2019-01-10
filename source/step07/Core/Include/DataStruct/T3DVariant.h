@@ -67,8 +67,6 @@ namespace Tiny3D
         Variant(uint32_t value);
         Variant(int64_t value);
         Variant(uint64_t value);
-        Variant(long_t value);
-        Variant(ulong_t value);
         Variant(float32_t value);
         Variant(float64_t value);
         Variant(const fix32_t &value);

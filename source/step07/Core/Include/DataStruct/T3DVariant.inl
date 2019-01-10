@@ -108,22 +108,6 @@ namespace Tiny3D
         mUInt64Value = value;
     }
 
-    inline Variant::Variant(long_t value)
-        : mType(E_LONG)
-        , mValueSize(sizeof(long_t))
-    {
-        memset(mValue, 0, sizeof(mValue));
-        mLongValue = value;
-    }
-
-    inline Variant::Variant(ulong_t value)
-        : mType(E_ULONG)
-        , mValueSize(sizeof(ulong_t))
-    {
-        memset(mValue, 0, sizeof(mValue));
-        mULongValue = value;
-    }
-
     inline Variant::Variant(float32_t value)
         : mType(E_FLOAT32)
         , mValueSize(sizeof(float32_t))
