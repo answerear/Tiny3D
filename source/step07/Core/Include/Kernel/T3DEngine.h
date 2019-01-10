@@ -121,7 +121,7 @@ namespace Tiny3D
         /**
          * @brief 创建渲染窗口
          */
-        TResult createRenderWindow(const String &title);
+        TResult createRenderWindow();
 
     protected:
         Logger              *mLogger;           /**< 日志对象 */

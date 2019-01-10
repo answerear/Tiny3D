@@ -97,7 +97,7 @@ namespace Tiny3D
             }
 
             // 创建渲染窗口
-            ret = createRenderWindow("Demo");
+            ret = createRenderWindow();
             if (ret != T3D_ERR_OK)
             {
                 break;
@@ -238,15 +238,32 @@ namespace Tiny3D
         return T3D_ERR_OK;
     }
 
-    TResult Engine::createRenderWindow(const String &title)
+    TResult Engine::createRenderWindow()
     {
         TResult ret = T3D_ERR_OK;
 
         do 
         {
+            Settings settings = mSettings["Render"].mapValue();
+
+            // 窗口标题
+            String title = settings["Title"].stringValue();
+            // 窗口位置
+            int32_t x = settings["x"].int32Value();
+            int32_t y = settings["y"].int32Value();
+            // 窗口大小
+            int32_t w = settings["Width"].int32Value();
+            int32_t h = settings["Height"].int32Value();
+            // 是否全屏
+            bool fullscreen = settings["FullScreen"].boolValue();
+            // 创建标记位
+            uint32_t flags = Window::WINDOW_SHOWN;
+            if (fullscreen)
+                flags |= Window::WINDOW_FULLSCREEN;
+
+            // 创建窗口
             mWindow = new Window();
-            ret = mWindow->create(title.c_str(), 100, 100, 800, 600,
-                Window::WINDOW_SHOWN);
+            ret = mWindow->create(title.c_str(), x, y, w, h, flags);
             if (ret != T3D_ERR_OK)
             {
                 break;

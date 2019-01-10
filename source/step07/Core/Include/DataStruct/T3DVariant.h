@@ -75,6 +75,7 @@ namespace Tiny3D
         Variant(const fix64_t &value);
         Variant(char value);
         Variant(wchar_t value);
+        Variant(const char *value);
         Variant(const String &value);
         Variant(const VariantArray &value);
         Variant(const VariantList &value);
