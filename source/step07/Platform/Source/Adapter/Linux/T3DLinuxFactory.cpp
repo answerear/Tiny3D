@@ -19,6 +19,7 @@
 
 #include "T3DLinuxFactory.h"
 #include "Adapter/Common/T3DSDLApplication.h"
+#include "Adapter/Common/T3DTimerService.h"
 #include "Adapter/Desktop/T3DSDLDesktopWindow.h"
 #include "Adapter/Unix/T3DUnixTime.h"
 #include "Adapter/Linux/T3DLinuxDir.h"
@@ -50,6 +51,11 @@ namespace Tiny3D
     ITime *LinuxFactory::createPlatformTime()
     {
         return new UnixTime();
+    }
+
+    ITimerService *LinuxFactory::createPlatformTimerService()
+    {
+        return new TimerService();
     }
 
     IDir *LinuxFactory::createPlatformDir()
