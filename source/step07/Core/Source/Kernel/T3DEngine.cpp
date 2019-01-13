@@ -61,7 +61,7 @@ namespace Tiny3D
     TResult Engine::init(const String &appPath, 
         const String &config /* = "Tiny3D.cfg" */)
     {
-        TResult ret = T3D_ERR_FAIL;
+        TResult ret = T3D_ERR_OK;
 
         do
         {
@@ -118,7 +118,6 @@ namespace Tiny3D
             }
 
             mIsRunning = true;
-            ret = T3D_ERR_OK;
         } while (0);
 
         return ret;
