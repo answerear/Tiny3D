@@ -107,6 +107,11 @@ namespace Tiny3D
         TResult initEventSystem();
 
         /**
+         * @brief 初始化对象跟踪器
+         */
+        TResult initObjectTracer();
+
+        /**
          * @brief 初始化档案结构系统
          */
         TResult initArchives();
@@ -126,6 +131,7 @@ namespace Tiny3D
     protected:
         Logger              *mLogger;           /**< 日志对象 */
         EventManager        *mEventMgr;         /**< 事件管理器对象 */
+        ObjectTracer        *mObjTracer;        /**< 对象内存跟踪 */
 
         Window              *mWindow;           /**< 窗口 */
         bool                mIsRunning;         /**< 引擎是否在运行中 */

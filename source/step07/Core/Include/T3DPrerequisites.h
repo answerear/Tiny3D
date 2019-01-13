@@ -42,6 +42,7 @@
 namespace Tiny3D
 {
     class Object;
+    class ObjectTracer;
 
     class Engine;
 

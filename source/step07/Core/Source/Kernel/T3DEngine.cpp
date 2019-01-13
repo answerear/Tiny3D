@@ -23,6 +23,7 @@
 #include "Resource/T3DZipArchieve.h"
 #include "Kernel/T3DConfigFile.h"
 #include "DataStruct/T3DString.h"
+#include "Memory/T3DObjectTracer.h"
 
 
 namespace Tiny3D
@@ -34,6 +35,7 @@ namespace Tiny3D
     Engine::Engine()
         : mLogger(nullptr)
         , mEventMgr(nullptr)
+        , mObjTracer(nullptr)
         , mWindow(nullptr)
         , mIsRunning(false)
         , mArchiveMgr(nullptr)
@@ -42,8 +44,13 @@ namespace Tiny3D
 
     Engine::~Engine()
     {
+        mArchiveMgr = nullptr;
+
         T3D_SAFE_DELETE(mWindow);
         T3D_SAFE_DELETE(mEventMgr);
+
+        mObjTracer->dumpMemoryInfo();
+        T3D_SAFE_DELETE(mObjTracer);
 
         mLogger->shutdown();
         T3D_SAFE_DELETE(mLogger);
@@ -77,6 +84,13 @@ namespace Tiny3D
 
             // 初始化事件系统
             ret = initEventSystem();
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+
+            // 初始化对象追踪器
+            ret = initObjectTracer();
             if (ret != T3D_ERR_OK)
             {
                 break;
@@ -235,6 +249,12 @@ namespace Tiny3D
     TResult Engine::initEventSystem()
     {
         mEventMgr = new EventManager(10);
+        return T3D_ERR_OK;
+    }
+
+    TResult Engine::initObjectTracer()
+    {
+        mObjTracer = new ObjectTracer();
         return T3D_ERR_OK;
     }
 

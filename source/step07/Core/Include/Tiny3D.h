@@ -30,7 +30,7 @@
 #include <Kernel/T3DConfigFile.h>
 #include <Kernel/T3DCreator.h>
 #include <Kernel/T3DObject.h>
-#include <Kernel/T3DSmartPtr.h>
+#include <Memory/T3DSmartPtr.h>
 
 // Resource
 #include <Resource/T3DArchive.h>

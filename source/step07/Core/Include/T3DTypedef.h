@@ -22,7 +22,7 @@
 #define __T3D_TYPEDEF_H__
 
 #include "Kernel/T3DObject.h"
-#include "Kernel/T3DSmartPtr.h"
+#include "Memory/T3DSmartPtr.h"
 
 namespace Tiny3D
 {

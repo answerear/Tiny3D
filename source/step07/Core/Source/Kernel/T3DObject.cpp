@@ -18,6 +18,7 @@
  ******************************************************************************/
 
 #include "Kernel/T3DObject.h"
+#include "Memory/T3DObjectTracer.h"
 
 
 namespace Tiny3D
@@ -25,12 +26,12 @@ namespace Tiny3D
     Object::Object()
         : mReferCount(1)
     {
-
+        ObjectTracer::getInstance().addObject(this);
     }
 
     Object::~Object()
     {
-
+        ObjectTracer::getInstance().removeObject(this);
     }
 
     Object *Object::acquire()

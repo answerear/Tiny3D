@@ -47,12 +47,14 @@ set_project_files(Include\\\\Kernel ${CMAKE_CURRENT_SOURCE_DIR}/Include/Kernel/ 
 set_project_files(Include\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Include/Resource/ .h)
 set_project_files(Include\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Include/DataStruct/ .h)
 set_project_files(Include\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Include/DataStruct/ .inl)
+set_project_files(Include\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Include/Memory/ .h)
 
 # Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 set_project_files(Source\\\\Kernel ${CMAKE_CURRENT_SOURCE_DIR}/Source/Kernel/ .cpp)
 set_project_files(Source\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Source/Resource/ .cpp)
 set_project_files(Source\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Source/DataStruct/ .cpp)
+set_project_files(Source\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Source/Memory/ .cpp)
 
 # tinyxml2
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)
