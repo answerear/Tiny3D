@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -250,7 +250,7 @@ namespace Tiny3D
                 {
                     bKeyFound = false;
                     long_t val = atol(child->GetText());
-                    dict.insert(VariantMapValue(key, val));
+                    dict.insert(VariantMapValue(key, (int64_t)val));
                 }
                 else
                 {
@@ -348,7 +348,7 @@ namespace Tiny3D
             else if (name == TAG_NAME_INTEGER)
             {
                 long_t val = atol(child->GetText());
-                arr.push_back(val);
+                arr.push_back((int64_t)val);
             }
             else if (name == TAG_NAME_REAL)
             {
