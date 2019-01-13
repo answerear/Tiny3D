@@ -162,6 +162,11 @@ elseif (TINY3D_OS_LINUX)
 		LINK_PRIVATE ${SDL2_LIBRARY}
 		LINK_PRIVATE z
 		)
+
+        add_custom_command(TARGET ${BIN_NAME}
+		POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Tiny3D.cfg
+		)
 elseif (TINY3D_OS_IOS)
 	# iOS
 #	target_link_libraries(
