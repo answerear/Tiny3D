@@ -149,9 +149,9 @@ namespace Tiny3D
         TResult initObjectTracer();
 
         /**
-         * @brief 初始化档案结构系统
+         * @brief 初始化各种管理器
          */
-        TResult initArchives();
+        TResult initManagers();
 
         /**
          * @brief 加载配置文件
@@ -183,6 +183,11 @@ namespace Tiny3D
         typedef Plugins::const_iterator     PluginsConstItr;
         typedef Plugins::value_type         PluginsValue;
 
+        typedef TMap<String, DylibPtr>      Dylibs;
+        typedef Dylibs::iterator            DylibsItr;
+        typedef Dylibs::const_iterator      DylibsConstItr;
+        typedef Dylibs::value_type          DylibsValue;
+
         Logger              *mLogger;           /**< 日志对象 */
         EventManager        *mEventMgr;         /**< 事件管理器对象 */
         ObjectTracer        *mObjTracer;        /**< 对象内存跟踪 */
@@ -191,8 +196,10 @@ namespace Tiny3D
         bool                mIsRunning;         /**< 引擎是否在运行中 */
 
         ArchiveManagerPtr   mArchiveMgr;        /**< 档案管理对象 */
+        DylibManagerPtr     mDylibMgr;          /**< 动态库管理对象 */
 
         Plugins             mPlugins;           /**< 当前安装的插件列表 */
+        Dylibs              mDylibs;            /**< 当前加载的动态库列表 */
 
         String              mAppPath;           /**< 程序路径 */
         String              mAppName;           /**< 程序名称 */

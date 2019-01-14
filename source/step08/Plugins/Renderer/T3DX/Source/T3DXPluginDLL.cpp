@@ -18,20 +18,20 @@
  ******************************************************************************/
 
 
-#include "T3DZipArchivePlugin.h"
+#include "T3DXPlugin.h"
 
 
-Tiny3D::ZipArchivePlugin *gPlugin = nullptr;
+Tiny3D::T3DXPlugin *gPlugin = nullptr;
 
 extern "C"
 {
-    TResult T3D_ZIPARCHIVE_API dllStartPlugin()
+    TResult T3D_XRENDER_API dllStartPlugin()
     {
-        gPlugin = new Tiny3D::ZipArchivePlugin();
+        gPlugin = new Tiny3D::T3DXPlugin();
         return Tiny3D::Engine::getInstance().installPlugin(gPlugin);
     }
 
-    TResult T3D_ZIPARCHIVE_API dllStopPlugin()
+    TResult T3D_XRENDER_API dllStopPlugin()
     {
         TResult ret = Tiny3D::Engine::getInstance().uninstallPlugin(gPlugin);
 

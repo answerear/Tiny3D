@@ -22,5 +22,13 @@
 #define __T3D_RENDERER_H__
 
 
+#include "T3DPrerequisites.h"
+
+
+namespace Tiny3D
+{
+
+}
+
 
 #endif  /*__T3D_RENDERER_H__*/

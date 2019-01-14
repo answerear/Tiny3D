@@ -18,9 +18,17 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#ifndef __T3DX_PREREQUISITES_H__
+#define __T3DX_PREREQUISITES_H__
 
 
+#include <Tiny3D.h>
 
-#endif  /*__T3D_RENDERER_H__*/
+#if defined T3DXRENDERER_EXPORT
+    #define T3D_XRENDER_API        T3D_EXPORT_API
+#else
+    #define T3D_XRENDER_API        T3D_IMPORT_API
+#endif
+
+
+#endif  /*__T3DX_PREREQUISITES_H__*/

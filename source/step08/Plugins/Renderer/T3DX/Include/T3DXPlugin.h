@@ -18,9 +18,57 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#ifndef __T3DX_PLUGIN_H__
+#define __T3DX_PLUGIN_H__
 
 
+#include "T3DXPrerequisites.h"
 
-#endif  /*__T3D_RENDERER_H__*/
+
+namespace Tiny3D
+{
+    class T3DXPlugin : public Plugin
+    {
+    public:
+        /**
+         * @brief 默认构造函数
+         */
+        T3DXPlugin();
+
+        /**
+         * @brief 析构函数
+         */
+        virtual ~T3DXPlugin();
+
+        /**
+         * @brief 获取插件名称
+         */
+        virtual const String &getName() const override;
+
+        /**
+         * @brief 安装插件
+         */
+        virtual TResult install() override;
+
+        /**
+         * @brief 启动插件
+         */
+        virtual TResult startup() override;
+
+        /**
+         * @brief 关闭插件
+         */
+        virtual TResult shutdown() override;
+
+        /**
+         * @brief 卸载插件
+         */
+        virtual TResult uninstall() override;
+
+    protected:
+        String      mName;
+    };
+}
+
+
+#endif  /*__T3DX_PLUGIN_H__*/

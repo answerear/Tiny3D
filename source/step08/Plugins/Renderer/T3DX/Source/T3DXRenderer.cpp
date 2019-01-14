@@ -18,9 +18,10 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#include "T3DXRenderer.h"
 
 
+namespace Tiny3D
+{
 
-#endif  /*__T3D_RENDERER_H__*/
+}

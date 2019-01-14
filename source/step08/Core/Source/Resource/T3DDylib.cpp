@@ -88,7 +88,8 @@ namespace Tiny3D
 #endif
 
             String pluginsPath = Engine::getInstance().getPluginsPath();
-            String path = Engine::getInstance().getAppPath() + pluginsPath + name;
+            String path = Engine::getInstance().getAppPath() + pluginsPath 
+                + Dir::NATIVE_SEPARATOR + name;
             mHandle = DYLIB_LOAD(path.c_str());
 
             if (mHandle == nullptr)

@@ -98,20 +98,11 @@ namespace Tiny3D
     void ArchiveManager::removeArchiveCreator(const String &name)
     {
         auto itr = mCreators.find(name);
-        T3D_SAFE_DELETE(itr->second);
         mCreators.erase(itr);
     }
 
     void ArchiveManager::removeAllArchiveCreator()
     {
-        auto itr = mCreators.begin();
-
-        while (itr != mCreators.end())
-        {
-            T3D_SAFE_DELETE(itr->second);
-            ++itr;
-        }
-
         mCreators.clear();
     }
 
