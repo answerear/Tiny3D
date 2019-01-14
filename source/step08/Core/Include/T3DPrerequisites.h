@@ -45,6 +45,7 @@ namespace Tiny3D
     class ObjectTracer;
 
     class Engine;
+    class Plugin;
 
     class Variant;
 
@@ -53,8 +54,7 @@ namespace Tiny3D
     class Dylib;
     class DylibManager;
     class Archive;
-    class FileSystemArchive;
-    class ZipArchive;
+    class ArchiveCreator;
     class ArchiveManager;
 }
 

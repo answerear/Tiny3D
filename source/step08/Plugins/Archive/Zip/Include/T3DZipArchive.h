@@ -22,8 +22,7 @@
 #define __T3D_ZIP_ARCHIVE_H__
 
 
-#include "Resource/T3DArchive.h"
-#include "Resource/T3DArchiveCreator.h"
+#include "T3DZipArchivePrerequisites.h"
 
 
 namespace Tiny3D
@@ -31,7 +30,7 @@ namespace Tiny3D
     /**
      * @brief zip 压缩档案结构类，用于访问 zip 压缩包里面的文件
      */
-    class T3D_ENGINE_API ZipArchive : public Archive
+    class ZipArchive : public Archive
     {
     public:
         static const char * const ARCHIVE_TYPE; /**< 档案类型 */
@@ -94,24 +93,6 @@ namespace Tiny3D
 
     protected:
         THandle     mZipFile;   /**< zip 压缩文件句柄 */
-    };
-
-
-    /**
-     * @brief zip 压缩文件系统档案结构构建器类，用于构建 zip 档案结构对象
-     */
-    class T3D_ENGINE_API ZipArchiveCreator : public ArchiveCreator
-    {
-    public:
-        /**
-         * @brief 重写 ArchieveCreator::getType() 接口
-         */
-        virtual String getType() const override;
-
-        /**
-         * @brief 重写 ArchieveCreator::createObject() 接口
-         */
-        virtual ArchivePtr createObject(int32_t argc, ...) const override;
     };
 }
 

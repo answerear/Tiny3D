@@ -4,5 +4,11 @@
 @rmdir /Q /S bin
 @mkdir vs2015 && cd vs2015
 @cmake -G "Visual Studio 14 2015" ../
-@devenv Tiny3D.sln
-@cd ../Projects
+
+@if %ERRORLEVEL% == 0 (
+    @devenv Tiny3D.sln
+    @cd ../Projects
+) else (
+    @cd ../Projects
+    @pause
+)

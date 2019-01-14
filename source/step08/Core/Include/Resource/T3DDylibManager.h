@@ -18,103 +18,47 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RESOURCE_H__
-#define __T3D_RESOURCE_H__
+#ifndef __T3D_DYLIB_MANAGER_H__
+#define __T3D_DYLIB_MANAGER_H__
 
 
-#include "Kernel/T3DObject.h"
-#include "T3DTypedef.h"
+#include "T3DPrerequisites.h"
+#include "Resource/T3DResourceManager.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API Resource : public Object
+    class T3D_ENGINE_API DylibManager 
+        : Singleton<DylibManager>
+        , public ResourceManager
     {
-        friend class ResourceManager;
-
     public:
-        /** 资源类型枚举 */
-        enum Type
-        {
-            E_TYPE_UNKNOWN = 0,
-            E_TYPE_DYLIB,       /**< 动态库 */
-        };
+        /**
+         * @brief 创建动态库管理器对象
+         */
+        static DylibManagerPtr create();
 
-        /** 析构函数 */
-        virtual ~Resource();
+        virtual ~DylibManager();
 
-        /** 获取资源类型 */
-        virtual Type getType() const = 0;
+        virtual DylibPtr loadDylib(const String &name);
 
-        /** 获取资源唯一ID */
-        ID getID() const
-        {
-            return mID;
-        }
-        
-        /** 获取克隆资源唯一ID，当该资源是从其他资源克隆出来时，该ID才有效 */
-        ID getCloneID() const
-        {
-            return mCloneID;
-        }
-
-        /** 是否克隆资源 */
-        bool isCloned() const
-        {
-            return (mCloneID != T3D_INVALID_ID);
-        }
-
-        /** 获取资源大小 */
-        size_t getSize() const
-        {
-            return mSize;
-        }
-
-        /** 获取资源名称 */
-        const String &getName() const
-        {
-            return mName;
-        }
-
-        /** 获取资源是否加载 */
-        bool isLoaded() const
-        {
-            return mIsLoaded;
-        }
+        virtual void unloadDylib(DylibPtr &dylib);
 
     protected:
-        /** 
-         * @brief 构造函数
-         * @remarks 本类不能直接实例化，所以只能隐藏构造函数 
+        /**
          */
-        Resource(const String &name);
+        DylibManager();
 
-        /** 
-         * @brief 加载资源
-         * @remarks 每种类型资源需要各自实现其加载逻辑，资源只有加载后才能使用
-         */
-        virtual bool load() = 0;
-
-        /** 
-         * @brief 卸载资源
-         * @remarks 每种类型资源需要各自实现其卸载逻辑，资源卸载后就不能再使用了
-         */
-        virtual void unload() = 0;
-
-        /** 
-         * @brief 克隆资源
-         * @remarks 每种类型资源需要各自实现其克隆逻辑，克隆出一个新资源对象
-         */
-        virtual ResourcePtr clone() const = 0;
-
-    protected:
-        ID      mID;        /**< 资源ID */
-        ID      mCloneID;   /**< 如果资源是从其他资源克隆出来的，该ID才有效 */
-        size_t  mSize;      /**< 资源大小 */
-        bool    mIsLoaded;  /**< 资源是否加载标记 */
-        String  mName;      /**< 资源名称 */
+        /**
+        * @brief 创建具体资源对象，具体子类实现该方法
+        * @param [in] strName : 资源名称
+        * @param [in] argc : 资源创建带的参数列表大小
+        * @param [in] args : 参数列表
+        */
+        virtual ResourcePtr create(const String &strName, 
+            int32_t argc, va_list args) override;
     };
 }
 
 
-#endif  /*__T3D_RESOURCE_H__*/
+#endif  /*__T3D_DYLIB_MANAGER_H__*/

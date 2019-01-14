@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(Demo_PlatformApp)
+set_project_name(PlatformApp)
 
 
 if (MSVC)
@@ -47,6 +47,9 @@ if (TINY3D_OS_WINDOWS)
         T3DCore
         )
 
+    # Setup project folder
+    set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Samples")
+    
     # Setup install files and path for Windows.
 	install(TARGETS ${BIN_NAME}
 		RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug

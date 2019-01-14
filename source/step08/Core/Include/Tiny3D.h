@@ -30,6 +30,9 @@
 #include <Kernel/T3DConfigFile.h>
 #include <Kernel/T3DCreator.h>
 #include <Kernel/T3DObject.h>
+#include <Kernel/T3DPlugin.h>
+
+// Memory
 #include <Memory/T3DSmartPtr.h>
 
 // Resource
@@ -38,10 +41,8 @@
 #include <Resource/T3DArchiveManager.h>
 #include <Resource/T3DDylib.h>
 #include <Resource/T3DDylibManager.h>
-#include <Resource/T3DFileSystemArchive.h>
 #include <Resource/T3DResource.h>
 #include <Resource/T3DResourceManager.h>
-#include <Resource/T3DZipArchieve.h>
 
 // DataStruct
 #include <DataStruct/T3DVariant.h>

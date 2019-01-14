@@ -18,10 +18,8 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DZipArchieve.h"
-#include "Support/minizip/unzip.h"
-#include "Kernel/T3DEngine.h"
-#include "T3DErrorDef.h"
+#include "T3DZipArchive.h"
+#include "minizip/unzip.h"
 
 
 namespace Tiny3D
@@ -29,22 +27,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     const char * const ZipArchive::ARCHIVE_TYPE = "Zip";
-
-    //--------------------------------------------------------------------------
-
-    String ZipArchiveCreator::getType() const
-    {
-        return ZipArchive::ARCHIVE_TYPE;
-    }
-
-    ArchivePtr ZipArchiveCreator::createObject(int32_t argc, ...) const
-    {
-        va_list params;
-        va_start(params, argc);
-        String name = va_arg(params, char *);
-        va_end(params);
-        return ZipArchive::create(name);
-    }
 
     //--------------------------------------------------------------------------
 

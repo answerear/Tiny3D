@@ -18,29 +18,12 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DFileSystemArchive.h"
-#include "Kernel/T3DEngine.h"
+#include "T3DFSArchive.h"
 
 
 namespace Tiny3D
 {
     const char * const FileSystemArchive::ARCHIVE_TYPE = "FileSystem";
-
-    //--------------------------------------------------------------------------
-
-    String FileSystemArchiveCreator::getType() const
-    {
-        return FileSystemArchive::ARCHIVE_TYPE;
-    }
-
-    ArchivePtr FileSystemArchiveCreator::createObject(int32_t argc, ...) const
-    {
-        va_list params;
-        va_start(params, argc);
-        String name = va_arg(params, char *);
-        va_end(params);
-        return FileSystemArchive::create(name);
-    }
 
     //--------------------------------------------------------------------------
 

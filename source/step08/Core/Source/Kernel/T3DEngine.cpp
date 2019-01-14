@@ -17,13 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#include "T3DErrorDef.h"
 #include "Kernel/T3DEngine.h"
-#include "Resource/T3DArchiveManager.h"
-#include "Resource/T3DFileSystemArchive.h"
-#include "Resource/T3DZipArchieve.h"
+#include "Kernel/T3DPlugin.h"
 #include "Kernel/T3DConfigFile.h"
+
+#include "Resource/T3DArchive.h"
+#include "Resource/T3DArchiveCreator.h"
+#include "Resource/T3DArchiveManager.h"
+#include "Resource/T3DDylib.h"
+#include "Resource/T3DDylibManager.h"
+
 #include "DataStruct/T3DString.h"
+
 #include "Memory/T3DObjectTracer.h"
+
 
 
 namespace Tiny3D
@@ -202,6 +210,126 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Engine::installPlugin(Plugin *plugin)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        do 
+        {
+            if (plugin == nullptr)
+            {
+                // 空指针
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR("Invalid plugin !!!");
+                break;
+            }
+
+            auto rval 
+                = mPlugins.insert(PluginsValue(plugin->getName(), plugin));
+            if (!rval.second)
+            {
+                ret = T3D_ERR_PLG_DUPLICATED;
+                T3D_LOG_ERROR("Duplicated plugin [%s] !", 
+                    plugin->getName().c_str());
+                break;
+            }
+
+            // 安装插件
+            ret = plugin->install();
+            if (ret != T3D_ERR_OK)
+            {
+                mPlugins.erase(plugin->getName());
+                T3D_LOG_ERROR("Install plugin [%s] failed !",
+                    plugin->getName().c_str());
+                break;
+            }
+
+            // 启动插件
+            ret = plugin->startup();
+            if (ret != T3D_ERR_OK)
+            {
+                mPlugins.erase(plugin->getName());
+                T3D_LOG_ERROR("Startup plugin [%s] failed !", 
+                    plugin->getName().c_str());
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    TResult Engine::uninstallPlugin(Plugin *plugin)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        do 
+        {
+            if (plugin == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR("Invalid plugin !!!");
+                break;
+            }
+
+            ret = plugin->shutdown();
+            if (ret != T3D_ERR_OK)
+            {
+                T3D_LOG_ERROR("Shutdown plugin [%s] failed !", 
+                    plugin->getName().c_str());
+                break;
+            }
+
+            ret = plugin->uninstall();
+            if (ret != T3D_ERR_OK)
+            {
+                T3D_LOG_ERROR("Uninstall plugin [%s] failed !",
+                    plugin->getName().c_str())
+                break;
+            }
+
+            mPlugins.erase(plugin->getName());
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Engine::loadPlugin(const String &name)
+    {
+        T3D_LOG_INFO("Load plugin %s ...", name.c_str());
+
+        TResult ret = T3D_ERR_OK;
+
+//         DylibPtr lib = DylibManager::getInstance().loadDylib(name);
+
+        return ret;
+    }
+
+    TResult Engine::unloadPlugin(const String &name)
+    {
+        TResult ret = T3D_ERR_OK;
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Engine::addArchiveCreator(ArchiveCreator *creator)
+    {
+        TResult ret = T3D_ERR_OK;
+        mArchiveMgr->addArchiveCreator(creator);
+        return ret;
+    }
+
+    TResult Engine::removeArchiveCreator(ArchiveCreator *creator)
+    {
+        TResult ret = T3D_ERR_OK;
+        mArchiveMgr->removeArchiveCreator(creator->getType());
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Engine::initApplication()
     {
         TResult ret = T3D_ERR_OK;
@@ -257,6 +385,48 @@ namespace Tiny3D
         return T3D_ERR_OK;
     }
 
+    TResult Engine::initArchives()
+    {
+        mArchiveMgr = ArchiveManager::create();
+        return T3D_ERR_OK;
+    }
+
+    TResult Engine::loadConfig(const String &cfgPath)
+    {
+        TResult ret = T3D_ERR_OK;
+
+#if defined (T3D_OS_ANDROID)
+        // Android，只能读取apk包里面的文件
+        String apkPath = Dir::getAppPath();
+        ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Zip");
+        ConfigFile cfgFile("assets/" + cfgPath, archive);
+        ret = cfgFile.loadXML(mSettings);
+#else
+        // 其他不需要从 apk 包里面读取文件的
+        String path = mAppPath + cfgPath;
+        ConfigFile cfgFile(path);
+        ret = cfgFile.loadXML(mSettings);
+#endif
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Engine::loadPlugins()
+    {
+        TResult ret = T3D_ERR_OK;
+        return ret;
+    }
+
+    TResult Engine::unloadPlugins()
+    {
+        TResult ret = T3D_ERR_OK;
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Engine::createRenderWindow()
     {
         TResult ret = T3D_ERR_OK;
@@ -289,39 +459,6 @@ namespace Tiny3D
             }
         } while (0);
         
-        return ret;
-    }
-
-    TResult Engine::initArchives()
-    {
-        mArchiveMgr = ArchiveManager::create();
-
-        FileSystemArchiveCreator *fsCreator = new FileSystemArchiveCreator();
-        mArchiveMgr->addArchiveCreator(fsCreator);
-
-        ZipArchiveCreator *zipCreator = new ZipArchiveCreator();
-        mArchiveMgr->addArchiveCreator(zipCreator);
-
-        return T3D_ERR_OK;
-    }
-
-    TResult Engine::loadConfig(const String &cfgPath)
-    {
-        TResult ret = T3D_ERR_OK;
-
-#if defined (T3D_OS_ANDROID)
-        // Android，只能读取apk包里面的文件
-        String apkPath = Dir::getAppPath();
-        ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Zip");
-        ConfigFile cfgFile("assets/" + cfgPath, archive);
-        ret = cfgFile.loadXML(mSettings);
-#else
-        // 其他不需要从 apk 包里面读取文件的
-        String path = mAppPath + cfgPath;
-        ConfigFile cfgFile(path);
-        ret = cfgFile.loadXML(mSettings);
-#endif
-
         return ret;
     }
 }

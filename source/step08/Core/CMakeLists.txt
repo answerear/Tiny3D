@@ -62,9 +62,7 @@ set_project_files(Source\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/ .c
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .cpp)
 
-# unzip
-set_project_files(Source\\\\Support\\\\minizip ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/minizip/ .h)
-set_project_files(Source\\\\Support\\\\minizip ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/minizip/ .c)
+
 
 # Setup all files for building this project.
 if (TINY3D_BUILD_SHARED_LIBS)
@@ -91,7 +89,7 @@ if (TINY3D_OS_WINDOWS)
 			LINK_PRIVATE T3DMath
 			LINK_PRIVATE legacy_stdio_definitions
 			LINK_PRIVATE ${SDL2_LIBRARY}
-			LINK_PRIVATE ${TINY3D_ZLIB_LIBRARY}
+#			LINK_PRIVATE ${TINY3D_ZLIB_LIBRARY}
 			)
 	else ()
 		# Visual Studio version is older than 2015
@@ -102,7 +100,7 @@ if (TINY3D_OS_WINDOWS)
 			LINK_PRIVATE T3DFramework
 			LINK_PRIVATE T3DMath
 			LINK_PRIVATE ${SDL2_LIBRARY}
-			LINK_PRIVATE ${TINY3D_ZLIB_LIBRARY}
+#			LINK_PRIVATE ${TINY3D_ZLIB_LIBRARY}
 			)
 	endif ()
 
@@ -153,7 +151,7 @@ elseif (TINY3D_OS_MACOSX)
 		LINK_PRIVATE T3DMath
 		LINK_PRIVATE ${SDL2_LIBRARY}
 		LINK_PRIVATE ${SDL2_OSX_FRAMEWORKS}
-		LINK_PRIVATE z
+#		LINK_PRIVATE z
 		)
 elseif (TINY3D_OS_LINUX)
 	# Linux
@@ -164,7 +162,7 @@ elseif (TINY3D_OS_LINUX)
 		LINK_PRIVATE T3DFramework
 		LINK_PRIVATE T3DMath
 		LINK_PRIVATE ${SDL2_LIBRARY}
-		LINK_PRIVATE z
+#		LINK_PRIVATE z
 		)
 
         add_custom_command(TARGET ${BIN_NAME}
@@ -187,7 +185,7 @@ elseif (TINY3D_OS_ANDROID)
         LINK_PRIVATE T3DFramework
 		LINK_PRIVATE T3DMath
         LINK_PRIVATE ${SDL2_BINARY}
-		LINK_PRIVATE z
+#		LINK_PRIVATE z
         )
 	
 	add_custom_command(TARGET ${BIN_NAME}
