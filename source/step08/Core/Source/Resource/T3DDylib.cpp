@@ -84,7 +84,7 @@ namespace Tiny3D
 #elif defined (T3D_OS_LINUX) || defined (T3D_OS_ANDROID)
             String name = "lib" + mName + ".so";
 #elif defined (T3D_OS_OSX) || defined (T3D_OS_IOS)
-            String name = mName + ".dylib";
+            String name = "lib" + mName + ".dylib";
 #endif
 
             String pluginsPath = Engine::getInstance().getPluginsPath();

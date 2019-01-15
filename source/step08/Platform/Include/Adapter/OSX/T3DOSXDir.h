@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -53,6 +53,12 @@ namespace Tiny3D
          * @return 返回应用程序可写路径.
          */
         virtual String getWritablePath() const override;
+        
+        /**
+         * @brief 获取应用程序可写路径，不同平台指定对应的路径
+         * @return 返回应用程序可写路径.
+         */
+        virtual String getLibraryPath() const override;
     };
 }
 

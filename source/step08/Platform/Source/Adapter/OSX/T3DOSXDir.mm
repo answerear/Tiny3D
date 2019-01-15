@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -104,6 +104,11 @@ namespace Tiny3D
     String OSXDir::getWritablePath() const
     {
         return getAppPath() + "/Documents";
+    }
+    
+    String OSXDir::getLibraryPath() const
+    {
+        return getAppPath();
     }
 }
 

@@ -21,6 +21,7 @@ include_directories(
     "${TINY3D_FRAMEWORK_SOURCE_DIR}/Include"
     "${TINY3D_PLATFORM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
+    "${SDL2_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${TINY3D_DEP_DIR}/zlib/include"    # only for windows
     )
