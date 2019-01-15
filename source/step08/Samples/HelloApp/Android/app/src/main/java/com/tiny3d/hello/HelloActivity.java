@@ -12,11 +12,11 @@ public class HelloActivity extends Tiny3DActivity {
     static {
         System.loadLibrary("T3DPlatform");
         System.loadLibrary("T3DCore");
-        System.loadLibrary("Demo_HelloApp");
+        System.loadLibrary("HelloApp");
     }
 
     protected String getMainSharedObject() {
-        return "libDemo_HelloApp.so";
+        return "libHelloApp.so";
     }
 
     protected String getMainFunction() {

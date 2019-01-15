@@ -316,6 +316,11 @@ namespace Tiny3D
         return getAppPath() + "\\Save";
     }
 
+    String Win32Dir::getLibraryPath() const
+    {
+        return getAppPath();
+    }
+
     char Win32Dir::getNativeSeparator() const
     {
         return '\\';

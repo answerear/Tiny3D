@@ -84,6 +84,12 @@ namespace Tiny3D
             // 获取应用程序路径、应用程序名称
             StringUtil::split(appPath, mAppPath, mAppName);
 
+#if defined (T3D_OS_ANDROID)
+            // Android 单独设置插件路径，不使用配置文件里面设置的路径
+            // 因为android的插件在/data/data/appname/lib文件下
+            mPluginsPath = Dir::getLibraryPath();
+#endif
+
             // 初始化应用程序框架，这个需要放在最前面，否则平台相关接口均不能用
             ret = initApplication();
             if (ret != T3D_ERR_OK)
@@ -297,6 +303,7 @@ namespace Tiny3D
             ret = plugin->uninstall();
             if (ret != T3D_ERR_OK)
             {
+
                 T3D_LOG_ERROR("Uninstall plugin [%s] failed !",
                     plugin->getName().c_str())
                 break;
@@ -318,6 +325,15 @@ namespace Tiny3D
 
         do 
         {
+            auto rval = mDylibs.find(name);
+            if (rval != mDylibs.end())
+            {
+                // 已经加载过了，直接返回吧
+                T3D_LOG_INFO("Load plugin [%s] , but it already loaded !",
+                    name.c_str());
+                break;
+            }
+            
             DylibPtr dylib = DylibManager::getInstance().loadDylib(name);
 
             if (dylib->getType() != Resource::E_TYPE_DYLIB)
@@ -476,6 +492,12 @@ namespace Tiny3D
 
 #if defined (T3D_OS_ANDROID)
         // Android，只能读取apk包里面的文件
+        ret = loadPlugin("ZipArchive");
+        if (ret != T3D_ERR_OK)
+        {
+            return ret;
+        }
+
         String apkPath = Dir::getAppPath();
         ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Zip");
         ConfigFile cfgFile("assets/" + cfgPath, archive);
@@ -509,7 +531,9 @@ namespace Tiny3D
                 break;
             }
 
+#if !defined (T3D_OS_ANDROID)
             mPluginsPath = itr->second.stringValue();
+#endif
 
             key.setString("List");
             itr = pluginSettings.find(key);

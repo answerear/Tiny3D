@@ -82,7 +82,7 @@ namespace Tiny3D
 #if defined (T3D_OS_WINDOWS)
             String name = mName + ".dll";
 #elif defined (T3D_OS_LINUX) || defined (T3D_OS_ANDROID)
-            String name = mName + ".so";
+            String name = "lib" + mName + ".so";
 #elif defined (T3D_OS_OSX) || defined (T3D_OS_IOS)
             String name = mName + ".dylib";
 #endif

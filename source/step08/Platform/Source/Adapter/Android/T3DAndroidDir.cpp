@@ -123,8 +123,16 @@ namespace Tiny3D
     
     String AndroidDir::getWritablePath() const
     {
-        String externalPath = SDL_AndroidGetExternalStoragePath();
-        return getAppPath() + "/files";
+        String externalPath = SDL_AndroidGetInternalStoragePath();
+        return externalPath;
+    }
+
+    String AndroidDir::getLibraryPath() const
+    {
+        String internalPath = SDL_AndroidGetInternalStoragePath();
+        size_t pos = internalPath.rfind("/");
+        String appPath = internalPath.substr(0, pos);
+        return appPath + "/lib";
     }
 }
 

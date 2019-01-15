@@ -31,6 +31,7 @@ namespace Tiny3D
     String Dir::sCachePath;
     String Dir::sAppPath;
     String Dir::sWritablePath;
+    String Dir::sLibPath;
 
     char Dir::NATIVE_SEPARATOR = 0;
 
@@ -270,6 +271,22 @@ namespace Tiny3D
         }
 
         return sWritablePath;
+    }
+
+    const String &Dir::getLibraryPath()
+    {
+        if (sLibPath.empty())
+        {
+            if (nullptr == sDir)
+                sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
+
+            if (sDir != nullptr)
+            {
+                sLibPath = sDir->getLibraryPath();
+            }
+        }
+
+        return sLibPath;
     }
 
     char Dir::getNativeSeparator()
