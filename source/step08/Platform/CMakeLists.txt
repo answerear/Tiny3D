@@ -204,6 +204,11 @@ elseif (TINY3D_OS_LINUX)
 		LINK_PRIVATE X11
 		LINK_PRIVATE ${SDL2_LIBRARY}
 		)
+
+	add_custom_command(TARGET ${BIN_NAME}
+		POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/lib${BIN_NAME}.so" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lib${BIN_NAME}.so"
+		)
 elseif (TINY3D_OS_IOS)
 	# iOS
     find_library(FWK_SECURITY Security)

@@ -73,8 +73,6 @@ else (TINY3D_BUILD_SHARED_LIBS)
 	add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
 endif (TINY3D_BUILD_SHARED_LIBS)
 
-
-
 if (TINY3D_OS_WINDOWS)
 	# Windows
 
@@ -168,6 +166,7 @@ elseif (TINY3D_OS_LINUX)
         add_custom_command(TARGET ${BIN_NAME}
 		POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Tiny3D.cfg
+		COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/lib${BIN_NAME}.so" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lib${BIN_NAME}.so"
 		)
 elseif (TINY3D_OS_IOS)
 	# iOS

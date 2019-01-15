@@ -48,6 +48,14 @@ target_link_libraries(
     T3DCore
     )
 
+if (TINY3D_OS_LINUX)
+    add_custom_command(TARGET ${BIN_NAME}
+        POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Plugins"
+        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/lib${BIN_NAME}.so" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Plugins/lib${BIN_NAME}.so"
+        )
+endif (TINY3D_OS_LINUX)
+
 # Setup project folder
 set_property(TARGET ${LIB_NAME} PROPERTY FOLDER "Plugins/Renderer")
 

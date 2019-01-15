@@ -54,6 +54,19 @@ if (TINY3D_OS_IOS)
 #        ${SDL2_OSX_FRAMEWORKS}
 #        ${FWK_SECURITY}
         )
+elseif (TINY3D_OS_LINUX)
+    target_link_libraries(
+        ${LIB_NAME}
+        T3DLog
+        T3DPlatform
+        T3DCore
+        )
+
+    add_custom_command(TARGET ${BIN_NAME}
+        POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Plugins"
+        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/lib${BIN_NAME}.so" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Plugins/lib${BIN_NAME}.so"
+        )
 else (TINY3D_OS_IOS)
     target_link_libraries(
         ${LIB_NAME}

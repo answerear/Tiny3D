@@ -103,6 +103,11 @@ elseif (TINY3D_OS_LINUX)
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
 		)
+
+	add_custom_command(TARGET ${BIN_NAME}
+		POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/lib${BIN_NAME}.so" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lib${BIN_NAME}.so"
+		)
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	# iOS
 	target_link_libraries(

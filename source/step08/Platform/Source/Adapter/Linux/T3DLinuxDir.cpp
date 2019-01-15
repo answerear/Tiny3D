@@ -103,6 +103,11 @@ namespace Tiny3D
         return appPath;
     }
 
+    String LinuxDir::getLibraryPath() const
+    {
+        return getAppPath();
+    }
+
     String LinuxDir::getWritablePath() const
     {
         return getAppPath() + "/Documents";
