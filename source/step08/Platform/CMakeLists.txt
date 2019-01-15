@@ -206,8 +206,13 @@ elseif (TINY3D_OS_LINUX)
 		)
 elseif (TINY3D_OS_IOS)
 	# iOS
+    find_library(FWK_SECURITY Security)
+
 	target_link_libraries(
         ${LIB_NAME}
+        ${SDL2_LIBRARY}
+        ${SDL2_OSX_FRAMEWORKS}
+        ${FWK_SECURITY}
 		)
 elseif (TINY3D_OS_ANDROID)
 	# Android

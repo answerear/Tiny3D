@@ -41,12 +41,29 @@ endif (TINY3D_BUILD_SHARED_LIBS)
 
 set_property(TARGET ${LIB_NAME} PROPERTY FOLDER "Plugins/Archive")
 
-target_link_libraries(
-    ${LIB_NAME}
-    T3DLog
-    T3DPlatform
-    T3DCore
-    )
+if (TINY3D_OS_IOS)
+#    find_library(FWK_SECURITY Security)
+
+    target_link_libraries(
+        ${LIB_NAME}
+        T3DLog
+        T3DPlatform
+#        T3DFramework
+        T3DCore
+#        ${SDL2_LIBRARY}
+#        ${SDL2_OSX_FRAMEWORKS}
+#        ${FWK_SECURITY}
+        )
+else (TINY3D_OS_IOS)
+    target_link_libraries(
+        ${LIB_NAME}
+        T3DLog
+        T3DPlatform
+        T3DCore
+        )
+endif (TINY3D_OS_IOS)
+
+
 
 install(TARGETS ${LIB_NAME}
     RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug

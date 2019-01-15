@@ -94,10 +94,10 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             T3DLog
             T3DFramework
             T3DCore
-            z
-            ${SDL2_LIBRARY}
-            ${SDL2_OSX_FRAMEWORKS}
-            ${FWK_SECURITY}
+            #z
+            #${SDL2_LIBRARY}
+            #${SDL2_OSX_FRAMEWORKS}
+            #${FWK_SECURITY}
             )
 
         # Setup all properties for this iOS project.
@@ -120,6 +120,9 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
         add_custom_command(TARGET ${BIN_NAME}
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/Tiny3D.cfg" "${APPS}"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*" "${APPS}"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${APPS}/Plugins"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/Plugins/*.dylib" "${APPS}/Plugins"
             )
     elseif (TINY3D_OS_MACOSX)
         # Setup all link libraries frameworks for Mac OS X

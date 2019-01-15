@@ -94,7 +94,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             T3DLog
             T3DFramework
             T3DCore
-            z
+            #z
             ${SDL2_LIBRARY}
             ${SDL2_OSX_FRAMEWORKS}
             ${FWK_SECURITY}
