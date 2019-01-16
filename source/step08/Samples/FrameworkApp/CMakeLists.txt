@@ -16,8 +16,8 @@ endif (MSVC)
 include_directories(
     "${TINY3D_PLATFORM_INC_DIR}"
     "${TINY3D_MATH_INC_DIR}"
-    "${TINY3D_LOG_INC_DIR}"
     "${TINY3D_FRAMEWORK_INC_DIR}"
+    "${TINY3D_LOG_INC_DIR}"
     "${TINY3D_CORE_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
@@ -95,9 +95,9 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             T3DFramework
             T3DCore
             #z
-            ${SDL2_LIBRARY}
-            ${SDL2_OSX_FRAMEWORKS}
-            ${FWK_SECURITY}
+            #${SDL2_LIBRARY}
+            #${SDL2_OSX_FRAMEWORKS}
+            #${FWK_SECURITY}
             )
 
         # Setup all properties for this iOS project.
@@ -112,6 +112,17 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"                   # Code sign identity for this app.
             MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"                             # Long version string for this app.
             MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"                              # Short version string for this app.
+            )
+
+        set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
+        set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
+
+        add_custom_command(TARGET ${BIN_NAME}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/Tiny3D.cfg" "${APPS}"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*" "${APPS}"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${APPS}/Plugins"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/Plugins/*.dylib" "${APPS}/Plugins"
             )
     elseif (TINY3D_OS_MACOSX)
         # Setup all link libraries frameworks for Mac OS X
@@ -147,6 +158,13 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             LIBRARY DESTINATION bin/debug CONFIGURATIONS Debug
             ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
             )
+
+        add_custom_command(TARGET ${BIN_NAME}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/Tiny3D.cfg" "${APPS}/Contents/MacOS"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*" "${APPS}/Contents/MacOS"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/Plugins" "${APPS}/Contents/MacOS/Plugins"
+            )
     endif (TINY3D_OS_IOS)
 elseif (TINY3D_OS_LINUX)
     # Setup executable project for Linux.
@@ -158,11 +176,12 @@ elseif (TINY3D_OS_LINUX)
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+        T3DLog
         T3DFramework
         T3DLog
         T3DCore
         )
-    
+
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}
         RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug
@@ -170,4 +189,5 @@ elseif (TINY3D_OS_LINUX)
         ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
         )
 endif (TINY3D_OS_WINDOWS)
+
 
