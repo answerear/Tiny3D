@@ -29,6 +29,8 @@
 #include "T3DDegree.h"
 #include "T3DRadian.h"
 #include "T3DMath.h"
+#include "T3DColor4.h"
+#include "T3DRect.h"
 #include "T3DVector2.h"
 #include "T3DVector3.h"
 #include "T3DVector4.h"
@@ -91,6 +93,15 @@ namespace Tiny3D
 typedef TDegree<Real>       Degree;
 typedef TRadian<Real>       Radian;
 typedef TMath<Real>         Math;
+
+typedef TSize<long_t>       Size;
+typedef TSize<Real>         RealSize;
+
+typedef TPoint<long_t>      Point;
+typedef TPoint<Real>        RealPoint;
+
+typedef TRect<long_t>       Rect;
+typedef TRect<Real>         RealRect;
 
 typedef TVector2<Real>      Vector2;
 typedef TVector3<Real>      Vector3;
