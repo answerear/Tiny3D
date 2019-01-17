@@ -39,8 +39,11 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(HardwareIndexBuffer);
     T3D_DECLARE_SMART_PTR(HardwarePixelBuffer);
     T3D_DECLARE_SMART_PTR(HardwareVertexBuffer);
-    T3D_DECLARE_SMART_PTR(VertexElement);
+    T3D_DECLARE_SMART_PTR(VertexAttribute);
     T3D_DECLARE_SMART_PTR(VertexDeclaration);
+    T3D_DECLARE_SMART_PTR(VertexArray);
+    T3D_DECLARE_SMART_PTR(HardwareBufferManagerBase);
+    T3D_DECLARE_SMART_PTR(HardwareBufferManager);
 
     typedef TArray<Variant>                 VariantArray;
     typedef VariantArray::iterator          VariantArrayItr;

@@ -65,116 +65,256 @@ namespace Tiny3D
         size_t  mVertexSize;        /**< 顶点字节数大小 */
     };
 
+
     /**
-     * @brief 顶点元素
+     * @brief 顶点属性
      */
-    class T3D_ENGINE_API VertexElement : public Object
+    class T3D_ENGINE_API VertexAttribute : public Object
     {
     public:
+        /**< 顶点属性类型 */
         enum Type
         {
-            E_VET_FLOAT1 = 0,
-            E_VET_FLOAT2 = 1,
-            E_VET_FLOAT3 = 2,
-            E_VET_FLOAT4 = 3,
-            E_VET_COLOR = 4,
-            E_VET_BYTE4 = 5,
-            E_VET_BYTE4_NORM = 6,
-            E_VET_UBYTE4 = 7,
-            E_VET_UBYTE4_NORM = 8,
-            E_VET_SHORT2 = 9,
-            E_VET_SHORT4 = 10,
-            E_VET_SHORT2_NORM = 11,
-            E_VET_SHORT4_NORM = 12,
-            E_VET_USHORT2 = 13,
-            E_VET_USHORT4 = 14,
-            E_VET_USHORT2_NORM = 15,
-            E_VET_USHORT4_NORM = 16,
-            E_VET_DOUBLE1 = 17,
-            E_VET_DOUBLE2 = 18,
-            E_VET_DOUBLE3 = 19,
-            E_VET_DOUBLE4 = 20,
-            E_VET_INT1 = 21,
-            E_VET_INT2 = 22,
-            E_VET_INT3 = 23,
-            E_VET_INT4 = 24,
-            E_VET_UINT1 = 25,
-            E_VET_UINT2 = 26,
-            E_VET_UINT3 = 27,
-            E_VET_UINT4 = 28,
-            E_VET_FLOAT16_2 = 29,
-            E_VET_FLOAT16_4 = 30,
+            E_VAT_FLOAT1 = 0,
+            E_VAT_FLOAT2 = 1,
+            E_VAT_FLOAT3 = 2,
+            E_VAT_FLOAT4 = 3,
+            E_VAT_COLOR = 4,
+            E_VAT_BYTE4 = 5,
+            E_VAT_BYTE4_NORM = 6,
+            E_VAT_UBYTE4 = 7,
+            E_VAT_UBYTE4_NORM = 8,
+            E_VAT_SHORT2 = 9,
+            E_VAT_SHORT4 = 10,
+            E_VAT_SHORT2_NORM = 11,
+            E_VAT_SHORT4_NORM = 12,
+            E_VAT_USHORT2 = 13,
+            E_VAT_USHORT4 = 14,
+            E_VAT_USHORT2_NORM = 15,
+            E_VAT_USHORT4_NORM = 16,
+            E_VAT_DOUBLE1 = 17,
+            E_VAT_DOUBLE2 = 18,
+            E_VAT_DOUBLE3 = 19,
+            E_VAT_DOUBLE4 = 20,
+            E_VAT_INT1 = 21,
+            E_VAT_INT2 = 22,
+            E_VAT_INT3 = 23,
+            E_VAT_INT4 = 24,
+            E_VAT_UINT1 = 25,
+            E_VAT_UINT2 = 26,
+            E_VAT_UINT3 = 27,
+            E_VAT_UINT4 = 28,
+            E_VAT_FLOAT16_2 = 29,
+            E_VAT_FLOAT16_4 = 30,
         };
 
+        /**< 顶点语法解释 */
         enum Semantic
         {
-            E_VES_POSITION = 0,
-            E_VES_BLENDWEIGHT = 1,
-            E_VES_BLENDINDICES = 2,
-            E_VES_NORMAL = 3,
-            E_VES_DIFFUSE = 4,
-            E_VES_SPECULAR = 5,
-            E_VES_TEXCOORD = 6,
-            E_VES_TANGENT = 7,
-            E_VES_BINORMAL = 8,
+            E_VAS_POSITION = 0,     /**< 位置 */
+            E_VAS_BLENDWEIGHT = 1,  /**< 骨骼混合权重 */
+            E_VAS_BLENDINDICES = 2, /**< 骨骼索引 */
+            E_VAS_NORMAL = 3,       /**< 法线 */
+            E_VAS_DIFFUSE = 4,      /**< 漫反射值 */
+            E_VAS_SPECULAR = 5,     /**< 镜面反射值 */
+            E_VAS_TEXCOORD = 6,     /**< 纹理坐标 */
+            E_VAS_TANGENT = 7,      /**< 切线 */
+            E_VAS_BINORMAL = 8,     /**< 副法线 */
         };
 
-        VertexElement();
-        VertexElement(size_t stream, size_t offset, Type type, Semantic semantic);
-        virtual ~VertexElement();
+        /**
+         * @brief 默认构造函数
+         */
+        VertexAttribute();
 
+        /**
+         * @brief 构造函数
+         * @param [in] stream : 数据流索引
+         * @param [in] offset : 相对当前顶点起始位置的偏移
+         * @param [in] type : 顶点数据类型
+         * @param [in] semantic : 顶点语法解释
+         */
+        VertexAttribute(size_t stream, size_t offset, Type type, 
+            Semantic semantic);
+
+        /**
+         * @brief 析构函数
+         */
+        virtual ~VertexAttribute();
+
+        /**
+         * @brief 获取数据流索引
+         */
         size_t getStream() const { return mStream; }
 
+        /**
+         * @brief 获取顶点相对一个顶点数据起点的偏移位置
+         */
         size_t getOffset() const { return mOffset; }
 
+        /**
+         * @brief 获取顶点数据类型
+         */
         Type getType() const { return mType; }
 
+        /**
+         * @brief 获取顶点语法解释
+         */
         Semantic getSemantic() const { return mSemantic; }
 
+        /**
+         * @brief 获取顶点数据字节大小
+         */
         size_t getSize() const;
 
     protected:
-        Type        mType;          /// 顶点元素数据类型
-        Semantic    mSemantic;      /// 顶点元素语义
-        size_t      mOffset;        /// 这个顶点元素定义的在顶点缓存中的起始点偏移值
-        size_t      mStream;        /// 对应定义的顶点缓存索引
+        Type        mType;      /**< 顶点属性数据类型 */
+        Semantic    mSemantic;  /**< 顶点属性语义 */
+        size_t      mOffset;    /**< 这个顶点属性定义的在顶点缓存中的起始点偏移值 */
+        size_t      mStream;    /**< 对应定义的顶点缓存索引 */
     };
 
+
+    /**
+     * @brief 顶点声明
+     */
     class T3D_ENGINE_API VertexDeclaration : public Object
     {
     public:
-        typedef std::list<VertexElement>            VertexElementList;
-        typedef VertexElementList::iterator         VertexElementListItr;
-        typedef VertexElementList::const_iterator   VertexElementListConstItr;
+        typedef std::list<VertexAttribute>          VertexAttriList;
+        typedef VertexAttriList::iterator           VertexAttriListItr;
+        typedef VertexAttriList::const_iterator     VertexAttriListConstItr;
 
+        /**
+         * @brief 构造函数
+         */
         VertexDeclaration();
+
+        /**
+         * @brief 析构函数
+         */
         virtual ~VertexDeclaration();
 
-        size_t getElementCount() const { return mVertexElements.size(); }
-        const VertexElementList &getElements() const { return mVertexElements; }
+        /**
+         * @brief 获取顶点属性数量
+         */
+        size_t getAttributeCount() const 
+        { 
+            return mVertexAttributes.size(); 
+        }
 
-        const VertexElement &getElement(size_t index) const;
+        /**
+         * @brief 获取顶点属性列表
+         */
+        const VertexAttriList &getAttributes() const
+        { 
+            return mVertexAttributes; 
+        }
 
-        virtual const VertexElement &addElement(size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic);
-        virtual const VertexElement &insertElement(size_t pos, size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic);
+        /**
+         * @brief 获取顶点属性
+         * @param [in] index : 顶点属性数组中的索引
+         * @return 返回顶点属性
+         */
+        const VertexAttribute &getAttribute(size_t index) const;
 
-        virtual bool addElement(const VertexElement &vertexElement);
-        virtual bool insertElement(size_t pos, const VertexElement &vertexElement);
+        /**
+         * @brief 新增一个顶点属性
+         * @param [in] stream : 数据流索引
+         * @param [in] offset : 相对一个顶点数据开始位置的偏移
+         * @param [in] type : 顶点数据类型
+         * @param [in] semantic : 顶点语法解释
+         * @return 返回一个新的顶点属性
+         */
+        virtual const VertexAttribute &addAttribute(size_t stream, 
+            size_t offset, VertexAttribute::Type type, 
+            VertexAttribute::Semantic semantic);
 
-        virtual void removeElement(size_t pos);
-        virtual void removeElement(VertexElement::Semantic semantic);
-        virtual void removeAllElements();
+        /**
+         * @brief 新增插入一个顶点属性
+         * @param [in] pos : 插入位置
+         * @param [in] stream : 数据流索引
+         * @param [in] offset : 相对一个顶点数据开始位置的偏移
+         * @param [in] type : 顶点数据类型
+         * @param [in] semantic : 顶点语法解释
+         * @return 返回一个新的顶点属性
+         */
+        virtual const VertexAttribute &insertAttribute(size_t pos, 
+            size_t stream, size_t offset, VertexAttribute::Type type, 
+            VertexAttribute::Semantic semantic);
 
-        virtual void updateElement(size_t pos, size_t stream, size_t offset, VertexElement::Type type, VertexElement::Semantic semantic);
+        /**
+         * @brief 添加一个顶点属性
+         * @param [in] vertexAttribute : 顶点属性对象
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult addAttribute(const VertexAttribute &vertexAttribute);
 
-        virtual const VertexElement *findElementBySemantic(VertexElement::Semantic semantic) const;
+        /**
+         * @brief 插入一个顶点属性
+         * @param [in] pos : 插入的位置
+         * @param [in] vertexAttribute : 顶点属性对象
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult insertAttribute(size_t pos, 
+            const VertexAttribute &vertexAttribute);
 
+        /**
+         * @brief 移除指定位置的顶点属性
+         * @param [in] pos : 数组位置
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult removeAttribute(size_t pos);
+
+        /**
+         * @brief 移除对应语法解释的顶点属性
+         * @param [in] semantic : 语法解释
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult removeAttribute(VertexAttribute::Semantic semantic);
+
+        /**
+         * @brief 移除所有顶点属性
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult removeAllAttributes();
+
+        /**
+         * @brief 更新顶点属性
+         * @param [in] pos : 更新对应位置的顶点属性
+         * @param [in] stream : 数据流索引
+         * @param [in] type : 顶点数据类型
+         * @param [in] semantic : 顶点语法解释
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult updateAttribute(size_t pos, size_t stream, 
+            size_t offset, VertexAttribute::Type type, 
+            VertexAttribute::Semantic semantic);
+
+        /**
+         * @brief 根据语法解释查找对应顶点属性对象
+         * @param [in] semantic : 语法解释枚举
+         * @return 查找成功返回对应的顶点属性对象，失败返回nullptr
+         */
+        virtual const VertexAttribute *findAttributeBySemantic(
+            VertexAttribute::Semantic semantic) const;
+         
+        /**
+         * @brief 获取顶点字节大小
+         * @param [in] source : 数据流索引
+         * @return 返回字节大小
+         */
         virtual size_t getVertexSize(size_t source) const;
 
+        /**
+         * @brief 克隆一个顶点声明对象
+         * @return 返回一个新的顶点声明对象
+         * @remarks 具体的渲染系统子类需要实现该接口
+         */
         virtual VertexDeclarationPtr clone() const;
 
     protected:
-        VertexElementList   mVertexElements;
+        VertexAttriList mVertexAttributes;  /**< 顶点属性列表 */
     };
 }
 

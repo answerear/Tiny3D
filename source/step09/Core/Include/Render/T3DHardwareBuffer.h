@@ -100,7 +100,7 @@ namespace Tiny3D
          * @param [in] size : 要读取缓冲区大小
          * @param [in][out] dst : 存储返回读取到数据的缓冲区首地址
          * @return 返回读取的字节数
-         * @remarks 具体硬件API体系子类需要实现该接口
+         * @remarks 具体的渲染系统子类需要实现该接口
          */
         virtual size_t readData(size_t offset, size_t size, void *dst) = 0;
 
@@ -111,7 +111,7 @@ namespace Tiny3D
          * @param [in] src : 写入的数据地址
          * @param [in] discardWholeBuffer : 是否直接丢弃硬件缓冲区，重建新缓冲区
          * @return 返回写入的字节数
-         * @remarks 具体硬件API体系子类需要实现该接口
+         * @remarks 具体的渲染系统子类需要实现该接口
          */
         virtual size_t writeData(size_t offset, size_t size, const void *src,
             bool discardWholeBuffer = false) = 0;
@@ -175,7 +175,7 @@ namespace Tiny3D
          * @param [in] size : 锁定区域大小
          * @param [in] options : 锁定选项
          * @return 返回锁定缓冲区区域首地址
-         * @remarks 具体硬件API体系子类需要实现该接口
+         * @remarks 具体的渲染系统子类需要实现该接口
          */
         virtual void *lockImpl(size_t offset, size_t size, 
             LockOptions options) = 0;
@@ -183,7 +183,7 @@ namespace Tiny3D
         /**
          * @brief 解锁缓冲区的具体实现接口
          * @return 成功调用返回 T3D_ERR_OK
-         * @remarks 具体硬件API体系子类需要实现该接口
+         * @remarks 具体的渲染系统子类需要实现该接口
          */
         virtual TResult unlockImpl() = 0;
 

@@ -61,8 +61,11 @@ namespace Tiny3D
     class HardwareIndexBuffer;
     class HardwarePixelBuffer;
     class HardwareVertexBuffer;
-    class VertexElement;
+    class VertexAttribute;
     class VertexDeclaration;
+    class VertexArray;
+    class HardwareBufferManagerBase;
+    class HardwareBufferManager;
 }
 
 

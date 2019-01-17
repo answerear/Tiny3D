@@ -18,117 +18,175 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#ifndef __T3D_HARDWARE_BUFFER_MANAGER_H__
+#define __T3D_HARDWARE_BUFFER_MANAGER_H__
 
 
 #include "T3DPrerequisites.h"
-#include "Kernel/T3DObject.h"
+#include "T3DTypedef.h"
+#include "Render/T3DHardwareVertexBuffer.h"
+#include "Render/T3DHardwareIndexBuffer.h"
+#include "Kernel/T3DPixelFormat.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @brief 渲染器抽象类，负责提供抽象渲染接口，具体渲染器实现这些接口
+     * @brief 硬件缓冲区管理器基类
      */
-    class T3D_ENGINE_API Renderer : public Object
+    class T3D_ENGINE_API HardwareBufferManagerBase : public Object
     {
     public:
-        static const char * const T3DXRENDERER; /**< Tiny3D自带的软渲染器 */
-        static const char * const DIRECT3D9;    /**< Direct3D9 渲染器 */
-        static const char * const DIRECT3D11;   /**< Direct3D11 渲染器 */
-        static const char * const OPENGL3;      /**< OpenGL 3.x 渲染器 */
-        static const char * const OPENGLES2;    /**< OpenGL ES 2 渲染器 */
-        static const char * const OPENGLES3;    /**< OpenGL ES 3 渲染器 */
-        static const char * const VULKAN;       /**< Vulkan 渲染器 */
-        static const char * const METAL;        /**< Metal 渲染器 */
+        /**
+         * @brief 析构函数
+         */
+        virtual ~HardwareBufferManagerBase();
 
         /**
-         * @brief 渲染器能力值
+         * @brief 创建顶点缓冲区
+         * @param [in] vertexSize : 顶点字节代销
+         * @param [in] vertexCount : 顶点数量
+         * @param [in] usage : 缓冲区用法
+         * @param [in] useShadowBuffer : 是否使用影子缓存
+         * @return 调用成功返回一个新的硬件顶点缓冲区
+         * @remarks 具体子类实现该接口创建对应的具体顶点缓冲区实例
          */
-        enum Capability
-        {
-
-        };
+        virtual HardwareVertexBufferPtr createVertexBuffer(size_t vertexSize, 
+            size_t vertexCount, HardwareBuffer::Usage usage, 
+            bool useShadowBuffer) = 0;
 
         /**
-         * @breif 设置变换矩阵状态
+         * @brief 创建索引缓冲区
+         * @param [in] indexType : 索引类型
+         * @param [in] indexCount : 索引数量
+         * @param [in] usage : 缓冲区使用方式
+         * @param [in] useShadowBuffer : 是否使用影子缓存
+         * @return 调用成功返回一个新的硬件索引缓冲区
+         * @remarks 具体子类实现该接口创建对应的具体顶点缓冲区实例
          */
-        enum TransformState
-        {
-            E_TS_VIEW = 0,      /**< 视口变换矩阵 */
-            E_TS_WORLD,         /**< 世界变换矩阵 */
-            E_TS_PROJECTION,    /**< 投影变换矩阵 */
-            E_TS_MAX
-        };
+        virtual HardwareIndexBufferPtr createIndexBuffer(
+            HardwareIndexBuffer::Type indexType, size_t indexCount, 
+            HardwareBuffer::Usage usage, bool useShadowBuffer) = 0;
 
         /**
-         * @brief 渲染图元类型
+         * @brief 创建像素缓冲区
+         * @param [in] width : 图像宽度
+         * @param [in] height : 图像高度
+         * @param [in] format : 像素格式
+         * @param [in] usage : 缓冲区使用方式
+         * @param [in] useShadowBuffer : 是否使用影子缓存
+         * @return 调用成功返回一个新的硬件像素缓冲区
+         * @remarks 具体子类实现该接口创建对应的具体顶点缓冲区实例
          */
-        enum PrimitiveType
-        {
-            E_PT_POINT_LIST = 0,    /**< 点列表图元 */
-            E_PT_LINE_LIST,         /**< 线列表图元 */
-            E_PT_LINE_STRIP,        /**< 线带图元 */
-            E_PT_TRIANGLE_LIST,     /**< 三角形列表图元 */
-            E_PT_TRIANGLE_STRIP,    /**< 三角形带图元 */
-            E_PT_TRIANGLE_FAN,      /**< 三角形扇形图元 */ 
-        };
+        virtual HardwarePixelBufferPtr createPixelBuffer(uint32_t width, 
+            uint32_t height, PixelFormat format, HardwareBuffer::Usage usage, 
+            bool useShadowBuffer) = 0;
 
         /**
-         * @brief 背面剔除模式
+         * @brief 创建顶点数组对象
+         * @return 调用成功返回一个新的顶点数组对象
+         * @remarks 具体子类实现该接口创建对应的具体顶点缓冲区实例
          */
-        enum CullingMode
-        {
-            E_CULL_NONE = 0,        /**< 不做消隐面剔除 */
-            E_CULL_CLOCKWISE,       /**< 按照顶点顺时针顺序的消隐面剔除 */
-            E_CULL_ANTICLOCKWISE,   /**< 按照顶点逆时针顺序的消隐面剔除 */
-        };
+        virtual VertexArrayPtr createVertexArray() = 0;
 
         /**
-         * @brief 渲染模式
+         * @brief 创建顶点声明对象
+         * @return 返回一个渲染系统对应的顶点声明对象
          */
-        enum RenderMode
-        {
-            E_RM_POINT = 0,         /**< 顶点模式 */
-            E_RM_WIREFRAME,         /**< 线框模式 */
-            E_RM_SOLID,             /**< 着色模式 */
-        };
+        virtual VertexDeclarationPtr createVertexDeclaration();
 
+    protected:
         /**
          * @brief 构造函数
          */
-        Renderer();
+        HardwareBufferManagerBase();
+
+    protected:
+        typedef std::set<HardwareVertexBufferPtr>   VertexBufferList;
+        typedef VertexBufferList::iterator          VertexBufferListItr;
+        typedef VertexBufferList::const_iterator    VertexBufferListConstItr;
+
+        typedef std::set<HardwareIndexBufferPtr>    IndexBufferList;
+        typedef IndexBufferList::iterator           IndexBufferListItr;
+        typedef IndexBufferList::const_iterator     IndexBufferListConstItr;
+
+        typedef std::set<HardwarePixelBufferPtr>    PixelBufferList;
+        typedef PixelBufferList::iterator           PixelBufferListItr;
+        typedef PixelBufferList::const_iterator     PixelBufferListConstItr;
+
+        VertexBufferList    mVertexBuffers;     /**< 顶点缓冲区列表 */
+        IndexBufferList     mIndexBuffers;      /**< 索引缓冲区列表 */
+        PixelBufferList     mPixelBuffers;      /**< 像素缓冲区列表 */
+    };
+
+
+    /**
+     * @brief 硬件缓冲区管理器
+     * @remarks 这个类相当于一层渲染系统代理
+     */
+    class T3D_ENGINE_API HardwareBufferManager
+        : public HardwareBufferManagerBase
+        , public Singleton<HardwareBufferManager>
+    {
+    public:
+        /**
+         * @brief 构造函数
+         * @param [in] impl : 对应渲染系统的具体实现对象
+         */
+        HardwareBufferManager(HardwareBufferManagerBase *impl);
 
         /**
          * @brief 析构函数
          */
-        virtual ~Renderer();
+        ~HardwareBufferManager();
 
         /**
-         * @brief 初始化渲染器
-         * @return 调用成功返回 T3D_ERR_OK
+         * @brief 创建顶点缓冲区
+         * @remarks 继承自 HardwareBufferManagerBase
+         * @see HardwareBufferManagerBase::createVertexBuffer()
          */
-        virtual TResult init() = 0;
+        virtual HardwareVertexBufferPtr createVertexBuffer(size_t vertexSize, 
+            size_t vertexCount, HardwareBuffer::Usage usage, 
+            bool useShadowBuffer) override;
 
         /**
-         * @brief 销毁渲染器
-         * @return 调用成功返回 T3D_ERR_OK
+         * @brief 创建索引缓冲区
+         * @remarks 继承自 HardwareBufferManagerBase
+         * @see HardwareBufferManagerBase::createIndexBuffer()
          */
-        virtual TResult destroy() = 0;
+        virtual HardwareIndexBufferPtr createIndexBuffer(
+            HardwareIndexBuffer::Type indexType, size_t indexCount, 
+            HardwareBuffer::Usage usage, bool useShadowBuffer) override;
 
         /**
-         * @brief 获取渲染器名称
+         * @brief 创建像素缓冲区
+         * @remarks 继承自 HardwareBufferManagerBase
+         * @see HardwareBufferManagerBase::createPixelBuffer()
          */
-        virtual String getName() const = 0;
+        virtual HardwarePixelBufferPtr createPixelBuffer(uint32_t width, 
+            uint32_t height, PixelFormat format, HardwareBuffer::Usage usage, 
+            bool useShadowBuffer) override;
 
         /**
-         * @brief 渲染一帧
-         * @return 调用成功返回 T3D_ERR_OK
+         * @brief 创建顶点数组对象
+         * @remarks 继承自 HardwareBufferManagerBase
+         * @see HardwareBufferManagerBase::createVertexArray()
          */
-        virtual TResult render() = 0;
+        virtual VertexArrayPtr createVertexArray() override;
+
+        /**
+         * @brief 创建顶点声明
+         * @remarks 继承自 HardwareBufferManagerBase
+         * @see HardwareBufferManagerBase::createVertexDeclaration()
+         */
+        virtual VertexDeclarationPtr createVertexDeclaration() override;
+
+    protected:
+        HardwareBufferManagerBasePtr   mImpl;   /**< 具体渲染体系对应的对象 */
     };
+
+    #define T3D_HARDWARE_BUFFER_MGR     (HardwareBufferManager::getInstance())
 }
 
 
-#endif  /*__T3D_RENDERER_H__*/
+#endif  /*__T3D_HARDWARE_BUFFER_MANAGER_H__*/
