@@ -24,6 +24,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "Render/T3DRenderer.h"
 
 
 namespace Tiny3D
@@ -67,6 +68,11 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_ERR_OK
          */
         virtual TResult setIndexBuffer(HardwareIndexBuffer ibo) = 0;
+
+        /**
+         * @brief 设置绘制图元类型
+         */
+        virtual TResult setPrimitiveType(Renderer::PrimitiveType priType) = 0;
     };
 }
 

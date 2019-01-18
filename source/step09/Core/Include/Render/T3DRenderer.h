@@ -23,7 +23,8 @@
 
 
 #include "T3DPrerequisites.h"
-#include "Kernel/T3DObject.h"
+#include "T3DTypedef.h"
+#include "Render/T3DRenderWindow.h"
 
 
 namespace Tiny3D
@@ -126,9 +127,164 @@ namespace Tiny3D
          * @brief 渲染一帧
          * @return 调用成功返回 T3D_ERR_OK
          */
-        virtual TResult render() = 0;
+        virtual TResult render();
+
+        /**
+         * @brief 创建渲染窗口
+         * @param [in] param : 创建渲染窗口必要数据
+         * @param [in] paramEx : 创建渲染窗口额外数据
+         * @return 调用成功返回一个渲染窗口对象，失败返回nullptr
+         * @remarks 具体渲染系统实现本接口以创建渲染系统相关的渲染窗口对象
+         */
+        virtual RenderWindowPtr createRenderWindow(
+            const RenderWindowCreateParam &param,
+            const RenderWindowCreateParamEx &paramEx) = 0;
+
+        /**
+         * @brief 开始渲染
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult beginRender() = 0;
+
+        /**
+         * @brief 结束渲染
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult endRender() = 0;
+
+        /**
+         * @brief 查询渲染器能力
+         * @param [in] cap : 能力枚举值，可以通过或操作查询多个能力值
+         * @return 具备cap对应的能力则返回true，否则返回false
+         */
+        virtual bool queryCapability(Capability cap) = 0;
+
+        /**
+         * @brief 开启或者关闭某种能力
+         * @param [in] cap : 能力枚举值，可以通过或操作开启或关闭多个能力
+         * @param [in] enabled : 开关标记
+         * @return 调用成功返回 T3D_ERR_OK
+         * @remarks 如果具体渲染系统本身不具备相应的能力，则本接口调用无效
+         */
+        virtual TResult enableCapability(Capability cap, bool enabled) = 0;
+
+        /**
+         * @brief 设置变换矩阵
+         * @param [in] state : 变换矩阵类型
+         * @param [in] mat : 变换矩阵
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult setTransform(TransformState state, const Matrix4 &mat) = 0;
+
+        /**
+         * @brief 设置视图变换矩阵
+         * @param [in] mat : 变换矩阵
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        TResult setViewTransform(const Matrix4 &mat);
+
+        /**
+         * @brief 设置世界变换矩阵
+         * @param [in] mat : 变换矩阵
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        TResult setWorldTransform(const Matrix4 &mat);
+
+        /**
+         * @brief 设置投影变换矩阵
+         * @param [in] mat : 变换矩阵
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        TResult setProjectionTransform(const Matrix4 &mat);
+
+        /**
+         * @brief 获取对应类型的变换矩阵
+         * @param [in] state : 变换矩阵类型
+         * @return 返回对应类型的变换矩阵
+         */
+        virtual const Matrix4 &getTransform(TransformState state) const = 0;
+
+        /**
+         * @brief 设置裁剪模式
+         * @param [in] mode : 裁剪模式
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult setCullingMode(CullingMode mode) = 0;
+
+        /**
+         * @brief 获取裁剪模式
+         */
+        virtual CullingMode getCullingMode() const;
+
+        /**
+         * @brief 设置渲染模式
+         */
+        virtual TResult setRenderMode() = 0;
+
+        /**
+         * @brief 获取渲染模式
+         */
+        virtual RenderMode getRenderMode() const;
+
+        /**
+         * @brief 设置渲染视口
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult setViewport(ViewportPtr viewport) = 0;
+
+        /**
+         * @brief 获取渲染视口
+         */
+        virtual ViewportPtr getViewport() const;
+
+        /**
+         * @brief 绘制顶点数组
+         * @param [in] vao : 顶点数组对象
+         * @return 调动成功返回 T3D_ERR_OK
+         */
+        virtual TResult drawVertexArray(VertexArrayPtr vao) = 0;
+
+        /**
+         * @brief 绘制顶点列表
+         * @param [in] priType : 图元类型
+         * @param [in] vbo : 顶点缓冲
+         * @param [in] startIdx : 顶点缓冲区的起始位置
+         * @param [in] priCount : 图元数量
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult drawVertexList(PrimitiveType priType,
+            HardwareVertexBufferPtr vbo, size_t startIdx, size_t priCount) = 0;
+
+        /**
+         * @brief 绘制索引列表
+         * @param [in] priType : 图元类型
+         * @param [in] vbo : 顶点缓冲
+         * @param [in] ibo : 索引缓冲
+         * @param [in] startIdx : 顶点索引起始位置偏移
+         * @param [in] priCount : 图元数量
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        virtual TResult drawIndexList(PrimitiveType priType,
+            HardwareVertexBufferPtr vbo, HardwareIndexBufferPtr ibo,
+            size_t startIdx, size_t priCount) = 0;
+
+    protected:
+        typedef TMap<String, RenderTargetPtr>       RenderTargetList;
+        typedef RenderTargetList::iterator          RenderTargetListItr;
+        typedef RenderTargetList::const_iterator    RenderTargetListConstItr;
+        typedef RenderTargetList::value_type        RenderTargetListValue;
+
+        RenderTargetList    mRenderTargets;     /**< 渲染目标列表 */
+
+        ViewportPtr         mViewport;          /**< 当前渲染视口对象 */
+
+        CullingMode         mCullingMode;       /**< 裁剪模式 */
+        RenderMode          mRenderMode;        /**< 渲染模式 */
     };
 }
+
+
+#include "T3DRenderer.inl"
 
 
 #endif  /*__T3D_RENDERER_H__*/
