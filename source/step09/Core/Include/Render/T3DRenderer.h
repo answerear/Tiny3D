@@ -73,7 +73,8 @@ namespace Tiny3D
             E_PT_LINE_STRIP,        /**< 线带图元 */
             E_PT_TRIANGLE_LIST,     /**< 三角形列表图元 */
             E_PT_TRIANGLE_STRIP,    /**< 三角形带图元 */
-            E_PT_TRIANGLE_FAN,      /**< 三角形扇形图元 */ 
+            E_PT_TRIANGLE_FAN,      /**< 三角形扇形图元 */
+            E_PT_MAX
         };
 
         /**
@@ -84,6 +85,7 @@ namespace Tiny3D
             E_CULL_NONE = 0,        /**< 不做消隐面剔除 */
             E_CULL_CLOCKWISE,       /**< 按照顶点顺时针顺序的消隐面剔除 */
             E_CULL_ANTICLOCKWISE,   /**< 按照顶点逆时针顺序的消隐面剔除 */
+            E_CULL_MAX
         };
 
         /**
@@ -94,6 +96,7 @@ namespace Tiny3D
             E_RM_POINT = 0,         /**< 顶点模式 */
             E_RM_WIREFRAME,         /**< 线框模式 */
             E_RM_SOLID,             /**< 着色模式 */
+            E_RM_MAX
         };
 
         /**
@@ -174,7 +177,8 @@ namespace Tiny3D
          * @param [in] mat : 变换矩阵
          * @return 调用成功返回 T3D_ERR_OK
          */
-        virtual TResult setTransform(TransformState state, const Matrix4 &mat) = 0;
+        virtual TResult setTransform(TransformState state, 
+            const Matrix4 &mat) = 0;
 
         /**
          * @brief 设置视图变换矩阵
