@@ -18,5 +18,32 @@
  ******************************************************************************/
 
 
-#include "Render/T3DRenderer.h"
+#include "Render/T3DRenderWindow.h"
+
+
+namespace Tiny3D
+{
+    RenderWindow::RenderWindow()
+        : RenderTarget()
+    {
+
+    }
+
+    RenderWindow::~RenderWindow()
+    {
+
+    }
+
+    bool RenderWindow::isFullscreen() const
+    {
+        return true;
+    }
+
+    void RenderWindow::update()
+    {
+        RenderTarget::update();
+
+        swapBuffers();
+    }
+}
 

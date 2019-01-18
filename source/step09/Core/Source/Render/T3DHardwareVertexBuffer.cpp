@@ -245,7 +245,10 @@ namespace Tiny3D
     TResult VertexDeclaration::removeAttribute(size_t pos)
     {
         if (pos >= mVertexAttributes.size())
+        {
+            T3D_LOG_ERROR("Remove attribute but pos is out of bound !!!");
             return T3D_ERR_OUT_OF_BOUND;
+        }
 
         VertexAttriListItr itr = mVertexAttributes.begin();
         size_t i = 0;
@@ -288,7 +291,10 @@ namespace Tiny3D
         VertexAttribute::Semantic semantic)
     {
         if (pos >= mVertexAttributes.size())
-            return;
+        {
+            T3D_LOG_ERROR("Update attribute but pos is out of bound !!!");
+            return T3D_ERR_OUT_OF_BOUND;
+        }
 
         VertexAttriListItr itr = mVertexAttributes.begin();
         size_t i = 0;
@@ -298,6 +304,8 @@ namespace Tiny3D
         }
 
         *itr = VertexAttribute(stream, offset, type, semantic);
+
+        return T3D_ERR_OK;
     }
 
     const VertexAttribute *VertexDeclaration::findAttributeBySemantic(
@@ -336,7 +344,8 @@ namespace Tiny3D
 
     VertexDeclarationPtr VertexDeclaration::clone() const
     {
-        VertexDeclarationPtr decl = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
+        VertexDeclarationPtr decl 
+            = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
         VertexAttriListConstItr itr = mVertexAttributes.begin();
 
         while (itr != mVertexAttributes.end())

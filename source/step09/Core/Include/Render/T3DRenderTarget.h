@@ -18,117 +18,139 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#ifndef __T3D_RENDER_TARGET_H__
+#define __T3D_RENDER_TARGET_H__
 
 
 #include "T3DPrerequisites.h"
-#include "Kernel/T3DObject.h"
+#include "T3DTypedef.h"
+#include "Render/T3DViewport.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @brief 渲染器抽象类，负责提供抽象渲染接口，具体渲染器实现这些接口
+     * @brief 渲染目标
      */
-    class T3D_ENGINE_API Renderer : public Object
+    class T3D_ENGINE_API RenderTarget : public Object
     {
     public:
-        static const char * const T3DXRENDERER; /**< Tiny3D自带的软渲染器 */
-        static const char * const DIRECT3D9;    /**< Direct3D9 渲染器 */
-        static const char * const DIRECT3D11;   /**< Direct3D11 渲染器 */
-        static const char * const OPENGL3;      /**< OpenGL 3.x 渲染器 */
-        static const char * const OPENGLES2;    /**< OpenGL ES 2 渲染器 */
-        static const char * const OPENGLES3;    /**< OpenGL ES 3 渲染器 */
-        static const char * const VULKAN;       /**< Vulkan 渲染器 */
-        static const char * const METAL;        /**< Metal 渲染器 */
-
         /**
-         * @brief 渲染器能力值
+         * @brief 创建渲染目标对象
+         * @return 返回一个渲染目标对象
          */
-        enum Capability
-        {
-
-        };
-
-        /**
-         * @breif 设置变换矩阵状态
-         */
-        enum TransformState
-        {
-            E_TS_VIEW = 0,      /**< 视口变换矩阵 */
-            E_TS_WORLD,         /**< 世界变换矩阵 */
-            E_TS_PROJECTION,    /**< 投影变换矩阵 */
-            E_TS_MAX
-        };
-
-        /**
-         * @brief 渲染图元类型
-         */
-        enum PrimitiveType
-        {
-            E_PT_POINT_LIST = 0,    /**< 点列表图元 */
-            E_PT_LINE_LIST,         /**< 线列表图元 */
-            E_PT_LINE_STRIP,        /**< 线带图元 */
-            E_PT_TRIANGLE_LIST,     /**< 三角形列表图元 */
-            E_PT_TRIANGLE_STRIP,    /**< 三角形带图元 */
-            E_PT_TRIANGLE_FAN,      /**< 三角形扇形图元 */ 
-        };
-
-        /**
-         * @brief 背面剔除模式
-         */
-        enum CullingMode
-        {
-            E_CULL_NONE = 0,        /**< 不做消隐面剔除 */
-            E_CULL_CLOCKWISE,       /**< 按照顶点顺时针顺序的消隐面剔除 */
-            E_CULL_ANTICLOCKWISE,   /**< 按照顶点逆时针顺序的消隐面剔除 */
-        };
-
-        /**
-         * @brief 渲染模式
-         */
-        enum RenderMode
-        {
-            E_RM_POINT = 0,         /**< 顶点模式 */
-            E_RM_WIREFRAME,         /**< 线框模式 */
-            E_RM_SOLID,             /**< 着色模式 */
-        };
-
-        /**
-         * @brief 构造函数
-         */
-        Renderer();
+        static RenderTargetPtr create();
 
         /**
          * @brief 析构函数
          */
-        virtual ~Renderer();
+        virtual ~RenderTarget();
 
         /**
-         * @brief 初始化渲染器
+         * @brief 获取渲染目标名称
+         * @return 返回一个字符串名称
+         */
+        const String &getName() const;
+
+        /**
+         * @brief 获取渲染目标的一些度量值
+         * @param [out] width : 渲染目标宽度
+         * @param [out] height : 渲染目标高度
+         * @param [out] clrDepth : 渲染目标色深
+         */
+        void getMetrics(size_t &width, size_t &height, size_t &clrDepth) const;
+
+        /**
+         * @brief 获取渲染目标宽度
+         */
+        size_t getWidth() const;
+
+        /**
+         * @brief 获取渲染目标高度
+         */
+        size_t getHeight() const;
+
+        /**
+         * @brief 获取渲染目标色深
+         */
+        size_t getColorDepth() const;
+
+        /**
+         * @brief 获取活跃状态
+         */
+        bool isActive() const;
+
+        /**
+         * @brief 设置活跃状态
+         */
+        void setActive(bool active);
+
+        /**
+         * @brief 更新渲染目标
+         */
+        virtual void update();
+
+        /**
+         * @brief 新增一个视口对象，并且关联到本渲染目标上
+         * @param [in] zOrder : 深度值，用于控制渲染顺序
+         * @param [in] left : 视口左边在渲染目标区域的比例值
+         * @param [in] top : 视口上边在渲染目标区域的比例值
+         * @param [in] width : 视口宽度占渲染目标区域的比例值
+         * @param [in] height : 视口高度占渲染目标区域的比例值
+         */
+        ViewportPtr addViewport(long_t zOrder, Real left, Real top, Real width,
+            Real height);
+
+        /**
+         * @brief 移除指定深度值的视口对象
+         * @param [in] zOrder : 深度值
          * @return 调用成功返回 T3D_ERR_OK
          */
-        virtual TResult init() = 0;
+        TResult removeViewport(long_t zOrder);
 
         /**
-         * @brief 销毁渲染器
-         * @return 调用成功返回 T3D_ERR_OK
+         * @brief 移除所有当前渲染目标关联的视口对象
          */
-        virtual TResult destroy() = 0;
+        TResult removeAllViewports();
 
         /**
-         * @brief 获取渲染器名称
+         * @brief 获取当前渲染目标关联的视口对象的数量
          */
-        virtual String getName() const = 0;
+        size_t getNumViewports() const;
 
         /**
-         * @brief 渲染一帧
-         * @return 调用成功返回 T3D_ERR_OK
+         * @brief 根据指定索引获取对应的视口对象
+         * @param [in] zOrder : 深度值
+         * @return 调用成功返回视口对象，否则返回nullptr
          */
-        virtual TResult render() = 0;
+        ViewportPtr getViewport(long_t zOrder) const;
+
+    protected:
+        /**
+         * @brief 构造函数
+         */
+        RenderTarget();
+
+    protected:
+        typedef TMap<long_t, ViewportPtr>       ViewportList;
+        typedef ViewportList::iterator          ViewportListItr;
+        typedef ViewportList::const_iterator    ViewportListConstItr;
+        typedef ViewportList::value_type        ViewportValue;
+
+        size_t          mWidth;         /**< 渲染目标宽度 */
+        size_t          mHeight;        /**< 渲染目标高度 */
+        size_t          mColorDepth;    /**< 渲染目标色深 */
+
+        bool            mIsActive;      /**< 是否活跃状态 */
+
+        String          mName;          /**< 渲染目标名称 */
+
+        ViewportList    mViewportList;  /**< 视口列表 */
     };
 }
 
 
-#endif  /*__T3D_RENDERER_H__*/
+#include "T3DRenderTarget.inl"
+
+
+#endif  /*__T3D_RENDER_TARGET_H__*/

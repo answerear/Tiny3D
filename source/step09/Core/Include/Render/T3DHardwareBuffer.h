@@ -24,6 +24,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "T3DErrorDef.h"
 
 
 namespace Tiny3D

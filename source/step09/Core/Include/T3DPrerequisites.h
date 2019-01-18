@@ -66,6 +66,12 @@ namespace Tiny3D
     class VertexArray;
     class HardwareBufferManagerBase;
     class HardwareBufferManager;
+    class RenderTarget;
+    class RenderWindow;
+    class Viewport;
+    class Renderer;
+    class RenderGroup;
+    class RenderQueue;
 }
 
 

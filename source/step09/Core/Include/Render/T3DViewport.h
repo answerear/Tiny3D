@@ -18,117 +18,153 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#ifndef __T3D_VIEWPORT_H__
+#define __T3D_VIEWPORT_H__
 
 
 #include "T3DPrerequisites.h"
-#include "Kernel/T3DObject.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @brief 渲染器抽象类，负责提供抽象渲染接口，具体渲染器实现这些接口
+     * @brief 渲染视口
      */
-    class T3D_ENGINE_API Renderer : public Object
+    class T3D_ENGINE_API Viewport : public Object
     {
     public:
-        static const char * const T3DXRENDERER; /**< Tiny3D自带的软渲染器 */
-        static const char * const DIRECT3D9;    /**< Direct3D9 渲染器 */
-        static const char * const DIRECT3D11;   /**< Direct3D11 渲染器 */
-        static const char * const OPENGL3;      /**< OpenGL 3.x 渲染器 */
-        static const char * const OPENGLES2;    /**< OpenGL ES 2 渲染器 */
-        static const char * const OPENGLES3;    /**< OpenGL ES 3 渲染器 */
-        static const char * const VULKAN;       /**< Vulkan 渲染器 */
-        static const char * const METAL;        /**< Metal 渲染器 */
-
         /**
-         * @brief 渲染器能力值
+         * @brief 创建视口对象
+         * @param [in] target : 跟本视口关联的渲染目标对象
+         * @param [in] left : 视口左边在渲染目标区域的比例值
+         * @param [in] top : 视口上边在渲染目标区域的比例值
+         * @param [in] width : 视口宽度占渲染目标区域的比例值
+         * @param [in] height : 视口高度占渲染目标区域的比例值
+         * @param [in] zOrder : 视口深度序列值
          */
-        enum Capability
-        {
-
-        };
-
-        /**
-         * @breif 设置变换矩阵状态
-         */
-        enum TransformState
-        {
-            E_TS_VIEW = 0,      /**< 视口变换矩阵 */
-            E_TS_WORLD,         /**< 世界变换矩阵 */
-            E_TS_PROJECTION,    /**< 投影变换矩阵 */
-            E_TS_MAX
-        };
-
-        /**
-         * @brief 渲染图元类型
-         */
-        enum PrimitiveType
-        {
-            E_PT_POINT_LIST = 0,    /**< 点列表图元 */
-            E_PT_LINE_LIST,         /**< 线列表图元 */
-            E_PT_LINE_STRIP,        /**< 线带图元 */
-            E_PT_TRIANGLE_LIST,     /**< 三角形列表图元 */
-            E_PT_TRIANGLE_STRIP,    /**< 三角形带图元 */
-            E_PT_TRIANGLE_FAN,      /**< 三角形扇形图元 */ 
-        };
-
-        /**
-         * @brief 背面剔除模式
-         */
-        enum CullingMode
-        {
-            E_CULL_NONE = 0,        /**< 不做消隐面剔除 */
-            E_CULL_CLOCKWISE,       /**< 按照顶点顺时针顺序的消隐面剔除 */
-            E_CULL_ANTICLOCKWISE,   /**< 按照顶点逆时针顺序的消隐面剔除 */
-        };
-
-        /**
-         * @brief 渲染模式
-         */
-        enum RenderMode
-        {
-            E_RM_POINT = 0,         /**< 顶点模式 */
-            E_RM_WIREFRAME,         /**< 线框模式 */
-            E_RM_SOLID,             /**< 着色模式 */
-        };
-
-        /**
-         * @brief 构造函数
-         */
-        Renderer();
+        static ViewportPtr create(RenderTarget *target, Real left, Real top,
+            Real width, Real height, long_t zOrder);
 
         /**
          * @brief 析构函数
          */
-        virtual ~Renderer();
+        virtual ~Viewport();
 
         /**
-         * @brief 初始化渲染器
-         * @return 调用成功返回 T3D_ERR_OK
+         * @brief 更新视口
          */
-        virtual TResult init() = 0;
+        void update();
 
         /**
-         * @brief 销毁渲染器
-         * @return 调用成功返回 T3D_ERR_OK
+         * @brief 获取渲染目标对象
          */
-        virtual TResult destroy() = 0;
+        RenderTargetPtr getRenderTarget() const;
 
         /**
-         * @brief 获取渲染器名称
+         * @brief 获取左边在渲染目标区域的比值
          */
-        virtual String getName() const = 0;
+        Real getLeft() const;
 
         /**
-         * @brief 渲染一帧
-         * @return 调用成功返回 T3D_ERR_OK
+         * @brief 获取上边在渲染目标区域的比值
          */
-        virtual TResult render() = 0;
+        Real getTop() const;
+
+        /**
+         * @brief 获取宽度在渲染目标区域的比值
+         */
+        Real getWidth() const;
+
+        /**
+         * @brief 获取高度在渲染目标区域的比值
+         */
+        Real getHeight() const;
+
+        /**
+         * @brief 获取视口实际左边位置
+         */
+        size_t getActualLeft() const;
+
+        /**
+         * @brief 获取视口实际上边位置
+         */
+        size_t getActualTop() const;
+
+        /**
+         * @brief 获取视口实际宽度
+         */
+        size_t getActualWidth() const;
+
+        /**
+         * @brief 获取视口实际高度
+         */
+        size_t getActualHeight() const;
+
+        /**
+         * @brief 获取视口变换矩阵
+         */
+        const Matrix4 &getViewportMatrix() const;
+
+        /**
+         * @brief 设置视口位置和大小
+         * @param [in] left : 视口左边在渲染目标区域的相对位置
+         * @param [in] top : 视口上边在渲染目标区域的相对位置
+         * @param [in] width : 视口宽度在渲染目标区域的相对值
+         * @param [in] height : 视口高度在渲染目标区域的相对值
+         */
+        void setDimensions(Real left, Real top, Real width, Real height);
+
+        /**
+         * @brief 设置背景颜色
+         * @param [in] color : 颜色值
+         */
+        void setBkgndColor(const Color4 &color);
+
+        /**
+         * @brief 获取背景颜色
+         */
+        const Color4 &getBkgndColor() const;
+
+    protected:
+        /**
+         * @brief 构造函数
+         * @param [in] target : 跟本视口关联的渲染目标对象
+         * @param [in] left : 视口左边在渲染目标区域的比例值
+         * @param [in] top : 视口上边在渲染目标区域的比例值
+         * @param [in] width : 视口宽度占渲染目标区域的比例值
+         * @param [in] height : 视口高度占渲染目标区域的比例值
+         * @param [in] zOrder : 视口深度序列值
+         */
+        Viewport(RenderTargetPtr target, Real left, Real top, Real width,
+            Real height, long_t zOrder);
+
+        /**
+         * @brief 更新视口位置和大小
+         */
+        void updateDimensions();
+
+    protected:
+        RenderTargetPtr     mRenderTarget;  /**< 关联本视口对应的渲染目标 */
+
+        Real        mLeft;          /**< 视口左边在渲染目标区域的相对位置 */
+        Real        mTop;           /**< 视口上边在渲染目标区域的相对位置 */
+        Real        mWidth;         /**< 视口宽度在渲染目标区域的相对值 */
+        Real        mHeight;        /**< 视口高度在渲染目标区域的相对值 */
+
+        size_t      mActualLeft;    /**< 视口实际的左边位置 */
+        size_t      mActualTop;     /**< 视口实际的上边位置 */
+        size_t      mActualWidth;   /**< 视口实际的宽度 */
+        size_t      mActualHeight;  /**< 视口实际的高度 */
+
+        Color4      mBkgndColor;    /**< 背景颜色 */
+
+        Matrix4     mMatrix;        /**< 视口变换矩阵 */
     };
 }
 
 
-#endif  /*__T3D_RENDERER_H__*/
+#include "T3DViewport.inl"
+
+
+#endif  /*__T3D_VIEWPORT_H__*/

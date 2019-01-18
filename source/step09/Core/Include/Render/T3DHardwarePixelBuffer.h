@@ -24,6 +24,7 @@
 
 #include "Render/T3DHardwareBuffer.h"
 #include "Kernel/T3DPixelFormat.h"
+#include "Kernel/T3DImage.h"
 
 
 namespace Tiny3D

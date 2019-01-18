@@ -45,6 +45,16 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(HardwareBufferManagerBase);
     T3D_DECLARE_SMART_PTR(HardwareBufferManager);
 
+    T3D_DECLARE_SMART_PTR(RenderTarget);
+    T3D_DECLARE_SMART_PTR(RenderWindow);
+    T3D_DECLARE_SMART_PTR(Viewport);
+
+    T3D_DECLARE_SMART_PTR(Renderer);
+
+    T3D_DECLARE_SMART_PTR(RenderGroup);
+    T3D_DECLARE_SMART_PTR(RenderQueue);
+
+
     typedef TArray<Variant>                 VariantArray;
     typedef VariantArray::iterator          VariantArrayItr;
     typedef VariantArray::const_iterator    VariantArrayConstItr;

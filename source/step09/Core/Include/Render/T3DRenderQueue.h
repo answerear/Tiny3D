@@ -18,117 +18,85 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#ifndef __T3D_RENDER_QUEUE_H__
+#define __T3D_RENDER_QUEUE_H__
 
 
 #include "T3DPrerequisites.h"
-#include "Kernel/T3DObject.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @brief 渲染器抽象类，负责提供抽象渲染接口，具体渲染器实现这些接口
+     * @brief 渲染组
      */
-    class T3D_ENGINE_API Renderer : public Object
+    class T3D_ENGINE_API RenderGroup : public Object
     {
     public:
-        static const char * const T3DXRENDERER; /**< Tiny3D自带的软渲染器 */
-        static const char * const DIRECT3D9;    /**< Direct3D9 渲染器 */
-        static const char * const DIRECT3D11;   /**< Direct3D11 渲染器 */
-        static const char * const OPENGL3;      /**< OpenGL 3.x 渲染器 */
-        static const char * const OPENGLES2;    /**< OpenGL ES 2 渲染器 */
-        static const char * const OPENGLES3;    /**< OpenGL ES 3 渲染器 */
-        static const char * const VULKAN;       /**< Vulkan 渲染器 */
-        static const char * const METAL;        /**< Metal 渲染器 */
-
-        /**
-         * @brief 渲染器能力值
-         */
-        enum Capability
-        {
-
-        };
-
-        /**
-         * @breif 设置变换矩阵状态
-         */
-        enum TransformState
-        {
-            E_TS_VIEW = 0,      /**< 视口变换矩阵 */
-            E_TS_WORLD,         /**< 世界变换矩阵 */
-            E_TS_PROJECTION,    /**< 投影变换矩阵 */
-            E_TS_MAX
-        };
-
-        /**
-         * @brief 渲染图元类型
-         */
-        enum PrimitiveType
-        {
-            E_PT_POINT_LIST = 0,    /**< 点列表图元 */
-            E_PT_LINE_LIST,         /**< 线列表图元 */
-            E_PT_LINE_STRIP,        /**< 线带图元 */
-            E_PT_TRIANGLE_LIST,     /**< 三角形列表图元 */
-            E_PT_TRIANGLE_STRIP,    /**< 三角形带图元 */
-            E_PT_TRIANGLE_FAN,      /**< 三角形扇形图元 */ 
-        };
-
-        /**
-         * @brief 背面剔除模式
-         */
-        enum CullingMode
-        {
-            E_CULL_NONE = 0,        /**< 不做消隐面剔除 */
-            E_CULL_CLOCKWISE,       /**< 按照顶点顺时针顺序的消隐面剔除 */
-            E_CULL_ANTICLOCKWISE,   /**< 按照顶点逆时针顺序的消隐面剔除 */
-        };
-
-        /**
-         * @brief 渲染模式
-         */
-        enum RenderMode
-        {
-            E_RM_POINT = 0,         /**< 顶点模式 */
-            E_RM_WIREFRAME,         /**< 线框模式 */
-            E_RM_SOLID,             /**< 着色模式 */
-        };
-
         /**
          * @brief 构造函数
          */
-        Renderer();
+        RenderGroup();
 
         /**
          * @brief 析构函数
          */
-        virtual ~Renderer();
+        virtual ~RenderGroup();
+    };
+
+
+    /**
+     * @brief 渲染队列
+     */
+    class T3D_ENGINE_API RenderQueue : public Object
+    {
+    public:
+        /** 
+         * @brief 分组ID
+         */
+        enum GroupID
+        {
+            E_GRPID_NONE = 0,                   /**< 没有分组 */
+            E_GRPID_BACKGROUND = 10,            /**< 背景分组 */
+            E_GRPID_LIGHT = 15,                 /**< 灯光分组 */
+            E_GRPID_SKY_BOX = 20,               /**< 天空盒分组 */
+            E_GRPID_INDICATOR = 30,             /**< 坐标指示器分组 */
+            E_GRPID_AUTOMATIC = 50,             /**< 自动分组 */
+            E_GRPID_SOLID = 60,                 /**< 实体分组 */
+            E_GRPID_WIREFRAME = 65,             /**< 线框分组 */
+            E_GRPID_TRANSPARENT = 70,           /**< 半透明物体分组 */
+            E_GRPID_TRANSPARENT_EFFECT = 80,    /**< 半透明特效分组 */
+            E_GRPID_SHADOW = 90,                /**< 阴影分组 */
+            E_GRPID_OVERLAY = 100               /**< UI分组 */
+        };
 
         /**
-         * @brief 初始化渲染器
-         * @return 调用成功返回 T3D_ERR_OK
+         * @brief 创建渲染队列对象
          */
-        virtual TResult init() = 0;
+        static RenderQueuePtr create();
 
         /**
-         * @brief 销毁渲染器
-         * @return 调用成功返回 T3D_ERR_OK
+         * @brief 析构函数
          */
-        virtual TResult destroy() = 0;
+        virtual ~RenderQueue();
 
+    protected:
         /**
-         * @brief 获取渲染器名称
+         * @brief 构造函数
          */
-        virtual String getName() const = 0;
+        RenderQueue();
 
-        /**
-         * @brief 渲染一帧
-         * @return 调用成功返回 T3D_ERR_OK
-         */
-        virtual TResult render() = 0;
+    protected:
+        typedef std::map<GroupID, RenderGroupPtr>   RenderableGroup;
+        typedef RenderableGroup::iterator           RenderableGroupItr;
+        typedef RenderableGroup::const_iterator     RenderableGroupConstItr;
+
+        typedef std::pair<GroupID, RenderGroupPtr>  RenderableGroupValue;
+
+        RenderableGroup     mGroups;        /**< 渲染分组 */
     };
 }
 
 
-#endif  /*__T3D_RENDERER_H__*/
+#endif  /*__T3D_RENDER_QUEUE_H__*/

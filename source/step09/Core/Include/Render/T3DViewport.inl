@@ -20,59 +20,64 @@
 
 namespace Tiny3D
 {
-    inline const String &RenderTarget::getName() const
+    inline RenderTargetPtr Viewport::getRenderTarget() const
     {
-        return mName;
+        return mRenderTarget;
     }
 
-    inline void RenderTarget::getMetrics(size_t &width, size_t &height, 
-        size_t &clrDepth) const
+    inline Real Viewport::getLeft() const
     {
-        width = mWidth;
-        height = mHeight;
-        clrDepth = mColorDepth;
+        return mLeft;
     }
 
-    inline size_t RenderTarget::getWidth() const
+    inline Real Viewport::getTop() const
+    {
+        return mTop;
+    }
+
+    inline Real Viewport::getWidth() const
     {
         return mWidth;
     }
 
-    inline size_t RenderTarget::getHeight() const
+    inline Real Viewport::getHeight() const
     {
         return mHeight;
     }
 
-    inline size_t RenderTarget::getColorDepth() const
+    inline size_t Viewport::getActualLeft() const
     {
-        return mColorDepth;
+        return mActualLeft;
     }
 
-    inline bool RenderTarget::isActive() const
+    inline size_t Viewport::getActualTop() const
     {
-        return mIsActive;
+        return mActualTop;
     }
 
-    inline void RenderTarget::setActive(bool active)
+    inline size_t Viewport::getActualWidth() const
     {
-        mIsActive = active;
+        return mActualWidth;
     }
 
-    inline size_t RenderTarget::getNumViewports() const
+    inline size_t Viewport::getActualHeight() const
     {
-        return mViewportList.size();
+        return mActualHeight;
     }
 
-    inline ViewportPtr RenderTarget::getViewport(long_t zOrder) const
+    inline const Matrix4 &Viewport::getViewportMatrix() const
     {
-        auto itr = mViewportList.find(zOrder);
+        return mMatrix;
+    }
 
-        if (itr != mViewportList.end())
-        {
-            return itr->second;
-        }
+    inline void Viewport::setBkgndColor(const Color4 &color)
+    {
+        mBkgndColor = color;
+    }
 
-        return nullptr;
+    inline const Color4 &Viewport::getBkgndColor() const
+    {
+        return mBkgndColor;
     }
 }
 

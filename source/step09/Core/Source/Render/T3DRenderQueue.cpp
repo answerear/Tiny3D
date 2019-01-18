@@ -18,5 +18,39 @@
  ******************************************************************************/
 
 
-#include "Render/T3DRenderer.h"
+#include "Render/T3DRenderQueue.h"
 
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    RenderGroup::RenderGroup()
+    {
+
+    }
+
+    RenderGroup::~RenderGroup()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderQueuePtr RenderQueue::create()
+    {
+        RenderQueuePtr rq = new RenderQueue();
+        rq->release();
+        return rq;
+    }
+
+    RenderQueue::RenderQueue()
+    {
+
+    }
+
+    RenderQueue::~RenderQueue()
+    {
+
+    }
+}
