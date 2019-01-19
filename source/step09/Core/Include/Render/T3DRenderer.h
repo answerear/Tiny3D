@@ -49,7 +49,24 @@ namespace Tiny3D
          */
         enum Capability
         {
-
+            E_CAP_RENDER_TO_TARGET = 0,     /**< 是否支持渲染到 surface */
+            E_CAP_HARDWARE_TRANSFORM,       /**< 是否支持硬件变换 */
+            E_CAP_MULTI_TEXTURE,            /**< 是否支持多重纹理 */
+            E_CAP_MIP_MAP,                  /**< 是否支持 Mip Map */
+            E_CAP_STENCIL_BUFFER,           /**< 是否支持 stencil buffer */
+            E_CAP_VERTEX_SHADER_1_1,        /**< 是否支持 1.1 版本顶点着色器 */
+            E_CAP_VERTEX_SHADER_2_0,        /**< 是否支持 2.0 版本顶点着色器 */
+            E_CAP_VERTEX_SHADER_3_0,        /**< 是否支持 3.0 版本顶点着色器 */
+            E_CAP_PIXEL_SHADER_1_1,         /**< 是否支持 1.1 版本片段着色器 */
+            E_CAP_PIXEL_SHADER_1_2,         /**< 是否支持 1.2 版本片段着色器 */
+            E_CAP_PIXEL_SHADER_1_3,         /**< 是否支持 1.3 版本片段着色器 */
+            E_CAP_PIXEL_SHADER_1_4,         /**< 是否支持 1.4 版本片段着色器 */
+            E_CAP_PIXEL_SHADER_2_0,         /**< 是否支持 2.0 版本片段着色器 */
+            E_CAP_PIXEL_SHADER_3_0,         /**< 是否支持 3.0 版本片段着色器 */
+            E_CAP_TEXTURE_NSQUARE,          /**< 是否支持非正方形纹理 */
+            E_CAP_TEXTURE_NPOT,             /**< 是否支持非 2 次幂纹理 */
+            E_CAP_FRAMEBUFFER,              /**< 是否支持帧缓冲 */
+            E_CAP_MAX
         };
 
         /**
@@ -157,17 +174,19 @@ namespace Tiny3D
 
         /**
          * @brief 查询渲染器能力
-         * @param [in] cap : 能力枚举值，可以通过或操作查询多个能力值
+         * @param [in] cap : 能力枚举值
          * @return 具备cap对应的能力则返回true，否则返回false
+         * @see Renderer::Capability
          */
         virtual bool queryCapability(Capability cap) = 0;
 
         /**
          * @brief 开启或者关闭某种能力
-         * @param [in] cap : 能力枚举值，可以通过或操作开启或关闭多个能力
+         * @param [in] cap : 能力枚举值
          * @param [in] enabled : 开关标记
          * @return 调用成功返回 T3D_ERR_OK
          * @remarks 如果具体渲染系统本身不具备相应的能力，则本接口调用无效
+         * @see Renderer::Capability
          */
         virtual TResult enableCapability(Capability cap, bool enabled) = 0;
 
