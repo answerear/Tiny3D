@@ -18,27 +18,14 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_FS_ARCHIVE_PREREQUISITES_H__
-#define __T3D_FS_ARCHIVE_PREREQUISITES_H__
-
-
-#include <Tiny3D.h>
-
-#if defined FILESYSTEMARCHIVE_EXPORT
-    #define T3D_FSARCHIVE_API        T3D_EXPORT_API
-#else
-    #define T3D_FSARCHIVE_API        T3D_IMPORT_API
-#endif
+#include "ImageCodec/T3DImageCodecBase.h"
 
 
 namespace Tiny3D
 {
-    class FileSystemArchive;
-    class FileSystemArchiveCreator;
+    ImageCodecBase::~ImageCodecBase()
+    {
 
-    T3D_DECLARE_SMART_PTR(FileSystemArchive);
-    T3D_DECLARE_SMART_PTR(FileSystemArchiveCreator);
+    }
 }
 
-
-#endif  /*__T3D_FS_ARCHIVE_PREREQUISITES_H__*/

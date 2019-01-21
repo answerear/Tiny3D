@@ -10,6 +10,14 @@ set_project_name(T3DCore)
 message(STATUS "Generating project : ${BIN_NAME}")
 
 
+if (MSVC)
+	# Add definition only for Windows.
+	if (TINY3D_BUILD_SHARED_LIBS)
+		add_definitions(-D${LIB_NAME_TOUPPER}_EXPORT -D_USRDLL)
+	endif (TINY3D_BUILD_SHARED_LIBS)
+endif (MSVC)
+
+
 # Setup all cmake variables for this project.
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
 set(TINY3D_MATH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Math")

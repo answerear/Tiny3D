@@ -18,38 +18,29 @@
  ******************************************************************************/
 
 
-#ifndef __TINY3D_H__
-#define __TINY3D_H__
+#include "T3DFreeImageCodecPrerequisites.h"
+#include "T3DFreeImageCodecPlugin.h"
 
-// Global
-#include <T3DErrorDef.h>
-#include <T3DType.h>
 
-// Kernel
-#include <Kernel/T3DEngine.h>
-#include <Kernel/T3DConfigFile.h>
-#include <Kernel/T3DCreator.h>
-#include <Kernel/T3DObject.h>
-#include <Kernel/T3DPlugin.h>
+Tiny3D::FreeImageCodecPlugin *gPlugin = nullptr;
 
-// Memory
-#include <Memory/T3DSmartPtr.h>
+extern "C"
+{
+    TResult T3D_FREEIMAGECODEC_API dllStartPlugin()
+    {
+        gPlugin = new Tiny3D::FreeImageCodecPlugin();
+        return Tiny3D::Engine::getInstance().installPlugin(gPlugin);
+    }
 
-// Resource
-#include <Resource/T3DArchive.h>
-#include <Resource/T3DArchiveCreator.h>
-#include <Resource/T3DArchiveManager.h>
-#include <Resource/T3DDylib.h>
-#include <Resource/T3DDylibManager.h>
-#include <Resource/T3DResource.h>
-#include <Resource/T3DResourceManager.h>
+    TResult T3D_FREEIMAGECODEC_API dllStopPlugin()
+    {
+        TResult ret = Tiny3D::Engine::getInstance().uninstallPlugin(gPlugin);
+        if (ret == Tiny3D::T3D_ERR_OK)
+        {
+            delete gPlugin;
+            gPlugin = nullptr;
+        }
+        return ret;
+    }
+}
 
-// DataStruct
-#include <DataStruct/T3DVariant.h>
-#include <DataStruct/T3DString.h>
-
-// ImageCodec
-#include <ImageCodec/T3DImageCodec.h>
-#include <ImageCodec/T3DImageCodecBase.h>
-
-#endif  /*__TINY3D_H__*/

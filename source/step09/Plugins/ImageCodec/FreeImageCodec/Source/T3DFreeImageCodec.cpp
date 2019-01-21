@@ -18,59 +18,34 @@
  ******************************************************************************/
 
 
-#include "T3DFSArchivePlugin.h"
-#include "T3DFSArchiveCreator.h"
+#include "T3DFreeImageCodec.h"
 
 
 namespace Tiny3D
 {
-    FileSystemArchivePlugin::FileSystemArchivePlugin()
-        : mName("FileSystemArchive")
-        , mFSCreator(nullptr)
+    bool FreeImageCodec::isSupportedType(uint8_t *data, size_t size, 
+        FileType &type) const
     {
-
+        return false;
     }
 
-    FileSystemArchivePlugin::~FileSystemArchivePlugin()
+    ImageCodecBase::FileType FreeImageCodec::getFileType() const
     {
-
+        return E_FT_PNG;
     }
 
-    const String &FileSystemArchivePlugin::getName() const
-    {
-        return mName;
-    }
-
-    TResult FileSystemArchivePlugin::install()
-    {
-        TResult ret = T3D_ERR_OK;
-
-        mFSCreator = new FileSystemArchiveCreator();
-        Engine::getInstance().addArchiveCreator(mFSCreator);
-
-        return ret;
-    }
-
-    TResult FileSystemArchivePlugin::startup()
+    TResult FreeImageCodec::encode(uint8_t *&data, size_t &size, 
+        const Image &image, FileType type)
     {
         TResult ret = T3D_ERR_OK;
 
         return ret;
     }
 
-    TResult FileSystemArchivePlugin::shutdown()
+    TResult FreeImageCodec::decode(uint8_t *data, size_t size, Image &image, 
+        FileType type)
     {
         TResult ret = T3D_ERR_OK;
-
-        return ret;
-    }
-
-    TResult FileSystemArchivePlugin::uninstall()
-    {
-        TResult ret = T3D_ERR_OK;
-        Engine::getInstance().removeArchiveCreator(mFSCreator);
-        delete mFSCreator;
-        mFSCreator = nullptr;
 
         return ret;
     }

@@ -130,10 +130,10 @@ namespace Tiny3D
     {
     public:
         /**
-         * @brief 构造函数
+         * @brief 创建硬件缓冲区管理器对象
          * @param [in] impl : 对应渲染系统的具体实现对象
          */
-        HardwareBufferManager(HardwareBufferManagerBase *impl);
+        static HardwareBufferManagerPtr create(HardwareBufferManagerBase *impl);
 
         /**
          * @brief 析构函数
@@ -180,6 +180,13 @@ namespace Tiny3D
          * @see HardwareBufferManagerBase::createVertexDeclaration()
          */
         virtual VertexDeclarationPtr createVertexDeclaration() override;
+
+    protected:
+        /**
+         * @brief 构造函数
+         * @param [in] impl : 对应渲染系统的具体实现对象
+         */
+        HardwareBufferManager(HardwareBufferManagerBase *impl);
 
     protected:
         HardwareBufferManagerBasePtr   mImpl;   /**< 具体渲染体系对应的对象 */

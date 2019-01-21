@@ -18,38 +18,53 @@
  ******************************************************************************/
 
 
-#ifndef __TINY3D_H__
-#define __TINY3D_H__
+#include "T3DFreeImageCodecPlugin.h"
 
-// Global
-#include <T3DErrorDef.h>
-#include <T3DType.h>
 
-// Kernel
-#include <Kernel/T3DEngine.h>
-#include <Kernel/T3DConfigFile.h>
-#include <Kernel/T3DCreator.h>
-#include <Kernel/T3DObject.h>
-#include <Kernel/T3DPlugin.h>
+namespace Tiny3D
+{
+    FreeImageCodecPlugin::FreeImageCodecPlugin()
+        : mName("FreeImageCodec")
+    {
 
-// Memory
-#include <Memory/T3DSmartPtr.h>
+    }
 
-// Resource
-#include <Resource/T3DArchive.h>
-#include <Resource/T3DArchiveCreator.h>
-#include <Resource/T3DArchiveManager.h>
-#include <Resource/T3DDylib.h>
-#include <Resource/T3DDylibManager.h>
-#include <Resource/T3DResource.h>
-#include <Resource/T3DResourceManager.h>
+    FreeImageCodecPlugin::~FreeImageCodecPlugin()
+    {
 
-// DataStruct
-#include <DataStruct/T3DVariant.h>
-#include <DataStruct/T3DString.h>
+    }
 
-// ImageCodec
-#include <ImageCodec/T3DImageCodec.h>
-#include <ImageCodec/T3DImageCodecBase.h>
+    const String &FreeImageCodecPlugin::getName() const
+    {
+        return mName;
+    }
 
-#endif  /*__TINY3D_H__*/
+    TResult FreeImageCodecPlugin::install()
+    {
+        TResult ret = T3D_ERR_OK;
+
+        return ret;
+    }
+
+    TResult FreeImageCodecPlugin::startup()
+    {
+        TResult ret = T3D_ERR_OK;
+
+        return ret;
+    }
+
+    TResult FreeImageCodecPlugin::shutdown()
+    {
+        TResult ret = T3D_ERR_OK;
+
+        return ret;
+    }
+
+    TResult FreeImageCodecPlugin::uninstall()
+    {
+        TResult ret = T3D_ERR_OK;
+
+        return ret;
+    }
+}
+

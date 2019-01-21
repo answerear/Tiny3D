@@ -49,6 +49,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    HardwareBufferManagerPtr HardwareBufferManager::create(
+        HardwareBufferManagerBase *impl)
+    {
+        HardwareBufferManagerPtr mgr = new HardwareBufferManager(impl);
+        mgr->release();
+        return mgr;
+    }
+
     HardwareBufferManager::HardwareBufferManager(
         HardwareBufferManagerBase *impl)
         : mImpl(impl)

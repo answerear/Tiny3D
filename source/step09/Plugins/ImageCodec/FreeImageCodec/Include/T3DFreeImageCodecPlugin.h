@@ -18,32 +18,30 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_FS_ARCHIVE_PLUGIN_H__
-#define __T3D_FS_ARCHIVE_PLUGIN_H__
+#ifndef __T3D_FREEIMAGE_CODEC_PLUGIN_H__
+#define __T3D_FREEIMAGE_CODEC_PLUGIN_H__
 
 
-#include "T3DFSArchivePrerequisites.h"
+#include "T3DFreeImageCodecPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    class FileSystemArchiveCreator;
-
     /**
-     * @brief 文件档案结构插件
+     * @brief 通用图片编解码插件
      */
-    class FileSystemArchivePlugin : public Plugin
+    class FreeImageCodecPlugin : public Plugin
     {
     public:
         /**
          * @brief 默认构造函数
          */
-        FileSystemArchivePlugin();
+        FreeImageCodecPlugin();
 
         /**
          * @brief 析构函数
          */
-        virtual ~FileSystemArchivePlugin();
+        virtual ~FreeImageCodecPlugin();
 
         /**
          * @brief 获取插件名称
@@ -71,11 +69,10 @@ namespace Tiny3D
         virtual TResult uninstall() override;
 
     protected:
-        String                      mName;          /**< 插件名称 */
-        FileSystemArchiveCreator    *mFSCreator;    /**< 文件档案结构构建器 */
+        String  mName;          /**< 插件名称 */
     };
 
 }
 
 
-#endif  /*__T3D_FS_ARCHIVE_PLUGIN_H__*/
+#endif  /*__T3D_FREEIMAGE_CODEC_PLUGIN_H__*/

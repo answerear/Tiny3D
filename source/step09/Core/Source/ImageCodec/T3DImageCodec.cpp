@@ -22,6 +22,128 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
 
+    T3D_INIT_SINGLETON(ImageCodec);
+
+    //--------------------------------------------------------------------------
+
+    ImageCodecPtr ImageCodec::create()
+    {
+        ImageCodecPtr codec = new ImageCodec();
+        codec->release();
+        return codec;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImageCodec::ImageCodec()
+    {
+
+    }
+
+    ImageCodec::~ImageCodec()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImageCodec::addImageCodec(ImageCodecBasePtr codec)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        return ret;
+    }
+
+    TResult ImageCodec::removeImageCodec(ImageCodecBasePtr codec)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImageCodec::encode(const String &name, const Image &image,
+        ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_PNG */)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        return ret;
+    }
+
+    TResult ImageCodec::encode(DataStream &stream, const Image &image,
+        ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_PNG */)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        return ret;
+    }
+
+    TResult ImageCodec::encode(uint8_t *&data, size_t &size, const Image &image,
+        ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_PNG */)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImageCodec::decode(const String &name, Image &image,
+        ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_UNKNOWN */)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        return ret;
+    }
+
+    TResult ImageCodec::decode(DataStream &stream, Image &image, 
+        ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_UNKNOWN */)
+    {
+        TResult ret = T3D_ERR_OK;
+        
+        return ret;
+    }
+
+    TResult ImageCodec::decode(uint8_t *data, size_t size, Image &image,
+        ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_UNKNOWN */)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImageCodecBasePtr ImageCodec::getImageCodec(uint8_t *data, size_t size, 
+        ImageCodecBase::FileType &type) const
+    {
+        ImageCodecBasePtr codec;
+
+        if (type != ImageCodecBase::E_FT_UNKNOWN)
+        {
+            auto itr = mCodecMap.find(type);
+            if (itr != mCodecMap.end())
+            {
+                codec = itr->second;
+            }
+        }
+
+        return codec;
+    }
+
+    ImageCodecBasePtr ImageCodec::getImageCodec(
+        ImageCodecBase::FileType type) const
+    {
+        ImageCodecBasePtr codec;
+        auto itr = mCodecMap.find(type);
+        if (itr != mCodecMap.end())
+        {
+            codec = itr->second;
+        }
+        return codec;
+    }
 }
 

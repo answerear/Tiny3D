@@ -90,83 +90,86 @@ namespace Tiny3D
         };
 
         /**
-        * @brief 析构函数
-        */
+         * @brief 析构函数
+         */
         virtual ~ImageCodecBase();
 
         /**
-        * @brief 是否支持的类型
-        * @param [in] data : 图像数据
-        * @param [in] size : 图像数据大小
-        * @param [in] type : 图像文件类型，默认可以自动识别
-        * @return 支持的返回true，否则返回false
-        * @remarks 具体图像类型编解码器实现本接口
-        */
+         * @brief 是否支持的类型
+         * @param [in] data : 图像数据
+         * @param [in] size : 图像数据大小
+         * @param [in] type : 图像文件类型，默认可以自动识别
+         * @return 支持的返回true，否则返回false
+         * @remarks 具体图像类型编解码器实现本接口
+         */
         virtual bool isSupportedType(uint8_t *data, size_t size,
             FileType &type) const = 0;
 
         /**
-        * @brief 获取文件类型
-        * @return 返回文件类型
-        * @remarks 具体图像类型编解码器实现本接口
-        */
+         * @brief 获取文件类型
+         * @return 返回文件类型
+         * @remarks 具体图像类型编解码器实现本接口
+         */
         virtual FileType getFileType() const = 0;
 
         /**
-        * @brief 把图像对象编码到数据缓冲中
-        * @param [in][out] data : 编码后的数据
-        * @param [in][out] size : 编码后的数据大小
-        * @param [in] image : 图像对象，数据源
-        * @param [in] type : 文件类型
-        * @return 调用成功返回 T3D_ERR_OK
-        * @remarks 具体图像类型编解码器实现本接口
-        */
+         * @brief 把图像对象编码到数据缓冲中
+         * @param [in][out] data : 编码后的数据
+         * @param [in][out] size : 编码后的数据大小
+         * @param [in] image : 图像对象，数据源
+         * @param [in] type : 文件类型
+         * @return 调用成功返回 T3D_ERR_OK
+         * @remarks 具体图像类型编解码器实现本接口
+         */
         virtual TResult encode(uint8_t *&data, size_t &size, const Image &image,
             FileType type) = 0;
 
         /**
-        * @brief 把缓冲数据解码到图像对象中
-        * @param [in] data : 要解码的数据
-        * @param [in] size : 要解码的数据大小
-        * @param [in] image : 图像对象，解码后的数据保存在此对象中
-        * @param [in] type : 图像类型
-        * @return 调用成功返回 T3D_ERR_OK
-        * @remarks 具体图像类型编解码器实现本接口
-        */
+         * @brief 把缓冲数据解码到图像对象中
+         * @param [in] data : 要解码的数据
+         * @param [in] size : 要解码的数据大小
+         * @param [in] image : 图像对象，解码后的数据保存在此对象中
+         * @param [in] type : 图像类型
+         * @return 调用成功返回 T3D_ERR_OK
+         * @remarks 具体图像类型编解码器实现本接口
+         */
         virtual TResult decode(uint8_t *data, size_t size, Image &image,
             FileType type) = 0;
 
     protected:
         /**
-        * @brief 设置图像数据
-        * @param [in] image : 需要设置数据的图像对象
-        * @param [in] data : 解码后的ARGB数据
-        * @param [in] size : 解码后的ARGB数据大小
-        */
+         * @brief 设置图像数据
+         * @param [in] image : 需要设置数据的图像对象
+         * @param [in] data : 解码后的ARGB数据
+         * @param [in] size : 解码后的ARGB数据大小
+         */
         void setImageData(Image &image, uint8_t *data, size_t size);
 
         /**
-        * @brief 设置图像尺寸
-        * @param [in] image : 需要设置尺寸的图像对象
-        * @param [in] width : 图像宽度
-        * @param [in] height : 图像高度
-        * @param [in] pitch : 图像跨度
-        */
+         * @brief 设置图像尺寸
+         * @param [in] image : 需要设置尺寸的图像对象
+         * @param [in] width : 图像宽度
+         * @param [in] height : 图像高度
+         * @param [in] pitch : 图像跨度
+         */
         void setImageDimension(Image &image, int32_t width, int32_t height,
             int32_t pitch);
 
         /**
-        * @brief 设置图像信息
-        * @param [in] image : 需要设置信息的图像对象
-        * @param [in] bpp : 图像色深
-        * @param [in] hasAlpha : 是否有透明通道
-        * @param [in] isPreMulti : 是否预乘
-        * @param [in] format : 像素格式
-        */
+         * @brief 设置图像信息
+         * @param [in] image : 需要设置信息的图像对象
+         * @param [in] bpp : 图像色深
+         * @param [in] hasAlpha : 是否有透明通道
+         * @param [in] isPreMulti : 是否预乘
+         * @param [in] format : 像素格式
+         */
         void setImageInfo(Image &image, int32_t bpp, bool hasAlpha,
             bool isPreMulti, PixelFormat format);
     };
 }
+
+
+#include "T3DImageCodecBase.inl"
 
 
 #endif  /*__T3D_IMAGE_CODEC_BASE_H__*/

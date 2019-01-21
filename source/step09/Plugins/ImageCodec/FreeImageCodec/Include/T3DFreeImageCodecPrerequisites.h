@@ -18,29 +18,25 @@
  ******************************************************************************/
 
 
-#include "T3DFSArchivePrerequisites.h"
-#include "T3DFSArchivePlugin.h"
+#ifndef __T3D_IMAGE_CODEC_FREEIMAGE_PREREQUISITES_H__
+#define __T3D_IMAGE_CODEC_FREEIMAGE_PREREQUISITES_H__
 
 
-Tiny3D::FileSystemArchivePlugin *gPlugin = nullptr;
+#include <Tiny3D.h>
 
-extern "C"
+#if defined FREEIMAGECODEC_EXPORT
+    #define T3D_FREEIMAGECODEC_API        T3D_EXPORT_API
+#else
+    #define T3D_FREEIMAGECODEC_API        T3D_IMPORT_API
+#endif
+
+
+namespace Tiny3D
 {
-    TResult T3D_FSARCHIVE_API dllStartPlugin()
-    {
-        gPlugin = new Tiny3D::FileSystemArchivePlugin();
-        return Tiny3D::Engine::getInstance().installPlugin(gPlugin);
-    }
+    class ImageCodecImg;
 
-    TResult T3D_FSARCHIVE_API dllStopPlugin()
-    {
-        TResult ret = Tiny3D::Engine::getInstance().uninstallPlugin(gPlugin);
-        if (ret == Tiny3D::T3D_ERR_OK)
-        {
-            delete gPlugin;
-            gPlugin = nullptr;
-        }
-        return ret;
-    }
+    T3D_DECLARE_SMART_PTR(ImageCodecImg);
 }
 
+
+#endif  /*__T3D_IMAGE_CODEC_FREEIMAGE_PREREQUISITES_H__*/

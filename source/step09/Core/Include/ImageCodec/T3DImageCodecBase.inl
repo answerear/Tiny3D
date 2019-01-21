@@ -18,4 +18,29 @@
  ******************************************************************************/
 
 
+namespace Tiny3D
+{
+    inline void ImageCodecBase::setImageData(Image &image, uint8_t *data, 
+        size_t size)
+    {
+        image.mData = data;
+        image.mDataSize = size;
+    }
 
+    inline void ImageCodecBase::setImageDimension(Image &image, int32_t width, 
+        int32_t height, int32_t pitch)
+    {
+        image.mWidth = width;
+        image.mHeight = height;
+        image.mPitch = pitch;
+    }
+
+    inline void ImageCodecBase::setImageInfo(Image &image, int32_t bpp, 
+        bool hasAlpha, bool isPreMulti, PixelFormat eFormat)
+    {
+        image.mBPP = bpp;
+        image.mHasAlpha = hasAlpha;
+        image.mIsPreMulti = isPreMulti;
+        image.mFormat = eFormat;
+    }
+}
