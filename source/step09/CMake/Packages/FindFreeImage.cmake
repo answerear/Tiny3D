@@ -1,39 +1,29 @@
 
-FIND_PATH(FREEIMAGE_INCLUDE_DIR FreeImage.h
-  HINTS
-  ${FREEIMAGE_HOME}
+message(STATUS "Looking for FreeImage ...")
+
+FIND_PATH(FREEIMAGE_INCLUDE_DIR 
+  NAMES FreeImage.h
+  HINTS ${FREEIMAGE_HOME}
   PATH_SUFFIXES include
-  PATHS
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local/include/FreeImage
-  /usr/include/FreeImage
-  /sw # Fink
-  /opt/local # DarwinPorts
-  /opt/csw # Blastwave
-  /opt
+#  PATHS include
 )
 
 FIND_LIBRARY(FREEIMAGE_LIBRARY_TEMP
   NAMES FreeImage
-  HINTS
-  ${FREEIMAGE_HOME}
-  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}
-  PATHS
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
+  HINTS ${FREEIMAGE_HOME}
+  PATH_SUFFIXES ${FREEIMAGE_LIB_SUFFIXES}
+#  PATHS .
 )
 
 FIND_FILE(FREEIMAGE_BINARY
   NAMES "FreeImage.dll"
-  HINTS
-  ${FREEIMAGE_HOME}
-  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}
+  HINTS ${FREEIMAGE_HOME}
+  PATH_SUFFIXES ${FREEIMAGE_LIB_SUFFIXES}
 )
 
-
+message(STATUS "${FREEIMAGE_INCLUDE_DIR}")
+message(STATUS "${FREEIMAGE_LIBRARY_TEMP}")
+message(STATUS "${FREEIMAGE_BINARY}")
 
 SET(FREEIMAGE_FOUND "NO")
 IF(FREEIMAGE_LIBRARY_TEMP)

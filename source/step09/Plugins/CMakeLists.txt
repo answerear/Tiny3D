@@ -9,3 +9,4 @@ set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies")
 
 add_subdirectory(Renderer)
 add_subdirectory(Archive)
+add_subdirectory(ImageCodec)

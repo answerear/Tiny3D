@@ -72,6 +72,9 @@ namespace Tiny3D
     class Renderer;
     class RenderGroup;
     class RenderQueue;
+
+    class ImageCodecBase;
+    class ImageCodec;
 }
 
 
