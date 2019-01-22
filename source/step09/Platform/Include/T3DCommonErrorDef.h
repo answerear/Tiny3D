@@ -29,8 +29,8 @@ namespace Tiny3D
     enum CommonErrorCode
     {
         T3D_ERR_NONE                = 0,            /**< 没有错误 */
-        T3D_ERR_OK                  = T3D_ERR_NONE, /**< 成功 */
-        T3D_ERR_SUCCESS             = T3D_ERR_NONE, /**< 成功 */
+        T3D_OK                      = T3D_ERR_NONE, /**< 成功 */
+        T3D_SUCCESS                 = T3D_ERR_NONE, /**< 成功 */
         T3D_ERR_FAIL                = 0x00000001,   /**< 通用错误 */
         T3D_ERR_INVALID_POINTER     = 0x00000002,   /**< 空指针或者非法指针 */
         T3D_ERR_INVALID_TIMERID     = 0x00000003,   /**< 无效定时器ID */

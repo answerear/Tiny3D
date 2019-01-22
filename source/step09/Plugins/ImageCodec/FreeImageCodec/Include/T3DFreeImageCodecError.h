@@ -29,7 +29,12 @@ namespace Tiny3D
 {
     enum FreeImageCodecError
     {
-        T3D_ERR_CODEC_
+        T3D_ERR_CODEC_ENCODE_TO_MEMORY = T3D_ERR_FREEIMAGE_CODEC,   /**< 编码到内存出错 */
+        T3D_ERR_CODEC_ACQUIRE_MEMORY,                               /**< 获取内存失败 */
+        T3D_ERR_CODEC_DECODE_FROM_MEMORY,                           /**< 从内存加载失败 */
+        T3D_ERR_CODEC_CONVERT_TO_GREY,                              /**< 转换到灰度图失败 */
+        T3D_ERR_CODEC_CONVERT_TO_32BIT,                             /**< 转换到32位图失败 */
+        T3D_ERR_CODEC_CONVERT_TO_24BIT,                             /**< 转换到24位图失败 */
     };
 }
 

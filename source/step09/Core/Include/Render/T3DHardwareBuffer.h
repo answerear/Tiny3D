@@ -90,7 +90,7 @@ namespace Tiny3D
 
         /**
          * @brief 解锁缓冲区
-         * @return 成功调用返回 T3D_ERR_OK
+         * @return 成功调用返回 T3D_OK
          * @remarks 一般读写完缓冲区，需要调用本接口，否则数据无法传输到GPU上
          */
         TResult unlock();
@@ -183,14 +183,14 @@ namespace Tiny3D
 
         /**
          * @brief 解锁缓冲区的具体实现接口
-         * @return 成功调用返回 T3D_ERR_OK
+         * @return 成功调用返回 T3D_OK
          * @remarks 具体的渲染系统子类需要实现该接口
          */
         virtual TResult unlockImpl() = 0;
 
         /**
          * @brief 从影子缓存更新数据到硬件缓冲区
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult updateFromShadow();
 

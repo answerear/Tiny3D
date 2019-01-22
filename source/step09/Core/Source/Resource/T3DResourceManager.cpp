@@ -108,7 +108,7 @@ namespace Tiny3D
             {
                 TResult ret = res->load();
 
-                if (ret == T3D_ERR_OK)
+                if (ret == T3D_OK)
                 {
                     Resources resources;
                     resources.insert(ResourcesValue(0, res));

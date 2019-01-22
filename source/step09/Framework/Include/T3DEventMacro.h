@@ -78,14 +78,14 @@ namespace Tiny3D
 	    TResult theClass::setupEventFilter()	\
 	    {	\
 		    classBase::setupEventFilter();	\
-            TResult ret = T3D_ERR_OK;   \
+            TResult ret = T3D_OK;   \
             do  \
             {   
 
     // 注册事件过滤
     #define T3D_EVENT_FILTER(eid)	\
 		        ret = registerEvent(eid);   \
-                if (ret != T3D_ERR_OK)  \
+                if (ret != T3D_OK)  \
                     break;
 
     // 结束事件过滤

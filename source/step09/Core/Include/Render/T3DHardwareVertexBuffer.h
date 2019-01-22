@@ -246,7 +246,7 @@ namespace Tiny3D
         /**
          * @brief 添加一个顶点属性
          * @param [in] vertexAttribute : 顶点属性对象
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult addAttribute(const VertexAttribute &vertexAttribute);
 
@@ -254,7 +254,7 @@ namespace Tiny3D
          * @brief 插入一个顶点属性
          * @param [in] pos : 插入的位置
          * @param [in] vertexAttribute : 顶点属性对象
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult insertAttribute(size_t pos, 
             const VertexAttribute &vertexAttribute);
@@ -262,20 +262,20 @@ namespace Tiny3D
         /**
          * @brief 移除指定位置的顶点属性
          * @param [in] pos : 数组位置
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult removeAttribute(size_t pos);
 
         /**
          * @brief 移除对应语法解释的顶点属性
          * @param [in] semantic : 语法解释
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult removeAttribute(VertexAttribute::Semantic semantic);
 
         /**
          * @brief 移除所有顶点属性
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult removeAllAttributes();
 
@@ -285,7 +285,7 @@ namespace Tiny3D
          * @param [in] stream : 数据流索引
          * @param [in] type : 顶点数据类型
          * @param [in] semantic : 顶点语法解释
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult updateAttribute(size_t pos, size_t stream, 
             size_t offset, VertexAttribute::Type type, 

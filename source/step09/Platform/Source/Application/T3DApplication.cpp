@@ -54,11 +54,11 @@ namespace Tiny3D
             }
 
             ret = mApp->init();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
                 break;
 
             ret = mSystem->init();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
                 break;
         } while (0);
 

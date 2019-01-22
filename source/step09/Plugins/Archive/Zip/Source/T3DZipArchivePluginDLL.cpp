@@ -35,7 +35,7 @@ extern "C"
     {
         TResult ret = Tiny3D::Engine::getInstance().uninstallPlugin(gPlugin);
 
-        if (ret == Tiny3D::T3D_ERR_OK)
+        if (ret == Tiny3D::T3D_OK)
         {
             delete gPlugin;
             gPlugin = nullptr;

@@ -42,27 +42,27 @@ namespace Tiny3D
 
     TResult T3DXPlugin::install()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         return ret;
     }
 
     TResult T3DXPlugin::startup()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
 
     TResult T3DXPlugin::shutdown()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
 
     TResult T3DXPlugin::uninstall()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }

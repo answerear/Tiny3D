@@ -19,6 +19,7 @@
 
 
 #include "T3DFreeImageCodec.h"
+#include "T3DFreeImageCodecError.h"
 #include <FreeImage.h>
 #include <sstream>
 
@@ -58,7 +59,7 @@ namespace Tiny3D
 
     TResult FreeImageCodec::startup()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -101,7 +102,7 @@ namespace Tiny3D
 
     TResult FreeImageCodec::shutdown()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         FreeImage_DeInitialise();
         return ret;
     }
@@ -145,7 +146,7 @@ namespace Tiny3D
     TResult FreeImageCodec::encode(uint8_t *&data, size_t &size, 
         const Image &image, FileType type)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         FIBITMAP *dib = nullptr;
         FIMEMORY *stream = nullptr;
@@ -161,17 +162,25 @@ namespace Tiny3D
                 TRUE);
             if (dib == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
                     "Convert from raw data failed !");
                 break;
             }
 
             stream = FreeImage_OpenMemory(0, 0);
+            if (stream == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, "Open memory failed !");
+                break;
+            }
 
             FREE_IMAGE_FORMAT fif = (FREE_IMAGE_FORMAT)type;
 
             if (!FreeImage_SaveToMemory(fif, dib, stream))
             {
+                ret = T3D_ERR_CODEC_ENCODE_TO_MEMORY;
                 T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
                     "Encode image data to target format failed !");
                 break;
@@ -181,8 +190,9 @@ namespace Tiny3D
 
             if (!FreeImage_AcquireMemory(stream, &temp, (DWORD *)&size))
             {
+                ret = T3D_ERR_CODEC_ACQUIRE_MEMORY;
                 T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
-                    "Retreive encoding data from memory failed !");
+                    "Acquire memory for encoding data failed !");
                 break;
             }
 
@@ -190,16 +200,16 @@ namespace Tiny3D
             memcpy(data, temp, size);
         } while (0);
 
-        if (stream != nullptr)
-        {
-            FreeImage_CloseMemory(stream);
-            stream = nullptr;
-        }
-
         if (dib != nullptr)
         {
             FreeImage_Unload(dib);
             dib = nullptr;
+        }
+
+        if (stream != nullptr)
+        {
+            FreeImage_CloseMemory(stream);
+            stream = nullptr;
         }
 
         return ret;
@@ -208,7 +218,188 @@ namespace Tiny3D
     TResult FreeImageCodec::decode(uint8_t *data, size_t size, Image &image, 
         FileType type)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
+
+        FIMEMORY *stream = nullptr;
+        FIBITMAP *dib = nullptr;
+
+        do 
+        {
+            stream = FreeImage_OpenMemory(data, size);
+            if (stream == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, "Open memory failed !");
+                break;
+            }
+
+            FREE_IMAGE_FORMAT fif = (FREE_IMAGE_FORMAT)type;
+            dib = FreeImage_LoadFromMemory(fif, stream);
+            if (dib == nullptr)
+            {
+                ret = T3D_ERR_CODEC_DECODE_FROM_MEMORY;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
+                    "Decode from memory failed !");
+                break;
+            }
+
+            uint32_t width = FreeImage_GetWidth(dib);
+            uint32_t height = FreeImage_GetHeight(dib);
+            int32_t bpp = FreeImage_GetBPP(dib);
+
+            FREE_IMAGE_TYPE imageType = FreeImage_GetImageType(dib);
+            FREE_IMAGE_COLOR_TYPE colorType = FreeImage_GetColorType(dib);
+            PixelFormat eFormat = E_PF_A8R8G8B8;
+
+            switch (imageType)
+            {
+            case FIT_BITMAP:
+                {
+                    if (colorType == FIC_MINISWHITE || colorType == FIC_MINISBLACK)
+                    {
+                        FIBITMAP *newBitmap = FreeImage_ConvertToGreyscale(dib);
+                        if (newBitmap == nullptr)
+                        {
+                            ret = T3D_ERR_CODEC_CONVERT_TO_GREY;
+                            T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
+                                "Convert to grey scale failed !");
+                            break;
+                        }
+
+                        FreeImage_Unload(dib);
+                        dib = newBitmap;
+                        bpp = FreeImage_GetBPP(dib);
+                    }
+                    else if (bpp < 8 || colorType == FIC_PALETTE || colorType == FIC_CMYK)
+                    {
+                        FIBITMAP *newBitmap = nullptr;
+                        if (FreeImage_IsTransparent(dib))
+                        {
+                            // 把带透明通道，转成32位
+                            newBitmap = FreeImage_ConvertTo32Bits(dib);
+                            if (newBitmap == nullptr)
+                            {
+                                ret = T3D_ERR_CODEC_CONVERT_TO_32BIT;
+                                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
+                                    "Convert to 32 bits failed !");
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            // 不带透明通道，直接转成24位
+                            newBitmap = FreeImage_ConvertTo24Bits(dib);
+                            if (newBitmap == nullptr)
+                            {
+                                ret = T3D_ERR_CODEC_CONVERT_TO_24BIT;
+                                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
+                                    "Convert to 24 bits failed !");
+                                break;
+                            }
+                        }
+
+                        FreeImage_Unload(dib);
+                        dib = newBitmap;
+                        bpp = FreeImage_GetBPP(dib);
+                    }
+                }
+                break;
+            default:
+                break;
+            }
+
+            if (ret == T3D_OK)
+            {
+                bool hasAlpha = false;
+                bool isPreMulti = false;
+
+                int32_t srcPitch = FreeImage_GetPitch(dib);
+                uint8_t *src = FreeImage_GetBits(dib);
+
+                int32_t dstPitch = srcPitch;
+                size_t imageSize = dstPitch * height;
+                uint8_t *dst = new uint8_t[imageSize];
+
+                switch (bpp)
+                {
+                case 8:
+                    {
+                        eFormat = E_PF_PALETTE8;
+                    }
+                    break;
+                case 16:
+                    {
+                        if (FreeImage_GetGreenMask(dib) == FI16_565_GREEN_MASK)
+                        {
+                            eFormat = E_PF_R5G6B5;
+                        }
+                        else
+                        {
+                            eFormat = E_PF_A1R5G5B5;
+                        }
+                    }
+                    break;
+                case 24:
+                    {
+                        eFormat = E_PF_R8G8B8;
+                    }
+                    break;
+                case 32:
+                    {
+                        eFormat = E_PF_A8R8G8B8;
+                        hasAlpha = true;
+                    }
+                    break;
+                }
+
+                int32_t y = 0;
+                uint8_t *pDst = dst;
+
+                if (type == E_FT_DDS)
+                {
+                    // DDS要翻转一次，因为DDS原点在左上角
+                    for (y = 0; y < height; ++y)
+                    {
+                        uint8_t *pSrc = src + (height - y - 1) * srcPitch;
+#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_RGB
+                        Color4::convert_B8G8R8A8toA8R8G8B8(pSrc, pDst, width);
+#elif FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+                        memcpy(pDst, pSrc, dstPitch);
+#endif
+                        pDst += dstPitch;
+                    }
+                }
+                else
+                {
+                    for (y = 0; y < height; ++y)
+                    {
+                        uint8_t *pSrc = src + y * srcPitch;
+#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_RGB
+                        Color4::convert_B8G8R8A8toA8R8G8B8(pSrc, pDst, width);
+#elif FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+                        memcpy(pDst, pSrc, dstPitch);
+#endif
+                        pDst += dstPitch;
+                    }
+                }
+
+                setImageDimension(image, width, height, dstPitch);
+                setImageInfo(image, bpp, hasAlpha, isPreMulti, eFormat);
+                setImageData(image, dst, imageSize);
+            }
+        } while (0);
+
+        if (dib != nullptr)
+        {
+            FreeImage_Unload(dib);
+            dib = nullptr;
+        }
+
+        if (stream != nullptr)
+        {
+            FreeImage_CloseMemory(stream);
+            stream = nullptr;
+        }
 
         return ret;
     }

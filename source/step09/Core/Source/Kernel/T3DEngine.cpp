@@ -77,7 +77,7 @@ namespace Tiny3D
     TResult Engine::init(const String &appPath, 
         const String &config /* = "Tiny3D.cfg" */)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do
         {
@@ -92,56 +92,56 @@ namespace Tiny3D
 
             // 初始化应用程序框架，这个需要放在最前面，否则平台相关接口均不能用
             ret = initApplication();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
 
             // 初始化日志系统，这个需要放在前面，避免日志无法输出
             ret = initLogSystem();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
 
             // 初始化事件系统
             ret = initEventSystem();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
 
             // 初始化对象追踪器
             ret = initObjectTracer();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
 
             // 初始化各种管理器
             ret = initManagers();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
 
             // 加载配置文件
             ret = loadConfig(config);
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
 
             // 加载配置文件中指定的插件
             ret = loadPlugins();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
 
             // 创建渲染窗口
             ret = createRenderWindow();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
@@ -198,7 +198,7 @@ namespace Tiny3D
 
     TResult Engine::installPlugin(Plugin *plugin)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -222,7 +222,7 @@ namespace Tiny3D
 
             // 安装插件
             ret = plugin->install();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 mPlugins.erase(plugin->getName());
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Install plugin [%s] failed !",
@@ -232,7 +232,7 @@ namespace Tiny3D
 
             // 启动插件
             ret = plugin->startup();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 mPlugins.erase(plugin->getName());
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Startup plugin [%s] failed !",
@@ -246,7 +246,7 @@ namespace Tiny3D
 
     TResult Engine::uninstallPlugin(Plugin *plugin)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -258,7 +258,7 @@ namespace Tiny3D
             }
 
             ret = plugin->shutdown();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Shutdown plugin [%s] failed !",
                     plugin->getName().c_str());
@@ -266,7 +266,7 @@ namespace Tiny3D
             }
 
             ret = plugin->uninstall();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
 
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Uninstall plugin [%s] failed !",
@@ -286,7 +286,7 @@ namespace Tiny3D
     {
         T3D_LOG_INFO(LOG_TAG_ENGINE, "Load plugin %s ...", name.c_str());
 
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -321,7 +321,7 @@ namespace Tiny3D
             }
 
             ret = pFunc();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
@@ -336,7 +336,7 @@ namespace Tiny3D
     {
         T3D_LOG_INFO(LOG_TAG_ENGINE, "Unload plugin %s ...", name.c_str());
 
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -361,7 +361,7 @@ namespace Tiny3D
             }
 
             ret = pFunc();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
@@ -376,14 +376,14 @@ namespace Tiny3D
 
     TResult Engine::addArchiveCreator(ArchiveCreator *creator)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         mArchiveMgr->addArchiveCreator(creator);
         return ret;
     }
 
     TResult Engine::removeArchiveCreator(ArchiveCreator *creator)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         mArchiveMgr->removeArchiveCreator(creator->getType());
         return ret;
     }
@@ -392,7 +392,7 @@ namespace Tiny3D
 
     TResult Engine::initApplication()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do
         {
@@ -404,7 +404,7 @@ namespace Tiny3D
             }
 
             ret = theApp->init();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
@@ -436,13 +436,13 @@ namespace Tiny3D
     TResult Engine::initEventSystem()
     {
         mEventMgr = new EventManager(10);
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult Engine::initObjectTracer()
     {
         mObjTracer = new ObjectTracer();
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult Engine::initManagers()
@@ -450,17 +450,17 @@ namespace Tiny3D
         mArchiveMgr = ArchiveManager::create();
         mDylibMgr = DylibManager::create();
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult Engine::loadConfig(const String &cfgPath)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
 #if defined (T3D_OS_ANDROID)
         // Android，只能读取apk包里面的文件
         ret = loadPlugin("ZipArchive");
-        if (ret != T3D_ERR_OK)
+        if (ret != T3D_OK)
         {
             return ret;
         }
@@ -483,7 +483,7 @@ namespace Tiny3D
 
     TResult Engine::loadPlugins()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -509,7 +509,7 @@ namespace Tiny3D
             if (itr == pluginSettings.end())
             {
                 // 虽然没有获取到任何插件，但是仍然是合法的，正常返回
-                ret = T3D_ERR_OK;
+                ret = T3D_OK;
                 break;
             }
 
@@ -520,7 +520,7 @@ namespace Tiny3D
             {
                 String name = i->stringValue();
                 ret = loadPlugin(name);
-                if (ret != T3D_ERR_OK)
+                if (ret != T3D_OK)
                 {
                     break;
                 }
@@ -534,7 +534,7 @@ namespace Tiny3D
 
     TResult Engine::unloadPlugins()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         DylibsItr itr = mDylibs.begin();
         while (itr != mDylibs.end())
@@ -545,7 +545,7 @@ namespace Tiny3D
             if (pFunc != nullptr)
             {
                 ret = pFunc();
-                if (ret == T3D_ERR_OK)
+                if (ret == T3D_OK)
                 {
                     DylibManager::getInstance().unloadDylib(dylib);
                 }
@@ -562,7 +562,7 @@ namespace Tiny3D
 
     TResult Engine::createRenderWindow()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -586,7 +586,7 @@ namespace Tiny3D
             // 创建窗口
             mWindow = new Window();
             ret = mWindow->create(title.c_str(), x, y, w, h, flags);
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }

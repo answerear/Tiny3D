@@ -52,13 +52,13 @@ namespace Tiny3D
     TResult FileSystemArchive::load()
     {
         initFileStreamCache();
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult FileSystemArchive::unload()
     {
         clearFileStreamCache();
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     ResourcePtr FileSystemArchive::clone() const
@@ -91,12 +91,12 @@ namespace Tiny3D
         String path = Engine::getInstance().getAppPath() + getLocation() 
             + Dir::NATIVE_SEPARATOR + name;
         FileDataStream *fs = nullptr;
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
             ret = getFileStreamFromCache(name, fs);
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
@@ -135,12 +135,12 @@ namespace Tiny3D
         String path = Engine::getInstance().getAppPath() + getLocation() 
             + Dir::NATIVE_SEPARATOR + name;
         FileDataStream *fs = nullptr;
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
             ret = getFileStreamFromCache(name, fs);
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
@@ -178,7 +178,7 @@ namespace Tiny3D
     TResult FileSystemArchive::getFileStreamFromCache(const String &name,
         FileDataStream *&stream)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {

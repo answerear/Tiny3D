@@ -130,23 +130,23 @@ namespace Tiny3D
 
         mWidth = mHeight = mBPP = mPitch = 0;
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult Image::load(const String &path)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do
         {
             ret = destroy();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
 
 //             bool ret = T3D_IMAGE_CODEC.decode(path, *this);
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
@@ -160,18 +160,18 @@ namespace Tiny3D
 
     TResult Image::load(DataStream &stream)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         
         do 
         {
             ret = destroy();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
 //             bool ret = T3D_IMAGE_CODEC.decode(stream, *this);
 
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
@@ -187,12 +187,12 @@ namespace Tiny3D
         int32_t bpp, int32_t pitch, PixelFormat format, 
         bool copySource /* = false */)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
             ret = destroy();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
@@ -231,7 +231,7 @@ namespace Tiny3D
     {
 //         ImageCodecBase::FileType eType = (ImageCodecBase::FileType)getFileType(fileType);
 //         return T3D_IMAGE_CODEC.encode(path, *this, eType);
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult Image::save(DataStream &stream, 
@@ -239,12 +239,12 @@ namespace Tiny3D
     {
 //         ImageCodecBase::FileType eType = (ImageCodecBase::FileType)getFileType(fileType);
 //         return T3D_IMAGE_CODEC.encode(stream, *this, eType);
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult Image::flip()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
 //         FIBITMAP *dib = nullptr;
 // 
@@ -284,7 +284,7 @@ namespace Tiny3D
 
     TResult Image::mirror()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
 //         FIBITMAP *dib = nullptr;
 // 
@@ -324,7 +324,7 @@ namespace Tiny3D
 
     TResult Image::fill(const Color4 &rkColor)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
 //         FIBITMAP *dib = nullptr;
 // 
@@ -366,7 +366,7 @@ namespace Tiny3D
     TResult Image::copy(const Image &image, Rect *srcRect /* = nullptr */, 
         Rect *dstRect /* = nullptr */, Filter filter /* = E_FILTER_BILINEAR */)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
 //         FIBITMAP *dib = nullptr;
 //         FIBITMAP *newdib = nullptr;
@@ -536,7 +536,7 @@ namespace Tiny3D
 
     TResult Image::convert(PixelFormat format)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do
         {
@@ -551,7 +551,7 @@ namespace Tiny3D
 
     TResult Image::convert(Image &image, PixelFormat format) const
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do
         {

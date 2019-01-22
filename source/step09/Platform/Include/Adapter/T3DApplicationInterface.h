@@ -36,7 +36,7 @@ namespace Tiny3D
 
         /**
          * @brief 初始化应用程序
-         * @return 调用成功返回T3D_ERR_OK
+         * @return 调用成功返回T3D_OK
          */
         virtual TResult init() = 0;
 

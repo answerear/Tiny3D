@@ -98,7 +98,7 @@ namespace Tiny3D
         /**
          * @brief 从文件加载图像数据
          * @param [in] path : 文件全路径
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          * @note 本接口读取文件后会自动识别文件格式来解码
          * @see TResult load(DataStream &stream)
          */
@@ -107,7 +107,7 @@ namespace Tiny3D
         /**
          * @brief 从内存加载图像数据
          * @param [in] stream : 数据输入流
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          * @note 本接口自动识别数据流的格式，并且解析数据流
          * @see TResult load(const String &path);
          */
@@ -122,7 +122,7 @@ namespace Tiny3D
          * @param [in] pitch : 图像跨度
          * @param [in] format : 图像像素格式
          * @param [in] copySource : 是否深拷贝一份数据到内部维护
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult load(uint8_t *data, int32_t width, int32_t height, int32_t bpp, 
             int32_t pitch, PixelFormat format, bool copySource = false);
@@ -131,7 +131,7 @@ namespace Tiny3D
          * @brief 把图像保存到文件中
          * @param [in] path : 文件全路径
          * @param [in] fileType : 要保存的文件类型，默认是PNG文件
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult save(const String &path,
             const String &fileType = FILETYPE_PNG) const;
@@ -140,7 +140,7 @@ namespace Tiny3D
          * @brief 把图像保存到文件中
          * @param [in] stream : 输出的数据流对象
          * @param [in] fileType : 要保存的文件类型，默认是PNG文件
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult save(DataStream &stream,
             const String &fileType = FILETYPE_PNG) const;
@@ -173,7 +173,7 @@ namespace Tiny3D
          * @param [in] image : 源图像
          * @param [in] srcRect : 要复制的源区域，默认nullptr为整个区域
          * @param [in] dstRect : 要复制过去的目标区域，默认nullptr为整个区域
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          * @note 当源和目标区域不相同大小时，自动缩放来复制，
          *          源和目标图像必须要像素格式一致，否则调用失败。
          * @note 当自动缩放时，会导致性能下降

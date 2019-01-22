@@ -52,7 +52,7 @@ namespace Tiny3D
 
     int32_t System::init()
     {
-        int32_t ret = T3D_ERR_OK;
+        int32_t ret = T3D_OK;
 
         do
         {
@@ -64,7 +64,7 @@ namespace Tiny3D
             }
             
             ret  = mTimerMgr->init();
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
                 break;
             
         } while (0);

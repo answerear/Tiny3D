@@ -75,7 +75,7 @@ namespace Tiny3D
 
     TResult TimerService::stopTimer(uint32_t timerID)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do
         {
@@ -109,7 +109,7 @@ namespace Tiny3D
 
     TResult TimerService::init()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         mIsRunning = true;
         mPollThread = TThread(std::bind(&TimerService::update, this));
         return ret;
@@ -181,6 +181,6 @@ namespace Tiny3D
 
         mTimerEventQueue.clear();
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 }

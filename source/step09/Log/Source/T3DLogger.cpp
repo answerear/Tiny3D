@@ -132,7 +132,7 @@ namespace Tiny3D
         /// 不管是否要输出日志，都提交一个检查过期日志文件的异步任务
         commitCheckExpiredTask();
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     void Logger::trace(Level level, const char *filename, int32_t line,
@@ -567,7 +567,7 @@ namespace Tiny3D
         delete task;
         mTaskType = LogTask::E_TYPE_NONE;
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult Logger::processFlushCacheTask(LogTask *task)
@@ -579,6 +579,6 @@ namespace Tiny3D
         delete task;
         mTaskType = LogTask::E_TYPE_NONE;
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 }

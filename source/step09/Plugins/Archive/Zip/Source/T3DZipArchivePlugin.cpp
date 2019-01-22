@@ -43,7 +43,7 @@ namespace Tiny3D
 
     TResult ZipArchivePlugin::install()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         mZipCreator = new ZipArchiveCreator();
         Engine::getInstance().addArchiveCreator(mZipCreator);
@@ -53,21 +53,21 @@ namespace Tiny3D
 
     TResult ZipArchivePlugin::startup()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
 
     TResult ZipArchivePlugin::shutdown()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
 
     TResult ZipArchivePlugin::uninstall()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         Engine::getInstance().removeArchiveCreator(mZipCreator);
         delete mZipCreator;
         mZipCreator = nullptr;

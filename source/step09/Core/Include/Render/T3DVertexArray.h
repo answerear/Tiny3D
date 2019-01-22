@@ -51,21 +51,21 @@ namespace Tiny3D
         /**
          * @brief 设置顶点声明
          * @param [in] decl : 顶点声明对象
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult setVertexDeclaration(VertexDeclarationPtr decl) = 0;
 
         /**
          * @brief 添加一个顶点缓冲
          * @param [in] vbo : 顶点缓冲对象
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult addVertexBuffer(HardwareVertexBufferPtr vbo) = 0;
 
         /**
          * @brief 设置索引缓冲
          * @param [in] ibo : 索引缓冲对象
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult setIndexBuffer(HardwareIndexBuffer ibo) = 0;
 

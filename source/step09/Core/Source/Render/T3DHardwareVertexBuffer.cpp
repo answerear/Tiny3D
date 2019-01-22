@@ -219,7 +219,7 @@ namespace Tiny3D
         const VertexAttribute &vertexAttribute)
     {
         mVertexAttributes.push_back(vertexAttribute);
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult VertexDeclaration::insertAttribute(size_t pos, 
@@ -239,7 +239,7 @@ namespace Tiny3D
 
         itr = mVertexAttributes.insert(itr, vertexAttribute);
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult VertexDeclaration::removeAttribute(size_t pos)
@@ -259,7 +259,7 @@ namespace Tiny3D
         }
 
         mVertexAttributes.erase(itr);
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult VertexDeclaration::removeAttribute(
@@ -272,7 +272,7 @@ namespace Tiny3D
             if (itr->getSemantic() == semantic)
             {
                 mVertexAttributes.erase(itr);
-                ret = T3D_ERR_OK;
+                ret = T3D_OK;
                 break;
             }
             ++itr;
@@ -284,7 +284,7 @@ namespace Tiny3D
     TResult VertexDeclaration::removeAllAttributes()
     {
         mVertexAttributes.clear();
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult VertexDeclaration::updateAttribute(size_t pos, size_t stream, 
@@ -307,7 +307,7 @@ namespace Tiny3D
 
         *itr = VertexAttribute(stream, offset, type, semantic);
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     const VertexAttribute *VertexDeclaration::findAttributeBySemantic(

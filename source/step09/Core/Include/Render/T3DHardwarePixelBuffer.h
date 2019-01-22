@@ -78,7 +78,7 @@ namespace Tiny3D
          *                       表示整个目标区域，会自动缩放匹配源区域
          * @param [in] srcRect : 源数据区域，默认为nullptr的时候，
          *                       表示整个源数据区域，会自动缩放匹配目标区域
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          * @remarks dstRect 和 srcRect 均为nullptr的时候，
          *          会自动缩放匹配源和目标区域
          */
@@ -92,7 +92,7 @@ namespace Tiny3D
          *                       表示整个源目标区域，会自动缩放匹配目标区域
          * @param [in] dstRect : 目标数据区域，默认为nullptr的时候，
          *                       表示整个目标区域，会自动缩放匹配源区域
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          * @note dstRect和srcRect均为nullptr的时候，会自动缩放匹配源和目标区域
          */
         virtual TResult readImage(const Image &image, Rect *srcRect = nullptr, 
@@ -105,7 +105,7 @@ namespace Tiny3D
          *                      表示整个目标区域，会自动缩放匹配源区域
          * @param [in] srcRect : 源区域，默认为nullptr的时候，
          *                      表示整个源目标区域，会自动缩放匹配目标区域
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          * @note dstRect和srcRect均为nullptr的时候，会自动缩放匹配源和目标区域
          */
         virtual TResult writeImage(Image &image, Rect *dstRect = nullptr, 

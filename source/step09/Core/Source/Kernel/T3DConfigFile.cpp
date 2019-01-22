@@ -73,7 +73,7 @@ namespace Tiny3D
             {
                 // 从档案结构系统中获取文件内容
                 ret = mArchive->read(mFilename, stream);
-                if (ret != T3D_ERR_OK)
+                if (ret != T3D_OK)
                 {
                     T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
                         "Read config file [%s] failed !",
@@ -132,7 +132,7 @@ namespace Tiny3D
     TResult ConfigFile::parseXML(const tinyxml2::XMLDocument &doc, 
         Settings &settings)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -167,7 +167,7 @@ namespace Tiny3D
     TResult ConfigFile::parseXMLDict(const tinyxml2::XMLElement *root, 
         VariantMap &dict)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         bool bKeyFound = false;
         String key;
@@ -202,7 +202,7 @@ namespace Tiny3D
                     bKeyFound = false;
                     VariantMap subDict;
                     ret = parseXMLDict(child, subDict);
-                    if (ret == T3D_ERR_OK)
+                    if (ret == T3D_OK)
                         dict.insert(VariantMapValue(key, subDict));
                     else
                         break;
@@ -223,7 +223,7 @@ namespace Tiny3D
                     bKeyFound = false;
                     VariantArray subArray;
                     ret = parseXMLArray(child, subArray);
-                    if (ret == T3D_ERR_OK)
+                    if (ret == T3D_OK)
                         dict.insert(VariantMapValue(key, subArray));
                     else
                         break;
@@ -317,7 +317,7 @@ namespace Tiny3D
     TResult ConfigFile::parseXMLArray(const tinyxml2::XMLElement *root, 
         VariantArray &arr)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         String key;
         const tinyxml2::XMLElement *child = root->FirstChildElement();
@@ -330,7 +330,7 @@ namespace Tiny3D
             {
                 VariantMap subDict;
                 ret = parseXMLDict(child, subDict);
-                if (ret == T3D_ERR_OK)
+                if (ret == T3D_OK)
                     arr.push_back(subDict);
                 else
                     break;
@@ -339,7 +339,7 @@ namespace Tiny3D
             {
                 VariantArray subArray;
                 ret = parseXMLArray(child, subArray);
-                if (ret == T3D_ERR_OK)
+                if (ret == T3D_OK)
                     arr.push_back(subArray);
                 else
                     break;
@@ -388,14 +388,14 @@ namespace Tiny3D
 
     TResult ConfigFile::saveXML(const Settings &settings)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         
         do 
         {
             // 构建 XML 格式文件
             tinyxml2::XMLDocument doc;
             ret = buildXML(doc, settings);
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
             {
                 break;
             }
@@ -419,7 +419,7 @@ namespace Tiny3D
                 // 保存到档案系统中的文件
                 MemoryDataStream stream((uchar_t*)content, contentSize);
                 ret = mArchive->write(mFilename, stream);
-                if (ret != T3D_ERR_OK)
+                if (ret != T3D_OK)
                 {
                     T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
                         "Write config file [%s] failed !", mFilename.c_str());
@@ -469,7 +469,7 @@ namespace Tiny3D
 
         TResult ret = buildXMLDict(doc, root, settings);
 
-        if (ret == T3D_ERR_OK)
+        if (ret == T3D_OK)
         {
             plist->LinkEndChild(root);
         }
@@ -480,7 +480,7 @@ namespace Tiny3D
     TResult ConfigFile::buildXMLDict(tinyxml2::XMLDocument &doc,
         tinyxml2::XMLElement *root, const VariantMap &dict)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         VariantMapConstItr itr = dict.begin();
 
         while (itr != dict.end())
@@ -495,7 +495,7 @@ namespace Tiny3D
             root->LinkEndChild(child);
 
             ret = buildXMLVariant(doc, root, value);
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
                 break;
 
             ++itr;
@@ -507,7 +507,7 @@ namespace Tiny3D
     TResult ConfigFile::buildXMLArray(tinyxml2::XMLDocument &doc,
         tinyxml2::XMLElement *root, const VariantArray &arr)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         tinyxml2::XMLElement *child = nullptr;
         VariantArrayConstItr itr = arr.begin();
 
@@ -516,7 +516,7 @@ namespace Tiny3D
             const Variant &value = *itr;
 
             ret = buildXMLVariant(doc, root, value);
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
                 break;
 
             ++itr;
@@ -528,7 +528,7 @@ namespace Tiny3D
     TResult ConfigFile::buildXMLList(tinyxml2::XMLDocument &doc, 
         tinyxml2::XMLElement *root, const VariantList &list)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         tinyxml2::XMLElement *child = nullptr;
         VariantListConstItr itr = list.begin();
 
@@ -537,7 +537,7 @@ namespace Tiny3D
             const Variant &value = *itr;
 
             ret = buildXMLVariant(doc, root, value);
-            if (ret != T3D_ERR_OK)
+            if (ret != T3D_OK)
                 break;
 
             ++itr;
@@ -549,7 +549,7 @@ namespace Tiny3D
     TResult ConfigFile::buildXMLVariant(tinyxml2::XMLDocument &doc, 
         tinyxml2::XMLElement *root, const Variant &value)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -612,7 +612,7 @@ namespace Tiny3D
                 const VariantArray &val = value.arrayValue();
                 child = doc.NewElement(TAG_NAME_ARRAY);
                 ret = buildXMLArray(doc, child, val);
-                if (ret == T3D_ERR_OK)
+                if (ret == T3D_OK)
                     root->LinkEndChild(child);
                 else
                     break;
@@ -622,7 +622,7 @@ namespace Tiny3D
                 const VariantList &val = value.listValue();
                 child = doc.NewElement(TAG_NAME_ARRAY);
                 ret = buildXMLList(doc, child, val);
-                if (ret == T3D_ERR_OK)
+                if (ret == T3D_OK)
                     root->LinkEndChild(child);
                 else
                     break;
@@ -632,7 +632,7 @@ namespace Tiny3D
                 const VariantMap &val = value.mapValue();
                 child = doc.NewElement(TAG_NAME_DICT);
                 ret = buildXMLDict(doc, child, val);
-                if (ret == T3D_ERR_OK)
+                if (ret == T3D_OK)
                     root->LinkEndChild(child);
                 else
                     break;

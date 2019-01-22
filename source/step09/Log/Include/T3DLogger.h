@@ -108,7 +108,7 @@ namespace Tiny3D
          * @param [in] appID : 标识当前应用程序的ID，以便区分日志文件
          * @param [in] tag : 额外的应用程序标签，给日志文件名附加额外信息以作区别
          * @param [in] force : 是否忽略日志级别，全量日志输出
-         * @return 调用成功返回T3D_ERR_OK
+         * @return 调用成功返回T3D_OK
          * @note 调用该函数前，请先通过setStrategy()或者setLevel()、
          *      setMaxCacheSize()、setMaxCacheTime()设置好日志输出策略，
          *      否则会用默认策略

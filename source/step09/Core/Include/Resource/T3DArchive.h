@@ -62,7 +62,7 @@ namespace Tiny3D
          * @brief 从档案读取指定文件到数据流中
          * @param [in] name : 文件名称
          * @param [in][out] stream : 数据流
-         * @return 读成功返回T3D_ERR_OK
+         * @return 读成功返回T3D_OK
          */
         virtual TResult read(const String &name, MemoryDataStream &stream) = 0;
 
@@ -70,7 +70,7 @@ namespace Tiny3D
          * @brief 写数据流到档案里的指定文件中
          * @param [in] name : 文件名称
          * @param [in] stream : 数据流
-         * @return 写成功返回T3D_ERR_OK
+         * @return 写成功返回T3D_OK
          */
         virtual TResult write(const String &name, const MemoryDataStream &stream) = 0;
 

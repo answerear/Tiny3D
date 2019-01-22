@@ -48,14 +48,14 @@ namespace Tiny3D
         /**
          * @brief 添加图像编解码器对象
          * @param [in] codec : 编解码器对象
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult addImageCodec(ImageCodecBasePtr codec);
 
         /**
          * @brief 移除图像编解码器对象
          * @param [in] codec : 编解码器对象
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult removeImageCodec(ImageCodecBasePtr codec);
 
@@ -64,7 +64,7 @@ namespace Tiny3D
          * @param [in] name : 文件名
          * @param [in] image : 数据源的图像对象
          * @param [in] type : 图像文件格式类型，默认PNG格式
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult encode(const String &name, const Image &image, 
             ImageCodecBase::FileType type = ImageCodecBase::E_FT_PNG);
@@ -74,7 +74,7 @@ namespace Tiny3D
          * @param [in][out] stream : 数据流对象
          * @param [in] image : 数据源的图像对象
          * @param [in] type : 图像文件格式类型，默认PNG格式
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult encode(DataStream &stream, const Image &image, 
             ImageCodecBase::FileType type = ImageCodecBase::E_FT_PNG);
@@ -84,7 +84,7 @@ namespace Tiny3D
          * @param [in][out] data : 编码后返回的数据缓冲区
          * @param [in][out] size : 编码后返回的数据缓冲区大小
          * @param [in] type : 图像文件格式类型，默认PNG格式
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult encode(uint8_t *&data, size_t &size, const Image &image, 
             ImageCodecBase::FileType type = ImageCodecBase::E_FT_PNG);
@@ -94,7 +94,7 @@ namespace Tiny3D
          * @param [in] name : 图像文件路径
          * @param [in][out] image : 图像对象
          * @param [in] type : 图像文件格式类型，默认是根据文件内容自动判断
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult decode(const String &name, Image &image, 
             ImageCodecBase::FileType type = ImageCodecBase::E_FT_UNKNOWN);
@@ -104,7 +104,7 @@ namespace Tiny3D
          * @param [in] stream : 数据流对象
          * @param [in][out] image : 图像对象
          * @param [in] type : 图像文件格式类型，默认是根据数据流内容自动判断
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult decode(DataStream &stream, Image &image, 
             ImageCodecBase::FileType type = ImageCodecBase::E_FT_UNKNOWN);
@@ -114,7 +114,7 @@ namespace Tiny3D
          * @param [in] data : 要解码的数据缓冲区
          * @param [in] size : 要解码的数据缓冲区大小
          * @param [in] type : 图像文件格式类型，默认是根据数据流内容自动判断
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult decode(uint8_t *data, size_t size, Image &image, 
             ImageCodecBase::FileType type = ImageCodecBase::E_FT_UNKNOWN);

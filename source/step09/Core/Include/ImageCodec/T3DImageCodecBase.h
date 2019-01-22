@@ -118,7 +118,7 @@ namespace Tiny3D
          * @param [in][out] size : 编码后的数据大小
          * @param [in] image : 图像对象，数据源
          * @param [in] type : 文件类型
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          * @remarks 具体图像类型编解码器实现本接口
          */
         virtual TResult encode(uint8_t *&data, size_t &size, const Image &image,
@@ -130,7 +130,7 @@ namespace Tiny3D
          * @param [in] size : 要解码的数据大小
          * @param [in] image : 图像对象，解码后的数据保存在此对象中
          * @param [in] type : 图像类型
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          * @remarks 具体图像类型编解码器实现本接口
          */
         virtual TResult decode(uint8_t *data, size_t size, Image &image,

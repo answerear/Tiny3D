@@ -72,7 +72,7 @@ namespace Tiny3D
          * @param [in] param : 渲染窗口需要必要参数
          * @param [in] paramEx : 渲染窗口需要的额外参数，不同平台的额外信息可以
          *                      通过这里传递
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          * @remarks 具体渲染系统子类实现本接口
          */
         virtual TResult create(
@@ -82,14 +82,14 @@ namespace Tiny3D
 
         /**
          * @brief 销毁窗口
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          * @remarks 具体渲染系统子类实现本接口
          */
         virtual TResult destroy() = 0;
 
         /**
          * @brief 双缓冲中交换离屏缓存到显示缓存，显示出图像
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          * @remarks 具体渲染系统子类实现本接口
          */
         virtual TResult swapBuffers() = 0;

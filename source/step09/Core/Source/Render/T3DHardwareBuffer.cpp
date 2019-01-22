@@ -107,14 +107,14 @@ namespace Tiny3D
     {
         T3D_ASSERT(isLocked());
 
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
             if (mUseShadowBuffer && mShadowBuffer->isLocked())
             {
                 ret = mShadowBuffer->unlock();
-                if (ret != T3D_ERR_OK)
+                if (ret != T3D_OK)
                 {
                     break;
                 }
@@ -124,7 +124,7 @@ namespace Tiny3D
             else
             {
                 ret = unlockImpl();
-                if (ret != T3D_ERR_OK)
+                if (ret != T3D_OK)
                 {
                     break;
                 }
@@ -171,7 +171,7 @@ namespace Tiny3D
 
     TResult HardwareBuffer::updateFromShadow()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         if (mUseShadowBuffer && mIsShadowBufferDirty)
         {

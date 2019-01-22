@@ -78,20 +78,20 @@ namespace Tiny3D
         /**
          * @brief 安装插件
          * @param [in] plugin : 对应的插件对象
-         * @return 成功返回 T3D_ERR_OK
+         * @return 成功返回 T3D_OK
          */
         TResult installPlugin(Plugin *plugin);
 
         /**
          * @brief 卸载插件
          * @param [in] plugin : 对应的插件对象
-         * @return 成功返回 T3D_ERR_OK
+         * @return 成功返回 T3D_OK
          */
         TResult uninstallPlugin(Plugin *plugin);
 
         /**
          * @brief 加载指定名称的插件
-         * @return 成功返回 T3D_ERR_OK
+         * @return 成功返回 T3D_OK
          */
         TResult loadPlugin(const String &name);
 
@@ -102,13 +102,13 @@ namespace Tiny3D
 
         /**
          * @brief 添加档案结构构造器
-         * @return 成功返回 T3D_ERR_OK
+         * @return 成功返回 T3D_OK
          */
         TResult addArchiveCreator(ArchiveCreator *creator);
 
         /**
          * @brief 移除档案结构构造器
-         * @return 成功返回 T3D_ERR_OK
+         * @return 成功返回 T3D_OK
          */
         TResult removeArchiveCreator(ArchiveCreator *creator);
 
@@ -156,19 +156,19 @@ namespace Tiny3D
         /**
          * @brief 加载配置文件
          * @param [in] cfgPath : 配置文件名
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult loadConfig(const String &cfgPath);
 
         /**
          * @brief 加载配置文件中指定的插件
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult loadPlugins();
 
         /**
          * @brief 卸载所有插件
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult unloadPlugins();
 

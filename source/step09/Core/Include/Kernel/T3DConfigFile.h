@@ -58,7 +58,7 @@ namespace Tiny3D
         /**
          * @brief 从XML格式文件加载
          * @param [in][out] settings : 设置项对象
-         * @return 调用成功返回T3D_ERR_OK。
+         * @return 调用成功返回T3D_OK。
          */
         TResult loadXML(Settings &settings);
 

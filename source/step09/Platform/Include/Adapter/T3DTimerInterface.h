@@ -50,7 +50,7 @@ namespace Tiny3D
         /**
          * @brief 停止定时器
          * @param [in] timerID : 有效定时器ID，通过startTimer返回
-         * @return 调用成功返回T3D_ERR_OK
+         * @return 调用成功返回T3D_OK
          */
         virtual TResult stopTimer(ID timerID) = 0;
 

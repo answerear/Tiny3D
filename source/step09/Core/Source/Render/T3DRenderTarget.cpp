@@ -82,7 +82,7 @@ namespace Tiny3D
 
     TResult RenderTarget::removeViewport(long_t nZOrder)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -105,7 +105,7 @@ namespace Tiny3D
     TResult RenderTarget::removeAllViewports()
     {
         mViewportList.clear();
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 }
 

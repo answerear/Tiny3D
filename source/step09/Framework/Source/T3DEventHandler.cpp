@@ -78,7 +78,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_EVENT_MGR.unregisterHandler(mInstance);
 
-        if (ret != T3D_ERR_OK)
+        if (ret != T3D_OK)
         {
             mInstance = T3D_INVALID_INSTANCE;
         }
@@ -88,14 +88,14 @@ namespace Tiny3D
 
     TResult EventHandler::setupEventFilter()
     {
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     TResult EventHandler::registerEvent(EventID evid)
     {
         TResult ret = T3D_EVENT_MGR.registerEvent(evid, mInstance);
 
-        if (T3D_ERR_OK == ret)
+        if (T3D_OK == ret)
         {
             mEventList.push_back(evid);
         }
@@ -107,7 +107,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_EVENT_MGR.unregisterEvent(evid, mInstance);
 
-        if (T3D_ERR_OK == ret)
+        if (T3D_OK == ret)
         {
             auto itr = mEventList.begin();
 

@@ -41,28 +41,28 @@ namespace Tiny3D
 
     TResult FreeImageCodecPlugin::install()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
 
     TResult FreeImageCodecPlugin::startup()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
 
     TResult FreeImageCodecPlugin::shutdown()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
 
     TResult FreeImageCodecPlugin::uninstall()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }

@@ -39,6 +39,6 @@ namespace Tiny3D
 
     TResult Resource::unload()
     {
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 }

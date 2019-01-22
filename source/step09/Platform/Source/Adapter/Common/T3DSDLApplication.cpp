@@ -84,7 +84,7 @@ namespace Tiny3D
             
             SDL_AddEventWatch(AppEventWatcher, nullptr);
 
-            ret = T3D_ERR_OK;
+            ret = T3D_OK;
         } while (0);
 
         return ret;

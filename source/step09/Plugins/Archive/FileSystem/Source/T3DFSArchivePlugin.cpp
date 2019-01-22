@@ -43,7 +43,7 @@ namespace Tiny3D
 
     TResult FileSystemArchivePlugin::install()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         mFSCreator = new FileSystemArchiveCreator();
         Engine::getInstance().addArchiveCreator(mFSCreator);
@@ -53,21 +53,21 @@ namespace Tiny3D
 
     TResult FileSystemArchivePlugin::startup()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
 
     TResult FileSystemArchivePlugin::shutdown()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
 
     TResult FileSystemArchivePlugin::uninstall()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         Engine::getInstance().removeArchiveCreator(mFSCreator);
         delete mFSCreator;
         mFSCreator = nullptr;

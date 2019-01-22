@@ -104,7 +104,7 @@ namespace Tiny3D
         /**
          * @brief 移除指定深度值的视口对象
          * @param [in] zOrder : 深度值
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult removeViewport(long_t zOrder);
 

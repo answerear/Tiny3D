@@ -75,7 +75,7 @@ namespace Tiny3D
 
     TResult Dylib::load()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -113,7 +113,7 @@ namespace Tiny3D
             mIsLoaded = false;
         }
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     ResourcePtr Dylib::clone() const

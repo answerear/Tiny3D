@@ -128,13 +128,13 @@ namespace Tiny3D
 
         /**
          * @brief 初始化渲染器
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult init() = 0;
 
         /**
          * @brief 销毁渲染器
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult destroy() = 0;
 
@@ -145,7 +145,7 @@ namespace Tiny3D
 
         /**
          * @brief 渲染一帧
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult render();
 
@@ -162,13 +162,13 @@ namespace Tiny3D
 
         /**
          * @brief 开始渲染
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult beginRender() = 0;
 
         /**
          * @brief 结束渲染
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult endRender() = 0;
 
@@ -184,7 +184,7 @@ namespace Tiny3D
          * @brief 开启或者关闭某种能力
          * @param [in] cap : 能力枚举值
          * @param [in] enabled : 开关标记
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          * @remarks 如果具体渲染系统本身不具备相应的能力，则本接口调用无效
          * @see Renderer::Capability
          */
@@ -194,7 +194,7 @@ namespace Tiny3D
          * @brief 设置变换矩阵
          * @param [in] state : 变换矩阵类型
          * @param [in] mat : 变换矩阵
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult setTransform(TransformState state, 
             const Matrix4 &mat) = 0;
@@ -202,21 +202,21 @@ namespace Tiny3D
         /**
          * @brief 设置视图变换矩阵
          * @param [in] mat : 变换矩阵
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult setViewTransform(const Matrix4 &mat);
 
         /**
          * @brief 设置世界变换矩阵
          * @param [in] mat : 变换矩阵
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult setWorldTransform(const Matrix4 &mat);
 
         /**
          * @brief 设置投影变换矩阵
          * @param [in] mat : 变换矩阵
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         TResult setProjectionTransform(const Matrix4 &mat);
 
@@ -230,7 +230,7 @@ namespace Tiny3D
         /**
          * @brief 设置裁剪模式
          * @param [in] mode : 裁剪模式
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult setCullingMode(CullingMode mode) = 0;
 
@@ -251,7 +251,7 @@ namespace Tiny3D
 
         /**
          * @brief 设置渲染视口
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult setViewport(ViewportPtr viewport) = 0;
 
@@ -263,7 +263,7 @@ namespace Tiny3D
         /**
          * @brief 绘制顶点数组
          * @param [in] vao : 顶点数组对象
-         * @return 调动成功返回 T3D_ERR_OK
+         * @return 调动成功返回 T3D_OK
          */
         virtual TResult drawVertexArray(VertexArrayPtr vao) = 0;
 
@@ -273,7 +273,7 @@ namespace Tiny3D
          * @param [in] vbo : 顶点缓冲
          * @param [in] startIdx : 顶点缓冲区的起始位置
          * @param [in] priCount : 图元数量
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult drawVertexList(PrimitiveType priType,
             HardwareVertexBufferPtr vbo, size_t startIdx, size_t priCount) = 0;
@@ -285,7 +285,7 @@ namespace Tiny3D
          * @param [in] ibo : 索引缓冲
          * @param [in] startIdx : 顶点索引起始位置偏移
          * @param [in] priCount : 图元数量
-         * @return 调用成功返回 T3D_ERR_OK
+         * @return 调用成功返回 T3D_OK
          */
         virtual TResult drawIndexList(PrimitiveType priType,
             HardwareVertexBufferPtr vbo, HardwareIndexBufferPtr ibo,

@@ -55,7 +55,7 @@ namespace Tiny3D
 
     TResult ZipArchive::load()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -83,7 +83,7 @@ namespace Tiny3D
             mZipFile = nullptr;
         }
         
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
     ResourcePtr ZipArchive::clone() const
@@ -138,7 +138,7 @@ namespace Tiny3D
 
     TResult ZipArchive::read(const String &name, MemoryDataStream &stream)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
