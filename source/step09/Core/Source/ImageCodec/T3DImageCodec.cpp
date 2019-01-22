@@ -18,6 +18,9 @@
  ******************************************************************************/
 
 #include "ImageCodec/T3DImageCodec.h"
+#include "Resource/T3DArchiveManager.h"
+#include "Resource/T3DArchive.h"
+#include "T3DErrorDef.h"
 
 
 namespace Tiny3D
@@ -49,16 +52,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImageCodec::addImageCodec(ImageCodecBasePtr codec)
+    TResult ImageCodec::addImageCodec(ImageCodecBase::FileType type,
+        ImageCodecBasePtr codec)
     {
         TResult ret = T3D_OK;
+
+        mCodecMap.insert(ImageCodecMapValue(type, codec));
 
         return ret;
     }
 
-    TResult ImageCodec::removeImageCodec(ImageCodecBasePtr codec)
+    TResult ImageCodec::removeImageCodec(ImageCodecBase::FileType type)
     {
         TResult ret = T3D_OK;
+
+        mCodecMap.erase(type);
 
         return ret;
     }
@@ -70,6 +78,31 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        FileDataStream fs;
+
+        do 
+        {
+            if (!fs.open(name.c_str(), FileDataStream::E_MODE_WRITE_ONLY))
+            {
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
+                    "Open file %s failed when encoding image !",
+                    name.c_str());
+                break;
+            }
+
+            ret = encode(fs, image, type);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+        } while (0);
+
+        if (fs.isOpened())
+        {
+            fs.close();
+        }
+
         return ret;
     }
 
@@ -78,6 +111,26 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        do 
+        {
+            uint8_t *data = nullptr;
+            size_t size = 0;
+
+            ret = encode(data, size, image, type);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            if (stream.write(data, size) != size)
+            {
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
+                    "Write file content failed !");
+            }
+            
+            T3D_SAFE_DELETE_ARRAY(data);
+        } while (0);
+
         return ret;
     }
 
@@ -85,6 +138,19 @@ namespace Tiny3D
         ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_PNG */)
     {
         TResult ret = T3D_OK;
+
+        do 
+        {
+            ImageCodecBasePtr codec = getImageCodec(type);
+            if (codec == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC, 
+                    "Could not find the destinate image codec !");
+                break;
+            }
+
+            ret = codec->encode(data, size, image, type);
+        } while (0);
 
         return ret;
     }
@@ -96,6 +162,29 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        do 
+        {
+            ArchivePtr archive;
+            if (!T3D_ARCHIVE_MGR.getArchive(name, archive))
+            {
+                ret = T3D_ERR_IMG_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
+                    "Could not find the archive for file %s !", name.c_str());
+                break;
+            }
+            
+            MemoryDataStream stream;
+            ret = archive->read(name, stream);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
+                    "Read image content failed from file %s ! ", name.c_str());
+                break;
+            }
+
+            ret = decode(stream, image, type);
+        } while (0);
+
         return ret;
     }
 
@@ -103,7 +192,22 @@ namespace Tiny3D
         ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_UNKNOWN */)
     {
         TResult ret = T3D_OK;
-        
+
+        do 
+        {
+            uint8_t *data = nullptr;
+            size_t size = stream.read(data);
+            if (size == 0)
+            {
+                ret = T3D_ERR_FILE_DATA_MISSING;
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC, 
+                    "Read image content failed !");
+                break;
+            }
+
+            ret = decode(data, size, image, type);
+        } while (0);
+
         return ret;
     }
 
@@ -111,6 +215,20 @@ namespace Tiny3D
         ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_UNKNOWN */)
     {
         TResult ret = T3D_OK;
+
+        do 
+        {
+            ImageCodecBasePtr codec = getImageCodec(data, size, type);
+            if (codec == nullptr)
+            {
+                ret = T3D_ERR_IMG_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
+                    "Could not find the image codec !");
+                break;
+            }
+
+            ret = codec->decode(data, size, image, type);
+        } while (0);
 
         return ret;
     }
@@ -139,10 +257,12 @@ namespace Tiny3D
     {
         ImageCodecBasePtr codec;
         auto itr = mCodecMap.find(type);
+
         if (itr != mCodecMap.end())
         {
             codec = itr->second;
         }
+
         return codec;
     }
 }

@@ -47,6 +47,8 @@ namespace Tiny3D
         T3D_ERR_PLG_NOT_DYLIB           = T3D_ERR_CORE + 0x0062, /**< 不是插件资源*/
         T3D_ERR_PLG_NO_FUNCTION         = T3D_ERR_CORE + 0x0063, /**< 获取插件函数失败 */
         T3D_ERR_PLG_NO_PATH             = T3D_ERR_CORE + 0x0064, /**< 无法获取到插件路径 */
+
+        T3D_ERR_IMG_NOT_FOUND           = T3D_ERR_CORE + 0x0080, /**< 找不到对应的图像编解码器 */
     };
 }
 

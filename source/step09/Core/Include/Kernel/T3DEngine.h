@@ -25,6 +25,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "DataStruct/T3DVariant.h"
+#include "ImageCodec/T3DImageCodec.h"
 
 
 namespace Tiny3D
@@ -113,6 +114,22 @@ namespace Tiny3D
         TResult removeArchiveCreator(ArchiveCreator *creator);
 
         /**
+         * @brief 添加图像编解码器
+         * @param [in] type : 文件类型
+         * @param [in] codec : 要添加的图像编解码器对象
+         * @return 成功返回 T3D_OK
+         */
+        TResult addImageCodec(ImageCodecBase::FileType type, 
+            ImageCodecBasePtr codec);
+
+        /**
+         * @brief 移除图像编解码器
+         * @param [in] type : 要移除的编解码器对应的文件类型
+         * @return 成功返回 T3D_OK
+         */
+        TResult removeImageCodec(ImageCodecBase::FileType type);
+
+        /**
          * @brief 获取应用程序路径，不包含程序名称
          */
         const String &getAppPath() const { return mAppPath;  }
@@ -197,6 +214,7 @@ namespace Tiny3D
 
         ArchiveManagerPtr   mArchiveMgr;        /**< 档案管理对象 */
         DylibManagerPtr     mDylibMgr;          /**< 动态库管理对象 */
+        ImageCodecPtr       mImageCodec;        /**< 图像编解码器对象 */
 
         Plugins             mPlugins;           /**< 当前安装的插件列表 */
         Dylibs              mDylibs;            /**< 当前加载的动态库列表 */

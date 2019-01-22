@@ -19,12 +19,14 @@
 
 
 #include "T3DFreeImageCodecPlugin.h"
+#include "T3DFreeImageCodec.h"
 
 
 namespace Tiny3D
 {
     FreeImageCodecPlugin::FreeImageCodecPlugin()
         : mName("FreeImageCodec")
+        , mImageCodec(nullptr)
     {
 
     }
@@ -42,6 +44,25 @@ namespace Tiny3D
     TResult FreeImageCodecPlugin::install()
     {
         TResult ret = T3D_OK;
+        
+        mImageCodec = FreeImageCodec::create();
+        
+        const FreeImageCodec::FileTypeList &filetypes 
+            = mImageCodec->getSupportFileTypeList();
+
+        size_t i = 0;
+
+        for (i = 0; i < filetypes.size(); ++i)
+        {
+            ImageCodecBase::FileType type = filetypes[i];
+            ret = Engine::getInstance().addImageCodec(type, mImageCodec);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                    "Install plugin failed !");
+                break;
+            }
+        }
 
         return ret;
     }
@@ -49,7 +70,6 @@ namespace Tiny3D
     TResult FreeImageCodecPlugin::startup()
     {
         TResult ret = T3D_OK;
-
         return ret;
     }
 
@@ -63,7 +83,25 @@ namespace Tiny3D
     TResult FreeImageCodecPlugin::uninstall()
     {
         TResult ret = T3D_OK;
+        
+        const FreeImageCodec::FileTypeList &filetypes
+            = mImageCodec->getSupportFileTypeList();
 
+        size_t i = 0;
+
+        for (i = 0; i < filetypes.size(); ++i)
+        {
+            ImageCodecBase::FileType type = filetypes[i];
+            ret = Engine::getInstance().removeImageCodec(type);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
+                    "uninstall plugin failed !");
+                break;
+            }
+        }
+
+        mImageCodec = nullptr;
         return ret;
     }
 }

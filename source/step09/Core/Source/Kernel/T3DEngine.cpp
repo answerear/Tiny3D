@@ -18,9 +18,12 @@
  ******************************************************************************/
 
 #include "T3DErrorDef.h"
+
 #include "Kernel/T3DEngine.h"
 #include "Kernel/T3DPlugin.h"
 #include "Kernel/T3DConfigFile.h"
+
+#include "ImageCodec/T3DImageCodec.h"
 
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveCreator.h"
@@ -61,6 +64,7 @@ namespace Tiny3D
 
         mDylibMgr = nullptr;
         mArchiveMgr = nullptr;
+        mImageCodec = nullptr;
 
         T3D_SAFE_DELETE(mWindow);
         T3D_SAFE_DELETE(mEventMgr);
@@ -390,6 +394,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Engine::addImageCodec(ImageCodecBase::FileType type,
+        ImageCodecBasePtr codec)
+    {
+        return mImageCodec->addImageCodec(type, codec);
+    }
+
+    TResult Engine::removeImageCodec(ImageCodecBase::FileType type)
+    {
+        return mImageCodec->removeImageCodec(type);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Engine::initApplication()
     {
         TResult ret = T3D_OK;
@@ -447,6 +464,7 @@ namespace Tiny3D
 
     TResult Engine::initManagers()
     {
+        mImageCodec = ImageCodec::create();
         mArchiveMgr = ArchiveManager::create();
         mDylibMgr = DylibManager::create();
 

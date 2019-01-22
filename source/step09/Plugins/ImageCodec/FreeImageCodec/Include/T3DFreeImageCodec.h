@@ -33,6 +33,13 @@ namespace Tiny3D
     class FreeImageCodec : public ImageCodecBase
     {
     public:
+        typedef TArray<ImageCodecBase::FileType>    FileTypeList;
+        typedef FileTypeList::iterator              FileTypeListItr;
+        typedef FileTypeList::const_iterator        FileTypeListConstItr;
+
+        /**
+         * @brief 创建 FreeImageCodec 对象
+         */
         static FreeImageCodecPtr create();
 
         /**
@@ -53,7 +60,6 @@ namespace Tiny3D
          * @param [in] size : 图像数据大小
          * @param [in] type : 图像文件类型，默认可以自动识别
          * @return 支持的返回true，否则返回false
-         * @remarks 具体图像类型编解码器实现本接口
          */
         virtual bool isSupportedType(uint8_t *data, size_t size,
             FileType &type) const override;
@@ -72,7 +78,6 @@ namespace Tiny3D
          * @param [in] image : 图像对象，数据源
          * @param [in] type : 文件类型
          * @return 调用成功返回 T3D_OK
-         * @remarks 具体图像类型编解码器实现本接口
          */
         virtual TResult encode(uint8_t *&data, size_t &size, const Image &image,
             FileType type) override;
@@ -84,16 +89,19 @@ namespace Tiny3D
          * @param [in] image : 图像对象，解码后的数据保存在此对象中
          * @param [in] type : 图像类型
          * @return 调用成功返回 T3D_OK
-         * @remarks 具体图像类型编解码器实现本接口
          */
         virtual TResult decode(uint8_t *data, size_t size, Image &image,
             FileType type) override;
 
-    protected:
-        typedef TArray<ImageCodecBase::FileType>    FileTypeList;
-        typedef FileTypeList::iterator              FileTypeListItr;
-        typedef FileTypeList::const_iterator        FileTypeListConstItr;
+        /**
+         * @brief 获取支持的文件类型列表
+         */
+        FileTypeList getSupportFileTypeList() const
+        {
+            return mFileTypeList;
+        }
 
+    protected:
         FileTypeList    mFileTypeList;
 
         static const size_t MAX_SUPPORTED_FILE_TYPE;

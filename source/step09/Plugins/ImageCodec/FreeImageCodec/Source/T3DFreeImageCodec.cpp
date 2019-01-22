@@ -255,7 +255,8 @@ namespace Tiny3D
             {
             case FIT_BITMAP:
                 {
-                    if (colorType == FIC_MINISWHITE || colorType == FIC_MINISBLACK)
+                    if (colorType == FIC_MINISWHITE 
+                        || colorType == FIC_MINISBLACK)
                     {
                         FIBITMAP *newBitmap = FreeImage_ConvertToGreyscale(dib);
                         if (newBitmap == nullptr)
@@ -270,7 +271,8 @@ namespace Tiny3D
                         dib = newBitmap;
                         bpp = FreeImage_GetBPP(dib);
                     }
-                    else if (bpp < 8 || colorType == FIC_PALETTE || colorType == FIC_CMYK)
+                    else if (bpp < 8 
+                        || colorType == FIC_PALETTE || colorType == FIC_CMYK)
                     {
                         FIBITMAP *newBitmap = nullptr;
                         if (FreeImage_IsTransparent(dib))

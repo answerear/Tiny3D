@@ -46,6 +46,7 @@ namespace Tiny3D
     #define LOG_TAG_IMAGE               "Image"
     #define LOG_TAG_RENDER              "Render"
     #define LOG_TAG_PLUGIN              "Plugin"
+    #define LOG_TAG_IMAGE_CODEC         "ImageCodec"
 
     class Object;
     class ObjectTracer;

@@ -69,7 +69,8 @@ namespace Tiny3D
         virtual TResult uninstall() override;
 
     protected:
-        String  mName;          /**< 插件名称 */
+        String              mName;          /**< 插件名称 */
+        FreeImageCodecPtr   mImageCodec;    /**< 图像编解码器 */
     };
 
 }

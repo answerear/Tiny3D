@@ -47,17 +47,19 @@ namespace Tiny3D
 
         /**
          * @brief 添加图像编解码器对象
+         * @param [in] tpye : 文件类型
          * @param [in] codec : 编解码器对象
          * @return 调用成功返回 T3D_OK
          */
-        TResult addImageCodec(ImageCodecBasePtr codec);
+        TResult addImageCodec(ImageCodecBase::FileType type,
+            ImageCodecBasePtr codec);
 
         /**
          * @brief 移除图像编解码器对象
-         * @param [in] codec : 编解码器对象
+         * @param [in] type : 文件类型
          * @return 调用成功返回 T3D_OK
          */
-        TResult removeImageCodec(ImageCodecBasePtr codec);
+        TResult removeImageCodec(ImageCodecBase::FileType type);
 
         /**
          * @brief 编码到指定文件名的文件
