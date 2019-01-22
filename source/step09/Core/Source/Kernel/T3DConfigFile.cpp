@@ -44,7 +44,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ConfigFile::ConfigFile(const String &filename, ArchivePtr archive /* = nullptr */)
+    ConfigFile::ConfigFile(const String &filename, 
+        ArchivePtr archive /* = nullptr */)
         : mFilename(filename)
         , mArchive(archive)
     {
@@ -74,7 +75,8 @@ namespace Tiny3D
                 ret = mArchive->read(mFilename, stream);
                 if (ret != T3D_ERR_OK)
                 {
-                    T3D_LOG_ERROR("Read config file [%s] failed !",
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Read config file [%s] failed !",
                         mFilename.c_str());
                     break;
                 }
@@ -85,10 +87,12 @@ namespace Tiny3D
             {
                 // 配置文件不在某种档案结构管理里面，就在本地文件系统，直接访问。
                 FileDataStream fs;
-                if (!fs.open(mFilename.c_str(), FileDataStream::E_MODE_READ_ONLY))
+                if (!fs.open(mFilename.c_str(), 
+                    FileDataStream::E_MODE_READ_ONLY))
                 {
                     ret = T3D_ERR_FILE_NOT_EXIST;
-                    T3D_LOG_ERROR("Open config file [%s] failed !",
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Open config file [%s] failed !",
                         mFilename.c_str());
                     break;
                 }
@@ -99,7 +103,8 @@ namespace Tiny3D
                 {
                     fs.close();
                     ret = T3D_ERR_FILE_DATA_MISSING;
-                    T3D_LOG_ERROR("Read config file [%s] data failed !",
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Read config file [%s] data failed !",
                         mFilename.c_str());
                     break;
                 }
@@ -112,7 +117,8 @@ namespace Tiny3D
             if (doc.Parse(content, contentSize) != tinyxml2::XML_NO_ERROR)
             {
                 ret = T3D_ERR_CFG_FILE_PARSING_XML;
-                T3D_LOG_ERROR("Parse xml config file [%s] failed !", 
+                T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
+                    "Parse xml config file [%s] failed !",
                     mFilename.c_str());
                 break;
             }
@@ -135,7 +141,8 @@ namespace Tiny3D
             if (plist == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR("Parse xml file [%s] failed ! Get xml node \
+                T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
+                    "Parse xml file [%s] failed ! Get xml node \
                     [plist] failed !", mFilename.c_str());
                 break;
             }
@@ -145,7 +152,8 @@ namespace Tiny3D
             if (root == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR("Parse xml file [%s] failed ! Get xml node \
+                T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                    "Parse xml file [%s] failed ! Get xml node \
                     [dict] failed !", mFilename.c_str());
                 break;
             }
@@ -175,8 +183,9 @@ namespace Tiny3D
                 {
                     // wrong format
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error key \
-                        node !", mFilename.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
+                        "Parse xml file [%s] failed ! Error key  node !", 
+                        mFilename.c_str());
                     break;
                 }
                 else
@@ -202,8 +211,8 @@ namespace Tiny3D
                 {
                     // wrong format
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error dict \
-                        node !");
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Parse xml file [%s] failed ! Error dict node !");
                     break;
                 }
             }
@@ -223,8 +232,8 @@ namespace Tiny3D
                 {
                     // wrong format
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error array \
-                        node !");
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Parse xml file [%s] failed ! Error array node !");
                     break;
                 }
             }
@@ -239,8 +248,8 @@ namespace Tiny3D
                 else
                 {
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error string \
-                        node !");
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Parse xml file [%s] failed ! Error string node !");
                     break;
                 }
             }
@@ -255,8 +264,8 @@ namespace Tiny3D
                 else
                 {
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error integer \
-                        node !");
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Parse xml file [%s] failed ! Error integer node !");
                     break;
                 }
             }
@@ -271,8 +280,8 @@ namespace Tiny3D
                 else
                 {
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error real \
-                        node !");
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Parse xml file [%s] failed ! Error real node !");
                     break;
                 }
             }
@@ -287,8 +296,8 @@ namespace Tiny3D
                 else
                 {
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error boolean \
-                        node !");
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Parse xml file [%s] failed ! Error boolean node !");
                     break;
                 }
             }
@@ -396,7 +405,8 @@ namespace Tiny3D
             if (!doc.Accept(&printer))
             {
                 ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                T3D_LOG_ERROR("Write config file [%s] to memory failed !",
+                T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                    "Write config file [%s] to memory failed !",
                     mFilename.c_str());
                 break;
             }
@@ -411,8 +421,8 @@ namespace Tiny3D
                 ret = mArchive->write(mFilename, stream);
                 if (ret != T3D_ERR_OK)
                 {
-                    T3D_LOG_ERROR("Write config file [%s] failed !",
-                        mFilename.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
+                        "Write config file [%s] failed !", mFilename.c_str());
                     break;
                 }
             }
@@ -423,8 +433,8 @@ namespace Tiny3D
                 if (!fs.open(mFilename.c_str(), FileDataStream::E_MODE_WRITE_ONLY))
                 {
                     ret = T3D_ERR_FILE_NOT_EXIST;
-                    T3D_LOG_ERROR("Open config file [%s] failed !",
-                        mFilename.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
+                        "Open config file [%s] failed !", mFilename.c_str());
                     break;
                 }
 
@@ -432,8 +442,8 @@ namespace Tiny3D
                 {
                     fs.close();
                     ret = T3D_ERR_FILE_DATA_MISSING;
-                    T3D_LOG_ERROR("Write config file [%s] failed !",
-                        mFilename.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
+                        "Write config file [%s] failed !", mFilename.c_str());
                     break;
                 }
 

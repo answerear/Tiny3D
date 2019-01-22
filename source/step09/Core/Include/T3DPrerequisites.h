@@ -41,6 +41,12 @@
 
 namespace Tiny3D
 {
+    #define LOG_TAG_CONFIG_FILE         "ConfigFile"
+    #define LOG_TAG_ENGINE              "Engine"
+    #define LOG_TAG_IMAGE               "Image"
+    #define LOG_TAG_RENDER              "Render"
+    #define LOG_TAG_PLUGIN              "Plugin"
+
     class Object;
     class ObjectTracer;
 

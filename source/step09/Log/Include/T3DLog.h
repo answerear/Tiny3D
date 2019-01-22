@@ -85,29 +85,29 @@
              T3D_LOGGER.enterForeground();   \
          }
 
-    #define T3D_LOG_TRACE(level, fmt, ...)  \
+    #define T3D_LOG_TRACE(level, tag, fmt, ...)  \
          if (Tiny3D::Logger::getInstancePtr() != nullptr)    \
          {   \
-             T3D_LOGGER.trace(level, __FILE__, __LINE__, fmt, ##__VA_ARGS__);    \
+             T3D_LOGGER.trace(level, __FILE__, __LINE__, tag, fmt, ##__VA_ARGS__);    \
          }
 
-    #define T3D_LOG_FATAL(fmt, ...)         \
-        T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_FATAL, fmt, ##__VA_ARGS__)
+    #define T3D_LOG_FATAL(tag, fmt, ...)         \
+        T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_FATAL, tag, fmt, ##__VA_ARGS__)
 
-    #define T3D_LOG_CRITICAL(fmt, ...)      \
-        T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_CRITICAL, fmt, ##__VA_ARGS__)
+    #define T3D_LOG_CRITICAL(tag, fmt, ...)      \
+        T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_CRITICAL, tag, fmt, ##__VA_ARGS__)
 
-    #define T3D_LOG_ERROR(fmt, ...)         \
-        T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_ERROR, fmt, ##__VA_ARGS__)
+    #define T3D_LOG_ERROR(tag, fmt, ...)         \
+        T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_ERROR, tag, fmt, ##__VA_ARGS__)
 
-    #define T3D_LOG_WARNING(fmt, ...)       \
-        T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_WARNING, fmt, ##__VA_ARGS__)
+    #define T3D_LOG_WARNING(tag, fmt, ...)       \
+        T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_WARNING, tag, fmt, ##__VA_ARGS__)
 
-    #define T3D_LOG_INFO(fmt, ...)          \
-        T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_INFO, fmt, ##__VA_ARGS__)
+    #define T3D_LOG_INFO(tag, fmt, ...)          \
+        T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_INFO, tag, fmt, ##__VA_ARGS__)
 
-    #define T3D_LOG_DEBUG(fmt, ...)         \
-        T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_DEBUG, fmt, ##__VA_ARGS__)
+    #define T3D_LOG_DEBUG(tag, fmt, ...)         \
+        T3D_LOG_TRACE(Tiny3D::Logger::E_LEVEL_DEBUG, tag, fmt, ##__VA_ARGS__)
 
 #else
     #define T3D_LOG_TO_LEVEL_STR(l)
@@ -120,13 +120,13 @@
     #define T3D_LOG_SHUTDOWN()
     #define T3D_LOG_ENTER_BACKGROUND()
     #define T3D_LOG_ENTER_FOREGROUND()
-    #define T3D_LOG_TRACE(level, fmt, ...)
-    #define T3D_LOG_FATAL(fmt, ...)
-    #define T3D_LOG_CRITICAL(fmt, ...)
-    #define T3D_LOG_ERROR(fmt, ...)
-    #define T3D_LOG_WARNING(fmt, ...)
-    #define T3D_LOG_INFO(fmt, ...)
-    #define T3D_LOG_DEBUG(fmt, ...)
+    #define T3D_LOG_TRACE(level, tag, fmt, ...)
+    #define T3D_LOG_FATAL(tag, fmt, ...)
+    #define T3D_LOG_CRITICAL(tag, fmt, ...)
+    #define T3D_LOG_ERROR(tag, fmt, ...)
+    #define T3D_LOG_WARNING(tag, fmt, ...)
+    #define T3D_LOG_INFO(tag, fmt, ...)
+    #define T3D_LOG_DEBUG(tag, fmt, ...)
 #endif
 
 

@@ -125,7 +125,8 @@ namespace Tiny3D
             dstData = (uint8_t *)dst->lock(HardwareBuffer::E_HBL_WRITE_ONLY);
             if (dstData == nullptr)
             {
-                T3D_LOG_ERROR("Lock destination pixel buffer failed !");
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "Lock destination pixel buffer failed !");
                 break;
             }
 
@@ -133,7 +134,8 @@ namespace Tiny3D
             srcData = (uint8_t *)lock(HardwareBuffer::E_HBL_READ_ONLY);
             if (srcData == nullptr)
             {
-                T3D_LOG_ERROR("Lock source pixel buffer failed !");
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "Lock source pixel buffer failed !");
                 break;
             }
 
@@ -142,7 +144,8 @@ namespace Tiny3D
                 Image::getBPP(mFormat), srcPitch, mFormat);
             if (ret != T3D_ERR_OK)
             {
-                T3D_LOG_ERROR("Load source texture to image failed  !");
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "Load source texture to image failed  !");
                 break;
             }
 
@@ -151,14 +154,16 @@ namespace Tiny3D
                 Image::getBPP(dst->getFormat()), dstPitch, dst->getFormat());
             if (ret != T3D_ERR_OK)
             {
-                T3D_LOG_ERROR("Load destination texture to image failed !");
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "Load destination texture to image failed !");
                 break;
             }
 
             ret = dstImage.copy(srcImage, &rtSrc, &rtDst);
             if (ret != T3D_ERR_OK)
             {
-                T3D_LOG_ERROR("Copy image from source image failed !");
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "Copy image from source image failed !");
                 break;
             }
         } while (0);
@@ -168,7 +173,8 @@ namespace Tiny3D
             ret = unlock();
             if (ret != T3D_ERR_OK)
             {
-                T3D_LOG_ERROR("Unlock source buffer failed !");
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "Unlock source buffer failed !");
             }
 
             srcData = nullptr;
@@ -179,7 +185,8 @@ namespace Tiny3D
             ret = dst->unlock();
             if (ret != T3D_ERR_OK)
             {
-                T3D_LOG_ERROR("Unlock destination buffer failed !");
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "Unlock destination buffer failed !");
             }
 
             dstData = nullptr;
@@ -190,7 +197,7 @@ namespace Tiny3D
 
     size_t HardwarePixelBuffer::readData(size_t offset, size_t size, void *dst)
     {
-        T3D_LOG_ERROR("Reading a byte range is not implemented. \
+        T3D_LOG_ERROR(LOG_TAG_RENDER, "Reading a byte range is not implemented.\
             Use readImage.");
         return false;
     }
@@ -198,7 +205,7 @@ namespace Tiny3D
     size_t HardwarePixelBuffer::writeData(size_t offset, size_t size, 
         const void *src, bool discardWholeBuffer)
     {
-        T3D_LOG_ERROR("Writing a byte range is not implemented. \
+        T3D_LOG_ERROR(LOG_TAG_RENDER, "Writing a byte range is not implemented.\
             Use writeImage.");
         return false;
     }
@@ -206,7 +213,7 @@ namespace Tiny3D
     void *HardwarePixelBuffer::lockImpl(size_t offset, size_t size, 
         LockOptions options)
     {
-        T3D_LOG_ERROR("Lock implementation is not implemented. \
+        T3D_LOG_ERROR(LOG_TAG_RENDER, "Lock implementation is not implemented.\
             Use lockImpl(const Rect &, LockOptions).");
         return nullptr;
     }

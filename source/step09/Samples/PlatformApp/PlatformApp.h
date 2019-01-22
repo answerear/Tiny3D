@@ -23,6 +23,8 @@
 
 #include <Tiny3D.h>
 
+#define LOG_TAG_APP     "APP"
+
 class PlatformApp : public Tiny3D::Application, Tiny3D::ITimerListener
 {
 public:

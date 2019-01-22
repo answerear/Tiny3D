@@ -81,17 +81,20 @@ namespace Tiny3D
         void setStrategy(const Strategy &strategy);
 
         /**
-         * @brief 设置当前日志输出的最高级别，高于该级别的日志被忽略不输出
+         * @brief 设置当前日志输出的最高级别
+         * @remarks 高于该级别的日志被忽略不输出
          */
         void setLevel(Level eLevel);
 
         /**
-         * @brief 设置最大缓存大小，大于该大小的缓存日志会马上提交异步线程写回文件
+         * @brief 设置最大缓存大小
+         * @remarks 大于该大小的缓存日志会马上提交异步线程写回文件
          */
         void setMaxCacheSize(uint32_t unMaxCacheSize);
 
         /**
-         * @brief 设置最大缓存时间间隔，超过该时间间隔缓存日志会马上提交异步线程写回文件
+         * @brief 设置最大缓存时间间隔
+         * @remarks 超过该时间间隔缓存日志会马上提交异步线程写回文件
          */
         void setMaxCacheTime(uint32_t unMaxCacheTime);
 
@@ -118,11 +121,13 @@ namespace Tiny3D
          * @param [in] level : 输出日志相应级别
          * @param [in] filename : 输出日志的源码文件
          * @param [in] line : 输出日志对应源码文件的行数
+         * @param [in] tag : 打个特殊标签，用于区分不同日志
          * @param [in] fmt : 格式化字符串
          * @param [in] var_list : 可变参数
          * @return void
          */
-        void trace(Level level, const char *filename, int32_t line, const char *fmt, ...);
+        void trace(Level level, const char *filename, int32_t line, 
+            const char *tag, const char *fmt, ...);
 
         /**
          * @brief 关闭日志模块

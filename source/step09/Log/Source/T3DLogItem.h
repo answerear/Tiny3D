@@ -33,11 +33,12 @@ namespace Tiny3D
         friend class Logger;
 
     public:
-        LogItem(Logger::Level level, const char *filename, int32_t line, const char *content)
+        LogItem(Logger::Level level, const char *filename, int32_t line, 
+            const char *tag, const char *content)
         {
             DateTime dt = DateTime::currentDateTime();
             mHour = dt.Hour();
-            formatContent(dt, filename, line, level, content);
+            formatContent(dt, filename, line, level, tag, content);
         }
 
         void outputFile(FileDataStream &fs) const
@@ -57,14 +58,24 @@ namespace Tiny3D
         int32_t getHour() const    { return mHour; }
 
     protected:
-        uint32_t formatContent(const DateTime &dt, const char *filename, int32_t line, Logger::Level level, const char *content)
+        uint32_t formatContent(const DateTime &dt, const char *filename, 
+            int32_t line, Logger::Level level, const char *tag, 
+            const char *content)
         {
             std::thread::id threadID = std::this_thread::get_id();
             String strDateTime = dt.toString();
             std::stringstream ss;
-            ss<<strDateTime<<"|"<<level<<"|"<<threadID<<"|"<<filename<<"|"<<line<<"|"<<content<<"\n";
+            ss << strDateTime
+                << "|" << level 
+                << "|" << threadID
+                << "|" << filename
+                << "|" << line
+                << "|" << tag
+                << "|" << content
+                <<"\n";
             mContentSize = ss.str().length();
-            mContentSize = (mContentSize > sizeof(mContent) - 1 ? sizeof(mContent) - 1 : ss.str().length());
+            mContentSize = (mContentSize > sizeof(mContent) - 1 
+                ? sizeof(mContent) - 1 : ss.str().length());
             memcpy(mContent, ss.str().c_str(), mContentSize);
             mContent[mContentSize] = 0;
             return mContentSize;

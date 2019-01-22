@@ -33,6 +33,8 @@
 
 namespace Tiny3D
 {
+    #define LOG_TAG_FILESYSTEM      "FileSystemArchive"
+
     class FileSystemArchive;
     class FileSystemArchiveCreator;
 

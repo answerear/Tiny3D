@@ -18,29 +18,20 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_ZIP_ARCHIVE_PREREQUISITES_H__
-#define __T3D_ZIP_ARCHIVE_PREREQUISITES_H__
+#ifndef __T3D_FREEIMAGE_CODEC_ERROR_H__
+#define __T3D_FREEIMAGE_CODEC_ERROR_H__
 
 
-#include <Tiny3D.h>
-
-#if defined ZIPARCHIVE_EXPORT
-    #define T3D_ZIPARCHIVE_API        T3D_EXPORT_API
-#else
-    #define T3D_ZIPARCHIVE_API        T3D_IMPORT_API
-#endif
+#include "T3DFreeImageCodecPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    #define LOG_TAG_ZIP             "ZipArchive"
-
-    class ZipArchive;
-    class ZipArchiveCreator;
-
-    T3D_DECLARE_SMART_PTR(ZipArchive);
-    T3D_DECLARE_SMART_PTR(ZipArchiveCreator);
+    enum FreeImageCodecError
+    {
+        T3D_ERR_CODEC_
+    };
 }
 
 
-#endif  /*__T3D_ZIP_ARCHIVE_PREREQUISITES_H__*/
+#endif  /*__T3D_FREEIMAGE_CODEC_ERROR_H__*/

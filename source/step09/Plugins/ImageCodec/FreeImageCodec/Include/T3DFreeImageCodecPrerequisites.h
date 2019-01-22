@@ -33,9 +33,11 @@
 
 namespace Tiny3D
 {
-    class ImageCodecImg;
+    #define LOG_TAG_FREEIMAGE_CODEC         "FreeImageCodec"
 
-    T3D_DECLARE_SMART_PTR(ImageCodecImg);
+    class FreeImageCodec;
+
+    T3D_DECLARE_SMART_PTR(FreeImageCodec);
 }
 
 

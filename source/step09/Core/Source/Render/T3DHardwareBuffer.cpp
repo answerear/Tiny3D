@@ -144,7 +144,8 @@ namespace Tiny3D
     {
         if (srcBuffer == nullptr)
         {
-            T3D_LOG_ERROR("Copy data failed ! Source buffer is nullptr !");
+            T3D_LOG_ERROR(LOG_TAG_RENDER, 
+                "Copy data failed ! Source buffer is nullptr !");
             return 0;
         }
 

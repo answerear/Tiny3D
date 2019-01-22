@@ -136,7 +136,7 @@ namespace Tiny3D
     }
 
     void Logger::trace(Level level, const char *filename, int32_t line,
-        const char *fmt, ...)
+        const char *tag, const char *fmt, ...)
     {
         if (!mIsForced && level > mStrategy.eLevel)
             return;
@@ -152,7 +152,7 @@ namespace Tiny3D
         String name = getFileName(filename);
 
         /// 生成一条日志项
-        LogItem *item = new LogItem(level, name.c_str(), line, content);
+        LogItem *item = new LogItem(level, name.c_str(), line, tag, content);
 
         /// 输出到控制台
         if (mIsOutputConsole)

@@ -25,6 +25,9 @@
 #include <Tiny3D.h>
 
 
+#define LOG_TAG_APP         "Game"
+
+
 enum AppEvent
 {
     EV_RESERVED = 0,

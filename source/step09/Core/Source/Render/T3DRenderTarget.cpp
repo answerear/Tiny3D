@@ -91,7 +91,8 @@ namespace Tiny3D
             if (itr == mViewportList.end())
             {
                 ret = T3D_ERR_NOT_FOUND;
-                T3D_LOG_ERROR("RenderTarget remove viewport but not found !!!");
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "RenderTarget remove viewport but not found !!!");
                 break;
             }
 

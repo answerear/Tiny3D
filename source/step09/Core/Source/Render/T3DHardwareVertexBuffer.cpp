@@ -246,7 +246,8 @@ namespace Tiny3D
     {
         if (pos >= mVertexAttributes.size())
         {
-            T3D_LOG_ERROR("Remove attribute but pos is out of bound !!!");
+            T3D_LOG_ERROR(LOG_TAG_RENDER,
+                "Remove attribute but pos is out of bound !!!");
             return T3D_ERR_OUT_OF_BOUND;
         }
 
@@ -292,7 +293,8 @@ namespace Tiny3D
     {
         if (pos >= mVertexAttributes.size())
         {
-            T3D_LOG_ERROR("Update attribute but pos is out of bound !!!");
+            T3D_LOG_ERROR(LOG_TAG_RENDER,
+                "Update attribute but pos is out of bound !!!");
             return T3D_ERR_OUT_OF_BOUND;
         }
 

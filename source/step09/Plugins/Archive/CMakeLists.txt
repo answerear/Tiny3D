@@ -13,5 +13,8 @@ set(TINY3D_LOG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Log" CACHE PATH "Ti
 set(TINY3D_PLATFORM_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Platform" CACHE PATH "Tiny3D platform source path")
 
 
+add_definitions(-DT3D_ERR_FS_ARCHIVE=T3D_ERR_ARCHIVE)
+add_definitions(-DT3D_ERR_ZIP_ARCHIVE=T3D_ERR_ARCHIVE+0x00000200)
+
 add_subdirectory(FileSystem)
 add_subdirectory(Zip)

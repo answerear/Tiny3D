@@ -19,25 +19,188 @@
 
 
 #include "T3DFreeImageCodec.h"
+#include <FreeImage.h>
+#include <sstream>
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message)
+    {
+        if (fif != FIF_UNKNOWN)
+        {
+            T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, "Error [%s] : %s", 
+                FreeImage_GetFormatFromFIF(fif), message);
+        }
+        else
+        {
+            T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, "Error [UNKNOWN] : %s",
+                message);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    const size_t FreeImageCodec::MAX_SUPPORTED_FILE_TYPE = 37;
+
+    //--------------------------------------------------------------------------
+
+    FreeImageCodecPtr FreeImageCodec::create()
+    {
+        FreeImageCodecPtr codec = new FreeImageCodec();
+        codec->release();
+        return codec;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FreeImageCodec::startup()
+    {
+        TResult ret = T3D_ERR_OK;
+
+        do 
+        {
+            FreeImage_Initialise(FALSE);
+            FreeImage_SetOutputMessage(FreeImageErrorHandler);
+
+            T3D_LOG_INFO(LOG_TAG_FREEIMAGE_CODEC, "FreeImage Version : %s", 
+                FreeImage_GetVersion());
+            T3D_LOG_INFO(LOG_TAG_FREEIMAGE_CODEC, "%s", 
+                FreeImage_GetCopyrightMessage());
+
+            std::stringstream ss;
+            ss << "Supported formats : ";
+            bool first = true;
+            int i = 0;
+            for (i = 0; i < FreeImage_GetFIFCount(); ++i)
+            {
+                String exts(FreeImage_GetFIFExtensionList((FREE_IMAGE_FORMAT)i));
+                
+                if (!first)
+                {
+                    ss << ",";
+                }
+
+                first = false;
+                ss << exts;
+            }
+
+            T3D_LOG_INFO(LOG_TAG_FREEIMAGE_CODEC, "%s", ss.str().c_str());
+
+            mFileTypeList.resize(MAX_SUPPORTED_FILE_TYPE);
+            for (i = 0; i < mFileTypeList.size(); ++i)
+            {
+                mFileTypeList[i] = (ImageCodecBase::FileType)i;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    TResult FreeImageCodec::shutdown()
+    {
+        TResult ret = T3D_ERR_OK;
+        FreeImage_DeInitialise();
+        return ret;
+    }
+
     bool FreeImageCodec::isSupportedType(uint8_t *data, size_t size, 
         FileType &type) const
     {
-        return false;
+        bool ret = true;
+
+        do 
+        {
+            FIMEMORY* fiMem = FreeImage_OpenMemory(data, size);
+            if (fiMem == nullptr)
+            {
+                ret = false;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, "Open memory failed !");
+                break;
+            }
+
+            FREE_IMAGE_FORMAT fif 
+                = FreeImage_GetFileTypeFromMemory(fiMem, size);
+            FreeImage_CloseMemory(fiMem);
+
+            type = (FileType)fif;
+            if (fif == FIF_UNKNOWN)
+            {
+                ret = false;
+                break;
+            }
+
+        } while (0);
+
+        return ret;
     }
 
     ImageCodecBase::FileType FreeImageCodec::getFileType() const
     {
-        return E_FT_PNG;
+        return E_FT_IMG;
     }
 
     TResult FreeImageCodec::encode(uint8_t *&data, size_t &size, 
         const Image &image, FileType type)
     {
         TResult ret = T3D_ERR_OK;
+
+        FIBITMAP *dib = nullptr;
+        FIMEMORY *stream = nullptr;
+
+        do 
+        {
+            uint32_t redMask, greenMask, blueMask, alphaMask;
+            image.getColorMask(redMask, greenMask, blueMask, alphaMask);
+
+            dib = FreeImage_ConvertFromRawBitsEx(FALSE, (BYTE*)image.getData(), 
+                FIT_BITMAP, image.getWidth(), image.getHeight(), 
+                image.getPitch(), image.getBPP(), redMask, greenMask, blueMask, 
+                TRUE);
+            if (dib == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                    "Convert from raw data failed !");
+                break;
+            }
+
+            stream = FreeImage_OpenMemory(0, 0);
+
+            FREE_IMAGE_FORMAT fif = (FREE_IMAGE_FORMAT)type;
+
+            if (!FreeImage_SaveToMemory(fif, dib, stream))
+            {
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                    "Encode image data to target format failed !");
+                break;
+            }
+
+            uint8_t *temp = nullptr;
+
+            if (!FreeImage_AcquireMemory(stream, &temp, (DWORD *)&size))
+            {
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                    "Retreive encoding data from memory failed !");
+                break;
+            }
+
+            data = new uint8_t[size];
+            memcpy(data, temp, size);
+        } while (0);
+
+        if (stream != nullptr)
+        {
+            FreeImage_CloseMemory(stream);
+            stream = nullptr;
+        }
+
+        if (dib != nullptr)
+        {
+            FreeImage_Unload(dib);
+            dib = nullptr;
+        }
 
         return ret;
     }

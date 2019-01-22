@@ -107,7 +107,7 @@ namespace Tiny3D
                 if (!fs->open(path.c_str(), FileDataStream::E_MODE_READ_WRITE))
                 {
                     ret = T3D_ERR_FILE_NOT_EXIST;
-                    T3D_LOG_ERROR("Open file [%s] from file system failed !", 
+                    T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Open file [%s] from file system failed !",
                         name.c_str());
                     break;
                 }
@@ -118,7 +118,7 @@ namespace Tiny3D
             if (fs->read(data, size) != size)
             {
                 ret = T3D_ERR_FILE_DATA_MISSING;
-                T3D_LOG_ERROR("Read file [%s] from file system failed !", 
+                T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Read file [%s] from file system failed !",
                     name.c_str());
                 break;
             }
@@ -151,7 +151,7 @@ namespace Tiny3D
                 if (!fs->open(path.c_str(), FileDataStream::E_MODE_READ_WRITE))
                 {
                     ret = T3D_ERR_FILE_NOT_EXIST;
-                    T3D_LOG_ERROR("Open file [%s] from file system failed !", 
+                    T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Open file [%s] from file system failed !",
                         name.c_str());
                     break;
                 }
@@ -163,7 +163,7 @@ namespace Tiny3D
             if (fs->write(data, size) != size)
             {
                 ret = T3D_ERR_FILE_DATA_MISSING;
-                T3D_LOG_ERROR("Write file [%s] from file system failed !", 
+                T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Write file [%s] from file system failed !",
                     name.c_str());
                 break;
             }

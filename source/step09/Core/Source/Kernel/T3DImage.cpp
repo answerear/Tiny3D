@@ -257,13 +257,13 @@ namespace Tiny3D
 // 
 //             if (dib == nullptr)
 //             {
-//                 T3D_LOG_ERROR("Convert from raw bits failed !");
+//                 T3D_LOG_ERROR(LOG_TAG_IMAGE, "Convert from raw bits failed !");
 //                 break;
 //             }
 // 
 //             if (!FreeImage_FlipVertical(dib))
 //             {
-//                 T3D_LOG_ERROR("Flip image failed !");
+//                 T3D_LOG_ERROR(LOG_TAG_IMAGE, "Flip image failed !");
 //                 break;
 //             }
 // 
@@ -297,13 +297,13 @@ namespace Tiny3D
 // 
 //             if (dib == nullptr)
 //             {
-//                 T3D_LOG_ERROR("Convert from raw bits failed !");
+//                 T3D_LOG_ERROR(LOG_TAG_IMAGE, "Convert from raw bits failed !");
 //                 break;
 //             }
 // 
 //             if (!FreeImage_FlipHorizontal(dib))
 //             {
-//                 T3D_LOG_ERROR("Mirror image failed !");
+//                 T3D_LOG_ERROR(LOG_TAG_IMAGE, "Mirror image failed !");
 //                 break;
 //             }
 // 
@@ -337,14 +337,14 @@ namespace Tiny3D
 // 
 //             if (dib == nullptr)
 //             {
-//                 T3D_LOG_ERROR("Convert from raw bits failed !");
+//                 T3D_LOG_ERROR(LOG_TAG_IMAGE, "Convert from raw bits failed !");
 //                 break;
 //             }
 // 
 //             uint32_t color = rkColor.A8R8G8B8();
 //             if (!FreeImage_FillBackground(dib, (const void *)&color))
 //             {
-//                 T3D_LOG_ERROR("Fill image failed !");
+//                 T3D_LOG_ERROR(LOG_TAG_IMAGE, "Fill image failed !");
 //                 break;
 //             }
 // 
@@ -396,7 +396,7 @@ namespace Tiny3D
 //                 // 如果像素格式不一致，直接返回，请先调用convert接口来转换成一致格式的图像
 //                 if (image.getFormat() != mFormat)
 //                 {
-//                     T3D_LOG_ERROR("Source image and destination image are different !");
+//                     T3D_LOG_ERROR(LOG_TAG_IMAGE, "Source image and destination image are different !");
 //                     break;
 //                 }
 // 
@@ -425,7 +425,7 @@ namespace Tiny3D
 //                     || rtSrc.top < 0 || rtSrc.bottom >= mHeight)
 //                 {
 //                     // 超出源图像范围了
-//                     T3D_LOG_ERROR("Source image rectangle is out of bound !");
+//                     T3D_LOG_ERROR(LOG_TAG_IMAGE, "Source image rectangle is out of bound !");
 //                     break;
 //                 }
 // 
@@ -433,7 +433,7 @@ namespace Tiny3D
 //                     || rtDst.top < 0 || rtDst.bottom >= image.getHeight())
 //                 {
 //                     // 超出目标图像范围了
-//                     T3D_LOG_ERROR("Destination image rectangle is out of bound !");
+//                     T3D_LOG_ERROR(LOG_TAG_IMAGE, "Destination image rectangle is out of bound !");
 //                     break;
 //                 }
 // 
@@ -474,7 +474,7 @@ namespace Tiny3D
 // 
 //                     if (dib == nullptr)
 //                     {
-//                         T3D_LOG_ERROR("Convert from raw bits failed !");
+//                         T3D_LOG_ERROR(LOG_TAG_IMAGE, "Convert from raw bits failed !");
 //                         break;
 //                     }
 // 
@@ -482,7 +482,7 @@ namespace Tiny3D
 //                     newdib = FreeImage_Rescale(dib, rtDst.width(), rtDst.height(), (FREE_IMAGE_FILTER)filter);
 //                     if (newdib == nullptr)
 //                     {
-//                         T3D_LOG_ERROR("Scale image failed !");
+//                         T3D_LOG_ERROR(LOG_TAG_IMAGE, "Scale image failed !");
 //                         break;
 //                     }
 // 

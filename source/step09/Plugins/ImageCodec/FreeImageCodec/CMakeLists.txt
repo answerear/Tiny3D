@@ -66,7 +66,7 @@ if (TINY3D_OS_IOS)
         T3DLog
         T3DPlatform
         T3DCore
-        ${FREEIMAGE_HOME}
+        ${FREEIMAGE_LIBRARY}
         )
 elseif (TINY3D_OS_LINUX)
     target_link_libraries(
@@ -74,7 +74,7 @@ elseif (TINY3D_OS_LINUX)
         T3DLog
         T3DPlatform
         T3DCore
-        ${FREEIMAGE_HOME}
+        ${FREEIMAGE_LIBRARY}
         )
 
     add_custom_command(TARGET ${BIN_NAME}
@@ -88,7 +88,7 @@ else (TINY3D_OS_IOS)
         T3DLog
         T3DPlatform
         T3DCore
-        ${FREEIMAGE_HOME}
+        ${FREEIMAGE_LIBRARY}
         )
 endif (TINY3D_OS_IOS)
 

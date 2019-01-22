@@ -33,6 +33,20 @@ namespace Tiny3D
     class FreeImageCodec : public ImageCodecBase
     {
     public:
+        static FreeImageCodecPtr create();
+
+        /**
+         * @brief 初始化和启动图像编解码器
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        TResult startup();
+
+        /**
+         * @brief 关闭图像编解码器并且清理其使用的资源
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        TResult shutdown();
+
         /**
          * @brief 是否支持的类型
          * @param [in] data : 图像数据
@@ -74,6 +88,15 @@ namespace Tiny3D
          */
         virtual TResult decode(uint8_t *data, size_t size, Image &image,
             FileType type) override;
+
+    protected:
+        typedef TArray<ImageCodecBase::FileType>    FileTypeList;
+        typedef FileTypeList::iterator              FileTypeListItr;
+        typedef FileTypeList::const_iterator        FileTypeListConstItr;
+
+        FileTypeList    mFileTypeList;
+
+        static const size_t MAX_SUPPORTED_FILE_TYPE;
     };
 }
 

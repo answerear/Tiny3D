@@ -106,12 +106,12 @@ elseif (UNIX AND NOT APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wno-undefined-var-template")
 endif (WIN32)
 
-#if (TINY3D_OS_IOS)
+if (TINY3D_OS_IOS)
     # Because in iOS, there only support static library.
-#    option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" FALSE)
-#else (TINY3D_OS_IOS)
     option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
-#endif (TINY3D_OS_IOS)
+else (TINY3D_OS_IOS)
+    option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
+endif (TINY3D_OS_IOS)
 
 if (NOT TINY3D_OS_ANDROID)
     # In Android, this switch is setted by build.gradle in Android Studio.

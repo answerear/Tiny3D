@@ -13,4 +13,7 @@ set(TINY3D_LOG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Log" CACHE PATH "Ti
 set(TINY3D_PLATFORM_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Platform" CACHE PATH "Tiny3D platform source path")
 
 
+add_definitions(-DT3D_ERR_FREEIMAGE_CODEC=T3D_ERR_IMAGE_CODEC)
+
+
 add_subdirectory(FreeImageCodec)

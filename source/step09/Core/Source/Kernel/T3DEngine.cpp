@@ -179,42 +179,7 @@ namespace Tiny3D
 
     void Engine::renderOneFrame()
     {
-        {
-            T3D_LOG_INFO("Begin Application Stage ......");
-            {
-                T3D_LOG_INFO("\t#0 Travel each node in scene graph and transform from local space to world space.");
-                T3D_LOG_INFO("\t#1 Travel each node in scene graph, then do object frustum culling and put their into rendering queue.");
-                T3D_LOG_INFO("\t#2 Travel rendering queue, then setup their rendering status and call rendering API.");
-            }
-            T3D_LOG_INFO("End Application Stage.");
-        }
-        {
-            T3D_LOG_INFO("Begin Geometry Stage ......");
-            {
-                T3D_LOG_INFO("\t#0 Vertex Shader.");
-                T3D_LOG_INFO("\t#1 Tessellation Shader.");
-                T3D_LOG_INFO("\t#2 Geometry Shader.");
-                T3D_LOG_INFO("\t#3 Culling.");
-                T3D_LOG_INFO("\t#4 Screen Mapping.");
-            }
-            T3D_LOG_INFO("End Geometry Stage.");
-        }
-        {
-            T3D_LOG_INFO("Begin Rasterization Stage ......");
-            {
-                T3D_LOG_INFO("\t#0 Triangle setup.");
-                T3D_LOG_INFO("\t#1 Triangle Traversal.");
-                T3D_LOG_INFO("\t#2 Fragment Shader.");
-                T3D_LOG_INFO("\t#3 Fragment primitvie operating");
-                {
-                    T3D_LOG_INFO("\t\t3.1 Stencil buffer test.");
-                    T3D_LOG_INFO("\t\t3.2 Depth buffer test.");
-                    T3D_LOG_INFO("\t\t3.3 Alpha blending.");
-                    T3D_LOG_INFO("\t\t3.4 Output framebuffer.");
-                }
-            }
-            T3D_LOG_INFO("End Rasterization Stage.");
-        }
+        
     }
 
     //--------------------------------------------------------------------------
@@ -241,7 +206,7 @@ namespace Tiny3D
             {
                 // 空指针
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR("Invalid plugin !!!");
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid plugin !!!");
                 break;
             }
 
@@ -250,7 +215,7 @@ namespace Tiny3D
             if (!rval.second)
             {
                 ret = T3D_ERR_PLG_DUPLICATED;
-                T3D_LOG_ERROR("Duplicated plugin [%s] !", 
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Duplicated plugin [%s] !",
                     plugin->getName().c_str());
                 break;
             }
@@ -260,7 +225,7 @@ namespace Tiny3D
             if (ret != T3D_ERR_OK)
             {
                 mPlugins.erase(plugin->getName());
-                T3D_LOG_ERROR("Install plugin [%s] failed !",
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Install plugin [%s] failed !",
                     plugin->getName().c_str());
                 break;
             }
@@ -270,7 +235,7 @@ namespace Tiny3D
             if (ret != T3D_ERR_OK)
             {
                 mPlugins.erase(plugin->getName());
-                T3D_LOG_ERROR("Startup plugin [%s] failed !", 
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Startup plugin [%s] failed !",
                     plugin->getName().c_str());
                 break;
             }
@@ -288,14 +253,14 @@ namespace Tiny3D
             if (plugin == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR("Invalid plugin !!!");
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid plugin !!!");
                 break;
             }
 
             ret = plugin->shutdown();
             if (ret != T3D_ERR_OK)
             {
-                T3D_LOG_ERROR("Shutdown plugin [%s] failed !", 
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Shutdown plugin [%s] failed !",
                     plugin->getName().c_str());
                 break;
             }
@@ -304,7 +269,7 @@ namespace Tiny3D
             if (ret != T3D_ERR_OK)
             {
 
-                T3D_LOG_ERROR("Uninstall plugin [%s] failed !",
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Uninstall plugin [%s] failed !",
                     plugin->getName().c_str())
                 break;
             }
@@ -319,7 +284,7 @@ namespace Tiny3D
 
     TResult Engine::loadPlugin(const String &name)
     {
-        T3D_LOG_INFO("Load plugin %s ...", name.c_str());
+        T3D_LOG_INFO(LOG_TAG_ENGINE, "Load plugin %s ...", name.c_str());
 
         TResult ret = T3D_ERR_OK;
 
@@ -329,8 +294,8 @@ namespace Tiny3D
             if (rval != mDylibs.end())
             {
                 // 已经加载过了，直接返回吧
-                T3D_LOG_INFO("Load plugin [%s] , but it already loaded !",
-                    name.c_str());
+                T3D_LOG_INFO(LOG_TAG_ENGINE, "Load plugin [%s] , \
+                    but it already loaded !", name.c_str());
                 break;
             }
             
@@ -339,7 +304,8 @@ namespace Tiny3D
             if (dylib->getType() != Resource::E_TYPE_DYLIB)
             {
                 ret = T3D_ERR_PLG_NOT_DYLIB;
-                T3D_LOG_ERROR("Load plugin [%s] failed !", name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Load plugin [%s] failed !", 
+                    name.c_str());
                 break;
             }
 
@@ -348,8 +314,9 @@ namespace Tiny3D
             if (pFunc == nullptr)
             {
                 ret = T3D_ERR_PLG_NO_FUNCTION;
-                T3D_LOG_ERROR("Load plugin [%s] get function dllStartPlugin \
-                    failed !", name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, 
+                    "Load plugin [%s] get function dllStartPlugin failed !", 
+                    name.c_str());
                 break;
             }
 
@@ -367,7 +334,7 @@ namespace Tiny3D
 
     TResult Engine::unloadPlugin(const String &name)
     {
-        T3D_LOG_INFO("Unload plugin %s ...", name.c_str());
+        T3D_LOG_INFO(LOG_TAG_ENGINE, "Unload plugin %s ...", name.c_str());
 
         TResult ret = T3D_ERR_OK;
 
@@ -377,8 +344,8 @@ namespace Tiny3D
             if (itr == mDylibs.end())
             {
                 ret = T3D_ERR_PLG_NOT_EXISTS;
-                T3D_LOG_ERROR("Unload plugin [%s] , it don't exist !",
-                    name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Unload plugin [%s] , \
+                    it don't exist !", name.c_str());
                 break;
             }
 
@@ -388,8 +355,8 @@ namespace Tiny3D
             if (pFunc == nullptr)
             {
                 ret = T3D_ERR_PLG_NO_FUNCTION;
-                T3D_LOG_ERROR("Unload plugin [%s], get function dllStopPlugin \
-                    failed !", name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Unload plugin [%s], \
+                    get function dllStopPlugin failed !", name.c_str());
                 break;
             }
 
@@ -457,10 +424,10 @@ namespace Tiny3D
             ret = mLogger->startup(1000, "Engine", true, true);
         }
 
-        T3D_LOG_INFO("Start Tiny3D ...... version %s",
+        T3D_LOG_INFO(LOG_TAG_ENGINE, "Start Tiny3D ...... version %s",
             T3D_DEVICE_INFO.getSoftwareVersion().c_str());
 
-        T3D_LOG_INFO("System Information : \n%s",
+        T3D_LOG_INFO(LOG_TAG_ENGINE, "System Information : \n%s",
             T3D_DEVICE_INFO.getSystemInfo().c_str());
 
         return ret;
@@ -527,7 +494,8 @@ namespace Tiny3D
             if (itr == pluginSettings.end())
             {
                 ret = T3D_ERR_PLG_NO_PATH;
-                T3D_LOG_ERROR("Load plguins - the plugin path don't set !");
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Load plguins - \
+                    The plugin path don't set !");
                 break;
             }
 
