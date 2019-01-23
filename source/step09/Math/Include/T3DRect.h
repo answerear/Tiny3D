@@ -165,7 +165,7 @@ namespace Tiny3D
         explicit TPoint(const TPoint<T1> &other)
         {
             x = (T)other.x;
-            y = (T)other.y:
+            y = (T)other.y;
         }
 
         template <typename T1>
@@ -188,7 +188,7 @@ namespace Tiny3D
 
         bool operator ==(const TPoint &other) const
         {
-            return (x == othre.x && y == other.y);
+            return (x == other.x && y == other.y);
         }
 
         bool operator !=(const TPoint &other) const

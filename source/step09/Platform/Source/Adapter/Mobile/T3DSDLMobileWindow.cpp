@@ -65,7 +65,7 @@ namespace Tiny3D
                 break;
             }
             
-            ret = T3D_ERR_OK;
+            ret = T3D_OK;
         } while (0);
 
         return ret;
