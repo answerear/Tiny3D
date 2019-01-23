@@ -26,7 +26,7 @@ set(TINY3D_FRAMEWORK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Framework")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies")
 
 
-# Setup search header path for this project.
+# Setup search header path for this project.
 include_directories(
     "${TINY3D_PLATFORM_DIR}/Include"
     "${TINY3D_MATH_DIR}/Include"
@@ -169,7 +169,7 @@ elseif (TINY3D_OS_LINUX)
 #       LINK_PRIVATE z
         )
 
-        add_custom_command(TARGET ${BIN_NAME}
+    add_custom_command(TARGET ${BIN_NAME}
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Tiny3D.cfg
         COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/lib${BIN_NAME}.so" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lib${BIN_NAME}.so"

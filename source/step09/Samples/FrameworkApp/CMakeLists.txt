@@ -121,8 +121,8 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/Tiny3D.cfg" "${APPS}"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*" "${APPS}"
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${APPS}/Plugins"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/Plugins/*.dylib" "${APPS}/Plugins"
+            #COMMAND ${CMAKE_COMMAND} -E make_directory "${APPS}/Plugins"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/Plugins/*.dylib" "${APPS}"
             )
     elseif (TINY3D_OS_MACOSX)
         # Setup all link libraries frameworks for Mac OS X

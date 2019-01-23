@@ -79,16 +79,35 @@ elseif (TINY3D_OS_LINUX)
 
     add_custom_command(TARGET ${BIN_NAME}
         POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Plugins"
-        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/lib${BIN_NAME}.so" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Plugins/lib${BIN_NAME}.so"
+        #COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Plugins"
+        #COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/lib${BIN_NAME}.so" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Plugins/lib${BIN_NAME}.so"
+        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/lib${BIN_NAME}.so" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lib${BIN_NAME}.so"
         )
-else (TINY3D_OS_IOS)
+elseif (TINY3D_OS_WINDOWS)
     target_link_libraries(
         ${LIB_NAME}
-        T3DLog
-        T3DPlatform
-        T3DCore
-        ${FREEIMAGE_LIBRARY}
+        LINK_PRIVATE T3DLog
+        LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DCore
+        LINK_PRIVATE ${FREEIMAGE_LIBRARY}
+        )
+    
+    add_custom_command(TARGET ${BIN_NAME}
+        PRE_LINK
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
+        COMMAND ${CMAKE_COMMAND} -E copy ${FREEIMAGE_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
+        COMMAND ${CMAKE_COMMAND} -E copy ${FREEIMAGE_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
+        )
+#    add_custom_command(TARGET ${BIN_NAME}
+#        POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy "${FREEIMAGE_BINARY}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+elseif (TINY3D_OS_MACOSX)
+    target_link_libraries(
+        ${LIB_NAME}
+        LINK_PRIVATE T3DLog
+        LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DCore
+        LINK_PRIVATE ${FREEIMAGE_LIBRARY}
         )
 endif (TINY3D_OS_IOS)
 
