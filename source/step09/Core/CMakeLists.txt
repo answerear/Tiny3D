@@ -93,7 +93,7 @@ if (TINY3D_OS_WINDOWS)
             LINK_PRIVATE T3DMath
             LINK_PRIVATE legacy_stdio_definitions
             LINK_PRIVATE ${SDL2_LIBRARY}
-            LINK_PRIVATE ${FREEIMAGE_LIBRARY}
+            #LINK_PRIVATE ${FREEIMAGE_LIBRARY}
             )
     else ()
         # Visual Studio version is older than 2015
@@ -104,7 +104,7 @@ if (TINY3D_OS_WINDOWS)
             LINK_PRIVATE T3DFramework
             LINK_PRIVATE T3DMath
             LINK_PRIVATE ${SDL2_LIBRARY}
-            LINK_PRIVATE ${FREEIMAGE_LIBRARY}
+            #LINK_PRIVATE ${FREEIMAGE_LIBRARY}
             )
     endif ()
 
