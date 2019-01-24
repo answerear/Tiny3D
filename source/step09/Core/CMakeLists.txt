@@ -68,16 +68,19 @@ set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageC
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .cpp)
 
-
-
-# Setup all files for building this project.
-if (TINY3D_BUILD_SHARED_LIBS)
-    # Make dynamic library for this project.
-    add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
-else (TINY3D_BUILD_SHARED_LIBS)
-    # Make static library for this project.
+if (TINY3D_OS_IOS)
     add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
-endif (TINY3D_BUILD_SHARED_LIBS)
+else (TINY3D_OS_IOS)
+    # Setup all files for building this project.
+    if (TINY3D_BUILD_SHARED_LIBS)
+        # Make dynamic library for this project.
+        add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
+    else (TINY3D_BUILD_SHARED_LIBS)
+        # Make static library for this project.
+        add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
+    endif (TINY3D_BUILD_SHARED_LIBS)
+endif (TINY3D_OS_IOS)
+
 
 if (TINY3D_OS_WINDOWS)
     # Windows

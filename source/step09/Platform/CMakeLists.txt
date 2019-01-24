@@ -158,14 +158,18 @@ elseif (TINY3D_OS_MOBILE)
 	set_project_files(Source\\\\Adapter\\\\Mobile ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Mobile/ .cpp)
 endif (TINY3D_OS_DESKTOP)
 
-# Setup all files for building this project.
-if (TINY3D_BUILD_SHARED_LIBS)
-	# Make dynamic library for this project.
-	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
-else (TINY3D_BUILD_SHARED_LIBS)
-	# Make static library for this project.
-	add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
-endif (TINY3D_BUILD_SHARED_LIBS)
+if (TINY3D_OS_IOS)
+    add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
+else (TINY3D_OS_IOS)
+    # Setup all files for building this project.
+    if (TINY3D_BUILD_SHARED_LIBS)
+        # Make dynamic library for this project.
+        add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
+    else (TINY3D_BUILD_SHARED_LIBS)
+        # Make static library for this project.
+        add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
+    endif (TINY3D_BUILD_SHARED_LIBS)
+endif (TINY3D_OS_IOS)
 
 
 if (TINY3D_OS_WINDOWS)

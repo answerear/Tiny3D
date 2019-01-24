@@ -21,6 +21,8 @@ elseif (TINY3D_OS_ANDROID)
     set(FREEIMAGE_LIB_SUFFIXES "prebuilt/Android/${ANDROID_ABI}")
 elseif (TINY3D_OS_IOS)
     set(FREEIMAGE_LIB_SUFFIXES "prebuilt/iOS")
+
+    add_definitions(-DPNG_ARM_NEON_OPT=0)
 elseif (TINY3D_OS_MACOSX)
     set(FREEIMAGE_LIB_SUFFIXES "prebuilt/OSX")
 elseif (TINY3D_OS_LINUX)
@@ -64,10 +66,10 @@ if (TINY3D_OS_IOS)
 
     target_link_libraries(
         ${LIB_NAME}
-        T3DLog
-        T3DPlatform
-        T3DCore
-        ${FREEIMAGE_LIBRARY}
+        LINK_PRIVATE T3DLog
+        LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DCore
+        LINK_PRIVATE ${FREEIMAGE_LIBRARY}
         )
 elseif (TINY3D_OS_LINUX)
     target_link_libraries(
