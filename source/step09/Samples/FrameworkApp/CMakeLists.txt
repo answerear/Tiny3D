@@ -163,7 +163,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/Tiny3D.cfg" "${APPS}/Contents/MacOS"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*" "${APPS}/Contents/MacOS"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/Plugins" "${APPS}/Contents/MacOS/Plugins"
+            #COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}" "${APPS}/Contents/MacOS"
             )
     endif (TINY3D_OS_IOS)
 elseif (TINY3D_OS_LINUX)

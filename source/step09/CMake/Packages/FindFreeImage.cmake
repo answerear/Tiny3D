@@ -16,7 +16,7 @@ FIND_LIBRARY(FREEIMAGE_LIBRARY_TEMP
 )
 
 FIND_FILE(FREEIMAGE_BINARY
-  NAMES "FreeImage.dll" "libFreeImageShared.so"
+  NAMES "FreeImage.dll" "libFreeImageShared.so" "libfreeimage-3.18.0.dylib"
   HINTS ${FREEIMAGE_HOME}
   PATH_SUFFIXES ${FREEIMAGE_LIB_SUFFIXES}
 )
