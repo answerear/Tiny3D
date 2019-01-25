@@ -60,7 +60,7 @@ endif (TINY3D_OS_LINUX)
 # Setup project folder
 set_property(TARGET ${LIB_NAME} PROPERTY FOLDER "Plugins/Renderer")
 
-install(TARGETS ${LIB_NAME}
-    RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug
-    LIBRARY DESTINATION bin/Debug CONFIGURATIONS Debug
-    )
+#install(TARGETS ${LIB_NAME}
+#    RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug
+#    LIBRARY DESTINATION bin/Debug CONFIGURATIONS Debug
+#    )
