@@ -25,13 +25,13 @@ Tiny3D::ZipArchivePlugin *gPlugin = nullptr;
 
 extern "C"
 {
-    TResult T3D_ZIPARCHIVE_API dllStartPlugin()
+    TResult T3D_ZIPARCHIVE_API ZipArchive_dllStartPlugin()
     {
         gPlugin = new Tiny3D::ZipArchivePlugin();
         return Tiny3D::Engine::getInstance().installPlugin(gPlugin);
     }
 
-    TResult T3D_ZIPARCHIVE_API dllStopPlugin()
+    TResult T3D_ZIPARCHIVE_API ZipArchive_dllStopPlugin()
     {
         TResult ret = Tiny3D::Engine::getInstance().uninstallPlugin(gPlugin);
 

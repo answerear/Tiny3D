@@ -304,6 +304,11 @@ namespace Tiny3D
             }
             
             DylibPtr dylib = DylibManager::getInstance().loadDylib(name);
+            if (dylib == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
 
             if (dylib->getType() != Resource::E_TYPE_DYLIB)
             {

@@ -32,12 +32,21 @@
     #define DYLIB_GETSYM(handle, name)  GetProcAddress((HMODULE)handle, name)
     #define DYLIB_UNLOAD(handle)        FreeLibrary((HMODULE)handle)
     #define DYLIB_ERROR()               "Unknown Error"
-#elif defined (T3D_OS_LINUX) || defined (T3D_OS_OSX) || defined (T3D_OS_ANDROID) || defined (T3D_OS_IOS)
+#elif defined (T3D_OS_LINUX) || defined (T3D_OS_OSX) || defined (T3D_OS_ANDROID)
     #include <dlfcn.h>
 
     typedef void*       DYLIB_HANDLE;
 
     #define DYLIB_LOAD(name)            dlopen(name, RTLD_NOW)
+    #define DYLIB_GETSYM(handle, name)  dlsym(handle, name)
+    #define DYLIB_UNLOAD(handle)        dlclose(handle)
+    #define DYLIB_ERROR()               dlerror()
+#elif defined (T3D_OS_IOS)
+    #include <dlfcn.h>
+
+    typedef void*       DYLIB_HANDLE;
+
+    #define DYLIB_LOAD(name)            dlopen(NULL, RTLD_NOW)
     #define DYLIB_GETSYM(handle, name)  dlsym(handle, name)
     #define DYLIB_UNLOAD(handle)        dlclose(handle)
     #define DYLIB_ERROR()               dlerror()
@@ -70,7 +79,10 @@ namespace Tiny3D
 
     void *Dylib::getSymbol(const String &name) const
     {
-        return DYLIB_GETSYM(mHandle, name.c_str());
+        // 为了 iOS 的静态库也能做成类似插件形式，避免重名函数在静态库中出现导致
+        // 重复符号编译错误，这里特意加上插件名称
+        String symbol = mName + "_" + name;
+        return DYLIB_GETSYM(mHandle, symbol.c_str());
     }
 
     TResult Dylib::load()
