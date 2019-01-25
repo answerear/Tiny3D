@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -79,8 +79,8 @@ namespace Tiny3D
 
     void *Dylib::getSymbol(const String &name) const
     {
-        // ÎªÁË iOS µÄ¾²Ì¬¿âÒ²ÄÜ×ö³ÉÀàËÆ²å¼şĞÎÊ½£¬±ÜÃâÖØÃûº¯ÊıÔÚ¾²Ì¬¿âÖĞ³öÏÖµ¼ÖÂ
-        // ÖØ¸´·ûºÅ±àÒë´íÎó£¬ÕâÀïÌØÒâ¼ÓÉÏ²å¼şÃû³Æ
+        // ä¸ºäº† iOS çš„é™æ€åº“ä¹Ÿèƒ½åšæˆç±»ä¼¼æ’ä»¶å½¢å¼ï¼Œé¿å…é‡åå‡½æ•°åœ¨é™æ€åº“ä¸­å‡ºç°å¯¼è‡´
+        // é‡å¤ç¬¦å·ç¼–è¯‘é”™è¯¯ï¼Œè¿™é‡Œç‰¹æ„åŠ ä¸Šæ’ä»¶åç§°
         String symbol = mName + "_" + name;
         return DYLIB_GETSYM(mHandle, symbol.c_str());
     }
