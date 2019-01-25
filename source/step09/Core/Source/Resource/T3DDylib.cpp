@@ -95,7 +95,8 @@ namespace Tiny3D
             if (mHandle == nullptr)
             {
                 ret = T3D_ERR_PLUGIN_LOAD_FAILED;
-                T3D_LOG_ERROR(LOG_TAG_PLUGIN, "Load plugin failed !");
+                T3D_LOG_ERROR(LOG_TAG_PLUGIN, "Load plugin failed ! Desc : %s",
+                    DYLIB_ERROR());
                 break;
             }
 
