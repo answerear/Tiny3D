@@ -26,13 +26,13 @@ Tiny3D::FileSystemArchivePlugin *gPlugin = nullptr;
 
 extern "C"
 {
-    TResult T3D_FSARCHIVE_API dllStartPlugin()
+    T3D_FSARCHIVE_API TResult dllStartPlugin()
     {
         gPlugin = new Tiny3D::FileSystemArchivePlugin();
         return Tiny3D::Engine::getInstance().installPlugin(gPlugin);
     }
 
-    TResult T3D_FSARCHIVE_API dllStopPlugin()
+    T3D_FSARCHIVE_API TResult dllStopPlugin()
     {
         TResult ret = Tiny3D::Engine::getInstance().uninstallPlugin(gPlugin);
         if (ret == Tiny3D::T3D_OK)

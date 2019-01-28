@@ -25,13 +25,13 @@ Tiny3D::T3DXPlugin *gPlugin = nullptr;
 
 extern "C"
 {
-    TResult T3D_XRENDER_API dllStartPlugin()
+    T3D_XRENDER_API TResult dllStartPlugin()
     {
         gPlugin = new Tiny3D::T3DXPlugin();
         return Tiny3D::Engine::getInstance().installPlugin(gPlugin);
     }
 
-    TResult T3D_XRENDER_API dllStopPlugin()
+    T3D_XRENDER_API TResult dllStopPlugin()
     {
         TResult ret = Tiny3D::Engine::getInstance().uninstallPlugin(gPlugin);
 
