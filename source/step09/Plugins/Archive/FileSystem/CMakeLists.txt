@@ -33,11 +33,11 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 
 
-if (TINY3D_BUILD_SHARED_LIBS)
+#if (TINY3D_BUILD_SHARED_LIBS)
     add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
-else (TINY3D_BUILD_SHARED_LIBS)
-    add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
-endif (TINY3D_BUILD_SHARED_LIBS)
+#else (TINY3D_BUILD_SHARED_LIBS)
+#    add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
+#endif (TINY3D_BUILD_SHARED_LIBS)
 
 set_property(TARGET ${LIB_NAME} PROPERTY FOLDER "Plugins/Archive")
 
