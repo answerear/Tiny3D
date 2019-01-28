@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -19,7 +19,7 @@
 
 #include "T3DErrorDef.h"
 
-#include "Kernel/T3DEngine.h"
+#include "Kernel/T3DAgent.h"
 #include "Kernel/T3DPlugin.h"
 #include "Kernel/T3DConfigFile.h"
 
@@ -44,11 +44,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    T3D_INIT_SINGLETON(Engine);
+    T3D_INIT_SINGLETON(Agent);
 
     //--------------------------------------------------------------------------
 
-    Engine::Engine()
+    Agent::Agent()
         : mLogger(nullptr)
         , mEventMgr(nullptr)
         , mObjTracer(nullptr)
@@ -58,7 +58,7 @@ namespace Tiny3D
     {
     }
 
-    Engine::~Engine()
+    Agent::~Agent()
     {
         unloadPlugins();
 
@@ -78,7 +78,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::init(const String &appPath, 
+    TResult Agent::init(const String &appPath, 
         const String &config /* = "Tiny3D.cfg" */)
     {
         TResult ret = T3D_OK;
@@ -156,7 +156,7 @@ namespace Tiny3D
         return ret;
     }
 
-    bool Engine::run()
+    bool Agent::run()
     {
         Application *theApp = Application::getInstancePtr();
         theApp->applicationDidFinishLaunching();
@@ -181,26 +181,26 @@ namespace Tiny3D
         return true;
     }
 
-    void Engine::renderOneFrame()
+    void Agent::renderOneFrame()
     {
         
     }
 
     //--------------------------------------------------------------------------
 
-    void Engine::appWillEnterForeground()
+    void Agent::appWillEnterForeground()
     {
         T3D_LOG_ENTER_FOREGROUND();
     }
 
-    void Engine::appDidEnterBackground()
+    void Agent::appDidEnterBackground()
     {
         T3D_LOG_ENTER_BACKGROUND();
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::installPlugin(Plugin *plugin)
+    TResult Agent::installPlugin(Plugin *plugin)
     {
         TResult ret = T3D_OK;
 
@@ -248,7 +248,7 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Engine::uninstallPlugin(Plugin *plugin)
+    TResult Agent::uninstallPlugin(Plugin *plugin)
     {
         TResult ret = T3D_OK;
 
@@ -286,7 +286,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::loadPlugin(const String &name)
+    TResult Agent::loadPlugin(const String &name)
     {
         T3D_LOG_INFO(LOG_TAG_ENGINE, "Load plugin %s ...", name.c_str());
 
@@ -341,7 +341,7 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Engine::unloadPlugin(const String &name)
+    TResult Agent::unloadPlugin(const String &name)
     {
         T3D_LOG_INFO(LOG_TAG_ENGINE, "Unload plugin %s ...", name.c_str());
 
@@ -383,14 +383,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::addArchiveCreator(ArchiveCreator *creator)
+    TResult Agent::addArchiveCreator(ArchiveCreator *creator)
     {
         TResult ret = T3D_OK;
         mArchiveMgr->addArchiveCreator(creator);
         return ret;
     }
 
-    TResult Engine::removeArchiveCreator(ArchiveCreator *creator)
+    TResult Agent::removeArchiveCreator(ArchiveCreator *creator)
     {
         TResult ret = T3D_OK;
         mArchiveMgr->removeArchiveCreator(creator->getType());
@@ -399,20 +399,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::addImageCodec(ImageCodecBase::FileType type,
+    TResult Agent::addImageCodec(ImageCodecBase::FileType type,
         ImageCodecBasePtr codec)
     {
         return mImageCodec->addImageCodec(type, codec);
     }
 
-    TResult Engine::removeImageCodec(ImageCodecBase::FileType type)
+    TResult Agent::removeImageCodec(ImageCodecBase::FileType type)
     {
         return mImageCodec->removeImageCodec(type);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::initApplication()
+    TResult Agent::initApplication()
     {
         TResult ret = T3D_OK;
 
@@ -435,7 +435,7 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Engine::initLogSystem()
+    TResult Agent::initLogSystem()
     {
         TResult ret = T3D_ERR_FAIL;
 
@@ -443,7 +443,7 @@ namespace Tiny3D
 
         if (mLogger != nullptr)
         {
-            ret = mLogger->startup(1000, "Engine", true, true);
+            ret = mLogger->startup(1000, "Agent", true, true);
         }
 
         T3D_LOG_INFO(LOG_TAG_ENGINE, "Start Tiny3D ...... version %s",
@@ -455,19 +455,19 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Engine::initEventSystem()
+    TResult Agent::initEventSystem()
     {
         mEventMgr = new EventManager(10);
         return T3D_OK;
     }
 
-    TResult Engine::initObjectTracer()
+    TResult Agent::initObjectTracer()
     {
         mObjTracer = new ObjectTracer();
         return T3D_OK;
     }
 
-    TResult Engine::initManagers()
+    TResult Agent::initManagers()
     {
         mImageCodec = ImageCodec::create();
         mArchiveMgr = ArchiveManager::create();
@@ -476,7 +476,7 @@ namespace Tiny3D
         return T3D_OK;
     }
 
-    TResult Engine::loadConfig(const String &cfgPath)
+    TResult Agent::loadConfig(const String &cfgPath)
     {
         TResult ret = T3D_OK;
 
@@ -504,7 +504,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::loadPlugins()
+    TResult Agent::loadPlugins()
     {
         TResult ret = T3D_OK;
 
@@ -555,7 +555,7 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Engine::unloadPlugins()
+    TResult Agent::unloadPlugins()
     {
         TResult ret = T3D_OK;
 
@@ -583,7 +583,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::createRenderWindow()
+    TResult Agent::createRenderWindow()
     {
         TResult ret = T3D_OK;
 

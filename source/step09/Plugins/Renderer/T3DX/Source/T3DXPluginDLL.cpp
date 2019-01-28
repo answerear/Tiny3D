@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -28,12 +28,12 @@ extern "C"
     T3D_XRENDER_API TResult dllStartPlugin()
     {
         gPlugin = new Tiny3D::T3DXPlugin();
-        return Tiny3D::Engine::getInstance().installPlugin(gPlugin);
+        return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
     }
 
     T3D_XRENDER_API TResult dllStopPlugin()
     {
-        TResult ret = Tiny3D::Engine::getInstance().uninstallPlugin(gPlugin);
+        TResult ret = Tiny3D::Agent::getInstance().uninstallPlugin(gPlugin);
 
         if (ret == Tiny3D::T3D_OK)
         {

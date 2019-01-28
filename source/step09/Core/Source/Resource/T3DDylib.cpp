@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -19,7 +19,7 @@
 
 
 #include "Resource/T3DDylib.h"
-#include "Kernel/T3DEngine.h"
+#include "Kernel/T3DAgent.h"
 #include "T3DErrorDef.h"
 
 
@@ -96,8 +96,8 @@ namespace Tiny3D
             String name = "lib" + mName + ".dylib";
 #endif
 
-            String pluginsPath = Engine::getInstance().getPluginsPath();
-            String path = Engine::getInstance().getAppPath() + pluginsPath 
+            String pluginsPath = Agent::getInstance().getPluginsPath();
+            String path = Agent::getInstance().getAppPath() + pluginsPath 
                 + Dir::NATIVE_SEPARATOR + name;
             mHandle = DYLIB_LOAD(path.c_str());
 
