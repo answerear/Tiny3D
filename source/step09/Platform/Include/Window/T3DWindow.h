@@ -35,18 +35,56 @@ namespace Tiny3D
         T3D_DISABLE_COPY(Window);
 
     public:
-        static const uint32_t WINDOW_FULLSCREEN;
-        static const uint32_t WINDOW_FULLSCREEN_DESKTOP;
-        static const uint32_t WINDOW_OPENGL;
-        static const uint32_t WINDOW_SHOWN;
-        static const uint32_t WINDOW_HIDDEN;
-        static const uint32_t WINDOW_BORDERLESS;
-        static const uint32_t WINDOW_RESIZABLE;
-        static const uint32_t WINDOW_MINIMIZED;
-        static const uint32_t WINDOW_MAXIMIZED;
-        static const uint32_t WINDOW_INPUT_GRABBED;
-        static const uint32_t WINDOW_INPUT_FOCUS;
-        static const uint32_t WINDOW_MOUSE_CAPTURE;
+        static const uint32_t WINDOW_FULLSCREEN;            /**< 全屏窗口 */
+        static const uint32_t WINDOW_FULLSCREEN_DESKTOP;    /**< 桌面全屏窗口 */
+        static const uint32_t WINDOW_OPENGL;                /**< Open GL 窗口 */
+        static const uint32_t WINDOW_SHOWN;                 /**< 显示窗口 */
+        static const uint32_t WINDOW_HIDDEN;                /**< 隐藏窗口 */
+        static const uint32_t WINDOW_BORDERLESS;            /**< 无边框窗口 */
+        static const uint32_t WINDOW_RESIZABLE;             /**< 可调整大小 */
+        static const uint32_t WINDOW_MINIMIZED;             /**< 最小化 */
+        static const uint32_t WINDOW_MAXIMIZED;             /**< 最大化 */
+        static const uint32_t WINDOW_INPUT_GRABBED;         /**< 获取输入 */
+        static const uint32_t WINDOW_INPUT_FOCUS;           /**< 获取输入焦点 */
+        static const uint32_t WINDOW_MOUSE_CAPTURE;         /**< 获取鼠标 */
+
+        static const uint32_t PIXEL_FORMAT_INDEX8;
+        static const uint32_t PIXEL_FORMAT_RGB444;
+        static const uint32_t PIXEL_FORMAT_RGB555;
+        static const uint32_t PIXEL_FORMAT_BGR555;
+        static const uint32_t PIXEL_FORMAT_ARGB4444;
+        static const uint32_t PIXEL_FORMAT_RGBA4444;
+        static const uint32_t PIXEL_FORMAT_ABGR4444;
+        static const uint32_t PIXEL_FORMAT_BGRA4444;
+        static const uint32_t PIXEL_FORMAT_ARGB1555;
+        static const uint32_t PIXEL_FORMAT_RGBA5551;
+        static const uint32_t PIXEL_FORMAT_ABGR1555;
+        static const uint32_t PIXEL_FORMAT_BGRA5551;
+        static const uint32_t PIXEL_FORMAT_RGB565;
+        static const uint32_t PIXEL_FORMAT_BGR565;
+        static const uint32_t PIXEL_FORMAT_RGB24;
+        static const uint32_t PIXEL_FORMAT_BGR24;
+        static const uint32_t PIXEL_FORMAT_RGB888;
+        static const uint32_t PIXEL_FORMAT_RGBX8888;
+        static const uint32_t PIXEL_FORMAT_BGR888;
+        static const uint32_t PIXEL_FORMAT_BGRX8888;
+        static const uint32_t PIXEL_FORMAT_ARGB8888;
+        static const uint32_t PIXEL_FORMAT_RGBA8888;
+        static const uint32_t PIXEL_FORMAT_ABGR8888;
+        static const uint32_t PIXEL_FORMAT_BGRA8888;
+
+        /**
+         * @brief 窗口图标信息
+         */
+        struct WindowIcon
+        {
+            void*       pixels;     /**< 像素数据 */
+            int32_t     width;      /**< 图标宽度 */
+            int32_t     height;     /**< 图标高度 */
+            int32_t     depth;      /**< 颜色色深 */
+            int32_t     pitch;      /**< 图像跨度 */
+            uint32_t    format;     /**< 像素格式 */
+        };
 
         /** Constructor */
         Window();
@@ -71,6 +109,12 @@ namespace Tiny3D
          * @remarks 析构函数同样会自动调用
          */
         void destroy();
+
+        /**
+         * @brief 设置窗口图标
+         * @param [in] icon : 图标数据对象
+         */
+        void setWindowIcon(const WindowIcon &icon);
 
     protected:
         IWindow *mWindow;

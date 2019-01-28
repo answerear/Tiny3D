@@ -151,6 +151,8 @@ namespace Tiny3D
 
         ImageCodecMap   mCodecMap;
     };
+
+    #define T3D_IMAGE_CODEC     ImageCodec::getInstance()
 }
 
 

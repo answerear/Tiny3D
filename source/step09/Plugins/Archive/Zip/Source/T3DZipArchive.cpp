@@ -20,6 +20,7 @@
 
 #include "T3DZipArchive.h"
 #include "minizip/unzip.h"
+#include "T3DZipArchiveError.h"
 
 
 namespace Tiny3D

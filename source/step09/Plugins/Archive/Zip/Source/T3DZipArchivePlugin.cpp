@@ -20,7 +20,7 @@
 
 #include "T3DZipArchivePlugin.h"
 #include "T3DZipArchiveCreator.h"
-
+#include "T3DZipArchiveError.h"
 
 namespace Tiny3D
 {

@@ -17,41 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_SDL_DESKTOP_WINDOW_H__
-#define __T3D_SDL_DESKTOP_WINDOW_H__
+
+#ifndef __T3D_ZIP_ARCHIVE_ERROR_H__
+#define __T3D_ZIP_ARCHIVE_ERROR_H__
 
 
-#include "Adapter/T3DWindowInterface.h"
-#include <SDL.h>
 
 namespace Tiny3D
 {
-    class IWindow;
-
-    class SDLDesktopWindow : public IWindow
+    enum ZipArchiveError
     {
-        T3D_DISABLE_COPY(SDLDesktopWindow);
-
-    public:
-        SDLDesktopWindow();
-
-        virtual ~SDLDesktopWindow();
-
-        virtual TResult create(const char *title, int32_t x, int32_t y, 
-            int32_t w, int32_t h, uint32_t flags) override;
-
-        virtual void destroy() override;
-
-        virtual void *getNativeWinObject() override;
-
-        virtual void setWindowIcon(void *pixels, int32_t width, int32_t height, 
-            int32_t depth, int32_t pitch, uint32_t format) override;
-
-    protected:
-        SDL_Window  *mSDLWindow;        /**< SDL 窗口对象 */
-        SDL_Surface *mSDLIconSurface;   /**< SDL 窗口图标对象 */
+        T3D_ERR_ZIP_FILE_INFO = T3D_ERR_ZIP_ARCHIVE,    /**< 获取 zip 文件信息出错 */
+        T3D_ERR_ZIP_FILE_GOTO_FILE,                     /**< 跳转到第一个压缩文件失败 */
+        T3D_ERR_ZIP_FILE_LOCATE_FILE,                   /**< 定位指定文件失败 */
+        T3D_ERR_ZIP_FILE_GET_FILE_INFO,                 /**< 获取 zip 中的文件信息出错 */
+        T3D_ERR_ZIP_FILE_READ_DATA,                     /**< 获取 zip 中的单个文件数据出错 */
+        T3D_ERR_ZIP_FILE_NOT_SUPPORT,                   /**< 不支持该功能 */
+        T3D_ERR_ZIP_FILE_OPEN_FILE,                     /**< 打开当前被压缩的文件失败 */
     };
 }
 
 
-#endif  /*__T3D_SDL_DESKTOP_WINDOW_H__*/
+#endif  /*__T3D_ZIP_ARCHIVE_ERROR_H__*/

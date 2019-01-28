@@ -19,6 +19,7 @@
 
 
 #include "T3DZipArchivePlugin.h"
+#include "T3DZipArchiveError.h"
 
 
 Tiny3D::ZipArchivePlugin *gPlugin = nullptr;

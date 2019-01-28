@@ -140,9 +140,12 @@ if (TINY3D_OS_WINDOWS)
     
     add_custom_command(TARGET ${BIN_NAME}
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Tiny3D.cfg
-        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Tiny3D.cfg
-        #COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../assets
+        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Windows/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Tiny3D.cfg
+        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Windows/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Tiny3D.cfg
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/assets/icon
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/assets/icon
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/icon ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/assets/icon
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/icon ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/assets/icon
         )
 elseif (TINY3D_OS_MACOSX)
     # Mac OS X

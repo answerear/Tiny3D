@@ -248,6 +248,19 @@ namespace Tiny3D
                 codec = itr->second;
             }
         }
+        else
+        {
+            auto itr = mCodecMap.begin();
+            while (itr != mCodecMap.end())
+            {
+                if (itr->second->isSupportedType(data, size, type))
+                {
+                    codec = itr->second;
+                    break;
+                }
+                ++itr;
+            }
+        }
 
         return codec;
     }

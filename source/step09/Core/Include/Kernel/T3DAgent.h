@@ -190,6 +190,12 @@ namespace Tiny3D
         TResult unloadPlugins();
 
         /**
+         * @brief 初始化资源
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult initAssets();
+
+        /**
          * @brief 创建渲染窗口
          */
         TResult createRenderWindow();

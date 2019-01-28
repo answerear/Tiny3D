@@ -85,13 +85,9 @@ namespace Tiny3D
 
         do
         {
+#if !defined (T3D_OS_ANDROID)
             // 获取应用程序路径、应用程序名称
             StringUtil::split(appPath, mAppPath, mAppName);
-
-#if defined (T3D_OS_ANDROID)
-            // Android 单独设置插件路径，不使用配置文件里面设置的路径
-            // 因为android的插件在/data/data/appname/lib文件下
-            mPluginsPath = Dir::getLibraryPath();
 #endif
 
             // 初始化应用程序框架，这个需要放在最前面，否则平台相关接口均不能用
@@ -107,6 +103,10 @@ namespace Tiny3D
             {
                 break;
             }
+
+#if defined (T3D_OS_ANDROID)
+            mAppPath = Dir::getAppPath();
+#endif
 
             // 初始化事件系统
             ret = initEventSystem();
@@ -138,6 +138,13 @@ namespace Tiny3D
 
             // 加载配置文件中指定的插件
             ret = loadPlugins();
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            // 初始化资源
+            ret = initAssets();
             if (ret != T3D_OK)
             {
                 break;
@@ -524,6 +531,10 @@ namespace Tiny3D
 
 #if !defined (T3D_OS_ANDROID)
             mPluginsPath = itr->second.stringValue();
+#else
+            // Android 单独设置插件路径，不使用配置文件里面设置的路径
+            // 因为android的插件在/data/data/appname/lib文件下
+            mPluginsPath = Dir::getLibraryPath();
 #endif
 
             key.setString("List");
@@ -583,6 +594,57 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Agent::initAssets()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            Settings &assets = mSettings["Assets"].mapValue();
+
+            // Assets 资源路径
+            String str("Path");
+            Variant key(str);
+            Settings::const_iterator itr = assets.find(key);
+            if (itr == assets.end())
+            {
+                ret = T3D_ERR_SETTINGS_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Could not find the assets path \
+                    settings item !");
+                break;
+            }
+
+            // 所有资源文件
+            const VariantMap &pathes = itr->second.mapValue();
+            auto i = pathes.begin();
+            while (i != pathes.end())
+            {
+                const String &path = i->first.stringValue();
+                const String &type = i->second.stringValue();
+                ArchivePtr archive = mArchiveMgr->loadArchive(path, type);
+                if (archive == nullptr)
+                {
+                    ret = T3D_ERR_RES_LOAD_FAILED;
+                    T3D_LOG_ERROR(LOG_TAG_ENGINE, "Load archive failed ! \
+                        Path :%s", path.c_str());
+                    break;
+                }
+                ++i;
+            }
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Agent::createRenderWindow()
     {
         TResult ret = T3D_OK;
@@ -613,6 +675,25 @@ namespace Tiny3D
             {
                 break;
             }
+
+            // 加载图标资源
+            String path = settings["Icon"].stringValue();
+            Image image;
+            ret = image.load(path);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            // 设置窗口图标
+            Window::WindowIcon icon;
+            icon.pixels = image.getData();
+            icon.width = image.getWidth();
+            icon.height = image.getHeight();
+            icon.depth = image.getBPP();
+            icon.pitch = image.getPitch();
+            icon.format = Window::PIXEL_FORMAT_ARGB8888;
+            mWindow->setWindowIcon(icon);
         } while (0);
         
         return ret;

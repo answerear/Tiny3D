@@ -81,7 +81,9 @@ namespace Tiny3D
 
     bool FileSystemArchive::exists(const String &name) const
     {
-        String path = getLocation() + Dir::NATIVE_SEPARATOR + name;
+        String appPath = Dir::getAppPath();
+        String path = appPath + Dir::NATIVE_SEPARATOR + getLocation() 
+            + Dir::NATIVE_SEPARATOR + name;
         return Dir::exists(path);
     }
 
@@ -107,8 +109,8 @@ namespace Tiny3D
                 if (!fs->open(path.c_str(), FileDataStream::E_MODE_READ_WRITE))
                 {
                     ret = T3D_ERR_FILE_NOT_EXIST;
-                    T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Open file [%s] from file system failed !",
-                        name.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Open file [%s] from file\
+                         system failed !", name.c_str());
                     break;
                 }
             }
@@ -118,8 +120,8 @@ namespace Tiny3D
             if (fs->read(data, size) != size)
             {
                 ret = T3D_ERR_FILE_DATA_MISSING;
-                T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Read file [%s] from file system failed !",
-                    name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Read file [%s] from file \
+                    system failed !", name.c_str());
                 break;
             }
 
@@ -151,8 +153,8 @@ namespace Tiny3D
                 if (!fs->open(path.c_str(), FileDataStream::E_MODE_READ_WRITE))
                 {
                     ret = T3D_ERR_FILE_NOT_EXIST;
-                    T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Open file [%s] from file system failed !",
-                        name.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Open file [%s] from file\
+                         system failed !", name.c_str());
                     break;
                 }
             }
@@ -163,8 +165,8 @@ namespace Tiny3D
             if (fs->write(data, size) != size)
             {
                 ret = T3D_ERR_FILE_DATA_MISSING;
-                T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Write file [%s] from file system failed !",
-                    name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Write file [%s] from file \
+                    system failed !", name.c_str());
                 break;
             }
 

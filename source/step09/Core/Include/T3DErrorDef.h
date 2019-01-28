@@ -34,21 +34,17 @@ namespace Tiny3D
 
         T3D_ERR_PLUGIN_LOAD_FAILED      = T3D_ERR_CORE + 0x0020, /**< 加载插件出错 */
 
-        T3D_ERR_ZIP_FILE_INFO           = T3D_ERR_CORE + 0x0040, /**< 获取 zip 文件信息出错 */
-        T3D_ERR_ZIP_FILE_GOTO_FILE      = T3D_ERR_CORE + 0x0041, /**< 跳转到第一个压缩文件失败 */
-        T3D_ERR_ZIP_FILE_LOCATE_FILE    = T3D_ERR_CORE + 0x0042, /**< 定位指定文件失败 */
-        T3D_ERR_ZIP_FILE_GET_FILE_INFO  = T3D_ERR_CORE + 0x0043, /**< 获取 zip 中的文件信息出错 */
-        T3D_ERR_ZIP_FILE_READ_DATA      = T3D_ERR_CORE + 0x0044, /**< 获取 zip 中的单个文件数据出错 */
-        T3D_ERR_ZIP_FILE_NOT_SUPPORT    = T3D_ERR_CORE + 0x0045, /**< 不支持该功能 */
-        T3D_ERR_ZIP_FILE_OPEN_FILE      = T3D_ERR_CORE + 0x0046, /**< 打开当前被压缩的文件失败 */
+        T3D_ERR_PLG_NOT_EXISTS          = T3D_ERR_CORE + 0x0040, /**< 插件不存在 */
+        T3D_ERR_PLG_DUPLICATED          = T3D_ERR_CORE + 0x0041, /**< 插件已经存在 */
+        T3D_ERR_PLG_NOT_DYLIB           = T3D_ERR_CORE + 0x0042, /**< 不是插件资源*/
+        T3D_ERR_PLG_NO_FUNCTION         = T3D_ERR_CORE + 0x0043, /**< 获取插件函数失败 */
+        T3D_ERR_PLG_NO_PATH             = T3D_ERR_CORE + 0x0044, /**< 无法获取到插件路径 */
 
-        T3D_ERR_PLG_NOT_EXISTS          = T3D_ERR_CORE + 0x0060, /**< 插件不存在 */
-        T3D_ERR_PLG_DUPLICATED          = T3D_ERR_CORE + 0x0061, /**< 插件已经存在 */
-        T3D_ERR_PLG_NOT_DYLIB           = T3D_ERR_CORE + 0x0062, /**< 不是插件资源*/
-        T3D_ERR_PLG_NO_FUNCTION         = T3D_ERR_CORE + 0x0063, /**< 获取插件函数失败 */
-        T3D_ERR_PLG_NO_PATH             = T3D_ERR_CORE + 0x0064, /**< 无法获取到插件路径 */
+        T3D_ERR_IMG_NOT_FOUND           = T3D_ERR_CORE + 0x0060, /**< 找不到对应的图像编解码器 */
 
-        T3D_ERR_IMG_NOT_FOUND           = T3D_ERR_CORE + 0x0080, /**< 找不到对应的图像编解码器 */
+        T3D_ERR_SETTINGS_NOT_FOUND      = T3D_ERR_CORE + 0x0080, /**< 找不到设置项 */
+
+        T3D_ERR_RES_LOAD_FAILED         = T3D_ERR_CORE + 0x00A0, /**< 加载资源失败 */
     };
 }
 

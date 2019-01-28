@@ -62,6 +62,18 @@ namespace Tiny3D
          */
         virtual void *getNativeWinObject() = 0;
 
+        /**
+         * @brief 设置窗口图标
+         * @param [in] pixels : 图标数据
+         * @param [in] width : 图标宽度
+         * @param [in] height : 图标高度
+         * @param [in] depth : 图标色深
+         * @param [in] pitch : 图标数据跨度
+         * @param [in] format : 图标数据格式
+         */
+        virtual void setWindowIcon(void *pixels, int32_t width, int32_t height,
+            int32_t depth, int32_t pitch, uint32_t format) = 0;
+
     protected:
     };
 }
