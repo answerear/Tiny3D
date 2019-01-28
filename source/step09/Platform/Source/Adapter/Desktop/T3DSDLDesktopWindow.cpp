@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -28,6 +28,7 @@ namespace Tiny3D
 {
     SDLDesktopWindow::SDLDesktopWindow()
         : mSDLWindow(nullptr)
+        , mSDLIconSurface(nullptr)
     {
 
     }
@@ -66,6 +67,12 @@ namespace Tiny3D
 
     void SDLDesktopWindow::destroy()
     {
+        if (mSDLIconSurface != nullptr)
+        {
+            SDL_FreeSurface(mSDLIconSurface);
+            mSDLIconSurface = nullptr;
+        }
+
         if (mSDLWindow != nullptr)
         {
             SDL_DestroyWindow(mSDLWindow);
@@ -82,5 +89,26 @@ namespace Tiny3D
 #else
         return nullptr;
 #endif
+    }
+
+    void SDLDesktopWindow::setWindowIcon(void *pixels, int32_t width,
+        int32_t height, int32_t depth, int32_t pitch, uint32_t format)
+    {
+        if (mSDLIconSurface != nullptr)
+        {
+            SDL_FreeSurface(mSDLIconSurface);
+            mSDLIconSurface = nullptr;
+        }
+
+        if (mSDLWindow != nullptr)
+        {
+            mSDLIconSurface = SDL_CreateRGBSurfaceWithFormatFrom(pixels, width,
+                height, depth, pitch, format);
+
+            if (mSDLIconSurface != nullptr)
+            {
+                SDL_SetWindowIcon(mSDLWindow, mSDLIconSurface);
+            }
+        }
     }
 }

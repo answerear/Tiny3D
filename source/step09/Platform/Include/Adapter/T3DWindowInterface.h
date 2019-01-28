@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -61,6 +61,18 @@ namespace Tiny3D
          * @remarks 不同平台返回不同的对象，根据各自平台各自解析
          */
         virtual void *getNativeWinObject() = 0;
+
+        /**
+         * @brief 设置窗口图标
+         * @param [in] pixels : 图标数据
+         * @param [in] width : 图标宽度
+         * @param [in] height : 图标高度
+         * @param [in] depth : 图标色深
+         * @param [in] pitch : 图标数据跨度
+         * @param [in] format : 图标数据格式
+         */
+        virtual void setWindowIcon(void *pixels, int32_t width, int32_t height,
+            int32_t depth, int32_t pitch, uint32_t format) = 0;
 
     protected:
     };

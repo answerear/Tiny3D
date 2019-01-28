@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -41,6 +41,32 @@ namespace Tiny3D
     const uint32_t Window::WINDOW_INPUT_FOCUS = SDL_WINDOW_INPUT_FOCUS;
     const uint32_t Window::WINDOW_MOUSE_CAPTURE = SDL_WINDOW_MOUSE_CAPTURE;
 
+    const uint32_t Window::PIXEL_FORMAT_INDEX8 = SDL_PIXELFORMAT_INDEX8;
+    const uint32_t Window::PIXEL_FORMAT_RGB444 = SDL_PIXELFORMAT_RGB444;
+    const uint32_t Window::PIXEL_FORMAT_RGB555 = SDL_PIXELFORMAT_RGB555;
+    const uint32_t Window::PIXEL_FORMAT_BGR555 = SDL_PIXELFORMAT_BGR555;
+    const uint32_t Window::PIXEL_FORMAT_ARGB4444 = SDL_PIXELFORMAT_ARGB4444;
+    const uint32_t Window::PIXEL_FORMAT_RGBA4444 = SDL_PIXELFORMAT_RGBA4444;
+    const uint32_t Window::PIXEL_FORMAT_ABGR4444 = SDL_PIXELFORMAT_ABGR4444;
+    const uint32_t Window::PIXEL_FORMAT_BGRA4444 = SDL_PIXELFORMAT_BGRA4444;
+    const uint32_t Window::PIXEL_FORMAT_ARGB1555 = SDL_PIXELFORMAT_ARGB1555;
+    const uint32_t Window::PIXEL_FORMAT_RGBA5551 = SDL_PIXELFORMAT_RGBA5551;
+    const uint32_t Window::PIXEL_FORMAT_ABGR1555 = SDL_PIXELFORMAT_ABGR1555;
+    const uint32_t Window::PIXEL_FORMAT_BGRA5551 = SDL_PIXELFORMAT_BGRA5551;
+    const uint32_t Window::PIXEL_FORMAT_RGB565 = SDL_PIXELFORMAT_RGB565;
+    const uint32_t Window::PIXEL_FORMAT_BGR565 = SDL_PIXELFORMAT_BGR565;
+    const uint32_t Window::PIXEL_FORMAT_RGB24 = SDL_PIXELFORMAT_RGB24;
+    const uint32_t Window::PIXEL_FORMAT_BGR24 = SDL_PIXELFORMAT_BGR24;
+    const uint32_t Window::PIXEL_FORMAT_RGB888 = SDL_PIXELFORMAT_RGB888;
+    const uint32_t Window::PIXEL_FORMAT_RGBX8888 = SDL_PIXELFORMAT_RGBX8888;
+    const uint32_t Window::PIXEL_FORMAT_BGR888 = SDL_PIXELFORMAT_BGR888;
+    const uint32_t Window::PIXEL_FORMAT_BGRX8888 = SDL_PIXELFORMAT_BGRX8888;
+    const uint32_t Window::PIXEL_FORMAT_ARGB8888 = SDL_PIXELFORMAT_ARGB8888;
+    const uint32_t Window::PIXEL_FORMAT_RGBA8888 = SDL_PIXELFORMAT_RGBA8888;
+    const uint32_t Window::PIXEL_FORMAT_ABGR8888 = SDL_PIXELFORMAT_ABGR8888;
+    const uint32_t Window::PIXEL_FORMAT_BGRA8888 = SDL_PIXELFORMAT_BGRA8888;
+
+
     Window::Window()
     {
         mWindow = T3D_PLATFORM_FACTORY.createPlatformWindow();
@@ -69,6 +95,15 @@ namespace Tiny3D
         if (mWindow != nullptr)
         {
             mWindow->destroy();
+        }
+    }
+
+    void Window::setWindowIcon(const WindowIcon &icon)
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->setWindowIcon(icon.pixels, icon.width, icon.height, 
+                icon.depth, icon.pitch, icon.format);
         }
     }
 }

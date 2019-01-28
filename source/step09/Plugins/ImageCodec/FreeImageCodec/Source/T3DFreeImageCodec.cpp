@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -246,6 +246,7 @@ namespace Tiny3D
             uint32_t width = FreeImage_GetWidth(dib);
             uint32_t height = FreeImage_GetHeight(dib);
             int32_t bpp = FreeImage_GetBPP(dib);
+            BITMAPINFO *bi = FreeImage_GetInfo(dib);
 
             FREE_IMAGE_TYPE imageType = FreeImage_GetImageType(dib);
             FREE_IMAGE_COLOR_TYPE colorType = FreeImage_GetColorType(dib);

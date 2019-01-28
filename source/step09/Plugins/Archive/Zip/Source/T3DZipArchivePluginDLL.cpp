@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -19,21 +19,22 @@
 
 
 #include "T3DZipArchivePlugin.h"
+#include "T3DZipArchiveError.h"
 
 
 Tiny3D::ZipArchivePlugin *gPlugin = nullptr;
 
 extern "C"
 {
-    TResult T3D_ZIPARCHIVE_API ZipArchive_dllStartPlugin()
+    T3D_ZIPARCHIVE_API TResult dllStartPlugin()
     {
         gPlugin = new Tiny3D::ZipArchivePlugin();
-        return Tiny3D::Engine::getInstance().installPlugin(gPlugin);
+        return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
     }
 
-    TResult T3D_ZIPARCHIVE_API ZipArchive_dllStopPlugin()
+    T3D_ZIPARCHIVE_API TResult dllStopPlugin()
     {
-        TResult ret = Tiny3D::Engine::getInstance().uninstallPlugin(gPlugin);
+        TResult ret = Tiny3D::Agent::getInstance().uninstallPlugin(gPlugin);
 
         if (ret == Tiny3D::T3D_OK)
         {

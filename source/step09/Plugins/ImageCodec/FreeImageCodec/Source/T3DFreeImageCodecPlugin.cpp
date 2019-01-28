@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -45,24 +45,42 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
         
-        mImageCodec = FreeImageCodec::create();
-        
-        const FreeImageCodec::FileTypeList &filetypes 
-            = mImageCodec->getSupportFileTypeList();
-
-        size_t i = 0;
-
-        for (i = 0; i < filetypes.size(); ++i)
+        do 
         {
-            ImageCodecBase::FileType type = filetypes[i];
-            ret = Engine::getInstance().addImageCodec(type, mImageCodec);
-            if (ret != T3D_OK)
+            mImageCodec = FreeImageCodec::create();
+            if (mImageCodec == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
-                    "Install plugin failed !");
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, "Create FreeImageCodec \
+                    failed !");
                 break;
             }
-        }
+
+            ret = mImageCodec->startup();
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, "Startup FreeImageCodec \
+                    failed !");
+                break;
+            }
+
+            const FreeImageCodec::FileTypeList &filetypes
+                = mImageCodec->getSupportFileTypeList();
+
+            size_t i = 0;
+
+            for (i = 0; i < filetypes.size(); ++i)
+            {
+                ImageCodecBase::FileType type = filetypes[i];
+                ret = Agent::getInstance().addImageCodec(type, mImageCodec);
+                if (ret != T3D_OK)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
+                        "Install plugin failed !");
+                    break;
+                }
+            }
+        } while (0);
 
         return ret;
     }
@@ -92,7 +110,7 @@ namespace Tiny3D
         for (i = 0; i < filetypes.size(); ++i)
         {
             ImageCodecBase::FileType type = filetypes[i];
-            ret = Engine::getInstance().removeImageCodec(type);
+            ret = Agent::getInstance().removeImageCodec(type);
             if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,

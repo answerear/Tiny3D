@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -19,6 +19,7 @@
 
 
 #include "Kernel/T3DImage.h"
+#include "ImageCodec/T3DImageCodec.h"
 
 
 namespace Tiny3D
@@ -145,7 +146,7 @@ namespace Tiny3D
                 break;
             }
 
-//             bool ret = T3D_IMAGE_CODEC.decode(path, *this);
+            ret = T3D_IMAGE_CODEC.decode(path, *this);
             if (ret != T3D_OK)
             {
                 break;
@@ -169,8 +170,8 @@ namespace Tiny3D
             {
                 break;
             }
-//             bool ret = T3D_IMAGE_CODEC.decode(stream, *this);
 
+            ret = T3D_IMAGE_CODEC.decode(stream, *this);
             if (ret != T3D_OK)
             {
                 break;
@@ -229,17 +230,17 @@ namespace Tiny3D
     TResult Image::save(const String &path, 
         const String &fileType /* = FILETYPE_PNG */) const
     {
-//         ImageCodecBase::FileType eType = (ImageCodecBase::FileType)getFileType(fileType);
-//         return T3D_IMAGE_CODEC.encode(path, *this, eType);
-        return T3D_OK;
+        ImageCodecBase::FileType eType = (ImageCodecBase::FileType)getFileType(fileType);
+        return T3D_IMAGE_CODEC.encode(path, *this, eType);
+//         return T3D_OK;
     }
 
     TResult Image::save(DataStream &stream, 
         const String &fileType /* = FILETYPE_PNG */) const
     {
-//         ImageCodecBase::FileType eType = (ImageCodecBase::FileType)getFileType(fileType);
-//         return T3D_IMAGE_CODEC.encode(stream, *this, eType);
-        return T3D_OK;
+        ImageCodecBase::FileType eType = (ImageCodecBase::FileType)getFileType(fileType);
+        return T3D_IMAGE_CODEC.encode(stream, *this, eType);
+//         return T3D_OK;
     }
 
     TResult Image::flip()

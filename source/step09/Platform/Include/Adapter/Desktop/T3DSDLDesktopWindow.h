@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -44,8 +44,12 @@ namespace Tiny3D
 
         virtual void *getNativeWinObject() override;
 
+        virtual void setWindowIcon(void *pixels, int32_t width, int32_t height, 
+            int32_t depth, int32_t pitch, uint32_t format) override;
+
     protected:
-        SDL_Window  *mSDLWindow;
+        SDL_Window  *mSDLWindow;        /**< SDL 窗口对象 */
+        SDL_Surface *mSDLIconSurface;   /**< SDL 窗口图标对象 */
     };
 }
 

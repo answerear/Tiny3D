@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -19,7 +19,7 @@
 
 #include "T3DErrorDef.h"
 
-#include "Kernel/T3DEngine.h"
+#include "Kernel/T3DAgent.h"
 #include "Kernel/T3DPlugin.h"
 #include "Kernel/T3DConfigFile.h"
 
@@ -44,11 +44,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    T3D_INIT_SINGLETON(Engine);
+    T3D_INIT_SINGLETON(Agent);
 
     //--------------------------------------------------------------------------
 
-    Engine::Engine()
+    Agent::Agent()
         : mLogger(nullptr)
         , mEventMgr(nullptr)
         , mObjTracer(nullptr)
@@ -58,7 +58,7 @@ namespace Tiny3D
     {
     }
 
-    Engine::~Engine()
+    Agent::~Agent()
     {
         unloadPlugins();
 
@@ -78,20 +78,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::init(const String &appPath, 
+    TResult Agent::init(const String &appPath, 
         const String &config /* = "Tiny3D.cfg" */)
     {
         TResult ret = T3D_OK;
 
         do
         {
+#if !defined (T3D_OS_ANDROID)
             // 获取应用程序路径、应用程序名称
             StringUtil::split(appPath, mAppPath, mAppName);
-
-#if defined (T3D_OS_ANDROID)
-            // Android 单独设置插件路径，不使用配置文件里面设置的路径
-            // 因为android的插件在/data/data/appname/lib文件下
-            mPluginsPath = Dir::getLibraryPath();
 #endif
 
             // 初始化应用程序框架，这个需要放在最前面，否则平台相关接口均不能用
@@ -107,6 +103,10 @@ namespace Tiny3D
             {
                 break;
             }
+
+#if defined (T3D_OS_ANDROID)
+            mAppPath = Dir::getAppPath();
+#endif
 
             // 初始化事件系统
             ret = initEventSystem();
@@ -143,6 +143,13 @@ namespace Tiny3D
                 break;
             }
 
+            // 初始化资源
+            ret = initAssets();
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
             // 创建渲染窗口
             ret = createRenderWindow();
             if (ret != T3D_OK)
@@ -156,7 +163,7 @@ namespace Tiny3D
         return ret;
     }
 
-    bool Engine::run()
+    bool Agent::run()
     {
         Application *theApp = Application::getInstancePtr();
         theApp->applicationDidFinishLaunching();
@@ -181,26 +188,26 @@ namespace Tiny3D
         return true;
     }
 
-    void Engine::renderOneFrame()
+    void Agent::renderOneFrame()
     {
         
     }
 
     //--------------------------------------------------------------------------
 
-    void Engine::appWillEnterForeground()
+    void Agent::appWillEnterForeground()
     {
         T3D_LOG_ENTER_FOREGROUND();
     }
 
-    void Engine::appDidEnterBackground()
+    void Agent::appDidEnterBackground()
     {
         T3D_LOG_ENTER_BACKGROUND();
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::installPlugin(Plugin *plugin)
+    TResult Agent::installPlugin(Plugin *plugin)
     {
         TResult ret = T3D_OK;
 
@@ -248,7 +255,7 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Engine::uninstallPlugin(Plugin *plugin)
+    TResult Agent::uninstallPlugin(Plugin *plugin)
     {
         TResult ret = T3D_OK;
 
@@ -286,7 +293,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::loadPlugin(const String &name)
+    TResult Agent::loadPlugin(const String &name)
     {
         T3D_LOG_INFO(LOG_TAG_ENGINE, "Load plugin %s ...", name.c_str());
 
@@ -341,7 +348,7 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Engine::unloadPlugin(const String &name)
+    TResult Agent::unloadPlugin(const String &name)
     {
         T3D_LOG_INFO(LOG_TAG_ENGINE, "Unload plugin %s ...", name.c_str());
 
@@ -383,14 +390,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::addArchiveCreator(ArchiveCreator *creator)
+    TResult Agent::addArchiveCreator(ArchiveCreator *creator)
     {
         TResult ret = T3D_OK;
         mArchiveMgr->addArchiveCreator(creator);
         return ret;
     }
 
-    TResult Engine::removeArchiveCreator(ArchiveCreator *creator)
+    TResult Agent::removeArchiveCreator(ArchiveCreator *creator)
     {
         TResult ret = T3D_OK;
         mArchiveMgr->removeArchiveCreator(creator->getType());
@@ -399,20 +406,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::addImageCodec(ImageCodecBase::FileType type,
+    TResult Agent::addImageCodec(ImageCodecBase::FileType type,
         ImageCodecBasePtr codec)
     {
         return mImageCodec->addImageCodec(type, codec);
     }
 
-    TResult Engine::removeImageCodec(ImageCodecBase::FileType type)
+    TResult Agent::removeImageCodec(ImageCodecBase::FileType type)
     {
         return mImageCodec->removeImageCodec(type);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::initApplication()
+    TResult Agent::initApplication()
     {
         TResult ret = T3D_OK;
 
@@ -435,7 +442,7 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Engine::initLogSystem()
+    TResult Agent::initLogSystem()
     {
         TResult ret = T3D_ERR_FAIL;
 
@@ -443,7 +450,7 @@ namespace Tiny3D
 
         if (mLogger != nullptr)
         {
-            ret = mLogger->startup(1000, "Engine", true, true);
+            ret = mLogger->startup(1000, "Agent", true, true);
         }
 
         T3D_LOG_INFO(LOG_TAG_ENGINE, "Start Tiny3D ...... version %s",
@@ -455,19 +462,19 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Engine::initEventSystem()
+    TResult Agent::initEventSystem()
     {
         mEventMgr = new EventManager(10);
         return T3D_OK;
     }
 
-    TResult Engine::initObjectTracer()
+    TResult Agent::initObjectTracer()
     {
         mObjTracer = new ObjectTracer();
         return T3D_OK;
     }
 
-    TResult Engine::initManagers()
+    TResult Agent::initManagers()
     {
         mImageCodec = ImageCodec::create();
         mArchiveMgr = ArchiveManager::create();
@@ -476,7 +483,7 @@ namespace Tiny3D
         return T3D_OK;
     }
 
-    TResult Engine::loadConfig(const String &cfgPath)
+    TResult Agent::loadConfig(const String &cfgPath)
     {
         TResult ret = T3D_OK;
 
@@ -504,7 +511,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::loadPlugins()
+    TResult Agent::loadPlugins()
     {
         TResult ret = T3D_OK;
 
@@ -524,6 +531,10 @@ namespace Tiny3D
 
 #if !defined (T3D_OS_ANDROID)
             mPluginsPath = itr->second.stringValue();
+#else
+            // Android 单独设置插件路径，不使用配置文件里面设置的路径
+            // 因为android的插件在/data/data/appname/lib文件下
+            mPluginsPath = Dir::getLibraryPath();
 #endif
 
             key.setString("List");
@@ -555,7 +566,7 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Engine::unloadPlugins()
+    TResult Agent::unloadPlugins()
     {
         TResult ret = T3D_OK;
 
@@ -583,7 +594,58 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Engine::createRenderWindow()
+    TResult Agent::initAssets()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            Settings &assets = mSettings["Assets"].mapValue();
+
+            // Assets 资源路径
+            String str("Path");
+            Variant key(str);
+            Settings::const_iterator itr = assets.find(key);
+            if (itr == assets.end())
+            {
+                ret = T3D_ERR_SETTINGS_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Could not find the assets path \
+                    settings item !");
+                break;
+            }
+
+            // 所有资源文件
+            const VariantMap &pathes = itr->second.mapValue();
+            auto i = pathes.begin();
+            while (i != pathes.end())
+            {
+                const String &path = i->first.stringValue();
+                const String &type = i->second.stringValue();
+                ArchivePtr archive = mArchiveMgr->loadArchive(path, type);
+                if (archive == nullptr)
+                {
+                    ret = T3D_ERR_RES_LOAD_FAILED;
+                    T3D_LOG_ERROR(LOG_TAG_ENGINE, "Load archive failed ! \
+                        Path :%s", path.c_str());
+                    break;
+                }
+                ++i;
+            }
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::createRenderWindow()
     {
         TResult ret = T3D_OK;
 
@@ -613,6 +675,25 @@ namespace Tiny3D
             {
                 break;
             }
+
+            // 加载图标资源
+            String path = settings["Icon"].stringValue();
+            Image image;
+            ret = image.load(path);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            // 设置窗口图标
+            Window::WindowIcon icon;
+            icon.pixels = image.getData();
+            icon.width = image.getWidth();
+            icon.height = image.getHeight();
+            icon.depth = image.getBPP();
+            icon.pitch = image.getPitch();
+            icon.format = Window::PIXEL_FORMAT_ARGB8888;
+            mWindow->setWindowIcon(icon);
         } while (0);
         
         return ret;

@@ -17,27 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_TIME_INTERFACE_H__
-#define __T3D_TIME_INTERFACE_H__
 
+#ifndef __T3D_ZIP_ARCHIVE_ERROR_H__
+#define __T3D_ZIP_ARCHIVE_ERROR_H__
 
-#include "T3DPlatformPrerequisites.h"
-#include "T3DType.h"
-#include "T3DMacro.h"
 
 
 namespace Tiny3D
 {
-    class ITime
+    enum ZipArchiveError
     {
-    public:
-        T3D_DECLARE_INTERFACE(ITime);
-
-        virtual int64_t currentSecsSinceEpoch() = 0;
-
-        virtual int64_t currentMSecsSinceEpoch() = 0;
+        T3D_ERR_ZIP_FILE_INFO = T3D_ERR_ZIP_ARCHIVE,    /**< 获取 zip 文件信息出错 */
+        T3D_ERR_ZIP_FILE_GOTO_FILE,                     /**< 跳转到第一个压缩文件失败 */
+        T3D_ERR_ZIP_FILE_LOCATE_FILE,                   /**< 定位指定文件失败 */
+        T3D_ERR_ZIP_FILE_GET_FILE_INFO,                 /**< 获取 zip 中的文件信息出错 */
+        T3D_ERR_ZIP_FILE_READ_DATA,                     /**< 获取 zip 中的单个文件数据出错 */
+        T3D_ERR_ZIP_FILE_NOT_SUPPORT,                   /**< 不支持该功能 */
+        T3D_ERR_ZIP_FILE_OPEN_FILE,                     /**< 打开当前被压缩的文件失败 */
     };
 }
 
 
-#endif  /*__T3D_TIME_INTERFACE_H__*/
+#endif  /*__T3D_ZIP_ARCHIVE_ERROR_H__*/

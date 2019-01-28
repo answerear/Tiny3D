@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -33,20 +33,20 @@ namespace Tiny3D
     /**
      * @brief 引擎入口类
      */
-    class T3D_ENGINE_API Engine : public Singleton<Engine>
+    class T3D_ENGINE_API Agent : public Singleton<Agent>
     {
-        T3D_DISABLE_COPY(Engine);
+        T3D_DISABLE_COPY(Agent);
 
     public:
         /**
          * @brief 构造函数
          */
-        Engine();
+        Agent();
 
         /**
          * @brief 析构函数
          */
-        virtual ~Engine();
+        virtual ~Agent();
 
         /**
          * @brief 初始化引擎
@@ -190,6 +190,12 @@ namespace Tiny3D
         TResult unloadPlugins();
 
         /**
+         * @brief 初始化资源
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult initAssets();
+
+        /**
          * @brief 创建渲染窗口
          */
         TResult createRenderWindow();
@@ -226,7 +232,7 @@ namespace Tiny3D
         Settings            mSettings;          /**< 引擎配置项 */
     };
 
-    #define T3D_ENGINE      (Engine::getInstance())
+    #define T3D_ENGINE      (Agent::getInstance())
 }
 
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
@@ -23,7 +23,7 @@
 int main(int argc, char *argv[])
 {
     HelloApp *theApp = new HelloApp();
-    Tiny3D::Engine *theEngine = new Tiny3D::Engine();
+    Tiny3D::Agent *theEngine = new Tiny3D::Agent();
 
     theEngine->init(argv[0]);
     theEngine->run();
