@@ -26,13 +26,13 @@ Tiny3D::FreeImageCodecPlugin *gPlugin = nullptr;
 
 extern "C"
 {
-    TResult T3D_FREEIMAGECODEC_API FreeImageCodec_dllStartPlugin()
+    TResult T3D_FREEIMAGECODEC_API dllStartPlugin()
     {
         gPlugin = new Tiny3D::FreeImageCodecPlugin();
         return Tiny3D::Engine::getInstance().installPlugin(gPlugin);
     }
 
-    TResult T3D_FREEIMAGECODEC_API FreeImageCodec_dllStopPlugin()
+    TResult T3D_FREEIMAGECODEC_API dllStopPlugin()
     {
         TResult ret = Tiny3D::Engine::getInstance().uninstallPlugin(gPlugin);
         if (ret == Tiny3D::T3D_OK)
