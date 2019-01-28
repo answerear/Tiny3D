@@ -246,7 +246,6 @@ namespace Tiny3D
             uint32_t width = FreeImage_GetWidth(dib);
             uint32_t height = FreeImage_GetHeight(dib);
             int32_t bpp = FreeImage_GetBPP(dib);
-            BITMAPINFO *bi = FreeImage_GetInfo(dib);
 
             FREE_IMAGE_TYPE imageType = FreeImage_GetImageType(dib);
             FREE_IMAGE_COLOR_TYPE colorType = FreeImage_GetColorType(dib);
@@ -376,7 +375,7 @@ namespace Tiny3D
                 {
                     for (y = 0; y < height; ++y)
                     {
-                        uint8_t *pSrc = src + y * srcPitch;
+                        uint8_t *pSrc = src + (height - y - 1) * srcPitch;
 #if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_RGB
                         Color4::convert_B8G8R8A8toA8R8G8B8(pSrc, pDst, width);
 #elif FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
