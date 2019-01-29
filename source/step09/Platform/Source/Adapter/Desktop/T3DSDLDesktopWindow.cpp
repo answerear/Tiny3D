@@ -80,15 +80,37 @@ namespace Tiny3D
         }
     }
 
-    void *SDLDesktopWindow::getNativeWinObject()
+    bool SDLDesktopWindow::getSystemInfo(SysWMInfo &info)
     {
+        SDL_SysWMinfo sdlInfo;
+
+        bool ret = SDL_GetWindowWMInfo(mSDLWindow, &sdlInfo);
+
+        if (ret)
+        {
 #if defined (T3D_OS_WINDOWS)
-        SDL_SysWMinfo info;
-        bool ret = (SDL_GetWindowWMInfo(mSDLWindow, &info) == SDL_TRUE);
-        return info.info.win.window;
-#else
-        return nullptr;
+            info.hWnd = sdlInfo.info.win.window;
+            info.hDC = sdlInfo.info.win.hdc;
+            info.hInstance = sdlInfo.info.win.hinstance;
+#elif defiend (T3D_OS_LINUX)
+            // Linux X11
+            info.display = sdlInfo.info.x11.display;
+            info.window = sdlInfo.info.x11.window;
+#elif defined (T3D_OS_OSX)
+            // Mac OS X cocoa
+            info.window = sdlInfo.info.cocoa.window;
+#elif defined (T3D_OS_IOS)
+            // iOS UIKit
+            info.window = sdlInfo.info.uikit.window;
+            info.framebuffer = sdlInfo.info.uikit.framebuffer;
+            info.colorbuffer = sdlInfo.info.uikit.colorbuffer;
+#elif defiend (T3D_OS_ANDROID)
+            info.window = sdlInfo.info.android.window;
+            info.surface = sdlInfo.info.android.surface;
 #endif
+        }
+
+        return ret;
     }
 
     void SDLDesktopWindow::setWindowIcon(void *pixels, int32_t width,

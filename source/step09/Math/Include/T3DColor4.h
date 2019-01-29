@@ -55,10 +55,10 @@ namespace Tiny3D
         static const uint32_t RGB_ALPHA_MASK;
 
         Color4(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
-            : mAlpha(a)
-            , mRed(r)
+            : mBlue(b)
             , mGreen(g)
-            , mBlue(b)
+            , mRed(r)
+            , mAlpha(a)
         {
 
         }

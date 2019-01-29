@@ -51,10 +51,20 @@ namespace Tiny3D
         /**
          * @brief 初始化引擎
          * @param [in] appPath : 应用程序路径
+         * @param [in] autoCreateWindow : 是否创建渲染窗口
+         * @param [in][out] renderWindow : 如果autoCreateWindow是true，
+         *      则本参数会返回自动创建的渲染窗口对象
          * @param [in] config : 配置文件
          * @remarks 引擎的一切应用都要在调用本接口之后才有效。
          */
-        TResult init(const String &appPath, const String &config = "Tiny3D.cfg");
+        TResult init(const String &appPath, bool autoCreateWindow,
+            RenderWindow *&renderWindow, const String &config = "Tiny3D.cfg");
+
+        /**
+         * @brief 绑定渲染窗口
+         * @param [in] window : 要绑定渲染的窗口对象
+         */
+        TResult bindRenderWindow(RenderWindow *window);
 
         /**
          * @brief 运行引擎
@@ -130,9 +140,43 @@ namespace Tiny3D
         TResult removeImageCodec(ImageCodecBase::FileType type);
 
         /**
+         * @brief 设置当前可用的渲染器
+         * @param [in] renderer : 渲染器对象
+         * @return 成功返回 T3D_OK
+         */
+        TResult setActiveRenderer(RendererPtr renderer);
+
+        /**
+         * @brief 获取当前可用的渲染器
+         * @return 成功返回当前渲染器对象
+         */
+        RendererPtr getActiveRenderer() const;
+
+        /**
+         * @brief 添加渲染器
+         * @param [in] renderer : 要添加的渲染器对象
+         * @return 成功返回 T3D_OK
+         */
+        TResult addRenderer(RendererPtr renderer);
+
+        /**
+         * @brief 移除渲染器
+         * @param [in] renderer : 要移除的渲染器对象
+         * @return 成功返回 T3D_OK
+         */
+        TResult removeRenderer(RendererPtr renderer);
+
+        /**
+         * @brief 获取渲染器对象
+         * @param [in] name : 渲染器名称
+         * @return 成功返回渲染器对象
+         */
+        RendererPtr getRenderer(const String &name) const;
+
+        /**
          * @brief 获取应用程序路径，不包含程序名称
          */
-        const String &getAppPath() const { return mAppPath;  }
+        const String &getAppPath() const { return mAppPath; }
 
         /**
          * @brief 获取应用程序名称，不包含路径
@@ -216,20 +260,24 @@ namespace Tiny3D
         ObjectTracer        *mObjTracer;        /**< 对象内存跟踪 */
 
         Window              *mWindow;           /**< 窗口 */
-        bool                mIsRunning;         /**< 引擎是否在运行中 */
 
         ArchiveManagerPtr   mArchiveMgr;        /**< 档案管理对象 */
         DylibManagerPtr     mDylibMgr;          /**< 动态库管理对象 */
         ImageCodecPtr       mImageCodec;        /**< 图像编解码器对象 */
 
-        Plugins             mPlugins;           /**< 当前安装的插件列表 */
-        Dylibs              mDylibs;            /**< 当前加载的动态库列表 */
+        RendererPtr         mActiveRenderer;    /**< 当前渲染器对象 */
+
+        Plugins             mPlugins;           /**< 安装的插件列表 */
+        Dylibs              mDylibs;            /**< 加载的动态库列表 */
+        Renderers           mRenderers;         /**< 渲染器列表 */
 
         String              mAppPath;           /**< 程序路径 */
         String              mAppName;           /**< 程序名称 */
         String              mPluginsPath;       /**< 插件路径 */
 
         Settings            mSettings;          /**< 引擎配置项 */
+
+        bool                mIsRunning;         /**< 引擎是否在运行中 */
     };
 
     #define T3D_ENGINE      (Agent::getInstance())

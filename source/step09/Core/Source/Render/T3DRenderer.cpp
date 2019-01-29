@@ -31,6 +31,8 @@ namespace Tiny3D
     const char * const Renderer::VULKAN = "Vulkan";
     const char * const Renderer::METAL = "Metal";
 
+    //--------------------------------------------------------------------------
+
     Renderer::Renderer()
     {
     }
@@ -40,8 +42,51 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Renderer::render()
     {
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Renderer::attachRenderTarget(RenderTargetPtr target)
+    {
+        TPair<RenderTargetListItr, bool> ret =
+            mRenderTargets.insert(RenderTargetListValue(target->getName(),
+                target));
+
+        if (ret.second)
+        {
+            return T3D_OK;
+        }
+
+        return T3D_ERR_DUPLICATED_ITEM;
+    }
+
+    TResult Renderer::detachRenderTarget(const String &name)
+    {
+        auto itr = mRenderTargets.find(name);
+        if (itr == mRenderTargets.end())
+        {
+            return T3D_ERR_NOT_FOUND;
+        }
+
+        mRenderTargets.erase(itr);
+
+        return T3D_OK;
+    }
+
+    RenderTargetPtr Renderer::getRenderTarget(const String &name)
+    {
+        RenderTargetListItr itr = mRenderTargets.find(name);
+
+        if (itr != mRenderTargets.end())
+        {
+            return itr->second;
+        }
+
+        return nullptr;
     }
 }

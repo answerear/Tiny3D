@@ -52,4 +52,15 @@
 #include <ImageCodec/T3DImageCodec.h>
 #include <ImageCodec/T3DImageCodecBase.h>
 
+// Render
+#include <Render/T3DRenderer.h>
+#include <Render/T3DRenderQueue.h>
+#include <Render/T3DRenderTarget.h>
+#include <Render/T3DRenderWindow.h>
+#include <Render/T3DHardwareBufferManager.h>
+#include <Render/T3DHardwareBuffer.h>
+#include <Render/T3DHardwareVertexBuffer.h>
+#include <Render/T3DHardwareIndexBuffer.h>
+#include <Render/T3DHardwarePixelBuffer.h>
+
 #endif  /*__TINY3D_H__*/

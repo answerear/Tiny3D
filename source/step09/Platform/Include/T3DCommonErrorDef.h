@@ -38,6 +38,7 @@ namespace Tiny3D
         T3D_ERR_FILE_DATA_MISSING   = 0x00000005,   /**< 文件内容缺失 */
         T3D_ERR_OUT_OF_BOUND        = 0x00000006,   /**< 数组越界 */
         T3D_ERR_NOT_FOUND           = 0x00000007,   /**< 没有找到 */
+        T3D_ERR_DUPLICATED_ITEM     = 0x00000008,   /**< 重复元素 */
     };
 };
 

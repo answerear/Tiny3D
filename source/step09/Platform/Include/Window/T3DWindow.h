@@ -24,6 +24,7 @@
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
+#include "Window/T3DSysWMInfo.h"
 
 
 namespace Tiny3D
@@ -115,6 +116,13 @@ namespace Tiny3D
          * @param [in] icon : 图标数据对象
          */
         void setWindowIcon(const WindowIcon &icon);
+
+        /**
+         * @brief 获取窗口系统相关信息
+         * @param [in][out] info : 返回的窗口系统相关信息
+         * @return 获取成功返回true
+         */
+        bool getSystemInfo(SysWMInfo &info);
 
     protected:
         IWindow *mWindow;

@@ -24,6 +24,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "Window/T3DSysWMInfo.h"
 
 
 namespace Tiny3D
@@ -56,11 +57,11 @@ namespace Tiny3D
         virtual void destroy() = 0;
 
         /**
-         * @brief 返回原生窗口对象
-         * @return 返回平台原生窗口对象或者句柄
-         * @remarks 不同平台返回不同的对象，根据各自平台各自解析
+         * @brief 获取窗口系统相关信息
+         * @param [in][out] info : 返回的窗口系统相关信息
+         * @return 获取成功返回true
          */
-        virtual void *getNativeWinObject() = 0;
+        virtual bool getSystemInfo(SysWMInfo &info) = 0;
 
         /**
          * @brief 设置窗口图标

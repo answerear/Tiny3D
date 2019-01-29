@@ -161,6 +161,27 @@ namespace Tiny3D
             const RenderWindowCreateParamEx &paramEx) = 0;
 
         /**
+         * @brief 关联渲染目标到渲染器上
+         * @param [in] target : 渲染目标
+         * @return 成功返回 T3D_OK
+         */
+        virtual TResult attachRenderTarget(RenderTargetPtr target);
+
+        /**
+         * @brief 从渲染器上分离渲染目标
+         * @param [in] name : 渲染目标名称
+         * @return 成功返回 T3D_OK
+         */
+        virtual TResult detachRenderTarget(const String &name);
+
+        /**
+         * @brief 获取渲染器上绑定的渲染目标
+         * @param [in] name : 渲染目标名称
+         * @return 成功返回渲染目标对象
+         */
+        RenderTargetPtr getRenderTarget(const String &name);
+
+        /**
          * @brief 开始渲染
          * @return 调用成功返回 T3D_OK
          */

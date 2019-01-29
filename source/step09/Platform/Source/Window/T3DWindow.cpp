@@ -106,4 +106,14 @@ namespace Tiny3D
                 icon.depth, icon.pitch, icon.format);
         }
     }
+
+    bool Window::getSystemInfo(SysWMInfo &info)
+    {
+        if (mWindow != nullptr)
+        {
+            return mWindow->getSystemInfo(info);
+        }
+
+        return false;
+    }
 }

@@ -73,6 +73,11 @@ namespace Tiny3D
     typedef TPair<Variant, Variant>         VariantMapValue;
 
     typedef VariantMap                      Settings;
+
+    typedef TMap<String, RendererPtr>       Renderers;
+    typedef Renderers::iterator             RenderersItr;
+    typedef Renderers::const_iterator       RenderersConstItr;
+    typedef Renderers::value_type           RenderersValue;
 }
 
 

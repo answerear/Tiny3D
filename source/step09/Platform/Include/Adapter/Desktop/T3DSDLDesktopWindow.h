@@ -42,7 +42,7 @@ namespace Tiny3D
 
         virtual void destroy() override;
 
-        virtual void *getNativeWinObject() override;
+        virtual bool getSystemInfo(SysWMInfo &info) override;
 
         virtual void setWindowIcon(void *pixels, int32_t width, int32_t height, 
             int32_t depth, int32_t pitch, uint32_t format) override;

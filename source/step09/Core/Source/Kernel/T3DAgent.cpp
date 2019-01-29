@@ -35,6 +35,7 @@
 
 #include "Memory/T3DObjectTracer.h"
 
+#include "Render/T3DRenderer.h"
 
 
 namespace Tiny3D
@@ -53,8 +54,11 @@ namespace Tiny3D
         , mEventMgr(nullptr)
         , mObjTracer(nullptr)
         , mWindow(nullptr)
-        , mIsRunning(false)
         , mArchiveMgr(nullptr)
+        , mDylibMgr(nullptr)
+        , mImageCodec(nullptr)
+        , mActiveRenderer(nullptr)
+        , mIsRunning(false)
     {
     }
 
@@ -78,8 +82,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::init(const String &appPath, 
-        const String &config /* = "Tiny3D.cfg" */)
+    TResult Agent::init(const String &appPath, bool autoCreateWindow,
+        RenderWindow *&renderWindow, const String &config /* = "Tiny3D.cfg" */)
     {
         TResult ret = T3D_OK;
 
@@ -150,11 +154,14 @@ namespace Tiny3D
                 break;
             }
 
-            // 创建渲染窗口
-            ret = createRenderWindow();
-            if (ret != T3D_OK)
+            if (autoCreateWindow)
             {
-                break;
+                // 创建渲染窗口
+                ret = createRenderWindow();
+                if (ret != T3D_OK)
+                {
+                    break;
+                }
             }
 
             mIsRunning = true;
@@ -162,6 +169,19 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::bindRenderWindow(RenderWindow *window)
+    {
+        TResult ret = T3D_OK;
+
+        
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
 
     bool Agent::run()
     {
@@ -415,6 +435,71 @@ namespace Tiny3D
     TResult Agent::removeImageCodec(ImageCodecBase::FileType type)
     {
         return mImageCodec->removeImageCodec(type);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::setActiveRenderer(RendererPtr renderer)
+    {
+        if (mActiveRenderer != renderer)
+        {
+            if (mActiveRenderer != nullptr)
+            {
+                mActiveRenderer->destroy();
+            }
+
+            renderer->init();
+
+            mActiveRenderer = renderer;
+        }
+
+        return T3D_OK;
+    }
+
+    RendererPtr Agent::getActiveRenderer() const
+    {
+        return mActiveRenderer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::addRenderer(RendererPtr renderer)
+    {
+        const String &name = renderer->getName();
+        auto r = mRenderers.insert(RenderersValue(name, renderer));
+        if (r.second)
+        {
+            return T3D_OK;
+        }
+
+        return T3D_ERR_DUPLICATED_ITEM;
+    }
+
+    TResult Agent::removeRenderer(RendererPtr renderer)
+    {
+        auto itr = mRenderers.find(renderer->getName());
+
+        if (itr == mRenderers.end())
+        {
+            return T3D_ERR_NOT_FOUND;
+        }
+
+        mRenderers.erase(itr);
+
+        return T3D_OK;
+    }
+
+    RendererPtr Agent::getRenderer(const String &name) const
+    {
+        RendererPtr renderer = nullptr;
+        auto itr = mRenderers.find(name);
+
+        if (itr != mRenderers.end())
+        {
+            renderer = itr->second;
+        }
+
+        return renderer;
     }
 
     //--------------------------------------------------------------------------
