@@ -31,4 +31,16 @@
 #endif
 
 
+namespace Tiny3D
+{
+    #define LOG_TAG_T3DXRENDERER    "T3DXRenderer"
+
+    class T3DXRenderer;
+    class T3DXRenderWindow;
+
+    T3D_DECLARE_SMART_PTR(T3DXRenderer);
+    T3D_DECLARE_SMART_PTR(T3DXRenderWindow);
+}
+
+
 #endif  /*__T3DX_PREREQUISITES_H__*/

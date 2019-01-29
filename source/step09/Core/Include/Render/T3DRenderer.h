@@ -141,7 +141,7 @@ namespace Tiny3D
         /**
          * @brief 获取渲染器名称
          */
-        virtual String getName() const = 0;
+        const String &getName() const;
 
         /**
          * @brief 渲染一帧
@@ -199,7 +199,7 @@ namespace Tiny3D
          * @return 具备cap对应的能力则返回true，否则返回false
          * @see Renderer::Capability
          */
-        virtual bool queryCapability(Capability cap) = 0;
+        virtual bool queryCapability(Capability cap) const = 0;
 
         /**
          * @brief 开启或者关闭某种能力
@@ -251,7 +251,7 @@ namespace Tiny3D
         /**
          * @brief 设置裁剪模式
          * @param [in] mode : 裁剪模式
-         * @return 调用成功返回 T3D_OK
+         * @return 成功返回 T3D_OK
          */
         virtual TResult setCullingMode(CullingMode mode) = 0;
 
@@ -262,8 +262,11 @@ namespace Tiny3D
 
         /**
          * @brief 设置渲染模式
+         * @param [in] mode : 渲染模式
+         * @return 成功返回 T3D_OK
+         * @see enum RenderMode
          */
-        virtual TResult setRenderMode() = 0;
+        virtual TResult setRenderMode(RenderMode mode) = 0;
 
         /**
          * @brief 获取渲染模式
@@ -317,6 +320,8 @@ namespace Tiny3D
         typedef RenderTargetList::iterator          RenderTargetListItr;
         typedef RenderTargetList::const_iterator    RenderTargetListConstItr;
         typedef RenderTargetList::value_type        RenderTargetListValue;
+
+        String              mName;              /**< 渲染器名称 */
 
         RenderTargetList    mRenderTargets;     /**< 渲染目标列表 */
 

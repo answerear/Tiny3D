@@ -23,5 +23,126 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
 
+    T3DXRenderer::T3DXRenderer()
+        : Renderer()
+    {
+        mName = Renderer::T3DXRENDERER;
+    }
+
+    T3DXRenderer::~T3DXRenderer()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult T3DXRenderer::init()
+    {
+        return T3D_OK;
+    }
+
+    TResult T3DXRenderer::destroy()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult T3DXRenderer::render()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderWindowPtr T3DXRenderer::createRenderWindow(
+        const RenderWindowCreateParam &param,
+        const RenderWindowCreateParamEx &paramEx)
+    {
+        RenderWindowPtr window = nullptr;
+        return window;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult T3DXRenderer::beginRender()
+    {
+        return T3D_OK;
+    }
+
+    TResult T3DXRenderer::endRender()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool T3DXRenderer::queryCapability(Capability cap) const
+    {
+        return true;
+    }
+
+    TResult T3DXRenderer::enableCapability(Capability cap, bool enabled)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult T3DXRenderer::setTransform(TransformState state, const Matrix4 &mat)
+    {
+        return T3D_OK;
+    }
+
+    const Matrix4 &T3DXRenderer::getTransform(TransformState state) const
+    {
+        return Matrix4::IDENTITY;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult T3DXRenderer::setCullingMode(CullingMode mode)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult T3DXRenderer::setRenderMode(RenderMode mode)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult T3DXRenderer::setViewport(ViewportPtr viewport)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult T3DXRenderer::drawVertexArray(VertexArrayPtr vao)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult T3DXRenderer::drawVertexList(PrimitiveType priType,
+        HardwareVertexBufferPtr vbo, size_t startIdx, size_t priCount)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult T3DXRenderer::drawIndexList(PrimitiveType priType,
+        HardwareVertexBufferPtr vbo, HardwareIndexBufferPtr ibo,
+        size_t startIdx, size_t priCount)
+    {
+        return T3D_OK;
+    }
 }

@@ -52,19 +52,33 @@ namespace Tiny3D
          * @brief 初始化引擎
          * @param [in] appPath : 应用程序路径
          * @param [in] autoCreateWindow : 是否创建渲染窗口
-         * @param [in][out] renderWindow : 如果autoCreateWindow是true，
-         *      则本参数会返回自动创建的渲染窗口对象
+         * @param [in] rendererName : 渲染器名称
          * @param [in] config : 配置文件
          * @remarks 引擎的一切应用都要在调用本接口之后才有效。
          */
         TResult init(const String &appPath, bool autoCreateWindow,
-            RenderWindow *&renderWindow, const String &config = "Tiny3D.cfg");
+            const String &rendererName, const String &config = "Tiny3D.cfg");
 
         /**
-         * @brief 绑定渲染窗口
-         * @param [in] window : 要绑定渲染的窗口对象
+         * @brief 添加渲染窗口到引擎里面
+         * @param [in] window : 渲染窗口对象
+         * @return 成功返回 T3D_OK
          */
-        TResult bindRenderWindow(RenderWindow *window);
+        TResult addRenderWindow(RenderWindowPtr window);
+
+        /**
+         * @brief 从引擎移除渲染窗口
+         * @param [in] name : 渲染窗口名称
+         * @return 成功返回 T3D_OK
+         */
+        TResult removeRenderWindow(const String &name);
+
+        /**
+         * @brief 获取渲染窗口
+         * @param [in] name : 渲染窗口名称
+         * @return 成功返回渲染窗口对象
+         */
+        RenderWindowPtr getRenderWindow(const String &name);
 
         /**
          * @brief 运行引擎
@@ -138,6 +152,12 @@ namespace Tiny3D
          * @return 成功返回 T3D_OK
          */
         TResult removeImageCodec(ImageCodecBase::FileType type);
+
+        /**
+         * @brief 枚举所有可用的渲染器
+         * @param [in][out] renderers : 返回所有可用渲染器列表
+         */
+        void enumerateAvailableRenderers(Renderers &renderers) const;
 
         /**
          * @brief 设置当前可用的渲染器

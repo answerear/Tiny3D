@@ -20,6 +20,11 @@
 
 namespace Tiny3D
 {
+    inline const String &Renderer::getName() const
+    {
+        return mName;
+    }
+
     inline TResult Renderer::setViewTransform(const Matrix4 &mat)
     {
         return setTransform(E_TS_VIEW, mat);

@@ -43,6 +43,12 @@ namespace Tiny3D
     TResult T3DXPlugin::install()
     {
         TResult ret = T3D_OK;
+
+        do 
+        {
+            
+        } while (0);
+
         return ret;
     }
 

@@ -83,7 +83,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult Agent::init(const String &appPath, bool autoCreateWindow,
-        RenderWindow *&renderWindow, const String &config /* = "Tiny3D.cfg" */)
+        const String &rendererName, const String &config /* = "Tiny3D.cfg" */)
     {
         TResult ret = T3D_OK;
 
@@ -154,6 +154,18 @@ namespace Tiny3D
                 break;
             }
 
+            // 设置当前要使用的渲染器
+            RendererPtr renderer = getRenderer(rendererName);
+            if (renderer == nullptr)
+            {
+                ret = T3D_ERR_PLG_NOT_LOADED;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Renderer [%s] did not load !",
+                    rendererName.c_str());
+                break;
+            }
+
+            setActiveRenderer(renderer);
+
             if (autoCreateWindow)
             {
                 // 创建渲染窗口
@@ -172,14 +184,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::bindRenderWindow(RenderWindow *window)
-    {
-        TResult ret = T3D_OK;
-
-        
-
-        return ret;
-    }
+    
 
     //--------------------------------------------------------------------------
 
@@ -439,8 +444,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Agent::enumerateAvailableRenderers(Renderers &renderers) const
+    {
+        renderers.clear();
+        renderers = mRenderers;
+    }
+
     TResult Agent::setActiveRenderer(RendererPtr renderer)
     {
+        TResult ret = T3D_OK;
+
         if (mActiveRenderer != renderer)
         {
             if (mActiveRenderer != nullptr)
@@ -448,12 +461,15 @@ namespace Tiny3D
                 mActiveRenderer->destroy();
             }
 
-            renderer->init();
+            ret = renderer->init();
 
-            mActiveRenderer = renderer;
+            if (ret == T3D_OK)
+            {
+                mActiveRenderer = renderer;
+            }
         }
 
-        return T3D_OK;
+        return ret;
     }
 
     RendererPtr Agent::getActiveRenderer() const
