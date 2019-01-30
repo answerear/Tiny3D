@@ -83,13 +83,37 @@ namespace Tiny3D
             int32_t depth, int32_t pitch, uint32_t format) override;
 
         /**
+         * @brief 获取窗口宽度和高度
+         */
+        virtual void getWindowSize(int32_t &width, 
+            int32_t &height) const override;
+
+        /**
          * @brief 获取色深
          */
         virtual uint32_t getColorDepth() const override;
 
+        /**
+         * @brief 获取窗口显示帧缓冲
+         */
+        virtual void* getFramebuffer() override;
+
+        /**
+         * @brief 获取窗口显示帧缓冲大小
+         */
+        virtual size_t getFramebufferSize() const override;
+
+        /**
+         * @brief 更新窗口，把帧缓冲数据更新到窗口里
+         */
+        virtual TResult updateWindow() override;
+
     protected:
         SDL_Window  *mSDLWindow;        /**< SDL 窗口对象 */
         SDL_Surface *mSDLIconSurface;   /**< SDL 窗口图标对象 */
+
+        void        *mFramebuffer;      /**< 窗口显示缓冲区 */
+        size_t      mFramebufferSize;   /**< 帧缓冲大小 */
     };
 }
 

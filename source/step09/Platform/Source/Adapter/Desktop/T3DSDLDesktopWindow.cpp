@@ -31,6 +31,8 @@ namespace Tiny3D
     SDLDesktopWindow::SDLDesktopWindow()
         : mSDLWindow(nullptr)
         , mSDLIconSurface(nullptr)
+        , mFramebuffer(nullptr)
+        , mFramebufferSize(0)
     {
 
     }
@@ -39,7 +41,7 @@ namespace Tiny3D
 
     SDLDesktopWindow::~SDLDesktopWindow()
     {
-
+        T3D_SAFE_DELETE_ARRAY(mFramebuffer);
     }
 
     //--------------------------------------------------------------------------
@@ -103,6 +105,13 @@ namespace Tiny3D
 
     void SDLDesktopWindow::destroy()
     {
+        SDL_Surface *buffer = SDL_GetWindowSurface(mSDLWindow);
+
+        if (SDL_MUSTLOCK(buffer))
+        {
+            T3D_SAFE_DELETE_ARRAY(mFramebuffer);
+        }
+
         if (mSDLIconSurface != nullptr)
         {
             SDL_FreeSurface(mSDLIconSurface);
@@ -176,6 +185,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void SDLDesktopWindow::getWindowSize(int32_t &width, 
+        int32_t &height) const
+    {
+        width = 0, height = 0;
+
+        if (mSDLWindow != nullptr)
+        {
+            SDL_GetWindowSize(mSDLWindow, &width, &height);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     uint32_t SDLDesktopWindow::getColorDepth() const
     {
         uint32_t depth = 0;
@@ -187,5 +209,62 @@ namespace Tiny3D
         }
 
         return depth;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void *SDLDesktopWindow::getFramebuffer()
+    {
+        if (mSDLWindow == nullptr)
+            return nullptr;
+
+        SDL_Surface *buffer = SDL_GetWindowSurface(mSDLWindow);
+
+        if (SDL_MUSTLOCK(buffer))
+        {
+            if (mFramebuffer == nullptr)
+            {
+                // 没有帧缓冲，先创建跟窗口一样大小的帧缓冲
+                int32_t w, h;
+                SDL_GetWindowSize(mSDLWindow, &w, &h);
+                SDL_Surface *frontbuffer = SDL_GetWindowSurface(mSDLWindow);
+                mFramebufferSize = frontbuffer->pitch * h;
+                mFramebuffer = new uint8_t[mFramebufferSize];
+            }
+        }
+        else
+        {
+            int32_t w, h;
+            SDL_GetWindowSize(mSDLWindow, &w, &h);
+            mFramebuffer = buffer->pixels;
+            mFramebufferSize = buffer->pitch * h;
+        }
+
+        return mFramebuffer;
+    }
+
+    size_t SDLDesktopWindow::getFramebufferSize() const
+    {
+        return mFramebufferSize;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SDLDesktopWindow::updateWindow()
+    {
+        TResult ret = T3D_OK;
+
+        SDL_Surface *frontbuffer = SDL_GetWindowSurface(mSDLWindow);
+
+        if (SDL_MUSTLOCK(frontbuffer))
+        {
+            SDL_LockSurface(frontbuffer);
+            memcpy(frontbuffer->pixels, mFramebuffer, mFramebufferSize);
+            SDL_UnlockSurface(frontbuffer);
+        }
+
+        SDL_UpdateWindowSurface(mSDLWindow);
+
+        return ret;
     }
 }

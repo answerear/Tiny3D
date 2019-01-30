@@ -53,6 +53,7 @@ namespace Tiny3D
         /**
          * @brief 根据传入数据创建窗口
          * @param [in] data : 窗口依赖的数据指针
+         * @param [in] needFramebuffer : 是否创建帧缓冲
          * @return 成功返回 T3D_OK
          */
         virtual TResult createFrom(const void *data) = 0;
@@ -83,11 +84,29 @@ namespace Tiny3D
             int32_t depth, int32_t pitch, uint32_t format) = 0;
 
         /**
+         * @brief 获取窗口宽度和高度
+         */
+        virtual void getWindowSize(int32_t &width, int32_t &height) const = 0;
+
+        /**
          * @brief 获取色深
          */
         virtual uint32_t getColorDepth() const = 0;
 
-    protected:
+        /**
+         * @brief 获取窗口显示帧缓冲
+         */
+        virtual void* getFramebuffer() = 0;
+
+        /**
+         * @brief 获取窗口显示帧缓冲大小
+         */
+        virtual size_t getFramebufferSize() const = 0;
+
+        /**
+         * @brief 更新窗口，把帧缓冲数据更新到窗口里
+         */
+        virtual TResult updateWindow() = 0;
     };
 }
 

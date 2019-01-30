@@ -132,9 +132,29 @@ namespace Tiny3D
         bool getSystemInfo(SysWMInfo &info) const;
 
         /**
+         * @brief 获取窗口宽度和高度
+         */
+        void getWindowSize(int32_t &width, int32_t &height) const;
+
+        /**
          * @brief 获取窗口色深
          */
         uint32_t getColorDepth() const;
+
+        /**
+         * @brief 获取窗口显示帧缓冲
+         */
+        void* getFramebuffer();
+
+        /**
+         * @brief 获取窗口显示帧缓冲大小
+         */
+        size_t getFramebufferSize() const;
+
+        /**
+         * @brief 更新窗口，把帧缓冲数据更新到窗口里
+         */
+        TResult updateWindow();
 
     protected:
         IWindow *mWindow;

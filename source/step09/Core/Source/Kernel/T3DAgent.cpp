@@ -309,7 +309,10 @@ namespace Tiny3D
 
     void Agent::renderOneFrame()
     {
-        
+        if (mActiveRenderer != nullptr)
+        {
+            mActiveRenderer->render();
+        }
     }
 
     //--------------------------------------------------------------------------

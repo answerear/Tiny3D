@@ -42,7 +42,6 @@ namespace Tiny3D
     void RenderWindow::update()
     {
         RenderTarget::update();
-
         swapBuffers();
     }
 }

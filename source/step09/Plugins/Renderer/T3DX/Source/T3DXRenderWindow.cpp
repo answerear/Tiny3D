@@ -189,7 +189,25 @@ namespace Tiny3D
 
     TResult T3DXRenderWindow::swapBuffers()
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mWindow == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Invalid window pointer !");
+                break;
+            }
+
+            uint8_t *framebuffer = (uint8_t *)mWindow->getFramebuffer();
+            size_t size = mWindow->getFramebufferSize();
+
+            memset(framebuffer, 0, size);
+            ret = mWindow->updateWindow();
+        } while (0);
+
+        return ret;
     }
 }
 

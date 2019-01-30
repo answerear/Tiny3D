@@ -47,6 +47,14 @@ namespace Tiny3D
 
     TResult Renderer::render()
     {
+        auto itr = mRenderTargets.begin();
+
+        while (itr != mRenderTargets.end())
+        {
+            itr->second->update();
+            ++itr;
+        }
+
         return T3D_OK;
     }
 

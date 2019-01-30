@@ -50,12 +50,6 @@ namespace Tiny3D
         virtual TResult destroy() override;
 
         /**
-         * @brief 渲染一帧
-         * @return 调用成功返回 T3D_OK
-         */
-        virtual TResult render() override;
-
-        /**
          * @brief 创建渲染窗口
          * @param [in] name : 用于标识窗口的名称，不需要跟窗口标题栏相同
          * @param [in] param : 创建渲染窗口必要数据

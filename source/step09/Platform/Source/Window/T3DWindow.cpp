@@ -28,6 +28,8 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     const uint32_t Window::WINDOW_FULLSCREEN = SDL_WINDOW_FULLSCREEN;
     const uint32_t Window::WINDOW_FULLSCREEN_DESKTOP = SDL_WINDOW_FULLSCREEN_DESKTOP;
     const uint32_t Window::WINDOW_OPENGL = SDL_WINDOW_OPENGL;
@@ -40,6 +42,8 @@ namespace Tiny3D
     const uint32_t Window::WINDOW_INPUT_GRABBED = SDL_WINDOW_INPUT_GRABBED;
     const uint32_t Window::WINDOW_INPUT_FOCUS = SDL_WINDOW_INPUT_FOCUS;
     const uint32_t Window::WINDOW_MOUSE_CAPTURE = SDL_WINDOW_MOUSE_CAPTURE;
+
+    //--------------------------------------------------------------------------
 
     const uint32_t Window::PIXEL_FORMAT_INDEX8 = SDL_PIXELFORMAT_INDEX8;
     const uint32_t Window::PIXEL_FORMAT_RGB444 = SDL_PIXELFORMAT_RGB444;
@@ -66,6 +70,7 @@ namespace Tiny3D
     const uint32_t Window::PIXEL_FORMAT_ABGR8888 = SDL_PIXELFORMAT_ABGR8888;
     const uint32_t Window::PIXEL_FORMAT_BGRA8888 = SDL_PIXELFORMAT_BGRA8888;
 
+    //--------------------------------------------------------------------------
 
     Window::Window()
     {
@@ -76,6 +81,8 @@ namespace Tiny3D
     {
         T3D_SAFE_DELETE(mWindow);
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Window::create(const char *title, int32_t x, int32_t y,
         int32_t w, int32_t h, uint32_t flags)
@@ -102,6 +109,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void Window::destroy()
     {
         if (mWindow != nullptr)
@@ -109,6 +118,8 @@ namespace Tiny3D
             mWindow->destroy();
         }
     }
+
+    //--------------------------------------------------------------------------
 
     void Window::setWindowIcon(const WindowIcon &icon)
     {
@@ -118,6 +129,8 @@ namespace Tiny3D
                 icon.depth, icon.pitch, icon.format);
         }
     }
+
+    //--------------------------------------------------------------------------
 
     bool Window::getSystemInfo(SysWMInfo &info) const
     {
@@ -129,6 +142,16 @@ namespace Tiny3D
         return false;
     }
 
+    //--------------------------------------------------------------------------
+
+    void Window::getWindowSize(int32_t &width, int32_t &height) const
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->getWindowSize(width, height);
+        }
+    }
+
     uint32_t Window::getColorDepth() const
     {
         if (mWindow != nullptr)
@@ -137,5 +160,41 @@ namespace Tiny3D
         }
 
         return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void *Window::getFramebuffer()
+    {
+        if (mWindow != nullptr)
+        {
+            return mWindow->getFramebuffer();
+        }
+
+        return nullptr;
+    }
+
+    size_t Window::getFramebufferSize() const
+    {
+        if (mWindow != nullptr)
+        {
+            return mWindow->getFramebufferSize();
+        }
+
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Window::updateWindow()
+    {
+        TResult ret = T3D_ERR_SYS_NOT_INIT;
+
+        if (mWindow != nullptr)
+        {
+            ret = mWindow->updateWindow();
+        }
+
+        return ret;
     }
 }

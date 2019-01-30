@@ -60,13 +60,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderer::render()
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
     RenderWindowPtr T3DXRenderer::createRenderWindow(
         const String &name,
         const RenderWindowCreateParam &param,
