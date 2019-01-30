@@ -96,9 +96,9 @@ namespace Tiny3D
             String name = "lib" + mName + ".dylib";
 #endif
 
-            String pluginsPath = Agent::getInstance().getPluginsPath();
-            String path = Agent::getInstance().getAppPath() + pluginsPath 
-                + Dir::NATIVE_SEPARATOR + name;
+            const String &pluginsPath = Agent::getInstance().getPluginsPath();
+//             const String &appPath = Agent::getInstance().getAppPath();
+            String path = pluginsPath + Dir::NATIVE_SEPARATOR + name;
             mHandle = DYLIB_LOAD(path.c_str());
 
             if (mHandle == nullptr)

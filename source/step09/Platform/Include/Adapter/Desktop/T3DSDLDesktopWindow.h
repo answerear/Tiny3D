@@ -96,7 +96,7 @@ namespace Tiny3D
         /**
          * @brief 获取窗口显示帧缓冲
          */
-        virtual void* getFramebuffer() override;
+        virtual uint8_t *getFramebuffer() override;
 
         /**
          * @brief 获取窗口显示帧缓冲大小
@@ -112,7 +112,7 @@ namespace Tiny3D
         SDL_Window  *mSDLWindow;        /**< SDL 窗口对象 */
         SDL_Surface *mSDLIconSurface;   /**< SDL 窗口图标对象 */
 
-        void        *mFramebuffer;      /**< 窗口显示缓冲区 */
+        uint8_t     *mFramebuffer;      /**< 窗口显示缓冲区 */
         size_t      mFramebufferSize;   /**< 帧缓冲大小 */
     };
 }

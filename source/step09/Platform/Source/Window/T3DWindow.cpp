@@ -164,7 +164,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void *Window::getFramebuffer()
+    uint8_t *Window::getFramebuffer()
     {
         if (mWindow != nullptr)
         {

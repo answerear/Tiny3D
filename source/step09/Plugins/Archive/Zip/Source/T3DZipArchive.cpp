@@ -60,7 +60,7 @@ namespace Tiny3D
 
         do 
         {
-            String path = Agent::getInstance().getAppPath() + getLocation();
+            String path = getLocation();
 
             // 打开 zip 文件
             mZipFile = unzOpen64(path.c_str());

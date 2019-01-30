@@ -144,7 +144,7 @@ namespace Tiny3D
         /**
          * @brief 获取窗口显示帧缓冲
          */
-        void* getFramebuffer();
+        uint8_t *getFramebuffer();
 
         /**
          * @brief 获取窗口显示帧缓冲大小

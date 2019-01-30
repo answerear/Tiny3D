@@ -35,7 +35,7 @@ namespace Tiny3D
         THandle     hWnd;           /**< The window handle */
         THandle     hDC;            /**< The window device context */
         THandle     hInstance;      /**< The window instance */
-#elif defiend (T3D_OS_LINUX)
+#elif defined (T3D_OS_LINUX)
         // Linux X11
         Display     *display;       /**< The X11 display */
         Window      *window;        /**< The X11 window */
@@ -47,9 +47,9 @@ namespace Tiny3D
         UIWindow    *window;        /**< The UIKit window */
         GLuint      framebuffer;    /**< The GL view's Framebuffer Object */
         GLuint      colorbuffer;    /**< the GL view's color Renderbuffer Object */
-#elif defiend (T3D_OS_ANDROID)
-        ANativeWindow   *window;    /**< The Android native window */
-        EGLSurface      surface;    /**< The Android EGL surface */
+#elif defined (T3D_OS_ANDROID)
+        void        *window;        /**< The Android native window */
+        void        *surface;       /**< The Android EGL surface */
 #endif
     };
 }

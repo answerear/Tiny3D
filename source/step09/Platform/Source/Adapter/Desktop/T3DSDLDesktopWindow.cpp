@@ -19,10 +19,8 @@
 
 #include "Adapter/Desktop/T3DSDLDesktopWindow.h"
 #include "T3DPlatformErrorDef.h"
-
-#if defined (T3D_OS_WINDOWS)
 #include <SDL_syswm.h>
-#endif
+
 
 namespace Tiny3D
 {
@@ -41,7 +39,7 @@ namespace Tiny3D
 
     SDLDesktopWindow::~SDLDesktopWindow()
     {
-        T3D_SAFE_DELETE_ARRAY(mFramebuffer);
+
     }
 
     //--------------------------------------------------------------------------
@@ -139,7 +137,7 @@ namespace Tiny3D
             info.hWnd = sdlInfo.info.win.window;
             info.hDC = sdlInfo.info.win.hdc;
             info.hInstance = sdlInfo.info.win.hinstance;
-#elif defiend (T3D_OS_LINUX)
+#elif defined (T3D_OS_LINUX)
             // Linux X11
             info.display = sdlInfo.info.x11.display;
             info.window = sdlInfo.info.x11.window;
@@ -151,7 +149,7 @@ namespace Tiny3D
             info.window = sdlInfo.info.uikit.window;
             info.framebuffer = sdlInfo.info.uikit.framebuffer;
             info.colorbuffer = sdlInfo.info.uikit.colorbuffer;
-#elif defiend (T3D_OS_ANDROID)
+#elif defined (T3D_OS_ANDROID)
             info.window = sdlInfo.info.android.window;
             info.surface = sdlInfo.info.android.surface;
 #endif
@@ -213,7 +211,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void *SDLDesktopWindow::getFramebuffer()
+    uint8_t *SDLDesktopWindow::getFramebuffer()
     {
         if (mSDLWindow == nullptr)
             return nullptr;
@@ -236,7 +234,7 @@ namespace Tiny3D
         {
             int32_t w, h;
             SDL_GetWindowSize(mSDLWindow, &w, &h);
-            mFramebuffer = buffer->pixels;
+            mFramebuffer = (uint8_t*)buffer->pixels;
             mFramebufferSize = buffer->pitch * h;
         }
 

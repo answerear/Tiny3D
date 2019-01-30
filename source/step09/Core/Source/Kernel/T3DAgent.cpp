@@ -112,6 +112,10 @@ namespace Tiny3D
 
 #if defined (T3D_OS_ANDROID)
             mAppPath = Dir::getAppPath();
+
+            // Android 单独设置插件路径，不使用配置文件里面设置的路径
+            // 因为android的插件在/data/data/appname/lib文件下
+            mPluginsPath = Dir::getLibraryPath();
 #endif
 
             // 初始化事件系统
@@ -728,11 +732,8 @@ namespace Tiny3D
             }
 
 #if !defined (T3D_OS_ANDROID)
-            mPluginsPath = itr->second.stringValue();
-#else
-            // Android 单独设置插件路径，不使用配置文件里面设置的路径
-            // 因为android的插件在/data/data/appname/lib文件下
-            mPluginsPath = Dir::getLibraryPath();
+            mPluginsPath = mAppPath + Dir::NATIVE_SEPARATOR 
+                + itr->second.stringValue();
 #endif
 
             key.setString("List");
@@ -819,7 +820,12 @@ namespace Tiny3D
             {
                 const String &path = i->first.stringValue();
                 const String &type = i->second.stringValue();
-                ArchivePtr archive = mArchiveMgr->loadArchive(path, type);
+#if defined (T3D_OS_ANDROID)
+                String fullpath = getAppPath() + Dir::NATIVE_SEPARATOR + path;
+#else
+                const String &fullpath = path;
+#endif
+                ArchivePtr archive = mArchiveMgr->loadArchive(fullpath, type);
                 if (archive == nullptr)
                 {
                     ret = T3D_ERR_RES_LOAD_FAILED;

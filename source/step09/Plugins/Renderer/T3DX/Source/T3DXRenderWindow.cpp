@@ -200,7 +200,7 @@ namespace Tiny3D
                 break;
             }
 
-            uint8_t *framebuffer = (uint8_t *)mWindow->getFramebuffer();
+            uint8_t *framebuffer = mWindow->getFramebuffer();
             size_t size = mWindow->getFramebufferSize();
 
             memset(framebuffer, 0, size);
