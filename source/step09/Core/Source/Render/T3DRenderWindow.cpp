@@ -23,8 +23,8 @@
 
 namespace Tiny3D
 {
-    RenderWindow::RenderWindow()
-        : RenderTarget()
+    RenderWindow::RenderWindow(const String &name)
+        : RenderTarget(name)
     {
 
     }

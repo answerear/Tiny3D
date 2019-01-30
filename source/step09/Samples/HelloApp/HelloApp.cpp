@@ -41,12 +41,12 @@ bool HelloApp::applicationDidFinishLaunching()
 
 void HelloApp::applicationDidEnterBackground()
 {
-    T3D_ENGINE.appDidEnterBackground();
+    T3D_AGENT.appDidEnterBackground();
 }
 
 void HelloApp::applicationWillEnterForeground()
 {
-    T3D_ENGINE.appWillEnterForeground();
+    T3D_AGENT.appWillEnterForeground();
 }
 
 void HelloApp::applicationWillTerminate()

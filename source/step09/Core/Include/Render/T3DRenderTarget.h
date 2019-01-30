@@ -39,7 +39,7 @@ namespace Tiny3D
          * @brief 创建渲染目标对象
          * @return 返回一个渲染目标对象
          */
-        static RenderTargetPtr create();
+        static RenderTargetPtr create(const String &name);
 
         /**
          * @brief 析构函数
@@ -129,7 +129,7 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        RenderTarget();
+        RenderTarget(const String &name);
 
     protected:
         typedef TMap<long_t, ViewportPtr>       ViewportList;

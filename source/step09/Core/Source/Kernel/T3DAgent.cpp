@@ -64,6 +64,8 @@ namespace Tiny3D
 
     Agent::~Agent()
     {
+        mActiveRenderer = nullptr;
+
         unloadPlugins();
 
         mDylibMgr = nullptr;
@@ -154,26 +156,24 @@ namespace Tiny3D
                 break;
             }
 
-            // 设置当前要使用的渲染器
-            RendererPtr renderer = getRenderer(rendererName);
-            if (renderer == nullptr)
+            // 初始化渲染器
+            ret = initRenderer(rendererName);
+            if (ret != T3D_OK)
             {
-                ret = T3D_ERR_PLG_NOT_LOADED;
-                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Renderer [%s] did not load !",
-                    rendererName.c_str());
                 break;
             }
-
-            setActiveRenderer(renderer);
 
             if (autoCreateWindow)
             {
                 // 创建渲染窗口
-                ret = createRenderWindow();
+                RenderWindowPtr window;
+                ret = createDefaultRenderWindow(window);
                 if (ret != T3D_OK)
                 {
                     break;
                 }
+
+                addRenderWindow(window);
             }
 
             mIsRunning = true;
@@ -184,7 +184,101 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    
+    TResult Agent::createDefaultRenderWindow(RenderWindowPtr &window)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            Settings settings = mSettings["Render"].mapValue();
+
+            RenderWindowCreateParam param;
+            // 窗口标题
+            param.windowTitle = settings["Title"].stringValue();
+            // 窗口位置
+            param.windowLeft = settings["x"].int32Value();
+            param.windowTop = settings["y"].int32Value();
+            // 窗口大小
+            param.windowWidth = settings["Width"].int32Value();
+            param.windowHeight = settings["Height"].int32Value();
+            // 是否全屏
+            param.fullscreen = settings["FullScreen"].boolValue();
+            // 图标路径
+            param.iconPath = settings["Icon"].stringValue();
+
+            RenderWindowCreateParamEx paramEx;
+
+            window = mActiveRenderer->createRenderWindow(
+                param.windowTitle, param, paramEx);
+            if (window == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Create render window failed !");
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::addRenderWindow(RenderWindowPtr window)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (mActiveRenderer == nullptr)
+            {
+                ret = T3D_ERR_SYS_NOT_INIT;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Do not set active renderer !");
+                break;
+            }
+
+            ret = mActiveRenderer->attachRenderTarget(window);
+        } while (0);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::removeRenderWindow(const String &name)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mActiveRenderer == nullptr)
+            {
+                ret = T3D_ERR_SYS_NOT_INIT;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Do not set active renderer !");
+                break;
+            }
+
+            ret = mActiveRenderer->detachRenderTarget(name);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderWindowPtr Agent::getRenderWindow(const String &name) const
+    {
+        RenderWindowPtr window = nullptr;
+        
+        if (mActiveRenderer == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Do not set active renderer !");
+        }
+        else
+        {
+            window = mActiveRenderer->getRenderTarget(name);
+        }
+
+        return window;
+    }
 
     //--------------------------------------------------------------------------
 
@@ -744,59 +838,25 @@ namespace Tiny3D
         return ret;
     }
 
-    //--------------------------------------------------------------------------
-
-    TResult Agent::createRenderWindow()
+    TResult Agent::initRenderer(const String &rendererName)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            Settings settings = mSettings["Render"].mapValue();
-
-            // 窗口标题
-            String title = settings["Title"].stringValue();
-            // 窗口位置
-            int32_t x = settings["x"].int32Value();
-            int32_t y = settings["y"].int32Value();
-            // 窗口大小
-            int32_t w = settings["Width"].int32Value();
-            int32_t h = settings["Height"].int32Value();
-            // 是否全屏
-            bool fullscreen = settings["FullScreen"].boolValue();
-            // 创建标记位
-            uint32_t flags = Window::WINDOW_SHOWN;
-            if (fullscreen)
-                flags |= Window::WINDOW_FULLSCREEN;
-
-            // 创建窗口
-            mWindow = new Window();
-            ret = mWindow->create(title.c_str(), x, y, w, h, flags);
-            if (ret != T3D_OK)
+            // 设置当前要使用的渲染器
+            RendererPtr renderer = getRenderer(rendererName);
+            if (renderer == nullptr)
             {
+                ret = T3D_ERR_PLG_NOT_LOADED;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Renderer [%s] did not load !",
+                    rendererName.c_str());
                 break;
             }
 
-            // 加载图标资源
-            String path = settings["Icon"].stringValue();
-            Image image;
-            ret = image.load(path);
-            if (ret != T3D_OK)
-            {
-                break;
-            }
-
-            // 设置窗口图标
-            Window::WindowIcon icon;
-            icon.pixels = image.getData();
-            icon.width = image.getWidth();
-            icon.height = image.getHeight();
-            icon.depth = image.getBPP();
-            icon.pitch = image.getPitch();
-            icon.format = Window::PIXEL_FORMAT_ARGB8888;
-            mWindow->setWindowIcon(icon);
+            setActiveRenderer(renderer);
         } while (0);
-        
+
         return ret;
     }
 }

@@ -151,12 +151,14 @@ namespace Tiny3D
 
         /**
          * @brief 创建渲染窗口
+         * @param [in] name : 用于标识窗口的名称，不需要跟窗口标题栏相同
          * @param [in] param : 创建渲染窗口必要数据
          * @param [in] paramEx : 创建渲染窗口额外数据
          * @return 调用成功返回一个渲染窗口对象，失败返回nullptr
          * @remarks 具体渲染系统实现本接口以创建渲染系统相关的渲染窗口对象
          */
         virtual RenderWindowPtr createRenderWindow(
+            const String &name,
             const RenderWindowCreateParam &param,
             const RenderWindowCreateParamEx &paramEx) = 0;
 

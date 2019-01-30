@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Agent)
  * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -17,53 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "FrameworkApp.h"
-#include "Player.h"
-#include "Enemy.h"
+
+#ifndef __T3DX_ERROR_H__
+#define __T3DX_ERROR_H__
 
 
-using namespace Tiny3D;
+#include "T3DXPrerequisites.h"
 
-FrameworkApp::FrameworkApp()
-    : Application()
-    , mPlayer(nullptr)
-    , mEnemy(nullptr)
+
+namespace Tiny3D
 {
+    enum XRenderErrorCode
+    {
+        T3D_ERR_T3DX_WINDOW_ALREADY = T3D_ERR_RENDERER,  /**< 窗口已经创建 */
+        T3D_ERR_T3DX_UNSUPPORT_FORMAT_ICON,              /**< 不支持的图标文件格式 */
+    };
 }
 
-FrameworkApp::~FrameworkApp()
-{
-}
 
-bool FrameworkApp::applicationDidFinishLaunching()
-{
-    mPlayer = new Player("James");
-    mEnemy = new Enemy("Kobe");
-
-    mEnemy->idle();
-    mPlayer->attack(mEnemy->getInstance());
-
-    return true;
-}
-
-void FrameworkApp::applicationDidEnterBackground()
-{
-    T3D_AGENT.appDidEnterBackground();
-}
-
-void FrameworkApp::applicationWillEnterForeground()
-{
-    T3D_AGENT.appWillEnterForeground();
-}
-
-void FrameworkApp::applicationWillTerminate()
-{
-    T3D_SAFE_DELETE(mEnemy);
-    T3D_SAFE_DELETE(mPlayer);
-}
-
-void FrameworkApp::applicationLowMemory()
-{
-
-}
-
+#endif  /*__T3DX_ERROR_H__*/

@@ -38,6 +38,7 @@ namespace Tiny3D
         long_t  windowHeight;   /**< 窗口高度 */
         long_t  colorDepth;     /**< 窗口色深 */
         String  windowTitle;    /**< 窗口标题 */
+        String  iconPath;       /**< 图标文件路径 */
         bool    fullscreen;     /**< 是否全屏，终端平台忽略该参数 */
     };
 
@@ -76,7 +77,6 @@ namespace Tiny3D
          * @remarks 具体渲染系统子类实现本接口
          */
         virtual TResult create(
-            const String &name,
             const RenderWindowCreateParam &param,
             const RenderWindowCreateParamEx &paramEx) = 0;
 
@@ -103,7 +103,7 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        RenderWindow();
+        RenderWindow(const String &name);
     };
 }
 

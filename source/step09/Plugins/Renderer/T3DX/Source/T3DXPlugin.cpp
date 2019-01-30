@@ -26,6 +26,7 @@ namespace Tiny3D
 {
     T3DXPlugin::T3DXPlugin()
         : mName("T3DXRenderer")
+        , mRenderer(nullptr)
     {
 
     }
@@ -46,7 +47,15 @@ namespace Tiny3D
 
         do 
         {
-            
+            mRenderer = T3DXRenderer::create();
+            if (mRenderer != nullptr)
+            {
+                ret = T3D_AGENT.addRenderer(mRenderer);
+                if (ret != T3D_OK)
+                {
+                    break;
+                }
+            }
         } while (0);
 
         return ret;
@@ -69,6 +78,17 @@ namespace Tiny3D
     TResult T3DXPlugin::uninstall()
     {
         TResult ret = T3D_OK;
+
+        do 
+        {
+            ret = T3D_AGENT.removeRenderer(mRenderer);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            mRenderer = nullptr;
+        } while (0);
 
         return ret;
     }

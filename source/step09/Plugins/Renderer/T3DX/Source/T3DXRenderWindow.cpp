@@ -19,43 +19,170 @@
 
 
 #include "T3DXRenderWindow.h"
+#include "T3DXError.h"
+
+#if defined (T3D_OS_WINDOWS)
+    #include <windows.h>
+#endif
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3DXRenderWindowPtr T3DXRenderWindow::create()
+    T3DXRenderWindowPtr T3DXRenderWindow::create(const String &name)
     {
-        T3DXRenderWindowPtr window = new T3DXRenderWindow();
+        T3DXRenderWindowPtr window = new T3DXRenderWindow(name);
         window->release();
         return window;
     }
 
     //--------------------------------------------------------------------------
 
-    T3DXRenderWindow::T3DXRenderWindow()
+    T3DXRenderWindow::T3DXRenderWindow(const String &name)
+        : RenderWindow(name)
+        , mWindow(nullptr)
     {
 
     }
 
     T3DXRenderWindow::~T3DXRenderWindow()
     {
-
     }
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderWindow::create(const String &name,
-        const RenderWindowCreateParam &param,
+    TResult T3DXRenderWindow::create(const RenderWindowCreateParam &param,
         const RenderWindowCreateParamEx &paramEx)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (mWindow != nullptr)
+            {
+                // 窗口已经创建
+                ret = T3D_ERR_T3DX_WINDOW_ALREADY;
+                T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Render window already \
+                     created !");
+                break;
+            }
+
+            mWindow = new Window();
+
+            // 创建窗口
+            void *externalWnd = nullptr;
+            auto itr = paramEx.find("externalHandle");
+            if (itr != paramEx.end())
+            {
+                externalWnd = (void *)itr->second.longValue();
+            }
+
+            if (externalWnd != nullptr)
+            {
+                // 外部创建的窗口，这里关联上
+                ret = mWindow->createFrom(externalWnd);
+            }
+            else
+            {
+                // 自己创建窗口对象
+                uint32_t flags = Window::WINDOW_SHOWN;
+                if (param.fullscreen)
+                {
+                    flags |= Window::WINDOW_FULLSCREEN;
+                }
+
+                ret = mWindow->create(param.windowTitle.c_str(), 
+                    param.windowLeft, param.windowTop, 
+                    param.windowWidth, param.windowHeight, flags);
+                if (ret != T3D_OK)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Create native window\
+                        failed !");
+                    break;
+                }
+            }
+
+            // 加载图标资源
+            Image image;
+            ret = image.load(param.iconPath);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Load icon image [%s] \
+                    failed !", param.iconPath.c_str());
+                break;
+            }
+
+            // 设置窗口图标
+            Window::WindowIcon icon;
+            icon.pixels = image.getData();
+            icon.width = image.getWidth();
+            icon.height = image.getHeight();
+            icon.depth = image.getBPP();
+            icon.pitch = image.getPitch();
+
+            switch (image.getFormat())
+            {
+            case E_PF_PALETTE8:
+                icon.format = Window::PIXEL_FORMAT_INDEX8;
+                break;
+            case E_PF_A1R5G5B5:
+                icon.format = Window::PIXEL_FORMAT_ARGB1555;
+                break;
+            case E_PF_A4R4G4B4:
+                icon.format = Window::PIXEL_FORMAT_ARGB4444;
+                break;
+            case E_PF_R5G6B5:
+                icon.format = Window::PIXEL_FORMAT_RGB565;
+                break;
+            case E_PF_R8G8B8:
+                icon.format = Window::PIXEL_FORMAT_RGB24;
+                break;
+            case E_PF_A8R8G8B8:
+                icon.format = Window::PIXEL_FORMAT_ARGB8888;
+                break;
+            default:
+                break;
+            }
+
+            if (ret != T3D_OK)
+            {
+                ret = T3D_ERR_T3DX_UNSUPPORT_FORMAT_ICON;
+                T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Do not support icon [%s] \
+                    format !", param.iconPath.c_str());
+                break;
+            }
+
+            mWindow->setWindowIcon(icon);
+
+            mWidth = param.windowWidth;
+            mHeight = param.windowHeight;
+            mColorDepth = mWindow->getColorDepth();
+        } while (0);
+
+        return ret;
     }
 
     TResult T3DXRenderWindow::destroy()
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (mWindow == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Invalid window pointer !");
+                break;
+            }
+
+            mWindow->destroy();
+
+            T3D_SAFE_DELETE(mWindow);
+            ret = T3D_OK;
+        } while (0);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

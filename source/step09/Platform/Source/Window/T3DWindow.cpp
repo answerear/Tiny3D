@@ -90,6 +90,18 @@ namespace Tiny3D
         return ret;
     }
 
+    TResult Window::createFrom(const void *data)
+    {
+        TResult ret = T3D_ERR_FAIL;
+
+        if (mWindow != nullptr)
+        {
+            ret = mWindow->createFrom(data);
+        }
+
+        return ret;
+    }
+
     void Window::destroy()
     {
         if (mWindow != nullptr)
@@ -107,7 +119,7 @@ namespace Tiny3D
         }
     }
 
-    bool Window::getSystemInfo(SysWMInfo &info)
+    bool Window::getSystemInfo(SysWMInfo &info) const
     {
         if (mWindow != nullptr)
         {
@@ -115,5 +127,15 @@ namespace Tiny3D
         }
 
         return false;
+    }
+
+    uint32_t Window::getColorDepth() const
+    {
+        if (mWindow != nullptr)
+        {
+            return mWindow->getColorDepth();
+        }
+
+        return 0;
     }
 }

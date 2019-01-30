@@ -46,12 +46,12 @@ bool PlatformApp::applicationDidFinishLaunching()
 
 void PlatformApp::applicationDidEnterBackground()
 {
-    T3D_ENGINE.appDidEnterBackground();
+    T3D_AGENT.appDidEnterBackground();
 }
 
 void PlatformApp::applicationWillEnterForeground()
 {
-    T3D_ENGINE.appWillEnterForeground();
+    T3D_AGENT.appWillEnterForeground();
 }
 
 void PlatformApp::applicationWillTerminate()

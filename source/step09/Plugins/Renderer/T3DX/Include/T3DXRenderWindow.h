@@ -30,13 +30,12 @@ namespace Tiny3D
     class T3DXRenderWindow : public RenderWindow
     {
     public:
-        static T3DXRenderWindowPtr create();
+        static T3DXRenderWindowPtr create(const String &name);
 
         virtual ~T3DXRenderWindow();
 
         /**
          * @brief 创建渲染窗口实体
-         * @param [in] name : 渲染目标名称
          * @param [in] param : 渲染窗口需要必要参数
          * @param [in] paramEx : 渲染窗口需要的额外参数，不同平台的额外信息可以
          *                      通过这里传递
@@ -44,7 +43,6 @@ namespace Tiny3D
          * @remarks 具体渲染系统子类实现本接口
          */
         virtual TResult create(
-            const String &name,
             const RenderWindowCreateParam &param,
             const RenderWindowCreateParamEx &paramEx) override;
 
@@ -63,7 +61,7 @@ namespace Tiny3D
         virtual TResult swapBuffers() override;
 
     protected:
-        T3DXRenderWindow();
+        T3DXRenderWindow(const String &name);
 
         Window  *mWindow;
     };

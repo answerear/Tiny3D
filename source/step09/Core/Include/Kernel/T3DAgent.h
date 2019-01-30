@@ -60,6 +60,11 @@ namespace Tiny3D
             const String &rendererName, const String &config = "Tiny3D.cfg");
 
         /**
+         * @brief 创建渲染窗口
+         */
+        TResult createDefaultRenderWindow(RenderWindowPtr &window);
+
+        /**
          * @brief 添加渲染窗口到引擎里面
          * @param [in] window : 渲染窗口对象
          * @return 成功返回 T3D_OK
@@ -78,7 +83,7 @@ namespace Tiny3D
          * @param [in] name : 渲染窗口名称
          * @return 成功返回渲染窗口对象
          */
-        RenderWindowPtr getRenderWindow(const String &name);
+        RenderWindowPtr getRenderWindow(const String &name) const;
 
         /**
          * @brief 运行引擎
@@ -260,9 +265,10 @@ namespace Tiny3D
         TResult initAssets();
 
         /**
-         * @brief 创建渲染窗口
+         * @brief 初始化渲染器
+         * @return 成功返回 T3D_OK
          */
-        TResult createRenderWindow();
+        TResult initRenderer(const String &rendererName);
 
     protected:
         typedef TMap<String, Plugin*>       Plugins;
@@ -300,7 +306,7 @@ namespace Tiny3D
         bool                mIsRunning;         /**< 引擎是否在运行中 */
     };
 
-    #define T3D_ENGINE      (Agent::getInstance())
+    #define T3D_AGENT      (Agent::getInstance())
 }
 
 

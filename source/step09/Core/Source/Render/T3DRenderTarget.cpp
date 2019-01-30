@@ -25,21 +25,21 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RenderTargetPtr RenderTarget::create()
+    RenderTargetPtr RenderTarget::create(const String &name)
     {
-        RenderTarget *rt = new RenderTarget();
-        RenderTargetPtr ptr(rt);
+        RenderTargetPtr rt = new RenderTarget(name);
         rt->release();
-        return ptr;
+        return rt;
     }
 
     //--------------------------------------------------------------------------
 
-    RenderTarget::RenderTarget()
+    RenderTarget::RenderTarget(const String &name)
         : mWidth(0)
         , mHeight(0)
         , mColorDepth(0)
         , mIsActive(true)
+        , mName(name)
     {
 
     }

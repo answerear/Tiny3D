@@ -51,6 +51,13 @@ namespace Tiny3D
             int32_t w, int32_t h, uint32_t flags) = 0;
 
         /**
+         * @brief 根据传入数据创建窗口
+         * @param [in] data : 窗口依赖的数据指针
+         * @return 成功返回 T3D_OK
+         */
+        virtual TResult createFrom(const void *data) = 0;
+
+        /**
          * @brief 销毁窗口
          * @return void
          */
@@ -61,7 +68,7 @@ namespace Tiny3D
          * @param [in][out] info : 返回的窗口系统相关信息
          * @return 获取成功返回true
          */
-        virtual bool getSystemInfo(SysWMInfo &info) = 0;
+        virtual bool getSystemInfo(SysWMInfo &info) const = 0;
 
         /**
          * @brief 设置窗口图标
@@ -74,6 +81,11 @@ namespace Tiny3D
          */
         virtual void setWindowIcon(void *pixels, int32_t width, int32_t height,
             int32_t depth, int32_t pitch, uint32_t format) = 0;
+
+        /**
+         * @brief 获取色深
+         */
+        virtual uint32_t getColorDepth() const = 0;
 
     protected:
     };

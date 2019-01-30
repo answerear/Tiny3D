@@ -26,6 +26,8 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+    
     SDLDesktopWindow::SDLDesktopWindow()
         : mSDLWindow(nullptr)
         , mSDLIconSurface(nullptr)
@@ -33,10 +35,14 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     SDLDesktopWindow::~SDLDesktopWindow()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     TResult SDLDesktopWindow::create(const char *title, int32_t x, int32_t y,
         int32_t w, int32_t h, uint32_t flags)
@@ -47,7 +53,7 @@ namespace Tiny3D
         {
             if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO)
             {
-                
+                ret = T3D_ERR_SYS_NOT_INIT;
                 break;
             }
 
@@ -65,6 +71,36 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult SDLDesktopWindow::createFrom(const void *data)
+    {
+        TResult ret = T3D_ERR_FAIL;
+
+        do 
+        {
+            if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO)
+            {
+                ret = T3D_ERR_SYS_NOT_INIT;
+                break;
+            }
+
+            mSDLWindow = SDL_CreateWindowFrom(data);
+            if (mSDLWindow == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                std::string str = SDL_GetError();
+                break;
+            }
+
+            ret = T3D_OK;
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     void SDLDesktopWindow::destroy()
     {
         if (mSDLIconSurface != nullptr)
@@ -80,7 +116,9 @@ namespace Tiny3D
         }
     }
 
-    bool SDLDesktopWindow::getSystemInfo(SysWMInfo &info)
+    //--------------------------------------------------------------------------
+
+    bool SDLDesktopWindow::getSystemInfo(SysWMInfo &info) const
     {
         SDL_SysWMinfo sdlInfo;
 
@@ -113,6 +151,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void SDLDesktopWindow::setWindowIcon(void *pixels, int32_t width,
         int32_t height, int32_t depth, int32_t pitch, uint32_t format)
     {
@@ -132,5 +172,20 @@ namespace Tiny3D
                 SDL_SetWindowIcon(mSDLWindow, mSDLIconSurface);
             }
         }
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint32_t SDLDesktopWindow::getColorDepth() const
+    {
+        uint32_t depth = 0;
+
+        if (mSDLWindow != nullptr)
+        {
+            uint32_t format = SDL_GetWindowPixelFormat(mSDLWindow);
+            depth = SDL_BITSPERPIXEL(format);
+        }
+
+        return depth;
     }
 }

@@ -19,10 +19,20 @@
 
 
 #include "T3DXRenderer.h"
+#include "T3DXRenderWindow.h"
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3DXRendererPtr T3DXRenderer::create()
+    {
+        T3DXRendererPtr renderer = new T3DXRenderer();
+        renderer->release();
+        return renderer;
+    }
+
     //--------------------------------------------------------------------------
 
     T3DXRenderer::T3DXRenderer()
@@ -58,10 +68,32 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     RenderWindowPtr T3DXRenderer::createRenderWindow(
+        const String &name,
         const RenderWindowCreateParam &param,
         const RenderWindowCreateParamEx &paramEx)
     {
+        TResult ret = T3D_OK;
+
         RenderWindowPtr window = nullptr;
+
+        do 
+        {
+            window = T3DXRenderWindow::create(name);
+            if (window == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Create render window \
+                    failed !");
+                break;
+            }
+
+            ret = window->create(param, paramEx);
+            if (ret != T3D_OK)
+            {
+                window->release();
+                break;
+            }
+        } while (0);
+
         return window;
     }
 

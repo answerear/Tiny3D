@@ -100,10 +100,17 @@ namespace Tiny3D
          * @param [in] w : 窗口宽度
          * @param [in] h : 窗口高度
          * @param [in] flags : 创建窗口需要的一些标记位，可使用或操作合并标记
-         * @return 创建成功返回T3D_OK.
+         * @return 成功返回 T3D_OK.
          */
         TResult create(const char *title, int32_t x, int32_t y,
             int32_t w, int32_t h, uint32_t flags);
+
+        /**
+         * @brief 根据传入的数据创建窗口
+         * @param [in] data : 创建窗口依赖的数据
+         * @return 成功返回 T3D_OK
+         */
+        TResult createFrom(const void *data);
 
         /**
          * @brief 销毁窗口.
@@ -122,7 +129,12 @@ namespace Tiny3D
          * @param [in][out] info : 返回的窗口系统相关信息
          * @return 获取成功返回true
          */
-        bool getSystemInfo(SysWMInfo &info);
+        bool getSystemInfo(SysWMInfo &info) const;
+
+        /**
+         * @brief 获取窗口色深
+         */
+        uint32_t getColorDepth() const;
 
     protected:
         IWindow *mWindow;
