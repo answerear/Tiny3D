@@ -37,16 +37,16 @@ namespace Tiny3D
         THandle     hInstance;      /**< The window instance */
 #elif defined (T3D_OS_LINUX)
         // Linux X11
-        Display     *display;       /**< The X11 display */
-        Window      *window;        /**< The X11 window */
+        void        *display;       /**< The X11 display (Display) */
+        void        *window;        /**< The X11 window (Window) */
 #elif defined (T3D_OS_OSX)
         // Mac OS X cocoa
         void        *window;        /**< The Cocoa window (NSWindow) */
 #elif defined (T3D_OS_IOS)
         // iOS UIKit
         void        *window;        /**< The UIKit window (UIWindow) */
-        GLuint      framebuffer;    /**< The GL view's Framebuffer Object */
-        GLuint      colorbuffer;    /**< the GL view's color Renderbuffer Object */
+        uint32_t    framebuffer;    /**< The GL view's Framebuffer Object */
+        uint32_t    colorbuffer;    /**< the GL view's color Renderbuffer Object */
 #elif defined (T3D_OS_ANDROID)
         void        *window;        /**< The Android native window */
         void        *surface;       /**< The Android EGL surface */
