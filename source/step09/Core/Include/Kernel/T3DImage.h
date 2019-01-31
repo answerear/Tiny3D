@@ -305,8 +305,8 @@ namespace Tiny3D
         bool        mIsDataExternal;    /**< 数据是否外部分配的 */
         bool        mIsEmpty;           /**< 空图像（即没有任何数据的图像） */
 
-        size_t      mDataSize;          /**< 图像数据大小 */
         uint8_t     *mData;             /**< 图像数据 */
+        size_t      mDataSize;          /**< 图像数据大小 */
     };
 }
 
