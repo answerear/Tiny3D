@@ -163,8 +163,8 @@ namespace Tiny3D
         ss<<"Screen DPI : "<<getScreenDPI()<<"\n";
 
         String str = ss.str();
-        size_t len = str.length();
-        const char *txt = str.c_str();
+//         size_t len = str.length();
+//         const char *txt = str.c_str();
         return str;
     }
 

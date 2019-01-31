@@ -162,8 +162,6 @@ namespace Tiny3D
             // 挂起10ms
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-
-        int a = 0;
     }
 
     TResult TimerService::pollEvents()
