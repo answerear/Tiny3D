@@ -35,7 +35,7 @@ namespace Tiny3D
         T3D_DISABLE_COPY(Dir);
 
     public:
-        static String NATIVE_SEPARATOR;
+        static char NATIVE_SEPARATOR;
 
     public:
         /**
@@ -185,7 +185,7 @@ namespace Tiny3D
         /**
          * @brief 获取系统相关的路径分隔符
          */
-        static const String &getNativeSeparator();
+        static char getNativeSeparator();
 
     protected:
         IDir    *mDir;
