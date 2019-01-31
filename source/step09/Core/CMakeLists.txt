@@ -198,9 +198,13 @@ elseif (TINY3D_OS_ANDROID)
 #       LINK_PRIVATE z
         )
     
+    set(ANDROID_ASSETS_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../../../../src/main/assets")
+    
     add_custom_command(TARGET ${BIN_NAME}
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Android/Tiny3D.cfg ${CMAKE_CURRENT_BINARY_DIR}/../../../../../src/main/assets/Tiny3D.cfg
+        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Android/Tiny3D.cfg ${ANDROID_ASSETS_DIR}/Tiny3D.cfg
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${ANDROID_ASSETS_DIR}/Icon
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../Assets/Icon ${ANDROID_ASSETS_DIR}/Icon
     #   COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Tiny3D.cfg
     #   #COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../assets
         )

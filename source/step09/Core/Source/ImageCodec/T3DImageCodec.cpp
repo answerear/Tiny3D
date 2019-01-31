@@ -21,6 +21,7 @@
 #include "Resource/T3DArchiveManager.h"
 #include "Resource/T3DArchive.h"
 #include "T3DErrorDef.h"
+#include "Kernel/T3DAgent.h"
 
 
 namespace Tiny3D
@@ -164,8 +165,8 @@ namespace Tiny3D
 
         do 
         {
-            ArchivePtr archive;
-            if (!T3D_ARCHIVE_MGR.getArchive(name, archive))
+            ArchivePtr archive = T3D_AGENT.getMainAssetsArchive(name);
+            if (archive == nullptr)
             {
                 ret = T3D_ERR_IMG_NOT_FOUND;
                 T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
@@ -173,8 +174,9 @@ namespace Tiny3D
                 break;
             }
             
+            String path = T3D_AGENT.getMainAssetsPath(name);
             MemoryDataStream stream;
-            ret = archive->read(name, stream);
+            ret = archive->read(path, stream);
             if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,

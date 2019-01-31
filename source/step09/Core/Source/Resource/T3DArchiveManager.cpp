@@ -106,21 +106,35 @@ namespace Tiny3D
         mCreators.clear();
     }
 
-    bool ArchiveManager::getArchive(const String &name, ArchivePtr &archive)
+    bool ArchiveManager::getArchive(const String &name, const String &path, 
+        ArchivePtr &archive)
     {
         bool found = false;
-        auto itr = mArchives.begin();
-
-        while (itr != mArchives.end())
+        auto itr = mArchives.find(name);
+        if (itr != mArchives.end())
         {
-            if (itr->second->exists(name))
+            if (itr->second->exists(path))
             {
                 archive = itr->second;
                 found = true;
-                break;
             }
-            ++itr;
         }
+//         auto itr = mArchives.begin();
+// 
+//         while (itr != mArchives.end())
+//         {
+//             if (name == itr->first)
+//             {
+//                 if (itr->second->exists(path))
+//                 {
+//                     archive = itr->second;
+//                     found = true;
+//                     break;
+//                 }
+//             }
+//             
+//             ++itr;
+//         }
 
         return found;
     }

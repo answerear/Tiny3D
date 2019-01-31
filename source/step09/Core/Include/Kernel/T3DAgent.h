@@ -143,6 +143,21 @@ namespace Tiny3D
         TResult removeArchiveCreator(ArchiveCreator *creator);
 
         /**
+         * @brief 获取主资源的档案对象
+         * @param [in] path : 档案结构内部相对路径
+         * @return 成功返回档案结构对象
+         */
+        ArchivePtr getMainAssetsArchive(const String &path) const;
+
+        /**
+         * @brief 根据输入路径，返回相应资源路径
+         * @param [in] path : 资源相对路径
+         * @return 返回相关平台的绝对路径
+         * @remarks 使用该返回的路径才能访问到对应平台的资源
+         */
+        String getMainAssetsPath(const String &path) const;
+
+        /**
          * @brief 添加图像编解码器
          * @param [in] type : 文件类型
          * @param [in] codec : 要添加的图像编解码器对象

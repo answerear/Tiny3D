@@ -49,7 +49,7 @@ namespace Tiny3D
 
     HardwareBuffer::~HardwareBuffer()
     {
-        mUseShadowBuffer = nullptr;
+        mShadowBuffer = nullptr;
     }
 
     //--------------------------------------------------------------------------

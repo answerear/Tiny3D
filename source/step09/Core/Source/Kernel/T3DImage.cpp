@@ -65,6 +65,9 @@ namespace Tiny3D
         case E_PF_B8G8R8X8:
             bpp = 32;
             break;
+        default:
+            bpp = 0;
+            break;
         }
 
         return bpp;

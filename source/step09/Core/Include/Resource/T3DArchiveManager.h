@@ -71,8 +71,12 @@ namespace Tiny3D
 
         /**
          * @brief 获取指定名称档案管理器对象
+         * @param [in] name : 档案名称
+         * @param [in] path : 相对档案的路径
+         * @param [in][out] archive : 返回的档案对象
          */
-        bool getArchive(const String &name, ArchivePtr &archive);
+        bool getArchive(const String &name, const String &path, 
+            ArchivePtr &archive);
 
     protected:
         /** 构造函数 */

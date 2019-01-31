@@ -532,6 +532,36 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ArchivePtr Agent::getMainAssetsArchive(const String &path) const
+    {
+        ArchivePtr archive = nullptr;
+
+        if (mArchiveMgr != nullptr)
+        {
+            String fullpath = getMainAssetsPath(path);
+#if defined T3D_OS_ANDROID
+            mArchiveMgr->getArchive(mAppPath, fullpath, archive);
+#else
+            String name = mAppPath + "Assets";
+            mArchiveMgr->getArchive(name, fullpath, archive);
+#endif
+        }
+
+        return archive;
+    }
+
+    String Agent::getMainAssetsPath(const String &path) const
+    {
+#if defined T3D_OS_ANDROID
+        String fullpath = "assets/" + path;
+#else
+        const String &fullpath = path;
+#endif
+        return fullpath;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Agent::addImageCodec(ImageCodecBase::FileType type,
         ImageCodecBasePtr codec)
     {
@@ -799,49 +829,13 @@ namespace Tiny3D
 
         do 
         {
-            Settings &assets = mSettings["Assets"].mapValue();
-
-            // Assets 资源路径
-            String str("Path");
-            Variant key(str);
-            Settings::const_iterator itr = assets.find(key);
-            if (itr == assets.end())
-            {
-                ret = T3D_ERR_SETTINGS_NOT_FOUND;
-                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Could not find the assets path \
-                    settings item !");
-                break;
-            }
-
-            // 所有资源文件
-            const VariantMap &pathes = itr->second.mapValue();
-            auto i = pathes.begin();
-            while (i != pathes.end())
-            {
-                const String &path = i->first.stringValue();
-                const String &type = i->second.stringValue();
 #if defined (T3D_OS_ANDROID)
-                String fullpath = getAppPath() + Dir::NATIVE_SEPARATOR + path;
+            // Android需要加载apk里面的资源，所以设置的是zip文件里面的assets
+            ArchivePtr archive = mArchiveMgr->loadArchive(mAppPath, "Zip");
 #else
-                const String &fullpath = path;
+            String path = mAppPath + "Assets";
+            ArchivePtr archive = mArchiveMgr->loadArchive(path, "FileSystem");
 #endif
-                ArchivePtr archive = mArchiveMgr->loadArchive(fullpath, type);
-                if (archive == nullptr)
-                {
-                    ret = T3D_ERR_RES_LOAD_FAILED;
-                    T3D_LOG_ERROR(LOG_TAG_ENGINE, "Load archive failed ! \
-                        Path :%s", path.c_str());
-                    break;
-                }
-                ++i;
-            }
-
-            if (ret != T3D_OK)
-            {
-                break;
-            }
-
-
         } while (0);
 
         return ret;

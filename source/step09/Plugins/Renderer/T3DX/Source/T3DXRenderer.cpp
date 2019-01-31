@@ -83,6 +83,7 @@ namespace Tiny3D
             if (ret != T3D_OK)
             {
                 window->release();
+                window = nullptr;
                 break;
             }
         } while (0);

@@ -43,7 +43,7 @@ protected:  /// from Tiny3D::Application
     virtual void applicationLowMemory() override;
 
 protected:  /// from Tiny3D::ITimerListener
-    virtual void onTimer(uint32_t timerID, int32_t dt);
+    virtual void onTimer(uint32_t timerID, int32_t dt) override;
 	
 protected:
     uint32_t    mOnceTimerID;
