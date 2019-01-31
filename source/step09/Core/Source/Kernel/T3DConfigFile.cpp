@@ -508,7 +508,7 @@ namespace Tiny3D
         tinyxml2::XMLElement *root, const VariantArray &arr)
     {
         TResult ret = T3D_OK;
-        tinyxml2::XMLElement *child = nullptr;
+//         tinyxml2::XMLElement *child = nullptr;
         VariantArrayConstItr itr = arr.begin();
 
         while (itr != arr.end())
@@ -529,7 +529,7 @@ namespace Tiny3D
         tinyxml2::XMLElement *root, const VariantList &list)
     {
         TResult ret = T3D_OK;
-        tinyxml2::XMLElement *child = nullptr;
+//         tinyxml2::XMLElement *child = nullptr;
         VariantListConstItr itr = list.begin();
 
         while (itr != list.end())
