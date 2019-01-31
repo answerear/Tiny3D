@@ -216,6 +216,7 @@ namespace Tiny3D
                 param.windowTitle, param, paramEx);
             if (window == nullptr)
             {
+                ret = T3D_ERR_RENDER_CREATE_WINDOW;
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Create render window failed !");
                 break;
             }
