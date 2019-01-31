@@ -164,10 +164,14 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
             )
 
+        set(ASSETS_DIR "${APPS}/Contents/MacOS/Assets/")
+
         add_custom_command(TARGET ${BIN_NAME}
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/Tiny3D.cfg" "${APPS}/Contents/MacOS"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/OSX/Tiny3D.cfg" "${APPS}/Contents/MacOS"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*" "${APPS}/Contents/MacOS"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${ASSETS_DIR}"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../Assets/Icon ${ASSETS_DIR}/Icon
             #COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/Plugins" "${APPS}/Contents/MacOS"
             )
     endif (TINY3D_OS_IOS)
