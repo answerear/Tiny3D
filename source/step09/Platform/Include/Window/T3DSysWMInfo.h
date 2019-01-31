@@ -41,10 +41,10 @@ namespace Tiny3D
         Window      *window;        /**< The X11 window */
 #elif defined (T3D_OS_OSX)
         // Mac OS X cocoa
-        NSWindow    *window;        /**< The Cocoa window */
+        void        *window;        /**< The Cocoa window (NSWindow) */
 #elif defined (T3D_OS_IOS)
         // iOS UIKit
-        UIWindow    *window;        /**< The UIKit window */
+        void        *window;        /**< The UIKit window (UIWindow) */
         GLuint      framebuffer;    /**< The GL view's Framebuffer Object */
         GLuint      colorbuffer;    /**< the GL view's color Renderbuffer Object */
 #elif defined (T3D_OS_ANDROID)
