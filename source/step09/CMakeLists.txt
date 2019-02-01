@@ -108,7 +108,7 @@ endif (WIN32)
 
 if (TINY3D_OS_IOS)
     # Because in iOS, there only support static library.
-    option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" FALSE)
+    option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
 else (TINY3D_OS_IOS)
     option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
 endif (TINY3D_OS_IOS)
