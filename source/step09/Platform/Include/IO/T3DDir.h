@@ -35,9 +35,6 @@ namespace Tiny3D
         T3D_DISABLE_COPY(Dir);
 
     public:
-        static char NATIVE_SEPARATOR;
-
-    public:
         /**
          * @brief Constructor for T3DDir.
          */
@@ -196,6 +193,7 @@ namespace Tiny3D
         static String  sLibPath;
 
         static IDir *sDir;
+        static char NATIVE_SEPARATOR;
     };
 }
 

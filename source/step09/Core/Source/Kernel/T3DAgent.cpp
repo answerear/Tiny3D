@@ -763,7 +763,7 @@ namespace Tiny3D
             }
 
 #if !defined (T3D_OS_ANDROID)
-            mPluginsPath = mAppPath + Dir::NATIVE_SEPARATOR 
+            mPluginsPath = mAppPath + Dir::getNativeSeparator()
                 + itr->second.stringValue();
 #endif
 

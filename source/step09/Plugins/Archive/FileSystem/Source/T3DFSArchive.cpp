@@ -81,14 +81,14 @@ namespace Tiny3D
 
     bool FileSystemArchive::exists(const String &name) const
     {
-        String path = getLocation() + Dir::NATIVE_SEPARATOR + name;
+        String path = getLocation() + Dir::getNativeSeparator() + name;
         return Dir::exists(path);
     }
 
     TResult FileSystemArchive::read(const String &name, 
         MemoryDataStream &stream)
     {
-        String path = getLocation() + Dir::NATIVE_SEPARATOR + name;
+        String path = getLocation() + Dir::getNativeSeparator() + name;
         FileDataStream *fs = nullptr;
         TResult ret = T3D_OK;
 
@@ -131,7 +131,7 @@ namespace Tiny3D
     TResult FileSystemArchive::write(const String &name, 
         const MemoryDataStream &stream)
     {
-        String path = getLocation() + Dir::NATIVE_SEPARATOR + name;
+        String path = getLocation() + Dir::getNativeSeparator() + name;
         FileDataStream *fs = nullptr;
         TResult ret = T3D_OK;
 

@@ -97,8 +97,7 @@ namespace Tiny3D
 #endif
 
             const String &pluginsPath = Agent::getInstance().getPluginsPath();
-//             const String &appPath = Agent::getInstance().getAppPath();
-            String path = pluginsPath + Dir::NATIVE_SEPARATOR + name;
+            String path = pluginsPath + Dir::getNativeSeparator() + name;
             mHandle = DYLIB_LOAD(path.c_str());
 
             if (mHandle == nullptr)
