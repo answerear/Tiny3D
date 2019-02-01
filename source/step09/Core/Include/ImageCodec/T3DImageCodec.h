@@ -30,9 +30,9 @@ namespace Tiny3D
     /**
      * @brief 
      */
-    class ImageCodec 
-        : public Object
-        , public Singleton<ImageCodec>
+    class T3D_ENGINE_API ImageCodec
+        : public Singleton<ImageCodec>
+        , public Object
     {
     public:
         /**
