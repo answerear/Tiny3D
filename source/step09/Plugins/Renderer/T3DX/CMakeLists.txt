@@ -39,6 +39,17 @@ set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 #    add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
 #endif (TINY3D_BUILD_SHARED_LIBS)
 
+if (TINY3D_OS_IOS)
+    set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG "-Wl,-rpath")
+
+    set_target_properties (${LIB_NAME} PROPERTIES
+        BUILD_WITH_INSTALL_RPATH 1
+        MACOSX_RPATH 1
+        INSTALL_NAME_DIR "@rpath"
+        )
+elseif (TINY3D_OS_MACOSX)
+else (TIN3YD_OS_IOS)
+endif (TINY3D_OS_IOS)
 
 target_link_libraries(
     ${LIB_NAME}

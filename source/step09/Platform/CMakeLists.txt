@@ -213,6 +213,14 @@ elseif (TINY3D_OS_IOS)
 	# iOS
     find_library(FWK_SECURITY Security)
 
+    set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG "-Wl,-rpath")
+
+    set_target_properties (${LIB_NAME} PROPERTIES
+        BUILD_WITH_INSTALL_RPATH 1
+        MACOSX_RPATH 1
+        INSTALL_NAME_DIR "@rpath"
+        )
+
 	target_link_libraries(
         ${LIB_NAME}
         ${SDL2_LIBRARY}
