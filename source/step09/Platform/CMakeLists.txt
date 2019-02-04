@@ -199,6 +199,7 @@ elseif (TINY3D_OS_MACOSX)
 		)
 elseif (TINY3D_OS_LINUX)
 	# Linux
+    add_definitions(-DSDL_VIDEO_DRIVER_X11=1)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE X11
