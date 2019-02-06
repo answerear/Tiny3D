@@ -167,6 +167,8 @@ namespace Tiny3D
          * @brief 构造函数
          */
         T3DXRenderer();
+
+        T3DXRenderWindowPtr     mRenderWindow;  /**< 渲染窗口 */
     };
 }
 

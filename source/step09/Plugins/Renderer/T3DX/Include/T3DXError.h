@@ -29,8 +29,8 @@ namespace Tiny3D
 {
     enum XRenderErrorCode
     {
-        T3D_ERR_T3DX_WINDOW_ALREADY = T3D_ERR_RENDERER,  /**< 窗口已经创建 */
-        T3D_ERR_T3DX_UNSUPPORT_FORMAT_ICON,              /**< 不支持的图标文件格式 */
+        T3D_ERR_R3D_WINDOW_ALREADY = T3D_ERR_RENDERER,  /**< 窗口已经创建 */
+        T3D_ERR_R3D_UNSUPPORT_FORMAT_ICON,              /**< 不支持的图标文件格式 */
     };
 }
 

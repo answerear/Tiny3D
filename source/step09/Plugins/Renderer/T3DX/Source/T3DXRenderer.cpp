@@ -37,8 +37,9 @@ namespace Tiny3D
 
     T3DXRenderer::T3DXRenderer()
         : Renderer()
+        , mRenderWindow(nullptr)
     {
-        mName = Renderer::T3DXRENDERER;
+        mName = Renderer::REFERENCE3D;
     }
 
     T3DXRenderer::~T3DXRenderer()
@@ -55,6 +56,7 @@ namespace Tiny3D
 
     TResult T3DXRenderer::destroy()
     {
+        mRenderWindow = nullptr;
         return T3D_OK;
     }
 
@@ -86,6 +88,8 @@ namespace Tiny3D
                 window = nullptr;
                 break;
             }
+
+            mRenderWindow = window;
         } while (0);
 
         return window;

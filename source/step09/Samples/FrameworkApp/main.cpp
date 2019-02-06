@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     Tiny3D::Agent *theEngine = new Tiny3D::Agent();
 
     Tiny3D::RenderWindow *window = nullptr;
-    theEngine->init(argv[0], true, Tiny3D::Renderer::T3DXRENDERER);
+    theEngine->init(argv[0], true);
     theEngine->run();
 
     delete theEngine;

@@ -687,6 +687,8 @@ namespace Tiny3D
         unsigned long s2 = 0;
         unsigned long s3 = 0;
         unsigned long s4 = 0;
+
+#if defined (T3D_OS_X86)
         __asm
         {
             mov eax, 00h
@@ -704,6 +706,7 @@ namespace Tiny3D
             mov s3, edx
             mov s4, ecx
         }
+#endif
 
         char buf[100];
         sprintf(buf, "%08X%08X%08X%08X", s1, s2, s3, s4);

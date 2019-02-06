@@ -85,7 +85,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult Agent::init(const String &appPath, bool autoCreateWindow,
-        const String &rendererName, const String &config /* = "Tiny3D.cfg" */)
+        const String &config /* = "Tiny3D.cfg" */)
     {
         TResult ret = T3D_OK;
 
@@ -161,7 +161,7 @@ namespace Tiny3D
             }
 
             // 初始化渲染器
-            ret = initRenderer(rendererName);
+            ret = initRenderer();
             if (ret != T3D_OK)
             {
                 break;
@@ -842,12 +842,15 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Agent::initRenderer(const String &rendererName)
+    TResult Agent::initRenderer()
     {
         TResult ret = T3D_OK;
 
         do 
         {
+            Settings settings = mSettings["Render"].mapValue();
+            String rendererName = settings["Renderer"].stringValue();
+
             // 设置当前要使用的渲染器
             RendererPtr renderer = getRenderer(rendererName);
             if (renderer == nullptr)

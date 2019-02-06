@@ -35,7 +35,7 @@ namespace Tiny3D
     class T3D_ENGINE_API Renderer : public Object
     {
     public:
-        static const char * const T3DXRENDERER; /**< Tiny3D自带的软渲染器 */
+        static const char * const REFERENCE3D;  /**< Tiny3D自带的软渲染器 */
         static const char * const DIRECT3D9;    /**< Direct3D9 渲染器 */
         static const char * const DIRECT3D11;   /**< Direct3D11 渲染器 */
         static const char * const OPENGL3;      /**< OpenGL 3.x 渲染器 */

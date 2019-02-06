@@ -62,7 +62,7 @@ namespace Tiny3D
             if (mWindow != nullptr)
             {
                 // 窗口已经创建
-                ret = T3D_ERR_T3DX_WINDOW_ALREADY;
+                ret = T3D_ERR_R3D_WINDOW_ALREADY;
                 T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Render window already \
                      created !");
                 break;
@@ -147,7 +147,7 @@ namespace Tiny3D
 
             if (ret != T3D_OK)
             {
-                ret = T3D_ERR_T3DX_UNSUPPORT_FORMAT_ICON;
+                ret = T3D_ERR_R3D_UNSUPPORT_FORMAT_ICON;
                 T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Do not support icon [%s] \
                     format !", param.iconPath.c_str());
                 break;

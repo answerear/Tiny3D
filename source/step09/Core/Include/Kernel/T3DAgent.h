@@ -52,12 +52,11 @@ namespace Tiny3D
          * @brief 初始化引擎
          * @param [in] appPath : 应用程序路径
          * @param [in] autoCreateWindow : 是否创建渲染窗口
-         * @param [in] rendererName : 渲染器名称
          * @param [in] config : 配置文件
          * @remarks 引擎的一切应用都要在调用本接口之后才有效。
          */
         TResult init(const String &appPath, bool autoCreateWindow,
-            const String &rendererName, const String &config = "Tiny3D.cfg");
+            const String &config = "Tiny3D.cfg");
 
         /**
          * @brief 创建渲染窗口
@@ -283,7 +282,7 @@ namespace Tiny3D
          * @brief 初始化渲染器
          * @return 成功返回 T3D_OK
          */
-        TResult initRenderer(const String &rendererName);
+        TResult initRenderer();
 
     protected:
         typedef TMap<String, Plugin*>       Plugins;
