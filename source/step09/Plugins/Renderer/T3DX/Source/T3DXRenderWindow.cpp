@@ -75,7 +75,7 @@ namespace Tiny3D
             auto itr = paramEx.find("externalHandle");
             if (itr != paramEx.end())
             {
-                externalWnd = (void *)itr->second.longValue();
+                externalWnd = (void *)itr->second.uint64Value();
             }
 
             if (externalWnd != nullptr)

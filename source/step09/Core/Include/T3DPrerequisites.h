@@ -82,6 +82,9 @@ namespace Tiny3D
 
     class ImageCodecBase;
     class ImageCodec;
+
+    class Node;
+    class SGNode;
 }
 
 

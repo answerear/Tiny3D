@@ -57,6 +57,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(ImageCodecBase);
     T3D_DECLARE_SMART_PTR(ImageCodec);
 
+    T3D_DECLARE_SMART_PTR(Node);
+
 
     typedef TArray<Variant>                 VariantArray;
     typedef VariantArray::iterator          VariantArrayItr;

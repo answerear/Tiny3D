@@ -111,7 +111,7 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     add_definitions(-DT3D_OS_X64)
 elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
     add_definitions(-DT3D_OS_X86)
-endif (CMAKE_SIZEOF_VOID_P)
+endif ()
 
 if (TINY3D_OS_IOS)
     # Because in iOS, there only support static library.
