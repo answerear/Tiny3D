@@ -23,7 +23,146 @@
 
 namespace Tiny3D
 {
-    
+    //--------------------------------------------------------------------------
+
+    Node::Node(ID uID /* = E_NID_AUTOMATIC */)
+        : mID(E_NID_INVALID)
+        , mName()
+        , mParent(nullptr)
+    {
+        if (E_NID_AUTOMATIC == mID)
+        {
+            mID = makeGlobalID();
+        }
+        else
+        {
+            mID = uID;
+        }
+    }
+
+    Node::~Node()
+    {
+        removeAllChildren(true);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Node::addChild(NodePtr node)
+    {
+        T3D_ASSERT(node->getParent() == nullptr);
+        mChildren.push_back(node);
+        node->mParent = this;
+        node->onAttachParent(this);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Node::removeChild(NodePtr node, bool cleanup)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (node == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid node pointer !");
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            auto itr = mChildren.begin();
+
+            while (itr != mChildren.end())
+            {
+                NodePtr child = *itr;
+
+                if (child == node)
+                {
+                    if (cleanup)
+                    {
+                        child->removeAllChildren(cleanup);
+                    }
+
+                    child->onDetachParent(this);
+                    child->mParent = nullptr;
+                    mChildren.erase(itr);
+                    break;
+                }
+
+                ++itr;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Node::removeChild(uint32_t nodeID, bool cleanup)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (nodeID == E_NID_INVALID)
+            {
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid node ID !");
+                ret = T3D_ERR_INVALID_ID;
+                break;
+            }
+
+            auto itr = mChildren.begin();
+
+            while (itr != mChildren.end())
+            {
+                NodePtr child = *itr;
+
+                if (child != nullptr && child->getNodeID() == nodeID)
+                {
+                    if (cleanup)
+                    {
+                        child->removeAllChildren(cleanup);
+                    }
+
+                    child->onDetachParent(this);
+                    child->mParent = nullptr;
+                    mChildren.erase(itr);
+                    break;
+                }
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Node::removeAllChildren(bool cleanup)
+    {
+        TResult ret = T3D_OK;
+
+        auto itr = mChildren.begin();
+
+        while (itr != mChildren.end())
+        {
+            NodePtr &child = *itr;
+
+            if (cleanup)
+            {
+                child->removeAllChildren(cleanup);
+            }
+
+            child->onDetachParent(this);
+            child->mParent = nullptr;
+
+            ++itr;
+        }
+
+        mChildren.clear();
+
+        return ret;
+    }
 }
 
 

@@ -80,6 +80,10 @@ namespace Tiny3D
     typedef Renderers::iterator             RenderersItr;
     typedef Renderers::const_iterator       RenderersConstItr;
     typedef Renderers::value_type           RenderersValue;
+
+    typedef std::list<NodePtr>              Children;
+    typedef Children::iterator              ChildrenItr;
+    typedef Children::const_iterator        ChildrenConstItr;
 }
 
 

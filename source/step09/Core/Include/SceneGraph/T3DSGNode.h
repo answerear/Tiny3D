@@ -46,11 +46,11 @@ namespace Tiny3D
          * @return void
          * @note 该数据可以是用户设置的任何整型甚至内存地址，
          *      具体由使用者自己定义和解析
-         * @see uint64_t getUserData() const
+         * @see void *getUserData() const
          * @see void setUserData(ObjectPtr object)
          * @see ObjectPtr getUserObject() const
          */
-        void setUserData(uint64_t data);
+        void setUserData(void *data);
 
         /**
          * @brief 获取用户数据
@@ -59,7 +59,7 @@ namespace Tiny3D
          *      具体由使用者自己定义和解析
          * @see void setUserData(uint64_t data)
          */
-        uint64_t getUserData() const;
+        void *getUserData() const;
 
         /**
          * @brief 设置用户数据对象

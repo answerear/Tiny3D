@@ -52,22 +52,22 @@ namespace Tiny3D
             E_NT_UNKNOWN = 0,       /**< 未知结点类型 */
 
             E_NT_TRANSFORM,         /**< 3D变换结点 */
-            E_NT_TRANSFORM2D,           /// 2D变换结点
-            E_NT_BONE,                  /// 骨骼变换结点
+            E_NT_TRANSFORM2D,       /**< 2D变换结点 */
+            E_NT_BONE,              /**< 骨骼变换结点 */
 
-            E_NT_CAMERA,                /// 相机结点
-            E_NT_MODEL,                 /// 模型结点
+            E_NT_CAMERA,            /**< 相机结点 */
+            E_NT_MODEL,             /**< 模型结点 */
 
-            E_NT_LIGHT,                 /// 灯光结点
-            E_NT_GEOMETRY,              /// 几何物体结点
-            E_NT_MESH,                  /// 网格结点
-            E_NT_SPHERE,                /// 球型物体结点
-            E_NT_BOX,                   /// 立方体结点
-            E_NT_SKELETON,              /// 可渲染的骨骼结点
-            E_NT_AXIS,                  /// 坐标轴结点
-            E_NT_QUAD,                  /// 四边形结点
-            E_NT_SPRITE,                /// 精灵结点
-            E_NT_TEXT2D,                /// 2D文本结点
+            E_NT_LIGHT,             /**< 灯光结点 */
+            E_NT_GEOMETRY,          /**< 几何物体结点 */
+            E_NT_MESH,              /**< 网格结点 */
+            E_NT_SPHERE,            /**< 球型物体结点 */
+            E_NT_BOX,               /**< 立方体结点 */
+            E_NT_SKELETON,          /**< 可渲染的骨骼结点 */
+            E_NT_AXIS,              /**< 坐标轴结点 */
+            E_NT_QUAD,              /**< 四边形结点 */
+            E_NT_SPRITE,            /**< 精灵结点 */
+            E_NT_TEXT2D,            /**< 2D文本结点 */
         };
 
         /**
@@ -112,7 +112,7 @@ namespace Tiny3D
          * @see TResult removeChild(const NodePtr &node, bool cleanup)
          * @see TResult removeChild(uint32_t nodeID, bool cleanup)
          */
-        virtual TResult addChild(const NodePtr &node);
+        virtual TResult addChild(NodePtr node);
 
         /**
          * @brief 移除一个子结点
@@ -121,7 +121,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          * @see TResult removeChild(uint32_t nodeID, bool cleanup)
          */
-        virtual TResult removeChild(const NodePtr &node, bool cleanup);
+        virtual TResult removeChild(NodePtr node, bool cleanup);
 
         /**
          * @brief 移除一个子结点
@@ -148,22 +148,10 @@ namespace Tiny3D
         TResult removeFromParent(bool cleanup);
 
         /**
-         * @brief 获取第一个子结点
-         * @return 返回第一个子结点
+         * @brief 获取所有子结点
+         * @return 返回所有子结点链表
          */
-        NodePtr getChild() const;
-
-        /**
-         * @brief 获取下一个兄弟结点
-         * @return 返回下一个兄弟结点
-         */
-        NodePtr getNext() const;
-
-        /**
-         * @brief 获取上一个兄弟结点
-         * @return 返回上一个兄弟结点
-         */
-        NodePtr getPrev() const;
+        const Children &getChildren() const;
 
         /**
          * @brief 返回指定结点ID的子结点
@@ -208,6 +196,20 @@ namespace Tiny3D
          */
         virtual void cloneProperties(NodePtr node) const;
 
+        /**
+         * @brief 结点挂到Scene Graph上时回调通知
+         * @param [in] parent : 挂上去的父结点
+         * @return void
+        */
+        virtual void onAttachParent(NodePtr parent);
+
+        /**
+         * @brief 结点从Scene Graph上拿下来时回调通知
+         * @param [in] parent : 拿下来的父结点
+         * @return void
+         */
+        virtual void onDetachParent(NodePtr parent);
+
     private:
         /**
          * @brief 生成全局唯一标识
@@ -216,15 +218,18 @@ namespace Tiny3D
         ID makeGlobalID();
 
     private:
-        ID      mID;        /**< 结点ID */
-        String  mName;      /**< 结点名称 */
+        ID          mID;        /**< 结点ID */
+        String      mName;      /**< 结点名称 */
 
-        NodePtr mParent;    /**< 父结点 */
-        NodePtr mChild;     /**< 子结点 */
-        NodePtr mPrev;      /**< 前一个兄弟结点 */
-        NodePtr mNext;      /**< 后一个兄弟结点 */
+        NodePtr     mParent;    /**< 父结点 */
+
+    protected:
+        Children    mChildren;  /**< 子结点 */
     };
 }
+
+
+#include "T3DNode.inl"
 
 
 #endif  /*__T3D_NODE_H__*/
