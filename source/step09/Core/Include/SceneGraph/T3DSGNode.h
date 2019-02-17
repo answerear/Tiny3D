@@ -119,6 +119,15 @@ namespace Tiny3D
 
     protected:
         /**
+         * @brief 默认构造函数
+         * @param [in] unID : 标识结点的唯一ID，默认值是由引擎自动生成唯一ID
+         * @note 这里构造函数是protected访问权限，主要是为了防止外部直接new来构
+         *  造对象， 本类是无法构造直接对象，请使用各派生类的create代替new来构造
+         *  对象
+         */
+        SGNode(ID unID = E_NID_AUTOMATIC);
+
+        /**
          * @brief 更新本身的变换和所有子结点的变换
          * @return void
          * @note 派生类重写本函数以实现具体的变换更新策略
@@ -135,7 +144,7 @@ namespace Tiny3D
          *  - 如果本身在视景体内，则会递归调用子结点判断；
          *  - 如果不是可渲染结点，则无法加入的RenderQueue中；
          */
-        virtual void frustumCulling(const BoundPtr &bound, const RenderQueuePtr &queue);
+        virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue);
 
         /**
          * @brief 克隆结点属性
@@ -143,16 +152,19 @@ namespace Tiny3D
          * @return void
          * @note 复制本结点所有属性给目标结点node
          */
-        virtual void cloneProperties(NodePtr node) const;
+        virtual TResult cloneProperties(NodePtr node) const override;
 
     private:
-        long_t      mUserData;      /// 保存用户数据
-        ObjectPtr   mUserObject;    /// 保存用户数据对象
+        void        *mUserData;     /**< 保存用户数据 */
+        ObjectPtr   mUserObject;    /**< 保存用户数据对象 */
 
-        bool        mIsDirty;       /// 结点数据是否脏了，需要重绘、重新计算等
-        bool        mIsVisible;     /// 结点可见性
+        bool        mIsDirty;       /**< 结点数据是否脏了，需要重绘、重新计算等 */
+        bool        mIsVisible;     /**< 结点可见性 */
     };
 }
+
+
+#include "T3DSGNode.inl"
 
 
 #endif  /*__T3D_SG_NODE_H__*/

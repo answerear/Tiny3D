@@ -59,6 +59,33 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(Node);
 
+    T3D_DECLARE_SMART_PTR(Bound);
+    T3D_DECLARE_SMART_PTR(SphereBound);
+    T3D_DECLARE_SMART_PTR(AabbBound);
+    T3D_DECLARE_SMART_PTR(ObbBound);
+    T3D_DECLARE_SMART_PTR(FrustumBound);
+
+    T3D_DECLARE_SMART_PTR(SGNode);
+
+    T3D_DECLARE_SMART_PTR(SGTransform3D);
+    T3D_DECLARE_SMART_PTR(SGBone);
+
+    T3D_DECLARE_SMART_PTR(SGCamera);
+    T3D_DECLARE_SMART_PTR(SGLight);
+    T3D_DECLARE_SMART_PTR(SGModel);
+
+    T3D_DECLARE_SMART_PTR(SGRenderable);
+    T3D_DECLARE_SMART_PTR(SGMesh);
+    T3D_DECLARE_SMART_PTR(SGTerrain);
+    T3D_DECLARE_SMART_PTR(SGBillboard);
+    T3D_DECLARE_SMART_PTR(SGQuad);
+    T3D_DECLARE_SMART_PTR(SGBox);
+    T3D_DECLARE_SMART_PTR(SGAxis);
+    T3D_DECLARE_SMART_PTR(SGSphere);
+
+    T3D_DECLARE_SMART_PTR(SGTransform2D);
+    T3D_DECLARE_SMART_PTR(SGSprite);
+    T3D_DECLARE_SMART_PTR(SGText2D);
 
     typedef TArray<Variant>                 VariantArray;
     typedef VariantArray::iterator          VariantArrayItr;

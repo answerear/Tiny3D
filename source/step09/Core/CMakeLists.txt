@@ -56,6 +56,8 @@ set_project_files(Include\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Include/Imag
 set_project_files(Include\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Include/ImageCodec/ .inl)
 set_project_files(Include\\\\SceneGraph ${CMAKE_CURRENT_SOURCE_DIR}/Include/SceneGraph/ .h)
 set_project_files(Include\\\\SceneGraph ${CMAKE_CURRENT_SOURCE_DIR}/Include/SceneGraph/ .inl)
+set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .h)
+set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .inl)
 
 # Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
@@ -66,6 +68,7 @@ set_project_files(Source\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Source/Memory/ .c
 set_project_files(Source\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/ .cpp)
 set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageCodec/ .cpp)
 set_project_files(Source\\\\SceneGraph ${CMAKE_CURRENT_SOURCE_DIR}/Source/SceneGraph/ .cpp)
+set_project_files(Source\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Source/Bound/ .cpp)
 
 # tinyxml2
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)

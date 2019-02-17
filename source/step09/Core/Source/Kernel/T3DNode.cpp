@@ -163,6 +163,114 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
+
+    TResult Node::removeFromParent(bool cleanup)
+    {
+        TResult ret = T3D_OK;
+
+        if (mParent != nullptr)
+        {
+            mParent->removeChild(this, cleanup);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    NodePtr Node::getChild(ID nodeID) const
+    {
+        NodePtr child = nullptr;
+
+        auto itr = mChildren.begin();
+
+        while (itr != mChildren.end())
+        {
+            NodePtr node = *itr;
+            if (node->getNodeID() == nodeID)
+            {
+                child = node;
+                break;
+            }
+
+            ++itr;
+        }
+
+        return child;
+    }
+
+    //--------------------------------------------------------------------------
+
+    NodePtr Node::getChild(const String &name) const
+    {
+        NodePtr child = nullptr;
+
+        auto itr = mChildren.begin();
+
+        while (itr != mChildren.end())
+        {
+            NodePtr node = *itr;
+            if (node->getName() == name)
+            {
+                child = node;
+                break;
+            }
+
+            ++itr;
+        }
+
+        return child;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Node::cloneProperties(NodePtr node) const
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (node == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid pointer !");
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            // 克隆结点名称
+            node->mName = mName;
+
+            // 克隆子结点属性
+            auto itr = node->mChildren.begin();
+
+            while (itr != node->mChildren.end())
+            {
+                NodePtr &child = *itr;
+                NodePtr newChild = child->clone();
+                newChild->cloneProperties(child);
+                node->addChild(newChild);
+                ++itr;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Node::onAttachParent(NodePtr parent)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Node::onDetachParent(NodePtr parent)
+    {
+
+    }
 }
 
 

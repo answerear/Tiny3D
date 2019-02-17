@@ -51,7 +51,7 @@ namespace Tiny3D
         {
             E_NT_UNKNOWN = 0,       /**< 未知结点类型 */
 
-            E_NT_TRANSFORM,         /**< 3D变换结点 */
+            E_NT_TRANSFORM3D,       /**< 3D变换结点 */
             E_NT_TRANSFORM2D,       /**< 2D变换结点 */
             E_NT_BONE,              /**< 骨骼变换结点 */
 
@@ -79,7 +79,8 @@ namespace Tiny3D
          * @brief 返回结点类型
          * @return 返回结点类型
          * @see enum Type
-         * @note 每个派生类都要实现本接口，以返回具体的类型，如果不实现，则无法实例化对象了
+         * @note 每个派生类都要实现本接口，以返回具体的类型，如果不实现，
+         *      则无法实例化对象了
          */
         virtual Type getNodeType() const = 0;
 
@@ -117,7 +118,8 @@ namespace Tiny3D
         /**
          * @brief 移除一个子结点
          * @param [in] node : 子结点对象
-         * @param [in] cleanup : 是否删除子结点，true表示删除，false表示仅仅移除而并不删除子结点
+         * @param [in] cleanup : 是否删除子结点，true表示删除，
+         *      false表示仅仅移除而并不删除子结点
          * @return 调用成功返回 T3D_OK
          * @see TResult removeChild(uint32_t nodeID, bool cleanup)
          */
@@ -126,7 +128,8 @@ namespace Tiny3D
         /**
          * @brief 移除一个子结点
          * @param [in] nodeID : 结点唯一标识ID
-         * @param [in] cleanup : 是否删除子结点，true表示删除，false表示仅仅移除而并不删除子结点
+         * @param [in] cleanup : 是否删除子结点，true表示删除，
+         *      false表示仅仅移除而并不删除子结点
          * @return 调用成功返回 T3D_OK
          * @see TResult removeChild(const NodePtr &node, bool cleanup)
          */
@@ -134,16 +137,19 @@ namespace Tiny3D
 
         /**
          * @brief 移除所有子结点
-         * @param [in] cleanup : 是否删除所有子结点，true表示删除，false表示仅仅移除而并不删除子结点
+         * @param [in] cleanup : 是否删除所有子结点，true表示删除，
+         *      false表示仅仅移除而并不删除子结点
          * @return 调用成功返回 T3D_OK
          */
         virtual TResult removeAllChildren(bool cleanup);
 
         /**
          * @brief 从父结点移除自己
-         * @param [in] cleanup : 是否删除自己，true表示删除，false表示仅仅移除而并不删除自己
+         * @param [in] cleanup : 是否删除自己，true表示删除，
+         *      false表示仅仅移除而并不删除自己
          * @return 调用成功返回 T3D_OK
-         * @note 当cleanup用true调用后，本身结点已经被释放了，则不能在访问任何结点接口和数据
+         * @note 当cleanup用true调用后，本身结点已经被释放了，
+         *      则不能在访问任何结点接口和数据
          */
         TResult removeFromParent(bool cleanup);
 
@@ -155,12 +161,12 @@ namespace Tiny3D
 
         /**
          * @brief 返回指定结点ID的子结点
-         * @param [in] uID : 子结点ID
+         * @param [in] nodeID : 子结点ID
          * @return 返回子结点对象
          * @see NodePtr getChild() const
          * @see NodePtr getChild(const String &name) const
          */
-        NodePtr getChild(ID uID) const;
+        NodePtr getChild(ID nodeID) const;
 
         /**
          * @brief 返回指定名称的子结点
@@ -191,10 +197,10 @@ namespace Tiny3D
         /**
          * @brief 复制结点的属性数据
          * @param [in] node : 新结点
-         * @return void
+         * @return 调用成功返回 T3D_OK
          * @note 重写了clone方法的一般都需要重写本方法以实现具体类属性数据的复制
          */
-        virtual void cloneProperties(NodePtr node) const;
+        virtual TResult cloneProperties(NodePtr node) const;
 
         /**
          * @brief 结点挂到Scene Graph上时回调通知

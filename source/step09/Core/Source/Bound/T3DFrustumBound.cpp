@@ -22,9 +22,8 @@
 #define __TINY3D_H__
 
 // Global
-#include <T3DPrerequisites.h>
 #include <T3DErrorDef.h>
-#include <T3DTypedef.h>
+#include <T3DType.h>
 
 // Kernel
 #include <Kernel/T3DAgent.h>
@@ -32,9 +31,6 @@
 #include <Kernel/T3DCreator.h>
 #include <Kernel/T3DObject.h>
 #include <Kernel/T3DPlugin.h>
-#include <Kernel/T3DImage.h>
-#include <Kernel/T3DPixelFormat.h>
-#include <Kernel/T3DNode.h>
 
 // Memory
 #include <Memory/T3DSmartPtr.h>
@@ -66,18 +62,5 @@
 #include <Render/T3DHardwareVertexBuffer.h>
 #include <Render/T3DHardwareIndexBuffer.h>
 #include <Render/T3DHardwarePixelBuffer.h>
-#include <Render/T3DVertexArray.h>
-#include <Render/T3DViewport.h>
-
-// Bound
-#include <Bound/T3DBound.h>
-#include <Bound/T3DSphereBound.h>
-#include <Bound/T3DAabbBound.h>
-#include <Bound/T3DObbBound.h>
-#include <Bound/T3DFrustumBound.h>
-
-// Scene Graph
-#include <SceneGraph/T3DSGNode.h>
-
 
 #endif  /*__TINY3D_H__*/

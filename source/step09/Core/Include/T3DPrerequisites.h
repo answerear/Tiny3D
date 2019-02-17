@@ -84,7 +84,34 @@ namespace Tiny3D
     class ImageCodec;
 
     class Node;
+
+    class Bound;
+    class SphereBound;
+    class AabbBound;
+    class ObbBound;
+    class FrustumBound;
+
     class SGNode;
+
+    class SGTransform3D;
+    class SGBone;
+
+    class SGCamera;
+    class SGLight;
+    class SGModel;
+
+    class SGRenderable;
+    class SGMesh;
+    class SGTerrain;
+    class SGBillboard;
+    class SGQuad;
+    class SGBox;
+    class SGAxis;
+    class SGSphere;
+
+    class SGTransform2D;
+    class SGText2D;
+    class SGSprite;
 }
 
 
