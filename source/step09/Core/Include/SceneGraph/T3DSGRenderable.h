@@ -27,6 +27,9 @@ namespace Tiny3D
     class T3D_ENGINE_API SGRenderable : public SGTransform3D
     {
     public:
-        
+        virtual ~SGRenderable();
+
+    protected:
+        SGRenderable(ID uID = E_NID_AUTOMATIC);
     };
 }

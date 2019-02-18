@@ -18,49 +18,117 @@
  ******************************************************************************/
 
 
-#ifndef __TINY3D_H__
-#define __TINY3D_H__
+#ifndef __T3D_FRUSTUM_BOUND_H__
+#define __T3D_FRUSTUM_BOUND_H__
 
-// Global
-#include <T3DErrorDef.h>
-#include <T3DType.h>
 
-// Kernel
-#include <Kernel/T3DAgent.h>
-#include <Kernel/T3DConfigFile.h>
-#include <Kernel/T3DCreator.h>
-#include <Kernel/T3DObject.h>
-#include <Kernel/T3DPlugin.h>
+#include "Bound/T3DBound.h"
 
-// Memory
-#include <Memory/T3DSmartPtr.h>
 
-// Resource
-#include <Resource/T3DArchive.h>
-#include <Resource/T3DArchiveCreator.h>
-#include <Resource/T3DArchiveManager.h>
-#include <Resource/T3DDylib.h>
-#include <Resource/T3DDylibManager.h>
-#include <Resource/T3DResource.h>
-#include <Resource/T3DResourceManager.h>
+namespace Tiny3D
+{
+    class T3D_ENGINE_API FrustumBound : public Bound
+    {
+    public:
+        /**
+         * @brief 创建Frustum碰撞体对象
+         * @param [in] uID : 碰撞体ID
+         * @param [in] node : 碰撞体所在的结点对象
+         * @return 返回一个Frustum碰撞体对象
+         */
+        static FrustumBoundPtr create(ID uID, SGNode *node);
 
-// DataStruct
-#include <DataStruct/T3DVariant.h>
-#include <DataStruct/T3DString.h>
+        /**
+         * @brief 析构函数
+         */
+        virtual ~FrustumBound();
 
-// ImageCodec
-#include <ImageCodec/T3DImageCodec.h>
-#include <ImageCodec/T3DImageCodecBase.h>
+        /**
+         * @brief 实现基类接口
+         * @see Bound::Type Bound::getType() const
+         */
+        virtual Type getType() const override;
 
-// Render
-#include <Render/T3DRenderer.h>
-#include <Render/T3DRenderQueue.h>
-#include <Render/T3DRenderTarget.h>
-#include <Render/T3DRenderWindow.h>
-#include <Render/T3DHardwareBufferManager.h>
-#include <Render/T3DHardwareBuffer.h>
-#include <Render/T3DHardwareVertexBuffer.h>
-#include <Render/T3DHardwareIndexBuffer.h>
-#include <Render/T3DHardwarePixelBuffer.h>
+        /**
+         * @brief 实现基类接口
+         * @see BoundPtr Bound::clone() const
+         */
+        virtual BoundPtr clone() const override;
 
-#endif  /*__TINY3D_H__*/
+        /**
+         * @brief 获取视锥体包围体对象
+         */
+        const Frustum &getFrustum() const
+        {
+            return mFrustum;
+        }
+
+        /**
+         * @brief 设置视锥体面
+         */
+        void setFrustumFace(Frustum::Face face, const Plane &plane);
+
+        /**
+         * @brief 设置视锥体所有面
+         */
+        void setFrustumFaces(Plane *plane, size_t planeCount);
+
+        /**
+         * @brief 实现基类接口
+         * @see SGRenderablePtr Bound::getRenderable()
+         */
+        virtual SGRenderablePtr getRenderable() override;
+
+    protected:
+        /**
+         * @brief 构造函数
+         * @param [in] uID : 碰撞体ID
+         * @param [in] node : 碰撞体所在的结点对象
+         */
+        FrustumBound(ID uID, SGNode *node);
+
+        /**
+         * @brief 实现基类接口
+         * @see bool Bound::testSphere(const Spher &sphere) const
+         */
+        virtual bool testSphere(const Sphere &sphere) const override;
+
+        /**
+         * @brief 实现基类接口
+         * @see bool Bound::testAabb(const Aabb &aabb) const
+         */
+        virtual bool testAabb(const Aabb &aabb) const override;
+
+        /**
+         * @brief 实现基类接口
+         * @see bool Bound::testObb(const Obb &obb) const
+         */
+        virtual bool testObb(const Obb &obb) const override;
+
+        /**
+         * @brief 实现基类接口
+         * @see bool Bound::testFrustum(const Frustum &frustum) const
+         */
+        virtual bool testFrustum(const Frustum &frustum) const override;
+
+        /**
+         * @brief 实现基类接口
+         * @see void Bound::updateBound(const Transform &xform)
+         */
+        virtual void updateBound(const Transform &xform) override;
+
+        /**
+         * @brief 实现基类接口
+         * @see void Bound::cloneProperties(BoundPtr bound) const
+         */
+        virtual void cloneProperties(BoundPtr bound) const override;
+
+    protected:
+        Frustum     mFrustum;           /**< 可变换的视锥体对象 */
+        Frustum     mOriginalFrustum;   /**< 不参与变换的原始视锥体 */
+        SGBoxPtr    mRenderable;        /**< 用于渲染碰撞体的可渲染对象 */
+    };
+}
+
+
+#endif  /*__T3D_FRUSTUM_BOUND_H__*/

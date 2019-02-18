@@ -18,49 +18,130 @@
  ******************************************************************************/
 
 
-#ifndef __TINY3D_H__
-#define __TINY3D_H__
+#include "Bound/T3DFrustumBound.h"
+#include "SceneGraph/T3DSGBox.h"
 
-// Global
-#include <T3DErrorDef.h>
-#include <T3DType.h>
 
-// Kernel
-#include <Kernel/T3DAgent.h>
-#include <Kernel/T3DConfigFile.h>
-#include <Kernel/T3DCreator.h>
-#include <Kernel/T3DObject.h>
-#include <Kernel/T3DPlugin.h>
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
 
-// Memory
-#include <Memory/T3DSmartPtr.h>
+    FrustumBoundPtr FrustumBound::create(ID uID, SGNode *node)
+    {
+        FrustumBoundPtr bound = new FrustumBound(uID, node);
+        bound->release();
+        return bound;
+    }
 
-// Resource
-#include <Resource/T3DArchive.h>
-#include <Resource/T3DArchiveCreator.h>
-#include <Resource/T3DArchiveManager.h>
-#include <Resource/T3DDylib.h>
-#include <Resource/T3DDylibManager.h>
-#include <Resource/T3DResource.h>
-#include <Resource/T3DResourceManager.h>
+    //--------------------------------------------------------------------------
 
-// DataStruct
-#include <DataStruct/T3DVariant.h>
-#include <DataStruct/T3DString.h>
+    FrustumBound::FrustumBound(ID uID, SGNode *node)
+        : Bound(uID, node)
+    {
 
-// ImageCodec
-#include <ImageCodec/T3DImageCodec.h>
-#include <ImageCodec/T3DImageCodecBase.h>
+    }
 
-// Render
-#include <Render/T3DRenderer.h>
-#include <Render/T3DRenderQueue.h>
-#include <Render/T3DRenderTarget.h>
-#include <Render/T3DRenderWindow.h>
-#include <Render/T3DHardwareBufferManager.h>
-#include <Render/T3DHardwareBuffer.h>
-#include <Render/T3DHardwareVertexBuffer.h>
-#include <Render/T3DHardwareIndexBuffer.h>
-#include <Render/T3DHardwarePixelBuffer.h>
+    //--------------------------------------------------------------------------
 
-#endif  /*__TINY3D_H__*/
+    FrustumBound::~FrustumBound()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    Bound::Type FrustumBound::getType() const
+    {
+        return E_BT_FRUSTUM;
+    }
+
+    //--------------------------------------------------------------------------
+
+    BoundPtr FrustumBound::clone() const
+    {
+        FrustumBoundPtr bound = FrustumBound::create(getID(), getNode());
+        cloneProperties(bound);
+        return bound;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FrustumBound::cloneProperties(BoundPtr bound) const
+    {
+        Bound::cloneProperties(bound);
+
+        FrustumBoundPtr newBound = smart_pointer_cast<FrustumBound>(bound);
+        newBound->mFrustum = mFrustum;
+        newBound->mOriginalFrustum = mOriginalFrustum;
+        newBound->mRenderable = smart_pointer_cast<SGBox>(mRenderable->clone());
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FrustumBound::setFrustumFace(Frustum::Face face, const Plane &plane)
+    {
+        mFrustum.setFace(face, plane);
+        mOriginalFrustum.setFace(face, plane);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FrustumBound::setFrustumFaces(Plane *plane, size_t planeCount)
+    {
+        T3D_ASSERT(planeCount <= Frustum::E_MAX_FACE);
+
+        size_t i = 0;
+        for (i = 0; i < planeCount; ++i)
+        {
+            mFrustum.setFace((Frustum::Face)i, plane[i]);
+            mOriginalFrustum.setFace((Frustum::Face)i, plane[i]);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGRenderablePtr FrustumBound::getRenderable()
+    {
+        return mRenderable;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool FrustumBound::testSphere(const Sphere &sphere) const
+    {
+        IntrFrustumSphere intr(&mFrustum, &sphere);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool FrustumBound::testAabb(const Aabb &aabb) const
+    {
+        IntrFrustumAabb intr(&mFrustum, &aabb);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool FrustumBound::testObb(const Obb &obb) const
+    {
+        IntrFrustumObb intr(&mFrustum, &obb);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool FrustumBound::testFrustum(const Frustum &frustum) const
+    {
+        // 暂时不具备这种检测能力，而且实际应用中应该也没有这样的需求
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FrustumBound::updateBound(const Transform &xform)
+    {
+        // 这里就不做变换了，引擎直接通过相机重建frustum
+    }
+}
+

@@ -18,49 +18,126 @@
  ******************************************************************************/
 
 
-#ifndef __TINY3D_H__
-#define __TINY3D_H__
+#ifndef __T3D_OBB_BOUND_H__
+#define __T3D_OBB_BOUND_H__
 
-// Global
-#include <T3DErrorDef.h>
-#include <T3DType.h>
 
-// Kernel
-#include <Kernel/T3DAgent.h>
-#include <Kernel/T3DConfigFile.h>
-#include <Kernel/T3DCreator.h>
-#include <Kernel/T3DObject.h>
-#include <Kernel/T3DPlugin.h>
+#include "Bound/T3DBound.h"
 
-// Memory
-#include <Memory/T3DSmartPtr.h>
 
-// Resource
-#include <Resource/T3DArchive.h>
-#include <Resource/T3DArchiveCreator.h>
-#include <Resource/T3DArchiveManager.h>
-#include <Resource/T3DDylib.h>
-#include <Resource/T3DDylibManager.h>
-#include <Resource/T3DResource.h>
-#include <Resource/T3DResourceManager.h>
+namespace Tiny3D
+{
+    /**
+     * @brief 有向包围盒碰撞体
+     */
+    class T3D_ENGINE_API ObbBound : public Bound
+    {
+    public:
+        /**
+         * @brief 创建OBB碰撞体对象
+         * @param [in] uID : 碰撞体ID
+         * @param [in] node : 碰撞体所在的结点对象
+         * @return 返回一个OBB碰撞体对象
+         */
+        static ObbBoundPtr create(ID uID, SGNode *node);
 
-// DataStruct
-#include <DataStruct/T3DVariant.h>
-#include <DataStruct/T3DString.h>
+        /**
+         * @brief 析构函数
+         */
+        virtual ~ObbBound();
 
-// ImageCodec
-#include <ImageCodec/T3DImageCodec.h>
-#include <ImageCodec/T3DImageCodecBase.h>
+        /**
+         * @brief 实现基类接口
+         * @see Bound::Type Bound::getType() const
+         */
+        virtual Type getType() const override;
 
-// Render
-#include <Render/T3DRenderer.h>
-#include <Render/T3DRenderQueue.h>
-#include <Render/T3DRenderTarget.h>
-#include <Render/T3DRenderWindow.h>
-#include <Render/T3DHardwareBufferManager.h>
-#include <Render/T3DHardwareBuffer.h>
-#include <Render/T3DHardwareVertexBuffer.h>
-#include <Render/T3DHardwareIndexBuffer.h>
-#include <Render/T3DHardwarePixelBuffer.h>
+        /**
+         * @brief 实现基类接口
+         * @see BoundPtr Bound::clone() const
+         */
+        virtual BoundPtr clone() const override;
 
-#endif  /*__TINY3D_H__*/
+        /**
+         * @brief 获取有向包围盒对象
+         */
+        const Obb &getObb() const
+        {
+            return mObb;
+        }
+
+        /**
+         * @brief 设置碰撞体中心
+         */
+        void setCenter(const Vector3 &center);
+
+        /**
+         * @brief 设置碰撞体的三个轴
+         */
+        void setAxis(const Vector3 &axis0, const Vector3 &axis1,
+            const Vector3 &axis2);
+
+        /**
+         * @brief 设置碰撞体在三个轴上的延伸长度
+         */
+        void setExtent(Real extent0, Real extent1, Real extent2);
+
+        /**
+         * @brief 实现基类接口
+         * @see SGRenderablePtr Bound::getRenderable()
+         */
+        virtual SGRenderablePtr getRenderable() override;
+
+    protected:
+        /**
+         * @brief 构造函数
+         * @param [in] uID : 碰撞体ID
+         * @param [in] node : 碰撞体所在的结点对象
+         */
+        ObbBound(ID uID, SGNode *node);
+
+        /**
+         * @brief 实现基类接口
+         * @see bool Bound::testSphere(const Spher &sphere) const
+         */
+        virtual bool testSphere(const Sphere &sphere) const override;
+
+        /**
+         * @brief 实现基类接口
+         * @see bool Bound::testAabb(const Aabb &aabb) const
+         */
+        virtual bool testAabb(const Aabb &aabb) const override;
+
+        /**
+         * @brief 实现基类接口
+         * @see bool Bound::testObb(const Obb &obb) const
+         */
+        virtual bool testObb(const Obb &obb) const override;
+
+        /**
+         * @brief 实现基类接口
+         * @see bool Bound::testFrustum(const Frustum &frustum) const
+         */
+        virtual bool testFrustum(const Frustum &frustum) const override;
+
+        /**
+         * @brief 实现基类接口
+         * @see void Bound::updateBound(const Transform &xform)
+         */
+        virtual void updateBound(const Transform &xform) override;
+
+        /**
+         * @brief 实现基类接口
+         * @see void Bound::cloneProperties(BoundPtr bound) const
+         */
+        virtual void cloneProperties(BoundPtr bound) const override;
+
+    protected:
+        Obb         mObb;           /**< 实时变换的OBB */
+        Obb         mOriginalObb;   /**< 不参与变换的原始OBB */
+        SGBoxPtr    mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
+    };
+}
+
+
+#endif  /*__T3D_OBB_BOUND_H__*/

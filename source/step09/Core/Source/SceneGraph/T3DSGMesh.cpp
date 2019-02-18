@@ -18,7 +18,32 @@
  ******************************************************************************/
 
 
+#include "SceneGraph/T3DSGMesh.h"
+
+
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
 
+    SGMeshPtr SGMesh::create(ID uID /* = E_NID_AUTOMATIC */)
+    {
+        SGMeshPtr mesh = new SGMesh(uID);
+        mesh->release();
+        return mesh;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGMesh::SGMesh(ID uID /* = E_NID_AUTOMATIC */)
+        : SGRenderable(uID)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGMesh::~SGMesh()
+    {
+
+    }
 }

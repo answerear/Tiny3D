@@ -47,8 +47,8 @@ namespace Tiny3D
         virtual ~SphereBound();
 
         /**
-         * @brief 获取碰撞体类型
-         * @return 返回碰撞体类型
+         * @brief 实现基类接口
+         * @see Bound::Type Bound::getType() const
          */
         virtual Type getType() const override;
 
@@ -65,7 +65,8 @@ namespace Tiny3D
         void setParams(const Vector3 &center, Real radius);
 
         /**
-         * @brief 重写基实现基类接口类接口
+         * @brief 实现基类接口
+         * @see SGRenderablePtr Bound::getRenderable()
          */
         virtual SGRenderablePtr getRenderable() override;
 
@@ -79,35 +80,43 @@ namespace Tiny3D
 
         /**
          * @brief 实现基类接口
+         * @see bool Bound::testSphere(const Sphere &sphere) const
          */
-        virtual bool testSphere(SphereBoundPtr bound) const override;
+        virtual bool testSphere(const Sphere &sphere) const override;
 
         /**
          * @brief 实现基类接口
+         * @see bool Bound::testAabb(const Aabb &aabb) const
          */
-        virtual bool testAabb(AabbBoundPtr bound) const override;
+        virtual bool testAabb(const Aabb &aabb) const override;
 
         /**
          * @brief 实现基类接口
+         * @see bool Bound::testObb(const Obb &obb) const
          */
-        virtual bool testObb(ObbBoundPtr bound) const override;
+        virtual bool testObb(const Obb &obb) const override;
 
         /**
          * @brief 实现基类接口
+         * @see bool Bound::testFrustum(const Frustum &frustum) const
          */
-        virtual bool testFrustum(FrustumBoundPtr bound) const override;
+        virtual bool testFrustum(const Frustum &frustum) const override;
 
         /**
          * @brief 实现基类接口
+         * @see void Bound::updateBound(const Transform &xform)
          */
         virtual void updateBound(const Transform &xform) override;
 
         /**
          * @brief 实现基类接口
+         * @see void Bound::cloneProperties(BoundPtr bound) const
          */
         virtual void cloneProperties(BoundPtr bound) const override;
 
     private:
+        Sphere          mOriginalSphere;/**< 原始球体 */
+        SGSpherePtr     mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 

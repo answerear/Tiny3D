@@ -18,7 +18,23 @@
  ******************************************************************************/
 
 
+#include "SceneGraph/T3DSGRenderable.h"
+
+
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
 
+    SGRenderable::SGRenderable(ID uID /* = E_NID_AUTOMATIC */)
+        : SGTransform3D(uID)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGRenderable::~SGRenderable()
+    {
+
+    }
 }

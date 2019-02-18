@@ -18,24 +18,32 @@
  ******************************************************************************/
 
 
-#include "SceneGraph/T3DSGNode.h"
+#include "SceneGraph/T3DSGSphere.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SGCamera : public SGNode
-    {
-    public:
-        virtual ~SGCamera();
+    //--------------------------------------------------------------------------
 
-        /**
-         * @brief 专门提供给挂相机结点的3D变换结点使用，用于构建UVN相机.
-         * @param [in] pos : 相机位置
-         * @param [in] obj : 相机观察物体位置
-         * @param [in] up : 上方向向量
-         * @return void
-         * @note UVN相机通过此接口可以构造一个变换矩阵出来
-         */
-        void lookAt(const Vector3 &pos, const Vector3 &obj, const Vector3 &up);
-    };
+    SGSpherePtr SGSphere::create(ID uID /* = E_NID_AUTOMATIC */)
+    {
+        SGSpherePtr sphere = new SGSphere(uID);
+        sphere->release();
+        return sphere;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGSphere::SGSphere(ID uID /* = E_NID_AUTOMATIC */)
+        : SGRenderable(uID)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGSphere::~SGSphere()
+    {
+
+    }
 }

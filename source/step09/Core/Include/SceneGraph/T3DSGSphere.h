@@ -26,8 +26,7 @@ namespace Tiny3D
     class T3D_ENGINE_API SGSphere : public SGRenderable
     {
     public:
-        static SGSpherePtr create(const String &material, 
-            ID uID = E_NID_AUTOMATIC);
+        static SGSpherePtr create(ID uID = E_NID_AUTOMATIC);
 
         virtual ~SGSphere();
 

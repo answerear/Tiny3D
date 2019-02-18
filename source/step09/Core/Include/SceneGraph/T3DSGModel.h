@@ -18,7 +18,26 @@
  ******************************************************************************/
 
 
+#ifndef __T3D_SG_MODEL_H__
+#define __T3D_SG_MODEL_H__
+
+
+#include "SceneGraph/T3DSGTransform3D.h"
+
+
 namespace Tiny3D
 {
+    class T3D_ENGINE_API SGModel : public SGTransform3D
+    {
+    public:
+        static SGModelPtr create(ID uID = E_NID_AUTOMATIC);
 
+        virtual ~SGModel();
+
+    protected:
+        SGModel(ID uID = E_NID_AUTOMATIC);
+    };
 }
+
+
+#endif  /*__T3D_SG_MODEL_H__*/

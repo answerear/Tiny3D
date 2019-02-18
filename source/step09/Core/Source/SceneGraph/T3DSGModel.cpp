@@ -18,7 +18,32 @@
  ******************************************************************************/
 
 
+#include "SceneGraph/T3DSGModel.h"
+
+
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
 
+    SGModelPtr SGModel::create(ID uID /* = E_NID_AUTOMATIC */)
+    {
+        SGModelPtr model = new SGModel(uID);
+        model->release();
+        return model;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGModel::SGModel(ID uID /* = E_NID_AUTOMATIC */)
+        : SGTransform3D(uID)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGModel::~SGModel()
+    {
+
+    }
 }

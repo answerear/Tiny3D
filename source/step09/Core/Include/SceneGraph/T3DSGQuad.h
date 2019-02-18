@@ -18,24 +18,26 @@
  ******************************************************************************/
 
 
-#include "SceneGraph/T3DSGNode.h"
+#ifndef __T3D_SG_QUAD_H__
+#define __T3D_SG_QUAD_H__
+
+
+#include "SceneGraph/T3DSGRenderable.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SGCamera : public SGNode
+    class T3D_ENGINE_API SGQuad : public SGRenderable
     {
     public:
-        virtual ~SGCamera();
+        static SGQuadPtr create(ID uID = E_NID_AUTOMATIC);
 
-        /**
-         * @brief 专门提供给挂相机结点的3D变换结点使用，用于构建UVN相机.
-         * @param [in] pos : 相机位置
-         * @param [in] obj : 相机观察物体位置
-         * @param [in] up : 上方向向量
-         * @return void
-         * @note UVN相机通过此接口可以构造一个变换矩阵出来
-         */
-        void lookAt(const Vector3 &pos, const Vector3 &obj, const Vector3 &up);
+        virtual ~SGQuad();
+
+    protected:
+        SGQuad(ID uID = E_NID_AUTOMATIC);
     };
 }
+
+
+#endif  /*__T3D_SG_QUAD_H__*/

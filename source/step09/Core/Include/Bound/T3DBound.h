@@ -26,6 +26,8 @@
 #include "T3DTypedef.h"
 #include "Kernel/T3DObject.h"
 #include "Kernel/T3DTransform.h"
+#include "Memory/T3DSmartPtr.h"
+#include "SceneGraph/T3DSGNode.h"
 
 
 namespace Tiny3D
@@ -135,25 +137,25 @@ namespace Tiny3D
          * @brief 检测与球体碰撞体相交
          * @remarks 各类型碰撞体子类实现该相交检测
          */
-        virtual bool testSphere(SphereBoundPtr bound) const = 0;
+        virtual bool testSphere(const Sphere &sphere) const = 0;
 
         /**
          * @brief 检测与轴对齐包围盒碰撞体相交
          * @remarks 各类型碰撞体子类实现该相交检测
          */
-        virtual bool testAabb(AabbBoundPtr bound) const = 0;
+        virtual bool testAabb(const Aabb &aabb) const = 0;
 
         /**
          * @brief 检测与有向包围盒碰撞体相交
          * @remarks 各类型碰撞体子类实现该相交检测
          */
-        virtual bool testObb(ObbBoundPtr bound) const = 0;
+        virtual bool testObb(const Obb &obb) const = 0;
 
         /**
          * @brief 检测与视锥体包围盒碰撞相交
          * @remarks 各类型碰撞体子类实现该相交检测
          */
-        virtual bool testFrustum(FrustumBoundPtr bound) const = 0;
+        virtual bool testFrustum(const Frustum &frustum) const = 0;
 
         /**
          * @brief 根据变换对象更新碰撞体

@@ -18,49 +18,161 @@
  ******************************************************************************/
 
 
-#ifndef __TINY3D_H__
-#define __TINY3D_H__
+#include "Bound/T3DObbBound.h"
+#include "SceneGraph/T3DSGBox.h"
 
-// Global
-#include <T3DErrorDef.h>
-#include <T3DType.h>
 
-// Kernel
-#include <Kernel/T3DAgent.h>
-#include <Kernel/T3DConfigFile.h>
-#include <Kernel/T3DCreator.h>
-#include <Kernel/T3DObject.h>
-#include <Kernel/T3DPlugin.h>
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
 
-// Memory
-#include <Memory/T3DSmartPtr.h>
+    ObbBoundPtr ObbBound::create(ID uID, SGNode *node)
+    {
+        ObbBoundPtr bound = new ObbBound(uID, node);
+        bound->release();
+        return bound;
+    }
 
-// Resource
-#include <Resource/T3DArchive.h>
-#include <Resource/T3DArchiveCreator.h>
-#include <Resource/T3DArchiveManager.h>
-#include <Resource/T3DDylib.h>
-#include <Resource/T3DDylibManager.h>
-#include <Resource/T3DResource.h>
-#include <Resource/T3DResourceManager.h>
+    //--------------------------------------------------------------------------
 
-// DataStruct
-#include <DataStruct/T3DVariant.h>
-#include <DataStruct/T3DString.h>
+    ObbBound::ObbBound(ID uID, SGNode *node)
+        : Bound(uID, node)
+    {
 
-// ImageCodec
-#include <ImageCodec/T3DImageCodec.h>
-#include <ImageCodec/T3DImageCodecBase.h>
+    }
 
-// Render
-#include <Render/T3DRenderer.h>
-#include <Render/T3DRenderQueue.h>
-#include <Render/T3DRenderTarget.h>
-#include <Render/T3DRenderWindow.h>
-#include <Render/T3DHardwareBufferManager.h>
-#include <Render/T3DHardwareBuffer.h>
-#include <Render/T3DHardwareVertexBuffer.h>
-#include <Render/T3DHardwareIndexBuffer.h>
-#include <Render/T3DHardwarePixelBuffer.h>
+    //--------------------------------------------------------------------------
 
-#endif  /*__TINY3D_H__*/
+    ObbBound::~ObbBound()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    Bound::Type ObbBound::getType() const
+    {
+        return E_BT_OBB;
+    }
+
+    //--------------------------------------------------------------------------
+
+    BoundPtr ObbBound::clone() const
+    {
+        ObbBoundPtr bound = ObbBound::create(getID(), getNode());
+        cloneProperties(bound);
+        return bound;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ObbBound::cloneProperties(BoundPtr bound) const
+    {
+        Bound::cloneProperties(bound);
+
+        ObbBoundPtr newBound = smart_pointer_cast<ObbBound>(bound);
+        newBound->mObb = mObb;
+        newBound->mOriginalObb = mOriginalObb;
+        newBound->mRenderable = smart_pointer_cast<SGBox>(mRenderable->clone());
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ObbBound::setCenter(const Vector3 &center)
+    {
+        mObb.setCenter(center);
+        mOriginalObb.setCenter(center);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ObbBound::setAxis(const Vector3 &axis0, const Vector3 &axis1,
+        const Vector3 &axis2)
+    {
+        mObb.setAxis(axis0, axis1, axis2);
+        mOriginalObb.setAxis(axis0, axis1, axis2);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ObbBound::setExtent(Real extent0, Real extent1, Real extent2)
+    {
+        mObb.setExtent(0, extent0);
+        mObb.setExtent(1, extent1);
+        mObb.setExtent(2, extent2);
+
+        mOriginalObb.setExtent(0, extent0);
+        mOriginalObb.setExtent(1, extent1);
+        mOriginalObb.setExtent(2, extent2);
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGRenderablePtr ObbBound::getRenderable()
+    {
+        return mRenderable;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ObbBound::testSphere(const Sphere &sphere) const
+    {
+        IntrSphereObb intr(&sphere, &mObb);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ObbBound::testAabb(const Aabb &aabb) const
+    {
+        IntrAabbObb intr(&aabb, &mObb);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ObbBound::testObb(const Obb &obb) const
+    {
+        IntrObbObb intr(&mObb, &obb);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ObbBound::testFrustum(const Frustum &frustum) const
+    {
+        IntrFrustumObb intr(&frustum, &mObb);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ObbBound::updateBound(const Transform &xform)
+    {
+        // 变换中点
+        Vector3 center = xform.getAffineMatrix() * mOriginalObb.getCenter();
+
+        // 变换3个轴
+        Vector3 axis0 = xform.getAffineMatrix() 
+            * (mOriginalObb.getAxis(0) * mOriginalObb.getExtent(0));
+        Vector3 axis1 = xform.getAffineMatrix() 
+            * (mOriginalObb.getAxis(1) * mOriginalObb.getExtent(1));
+        Vector3 axis2 = xform.getAffineMatrix() 
+            * (mOriginalObb.getAxis(2) * mOriginalObb.getExtent(2));
+
+        // 计算三个轴上的长度
+        Real extent0 = axis0.length();
+        Real extent1 = axis1.length();
+        Real extent2 = axis2.length();
+
+        axis0 /= extent0;
+        axis1 /= extent1;
+        axis2 /= extent2;
+
+        mObb.setCenter(center);
+        mObb.setAxis(axis0, axis1, axis2);
+        mObb.setExtent(0, extent0);
+        mObb.setExtent(1, extent1);
+        mObb.setExtent(2, extent2);
+    }
+}

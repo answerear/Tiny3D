@@ -18,7 +18,26 @@
  ******************************************************************************/
 
 
+#ifndef __T3D_SG_MESH_H__
+#define __T3D_SG_MESH_H__
+
+
+#include "SceneGraph/T3DSGRenderable.h"
+
+
 namespace Tiny3D
 {
+    class T3D_ENGINE_API SGMesh : public SGRenderable
+    {
+    public:
+        static SGMeshPtr create(ID uID = E_NID_AUTOMATIC);
 
+        virtual ~SGMesh();
+
+    protected:
+        SGMesh(ID uID = E_NID_AUTOMATIC);
+    };
 }
+
+
+#endif  /*__T3D_SG_MESH_H__*/

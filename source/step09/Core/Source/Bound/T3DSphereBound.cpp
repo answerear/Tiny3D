@@ -18,49 +18,132 @@
  ******************************************************************************/
 
 
-#ifndef __TINY3D_H__
-#define __TINY3D_H__
+#include "Bound/T3DSphereBound.h"
+#include "SceneGraph/T3DSGSphere.h"
 
-// Global
-#include <T3DErrorDef.h>
-#include <T3DType.h>
 
-// Kernel
-#include <Kernel/T3DAgent.h>
-#include <Kernel/T3DConfigFile.h>
-#include <Kernel/T3DCreator.h>
-#include <Kernel/T3DObject.h>
-#include <Kernel/T3DPlugin.h>
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
 
-// Memory
-#include <Memory/T3DSmartPtr.h>
+    SphereBoundPtr SphereBound::create(ID uID, SGNode *node)
+    {
+        SphereBoundPtr bound = new SphereBound(uID, node);
+        bound->release();
+        return bound;
+    }
 
-// Resource
-#include <Resource/T3DArchive.h>
-#include <Resource/T3DArchiveCreator.h>
-#include <Resource/T3DArchiveManager.h>
-#include <Resource/T3DDylib.h>
-#include <Resource/T3DDylibManager.h>
-#include <Resource/T3DResource.h>
-#include <Resource/T3DResourceManager.h>
+    //--------------------------------------------------------------------------
 
-// DataStruct
-#include <DataStruct/T3DVariant.h>
-#include <DataStruct/T3DString.h>
+    SphereBound::SphereBound(ID uID, SGNode *node)
+        : Bound(uID, node)
+        , mRenderable(nullptr)
+    {
 
-// ImageCodec
-#include <ImageCodec/T3DImageCodec.h>
-#include <ImageCodec/T3DImageCodecBase.h>
+    }
 
-// Render
-#include <Render/T3DRenderer.h>
-#include <Render/T3DRenderQueue.h>
-#include <Render/T3DRenderTarget.h>
-#include <Render/T3DRenderWindow.h>
-#include <Render/T3DHardwareBufferManager.h>
-#include <Render/T3DHardwareBuffer.h>
-#include <Render/T3DHardwareVertexBuffer.h>
-#include <Render/T3DHardwareIndexBuffer.h>
-#include <Render/T3DHardwarePixelBuffer.h>
+    //--------------------------------------------------------------------------
 
-#endif  /*__TINY3D_H__*/
+    SphereBound::~SphereBound()
+    {
+        mRenderable = nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Bound::Type SphereBound::getType() const
+    {
+        return E_BT_SPHERE;
+    }
+
+    //--------------------------------------------------------------------------
+
+    BoundPtr SphereBound::clone() const
+    {
+        SphereBoundPtr bound = SphereBound::create(getID(), getNode());
+        cloneProperties(bound);
+        return bound;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SphereBound::cloneProperties(BoundPtr bound) const
+    {
+        Bound::cloneProperties(bound);
+
+        SphereBoundPtr sphereBound = smart_pointer_cast<SphereBound>(bound);
+        sphereBound->mOriginalSphere = mOriginalSphere;
+        sphereBound->mRenderable 
+            = smart_pointer_cast<SGSphere>(mRenderable->clone());
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SphereBound::setParams(const Vector3 &center, Real radius)
+    {
+        mOriginalSphere.setCenter(center);
+        mOriginalSphere.setRadius(radius);
+
+        mSphere.setCenter(center);
+        mSphere.setRadius(radius);
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGRenderablePtr SphereBound::getRenderable()
+    {
+        return mRenderable;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool SphereBound::testSphere(const Sphere &sphere) const
+    {
+        IntrSphereSphere intr(&mSphere, &sphere);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool SphereBound::testAabb(const Aabb &aabb) const
+    {
+        IntrSphereAabb intr(&mSphere, &aabb);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool SphereBound::testObb(const Obb &obb) const
+    {
+        IntrSphereObb intr(&mSphere, &obb);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool SphereBound::testFrustum(const Frustum &frustum) const
+    {
+        IntrFrustumSphere intr(&frustum, &mSphere);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SphereBound::updateBound(const Transform &xform)
+    {
+        // 更新变换后用于碰撞检测的球体
+        const Matrix4 &M = xform.getAffineMatrix();
+        Vector3 center = M * mOriginalSphere.getCenter();
+
+        const Vector3 &S = xform.getScaling();
+        Real factor = std::max(std::max(S.x(), S.y()), S.z());
+        Real radius = factor * mOriginalSphere.getRadius();
+
+        mSphere.setCenter(center);
+        mSphere.setRadius(radius);
+
+        // 原始球体，只更新球心位置，不更新半径大小
+        center = M * mOriginalSphere.getCenter();
+        mOriginalSphere.setCenter(center);
+    }
+}

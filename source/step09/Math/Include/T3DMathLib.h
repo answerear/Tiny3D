@@ -129,7 +129,7 @@ typedef TIntrSphereTriangle<Real>   IntrSphereTriangle;
 typedef TIntrSpherePlane<Real>      IntrSpherePlane;
 typedef TIntrSphereSphere<Real>     IntrSphereSphere;
 typedef TIntrSphereAabb<Real>       IntrSphereAabb;
-typedef TIntrSphereObb<Real>        IntrShpereObb;
+typedef TIntrSphereObb<Real>        IntrSphereObb;
 
 typedef TIntrAabbPlane<Real>        IntrAabbPlane;
 typedef TIntrAabbAabb<Real>         IntrAabbAabb;
