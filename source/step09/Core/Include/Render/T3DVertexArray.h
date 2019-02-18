@@ -67,7 +67,7 @@ namespace Tiny3D
          * @param [in] ibo : 索引缓冲对象
          * @return 调用成功返回 T3D_OK
          */
-        virtual TResult setIndexBuffer(HardwareIndexBuffer ibo) = 0;
+        virtual TResult setIndexBuffer(HardwareIndexBufferPtr ibo) = 0;
 
         /**
          * @brief 设置绘制图元类型

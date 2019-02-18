@@ -120,12 +120,12 @@ namespace Tiny3D
     protected:
         /**
          * @brief 默认构造函数
-         * @param [in] unID : 标识结点的唯一ID，默认值是由引擎自动生成唯一ID
+         * @param [in] uID : 标识结点的唯一ID，默认值是由引擎自动生成唯一ID
          * @note 这里构造函数是protected访问权限，主要是为了防止外部直接new来构
          *  造对象， 本类是无法构造直接对象，请使用各派生类的create代替new来构造
          *  对象
          */
-        SGNode(ID unID = E_NID_AUTOMATIC);
+        SGNode(ID uID = E_NID_AUTOMATIC);
 
         /**
          * @brief 更新本身的变换和所有子结点的变换

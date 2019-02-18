@@ -20,5 +20,45 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
 
+    inline void SGNode::setUserData(void *data)
+    {
+        mUserData = data;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void *SGNode::getUserData() const
+    {
+        return mUserData;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void SGNode::setUserObject(ObjectPtr object)
+    {
+        mUserObject = object;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline ObjectPtr SGNode::getUserObject() const
+    {
+        return mUserObject;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline bool SGNode::isDirty() const
+    {
+        return mIsDirty;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline bool SGNode::isVisible() const
+    {
+        return mIsVisible;
+    }
 }

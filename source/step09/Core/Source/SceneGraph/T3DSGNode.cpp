@@ -18,3 +18,96 @@
  ******************************************************************************/
 
 
+#include "SceneGraph/T3DSGNode.h"
+
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    SGNode::SGNode(ID uID /* = E_NID_AUTOMATIC */)
+        : Node(uID)
+        , mUserData(nullptr)
+        , mUserObject(nullptr)
+        , mIsDirty(false)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGNode::~SGNode()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGNode::updateTransform()
+    {
+        auto itr = mChildren.begin();
+
+        while (itr != mChildren.end())
+        {
+            SGNodePtr node = smart_pointer_cast<SGNode>(*itr);
+            node->updateTransform();
+            ++itr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGNode::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+    {
+        auto itr = mChildren.begin();
+
+        while (itr != mChildren.end())
+        {
+            SGNodePtr node = smart_pointer_cast<SGNode>(*itr);
+            node->frustumCulling(bound, queue);
+            ++itr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGNode::setDirty(bool isDirty, bool recursive /* = false */)
+    {
+        mIsDirty = isDirty;
+
+        if (recursive)
+        {
+            auto itr = mChildren.begin();
+
+            while (itr != mChildren.end())
+            {
+                SGNodePtr node = smart_pointer_cast<SGNode>(*itr);
+                node->setDirty(isDirty, recursive);
+                ++itr;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SGNode::cloneProperties(NodePtr node) const
+    {
+        TResult ret = Node::cloneProperties(node);
+
+        if (ret == T3D_OK)
+        {
+            SGNodePtr newNode = smart_pointer_cast<SGNode>(node);
+            newNode->mUserData = mUserData;
+            newNode->mUserObject = mUserObject;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGNode::setVisible(bool visible)
+    {
+        mIsVisible = visible;
+    }
+}
