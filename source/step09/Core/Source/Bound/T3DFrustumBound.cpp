@@ -26,17 +26,18 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    FrustumBoundPtr FrustumBound::create(ID uID, SGNode *node)
+    FrustumBoundPtr FrustumBound::create(SGNode *node, 
+        ID uID /* = E_BID_AUTOMATIC */)
     {
-        FrustumBoundPtr bound = new FrustumBound(uID, node);
+        FrustumBoundPtr bound = new FrustumBound(node, uID);
         bound->release();
         return bound;
     }
 
     //--------------------------------------------------------------------------
 
-    FrustumBound::FrustumBound(ID uID, SGNode *node)
-        : Bound(uID, node)
+    FrustumBound::FrustumBound(SGNode *node, ID uID /* = E_BID_AUTOMATIC */)
+        : Bound(node, uID)
     {
 
     }
@@ -59,7 +60,7 @@ namespace Tiny3D
 
     BoundPtr FrustumBound::clone() const
     {
-        FrustumBoundPtr bound = FrustumBound::create(getID(), getNode());
+        FrustumBoundPtr bound = FrustumBound::create(getNode());
         cloneProperties(bound);
         return bound;
     }

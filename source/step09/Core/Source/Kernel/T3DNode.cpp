@@ -274,10 +274,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ID Node::makeGlobalID()
+    ID Node::makeGlobalID() const
     {
-        static uint32_t unID = 0;
-        return ++unID;
+        static ID uID = 0;
+        return ++uID;
     }
 }
 

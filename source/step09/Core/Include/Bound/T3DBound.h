@@ -51,6 +51,15 @@ namespace Tiny3D
         };
 
         /**
+         * @brief 碰撞体ID
+         */
+        enum BoundID
+        {
+            E_BID_AUTOMATIC = -1,   /**< 自动生成ID */
+            E_BID_INVALID = 0,      /**< 无效ID */
+        };
+
+        /**
          * @brief 析构函数
          */
         virtual ~Bound();
@@ -129,9 +138,10 @@ namespace Tiny3D
     protected:
         /**
          * @brief 构造函数
+         * @param [in] node : 碰撞体所属的场景结点
          * @param [in] uID : 碰撞体唯一标识
          */
-        Bound(ID uID, SGNode *node);
+        Bound(SGNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
          * @brief 检测与球体碰撞体相交
@@ -166,6 +176,9 @@ namespace Tiny3D
          * @brief 克隆属性
          */
         virtual void cloneProperties(BoundPtr bound) const;
+
+    private:
+        ID makeGlobalID() const;
 
     protected:
         Sphere      mSphere;            /**< 用于快速检测相交性的球体 */

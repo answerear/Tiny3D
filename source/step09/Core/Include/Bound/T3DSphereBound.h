@@ -35,11 +35,11 @@ namespace Tiny3D
     public:
         /**
          * @brief 创建球体碰撞体对象
-         * @param [in] uID : 碰撞体ID
          * @param [in] node : 碰撞体所在的结点对象
+         * @param [in] uID : 碰撞体ID
          * @return 返回一个新的球体碰撞体对象
          */
-        static SphereBoundPtr create(ID uID, SGNode *node);
+        static SphereBoundPtr create(SGNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
          * @brief 析构函数
@@ -73,10 +73,10 @@ namespace Tiny3D
     protected:
         /**
          * @brief 构造函数
-         * @param [in] uID : 碰撞体ID
          * @param [in] node : 碰撞体所在的结点对象
+         * @param [in] uID : 碰撞体ID
          */
-        SphereBound(ID uID, SGNode *node);
+        SphereBound(SGNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
          * @brief 实现基类接口

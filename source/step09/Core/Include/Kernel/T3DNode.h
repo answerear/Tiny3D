@@ -221,7 +221,7 @@ namespace Tiny3D
          * @brief 生成全局唯一标识
          * @return 返回全局唯一标识
          */
-        ID makeGlobalID();
+        ID makeGlobalID() const;
 
     private:
         ID          mID;        /**< 结点ID */

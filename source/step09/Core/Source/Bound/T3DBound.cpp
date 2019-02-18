@@ -30,15 +30,23 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Bound::Bound(ID uID, SGNode *node)
+    Bound::Bound(SGNode *node, ID uID)
         : mNode(node)
-        , mID(uID)
-        , mGroupID(0)
+        , mID(E_BID_INVALID)
+        , mGroupID(E_BID_INVALID)
         , mIsMovable(false)
         , mIsCollisionSource(false)
         , mIsEnabled(false)
     {
-
+        if (uID == E_BID_AUTOMATIC)
+        {
+            // 自动生成ID
+            mID = makeGlobalID();
+        }
+        else
+        {
+            mID = uID;
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -99,5 +107,13 @@ namespace Tiny3D
         bound->mIsMovable = mIsMovable;
         bound->mIsCollisionSource = mIsCollisionSource;
         bound->mIsEnabled = mIsEnabled;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID Bound::makeGlobalID() const
+    {
+        static ID uID = 0;
+        return ++uID;
     }
 }
