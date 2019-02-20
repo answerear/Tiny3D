@@ -61,7 +61,6 @@
 #include <Render/T3DRenderQueue.h>
 #include <Render/T3DRenderTarget.h>
 #include <Render/T3DRenderWindow.h>
-#include <Render/T3DHardwareBufferManagerBase.h>
 #include <Render/T3DHardwareBufferManager.h>
 #include <Render/T3DHardwareBuffer.h>
 #include <Render/T3DHardwareVertexBuffer.h>

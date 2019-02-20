@@ -25,26 +25,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    HardwareBufferManagerBase::HardwareBufferManagerBase()
-    {
-
-    }
-
-    HardwareBufferManagerBase::~HardwareBufferManagerBase()
-    {
-
-    }
-
-    VertexDeclarationPtr HardwareBufferManagerBase::createVertexDeclaration()
-    {
-        VertexDeclaration *decl = new VertexDeclaration();
-        VertexDeclarationPtr ptr(decl);
-        decl->release();
-        return decl;
-    }
-
-    //--------------------------------------------------------------------------
-
     T3D_INIT_SINGLETON(HardwareBufferManager);
 
     //--------------------------------------------------------------------------
