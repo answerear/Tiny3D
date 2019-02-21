@@ -18,25 +18,26 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SG_RENDERABLE_H__
-#define __T3D_SG_RENDERABLE_H__
+#ifndef __T3D_SG_BILLBOARD_H__
+#define __T3D_SG_BILLBOARD_H__
 
 
-#include "SceneGraph/T3DSGTransform3D.h"
-#include "Render/T3DRenderer.h"
+#include "SceneGraph/T3DSGRenderable.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SGRenderable : public SGTransform3D
+    class T3D_ENGINE_API SGBillboard : public SGRenderable
     {
     public:
-        virtual ~SGRenderable();
+        static SGBillboardPtr create(ID uID = E_NID_AUTOMATIC);
+
+        virtual ~SGBillboard();
 
     protected:
-        SGRenderable(ID uID = E_NID_AUTOMATIC);
+        SGBillboard(ID uID = E_NID_AUTOMATIC);
     };
 }
 
 
-#endif
+#endif  /*__T3D_SG_BILLBOARD_H__*/

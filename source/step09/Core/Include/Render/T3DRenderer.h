@@ -251,6 +251,44 @@ namespace Tiny3D
         virtual const Matrix4 &getTransform(TransformState state) const = 0;
 
         /**
+         * @brief 获取透视投影矩阵
+         * @param [in] fovY : 纵向的视角角度
+         * @param [in] aspect : 宽高比
+         * @param [in] zNear : 观察空间的近平面
+         * @param [in] zFar : 观察空间的远平面
+         * @return 返回一个平台相关的透视投影矩阵
+         * @remarks 因为投影矩阵在不同渲染平台在NDC坐标系里z轴上会有的范围，
+         *      因此，这里矩阵的获取通过不同渲染平台直接计算出来，屏蔽差异。
+         *      Direct3D : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
+         *      Open GL : x∈[-1, 1], y∈[-1, 1], z∈[-1, 1]
+         *      Vulkan : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
+         *      Metal : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
+         *      Reference3D : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
+         */
+        virtual Matrix4 perspective(Real fovY, Real aspect, Real zNear, 
+            Real zFar) = 0;
+
+        /**
+         * @brief 获取正交投影矩阵
+         * @param [in] left : 观察空间的左边
+         * @param [in] right : 观察空间的右边
+         * @param [in] top : 观察空间的上边
+         * @param [in] bottom : 观察空间的下边
+         * @param [in] zNear : 观察空间的近平面
+         * @param [in] zFar : 观察空间的远平面
+         * @return 返回一个平台相关的正交投影矩阵
+         * @remarks 因为投影矩阵在不同渲染平台在NDC坐标系里z轴上会有不同的w范围，
+         *      因此，这里矩阵的获取通过不同渲染平台直接计算出来，屏蔽差异。
+         *      Direct3D : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
+         *      Open GL : x∈[-1, 1], y∈[-1, 1], z∈[-1, 1]
+         *      Vulkan : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
+         *      Metal : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
+         *      Reference3D : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
+         */
+        virtual Matrix4 orthographic(Real left, Real right, Real top, 
+            Real bottom, Real zNear, Real zFar) = 0;
+
+        /**
          * @brief 设置裁剪模式
          * @param [in] mode : 裁剪模式
          * @return 成功返回 T3D_OK

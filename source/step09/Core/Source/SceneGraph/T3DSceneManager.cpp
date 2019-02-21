@@ -18,66 +18,174 @@
  ******************************************************************************/
 
 
-#ifndef __TINY3D_H__
-#define __TINY3D_H__
-
-// Global
-#include <T3DPrerequisites.h>
-#include <T3DErrorDef.h>
-#include <T3DTypedef.h>
-
-// Kernel
-#include <Kernel/T3DAgent.h>
-#include <Kernel/T3DConfigFile.h>
-#include <Kernel/T3DCreator.h>
-#include <Kernel/T3DObject.h>
-#include <Kernel/T3DPlugin.h>
-#include <Kernel/T3DImage.h>
-#include <Kernel/T3DPixelFormat.h>
-#include <Kernel/T3DNode.h>
-
-// Memory
-#include <Memory/T3DSmartPtr.h>
-
-// Resource
-#include <Resource/T3DArchive.h>
-#include <Resource/T3DArchiveCreator.h>
-#include <Resource/T3DArchiveManager.h>
-#include <Resource/T3DDylib.h>
-#include <Resource/T3DDylibManager.h>
-#include <Resource/T3DResource.h>
-#include <Resource/T3DResourceManager.h>
-
-// DataStruct
-#include <DataStruct/T3DVariant.h>
-#include <DataStruct/T3DString.h>
-
-// ImageCodec
-#include <ImageCodec/T3DImageCodec.h>
-#include <ImageCodec/T3DImageCodecBase.h>
-
-// Render
-#include <Render/T3DRenderer.h>
-#include <Render/T3DRenderQueue.h>
-#include <Render/T3DRenderTarget.h>
-#include <Render/T3DRenderWindow.h>
-#include <Render/T3DHardwareBufferManager.h>
-#include <Render/T3DHardwareBuffer.h>
-#include <Render/T3DHardwareVertexBuffer.h>
-#include <Render/T3DHardwareIndexBuffer.h>
-#include <Render/T3DHardwarePixelBuffer.h>
-#include <Render/T3DVertexArray.h>
-#include <Render/T3DViewport.h>
-
-// Bound
-#include <Bound/T3DBound.h>
-#include <Bound/T3DSphereBound.h>
-#include <Bound/T3DAabbBound.h>
-#include <Bound/T3DObbBound.h>
-#include <Bound/T3DFrustumBound.h>
-
-// Scene Graph
-#include <SceneGraph/T3DSGNode.h>
+#include "SceneGraph/T3DSceneManager.h"
+#include "SceneGraph/T3DSGTransform3D.h"
+#include "SceneGraph/T3DSGCamera.h"
+#include "SceneGraph/T3DSGLight.h"
+#include "SceneGraph/T3DSGModel.h"
+#include "SceneGraph/T3DSGMesh.h"
+#include "SceneGraph/T3DSGAxis.h"
+#include "SceneGraph/T3DSGQuad.h"
+#include "SceneGraph/T3DSGBillboard.h"
+#include "SceneGraph/T3DSGBox.h"
+#include "SceneGraph/T3DSGSphere.h"
 
 
-#endif  /*__TINY3D_H__*/
+namespace Tiny3D
+{
+    T3D_INIT_SINGLETON(SceneManager);
+
+    //--------------------------------------------------------------------------
+
+    SceneManagerPtr SceneManager::create(SceneManagerBase *impl)
+    {
+        SceneManagerPtr mgr = new SceneManager(impl);
+        mgr->release();
+        return mgr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SceneManager::SceneManager(SceneManagerBase *impl)
+        : mImpl(impl)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    SceneManager::~SceneManager()
+    {
+        mImpl = nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGTransform3DPtr SceneManager::createTransform3D(SGNodePtr parent, 
+        ID uID /* = Node::E_NID_AUTOMATIC */)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->createTransform3D(parent, uID);
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGCameraPtr SceneManager::createCamera(SGNodePtr parent,
+        ID uID /* = Node::E_NID_AUTOMATIC */)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->createCamera(parent, uID);
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGLightPtr SceneManager::createLight(SGNodePtr parent,
+        ID uID /* = Node::E_NID_AUTOMATIC */)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->createLight(parent, uID);
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGModelPtr SceneManager::createModel(SGNodePtr parent,
+        ID uID /* = Node::E_NID_AUTOMATIC */)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->createModel(parent, uID);
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGMeshPtr SceneManager::createMesh(SGNodePtr parent,
+        ID uID /* = Node::E_NID_AUTOMATIC */)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->createMesh(parent, uID);
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGAxisPtr SceneManager::createAxis(SGNodePtr parent,
+        ID uID /* = Node::E_NID_AUTOMATIC */)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->createAxis(parent, uID);
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGQuadPtr SceneManager::createQuad(SGNodePtr parent,
+        ID uID /* = Node::E_NID_AUTOMATIC */)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->createQuad(parent, uID);
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGBillboardPtr SceneManager::createBillboard(SGNodePtr parent,
+        ID uID /* = Node::E_NID_AUTOMATIC */)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->createBillboard(parent, uID);
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGBoxPtr SceneManager::createBox(SGNodePtr parent,
+        ID uID /* = Node::E_NID_AUTOMATIC */)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->createBox(parent, uID);
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGSpherePtr SceneManager::createSphere(SGNodePtr parent,
+        ID uID /* = Node::E_NID_AUTOMATIC */)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->createSphere(parent, uID);
+        }
+
+        return nullptr;
+    }
+}

@@ -91,6 +91,9 @@ namespace Tiny3D
     class ObbBound;
     class FrustumBound;
 
+    class SceneManagerBase;
+    class SceneManager;
+
     class SGNode;
 
     class SGTransform3D;

@@ -18,25 +18,18 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SG_RENDERABLE_H__
-#define __T3D_SG_RENDERABLE_H__
-
-
-#include "SceneGraph/T3DSGTransform3D.h"
-#include "Render/T3DRenderer.h"
+#include "SceneGraph/T3DSceneManagerBase.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SGRenderable : public SGTransform3D
+    SceneManagerBase::SceneManagerBase()
     {
-    public:
-        virtual ~SGRenderable();
 
-    protected:
-        SGRenderable(ID uID = E_NID_AUTOMATIC);
-    };
+    }
+
+    SceneManagerBase::~SceneManagerBase()
+    {
+
+    }
 }
-
-
-#endif

@@ -133,6 +133,24 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    Matrix4 T3DXRenderer::perspective(Real fovY, Real aspect, Real zNear,
+        Real zFar)
+    {
+        Matrix4 m;
+        return m;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Matrix4 T3DXRenderer::orthographic(Real left, Real right, Real top,
+        Real bottom, Real zNear, Real zFar)
+    {
+        Matrix4 m;
+        return m;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult T3DXRenderer::setCullingMode(CullingMode mode)
     {
         return T3D_OK;
