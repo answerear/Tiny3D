@@ -18,58 +18,29 @@
  ******************************************************************************/
 
 
-#ifndef __T3DX_PLUGIN_H__
-#define __T3DX_PLUGIN_H__
+#ifndef __T3D_R3D_PREREQUISITES_H__
+#define __T3D_R3D_PREREQUISITES_H__
 
 
-#include "T3DXPrerequisites.h"
+#include <Tiny3D.h>
+
+#if defined R3DRENDERER_EXPORT
+    #define T3D_R3DRENDER_API        T3D_EXPORT_API
+#else
+    #define T3D_R3DRENDER_API        T3D_IMPORT_API
+#endif
 
 
 namespace Tiny3D
 {
-    class T3DXPlugin : public Plugin
-    {
-    public:
-        /**
-         * @brief 默认构造函数
-         */
-        T3DXPlugin();
+    #define LOG_TAG_R3DRENDERER    "R3DRenderer"
 
-        /**
-         * @brief 析构函数
-         */
-        virtual ~T3DXPlugin();
+    class R3DRenderer;
+    class R3DRenderWindow;
 
-        /**
-         * @brief 获取插件名称
-         */
-        virtual const String &getName() const override;
-
-        /**
-         * @brief 安装插件
-         */
-        virtual TResult install() override;
-
-        /**
-         * @brief 启动插件
-         */
-        virtual TResult startup() override;
-
-        /**
-         * @brief 关闭插件
-         */
-        virtual TResult shutdown() override;
-
-        /**
-         * @brief 卸载插件
-         */
-        virtual TResult uninstall() override;
-
-    protected:
-        String      mName;
-        RendererPtr mRenderer;
-    };
+    T3D_DECLARE_SMART_PTR(R3DRenderer);
+    T3D_DECLARE_SMART_PTR(R3DRenderWindow);
 }
 
 
-#endif  /*__T3DX_PLUGIN_H__*/
+#endif  /*__T3D_R3D_PREREQUISITES_H__*/

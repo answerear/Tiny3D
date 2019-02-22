@@ -18,16 +18,16 @@
  ******************************************************************************/
 
 
-#ifndef __T3DX_ERROR_H__
-#define __T3DX_ERROR_H__
+#ifndef __T3D_R3D_ERROR_H__
+#define __T3D_R3D_ERROR_H__
 
 
-#include "T3DXPrerequisites.h"
+#include "T3DR3DPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    enum XRenderErrorCode
+    enum R3DErrorCode
     {
         T3D_ERR_R3D_WINDOW_ALREADY = T3D_ERR_RENDERER,  /**< 窗口已经创建 */
         T3D_ERR_R3D_UNSUPPORT_FORMAT_ICON,              /**< 不支持的图标文件格式 */
@@ -35,4 +35,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3DX_ERROR_H__*/
+#endif  /*__T3D_R3D_ERROR_H__*/

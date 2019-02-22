@@ -18,21 +18,21 @@
  ******************************************************************************/
 
 
-#ifndef __T3DX_RENDER_WINDOW_H__
-#define __T3DX_RENDER_WINDOW_H__
+#ifndef __T3D_R3D_RENDER_WINDOW_H__
+#define __T3D_R3D_RENDER_WINDOW_H__
 
 
-#include "T3DXPrerequisites.h"
+#include "T3DR3DPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    class T3DXRenderWindow : public RenderWindow
+    class R3DRenderWindow : public RenderWindow
     {
     public:
-        static T3DXRenderWindowPtr create(const String &name);
+        static R3DRenderWindowPtr create(const String &name);
 
-        virtual ~T3DXRenderWindow();
+        virtual ~R3DRenderWindow();
 
         /**
          * @brief 创建渲染窗口实体
@@ -61,11 +61,11 @@ namespace Tiny3D
         virtual TResult swapBuffers() override;
 
     protected:
-        T3DXRenderWindow(const String &name);
+        R3DRenderWindow(const String &name);
 
         Window  *mWindow;
     };
 }
 
 
-#endif  /*__T3DX_RENDER_WINDOW_H__*/
+#endif  /*__T3D_R3D_RENDER_WINDOW_H__*/

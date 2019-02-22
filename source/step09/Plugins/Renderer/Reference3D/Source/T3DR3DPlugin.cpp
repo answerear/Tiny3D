@@ -18,36 +18,36 @@
  ******************************************************************************/
 
 
-#include "T3DXPlugin.h"
-#include "T3DXRenderer.h"
+#include "T3DR3DPlugin.h"
+#include "T3DR3DRenderer.h"
 
 
 namespace Tiny3D
 {
-    T3DXPlugin::T3DXPlugin()
-        : mName("T3DXRenderer")
+    R3DPlugin::R3DPlugin()
+        : mName("R3DRenderer")
         , mRenderer(nullptr)
     {
 
     }
 
-    T3DXPlugin::~T3DXPlugin()
+    R3DPlugin::~R3DPlugin()
     {
 
     }
 
-    const String &T3DXPlugin::getName() const
+    const String &R3DPlugin::getName() const
     {
         return mName;
     }
 
-    TResult T3DXPlugin::install()
+    TResult R3DPlugin::install()
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            mRenderer = T3DXRenderer::create();
+            mRenderer = R3DRenderer::create();
             if (mRenderer != nullptr)
             {
                 ret = T3D_AGENT.addRenderer(mRenderer);
@@ -61,21 +61,21 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult T3DXPlugin::startup()
+    TResult R3DPlugin::startup()
     {
         TResult ret = T3D_OK;
 
         return ret;
     }
 
-    TResult T3DXPlugin::shutdown()
+    TResult R3DPlugin::shutdown()
     {
         TResult ret = T3D_OK;
 
         return ret;
     }
 
-    TResult T3DXPlugin::uninstall()
+    TResult R3DPlugin::uninstall()
     {
         TResult ret = T3D_OK;
 

@@ -18,41 +18,41 @@
  ******************************************************************************/
 
 
-#include "T3DXRenderWindow.h"
-#include "T3DXError.h"
+#include "T3DR3DRenderWindow.h"
+#include "T3DR3DError.h"
 
-#if defined (T3D_OS_WINDOWS)
-    #include <windows.h>
-#endif
+// #if defined (T3D_OS_WINDOWS)
+//     #include <windows.h>
+// #endif
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3DXRenderWindowPtr T3DXRenderWindow::create(const String &name)
+    R3DRenderWindowPtr R3DRenderWindow::create(const String &name)
     {
-        T3DXRenderWindowPtr window = new T3DXRenderWindow(name);
+        R3DRenderWindowPtr window = new R3DRenderWindow(name);
         window->release();
         return window;
     }
 
     //--------------------------------------------------------------------------
 
-    T3DXRenderWindow::T3DXRenderWindow(const String &name)
+    R3DRenderWindow::R3DRenderWindow(const String &name)
         : RenderWindow(name)
         , mWindow(nullptr)
     {
 
     }
 
-    T3DXRenderWindow::~T3DXRenderWindow()
+    R3DRenderWindow::~R3DRenderWindow()
     {
     }
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderWindow::create(const RenderWindowCreateParam &param,
+    TResult R3DRenderWindow::create(const RenderWindowCreateParam &param,
         const RenderWindowCreateParamEx &paramEx)
     {
         TResult ret = T3D_OK;
@@ -63,7 +63,7 @@ namespace Tiny3D
             {
                 // 窗口已经创建
                 ret = T3D_ERR_R3D_WINDOW_ALREADY;
-                T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Render window already \
+                T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Render window already \
                      created !");
                 break;
             }
@@ -97,7 +97,7 @@ namespace Tiny3D
                     param.windowWidth, param.windowHeight, flags);
                 if (ret != T3D_OK)
                 {
-                    T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Create native window\
+                    T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Create native window\
                         failed !");
                     break;
                 }
@@ -108,7 +108,7 @@ namespace Tiny3D
             ret = image.load(param.iconPath);
             if (ret != T3D_OK)
             {
-                T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Load icon image [%s] \
+                T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Load icon image [%s] \
                     failed !", param.iconPath.c_str());
                 break;
             }
@@ -148,7 +148,7 @@ namespace Tiny3D
             if (ret != T3D_OK)
             {
                 ret = T3D_ERR_R3D_UNSUPPORT_FORMAT_ICON;
-                T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Do not support icon [%s] \
+                T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Do not support icon [%s] \
                     format !", param.iconPath.c_str());
                 break;
             }
@@ -163,7 +163,7 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult T3DXRenderWindow::destroy()
+    TResult R3DRenderWindow::destroy()
     {
         TResult ret = T3D_OK;
 
@@ -172,7 +172,7 @@ namespace Tiny3D
             if (mWindow == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Invalid window pointer !");
+                T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Invalid window pointer !");
                 break;
             }
 
@@ -187,7 +187,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderWindow::swapBuffers()
+    TResult R3DRenderWindow::swapBuffers()
     {
         TResult ret = T3D_OK;
 
@@ -196,7 +196,7 @@ namespace Tiny3D
             if (mWindow == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Invalid window pointer !");
+                T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Invalid window pointer !");
                 break;
             }
 

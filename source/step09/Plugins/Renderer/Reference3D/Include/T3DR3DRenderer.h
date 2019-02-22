@@ -18,24 +18,24 @@
  ******************************************************************************/
 
 
-#ifndef __T3DX_RENDERER_H__
-#define __T3DX_RENDERER_H__
+#ifndef __T3D_R3D_RENDERER_H__
+#define __T3D_R3D_RENDERER_H__
 
 
-#include "T3DXPrerequisites.h"
+#include "T3DR3DPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    class T3DXRenderer : public Renderer
+    class R3DRenderer : public Renderer
     {
     public:
-        static T3DXRendererPtr create();
+        static R3DRendererPtr create();
 
         /**
          * @brief 析构函数
          */
-        virtual ~T3DXRenderer();
+        virtual ~R3DRenderer();
 
         /**
          * @brief 初始化渲染器
@@ -204,9 +204,9 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        T3DXRenderer();
+        R3DRenderer();
 
-        T3DXRenderWindowPtr     mRenderWindow;  /**< 渲染窗口 */
+        R3DRenderWindowPtr     mRenderWindow;  /**< 渲染窗口 */
     };
 }
 

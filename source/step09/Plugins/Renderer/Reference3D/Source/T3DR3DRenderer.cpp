@@ -18,43 +18,43 @@
  ******************************************************************************/
 
 
-#include "T3DXRenderer.h"
-#include "T3DXRenderWindow.h"
+#include "T3DR3DRenderer.h"
+#include "T3DR3DRenderWindow.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3DXRendererPtr T3DXRenderer::create()
+    R3DRendererPtr R3DRenderer::create()
     {
-        T3DXRendererPtr renderer = new T3DXRenderer();
+        R3DRendererPtr renderer = new R3DRenderer();
         renderer->release();
         return renderer;
     }
 
     //--------------------------------------------------------------------------
 
-    T3DXRenderer::T3DXRenderer()
+    R3DRenderer::R3DRenderer()
         : Renderer()
         , mRenderWindow(nullptr)
     {
         mName = Renderer::REFERENCE3D;
     }
 
-    T3DXRenderer::~T3DXRenderer()
+    R3DRenderer::~R3DRenderer()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderer::init()
+    TResult R3DRenderer::init()
     {
         return T3D_OK;
     }
 
-    TResult T3DXRenderer::destroy()
+    TResult R3DRenderer::destroy()
     {
         mRenderWindow = nullptr;
         return T3D_OK;
@@ -62,7 +62,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RenderWindowPtr T3DXRenderer::createRenderWindow(
+    RenderWindowPtr R3DRenderer::createRenderWindow(
         const String &name,
         const RenderWindowCreateParam &param,
         const RenderWindowCreateParamEx &paramEx)
@@ -73,10 +73,10 @@ namespace Tiny3D
 
         do 
         {
-            window = T3DXRenderWindow::create(name);
+            window = R3DRenderWindow::create(name);
             if (window == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_T3DXRENDERER, "Create render window \
+                T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Create render window \
                     failed !");
                 break;
             }
@@ -97,43 +97,43 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderer::beginRender()
+    TResult R3DRenderer::beginRender()
     {
         return T3D_OK;
     }
 
-    TResult T3DXRenderer::endRender()
+    TResult R3DRenderer::endRender()
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    bool T3DXRenderer::queryCapability(Capability cap) const
+    bool R3DRenderer::queryCapability(Capability cap) const
     {
         return true;
     }
 
-    TResult T3DXRenderer::enableCapability(Capability cap, bool enabled)
+    TResult R3DRenderer::enableCapability(Capability cap, bool enabled)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderer::setTransform(TransformState state, const Matrix4 &mat)
+    TResult R3DRenderer::setTransform(TransformState state, const Matrix4 &mat)
     {
         return T3D_OK;
     }
 
-    const Matrix4 &T3DXRenderer::getTransform(TransformState state) const
+    const Matrix4 &R3DRenderer::getTransform(TransformState state) const
     {
         return Matrix4::IDENTITY;
     }
 
     //--------------------------------------------------------------------------
 
-    Matrix4 T3DXRenderer::perspective(Real fovY, Real aspect, Real zNear,
+    Matrix4 R3DRenderer::perspective(Real fovY, Real aspect, Real zNear,
         Real zFar)
     {
         Matrix4 m;
@@ -142,7 +142,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Matrix4 T3DXRenderer::orthographic(Real left, Real right, Real top,
+    Matrix4 R3DRenderer::orthographic(Real left, Real right, Real top,
         Real bottom, Real zNear, Real zFar)
     {
         Matrix4 m;
@@ -151,35 +151,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderer::setCullingMode(CullingMode mode)
+    TResult R3DRenderer::setCullingMode(CullingMode mode)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderer::setRenderMode(RenderMode mode)
+    TResult R3DRenderer::setRenderMode(RenderMode mode)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderer::setViewport(ViewportPtr viewport)
+    TResult R3DRenderer::setViewport(ViewportPtr viewport)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderer::drawVertexArray(VertexArrayPtr vao)
+    TResult R3DRenderer::drawVertexArray(VertexArrayPtr vao)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderer::drawVertexList(PrimitiveType priType,
+    TResult R3DRenderer::drawVertexList(PrimitiveType priType,
         HardwareVertexBufferPtr vbo, size_t startIdx, size_t priCount)
     {
         return T3D_OK;
@@ -187,7 +187,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult T3DXRenderer::drawIndexList(PrimitiveType priType,
+    TResult R3DRenderer::drawIndexList(PrimitiveType priType,
         HardwareVertexBufferPtr vbo, HardwareIndexBufferPtr ibo,
         size_t startIdx, size_t priCount)
     {

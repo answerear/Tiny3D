@@ -18,29 +18,58 @@
  ******************************************************************************/
 
 
-#include "T3DXPlugin.h"
+#ifndef __T3D_R3D_PLUGIN_H__
+#define __T3D_R3D_PLUGIN_H__
 
 
-Tiny3D::T3DXPlugin *gPlugin = nullptr;
+#include "T3DR3DPrerequisites.h"
 
-extern "C"
+
+namespace Tiny3D
 {
-    T3D_XRENDER_API TResult dllStartPlugin()
+    class R3DPlugin : public Plugin
     {
-        gPlugin = new Tiny3D::T3DXPlugin();
-        return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
-    }
+    public:
+        /**
+         * @brief 默认构造函数
+         */
+        R3DPlugin();
 
-    T3D_XRENDER_API TResult dllStopPlugin()
-    {
-        TResult ret = Tiny3D::Agent::getInstance().uninstallPlugin(gPlugin);
+        /**
+         * @brief 析构函数
+         */
+        virtual ~R3DPlugin();
 
-        if (ret == Tiny3D::T3D_OK)
-        {
-            delete gPlugin;
-            gPlugin = nullptr;
-        }
+        /**
+         * @brief 获取插件名称
+         */
+        virtual const String &getName() const override;
 
-        return ret;
-    }
+        /**
+         * @brief 安装插件
+         */
+        virtual TResult install() override;
+
+        /**
+         * @brief 启动插件
+         */
+        virtual TResult startup() override;
+
+        /**
+         * @brief 关闭插件
+         */
+        virtual TResult shutdown() override;
+
+        /**
+         * @brief 卸载插件
+         */
+        virtual TResult uninstall() override;
+
+    protected:
+        String      mName;
+        RendererPtr mRenderer;
+    };
 }
+
+
+#endif  /*__T3D_R3D_PLUGIN_H__*/

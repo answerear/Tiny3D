@@ -18,29 +18,29 @@
  ******************************************************************************/
 
 
-#ifndef __T3DX_PREREQUISITES_H__
-#define __T3DX_PREREQUISITES_H__
+#include "T3DR3DPlugin.h"
 
 
-#include <Tiny3D.h>
+Tiny3D::R3DPlugin *gPlugin = nullptr;
 
-#if defined T3DXRENDERER_EXPORT
-    #define T3D_XRENDER_API        T3D_EXPORT_API
-#else
-    #define T3D_XRENDER_API        T3D_IMPORT_API
-#endif
-
-
-namespace Tiny3D
+extern "C"
 {
-    #define LOG_TAG_T3DXRENDERER    "T3DXRenderer"
+    T3D_R3DRENDER_API TResult dllStartPlugin()
+    {
+        gPlugin = new Tiny3D::R3DPlugin();
+        return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
+    }
 
-    class T3DXRenderer;
-    class T3DXRenderWindow;
+    T3D_R3DRENDER_API TResult dllStopPlugin()
+    {
+        TResult ret = Tiny3D::Agent::getInstance().uninstallPlugin(gPlugin);
 
-    T3D_DECLARE_SMART_PTR(T3DXRenderer);
-    T3D_DECLARE_SMART_PTR(T3DXRenderWindow);
+        if (ret == Tiny3D::T3D_OK)
+        {
+            delete gPlugin;
+            gPlugin = nullptr;
+        }
+
+        return ret;
+    }
 }
-
-
-#endif  /*__T3DX_PREREQUISITES_H__*/

@@ -24,7 +24,7 @@
 #include "T3DErrorDef.h"
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveManager.h"
-
+#include <sstream>
 
 namespace Tiny3D
 {
@@ -580,9 +580,11 @@ namespace Tiny3D
             {
                 long_t val = value.longValue();
                 child = doc.NewElement(TAG_NAME_INTEGER);
-                char buf[64] = { 0 };
-                snprintf(buf, sizeof(buf) - 1, "%ld", val);
-                text = doc.NewText(buf);
+//                 char buf[64] = { 0 };
+//                 snprintf(buf, sizeof(buf) - 1, "%ld", val);
+                std::stringstream ss;
+                ss << val;
+                text = doc.NewText(ss.str().c_str());
                 child->LinkEndChild(text);
                 root->LinkEndChild(child);
             }
