@@ -291,6 +291,15 @@ namespace Tiny3D
             Real bottom, Real nearDist, Real farDist) = 0;
 
         /**
+         * @brief 更新视锥体的多个平面
+         * @param [in] m : 投影变换矩阵和观察矩阵的连接，即 (M_proj * M_view)
+         * @param [in][out] bound : 需要更新的视锥体碰撞体
+         * @return 调用成功返回 T3D_OK
+         */
+        virtual TResult updateFrustum(const Matrix4 &m, 
+            FrustumBoundPtr bound) = 0;
+
+        /**
          * @brief 设置裁剪模式
          * @param [in] mode : 裁剪模式
          * @return 成功返回 T3D_OK

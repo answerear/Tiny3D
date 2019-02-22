@@ -246,12 +246,8 @@ namespace Tiny3D
             // 避免其他物体无法做frustum culling
             Matrix4 M = mProjMatrix * mViewMatrix;
             Renderer *renderer = T3D_AGENT.getActiveRenderer();
-            Plane plane[Frustum::E_MAX_FACE];
-
-//             renderer->updateFrustum(M, plane, Frustum::E_MAX_FACE);
-
             FrustumBoundPtr bound = smart_pointer_cast<FrustumBound>(mBound);
-            bound->setFrustumFaces(plane, Frustum::E_MAX_FACE);
+            renderer->updateFrustum(M, bound);
         }
     }
 }
