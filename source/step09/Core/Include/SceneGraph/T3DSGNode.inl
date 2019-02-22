@@ -61,4 +61,11 @@ namespace Tiny3D
     {
         return mIsVisible;
     }
+
+    //--------------------------------------------------------------------------
+
+    inline bool SGNode::isEnabled() const
+    {
+        return mIsEnabled;
+    }
 }

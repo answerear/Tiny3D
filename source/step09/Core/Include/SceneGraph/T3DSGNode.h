@@ -105,17 +105,65 @@ namespace Tiny3D
          * @brief 设置结点是否可见
          * @param [in] visible : 可见标记
          * @return void
-         * @note 通过本接口设置了不可见，则会直接在渲染流水线上移除该结点以及所有子结点，不参与渲染
+         * @remarks 通过本接口设置了不可见，则会直接在渲染流水线上移除该结点以及
+         *      所有子结点，不参与渲染，但是update更新还是有效的。
          * @see bool isVisible() const
          */
         virtual void setVisible(bool visible);
 
         /**
-         * @brief 返回结点是否可见
+         * @brief 获取结点可见性
          * @return 返回结点可见性
          * @see void setVisible(bool visible)
          */
         bool isVisible() const;
+
+        /**
+         * @brief 设置结点是否可用
+         * @param [in] enabled : 可用标记
+         * @remarks 不可用的结点，update是不会调用的，同时不可用的结点也看不见
+         * @see bool isEnabled() const
+         */
+        virtual void setEnabled(bool enabled);
+
+        /**
+         * @brief 获取结点可用性
+         * @return 返回结点可用性
+         * @see void setEnabled(bool enabled)
+         */
+        bool isEnabled() const;
+
+        /**
+         * @brief 设置结点使用对应相机的掩码
+         * @remarks 只有跟相机掩码一致的结点才能在对应相机中渲染。 相机掩码可以
+         *      通过“或”操作同时设置多个。
+         * @see uint32_t getCameraMask() const
+         */
+        void setCameraMask(uint32_t mask);
+
+        /**
+         * @brief 获取结点对应相机的掩码
+         * @return 返回相机掩码
+         * @see void setCameraMask(uint32_t mask)
+         */
+        uint32_t getCameraMask() const;
+
+        /**
+         * @brief 递归遍历
+         * @param [in] camera : 当前渲染相机
+         * @param [in] queue : 渲染队列
+         * @return void
+         * @remarks 递归遍历，遍历到的结点会调用 update() 接口
+         */
+        virtual void visit(SGCameraPtr camera, RenderQueuePtr queue);
+
+        /**
+         * @brief 遍历到的结点会调用本接口
+         * @param [in] camera : 当前渲染相机
+         * @param [in] queue : 渲染队列
+         * @return void
+         */
+        virtual void update(SGCameraPtr camera, RenderQueuePtr queue);
 
     protected:
         /**
@@ -128,7 +176,7 @@ namespace Tiny3D
         SGNode(ID uID = E_NID_AUTOMATIC);
 
         /**
-         * @brief 更新本身的变换和所有子结点的变换
+         * @brief 更新本身的变换
          * @return void
          * @note 派生类重写本函数以实现具体的变换更新策略
          */
@@ -136,7 +184,7 @@ namespace Tiny3D
 
         /**
          * @brief 视景体外物体剔除，递归调用所有子结点
-         * @param [in] bound : 视景体区域
+         * @param [in] bound : 视锥体碰撞体
          * @param [in] queue : 渲染队列
          * @return void
          * @note
@@ -158,8 +206,10 @@ namespace Tiny3D
         void        *mUserData;     /**< 保存用户数据 */
         ObjectPtr   mUserObject;    /**< 保存用户数据对象 */
 
+        uint32_t    mCameraMask;    /**< 相机掩码 */
         bool        mIsDirty;       /**< 结点数据是否脏了，需要重绘、重新计算等 */
         bool        mIsVisible;     /**< 结点可见性 */
+        bool        mIsEnabled;     /**< 结点可用性 */
     };
 }
 

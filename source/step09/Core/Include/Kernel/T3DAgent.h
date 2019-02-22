@@ -213,6 +213,15 @@ namespace Tiny3D
         RendererPtr getRenderer(const String &name) const;
 
         /**
+         * @brief 设置场景管理器
+         * @param [in] mgr : 场景管理器对象
+         * @return 成功返回 T3D_OK
+         * @remarks 如果没有外部插件设置特有的场景管理器，则内部会用默认场景
+         *      管理器来使用
+         */
+        TResult setSceneManager(SceneManagerBasePtr mgr);
+
+        /**
          * @brief 获取应用程序路径，不包含程序名称
          */
         const String &getAppPath() const { return mAppPath; }
@@ -284,6 +293,12 @@ namespace Tiny3D
          */
         TResult initRenderer();
 
+        /**
+         * @brief 初始化场景管理器
+         * @return 成功返回 T3D_OK
+         */
+        TResult initSceneManager();
+
     protected:
         typedef TMap<String, Plugin*>       Plugins;
         typedef Plugins::iterator           PluginsItr;
@@ -306,6 +321,7 @@ namespace Tiny3D
         ImageCodecPtr       mImageCodec;        /**< 图像编解码器对象 */
 
         RendererPtr         mActiveRenderer;    /**< 当前渲染器对象 */
+        SceneManagerPtr     mSceneMgr;
 
         Plugins             mPlugins;           /**< 安装的插件列表 */
         Dylibs              mDylibs;            /**< 加载的动态库列表 */

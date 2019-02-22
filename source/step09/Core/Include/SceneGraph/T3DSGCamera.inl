@@ -20,5 +20,23 @@
 
 namespace Tiny3D
 {
+    inline void SGCamera::setObjectMask(uint32_t mask)
+    {
+        mObjectMask = mask;
+    }
 
+    inline uint32_t SGCamera::getObjectMask() const
+    {
+        return mObjectMask;
+    }
+
+    inline BoundPtr SGCamera::getBound() const
+    {
+        return mBound;
+    }
+
+    inline ViewportPtr SGCamera::getViewport() const
+    {
+        return mViewport;
+    }
 }

@@ -92,14 +92,15 @@ namespace Tiny3D
 
         /**
          * @brief 新增一个视口对象，并且关联到本渲染目标上
+         * @param [in] camera : 观察新增视口对应的相机对象
          * @param [in] zOrder : 深度值，用于控制渲染顺序
          * @param [in] left : 视口左边在渲染目标区域的比例值
          * @param [in] top : 视口上边在渲染目标区域的比例值
          * @param [in] width : 视口宽度占渲染目标区域的比例值
          * @param [in] height : 视口高度占渲染目标区域的比例值
          */
-        ViewportPtr addViewport(long_t zOrder, Real left, Real top, Real width,
-            Real height);
+        ViewportPtr addViewport(SGCameraPtr camera, long_t zOrder, 
+            Real left, Real top, Real width, Real height);
 
         /**
          * @brief 移除指定深度值的视口对象

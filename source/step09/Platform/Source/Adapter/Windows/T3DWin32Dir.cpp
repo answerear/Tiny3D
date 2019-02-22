@@ -191,7 +191,7 @@ namespace Tiny3D
         return (m_hFindFile != INVALID_HANDLE_VALUE && (m_FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY));
     }
 
-    long Win32Dir::getCreationTime() const
+    long_t Win32Dir::getCreationTime() const
     {
         if (m_hFindFile == INVALID_HANDLE_VALUE)
             return 0;
@@ -212,7 +212,7 @@ namespace Tiny3D
         return 0;
     }
 
-    long Win32Dir::getLastAccessTime() const
+    long_t Win32Dir::getLastAccessTime() const
     {
         if (m_hFindFile == INVALID_HANDLE_VALUE)
             return 0;
@@ -233,7 +233,7 @@ namespace Tiny3D
         return 0;
     }
 
-    long Win32Dir::getLastWriteTime() const
+    long_t Win32Dir::getLastWriteTime() const
     {
         if (m_hFindFile == INVALID_HANDLE_VALUE)
             return 0;

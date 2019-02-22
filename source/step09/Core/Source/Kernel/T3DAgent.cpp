@@ -37,6 +37,9 @@
 
 #include "Render/T3DRenderer.h"
 
+#include "SceneGraph/T3DSceneManager.h"
+#include "SceneGraph/T3DDefaultSceneMgr.h"
+
 
 namespace Tiny3D
 {
@@ -58,12 +61,14 @@ namespace Tiny3D
         , mDylibMgr(nullptr)
         , mImageCodec(nullptr)
         , mActiveRenderer(nullptr)
+        , mSceneMgr(nullptr)
         , mIsRunning(false)
     {
     }
 
     Agent::~Agent()
     {
+        mSceneMgr = nullptr;
         mActiveRenderer = nullptr;
 
         unloadPlugins();
@@ -178,6 +183,13 @@ namespace Tiny3D
                 }
 
                 addRenderWindow(window);
+            }
+
+            // 如果没有场景管理器，则初始化场景管理器
+            ret = initSceneManager();
+            if (ret != T3D_OK)
+            {
+                break;
             }
 
             mIsRunning = true;
@@ -652,6 +664,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Agent::setSceneManager(SceneManagerBasePtr mgr)
+    {
+        mSceneMgr = nullptr;
+        mSceneMgr = SceneManager::create(mgr);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Agent::initApplication()
     {
         TResult ret = T3D_OK;
@@ -675,6 +696,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Agent::initLogSystem()
     {
         TResult ret = T3D_ERR_FAIL;
@@ -695,17 +718,23 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Agent::initEventSystem()
     {
         mEventMgr = new EventManager(10);
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Agent::initObjectTracer()
     {
         mObjTracer = new ObjectTracer();
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Agent::initManagers()
     {
@@ -715,6 +744,8 @@ namespace Tiny3D
 
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Agent::loadConfig(const String &cfgPath)
     {
@@ -842,6 +873,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Agent::initRenderer()
     {
         TResult ret = T3D_OK;
@@ -863,6 +896,21 @@ namespace Tiny3D
 
             setActiveRenderer(renderer);
         } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::initSceneManager()
+    {
+        TResult ret = T3D_OK;
+
+        if (mSceneMgr == nullptr)
+        {
+            // 没有设置过场景管理器，只能引擎代劳，用个默认的吧
+            ret = setSceneManager(DefaultSceneMgr::create());
+        }
 
         return ret;
     }

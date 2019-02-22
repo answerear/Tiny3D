@@ -61,6 +61,32 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult SceneManager::renderScene(SGCameraPtr camera)
+    {
+        TResult ret = T3D_ERR_SYS_NOT_INIT;
+
+        if (mImpl != nullptr)
+        {
+            ret = mImpl->renderScene(camera);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SGNodePtr SceneManager::getRoot() const
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->getRoot();
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
     SGTransform3DPtr SceneManager::createTransform3D(SGNodePtr parent, 
         ID uID /* = Node::E_NID_AUTOMATIC */)
     {

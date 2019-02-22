@@ -43,8 +43,6 @@ typedef signed short        short_t;
 typedef unsigned short      ushort_t;
 typedef signed int          int_t;
 typedef unsigned int        uint_t;
-typedef signed long         long_t;
-typedef unsigned long       ulong_t;
 
 typedef signed char         int8_t;
 typedef unsigned char       uint8_t;
@@ -54,10 +52,17 @@ typedef signed int          int32_t;
 typedef unsigned int        uint32_t;
 
 #if !defined (T3D_OS_ANDROID) && !defined (T3D_OS_LINUX)
-typedef signed long long    int64_t;
-typedef unsigned long long  uint64_t;
+    typedef signed long long    int64_t;
+    typedef unsigned long long  uint64_t;
 #endif
 
+#if defined (T3D_OS_X64)
+    typedef int64_t             long_t;
+    typedef uint64_t            ulong_t;
+#else
+    typedef int32_t             long_t;
+    typedef uint32_t            ulong_t;
+#endif
 
 typedef std::string         String;
 typedef std::wstring        WString;

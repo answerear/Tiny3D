@@ -93,6 +93,7 @@ namespace Tiny3D
 
     class SceneManagerBase;
     class SceneManager;
+    class DefaultSceneMgr;
 
     class SGNode;
 

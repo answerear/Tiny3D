@@ -46,6 +46,18 @@ namespace Tiny3D
 
         /**
          * @brief 实现基类接口
+         * @see TResult SceneManagerBase::renderScene(SGCameraPtr camera)
+         */
+        virtual TResult renderScene(SGCameraPtr camera) override;
+
+        /**
+         * @brief 实现基类接口
+         * @see SGNodePtr SceneManagerBase::getRoot() const
+         */
+        virtual SGNodePtr getRoot() const override;
+
+        /**
+         * @brief 实现基类接口
          * @see SGTransform3DPtr SceneManagerBase::createTransform3D(
          *      SGNodePtr parent, ID uID = Node::E_NID_AUTOMATIC)
          */
@@ -129,6 +141,8 @@ namespace Tiny3D
 
         SceneManagerBasePtr     mImpl;  /**< 具体场景管理器对象 */
     };
+
+    #define T3D_SCENE_MGR       SceneManager::getInstance()
 }
 
 

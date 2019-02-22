@@ -68,6 +68,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(SceneManagerBase);
     T3D_DECLARE_SMART_PTR(SceneManager);
 
+    T3D_DECLARE_SMART_PTR(DefaultSceneMgr);
+
     T3D_DECLARE_SMART_PTR(SGNode);
 
     T3D_DECLARE_SMART_PTR(SGTransform3D);

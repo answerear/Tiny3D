@@ -23,16 +23,34 @@
 
 
 #include "SceneGraph/T3DSGTransform3D.h"
+#include "Bound/T3DBound.h"
 
 
 namespace Tiny3D
 {
+    /**
+     * @brief 场景相机结点类
+     */
     class T3D_ENGINE_API SGCamera : public SGTransform3D
     {
     public:
+        /**
+         * @brief 创建相机结点对象
+         * @param [in] uID : 结点ID，默认自动生成
+         * @return 返回一个相机结点对象
+         */
         static SGCameraPtr create(ID uID = E_NID_AUTOMATIC);
 
+        /**
+         * @brief 析构函数
+         */
         virtual ~SGCamera();
+
+        /**
+         * @brief 渲染当前相机看到的场景物体
+         * @remarks 这个接口不能随便调用，是在Viewport里面调用的
+         */
+        virtual void renderScene(ViewportPtr viewport);
 
         /**
          * @brief 专门提供给挂相机结点的3D变换结点使用，用于构建UVN相机.
@@ -44,8 +62,40 @@ namespace Tiny3D
          */
         void lookAt(const Vector3 &pos, const Vector3 &obj, const Vector3 &up);
 
+        /**
+         * @brief 设置相机能看见的场景结点掩码
+         * @remarks 掩码可以通过“或”操作，设置多个掩码，只要场景结点中的相机掩码
+         *      CameraMask 设置的跟本相机中其中一个掩码一致的，均能渲染到本相机
+         *      对应的视口中。
+         * @see uint32_t getObjectMask() const
+         */
+        void setObjectMask(uint32_t mask);
+
+        /**
+         * @brief 获取相机能看见的场景结点掩码
+         * @see void setObjectMask(uint32_t mask)
+         */
+        uint32_t getObjectMask() const;
+
+        /**
+         * @brief 获取相机的视锥体碰撞体
+         * @return 返回相机关联的视锥体碰撞体 
+         */
+        BoundPtr getBound() const;
+
+        /**
+         * @brief 获取相机关联的视口对象
+         */
+        ViewportPtr getViewport() const;
+
     protected:
         SGCamera(ID uID = E_NID_AUTOMATIC);
+
+    protected:
+        BoundPtr        mBound;
+        ViewportPtr     mViewport;
+
+        uint32_t        mObjectMask;
     };
 }
 

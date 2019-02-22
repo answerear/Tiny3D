@@ -19,6 +19,7 @@
 
 
 #include "SceneGraph/T3DSGNode.h"
+#include "SceneGraph/T3DSGCamera.h"
 
 
 namespace Tiny3D
@@ -45,28 +46,14 @@ namespace Tiny3D
 
     void SGNode::updateTransform()
     {
-        auto itr = mChildren.begin();
-
-        while (itr != mChildren.end())
-        {
-            SGNodePtr node = smart_pointer_cast<SGNode>(*itr);
-            node->updateTransform();
-            ++itr;
-        }
+        
     }
 
     //--------------------------------------------------------------------------
 
     void SGNode::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
     {
-        auto itr = mChildren.begin();
-
-        while (itr != mChildren.end())
-        {
-            SGNodePtr node = smart_pointer_cast<SGNode>(*itr);
-            node->frustumCulling(bound, queue);
-            ++itr;
-        }
+        
     }
 
     //--------------------------------------------------------------------------
@@ -109,5 +96,50 @@ namespace Tiny3D
     void SGNode::setVisible(bool visible)
     {
         mIsVisible = visible;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGNode::setEnabled(bool enabled)
+    {
+        mIsEnabled = enabled;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGNode::visit(SGCameraPtr camera, RenderQueuePtr queue)
+    {
+        // 先调用更新
+        if (isEnabled())
+        {
+            update(camera, queue);
+        }
+
+        // 再遍历子结点
+        auto itr = mChildren.begin();
+
+        while (itr != mChildren.end())
+        {
+            SGNodePtr child = smart_pointer_cast<SGNode>(*itr);
+            child->visit(camera, queue);
+            ++itr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGNode::update(SGCameraPtr camera, RenderQueuePtr queue)
+    {
+        // 更新变换
+        updateTransform();
+
+        if (isVisible())
+        {
+            if (mCameraMask & camera->getObjectMask())
+            {
+                // 放进渲染队列
+                frustumCulling(camera->getBound(), queue);
+            }
+        }
     }
 }

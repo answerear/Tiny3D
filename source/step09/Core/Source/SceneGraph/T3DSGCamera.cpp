@@ -19,6 +19,8 @@
 
 
 #include "SceneGraph/T3DSGCamera.h"
+#include "SceneGraph/T3DSceneManager.h"
+#include "Render/T3DViewport.h"
 
 
 namespace Tiny3D
@@ -45,6 +47,15 @@ namespace Tiny3D
     SGCamera::~SGCamera()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGCamera::renderScene(ViewportPtr viewport)
+    {
+        mViewport = viewport;
+        T3D_SCENE_MGR.renderScene(this);
+        mViewport = nullptr;
     }
 
     //--------------------------------------------------------------------------

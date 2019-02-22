@@ -64,7 +64,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ViewportPtr RenderTarget::addViewport(long_t zOrder,
+    ViewportPtr RenderTarget::addViewport(SGCameraPtr camera, long_t zOrder,
         Real left, Real top, Real width, Real height)
     {
         ViewportPtr viewport;
@@ -73,7 +73,8 @@ namespace Tiny3D
 
         if (itr == mViewportList.end())
         {
-            viewport = Viewport::create(this, left, top, width, height, zOrder);
+            viewport = Viewport::create(camera, this, left, top, 
+                width, height, zOrder);
             mViewportList.insert(ViewportValue(zOrder, viewport));
         }
 
