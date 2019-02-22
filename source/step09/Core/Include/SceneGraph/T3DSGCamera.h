@@ -35,6 +35,15 @@ namespace Tiny3D
     {
     public:
         /**
+         * @brief 投影类型
+         */
+        enum ProjectionType
+        {
+            E_PT_ORTHOGRAPHIC = 0,      /**< 正交投影矩阵 */
+            E_PT_PERSPECTIVE,           /**< 透视投影矩阵 */
+        };
+
+        /**
          * @brief 创建相机结点对象
          * @param [in] uID : 结点ID，默认自动生成
          * @return 返回一个相机结点对象
@@ -78,6 +87,57 @@ namespace Tiny3D
         uint32_t getObjectMask() const;
 
         /**
+         * @brief 设置投影类型
+         * @param [in] type : 投影类型
+         * @return void
+         * @see enum ProjectionType
+         */
+        void setProjectionType(ProjectionType type);
+
+        /**
+         * @brief 获取投影类型
+         * @return 返回投影类型
+         * @see enum ProjectionType
+         */
+        ProjectionType getProjectionType() const;
+
+        /**
+         * @brief 设置投影变换需要的参数
+         * @param [in] left : 视锥体左边界
+         * @param [in] right : 视锥体右边界
+         * @param [in] top : 视锥体上边界
+         * @param [in] bottom : 视锥体下边界
+         * @param [in] nearDist : 近平面距离
+         * @param [in] farDist : 远平面距离
+         */
+        void setProjectionParams(Real left, Real right, Real top, Real bottom,
+            Real nearDist, Real farDist);
+
+        /**
+         * @brief 获取宽高比
+         * @return 返回宽高比
+         */
+        Real getAspectRatio() const;
+
+        /**
+         * @brief 获取纵向视角大小
+         * @return 返回纵向视角大小
+         */
+        Radian getFovY() const;
+
+        /**
+         * @brief 获取近平面距离
+         * @return 返回近平面距离
+         */
+        Real getNearPlaneDistance() const;
+
+        /**
+         * @brief 获取远平面距离
+         * @return 返回远平面距离
+         */
+        Real getFarPlaneDistance() const;
+
+        /**
          * @brief 获取相机的视锥体碰撞体
          * @return 返回相机关联的视锥体碰撞体 
          */
@@ -88,14 +148,72 @@ namespace Tiny3D
          */
         ViewportPtr getViewport() const;
 
+        /**
+         * @brief 获取观察空间变换矩阵
+         * @return 返回观察空间变换矩阵
+         */
+        const Matrix4 &getViewMatrix();
+
+        /**
+         * @brief 获取投影变换矩阵
+         * @return 返回投影变换矩阵
+         */
+        const Matrix4 &getProjectMatrix() const;
+
+        /**
+         * @brief 重写基类接口
+         * @see Node::Type Node::getNodeType() const
+         */
+        virtual Type getNodeType() const override;
+
+        /**
+         * @brief 重写基类接口
+         * @see void SGNode::setDirty(bool isDirty, bool recursive = false)
+         */
+        virtual void setDirty(bool isDirty, bool recursive = false) override;
+
+        /**
+         * @brief 重写基类接口
+         * @see NodePtr Node::clone() const
+         */
+        virtual NodePtr clone() const override;
+
     protected:
+        /**
+         * @brief 构造函数
+         */
         SGCamera(ID uID = E_NID_AUTOMATIC);
 
-    protected:
-        BoundPtr        mBound;
-        ViewportPtr     mViewport;
+        /**
+         * @brief 实现基类接口
+         */
+        virtual TResult cloneProperties(NodePtr node) const override;
 
-        uint32_t        mObjectMask;
+        /**
+         * @brief 实现基类接口
+         */
+        virtual void updateTransform() override;
+
+    protected:
+        BoundPtr        mBound;         /**< 视锥体碰撞体 */
+        ViewportPtr     mViewport;      /**< 关联本相机的视口对象 */
+
+        ProjectionType  mProjType;      /**< 投影类型 */
+
+        uint32_t        mObjectMask;    /**< 相机看到的物体掩码 */
+
+        Real            mLeft;          /**< 视锥体左边界 */
+        Real            mRight;         /**< 视锥体右边界 */
+        Real            mTop;           /**< 视锥体上边界 */
+        Real            mBottom;        /**< 视锥体下边界 */
+        Real            mNear;          /**< 近平面距离 */
+        Real            mFar;           /**< 远平面距离 */
+
+        mutable Matrix4 mViewMatrix;    /**< 观察变换矩阵 */
+        mutable Matrix4 mProjMatrix;    /**< 投影变换矩阵 */
+
+        mutable bool    mIsViewDirty;   /**< 是否需要更新观察变换矩阵 */
+        mutable bool    mIsFrustumDirty;/**< 是否需要更新投影变换 */
     };
 }
 

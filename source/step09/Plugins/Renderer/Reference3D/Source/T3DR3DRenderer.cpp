@@ -133,8 +133,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Matrix4 R3DRenderer::perspective(Real fovY, Real aspect, Real zNear,
-        Real zFar)
+    Matrix4 R3DRenderer::perspective(Real left, Real right, Real top,
+        Real bottom, Real nearDist, Real FarDist)
     {
         Matrix4 m;
         return m;
@@ -143,7 +143,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Matrix4 R3DRenderer::orthographic(Real left, Real right, Real top,
-        Real bottom, Real zNear, Real zFar)
+        Real bottom, Real nearDist, Real FarDist)
     {
         Matrix4 m;
         return m;

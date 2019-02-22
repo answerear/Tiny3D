@@ -20,7 +20,11 @@
 
 #include "SceneGraph/T3DSGCamera.h"
 #include "SceneGraph/T3DSceneManager.h"
+#include "SceneGraph/T3DSGTransform3D.h"
 #include "Render/T3DViewport.h"
+#include "Render/T3DRenderer.h"
+#include "Kernel/T3DAgent.h"
+#include "Bound/T3DFrustumBound.h"
 
 
 namespace Tiny3D
@@ -38,6 +42,20 @@ namespace Tiny3D
 
     SGCamera::SGCamera(ID uID /* = E_NID_AUTOMATIC */)
         : SGTransform3D(uID)
+        , mBound(nullptr)
+        , mViewport(nullptr)
+        , mProjType(E_PT_PERSPECTIVE)
+        , mObjectMask(0)
+        , mLeft(REAL_ZERO)
+        , mRight(REAL_ZERO)
+        , mTop(REAL_ZERO)
+        , mBottom(REAL_ZERO)
+        , mNear(REAL_ZERO)
+        , mFar(REAL_ZERO)
+        , mViewMatrix(false)
+        , mProjMatrix(false)
+        , mIsViewDirty(false)
+        , mIsFrustumDirty(false)
     {
 
     }
@@ -46,7 +64,15 @@ namespace Tiny3D
 
     SGCamera::~SGCamera()
     {
+        mBound = nullptr;
+        mViewport = nullptr;
+    }
 
+    //--------------------------------------------------------------------------
+
+    Node::Type SGCamera::getNodeType() const
+    {
+        return E_NT_CAMERA;
     }
 
     //--------------------------------------------------------------------------
@@ -82,5 +108,150 @@ namespace Tiny3D
         setOrientation(orientation);
 
         setScaling(Vector3::UNIT_SCALE);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGCamera::setDirty(bool isDirty, bool recursive /* = false */)
+    {
+        SGNode::setDirty(isDirty, recursive);
+        mIsViewDirty = isDirty;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const Matrix4 &SGCamera::getViewMatrix()
+    {
+        if (mIsViewDirty)
+        {
+            // 视图矩阵推导：
+            // 其中C是相机进行世界变换的矩阵，
+            //  T是平移变换
+            //  R是旋转变换
+            //  S是缩放变换
+            //
+            // 由 C = T * R * S
+            // 得 C(-1) = (T * R * S) (-1) = S(-1) * R(-1) * T(-1)
+            // 
+
+            const Transform &transform = getLocalToWorldTransform();
+            // 旋转矩阵
+            Matrix4 R = transform.getOrientation();
+            // 旋转矩阵是正交矩阵，正交矩阵的逆矩阵是其转置矩阵
+            Matrix4 invertR = R.transpose();
+            // 平移矩阵
+            Matrix4 invertT(false);
+            invertT.makeTranslate(-transform.getTranslation());
+            // 缩放矩阵
+            Matrix4 invertS(false);
+            const Vector3 &scale = transform.getScaling();
+            invertS[0][0] = REAL_ONE / scale.x();
+            invertS[1][1] = REAL_ONE / scale.y();
+            invertS[2][2] = REAL_ONE / scale.z();
+
+            mViewMatrix = invertS * invertR * invertT;
+
+            mIsViewDirty = false;
+        }
+
+        return mViewMatrix;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const Matrix4 &SGCamera::getProjectMatrix() const
+    {
+        if (mIsFrustumDirty)
+        {
+            RendererPtr renderer = T3D_AGENT.getActiveRenderer();
+
+            switch (mProjType)
+            {
+            case E_PT_ORTHOGRAPHIC:
+                {
+                    mProjMatrix = renderer->orthographic(mLeft, mRight,
+                        mTop, mBottom, mNear, mFar);
+                }
+                break;
+            case E_PT_PERSPECTIVE:
+            default:
+                {
+                    mProjMatrix = renderer->perspective(mLeft, mRight,
+                        mTop, mBottom, mNear, mFar);
+                }
+                break;
+            }
+
+            mIsFrustumDirty = false;
+        }
+
+        return mProjMatrix;
+    }
+
+    //--------------------------------------------------------------------------
+
+    NodePtr SGCamera::clone() const
+    {
+        SGCameraPtr camera = create();
+        
+        if (cloneProperties(camera) != T3D_OK)
+        {
+            T3D_SAFE_RELEASE(camera);
+        }
+
+        return camera;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SGCamera::cloneProperties(NodePtr node) const
+    {
+        TResult ret = SGNode::cloneProperties(node);
+
+        if (ret == T3D_OK)
+        {
+            SGCameraPtr camera = smart_pointer_cast<SGCamera>(node);
+            camera->mProjType = mProjType;
+            camera->mObjectMask = mObjectMask;
+            camera->mLeft = mLeft;
+            camera->mRight = mRight;
+            camera->mTop = mTop;
+            camera->mBottom = mBottom;
+            camera->mNear = mNear;
+            camera->mFar = mFar;
+            camera->mViewMatrix = mViewMatrix;
+            camera->mProjMatrix = mProjMatrix;
+            camera->mIsViewDirty = mIsViewDirty;
+            camera->mIsFrustumDirty = mIsFrustumDirty;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGCamera::updateTransform()
+    {
+        SGTransform3D::updateTransform();
+
+        bool isViewDirty = mIsViewDirty;
+        bool isFrustumDirty = mIsFrustumDirty;
+
+        getViewMatrix();
+        getProjectMatrix();
+
+        if (isViewDirty || isFrustumDirty)
+        {
+            // 相机比较特殊，直接先更新自身的frustum，
+            // 避免其他物体无法做frustum culling
+            Matrix4 M = mProjMatrix * mViewMatrix;
+            Renderer *renderer = T3D_AGENT.getActiveRenderer();
+            Plane plane[Frustum::E_MAX_FACE];
+
+//             renderer->updateFrustum(M, plane, Frustum::E_MAX_FACE);
+
+            FrustumBoundPtr bound = smart_pointer_cast<FrustumBound>(mBound);
+            bound->setFrustumFaces(plane, Frustum::E_MAX_FACE);
+        }
     }
 }

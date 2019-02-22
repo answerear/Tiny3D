@@ -20,23 +20,119 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     inline void SGCamera::setObjectMask(uint32_t mask)
     {
         mObjectMask = mask;
     }
+
+    //--------------------------------------------------------------------------
 
     inline uint32_t SGCamera::getObjectMask() const
     {
         return mObjectMask;
     }
 
+    //--------------------------------------------------------------------------
+
     inline BoundPtr SGCamera::getBound() const
     {
         return mBound;
     }
 
+    //--------------------------------------------------------------------------
+
     inline ViewportPtr SGCamera::getViewport() const
     {
         return mViewport;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void SGCamera::setProjectionType(ProjectionType type)
+    {
+        if (mProjType != type)
+        {
+            mProjType = type;
+            mIsFrustumDirty = true;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline SGCamera::ProjectionType SGCamera::getProjectionType() const
+    {
+        return mProjType;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void SGCamera::setProjectionParams(Real left, Real right,
+        Real top, Real bottom, Real nearDist, Real farDist)
+    {
+        if (left != mLeft)
+        {
+            mLeft = left;
+            mIsFrustumDirty = true;
+        }
+
+        if (right != mRight)
+        {
+            mRight = right;
+            mIsFrustumDirty = true;
+        }
+
+        if (top != mTop)
+        {
+            mTop = top;
+            mIsFrustumDirty = true;
+        }
+
+        if (bottom != mBottom)
+        {
+            mBottom = bottom;
+            mIsFrustumDirty = true;
+        }
+
+        if (nearDist != mNear)
+        {
+            mNear = nearDist;
+            mIsFrustumDirty = true;
+        }
+
+        if (farDist != mFar)
+        {
+            mFar = farDist;
+            mIsFrustumDirty = true;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline Real SGCamera::getAspectRatio() const
+    {
+        return (mRight - mLeft) / (mTop - mBottom);
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline Radian SGCamera::getFovY() const
+    {
+        return Math::atan2(2 * mNear, (mTop - mBottom));
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline Real SGCamera::getNearPlaneDistance() const
+    {
+        return mNear;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline Real SGCamera::getFarPlaneDistance() const
+    {
+        return mFar;
     }
 }

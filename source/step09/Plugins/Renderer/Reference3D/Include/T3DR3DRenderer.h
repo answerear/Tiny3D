@@ -111,10 +111,12 @@ namespace Tiny3D
 
         /**
          * @brief 获取透视投影矩阵
-         * @param [in] fovY : 纵向的视角角度
-         * @param [in] aspect : 宽高比
-         * @param [in] zNear : 观察空间的近平面
-         * @param [in] zFar : 观察空间的远平面
+         * @param [in] left : 观察空间的左边
+         * @param [in] right : 观察空间的右边
+         * @param [in] top : 观察空间的上边
+         * @param [in] bottom : 观察空间的下边
+         * @param [in] nearDist : 观察空间的近平面
+         * @param [in] farDist : 观察空间的远平面
          * @return 返回一个平台相关的透视投影矩阵
          * @remarks 因为投影矩阵在不同渲染平台在NDC坐标系里z轴上会有的范围，
          *      因此，这里矩阵的获取通过不同渲染平台直接计算出来，屏蔽差异。
@@ -124,8 +126,8 @@ namespace Tiny3D
          *      Metal : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
          *      Reference3D : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
          */
-        virtual Matrix4 perspective(Real fovY, Real aspect, Real zNear,
-            Real zFar) override;
+        virtual Matrix4 perspective(Real left, Real right, Real top,
+            Real bottom, Real nearDist, Real farDist) override;
 
         /**
          * @brief 获取正交投影矩阵
@@ -133,8 +135,8 @@ namespace Tiny3D
          * @param [in] right : 观察空间的右边
          * @param [in] top : 观察空间的上边
          * @param [in] bottom : 观察空间的下边
-         * @param [in] zNear : 观察空间的近平面
-         * @param [in] zFar : 观察空间的远平面
+         * @param [in] nearDist : 观察空间的近平面
+         * @param [in] farDist : 观察空间的远平面
          * @return 返回一个平台相关的正交投影矩阵
          * @remarks 因为投影矩阵在不同渲染平台在NDC坐标系里z轴上会有不同的w范围，
          *       因此，这里矩阵的获取通过不同渲染平台直接计算出来，屏蔽差异。
@@ -145,7 +147,7 @@ namespace Tiny3D
          *      Reference3D : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
          */
         virtual Matrix4 orthographic(Real left, Real right, Real top, 
-            Real bottom, Real zNear, Real zFar) override;
+            Real bottom, Real nearDist, Real farDist) override;
 
         /**
          * @brief 设置裁剪模式
