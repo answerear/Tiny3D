@@ -39,6 +39,7 @@ namespace Tiny3D
         , mPosition(Vector3::ZERO)
         , mOrientation(Quaternion::IDENTITY)
         , mScaling(Vector3::UNIT_SCALE)
+        , mIsDirty(false)
     {
         mWorldTransform.setTranslation(mPosition);
         mWorldTransform.setOrientation(mOrientation);
@@ -69,7 +70,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const Transform &SGTransform3D::getLocalToWorldTransform()
+    const Transform &SGTransform3D::getLocalToWorldTransform() const
     {
         if (isDirty())
         {
@@ -96,10 +97,29 @@ namespace Tiny3D
                 mWorldTransform.update();
             }
 
-            setDirty(false);
+            mIsDirty = false;
         }
 
         return mWorldTransform;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGTransform3D::setDirty(bool isDirty, bool recursive /* = false */)
+    {
+        mIsDirty = isDirty;
+
+        if (recursive)
+        {
+            auto itr = mChildren.begin();
+
+            while (itr != mChildren.end())
+            {
+                SGTransform3DPtr node = smart_pointer_cast<SGTransform3D>(*itr);
+                node->setDirty(isDirty, recursive);
+                ++itr;
+            }
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -151,6 +171,7 @@ namespace Tiny3D
             newNode->mOrientation = mOrientation;
             newNode->mScaling = mScaling;
             newNode->mWorldTransform = mWorldTransform;
+            newNode->mIsDirty = mIsDirty;
         }
 
         return ret;

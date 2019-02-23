@@ -50,13 +50,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline bool SGNode::isDirty() const
-    {
-        return mIsDirty;
-    }
-
-    //--------------------------------------------------------------------------
-
     inline bool SGNode::isVisible() const
     {
         return mIsVisible;

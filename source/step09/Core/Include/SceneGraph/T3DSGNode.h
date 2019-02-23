@@ -85,23 +85,6 @@ namespace Tiny3D
         ObjectPtr getUserObject() const;
 
         /**
-         * @brief 设置结点是否需要重绘、重新计算标记
-         * @param [in] isDirty : 结点数据是否脏了标记
-         * @param [in] recursive : 是否需要递归所有子节点都设置上该标记，
-         *       默认为只设置本结点
-         * @return void
-         * @see bool isDirty() const
-         */
-        virtual void setDirty(bool isDirty, bool recursive = false);
-
-        /**
-         * @brief 返回结点数据是否脏，需要重新绘制、计算等标记
-         * @return 返回结点数据脏标记
-         * @see void setDirty(bool isDirty, bool recursive)
-         */
-        bool isDirty() const;
-
-        /**
          * @brief 设置结点是否可见
          * @param [in] visible : 可见标记
          * @return void
@@ -207,7 +190,6 @@ namespace Tiny3D
         ObjectPtr   mUserObject;    /**< 保存用户数据对象 */
 
         uint32_t    mCameraMask;    /**< 相机掩码 */
-        bool        mIsDirty;       /**< 结点数据是否脏了，需要重绘、重新计算等 */
         bool        mIsVisible;     /**< 结点可见性 */
         bool        mIsEnabled;     /**< 结点可用性 */
     };

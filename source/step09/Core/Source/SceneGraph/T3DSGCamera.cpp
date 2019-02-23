@@ -114,13 +114,13 @@ namespace Tiny3D
 
     void SGCamera::setDirty(bool isDirty, bool recursive /* = false */)
     {
-        SGNode::setDirty(isDirty, recursive);
+        SGTransform3D::setDirty(isDirty, recursive);
         mIsViewDirty = isDirty;
     }
 
     //--------------------------------------------------------------------------
 
-    const Matrix4 &SGCamera::getViewMatrix()
+    const Matrix4 &SGCamera::getViewMatrix() const
     {
         if (mIsViewDirty)
         {

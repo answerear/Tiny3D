@@ -56,6 +56,18 @@ namespace Tiny3D
         virtual ~SGCamera();
 
         /**
+         * @brief 重写基类接口
+         * @see Node::Type Node::getNodeType() const
+         */
+        virtual Type getNodeType() const override;
+
+        /**
+         * @brief 重写基类接口
+         * @see NodePtr Node::clone() const
+         */
+        virtual NodePtr clone() const override;
+
+        /**
          * @brief 渲染当前相机看到的场景物体
          * @remarks 这个接口不能随便调用，是在Viewport里面调用的
          */
@@ -152,7 +164,7 @@ namespace Tiny3D
          * @brief 获取观察空间变换矩阵
          * @return 返回观察空间变换矩阵
          */
-        const Matrix4 &getViewMatrix();
+        const Matrix4 &getViewMatrix() const;
 
         /**
          * @brief 获取投影变换矩阵
@@ -162,21 +174,9 @@ namespace Tiny3D
 
         /**
          * @brief 重写基类接口
-         * @see Node::Type Node::getNodeType() const
-         */
-        virtual Type getNodeType() const override;
-
-        /**
-         * @brief 重写基类接口
          * @see void SGNode::setDirty(bool isDirty, bool recursive = false)
          */
         virtual void setDirty(bool isDirty, bool recursive = false) override;
-
-        /**
-         * @brief 重写基类接口
-         * @see NodePtr Node::clone() const
-         */
-        virtual NodePtr clone() const override;
 
     protected:
         /**

@@ -30,7 +30,6 @@ namespace Tiny3D
         : Node(uID)
         , mUserData(nullptr)
         , mUserObject(nullptr)
-        , mIsDirty(false)
     {
 
     }
@@ -54,25 +53,6 @@ namespace Tiny3D
     void SGNode::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
     {
         
-    }
-
-    //--------------------------------------------------------------------------
-
-    void SGNode::setDirty(bool isDirty, bool recursive /* = false */)
-    {
-        mIsDirty = isDirty;
-
-        if (recursive)
-        {
-            auto itr = mChildren.begin();
-
-            while (itr != mChildren.end())
-            {
-                SGNodePtr node = smart_pointer_cast<SGNode>(*itr);
-                node->setDirty(isDirty, recursive);
-                ++itr;
-            }
-        }
     }
 
     //--------------------------------------------------------------------------

@@ -263,13 +263,30 @@ namespace Tiny3D
          * @brief 获取局部到世界的变换
          * @return 返回一个局部到世界的变换对象
          */
-        virtual const Transform &getLocalToWorldTransform();
+        virtual const Transform &getLocalToWorldTransform() const;
 
         /**
          * @brief 获取局部变换
          * @return 返回一个局部变换对象
          */
         Transform getLocalTransform() const;
+
+        /**
+         * @brief 设置结点是否需要重绘、重新计算标记
+         * @param [in] isDirty : 结点数据是否脏了标记
+         * @param [in] recursive : 是否需要递归所有子节点都设置上该标记，
+         *       默认为只设置本结点
+         * @return void
+         * @see bool isDirty() const
+         */
+        virtual void setDirty(bool isDirty, bool recursive = false);
+
+        /**
+         * @brief 返回结点数据是否脏，需要重新绘制、计算等标记
+         * @return 返回结点数据脏标记
+         * @see void setDirty(bool isDirty, bool recursive)
+         */
+        bool isDirty() const;
 
         /**
          * @brief 从父类继承，重写父类克隆方法，以实现本类对象的复制操作
@@ -316,7 +333,9 @@ namespace Tiny3D
         Quaternion  mOrientation;       /**< 父节点坐标系下的局部朝向 */
         Vector3     mScaling;           /**< 父节点坐标系下的局部大小 */
 
-        Transform   mWorldTransform;    /**< 从局部到世界的变换对象 */
+        mutable Transform   mWorldTransform;/**< 从局部到世界的变换对象 */
+
+        mutable bool        mIsDirty;       /**< 结点数据脏标记，需要重新计算 */
     };
 }
 

@@ -19,16 +19,28 @@
 
 
 #include "SceneGraph/T3DSGAxis.h"
+#include "Render/T3DHardwareBufferManager.h"
+#include "Render/T3DHardwareVertexBuffer.h"
+#include "Render/T3DHardwareIndexBuffer.h"
+#include "Render/T3DVertexArray.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SGAxisPtr SGAxis::create(ID uID /* = E_NID_AUTOMATIC */)
+    SGAxisPtr SGAxis::create(Real X, Real Y, Real Z, 
+        ID uID /* = E_NID_AUTOMATIC */)
     {
         SGAxisPtr axis = new SGAxis(uID);
         axis->release();
+
+        if (axis->init(X, Y, Z) != T3D_OK)
+        {
+            axis->release();
+            axis = nullptr;
+        }
+
         return axis;
     }
 
@@ -36,6 +48,8 @@ namespace Tiny3D
 
     SGAxis::SGAxis(ID uID /* = E_NID_AUTOMATIC */)
         : SGRenderable(uID)
+        , mIsVertexDirty(false)
+        , mVBO(nullptr)
     {
 
     }
@@ -44,7 +58,56 @@ namespace Tiny3D
 
     SGAxis::~SGAxis()
     {
-
+        mVBO = nullptr;
     }
+
+    //--------------------------------------------------------------------------
+
+    TResult SGAxis::init(Real X, Real Y, Real Z)
+    {
+        TResult ret = T3D_OK;
+
+        // 创建VBO
+        HardwareVertexBufferPtr vbo
+            = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(sizeof(Vertex), 6,
+                HardwareVertexBuffer::E_HBU_DYNAMIC, false);
+
+        // 创建顶点声明
+        VertexDeclarationPtr decl 
+            = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
+        decl->addAttribute(VertexAttribute(0, 0, VertexAttribute::E_VAT_FLOAT3,
+            VertexAttribute::E_VAS_POSITION));
+        decl->addAttribute(VertexAttribute(0, sizeof(Vector3),
+            VertexAttribute::E_VAT_COLOR, VertexAttribute::E_VAS_DIFFUSE));
+
+        // 设置三个坐标轴顶点数据
+        mVertices[0].color = Color4::RED;
+        mVertices[1].color = Color4::RED;
+
+        mVertices[2].color = Color4::GREEN;
+        mVertices[3].color = Color4::GREEN;
+
+        mVertices[4].color = Color4::BLUE;
+        mVertices[5].color = Color4::BLUE;
+
+        setAxisLength(AXIS_X, X);
+        setAxisLength(AXIS_Y, Y);
+        setAxisLength(AXIS_Z, Z);
+
+        updateVertices();
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool SGAxis::isVAOUsed() const
+    {
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    
 }
 

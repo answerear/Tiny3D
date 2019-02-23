@@ -228,4 +228,12 @@ namespace Tiny3D
     {
         return Transform(mPosition, mScaling, mOrientation);
     }
+
+    //--------------------------------------------------------------------------
+
+    inline bool SGTransform3D::isDirty() const
+    {
+        return mIsDirty;
+    }
+
 }
