@@ -153,8 +153,8 @@ namespace Tiny3D
          * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
          *      并进行场景管理。
          */
-        virtual SGBoxPtr createBox(SGNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) = 0;
+        virtual SGBoxPtr createBox(const Vector3 &center, const Vector3 &extent,
+            SGNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) = 0;
 
         /**
          * @brief 创建一个可渲染球体结点

@@ -29,20 +29,20 @@
 
 namespace Tiny3D
 {
-    /**
-     * @brief 坐标轴顶点数据格式
-     */
+    //--------------------------------------------------------------------------
+
+    /** 坐标轴顶点数据格式 */
     struct AxisVertex
     {
         AxisVertex()
             : position(Vector3::ZERO)
-            , color(Color4::WHITE)
+            , diffuse(Color4::WHITE.A8R8G8B8())
         {
             
         }
 
-        Vector3 position;   /**< 位置 */
-        Color4  color;      /**< 颜色 */
+        Vector3     position;   /**< 位置 */
+        uint32_t    diffuse;    /**< 颜色 */
     };
 
     //--------------------------------------------------------------------------
@@ -55,7 +55,6 @@ namespace Tiny3D
 
         if (axis->init(X, Y, Z) != T3D_OK)
         {
-            axis->release();
             axis = nullptr;
         }
 
@@ -90,14 +89,14 @@ namespace Tiny3D
         AxisVertex vertices[MAX_VERTICES];
 
         // 设置三个坐标轴顶点数据
-        vertices[0].color = Color4::RED;
-        vertices[1].color = Color4::RED;
+        vertices[0].diffuse = Color4::RED.A8R8G8B8();
+        vertices[1].diffuse = Color4::RED.A8R8G8B8();
 
-        vertices[2].color = Color4::GREEN;
-        vertices[3].color = Color4::GREEN;
+        vertices[2].diffuse = Color4::GREEN.A8R8G8B8();
+        vertices[3].diffuse = Color4::GREEN.A8R8G8B8();
 
-        vertices[4].color = Color4::BLUE;
-        vertices[5].color = Color4::BLUE;
+        vertices[4].diffuse = Color4::BLUE.A8R8G8B8();
+        vertices[5].diffuse = Color4::BLUE.A8R8G8B8();
 
         vertices[1].position[0] = X;
         vertices[3].position[1] = Y;
@@ -213,13 +212,14 @@ namespace Tiny3D
     NodePtr SGAxis::clone() const
     {
         SGAxisPtr axis = new SGAxis();
+        axis->release();
 
         if (cloneProperties(axis) != T3D_OK)
         {
             axis = nullptr;
         }
 
-        return nullptr;
+        return axis;
     }
 
     //--------------------------------------------------------------------------

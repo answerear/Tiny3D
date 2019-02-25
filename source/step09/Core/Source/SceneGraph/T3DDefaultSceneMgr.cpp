@@ -198,10 +198,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SGBoxPtr DefaultSceneMgr::createBox(SGNodePtr parent, 
+    SGBoxPtr DefaultSceneMgr::createBox(const Vector3 &center, 
+        const Vector3 &extent, SGNodePtr parent, 
         ID uID /* = Node::E_NID_AUTOMATIC */)
     {
-        SGBoxPtr node = SGBox::create(uID);
+        SGBoxPtr node = SGBox::create(center, extent, uID);
 
         if (parent != nullptr)
         {

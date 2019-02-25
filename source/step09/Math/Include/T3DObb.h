@@ -27,15 +27,17 @@
 
 namespace Tiny3D
 {
-    /// 有向包围盒类（Oriented Bounding Box）
+    /**
+     * @brief 有向包围盒类（Oriented Bounding Box）
+     */
     template <typename T>
     class TObb
     {
     public:
         enum BuildOption
         {
-            E_BUILD_AABB = 0,       /// 通过AABB直接构造
-            E_BUILD_COVARIANCE = 1, /// 利用协方差矩阵构造
+            E_BUILD_AABB = 0,       /**< 通过AABB直接构造 */
+            E_BUILD_COVARIANCE = 1, /**< 利用协方差矩阵构造 */
         };
 
         /// 默认构造函数

@@ -102,6 +102,7 @@ namespace Tiny3D
 
         /**
          * @brief 重写基类接口，实现结点的自身变换
+         * @see void SGNode::updateTransform()
          */
         virtual void updateTransform() override;
 

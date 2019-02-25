@@ -125,8 +125,8 @@ namespace Tiny3D
          * @see SGBoxPtr SceneManagerBase::createBox(SGNodePtr parent,
          *      ID uID = Node::E_NID_AUTOMATIC)
          */
-        virtual SGBoxPtr createBox(SGNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
+        virtual SGBoxPtr createBox(const Vector3 &center, const Vector3 &extent,
+            SGNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) override;
 
         /**
          * @brief 实现基类接口
