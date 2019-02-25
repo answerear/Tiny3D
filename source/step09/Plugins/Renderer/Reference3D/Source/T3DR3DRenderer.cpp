@@ -114,11 +114,6 @@ namespace Tiny3D
         return true;
     }
 
-    TResult R3DRenderer::enableCapability(Capability cap, bool enabled)
-    {
-        return T3D_OK;
-    }
-
     //--------------------------------------------------------------------------
 
     TResult R3DRenderer::setTransform(TransformState state, const Matrix4 &mat)
@@ -275,7 +270,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult R3DRenderer::drawVertexArray(VertexArrayPtr vao)
+    TResult R3DRenderer::setMaterial(MaterialPtr material)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DRenderer::drawVertexArray(VertexArrayObjectPtr vao)
     {
         return T3D_OK;
     }

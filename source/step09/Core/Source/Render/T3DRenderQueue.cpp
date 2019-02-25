@@ -19,10 +19,24 @@
 
 
 #include "Render/T3DRenderQueue.h"
+#include "Render/T3DVertexArrayObject.h"
+#include "Render/T3DHardwareVertexBuffer.h"
+#include "Render/T3DHardwareIndexBuffer.h"
+#include "SceneGraph/T3DSGRenderable.h"
+#include "SceneGraph/T3DSGCamera.h"
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    RenderGroupPtr RenderGroup::create()
+    {
+        RenderGroupPtr group = new RenderGroup();
+        group->release();
+        return group;
+    }
+
     //--------------------------------------------------------------------------
 
     RenderGroup::RenderGroup()
@@ -30,9 +44,145 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     RenderGroup::~RenderGroup()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RenderGroup::addRenderable(SGRenderablePtr renderable)
+    {
+        MaterialPtr material = renderable->getMaterial();
+
+        auto itr = mRenderables.find(material);
+
+        if (itr != mRenderables.end())
+        {
+            // 有相同的材质，放到相同材质渲染对象列表
+            RenderableList &renderables = itr->second;
+            renderables.push_back(renderable);
+        }
+        else
+        {
+            // 没有相同材质，新增一个材质渲染对象列表
+            RenderableList renderables(1, renderable);
+            mRenderables.insert(RenderablesValue(material, renderables));
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RenderGroup::clear()
+    {
+        mRenderables.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RenderGroup::render(ID groupID, RendererPtr renderer)
+    {
+        Renderer::RenderMode renderMode;
+
+        SGCameraPtr camera = renderer->getViewport()->getCamera();
+
+        if (RenderQueue::E_GRPID_INDICATOR == groupID
+            || RenderQueue::E_GRPID_WIREFRAME == groupID)
+        {
+            // 指示器或者线框渲染，渲染模式需要改成线框模式
+            renderMode = renderer->getRenderMode();
+            renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
+        }
+
+        if (RenderQueue::E_GRPID_LIGHT != groupID)
+        {
+            // 不是灯光分组
+            RenderablesItr itr = mRenderables.begin();
+
+            while (itr != mRenderables.end())
+            {
+                MaterialPtr material = itr->first;
+                renderer->setMaterial(material);
+
+                RenderableList &renderables = itr->second;
+
+                RenderableListItr i = renderables.begin();
+
+                while (i != renderables.end())
+                {
+                    SGRenderablePtr renderable = *i;
+
+                    // 设置渲染物体的世界变换
+                    const Transform &xform 
+                        = renderable->getLocalToWorldTransform();
+                    const Matrix4 &m = xform.getAffineMatrix();
+                    renderer->setWorldTransform(m);
+
+                    // 根据VAO数据渲染
+                    renderer->drawVertexArray(
+                        renderable->getVertexArrayObject());
+
+                    ++i;
+                }
+
+                ++itr;
+            }
+        }
+
+        if (RenderQueue::E_GRPID_INDICATOR == groupID
+            || RenderQueue::E_GRPID_WIREFRAME == groupID)
+        {
+            // 恢复渲染模式
+            renderer->setRenderMode(renderMode);
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t RenderGroup::calcPrimitiveCount(VertexArrayObjectPtr vao) const
+    {
+        Renderer::PrimitiveType priType = vao->getPrimitiveType();
+        bool useIndex = vao->isIndicesUsed();
+        size_t indexCount 
+            = (useIndex ? vao->getIndexBuffer()->getIndexCount() : 0);
+        size_t vertexCount = vao->getVertexBuffer(0)->getVertexCount();
+
+        size_t primCount = 0;
+
+        switch (priType)
+        {
+        case Renderer::E_PT_POINT_LIST:
+            primCount = (useIndex ? indexCount : vertexCount);
+            break;
+
+        case Renderer::E_PT_LINE_LIST:
+            primCount = (useIndex ? indexCount : vertexCount) / 2;
+            break;
+
+        case Renderer::E_PT_LINE_STRIP:
+            primCount = (useIndex ? indexCount : vertexCount) - 1;
+            break;
+
+        case Renderer::E_PT_TRIANGLE_LIST:
+            primCount = (useIndex ? indexCount : vertexCount) / 3;
+            break;
+
+        case Renderer::E_PT_TRIANGLE_STRIP:
+            primCount = (useIndex ? indexCount : vertexCount) - 2;
+            break;
+
+        case Renderer::E_PT_TRIANGLE_FAN:
+            primCount = (useIndex ? indexCount : vertexCount) - 2;
+            break;
+        }
+
+        return primCount;
     }
 
     //--------------------------------------------------------------------------
@@ -44,13 +194,67 @@ namespace Tiny3D
         return rq;
     }
 
+    //--------------------------------------------------------------------------
+
     RenderQueue::RenderQueue()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     RenderQueue::~RenderQueue()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RenderQueue::addRenderable(GroupID groupID, 
+        SGRenderablePtr renderable)
+    {
+        RenderableGroupItr itr = mGroups.find(groupID);
+
+        if (itr != mGroups.end())
+        {
+            /// 已经有这组渲染对象
+            RenderGroupPtr &group = itr->second;
+            group->addRenderable(renderable);
+        }
+        else
+        {
+            /// 不存在这组渲染对象
+            RenderGroupPtr group = RenderGroup::create();
+            RenderGroupPtr ptr(group);
+            group->release();
+
+            group->addRenderable(renderable);
+            mGroups.insert(RenderableGroupValue(groupID, group));
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RenderQueue::clear()
+    {
+        mGroups.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RenderQueue::render(RendererPtr renderer)
+    {
+        RenderableGroupItr itr = mGroups.begin();
+
+        while (itr != mGroups.end())
+        {
+            itr->second->render(itr->first, renderer);
+            itr->second->clear();
+            ++itr;
+        }
+
+        return T3D_OK;
     }
 }

@@ -18,46 +18,60 @@
  ******************************************************************************/
 
 
-#include "SceneGraph/T3DSGMesh.h"
+#include "Resource/T3DMaterial.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SGMeshPtr SGMesh::create(ID uID /* = E_NID_AUTOMATIC */)
+    MaterialPtr Material::create(const String &name)
     {
-        SGMeshPtr mesh = new SGMesh(uID);
-        mesh->release();
-        return mesh;
+        MaterialPtr material = new Material(name);
+        material->release();
+        return material;
     }
 
     //--------------------------------------------------------------------------
 
-    SGMesh::SGMesh(ID uID /* = E_NID_AUTOMATIC */)
-        : SGRenderable(uID)
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    SGMesh::~SGMesh()
+    Material::Material(const String &name)
+        : Resource(name)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr SGMesh::getMaterial() const
+    Material::~Material()
     {
-        return nullptr;
+
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr SGMesh::getVertexArrayObject() const
+    Resource::Type Material::getType() const
     {
-        return nullptr;
+        return E_TYPE_MATERIAL;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Material::load()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Material::unload()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr Material::clone() const
+    {
+        return Material::create(mName);
     }
 }

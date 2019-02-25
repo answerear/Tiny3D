@@ -204,16 +204,6 @@ namespace Tiny3D
         virtual bool queryCapability(Capability cap) const = 0;
 
         /**
-         * @brief 开启或者关闭某种能力
-         * @param [in] cap : 能力枚举值
-         * @param [in] enabled : 开关标记
-         * @return 调用成功返回 T3D_OK
-         * @remarks 如果具体渲染系统本身不具备相应的能力，则本接口调用无效
-         * @see Renderer::Capability
-         */
-        virtual TResult enableCapability(Capability cap, bool enabled) = 0;
-
-        /**
          * @brief 设置变换矩阵
          * @param [in] state : 变换矩阵类型
          * @param [in] mat : 变换矩阵
@@ -336,11 +326,17 @@ namespace Tiny3D
         virtual ViewportPtr getViewport() const;
 
         /**
+         * @brief 设置渲染材质
+         * @return 调用成功返回 T3D_OK
+         */
+        virtual TResult setMaterial(MaterialPtr material) = 0;
+
+        /**
          * @brief 绘制顶点数组
          * @param [in] vao : 顶点数组对象
          * @return 调动成功返回 T3D_OK
          */
-        virtual TResult drawVertexArray(VertexArrayPtr vao) = 0;
+        virtual TResult drawVertexArray(VertexArrayObjectPtr vao) = 0;
 
         /**
          * @brief 绘制顶点列表

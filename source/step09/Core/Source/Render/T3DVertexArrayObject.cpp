@@ -18,6 +18,6 @@
  ******************************************************************************/
 
 
-#include "Render/T3DVertexArray.h"
+#include "Render/T3DVertexArrayObject.h"
 
 

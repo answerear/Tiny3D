@@ -36,6 +36,10 @@ namespace Tiny3D
 
     protected:
         SGMesh(ID uID = E_NID_AUTOMATIC);
+
+        virtual MaterialPtr getMaterial() const override;
+
+        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
     };
 }
 

@@ -32,5 +32,9 @@ namespace Tiny3D
 
     protected:
         SGSphere(ID uID = E_NID_AUTOMATIC);
+
+        virtual MaterialPtr getMaterial() const override;
+
+        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
     };
 }

@@ -77,9 +77,10 @@ namespace Tiny3D
         /**
          * @brief 创建顶点数组对象
          * @remarks 继承自 HardwareBufferManagerBase
-         * @see HardwareBufferManagerBase::createVertexArray()
+         * @see HardwareBufferManagerBase::createVertexArrayObject()
          */
-        virtual VertexArrayPtr createVertexArray() override;
+        virtual VertexArrayObjectPtr createVertexArrayObject(
+            bool useIndices) override;
 
         /**
          * @brief 创建顶点声明

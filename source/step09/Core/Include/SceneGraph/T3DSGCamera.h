@@ -170,7 +170,7 @@ namespace Tiny3D
          * @brief 获取投影变换矩阵
          * @return 返回投影变换矩阵
          */
-        const Matrix4 &getProjectMatrix() const;
+        const Matrix4 &getProjectionMatrix() const;
 
         /**
          * @brief 重写基类接口

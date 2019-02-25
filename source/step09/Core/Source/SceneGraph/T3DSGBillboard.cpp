@@ -46,4 +46,18 @@ namespace Tiny3D
     {
 
     }
+
+    //--------------------------------------------------------------------------
+
+    MaterialPtr SGBillboard::getMaterial() const
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    VertexArrayObjectPtr SGBillboard::getVertexArrayObject() const
+    {
+        return nullptr;
+    }
 }

@@ -34,6 +34,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(DylibManager);
     T3D_DECLARE_SMART_PTR(Archive);
     T3D_DECLARE_SMART_PTR(ArchiveManager);
+    T3D_DECLARE_SMART_PTR(Material);
+    T3D_DECLARE_SMART_PTR(MaterialManager);
 
     T3D_DECLARE_SMART_PTR(HardwareBuffer);
     T3D_DECLARE_SMART_PTR(HardwareIndexBuffer);
@@ -41,12 +43,15 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(HardwareVertexBuffer);
     T3D_DECLARE_SMART_PTR(VertexAttribute);
     T3D_DECLARE_SMART_PTR(VertexDeclaration);
-    T3D_DECLARE_SMART_PTR(VertexArray);
+
+    T3D_DECLARE_SMART_PTR(VertexArrayObject);
+
     T3D_DECLARE_SMART_PTR(HardwareBufferManagerBase);
     T3D_DECLARE_SMART_PTR(HardwareBufferManager);
 
     T3D_DECLARE_SMART_PTR(RenderTarget);
     T3D_DECLARE_SMART_PTR(RenderWindow);
+
     T3D_DECLARE_SMART_PTR(Viewport);
 
     T3D_DECLARE_SMART_PTR(Renderer);

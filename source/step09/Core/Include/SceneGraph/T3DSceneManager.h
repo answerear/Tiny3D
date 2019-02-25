@@ -101,7 +101,7 @@ namespace Tiny3D
          * @see SGAxisPtr SceneManagerBase::createAxis(SGNodePtr parent,
          *      ID uID = Node::E_NID_AUTOMATIC)
          */
-        virtual SGAxisPtr createAxis(SGNodePtr parent,
+        virtual SGAxisPtr createAxis(Real X, Real Y, Real Z, SGNodePtr parent,
             ID uID = Node::E_NID_AUTOMATIC) override;
 
         /**

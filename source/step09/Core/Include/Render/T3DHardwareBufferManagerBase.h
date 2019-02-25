@@ -84,10 +84,12 @@ namespace Tiny3D
 
         /**
          * @brief 创建顶点数组对象
+         * @param [in] useIndices : 是否使用索引缓冲
          * @return 调用成功返回一个新的顶点数组对象
          * @remarks 具体子类实现该接口创建对应的具体顶点缓冲区实例
          */
-        virtual VertexArrayPtr createVertexArray() = 0;
+        virtual VertexArrayObjectPtr createVertexArrayObject(
+            bool useIndices) = 0;
 
         /**
          * @brief 创建顶点声明对象

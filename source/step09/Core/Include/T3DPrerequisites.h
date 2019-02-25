@@ -47,6 +47,7 @@ namespace Tiny3D
     #define LOG_TAG_RENDER              "Render"
     #define LOG_TAG_PLUGIN              "Plugin"
     #define LOG_TAG_IMAGE_CODEC         "ImageCodec"
+    #define LOG_TAG_SCENE               "Scene"
 
     class Object;
     class ObjectTracer;
@@ -63,6 +64,8 @@ namespace Tiny3D
     class Archive;
     class ArchiveCreator;
     class ArchiveManager;
+    class Material;
+    class MaterialManager;
 
     class HardwareBuffer;
     class HardwareIndexBuffer;
@@ -70,12 +73,17 @@ namespace Tiny3D
     class HardwareVertexBuffer;
     class VertexAttribute;
     class VertexDeclaration;
-    class VertexArray;
+
+    class VertexArrayObject;
+
     class HardwareBufferManagerBase;
     class HardwareBufferManager;
+
     class RenderTarget;
     class RenderWindow;
+    
     class Viewport;
+
     class Renderer;
     class RenderGroup;
     class RenderQueue;

@@ -53,6 +53,11 @@ namespace Tiny3D
         virtual ~Viewport();
 
         /**
+         * @brief 获取观察视口对应的相机
+         */
+        SGCameraPtr getCamera() const;
+
+        /**
          * @brief 更新视口
          */
         void update();

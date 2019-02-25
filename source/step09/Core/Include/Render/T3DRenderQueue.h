@@ -29,20 +29,65 @@
 namespace Tiny3D
 {
     /**
-     * @brief 渲染组
+     * @brief 渲染分组
      */
     class T3D_ENGINE_API RenderGroup : public Object
     {
     public:
+        /**
+         * @brief 创建渲染分组
+         */
+        static RenderGroupPtr create();
+
+        /**
+         * @brief 析构函数
+         */
+        virtual ~RenderGroup();
+
+        /**
+         * @brief 添加一个渲染对象到渲染分组
+         * @param [in] renderable : 可渲染对象
+         * @return 成功返回 T3D_OK
+         */
+        TResult addRenderable(SGRenderablePtr renderable);
+
+        /**
+         * @brief 清空分组里的渲染对象
+         */
+        void clear();
+
+        /**
+         * @brief 渲染分组里的所有渲染对象
+         * @param [in] groupID : 渲染分组ID
+         * @param [in] renderer : 渲染器对象
+         * @return 成功返回 T3D_OK
+         */
+        TResult render(ID groupID, RendererPtr renderer);
+
+    protected:
         /**
          * @brief 构造函数
          */
         RenderGroup();
 
         /**
-         * @brief 析构函数
+         * @brief 计算渲染图元数量
+         * @param [in] vao : 要渲染的VAO对象
+         * @return 返回需要渲染的图元数量
          */
-        virtual ~RenderGroup();
+        size_t calcPrimitiveCount(VertexArrayObjectPtr vao) const;
+
+    protected:
+        typedef std::list<SGRenderablePtr>              RenderableList;
+        typedef RenderableList::iterator                RenderableListItr;
+        typedef RenderableList::const_iterator          RenderableListConstItr;
+
+        typedef std::map<MaterialPtr, RenderableList>   Renderables;
+        typedef Renderables::iterator                   RenderablesItr;
+        typedef Renderables::const_iterator             RenderablesConstItr;
+        typedef std::pair<MaterialPtr, RenderableList>  RenderablesValue;
+
+        Renderables     mRenderables;   /**< 可渲染对象列表 */
     };
 
 
@@ -81,6 +126,27 @@ namespace Tiny3D
          */
         virtual ~RenderQueue();
 
+        /**
+         * @brief 添加可渲染对象到指定渲染分组
+         * @param [in] groupID : 分组ID
+         * @param [in] renderable : 可渲染对象
+         * @return 成功返回 T3D_OK
+         * @see enum GroupID
+         */
+        TResult addRenderable(GroupID groupID, SGRenderablePtr renderable);
+
+        /**
+         * @brief 清空渲染队列
+         */
+        void clear();
+
+        /**
+         * @brief 渲染
+         * @param [in] renderer : 渲染器
+         * @return 成功返回 T3D_OK
+         */
+        TResult render(RendererPtr renderer);
+
     protected:
         /**
          * @brief 构造函数
@@ -91,7 +157,6 @@ namespace Tiny3D
         typedef std::map<GroupID, RenderGroupPtr>   RenderableGroup;
         typedef RenderableGroup::iterator           RenderableGroupItr;
         typedef RenderableGroup::const_iterator     RenderableGroupConstItr;
-
         typedef std::pair<GroupID, RenderGroupPtr>  RenderableGroupValue;
 
         RenderableGroup     mGroups;        /**< 渲染分组 */

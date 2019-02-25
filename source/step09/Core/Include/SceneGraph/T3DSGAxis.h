@@ -79,16 +79,6 @@ namespace Tiny3D
          */
         Real getAxisLength(Axis axis) const;
 
-        /**
-         * @brief 设置坐标轴长度
-         * @param [in] axis : 坐标轴类型
-         * @param [in] length : 坐标轴长度
-         * @return void
-         * @see Real getAxisLength(Axis axis) const
-         * @see enum Axis
-         */
-        void setAxisLength(Axis axis, Real length);
-
     protected:
         /**
          * @brief 构造函数
@@ -123,65 +113,24 @@ namespace Tiny3D
             RenderQueuePtr queue) override;
 
         /**
-         * @brief 重写基类接口，实现决定是否使用VAO
-         * @see bool SGRenderable::isVAOUsed() const
+         * @brief 重写基类接口，实现获取渲染用的材质
+         * @see MaterialPtr SGRenderable::getMaterial() const
          */
-        virtual bool isVAOUsed() const override;
-
-        /**
-         * @brief 重写基类接口，实现获取渲染图元
-         * @see Renderer::PrimitiveType SGRenderable::getPrimitiveType() const
-         */
-        virtual Renderer::PrimitiveType getPrimitiveType() const override;
-
-        /**
-         * @brief 重写基类接口，实现获取VBO对象
-         * @see HardwareVertexBufferPtr SGRenderable::getVertexBufferObject() const
-         */
-        virtual HardwareVertexBufferPtr getVertexBufferObject() const override;
-
-        /**
-         * @brief 重写基类接口，实现获取IBO对象
-         * @see HardwareIndexBufferPtr SGRenderable::getIndexBufferObject() const
-         */
-        virtual HardwareIndexBufferPtr getIndexBufferObject() const override;
-
-        /**
-         * @brief 重写基类接口，实现决定是否使用IBO
-         * @see bool SGRenderable::isIndicesUsed() const
-         */
-        virtual bool isIndicesUsed() const override;
+        virtual MaterialPtr getMaterial() const override;
 
         /**
          * @brief 重写基类接口，实现获取VAO对象
-         * @see VertexArrayPtr SGRenderable::getVertexArrrayObject() const
+         * @see VertexArrayObjectPtr SGRenderable::getVertexArrrayObject() const
          */
-        virtual VertexArrayPtr getVertexArrayObject() const override;
-
-        /**
-         * @brief 更新顶点数据
-         */
-        void updateVertices();
+        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
     private:
-        /**
-         * @brief 顶点数据格式，只需要位置和颜色
-         */
-        struct Vertex
-        {
-            Vertex()
-                : position(Vector3::ZERO)
-                , color(Color4::WHITE)
-            {}
+        Real                    mAxisX;         /**< X轴长度 */
+        Real                    mAxisY;         /**< Y轴长度 */
+        Real                    mAxisZ;         /**< Z轴长度 */
 
-            Vector3     position;
-            Color4      color;
-        };
-
-        Vertex                  mVertices[6];       /**< 顶点数据 */
-        bool                    mIsVertexDirty;     /**< 顶点数据更新标记 */
-
-        HardwareVertexBufferPtr mVBO;               /**< VBO 数据对象 */
+        VertexArrayObjectPtr    mVAO;           /**< 渲染用的VAO */
+        SphereBoundPtr          mBound;         /**< 碰撞体 */
     };
 }
 

@@ -153,10 +153,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SGAxisPtr DefaultSceneMgr::createAxis(SGNodePtr parent, 
-        ID uID /* = Node::E_NID_AUTOMATIC */)
+    SGAxisPtr DefaultSceneMgr::createAxis(Real X, Real Y, Real Z, 
+        SGNodePtr parent, ID uID /* = Node::E_NID_AUTOMATIC */)
     {
-        SGAxisPtr node = SGAxis::create(uID);
+        SGAxisPtr node = SGAxis::create(X, Y, Z, uID);
 
         if (parent != nullptr)
         {

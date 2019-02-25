@@ -73,9 +73,10 @@ namespace Tiny3D
             useShadowBuffer);
     }
 
-    VertexArrayPtr HardwareBufferManager::createVertexArray()
+    VertexArrayObjectPtr HardwareBufferManager::createVertexArrayObject(
+        bool useIndices)
     {
-        return mImpl->createVertexArray();
+        return mImpl->createVertexArrayObject(useIndices);
     }
 
     VertexDeclarationPtr HardwareBufferManager::createVertexDeclaration()

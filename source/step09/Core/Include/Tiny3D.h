@@ -61,14 +61,14 @@
 #include <Render/T3DRenderQueue.h>
 #include <Render/T3DRenderTarget.h>
 #include <Render/T3DRenderWindow.h>
+#include <Render/T3DViewport.h>
 #include <Render/T3DHardwareBufferManagerBase.h>
 #include <Render/T3DHardwareBufferManager.h>
 #include <Render/T3DHardwareBuffer.h>
 #include <Render/T3DHardwareVertexBuffer.h>
 #include <Render/T3DHardwareIndexBuffer.h>
 #include <Render/T3DHardwarePixelBuffer.h>
-#include <Render/T3DVertexArray.h>
-#include <Render/T3DViewport.h>
+#include <Render/T3DVertexArrayObject.h>
 
 // Bound
 #include <Bound/T3DBound.h>

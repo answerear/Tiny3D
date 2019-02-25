@@ -46,4 +46,18 @@ namespace Tiny3D
     {
 
     }
+
+    //--------------------------------------------------------------------------
+
+    MaterialPtr SGSphere::getMaterial() const
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    VertexArrayObjectPtr SGSphere::getVertexArrayObject() const
+    {
+        return nullptr;
+    }
 }

@@ -18,30 +18,46 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SG_QUAD_H__
-#define __T3D_SG_QUAD_H__
+#ifndef __T3D_MATERIAL_H__
+#define __T3D_MATERIAL_H__
 
 
-#include "SceneGraph/T3DSGRenderable.h"
+#include "T3DResource.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SGQuad : public SGRenderable
+    /**
+     * @brief 材质资源
+     */
+    class T3D_ENGINE_API Material : public Resource
     {
     public:
-        static SGQuadPtr create(ID uID = E_NID_AUTOMATIC);
+        /** 创建 Material 对象 */
+        static MaterialPtr create(const String &name);
 
-        virtual ~SGQuad();
+        /** 析构函数 */
+        virtual ~Material();
+
+        /** 重写 Resource::getType() */
+        virtual Type getType() const override;
 
     protected:
-        SGQuad(ID uID = E_NID_AUTOMATIC);
+        /** 构造函数 */
+        Material(const String &name);
 
-        virtual MaterialPtr getMaterial() const override;
+        /** 重写 Resource::load() */
+        virtual TResult load() override;
 
-        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
+        /** 重写 Resource::unlaod() */
+        virtual TResult unload() override;
+
+        /** 重写 Resource::clone() */
+        virtual ResourcePtr clone() const override;
+
+    protected:
     };
 }
 
 
-#endif  /*__T3D_SG_QUAD_H__*/
+#endif  /*__T3D_MATERIAL_H__*/

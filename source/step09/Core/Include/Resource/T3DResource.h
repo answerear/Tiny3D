@@ -39,6 +39,7 @@ namespace Tiny3D
             E_TYPE_UNKNOWN = 0,
             E_TYPE_DYLIB,       /**< 动态库 */
             E_TYPE_ARCHIVE,     /**< 文件档案系统 */
+            E_TYPE_MATERIAL,    /**< 材质 */
         };
 
         /** 析构函数 */

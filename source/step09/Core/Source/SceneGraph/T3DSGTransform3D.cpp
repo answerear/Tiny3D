@@ -129,7 +129,6 @@ namespace Tiny3D
         SGTransform3DPtr node = create();
         if (cloneProperties(node) != T3D_OK)
         {
-            node->release();
             node = nullptr;
         }
         return node;

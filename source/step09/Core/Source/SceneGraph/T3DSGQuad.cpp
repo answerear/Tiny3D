@@ -46,4 +46,18 @@ namespace Tiny3D
     {
 
     }
+
+    //--------------------------------------------------------------------------
+
+    MaterialPtr SGQuad::getMaterial() const
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    VertexArrayObjectPtr SGQuad::getVertexArrayObject() const
+    {
+        return nullptr;
+    }
 }

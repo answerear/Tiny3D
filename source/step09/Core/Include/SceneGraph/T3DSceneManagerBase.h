@@ -111,13 +111,16 @@ namespace Tiny3D
 
         /**
          * @brief 创建一个可渲染坐标轴结点 
+         * @param [in] X : X轴长度
+         * @param [in] Y : Y轴长度
+         * @param [in] Z : Z轴长度
          * @param [in] parent : 父结点
          * @param [in] uID : 结点ID，默认自动生成ID
          * @return 返回一个可渲染坐标轴结点
          * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
          *      并进行场景管理。
          */
-        virtual SGAxisPtr createAxis(SGNodePtr parent,
+        virtual SGAxisPtr createAxis(Real X, Real Y, Real Z, SGNodePtr parent,
             ID uID = Node::E_NID_AUTOMATIC) = 0;
 
         /**

@@ -152,12 +152,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SGAxisPtr SceneManager::createAxis(SGNodePtr parent,
+    SGAxisPtr SceneManager::createAxis(Real X, Real Y, Real Z, SGNodePtr parent,
         ID uID /* = Node::E_NID_AUTOMATIC */)
     {
         if (mImpl != nullptr)
         {
-            return mImpl->createAxis(parent, uID);
+            return mImpl->createAxis(X, Y, Z, parent, uID);
         }
 
         return nullptr;

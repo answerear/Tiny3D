@@ -159,7 +159,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const Matrix4 &SGCamera::getProjectMatrix() const
+    const Matrix4 &SGCamera::getProjectionMatrix() const
     {
         if (mIsFrustumDirty)
         {
@@ -196,7 +196,7 @@ namespace Tiny3D
         
         if (cloneProperties(camera) != T3D_OK)
         {
-            T3D_SAFE_RELEASE(camera);
+            camera = nullptr;
         }
 
         return camera;
@@ -237,14 +237,14 @@ namespace Tiny3D
         bool isViewDirty = mIsViewDirty;
         bool isFrustumDirty = mIsFrustumDirty;
 
-        getViewMatrix();
-        getProjectMatrix();
+        const Matrix4 &V = getViewMatrix();
+        const Matrix4 &P = getProjectionMatrix();
 
         if (isViewDirty || isFrustumDirty)
         {
             // 相机比较特殊，直接先更新自身的frustum，
             // 避免其他物体无法做frustum culling
-            Matrix4 M = mProjMatrix * mViewMatrix;
+            Matrix4 M = P * V;
             Renderer *renderer = T3D_AGENT.getActiveRenderer();
             FrustumBoundPtr bound = smart_pointer_cast<FrustumBound>(mBound);
             renderer->updateFrustum(M, bound);
