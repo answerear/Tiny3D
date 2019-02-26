@@ -214,10 +214,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SGSpherePtr DefaultSceneMgr::createSphere(SGNodePtr parent, 
-        ID uID /* = Node::E_NID_AUTOMATIC */)
+    SGSpherePtr DefaultSceneMgr::createSphere(const Vector3 &center, 
+        Real radius, SGNodePtr parent, ID uID /* = Node::E_NID_AUTOMATIC */)
     {
-        SGSpherePtr node = SGSphere::create(uID);
+        SGSpherePtr node = SGSphere::create(center, radius, uID);
 
         if (parent != nullptr)
         {

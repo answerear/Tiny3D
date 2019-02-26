@@ -59,12 +59,12 @@ namespace Tiny3D
         /**
          * @brief 获取球心
          */
-        const Vector3 &getCenter() const { mCenter; }
+        const Vector3 &getCenter() const { return mCenter; }
 
         /**
          * @brief 获取球半径
          */
-        Real getRadius() const { mRadius; }
+        Real getRadius() const { return mRadius; }
 
     protected:
         /**

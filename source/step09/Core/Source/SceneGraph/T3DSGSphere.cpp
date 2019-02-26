@@ -19,6 +19,12 @@
 
 
 #include "SceneGraph/T3DSGSphere.h"
+#include "Render/T3DRenderQueue.h"
+#include "Render/T3DHardwareBufferManager.h"
+#include "Render/T3DHardwareVertexBuffer.h"
+#include "Render/T3DHardwareIndexBuffer.h"
+#include "Render/T3DVertexArrayObject.h"
+#include "Bound/T3DSphereBound.h"
 
 
 namespace Tiny3D
@@ -37,6 +43,13 @@ namespace Tiny3D
         Vector3     position;
         uint32_t    color;
     };
+
+    //--------------------------------------------------------------------------
+
+    const size_t MAX_STACKS = 18;
+    const size_t MAX_SLICES = 18;
+    const size_t MAX_VERTICES = (MAX_STACKS + 1) * (MAX_SLICES + 1);
+    const size_t MAX_TRIANGLES = MAX_STACKS * MAX_SLICES * 2;
 
     //--------------------------------------------------------------------------
 
@@ -87,7 +100,131 @@ namespace Tiny3D
         mCenter = center;
         mRadius = radius;
 
+        SphereVertex vertices[MAX_VERTICES];
+        const size_t MAX_INDICES = MAX_TRIANGLES * 3;
+        uint16_t indices[MAX_INDICES];
+
+        setupSphere(vertices, MAX_VERTICES, indices, MAX_INDICES);
+
+        do 
+        {
+
+        } while (0);
+
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGSphere::setupSphere(void *vertices, size_t vertexCount,
+        uint16_t *indices, size_t indexCount)
+    {
+        SphereVertex *vert = (SphereVertex *)vertices;
+
+        uint32_t color = Color4::WHITE.A8R8G8B8();
+
+        Radian alphaStep(Real(2.0) * Math::PI / MAX_STACKS);
+        Radian betaStep(Math::PI / MAX_SLICES);
+        Radian alpha(0.0);
+        Radian beta;
+
+        int32_t i = 0, j = 0, idx = 0;
+
+        for (i = 0; i <= MAX_STACKS; ++i)
+        {
+            Real sinAlpha = Math::sin(alpha);
+            Real cosAlpha = Math::cos(alpha);
+            beta = -Math::PI * Real(0.5);
+
+            for (j = 0; j <= MAX_SLICES; ++j, ++idx)
+            {
+                Real sinBeta = Math::sin(beta);
+                Real cosBeta = Math::cos(beta);
+
+                vert[idx].position[0] 
+                    = mCenter[0] + mRadius * cosBeta * cosAlpha;
+                vert[idx].position[1] 
+                    = mCenter[1] + mRadius * sinBeta;
+                vert[idx].position[2] 
+                    = mCenter[2] + mRadius * cosBeta * sinAlpha;
+
+                vert[idx].color = color;
+
+                beta += betaStep;
+            }
+
+            alpha += alphaStep;
+        }
+
+        uint16_t base = 0;
+
+        for (i = 0; i < MAX_STACKS; ++i)
+        {
+            for (j = 0; j < MAX_SLICES; ++j)
+            {
+                indices[idx++] = base;
+                indices[idx++] = base + 1;
+                indices[idx++] = base + MAX_SLICES + 1;
+
+                indices[idx++] = base + 1;
+                indices[idx++] = base + MAX_SLICES + 2;
+                indices[idx++] = base + MAX_SLICES + 1;
+
+                base++;
+            }
+
+            base++;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    NodePtr SGSphere::clone() const
+    {
+        SGSpherePtr sphere = new SGSphere();
+        sphere->release();
+
+        if (cloneProperties(sphere) != T3D_OK)
+        {
+            sphere = nullptr;
+        }
+
+        return sphere;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SGSphere::cloneProperties(NodePtr node) const
+    {
+        TResult ret = SGRenderable::cloneProperties(node);
+
+        if (ret == T3D_OK)
+        {
+            SGSpherePtr sphere = smart_pointer_cast<SGSphere>(node);
+            ret = sphere->init(mCenter, mRadius);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGSphere::updateTransform()
+    {
+        mBound->updateBound(getLocalToWorldTransform());
+
+        SGRenderable::updateTransform();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGSphere::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+    {
+        if (bound->test(mBound))
+        {
+            // 在视锥体内，放进去渲染队列，准备渲染
+            queue->addRenderable(RenderQueue::E_GRPID_WIREFRAME, this);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -101,6 +238,6 @@ namespace Tiny3D
 
     VertexArrayObjectPtr SGSphere::getVertexArrayObject() const
     {
-        return nullptr;
+        return mVAO;
     }
 }

@@ -133,8 +133,8 @@ namespace Tiny3D
          * @see SGSpherePtr SceneManagerBase::createSphere(SGNodePtr parent,
          *      ID uID = Node::E_NID_AUTOMATIC)
          */
-        virtual SGSpherePtr createSphere(SGNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
+        virtual SGSpherePtr createSphere(const Vector3 &center, Real radius,
+            SGNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) override;
 
     protected:
         SceneManager(SceneManagerBase *impl);

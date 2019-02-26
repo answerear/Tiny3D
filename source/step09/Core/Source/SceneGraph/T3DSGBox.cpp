@@ -310,7 +310,7 @@ namespace Tiny3D
         SGBoxPtr box = new SGBox();
         box->release();
 
-        if (box->cloneProperties(box) != T3D_OK)
+        if (cloneProperties(box) != T3D_OK)
         {
             box = nullptr;
         }
@@ -327,7 +327,7 @@ namespace Tiny3D
         if (ret == T3D_OK)
         {
             SGBoxPtr box = smart_pointer_cast<SGBox>(node);
-            ret = box->init(box->getCenter(), box->getExtent());
+            ret = box->init(mCenter, mExtent);
         }
 
         return ret;

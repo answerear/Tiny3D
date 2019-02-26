@@ -147,6 +147,8 @@ namespace Tiny3D
 
         /**
          * @brief 创建一个可渲染立方体结点
+         * @param [in] center : 立方体中心
+         * @param [in] extent : 立方体三个轴方向上的长度
          * @param [in] parent : 父结点
          * @param [in] uID : 结点ID，默认自动生成ID
          * @return 返回一个可渲染立方体结点
@@ -158,14 +160,16 @@ namespace Tiny3D
 
         /**
          * @brief 创建一个可渲染球体结点
+         * @param [in] center : 球心
+         * @param [in] radius : 球半径
          * @param [in] parent : 父结点
          * @param [in] uID : 结点ID，默认自动生成ID
          * @return 返回一个可渲染球体结点
          * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
          *      并进行场景管理。
          */
-        virtual SGSpherePtr createSphere(SGNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) = 0;
+        virtual SGSpherePtr createSphere(const Vector3 &center, Real radius,
+            SGNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) = 0;
 
     protected:
         /**
