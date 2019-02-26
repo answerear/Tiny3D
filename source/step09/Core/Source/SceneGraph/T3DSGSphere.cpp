@@ -108,7 +108,99 @@ namespace Tiny3D
 
         do 
         {
+            mVAO = T3D_HARDWARE_BUFFER_MGR.createVertexArrayObject(true);
+            if (mVAO == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create VAO for SGSphere \
+                    failed !");
+                break;
+            }
 
+            ret = mVAO->beginBinding();
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for SGSphere \
+                    failed !");
+                break;
+            }
+
+            // 创建顶点声明
+            VertexDeclarationPtr decl
+                = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
+            if (decl == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex declaration for \
+                    SGSphere failed !");
+                break;
+            }
+
+            decl->addAttribute(VertexAttribute(0, 0,
+                VertexAttribute::E_VAT_FLOAT3,
+                VertexAttribute::E_VAS_POSITION));
+            decl->addAttribute(VertexAttribute(0, sizeof(Vector3),
+                VertexAttribute::E_VAT_COLOR,
+                VertexAttribute::E_VAS_DIFFUSE));
+
+            // 创建VBO
+            HardwareVertexBufferPtr vbo
+                = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(
+                    sizeof(SphereVertex), MAX_VERTICES, 
+                    HardwareVertexBuffer::E_HBU_STATIC, false);
+            if (vbo == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex buffer for \
+                    SGSphere failed !");
+                break;
+            }
+
+            // 写顶点数据
+            ret = vbo->writeData(0, sizeof(SphereVertex) * MAX_VERTICES, 
+                vertices);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SGSphere \
+                    failed !");
+                break;
+            }
+
+            // 创建IBO
+            HardwareIndexBufferPtr ibo
+                = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(
+                    HardwareIndexBuffer::E_IT_16BITS, MAX_INDICES,
+                    HardwareIndexBuffer::E_HBU_STATIC, false);
+            if (ibo == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create index buffer for SGSphere \
+                    failed !");
+                break;
+            }
+
+            // 写索引数据
+            ret = ibo->writeData(0, sizeof(uint16_t) * MAX_INDICES, indices);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Write indices data for SGSphere \
+                    failed !");
+                break;
+            }
+
+            mVAO->setVertexDeclaration(decl);
+            mVAO->addVertexBuffer(vbo);
+            mVAO->setIndexBuffer(ibo);
+            mVAO->setPrimitiveType(Renderer::E_PT_TRIANGLE_LIST);
+
+            mVAO->endBinding();
+
+            // 构建碰撞体
+            mBound->create(this);
+            mBound->setParams(mCenter, mRadius);
+
+            // 需要刷新碰撞体的世界变换
+            setDirty(true);
         } while (0);
 
         return ret;
