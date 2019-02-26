@@ -135,6 +135,11 @@ namespace Tiny3D
          */
         virtual BoundPtr clone() const = 0;
 
+        /**
+         * @brief 根据变换对象更新碰撞体
+         */
+        virtual void updateBound(const Transform &xform) = 0;
+
     protected:
         /**
          * @brief 构造函数
@@ -166,11 +171,6 @@ namespace Tiny3D
          * @remarks 各类型碰撞体子类实现该相交检测
          */
         virtual bool testFrustum(const Frustum &frustum) const = 0;
-
-        /**
-         * @brief 根据变换对象更新碰撞体
-         */
-        virtual void updateBound(const Transform &xform) = 0;
 
         /**
          * @brief 克隆属性

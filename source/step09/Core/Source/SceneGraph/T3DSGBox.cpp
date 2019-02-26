@@ -91,15 +91,118 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        BoxVertex vertices[23];
-        setupVertices(&vertices, 23);
+        mCenter = center;
+        mExtent = extent;
+
+        const size_t MAX_VERTICES = 23;
+        const size_t MAX_INDICES = 36;
+
+        BoxVertex vertices[MAX_VERTICES];
+        uint16_t indices[MAX_INDICES];
+        setupBox(&vertices, MAX_VERTICES, indices, MAX_INDICES);
+
+        do 
+        {
+            mVAO = T3D_HARDWARE_BUFFER_MGR.createVertexArrayObject(true);
+            if (mVAO == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create VAO for SGBox failed !");
+                break;
+            }
+
+            ret = mVAO->beginBinding();
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for SGBox failed !");
+                break;
+            }
+
+            // 创建顶点声明
+            VertexDeclarationPtr decl
+                = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
+            if (decl == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex declaration for \
+                    SGBox failed !");
+                break;
+            }
+
+            decl->addAttribute(VertexAttribute(0, 0,
+                VertexAttribute::E_VAT_FLOAT3,
+                VertexAttribute::E_VAS_POSITION));
+            decl->addAttribute(VertexAttribute(0, sizeof(Vector3),
+                VertexAttribute::E_VAT_COLOR,
+                VertexAttribute::E_VAS_DIFFUSE));
+
+            // 创建VBO
+            HardwareVertexBufferPtr vbo
+                = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(sizeof(BoxVertex),
+                    MAX_VERTICES, HardwareVertexBuffer::E_HBU_STATIC, false);
+            if (vbo == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex buffer for \
+                    SGBox failed !");
+                break;
+            }
+
+            // 写顶点数据
+            ret = vbo->writeData(0, sizeof(BoxVertex) * MAX_VERTICES, vertices);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SGBox \
+                    failed !");
+                break;
+            }
+
+            // 创建IBO
+            HardwareIndexBufferPtr ibo
+                = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(
+                    HardwareIndexBuffer::E_IT_16BITS, MAX_INDICES,
+                    HardwareIndexBuffer::E_HBU_STATIC, false);
+            if (ibo == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create index buffer for SGBox \
+                    failed !");
+                break;
+            }
+
+            // 写索引数据
+            ret = ibo->writeData(0, sizeof(uint16_t) * MAX_INDICES, indices);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Write indices data for SGBox \
+                    failed !");
+                break;
+            }
+
+            mVAO->setVertexDeclaration(decl);
+            mVAO->addVertexBuffer(vbo);
+            mVAO->setIndexBuffer(ibo);
+            mVAO->setPrimitiveType(Renderer::E_PT_TRIANGLE_LIST);
+
+            mVAO->endBinding();
+
+            // 构建碰撞体
+            mBound->create(this);
+            mBound->setCenter(center);
+            mBound->setAxis(Vector3::UNIT_X * mExtent[0],
+                Vector3::UNIT_Y * mExtent[1], Vector3::UNIT_Z * mExtent[2]);
+
+            // 需要刷新碰撞体的世界变换
+            setDirty(true);
+        } while (0);
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    void SGBox::setupVertices(void *vertices, size_t vertexCount)
+    void SGBox::setupBox(void *vertices, size_t vertexCount,
+        uint16_t *indices, size_t indexCount)
     {
         BoxVertex *vert = (BoxVertex *)vertices;
 
@@ -149,6 +252,19 @@ namespace Tiny3D
         vert[21].diffuse = Color4::WHITE.A8R8G8B8();
         vert[22].position = Vector3(-0.5, 0.5, 1.0);
         vert[22].diffuse = Color4::WHITE.A8R8G8B8();
+
+        indices[0] = 11, indices[1] = 0, indices[2] = 19;
+        indices[3] = 0, indices[4] = 10, indices[5] = 19;
+        indices[6] = 13, indices[7] = 7, indices[8] = 8;
+        indices[9] = 13, indices[10] = 8, indices[11] = 18;
+        indices[12] = 16, indices[13] = 6, indices[14] = 12;
+        indices[15] = 16, indices[16] = 12, indices[17] = 17;
+        indices[18] = 5, indices[19] = 16, indices[20] = 9;
+        indices[21] = 5, indices[22] = 9, indices[23] = 4;
+        indices[24] = 22, indices[25] = 21, indices[26] = 20;
+        indices[27] = 22, indices[28] = 20, indices[29] = 3;
+        indices[30] = 14, indices[31] = 15, indices[32] = 2;
+        indices[33] = 14, indices[34] = 2, indices[35] = 1;
     }
 
     //--------------------------------------------------------------------------
@@ -185,6 +301,9 @@ namespace Tiny3D
 
     void SGBox::updateTransform()
     {
+        // 更新碰撞体
+        mBound->updateBound(getLocalToWorldTransform());
+
         SGRenderable::updateTransform();
     }
 
@@ -192,7 +311,11 @@ namespace Tiny3D
 
     void SGBox::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
     {
-
+        if (bound->test(mBound))
+        {
+            // 在视锥体内，放进去渲染队列，准备渲染
+            queue->addRenderable(RenderQueue::E_GRPID_WIREFRAME, this);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -206,6 +329,6 @@ namespace Tiny3D
 
     VertexArrayObjectPtr SGBox::getVertexArrayObject() const
     {
-        return nullptr;
+        return mVAO;
     }
 }

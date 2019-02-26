@@ -116,7 +116,8 @@ namespace Tiny3D
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
     private:
-        void setupVertices(void *vertices, size_t vertexCount);
+        void setupBox(void *vertices, size_t vertexCount,  uint16_t *indices, 
+            size_t indexCount);
 
     protected:
         Vector3                 mCenter;        /**< 长方体的中心 */

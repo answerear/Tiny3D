@@ -70,6 +70,12 @@ namespace Tiny3D
          */
         virtual SGRenderablePtr getRenderable() override;
 
+        /**
+         * @brief 实现基类接口
+         * @see void Bound::updateBound(const Transform &xform)
+         */
+        virtual void updateBound(const Transform &xform) override;
+
     protected:
         /**
          * @brief 构造函数
@@ -101,12 +107,6 @@ namespace Tiny3D
          * @see bool Bound::testFrustum(const Frustum &frustum) const
          */
         virtual bool testFrustum(const Frustum &frustum) const override;
-
-        /**
-         * @brief 实现基类接口
-         * @see void Bound::updateBound(const Transform &xform)
-         */
-        virtual void updateBound(const Transform &xform) override;
 
         /**
          * @brief 实现基类接口

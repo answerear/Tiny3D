@@ -150,7 +150,7 @@ namespace Tiny3D
             }
 
             ret = vbo->writeData(0, sizeof(AxisVertex) * MAX_VERTICES, 
-                &vertices[0]);
+                vertices);
             if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SGAxis \
@@ -171,6 +171,9 @@ namespace Tiny3D
             radius = Math::min(radius, Z);
             mBound = SphereBound::create(this);
             mBound->setParams(Vector3::ZERO, radius);
+
+            // 需要刷新碰撞体的世界变换
+            setDirty(true);
         } while (0);
 
         return ret;
@@ -242,6 +245,9 @@ namespace Tiny3D
 
     void SGAxis::updateTransform()
     {
+        // 更新碰撞体
+        mBound->updateBound(getLocalToWorldTransform());
+
         SGRenderable::updateTransform();
     }
 
