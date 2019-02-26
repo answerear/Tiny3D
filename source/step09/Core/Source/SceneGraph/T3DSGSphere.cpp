@@ -134,7 +134,7 @@ namespace Tiny3D
         {
             Real sinAlpha = Math::sin(alpha);
             Real cosAlpha = Math::cos(alpha);
-            beta = -Math::PI * Real(0.5);
+            beta = -Math::PI * REAL_HALF;
 
             for (j = 0; j <= MAX_SLICES; ++j, ++idx)
             {
