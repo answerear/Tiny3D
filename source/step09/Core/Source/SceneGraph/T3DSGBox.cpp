@@ -94,7 +94,7 @@ namespace Tiny3D
         mCenter = center;
         mExtent = extent;
 
-        const size_t MAX_VERTICES = 23;
+        const size_t MAX_VERTICES = 8;
         const size_t MAX_INDICES = 36;
 
         BoxVertex vertices[MAX_VERTICES];
@@ -201,70 +201,106 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SGBox::setupBox(void *vertices, size_t vertexCount,
-        uint16_t *indices, size_t indexCount)
+    void SGBox::setupBox(void *vertices, size_t vertexCount, uint16_t *indices, 
+        size_t indexCount)
     {
+        // 
+        // 正方体顶点定义如下：
+        //
+        //           v6-------v4
+        //          /|       /|
+        //         / |      / |
+        //        v0-------v2 |
+        //        |  v7----|--v5
+        //        | /      | /
+        //        |/       |/
+        //        v1-------v3
+        //
+
         BoxVertex *vert = (BoxVertex *)vertices;
 
-        vert[0].position = Vector3(-0.5, -0.5, 0);
-        vert[0].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[1].position = Vector3(-0.5, -0.5, 0);
-        vert[1].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[2].position = Vector3(-0.5, 0.5, 0);
-        vert[2].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[3].position = Vector3(-0.5, 0.5, 0);
-        vert[3].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[4].position = Vector3(0.5, 0.5, 0);
-        vert[4].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[5].position = Vector3(0.5, 0.5, 1.0);
-        vert[5].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[6].position = Vector3(-0.5, -0.5, 1.0);
-        vert[6].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[7].position = Vector3(-0.5, 0.5, 1.0);
-        vert[7].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[8].position = Vector3(-0.5, -0.5, 1.0);
-        vert[8].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[9].position = Vector3(0.5, -0.5, 0);
-        vert[9].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[10].position = Vector3(-0.5, 0.5, 0);
-        vert[10].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[11].position = Vector3(0.5, -0.5, 0);
-        vert[11].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[12].position = Vector3(-0.5, -0.5, 0);
-        vert[12].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[13].position = Vector3(0.5, 0.5, 1.0);
-        vert[13].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[14].position = Vector3(-0.5, -0.5, 1.0);
-        vert[14].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[15].position = Vector3(-0.5, 0.5, 1.0);
-        vert[15].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[16].position = Vector3(0.5, -0.5, 1.0);
-        vert[16].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[17].position = Vector3(0.5, -0.5, 0);
-        vert[17].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[18].position = Vector3(0.5, -0.5, 1.0);
-        vert[18].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[19].position = Vector3(0.5, 0.5, 0);
-        vert[19].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[20].position = Vector3(0.5, 0.5, 0);
-        vert[20].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[21].position = Vector3(0.5, 0.5, 1.0);
-        vert[21].diffuse = Color4::WHITE.A8R8G8B8();
-        vert[22].position = Vector3(-0.5, 0.5, 1.0);
-        vert[22].diffuse = Color4::WHITE.A8R8G8B8();
+        Vector3 offset;
+        uint32_t color = Color4::WHITE.A8R8G8B8();
 
-        indices[0] = 11, indices[1] = 0, indices[2] = 19;
-        indices[3] = 0, indices[4] = 10, indices[5] = 19;
-        indices[6] = 13, indices[7] = 7, indices[8] = 8;
-        indices[9] = 13, indices[10] = 8, indices[11] = 18;
-        indices[12] = 16, indices[13] = 6, indices[14] = 12;
-        indices[15] = 16, indices[16] = 12, indices[17] = 17;
-        indices[18] = 5, indices[19] = 16, indices[20] = 9;
-        indices[21] = 5, indices[22] = 9, indices[23] = 4;
-        indices[24] = 22, indices[25] = 21, indices[26] = 20;
-        indices[27] = 22, indices[28] = 20, indices[29] = 3;
-        indices[30] = 14, indices[31] = 15, indices[32] = 2;
-        indices[33] = 14, indices[34] = 2, indices[35] = 1;
+        // V0
+        offset[0] = -mExtent[0];
+        offset[1] =  mExtent[1];
+        offset[2] =  mExtent[2];
+        vert[0].position = mCenter + offset;
+        vert[0].diffuse = color;
+
+        // V1
+        offset[0] = -mExtent[0];
+        offset[1] = -mExtent[1];
+        offset[2] =  mExtent[2];
+        vert[1].position = mCenter + offset;
+        vert[1].diffuse = color;
+
+        // V2
+        offset[0] = mExtent[0];
+        offset[1] = mExtent[1];
+        offset[2] = mExtent[2];
+        vert[2].position = mCenter + offset;
+        vert[2].diffuse = color;
+
+        // V3
+        offset[0] =  mExtent[0];
+        offset[1] = -mExtent[1];
+        offset[2] =  mExtent[2];
+        vert[3].position = mCenter + offset;
+        vert[3].diffuse = color;
+
+        // V4
+        offset[0] =  mExtent[0];
+        offset[1] =  mExtent[1];
+        offset[2] = -mExtent[2];
+        vert[4].position = mCenter + offset;
+        vert[4].diffuse = color;
+
+        // V5
+        offset[0] =  mExtent[0];
+        offset[1] = -mExtent[1];
+        offset[2] = -mExtent[2];
+        vert[5].position = mCenter + offset;
+        vert[5].diffuse = color;
+
+        // V6
+        offset[0] = -mExtent[0];
+        offset[1] =  mExtent[1];
+        offset[2] = -mExtent[2];
+        vert[6].position = mCenter + offset;
+        vert[6].diffuse = color;
+
+        // V7
+        offset[0] = -mExtent[0];
+        offset[1] = -mExtent[1];
+        offset[2] = -mExtent[2];
+        vert[7].position = mCenter + offset;
+        vert[7].diffuse = color;
+
+        // Front face
+        indices[0] = 0, indices[1] = 1, indices[2] = 2;
+        indices[3] = 1, indices[4] = 3, indices[5] = 2;
+
+        // Back
+        indices[6] = 4, indices[7] = 5, indices[8] = 6;
+        indices[9] = 5, indices[10] = 7, indices[11] = 6;
+
+        // Left
+        indices[12] = 0, indices[13] = 6, indices[14] = 7;
+        indices[15] = 0, indices[16] = 7, indices[17] = 1;
+
+        // Right
+        indices[18] = 0, indices[19] = 6, indices[20] = 7;
+        indices[21] = 0, indices[22] = 7, indices[23] = 1;
+
+        // Top
+        indices[24] = 0, indices[25] = 2, indices[26] = 6;
+        indices[27] = 2, indices[28] = 4, indices[29] = 6;
+
+        // Bottom
+        indices[30] = 1, indices[31] = 7, indices[32] = 3;
+        indices[33] = 1, indices[34] = 5, indices[35] = 3;
     }
 
     //--------------------------------------------------------------------------
