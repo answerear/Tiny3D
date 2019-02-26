@@ -27,18 +27,67 @@
 
 namespace Tiny3D
 {
+    /**
+     * @brief 可渲染四边形
+     */
     class T3D_ENGINE_API SGQuad : public SGRenderable
     {
     public:
-        static SGQuadPtr create(ID uID = E_NID_AUTOMATIC);
+        /**
+         * @brief 
+         */
+        static SGQuadPtr create(const Vector3 &V0, const Vector3 &V1,
+            const Vector3 &V2, const Vector3 &V3, ID uID = E_NID_AUTOMATIC);
 
+        /**
+         * @brief 析构函数
+         */
         virtual ~SGQuad();
+
+        /**
+         * @brief 重写基类接口，实现获取结点类型
+         * @see Node::Type Node::getNodeType() const
+         */
+        virtual Type getNodeType() const override;
+
+        /**
+         * @brief 重写基类接口，实现克隆对象功能
+         * @see NodePtr Node::clone() const
+         */
+        virtual NodePtr clone() const override;
 
     protected:
         SGQuad(ID uID = E_NID_AUTOMATIC);
 
+        /**
+         * @brief 重写基类接口，实现克隆对象属性
+         * @see TResult Node::cloneProperties(NodePtr node) const
+         */
+        virtual TResult cloneProperties(NodePtr node) const override;
+
+        /**
+         * @brief 重写基类接口，实现结点的自身变换
+         * @see void SGNode::updateTransform()
+         */
+        virtual void updateTransform() override;
+
+        /**
+         * @brief 重写基类接口，实现结点的视锥体裁剪逻辑
+         * @see void SGNode::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+         */
+        virtual void frustumCulling(BoundPtr bound,
+            RenderQueuePtr queue) override;
+
+        /**
+         * @brief 重写基类接口，获取渲染材质对象
+         * @see MaterialPtr SGRenderable::getMaterial() const
+         */
         virtual MaterialPtr getMaterial() const override;
 
+        /**
+         * @brief 重写基类接口，获取渲染VAO数据对象
+         * @see VertexArrayObjectPtr SGRenderable::getVertexArrayObject() const
+         */
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
     };
 }
