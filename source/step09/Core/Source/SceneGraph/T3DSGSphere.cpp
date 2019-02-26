@@ -25,10 +25,32 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SGSpherePtr SGSphere::create(ID uID /* = E_NID_AUTOMATIC */)
+    struct SphereVertex
+    {
+        SphereVertex()
+            : position(Vector3::ZERO)
+            , color(Color4::WHITE.A8R8G8B8())
+        {
+
+        }
+
+        Vector3     position;
+        uint32_t    color;
+    };
+
+    //--------------------------------------------------------------------------
+
+    SGSpherePtr SGSphere::create(const Vector3 &center, Real radius, 
+        ID uID /* = E_NID_AUTOMATIC */)
     {
         SGSpherePtr sphere = new SGSphere(uID);
         sphere->release();
+
+        if (sphere->init(center, radius) != T3D_OK)
+        {
+            sphere = nullptr;
+        }
+
         return sphere;
     }
 
@@ -36,6 +58,8 @@ namespace Tiny3D
 
     SGSphere::SGSphere(ID uID /* = E_NID_AUTOMATIC */)
         : SGRenderable(uID)
+        , mCenter(Vector3::ZERO)
+        , mRadius(REAL_ONE)
     {
 
     }
@@ -45,6 +69,25 @@ namespace Tiny3D
     SGSphere::~SGSphere()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    Node::Type SGSphere::getNodeType() const
+    {
+        return E_NT_SPHERE;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SGSphere::init(const Vector3 &center, Real radius)
+    {
+        TResult ret = T3D_OK;
+
+        mCenter = center;
+        mRadius = radius;
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

@@ -78,7 +78,7 @@ namespace Tiny3D
 
         /**
          * @brief 初始化对象
-         * @param [in] center : 长方体的中心店
+         * @param [in] center : 长方体的中心点
          * @param [in] extent : 长方体沿轴的6个方向长度
          * @return 成功返回 T3D_OK
          */
