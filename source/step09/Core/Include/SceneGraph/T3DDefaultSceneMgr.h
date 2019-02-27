@@ -111,7 +111,8 @@ namespace Tiny3D
          * @see SGQuadPtr SceneManagerBase::createQuad(SGNodePtr parent,
          *      ID uID = Node::E_NID_AUTOMATIC)
          */
-        virtual SGQuadPtr createQuad(SGNodePtr parent,
+        virtual SGQuadPtr createQuad(const SGQuad::Quad &quad,
+            const String &materialName, SGNodePtr parent,
             ID uID = Node::E_NID_AUTOMATIC) override;
 
         /**

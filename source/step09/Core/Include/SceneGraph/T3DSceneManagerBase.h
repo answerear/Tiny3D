@@ -23,6 +23,7 @@
 
 
 #include "SceneGraph/T3DSGNode.h"
+#include "SceneGraph/T3DSGQuad.h"
 
 
 namespace Tiny3D
@@ -125,13 +126,16 @@ namespace Tiny3D
 
         /**
          * @brief 创建一个可渲染的四边形结点
+         * @param [in] quad : 空间四边形顶点数据
+         * @param [in] materialName : 材质名称
          * @param [in] parent : 父结点
          * @param [in] uID : 结点ID，默认自动生成ID
          * @return 返回一个可渲染的四边形结点
          * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
          *      并进行场景管理。
          */
-        virtual SGQuadPtr createQuad(SGNodePtr parent,
+        virtual SGQuadPtr createQuad(const SGQuad::Quad &quad,
+            const String &materialName, SGNodePtr parent,
             ID uID = Node::E_NID_AUTOMATIC) = 0;
 
         /**

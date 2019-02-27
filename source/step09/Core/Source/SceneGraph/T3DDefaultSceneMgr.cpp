@@ -168,10 +168,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SGQuadPtr DefaultSceneMgr::createQuad(SGNodePtr parent, 
+    SGQuadPtr DefaultSceneMgr::createQuad(const SGQuad::Quad &quad, 
+        const String &materialName, SGNodePtr parent, 
         ID uID /* = Node::E_NID_AUTOMATIC */)
     {
-        SGQuadPtr node = SGQuad::create(uID);
+        SGQuadPtr node = SGQuad::create(quad, materialName, uID);
 
         if (parent != nullptr)
         {

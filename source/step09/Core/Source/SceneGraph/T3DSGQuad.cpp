@@ -19,23 +19,27 @@
 
 
 #include "SceneGraph/T3DSGQuad.h"
+#include "Resource/T3DMaterial.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SGQuadPtr SGQuad::create(ID uID /* = E_NID_AUTOMATIC */)
+    SGQuadPtr SGQuad::create(const Quad &quad, const String &materialName,
+        ID uID /* = E_NID_AUTOMATIC */)
     {
-        SGQuadPtr quad = new SGQuad(uID);
-        quad->release();
-        return quad;
+        SGQuadPtr q = new SGQuad(uID);
+        q->release();
+        return q;
     }
 
     //--------------------------------------------------------------------------
 
     SGQuad::SGQuad(ID uID /* = E_NID_AUTOMATIC */)
         : SGRenderable(uID)
+        , mMaterial(nullptr)
+        , mVAO(nullptr)
     {
 
     }
@@ -49,15 +53,74 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    Node::Type SGQuad::getNodeType() const
+    {
+        return E_NT_QUAD;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SGQuad::init(const Quad &quad, const String &materialName)
+    {
+        TResult ret = T3D_OK;
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    NodePtr SGQuad::clone() const
+    {
+        SGQuadPtr quad = new SGQuad();
+        quad->release();
+
+        if (cloneProperties(quad) != T3D_OK)
+        {
+            quad = nullptr;
+        }
+
+        return quad;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SGQuad::cloneProperties(NodePtr node) const
+    {
+        TResult ret = SGRenderable::cloneProperties(node);
+
+        if (ret == T3D_OK)
+        {
+
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGQuad::updateTransform()
+    {
+
+        SGRenderable::updateTransform();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGQuad::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
     MaterialPtr SGQuad::getMaterial() const
     {
-        return nullptr;
+        return mMaterial;
     }
 
     //--------------------------------------------------------------------------
 
     VertexArrayObjectPtr SGQuad::getVertexArrayObject() const
     {
-        return nullptr;
+        return mVAO;
     }
 }
