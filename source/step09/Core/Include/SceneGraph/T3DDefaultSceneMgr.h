@@ -47,6 +47,11 @@ namespace Tiny3D
         virtual ~DefaultSceneMgr();
 
         /**
+         * @brief 初始化
+         */
+        virtual TResult init();
+
+        /**
          * @brief 实现基类接口
          * @see TResult SceneManagerBase::renderScene(SGCameraPtr camera)
          */
