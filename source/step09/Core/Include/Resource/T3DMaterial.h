@@ -22,7 +22,7 @@
 #define __T3D_MATERIAL_H__
 
 
-#include "T3DResource.h"
+#include "Resource/T3DResource.h"
 
 
 namespace Tiny3D
@@ -33,8 +33,17 @@ namespace Tiny3D
     class T3D_ENGINE_API Material : public Resource
     {
     public:
+        /**
+         * @brief 材质类型
+         */
+        enum MaterialType
+        {
+            E_MT_DEFAULT = 0,   /**< 默认是从资源加载的材质 */
+            E_MT_MANUAL,        /**< 有调用者创建的材质 */
+        };
+
         /** 创建 Material 对象 */
-        static MaterialPtr create(const String &name);
+        static MaterialPtr create(const String &name, MaterialType type);
 
         /** 析构函数 */
         virtual ~Material();
@@ -46,6 +55,11 @@ namespace Tiny3D
         /** 构造函数 */
         Material(const String &name);
 
+        /**
+         * @brief 初始化对象
+         */
+        virtual TResult init();
+
         /** 重写 Resource::load() */
         virtual TResult load() override;
 
@@ -56,6 +70,7 @@ namespace Tiny3D
         virtual ResourcePtr clone() const override;
 
     protected:
+        MaterialType        mMaterialType;      /**< 材质资源类型 */
     };
 }
 

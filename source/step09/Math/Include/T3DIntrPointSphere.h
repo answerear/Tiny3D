@@ -17,25 +17,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_INTR_POINT_SPHERE_H__
+#define __T3D_INTR_POINT_SPHERE_H__
 
-#include "Resource/T3DArchive.h"
+
+#include "T3DMathPrerequisites.h"
+#include "T3DSphere.h"
+#include "T3DVector3.h"
 
 
 namespace Tiny3D
 {
-    Archive::Archive(const String &name)
-        : Resource(name)
+    template <typename T>
+    class TIntrPointSphere
     {
+    public:
+        TIntrPointSphere();
+        TIntrPointSphere(const TVector3<T> *point, const TSphere<T> *sphere);
+        TIntrPointSphere(const TVector3<T> &point, const TSphere<T> &sphere);
 
-    }
+        bool test();
 
-    Archive::~Archive()
-    {
+        const TVector3<T> *getPoint() const
+        {
+            return mPoint;
+        }
 
-    }
+        const TSphere<T> *getSphere() const
+        {
+            return mSphere;
+        }
 
-    Resource::Type Archive::getType() const
-    {
-        return E_RT_ARCHIVE;
-    }
+        void setPoint(const TVector3<T> *point)
+        {
+            mPoint = point;
+        }
+
+        void setSphere(const TSphere<T> *sphere)
+        {
+            mSphere = sphere;
+        }
+
+    private:
+        const TVector3<T>   *mPoint;
+        const TSphere<T>    *mSphere;
+    };
 }
+
+
+#include "T3DIntrPointSphere.inl"
+
+
+#endif  /*__T3D_INTR_POINT_SPHERE_H__*/

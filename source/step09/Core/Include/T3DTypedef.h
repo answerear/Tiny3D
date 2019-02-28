@@ -36,6 +36,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(ArchiveManager);
     T3D_DECLARE_SMART_PTR(Material);
     T3D_DECLARE_SMART_PTR(MaterialManager);
+    T3D_DECLARE_SMART_PTR(Texture);
+    T3D_DECLARE_SMART_PTR(TextureManager);
 
     T3D_DECLARE_SMART_PTR(HardwareBuffer);
     T3D_DECLARE_SMART_PTR(HardwareIndexBuffer);

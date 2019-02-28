@@ -18,72 +18,68 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DMaterial.h"
+#include "Resource/T3DMaterialManager.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    MaterialPtr Material::create(const String &name, MaterialType type)
-    {
-        MaterialPtr material = new Material(name);
-        material->release();
+    T3D_INIT_SINGLETON(MaterialManager);
 
-        if (material->init() != T3D_OK)
+    //--------------------------------------------------------------------------
+
+    MaterialManagerPtr MaterialManager::create()
+    {
+        MaterialManagerPtr mgr = new MaterialManager();
+        mgr->release();
+        return mgr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    MaterialManager::MaterialManager()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    MaterialManager::~MaterialManager()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    MaterialPtr MaterialManager::loadMaterial(const String &name, 
+        Material::MaterialType matType)
+    {
+        return smart_pointer_cast<Material>(ResourceManager::load(name, 1, 
+            matType));
+    }
+
+    //--------------------------------------------------------------------------
+
+    void MaterialManager::unloadMaterial(MaterialPtr &material)
+    {
+        unload((ResourcePtr &)material);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr MaterialManager::create(const String &name, int32_t argc, 
+        va_list args)
+    {
+        MaterialPtr material;
+
+        if (argc == 1)
         {
-            material = nullptr;
-
+            Material::MaterialType matType 
+                = va_arg(args, Material::MaterialType);
+            material = Material::create(name, matType);
         }
+
         return material;
-    }
-
-    //--------------------------------------------------------------------------
-
-    Material::Material(const String &name)
-        : Resource(name)
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    Material::~Material()
-    {
-
-    }
-
-    TResult Material::init()
-    {
-        TResult ret = T3D_OK;
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    Resource::Type Material::getType() const
-    {
-        return E_RT_MATERIAL;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Material::load()
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Material::unload()
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    ResourcePtr Material::clone() const
-    {
-        return Material::create(mName, mMaterialType);
     }
 }

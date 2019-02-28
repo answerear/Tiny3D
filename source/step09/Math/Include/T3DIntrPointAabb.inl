@@ -18,24 +18,54 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DArchive.h"
-
 
 namespace Tiny3D
 {
-    Archive::Archive(const String &name)
-        : Resource(name)
+    template <typename T>
+    inline TIntrPointAabb<T>::TIntrPointAabb()
+        : mPoint(nullptr)
+        , mBox(nullptr)
     {
 
     }
 
-    Archive::~Archive()
+    template <typename T>
+    inline TIntrPointAabb<T>::TIntrPointAabb(
+        const TVector3<T> &point,
+        const TAabb<T> &box)
+        : mPoint(&point)
+        , mBox(&box)
     {
 
     }
 
-    Resource::Type Archive::getType() const
+    template <typename T>
+    inline TIntrPointAabb<T>::TIntrPointAabb(
+        const TVector3<T> *point,
+        const TAabb<T> *box)
+        : mPoint(point)
+        , mBox(box)
     {
-        return E_RT_ARCHIVE;
+
+    }
+
+    template <typename T>
+    inline bool TIntrPointAabb<T>::test()
+    {
+        if (mPoint == nullptr || mBox == nullptr)
+            return false;
+
+        const TVector3<T> &point = *mPoint;
+
+        if (point.x() >= mBox->getMinX() && point.x() <= mBox->getMaxX()
+            && point.y() >= mBox->getMinY() && point.y() <= mBox->getMaxY()
+            && point.z() >= mBox->getMinZ() && point.z() <= mBox->getMaxZ()
+            )
+        {
+            return true;
+        }
+
+        return false;
     }
 }
+

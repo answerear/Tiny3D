@@ -17,25 +17,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_INTR_POINT_AABB_H__
+#define __T3D_INTR_POINT_AABB_H__
 
-#include "Resource/T3DArchive.h"
+
+#include "T3DMathPrerequisites.h"
+#include "T3DVector3.h"
+#include "T3DAabb.h"
 
 
 namespace Tiny3D
 {
-    Archive::Archive(const String &name)
-        : Resource(name)
+    template <typename T>
+    class TIntrPointAabb
     {
+    public:
+        TIntrPointAabb();
+        TIntrPointAabb(const TVector3<T> *point, const TAabb<T> *box);
+        TIntrPointAabb(const TVector3<T> &point, const TAabb<T> &box);
 
-    }
+        bool test();
 
-    Archive::~Archive()
-    {
+        const TVector3<T> *getPoint() const
+        {
+            return mPoint;
+        }
 
-    }
+        const TAabb<T> *getBox() const
+        {
+            return mBox;
+        }
 
-    Resource::Type Archive::getType() const
-    {
-        return E_RT_ARCHIVE;
-    }
+        void setPoint(const TVector3<T> *point)
+        {
+            mPoint = point;
+        }
+
+        void setBox(const TAabb<T> *box)
+        {
+            mBox = box;
+        }
+
+    private:
+        const TVector3<T>   *mPoint;
+        const TAabb<T>      *mBox;
+    };
 }
+
+
+#include "T3DIntrPointAabb.inl"
+
+
+#endif  /*__T3D_INTR_FRUSTUM_SPHERE_H__*/

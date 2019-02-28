@@ -69,6 +69,11 @@
 #include "T3DIntrFrustumObb.h"
 #include "T3DIntrFrustumSphere.h"
 
+#include "T3DIntrPointSphere.h"
+#include "T3DIntrPointAabb.h"
+#include "T3DIntrPointObb.h"
+#include "T3DIntrPointFrustum.h"
+
 
 namespace Tiny3D
 {
@@ -141,6 +146,11 @@ typedef TIntrObbObb<Real>           IntrObbObb;
 typedef TIntrFrustumSphere<Real>    IntrFrustumSphere;
 typedef TIntrFrustumAabb<Real>      IntrFrustumAabb;
 typedef TIntrFrustumObb<Real>       IntrFrustumObb;
+
+typedef TIntrPointSphere<Real>      IntrPointSphere;
+typedef TIntrPointAabb<Real>        IntrPointAabb;
+typedef TIntrPointObb<Real>         IntrPointObb;
+typedef TIntrPointFrustum<Real>     IntrPointFrustum;
 
 
 #define REAL_ZERO           TReal<Real>::ZERO

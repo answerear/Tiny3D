@@ -456,7 +456,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (dylib->getType() != Resource::E_TYPE_DYLIB)
+            if (dylib->getType() != Resource::E_RT_DYLIB)
             {
                 ret = T3D_ERR_PLG_NOT_DYLIB;
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Load plugin [%s] failed !", 

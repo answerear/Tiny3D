@@ -18,24 +18,51 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DArchive.h"
-
-
 namespace Tiny3D
 {
-    Archive::Archive(const String &name)
-        : Resource(name)
+    template <typename T>
+    inline TIntrPointSphere<T>::TIntrPointSphere()
+        : mPoint(nullptr)
+        , mSphere(nullptr)
     {
 
     }
 
-    Archive::~Archive()
+    template <typename T>
+    inline TIntrPointSphere<T>::TIntrPointSphere(
+        const TVector3<T> &point,
+        const TSphere<T> &sphere)
+        : mPoint(&point)
+        , mSphere(&sphere)
     {
 
     }
 
-    Resource::Type Archive::getType() const
+    template <typename T>
+    inline TIntrPointSphere<T>::TIntrPointSphere(
+        const TVector3<T> *point,
+        const TSphere<T> *sphere)
+        : mPoint(point)
+        , mSphere(sphere)
     {
-        return E_RT_ARCHIVE;
+
+    }
+
+    template <typename T>
+    inline bool TIntrPointSphere<T>::test()
+    {
+        if (mPoint == nullptr || mSphere == nullptr)
+            return false;
+
+        const TVector3<T> &point = *mPoint;
+        const TVector3<T> &center = mSphere->getCenter();
+        T radius = mSphere->getRadius();
+        if (point.distance2(center) <= radius * radius)
+        {
+            return false;
+        }
+
+        return true;
     }
 }
+

@@ -17,25 +17,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_INTR_POINT_FRUSTUM_H__
+#define __T3D_INTR_POINT_FRUSTUM_H__
 
-#include "Resource/T3DArchive.h"
+
+#include "T3DMathPrerequisites.h"
+#include "T3DVector3.h"
+#include "T3DFrustum.h"
 
 
 namespace Tiny3D
 {
-    Archive::Archive(const String &name)
-        : Resource(name)
+    template <typename T>
+    class TIntrPointFrustum
     {
+    public:
+        TIntrPointFrustum();
+        TIntrPointFrustum(const TVector3<T> *point, const TFrustum<T> *frustum);
+        TIntrPointFrustum(const TVector3<T> &point, const TFrustum<T> &frustum);
 
-    }
+        bool test();
 
-    Archive::~Archive()
-    {
+        const TFrustum<T> *getFrustum() const
+        {
+            return mFrustum;
+        }
 
-    }
+        const TVector3<T> *getPoint() const
+        {
+            return mSphere;
+        }
 
-    Resource::Type Archive::getType() const
-    {
-        return E_RT_ARCHIVE;
-    }
+        void setFrustum(const TFrustum<T> *frustum)
+        {
+            mFrustum = frustum;
+        }
+
+        void setPoint(const TVector3<T> *point)
+        {
+            mPoint = point;
+        }
+
+    private:
+        const TVector3<T>   *mPoint;
+        const TFrustum<T>   *mFrustum;
+    };
 }
+
+
+#include "T3DIntrPointFrustum.inl"
+
+
+#endif  /*__T3D_INTR_POINT_FRUSTUM_H__*/

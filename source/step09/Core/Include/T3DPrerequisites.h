@@ -48,6 +48,7 @@ namespace Tiny3D
     #define LOG_TAG_PLUGIN              "Plugin"
     #define LOG_TAG_IMAGE_CODEC         "ImageCodec"
     #define LOG_TAG_SCENE               "Scene"
+    #define LOG_TAG_RESOURCE            "Resource"
 
     class Object;
     class ObjectTracer;
@@ -66,6 +67,8 @@ namespace Tiny3D
     class ArchiveManager;
     class Material;
     class MaterialManager;
+    class Texture;
+    class TextureManager;
 
     class HardwareBuffer;
     class HardwareIndexBuffer;

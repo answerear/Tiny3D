@@ -36,10 +36,11 @@ namespace Tiny3D
         /** 资源类型枚举 */
         enum Type
         {
-            E_TYPE_UNKNOWN = 0,
-            E_TYPE_DYLIB,       /**< 动态库 */
-            E_TYPE_ARCHIVE,     /**< 文件档案系统 */
-            E_TYPE_MATERIAL,    /**< 材质 */
+            E_RT_UNKNOWN = 0,
+            E_RT_DYLIB,         /**< 动态库 */
+            E_RT_ARCHIVE,       /**< 文件档案系统 */
+            E_RT_MATERIAL,      /**< 材质 */
+            E_RT_TEXTURE,       /**< 纹理 */
         };
 
         /** 析构函数 */

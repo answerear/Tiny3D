@@ -74,7 +74,7 @@ namespace Tiny3D
 
     Resource::Type Dylib::getType() const
     {
-        return E_TYPE_DYLIB;
+        return E_RT_DYLIB;
     }
 
     void *Dylib::getSymbol(const String &name) const
