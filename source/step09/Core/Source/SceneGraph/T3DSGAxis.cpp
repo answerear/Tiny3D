@@ -246,7 +246,10 @@ namespace Tiny3D
     void SGAxis::updateTransform()
     {
         // 更新碰撞体
-        mBound->updateBound(getLocalToWorldTransform());
+        if (isDirty())
+        {
+            mBound->updateBound(getLocalToWorldTransform());
+        }
 
         SGRenderable::updateTransform();
     }

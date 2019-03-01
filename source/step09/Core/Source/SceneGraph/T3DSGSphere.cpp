@@ -303,7 +303,10 @@ namespace Tiny3D
 
     void SGSphere::updateTransform()
     {
-        mBound->updateBound(getLocalToWorldTransform());
+        if (isDirty())
+        {
+            mBound->updateBound(getLocalToWorldTransform());
+        }
 
         SGRenderable::updateTransform();
     }

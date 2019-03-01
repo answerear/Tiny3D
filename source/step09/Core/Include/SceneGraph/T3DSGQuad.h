@@ -166,8 +166,8 @@ namespace Tiny3D
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
     protected:
-        Quad                    mQuad;          /**< Quad数据 */
-        Vector3                 mWorldQuad;     /**< 变换成世界坐标的顶点 */
+        Quad    mQuad;                          /**< 原始数据 */
+        Vector3 mWorldQuad[VI_MAX_VERTICES];    /**< 变换成世界坐标的顶点 */
 
         MaterialPtr             mMaterial;      /**< 渲染用的材质 */
         VertexArrayObjectPtr    mVAO;           /**< 渲染用的VAO */
