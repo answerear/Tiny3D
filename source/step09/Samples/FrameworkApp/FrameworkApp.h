@@ -21,13 +21,13 @@
 #define __FRAMEWORK_APP_H__
 
 
-#include <Tiny3D.h>
+#include "../Common/SampleApp.h"
 
 
 class Entity;
 
 
-class FrameworkApp : public Tiny3D::Application
+class FrameworkApp : public SampleApp
 {
 public:
     FrameworkApp();
@@ -36,13 +36,7 @@ public:
 protected:  /// from Tiny3D::Application
     virtual bool applicationDidFinishLaunching() override;
 
-    virtual void applicationDidEnterBackground() override;
-
-    virtual void applicationWillEnterForeground() override;
-
     virtual void applicationWillTerminate() override;
-
-    virtual void applicationLowMemory() override;
 
     Entity  *mPlayer;
     Entity  *mEnemy;

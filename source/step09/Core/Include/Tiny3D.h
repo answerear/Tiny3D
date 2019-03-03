@@ -79,6 +79,17 @@
 
 // Scene Graph
 #include <SceneGraph/T3DSGNode.h>
+#include <SceneGraph/T3DSceneManager.h>
+#include <SceneGraph/T3DSGAxis.h>
+#include <SceneGraph/T3DSGBillboard.h>
+#include <SceneGraph/T3DSGCamera.h>
+#include <SceneGraph/T3DSGLight.h>
+#include <SceneGraph/T3DSGMesh.h>
+#include <SceneGraph/T3DSGModel.h>
+#include <SceneGraph/T3DSGQuad.h>
+#include <SceneGraph/T3DSGRenderable.h>
+#include <SceneGraph/T3DSGSphere.h>
+#include <SceneGraph/T3DSGTransform3D.h>
 
 
 #endif  /*__TINY3D_H__*/

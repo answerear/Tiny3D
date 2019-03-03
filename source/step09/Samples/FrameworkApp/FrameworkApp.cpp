@@ -24,8 +24,12 @@
 
 using namespace Tiny3D;
 
+
+FrameworkApp theApp;
+
+
 FrameworkApp::FrameworkApp()
-    : Application()
+    : SampleApp()
     , mPlayer(nullptr)
     , mEnemy(nullptr)
 {
@@ -46,24 +50,9 @@ bool FrameworkApp::applicationDidFinishLaunching()
     return true;
 }
 
-void FrameworkApp::applicationDidEnterBackground()
-{
-    T3D_AGENT.appDidEnterBackground();
-}
-
-void FrameworkApp::applicationWillEnterForeground()
-{
-    T3D_AGENT.appWillEnterForeground();
-}
-
 void FrameworkApp::applicationWillTerminate()
 {
     T3D_SAFE_DELETE(mEnemy);
     T3D_SAFE_DELETE(mPlayer);
-}
-
-void FrameworkApp::applicationLowMemory()
-{
-
 }
 

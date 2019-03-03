@@ -17,19 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __SAMPLE_APP_H__
+#define __SAMPLE_APP_H__
 
-#include "HelloApp.h"
 
-int main(int argc, char *argv[])
+#include <Tiny3D.h>
+
+#define LOG_TAG_APP     "APP"
+
+class SampleApp : public Tiny3D::Application
 {
-    HelloApp *theApp = new HelloApp();
-    Tiny3D::Agent *theEngine = new Tiny3D::Agent();
+public:
+    SampleApp();
+    virtual ~SampleApp();
 
-    theEngine->init(argv[0], true);
-    theEngine->run();
+    virtual TResult go(const String &appPath);
 
-    delete theEngine;
-    delete theApp;
+protected:  /// from Tiny3D::Application
+    virtual bool applicationDidFinishLaunching() override;
 
-    return 0;
-}
+    virtual void applicationDidEnterBackground() override;
+
+    virtual void applicationWillEnterForeground() override;
+
+    virtual void applicationWillTerminate() override;
+
+    virtual void applicationLowMemory() override;
+
+protected:
+
+};
+
+
+#endif  /*__SAMPLE_APP_H__*/

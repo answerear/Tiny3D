@@ -25,11 +25,12 @@ include_directories(
 
 # Setup project header files
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
+set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .h)
 
 
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
-
+set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .cpp)
 
 
 if (TINY3D_OS_WINDOWS)

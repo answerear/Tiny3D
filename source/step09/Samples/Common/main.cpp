@@ -18,19 +18,14 @@
  ******************************************************************************/
 
 
-#include "FrameworkApp.h"
+#include "SampleApp.h"
+
+
+extern SampleApp *app;
+
 
 int main(int argc, char *argv[])
 {
-    FrameworkApp *theApp = new FrameworkApp();
-    Tiny3D::Agent *theEngine = new Tiny3D::Agent();
-
-    Tiny3D::RenderWindow *window = nullptr;
-    theEngine->init(argv[0], true);
-    theEngine->run();
-
-    delete theEngine;
-    delete theApp;
-
-    return 0;
+    String appPath = argv[0];
+    return app->go(appPath);
 }

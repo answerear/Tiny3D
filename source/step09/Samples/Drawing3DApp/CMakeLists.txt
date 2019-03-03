@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(PlatformApp)
+set_project_name(Drawing3DApp)
 
 
 if (MSVC)
@@ -14,12 +14,12 @@ endif (MSVC)
 
 # Setup project include files path
 include_directories(
-	"${TINY3D_PLATFORM_INC_DIR}"
-	"${TINY3D_MATH_INC_DIR}"
-	"${TINY3D_LOG_INC_DIR}"
-	"${TINY3D_FRAMEWORK_INC_DIR}"
-	"${TINY3D_CORE_INC_DIR}"
-	"${CMAKE_CURRENT_SOURCE_DIR}"
+    "${TINY3D_PLATFORM_INC_DIR}"
+    "${TINY3D_MATH_INC_DIR}"
+    "${TINY3D_FRAMEWORK_INC_DIR}"
+    "${TINY3D_LOG_INC_DIR}"
+    "${TINY3D_CORE_INC_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
     )
 
@@ -31,7 +31,6 @@ set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .h)
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
 set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .cpp)
-
 
 
 if (TINY3D_OS_WINDOWS)
@@ -89,18 +88,17 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
     if (TINY3D_OS_IOS)
         find_library(FWK_SECURITY Security)
 
-		# Setup all link libraries and frameworks for iOS.
-		target_link_libraries(
-	        ${LIB_NAME}
-	        T3DPlatform
-	        T3DLog
-	        T3DCore
+        # Setup all link libraries and frameworks for iOS.
+        target_link_libraries(
+            ${LIB_NAME}
+            T3DPlatform
+            T3DLog
             T3DFramework
             T3DCore
-            T3DXRenderer
-            FileSystemArchive
-            ZipArchive
-            FreeImageCodec
+            #T3DXRenderer
+            #FileSystemArchive
+            #ZipArchive
+            #FreeImageCodec
             #z
             #${SDL2_LIBRARY}
             #${SDL2_OSX_FRAMEWORKS}
@@ -119,15 +117,33 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"                   # Code sign identity for this app.
             MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"                             # Long version string for this app.
             MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"                              # Short version string for this app.
+            XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path"
             )
 
         set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
         set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
 
+        install(CODE "
+            include(BundleUtilities)
+            fixup_bundle(\"${APPS}\" \"\" \"${DIRS}\")
+            " COMPONENT Runtime)
+
+        set(ASSETS_DIR "${APPS}/Assets/")
+
         add_custom_command(TARGET ${BIN_NAME}
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/Tiny3D.cfg" "${APPS}"
-            #COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*.dylib" "${APPS}"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/iOS/Tiny3D.cfg" "${APPS}"
+            COMMAND cp "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*.dylib" "${APPS}"
+#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DPlatform.dylib" "@rpath/libT3DPlatform.dylib" "${APPS}/${BIN_NAME}"
+#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DLog.dylib" "@rpath/libT3DLog.dylib" "${APPS}/${BIN_NAME}"
+#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DMath.dylib" "@rpath/libT3DMath.dylib" "${APPS}/${BIN_NAME}"
+#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DFramework.dylib" "@rpath/libT3DFramework.dylib" "${APPS}/${BIN_NAME}"
+#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DCore.dylib" "@rpath/libT3DCore.dylib" "${APPS}/${BIN_NAME}"
+#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DPlatform.dylib" "@rpath/libT3DPlatform.dylib" "${APPS}/libT3DCore.dylib"
+#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DLog.dylib" "@rpath/libT3DLog.dylib" "${APPS}/libT3DCore.dylib"
+            COMMAND codesign --force --verbose --sign "iPhone Developer" "${APPS}/*.dylib"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${ASSETS_DIR}"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../Assets/Icon ${ASSETS_DIR}/Icon
             )
     elseif (TINY3D_OS_MACOSX)
         # Setup all link libraries frameworks for Mac OS X
@@ -147,6 +163,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"                         # Bundle ID for this app.
             MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"                             # Long version string for this app.
             MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"                              # Short version string for this app.
+            XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path"
             )
 
         # Setup installing files for making a *.app for this project
@@ -164,11 +181,14 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
             )
 
+        set(ASSETS_DIR "${APPS}/Contents/MacOS/Assets/")
+
         add_custom_command(TARGET ${BIN_NAME}
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/Tiny3D.cfg" "${APPS}/Contents/MacOS"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/OSX/Tiny3D.cfg" "${APPS}/Contents/MacOS"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*" "${APPS}/Contents/MacOS"
-            #COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}" "${APPS}/Contents/MacOS"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${ASSETS_DIR}"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../Assets/Icon ${ASSETS_DIR}/Icon
             )
     endif (TINY3D_OS_IOS)
 elseif (TINY3D_OS_LINUX)

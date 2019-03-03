@@ -21,11 +21,10 @@
 #define __PLATFORM_APP_H__
 
 
-#include <Tiny3D.h>
+#include "../Common/SampleApp.h"
 
-#define LOG_TAG_APP     "APP"
 
-class PlatformApp : public Tiny3D::Application, Tiny3D::ITimerListener
+class PlatformApp : public SampleApp, public Tiny3D::ITimerListener
 {
 public:
     PlatformApp();
@@ -33,14 +32,6 @@ public:
 
 protected:  /// from Tiny3D::Application
     virtual bool applicationDidFinishLaunching() override;
-
-    virtual void applicationDidEnterBackground() override;
-
-    virtual void applicationWillEnterForeground() override;
-
-    virtual void applicationWillTerminate() override;
-
-    virtual void applicationLowMemory() override;
 
 protected:  /// from Tiny3D::ITimerListener
     virtual void onTimer(uint32_t timerID, int32_t dt) override;

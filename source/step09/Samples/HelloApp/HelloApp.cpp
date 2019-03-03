@@ -22,8 +22,12 @@
 
 using namespace Tiny3D;
 
+
+HelloApp theApp;
+
+
 HelloApp::HelloApp()
-    : Application()
+    : SampleApp()
 {
 }
 
@@ -33,42 +37,7 @@ HelloApp::~HelloApp()
 
 bool HelloApp::applicationDidFinishLaunching()
 {
-    mTimerID1 = T3D_TIMER_MGR.startTimer(2000, true, this);
-    mTimerID2 = T3D_TIMER_MGR.startTimer(5000, false, this);
-
     return true;
 }
 
-void HelloApp::applicationDidEnterBackground()
-{
-    T3D_AGENT.appDidEnterBackground();
-}
-
-void HelloApp::applicationWillEnterForeground()
-{
-    T3D_AGENT.appWillEnterForeground();
-}
-
-void HelloApp::applicationWillTerminate()
-{
-
-}
-
-void HelloApp::applicationLowMemory()
-{
-
-}
-
-void HelloApp::onTimer(uint32_t timerID, int32_t dt)
-{
-    if (timerID == mTimerID1)
-    {
-        T3D_LOG_INFO(LOG_TAG_APP, "onTimer : TimerID #1 : %u, dt : %d", timerID, dt);
-    }
-    else if (timerID == mTimerID2)
-    {
-        T3D_TIMER_MGR.stopTimer(mTimerID1);
-        T3D_LOG_INFO(LOG_TAG_APP, "onTimer : TimerID #2 : %u, dt : %d", timerID, dt);
-    }
-}
 

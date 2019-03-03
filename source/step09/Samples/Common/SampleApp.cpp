@@ -17,19 +17,62 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#include "SampleApp.h"
 
-#include "PlatformApp.h"
 
-int main(int argc, char *argv[])
+using namespace Tiny3D;
+
+SampleApp *app = nullptr;
+
+
+SampleApp::SampleApp()
+    : Application()
 {
-    PlatformApp *theApp = new PlatformApp();
+    app = this;
+}
+
+SampleApp::~SampleApp()
+{
+    app = nullptr;
+}
+
+TResult SampleApp::go(const String &appPath)
+{
+    TResult ret;
+
     Tiny3D::Agent *theEngine = new Tiny3D::Agent();
 
-    theEngine->init(argv[0], true);
-    theEngine->run();
+    ret = theEngine->init(appPath, true);
+    if (ret == T3D_OK)
+        theEngine->run();
 
     delete theEngine;
-    delete theApp;
 
-    return 0;
+    return ret;
 }
+
+bool SampleApp::applicationDidFinishLaunching()
+{
+    return true;
+}
+
+void SampleApp::applicationDidEnterBackground()
+{
+    T3D_AGENT.appDidEnterBackground();
+}
+
+void SampleApp::applicationWillEnterForeground()
+{
+    T3D_AGENT.appWillEnterForeground();
+}
+
+void SampleApp::applicationWillTerminate()
+{
+
+}
+
+void SampleApp::applicationLowMemory()
+{
+
+}
+
