@@ -82,6 +82,7 @@
 #include <SceneGraph/T3DSceneManager.h>
 #include <SceneGraph/T3DSGAxis.h>
 #include <SceneGraph/T3DSGBillboard.h>
+#include <SceneGraph/T3DSGBox.h>
 #include <SceneGraph/T3DSGCamera.h>
 #include <SceneGraph/T3DSGLight.h>
 #include <SceneGraph/T3DSGMesh.h>

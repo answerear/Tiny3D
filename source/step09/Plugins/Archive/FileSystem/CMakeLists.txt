@@ -54,19 +54,17 @@ if (TINY3D_OS_IOS)
 
     target_link_libraries(
         ${LIB_NAME}
-        T3DLog
         T3DPlatform
-#        T3DFramework
+        T3DLog
+        T3DMath
         T3DCore
-#        ${SDL2_LIBRARY}
-#        ${SDL2_OSX_FRAMEWORKS}
-#        ${FWK_SECURITY}
         )
 elseif (TINY3D_OS_LINUX)
     target_link_libraries(
         ${LIB_NAME}
-        T3DLog
         T3DPlatform
+        T3DLog
+        T3DMath
         T3DCore
         )
 
@@ -79,8 +77,9 @@ elseif (TINY3D_OS_LINUX)
 else (TINY3D_OS_IOS)
     target_link_libraries(
         ${LIB_NAME}
-        T3DLog
         T3DPlatform
+        T3DLog
+        T3DMath
         T3DCore
         )
 endif (TINY3D_OS_IOS)

@@ -44,6 +44,7 @@ if (TINY3D_OS_WINDOWS)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+        T3DMath
         T3DFramework
         T3DCore
         )
@@ -65,6 +66,7 @@ elseif (TINY3D_OS_ANDROID)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+        T3DMath
         T3DFramework
         T3DCore
         )
@@ -93,6 +95,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             ${LIB_NAME}
             T3DPlatform
             T3DLog
+            T3DMath
             T3DFramework
             T3DCore
             #T3DXRenderer
@@ -151,6 +154,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             ${LIB_NAME}
             T3DPlatform
             T3DLog
+            T3DMath
             T3DFramework
             T3DCore
             )
@@ -202,6 +206,7 @@ elseif (TINY3D_OS_LINUX)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+        T3DMath
         T3DFramework
         T3DCore
         )

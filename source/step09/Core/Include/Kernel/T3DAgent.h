@@ -85,6 +85,15 @@ namespace Tiny3D
         RenderWindowPtr getRenderWindow(const String &name) const;
 
         /**
+         * @brief 获取默认渲染窗口
+         * @return 返回默认渲染窗口对象
+         */
+        RenderWindowPtr getDefaultRenderWindow() const 
+        { 
+            return mDefaultWindow; 
+        }
+
+        /**
          * @brief 运行引擎
          */
         bool run();
@@ -314,7 +323,7 @@ namespace Tiny3D
         EventManager        *mEventMgr;         /**< 事件管理器对象 */
         ObjectTracer        *mObjTracer;        /**< 对象内存跟踪 */
 
-        Window              *mWindow;           /**< 窗口 */
+        RenderWindowPtr     mDefaultWindow;     /**< 默认渲染窗口 */
 
         ArchiveManagerPtr   mArchiveMgr;        /**< 档案管理对象 */
         DylibManagerPtr     mDylibMgr;          /**< 动态库管理对象 */

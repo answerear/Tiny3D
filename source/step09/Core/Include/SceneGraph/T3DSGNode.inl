@@ -61,4 +61,18 @@ namespace Tiny3D
     {
         return mIsEnabled;
     }
+
+    //--------------------------------------------------------------------------
+
+    inline void SGNode::setCameraMask(uint32_t mask)
+    {
+        mCameraMask = mask;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline uint32_t SGNode::getCameraMask() const
+    {
+        return mCameraMask;
+    }
 }

@@ -56,7 +56,7 @@ namespace Tiny3D
         : mLogger(nullptr)
         , mEventMgr(nullptr)
         , mObjTracer(nullptr)
-        , mWindow(nullptr)
+        , mDefaultWindow(nullptr)
         , mArchiveMgr(nullptr)
         , mDylibMgr(nullptr)
         , mImageCodec(nullptr)
@@ -77,7 +77,7 @@ namespace Tiny3D
         mArchiveMgr = nullptr;
         mImageCodec = nullptr;
 
-        T3D_SAFE_DELETE(mWindow);
+        mDefaultWindow = nullptr;
         T3D_SAFE_DELETE(mEventMgr);
 
         mObjTracer->dumpMemoryInfo();
@@ -232,6 +232,8 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Create render window failed !");
                 break;
             }
+
+            mDefaultWindow = window;
         } while (0);
 
         return ret;

@@ -53,10 +53,10 @@ endif (TINY3D_OS_IOS)
 
 target_link_libraries(
     ${LIB_NAME}
-    T3DMath
-    T3DLog
-    T3DPlatform
-    T3DCore
+    LINK_PRIVATE T3DPlatform
+    LINK_PRIVATE T3DMath
+    LINK_PRIVATE T3DLog
+    LINK_PRIVATE T3DCore
     )
 
 if (TINY3D_OS_LINUX)
