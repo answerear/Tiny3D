@@ -134,7 +134,7 @@ namespace Tiny3D
          * @param [in] type : 顶点数据类型
          * @param [in] semantic : 顶点语法解释
          */
-        VertexAttribute(size_t stream, size_t offset, Type type, 
+        VertexAttribute(size_t stream, size_t offset, Type type,
             Semantic semantic);
 
         /**
@@ -186,9 +186,9 @@ namespace Tiny3D
         typedef VertexAttriList::const_iterator     VertexAttriListConstItr;
 
         /**
-         * @brief 构造函数
+         * @brief 创建顶点声明对象
          */
-        VertexDeclaration();
+        static VertexDeclarationPtr create();
 
         /**
          * @brief 析构函数
@@ -314,6 +314,11 @@ namespace Tiny3D
         virtual VertexDeclarationPtr clone() const;
 
     protected:
+        /**
+         * @brief 构造函数
+         */
+        VertexDeclaration();
+
         VertexAttriList mVertexAttributes;  /**< 顶点属性列表 */
     };
 }

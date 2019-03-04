@@ -18,42 +18,35 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_HARDWARE_BUFFER_MANAGER_H__
-#define __T3D_HARDWARE_BUFFER_MANAGER_H__
+#ifndef __T3D_R3D_HARDWARE_BUFFER_MANAGER_H__
+#define __T3D_R3D_HARDWARE_BUFFER_MANAGER_H__
 
 
-#include "Render/T3DHardwareBufferManagerBase.h"
+#include "T3DR3DPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * @brief 硬件缓冲区管理器
-     * @remarks 这个类相当于一层渲染系统代理
-     */
-    class T3D_ENGINE_API HardwareBufferManager
-        : public HardwareBufferManagerBase
-        , public Singleton<HardwareBufferManager>
+    class R3DHardwareBufferManager : public HardwareBufferManagerBase
     {
     public:
         /**
-         * @brief 创建硬件缓冲区管理器对象
-         * @param [in] impl : 对应渲染系统的具体实现对象
+         * @brief 创建 Reference3D 渲染器相关的硬件缓冲区管理对象
          */
-        static HardwareBufferManagerPtr create(HardwareBufferManagerBase *impl);
+        static R3DHardwareBufferManagerPtr create();
 
         /**
          * @brief 析构函数
          */
-        ~HardwareBufferManager();
+        virtual ~R3DHardwareBufferManager();
 
         /**
          * @brief 创建顶点缓冲区
          * @remarks 继承自 HardwareBufferManagerBase
          * @see HardwareBufferManagerBase::createVertexBuffer()
          */
-        virtual HardwareVertexBufferPtr createVertexBuffer(size_t vertexSize, 
-            size_t vertexCount, HardwareBuffer::Usage usage, 
+        virtual HardwareVertexBufferPtr createVertexBuffer(size_t vertexSize,
+            size_t vertexCount, HardwareBuffer::Usage usage,
             bool useSystemMemory, bool useShadowBuffer) override;
 
         /**
@@ -62,9 +55,9 @@ namespace Tiny3D
          * @see HardwareBufferManagerBase::createIndexBuffer()
          */
         virtual HardwareIndexBufferPtr createIndexBuffer(
-            HardwareIndexBuffer::Type indexType, size_t indexCount, 
-            HardwareBuffer::Usage usage, bool useSystemMemory,
-            bool useShadowBuffer) override;
+            HardwareIndexBuffer::Type indexType, size_t indexCount,
+            HardwareBuffer::Usage usage,
+            bool useSystemMemory, bool useShadowBuffer) override;
 
         /**
          * @brief 创建像素缓冲区
@@ -93,16 +86,10 @@ namespace Tiny3D
     protected:
         /**
          * @brief 构造函数
-         * @param [in] impl : 对应渲染系统的具体实现对象
          */
-        HardwareBufferManager(HardwareBufferManagerBase *impl);
-
-    protected:
-        HardwareBufferManagerBasePtr   mImpl;   /**< 具体渲染体系对应的对象 */
+        R3DHardwareBufferManager();
     };
-
-    #define T3D_HARDWARE_BUFFER_MGR     (HardwareBufferManager::getInstance())
 }
 
 
-#endif  /*__T3D_HARDWARE_BUFFER_MANAGER_H__*/
+#endif  /*__T3D_R3D_HARDWARE_BUFFER_MANAGER_H__*/

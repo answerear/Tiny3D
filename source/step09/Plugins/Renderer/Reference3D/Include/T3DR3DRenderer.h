@@ -213,7 +213,9 @@ namespace Tiny3D
          */
         R3DRenderer();
 
-        R3DRenderWindowPtr     mRenderWindow;  /**< 渲染窗口 */
+        R3DRenderWindowPtr          mRenderWindow;          /**< 渲染窗口 */
+        HardwareBufferManagerPtr    mHardwareBufferMgr;     /**< 硬件缓冲管理器 */
+        R3DHardwareBufferManagerPtr mR3DHardwareBufferMgr;  /**< 渲染器相关的缓冲区管理对象 */
     };
 }
 

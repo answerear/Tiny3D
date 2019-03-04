@@ -20,6 +20,7 @@
 
 #include "T3DR3DPlugin.h"
 #include "T3DR3DRenderer.h"
+#include "T3DR3DHardwareBufferManager.h"
 
 
 namespace Tiny3D

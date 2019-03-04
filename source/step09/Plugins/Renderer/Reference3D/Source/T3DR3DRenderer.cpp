@@ -20,6 +20,7 @@
 
 #include "T3DR3DRenderer.h"
 #include "T3DR3DRenderWindow.h"
+#include "T3DR3DHardwareBufferManager.h"
 
 
 namespace Tiny3D
@@ -40,11 +41,16 @@ namespace Tiny3D
         , mRenderWindow(nullptr)
     {
         mName = Renderer::REFERENCE3D;
+
+        mR3DHardwareBufferMgr = R3DHardwareBufferManager::create();
+        mHardwareBufferMgr 
+            = HardwareBufferManager::create(mR3DHardwareBufferMgr);
     }
 
     R3DRenderer::~R3DRenderer()
     {
-
+        mHardwareBufferMgr = nullptr;
+        mR3DHardwareBufferMgr = nullptr;
     }
 
     //--------------------------------------------------------------------------

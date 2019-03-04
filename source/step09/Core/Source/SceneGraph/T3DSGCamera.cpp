@@ -35,6 +35,12 @@ namespace Tiny3D
     {
         SGCameraPtr camera = new SGCamera(uID);
         camera->release();
+
+        if (camera->init() != T3D_OK)
+        {
+            camera = nullptr;
+        }
+
         return camera;
     }
 
@@ -66,6 +72,17 @@ namespace Tiny3D
     {
         mBound = nullptr;
         mViewport = nullptr;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult SGCamera::init()
+    {
+        TResult ret = T3D_OK;
+
+        mBound = FrustumBound::create(this);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -232,8 +249,6 @@ namespace Tiny3D
 
     void SGCamera::updateTransform()
     {
-        SGTransform3D::updateTransform();
-
         bool isViewDirty = mIsViewDirty;
         bool isFrustumDirty = mIsFrustumDirty;
 
@@ -249,5 +264,7 @@ namespace Tiny3D
             FrustumBoundPtr bound = smart_pointer_cast<FrustumBound>(mBound);
             renderer->updateFrustum(M, bound);
         }
+
+        SGTransform3D::updateTransform();
     }
 }

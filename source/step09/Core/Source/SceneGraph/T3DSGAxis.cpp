@@ -140,7 +140,8 @@ namespace Tiny3D
             // 创建VBO
             HardwareVertexBufferPtr vbo
                 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(sizeof(AxisVertex),
-                    MAX_VERTICES, HardwareVertexBuffer::E_HBU_STATIC, false);
+                    MAX_VERTICES, HardwareVertexBuffer::E_HBU_STATIC, 
+                    false, false);
             if (vbo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;

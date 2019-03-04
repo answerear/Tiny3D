@@ -73,6 +73,8 @@ namespace Tiny3D
         : SGRenderable(uID)
         , mCenter(Vector3::ZERO)
         , mRadius(REAL_ONE)
+        , mVAO(nullptr)
+        , mBound(nullptr)
     {
 
     }
@@ -146,8 +148,8 @@ namespace Tiny3D
             // 创建VBO
             HardwareVertexBufferPtr vbo
                 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(
-                    sizeof(SphereVertex), MAX_VERTICES, 
-                    HardwareVertexBuffer::E_HBU_STATIC, false);
+                    sizeof(SphereVertex), MAX_VERTICES,
+                    HardwareVertexBuffer::E_HBU_STATIC, false, false);
             if (vbo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -170,7 +172,7 @@ namespace Tiny3D
             HardwareIndexBufferPtr ibo
                 = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(
                     HardwareIndexBuffer::E_IT_16BITS, MAX_INDICES,
-                    HardwareIndexBuffer::E_HBU_STATIC, false);
+                    HardwareIndexBuffer::E_HBU_STATIC, false, false);
             if (ibo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -196,7 +198,7 @@ namespace Tiny3D
             mVAO->endBinding();
 
             // 构建碰撞体
-            mBound->create(this);
+            mBound = SphereBound::create(this);
             mBound->setParams(mCenter, mRadius);
 
             // 需要刷新碰撞体的世界变换
@@ -249,6 +251,7 @@ namespace Tiny3D
         }
 
         uint16_t base = 0;
+        idx = 0;
 
         for (i = 0; i < MAX_STACKS; ++i)
         {

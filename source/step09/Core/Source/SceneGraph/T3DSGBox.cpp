@@ -139,7 +139,8 @@ namespace Tiny3D
             // 创建VBO
             HardwareVertexBufferPtr vbo
                 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(sizeof(BoxVertex),
-                    MAX_VERTICES, HardwareVertexBuffer::E_HBU_STATIC, false);
+                    MAX_VERTICES, HardwareVertexBuffer::E_HBU_STATIC, 
+                    false, false);
             if (vbo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -161,7 +162,7 @@ namespace Tiny3D
             HardwareIndexBufferPtr ibo
                 = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(
                     HardwareIndexBuffer::E_IT_16BITS, MAX_INDICES,
-                    HardwareIndexBuffer::E_HBU_STATIC, false);
+                    HardwareIndexBuffer::E_HBU_STATIC, false, false);
             if (ibo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -187,7 +188,7 @@ namespace Tiny3D
             mVAO->endBinding();
 
             // 构建碰撞体
-            mBound->create(this);
+            mBound = ObbBound::create(this);
             mBound->setCenter(center);
             mBound->setAxis(Vector3::UNIT_X * mExtent[0],
                 Vector3::UNIT_Y * mExtent[1], Vector3::UNIT_Z * mExtent[2]);

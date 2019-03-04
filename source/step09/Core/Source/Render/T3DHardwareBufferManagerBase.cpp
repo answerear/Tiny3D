@@ -19,7 +19,7 @@
 
 
 #include "Render/T3DHardwareBufferManagerBase.h"
-
+#include "Render/T3DHardwareVertexBuffer.h"
 
 namespace Tiny3D
 {
@@ -37,8 +37,7 @@ namespace Tiny3D
 
     VertexDeclarationPtr HardwareBufferManagerBase::createVertexDeclaration()
     {
-        VertexDeclaration *decl = new VertexDeclaration();
-        VertexDeclarationPtr ptr(decl);
+        VertexDeclarationPtr decl = VertexDeclaration::create();
         decl->release();
         return decl;
     }

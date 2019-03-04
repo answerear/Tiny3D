@@ -18,70 +18,81 @@
  ******************************************************************************/
 
 
-#include "Render/T3DHardwareBufferManager.h"
+#include "T3DR3DHardwareBufferManager.h"
+#include "T3DR3DHardwareVertexBuffer.h"
+#include "T3DR3DHardwareIndexBuffer.h"
+#include "T3DR3DHardwarePixelBuffer.h"
+#include "T3DR3DVertexDeclaration.h"
+#include "T3DR3DVertexArrayObject.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_INIT_SINGLETON(HardwareBufferManager);
-
-    //--------------------------------------------------------------------------
-
-    HardwareBufferManagerPtr HardwareBufferManager::create(
-        HardwareBufferManagerBase *impl)
+    R3DHardwareBufferManagerPtr R3DHardwareBufferManager::create()
     {
-        HardwareBufferManagerPtr mgr = new HardwareBufferManager(impl);
+        R3DHardwareBufferManagerPtr mgr = new R3DHardwareBufferManager();
         mgr->release();
         return mgr;
     }
 
-    HardwareBufferManager::HardwareBufferManager(
-        HardwareBufferManagerBase *impl)
-        : mImpl(impl)
+    //--------------------------------------------------------------------------
+
+    R3DHardwareBufferManager::R3DHardwareBufferManager()
     {
 
     }
 
-    HardwareBufferManager::~HardwareBufferManager()
+    //--------------------------------------------------------------------------
+
+    R3DHardwareBufferManager::~R3DHardwareBufferManager()
     {
-        mImpl = nullptr;
+
     }
 
-    HardwareVertexBufferPtr HardwareBufferManager::createVertexBuffer(
+    //--------------------------------------------------------------------------
+
+    HardwareVertexBufferPtr R3DHardwareBufferManager::createVertexBuffer(
         size_t vertexSize, size_t vertexCount, HardwareBuffer::Usage usage, 
         bool useSystemMemory, bool useShadowBuffer)
     {
-        return mImpl->createVertexBuffer(vertexSize, vertexCount, usage, 
+        return R3DHardwareVertexBuffer::create(vertexSize, vertexCount, usage,
             useSystemMemory, useShadowBuffer);
     }
 
-    HardwareIndexBufferPtr HardwareBufferManager::createIndexBuffer(
+    //--------------------------------------------------------------------------
+
+    HardwareIndexBufferPtr R3DHardwareBufferManager::createIndexBuffer(
         HardwareIndexBuffer::Type indexType, size_t indexCount, 
         HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
     {
-        return mImpl->createIndexBuffer(indexType, indexCount, usage, 
+        return R3DHardwareIndexBuffer::create(indexType, indexCount, usage, 
             useSystemMemory, useShadowBuffer);
     }
 
-    HardwarePixelBufferPtr HardwareBufferManager::createPixelBuffer(
+    //--------------------------------------------------------------------------
+
+    HardwarePixelBufferPtr R3DHardwareBufferManager::createPixelBuffer(
         size_t width, size_t height, PixelFormat format,
         HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
     {
-        return mImpl->createPixelBuffer(width, height, format, usage, 
+        return R3DHardwarePixelBuffer::create(width, height, format, usage, 
             useSystemMemory, useShadowBuffer);
     }
 
-    VertexArrayObjectPtr HardwareBufferManager::createVertexArrayObject(
+    //--------------------------------------------------------------------------
+
+    VertexArrayObjectPtr R3DHardwareBufferManager::createVertexArrayObject(
         bool useIndices)
     {
-        return mImpl->createVertexArrayObject(useIndices);
+        return R3DVertexArrayObject::create(useIndices);
     }
 
-    VertexDeclarationPtr HardwareBufferManager::createVertexDeclaration()
+    //--------------------------------------------------------------------------
+
+    VertexDeclarationPtr R3DHardwareBufferManager::createVertexDeclaration()
     {
-        return mImpl->createVertexDeclaration();
+        return R3DVertexDeclaration::create();
     }
 }
-

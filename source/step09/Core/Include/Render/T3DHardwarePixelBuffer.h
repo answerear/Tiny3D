@@ -61,17 +61,6 @@ namespace Tiny3D
         virtual void *lock(LockOptions options) override;
 
         /**
-         * @brief 获取锁定硬件缓冲区不同渲染器实现接口
-         * @param [in] rect : 要获取数据的区域
-         * @param [in] options : 获取数据选项
-         * @param [out] lockedPitch : 返回锁定区域的pitch
-         * @return 返回锁定的硬件数据地址
-         * @see enum LockOptions
-         */
-        virtual void *lockImpl(const Rect &rect, LockOptions options, 
-            int32_t &lockedPitch) = 0;
-
-        /**
          * @brief 复制数据到另外一个HardwarePixelBuffer
          * @param [in] dst : 目标pixel buffer
          * @param [in] dstRect : 目标数据区域，默认为nullptr的时候，
@@ -141,10 +130,21 @@ namespace Tiny3D
          * @param [in] useSystemMemory : 是否使用系统内存
          * @param [in] useShadowBuffer : 是否使用系统内存减少GPU显存读写次数
          */
-        HardwarePixelBuffer(uint32_t width, uint32_t height, PixelFormat format,
+        HardwarePixelBuffer(size_t width, size_t height, PixelFormat format,
             Usage usage, bool useSystemMemory, bool useShadowBuffer);
 
     private:
+        /**
+         * @brief 获取锁定硬件缓冲区不同渲染器实现接口
+         * @param [in] rect : 要获取数据的区域
+         * @param [in] options : 获取数据选项
+         * @param [out] lockedPitch : 返回锁定区域的pitch
+         * @return 返回锁定的硬件数据地址
+         * @see enum LockOptions
+         */
+        virtual void *lockImpl(const Rect &rect, LockOptions options,
+            int32_t &lockedPitch) = 0;
+
         /**
          * @brief 从父类继承而来，对于像素缓冲区来说，本接口没有意义，
          *      请使用readImage来代替
@@ -167,8 +167,8 @@ namespace Tiny3D
             LockOptions options) override;
 
     protected:
-        uint32_t    mWidth;         /// 像素缓冲区的宽度
-        uint32_t    mHeight;        /// 像素缓冲区的高度
+        size_t      mWidth;         /// 像素缓冲区的宽度
+        size_t      mHeight;        /// 像素缓冲区的高度
         size_t      mPitch;         /// 像素缓冲区的pitch
         PixelFormat mFormat;        /// 像素缓冲区的格式
     };

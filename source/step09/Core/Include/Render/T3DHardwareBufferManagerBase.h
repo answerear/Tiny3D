@@ -47,26 +47,29 @@ namespace Tiny3D
          * @param [in] vertexSize : 顶点字节代销
          * @param [in] vertexCount : 顶点数量
          * @param [in] usage : 缓冲区用法
+         * @param [in] useSystemMemory : 是否使用系统内存还是显存
          * @param [in] useShadowBuffer : 是否使用影子缓存
          * @return 调用成功返回一个新的硬件顶点缓冲区
          * @remarks 具体子类实现该接口创建对应的具体顶点缓冲区实例
          */
         virtual HardwareVertexBufferPtr createVertexBuffer(size_t vertexSize, 
             size_t vertexCount, HardwareBuffer::Usage usage, 
-            bool useShadowBuffer) = 0;
+            bool useSystemMemory, bool useShadowBuffer) = 0;
 
         /**
          * @brief 创建索引缓冲区
          * @param [in] indexType : 索引类型
          * @param [in] indexCount : 索引数量
          * @param [in] usage : 缓冲区使用方式
+         * @param [in] useSystemMemory : 是否使用系统内存还是显存
          * @param [in] useShadowBuffer : 是否使用影子缓存
          * @return 调用成功返回一个新的硬件索引缓冲区
          * @remarks 具体子类实现该接口创建对应的具体顶点缓冲区实例
          */
         virtual HardwareIndexBufferPtr createIndexBuffer(
             HardwareIndexBuffer::Type indexType, size_t indexCount, 
-            HardwareBuffer::Usage usage, bool useShadowBuffer) = 0;
+            HardwareBuffer::Usage usage, bool useSystemMemory, 
+            bool useShadowBuffer) = 0;
 
         /**
          * @brief 创建像素缓冲区
@@ -74,13 +77,14 @@ namespace Tiny3D
          * @param [in] height : 图像高度
          * @param [in] format : 像素格式
          * @param [in] usage : 缓冲区使用方式
+         * @param [in] useSystemMemory : 是否使用系统内存还是显存
          * @param [in] useShadowBuffer : 是否使用影子缓存
          * @return 调用成功返回一个新的硬件像素缓冲区
          * @remarks 具体子类实现该接口创建对应的具体顶点缓冲区实例
          */
-        virtual HardwarePixelBufferPtr createPixelBuffer(uint32_t width, 
-            uint32_t height, PixelFormat format, HardwareBuffer::Usage usage, 
-            bool useShadowBuffer) = 0;
+        virtual HardwarePixelBufferPtr createPixelBuffer(size_t width, 
+            size_t height, PixelFormat format, HardwareBuffer::Usage usage,
+            bool useSystemMemory, bool useShadowBuffer) = 0;
 
         /**
          * @brief 创建顶点数组对象

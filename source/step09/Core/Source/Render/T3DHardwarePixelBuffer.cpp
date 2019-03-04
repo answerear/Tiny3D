@@ -24,7 +24,7 @@
 
 namespace Tiny3D
 {
-    HardwarePixelBuffer::HardwarePixelBuffer(uint32_t width, uint32_t height,
+    HardwarePixelBuffer::HardwarePixelBuffer(size_t width, size_t height,
         PixelFormat format, Usage usage, bool useSystemMemory, 
         bool useShadowBuffer)
         : HardwareBuffer(usage, useSystemMemory, useShadowBuffer)

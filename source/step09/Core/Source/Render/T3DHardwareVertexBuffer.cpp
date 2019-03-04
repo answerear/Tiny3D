@@ -44,6 +44,10 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     VertexAttribute::VertexAttribute()
+        : mType(E_VAT_FLOAT3)
+        , mSemantic(E_VAS_POSITION)
+        , mOffset(0)
+        , mStream(0)
     {
 
     }
@@ -155,6 +159,13 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    VertexDeclarationPtr VertexDeclaration::create()
+    {
+        VertexDeclarationPtr decl = new VertexDeclaration();
+        decl->release();
+        return decl;
+    }
 
     VertexDeclaration::VertexDeclaration()
     {

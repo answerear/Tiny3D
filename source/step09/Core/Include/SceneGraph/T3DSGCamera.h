@@ -185,6 +185,11 @@ namespace Tiny3D
         SGCamera(ID uID = E_NID_AUTOMATIC);
 
         /**
+         * @brief 初始化对象
+         */
+        virtual TResult init();
+
+        /**
          * @brief 实现基类接口
          */
         virtual TResult cloneProperties(NodePtr node) const override;

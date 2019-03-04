@@ -68,6 +68,12 @@ namespace Tiny3D
         virtual TResult setVertexDeclaration(VertexDeclarationPtr decl) = 0;
 
         /**
+         * @brief 获取顶点声明
+         * @return 返回顶点声明对象
+         */
+        virtual VertexDeclarationPtr getVertexDeclaration() const = 0;
+
+        /**
          * @brief 添加顶点缓冲区对象
          * @param [in] vbo : 顶点缓冲对象
          * @return 调用成功返回 T3D_OK

@@ -18,41 +18,38 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_R3D_PREREQUISITES_H__
-#define __T3D_R3D_PREREQUISITES_H__
+#ifndef __T3D_R3D_VERTEX_DECLARATION_H__
+#define __T3D_R3D_VERTEX_DECLARATION_H__
 
 
-#include <Tiny3D.h>
-
-#if defined R3DRENDERER_EXPORT
-    #define T3D_R3DRENDER_API        T3D_EXPORT_API
-#else
-    #define T3D_R3DRENDER_API        T3D_IMPORT_API
-#endif
+#include "T3DR3DPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    #define LOG_TAG_R3DRENDERER    "R3DRenderer"
+    /**
+     * @brief Reference3D 渲染器相关的顶点声明类
+     */
+    class R3DVertexDeclaration : public VertexDeclaration
+    {
+    public:
+        /**
+         * @brief 创建 Reference3D 渲染器相关的顶点声明对象
+         */
+        static R3DVertexDeclarationPtr create();
 
-    class R3DRenderer;
-    class R3DRenderWindow;
-    class R3DHardwareBufferManager;
-    class R3DHardwareVertexBuffer;
-    class R3DHardwareIndexBuffer;
-    class R3DHardwarePixelBuffer;
-    class R3DVertexArrayObject;
-    class R3DVertexDeclaration;
+        /**
+         * @brief 析构函数
+         */
+        virtual ~R3DVertexDeclaration();
 
-    T3D_DECLARE_SMART_PTR(R3DRenderer);
-    T3D_DECLARE_SMART_PTR(R3DRenderWindow);
-    T3D_DECLARE_SMART_PTR(R3DHardwareBufferManager);
-    T3D_DECLARE_SMART_PTR(R3DHardwareVertexBuffer);
-    T3D_DECLARE_SMART_PTR(R3DHardwareIndexBuffer);
-    T3D_DECLARE_SMART_PTR(R3DHardwarePixelBuffer);
-    T3D_DECLARE_SMART_PTR(R3DVertexArrayObject);
-    T3D_DECLARE_SMART_PTR(R3DVertexDeclaration);
+    protected:
+        /**
+         * @brief 构造函数
+         */
+        R3DVertexDeclaration();
+    };
 }
 
 
-#endif  /*__T3D_R3D_PREREQUISITES_H__*/
+#endif  /*__T3D_R3D_VERTEX_DECLARATION_H__*/
