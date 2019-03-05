@@ -19,6 +19,7 @@
 
 
 #include "T3DR3DHardwarePixelBuffer.h"
+#include "T3DR3DError.h"
 
 
 namespace Tiny3D
@@ -42,15 +43,18 @@ namespace Tiny3D
         bool useShadowBuffer)
         : HardwarePixelBuffer(width, height, format, usage, useSystemMemory, 
             useShadowBuffer)
+        , mBuffer(nullptr)
     {
-
+        mBuffer = new uint8_t[mBufferSize];
+        mLockedBuffer = new uint8_t[mBufferSize];
     }
 
     //--------------------------------------------------------------------------
 
     R3DHardwarePixelBuffer::~R3DHardwarePixelBuffer()
     {
-
+        T3D_SAFE_DELETE_ARRAY(mLockedBuffer);
+        T3D_SAFE_DELETE_ARRAY(mBuffer);
     }
 
     //--------------------------------------------------------------------------
@@ -58,6 +62,60 @@ namespace Tiny3D
     TResult R3DHardwarePixelBuffer::readImage(const Image &image, 
         Rect *srcRect /* = nullptr */, Rect *dstRect /* = nullptr */)
     {
+        TResult ret = T3D_OK;
+
+        uint8_t *dst = nullptr;
+
+        do
+        {
+            int32_t bpp = Image::getBPP(mFormat);
+            Image temp;
+            int32_t dstPitch = 0;
+            Rect rtDst;
+
+            if (dstRect == nullptr)
+            {
+                dst = (uint8_t *)lock(E_HBL_DISCARD);
+                dstPitch = mPitch;
+                rtDst = Rect(0, 0, mWidth - 1, mHeight - 1);
+            }
+            else
+            {
+                rtDst = *dstRect;
+                dst = (uint8_t *)lock(rtDst, E_HBL_WRITE_ONLY, dstPitch);
+            }
+
+            // 临时构造一个图像对象，用于复制数据
+            ret = temp.load(dst, rtDst.width(), rtDst.height(), bpp,
+                dstPitch, mFormat);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Load temporary image \
+                        for reading image failed !");
+                break;
+            }
+
+            // 复制图像数据到纹理
+            ret = temp.copy(image, srcRect);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Copy temporary image \
+                        for reading image failed !");
+                break;
+            }
+
+            unlock();
+            dst = nullptr;
+
+            ret = true;
+        } while (0);
+
+        if (dst != nullptr)
+        {
+            unlock();
+            dst = nullptr;
+        }
+
         return T3D_OK;
     }
 
@@ -66,6 +124,54 @@ namespace Tiny3D
     TResult R3DHardwarePixelBuffer::writeImage(Image &image,
         Rect *dstRect /* = nullptr */, Rect *srcRect /* = nullptr */)
     {
+        TResult ret = T3D_OK;
+
+        uint8_t *src = nullptr;
+
+        do
+        {
+            int32_t bpp = Image::getBPP(mFormat);
+            Image temp;
+            int32_t srcPitch = 0;
+            Rect rtSrc;
+
+            if (srcRect == nullptr)
+            {
+                src = (uint8_t *)lock(E_HBL_READ_ONLY);
+                srcPitch = mPitch;
+                rtSrc = Rect(0, 0, mWidth - 1, mHeight - 1);
+            }
+
+            // 临时构造一个图像对象，用于复制数据
+            ret = temp.load(src, mWidth, mHeight, bpp, mPitch, mFormat);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Load temporary image \
+                        for writing image failed !");
+                break;
+            }
+
+            // 复制图像数据到纹理
+            ret = image.copy(temp, dstRect);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Copy temporary image \
+                        for writing image failed !");
+                break;
+            }
+
+            unlock();
+            src = nullptr;
+
+            ret = true;
+        } while (0);
+
+        if (src != nullptr)
+        {
+            unlock();
+            src = nullptr;
+        }
+
         return T3D_OK;
     }
 
@@ -74,7 +180,61 @@ namespace Tiny3D
     void *R3DHardwarePixelBuffer::lockImpl(const Rect &rect,
         LockOptions options, int32_t &lockedPitch)
     {
-        return nullptr;
+        if (rect.left < 0 || rect.right < 0
+            || rect.right >= getWidth() || rect.bottom >= getHeight())
+        {
+            // 越界了
+            return nullptr;
+        }
+
+        TResult ret = T3D_OK;
+        uint8_t *lockedBuffer = nullptr;
+
+        do 
+        {
+            if (E_HBL_READ_ONLY == options)
+            {
+                if (!(mUsage & E_HBU_WRITE_ONLY))
+                {
+                    int32_t bpp = Image::getBPP(mFormat);
+
+                    Image srcImage;
+                    ret = srcImage.load(mBuffer, mWidth, mHeight, bpp, mPitch, 
+                        mFormat);
+
+                    if (ret != T3D_OK)
+                    {
+                        break;
+                    }
+
+                    Image dstImage;
+                    int32_t pitch 
+                        = Image::calcPitch(rect.width(), rect.height());
+                    ret = dstImage.load(mLockedBuffer, (int32_t)rect.width(),
+                        (int32_t)rect.height(), bpp, pitch, mFormat);
+
+                    if (ret != T3D_OK)
+                    {
+                        break;
+                    }
+
+                    ret = dstImage.copy(srcImage, &rect);
+                    if (ret != T3D_OK)
+                    {
+                        break;
+                    }
+
+                    lockedBuffer = mLockedBuffer;
+                }
+            }
+            else
+            {
+
+            }
+        } while (0);
+        
+
+        return lockedBuffer;
     }
 
     //--------------------------------------------------------------------------

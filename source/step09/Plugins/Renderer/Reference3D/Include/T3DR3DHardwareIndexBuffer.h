@@ -81,6 +81,9 @@ namespace Tiny3D
          * @see TResult HardwareVertexBuffer::unlockImpl()
          */
         virtual TResult unlockImpl() override;
+
+    protected:
+        uint8_t *mBuffer;       /**< 索引缓冲区 */
     };
 }
 

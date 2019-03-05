@@ -178,8 +178,8 @@ namespace Tiny3D
          *          源和目标图像必须要像素格式一致，否则调用失败。
          * @note 当自动缩放时，会导致性能下降
          */
-        TResult copy(const Image &image, Rect *srcRect = nullptr,
-            Rect *dstRect = nullptr, Filter filter = E_FILTER_BILINEAR);
+        TResult copy(const Image &image, const Rect *srcRect = nullptr,
+            const Rect *dstRect = nullptr, Filter filter = E_FILTER_BILINEAR);
 
         /**
          * @brief 转成目标像素格式的图像

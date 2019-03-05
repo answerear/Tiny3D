@@ -31,6 +31,7 @@ namespace Tiny3D
     {
         T3D_ERR_R3D_WINDOW_ALREADY = T3D_ERR_RENDERER,  /**< 窗口已经创建 */
         T3D_ERR_R3D_UNSUPPORT_FORMAT_ICON,              /**< 不支持的图标文件格式 */
+        T3D_ERR_R3D_IMAGE_SIZE_NOT_EQL,                 /**< 图片大小不一致 */
     };
 }
 

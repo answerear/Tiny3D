@@ -35,6 +35,7 @@ namespace Tiny3D
     {
         int32_t bpp = Image::getBPP(mFormat);
         mPitch = Image::calcPitch(mWidth, bpp);
+        mBufferSize = mPitch * mHeight;
     }
 
     HardwarePixelBuffer::~HardwarePixelBuffer()

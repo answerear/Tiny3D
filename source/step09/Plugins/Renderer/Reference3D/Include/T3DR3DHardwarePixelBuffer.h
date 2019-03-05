@@ -58,6 +58,9 @@ namespace Tiny3D
             Rect *srcRect = nullptr) override;
 
     protected:
+        /**
+         * @brief 构造函数
+         */
         R3DHardwarePixelBuffer(size_t width, size_t height,
             PixelFormat format, Usage usage, bool useSystemMemory, 
             bool useShadowBuffer);
@@ -73,6 +76,10 @@ namespace Tiny3D
         * @see TResult HardwareVertexBuffer::unlockImpl()
         */
         virtual TResult unlockImpl() override;
+
+    protected:
+        uint8_t *mBuffer;       /**< 像素缓冲区 */
+        uint8_t *mLockedBuffer; /**< 锁定的缓冲区 */
     };
 }
 

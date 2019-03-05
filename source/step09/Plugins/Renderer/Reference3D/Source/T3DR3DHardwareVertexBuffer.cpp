@@ -42,15 +42,16 @@ namespace Tiny3D
         bool useShadowBuffer)
         : HardwareVertexBuffer(vertexSize, vertexCount, usage, useSystemMemory,
             useSystemMemory)
+        , mBuffer(nullptr)
     {
-
+        mBuffer = new uint8_t[mBufferSize];
     }
 
     //--------------------------------------------------------------------------
 
     R3DHardwareVertexBuffer::~R3DHardwareVertexBuffer()
     {
-
+        T3D_SAFE_DELETE_ARRAY(mBuffer);
     }
 
     //--------------------------------------------------------------------------
@@ -58,7 +59,24 @@ namespace Tiny3D
     size_t R3DHardwareVertexBuffer::readData(size_t offset, size_t size,
         void *dst)
     {
-        return 0;
+        if (mUsage & E_HBU_WRITE_ONLY)
+        {
+            // 只写缓冲区，无法读取
+            return 0;
+        }
+
+        // 实际读取的字节数不能超过缓冲区大小
+        size_t bytesOfRead = offset + size;
+
+        if (bytesOfRead > mBufferSize)
+        {
+            bytesOfRead = mBufferSize - offset;
+        }
+
+        // 复制数据
+        memcpy(((uint8_t*)dst) + offset, mBuffer, bytesOfRead);
+
+        return bytesOfRead;
     }
 
     //--------------------------------------------------------------------------
@@ -66,7 +84,18 @@ namespace Tiny3D
     size_t R3DHardwareVertexBuffer::writeData(size_t offset, size_t size,
         const void *src, bool discardWholeBuffer /* = false */)
     {
-        return 0;
+        // 实际写入的字节数不能超过缓冲区大小
+        size_t bytesOfWritten = offset + size;
+
+        if (bytesOfWritten > mBufferSize)
+        {
+            bytesOfWritten = mBufferSize - offset;
+        }
+
+        // 复制数据，忽略discardWholeBuffer参数
+        memcpy(mBuffer + offset, src, bytesOfWritten);
+
+        return bytesOfWritten;
     }
 
     //--------------------------------------------------------------------------
@@ -74,7 +103,14 @@ namespace Tiny3D
     void *R3DHardwareVertexBuffer::lockImpl(size_t offset, size_t size,
         LockOptions options)
     {
-        return nullptr;
+        size_t bytesOfLocked = offset + size;
+        if (bytesOfLocked > mBufferSize)
+        {
+            // 超过缓冲区大小了，直接返回空
+            return nullptr;
+        }
+
+        return (mBuffer + offset);
     }
 
     //--------------------------------------------------------------------------

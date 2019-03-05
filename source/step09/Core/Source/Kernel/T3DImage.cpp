@@ -367,8 +367,10 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Image::copy(const Image &image, Rect *srcRect /* = nullptr */, 
-        Rect *dstRect /* = nullptr */, Filter filter /* = E_FILTER_BILINEAR */)
+    TResult Image::copy(const Image &image, 
+        const Rect *srcRect /* = nullptr */, 
+        const Rect *dstRect /* = nullptr */, 
+        Filter filter /* = E_FILTER_BILINEAR */)
     {
         TResult ret = T3D_OK;
 
