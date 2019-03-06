@@ -385,8 +385,12 @@ namespace Tiny3D
                     }
                 }
 
+
+                fif = FreeImage_GetFileTypeFromMemory(stream);
+
                 setImageDimension(image, width, height, dstPitch);
-                setImageInfo(image, bpp, hasAlpha, isPreMulti, eFormat);
+                setImageInfo(image, fif, bpp, hasAlpha, 
+                    isPreMulti, eFormat);
                 setImageData(image, dst, imageSize);
             }
         } while (0);
@@ -472,14 +476,16 @@ namespace Tiny3D
             if (dib == nullptr)
             {
                 ret = T3D_ERR_CODEC_LOAD_FROM_RAW_DATA;
-                T3D_LOG_ERROR(LOG_TAG_IMAGE, "Convert from raw bits failed !");
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                    "Convert from raw bits failed !");
                 break;
             }
 
             if (!FreeImage_FlipHorizontal(dib))
             {
                 ret = T3D_ERR_CODEC_MIRROR;
-                T3D_LOG_ERROR(LOG_TAG_IMAGE, "Mirror image failed !");
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                    "Mirror image failed !");
                 break;
             }
 
@@ -494,6 +500,205 @@ namespace Tiny3D
         }
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FreeImageCodec::fill(Image &image, const Color4 &color)
+    {
+        TResult ret = T3D_OK;
+
+        FIBITMAP *dib = nullptr;
+
+        do
+        {
+            uint32_t redMask, greenMask, blueMask, alphaMask;
+            image.getColorMask(redMask, greenMask, blueMask, alphaMask);
+
+            dib = FreeImage_ConvertFromRawBitsEx(FALSE, image.getData(), 
+                FIT_BITMAP, image.getWidth(), image.getHeight(), 
+                image.getPitch(), image.getBPP(), redMask, greenMask, blueMask, 
+                FALSE);
+
+            if (dib == nullptr)
+            {
+                ret = T3D_ERR_CODEC_LOAD_FROM_RAW_DATA;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                    "Convert from raw bits failed !");
+                break;
+            }
+
+            uint32_t clr = color.A8R8G8B8();
+            if (!FreeImage_FillBackground(dib, (const void *)&clr))
+            {
+                ret = T3D_ERR_CODEC_FILL_COLOR;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                    "Fill image failed !");
+                break;
+            }
+
+            FreeImage_Unload(dib);
+            dib = nullptr;
+        } while (0);
+
+        if (dib != nullptr)
+        {
+            FreeImage_Unload(dib);
+            dib = nullptr;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FreeImageCodec::copy(const Image &srcImage, const Rect *srcRect,
+        Image &dstImage, const Rect *dstRect, uint32_t filter)
+    {
+        TResult ret = T3D_OK;
+        FIBITMAP *dib = nullptr;
+        FIBITMAP *newdib = nullptr;
+
+        do
+        {
+            // 非空图像，这个有点麻烦了，只能硬头皮来
+
+            // 如果像素格式不一致，直接返回，请先调用convert接口来转换成一致格式的图像
+            if (srcImage.getFormat() != dstImage.getFormat())
+            {
+                T3D_LOG_ERROR(LOG_TAG_IMAGE, "Source image and destination image are different !");
+                break;
+            }
+
+            Rect rtDst;
+            if (dstRect == nullptr)
+            {
+                rtDst = Rect(Point(0, 0), Size(srcImage.getWidth(), 
+                    srcImage.getHeight()));
+            }
+            else
+            {
+                rtDst = *dstRect;
+            }
+
+            Rect rtSrc;
+            if (srcRect == nullptr)
+            {
+                rtSrc = Rect(Point(0, 0), Size(srcImage.getWidth(), 
+                    srcImage.getHeight()));
+            }
+            else
+            {
+                rtSrc = *srcRect;
+            }
+
+            // 检验区域有效性
+            if (rtSrc.left < 0 || rtSrc.right >= mWidth
+                || rtSrc.top < 0 || rtSrc.bottom >= mHeight)
+            {
+                // 超出源图像范围了
+                T3D_LOG_ERROR(LOG_TAG_IMAGE, "Source image rectangle is out of bound !");
+                break;
+            }
+
+            if (rtDst.left < 0 || rtDst.right >= image.getWidth()
+                || rtDst.top < 0 || rtDst.bottom >= image.getHeight())
+            {
+                // 超出目标图像范围了
+                T3D_LOG_ERROR(LOG_TAG_IMAGE, "Destination image rectangle is out of bound !");
+                break;
+            }
+
+            if (image.getWidth() == mWidth && image.getHeight() == mHeight && rtDst == rtSrc)
+            {
+                // 源和目标区域完全相同，直接点吧
+                T3D_ASSERT(image.mDataSize == mDataSize);
+                memcpy(mData, image.mData, mDataSize);
+            }
+            else if (rtSrc.width() == rtDst.width() && rtSrc.height() == rtDst.height())
+            {
+                // 源和目标区域大小一致，啃下来，自己来复制
+                uint8_t *srcData = image.mData + rtSrc.top * image.mPitch + rtSrc.left * image.getBytesPerPixel();
+                uint8_t *dstData = mData + rtDst.top * mPitch + rtDst.left * getBytesPerPixel();
+                uint8_t *src = srcData;
+                uint8_t *dst = dstData;
+
+                int32_t pitch = std::min(image.mPitch, mPitch);
+
+                int32_t y = 0;
+                for (y = 0; y < rtSrc.height(); ++y)
+                {
+                    memcpy(dst, src, pitch);
+                    dst += mPitch;
+                    src += image.mPitch;
+                }
+            }
+            else
+            {
+                // 没办法，自己图像处理算法烂，也懒得去研究，先用FreeImage帮忙吧
+                uint32_t redMask, greenMask, blueMask, alphaMask;
+                image.getColorMask(redMask, greenMask, blueMask, alphaMask);
+
+                // 把源数据读到FreeImage里面，让FreeImage来处理
+                dib = FreeImage_ConvertFromRawBitsEx(FALSE, mData, FIT_BITMAP,
+                    image.getWidth(), image.getWidth(), image.getPitch(), image.getBPP(),
+                    redMask, greenMask, blueMask, TRUE);
+
+                if (dib == nullptr)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_IMAGE, "Convert from raw bits failed !");
+                    break;
+                }
+
+                // 缩放
+                newdib = FreeImage_Rescale(dib, rtDst.width(), rtDst.height(), (FREE_IMAGE_FILTER)filter);
+                if (newdib == nullptr)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_IMAGE, "Scale image failed !");
+                    break;
+                }
+
+                // 把转好的数据复制到目标图像上
+                int32_t srcBPP = FreeImage_GetBPP(newdib);
+                T3D_ASSERT(srcBPP == image.getBPP());
+
+                int32_t srcPitch = FreeImage_GetPitch(newdib);
+                uint8_t *srcData = FreeImage_GetBits(newdib);
+
+                int32_t dstPitch = mPitch;
+                uint8_t *dstData = mData + rtDst.top * dstPitch + rtDst.left * getBytesPerPixel();
+
+                uint8_t *src = srcData;
+                uint8_t *dst = dstData;
+                int32_t y = 0;
+
+                for (y = 0; y < rtDst.height(); ++y)
+                {
+                    memcpy(dst, src, srcPitch);
+                    dst += dstPitch;
+                    src += srcPitch;
+                }
+
+                // 释放FreeImage对象
+                FreeImage_Unload(newdib);
+                newdib = nullptr;
+
+                FreeImage_Unload(dib);
+                dib = nullptr;
+            }
+        } while (0);
+
+        if (newdib != nullptr)
+        {
+            FreeImage_Unload(newdib);
+            newdib = nullptr;
+        }
+
+        if (dib != nullptr)
+        {
+            FreeImage_Unload(dib);
+            dib = nullptr;
+        }
     }
 }
 

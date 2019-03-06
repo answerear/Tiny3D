@@ -254,83 +254,12 @@ namespace Tiny3D
 
     TResult Image::mirror()
     {
-        TResult ret = T3D_OK;
-
-//         FIBITMAP *dib = nullptr;
-// 
-//         do
-//         {
-//             uint32_t redMask, greenMask, blueMask, alphaMask;
-//             getColorMask(redMask, greenMask, blueMask, alphaMask);
-// 
-//             dib = FreeImage_ConvertFromRawBitsEx(FALSE, mData, FIT_BITMAP, mWidth, mHeight, mPitch, mBPP, redMask, greenMask, blueMask, FALSE);
-// 
-//             if (dib == nullptr)
-//             {
-//                 T3D_LOG_ERROR(LOG_TAG_IMAGE, "Convert from raw bits failed !");
-//                 break;
-//             }
-// 
-//             if (!FreeImage_FlipHorizontal(dib))
-//             {
-//                 T3D_LOG_ERROR(LOG_TAG_IMAGE, "Mirror image failed !");
-//                 break;
-//             }
-// 
-//             FreeImage_Unload(dib);
-//             dib = nullptr;
-// 
-//             ret = true;
-//         } while (0);
-// 
-//         if (dib != nullptr)
-//         {
-//             FreeImage_Unload(dib);
-//             dib = nullptr;
-//         }
-
-        return ret;
+        return T3D_IMAGE_CODEC.mirror(*this);
     }
 
     TResult Image::fill(const Color4 &rkColor)
     {
-        TResult ret = T3D_OK;
-
-//         FIBITMAP *dib = nullptr;
-// 
-//         do
-//         {
-//             uint32_t redMask, greenMask, blueMask, alphaMask;
-//             getColorMask(redMask, greenMask, blueMask, alphaMask);
-// 
-//             dib = FreeImage_ConvertFromRawBitsEx(FALSE, mData, FIT_BITMAP, mWidth, mHeight, mPitch, mBPP, redMask, greenMask, blueMask, FALSE);
-// 
-//             if (dib == nullptr)
-//             {
-//                 T3D_LOG_ERROR(LOG_TAG_IMAGE, "Convert from raw bits failed !");
-//                 break;
-//             }
-// 
-//             uint32_t color = rkColor.A8R8G8B8();
-//             if (!FreeImage_FillBackground(dib, (const void *)&color))
-//             {
-//                 T3D_LOG_ERROR(LOG_TAG_IMAGE, "Fill image failed !");
-//                 break;
-//             }
-// 
-//             FreeImage_Unload(dib);
-//             dib = nullptr;
-// 
-//             ret = true;
-//         } while (0);
-// 
-//         if (dib != nullptr)
-//         {
-//             FreeImage_Unload(dib);
-//             dib = nullptr;
-//         }
-
-        return ret;
+        return T3D_IMAGE_CODEC.fill(*this, rkColor);
     }
 
     TResult Image::copy(const Image &image, 

@@ -38,6 +38,7 @@ namespace Tiny3D
         T3D_ERR_CODEC_LOAD_FROM_RAW_DATA,                           /**< 从数据源创建失败 */
         T3D_ERR_CODEC_FLIP,                                         /**< 颠倒图像失败 */
         T3D_ERR_CODEC_MIRROR,                                       /**< 镜像图像失败 */
+        T3D_ERR_CODEC_FILL_COLOR,                                   /**< 填充颜色失败 */
     };
 }
 
