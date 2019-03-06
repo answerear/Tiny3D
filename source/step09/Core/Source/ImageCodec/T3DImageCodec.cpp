@@ -237,6 +237,152 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ImageCodec::flip(Image &image)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            ImageCodecBasePtr codec = getImageCodec(
+                (ImageCodecBase::FileType)image.getSourceType());
+            if (codec == nullptr)
+            {
+                ret = T3D_ERR_IMG_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
+                    "Could not find the image codec !");
+                break;
+            }
+
+            ret = codec->flip(image);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImageCodec::mirror(Image &image)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            ImageCodecBasePtr codec = getImageCodec(
+                (ImageCodecBase::FileType)image.getSourceType());
+            if (codec == nullptr)
+            {
+                ret = T3D_ERR_IMG_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
+                    "Could not find the image codec !");
+                break;
+            }
+
+            ret = codec->mirror(image);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImageCodec::fill(Image &image, const Color4 &color)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            ImageCodecBasePtr codec = getImageCodec(
+                (ImageCodecBase::FileType)image.getSourceType());
+            if (codec == nullptr)
+            {
+                ret = T3D_ERR_IMG_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
+                    "Could not find the image codec !");
+                break;
+            }
+
+            ret = codec->fill(image, color);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImageCodec::copy(const Image &srcImage, const Rect *srcRect, 
+        Image &dstImage, const Rect *dstRect, uint32_t filter)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            ImageCodecBasePtr codec = getImageCodec(
+                (ImageCodecBase::FileType)srcImage.getSourceType());
+            if (codec == nullptr)
+            {
+                ret = T3D_ERR_IMG_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
+                    "Could not find the image codec !");
+                break;
+            }
+
+            ret = codec->copy(srcImage, srcRect, dstImage, dstRect, filter);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImageCodec::convert(Image &image, PixelFormat format)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ImageCodecBasePtr codec = getImageCodec(
+                (ImageCodecBase::FileType)image.getSourceType());
+            if (codec == nullptr)
+            {
+                ret = T3D_ERR_IMG_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
+                    "Could not find the image codec !");
+                break;
+            }
+
+            ret = codec->convert(image, format);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImageCodec::convert(const Image &srcImage, Image &dstImage, 
+        PixelFormat format)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ImageCodecBasePtr codec = getImageCodec(
+                (ImageCodecBase::FileType)srcImage.getSourceType());
+            if (codec == nullptr)
+            {
+                ret = T3D_ERR_IMG_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
+                    "Could not find the image codec !");
+                break;
+            }
+
+            ret = codec->convert(srcImage, dstImage, format);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     ImageCodecBasePtr ImageCodec::getImageCodec(uint8_t *data, size_t size, 
         ImageCodecBase::FileType &type) const
     {

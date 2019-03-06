@@ -55,43 +55,59 @@ namespace Tiny3D
         TResult shutdown();
 
         /**
-         * @brief 是否支持的类型
-         * @param [in] data : 图像数据
-         * @param [in] size : 图像数据大小
-         * @param [in] type : 图像文件类型，默认可以自动识别
-         * @return 支持的返回true，否则返回false
+         * @brief 是否支持的类型，实现基类接口
          */
         virtual bool isSupportedType(uint8_t *data, size_t size,
             FileType &type) const override;
 
         /**
-         * @brief 获取文件类型
-         * @return 返回文件类型
-         * @remarks 具体图像类型编解码器实现本接口
+         * @brief 获取文件类型，实现基类接口
          */
         virtual FileType getFileType() const override;
 
         /**
-         * @brief 把图像对象编码到数据缓冲中
-         * @param [in][out] data : 编码后的数据
-         * @param [in][out] size : 编码后的数据大小
-         * @param [in] image : 图像对象，数据源
-         * @param [in] type : 文件类型
-         * @return 调用成功返回 T3D_OK
+         * @brief 把图像对象编码到数据缓冲中，实现基类接口
          */
         virtual TResult encode(uint8_t *&data, size_t &size, const Image &image,
             FileType type) override;
 
         /**
-         * @brief 把缓冲数据解码到图像对象中
-         * @param [in] data : 要解码的数据
-         * @param [in] size : 要解码的数据大小
-         * @param [in] image : 图像对象，解码后的数据保存在此对象中
-         * @param [in] type : 图像类型
-         * @return 调用成功返回 T3D_OK
+         * @brief 把缓冲数据解码到图像对象中，实现基类接口
          */
         virtual TResult decode(uint8_t *data, size_t size, Image &image,
             FileType type) override;
+
+        /**
+         * @brief 颠倒图像，实现基类接口
+         */
+        virtual TResult flip(Image &image) override;
+
+        /**
+         * @brief 镜像图像，实现基类接口
+         */
+        virtual TResult mirror(Image &image) override;
+
+        /**
+         * @brief 用指定颜色填充图像，实现基类接口
+         */
+        virtual TResult fill(Image &image, const Color4 &color) override;
+
+        /**
+         * @brief 复制源图像指定区域数据到目标图像指定区域，实现基类接口
+         */
+        virtual TResult copy(const Image &srcImage, const Rect *srcRect,
+            Image &dstImage, const Rect *dstRect, uint32_t filter) override;
+
+        /**
+         * @brief 转换到目标像素格式，实现基类接口
+         */
+        virtual TResult convert(Image &image, PixelFormat format) override;
+
+        /**
+         * @brief 把源图像转换成目标像素格式并生成一个新的图像对象，实现基类接口
+         */
+        virtual TResult convert(const Image &srcImage, Image &dstImage,
+            PixelFormat format) override;
 
         /**
          * @brief 获取支持的文件类型列表

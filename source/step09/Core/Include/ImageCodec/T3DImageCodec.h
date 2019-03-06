@@ -121,6 +121,58 @@ namespace Tiny3D
         TResult decode(uint8_t *data, size_t size, Image &image, 
             ImageCodecBase::FileType type = ImageCodecBase::E_FT_UNKNOWN);
 
+        /**
+         * @brief 颠倒图像
+         * @param [in][out] image : 需要颠倒的图像对象
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult flip(Image &image);
+
+        /**
+         * @brief 镜像图像
+         * @param [in][out] image : 需要镜像的图像对象
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult mirror(Image &image);
+
+        /**
+         * @brief 用指定颜色填充图像
+         * @param [in][out] image : 需要填充的图像对象
+         * @param [in] color : 需要填充的颜色
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult fill(Image &image, const Color4 &color);
+
+        /**
+         * @brief 复制源图像指定区域数据到目标图像指定区域
+         * @param [in] srcImage : 源图像对象
+         * @param [in] srcRect : 源图像区域
+         * @param [in][out] dstImage : 目标图像对象
+         * @param [in] dstRect : 目标图像区域
+         * @param [in] filter : 缩放时候使用的算法
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult copy(const Image &srcImage, const Rect *srcRect,
+            Image &dstImage, const Rect *dstRect, uint32_t filter);
+
+        /**
+         * @brief 转换到目标像素格式
+         * @param [in][out] image : 需要转换像素格式图像对象
+         * @param [in] format : 目标图像像素格式
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult convert(Image &image, PixelFormat format);
+
+        /**
+         * @brief 把源图像转换成目标像素格式并生成一个新的图像对象
+         * @param [in] srcImage : 源图像对象
+         * @param [in][out] dstImage : 目标图像对象
+         *  @param [in] format : 目标像素格式
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult convert(const Image &srcImage, Image &dstImage,
+            PixelFormat format);
+
     protected:
         /**
          * @brief 构造函数

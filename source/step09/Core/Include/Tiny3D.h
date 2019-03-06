@@ -32,7 +32,6 @@
 #include <Kernel/T3DCreator.h>
 #include <Kernel/T3DObject.h>
 #include <Kernel/T3DPlugin.h>
-#include <Kernel/T3DImage.h>
 #include <Kernel/T3DPixelFormat.h>
 #include <Kernel/T3DNode.h>
 
@@ -55,6 +54,7 @@
 // ImageCodec
 #include <ImageCodec/T3DImageCodec.h>
 #include <ImageCodec/T3DImageCodecBase.h>
+#include <ImageCodec/T3DImage.h>
 
 // Render
 #include <Render/T3DRenderer.h>

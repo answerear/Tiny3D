@@ -21,7 +21,7 @@
 #include "Resource/T3DTexture.h"
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveManager.h"
-#include "Kernel/T3DImage.h"
+#include "ImageCodec/T3DImage.h"
 #include "Render/T3DHardwareBufferManager.h"
 
 
@@ -181,8 +181,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Texture::saveToFile(const String &path, 
-        const String &fileType) const
+    TResult Texture::saveToFile(const String &path, uint32_t fileType) const
     {
         TResult ret = T3D_OK;
 

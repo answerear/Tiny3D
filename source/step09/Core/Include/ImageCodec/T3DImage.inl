@@ -42,6 +42,11 @@ namespace Tiny3D
         return (compare(other) != 0);
     }
 
+    inline uint32_t Image::getSourceType() const
+    {
+        return mSourceType;
+    }
+
     inline uint8_t *Image::getData()
     {
         return mData;

@@ -135,7 +135,7 @@ namespace Tiny3D
          * @param [in] path : 文件名和路径
          * @param [in] fileType : 文件类型
          */
-        TResult saveToFile(const String &path, const String &fileType) const;
+        TResult saveToFile(const String &path, uint32_t fileType) const;
 
         /**
          * @brief 从源纹理复制纹理数据过来

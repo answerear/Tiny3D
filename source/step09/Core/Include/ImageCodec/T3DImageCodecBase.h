@@ -25,7 +25,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Kernel/T3DPixelFormat.h"
-#include "Kernel/T3DImage.h"
+#include "ImageCodec/T3DImage.h"
 
 
 namespace Tiny3D
@@ -136,6 +136,58 @@ namespace Tiny3D
         virtual TResult decode(uint8_t *data, size_t size, Image &image,
             FileType type) = 0;
 
+        /**
+         * @brief 颠倒图像
+         * @param [in][out] image : 需要颠倒的图像对象
+         * @return 调用成功返回 T3D_OK
+         */
+        virtual TResult flip(Image &image) = 0;
+
+        /**
+         * @brief 镜像图像
+         * @param [in][out] image : 需要镜像的图像对象
+         * @return 调用成功返回 T3D_OK
+         */
+        virtual TResult mirror(Image &image) = 0;
+
+        /**
+         * @brief 用指定颜色填充图像
+         * @param [in][out] image : 需要填充的图像对象
+         * @param [in] color : 需要填充的颜色
+         * @return 调用成功返回 T3D_OK
+         */
+        virtual TResult fill(Image &image, const Color4 &color) = 0;
+
+        /**
+         * @brief 复制源图像指定区域数据到目标图像指定区域
+         * @param [in] srcImage : 源图像对象
+         * @param [in] srcRect : 源图像区域
+         * @param [in][out] dstImage : 目标图像对象
+         * @param [in] dstRect : 目标图像区域
+         * @param [in] filter : 缩放时候使用的算法
+         * @return 调用成功返回 T3D_OK
+         */
+        virtual TResult copy(const Image &srcImage, const Rect *srcRect,
+            Image &dstImage, const Rect *dstRect, uint32_t filter) = 0;
+
+        /**
+         * @brief 转换到目标像素格式
+         * @param [in][out] image : 需要转换像素格式图像对象
+         * @param [in] format : 目标图像像素格式
+         * @return 调用成功返回 T3D_OK
+         */
+        virtual TResult convert(Image &image, PixelFormat format) = 0;
+
+        /**
+         * @brief 把源图像转换成目标像素格式并生成一个新的图像对象
+         * @param [in] srcImage : 源图像对象
+         * @param [in][out] dstImage : 目标图像对象
+         * @param [in] format : 目标像素格式
+         * @return 调用成功返回 T3D_OK
+         */
+        virtual TResult convert(const Image &srcImage, Image &dstImage,
+            PixelFormat format) = 0;
+
     protected:
         /**
          * @brief 设置图像数据
@@ -158,13 +210,14 @@ namespace Tiny3D
         /**
          * @brief 设置图像信息
          * @param [in] image : 需要设置信息的图像对象
+         * @param [in] sourceType : 数据来源的文件类型
          * @param [in] bpp : 图像色深
          * @param [in] hasAlpha : 是否有透明通道
          * @param [in] isPreMulti : 是否预乘
          * @param [in] format : 像素格式
          */
-        void setImageInfo(Image &image, int32_t bpp, bool hasAlpha,
-            bool isPreMulti, PixelFormat format);
+        void setImageInfo(Image &image, uint32_t sourceType, int32_t bpp,
+            bool hasAlpha, bool isPreMulti, PixelFormat format);
     };
 }
 

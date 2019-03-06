@@ -19,7 +19,7 @@
 
 
 #include "Render/T3DHardwarePixelBuffer.h"
-#include "Kernel/T3DImage.h"
+#include "ImageCodec/T3DImage.h"
 
 
 namespace Tiny3D

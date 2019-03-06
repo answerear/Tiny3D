@@ -18,21 +18,22 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DImage.h"
+#include "ImageCodec/T3DImage.h"
 #include "ImageCodec/T3DImageCodec.h"
 
 
 namespace Tiny3D
 {
-    const char * const Image::FILETYPE_BMP = "bmp";
-    const char * const Image::FILETYPE_PNG = "png";
-    const char * const Image::FILETYPE_TGA = "tga";
-    const char * const Image::FILETYPE_JPG = "jpg";
-    const char * const Image::FILETYPE_DDS = "dds";
-    const char * const Image::FILETYPE_PVRTC = "pvr";
-    const char * const Image::FILETYPE_ASTC = "astc";
-    const char * const Image::FILETYPE_ETC1 = "etc1";
-    const char * const Image::FILETYPE_ETC2 = "etc2";
+    const uint32_t Image::FILETYPE_RAW = ImageCodecBase::E_FT_RAW;
+    const uint32_t Image::FILETYPE_BMP = ImageCodecBase::E_FT_BMP;
+    const uint32_t Image::FILETYPE_PNG = ImageCodecBase::E_FT_PNG;
+    const uint32_t Image::FILETYPE_TGA = ImageCodecBase::E_FT_TARGA;
+    const uint32_t Image::FILETYPE_JPG = ImageCodecBase::E_FT_JPEG;
+    const uint32_t Image::FILETYPE_DDS = ImageCodecBase::E_FT_DDS;
+    const uint32_t Image::FILETYPE_PVRTC = ImageCodecBase::E_FT_PVRTC;
+    const uint32_t Image::FILETYPE_ASTC = ImageCodecBase::E_FT_ASTC;
+    const uint32_t Image::FILETYPE_ETC1 = ImageCodecBase::E_FT_ETC1;
+    const uint32_t Image::FILETYPE_ETC2 = ImageCodecBase::E_FT_ETC2;
 
     //--------------------------------------------------------------------------
 
@@ -92,7 +93,8 @@ namespace Tiny3D
     }
 
     Image::Image(int32_t width, int32_t height, int32_t bpp, PixelFormat format)
-        : mWidth(width)
+        : mSourceType(0)
+        , mWidth(width)
         , mHeight(height)
         , mBPP(bpp)
         , mPitch(0)
@@ -211,6 +213,7 @@ namespace Tiny3D
 
             mFormat = format;
             mDataSize = mPitch * mHeight;
+            mSourceType = FILETYPE_RAW;
 
             if (copySource)
             {
@@ -231,59 +234,22 @@ namespace Tiny3D
     }
 
     TResult Image::save(const String &path, 
-        const String &fileType /* = FILETYPE_PNG */) const
+        uint32_t ft /* = FILETYPE_PNG */) const
     {
-        ImageCodecBase::FileType eType = (ImageCodecBase::FileType)getFileType(fileType);
+        ImageCodecBase::FileType eType = (ImageCodecBase::FileType)ft;
         return T3D_IMAGE_CODEC.encode(path, *this, eType);
-//         return T3D_OK;
     }
 
     TResult Image::save(DataStream &stream, 
-        const String &fileType /* = FILETYPE_PNG */) const
+        uint32_t ft /* = FILETYPE_PNG */) const
     {
-        ImageCodecBase::FileType eType = (ImageCodecBase::FileType)getFileType(fileType);
+        ImageCodecBase::FileType eType = (ImageCodecBase::FileType)ft;
         return T3D_IMAGE_CODEC.encode(stream, *this, eType);
-//         return T3D_OK;
     }
 
     TResult Image::flip()
     {
-        TResult ret = T3D_OK;
-
-//         FIBITMAP *dib = nullptr;
-// 
-//         do
-//         {
-//             uint32_t redMask, greenMask, blueMask, alphaMask;
-//             getColorMask(redMask, greenMask, blueMask, alphaMask);
-// 
-//             dib = FreeImage_ConvertFromRawBitsEx(FALSE, mData, FIT_BITMAP, mWidth, mHeight, mPitch, mBPP, redMask, greenMask, blueMask, FALSE);
-// 
-//             if (dib == nullptr)
-//             {
-//                 T3D_LOG_ERROR(LOG_TAG_IMAGE, "Convert from raw bits failed !");
-//                 break;
-//             }
-// 
-//             if (!FreeImage_FlipVertical(dib))
-//             {
-//                 T3D_LOG_ERROR(LOG_TAG_IMAGE, "Flip image failed !");
-//                 break;
-//             }
-// 
-//             FreeImage_Unload(dib);
-//             dib = nullptr;
-// 
-//             ret = true;
-//         } while (0);
-// 
-//         if (dib != nullptr)
-//         {
-//             FreeImage_Unload(dib);
-//             dib = nullptr;
-//         }
-
-        return ret;
+        return T3D_IMAGE_CODEC.flip(*this);
     }
 
     TResult Image::mirror()
@@ -572,8 +538,8 @@ namespace Tiny3D
         return false;
     }
 
-    uint32_t Image::getFileType(const String &fileExt) const
-    {
+//     uint32_t Image::getFileType(const String &fileExt) const
+//     {
 //         ImageCodecBase::FileType fileType = ImageCodecBase::E_FT_UNKNOWN;
 //         String ext = fileExt;
 //         StringUtil::toLowerCase(ext);
@@ -600,8 +566,8 @@ namespace Tiny3D
 //         }
 // 
 //         return fileType;
-        return 0;
-    }
+//         return 0;
+//     }
 
     int32_t Image::calcPitch() const
     {

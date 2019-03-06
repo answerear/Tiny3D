@@ -196,8 +196,10 @@ namespace Tiny3D
             {
                 if (!(mUsage & E_HBU_WRITE_ONLY))
                 {
+                    // 借助 Image 对象来复制图像数据
                     int32_t bpp = Image::getBPP(mFormat);
 
+                    // 源数据构建源图像
                     Image srcImage;
                     ret = srcImage.load(mBuffer, mWidth, mHeight, bpp, mPitch, 
                         mFormat);
@@ -207,6 +209,7 @@ namespace Tiny3D
                         break;
                     }
 
+                    // 目标数据构建目标图像
                     Image dstImage;
                     int32_t pitch 
                         = Image::calcPitch(rect.width(), rect.height());

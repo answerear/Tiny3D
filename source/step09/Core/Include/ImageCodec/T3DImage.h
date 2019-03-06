@@ -34,15 +34,16 @@ namespace Tiny3D
         friend class ImageCodecBase;
 
     public:
-        static const char * const FILETYPE_PNG;
-        static const char * const FILETYPE_JPG;
-        static const char * const FILETYPE_BMP;
-        static const char * const FILETYPE_TGA;
-        static const char * const FILETYPE_DDS;
-        static const char * const FILETYPE_PVRTC;
-        static const char * const FILETYPE_ASTC;
-        static const char * const FILETYPE_ETC1;
-        static const char * const FILETYPE_ETC2;
+        static const uint32_t FILETYPE_RAW;
+        static const uint32_t FILETYPE_PNG;
+        static const uint32_t FILETYPE_JPG;
+        static const uint32_t FILETYPE_BMP;
+        static const uint32_t FILETYPE_TGA;
+        static const uint32_t FILETYPE_DDS;
+        static const uint32_t FILETYPE_PVRTC;
+        static const uint32_t FILETYPE_ASTC;
+        static const uint32_t FILETYPE_ETC1;
+        static const uint32_t FILETYPE_ETC2;
 
         enum Filter
         {
@@ -130,20 +131,18 @@ namespace Tiny3D
         /**
          * @brief 把图像保存到文件中
          * @param [in] path : 文件全路径
-         * @param [in] fileType : 要保存的文件类型，默认是PNG文件
+         * @param [in] ft : 要保存的文件类型，默认是PNG文件
          * @return 调用成功返回 T3D_OK
          */
-        TResult save(const String &path,
-            const String &fileType = FILETYPE_PNG) const;
+        TResult save(const String &path, uint32_t ft = FILETYPE_PNG) const;
 
         /**
          * @brief 把图像保存到文件中
          * @param [in] stream : 输出的数据流对象
-         * @param [in] fileType : 要保存的文件类型，默认是PNG文件
+         * @param [in] ft : 要保存的文件类型，默认是PNG文件
          * @return 调用成功返回 T3D_OK
          */
-        TResult save(DataStream &stream,
-            const String &fileType = FILETYPE_PNG) const;
+        TResult save(DataStream &stream, uint32_t ft = FILETYPE_PNG) const;
 
         /**
          * @brief 销毁图像，使其成为空图像对象
@@ -204,6 +203,11 @@ namespace Tiny3D
          * @note 主要是比较图像MD5值
          */
         bool compare(const Image &other, bool compareAlpha = true) const;
+
+        /**
+         * @brief 获取数据源类型
+         */
+        uint32_t getSourceType() const;
 
         /**
          * @brief 返回图像数据
@@ -277,10 +281,10 @@ namespace Tiny3D
         static int32_t getBPP(PixelFormat format);
 
     protected:
-        /**
-         * @brief 根据文件扩展类型获取文件类型枚举
-         */
-        uint32_t getFileType(const String &fileExt) const;
+//         /**
+//          * @brief 根据文件扩展类型获取文件类型枚举
+//          */
+//         uint32_t getFileType(const String &fileExt) const;
 
         /**
          * @brief 计算图像行跨度
@@ -293,6 +297,7 @@ namespace Tiny3D
         int32_t getBytesPerPixel() const;
 
     private:
+        uint32_t    mSourceType;        /**< 图像数据源类型 */
         int32_t     mWidth;             /**< 图像宽度 */
         int32_t     mHeight;            /**< 图像高度 */
         int32_t     mBPP;               /**< 图像色深 */

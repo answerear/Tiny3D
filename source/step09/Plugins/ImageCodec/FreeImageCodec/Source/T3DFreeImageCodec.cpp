@@ -405,5 +405,95 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
+
+    TResult FreeImageCodec::flip(Image &image)
+    {
+        TResult ret = T3D_OK;
+        FIBITMAP *dib = nullptr;
+
+        do
+        {
+            uint32_t redMask, greenMask, blueMask, alphaMask;
+            image.getColorMask(redMask, greenMask, blueMask, alphaMask);
+
+            dib = FreeImage_ConvertFromRawBitsEx(FALSE, image.getData(), 
+                FIT_BITMAP, image.getWidth(), image.getHeight(), 
+                image.getPitch(), image.getBPP(), redMask, greenMask, blueMask, 
+                FALSE);
+
+            if (dib == nullptr)
+            {
+                ret = T3D_ERR_CODEC_LOAD_FROM_RAW_DATA;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                    "Convert from raw bits failed !");
+                break;
+            }
+
+            if (!FreeImage_FlipVertical(dib))
+            {
+                ret = T3D_ERR_CODEC_FLIP;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                    "Flip image failed !");
+                break;
+            }
+
+            FreeImage_Unload(dib);
+            dib = nullptr;
+        } while (0);
+
+        if (dib != nullptr)
+        {
+            FreeImage_Unload(dib);
+            dib = nullptr;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FreeImageCodec::mirror(Image &image)
+    {
+        TResult ret = T3D_OK;
+        FIBITMAP *dib = nullptr;
+
+        do
+        {
+            uint32_t redMask, greenMask, blueMask, alphaMask;
+            image.getColorMask(redMask, greenMask, blueMask, alphaMask);
+
+            dib = FreeImage_ConvertFromRawBitsEx(FALSE, image.getData(), 
+                FIT_BITMAP, image.getWidth(), image.getHeight(), 
+                image.getPitch(), image.getBPP(), redMask, greenMask, blueMask, 
+                FALSE);
+
+            if (dib == nullptr)
+            {
+                ret = T3D_ERR_CODEC_LOAD_FROM_RAW_DATA;
+                T3D_LOG_ERROR(LOG_TAG_IMAGE, "Convert from raw bits failed !");
+                break;
+            }
+
+            if (!FreeImage_FlipHorizontal(dib))
+            {
+                ret = T3D_ERR_CODEC_MIRROR;
+                T3D_LOG_ERROR(LOG_TAG_IMAGE, "Mirror image failed !");
+                break;
+            }
+
+            FreeImage_Unload(dib);
+            dib = nullptr;
+        } while (0);
+
+        if (dib != nullptr)
+        {
+            FreeImage_Unload(dib);
+            dib = nullptr;
+        }
+
+        return ret;
+    }
 }
 
