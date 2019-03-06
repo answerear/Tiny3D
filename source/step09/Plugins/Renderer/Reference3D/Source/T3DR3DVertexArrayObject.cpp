@@ -35,7 +35,10 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     R3DVertexArrayObject::R3DVertexArrayObject(bool useIndices)
-        : mUseIndices(useIndices)
+        : mPrimitiveType(Renderer::E_PT_TRIANGLE_LIST)
+        , mDecl(nullptr)
+        , mIBO(nullptr)
+        , mUseIndices(useIndices)
     {
 
     }
@@ -73,7 +76,7 @@ namespace Tiny3D
 
     Renderer::PrimitiveType R3DVertexArrayObject::getPrimitiveType() const
     {
-        return Renderer::E_PT_TRIANGLE_LIST;
+        return mPrimitiveType;
     }
 
     //--------------------------------------------------------------------------
@@ -88,7 +91,7 @@ namespace Tiny3D
 
     VertexDeclarationPtr R3DVertexArrayObject::getVertexDeclaration() const
     {
-        return nullptr;
+        return mDecl;
     }
 
     //--------------------------------------------------------------------------
@@ -116,7 +119,7 @@ namespace Tiny3D
 
     HardwareIndexBufferPtr R3DVertexArrayObject::getIndexBuffer() const
     {
-        return nullptr;
+        return mIBO;
     }
 
     //--------------------------------------------------------------------------

@@ -106,7 +106,17 @@ namespace Tiny3D
         R3DVertexArrayObject(bool useIndices);
 
     protected:
-        bool    mUseIndices;        /**< 是否使用索引缓冲 */
+        typedef TList<HardwareVertexBufferPtr>      VBOList;
+        typedef VBOList::iterator                   VBOListItr;
+        typedef VBOList::const_iterator             VBOListConstItr;
+
+        Renderer::PrimitiveType mPrimitiveType; /**< 渲染图元 */
+
+        VertexDeclarationPtr    mDecl;          /**< 顶点声明对象 */
+        VBOList                 mVBOList;       /**< 顶点缓冲区对象集合 */
+        HardwareIndexBufferPtr  mIBO;           /**< *索引缓冲区对象 */
+
+        bool    mUseIndices;                    /**< 是否使用索引缓冲 */
     };
 }
 
