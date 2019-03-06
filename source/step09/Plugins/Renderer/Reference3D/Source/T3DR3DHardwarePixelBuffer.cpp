@@ -44,6 +44,8 @@ namespace Tiny3D
         : HardwarePixelBuffer(width, height, format, usage, useSystemMemory, 
             useShadowBuffer)
         , mBuffer(nullptr)
+        , mLockedBuffer(nullptr)
+        , mNeedWriteBack(false)
     {
         mBuffer = new uint8_t[mBufferSize];
         mLockedBuffer = new uint8_t[mBufferSize];
@@ -196,46 +198,43 @@ namespace Tiny3D
             {
                 if (!(mUsage & E_HBU_WRITE_ONLY))
                 {
-                    // 借助 Image 对象来复制图像数据
-                    int32_t bpp = Image::getBPP(mFormat);
-
-                    // 源数据构建源图像
-                    Image srcImage;
-                    ret = srcImage.load(mBuffer, mWidth, mHeight, bpp, mPitch, 
-                        mFormat);
+                    ret = lockBuffer(rect, lockedPitch);
 
                     if (ret != T3D_OK)
                     {
                         break;
                     }
 
-                    // 目标数据构建目标图像
-                    Image dstImage;
-                    int32_t pitch 
-                        = Image::calcPitch(rect.width(), rect.height());
-                    ret = dstImage.load(mLockedBuffer, (int32_t)rect.width(),
-                        (int32_t)rect.height(), bpp, pitch, mFormat);
-
-                    if (ret != T3D_OK)
-                    {
-                        break;
-                    }
-
-                    ret = dstImage.copy(srcImage, &rect);
-                    if (ret != T3D_OK)
-                    {
-                        break;
-                    }
-
+                    mNeedWriteBack = true;
+                    mLockedRect = rect;
                     lockedBuffer = mLockedBuffer;
                 }
             }
             else
             {
+                if (rect.width() == mWidth && rect.height() == mHeight)
+                {
+                    // 获取整个纹理数据，则直接返回地址，不用再复制了
+                    mNeedWriteBack = false;
+                    mLockedRect = rect;
+                    lockedBuffer = mBuffer;
+                }
+                else
+                {
+                    // 不是，那就要费点功夫了，只能先拷贝出来了
+                    ret = lockBuffer(rect, lockedPitch);
 
+                    if (ret != T3D_OK)
+                    {
+                        break;
+                    }
+
+                    mNeedWriteBack = true;
+                    mLockedRect = rect;
+                    lockedBuffer = mLockedBuffer;
+                }
             }
         } while (0);
-        
 
         return lockedBuffer;
     }
@@ -244,6 +243,104 @@ namespace Tiny3D
 
     TResult R3DHardwarePixelBuffer::unlockImpl()
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        if (mNeedWriteBack)
+        {
+            // 需要回写的才复制一遍，不需要的就直接跳过了
+            ret = unlockBuffer();
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DHardwarePixelBuffer::lockBuffer(const Rect &rect,
+        int32_t &lockedPitch)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            // 借助 Image 对象来复制图像数据
+            int32_t bpp = Image::getBPP(mFormat);
+
+            // 源数据构建源图像
+            Image srcImage;
+            ret = srcImage.load(mBuffer, mWidth, mHeight, bpp, mPitch,
+                mFormat);
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            // 目标数据构建目标图像
+            Image dstImage;
+            int32_t pitch
+                = Image::calcPitch(rect.width(), rect.height());
+            ret = dstImage.load(mLockedBuffer, (int32_t)rect.width(),
+                (int32_t)rect.height(), bpp, pitch, mFormat);
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            ret = dstImage.copy(srcImage, &rect);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            lockedPitch = pitch;
+        } while (0);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DHardwarePixelBuffer::unlockBuffer()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // 借助 Image 对象来复制图像数据
+            int32_t bpp = Image::getBPP(mFormat);
+
+            // 源数据构建源图像
+            Image srcImage;
+            int32_t pitch
+                = Image::calcPitch(mLockedRect.width(), mLockedRect.height());
+            ret = srcImage.load(mLockedBuffer, mLockedRect.width(),
+                mLockedRect.height(), bpp, pitch,
+                mFormat);
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            // 目标数据构建目标图像
+            Image dstImage;
+            ret = dstImage.load(mLockedBuffer, mWidth, mHeight,
+                bpp, mPitch, mFormat);
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            ret = dstImage.copy(srcImage, nullptr, &mLockedRect);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+        } while (0);
+
+        return ret;
     }
 }

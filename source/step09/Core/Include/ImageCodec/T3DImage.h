@@ -280,21 +280,16 @@ namespace Tiny3D
          */
         static int32_t getBPP(PixelFormat format);
 
-    protected:
-//         /**
-//          * @brief 根据文件扩展类型获取文件类型枚举
-//          */
-//         uint32_t getFileType(const String &fileExt) const;
-
-        /**
-         * @brief 计算图像行跨度
-         */
-        int32_t calcPitch() const;
-
         /**
          * @brief 获取当前像素格式下一个像素占用的字节数
          */
         int32_t getBytesPerPixel() const;
+
+    protected:
+        /**
+         * @brief 计算图像行跨度
+         */
+        int32_t calcPitch() const;
 
     private:
         uint32_t    mSourceType;        /**< 图像数据源类型 */

@@ -150,10 +150,11 @@ namespace Tiny3D
                 break;
             }
 
-            ret = vbo->writeData(0, sizeof(AxisVertex) * MAX_VERTICES, 
-                vertices);
-            if (ret != T3D_OK)
+            size_t size = sizeof(AxisVertex) * MAX_VERTICES;
+            size_t bytesOfWritten = vbo->writeData(0, size, vertices);
+            if (bytesOfWritten != size)
             {
+                ret = T3D_ERR_HW_BUFFER_WRITE;
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SGAxis \
                     failed !");
                 break;

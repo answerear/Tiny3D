@@ -35,10 +35,11 @@ namespace Tiny3D
         image.mPitch = pitch;
     }
 
-    inline void ImageCodecBase::setImageInfo(Image &image, int32_t bpp, 
-        bool hasAlpha, bool isPreMulti, PixelFormat eFormat)
+    inline void ImageCodecBase::setImageInfo(Image &image, uint32_t sourceType,
+        int32_t bpp, bool hasAlpha, bool isPreMulti, PixelFormat eFormat)
     {
         image.mBPP = bpp;
+        image.mSourceType = sourceType;
         image.mHasAlpha = hasAlpha;
         image.mIsPreMulti = isPreMulti;
         image.mFormat = eFormat;

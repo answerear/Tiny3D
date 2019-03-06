@@ -48,6 +48,9 @@ namespace Tiny3D
         T3D_ERR_RES_LOAD_FAILED         = T3D_ERR_CORE + 0x00A0, /**< 加载资源失败 */
 
         T3D_ERR_RENDER_CREATE_WINDOW    = T3D_ERR_CORE + 0x00C0, /**< 创建渲染窗口失败 */
+
+        T3D_ERR_HW_BUFFER_WRITE         = T3D_ERR_CORE + 0x00E0, /**< 写硬件缓冲失败 */
+        T3D_ERR_HW_BUFFER_READ          = T3D_ERR_CORE + 0x00E1, /**< 读硬件缓冲失败 */
     };
 }
 

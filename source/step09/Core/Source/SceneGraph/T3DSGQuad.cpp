@@ -179,10 +179,11 @@ namespace Tiny3D
             }
 
             // 写顶点数据
-            ret = vbo->writeData(0, sizeof(QuadVertex) * VI_MAX_VERTICES, 
-                vertices);
-            if (ret != T3D_OK)
+            size_t size = sizeof(QuadVertex) * VI_MAX_VERTICES;
+            size_t bytesOfWritten = vbo->writeData(0, size, vertices);
+            if (bytesOfWritten != size)
             {
+                ret = T3D_ERR_HW_BUFFER_WRITE;
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SGQuad \
                     failed !");
                 break;
@@ -202,9 +203,11 @@ namespace Tiny3D
             }
 
             // 写索引数据
-            ret = ibo->writeData(0, sizeof(uint16_t) * MAX_INDICES, indices);
-            if (ret != T3D_OK)
+            size = sizeof(uint16_t) * MAX_INDICES;
+            bytesOfWritten = ibo->writeData(0, size, indices);
+            if (bytesOfWritten != size)
             {
+                ret = T3D_ERR_HW_BUFFER_WRITE;
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write indices data for SGQuad \
                     failed !");
                 break;

@@ -562,11 +562,13 @@ namespace Tiny3D
         do
         {
             // 非空图像，这个有点麻烦了，只能硬头皮来
-
-            // 如果像素格式不一致，直接返回，请先调用convert接口来转换成一致格式的图像
+            // 如果像素格式不一致，直接返回，
+            // 请先调用convert接口来转换成一致格式的图像
             if (srcImage.getFormat() != dstImage.getFormat())
             {
-                T3D_LOG_ERROR(LOG_TAG_IMAGE, "Source image and destination image are different !");
+                ret = T3D_ERR_CODEC_FORMAT_NOT_SAME;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                    "Source image and destination image are different !");
                 break;
             }
 
@@ -593,80 +595,102 @@ namespace Tiny3D
             }
 
             // 检验区域有效性
-            if (rtSrc.left < 0 || rtSrc.right >= mWidth
-                || rtSrc.top < 0 || rtSrc.bottom >= mHeight)
+            if (rtSrc.left < 0 || rtSrc.right >= srcImage.getWidth()
+                || rtSrc.top < 0 || rtSrc.bottom >= srcImage.getHeight())
             {
                 // 超出源图像范围了
-                T3D_LOG_ERROR(LOG_TAG_IMAGE, "Source image rectangle is out of bound !");
+                ret = T3D_ERR_OUT_OF_BOUND;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                    "Source image rectangle is out of bound !");
                 break;
             }
 
-            if (rtDst.left < 0 || rtDst.right >= image.getWidth()
-                || rtDst.top < 0 || rtDst.bottom >= image.getHeight())
+            if (rtDst.left < 0 || rtDst.right >= dstImage.getWidth()
+                || rtDst.top < 0 || rtDst.bottom >= dstImage.getHeight())
             {
                 // 超出目标图像范围了
-                T3D_LOG_ERROR(LOG_TAG_IMAGE, "Destination image rectangle is out of bound !");
+                ret = T3D_ERR_OUT_OF_BOUND;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
+                    "Destination image rectangle is out of bound !");
                 break;
             }
 
-            if (image.getWidth() == mWidth && image.getHeight() == mHeight && rtDst == rtSrc)
+            if (srcImage.getWidth() == dstImage.getWidth() 
+                && srcImage.getHeight() == dstImage.getHeight()
+                && rtDst == rtSrc)
             {
                 // 源和目标区域完全相同，直接点吧
-                T3D_ASSERT(image.mDataSize == mDataSize);
-                memcpy(mData, image.mData, mDataSize);
+                T3D_ASSERT(srcImage.getSize() == dstImage.getSize());
+                size_t size = srcImage.getSize();
+                memcpy(dstImage.getData(), srcImage.getData(), size);
             }
-            else if (rtSrc.width() == rtDst.width() && rtSrc.height() == rtDst.height())
+            else if (rtSrc.width() == rtDst.width() 
+                && rtSrc.height() == rtDst.height())
             {
                 // 源和目标区域大小一致，啃下来，自己来复制
-                uint8_t *srcData = image.mData + rtSrc.top * image.mPitch + rtSrc.left * image.getBytesPerPixel();
-                uint8_t *dstData = mData + rtDst.top * mPitch + rtDst.left * getBytesPerPixel();
-                uint8_t *src = srcData;
+                const uint8_t *srcData = srcImage.getData() 
+                    + rtSrc.top * srcImage.getPitch()
+                    + rtSrc.left * srcImage.getBPP();
+                uint8_t *dstData = dstImage.getData()
+                    + rtDst.top * dstImage.getPitch() 
+                    + rtDst.left * dstImage.getBytesPerPixel();
+                const uint8_t *src = srcData;
                 uint8_t *dst = dstData;
 
-                int32_t pitch = std::min(image.mPitch, mPitch);
+                int32_t pitch 
+                    = std::min(srcImage.getPitch(), dstImage.getPitch());
 
                 int32_t y = 0;
                 for (y = 0; y < rtSrc.height(); ++y)
                 {
                     memcpy(dst, src, pitch);
-                    dst += mPitch;
-                    src += image.mPitch;
+                    dst += dstImage.getPitch();
+                    src += srcImage.getPitch();
                 }
             }
             else
             {
                 // 没办法，自己图像处理算法烂，也懒得去研究，先用FreeImage帮忙吧
                 uint32_t redMask, greenMask, blueMask, alphaMask;
-                image.getColorMask(redMask, greenMask, blueMask, alphaMask);
+                srcImage.getColorMask(redMask, greenMask, blueMask, alphaMask);
 
                 // 把源数据读到FreeImage里面，让FreeImage来处理
-                dib = FreeImage_ConvertFromRawBitsEx(FALSE, mData, FIT_BITMAP,
-                    image.getWidth(), image.getWidth(), image.getPitch(), image.getBPP(),
+                dib = FreeImage_ConvertFromRawBitsEx(FALSE, 
+                    (uint8_t*)srcImage.getData(), FIT_BITMAP,
+                    srcImage.getWidth(), srcImage.getWidth(), 
+                    srcImage.getPitch(), srcImage.getBPP(),
                     redMask, greenMask, blueMask, TRUE);
 
                 if (dib == nullptr)
                 {
-                    T3D_LOG_ERROR(LOG_TAG_IMAGE, "Convert from raw bits failed !");
+                    ret = T3D_ERR_CODEC_CONVERT_TO_RAW;
+                    T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
+                        "Convert from raw bits failed !");
                     break;
                 }
 
                 // 缩放
-                newdib = FreeImage_Rescale(dib, rtDst.width(), rtDst.height(), (FREE_IMAGE_FILTER)filter);
+                newdib = FreeImage_Rescale(dib, rtDst.width(), rtDst.height(), 
+                    (FREE_IMAGE_FILTER)filter);
                 if (newdib == nullptr)
                 {
-                    T3D_LOG_ERROR(LOG_TAG_IMAGE, "Scale image failed !");
+                    ret = T3D_ERR_CODEC_SCALE;
+                    T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, 
+                        "Scale image failed !");
                     break;
                 }
 
                 // 把转好的数据复制到目标图像上
                 int32_t srcBPP = FreeImage_GetBPP(newdib);
-                T3D_ASSERT(srcBPP == image.getBPP());
+                T3D_ASSERT(srcBPP == srcImage.getBPP());
 
                 int32_t srcPitch = FreeImage_GetPitch(newdib);
                 uint8_t *srcData = FreeImage_GetBits(newdib);
 
-                int32_t dstPitch = mPitch;
-                uint8_t *dstData = mData + rtDst.top * dstPitch + rtDst.left * getBytesPerPixel();
+                int32_t dstPitch = dstImage.getPitch();
+                uint8_t *dstData = dstImage.getData() 
+                    + rtDst.top * dstPitch 
+                    + rtDst.left * dstImage.getBytesPerPixel();
 
                 uint8_t *src = srcData;
                 uint8_t *dst = dstData;
@@ -699,6 +723,28 @@ namespace Tiny3D
             FreeImage_Unload(dib);
             dib = nullptr;
         }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FreeImageCodec::convert(Image &image, PixelFormat format)
+    {
+        TResult ret = T3D_OK;
+
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FreeImageCodec::convert(const Image &srcImage, Image &dstImage,
+        PixelFormat format)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
     }
 }
 

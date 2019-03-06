@@ -77,9 +77,25 @@ namespace Tiny3D
         */
         virtual TResult unlockImpl() override;
 
+        /**
+         * @brief 生成锁定缓冲区
+         * @param [in] rect : 锁定缓冲区区域
+         * @param [in] lockedPitch : 锁定缓冲区的行跨度
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult lockBuffer(const Rect &rect, int32_t &lockedPitch);
+
+        /**
+         * @brief 解锁缓冲区，把返回出去的锁定缓冲区的数据回写到正是的缓冲区中
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult unlockBuffer();
+
     protected:
         uint8_t *mBuffer;       /**< 像素缓冲区 */
         uint8_t *mLockedBuffer; /**< 锁定的缓冲区 */
+        Rect    mLockedRect;    /**< 锁定的区域 */
+        bool    mNeedWriteBack; /**< 需要回写 */
     };
 }
 
