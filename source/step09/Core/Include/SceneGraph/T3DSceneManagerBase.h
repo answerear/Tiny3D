@@ -41,12 +41,19 @@ namespace Tiny3D
         virtual ~SceneManagerBase();
 
         /**
-         * @brief 更新并渲染场景
-         * @param [in] camera : 渲染场景使用的相机
+         * @brief 更新场景树
          * @return 调用成功返回 T3D_OK
-         * @remarks 场景插件实现本接口，实现自己的更新和渲染逻辑
+         * @remarks 场景插件实现本接口，实现自己的更新逻辑
          */
-        virtual TResult renderScene(SGCameraPtr camera) = 0;
+        virtual TResult update() = 0;
+
+        /**
+         * @brief 渲染场景
+         * @param [in] viewport : 渲染的视口对象
+         * @return 调用成功返回 T3D_OK
+         * @remarks 场景插件实现本接口，实现自己的渲染逻辑
+         */
+        virtual TResult render(ViewportPtr viewport) = 0;
 
         /**
          * @brief 获取场景根结点

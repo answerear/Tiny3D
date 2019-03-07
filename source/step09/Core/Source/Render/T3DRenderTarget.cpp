@@ -51,13 +51,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void RenderTarget::update()
+    void RenderTarget::render()
     {
         auto itr = mViewportList.begin();
 
         while (itr != mViewportList.end())
         {
-            itr->second->update();
+            itr->second->render();
             ++itr;
         }
     }

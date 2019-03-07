@@ -87,38 +87,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SGNode::visit(SGCameraPtr camera, RenderQueuePtr queue)
+    void SGNode::visit()
     {
         // 先调用更新
         if (isEnabled())
         {
-            update(camera, queue);
-        }
+            updateTransform();
 
-        // 再遍历子结点
-        auto itr = mChildren.begin();
+            // 再遍历子结点
+            auto itr = mChildren.begin();
 
-        while (itr != mChildren.end())
-        {
-            SGNodePtr child = smart_pointer_cast<SGNode>(*itr);
-            child->visit(camera, queue);
-            ++itr;
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    void SGNode::update(SGCameraPtr camera, RenderQueuePtr queue)
-    {
-        // 更新变换
-        updateTransform();
-
-        if (isVisible())
-        {
-            if (mCameraMask & camera->getObjectMask())
+            while (itr != mChildren.end())
             {
-                // 放进渲染队列
-                frustumCulling(camera->getBound(), queue);
+                SGNodePtr child = smart_pointer_cast<SGNode>(*itr);
+                child->visit();
+                ++itr;
             }
         }
     }

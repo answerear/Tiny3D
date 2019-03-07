@@ -69,6 +69,7 @@ namespace Tiny3D
     TResult R3DVertexArrayObject::setPrimitiveType(
         Renderer::PrimitiveType priType)
     {
+        mPrimitiveType = priType;
         return T3D_OK;
     }
 
@@ -84,6 +85,7 @@ namespace Tiny3D
     TResult R3DVertexArrayObject::setVertexDeclaration(
         VertexDeclarationPtr decl)
     {
+        mDecl = decl;
         return T3D_OK;
     }
 
@@ -98,6 +100,7 @@ namespace Tiny3D
 
     TResult R3DVertexArrayObject::addVertexBuffer(HardwareVertexBufferPtr vbo)
     {
+        mVBOList.push_back(vbo);
         return T3D_OK;
     }
 
@@ -105,13 +108,29 @@ namespace Tiny3D
 
     HardwareVertexBufferPtr R3DVertexArrayObject::getVertexBuffer(size_t idx) const
     {
-        return nullptr;
+        HardwareVertexBufferPtr vbo;
+        size_t i = 0;
+        auto itr = mVBOList.begin();
+
+        while (itr != mVBOList.end())
+        {
+            if (idx == i)
+            {
+                vbo = *itr;
+                break;
+            }
+
+            ++itr;
+            ++i;
+        }
+        return vbo;
     }
 
     //--------------------------------------------------------------------------
 
     TResult R3DVertexArrayObject::setIndexBuffer(HardwareIndexBufferPtr ibo)
     {
+        mIBO = ibo;
         return T3D_OK;
     }
 

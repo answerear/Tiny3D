@@ -45,10 +45,16 @@ namespace Tiny3D
         virtual ~SceneManager();
 
         /**
-         * @brief 实现基类接口
-         * @see TResult SceneManagerBase::renderScene(SGCameraPtr camera)
+         * @brief 更新场景树，实现基类接口
+         * @see TResult SceneManagerBase::update()
          */
-        virtual TResult renderScene(SGCameraPtr camera) override;
+        virtual TResult update() override;
+
+        /**
+         * @brief 实现基类接口
+         * @see TResult SceneManagerBase::render(ViewportPtr viewport)
+         */
+        virtual TResult render(ViewportPtr viewport) override;
 
         /**
          * @brief 实现基类接口

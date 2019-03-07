@@ -49,7 +49,6 @@ namespace Tiny3D
     SGCamera::SGCamera(ID uID /* = E_NID_AUTOMATIC */)
         : SGTransform3D(uID)
         , mBound(nullptr)
-        , mViewport(nullptr)
         , mProjType(E_PT_PERSPECTIVE)
         , mObjectMask(0)
         , mLeft(REAL_ZERO)
@@ -71,7 +70,6 @@ namespace Tiny3D
     SGCamera::~SGCamera()
     {
         mBound = nullptr;
-        mViewport = nullptr;
     }
     
     //--------------------------------------------------------------------------
@@ -90,15 +88,6 @@ namespace Tiny3D
     Node::Type SGCamera::getNodeType() const
     {
         return E_NT_CAMERA;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void SGCamera::renderScene(ViewportPtr viewport)
-    {
-        mViewport = viewport;
-        T3D_SCENE_MGR.renderScene(this);
-        mViewport = nullptr;
     }
 
     //--------------------------------------------------------------------------

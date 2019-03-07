@@ -86,9 +86,9 @@ namespace Tiny3D
         void setActive(bool active);
 
         /**
-         * @brief 更新渲染目标
+         * @brief 渲染
          */
-        virtual void update();
+        virtual void render();
 
         /**
          * @brief 新增一个视口对象，并且关联到本渲染目标上

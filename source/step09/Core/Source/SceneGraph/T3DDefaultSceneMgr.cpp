@@ -38,6 +38,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_INIT_SINGLETON(DefaultSceneMgr);
+
+    //--------------------------------------------------------------------------
+
     DefaultSceneMgrPtr DefaultSceneMgr::create()
     {
         DefaultSceneMgrPtr mgr = new DefaultSceneMgr();
@@ -55,7 +59,6 @@ namespace Tiny3D
 
     DefaultSceneMgr::DefaultSceneMgr()
         : mRoot(nullptr)
-        , mCurCamera(nullptr)
         , mRenderQueue(nullptr)
     {
 
@@ -66,7 +69,6 @@ namespace Tiny3D
     DefaultSceneMgr::~DefaultSceneMgr()
     {
         mRoot = nullptr;
-        mCurCamera = nullptr;
         mRenderQueue = nullptr;
     }
 
@@ -86,27 +88,32 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult DefaultSceneMgr::renderScene(SGCameraPtr camera)
+    TResult DefaultSceneMgr::update()
     {
         TResult ret = T3D_OK;
 
-        mCurCamera = camera;
+        if (mRoot != nullptr)
+        {
+            mRoot->visit();
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult DefaultSceneMgr::render(ViewportPtr viewport)
+    {
+        TResult ret = T3D_OK;
 
         RendererPtr renderer = T3D_AGENT.getActiveRenderer();
 
         // 设置当前视口
-        ViewportPtr viewport = mCurCamera->getViewport();
         renderer->setViewport(viewport);
 
         // 清空渲染队列
         mRenderQueue->clear();
-
-        // 优先更新相机
-        mCurCamera->update(camera, mRenderQueue);
-
-        // 更新scene graph上所有结点
-        mRoot->update(camera, mRenderQueue);
-
+        
         // 直接对渲染队列的对象渲染
         renderer->beginRender();
         mRenderQueue->render(renderer);

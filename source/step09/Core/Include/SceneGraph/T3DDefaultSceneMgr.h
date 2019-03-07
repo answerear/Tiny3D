@@ -32,7 +32,9 @@ namespace Tiny3D
      * @remarks 当没有任何场景管理器插件设置时候，会自动使用默认场景管理器。
      *      默认场景管理器实际上是什么场景管理都没有，只是简单的一个渲染树。
      */
-    class T3D_ENGINE_API DefaultSceneMgr : public SceneManagerBase
+    class T3D_ENGINE_API DefaultSceneMgr 
+        : public SceneManagerBase
+        , public Singleton<DefaultSceneMgr>
     {
     public:
         /**
@@ -52,10 +54,16 @@ namespace Tiny3D
         virtual TResult init();
 
         /**
-         * @brief 实现基类接口
-         * @see TResult SceneManagerBase::renderScene(SGCameraPtr camera)
+         * @brief 更新场景树，实现基类接口
+         * @see TResult SceneManagerBase::update()
          */
-        virtual TResult renderScene(SGCameraPtr camera) override;
+        virtual TResult update() override;
+
+        /**
+         * @brief 实现基类接口
+         * @see TResult SceneManagerBase::render(ViewportPtr viewport)
+         */
+        virtual TResult render(ViewportPtr viewport) override;
 
         /**
          * @brief 实现基类接口
@@ -152,8 +160,6 @@ namespace Tiny3D
 
     protected:
         SGNodePtr       mRoot;          /**< 根结点 */
-        SGCameraPtr     mCurCamera;     /**< 当前渲染相机 */
-
         RenderQueuePtr  mRenderQueue;   /**< 渲染队列 */
     };
 }

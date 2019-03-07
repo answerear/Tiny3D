@@ -61,13 +61,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneManager::renderScene(SGCameraPtr camera)
+    TResult SceneManager::update()
     {
         TResult ret = T3D_ERR_SYS_NOT_INIT;
 
         if (mImpl != nullptr)
         {
-            ret = mImpl->renderScene(camera);
+            ret = mImpl->update();
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SceneManager::render(ViewportPtr viewport)
+    {
+        TResult ret = T3D_ERR_SYS_NOT_INIT;
+
+        if (mImpl != nullptr)
+        {
+            ret = mImpl->render(viewport);
         }
 
         return ret;

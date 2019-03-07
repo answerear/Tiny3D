@@ -68,12 +68,6 @@ namespace Tiny3D
         virtual NodePtr clone() const override;
 
         /**
-         * @brief 渲染当前相机看到的场景物体
-         * @remarks 这个接口不能随便调用，是在Viewport里面调用的
-         */
-        virtual void renderScene(ViewportPtr viewport);
-
-        /**
          * @brief 专门提供给挂相机结点的3D变换结点使用，用于构建UVN相机.
          * @param [in] pos : 相机位置
          * @param [in] obj : 相机观察物体位置
@@ -156,11 +150,6 @@ namespace Tiny3D
         BoundPtr getBound() const;
 
         /**
-         * @brief 获取相机关联的视口对象
-         */
-        ViewportPtr getViewport() const;
-
-        /**
          * @brief 获取观察空间变换矩阵
          * @return 返回观察空间变换矩阵
          */
@@ -201,7 +190,6 @@ namespace Tiny3D
 
     protected:
         BoundPtr        mBound;         /**< 视锥体碰撞体 */
-        ViewportPtr     mViewport;      /**< 关联本相机的视口对象 */
 
         ProjectionType  mProjType;      /**< 投影类型 */
 

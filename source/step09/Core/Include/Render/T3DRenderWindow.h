@@ -61,11 +61,11 @@ namespace Tiny3D
         virtual ~RenderWindow();
 
         /**
-         * @brief 刷新渲染窗口
+         * @brief 渲染
          * @remarks 重写RenderTarget::update()
          * @see RenderTarget::update()
          */
-        virtual void update() override;
+        virtual void render() override;
 
         /**
          * @brief 创建渲染窗口实体

@@ -21,6 +21,7 @@
 #include "Render/T3DViewport.h"
 #include "Render/T3DRenderTarget.h"
 #include "SceneGraph/T3DSGCamera.h"
+#include "SceneGraph/T3DSceneManager.h"
 
 
 namespace Tiny3D
@@ -56,12 +57,9 @@ namespace Tiny3D
 
     }
 
-    void Viewport::update()
+    void Viewport::render()
     {
-        if (mCamera != nullptr)
-        {
-            mCamera->renderScene(this);
-        }
+        T3D_SCENE_MGR.render(this);
     }
 
     void Viewport::setDimensions(Real left, Real top, Real width, Real height)

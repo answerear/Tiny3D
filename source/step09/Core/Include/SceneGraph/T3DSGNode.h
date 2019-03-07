@@ -133,20 +133,22 @@ namespace Tiny3D
 
         /**
          * @brief 递归遍历
-         * @param [in] camera : 当前渲染相机
-         * @param [in] queue : 渲染队列
          * @return void
-         * @remarks 递归遍历，遍历到的结点会调用 update() 接口
+         * @remarks 递归遍历，遍历到的结点会调用 updateTransform() 接口
          */
-        virtual void visit(SGCameraPtr camera, RenderQueuePtr queue);
+        virtual void visit();
 
         /**
-         * @brief 遍历到的结点会调用本接口
-         * @param [in] camera : 当前渲染相机
+         * @brief 视景体外物体剔除，递归调用所有子结点
+         * @param [in] bound : 视锥体碰撞体
          * @param [in] queue : 渲染队列
          * @return void
+         * @note
+         *  - 如果本身不在视景体内，则所有子结点上的物体都会被剔除，不参与渲染；
+         *  - 如果本身在视景体内，则会递归调用子结点判断；
+         *  - 如果不是可渲染结点，则无法加入的RenderQueue中；
          */
-        virtual void update(SGCameraPtr camera, RenderQueuePtr queue);
+        virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue);
 
     protected:
         /**
@@ -164,18 +166,6 @@ namespace Tiny3D
          * @note 派生类重写本函数以实现具体的变换更新策略
          */
         virtual void updateTransform();
-
-        /**
-         * @brief 视景体外物体剔除，递归调用所有子结点
-         * @param [in] bound : 视锥体碰撞体
-         * @param [in] queue : 渲染队列
-         * @return void
-         * @note
-         *  - 如果本身不在视景体内，则所有子结点上的物体都会被剔除，不参与渲染；
-         *  - 如果本身在视景体内，则会递归调用子结点判断；
-         *  - 如果不是可渲染结点，则无法加入的RenderQueue中；
-         */
-        virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue);
 
         /**
          * @brief 克隆结点属性

@@ -317,6 +317,9 @@ namespace Tiny3D
             // 事件系统派发事件
             T3D_EVENT_MGR.dispatchEvent();
 
+            // 更新场景树
+            mSceneMgr->update();
+
             // 渲染一帧
             renderOneFrame();
         }

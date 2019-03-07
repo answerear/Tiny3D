@@ -51,7 +51,7 @@ namespace Tiny3D
 
         while (itr != mRenderTargets.end())
         {
-            itr->second->update();
+            itr->second->render();
             ++itr;
         }
 

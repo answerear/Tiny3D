@@ -43,13 +43,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline ViewportPtr SGCamera::getViewport() const
-    {
-        return mViewport;
-    }
-
-    //--------------------------------------------------------------------------
-
     inline void SGCamera::setProjectionType(ProjectionType type)
     {
         if (mProjType != type)

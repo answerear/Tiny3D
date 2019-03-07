@@ -39,9 +39,9 @@ namespace Tiny3D
         return true;
     }
 
-    void RenderWindow::update()
+    void RenderWindow::render()
     {
-        RenderTarget::update();
+        RenderTarget::render();
         swapBuffers();
     }
 }

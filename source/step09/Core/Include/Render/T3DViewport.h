@@ -58,9 +58,9 @@ namespace Tiny3D
         SGCameraPtr getCamera() const;
 
         /**
-         * @brief 更新视口
+         * @brief 渲染
          */
-        void update();
+        void render();
 
         /**
          * @brief 获取渲染目标对象
