@@ -49,23 +49,41 @@ namespace Tiny3D
         {
             // 之前没有设置过，直接添加到默认场景里面
             mCameraMask = mask;
-            DefaultSceneMgr::getInstance().addRenderable(this);
+
+            if (getParent() != nullptr)
+            {
+                DefaultSceneMgr::getInstance().addRenderable(this);
+            }
         }
         else if (mCameraMask != mask)
         {
-            DefaultSceneMgr::getInstance().removeRenderable(this);
-            mCameraMask = mask;
-            DefaultSceneMgr::getInstance().addRenderable(this);
-
-            NodePtr node = getFirstChild();
-
-            while (node != nullptr)
+            if (getParent() != nullptr)
             {
-                SGNodePtr child = smart_pointer_cast<SGNode>(node);
-                child->setCameraMask(mask);
-                node = node->getNextSibling();
+                DefaultSceneMgr::getInstance().removeRenderable(this);
+                mCameraMask = mask;
+                DefaultSceneMgr::getInstance().addRenderable(this);
+
+                NodePtr node = getFirstChild();
+
+                while (node != nullptr)
+                {
+                    SGNodePtr child = smart_pointer_cast<SGNode>(node);
+                    child->setCameraMask(mask);
+                    node = node->getNextSibling();
+                }
+            }
+            else
+            {
+                mCameraMask = mask;
             }
         }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGRenderable::onAttachParent(NodePtr parent)
+    {
+        DefaultSceneMgr::getInstance().addRenderable(this);
     }
 
     //--------------------------------------------------------------------------
