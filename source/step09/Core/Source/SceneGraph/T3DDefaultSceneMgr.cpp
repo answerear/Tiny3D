@@ -341,7 +341,7 @@ namespace Tiny3D
 
         do 
         {
-            uint32_t mask = renderable->getCameraMask();
+            uint32_t mask = renderable->getCameraMask() - 1;
 
             if (mask >= sizeof(mask))
             {
