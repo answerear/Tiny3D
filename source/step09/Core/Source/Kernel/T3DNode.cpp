@@ -29,6 +29,10 @@ namespace Tiny3D
         : mID(E_NID_INVALID)
         , mName()
         , mParent(nullptr)
+        , mFirstChild(nullptr)
+        , mLastChild(nullptr)
+        , mPrevSibling(nullptr)
+        , mNextSibling(nullptr)
     {
         if (E_NID_AUTOMATIC == mID)
         {
@@ -42,7 +46,7 @@ namespace Tiny3D
 
     Node::~Node()
     {
-        removeAllChildren(true);
+        removeAllChildren();
     }
 
     //--------------------------------------------------------------------------
@@ -50,7 +54,21 @@ namespace Tiny3D
     TResult Node::addChild(NodePtr node)
     {
         T3D_ASSERT(node->getParent() == nullptr);
-        mChildren.push_back(node);
+        
+        if (mFirstChild == nullptr)
+        {
+            // 没有子结点
+            mLastChild = mFirstChild = node;
+        }
+        else
+        {
+            // 有子结点，直接插入子结点链表末尾
+            node->mPrevSibling = mLastChild;
+            node->mNextSibling = nullptr;
+            mLastChild->mNextSibling = node;
+            mLastChild = node;
+        }
+
         node->mParent = this;
         node->onAttachParent(this);
         return T3D_OK;
@@ -58,7 +76,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Node::removeChild(NodePtr node, bool cleanup)
+    TResult Node::removeChild(NodePtr node)
     {
         TResult ret = T3D_OK;
 
@@ -71,26 +89,25 @@ namespace Tiny3D
                 break;
             }
 
-            auto itr = mChildren.begin();
+            Node *child = mFirstChild;
 
-            while (itr != mChildren.end())
+            while (child != nullptr)
             {
-                NodePtr child = *itr;
-
                 if (child == node)
                 {
-                    if (cleanup)
-                    {
-                        child->removeAllChildren(cleanup);
-                    }
-
+                    // 找到要删除的，先断开链表前后关系
                     child->onDetachParent(this);
                     child->mParent = nullptr;
-                    mChildren.erase(itr);
+
+                    if (child->mPrevSibling != nullptr)
+                        child->mPrevSibling->mNextSibling = child->mNextSibling;
+                    if (child->mNextSibling != nullptr)
+                        child->mNextSibling->mPrevSibling = child->mPrevSibling;
+
                     break;
                 }
 
-                ++itr;
+                child = child->mNextSibling;
             }
         } while (0);
 
@@ -99,7 +116,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Node::removeChild(uint32_t nodeID, bool cleanup)
+    TResult Node::removeChild(uint32_t nodeID)
     {
         TResult ret = T3D_OK;
 
@@ -112,24 +129,25 @@ namespace Tiny3D
                 break;
             }
 
-            auto itr = mChildren.begin();
+            Node *child = mFirstChild;
 
-            while (itr != mChildren.end())
+            while (child != nullptr)
             {
-                NodePtr child = *itr;
-
-                if (child != nullptr && child->getNodeID() == nodeID)
+                if (child->getNodeID() == nodeID)
                 {
-                    if (cleanup)
-                    {
-                        child->removeAllChildren(cleanup);
-                    }
-
+                    // 找到要删除的，先断开链表前后关系
                     child->onDetachParent(this);
                     child->mParent = nullptr;
-                    mChildren.erase(itr);
+
+                    if (child->mPrevSibling != nullptr)
+                        child->mPrevSibling->mNextSibling = child->mNextSibling;
+                    if (child->mNextSibling != nullptr)
+                        child->mNextSibling->mPrevSibling = child->mPrevSibling;
+
                     break;
                 }
+
+                child = child->mNextSibling;
             }
         } while (0);
 
@@ -138,41 +156,34 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Node::removeAllChildren(bool cleanup)
+    TResult Node::removeAllChildren()
     {
         TResult ret = T3D_OK;
 
-        auto itr = mChildren.begin();
+        Node *child = mFirstChild;
 
-        while (itr != mChildren.end())
+        while (child != nullptr)
         {
-            NodePtr &child = *itr;
-
-            if (cleanup)
-            {
-                child->removeAllChildren(cleanup);
-            }
-
             child->onDetachParent(this);
             child->mParent = nullptr;
-
-            ++itr;
+            child->mPrevSibling = nullptr;
+            child = child->mNextSibling;
         }
 
-        mChildren.clear();
+        mFirstChild = mLastChild = nullptr;
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Node::removeFromParent(bool cleanup)
+    TResult Node::removeFromParent()
     {
         TResult ret = T3D_OK;
 
         if (mParent != nullptr)
         {
-            mParent->removeChild(this, cleanup);
+            mParent->removeChild(this);
         }
 
         return ret;
@@ -182,20 +193,18 @@ namespace Tiny3D
 
     NodePtr Node::getChild(ID nodeID) const
     {
-        NodePtr child = nullptr;
+        Node *child = nullptr;
+        Node *temp = mFirstChild;
 
-        auto itr = mChildren.begin();
-
-        while (itr != mChildren.end())
+        while (temp != nullptr)
         {
-            NodePtr node = *itr;
-            if (node->getNodeID() == nodeID)
+            if (temp->getNodeID() == nodeID)
             {
-                child = node;
+                child = temp;
                 break;
             }
 
-            ++itr;
+            temp = temp->mNextSibling;
         }
 
         return child;
@@ -205,21 +214,21 @@ namespace Tiny3D
 
     NodePtr Node::getChild(const String &name) const
     {
-        NodePtr child = nullptr;
+        Node *child = nullptr;
+        Node *temp = mFirstChild;
 
-        auto itr = mChildren.begin();
-
-        while (itr != mChildren.end())
+        while (temp != nullptr)
         {
-            NodePtr node = *itr;
-            if (node->getName() == name)
+            if (temp->getName() == name)
             {
-                child = node;
+                child = temp;
                 break;
             }
 
-            ++itr;
+            temp = temp->mNextSibling;
         }
+
+        return child;
 
         return child;
     }
@@ -243,15 +252,14 @@ namespace Tiny3D
             node->mName = mName;
 
             // 克隆子结点属性
-            auto itr = node->mChildren.begin();
+            Node *child = mFirstChild;
 
-            while (itr != node->mChildren.end())
+            while (child != nullptr)
             {
-                NodePtr &child = *itr;
                 NodePtr newChild = child->clone();
-                newChild->cloneProperties(child);
+                child->cloneProperties(newChild);
                 node->addChild(newChild);
-                ++itr;
+                child = child->mNextSibling;
             }
         } while (0);
 

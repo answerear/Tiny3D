@@ -122,7 +122,7 @@ namespace Tiny3D
          *      通过“或”操作同时设置多个。
          * @see uint32_t getCameraMask() const
          */
-        void setCameraMask(uint32_t mask);
+        virtual void setCameraMask(uint32_t mask);
 
         /**
          * @brief 获取结点对应相机的掩码
@@ -175,11 +175,13 @@ namespace Tiny3D
          */
         virtual TResult cloneProperties(NodePtr node) const override;
 
+    protected:
+        uint32_t    mCameraMask;    /**< 相机掩码 */
+
     private:
         void        *mUserData;     /**< 保存用户数据 */
         ObjectPtr   mUserObject;    /**< 保存用户数据对象 */
 
-        uint32_t    mCameraMask;    /**< 相机掩码 */
         bool        mIsVisible;     /**< 结点可见性 */
         bool        mIsEnabled;     /**< 结点可用性 */
     };

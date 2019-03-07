@@ -35,9 +35,24 @@ namespace Tiny3D
         return mName;
     }
 
-    inline const Children &Node::getChildren() const
+    inline NodePtr Node::getFirstChild() const
     {
-        return mChildren;
+        return mFirstChild;
+    }
+
+    inline NodePtr Node::getLastChild() const
+    {
+        return mLastChild;
+    }
+
+    inline NodePtr Node::getPrevSibling() const
+    {
+        return mPrevSibling;
+    }
+
+    inline NodePtr Node::getNextSibling() const
+    {
+        return mNextSibling;
     }
 
     inline NodePtr Node::getParent() const

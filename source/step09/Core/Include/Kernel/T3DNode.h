@@ -121,9 +121,9 @@ namespace Tiny3D
          * @param [in] cleanup : 是否删除子结点，true表示删除，
          *      false表示仅仅移除而并不删除子结点
          * @return 调用成功返回 T3D_OK
-         * @see TResult removeChild(uint32_t nodeID, bool cleanup)
+         * @see TResult removeChild(uint32_t nodeID)
          */
-        virtual TResult removeChild(NodePtr node, bool cleanup);
+        virtual TResult removeChild(NodePtr node);
 
         /**
          * @brief 移除一个子结点
@@ -131,9 +131,9 @@ namespace Tiny3D
          * @param [in] cleanup : 是否删除子结点，true表示删除，
          *      false表示仅仅移除而并不删除子结点
          * @return 调用成功返回 T3D_OK
-         * @see TResult removeChild(const NodePtr &node, bool cleanup)
+         * @see TResult removeChild(const NodePtr &node)
          */
-        virtual TResult removeChild(uint32_t nodeID, bool cleanup);
+        virtual TResult removeChild(uint32_t nodeID);
 
         /**
          * @brief 移除所有子结点
@@ -141,7 +141,7 @@ namespace Tiny3D
          *      false表示仅仅移除而并不删除子结点
          * @return 调用成功返回 T3D_OK
          */
-        virtual TResult removeAllChildren(bool cleanup);
+        virtual TResult removeAllChildren();
 
         /**
          * @brief 从父结点移除自己
@@ -151,13 +151,19 @@ namespace Tiny3D
          * @note 当cleanup用true调用后，本身结点已经被释放了，
          *      则不能在访问任何结点接口和数据
          */
-        TResult removeFromParent(bool cleanup);
+        TResult removeFromParent();
 
         /**
-         * @brief 获取所有子结点
-         * @return 返回所有子结点链表
+         * @brief 获取第一个子结点
+         * @return 返回第一个子结点对象
          */
-        const Children &getChildren() const;
+        NodePtr getFirstChild() const;
+
+        /**
+         * @brief 获取最后一个子结点
+         * @return 返回最后一个子结点对象
+         */
+        NodePtr getLastChild() const;
 
         /**
          * @brief 返回指定结点ID的子结点
@@ -174,6 +180,16 @@ namespace Tiny3D
          * @return 返回子结点对象
          */
         NodePtr getChild(const String &name) const;
+
+        /**
+         * @brief 获取前一个兄弟结点
+         */
+        NodePtr getPrevSibling() const;
+
+        /**
+         * @brief 获取后一个兄弟结点
+         */
+        NodePtr getNextSibling() const;
 
         /**
          * @brief 获取父结点
@@ -224,13 +240,14 @@ namespace Tiny3D
         ID makeGlobalID() const;
 
     private:
-        ID          mID;        /**< 结点ID */
-        String      mName;      /**< 结点名称 */
+        ID          mID;            /**< 结点ID */
+        String      mName;          /**< 结点名称 */
 
-        NodePtr     mParent;    /**< 父结点 */
-
-    protected:
-        Children    mChildren;  /**< 子结点 */
+        NodePtr     mParent;        /**< 父结点 */
+        NodePtr     mFirstChild;    /**< 第一个子结点 */
+        NodePtr     mLastChild;     /**< 最后一个子结点 */
+        NodePtr     mPrevSibling;   /**< 前一个兄弟结点 */
+        NodePtr     mNextSibling;   /**< 后一个兄弟结点 */
     };
 }
 

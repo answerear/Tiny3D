@@ -28,8 +28,11 @@ namespace Tiny3D
 
     SGNode::SGNode(ID uID /* = E_NID_AUTOMATIC */)
         : Node(uID)
+        , mCameraMask(0)
         , mUserData(nullptr)
         , mUserObject(nullptr)
+        , mIsVisible(true)
+        , mIsEnabled(true)
     {
 
     }
@@ -95,14 +98,31 @@ namespace Tiny3D
             updateTransform();
 
             // 再遍历子结点
-            auto itr = mChildren.begin();
+            NodePtr node = getFirstChild();
 
-            while (itr != mChildren.end())
+            while (node != nullptr)
             {
-                SGNodePtr child = smart_pointer_cast<SGNode>(*itr);
+                SGNodePtr child = smart_pointer_cast<SGNode>(node);
                 child->visit();
-                ++itr;
+                node = node->getNextSibling();
             }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGNode::setCameraMask(uint32_t mask)
+    {
+        if (mask != mCameraMask)
+            mCameraMask = mask;
+
+        NodePtr node = getFirstChild();
+
+        while (node != nullptr)
+        {
+            SGNodePtr child = smart_pointer_cast<SGNode>(node);
+            child->setCameraMask(mask);
+            node = node->getNextSibling();
         }
     }
 }

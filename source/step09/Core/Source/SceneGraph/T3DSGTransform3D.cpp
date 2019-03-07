@@ -111,13 +111,13 @@ namespace Tiny3D
 
         if (recursive)
         {
-            auto itr = mChildren.begin();
-
-            while (itr != mChildren.end())
+            NodePtr child = getFirstChild();
+            while (child != nullptr)
             {
-                SGTransform3DPtr node = smart_pointer_cast<SGTransform3D>(*itr);
+                SGTransform3DPtr node 
+                    = smart_pointer_cast<SGTransform3D>(child);
                 node->setDirty(isDirty, recursive);
-                ++itr;
+                child = child->getNextSibling();
             }
         }
     }

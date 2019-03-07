@@ -38,6 +38,18 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    int32_t bitcount(uint32_t x)
+    {
+        x = (x & 0x55555555UL) + ((x >> 1) & 0x55555555UL); // 0-2 in 2 bits
+        x = (x & 0x33333333UL) + ((x >> 2) & 0x33333333UL); // 0-4 in 4 bits
+        x = (x & 0x0f0f0f0fUL) + ((x >> 4) & 0x0f0f0f0fUL); // 0-8 in 8 bits
+        x = (x & 0x00ff00ffUL) + ((x >> 8) & 0x00ff00ffUL); // 0-16 in 16 bits
+        x = (x & 0x0000ffffUL) + ((x >> 16) & 0x0000ffffUL); // 0-31 in 32 bits
+        return x;
+    }
+
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(DefaultSceneMgr);
 
     //--------------------------------------------------------------------------
@@ -83,6 +95,9 @@ namespace Tiny3D
         mRoot = SGTransform3D::create();
         mRoot->setName("Root");
 
+        // 预分配32个槽给存放要剔除的可渲染对象
+        mRenderables.resize(32, Slot());
+
         return ret;
     }
 
@@ -114,10 +129,47 @@ namespace Tiny3D
         // 清空渲染队列
         mRenderQueue->clear();
         
+        // 做视锥体裁剪
+        frustumCulling(viewport->getCamera());
+
         // 直接对渲染队列的对象渲染
         renderer->beginRender();
         mRenderQueue->render(renderer);
         renderer->endRender();
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult DefaultSceneMgr::frustumCulling(SGCameraPtr camera)
+    {
+        TResult ret = T3D_OK;
+
+        BoundPtr bound = camera->getBound();
+
+        uint32_t mask = camera->getObjectMask();
+
+        uint32_t count = bitcount(mask);
+        uint32_t i = 0;
+        uint32_t idx = 0;
+
+        for (i = 0; i < sizeof(mask) && idx < count; ++i)
+        {
+            if (mask & (1 << i))
+            {
+                idx++;
+
+                Slot &slot = mRenderables[i];
+                
+                SGRenderablePtr renderable = slot.first;
+                while (renderable != nullptr)
+                {
+                    renderable->frustumCulling(bound, mRenderQueue);
+                    renderable = renderable->mNext;
+                }
+            }
+        }
 
         return ret;
     }
@@ -279,6 +331,74 @@ namespace Tiny3D
         }
 
         return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult DefaultSceneMgr::addRenderable(SGRenderablePtr renderable)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            uint32_t mask = renderable->getCameraMask();
+
+            if (mask >= sizeof(mask))
+            {
+                // 最多支持32个，这里已经越界了
+                ret = T3D_ERR_OUT_OF_BOUND;
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Culling renderable mask is \
+                    out of bound !");
+                break;
+            }
+
+            Slot &slot = mRenderables[mask];
+            if (slot.first == nullptr)
+            {
+                // 空链表
+                slot.first = renderable;
+                slot.last = renderable;
+                renderable->mPrev = renderable->mNext = nullptr;
+            }
+            else
+            {
+                // 非空链表，插入最后
+                slot.last->mNext = renderable;
+                renderable->mPrev = slot.last;
+                renderable->mNext = nullptr;
+                slot.last = renderable;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult DefaultSceneMgr::removeRenderable(SGRenderablePtr renderable)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            uint32_t mask = renderable->getCameraMask();
+
+            if (mask >= sizeof(mask))
+            {
+                // 最多支持32个，这里已经越界了
+                ret = T3D_ERR_OUT_OF_BOUND;
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Culling renderable mask is \
+                    out of bound !");
+                break;
+            }
+
+            if (renderable->mPrev != nullptr)
+                renderable->mPrev->mNext = renderable->mNext;
+            if (renderable->mNext != nullptr)
+                renderable->mNext->mPrev = renderable->mPrev;
+        } while (0);
+
+        return ret;
     }
 }
 

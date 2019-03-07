@@ -35,6 +35,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API SGRenderable : public SGTransform3D
     {
+        friend class DefaultSceneMgr;
+
     public:
         /**
          * @brief 析构函数
@@ -53,11 +55,20 @@ namespace Tiny3D
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const = 0;
 
+        /**
+         * @brief 设置相机渲染掩码
+         */
+        virtual void setCameraMask(uint32_t mask) override;
+
     protected:
         /**
          * @brief 构造函数
          */
         SGRenderable(ID uID = E_NID_AUTOMATIC);
+
+    private:
+        SGRenderablePtr     mPrev;      /**< 前一个可渲染对象 */
+        SGRenderablePtr     mNext;      /**< 下一个可渲染对象 */
     };
 }
 

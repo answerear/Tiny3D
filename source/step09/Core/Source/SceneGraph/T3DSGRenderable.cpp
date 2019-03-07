@@ -19,6 +19,7 @@
 
 
 #include "SceneGraph/T3DSGRenderable.h"
+#include "SceneGraph/T3DDefaultSceneMgr.h"
 
 
 namespace Tiny3D
@@ -27,6 +28,8 @@ namespace Tiny3D
 
     SGRenderable::SGRenderable(ID uID /* = E_NID_AUTOMATIC */)
         : SGTransform3D(uID)
+        , mPrev(nullptr)
+        , mNext(nullptr)
     {
 
     }
@@ -36,5 +39,32 @@ namespace Tiny3D
     SGRenderable::~SGRenderable()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SGRenderable::setCameraMask(uint32_t mask)
+    {
+        if (mCameraMask == 0)
+        {
+            // 之前没有设置过，直接添加到默认场景里面
+            mCameraMask = mask;
+            DefaultSceneMgr::getInstance().addRenderable(this);
+        }
+        else if (mCameraMask != mask)
+        {
+            DefaultSceneMgr::getInstance().removeRenderable(this);
+            mCameraMask = mask;
+            DefaultSceneMgr::getInstance().addRenderable(this);
+
+            NodePtr node = getFirstChild();
+
+            while (node != nullptr)
+            {
+                SGNodePtr child = smart_pointer_cast<SGNode>(node);
+                child->setCameraMask(mask);
+                node = node->getNextSibling();
+            }
+        }
     }
 }

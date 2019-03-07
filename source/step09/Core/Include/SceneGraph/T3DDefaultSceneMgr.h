@@ -152,15 +152,47 @@ namespace Tiny3D
         virtual SGSpherePtr createSphere(const Vector3 &center, Real radius,
             SGNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) override;
 
+        /**
+         * @brief 添加可渲染对象到对应相机队列，用于视锥体剔除
+         * @param [in] renderable : 可渲染对象
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult addRenderable(SGRenderablePtr renderable);
+
+        /**
+         * @brief 根据camera mask来移除可渲染对象
+         * @param [in] renderable : 可渲染对象
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult removeRenderable(SGRenderablePtr renderable);
+
     protected:
         /**
          * @brief 构造函数
          */
         DefaultSceneMgr();
 
+        TResult frustumCulling(SGCameraPtr camera);
+
     protected:
+        struct Slot
+        {
+            Slot()
+                : first(nullptr)
+                , last(nullptr)
+            {}
+
+            SGRenderablePtr     first;
+            SGRenderablePtr     last;
+        };
+
+        typedef TArray<Slot>                Renderables;
+        typedef Renderables::iterator       RenderablesItr;
+        typedef Renderables::const_iterator RenderablesConstItr;
+
         SGNodePtr       mRoot;          /**< 根结点 */
         RenderQueuePtr  mRenderQueue;   /**< 渲染队列 */
+        Renderables     mRenderables;   /**< 可渲染对象列表，用于做视锥体剔除 */
     };
 }
 
