@@ -80,6 +80,7 @@ namespace Tiny3D
 
     DefaultSceneMgr::~DefaultSceneMgr()
     {
+        mRoot->removeAllChildren();
         mRoot = nullptr;
         mRenderQueue = nullptr;
     }
@@ -353,6 +354,7 @@ namespace Tiny3D
             }
 
             Slot &slot = mRenderables[mask];
+
             if (slot.first == nullptr)
             {
                 // 空链表
@@ -368,6 +370,8 @@ namespace Tiny3D
                 renderable->mNext = nullptr;
                 slot.last = renderable;
             }
+
+            slot.count++;
         } while (0);
 
         return ret;
@@ -381,7 +385,7 @@ namespace Tiny3D
 
         do 
         {
-            uint32_t mask = renderable->getCameraMask();
+            uint32_t mask = renderable->getCameraMask() - 1;
 
             if (mask >= sizeof(mask))
             {
@@ -396,6 +400,14 @@ namespace Tiny3D
                 renderable->mPrev->mNext = renderable->mNext;
             if (renderable->mNext != nullptr)
                 renderable->mNext->mPrev = renderable->mPrev;
+
+            Slot &slot = mRenderables[mask];
+            slot.count--;
+
+            if (slot.count == 0)
+            {
+                slot.first = slot.last = nullptr;
+            }
         } while (0);
 
         return ret;

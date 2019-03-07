@@ -55,6 +55,11 @@ namespace Tiny3D
         return mNextSibling;
     }
 
+    inline size_t Node::getChildrenCount() const
+    {
+        return mChildrenCount;
+    }
+
     inline NodePtr Node::getParent() const
     {
         return mParent;

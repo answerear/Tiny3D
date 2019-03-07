@@ -67,4 +67,11 @@ namespace Tiny3D
             }
         }
     }
+
+    //--------------------------------------------------------------------------
+
+    void SGRenderable::onDetachParent(NodePtr parent)
+    {
+        DefaultSceneMgr::getInstance().removeRenderable(this);
+    }
 }

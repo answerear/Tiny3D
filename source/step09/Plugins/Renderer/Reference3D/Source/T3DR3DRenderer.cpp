@@ -49,6 +49,7 @@ namespace Tiny3D
 
     R3DRenderer::~R3DRenderer()
     {
+        mRenderWindow = nullptr;
         mHardwareBufferMgr = nullptr;
         mR3DHardwareBufferMgr = nullptr;
     }

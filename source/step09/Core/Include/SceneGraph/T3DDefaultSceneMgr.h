@@ -178,10 +178,12 @@ namespace Tiny3D
         struct Slot
         {
             Slot()
-                : first(nullptr)
+                : count(0)
+                , first(nullptr)
                 , last(nullptr)
             {}
 
+            size_t              count;
             SGRenderablePtr     first;
             SGRenderablePtr     last;
         };

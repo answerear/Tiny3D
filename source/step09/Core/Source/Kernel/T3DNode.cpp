@@ -28,13 +28,14 @@ namespace Tiny3D
     Node::Node(ID uID /* = E_NID_AUTOMATIC */)
         : mID(E_NID_INVALID)
         , mName()
+        , mChildrenCount(0)
         , mParent(nullptr)
         , mFirstChild(nullptr)
         , mLastChild(nullptr)
         , mPrevSibling(nullptr)
         , mNextSibling(nullptr)
     {
-        if (E_NID_AUTOMATIC == mID)
+        if (E_NID_AUTOMATIC == uID)
         {
             mID = makeGlobalID();
         }
@@ -70,6 +71,7 @@ namespace Tiny3D
         }
 
         node->mParent = this;
+        mChildrenCount++;
         node->onAttachParent(this);
         return T3D_OK;
     }
@@ -98,6 +100,7 @@ namespace Tiny3D
                     // 找到要删除的，先断开链表前后关系
                     child->onDetachParent(this);
                     child->mParent = nullptr;
+                    mChildrenCount--;
 
                     if (child->mPrevSibling != nullptr)
                         child->mPrevSibling->mNextSibling = child->mNextSibling;
@@ -108,6 +111,12 @@ namespace Tiny3D
                 }
 
                 child = child->mNextSibling;
+            }
+
+            if (mChildrenCount == 0)
+            {
+                mFirstChild = nullptr;
+                mLastChild = nullptr;
             }
         } while (0);
 
@@ -138,6 +147,7 @@ namespace Tiny3D
                     // 找到要删除的，先断开链表前后关系
                     child->onDetachParent(this);
                     child->mParent = nullptr;
+                    mChildrenCount--;
 
                     if (child->mPrevSibling != nullptr)
                         child->mPrevSibling->mNextSibling = child->mNextSibling;
@@ -148,6 +158,12 @@ namespace Tiny3D
                 }
 
                 child = child->mNextSibling;
+            }
+
+            if (mChildrenCount == 0)
+            {
+                mFirstChild = nullptr;
+                mLastChild = nullptr;
             }
         } while (0);
 
@@ -166,11 +182,16 @@ namespace Tiny3D
         {
             child->onDetachParent(this);
             child->mParent = nullptr;
+            if (child->mPrevSibling != nullptr)
+                child->mPrevSibling->mNextSibling = nullptr;
             child->mPrevSibling = nullptr;
+            if (child->mNextSibling != nullptr)
+                child->mNextSibling->mPrevSibling = nullptr;
             child = child->mNextSibling;
         }
 
         mFirstChild = mLastChild = nullptr;
+        mChildrenCount = 0;
 
         return ret;
     }

@@ -70,6 +70,7 @@ namespace Tiny3D
     {
         mSceneMgr = nullptr;
         mActiveRenderer = nullptr;
+        mDefaultWindow = nullptr;
 
         unloadPlugins();
 
@@ -77,7 +78,6 @@ namespace Tiny3D
         mArchiveMgr = nullptr;
         mImageCodec = nullptr;
 
-        mDefaultWindow = nullptr;
         T3D_SAFE_DELETE(mEventMgr);
 
         mObjTracer->dumpMemoryInfo();
@@ -735,7 +735,7 @@ namespace Tiny3D
 
     TResult Agent::initObjectTracer()
     {
-        mObjTracer = new ObjectTracer();
+        mObjTracer = new ObjectTracer(true);
         return T3D_OK;
     }
 

@@ -192,6 +192,11 @@ namespace Tiny3D
         NodePtr getNextSibling() const;
 
         /**
+         * @brief 获取子结点数量
+         */
+        size_t getChildrenCount() const;
+
+        /**
          * @brief 获取父结点
          * @return 返回父结点对象
          */
@@ -242,7 +247,8 @@ namespace Tiny3D
     private:
         ID          mID;            /**< 结点ID */
         String      mName;          /**< 结点名称 */
-
+        
+        size_t      mChildrenCount; /**< 子结点数量 */
         NodePtr     mParent;        /**< 父结点 */
         NodePtr     mFirstChild;    /**< 第一个子结点 */
         NodePtr     mLastChild;     /**< 最后一个子结点 */

@@ -153,7 +153,7 @@ namespace Tiny3D
 
     protected:
         SGCameraPtr         mCamera;        /**< 关联本视口对应的相机 */
-        RenderTargetPtr     mRenderTarget;  /**< 关联本视口对应的渲染目标 */
+        RenderTarget        *mRenderTarget;  /**< 关联本视口对应的渲染目标 */
 
         Real        mLeft;          /**< 视口左边在渲染目标区域的相对位置 */
         Real        mTop;           /**< 视口上边在渲染目标区域的相对位置 */

@@ -60,6 +60,11 @@ namespace Tiny3D
          */
         virtual void setCameraMask(uint32_t mask) override;
 
+        /**
+         * @brief 响应从父结点拿下来的事件
+         */
+        virtual void onDetachParent(NodePtr parent) override;
+
     protected:
         /**
          * @brief 构造函数
