@@ -228,12 +228,16 @@ namespace Tiny3D
         Real height = top - bottom;
         Real distance = nearDist - farDist;
 
-        Real m00 = 2 * nearDist / width;
-        Real m02 = (right + left) / width;
-        Real m11 = 2 * nearDist / height;
-        Real m12 = (top + bottom) / height;
-        Real m22 = farDist / distance;
-        Real m23 = nearDist * farDist / distance;
+        Real invertW = REAL_ONE / width;
+        Real invertH = REAL_ONE / height;
+        Real invertD = REAL_ONE / distance;
+
+        Real m00 = 2 * nearDist * invertW;
+        Real m02 = (right + left) * invertW;
+        Real m11 = 2 * nearDist * invertH;
+        Real m12 = (top + bottom) * invertH;
+        Real m22 = farDist * invertD;
+        Real m23 = nearDist * farDist  * invertD;
 
         return Matrix4(
             m00, 0, m02, 0,
@@ -247,8 +251,33 @@ namespace Tiny3D
     Matrix4 R3DRenderer::orthographic(Real left, Real right, Real top,
         Real bottom, Real nearDist, Real farDist)
     {
-        Matrix4 m;
-        return m;
+        // 参考透视投影的推导
+        //
+        //      | 2/(r-l)     0       0    -(r+l)/(r-l) |
+        // Mp = |    0     2/(t-b)    0    -(t+b)/(t-b) |
+        //      |    0        0    1/(n-f)    n/(n-f)   |
+        //      |    0        0       0         1       |
+
+        Real width = right - left;
+        Real height = top - bottom;
+        Real distance = nearDist - farDist;
+
+        Real invertW = REAL_ONE / width;
+        Real invertH = REAL_ONE / height;
+        Real invertD = REAL_ONE / distance;
+
+        Real m00 = 2 * invertW;
+        Real m03 = -(right + left) * invertW;
+        Real m11 = 2 * invertH;
+        Real m13 = -(top - bottom) * invertH;
+        Real m22 = invertD;
+        Real m23 = nearDist * invertD;
+
+        return Matrix4(
+            m00,   0,   0, m03,
+              0, m11,   0, m13,
+              0,   0, m22, m23,
+              0,   0,   0,   1);
     }
 
     //--------------------------------------------------------------------------
