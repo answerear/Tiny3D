@@ -225,9 +225,6 @@ namespace Tiny3D
         {
             /// 不存在这组渲染对象
             RenderGroupPtr group = RenderGroup::create();
-            RenderGroupPtr ptr(group);
-            group->release();
-
             group->addRenderable(renderable);
             mGroups.insert(RenderableGroupValue(groupID, group));
         }

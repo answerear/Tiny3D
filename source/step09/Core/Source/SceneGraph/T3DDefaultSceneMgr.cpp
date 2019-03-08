@@ -166,7 +166,11 @@ namespace Tiny3D
                 SGRenderablePtr renderable = slot.first;
                 while (renderable != nullptr)
                 {
-                    renderable->frustumCulling(bound, mRenderQueue);
+                    if (renderable->isEnabled() && renderable->isVisible())
+                    {
+                        renderable->frustumCulling(bound, mRenderQueue);
+                    }
+
                     renderable = renderable->mNext;
                 }
             }

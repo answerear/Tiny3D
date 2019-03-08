@@ -136,16 +136,116 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Matrix4 R3DRenderer::perspective(Real left, Real right, Real top,
-        Real bottom, Real nearDist, Real FarDist)
+        Real bottom, Real nearDist, Real farDist)
     {
-        Matrix4 m;
-        return m;
+        // Reference3D NDC (Normalized Device Coordinates) is : 
+        //      [left, right] => [-1, 1]
+        //      [bottom, top] => [-1, 1]
+        //      [near, far] => [0, 1]
+        //
+        // 设：
+        //      观察空间的点 : Ve = (Xe, Ye, Ze)
+        //      投影平面的点 : Vp = (Xp, Yp, Zp)
+        //      裁剪空间的点 : Vc = (Xc, Yc, Zc, Wc)
+        //      NDC的点 : Vn = (Xn, Yn, Zn, Wn)
+        //      左边界 : l
+        //      右边界 : r
+        //      上边界 : t
+        //      下边界 : b
+        //      近平面 : n
+        //      远平面 : f
+        //      投影矩阵 : Mp
+        //
+        // 根据相似三角形可得 :
+        //      Xp / Xe = -n / Ze
+        //  则 :
+        //      Xp = (-n * Xe) / Ze = (n * Xe) / (-Ze)
+        // 同理 :
+        //      Yp / Ye = -n / Ze
+        //  则 :
+        //      Yp = (-n * Ye) / Ze = (n * Ye) / (-Ze)
+        //
+        // 因为 :
+        //      | Xc |        | Xe |     | Xn |   | Xc/Wc |
+        //      | Yc | = Mp * | Ye |     | Yn | = | Yc/Wc |
+        //      | Zc |        | Ze |     | Zn |   | Zc/Wc |
+        //      | Wc |        | We |
+        // 又因为 : 
+        //      | Xc |   | . .  . . |   | Xe |
+        //      | Yc | = | . .  . . | * | Ye |
+        //      | Zc |   | . .  . . |   | Ze |
+        //      | Wc |   | 0 0 -1 0 |   | We |
+        // 可得 : Wc = -Ze
+        //
+        // 根据 Xp 和 Yp 映射到 Xn 和 Yn (NDC) 是线性关系，即 :
+        //      [left, right] => [-1, 1]
+        //      [bottom, top] => [-1, 1]
+        // 得 :
+        //      Xn = (1 - (-1)) * Xp / (r - l) + C
+        // 把 (r, 1) 代入 (Xp, Xn) 可得 :
+        //      1 = 2 * r / (r - l) + C
+        // 求 C :
+        //      C = - (r + l) / (r - l)
+        // 代入原式，得 :
+        //      Xn = 2Xp / (r - l) - (r + l) / (r - l)
+        //
+        // 同理可得 :
+        //      Yn = 2Yp / (t - b) - (t + b) / (t - b)
+        //
+        // 进一步整理公式公因式 : 
+        //      Xn = 2Xp / (r - l) - (r + l) / (r - l)
+        //         = [2n/(r - l) * Xe + (r + l)/(r - l) * Ze] / -Ze
+        //      Yn = 2Yp / (t - b) - (t + b) / (t - b)
+        //         = [2n/(t - b) * Ye + (t + b)/(t - b) * Ze] / -Ze
+        //
+        // 从上式看得 :
+        //      | Xc |   | 2n/(r-l)    0     (r+l)/(r-l) 0 |   | Xe |
+        //      | Yc | = |    0     2n/(t-b) (t+b)/(t-b) 0 | * | Ye |
+        //      | Zc |   |    0        0          A      B |   | Ze |
+        //      | Wc |   |    0        0         -1      0 |   | We |
+        // 则 :
+        //      Zn = Zc / Wc = (A * Ze + B * We) / -Ze
+        //
+        // 观察空间中，We = 1，可得 :
+        //      Zn = (A * Ze + B) / -Ze
+        //
+        // 现在问题变成求 A 和 B，我们利用(Ze, Zn)映射关系为(-n, 0)和(-f, 1) 
+        // 代入上式，联列方程组得 :
+        //      (-A * n + B) / n = 0
+        //      (-A * f + B) / f = 1
+        // 解方程组得 :
+        //      A = f / (n - f)
+        //      B = n * f / (n - f)
+        //
+        // 最终求得透视投影矩阵为 :
+        //           | 2n/(r-l)    0     (r+l)/(r-l)    0      |
+        //      Mp = |    0     2n/(t-b) (t+b)/(t-b)    0      |
+        //           |    0        0        f/(n-f)  n*f/(n-f) |
+        //           |    0        0         -1         0      |
+        //
+
+        Real width = right - left;
+        Real height = top - bottom;
+        Real distance = nearDist - farDist;
+
+        Real m00 = 2 * nearDist / width;
+        Real m02 = (right + left) / width;
+        Real m11 = 2 * nearDist / height;
+        Real m12 = (top + bottom) / height;
+        Real m22 = farDist / distance;
+        Real m23 = nearDist * farDist / distance;
+
+        return Matrix4(
+            m00, 0, m02, 0,
+            0, m11, m12, 0,
+            0, 0, m22, m23,
+            0, 0, -1, 0);
     }
 
     //--------------------------------------------------------------------------
 
     Matrix4 R3DRenderer::orthographic(Real left, Real right, Real top,
-        Real bottom, Real nearDist, Real FarDist)
+        Real bottom, Real nearDist, Real farDist)
     {
         Matrix4 m;
         return m;
@@ -272,6 +372,7 @@ namespace Tiny3D
 
     TResult R3DRenderer::setViewport(ViewportPtr viewport)
     {
+        mViewport = viewport;
         return T3D_OK;
     }
 

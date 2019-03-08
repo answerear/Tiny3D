@@ -83,13 +83,19 @@ namespace Tiny3D
 
     void SGRenderable::onAttachParent(NodePtr parent)
     {
-        DefaultSceneMgr::getInstance().addRenderable(this);
+        if (getCameraMask() != 0)
+        {
+            DefaultSceneMgr::getInstance().addRenderable(this);
+        }
     }
 
     //--------------------------------------------------------------------------
 
     void SGRenderable::onDetachParent(NodePtr parent)
     {
-        DefaultSceneMgr::getInstance().removeRenderable(this);
+        if (getCameraMask() != 0)
+        {
+            DefaultSceneMgr::getInstance().removeRenderable(this);
+        }
     }
 }
