@@ -42,6 +42,7 @@ namespace Tiny3D
     R3DRenderWindow::R3DRenderWindow(const String &name)
         : RenderWindow(name)
         , mWindow(nullptr)
+        , mPainter(nullptr)
     {
 
     }
@@ -158,6 +159,9 @@ namespace Tiny3D
             mWidth = param.windowWidth;
             mHeight = param.windowHeight;
             mColorDepth = mWindow->getColorDepth();
+            mPitch = Image::calcPitch(mWidth, mColorDepth);
+
+            mPainter = new R3DScreenPainter(this);
         } while (0);
 
         return ret;
@@ -178,7 +182,9 @@ namespace Tiny3D
 
             mWindow->destroy();
 
+            T3D_SAFE_DELETE(mPainter);
             T3D_SAFE_DELETE(mWindow);
+
             ret = T3D_OK;
         } while (0);
 
@@ -203,7 +209,7 @@ namespace Tiny3D
             uint8_t *framebuffer = mWindow->getFramebuffer();
             size_t size = mWindow->getFramebufferSize();
 
-            memset(framebuffer, 0, size);
+//             memset(framebuffer, 0, size);
             ret = mWindow->updateWindow();
         } while (0);
 

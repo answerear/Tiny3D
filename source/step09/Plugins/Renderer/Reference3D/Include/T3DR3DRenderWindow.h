@@ -23,6 +23,7 @@
 
 
 #include "T3DR3DPrerequisites.h"
+#include "T3DR3DScreenPainter.h"
 
 
 namespace Tiny3D
@@ -60,10 +61,34 @@ namespace Tiny3D
          */
         virtual TResult swapBuffers() override;
 
+        /**
+         * @brief 获取帧缓冲
+         * @return 返回帧缓冲地址
+         */
+        uint8_t *getFramebuffer() { return mWindow->getFramebuffer(); }
+
+        /**
+         * @brief 获取帧缓冲大小
+         * @return 返回帧缓冲大小
+         */
+        size_t getFramebufferSize() const 
+        { 
+            return mWindow->getFramebufferSize(); 
+        }
+
+        /**
+         * @brief 获取行间距
+         * @return 返回行间距
+         */
+        size_t getPitch() const { return mPitch; }
+
     protected:
         R3DRenderWindow(const String &name);
 
         Window  *mWindow;
+        size_t  mPitch;
+
+        R3DScreenPainter    *mPainter;
     };
 }
 
