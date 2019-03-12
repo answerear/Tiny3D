@@ -131,15 +131,15 @@ namespace Tiny3D
 
     protected:
         /**
-         * @brief 基于 Bresenham 算法绘制直线 
+         * @brief 24位色深窗口上基于 Bresenham 算法绘制直线
          */
-        TResult drawLineByBresenham(const Point &start, const Point &end,
+        TResult drawLine24(const Point &start, const Point &end,
             const Color4 &color);
 
         /**
-         * @brief 基于 Double Step 算法绘制直线
+         * @brief 32位色深窗口上基于 Bresenham 算法绘制直线
          */
-        TResult drawLineByDoubleStep(const Point &start, const Point &end,
+        TResult drawLine32(const Point &start, const Point &end,
             const Color4 &color);
 
     protected:

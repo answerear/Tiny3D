@@ -203,7 +203,8 @@ namespace Tiny3D
         if (mSDLWindow != nullptr)
         {
             uint32_t format = SDL_GetWindowPixelFormat(mSDLWindow);
-            depth = SDL_BITSPERPIXEL(format);
+            uint32_t bpp = SDL_BYTESPERPIXEL(format);
+            depth = (bpp << 3);
         }
 
         return depth;

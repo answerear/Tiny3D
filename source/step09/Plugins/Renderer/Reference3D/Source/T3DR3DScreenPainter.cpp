@@ -26,17 +26,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline void drawPointFast(const Point &pt, const Color4 &color, uint8_t *fb,
-        size_t pitch, size_t bytesPerPixel)
-    {
-        fb = fb + pt.y * pitch + pt.x * bytesPerPixel;
-        *fb++ = color.blue();
-        *fb++ = color.green();
-        *fb++ = color.red();
-    }
-
-    //--------------------------------------------------------------------------
-
     T3D_INIT_SINGLETON(R3DScreenPainter);
 
     //--------------------------------------------------------------------------
@@ -58,6 +47,13 @@ namespace Tiny3D
 
     TResult R3DScreenPainter::drawPoint(const Point &point, const Color4 &color)
     {
+        uint8_t *fb = mWindow->getFramebuffer();
+        size_t pitch = mWindow->getPitch();
+        size_t bytesPerPixel = (mWindow->getColorDepth() >> 3);
+        fb = fb + point.y * pitch + point.x * bytesPerPixel;
+        *fb++ = color.blue();
+        *fb++ = color.green();
+        *fb++ = color.red();
         return T3D_OK;
     }
 
@@ -66,7 +62,20 @@ namespace Tiny3D
     TResult R3DScreenPainter::drawLine(const Point &start, const Point &end,
         const Color4 &color, size_t border /* = 1 */)
     {
-        return drawLineByDoubleStep(start, end, color);
+        TResult ret = T3D_OK;
+        switch (mWindow->getColorDepth())
+        {
+        case 24:
+            ret = drawLine24(start, end, color);
+            break;
+        case 32:
+            ret = drawLine32(start, end, color);
+            break;
+        default:
+            break;
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -122,87 +131,252 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult R3DScreenPainter::drawLineByBresenham(const Point &start,
-        const Point &end, const Color4 &color)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult R3DScreenPainter::drawLineByDoubleStep(const Point &start,
-        const Point &end, const Color4 &color)
+    TResult R3DScreenPainter::drawLine24(const Point &start, const Point &end,
+        const Color4 &color)
     {
         TResult ret = T3D_OK;
-
-        int32_t dx = end.x - start.x;
-        int32_t dy = end.y - start.y;
-        int32_t error = (dy << 2) - dx;
-        int32_t w = mWindow->getWidth();
-        int32_t h = mWindow->getHeight();
-
-        // 裁减掉超出屏幕的部分
-        int32_t x1 = (start.x < 0 ? 0 : start.x);
-        int32_t y1 = (start.y < 0 ? 0 : start.y);
-        int32_t x2 = (end.x >= w ? w - 1 : end.x);
-        int32_t y2 = (end.y >= h ? h - 1 : end.y);
-
-        Point pt(x1, y1);
 
         uint8_t *fb = mWindow->getFramebuffer();
         size_t fbSize = mWindow->getFramebufferSize();
         size_t pitch = mWindow->getPitch();
         size_t bytesPerPixel = (mWindow->getColorDepth() >> 3);
 
-        // 绘制起点
-        drawPointFast(pt, color, fb, pitch, bytesPerPixel);
+        int32_t w = mWindow->getWidth();
+        int32_t h = mWindow->getHeight();
 
-        while (pt.x < x2)
+        int32_t x1 = start.x;
+        int32_t y1 = start.y;
+        int32_t x2 = end.x;
+        int32_t y2 = end.y;
+
+        // 裁减掉超出屏幕的部分
+        if (x1 < 0)
+            x1 = 0;
+        else if (x1 >= w)
+            x1 = w - 1;
+
+        if (y1 < 0)
+            y1 = 0;
+        else if (y1 >= h)
+            y1 = h - 1;
+
+        if (x2 < 0)
+            x2 = 0;
+        else if (x2 >= w)
+            x2 = w - 1;
+
+        if (y2 < 0)
+            y2 = 0;
+        else if (y2 >= h)
+            y2 = h - 1;
+
+        int32_t dx = x2 - x1;
+        int32_t dy = y2 - y1;
+
+        int32_t error = 0;
+
+        int32_t x_inc = 0;
+        int32_t y_inc = 0;
+
+        if (dx > 0)
         {
-            if (error > dx)
+            // X-axis 正方向
+            x_inc = bytesPerPixel;
+        }
+        else
+        {
+            // X-axis 负方向
+            x_inc = -bytesPerPixel;
+            dx = -dx;
+        }
+
+        if (dy > 0)
+        {
+            // Y-axis 正方向
+            y_inc = pitch;
+        }
+        else
+        {
+            // Y-axis 负方向
+            y_inc = -pitch;
+            dy = -dy;
+        }
+
+        int32_t dx2 = dx << 1;
+        int32_t dy2 = dy << 1;
+
+        int32_t i = 0;
+
+        // 寻址到开始地址
+        fb = fb + x1 * bytesPerPixel + y1 * pitch;
+
+        if (dx > dy)
+        {
+            error = dy2 - dx;
+
+            for (i = 0; i < dx; ++i)
             {
-                if (error > (dx << 1))  // error < dx * 4
+                fb[0] = color.blue();
+                fb[1] = color.green();
+                fb[2] = color.red();
+
+                if (error >= 0)
                 {
-                    error += ((dy - dx) << 2);  // error += (dy - dx) * 4
-                    ++pt.x;
-                    ++pt.y;
-                    // 填充颜色
-                    drawPointFast(pt, color, fb, pitch, bytesPerPixel);
-                    // 跳到下一像素
-                    ++pt.x;
-                    ++pt.y;
-                    // 填充颜色
-                    drawPointFast(pt, color, fb, pitch, bytesPerPixel);
+                    // 调整误差，跳到下一行
+                    error -= dx2;
+                    fb += y_inc;
                 }
-                else
-                {
-                    error += ((dy << 2) - (dx << 1));
-                    ++pt.x;
-                    ++pt.y;
-                    drawPointFast(pt, color, fb, pitch, bytesPerPixel);
-                    ++pt.x;
-                    drawPointFast(pt, color, fb, pitch, bytesPerPixel);
-                }
+
+                error += dy2;
+                fb += x_inc;
             }
-            else
+        }
+        else
+        {
+            error = dx2 - dy;
+
+            for (i = 0; i < dy; ++i)
             {
-                if (error > 0)
+                fb[0] = color.blue();
+                fb[1] = color.green();
+                fb[2] = color.red();
+
+                if (error >= 0)
                 {
-                    error += ((dy << 2) - (dx << 1));
-                    ++pt.x;
-                    drawPointFast(pt, color, fb, pitch, bytesPerPixel);
-                    ++pt.x;
-                    ++pt.y;
-                    drawPointFast(pt, color, fb, pitch, bytesPerPixel);
+                    error -= dy2;
+                    fb += x_inc;
                 }
-                else
+
+                error += dx2;
+                fb += y_inc;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DScreenPainter::drawLine32(const Point &start, const Point &end, 
+        const Color4 &color)
+    {
+        TResult ret = T3D_OK;
+        
+        uint8_t *fb = mWindow->getFramebuffer();
+        size_t fbSize = mWindow->getFramebufferSize();
+        size_t pitch = mWindow->getPitch();
+        size_t bytesPerPixel = (mWindow->getColorDepth() >> 3);
+
+        int32_t w = mWindow->getWidth();
+        int32_t h = mWindow->getHeight();
+
+        int32_t x1 = start.x;
+        int32_t y1 = start.y;
+        int32_t x2 = end.x;
+        int32_t y2 = end.y;
+
+        // 裁减掉超出屏幕的部分
+        if (x1 < 0)
+            x1 = 0;
+        else if (x1 >= w)
+            x1 = w - 1;
+
+        if (y1 < 0)
+            y1 = 0;
+        else if (y1 >= h)
+            y1 = h - 1;
+
+        if (x2 < 0)
+            x2 = 0;
+        else if (x2 >= w)
+            x2 = w - 1;
+
+        if (y2 < 0)
+            y2 = 0;
+        else if (y2 >= h)
+            y2 = h - 1;
+
+        int32_t dx = x2 - x1;
+        int32_t dy = y2 - y1;
+
+        int32_t error = 0;
+
+        int32_t x_inc = 0;
+        int32_t y_inc = 0;
+
+        if (dx > 0)
+        {
+            // X-axis 正方向
+            x_inc = bytesPerPixel;
+        }
+        else
+        {
+            // X-axis 负方向
+            x_inc = -bytesPerPixel;
+            dx = -dx;
+        }
+
+        if (dy > 0)
+        {
+            // Y-axis 正方向
+            y_inc = pitch;
+        }
+        else
+        {
+            // Y-axis 负方向
+            y_inc = -pitch;
+            dy = -dy;
+        }
+
+        int32_t dx2 = dx << 1;
+        int32_t dy2 = dy << 1;
+
+        int32_t i = 0;
+
+        // 寻址到开始地址
+        fb = fb + x1 * bytesPerPixel + y1 * pitch;
+
+        if (dx > dy)
+        {
+            error = dy2 - dx;
+
+            for (i = 0; i < dx; ++i)
+            {
+                fb[0] = color.blue();
+                fb[1] = color.green();
+                fb[2] = color.red();
+                fb[3] = 0xFF;
+
+                if (error >= 0)
                 {
-                    ++pt.x;
-                    drawPointFast(pt, color, fb, pitch, bytesPerPixel);
-                    ++pt.x;
-                    drawPointFast(pt, color, fb, pitch, bytesPerPixel);
-                    error += (dy << 2);
+                    // 调整误差，跳到下一行
+                    error -= dx2;
+                    fb += y_inc;
                 }
+
+                error += dy2;
+                fb += x_inc;
+            }
+        }
+        else
+        {
+            error = dx2 - dy;
+
+            for (i = 0; i < dy; ++i)
+            {
+                fb[0] = color.blue();
+                fb[1] = color.green();
+                fb[2] = color.red();
+                fb[3] = 0xFF;
+
+                if (error >= 0)
+                {
+                    error -= dy2;
+                    fb += x_inc;
+                }
+
+                error += dx2;
+                fb += y_inc;
             }
         }
 
