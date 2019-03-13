@@ -206,10 +206,6 @@ namespace Tiny3D
                 break;
             }
 
-            uint8_t *framebuffer = mWindow->getFramebuffer();
-            size_t size = mWindow->getFramebufferSize();
-
-//             memset(framebuffer, 0, size);
             ret = mWindow->updateWindow();
         } while (0);
 

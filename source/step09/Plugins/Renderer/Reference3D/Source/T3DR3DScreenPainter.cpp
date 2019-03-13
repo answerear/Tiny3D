@@ -54,6 +54,9 @@ namespace Tiny3D
         *fb++ = color.blue();
         *fb++ = color.green();
         *fb++ = color.red();
+        if (bytesPerPixel == 4)
+            *fb++ = 0xFF;
+
         return T3D_OK;
     }
 
@@ -148,27 +151,6 @@ namespace Tiny3D
         int32_t y1 = start.y;
         int32_t x2 = end.x;
         int32_t y2 = end.y;
-
-        // 裁减掉超出屏幕的部分
-        if (x1 < 0)
-            x1 = 0;
-        else if (x1 >= w)
-            x1 = w - 1;
-
-        if (y1 < 0)
-            y1 = 0;
-        else if (y1 >= h)
-            y1 = h - 1;
-
-        if (x2 < 0)
-            x2 = 0;
-        else if (x2 >= w)
-            x2 = w - 1;
-
-        if (y2 < 0)
-            y2 = 0;
-        else if (y2 >= h)
-            y2 = h - 1;
 
         int32_t dx = x2 - x1;
         int32_t dy = y2 - y1;
@@ -274,27 +256,6 @@ namespace Tiny3D
         int32_t y1 = start.y;
         int32_t x2 = end.x;
         int32_t y2 = end.y;
-
-        // 裁减掉超出屏幕的部分
-        if (x1 < 0)
-            x1 = 0;
-        else if (x1 >= w)
-            x1 = w - 1;
-
-        if (y1 < 0)
-            y1 = 0;
-        else if (y1 >= h)
-            y1 = h - 1;
-
-        if (x2 < 0)
-            x2 = 0;
-        else if (x2 >= w)
-            x2 = w - 1;
-
-        if (y2 < 0)
-            y2 = 0;
-        else if (y2 >= h)
-            y2 = h - 1;
 
         int32_t dx = x2 - x1;
         int32_t dy = y2 - y1;
