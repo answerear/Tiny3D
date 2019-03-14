@@ -75,12 +75,12 @@ namespace Tiny3D
         return mMatrix;
     }
 
-    inline void Viewport::setBkgndColor(const Color4 &color)
+    inline void Viewport::setBkgndColor(const Color3f &color)
     {
         mBkgndColor = color;
     }
 
-    inline const Color4 &Viewport::getBkgndColor() const
+    inline const Color3f &Viewport::getBkgndColor() const
     {
         return mBkgndColor;
     }

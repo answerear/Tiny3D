@@ -35,13 +35,13 @@ namespace Tiny3D
     {
         SphereVertex()
             : position(Vector3::ZERO)
-            , color(Color4::WHITE.A8R8G8B8())
+            , color(Color3f::WHITE)
         {
 
         }
 
         Vector3     position;
-        uint32_t    color;
+        Color3f     color;
     };
 
     //--------------------------------------------------------------------------
@@ -218,7 +218,7 @@ namespace Tiny3D
     {
         SphereVertex *vert = (SphereVertex *)vertices;
 
-        uint32_t color = Color4::WHITE.A8R8G8B8();
+        const Color3f &color = Color3f::WHITE;
 
         Radian alphaStep(Real(2.0) * Math::PI / MAX_STACKS);
         Radian betaStep(Math::PI / MAX_SLICES);

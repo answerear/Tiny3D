@@ -22,6 +22,8 @@
 
 
 #include "T3DMathPrerequisites.h"
+#include "T3DColor3f.h"
+#include "T3DColor4f.h"
 
 
 namespace Tiny3D
@@ -34,6 +36,7 @@ namespace Tiny3D
         static const Color4 RED;
         static const Color4 GREEN;
         static const Color4 BLUE;
+        static const Color4 YELLOW;
 
         static const uint16_t RGB555_RED_MASK;
         static const uint16_t RGB555_GREEN_MASK;
@@ -54,11 +57,30 @@ namespace Tiny3D
         static const uint32_t RGB_BLUE_MASK;
         static const uint32_t RGB_ALPHA_MASK;
 
-        Color4(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
+        Color4(uint8_t r = 0xFF, uint8_t g = 0xFF, uint8_t b = 0xFF, 
+            uint8_t a = 0xFF)
             : mBlue(b)
             , mGreen(g)
             , mRed(r)
             , mAlpha(a)
+        {
+
+        }
+
+        Color4(const Color3f &color)
+            : mBlue((uint8_t)(color.blue() * 255.0f))
+            , mGreen((uint8_t)(color.green() * 255.0f))
+            , mRed((uint8_t)(color.red() * 255.0f))
+            , mAlpha(255)
+        {
+
+        }
+
+        Color4(const Color4f &color)
+            : mBlue((uint8_t)(color.blue() * 255.0f))
+            , mGreen((uint8_t)(color.green() * 255.0f))
+            , mRed((uint8_t)(color.red() * 255.0f))
+            , mAlpha((uint8_t)(color.alpha() * 255.0f))
         {
 
         }
@@ -82,6 +104,41 @@ namespace Tiny3D
                 && mGreen == other.mGreen && mBlue == other.mBlue);
         }
 
+        void from(const Color3f &color)
+        {
+            mAlpha = 0xFF;
+            mRed = (uint8_t)(color.red() * 255.0f);
+            mGreen = (uint8_t)(color.green() * 255.0f);
+            mBlue = (uint8_t)(color.blue() * 255.0f);
+        }
+
+        void from(const Color4f &color)
+        {
+            mAlpha = (uint8_t)(color.alpha() * 255.0f);
+            mRed = (uint8_t)(color.red() * 255.0f);
+            mGreen = (uint8_t)(color.green() * 255.0f);
+            mBlue = (uint8_t)(color.blue() * 255.0f);
+        }
+
+        Color3f toColor3f() const
+        {
+            return Color3f(
+                (float32_t)mBlue / 255.0f,
+                (float32_t)mGreen / 255.0f,
+                (float32_t)mRed / 255.0f
+            );
+        }
+
+        Color4f toColor4f() const
+        {
+            return Color4f(
+                (float32_t)mBlue / 255.0f,
+                (float32_t)mGreen / 255.0f,
+                (float32_t)mRed / 255.0f,
+                (float32_t)mAlpha / 255.0f
+            );
+        }
+
         uint8_t alpha() const   { return mAlpha; }
         uint8_t &alpha()        { return mAlpha; }
 
@@ -96,28 +153,35 @@ namespace Tiny3D
 
         uint32_t A8R8G8B8() const
         {
-            return ((mAlpha << 24) & RGB_ALPHA_MASK) | ((mRed << 16) & RGB_RED_MASK)
-                | ((mGreen << 8) & RGB_GREEN_MASK) | (mBlue & RGB_BLUE_MASK);
+            return ((mAlpha << 24) & RGB_ALPHA_MASK) 
+                | ((mRed << 16) & RGB_RED_MASK)
+                | ((mGreen << 8) & RGB_GREEN_MASK) 
+                | (mBlue & RGB_BLUE_MASK);
         }
 
         uint16_t A1R5G5B5() const
         {
             uint8_t alpha = (mAlpha > 0 ? 1 : 0);
-            return ((alpha << 15) & RGB555_ALPHA_MASK) | ((mRed << 10) & RGB555_RED_MASK)
-                | ((mGreen << 5) & RGB555_GREEN_MASK) | (mBlue & RGB555_BLUE_MASK);
+            return ((alpha << 15) & RGB555_ALPHA_MASK) 
+                | ((mRed << 10) & RGB555_RED_MASK)
+                | ((mGreen << 5) & RGB555_GREEN_MASK) 
+                | (mBlue & RGB555_BLUE_MASK);
         }
 
         uint16_t R5G6B5() const
         {
-            return ((mRed << 11) & RGB565_RED_MASK) | ((mGreen << 5) & RGB565_GREEN_MASK)
+            return ((mRed << 11) & RGB565_RED_MASK) 
+                | ((mGreen << 5) & RGB565_GREEN_MASK)
                 | (mBlue & RGB565_BLUE_MASK);
         }
 
         uint16_t A4R4G4B4() const
         {
             uint8_t alpha = (mAlpha >> 1);
-            return ((alpha << 12) & RGB444_ALPHA_MASK) | ((mRed << 8) & RGB444_RED_MASK) 
-                | ((mGreen << 4) & RGB444_GREEN_MASK) | (mBlue & RGB444_BLUE_MASK);
+            return ((alpha << 12) & RGB444_ALPHA_MASK) 
+                | ((mRed << 8) & RGB444_RED_MASK) 
+                | ((mGreen << 4) & RGB444_GREEN_MASK) 
+                | (mBlue & RGB444_BLUE_MASK);
         }
 
     private:

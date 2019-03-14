@@ -36,13 +36,13 @@ namespace Tiny3D
     {
         BoxVertex()
             : position(Vector3::ZERO)
-            , diffuse(Color4::WHITE.A8R8G8B8())
+            , diffuse(Color3f::WHITE)
         {
 
         }
 
         Vector3     position;
-        uint32_t    diffuse;
+        Color3f     diffuse;
     };
 
     //--------------------------------------------------------------------------
@@ -225,7 +225,7 @@ namespace Tiny3D
         BoxVertex *vert = (BoxVertex *)vertices;
 
         Vector3 offset;
-        uint32_t color = Color4::WHITE.A8R8G8B8();
+        const Color3f &color = Color3f::WHITE;
 
         // V0
         offset[0] = -mExtent[0];

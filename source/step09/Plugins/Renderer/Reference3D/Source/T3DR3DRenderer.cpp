@@ -416,7 +416,7 @@ namespace Tiny3D
 
     TResult R3DRenderer::drawVertexArray(VertexArrayObjectPtr vao)
     {
-        SCREEN_PAINTER.drawLine(Point(100, 100), Point(700, 300), Color4::GREEN);
+        SCREEN_PAINTER.drawLine(Point(100, 100), Point(700, 300), Color4f::GREEN);
 
         return T3D_OK;
     }

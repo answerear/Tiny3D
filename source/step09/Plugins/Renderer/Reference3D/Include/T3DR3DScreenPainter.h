@@ -49,7 +49,7 @@ namespace Tiny3D
          * @param [in] color : 点颜色
          * @return 调用成功返回 T3D_OK
          */
-        TResult drawPoint(const Point &point, const Color4 &color);
+        TResult drawPoint(const Point &point, const Color4f &color);
 
         /**
          * @brief 绘制直线
@@ -60,7 +60,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult drawLine(const Point &start, const Point &end, 
-            const Color4 &color, size_t border = 1);
+            const Color4f &color, size_t border = 1);
 
         /**
          * @brief 绘制渐变直线
@@ -72,7 +72,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult drawGradualLine(const Point &start, const Point &end,
-            const Color4 &clrStart, const Color4 &clrEnd, size_t border = 1);
+            const Color4f &clrStart, const Color4f &clrEnd, size_t border = 1);
 
         /**
          * @brief 绘制空心三角形
@@ -84,7 +84,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult drawTriangle(const Point &p1, const Point &p2, const Point &p3,
-            const Color4 &color, size_t border = 1);
+            const Color4f &color, size_t border = 1);
 
         /**
          * @brief 绘制实心三角形
@@ -95,7 +95,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult drawSolidTriangle(const Point &p1, const Point &p2,
-            const Point &p3, const Color4 &color);
+            const Point &p3, const Color4f &color);
 
         /**
          * @brief 绘制渐变三角形
@@ -107,9 +107,9 @@ namespace Tiny3D
          * @param [in] clr3 : 三角形颜色
          * @return 调用成功返回 T3D_OK
          */
-        TResult drawGradualTriangle(const Point &p1, const Color4 &clr1,
-            const Point &p2, const Color4 &clr2,
-            const Point &p3, const Color4 &clr3);
+        TResult drawGradualTriangle(const Point &p1, const Color4f &clr1,
+            const Point &p2, const Color4f &clr2,
+            const Point &p3, const Color4f &clr3);
 
         /**
          * @brief 绘制空心矩形
@@ -118,7 +118,7 @@ namespace Tiny3D
          * @param [in] border : 边框大小
          * @return 调用成功返回 T3D_OK
          */
-        TResult drawRect(const Rect &rect, const Color4 &color, 
+        TResult drawRect(const Rect &rect, const Color4f &color,
             size_t border = 1);
 
         /**
@@ -127,20 +127,20 @@ namespace Tiny3D
          * @param [in] color : 矩形颜色
          * @return 调用成功返回 T3D_OK
          */
-        TResult drawSolidRect(const Rect &rect, const Color4 &color);
+        TResult drawSolidRect(const Rect &rect, const Color4f &color);
 
     protected:
         /**
          * @brief 24位色深窗口上基于 Bresenham 算法绘制直线
          */
         TResult drawLine24(const Point &start, const Point &end,
-            const Color4 &color);
+            const Color4f &color);
 
         /**
          * @brief 32位色深窗口上基于 Bresenham 算法绘制直线
          */
         TResult drawLine32(const Point &start, const Point &end,
-            const Color4 &color);
+            const Color4f &color);
 
     protected:
         R3DRenderWindowPtr  mWindow;

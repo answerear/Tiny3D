@@ -125,12 +125,12 @@ namespace Tiny3D
          * @brief 设置背景颜色
          * @param [in] color : 颜色值
          */
-        void setBkgndColor(const Color4 &color);
+        void setBkgndColor(const Color3f &color);
 
         /**
          * @brief 获取背景颜色
          */
-        const Color4 &getBkgndColor() const;
+        const Color3f &getBkgndColor() const;
 
     protected:
         /**
@@ -165,7 +165,7 @@ namespace Tiny3D
         size_t      mActualWidth;   /**< 视口实际的宽度 */
         size_t      mActualHeight;  /**< 视口实际的高度 */
 
-        Color4      mBkgndColor;    /**< 背景颜色 */
+        Color3f     mBkgndColor;    /**< 背景颜色 */
 
         Matrix4     mMatrix;        /**< 视口变换矩阵 */
     };

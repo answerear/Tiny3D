@@ -45,15 +45,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult R3DScreenPainter::drawPoint(const Point &point, const Color4 &color)
+    TResult R3DScreenPainter::drawPoint(const Point &point, const Color4f &color)
     {
         uint8_t *fb = mWindow->getFramebuffer();
         size_t pitch = mWindow->getPitch();
         size_t bytesPerPixel = (mWindow->getColorDepth() >> 3);
         fb = fb + point.y * pitch + point.x * bytesPerPixel;
-        *fb++ = color.blue();
-        *fb++ = color.green();
-        *fb++ = color.red();
+        Color4 clr;
+        clr.from(color);
+        *fb++ = clr.blue();
+        *fb++ = clr.green();
+        *fb++ = clr.red();
         if (bytesPerPixel == 4)
             *fb++ = 0xFF;
 
@@ -63,7 +65,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DScreenPainter::drawLine(const Point &start, const Point &end,
-        const Color4 &color, size_t border /* = 1 */)
+        const Color4f &color, size_t border /* = 1 */)
     {
         TResult ret = T3D_OK;
         switch (mWindow->getColorDepth())
@@ -84,7 +86,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DScreenPainter::drawGradualLine(const Point &start,
-        const Point &end, const Color4 &clrStart, const Color4 &clrEnd,
+        const Point &end, const Color4f &clrStart, const Color4f &clrEnd,
         size_t border /* = 1 */)
     {
         return T3D_OK;
@@ -93,7 +95,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DScreenPainter::drawTriangle(const Point &p1, const Point &p2,
-        const Point &p3, const Color4 &color, size_t border /* = 1 */)
+        const Point &p3, const Color4f &color, size_t border /* = 1 */)
     {
         return T3D_OK;
     }
@@ -101,7 +103,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DScreenPainter::drawSolidTriangle(const Point &p1,
-        const Point &p2, const Point &p3, const Color4 &color)
+        const Point &p2, const Point &p3, const Color4f &color)
     {
         return T3D_OK;
     }
@@ -109,16 +111,16 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DScreenPainter::drawGradualTriangle(
-        const Point &p1, const Color4 &clr1,
-        const Point &p2, const Color4 &clr2,
-        const Point &p3, const Color4 &clr3)
+        const Point &p1, const Color4f &clr1,
+        const Point &p2, const Color4f &clr2,
+        const Point &p3, const Color4f &clr3)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult R3DScreenPainter::drawRect(const Rect &rect, const Color4 &color,
+    TResult R3DScreenPainter::drawRect(const Rect &rect, const Color4f &color,
         size_t border /* = 1 */)
     {
         return T3D_OK;
@@ -127,7 +129,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DScreenPainter::drawSolidRect(const Rect &rect,
-        const Color4 &color)
+        const Color4f &color)
     {
         return T3D_OK;
     }
@@ -135,9 +137,12 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DScreenPainter::drawLine24(const Point &start, const Point &end,
-        const Color4 &color)
+        const Color4f &color)
     {
         TResult ret = T3D_OK;
+
+        Color4 clr;
+        clr.from(color);
 
         uint8_t *fb = mWindow->getFramebuffer();
         size_t fbSize = mWindow->getFramebufferSize();
@@ -198,9 +203,9 @@ namespace Tiny3D
 
             for (i = 0; i < dx; ++i)
             {
-                fb[0] = color.blue();
-                fb[1] = color.green();
-                fb[2] = color.red();
+                fb[0] = clr.blue();
+                fb[1] = clr.green();
+                fb[2] = clr.red();
 
                 if (error >= 0)
                 {
@@ -219,9 +224,9 @@ namespace Tiny3D
 
             for (i = 0; i < dy; ++i)
             {
-                fb[0] = color.blue();
-                fb[1] = color.green();
-                fb[2] = color.red();
+                fb[0] = clr.blue();
+                fb[1] = clr.green();
+                fb[2] = clr.red();
 
                 if (error >= 0)
                 {
@@ -240,10 +245,13 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DScreenPainter::drawLine32(const Point &start, const Point &end, 
-        const Color4 &color)
+        const Color4f &color)
     {
         TResult ret = T3D_OK;
         
+        Color4 clr;
+        clr.from(color);
+
         uint8_t *fb = mWindow->getFramebuffer();
         size_t fbSize = mWindow->getFramebufferSize();
         size_t pitch = mWindow->getPitch();
@@ -303,9 +311,9 @@ namespace Tiny3D
 
             for (i = 0; i < dx; ++i)
             {
-                fb[0] = color.blue();
-                fb[1] = color.green();
-                fb[2] = color.red();
+                fb[0] = clr.blue();
+                fb[1] = clr.green();
+                fb[2] = clr.red();
                 fb[3] = 0xFF;
 
                 if (error >= 0)
@@ -325,9 +333,9 @@ namespace Tiny3D
 
             for (i = 0; i < dy; ++i)
             {
-                fb[0] = color.blue();
-                fb[1] = color.green();
-                fb[2] = color.red();
+                fb[0] = clr.blue();
+                fb[1] = clr.green();
+                fb[2] = clr.red();
                 fb[3] = 0xFF;
 
                 if (error >= 0)

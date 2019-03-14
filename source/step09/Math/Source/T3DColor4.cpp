@@ -27,6 +27,7 @@ namespace Tiny3D
     const Color4 Color4::RED(255, 0, 0);
     const Color4 Color4::GREEN(0, 255, 0);
     const Color4 Color4::BLUE(0, 0, 255);
+    const Color4 Color4::YELLOW(255, 255, 0);
 
     const uint16_t Color4::RGB555_RED_MASK = 0x7C00;
     const uint16_t Color4::RGB555_GREEN_MASK = 0x03E0;
