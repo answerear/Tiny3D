@@ -63,10 +63,18 @@ namespace Tiny3D
             const RenderWindowCreateParamEx &paramEx) override;
 
         /**
-         * @brief 开始渲染
-         * @return 调用成功返回 T3D_OK
-         */
-        virtual TResult beginRender() override;
+        * @brief 开始渲染
+        * @param [in] count : 清除矩形区域的数量
+        * @param [in] pRects : 矩形区域数组
+        * @param [in] clearFlags : 清除标记
+        * @param [in] color : 用于清除的背景颜色
+        * @param [in] z : 用于清除的深度值
+        * @param [in] stencil : 用于清除模板缓冲的值
+        * @return 调用成功返回 T3D_OK
+        */
+        virtual TResult beginRender(size_t count, Rect *pRects,
+            uint32_t clearFlags, const Color3f &color, Real z,
+            uint32_t stencil) override;
 
         /**
          * @brief 结束渲染
@@ -140,6 +148,13 @@ namespace Tiny3D
             Real bottom, Real nearDist, Real farDist) override;
 
         /**
+         * @brief 根据视口生成渲染器相关的视口变换矩阵
+         * @param [in] viewport : 视口对象
+         * @return 返回的视口变换矩阵
+         */
+        virtual Matrix4 makeViewportMatrix(ViewportPtr viewport) override;
+
+        /**
          * @brief 更新视锥体的多个平面
          * @param [in] m : 投影变换矩阵和观察矩阵的连接，即 (M_proj * M_view)
          * @param [in][out] frustum : 需要更新的视锥体
@@ -185,18 +200,19 @@ namespace Tiny3D
         /**
          * @brief 绘制顶点列表
          * @param [in] priType : 图元类型
+         * @param [in] decl : 顶点声明
          * @param [in] vbo : 顶点缓冲
          * @param [in] startIdx : 顶点缓冲区的起始位置
          * @param [in] priCount : 图元数量
          * @return 调用成功返回 T3D_OK
          */
         virtual TResult drawVertexList(PrimitiveType priType,
-            HardwareVertexBufferPtr vbo, size_t startIdx, 
-            size_t priCount) override;
+            VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo) override;
 
         /**
         * @brief 绘制索引列表
         * @param [in] priType : 图元类型
+        * @param [in] decl : 顶点声明
         * @param [in] vbo : 顶点缓冲
         * @param [in] ibo : 索引缓冲
         * @param [in] startIdx : 顶点索引起始位置偏移
@@ -204,8 +220,8 @@ namespace Tiny3D
         * @return 调用成功返回 T3D_OK
         */
         virtual TResult drawIndexList(PrimitiveType priType,
-            HardwareVertexBufferPtr vbo, HardwareIndexBufferPtr ibo,
-            size_t startIdx, size_t priCount) override;
+            VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo, 
+            HardwareIndexBufferPtr ibo) override;
 
     protected:
         /**
@@ -213,9 +229,15 @@ namespace Tiny3D
          */
         R3DRenderer();
 
+        TResult clearFramebuffer(size_t count, Rect *pRects, 
+            const Color3f &color);
+
+    protected:
         R3DRenderWindowPtr          mRenderWindow;          /**< 渲染窗口 */
         HardwareBufferManagerPtr    mHardwareBufferMgr;     /**< 硬件缓冲管理器 */
         R3DHardwareBufferManagerPtr mR3DHardwareBufferMgr;  /**< 渲染器相关的缓冲区管理对象 */
+
+        Matrix4                     mMatrices[E_TS_MAX];    /**< 各种变换矩阵 */
     };
 }
 

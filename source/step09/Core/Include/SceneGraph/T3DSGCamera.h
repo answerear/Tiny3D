@@ -160,7 +160,7 @@ namespace Tiny3D
          * @return 返回投影变换矩阵
          */
         const Matrix4 &getProjectionMatrix() const;
-
+        
         /**
          * @brief 重写基类接口
          * @see void SGNode::setDirty(bool isDirty, bool recursive = false)

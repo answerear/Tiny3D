@@ -116,6 +116,13 @@ namespace Tiny3D
             E_RM_MAX
         };
 
+        enum ClearFlags
+        {
+            E_CLEAR_STENCIL = 0,
+            E_CLEAR_TARGET,
+            E_CLEAR_ZBUFFER,
+        };
+
         /**
          * @brief 构造函数
          */
@@ -185,9 +192,17 @@ namespace Tiny3D
 
         /**
          * @brief 开始渲染
+         * @param [in] count : 清除矩形区域的数量
+         * @param [in] pRects : 矩形区域数组
+         * @param [in] clearFlags : 清除标记
+         * @param [in] color : 用于清除的背景颜色
+         * @param [in] z : 用于清除的深度值
+         * @param [in] stencil : 用于清除模板缓冲的值
          * @return 调用成功返回 T3D_OK
          */
-        virtual TResult beginRender() = 0;
+        virtual TResult beginRender(size_t count, Rect *pRects,
+            uint32_t clearFlags, const Color3f &color, Real z,
+            uint32_t stencil) = 0;
 
         /**
          * @brief 结束渲染
@@ -281,6 +296,13 @@ namespace Tiny3D
             Real bottom, Real nearDist, Real farDist) = 0;
 
         /**
+         * @brief 根据视口生成渲染器相关的视口变换矩阵
+         * @param [in] viewport : 视口对象
+         * @return 返回的视口变换矩阵
+         */
+        virtual Matrix4 makeViewportMatrix(ViewportPtr viewport) = 0;
+
+        /**
          * @brief 更新视锥体的多个平面
          * @param [in] m : 投影变换矩阵和观察矩阵的连接，即 (M_proj * M_view)
          * @param [in][out] bound : 需要更新的视锥体碰撞体
@@ -341,17 +363,19 @@ namespace Tiny3D
         /**
          * @brief 绘制顶点列表
          * @param [in] priType : 图元类型
+         * @param [in] decl : 顶点声明
          * @param [in] vbo : 顶点缓冲
          * @param [in] startIdx : 顶点缓冲区的起始位置
          * @param [in] priCount : 图元数量
          * @return 调用成功返回 T3D_OK
          */
-        virtual TResult drawVertexList(PrimitiveType priType,
-            HardwareVertexBufferPtr vbo, size_t startIdx, size_t priCount) = 0;
+        virtual TResult drawVertexList(PrimitiveType priType, 
+            VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo) = 0;
 
         /**
          * @brief 绘制索引列表
          * @param [in] priType : 图元类型
+         * @param [in] decl : 顶点声明
          * @param [in] vbo : 顶点缓冲
          * @param [in] ibo : 索引缓冲
          * @param [in] startIdx : 顶点索引起始位置偏移
@@ -359,8 +383,8 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         virtual TResult drawIndexList(PrimitiveType priType,
-            HardwareVertexBufferPtr vbo, HardwareIndexBufferPtr ibo,
-            size_t startIdx, size_t priCount) = 0;
+            VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo, 
+            HardwareIndexBufferPtr ibo) = 0;
 
     protected:
         typedef TMap<String, RenderTargetPtr>       RenderTargetList;

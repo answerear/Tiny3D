@@ -130,11 +130,17 @@ namespace Tiny3D
         // 清空渲染队列
         mRenderQueue->clear();
         
+        SGCameraPtr camera = viewport->getCamera();
+
         // 做视锥体裁剪
-        frustumCulling(viewport->getCamera());
+        frustumCulling(camera);
 
         // 直接对渲染队列的对象渲染
-        renderer->beginRender();
+        Point pos(viewport->getActualLeft(), viewport->getActualTop());
+        Size size(viewport->getActualWidth(), viewport->getActualHeight());
+        Rect rect(pos, size);
+        renderer->beginRender(1, &rect, viewport->getClearFlags(),
+            viewport->getBkgndColor(), viewport->getClearZ(), 0);
         mRenderQueue->render(renderer);
         renderer->endRender();
 

@@ -22,6 +22,7 @@
 #include "Render/T3DRenderTarget.h"
 #include "SceneGraph/T3DSGCamera.h"
 #include "SceneGraph/T3DSceneManager.h"
+#include "Kernel/T3DAgent.h"
 
 
 namespace Tiny3D
@@ -82,8 +83,8 @@ namespace Tiny3D
         mActualWidth = int32_t(nWidth * mWidth);
         mActualHeight = int32_t(nHeight * mHeight);
 
-//         RendererPtr renderer = T3D_ENTRANCE.getActiveRenderer();
-//         renderer->makeViewportMatrix(this, mMatrix);
+        RendererPtr renderer = T3D_AGENT.getActiveRenderer();
+        mMatrix = renderer->makeViewportMatrix(this);
     }
 }
 

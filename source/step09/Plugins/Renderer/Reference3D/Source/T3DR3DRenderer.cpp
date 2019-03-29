@@ -58,6 +58,13 @@ namespace Tiny3D
 
     TResult R3DRenderer::init()
     {
+        size_t i = 0;
+
+        for (i = 0; i < E_TS_MAX; ++i)
+        {
+            mMatrices[i].makeIdentity();
+        }
+
         return T3D_OK;
     }
 
@@ -104,10 +111,50 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult R3DRenderer::beginRender()
+    TResult R3DRenderer::beginRender(size_t count, Rect *pRects,
+        uint32_t clearFlags, const Color3f &color, Real z,
+        uint32_t stencil)
     {
+        if (clearFlags & E_CLEAR_TARGET)
+        {
+            // 清除背景
+            clearFramebuffer(count, pRects, color);
+        }
+        
+        if (clearFlags & E_CLEAR_ZBUFFER)
+        {
+
+        }
+
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DRenderer::clearFramebuffer(size_t count, Rect *pRects, 
+        const Color3f &color)
+    {
+        uint8_t *fb = mRenderWindow->getFramebuffer();
+        size_t pitch = mRenderWindow->getPitch();
+
+        if (count == 0 && pRects == nullptr)
+        {
+            // 清除整个framebuffer
+            size_t x = 0, y = 0;
+
+            for (y = 0; y < mRenderWindow->getHeight(); ++y)
+            {
+                
+            }
+        }
+        else
+        {
+
+        }
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
 
     TResult R3DRenderer::endRender()
     {
@@ -118,19 +165,20 @@ namespace Tiny3D
 
     bool R3DRenderer::queryCapability(Capability cap) const
     {
-        return true;
+        return false;
     }
 
     //--------------------------------------------------------------------------
 
     TResult R3DRenderer::setTransform(TransformState state, const Matrix4 &mat)
     {
+        mMatrices[state] = mat;
         return T3D_OK;
     }
 
     const Matrix4 &R3DRenderer::getTransform(TransformState state) const
     {
-        return Matrix4::IDENTITY;
+        return mMatrices[state];
     }
 
     //--------------------------------------------------------------------------
@@ -282,6 +330,24 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    Matrix4 R3DRenderer::makeViewportMatrix(ViewportPtr viewport)
+    {
+        Real m00 = viewport->getActualWidth() * REAL_HALF;
+        Real m11 = -viewport->getActualHeight() * REAL_HALF;
+        Real m22 = REAL_ONE;
+        Real m33 = REAL_ONE;
+        Real m03 = viewport->getActualLeft() + viewport->getActualWidth() * REAL_HALF;
+        Real m13 = viewport->getActualTop() + viewport->getActualHeight() * REAL_HALF;
+        Real m23 = REAL_ONE;
+        return Matrix4(
+            m00,   0,   0, m03,
+              0, m11,   0, m13,
+              0,   0, m22, m23,
+              0,   0,   0,   1);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult R3DRenderer::updateFrustum(const Matrix4 &m, FrustumBoundPtr bound)
     {
         // 快速计算视棱锥六个裁剪平面原理：
@@ -387,6 +453,7 @@ namespace Tiny3D
 
     TResult R3DRenderer::setCullingMode(CullingMode mode)
     {
+        mCullingMode = mode;
         return T3D_OK;
     }
 
@@ -394,6 +461,7 @@ namespace Tiny3D
 
     TResult R3DRenderer::setRenderMode(RenderMode mode)
     {
+        mRenderMode = mode;
         return T3D_OK;
     }
 
@@ -416,25 +484,42 @@ namespace Tiny3D
 
     TResult R3DRenderer::drawVertexArray(VertexArrayObjectPtr vao)
     {
-        SCREEN_PAINTER.drawLine(Point(100, 100), Point(700, 300), Color4f::GREEN);
+        TResult ret = T3D_OK;
 
-        return T3D_OK;
+        
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult R3DRenderer::drawVertexList(PrimitiveType priType,
-        HardwareVertexBufferPtr vbo, size_t startIdx, size_t priCount)
+    TResult R3DRenderer::drawVertexList(PrimitiveType priType, 
+        VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo)
     {
-        return T3D_OK;
+        VertexArrayObjectPtr vao 
+            = T3D_HARDWARE_BUFFER_MGR.createVertexArrayObject(false);
+
+        vao->setPrimitiveType(priType);
+        vao->setVertexDeclaration(decl);
+        vao->addVertexBuffer(vbo);
+
+        return drawVertexArray(vao);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult R3DRenderer::drawIndexList(PrimitiveType priType,
-        HardwareVertexBufferPtr vbo, HardwareIndexBufferPtr ibo,
-        size_t startIdx, size_t priCount)
+    TResult R3DRenderer::drawIndexList(PrimitiveType priType, 
+        VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo, 
+        HardwareIndexBufferPtr ibo)
     {
-        return T3D_OK;
+        VertexArrayObjectPtr vao
+            = T3D_HARDWARE_BUFFER_MGR.createVertexArrayObject(true);
+
+        vao->setPrimitiveType(priType);
+        vao->setVertexDeclaration(decl);
+        vao->addVertexBuffer(vbo);
+        vao->setIndexBuffer(ibo);
+
+        return drawVertexArray(vao);
     }
 }

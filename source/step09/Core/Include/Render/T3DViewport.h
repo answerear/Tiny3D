@@ -122,13 +122,41 @@ namespace Tiny3D
         void setDimensions(Real left, Real top, Real width, Real height);
 
         /**
+         * @brief 设置清除标记
+         * @param [in] flags : 清除标记
+         * @return void
+         * @see Renderer::ClearFlags
+         */
+        void setClearFlags(uint32_t flags);
+
+        /**
+         * @brief 获取清除标记
+         * @return 返回清除标记
+         */
+        uint32_t getClearFlags() const;
+
+        /**
+         * @brief 设置用于清除的 z-buffer 值
+         * @param [in] z : z值
+         * @return void
+         */
+        void setClearZ(Real z);
+
+        /**
+         * @brief 获取用于清除的 z-buffer 值
+         */
+        Real getClearZ() const;
+
+        /**
          * @brief 设置背景颜色
          * @param [in] color : 颜色值
+         * @return void
          */
         void setBkgndColor(const Color3f &color);
 
         /**
          * @brief 获取背景颜色
+         * @return 返回背景颜色
          */
         const Color3f &getBkgndColor() const;
 
@@ -153,7 +181,7 @@ namespace Tiny3D
 
     protected:
         SGCameraPtr         mCamera;        /**< 关联本视口对应的相机 */
-        RenderTarget        *mRenderTarget;  /**< 关联本视口对应的渲染目标 */
+        RenderTarget        *mRenderTarget; /**< 关联本视口对应的渲染目标 */
 
         Real        mLeft;          /**< 视口左边在渲染目标区域的相对位置 */
         Real        mTop;           /**< 视口上边在渲染目标区域的相对位置 */
@@ -164,6 +192,9 @@ namespace Tiny3D
         size_t      mActualTop;     /**< 视口实际的上边位置 */
         size_t      mActualWidth;   /**< 视口实际的宽度 */
         size_t      mActualHeight;  /**< 视口实际的高度 */
+
+        uint32_t    mClearFlags;    /**< 清除标记 */
+        Real        mClearZ;        /**< 用于清除的 z-buffer 值 */
 
         Color3f     mBkgndColor;    /**< 背景颜色 */
 

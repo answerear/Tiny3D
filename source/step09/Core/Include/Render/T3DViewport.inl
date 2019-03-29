@@ -75,6 +75,26 @@ namespace Tiny3D
         return mMatrix;
     }
 
+    inline void Viewport::setClearFlags(uint32_t flags)
+    {
+        mClearFlags = flags;
+    }
+
+    inline uint32_t Viewport::getClearFlags() const
+    {
+        return mClearFlags;
+    }
+
+    inline void Viewport::setClearZ(Real z)
+    {
+        mClearZ = z;
+    }
+
+    inline Real Viewport::getClearZ() const
+    {
+        return mClearZ;
+    }
+
     inline void Viewport::setBkgndColor(const Color3f &color)
     {
         mBkgndColor = color;
