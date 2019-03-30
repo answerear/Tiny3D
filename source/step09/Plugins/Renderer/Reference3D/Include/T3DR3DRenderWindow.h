@@ -23,7 +23,7 @@
 
 
 #include "T3DR3DPrerequisites.h"
-#include "T3DR3DScreenPainter.h"
+#include "T3DR3DFramebuffer.h"
 
 
 namespace Tiny3D
@@ -76,19 +76,10 @@ namespace Tiny3D
             return mWindow->getFramebufferSize(); 
         }
 
-        /**
-         * @brief 获取行间距
-         * @return 返回行间距
-         */
-        size_t getPitch() const { return mPitch; }
-
     protected:
         R3DRenderWindow(const String &name);
 
         Window  *mWindow;
-        size_t  mPitch;
-
-        R3DScreenPainter    *mPainter;
     };
 }
 

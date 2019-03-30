@@ -21,6 +21,8 @@
 #include "T3DR3DRenderer.h"
 #include "T3DR3DRenderWindow.h"
 #include "T3DR3DHardwareBufferManager.h"
+#include "T3DR3DError.h"
+#include "T3DR3DFramebuffer.h"
 
 
 namespace Tiny3D
@@ -115,6 +117,15 @@ namespace Tiny3D
         uint32_t clearFlags, const Color3f &color, Real z,
         uint32_t stencil)
     {
+        if (mRenderTarget == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Invalid render target !");
+            return T3D_ERR_R3D_INVALID_TARGET;
+        }
+
+        // 生成framebuffer对象，用于当前一帧的渲染
+        mFramebuffer = R3DFramebuffer::create(mRenderTarget);
+
         if (clearFlags & E_CLEAR_TARGET)
         {
             // 清除背景
@@ -158,6 +169,7 @@ namespace Tiny3D
 
     TResult R3DRenderer::endRender()
     {
+        mFramebuffer = nullptr;
         return T3D_OK;
     }
 
@@ -343,7 +355,7 @@ namespace Tiny3D
             m00,   0,   0, m03,
               0, m11,   0, m13,
               0,   0, m22, m23,
-              0,   0,   0,   1);
+              0,   0,   0, m33);
     }
 
     //--------------------------------------------------------------------------
@@ -486,7 +498,17 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        
+        PrimitiveType primitive = vao->getPrimitiveType();
+
+        switch (primitive)
+        {
+        case Renderer::E_PT_POINT_LIST:
+            {
+                // 点列表
+                
+            }
+            break;
+        }
 
         return ret;
     }

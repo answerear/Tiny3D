@@ -35,6 +35,10 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Renderer::Renderer()
+        : mRenderTarget(nullptr)
+        , mViewport(nullptr)
+        , mCullingMode(E_CULL_NONE)
+        , mRenderMode(E_RM_SOLID)
     {
     }
 
@@ -51,7 +55,13 @@ namespace Tiny3D
 
         while (itr != mRenderTargets.end())
         {
+            // 设置当前渲染目标
+            mRenderTarget = itr->second;
+            // 渲染
             itr->second->render();
+            // 清空当前渲染目标
+            mRenderTarget = nullptr;
+
             ++itr;
         }
 

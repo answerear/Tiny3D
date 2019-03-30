@@ -36,10 +36,14 @@ namespace Tiny3D
     {
     public:
         /**
-         * @brief 创建渲染目标对象
-         * @return 返回一个渲染目标对象
+         * @brief 渲染目标类型
          */
-        static RenderTargetPtr create(const String &name);
+        enum Type
+        {
+            E_RT_WINDOW = 0,        /**< 渲染到窗口 */
+            E_RT_TEXTURE,           /**< 渲染到纹理 */
+            E_RT_MAX
+        };
 
         /**
          * @brief 析构函数
@@ -51,6 +55,11 @@ namespace Tiny3D
          * @return 返回一个字符串名称
          */
         const String &getName() const;
+
+        /**
+         * @brief 获取渲染目标类型
+         */
+        virtual Type getType() const = 0;
 
         /**
          * @brief 获取渲染目标的一些度量值
@@ -74,6 +83,11 @@ namespace Tiny3D
          * @brief 获取渲染目标色深
          */
         size_t getColorDepth() const;
+
+        /**
+         * @brief 获取渲染目标行间距
+         */
+        size_t getPitch() const;
 
         /**
          * @brief 获取活跃状态
@@ -141,6 +155,7 @@ namespace Tiny3D
         size_t          mWidth;         /**< 渲染目标宽度 */
         size_t          mHeight;        /**< 渲染目标高度 */
         size_t          mColorDepth;    /**< 渲染目标色深 */
+        size_t          mPitch;         /**< 渲染目标行间距 */
 
         bool            mIsActive;      /**< 是否活跃状态 */
 

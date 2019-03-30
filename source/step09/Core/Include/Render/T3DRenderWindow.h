@@ -61,6 +61,12 @@ namespace Tiny3D
         virtual ~RenderWindow();
 
         /**
+         * @brief 获取渲染目标类型
+         * @remarks 实现基类接口
+         */
+        virtual Type getType() const override;
+
+        /**
          * @brief 渲染
          * @remarks 重写RenderTarget::update()
          * @see RenderTarget::update()

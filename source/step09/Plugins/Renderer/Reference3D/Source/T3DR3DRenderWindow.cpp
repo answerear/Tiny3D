@@ -21,10 +21,6 @@
 #include "T3DR3DRenderWindow.h"
 #include "T3DR3DError.h"
 
-// #if defined (T3D_OS_WINDOWS)
-//     #include <windows.h>
-// #endif
-
 
 namespace Tiny3D
 {
@@ -42,10 +38,11 @@ namespace Tiny3D
     R3DRenderWindow::R3DRenderWindow(const String &name)
         : RenderWindow(name)
         , mWindow(nullptr)
-        , mPainter(nullptr)
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     R3DRenderWindow::~R3DRenderWindow()
     {
@@ -160,8 +157,6 @@ namespace Tiny3D
             mHeight = param.windowHeight;
             mColorDepth = mWindow->getColorDepth();
             mPitch = Image::calcPitch(mWidth, mColorDepth);
-
-            mPainter = new R3DScreenPainter(this);
         } while (0);
 
         return ret;
@@ -182,7 +177,6 @@ namespace Tiny3D
 
             mWindow->destroy();
 
-            T3D_SAFE_DELETE(mPainter);
             T3D_SAFE_DELETE(mWindow);
 
             ret = T3D_OK;

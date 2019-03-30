@@ -48,6 +48,11 @@ namespace Tiny3D
         return mColorDepth;
     }
 
+    inline size_t RenderTarget::getPitch() const
+    {
+        return mPitch;
+    }
+
     inline bool RenderTarget::isActive() const
     {
         return mIsActive;

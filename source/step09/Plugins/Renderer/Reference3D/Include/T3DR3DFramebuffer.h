@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_R3D_SCREEN_PAINTER_H__
-#define __T3D_R3D_SCREEN_PAINTER_H__
+#ifndef __T3D_R3D_FRAMEBUFFER_H__
+#define __T3D_R3D_FRAMEBUFFER_H__
 
 
 #include "T3DR3DPrerequisites.h"
@@ -28,20 +28,17 @@
 namespace Tiny3D
 {
     /**
-     * @brief 屏幕绘制类
+     * @brief 帧缓冲类
      */
-    class R3DScreenPainter : public Singleton<R3DScreenPainter>
+    class R3DFramebuffer : public Object
     {
     public:
-        /**
-         * @brief 构造函数
-         */
-        R3DScreenPainter(R3DRenderWindowPtr window);
-        
+        static R3DFramebufferPtr create(RenderTargetPtr target);
+
         /**
          * @brief 析构函数
          */
-        virtual ~R3DScreenPainter();
+        virtual ~R3DFramebuffer();
 
         /**
          * @brief 绘制点
@@ -131,6 +128,16 @@ namespace Tiny3D
 
     protected:
         /**
+         * @brief 构造函数
+         */
+        R3DFramebuffer();
+
+        /**
+         * @brief 初始化帧缓冲
+         */
+        TResult init(RenderTargetPtr target);
+
+        /**
          * @brief 24位色深窗口上基于 Bresenham 算法绘制直线
          */
         TResult drawLine24(const Point &start, const Point &end,
@@ -143,11 +150,15 @@ namespace Tiny3D
             const Color4f &color);
 
     protected:
-        R3DRenderWindowPtr  mWindow;
-    };
+        uint8_t     *mFramebuffer;
+        size_t      mFramebufferSize;
 
-    #define SCREEN_PAINTER      R3DScreenPainter::getInstance()
+        size_t      mWidth;
+        size_t      mHeight;
+        size_t      mColorDepth;
+        size_t      mPitch;
+    };
 }
 
 
-#endif  /*__T3D_R3D_SCREEN_PAINTER_H__*/
+#endif  /*__T3D_R3D_FRAMEBUFFER_H__*/

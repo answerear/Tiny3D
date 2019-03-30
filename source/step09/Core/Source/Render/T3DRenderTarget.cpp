@@ -25,15 +25,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RenderTargetPtr RenderTarget::create(const String &name)
-    {
-        RenderTargetPtr rt = new RenderTarget(name);
-        rt->release();
-        return rt;
-    }
-
-    //--------------------------------------------------------------------------
-
     RenderTarget::RenderTarget(const String &name)
         : mWidth(0)
         , mHeight(0)

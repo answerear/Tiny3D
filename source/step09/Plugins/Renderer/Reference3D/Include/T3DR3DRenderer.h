@@ -233,6 +233,8 @@ namespace Tiny3D
             const Color3f &color);
 
     protected:
+        R3DFramebufferPtr           mFramebuffer;
+
         R3DRenderWindowPtr          mRenderWindow;          /**< 渲染窗口 */
         HardwareBufferManagerPtr    mHardwareBufferMgr;     /**< 硬件缓冲管理器 */
         R3DHardwareBufferManagerPtr mR3DHardwareBufferMgr;  /**< 渲染器相关的缓冲区管理对象 */

@@ -34,6 +34,11 @@ namespace Tiny3D
 
     }
 
+    RenderTarget::Type RenderWindow::getType() const
+    {
+        return E_RT_WINDOW;
+    }
+
     bool RenderWindow::isFullscreen() const
     {
         return true;

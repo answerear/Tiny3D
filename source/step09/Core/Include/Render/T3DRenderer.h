@@ -38,6 +38,7 @@ namespace Tiny3D
         static const char * const REFERENCE3D;  /**< Tiny3D自带的软渲染器 */
         static const char * const DIRECT3D9;    /**< Direct3D9 渲染器 */
         static const char * const DIRECT3D11;   /**< Direct3D11 渲染器 */
+        static const char * const DIRECT3D12;   /**< Direct3D12 渲染器 */
         static const char * const OPENGL3;      /**< OpenGL 3.x 渲染器 */
         static const char * const OPENGLES2;    /**< OpenGL ES 2 渲染器 */
         static const char * const OPENGLES3;    /**< OpenGL ES 3 渲染器 */
@@ -395,6 +396,8 @@ namespace Tiny3D
         String              mName;              /**< 渲染器名称 */
 
         RenderTargetList    mRenderTargets;     /**< 渲染目标列表 */
+
+        RenderTargetPtr     mRenderTarget;      /**< 当前渲染目标 */
 
         ViewportPtr         mViewport;          /**< 当前渲染视口对象 */
 
