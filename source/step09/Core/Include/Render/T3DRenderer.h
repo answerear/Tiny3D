@@ -201,8 +201,8 @@ namespace Tiny3D
          * @param [in] stencil : 用于清除模板缓冲的值
          * @return 调用成功返回 T3D_OK
          */
-        virtual TResult beginRender(size_t count, Rect *pRects,
-            uint32_t clearFlags, const Color3f &color, Real z,
+        virtual TResult beginRender(size_t count, Rect *rects,
+            uint32_t clearFlags, const ColorRGB &color, Real z,
             uint32_t stencil) = 0;
 
         /**

@@ -43,6 +43,13 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     R3DFramebuffer::R3DFramebuffer()
+        : mFramebuffer(nullptr)
+        , mFramebufferSize(0)
+        , mWidth(0)
+        , mHeight(0)
+        , mColorDepth(0)
+        , mBytesPerPixel(0)
+        , mPitch(0)
     {
         
     }
@@ -72,6 +79,7 @@ namespace Tiny3D
                 mHeight = window->getHeight();
                 mColorDepth = window->getColorDepth();
                 mPitch = window->getPitch();
+                mBytesPerPixel = (mColorDepth >> 3);
             }
             break;
         case RenderTarget::E_RT_TEXTURE:
@@ -86,7 +94,66 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult R3DFramebuffer::drawPoint(const Point &point, const Color4f &color)
+    TResult R3DFramebuffer::fill(const ColorARGB &color, size_t count /* = 0 */,
+        Rect *rects /* = nullptr */)
+    {
+        TResult ret = T3D_OK;
+
+        if (count == 0 && rects == nullptr)
+        {
+            uint8_t *fb = nullptr;
+            Color4 clr;
+            clr.from(color);
+
+            size_t x = 0, y = 0;
+
+            for (y = 0; y < mHeight; ++y)
+            {
+                fb = mFramebuffer + mPitch * y;
+
+                for (x = 0; x < mWidth; ++x)
+                {
+                    fillColor(fb, clr, false);
+                    fb += mBytesPerPixel;
+                }
+            }
+        }
+        else if (count > 0 && rects != nullptr)
+        {
+            size_t i = 0;
+
+            for (i = 0; i < count; ++i)
+            {
+                const Rect &rect = rects[i];
+                uint8_t *fb = nullptr;
+                Color4 clr;
+                clr.from(color);
+
+                size_t x = 0, y = 0;
+
+                for (y = rect.top; y < rect.height(); ++y)
+                {
+                    fb = mFramebuffer + y * mPitch + rect.left * mBytesPerPixel;
+
+                    for (x = rect.left; x < rect.width(); ++x)
+                    {
+                        fillColor(fb, clr, false);
+                        fb += mBytesPerPixel;
+                    }
+                }
+            }
+        }
+        else
+        {
+            ret = T3D_ERR_R3D_INVALID_FILLRECT;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DFramebuffer::drawPoint(const Point &point, const ColorARGB &color)
     {
         uint8_t *fb = mFramebuffer;
         size_t pitch = mPitch;
@@ -94,11 +161,7 @@ namespace Tiny3D
         fb = fb + point.y * pitch + point.x * bytesPerPixel;
         Color4 clr;
         clr.from(color);
-        *fb++ = clr.blue();
-        *fb++ = clr.green();
-        *fb++ = clr.red();
-        if (bytesPerPixel == 4)
-            *fb++ = 0xFF;
+        fillColor(fb, clr, false);
 
         return T3D_OK;
     }
@@ -106,19 +169,102 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DFramebuffer::drawLine(const Point &start, const Point &end,
-        const Color4f &color, size_t border /* = 1 */)
+        const ColorARGB &color, size_t border /* = 1 */)
     {
         TResult ret = T3D_OK;
-        switch (mColorDepth)
+
+        Color4 clr;
+        clr.from(color);
+
+        uint8_t *fb = mFramebuffer;
+        size_t fbSize = mFramebufferSize;
+        size_t pitch = mPitch;
+        size_t bytesPerPixel = mBytesPerPixel;
+
+        int32_t w = mWidth;
+        int32_t h = mHeight;
+
+        int32_t x1 = start.x;
+        int32_t y1 = start.y;
+        int32_t x2 = end.x;
+        int32_t y2 = end.y;
+
+        int32_t dx = x2 - x1;
+        int32_t dy = y2 - y1;
+
+        int32_t error = 0;
+
+        int32_t x_inc = 0;
+        int32_t y_inc = 0;
+
+        if (dx > 0)
         {
-        case 24:
-            ret = drawLine24(start, end, color);
-            break;
-        case 32:
-            ret = drawLine32(start, end, color);
-            break;
-        default:
-            break;
+            // X-axis 正方向
+            x_inc = bytesPerPixel;
+        }
+        else
+        {
+            // X-axis 负方向
+            x_inc = -bytesPerPixel;
+            dx = -dx;
+        }
+
+        if (dy > 0)
+        {
+            // Y-axis 正方向
+            y_inc = pitch;
+        }
+        else
+        {
+            // Y-axis 负方向
+            y_inc = -pitch;
+            dy = -dy;
+        }
+
+        int32_t dx2 = dx << 1;
+        int32_t dy2 = dy << 1;
+
+        int32_t i = 0;
+
+        // 寻址到开始地址
+        fb = fb + x1 * bytesPerPixel + y1 * pitch;
+
+        if (dx > dy)
+        {
+            error = dy2 - dx;
+
+            for (i = 0; i < dx; ++i)
+            {
+                fillColor(fb, clr, false);
+
+                if (error >= 0)
+                {
+                    // 调整误差，跳到下一行
+                    error -= dx2;
+                    fb += y_inc;
+                }
+
+                error += dy2;
+                fb += x_inc;
+            }
+        }
+        else
+        {
+            error = dx2 - dy;
+
+            for (i = 0; i < dy; ++i)
+            {
+                fillColor(fb, clr, false);
+
+                if (error >= 0)
+                {
+                    error -= dy2;
+                    fb += x_inc;
+                }
+
+                error += dx2;
+                fb += y_inc;
+            }
         }
 
         return ret;
@@ -127,7 +273,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DFramebuffer::drawGradualLine(const Point &start,
-        const Point &end, const Color4f &clrStart, const Color4f &clrEnd,
+        const Point &end, const ColorARGB &clrStart, const ColorARGB &clrEnd,
         size_t border /* = 1 */)
     {
         return T3D_OK;
@@ -136,7 +282,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DFramebuffer::drawTriangle(const Point &p1, const Point &p2,
-        const Point &p3, const Color4f &color, size_t border /* = 1 */)
+        const Point &p3, const ColorARGB &color, size_t border /* = 1 */)
     {
         return T3D_OK;
     }
@@ -144,7 +290,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DFramebuffer::drawSolidTriangle(const Point &p1,
-        const Point &p2, const Point &p3, const Color4f &color)
+        const Point &p2, const Point &p3, const ColorARGB &color)
     {
         return T3D_OK;
     }
@@ -152,16 +298,16 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DFramebuffer::drawGradualTriangle(
-        const Point &p1, const Color4f &clr1,
-        const Point &p2, const Color4f &clr2,
-        const Point &p3, const Color4f &clr3)
+        const Point &p1, const ColorARGB &clr1,
+        const Point &p2, const ColorARGB &clr2,
+        const Point &p3, const ColorARGB &clr3)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult R3DFramebuffer::drawRect(const Rect &rect, const Color4f &color,
+    TResult R3DFramebuffer::drawRect(const Rect &rect, const ColorARGB &color,
         size_t border /* = 1 */)
     {
         return T3D_OK;
@@ -170,226 +316,33 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DFramebuffer::drawSolidRect(const Rect &rect,
-        const Color4f &color)
+        const ColorARGB &color)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult R3DFramebuffer::drawLine24(const Point &start, const Point &end,
-        const Color4f &color)
+    void R3DFramebuffer::fillColor(uint8_t *fb, const Color4 &color, 
+        bool alphaBlend)
     {
-        TResult ret = T3D_OK;
-
-        Color4 clr;
-        clr.from(color);
-
-        uint8_t *fb = mFramebuffer;
-        size_t fbSize = mFramebufferSize;
-        size_t pitch = mPitch;
-        size_t bytesPerPixel = (mColorDepth >> 3);
-
-        int32_t w = mWidth;
-        int32_t h = mHeight;
-
-        int32_t x1 = start.x;
-        int32_t y1 = start.y;
-        int32_t x2 = end.x;
-        int32_t y2 = end.y;
-
-        int32_t dx = x2 - x1;
-        int32_t dy = y2 - y1;
-
-        int32_t error = 0;
-
-        int32_t x_inc = 0;
-        int32_t y_inc = 0;
-
-        if (dx > 0)
+        if (!alphaBlend)
         {
-            // X-axis 正方向
-            x_inc = bytesPerPixel;
+            fb[0] = color.blue();
+            fb[1] = color.green();
+            fb[2] = color.red();
         }
         else
         {
-            // X-axis 负方向
-            x_inc = -bytesPerPixel;
-            dx = -dx;
+            uint8_t srcB = *fb;
+            uint8_t srcG = *fb;
+            uint8_t srcR = *fb;
+            fb[0] = color.alpha() * color.blue() + (1 - color.alpha() * srcB);
+            fb[1] = color.alpha() * color.green() + (1 - color.alpha() * srcG);
+            fb[2] = color.alpha() * color.red() + (1 - color.alpha() * srcR);
         }
-
-        if (dy > 0)
-        {
-            // Y-axis 正方向
-            y_inc = pitch;
-        }
-        else
-        {
-            // Y-axis 负方向
-            y_inc = -pitch;
-            dy = -dy;
-        }
-
-        int32_t dx2 = dx << 1;
-        int32_t dy2 = dy << 1;
-
-        int32_t i = 0;
-
-        // 寻址到开始地址
-        fb = fb + x1 * bytesPerPixel + y1 * pitch;
-
-        if (dx > dy)
-        {
-            error = dy2 - dx;
-
-            for (i = 0; i < dx; ++i)
-            {
-                fb[0] = clr.blue();
-                fb[1] = clr.green();
-                fb[2] = clr.red();
-
-                if (error >= 0)
-                {
-                    // 调整误差，跳到下一行
-                    error -= dx2;
-                    fb += y_inc;
-                }
-
-                error += dy2;
-                fb += x_inc;
-            }
-        }
-        else
-        {
-            error = dx2 - dy;
-
-            for (i = 0; i < dy; ++i)
-            {
-                fb[0] = clr.blue();
-                fb[1] = clr.green();
-                fb[2] = clr.red();
-
-                if (error >= 0)
-                {
-                    error -= dy2;
-                    fb += x_inc;
-                }
-
-                error += dx2;
-                fb += y_inc;
-            }
-        }
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult R3DFramebuffer::drawLine32(const Point &start, const Point &end, 
-        const Color4f &color)
-    {
-        TResult ret = T3D_OK;
         
-        Color4 clr;
-        clr.from(color);
-
-        uint8_t *fb = mFramebuffer;
-        size_t fbSize = mFramebufferSize;
-        size_t pitch = mPitch;
-        size_t bytesPerPixel = (mColorDepth >> 3);
-
-        int32_t w = mWidth;
-        int32_t h = mHeight;
-
-        int32_t x1 = start.x;
-        int32_t y1 = start.y;
-        int32_t x2 = end.x;
-        int32_t y2 = end.y;
-
-        int32_t dx = x2 - x1;
-        int32_t dy = y2 - y1;
-
-        int32_t error = 0;
-
-        int32_t x_inc = 0;
-        int32_t y_inc = 0;
-
-        if (dx > 0)
-        {
-            // X-axis 正方向
-            x_inc = bytesPerPixel;
-        }
-        else
-        {
-            // X-axis 负方向
-            x_inc = -bytesPerPixel;
-            dx = -dx;
-        }
-
-        if (dy > 0)
-        {
-            // Y-axis 正方向
-            y_inc = pitch;
-        }
-        else
-        {
-            // Y-axis 负方向
-            y_inc = -pitch;
-            dy = -dy;
-        }
-
-        int32_t dx2 = dx << 1;
-        int32_t dy2 = dy << 1;
-
-        int32_t i = 0;
-
-        // 寻址到开始地址
-        fb = fb + x1 * bytesPerPixel + y1 * pitch;
-
-        if (dx > dy)
-        {
-            error = dy2 - dx;
-
-            for (i = 0; i < dx; ++i)
-            {
-                fb[0] = clr.blue();
-                fb[1] = clr.green();
-                fb[2] = clr.red();
-                fb[3] = 0xFF;
-
-                if (error >= 0)
-                {
-                    // 调整误差，跳到下一行
-                    error -= dx2;
-                    fb += y_inc;
-                }
-
-                error += dy2;
-                fb += x_inc;
-            }
-        }
-        else
-        {
-            error = dx2 - dy;
-
-            for (i = 0; i < dy; ++i)
-            {
-                fb[0] = clr.blue();
-                fb[1] = clr.green();
-                fb[2] = clr.red();
-                fb[3] = 0xFF;
-
-                if (error >= 0)
-                {
-                    error -= dy2;
-                    fb += x_inc;
-                }
-
-                error += dx2;
-                fb += y_inc;
-            }
-        }
-
-        return ret;
+        if (mBytesPerPixel == 4)
+            fb[3] = 0xFF;
     }
 }

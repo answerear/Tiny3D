@@ -69,7 +69,7 @@ namespace Tiny3D
     /**
      * @brief 顶点属性
      */
-    class T3D_ENGINE_API VertexAttribute : public Object
+    class T3D_ENGINE_API VertexAttribute
     {
     public:
         /**< 顶点属性类型 */
@@ -181,7 +181,7 @@ namespace Tiny3D
     class T3D_ENGINE_API VertexDeclaration : public Object
     {
     public:
-        typedef std::list<VertexAttribute>          VertexAttriList;
+        typedef TList<VertexAttribute>              VertexAttriList;
         typedef VertexAttriList::iterator           VertexAttriListItr;
         typedef VertexAttriList::const_iterator     VertexAttriListConstItr;
 

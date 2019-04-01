@@ -36,13 +36,13 @@ namespace Tiny3D
     {
         AxisVertex()
             : position(Vector3::ZERO)
-            , diffuse(Color3f::WHITE)
+            , diffuse(ColorRGB::WHITE)
         {
             
         }
 
         Vector3     position;   /**< 位置 */
-        Color3f     diffuse;    /**< 颜色 */
+        ColorRGB     diffuse;    /**< 颜色 */
     };
 
     //--------------------------------------------------------------------------
@@ -89,14 +89,14 @@ namespace Tiny3D
         AxisVertex vertices[MAX_VERTICES];
 
         // 设置三个坐标轴顶点数据
-        vertices[0].diffuse = Color3f::RED;
-        vertices[1].diffuse = Color3f::RED;
+        vertices[0].diffuse = ColorRGB::RED;
+        vertices[1].diffuse = ColorRGB::RED;
 
-        vertices[2].diffuse = Color3f::GREEN;
-        vertices[3].diffuse = Color3f::GREEN;
+        vertices[2].diffuse = ColorRGB::GREEN;
+        vertices[3].diffuse = ColorRGB::GREEN;
 
-        vertices[4].diffuse = Color3f::BLUE;
-        vertices[5].diffuse = Color3f::BLUE;
+        vertices[4].diffuse = ColorRGB::BLUE;
+        vertices[5].diffuse = ColorRGB::BLUE;
 
         vertices[1].position[0] = X;
         vertices[3].position[1] = Y;

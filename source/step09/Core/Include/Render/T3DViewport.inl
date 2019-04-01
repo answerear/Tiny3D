@@ -95,12 +95,12 @@ namespace Tiny3D
         return mClearZ;
     }
 
-    inline void Viewport::setBkgndColor(const Color3f &color)
+    inline void Viewport::setBkgndColor(const ColorRGB &color)
     {
         mBkgndColor = color;
     }
 
-    inline const Color3f &Viewport::getBkgndColor() const
+    inline const ColorRGB &Viewport::getBkgndColor() const
     {
         return mBkgndColor;
     }

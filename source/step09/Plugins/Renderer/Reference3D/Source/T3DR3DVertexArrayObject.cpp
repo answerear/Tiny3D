@@ -106,6 +106,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    size_t R3DVertexArrayObject::getVertexBufferCount() const
+    {
+        return mVBOList.size();
+    }
+
+    //--------------------------------------------------------------------------
+
     HardwareVertexBufferPtr R3DVertexArrayObject::getVertexBuffer(size_t idx) const
     {
         HardwareVertexBufferPtr vbo;

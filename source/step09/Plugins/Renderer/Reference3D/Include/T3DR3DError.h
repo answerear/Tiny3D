@@ -33,6 +33,10 @@ namespace Tiny3D
         T3D_ERR_R3D_UNSUPPORT_FORMAT_ICON,              /**< 不支持的图标文件格式 */
         T3D_ERR_R3D_IMAGE_SIZE_NOT_EQL,                 /**< 图片大小不一致 */
         T3D_ERR_R3D_INVALID_TARGET,                     /**< 错误的渲染目标 */
+        T3D_ERR_R3D_INVALID_FILLRECT,                   /**< 无效的填充矩形区域 */
+        T3D_ERR_R3D_INVALID_COLORDEPTH,                 /**< 不支持的色深 */
+        T3D_ERR_R3D_INVALID_PRIMITIVE,                  /**< 不支持的图元类型 */
+        T3D_ERR_R3D_MISMATCH_VERTEX_COUNT,              /**< 不一样的顶点数量 */
     };
 }
 

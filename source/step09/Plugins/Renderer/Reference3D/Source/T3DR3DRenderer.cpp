@@ -113,8 +113,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult R3DRenderer::beginRender(size_t count, Rect *pRects,
-        uint32_t clearFlags, const Color3f &color, Real z,
+    TResult R3DRenderer::beginRender(size_t count, Rect *rects,
+        uint32_t clearFlags, const ColorRGB &color, Real z,
         uint32_t stencil)
     {
         if (mRenderTarget == nullptr)
@@ -129,7 +129,7 @@ namespace Tiny3D
         if (clearFlags & E_CLEAR_TARGET)
         {
             // 清除背景
-            clearFramebuffer(count, pRects, color);
+            mFramebuffer->fill(color, count, rects);
         }
         
         if (clearFlags & E_CLEAR_ZBUFFER)
@@ -137,31 +137,6 @@ namespace Tiny3D
 
         }
 
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult R3DRenderer::clearFramebuffer(size_t count, Rect *pRects, 
-        const Color3f &color)
-    {
-        uint8_t *fb = mRenderWindow->getFramebuffer();
-        size_t pitch = mRenderWindow->getPitch();
-
-        if (count == 0 && pRects == nullptr)
-        {
-            // 清除整个framebuffer
-            size_t x = 0, y = 0;
-
-            for (y = 0; y < mRenderWindow->getHeight(); ++y)
-            {
-                
-            }
-        }
-        else
-        {
-
-        }
         return T3D_OK;
     }
 
@@ -498,16 +473,85 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        PrimitiveType primitive = vao->getPrimitiveType();
+        size_t indexCount = 0;
+        uint8_t *indices = nullptr;
+        bool is16Bits = false;
 
-        switch (primitive)
+        if (vao->isIndicesUsed())
         {
-        case Renderer::E_PT_POINT_LIST:
+            auto ibo = vao->getIndexBuffer();
+            indexCount = ibo->getIndexCount();
+            indices = (uint8_t*)ibo->lock(HardwareBuffer::E_HBL_READ_ONLY);
+            is16Bits = (ibo->getIndexType()==HardwareIndexBuffer::E_IT_16BITS);
+        }
+
+        do 
+        {
+            mMV = mMatrices[E_TS_VIEW] * mMatrices[E_TS_WORLD];
+            mMVP = mMatrices[E_TS_PROJECTION]
+                * mMatrices[E_TS_VIEW]
+                * mMatrices[E_TS_WORLD];
+
+            auto vbo = vao->getVertexBuffer(0);
+            size_t vertexCount = vbo->getVertexCount();
+            Vertex *vertices = new Vertex[vertexCount];
+
+            ret = processVertices(vao, vertices, vertexCount);
+            if (ret != T3D_OK)
             {
-                // 点列表
-                
+                break;
             }
-            break;
+
+            PrimitiveType primitive = vao->getPrimitiveType();
+
+            switch (primitive)
+            {
+            case Renderer::E_PT_POINT_LIST:
+                {
+                    // Point list
+                    ret = drawPointList(vertices, vertexCount, indices, 
+                        indexCount, is16Bits);
+                }
+                break;
+            case Renderer::E_PT_LINE_LIST:
+                {
+                    // Line list
+                    
+                }
+                break;
+            case Renderer::E_PT_LINE_STRIP:
+                {
+                    // Line strip
+                }
+                break;
+            case Renderer::E_PT_TRIANGLE_LIST:
+                {
+                    // Triangle list
+                }
+                break;
+            case Renderer::E_PT_TRIANGLE_STRIP:
+                {
+                    // Triangle strip
+                }
+                break;
+            case Renderer::E_PT_TRIANGLE_FAN:
+                {
+                    // Triangle fan
+                }
+                break;
+            default:
+                {
+                    T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Unsupported primitive type !");
+                    ret = T3D_ERR_R3D_INVALID_PRIMITIVE;
+                }
+                break;
+            }
+        } while (0);
+
+        if (vao->isIndicesUsed())
+        {
+            auto ibo = vao->getIndexBuffer();
+            ibo->unlock();
         }
 
         return ret;
@@ -543,5 +587,138 @@ namespace Tiny3D
         vao->setIndexBuffer(ibo);
 
         return drawVertexArray(vao);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DRenderer::processVertices(VertexArrayObjectPtr vao, 
+        Vertex *vertices, size_t vertexCount)
+    {
+        TResult ret = T3D_OK;
+
+        struct BufferInfo
+        {
+            uint8_t *buffer;
+            size_t  vertexSize;
+            size_t  vertexCount;
+        };
+
+        TArray<BufferInfo> buffers(vao->getVertexBufferCount());
+        size_t i = 0;
+        for (i = 0; i < vao->getVertexBufferCount(); ++i)
+        {
+            auto vbo = vao->getVertexBuffer(0);
+
+            BufferInfo info;
+            info.buffer = (uint8_t*)vbo->lock(HardwareBuffer::E_HBL_READ_ONLY);
+            info.vertexSize = vbo->getVertexSize();
+            info.vertexCount = vbo->getVertexCount();
+            if (info.vertexCount != vertexCount)
+            {
+                ret = T3D_ERR_R3D_MISMATCH_VERTEX_COUNT;
+                break;
+            }
+            buffers.push_back(info);
+        }
+
+        if (ret == T3D_OK)
+        {
+            VertexDeclarationPtr decl = vao->getVertexDeclaration();
+
+            const VertexDeclaration::VertexAttriList &attributes
+                = decl->getAttributes();
+
+            auto itr = attributes.begin();
+            while (itr != attributes.end())
+            {
+                auto attr = *itr;
+                size_t idx = attr.getStream();
+                auto info = buffers[idx];
+                processVertices(info.buffer, info.vertexSize, attr, vertices,
+                    vertexCount);
+
+                ++itr;
+            }
+        }
+
+        for (i = 0; i < vao->getVertexBufferCount(); ++i)
+        {
+            auto vbo = vao->getVertexBuffer(0);
+            vbo->unlock();
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DRenderer::processVertices(uint8_t *buffer, size_t vertexSize,
+        const VertexAttribute &attr, Vertex *vertices, size_t vertexCount)
+    {
+        TResult ret = T3D_OK;
+
+        size_t start = 0;
+        size_t srcOffset = attr.getOffset();
+        size_t size = attr.getSize();
+        size_t idx = 0;
+        size_t dstOffset = 0;
+        size_t dstVertexSize = sizeof(Vertex);
+        bool needTransform = false;
+
+        switch (attr.getSemantic())
+        {
+        case VertexAttribute::E_VAS_POSITION:
+            dstOffset = 0;
+            needTransform = true;
+            break;
+        case VertexAttribute::E_VAS_NORMAL:
+            dstOffset = sizeof(Vector3);
+            needTransform = true;
+            break;
+        case VertexAttribute::E_VAS_DIFFUSE:
+            dstOffset = sizeof(Vector3) + sizeof(Vector3) + sizeof(Vector2);
+            break;
+        case VertexAttribute::E_VAS_SPECULAR:
+            dstOffset = sizeof(Vector3) + sizeof(Vector3) + sizeof(Vector2)
+                + sizeof(ColorRGB);
+            break;
+        case VertexAttribute::E_VAS_TEXCOORD:
+            dstOffset = sizeof(Vector3) + sizeof(Vector3);
+            break;
+        }
+
+        size_t i = 0;
+
+        for (i = 0; i < vertexCount; ++i)
+        {
+            size_t offset = start + srcOffset;
+            memcpy(&vertices[dstOffset], &buffer[offset], size);
+            vertices += dstVertexSize;
+            start += size;
+
+            if (VertexAttribute::E_VAS_POSITION == attr.getSemantic())
+            {
+                vertices[i].pos = mMVP * vertices[i].pos;
+            }
+            else if (VertexAttribute::E_VAS_NORMAL == attr.getSemantic())
+            {
+                vertices[i].normal = mMV * vertices[i].normal;
+                vertices[i].normal.normalize();
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DRenderer::drawPointList(Vertex *vertices, size_t vertexCount, 
+        uint8_t *indices, size_t indexCount, bool is16Bits)
+    {
+        TResult ret = T3D_OK;
+
+        
+
+        return ret;
     }
 }

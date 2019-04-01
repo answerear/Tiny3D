@@ -152,13 +152,13 @@ namespace Tiny3D
          * @param [in] color : 颜色值
          * @return void
          */
-        void setBkgndColor(const Color3f &color);
+        void setBkgndColor(const ColorRGB &color);
 
         /**
          * @brief 获取背景颜色
          * @return 返回背景颜色
          */
-        const Color3f &getBkgndColor() const;
+        const ColorRGB &getBkgndColor() const;
 
     protected:
         /**
@@ -196,7 +196,7 @@ namespace Tiny3D
         uint32_t    mClearFlags;    /**< 清除标记 */
         Real        mClearZ;        /**< 用于清除的 z-buffer 值 */
 
-        Color3f     mBkgndColor;    /**< 背景颜色 */
+        ColorRGB     mBkgndColor;    /**< 背景颜色 */
 
         Matrix4     mMatrix;        /**< 视口变换矩阵 */
     };

@@ -41,12 +41,22 @@ namespace Tiny3D
         virtual ~R3DFramebuffer();
 
         /**
+         * @brief 填充帧缓冲
+         * @param [in] color : 填充的颜色
+         * @param [in] count : 需要填充的矩形区域数量，默认0表示填充整个帧缓冲
+         * @param [in] rects : 需要填充的矩形区域，默认0表示填充整个帧缓冲
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult fill(const ColorARGB &color, size_t count = 0, 
+            Rect *rects = nullptr);
+
+        /**
          * @brief 绘制点
          * @param [in] point : 点屏幕坐标
          * @param [in] color : 点颜色
          * @return 调用成功返回 T3D_OK
          */
-        TResult drawPoint(const Point &point, const Color4f &color);
+        TResult drawPoint(const Point &point, const ColorARGB &color);
 
         /**
          * @brief 绘制直线
@@ -57,7 +67,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult drawLine(const Point &start, const Point &end, 
-            const Color4f &color, size_t border = 1);
+            const ColorARGB &color, size_t border = 1);
 
         /**
          * @brief 绘制渐变直线
@@ -69,7 +79,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult drawGradualLine(const Point &start, const Point &end,
-            const Color4f &clrStart, const Color4f &clrEnd, size_t border = 1);
+            const ColorARGB &clrStart, const ColorARGB &clrEnd, size_t border = 1);
 
         /**
          * @brief 绘制空心三角形
@@ -81,7 +91,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult drawTriangle(const Point &p1, const Point &p2, const Point &p3,
-            const Color4f &color, size_t border = 1);
+            const ColorARGB &color, size_t border = 1);
 
         /**
          * @brief 绘制实心三角形
@@ -92,7 +102,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult drawSolidTriangle(const Point &p1, const Point &p2,
-            const Point &p3, const Color4f &color);
+            const Point &p3, const ColorARGB &color);
 
         /**
          * @brief 绘制渐变三角形
@@ -104,9 +114,9 @@ namespace Tiny3D
          * @param [in] clr3 : 三角形颜色
          * @return 调用成功返回 T3D_OK
          */
-        TResult drawGradualTriangle(const Point &p1, const Color4f &clr1,
-            const Point &p2, const Color4f &clr2,
-            const Point &p3, const Color4f &clr3);
+        TResult drawGradualTriangle(const Point &p1, const ColorARGB &clr1,
+            const Point &p2, const ColorARGB &clr2,
+            const Point &p3, const ColorARGB &clr3);
 
         /**
          * @brief 绘制空心矩形
@@ -115,7 +125,7 @@ namespace Tiny3D
          * @param [in] border : 边框大小
          * @return 调用成功返回 T3D_OK
          */
-        TResult drawRect(const Rect &rect, const Color4f &color,
+        TResult drawRect(const Rect &rect, const ColorARGB &color,
             size_t border = 1);
 
         /**
@@ -124,7 +134,7 @@ namespace Tiny3D
          * @param [in] color : 矩形颜色
          * @return 调用成功返回 T3D_OK
          */
-        TResult drawSolidRect(const Rect &rect, const Color4f &color);
+        TResult drawSolidRect(const Rect &rect, const ColorARGB &color);
 
     protected:
         /**
@@ -138,16 +148,13 @@ namespace Tiny3D
         TResult init(RenderTargetPtr target);
 
         /**
-         * @brief 24位色深窗口上基于 Bresenham 算法绘制直线
+         * @brief 填充颜色，并改变填充颜色的地址下一个点的地址
+         * @param [in] fb : 帧缓冲地址
+         * @param [in] color : 填充的颜色
+         * @param [in] alphaBlend : 透明混合
+         * @return void
          */
-        TResult drawLine24(const Point &start, const Point &end,
-            const Color4f &color);
-
-        /**
-         * @brief 32位色深窗口上基于 Bresenham 算法绘制直线
-         */
-        TResult drawLine32(const Point &start, const Point &end,
-            const Color4f &color);
+        void fillColor(uint8_t *fb, const Color4 &color, bool alphaBlend);
 
     protected:
         uint8_t     *mFramebuffer;
@@ -156,6 +163,7 @@ namespace Tiny3D
         size_t      mWidth;
         size_t      mHeight;
         size_t      mColorDepth;
+        size_t      mBytesPerPixel;
         size_t      mPitch;
     };
 }

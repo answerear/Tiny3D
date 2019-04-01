@@ -22,8 +22,8 @@
 
 
 #include "T3DMathPrerequisites.h"
-#include "T3DColor3f.h"
-#include "T3DColor4f.h"
+#include "T3DColorRGB.h"
+#include "T3DColorARGB.h"
 
 
 namespace Tiny3D
@@ -67,7 +67,7 @@ namespace Tiny3D
 
         }
 
-        Color4(const Color3f &color)
+        Color4(const ColorRGB &color)
             : mBlue((uint8_t)(color.blue() * 255.0f))
             , mGreen((uint8_t)(color.green() * 255.0f))
             , mRed((uint8_t)(color.red() * 255.0f))
@@ -76,7 +76,7 @@ namespace Tiny3D
 
         }
 
-        Color4(const Color4f &color)
+        Color4(const ColorARGB &color)
             : mBlue((uint8_t)(color.blue() * 255.0f))
             , mGreen((uint8_t)(color.green() * 255.0f))
             , mRed((uint8_t)(color.red() * 255.0f))
@@ -104,7 +104,7 @@ namespace Tiny3D
                 && mGreen == other.mGreen && mBlue == other.mBlue);
         }
 
-        void from(const Color3f &color)
+        void from(const ColorRGB &color)
         {
             mAlpha = 0xFF;
             mRed = (uint8_t)(color.red() * 255.0f);
@@ -112,7 +112,7 @@ namespace Tiny3D
             mBlue = (uint8_t)(color.blue() * 255.0f);
         }
 
-        void from(const Color4f &color)
+        void from(const ColorARGB &color)
         {
             mAlpha = (uint8_t)(color.alpha() * 255.0f);
             mRed = (uint8_t)(color.red() * 255.0f);
@@ -120,18 +120,18 @@ namespace Tiny3D
             mBlue = (uint8_t)(color.blue() * 255.0f);
         }
 
-        Color3f toColor3f() const
+        ColorRGB toColor3f() const
         {
-            return Color3f(
+            return ColorRGB(
                 (float32_t)mBlue / 255.0f,
                 (float32_t)mGreen / 255.0f,
                 (float32_t)mRed / 255.0f
             );
         }
 
-        Color4f toColor4f() const
+        ColorARGB toColor4f() const
         {
-            return Color4f(
+            return ColorARGB(
                 (float32_t)mBlue / 255.0f,
                 (float32_t)mGreen / 255.0f,
                 (float32_t)mRed / 255.0f,

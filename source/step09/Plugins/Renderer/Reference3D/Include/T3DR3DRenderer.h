@@ -65,15 +65,15 @@ namespace Tiny3D
         /**
         * @brief 开始渲染
         * @param [in] count : 清除矩形区域的数量
-        * @param [in] pRects : 矩形区域数组
+        * @param [in] rects : 矩形区域数组
         * @param [in] clearFlags : 清除标记
         * @param [in] color : 用于清除的背景颜色
         * @param [in] z : 用于清除的深度值
         * @param [in] stencil : 用于清除模板缓冲的值
         * @return 调用成功返回 T3D_OK
         */
-        virtual TResult beginRender(size_t count, Rect *pRects,
-            uint32_t clearFlags, const Color3f &color, Real z,
+        virtual TResult beginRender(size_t count, Rect *rects,
+            uint32_t clearFlags, const ColorRGB &color, Real z,
             uint32_t stencil) override;
 
         /**
@@ -229,8 +229,33 @@ namespace Tiny3D
          */
         R3DRenderer();
 
-        TResult clearFramebuffer(size_t count, Rect *pRects, 
-            const Color3f &color);
+        /**
+         * @brief 内部使用的顶点结构
+         */
+        struct Vertex
+        {
+            Vector3     pos;
+            Vector3     normal;
+            Vector2     uv;
+            ColorRGB    diffuse;
+            ColorRGB    specular;
+        };
+
+        /**
+         * @brief 处理顶点，把传入顶点数据转换成内部数据结构，并且调用顶点着色器
+         * @param [in] vao : VAO对象
+         * @param [in][out] vertices : 转换后的内部顶点数据
+         * @param [in][out] vertexCount : 转换后的顶点数量
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult processVertices(VertexArrayObjectPtr vao, Vertex *vertices,
+            size_t vertexCount);
+
+        TResult processVertices(uint8_t *buffer, size_t vertexSize,
+            const VertexAttribute &attr, Vertex *vertices, size_t vertexCount);
+
+        TResult drawPointList(Vertex *vertices, size_t vertexCount,
+            uint8_t *indices, size_t indexCount, bool is16Bits);
 
     protected:
         R3DFramebufferPtr           mFramebuffer;
@@ -239,7 +264,9 @@ namespace Tiny3D
         HardwareBufferManagerPtr    mHardwareBufferMgr;     /**< 硬件缓冲管理器 */
         R3DHardwareBufferManagerPtr mR3DHardwareBufferMgr;  /**< 渲染器相关的缓冲区管理对象 */
 
-        Matrix4                     mMatrices[E_TS_MAX];    /**< 各种变换矩阵 */
+        Matrix4 mMatrices[E_TS_MAX];    /**< 各种变换矩阵 */
+        Matrix4 mMV;                    /**< 模型变换和视图变换的连接结果 */
+        Matrix4 mMVP;                   /**< 模型矩阵、视图变换和投影变换连接结果 */
     };
 }
 

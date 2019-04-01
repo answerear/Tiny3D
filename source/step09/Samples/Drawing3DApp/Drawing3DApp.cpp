@@ -56,7 +56,7 @@ bool Drawing3DApp::applicationDidFinishLaunching()
     // йс©з
     ViewportPtr viewport = renderWindow->addViewport(camera, 1, 
         REAL_ZERO, REAL_ZERO, REAL_ONE, REAL_ONE);
-    viewport->setBkgndColor(Color3f::BLACK);
+    viewport->setBkgndColor(ColorRGB::BLACK);
 
     // оДвс
     Vector3 extent(1.0f, 1.0f, 1.0f);

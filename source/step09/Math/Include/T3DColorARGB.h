@@ -17,53 +17,72 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_COLOR3F_H__
-#define __T3D_COLOR3F_H__
+#ifndef __T3D_COLOR_ARGB_H__
+#define __T3D_COLOR_ARGB_H__
 
 
 #include "T3DMathPrerequisites.h"
+#include "T3DColorRGB.h"
 
 
 namespace Tiny3D
 {
-    class T3D_MATH_API Color3f
+    class T3D_MATH_API ColorARGB
     {
     public:
-        static const Color3f BLACK;
-        static const Color3f WHITE;
-        static const Color3f RED;
-        static const Color3f GREEN;
-        static const Color3f BLUE;
-        static const Color3f YELLOW;
+        static const ColorARGB BLACK;
+        static const ColorARGB WHITE;
+        static const ColorARGB RED;
+        static const ColorARGB GREEN;
+        static const ColorARGB BLUE;
+        static const ColorARGB YELLOW;
 
-        Color3f(float32_t r = 1.0f, float32_t g = 1.0f, float32_t b = 1.0f)
+        ColorARGB(float32_t r = 1.0f, float32_t g = 1.0f, float32_t b = 1.0f, 
+            float32_t a = 1.0f)
             : mBlue(b)
             , mGreen(g)
             , mRed(r)
+            , mAlpha(a)
         {
 
         }
 
-        Color3f(const Color3f &other)
+        ColorARGB(const ColorRGB &color)
+            : mBlue(color.blue())
+            , mGreen(color.green())
+            , mRed(color.red())
+            , mAlpha(1.0f)
         {
+
+        }
+
+        ColorARGB(const ColorARGB &other)
+        {
+            mAlpha = other.mAlpha; 
             mRed = other.mRed;
             mGreen = other.mGreen; 
             mBlue = other.mBlue;
         }
 
-        Color3f &operator =(const Color3f &other)
+        ColorARGB &operator =(const ColorARGB &other)
         {
+            mAlpha = other.mAlpha; 
             mRed = other.mRed;
             mGreen = other.mGreen; 
             mBlue = other.mBlue;
             return *this;
         }
 
-        bool operator ==(const Color3f &other) const
+        bool operator ==(const ColorARGB &other) const
         {
-            return (mRed == other.mRed && mGreen == other.mGreen 
+            return (mAlpha == other.mAlpha 
+                && mRed == other.mRed
+                && mGreen == other.mGreen 
                 && mBlue == other.mBlue);
         }
+
+        float32_t alpha() const   { return mAlpha; }
+        float32_t &alpha()        { return mAlpha; }
 
         float32_t red() const     { return mRed; }
         float32_t &red()          { return mRed; }
@@ -78,8 +97,9 @@ namespace Tiny3D
         float32_t   mBlue;
         float32_t   mGreen;
         float32_t   mRed;
+        float32_t   mAlpha;
     };
 }
 
 
-#endif  /*__T3D_COLOR3F_H__*/
+#endif  /*__T3D_COLOR_ARGB_H__*/

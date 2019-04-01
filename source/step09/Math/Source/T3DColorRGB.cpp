@@ -17,15 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DColor4f.h"
+#include "T3DColorRGB.h"
 
 
 namespace Tiny3D
 {
-    const Color4f Color4f::BLACK(0.0f, 0.0f, 0.0f);
-    const Color4f Color4f::WHITE(1.0f, 1.0f, 1.0f);
-    const Color4f Color4f::RED(1.0f, 0.0f, 0.0f);
-    const Color4f Color4f::GREEN(0.0f, 1.0f, 0.0f);
-    const Color4f Color4f::BLUE(0.0f, 0.0f, 1.0f);
-    const Color4f Color4f::YELLOW(1.0f, 1.0f, 0.0f);
+    const ColorRGB ColorRGB::BLACK(0.0f, 0.0f, 0.0f);
+    const ColorRGB ColorRGB::WHITE(1.0f, 1.0f, 1.0f);
+    const ColorRGB ColorRGB::RED(1.0f, 0.0f, 0.0f);
+    const ColorRGB ColorRGB::GREEN(0.0f, 1.0f, 0.0f);
+    const ColorRGB ColorRGB::BLUE(0.0f, 0.0f, 1.0f);
+    const ColorRGB ColorRGB::YELLOW(1.0f, 1.0f, 0.0f);
 }

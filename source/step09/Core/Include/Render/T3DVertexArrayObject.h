@@ -81,6 +81,11 @@ namespace Tiny3D
         virtual TResult addVertexBuffer(HardwareVertexBufferPtr vbo) = 0;
 
         /**
+         * @brief 获取顶点缓冲区对象数量
+         */
+        virtual size_t getVertexBufferCount() const = 0;
+
+        /**
          * @brief 获取顶点缓冲区对象
          * @return 返回VBO对象
          */

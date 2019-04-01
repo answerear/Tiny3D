@@ -80,6 +80,11 @@ namespace Tiny3D
         virtual TResult addVertexBuffer(HardwareVertexBufferPtr vbo) override;
 
         /**
+         * @brief 获取顶点缓冲区对象数量，实现基类接口
+         */
+        virtual size_t getVertexBufferCount() const override;
+
+        /**
          * @brief 获取顶点缓冲区对象，实现基类接口
          */
         virtual HardwareVertexBufferPtr getVertexBuffer(size_t idx) const override;
