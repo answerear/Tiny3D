@@ -272,6 +272,11 @@ namespace Tiny3D
             uint8_t *srcIndices, size_t srcIdxCount,
             uint8_t *&dstIndices, size_t &dstIdxCount, bool is16Bits);
 
+        TResult rasterPointList(Vertex *vertices, size_t vertexCount);
+
+        TResult rasterIndexPointList(Vertex *vertices, size_t vertexCount,
+            uint8_t *indices, size_t indexCount, bool is16Bits);
+
     protected:
         R3DFramebufferPtr           mFramebuffer;
 

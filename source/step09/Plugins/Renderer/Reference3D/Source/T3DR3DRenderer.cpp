@@ -745,6 +745,9 @@ namespace Tiny3D
             // 视锥体裁剪
             clipPointList(vertices, vertexCount, verts, vertCount);
 
+            // 光栅化
+            rasterPointList(verts, vertCount);
+
             T3D_SAFE_DELETE_ARRAY(verts);
         }
         else
@@ -755,6 +758,10 @@ namespace Tiny3D
 
             // 视锥体裁剪
             clipIndexPointList(vertices, vertexCount, indices, indexCount,
+                dstIndices, dstIndexCount, is16Bits);
+
+            // 光栅化
+            rasterIndexPointList(vertices, vertexCount, 
                 dstIndices, dstIndexCount, is16Bits);
 
             T3D_SAFE_DELETE_ARRAY(dstIndices);
@@ -787,6 +794,10 @@ namespace Tiny3D
             {
                 // 在视锥体内，不用裁剪
                 dstVerts[dstVertCount] = srcVerts[i];
+
+                // 除 w ，转到 NDC
+                Vector4 &v = dstVerts[dstVertCount].pos;
+                v /= v.w();
                 dstVertCount++;
             }
             else
@@ -824,10 +835,16 @@ namespace Tiny3D
                 const Vector4 &pt = vertices[index].pos;
                 Vector3 pos(pt.x(), pt.y(), pt.z());
                 intr.setPoint(&pos);
+
                 if (intr.test())
                 {
                     // 在视锥体内，不用裁剪
                     indices[dstIdxCount] = index;
+
+                    // 除 w ，转到 NDC
+                    Vector4 &p = vertices[index].pos;
+                    p /= p.w();
+
                     dstIdxCount++;
                 }
                 else
@@ -838,7 +855,98 @@ namespace Tiny3D
         }
         else
         {
+            uint32_t *indices = new uint32_t[srcIdxCount];
+            dstIndices = (uint8_t*)indices;
+            size_t i = 0;
+            uint32_t *srcIdx = (uint32_t*)srcIndices;
+            dstIdxCount = 0;
 
+            IntrPointFrustum intr;
+            const Frustum &frustum = mFrustumBound->getFrustum();
+            intr.setFrustum(&frustum);
+
+            for (i = 0; i < srcIdxCount; ++i)
+            {
+                uint32_t index = srcIdx[i];
+                const Vector4 &pt = vertices[index].pos;
+                Vector3 pos(pt.x(), pt.y(), pt.z());
+                intr.setPoint(&pos);
+
+                if (intr.test())
+                {
+                    // 在视锥体内，不用裁剪
+                    indices[dstIdxCount] = index;
+
+                    // 除 w ，转到 NDC
+                    Vector4 &p = vertices[index].pos;
+                    p /= p.w();
+
+                    dstIdxCount++;
+                }
+                else
+                {
+                    // 裁减掉
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DRenderer::rasterPointList(Vertex *vertices, size_t vertexCount)
+    {
+        TResult ret = T3D_OK;
+
+        const Matrix4 &matViewport = mViewport->getViewportMatrix();
+
+        size_t i = 0;
+
+        for (i = 0; i < vertexCount; ++i)
+        {
+            Vector4 pos = matViewport * vertices[i].pos;
+            Point pt(pos.x(), pos.y());
+            mFramebuffer->drawPoint(pt, vertices[i].diffuse);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DRenderer::rasterIndexPointList(Vertex *vertices, 
+        size_t vertexCount, uint8_t *indices, size_t indexCount, bool is16Bits)
+    {
+        TResult ret = T3D_OK;
+
+        const Matrix4 &matViewport = mViewport->getViewportMatrix();
+
+        size_t i = 0;
+
+        if (is16Bits)
+        {
+            uint16_t *index = (uint16_t*)indices;
+
+            for (i = 0; i < indexCount; ++i)
+            {
+                const Vertex &vertex = vertices[index[i]];
+                Vector4 pos = matViewport * vertex.pos;
+                Point pt(pos.x(), pos.y());
+                mFramebuffer->drawPoint(pt, vertex.diffuse);
+            }
+        }
+        else
+        {
+            uint32_t *index = (uint32_t*)indices;
+
+            for (i = 0; i < indexCount; ++i)
+            {
+                const Vertex &vertex = vertices[index[i]];
+                Vector4 pos = matViewport * vertex.pos;
+                Point pt(pos.x(), pos.y());
+                mFramebuffer->drawPoint(pt, vertex.diffuse);
+            }
         }
 
         return ret;
