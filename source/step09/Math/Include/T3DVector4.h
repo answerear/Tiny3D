@@ -36,6 +36,8 @@ namespace Tiny3D
         TVector4();
         /// 通过 X, Y, Z, W 构造对象
         TVector4(T x, T y, T z, T w);
+        /// 通过一个三维向量和w值构造对象
+        TVector4(const TVector3<T> &v, T w);
         /// 拷贝构造函数
         TVector4(const TVector4 &other);
 

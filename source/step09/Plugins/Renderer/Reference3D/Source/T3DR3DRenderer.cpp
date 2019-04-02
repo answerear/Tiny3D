@@ -40,7 +40,11 @@ namespace Tiny3D
 
     R3DRenderer::R3DRenderer()
         : Renderer()
+        , mFramebuffer(nullptr)
         , mRenderWindow(nullptr)
+        , mHardwareBufferMgr(nullptr)
+        , mR3DHardwareBufferMgr(nullptr)
+        , mFrustumBound(nullptr)
     {
         mName = Renderer::REFERENCE3D;
 
@@ -433,6 +437,9 @@ namespace Tiny3D
 
         bound->setFrustumFaces(plane, Frustum::E_MAX_FACE);
 
+        if (mFrustumBound != bound)
+            mFrustumBound = bound;
+
         return T3D_OK;
     }
 
@@ -485,6 +492,8 @@ namespace Tiny3D
             is16Bits = (ibo->getIndexType()==HardwareIndexBuffer::E_IT_16BITS);
         }
 
+        Vertex *vertices = nullptr;
+
         do 
         {
             mMV = mMatrices[E_TS_VIEW] * mMatrices[E_TS_WORLD];
@@ -494,7 +503,7 @@ namespace Tiny3D
 
             auto vbo = vao->getVertexBuffer(0);
             size_t vertexCount = vbo->getVertexCount();
-            Vertex *vertices = new Vertex[vertexCount];
+            vertices = new Vertex[vertexCount];
 
             ret = processVertices(vao, vertices, vertexCount);
             if (ret != T3D_OK)
@@ -509,7 +518,7 @@ namespace Tiny3D
             case Renderer::E_PT_POINT_LIST:
                 {
                     // Point list
-                    ret = drawPointList(vertices, vertexCount, indices, 
+                    ret = processPointList(vertices, vertexCount, indices, 
                         indexCount, is16Bits);
                 }
                 break;
@@ -547,6 +556,8 @@ namespace Tiny3D
                 break;
             }
         } while (0);
+
+        T3D_SAFE_DELETE_ARRAY(vertices);
 
         if (vao->isIndicesUsed())
         {
@@ -672,18 +683,18 @@ namespace Tiny3D
             needTransform = true;
             break;
         case VertexAttribute::E_VAS_NORMAL:
-            dstOffset = sizeof(Vector3);
+            dstOffset = sizeof(Vector4);
             needTransform = true;
             break;
         case VertexAttribute::E_VAS_DIFFUSE:
-            dstOffset = sizeof(Vector3) + sizeof(Vector3) + sizeof(Vector2);
+            dstOffset = sizeof(Vector4) + sizeof(Vector4) + sizeof(Vector2);
             break;
         case VertexAttribute::E_VAS_SPECULAR:
-            dstOffset = sizeof(Vector3) + sizeof(Vector3) + sizeof(Vector2)
+            dstOffset = sizeof(Vector4) + sizeof(Vector4) + sizeof(Vector2)
                 + sizeof(ColorRGB);
             break;
         case VertexAttribute::E_VAS_TEXCOORD:
-            dstOffset = sizeof(Vector3) + sizeof(Vector3);
+            dstOffset = sizeof(Vector4) + sizeof(Vector4);
             break;
         }
 
@@ -692,18 +703,95 @@ namespace Tiny3D
         for (i = 0; i < vertexCount; ++i)
         {
             size_t offset = start + srcOffset;
-            memcpy(&vertices[dstOffset], &buffer[offset], size);
-            vertices += dstVertexSize;
-            start += size;
 
             if (VertexAttribute::E_VAS_POSITION == attr.getSemantic())
             {
+                memcpy(&vertices[i].pos, &buffer[offset], sizeof(Real) * 3);
+                vertices[i].pos.w() = REAL_ONE;
                 vertices[i].pos = mMVP * vertices[i].pos;
             }
             else if (VertexAttribute::E_VAS_NORMAL == attr.getSemantic())
             {
+                memcpy(&vertices[i].normal, &buffer[offset], sizeof(Real) * 3);
+                vertices[i].normal.w() = REAL_ZERO;
                 vertices[i].normal = mMV * vertices[i].normal;
                 vertices[i].normal.normalize();
+            }
+            else
+            {
+                memcpy(&vertices[dstOffset], &buffer[offset], size);
+            }
+
+            vertices += dstVertexSize;
+            start += size;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DRenderer::processPointList(Vertex *vertices, size_t vertexCount,
+        uint8_t *indices, size_t indexCount, bool is16Bits)
+    {
+        TResult ret = T3D_OK;
+
+        if (indexCount == 0 || indices == nullptr)
+        {
+            // 不使用顶点索引
+            Vertex *verts = nullptr;
+            size_t vertCount = 0;
+
+            // 视锥体裁剪
+            clipPointList(vertices, vertexCount, verts, vertCount);
+
+            T3D_SAFE_DELETE_ARRAY(verts);
+        }
+        else
+        {
+            // 使用顶点索引
+            uint8_t *dstIndices = nullptr;
+            size_t dstIndexCount = 0;
+
+            // 视锥体裁剪
+            clipIndexPointList(vertices, vertexCount, indices, indexCount,
+                dstIndices, dstIndexCount, is16Bits);
+
+            T3D_SAFE_DELETE_ARRAY(dstIndices);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult R3DRenderer::clipPointList(Vertex *srcVerts, size_t srcVertCount, 
+        Vertex *&dstVerts, size_t &dstVertCount)
+    {
+        TResult ret = T3D_OK;
+
+        dstVerts = new Vertex[srcVertCount];
+        dstVertCount = 0;
+        size_t i = 0;
+
+        IntrPointFrustum intr;
+        const Frustum &frustum = mFrustumBound->getFrustum();
+        intr.setFrustum(&frustum);
+
+        for (i = 0; i < srcVertCount; ++i)
+        {
+            const Vector4 &pt = srcVerts[i].pos;
+            Vector3 pos(pt.x(), pt.y(), pt.z());
+            intr.setPoint(&pos);
+            if (intr.test())
+            {
+                // 在视锥体内，不用裁剪
+                dstVerts[dstVertCount] = srcVerts[i];
+                dstVertCount++;
+            }
+            else
+            {
+                // 裁减掉
             }
         }
 
@@ -712,12 +800,46 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult R3DRenderer::drawPointList(Vertex *vertices, size_t vertexCount, 
-        uint8_t *indices, size_t indexCount, bool is16Bits)
+    TResult R3DRenderer::clipIndexPointList(Vertex *vertices,
+        size_t vertexCount, uint8_t *srcIndices, size_t srcIdxCount,
+        uint8_t *&dstIndices, size_t &dstIdxCount, bool is16Bits)
     {
         TResult ret = T3D_OK;
 
-        
+        if (is16Bits)
+        {
+            uint16_t *indices = new uint16_t[srcIdxCount];
+            dstIndices = (uint8_t*)indices;
+            size_t i = 0;
+            uint16_t *srcIdx = (uint16_t*)srcIndices;
+            dstIdxCount = 0;
+
+            IntrPointFrustum intr;
+            const Frustum &frustum = mFrustumBound->getFrustum();
+            intr.setFrustum(&frustum);
+
+            for (i = 0; i < srcIdxCount; ++i)
+            {
+                uint16_t index = srcIdx[i];
+                const Vector4 &pt = vertices[index].pos;
+                Vector3 pos(pt.x(), pt.y(), pt.z());
+                intr.setPoint(&pos);
+                if (intr.test())
+                {
+                    // 在视锥体内，不用裁剪
+                    indices[dstIdxCount] = index;
+                    dstIdxCount++;
+                }
+                else
+                {
+                    // 裁减掉
+                }
+            }
+        }
+        else
+        {
+
+        }
 
         return ret;
     }

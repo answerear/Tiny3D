@@ -234,11 +234,19 @@ namespace Tiny3D
          */
         struct Vertex
         {
-            Vector3     pos;
-            Vector3     normal;
+            Vector4     pos;
+            Vector4     normal;
             Vector2     uv;
             ColorRGB    diffuse;
             ColorRGB    specular;
+
+            Vertex()
+                : pos(Vector4::ZERO)
+                , normal(Vector4::ZERO)
+                , uv(Vector2::ZERO)
+                , diffuse(ColorRGB::WHITE)
+                , specular(ColorRGB::WHITE)
+            {}
         };
 
         /**
@@ -254,8 +262,15 @@ namespace Tiny3D
         TResult processVertices(uint8_t *buffer, size_t vertexSize,
             const VertexAttribute &attr, Vertex *vertices, size_t vertexCount);
 
-        TResult drawPointList(Vertex *vertices, size_t vertexCount,
+        TResult processPointList(Vertex *vertices, size_t vertexCount,
             uint8_t *indices, size_t indexCount, bool is16Bits);
+
+        TResult clipPointList(Vertex *srcVerts, size_t srcVertCount,
+            Vertex *&dstVerts, size_t &dstVertCount);
+
+        TResult clipIndexPointList(Vertex *vertices, size_t vertexCount,
+            uint8_t *srcIndices, size_t srcIdxCount,
+            uint8_t *&dstIndices, size_t &dstIdxCount, bool is16Bits);
 
     protected:
         R3DFramebufferPtr           mFramebuffer;
@@ -263,6 +278,8 @@ namespace Tiny3D
         R3DRenderWindowPtr          mRenderWindow;          /**< 渲染窗口 */
         HardwareBufferManagerPtr    mHardwareBufferMgr;     /**< 硬件缓冲管理器 */
         R3DHardwareBufferManagerPtr mR3DHardwareBufferMgr;  /**< 渲染器相关的缓冲区管理对象 */
+
+        FrustumBoundPtr             mFrustumBound;          /**< 视锥包围对象 */
 
         Matrix4 mMatrices[E_TS_MAX];    /**< 各种变换矩阵 */
         Matrix4 mMV;                    /**< 模型变换和视图变换的连接结果 */

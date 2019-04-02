@@ -40,6 +40,16 @@ namespace Tiny3D
     }
 
     template <typename T>
+    inline TVector4<T>::TVector4(const TVector3<T> &v, T w)
+        : _x(v.x())
+        , _y(v.y())
+        , _z(v.z())
+        , _w(w)
+    {
+
+    }
+
+    template <typename T>
     inline TVector4<T>::TVector4(const TVector4 &other)
         : _x(other._x)
         , _y(other._y)
