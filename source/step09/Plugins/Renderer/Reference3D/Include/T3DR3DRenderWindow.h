@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,8 +31,16 @@ namespace Tiny3D
     class R3DRenderWindow : public RenderWindow
     {
     public:
+        /**
+         * @brief 创建渲染窗口对象
+         * @param [in] name : 渲染窗口名字
+         * @return 返回一个渲染窗口对象
+         */
         static R3DRenderWindowPtr create(const String &name);
 
+        /**
+         * @brief 析构函数
+         */
         virtual ~R3DRenderWindow();
 
         /**
@@ -77,6 +85,9 @@ namespace Tiny3D
         }
 
     protected:
+        /**
+         * @brief 构造函数
+         */
         R3DRenderWindow(const String &name);
 
         Window  *mWindow;

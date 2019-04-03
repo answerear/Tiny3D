@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,9 +18,201 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#include "T3DD3D9Renderer.h"
 
 
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
 
-#endif  /*__T3D_RENDERER_H__*/
+    D3D9RendererPtr D3D9Renderer::create()
+    {
+        D3D9RendererPtr renderer = new D3D9Renderer();
+        renderer->release();
+        return renderer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D9Renderer::D3D9Renderer()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D9Renderer::~D3D9Renderer()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::init()
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::destroy()
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderWindowPtr D3D9Renderer::createRenderWindow(const String &name,
+        const RenderWindowCreateParam &param,
+        const RenderWindowCreateParamEx &paramEx)
+    {
+        RenderWindowPtr window;
+
+        return window;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::beginRender(size_t count, Rect *rects,
+        uint32_t clearFlags, const ColorRGB &color, Real z, uint32_t stencil)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::endRender()
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool D3D9Renderer::queryCapability(Capability cap) const
+    {
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::setTransform(TransformState state, const Matrix4 &mat)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const Matrix4 &D3D9Renderer::getTransform(TransformState state) const
+    {
+        return Matrix4::IDENTITY;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Matrix4 D3D9Renderer::perspective(Real left, Real right,
+        Real top, Real bottom, Real nearDist, Real farDist)
+    {
+        return Matrix4::IDENTITY;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Matrix4 D3D9Renderer::orthographic(Real left, Real right,
+        Real top, Real bottom, Real nearDist, Real farDist)
+    {
+        return Matrix4::IDENTITY;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Matrix4 D3D9Renderer::makeViewportMatrix(ViewportPtr viewport)
+    {
+        return Matrix4::IDENTITY;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::updateFrustum(const Matrix4 &m, FrustumBoundPtr bound)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::setCullingMode(CullingMode mode)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::setRenderMode(RenderMode mode)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::setViewport(ViewportPtr viewport)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::setMaterial(MaterialPtr material)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::drawVertexArray(VertexArrayObjectPtr vao)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::drawVertexList(PrimitiveType priType,
+        VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9Renderer::drawIndexList(PrimitiveType priType,
+        VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo,
+        HardwareIndexBufferPtr ibo)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+}
+

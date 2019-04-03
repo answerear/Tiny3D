@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,9 +18,52 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#ifndef __T3D_D3D9_PREREQUISITES_H__
+#define __T3D_D3D9_PREREQUISITES_H__
 
 
+#include <Tiny3D.h>
+#include <d3d9.h>
+#include <d3dx9.h>
+#include <DxErr.h>
 
-#endif  /*__T3D_RENDERER_H__*/
+
+#if defined D3D9RENDERER_EXPORT
+    #define T3D_D3D9RENDERER_API        T3D_EXPORT_API
+#else
+    #define T3D_D3D9RENDERER_API        T3D_IMPORT_API
+#endif
+
+
+#define D3D_SAFE_RELEASE(p) \
+    if ((p) != nullptr)   \
+    {   \
+        (p)->Release();   \
+        (p) = nullptr;    \
+    }
+
+namespace Tiny3D
+{
+    #define LOG_TAG_D3D9RENDERER        "D3D9Renderer"
+
+    class D3D9Renderer;
+    class D3D9RenderWindow;
+    class D3D9HardwareBufferManager;
+    class D3D9HardwareIndexBuffer;
+    class D3D9HardwarePixelBuffer;
+    class D3D9HardwareVertexBuffer;
+    class D3D9VertexArrayObject;
+    class D3D9VertexDeclaration;
+
+    T3D_DECLARE_SMART_PTR(D3D9Renderer);
+    T3D_DECLARE_SMART_PTR(D3D9RenderWindow);
+    T3D_DECLARE_SMART_PTR(D3D9HardwareBufferManager);
+    T3D_DECLARE_SMART_PTR(D3D9HardwareIndexBuffer);
+    T3D_DECLARE_SMART_PTR(D3D9HardwarePixelBuffer);
+    T3D_DECLARE_SMART_PTR(D3D9HardwareVertexBuffer);
+    T3D_DECLARE_SMART_PTR(D3D9VertexArrayObject);
+    T3D_DECLARE_SMART_PTR(D3D9VertexDeclaration);
+}
+
+
+#endif  /*__T3D_D3D9_PREREQUISITES_H__*/

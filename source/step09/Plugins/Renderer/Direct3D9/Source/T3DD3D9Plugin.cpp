@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,9 +18,79 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#include "T3DD3D9Plugin.h"
+#include "T3DD3D9Renderer.h"
 
 
+namespace Tiny3D
+{
+    D3D9Plugin::D3D9Plugin()
+        : mName("D3D9Renderer")
+        , mRenderer(nullptr)
+    {
 
-#endif  /*__T3D_RENDERER_H__*/
+    }
+
+    D3D9Plugin::~D3D9Plugin()
+    {
+
+    }
+
+    const String &D3D9Plugin::getName() const
+    {
+        return mName;
+    }
+
+    TResult D3D9Plugin::install()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            mRenderer = D3D9Renderer::create();
+            if (mRenderer != nullptr)
+            {
+                ret = T3D_AGENT.addRenderer(mRenderer);
+                if (ret != T3D_OK)
+                {
+                    break;
+                }
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    TResult D3D9Plugin::startup()
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    TResult D3D9Plugin::shutdown()
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    TResult D3D9Plugin::uninstall()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ret = T3D_AGENT.removeRenderer(mRenderer);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            mRenderer = nullptr;
+        } while (0);
+
+        return ret;
+    }
+}
+
