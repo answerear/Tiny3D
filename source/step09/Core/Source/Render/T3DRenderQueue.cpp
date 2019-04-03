@@ -88,7 +88,13 @@ namespace Tiny3D
     {
         Renderer::RenderMode renderMode;
 
-        SGCameraPtr camera = renderer->getViewport()->getCamera();
+        ViewportPtr vp = renderer->getViewport();
+        if (vp == nullptr)
+        {
+            return T3D_OK;
+        }
+
+        SGCameraPtr camera = vp->getCamera();
 
         if (RenderQueue::E_GRPID_INDICATOR == groupID
             || RenderQueue::E_GRPID_WIREFRAME == groupID)

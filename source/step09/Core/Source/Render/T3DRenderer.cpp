@@ -40,6 +40,7 @@ namespace Tiny3D
         , mCullingMode(E_CULL_NONE)
         , mRenderMode(E_RM_SOLID)
     {
+
     }
 
     Renderer::~Renderer()

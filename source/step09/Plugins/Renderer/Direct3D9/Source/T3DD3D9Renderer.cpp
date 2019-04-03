@@ -19,6 +19,7 @@
 
 
 #include "T3DD3D9Renderer.h"
+#include "T3DD3D9RenderWindow.h"
 
 
 namespace Tiny3D
@@ -36,7 +37,7 @@ namespace Tiny3D
 
     D3D9Renderer::D3D9Renderer()
     {
-
+        mName = Renderer::DIRECT3D9;
     }
 
     //--------------------------------------------------------------------------
@@ -70,7 +71,28 @@ namespace Tiny3D
         const RenderWindowCreateParam &param,
         const RenderWindowCreateParamEx &paramEx)
     {
-        RenderWindowPtr window;
+        TResult ret = T3D_OK;
+
+        RenderWindowPtr window = nullptr;
+
+        do
+        {
+            window = D3D9RenderWindow::create(name);
+            if (window == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D9RENDERER, "Create render window \
+                    failed !");
+                break;
+            }
+
+            ret = window->create(param, paramEx);
+            if (ret != T3D_OK)
+            {
+                window->release();
+                window = nullptr;
+                break;
+            }
+        } while (0);
 
         return window;
     }
