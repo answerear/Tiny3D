@@ -69,6 +69,11 @@ namespace Tiny3D
             bool useShadowBuffer);
 
         /**
+         * @brief 初始化的对象
+         */
+        virtual TResult init();
+
+        /**
         * @brief 锁定缓冲区的具体实现接口，实现基类接口
         * @see void *HardwareVertexBuffer::lockImpl(size_t offset, size_t size,
         *          LockOptions options)
@@ -83,6 +88,8 @@ namespace Tiny3D
         virtual TResult unlockImpl() override;
 
     protected:
+        LPDIRECT3DINDEXBUFFER9  mD3DIndexBuffer;
+        D3DINDEXBUFFER_DESC     mBufferDesc;
     };
 }
 

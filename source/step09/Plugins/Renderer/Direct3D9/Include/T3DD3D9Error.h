@@ -33,6 +33,7 @@ namespace Tiny3D
         T3D_ERR_D3D9_UNSUPPORT_FORMAT_ICON,             /**< 不支持的图标文件格式 */
         T3D_ERR_D3D9_IMAGE_SIZE_NOT_EQL,                /**< 图片大小不一致 */
         T3D_ERR_D3D9_INVALID_TARGET,                    /**< 错误的渲染目标 */
+        T3D_ERR_D3D9_CREATE_FAILED,                     /**< 创建 D3D9 对象失败 */
     };
 }
 

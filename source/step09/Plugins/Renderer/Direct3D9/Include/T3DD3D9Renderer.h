@@ -27,7 +27,9 @@
 
 namespace Tiny3D
 {
-    class D3D9Renderer : public Renderer
+    class D3D9Renderer 
+        : public Renderer
+        , public Singleton<D3D9Renderer>
     {
     public:
         /**
@@ -226,8 +228,35 @@ namespace Tiny3D
             VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo,
             HardwareIndexBufferPtr ibo) override;
 
+        LPDIRECT3D9 getD3D() 
+        { 
+            return mD3D; 
+        }
+
+        LPDIRECT3DDEVICE9 getD3DDevice() 
+        { 
+            return mD3DDevice; 
+        }
+
+        void setD3DDevice(LPDIRECT3DDEVICE9 d3dDevice) 
+        { 
+            mD3DDevice = d3dDevice; 
+        }
+
     protected:
+        /**
+         * @brief 构造函数
+         */
         D3D9Renderer();
+
+    protected:
+        HINSTANCE   mInstance;
+
+        LPDIRECT3D9         mD3D;
+        LPDIRECT3DDEVICE9   mD3DDevice;
+
+        HardwareBufferManagerPtr        mHardwareBufferMgr;
+        D3D9HardwareBufferManagerPtr    mD3DHardwareBufferMgr;
     };
 }
 

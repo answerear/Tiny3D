@@ -55,6 +55,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult D3D9HardwareIndexBuffer::init()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     size_t D3D9HardwareIndexBuffer::readData(size_t offset, size_t size, 
         void *dst)
     {

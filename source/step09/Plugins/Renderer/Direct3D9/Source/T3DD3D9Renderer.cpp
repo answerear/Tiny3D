@@ -20,10 +20,16 @@
 
 #include "T3DD3D9Renderer.h"
 #include "T3DD3D9RenderWindow.h"
+#include "T3DD3D9HardwareBufferManager.h"
+#include "T3DD3D9Error.h"
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_INIT_SINGLETON(D3D9Renderer);
+
     //--------------------------------------------------------------------------
 
     D3D9RendererPtr D3D9Renderer::create()
@@ -53,6 +59,29 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        do 
+        {
+            // 创建 IDirect3D9 对象
+            mD3D = ::Direct3DCreate9(D3D_SDK_VERSION);
+            if (nullptr == mD3D)
+            {
+                ret = T3D_ERR_D3D9_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D9RENDERER, "Create Direct3D9 \
+                    interface failed !");
+                break;
+            }
+
+            // 输出设备信息
+            UINT uAdapter = 0;
+            for (uAdapter = 0; uAdapter < mD3D->GetAdapterCount(); ++uAdapter)
+            {
+                D3DADAPTER_IDENTIFIER9 d3dai;
+                D3DDISPLAYMODE d3ddm;
+                mD3D->GetAdapterIdentifier(uAdapter, 0, &d3dai);
+                mD3D->GetAdapterDisplayMode(uAdapter, &d3ddm);
+            }
+        } while (0);
+
         return ret;
     }
 
@@ -61,6 +90,11 @@ namespace Tiny3D
     TResult D3D9Renderer::destroy()
     {
         TResult ret = T3D_OK;
+
+        do 
+        {
+            D3D_SAFE_RELEASE(mD3D);
+        } while (0);
 
         return ret;
     }
@@ -92,6 +126,8 @@ namespace Tiny3D
                 window = nullptr;
                 break;
             }
+
+
         } while (0);
 
         return window;
