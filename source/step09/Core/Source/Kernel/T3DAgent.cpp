@@ -209,6 +209,7 @@ namespace Tiny3D
             Settings settings = mSettings["Render"].mapValue();
 
             RenderWindowCreateParam param;
+
             // 窗口标题
             param.windowTitle = settings["Title"].stringValue();
             // 窗口位置
@@ -219,10 +220,17 @@ namespace Tiny3D
             param.windowHeight = settings["Height"].int32Value();
             // 是否全屏
             param.fullscreen = settings["FullScreen"].boolValue();
+            // 色深，如果是非全屏，自动跟桌面一样
+            param.colorDepth = settings["ColorDepth"].int32Value();
             // 图标路径
             param.iconPath = settings["Icon"].stringValue();
 
             RenderWindowCreateParamEx paramEx;
+
+            // 抗锯齿
+            paramEx["MultiSampleQuality"] = settings["MultiSampleQuality"];
+            // 垂直同步
+            paramEx["VSync"] = settings["VSync"];
 
             window = mActiveRenderer->createRenderWindow(
                 param.windowTitle, param, paramEx);

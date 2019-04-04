@@ -71,7 +71,16 @@ namespace Tiny3D
     protected:
         D3D9RenderWindow(const String &name);
 
+        bool checkMultiSampleQuality(LPDIRECT3D9 pD3D, D3DMULTISAMPLE_TYPE type,
+            DWORD *outQuality, D3DFORMAT fBack, D3DFORMAT fDepth,
+            UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen);
+
+        TResult createD3D9Device(const RenderWindowCreateParam &param,
+            const RenderWindowCreateParamEx &paramEx);
+
         Window  *mWindow;
+
+        LPDIRECT3DDEVICE9   mD3DDevice;
     };
 }
 

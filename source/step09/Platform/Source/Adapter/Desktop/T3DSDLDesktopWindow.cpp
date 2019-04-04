@@ -129,6 +129,8 @@ namespace Tiny3D
     {
         SDL_SysWMinfo sdlInfo;
 
+        SDL_VERSION(&sdlInfo.version);
+
         bool ret = SDL_GetWindowWMInfo(mSDLWindow, &sdlInfo);
 
         if (ret)

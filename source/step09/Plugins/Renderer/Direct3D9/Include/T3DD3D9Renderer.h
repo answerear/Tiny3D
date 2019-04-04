@@ -258,6 +258,8 @@ namespace Tiny3D
         HardwareBufferManagerPtr        mHardwareBufferMgr;
         D3D9HardwareBufferManagerPtr    mD3DHardwareBufferMgr;
     };
+
+    #define D3D9_RENDERER           (D3D9Renderer::getInstance())
 }
 
 

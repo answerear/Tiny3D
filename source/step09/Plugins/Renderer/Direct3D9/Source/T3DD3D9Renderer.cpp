@@ -127,7 +127,6 @@ namespace Tiny3D
                 break;
             }
 
-
         } while (0);
 
         return window;
@@ -140,6 +139,23 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        do 
+        {
+            Color4 clr;
+            clr.from(color);
+            HRESULT hr = S_OK;
+            if (FAILED(hr = mD3DDevice->Clear(0, NULL, 
+                D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, clr.A8R8G8B8(), 1.0f, 0)))
+            {
+
+            }
+
+            if (FAILED(hr = mD3DDevice->BeginScene()))
+            {
+
+            }
+        } while (0);
+
         return ret;
     }
 
@@ -148,6 +164,16 @@ namespace Tiny3D
     TResult D3D9Renderer::endRender()
     {
         TResult ret = T3D_OK;
+
+        do 
+        {
+            HRESULT hr = S_OK;
+
+            if (FAILED(hr = mD3DDevice->EndScene()))
+            {
+
+            }
+        } while (0);
 
         return ret;
     }

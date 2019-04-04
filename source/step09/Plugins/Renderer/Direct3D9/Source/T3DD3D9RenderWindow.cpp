@@ -20,6 +20,7 @@
 
 #include "T3DD3D9RenderWindow.h"
 #include "T3DD3D9Error.h"
+#include "T3DD3D9Renderer.h"
 
 
 namespace Tiny3D
@@ -157,10 +158,14 @@ namespace Tiny3D
             mHeight = param.windowHeight;
             mColorDepth = mWindow->getColorDepth();
             mPitch = Image::calcPitch(mWidth, mColorDepth);
+
+            ret = createD3D9Device(param, paramEx);
         } while (0);
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult D3D9RenderWindow::destroy()
     {
@@ -174,6 +179,8 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_D3D9RENDERER, "Invalid window pointer !");
                 break;
             }
+
+            D3D_SAFE_RELEASE(mD3DDevice);
 
             mWindow->destroy();
 
@@ -193,14 +200,194 @@ namespace Tiny3D
 
         do
         {
-            if (mWindow == nullptr)
+            if (mD3DDevice == nullptr)
             {
-                ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_D3D9RENDERER, "Invalid window pointer !");
+                T3D_LOG_ERROR(LOG_TAG_D3D9RENDERER, "Direct3DDevice9 has not \
+                    created !");
                 break;
             }
 
-            ret = mWindow->updateWindow();
+            HRESULT hr = mD3DDevice->Present(NULL, NULL, 0, NULL);
+            if (FAILED(hr))
+            {
+
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool D3D9RenderWindow::checkMultiSampleQuality(LPDIRECT3D9 pD3D,
+        D3DMULTISAMPLE_TYPE type, DWORD *outQuality, D3DFORMAT fBack,
+        D3DFORMAT fDepth, UINT adapterNum, D3DDEVTYPE deviceType,
+        BOOL fullScreen)
+    {
+        if (SUCCEEDED(pD3D->CheckDeviceMultiSampleType(
+            adapterNum,
+            deviceType, fBack,
+            fullScreen, type, outQuality)))
+            return true;
+        else
+            return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9RenderWindow::createD3D9Device(
+        const RenderWindowCreateParam &param,
+        const RenderWindowCreateParamEx &paramEx)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            LPDIRECT3D9 pD3D = D3D9_RENDERER.getD3D();
+            UINT uAdapter = 0;
+            D3DADAPTER_IDENTIFIER9 d3dai;
+            D3DDISPLAYMODE d3ddm;
+            pD3D->GetAdapterIdentifier(uAdapter, 0, &d3dai);
+            pD3D->GetAdapterDisplayMode(uAdapter, &d3ddm);
+
+            D3DPRESENT_PARAMETERS d3dpp;
+            memset(&d3dpp, 0, sizeof(d3dpp));
+
+            D3DDEVTYPE devType = D3DDEVTYPE_HAL;
+
+            d3dpp.BackBufferCount = 1;
+            d3dpp.EnableAutoDepthStencil = TRUE;
+
+            bool vsync = paramEx.at("VSync").boolValue();
+            if (vsync)
+                d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+            else
+                d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+
+            d3dpp.Windowed = !param.fullscreen;
+            d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+
+            int32_t width, height;
+            mWindow->getWindowSize(width, height);
+
+            if (param.fullscreen)
+            {
+                d3dpp.BackBufferWidth = width;
+                d3dpp.BackBufferHeight = height;
+                d3dpp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
+
+                if (mWindow->getColorDepth() > 16)
+                    d3dpp.BackBufferFormat = D3DFMT_X8B8G8R8;
+                else
+                    d3dpp.BackBufferFormat = D3DFMT_R5G6B5;
+            }
+            else
+            {
+                d3dpp.BackBufferWidth = width;
+                d3dpp.BackBufferHeight = height;
+                d3dpp.BackBufferFormat = d3ddm.Format;
+            }
+
+            if (mWindow->getColorDepth() > 16)
+            {
+                // Try to create a 32-bit depth, 8-bit stencil
+                if (FAILED(pD3D->CheckDeviceFormat(uAdapter,
+                    devType, d3dpp.BackBufferFormat, D3DUSAGE_DEPTHSTENCIL,
+                    D3DRTYPE_SURFACE, D3DFMT_D24S8)))
+                {
+                    // Bugger, no 8-bit hardware stencil, just try 32-bit zbuffer 
+                    if (FAILED(pD3D->CheckDeviceFormat(uAdapter,
+                        devType, d3dpp.BackBufferFormat, D3DUSAGE_DEPTHSTENCIL,
+                        D3DRTYPE_SURFACE, D3DFMT_D32)))
+                    {
+                        // Jeez, what a naff card. Fall back on 16-bit depth buffering
+                        d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+                    }
+                    else
+                        d3dpp.AutoDepthStencilFormat = D3DFMT_D32;
+                }
+                else
+                {
+                    // Woohoo!
+                    if (SUCCEEDED(pD3D->CheckDepthStencilMatch(uAdapter, 
+                        devType, d3dpp.BackBufferFormat, 
+                        d3dpp.BackBufferFormat, D3DFMT_D24X8)))
+                    {
+                        d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
+                    }
+                    else
+                        d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
+                }
+            }
+            else
+            {
+                // 16-bit depth, software stencil
+                d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+            }
+
+            DWORD dwMultiSampleQuality
+                = (DWORD)paramEx.at("MultiSampleQuality").longValue();
+
+            if (dwMultiSampleQuality < 2) // NONE
+                dwMultiSampleQuality = 0;
+            if (dwMultiSampleQuality > 16) // MAX
+                dwMultiSampleQuality = 16;
+
+            if (dwMultiSampleQuality &&
+                checkMultiSampleQuality(
+                    pD3D,
+                    D3DMULTISAMPLE_NONMASKABLE,
+                    &dwMultiSampleQuality,
+                    d3dpp.BackBufferFormat,
+                    d3dpp.AutoDepthStencilFormat,
+                    uAdapter,
+                    devType,
+                    param.fullscreen))
+            {
+                d3dpp.MultiSampleType = D3DMULTISAMPLE_NONMASKABLE;
+                d3dpp.MultiSampleQuality
+                    = dwMultiSampleQuality ? dwMultiSampleQuality - 1 : NULL;
+            }
+            else
+            {
+                d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
+                d3dpp.MultiSampleQuality = NULL;
+            }
+
+            SysWMInfo info;
+            mWindow->getSystemInfo(info);
+            HWND hWnd = (HWND)info.hWnd;
+            HRESULT hr = pD3D->CreateDevice(uAdapter, devType, hWnd,
+                D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &mD3DDevice);
+            if (SUCCEEDED(hr))
+            {
+//             mD3DDevice->GetRenderTarget(0, &mpRenderSurface);
+//             mD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
+            }
+            else
+            {
+                hr = pD3D->CreateDevice(uAdapter, devType, hWnd,
+                    D3DCREATE_MIXED_VERTEXPROCESSING, &d3dpp, &mD3DDevice);
+                if (SUCCEEDED(hr))
+                {
+//                 mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
+//                 mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
+                }
+                else
+                {
+                    hr = pD3D->CreateDevice(uAdapter, devType, hWnd,
+                        D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &mD3DDevice);
+                    if (SUCCEEDED(hr))
+                    {
+//                     mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
+//                     mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
+                    }
+                }
+            }
+
+            // TODO: make this a bit better e.g. go from pure vertex processing to software
+            D3D9_RENDERER.setD3DDevice(mD3DDevice);
+
         } while (0);
 
         return ret;
