@@ -138,13 +138,28 @@ namespace Tiny3D
         uint32_t clearFlags, const ColorRGB &color, Real z, uint32_t stencil)
     {
         TResult ret = T3D_OK;
+        D3DRECT *pRects = nullptr;
 
         do 
         {
             Color4 clr;
             clr.from(color);
             HRESULT hr = S_OK;
-            if (FAILED(hr = mD3DDevice->Clear(0, NULL, 
+
+
+            if (count > 0)
+            {
+                pRects = new D3DRECT[count];
+                for (size_t i = 0; i < count; ++i)
+                {
+                    pRects[i].x1 = rects[i].left;
+                    pRects[i].x2 = rects[i].right;
+                    pRects[i].y1 = rects[i].top;
+                    pRects[i].y2 = rects[i].bottom;
+                }
+            }
+
+            if (FAILED(hr = mD3DDevice->Clear(count, pRects, 
                 D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, clr.A8R8G8B8(), 1.0f, 0)))
             {
 
@@ -155,6 +170,8 @@ namespace Tiny3D
 
             }
         } while (0);
+
+        T3D_SAFE_DELETE_ARRAY(pRects);
 
         return ret;
     }

@@ -19,6 +19,8 @@
 
 
 #include "T3DD3D9HardwareVertexBuffer.h"
+#include "T3DD3D9Renderer.h"
+#include "T3DD3D9Mappings.h"
 
 
 namespace Tiny3D
@@ -32,6 +34,10 @@ namespace Tiny3D
         D3D9HardwareVertexBufferPtr vb = new D3D9HardwareVertexBuffer(
             vertexSize, vertexCount, usage, useSystemMemory, useShadowBuffer);
         vb->release();
+        if (vb->init() != T3D_OK)
+        {
+            vb = nullptr;
+        }
         return vb;
     }
 
@@ -49,6 +55,40 @@ namespace Tiny3D
 
     D3D9HardwareVertexBuffer::~D3D9HardwareVertexBuffer()
     {
+        D3D_SAFE_RELEASE(mD3DVertexBuffer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9HardwareVertexBuffer::init()
+    {
+        TResult ret = T3D_OK;
+
+        LPDIRECT3DDEVICE9 pD3DDevice = D3D9_RENDERER.getD3DDevice();
+
+        D3DPOOL d3dpool 
+            = (mUseSystemMemory ? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT);
+        HRESULT hr = pD3DDevice->CreateVertexBuffer(
+            mBufferSize,
+            D3D9Mappings::get(mUsage),
+            0,
+            d3dpool,
+            &mD3DVertexBuffer,
+            nullptr);
+        if (FAILED(hr))
+        {
+
+        }
+        else
+        {
+            hr = mD3DVertexBuffer->GetDesc(&mBufferDesc);
+            if (FAILED(hr))
+            {
+
+            }
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -56,7 +96,24 @@ namespace Tiny3D
     size_t D3D9HardwareVertexBuffer::readData(size_t offset, size_t size,
         void *dst)
     {
-        return 0;
+        size_t bytesOfRead = 0;
+
+        do 
+        {
+            void *src = lock(offset, size, HardwareBuffer::E_HBL_READ_ONLY);
+
+            if (src == nullptr)
+            {
+                break;
+            }
+
+            memcpy(dst, src, size);
+            bytesOfRead = size;
+
+            unlock();
+        } while (0);
+
+        return bytesOfRead;
     }
 
     //--------------------------------------------------------------------------
@@ -64,7 +121,25 @@ namespace Tiny3D
     size_t D3D9HardwareVertexBuffer::writeData(size_t offset, size_t size,
         const void *src, bool discardWholeBuffer /* = false */)
     {
-        return 0;
+        size_t bytesOfWritten = 0;
+
+        do 
+        {
+            void *dst = lock(offset, size, discardWholeBuffer 
+                ? HardwareBuffer::E_HBL_DISCARD : HardwareBuffer::E_HBL_NORMAL);
+
+            if (dst == nullptr)
+            {
+                break;
+            }
+
+            memcpy(dst, src, size);
+            bytesOfWritten = size;
+
+            unlock();
+        } while (0);
+
+        return bytesOfWritten;
     }
 
     //--------------------------------------------------------------------------
@@ -72,13 +147,48 @@ namespace Tiny3D
     void *D3D9HardwareVertexBuffer::lockImpl(size_t offset, size_t size,
         LockOptions options)
     {
-        return nullptr;
+        char *pLockedData = nullptr;
+
+        do 
+        {
+            if (mD3DVertexBuffer == nullptr)
+            {
+                break;
+            }
+
+            char *pLockedData = nullptr;
+            HRESULT hr = mD3DVertexBuffer->Lock(offset, size, 
+                (void **)&pLockedData, D3D9Mappings::get(mUsage, options));
+            if (FAILED(hr))
+            {
+                break;
+            }
+        } while (0);
+
+        return pLockedData;
     }
 
     //--------------------------------------------------------------------------
 
     TResult D3D9HardwareVertexBuffer::unlockImpl()
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (mD3DVertexBuffer == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            HRESULT hr = mD3DVertexBuffer->Unlock();
+            if (FAILED(hr))
+            {
+
+            }
+        } while (0);
+
+        return ret;
     }
 }

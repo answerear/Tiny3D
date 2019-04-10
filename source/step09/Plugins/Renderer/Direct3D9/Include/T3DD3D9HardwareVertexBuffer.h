@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D9_HARDWARD_VERTEX_BUFFER_H__
-#define __T3D_D3D9_HARDWARD_VERTEX_BUFFER_H__
+#ifndef __T3D_D3D9_HARDWARE_VERTEX_BUFFER_H__
+#define __T3D_D3D9_HARDWARE_VERTEX_BUFFER_H__
 
 
 #include "T3DD3D9Prerequisites.h"
@@ -67,6 +67,8 @@ namespace Tiny3D
         D3D9HardwareVertexBuffer(size_t vertexSize, size_t vertexCount,
             Usage usage, bool useSystemMemory, bool useShadowBuffer);
 
+        TResult init();
+
         /**
         * @brief 锁定缓冲区的具体实现接口，实现基类接口
         * @see void *HardwareVertexBuffer::lockImpl(size_t offset, size_t size,
@@ -80,9 +82,13 @@ namespace Tiny3D
         * @see TResult HardwareVertexBuffer::unlockImpl()
         */
         virtual TResult unlockImpl() override;
+
+    protected:
+        LPDIRECT3DVERTEXBUFFER9     mD3DVertexBuffer;
+        D3DVERTEXBUFFER_DESC        mBufferDesc;
     };
 }
 
 
-#endif  /*__T3D_D3D9_HARDWARD_VERTEX_BUFFER_H__*/
+#endif  /*__T3D_D3D9_HARDWARE_VERTEX_BUFFER_H__*/
 
