@@ -28,8 +28,8 @@
 namespace Tiny3D
 {
     /**
-    * @brief Direct3D9 渲染器相关的索引缓冲区类
-    */
+     * @brief Direct3D9 渲染器相关的索引缓冲区类
+     */
     class D3D9HardwareIndexBuffer : public HardwareIndexBuffer
     {
     public:
@@ -62,29 +62,29 @@ namespace Tiny3D
 
     protected:
         /**
-        * @brief 构造函数
-        */
+         * @brief 构造函数
+         */
         D3D9HardwareIndexBuffer(Type indexType, size_t indexCount,
             HardwareBuffer::Usage usage, bool useSystemMemory,
             bool useShadowBuffer);
 
         /**
-         * @brief 初始化的对象
+         * @brief 初始化对象
          */
         virtual TResult init();
 
         /**
-        * @brief 锁定缓冲区的具体实现接口，实现基类接口
-        * @see void *HardwareVertexBuffer::lockImpl(size_t offset, size_t size,
-        *          LockOptions options)
-        */
+         * @brief 锁定缓冲区的具体实现接口，实现基类接口
+         * @see void *HardwareVertexBuffer::lockImpl(size_t offset, size_t size,
+         *          LockOptions options)
+         */
         virtual void *lockImpl(size_t offset, size_t size,
             LockOptions options) override;
 
         /**
-        * @brief 解锁缓冲区的具体实现接口，实现基类接口
-        * @see TResult HardwareVertexBuffer::unlockImpl()
-        */
+         * @brief 解锁缓冲区的具体实现接口，实现基类接口
+         * @see TResult HardwareVertexBuffer::unlockImpl()
+         */
         virtual TResult unlockImpl() override;
 
     protected:

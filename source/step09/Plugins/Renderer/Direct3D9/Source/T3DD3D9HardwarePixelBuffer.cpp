@@ -19,6 +19,8 @@
 
 
 #include "T3DD3D9HardwarePixelBuffer.h"
+#include "T3DD3D9Mappings.h"
+#include "T3DD3D9Renderer.h"
 
 
 namespace Tiny3D
@@ -32,6 +34,12 @@ namespace Tiny3D
         D3D9HardwarePixelBufferPtr pb = new D3D9HardwarePixelBuffer(width, 
             height, format, usage, useSystemMemory, useShadowBuffer);
         pb->release();
+
+        if (pb->init() != T3D_OK)
+        {
+            pb = nullptr;
+        }
+
         return pb;
     }
 
@@ -49,6 +57,41 @@ namespace Tiny3D
 
     D3D9HardwarePixelBuffer::~D3D9HardwarePixelBuffer()
     {
+        D3D_SAFE_RELEASE(mD3DTexture);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D9HardwarePixelBuffer::init()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            LPDIRECT3DDEVICE9 D3DDevice = D3D9_RENDERER.getD3DDevice();
+
+            D3DFORMAT format = D3D9Mappings::get(mFormat);
+            HRESULT hr = D3DXCreateTexture(D3DDevice, mWidth, mHeight, 1, 0, 
+                format, D3DPOOL_MANAGED, &mD3DTexture);
+
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            D3DSURFACE_DESC desc;
+            hr = mD3DTexture->GetLevelDesc(0, &desc);
+
+            if (FAILED(hr))
+            {
+                D3D_SAFE_RELEASE(mD3DTexture);
+                break;
+            }
+
+            mFormat = D3D9Mappings::get(desc.Format);
+        } while (0);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -186,7 +229,15 @@ namespace Tiny3D
 
         do
         {
-            
+            D3DLOCKED_RECT d3dRect;
+            RECT winRect = { rect.left, rect.top, rect.right, rect.bottom };
+            HRESULT hr = mD3DTexture->LockRect(0, &d3dRect, &winRect, 0);
+            if (FAILED(hr))
+            {
+                
+            }
+
+            lockedPitch = d3dRect.Pitch;
         } while (0);
 
         return lockedBuffer;
@@ -198,7 +249,17 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        do 
+        {
+            HRESULT hr = mD3DTexture->UnlockRect(0);
+            if (FAILED(hr))
+            {
+
+            }
+        } while (0);
+
         return ret;
     }
 }
+
 

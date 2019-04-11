@@ -19,6 +19,8 @@
 
 
 #include "T3DD3D9HardwareIndexBuffer.h"
+#include "T3DD3D9Mappings.h"
+#include "T3DD3D9Renderer.h"
 
 
 namespace Tiny3D
@@ -32,6 +34,12 @@ namespace Tiny3D
         D3D9HardwareIndexBufferPtr ibo = new D3D9HardwareIndexBuffer(indexType, 
             indexCount, usage, useSystemMemory, useShadowBuffer);
         ibo->release();
+
+        if (ibo->init() != T3D_OK)
+        {
+            ibo = nullptr;
+        }
+
         return ibo;
     }
 
@@ -50,7 +58,7 @@ namespace Tiny3D
 
     D3D9HardwareIndexBuffer::~D3D9HardwareIndexBuffer()
     {
-
+        D3D_SAFE_RELEASE(mD3DIndexBuffer);
     }
 
     //--------------------------------------------------------------------------
@@ -61,7 +69,29 @@ namespace Tiny3D
 
         do 
         {
+            LPDIRECT3DDEVICE9 pD3DDevice = D3D9_RENDERER.getD3DDevice();
 
+            D3DPOOL d3dpool 
+                = (mUseSystemMemory ? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT);
+            HRESULT hr = pD3DDevice->CreateIndexBuffer(
+                mBufferSize,
+                D3D9Mappings::get(mUsage),
+                D3D9Mappings::get(mType),
+                d3dpool,
+                &mD3DIndexBuffer,
+                nullptr);
+            if (FAILED(hr))
+            {
+
+            }
+            else
+            {
+                hr = mD3DIndexBuffer->GetDesc(&mBufferDesc);
+                if (FAILED(hr))
+                {
+
+                }
+            }
         } while (0);
 
         return ret;
@@ -72,7 +102,23 @@ namespace Tiny3D
     size_t D3D9HardwareIndexBuffer::readData(size_t offset, size_t size, 
         void *dst)
     {
-        return 0;
+        size_t bytesOfRead = 0;
+
+        do 
+        {
+            void *src = lock(offset, size, HardwareBuffer::E_HBL_READ_ONLY);
+            if (src == nullptr)
+            {
+                break;
+            }
+
+            memcpy(dst, src, size);
+            bytesOfRead = size;
+
+            unlock();
+        } while (0);
+
+        return bytesOfRead;
     }
 
     //--------------------------------------------------------------------------
@@ -80,7 +126,24 @@ namespace Tiny3D
     size_t D3D9HardwareIndexBuffer::writeData(size_t offset, size_t size,
         const void *src, bool discardWholeBuffer /* = false */)
     {
-        return 0;
+        size_t bytesOfWritten = 0;
+
+        do 
+        {
+            void *dst = lock(offset, size, discardWholeBuffer 
+                ? HardwareBuffer::E_HBL_DISCARD : HardwareBuffer::E_HBL_NORMAL);
+            if (dst == nullptr)
+            {
+                break;
+            }
+
+            memcpy(dst, src, size);
+            bytesOfWritten = size;
+
+            unlock();
+        } while (0);
+
+        return bytesOfWritten;
     }
 
     //--------------------------------------------------------------------------
@@ -88,13 +151,36 @@ namespace Tiny3D
     void *D3D9HardwareIndexBuffer::lockImpl(size_t offset, size_t size,
         LockOptions options)
     {
-        return nullptr;
+        char *pLockedData = nullptr;
+
+        do 
+        {
+            HRESULT hr = mD3DIndexBuffer->Lock(offset, size, 
+                (void **)&pLockedData, D3D9Mappings::get(mUsage, options));
+            if (FAILED(hr))
+            {
+                break;
+            }
+        } while (0);
+
+        return pLockedData;
     }
 
     //--------------------------------------------------------------------------
 
     TResult D3D9HardwareIndexBuffer::unlockImpl()
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            HRESULT hr = mD3DIndexBuffer->Unlock();
+            if (FAILED(hr))
+            {
+
+            }
+        } while (0);
+
+        return ret;
     }
 }

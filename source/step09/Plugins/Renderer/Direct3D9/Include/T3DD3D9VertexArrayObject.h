@@ -28,86 +28,86 @@
 namespace Tiny3D
 {
     /**
-    * @brief Direct3D9 渲染器相关的VAO类
-    */
+     * @brief Direct3D9 渲染器相关的VAO类
+     */
     class D3D9VertexArrayObject : public VertexArrayObject
     {
     public:
         /**
-        * @brief 创建 Direct3D9 渲染器相关的 VAO 对象
-        */
+         * @brief 创建 Direct3D9 渲染器相关的 VAO 对象
+         */
         static D3D9VertexArrayObjectPtr create(bool useIndices);
 
         /**
-        * @brief 析构函数
-        */
+         * @brief 析构函数
+         */
         virtual ~D3D9VertexArrayObject();
 
         /**
-        * @brief 开始绑定VAO，实现基类接口
-        */
+         * @brief 开始绑定VAO，实现基类接口
+         */
         virtual TResult beginBinding() override;
 
         /**
-        * @brief 结束绑定VAO，实现基类接口
-        */
+         * @brief 结束绑定VAO，实现基类接口
+         */
         virtual TResult endBinding() override;
 
         /**
-        * @brief 设置绘制图元类型，实现基类接口
-        */
+         * @brief 设置绘制图元类型，实现基类接口
+         */
         virtual TResult setPrimitiveType(
             Renderer::PrimitiveType priType) override;
 
         /**
-        * @brief 获取渲染图元类型，实现基类接口
-        */
+         * @brief 获取渲染图元类型，实现基类接口
+         */
         virtual Renderer::PrimitiveType getPrimitiveType() const override;
 
         /**
-        * @brief 设置顶点声明，实现基类接口
-        */
+         * @brief 设置顶点声明，实现基类接口
+         */
         virtual TResult setVertexDeclaration(VertexDeclarationPtr decl) override;
 
         /**
-        * @brief 获取顶点声明，实现基类接口
-        */
+         * @brief 获取顶点声明，实现基类接口
+         */
         virtual VertexDeclarationPtr getVertexDeclaration() const override;
 
         /**
-        * @brief 添加顶点缓冲区对象，实现基类接口
-        */
+         * @brief 添加顶点缓冲区对象，实现基类接口
+         */
         virtual TResult addVertexBuffer(HardwareVertexBufferPtr vbo) override;
 
         /**
-        * @brief 获取顶点缓冲区对象数量，实现基类接口
-        */
+         * @brief 获取顶点缓冲区对象数量，实现基类接口
+         */
         virtual size_t getVertexBufferCount() const override;
 
         /**
-        * @brief 获取顶点缓冲区对象，实现基类接口
-        */
+         * @brief 获取顶点缓冲区对象，实现基类接口
+         */
         virtual HardwareVertexBufferPtr getVertexBuffer(size_t idx) const override;
 
         /**
-        * @brief 设置索引缓冲对象，实现基类接口
-        */
+         * @brief 设置索引缓冲对象，实现基类接口
+         */
         virtual TResult setIndexBuffer(HardwareIndexBufferPtr ibo) override;
 
         /**
-        * @brief 获取索引缓冲对象，实现基类接口
-        */
+         * @brief 获取索引缓冲对象，实现基类接口
+         */
         virtual HardwareIndexBufferPtr getIndexBuffer() const override;
 
         /**
-        * @brief 获取是否使用索引缓冲区，实现基类接口
-        */
+         * @brief 获取是否使用索引缓冲区，实现基类接口
+         */
         virtual bool isIndicesUsed() const override;
 
     protected:
         /**
-        * @brief 构造函数
-        */
+         * @brief 构造函数
+         */
         D3D9VertexArrayObject(bool useIndices);
 
     protected:

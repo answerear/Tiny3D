@@ -28,59 +28,59 @@
 namespace Tiny3D
 {
     /**
-    * @brief Direct3D9 渲染器相关的顶点缓冲类
-    */
+     * @brief Direct3D9 渲染器相关的顶点缓冲类
+     */
     class D3D9HardwareVertexBuffer : public HardwareVertexBuffer
     {
     public:
         /**
-        * @brief 创建 Direct3D9 渲染器相关的顶点缓冲对象
-        */
+         * @brief 创建 Direct3D9 渲染器相关的顶点缓冲对象
+         */
         static D3D9HardwareVertexBufferPtr create(size_t vertexSize,
             size_t vertexCount, Usage usage, bool useSystemMemory,
             bool useShadowBuffer);
 
         /**
-        * @brief 析构函数
-        */
+         * @brief 析构函数
+         */
         virtual ~D3D9HardwareVertexBuffer();
 
         /**
-        * @brief 从缓冲区读取数据出来，实现基类接口
-        * @see size_t HardwareVertexBuffer::readData(size_t offset,
-        *          size_t size, void *dst)
-        */
+         * @brief 从缓冲区读取数据出来，实现基类接口
+         * @see size_t HardwareVertexBuffer::readData(size_t offset,
+         *          size_t size, void *dst)
+         */
         virtual size_t readData(size_t offset, size_t size, void *dst) override;
 
         /**
-        * @brief 向缓冲区写数据，实现基类接口
-        * @see size_t HardwareVertexBuffer::writeData(size_t offset,
-        *          size_t size, const void *src, bool discardWholeBuffer)
-        */
+         * @brief 向缓冲区写数据，实现基类接口
+         * @see size_t HardwareVertexBuffer::writeData(size_t offset,
+         *          size_t size, const void *src, bool discardWholeBuffer)
+         */
         virtual size_t writeData(size_t offset, size_t size, const void *src,
             bool discardWholeBuffer = false) override;
 
     protected:
         /**
-        * @brief 构造函数
-        */
+         * @brief 构造函数
+         */
         D3D9HardwareVertexBuffer(size_t vertexSize, size_t vertexCount,
             Usage usage, bool useSystemMemory, bool useShadowBuffer);
 
-        TResult init();
+        virtual TResult init();
 
         /**
-        * @brief 锁定缓冲区的具体实现接口，实现基类接口
-        * @see void *HardwareVertexBuffer::lockImpl(size_t offset, size_t size,
-        *          LockOptions options)
-        */
+         * @brief 锁定缓冲区的具体实现接口，实现基类接口
+         * @see void *HardwareVertexBuffer::lockImpl(size_t offset, size_t size,
+         *          LockOptions options)
+         */
         virtual void *lockImpl(size_t offset, size_t size,
             LockOptions options) override;
 
         /**
-        * @brief 解锁缓冲区的具体实现接口，实现基类接口
-        * @see TResult HardwareVertexBuffer::unlockImpl()
-        */
+         * @brief 解锁缓冲区的具体实现接口，实现基类接口
+         * @see TResult HardwareVertexBuffer::unlockImpl()
+         */
         virtual TResult unlockImpl() override;
 
     protected:

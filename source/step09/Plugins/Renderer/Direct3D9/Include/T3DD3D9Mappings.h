@@ -28,46 +28,46 @@
 namespace Tiny3D
 {
     /**
-    * @brief Tiny3D 和 Direct3D9 之间常量的映射转换
-    */
+     * @brief Tiny3D 和 Direct3D9 之间常量的映射转换
+     */
     class D3D9Mappings
     {
     public:
         /**
-        * @brief 把Tiny3D的图元类型转换成D3D9的图元类型
-        */
+         * @brief 把Tiny3D的图元类型转换成D3D9的图元类型
+         */
         static D3DPRIMITIVETYPE get(Renderer::PrimitiveType primitive);
 
         /**
-        * @brief 把Tiny3D的硬件缓冲使用方式常量转换成D3D9硬件缓冲使用方式常量
-        */
+         * @brief 把Tiny3D的硬件缓冲使用方式常量转换成D3D9硬件缓冲使用方式常量
+         */
         static DWORD get(HardwareBuffer::Usage usage);
 
         /**
-        * @brief 根据Tiny3D的硬件缓冲使用方式常量和缓冲锁定选项获取D3D9对应的
-        *      使用方式常量
-        */
+         * @brief 根据Tiny3D的硬件缓冲使用方式常量和缓冲锁定选项获取D3D9对应的
+         *      使用方式常量
+         */
         static DWORD get(HardwareBuffer::Usage usage,
             HardwareBuffer::LockOptions options);
 
         /**
-        * @brief 把Tiny3D索引缓冲区类型转换成D3D9索引格式
-        */
+         * @brief 把Tiny3D索引缓冲区类型转换成D3D9索引格式
+         */
         static D3DFORMAT get(HardwareIndexBuffer::Type type);
 
         /**
-        * @brief 把Tiny3D顶点属性类型转换成D3D9声明类型
-        */
+         * @brief 把Tiny3D顶点属性类型转换成D3D9声明类型
+         */
         static D3DDECLTYPE get(VertexAttribute::Type type);
 
         /**
-        * @brief 把Tiny3D的顶点语法转换成D3D9顶点声明语法类型
-        */
+         * @brief 把Tiny3D的顶点语法转换成D3D9顶点声明语法类型
+         */
         static D3DDECLUSAGE get(VertexAttribute::Semantic semantic);
 
         /**
-        * @brief 把Tiny3D的像素格式转换成D3D9像素格式
-        */
+         * @brief 把Tiny3D的像素格式转换成D3D9像素格式
+         */
         static D3DFORMAT get(PixelFormat format);
 
         /**
