@@ -269,5 +269,64 @@ namespace Tiny3D
         d3dcolor.b = color.blue();
         return d3dcolor;
     }
+
+    //--------------------------------------------------------------------------
+
+    D3DMATRIX D3D9Mappings::toD3DMatrix(const Matrix4 &mat)
+    {
+        // 转置矩阵
+        // D3D9 使用行向量 i.e. V*M
+        // Tiny3D, OpenGL 等用列向量 i.e. M*V
+        D3DXMATRIX d3dMat;
+        d3dMat.m[0][0] = mat[0][0];
+        d3dMat.m[0][1] = mat[1][0];
+        d3dMat.m[0][2] = mat[2][0];
+        d3dMat.m[0][3] = mat[3][0];
+
+        d3dMat.m[1][0] = mat[0][1];
+        d3dMat.m[1][1] = mat[1][1];
+        d3dMat.m[1][2] = mat[2][1];
+        d3dMat.m[1][3] = mat[3][1];
+
+        d3dMat.m[2][0] = mat[0][2];
+        d3dMat.m[2][1] = mat[1][2];
+        d3dMat.m[2][2] = mat[2][2];
+        d3dMat.m[2][3] = mat[3][2];
+
+        d3dMat.m[3][0] = mat[0][3];
+        d3dMat.m[3][1] = mat[1][3];
+        d3dMat.m[3][2] = mat[2][3];
+        d3dMat.m[3][3] = mat[3][3];
+
+        return d3dMat;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Matrix4 D3D9Mappings::toT3DMatrix(const D3DMATRIX &mat)
+    {
+        Matrix4 t3dMat;
+        t3dMat[0][0] = mat.m[0][0];
+        t3dMat[1][0] = mat.m[0][1];
+        t3dMat[2][0] = mat.m[0][2];
+        t3dMat[3][0] = mat.m[0][3];
+
+        t3dMat[0][1] = mat.m[1][0];
+        t3dMat[1][1] = mat.m[1][1];
+        t3dMat[2][1] = mat.m[1][2];
+        t3dMat[3][1] = mat.m[1][3];
+
+        t3dMat[0][2] = mat.m[2][0];
+        t3dMat[1][2] = mat.m[2][1];
+        t3dMat[2][2] = mat.m[2][2];
+        t3dMat[3][2] = mat.m[2][3];
+
+        t3dMat[0][3] = mat.m[3][0];
+        t3dMat[1][3] = mat.m[3][1];
+        t3dMat[2][3] = mat.m[3][2];
+        t3dMat[3][3] = mat.m[3][3];
+
+        return t3dMat;
+    }
 }
 

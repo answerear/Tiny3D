@@ -79,6 +79,16 @@ namespace Tiny3D
          * @brief 把Tiny3D颜色格式转换成D3D9颜色格式
          */
         static D3DCOLORVALUE get(const ColorARGB &color);
+
+        /**
+         * @brief 转换成D3D矩阵
+         */
+        static D3DMATRIX toD3DMatrix(const Matrix4 &mat);
+
+        /**
+         * @brief 转换成T3D矩阵
+         */
+        static Matrix4 toT3DMatrix(const D3DMATRIX &mat);
     };
 }
 

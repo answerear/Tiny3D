@@ -228,16 +228,25 @@ namespace Tiny3D
             VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo,
             HardwareIndexBufferPtr ibo) override;
 
+        /**
+         * @brief 获取IDirect3D9对象
+         */
         LPDIRECT3D9 getD3D() 
         { 
             return mD3D; 
         }
 
+        /**
+         * @brief 获取IDirect3DDevice9对象
+         */
         LPDIRECT3DDEVICE9 getD3DDevice() 
         { 
             return mD3DDevice; 
         }
 
+        /**
+         * @brief 设置IDirect3DDevice9对象
+         */
         void setD3DDevice(LPDIRECT3DDEVICE9 d3dDevice) 
         { 
             mD3DDevice = d3dDevice; 

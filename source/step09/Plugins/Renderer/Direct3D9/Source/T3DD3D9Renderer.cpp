@@ -22,6 +22,7 @@
 #include "T3DD3D9RenderWindow.h"
 #include "T3DD3D9HardwareBufferManager.h"
 #include "T3DD3D9Error.h"
+#include "T3DD3D9Mappings.h"
 
 
 namespace Tiny3D
@@ -208,6 +209,33 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        do 
+        {
+            HRESULT hr = D3D_OK;
+
+            D3DMATRIX d3dmat = D3D9Mappings::toD3DMatrix(mat);
+
+            switch (state)
+            {
+            case Renderer::E_TS_VIEW:
+                hr = mD3DDevice->SetTransform(D3DTS_VIEW, &d3dmat);
+            	break;
+            case Renderer::E_TS_WORLD:
+                hr = mD3DDevice->SetTransform(D3DTS_WORLD, &d3dmat);
+                break;
+            case Renderer::E_TS_PROJECTION:
+                hr = mD3DDevice->SetTransform(D3DTS_PROJECTION, &d3dmat);
+                break;
+            default:
+                break;
+            }
+
+            if (FAILED(hr))
+            {
+
+            }
+        } while (0);
+
         return ret;
     }
 
@@ -215,7 +243,31 @@ namespace Tiny3D
 
     const Matrix4 &D3D9Renderer::getTransform(TransformState state) const
     {
-        return Matrix4::IDENTITY;
+        HRESULT hr = D3D_OK;
+
+        D3DMATRIX d3dmat;
+
+        switch (state)
+        {
+        case Tiny3D::Renderer::E_TS_VIEW:
+            hr = mD3DDevice->GetTransform(D3DTS_VIEW, &d3dmat);
+            break;
+        case Tiny3D::Renderer::E_TS_WORLD:
+            hr = mD3DDevice->GetTransform(D3DTS_WORLD, &d3dmat);
+            break;
+        case Tiny3D::Renderer::E_TS_PROJECTION:
+            hr = mD3DDevice->GetTransform(D3DTS_PROJECTION, &d3dmat);
+            break;
+        default:
+            break;
+        }
+
+        if (FAILED(hr))
+        {
+
+        }
+
+        return D3D9Mappings::toT3DMatrix(d3dmat);
     }
 
     //--------------------------------------------------------------------------
@@ -223,6 +275,7 @@ namespace Tiny3D
     Matrix4 D3D9Renderer::perspective(Real left, Real right,
         Real top, Real bottom, Real nearDist, Real farDist)
     {
+
         return Matrix4::IDENTITY;
     }
 
@@ -238,16 +291,115 @@ namespace Tiny3D
 
     Matrix4 D3D9Renderer::makeViewportMatrix(ViewportPtr viewport)
     {
-        return Matrix4::IDENTITY;
+        Matrix4 mat(false);
+        mat[0][0] = viewport->getActualWidth() * REAL_HALF;
+        mat[1][1] = -viewport->getActualHeight() * REAL_HALF;
+        mat[2][2] = REAL_ONE;
+        mat[3][3] = REAL_ONE;
+        mat[0][3] = viewport->getActualLeft() 
+            + viewport->getActualWidth() * REAL_HALF;
+        mat[1][3] = viewport->getActualTop() 
+            + viewport->getActualHeight() * REAL_HALF;
+        mat[2][3] = REAL_ZERO;
+        return mat;
     }
 
     //--------------------------------------------------------------------------
 
     TResult D3D9Renderer::updateFrustum(const Matrix4 &m, FrustumBoundPtr bound)
     {
-        TResult ret = T3D_OK;
+        // 快速计算视棱锥六个裁剪平面原理：
+        //
+        //  假设点V'是投影变换后的点，V是投影变换前相机坐标系的点，M是投影变换矩阵，则可得：
+        //      V' = M * V
+        //  其中
+        //      V' = (x' y' z' w')
+        //
+        //      V = (x y z w), (w = 1)
+        //
+        //          | m00 m01 m02 m03 |
+        //      M = | m10 m11 m12 m13 |
+        //          | m20 m21 m22 m23 |
+        //          | m30 m31 m32 m33 |
+        //  则
+        //      | m00 m01 m02 m03 |   | x |   | x*m00 + y*m01 + z*m02 + w*m03 |   | V * row0 |
+        //      | m10 m11 m12 m13 |   | y |   | x*m10 + y*m11 + z*m12 + w*m13 |   | V * row1 |
+        //      | m20 m21 m22 m23 | * | z | = | x*m20 + y*m21 + z*m22 + w*m23 | = | V * row2 |
+        //      | m30 m31 m32 m33 |   | w |   | x*m30 + y*m31 + z*m32 + w*m33 |   | V * row3 |
+        //
+        //  这里的*代表点积，而rowi = (mi0 mi1 mi2 mi3)
+        // 
+        //  经过转换后，V'在齐次裁剪空间里。这个空间实际上现在已经是一个轴对齐的盒子。
+        //  如果V'在这个盒子空间里，则变换前的V点也在这个没有经过变换的盒子空间里。
+        //  这里要分一下DX和OpenGL的区别，因为投影空间不一样：
+        //
+        //      1、在DX里，V'在这个空间里，则符合下面的不等式规则
+        //              -w' < x' < w'
+        //              -w' < y' < w'
+        //               0 < z' < w'
+        //          用 -w' < x' 推导：
+        //              -(V * row3) < (V * row0)
+        //          移动项得：
+        //              0 < (V * row3) + (V * row0)
+        //          合并同类项，最终可得：
+        //              0 < V * (row3 + row0)
+        //
+        //          如此类推可得：
+        //              left    :   0 < V * (row3 + row0)   a=m30+m00, b=m31+m01, c=m32+m02, d=m33+m03
+        //              right   :   0 < V * (row3 - row0)   a=m30-m00, b=m31-m01, c=m32-m02, d=m33-m03
+        //              bottom  :   0 < V * (row3 + row1)   a=m30+m10, b=m31+m11, c=m32+m12, d=m33+m13
+        //              top     :   0 < V * (row3 - row1)   a=m30-m10, b=m31-m11, c=m32-m12, d=m33-m13
+        //              near    :   0 < V * row2            a=m20,     b=m21,     c=m22,     d=m23
+        //              far     :   0 < V * (row3 - row2)   a=m30-m20, b=m31-m21, c=m32-m22, d=m33-m23
+        //
 
-        return ret;
+        Plane plane[Frustum::E_MAX_FACE];
+
+        // Left
+        plane[Frustum::E_FACE_LEFT][0] = m[3][0] + m[0][0];
+        plane[Frustum::E_FACE_LEFT][1] = m[3][1] + m[0][1];
+        plane[Frustum::E_FACE_LEFT][2] = m[3][2] + m[0][2];
+        plane[Frustum::E_FACE_LEFT][3] = m[3][3] + m[0][3];
+        plane[Frustum::E_FACE_LEFT].normalize();
+
+        // Right
+        plane[Frustum::E_FACE_RIGHT][0] = m[3][0] - m[0][0];
+        plane[Frustum::E_FACE_RIGHT][1] = m[3][1] - m[0][1];
+        plane[Frustum::E_FACE_RIGHT][2] = m[3][2] - m[0][2];
+        plane[Frustum::E_FACE_RIGHT][3] = m[3][3] - m[0][3];
+        plane[Frustum::E_FACE_RIGHT].normalize();
+
+        // Bottom
+        plane[Frustum::E_FACE_BOTTOM][0] = m[3][0] + m[1][0];
+        plane[Frustum::E_FACE_BOTTOM][1] = m[3][1] + m[1][1];
+        plane[Frustum::E_FACE_BOTTOM][2] = m[3][2] + m[1][2];
+        plane[Frustum::E_FACE_BOTTOM][3] = m[3][3] + m[1][3];
+        plane[Frustum::E_FACE_BOTTOM].normalize();
+
+        // Top
+        plane[Frustum::E_FACE_TOP][0] = m[3][0] - m[1][0];
+        plane[Frustum::E_FACE_TOP][1] = m[3][1] - m[1][1];
+        plane[Frustum::E_FACE_TOP][2] = m[3][2] - m[1][2];
+        plane[Frustum::E_FACE_TOP][3] = m[3][3] - m[1][3];
+        plane[Frustum::E_FACE_TOP].normalize();
+
+        // Near
+        plane[Frustum::E_FACE_NEAR][0] = m[2][0];
+        plane[Frustum::E_FACE_NEAR][1] = m[2][1];
+        plane[Frustum::E_FACE_NEAR][2] = m[2][2];
+        plane[Frustum::E_FACE_NEAR][3] = m[2][3];
+        plane[Frustum::E_FACE_NEAR].normalize();
+
+        // Far
+        plane[Frustum::E_FACE_FAR][0] = m[3][0] - m[2][0];
+        plane[Frustum::E_FACE_FAR][1] = m[3][1] - m[2][1];
+        plane[Frustum::E_FACE_FAR][2] = m[3][2] - m[2][2];
+        plane[Frustum::E_FACE_FAR][3] = m[3][3] - m[2][3];
+        plane[Frustum::E_FACE_FAR].normalize();
+
+        bound->setFrustumFaces(plane, Frustum::E_MAX_FACE);
+
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -255,6 +407,43 @@ namespace Tiny3D
     TResult D3D9Renderer::setCullingMode(CullingMode mode)
     {
         TResult ret = T3D_OK;
+
+        do 
+        {
+            if (mode == mCullingMode)
+            {
+                // 相同模式就不切换了
+                break;
+            }
+
+            DWORD d3dmode;
+
+            switch (mode)
+            {
+            case E_CULL_NONE:
+                d3dmode = D3DCULL_NONE;
+                break;
+            case E_CULL_CLOCKWISE:
+                d3dmode = D3DCULL_CW;
+                break;
+            case E_CULL_ANTICLOCKWISE:
+                d3dmode = D3DCULL_CCW;
+                break;
+            default:
+                d3dmode = D3DCULL_CCW;
+                break;
+            }
+
+            HRESULT hr = D3D_OK;
+            hr = mD3DDevice->SetRenderState(D3DRS_CULLMODE, d3dmode);
+            if (FAILED(hr))
+            {
+
+            }
+
+            mCullingMode = mode;
+
+        } while (0);
 
         return ret;
     }
@@ -265,6 +454,43 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        do 
+        {
+            if (mode == mRenderMode)
+            {
+                // 相同模式就不切换了
+                break;
+            }
+
+            DWORD d3dmode;
+
+            switch (mode)
+            {
+            case Tiny3D::Renderer::E_RM_POINT:
+                d3dmode = D3DFILL_POINT;
+                break;
+            case Tiny3D::Renderer::E_RM_WIREFRAME:
+                d3dmode = D3DFILL_WIREFRAME;
+                break;
+            case Tiny3D::Renderer::E_RM_SOLID:
+                d3dmode = D3DFILL_SOLID;
+                break;
+            default:
+                d3dmode = D3DFILL_SOLID;
+                break;
+            }
+
+            HRESULT hr = D3D_OK;
+            hr = mD3DDevice->SetRenderState(D3DRS_FILLMODE, d3dmode);
+            if (FAILED(hr))
+            {
+
+            }
+
+            mRenderMode = mode;
+
+        } while (0);
+
         return ret;
     }
 
@@ -273,6 +499,32 @@ namespace Tiny3D
     TResult D3D9Renderer::setViewport(ViewportPtr viewport)
     {
         TResult ret = T3D_OK;
+
+        do 
+        {
+            if (viewport == mViewport)
+            {
+                // 视口相同就不切换了
+                break;
+            }
+
+            D3DVIEWPORT9 d3dvp;
+
+            d3dvp.X = viewport->getActualLeft();
+            d3dvp.Y = viewport->getActualTop();
+            d3dvp.Width = viewport->getActualWidth();
+            d3dvp.Height = viewport->getActualHeight();
+            d3dvp.MinZ = 0.0f;
+            d3dvp.MaxZ = 1.0f;
+
+            HRESULT hr;
+            if (FAILED(hr = mD3DDevice->SetViewport(&d3dvp)))
+            {
+
+            }
+
+            mViewport = viewport;
+        } while (0);
 
         return ret;
     }
