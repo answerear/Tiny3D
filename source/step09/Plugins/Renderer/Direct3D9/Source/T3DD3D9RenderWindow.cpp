@@ -91,7 +91,9 @@ namespace Tiny3D
                     flags |= Window::WINDOW_FULLSCREEN;
                 }
 
-                ret = mWindow->create(param.windowTitle.c_str(),
+                String title = param.windowTitle + " - " 
+                    + D3D9_RENDERER.getName();
+                ret = mWindow->create(title.c_str(),
                     param.windowLeft, param.windowTop,
                     param.windowWidth, param.windowHeight, flags);
                 if (ret != T3D_OK)
