@@ -276,90 +276,43 @@ namespace Tiny3D
         Real top, Real bottom, Real nearDist, Real farDist)
     {
         // Direct3D 9 NDC (Normalized Device Coordinates) is : 
-        //      [left, right] => [-1, 1]
-        //      [bottom, top] => [-1, 1]
-        //      [near, far] => [0, 1]
+        //      [left, right] => [-1, 1] => l <= x <= r
+        //      [bottom, top] => [-1, 1] => b <= y <= t
+        //      [near, far] => [0, 1]    => -n <= z <= -f (Right Hand)
         //
-        // 设：
-        //      观察空间的点 : Ve = (Xe, Ye, Ze)
-        //      投影平面的点 : Vp = (Xp, Yp, Zp)
-        //      裁剪空间的点 : Vc = (Xc, Yc, Zc, Wc)
-        //      NDC的点 : Vn = (Xn, Yn, Zn, Wn)
-        //      左边界 : l
-        //      右边界 : r
-        //      上边界 : t
-        //      下边界 : b
-        //      近平面 : n
-        //      远平面 : f
-        //      投影矩阵 : Mp
+        //  由正交投影矩阵推导过程可得：
+        //      x' = 2x/(r-l) - (r+l)/(r-l)         (1)
+        //      y' = 2y/{t-b) - (t+b)/(t-b)         (2)
         //
-        // 根据相似三角形可得 :
-        //      Xp / Xe = -n / Ze
-        //  则 :
-        //      Xp = (-n * Xe) / Ze = (n * Xe) / (-Ze)
-        // 同理 :
-        //      Yp / Ye = -n / Ze
-        //  则 :
-        //      Yp = (-n * Ye) / Ze = (n * Ye) / (-Ze)
+        //  根据相似三角形可得：
+        //      x0 = nx/-z
+        //      y0 = ny/-z
         //
-        // 因为 :
-        //      | Xc |        | Xe |     | Xn |   | Xc/Wc |
-        //      | Yc | = Mp * | Ye |     | Yn | = | Yc/Wc |
-        //      | Zc |        | Ze |     | Zn |   | Zc/Wc |
-        //      | Wc |        | We |
-        // 又因为 : 
-        //      | Xc |   | . . . . |   | Xe |
-        //      | Yc | = | . . . . | * | Ye |
-        //      | Zc |   | . . . . |   | Ze |
-        //      | Wc |   | 0 0 1 0 |   | We |
-        // 可得 : Wc = Ze
+        //  把 x0 和 y0 代入 (1)、(2) 式中的 x 和 y，可得：
+        //      -zx' = 2nx/(r-l) - (r+l)(-z)/(r-l)     (3)
+        //      -zy' = 2ny/(t-b) - (t+b)(-z)/(t-b)     (4)
         //
-        // 根据 Xp 和 Yp 映射到 Xn 和 Yn (NDC) 是线性关系，即 :
-        //      [left, right] => [-1, 1]
-        //      [bottom, top] => [-1, 1]
-        // 得 :
-        //      Xn = (1 - (-1)) * Xp / (r - l) + C
-        // 把 (r, 1) 代入 (Xp, Xn) 可得 :
-        //      1 = 2 * r / (r - l) + C
-        // 求 C :
-        //      C = - (r + l) / (r - l)
-        // 代入原式，得 :
-        //      Xn = 2Xp / (r - l) - (r + l) / (r - l)
+        //  当 z=-n 时 z'=0，当 z=-f 时 z'=1，即 -n <= z <= -f
+        //  而 zz' 和 z 是一种线性关系，即 
+        //      -zz' = pz + q                        (5)
+        //  
+        //  分别把 z'=0 和 z'=1 代入到 (5) 可得：
+        //      0 = -pn + q                         (6)
+        //      f = -pf + q                         (7)
+        //  把 (6) 和 (7) 联列方程组可解得：
+        //      p = f/(n-f)
+        //      q = nf/(n-f)
         //
-        // 同理可得 :
-        //      Yn = 2Yp / (t - b) - (t + b) / (t - b)
+        //  考虑齐次坐标的w，通常情况下，如正交投影的时候w简单的等于-1，而现在
+        //  我们需要为点 (-zx', -zy', -zz', -zw') 写一个变换，所以取而代之的是把
+        //  w'=1 写成：
+        //      -zw'=-z                              (8)
         //
-        // 进一步整理公式公因式 : 
-        //      Xn = 2Xp / (r - l) - (r + l) / (r - l)
-        //         = [2n/(r - l) * Xe + (r + l)/(r - l) * Ze] / -Ze
-        //      Yn = 2Yp / (t - b) - (t + b) / (t - b)
-        //         = [2n/(t - b) * Ye + (t + b)/(t - b) * Ze] / -Ze
-        //
-        // 从上式看得 :
-        //      | Xc |   | 2n/(r-l)    0     (r+l)/(r-l) 0 |   | Xe |
-        //      | Yc | = |    0     2n/(t-b) (t+b)/(t-b) 0 | * | Ye |
-        //      | Zc |   |    0        0          A      B |   | Ze |
-        //      | Wc |   |    0        0         -1      0 |   | We |
-        // 则 :
-        //      Zn = Zc / Wc = (A * Ze + B * We) / -Ze
-        //
-        // 观察空间中，We = 1，可得 :
-        //      Zn = (A * Ze + B) / -Ze
-        //
-        // 现在问题变成求 A 和 B，我们利用(Ze, Zn)映射关系为(-n, 0)和(-f, 1) 
-        // 代入上式，联列方程组得 :
-        //      (-A * n + B) / n = 0
-        //      (-A * f + B) / f = 1
-        // 解方程组得 :
-        //      A = f / (n - f)
-        //      B = n * f / (n - f)
-        //
-        // 最终求得透视投影矩阵为 :
-        //           | 2n/(r-l)    0     (r+l)/(r-l)    0      |
-        //      Mp = |    0     2n/(t-b) (t+b)/(t-b)    0      |
-        //           |    0        0        f/(n-f)  n*f/(n-f) |
-        //           |    0        0         -1         0      |
-        //
+        //  最后把 p 和 q 代入等式 (5) 与等式 (1)、(2)、(8) 列方程组可得：
+        //      -zx' = 2nx/(r-l) - (r+l)(-z)/(r-l)
+        //      -zy' = 2ny/(t-b) - (t+b)(-z)/(t-b)
+        //      -zz' = fz/(n-f) - nf/(n-f)
+        //      -zw' = z
         return Matrix4::IDENTITY;
     }
 
@@ -368,6 +321,40 @@ namespace Tiny3D
     Matrix4 D3D9Renderer::orthographic(Real left, Real right,
         Real top, Real bottom, Real nearDist, Real farDist)
     {
+        // Direct3D 9 NDC (Normalized Device Coordinates) is : 
+        //      [left, right] => [-1, 1] => l <= x <= r
+        //      [bottom, top] => [-1, 1] => b <= y <= t
+        //      [near, far] => [0, 1]    => -n <= z <= -f (Right Hand)
+        // 
+        //  由 l <= x <= r 
+        //      => 0 <= x-l <= r-l 
+        //      => 0 <= (x-l)/(r-l) <= 1 
+        //      => 0 <= 2(x-l)/(r-) <= 2
+        //      => 0 <= (2x-2l)/(r-l) <= 2
+        //      => -1 <= (2x-2l)/(r-l)-1 <= 1
+        //      => -1 <= (2x-r-l)/(r-l) <= 1
+        //      => -1 <= 2x/(r-l)-(r+l)/(r-l) <= 1
+        //  由上可得： x' = 2x/(r-l) - (r+l)/(r-l)       (1)
+        //
+        //  同理可得： y' = 2y/(t-b) - (t+b)/(t-b)       (2)
+        //
+        //  由 -n <= z <= -f
+        //      => 0 <= z+n <= n-f
+        //      => 0 <= (z+n)/(n-f> <= 1
+        //      => 0 <= z/(n-f) + n/(n-f) <= 1
+        //  由上可得： z' = z/(n-f) + n/(n-f)            (3)
+        //
+        //  由(1)、(2)和(3)等式构成方程组：
+        //      x' = 2x/(r-l) - (r+l)/(r-l) 
+        //      y' = 2y/(t-b) - (t+b)/(t-b)
+        //      z' = z/(n-f) + n/(n-f)
+        //
+        //  由方程组可得矩阵：
+        //          | 2/(r-l)    0       0    -(r+l)/(r-l) |
+        //      M = |    0    2/(t-b)    0    -(t+b)/(t-b) |
+        //          |    0       0    1/(n-f)    n/(n-f)   |
+        //          |    0       0       0          1      |
+
         Real invert0 = REAL_ONE / (right - left);
         Real m00 = Real(2.0) * invert0;
         Real m03 = -(right + left) * invert0;
