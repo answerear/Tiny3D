@@ -47,23 +47,23 @@ namespace Tiny3D
         , mFrustumBound(nullptr)
     {
         mName = Renderer::REFERENCE3D;
-
-        mR3DHardwareBufferMgr = R3DHardwareBufferManager::create();
-        mHardwareBufferMgr 
-            = HardwareBufferManager::create(mR3DHardwareBufferMgr);
     }
 
     R3DRenderer::~R3DRenderer()
     {
-        mRenderWindow = nullptr;
         mHardwareBufferMgr = nullptr;
         mR3DHardwareBufferMgr = nullptr;
+        mRenderWindow = nullptr;
     }
 
     //--------------------------------------------------------------------------
 
     TResult R3DRenderer::init()
     {
+        mR3DHardwareBufferMgr = R3DHardwareBufferManager::create();
+        mHardwareBufferMgr
+            = HardwareBufferManager::create(mR3DHardwareBufferMgr);
+
         size_t i = 0;
 
         for (i = 0; i < E_TS_MAX; ++i)
@@ -76,6 +76,8 @@ namespace Tiny3D
 
     TResult R3DRenderer::destroy()
     {
+        mHardwareBufferMgr = nullptr;
+        mR3DHardwareBufferMgr = nullptr;
         mRenderWindow = nullptr;
         return T3D_OK;
     }
@@ -174,149 +176,147 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Matrix4 R3DRenderer::perspective(Real left, Real right, Real top,
-        Real bottom, Real nearDist, Real farDist)
+    Matrix4 R3DRenderer::perspective(const Radian &fovY, Real aspect,
+        Real nearDist, Real farDist)
     {
         // Reference3D NDC (Normalized Device Coordinates) is : 
-        //      [left, right] => [-1, 1]
-        //      [bottom, top] => [-1, 1]
-        //      [near, far] => [0, 1]
+        //      [left, right] => [-1, 1] => l <= x <= r
+        //      [bottom, top] => [-1, 1] => b <= y <= t
+        //      [near, far] => [0, 1]    => -n <= z <= -f (Right Hand)
         //
-        // 设：
-        //      观察空间的点 : Ve = (Xe, Ye, Ze)
-        //      投影平面的点 : Vp = (Xp, Yp, Zp)
-        //      裁剪空间的点 : Vc = (Xc, Yc, Zc, Wc)
-        //      NDC的点 : Vn = (Xn, Yn, Zn, Wn)
-        //      左边界 : l
-        //      右边界 : r
-        //      上边界 : t
-        //      下边界 : b
-        //      近平面 : n
-        //      远平面 : f
-        //      投影矩阵 : Mp
+        //  由正交投影矩阵推导过程可得：
+        //      x' = 2x/(r-l) - (r+l)/(r-l)                 (1)
+        //      y' = 2y/{t-b) - (t+b)/(t-b)                 (2)
         //
-        // 根据相似三角形可得 :
-        //      Xp / Xe = -n / Ze
-        //  则 :
-        //      Xp = (-n * Xe) / Ze = (n * Xe) / (-Ze)
-        // 同理 :
-        //      Yp / Ye = -n / Ze
-        //  则 :
-        //      Yp = (-n * Ye) / Ze = (n * Ye) / (-Ze)
+        //  根据相似三角形可得：
+        //      x0 = nx/-z
+        //      y0 = ny/-z
         //
-        // 因为 :
-        //      | Xc |        | Xe |     | Xn |   | Xc/Wc |
-        //      | Yc | = Mp * | Ye |     | Yn | = | Yc/Wc |
-        //      | Zc |        | Ze |     | Zn |   | Zc/Wc |
-        //      | Wc |        | We |
-        // 又因为 : 
-        //      | Xc |   | . .  . . |   | Xe |
-        //      | Yc | = | . .  . . | * | Ye |
-        //      | Zc |   | . .  . . |   | Ze |
-        //      | Wc |   | 0 0 -1 0 |   | We |
-        // 可得 : Wc = -Ze
+        //  把 x0 和 y0 代入 (1)、(2) 式中的 x 和 y，可得：
+        //      x' = (2nx/(r-l))/(-z) + ((r+l)z/(r-l))/(-z) (3)
+        //      y' = (2ny/(t-b))/(-z) + ((t+b)z/(t-b))/(-z) (4)
         //
-        // 根据 Xp 和 Yp 映射到 Xn 和 Yn (NDC) 是线性关系，即 :
-        //      [left, right] => [-1, 1]
-        //      [bottom, top] => [-1, 1]
-        // 得 :
-        //      Xn = (1 - (-1)) * Xp / (r - l) + C
-        // 把 (r, 1) 代入 (Xp, Xn) 可得 :
-        //      1 = 2 * r / (r - l) + C
-        // 求 C :
-        //      C = - (r + l) / (r - l)
-        // 代入原式，得 :
-        //      Xn = 2Xp / (r - l) - (r + l) / (r - l)
+        //  当 z=-n 时 z'=0，当 z=-f 时 z'=1，即 -n <= z <= -f
+        //  而 -zz' 和 z 是一种线性关系，即 
+        //      z' = (pz + q) / -z                          (5)
+        //  
+        //  分别把 z'=0 和 z'=1 代入到 (5) 可得：
+        //      0 = -pn + q                                 (6)
+        //      f = -pf + q                                 (7)
+        //  把 (6) 和 (7) 联列方程组可解得：
+        //      p = f/(n-f)
+        //      q = nf/(n-f)
         //
-        // 同理可得 :
-        //      Yn = 2Yp / (t - b) - (t + b) / (t - b)
+        //  考虑齐次坐标的w，通常情况下，如正交投影的时候w简单的等于-1，而现在
+        //  我们需要为点 (-zx', -zy', -zz', -zw') 写一个变换，所以取而代之的是
+        //  把 w'=1 写成：
+        //      -zw' = z                                    (8)
         //
-        // 进一步整理公式公因式 : 
-        //      Xn = 2Xp / (r - l) - (r + l) / (r - l)
-        //         = [2n/(r - l) * Xe + (r + l)/(r - l) * Ze] / -Ze
-        //      Yn = 2Yp / (t - b) - (t + b) / (t - b)
-        //         = [2n/(t - b) * Ye + (t + b)/(t - b) * Ze] / -Ze
+        //  最后把 p 和 q 代入等式 (5) 与等式 (3)、(4)、(8) 列方程组可得：
+        //      x' = (2nx/(r-l))/(-z) + ((r+l)z/(r-l))/(-z)
+        //      y' = (2ny/(t-b))/(-z) + ((t+b)z/(t-b))/(-z)
+        //      z' = (fz/(n-f))/(-z) + (nf/(n-f))/(-z)
+        //      w' = -1
         //
-        // 从上式看得 :
-        //      | Xc |   | 2n/(r-l)    0     (r+l)/(r-l) 0 |   | Xe |
-        //      | Yc | = |    0     2n/(t-b) (t+b)/(t-b) 0 | * | Ye |
-        //      | Zc |   |    0        0          A      B |   | Ze |
-        //      | Wc |   |    0        0         -1      0 |   | We |
-        // 则 :
-        //      Zn = Zc / Wc = (A * Ze + B * We) / -Ze
+        //  通过矩阵形式表达上述方程组，可得：
+        //          | 2n/(r-l)    0     (r+l)/(r-l)    0     |
+        //      M = |    0     2n/(t-b) (t+b)/(t-b)    0     |      [1]
+        //          |    0        0       f/(n-f)   nf/(n-f) |
+        //          |    0        0         -1         0     |
         //
-        // 观察空间中，We = 1，可得 :
-        //      Zn = (A * Ze + B) / -Ze
+        //  一般情况下，相机都看屏幕正中，所以左右对称，上下对称，则可简化为：
+        //          | 2n/w  0      0       0     |
+        //      M = |  0   2n/h    0       0     |                  [2]
+        //          |  0    0   f/(n-f) nf/(n-f) |
+        //          |  0    0     -1       0     |
         //
-        // 现在问题变成求 A 和 B，我们利用(Ze, Zn)映射关系为(-n, 0)和(-f, 1) 
-        // 代入上式，联列方程组得 :
-        //      (-A * n + B) / n = 0
-        //      (-A * f + B) / f = 1
-        // 解方程组得 :
-        //      A = f / (n - f)
-        //      B = n * f / (n - f)
+        //  fovY 是指 top 和 bottom 之间夹角，则：
+        //      tan(fovY/2) = (h/2)/n
+        //  aspect 是指宽高比，即：
+        //      aspect = w/h
         //
-        // 最终求得透视投影矩阵为 :
-        //           | 2n/(r-l)    0     (r+l)/(r-l)    0      |
-        //      Mp = |    0     2n/(t-b) (t+b)/(t-b)    0      |
-        //           |    0        0        f/(n-f)  n*f/(n-f) |
-        //           |    0        0         -1         0      |
+        //  从上可得 ：
+        //      h = 2 * n * tan(fovY/2)
+        //      w = aspect * h
+        //      w = aspect * 2 * n * tan(fovY/2)
         //
+        //  把上述代入矩阵[2]，可得：
+        //          | 1/(aspect*tan(fovY/2))       0          0       0     |
+        //      M = |           0            1/tan(fovY/2)    0       0     |
+        //          |           0                  0       f/(n-f) nf/(n-f) |
+        //          |           0                  0         -1       0     |
 
-        Real width = right - left;
-        Real height = top - bottom;
-        Real distance = nearDist - farDist;
-
-        Real invertW = REAL_ONE / width;
-        Real invertH = REAL_ONE / height;
-        Real invertD = REAL_ONE / distance;
-
-        Real m00 = 2 * nearDist * invertW;
-        Real m02 = (right + left) * invertW;
-        Real m11 = 2 * nearDist * invertH;
-        Real m12 = (top + bottom) * invertH;
-        Real m22 = farDist * invertD;
-        Real m23 = nearDist * farDist  * invertD;
+        Radian radian = fovY * REAL_HALF;
+        Real m11 = REAL_ONE / (Math::tan(radian));
+        Real m00 = m11 / aspect;
+        Real m22 = farDist / (nearDist - farDist);
+        Real m23 = nearDist * m22;
 
         return Matrix4(
-            m00, 0, m02, 0,
-            0, m11, m12, 0,
+            m00, 0, 0, 0,
+            0, m11, 0, 0,
             0, 0, m22, m23,
             0, 0, -1, 0);
     }
 
     //--------------------------------------------------------------------------
 
-    Matrix4 R3DRenderer::orthographic(Real left, Real right, Real top,
-        Real bottom, Real nearDist, Real farDist)
+    Matrix4 R3DRenderer::orthographic(Real width, Real height, 
+        Real nearDist, Real farDist)
     {
-        // 参考透视投影的推导
+        // Reference3D 9 NDC (Normalized Device Coordinates) is : 
+        //      [left, right] => [-1, 1] => l <= x <= r
+        //      [bottom, top] => [-1, 1] => b <= y <= t
+        //      [near, far] => [0, 1]    => -n <= z <= -f (Right Hand)
+        // 
+        //  由 l <= x <= r 
+        //      => 0 <= x-l <= r-l 
+        //      => 0 <= (x-l)/(r-l) <= 1 
+        //      => 0 <= 2(x-l)/(r-) <= 2
+        //      => 0 <= (2x-2l)/(r-l) <= 2
+        //      => -1 <= (2x-2l)/(r-l)-1 <= 1
+        //      => -1 <= (2x-r-l)/(r-l) <= 1
+        //      => -1 <= 2x/(r-l)-(r+l)/(r-l) <= 1
+        //  由上可得： x' = 2x/(r-l) - (r+l)/(r-l)       (1)
         //
-        //      | 2/(r-l)     0       0    -(r+l)/(r-l) |
-        // Mp = |    0     2/(t-b)    0    -(t+b)/(t-b) |
-        //      |    0        0    1/(n-f)    n/(n-f)   |
-        //      |    0        0       0         1       |
+        //  同理可得： y' = 2y/(t-b) - (t+b)/(t-b)       (2)
+        //
+        //  由 -n <= z <= -f
+        //      => 0 <= z+n <= n-f
+        //      => 0 <= (z+n)/(n-f> <= 1
+        //      => 0 <= z/(n-f) + n/(n-f) <= 1
+        //  由上可得： z' = z/(n-f) + n/(n-f)            (3)
+        //
+        //  由(1)、(2)和(3)等式构成方程组：
+        //      x' = 2x/(r-l) - (r+l)/(r-l) 
+        //      y' = 2y/(t-b) - (t+b)/(t-b)
+        //      z' = z/(n-f) + n/(n-f)
+        //
+        //  由方程组可得矩阵：
+        //          | 2/(r-l)    0       0    -(r+l)/(r-l) |
+        //      M = |    0    2/(t-b)    0    -(t+b)/(t-b) |        [1]
+        //          |    0       0    1/(n-f)    n/(n-f)   |
+        //          |    0       0       0          1      |
+        //
+        //  一般情况下，相机都看屏幕正中，所以左右对称，上下对称，则可简化为：
+        //          | 2/w  0     0       0    |
+        //      M = |  0  2/h    0       0    |                     [2]
+        //          |  0   0  f/(n-f) n/(n-f) |
+        //          |  0   0     0       1    |
+        //
 
-        Real width = right - left;
-        Real height = top - bottom;
-        Real distance = nearDist - farDist;
-
-        Real invertW = REAL_ONE / width;
-        Real invertH = REAL_ONE / height;
-        Real invertD = REAL_ONE / distance;
-
-        Real m00 = 2 * invertW;
-        Real m03 = -(right + left) * invertW;
-        Real m11 = 2 * invertH;
-        Real m13 = -(top - bottom) * invertH;
-        Real m22 = invertD;
-        Real m23 = nearDist * invertD;
+        Real invert0 = REAL_ONE / width;
+        Real m00 = Real(2.0) * invert0;
+        Real invert1 = REAL_ONE / height;
+        Real m11 = Real(2.0) * invert1;
+        Real m22 = REAL_ONE / (nearDist - farDist);
+        Real m23 = nearDist * m22;
 
         return Matrix4(
-            m00,   0,   0, m03,
-              0, m11,   0, m13,
-              0,   0, m22, m23,
-              0,   0,   0,   1);
+            m00, 0, 0, 0,
+            0, m11, 0, 0,
+            0, 0, m22, m23,
+            0, 0, 0, 1);
     }
 
     //--------------------------------------------------------------------------

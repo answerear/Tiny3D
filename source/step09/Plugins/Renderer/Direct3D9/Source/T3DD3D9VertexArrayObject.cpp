@@ -70,6 +70,7 @@ namespace Tiny3D
         Renderer::PrimitiveType priType)
     {
         mPrimitiveType = priType;
+        setDirty(true);
         return T3D_OK;
     }
 
@@ -86,6 +87,7 @@ namespace Tiny3D
         VertexDeclarationPtr decl)
     {
         mDecl = decl;
+        setDirty(true);
         return T3D_OK;
     }
 
@@ -101,6 +103,7 @@ namespace Tiny3D
     TResult D3D9VertexArrayObject::addVertexBuffer(HardwareVertexBufferPtr vbo)
     {
         mVBOList.push_back(vbo);
+        setDirty(true);
         return T3D_OK;
     }
 
@@ -138,6 +141,7 @@ namespace Tiny3D
     TResult D3D9VertexArrayObject::setIndexBuffer(HardwareIndexBufferPtr ibo)
     {
         mIBO = ibo;
+        setDirty(true);
         return T3D_OK;
     }
 

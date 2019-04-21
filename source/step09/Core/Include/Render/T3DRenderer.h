@@ -258,10 +258,8 @@ namespace Tiny3D
 
         /**
          * @brief 获取透视投影矩阵
-         * @param [in] left : 观察空间的左边
-         * @param [in] right : 观察空间的右边
-         * @param [in] top : 观察空间的上边
-         * @param [in] bottom : 观察空间的下边
+         * @param [in] fovY : top和bottom的夹角
+         * @param [in] aspect : 宽高比
          * @param [in] nearDist : 观察空间的近平面
          * @param [in] farDist : 观察空间的远平面
          * @return 返回一个平台相关的透视投影矩阵
@@ -273,15 +271,13 @@ namespace Tiny3D
          *      Metal : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
          *      Reference3D : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
          */
-        virtual Matrix4 perspective(Real left, Real right, Real top, 
-            Real bottom, Real nearDist, Real farDist) = 0;
+        virtual Matrix4 perspective(const Radian &fovY, Real aspect, 
+            Real nearDist, Real farDist) = 0;
 
         /**
          * @brief 获取正交投影矩阵
-         * @param [in] left : 观察空间的左边
-         * @param [in] right : 观察空间的右边
-         * @param [in] top : 观察空间的上边
-         * @param [in] bottom : 观察空间的下边
+         * @param [in] width : 投影平面宽度
+         * @param [in] height : 投影平面高度
          * @param [in] nearDist : 观察空间的近平面
          * @param [in] farDist : 观察空间的远平面
          * @return 返回一个平台相关的正交投影矩阵
@@ -293,8 +289,8 @@ namespace Tiny3D
          *      Metal : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
          *      Reference3D : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
          */
-        virtual Matrix4 orthographic(Real left, Real right, Real top, 
-            Real bottom, Real nearDist, Real farDist) = 0;
+        virtual Matrix4 orthographic(Real width, Real height, 
+            Real nearDist, Real farDist) = 0;
 
         /**
          * @brief 根据视口生成渲染器相关的视口变换矩阵

@@ -19,5 +19,87 @@
 
 
 #include "Render/T3DVertexArrayObject.h"
+#include "Render/T3DHardwareVertexBuffer.h"
+#include "Render/T3DHardwareIndexBuffer.h"
 
 
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    VertexArrayObject::VertexArrayObject()
+        : mPrimitiveCount(0)
+        , mIsDirty(false)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    VertexArrayObject::~VertexArrayObject()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t VertexArrayObject::getPrimitiveCount() const
+    {
+        if (mIsDirty)
+        {
+            mPrimitiveCount = calcPrimitiveCount();
+            mIsDirty = false;
+        }
+
+        return mPrimitiveCount;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t VertexArrayObject::calcPrimitiveCount() const
+    {
+        size_t primCount = 0;
+        HardwareIndexBufferPtr ibo = getIndexBuffer();
+        HardwareVertexBufferPtr vbo = getVertexBuffer(0);
+
+        if (ibo == nullptr && vbo == nullptr)
+        {
+            return 0;
+        }
+
+        switch (getPrimitiveType())
+        {
+        case Renderer::E_PT_POINT_LIST:
+            primCount = (isIndicesUsed() 
+                ? ibo->getIndexCount() : vbo->getVertexCount());
+            break;
+
+        case Renderer::E_PT_LINE_LIST:
+            primCount = (isIndicesUsed() 
+                ? ibo->getIndexCount() : vbo->getVertexCount()) / 2;
+            break;
+
+        case Renderer::E_PT_LINE_STRIP:
+            primCount = (isIndicesUsed() 
+                ? ibo->getIndexCount() : vbo->getVertexCount()) - 1;
+            break;
+
+        case Renderer::E_PT_TRIANGLE_LIST:
+            primCount = (isIndicesUsed() 
+                ? ibo->getIndexCount() : vbo->getVertexCount()) / 3;
+            break;
+
+        case Renderer::E_PT_TRIANGLE_STRIP:
+            primCount = (isIndicesUsed() 
+                ? ibo->getIndexCount() : vbo->getVertexCount()) - 2;
+            break;
+
+        case Renderer::E_PT_TRIANGLE_FAN:
+            primCount = (isIndicesUsed() 
+                ? ibo->getIndexCount() : vbo->getVertexCount()) - 2;
+            break;
+        }
+
+        return primCount;
+    }
+}

@@ -108,16 +108,24 @@ namespace Tiny3D
         ProjectionType getProjectionType() const;
 
         /**
-         * @brief 设置投影变换需要的参数
-         * @param [in] left : 视锥体左边界
-         * @param [in] right : 视锥体右边界
-         * @param [in] top : 视锥体上边界
-         * @param [in] bottom : 视锥体下边界
+         * @brief 设置透视投影变换需要的参数
+         * @param [in] fovY : top和bottom的夹角
+         * @param [in] aspect : 投影平面宽高比
          * @param [in] nearDist : 近平面距离
          * @param [in] farDist : 远平面距离
          */
-        void setProjectionParams(Real left, Real right, Real top, Real bottom,
+        void setPerspectiveParams(const Radian &fovY, Real aspect,
             Real nearDist, Real farDist);
+
+        /**
+         * @brief 设置正交投影变换需要的参数
+         * @param [in] width : 视口宽度
+         * @param [in] height : 视口高度
+         * @param [in] nearDist : 近平面距离
+         * @param [in] farDist : 远平面距离
+         */
+        void setOrthographicParams(Real width, Real height, Real nearDist,
+            Real farDist);
 
         /**
          * @brief 获取宽高比
@@ -129,7 +137,7 @@ namespace Tiny3D
          * @brief 获取纵向视角大小
          * @return 返回纵向视角大小
          */
-        Radian getFovY() const;
+        const Radian &getFovY() const;
 
         /**
          * @brief 获取近平面距离
@@ -195,10 +203,10 @@ namespace Tiny3D
 
         uint32_t        mObjectMask;    /**< 相机看到的物体掩码 */
 
-        Real            mLeft;          /**< 视锥体左边界 */
-        Real            mRight;         /**< 视锥体右边界 */
-        Real            mTop;           /**< 视锥体上边界 */
-        Real            mBottom;        /**< 视锥体下边界 */
+        Radian          mFovY;          /**< 上下平面夹角，用于透视投影 */
+        Real            mAspectRatio;   /**< 宽高比，用于透视投影 */
+        Real            mWidth;         /**< 视口宽度，用于正交投影 */
+        Real            mHeight;        /**< 视口高度，用于正交投影 */
         Real            mNear;          /**< 近平面距离 */
         Real            mFar;           /**< 远平面距离 */
 

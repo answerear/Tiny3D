@@ -46,11 +46,14 @@ bool Drawing3DApp::applicationDidFinishLaunching()
 
     // 相机
     SGCameraPtr camera = T3D_SCENE_MGR.createCamera(root);
-    camera->lookAt(Vector3(0.0f, 0.0f, 2.0f), Vector3::ZERO, Vector3::UNIT_Y);
+    camera->lookAt(Vector3(0.0f, 4.0f, 8.0f), Vector3::ZERO, Vector3::UNIT_Y);
     camera->setProjectionType(SGCamera::E_PT_PERSPECTIVE);
-    size_t halfW = renderWindow->getWidth() >> 1;
-    size_t halfH = renderWindow->getHeight() >> 1;
-    camera->setProjectionParams(-halfW, halfW, -halfH, halfH, 0.5f, 1000.0f);
+    Real w = renderWindow->getWidth();
+    Real h = renderWindow->getHeight();
+    Real aspect = w / h;
+    Radian fovY(Math::PI * REAL_HALF);
+    camera->setPerspectiveParams(fovY, aspect, 0.5f, 1000.0f);
+    camera->setOrthographicParams(w, h, 0.5f, 1000.0f);
     camera->setObjectMask(OBJ_MASK_SCENE);
 
     // 视口
@@ -61,13 +64,14 @@ bool Drawing3DApp::applicationDidFinishLaunching()
     // 箱子
     Vector3 extent(1.0f, 1.0f, 1.0f);
     SGBoxPtr box = T3D_SCENE_MGR.createBox(Vector3::ZERO, extent, root);
-    box->setPosition(Vector3(-2.5f, 0.0f, 0.0f));
+    box->setPosition(Vector3(-4.0f, 0.0f, -2.0f));
     box->setCameraMask(OBJ_MASK_SCENE);
+//     box->setScaling(Vector3(100, 100, 100));
 
     // 球
-    SGSpherePtr sphere = T3D_SCENE_MGR.createSphere(Vector3::ZERO, 1.0f, root);
-    sphere->setPosition(Vector3(2.0f, 0.0f, 0.0f));
-    sphere->setCameraMask(OBJ_MASK_SCENE);
+//     SGSpherePtr sphere = T3D_SCENE_MGR.createSphere(Vector3::ZERO, 1.0f, root);
+//     sphere->setPosition(Vector3(2.0f, 0.0f, 0.0f));
+//     sphere->setCameraMask(OBJ_MASK_SCENE);
 
     // 空间四边形
     

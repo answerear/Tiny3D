@@ -36,13 +36,13 @@ namespace Tiny3D
     {
         BoxVertex()
             : position(Vector3::ZERO)
-            , diffuse(ColorRGB::WHITE)
+            , diffuse(Color4::WHITE.A8R8G8B8())
         {
 
         }
 
         Vector3     position;
-        ColorRGB     diffuse;
+        uint32_t    diffuse;
     };
 
     //--------------------------------------------------------------------------
@@ -225,7 +225,8 @@ namespace Tiny3D
         BoxVertex *vert = (BoxVertex *)vertices;
 
         Vector3 offset;
-        const ColorRGB &color = ColorRGB::WHITE;
+        uint32_t color = Color4::WHITE.A8R8G8B8();
+
 
         // V0
         offset[0] = -mExtent[0];
@@ -296,8 +297,8 @@ namespace Tiny3D
         indices[15] = 0, indices[16] = 7, indices[17] = 1;
 
         // Right
-        indices[18] = 0, indices[19] = 6, indices[20] = 7;
-        indices[21] = 0, indices[22] = 7, indices[23] = 1;
+        indices[18] = 2, indices[19] = 3, indices[20] = 4;
+        indices[21] = 3, indices[22] = 5, indices[23] = 4;
 
         // Top
         indices[24] = 0, indices[25] = 2, indices[26] = 6;
@@ -305,7 +306,7 @@ namespace Tiny3D
 
         // Bottom
         indices[30] = 1, indices[31] = 7, indices[32] = 3;
-        indices[33] = 1, indices[34] = 5, indices[35] = 3;
+        indices[33] = 3, indices[34] = 7, indices[35] = 5;
     }
 
     //--------------------------------------------------------------------------

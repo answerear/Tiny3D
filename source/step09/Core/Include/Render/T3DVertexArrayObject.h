@@ -37,7 +37,15 @@ namespace Tiny3D
     class T3D_ENGINE_API VertexArrayObject : public Object
     {
     public:
-        T3D_DECLARE_INTERFACE(VertexArrayObject);
+        /**
+         * @brief 构造函数
+         */
+        VertexArrayObject();
+
+        /**
+         * @brief 析构函数
+         */
+        virtual ~VertexArrayObject();
 
         /**
          * @brief 开始绑定VAO
@@ -109,6 +117,31 @@ namespace Tiny3D
          * @remarks 如果返回 false 
          */
         virtual bool isIndicesUsed() const = 0;
+
+        /**
+         * @brief 获取图元数量
+         */
+        size_t getPrimitiveCount() const;
+
+    protected:
+        /**
+         * @brief 计算图元数量
+         */
+        size_t calcPrimitiveCount() const;
+
+        /**
+         * @brief 设置是否需要重新计算图元数量
+         */
+        void setDirty(bool dirty) { mIsDirty = dirty; }
+
+        /**
+         * @brief 获取图元数量是否需要重新计算
+         */
+        bool isDirty() const { return mIsDirty; }
+
+    private:
+        mutable size_t  mPrimitiveCount;    /**< 图元数量 */
+        mutable bool    mIsDirty;           /**< 是否需要重新计算图元数量 */
     };
 }
 

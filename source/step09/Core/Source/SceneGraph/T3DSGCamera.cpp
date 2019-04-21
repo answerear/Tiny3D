@@ -51,10 +51,8 @@ namespace Tiny3D
         , mBound(nullptr)
         , mProjType(E_PT_PERSPECTIVE)
         , mObjectMask(0)
-        , mLeft(REAL_ZERO)
-        , mRight(REAL_ZERO)
-        , mTop(REAL_ZERO)
-        , mBottom(REAL_ZERO)
+        , mFovY(Math::PI * REAL_HALF)
+        , mAspectRatio(16.0f/9.0f)
         , mNear(REAL_ZERO)
         , mFar(REAL_ZERO)
         , mViewMatrix(false)
@@ -102,6 +100,7 @@ namespace Tiny3D
         Vector3 U = N.cross(V);
         U.normalize();
         V = U.cross(N);
+        V.normalize();
 
         setPosition(pos);
 
@@ -157,6 +156,9 @@ namespace Tiny3D
 
             mViewMatrix = invertS * invertR * invertT;
 
+            RendererPtr renderer = T3D_AGENT.getActiveRenderer();
+            renderer->setViewTransform(mViewMatrix);
+
             mIsViewDirty = false;
         }
 
@@ -175,18 +177,20 @@ namespace Tiny3D
             {
             case E_PT_ORTHOGRAPHIC:
                 {
-                    mProjMatrix = renderer->orthographic(mLeft, mRight,
-                        mTop, mBottom, mNear, mFar);
+                    mProjMatrix = renderer->orthographic(mWidth, mHeight, 
+                        mNear, mFar);
                 }
                 break;
             case E_PT_PERSPECTIVE:
             default:
                 {
-                    mProjMatrix = renderer->perspective(mLeft, mRight,
-                        mTop, mBottom, mNear, mFar);
+                    mProjMatrix = renderer->perspective(mFovY, mAspectRatio, 
+                        mNear, mFar);
                 }
                 break;
             }
+
+            renderer->setProjectionTransform(mProjMatrix);
 
             mIsFrustumDirty = false;
         }
@@ -219,10 +223,8 @@ namespace Tiny3D
             SGCameraPtr camera = smart_pointer_cast<SGCamera>(node);
             camera->mProjType = mProjType;
             camera->mObjectMask = mObjectMask;
-            camera->mLeft = mLeft;
-            camera->mRight = mRight;
-            camera->mTop = mTop;
-            camera->mBottom = mBottom;
+            camera->mFovY = mFovY;
+            camera->mAspectRatio = mAspectRatio;
             camera->mNear = mNear;
             camera->mFar = mFar;
             camera->mViewMatrix = mViewMatrix;

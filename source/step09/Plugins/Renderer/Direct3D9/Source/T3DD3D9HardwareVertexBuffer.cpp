@@ -156,7 +156,6 @@ namespace Tiny3D
                 break;
             }
 
-            char *pLockedData = nullptr;
             HRESULT hr = mD3DVertexBuffer->Lock(offset, size, 
                 (void **)&pLockedData, D3D9Mappings::get(mUsage, options));
             if (FAILED(hr))

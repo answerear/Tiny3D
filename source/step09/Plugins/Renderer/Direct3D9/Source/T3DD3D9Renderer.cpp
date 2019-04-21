@@ -21,6 +21,11 @@
 #include "T3DD3D9Renderer.h"
 #include "T3DD3D9RenderWindow.h"
 #include "T3DD3D9HardwareBufferManager.h"
+#include "T3DD3D9VertexArrayObject.h"
+#include "T3DD3D9VertexDeclaration.h"
+#include "T3DD3D9HardwareVertexBuffer.h"
+#include "T3DD3D9HardwareIndexBuffer.h"
+#include "T3DD3D9HardwarePixelBuffer.h"
 #include "T3DD3D9Error.h"
 #include "T3DD3D9Mappings.h"
 
@@ -51,7 +56,8 @@ namespace Tiny3D
 
     D3D9Renderer::~D3D9Renderer()
     {
-
+        mHardwareBufferMgr = nullptr;
+        mD3DHardwareBufferMgr = nullptr;
     }
 
     //--------------------------------------------------------------------------
@@ -62,6 +68,10 @@ namespace Tiny3D
 
         do 
         {
+            mD3DHardwareBufferMgr = D3D9HardwareBufferManager::create();
+            mHardwareBufferMgr
+                = HardwareBufferManager::create(mD3DHardwareBufferMgr);
+
             // 创建 IDirect3D9 对象
             mD3D = ::Direct3DCreate9(D3D_SDK_VERSION);
             if (nullptr == mD3D)
@@ -94,6 +104,8 @@ namespace Tiny3D
 
         do 
         {
+            mHardwareBufferMgr = nullptr;
+            mD3DHardwareBufferMgr = nullptr;
             D3D_SAFE_RELEASE(mD3D);
         } while (0);
 
@@ -128,6 +140,7 @@ namespace Tiny3D
                 break;
             }
 
+            setCullingMode(E_CULL_CLOCKWISE);
         } while (0);
 
         return window;
@@ -214,6 +227,7 @@ namespace Tiny3D
             HRESULT hr = D3D_OK;
 
             D3DMATRIX d3dmat = D3D9Mappings::toD3DMatrix(mat);
+            D3DMATRIX out;
 
             switch (state)
             {
@@ -272,8 +286,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Matrix4 D3D9Renderer::perspective(Real left, Real right,
-        Real top, Real bottom, Real nearDist, Real farDist)
+    Matrix4 D3D9Renderer::perspective(const Radian &fovY, Real aspect,
+        Real nearDist, Real farDist)
     {
         // Direct3D 9 NDC (Normalized Device Coordinates) is : 
         //      [left, right] => [-1, 1] => l <= x <= r
@@ -281,45 +295,84 @@ namespace Tiny3D
         //      [near, far] => [0, 1]    => -n <= z <= -f (Right Hand)
         //
         //  由正交投影矩阵推导过程可得：
-        //      x' = 2x/(r-l) - (r+l)/(r-l)         (1)
-        //      y' = 2y/{t-b) - (t+b)/(t-b)         (2)
+        //      x' = 2x/(r-l) - (r+l)/(r-l)                 (1)
+        //      y' = 2y/{t-b) - (t+b)/(t-b)                 (2)
         //
         //  根据相似三角形可得：
         //      x0 = nx/-z
         //      y0 = ny/-z
         //
         //  把 x0 和 y0 代入 (1)、(2) 式中的 x 和 y，可得：
-        //      -zx' = 2nx/(r-l) - (r+l)(-z)/(r-l)     (3)
-        //      -zy' = 2ny/(t-b) - (t+b)(-z)/(t-b)     (4)
+        //      x' = (2nx/(r-l))/(-z) + ((r+l)z/(r-l))/(-z) (3)
+        //      y' = (2ny/(t-b))/(-z) + ((t+b)z/(t-b))/(-z) (4)
         //
         //  当 z=-n 时 z'=0，当 z=-f 时 z'=1，即 -n <= z <= -f
-        //  而 zz' 和 z 是一种线性关系，即 
-        //      -zz' = pz + q                        (5)
+        //  而 -zz' 和 z 是一种线性关系，即 
+        //      z' = (pz + q) / -z                          (5)
         //  
         //  分别把 z'=0 和 z'=1 代入到 (5) 可得：
-        //      0 = -pn + q                         (6)
-        //      f = -pf + q                         (7)
+        //      0 = -pn + q                                 (6)
+        //      f = -pf + q                                 (7)
         //  把 (6) 和 (7) 联列方程组可解得：
         //      p = f/(n-f)
         //      q = nf/(n-f)
         //
         //  考虑齐次坐标的w，通常情况下，如正交投影的时候w简单的等于-1，而现在
-        //  我们需要为点 (-zx', -zy', -zz', -zw') 写一个变换，所以取而代之的是把
-        //  w'=1 写成：
-        //      -zw'=-z                              (8)
+        //  我们需要为点 (-zx', -zy', -zz', -zw') 写一个变换，所以取而代之的是
+        //  把 w'=1 写成：
+        //      -zw' = z                                    (8)
         //
-        //  最后把 p 和 q 代入等式 (5) 与等式 (1)、(2)、(8) 列方程组可得：
-        //      -zx' = 2nx/(r-l) - (r+l)(-z)/(r-l)
-        //      -zy' = 2ny/(t-b) - (t+b)(-z)/(t-b)
-        //      -zz' = fz/(n-f) - nf/(n-f)
-        //      -zw' = z
-        return Matrix4::IDENTITY;
+        //  最后把 p 和 q 代入等式 (5) 与等式 (3)、(4)、(8) 列方程组可得：
+        //      x' = (2nx/(r-l))/(-z) + ((r+l)z/(r-l))/(-z)
+        //      y' = (2ny/(t-b))/(-z) + ((t+b)z/(t-b))/(-z)
+        //      z' = (fz/(n-f))/(-z) + (nf/(n-f))/(-z)
+        //      w' = -1
+        //
+        //  通过矩阵形式表达上述方程组，可得：
+        //          | 2n/(r-l)    0     (r+l)/(r-l)    0     |
+        //      M = |    0     2n/(t-b) (t+b)/(t-b)    0     |      [1]
+        //          |    0        0       f/(n-f)   nf/(n-f) |
+        //          |    0        0         -1         0     |
+        //
+        //  一般情况下，相机都看屏幕正中，所以左右对称，上下对称，则可简化为：
+        //          | 2n/w  0      0       0     |
+        //      M = |  0   2n/h    0       0     |                  [2]
+        //          |  0    0   f/(n-f) nf/(n-f) |
+        //          |  0    0     -1       0     |
+        //
+        //  fovY 是指 top 和 bottom 之间夹角，则：
+        //      tan(fovY/2) = (h/2)/n
+        //  aspect 是指宽高比，即：
+        //      aspect = w/h
+        //
+        //  从上可得 ：
+        //      h = 2 * n * tan(fovY/2)
+        //      w = aspect * h
+        //      w = aspect * 2 * n * tan(fovY/2)
+        //
+        //  把上述代入矩阵[2]，可得：
+        //          | 1/(aspect*tan(fovY/2))       0          0       0     |
+        //      M = |           0            1/tan(fovY/2)    0       0     |
+        //          |           0                  0       f/(n-f) nf/(n-f) |
+        //          |           0                  0         -1       0     |
+
+        Radian radian = fovY * REAL_HALF;
+        Real m11 = REAL_ONE / (Math::tan(radian));
+        Real m00 = m11 / aspect;
+        Real m22 = farDist / (nearDist - farDist);
+        Real m23 = nearDist * m22;
+
+        return Matrix4(
+            m00,   0,   0,   0,
+              0, m11,   0,   0,
+              0,   0, m22, m23,
+              0,   0,  -1,   0);
     }
 
     //--------------------------------------------------------------------------
 
-    Matrix4 D3D9Renderer::orthographic(Real left, Real right,
-        Real top, Real bottom, Real nearDist, Real farDist)
+    Matrix4 D3D9Renderer::orthographic(Real width, Real height, 
+        Real nearDist, Real farDist)
     {
         // Direct3D 9 NDC (Normalized Device Coordinates) is : 
         //      [left, right] => [-1, 1] => l <= x <= r
@@ -351,22 +404,39 @@ namespace Tiny3D
         //
         //  由方程组可得矩阵：
         //          | 2/(r-l)    0       0    -(r+l)/(r-l) |
-        //      M = |    0    2/(t-b)    0    -(t+b)/(t-b) |
+        //      M = |    0    2/(t-b)    0    -(t+b)/(t-b) |        [1]
         //          |    0       0    1/(n-f)    n/(n-f)   |
         //          |    0       0       0          1      |
+        //
+        //  一般情况下，相机都看屏幕正中，所以左右对称，上下对称，则可简化为：
+        //          | 2/w  0     0       0    |
+        //      M = |  0  2/h    0       0    |                     [2]
+        //          |  0   0  1/(n-f) n/(n-f) |
+        //          |  0   0     0       1    |
+        //  fovY 是指 top 和 bottom 之间夹角，则：
+        //      tan(fovY/2) = (h/2)/n
+        //  aspect 是指宽高比，即：
+        //      aspect = w/h
+        //
+        //  从上可得 ：
+        //      h = 2 * n * tan(fovY/2)
+        //      w = aspect * h
+        //      w = aspect * 2 * n * tan(fovY/2)
+        //
+        //  把上述代入矩阵[2]，可得：
+        //          | 1/(aspect*n*tan(fovY/2))       0            0       0    |
+        //      M = |            0             1/n*tan(fovY/2)    0       0    |
+        //          |            0                  0          1/(n-f) n/(n-f) |
+        //          |            0                  0             0       1    |
 
-        Real invert0 = REAL_ONE / (right - left);
-        Real m00 = Real(2.0) * invert0;
-        Real m03 = -(right + left) * invert0;
-        Real invert1 = REAL_ONE / (top - bottom);
-        Real m11 = Real(2.0) * invert1;
-        Real m13 = -(top + bottom) * invert1;
+        Real m00 = Real(2.0) / width;
+        Real m11 = Real(2.0) / height;
         Real m22 = REAL_ONE / (nearDist - farDist);
-        Real m23 = -farDist * m22;
+        Real m23 = nearDist * m22;
 
         return Matrix4(
-            m00,   0,   0, m03,
-              0, m11,   0, m13,
+            m00,   0,   0,   0,
+              0, m11,   0,   0,
               0,   0, m22, m23,
               0,   0,   0,   1);
     }
@@ -548,23 +618,25 @@ namespace Tiny3D
 
             DWORD d3dmode;
 
+            HRESULT hr = D3D_OK;
+
             switch (mode)
             {
             case Tiny3D::Renderer::E_RM_POINT:
                 d3dmode = D3DFILL_POINT;
+                hr = mD3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
                 break;
             case Tiny3D::Renderer::E_RM_WIREFRAME:
                 d3dmode = D3DFILL_WIREFRAME;
+                hr = mD3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
                 break;
             case Tiny3D::Renderer::E_RM_SOLID:
-                d3dmode = D3DFILL_SOLID;
-                break;
             default:
                 d3dmode = D3DFILL_SOLID;
+                hr = mD3DDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
                 break;
             }
 
-            HRESULT hr = D3D_OK;
             hr = mD3DDevice->SetRenderState(D3DRS_FILLMODE, d3dmode);
             if (FAILED(hr))
             {
@@ -627,6 +699,66 @@ namespace Tiny3D
     TResult D3D9Renderer::drawVertexArray(VertexArrayObjectPtr vao)
     {
         TResult ret = T3D_OK;
+
+        do 
+        {
+            HRESULT hr = D3D_OK;
+
+            D3D9VertexDeclarationPtr decl =
+                smart_pointer_cast<D3D9VertexDeclaration>(
+                    vao->getVertexDeclaration());
+
+            hr = mD3DDevice->SetVertexDeclaration(
+                decl->getD3D9VertexDeclaration());
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            size_t vertexCount = 0;
+            size_t i = 0;
+            for (i = 0; i < vao->getVertexBufferCount(); ++i)
+            {
+                auto vbo = vao->getVertexBuffer(i);
+                D3D9HardwareVertexBufferPtr vb
+                    = smart_pointer_cast<D3D9HardwareVertexBuffer>(vbo);
+                vertexCount = vb->getVertexCount();
+                hr = mD3DDevice->SetStreamSource(i, vb->getD3DVertexBuffer(), 0,
+                    decl->getVertexSize(i));
+            }
+
+            if (vao->isIndicesUsed())
+            {
+                HardwareIndexBufferPtr ibo = vao->getIndexBuffer();
+                D3D9HardwareIndexBufferPtr ib
+                    = smart_pointer_cast<D3D9HardwareIndexBuffer>(ibo);
+                hr = mD3DDevice->SetIndices(ib->getD3DIndexBuffer());
+                if (FAILED(hr))
+                {
+                    break;
+                }
+
+                
+
+                hr = mD3DDevice->DrawIndexedPrimitive(
+                    D3D9Mappings::get(vao->getPrimitiveType()), 0, 0, vertexCount, 0,
+                    vao->getPrimitiveCount());
+                if (FAILED(hr))
+                {
+                    break;
+                }
+            }
+            else
+            {
+                hr = mD3DDevice->DrawPrimitive(
+                    D3D9Mappings::get(vao->getPrimitiveType()), 0, 
+                    vao->getPrimitiveCount());
+                if (FAILED(hr))
+                {
+                    break;
+                }
+            }
+        } while (0);
 
         return ret;
     }

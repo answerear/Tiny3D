@@ -60,6 +60,14 @@ namespace Tiny3D
         virtual size_t writeData(size_t offset, size_t size, const void *src,
             bool discardWholeBuffer = false) override;
 
+        /**
+         * @brief 获取D3D索引缓冲对象
+         */
+        LPDIRECT3DINDEXBUFFER9 getD3DIndexBuffer()
+        {
+            return mD3DIndexBuffer;
+        }
+
     protected:
         /**
          * @brief 构造函数

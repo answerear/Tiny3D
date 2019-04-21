@@ -61,30 +61,48 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SGCamera::setProjectionParams(Real left, Real right,
-        Real top, Real bottom, Real nearDist, Real farDist)
+    inline void SGCamera::setPerspectiveParams(const Radian &fovY, Real aspect,
+        Real nearDist, Real farDist)
     {
-        if (left != mLeft)
+        if (mFovY != fovY)
         {
-            mLeft = left;
+            mFovY = fovY;
             mIsFrustumDirty = true;
         }
 
-        if (right != mRight)
+        if (mAspectRatio != aspect)
         {
-            mRight = right;
+            mAspectRatio = aspect;
             mIsFrustumDirty = true;
         }
 
-        if (top != mTop)
+        if (nearDist != mNear)
         {
-            mTop = top;
+            mNear = nearDist;
             mIsFrustumDirty = true;
         }
 
-        if (bottom != mBottom)
+        if (farDist != mFar)
         {
-            mBottom = bottom;
+            mFar = farDist;
+            mIsFrustumDirty = true;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void SGCamera::setOrthographicParams(Real width, Real height,
+        Real nearDist, Real farDist)
+    {
+        if (width != mWidth)
+        {
+            mWidth = width;
+            mIsFrustumDirty = true;
+        }
+
+        if (height != mHeight)
+        {
+            mHeight = height;
             mIsFrustumDirty = true;
         }
 
@@ -105,14 +123,14 @@ namespace Tiny3D
 
     inline Real SGCamera::getAspectRatio() const
     {
-        return (mRight - mLeft) / (mTop - mBottom);
+        return mAspectRatio;
     }
 
     //--------------------------------------------------------------------------
 
-    inline Radian SGCamera::getFovY() const
+    inline const Radian &SGCamera::getFovY() const
     {
-        return Math::atan2(2 * mNear, (mTop - mBottom));
+        return mFovY;
     }
 
     //--------------------------------------------------------------------------

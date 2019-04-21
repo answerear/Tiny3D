@@ -38,6 +38,8 @@ namespace Tiny3D
 
     D3D9VertexDeclaration::D3D9VertexDeclaration()
         : VertexDeclaration()
+        , mD3DVertexDecl(nullptr)
+        , mIsDirty(false)
     {
 
     }
@@ -129,8 +131,8 @@ namespace Tiny3D
     VertexDeclarationPtr D3D9VertexDeclaration::clone() const
     {
         VertexDeclarationPtr ptr = VertexDeclaration::clone();
-        D3D9VertexDeclaration *decl = (D3D9VertexDeclaration *)((VertexDeclaration *)ptr);
-        decl->mD3DVertexDecl = nullptr;
+        D3D9VertexDeclarationPtr decl 
+            = smart_pointer_cast<D3D9VertexDeclaration>(ptr);
         decl->mIsDirty = true;
 
         return ptr;
@@ -138,7 +140,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    LPDIRECT3DVERTEXDECLARATION9 D3D9VertexDeclaration::getD3D9VertexDeclaration()
+    LPDIRECT3DVERTEXDECLARATION9 
+        D3D9VertexDeclaration::getD3D9VertexDeclaration()
     {
         if (mIsDirty)
         {
