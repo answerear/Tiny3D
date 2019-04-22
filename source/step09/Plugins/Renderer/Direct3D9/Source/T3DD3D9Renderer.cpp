@@ -140,7 +140,24 @@ namespace Tiny3D
                 break;
             }
 
-            setCullingMode(E_CULL_CLOCKWISE);
+            // 设置初始渲染模式
+            HRESULT hr = S_OK;
+            hr = mD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            mRenderMode = E_RM_SOLID;
+
+            // 设置背面剔除顺序
+            hr = mD3DDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            mCullingMode = E_CULL_CLOCKWISE;
         } while (0);
 
         return window;
@@ -413,21 +430,6 @@ namespace Tiny3D
         //      M = |  0  2/h    0       0    |                     [2]
         //          |  0   0  1/(n-f) n/(n-f) |
         //          |  0   0     0       1    |
-        //  fovY 是指 top 和 bottom 之间夹角，则：
-        //      tan(fovY/2) = (h/2)/n
-        //  aspect 是指宽高比，即：
-        //      aspect = w/h
-        //
-        //  从上可得 ：
-        //      h = 2 * n * tan(fovY/2)
-        //      w = aspect * h
-        //      w = aspect * 2 * n * tan(fovY/2)
-        //
-        //  把上述代入矩阵[2]，可得：
-        //          | 1/(aspect*n*tan(fovY/2))       0            0       0    |
-        //      M = |            0             1/n*tan(fovY/2)    0       0    |
-        //          |            0                  0          1/(n-f) n/(n-f) |
-        //          |            0                  0             0       1    |
 
         Real m00 = Real(2.0) / width;
         Real m11 = Real(2.0) / height;
