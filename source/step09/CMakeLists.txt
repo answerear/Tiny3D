@@ -125,6 +125,12 @@ if (NOT TINY3D_OS_ANDROID)
     option(TINY3D_BUILD_SAMPLES "Build samples" TRUE)
 endif (NOT TINY3D_OS_ANDROID)
 
+if (TINY3D_OS_DESKTOP)
+	option(TINY3D_BUILD_TOOLS "Build tools" TRUE)
+else (TINY3D_OS_DESKTOP)
+	option(TINY3D_BUILD_TOOLS "Build tools" FALSE)
+endif (TINY3D_OS_DESKTOP)
+
 # Set all relative directory
 set(TINY3D_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/${TINY3D_OS}" CACHE PATH "Tiny3D binary path")
 set(TINY3D_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/${TINY3D_OS}" CACHE PATH "Tiny3D library path")
@@ -209,6 +215,10 @@ add_dependencies(T3DLog T3DPlatform)
 add_dependencies(T3DMath T3DLog T3DPlatform)
 add_dependencies(T3DFramework T3DLog T3DPlatform)
 add_dependencies(T3DCore T3DMath T3DFramework T3DLog T3DPlatform)
+
+if (TINY3D_BUILD_TOOLS)
+	add_subdirectory(Tools)
+endif(TINY3D_BUILD_TOOLS)
 
 if (TINY3D_BUILD_SAMPLES)
     # Build samples. Set all projects of samples.
