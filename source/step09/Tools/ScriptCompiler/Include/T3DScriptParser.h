@@ -22,15 +22,40 @@
 
 
 #include "T3DScriptPrerequisites.h"
+#include "T3DScriptType.h"
 
 
 namespace Tiny3D
 {
-    class ScriptParser
+    /**
+     * @brief 脚本语法分析器
+     * @remarks 这里直接借用OGRE的语法分析器
+     */
+    class ScriptParser : public Singleton<ScriptParser>
     {
     public:
+        
+
+    public:
+        /**
+         * @brief 构造函数
+         */
         ScriptParser();
+
+        /**
+         * @brief 析构函数
+         */
         virtual ~ScriptParser();
+
+        /**
+         * @brief 语义分析
+         * @param [in] tokens : 词法分析出的符号表
+         * @return 返回语法树
+         */
+        ConcreteNodeListPtr parse(const TokenListPtr &tokens);
+
+        TokenList::iterator skipNewlines(TokenList::iterator i, 
+            TokenList::iterator end);
     };
 }
 

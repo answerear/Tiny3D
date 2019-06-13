@@ -22,15 +22,70 @@
 
 
 #include "T3DScriptPrerequisites.h"
+#include "T3DScriptType.h"
 
 
 namespace Tiny3D
 {
-    class ScriptLexer
+    /**
+     * @brief 脚本词法分析器
+     * @remarks 这里直接借用OGRE的词法分析器
+     */
+    class ScriptLexer : public Singleton<ScriptLexer>
     {
     public:
+        /**
+         * @brief 构造函数
+         */
         ScriptLexer();
+
+        /**
+         * @brief 析构函数
+         */
         virtual ~ScriptLexer();
+
+        /**
+         * @brief 词法分析，并且返回分析出来的符号表
+         * @param [in] str : 脚本字符串
+         * @param [in] source : 脚本文件名
+         * @return 返回符号表
+         */
+        TokenListPtr tokenize(const String &str, const String &source);
+
+    protected:
+        /**
+         * @brief 词法分析实现，并且返回分析出来的符号表
+         * @param [in] str : 脚本字符串
+         * @param [in] source : 脚本文件名
+         * @param [in][out] error : 词法分析过程中错误字符串信息
+         * @return 返回符号表
+         */
+        TokenListPtr tokenize(const String &str, const String &source, 
+            String &error);
+
+        /**
+         * @brief 设置符号
+         * @param [in] lexeme : 词素
+         * @param [in] line : 当前符号所在的行号
+         * @param [in] source : 脚本文件名
+         * @param [in] tokens : 符号表
+         */
+        void setToken(const String &lexeme, uint32_t line, const String &source,
+            TokenListPtr tokens);
+
+        /**
+         * @brief 是否空白符
+         * @param [in] c : 字符对象
+         * @return 空白符返回true
+         */
+        bool isWhitespace(String::value_type c);
+
+        /**
+         * @brief 是否换行
+         * @param [in] c : 字符对象
+         * @return 换行符返回true
+         */
+        bool isNewline(String::value_type c);
     };
 }
 

@@ -22,8 +22,8 @@
 
 
 #include <T3DPlatform.h>
-#include <T3DLogger.h>
-
+#include <T3DLog.h>
+#include <memory>
 
 
 #endif  /*__T3D_SCRIPT_PREREQUISITES_H__*/
