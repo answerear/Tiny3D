@@ -31,6 +31,8 @@ namespace Tiny3D
     public:
         ScriptCompiler();
         virtual ~ScriptCompiler();
+
+        bool compile(const String &str, const String &source, const String &output);
     };
 }
 
