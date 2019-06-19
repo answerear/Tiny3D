@@ -45,7 +45,7 @@ namespace Tiny3D
 
         const TVector3<T> *getPoint() const
         {
-            return mSphere;
+            return mPoint;
         }
 
         void setFrustum(const TFrustum<T> *frustum)

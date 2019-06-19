@@ -62,7 +62,7 @@ namespace Tiny3D
 
         // 近平面
         const TPlane<T> &nearPlane = mFrustum->getFace(TFrustum<T>::E_FACE_NEAR);
-        TPlane<T>::Side side = nearPlane.fastSideForPoint(point);
+        typename TPlane<T>::Side side = nearPlane.fastSideForPoint(point);
         if (side == TPlane<T>::E_SIDE_NEGATIVE)
             return false;
 
