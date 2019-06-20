@@ -78,6 +78,9 @@ namespace Tiny3D
     typedef std::list<ConcreteNodePtr>          ConcreteNodeList;
     typedef std::shared_ptr<ConcreteNodeList>   ConcreteNodeListPtr;
 
+    /**
+     * @brief 语法树结点
+     */
     struct ConcreteNode
     {
         String              token;      /// 符号名称

@@ -18,20 +18,11 @@
  ******************************************************************************/
 
 
-#include "T3DScriptCompiler.h"
+#include "T3DScriptAbstractSyntaxTree.h"
 
 
 namespace Tiny3D
 {
-    ScriptCompiler::ScriptCompiler()
-    {
 
-
-    }
-
-    ScriptCompiler::~ScriptCompiler()
-    {
-
-    }
 }
 

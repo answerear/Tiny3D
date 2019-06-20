@@ -50,10 +50,18 @@ namespace Tiny3D
         /**
          * @brief 语义分析
          * @param [in] tokens : 词法分析出的符号表
-         * @return 返回语法树
+         * @return 返回抽象语法树
          */
         ConcreteNodeListPtr parse(const TokenListPtr &tokens);
 
+        
+    protected:
+
+        convertAST();
+
+        /**
+          * @brief 跳过空行
+          */
         TokenList::iterator skipNewlines(TokenList::iterator i, 
             TokenList::iterator end);
     };
