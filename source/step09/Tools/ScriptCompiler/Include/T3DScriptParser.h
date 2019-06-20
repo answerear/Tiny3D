@@ -23,6 +23,7 @@
 
 #include "T3DScriptPrerequisites.h"
 #include "T3DScriptType.h"
+#include "T3DScriptAbstractSyntaxTree.h"
 
 
 namespace Tiny3D
@@ -52,12 +53,12 @@ namespace Tiny3D
          * @param [in] tokens : 词法分析出的符号表
          * @return 返回抽象语法树
          */
-        ConcreteNodeListPtr parse(const TokenListPtr &tokens);
+        AbstractNodeListPtr parse(const TokenListPtr &tokens);
 
-        
     protected:
-
-        convertAST();
+        bool parse(ConcreteNodeListPtr &nodes, const TokenListPtr &tokens);
+        
+        AbstractNodeListPtr convertToAST(const ConcreteNodeListPtr &nodes);
 
         /**
           * @brief 跳过空行
