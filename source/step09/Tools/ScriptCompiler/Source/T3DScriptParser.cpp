@@ -19,6 +19,9 @@
 
 
 #include "T3DScriptParser.h"
+#include "T3DScriptAbstractSyntaxTree.h"
+#include "T3DScriptCompiler.h"
+#include "T3DScriptError.h"
 
 
 namespace Tiny3D
@@ -29,7 +32,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ScriptParser::ScriptParser()
+    ScriptParser::ScriptParser(ScriptCompiler *compiler)
+        : mCompiler(compiler)
     {
 
     }
@@ -43,10 +47,37 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ConcreteNodeListPtr ScriptParser::parse(const TokenListPtr &tokens)
+    bool ScriptParser::parse(const TokenListPtr &tokens, AbstractNodeListPtr &ast)
     {
-        ConcreteNodeListPtr nodes(new ConcreteNodeList());
+        bool ret = false;
 
+        do 
+        {
+            ConcreteNodeListPtr nodes(new ConcreteNodeList());
+
+            ret = parse(tokens, nodes);
+            if (!ret)
+            {
+                break;
+            }
+
+            ret = convertToAST(*nodes, ast);
+            if (!ret)
+            {
+                break;
+            }
+
+            ret = true;
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptParser::parse(const TokenListPtr &tokens, 
+        ConcreteNodeListPtr &nodes)
+    {
         enum { READY, OBJECT };
         uint32_t state = READY;
 
@@ -80,7 +111,7 @@ namespace Tiny3D
 //                                 Ogre::String("expected import target at line ") +
 //                                 Ogre::StringConverter::toString(node->line),
 //                                 "ScriptParser::parse");
-                            return nullptr;
+                            return false;
                         }
                             
                         ConcreteNodePtr temp(new ConcreteNode());
@@ -104,7 +135,7 @@ namespace Tiny3D
 //                                 Ogre::String("expected import source at line ") +
 //                                 Ogre::StringConverter::toString(node->line),
 //                                 "ScriptParser::parse");
-                            return nullptr;
+                            return false;
                         }
 
                         temp = ConcreteNodePtr(new ConcreteNode());
@@ -150,7 +181,7 @@ namespace Tiny3D
 //                                 Ogre::String("expected variable name at line ") +
 //                                 Ogre::StringConverter::toString(node->line),
 //                                 "ScriptParser::parse");
-                            return nullptr;
+                            return false;
                         }
 
                         ConcreteNodePtr temp(new ConcreteNode());
@@ -170,7 +201,7 @@ namespace Tiny3D
 //                                 Ogre::String("expected variable value at line ") +
 //                                 Ogre::StringConverter::toString(node->line),
 //                                 "ScriptParser::parse");
-                            return nullptr;
+                            return false;
                         }
                             
                         temp = ConcreteNodePtr(new ConcreteNode());
@@ -300,7 +331,7 @@ namespace Tiny3D
 //                             Ogre::String("expected object identifier at line ") +
 //                             Ogre::StringConverter::toString(node->line),
 //                             "ScriptParser::parse");
-                        return nullptr;
+                        return false;
                     }
 
                     while (j != end && ((*j)->type == TID_WORD || (*j)->type == TID_QUOTE))
@@ -469,7 +500,22 @@ namespace Tiny3D
             ++i;
         }
 
-        return nodes;
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptParser::convertToAST(const ConcreteNodeList &nodes, AbstractNodeListPtr &ast)
+    {
+        bool ret = false;
+
+        do 
+        {
+            AbstractTreeBuilder builder(mCompiler);
+
+        } while (0);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

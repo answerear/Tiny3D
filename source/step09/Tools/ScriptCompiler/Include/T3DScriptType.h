@@ -91,7 +91,36 @@ namespace Tiny3D
         ConcreteNode        *parent;    /// 父结点
     };
 
-    enum
+    /**
+     * @brief 编译错误码
+     */
+    enum ErrorCode
+    {
+        CERR_STRINGEXPECTED,
+        CERR_NUMBEREXPECTED,
+        CERR_FEWERPARAMETERSEXPECTED,
+        CERR_VARIABLEEXPECTED,
+        CERR_VARIALBEVALUEEXPECTED,
+        CERR_VARIALBENAMEEXPECTED,
+        CERR_UNDEFINEDVARIABLE,
+        CERR_IMPORTTARGETEXPECTED,
+        CERR_IMPORTSOURCEEXPECTED,
+        CERR_OBJECTIDENTIFIEREXPECTED,
+        CERR_OBJECTNAMEEXPECTED,
+        CERR_OBJECTALLOCATIONERROR,
+        CERR_OBJECTBASENOTFOUND,
+        CERR_INVALIDPARAMETERS,
+        CERR_DUPLICATEOVERRIDE,
+        CERR_UNEXPECTEDTOKEN,
+        CERR_UNSUPPORTEDBYRENDERSYSTEM, //!< @deprecated do not use
+        CERR_REFERENCETOANONEXISTINGOBJECT,
+        CERR_DEPRECATEDSYMBOL
+    };
+
+    /**
+     * @brief 操作码
+     */
+    enum OpCode
     {
         ID_MATERIAL = 3,
         ID_VERTEX_PROGRAM,

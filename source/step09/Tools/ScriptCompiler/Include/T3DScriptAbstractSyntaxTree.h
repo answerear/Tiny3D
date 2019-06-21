@@ -191,12 +191,12 @@ namespace Tiny3D
         /**
          * @brief 转换单个结点成抽象语法树中的结点，并加入到抽象语法树中
          */
-        void visit(ConcreteNode *node);
+        bool visit(ConcreteNode *node);
 
         /**
          * @brief 遍历语义分析中间生成树结点
          */
-        void visit(const ConcreteNodeList &nodes);
+        bool visit(const ConcreteNodeList &nodes);
 
     private:
         AbstractNodeListPtr mNodes;         /// 生成的抽象语法树

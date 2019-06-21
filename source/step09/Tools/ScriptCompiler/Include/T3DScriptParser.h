@@ -28,6 +28,8 @@
 
 namespace Tiny3D
 {
+    class ScriptCompiler;
+
     /**
      * @brief 脚本语法分析器
      * @remarks 这里直接借用OGRE的语法分析器
@@ -41,7 +43,7 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        ScriptParser();
+        ScriptParser(ScriptCompiler *compiler);
 
         /**
          * @brief 析构函数
@@ -51,20 +53,36 @@ namespace Tiny3D
         /**
          * @brief 语义分析
          * @param [in] tokens : 词法分析出的符号表
-         * @return 返回抽象语法树
+         * @param [out] ast : 返回的抽象语法树
+         * @return 调用成功返回true
          */
-        AbstractNodeListPtr parse(const TokenListPtr &tokens);
+        bool parse(const TokenListPtr &tokens, AbstractNodeListPtr &ast);
 
     protected:
-        bool parse(ConcreteNodeListPtr &nodes, const TokenListPtr &tokens);
+        /**
+         * @brief 语义分析，产生中间结果
+         * @param [in] tokens : 词法分析后的符号表
+         * @param [out] nodes : 返回的中间结果列表
+         * @return 调用成功返回true
+         */
+        bool parse(const TokenListPtr &tokens, ConcreteNodeListPtr &nodes);
         
-        AbstractNodeListPtr convertToAST(const ConcreteNodeListPtr &nodes);
+        /**
+         * @brief 把中间结果转换成抽象语法树
+         * @param [in] nodes : 语法分析中间结果
+         * @param [out] ast : 返回的抽象语法树
+         * @return 调用成功返回true
+         */
+        bool convertToAST(const ConcreteNodeList &nodes, AbstractNodeListPtr &ast);
 
         /**
           * @brief 跳过空行
           */
         TokenList::iterator skipNewlines(TokenList::iterator i, 
             TokenList::iterator end);
+
+    protected:
+        ScriptCompiler  *mCompiler;
     };
 }
 

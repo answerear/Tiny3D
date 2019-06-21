@@ -29,10 +29,23 @@ namespace Tiny3D
     class ScriptCompiler
     {
     public:
+        /**
+         * @brief 构造函数
+         */
         ScriptCompiler();
+
+        /**
+         * @brief 析构函数
+         */
         virtual ~ScriptCompiler();
 
-        bool compile(const String &str, const String &source, const String &output);
+        /**
+         * @brief 编译源码，生成二进制码流
+         * @param [in] input : 要编译的源码文件
+         * @param [in] output : 编译后生成的文件全路径
+         * @return 编译成功返回true
+         */
+        bool compile(const String &input, const String &output);
     };
 }
 

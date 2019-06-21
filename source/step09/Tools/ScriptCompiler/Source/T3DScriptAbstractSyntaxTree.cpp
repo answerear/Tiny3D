@@ -19,6 +19,7 @@
 
 
 #include "T3DScriptAbstractSyntaxTree.h"
+#include "T3DScriptError.h"
 
 
 namespace Tiny3D
