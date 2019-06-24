@@ -69,7 +69,7 @@ namespace Tiny3D
                     token.c_str(), file.c_str(), line);
             }
             break;
-        case CERR_VARIALBEVALUEEXPECTED:
+        case CERR_VARIABLEVALUEEXPECTED:
             if (!msg.empty())
             {
                 T3D_LOG_ERROR(TAG, "%s Expected variable value for %s in %s : %u",
@@ -81,7 +81,7 @@ namespace Tiny3D
                     token.c_str(), file.c_str(), line);
             }
             break;
-        case CERR_VARIALBENAMEEXPECTED:
+        case CERR_VARIABLENAMEEXPECTED:
             if (!msg.empty())
             {
                 T3D_LOG_ERROR(TAG, "%s Expected variable name for %s in %s : %u",

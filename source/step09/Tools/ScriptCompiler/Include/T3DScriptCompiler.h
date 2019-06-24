@@ -22,12 +22,26 @@
 
 
 #include "T3DScriptPrerequisites.h"
+#include "T3DScriptASTree.h"
 
 
 namespace Tiny3D
 {
+    class ScriptLexer;
+    class ScriptParser;
+
     class ScriptCompiler
     {
+        friend class AbstractTreeBuilder;
+
+    public:
+        typedef std::unordered_map<String, uint32_t> IdMap;
+
+        struct Options
+        {
+
+        };
+
     public:
         /**
          * @brief 构造函数
@@ -40,12 +54,32 @@ namespace Tiny3D
         virtual ~ScriptCompiler();
 
         /**
+         * @brief 输出使用方法
+         */
+        void usage();
+
+        /**
          * @brief 编译源码，生成二进制码流
          * @param [in] input : 要编译的源码文件
          * @param [in] output : 编译后生成的文件全路径
+         * @param [in] opt : 编译选项
          * @return 编译成功返回true
          */
-        bool compile(const String &input, const String &output);
+        bool compile(const String &input, const String &output, Options opt);
+
+    public:
+
+    private:
+        bool isNameExcluded(const ObjectAbstractNode& node, AbstractNode *parent);
+
+    private:
+        IdMap mIds;
+
+        typedef std::map<String, String> Environment;
+        Environment mEnv;
+
+        ScriptLexer     *mLexer;
+        ScriptParser    *mParser;
     };
 }
 

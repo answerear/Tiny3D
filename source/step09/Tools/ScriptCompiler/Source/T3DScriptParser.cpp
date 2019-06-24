@@ -19,7 +19,7 @@
 
 
 #include "T3DScriptParser.h"
-#include "T3DScriptAbstractSyntaxTree.h"
+#include "T3DScriptASTree.h"
 #include "T3DScriptCompiler.h"
 #include "T3DScriptError.h"
 
@@ -107,10 +107,8 @@ namespace Tiny3D
                         if (i == end || ((*i)->type != TID_WORD 
                             && (*i)->type != TID_QUOTE))
                         {
-//                             OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
-//                                 Ogre::String("expected import target at line ") +
-//                                 Ogre::StringConverter::toString(node->line),
-//                                 "ScriptParser::parse");
+                            ScriptError::printError(CERR_IMPORTTARGETEXPECTED, 
+                                token->lexeme, token->file, token->line);
                             return false;
                         }
                             
@@ -131,10 +129,8 @@ namespace Tiny3D
                         if (i == end || ((*i)->type != TID_WORD
                             && (*i)->type != TID_QUOTE))
                         {
-//                             OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
-//                                 Ogre::String("expected import source at line ") +
-//                                 Ogre::StringConverter::toString(node->line),
-//                                 "ScriptParser::parse");
+                            ScriptError::printError(CERR_IMPORTSOURCEEXPECTED,
+                                token->lexeme, token->file, token->line);
                             return false;
                         }
 
@@ -177,10 +173,8 @@ namespace Tiny3D
                         ++i;
                         if (i == end || (*i)->type != TID_VARIABLE)
                         {
-//                             OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
-//                                 Ogre::String("expected variable name at line ") +
-//                                 Ogre::StringConverter::toString(node->line),
-//                                 "ScriptParser::parse");
+                            ScriptError::printError(CERR_VARIABLENAMEEXPECTED,
+                                token->lexeme, token->file, token->line);
                             return false;
                         }
 
@@ -197,10 +191,8 @@ namespace Tiny3D
                         if (i == end || ((*i)->type != TID_WORD 
                             && (*i)->type != TID_QUOTE))
                         {
-//                             OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
-//                                 Ogre::String("expected variable value at line ") +
-//                                 Ogre::StringConverter::toString(node->line),
-//                                 "ScriptParser::parse");
+                            ScriptError::printError(CERR_VARIABLEVALUEEXPECTED,
+                                token->lexeme, token->file, token->line);
                             return false;
                         }
                             
@@ -327,10 +319,8 @@ namespace Tiny3D
                     if (j == end || ((*j)->type != TID_WORD 
                         && (*j)->type != TID_QUOTE)) 
                     {
-//                         OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
-//                             Ogre::String("expected object identifier at line ") +
-//                             Ogre::StringConverter::toString(node->line),
-//                             "ScriptParser::parse");
+                        ScriptError::printError(CERR_OBJECTIDENTIFIEREXPECTED,
+                            token->lexeme, token->file, token->line);
                         return false;
                     }
 

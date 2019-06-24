@@ -24,6 +24,7 @@
 #include <T3DPlatform.h>
 #include <T3DLog.h>
 #include <memory>
+#include <unordered_map>
 
 
 #endif  /*__T3D_SCRIPT_PREREQUISITES_H__*/

@@ -23,7 +23,7 @@
 
 #include "T3DScriptPrerequisites.h"
 #include "T3DScriptType.h"
-#include "T3DScriptAbstractSyntaxTree.h"
+#include "T3DScriptASTree.h"
 
 
 namespace Tiny3D

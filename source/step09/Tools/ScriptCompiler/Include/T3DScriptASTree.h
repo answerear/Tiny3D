@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_SCRIPT_ABSTRACT_SYNTAX_TREE_H__
-#define __T3D_SCRIPT_ABSTRACT_SYNTAX_TREE_H__
+#ifndef __T3D_SCRIPT_ASTREE_H__
+#define __T3D_SCRIPT_ASTREE_H__
 
 
 #include "T3DScriptPrerequisites.h"
@@ -117,7 +117,7 @@ namespace Tiny3D
         String              cls;
         std::vector<String> bases;
         uint32_t            id;
-        bool                abstract;
+        bool                abstrct;
         AbstractNodeList    children;
         AbstractNodeList    values;
         AbstractNodeList    overrides;
@@ -186,7 +186,7 @@ namespace Tiny3D
         /**
          * @brief 获取构建结果，即获取抽象语法树
          */
-        const AbstractNodeListPtr &getResult() const;
+        const AbstractNodeListPtr &getResult() const { return mNodes; }
 
         /**
          * @brief 转换单个结点成抽象语法树中的结点，并加入到抽象语法树中
@@ -206,4 +206,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_SCRIPT_ABSTRACT_SYNTAX_TREE_H__*/
+#endif  /*__T3D_SCRIPT_ASTREE_H__*/

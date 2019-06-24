@@ -17,9 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#include "T3DScriptCompiler.h"
+
 
 int main(int argc, char *argv[])
 {
-    return 0;
+    using namespace Tiny3D;
+
+    ScriptCompiler *compiler = new ScriptCompiler();
+    int ret = 0;
+
+    do 
+    {
+        if (argc < 2)
+        {
+            compiler->usage();
+            ret = -1;
+        }
+    } while (0);
+    
+    delete compiler;
+
+    return ret;
 }
 
