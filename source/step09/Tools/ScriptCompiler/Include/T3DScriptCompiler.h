@@ -39,7 +39,10 @@ namespace Tiny3D
 
         struct Options
         {
+            Options()
+            {
 
+            }
         };
 
     public:
@@ -65,12 +68,13 @@ namespace Tiny3D
          * @param [in] opt : 编译选项
          * @return 编译成功返回true
          */
-        bool compile(const String &input, const String &output, Options opt);
+        bool compile(const String &input, const String &output, Options opt = {});
 
     public:
 
     private:
         bool isNameExcluded(const ObjectAbstractNode& node, AbstractNode *parent);
+        void initWordMap();
 
     private:
         IdMap mIds;

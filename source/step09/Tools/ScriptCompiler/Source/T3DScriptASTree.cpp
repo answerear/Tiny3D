@@ -224,7 +224,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     AbstractTreeBuilder::AbstractTreeBuilder(ScriptCompiler *compiler)
-        : mCurrent(nullptr)
+        : mNodes(new AbstractNodeList())
+        , mCurrent(nullptr)
         , mCompiler(compiler)
     {
 

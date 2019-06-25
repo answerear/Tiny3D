@@ -42,8 +42,11 @@ namespace Tiny3D
     TimerService::~TimerService()
     {
         // 设置线程退出，等待线程结束，才析构
-        mIsRunning = false;
-        mPollThread.join();
+        if (mIsRunning)
+        {
+            mIsRunning = false;
+            mPollThread.join();
+        }
     }
 
     ID TimerService::startTimer(uint32_t interval, bool repeat,

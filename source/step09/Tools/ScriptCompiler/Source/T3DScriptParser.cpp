@@ -502,7 +502,13 @@ namespace Tiny3D
         do 
         {
             AbstractTreeBuilder builder(mCompiler);
+            if (!builder.visit(nodes))
+            {
+                break;
+            }
 
+            ast = builder.getResult();
+            ret = true;
         } while (0);
 
         return ret;

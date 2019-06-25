@@ -24,6 +24,10 @@ int main(int argc, char *argv[])
 {
     using namespace Tiny3D;
 
+    System *system = new System();
+    Logger *logger = new Logger();
+    T3D_LOG_STARTUP(1000, "Compiler", true, true);
+
     ScriptCompiler *compiler = new ScriptCompiler();
     int ret = 0;
 
@@ -33,10 +37,38 @@ int main(int argc, char *argv[])
         {
             compiler->usage();
             ret = -1;
+            break;
         }
+
+        String input(argv[1]);
+        String output;
+
+        if (argc == 2)
+        {
+            // 默认没有输出文件，直接输出到输入文件目录，把输出文件重名为*.tsc
+            size_t pos = input.find_last_of(".");
+            output = input.substr(0, pos);
+            output += ".tsc";
+        }
+        else
+        {
+            output = argv[2];
+        }
+
+        if (!compiler->compile(input, output))
+        {
+            ret = -2;
+            break;
+        }
+
+        ret = 0;
     } while (0);
     
     delete compiler;
+
+    T3D_LOG_SHUTDOWN();
+    delete logger;
+    delete system;
 
     return ret;
 }
