@@ -37,12 +37,61 @@ namespace Tiny3D
     public:
         typedef std::unordered_map<String, uint32_t> IdMap;
 
+        typedef std::list<String> StringList;
+
         struct Options
         {
+            enum Flags
+            {
+                OPT_PRINT_VERSION   = (1 << 0), /// 输出版本号
+                OPT_PRINT_HELP      = (1 << 1), /// 输出帮助信息
+                OPT_PROJECT_DIR     = (1 << 2), /// 工程目录
+                OPT_OUTPUT_DIR      = (1 << 3), /// 输出文件夹
+                OPT_OUTPUT_FILE     = (1 << 4), /// 输出文件名，必须跟OPT_LINK一起使用
+                OPT_LINK            = (1 << 5), /// 链接所有文件成一个文件
+            };
+
             Options()
+                : options(OPT_PRINT_HELP)
             {
 
             }
+
+            bool shouldPrintVersion() const
+            {
+                return (OPT_PRINT_VERSION & options) == OPT_PRINT_VERSION;
+            }
+
+            bool shouldPrintUsage() const
+            {
+                return (OPT_PRINT_HELP & options) == OPT_PRINT_HELP;
+            }
+
+            bool needLink() const
+            {
+                return (OPT_LINK & options) == OPT_LINK;
+            }
+
+            bool hasOutputFile() const
+            {
+                return (OPT_OUTPUT_FILE & options) == OPT_OUTPUT_FILE;
+            }
+
+            bool hasOutputDir() const
+            {
+                return (OPT_OUTPUT_DIR & options) == OPT_OUTPUT_DIR;
+            }
+
+            bool hasProjectDir() const
+            {
+                return (OPT_PROJECT_DIR & options) == OPT_PROJECT_DIR;
+            }
+
+            uint32_t    options;    /// 编译选项
+            StringList  inFiles;    /// 输入文件列表
+            String      projDir;    /// 工程目录
+            String      outDir;     /// 输出文件夹路径
+            String      outFile;    /// 连接输出成一个文件时使用的文件名
         };
 
     public:
@@ -57,30 +106,79 @@ namespace Tiny3D
         virtual ~ScriptCompiler();
 
         /**
-         * @brief 输出使用方法
+         * @brief 编译脚本
          */
-        void usage();
+        bool compile(int32_t argc, const char *argv[]);
+
+    protected:
+        /**
+         * @brief 打印使用方法
+         */
+        void printUsage();
+
+        /**
+         * @brief 打印版本号
+         */
+        void printVersion();
+
+        /**
+         * @brief 解析参数
+         */
+        bool parse(int32_t argc, const char *argv[], Options &opt);
 
         /**
          * @brief 编译源码，生成二进制码流
-         * @param [in] input : 要编译的源码文件
-         * @param [in] output : 编译后生成的文件全路径
          * @param [in] opt : 编译选项
          * @return 编译成功返回true
          */
-        bool compile(const String &input, const String &output, Options opt = {});
+        bool compile(const Options &opt);
 
-    public:
+        /**
+         * @brief 编译单个脚本文件
+         * @param [in] input : 要编译的源码文件
+         * @param [in] output : 编译后生成的文件全路径
+         * @return 编译成功返回true
+         */
+        bool compile(const String &input, const String &output);
 
-    private:
+        /**
+         * @brief 链接所有目标文件，生成最终文件
+         */
+        bool link(const String &outDir, const String &output);
+
+        // 读取输入脚本内容
+        bool readInputFile(String &content, const String &input);
+
+        // 处理导入AST结点
+        bool processImports(AbstractNodeList &nodes);
+
+        // 加载导入文件，并且声称对应的抽象语法树
+        AbstractNodeListPtr loadImportPath(const String &name);
+
+        // 对应类型脚本是否包含不符合该脚本类型的对象
         bool isNameExcluded(const ObjectAbstractNode& node, AbstractNode *parent);
+
+        // 初始化操作码
         void initWordMap();
 
-    private:
+        // 从文件路径中获取文件名
+        void getFileName(const String &filepath, String &path, String &name) const;
+
+        // 从完整文件名中获取文件名和文件扩展名
+        void getFileTitle(const String &filename, String &title, String &ext) const;
+
+    protected:
         IdMap mIds;
 
         typedef std::map<String, String> Environment;
-        Environment mEnv;
+
+        typedef std::map<String, AbstractNodeListPtr> ImportCacheMap;
+        typedef std::multimap<String, String> ImportRequestMap;
+
+        Environment         mEnv;
+        ImportCacheMap      mImports;
+        ImportRequestMap    mImportRequests;
+        AbstractNodeList    mImportTable;
 
         ScriptLexer     *mLexer;
         ScriptParser    *mParser;

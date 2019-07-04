@@ -26,6 +26,9 @@
 
 namespace Tiny3D
 {
+    #define LOG_TAG                 "Compiler"
+    #define CURRENT_VERSION_STR     "0.1.0"
+
     /**
      * @brief 符号ID
      */

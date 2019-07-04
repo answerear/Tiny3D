@@ -51,17 +51,285 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ScriptCompiler::usage()
+    bool ScriptCompiler::compile(int32_t argc, const char *argv[])
     {
+        bool ret = false;
 
+        do 
+        {
+            Options opt;
+            ret = parse(argc, argv, opt);
+            if (!ret)
+            {
+                printUsage();
+                break;
+            }
+
+            if (opt.shouldPrintUsage())
+            {
+                printUsage();
+                break;
+            }
+            else if (opt.shouldPrintVersion())
+            {
+                printVersion();
+            }
+            else if (opt.hasOutputFile() && !opt.needLink())
+            {
+                // 指定了链接文件名，但是没有链接，报错
+                printUsage();
+            }
+            else
+            {
+                ret = compile(opt);
+            }
+        } while (0);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    bool ScriptCompiler::compile(const String &input, const String &output, 
-        Options opt)
+    void ScriptCompiler::printUsage()
+    {
+        T3D_LOG_INFO(LOG_TAG, "Usage : ");
+        T3D_LOG_INFO(LOG_TAG, "  scc input_files [options]");
+        T3D_LOG_INFO(LOG_TAG, "    Options : ");
+        T3D_LOG_INFO(LOG_TAG, "      -v : Print version.");
+        T3D_LOG_INFO(LOG_TAG, "      -h : Print help.");
+        T3D_LOG_INFO(LOG_TAG, "      -p : Set the directory of the project. If this options is set, all input files in the list will be relative path.");
+        T3D_LOG_INFO(LOG_TAG, "      -o : Set the output file name (*.tsc). Default file name is the same as input file. And if \'-d\' is not set, the directory of output is the same as input file directory.");
+        T3D_LOG_INFO(LOG_TAG, "      -d : Set the directory of output files. If \'-p\' is set, this path will be relative to the project path.");
+        T3D_LOG_INFO(LOG_TAG, "      -l : Link all script binary file (*.tsc) to one file. Default is not linking.");
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ScriptCompiler::printVersion()
+    {
+        T3D_LOG_INFO(LOG_TAG, "Version : %s", CURRENT_VERSION_STR);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptCompiler::parse(int32_t argc, const char *argv[], Options &opt)
+    {
+        bool ret = true;
+
+        opt.options = 0;
+
+        do 
+        {
+            if (argc == 0)
+            {
+                // 没参数，只能直接打印帮助，让用户知道如何使用
+                opt.options = Options::OPT_PRINT_HELP;
+                break;
+            }
+
+            int i = 0;
+
+            while (i < argc)
+            {
+                if (stricmp(argv[i], "-h") == 0)
+                {
+                    // 打印帮助信息
+                    opt.options = Options::OPT_PRINT_HELP;
+                }
+                else if (stricmp(argv[i], "-v") == 0)
+                {
+                    // 打印版本号
+                    opt.options = Options::OPT_PRINT_VERSION;
+                }
+                else if (stricmp(argv[i], "-p") == 0)
+                {
+                    // 设置工程目录
+                    opt.options |= Options::OPT_PROJECT_DIR;
+
+                    if (argc - 1 == i)
+                    {
+                        // 参数不够
+                        T3D_LOG_ERROR(LOG_TAG, "Missing project directory !");
+                        ret = false;
+                        break;
+                    }
+
+                    ++i;
+                    opt.projDir = argv[i];
+                }
+                else if (stricmp(argv[i], "-o") == 0)
+                {
+                    // 设置输出文件名
+                    opt.options |= Options::OPT_OUTPUT_FILE;
+
+                    if (argc - 1 == i)
+                    {
+                        // 参数不够
+                        T3D_LOG_ERROR(LOG_TAG, "Missing output file name (*.tsc) !");
+                        ret = false;
+                        break;
+                    }
+
+                    ++i;
+                    opt.outFile = argv[i];
+                }
+                else if (stricmp(argv[i], "-d") == 0)
+                {
+                    // 设置输出文件夹
+                    opt.options |= Options::OPT_OUTPUT_DIR;
+
+                    if (argc - 1 == i)
+                    {
+                        // 参数不够
+                        T3D_LOG_ERROR(LOG_TAG, "Missing output directory for link file !");
+                        ret = false;
+                        break;
+                    }
+
+                    ++i;
+                    opt.outDir = argv[i];
+                }
+                else
+                {
+                    // 输入文件列表
+                    opt.inFiles.push_back(argv[i]);
+                }
+            }
+
+            if (!ret)
+            {
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptCompiler::compile(const Options &opt)
     {
         bool ret = false;
+
+        do 
+        {
+            String outDir;
+
+            auto itr = opt.inFiles.begin();
+
+            for (itr = opt.inFiles.begin(); itr != opt.inFiles.end(); ++itr)
+            {
+                // 构造输入文件完整路径
+                String input;
+                if (opt.hasProjectDir())
+                {
+                    input = opt.projDir + "/" + *itr;
+                }
+                else
+                {
+                    input = *itr;
+                }
+
+                // 
+                String path;
+                String filename;
+                getFileName(input, path, filename);
+                String title;
+                String ext;
+                getFileTitle(filename, title, ext);
+
+                String output;
+                if (opt.hasOutputDir())
+                {
+                    output = opt.outDir + "/" + title + ".tsc";
+                    outDir = opt.outDir;
+                }
+                else
+                {
+                    output = path + "/" + title + ".tsc";
+                    outDir = path;
+                }
+
+                ret = compile(input, output);
+                if (!ret)
+                {
+                    // 失败了
+                    break;
+                }
+            }
+
+            if (!ret)
+            {
+                // 编译失败了
+                break;
+            }
+
+            // 链接
+            if (opt.needLink())
+            {
+                String output;
+                if (opt.hasOutputFile())
+                {
+                    output = outDir + "/" + opt.outFile;
+                }
+                else
+                {
+                    output = outDir + "/" + "a.tsc";
+                }
+
+                ret = link(outDir, output);
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptCompiler::compile(const String &input, const String &output)
+    {
+        bool ret = false;
+
+        do
+        {
+            String content;
+            ret = readInputFile(content, input);
+            if (!ret)
+            {
+                break;
+            }
+
+            // 词法分析
+            TokenListPtr tokens = ScriptLexer::getInstance().tokenize(content, input);
+
+            // 语法分析
+            AbstractNodeListPtr ast(new AbstractNodeList());
+            ret = ScriptParser::getInstance().parse(tokens, ast);
+
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptCompiler::link(const String &outDir, const String &output)
+    {
+        bool ret = false;
+
+        do 
+        {
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptCompiler::readInputFile(String &content, const String &input)
+    {
+        bool ret = false;
+
         FileDataStream fs;
         uint8_t *data = nullptr;
 
@@ -95,19 +363,14 @@ namespace Tiny3D
 
             fs.close();
 
-            String str(data, data + size);
+            content.assign((const char *)data, size);
 
-            delete []data;
+            delete[]data;
             data = nullptr;
 
-            // 词法分析
-            TokenListPtr tokens = ScriptLexer::getInstance().tokenize(str, input);
-
-            // 语法分析
-            AbstractNodeListPtr ast(new AbstractNodeList());
-            ret = ScriptParser::getInstance().parse(tokens, ast);
-
+            ret = true;
         } while (0);
+
 
         if (fs.isOpened())
         {
@@ -116,10 +379,107 @@ namespace Tiny3D
 
         if (data != nullptr)
         {
-            delete []data;
+            delete[]data;
         }
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptCompiler::processImports(AbstractNodeList &nodes)
+    {
+//         // We only need to iterate over the top-level of nodes
+//         AbstractNodeList::iterator i = nodes.begin();
+//         while (i != nodes.end())
+//         {
+//             // We move to the next node here and save the current one.
+//             // If any replacement happens, then we are still assured that
+//             // i points to the node *after* the replaced nodes, no matter
+//             // how many insertions and deletions may happen
+//             AbstractNodeList::iterator cur = i++;
+//             if ((*cur)->type == ANT_IMPORT)
+//             {
+//                 ImportAbstractNode *import = (ImportAbstractNode*)(*cur).get();
+//                 // Only process if the file's contents haven't been loaded
+//                 if (mImports.find(import->source) == mImports.end())
+//                 {
+//                     // Load the script
+//                     AbstractNodeListPtr importedNodes = loadImportPath(import->source);
+//                     if (importedNodes && !importedNodes->empty())
+//                     {
+//                         processImports(*importedNodes);
+//                         processObjects(*importedNodes, *importedNodes);
+//                     }
+//                     if (importedNodes && !importedNodes->empty())
+//                         mImports.insert(std::make_pair(import->source, importedNodes));
+//                 }
+// 
+//                 // Handle the target request now
+//                 // If it is a '*' import we remove all previous requests and just use the '*'
+//                 // Otherwise, ensure '*' isn't already registered and register our request
+//                 if (import->target == "*")
+//                 {
+//                     mImportRequests.erase(mImportRequests.lower_bound(import->source),
+//                         mImportRequests.upper_bound(import->source));
+//                     mImportRequests.insert(std::make_pair(import->source, "*"));
+//                 }
+//                 else
+//                 {
+//                     ImportRequestMap::iterator iter = mImportRequests.lower_bound(import->source),
+//                         end = mImportRequests.upper_bound(import->source);
+//                     if (iter == end || iter->second != "*")
+//                     {
+//                         mImportRequests.insert(std::make_pair(import->source, import->target));
+//                     }
+//                 }
+// 
+//                 nodes.erase(cur);
+//             }
+//         }
+// 
+//         // All import nodes are removed
+//         // We have cached the code blocks from all the imported scripts
+//         // We can process all import requests now
+//         for (ImportCacheMap::iterator it = mImports.begin(); it != mImports.end(); ++it)
+//         {
+//             ImportRequestMap::iterator j = mImportRequests.lower_bound(it->first),
+//                 end = mImportRequests.upper_bound(it->first);
+//             if (j != end)
+//             {
+//                 if (j->second == "*")
+//                 {
+//                     // Insert the entire AST into the import table
+//                     mImportTable.insert(mImportTable.begin(), it->second->begin(), it->second->end());
+//                     continue; // Skip ahead to the next file
+//                 }
+//                 else
+//                 {
+//                     for (; j != end; ++j)
+//                     {
+//                         // Locate this target and insert it into the import table
+//                         AbstractNodeList newNodes = locateTarget(*it->second, j->second);
+//                         if (!newNodes.empty())
+//                             mImportTable.insert(mImportTable.begin(), newNodes.begin(), newNodes.end());
+//                     }
+//                 }
+//             }
+//         }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    AbstractNodeListPtr ScriptCompiler::loadImportPath(const String &name)
+    {
+        AbstractNodeListPtr retval;
+        ConcreteNodeListPtr nodes;
+
+
+//         nodes = mParser->parse(mLexer->tokenize(stream->getAsString(), name));
+
+        return retval;
     }
 
     //--------------------------------------------------------------------------
@@ -475,6 +835,43 @@ namespace Tiny3D
         mIds["sampler_ref"] = ID_SAMPLER_REF;
         mIds["thread_groups"] = ID_THREAD_GROUPS;
         mIds["render_custom"] = ID_RENDER_CUSTOM;
+    }
+
+    void ScriptCompiler::getFileName(const String &filepath, String &path, String &name) const
+    {
+        String::size_type pos = filepath.find_last_of('/');
+
+        if (pos == String::npos)
+        {
+            pos = filepath.find_last_of('\\');
+        }
+
+        if (pos == String::npos)
+        {
+            name = filepath;
+            path = "";
+        }
+        else
+        {
+            path = filepath.substr(0, pos);
+            name = filepath.substr(pos);
+        }
+    }
+
+    void ScriptCompiler::getFileTitle(const String &filename, String &title, String &ext) const
+    {
+        String::size_type pos = filename.find_last_of('.');
+
+        if (pos == String::npos)
+        {
+            title = filename;
+            ext = "";
+        }
+        else
+        {
+            title = filename.substr(0, pos);
+            ext = filename.substr(pos);
+        }
     }
 }
 

@@ -17,44 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DScriptCompiler.h"
+#ifndef __T3D_SCRIPT_TRANSLATOR_H__
+#define __T3D_SCRIPT_TRANSLATOR_H__
 
 
-int main(int argc, char *argv[])
+#include "T3DScriptPrerequisites.h"
+
+
+namespace Tiny3D
 {
-    using namespace Tiny3D;
-
-    System *system = new System();
-    Logger *logger = new Logger();
-    T3D_LOG_STARTUP(1000, "Compiler", true, true);
-
-    ScriptCompiler *compiler = new ScriptCompiler();
-    int ret = 0;
-
-    do 
+    class ScriptTranslator
     {
-        if (argc == 1)
-        {
-            T3D_LOG_ERROR(LOG_TAG, "Not enough parameters !");
-            ret = -1;
-            break;
-        }
 
-        if (!compiler->compile(argc-1, (const char **)(argv+1)))
-        {
-            ret = -2;
-            break;
-        }
-
-        ret = 0;
-    } while (0);
-    
-    delete compiler;
-
-    T3D_LOG_SHUTDOWN();
-    delete logger;
-    delete system;
-
-    return ret;
+    };
 }
 
+
+#endif  /*__T3D_SCRIPT_TRANSLATOR_H__*/
