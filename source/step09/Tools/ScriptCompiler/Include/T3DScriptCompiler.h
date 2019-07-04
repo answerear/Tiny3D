@@ -47,8 +47,7 @@ namespace Tiny3D
                 OPT_PRINT_HELP      = (1 << 1), /// 输出帮助信息
                 OPT_PROJECT_DIR     = (1 << 2), /// 工程目录
                 OPT_OUTPUT_DIR      = (1 << 3), /// 输出文件夹
-                OPT_OUTPUT_FILE     = (1 << 4), /// 输出文件名，必须跟OPT_LINK一起使用
-                OPT_LINK            = (1 << 5), /// 链接所有文件成一个文件
+                OPT_LINK            = (1 << 4), /// 链接所有文件成一个文件
             };
 
             Options()
@@ -70,11 +69,6 @@ namespace Tiny3D
             bool needLink() const
             {
                 return (OPT_LINK & options) == OPT_LINK;
-            }
-
-            bool hasOutputFile() const
-            {
-                return (OPT_OUTPUT_FILE & options) == OPT_OUTPUT_FILE;
             }
 
             bool hasOutputDir() const

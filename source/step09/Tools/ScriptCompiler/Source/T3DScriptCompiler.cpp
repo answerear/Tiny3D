@@ -74,11 +74,6 @@ namespace Tiny3D
             {
                 printVersion();
             }
-            else if (opt.hasOutputFile() && !opt.needLink())
-            {
-                // 指定了链接文件名，但是没有链接，报错
-                printUsage();
-            }
             else
             {
                 ret = compile(opt);
@@ -98,9 +93,8 @@ namespace Tiny3D
         T3D_LOG_INFO(LOG_TAG, "      -v : Print version.");
         T3D_LOG_INFO(LOG_TAG, "      -h : Print help.");
         T3D_LOG_INFO(LOG_TAG, "      -p : Set the directory of the project. If this options is set, all input files in the list will be relative path.");
-        T3D_LOG_INFO(LOG_TAG, "      -o : Set the output file name (*.tsc). Default file name is the same as input file. And if \'-d\' is not set, the directory of output is the same as input file directory.");
         T3D_LOG_INFO(LOG_TAG, "      -d : Set the directory of output files. If \'-p\' is set, this path will be relative to the project path.");
-        T3D_LOG_INFO(LOG_TAG, "      -l : Link all script binary file (*.tsc) to one file. Default is not linking.");
+        T3D_LOG_INFO(LOG_TAG, "      -l : Set the link file and link all script binary file (*.tsc) to one file. Default is not linking.");
     }
 
     //--------------------------------------------------------------------------
@@ -157,15 +151,15 @@ namespace Tiny3D
                     ++i;
                     opt.projDir = argv[i];
                 }
-                else if (stricmp(argv[i], "-o") == 0)
+                else if (stricmp(argv[i], "-l") == 0)
                 {
                     // 设置输出文件名
-                    opt.options |= Options::OPT_OUTPUT_FILE;
+                    opt.options |= Options::OPT_LINK;
 
                     if (argc - 1 == i)
                     {
                         // 参数不够
-                        T3D_LOG_ERROR(LOG_TAG, "Missing output file name (*.tsc) !");
+                        T3D_LOG_ERROR(LOG_TAG, "Missing linking file name (*.tsc) !");
                         ret = false;
                         break;
                     }
@@ -194,6 +188,8 @@ namespace Tiny3D
                     // 输入文件列表
                     opt.inFiles.push_back(argv[i]);
                 }
+
+                ++i;
             }
 
             if (!ret)
@@ -210,6 +206,8 @@ namespace Tiny3D
     bool ScriptCompiler::compile(const Options &opt)
     {
         bool ret = false;
+
+        T3D_LOG_INFO(LOG_TAG, "1>---------- Build started: ----------");
 
         do 
         {
@@ -238,6 +236,8 @@ namespace Tiny3D
                 String ext;
                 getFileTitle(filename, title, ext);
 
+                T3D_LOG_INFO(LOG_TAG, "1>%s compiling ...", filename.c_str());
+
                 String output;
                 if (opt.hasOutputDir())
                 {
@@ -256,6 +256,8 @@ namespace Tiny3D
                     // 失败了
                     break;
                 }
+
+                T3D_LOG_INFO(LOG_TAG, "1>%s compiling done", filename.c_str());
             }
 
             if (!ret)
@@ -267,19 +269,12 @@ namespace Tiny3D
             // 链接
             if (opt.needLink())
             {
-                String output;
-                if (opt.hasOutputFile())
-                {
-                    output = outDir + "/" + opt.outFile;
-                }
-                else
-                {
-                    output = outDir + "/" + "a.tsc";
-                }
-
+                String output = outDir + "/" + opt.outFile;
                 ret = link(outDir, output);
             }
         } while (0);
+
+        T3D_LOG_INFO(LOG_TAG, "========== Build: %d succeeded %d failed ==========", 1, 0);
 
         return ret;
     }
@@ -854,7 +849,7 @@ namespace Tiny3D
         else
         {
             path = filepath.substr(0, pos);
-            name = filepath.substr(pos);
+            name = filepath.substr(pos+1);
         }
     }
 
@@ -870,7 +865,7 @@ namespace Tiny3D
         else
         {
             title = filename.substr(0, pos);
-            ext = filename.substr(pos);
+            ext = filename.substr(pos+1);
         }
     }
 }
