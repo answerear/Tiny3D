@@ -288,7 +288,7 @@ namespace Tiny3D
         do
         {
             String content;
-            ret = readInputFile(content, input);
+            ret = readSourceFile(content, input);
             if (!ret)
             {
                 break;
@@ -321,7 +321,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptCompiler::readInputFile(String &content, const String &input)
+    bool ScriptCompiler::readSourceFile(String &content, const String &input)
     {
         bool ret = false;
 

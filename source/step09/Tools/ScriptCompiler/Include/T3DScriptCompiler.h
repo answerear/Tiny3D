@@ -141,7 +141,7 @@ namespace Tiny3D
         bool link(const String &outDir, const String &output);
 
         // 读取输入脚本内容
-        bool readInputFile(String &content, const String &input);
+        bool readSourceFile(String &content, const String &input);
 
         // 处理导入AST结点
         bool processImports(AbstractNodeList &nodes);
