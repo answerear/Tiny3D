@@ -24,7 +24,6 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "DataStruct/T3DVariant.h"
 #include "ImageCodec/T3DImageCodec.h"
 
 

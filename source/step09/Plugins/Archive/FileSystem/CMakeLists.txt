@@ -21,6 +21,7 @@ include_directories(
     "${TINY3D_FRAMEWORK_SOURCE_DIR}/Include"
     "${TINY3D_PLATFORM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
+	"${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${SDL2_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     )
@@ -56,6 +57,7 @@ if (TINY3D_OS_IOS)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+		T3DUtils
         T3DMath
         T3DCore
         )
@@ -64,6 +66,7 @@ elseif (TINY3D_OS_LINUX)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+		T3DUtils
         T3DMath
         T3DCore
         )
@@ -79,6 +82,7 @@ else (TINY3D_OS_IOS)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+		T3DUtils
         T3DMath
         T3DCore
         )

@@ -17,15 +17,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_SCRIPT_PREREQUISITES_H__
-#define __T3D_SCRIPT_PREREQUISITES_H__
+#ifndef __T3D_UTILS_PREREQUISITES_H__
+#define __T3D_UTILS_PREREQUISITES_H__
+
+
+#if defined T3DUTILS_EXPORT
+    #define T3D_UTILS_API T3D_EXPORT_API
+#else
+    #define T3D_UTILS_API T3D_IMPORT_API
+#endif
 
 
 #include <T3DPlatform.h>
-#include <T3DLog.h>
-#include <T3DUtils.h>
-#include <memory>
-#include <unordered_map>
 
 
-#endif  /*__T3D_SCRIPT_PREREQUISITES_H__*/
+namespace Tiny3D
+{
+    class Variant;
+
+    typedef TArray<Variant>                 VariantArray;
+    typedef VariantArray::iterator          VariantArrayItr;
+    typedef VariantArray::const_iterator    VariantArrayConstItr;
+
+    typedef TList<Variant>                  VariantList;
+    typedef VariantList::iterator           VariantListItr;
+    typedef VariantList::const_iterator     VariantListConstItr;
+
+    typedef TMap<Variant, Variant>          VariantMap;
+    typedef VariantMap::iterator            VariantMapItr;
+    typedef VariantMap::const_iterator      VariantMapConstItr;
+
+    typedef TPair<Variant, Variant>         VariantMapValue;
+}
+
+
+#endif  /*__T3D_UTILS_PREREQUISITES_H__*/

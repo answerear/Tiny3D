@@ -17,15 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_SCRIPT_PREREQUISITES_H__
-#define __T3D_SCRIPT_PREREQUISITES_H__
+
+#include "T3DStringConverter.h"
 
 
-#include <T3DPlatform.h>
-#include <T3DLog.h>
-#include <T3DUtils.h>
-#include <memory>
-#include <unordered_map>
 
-
-#endif  /*__T3D_SCRIPT_PREREQUISITES_H__*/

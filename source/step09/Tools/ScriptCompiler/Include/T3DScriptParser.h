@@ -58,6 +58,14 @@ namespace Tiny3D
          */
         bool parse(const TokenListPtr &tokens, AbstractNodeListPtr &ast);
 
+        /**
+         * @brief 语义分析
+         * @param [in] tokens : 词法分析出的符号表
+         * @param [out] ast : 返回的抽象语法树
+         * @return 调用成功返回true
+         */
+        bool parseChunk(const TokenListPtr &tokens, AbstractNodeListPtr &ast);
+
     protected:
         /**
          * @brief 语义分析，产生中间结果
@@ -66,6 +74,14 @@ namespace Tiny3D
          * @return 调用成功返回true
          */
         bool parse(const TokenListPtr &tokens, ConcreteNodeListPtr &nodes);
+
+        /**
+         * @brief 语义分析，产生中间结果
+         * @param [in] tokens : 词法分析后的符号表
+         * @param [out] nodes : 返回的中间结果列表
+         * @return 调用成功返回true
+         */
+        bool parseChunk(const TokenListPtr &tokens, ConcreteNodeListPtr &nodes);
         
         /**
          * @brief 把中间结果转换成抽象语法树

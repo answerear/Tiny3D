@@ -20,7 +20,7 @@
 #ifndef __T3D_FIX32_H__
 #define __T3D_FIX32_H__
 
-#include "T3DMathPrerequisites.h"
+#include "T3DUtilsPrerequisites.h"
 
 namespace Tiny3D
 {
@@ -28,7 +28,7 @@ namespace Tiny3D
      * @brief 32位定点数类
      * @remarks 32位定点数构成是用高20位作为整数部分，低12位用来做小数部分
      */
-    class T3D_MATH_API fix32
+    class T3D_UTILS_API fix32
     {
     public:
         static const int32_t INTEGER_BITS;      // 整数位数
@@ -196,6 +196,8 @@ namespace Tiny3D
     private:
         int32_t m;
     };
+
+    typedef fix32 fix32_t;
 }
 
 #include "T3DFix32.inl"

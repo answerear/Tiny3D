@@ -17,16 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "DataStruct/T3DString.h"
+#include "T3DString.h"
 
 
 namespace Tiny3D
 {
-    StringArray StringUtil::split(const String &str, const String &delims/* = " "*/, size_t maxSplits/* = 0*/)
+    //--------------------------------------------------------------------------
+
+    StringArray StringUtil::split(const String &str, 
+        const String &delims/* = " "*/, size_t maxSplits/* = 0*/)
     {
         StringArray ret;
         // Pre-allocate some space for performance
-        ret.reserve(maxSplits ? maxSplits + 1 : 10);    // 10 is guessed capacity for most case
+        // 10 is guessed capacity for most case
+        ret.reserve(maxSplits ? maxSplits + 1 : 10);
 
         unsigned int numSplits = 0;
 
@@ -41,7 +45,8 @@ namespace Tiny3D
                 // Do nothing
                 start = pos + 1;
             }
-            else if (pos == String::npos || (maxSplits && numSplits == maxSplits))
+            else if (pos == String::npos 
+                || (maxSplits && numSplits == maxSplits))
             {
                 // Copy the rest of the string
                 ret.push_back(str.substr(start));
@@ -62,6 +67,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void StringUtil::split(const String &fullpath, String &path, String &name)
     {
         String filepath = fullpath;
@@ -80,7 +87,10 @@ namespace Tiny3D
         }
     }
 
-    void StringUtil::trim(String &str, bool left/* = true*/, bool right/* = true*/)
+    //--------------------------------------------------------------------------
+
+    void StringUtil::trim(String &str, bool left/* = true*/, 
+        bool right/* = true*/)
     {
         static const String delims = " \t\r\n";
         if (right)
@@ -95,6 +105,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void StringUtil::toLowerCase(String &str)
     {
         std::transform(
@@ -103,6 +115,8 @@ namespace Tiny3D
             str.begin(),
             tolower);
     }
+
+    //--------------------------------------------------------------------------
 
     void StringUtil::toUpperCase(String& str)
     {
@@ -113,7 +127,10 @@ namespace Tiny3D
             toupper);
     }
 
-    bool StringUtil::startsWith(const String& str, const String& pattern, bool lowerCase/* = true*/)
+    //--------------------------------------------------------------------------
+
+    bool StringUtil::startsWith(const String& str, const String& pattern, 
+        bool lowerCase/* = true*/)
     {
         size_t thisLen = str.length();
         size_t patternLen = pattern.length();
@@ -127,7 +144,10 @@ namespace Tiny3D
         return (startOfThis == pattern);
     }
 
-    bool StringUtil::endsWith(const String& str, const String& pattern, bool lowerCase/* = true*/)
+    //--------------------------------------------------------------------------
+
+    bool StringUtil::endsWith(const String& str, const String& pattern, 
+        bool lowerCase/* = true*/)
     {
         size_t thisLen = str.length();
         size_t patternLen = pattern.length();
@@ -141,7 +161,10 @@ namespace Tiny3D
         return (endOfThis == pattern);
     }
 
-    void StringUtil::replaceAll(String &str, const String &replaceWhat, const String &replaceWithWhat)
+    //--------------------------------------------------------------------------
+
+    void StringUtil::replaceAll(String &str, const String &replaceWhat, 
+        const String &replaceWithWhat)
     {
         String::size_type pos = 0;
 
@@ -153,6 +176,82 @@ namespace Tiny3D
             str.replace(pos, 1, replaceWithWhat);
             pos++;
         }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool StringUtil::match(const String& str, const String& pattern, 
+        bool caseSensitive)
+    {
+        String tmpStr = str;
+        String tmpPattern = pattern;
+        if (!caseSensitive)
+        {
+            StringUtil::toLowerCase(tmpStr);
+            StringUtil::toLowerCase(tmpPattern);
+        }
+
+        String::const_iterator strIt = tmpStr.begin();
+        String::const_iterator patIt = tmpPattern.begin();
+        String::const_iterator lastWildCardIt = tmpPattern.end();
+        while (strIt != tmpStr.end() && patIt != tmpPattern.end())
+        {
+            if (*patIt == '*')
+            {
+                lastWildCardIt = patIt;
+                // Skip over looking for next character
+                ++patIt;
+                if (patIt == tmpPattern.end())
+                {
+                    // Skip right to the end since * matches the entire 
+                    // rest of the string
+                    strIt = tmpStr.end();
+                }
+                else
+                {
+                    // scan until we find next pattern character
+                    while (strIt != tmpStr.end() && *strIt != *patIt)
+                        ++strIt;
+                }
+            }
+            else
+            {
+                if (*patIt != *strIt)
+                {
+                    if (lastWildCardIt != tmpPattern.end())
+                    {
+                        // The last wildcard can match this incorrect sequence
+                        // rewind pattern to wildcard and keep searching
+                        patIt = lastWildCardIt;
+                        lastWildCardIt = tmpPattern.end();
+                    }
+                    else
+                    {
+                        // no wildwards left
+                        return false;
+                    }
+                }
+                else
+                {
+                    ++patIt;
+                    ++strIt;
+                }
+            }
+
+        }
+        // If we reached the end of both the pattern and the string, 
+        // we succeeded
+        if ((patIt == tmpPattern.end() 
+            || (*patIt == '*' && patIt + 1 == tmpPattern.end())) 
+            && strIt == tmpStr.end())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
     }
 }
 

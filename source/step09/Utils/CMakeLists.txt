@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(T3DMath)
+set_project_name(T3DUtils)
 
 message(STATUS "Generating project : ${BIN_NAME}")
 
@@ -20,15 +20,11 @@ endif (MSVC)
 
 # Setup all cmake variables for this project.
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
-set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
-set(TINY3D_UTILS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Utils")
 
 
 # Setup search header path for this project.
 include_directories(
 	"${TINY3D_PLATFORM_DIR}/Include"
-    "${TINY3D_LOG_DIR}/Include"
-	"${TINY3D_UTILS_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
 	)
@@ -52,7 +48,6 @@ else (TINY3D_BUILD_SHARED_LIBS)
 endif (TINY3D_BUILD_SHARED_LIBS)
 
 
-
 if (TINY3D_OS_WINDOWS)
 	# Windows
 	
@@ -62,7 +57,6 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
-			LINK_PRIVATE T3DUtils
 			LINK_PRIVATE legacy_stdio_definitions
 			)
 	else ()
@@ -70,7 +64,6 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
-			LINK_PRIVATE T3DUtils
 			)
 	endif ()
 	
@@ -82,7 +75,7 @@ if (TINY3D_OS_WINDOWS)
 		)
 
 	install(DIRECTORY 
-		${CMAKE_CURRENT_SOURCE_DIR}/Include/ DESTINATION include/Framework
+		${CMAKE_CURRENT_SOURCE_DIR}/Include/ DESTINATION include/Log
 		FILE_PERMISSIONS GROUP_READ OWNER_READ
 		PATTERN "Android" EXCLUDE
 		PATTERN "iOS" EXCLUDE
@@ -102,14 +95,12 @@ elseif (TINY3D_OS_MACOSX)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
-		LINK_PRIVATE T3DUtils
 		)
 elseif (TINY3D_OS_LINUX)
 	# Linux
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
-		LINK_PRIVATE T3DUtils
 		)
 
 	add_custom_command(TARGET ${BIN_NAME}
@@ -129,14 +120,12 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
-		LINK_PRIVATE T3DUtils
         )
 elseif (TINY3D_OS_ANDROID)
 	# Android
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
-		LINK_PRIVATE T3DUtils
         )
 endif (TINY3D_OS_WINDOWS)
 

@@ -182,6 +182,8 @@ find_package(SDL2)
 add_subdirectory(Platform)
 # Project Log
 add_subdirectory(Log)
+# Project Utils
+add_subdirectory(Utils)
 # Project Framework
 add_subdirectory(Framework)
 # Project Math
@@ -212,9 +214,10 @@ add_subdirectory(Plugins)
 
 # Set the dependencies for all projects.
 add_dependencies(T3DLog T3DPlatform)
+add_dependencies(T3DUtils T3DLog T3DPlatform)
 add_dependencies(T3DMath T3DLog T3DPlatform)
 add_dependencies(T3DFramework T3DLog T3DPlatform)
-add_dependencies(T3DCore T3DMath T3DFramework T3DLog T3DPlatform)
+add_dependencies(T3DCore T3DMath T3DFramework T3DUtils T3DLog T3DPlatform)
 
 if (TINY3D_BUILD_TOOLS)
 	add_subdirectory(Tools)

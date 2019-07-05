@@ -29,6 +29,7 @@ namespace Tiny3D
 {
     class ScriptLexer;
     class ScriptParser;
+    class ScriptTranslator;
 
     class ScriptCompiler
     {
@@ -104,6 +105,11 @@ namespace Tiny3D
          */
         bool compile(int32_t argc, const char *argv[]);
 
+        /**
+         * @brief 获取对应结点翻译器
+         */
+        ScriptTranslator *getTranslator(const AbstractNodePtr &node) const;
+
     protected:
         /**
          * @brief 打印使用方法
@@ -146,8 +152,20 @@ namespace Tiny3D
         // 处理导入AST结点
         bool processImports(AbstractNodeList &nodes);
 
-        // 加载导入文件，并且声称对应的抽象语法树
-        AbstractNodeListPtr loadImportPath(const String &name);
+        // 加载导入文件，并且生成对应的抽象语法树
+        bool loadImportPath(const String &name, AbstractNodeListPtr &ast);
+
+        // 根据给定的target在nodes中查找到对应的AST
+        bool locateTarget(const AbstractNodeList& nodes, const String &target, AbstractNodeList &ast);
+
+        // 处理对象AST结点
+        bool processObjects(AbstractNodeList& nodes, const AbstractNodeList &top);
+
+        // 合并基类和子类对象，生成一个完整新对象
+        bool overlayObject(const AbstractNode &source, ObjectAbstractNode& dest);
+
+        // 处理变量替换
+        bool processVariables(AbstractNodeList& nodes);
 
         // 对应类型脚本是否包含不符合该脚本类型的对象
         bool isNameExcluded(const ObjectAbstractNode& node, AbstractNode *parent);
@@ -174,8 +192,12 @@ namespace Tiny3D
         ImportRequestMap    mImportRequests;
         AbstractNodeList    mImportTable;
 
-        ScriptLexer     *mLexer;
-        ScriptParser    *mParser;
+        ScriptTranslator    *mMaterialTranslator;
+
+        ScriptLexer         *mLexer;
+        ScriptParser        *mParser;
+
+        String              mProjDir;   /**< 当前编译文件路径 */
     };
 }
 

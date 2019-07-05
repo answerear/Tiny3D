@@ -20,7 +20,7 @@
 #ifndef __T3D_FIX64_H__
 #define __T3D_FIX64_H__
 
-#include "T3DMathPrerequisites.h"
+#include "T3DUtilsPrerequisites.h"
 #include "T3DFix32.h"
 
 namespace Tiny3D
@@ -29,7 +29,7 @@ namespace Tiny3D
      * @brief 64位定点数类
      * @remarks 64位定点数构成是用高40位作为整数部分，低24位用来做小数部分
      */
-    class T3D_MATH_API fix64
+    class T3D_UTILS_API fix64
     {
     public:
         static const int32_t INTEGER_BITS;      // 整数位数
@@ -199,6 +199,8 @@ namespace Tiny3D
     private:
         int64_t	m;
     };
+
+    typedef fix64 fix64_t;
 }
 
 #include "T3DFix64.inl"

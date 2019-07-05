@@ -21,6 +21,7 @@ include_directories(
     "${TINY3D_FRAMEWORK_SOURCE_DIR}/Include"
     "${TINY3D_PLATFORM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
+	"${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${SDL2_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${TINY3D_DEP_DIR}/zlib/include"    # only for windows
@@ -56,6 +57,7 @@ if (TINY3D_OS_WINDOWS)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DCore
         LINK_PRIVATE ${TINY3D_ZLIB_LIBRARY}
@@ -65,6 +67,7 @@ elseif (TINY3D_OS_LINUX)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DCore
         LINK_PRIVATE z
@@ -89,6 +92,7 @@ elseif (TINY3D_OS_IOS)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DCore
         LINK_PRIVATE z
@@ -98,6 +102,7 @@ else (TINY3D_OS_WINDOWS)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DCore
         LINK_PRIVATE z

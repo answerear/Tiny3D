@@ -31,8 +31,6 @@
 #include "Resource/T3DDylib.h"
 #include "Resource/T3DDylibManager.h"
 
-#include "DataStruct/T3DString.h"
-
 #include "Memory/T3DObjectTracer.h"
 
 #include "Render/T3DRenderer.h"

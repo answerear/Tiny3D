@@ -64,6 +64,9 @@ typedef unsigned int        uint32_t;
     typedef uint32_t            ulong_t;
 #endif
 
+typedef float               float32_t;
+typedef double              float64_t;
+
 typedef std::string         String;
 typedef std::wstring        WString;
 

@@ -23,8 +23,6 @@
 
 #include "T3DMathPrerequisites.h"
 
-#include "T3DFix32.h"
-#include "T3DFix64.h"
 #include "T3DReal.h"
 #include "T3DDegree.h"
 #include "T3DRadian.h"

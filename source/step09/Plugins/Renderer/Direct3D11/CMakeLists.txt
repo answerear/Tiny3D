@@ -21,6 +21,7 @@ include_directories(
     "${TINY3D_FRAMEWORK_SOURCE_DIR}/Include"
     "${TINY3D_PLATFORM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
+	"${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${DirectX11_INCLUDE_DIR}"
     )
@@ -45,6 +46,7 @@ target_link_libraries(
     ${DirectX11_LIBRARIES}
     T3DMath
     T3DLog
+	T3DUtils
     T3DPlatform
     T3DCore
     )

@@ -21,7 +21,6 @@
 #define __T3D_MATH_PREREQUISITES_H__
 
 
-#include "T3DMacro.h"
 #include <stdarg.h>
 
 
@@ -32,23 +31,15 @@
 #endif
 
 
-#include "T3DPlatform.h"
+#include <T3DPlatform.h>
+#include <T3DUtils.h>
 
 
 namespace Tiny3D
 {
-    class fix32;
-    class fix64;
-
     template <typename T> class TDegree;
     template <typename T> class TRadian;
 }
-
-typedef float               float32_t;
-typedef double              float64_t;
-
-typedef Tiny3D::fix32       fix32_t;
-typedef Tiny3D::fix64       fix64_t;
 
 
 #endif    /*__T3D_MATH_PREREQUISITES_H__*/

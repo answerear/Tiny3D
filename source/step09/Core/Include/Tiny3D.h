@@ -47,10 +47,6 @@
 #include <Resource/T3DResource.h>
 #include <Resource/T3DResourceManager.h>
 
-// DataStruct
-#include <DataStruct/T3DVariant.h>
-#include <DataStruct/T3DString.h>
-
 // ImageCodec
 #include <ImageCodec/T3DImageCodec.h>
 #include <ImageCodec/T3DImageCodecBase.h>

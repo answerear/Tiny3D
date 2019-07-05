@@ -495,6 +495,88 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool ScriptParser::parseChunk(const TokenListPtr &tokens, AbstractNodeListPtr &ast)
+    {
+        bool ret = false;
+
+        do 
+        {
+            ConcreteNodeListPtr nodes(new ConcreteNodeList());
+
+            ret = parseChunk(tokens, nodes);
+            if (!ret)
+            {
+                break;
+            }
+
+            ret = convertToAST(*nodes, ast);
+            if (!ret)
+            {
+                break;
+            }
+
+            ret = true;
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptParser::parseChunk(const TokenListPtr &tokens, ConcreteNodeListPtr &nodes)
+    {
+        bool ret = false;
+
+        ConcreteNodePtr node;
+        Token *token = 0;
+        for (TokenList::const_iterator i = tokens->begin(); i != tokens->end(); ++i)
+        {
+            token = (*i).get();
+
+            switch (token->type)
+            {
+            case TID_VARIABLE:
+                node = ConcreteNodePtr(new ConcreteNode());
+                node->file = token->file;
+                node->line = token->line;
+                node->parent = 0;
+                node->token = token->lexeme;
+                node->type = CNT_VARIABLE;
+                ret = true;
+                break;
+            case TID_WORD:
+                node = ConcreteNodePtr(new ConcreteNode());
+                node->file = token->file;
+                node->line = token->line;
+                node->parent = 0;
+                node->token = token->lexeme;
+                node->type = CNT_WORD;
+                ret = true;
+                break;
+            case TID_QUOTE:
+                node = ConcreteNodePtr(new ConcreteNode());
+                node->file = token->file;
+                node->line = token->line;
+                node->parent = 0;
+                node->token = token->lexeme.substr(1, token->lexeme.size() - 2);
+                node->type = CNT_QUOTE;
+                ret = true;
+                break;
+            default:
+                ScriptError::printError(CERR_UNEXPECTEDTOKEN, token->lexeme, token->file, token->line);
+                ret = false;
+                break;
+            }
+
+            if (ret && node)
+                nodes->push_back(node);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool ScriptParser::convertToAST(const ConcreteNodeList &nodes, AbstractNodeListPtr &ast)
     {
         bool ret = false;

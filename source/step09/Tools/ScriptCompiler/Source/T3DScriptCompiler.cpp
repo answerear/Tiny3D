@@ -22,6 +22,7 @@
 #include "T3DScriptLexer.h"
 #include "T3DScriptParser.h"
 #include "T3DScriptError.h"
+#include "T3DScriptTranslator.h"
 
 
 namespace Tiny3D
@@ -47,6 +48,25 @@ namespace Tiny3D
 
         delete mParser;
         mParser = nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ScriptTranslator *ScriptCompiler::getTranslator(const AbstractNodePtr &node) const
+    {
+        ScriptTranslator *translator = nullptr;
+
+        if (node->type == ANT_OBJECT)
+        {
+            ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
+            ObjectAbstractNode *parent = obj->parent ? static_cast<ObjectAbstractNode*>(obj->parent) : nullptr;
+            if (obj->id == ID_MATERIAL)
+            {
+                translator = mMaterialTranslator;
+            }
+        }
+
+        return translator;
     }
 
     //--------------------------------------------------------------------------
@@ -87,21 +107,21 @@ namespace Tiny3D
 
     void ScriptCompiler::printUsage()
     {
-        T3D_LOG_INFO(LOG_TAG, "Usage : ");
-        T3D_LOG_INFO(LOG_TAG, "  scc input_files [options]");
-        T3D_LOG_INFO(LOG_TAG, "    Options : ");
-        T3D_LOG_INFO(LOG_TAG, "      -v : Print version.");
-        T3D_LOG_INFO(LOG_TAG, "      -h : Print help.");
-        T3D_LOG_INFO(LOG_TAG, "      -p : Set the directory of the project. If this options is set, all input files in the list will be relative path.");
-        T3D_LOG_INFO(LOG_TAG, "      -d : Set the directory of output files. If \'-p\' is set, this path will be relative to the project path.");
-        T3D_LOG_INFO(LOG_TAG, "      -l : Set the link file and link all script binary file (*.tsc) to one file. Default is not linking.");
+        printf("Usage : ");
+        printf("  scc input_files [options]");
+        printf("    Options : ");
+        printf("      -v : Print version.");
+        printf("      -h : Print help.");
+        printf("      -p : Set the directory of the project. If this options is set, all input files in the list will be relative path.");
+        printf("      -d : Set the directory of output files. If \'-p\' is set, this path will be relative to the project path.");
+        printf("      -l : Set the link file and link all script binary file (*.tsc) to one file. Default is not linking.");
     }
 
     //--------------------------------------------------------------------------
 
     void ScriptCompiler::printVersion()
     {
-        T3D_LOG_INFO(LOG_TAG, "Version : %s", CURRENT_VERSION_STR);
+        printf("Version : %s", CURRENT_VERSION_STR);
     }
 
     //--------------------------------------------------------------------------
@@ -209,6 +229,9 @@ namespace Tiny3D
 
         T3D_LOG_INFO(LOG_TAG, "1>---------- Build started: ----------");
 
+        size_t success = 0;
+        size_t failure = 0;
+
         do 
         {
             String outDir;
@@ -228,13 +251,16 @@ namespace Tiny3D
                     input = *itr;
                 }
 
-                // 
+                // 解析出路径、文件名、文件扩展名
                 String path;
                 String filename;
                 getFileName(input, path, filename);
                 String title;
                 String ext;
                 getFileTitle(filename, title, ext);
+
+                // 保存当前源码路径，用于后续import的导入依赖脚本源码文件
+                mProjDir = path;
 
                 T3D_LOG_INFO(LOG_TAG, "1>%s compiling ...", filename.c_str());
 
@@ -254,10 +280,14 @@ namespace Tiny3D
                 if (!ret)
                 {
                     // 失败了
-                    break;
+                    failure++;
+                    T3D_LOG_INFO(LOG_TAG, "1>%s compiling failed !", filename.c_str());
                 }
-
-                T3D_LOG_INFO(LOG_TAG, "1>%s compiling done", filename.c_str());
+                else
+                {
+                    success++;
+                    T3D_LOG_INFO(LOG_TAG, "1>%s compiling done !", filename.c_str());
+                }
             }
 
             if (!ret)
@@ -274,7 +304,7 @@ namespace Tiny3D
             }
         } while (0);
 
-        T3D_LOG_INFO(LOG_TAG, "========== Build: %d succeeded %d failed ==========", 1, 0);
+        T3D_LOG_INFO(LOG_TAG, "========== Build: %d succeeded , %d failed ==========", success, failure);
 
         return ret;
     }
@@ -287,6 +317,7 @@ namespace Tiny3D
 
         do
         {
+            // 读取源码
             String content;
             ret = readSourceFile(content, input);
             if (!ret)
@@ -298,9 +329,38 @@ namespace Tiny3D
             TokenListPtr tokens = ScriptLexer::getInstance().tokenize(content, input);
 
             // 语法分析
-            AbstractNodeListPtr ast(new AbstractNodeList());
+            AbstractNodeListPtr ast;
             ret = ScriptParser::getInstance().parse(tokens, ast);
+            if (!ret)
+            {
+                break;
+            }
 
+            // 处理导入模块
+            ret = processImports(*ast);
+            if (!ret)
+            {
+                break;
+            }
+
+            // 处理对象，主要是处理对象继承属性
+            ret = processObjects(*ast, *ast);
+            if (!ret)
+            {
+                break;
+            }
+
+            // 处理变量，替换掉变量
+            ret = processVariables(*ast);
+            if (!ret)
+            {
+                break;
+            }
+
+            for (auto i = ast->begin(); i != ast->end(); ++i)
+            {
+
+            }
         } while (0);
 
         return ret;
@@ -384,97 +444,475 @@ namespace Tiny3D
 
     bool ScriptCompiler::processImports(AbstractNodeList &nodes)
     {
-//         // We only need to iterate over the top-level of nodes
-//         AbstractNodeList::iterator i = nodes.begin();
-//         while (i != nodes.end())
-//         {
-//             // We move to the next node here and save the current one.
-//             // If any replacement happens, then we are still assured that
-//             // i points to the node *after* the replaced nodes, no matter
-//             // how many insertions and deletions may happen
-//             AbstractNodeList::iterator cur = i++;
-//             if ((*cur)->type == ANT_IMPORT)
-//             {
-//                 ImportAbstractNode *import = (ImportAbstractNode*)(*cur).get();
-//                 // Only process if the file's contents haven't been loaded
-//                 if (mImports.find(import->source) == mImports.end())
-//                 {
-//                     // Load the script
-//                     AbstractNodeListPtr importedNodes = loadImportPath(import->source);
-//                     if (importedNodes && !importedNodes->empty())
-//                     {
-//                         processImports(*importedNodes);
-//                         processObjects(*importedNodes, *importedNodes);
-//                     }
-//                     if (importedNodes && !importedNodes->empty())
-//                         mImports.insert(std::make_pair(import->source, importedNodes));
-//                 }
-// 
-//                 // Handle the target request now
-//                 // If it is a '*' import we remove all previous requests and just use the '*'
-//                 // Otherwise, ensure '*' isn't already registered and register our request
-//                 if (import->target == "*")
-//                 {
-//                     mImportRequests.erase(mImportRequests.lower_bound(import->source),
-//                         mImportRequests.upper_bound(import->source));
-//                     mImportRequests.insert(std::make_pair(import->source, "*"));
-//                 }
-//                 else
-//                 {
-//                     ImportRequestMap::iterator iter = mImportRequests.lower_bound(import->source),
-//                         end = mImportRequests.upper_bound(import->source);
-//                     if (iter == end || iter->second != "*")
-//                     {
-//                         mImportRequests.insert(std::make_pair(import->source, import->target));
-//                     }
-//                 }
-// 
-//                 nodes.erase(cur);
-//             }
-//         }
-// 
-//         // All import nodes are removed
-//         // We have cached the code blocks from all the imported scripts
-//         // We can process all import requests now
-//         for (ImportCacheMap::iterator it = mImports.begin(); it != mImports.end(); ++it)
-//         {
-//             ImportRequestMap::iterator j = mImportRequests.lower_bound(it->first),
-//                 end = mImportRequests.upper_bound(it->first);
-//             if (j != end)
-//             {
-//                 if (j->second == "*")
-//                 {
-//                     // Insert the entire AST into the import table
-//                     mImportTable.insert(mImportTable.begin(), it->second->begin(), it->second->end());
-//                     continue; // Skip ahead to the next file
-//                 }
-//                 else
-//                 {
-//                     for (; j != end; ++j)
-//                     {
-//                         // Locate this target and insert it into the import table
-//                         AbstractNodeList newNodes = locateTarget(*it->second, j->second);
-//                         if (!newNodes.empty())
-//                             mImportTable.insert(mImportTable.begin(), newNodes.begin(), newNodes.end());
-//                     }
-//                 }
-//             }
-//         }
+        bool ret = false;
+
+        // We only need to iterate over the top-level of nodes
+        AbstractNodeList::iterator i = nodes.begin();
+        while (i != nodes.end())
+        {
+            // We move to the next node here and save the current one.
+            // If any replacement happens, then we are still assured that
+            // i points to the node *after* the replaced nodes, no matter
+            // how many insertions and deletions may happen
+            AbstractNodeList::iterator cur = i++;
+            if ((*cur)->type == ANT_IMPORT)
+            {
+                ImportAbstractNode *import = (ImportAbstractNode*)(*cur).get();
+                // Only process if the file's contents haven't been loaded
+                if (mImports.find(import->source) == mImports.end())
+                {
+                    // Load the script
+                    AbstractNodeListPtr importedNodes;
+                    ret  = loadImportPath(import->source, importedNodes);
+                    if (ret && importedNodes && !importedNodes->empty())
+                    {
+                        processImports(*importedNodes);
+                        processObjects(*importedNodes, *importedNodes);
+                    }
+                    if (ret && importedNodes && !importedNodes->empty())
+                        mImports.insert(std::make_pair(import->source, importedNodes));
+                }
+
+                // Handle the target request now
+                // If it is a '*' import we remove all previous requests and just use the '*'
+                // Otherwise, ensure '*' isn't already registered and register our request
+                if (import->target == "*")
+                {
+                    mImportRequests.erase(mImportRequests.lower_bound(import->source),
+                        mImportRequests.upper_bound(import->source));
+                    mImportRequests.insert(std::make_pair(import->source, "*"));
+                }
+                else
+                {
+                    ImportRequestMap::iterator iter = mImportRequests.lower_bound(import->source),
+                        end = mImportRequests.upper_bound(import->source);
+                    if (iter == end || iter->second != "*")
+                    {
+                        mImportRequests.insert(std::make_pair(import->source, import->target));
+                    }
+                }
+
+                nodes.erase(cur);
+            }
+        }
+
+        // All import nodes are removed
+        // We have cached the code blocks from all the imported scripts
+        // We can process all import requests now
+        for (ImportCacheMap::iterator it = mImports.begin(); it != mImports.end(); ++it)
+        {
+            ImportRequestMap::iterator j = mImportRequests.lower_bound(it->first),
+                end = mImportRequests.upper_bound(it->first);
+            if (j != end)
+            {
+                if (j->second == "*")
+                {
+                    // Insert the entire AST into the import table
+                    mImportTable.insert(mImportTable.begin(), it->second->begin(), it->second->end());
+                    continue; // Skip ahead to the next file
+                }
+                else
+                {
+                    for (; j != end; ++j)
+                    {
+                        // Locate this target and insert it into the import table
+                        AbstractNodeList newNodes;
+                        ret = locateTarget(*it->second, j->second, newNodes);
+                        if (ret && !newNodes.empty())
+                            mImportTable.insert(mImportTable.begin(), newNodes.begin(), newNodes.end());
+                    }
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptCompiler::loadImportPath(const String &name, AbstractNodeListPtr &ast)
+    {
+        AbstractNodeListPtr retval;
+        ConcreteNodeListPtr nodes;
+
+        bool ret = false;
+
+        do 
+        {
+            String input = mProjDir + "/" + name;
+            String content;
+            ret = readSourceFile(content, input);
+            if (!ret)
+            {
+                break;
+            }
+
+            // 词法分析
+            TokenListPtr tokens = ScriptLexer::getInstance().tokenize(content, input);
+
+            // 语法分析
+            ret = ScriptParser::getInstance().parse(tokens, ast);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptCompiler::locateTarget(const AbstractNodeList& nodes, const String &target, AbstractNodeList &ast)
+    {
+        auto iter = nodes.end();
+
+        // Search for a top-level object node
+        for (auto i = nodes.begin(); i != nodes.end(); ++i)
+        {
+            if ((*i)->type == ANT_OBJECT)
+            {
+                ObjectAbstractNode *impl = (ObjectAbstractNode*)(*i).get();
+                if (impl->name == target)
+                    iter = i;
+            }
+        }
+
+        if (iter != nodes.end())
+        {
+            ast.push_back(*iter);
+        }
 
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    AbstractNodeListPtr ScriptCompiler::loadImportPath(const String &name)
+    bool ScriptCompiler::processObjects(AbstractNodeList& nodes, const AbstractNodeList &top)
     {
-        AbstractNodeListPtr retval;
-        ConcreteNodeListPtr nodes;
+        bool ret = false;
 
+        for (AbstractNodeList::iterator i = nodes.begin(); i != nodes.end(); ++i)
+        {
+            if ((*i)->type == ANT_OBJECT)
+            {
+                ObjectAbstractNode *obj = (ObjectAbstractNode*)(*i).get();
 
-//         nodes = mParser->parse(mLexer->tokenize(stream->getAsString(), name));
+                // Overlay base classes in order.
+                for (std::vector<String>::const_iterator baseIt = obj->bases.begin(), end_it = obj->bases.end(); baseIt != end_it; ++baseIt)
+                {
+                    const String& base = *baseIt;
+                    // Check the top level first, then check the import table
+                    AbstractNodeList newNodes;
+                    ret = locateTarget(top, base, newNodes);
+                    if (ret && newNodes.empty())
+                        ret = locateTarget(mImportTable, base, newNodes);
 
-        return retval;
+                    if (ret && !newNodes.empty()) 
+                    {
+                        for (AbstractNodeList::iterator j = newNodes.begin(); j != newNodes.end(); ++j) 
+                        {
+                            ret = overlayObject(**j, *obj);
+                        }
+                    }
+                    else 
+                    {
+                        ScriptError::printError(CERR_OBJECTBASENOTFOUND, base, obj->file, obj->line);
+                    }
+                }
+
+                // Recurse into children
+                ret = processObjects(obj->children, top);
+                if (!ret)
+                {
+                    break;
+                }
+
+                // Overrides now exist in obj's overrides list. These are non-object nodes which must now
+                // Be placed in the children section of the object node such that overriding from parents
+                // into children works properly.
+                obj->children.insert(obj->children.begin(), obj->overrides.begin(), obj->overrides.end());
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptCompiler::overlayObject(const AbstractNode &source, ObjectAbstractNode& dest)
+    {
+        bool ret = false;
+
+        if (source.type == ANT_OBJECT)
+        {
+            const ObjectAbstractNode& src = static_cast<const ObjectAbstractNode&>(source);
+
+            // Overlay the environment of one on top the other first
+            for (std::map<String, String>::const_iterator i = src.getVariables().begin(); i != src.getVariables().end(); ++i)
+            {
+                std::pair<bool, String> var = dest.getVariable(i->first);
+                if (!var.first)
+                    dest.setVariable(i->first, i->second);
+            }
+
+            // Create a vector storing each pairing of override between source and destination
+            std::vector<std::pair<AbstractNodePtr, AbstractNodeList::iterator> > overrides;
+            // A list of indices for each destination node tracks the minimum
+            // source node they can index-match against
+            std::map<ObjectAbstractNode*, size_t> indices;
+            // A map storing which nodes have overridden from the destination node
+            std::map<ObjectAbstractNode*, bool> overridden;
+
+            // Fill the vector with objects from the source node (base)
+            // And insert non-objects into the overrides list of the destination
+            AbstractNodeList::iterator insertPos = dest.children.begin();
+            for (AbstractNodeList::const_iterator i = src.children.begin(); i != src.children.end(); ++i)
+            {
+                if ((*i)->type == ANT_OBJECT)
+                {
+                    overrides.push_back(std::make_pair(*i, dest.children.end()));
+                }
+                else
+                {
+                    AbstractNodePtr newNode((*i)->clone());
+                    newNode->parent = &dest;
+                    dest.overrides.push_back(newNode);
+                }
+            }
+
+            // Track the running maximum override index in the name-matching phase
+            size_t maxOverrideIndex = 0;
+
+            // Loop through destination children searching for name-matching overrides
+            for (AbstractNodeList::iterator i = dest.children.begin(); i != dest.children.end(); )
+            {
+                if ((*i)->type == ANT_OBJECT)
+                {
+                    // Start tracking the override index position for this object
+                    size_t overrideIndex = 0;
+
+                    ObjectAbstractNode *node = static_cast<ObjectAbstractNode*>((*i).get());
+                    indices[node] = maxOverrideIndex;
+                    overridden[node] = false;
+
+                    // special treatment for materials with * in their name
+                    bool nodeHasWildcard = node->name.find('*') != String::npos;
+
+                    // Find the matching name node
+                    for (size_t j = 0; j < overrides.size(); ++j)
+                    {
+                        ObjectAbstractNode *temp = static_cast<ObjectAbstractNode*>(overrides[j].first.get());
+                        // Consider a match a node that has a wildcard and matches an input name
+                        bool wildcardMatch = nodeHasWildcard &&
+                            (StringUtil::match(temp->name, node->name, true) ||
+                            (node->name.size() == 1 && temp->name.empty()));
+                        if (temp->cls == node->cls && !node->name.empty() && (temp->name == node->name || wildcardMatch))
+                        {
+                            // Pair these two together unless it's already paired
+                            if (overrides[j].second == dest.children.end())
+                            {
+                                AbstractNodeList::iterator currentIterator = i;
+                                ObjectAbstractNode *currentNode = node;
+                                if (wildcardMatch)
+                                {
+                                    //If wildcard is matched, make a copy of current material and put it before the iterator, matching its name to the parent. Use same reinterpret cast as above when node is set
+                                    AbstractNodePtr newNode((*i)->clone());
+                                    currentIterator = dest.children.insert(currentIterator, newNode);
+                                    currentNode = static_cast<ObjectAbstractNode*>((*currentIterator).get());
+                                    currentNode->name = temp->name;//make the regex match its matcher
+                                }
+                                overrides[j] = std::make_pair(overrides[j].first, currentIterator);
+                                // Store the max override index for this matched pair
+                                overrideIndex = j;
+                                overrideIndex = maxOverrideIndex = std::max(overrideIndex, maxOverrideIndex);
+                                indices[currentNode] = overrideIndex;
+                                overridden[currentNode] = true;
+                            }
+                            else
+                            {
+                                ScriptError::printError(CERR_DUPLICATEOVERRIDE, node->cls, node->file, node->line);
+                            }
+
+                            if (!wildcardMatch)
+                                break;
+                        }
+                    }
+
+                    if (nodeHasWildcard)
+                    {
+                        //if the node has a wildcard it will be deleted since it was duplicated for every match
+                        AbstractNodeList::iterator deletable = i++;
+                        dest.children.erase(deletable);
+                    }
+                    else
+                    {
+                        ++i; //Behavior in absence of regex, just increment iterator
+                    }
+                }
+                else
+                {
+                    ++i; //Behavior in absence of replaceable object, just increment iterator to find another
+                }
+            }
+
+            // Now make matches based on index
+            // Loop through destination children searching for index-matching overrides
+            for (AbstractNodeList::iterator i = dest.children.begin(); i != dest.children.end(); ++i)
+            {
+                if ((*i)->type == ANT_OBJECT)
+                {
+                    ObjectAbstractNode *node = static_cast<ObjectAbstractNode*>((*i).get());
+                    if (!overridden[node])
+                    {
+                        // Retrieve the minimum override index from the map
+                        size_t overrideIndex = indices[node];
+
+                        if (overrideIndex < overrides.size())
+                        {
+                            // Search for minimum matching override
+                            for (size_t j = overrideIndex; j < overrides.size(); ++j)
+                            {
+                                ObjectAbstractNode *temp = static_cast<ObjectAbstractNode*>(overrides[j].first.get());
+                                if (temp->name.empty() && node->name.empty() && temp->cls == node->cls && overrides[j].second == dest.children.end())
+                                {
+                                    overrides[j] = std::make_pair(overrides[j].first, i);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Loop through overrides, either inserting source nodes or overriding
+            insertPos = dest.children.begin();
+            for (size_t i = 0; i < overrides.size(); ++i)
+            {
+                if (overrides[i].second != dest.children.end())
+                {
+                    // Override the destination with the source (base) object
+                    ret = overlayObject(*overrides[i].first,
+                        static_cast<ObjectAbstractNode&>(**overrides[i].second));
+                    insertPos = overrides[i].second;
+                    insertPos++;
+                }
+                else
+                {
+                    // No override was possible, so insert this node at the insert position
+                    // into the destination (child) object
+                    AbstractNodePtr newNode(overrides[i].first->clone());
+                    newNode->parent = &dest;
+                    if (insertPos != dest.children.end())
+                    {
+                        dest.children.insert(insertPos, newNode);
+                    }
+                    else
+                    {
+                        dest.children.push_back(newNode);
+                    }
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptCompiler::processVariables(AbstractNodeList& nodes)
+    {
+        bool ret = false;
+
+        AbstractNodeList::iterator i = nodes.begin();
+        while (i != nodes.end())
+        {
+            AbstractNodeList::iterator cur = i;
+            ++i;
+
+            if ((*cur)->type == ANT_OBJECT)
+            {
+                // Only process if this object is not abstract
+                ObjectAbstractNode *obj = (ObjectAbstractNode*)(*cur).get();
+                if (!obj->abstrct)
+                {
+                    ret = processVariables(obj->children);
+                    if (!ret)
+                        break;
+                    ret = processVariables(obj->values);
+                    if (!ret)
+                        break;
+                }
+            }
+            else if ((*cur)->type == ANT_PROPERTY)
+            {
+                PropertyAbstractNode *prop = (PropertyAbstractNode*)(*cur).get();
+                ret = processVariables(prop->values);
+                if (!ret)
+                    break;
+            }
+            else if ((*cur)->type == ANT_VARIABLE_ACCESS)
+            {
+                VariableAccessAbstractNode *var = (VariableAccessAbstractNode*)(*cur).get();
+
+                // Look up the enclosing scope
+                ObjectAbstractNode *scope = 0;
+                AbstractNode *temp = var->parent;
+                while (temp)
+                {
+                    if (temp->type == ANT_OBJECT)
+                    {
+                        scope = (ObjectAbstractNode*)temp;
+                        break;
+                    }
+                    temp = temp->parent;
+                }
+
+                // Look up the variable in the environment
+                std::pair<bool, String> varAccess;
+                if (scope)
+                    varAccess = scope->getVariable(var->name);
+                if (!scope || !varAccess.first)
+                {
+                    std::map<String, String>::iterator k = mEnv.find(var->name);
+                    varAccess.first = k != mEnv.end();
+                    if (varAccess.first)
+                        varAccess.second = k->second;
+                }
+
+                if (varAccess.first)
+                {
+                    // Found the variable, so process it and insert it into the tree
+                    AbstractNodeListPtr ast;
+                    TokenListPtr tokens = ScriptLexer::getInstance().tokenize(varAccess.second, var->file);
+                    ret = ScriptParser::getInstance().parseChunk(tokens, ast);
+                    if (!ret)
+                    {
+                        break;
+                    }
+
+                    // Set up ownership for these nodes
+                    for (AbstractNodeList::iterator j = ast->begin(); j != ast->end(); ++j)
+                        (*j)->parent = var->parent;
+
+                    // Recursively handle variable accesses within the variable expansion
+                    ret = processVariables(*ast);
+                    if (!ret)
+                        break;
+
+                    // Insert the nodes in place of the variable
+                    nodes.insert(cur, ast->begin(), ast->end());
+                }
+                else
+                {
+                    // Error
+                    ScriptError::printError(CERR_UNDEFINEDVARIABLE, var->name, var->file, var->line);
+                    ret = false;
+                    break;
+                }
+
+                // Remove the variable node
+                nodes.erase(cur);
+            }
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

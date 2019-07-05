@@ -19,7 +19,6 @@
 
 
 #include "Kernel/T3DConfigFile.h"
-#include "DataStruct/T3DVariant.h"
 #include "Support/tinyxml2/tinyxml2.h"
 #include "T3DErrorDef.h"
 #include "Resource/T3DArchive.h"

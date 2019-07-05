@@ -17,17 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_DATASTRUCT_H__
-#define __T3D_DATASTRUCT_H__
+#ifndef __T3D_VARIANT_H__
+#define __T3D_VARIANT_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
+#include "T3DUtilsPrerequisites.h"
+#include "T3DFix32.h"
+#include "T3DFix64.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API Variant
+    class T3D_UTILS_API Variant
     {
     public:
         enum Type

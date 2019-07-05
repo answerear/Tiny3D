@@ -17,15 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_SCRIPT_PREREQUISITES_H__
-#define __T3D_SCRIPT_PREREQUISITES_H__
+#ifndef __T3D_UTILS_H__
+#define __T3D_UTILS_H__
 
 
-#include <T3DPlatform.h>
-#include <T3DLog.h>
-#include <T3DUtils.h>
-#include <memory>
-#include <unordered_map>
+#include <T3DString.h>
+#include <T3DVariant.h>
+#include <T3DFix32.h>
+#include <T3DFix64.h>
 
 
-#endif  /*__T3D_SCRIPT_PREREQUISITES_H__*/
+#endif  /*__T3D_UTILS_H__*/

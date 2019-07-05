@@ -16,6 +16,7 @@ endif (MSVC)
 include_directories(
 	"${TINY3D_PLATFORM_INC_DIR}"
     "${TINY3D_MATH_INC_DIR}"
+	"${TINY3D_UTILS_INC_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
 	)
@@ -39,6 +40,7 @@ if (TINY3D_OS_WINDOWS)
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+		T3DUtils
         T3DMath
         )
 
@@ -69,6 +71,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 		target_link_libraries(
 	        ${LIB_NAME}
 	        T3DPlatform
+			T3DUtils
             T3DMath
 	        )
 
@@ -107,6 +110,7 @@ elseif (TINY3D_OS_LINUX)
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+		T3DUtils
         T3DMath
         )
 

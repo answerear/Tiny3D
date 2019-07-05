@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "DataStruct/T3DVariant.h"
+#include "T3DVariant.h"
 
 
 namespace Tiny3D

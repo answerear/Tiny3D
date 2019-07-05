@@ -99,20 +99,6 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(SGSprite);
     T3D_DECLARE_SMART_PTR(SGText2D);
 
-    typedef TArray<Variant>                 VariantArray;
-    typedef VariantArray::iterator          VariantArrayItr;
-    typedef VariantArray::const_iterator    VariantArrayConstItr;
-
-    typedef TList<Variant>                  VariantList;
-    typedef VariantList::iterator           VariantListItr;
-    typedef VariantList::const_iterator     VariantListConstItr;
-
-    typedef TMap<Variant, Variant>          VariantMap;
-    typedef VariantMap::iterator            VariantMapItr;
-    typedef VariantMap::const_iterator      VariantMapConstItr;
-
-    typedef TPair<Variant, Variant>         VariantMapValue;
-
     typedef VariantMap                      Settings;
 
     typedef TMap<String, RendererPtr>       Renderers;

@@ -16,6 +16,7 @@ endif (MSVC)
 include_directories(
     "${TINY3D_PLATFORM_INC_DIR}"
     "${TINY3D_LOG_INC_DIR}"
+	"${TINY3D_UTILS_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${SDL2_INCLUDE_DIR}"
     )
@@ -39,6 +40,7 @@ if (TINY3D_OS_WINDOWS)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+		T3DUtils
         )
 
     # Setup project folder
@@ -62,6 +64,7 @@ elseif (TINY3D_OS_MACOSX)
 		${LIB_NAME}
 		T3DPlatform
 		T3DLog
+		T3DUtils
 		)
 
 	# Setup all properties for this Mac OS X project.
@@ -110,6 +113,7 @@ elseif (TINY3D_OS_LINUX)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+		T3DUtils
         )
 
     # Setup install files and path for Windows.

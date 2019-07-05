@@ -21,6 +21,7 @@ endif (MSVC)
 # Setup all cmake variables for this project.
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
 set(TINY3D_MATH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Math")
+set(TINY3D_UTILS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Utils")
 set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
 set(TINY3D_FRAMEWORK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Framework")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies")
@@ -31,6 +32,7 @@ include_directories(
     "${TINY3D_PLATFORM_DIR}/Include"
     "${TINY3D_MATH_DIR}/Include"
     "${TINY3D_LOG_DIR}/Include"
+	"${TINY3D_UTILS_DIR}/Include"
     "${TINY3D_FRAMEWORK_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source"
@@ -47,8 +49,6 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 set_project_files(Include\\\\Kernel ${CMAKE_CURRENT_SOURCE_DIR}/Include/Kernel/ .h)
 set_project_files(Include\\\\Kernel ${CMAKE_CURRENT_SOURCE_DIR}/Include/Kernel/ .inl)
 set_project_files(Include\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Include/Resource/ .h)
-set_project_files(Include\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Include/DataStruct/ .h)
-set_project_files(Include\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Include/DataStruct/ .inl)
 set_project_files(Include\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Include/Memory/ .h)
 set_project_files(Include\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/ .h)
 set_project_files(Include\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/ .inl)
@@ -63,7 +63,6 @@ set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .i
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 set_project_files(Source\\\\Kernel ${CMAKE_CURRENT_SOURCE_DIR}/Source/Kernel/ .cpp)
 set_project_files(Source\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Source/Resource/ .cpp)
-set_project_files(Source\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Source/DataStruct/ .cpp)
 set_project_files(Source\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Source/Memory/ .cpp)
 set_project_files(Source\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/ .cpp)
 set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageCodec/ .cpp)
@@ -95,6 +94,7 @@ if (TINY3D_OS_WINDOWS)
             ${LIB_NAME}
             LINK_PRIVATE T3DPlatform
             LINK_PRIVATE T3DLog
+			LINK_PRIVATE T3DUtils
             LINK_PRIVATE T3DFramework
             LINK_PRIVATE T3DMath
             LINK_PRIVATE legacy_stdio_definitions
@@ -107,6 +107,7 @@ if (TINY3D_OS_WINDOWS)
             ${LIB_NAME}
             LINK_PRIVATE T3DPlatform
             LINK_PRIVATE T3DLog
+			LINK_PRIVATE T3DUtils
             LINK_PRIVATE T3DFramework
             LINK_PRIVATE T3DMath
             LINK_PRIVATE ${SDL2_LIBRARY}
@@ -160,6 +161,7 @@ elseif (TINY3D_OS_MACOSX)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DMath
         LINK_PRIVATE ${SDL2_LIBRARY}
@@ -172,6 +174,7 @@ elseif (TINY3D_OS_LINUX)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DMath
         LINK_PRIVATE ${SDL2_LIBRARY}
@@ -200,6 +203,7 @@ elseif (TINY3D_OS_IOS)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DMath
         )
@@ -209,6 +213,7 @@ elseif (TINY3D_OS_ANDROID)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DMath
         LINK_PRIVATE ${SDL2_BINARY}

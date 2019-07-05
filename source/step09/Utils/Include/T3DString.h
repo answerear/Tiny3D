@@ -21,21 +21,21 @@
 #define __T3D_STRING_H__
 
 
-#include "T3DPrerequisites.h"
+#include "T3DUtilsPrerequisites.h"
 
 
 namespace Tiny3D
 {
     typedef TArray<String>  StringArray;
 
-    class T3D_ENGINE_API StringUtil
+    class T3D_UTILS_API StringUtil
     {
     public:
         /**
          * @brief 分离字符串
          * @param [in] str : 待分离的字符串
          * @param [in] delmis : 分隔字符，默认是空格字符
-         * @param [in] maxSplits : 分离出来的最大字符串数，默认就是实际分离的数量
+         * @param [in] maxSplits : 分离出来的最大字符串数，默认就是实际分离数量
          * @return 返回分离出来的字符串数组
          */
         static StringArray split(const String &str, const String &delims = " ", 
@@ -78,7 +78,8 @@ namespace Tiny3D
          * @param [in] lowerCase : 是否全小写比较
          * @return 符合pattern形式字符串开始返回true。
          */
-        static bool startsWith(const String& str, const String& pattern, bool lowerCase = true);
+        static bool startsWith(const String& str, const String& pattern, 
+            bool lowerCase = true);
 
         /**
          * @brief 判断是否包含以 pattern 表示结束的字符串
@@ -87,7 +88,8 @@ namespace Tiny3D
          * @param [in] lowerCase : 是否全小写比较
          * @return 符合pattern形式字符串结尾返回true。
          */
-        static bool endsWith(const String& str, const String& pattern, bool lowerCase = true);
+        static bool endsWith(const String& str, const String& pattern, 
+            bool lowerCase = true);
 
         /**
          * @brief 替换所有指定的字符串为新的字符串
@@ -95,7 +97,18 @@ namespace Tiny3D
          * @param [in] replaceWhat : 被替换的字符串
          * @param [in] replaceWithWhat : 替换进去的新字符串
          */
-        static void replaceAll(String &str, const String &replaceWhat, const String &replaceWithWhat);
+        static void replaceAll(String &str, const String &replaceWhat, 
+            const String &replaceWithWhat);
+
+        /**
+         * @brief 简单的字符串匹配查找
+         * @param [in] str : 输入字符串
+         * @param [in] pattern : 需要匹配的字符串，支持通配符 *
+         * @param pin] caseSensitive : 是否区分大小写，默认是区分大小写
+         * @return 找到匹配串，则返回true
+         */
+        static bool match(const String& str, const String& pattern, 
+            bool caseSensitive = true);
     };
 }
 

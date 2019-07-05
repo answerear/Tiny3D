@@ -22,13 +22,36 @@
 
 
 #include "T3DScriptPrerequisites.h"
+#include "T3DScriptType.h"
+#include "T3DScriptASTree.h"
 
 
 namespace Tiny3D
 {
+    class ScriptCompiler;
+
+    //--------------------------------------------------------------------------
+
     class ScriptTranslator
     {
+    public:
+        T3D_DECLARE_INTERFACE(ScriptTranslator);
 
+        /**
+         * @brief 转换成对应格式，写到数据流对象中
+         */
+        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) = 0;
+
+    protected:
+        size_t processNode(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node);
+    };
+
+    //--------------------------------------------------------------------------
+
+    class MaterialTranslator : public ScriptTranslator
+    {
+    public:
+        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
     };
 }
 
