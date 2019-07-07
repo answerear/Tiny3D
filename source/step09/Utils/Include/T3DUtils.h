@@ -22,6 +22,7 @@
 
 
 #include <T3DString.h>
+#include <T3DStringConverter.h>
 #include <T3DVariant.h>
 #include <T3DFix32.h>
 #include <T3DFix64.h>

@@ -179,6 +179,9 @@ namespace Tiny3D
         // 从完整文件名中获取文件名和文件扩展名
         void getFileTitle(const String &filename, String &title, String &ext) const;
 
+        // 创建脚本转换器
+        void initTranslators();
+
     protected:
         IdMap mIds;
 
@@ -193,6 +196,8 @@ namespace Tiny3D
         AbstractNodeList    mImportTable;
 
         ScriptTranslator    *mMaterialTranslator;
+        ScriptTranslator    *mTechniqueTranslator;
+        ScriptTranslator    *mPassTranslator;
 
         ScriptLexer         *mLexer;
         ScriptParser        *mParser;

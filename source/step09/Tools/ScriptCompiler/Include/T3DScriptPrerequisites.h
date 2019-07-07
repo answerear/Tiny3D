@@ -24,6 +24,7 @@
 #include <T3DPlatform.h>
 #include <T3DLog.h>
 #include <T3DUtils.h>
+#include <T3DMathLib.h>
 #include <memory>
 #include <unordered_map>
 

@@ -37,17 +37,31 @@ namespace Tiny3D
         mParser = new ScriptParser(this);
 
         initWordMap();
+        initTranslators();
     }
 
     //--------------------------------------------------------------------------
 
     ScriptCompiler::~ScriptCompiler()
     {
+        delete mPassTranslator;
+        delete mTechniqueTranslator;
+        delete mMaterialTranslator;
+
         delete mLexer;
         mLexer = nullptr;
 
         delete mParser;
         mParser = nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ScriptCompiler::initTranslators()
+    {
+        mMaterialTranslator = new MaterialTranslator();
+        mTechniqueTranslator = new TechniqueTranslator();
+        mPassTranslator = new PassTranslator();
     }
 
     //--------------------------------------------------------------------------
@@ -63,6 +77,14 @@ namespace Tiny3D
             if (obj->id == ID_MATERIAL)
             {
                 translator = mMaterialTranslator;
+            }
+            else if (obj->id == ID_TECHNIQUE)
+            {
+                translator = mTechniqueTranslator;
+            }
+            else if (obj->id == ID_PASS)
+            {
+                translator = mPassTranslator;
             }
         }
 
