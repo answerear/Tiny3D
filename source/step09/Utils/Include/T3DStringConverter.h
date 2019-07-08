@@ -115,9 +115,9 @@ namespace Tiny3D
          * @param [in] flags : 标记，请参考std::ios::fmtflags
          * @return 返回字符串对象
          */
-        static String toString(size_t val,
-            uint16_t width = 0, char fill = ' ',
-            std::ios::fmtflags flags = std::ios::fmtflags(0));
+//         static String toString(size_t val,
+//             uint16_t width = 0, char fill = ' ',
+//             std::ios::fmtflags flags = std::ios::fmtflags(0));
 
         /**
          * @brief 把OS字长相关有符号整型转换成字符串
@@ -226,6 +226,13 @@ namespace Tiny3D
          */
         static bool parseBool(const String &val, 
             bool defaultValue = false);
+
+        /**
+         * @brief 是否数字
+         * @param [in] val : 数字字符串
+         * @return 是数字返回true
+         */
+        static bool isNumber(const String& val);
     };
 }
 

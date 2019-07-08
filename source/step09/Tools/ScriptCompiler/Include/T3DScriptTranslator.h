@@ -56,7 +56,7 @@ namespace Tiny3D
         bool getInt(const AbstractNodePtr &node, int32_t *result);
         bool getUInt(const AbstractNodePtr &node, uint32_t *result);
         bool getHex(const AbstractNodePtr &node, uint32_t *result);
-        bool getColor(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, ColorARGB *result, int32_t maxEntries = 4)
+        bool getColor(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, ColorARGB *result, int32_t maxEntries = 4);
     };
 
     //--------------------------------------------------------------------------
@@ -114,7 +114,7 @@ namespace Tiny3D
         size_t translateLightScissor(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateLightClipPlanes(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateTransparentSorting(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateIlluminationStage(PropertyAbstractNode *prop, DataStream &steram);
+        size_t translateIlluminationStage(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateCullHardware(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateCullSoftware(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateNormalizeNormals(PropertyAbstractNode *prop, DataStream &stream);
@@ -129,7 +129,7 @@ namespace Tiny3D
         size_t translateLightMask(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateIteration(PropertyAbstractNode *prop, DataStream &stream);
         size_t translatePointSize(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translatePointSprite(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translatePointSprites(PropertyAbstractNode *prop, DataStream &stream);
         size_t translatePointSizeAttenuation(PropertyAbstractNode *prop, DataStream &stream);
         size_t translatePointSizeMin(PropertyAbstractNode *prop, DataStream &stream);
         size_t translatePointSizeMax(PropertyAbstractNode *prop, DataStream &stream);

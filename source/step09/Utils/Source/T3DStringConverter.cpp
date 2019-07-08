@@ -129,18 +129,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String StringConverter::toString(size_t val,
-        uint16_t width /* = 0 */, char fill /* = ' ' */,
-        std::ios::fmtflags flags /* = std::ios::fmtflags(0) */)
-    {
-        std::stringstream ss;
-        ss.width(width);
-        ss.fill(fill);
-        if (flags)
-            ss.setf(flags);
-        ss << val;
-        return ss.str();
-    }
+//     String StringConverter::toString(size_t val,
+//         uint16_t width /* = 0 */, char fill /* = ' ' */,
+//         std::ios::fmtflags flags /* = std::ios::fmtflags(0) */)
+//     {
+//         std::stringstream ss;
+//         ss.width(width);
+//         ss.fill(fill);
+//         if (flags)
+//             ss.setf(flags);
+//         ss << val;
+//         return ss.str();
+//     }
 
     //--------------------------------------------------------------------------
 
@@ -291,6 +291,15 @@ namespace Tiny3D
             return false;
         else
             return defaultValue;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool StringConverter::isNumber(const String& val)
+    {
+        char* end;
+        strtod(val.c_str(), &end);
+        return end == (val.c_str() + val.size());
     }
 }
 

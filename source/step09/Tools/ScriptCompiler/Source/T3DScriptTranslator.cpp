@@ -286,7 +286,7 @@ namespace Tiny3D
                     break;
                 default:
                     {
-                        ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->name, prop->file, prop->line,
+                        ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
                             "token \"" + prop->name + "\" is not recognized");
                     }
                     break;
@@ -324,14 +324,14 @@ namespace Tiny3D
                 }
                 else
                 {
-                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
                         "lod_values expects only numbers as arguments");
                 }
             }
         }
         else
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
         }
 
         return totalBytes;
@@ -344,11 +344,11 @@ namespace Tiny3D
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
                 "receive_shadows only supports 1 argument");
         }
         else
@@ -361,7 +361,7 @@ namespace Tiny3D
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                     "receive_shadows argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
             }
         }
@@ -376,11 +376,11 @@ namespace Tiny3D
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
                 "transparency_casts_shadows only supports 1 argument");
         }
         else
@@ -393,7 +393,7 @@ namespace Tiny3D
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                     "transparency_casts_shadows argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
             }
         }
@@ -408,11 +408,11 @@ namespace Tiny3D
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
         }
         else if (prop->values.size() > 3)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
                 "set_texture_alias only supports 2 arguments");
         }
         else
@@ -428,7 +428,7 @@ namespace Tiny3D
                 bytesOfWritten = stream.write((void*)name.c_str(), len);
                 totalBytes += bytesOfWritten;
                 // value
-                uint16_t len = value.length();
+                len = value.length();
                 bytesOfWritten = stream.write(&len, sizeof(len));
                 totalBytes += bytesOfWritten;
                 bytesOfWritten = stream.write((void*)value.c_str(), len);
@@ -436,8 +436,8 @@ namespace Tiny3D
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
-                    "set_texture_alias must have 2 string argument")
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    "set_texture_alias must have 2 string argument");
             }
         }
 
@@ -503,7 +503,7 @@ namespace Tiny3D
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
                         "token \"" + prop->name + "\" is not recognized");
                     break;
                 }
@@ -525,11 +525,11 @@ namespace Tiny3D
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
                 "scheme only supports 1 argument");
         }
         else
@@ -546,7 +546,7 @@ namespace Tiny3D
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                     "scheme must have 1 string argument");
             }
         }
@@ -561,11 +561,11 @@ namespace Tiny3D
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
                 "lod_index only supports 1 argument");
         }
         else
@@ -579,7 +579,7 @@ namespace Tiny3D
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                     "lod_index cannot accept argument \"" + (*i0)->getValue() + "\"");
             }
         }
@@ -594,11 +594,11 @@ namespace Tiny3D
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
                 "shadow_caster_material only accepts 1 argument");
         }
         else
@@ -615,7 +615,7 @@ namespace Tiny3D
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                     "shadow_caster_material cannot accept argument \"" + (*i0)->getValue() + "\"");
             }
         }
@@ -630,12 +630,12 @@ namespace Tiny3D
 
         if (prop->values.size() < 2)
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
                 "gpu_vendor_rule must have 2 arguments");
         }
         else if (prop->values.size() > 2)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
                 "gpu_vendor_rule must have 2 arguments");
         }
         else
@@ -664,19 +664,19 @@ namespace Tiny3D
                     }
                     else
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                             "gpu_vendor_rule cannot accept \"" + (*i1)->getValue() + "\" as second argument");
                     }
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                         "gpu_vendor_rule cannot accept \"" + (*i0)->getValue() + "\" as first argument");
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                     "gpu_vendor_rule cannot accept \"" + (*i0)->getValue() + "\" as first argument");
             }
 
@@ -692,12 +692,12 @@ namespace Tiny3D
 
         if (prop->values.size() < 2)
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
                 "gpu_device_rule must have at least 2 arguments");
         }
         else if (prop->values.size() > 3)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
                 "gpu_device_rule must have at most 3 arguments");
         }
         else
@@ -727,7 +727,7 @@ namespace Tiny3D
                     }
                     else
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                             "gpu_device_rule cannot accept \"" + (*i1)->getValue() + "\" as second argument");
                     }
 
@@ -742,20 +742,20 @@ namespace Tiny3D
                         }
                         else
                         {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                                 "gpu_device_rule third argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
                         }
                     }
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                         "gpu_device_rule cannot accept \"" + (*i0)->getValue() + "\" as first argument");
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                     "gpu_device_rule cannot accept \"" + (*i0)->getValue() + "\" as first argument");
             }
 
@@ -877,830 +877,141 @@ namespace Tiny3D
                     }
                     break;
                 case ID_ALPHA_TO_COVERAGE:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "alpha_to_coverage must have 1 argument");
-                    }
-                    else
-                    {
-                        bool val = true;
-                        if (getBoolean(prop->values.front(), &val))
-                            mPass->setAlphaToCoverageEnabled(val);
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                "alpha_to_coverage argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
+                        bytesOfWritten = translateAlphaToCoverage(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_LIGHT_SCISSOR:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "light_scissor must have only 1 argument");
-                    }
-                    else
-                    {
-                        bool val = false;
-                        if (getBoolean(prop->values.front(), &val))
-                            mPass->setLightScissoringEnabled(val);
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid boolean");
+                        bytesOfWritten = translateLightScissor(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_LIGHT_CLIP_PLANES:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "light_clip_planes must have at most 1 argument");
-                    }
-                    else
-                    {
-                        bool val = false;
-                        if (getBoolean(prop->values.front(), &val))
-                            mPass->setLightClipPlanesEnabled(val);
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid boolean");
+                        bytesOfWritten = translateLightClipPlanes(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_TRANSPARENT_SORTING:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "transparent_sorting must have at most 1 argument");
-                    }
-                    else
-                    {
-                        bool val = true;
-                        if (getBoolean(prop->values.front(), &val))
-                        {
-                            mPass->setTransparentSortingEnabled(val);
-                            mPass->setTransparentSortingForced(false);
-                        }
-                        else
-                        {
-                            String val2;
-                            if (getString(prop->values.front(), &val2) && val2 == "force")
-                            {
-                                mPass->setTransparentSortingEnabled(true);
-                                mPass->setTransparentSortingForced(true);
-                            }
-                            else
-                            {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    prop->values.front()->getValue() + " must be boolean or force");
-                            }
-                        }
+                        bytesOfWritten = translateTransparentSorting(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_ILLUMINATION_STAGE:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "illumination_stage must have at most 1 argument");
-                    }
-                    else
-                    {
-                        if (prop->values.front()->type == ANT_ATOM)
-                        {
-                            AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
-                            switch (atom->id)
-                            {
-                            case ID_AMBIENT:
-                                mPass->setIlluminationStage(IS_AMBIENT);
-                                break;
-                            case ID_PER_LIGHT:
-                                mPass->setIlluminationStage(IS_PER_LIGHT);
-                                break;
-                            case ID_DECAL:
-                                mPass->setIlluminationStage(IS_DECAL);
-                                break;
-                            default:
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    prop->values.front()->getValue() + " is not a valid IlluminationStage");
-                            }
-                        }
-                        else
-                        {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid IlluminationStage");
-                        }
+                        bytesOfWritten = translateIlluminationStage(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_CULL_HARDWARE:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "cull_hardware must have at most 1 argument");
-                    }
-                    else
-                    {
-                        if (prop->values.front()->type == ANT_ATOM)
-                        {
-                            AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
-                            switch (atom->id)
-                            {
-                            case ID_CLOCKWISE:
-                                mPass->setCullingMode(CULL_CLOCKWISE);
-                                break;
-                            case ID_ANTICLOCKWISE:
-                                mPass->setCullingMode(CULL_ANTICLOCKWISE);
-                                break;
-                            case ID_NONE:
-                                mPass->setCullingMode(CULL_NONE);
-                                break;
-                            default:
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    prop->values.front()->getValue() + " is not a valid CullingMode");
-                            }
-                        }
-                        else
-                        {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid CullingMode");
-                        }
+                        bytesOfWritten = translateCullHardware(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_CULL_SOFTWARE:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "cull_software must have at most 1 argument");
-                    }
-                    else
-                    {
-                        if (prop->values.front()->type == ANT_ATOM)
-                        {
-                            AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
-                            switch (atom->id)
-                            {
-                            case ID_FRONT:
-                                mPass->setManualCullingMode(MANUAL_CULL_FRONT);
-                                break;
-                            case ID_BACK:
-                                mPass->setManualCullingMode(MANUAL_CULL_BACK);
-                                break;
-                            case ID_NONE:
-                                mPass->setManualCullingMode(MANUAL_CULL_NONE);
-                                break;
-                            default:
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    prop->values.front()->getValue() + " is not a valid ManualCullingMode");
-                            }
-                        }
-                        else
-                        {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid ManualCullingMode");
-                        }
+                        bytesOfWritten = translateCullSoftware(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_NORMALISE_NORMALS:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "normalise_normals must have at most 1 argument");
-                    }
-                    else
-                    {
-                        bool val = false;
-                        if (getBoolean(prop->values.front(), &val))
-                            mPass->setNormaliseNormals(val);
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid boolean");
+                        bytesOfWritten = translateNormalizeNormals(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_LIGHTING:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "lighting must have at most 1 argument");
-                    }
-                    else
-                    {
-                        bool val = false;
-                        if (getBoolean(prop->values.front(), &val))
-                            mPass->setLightingEnabled(val);
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid boolean");
+                        bytesOfWritten = translateLighting(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_SHADING:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "shading must have at most 1 argument");
-                    }
-                    else
-                    {
-                        if (prop->values.front()->type == ANT_ATOM)
-                        {
-                            AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
-                            switch (atom->id)
-                            {
-                            case ID_FLAT:
-                                mPass->setShadingMode(SO_FLAT);
-                                break;
-                            case ID_GOURAUD:
-                                mPass->setShadingMode(SO_GOURAUD);
-                                break;
-                            case ID_PHONG:
-                                mPass->setShadingMode(SO_PHONG);
-                                break;
-                            default:
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    prop->values.front()->getValue() + " is not a valid shading mode (flat, gouraud, or phong)");
-                            }
-                        }
-                        else
-                        {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid shading mode (flat, gouraud, or phong)");
-                        }
+                        bytesOfWritten = translateShading(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_POLYGON_MODE:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "polygon_mode must have at most 1 argument");
-                    }
-                    else
-                    {
-                        if (prop->values.front()->type == ANT_ATOM)
-                        {
-                            AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
-                            switch (atom->id)
-                            {
-                            case ID_SOLID:
-                                mPass->setPolygonMode(PM_SOLID);
-                                break;
-                            case ID_POINTS:
-                                mPass->setPolygonMode(PM_POINTS);
-                                break;
-                            case ID_WIREFRAME:
-                                mPass->setPolygonMode(PM_WIREFRAME);
-                                break;
-                            default:
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    prop->values.front()->getValue() + " is not a valid polygon mode (solid, points, or wireframe)");
-                            }
-                        }
-                        else
-                        {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid polygon mode (solid, points, or wireframe)");
-                        }
+                        bytesOfWritten = translatePolygonMode(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_POLYGON_MODE_OVERRIDEABLE:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "polygon_mode_overrideable must have at most 1 argument");
-                    }
-                    else
-                    {
-                        bool val = false;
-                        if (getBoolean(prop->values.front(), &val))
-                            mPass->setPolygonModeOverrideable(val);
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid boolean");
+                        bytesOfWritten = translatePolygonModeOverridable(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_FOG_OVERRIDE:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 8)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "fog_override must have at most 8 arguments");
-                    }
-                    else
-                    {
-                        AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2);
-                        bool val = false;
-                        if (getBoolean(prop->values.front(), &val))
-                        {
-                            FogMode mode = FOG_NONE;
-                            ColourValue clr = ColourValue::White;
-                            Real dens = 0.001, start = 0.0f, end = 1.0f;
-
-                            if (i1 != prop->values.end())
-                            {
-                                if ((*i1)->type == ANT_ATOM)
-                                {
-                                    AtomAbstractNode *atom = (AtomAbstractNode*)(*i1).get();
-                                    switch (atom->id)
-                                    {
-                                    case ID_NONE:
-                                        mode = FOG_NONE;
-                                        break;
-                                    case ID_LINEAR:
-                                        mode = FOG_LINEAR;
-                                        break;
-                                    case ID_EXP:
-                                        mode = FOG_EXP;
-                                        break;
-                                    case ID_EXP2:
-                                        mode = FOG_EXP2;
-                                        break;
-                                    default:
-                                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                            (*i1)->getValue() + " is not a valid FogMode");
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                        (*i1)->getValue() + " is not a valid FogMode");
-                                    break;
-                                }
-                            }
-
-                            if (i2 != prop->values.end())
-                            {
-                                if (!getColour(i2, prop->values.end(), &clr, 3))
-                                {
-                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                        (*i2)->getValue() + " is not a valid colour");
-                                    break;
-                                }
-
-                                i2 = getNodeAt(prop->values, 5);
-                            }
-
-                            if (i2 != prop->values.end())
-                            {
-                                if (!getReal(*i2, &dens))
-                                {
-                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                        (*i2)->getValue() + " is not a valid number");
-                                    break;
-                                }
-                                ++i2;
-                            }
-
-                            if (i2 != prop->values.end())
-                            {
-                                if (!getReal(*i2, &start))
-                                {
-                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                        (*i2)->getValue() + " is not a valid number");
-                                    return;
-                                }
-                                ++i2;
-                            }
-
-                            if (i2 != prop->values.end())
-                            {
-                                if (!getReal(*i2, &end))
-                                {
-                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                        (*i2)->getValue() + " is not a valid number");
-                                    return;
-                                }
-                                ++i2;
-                            }
-
-                            mPass->setFog(val, mode, clr, dens, start, end);
-                        }
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid boolean");
+                        bytesOfWritten = translateFogOverride(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_COLOUR_WRITE:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "colour_write must have at most 1 argument");
-                    }
-                    else
-                    {
-                        bool val = false;
-                        if (getBoolean(prop->values.front(), &val))
-                            mPass->setColourWriteEnabled(val);
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid boolean");
+                        bytesOfWritten = translateColorWrite(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_MAX_LIGHTS:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "max_lights must have at most 1 argument");
-                    }
-                    else
-                    {
-                        uint32 val = 0;
-                        if (getUInt(prop->values.front(), &val))
-                            mPass->setMaxSimultaneousLights(static_cast<unsigned short>(val));
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid integer");
+                        bytesOfWritten = translateMaxLights(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_START_LIGHT:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "start_light must have at most 1 argument");
-                    }
-                    else
-                    {
-                        uint32 val = 0;
-                        if (getUInt(prop->values.front(), &val))
-                            mPass->setStartLight(static_cast<unsigned short>(val));
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid integer");
+                        bytesOfWritten = translateStartLight(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_LIGHT_MASK:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else
-                    {
-                        uint32 val = 0;
-                        if (getUInt(prop->values.front(), &val))
-                            mPass->setLightMask(static_cast<unsigned short>(val));
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid integer");
+                        bytesOfWritten = translateLightMask(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_ITERATION:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else
-                    {
-                        AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
-                        if ((*i0)->type == ANT_ATOM)
-                        {
-                            AtomAbstractNode *atom = (AtomAbstractNode*)(*i0).get();
-                            if (atom->id == ID_ONCE)
-                            {
-                                mPass->setIteratePerLight(false);
-                            }
-                            else if (atom->id == ID_ONCE_PER_LIGHT)
-                            {
-                                AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
-                                if (i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
-                                {
-                                    atom = (AtomAbstractNode*)(*i1).get();
-                                    switch (atom->id)
-                                    {
-                                    case ID_POINT:
-                                        mPass->setIteratePerLight(true);
-                                        break;
-                                    case ID_DIRECTIONAL:
-                                        mPass->setIteratePerLight(true, true, Light::LT_DIRECTIONAL);
-                                        break;
-                                    case ID_SPOT:
-                                        mPass->setIteratePerLight(true, true, Light::LT_SPOTLIGHT);
-                                        break;
-                                    default:
-                                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                            prop->values.front()->getValue() + " is not a valid light type (point, directional, or spot)");
-                                    }
-                                }
-                                else
-                                {
-                                    mPass->setIteratePerLight(true, false);
-                                }
-
-                            }
-                            else if (StringConverter::isNumber(atom->value))
-                            {
-                                mPass->setPassIterationCount(Ogre::StringConverter::parseInt(atom->value));
-
-                                AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
-                                if (i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
-                                {
-                                    atom = (AtomAbstractNode*)(*i1).get();
-                                    if (atom->id == ID_PER_LIGHT)
-                                    {
-                                        AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
-                                        if (i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
-                                        {
-                                            atom = (AtomAbstractNode*)(*i2).get();
-                                            switch (atom->id)
-                                            {
-                                            case ID_POINT:
-                                                mPass->setIteratePerLight(true);
-                                                break;
-                                            case ID_DIRECTIONAL:
-                                                mPass->setIteratePerLight(true, true, Light::LT_DIRECTIONAL);
-                                                break;
-                                            case ID_SPOT:
-                                                mPass->setIteratePerLight(true, true, Light::LT_SPOTLIGHT);
-                                                break;
-                                            default:
-                                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                                    (*i2)->getValue() + " is not a valid light type (point, directional, or spot)");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            mPass->setIteratePerLight(true, false);
-                                        }
-                                    }
-                                    else if (ID_PER_N_LIGHTS)
-                                    {
-                                        AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
-                                        if (i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
-                                        {
-                                            atom = (AtomAbstractNode*)(*i2).get();
-                                            if (StringConverter::isNumber(atom->value))
-                                            {
-                                                mPass->setLightCountPerIteration(
-                                                    static_cast<unsigned short>(StringConverter::parseInt(atom->value)));
-
-                                                AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
-                                                if (i3 != prop->values.end() && (*i3)->type == ANT_ATOM)
-                                                {
-                                                    atom = (AtomAbstractNode*)(*i3).get();
-                                                    switch (atom->id)
-                                                    {
-                                                    case ID_POINT:
-                                                        mPass->setIteratePerLight(true);
-                                                        break;
-                                                    case ID_DIRECTIONAL:
-                                                        mPass->setIteratePerLight(true, true, Light::LT_DIRECTIONAL);
-                                                        break;
-                                                    case ID_SPOT:
-                                                        mPass->setIteratePerLight(true, true, Light::LT_SPOTLIGHT);
-                                                        break;
-                                                    default:
-                                                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                                            (*i3)->getValue() + " is not a valid light type (point, directional, or spot)");
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    mPass->setIteratePerLight(true, false);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
-                                                    (*i2)->getValue() + " is not a valid number");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
-                                                prop->values.front()->getValue() + " is not a valid number");
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
-                            }
-                        }
-                        else
-                        {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
-                        }
+                        bytesOfWritten = translateIteration(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_POINT_SIZE:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "point_size must have at most 1 argument");
-                    }
-                    else
-                    {
-                        Real val = 0.0f;
-                        if (getReal(prop->values.front(), &val))
-                            mPass->setPointSize(val);
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid number");
+                        bytesOfWritten = translatePointSize(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_POINT_SPRITES:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "point_sprites must have at most 1 argument");
-                    }
-                    else
-                    {
-                        bool val = false;
-                        if (getBoolean(prop->values.front(), &val))
-                            mPass->setPointSpritesEnabled(val);
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid boolean");
+                        bytesOfWritten = translatePointSprites(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_POINT_SIZE_ATTENUATION:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 4)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "point_size_attenuation must have at most 4 arguments");
-                    }
-                    else
-                    {
-                        bool val = false;
-                        if (getBoolean(prop->values.front(), &val))
-                        {
-                            if (val)
-                            {
-                                AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2),
-                                    i3 = getNodeAt(prop->values, 3);
-
-                                if (prop->values.size() > 1)
-                                {
-
-                                    Real constant = 0.0f, linear = 1.0f, quadratic = 0.0f;
-
-                                    if (i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
-                                    {
-                                        AtomAbstractNode *atom = (AtomAbstractNode*)(*i1).get();
-                                        if (StringConverter::isNumber(atom->value))
-                                            constant = StringConverter::parseReal(atom->value);
-                                        else
-                                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
-                                    }
-                                    else
-                                    {
-                                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                            (*i1)->getValue() + " is not a valid number");
-                                    }
-
-                                    if (i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
-                                    {
-                                        AtomAbstractNode *atom = (AtomAbstractNode*)(*i2).get();
-                                        if (StringConverter::isNumber(atom->value))
-                                            linear = StringConverter::parseReal(atom->value);
-                                        else
-                                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
-                                    }
-                                    else
-                                    {
-                                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                            (*i2)->getValue() + " is not a valid number");
-                                    }
-
-                                    if (i3 != prop->values.end() && (*i3)->type == ANT_ATOM)
-                                    {
-                                        AtomAbstractNode *atom = (AtomAbstractNode*)(*i3).get();
-                                        if (StringConverter::isNumber(atom->value))
-                                            quadratic = StringConverter::parseReal(atom->value);
-                                        else
-                                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
-                                    }
-                                    else
-                                    {
-                                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                            (*i3)->getValue() + " is not a valid number");
-                                    }
-
-                                    mPass->setPointAttenuation(true, constant, linear, quadratic);
-                                }
-                                else
-                                {
-                                    mPass->setPointAttenuation(true);
-                                }
-                            }
-                            else
-                            {
-                                mPass->setPointAttenuation(false);
-                            }
-                        }
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid boolean");
+                        bytesOfWritten = translatePointSizeAttenuation(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_POINT_SIZE_MIN:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "point_size_min must have at most 1 argument");
-                    }
-                    else
-                    {
-                        Real val = 0.0f;
-                        if (getReal(prop->values.front(), &val))
-                            mPass->setPointMinSize(val);
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid number");
+                        bytesOfWritten = translatePointSizeMin(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 case ID_POINT_SIZE_MAX:
-                    if (prop->values.empty())
                     {
-                        ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-                    }
-                    else if (prop->values.size() > 1)
-                    {
-                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                            "point_size_max must have at most 1 argument");
-                    }
-                    else
-                    {
-                        Real val = 0.0f;
-                        if (getReal(prop->values.front(), &val))
-                            mPass->setPointMaxSize(val);
-                        else
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid number");
+                        bytesOfWritten = translatePointSizeMax(prop, stream);
+                        totalBytes += bytesOfWritten;
                     }
                     break;
                 default:
@@ -1714,34 +1025,40 @@ namespace Tiny3D
                 switch (child->id)
                 {
                 case ID_FRAGMENT_PROGRAM_REF:
-                    translateFragmentProgramRef(compiler, child);
+//                     translateFragmentProgramRef(compiler, child);
                     break;
                 case ID_VERTEX_PROGRAM_REF:
-                    translateVertexProgramRef(compiler, child);
+//                     translateVertexProgramRef(compiler, child);
                     break;
                 case ID_GEOMETRY_PROGRAM_REF:
-                    translateGeometryProgramRef(compiler, child);
+//                     translateGeometryProgramRef(compiler, child);
                     break;
                 case ID_TESSELLATION_HULL_PROGRAM_REF:
-                    translateTessellationHullProgramRef(compiler, child);
+//                     translateTessellationHullProgramRef(compiler, child);
                     break;
                 case ID_TESSELLATION_DOMAIN_PROGRAM_REF:
-                    translateTessellationDomainProgramRef(compiler, child);
+//                     translateTessellationDomainProgramRef(compiler, child);
                     break;
                 case ID_COMPUTE_PROGRAM_REF:
-                    translateComputeProgramRef(compiler, child);
+//                     translateComputeProgramRef(compiler, child);
                     break;
                 case ID_SHADOW_CASTER_VERTEX_PROGRAM_REF:
-                    translateShadowCasterVertexProgramRef(compiler, child);
+//                     translateShadowCasterVertexProgramRef(compiler, child);
                     break;
                 case ID_SHADOW_CASTER_FRAGMENT_PROGRAM_REF:
-                    translateShadowCasterFragmentProgramRef(compiler, child);
+//                     translateShadowCasterFragmentProgramRef(compiler, child);
                     break;
                 default:
-                    processNode(compiler, *i);
+                    {
+                        bytesOfWritten = processNode(compiler, stream, *i);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
                 }
             }
         }
+
+        return totalBytes;
     }
 
     size_t PassTranslator::translateAmbient(PropertyAbstractNode *prop, DataStream &stream)
@@ -1751,11 +1068,11 @@ namespace Tiny3D
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
         }
         else if (prop->values.size() > 4)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
                 "ambient must have at most 4 parameters");
         }
         else
@@ -1794,7 +1111,7 @@ namespace Tiny3D
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                         "ambient requires 3 or 4 colour arguments, or a \"vertexcolour\" directive");
                 }
             }
@@ -1810,11 +1127,11 @@ namespace Tiny3D
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
         }
         else if (prop->values.size() > 4)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
                 "diffuse must have at most 4 arguments");
         }
         else
@@ -1853,7 +1170,7 @@ namespace Tiny3D
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                         "diffuse requires 3 or 4 colour arguments, or a \"vertexcolour\" directive");
                 }
             }
@@ -1869,11 +1186,11 @@ namespace Tiny3D
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
         }
         else if (prop->values.size() > 5)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
                 "specular must have at most 5 arguments");
         }
         else
@@ -1897,7 +1214,7 @@ namespace Tiny3D
                     }
                     else
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                             "specular does not support \"" + prop->values.back()->getValue() + "\" as its second argument");
                     }
                 }
@@ -1906,7 +1223,7 @@ namespace Tiny3D
             {
                 if (prop->values.size() < 4)
                 {
-                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
                         "specular expects at least 4 arguments");
                 }
                 else
@@ -1948,7 +1265,7 @@ namespace Tiny3D
                             }
                             else
                             {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                                     "specular fourth argument must be a valid number for shininess attribute");
                             }
                         }
@@ -1957,7 +1274,7 @@ namespace Tiny3D
                             AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
                             if (!getSingle(*i3, &val.alpha()))
                             {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                                     "specular fourth argument must be a valid color component value");
                             }
                             else
@@ -1987,14 +1304,14 @@ namespace Tiny3D
                             }
                             else
                             {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                                     "specular fourth argument must be a valid number for shininess attribute");
                             }
                         }
                     }
                     else
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->name, prop->file, prop->line,
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                             "specular must have first 3 arguments be a valid colour");
                     }
                 }
@@ -2040,17 +1357,17 @@ namespace Tiny3D
                 ColorARGB val(0.0f, 0.0f, 0.0f, 1.0f);
                 if (getColor(prop->values.begin(), prop->values.end(), &val))
                 {
-                    float32_t component = val.alpha();
-                    bytesOfWritten = stream.write(&component, sizeof(component));
+                    float32_t c = val.alpha();
+                    bytesOfWritten = stream.write(&c, sizeof(c));
                     totalBytes += bytesOfWritten;
-                    component = val.red();
-                    bytesOfWritten = stream.write(&component, sizeof(component));
+                    c = val.red();
+                    bytesOfWritten = stream.write(&c, sizeof(c));
                     totalBytes += bytesOfWritten;
-                    component = val.green();
-                    bytesOfWritten = stream.write(&component, sizeof(component));
+                    c = val.green();
+                    bytesOfWritten = stream.write(&c, sizeof(c));
                     totalBytes += bytesOfWritten;
-                    component = val.blue();
-                    bytesOfWritten = stream.write(&component, sizeof(component));
+                    c = val.blue();
+                    bytesOfWritten = stream.write(&c, sizeof(c));
                     totalBytes += bytesOfWritten;
                 }
                 else
@@ -2099,6 +1416,7 @@ namespace Tiny3D
                 default:
                     ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                         "scene_blend does not support \"" + prop->values.front()->getValue() + "\" for argument 1");
+                    break;
                 }
             }
             else
@@ -2164,16 +1482,16 @@ namespace Tiny3D
                 case ID_MODULATE:
                 case ID_COLOUR_BLEND:
                 case ID_ALPHA_BLEND:
-                {
-                    uint16_t id = atom0->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
-                }
-                break;
+                    {
+                        uint16_t id = atom0->id;
+                        bytesOfWritten = stream.write(&id, sizeof(id));
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
                 default:
                     ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                         "separate_scene_blend does not support \"" + atom0->value + "\" as argument 1");
-                    return;
+                    return 0;
                 }
 
                 switch (atom1->id)
@@ -2182,16 +1500,16 @@ namespace Tiny3D
                 case ID_MODULATE:
                 case ID_COLOUR_BLEND:
                 case ID_ALPHA_BLEND:
-                {
-                    uint16_t id = atom1->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
-                }
-                break;
+                    {
+                        uint16_t id = atom1->id;
+                        bytesOfWritten = stream.write(&id, sizeof(id));
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
                 default:
                     ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                         "separate_scene_blend does not support \"" + atom1->value + "\" as argument 2");
-                    return;
+                    return 0;
                 }
             }
             else
@@ -2279,6 +1597,7 @@ namespace Tiny3D
                 default:
                     ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                         atom->value + ": unrecognized argument");
+                    break;
                 }
             }
             else
@@ -2329,6 +1648,7 @@ namespace Tiny3D
                 default:
                     ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                         atom0->value + ": unrecognized first argument");
+                    break;
                 }
 
                 switch (atom1->id)
@@ -2347,6 +1667,7 @@ namespace Tiny3D
                 default:
                     ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                         atom1->value + ": unrecognized second argument");
+                    break;
                 }
             }
             else
@@ -2508,6 +1829,7 @@ namespace Tiny3D
             default:
                 ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid CompareFunction");
+                break;
             }
         }
 
@@ -2610,6 +1932,1149 @@ namespace Tiny3D
             {
                 bytesOfWritten = stream.write(&val, sizeof(val));
                 totalBytes += bytesOfWritten;
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateAlphaToCoverage(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "alpha_to_coverage must have 1 argument");
+        }
+        else
+        {
+            bool val = true;
+            if (getBoolean(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    "alpha_to_coverage argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateLightScissor(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "light_scissor must have only 1 argument");
+        }
+        else
+        {
+            bool val = false;
+            if (getBoolean(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid boolean");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateLightClipPlanes(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "light_clip_planes must have at most 1 argument");
+        }
+        else
+        {
+            bool val = false;
+            if (getBoolean(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid boolean");
+            }
+        }
+
+        return bytesOfWritten;
+    }
+
+    size_t PassTranslator::translateTransparentSorting(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "transparent_sorting must have at most 1 argument");
+        }
+        else
+        {
+            bool val = true;
+            if (getBoolean(prop->values.front(), &val))
+            {
+                uint8_t v = val ? 1 : 0;
+                bytesOfWritten = stream.write(&v, sizeof(v));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                String val2;
+                if (getString(prop->values.front(), &val2) && val2 == "force")
+                {
+                    uint8_t v = 2;
+                    bytesOfWritten = stream.write(&v, sizeof(v));
+                    totalBytes += bytesOfWritten;
+                }
+                else
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                        prop->values.front()->getValue() + " must be boolean or force");
+                }
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateIlluminationStage(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "illumination_stage must have at most 1 argument");
+        }
+        else
+        {
+            if (prop->values.front()->type == ANT_ATOM)
+            {
+                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                switch (atom->id)
+                {
+                case ID_AMBIENT:
+                case ID_PER_LIGHT:
+                case ID_DECAL:
+                    {
+                        uint16_t id = atom->id;
+                        bytesOfWritten = stream.write(&id, sizeof(id));
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                default:
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                        prop->values.front()->getValue() + " is not a valid IlluminationStage");
+                    break;
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid IlluminationStage");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateCullHardware(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "cull_hardware must have at most 1 argument");
+        }
+        else
+        {
+            if (prop->values.front()->type == ANT_ATOM)
+            {
+                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                switch (atom->id)
+                {
+                case ID_CLOCKWISE:
+                case ID_ANTICLOCKWISE:
+                case ID_NONE:
+                    {
+                        uint16_t id = atom->id;
+                        bytesOfWritten = stream.write(&id, sizeof(id));
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                default:
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                        prop->values.front()->getValue() + " is not a valid CullingMode");
+                    break;
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid CullingMode");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateCullSoftware(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "cull_software must have at most 1 argument");
+        }
+        else
+        {
+            if (prop->values.front()->type == ANT_ATOM)
+            {
+                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                switch (atom->id)
+                {
+                case ID_FRONT:
+                case ID_BACK:
+                case ID_NONE:
+                    {
+                        uint16_t id = atom->id;
+                        bytesOfWritten = stream.write(&id, sizeof(id));
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                default:
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                        prop->values.front()->getValue() + " is not a valid ManualCullingMode");
+                    break;
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid ManualCullingMode");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateNormalizeNormals(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "normalise_normals must have at most 1 argument");
+        }
+        else
+        {
+            bool val = false;
+            if (getBoolean(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid boolean");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateLighting(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "lighting must have at most 1 argument");
+        }
+        else
+        {
+            bool val = false;
+            if (getBoolean(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid boolean");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateShading(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "shading must have at most 1 argument");
+        }
+        else
+        {
+            if (prop->values.front()->type == ANT_ATOM)
+            {
+                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                switch (atom->id)
+                {
+                case ID_FLAT:
+                case ID_GOURAUD:
+                case ID_PHONG:
+                    {
+                        uint16_t id = atom->id;
+                        bytesOfWritten = stream.write(&id, sizeof(id));
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                default:
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                        prop->values.front()->getValue() + " is not a valid shading mode (flat, gouraud, or phong)");
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid shading mode (flat, gouraud, or phong)");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translatePolygonMode(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "polygon_mode must have at most 1 argument");
+        }
+        else
+        {
+            if (prop->values.front()->type == ANT_ATOM)
+            {
+                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                switch (atom->id)
+                {
+                case ID_SOLID:
+                case ID_POINTS:
+                case ID_WIREFRAME:
+                    {
+                        uint16_t id = atom->id;
+                        bytesOfWritten = stream.write(&id, sizeof(id));
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                default:
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                        prop->values.front()->getValue() + " is not a valid polygon mode (solid, points, or wireframe)");
+                    break;
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid polygon mode (solid, points, or wireframe)");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translatePolygonModeOverridable(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "polygon_mode_overrideable must have at most 1 argument");
+        }
+        else
+        {
+            bool val = false;
+            if (getBoolean(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid boolean");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateFogOverride(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 8)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "fog_override must have at most 8 arguments");
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2);
+            bool val = false;
+            if (getBoolean(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+
+                ColorARGB clr = ColorARGB::WHITE;
+                float32_t dens = 0.001, start = 0.0f, end = 1.0f;
+
+                if (i1 != prop->values.end())
+                {
+                    if ((*i1)->type == ANT_ATOM)
+                    {
+                        AtomAbstractNode *atom = (AtomAbstractNode*)(*i1).get();
+                        switch (atom->id)
+                        {
+                        case ID_NONE:
+                        case ID_LINEAR:
+                        case ID_EXP:
+                        case ID_EXP2:
+                            {
+                                uint16_t id = atom->id;
+                                bytesOfWritten = stream.write(&id, sizeof(id));
+                                totalBytes += bytesOfWritten;
+                            }
+                            break;
+                        default:
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                (*i1)->getValue() + " is not a valid FogMode");
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            (*i1)->getValue() + " is not a valid FogMode");
+                        return 0;
+                    }
+                }
+
+                if (i2 != prop->values.end())
+                {
+                    if (!getColor(i2, prop->values.end(), &clr, 3))
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            (*i2)->getValue() + " is not a valid colour");
+                        return 0;
+                    }
+
+                    float32_t c = clr.alpha();
+                    bytesOfWritten = stream.write(&c, sizeof(c));
+                    totalBytes += bytesOfWritten;
+                    c = clr.red();
+                    bytesOfWritten = stream.write(&c, sizeof(c));
+                    totalBytes += bytesOfWritten;
+                    c = clr.green();
+                    bytesOfWritten = stream.write(&c, sizeof(c));
+                    totalBytes += bytesOfWritten;
+                    c = clr.blue();
+                    bytesOfWritten = stream.write(&c, sizeof(c));
+                    totalBytes += bytesOfWritten;
+
+                    i2 = getNodeAt(prop->values, 5);
+                }
+
+                if (i2 != prop->values.end())
+                {
+                    if (!getSingle(*i2, &dens))
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            (*i2)->getValue() + " is not a valid number");
+                        return 0;
+                    }
+
+                    bytesOfWritten = stream.write(&dens, sizeof(dens));
+                    totalBytes += bytesOfWritten;
+
+                    ++i2;
+                }
+
+                if (i2 != prop->values.end())
+                {
+                    if (!getSingle(*i2, &start))
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            (*i2)->getValue() + " is not a valid number");
+                        return 0;
+                    }
+
+                    bytesOfWritten = stream.write(&start, sizeof(start));
+                    totalBytes += bytesOfWritten;
+
+                    ++i2;
+                }
+
+                if (i2 != prop->values.end())
+                {
+                    if (!getSingle(*i2, &end))
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            (*i2)->getValue() + " is not a valid number");
+                        return 0;
+                    }
+
+                    bytesOfWritten = stream.write(&end, sizeof(end));
+                    totalBytes += bytesOfWritten;
+
+                    ++i2;
+                }
+
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid boolean");
+                return 0;
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateColorWrite(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "colour_write must have at most 1 argument");
+        }
+        else
+        {
+            bool val = false;
+            if (getBoolean(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid boolean");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateMaxLights(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "max_lights must have at most 1 argument");
+        }
+        else
+        {
+            uint32_t val = 0;
+            if (getUInt(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid integer");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translateStartLight(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "start_light must have at most 1 argument");
+        }
+        else
+        {
+            uint32_t val = 0;
+            if (getUInt(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid integer");
+            }
+        }
+
+        return bytesOfWritten;
+    }
+
+    size_t PassTranslator::translateLightMask(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else
+        {
+            uint32_t val = 0;
+            if (getUInt(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid integer");
+            }
+        }
+
+        return bytesOfWritten;
+    }
+
+    size_t PassTranslator::translateIteration(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+
+            if ((*i0)->type == ANT_ATOM)
+            {
+                AtomAbstractNode *atom = (AtomAbstractNode*)(*i0).get();
+                if (atom->id == ID_ONCE)
+                {
+                    // once
+                    uint16_t id = atom->id;
+                    bytesOfWritten = stream.write(&id, sizeof(id));
+                    totalBytes += bytesOfWritten;
+                }
+                else if (atom->id == ID_ONCE_PER_LIGHT)
+                {
+                    // once_per_light
+                    uint16_t id = atom->id;
+                    bytesOfWritten = stream.write(&id, sizeof(id));
+                    totalBytes += bytesOfWritten;
+
+                    AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+                    if (i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
+                    {
+                        atom = (AtomAbstractNode*)(*i1).get();
+                        switch (atom->id)
+                        {
+                        case ID_POINT:
+                        case ID_DIRECTIONAL:
+                        case ID_SPOT:
+                            {
+                                id = atom->id;
+                                bytesOfWritten = stream.write(&id, sizeof(id));
+                                totalBytes += bytesOfWritten;
+                            }
+                            break;
+                        default:
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                prop->values.front()->getValue() + " is not a valid light type (point, directional, or spot)");
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        id = 0;
+                        bytesOfWritten = stream.write(&id, sizeof(id));
+                        totalBytes += bytesOfWritten;
+                    }
+
+                }
+                else if (StringConverter::isNumber(atom->value))
+                {
+                    // number
+                    uint16_t id = 0;
+                    bytesOfWritten = stream.write(&id, sizeof(id));
+                    totalBytes += bytesOfWritten;
+
+                    // value of the number
+                    int32_t val = StringConverter::parseInt32(atom->value);
+                    bytesOfWritten = stream.write(&val, sizeof(val));
+                    totalBytes += bytesOfWritten;
+
+                    AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+                    if (i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
+                    {
+                        atom = (AtomAbstractNode*)(*i1).get();
+                        if (atom->id == ID_PER_LIGHT)
+                        {
+                            // per_light
+                            id = atom->id;
+                            bytesOfWritten = stream.write(&id, sizeof(id));
+                            totalBytes += bytesOfWritten;
+
+                            // light type
+                            AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
+                            if (i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
+                            {
+                                atom = (AtomAbstractNode*)(*i2).get();
+                                switch (atom->id)
+                                {
+                                case ID_POINT:
+                                case ID_DIRECTIONAL:
+                                case ID_SPOT:
+                                    {
+                                        id = atom->id;
+                                        bytesOfWritten = stream.write(&id, sizeof(id));
+                                        totalBytes += bytesOfWritten;
+                                    }
+                                    break;
+                                default:
+                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                        (*i2)->getValue() + " is not a valid light type (point, directional, or spot)");
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                id = 0;
+                                bytesOfWritten = stream.write(&id, sizeof(id));
+                                totalBytes += bytesOfWritten;
+                            }
+                        }
+                        else if (ID_PER_N_LIGHTS)
+                        {
+                            // per_n_lights
+                            id = atom->id;
+                            bytesOfWritten = stream.write(&id, sizeof(id));
+                            totalBytes += bytesOfWritten;
+
+                            AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
+                            if (i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
+                            {
+                                atom = (AtomAbstractNode*)(*i2).get();
+                                if (StringConverter::isNumber(atom->value))
+                                {
+                                    // value
+                                    int32_t val = StringConverter::parseInt32(atom->value);
+                                    bytesOfWritten = stream.write(&val, sizeof(val));
+                                    totalBytes += bytesOfWritten;
+
+                                    // light type
+                                    AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
+                                    if (i3 != prop->values.end() && (*i3)->type == ANT_ATOM)
+                                    {
+                                        atom = (AtomAbstractNode*)(*i3).get();
+                                        switch (atom->id)
+                                        {
+                                        case ID_POINT:
+                                        case ID_DIRECTIONAL:
+                                        case ID_SPOT:
+                                            {
+                                                id = atom->id;
+                                                bytesOfWritten = stream.write(&id, sizeof(id));
+                                                totalBytes += bytesOfWritten;
+                                            }
+                                            break;
+                                        default:
+                                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                                (*i3)->getValue() + " is not a valid light type (point, directional, or spot)");
+                                            break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        id = 0;
+                                        bytesOfWritten = stream.write(&id, sizeof(id));
+                                        totalBytes += bytesOfWritten;
+                                    }
+                                }
+                                else
+                                {
+                                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                                        (*i2)->getValue() + " is not a valid number");
+                                }
+                            }
+                            else
+                            {
+                                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                                    prop->values.front()->getValue() + " is not a valid number");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translatePointSize(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "point_size must have at most 1 argument");
+        }
+        else
+        {
+            float32_t val = 0.0f;
+            if (getSingle(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid number");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translatePointSprites(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "point_sprites must have at most 1 argument");
+        }
+        else
+        {
+            bool val = false;
+            if (getBoolean(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid boolean");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translatePointSizeAttenuation(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 4)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "point_size_attenuation must have at most 4 arguments");
+        }
+        else
+        {
+            bool val = false;
+            if (getBoolean(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+
+                if (val)
+                {
+                    AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2),
+                        i3 = getNodeAt(prop->values, 3);
+
+                    if (prop->values.size() > 1)
+                    {
+                        Real constant = 0.0f, linear = 1.0f, quadratic = 0.0f;
+
+                        if (i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
+                        {
+                            AtomAbstractNode *atom = (AtomAbstractNode*)(*i1).get();
+                            if (StringConverter::isNumber(atom->value))
+                            {
+                                constant = StringConverter::parseSingle(atom->value);
+                                bytesOfWritten = stream.write(&constant, sizeof(constant));
+                                totalBytes += bytesOfWritten;
+                            }
+                            else
+                            {
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                            }
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                (*i1)->getValue() + " is not a valid number");
+                        }
+
+                        if (i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
+                        {
+                            AtomAbstractNode *atom = (AtomAbstractNode*)(*i2).get();
+                            if (StringConverter::isNumber(atom->value))
+                            {
+                                linear = StringConverter::parseSingle(atom->value);
+                                bytesOfWritten = stream.write(&linear, sizeof(linear));
+                                totalBytes += bytesOfWritten;
+                            }
+                            else
+                            {
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                            }
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                (*i2)->getValue() + " is not a valid number");
+                        }
+
+                        if (i3 != prop->values.end() && (*i3)->type == ANT_ATOM)
+                        {
+                            AtomAbstractNode *atom = (AtomAbstractNode*)(*i3).get();
+                            if (StringConverter::isNumber(atom->value))
+                            {
+                                quadratic = StringConverter::parseSingle(atom->value);
+                                bytesOfWritten = stream.write(&quadratic, sizeof(quadratic));
+                                totalBytes += bytesOfWritten;
+                            }
+                            else
+                            {
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                            }
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                (*i3)->getValue() + " is not a valid number");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid boolean");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translatePointSizeMin(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "point_size_min must have at most 1 argument");
+        }
+        else
+        {
+            float32_t val = 0.0f;
+            if (getSingle(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid number");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t PassTranslator::translatePointSizeMax(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "point_size_max must have at most 1 argument");
+        }
+        else
+        {
+            float32_t val = 0.0f;
+            if (getSingle(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid number");
             }
         }
 
