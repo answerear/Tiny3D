@@ -27,6 +27,10 @@
 
 namespace Tiny3D
 {
+    #define SCC_VERSION_00000100            0x00000100
+    #define SCC_CURRENT_VERSION             SCC_VERSION_00000100
+    #define SCC_MAGIC                       "TSC"
+
     //--------------------------------------------------------------------------
 
     ScriptCompiler::ScriptCompiler()
@@ -37,6 +41,7 @@ namespace Tiny3D
         mParser = new ScriptParser(this);
 
         initWordMap();
+        initPixelFormat();
         initTranslators();
     }
 
@@ -62,6 +67,8 @@ namespace Tiny3D
         mMaterialTranslator = new MaterialTranslator();
         mTechniqueTranslator = new TechniqueTranslator();
         mPassTranslator = new PassTranslator();
+        mTexUnitTranslator = new TextureUnitTranslator();
+        mSamplerTranslator = new SamplerTranslator();
     }
 
     //--------------------------------------------------------------------------
@@ -85,6 +92,32 @@ namespace Tiny3D
             else if (obj->id == ID_PASS)
             {
                 translator = mPassTranslator;
+            }
+            else if (obj->id == ID_TEXTURE_UNIT)
+            {
+                translator = mTexUnitTranslator;
+            }
+            else if (obj->id == ID_SAMPLER)
+            {
+                translator = mSamplerTranslator;
+            }
+        }
+        else if (node->type == ANT_PROPERTY)
+        {
+            PropertyAbstractNode *prop = static_cast<PropertyAbstractNode*>(node.get());
+
+            switch (prop->id)
+            {
+            case ID_TEX_ADDRESS_MODE:
+            case ID_TEX_BORDER_COLOUR:
+            case ID_FILTERING:
+            case ID_CMPTEST:
+            case ID_CMPFUNC:
+            case ID_COMP_FUNC:
+            case ID_MAX_ANISOTROPY:
+            case ID_MIPMAP_BIAS:
+                translator = mSamplerTranslator;
+                break;
             }
         }
 
@@ -379,9 +412,10 @@ namespace Tiny3D
                 break;
             }
 
-            for (auto i = ast->begin(); i != ast->end(); ++i)
+            ret = generateObjectFile(ast, output);
+            if (!ret)
             {
-
+                break;
             }
         } while (0);
 
@@ -466,7 +500,7 @@ namespace Tiny3D
 
     bool ScriptCompiler::processImports(AbstractNodeList &nodes)
     {
-        bool ret = false;
+        bool ret = true;
 
         // We only need to iterate over the top-level of nodes
         AbstractNodeList::iterator i = nodes.begin();
@@ -608,7 +642,7 @@ namespace Tiny3D
 
     bool ScriptCompiler::processObjects(AbstractNodeList& nodes, const AbstractNodeList &top)
     {
-        bool ret = false;
+        bool ret = true;
 
         for (AbstractNodeList::iterator i = nodes.begin(); i != nodes.end(); ++i)
         {
@@ -660,7 +694,7 @@ namespace Tiny3D
 
     bool ScriptCompiler::overlayObject(const AbstractNode &source, ObjectAbstractNode& dest)
     {
-        bool ret = false;
+        bool ret = true;
 
         if (source.type == ANT_OBJECT)
         {
@@ -840,7 +874,7 @@ namespace Tiny3D
 
     bool ScriptCompiler::processVariables(AbstractNodeList& nodes)
     {
-        bool ret = false;
+        bool ret = true;
 
         AbstractNodeList::iterator i = nodes.begin();
         while (i != nodes.end())
@@ -980,6 +1014,101 @@ namespace Tiny3D
         }
 
         return false;
+    }
+
+    bool ScriptCompiler::generateObjectFile(AbstractNodeListPtr &ast, const String &output)
+    {
+        bool ret = false;
+
+        do 
+        {
+            MemoryDataStream stream(10*1024*1024);
+
+            // 写文件头
+            TSCFileHeader header;
+            memcpy(header.magic, SCC_MAGIC, 3);
+            header.magic[3] = 0;
+            header.version = SCC_CURRENT_VERSION;
+            header.fileSize = sizeof(header);
+            stream.write(&header, sizeof(header));
+            size_t size = 0;
+
+            for (auto i = ast->begin(); i != ast->end(); ++i)
+            {
+                if ((*i)->type == ANT_OBJECT && static_cast<ObjectAbstractNode*>((*i).get())->abstrct)
+                    continue;
+                
+                ScriptTranslator *translator = getTranslator(*i);
+                
+                if (translator)
+                    size = translator->translate(this, stream, *i);
+                
+                if (size == 0)
+                {
+                    ret = false;
+                    break;
+                }
+
+                header.fileSize += size;
+            }
+
+            if (!ret)
+            {
+                break;
+            }
+
+            stream.seek(0, false);
+            stream.write(&header, sizeof(header));
+
+            FileDataStream fs;
+            if (!fs.open(output.c_str(), FileDataStream::E_MODE_WRITE_ONLY))
+            {
+                break;
+            }
+
+            uint8_t *buffer = nullptr;
+            size_t bufSize = 0;
+            stream.getBuffer(buffer, bufSize);
+
+            fs.write(buffer, bufSize);
+            fs.close();
+
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ScriptCompiler::initPixelFormat()
+    {
+        enum PixelFormat
+        {
+            E_PF_UNKNOWN = 0,
+            E_PF_PALETTE8,
+            E_PF_R5G6B5,
+            E_PF_A1R5G5B5,
+            E_PF_A4R4G4B4,
+            E_PF_R8G8B8,
+            E_PF_B8G8R8,
+            E_PF_A8R8G8B8,
+            E_PF_B8G8R8A8,
+            E_PF_X8R8G8B8,
+            E_PF_B8G8R8X8,
+        };
+
+
+        mPixelFormat["PF_UNKNOWN"] = E_PF_UNKNOWN;
+        mPixelFormat["PF_PALETTE8"] = E_PF_PALETTE8;
+        mPixelFormat["PF_R5G6B5"] = E_PF_R5G6B5;
+        mPixelFormat["PF_A1R5G5B5"] = E_PF_A1R5G5B5;
+        mPixelFormat["PF_A4R4G4B4"] = E_PF_A4R4G4B4;
+        mPixelFormat["PF_R8G8B8"] = E_PF_R8G8B8;
+        mPixelFormat["PF_B8G8R8"] = E_PF_B8G8R8;
+        mPixelFormat["PF_A8R8G8B8"] = E_PF_A8R8G8B8;
+        mPixelFormat["PF_B8G8R8A8"] = E_PF_B8G8R8A8;
+        mPixelFormat["PF_X8R8G8B8"] = E_PF_X8R8G8B8;
+        mPixelFormat["PF_B8G8R8X8"] = E_PF_B8G8R8X8;
     }
 
     //--------------------------------------------------------------------------

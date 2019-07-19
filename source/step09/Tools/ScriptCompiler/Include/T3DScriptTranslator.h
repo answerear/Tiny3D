@@ -57,6 +57,9 @@ namespace Tiny3D
         bool getUInt(const AbstractNodePtr &node, uint32_t *result);
         bool getHex(const AbstractNodePtr &node, uint32_t *result);
         bool getColor(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, ColorARGB *result, int32_t maxEntries = 4);
+
+        size_t writeString(const String &str, DataStream &stream);
+        size_t writeColor(const ColorARGB &clr, DataStream &stream);
     };
 
     //--------------------------------------------------------------------------
@@ -133,6 +136,41 @@ namespace Tiny3D
         size_t translatePointSizeAttenuation(PropertyAbstractNode *prop, DataStream &stream);
         size_t translatePointSizeMin(PropertyAbstractNode *prop, DataStream &stream);
         size_t translatePointSizeMax(PropertyAbstractNode *prop, DataStream &stream);
+    };
+
+    //--------------------------------------------------------------------------
+
+    class TextureUnitTranslator : public ScriptTranslator
+    {
+    public:
+        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
+
+    protected:
+        size_t translateSamplerRef(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateTextureAlias(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateTexture(ScriptCompiler *compiler, PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateAnimTexture(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateCubicTexture(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateTexCoordSet(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateColorOp(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateColorOpEx(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateColorOpMultiPassFallback(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateAlphaOp(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateEnvMap(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateScroll(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateScrollAnim(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateRotate(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateRotateAnim(PropertyAbstractNode *prop, DataStream &stream);
+    };
+
+    //--------------------------------------------------------------------------
+
+    class SamplerTranslator : public ScriptTranslator
+    {
+    public:
+        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
+
+        size_t translateSamplerParams(PropertyAbstractNode *prop, DataStream &stream);
     };
 }
 

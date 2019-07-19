@@ -231,6 +231,7 @@ namespace Tiny3D
         ID_UNLIMITED,
         ID_ALPHA,
         ID_GAMMA,
+        ID_PIXELFORMAT,
         ID_ANIM_TEXTURE,
         ID_CUBIC_TEXTURE,
         ID_SEPARATE_UV,

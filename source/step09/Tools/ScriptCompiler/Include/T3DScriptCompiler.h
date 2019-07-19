@@ -182,9 +182,25 @@ namespace Tiny3D
         // 创建脚本转换器
         void initTranslators();
 
-    protected:
-        IdMap mIds;
+        // 生成目标文件
+        bool generateObjectFile(AbstractNodeListPtr &ast, const String &output);
 
+        // 初始化像素格式
+        void initPixelFormat();
+
+    protected:
+        struct TSCFileHeader
+        {
+            char        magic[4];       /// 文件标识
+            uint32_t    version;        /// 文件版本号
+            uint32_t    fileSize;       /// 文件大小
+        };
+
+    public:
+        IdMap   mIds;
+        IdMap   mPixelFormat;
+
+    protected:
         typedef std::map<String, String> Environment;
 
         typedef std::map<String, AbstractNodeListPtr> ImportCacheMap;
@@ -198,6 +214,8 @@ namespace Tiny3D
         ScriptTranslator    *mMaterialTranslator;
         ScriptTranslator    *mTechniqueTranslator;
         ScriptTranslator    *mPassTranslator;
+        ScriptTranslator    *mTexUnitTranslator;
+        SamplerTranslator   *mSamplerTranslator;
 
         ScriptLexer         *mLexer;
         ScriptParser        *mParser;

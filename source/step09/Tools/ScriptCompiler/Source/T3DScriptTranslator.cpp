@@ -54,6 +54,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     size_t ScriptTranslator::translateObjectHeader(ObjectAbstractNode *obj, DataStream &stream)
     {
         size_t totalBytes = 0;
@@ -67,12 +69,8 @@ namespace Tiny3D
         uint16_t id = (uint16_t)obj->id;
         bytesOfWritten = stream.write(&id, sizeof(id));
         totalBytes += bytesOfWritten;
-        // 名称长度
-        uint16_t len = obj->name.length();
-        bytesOfWritten = stream.write(&len, sizeof(len));
-        totalBytes += bytesOfWritten;
-        // 名称字符串
-        bytesOfWritten = stream.write((void*)obj->name.c_str(), len);
+        // 名称
+        bytesOfWritten = writeString(obj->name, stream);
         totalBytes += bytesOfWritten;
 
         return totalBytes;
@@ -224,6 +222,46 @@ namespace Tiny3D
         }
         // return error if we found less than rgb before end, unless constrained
         return (n >= 3 || n == maxEntries);
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t ScriptTranslator::writeString(const String &str, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        uint16_t len = str.length();
+        if (len > 0)
+        {
+            bytesOfWritten = stream.write(&len, len);
+            totalBytes += bytesOfWritten;
+            bytesOfWritten = stream.write((void*)str.c_str(), len);
+            totalBytes += bytesOfWritten;
+        }
+
+        return totalBytes;
+    }
+
+    size_t ScriptTranslator::writeColor(const ColorARGB &clr, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        float32_t component = clr.blue();
+        bytesOfWritten = stream.write(&component, sizeof(component));
+        totalBytes += bytesOfWritten;
+        component = clr.green();
+        bytesOfWritten = stream.write(&component, sizeof(component));
+        totalBytes += bytesOfWritten;
+        component = clr.red();
+        bytesOfWritten = stream.write(&component, sizeof(component));
+        totalBytes += bytesOfWritten;
+        component = clr.alpha();
+        bytesOfWritten = stream.write(&component, sizeof(component));
+        totalBytes += bytesOfWritten;
+
+        return totalBytes;
     }
 
     //--------------------------------------------------------------------------
@@ -422,16 +460,10 @@ namespace Tiny3D
             if (getString(*i0, &name) && getString(*i1, &value))
             {
                 // name
-                uint16_t len = name.length();
-                bytesOfWritten = stream.write(&len, sizeof(len));
-                totalBytes += bytesOfWritten;
-                bytesOfWritten = stream.write((void*)name.c_str(), len);
+                bytesOfWritten = writeString(name, stream);
                 totalBytes += bytesOfWritten;
                 // value
-                len = value.length();
-                bytesOfWritten = stream.write(&len, sizeof(len));
-                totalBytes += bytesOfWritten;
-                bytesOfWritten = stream.write((void*)value.c_str(), len);
+                bytesOfWritten = writeString(value, stream);
                 totalBytes += bytesOfWritten;
             }
             else
@@ -538,10 +570,7 @@ namespace Tiny3D
             String scheme;
             if (getString(*i0, &scheme))
             {
-                uint16_t len = scheme.length();
-                bytesOfWritten = stream.write(&len, sizeof(len));
-                totalBytes += bytesOfWritten;
-                bytesOfWritten = stream.write((void *)scheme.c_str(), len);
+                bytesOfWritten = writeString(scheme, stream);
                 totalBytes += bytesOfWritten;
             }
             else
@@ -607,10 +636,7 @@ namespace Tiny3D
             String matName;
             if (getString(*i0, &matName))
             {
-                uint16_t len = matName.length();
-                bytesOfWritten = stream.write(&len, sizeof(len));
-                totalBytes += bytesOfWritten;
-                bytesOfWritten = stream.write((void *)matName.c_str(), len);
+                bytesOfWritten = writeString(matName, stream);
                 totalBytes += bytesOfWritten;
             }
             else
@@ -656,10 +682,7 @@ namespace Tiny3D
                     String vendor;
                     if (getString(*i1, &vendor))
                     {
-                        uint16_t len = vendor.length();
-                        bytesOfWritten = stream.write(&len, sizeof(len));
-                        totalBytes += bytesOfWritten;
-                        bytesOfWritten = stream.write((void*)vendor.c_str(), len);
+                        bytesOfWritten = writeString(vendor, stream);
                         totalBytes += bytesOfWritten;
                     }
                     else
@@ -719,10 +742,7 @@ namespace Tiny3D
                     String pattern;
                     if (getString(*i1, &pattern))
                     {
-                        uint16_t len = pattern.length();
-                        bytesOfWritten = stream.write(&len, sizeof(len));
-                        totalBytes += bytesOfWritten;
-                        bytesOfWritten = stream.write((void*)pattern.c_str(), len);
+                        bytesOfWritten = writeString(pattern, stream);
                         totalBytes += bytesOfWritten;
                     }
                     else
@@ -1096,17 +1116,7 @@ namespace Tiny3D
                 ColorARGB val = ColorARGB::WHITE;
                 if (getColor(prop->values.begin(), prop->values.end(), &val))
                 {
-                    float32_t component = val.alpha();
-                    bytesOfWritten = stream.write(&component, sizeof(component));
-                    totalBytes += bytesOfWritten;
-                    component = val.red();
-                    bytesOfWritten = stream.write(&component, sizeof(component));
-                    totalBytes += bytesOfWritten;
-                    component = val.green();
-                    bytesOfWritten = stream.write(&component, sizeof(component));
-                    totalBytes += bytesOfWritten;
-                    component = val.blue();
-                    bytesOfWritten = stream.write(&component, sizeof(component));
+                    bytesOfWritten = writeColor(val, stream);
                     totalBytes += bytesOfWritten;
                 }
                 else
@@ -1155,17 +1165,7 @@ namespace Tiny3D
                 ColorARGB val = ColorARGB::WHITE;
                 if (getColor(prop->values.begin(), prop->values.end(), &val))
                 {
-                    float32_t component = val.alpha();
-                    bytesOfWritten = stream.write(&component, sizeof(component));
-                    totalBytes += bytesOfWritten;
-                    component = val.red();
-                    bytesOfWritten = stream.write(&component, sizeof(component));
-                    totalBytes += bytesOfWritten;
-                    component = val.green();
-                    bytesOfWritten = stream.write(&component, sizeof(component));
-                    totalBytes += bytesOfWritten;
-                    component = val.blue();
-                    bytesOfWritten = stream.write(&component, sizeof(component));
+                    bytesOfWritten = writeColor(val, stream);
                     totalBytes += bytesOfWritten;
                 }
                 else
@@ -1242,17 +1242,7 @@ namespace Tiny3D
                         if (prop->values.size() == 4)
                         {
                             // specular
-                            float32_t component = val.alpha();
-                            bytesOfWritten = stream.write(&component, sizeof(component));
-                            totalBytes += bytesOfWritten;
-                            component = val.red();
-                            bytesOfWritten = stream.write(&component, sizeof(component));
-                            totalBytes += bytesOfWritten;
-                            component = val.green();
-                            bytesOfWritten = stream.write(&component, sizeof(component));
-                            totalBytes += bytesOfWritten;
-                            component = val.blue();
-                            bytesOfWritten = stream.write(&component, sizeof(component));
+                            bytesOfWritten = writeColor(val, stream);
                             totalBytes += bytesOfWritten;
 
                             // shininess
@@ -1280,17 +1270,7 @@ namespace Tiny3D
                             else
                             {
                                 // specular
-                                float32_t component = val.alpha();
-                                bytesOfWritten = stream.write(&component, sizeof(component));
-                                totalBytes += bytesOfWritten;
-                                component = val.red();
-                                bytesOfWritten = stream.write(&component, sizeof(component));
-                                totalBytes += bytesOfWritten;
-                                component = val.green();
-                                bytesOfWritten = stream.write(&component, sizeof(component));
-                                totalBytes += bytesOfWritten;
-                                component = val.blue();
-                                bytesOfWritten = stream.write(&component, sizeof(component));
+                                bytesOfWritten = writeColor(val, stream);
                                 totalBytes += bytesOfWritten;
                             }
 
@@ -1357,17 +1337,7 @@ namespace Tiny3D
                 ColorARGB val(0.0f, 0.0f, 0.0f, 1.0f);
                 if (getColor(prop->values.begin(), prop->values.end(), &val))
                 {
-                    float32_t c = val.alpha();
-                    bytesOfWritten = stream.write(&c, sizeof(c));
-                    totalBytes += bytesOfWritten;
-                    c = val.red();
-                    bytesOfWritten = stream.write(&c, sizeof(c));
-                    totalBytes += bytesOfWritten;
-                    c = val.green();
-                    bytesOfWritten = stream.write(&c, sizeof(c));
-                    totalBytes += bytesOfWritten;
-                    c = val.blue();
-                    bytesOfWritten = stream.write(&c, sizeof(c));
+                    bytesOfWritten = writeColor(val, stream);
                     totalBytes += bytesOfWritten;
                 }
                 else
@@ -2468,17 +2438,7 @@ namespace Tiny3D
                         return 0;
                     }
 
-                    float32_t c = clr.alpha();
-                    bytesOfWritten = stream.write(&c, sizeof(c));
-                    totalBytes += bytesOfWritten;
-                    c = clr.red();
-                    bytesOfWritten = stream.write(&c, sizeof(c));
-                    totalBytes += bytesOfWritten;
-                    c = clr.green();
-                    bytesOfWritten = stream.write(&c, sizeof(c));
-                    totalBytes += bytesOfWritten;
-                    c = clr.blue();
-                    bytesOfWritten = stream.write(&c, sizeof(c));
+                    bytesOfWritten = writeColor(clr, stream);
                     totalBytes += bytesOfWritten;
 
                     i2 = getNodeAt(prop->values, 5);
@@ -3077,6 +3037,1279 @@ namespace Tiny3D
                     prop->values.front()->getValue() + " is not a valid number");
             }
         }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node)
+    {
+        ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
+
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        // 对象头数据
+        bytesOfWritten = translateObjectHeader(obj, stream);
+        totalBytes += bytesOfWritten;
+
+        Real fval;
+        uint32_t uival;
+        String sval;
+
+        // Set the properties for the material
+        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        {
+            if ((*i)->type == ANT_PROPERTY)
+            {
+                PropertyAbstractNode *prop = static_cast<PropertyAbstractNode*>((*i).get());
+
+                // ID
+                uint16_t id = prop->id;
+                bytesOfWritten = stream.write(&id, sizeof(id));
+                totalBytes += bytesOfWritten;
+
+                // 属性
+                switch (prop->id)
+                {
+                case ID_TEX_ADDRESS_MODE:
+                case ID_TEX_BORDER_COLOUR:
+                case ID_FILTERING:
+                case ID_CMPTEST:
+                case ID_CMPFUNC:
+                case ID_COMP_FUNC:
+                case ID_MAX_ANISOTROPY:
+                case ID_MIPMAP_BIAS:
+                    {
+                        SamplerTranslator *translator = static_cast<SamplerTranslator*>(compiler->getTranslator(*i));
+                        bytesOfWritten = translator->translateSamplerParams(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_SAMPLER_REF:
+                    {
+                        bytesOfWritten = translateSamplerRef(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_TEXTURE_ALIAS:
+                    {
+                        bytesOfWritten = translateTextureAlias(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_TEXTURE:
+                    {
+                        bytesOfWritten = translateTexture(compiler, prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_ANIM_TEXTURE:
+                    {
+                        bytesOfWritten = translateAnimTexture(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_CUBIC_TEXTURE:
+                    {
+                        bytesOfWritten = translateCubicTexture(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_TEX_COORD_SET:
+                    {
+                        bytesOfWritten = translateTexCoordSet(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_COLOUR_OP:
+                    {
+                        bytesOfWritten = translateColorOp(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_COLOUR_OP_EX:
+                    {
+                        bytesOfWritten = translateColorOpEx(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_COLOUR_OP_MULTIPASS_FALLBACK:
+                    {
+                        bytesOfWritten = translateColorOpMultiPassFallback(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_ALPHA_OP_EX:
+                    {
+                        bytesOfWritten = translateAlphaOp(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_ENV_MAP:
+                    {
+                        bytesOfWritten = translateEnvMap(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_SCROLL:
+                    {
+                        bytesOfWritten = translateScroll(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_SCROLL_ANIM:
+                    {
+                        bytesOfWritten = translateScrollAnim(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_ROTATE:
+                    {
+                        bytesOfWritten = translateRotate(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_ROTATE_ANIM:
+                    {
+                        bytesOfWritten = translateRotateAnim(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                case ID_SCALE:
+                    if (prop->values.empty())
+                    {
+                        ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+                    }
+                    else if (prop->values.size() > 2)
+                    {
+                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                            "scale must have at most 2 arguments");
+                    }
+                    else
+                    {
+                        AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+                        Real x, y;
+                        if (getReal(*i0, &x) && getReal(*i1, &y))
+                            mUnit->setTextureScale(x, y);
+                        else
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                "first and second arguments must both be valid number values (received " + (*i0)->getValue() + ", " + (*i1)->getValue() + ")");
+                    }
+                    break;
+                case ID_WAVE_XFORM:
+                    if (prop->values.empty())
+                    {
+                        ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+                    }
+                    else if (prop->values.size() > 6)
+                    {
+                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                            "wave_xform must have at most 6 arguments");
+                    }
+                    else
+                    {
+                        AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1),
+                            i2 = getNodeAt(prop->values, 2), i3 = getNodeAt(prop->values, 3),
+                            i4 = getNodeAt(prop->values, 4), i5 = getNodeAt(prop->values, 5);
+                        if ((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM && (*i2)->type == ANT_ATOM &&
+                            (*i3)->type == ANT_ATOM && (*i4)->type == ANT_ATOM && (*i5)->type == ANT_ATOM)
+                        {
+                            AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
+                            TextureUnitState::TextureTransformType type = TextureUnitState::TT_ROTATE;
+                            WaveformType wave = WFT_SINE;
+                            Real base = 0.0f, freq = 0.0f, phase = 0.0f, amp = 0.0f;
+
+                            switch (atom0->id)
+                            {
+                            case ID_SCROLL_X:
+                                type = TextureUnitState::TT_TRANSLATE_U;
+                                break;
+                            case ID_SCROLL_Y:
+                                type = TextureUnitState::TT_TRANSLATE_V;
+                                break;
+                            case ID_SCALE_X:
+                                type = TextureUnitState::TT_SCALE_U;
+                                break;
+                            case ID_SCALE_Y:
+                                type = TextureUnitState::TT_SCALE_V;
+                                break;
+                            case ID_ROTATE:
+                                type = TextureUnitState::TT_ROTATE;
+                                break;
+                            default:
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                    atom0->value + " is not a valid transform type (must be \"scroll_x\", \"scroll_y\", \"scale_x\", \"scale_y\", or \"rotate\")");
+                            }
+
+                            switch (atom1->id)
+                            {
+                            case ID_SINE:
+                                wave = WFT_SINE;
+                                break;
+                            case ID_TRIANGLE:
+                                wave = WFT_TRIANGLE;
+                                break;
+                            case ID_SQUARE:
+                                wave = WFT_SQUARE;
+                                break;
+                            case ID_SAWTOOTH:
+                                wave = WFT_SAWTOOTH;
+                                break;
+                            case ID_INVERSE_SAWTOOTH:
+                                wave = WFT_INVERSE_SAWTOOTH;
+                                break;
+                            default:
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                    atom1->value + " is not a valid waveform type (must be \"sine\", \"triangle\", \"square\", \"sawtooth\", or \"inverse_sawtooth\")");
+                            }
+
+                            if (!getReal(*i2, &base) || !getReal(*i3, &freq) || !getReal(*i4, &phase) || !getReal(*i5, &amp))
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                    "arguments 3, 4, 5, and 6 must be valid numbers; received " + (*i2)->getValue() + ", " + (*i3)->getValue() + ", " + (*i4)->getValue() + ", " + (*i5)->getValue());
+
+                            mUnit->setTransformAnimation(type, wave, base, freq, phase, amp);
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                        }
+                    }
+                    break;
+                case ID_TRANSFORM:
+                {
+                    Matrix4 m;
+                    if (getMatrix4(prop->values.begin(), prop->values.end(), &m))
+                        mUnit->setTextureTransform(m);
+                    else
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                }
+                break;
+                case ID_BINDING_TYPE:
+                    TextureUnitState::BindingType bt;
+                    if (getValue(prop, compiler, bt))
+                        mUnit->setBindingType(bt);
+                    break;
+                case ID_CONTENT_TYPE:
+                    if (prop->values.empty())
+                    {
+                        ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+                    }
+                    else if (prop->values.size() > 4)
+                    {
+                        ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                            "content_type must have at most 4 arguments");
+                    }
+                    else
+                    {
+                        if (prop->values.front()->type == ANT_ATOM)
+                        {
+                            AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                            switch (atom->id)
+                            {
+                            case ID_NAMED:
+                                mUnit->setContentType(TextureUnitState::CONTENT_NAMED);
+                                break;
+                            case ID_SHADOW:
+                                mUnit->setContentType(TextureUnitState::CONTENT_SHADOW);
+                                break;
+                            case ID_COMPOSITOR:
+                                mUnit->setContentType(TextureUnitState::CONTENT_COMPOSITOR);
+                                if (prop->values.size() >= 3)
+                                {
+                                    String compositorName;
+                                    getString(*getNodeAt(prop->values, 1), &compositorName);
+                                    String textureName;
+                                    getString(*getNodeAt(prop->values, 2), &textureName);
+
+                                    if (prop->values.size() == 4)
+                                    {
+                                        uint32 mrtIndex;
+                                        getUInt(*getNodeAt(prop->values, 3), (uint32*)&mrtIndex);
+                                        mUnit->setCompositorReference(compositorName, textureName, mrtIndex);
+                                    }
+                                    else
+                                    {
+                                        mUnit->setCompositorReference(compositorName, textureName);
+                                    }
+                                }
+                                else
+                                {
+                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                        "content_type compositor must have an additional 2 or 3 parameters");
+                                }
+
+                                break;
+                            default:
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                    atom->value + " is not a valid content type (must be \"named\" or \"shadow\" or \"compositor\")");
+                            }
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                prop->values.front()->getValue() + " is not a valid content type");
+                        }
+                    }
+                    break;
+                default:
+                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
+                        "token \"" + prop->name + "\" is not recognized");
+                }
+            }
+            else if ((*i)->type == ANT_OBJECT)
+            {
+                processNode(compiler, stream, *i);
+            }
+        }
+    
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateSamplerRef(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "sampler_ref must have at most 1 argument");
+        }
+        else
+        {
+            String val;
+            if (getString(prop->values.front(), &val))
+            {
+                bytesOfWritten = writeString(val, stream);
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_REFERENCETOANONEXISTINGOBJECT,
+                    prop->name, prop->file, prop->line);
+            }
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateTextureAlias(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "texture_alias must have at most 1 argument");
+        }
+        else
+        {
+            String val;
+            if (getString(prop->values.front(), &val))
+            {
+                bytesOfWritten = writeString(val, stream);
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_REFERENCETOANONEXISTINGOBJECT,
+                    prop->name, prop->file, prop->line);
+            }
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateTexture(ScriptCompiler *compiler, PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 5)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "texture must have at most 5 arguments");
+        }
+        else
+        {
+            AbstractNodeList::const_iterator j = prop->values.begin();
+            String val;
+            if (getString(*j, &val))
+            {
+                bytesOfWritten = writeString(val, stream);
+                totalBytes += bytesOfWritten;
+
+                ++j;
+
+                while (j != prop->values.end())
+                {
+                    if ((*j)->type == ANT_ATOM)
+                    {
+                        AtomAbstractNode *atom = (AtomAbstractNode*)(*j).get();
+
+                        switch (atom->id)
+                        {
+                        case ID_1D:
+                        case ID_2D:
+                        case ID_3D:
+                        case ID_CUBIC:
+                        case ID_2DARRAY:
+                        case ID_UNLIMITED:
+                        case ID_ALPHA:
+                        case ID_GAMMA:
+                            {
+                                uint16_t id = atom->id;
+                                bytesOfWritten = stream.write(&id, sizeof(id));
+                                totalBytes += bytesOfWritten;
+                            }
+                            break;
+                        default:
+                            {
+                                if (StringConverter::isNumber(atom->value))
+                                {
+                                    uint16_t mipmaps = StringConverter::parseInt32(atom->value);
+                                    bytesOfWritten = stream.write(&mipmaps, sizeof(mipmaps));
+                                    totalBytes += bytesOfWritten;
+                                }
+                                else
+                                {
+                                    uint16_t id = ID_PIXELFORMAT;
+                                    bytesOfWritten = stream.write(&id, sizeof(id));
+                                    totalBytes += bytesOfWritten;
+
+                                    auto r = compiler->mPixelFormat.find(atom->value);
+                                    if (r != compiler->mPixelFormat.end())
+                                    {
+                                        uint32_t pf = r->second;
+                                        bytesOfWritten = stream.write(&pf, sizeof(pf));
+                                        totalBytes += bytesOfWritten;
+                                    }
+                                    else
+                                    {
+                                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                            (*j)->getValue() + " is not a supported argument to the texture property");
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            (*j)->getValue() + " is not a supported argument to the texture property");
+                    }
+                    ++j;
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    (*j)->getValue() + " is not a valid texture name");
+            }   
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateAnimTexture(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.size() < 3)
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+
+            if ((*i1)->type == ANT_ATOM && StringConverter::isNumber(((AtomAbstractNode*)(*i1).get())->value))
+            {
+                // Short form
+                uint16_t type = 0;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
+
+                AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i2 = getNodeAt(prop->values, 2);
+
+                if ((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM)
+                {
+                    String val0;
+                    uint32_t val1;
+                    float32_t val2;
+                    if (getString(*i0, &val0) && getUInt(*i1, &val1) && getSingle(*i2, &val2))
+                    {
+                        // name
+                        bytesOfWritten = writeString(val0, stream);
+                        totalBytes += bytesOfWritten;
+
+                        // numFrames
+                        uint16_t frames = val1;
+                        bytesOfWritten = stream.write(&frames, sizeof(frames));
+                        totalBytes += bytesOfWritten;
+
+                        // duration
+                        bytesOfWritten = stream.write(&val2, sizeof(val2));
+                        totalBytes += bytesOfWritten;
+                    }
+                    else
+                    {
+                        ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                            "anim_texture short form requires a texture name, number of frames, and animation duration");
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                        "anim_texture short form requires a texture name, number of frames, and animation duration");
+                }
+            }
+            else
+            {
+                // Long form has n number of frames
+                uint16_t type = 1;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
+
+                // number of frames
+                uint16_t frames = prop->values.size() - 1;
+                bytesOfWritten = stream.write(&frames, sizeof(frames));
+                totalBytes += bytesOfWritten;
+
+                float32_t duration = 0;
+                AbstractNodeList::const_iterator in = getNodeAt(prop->values, static_cast<int>(prop->values.size()) - 1);
+
+                if (getSingle(*in, &duration))
+                {
+                    // duration
+                    bytesOfWritten = stream.write(&duration, sizeof(duration));
+                    totalBytes += bytesOfWritten;
+
+                    // names
+                    AbstractNodeList::iterator j = prop->values.begin();
+                    while (j != in)
+                    {
+                        if ((*j)->type == ANT_ATOM)
+                        {
+                            String name = ((AtomAbstractNode*)(*j).get())->value;
+                            bytesOfWritten = writeString(name, stream);
+                            totalBytes += bytesOfWritten;
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                (*j)->getValue() + " is not supported as a texture name");
+                        }
+                        ++j;
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                        (*in)->getValue() + " is not supported for the duration argument");
+                }
+            }
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateCubicTexture(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() == 2)
+        {
+            // type
+            uint16_t type = 2;
+            bytesOfWritten = stream.write(&type, sizeof(type));
+            totalBytes += bytesOfWritten;
+
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
+                i1 = getNodeAt(prop->values, 1);
+
+            if ((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM)
+            {
+                AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get();
+                AtomAbstractNode *atom1 = (AtomAbstractNode*)(*i1).get();
+
+                String name;
+                if (getString(*i0, &name))
+                {
+                    bytesOfWritten = writeString(name, stream);
+                    totalBytes += bytesOfWritten;
+
+                    uint16_t id = atom1->id;
+                    bytesOfWritten = stream.write(&id, sizeof(id));
+                    totalBytes += bytesOfWritten;
+                }
+                else
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+            }
+        }
+        else if (prop->values.size() == 7)
+        {
+            // type
+            uint16_t type = 7;
+            bytesOfWritten = stream.write(&type, sizeof(type));
+            totalBytes += bytesOfWritten;
+
+            AbstractNodeList::const_iterator 
+                i0 = getNodeAt(prop->values, 0),
+                i1 = getNodeAt(prop->values, 1),
+                i2 = getNodeAt(prop->values, 2),
+                i3 = getNodeAt(prop->values, 3),
+                i4 = getNodeAt(prop->values, 4),
+                i5 = getNodeAt(prop->values, 5),
+                i6 = getNodeAt(prop->values, 6);
+            if ((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM 
+                && (*i2)->type == ANT_ATOM && (*i3)->type == ANT_ATOM 
+                && (*i4)->type == ANT_ATOM && (*i5)->type == ANT_ATOM 
+                && (*i6)->type == ANT_ATOM)
+            {
+                AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), 
+                    *atom1 = (AtomAbstractNode*)(*i1).get(),
+                    *atom2 = (AtomAbstractNode*)(*i2).get(), 
+                    *atom3 = (AtomAbstractNode*)(*i3).get(),
+                    *atom4 = (AtomAbstractNode*)(*i4).get(), 
+                    *atom5 = (AtomAbstractNode*)(*i5).get(),
+                    *atom6 = (AtomAbstractNode*)(*i6).get();
+
+                bytesOfWritten = writeString(atom0->value, stream);
+                totalBytes += bytesOfWritten;
+
+                bytesOfWritten = writeString(atom1->value, stream);
+                totalBytes += bytesOfWritten;
+                    
+                bytesOfWritten = writeString(atom2->value, stream);
+                totalBytes += bytesOfWritten;
+
+                bytesOfWritten = writeString(atom3->value, stream);
+                totalBytes += bytesOfWritten;
+
+                bytesOfWritten = writeString(atom4->value, stream);
+                totalBytes += bytesOfWritten;
+
+                bytesOfWritten = writeString(atom5->value, stream);
+                totalBytes += bytesOfWritten;
+            }
+
+        }
+        else
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "cubic_texture must have at most 7 arguments");
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateTexCoordSet(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() == 1)
+        {
+            uint32_t val = 0;
+            if (getUInt(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+            }
+        }
+        else
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "tex_coord_set must have only 1 arguments");
+        }
+        
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateColorOp(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() == 1)
+        {
+            AtomAbstractNode *atom = (AtomAbstractNode *)(prop->values.front()).get();
+            uint16_t id = atom->id;
+            bytesOfWritten = stream.write(&id, sizeof(id));
+            totalBytes += bytesOfWritten;
+        }
+        else
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "colour_op must have only 1 arguments");
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateColorOpEx(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.size() < 3)
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
+                "colour_op_ex must have at least 3 arguments");
+        }
+        else if (prop->values.size() > 6)
+        {
+            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                "colour_op_ex must have at most 10 arguments");
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
+                i1 = getNodeAt(prop->values, 1),
+                i2 = getNodeAt(prop->values, 2);
+
+            AtomAbstractNode *atom0 = (AtomAbstractNode *)(*i0).get();
+            AtomAbstractNode *atom1 = (AtomAbstractNode *)(*i1).get();
+            AtomAbstractNode *atom2 = (AtomAbstractNode *)(*i2).get();
+
+            // op
+            uint16_t id = atom0->id;
+            bytesOfWritten = stream.write(&id, sizeof(id));
+            totalBytes += bytesOfWritten;
+
+            // source1
+            id = atom1->id;
+            bytesOfWritten = stream.write(&id, sizeof(id));
+            totalBytes += bytesOfWritten;
+
+            // source2
+            id = atom2->id;
+            bytesOfWritten = stream.write(&id, sizeof(id));
+            totalBytes += bytesOfWritten;
+
+            if (atom0->id == ID_BLEND_MANUAL)
+            {
+                AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
+                if (i3 != prop->values.end())
+                {
+                    float32_t manualBlend;
+
+                    if (!getSingle(*i3, &manualBlend))
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            (*i3)->getValue() + " is not a valid number argument");
+                    }
+                    else
+                    {
+                        bytesOfWritten = stream.write(&manualBlend, sizeof(manualBlend));
+                        totalBytes += bytesOfWritten;
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                        "fourth argument expected when blend_manual is used");
+                }
+            }
+            
+            AbstractNodeList::const_iterator j = getNodeAt(prop->values, 3);
+            if (atom0->id == ID_BLEND_MANUAL)
+                j++;
+
+            ColorARGB arg1 = ColorARGB::WHITE, arg2 = ColorARGB::WHITE;
+
+            if (atom1->id == ID_SRC_MANUAL)
+            {
+                if (j != prop->values.end())
+                {
+                    if (!getColor(j, prop->values.end(), &arg1, 3))
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            "valid colour expected when src_manual is used");
+                    }
+                    else
+                    {
+                        bytesOfWritten = writeColor(arg1, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                        "valid colour expected when src_manual is used");
+                }
+            }
+
+            if (atom2->id == ID_SRC_MANUAL)
+            {
+                if (j != prop->values.end())
+                {
+                    if (!getColor(j, prop->values.end(), &arg2, 3))
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            "valid colour expected when src_manual is used");
+                    }
+                    else
+                    {
+                        bytesOfWritten = writeColor(arg2, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                        "valid colour expected when src_manual is used");
+                }
+            }
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateColorOpMultiPassFallback(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 2)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "colour_op_multiplass_fallback must have at most 2 arguments");
+        }
+        else if (prop->values.size() == 1)
+        {
+            if (prop->values.front()->type == ANT_ATOM)
+            {
+                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                switch (atom->id)
+                {
+                case ID_ADD:
+                case ID_MODULATE:
+                case ID_COLOUR_BLEND:
+                case ID_ALPHA_BLEND:
+                case ID_REPLACE:
+                    {
+                        uint16_t id = atom->id;
+                        bytesOfWritten = stream.write(&id, sizeof(id));
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                default:
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                        "argument must be a valid scene blend type (add, modulate, colour_blend, alpha_blend, or replace)");
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    "argument must be a valid scene blend type (add, modulate, colour_blend, alpha_blend, or replace)");
+            }
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+            AtomAbstractNode *atom0 = (AtomAbstractNode *)(*i0).get();
+            AtomAbstractNode *atom1 = (AtomAbstractNode *)(*i1).get();
+            
+            uint16_t id = atom0->id;
+            bytesOfWritten = stream.write(&id, sizeof(id));
+            totalBytes += bytesOfWritten;
+
+            id = atom1->id;
+            bytesOfWritten = stream.write(&id, sizeof(id));
+            totalBytes += bytesOfWritten;
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateAlphaOp(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.size() < 3)
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
+                "alpha_op_ex must have at least 3 arguments");
+        }
+        else if (prop->values.size() > 6)
+        {
+            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                "alpha_op_ex must have at most 10 arguments");
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
+                i1 = getNodeAt(prop->values, 1),
+                i2 = getNodeAt(prop->values, 2);
+
+            AtomAbstractNode *atom0 = (AtomAbstractNode *)(*i0).get();
+            AtomAbstractNode *atom1 = (AtomAbstractNode *)(*i1).get();
+            AtomAbstractNode *atom2 = (AtomAbstractNode *)(*i2).get();
+
+            // op
+            uint16_t id = atom0->id;
+            bytesOfWritten = stream.write(&id, sizeof(id));
+            totalBytes += bytesOfWritten;
+
+            // source1
+            id = atom1->id;
+            bytesOfWritten = stream.write(&id, sizeof(id));
+            totalBytes += bytesOfWritten;
+
+            // source2
+            id = atom2->id;
+            bytesOfWritten = stream.write(&id, sizeof(id));
+            totalBytes += bytesOfWritten;
+
+            if (atom0->id == ID_BLEND_MANUAL)
+            {
+                AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
+                if (i3 != prop->values.end())
+                {
+                    float32_t manualBlend;
+
+                    if (!getSingle(*i3, &manualBlend))
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            (*i3)->getValue() + " is not a valid number argument");
+                    }
+                    else
+                    {
+                        bytesOfWritten = stream.write(&manualBlend, sizeof(manualBlend));
+                        totalBytes += bytesOfWritten;
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                        "fourth argument expected when blend_manual is used");
+                }
+            }
+
+            AbstractNodeList::const_iterator j = getNodeAt(prop->values, 3);
+            if (atom0->id == ID_BLEND_MANUAL)
+                j++;
+
+            ColorARGB arg1 = ColorARGB::WHITE, arg2 = ColorARGB::WHITE;
+
+            if (atom1->id == ID_SRC_MANUAL)
+            {
+                if (j != prop->values.end())
+                {
+                    if (!getColor(j, prop->values.end(), &arg1, 3))
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            "valid colour expected when src_manual is used");
+                    }
+                    else
+                    {
+                        bytesOfWritten = writeColor(arg1, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                        "valid colour expected when src_manual is used");
+                }
+            }
+
+            if (atom2->id == ID_SRC_MANUAL)
+            {
+                if (j != prop->values.end())
+                {
+                    if (!getColor(j, prop->values.end(), &arg2, 3))
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            "valid colour expected when src_manual is used");
+                    }
+                    else
+                    {
+                        bytesOfWritten = writeColor(arg2, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                        "valid colour expected when src_manual is used");
+                }
+            }
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateEnvMap(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "env_map must have at most 1 argument");
+        }
+        else
+        {
+            if (prop->values.front()->type == ANT_ATOM)
+            {
+                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+
+                switch (atom->id)
+                {
+                case ID_OFF:
+                case ID_SPHERICAL:
+                case ID_PLANAR:
+                case ID_CUBIC_REFLECTION:
+                case ID_CUBIC_NORMAL:
+                    {
+                        uint16_t id = atom->id;
+                        bytesOfWritten = stream.write(&id, sizeof(id));
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
+                default:
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                        prop->values.front()->getValue() + " is not a valid argument (must be \"off\", \"spherical\", \"planar\", \"cubic_reflection\", or \"cubic_normal\")");
+                    break;
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid argument (must be \"off\", \"spherical\", \"planar\", \"cubic_reflection\", or \"cubic_normal\")");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateScroll(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 2)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "scroll must have at most 2 arguments");
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+            float32_t x, y;
+            if (getSingle(*i0, &x) && getSingle(*i1, &y))
+            {
+                bytesOfWritten = stream.write(&x, sizeof(x));
+                totalBytes += bytesOfWritten;
+                bytesOfWritten = stream.write(&y, sizeof(y));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    (*i0)->getValue() + " and/or " + (*i1)->getValue() + " is invalid; both must be numbers");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateScrollAnim(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 2)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "scroll_anim must have at most 2 arguments");
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+            float32_t x, y;
+            if (getSingle(*i0, &x) && getSingle(*i1, &y))
+            {
+                bytesOfWritten = stream.write(&x, sizeof(x));
+                totalBytes += bytesOfWritten;
+                bytesOfWritten = stream.write(&y, sizeof(y));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    (*i0)->getValue() + " and/or " + (*i1)->getValue() + " is invalid; both must be numbers");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateRotate(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() == 1)
+        {
+            float32_t val;
+            if (getSingle(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            }
+        }
+        else
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "rotate must have only 1 arguments");
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t TextureUnitTranslator::translateRotateAnim(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() == 1)
+        {
+            float32_t val;
+            if (getSingle(prop->values.front(), &val))
+            {
+                bytesOfWritten = stream.write(&val, sizeof(val));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            }
+        }
+        else
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "rotate_anim must have only 1 arguments");
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t SamplerTranslator::translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node)
+    {
+        ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
+
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        // 对象头数据
+        bytesOfWritten = translateObjectHeader(obj, stream);
+        totalBytes += bytesOfWritten;
 
         return totalBytes;
     }
