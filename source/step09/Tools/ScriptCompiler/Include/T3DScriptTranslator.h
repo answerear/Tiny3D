@@ -57,6 +57,7 @@ namespace Tiny3D
         bool getUInt(const AbstractNodePtr &node, uint32_t *result);
         bool getHex(const AbstractNodePtr &node, uint32_t *result);
         bool getColor(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, ColorARGB *result, int32_t maxEntries = 4);
+        bool getMatrix4(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, Matrix4 *m);
 
         size_t writeString(const String &str, DataStream &stream);
         size_t writeColor(const ColorARGB &clr, DataStream &stream);
@@ -87,6 +88,7 @@ namespace Tiny3D
         size_t translateScene(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateLODIndex(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateShadowCasterMaterial(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateShadowReceiveMaterial(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateGPUVendorRule(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateGPUDeviceRule(PropertyAbstractNode *prop, DataStream &stream);
     };
@@ -155,12 +157,17 @@ namespace Tiny3D
         size_t translateColorOp(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateColorOpEx(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateColorOpMultiPassFallback(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateAlphaOp(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateAlphaOpEx(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateEnvMap(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateScroll(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateScrollAnim(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateRotate(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateRotateAnim(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateScale(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateWaveXform(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateTransform(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateBindingType(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateContentType(PropertyAbstractNode *prop, DataStream &stream);
     };
 
     //--------------------------------------------------------------------------
@@ -171,6 +178,15 @@ namespace Tiny3D
         virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
 
         size_t translateSamplerParams(PropertyAbstractNode *prop, DataStream &stream);
+
+    protected:
+        size_t translateTexAddressMode(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateTexBorderColor(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateFiltering(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateCompareTest(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateCompareFunc(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateMaxAnisotropy(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateMipmapBias(PropertyAbstractNode *prop, DataStream &stream);
     };
 }
 

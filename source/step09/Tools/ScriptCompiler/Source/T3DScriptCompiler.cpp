@@ -52,6 +52,8 @@ namespace Tiny3D
         delete mPassTranslator;
         delete mTechniqueTranslator;
         delete mMaterialTranslator;
+        delete mTexUnitTranslator;
+        delete mSamplerTranslator;
 
         delete mLexer;
         mLexer = nullptr;
@@ -1032,6 +1034,7 @@ namespace Tiny3D
             header.fileSize = sizeof(header);
             stream.write(&header, sizeof(header));
             size_t size = 0;
+            ret = true;
 
             for (auto i = ast->begin(); i != ast->end(); ++i)
             {
@@ -1070,7 +1073,8 @@ namespace Tiny3D
             size_t bufSize = 0;
             stream.getBuffer(buffer, bufSize);
 
-            fs.write(buffer, bufSize);
+            size = (header.fileSize > bufSize ? bufSize : header.fileSize);
+            fs.write(buffer, size);
             fs.close();
 
         } while (0);

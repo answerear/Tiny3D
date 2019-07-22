@@ -30,6 +30,7 @@ namespace Tiny3D
     class ScriptLexer;
     class ScriptParser;
     class ScriptTranslator;
+    class SamplerTranslator;
 
     class ScriptCompiler
     {
