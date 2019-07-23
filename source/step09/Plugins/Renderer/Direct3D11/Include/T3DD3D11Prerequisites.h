@@ -18,9 +18,39 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#ifndef __T3D_D3D11_PREREQUISITES_H__
+#define __T3D_D3D11_PREREQUISITES_H__
 
 
+#include <Tiny3D.h>
+#include <d3d11.h>
 
-#endif  /*__T3D_RENDERER_H__*/
+
+#if defined D3D11RENDERER_EXPORT
+    #define T3D_D3D11RENDERER_API        T3D_EXPORT_API
+#else
+    #define T3D_D3D11RENDERER_API        T3D_IMPORT_API
+#endif
+
+
+#define D3D_SAFE_RELEASE(p) \
+    if ((p) != nullptr)   \
+    {   \
+        (p)->Release();   \
+        (p) = nullptr;    \
+    }
+
+
+namespace Tiny3D
+{
+    #define LOG_TAG_D3D11RENDERER        "D3D11Renderer"
+
+    class D3D11Renderer;
+    class D3D11RenderWindow;
+
+    T3D_DECLARE_SMART_PTR(D3D11Renderer);
+    T3D_DECLARE_SMART_PTR(D3D11RenderWindow);
+}
+
+
+#endif  /*__T3D_D3D11_PREREQUISITES_H__*/

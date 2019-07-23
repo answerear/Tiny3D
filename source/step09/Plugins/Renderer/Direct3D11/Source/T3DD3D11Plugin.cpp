@@ -18,9 +18,92 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#include "T3DD3D11Plugin.h"
+#include "T3DD3D11Renderer.h"
 
 
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
 
-#endif  /*__T3D_RENDERER_H__*/
+    D3D11Plugin::D3D11Plugin()
+        : mName("D3D11Renderer")
+        , mRenderer(nullptr)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11Plugin::~D3D11Plugin()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    const String &D3D11Plugin::getName() const
+    {
+        return mName;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Plugin::install()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            mRenderer = D3D11Renderer::create();
+            if (mRenderer != nullptr)
+            {
+                ret = T3D_AGENT.addRenderer(mRenderer);
+                if (ret != T3D_OK)
+                {
+                    break;
+                }
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Plugin::startup()
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Plugin::shutdown()
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Plugin::uninstall()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ret = T3D_AGENT.removeRenderer(mRenderer);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            mRenderer = nullptr;
+        } while (0);
+
+        return ret;
+    }
+}

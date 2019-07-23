@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_PLUGIN_H__
-#define __T3D_D3D11_PLUGIN_H__
+#ifndef __T3D_D3D11_ERROR_H__
+#define __T3D_D3D11_ERROR_H__
 
 
 #include "T3DD3D11Prerequisites.h"
@@ -27,49 +27,16 @@
 
 namespace Tiny3D
 {
-    class D3D11Plugin : public Plugin
+    enum R3DErrorCode
     {
-    public:
-        /**
-         * @brief 默认构造函数
-         */
-        D3D11Plugin();
-
-        /**
-         * @brief 析构函数
-         */
-        virtual ~D3D11Plugin();
-
-        /**
-         * @brief 获取插件名称
-         */
-        virtual const String &getName() const override;
-
-        /**
-         * @brief 安装插件
-         */
-        virtual TResult install() override;
-
-        /**
-         * @brief 启动插件
-         */
-        virtual TResult startup() override;
-
-        /**
-         * @brief 关闭插件
-         */
-        virtual TResult shutdown() override;
-
-        /**
-         * @brief 卸载插件
-         */
-        virtual TResult uninstall() override;
-
-    protected:
-        String      mName;
-        RendererPtr mRenderer;
+        T3D_ERR_D3D11_WINDOW_ALREADY = T3D_ERR_RENDERER, /**< 窗口已经创建 */
+        T3D_ERR_D3D11_UNSUPPORT_FORMAT_ICON,             /**< 不支持的图标文件格式 */
+        T3D_ERR_D3D11_IMAGE_SIZE_NOT_EQL,                /**< 图片大小不一致 */
+        T3D_ERR_D3D11_INVALID_TARGET,                    /**< 错误的渲染目标 */
+        T3D_ERR_D3D11_CREATE_FAILED,                     /**< 创建 D3D9 对象失败 */
     };
 }
 
 
-#endif  /*__T3D_D3D11_PLUGIN_H__*/
+
+#endif  /*__T3D_D3D11_ERROR_H__*/

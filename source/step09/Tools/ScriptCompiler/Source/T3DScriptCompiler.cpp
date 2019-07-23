@@ -1101,7 +1101,6 @@ namespace Tiny3D
             E_PF_B8G8R8X8,
         };
 
-
         mPixelFormat["PF_UNKNOWN"] = E_PF_UNKNOWN;
         mPixelFormat["PF_PALETTE8"] = E_PF_PALETTE8;
         mPixelFormat["PF_R5G6B5"] = E_PF_R5G6B5;

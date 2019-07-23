@@ -16,7 +16,7 @@ endif (MSVC)
 
 # Setup project include files path
 include_directories(
-    "${TINY3D_CORE_INC_DIR}/Include"
+    "${TINY3D_CORE_SOURCE_DIR}/Include"
     "${TINY3D_MATH_SOURCE_DIR}/Include"
     "${TINY3D_FRAMEWORK_SOURCE_DIR}/Include"
     "${TINY3D_PLATFORM_SOURCE_DIR}/Include"
@@ -52,7 +52,7 @@ target_link_libraries(
     )
 
 # Setup project folder
-set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Plugins/Renderer")
+set_property(TARGET ${LIB_NAME} PROPERTY FOLDER "Plugins/Renderer")
 
 install(TARGETS ${LIB_NAME}
     RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug
