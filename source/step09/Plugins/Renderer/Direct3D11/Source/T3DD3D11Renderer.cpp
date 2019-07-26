@@ -40,15 +40,18 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     D3D11Renderer::D3D11Renderer()
+        : mInstance(nullptr)
+        , mD3DDevice(nullptr)
+        , mD3DDeviceContext(nullptr)
     {
-        mName = Renderer::DIRECT3D9;
+        mName = Renderer::DIRECT3D11;
     }
 
     //--------------------------------------------------------------------------
 
     D3D11Renderer::~D3D11Renderer()
     {
-
+        destroy();
     }
 
     //--------------------------------------------------------------------------
@@ -59,7 +62,35 @@ namespace Tiny3D
 
         do 
         {
-           
+            HRESULT hr = S_OK;
+
+            // device flags
+            UINT flags = 0;
+#ifdef T3D_DEBUG
+            flags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
+            // features level
+            const UINT numLevels = 4;
+            D3D_FEATURE_LEVEL featureLevels[numLevels] =
+            {
+                D3D_FEATURE_LEVEL_11_0,
+                D3D_FEATURE_LEVEL_10_1,
+                D3D_FEATURE_LEVEL_10_0,
+                D3D_FEATURE_LEVEL_9_3
+            };
+
+            D3D_FEATURE_LEVEL level;
+
+            hr = D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, 
+                featureLevels, numLevels, D3D11_SDK_VERSION, 
+                &mD3DDevice, &level, &mD3DDeviceContext);
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+
         } while (0);
 
         return ret;
@@ -73,7 +104,8 @@ namespace Tiny3D
 
         do 
         {
-            
+            D3D_SAFE_RELEASE(mD3DDeviceContext);
+            D3D_SAFE_RELEASE(mD3DDevice);
         } while (0);
 
         return ret;
@@ -120,6 +152,10 @@ namespace Tiny3D
 
         do 
         {
+            const float colors[4] = {color.red(), color.green(), color.blue(), 1.0f};
+            mD3DDeviceContext->ClearRenderTargetView(mRTView, colors);
+            mD3DDeviceContext->ClearDepthStencilView(mDSView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
         } while (0);
 
         return ret;
@@ -483,7 +519,15 @@ namespace Tiny3D
                 break;
             }
 
-            
+            D3D11_VIEWPORT vp;
+            vp.TopLeftX = viewport->getActualLeft();
+            vp.TopLeftY = viewport->getActualTop();
+            vp.Width = viewport->getActualWidth();
+            vp.Height = viewport->getActualHeight();
+            vp.MinDepth = 0.0f;
+            vp.MaxDepth = 1.0;
+
+            mD3DDeviceContext->RSSetViewports(1, &vp);
 
             mViewport = viewport;
         } while (0);

@@ -39,6 +39,9 @@ namespace Tiny3D
     D3D11RenderWindow::D3D11RenderWindow(const String &name)
         : RenderWindow(name)
         , mWindow(nullptr)
+        , mD3DSwapChain(nullptr)
+        , mD3DRTView(nullptr)
+        , mD3DDSView(nullptr)
     {
 
     }
@@ -104,13 +107,93 @@ namespace Tiny3D
                 }
             }
 
+            // 加载图标
+            ret = loadIcon(param.iconPath);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            mWidth = param.windowWidth;
+            mHeight = param.windowHeight;
+            mColorDepth = mWindow->getColorDepth();
+            mPitch = Image::calcPitch(mWidth, mColorDepth);
+
+            ret = setupD3D11Environment(param, paramEx);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            ret = T3D_OK;
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11RenderWindow::destroy()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mWindow == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Invalid window pointer !");
+                break;
+            }
+
+            D3D_SAFE_RELEASE(mD3DDSView);
+            D3D_SAFE_RELEASE(mD3DRTView);
+            D3D_SAFE_RELEASE(mD3DSwapChain);
+
+            mWindow->destroy();
+
+            T3D_SAFE_DELETE(mWindow);
+
+            ret = T3D_OK;
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11RenderWindow::swapBuffers()
+    {
+        TResult ret = T3D_ERR_FAIL;
+
+        do
+        {
+            HRESULT hr = S_OK;
+            hr = mD3DSwapChain->Present(0, 0);
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            ret = T3D_OK;
+        } while (0);
+
+        return ret;
+    }
+
+    TResult D3D11RenderWindow::loadIcon(const String &iconPath)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
             // 加载图标资源
             Image image;
-            ret = image.load(param.iconPath);
+            ret = image.load(iconPath);
             if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Load icon image [%s] \
-                    failed !", param.iconPath.c_str());
+                    failed !", iconPath.c_str());
                 break;
             }
 
@@ -150,16 +233,11 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_D3D11_UNSUPPORT_FORMAT_ICON;
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Do not support icon [%s] \
-                    format !", param.iconPath.c_str());
+                    format !", iconPath.c_str());
                 break;
             }
 
             mWindow->setWindowIcon(icon);
-
-            mWidth = param.windowWidth;
-            mHeight = param.windowHeight;
-            mColorDepth = mWindow->getColorDepth();
-            mPitch = Image::calcPitch(mWidth, mColorDepth);
         } while (0);
 
         return ret;
@@ -167,22 +245,67 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11RenderWindow::destroy()
+    TResult D3D11RenderWindow::setupD3D11Environment(
+        const RenderWindowCreateParam &param, 
+        const RenderWindowCreateParamEx &paramEx)
     {
-        TResult ret = T3D_OK;
+        TResult ret = T3D_ERR_FAIL;
 
-        do
+        do 
         {
-            if (mWindow == nullptr)
+            UINT uMSAAQuality
+                = (DWORD)paramEx.at("MultiSampleQuality").longValue();
+            UINT uMSAACount = 4;
+
+            if (uMSAAQuality < 2)
+                uMSAAQuality = 0;
+            else if (uMSAAQuality > 16)
+                uMSAAQuality = 16;
+
+            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+            DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            HRESULT hr = S_OK;
+
+            if (uMSAAQuality == 0)
             {
-                ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Invalid window pointer !");
+                uMSAACount = 1;
+            }
+            else
+            {
+                UINT uNumQuality = 0;
+                hr = pD3DDevice->CheckMultisampleQualityLevels(format,
+                    uMSAACount, &uNumQuality);
+                if (FAILED(hr))
+                {
+                    break;
+                }
+
+                uMSAAQuality = uNumQuality - 1;
+            }
+
+            ret = createSwapChain(mWidth, mHeight, param.fullscreen, 
+                uMSAACount, uMSAAQuality, format);
+            if (ret != T3D_OK)
+            {
                 break;
             }
 
-            mWindow->destroy();
+            ret = createRenderTargetView();
+            if (ret != T3D_OK)
+            {
+                break;
+            }
 
-            T3D_SAFE_DELETE(mWindow);
+            ret = createDepthStencilView(mWidth, mHeight, 
+                uMSAACount, uMSAAQuality);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            ID3D11DeviceContext *pD3DContext 
+                = D3D11_RENDERER.getD3DDeviceContext();
+            pD3DContext->OMSetRenderTargets(1, &mD3DRTView, mD3DDSView);
 
             ret = T3D_OK;
         } while (0);
@@ -192,18 +315,166 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11RenderWindow::swapBuffers()
+    TResult D3D11RenderWindow::createSwapChain(UINT uWidth, UINT uHeight, 
+        bool bFullscreen, UINT uMSAACount, UINT uMSAAQuality, DXGI_FORMAT format)
     {
-        TResult ret = T3D_OK;
+        TResult ret = T3D_ERR_FAIL;
 
-        do
+        IDXGIDevice *pDXGIDevice = nullptr;
+        IDXGIAdapter *pDXGIAdapter = nullptr;
+        IDXGIFactory *pDXGIFactory = nullptr;
+
+        do 
         {
-            
+            SysWMInfo info;
+            mWindow->getSystemInfo(info);
+            HWND hWnd = (HWND)info.hWnd;
+
+            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+
+            DXGI_SWAP_CHAIN_DESC desc;
+
+            desc.BufferDesc.Width = mWidth;
+            desc.BufferDesc.Height = mHeight;
+            desc.BufferDesc.RefreshRate.Numerator = 60;
+            desc.BufferDesc.RefreshRate.Denominator = 1;
+            desc.BufferDesc.Format = format;
+            desc.BufferDesc.ScanlineOrdering 
+                = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+            desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+
+            desc.SampleDesc.Count = uMSAACount;
+            desc.SampleDesc.Quality = uMSAAQuality;
+
+            desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+            desc.BufferCount = 1;
+            desc.OutputWindow = hWnd;
+            desc.Windowed = !bFullscreen;
+            desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+            desc.Flags = 0;
+
+            HRESULT hr = S_OK;
+
+            hr = pD3DDevice->QueryInterface(__uuidof(IDXGIDevice), 
+                (void **)&pDXGIDevice);
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            hr = pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), 
+                (void **)&pDXGIAdapter);
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            hr = pDXGIAdapter->GetParent(__uuidof(IDXGIFactory), 
+                (void **)&pDXGIFactory);
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            hr = pDXGIFactory->CreateSwapChain(pD3DDevice, &desc, 
+                &mD3DSwapChain);
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            ret = T3D_OK;
         } while (0);
+
+        D3D_SAFE_RELEASE(pDXGIFactory);
+        D3D_SAFE_RELEASE(pDXGIAdapter);
+        D3D_SAFE_RELEASE(pDXGIDevice);
 
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult D3D11RenderWindow::createRenderTargetView()
+    {
+        TResult ret = T3D_ERR_FAIL;
+
+        ID3D11Texture2D *pD3DBackBuffer = nullptr;
+
+        do 
+        {
+            HRESULT hr = S_OK;
+            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+            hr = mD3DSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D),
+                reinterpret_cast<void **>(&pD3DBackBuffer));
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            hr = pD3DDevice->CreateRenderTargetView(pD3DBackBuffer, 0, 
+                &mD3DRTView);
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            ret = T3D_OK;
+        } while (0);
+
+        D3D_SAFE_RELEASE(pD3DBackBuffer);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11RenderWindow::createDepthStencilView(UINT uWidth, UINT uHeight,
+        UINT uMSAACount, UINT uMSAAQuality)
+    {
+        TResult ret = T3D_ERR_FAIL;
+
+        ID3D11Texture2D *pD3DTexture = nullptr;
+
+        do 
+        {
+            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+
+            D3D11_TEXTURE2D_DESC desc;
+            desc.Width = uWidth;
+            desc.Height = uHeight;
+            desc.MipLevels = 1;
+            desc.ArraySize = 1;
+            desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+
+            desc.SampleDesc.Count = uMSAACount;
+            desc.SampleDesc.Quality = uMSAAQuality;
+
+            desc.Usage = D3D11_USAGE_DEFAULT;
+            desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+            desc.CPUAccessFlags = 0;
+            desc.MiscFlags = 0;
+
+            HRESULT hr = S_OK;
+            hr = pD3DDevice->CreateTexture2D(&desc, nullptr, &pD3DTexture);
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            hr = pD3DDevice->CreateDepthStencilView(pD3DTexture, 0, &mD3DDSView);
+            if (FAILED(hr))
+            {
+                break;
+            }
+
+            ret = T3D_OK;
+        } while (0);
+
+        D3D_SAFE_RELEASE(pD3DTexture);
+
+        return ret;
+    }
 }
 
 

@@ -71,7 +71,41 @@ namespace Tiny3D
     protected:
         D3D11RenderWindow(const String &name);
 
-        Window  *mWindow;
+        /**
+         * @brief 加载图标
+         */
+        TResult loadIcon(const String &iconPath);
+
+        /**
+         * @brief 建立 D3D11 相关环境
+         */
+        TResult setupD3D11Environment(
+            const RenderWindowCreateParam &param,
+            const RenderWindowCreateParamEx &paramEx);
+
+        /**
+         * @brief 创建 D3D11 交换链
+         */
+        TResult createSwapChain(UINT uWidth, UINT uHeight, bool bFullscreen,
+            UINT uMSAACount, UINT uMSAAQuality, DXGI_FORMAT format);
+
+        /**
+         * @brief 创建渲染目标视图
+         */
+        TResult createRenderTargetView();
+
+        /**
+         * @brief 创建深度和模板缓冲区视图
+         */
+        TResult createDepthStencilView(UINT uWidth, UINT uHeight,
+            UINT uMSAACount, UINT uMSAAQuality);
+
+    protected:
+        Window          *mWindow;
+
+        IDXGISwapChain          *mD3DSwapChain;
+        ID3D11RenderTargetView  *mD3DRTView;
+        ID3D11DepthStencilView  *mD3DDSView;
     };
 }
 

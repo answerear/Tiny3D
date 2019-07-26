@@ -224,6 +224,26 @@ namespace Tiny3D
             VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo,
             HardwareIndexBufferPtr ibo) override;
 
+        ID3D11Device *getD3DDevice()
+        {
+            return mD3DDevice;
+        }
+
+        ID3D11DeviceContext *getD3DDeviceContext()
+        {
+            return mD3DDeviceContext;
+        }
+
+        void setD3DRTView(ID3D11RenderTargetView *D3DRTView)
+        {
+            mRTView = D3DRTView;
+        }
+
+        void setD3DDSView(ID3D11DepthStencilView *D3DDSView)
+        {
+            mDSView = D3DDSView;
+        }
+
     protected:
         /**
          * @brief 构造函数
@@ -231,8 +251,11 @@ namespace Tiny3D
         D3D11Renderer();
 
     protected:
-        HINSTANCE   mInstance;
-
+        HINSTANCE               mInstance;
+        ID3D11Device            *mD3DDevice;        /**< D3D11 设备对象 */
+        ID3D11DeviceContext     *mD3DDeviceContext; /**< D3D11 设备上下文对象 */
+        ID3D11RenderTargetView  *mRTView;           /**< D3D11 渲染目标视图 */
+        ID3D11DepthStencilView  *mDSView;           /**< D3D11 深度模板缓冲视图*/
     };
 
     #define D3D11_RENDERER      (D3D11Renderer::getInstance())
