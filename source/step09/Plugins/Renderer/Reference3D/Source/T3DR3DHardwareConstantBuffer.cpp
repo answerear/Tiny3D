@@ -18,106 +18,118 @@
  ******************************************************************************/
 
 
-#include "T3DR3DHardwareIndexBuffer.h"
+#include "T3DR3DHardwareConstantBuffer.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    R3DHardwareIndexBufferPtr R3DHardwareIndexBuffer::create(Type indexType,
-        size_t indexCount, const void *indices, HardwareBuffer::Usage usage, 
-        bool useSystemMemory, bool useShadowBuffer)
+    R3DHardwareConstantBufferPtr R3DHardwareConstantBuffer::create(
+        size_t bufSize, const void *buffer, Usage usage, bool useSystemMemory, 
+        bool useShadowBuffer)
     {
-        R3DHardwareIndexBufferPtr ib = new R3DHardwareIndexBuffer(indexType,
-            indexCount, indices, usage, useSystemMemory, useShadowBuffer);
-        ib->release();
-        return ib;
+        R3DHardwareConstantBufferPtr ibo = new R3DHardwareConstantBuffer(
+            bufSize, buffer, usage, useSystemMemory, useShadowBuffer);
+        ibo->release();
+
+        return ibo;
     }
 
     //--------------------------------------------------------------------------
 
-    R3DHardwareIndexBuffer::R3DHardwareIndexBuffer(Type indexType,
-        size_t indexCount, const void *indices, HardwareBuffer::Usage usage, 
+    R3DHardwareConstantBuffer::R3DHardwareConstantBuffer(
+        size_t bufSize, const void *buffer, HardwareBuffer::Usage usage, 
         bool useSystemMemory, bool useShadowBuffer)
-        : HardwareIndexBuffer(indexType, indexCount, usage, useSystemMemory, 
+        : HardwareConstantBuffer(bufSize, usage, useSystemMemory,
             useShadowBuffer)
-        , mBuffer(nullptr)
     {
         mBuffer = new uint8_t[mBufferSize];
-        memcpy(mBuffer, indices, mBufferSize);
+        memcpy(mBuffer, buffer, mBufferSize);
     }
 
     //--------------------------------------------------------------------------
 
-    R3DHardwareIndexBuffer::~R3DHardwareIndexBuffer()
+    R3DHardwareConstantBuffer::~R3DHardwareConstantBuffer()
     {
         T3D_SAFE_DELETE_ARRAY(mBuffer);
     }
 
     //--------------------------------------------------------------------------
 
-    size_t R3DHardwareIndexBuffer::readData(size_t offset, size_t size,
+    size_t R3DHardwareConstantBuffer::readData(size_t offset, size_t size, 
         void *dst)
     {
-        if (mUsage & E_HBU_WRITE_ONLY)
+        size_t bytesOfRead = 0;
+
+        do 
         {
-            // 只写缓冲区，无法读取
-            return 0;
-        }
+            void *src = lock(offset, size, HardwareBuffer::E_HBL_READ_ONLY);
+            if (src == nullptr)
+            {
+                break;
+            }
 
-        // 实际读取的字节数不能超过缓冲区大小
-        size_t bytesOfRead = offset + size;
+            memcpy(dst, src, size);
+            bytesOfRead = size;
 
-        if (bytesOfRead > mBufferSize)
-        {
-            bytesOfRead = mBufferSize - offset;
-        }
-
-        // 复制数据
-        memcpy(((uint8_t*)dst) + offset, mBuffer, bytesOfRead);
+            unlock();
+        } while (0);
 
         return bytesOfRead;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t R3DHardwareIndexBuffer::writeData(size_t offset, size_t size,
+    size_t R3DHardwareConstantBuffer::writeData(size_t offset, size_t size,
         const void *src, bool discardWholeBuffer /* = false */)
     {
-        // 实际写入的字节数不能超过缓冲区大小
-        size_t bytesOfWritten = offset + size;
+        size_t bytesOfWritten = 0;
 
-        if (bytesOfWritten > mBufferSize)
+        do 
         {
-            bytesOfWritten = mBufferSize - offset;
-        }
+            void *dst = lock(offset, size, discardWholeBuffer 
+                ? HardwareBuffer::E_HBL_DISCARD : HardwareBuffer::E_HBL_NORMAL);
+            if (dst == nullptr)
+            {
+                break;
+            }
 
-        // 复制数据，忽略discardWholeBuffer参数
-        memcpy(mBuffer + offset, src, bytesOfWritten);
+            memcpy(dst, src, size);
+            bytesOfWritten = size;
+
+            unlock();
+        } while (0);
 
         return bytesOfWritten;
     }
 
     //--------------------------------------------------------------------------
 
-    void *R3DHardwareIndexBuffer::lockImpl(size_t offset, size_t size,
+    void *R3DHardwareConstantBuffer::lockImpl(size_t offset, size_t size,
         LockOptions options)
     {
-        size_t bytesOfLocked = offset + size;
-        if (bytesOfLocked > mBufferSize)
-        {
-            // 超过缓冲区大小了，直接返回空
-            return nullptr;
-        }
+        char *pLockedData = nullptr;
 
-        return (mBuffer + offset);
+        do 
+        {
+            
+        } while (0);
+
+        return pLockedData;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult R3DHardwareIndexBuffer::unlockImpl()
+    TResult R3DHardwareConstantBuffer::unlockImpl()
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            
+        } while (0);
+
+        return ret;
     }
 }

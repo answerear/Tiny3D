@@ -109,8 +109,6 @@ namespace Tiny3D
 
 
                 // 加载纹理数据
-                
-
                 Image image;
                 ret = image.load(mName);
                 if (ret != T3D_OK)
@@ -132,8 +130,8 @@ namespace Tiny3D
 
                 // 创建硬件缓冲区
                 mPBO = T3D_HARDWARE_BUFFER_MGR.createPixelBuffer(mTexWidth, 
-                    mTexHeight, mFormat, HardwareBuffer::E_HBU_DYNAMIC, 
-                    false, false);
+                    mTexHeight, mFormat, image.getData(), 
+                    HardwareBuffer::E_HBU_DYNAMIC, false, false);
 
                 if (mPBO == nullptr)
                 {
@@ -143,19 +141,19 @@ namespace Tiny3D
                     break;
                 }
 
-                // 复制纹理数据到硬件缓冲区
-                ret = mPBO->readImage(image);
-                if (ret != T3D_OK)
-                {
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Read image data failed !");
-                    break;
-                }
+//                 // 复制纹理数据到硬件缓冲区
+//                 ret = mPBO->readImage(image);
+//                 if (ret != T3D_OK)
+//                 {
+//                     T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Read image data failed !");
+//                     break;
+//                 }
             }
             else
             {
                 // 创建硬件缓冲区
                 mPBO = T3D_HARDWARE_BUFFER_MGR.createPixelBuffer(mTexWidth, 
-                    mTexHeight, mFormat, HardwareBuffer::E_HBU_DYNAMIC, 
+                    mTexHeight, mFormat, nullptr, HardwareBuffer::E_HBU_DYNAMIC, 
                     false, false);
 
                 if (mPBO == nullptr)

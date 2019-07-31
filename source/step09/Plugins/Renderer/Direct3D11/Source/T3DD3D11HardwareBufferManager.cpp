@@ -18,93 +18,94 @@
  ******************************************************************************/
 
 
-#include "T3DR3DHardwareBufferManager.h"
-#include "T3DR3DHardwareVertexBuffer.h"
-#include "T3DR3DHardwareIndexBuffer.h"
-#include "T3DR3DHardwarePixelBuffer.h"
-#include "T3DR3DHardwareConstantBuffer.h"
-#include "T3DR3DVertexDeclaration.h"
-#include "T3DR3DVertexArrayObject.h"
+#include "T3DD3D11HardwareBufferManager.h"
+#include "T3DD3D11HardwareVertexBuffer.h"
+#include "T3DD3D11HardwareIndexBuffer.h"
+#include "T3DD3D11HardwarePixelBuffer.h"
+#include "T3DD3D11HardwareConstantBuffer.h"
+#include "T3DD3D11VertexDeclaration.h"
+#include "T3DD3D11VertexArrayObject.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    R3DHardwareBufferManagerPtr R3DHardwareBufferManager::create()
+    D3D11HardwareBufferManagerPtr D3D11HardwareBufferManager::create()
     {
-        R3DHardwareBufferManagerPtr mgr = new R3DHardwareBufferManager();
+        D3D11HardwareBufferManagerPtr mgr = new D3D11HardwareBufferManager();
         mgr->release();
         return mgr;
     }
 
     //--------------------------------------------------------------------------
 
-    R3DHardwareBufferManager::R3DHardwareBufferManager()
+    D3D11HardwareBufferManager::D3D11HardwareBufferManager()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    R3DHardwareBufferManager::~R3DHardwareBufferManager()
+    D3D11HardwareBufferManager::~D3D11HardwareBufferManager()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    HardwareVertexBufferPtr R3DHardwareBufferManager::createVertexBuffer(
-        size_t vertexSize, size_t vertexCount, const void *vertices, 
+    HardwareVertexBufferPtr D3D11HardwareBufferManager::createVertexBuffer(
+        size_t vertexSize, size_t vertexCount, const void *vertices,
         HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
     {
-        return R3DHardwareVertexBuffer::create(vertexSize, vertexCount, 
+        return D3D11HardwareVertexBuffer::create(vertexSize, vertexCount, 
             vertices, usage, useSystemMemory, useShadowBuffer);
     }
 
     //--------------------------------------------------------------------------
 
-    HardwareIndexBufferPtr R3DHardwareBufferManager::createIndexBuffer(
+    HardwareIndexBufferPtr D3D11HardwareBufferManager::createIndexBuffer(
         HardwareIndexBuffer::Type indexType, size_t indexCount, 
         const void *indices, HardwareBuffer::Usage usage, bool useSystemMemory, 
         bool useShadowBuffer)
     {
-        return R3DHardwareIndexBuffer::create(indexType, indexCount, indices,
+        return D3D11HardwareIndexBuffer::create(indexType, indexCount, indices,
             usage, useSystemMemory, useShadowBuffer);
     }
 
     //--------------------------------------------------------------------------
 
-    HardwarePixelBufferPtr R3DHardwareBufferManager::createPixelBuffer(
+    HardwarePixelBufferPtr D3D11HardwareBufferManager::createPixelBuffer(
         size_t width, size_t height, PixelFormat format, const void *pixels,
         HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
     {
-        return R3DHardwarePixelBuffer::create(width, height, format, pixels, 
+        return D3D11HardwarePixelBuffer::create(width, height, format, pixels, 
             usage, useSystemMemory, useShadowBuffer);
     }
 
     //--------------------------------------------------------------------------
 
-    HardwareConstantBufferPtr R3DHardwareBufferManager::createConstantBuffer(
-        size_t bufSize, const void *buffer, HardwareBuffer::Usage usage,
-        bool useSystemMemory, bool useShadowBuffer)
+    HardwareConstantBufferPtr D3D11HardwareBufferManager::createConstantBuffer(
+        size_t bufSize, const void *buffer,
+        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
     {
-        return R3DHardwareConstantBuffer::create(bufSize, buffer, usage,
+        return D3D11HardwareConstantBuffer::create(bufSize, buffer, usage,
             useSystemMemory, useShadowBuffer);
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr R3DHardwareBufferManager::createVertexArrayObject(
+    VertexArrayObjectPtr D3D11HardwareBufferManager::createVertexArrayObject(
         bool useIndices)
     {
-        return R3DVertexArrayObject::create(useIndices);
+        return D3D11VertexArrayObject::create(useIndices);
     }
 
     //--------------------------------------------------------------------------
 
-    VertexDeclarationPtr R3DHardwareBufferManager::createVertexDeclaration()
+    VertexDeclarationPtr D3D11HardwareBufferManager::createVertexDeclaration()
     {
-        return R3DVertexDeclaration::create();
+        return D3D11VertexDeclaration::create();
     }
 }
+

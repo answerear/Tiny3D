@@ -43,6 +43,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(HardwareIndexBuffer);
     T3D_DECLARE_SMART_PTR(HardwarePixelBuffer);
     T3D_DECLARE_SMART_PTR(HardwareVertexBuffer);
+    T3D_DECLARE_SMART_PTR(HardwareConstantBuffer);
     T3D_DECLARE_SMART_PTR(VertexAttribute);
     T3D_DECLARE_SMART_PTR(VertexDeclaration);
 

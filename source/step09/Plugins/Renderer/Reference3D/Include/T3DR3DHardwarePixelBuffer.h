@@ -37,8 +37,8 @@ namespace Tiny3D
          * @brief 创建 Reference3D 渲染器相关的像素缓冲区对象
          */
         static R3DHardwarePixelBufferPtr create(size_t width, size_t height,
-            PixelFormat format, Usage usage, bool useSystemMemory, 
-            bool useShadowBuffer);
+            PixelFormat format, const void *pixels, Usage usage, 
+            bool useSystemMemory, bool useShadowBuffer);
 
         /**
          * @brief 析构函数
@@ -62,8 +62,8 @@ namespace Tiny3D
          * @brief 构造函数
          */
         R3DHardwarePixelBuffer(size_t width, size_t height,
-            PixelFormat format, Usage usage, bool useSystemMemory, 
-            bool useShadowBuffer);
+            PixelFormat format, const void *pixels, Usage usage, 
+            bool useSystemMemory, bool useShadowBuffer);
 
         /**
         * @brief 获取锁定硬件缓冲区不同渲染器实现接口。 实现基类接口

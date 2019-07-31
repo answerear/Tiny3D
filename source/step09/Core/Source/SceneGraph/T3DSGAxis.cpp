@@ -140,7 +140,7 @@ namespace Tiny3D
             // 创建VBO
             HardwareVertexBufferPtr vbo
                 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(sizeof(AxisVertex),
-                    MAX_VERTICES, HardwareVertexBuffer::E_HBU_STATIC, 
+                    MAX_VERTICES, vertices, HardwareVertexBuffer::E_HBU_STATIC, 
                     false, false);
             if (vbo == nullptr)
             {
@@ -150,15 +150,15 @@ namespace Tiny3D
                 break;
             }
 
-            size_t size = sizeof(AxisVertex) * MAX_VERTICES;
-            size_t bytesOfWritten = vbo->writeData(0, size, vertices);
-            if (bytesOfWritten != size)
-            {
-                ret = T3D_ERR_HW_BUFFER_WRITE;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SGAxis \
-                    failed !");
-                break;
-            }
+//             size_t size = sizeof(AxisVertex) * MAX_VERTICES;
+//             size_t bytesOfWritten = vbo->writeData(0, size, vertices);
+//             if (bytesOfWritten != size)
+//             {
+//                 ret = T3D_ERR_HW_BUFFER_WRITE;
+//                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SGAxis \
+//                     failed !");
+//                 break;
+//             }
 
             mVAO->setVertexDeclaration(decl);
             mVAO->addVertexBuffer(vbo);

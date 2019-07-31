@@ -50,26 +50,35 @@ namespace Tiny3D
     }
 
     HardwareVertexBufferPtr HardwareBufferManager::createVertexBuffer(
-        size_t vertexSize, size_t vertexCount, HardwareBuffer::Usage usage, 
-        bool useSystemMemory, bool useShadowBuffer)
+        size_t vertexSize, size_t vertexCount, const void *vertices,
+        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
     {
-        return mImpl->createVertexBuffer(vertexSize, vertexCount, usage, 
-            useSystemMemory, useShadowBuffer);
+        return mImpl->createVertexBuffer(vertexSize, vertexCount, vertices, 
+            usage, useSystemMemory, useShadowBuffer);
     }
 
     HardwareIndexBufferPtr HardwareBufferManager::createIndexBuffer(
         HardwareIndexBuffer::Type indexType, size_t indexCount, 
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        const void *indices, HardwareBuffer::Usage usage, bool useSystemMemory, 
+        bool useShadowBuffer)
     {
-        return mImpl->createIndexBuffer(indexType, indexCount, usage, 
+        return mImpl->createIndexBuffer(indexType, indexCount, indices, usage, 
             useSystemMemory, useShadowBuffer);
     }
 
     HardwarePixelBufferPtr HardwareBufferManager::createPixelBuffer(
-        size_t width, size_t height, PixelFormat format,
+        size_t width, size_t height, PixelFormat format, const void *pixels,
         HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
     {
-        return mImpl->createPixelBuffer(width, height, format, usage, 
+        return mImpl->createPixelBuffer(width, height, format, pixels, usage, 
+            useSystemMemory, useShadowBuffer);
+    }
+
+    HardwareConstantBufferPtr HardwareBufferManager::createConstantBuffer(
+        size_t bufSize, const void *buffer, HardwareBuffer::Usage usage,
+        bool useSystemMemory, bool useShadowBuffer)
+    {
+        return mImpl->createConstantBuffer(bufSize, buffer, usage, 
             useSystemMemory, useShadowBuffer);
     }
 

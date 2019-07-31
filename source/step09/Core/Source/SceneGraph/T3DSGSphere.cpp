@@ -148,7 +148,7 @@ namespace Tiny3D
             // 创建VBO
             HardwareVertexBufferPtr vbo
                 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(
-                    sizeof(SphereVertex), MAX_VERTICES,
+                    sizeof(SphereVertex), MAX_VERTICES, vertices,
                     HardwareVertexBuffer::E_HBU_STATIC, false, false);
             if (vbo == nullptr)
             {
@@ -159,20 +159,20 @@ namespace Tiny3D
             }
 
             // 写顶点数据
-            size_t size = sizeof(SphereVertex) * MAX_VERTICES;
-            size_t bytesOfWritten = vbo->writeData(0, size, vertices);
-            if (bytesOfWritten != size)
-            {
-                ret = T3D_ERR_HW_BUFFER_WRITE;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SGSphere \
-                    failed !");
-                break;
-            }
+//             size_t size = sizeof(SphereVertex) * MAX_VERTICES;
+//             size_t bytesOfWritten = vbo->writeData(0, size, vertices);
+//             if (bytesOfWritten != size)
+//             {
+//                 ret = T3D_ERR_HW_BUFFER_WRITE;
+//                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SGSphere \
+//                     failed !");
+//                 break;
+//             }
 
             // 创建IBO
             HardwareIndexBufferPtr ibo
                 = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(
-                    HardwareIndexBuffer::E_IT_16BITS, MAX_INDICES,
+                    HardwareIndexBuffer::E_IT_16BITS, MAX_INDICES, indices,
                     HardwareIndexBuffer::E_HBU_STATIC, false, false);
             if (ibo == nullptr)
             {
@@ -183,15 +183,15 @@ namespace Tiny3D
             }
 
             // 写索引数据
-            size = sizeof(uint16_t) * MAX_INDICES;
-            bytesOfWritten = ibo->writeData(0, size, indices);
-            if (bytesOfWritten != size)
-            {
-                ret = T3D_ERR_HW_BUFFER_WRITE;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Write indices data for SGSphere \
-                    failed !");
-                break;
-            }
+//             size = sizeof(uint16_t) * MAX_INDICES;
+//             bytesOfWritten = ibo->writeData(0, size, indices);
+//             if (bytesOfWritten != size)
+//             {
+//                 ret = T3D_ERR_HW_BUFFER_WRITE;
+//                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write indices data for SGSphere \
+//                     failed !");
+//                 break;
+//             }
 
             mVAO->setVertexDeclaration(decl);
             mVAO->addVertexBuffer(vbo);

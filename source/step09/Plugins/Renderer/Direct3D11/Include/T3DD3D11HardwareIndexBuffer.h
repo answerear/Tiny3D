@@ -18,32 +18,32 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_R3D_HARDWARE_INDEX_BUFFER_H__
-#define __T3D_R3D_HARDWARE_INDEX_BUFFER_H__
+#ifndef __T3D_D3D11_HARDWARE_INDEX_BUFFER_H__
+#define __T3D_D3D11_HARDWARE_INDEX_BUFFER_H__
 
 
-#include "T3DR3DPrerequisites.h"
+#include "T3DD3D11Prerequisites.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @brief Reference3D 渲染器相关的索引缓冲区类
+     * @brief DirectX 11 渲染器相关的索引缓冲区类
      */
-    class R3DHardwareIndexBuffer : public HardwareIndexBuffer
+    class D3D11HardwareIndexBuffer : public HardwareIndexBuffer
     {
     public:
         /**
-         * @brief 创建 Reference3D 渲染器相关的索引缓冲区对象
+         * @brief 创建 Direct3D9 渲染器相关的索引缓冲区对象
          */
-        static R3DHardwareIndexBufferPtr create(Type indexType, 
-            size_t indexCount, const void *indices, HardwareBuffer::Usage usage, 
+        static D3D11HardwareIndexBufferPtr create(Type indexType,
+            size_t indexCount, const void *indices, HardwareBuffer::Usage usage,
             bool useSystemMemory, bool useShadowBuffer);
 
         /**
          * @brief 析构函数
          */
-        virtual ~R3DHardwareIndexBuffer();
+        virtual ~D3D11HardwareIndexBuffer();
 
         /**
          * @brief 从缓冲区读取数据出来，实现基类接口
@@ -64,9 +64,14 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        R3DHardwareIndexBuffer(Type indexType, size_t indexCount, 
-            const void *indices, HardwareBuffer::Usage usage, 
-            bool useSystemMemory, bool useShadowBuffer);
+        D3D11HardwareIndexBuffer(Type indexType, size_t indexCount,
+            HardwareBuffer::Usage usage, bool useSystemMemory,
+            bool useShadowBuffer);
+
+        /**
+         * @brief 初始化对象
+         */
+        virtual TResult init(const void *indices);
 
         /**
          * @brief 锁定缓冲区的具体实现接口，实现基类接口
@@ -83,9 +88,8 @@ namespace Tiny3D
         virtual TResult unlockImpl() override;
 
     protected:
-        uint8_t *mBuffer;       /**< 索引缓冲区 */
     };
 }
 
 
-#endif  /*__T3D_R3D_HARDWARE_INDEX_BUFFER_H__*/
+#endif  /*__T3D_D3D11_HARDWARE_INDEX_BUFFER_H__*/

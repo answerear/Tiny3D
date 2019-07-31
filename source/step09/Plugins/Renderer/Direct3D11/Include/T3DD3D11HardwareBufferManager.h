@@ -18,34 +18,27 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_HARDWARE_BUFFER_MANAGER_H__
-#define __T3D_HARDWARE_BUFFER_MANAGER_H__
+#ifndef __T3D_D3D11_HARDWARE_BUFFER_MANAGER_H__
+#define __T3D_D3D11_HARDWARE_BUFFER_MANAGER_H__
 
 
-#include "Render/T3DHardwareBufferManagerBase.h"
+#include "T3DD3D11Prerequisites.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * @brief 硬件缓冲区管理器
-     * @remarks 这个类相当于一层渲染系统代理
-     */
-    class T3D_ENGINE_API HardwareBufferManager
-        : public HardwareBufferManagerBase
-        , public Singleton<HardwareBufferManager>
+    class D3D11HardwareBufferManager : public HardwareBufferManagerBase
     {
     public:
         /**
-         * @brief 创建硬件缓冲区管理器对象
-         * @param [in] impl : 对应渲染系统的具体实现对象
+         * @brief 创建 DirectX 11 渲染器相关的硬件缓冲区管理对象
          */
-        static HardwareBufferManagerPtr create(HardwareBufferManagerBase *impl);
+        static D3D11HardwareBufferManagerPtr create();
 
         /**
          * @brief 析构函数
          */
-        ~HardwareBufferManager();
+        virtual ~D3D11HardwareBufferManager();
 
         /**
          * @brief 创建顶点缓冲区
@@ -54,8 +47,8 @@ namespace Tiny3D
          */
         virtual HardwareVertexBufferPtr createVertexBuffer(size_t vertexSize,
             size_t vertexCount, const void *vertices,
-            HardwareBuffer::Usage usage,
-            bool useSystemMemory, bool useShadowBuffer) override;
+            HardwareBuffer::Usage usage, bool useSystemMemory, 
+            bool useShadowBuffer) override;
 
         /**
          * @brief 创建索引缓冲区
@@ -73,9 +66,9 @@ namespace Tiny3D
          * @see HardwareBufferManagerBase::createPixelBuffer()
          */
         virtual HardwarePixelBufferPtr createPixelBuffer(size_t width,
-            size_t height, PixelFormat format, const void *pixels,
-            HardwareBuffer::Usage usage,
-            bool useSystemMemory, bool useShadowBuffer) override;
+            size_t height, PixelFormat format, const void *pixels, 
+            HardwareBuffer::Usage usage, bool useSystemMemory, 
+            bool useShadowBuffer) override;
 
         /**
          * @brief 创建常量缓冲区
@@ -104,16 +97,11 @@ namespace Tiny3D
     protected:
         /**
          * @brief 构造函数
-         * @param [in] impl : 对应渲染系统的具体实现对象
          */
-        HardwareBufferManager(HardwareBufferManagerBase *impl);
-
-    protected:
-        HardwareBufferManagerBasePtr   mImpl;   /**< 具体渲染体系对应的对象 */
+        D3D11HardwareBufferManager();
     };
-
-    #define T3D_HARDWARE_BUFFER_MGR     (HardwareBufferManager::getInstance())
 }
 
 
-#endif  /*__T3D_HARDWARE_BUFFER_MANAGER_H__*/
+
+#endif  /*__T3D_D3D11_HARDWARE_BUFFER_MANAGER_H__*/

@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/answerear/Tiny3D
+ * For latest info, see https://github.com/answerear/D3D11
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_R3D_HARDWARE_INDEX_BUFFER_H__
-#define __T3D_R3D_HARDWARE_INDEX_BUFFER_H__
+#ifndef __T3D_R3D_HARDWARE_CONSTANT_BUFFER_H__
+#define __T3D_R3D_HARDWARE_CONSTANT_BUFFER_H__
 
 
 #include "T3DR3DPrerequisites.h"
@@ -28,22 +28,22 @@
 namespace Tiny3D
 {
     /**
-     * @brief Reference3D 渲染器相关的索引缓冲区类
+     * @brief Reference3D 渲染器相关的常量缓冲区类
      */
-    class R3DHardwareIndexBuffer : public HardwareIndexBuffer
+    class R3DHardwareConstantBuffer : public HardwareConstantBuffer
     {
     public:
         /**
-         * @brief 创建 Reference3D 渲染器相关的索引缓冲区对象
+         * @brief 创建 Direct X 11 渲染器相关的常量缓冲区对象
          */
-        static R3DHardwareIndexBufferPtr create(Type indexType, 
-            size_t indexCount, const void *indices, HardwareBuffer::Usage usage, 
-            bool useSystemMemory, bool useShadowBuffer);
+        static R3DHardwareConstantBufferPtr create(size_t bufSize,
+            const void *buffer, Usage usage, bool useSystemMemory, 
+            bool useShadowBuffer);
 
         /**
          * @brief 析构函数
          */
-        virtual ~R3DHardwareIndexBuffer();
+        virtual ~R3DHardwareConstantBuffer();
 
         /**
          * @brief 从缓冲区读取数据出来，实现基类接口
@@ -62,11 +62,10 @@ namespace Tiny3D
 
     protected:
         /**
-         * @brief 构造函数
-         */
-        R3DHardwareIndexBuffer(Type indexType, size_t indexCount, 
-            const void *indices, HardwareBuffer::Usage usage, 
-            bool useSystemMemory, bool useShadowBuffer);
+        * @brief 构造函数
+        */
+        R3DHardwareConstantBuffer(size_t bufSize, const void *buffer, 
+            Usage usage, bool useSystemMemory, bool useShadowBuffer);
 
         /**
          * @brief 锁定缓冲区的具体实现接口，实现基类接口
@@ -83,9 +82,9 @@ namespace Tiny3D
         virtual TResult unlockImpl() override;
 
     protected:
-        uint8_t *mBuffer;       /**< 索引缓冲区 */
+        uint8_t *mBuffer;       /**< 常量缓冲区 */
     };
 }
 
 
-#endif  /*__T3D_R3D_HARDWARE_INDEX_BUFFER_H__*/
+#endif  /*__T3D_R3D_HARDWARE_CONSTANT_BUFFER_H__*/

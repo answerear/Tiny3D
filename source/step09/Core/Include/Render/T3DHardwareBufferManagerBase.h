@@ -46,6 +46,7 @@ namespace Tiny3D
          * @brief 创建顶点缓冲区
          * @param [in] vertexSize : 顶点字节代销
          * @param [in] vertexCount : 顶点数量
+         * @param [in] vertices : 顶点数据，可以为nullptr
          * @param [in] usage : 缓冲区用法
          * @param [in] useSystemMemory : 是否使用系统内存还是显存
          * @param [in] useShadowBuffer : 是否使用影子缓存
@@ -53,13 +54,15 @@ namespace Tiny3D
          * @remarks 具体子类实现该接口创建对应的具体顶点缓冲区实例
          */
         virtual HardwareVertexBufferPtr createVertexBuffer(size_t vertexSize, 
-            size_t vertexCount, HardwareBuffer::Usage usage, 
+            size_t vertexCount, const void *vertices,
+            HardwareBuffer::Usage usage,
             bool useSystemMemory, bool useShadowBuffer) = 0;
 
         /**
          * @brief 创建索引缓冲区
          * @param [in] indexType : 索引类型
          * @param [in] indexCount : 索引数量
+         * @param [in] indices : 索引数据，可以为nullptr
          * @param [in] usage : 缓冲区使用方式
          * @param [in] useSystemMemory : 是否使用系统内存还是显存
          * @param [in] useShadowBuffer : 是否使用影子缓存
@@ -68,14 +71,15 @@ namespace Tiny3D
          */
         virtual HardwareIndexBufferPtr createIndexBuffer(
             HardwareIndexBuffer::Type indexType, size_t indexCount, 
-            HardwareBuffer::Usage usage, bool useSystemMemory, 
-            bool useShadowBuffer) = 0;
+            const void *indices, HardwareBuffer::Usage usage, 
+            bool useSystemMemory, bool useShadowBuffer) = 0;
 
         /**
          * @brief 创建像素缓冲区
          * @param [in] width : 图像宽度
          * @param [in] height : 图像高度
          * @param [in] format : 像素格式
+         * @param [in] pixels : 像素数据，可以为nullptr
          * @param [in] usage : 缓冲区使用方式
          * @param [in] useSystemMemory : 是否使用系统内存还是显存
          * @param [in] useShadowBuffer : 是否使用影子缓存
@@ -83,7 +87,22 @@ namespace Tiny3D
          * @remarks 具体子类实现该接口创建对应的具体顶点缓冲区实例
          */
         virtual HardwarePixelBufferPtr createPixelBuffer(size_t width, 
-            size_t height, PixelFormat format, HardwareBuffer::Usage usage,
+            size_t height, PixelFormat format, const void *pixels,
+            HardwareBuffer::Usage usage,
+            bool useSystemMemory, bool useShadowBuffer) = 0;
+
+        /**
+         * @brief 创建常量缓冲区
+         * @param [in] bufSize : 缓冲区大小
+         * @param [in] buffer : 缓冲区数据
+         * @param [in] usage : 缓冲区使用方式
+         * @param [in] useSystemMemory : 是否使用系统内存还是显存
+         * @param [in] useShadowBuffer : 是否使用影子缓存
+         * @return 调用成功返回一个新的硬件常量缓冲区
+         * @remarks 具体子类实现该接口创建对应的具体常量缓冲区实例
+         */
+        virtual HardwareConstantBufferPtr createConstantBuffer(
+            size_t bufSize, const void *buffer, HardwareBuffer::Usage usage,
             bool useSystemMemory, bool useShadowBuffer) = 0;
 
         /**
@@ -120,9 +139,14 @@ namespace Tiny3D
         typedef PixelBufferList::iterator           PixelBufferListItr;
         typedef PixelBufferList::const_iterator     PixelBufferListConstItr;
 
+        typedef std::set<HardwareConstantBufferPtr> ConstBufferList;
+        typedef ConstBufferList::iterator           ConstBufferListItr;
+        typedef ConstBufferList::const_iterator     ConstBufferListConstItr;
+
         VertexBufferList    mVertexBuffers;     /**< 顶点缓冲区列表 */
         IndexBufferList     mIndexBuffers;      /**< 索引缓冲区列表 */
         PixelBufferList     mPixelBuffers;      /**< 像素缓冲区列表 */
+        ConstBufferList     mConstBuffers;      /**< 常量缓冲区列表 */
     };
 }
 

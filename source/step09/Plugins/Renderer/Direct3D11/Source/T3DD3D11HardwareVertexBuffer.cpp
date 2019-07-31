@@ -18,106 +18,131 @@
  ******************************************************************************/
 
 
-#include "T3DR3DHardwareVertexBuffer.h"
+#include "T3DD3D11HardwareVertexBuffer.h"
+#include "T3DD3D11Renderer.h"
+#include "T3DD3D11Mappings.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    R3DHardwareVertexBufferPtr R3DHardwareVertexBuffer::create(
+    D3D11HardwareVertexBufferPtr D3D11HardwareVertexBuffer::create(
         size_t vertexSize, size_t vertexCount, const void *vertices, 
         Usage usage, bool useSystemMemory, bool useShadowBuffer)
     {
-        R3DHardwareVertexBufferPtr vb = new R3DHardwareVertexBuffer(vertexSize,
-            vertexCount, vertices, usage, useSystemMemory, useShadowBuffer);
+        D3D11HardwareVertexBufferPtr vb = new D3D11HardwareVertexBuffer(
+            vertexSize, vertexCount, usage, useSystemMemory, useShadowBuffer);
         vb->release();
+        if (vb->init(vertices) != T3D_OK)
+        {
+            vb = nullptr;
+        }
         return vb;
     }
 
     //--------------------------------------------------------------------------
 
-    R3DHardwareVertexBuffer::R3DHardwareVertexBuffer(size_t vertexSize, 
-        size_t vertexCount, const void *vertices, Usage usage, 
-        bool useSystemMemory, bool useShadowBuffer)
+    D3D11HardwareVertexBuffer::D3D11HardwareVertexBuffer(size_t vertexSize,
+        size_t vertexCount, Usage usage, bool useSystemMemory,
+        bool useShadowBuffer)
         : HardwareVertexBuffer(vertexSize, vertexCount, usage, useSystemMemory,
             useSystemMemory)
-        , mBuffer(nullptr)
     {
-        mBuffer = new uint8_t[mBufferSize];
-        memcpy(mBuffer, vertices, mBufferSize);
     }
 
     //--------------------------------------------------------------------------
 
-    R3DHardwareVertexBuffer::~R3DHardwareVertexBuffer()
+    D3D11HardwareVertexBuffer::~D3D11HardwareVertexBuffer()
     {
-        T3D_SAFE_DELETE_ARRAY(mBuffer);
     }
 
     //--------------------------------------------------------------------------
 
-    size_t R3DHardwareVertexBuffer::readData(size_t offset, size_t size,
+    TResult D3D11HardwareVertexBuffer::init(const void *vertices)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t D3D11HardwareVertexBuffer::readData(size_t offset, size_t size,
         void *dst)
     {
-        if (mUsage & E_HBU_WRITE_ONLY)
+        size_t bytesOfRead = 0;
+
+        do 
         {
-            // 只写缓冲区，无法读取
-            return 0;
-        }
+            void *src = lock(offset, size, HardwareBuffer::E_HBL_READ_ONLY);
 
-        // 实际读取的字节数不能超过缓冲区大小
-        size_t bytesOfRead = offset + size;
+            if (src == nullptr)
+            {
+                break;
+            }
 
-        if (bytesOfRead > mBufferSize)
-        {
-            bytesOfRead = mBufferSize - offset;
-        }
+            memcpy(dst, src, size);
+            bytesOfRead = size;
 
-        // 复制数据
-        memcpy(((uint8_t*)dst) + offset, mBuffer, bytesOfRead);
+            unlock();
+        } while (0);
 
         return bytesOfRead;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t R3DHardwareVertexBuffer::writeData(size_t offset, size_t size,
+    size_t D3D11HardwareVertexBuffer::writeData(size_t offset, size_t size,
         const void *src, bool discardWholeBuffer /* = false */)
     {
-        // 实际写入的字节数不能超过缓冲区大小
-        size_t bytesOfWritten = offset + size;
+        size_t bytesOfWritten = 0;
 
-        if (bytesOfWritten > mBufferSize)
+        do 
         {
-            bytesOfWritten = mBufferSize - offset;
-        }
+            void *dst = lock(offset, size, discardWholeBuffer 
+                ? HardwareBuffer::E_HBL_DISCARD : HardwareBuffer::E_HBL_NORMAL);
 
-        // 复制数据，忽略discardWholeBuffer参数
-        memcpy(mBuffer + offset, src, bytesOfWritten);
+            if (dst == nullptr)
+            {
+                break;
+            }
+
+            memcpy(dst, src, size);
+            bytesOfWritten = size;
+
+            unlock();
+        } while (0);
 
         return bytesOfWritten;
     }
 
     //--------------------------------------------------------------------------
 
-    void *R3DHardwareVertexBuffer::lockImpl(size_t offset, size_t size,
+    void *D3D11HardwareVertexBuffer::lockImpl(size_t offset, size_t size,
         LockOptions options)
     {
-        size_t bytesOfLocked = offset + size;
-        if (bytesOfLocked > mBufferSize)
-        {
-            // 超过缓冲区大小了，直接返回空
-            return nullptr;
-        }
+        char *pLockedData = nullptr;
 
-        return (mBuffer + offset);
+        do 
+        {
+            
+        } while (0);
+
+        return pLockedData;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult R3DHardwareVertexBuffer::unlockImpl()
+    TResult D3D11HardwareVertexBuffer::unlockImpl()
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            
+        } while (0);
+
+        return ret;
     }
 }

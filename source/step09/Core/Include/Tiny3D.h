@@ -64,6 +64,7 @@
 #include <Render/T3DHardwareVertexBuffer.h>
 #include <Render/T3DHardwareIndexBuffer.h>
 #include <Render/T3DHardwarePixelBuffer.h>
+#include <Render/T3DHardwareConstantBuffer.h>
 #include <Render/T3DVertexArrayObject.h>
 
 // Bound

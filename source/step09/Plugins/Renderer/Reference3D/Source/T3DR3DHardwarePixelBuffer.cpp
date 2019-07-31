@@ -27,20 +27,20 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     R3DHardwarePixelBufferPtr R3DHardwarePixelBuffer::create(size_t width,
-        size_t height, PixelFormat format, Usage usage, bool useSystemMemory,
-        bool useShadowBuffer)
+        size_t height, PixelFormat format, const void *pixels, Usage usage, 
+        bool useSystemMemory, bool useShadowBuffer)
     {
         R3DHardwarePixelBufferPtr pb = new R3DHardwarePixelBuffer(width, height,
-            format, usage, useSystemMemory, useShadowBuffer);
+            format, pixels, usage, useSystemMemory, useShadowBuffer);
         pb->release();
         return pb;
     }
 
     //--------------------------------------------------------------------------
 
-    R3DHardwarePixelBuffer::R3DHardwarePixelBuffer(size_t width,
-        size_t height, PixelFormat format, Usage usage, bool useSystemMemory,
-        bool useShadowBuffer)
+    R3DHardwarePixelBuffer::R3DHardwarePixelBuffer(size_t width, size_t height, 
+        PixelFormat format, const void *pixels, Usage usage, 
+        bool useSystemMemory, bool useShadowBuffer)
         : HardwarePixelBuffer(width, height, format, usage, useSystemMemory, 
             useShadowBuffer)
         , mBuffer(nullptr)
@@ -49,6 +49,7 @@ namespace Tiny3D
     {
         mBuffer = new uint8_t[mBufferSize];
         mLockedBuffer = new uint8_t[mBufferSize];
+        memcpy(mBuffer, pixels, mBufferSize);
     }
 
     //--------------------------------------------------------------------------

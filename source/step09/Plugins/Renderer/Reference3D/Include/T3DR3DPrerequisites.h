@@ -41,6 +41,7 @@ namespace Tiny3D
     class R3DHardwareVertexBuffer;
     class R3DHardwareIndexBuffer;
     class R3DHardwarePixelBuffer;
+    class R3DHardwareConstantBuffer;
     class R3DVertexArrayObject;
     class R3DVertexDeclaration;
     class R3DFramebuffer;
@@ -51,6 +52,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(R3DHardwareVertexBuffer);
     T3D_DECLARE_SMART_PTR(R3DHardwareIndexBuffer);
     T3D_DECLARE_SMART_PTR(R3DHardwarePixelBuffer);
+    T3D_DECLARE_SMART_PTR(R3DHardwareConstantBuffer);
     T3D_DECLARE_SMART_PTR(R3DVertexArrayObject);
     T3D_DECLARE_SMART_PTR(R3DVertexDeclaration);
     T3D_DECLARE_SMART_PTR(R3DFramebuffer);
