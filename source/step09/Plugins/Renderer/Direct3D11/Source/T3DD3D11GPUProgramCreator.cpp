@@ -18,93 +18,55 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11Plugin.h"
-#include "T3DD3D11Renderer.h"
 #include "T3DD3D11GPUProgramCreator.h"
+#include "T3DD3D11GPUProgram.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    D3D11Plugin::D3D11Plugin()
-        : mName("D3D11Renderer")
-        , mRenderer(nullptr)
-    {
+    const char * const D3D11ShaderCreator::SHADER_TYPE = "D3D11Shader";
 
+    //--------------------------------------------------------------------------
+
+    String D3D11ShaderCreator::getType() const
+    {
+        return SHADER_TYPE;
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11Plugin::~D3D11Plugin()
+    ShaderPtr D3D11ShaderCreator::createObject(int32_t argc, ...) const
     {
-
+        va_list params;
+        va_start(params, argc);
+        String name = va_arg(params, char *);
+        va_end(params);
+        return D3D11Shader::create(name);
     }
 
     //--------------------------------------------------------------------------
 
-    const String &D3D11Plugin::getName() const
+    const char * const D3D11GPUProgramCreator::GPUPROGRAM_TYPE 
+        = "D3D11GPUProgram";
+
+    //--------------------------------------------------------------------------
+
+    String D3D11GPUProgramCreator::getType() const
     {
-        return mName;
+        return GPUPROGRAM_TYPE;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Plugin::install()
+    GPUProgramPtr D3D11GPUProgramCreator::createObject(int32_t argc, ...) const
     {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            mRenderer = D3D11Renderer::create();
-            if (mRenderer != nullptr)
-            {
-                ret = T3D_AGENT.addRenderer(mRenderer);
-                if (ret != T3D_OK)
-                {
-                    break;
-                }
-            }
-        } while (0);
-
-        return ret;
+        va_list params;
+        va_start(params, argc);
+        String name = va_arg(params, char *);
+        va_end(params);
+        return D3D11GPUProgram::create(name);
     }
 
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Plugin::startup()
-    {
-        TResult ret = T3D_OK;
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Plugin::shutdown()
-    {
-        TResult ret = T3D_OK;
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Plugin::uninstall()
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            ret = T3D_AGENT.removeRenderer(mRenderer);
-            if (ret != T3D_OK)
-            {
-                break;
-            }
-
-            mRenderer = nullptr;
-        } while (0);
-
-        return ret;
-    }
 }

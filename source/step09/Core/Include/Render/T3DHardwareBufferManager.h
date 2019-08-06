@@ -99,7 +99,8 @@ namespace Tiny3D
          * @remarks 继承自 HardwareBufferManagerBase
          * @see HardwareBufferManagerBase::createVertexDeclaration()
          */
-        virtual VertexDeclarationPtr createVertexDeclaration() override;
+        virtual VertexDeclarationPtr createVertexDeclaration(
+            ShaderPtr vertexShader) override;
 
     protected:
         /**

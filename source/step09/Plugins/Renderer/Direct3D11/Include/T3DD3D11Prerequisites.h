@@ -54,6 +54,9 @@ namespace Tiny3D
     class D3D11HardwareConstantBuffer;
     class D3D11VertexDeclaration;
     class D3D11VertexArrayObject;
+    class D3D11Shader;
+    class D3D11GPUProgram;
+    class D3D11GPUProgramCreator;
 
     T3D_DECLARE_SMART_PTR(D3D11Renderer);
     T3D_DECLARE_SMART_PTR(D3D11RenderWindow);
@@ -64,6 +67,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(D3D11HardwareConstantBuffer);
     T3D_DECLARE_SMART_PTR(D3D11VertexDeclaration);
     T3D_DECLARE_SMART_PTR(D3D11VertexArrayObject);
+    T3D_DECLARE_SMART_PTR(D3D11Shader);
+    T3D_DECLARE_SMART_PTR(D3D11GPUProgram);
 }
 
 

@@ -35,9 +35,10 @@ namespace Tiny3D
 
     }
 
-    VertexDeclarationPtr HardwareBufferManagerBase::createVertexDeclaration()
+    VertexDeclarationPtr HardwareBufferManagerBase::createVertexDeclaration(
+        ShaderPtr vertexShader)
     {
-        VertexDeclarationPtr decl = VertexDeclaration::create();
+        VertexDeclarationPtr decl = VertexDeclaration::create(vertexShader);
         decl->release();
         return decl;
     }

@@ -103,8 +103,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    VertexDeclarationPtr R3DHardwareBufferManager::createVertexDeclaration()
+    VertexDeclarationPtr R3DHardwareBufferManager::createVertexDeclaration(
+        ShaderPtr vertexShader)
     {
-        return R3DVertexDeclaration::create();
+        return R3DVertexDeclaration::create(vertexShader);
     }
 }

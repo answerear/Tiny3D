@@ -27,17 +27,20 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    D3D11VertexDeclarationPtr D3D11VertexDeclaration::create()
+    D3D11VertexDeclarationPtr D3D11VertexDeclaration::create(
+        ShaderPtr vertexShader)
     {
-        D3D11VertexDeclarationPtr decl = new D3D11VertexDeclaration();
+        D3D11VertexDeclarationPtr decl 
+            = new D3D11VertexDeclaration(vertexShader);
         decl->release();
         return decl;
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11VertexDeclaration::D3D11VertexDeclaration()
-        : VertexDeclaration()
+    D3D11VertexDeclaration::D3D11VertexDeclaration(ShaderPtr vertexShader)
+        : VertexDeclaration(vertexShader)
+        , mD3DInputLayout(nullptr)
         , mIsDirty(false)
     {
 
@@ -47,7 +50,7 @@ namespace Tiny3D
 
     D3D11VertexDeclaration::~D3D11VertexDeclaration()
     {
-
+        D3D_SAFE_RELEASE(mD3DInputLayout);
     }
 
     //--------------------------------------------------------------------------
@@ -137,4 +140,23 @@ namespace Tiny3D
         return ptr;
     }
 
+    //--------------------------------------------------------------------------
+
+    ID3D11InputLayout *D3D11VertexDeclaration::getInputLayout()
+    {
+        if (mIsDirty)
+        {
+            D3D_SAFE_RELEASE(mD3DInputLayout);
+
+            const size_t nNumElements = mVertexAttributes.size();
+            D3D11_INPUT_ELEMENT_DESC *pDescs =
+                new D3D11_INPUT_ELEMENT_DESC[nNumElements];
+
+            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+
+
+        }
+
+        return mD3DInputLayout;
+    }
 }

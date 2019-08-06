@@ -103,9 +103,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    VertexDeclarationPtr D3D11HardwareBufferManager::createVertexDeclaration()
+    VertexDeclarationPtr D3D11HardwareBufferManager::createVertexDeclaration(
+        ShaderPtr vertexShader)
     {
-        return D3D11VertexDeclaration::create();
+        return D3D11VertexDeclaration::create(vertexShader);
     }
 }
 

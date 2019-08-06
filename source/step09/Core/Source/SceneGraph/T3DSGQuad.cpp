@@ -26,6 +26,8 @@
 #include "Render/T3DVertexArrayObject.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DMaterialManager.h"
+#include "Resource/T3DGPUProgram.h"
+#include "Resource/T3DGPUProgramManager.h"
 #include "Bound/T3DFrustumBound.h"
 
 
@@ -142,9 +144,11 @@ namespace Tiny3D
                 break;
             }
 
+            ShaderPtr vertexShader;
+
             // 创建顶点声明
             VertexDeclarationPtr decl
-                = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
+                = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration(vertexShader);
             if (decl == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;

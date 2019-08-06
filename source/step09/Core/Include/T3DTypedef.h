@@ -38,6 +38,10 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(MaterialManager);
     T3D_DECLARE_SMART_PTR(Texture);
     T3D_DECLARE_SMART_PTR(TextureManager);
+    T3D_DECLARE_SMART_PTR(Shader);
+    T3D_DECLARE_SMART_PTR(ShaderManager);
+    T3D_DECLARE_SMART_PTR(GPUProgram);
+    T3D_DECLARE_SMART_PTR(GPUProgramManager);
 
     T3D_DECLARE_SMART_PTR(HardwareBuffer);
     T3D_DECLARE_SMART_PTR(HardwareIndexBuffer);
@@ -46,6 +50,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(HardwareConstantBuffer);
     T3D_DECLARE_SMART_PTR(VertexAttribute);
     T3D_DECLARE_SMART_PTR(VertexDeclaration);
+
+    T3D_DECLARE_SMART_PTR(Shader);
 
     T3D_DECLARE_SMART_PTR(VertexArrayObject);
 

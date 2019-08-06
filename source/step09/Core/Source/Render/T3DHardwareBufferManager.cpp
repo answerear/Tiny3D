@@ -88,9 +88,10 @@ namespace Tiny3D
         return mImpl->createVertexArrayObject(useIndices);
     }
 
-    VertexDeclarationPtr HardwareBufferManager::createVertexDeclaration()
+    VertexDeclarationPtr HardwareBufferManager::createVertexDeclaration(
+        ShaderPtr vertexShader)
     {
-        return mImpl->createVertexDeclaration();
+        return mImpl->createVertexDeclaration(vertexShader);
     }
 }
 

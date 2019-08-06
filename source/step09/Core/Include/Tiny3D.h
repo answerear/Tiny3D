@@ -46,6 +46,10 @@
 #include <Resource/T3DDylibManager.h>
 #include <Resource/T3DResource.h>
 #include <Resource/T3DResourceManager.h>
+#include <Resource/T3DGPUProgram.h>
+#include <Resource/T3DGPUProgramCreator.h>
+#include <Resource/T3DGPUProgramManager.h>
+
 
 // ImageCodec
 #include <ImageCodec/T3DImageCodec.h>

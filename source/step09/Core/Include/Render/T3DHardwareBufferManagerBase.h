@@ -116,9 +116,11 @@ namespace Tiny3D
 
         /**
          * @brief 创建顶点声明对象
+         * @param [in] vertexShader : 顶点着色器
          * @return 返回一个渲染系统对应的顶点声明对象
          */
-        virtual VertexDeclarationPtr createVertexDeclaration();
+        virtual VertexDeclarationPtr createVertexDeclaration(
+            ShaderPtr vertexShader);
 
     protected:
         /**

@@ -318,30 +318,33 @@ namespace Tiny3D
         typedef Dylibs::const_iterator      DylibsConstItr;
         typedef Dylibs::value_type          DylibsValue;
 
-        Logger              *mLogger;           /**< 日志对象 */
-        EventManager        *mEventMgr;         /**< 事件管理器对象 */
-        ObjectTracer        *mObjTracer;        /**< 对象内存跟踪 */
+        Logger                  *mLogger;           /**< 日志对象 */
+        EventManager            *mEventMgr;         /**< 事件管理器对象 */
+        ObjectTracer            *mObjTracer;        /**< 对象内存跟踪 */
 
-        RenderWindowPtr     mDefaultWindow;     /**< 默认渲染窗口 */
+        RenderWindowPtr         mDefaultWindow;     /**< 默认渲染窗口 */
 
-        ArchiveManagerPtr   mArchiveMgr;        /**< 档案管理对象 */
-        DylibManagerPtr     mDylibMgr;          /**< 动态库管理对象 */
-        ImageCodecPtr       mImageCodec;        /**< 图像编解码器对象 */
+        ArchiveManagerPtr       mArchiveMgr;        /**< 档案管理对象 */
+        DylibManagerPtr         mDylibMgr;          /**< 动态库管理对象 */
+        ShaderManagerPtr        mShaderMgr;         /**< 着色器管理对象 */
+        GPUProgramManagerPtr    mGPUProgramMgr;     /**< GPU程序管理对象 */
 
-        RendererPtr         mActiveRenderer;    /**< 当前渲染器对象 */
-        SceneManagerPtr     mSceneMgr;
+        ImageCodecPtr           mImageCodec;        /**< 图像编解码器对象 */
 
-        Plugins             mPlugins;           /**< 安装的插件列表 */
-        Dylibs              mDylibs;            /**< 加载的动态库列表 */
-        Renderers           mRenderers;         /**< 渲染器列表 */
+        RendererPtr             mActiveRenderer;    /**< 当前渲染器对象 */
+        SceneManagerPtr         mSceneMgr;
 
-        String              mAppPath;           /**< 程序路径 */
-        String              mAppName;           /**< 程序名称 */
-        String              mPluginsPath;       /**< 插件路径 */
+        Plugins                 mPlugins;           /**< 安装的插件列表 */
+        Dylibs                  mDylibs;            /**< 加载的动态库列表 */
+        Renderers               mRenderers;         /**< 渲染器列表 */
 
-        Settings            mSettings;          /**< 引擎配置项 */
+        String                  mAppPath;           /**< 程序路径 */
+        String                  mAppName;           /**< 程序名称 */
+        String                  mPluginsPath;       /**< 插件路径 */
 
-        bool                mIsRunning;         /**< 引擎是否在运行中 */
+        Settings                mSettings;          /**< 引擎配置项 */
+
+        bool                    mIsRunning;         /**< 引擎是否在运行中 */
     };
 
     #define T3D_AGENT      (Agent::getInstance())

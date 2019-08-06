@@ -33,7 +33,8 @@ namespace Tiny3D
         T3D_ERR_D3D11_UNSUPPORT_FORMAT_ICON,             /**< 不支持的图标文件格式 */
         T3D_ERR_D3D11_IMAGE_SIZE_NOT_EQL,                /**< 图片大小不一致 */
         T3D_ERR_D3D11_INVALID_TARGET,                    /**< 错误的渲染目标 */
-        T3D_ERR_D3D11_CREATE_FAILED,                     /**< 创建 D3D9 对象失败 */
+        T3D_ERR_D3D11_CREATE_FAILED,                     /**< 创建 D3D11 对象失败 */
+        T3D_ERR_SHADER_NOT_COMPILED,                     /**< Shader 没有编译 */
     };
 }
 

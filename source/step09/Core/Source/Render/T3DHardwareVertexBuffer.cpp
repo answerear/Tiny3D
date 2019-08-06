@@ -20,6 +20,7 @@
 
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Render/T3DHardwareBufferManager.h"
+#include "Resource/T3DGPUProgram.h"
 
 
 namespace Tiny3D
@@ -160,21 +161,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    VertexDeclarationPtr VertexDeclaration::create()
+    VertexDeclarationPtr VertexDeclaration::create(ShaderPtr vertexShader)
     {
-        VertexDeclarationPtr decl = new VertexDeclaration();
+        VertexDeclarationPtr decl = new VertexDeclaration(vertexShader);
         decl->release();
         return decl;
     }
 
-    VertexDeclaration::VertexDeclaration()
+    VertexDeclaration::VertexDeclaration(ShaderPtr vertexShader)
+        : mVertexShader(vertexShader)
     {
 
     }
 
     VertexDeclaration::~VertexDeclaration()
     {
-
+        mVertexShader = nullptr;
     }
 
     const VertexAttribute &VertexDeclaration::getAttribute(size_t index) const
@@ -358,7 +360,7 @@ namespace Tiny3D
     VertexDeclarationPtr VertexDeclaration::clone() const
     {
         VertexDeclarationPtr decl 
-            = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
+            = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration(mVertexShader);
         VertexAttriListConstItr itr = mVertexAttributes.begin();
 
         while (itr != mVertexAttributes.end())

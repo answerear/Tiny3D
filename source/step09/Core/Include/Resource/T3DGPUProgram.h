@@ -18,59 +18,71 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_PLUGIN_H__
-#define __T3D_D3D11_PLUGIN_H__
+#ifndef __T3D_GPU_PROGRAM_H__
+#define __T3D_GPU_PROGRAM_H__
 
 
-#include "T3DD3D11Prerequisites.h"
+#include "T3DResource.h"
 
 
 namespace Tiny3D
 {
-    class D3D11Plugin : public Plugin
+    /**
+     * @brief 着色器程序
+     */
+    class T3D_ENGINE_API Shader : public Resource
     {
     public:
         /**
-         * @brief 默认构造函数
+         * @brief 获取资源类型，重写基类 Resource::getType() 接口
          */
-        D3D11Plugin();
+        virtual Type getType() const override;
 
         /**
-         * @brief 析构函数
+         * @brief 编译着色器程序
          */
-        virtual ~D3D11Plugin();
+        virtual TResult compile() = 0;
 
         /**
-         * @brief 获取插件名称
+         * @brief 是否已经编译过
          */
-        virtual const String &getName() const override;
-
-        /**
-         * @brief 安装插件
-         */
-        virtual TResult install() override;
-
-        /**
-         * @brief 启动插件
-         */
-        virtual TResult startup() override;
-
-        /**
-         * @brief 关闭插件
-         */
-        virtual TResult shutdown() override;
-
-        /**
-         * @brief 卸载插件
-         */
-        virtual TResult uninstall() override;
+        virtual bool hasCompiled() const = 0;
 
     protected:
-        String                  mName;
-        RendererPtr             mRenderer;
-        D3D11GPUProgramCreator  *mCreator;
+        /**
+         * @brief 构造函数
+         */
+        Shader(const String &name);
+    };
+
+    /**
+     * @brief GPU程序
+     */
+    class T3D_ENGINE_API GPUProgram : public Resource
+    {
+    public:
+        /**
+         * @brief 获取资源类型，重写基类 Resource::getType() 接口
+         */
+        virtual Type getType() const override;
+
+        /**
+         * @brief 把着色器链接成一个GPU程序
+         */
+        virtual TResult link(ShaderPtr vertexShader, ShaderPtr pixelShader) = 0;
+
+        /**
+         * @brief 是否链接成GPU程序
+         */
+        virtual bool hasLinked() const = 0;
+
+    protected:
+        /**
+         * @brief 构造函数
+         */
+        GPUProgram(const String &name);
     };
 }
 
 
-#endif  /*__T3D_D3D11_PLUGIN_H__*/
+#endif  /*__T3D_GPU_PROGRAM_H__*/

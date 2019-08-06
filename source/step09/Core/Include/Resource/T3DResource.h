@@ -41,6 +41,8 @@ namespace Tiny3D
             E_RT_ARCHIVE,       /**< 文件档案系统 */
             E_RT_MATERIAL,      /**< 材质 */
             E_RT_TEXTURE,       /**< 纹理 */
+            E_RT_SHADER,        /**< 着色器 */
+            E_RT_GPUPROGRAM,    /**< GPU程序 */
         };
 
         /** 析构函数 */

@@ -188,7 +188,7 @@ namespace Tiny3D
         /**
          * @brief 创建顶点声明对象
          */
-        static VertexDeclarationPtr create();
+        static VertexDeclarationPtr create(ShaderPtr vertexShader);
 
         /**
          * @brief 析构函数
@@ -317,8 +317,9 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        VertexDeclaration();
+        VertexDeclaration(ShaderPtr vertexShader);
 
+        ShaderPtr       mVertexShader;      /**< 跟顶点声明关联的着色器对象 */
         VertexAttriList mVertexAttributes;  /**< 顶点属性列表 */
     };
 }

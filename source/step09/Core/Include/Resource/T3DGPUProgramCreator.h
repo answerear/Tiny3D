@@ -18,38 +18,26 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_R3D_VERTEX_DECLARATION_H__
-#define __T3D_R3D_VERTEX_DECLARATION_H__
+#ifndef __T3D_GPU_PROGRAM_CREATOR_H__
+#define __T3D_GPU_PROGRAM_CREATOR_H__
 
 
-#include "T3DR3DPrerequisites.h"
+#include "Kernel/T3DCreator.h"
+#include "Resource/T3DGPUProgram.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * @brief Reference3D 渲染器相关的顶点声明类
-     */
-    class R3DVertexDeclaration : public VertexDeclaration
+    class T3D_ENGINE_API ShaderCreator : public Creator<Shader>
     {
-    public:
-        /**
-         * @brief 创建 Reference3D 渲染器相关的顶点声明对象
-         */
-        static R3DVertexDeclarationPtr create(ShaderPtr vertexShader);
+        T3D_DECLARE_INTERFACE(ShaderCreator);
+    };
 
-        /**
-         * @brief 析构函数
-         */
-        virtual ~R3DVertexDeclaration();
-
-    protected:
-        /**
-         * @brief 构造函数
-         */
-        R3DVertexDeclaration(ShaderPtr vertexShader);
+    class T3D_ENGINE_API GPUProgramCreator : public Creator<GPUProgram>
+    {
+        T3D_DECLARE_INTERFACE(GPUProgramCreator);
     };
 }
 
 
-#endif  /*__T3D_R3D_VERTEX_DECLARATION_H__*/
+#endif  /*__T3D_GPU_PROGRAM_CREATOR_H__*/

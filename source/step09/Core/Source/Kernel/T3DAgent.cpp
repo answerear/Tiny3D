@@ -30,6 +30,9 @@
 #include "Resource/T3DArchiveManager.h"
 #include "Resource/T3DDylib.h"
 #include "Resource/T3DDylibManager.h"
+#include "Resource/T3DGPUProgram.h"
+#include "Resource/T3DGPUProgramCreator.h"
+#include "Resource/T3DGPUProgramManager.h"
 
 #include "Memory/T3DObjectTracer.h"
 
@@ -57,6 +60,8 @@ namespace Tiny3D
         , mDefaultWindow(nullptr)
         , mArchiveMgr(nullptr)
         , mDylibMgr(nullptr)
+        , mShaderMgr(nullptr)
+        , mGPUProgramMgr(nullptr)
         , mImageCodec(nullptr)
         , mActiveRenderer(nullptr)
         , mSceneMgr(nullptr)
@@ -72,6 +77,8 @@ namespace Tiny3D
 
         unloadPlugins();
 
+        mShaderMgr = nullptr;
+        mGPUProgramMgr = nullptr;
         mDylibMgr = nullptr;
         mArchiveMgr = nullptr;
         mImageCodec = nullptr;

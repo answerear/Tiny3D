@@ -18,38 +18,53 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_R3D_VERTEX_DECLARATION_H__
-#define __T3D_R3D_VERTEX_DECLARATION_H__
+#ifndef __T3D_D3D11_GPU_PROGRAM_CREATOR_H__
+#define __T3D_D3D11_GPU_PROGRAM_CREATOR_H__
 
 
-#include "T3DR3DPrerequisites.h"
+#include "T3DD3D11Prerequisites.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @brief Reference3D 渲染器相关的顶点声明类
+     * @brief DirectX 11 着色器生成器
      */
-    class R3DVertexDeclaration : public VertexDeclaration
+    class D3D11ShaderCreator : public ShaderCreator
     {
     public:
-        /**
-         * @brief 创建 Reference3D 渲染器相关的顶点声明对象
-         */
-        static R3DVertexDeclarationPtr create(ShaderPtr vertexShader);
+        static const char * const SHADER_TYPE;
 
         /**
-         * @brief 析构函数
+         * @brief 重写ShaderCreator::getType() 接口
          */
-        virtual ~R3DVertexDeclaration();
+        virtual String getType() const override;
 
-    protected:
         /**
-         * @brief 构造函数
+         * @brief 重写ShaderCreator::createObject() 接口
          */
-        R3DVertexDeclaration(ShaderPtr vertexShader);
+        virtual ShaderPtr createObject(int32_t argc, ...) const override;
+    };
+
+    /**
+     * @brief DirectX 11 GPU程序生成器
+     */
+    class D3D11GPUProgramCreator : public GPUProgramCreator
+    {
+    public:
+        static const char * const GPUPROGRAM_TYPE;
+
+        /**
+         * @brief 重写ShaderCreator::getType() 接口
+         */
+        virtual String getType() const override;
+
+        /**
+         * @brief 重写ShaderCreator::createObject() 接口
+         */
+        virtual GPUProgramPtr createObject(int32_t argc, ...) const override;
     };
 }
 
 
-#endif  /*__T3D_R3D_VERTEX_DECLARATION_H__*/
+#endif  /*__T3D_D3D11_GPU_PROGRAM_CREATOR_H__*/

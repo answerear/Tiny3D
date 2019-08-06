@@ -28,15 +28,15 @@
 namespace Tiny3D
 {
     /**
-     * @brief Direct3D9 渲染器相关的顶点声明类
+     * @brief DirectX 11 渲染器相关的顶点声明类
      */
     class D3D11VertexDeclaration : public VertexDeclaration
     {
     public:
         /**
-         * @brief 创建 Direct3D9 渲染器相关的顶点声明对象
+         * @brief 创建 DirectX 11 渲染器相关的顶点声明对象
          */
-        static D3D11VertexDeclarationPtr create();
+        static D3D11VertexDeclarationPtr create(ShaderPtr vertexShader);
 
         /**
          * @brief 析构函数
@@ -125,14 +125,20 @@ namespace Tiny3D
          */
         virtual VertexDeclarationPtr clone() const override;
 
+        /**
+         * @brief 获取 D3D11 顶点输入布局对象
+         */
+        ID3D11InputLayout *getInputLayout();
+
     protected:
         /**
          * @brief 构造函数
          */
-        D3D11VertexDeclaration();
+        D3D11VertexDeclaration(ShaderPtr vertexShader);
 
     protected:
-        bool        mIsDirty;
+        ID3D11InputLayout   *mD3DInputLayout;    /**< D3D11 输入布局 */
+        bool                mIsDirty;
     };
 }
 

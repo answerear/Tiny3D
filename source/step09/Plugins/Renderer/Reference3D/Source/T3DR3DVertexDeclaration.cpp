@@ -25,17 +25,17 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    R3DVertexDeclarationPtr R3DVertexDeclaration::create()
+    R3DVertexDeclarationPtr R3DVertexDeclaration::create(ShaderPtr vertexShader)
     {
-        R3DVertexDeclarationPtr decl = new R3DVertexDeclaration();
+        R3DVertexDeclarationPtr decl = new R3DVertexDeclaration(vertexShader);
         decl->release();
         return decl;
     }
 
     //--------------------------------------------------------------------------
 
-    R3DVertexDeclaration::R3DVertexDeclaration()
-        : VertexDeclaration()
+    R3DVertexDeclaration::R3DVertexDeclaration(ShaderPtr vertexShader)
+        : VertexDeclaration(vertexShader)
     {
 
     }

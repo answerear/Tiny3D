@@ -70,6 +70,10 @@ namespace Tiny3D
     class MaterialManager;
     class Texture;
     class TextureManager;
+    class Shader;
+    class ShaderManager;
+    class GPUProgram;
+    class GPUProgramManager;
 
     class HardwareBuffer;
     class HardwareIndexBuffer;
@@ -78,6 +82,8 @@ namespace Tiny3D
     class HardwareConstantBuffer;
     class VertexAttribute;
     class VertexDeclaration;
+
+    class Shader;
 
     class VertexArrayObject;
 

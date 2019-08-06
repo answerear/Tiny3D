@@ -18,38 +18,39 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_R3D_VERTEX_DECLARATION_H__
-#define __T3D_R3D_VERTEX_DECLARATION_H__
-
-
-#include "T3DR3DPrerequisites.h"
+#include "Resource/T3DGPUProgram.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * @brief Reference3D 渲染器相关的顶点声明类
-     */
-    class R3DVertexDeclaration : public VertexDeclaration
+    //--------------------------------------------------------------------------
+
+    Shader::Shader(const String &name)
+        : Resource(name)
     {
-    public:
-        /**
-         * @brief 创建 Reference3D 渲染器相关的顶点声明对象
-         */
-        static R3DVertexDeclarationPtr create(ShaderPtr vertexShader);
 
-        /**
-         * @brief 析构函数
-         */
-        virtual ~R3DVertexDeclaration();
+    }
 
-    protected:
-        /**
-         * @brief 构造函数
-         */
-        R3DVertexDeclaration(ShaderPtr vertexShader);
-    };
+    //--------------------------------------------------------------------------
+
+    Resource::Type Shader::getType() const
+    {
+        return E_RT_SHADER;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GPUProgram::GPUProgram(const String &name)
+        : Resource(name)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    Resource::Type GPUProgram::getType() const
+    {
+        return E_RT_GPUPROGRAM;
+    }
 }
 
-
-#endif  /*__T3D_R3D_VERTEX_DECLARATION_H__*/
