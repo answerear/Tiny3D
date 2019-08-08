@@ -65,6 +65,12 @@ namespace Tiny3D
                     break;
                 }
             }
+
+            mShaderCreator = new D3D11ShaderCreator();
+            mGPUCreator = new D3D11GPUProgramCreator();
+
+            T3D_SHADER_MGR.setShaderCreator(mShaderCreator);
+            T3D_GPU_PROGRAM_MGR.setGPUProgramCreator(mGPUCreator);
         } while (0);
 
         return ret;
@@ -101,6 +107,12 @@ namespace Tiny3D
             {
                 break;
             }
+
+            T3D_SHADER_MGR.setShaderCreator(nullptr);
+            T3D_GPU_PROGRAM_MGR.setGPUProgramCreator(nullptr);
+
+            delete mShaderCreator;
+            delete mGPUCreator;
 
             mRenderer = nullptr;
         } while (0);

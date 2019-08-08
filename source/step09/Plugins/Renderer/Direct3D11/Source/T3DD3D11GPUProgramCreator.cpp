@@ -19,6 +19,8 @@
 
 
 #include "T3DD3D11GPUProgramCreator.h"
+#include "T3DD3D11VertexShader.h"
+#include "T3DD3D11PixelShader.h"
 #include "T3DD3D11GPUProgram.h"
 
 
@@ -41,15 +43,34 @@ namespace Tiny3D
     {
         va_list params;
         va_start(params, argc);
+        Shader::ShaderType shaderType = va_arg(params, Shader::ShaderType);
         String name = va_arg(params, char *);
+        String content;
+        
+        if (argc == 3)
+        {
+            content = va_arg(params, char *);
+        }
+
         va_end(params);
-        return D3D11Shader::create(name);
+
+        ShaderPtr shader;
+
+        if (shaderType == Shader::E_ST_VERTEX_SHADER)
+        {
+            shader = D3D11VertexShader::create(name, content);
+        }
+        else if (shaderType == Shader::E_ST_PIXEL_SHADER)
+        {
+            shader = D3D11PixelShader::create(name, content);
+        }
+
+        return shader;
     }
 
     //--------------------------------------------------------------------------
 
-    const char * const D3D11GPUProgramCreator::GPUPROGRAM_TYPE 
-        = "D3D11GPUProgram";
+    const char * const D3D11GPUProgramCreator::GPUPROGRAM_TYPE = "D3D11GPUProgram";
 
     //--------------------------------------------------------------------------
 

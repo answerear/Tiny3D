@@ -33,7 +33,17 @@ namespace Tiny3D
     class D3D11Mappings
     {
     public:
-        
+        static const char * const POSITION;
+        static const char * const BLENDWEIGHT;
+        static const char * const BLENDINDICES;
+        static const char * const NORMAL;
+        static const char * const COLOR;
+        static const char * const TEXCOORD;
+        static const char * const TANGENT;
+        static const char * const BINORMAL;
+
+        static const char *get(VertexAttribute::Semantic semantic);
+        static DXGI_FORMAT get(VertexAttribute::Type type);
     };
 }
 

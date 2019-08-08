@@ -144,10 +144,10 @@ namespace Tiny3D
 
             decl->addAttribute(VertexAttribute(0, 0,
                 VertexAttribute::E_VAT_FLOAT3,
-                VertexAttribute::E_VAS_POSITION));
+                VertexAttribute::E_VAS_POSITION, 0));
             decl->addAttribute(VertexAttribute(0, sizeof(Vector3),
                 VertexAttribute::E_VAT_COLOR,
-                VertexAttribute::E_VAS_DIFFUSE));
+                VertexAttribute::E_VAS_DIFFUSE, 0));
 
             // 创建VBO
             HardwareVertexBufferPtr vbo

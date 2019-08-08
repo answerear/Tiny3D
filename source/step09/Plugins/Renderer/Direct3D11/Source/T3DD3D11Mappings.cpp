@@ -25,6 +25,86 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    
+    const char * const D3D11Mappings::POSITION = "POSITION";
+    const char * const D3D11Mappings::BLENDWEIGHT = "BLENDWEIGHT";
+    const char * const D3D11Mappings::BLENDINDICES = "BLENDINDICES";
+    const char * const D3D11Mappings::NORMAL = "NORMAL";
+    const char * const D3D11Mappings::COLOR = "COLOR";
+    const char * const D3D11Mappings::TEXCOORD = "TEXCOORD";
+    const char * const D3D11Mappings::TANGENT = "TANGENT";
+    const char * const D3D11Mappings::BINORMAL = "BINORMAL";
+
+    //--------------------------------------------------------------------------
+
+    const char *D3D11Mappings::get(VertexAttribute::Semantic semantic)
+    {
+        switch (semantic)
+        {
+        case VertexAttribute::E_VAS_POSITION:
+            return POSITION;
+            break;
+        case VertexAttribute::E_VAS_BLENDWEIGHT:
+            return BLENDWEIGHT;
+            break;
+        case VertexAttribute::E_VAS_BLENDINDICES:
+            return BLENDINDICES;
+            break;
+        case VertexAttribute::E_VAS_NORMAL:
+            return NORMAL;
+            break;
+        case VertexAttribute::E_VAS_DIFFUSE:
+        case VertexAttribute::E_VAS_SPECULAR:
+            return COLOR;
+            break;
+        case VertexAttribute::E_VAS_TEXCOORD:
+            return TEXCOORD;
+            break;
+        case VertexAttribute::E_VAS_TANGENT:
+            return TANGENT;
+            break;
+        case VertexAttribute::E_VAS_BINORMAL:
+            return BINORMAL;
+            break;
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    DXGI_FORMAT D3D11Mappings::get(VertexAttribute::Type type)
+    {
+        DXGI_FORMAT format;
+
+        switch (type)
+        {
+        case VertexAttribute::E_VAT_COLOR:
+            format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+            break;
+        case VertexAttribute::E_VAT_FLOAT1:
+            format = DXGI_FORMAT_R32_FLOAT;
+            break;
+        case VertexAttribute::E_VAT_FLOAT2:
+            format = DXGI_FORMAT_R32G32_FLOAT;
+            break;
+        case VertexAttribute::E_VAT_FLOAT3:
+            format = DXGI_FORMAT_R32G32B32_FLOAT;
+            break;
+        case VertexAttribute::E_VAT_FLOAT4:
+            format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+            break;
+        case VertexAttribute::E_VAT_SHORT2:
+            format = DXGI_FORMAT_R16G16_SINT;
+            break;
+        case VertexAttribute::E_VAT_SHORT4:
+            format = DXGI_FORMAT_R16G16B16A16_SINT;
+            break;
+        case VertexAttribute::E_VAT_UBYTE4:
+            format = DXGI_FORMAT_R8G8B8A8_UINT;
+            break;
+        }
+
+        return format;
+    }
 }
 

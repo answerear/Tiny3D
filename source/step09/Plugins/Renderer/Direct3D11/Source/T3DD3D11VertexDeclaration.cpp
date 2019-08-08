@@ -21,6 +21,7 @@
 #include "T3DD3D11VertexDeclaration.h"
 #include "T3DD3D11Mappings.h"
 #include "T3DD3D11Renderer.h"
+#include "T3DD3D11VertexShader.h"
 
 
 namespace Tiny3D
@@ -57,21 +58,22 @@ namespace Tiny3D
 
     const VertexAttribute &D3D11VertexDeclaration::addAttribute(size_t stream,
         size_t offset, VertexAttribute::Type type,
-        VertexAttribute::Semantic semantic)
+        VertexAttribute::Semantic semantic, size_t semanticIndex)
     {
         mIsDirty = true;
-        return VertexDeclaration::addAttribute(stream, offset, type, semantic);
+        return VertexDeclaration::addAttribute(stream, offset, type, semantic, 
+            semanticIndex);
     }
 
     //--------------------------------------------------------------------------
 
     const VertexAttribute &D3D11VertexDeclaration::insertAttribute(size_t pos,
         size_t stream, size_t offset, VertexAttribute::Type type,
-        VertexAttribute::Semantic semantic)
+        VertexAttribute::Semantic semantic, size_t semanticIndex)
     {
         mIsDirty = true;
         return VertexDeclaration::insertAttribute(pos, stream, offset, type, 
-            semantic);
+            semantic, semanticIndex);
     }
 
     //--------------------------------------------------------------------------
@@ -103,10 +105,10 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult D3D11VertexDeclaration::removeAttribute(
-        VertexAttribute::Semantic semantic)
+        VertexAttribute::Semantic semantic, size_t semanticIndex)
     {
         mIsDirty = true;
-        return VertexDeclaration::removeAttribute(semantic);
+        return VertexDeclaration::removeAttribute(semantic, semanticIndex);
     }
 
     //--------------------------------------------------------------------------
@@ -121,11 +123,11 @@ namespace Tiny3D
 
     TResult D3D11VertexDeclaration::updateAttribute(size_t pos, size_t stream,
         size_t offset, VertexAttribute::Type type,
-        VertexAttribute::Semantic semantic)
+        VertexAttribute::Semantic semantic, size_t semanticIndex)
     {
         mIsDirty = true;
         return VertexDeclaration::updateAttribute(pos, stream, offset, type, 
-            semantic);
+            semantic, semanticIndex);
     }
 
     //--------------------------------------------------------------------------
@@ -148,13 +150,51 @@ namespace Tiny3D
         {
             D3D_SAFE_RELEASE(mD3DInputLayout);
 
-            const size_t nNumElements = mVertexAttributes.size();
-            D3D11_INPUT_ELEMENT_DESC *pDescs =
-                new D3D11_INPUT_ELEMENT_DESC[nNumElements];
+            do 
+            {
+                const size_t nNumElements = mVertexAttributes.size();
+                D3D11_INPUT_ELEMENT_DESC *desc =
+                    new D3D11_INPUT_ELEMENT_DESC[nNumElements];
 
-            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+                size_t i = 0;
+                auto itr = mVertexAttributes.begin();
 
+                while (itr != mVertexAttributes.end())
+                {
+                    const VertexAttribute &attrib = *itr;
+                    desc[i].SemanticName 
+                        = D3D11Mappings::get(attrib.getSemantic());
+                    desc[i].SemanticIndex = attrib.getSemanticIndex();
+                    desc[i].Format = D3D11Mappings::get(attrib.getType());
+                    desc[i].InputSlot = attrib.getStream();
+                    desc[i].AlignedByteOffset = attrib.getOffset();
+                    desc[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+                    desc[i].InstanceDataStepRate = 0;
+                    ++itr;
+                }
 
+                ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+
+                D3D11VertexShaderPtr vertexShader =
+                    smart_pointer_cast<D3D11VertexShader>(mVertexShader);
+
+                const char *bytecode = nullptr;
+                size_t bytecodeLength = 0;
+                vertexShader->getBytecode(bytecode, bytecodeLength);
+
+                HRESULT hr = S_OK;
+                hr = pD3DDevice->CreateInputLayout(desc, nNumElements,
+                    bytecode, bytecodeLength, &mD3DInputLayout);
+                if (FAILED(hr))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create input layout \
+                        failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+
+                mIsDirty = false;
+            } while (0);
+            
         }
 
         return mD3DInputLayout;

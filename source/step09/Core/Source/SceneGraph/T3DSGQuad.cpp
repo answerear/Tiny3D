@@ -159,15 +159,15 @@ namespace Tiny3D
 
             decl->addAttribute(VertexAttribute(0, 0,
                 VertexAttribute::E_VAT_FLOAT3,
-                VertexAttribute::E_VAS_POSITION));
+                VertexAttribute::E_VAS_POSITION, 0));
             size_t offset = sizeof(Vector3);
             decl->addAttribute(VertexAttribute(0, offset,
                 VertexAttribute::E_VAT_FLOAT3,
-                VertexAttribute::E_VAS_NORMAL));
+                VertexAttribute::E_VAS_NORMAL, 0));
             offset = sizeof(Vector3) + sizeof(Vector3);
             decl->addAttribute(VertexAttribute(0, offset,
                 VertexAttribute::E_VAT_FLOAT2,
-                VertexAttribute::E_VAS_TEXCOORD));
+                VertexAttribute::E_VAS_TEXCOORD, 0));
 
             // 创建VBO
             HardwareVertexBufferPtr vbo

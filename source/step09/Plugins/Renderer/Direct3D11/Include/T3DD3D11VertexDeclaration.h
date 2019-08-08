@@ -44,29 +44,18 @@ namespace Tiny3D
         virtual ~D3D11VertexDeclaration();
 
         /**
-         * @brief 新增一个顶点属性
-         * @param [in] stream : 数据流索引
-         * @param [in] offset : 相对一个顶点数据开始位置的偏移
-         * @param [in] type : 顶点数据类型
-         * @param [in] semantic : 顶点语法解释
-         * @return 返回一个新的顶点属性
+         * @brief 重写 VertexDeclaration::addAttribute() 接口
          */
         virtual const VertexAttribute &addAttribute(size_t stream,
             size_t offset, VertexAttribute::Type type,
-            VertexAttribute::Semantic semantic) override;
+            VertexAttribute::Semantic semantic, size_t semanticIndex) override;
 
         /**
-         * @brief 新增插入一个顶点属性
-         * @param [in] pos : 插入位置
-         * @param [in] stream : 数据流索引
-         * @param [in] offset : 相对一个顶点数据开始位置的偏移
-         * @param [in] type : 顶点数据类型
-         * @param [in] semantic : 顶点语法解释
-         * @return 返回一个新的顶点属性
+         * @brief 重写 VertexDeclaration::insertAttribute() 接口
          */
         virtual const VertexAttribute &insertAttribute(size_t pos,
             size_t stream, size_t offset, VertexAttribute::Type type,
-            VertexAttribute::Semantic semantic) override;
+            VertexAttribute::Semantic semantic, size_t semanticIndex) override;
 
         /**
          * @brief 添加一个顶点属性
@@ -98,7 +87,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         virtual TResult removeAttribute(
-            VertexAttribute::Semantic semantic) override;
+            VertexAttribute::Semantic semantic, size_t semanticIndex) override;
 
         /**
          * @brief 移除所有顶点属性
@@ -116,7 +105,7 @@ namespace Tiny3D
          */
         virtual TResult updateAttribute(size_t pos, size_t stream,
             size_t offset, VertexAttribute::Type type,
-            VertexAttribute::Semantic semantic) override;
+            VertexAttribute::Semantic semantic, size_t semanticIndex) override;
 
         /**
          * @brief 克隆一个顶点声明对象

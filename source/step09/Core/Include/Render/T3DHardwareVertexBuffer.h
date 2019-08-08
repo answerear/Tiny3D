@@ -133,9 +133,10 @@ namespace Tiny3D
          * @param [in] offset : 相对当前顶点起始位置的偏移
          * @param [in] type : 顶点数据类型
          * @param [in] semantic : 顶点语法解释
+         * @param [in] semanticIndex : 语义索引
          */
         VertexAttribute(size_t stream, size_t offset, Type type,
-            Semantic semantic);
+            Semantic semantic, size_t semanticIndex);
 
         /**
          * @brief 析构函数
@@ -163,15 +164,21 @@ namespace Tiny3D
         Semantic getSemantic() const { return mSemantic; }
 
         /**
+         * @brief 获取顶点语义索引
+         */
+        size_t getSemanticIndex() const { return mSemanticIndex; }
+
+        /**
          * @brief 获取顶点数据字节大小
          */
         size_t getSize() const;
 
     protected:
-        Type        mType;      /**< 顶点属性数据类型 */
-        Semantic    mSemantic;  /**< 顶点属性语义 */
-        size_t      mOffset;    /**< 这个顶点属性定义的在顶点缓存中的起始点偏移值 */
-        size_t      mStream;    /**< 对应定义的顶点缓存索引 */
+        Type        mType;          /**< 顶点属性数据类型 */
+        Semantic    mSemantic;      /**< 顶点属性语义 */
+        size_t      mOffset;        /**< 这个顶点属性定义的在顶点缓存中的起始点偏移值 */
+        size_t      mStream;        /**< 对应定义的顶点缓存索引 */
+        size_t      mSemanticIndex; /**< 顶点语义索引 */
     };
 
 
@@ -224,11 +231,12 @@ namespace Tiny3D
          * @param [in] offset : 相对一个顶点数据开始位置的偏移
          * @param [in] type : 顶点数据类型
          * @param [in] semantic : 顶点语法解释
+         * @param [in] semanticIndex : 顶点语义索引
          * @return 返回一个新的顶点属性
          */
         virtual const VertexAttribute &addAttribute(size_t stream, 
             size_t offset, VertexAttribute::Type type, 
-            VertexAttribute::Semantic semantic);
+            VertexAttribute::Semantic semantic, size_t semanticIndex);
 
         /**
          * @brief 新增插入一个顶点属性
@@ -237,11 +245,12 @@ namespace Tiny3D
          * @param [in] offset : 相对一个顶点数据开始位置的偏移
          * @param [in] type : 顶点数据类型
          * @param [in] semantic : 顶点语法解释
+         * @param [in] semanticIndex : 顶点语义索引
          * @return 返回一个新的顶点属性
          */
         virtual const VertexAttribute &insertAttribute(size_t pos, 
             size_t stream, size_t offset, VertexAttribute::Type type, 
-            VertexAttribute::Semantic semantic);
+            VertexAttribute::Semantic semantic, size_t semanticIndex);
 
         /**
          * @brief 添加一个顶点属性
@@ -271,7 +280,8 @@ namespace Tiny3D
          * @param [in] semantic : 语法解释
          * @return 调用成功返回 T3D_OK
          */
-        virtual TResult removeAttribute(VertexAttribute::Semantic semantic);
+        virtual TResult removeAttribute(VertexAttribute::Semantic semantic,
+            size_t semanticIndex);
 
         /**
          * @brief 移除所有顶点属性
@@ -289,7 +299,7 @@ namespace Tiny3D
          */
         virtual TResult updateAttribute(size_t pos, size_t stream, 
             size_t offset, VertexAttribute::Type type, 
-            VertexAttribute::Semantic semantic);
+            VertexAttribute::Semantic semantic, size_t semanticIndex);
 
         /**
          * @brief 根据语法解释查找对应顶点属性对象
@@ -297,7 +307,7 @@ namespace Tiny3D
          * @return 查找成功返回对应的顶点属性对象，失败返回nullptr
          */
         virtual const VertexAttribute *findAttributeBySemantic(
-            VertexAttribute::Semantic semantic) const;
+            VertexAttribute::Semantic semantic, size_t semanticIndex) const;
          
         /**
          * @brief 获取顶点字节大小

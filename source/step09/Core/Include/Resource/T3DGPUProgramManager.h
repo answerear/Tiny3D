@@ -23,6 +23,7 @@
 
 
 #include "Resource/T3DResourceManager.h"
+#include "Resource/T3DGPUProgram.h"
 
 
 namespace Tiny3D
@@ -57,10 +58,22 @@ namespace Tiny3D
 
         /**
          * @brief 加载着色器资源
+         * @param [in] shaderType : 着色器类型
          * @param [in] name : 着色器资源名称
-         * @return 返回一个新建的着色器对象
+         * @return 返回一个着色器对象
          */
-        virtual ShaderPtr loadShader(const String &name);
+        virtual ShaderPtr loadShader(Shader::ShaderType shaderType, 
+            const String &name);
+
+        /**
+         * @brief 加载着色器资源
+         * @param [in] shaderType : 着色器类型
+         * @param [in] name : 着色器名称
+         * @param [in] content : 着色器程序内容
+         * @return 返回一个着色器对象
+         */
+        virtual ShaderPtr loadShader(Shader::ShaderType shaderType, 
+            const String &name, const String &content);
 
         /**
          * @brief 卸载着色器资源

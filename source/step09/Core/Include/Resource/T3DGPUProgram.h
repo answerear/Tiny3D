@@ -34,9 +34,23 @@ namespace Tiny3D
     {
     public:
         /**
+         * @brief 着色器类型
+         */
+        enum ShaderType
+        {
+            E_ST_VERTEX_SHADER = 0, /**< 顶点着色器 */
+            E_ST_PIXEL_SHADER,      /**< 像素着色器 */
+        };
+
+        /**
          * @brief 获取资源类型，重写基类 Resource::getType() 接口
          */
         virtual Type getType() const override;
+
+        /**
+         * @brief 获取着色器类型
+         */
+        virtual ShaderType getShaderType() const = 0;
 
         /**
          * @brief 编译着色器程序

@@ -54,11 +54,12 @@ namespace Tiny3D
     }
 
     VertexAttribute::VertexAttribute(size_t stream, size_t offset, Type type, 
-        Semantic semantic)
+        Semantic semantic, size_t semanticIndex /* = 0 */)
         : mType(type)
         , mSemantic(semantic)
         , mOffset(offset)
         , mStream(stream)
+        , mSemanticIndex(semanticIndex)
     {
 
     }
@@ -199,9 +200,9 @@ namespace Tiny3D
 
     const VertexAttribute &VertexDeclaration::addAttribute(size_t stream, 
         size_t offset, VertexAttribute::Type type, 
-        VertexAttribute::Semantic semantic)
+        VertexAttribute::Semantic semantic, size_t semanticIndex)
     {
-        VertexAttribute element(stream, offset, type, semantic);
+        VertexAttribute element(stream, offset, type, semantic, semanticIndex);
 
         mVertexAttributes.push_back(element);
         return mVertexAttributes.back();
@@ -209,11 +210,11 @@ namespace Tiny3D
 
     const VertexAttribute &VertexDeclaration::insertAttribute(size_t pos, 
         size_t stream, size_t offset, VertexAttribute::Type type, 
-        VertexAttribute::Semantic semantic)
+        VertexAttribute::Semantic semantic, size_t semanticIndex)
     {
         if (pos >= mVertexAttributes.size())
         {
-            return addAttribute(stream, offset, type, semantic);
+            return addAttribute(stream, offset, type, semantic, semanticIndex);
         }
 
         auto itr = mVertexAttributes.begin();
@@ -224,7 +225,7 @@ namespace Tiny3D
         }
 
         itr = mVertexAttributes.insert(itr, 
-            VertexAttribute(stream, offset, type, semantic));
+            VertexAttribute(stream, offset, type, semantic, semanticIndex));
         return *itr;
     }
 
@@ -276,13 +277,14 @@ namespace Tiny3D
     }
 
     TResult VertexDeclaration::removeAttribute(
-        VertexAttribute::Semantic semantic)
+        VertexAttribute::Semantic semantic, size_t sematicIndex)
     {
         TResult ret = T3D_ERR_NOT_FOUND;
         VertexAttriListItr itr = mVertexAttributes.begin();
         while (itr != mVertexAttributes.end())
         {
-            if (itr->getSemantic() == semantic)
+            if (itr->getSemantic() == semantic 
+                && itr->getSemanticIndex() == sematicIndex)
             {
                 mVertexAttributes.erase(itr);
                 ret = T3D_OK;
@@ -302,7 +304,7 @@ namespace Tiny3D
 
     TResult VertexDeclaration::updateAttribute(size_t pos, size_t stream, 
         size_t offset, VertexAttribute::Type type, 
-        VertexAttribute::Semantic semantic)
+        VertexAttribute::Semantic semantic, size_t semanticIndex)
     {
         if (pos >= mVertexAttributes.size())
         {
@@ -318,18 +320,19 @@ namespace Tiny3D
             ++itr;
         }
 
-        *itr = VertexAttribute(stream, offset, type, semantic);
+        *itr = VertexAttribute(stream, offset, type, semantic, semanticIndex);
 
         return T3D_OK;
     }
 
     const VertexAttribute *VertexDeclaration::findAttributeBySemantic(
-        VertexAttribute::Semantic semantic) const
+        VertexAttribute::Semantic semantic, size_t semanticIndex) const
     {
         VertexAttriListConstItr itr = mVertexAttributes.begin();
         while (itr != mVertexAttributes.end())
         {
-            if (itr->getSemantic() == semantic)
+            if (itr->getSemantic() == semantic 
+                && itr->getSemanticIndex() == semanticIndex)
             {
                 return &(*itr);
                 break;
@@ -366,7 +369,7 @@ namespace Tiny3D
         while (itr != mVertexAttributes.end())
         {
             decl->addAttribute(itr->getStream(), itr->getOffset(), 
-                itr->getType(), itr->getSemantic());
+                itr->getType(), itr->getSemantic(), itr->getSemanticIndex());
             ++itr;
         }
 

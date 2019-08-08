@@ -19,77 +19,11 @@
 
 
 #include "T3DD3D11GPUProgram.h"
+#include "T3DD3D11Renderer.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    D3D11ShaderPtr D3D11Shader::create(const String &name)
-    {
-        D3D11ShaderPtr shader = new D3D11Shader(name);
-        shader->release();
-        return shader;
-    }
-
-    //--------------------------------------------------------------------------
-
-    D3D11Shader::D3D11Shader(const String &name)
-        : Shader(name)
-        , mHasCompiled(false)
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    D3D11Shader::~D3D11Shader()
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Shader::compile()
-    {
-        TResult ret = T3D_OK;
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool D3D11Shader::hasCompiled() const
-    {
-        return mHasCompiled;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Shader::load()
-    {
-        TResult ret = T3D_OK;
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Shader::unload()
-    {
-        TResult ret = T3D_OK;
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    ResourcePtr D3D11Shader::clone() const
-    {
-        ShaderPtr shader = create(getName());
-        return shader;
-    }
-
     //--------------------------------------------------------------------------
 
     D3D11GPUProgramPtr D3D11GPUProgram::create(const String &name)
@@ -103,6 +37,8 @@ namespace Tiny3D
 
     D3D11GPUProgram::D3D11GPUProgram(const String &name)
         : GPUProgram(name)
+        , mVertexShader(nullptr)
+        , mPixelShader(nullptr)
         , mHasLinked(false)
     {
 
@@ -112,7 +48,8 @@ namespace Tiny3D
 
     D3D11GPUProgram::~D3D11GPUProgram()
     {
-
+        mVertexShader = nullptr;
+        mPixelShader = nullptr;
     }
 
     //--------------------------------------------------------------------------
@@ -120,6 +57,13 @@ namespace Tiny3D
     TResult D3D11GPUProgram::link(ShaderPtr vertexShader, ShaderPtr pixelShader)
     {
         TResult ret = T3D_OK;
+
+        do 
+        {
+            mVertexShader = vertexShader;
+            mPixelShader = pixelShader;
+            mHasLinked = true;
+        } while (0);
 
         return ret;
     }
@@ -154,6 +98,8 @@ namespace Tiny3D
     ResourcePtr D3D11GPUProgram::clone() const
     {
         D3D11GPUProgramPtr program = create(getName());
+        program->mVertexShader = mVertexShader;
+        program->mPixelShader = mPixelShader;
         return program;
     }
 }

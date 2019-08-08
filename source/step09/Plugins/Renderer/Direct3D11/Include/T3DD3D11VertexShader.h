@@ -18,66 +18,49 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_GPU_PROGRAM_H__
-#define __T3D_D3D11_GPU_PROGRAM_H__
+#ifndef __T3D_D3D11_VERTEX_SHADER_H__
+#define __T3D_D3D11_VERTEX_SHADER_H__
 
 
-#include "T3DD3D11Prerequisites.h"
-#include "T3DD3D11Error.h"
-#include "T3DD3D11VertexShader.h"
-#include "T3DD3D11PixelShader.h"
+#include "T3DD3D11Shader.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @brief DirectX 11 GPU程序
+     * @brief DirectX 11 顶点着色器
      */
-    class D3D11GPUProgram : public GPUProgram
+    class D3D11VertexShader : public D3D11Shader
     {
     public:
         /**
-         * @brief 创建 D3D11GPUProgram 对象
+         * @brief 创建 D3D11VertexShader 对象
+         * @param [in] name : Shader 名称
+         * @param [in] content : 着色器内容，可以为空
+         * @return 返回一个新建的D3D11着色器对象
          */
-        static D3D11GPUProgramPtr create(const String &name);
+        static D3D11VertexShaderPtr create(const String &name, const String &content);
 
         /**
          * @brief 析构函数
          */
-        virtual ~D3D11GPUProgram();
+        virtual ~D3D11VertexShader();
 
         /**
-         * @brief 重写 GPUProgram::link() 接口
+         * @brief 重写 Shader::getShaderType() 接口
          */
-        virtual TResult link(ShaderPtr vertexShader, 
-            ShaderPtr pixelShader) override;
+        virtual ShaderType getShaderType() const override;
 
         /**
-         * @brief 重写 GPUProgram::hasLinked() 接口
+         * @brief 重写 Shader::compile() 接口
          */
-        virtual bool hasLinked() const override;
-
-        /**
-         * @brief 获取顶点着色器对象
-         */
-        D3D11VertexShaderPtr getVertexShader() const
-        {
-            return mVertexShader;
-        }
-
-        /**
-         * @brief 获取像素着色器对象
-         */
-        D3D11PixelShaderPtr getPixelShader() const
-        {
-            return mPixelShader;
-        }
+        virtual TResult compile() override;
 
     protected:
         /**
          * @brief 构造函数
          */
-        D3D11GPUProgram(const String &name);
+        D3D11VertexShader(const String &name, const String &content);
 
         /**
          * @brief 重写 Resource::load() 接口
@@ -95,11 +78,9 @@ namespace Tiny3D
         virtual ResourcePtr clone() const override;
 
     protected:
-        D3D11VertexShaderPtr    mVertexShader;  /**< 顶点着色器对象 */
-        D3D11PixelShaderPtr     mPixelShader;   /**< 像素着色器对象 */
-        bool                    mHasLinked;     /**< 是否链接标记 */
+        ID3D11VertexShader  *mD3DVertexShader;  /**< D3D11 顶点着色器对象 */
     };
 }
 
 
-#endif  /*__T3D_D3D11_GPU_PROGRAM_H__*/
+#endif  /*__T3D_D3D11_VERTEX_SHADER_H__*/

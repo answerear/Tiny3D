@@ -24,6 +24,7 @@
 
 #include <Tiny3D.h>
 #include <d3d11.h>
+#include <d3dcompiler.h>
 
 
 #if defined D3D11RENDERER_EXPORT
@@ -55,6 +56,9 @@ namespace Tiny3D
     class D3D11VertexDeclaration;
     class D3D11VertexArrayObject;
     class D3D11Shader;
+    class D3D11VertexShader;
+    class D3D11PixelShader;
+    class D3D11ShaderCreator;
     class D3D11GPUProgram;
     class D3D11GPUProgramCreator;
 
@@ -68,6 +72,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(D3D11VertexDeclaration);
     T3D_DECLARE_SMART_PTR(D3D11VertexArrayObject);
     T3D_DECLARE_SMART_PTR(D3D11Shader);
+    T3D_DECLARE_SMART_PTR(D3D11VertexShader);
+    T3D_DECLARE_SMART_PTR(D3D11PixelShader);
     T3D_DECLARE_SMART_PTR(D3D11GPUProgram);
 }
 

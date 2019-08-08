@@ -44,6 +44,7 @@ endif (TINY3D_BUILD_SHARED_LIBS)
 target_link_libraries(
     ${LIB_NAME}
     ${DirectX11_LIBRARIES}
+	d3dcompiler
     T3DMath
     T3DLog
 	T3DUtils

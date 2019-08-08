@@ -63,9 +63,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ShaderPtr ShaderManager::loadShader(const String &name)
+    ShaderPtr ShaderManager::loadShader(Shader::ShaderType shaderType, 
+        const String &name)
     {
-        return smart_pointer_cast<Shader>(ResourceManager::load(name, 0));
+        return smart_pointer_cast<Shader>(ResourceManager::load(name, 1, 
+            shaderType));
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderPtr ShaderManager::loadShader(Shader::ShaderType shaderType, 
+        const String &name, const String &content)
+    {
+        return smart_pointer_cast<Shader>(ResourceManager::load(name, 2, 
+            shaderType, content.c_str()));
     }
 
     //--------------------------------------------------------------------------
@@ -80,12 +91,26 @@ namespace Tiny3D
     ResourcePtr ShaderManager::create(const String &name, int32_t argc,
         va_list args)
     {
-        if (mCreator == nullptr)
-        {
-            return nullptr;
-        }
+        ShaderPtr shader;
 
-        ShaderPtr shader = mCreator->createObject(1, name.c_str());
+        do 
+        {
+            if (mCreator == nullptr)
+                break;
+
+            if (argc == 1)
+            {
+                Shader::ShaderType shaderType = va_arg(args, Shader::ShaderType);
+                shader = mCreator->createObject(2, shaderType, name.c_str());
+            }
+            else if (argc == 2)
+            {
+                Shader::ShaderType shaderType = va_arg(args, Shader::ShaderType);
+                String content = va_arg(args, char *);
+                shader = mCreator->createObject(3, shaderType, name.c_str(), content.c_str());
+            }
+        } while (0);        
+
         return shader;
     }
 
