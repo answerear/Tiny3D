@@ -85,6 +85,10 @@ namespace Tiny3D
          * @see TResult HardwareVertexBuffer::unlockImpl()
          */
         virtual TResult unlockImpl() override;
+
+    protected:
+        ID3D11Buffer    *mD3DBuffer;
+
     };
 }
 

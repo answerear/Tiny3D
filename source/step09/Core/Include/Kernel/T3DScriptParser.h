@@ -18,36 +18,26 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_MAPPINGS_H__
-#define __T3D_D3D11_MAPPINGS_H__
+#ifndef __T3D_SCRIPT_PARSER_H__
+#define __T3D_SCRIPT_PARSER_H__
 
 
-#include "T3DD3D11Prerequisites.h"
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
+#include "Kernel/T3DObject.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * @brief Tiny3D 和 DirectX 11 之间常量的映射转换
-     */
-    class D3D11Mappings
+    class T3D_ENGINE_API ScriptParser : public Singleton<ScriptParser>
     {
     public:
-        static const char * const POSITION;
-        static const char * const BLENDWEIGHT;
-        static const char * const BLENDINDICES;
-        static const char * const NORMAL;
-        static const char * const COLOR;
-        static const char * const TEXCOORD;
-        static const char * const TANGENT;
-        static const char * const BINORMAL;
+        ScriptParser();
+        ~ScriptParser();
 
-        static const char *get(VertexAttribute::Semantic semantic);
-        static DXGI_FORMAT get(VertexAttribute::Type type);
-        static D3D11_USAGE get(HardwareBuffer::Usage usage);
 
     };
 }
 
 
-#endif  /*__T3D_D3D11_MAPPINGS_H__*/
+#endif  /*__T3D_SCRIPT_PARSER_H__*/

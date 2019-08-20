@@ -38,7 +38,8 @@ namespace Tiny3D
         T3D_ERR_D3D11_CREATE_PIXEL_SHADER,               /**< 创建像素着色器失败 */
         T3D_ERR_D3D11_SHADER_NOT_COMPILED,               /**< Shader 没有编译 */
         T3D_ERR_D3D11_SHADER_COMPILED,                   /**< Shader 编译失败 */
-        T3D_ERR_D3D11_CREATE_INPUT_LAYOUT,               /**< */
+        T3D_ERR_D3D11_CREATE_INPUT_LAYOUT,               /**< 创建输入布局失败 */
+        T3D_ERR_D3D11_CREATE_BUFFER,                     /**< 创建缓冲区失败 */
     };
 }
 
