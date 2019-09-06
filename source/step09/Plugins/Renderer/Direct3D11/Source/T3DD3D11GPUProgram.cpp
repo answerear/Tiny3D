@@ -60,6 +60,13 @@ namespace Tiny3D
 
         do 
         {
+            if (!vertexShader->hasCompiled() || !pixelShader->hasCompiled())
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Shader has not compiled !");
+                ret = T3D_ERR_D3D11_SHADER_NOT_COMPILED;
+                break;
+            }
+
             mVertexShader = vertexShader;
             mPixelShader = pixelShader;
             mHasLinked = true;
