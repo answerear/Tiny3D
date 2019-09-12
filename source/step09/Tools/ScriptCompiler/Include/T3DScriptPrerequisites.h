@@ -27,6 +27,7 @@
 #include <T3DMathLib.h>
 #include <memory>
 #include <unordered_map>
+#include <ShaderConductor.hpp>
 
 
 #endif  /*__T3D_SCRIPT_PREREQUISITES_H__*/
