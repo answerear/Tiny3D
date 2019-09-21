@@ -5132,7 +5132,7 @@ namespace Tiny3D
             {
                 ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                     "name or index and parameter type expected");
-                return;
+                return 0;
             }
 
             AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
@@ -5140,7 +5140,7 @@ namespace Tiny3D
             {
                 ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
                     "parameter index expected");
-                return;
+                return 0;
             }
 
             String name;
@@ -5202,27 +5202,6 @@ namespace Tiny3D
             }
             else if (atom1->value == "atomic_counter")
             {
-                //								String s;
-                //								if (getString(*k, &s))
-                //								{
-                //									try
-                //									{
-                //										if (named)
-                //											params->setNamedSubroutine(name, s);
-                //										else
-                //											params->setSubroutine(index, s);
-                //									}
-                //									catch(...)
-                //									{
-                //										ScriptError::printError(CERR_INVALIDPARAMETERS, prop->file, prop->line,
-                //                                                           "setting subroutine parameter failed");
-                //									}
-                //								}
-                //								else
-                //								{
-                //									ScriptError::printError(CERR_STRINGEXPECTED, prop->file, prop->line,
-                //                                                       "incorrect subroutine declaration");
-                //								}
             }
             else
             {
@@ -5358,20 +5337,20 @@ namespace Tiny3D
             {
                 ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                     "name or index and auto constant type expected");
-                return;
+                return 0;
             }
             AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
             if (!named && !StringConverter::isNumber(atom0->value))
             {
                 ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
                     "parameter index expected");
-                return;
+                return 0;
             }
 
             if (named)
                 name = atom0->value;
             else
-                index = StringConverter::parseInt(atom0->value);
+                index = StringConverter::parseInt32(atom0->value);
 
             // Look up the auto constant
             StringUtil::toLowerCase(atom1->value);
