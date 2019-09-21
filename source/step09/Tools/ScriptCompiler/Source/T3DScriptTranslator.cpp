@@ -1103,40 +1103,8 @@ namespace Tiny3D
             }
             else if ((*i)->type == ANT_OBJECT)
             {
-                ObjectAbstractNode *child = reinterpret_cast<ObjectAbstractNode*>((*i).get());
-                switch (child->id)
-                {
-                case ID_FRAGMENT_PROGRAM_REF:
-//                     translateFragmentProgramRef(compiler, child);
-                    break;
-                case ID_VERTEX_PROGRAM_REF:
-//                     translateVertexProgramRef(compiler, child);
-                    break;
-                case ID_GEOMETRY_PROGRAM_REF:
-//                     translateGeometryProgramRef(compiler, child);
-                    break;
-                case ID_TESSELLATION_HULL_PROGRAM_REF:
-//                     translateTessellationHullProgramRef(compiler, child);
-                    break;
-                case ID_TESSELLATION_DOMAIN_PROGRAM_REF:
-//                     translateTessellationDomainProgramRef(compiler, child);
-                    break;
-                case ID_COMPUTE_PROGRAM_REF:
-//                     translateComputeProgramRef(compiler, child);
-                    break;
-                case ID_SHADOW_CASTER_VERTEX_PROGRAM_REF:
-//                     translateShadowCasterVertexProgramRef(compiler, child);
-                    break;
-                case ID_SHADOW_CASTER_FRAGMENT_PROGRAM_REF:
-//                     translateShadowCasterFragmentProgramRef(compiler, child);
-                    break;
-                default:
-                    {
-                        bytesOfWritten = processNode(compiler, stream, *i);
-                        totalBytes += bytesOfWritten;
-                    }
-                    break;
-                }
+                bytesOfWritten = processNode(compiler, stream, *i);
+                totalBytes += bytesOfWritten;
             }
         }
 
@@ -5038,6 +5006,554 @@ namespace Tiny3D
         }
 
         return bytesOfWritten;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t GPUProgramTranslator::translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node)
+    {
+        size_t totalBytes = 0;
+
+        ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
+
+        switch (obj->id)
+        {
+        case ID_VERTEX_PROGRAM_REF:
+        case ID_FRAGMENT_PROGRAM_REF:
+        case ID_GEOMETRY_PROGRAM_REF:
+        case ID_TESSELLATION_HULL_PROGRAM_REF:
+        case ID_TESSELLATION_DOMAIN_PROGRAM_REF:
+        case ID_COMPUTE_PROGRAM_REF:
+        case ID_SHADOW_CASTER_VERTEX_PROGRAM_REF:
+        case ID_SHADOW_CASTER_FRAGMENT_PROGRAM_REF:
+            totalBytes = translateGPUProgramRef(compiler, stream, obj);
+            break;
+        default:
+            break;
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t GPUProgramTranslator::translateGPUProgramRef(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        // 对象头数据
+        bytesOfWritten = translateObjectHeader(obj, stream);
+        totalBytes += bytesOfWritten;
+
+        // Set the properties for the material
+        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        {
+            if ((*i)->type == ANT_PROPERTY)
+            {
+                PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
+
+                // ID
+                uint16_t id = prop->id;
+                bytesOfWritten = stream.write(&id, sizeof(id));
+                totalBytes += bytesOfWritten;
+
+                // 属性
+                switch (prop->id)
+                {
+                case ID_SHARED_PARAMS_REF:
+                    bytesOfWritten = translateSharedParamRef(prop, stream);
+                    totalBytes += bytesOfWritten;
+                    break;
+                case ID_PARAM_INDEXED:
+                case ID_PARAM_NAMED:
+                    bytesOfWritten = translateParamIndexed(prop, stream);
+                    totalBytes += bytesOfWritten;
+                    break;
+                case ID_PARAM_INDEXED_AUTO:
+                case ID_PARAM_NAMED_AUTO:
+                    bytesOfWritten = translateParamIndexedAuto(prop, stream);
+                    totalBytes += bytesOfWritten;
+                    break;
+                default:
+                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
+                        "token \"" + prop->name + "\" is not recognized");
+                }
+            }
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t GPUProgramTranslator::translateSharedParamRef(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.size() != 1)
+        {
+            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                "shared_params_ref requires a single parameter");
+            return 0;
+        }
+
+        AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+        if ((*i0)->type != ANT_ATOM)
+        {
+            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                "shared parameter set name expected");
+            return 0;
+        }
+
+        AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get();
+        uint16_t id = atom0->id;
+        bytesOfWritten = stream.write(&id, sizeof(id));
+        totalBytes += bytesOfWritten;
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t GPUProgramTranslator::translateParamIndexed(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.size() >= 3)
+        {
+            bool named = (prop->id == ID_PARAM_NAMED);
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1),
+                k = getNodeAt(prop->values, 2);
+
+            if ((*i0)->type != ANT_ATOM || (*i1)->type != ANT_ATOM)
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    "name or index and parameter type expected");
+                return;
+            }
+
+            AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
+            if (!named && !StringConverter::isNumber(atom0->value))
+            {
+                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                    "parameter index expected");
+                return;
+            }
+
+            String name;
+            size_t index = 0;
+            // Assign the name/index
+            if (named)
+                name = atom0->value;
+            else
+                index = StringConverter::parseInt32(atom0->value);
+
+            // Determine the type
+            if (atom1->value == "matrix4x4")
+            {
+                Matrix4 m;
+                if (getMatrix4(k, prop->values.end(), &m))
+                {
+                    try
+                    {
+                        if (named)
+                            params->setNamedConstant(name, m);
+                        else
+                            params->setConstant(index, m);
+                    }
+                    catch (...)
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            "setting matrix4x4 parameter failed");
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                        "incorrect matrix4x4 declaration");
+                }
+            }
+            else if (atom1->value == "subroutine")
+            {
+                String s;
+                if (getString(*k, &s))
+                {
+                    try
+                    {
+                        if (named)
+                            params->setNamedSubroutine(name, s);
+                        else
+                            params->setSubroutine(index, s);
+                    }
+                    catch (...)
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            "setting subroutine parameter failed");
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
+                        "incorrect subroutine declaration");
+                }
+            }
+            else if (atom1->value == "atomic_counter")
+            {
+                //								String s;
+                //								if (getString(*k, &s))
+                //								{
+                //									try
+                //									{
+                //										if (named)
+                //											params->setNamedSubroutine(name, s);
+                //										else
+                //											params->setSubroutine(index, s);
+                //									}
+                //									catch(...)
+                //									{
+                //										ScriptError::printError(CERR_INVALIDPARAMETERS, prop->file, prop->line,
+                //                                                           "setting subroutine parameter failed");
+                //									}
+                //								}
+                //								else
+                //								{
+                //									ScriptError::printError(CERR_STRINGEXPECTED, prop->file, prop->line,
+                //                                                       "incorrect subroutine declaration");
+                //								}
+            }
+            else
+            {
+                // Find the number of parameters
+                bool isValid = true;
+                GpuProgramParameters::ElementType type = GpuProgramParameters::ET_REAL;
+                int count = 0;
+                if (atom1->value.find("float") != String::npos || atom1->value.find("double") != String::npos)
+                {
+                    type = GpuProgramParameters::ET_REAL;
+                    if (atom1->value.size() >= 6)
+                        count = StringConverter::parseInt(atom1->value.substr(5));
+                    else
+                    {
+                        count = 1;
+                    }
+                }
+                else if (atom1->value.find("int") != String::npos)
+                {
+                    type = GpuProgramParameters::ET_INT;
+                    if (atom1->value.size() >= 4)
+                        count = StringConverter::parseInt(atom1->value.substr(3));
+                    else
+                    {
+                        count = 1;
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                        "incorrect type specified; only variants of int and float allowed");
+                    isValid = false;
+                }
+
+                if (isValid)
+                {
+                    // First, clear out any offending auto constants
+                    if (named)
+                        params->clearNamedAutoConstant(name);
+                    else
+                        params->clearAutoConstant(index);
+
+                    int roundedCount = count % 4 != 0 ? count + 4 - (count % 4) : count;
+                    if (type == GpuProgramParameters::ET_INT)
+                    {
+                        int *vals = OGRE_ALLOC_T(int, roundedCount, MEMCATEGORY_SCRIPTING);
+                        if (getInts(k, prop->values.end(), vals, roundedCount))
+                        {
+                            try
+                            {
+                                if (named)
+                                    params->setNamedConstant(name, vals, count, 1);
+                                else
+                                    params->setConstant(index, vals, roundedCount / 4);
+                            }
+                            catch (...)
+                            {
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                    "setting of constant failed");
+                            }
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                                "incorrect integer constant declaration");
+                        }
+                        OGRE_FREE(vals, MEMCATEGORY_SCRIPTING);
+                    }
+                    else
+                    {
+                        float *vals = OGRE_ALLOC_T(float, roundedCount, MEMCATEGORY_SCRIPTING);
+                        if (getFloats(k, prop->values.end(), vals, roundedCount))
+                        {
+                            try
+                            {
+                                if (named)
+                                    params->setNamedConstant(name, vals, count, 1);
+                                else
+                                    params->setConstant(index, vals, roundedCount / 4);
+                            }
+                            catch (...)
+                            {
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                    "setting of constant failed");
+                            }
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                                "incorrect float constant declaration");
+                        }
+                        OGRE_FREE(vals, MEMCATEGORY_SCRIPTING);
+                    }
+                }
+            }
+        }
+        else
+        {
+            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                "param_named and param_indexed properties requires at least 3 arguments");
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t GPUProgramTranslator::translateParamNamed(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t GPUProgramTranslator::translateParamIndexedAuto(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        bool named = (prop->id == ID_PARAM_NAMED_AUTO);
+        String name;
+
+        if (prop->values.size() >= 2)
+        {
+            size_t index = 0;
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
+                i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2), i3 = getNodeAt(prop->values, 3);
+            if ((*i0)->type != ANT_ATOM || (*i1)->type != ANT_ATOM)
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    "name or index and auto constant type expected");
+                return;
+            }
+            AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
+            if (!named && !StringConverter::isNumber(atom0->value))
+            {
+                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                    "parameter index expected");
+                return;
+            }
+
+            if (named)
+                name = atom0->value;
+            else
+                index = StringConverter::parseInt(atom0->value);
+
+            // Look up the auto constant
+            StringUtil::toLowerCase(atom1->value);
+            const GpuProgramParameters::AutoConstantDefinition *def =
+                GpuProgramParameters::getAutoConstantDefinition(atom1->value);
+            if (def)
+            {
+                switch (def->dataType)
+                {
+                case GpuProgramParameters::ACDT_NONE:
+                    // Set the auto constant
+                    try
+                    {
+                        if (named)
+                            params->setNamedAutoConstant(name, def->acType);
+                        else
+                            params->setAutoConstant(index, def->acType);
+                    }
+                    catch (...)
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            "setting of constant failed");
+                    }
+                    break;
+                case GpuProgramParameters::ACDT_INT:
+                    if (def->acType == GpuProgramParameters::ACT_ANIMATION_PARAMETRIC)
+                    {
+                        try
+                        {
+                            if (named)
+                                params->setNamedAutoConstant(name, def->acType, animParametricsCount++);
+                            else
+                                params->setAutoConstant(index, def->acType, animParametricsCount++);
+                        }
+                        catch (...)
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                "setting of constant failed");
+                        }
+                    }
+                    else
+                    {
+                        // Only certain texture projection auto params will assume 0
+                        // Otherwise we will expect that 3rd parameter
+                        if (i2 == prop->values.end())
+                        {
+                            if (def->acType == GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX ||
+                                def->acType == GpuProgramParameters::ACT_TEXTURE_WORLDVIEWPROJ_MATRIX ||
+                                def->acType == GpuProgramParameters::ACT_SPOTLIGHT_VIEWPROJ_MATRIX ||
+                                def->acType == GpuProgramParameters::ACT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX
+                                )
+                            {
+                                try
+                                {
+                                    if (named)
+                                        params->setNamedAutoConstant(name, def->acType, 0);
+                                    else
+                                        params->setAutoConstant(index, def->acType, 0);
+                                }
+                                catch (...)
+                                {
+                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                        "setting of constant failed");
+                                }
+                            }
+                            else
+                            {
+                                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                                    "extra parameters required by constant definition " + atom1->value);
+                            }
+                        }
+                        else
+                        {
+                            bool success = false;
+                            uint32 extraInfo = 0;
+                            if (i3 == prop->values.end())
+                            { // Handle only one extra value
+                                if (getUInt(*i2, &extraInfo))
+                                {
+                                    success = true;
+                                }
+                            }
+                            else
+                            { // Handle two extra values
+                                uint32 extraInfo1 = 0, extraInfo2 = 0;
+                                if (getUInt(*i2, &extraInfo1) && getUInt(*i3, &extraInfo2))
+                                {
+                                    extraInfo = extraInfo1 | (extraInfo2 << 16);
+                                    success = true;
+                                }
+                            }
+
+                            if (success)
+                            {
+                                try
+                                {
+                                    if (named)
+                                        params->setNamedAutoConstant(name, def->acType, extraInfo);
+                                    else
+                                        params->setAutoConstant(index, def->acType, extraInfo);
+                                }
+                                catch (...)
+                                {
+                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                        "setting of constant failed");
+                                }
+                            }
+                            else
+                            {
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                    "invalid auto constant extra info parameter");
+                            }
+                        }
+                    }
+                    break;
+                case GpuProgramParameters::ACDT_REAL:
+                    if (def->acType == GpuProgramParameters::ACT_TIME ||
+                        def->acType == GpuProgramParameters::ACT_FRAME_TIME)
+                    {
+                        Real f = 1.0f;
+                        if (i2 != prop->values.end())
+                            getSingle(*i2, &f);
+
+                        try
+                        {
+                            if (named)
+                                params->setNamedAutoConstantReal(name, def->acType, f);
+                            else
+                                params->setAutoConstantReal(index, def->acType, f);
+                        }
+                        catch (...)
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                "setting of constant failed");
+                        }
+                    }
+                    else
+                    {
+                        if (i2 != prop->values.end())
+                        {
+                            Real extraInfo = 0.0f;
+                            if (getSingle(*i2, &extraInfo))
+                            {
+                                try
+                                {
+                                    if (named)
+                                        params->setNamedAutoConstantReal(name, def->acType, extraInfo);
+                                    else
+                                        params->setAutoConstantReal(index, def->acType, extraInfo);
+                                }
+                                catch (...)
+                                {
+                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                        "setting of constant failed");
+                                }
+                            }
+                            else
+                            {
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                    "incorrect float argument definition in extra parameters");
+                            }
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                                "extra parameters required by constant definition " + atom1->value);
+                        }
+                    }
+                    break;
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+            }
+        }
+        else
+        {
+            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+        }
+
+        return totalBytes;
     }
 }
 

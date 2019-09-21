@@ -188,6 +188,21 @@ namespace Tiny3D
         size_t translateMaxAnisotropy(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateMipmapBias(PropertyAbstractNode *prop, DataStream &stream);
     };
+
+    //--------------------------------------------------------------------------
+
+    class GPUProgramTranslator : public ScriptTranslator
+    {
+    public:
+        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
+
+    protected:
+        size_t translateGPUProgramRef(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj);
+        size_t translateSharedParamRef(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateParamIndexed(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateParamNamed(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateParamIndexedAuto(PropertyAbstractNode *prop, DataStream &stream);
+    };
 }
 
 

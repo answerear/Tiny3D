@@ -103,6 +103,17 @@ namespace Tiny3D
             {
                 translator = mSamplerTranslator;
             }
+            else if (obj->id == ID_VERTEX_PROGRAM_REF
+                || obj->id == ID_FRAGMENT_PROGRAM_REF
+                || obj->id == ID_GEOMETRY_PROGRAM_REF
+                || obj->id == ID_TESSELLATION_HULL_PROGRAM_REF
+                || obj->id == ID_TESSELLATION_DOMAIN_PROGRAM_REF
+                || obj->id == ID_COMPUTE_PROGRAM_REF
+                || obj->id == ID_SHADOW_CASTER_VERTEX_PROGRAM_REF
+                || obj->id == ID_SHADOW_CASTER_FRAGMENT_PROGRAM_REF)
+            {
+                translator = mGPUTransltor;
+            }
         }
         else if (node->type == ANT_PROPERTY)
         {

@@ -31,6 +31,7 @@ namespace Tiny3D
     class ScriptParser;
     class ScriptTranslator;
     class SamplerTranslator;
+    class GPUProgramTranslator;
 
     class ScriptCompiler
     {
@@ -207,21 +208,22 @@ namespace Tiny3D
         typedef std::map<String, AbstractNodeListPtr> ImportCacheMap;
         typedef std::multimap<String, String> ImportRequestMap;
 
-        Environment         mEnv;
-        ImportCacheMap      mImports;
-        ImportRequestMap    mImportRequests;
-        AbstractNodeList    mImportTable;
+        Environment             mEnv;
+        ImportCacheMap          mImports;
+        ImportRequestMap        mImportRequests;
+        AbstractNodeList        mImportTable;
 
-        ScriptTranslator    *mMaterialTranslator;
-        ScriptTranslator    *mTechniqueTranslator;
-        ScriptTranslator    *mPassTranslator;
-        ScriptTranslator    *mTexUnitTranslator;
-        SamplerTranslator   *mSamplerTranslator;
+        ScriptTranslator        *mMaterialTranslator;
+        ScriptTranslator        *mTechniqueTranslator;
+        ScriptTranslator        *mPassTranslator;
+        ScriptTranslator        *mTexUnitTranslator;
+        SamplerTranslator       *mSamplerTranslator;
+        GPUProgramTranslator    *mGPUTransltor;
 
-        ScriptLexer         *mLexer;
-        ScriptParser        *mParser;
+        ScriptLexer             *mLexer;
+        ScriptParser            *mParser;
 
-        String              mProjDir;   /**< 当前编译文件路径 */
+        String                  mProjDir;   /**< 当前编译文件路径 */
     };
 }
 
