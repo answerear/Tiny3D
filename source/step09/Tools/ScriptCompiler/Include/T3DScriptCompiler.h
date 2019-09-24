@@ -109,6 +109,17 @@ namespace Tiny3D
         bool compile(int32_t argc, const char *argv[]);
 
         /**
+         * @brief 转换着色器语言到目标平台语言
+         * @param [in] source : 着色器源码文件
+         * @param [in] target : 目标平台
+         * @param [in] stage : 渲染阶段
+         * @param [in] entry : 着色器程序入口
+         * @return 转换成功返回true
+         */
+        bool translate(ObjectAbstractNode *obj, const String &source,
+            const String &target, const String &stage, const String &entry);
+
+        /**
          * @brief 获取对应结点翻译器
          */
         ScriptTranslator *getTranslator(const AbstractNodePtr &node) const;
@@ -225,6 +236,7 @@ namespace Tiny3D
         ScriptParser            *mParser;
 
         String                  mProjDir;   /**< 当前编译文件路径 */
+        String                  mOutDir;
     };
 }
 

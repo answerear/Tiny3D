@@ -22,7 +22,9 @@ elseif (TINY3D_OS_LINUX)
 	set(SHADERCONDUCTOR_LIB_SUFFIXES "prebuilt/Linux")
 endif (TINY3D_OS_WINDOWS)
 	
-find_package(shaderConductor)
+find_package(ShaderConductor)
+
+message(STATUS "${SHADERCONDUCTOR_LIBRARY}")
 
 # Setup project include files path
 include_directories(

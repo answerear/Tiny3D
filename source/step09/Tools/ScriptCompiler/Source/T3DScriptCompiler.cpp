@@ -361,11 +361,13 @@ namespace Tiny3D
                 {
                     output = opt.outDir + "/" + title + ".tsc";
                     outDir = opt.outDir;
+                    mOutDir = outDir;
                 }
                 else
                 {
                     output = path + "/" + title + ".tsc";
                     outDir = path;
+                    mOutDir = path;
                 }
 
                 ret = compile(input, output);
@@ -1497,6 +1499,145 @@ namespace Tiny3D
             title = filename.substr(0, pos);
             ext = filename.substr(pos+1);
         }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptCompiler::translate(ObjectAbstractNode *obj,
+        const String &source, const String &target, const String &stage, 
+        const String &entry)
+    {
+        bool ret = false;
+
+        do 
+        {
+            String filename = source;
+
+            using namespace ShaderConductor;
+
+            Compiler::SourceDesc sourceDesc{};
+            Compiler::TargetDesc targetDesc{};
+
+            // Stage
+            if (stage == "vs")
+            {
+                sourceDesc.stage = ShaderStage::VertexShader;
+            }
+            else if (stage == "ps")
+            {
+                sourceDesc.stage = ShaderStage::PixelShader;
+            }
+            else if (stage == "gs")
+            {
+                sourceDesc.stage = ShaderStage::GeometryShader;
+            }
+            else if (stage == "hs")
+            {
+                sourceDesc.stage = ShaderStage::HullShader;
+            }
+            else if (stage == "ds")
+            {
+                sourceDesc.stage = ShaderStage::DomainShader;
+            }
+            else if (stage == "cs")
+            {
+                sourceDesc.stage = ShaderStage::ComputeShader;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, obj->name,
+                    obj->file, obj->line, "Invalid shading stage !");
+                break;
+            }
+
+            // Entry
+            sourceDesc.entryPoint = entry.c_str();
+
+            // Target
+            if (target == "dxil")
+            {
+                targetDesc.language = ShadingLanguage::Dxil;
+            }
+            else if (target == "spirv")
+            {
+                targetDesc.language = ShadingLanguage::SpirV;
+            }
+            else if (target == "hlsl")
+            {
+                targetDesc.language = ShadingLanguage::Hlsl;
+            }
+            else if (target == "glsl")
+            {
+                targetDesc.language = ShadingLanguage::Glsl;
+            }
+            else if (target == "essl")
+            {
+                targetDesc.language = ShadingLanguage::Essl;
+            }
+            else if (target == "msl_macos")
+            {
+                targetDesc.language = ShadingLanguage::Msl_macOS;
+            }
+            else if (target == "msl_ios")
+            {
+                targetDesc.language = ShadingLanguage::Msl_iOS;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, obj->name,
+                    obj->file, obj->line, "Invalid target shading language !");
+                break;
+            }
+
+            // Read source file content
+            String inpath = mProjDir + Dir::getNativeSeparator() + source;
+
+            FileDataStream infile;
+
+            if (!infile.open(inpath.c_str(), FileDataStream::E_MODE_READ_ONLY|FileDataStream::E_MODE_TEXT))
+            {
+                break;
+            }
+
+            String content;
+            content.resize(infile.size());
+            infile.read(&content[0], content.size());
+            infile.close();
+
+            sourceDesc.source = content.c_str();
+
+            const auto result = Compiler::Compile(sourceDesc, {}, targetDesc);
+
+            if (result.errorWarningMsg != nullptr)
+            {
+                const char* msg = reinterpret_cast<const char*>(result.errorWarningMsg->Data());
+                T3D_LOG_ERROR("Compiler", "Error or warning form shader compiler: ", std::string(msg, msg + result.errorWarningMsg->Size()).c_str());
+            }
+
+            if (result.target != nullptr)
+            {
+                String outpath = mOutDir + Dir::getNativeSeparator() + source + "_" + target + "." + stage;
+
+                FileDataStream outfile;
+
+                if (!outfile.open(outpath.c_str(), FileDataStream::E_MODE_TRUNCATE))
+                {
+                    DestroyBlob(result.errorWarningMsg);
+                    DestroyBlob(result.target);
+                    break;
+                }
+
+                outfile.write((void*)result.target->Data(), result.target->Size());
+                outfile.close();
+            }
+
+            DestroyBlob(result.errorWarningMsg);
+            DestroyBlob(result.target);
+
+            ret = true;
+        } while (0);
+
+        return ret;
     }
 }
 

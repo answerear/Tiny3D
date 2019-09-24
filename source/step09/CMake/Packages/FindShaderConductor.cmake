@@ -28,7 +28,7 @@ message(STATUS "${SHADERCONDUCTOR_BINARY}")
 SET(SHADERCONDUCTOR_FOUND "NO")
 IF(SHADERCONDUCTOR_LIBRARY_TEMP)
   # Set the final string here so the GUI reflects the final state.
-  SET(SHADERCONDUCTOR_LIBRARY ${FREEIMAGE_LIBRARY_TEMP} CACHE STRING "Where the ShaderConductor Library can be found")
+  SET(SHADERCONDUCTOR_LIBRARY ${SHADERCONDUCTOR_LIBRARY_TEMP} CACHE STRING "Where the ShaderConductor Library can be found")
   # Set the temp variable to INTERNAL so it is not seen in the CMake GUI
   SET(SHADERCONDUCTOR_LIBRARY_TEMP "${SHADERCONDUCTOR_LIBRARY_TEMP}" CACHE INTERNAL "")
 

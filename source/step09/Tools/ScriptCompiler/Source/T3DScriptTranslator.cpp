@@ -5646,6 +5646,8 @@ namespace Tiny3D
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
 
+        String source, target, entry, stage;
+
         // Set the properties for the material
         for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
         {
@@ -5669,6 +5671,7 @@ namespace Tiny3D
                         {
                             bytesOfWritten = writeString(str, stream);
                             totalBytes += bytesOfWritten;
+                            source = str;
                         }
                         else
                         {
@@ -5683,6 +5686,7 @@ namespace Tiny3D
                         {
                             bytesOfWritten = writeString(str, stream);
                             totalBytes += bytesOfWritten;
+                            target = str;
                         }
                         else
                         {
@@ -5697,6 +5701,7 @@ namespace Tiny3D
                         {
                             bytesOfWritten = writeString(str, stream);
                             totalBytes += bytesOfWritten;
+                            entry = str;
                         }
                         else
                         {
@@ -5711,6 +5716,7 @@ namespace Tiny3D
                         {
                             bytesOfWritten = writeString(str, stream);
                             totalBytes += bytesOfWritten;
+                            stage = str;
                         }
                         else
                         {
@@ -5725,6 +5731,11 @@ namespace Tiny3D
                     break;
                 }
             }
+        }
+
+        if (!compiler->translate(obj, source, target, stage, entry))
+        {
+            totalBytes = 0;
         }
 
         return totalBytes;
