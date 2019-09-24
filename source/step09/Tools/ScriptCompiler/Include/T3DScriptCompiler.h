@@ -89,6 +89,7 @@ namespace Tiny3D
             String      projDir;    /// 工程目录
             String      outDir;     /// 输出文件夹路径
             String      outFile;    /// 连接输出成一个文件时使用的文件名
+            String      target;     /// 目标输出平台
         };
 
     public:

@@ -103,6 +103,15 @@ namespace Tiny3D
             {
                 translator = mSamplerTranslator;
             }
+            else if (obj->id == ID_FRAGMENT_PROGRAM ||
+                obj->id == ID_VERTEX_PROGRAM ||
+                obj->id == ID_GEOMETRY_PROGRAM ||
+                obj->id == ID_TESSELLATION_HULL_PROGRAM ||
+                obj->id == ID_TESSELLATION_DOMAIN_PROGRAM ||
+                obj->id == ID_COMPUTE_PROGRAM)
+            {
+                translator = mGPUTransltor;
+            }
             else if (obj->id == ID_VERTEX_PROGRAM_REF
                 || obj->id == ID_FRAGMENT_PROGRAM_REF
                 || obj->id == ID_GEOMETRY_PROGRAM_REF
@@ -176,7 +185,9 @@ namespace Tiny3D
     void ScriptCompiler::printUsage()
     {
         printf("Usage : ");
-        printf("  scc input_files [options]");
+        printf("  scc input_files -t target [options]");
+        printf("    input_files : The source file.");
+        printf("    -t : Target shading language : glsl, hlsl, essl, dxil, spirv, msl_macos, msl_ios");
         printf("    Options : ");
         printf("      -v : Print version.");
         printf("      -h : Print help.");
@@ -270,6 +281,19 @@ namespace Tiny3D
 
                     ++i;
                     opt.outDir = argv[i];
+                }
+                else if (stricmp(argv[i], "-t") == 0)
+                {
+                    if (argc - 1 == i)
+                    {
+                        // 参数不够
+                        T3D_LOG_ERROR(LOG_TAG, "Missing linking file name (*.tsc) !");
+                        ret = false;
+                        break;
+                    }
+
+                    ++i;
+                    opt.target = argv[i];
                 }
                 else
                 {
@@ -1166,6 +1190,9 @@ namespace Tiny3D
         mIds["set_texture_alias"] = ID_SET_TEXTURE_ALIAS;
 
         mIds["source"] = ID_SOURCE;
+        mIds["target"] = ID_TARGET;
+        mIds["entry_point"] = ID_ENTRY_POINT;
+        mIds["stage"] = ID_STAGE;
         mIds["syntax"] = ID_SYNTAX;
         mIds["default_params"] = ID_DEFAULT_PARAMS;
         mIds["param_indexed"] = ID_PARAM_INDEXED;

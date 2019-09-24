@@ -58,9 +58,13 @@ namespace Tiny3D
         bool getHex(const AbstractNodePtr &node, uint32_t *result);
         bool getColor(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, ColorARGB *result, int32_t maxEntries = 4);
         bool getMatrix4(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, Matrix4 *m);
+        bool getInts(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, int *vals, int count);
+        bool getSingles(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, float *vals, int count);
+        BuiltinType getBuiltinType(const String &name);
 
         size_t writeString(const String &str, DataStream &stream);
         size_t writeColor(const ColorARGB &clr, DataStream &stream);
+        size_t writeMatrix4(const Matrix4 &m, DataStream &stream);
     };
 
     //--------------------------------------------------------------------------
@@ -194,14 +198,26 @@ namespace Tiny3D
     class GPUProgramTranslator : public ScriptTranslator
     {
     public:
+        GPUProgramTranslator();
+
         virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
 
     protected:
+        size_t translateGPUProgram(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj);
+
         size_t translateGPUProgramRef(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj);
         size_t translateSharedParamRef(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateParamIndexed(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateParamNamed(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateParamIndexedAuto(PropertyAbstractNode *prop, DataStream &stream);
+
+        void constructBuiltinConstantMap();
+
+        typedef std::map<String, BuiltinConstantDefinition> BuiltinConstantMap;
+        typedef BuiltinConstantMap::iterator                BuiltinConstantMapItr;
+        typedef BuiltinConstantMap::const_iterator          BuiltinConstantMapConstItr;
+        typedef BuiltinConstantMap::value_type              BuiltinConstantMapValue;
+
+        BuiltinConstantMap   mBuiltinConstantMap;
     };
 }
 

@@ -224,6 +224,8 @@ namespace Tiny3D
         return (n >= 3 || n == maxEntries);
     }
 
+    //--------------------------------------------------------------------------
+
     bool ScriptTranslator::getMatrix4(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, Matrix4 *m)
     {
         int n = 0;
@@ -249,6 +251,83 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool ScriptTranslator::getInts(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, int *vals, int count)
+    {
+        bool success = true;
+        int n = 0;
+        while (n < count)
+        {
+            if (i != end)
+            {
+                int v = 0;
+                if (getInt(*i, &v))
+                    vals[n] = v;
+                else
+                    break;
+                ++i;
+            }
+            else
+                vals[n] = 0;
+            ++n;
+        }
+
+        if (n < count)
+            success = false;
+
+        return success;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptTranslator::getSingles(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, float *vals, int count)
+    {
+        bool success = true;
+        int n = 0;
+        while (n < count)
+        {
+            if (i != end)
+            {
+                float v = 0;
+                if (getSingle(*i, &v))
+                    vals[n] = v;
+                else
+                    break;
+                ++i;
+            }
+            else
+                vals[n] = 0;
+            ++n;
+        }
+
+        if (n < count)
+            success = false;
+
+        return success;
+    }
+
+    //--------------------------------------------------------------------------
+
+    BuiltinType ScriptTranslator::getBuiltinType(const String &name)
+    {
+        BuiltinType bt = BT_NONE;
+        String n = name;
+        StringUtil::toLowerCase(n);
+
+        if (n == "matrix4x4" || n == "float1" || n == "float2" || n == "float3"
+            || n == "float4")
+        {
+            bt = BT_REAL;
+        }
+        else if (n == "int1" || n == "int2" || n == "int3" || n == "int4")
+        {
+            bt = BT_INT;
+        }
+
+        return bt;
+    }
+
+    //--------------------------------------------------------------------------
+
     size_t ScriptTranslator::writeString(const String &str, DataStream &stream)
     {
         size_t bytesOfWritten = 0;
@@ -266,6 +345,8 @@ namespace Tiny3D
         return totalBytes;
     }
 
+    //--------------------------------------------------------------------------
+
     size_t ScriptTranslator::writeColor(const ColorARGB &clr, DataStream &stream)
     {
         size_t bytesOfWritten = 0;
@@ -282,6 +363,65 @@ namespace Tiny3D
         totalBytes += bytesOfWritten;
         component = clr.alpha();
         bytesOfWritten = stream.write(&component, sizeof(component));
+        totalBytes += bytesOfWritten;
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t ScriptTranslator::writeMatrix4(const Matrix4 &m, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        float val = m[0][0];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[0][1];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[0][2];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[0][3];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[1][0];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[1][1];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[1][2];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[1][3];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[2][0];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[2][1];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[2][2];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[2][3];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[3][0];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[3][1];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[3][2];
+        bytesOfWritten = stream.write(&val, sizeof(val));
+        totalBytes += bytesOfWritten;
+        val = m[3][3];
+        bytesOfWritten = stream.write(&val, sizeof(val));
         totalBytes += bytesOfWritten;
 
         return totalBytes;
@@ -4318,53 +4458,7 @@ namespace Tiny3D
         Matrix4 m;
         if (getMatrix4(prop->values.begin(), prop->values.end(), &m))
         {
-            float val = m[0][0];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[0][1];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[0][2];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[0][3];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[1][0];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[1][1];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[1][2];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[1][3];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[2][0];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[2][1];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[2][2];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[2][3];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[3][0];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[3][1];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[3][2];
-            bytesOfWritten = stream.write(&val, sizeof(val));
-            totalBytes += bytesOfWritten;
-            val = m[3][3];
-            bytesOfWritten = stream.write(&val, sizeof(val));
+            bytesOfWritten = writeMatrix4(m, stream);
             totalBytes += bytesOfWritten;
         }
         else
@@ -5010,6 +5104,165 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    GPUProgramTranslator::GPUProgramTranslator()
+    {
+        constructBuiltinConstantMap();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GPUProgramTranslator::constructBuiltinConstantMap()
+    {
+        mBuiltinConstantMap["world_matrix"] = BuiltinConstantDefinition(BCT_WORLD_MATRIX, "world_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_world_matrix"] = BuiltinConstantDefinition(BCT_INVERSE_WORLD_MATRIX, "inverse_world_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["transpose_world_matrix"] = BuiltinConstantDefinition(BCT_TRANSPOSE_WORLD_MATRIX, "transpose_world_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_transpose_world_matrix"] = BuiltinConstantDefinition(BCT_INVERSE_TRANSPOSE_WORLD_MATRIX, "inverse_transpose_world_matrix", 16, BT_REAL, BT_NONE);
+
+        mBuiltinConstantMap["world_matrix_array_3x4"] = BuiltinConstantDefinition(BCT_WORLD_MATRIX_ARRAY_3x4, "world_matrix_array_3x4", 12, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["world_matrix_array"] = BuiltinConstantDefinition(BCT_WORLD_MATRIX_ARRAY, "world_matrix_array", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["world_dualquaternion_array_2x4"] = BuiltinConstantDefinition(BCT_WORLD_DUALQUATERNION_ARRAY_2x4, "world_dualquaternion_array_2x4", 8, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["world_scale_shear_matrix_array_3x4"] = BuiltinConstantDefinition(BCT_WORLD_SCALE_SHEAR_MATRIX_ARRAY_3x4, "world_scale_shear_matrix_array_3x4", 9, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["view_matrix"] = BuiltinConstantDefinition(BCT_VIEW_MATRIX, "view_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_view_matrix"] = BuiltinConstantDefinition(BCT_INVERSE_VIEW_MATRIX, "inverse_view_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["transpose_view_matrix"] = BuiltinConstantDefinition(BCT_TRANSPOSE_VIEW_MATRIX, "transpose_view_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_transpose_view_matrix"] = BuiltinConstantDefinition(BCT_INVERSE_TRANSPOSE_VIEW_MATRIX, "inverse_transpose_view_matrix", 16, BT_REAL, BT_NONE);
+
+        mBuiltinConstantMap["projection_matrix"] = BuiltinConstantDefinition(BCT_PROJECTION_MATRIX, "projection_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_projection_matrix"] = BuiltinConstantDefinition(BCT_INVERSE_PROJECTION_MATRIX, "inverse_projection_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["transpose_projection_matrix"] = BuiltinConstantDefinition(BCT_TRANSPOSE_PROJECTION_MATRIX, "transpose_projection_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_transpose_projection_matrix"] = BuiltinConstantDefinition(BCT_INVERSE_TRANSPOSE_PROJECTION_MATRIX, "inverse_transpose_projection_matrix", 16, BT_REAL, BT_NONE);
+
+        mBuiltinConstantMap["viewproj_matrix"] = BuiltinConstantDefinition(BCT_VIEWPROJ_MATRIX, "viewproj_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_viewproj_matrix"] = BuiltinConstantDefinition(BCT_INVERSE_VIEWPROJ_MATRIX, "inverse_viewproj_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["transpose_viewproj_matrix"] = BuiltinConstantDefinition(BCT_TRANSPOSE_VIEWPROJ_MATRIX, "transpose_viewproj_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_transpose_viewproj_matrix"] = BuiltinConstantDefinition(BCT_INVERSE_TRANSPOSE_VIEWPROJ_MATRIX, "inverse_transpose_viewproj_matrix", 16, BT_REAL, BT_NONE);
+
+        mBuiltinConstantMap["worldview_matrix"] = BuiltinConstantDefinition(BCT_WORLDVIEW_MATRIX, "worldview_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_worldview_matrix"] = BuiltinConstantDefinition(BCT_INVERSE_WORLDVIEW_MATRIX, "inverse_worldview_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["transpose_worldview_matrix"] = BuiltinConstantDefinition(BCT_TRANSPOSE_WORLDVIEW_MATRIX, "transpose_worldview_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_transpose_worldview_matrix"] = BuiltinConstantDefinition(BCT_INVERSE_TRANSPOSE_WORLDVIEW_MATRIX, "inverse_transpose_worldview_matrix", 16, BT_REAL, BT_NONE);
+
+        mBuiltinConstantMap["worldviewproj_matrix"] = BuiltinConstantDefinition(BCT_WORLDVIEWPROJ_MATRIX, "worldviewproj_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_worldviewproj_matrix"] = BuiltinConstantDefinition(BCT_INVERSE_WORLDVIEWPROJ_MATRIX, "inverse_worldviewproj_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["transpose_worldviewproj_matrix"] = BuiltinConstantDefinition(BCT_TRANSPOSE_WORLDVIEWPROJ_MATRIX, "transpose_worldviewproj_matrix", 16, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_transpose_worldviewproj_matrix"] = BuiltinConstantDefinition(BCT_INVERSE_TRANSPOSE_WORLDVIEWPROJ_MATRIX, "inverse_transpose_worldviewproj_matrix", 16, BT_REAL, BT_NONE);
+
+        mBuiltinConstantMap["render_target_flipping"] = BuiltinConstantDefinition(BCT_RENDER_TARGET_FLIPPING, "render_target_flipping", 1, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["vertex_winding"] = BuiltinConstantDefinition(BCT_VERTEX_WINDING, "vertex_winding", 1, BT_REAL, BT_NONE);
+
+        mBuiltinConstantMap["fog_colour"] = BuiltinConstantDefinition(BCT_FOG_COLOUR, "fog_colour", 4, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["fog_params"] = BuiltinConstantDefinition(BCT_FOG_PARAMS, "fog_params", 4, BT_REAL, BT_NONE);
+
+        mBuiltinConstantMap["surface_ambient_colour"] = BuiltinConstantDefinition(BCT_SURFACE_AMBIENT_COLOUR, "surface_ambient_colour", 4, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["surface_diffuse_colour"] = BuiltinConstantDefinition(BCT_SURFACE_DIFFUSE_COLOUR, "surface_diffuse_colour", 4, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["surface_specular_colour"] = BuiltinConstantDefinition(BCT_SURFACE_SPECULAR_COLOUR, "surface_specular_colour", 4, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["surface_emissive_colour"] = BuiltinConstantDefinition(BCT_SURFACE_EMISSIVE_COLOUR, "surface_emissive_colour", 4, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["surface_shininess"] = BuiltinConstantDefinition(BCT_SURFACE_SHININESS, "surface_shininess", 1, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["surface_alpha_rejection_value"] = BuiltinConstantDefinition(BCT_SURFACE_ALPHA_REJECTION_VALUE, "surface_alpha_rejection_value", 1, BT_REAL, BT_NONE);
+
+        mBuiltinConstantMap["light_count"] = BuiltinConstantDefinition(BCT_LIGHT_COUNT, "light_count", 1, BT_REAL, BT_NONE);
+
+        mBuiltinConstantMap["ambient_light_colour"] = BuiltinConstantDefinition(BCT_AMBIENT_LIGHT_COLOUR, "ambient_light_colour", 4, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["light_diffuse_colour"] = BuiltinConstantDefinition(BCT_LIGHT_DIFFUSE_COLOUR, "light_diffuse_colour", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_specular_colour"] = BuiltinConstantDefinition(BCT_LIGHT_SPECULAR_COLOUR, "light_specular_colour", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_attenuation"] = BuiltinConstantDefinition(BCT_LIGHT_ATTENUATION, "light_attenuation", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["spotlight_params"] = BuiltinConstantDefinition(BCT_SPOTLIGHT_PARAMS, "spotlight_params", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_position"] = BuiltinConstantDefinition(BCT_LIGHT_POSITION, "light_position", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_position_object_space"] = BuiltinConstantDefinition(BCT_LIGHT_POSITION_OBJECT_SPACE, "light_position_object_space", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_position_view_space"] = BuiltinConstantDefinition(BCT_LIGHT_POSITION_VIEW_SPACE, "light_position_view_space", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_direction"] = BuiltinConstantDefinition(BCT_LIGHT_DIRECTION, "light_direction", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_direction_object_space"] = BuiltinConstantDefinition(BCT_LIGHT_DIRECTION_OBJECT_SPACE, "light_direction_object_space", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_direction_view_space"] = BuiltinConstantDefinition(BCT_LIGHT_DIRECTION_VIEW_SPACE, "light_direction_view_space", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_distance_object_space"] = BuiltinConstantDefinition(BCT_LIGHT_DISTANCE_OBJECT_SPACE, "light_distance_object_space", 1, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_power"] = BuiltinConstantDefinition(BCT_LIGHT_POWER_SCALE, "light_power", 1, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_diffuse_colour_power_scaled"] = BuiltinConstantDefinition(BCT_LIGHT_DIFFUSE_COLOUR_POWER_SCALED, "light_diffuse_colour_power_scaled", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_specular_colour_power_scaled"] = BuiltinConstantDefinition(BCT_LIGHT_SPECULAR_COLOUR_POWER_SCALED, "light_specular_colour_power_scaled", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_diffuse_colour_array"] = BuiltinConstantDefinition(BCT_LIGHT_DIFFUSE_COLOUR_ARRAY, "light_diffuse_colour_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_specular_colour_array"] = BuiltinConstantDefinition(BCT_LIGHT_SPECULAR_COLOUR_ARRAY, "light_specular_colour_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_diffuse_colour_power_scaled_array"] = BuiltinConstantDefinition(BCT_LIGHT_DIFFUSE_COLOUR_POWER_SCALED_ARRAY, "light_diffuse_colour_power_scaled_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_specular_colour_power_scaled_array"] = BuiltinConstantDefinition(BCT_LIGHT_SPECULAR_COLOUR_POWER_SCALED_ARRAY, "light_specular_colour_power_scaled_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_attenuation_array"] = BuiltinConstantDefinition(BCT_LIGHT_ATTENUATION_ARRAY, "light_attenuation_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_position_array"] = BuiltinConstantDefinition(BCT_LIGHT_POSITION_ARRAY, "light_position_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_position_object_space_array"] = BuiltinConstantDefinition(BCT_LIGHT_POSITION_OBJECT_SPACE_ARRAY, "light_position_object_space_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_position_view_space_array"] = BuiltinConstantDefinition(BCT_LIGHT_POSITION_VIEW_SPACE_ARRAY, "light_position_view_space_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_direction_array"] = BuiltinConstantDefinition(BCT_LIGHT_DIRECTION_ARRAY, "light_direction_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_direction_object_space_array"] = BuiltinConstantDefinition(BCT_LIGHT_DIRECTION_OBJECT_SPACE_ARRAY, "light_direction_object_space_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_direction_view_space_array"] = BuiltinConstantDefinition(BCT_LIGHT_DIRECTION_VIEW_SPACE_ARRAY, "light_direction_view_space_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_distance_object_space_array"] = BuiltinConstantDefinition(BCT_LIGHT_DISTANCE_OBJECT_SPACE_ARRAY, "light_distance_object_space_array", 1, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_power_array"] = BuiltinConstantDefinition(BCT_LIGHT_POWER_SCALE_ARRAY, "light_power_array", 1, BT_REAL, BT_INT);
+        mBuiltinConstantMap["spotlight_params_array"] = BuiltinConstantDefinition(BCT_SPOTLIGHT_PARAMS_ARRAY, "spotlight_params_array", 4, BT_REAL, BT_INT);
+
+        mBuiltinConstantMap["derived_ambient_light_colour"] = BuiltinConstantDefinition(BCT_DERIVED_AMBIENT_LIGHT_COLOUR, "derived_ambient_light_colour", 4, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["derived_scene_colour"] = BuiltinConstantDefinition(BCT_DERIVED_SCENE_COLOUR, "derived_scene_colour", 4, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["derived_light_diffuse_colour"] = BuiltinConstantDefinition(BCT_DERIVED_LIGHT_DIFFUSE_COLOUR, "derived_light_diffuse_colour", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["derived_light_specular_colour"] = BuiltinConstantDefinition(BCT_DERIVED_LIGHT_SPECULAR_COLOUR, "derived_light_specular_colour", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["derived_light_diffuse_colour_array"] = BuiltinConstantDefinition(BCT_DERIVED_LIGHT_DIFFUSE_COLOUR_ARRAY, "derived_light_diffuse_colour_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["derived_light_specular_colour_array"] = BuiltinConstantDefinition(BCT_DERIVED_LIGHT_SPECULAR_COLOUR_ARRAY, "derived_light_specular_colour_array", 4, BT_REAL, BT_INT);
+
+        mBuiltinConstantMap["light_number"] = BuiltinConstantDefinition(BCT_LIGHT_NUMBER, "light_number", 1, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_casts_shadows"] = BuiltinConstantDefinition(BCT_LIGHT_CASTS_SHADOWS, "light_casts_shadows", 1, BT_REAL, BT_INT);
+        mBuiltinConstantMap["light_casts_shadows_array"] = BuiltinConstantDefinition(BCT_LIGHT_CASTS_SHADOWS_ARRAY, "light_casts_shadows_array", 1, BT_REAL, BT_INT);
+
+        mBuiltinConstantMap["shadow_extrusion_distance"] = BuiltinConstantDefinition(BCT_SHADOW_EXTRUSION_DISTANCE, "shadow_extrusion_distance", 1, BT_REAL, BT_INT);
+        mBuiltinConstantMap["camera_position"] = BuiltinConstantDefinition(BCT_CAMERA_POSITION, "camera_position", 3, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["camera_position_object_space"] = BuiltinConstantDefinition(BCT_CAMERA_POSITION_OBJECT_SPACE, "camera_position_object_space", 3, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["texture_viewproj_matrix"] = BuiltinConstantDefinition(BCT_TEXTURE_VIEWPROJ_MATRIX, "texture_viewproj_matrix", 16, BT_REAL, BT_INT);
+        mBuiltinConstantMap["texture_viewproj_matrix_array"] = BuiltinConstantDefinition(BCT_TEXTURE_VIEWPROJ_MATRIX_ARRAY, "texture_viewproj_matrix_array", 16, BT_REAL, BT_INT);
+        mBuiltinConstantMap["texture_worldviewproj_matrix"] = BuiltinConstantDefinition(BCT_TEXTURE_WORLDVIEWPROJ_MATRIX, "texture_worldviewproj_matrix", 16, BT_REAL, BT_INT);
+        mBuiltinConstantMap["texture_worldviewproj_matrix_array"] = BuiltinConstantDefinition(BCT_TEXTURE_WORLDVIEWPROJ_MATRIX_ARRAY, "texture_worldviewproj_matrix_array", 16, BT_REAL, BT_INT);
+        mBuiltinConstantMap["spotlight_viewproj_matrix"] = BuiltinConstantDefinition(BCT_SPOTLIGHT_VIEWPROJ_MATRIX, "spotlight_viewproj_matrix", 16, BT_REAL, BT_INT);
+        mBuiltinConstantMap["spotlight_viewproj_matrix_array"] = BuiltinConstantDefinition(BCT_SPOTLIGHT_VIEWPROJ_MATRIX_ARRAY, "spotlight_viewproj_matrix_array", 16, BT_REAL, BT_INT);
+        mBuiltinConstantMap["spotlight_worldviewproj_matrix"] = BuiltinConstantDefinition(BCT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX, "spotlight_worldviewproj_matrix", 16, BT_REAL, BT_INT);
+        mBuiltinConstantMap["spotlight_worldviewproj_matrix_array"] = BuiltinConstantDefinition(BCT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX_ARRAY, "spotlight_worldviewproj_matrix_array", 16, BT_REAL, BT_INT);
+        mBuiltinConstantMap["custom"] = BuiltinConstantDefinition(BCT_CUSTOM, "custom", 4, BT_REAL, BT_INT);  // *** needs to be tested
+        mBuiltinConstantMap["time"] = BuiltinConstantDefinition(BCT_TIME, "time", 1, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["time_0_x"] = BuiltinConstantDefinition(BCT_TIME_0_X, "time_0_x", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["costime_0_x"] = BuiltinConstantDefinition(BCT_COSTIME_0_X, "costime_0_x", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["sintime_0_x"] = BuiltinConstantDefinition(BCT_SINTIME_0_X, "sintime_0_x", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["tantime_0_x"] = BuiltinConstantDefinition(BCT_TANTIME_0_X, "tantime_0_x", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["time_0_x_packed"] = BuiltinConstantDefinition(BCT_TIME_0_X_PACKED, "time_0_x_packed", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["time_0_1"] = BuiltinConstantDefinition(BCT_TIME_0_1, "time_0_1", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["costime_0_1"] = BuiltinConstantDefinition(BCT_COSTIME_0_1, "costime_0_1", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["sintime_0_1"] = BuiltinConstantDefinition(BCT_SINTIME_0_1, "sintime_0_1", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["tantime_0_1"] = BuiltinConstantDefinition(BCT_TANTIME_0_1, "tantime_0_1", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["time_0_1_packed"] = BuiltinConstantDefinition(BCT_TIME_0_1_PACKED, "time_0_1_packed", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["time_0_2pi"] = BuiltinConstantDefinition(BCT_TIME_0_2PI, "time_0_2pi", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["costime_0_2pi"] = BuiltinConstantDefinition(BCT_COSTIME_0_2PI, "costime_0_2pi", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["sintime_0_2pi"] = BuiltinConstantDefinition(BCT_SINTIME_0_2PI, "sintime_0_2pi", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["tantime_0_2pi"] = BuiltinConstantDefinition(BCT_TANTIME_0_2PI, "tantime_0_2pi", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["time_0_2pi_packed"] = BuiltinConstantDefinition(BCT_TIME_0_2PI_PACKED, "time_0_2pi_packed", 4, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["frame_time"] = BuiltinConstantDefinition(BCT_FRAME_TIME, "frame_time", 1, BT_REAL, BT_REAL);
+        mBuiltinConstantMap["fps"] = BuiltinConstantDefinition(BCT_FPS, "fps", 1, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["viewport_width"] = BuiltinConstantDefinition(BCT_VIEWPORT_WIDTH, "viewport_width", 1, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["viewport_height"] = BuiltinConstantDefinition(BCT_VIEWPORT_HEIGHT, "viewport_height", 1, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_viewport_width"] = BuiltinConstantDefinition(BCT_INVERSE_VIEWPORT_WIDTH, "inverse_viewport_width", 1, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["inverse_viewport_height"] = BuiltinConstantDefinition(BCT_INVERSE_VIEWPORT_HEIGHT, "inverse_viewport_height", 1, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["viewport_size"] = BuiltinConstantDefinition(BCT_VIEWPORT_SIZE, "viewport_size", 4, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["view_direction"] = BuiltinConstantDefinition(BCT_VIEW_DIRECTION, "view_direction", 3, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["view_side_vector"] = BuiltinConstantDefinition(BCT_VIEW_SIDE_VECTOR, "view_side_vector", 3, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["view_up_vector"] = BuiltinConstantDefinition(BCT_VIEW_UP_VECTOR, "view_up_vector", 3, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["fov"] = BuiltinConstantDefinition(BCT_FOV, "fov", 1, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["near_clip_distance"] = BuiltinConstantDefinition(BCT_NEAR_CLIP_DISTANCE, "near_clip_distance", 1, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["far_clip_distance"] = BuiltinConstantDefinition(BCT_FAR_CLIP_DISTANCE, "far_clip_distance", 1, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["pass_number"] = BuiltinConstantDefinition(BCT_PASS_NUMBER, "pass_number", 1, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["pass_iteration_number"] = BuiltinConstantDefinition(BCT_PASS_ITERATION_NUMBER, "pass_iteration_number", 1, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["animation_parametric"] = BuiltinConstantDefinition(BCT_ANIMATION_PARAMETRIC, "animation_parametric", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["texel_offsets"] = BuiltinConstantDefinition(BCT_TEXEL_OFFSETS, "texel_offsets", 4, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["scene_depth_range"] = BuiltinConstantDefinition(BCT_SCENE_DEPTH_RANGE, "scene_depth_range", 4, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["shadow_scene_depth_range"] = BuiltinConstantDefinition(BCT_SHADOW_SCENE_DEPTH_RANGE, "shadow_scene_depth_range", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["shadow_scene_depth_range_array"] = BuiltinConstantDefinition(BCT_SHADOW_SCENE_DEPTH_RANGE_ARRAY, "shadow_scene_depth_range_array", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["shadow_colour"] = BuiltinConstantDefinition(BCT_SHADOW_COLOUR, "shadow_colour", 4, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["texture_size"] = BuiltinConstantDefinition(BCT_TEXTURE_SIZE, "texture_size", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["inverse_texture_size"] = BuiltinConstantDefinition(BCT_INVERSE_TEXTURE_SIZE, "inverse_texture_size", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["packed_texture_size"] = BuiltinConstantDefinition(BCT_PACKED_TEXTURE_SIZE, "packed_texture_size", 4, BT_REAL, BT_INT);
+        mBuiltinConstantMap["texture_matrix"] = BuiltinConstantDefinition(BCT_TEXTURE_MATRIX, "texture_matrix", 16, BT_REAL, BT_INT);
+        mBuiltinConstantMap["lod_camera_position"] = BuiltinConstantDefinition(BCT_LOD_CAMERA_POSITION, "lod_camera_position", 3, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["lod_camera_position_object_space"] = BuiltinConstantDefinition(BCT_LOD_CAMERA_POSITION_OBJECT_SPACE, "lod_camera_position_object_space", 3, BT_REAL, BT_NONE);
+        mBuiltinConstantMap["light_custom"] = BuiltinConstantDefinition(BCT_LIGHT_CUSTOM, "light_custom", 4, BT_REAL, BT_INT);
+    }
+
+    //--------------------------------------------------------------------------
+
     size_t GPUProgramTranslator::translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node)
     {
         size_t totalBytes = 0;
@@ -5027,6 +5280,14 @@ namespace Tiny3D
         case ID_SHADOW_CASTER_VERTEX_PROGRAM_REF:
         case ID_SHADOW_CASTER_FRAGMENT_PROGRAM_REF:
             totalBytes = translateGPUProgramRef(compiler, stream, obj);
+            break;
+        case ID_FRAGMENT_PROGRAM:
+        case ID_VERTEX_PROGRAM:
+        case ID_GEOMETRY_PROGRAM:
+        case ID_TESSELLATION_HULL_PROGRAM:
+        case ID_TESSELLATION_DOMAIN_PROGRAM:
+        case ID_COMPUTE_PROGRAM:
+            totalBytes = translateGPUProgram(compiler, stream, obj);
             break;
         default:
             break;
@@ -5147,28 +5408,37 @@ namespace Tiny3D
             size_t index = 0;
             // Assign the name/index
             if (named)
+            {
                 name = atom0->value;
+                bytesOfWritten = writeString(name, stream);
+                totalBytes += bytesOfWritten;
+            }
             else
+            {
                 index = StringConverter::parseInt32(atom0->value);
+                bytesOfWritten = stream.write(&index, sizeof(index));
+                totalBytes += bytesOfWritten;
+            }
 
             // Determine the type
             if (atom1->value == "matrix4x4")
             {
+                // Builtin Type
+                BuiltinType type = getBuiltinType(atom1->value);
+                uint8_t t = (uint8_t)type;
+                bytesOfWritten = stream.write(&t, sizeof(t));
+                totalBytes += bytesOfWritten;
+                // The number of elements
+                uint8_t c = 16;
+                bytesOfWritten = stream.write(&c, sizeof(c));
+                totalBytes += bytesOfWritten;
+
+                // Value
                 Matrix4 m;
                 if (getMatrix4(k, prop->values.end(), &m))
                 {
-                    try
-                    {
-                        if (named)
-                            params->setNamedConstant(name, m);
-                        else
-                            params->setConstant(index, m);
-                    }
-                    catch (...)
-                    {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            "setting matrix4x4 parameter failed");
-                    }
+                    bytesOfWritten = writeMatrix4(m, stream);
+                    totalBytes += bytesOfWritten;
                 }
                 else
                 {
@@ -5178,27 +5448,16 @@ namespace Tiny3D
             }
             else if (atom1->value == "subroutine")
             {
-                String s;
-                if (getString(*k, &s))
-                {
-                    try
-                    {
-                        if (named)
-                            params->setNamedSubroutine(name, s);
-                        else
-                            params->setSubroutine(index, s);
-                    }
-                    catch (...)
-                    {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            "setting subroutine parameter failed");
-                    }
-                }
-                else
-                {
-                    ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
-                        "incorrect subroutine declaration");
-                }
+//                 String s;
+//                 if (getString(*k, &s))
+//                 {
+//                     
+//                 }
+//                 else
+//                 {
+//                     ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
+//                         "incorrect subroutine declaration");
+//                 }
             }
             else if (atom1->value == "atomic_counter")
             {
@@ -5207,13 +5466,12 @@ namespace Tiny3D
             {
                 // Find the number of parameters
                 bool isValid = true;
-                GpuProgramParameters::ElementType type = GpuProgramParameters::ET_REAL;
-                int count = 0;
+                bool isInteger = false;
+                int32_t count = 0;
                 if (atom1->value.find("float") != String::npos || atom1->value.find("double") != String::npos)
                 {
-                    type = GpuProgramParameters::ET_REAL;
                     if (atom1->value.size() >= 6)
-                        count = StringConverter::parseInt(atom1->value.substr(5));
+                        count = StringConverter::parseInt32(atom1->value.substr(5));
                     else
                     {
                         count = 1;
@@ -5221,13 +5479,14 @@ namespace Tiny3D
                 }
                 else if (atom1->value.find("int") != String::npos)
                 {
-                    type = GpuProgramParameters::ET_INT;
                     if (atom1->value.size() >= 4)
-                        count = StringConverter::parseInt(atom1->value.substr(3));
+                        count = StringConverter::parseInt32(atom1->value.substr(3));
                     else
                     {
                         count = 1;
                     }
+
+                    isInteger = true;
                 }
                 else
                 {
@@ -5238,62 +5497,46 @@ namespace Tiny3D
 
                 if (isValid)
                 {
-                    // First, clear out any offending auto constants
-                    if (named)
-                        params->clearNamedAutoConstant(name);
-                    else
-                        params->clearAutoConstant(index);
+                    // Builtin Type
+                    BuiltinType type = getBuiltinType(atom1->value);
+                    uint8_t t = (uint8_t)type;
+                    bytesOfWritten = stream.write(&t, sizeof(t));
+                    totalBytes += bytesOfWritten;
+                    uint8_t c = (uint8_t)count;
+                    bytesOfWritten = stream.write(&c, sizeof(c));
+                    totalBytes += bytesOfWritten;
 
-                    int roundedCount = count % 4 != 0 ? count + 4 - (count % 4) : count;
-                    if (type == GpuProgramParameters::ET_INT)
+                    // First, clear out any offending auto constants
+                    int32_t roundedCount = count % 4 != 0 ? count + 4 - (count % 4) : count;
+                    if (isInteger)
                     {
-                        int *vals = OGRE_ALLOC_T(int, roundedCount, MEMCATEGORY_SCRIPTING);
+                        int32_t *vals = new int32_t[roundedCount];
                         if (getInts(k, prop->values.end(), vals, roundedCount))
                         {
-                            try
-                            {
-                                if (named)
-                                    params->setNamedConstant(name, vals, count, 1);
-                                else
-                                    params->setConstant(index, vals, roundedCount / 4);
-                            }
-                            catch (...)
-                            {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    "setting of constant failed");
-                            }
+                            bytesOfWritten = stream.write(vals, sizeof(int32_t) * roundedCount);
+                            totalBytes += bytesOfWritten;
                         }
                         else
                         {
                             ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
                                 "incorrect integer constant declaration");
                         }
-                        OGRE_FREE(vals, MEMCATEGORY_SCRIPTING);
+                        T3D_SAFE_DELETE_ARRAY(vals);
                     }
                     else
                     {
-                        float *vals = OGRE_ALLOC_T(float, roundedCount, MEMCATEGORY_SCRIPTING);
-                        if (getFloats(k, prop->values.end(), vals, roundedCount))
+                        float32_t *vals = new float32_t[roundedCount];
+                        if (getSingles(k, prop->values.end(), vals, roundedCount))
                         {
-                            try
-                            {
-                                if (named)
-                                    params->setNamedConstant(name, vals, count, 1);
-                                else
-                                    params->setConstant(index, vals, roundedCount / 4);
-                            }
-                            catch (...)
-                            {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    "setting of constant failed");
-                            }
+                            bytesOfWritten = stream.write(vals, sizeof(float32_t) * roundedCount);
+                            totalBytes += bytesOfWritten;
                         }
                         else
                         {
                             ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
                                 "incorrect float constant declaration");
                         }
-                        OGRE_FREE(vals, MEMCATEGORY_SCRIPTING);
+                        T3D_SAFE_DELETE_ARRAY(vals);
                     }
                 }
             }
@@ -5303,17 +5546,6 @@ namespace Tiny3D
             ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                 "param_named and param_indexed properties requires at least 3 arguments");
         }
-
-        return totalBytes;
-    }
-
-    //--------------------------------------------------------------------------
-
-    size_t GPUProgramTranslator::translateParamNamed(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
 
         return totalBytes;
     }
@@ -5331,6 +5563,7 @@ namespace Tiny3D
         if (prop->values.size() >= 2)
         {
             size_t index = 0;
+
             AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
                 i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2), i3 = getNodeAt(prop->values, 3);
             if ((*i0)->type != ANT_ATOM || (*i1)->type != ANT_ATOM)
@@ -5339,6 +5572,7 @@ namespace Tiny3D
                     "name or index and auto constant type expected");
                 return 0;
             }
+
             AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
             if (!named && !StringConverter::isNumber(atom0->value))
             {
@@ -5348,179 +5582,45 @@ namespace Tiny3D
             }
 
             if (named)
+            {
                 name = atom0->value;
+                bytesOfWritten = writeString(name, stream);
+                totalBytes += bytesOfWritten;
+            }
             else
+            {
                 index = StringConverter::parseInt32(atom0->value);
+                bytesOfWritten = stream.write(&index, sizeof(index));
+                totalBytes += bytesOfWritten;
+            }
 
             // Look up the auto constant
-            StringUtil::toLowerCase(atom1->value);
-            const GpuProgramParameters::AutoConstantDefinition *def =
-                GpuProgramParameters::getAutoConstantDefinition(atom1->value);
-            if (def)
+            name = atom1->value;
+            StringUtil::toLowerCase(name);
+            auto itr = mBuiltinConstantMap.find(name);
+            if (itr != mBuiltinConstantMap.end())
             {
-                switch (def->dataType)
-                {
-                case GpuProgramParameters::ACDT_NONE:
-                    // Set the auto constant
-                    try
-                    {
-                        if (named)
-                            params->setNamedAutoConstant(name, def->acType);
-                        else
-                            params->setAutoConstant(index, def->acType);
-                    }
-                    catch (...)
-                    {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            "setting of constant failed");
-                    }
-                    break;
-                case GpuProgramParameters::ACDT_INT:
-                    if (def->acType == GpuProgramParameters::ACT_ANIMATION_PARAMETRIC)
-                    {
-                        try
-                        {
-                            if (named)
-                                params->setNamedAutoConstant(name, def->acType, animParametricsCount++);
-                            else
-                                params->setAutoConstant(index, def->acType, animParametricsCount++);
-                        }
-                        catch (...)
-                        {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                "setting of constant failed");
-                        }
-                    }
-                    else
-                    {
-                        // Only certain texture projection auto params will assume 0
-                        // Otherwise we will expect that 3rd parameter
-                        if (i2 == prop->values.end())
-                        {
-                            if (def->acType == GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX ||
-                                def->acType == GpuProgramParameters::ACT_TEXTURE_WORLDVIEWPROJ_MATRIX ||
-                                def->acType == GpuProgramParameters::ACT_SPOTLIGHT_VIEWPROJ_MATRIX ||
-                                def->acType == GpuProgramParameters::ACT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX
-                                )
-                            {
-                                try
-                                {
-                                    if (named)
-                                        params->setNamedAutoConstant(name, def->acType, 0);
-                                    else
-                                        params->setAutoConstant(index, def->acType, 0);
-                                }
-                                catch (...)
-                                {
-                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                        "setting of constant failed");
-                                }
-                            }
-                            else
-                            {
-                                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
-                                    "extra parameters required by constant definition " + atom1->value);
-                            }
-                        }
-                        else
-                        {
-                            bool success = false;
-                            uint32 extraInfo = 0;
-                            if (i3 == prop->values.end())
-                            { // Handle only one extra value
-                                if (getUInt(*i2, &extraInfo))
-                                {
-                                    success = true;
-                                }
-                            }
-                            else
-                            { // Handle two extra values
-                                uint32 extraInfo1 = 0, extraInfo2 = 0;
-                                if (getUInt(*i2, &extraInfo1) && getUInt(*i3, &extraInfo2))
-                                {
-                                    extraInfo = extraInfo1 | (extraInfo2 << 16);
-                                    success = true;
-                                }
-                            }
+                const BuiltinConstantDefinition &def = itr->second;
 
-                            if (success)
-                            {
-                                try
-                                {
-                                    if (named)
-                                        params->setNamedAutoConstant(name, def->acType, extraInfo);
-                                    else
-                                        params->setAutoConstant(index, def->acType, extraInfo);
-                                }
-                                catch (...)
-                                {
-                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                        "setting of constant failed");
-                                }
-                            }
-                            else
-                            {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    "invalid auto constant extra info parameter");
-                            }
-                        }
-                    }
-                    break;
-                case GpuProgramParameters::ACDT_REAL:
-                    if (def->acType == GpuProgramParameters::ACT_TIME ||
-                        def->acType == GpuProgramParameters::ACT_FRAME_TIME)
-                    {
-                        Real f = 1.0f;
-                        if (i2 != prop->values.end())
-                            getSingle(*i2, &f);
+                // Constant
+                uint16_t type = (uint16_t)def.type;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
 
-                        try
-                        {
-                            if (named)
-                                params->setNamedAutoConstantReal(name, def->acType, f);
-                            else
-                                params->setAutoConstantReal(index, def->acType, f);
-                        }
-                        catch (...)
-                        {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                "setting of constant failed");
-                        }
-                    }
-                    else
-                    {
-                        if (i2 != prop->values.end())
-                        {
-                            Real extraInfo = 0.0f;
-                            if (getSingle(*i2, &extraInfo))
-                            {
-                                try
-                                {
-                                    if (named)
-                                        params->setNamedAutoConstantReal(name, def->acType, extraInfo);
-                                    else
-                                        params->setAutoConstantReal(index, def->acType, extraInfo);
-                                }
-                                catch (...)
-                                {
-                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                        "setting of constant failed");
-                                }
-                            }
-                            else
-                            {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    "incorrect float argument definition in extra parameters");
-                            }
-                        }
-                        else
-                        {
-                            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
-                                "extra parameters required by constant definition " + atom1->value);
-                        }
-                    }
-                    break;
-                }
+                // Element type
+                uint8_t elementType = (uint8_t)def.elementType;
+                bytesOfWritten = stream.write(&elementType, sizeof(elementType));
+                totalBytes += bytesOfWritten;
+
+                // The number of elements
+                uint8_t elementCount = def.elementCount;
+                bytesOfWritten = stream.write(&elementCount, sizeof(elementCount));
+                totalBytes += bytesOfWritten;
+
+                // Extra data type
+                uint8_t extraType = (uint8_t)def.elementType;
+                bytesOfWritten = stream.write(&extraType, sizeof(extraType));
+                totalBytes += bytesOfWritten;
             }
             else
             {
@@ -5530,6 +5630,101 @@ namespace Tiny3D
         else
         {
             ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t GPUProgramTranslator::translateGPUProgram(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        // 对象头数据
+        bytesOfWritten = translateObjectHeader(obj, stream);
+        totalBytes += bytesOfWritten;
+
+        // Set the properties for the material
+        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        {
+            if ((*i)->type == ANT_PROPERTY)
+            {
+                PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
+
+                // ID
+                uint16_t id = prop->id;
+                bytesOfWritten = stream.write(&id, sizeof(id));
+                totalBytes += bytesOfWritten;
+
+                String str;
+
+                // 属性
+                switch (prop->id)
+                {
+                case ID_SOURCE:
+                    {
+                        if (getString(prop->values.front(), &str))
+                        {
+                            bytesOfWritten = writeString(str, stream);
+                            totalBytes += bytesOfWritten;
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                "source only accept a string argument");
+                        }
+                    }
+                    break;
+                case ID_TARGET:
+                    {
+                        if (getString(prop->values.front(), &str))
+                        {
+                            bytesOfWritten = writeString(str, stream);
+                            totalBytes += bytesOfWritten;
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                "target only accept a string argument");
+                        }
+                    }
+                    break;
+                case ID_ENTRY_POINT:
+                    {
+                        if (getString(prop->values.front(), &str))
+                        {
+                            bytesOfWritten = writeString(str, stream);
+                            totalBytes += bytesOfWritten;
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                "entry_point only accept a string argument");
+                        }
+                    }
+                    break;
+                case ID_STAGE:
+                    {
+                        if (getString(prop->values.front(), &str))
+                        {
+                            bytesOfWritten = writeString(str, stream);
+                            totalBytes += bytesOfWritten;
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                                "stage only accept a string argument");
+                        }
+                    }
+                    break;
+                default:
+                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
+                        "token \"" + prop->name + "\" is not recognized");
+                    break;
+                }
+            }
         }
 
         return totalBytes;
