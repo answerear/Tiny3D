@@ -235,6 +235,8 @@ namespace Tiny3D
         ScriptLexer             *mLexer;
         ScriptParser            *mParser;
 
+        String                  mShaderModel;
+        String                  mTarget;
         String                  mProjDir;   /**< 当前编译文件路径 */
         String                  mOutDir;
     };

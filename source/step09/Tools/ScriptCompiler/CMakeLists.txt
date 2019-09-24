@@ -24,7 +24,6 @@ endif (TINY3D_OS_WINDOWS)
 	
 find_package(ShaderConductor)
 
-message(STATUS "${SHADERCONDUCTOR_LIBRARY}")
 
 # Setup project include files path
 include_directories(
@@ -47,6 +46,8 @@ set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 
 if (TINY3D_OS_WINDOWS)
     # Setup executable project for Windows.
+	set(DXCOMPILER_BINARY "${CMAKE_CURRENT_SOURCE_DIR}/../../../../dependencies/ShaderConductor/${SHADERCONDUCTOR_LIB_SUFFIXES}/dxcompiler.dll")
+
     add_executable(
         ${BIN_NAME} WIN32
         ${SOURCE_FILES}
@@ -69,6 +70,8 @@ if (TINY3D_OS_WINDOWS)
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
         COMMAND ${CMAKE_COMMAND} -E copy ${SHADERCONDUCTOR_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
         COMMAND ${CMAKE_COMMAND} -E copy ${SHADERCONDUCTOR_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
+		COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
+		COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
         )
 
     # Setup install files and path for Windows.

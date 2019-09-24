@@ -71,6 +71,7 @@ namespace Tiny3D
         mPassTranslator = new PassTranslator();
         mTexUnitTranslator = new TextureUnitTranslator();
         mSamplerTranslator = new SamplerTranslator();
+        mGPUTransltor = new GPUProgramTranslator();
     }
 
     //--------------------------------------------------------------------------
@@ -185,9 +186,10 @@ namespace Tiny3D
     void ScriptCompiler::printUsage()
     {
         printf("Usage : ");
-        printf("  scc input_files -t target [options]");
+        printf("  scc input_files -t target -m [options]");
         printf("    input_files : The source file.");
         printf("    -t : Target shading language : glsl, hlsl, essl, dxil, spirv, msl_macos, msl_ios");
+        printf("    -m : Set the shader model version.");
         printf("    Options : ");
         printf("      -v : Print version.");
         printf("      -h : Print help.");
@@ -287,13 +289,27 @@ namespace Tiny3D
                     if (argc - 1 == i)
                     {
                         // 参数不够
-                        T3D_LOG_ERROR(LOG_TAG, "Missing linking file name (*.tsc) !");
+                        T3D_LOG_ERROR(LOG_TAG, "Missing target !");
                         ret = false;
                         break;
                     }
 
                     ++i;
                     opt.target = argv[i];
+                    mTarget = opt.target;
+                }
+                else if (stricmp(argv[i], "-m") == 0)
+                {
+                    if (argc - 1 == i)
+                    {
+                        // 参数不够
+                        T3D_LOG_ERROR(LOG_TAG, "Missing shader model !");
+                        ret = false;
+                        break;
+                    }
+
+                    ++i;
+                    mShaderModel = argv[i];
                 }
                 else
                 {
@@ -1552,33 +1568,41 @@ namespace Tiny3D
 
             // Entry
             sourceDesc.entryPoint = entry.c_str();
+            targetDesc.version = mShaderModel.c_str();
+
+            String language = target;
+
+            if (target.empty())
+            {
+                language = mTarget;
+            }
 
             // Target
-            if (target == "dxil")
+            if (language == "dxil")
             {
                 targetDesc.language = ShadingLanguage::Dxil;
             }
-            else if (target == "spirv")
+            else if (language == "spirv")
             {
                 targetDesc.language = ShadingLanguage::SpirV;
             }
-            else if (target == "hlsl")
+            else if (language == "hlsl")
             {
                 targetDesc.language = ShadingLanguage::Hlsl;
             }
-            else if (target == "glsl")
+            else if (language == "glsl")
             {
                 targetDesc.language = ShadingLanguage::Glsl;
             }
-            else if (target == "essl")
+            else if (language == "essl")
             {
                 targetDesc.language = ShadingLanguage::Essl;
             }
-            else if (target == "msl_macos")
+            else if (language == "msl_macos")
             {
                 targetDesc.language = ShadingLanguage::Msl_macOS;
             }
-            else if (target == "msl_ios")
+            else if (language == "msl_ios")
             {
                 targetDesc.language = ShadingLanguage::Msl_iOS;
             }
@@ -1616,12 +1640,15 @@ namespace Tiny3D
 
             if (result.target != nullptr)
             {
-                String outpath = mOutDir + Dir::getNativeSeparator() + source + "_" + target + "." + stage;
+                size_t len = source.find_last_of('.');
+                String title = len != String::npos ? source.substr(0, len) : source;
+                String outpath = mOutDir + Dir::getNativeSeparator() + title + "_" + language + "." + stage;
 
                 FileDataStream outfile;
 
-                if (!outfile.open(outpath.c_str(), FileDataStream::E_MODE_TRUNCATE))
+                if (!outfile.open(outpath.c_str(), FileDataStream::E_MODE_TEXT |FileDataStream::E_MODE_WRITE_ONLY))
                 {
+                    T3D_LOG_ERROR("Compiler", "[%s] Create output file failed !", outpath.c_str());
                     DestroyBlob(result.errorWarningMsg);
                     DestroyBlob(result.target);
                     break;

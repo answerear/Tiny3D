@@ -1,0 +1,33 @@
+material Builtin/NoTexture
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			
+			vertex_program_ref Builtin/VS
+			{
+				
+			}
+			
+			fragment_program_ref Builtin/PS
+			{
+			}
+		}
+	}
+}
+
+vertex_program Builtin/VS
+{
+	source Default.hlsl
+	entry_point VS
+	stage vs
+}
+
+fragment_program Builtin/PS
+{
+	source Default.hlsl
+	entry_point PS
+	stage ps
+}
