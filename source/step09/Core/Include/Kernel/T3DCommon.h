@@ -18,47 +18,32 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_PASS_H__
-#define __T3D_PASS_H__
+#ifndef __T3D_COMMON_H__
+#define __T3D_COMMON_H__
 
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "T3DObject.h"
-#include "Kernel/T3DBlendMode.h"
-#include "Kernel/T3DCommon.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API Pass : public Object
+    /**
+     * @brief 比较函数，用于深度缓冲测试和模板缓冲测试
+     */
+    enum CompareFunction
     {
-    public:
-        Pass();
-
-        virtual ~Pass();
-
-    protected:
-        String      mName;      /**< Pass名称 */
-
-        BlendFactor mSrcBlendFactor;
-        BlendFactor mDstBlendFactor;
-        BlendFactor mSrcBlendFactorAlpha;
-        BlendFactor mDstBlendFactorAlpha;
-
-        BlendOperation  mBlendOperation;
-        BlendOperation  mAlphaBlendOperation;
-
-        bool    mSeparateBlend;
-        bool    mSeparateBlendOperation;
-        bool    mDepthCheck;
-        bool    mDepthWrite;
-        
-        CompareFunction mDepthFunc;
-
-        float32_t   mDepthBias;
+        CMPF_ALWAYS_FAIL,
+        CMPF_ALWAYS_PASS,
+        CMPF_LESS,
+        CMPF_LESS_EQUAL,
+        CMPF_EQUAL,
+        CMPF_NOT_EQUAL,
+        CMPF_GREATER_EQUAL,
+        CMPF_GREATER
     };
+
 }
 
 
-#endif  /*__T3D_PASS_H__*/
+#endif  /*__T3D_COMMON_H__*/

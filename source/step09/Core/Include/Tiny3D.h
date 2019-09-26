@@ -27,6 +27,7 @@
 #include <T3DTypedef.h>
 
 // Kernel
+#include <Kernel/T3DCommon.h>
 #include <Kernel/T3DAgent.h>
 #include <Kernel/T3DConfigFile.h>
 #include <Kernel/T3DCreator.h>
@@ -34,6 +35,9 @@
 #include <Kernel/T3DPlugin.h>
 #include <Kernel/T3DPixelFormat.h>
 #include <Kernel/T3DNode.h>
+#include <Kernel/T3DBlendMode.h>
+#include <Kernel/T3DPass.h>
+#include <Kernel/T3DTechnique.h>
 
 // Memory
 #include <Memory/T3DSmartPtr.h>
