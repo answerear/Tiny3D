@@ -41,6 +41,7 @@ namespace Tiny3D
     protected:
         String      mName;      /**< Pass名称 */
 
+        // 混合相关的
         BlendFactor mSrcBlendFactor;
         BlendFactor mDstBlendFactor;
         BlendFactor mSrcBlendFactorAlpha;
@@ -51,12 +52,23 @@ namespace Tiny3D
 
         bool    mSeparateBlend;
         bool    mSeparateBlendOperation;
+
+        // Depth buffer 相关的
         bool    mDepthCheck;
         bool    mDepthWrite;
         
         CompareFunction mDepthFunc;
 
-        float32_t   mDepthBias;
+        float32_t   mDepthBiasConstant;
+        float32_t   mDepthBiasSlopeScale;
+        float32_t   mDepthBiasPerIteration;
+
+        // Alpha rejection 相关
+        CompareFunction mAlphaRejectFunc;
+        uint8_t         mAlphaRejectVal;
+        bool            mAlpha2CoverageEnabled;
+
+        bool    mLightingEnabled;   /// 是否打开光照
     };
 }
 
