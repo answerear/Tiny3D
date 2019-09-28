@@ -66,9 +66,15 @@ namespace Tiny3D
         // Alpha rejection 相关
         CompareFunction mAlphaRejectFunc;
         uint8_t         mAlphaRejectVal;
-        bool            mAlpha2CoverageEnabled;
+        bool            mAlpha2CoverageEnabled; /// 是否开启A2C
 
-        bool    mLightingEnabled;   /// 是否打开光照
+        bool    mLightScissor;              /// 是否开启光照裁剪
+        bool    mLightClipPlanes;           /// 是否开启光照裁剪平面
+        bool    mLightingEnabled;           /// 是否打开光照
+        bool    mNormalizeNormals;          /// 是否规范化法向量
+        bool    mTransparentSorting;        /// 是否半透明纹理排序
+        bool    mTransparentSortingForced;  /// 是否强制半透明纹理排序
+
     };
 }
 
