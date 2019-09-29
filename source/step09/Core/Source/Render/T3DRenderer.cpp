@@ -38,7 +38,7 @@ namespace Tiny3D
         : mRenderTarget(nullptr)
         , mViewport(nullptr)
         , mCullingMode(E_CULL_NONE)
-        , mRenderMode(E_RM_SOLID)
+        , mPolygonMode(E_PM_SOLID)
     {
 
     }

@@ -18,42 +18,24 @@
  ******************************************************************************/
 
 
+#ifndef __T3D_TEXTURE_UNIT_H__
+#define __T3D_TEXTURE_UNIT_H__
+
+
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
+#include "T3DObject.h"
+
 namespace Tiny3D
 {
-    inline const String &Renderer::getName() const
+    class T3D_ENGINE_API TextureUnit : public Object
     {
-        return mName;
-    }
+    public:
+        TextureUnit();
 
-    inline TResult Renderer::setViewTransform(const Matrix4 &mat)
-    {
-        return setTransform(E_TS_VIEW, mat);
-    }
-
-    inline TResult Renderer::setWorldTransform(const Matrix4 &mat)
-    {
-        return setTransform(E_TS_WORLD, mat);
-    }
-
-    inline TResult Renderer::setProjectionTransform(const Matrix4 &mat)
-    {
-        return setTransform(E_TS_PROJECTION, mat);
-    }
-
-
-    inline ViewportPtr Renderer::getViewport() const
-    {
-        return mViewport;
-    }
-
-    inline CullingMode Renderer::getCullingMode() const
-    {
-        return mCullingMode;
-    }
-
-    inline PolygonMode Renderer::getPolygonMode() const
-    {
-        return mPolygonMode;
-    }
+        virtual ~TextureUnit();
+    };
 }
 
+
+#endif  /*__T3D_TEXTURE_UNIT_H__*/

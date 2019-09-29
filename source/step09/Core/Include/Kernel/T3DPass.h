@@ -41,6 +41,14 @@ namespace Tiny3D
     protected:
         String      mName;      /**< Pass名称 */
 
+        ColorARGB   mAmbient;
+        ColorARGB   mDiffuse;
+        ColorARGB   mSpecular;
+        ColorARGB   mEmissive;
+        Real        mShininess;
+
+        TrackVertexColorType    mTracking;
+
         // 混合相关的
         BlendFactor mSrcBlendFactor;
         BlendFactor mDstBlendFactor;
@@ -59,22 +67,50 @@ namespace Tiny3D
         
         CompareFunction mDepthFunc;
 
-        float32_t   mDepthBiasConstant;
-        float32_t   mDepthBiasSlopeScale;
-        float32_t   mDepthBiasPerIteration;
+        Real   mDepthBiasConstant;
+        Real   mDepthBiasSlopeScale;
+        Real   mDepthBiasPerIteration;
 
         // Alpha rejection 相关
         CompareFunction mAlphaRejectFunc;
         uint8_t         mAlphaRejectVal;
         bool            mAlpha2CoverageEnabled; /// 是否开启A2C
 
-        bool    mLightScissor;              /// 是否开启光照裁剪
-        bool    mLightClipPlanes;           /// 是否开启光照裁剪平面
-        bool    mLightingEnabled;           /// 是否打开光照
-        bool    mNormalizeNormals;          /// 是否规范化法向量
-        bool    mTransparentSorting;        /// 是否半透明纹理排序
-        bool    mTransparentSortingForced;  /// 是否强制半透明纹理排序
+        bool    mLightScissor;                  /// 是否开启光照裁剪
+        bool    mLightClipPlanes;               /// 是否开启光照裁剪平面
+        bool    mLightingEnabled;               /// 是否打开光照
+        bool    mNormalizeNormals;              /// 是否规范化法向量
+        bool    mTransparentSorting;            /// 是否半透明纹理排序
+        bool    mTransparentSortingForced;      /// 是否强制半透明纹理排序
+        bool    mColorWrite;                    /// 是否写颜色值
+        bool    mPolygonModeOverrideable;       /// 是否覆盖当前pass的多边形渲染模式
 
+        CullingMode         mCullMode;          /// 背面剔除顶点的顺序
+        ManualCullingMode   mManualCullMode;    /// 软件剔除朝向面
+
+        IlluminationStage   mIlluminationStage; /// 
+
+        ShadeMode           mShadeMode;         /// 着色模式
+        PolygonMode         mPolygonMode;       /// 多边形渲染模式
+
+        bool        mFogOverride;       /// 当前pass是否覆盖场景的雾效果设置
+        FogMode     mFogMode;
+        ColorARGB   mFogColor;
+        Real        mFogStart;
+        Real        mFogEnd;
+        Real        mFogDensity;
+
+        uint16_t    mStartLight;
+        uint16_t    mMaxLights;
+        uint16_t    mLightsPerIteration;
+        bool        mIteratePerLight;
+        bool        mPointAttenuationEnabled;
+
+        Real        mPointSize;
+        Real        mPointMinSize;
+        Real        mPointMaxSize;
+        Real        mPointSpritesEnabled;
+        Real        mPointAttenuationCoeffs[3];
     };
 }
 

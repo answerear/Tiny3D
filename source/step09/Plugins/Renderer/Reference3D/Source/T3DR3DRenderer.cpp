@@ -453,9 +453,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult R3DRenderer::setRenderMode(RenderMode mode)
+    TResult R3DRenderer::setPolygonMode(PolygonMode mode)
     {
-        mRenderMode = mode;
+        mPolygonMode = mode;
         return T3D_OK;
     }
 

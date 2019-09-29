@@ -170,9 +170,9 @@ namespace Tiny3D
          * @brief 设置渲染模式
          * @param [in] mode : 渲染模式
          * @return 成功返回 T3D_OK
-         * @see enum RenderMode
+         * @see enum PolygonMode
          */
-        virtual TResult setRenderMode(RenderMode mode) override;
+        virtual TResult setPolygonMode(PolygonMode mode) override;
 
         /**
          * @brief 设置渲染视口

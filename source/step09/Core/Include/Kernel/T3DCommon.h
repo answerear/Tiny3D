@@ -33,16 +33,77 @@ namespace Tiny3D
      */
     enum CompareFunction
     {
-        CMPF_ALWAYS_FAIL,
-        CMPF_ALWAYS_PASS,
-        CMPF_LESS,
-        CMPF_LESS_EQUAL,
-        CMPF_EQUAL,
-        CMPF_NOT_EQUAL,
-        CMPF_GREATER_EQUAL,
-        CMPF_GREATER
+        E_CMPF_ALWAYS_FAIL,
+        E_CMPF_ALWAYS_PASS,
+        E_CMPF_LESS,
+        E_CMPF_LESS_EQUAL,
+        E_CMPF_EQUAL,
+        E_CMPF_NOT_EQUAL,
+        E_CMPF_GREATER_EQUAL,
+        E_CMPF_GREATER
     };
 
+    enum TrackVertexColorType
+    {
+        E_TVCT_NONE     = 0x0,
+        E_TVCT_AMBIENT  = 0x1,
+        E_TVCT_DIFFUSE  = 0x2,
+        E_TVCT_SPECULAR = 0x4,
+        E_TVCT_EMISSIVE = 0x8
+    };
+
+    /**
+     * @brief 背面剔除模式
+     */
+    enum CullingMode
+    {
+        E_CULL_NONE = 0,        /**< 不做消隐面剔除 */
+        E_CULL_CLOCKWISE,       /**< 按照顶点顺时针顺序的消隐面剔除 */
+        E_CULL_ANTICLOCKWISE,   /**< 按照顶点逆时针顺序的消隐面剔除 */
+        E_CULL_MAX
+    };
+
+    enum ManualCullingMode
+    {
+        E_MANUAL_CULL_NONE,
+        E_MANUAL_CULL_BACK,
+        E_MANUAL_CULL_FRONT
+    };
+
+    enum ShadeMode
+    {
+        E_SM_FLAT,
+        E_SM_GOURAUD,
+        E_SM_PHONG
+    };
+
+    /**
+     * @brief 多边形渲染模式
+     */
+    enum PolygonMode
+    {
+        E_PM_NONE,
+        E_PM_POINT,             /**< 顶点模式 */
+        E_PM_WIREFRAME,         /**< 线框模式 */
+        E_PM_SOLID,             /**< 着色模式 */
+        E_PM_MAX
+    };
+
+    enum IlluminationStage
+    {
+        E_IS_UNKNOWN,
+        E_IS_AMBIENT,
+        E_IS_PER_LIGHT,
+        E_IS_DECAL
+    };
+
+    enum FogMode
+    {
+        E_FOG_NONE,
+        E_FOG_EXP,
+        E_FOG_EXP2,
+        E_FOG_LINEAR
+    };
 }
 
 

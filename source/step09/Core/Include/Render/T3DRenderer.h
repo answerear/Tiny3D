@@ -25,6 +25,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Render/T3DRenderWindow.h"
+#include "Kernel/T3DCommon.h"
 
 
 namespace Tiny3D
@@ -93,28 +94,6 @@ namespace Tiny3D
             E_PT_TRIANGLE_STRIP,    /**< 三角形带图元 */
             E_PT_TRIANGLE_FAN,      /**< 三角形扇形图元 */
             E_PT_MAX
-        };
-
-        /**
-         * @brief 背面剔除模式
-         */
-        enum CullingMode
-        {
-            E_CULL_NONE = 0,        /**< 不做消隐面剔除 */
-            E_CULL_CLOCKWISE,       /**< 按照顶点顺时针顺序的消隐面剔除 */
-            E_CULL_ANTICLOCKWISE,   /**< 按照顶点逆时针顺序的消隐面剔除 */
-            E_CULL_MAX
-        };
-
-        /**
-         * @brief 渲染模式
-         */
-        enum RenderMode
-        {
-            E_RM_POINT = 0,         /**< 顶点模式 */
-            E_RM_WIREFRAME,         /**< 线框模式 */
-            E_RM_SOLID,             /**< 着色模式 */
-            E_RM_MAX
         };
 
         enum ClearFlags
@@ -324,14 +303,14 @@ namespace Tiny3D
          * @brief 设置渲染模式
          * @param [in] mode : 渲染模式
          * @return 成功返回 T3D_OK
-         * @see enum RenderMode
+         * @see enum PolygonMode
          */
-        virtual TResult setRenderMode(RenderMode mode) = 0;
+        virtual TResult setPolygonMode(PolygonMode mode) = 0;
 
         /**
          * @brief 获取渲染模式
          */
-        virtual RenderMode getRenderMode() const;
+        virtual PolygonMode getPolygonMode() const;
 
         /**
          * @brief 设置渲染视口
@@ -398,7 +377,7 @@ namespace Tiny3D
         ViewportPtr         mViewport;          /**< 当前渲染视口对象 */
 
         CullingMode         mCullingMode;       /**< 裁剪模式 */
-        RenderMode          mRenderMode;        /**< 渲染模式 */
+        PolygonMode         mPolygonMode;       /**< 多边形渲染模式 */
     };
 }
 

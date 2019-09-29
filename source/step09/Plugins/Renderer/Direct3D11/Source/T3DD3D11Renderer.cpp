@@ -485,20 +485,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::setRenderMode(RenderMode mode)
+    TResult D3D11Renderer::setPolygonMode(PolygonMode mode)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            if (mode == mRenderMode)
+            if (mode == mPolygonMode)
             {
                 // 相同模式就不切换了
                 break;
             }
 
 
-            mRenderMode = mode;
+            mPolygonMode = mode;
 
         } while (0);
 

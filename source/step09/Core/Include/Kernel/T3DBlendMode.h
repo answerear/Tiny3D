@@ -35,18 +35,18 @@ namespace Tiny3D
     {
         /// 使用纹理上的alpha值来做混合计算，相当于：
         /// C_result = C_src * A_src + C_dst * (1 - A_src)
-        BT_TRANSPARENT_ALPHA,
+        E_BT_TRANSPARENT_ALPHA,
         /// 使用纹理上的颜色值来做混合计算，相当于：
         /// C_result = C_src * C_src + C_dst * (1 - C_src)
-        BT_TRANSPARENT_COLOR,
+        E_BT_TRANSPARENT_COLOR,
         /// 把纹理颜色值直接叠加到现在渲染目标中的颜色值，相当于：
         /// C_result = C_src + C_dst
-        BT_ADD,
+        E_BT_ADD,
         /// 直接把纹理颜色值跟渲染目标中的颜色值相乘，相当于：
         /// C_result = C_src * C_dst
-        BT_MODULATE,
+        E_BT_MODULATE,
         /// 默认方式，直接用纹理颜色代替渲染目标的颜色
-        BT_REPLACE,
+        E_BT_REPLACE,
     };
 
     /**
@@ -54,16 +54,16 @@ namespace Tiny3D
      */
     enum BlendFactor
     {
-        BF_ONE,                     /// 1.0
-        BF_ZERO,                    /// 0.0
-        BF_DEST_COLOR,              /// C_dst
-        BF_SOURCE_COLOR,            /// C_src
-        BF_ONE_MINUS_DEST_COLOR,    /// 1 - C_dst
-        BF_ONE_MINUS_SOURCE_COLOR,  /// 1 - C_src
-        BF_DEST_ALPHA,              /// A_dst
-        BF_SOURCE_ALPHA,            /// A_src
-        BF_ONE_MINUS_DEST_ALPHA,    /// 1 - A_dst
-        BF_ONE_MINUS_SOURCE_ALPHA   /// 1 - A_src
+        E_BF_ONE,                     /// 1.0
+        E_BF_ZERO,                    /// 0.0
+        E_BF_DEST_COLOR,              /// C_dst
+        E_BF_SOURCE_COLOR,            /// C_src
+        E_BF_ONE_MINUS_DEST_COLOR,    /// 1 - C_dst
+        E_BF_ONE_MINUS_SOURCE_COLOR,  /// 1 - C_src
+        E_BF_DEST_ALPHA,              /// A_dst
+        E_BF_SOURCE_ALPHA,            /// A_src
+        E_BF_ONE_MINUS_DEST_ALPHA,    /// 1 - A_dst
+        E_BF_ONE_MINUS_SOURCE_ALPHA   /// 1 - A_src
     };
 
     /**
@@ -71,11 +71,11 @@ namespace Tiny3D
      */
     enum BlendOperation
     {
-        BO_ADD,                 /// C_result = C_src * F_src + C_dst * F_dst
-        BO_SUBTRACT,            /// C_result = C_src * F_src - C_dst * F_dst
-        BO_REVERSE_SUBTRACT,    /// C_result = C_dst * F_dst - C_src * F_src
-        BO_MIN,                 /// 
-        BO_MAX
+        E_BO_ADD,                 /// C_result = C_src * F_src + C_dst * F_dst
+        E_BO_SUBTRACT,            /// C_result = C_src * F_src - C_dst * F_dst
+        E_BO_REVERSE_SUBTRACT,    /// C_result = C_dst * F_dst - C_src * F_src
+        E_BO_MIN,                 /// 
+        E_BO_MAX
     };
 }
 

@@ -86,7 +86,7 @@ namespace Tiny3D
 
     TResult RenderGroup::render(ID groupID, RendererPtr renderer)
     {
-        Renderer::RenderMode renderMode;
+        PolygonMode renderMode;
 
         ViewportPtr vp = renderer->getViewport();
         if (vp == nullptr)
@@ -100,8 +100,8 @@ namespace Tiny3D
             || RenderQueue::E_GRPID_WIREFRAME == groupID)
         {
             // 指示器或者线框渲染，渲染模式需要改成线框模式
-            renderMode = renderer->getRenderMode();
-            renderer->setRenderMode(Renderer::E_RM_WIREFRAME);
+            renderMode = renderer->getPolygonMode();
+            renderer->setPolygonMode(E_PM_WIREFRAME);
         }
 
         if (RenderQueue::E_GRPID_LIGHT != groupID)
@@ -143,7 +143,7 @@ namespace Tiny3D
             || RenderQueue::E_GRPID_WIREFRAME == groupID)
         {
             // 恢复渲染模式
-            renderer->setRenderMode(renderMode);
+            renderer->setPolygonMode(renderMode);
         }
 
         return T3D_OK;
