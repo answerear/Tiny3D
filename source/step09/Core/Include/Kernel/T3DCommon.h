@@ -104,6 +104,21 @@ namespace Tiny3D
         E_FOG_EXP2,
         E_FOG_LINEAR
     };
+
+    enum FilterType
+    {
+        E_FT_MIN,
+        E_FT_MAG,
+        E_FT_MIP
+    };
+
+    enum FilterOptions
+    {
+        E_FO_NONE,
+        E_FO_POINT,
+        E_FO_LINEAR,
+        E_FO_ANISOTROPIC
+    };
 }
 
 

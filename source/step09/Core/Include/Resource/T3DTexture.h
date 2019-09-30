@@ -30,22 +30,24 @@
 namespace Tiny3D
 {
     /**
+     * @brief 纹理类型
+     */
+    enum TextureType
+    {
+        E_TEX_TYPE_1D = 1,      /**< 一维纹理 */
+        E_TEX_TYPE_2D,          /**< 二维纹理 */
+        E_TEX_TYPE_3D,          /**< 三位纹理 */
+        E_TEX_TYPE_CUBE_MAP,    /**< CubeMap 纹理 */
+        E_TEX_TYPE_2D_ARRAY,
+        E_TEX_TYPE_2D_RECT
+    };
+
+    /**
      * @brief 纹理资源
      */
     class T3D_ENGINE_API Texture : public Resource
     {
     public:
-        /**
-         * @brief 纹理类型
-         */
-        enum TexType
-        {
-            E_TEX_TYPE_1D = 1,      /**< 一维纹理 */
-            E_TEX_TYPE_2D,          /**< 二维纹理 */
-            E_TEX_TYPE_3D,          /**< 三位纹理 */
-            E_TEX_TYPE_CUBE_MAP,    /**< CubeMap 纹理 */
-        };
-
         /**
          * @brief 纹理用途
          */
@@ -71,7 +73,7 @@ namespace Tiny3D
          */
         static TexturePtr create(const String &name, size_t mipmaps, 
             size_t texWidth = 0, size_t texHeight = 0, 
-            TexUsage texUsage = E_TU_DEFAULT, TexType texType = E_TEX_TYPE_2D,
+            TexUsage texUsage = E_TU_DEFAULT, TextureType texType = E_TEX_TYPE_2D,
             PixelFormat format = E_PF_A8R8G8B8);
 
         /** 
@@ -88,7 +90,7 @@ namespace Tiny3D
         /**
          * @brief 获取纹理类型
          */
-        TexType getTexType() const { return mTexType; }
+        TextureType getTexType() const { return mTexType; }
 
         /**
          * @brief 获取纹理层级
@@ -152,7 +154,7 @@ namespace Tiny3D
     protected:
         /** 构造函数 */
         Texture(const String &name, size_t mipmaps, size_t texWidth, 
-            size_t texHeight, TexUsage texUsage, TexType texType, 
+            size_t texHeight, TexUsage texUsage, TextureType texType, 
             PixelFormat format);
 
         /** 重写 Resource::load() */
@@ -162,7 +164,7 @@ namespace Tiny3D
         virtual TResult unload() override;
 
     protected:
-        TexType                 mTexType;       /**< 纹理类型 */
+        TextureType                 mTexType;       /**< 纹理类型 */
         TexUsage                mTexUsage;      /**< 纹理用途 */
 
         size_t                  mMipmaps;       /**< 纹理LOD层数 */

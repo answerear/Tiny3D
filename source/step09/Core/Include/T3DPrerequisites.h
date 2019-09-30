@@ -85,6 +85,10 @@ namespace Tiny3D
 
     class Shader;
 
+    class Technique;
+    class Pass;
+    class TextureUnit;
+
     class VertexArrayObject;
 
     class HardwareBufferManagerBase;

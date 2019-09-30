@@ -24,6 +24,7 @@
 
 #include "Resource/T3DResourceManager.h"
 #include "Resource/T3DTexture.h"
+#include "Kernel/T3DCommon.h"
 
 
 namespace Tiny3D
@@ -57,7 +58,7 @@ namespace Tiny3D
         virtual TexturePtr loadTexture(const String &name, 
             size_t mipmaps = -1, 
             Texture::TexUsage texUsage = Texture::E_TU_DEFAULT, 
-            Texture::TexType texType = Texture::E_TEX_TYPE_2D);
+            TextureType texType = E_TEX_TYPE_2D);
 
         /**
          * @brief 加载纹理资源
@@ -74,7 +75,7 @@ namespace Tiny3D
             size_t height, size_t mipmaps = -1, 
             PixelFormat format = E_PF_A8R8G8B8, 
             Texture::TexUsage texUsage = Texture::E_TU_BLANK, 
-            Texture::TexType texType = Texture::E_TEX_TYPE_2D);
+            TextureType texType = E_TEX_TYPE_2D);
 
         /**
          * @brief 卸载纹理资源

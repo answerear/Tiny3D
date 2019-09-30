@@ -55,7 +55,7 @@ namespace Tiny3D
     TexturePtr TextureManager::loadTexture(const String &name, 
         size_t mipmaps /* = -1 */, 
         Texture::TexUsage texUsage /* = Texture::E_TU_DEFAULT */, 
-        Texture::TexType texType /* = Texture::E_TEX_TYPE_2D */)
+        TextureType texType /* = Texture::E_TEX_TYPE_2D */)
     {
         return smart_pointer_cast<Texture>(ResourceManager::load(name, 6, -1, 
             -1, mipmaps, E_PF_A8R8G8B8, texUsage, texType));
@@ -67,7 +67,7 @@ namespace Tiny3D
         size_t height, size_t mipmaps /* = -1 */, 
         PixelFormat format /* = E_PF_A8R8G8B8 */, 
         Texture::TexUsage texUsage /* = Texture::E_TU_BLANK */, 
-        Texture::TexType texType /* = Texture::E_TEX_TYPE_2D */)
+        TextureType texType /* = Texture::E_TEX_TYPE_2D */)
     {
         return smart_pointer_cast<Texture>(ResourceManager::load(name, 6, width,
             height, mipmaps, format, texUsage, texType));
@@ -87,7 +87,7 @@ namespace Tiny3D
             int32_t numMipMaps = va_arg(args, int32_t);
             PixelFormat format = va_arg(args, PixelFormat);
             Texture::TexUsage texUsage = va_arg(args, Texture::TexUsage);
-            Texture::TexType texType = va_arg(args, Texture::TexType);
+            TextureType texType = va_arg(args, TextureType);
             numMipMaps = (numMipMaps == -1 ? mDefaultMipMaps : numMipMaps);
             res = Texture::create(name, numMipMaps, width, height, texUsage, 
                 texType, format);

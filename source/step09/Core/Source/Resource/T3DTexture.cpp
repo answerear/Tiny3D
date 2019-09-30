@@ -32,7 +32,7 @@ namespace Tiny3D
     TexturePtr Texture::create(const String &name, size_t mipmaps,
         size_t texWidth /* = 0 */, size_t texHeight /* = 0 */,
         TexUsage texUsage /* = E_TU_DEFAULT */,
-        TexType texType /* = E_TEX_TYPE_2D */,
+        TextureType texType /* = E_TEX_TYPE_2D */,
         PixelFormat format /* = E_PF_A8R8G8B8 */)
     {
         TexturePtr texture = new Texture(name, mipmaps, texWidth, texHeight, 
@@ -44,7 +44,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Texture::Texture(const String &name, size_t mipmaps, size_t texWidth, 
-        size_t texHeight, TexUsage texUsage, TexType texType, 
+        size_t texHeight, TexUsage texUsage, TextureType texType, 
         PixelFormat format)
         : Resource(name)
         , mTexType(texType)
