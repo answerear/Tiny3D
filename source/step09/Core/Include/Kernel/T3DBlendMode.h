@@ -29,6 +29,106 @@
 namespace Tiny3D
 {
     /**
+     * @brief 纹理混合类型
+     */
+    enum LayerBlendType
+    {
+        E_LBT_COLOR,
+        E_LBT_ALPHA
+    };
+
+    /**
+     * @brief 纹理混合操作
+     */
+    enum LayerBlendOperation
+    {
+        E_LBO_REPLACE,      /// 用纹理覆盖所有
+        E_LBO_ADD,          /// 把颜色分量叠加
+        E_LBO_MODULATE,     /// 把颜色分量相乘
+        E_LBO_ALPHA_BLEND   /// 根据纹理alpha通道叠加
+    };
+
+    enum LayerBlendOperationEx
+    {
+        E_LBX_SOURCE1,
+        E_LBX_SOURCE2,
+        E_LBX_MODULATE,
+        E_LBX_MODULATE_X2,
+        E_LBX_MODULATE_X4,
+        E_LBX_ADD,
+        E_LBX_ADD_SIGNED,
+        E_LBX_ADD_SMOOTH,
+        E_LBX_SUBTRACT,
+        E_LBX_BLEND_DIFFUSE_ALPHA,
+        E_LBX_BLEND_TEXTURE_ALPHA,
+        E_LBX_BLEND_CURRENT_ALPHA,
+        E_LBX_BLEND_MANUAL,
+        E_LBX_DOTPRODUCT,
+        E_LBX_BLEND_DIFFUSE_COLOR
+    };
+
+    enum LayerBlendSource
+    {
+        E_LBS_CURRENT,
+        E_LBS_TEXTURE,
+        E_LBS_DIFFUSE,
+        E_LBS_SPECULAR,
+        E_LBS_MANUAL
+    };
+
+    class T3D_ENGINE_API LayerBlendModeEx
+    {
+    public:
+        LayerBlendType          blendType;
+        LayerBlendOperationEx   operation;
+        LayerBlendSource        source1;
+        LayerBlendSource        source2;
+
+        ColorARGB               colorArg1;
+        ColorARGB               colorArg2;
+        Real                    alphaArg1;
+        Real                    alphaArg2;
+        Real                    factor;
+
+        bool operator ==(const LayerBlendModeEx &other) const
+        {
+            if (blendType != other.blendType) return false;
+
+            if (blendType == E_LBT_COLOR)
+            {
+
+                if (operation == other.operation &&
+                    source1 == other.source1 &&
+                    source2 == other.source2 &&
+                    colorArg1 == other.colorArg1 &&
+                    colorArg2 == other.colorArg2 &&
+                    factor == other.factor)
+                {
+                    return true;
+                }
+            }
+            else // if (blendType == LBT_ALPHA)
+            {
+                if (operation == other.operation &&
+                    source1 == other.source1 &&
+                    source2 == other.source2 &&
+                    alphaArg1 == other.alphaArg1 &&
+                    alphaArg2 == other.alphaArg2 &&
+                    factor == other.factor)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool operator !=(const LayerBlendModeEx &other) const
+        {
+            return !(*this == other);
+        }
+    };
+
+    /**
      * @brief 混合类型
      */
     enum BlendType

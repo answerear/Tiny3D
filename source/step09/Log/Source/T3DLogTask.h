@@ -71,7 +71,7 @@ namespace Tiny3D
 
         virtual Type getType() const override;
 
-        typedef std::vector<LogItem *>      ItemCache;
+        typedef TArray<LogItem *>           ItemCache;
         typedef ItemCache::iterator         ItemCacheItr;
         typedef ItemCache::const_iterator   ItemCacheConstItr;
 

@@ -108,6 +108,9 @@ using TSet = std::set<T>;
 template <typename K, typename V>
 using TMap = std::map<K, V>;
 
+template <typename K, typename V>
+using TMultimap = std::multimap<K, V>;
+
 template <typename T1, typename T2>
 using TPair = std::pair<T1, T2>;
 

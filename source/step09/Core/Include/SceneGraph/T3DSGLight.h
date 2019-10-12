@@ -30,6 +30,13 @@ namespace Tiny3D
     class T3D_ENGINE_API SGLight : public SGTransform3D
     {
     public:
+        enum LightType
+        {
+            E_LT_POINT = 0,
+            E_LT_DIRECTIONAL,
+            E_LT_SPOTLIGHT
+        };
+
         static SGLightPtr create(ID uID = E_NID_AUTOMATIC);
 
         virtual ~SGLight();

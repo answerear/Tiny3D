@@ -78,11 +78,11 @@ namespace Tiny3D
         size_t calcPrimitiveCount(VertexArrayObjectPtr vao) const;
 
     protected:
-        typedef std::list<SGRenderablePtr>              RenderableList;
+        typedef TList<SGRenderablePtr>              RenderableList;
         typedef RenderableList::iterator                RenderableListItr;
         typedef RenderableList::const_iterator          RenderableListConstItr;
 
-        typedef std::map<MaterialPtr, RenderableList>   Renderables;
+        typedef TMap<MaterialPtr, RenderableList>   Renderables;
         typedef Renderables::iterator                   RenderablesItr;
         typedef Renderables::const_iterator             RenderablesConstItr;
         typedef std::pair<MaterialPtr, RenderableList>  RenderablesValue;
@@ -154,10 +154,10 @@ namespace Tiny3D
         RenderQueue();
 
     protected:
-        typedef std::map<GroupID, RenderGroupPtr>   RenderableGroup;
+        typedef TMap<GroupID, RenderGroupPtr>   RenderableGroup;
         typedef RenderableGroup::iterator           RenderableGroupItr;
         typedef RenderableGroup::const_iterator     RenderableGroupConstItr;
-        typedef std::pair<GroupID, RenderGroupPtr>  RenderableGroupValue;
+        typedef TPair<GroupID, RenderGroupPtr>  RenderableGroupValue;
 
         RenderableGroup     mGroups;        /**< 渲染分组 */
     };

@@ -119,6 +119,16 @@ namespace Tiny3D
         E_FO_LINEAR,
         E_FO_ANISOTROPIC
     };
+
+    enum WaveformType
+    {
+        E_WFT_SINE,
+        E_WFT_TRIANGLE,
+        E_WFT_SQUARE,
+        E_WFT_SAWTOOTH,
+        E_WFT_INVERSE_SAWTOOTH,
+        E_WFT_PWM
+    };
 }
 
 

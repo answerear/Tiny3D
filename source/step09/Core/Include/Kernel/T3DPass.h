@@ -27,6 +27,7 @@
 #include "T3DObject.h"
 #include "Kernel/T3DBlendMode.h"
 #include "Kernel/T3DCommon.h"
+#include "SceneGraph/T3DSGLight.h"
 
 
 namespace Tiny3D
@@ -41,58 +42,175 @@ namespace Tiny3D
     protected:
         String      mName;      /**< Pass名称 */
 
+        //---------------------------------------
+        // Command : ambient
+        // Usage : ambient <red> <green> <blue> [<alpha>]|vertexColor
+        // Parameters : vertexColor 存储在 mTracking
         ColorARGB   mAmbient;
+
+        //---------------------------------------
+        // Command : diffuse
+        // Usage : diffuse <red> <green> <blue> [<alpha>]|vertexColor
+        // Parameters : vertexColor 存储在 mTracking
         ColorARGB   mDiffuse;
+
+        //---------------------------------------
+        // Command : specular
+        // Usage : specular <red> <green> <blue> [<alpha>]|vertexColor <shininess>
+        // Parameters : vertexColor 存储在 mTracking
         ColorARGB   mSpecular;
-        ColorARGB   mEmissive;
         Real        mShininess;
+
+        //---------------------------------------
+        // Command : emissive
+        // Usage : emissive <red> <green> <blue> [<alpha>]|vertexColor
+        // Parameters : vertexColor 存储在 mTracking
+        ColorARGB   mEmissive;
 
         TrackVertexColorType    mTracking;
 
-        // 混合相关的
+        //---------------------------------------
+        // Command : scene_blend
+        // Usage : 
+        //  #1 scene_blend <add|modulate|alpha_blend|color_blend>
+        //  #2 scene_blend <src_factor> <dest_factor>
+        // Parameters : 区分scene_blend和separate_scene_blend，存储在 mSeparateBlend
         BlendFactor mSrcBlendFactor;
         BlendFactor mDstBlendFactor;
+
+        //---------------------------------------
+        // Command : separate_scene_blend
+        // Usage :
+        //  #1 separate_scene_blend add modulate
+        //  #2 separate_scene_blend <color_src_factor> <color_dest_factor> <alpha_src_factor> <alpha_dest_factor>
+        // Parameters : 
+        //  #1 color_src_factor 存储在 mSrcBlendFactor
+        //  #2 color_dest_factor 存储在 mDstBlendFactor
+        //  #3 区分scene_blend和separate_scene_blend，存储在 mSeparateBlend
         BlendFactor mSrcBlendFactorAlpha;
         BlendFactor mDstBlendFactorAlpha;
 
+        //---------------------------------------
+        // Command : scene_blend_op
+        // Usage : scene_blend_op <add|subtract|reverse_subtract|min|max>
+        // Parameters : 
+        //  #1 区分scene_blend_op和separate_scene_blend_op，存储在 mSeparateBlendOperation
         BlendOperation  mBlendOperation;
+
+        //---------------------------------------
+        // Command : separate_scene_blend_op
+        // Usage : separate_scene_blend_op <colorOp> <alphaOp>
+        // Parameters : 
+        //  #1 colorOp 存储在 mBlendOperation
+        //  #2 区分scene_blend和separate_scene_blend，存储在 mSeparateBlend
         BlendOperation  mAlphaBlendOperation;
 
         bool    mSeparateBlend;
         bool    mSeparateBlendOperation;
 
-        // Depth buffer 相关的
+        //---------------------------------------
+        // Command : depth_check
+        // Usage : depth_check <on|off>
         bool    mDepthCheck;
+
+        //---------------------------------------
+        // Command : depth_write
+        // Usage : depth_write <on|off>
         bool    mDepthWrite;
         
+        //---------------------------------------
+        // Command : depth_func
+        // Usage : depth_func <always_fail|always_pass|less|less_equal|equal|not_equal|greater_equal|greater>
         CompareFunction mDepthFunc;
 
+        //---------------------------------------
+        // Command : depth_bias
+        // Usage : depth_bias <constant_bias> [<slopescale_bias>]
         Real   mDepthBiasConstant;
         Real   mDepthBiasSlopeScale;
+
+        //---------------------------------------
+        // Command : iteration_depth_bias
+        // Usage : iteration_depth_bias <bias_per_iteration>
         Real   mDepthBiasPerIteration;
 
-        // Alpha rejection 相关
+        //---------------------------------------
+        // Command : alpha_rejection
+        // Usage : alpha_rejection <function> <value>
+        // Parameters : 
+        //  #1 <function> 跟 depth_func的参数相同类型
         CompareFunction mAlphaRejectFunc;
         uint8_t         mAlphaRejectVal;
+
+        //---------------------------------------
+        // Command : alpha_to_coverage
+        // Usage : alpha_to_coverage <on|off>
         bool            mAlpha2CoverageEnabled; /// 是否开启A2C
 
+        //---------------------------------------
+        // Command : light_scissor
+        // Usage : light_scissor <on|off>
         bool    mLightScissor;                  /// 是否开启光照裁剪
+
+        //---------------------------------------
+        // Command : light_clip_planes
+        // Usage : light_clip_planes <on|off>
         bool    mLightClipPlanes;               /// 是否开启光照裁剪平面
+
+        //---------------------------------------
+        // Command : lighting
+        // Usage : lighting <on|off>
         bool    mLightingEnabled;               /// 是否打开光照
+
+        //---------------------------------------
+        // Command : normalize_normals
+        // Usage : normalize_normals <on|off>
         bool    mNormalizeNormals;              /// 是否规范化法向量
+
+        //---------------------------------------
+        // Command : transparent_sorting
+        // Usage : transparent_sorting <on|off|force>
         bool    mTransparentSorting;            /// 是否半透明纹理排序
         bool    mTransparentSortingForced;      /// 是否强制半透明纹理排序
+
+        //---------------------------------------
+        // Command : color_write
+        // Usage : color_write <on|off>
         bool    mColorWrite;                    /// 是否写颜色值
+
+        //---------------------------------------
+        // Command : polygon_mode_overrideable
+        // Usage : polygon_mode_overrideable <true|false>
         bool    mPolygonModeOverrideable;       /// 是否覆盖当前pass的多边形渲染模式
 
+        //---------------------------------------
+        // Command : cull_hardware
+        // Usage : cull_hardware <clockwise|anticlockwise|none>
         CullingMode         mCullMode;          /// 背面剔除顶点的顺序
+
+        //---------------------------------------
+        // Command : cull_software
+        // Usage : cull_software <back|front|none>
         ManualCullingMode   mManualCullMode;    /// 软件剔除朝向面
 
+        //---------------------------------------
+        // Command : illumination_stage
+        // Usage illumination_stage <ambient|per_light|decal>
         IlluminationStage   mIlluminationStage; /// 
 
+        //---------------------------------------
+        // Command : shading
+        // Usage : shading <flat|gouraud|phong>
         ShadeMode           mShadeMode;         /// 着色模式
+
+        //---------------------------------------
+        // Command : polygon_mode
+        // Usage : polygon_mode <solid|wireframe|points>
         PolygonMode         mPolygonMode;       /// 多边形渲染模式
 
+        //---------------------------------------
+        // Command : fog_override
+        // Usage : fog_override <true|false> [<type> <color> <density> <start> <end>]
         bool        mFogOverride;       /// 当前pass是否覆盖场景的雾效果设置
         FogMode     mFogMode;
         ColorARGB   mFogColor;
@@ -100,17 +218,56 @@ namespace Tiny3D
         Real        mFogEnd;
         Real        mFogDensity;
 
+        //---------------------------------------
+        // Command : start_light
+        // Usage : start_light <number>
         uint16_t    mStartLight;
-        uint16_t    mMaxLights;
-        uint16_t    mLightsPerIteration;
-        bool        mIteratePerLight;
-        bool        mPointAttenuationEnabled;
 
+        //---------------------------------------
+        // Command : max_lights
+        // Usage : max_lights <number>
+        uint16_t    mMaxLights;
+
+        //---------------------------------------
+        // Command : iteration
+        // Usage :
+        //  #1 iteration <once|once_per_light> [lightType]
+        //  #2 iteration <number> [per_light> [lightType]]
+        //  #3 iteration <number> [<per_n_lights> <num_lights> [lightType]]
+        uint16_t            mLightsPerIteration;
+        SGLight::LightType  mOnlyLightType;
+        bool                mIteratePerLight;
+        bool                mRunOnlyForOneLightType;
+
+        //---------------------------------------
+        // Command : point_sprites
+        // Usage : point_sprites <on|off>
+        bool        mPointSpritesEnabled;
+
+        //---------------------------------------
+        // Command : point_size
+        // Usage : point_size <size>
         Real        mPointSize;
-        Real        mPointMinSize;
-        Real        mPointMaxSize;
-        Real        mPointSpritesEnabled;
+
+        //---------------------------------------
+        // Command : point_size_attenuation
+        // Usage : point_size_attenuation <on|off> [constant linear quadratic]
+        // Parameters :
+        //  #1 constant 存储在 mPointAttenuationCoeffs[0]
+        //  #2 linear 存储在 mPointAttenuationCoeffs[1]
+        //  #3 quadratic 存储在 mPointAttenuationCoeffs[2]
+        bool        mPointAttenuationEnabled;
         Real        mPointAttenuationCoeffs[3];
+
+        //---------------------------------------
+        // Command : point_size_min
+        // Usage : point_size_min <size>
+        Real        mPointMinSize;
+
+        //---------------------------------------
+        // Command : point_size_max
+        // Usage : point_size_max <size>
+        Real        mPointMaxSize;
     };
 }
 
