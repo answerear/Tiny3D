@@ -78,6 +78,20 @@ namespace Tiny3D
             TextureType texType = E_TEX_TYPE_2D);
 
         /**
+         * @brief 加载纹理资源
+         * @param [in] name : 纹理资源名称
+         * @param [in] stream : 纹理资源数据流
+         * @param [in] mipmaps : 纹理层级数量，默认是图片中的数量
+         * @param [in] texUsage : 纹理用途，默认是从图片加载
+         * @param [in] texType : 纹理类型，默认是2D纹理
+         * @return 返回新建的纹理对象
+         */
+        virtual TexturePtr loadTexture(const String &name, DataStream &stream,
+            size_t mipmaps = -1,
+            Texture::TexUsage texUsage = Texture::E_TU_DEFAULT,
+            TextureType texType = E_TEX_TYPE_2D);
+
+        /**
          * @brief 卸载纹理资源
          * @param [in] texture : 要卸载的纹理资源对象
          * @return void
