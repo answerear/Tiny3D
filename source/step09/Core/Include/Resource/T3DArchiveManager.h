@@ -74,9 +74,18 @@ namespace Tiny3D
          * @param [in] name : 档案名称
          * @param [in] path : 相对档案的路径
          * @param [in][out] archive : 返回的档案对象
+         * @return 找到则返回true
          */
         bool getArchive(const String &name, const String &path, 
             ArchivePtr &archive);
+
+        /**
+         * @brief 根据指定文件名从缓存中找到档案管理对象
+         * @param [in] filename : 文件名
+         * @param [in][out] archive : 返回的档案对象
+         * @return 找到则返回true
+         */
+        bool getArchive(const String &filename, ArchivePtr &archive);
 
     protected:
         /** 构造函数 */
@@ -98,8 +107,9 @@ namespace Tiny3D
         typedef Archives::const_iterator        ArchivesConstItr;
         typedef Archives::value_type            ArchivesValue;
 
-        Creators    mCreators;
-        Archives    mArchives;
+        Creators    mCreators;      /**< 档案创建器 */
+        Archives    mArchives;      /**< 缓存的档案对象 */
+        Archives    mArchivesCache; /**< 用于加速查找文件的缓存 */
     };
 
     #define T3D_ARCHIVE_MGR     ArchiveManager::getInstance()

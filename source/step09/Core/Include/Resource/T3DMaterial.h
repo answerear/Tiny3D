@@ -39,7 +39,7 @@ namespace Tiny3D
         enum MaterialType
         {
             E_MT_DEFAULT = 0,   /**< 默认是从资源加载的材质 */
-            E_MT_MANUAL,        /**< 有调用者创建的材质 */
+            E_MT_MANUAL,        /**< 由调用者创建的材质 */
         };
 
         /** 创建 Material 对象 */
@@ -51,14 +51,15 @@ namespace Tiny3D
         /** 重写 Resource::getType() */
         virtual Type getType() const override;
 
+        /** 获取材质名称 */
+        const String &getMaterialName() const { return mMaterialName; }
+
+        /** 设置材质名称 */
+        void setMaterialName(const String &name) { mMaterialName = name; }
+
     protected:
         /** 构造函数 */
-        Material(const String &name);
-
-        /**
-         * @brief 初始化对象
-         */
-        virtual TResult init();
+        Material(const String &name, MaterialType type);
 
         /** 重写 Resource::load() */
         virtual TResult load() override;
@@ -71,6 +72,7 @@ namespace Tiny3D
 
     protected:
         MaterialType        mMaterialType;      /**< 材质资源类型 */
+        String              mMaterialName;      /**< 材质名称 */
     };
 }
 

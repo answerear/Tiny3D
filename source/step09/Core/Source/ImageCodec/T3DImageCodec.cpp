@@ -165,7 +165,7 @@ namespace Tiny3D
 
         do 
         {
-            ArchivePtr archive = T3D_AGENT.getMainAssetsArchive(name);
+            ArchivePtr archive = T3D_AGENT.getAssetsArchive(name);
             if (archive == nullptr)
             {
                 ret = T3D_ERR_IMG_NOT_FOUND;

@@ -59,6 +59,8 @@ namespace Tiny3D
 
     class Variant;
 
+    class ScriptParser;
+
     class Resource;
     class ResourceManager;
     class Dylib;

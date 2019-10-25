@@ -165,6 +165,13 @@ namespace Tiny3D
         String getMainAssetsPath(const String &path) const;
 
         /**
+         * @brief 获取文件所在的档案对象
+         * @param [in] filename : 文件名
+         * @return 成功返回档案结构对象
+         */
+        ArchivePtr getAssetsArchive(const String &filename) const;
+
+        /**
          * @brief 添加图像编解码器
          * @param [in] type : 文件类型
          * @param [in] codec : 要添加的图像编解码器对象
@@ -326,6 +333,8 @@ namespace Tiny3D
 
         ArchiveManagerPtr       mArchiveMgr;        /**< 档案管理对象 */
         DylibManagerPtr         mDylibMgr;          /**< 动态库管理对象 */
+        MaterialManagerPtr      mMaterialMgr;       /**< 材质资源管理对象 */
+        TextureManagerPtr       mTextureMgr;        /**< 纹理资源管理对象 */
         ShaderManagerPtr        mShaderMgr;         /**< 着色器管理对象 */
         GPUProgramManagerPtr    mGPUProgramMgr;     /**< GPU程序管理对象 */
 
@@ -333,6 +342,8 @@ namespace Tiny3D
 
         RendererPtr             mActiveRenderer;    /**< 当前渲染器对象 */
         SceneManagerPtr         mSceneMgr;
+
+        ScriptParserPtr         mScriptParser;
 
         Plugins                 mPlugins;           /**< 安装的插件列表 */
         Dylibs                  mDylibs;            /**< 加载的动态库列表 */

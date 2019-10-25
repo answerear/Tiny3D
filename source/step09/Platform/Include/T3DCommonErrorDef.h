@@ -41,6 +41,7 @@ namespace Tiny3D
         T3D_ERR_DUPLICATED_ITEM     = 0x00000008,   /**< 重复元素 */
         T3D_ERR_SYS_NOT_INIT        = 0x00000009,   /**< 系统没有初始化 */
         T3D_ERR_INVALID_ID          = 0x0000000A,   /**< 无效ID */
+        T3D_ERR_INVALID_PARAM       = 0x0000000B,   /**< 错误参数 */
     };
 };
 

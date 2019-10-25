@@ -37,6 +37,7 @@ HelloApp::~HelloApp()
 
 bool HelloApp::applicationDidFinishLaunching()
 {
+    MaterialPtr material = T3D_MATERIAL_MGR.loadMaterial("Builtin.tsc", Material::E_MT_DEFAULT);
     return true;
 }
 

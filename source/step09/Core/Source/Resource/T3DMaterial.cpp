@@ -19,6 +19,11 @@
 
 
 #include "Resource/T3DMaterial.h"
+#include "Resource/T3DArchive.h"
+#include "Resource/T3DArchiveManager.h"
+#include "Kernel/T3DAgent.h"
+#include "Kernel/T3DScriptParser.h"
+#include "T3DErrorDef.h"
 
 
 namespace Tiny3D
@@ -27,21 +32,16 @@ namespace Tiny3D
 
     MaterialPtr Material::create(const String &name, MaterialType type)
     {
-        MaterialPtr material = new Material(name);
+        MaterialPtr material = new Material(name, type);
         material->release();
-
-        if (material->init() != T3D_OK)
-        {
-            material = nullptr;
-
-        }
         return material;
     }
 
     //--------------------------------------------------------------------------
 
-    Material::Material(const String &name)
+    Material::Material(const String &name, MaterialType type)
         : Resource(name)
+        , mMaterialType(type)
     {
 
     }
@@ -51,12 +51,6 @@ namespace Tiny3D
     Material::~Material()
     {
 
-    }
-
-    TResult Material::init()
-    {
-        TResult ret = T3D_OK;
-        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -70,14 +64,65 @@ namespace Tiny3D
 
     TResult Material::load()
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (E_MT_DEFAULT == mMaterialType)
+            {
+                // 默认类型，从文件加载
+
+                // 加载材质文件
+                ArchivePtr archive = T3D_AGENT.getAssetsArchive(mName);
+                if (archive == nullptr)
+                {
+                    ret = T3D_ERR_IMG_NOT_FOUND;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Could not find the archive for file %s !", 
+                        mName.c_str());
+                    break;
+                }
+
+                String path = T3D_AGENT.getMainAssetsPath(mName);
+                MemoryDataStream stream;
+                ret = archive->read(path, stream);
+                if (ret != T3D_OK)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Read material content failed from file %s ! ", 
+                        mName.c_str());
+                    break;
+                }
+
+                // 交给脚本解析器解析
+                ret = ScriptParser::getInstance().parse(stream, *this);
+                if (ret != T3D_OK)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Could not parse material file %s !", mName);
+                    break;
+                }
+            }
+            else if (E_MT_MANUAL == mMaterialType)
+            {
+                // 手动创建，不从文件加载
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_TYPE;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid material type !");
+                break;
+            }
+        } while (0);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Material::unload()
     {
-        return T3D_OK;
+        return Resource::unload();
     }
 
     //--------------------------------------------------------------------------

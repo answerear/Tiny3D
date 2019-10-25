@@ -104,10 +104,6 @@ namespace Tiny3D
         {
             if (E_TU_DEFAULT == mTexUsage)
             {
-                ArchivePtr archive;
-                MemoryDataStream stream;
-
-
                 // 加载纹理数据
                 Image image;
                 ret = image.load(mName);

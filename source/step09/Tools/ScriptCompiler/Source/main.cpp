@@ -20,6 +20,9 @@
 #include "T3DScriptCompiler.h"
 
 
+// For debug
+// "F:\Workspace\MyGame\Tiny3D\steps\assets\scripts\Builtin.material" -t hlsl -m 500
+
 int main(int argc, char *argv[])
 {
     using namespace Tiny3D;

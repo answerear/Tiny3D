@@ -34,6 +34,22 @@ namespace Tiny3D
         Technique();
 
         virtual ~Technique();
+
+    protected:
+        typedef TArray<Pass*>   Passes;
+
+        Material    *mParent;
+
+        Passes      mPasses;
+
+        String      mName;
+
+        //---------------------------------------
+        // Command : lod_index
+        // Usage : lod_index <number>
+        uint16_t    mLodIndex;
+
+        uint16_t    mSchemeIndex;
     };
 }
 

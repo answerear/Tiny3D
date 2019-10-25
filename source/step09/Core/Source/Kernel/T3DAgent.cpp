@@ -22,6 +22,7 @@
 #include "Kernel/T3DAgent.h"
 #include "Kernel/T3DPlugin.h"
 #include "Kernel/T3DConfigFile.h"
+#include "Kernel/T3DScriptParser.h"
 
 #include "ImageCodec/T3DImageCodec.h"
 
@@ -30,6 +31,10 @@
 #include "Resource/T3DArchiveManager.h"
 #include "Resource/T3DDylib.h"
 #include "Resource/T3DDylibManager.h"
+#include "Resource/T3DMaterial.h"
+#include "Resource/T3DMaterialManager.h"
+#include "Resource/T3DTexture.h"
+#include "Resource/T3DTextureManager.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramCreator.h"
 #include "Resource/T3DGPUProgramManager.h"
@@ -65,12 +70,14 @@ namespace Tiny3D
         , mImageCodec(nullptr)
         , mActiveRenderer(nullptr)
         , mSceneMgr(nullptr)
+        , mScriptParser(nullptr)
         , mIsRunning(false)
     {
     }
 
     Agent::~Agent()
     {
+        mScriptParser = nullptr;
         mSceneMgr = nullptr;
         mActiveRenderer = nullptr;
         mDefaultWindow = nullptr;
@@ -79,6 +86,8 @@ namespace Tiny3D
 
         mShaderMgr = nullptr;
         mGPUProgramMgr = nullptr;
+        mMaterialMgr = nullptr;
+        mTextureMgr = nullptr;
         mDylibMgr = nullptr;
         mArchiveMgr = nullptr;
         mImageCodec = nullptr;
@@ -211,7 +220,7 @@ namespace Tiny3D
 
         do
         {
-            Settings settings = mSettings["Render"].mapValue();
+            Settings &settings = mSettings["Render"].mapValue();
 
             RenderWindowCreateParam param;
 
@@ -581,6 +590,8 @@ namespace Tiny3D
         return archive;
     }
 
+    //--------------------------------------------------------------------------
+
     String Agent::getMainAssetsPath(const String &path) const
     {
 #if defined T3D_OS_ANDROID
@@ -589,6 +600,33 @@ namespace Tiny3D
         const String &fullpath = path;
 #endif
         return fullpath;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ArchivePtr Agent::getAssetsArchive(const String &filename) const
+    {
+        bool found = false;
+        ArchivePtr archive;
+
+        if (mArchiveMgr != nullptr)
+        {
+            String fullpath = getMainAssetsPath(filename);
+#if defined T3D_OS_ANDROID
+            found = mArchiveMgr->getArchive(mAppPath, fullpath, archive);
+#else
+            String name = mAppPath + "Assets";
+            found = mArchiveMgr->getArchive(name, fullpath, archive);
+#endif
+
+            if (!found)
+            {
+                // 主的没找到，只能循环查找
+                found = mArchiveMgr->getArchive(filename, archive);
+            }
+        }
+
+        return archive;
     }
 
     //--------------------------------------------------------------------------
@@ -759,6 +797,12 @@ namespace Tiny3D
         mImageCodec = ImageCodec::create();
         mArchiveMgr = ArchiveManager::create();
         mDylibMgr = DylibManager::create();
+        mTextureMgr = TextureManager::create();
+        mShaderMgr = ShaderManager::create();
+        mGPUProgramMgr = GPUProgramManager::create();
+        mMaterialMgr = MaterialManager::create();
+
+        mScriptParser = ScriptParser::create();
 
         return T3D_OK;
     }
@@ -799,7 +843,7 @@ namespace Tiny3D
 
         do 
         {
-            Settings pluginSettings = mSettings["Plugins"].mapValue();
+            Settings &pluginSettings = mSettings["Plugins"].mapValue();
             String s("Path");
             Variant key(s);
             Settings::const_iterator itr = pluginSettings.find(key);
@@ -885,6 +929,16 @@ namespace Tiny3D
 #else
             String path = mAppPath + "Assets";
             ArchivePtr archive = mArchiveMgr->loadArchive(path, "FileSystem");
+            
+            Settings &assets = mSettings["Assets"].mapValue();
+            auto itr = assets.begin();
+            while (itr != assets.end())
+            {
+                String subpath = path + Dir::getNativeSeparator() + itr->first.stringValue();
+                String achiveType = itr->second.stringValue();
+                archive = mArchiveMgr->loadArchive(subpath, achiveType);
+                ++itr;
+            }
 #endif
         } while (0);
 

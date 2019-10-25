@@ -66,6 +66,15 @@ namespace Tiny3D
 
     void ArchiveManager::unloadArchive(ArchivePtr archive)
     {
+        // 先清理缓存
+        auto itr = mArchivesCache.begin();
+
+        while (itr != mArchivesCache.end())
+        {
+            auto i = itr++;
+            mArchivesCache.erase(i);
+        }
+
         unload((ResourcePtr &)archive);
     }
 
@@ -90,10 +99,14 @@ namespace Tiny3D
         return res;
     }
 
+    //--------------------------------------------------------------------------
+
     void ArchiveManager::addArchiveCreator(ArchiveCreator *creator)
     {
         mCreators.insert(CreatorsValue(creator->getType(), creator));
     }
+
+    //--------------------------------------------------------------------------
 
     void ArchiveManager::removeArchiveCreator(const String &name)
     {
@@ -101,40 +114,70 @@ namespace Tiny3D
         mCreators.erase(itr);
     }
 
+    //--------------------------------------------------------------------------
+
     void ArchiveManager::removeAllArchiveCreator()
     {
         mCreators.clear();
     }
+
+    //--------------------------------------------------------------------------
 
     bool ArchiveManager::getArchive(const String &name, const String &path, 
         ArchivePtr &archive)
     {
         bool found = false;
         auto itr = mArchives.find(name);
+
         if (itr != mArchives.end())
         {
             if (itr->second->exists(path))
             {
                 archive = itr->second;
                 found = true;
+
+                // 放入缓存，提升下次获取同一个文件的性能
+                mArchivesCache.insert(ArchivesValue(path, archive));
             }
         }
-//         auto itr = mArchives.begin();
-// 
-//         while (itr != mArchives.end())
-//         {
-//             if (name == itr->first)
-//             {
-//                 if (itr->second->exists(path))
-//                 {
-//                     archive = itr->second;
-//                     found = true;
-//                     break;
-//                 }
-//             }
-//             
-//             ++itr;
-//         }
+
+        return found;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ArchiveManager::getArchive(const String &filename, ArchivePtr &archive)
+    {
+        bool found = false;
+
+        // 先从缓存中查找
+        auto i = mArchivesCache.find(filename);
+        if (i != mArchivesCache.end())
+        {
+            // 文件在缓存中存在，直接返回对应的对象
+            archive = i->second;
+            found = true;
+        }
+        else
+        {
+            // 文件缓存中不存在，到档案系统找
+            auto itr = mArchives.begin();
+
+            while (itr != mArchives.end())
+            {
+                if (itr->second->exists(filename))
+                {
+                    archive = itr->second;
+                    found = true;
+
+                    // 放入缓存，提升下次获取同一个文件的性能
+                    mArchivesCache.insert(ArchivesValue(filename, archive));
+                    break;
+                }
+
+                ++itr;
+            }
+        }
 
         return found;
     }
