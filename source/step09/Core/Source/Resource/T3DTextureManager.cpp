@@ -75,17 +75,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TexturePtr TextureManager::loadTexture(const String &name,
-        DataStream &stream, size_t mipmaps /* = -1 */,
-        Texture::TexUsage texUsage /* = Texture::E_TU_DEFAULT */,
-        TextureType texType /* = E_TEX_TYPE_2D */)
-    {
-        return smart_pointer_cast<Texture>(ResourceManager::load(name, 4,
-            stream, mipmaps, texUsage, texType));
-    }
-
-    //--------------------------------------------------------------------------
-
     ResourcePtr TextureManager::create(const String &name, int32_t argc, 
         va_list args)
     {

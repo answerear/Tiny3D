@@ -50,6 +50,7 @@ namespace Tiny3D
         T3D_ERR_RES_INVALID_VERSION     = T3D_ERR_CORE + 0x00A3, /**< 无效文件版本 */
         T3D_ERR_RES_INVALID_OBJECT      = T3D_ERR_CORE + 0x00A4, /**< 无效对象 */
         T3D_ERR_RES_INVALID_CONTENT     = T3D_ERR_CORE + 0x00A5, /**< 无效文件内容 */
+        T3D_ERR_RES_INVALID_PROPERTY    = T3D_ERR_CORE + 0x00A6, /**< 无效属性 */
 
         T3D_ERR_RENDER_CREATE_WINDOW    = T3D_ERR_CORE + 0x00C0, /**< 创建渲染窗口失败 */
 

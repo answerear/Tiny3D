@@ -69,6 +69,10 @@ namespace Tiny3D
         uint16_t id = (uint16_t)obj->id;
         bytesOfWritten = stream.write(&id, sizeof(id));
         totalBytes += bytesOfWritten;
+        // The number of children
+        uint16_t count = (uint16_t)obj->children.size();
+        bytesOfWritten = stream.write(&count, sizeof(count));
+        totalBytes += bytesOfWritten;
         // 名称
         bytesOfWritten = writeString(obj->name, stream);
         totalBytes += bytesOfWritten;
@@ -453,6 +457,11 @@ namespace Tiny3D
             {
                 PropertyAbstractNode *prop = static_cast<PropertyAbstractNode*>((*i).get());
 
+                // Type
+                uint16_t type = (*i)->type;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
+
                 // ID
                 uint16_t id = prop->id;
                 bytesOfWritten = stream.write(&id, sizeof(id));
@@ -652,12 +661,16 @@ namespace Tiny3D
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
 
-
         for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
             {
                 PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
+
+                // Type
+                uint16_t type = (*i)->type;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
 
                 // ID
                 uint16_t id = prop->id;
@@ -1005,6 +1018,11 @@ namespace Tiny3D
             if ((*i)->type == ANT_PROPERTY)
             {
                 PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
+
+                // Type
+                uint16_t type = (*i)->type;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
 
                 // ID
                 uint16_t id = prop->id;
@@ -3235,6 +3253,11 @@ namespace Tiny3D
             {
                 PropertyAbstractNode *prop = static_cast<PropertyAbstractNode*>((*i).get());
 
+                // Type
+                uint16_t type = (*i)->type;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
+
                 // ID
                 uint16_t id = prop->id;
                 bytesOfWritten = stream.write(&id, sizeof(id));
@@ -4619,6 +4642,11 @@ namespace Tiny3D
             {
                 PropertyAbstractNode *prop = static_cast<PropertyAbstractNode*>((*i).get());
 
+                // Type
+                uint16_t type = (*i)->type;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
+
                 // ID
                 uint16_t id = prop->id;
                 bytesOfWritten = stream.write(&id, sizeof(id));
@@ -5314,6 +5342,11 @@ namespace Tiny3D
             {
                 PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
 
+                // Type
+                uint16_t type = (*i)->type;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
+
                 // ID
                 uint16_t id = prop->id;
                 bytesOfWritten = stream.write(&id, sizeof(id));
@@ -5654,6 +5687,11 @@ namespace Tiny3D
             if ((*i)->type == ANT_PROPERTY)
             {
                 PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
+
+                // Type
+                uint16_t type = (*i)->type;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
 
                 // ID
                 uint16_t id = prop->id;

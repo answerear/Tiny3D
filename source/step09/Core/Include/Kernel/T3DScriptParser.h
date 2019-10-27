@@ -385,7 +385,7 @@ namespace Tiny3D
         ~ScriptParser();
 
         /** 解析数据流到material对象中 */
-        TResult parse(DataStream &stream, Material &material);
+        TResult parse(DataStream &stream, Material *material);
 
     protected:
         /** 构造函数 */
@@ -395,7 +395,17 @@ namespace Tiny3D
         TResult readString(DataStream &stream, String &str);
 
         /** 解析0.1.0版本文件格式文件 */
-        TResult parse_Ver00000100(DataStream &stream, Material &material);
+        TResult parse_Ver00000100(DataStream &stream, Material *material);
+
+        TResult parseObject(DataStream &stream, Object *object);
+
+        TResult parseMaterial(DataStream &stream, Object *object);
+
+        TResult parseMaterialProperties(DataStream &stream, Material *material);
+
+        TResult parseTechnique(DataStream &stream, Object *object);
+
+        TResult parsePass(DataStream &stream, Object *object);
 
         char    *mText;     /**< 用于存放读取字符串，避免重复申请内存，只在不够的时候动态扩展大小 */
         size_t  mTextLen;   /**< 用户存放读取字符串的缓冲区大小 */

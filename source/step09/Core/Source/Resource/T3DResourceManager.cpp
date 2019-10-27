@@ -23,21 +23,29 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     ResourceManager::ResourceManager()
         : mCloneID(T3D_INVALID_ID)
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     ResourceManager::~ResourceManager()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     ID ResourceManager::toID(const String &name)
     {
         return hash(name.c_str());
     }
+
+    //--------------------------------------------------------------------------
 
     uint32_t ResourceManager::hash(const char *str)
     {
@@ -50,6 +58,8 @@ namespace Tiny3D
 
         return (value & 0x7FFFFFFF);
     }
+
+    //--------------------------------------------------------------------------
 
     ResourcePtr ResourceManager::load(const String &name, int32_t argc, ...)
     {
@@ -124,6 +134,8 @@ namespace Tiny3D
         return res;
     }
 
+    //--------------------------------------------------------------------------
+
     void ResourceManager::unload(ResourcePtr &res)
     {
         if (res != nullptr && res->referCount() > 1)
@@ -160,6 +172,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void ResourceManager::unloadUnused()
     {
         auto itr = mResourcesCache.begin();
@@ -195,6 +209,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     ResourcePtr ResourceManager::clone(const ResourcePtr &src)
     {
         uint32_t unCloneID = (++mCloneID);
@@ -221,6 +237,8 @@ namespace Tiny3D
         return res;
     }
 
+    //--------------------------------------------------------------------------
+
     ResourcePtr ResourceManager::getResource(const String &name, uint32_t cloneID /* = 0 */) const
     {
         ResourcePtr res = nullptr;
@@ -241,6 +259,8 @@ namespace Tiny3D
 
         return res;
     }
+
+    //--------------------------------------------------------------------------
 
     bool ResourceManager::getResources(const String &name, TList<ResourcePtr> &rList) const
     {
