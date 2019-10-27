@@ -44,28 +44,26 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     ScriptParser::ScriptParser()
-        : mText(nullptr)
+        : ScriptParserBase()
     {
-        const size_t MAX_STR_SIZE = 1024;
-        mText = new char[MAX_STR_SIZE];
-        mTextLen = MAX_STR_SIZE;
     }
 
     //--------------------------------------------------------------------------
 
     ScriptParser::~ScriptParser()
     {
-        T3D_SAFE_DELETE_ARRAY(mText);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParser::parse(DataStream &stream, Material *material)
+    TResult ScriptParser::parse(DataStream &stream, Object *object)
     {
         TResult ret = T3D_OK;
 
         do 
         {
+            Material *material = static_cast<Material*>(object);
+
             // 读取文件头
             TSCFileHeader header;
             stream.read(&header, sizeof(header));
@@ -203,7 +201,7 @@ namespace Tiny3D
 
             // 名称
             String name;
-            ret = readString(stream, name);
+            ret = parseString(stream, name);
             if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
@@ -338,7 +336,7 @@ namespace Tiny3D
             case E_OP_SET_TEXTURE_ALIAS:
                 {
                     String aliasName;
-                    ret = readString(stream, aliasName);
+                    ret = parseString(stream, aliasName);
 
                     if (ret != T3D_OK)
                     {
@@ -349,7 +347,7 @@ namespace Tiny3D
                     }
 
                     String textureName;
-                    ret = readString(stream, textureName);
+                    ret = parseString(stream, textureName);
 
                     if (ret != T3D_OK)
                     {
@@ -392,51 +390,6 @@ namespace Tiny3D
     TResult ScriptParser::parsePass(DataStream &stream, Object *object)
     {
         TResult ret = T3D_OK;
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-
-    TResult ScriptParser::readString(DataStream &stream, String &str)
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            size_t bytesOfRead = 0;
-
-            // 读取字符串长度
-            uint16_t len = 0;
-            bytesOfRead = stream.read(&len, sizeof(len));
-            if (bytesOfRead != sizeof(len))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
-                    "Read the length of string failed !");
-                break;
-            }
-
-            // 读取字符串内容
-            if (len > mTextLen)
-            {
-                T3D_SAFE_DELETE_ARRAY(mText);
-                mText = new char[len];
-                mTextLen = len;
-            }
-
-            bytesOfRead = stream.read(mText, len);
-            if (bytesOfRead != len)
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read the string content failed !");
-                break;
-            }
-
-            str.assign(mText, len);
-        } while (0);
 
         return ret;
     }

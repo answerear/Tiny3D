@@ -60,6 +60,10 @@ namespace Tiny3D
     class Variant;
 
     class ScriptParser;
+    class ScriptParserMaterial;
+    class ScriptParserTechnique;
+    class ScriptParserPass;
+    class ScriptParserTextureUnit;
 
     class Resource;
     class ResourceManager;

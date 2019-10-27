@@ -22,16 +22,14 @@
 #define __T3D_SCRIPT_PARSER_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
-#include "Kernel/T3DObject.h"
+#include "Kernel/T3DScriptParserBase.h"
 
 
 namespace Tiny3D
 {
     class T3D_ENGINE_API ScriptParser 
         : public Singleton<ScriptParser>
-        , public Object
+        , public ScriptParserBase
     {
     protected:
         /**
@@ -382,17 +380,14 @@ namespace Tiny3D
         static ScriptParserPtr create();
 
         /** 析构函数 */
-        ~ScriptParser();
+        virtual ~ScriptParser();
 
         /** 解析数据流到material对象中 */
-        TResult parse(DataStream &stream, Material *material);
+        virtual TResult parse(DataStream &stream, Object *material) override;
 
     protected:
         /** 构造函数 */
         ScriptParser();
-
-        /** 读取一个字符串 */
-        TResult readString(DataStream &stream, String &str);
 
         /** 解析0.1.0版本文件格式文件 */
         TResult parse_Ver00000100(DataStream &stream, Material *material);
