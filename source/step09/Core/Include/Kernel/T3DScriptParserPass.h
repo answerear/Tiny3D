@@ -36,8 +36,9 @@ namespace Tiny3D
         /** 析构函数 */
         ~ScriptParserPass();
 
-        /** 解析数据流到material对象中 */
-        virtual TResult parse(DataStream &stream, Object *object) override;
+        /** 重写基类 ScriptParserBase::parseObject 接口 */
+        virtual TResult parseObject(
+            DataStream &stream, Object *object, uint32_t version) override;
 
     protected:
         /** 构造函数 */

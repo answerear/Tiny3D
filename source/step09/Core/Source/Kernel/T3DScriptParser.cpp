@@ -18,8 +18,10 @@
  ******************************************************************************/
 
 #include "Kernel/T3DScriptParser.h"
-#include "Resource/T3DMaterial.h"
 #include "T3DErrorDef.h"
+#include "Kernel/T3DScriptParserMaterial.h"
+#include "Kernel/T3DScriptParserTechnique.h"
+#include "Kernel/T3DScriptParserPass.h"
 
 
 namespace Tiny3D
@@ -56,14 +58,34 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ScriptParserBase *ScriptParser::getObjectParser(uint16_t opcode)
+    {
+        ScriptParserBase *parser = nullptr;
+
+        switch (opcode)
+        {
+        case E_OP_MATERIAL:
+            parser = mMaterialParser;
+            break;
+        case E_OP_TECHNIQUE:
+            parser = mTechParser;
+            break;
+        case E_OP_PASS:
+            parser = mPassParser;
+            break;
+        }
+
+        return parser;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ScriptParser::parse(DataStream &stream, Object *object)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            Material *material = static_cast<Material*>(object);
-
             // 读取文件头
             TSCFileHeader header;
             stream.read(&header, sizeof(header));
@@ -76,17 +98,7 @@ namespace Tiny3D
                 break;
             }
 
-            // 根据版本解析
-            switch (header.version)
-            {
-            case T3D_TSC_VERSION_00000100:
-                ret = parse_Ver00000100(stream, material);
-                break;
-            default:
-                ret = T3D_ERR_RES_INVALID_VERSION;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid file version !");
-                break;
-            }
+            ret = parseObject(stream, object, header.version);
         } while (0);
 
         return ret;
@@ -94,7 +106,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParser::parse_Ver00000100(DataStream &stream, Material *material)
+    TResult ScriptParser::parseObject(DataStream &stream, Object *object, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -117,26 +129,10 @@ namespace Tiny3D
             {
                 // 错误类型，这里需要对象
                 ret = T3D_ERR_RES_INVALID_OBJECT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Invalid object ! Here need material object !");
                 break;
             }
-
-            ret = parseObject(stream, material);
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ScriptParser::parseObject(DataStream &stream, Object *object)
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            size_t bytesOfRead = 0;
 
             // Op Code
             uint16_t opcode = 0;
@@ -149,248 +145,18 @@ namespace Tiny3D
                 break;
             }
 
-            if (opcode != E_OP_MATERIAL)
+            ScriptParserBase *parser = getObjectParser(opcode);
+            if (parser == nullptr)
             {
                 ret = T3D_ERR_RES_INVALID_OBJECT;
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid op code ! Herer need Material op code !");
+                    "Invalid op code ! Here need Material op code !");
                 break;
             }
 
-            switch (opcode)
-            {
-            case E_OP_MATERIAL:
-                ret = parseMaterial(stream, object);
-                break;
-            case E_OP_TECHNIQUE:
-                ret = parseTechnique(stream, object);
-                break;
-            case E_OP_PASS:
-                ret = parsePass(stream, object);
-            default:
-                break;
-            }
-
+            ret = parser->parseObject(stream, object, version);
         } while (0);
         
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ScriptParser::parseMaterial(DataStream &stream, Object *object)
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            size_t bytesOfRead = 0;
-
-            Material *material = static_cast<Material*>(object);
-
-            // 属性数量
-            uint16_t count = 0;
-            bytesOfRead = stream.read(&count, sizeof(count));
-            if (bytesOfRead != sizeof(count))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
-                    "Read the number of children of material failed !");
-                break;
-            }
-
-            // 名称
-            String name;
-            ret = parseString(stream, name);
-            if (ret != T3D_OK)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
-                    "Read the name of material failed !");
-                break;
-            }
-
-            material->setMaterialName(name);
-
-            uint16_t type = E_NT_UNKNOWN;
-            uint16_t i = 0;
-
-            for (i = 0; i < count; ++i)
-            {
-                // Type
-                bytesOfRead = stream.read(&type, sizeof(type));
-                if (bytesOfRead != sizeof(type))
-                {
-                    ret = T3D_ERR_RES_INVALID_CONTENT;
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
-                        "Read the type of property of material failed !");
-                    break;
-                }
-
-                if (type == E_NT_PROPERTY)
-                {
-                    ret = parseMaterialProperties(stream, material);
-                }
-                else if (type == E_NT_OBJECT)
-                {
-                    ret = parseObject(stream, material);
-                }
-                else
-                {
-                    ret = T3D_ERR_RES_INVALID_OBJECT;
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
-                        "Invalid object type in material script !");
-                    break;
-                }
-            }
-
-            if (ret != T3D_OK)
-            {
-                break;
-            }
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ScriptParser::parseMaterialProperties(DataStream &stream, 
-        Material *material)
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            size_t bytesOfRead = 0;
-
-            // ID
-            uint16_t id;
-            bytesOfRead = stream.read(&id, sizeof(id));
-            if (bytesOfRead != sizeof(id))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
-                    "Read ID of property of material failed !");
-                break;
-            }
-
-            switch (id)
-            {
-            case E_OP_LOD_VALUES:
-                {
-                    // The number of LOD
-                    uint16_t count = 0;
-                    bytesOfRead = stream.read(&count, sizeof(count));
-                    if (bytesOfRead != sizeof(count))
-                    {
-                        ret = T3D_ERR_RES_INVALID_CONTENT;
-                        T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
-                            "Read the number of LOD failed !");
-                        break;
-                    }
-
-                    // LOD value
-                    uint16_t i = 0;
-                    for (i = 0; i < count; ++i)
-                    {
-                        float32_t value;
-                        bytesOfRead = stream.read(&value, sizeof(value));
-                        if (bytesOfRead != sizeof(value))
-                        {
-                            ret = T3D_ERR_RES_INVALID_CONTENT;
-                            T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                                "Read the value of LOD failed !");
-                            break;
-                        }
-                    }
-                }
-                break;
-            case E_OP_RECEIVE_SHADOWS:
-                {
-                    // receiving shadows
-                    bool enable = false;
-                    bytesOfRead = stream.read(&enable, sizeof(enable));
-                    if (bytesOfRead != sizeof(enable))
-                    {
-                        ret = T3D_ERR_RES_INVALID_CONTENT;
-                        T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                            "Read the receive shadows failed !");
-                        break;
-                    }
-                }
-                break;
-            case E_OP_TRANSPARENCY_CASTS_SHADOWS:
-                {
-                    // transparency cast shadows
-                    bool enable = false;
-                    bytesOfRead = stream.read(&enable, sizeof(enable));
-                    if (bytesOfRead != sizeof(enable))
-                    {
-                        ret = T3D_ERR_RES_INVALID_CONTENT;
-                        T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                            "Read the transparency cast shadows failed !");
-                        break;
-                    }
-                }
-                break;
-            case E_OP_SET_TEXTURE_ALIAS:
-                {
-                    String aliasName;
-                    ret = parseString(stream, aliasName);
-
-                    if (ret != T3D_OK)
-                    {
-                        ret = T3D_ERR_RES_INVALID_CONTENT;
-                        T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
-                            "Read alias name failed !");
-                        break;
-                    }
-
-                    String textureName;
-                    ret = parseString(stream, textureName);
-
-                    if (ret != T3D_OK)
-                    {
-                        ret = T3D_ERR_RES_INVALID_CONTENT;
-                        T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                            "Read texture name failed !");
-                        break;
-                    }
-                }
-                break;
-            default:
-                {
-                    ret = T3D_ERR_RES_INVALID_PROPERTY;
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
-                        "Invalid property of material !");
-                }
-                break;
-            }
-
-            if (ret != T3D_OK)
-            {
-                break;
-            }
-        } while (0);
-        
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ScriptParser::parseTechnique(DataStream &stream, Object *object)
-    {
-        TResult ret = T3D_OK;
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ScriptParser::parsePass(DataStream &stream, Object *object)
-    {
-        TResult ret = T3D_OK;
-
         return ret;
     }
 }
