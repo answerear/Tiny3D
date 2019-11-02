@@ -54,13 +54,8 @@ namespace Tiny3D
             // 读取字符串长度
             uint16_t len = 0;
             bytesOfRead = stream.read(&len, sizeof(len));
-            if (bytesOfRead != sizeof(len))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read the length of string failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(len), 
+                "Read the length of string failed !");
 
             // 读取字符串内容
             if (len > mTextLen)
@@ -71,15 +66,45 @@ namespace Tiny3D
             }
 
             bytesOfRead = stream.read(mText, len);
-            if (bytesOfRead != len)
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read the string content failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, len, 
+                "Read the string content failed !");
 
             str.assign(mText, len);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ScriptParserBase::parseColor(DataStream &stream, ColorARGB &color)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            size_t bytesOfRead = 0;
+
+            float32_t val;
+            bytesOfRead = stream.read(&val, sizeof(val));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                "Read the blue component in the color failed !");
+            color.blue() = val;
+
+            bytesOfRead = stream.read(&val, sizeof(val));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                "Read the green component in the color failed !");
+            color.green() = val;
+
+            bytesOfRead = stream.read(&val, sizeof(val));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                "Read the red component in the color failed !");
+            color.red() = val;
+
+            bytesOfRead = stream.read(&val, sizeof(val));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                "Read the alpha component in the color failed !");
+            color.alpha() = val;
         } while (0);
 
         return ret;

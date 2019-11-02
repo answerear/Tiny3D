@@ -66,13 +66,8 @@ namespace Tiny3D
             // 属性数量
             uint16_t count = 0;
             bytesOfRead = stream.read(&count, sizeof(count));
-            if (bytesOfRead != sizeof(count))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read the number of children of material failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(count),
+                "Read the number of children of technique failed !");
 
             // 名称
             String name;
@@ -87,13 +82,8 @@ namespace Tiny3D
             {
                 // Type
                 bytesOfRead = stream.read(&type, sizeof(type));
-                if (bytesOfRead != sizeof(type))
-                {
-                    ret = T3D_ERR_RES_INVALID_CONTENT;
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                        "Read the type of property of technique failed !");
-                    break;
-                }
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
+                    "Read the type of property of technique failed !");
 
                 if (type == E_NT_PROPERTY)
                 {
@@ -135,13 +125,8 @@ namespace Tiny3D
             // Op code
             uint16_t opcode = 0;
             bytesOfRead = stream.read(&opcode, sizeof(opcode));
-            if (bytesOfRead != sizeof(opcode))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read the opcode of property of technique failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(opcode),
+                "Read the opcode of property of technique failed !");
 
             ScriptParserBase *parser
                 = ScriptParser::getInstance().getObjectParser(opcode);
@@ -173,13 +158,8 @@ namespace Tiny3D
             // ID
             uint16_t id;
             bytesOfRead = stream.read(&id, sizeof(id));
-            if (bytesOfRead != sizeof(id))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read ID of property of technique failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(id),
+                "Read ID of property of technique failed !");
 
             switch (id)
             {
@@ -249,13 +229,8 @@ namespace Tiny3D
             size_t bytesOfRead = 0;
             uint32_t index = 0;
             bytesOfRead = stream.read(&index, sizeof(index));
-            if (bytesOfRead != sizeof(index))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid LOD index of property of technique !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(index),
+                "Invalid LOD index of property of technique !");
         } while (0);
 
         return ret;
@@ -274,7 +249,9 @@ namespace Tiny3D
             ret = parseString(stream, matName);
             if (ret != T3D_OK)
             {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid ")
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid shadow caster material !");
+                break;
             }
         } while (0);
 
@@ -290,6 +267,14 @@ namespace Tiny3D
 
         do 
         {
+            String matName;
+            ret = parseString(stream, matName);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid shadow receiver material !");
+                break;
+            }
         } while (0);
 
         return ret;

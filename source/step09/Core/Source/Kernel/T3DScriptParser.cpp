@@ -117,13 +117,8 @@ namespace Tiny3D
             // 类型
             uint16_t type = 0;
             bytesOfRead = stream.read(&type, sizeof(type));
-            if (bytesOfRead != sizeof(type))
-            {
-                // 文件出错了
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Read object type failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type), 
+                "Read object type failed !");
 
             if (type != E_NT_OBJECT)
             {
@@ -137,13 +132,8 @@ namespace Tiny3D
             // Op Code
             uint16_t opcode = 0;
             bytesOfRead = stream.read(&opcode, sizeof(opcode));
-            if (bytesOfRead != sizeof(opcode))
-            {
-                // 文件出错了
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Read op code failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(opcode),
+                "Read op code failed !");
 
             ScriptParserBase *parser = getObjectParser(opcode);
             if (parser == nullptr)

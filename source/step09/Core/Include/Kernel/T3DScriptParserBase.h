@@ -29,6 +29,14 @@
 
 namespace Tiny3D
 {
+    #define T3D_CHECK_READ_CONTENT(rd, sz, msg)    \
+        if (rd != sz)  \
+        {   \
+            ret = T3D_ERR_RES_INVALID_CONTENT;  \
+            T3D_LOG_ERROR(LOG_TAG_RESOURCE, msg);   \
+            break;  \
+        }
+
     class T3D_ENGINE_API ScriptParserBase : public Object
     {
     protected:
@@ -382,8 +390,11 @@ namespace Tiny3D
         /** 构造函数 */
         ScriptParserBase();
 
-        /** 读取一个字符串 */
+        /** 解析一个字符串 */
         TResult parseString(DataStream &stream, String &str);
+
+        /** 解析一个颜色值 */
+        TResult parseColor(DataStream &stream, ColorARGB &color);
 
         char    *mText;     /**< 用于存放读取字符串，避免重复申请内存，只在不够的时候动态扩展大小 */
         size_t  mTextLen;   /**< 用户存放读取字符串的缓冲区大小 */

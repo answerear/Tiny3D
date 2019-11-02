@@ -35,11 +35,16 @@ namespace Tiny3D
     class T3D_ENGINE_API Pass : public Object
     {
     public:
-        Pass();
+        /** 创建 Pass 对象 */
+        static PassPtr create();
 
+        /** 析构函数 */
         virtual ~Pass();
 
     protected:
+        /** 构造函数 */
+        Pass();
+
         String      mName;      /**< Pass名称 */
 
         //---------------------------------------

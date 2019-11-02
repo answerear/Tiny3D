@@ -65,13 +65,8 @@ namespace Tiny3D
             // 属性和子对象数量
             uint16_t count = 0;
             bytesOfRead = stream.read(&count, sizeof(count));
-            if (bytesOfRead != sizeof(count))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read the number of children of material failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(count),
+                "Read the number of children of material failed !");
 
             // 名称
             String name;
@@ -92,13 +87,8 @@ namespace Tiny3D
             {
                 // Type
                 bytesOfRead = stream.read(&type, sizeof(type));
-                if (bytesOfRead != sizeof(type))
-                {
-                    ret = T3D_ERR_RES_INVALID_CONTENT;
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                        "Read the type of property of material failed !");
-                    break;
-                }
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
+                    "Read the type of property of material failed !");
 
                 if (type == E_NT_PROPERTY)
                 {
@@ -140,13 +130,8 @@ namespace Tiny3D
             // Op code
             uint16_t opcode = 0;
             bytesOfRead = stream.read(&opcode, sizeof(opcode));
-            if (bytesOfRead != sizeof(opcode))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read the opcode of property of material failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(opcode),
+                "Read the opcode of property of material failed !");
 
             ScriptParserBase *parser
                 = ScriptParser::getInstance().getObjectParser(opcode);
@@ -178,13 +163,8 @@ namespace Tiny3D
             // ID
             uint16_t id;
             bytesOfRead = stream.read(&id, sizeof(id));
-            if (bytesOfRead != sizeof(id))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read ID of property of material failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(id),
+                "Read ID of property of material failed !");
 
             switch (id)
             {
@@ -235,13 +215,8 @@ namespace Tiny3D
             // The number of LOD
             uint16_t count = 0;
             bytesOfRead = stream.read(&count, sizeof(count));
-            if (bytesOfRead != sizeof(count))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read the number of LOD failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(count), 
+                "Read the number of LOD failed !");
 
             // LOD values
             uint16_t i = 0;
@@ -249,13 +224,8 @@ namespace Tiny3D
             {
                 float32_t value;
                 bytesOfRead = stream.read(&value, sizeof(value));
-                if (bytesOfRead != sizeof(value))
-                {
-                    ret = T3D_ERR_RES_INVALID_CONTENT;
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                        "Read the value of LOD failed !");
-                    break;
-                }
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(value), 
+                    "Read the value of LOD failed !");
             }
         } while (0);
 
@@ -298,13 +268,8 @@ namespace Tiny3D
             // receive_shadows
             bool enable = false;
             bytesOfRead = stream.read(&enable, sizeof(enable));
-            if (bytesOfRead != sizeof(enable))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read the receive shadows failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enable),
+                "Read the receive shadows failed !");
         } while (0);
 
         return ret;
@@ -323,13 +288,8 @@ namespace Tiny3D
 
             bool enable = false;
             bytesOfRead = stream.read(&enable, sizeof(enable));
-            if (bytesOfRead != sizeof(enable))
-            {
-                ret = T3D_ERR_RES_INVALID_CONTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read the transparency cast shadows failed !");
-                break;
-            }
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enable),
+                "Read the transparency cast shadows failed !");
         } while (0);
 
         return ret;
