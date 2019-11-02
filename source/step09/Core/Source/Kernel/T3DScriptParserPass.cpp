@@ -308,8 +308,9 @@ namespace Tiny3D
             {
                 // 顶点颜色
 
+                // TODO
             }
-            else
+            else if (id == 0)
             {
                 // 非顶点颜色，ambient
                 ColorARGB color;
@@ -320,6 +321,14 @@ namespace Tiny3D
                         "Read ambient color failed !");
                     break;
                 }
+
+                // TODO
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid value of ambient !");
+                break;
             }
         } while (0);
 
@@ -347,8 +356,9 @@ namespace Tiny3D
             {
                 // 顶点颜色
 
+                // TODO
             }
-            else
+            else if (id == 0)
             {
                 // 非顶点颜色，diffuse
                 ColorARGB color;
@@ -359,6 +369,14 @@ namespace Tiny3D
                         "Read diffuse color failed !");
                     break;
                 }
+
+                // TODO
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid value of diffuse !");
+                break;
             }
         } while (0);
 
@@ -391,8 +409,10 @@ namespace Tiny3D
                 bytesOfRead = stream.read(&shininess, sizeof(shininess));
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(shininess),
                     "Read shininess of specular in pass failed !");
+
+                // TODO
             }
-            else
+            else if (id == 0)
             {
                 // 非顶点颜色，specular
                 ColorARGB color;
@@ -409,6 +429,14 @@ namespace Tiny3D
                 bytesOfRead = stream.read(&shininess, sizeof(shininess));
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(shininess),
                     "Read shininess of specular in pass failed !");
+
+                // TODO
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid value of specular !");
+                break;
             }
         } while (0);
 
@@ -435,8 +463,10 @@ namespace Tiny3D
             if (id == E_OP_VERTEXCOLOUR)
             {
                 // 顶点颜色
+
+                // TODO
             }
-            else
+            else if (id == 0)
             {
                 // 非顶点颜色，emissive
                 ColorARGB color;
@@ -447,6 +477,14 @@ namespace Tiny3D
                         "Read diffuse color failed !");
                     break;
                 }
+
+                // TODO
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid value of emissive !");
+                break;
             }
         } while (0);
 
@@ -462,7 +500,36 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
 
+            // operating #1
+            uint16_t op0 = 0;
+            bytesOfRead = stream.read(&op0, sizeof(op0));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op0),
+                "Read scene_blend first argument failed !");
+
+            if (op0 >= E_OP_ONE && op0 <= E_OP_ONE_MINUS_SRC_ALPHA)
+            {
+                // operating #2
+                uint16_t op1 = 0;
+                bytesOfRead = stream.read(&op1, sizeof(op1));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op1),
+                    "Read scene_blend second argument failed !");
+
+                // TODO
+            }
+            else if (op0 == E_OP_ADD || op0 == E_OP_MODULATE
+                || op0 == E_OP_COLOUR_BLEND || op0 == E_OP_ALPHA_BLEND)
+            {
+                // TODO
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid operating code for scene_blend !");
+                break;
+            }
         } while (0);
 
         return ret;
@@ -477,6 +544,54 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // operating #1
+            uint16_t op0 = 0;
+            bytesOfRead = stream.read(&op0, sizeof(op0));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op0),
+                "Read separate_scene_blend first argument failed !");
+
+            if (op0 >= E_OP_ONE && op0 <= E_OP_ONE_MINUS_SRC_ALPHA)
+            {
+                // operating #2
+                uint16_t op1 = 0;
+                bytesOfRead = stream.read(&op1, sizeof(op1));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op1),
+                    "Read separate_scene_blend second argument failed !");
+
+                // operating #3
+                uint16_t op2 = 0;
+                bytesOfRead = stream.read(&op2, sizeof(op2));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op2),
+                    "Read separate_scene_blend third argument failed !");
+
+                // operating #4
+                uint16_t op3 = 0;
+                bytesOfRead = stream.read(&op3, sizeof(op3));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op3),
+                    "Read separate_scene_blend fourth argument failed !");
+
+                // TODO
+            }
+            else if (op0 == E_OP_ADD || op0 == E_OP_MODULATE
+                || op0 == E_OP_COLOUR_BLEND || op0 == E_OP_ALPHA_BLEND)
+            {
+                // operating #2
+                uint16_t op1 = 0;
+                bytesOfRead = stream.read(&op1, sizeof(op1));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op1),
+                    "Read separate_scene_blend second argument failed !");
+
+                // TODO
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid operating code for separate_scene_blend !");
+                break;
+            }
         } while (0);
 
         return ret;
@@ -491,6 +606,27 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // operating
+            uint16_t op = 0;
+            bytesOfRead = stream.read(&op, sizeof(op));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op),
+                "Read scene_blend_op failed !");
+
+            if (op == E_OP_ADD || op == E_OP_SUBTRACT
+                || op == E_OP_REVERSE_SUBTRACT
+                || op == E_OP_MIN || op == E_OP_MAX)
+            {
+                // TODO
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid value of scene_blend_op !");
+                break;
+            }
         } while (0);
 
         return ret;
@@ -505,6 +641,36 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // operating #1
+            uint16_t op0 = 0;
+            bytesOfRead = stream.read(&op0, sizeof(op0));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op0),
+                "Read separate_scene_blend_op first argument failed !");
+
+            // operating #2
+            uint16_t op1 = 0;
+            bytesOfRead = stream.read(&op1, sizeof(op1));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op1),
+                "Read separate_scene_blend_op second argument failed !");
+
+            if ((op0 == E_OP_ADD || op0 == E_OP_SUBTRACT
+                || op0 == E_OP_REVERSE_SUBTRACT
+                || op0 == E_OP_MIN || op0 == E_OP_MAX)
+                && (op1 == E_OP_ADD || op1 == E_OP_SUBTRACT
+                || op1 == E_OP_REVERSE_SUBTRACT
+                || op1 == E_OP_MIN || op1 == E_OP_MAX))
+            {
+                // TODO
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid value of separate_scene_blend_op !");
+                break;
+            }
         } while (0);
 
         return ret;
@@ -519,6 +685,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // enabled flag
+            bool enabled = false;
+            bytesOfRead = stream.read(&enabled, sizeof(enabled));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
+                "Read depth_check failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -533,6 +708,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // enabled flag
+            bool enabled = false;
+            bytesOfRead = stream.read(&enabled, sizeof(enabled));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
+                "Read depth_write failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -547,6 +731,43 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // number of values
+            uint16_t argc = 0;
+            bytesOfRead = stream.read(&argc, sizeof(argc));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(argc),
+                "Read the number of argument of depth_bias failed !");
+
+            if (argc == 1)
+            {
+                // values
+                float32_t val;
+                bytesOfRead = stream.read(&val, sizeof(val));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                    "Read the values of depth_bias failed !");
+
+                // TODO
+            }
+            else if (argc == 2)
+            {
+                // values
+                float32_t val0, val1;
+                bytesOfRead = stream.read(&val0, sizeof(val0));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val0),
+                    "Read the values of depth_bias failed !");
+
+                bytesOfRead = stream.read(&val1, sizeof(val1));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val1),
+                    "Read the values of depth_bias failed !");
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid number of arguments for depth_bias !");
+                break;
+            }
         } while (0);
 
         return ret;
@@ -561,6 +782,37 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // depth compare function
+            uint16_t func = 0;
+            bytesOfRead = stream.read(&func, sizeof(func));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(func),
+                "Read depth_func failed !");
+
+            switch (func)
+            {
+            case E_OP_ALWAYS_FAIL:
+            case E_OP_ALWAYS_PASS:
+            case E_OP_LESS:
+            case E_OP_LESS_EQUAL:
+            case E_OP_EQUAL:
+            case E_OP_NOT_EQUAL:
+            case E_OP_GREATER_EQUAL:
+            case E_OP_GREATER:
+                {
+                    // TODO
+                }
+                break;
+            default:
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid value of depth_func !");
+                }
+                break;
+            }
+
         } while (0);
 
         return ret;
@@ -575,6 +827,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // value
+            float32_t val = 0.0f;
+            bytesOfRead = stream.read(&val, sizeof(val));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val), 
+                "Read iteration_depth_bias failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -589,6 +850,62 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // number of arguments
+            uint16_t argc = 0;
+            bytesOfRead = stream.read(&argc, sizeof(argc));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(argc),
+                "Read the number of values of alpha_rejection failed !");
+
+            if (argc == 1 || argc == 2)
+            {
+                // compare function
+                uint16_t func;
+                bytesOfRead = stream.read(&func, sizeof(func));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(func),
+                    "Read method of alpha_rejection failed !");
+
+                switch (func)
+                {
+                    case E_OP_ALWAYS_FAIL:
+                    case E_OP_ALWAYS_PASS:
+                    case E_OP_LESS:
+                    case E_OP_LESS_EQUAL:
+                    case E_OP_EQUAL:
+                    case E_OP_NOT_EQUAL:
+                    case E_OP_GREATER_EQUAL:
+                    case E_OP_GREATER:
+                        {
+                            // TODO
+                        }
+                        break;
+                    default:
+                        {
+                            ret = T3D_ERR_RES_INVALID_PROPERTY;
+                            T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                                "Invalid function of alpha_rejection !");
+                        }
+                        break;
+                }
+
+                if (argc == 2)
+                {
+                    uint32_t val = 0;
+                    bytesOfRead = stream.read(&val, sizeof(val));
+                    T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                        "Read value of alpha_rejection failed !");
+
+                    // TODO
+                }
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid number of values for alpha_rejection !");
+                break;
+            }
         } while (0);
 
         return ret;
@@ -603,6 +920,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // enabled flag
+            bool enabled = false;
+            bytesOfRead = stream.read(&enabled, sizeof(enabled));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
+                "Read alpha_to_coverage failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -617,6 +943,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // enabled flag
+            bool enabled = false;
+            bytesOfRead = stream.read(&enabled, sizeof(enabled));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
+                "Read light_scissor failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -631,6 +966,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // enabled flag
+            bool enabled = false;
+            bytesOfRead = stream.read(&enabled, sizeof(enabled));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
+                "Read light_clip_planes failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -645,6 +989,25 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // transparent sorting, 1(true), 0(false) or 2(force)
+            uint8_t val;
+            bytesOfRead = stream.read(&val, sizeof(val));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                "Read transparent_sorting failed !");
+
+            if (val == 0 || val == 1 || val == 2)
+            {
+                // TODO
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid value of transparent_sorting !");
+                break;
+            }
         } while (0);
 
         return ret;
@@ -659,6 +1022,31 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // illumination stage
+            uint16_t stage = 0;
+            bytesOfRead = stream.read(&stage, sizeof(stage));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(stage),
+                "Read illumination_stage failed !");
+
+            switch (stage)
+            {
+            case E_OP_AMBIENT:
+            case E_OP_PER_LIGHT:
+            case E_OP_DECAL:
+                {
+                    // TODO
+                }
+                break;
+            default:
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid value of illumination_stage!");
+                }
+                break;
+            }
         } while (0);
 
         return ret;
@@ -673,6 +1061,31 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // culling mode
+            uint16_t culling = 0;
+            bytesOfRead = stream.read(&culling, sizeof(culling));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(culling),
+                "Read cull_hardware failed !");
+
+            switch (culling)
+            {
+            case E_OP_CLOCKWISE:
+            case E_OP_ANTICLOCKWISE:
+            case E_OP_NONE:
+                {
+                    // TODO
+                }
+                break;
+            default:
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid value of cull_hardware !");
+                }
+                break;
+            }
         } while (0);
 
         return ret;
@@ -687,6 +1100,31 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // culling mode
+            uint16_t culling = 0;
+            bytesOfRead = stream.read(&culling, sizeof(culling));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(culling),
+                "Read cull_software failed !");
+
+            switch (culling)
+            {
+            case E_OP_FRONT:
+            case E_OP_BACK:
+            case E_OP_NONE:
+                {
+                    // TODO
+                }
+                break;
+            default:
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid value of cull_software !");
+                }
+                break;
+            }
         } while (0);
 
         return ret;
@@ -701,6 +1139,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // enabled flag
+            bool enabled = false;
+            bytesOfRead = stream.read(&enabled, sizeof(enabled));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
+                "Read normalize_normals failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -715,6 +1162,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // enabled flag
+            bool enabled = false;
+            bytesOfRead = stream.read(&enabled, sizeof(enabled));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
+                "Read lighting failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -729,6 +1185,31 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // shading
+            uint16_t shading = 0;
+            bytesOfRead = stream.read(&shading, sizeof(shading));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(shading),
+                "Read shading failed !");
+
+            switch (shading)
+            {
+            case E_OP_FLAT:
+            case E_OP_GOURAUD:
+            case E_OP_PHONG:
+                {
+                    // TODO
+                }
+                break;
+            default:
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
+                        "Invalid value of shading !");
+                }
+                break;
+            }
         } while (0);
 
         return ret;
@@ -743,6 +1224,31 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // polygon mode
+            uint16_t mode;
+            bytesOfRead = stream.read(&mode, sizeof(mode));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(mode),
+                "Read polygon_mode failed !");
+
+            switch (mode)
+            {
+            case E_OP_SOLID:
+            case E_OP_POINTS:
+            case E_OP_WIREFRAME:
+                {
+                    // TODO
+                }
+                break;
+            default:
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid value of polygon_mode !");
+                }
+                break;
+            }
         } while (0);
 
         return ret;
@@ -757,6 +1263,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // enabled flags
+            bool enabled = false;
+            bytesOfRead = stream.read(&enabled, sizeof(enabled));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
+                "Read polygon_mode_overrideable failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -771,6 +1286,108 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // number of arguments
+            uint16_t argc = 0;
+            bytesOfRead = stream.read(&argc, sizeof(argc));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(argc),
+                "Read the number of arguments of fog_override failed !");
+
+            if (argc == 1)
+            {
+                // enabled flag
+                bool overrideable = false;
+                bytesOfRead = stream.read(&overrideable, sizeof(overrideable));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(overrideable),
+                    "Read override value of fog_override failed !");
+
+                if (overrideable)
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "When the first argument is true in fog_override, \
+                        the number of arguments must be six !");
+                    break;
+                }
+            }
+            else if (argc == 6)
+            {
+                // enabled flag
+                bool overrideable = false;
+                bytesOfRead = stream.read(&overrideable, sizeof(overrideable));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(overrideable),
+                    "Read fog_override flag failed !");
+
+                if (!overrideable)
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "When the first argument is false in fog_override, \
+                        the number of arguments must be only one !");
+                    break;
+                }
+
+                // type
+                uint16_t type;
+                bytesOfRead = stream.read(&type, sizeof(type));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
+                    "Read type value of fog_override failed !");
+
+                // color
+                ColorARGB color;
+                ret = parseColor(stream, color);
+                if (ret != T3D_OK)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Read color value of fog_override failed !");
+                    break;
+                }
+
+                // density
+                float32_t density = 0.0f;
+                bytesOfRead = stream.read(&density, sizeof(density));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(density),
+                    "Read density of fog_override failed !");
+
+                // start
+                float32_t start = 0.0f;
+                bytesOfRead = stream.read(&start, sizeof(start));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(start),
+                    "Read start of fog_override failed !");
+
+                // end
+                float32_t end = 0.0f;
+                bytesOfRead = stream.read(&end, sizeof(end));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(end),
+                    "Read end of fog_override failed !");
+
+                switch (type)
+                {
+                case E_OP_NONE:
+                case E_OP_LINEAR:
+                case E_OP_EXP:
+                case E_OP_EXP2:
+                    {
+                        // TODO
+                    }
+                    break;
+                default:
+                    {
+                        ret = T3D_ERR_RES_INVALID_PROPERTY;
+                        T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                            "Invalid type of fog_override !");
+                    }
+                    break;
+                }
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid value of fog_override !");
+                break;
+            }
         } while (0);
 
         return ret;
@@ -785,6 +1402,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // enabled flag
+            bool enabled = false;
+            bytesOfRead = stream.read(&enabled, sizeof(enabled));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
+                "Read color_write failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -799,6 +1425,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // max lights
+            uint32_t val;
+            bytesOfRead = stream.read(&val, sizeof(val));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                "Read max_lights failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -813,6 +1448,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // start light
+            uint32_t val;
+            bytesOfRead = stream.read(&val, sizeof(val));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                "Read start_light failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -827,6 +1471,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // light mask
+            uint32_t val;
+            bytesOfRead = stream.read(&val, sizeof(val));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                "Read light_mask failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -841,6 +1494,137 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // number of arguments
+            uint16_t argc = 0;
+            bytesOfRead = stream.read(&argc, sizeof(argc));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(argc),
+                "Read the number of arguments of iteration failed !");
+
+            if (argc >= 1 && argc <= 4)
+            {
+                // ID
+                uint16_t flag = 0;
+                bytesOfRead = stream.read(&flag, sizeof(flag));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(flag),
+                    "Read ID of iteration failed !");
+
+                if (flag == E_OP_ONCE)
+                {
+                    // once
+
+                    // TODO
+                }
+                else if (flag == E_OP_ONCE_PER_LIGHT)
+                {
+                    // once_per_light
+
+                    // type
+                    uint16_t type = 0;
+                    bytesOfRead = stream.read(&type, sizeof(type));
+                    T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
+                        "Read type of iteration failed as once_per_light !");
+
+                    switch (type)
+                    {
+                    case 0:
+                    case E_OP_POINT:
+                    case E_OP_DIRECTIONAL:
+                    case E_OP_SPOT:
+                        {
+                            // TODO
+                        }
+                        break;
+                    default:
+                        {
+                            ret = T3D_ERR_RES_INVALID_PROPERTY;
+                            T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                                "Invalid value of iteration as once_per_light !");
+                        }
+                        break;
+                    }
+                }
+                else if (flag == 0)
+                {
+                    // number
+
+                    // value of number
+                    int32_t val = 0;
+                    bytesOfRead = stream.read(&val, sizeof(val));
+                    T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                        "Read number of iteration failed !");
+
+                    if (argc == 3)
+                    {
+                        // per_light
+                        uint16_t method = 0;
+                        bytesOfRead = stream.read(&method, sizeof(method));
+                        T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(method),
+                            "Read method of iteration failed as number !");
+
+                        // light type
+                        uint16_t type = 0;
+                        bytesOfRead = stream.read(&type, sizeof(type));
+                        T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
+                            "Read light type of iteration failed as number !");
+
+                        if (method != E_OP_PER_LIGHT)
+                        {
+                            ret = T3D_ERR_RES_INVALID_PROPERTY;
+                            T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                                "Invalid value of iteration as number !");
+                            break;
+                        }
+
+                        // TODO
+                    }
+                    else if (argc == 4)
+                    {
+                        // per_n_lights
+                        uint16_t method = 0;
+                        bytesOfRead = stream.read(&method, sizeof(method));
+                        T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(method),
+                            "Read method of iteration failed as number !");
+
+                        // nubmer of lights
+                        int32_t numOfLights = 0;
+                        bytesOfRead = stream.read(&numOfLights, sizeof(numOfLights));
+                        T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(numOfLights),
+                            "Read number of lights of iteration failed as nubmer !");
+
+                        // light type
+                        uint16_t type = 0;
+                        bytesOfRead = stream.read(&type, sizeof(type));
+                        T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
+                            "Read light type of iteration failed as number !");
+
+                        if (method != E_OP_PER_N_LIGHTS)
+                        {
+                            ret = T3D_ERR_RES_INVALID_PROPERTY;
+                            T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                                "Invalid value of iteration as number !");
+                            break;
+                        }
+
+                        // TODO
+                    }
+                }
+                else
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid flag of iteration !");
+                    break;
+                }
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid number of arguments of iteration !");
+                break;
+            }
         } while (0);
 
         return ret;
@@ -855,6 +1639,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // point size
+            float32_t val = 0.0f;
+            bytesOfRead = stream.read(&val, sizeof(val));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                "Read point_size failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -869,6 +1662,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // enabled flag
+            bool enabled = false;
+            bytesOfRead = stream.read(&enabled, sizeof(enabled));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
+                "Read point_sprites failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -883,6 +1685,75 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // number of arguments
+            uint16_t argc = 0;
+            bytesOfRead = stream.read(&argc, sizeof(argc));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(argc),
+                "Read number of arguments of point_size_attenuation failed !");
+
+            if (argc == 1)
+            {
+                // enabled flag
+                bool enabled = false;
+                bytesOfRead = stream.read(&enabled, sizeof(enabled));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
+                    "Read flag of point_size_attenuation failed !");
+
+                if (enabled)
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid value of point_size_attenuation !");
+                    break;
+                }
+
+                // TODO
+            }
+            else if (argc == 4)
+            {
+                // enabled flag
+                bool enabled = false;
+                bytesOfRead = stream.read(&enabled, sizeof(enabled));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
+                    "Read flag of point_size_attenuation failed !");
+
+                // constant
+                float32_t constant = 0.0f;
+                bytesOfRead = stream.read(&constant, sizeof(constant));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(constant),
+                    "Read constant of point_size_attenuation failed !");
+
+                // linear
+                float32_t linear = 0.0f;
+                bytesOfRead = stream.read(&linear, sizeof(linear));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(linear),
+                    "Read linear of point_size_attenuation failed !");
+
+                // quadratic
+                float32_t quadratic = 0.0f;
+                bytesOfRead = stream.read(&quadratic, sizeof(quadratic));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(quadratic),
+                    "Read quadratic of point_size_attenuation failed !");
+
+                if (!enabled)
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid value of point_size_attenuation !");
+                    break;
+                }
+
+                // TODO
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid number of arguments of point_size_attenuation !");
+                break;
+            }
         } while (0);
 
         return ret;
@@ -897,6 +1768,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // point size min
+            float32_t val = 0.0f;
+            bytesOfRead = stream.read(&val, sizeof(val));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                "Read point_size_min failed !");
+
+            // TODO
         } while (0);
 
         return ret;
@@ -911,6 +1791,15 @@ namespace Tiny3D
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // point size max
+            float32_t val = 0.0f;
+            bytesOfRead = stream.read(&val, sizeof(val));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                "Read point_size_max failed !");
+
+            // TODO
         } while (0);
 
         return ret;

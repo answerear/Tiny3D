@@ -2086,7 +2086,7 @@ namespace Tiny3D
             AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
             AtomAbstractNode *atom0 = (AtomAbstractNode*)((*i0).get());
 
-            int16_t argc = 1;
+            uint16_t argc = 1;
             uint32_t val = 0;
 
             if (i1 != prop->values.end())
@@ -2621,12 +2621,19 @@ namespace Tiny3D
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
+                // number of arguments
+                uint16_t argc = (uint16_t)prop->values.size();
+                bytesOfWritten = stream.write(&argc, sizeof(argc));
+                totalBytes += bytesOfWritten;
+
+                // override
                 bytesOfWritten = stream.write(&val, sizeof(val));
                 totalBytes += bytesOfWritten;
 
                 ColorARGB clr = ColorARGB::WHITE;
                 float32_t dens = 0.001, start = 0.0f, end = 1.0f;
 
+                // type
                 if (i1 != prop->values.end())
                 {
                     if ((*i1)->type == ANT_ATOM)
@@ -2658,6 +2665,7 @@ namespace Tiny3D
                     }
                 }
 
+                // color
                 if (i2 != prop->values.end())
                 {
                     if (!getColor(i2, prop->values.end(), &clr, 3))
@@ -2673,6 +2681,7 @@ namespace Tiny3D
                     i2 = getNodeAt(prop->values, 5);
                 }
 
+                // density
                 if (i2 != prop->values.end())
                 {
                     if (!getSingle(*i2, &dens))
@@ -2688,6 +2697,7 @@ namespace Tiny3D
                     ++i2;
                 }
 
+                // start
                 if (i2 != prop->values.end())
                 {
                     if (!getSingle(*i2, &start))
@@ -2703,6 +2713,7 @@ namespace Tiny3D
                     ++i2;
                 }
 
+                // end
                 if (i2 != prop->values.end())
                 {
                     if (!getSingle(*i2, &end))
@@ -2868,6 +2879,11 @@ namespace Tiny3D
 
             if ((*i0)->type == ANT_ATOM)
             {
+                // number of argument
+                uint16_t argc = (uint16_t)prop->values.size();
+                bytesOfWritten = stream.write(&argc, sizeof(argc));
+                totalBytes += bytesOfWritten;
+
                 AtomAbstractNode *atom = (AtomAbstractNode*)(*i0).get();
                 if (atom->id == ID_ONCE)
                 {
@@ -2904,13 +2920,6 @@ namespace Tiny3D
                             break;
                         }
                     }
-                    else
-                    {
-                        id = 0;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
-                    }
-
                 }
                 else if (StringConverter::isNumber(atom->value))
                 {
@@ -2957,12 +2966,6 @@ namespace Tiny3D
                                     break;
                                 }
                             }
-                            else
-                            {
-                                id = 0;
-                                bytesOfWritten = stream.write(&id, sizeof(id));
-                                totalBytes += bytesOfWritten;
-                            }
                         }
                         else if (ID_PER_N_LIGHTS)
                         {
@@ -3003,12 +3006,6 @@ namespace Tiny3D
                                                 (*i3)->getValue() + " is not a valid light type (point, directional, or spot)");
                                             break;
                                         }
-                                    }
-                                    else
-                                    {
-                                        id = 0;
-                                        bytesOfWritten = stream.write(&id, sizeof(id));
-                                        totalBytes += bytesOfWritten;
                                     }
                                 }
                                 else
@@ -3122,6 +3119,12 @@ namespace Tiny3D
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
+                // number of arguments
+                uint16_t argc = (uint16_t)prop->values.size();
+                bytesOfWritten = stream.write(&argc, sizeof(argc));
+                totalBytes += bytesOfWritten;
+
+                // switch flag
                 bytesOfWritten = stream.write(&val, sizeof(val));
                 totalBytes += bytesOfWritten;
 
@@ -3132,7 +3135,7 @@ namespace Tiny3D
 
                     if (prop->values.size() > 1)
                     {
-                        Real constant = 0.0f, linear = 1.0f, quadratic = 0.0f;
+                        float32_t constant = 0.0f, linear = 1.0f, quadratic = 0.0f;
 
                         if (i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
                         {
