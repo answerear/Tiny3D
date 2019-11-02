@@ -24,6 +24,15 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    TechniquePtr Technique::create()
+    {
+        TechniquePtr tech = new Technique();
+        tech->release();
+        return tech;
+    }
+
+    //--------------------------------------------------------------------------
+
     Technique::Technique()
     {
 

@@ -44,9 +44,33 @@ namespace Tiny3D
         /** 构造函数 */
         ScriptParserMaterial();
 
-        /** 解析材质对象属性 */
-        TResult parseMaterialProperties(DataStream &stream,
-            Material *material, uint32_t version);
+        /** 解析 Material 子对象 */
+        TResult parseObjects(
+            DataStream &stream, Material *material, uint32_t version);
+
+        /** 解析 Material 对象属性 */
+        TResult parseProperties(
+            DataStream &stream, Material *material, uint32_t version);
+
+        /** 解析 Material 的 lod_values 属性*/
+        TResult parseLODValus(
+            DataStream &stream, Material *material, uint32_t version);
+
+        /** 解析 Material 的 lod_strategy 属性 */
+        TResult parseLODStrategy(
+            DataStream &stream, Material *material, uint32_t version);
+
+        /** 解析 Material 的 receive_shadows 属性 */
+        TResult parseReceiveShadows(
+            DataStream &stream, Material *material, uint32_t version);
+
+        /** 解析 Material 的 transparency_casts_shadows 属性 */
+        TResult parseTransparencyCastsShadows(
+            DataStream &stream, Material *material, uint32_t version);
+
+        /** 解析 Material 的 set_texture_alias 属性 */
+        TResult parseSetTextureAlias(
+            DataStream &stream, Material *material, uint32_t version);
     };
 }
 

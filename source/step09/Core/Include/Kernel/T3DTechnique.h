@@ -31,11 +31,16 @@ namespace Tiny3D
     class T3D_ENGINE_API Technique : public Object
     {
     public:
-        Technique();
+        /** 创建 Technique 对象 */
+        static TechniquePtr create();
 
+        /** 析构函数 */
         virtual ~Technique();
 
     protected:
+        /** 构造函数 */
+        Technique();
+
         typedef TArray<Pass*>   Passes;
 
         Material    *mParent;

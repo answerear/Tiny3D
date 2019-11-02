@@ -61,6 +61,10 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(Shader);
 
+    T3D_DECLARE_SMART_PTR(Technique);
+    T3D_DECLARE_SMART_PTR(Pass);
+    T3D_DECLARE_SMART_PTR(TextureUnit);
+
     T3D_DECLARE_SMART_PTR(HardwareBufferManagerBase);
     T3D_DECLARE_SMART_PTR(HardwareBufferManager);
 

@@ -476,6 +476,12 @@ namespace Tiny3D
                         totalBytes += bytesOfWritten;
                     }
                     break;
+                case ID_LOD_STRATEGY:
+                    {
+                        bytesOfWritten = translateLODStrategy(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
                 case ID_RECEIVE_SHADOWS:
                     {
                         bytesOfWritten = translateReceiveShadow(prop, stream);
@@ -542,6 +548,41 @@ namespace Tiny3D
         else
         {
             ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+        }
+
+        return totalBytes;
+    }
+
+    size_t MaterialTranslator::translateLODStrategy(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t totalBytes = 0;
+        size_t bytesOfWritten = 0;
+
+        // LOD Strategy name
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "lod_strategy only supports 1 argument");
+        }
+        else
+        {
+            String strategyName;
+            bool result = getString(prop->values.front(), &strategyName);
+            if (result)
+            {
+                StringUtil::toLowerCase(strategyName);
+                writeString(strategyName, stream);
+            }
+
+            if (!result)
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    "lod_strategy argument must be a valid LOD strategy");
+            }
         }
 
         return totalBytes;
@@ -682,7 +723,7 @@ namespace Tiny3D
                 {
                 case ID_SCHEME:
                     {
-                        bytesOfWritten = translateScene(prop, stream);
+                        bytesOfWritten = translateScheme(prop, stream);
                         totalBytes += bytesOfWritten;
                     }
                     break;
@@ -732,7 +773,7 @@ namespace Tiny3D
         return totalBytes;
     }
 
-    size_t TechniqueTranslator::translateScene(PropertyAbstractNode *prop, DataStream &stream)
+    size_t TechniqueTranslator::translateScheme(PropertyAbstractNode *prop, DataStream &stream)
     {
         size_t bytesOfWritten = 0;
         size_t totalBytes = 0;

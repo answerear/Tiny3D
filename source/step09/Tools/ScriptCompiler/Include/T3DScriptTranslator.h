@@ -76,6 +76,7 @@ namespace Tiny3D
 
     protected:
         size_t translateLODValues(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateLODStrategy(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateReceiveShadow(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateTransparentCastsShadow(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateSetTextuerAlias(PropertyAbstractNode *prop, DataStream &stream);
@@ -89,7 +90,7 @@ namespace Tiny3D
         virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
 
     protected:
-        size_t translateScene(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateScheme(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateLODIndex(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateShadowCasterMaterial(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateShadowReceiveMaterial(PropertyAbstractNode *prop, DataStream &stream);

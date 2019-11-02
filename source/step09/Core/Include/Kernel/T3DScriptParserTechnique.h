@@ -43,6 +43,38 @@ namespace Tiny3D
     protected:
         /** 构造函数 */
         ScriptParserTechnique();
+
+        /** 解析 Technique 子对象 */
+        TResult parseObjects(
+            DataStream &stream, Technique *tech, uint32_t version);
+
+        /** 解析 Technique 属性 */
+        TResult parseProperties(
+            DataStream &stream, Technique *tech, uint32_t version);
+
+        /** 解析 Technique 的 scheme 属性 */
+        TResult parseScheme(
+            DataStream &stream, Technique *tech, uint32_t version);
+
+        /** 解析 Technique 的 lod_index 属性 */
+        TResult parseLODIndex(
+            DataStream &stream, Technique *tech, uint32_t version);
+
+        /** 解析 Technique 的 shadow_caster_material 属性 */
+        TResult parseShadowCasterMaterial(
+            DataStream &stream, Technique *tech, uint32_t version);
+
+        /** 解析 Technique 的 shadow_receiver_material 属性 */
+        TResult parseShadowReceiverMaterial(
+            DataStream &stream, Technique *tech, uint32_t version);
+
+        /** 解析 Technique 的 gpu_vendor_rule 属性 */
+        TResult parseGPUVendorRule(
+            DataStream &stream, Technique *tech, uint32_t version);
+
+        /** 解析 Technique 的 gpu_device_rule 属性 */
+        TResult parseGPUDeviceRule(
+            DataStream &stream, Technique *tech, uint32_t version);
     };
 }
 
