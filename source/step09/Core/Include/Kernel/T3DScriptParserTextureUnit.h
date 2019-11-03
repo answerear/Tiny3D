@@ -43,6 +43,94 @@ namespace Tiny3D
     protected:
         /** 构造函数 */
         ScriptParserTextureUnit();
+
+        /** 解析 TextureUnit 子对象 */
+        TResult parseObjects(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 属性 */
+        TResult parseProperties(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 sampler_ref 属性 */
+        TResult parseSamplerRef(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 texture_alias 属性 */
+        TResult parseTextureAlias(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 texture 属性 */
+        TResult parseTexture(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 anim_texture 属性 */
+        TResult parseAnimTexture(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 cubic_texture 属性 */
+        TResult parseCubicTexture(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 tex_coord_set 属性 */
+        TResult parseTexCoordSet(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 color_op 属性 */
+        TResult parseColorOp(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 color_op_ex 属性 */
+        TResult parseColorOpEx(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 color_op_multipass_fallback 属性 */
+        TResult parseColorOpMultipassFallback(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 alpha_op_ex 属性 */
+        TResult parseAlphaOpEx(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 env_map 属性 */
+        TResult parseEnvMap(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 scroll 属性 */
+        TResult parseScroll(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 scroll_anim 属性 */
+        TResult parseScrollAnim(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 rotate 属性 */
+        TResult parseRotate(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 rotate_anim 属性 */
+        TResult parseRotateAnim(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 scale 属性 */
+        TResult parseScale(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 wave_xform 属性 */
+        TResult parseWaveXform(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 transform 属性 */
+        TResult parseTransform(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 binding_type 属性 */
+        TResult parseBindingType(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 TextureUnit 的 content_type 属性 */
+        TResult parseContentType(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
     };
 }
 

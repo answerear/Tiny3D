@@ -22,6 +22,8 @@
 #include "Kernel/T3DScriptParserMaterial.h"
 #include "Kernel/T3DScriptParserTechnique.h"
 #include "Kernel/T3DScriptParserPass.h"
+#include "Kernel/T3DScriptParserTextureUnit.h"
+#include "Kernel/T3DScriptParserSampler.h"
 
 
 namespace Tiny3D
@@ -48,6 +50,11 @@ namespace Tiny3D
     ScriptParser::ScriptParser()
         : ScriptParserBase()
     {
+        mMaterialParser = ScriptParserMaterial::create();
+        mTechParser = ScriptParserTechnique::create();
+        mPassParser = ScriptParserPass::create();
+        mTexUnitParser = ScriptParserTextureUnit::create();
+        mSamplerParser = ScriptParserSampler::create();
     }
 
     //--------------------------------------------------------------------------
@@ -72,6 +79,19 @@ namespace Tiny3D
             break;
         case E_OP_PASS:
             parser = mPassParser;
+            break;
+        case E_OP_TEXTURE_UNIT:
+            parser = mTexUnitParser;
+            break;
+        case E_OP_TEX_ADDRESS_MODE:
+        case E_OP_TEX_BORDER_COLOUR:
+        case E_OP_FILTERING:
+        case E_OP_CMPTEST:
+        case E_OP_CMPFUNC:
+        case E_OP_COMP_FUNC:
+        case E_OP_MAX_ANISOTROPY:
+        case E_OP_MIPMAP_BIAS:
+            parser = mSamplerParser;
             break;
         }
 

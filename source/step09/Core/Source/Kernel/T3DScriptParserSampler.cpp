@@ -18,31 +18,47 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DTextureUnit.h"
+#include "Kernel/T3DScriptParserSampler.h"
+#include "Kernel/T3DScriptParser.h"
+#include "T3DErrorDef.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TextureUnitPtr TextureUnit::create()
+    ScriptParserSamplerPtr ScriptParserSampler::create()
     {
-        TextureUnitPtr unit = new TextureUnit();
-        unit->release();
-        return unit;
+        ScriptParserSamplerPtr parser = new ScriptParserSampler();
+        parser->release();
+        return parser;
     }
 
     //--------------------------------------------------------------------------
 
-    TextureUnit::TextureUnit()
+    ScriptParserSampler::ScriptParserSampler()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    TextureUnit::~TextureUnit()
+    ScriptParserSampler::~ScriptParserSampler()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ScriptParserSampler::parseObject(
+        DataStream &stream, Object *object, uint32_t version)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+        } while (0);
+
+        return ret;
     }
 }

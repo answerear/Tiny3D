@@ -128,12 +128,16 @@ namespace Tiny3D
         };
 
     public:
+        /** 创建 TextureUnit 对象 */
+        static TextureUnitPtr create();
 
-        TextureUnit();
-
+        /** 析构函数 */
         virtual ~TextureUnit();
 
     protected:
+        /** 构造函数 */
+        TextureUnit();
+
         typedef TMultimap<EffectType, TextureEffect>    EffectMap;
         typedef EffectMap::iterator                     EffectMapItr;
         typedef EffectMap::const_iterator               EffectMapConstItr;

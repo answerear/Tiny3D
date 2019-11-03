@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SCRIPT_PARSER_H__
-#define __T3D_SCRIPT_PARSER_H__
+#ifndef __T3D_SCRIPT_PARSER_SAMPLER_H__
+#define __T3D_SCRIPT_PARSER_SAMPLER_H__
 
 
 #include "Kernel/T3DScriptParserBase.h"
@@ -27,47 +27,24 @@
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API ScriptParser 
-        : public Singleton<ScriptParser>
-        , public ScriptParserBase
+    class ScriptParserSampler : public ScriptParserBase
     {
-    protected:
-        struct TSCFileHeader
-        {
-            char        magic[4];   /**< 文件魔数，用于标识文件 */
-            uint32_t    version;    /**< 文件版本号 */
-            uint32_t    filesize;   /**< 文件大小 */
-        };
-
     public:
         /** 创建对象 */
-        static ScriptParserPtr create();
+        static ScriptParserSamplerPtr create();
 
         /** 析构函数 */
-        virtual ~ScriptParser();
-
-        /** 解析数据流到material对象中 */
-        TResult parse(DataStream &stream, Object *material);
-
-        /** 获取对应操作码的对象脚本解析器 */
-        ScriptParserBase *getObjectParser(uint16_t opcode);
-
-    protected:
-        /** 构造函数 */
-        ScriptParser();
+        virtual ~ScriptParserSampler();
 
         /** 重写基类 ScriptParserBase::parseObject 接口 */
         virtual TResult parseObject(
             DataStream &stream, Object *object, uint32_t version) override;
 
     protected:
-        ScriptParserMaterialPtr     mMaterialParser;
-        ScriptParserTechniquePtr    mTechParser;
-        ScriptParserPassPtr         mPassParser;
-        ScriptParserTextureUnitPtr  mTexUnitParser;
-        ScriptParserSamplerPtr      mSamplerParser;
+        /** 构造函数 */
+        ScriptParserSampler();
     };
 }
 
 
-#endif  /*__T3D_SCRIPT_PARSER_H__*/
+#endif  /*__T3D_SCRIPT_PARSER_SAMPLER_H__*/
