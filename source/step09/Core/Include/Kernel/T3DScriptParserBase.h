@@ -396,6 +396,9 @@ namespace Tiny3D
         /** 解析一个颜色值 */
         TResult parseColor(DataStream &stream, ColorARGB &color);
 
+        /** 解析一个矩阵 */
+        TResult parseMatrix(DataStream &stream, Matrix4 &m);
+
         char    *mText;     /**< 用于存放读取字符串，避免重复申请内存，只在不够的时候动态扩展大小 */
         size_t  mTextLen;   /**< 用户存放读取字符串的缓冲区大小 */
     };

@@ -1311,7 +1311,7 @@ namespace Tiny3D
                     break;
                 }
             }
-            else if (argc == 6)
+            else if (argc == 8)
             {
                 // enabled flag
                 bool overrideable = false;

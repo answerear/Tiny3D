@@ -109,4 +109,36 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
+
+    TResult ScriptParserBase::parseMatrix(DataStream &stream, Matrix4 &m)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            size_t bytesOfRead = 0;
+
+            for (size_t y = 0; y < 4; ++y)
+            {
+                for (size_t x = 0; x < 4; ++x)
+                {
+                    float32_t val;
+                    bytesOfRead = stream.read(&val, sizeof(val));
+                    T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+                        "Read tuple of matrix failed !");
+
+                    m[y][x] = val;
+                }
+
+                if (ret != T3D_OK)
+                {
+                    break;
+                }
+            }
+        } while (0);
+
+        return ret;
+    }
 }

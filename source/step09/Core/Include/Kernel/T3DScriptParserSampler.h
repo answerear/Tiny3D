@@ -40,9 +40,49 @@ namespace Tiny3D
         virtual TResult parseObject(
             DataStream &stream, Object *object, uint32_t version) override;
 
+        /** 解析 sampler 属性 */
+        TResult parseSamplerParams(
+            DataStream &stream, Object *object, uint32_t version);
+
     protected:
         /** 构造函数 */
         ScriptParserSampler();
+
+        /** 解析 Sampler 子对象 */
+        TResult parseObjects(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 Sampler 属性 */
+        TResult parseProperties(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 tex_address_mode 属性 */
+        TResult parseTexAddressMode(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 tex_border_color 属性 */
+        TResult parseTexBorderColor(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 filtering 属性 */
+        TResult parseFiltering(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 cmp_test 属性 */
+        TResult parseCompareTest(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 cmp_func 属性 */
+        TResult parseCompareFunc(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 max_anisotropy 属性 */
+        TResult parseMaxAnisotropy(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
+
+        /** 解析 mipmap_bias 属性 */
+        TResult parseMipmapBias(
+            DataStream &stream, TextureUnit *unit, uint32_t version);
     };
 }
 

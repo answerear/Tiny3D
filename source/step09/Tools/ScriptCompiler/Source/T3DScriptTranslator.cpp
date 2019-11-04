@@ -3549,6 +3549,12 @@ namespace Tiny3D
             String val;
             if (getString(*j, &val))
             {
+                // number of arguments
+                uint16_t argc = (uint16_t)prop->values.size();
+                bytesOfWritten = stream.write(&argc, sizeof(argc));
+                totalBytes += bytesOfWritten;
+
+                // the name of texture
                 bytesOfWritten = writeString(val, stream);
                 totalBytes += bytesOfWritten;
 
@@ -3643,6 +3649,13 @@ namespace Tiny3D
             if ((*i1)->type == ANT_ATOM && StringConverter::isNumber(((AtomAbstractNode*)(*i1).get())->value))
             {
                 // Short form
+
+                // number of arguments
+                uint16_t argc = (uint16_t)prop->values.size() + 1;
+                bytesOfWritten = stream.write(&argc, sizeof(argc));
+                totalBytes += bytesOfWritten;
+
+                // type for short form
                 uint16_t type = 0;
                 bytesOfWritten = stream.write(&type, sizeof(type));
                 totalBytes += bytesOfWritten;
@@ -3654,6 +3667,7 @@ namespace Tiny3D
                     String val0;
                     uint32_t val1;
                     float32_t val2;
+
                     if (getString(*i0, &val0) && getUInt(*i1, &val1) && getSingle(*i2, &val2))
                     {
                         // name
@@ -3683,6 +3697,11 @@ namespace Tiny3D
             }
             else
             {
+                // number of arguments
+                uint16_t argc = (uint16_t)prop->values.size() + 1;
+                bytesOfWritten = stream.write(&argc, sizeof(argc));
+                totalBytes += bytesOfWritten;
+
                 // Long form has n number of frames
                 uint16_t type = 1;
                 bytesOfWritten = stream.write(&type, sizeof(type));
@@ -3745,7 +3764,7 @@ namespace Tiny3D
         else if (prop->values.size() == 2)
         {
             // type
-            uint16_t type = 2;
+            uint16_t type = (uint16_t)prop->values.size();
             bytesOfWritten = stream.write(&type, sizeof(type));
             totalBytes += bytesOfWritten;
 
@@ -3780,7 +3799,7 @@ namespace Tiny3D
         else if (prop->values.size() == 7)
         {
             // type
-            uint16_t type = 7;
+            uint16_t type = (uint16_t)prop->values.size();
             bytesOfWritten = stream.write(&type, sizeof(type));
             totalBytes += bytesOfWritten;
 
@@ -3805,22 +3824,28 @@ namespace Tiny3D
                     *atom5 = (AtomAbstractNode*)(*i5).get(),
                     *atom6 = (AtomAbstractNode*)(*i6).get();
 
+                // front
                 bytesOfWritten = writeString(atom0->value, stream);
                 totalBytes += bytesOfWritten;
-
+                // back
                 bytesOfWritten = writeString(atom1->value, stream);
                 totalBytes += bytesOfWritten;
-                    
+                // left
                 bytesOfWritten = writeString(atom2->value, stream);
                 totalBytes += bytesOfWritten;
-
+                // right
                 bytesOfWritten = writeString(atom3->value, stream);
                 totalBytes += bytesOfWritten;
-
+                // up
                 bytesOfWritten = writeString(atom4->value, stream);
                 totalBytes += bytesOfWritten;
-
+                // down
                 bytesOfWritten = writeString(atom5->value, stream);
+                totalBytes += bytesOfWritten;
+
+                // separateUV
+                uint16_t id = (uint16_t)atom6->id;
+                bytesOfWritten = stream.write(&id, id);
                 totalBytes += bytesOfWritten;
             }
 
@@ -3906,7 +3931,7 @@ namespace Tiny3D
             ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
                 "colour_op_ex must have at least 3 arguments");
         }
-        else if (prop->values.size() > 6)
+        else if (prop->values.size() > 10)
         {
             ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                 "colour_op_ex must have at most 10 arguments");
@@ -4033,6 +4058,11 @@ namespace Tiny3D
         }
         else if (prop->values.size() == 1)
         {
+            // number of arguments
+            uint16_t argc = (uint16_t)prop->values.size();
+            bytesOfWritten = stream.write(&argc, sizeof(argc));
+            totalBytes += bytesOfWritten;
+
             if (prop->values.front()->type == ANT_ATOM)
             {
                 AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
@@ -4062,6 +4092,11 @@ namespace Tiny3D
         }
         else
         {
+            // number of arguments
+            uint16_t argc = (uint16_t)prop->values.size();
+            bytesOfWritten = stream.write(&argc, sizeof(argc));
+            totalBytes += bytesOfWritten;
+
             AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
             AtomAbstractNode *atom0 = (AtomAbstractNode *)(*i0).get();
             AtomAbstractNode *atom1 = (AtomAbstractNode *)(*i1).get();
@@ -4800,8 +4835,8 @@ namespace Tiny3D
             AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
                 i1 = getNodeAt(prop->values, 1),
                 i2 = getNodeAt(prop->values, 2);
-            float32_t u, v, w;
 
+            // number of arguments
             uint16_t argc = prop->values.size();
             bytesOfWritten = stream.write(&argc, sizeof(argc));
             totalBytes += bytesOfWritten;
@@ -4921,7 +4956,8 @@ namespace Tiny3D
         {
             if (prop->values.front()->type == ANT_ATOM)
             {
-                uint16_t argc = 1;
+                // number of arguments
+                uint16_t argc = (uint16_t)prop->values.size();
                 bytesOfWritten = stream.write(&argc, sizeof(argc));
                 totalBytes += bytesOfWritten;
 
@@ -4952,7 +4988,8 @@ namespace Tiny3D
         }
         else if (prop->values.size() == 3)
         {
-            uint16_t argc = 3;
+            // number of arguments
+            uint16_t argc = (uint16_t)prop->values.size();
             bytesOfWritten = stream.write(&argc, sizeof(argc));
             totalBytes += bytesOfWritten;
 

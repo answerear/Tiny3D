@@ -65,6 +65,7 @@ namespace Tiny3D
     class ScriptParserPass;
     class ScriptParserTextureUnit;
     class ScriptParserSampler;
+    class ScriptParserGPUProgram;
 
     class Resource;
     class ResourceManager;
