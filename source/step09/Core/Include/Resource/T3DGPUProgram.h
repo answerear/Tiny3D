@@ -28,6 +28,20 @@
 namespace Tiny3D
 {
     /**
+     * @brief 着色器程序参数
+     */
+    class T3D_ENGINE_API ShaderParam : public Object
+    {
+    public:
+        static ShaderParamPtr create();
+
+        virtual ~ShaderParam();
+
+    protected:
+        ShaderParam();
+    };
+
+    /**
      * @brief 着色器程序
      */
     class T3D_ENGINE_API Shader : public Resource

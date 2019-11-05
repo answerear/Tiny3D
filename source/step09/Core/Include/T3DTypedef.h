@@ -50,6 +50,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(ScriptParserTextureUnit);
     T3D_DECLARE_SMART_PTR(ScriptParserSampler);
     T3D_DECLARE_SMART_PTR(ScriptParserGPUProgram);
+    T3D_DECLARE_SMART_PTR(ScriptParserGPUProgramRef);
 
     T3D_DECLARE_SMART_PTR(HardwareBuffer);
     T3D_DECLARE_SMART_PTR(HardwareIndexBuffer);
@@ -62,6 +63,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(VertexArrayObject);
 
     T3D_DECLARE_SMART_PTR(Shader);
+    T3D_DECLARE_SMART_PTR(ShaderParam);
 
     T3D_DECLARE_SMART_PTR(Technique);
     T3D_DECLARE_SMART_PTR(Pass);

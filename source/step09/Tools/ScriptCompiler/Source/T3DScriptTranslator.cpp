@@ -345,6 +345,11 @@ namespace Tiny3D
             bytesOfWritten = stream.write((void*)str.c_str(), len);
             totalBytes += bytesOfWritten;
         }
+        else if (len == 0)
+        {
+            bytesOfWritten = stream.write(&len, sizeof(len));
+            totalBytes += bytesOfWritten;
+        }
 
         return totalBytes;
     }

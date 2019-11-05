@@ -24,6 +24,7 @@
 #include "Kernel/T3DScriptParserPass.h"
 #include "Kernel/T3DScriptParserTextureUnit.h"
 #include "Kernel/T3DScriptParserSampler.h"
+#include "Kernel/T3DScriptParserGPUProgram.h"
 
 
 namespace Tiny3D
@@ -55,6 +56,8 @@ namespace Tiny3D
         mPassParser = ScriptParserPass::create();
         mTexUnitParser = ScriptParserTextureUnit::create();
         mSamplerParser = ScriptParserSampler::create();
+        mGPUParser = ScriptParserGPUProgram::create();
+        mGPURefParser = ScriptParserGPUProgramRef::create();
     }
 
     //--------------------------------------------------------------------------
@@ -93,6 +96,24 @@ namespace Tiny3D
         case E_OP_MIPMAP_BIAS:
             parser = mSamplerParser;
             break;
+        case E_OP_FRAGMENT_PROGRAM:
+        case E_OP_VERTEX_PROGRAM:
+        case E_OP_GEOMETRY_PROGRAM:
+        case E_OP_TESSELLATION_HULL_PROGRAM:
+        case E_OP_TESSELLATION_DOMAIN_PROGRAM:
+        case E_OP_COMPUTE_PROGRAM:
+            parser = mGPUParser;
+            break;
+        case E_OP_VERTEX_PROGRAM_REF:
+        case E_OP_FRAGMENT_PROGRAM_REF:
+        case E_OP_GEOMETRY_PROGRAM_REF:
+        case E_OP_TESSELLATION_HULL_PROGRAM_REF:
+        case E_OP_TESSELLATION_DOMAIN_PROGRAM_REF:
+        case E_OP_COMPUTE_PROGRAM_REF:
+        case E_OP_SHADOW_CASTER_VERTEX_PROGRAM_REF:
+        case E_OP_SHADOW_CASTER_FRAGMENT_PROGRAM_REF:
+            parser = mGPURefParser;
+            break;
         }
 
         return parser;
@@ -118,7 +139,10 @@ namespace Tiny3D
                 break;
             }
 
-            ret = parseObject(stream, object, header.version);
+            while (!stream.eof() && ret == T3D_OK)
+            {
+                ret = parseObject(stream, object, header.version);
+            }
         } while (0);
 
         return ret;

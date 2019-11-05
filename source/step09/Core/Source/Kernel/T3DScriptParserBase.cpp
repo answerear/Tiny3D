@@ -65,11 +65,18 @@ namespace Tiny3D
                 mTextLen = len;
             }
 
-            bytesOfRead = stream.read(mText, len);
-            T3D_CHECK_READ_CONTENT(bytesOfRead, len, 
-                "Read the string content failed !");
+            if (len > 0)
+            {
+                bytesOfRead = stream.read(mText, len);
+                T3D_CHECK_READ_CONTENT(bytesOfRead, len,
+                    "Read the string content failed !");
 
-            str.assign(mText, len);
+                str.assign(mText, len);
+            }
+            else
+            {
+                str.clear();
+            }
         } while (0);
 
         return ret;

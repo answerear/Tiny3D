@@ -66,6 +66,7 @@ namespace Tiny3D
     class ScriptParserTextureUnit;
     class ScriptParserSampler;
     class ScriptParserGPUProgram;
+    class ScriptParserGPUProgramRef;
 
     class Resource;
     class ResourceManager;
@@ -92,6 +93,7 @@ namespace Tiny3D
     class VertexDeclaration;
 
     class Shader;
+    class ShaderParam;
 
     class Technique;
     class Pass;

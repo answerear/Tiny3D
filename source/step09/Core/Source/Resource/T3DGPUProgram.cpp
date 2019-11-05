@@ -25,6 +25,29 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    ShaderParamPtr ShaderParam::create()
+    {
+        ShaderParamPtr param = new ShaderParam();
+        param->release();
+        return param;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderParam::ShaderParam()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderParam::~ShaderParam()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
     Shader::Shader(const String &name)
         : Resource(name)
     {

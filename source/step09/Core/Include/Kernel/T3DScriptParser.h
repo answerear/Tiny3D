@@ -61,11 +61,13 @@ namespace Tiny3D
             DataStream &stream, Object *object, uint32_t version) override;
 
     protected:
-        ScriptParserMaterialPtr     mMaterialParser;
-        ScriptParserTechniquePtr    mTechParser;
-        ScriptParserPassPtr         mPassParser;
-        ScriptParserTextureUnitPtr  mTexUnitParser;
-        ScriptParserSamplerPtr      mSamplerParser;
+        ScriptParserMaterialPtr         mMaterialParser;
+        ScriptParserTechniquePtr        mTechParser;
+        ScriptParserPassPtr             mPassParser;
+        ScriptParserTextureUnitPtr      mTexUnitParser;
+        ScriptParserSamplerPtr          mSamplerParser;
+        ScriptParserGPUProgramPtr       mGPUParser;
+        ScriptParserGPUProgramRefPtr    mGPURefParser;
     };
 }
 
