@@ -44,10 +44,6 @@ namespace Tiny3D
         /** 构造函数 */
         ScriptParserTextureUnit();
 
-        /** 解析 TextureUnit 子对象 */
-        TResult parseObjects(
-            DataStream &stream, TextureUnit *unit, uint32_t version);
-
         /** 解析 TextureUnit 属性 */
         TResult parseProperties(
             DataStream &stream, TextureUnit *unit, uint32_t version);

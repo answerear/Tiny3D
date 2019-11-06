@@ -44,10 +44,6 @@ namespace Tiny3D
         /** 构造函数 */
         ScriptParserPass();
 
-        /** 解析 Pass 子对象 */
-        TResult parseObjects(
-            DataStream &stream, Pass *pass, uint32_t version);
-
         /** 解析 Pass 属性 */
         TResult parseProperties(
             DataStream &stream, Pass *pass, uint32_t version);

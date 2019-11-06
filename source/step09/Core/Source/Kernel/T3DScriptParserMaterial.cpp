@@ -118,39 +118,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserMaterial::parseObjects(
-        DataStream &stream, Material *material, uint32_t version)
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            size_t bytesOfRead = 0;
-
-            // Op code
-            uint16_t opcode = 0;
-            bytesOfRead = stream.read(&opcode, sizeof(opcode));
-            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(opcode),
-                "Read the opcode of property of material failed !");
-
-            ScriptParserBase *parser
-                = ScriptParser::getInstance().getObjectParser(opcode);
-            if (parser == nullptr)
-            {
-                ret = T3D_ERR_RES_INVALID_OBJECT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid object in material !");
-                break;
-            }
-
-            ret = parser->parseObject(stream, material, version);
-        } while (0);
-        
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
     TResult ScriptParserMaterial::parseProperties(DataStream &stream,
         Material *material, uint32_t version)
     {

@@ -150,7 +150,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParser::parseObject(DataStream &stream, Object *object, uint32_t version)
+    TResult ScriptParser::parseObject(
+        DataStream &stream, Object *object, uint32_t version)
     {
         TResult ret = T3D_OK;
 

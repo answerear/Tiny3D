@@ -47,10 +47,6 @@ namespace Tiny3D
         /** 构造函数 */
         ScriptParserGPUProgram();
 
-        /** 解析 GPU Program 子对象 */
-        TResult parseObjects(
-            DataStream &stream, GPUProgram *program, uint32_t version);
-
         /** 解析 GPU Program 对象的属性 */
         TResult parseProperties(
             DataStream &stream, GPUProgram *program, uint32_t version);
@@ -76,10 +72,6 @@ namespace Tiny3D
         /** 构造函数 */
         ScriptParserGPUProgramRef();
 
-        /** 解析 GPU Program 引用子对象 */
-        TResult parseObjects(
-            DataStream &stream, ShaderParam *param, uint32_t version);
-
         /** 解析 GPU Program 引用子对象属性 */
         TResult parseProperties(
             DataStream &stream, ShaderParam *param, uint32_t version);
@@ -88,12 +80,20 @@ namespace Tiny3D
         TResult parseSharedParamsRef(
             DataStream &stream, ShaderParam *param, uint32_t version);
 
-        /** 解析 GPU Program 引用的 param_indexed 和 param_named 属性 */
+        /** 解析 GPU Program 引用的 param_indexed 属性 */
         TResult parseParamIndexed(
             DataStream &stream, ShaderParam *param, uint32_t version);
 
-        /** 解析 GPU Program 引用的 param_indexed_auto 和 param_named_auto 属性 */
+        /** 解析 GPU Program 引用的 param_named 屬性 */
+        TResult parseParamNamed(
+            DataStream &stream, ShaderParam *param, uint32_t version);
+
+        /** 解析 GPU Program 引用的 param_indexed_auto 属性 */
         TResult parseParamIndexedAuto(
+            DataStream &stream, ShaderParam *param, uint32_t version);
+
+        /** 解析 GPU Program 引用的 param_named_auto 屬性 */
+        TResult parseParamNamedAuto(
             DataStream &stream, ShaderParam *param, uint32_t version);
     };
 }

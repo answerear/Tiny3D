@@ -390,6 +390,10 @@ namespace Tiny3D
         /** 构造函数 */
         ScriptParserBase();
 
+        /** 解析子对象 */
+        virtual TResult parseObjects(
+            DataStream &stream, Object *object, uint32_t version);
+
         /** 解析一个字符串 */
         TResult parseString(DataStream &stream, String &str);
 

@@ -5542,7 +5542,7 @@ namespace Tiny3D
             // Determine the type
             if (atom1->value == "matrix4x4")
             {
-                // Builtin Type
+                // Built-in Type
                 BuiltinType type = getBuiltinType(atom1->value);
                 uint8_t t = (uint8_t)type;
                 bytesOfWritten = stream.write(&t, sizeof(t));

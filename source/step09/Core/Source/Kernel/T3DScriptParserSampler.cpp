@@ -110,40 +110,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserSampler::parseObjects(
-        DataStream &stream, TextureUnit *unit, uint32_t version)
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            size_t bytesOfRead = 0;
-
-            // Op code
-            uint16_t opcode = 0;
-            bytesOfRead = stream.read(&opcode, sizeof(opcode));
-            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(opcode),
-                "Read the opcode of property of sampler failed !");
-
-            ScriptParserBase *parser
-                = ScriptParser::getInstance().getObjectParser(opcode);
-            if (parser == nullptr)
-            {
-                ret = T3D_ERR_RES_INVALID_OBJECT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid object in sampler !");
-                break;
-            }
-
-            ret = parser->parseObject(stream, unit, version);
-
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
     TResult ScriptParserSampler::parseProperties(
         DataStream &stream, TextureUnit *unit, uint32_t version)
     {

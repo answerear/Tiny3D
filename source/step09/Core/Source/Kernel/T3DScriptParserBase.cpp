@@ -19,6 +19,7 @@
 
 
 #include "Kernel/T3DScriptParserBase.h"
+#include "Kernel/T3DScriptParser.h"
 #include "T3DErrorDef.h"
 
 
@@ -39,6 +40,39 @@ namespace Tiny3D
     ScriptParserBase::~ScriptParserBase()
     {
         T3D_SAFE_DELETE_ARRAY(mText);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ScriptParserBase::parseObjects(
+        DataStream &stream, Object *object, uint32_t version)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            size_t bytesOfRead = 0;
+
+            // Op code
+            uint16_t opcode = 0;
+            bytesOfRead = stream.read(&opcode, sizeof(opcode));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(opcode),
+                "Read the opcode of property of object failed !");
+
+            ScriptParserBase *parser
+                = ScriptParser::getInstance().getObjectParser(opcode);
+            if (parser == nullptr)
+            {
+                ret = T3D_ERR_RES_INVALID_OBJECT;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid object in script !");
+                break;
+            }
+
+            ret = parser->parseObject(stream, object, version);
+        } while (0);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

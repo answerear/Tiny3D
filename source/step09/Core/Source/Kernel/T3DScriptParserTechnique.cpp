@@ -113,39 +113,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserTechnique::parseObjects(
-        DataStream &stream, Technique *tech, uint32_t version)
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            size_t bytesOfRead = 0;
-
-            // Op code
-            uint16_t opcode = 0;
-            bytesOfRead = stream.read(&opcode, sizeof(opcode));
-            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(opcode),
-                "Read the opcode of property of technique failed !");
-
-            ScriptParserBase *parser
-                = ScriptParser::getInstance().getObjectParser(opcode);
-            if (parser == nullptr)
-            {
-                ret = T3D_ERR_RES_INVALID_OBJECT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid object in technique !");
-                break;
-            }
-
-            ret = parser->parseObject(stream, tech, version);
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
     TResult ScriptParserTechnique::parseProperties(
         DataStream &stream, Technique *tech, uint32_t version)
     {
