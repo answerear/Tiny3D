@@ -346,17 +346,67 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        void *values = nullptr;
+
         do
         {
             size_t bytesOfRead = 0;
 
             // index
+            uint32_t index = 0;
+            bytesOfRead = stream.read(&index, sizeof(index));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(index),
+                "Read index of param_indexed failed !");
 
+            // data type
+            uint8_t type = 0;
+            bytesOfRead = stream.read(&type, sizeof(type));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
+                "Read type of param_indexed failed !");
 
-            // type
+            // the number of values
+            uint8_t count = 0;
+            bytesOfRead = stream.read(&count, sizeof(count));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(count),
+                "Read number of values of param_indexed failed !");
+
+            BuiltinType bt = (BuiltinType)type;
+            
+            size_t typeSize = 0;
+
+            switch (bt)
+            {
+            case E_BT_REAL:
+                values = new float32_t[count];
+                typeSize = sizeof(float32_t);
+                break;
+            case E_BT_INT:
+                values = new int32_t[count];
+                typeSize = sizeof(int32_t);
+                break;
+            default:
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid property of param_indexed !");
+                }
+                break;
+            }
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
 
             // values
+            bytesOfRead = stream.read(values, count * typeSize);
+            T3D_CHECK_READ_CONTENT(bytesOfRead, count * typeSize,
+                "Read values of param_indexed failed !");
+
+            // TODO
         } while (0);
+
+        T3D_SAFE_DELETE_ARRAY(values);
 
         return ret;
     }
@@ -368,10 +418,71 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        void *values = nullptr;
+
         do
         {
+            size_t bytesOfRead = 0;
 
+            // name
+            String name;
+            ret = parseString(stream, name);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read name of param_named failed !");
+                break;
+            }
+
+            // data type
+            uint8_t type = 0;
+            bytesOfRead = stream.read(&type, sizeof(type));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
+                "Read type of param_named failed !");
+
+            // the number of values
+            uint8_t count = 0;
+            bytesOfRead = stream.read(&count, sizeof(count));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(count),
+                "Read the number of values of param_named failed !");
+
+            BuiltinType bt = (BuiltinType)type;
+
+            size_t typeSize = 0;
+
+            switch (bt)
+            {
+            case E_BT_REAL:
+                values = new float32_t[count];
+                typeSize = sizeof(float32_t);
+                break;
+            case E_BT_INT:
+                values = new int32_t[count];
+                typeSize = sizeof(int32_t);
+                break;
+            default:
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid property of param_indexed !");
+                }
+                break;
+            }
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            // values
+            bytesOfRead = stream.read(values, count * typeSize);
+            T3D_CHECK_READ_CONTENT(bytesOfRead, count * typeSize,
+                "Read values of param_indexed failed !");
+
+            // TODO
         } while (0);
+
+        T3D_SAFE_DELETE_ARRAY(values);
 
         return ret;
     }
@@ -382,10 +493,84 @@ namespace Tiny3D
         DataStream &stream, ShaderParam *param, uint32_t version)
     {
         TResult ret = T3D_OK;
+        void *extra = nullptr;
 
         do
         {
+            size_t bytesOfRead = 0;
+
+            // index
+            uint32_t index = 0;
+            bytesOfRead = stream.read(&index, sizeof(index));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(index),
+                "Read index of param_indexed_auto failed !");
+
+            // constant
+            uint16_t constant = 0;
+            bytesOfRead = stream.read(&constant, sizeof(constant));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(constant),
+                "Read value_code of param_indexed_auto failed !");
+
+            // element type
+            uint8_t type = 0;
+            bytesOfRead = stream.read(&type, sizeof(type));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
+                "Read elemente type of param_indexed_auto failed !");
+
+            // the number of elements
+            uint8_t count = 0;
+            bytesOfRead = stream.read(&count, sizeof(count));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(count),
+                "Read the number of constant values of \
+                param_indexed_auto failed !");
+
+            // extra data type
+            uint8_t extraType = 0;
+            bytesOfRead = stream.read(&extraType, sizeof(extraType));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(extraType),
+                "Read extra data type of param_indexed_auto failed !");
+
+            // the number of extra data
+            uint8_t extraCount = 0;
+            bytesOfRead = stream.read(&extraCount, sizeof(extraCount));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(extraCount),
+                "Read the number of extra data of param_indexed_auto failed !");
+
+            size_t typeSize = 0;
+
+            switch (extraType)
+            {
+            case E_BT_REAL:
+                extra = new float32_t[extraCount];
+                typeSize = sizeof(float32_t);
+                break;
+            case E_BT_INT:
+                extra = new int32_t[extraCount];
+                typeSize = sizeof(int32_t);
+                break;
+            default:
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid property of param_indexed !");
+                }
+                break;
+            }
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            // extra data
+            bytesOfRead = stream.read(extra, extraCount * typeSize);
+            T3D_CHECK_READ_CONTENT(bytesOfRead, extraCount * typeSize,
+                "Read extra data of param_indexed failed !");
+
+            // TODO
         } while (0);
+
+        T3D_SAFE_DELETE_ARRAY(extra);
 
         return ret;
     }
@@ -397,9 +582,88 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        void *extra = nullptr;
+
         do
         {
+            size_t bytesOfRead = 0;
+
+            // name
+            String name;
+            ret = parseString(stream, name);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read name of param_named_auto failed !");
+                break;
+            }
+
+            // constant
+            uint16_t constant = 0;
+            bytesOfRead = stream.read(&constant, sizeof(constant));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(constant),
+                "Read value_code of param_indexed_auto failed !");
+
+            // element type
+            uint8_t type = 0;
+            bytesOfRead = stream.read(&type, sizeof(type));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
+                "Read elemente type of param_indexed_auto failed !");
+
+            // the number of elements
+            uint8_t count = 0;
+            bytesOfRead = stream.read(&count, sizeof(count));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(count),
+                "Read the number of constant values of \
+                param_indexed_auto failed !");
+
+            // extra data type
+            uint8_t extraType = 0;
+            bytesOfRead = stream.read(&extraType, sizeof(extraType));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(extraType),
+                "Read extra data type of param_indexed_auto failed !");
+
+            // the number of extra data
+            uint8_t extraCount = 0;
+            bytesOfRead = stream.read(&extraCount, sizeof(extraCount));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(extraCount),
+                "Read the number of extra data of param_indexed_auto failed !");
+
+            size_t typeSize = 0;
+
+            switch (extraType)
+            {
+            case E_BT_REAL:
+                extra = new float32_t[extraCount];
+                typeSize = sizeof(float32_t);
+                break;
+            case E_BT_INT:
+                extra = new int32_t[extraCount];
+                typeSize = sizeof(int32_t);
+                break;
+            default:
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid property of param_indexed !");
+                }
+                break;
+            }
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            // extra data
+            bytesOfRead = stream.read(extra, extraCount * typeSize);
+            T3D_CHECK_READ_CONTENT(bytesOfRead, extraCount * typeSize,
+                "Read extra data of param_indexed failed !");
+
+            // TODO
         } while (0);
+
+        T3D_SAFE_DELETE_ARRAY(extra);
 
         return ret;
     }

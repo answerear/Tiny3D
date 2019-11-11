@@ -237,7 +237,7 @@ namespace Tiny3D
         {
             if (i != end)
             {
-                Real r = 0;
+                float32_t r = 0;
                 if (getSingle(*i, &r))
                     (*m)[n / 4][n % 4] = r;
                 else
@@ -5524,7 +5524,7 @@ namespace Tiny3D
             }
 
             String name;
-            size_t index = 0;
+            uint32_t index = 0;
             // Assign the name/index
             if (named)
             {
@@ -5616,11 +5616,12 @@ namespace Tiny3D
 
                 if (isValid)
                 {
-                    // Builtin Type
+                    // Built-in Type
                     BuiltinType type = getBuiltinType(atom1->value);
                     uint8_t t = (uint8_t)type;
                     bytesOfWritten = stream.write(&t, sizeof(t));
                     totalBytes += bytesOfWritten;
+                    // The number of elements
                     uint8_t c = (uint8_t)count;
                     bytesOfWritten = stream.write(&c, sizeof(c));
                     totalBytes += bytesOfWritten;
@@ -5681,7 +5682,7 @@ namespace Tiny3D
 
         if (prop->values.size() >= 2)
         {
-            size_t index = 0;
+            uint32_t index = 0;
 
             AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
                 i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2), i3 = getNodeAt(prop->values, 3);
@@ -5737,9 +5738,79 @@ namespace Tiny3D
                 totalBytes += bytesOfWritten;
 
                 // Extra data type
-                uint8_t extraType = (uint8_t)def.elementType;
+                uint8_t extraType = (uint8_t)def.extraType;
                 bytesOfWritten = stream.write(&extraType, sizeof(extraType));
                 totalBytes += bytesOfWritten;
+
+                // Extra data
+                if (def.extraType == BT_INT)
+                {
+                    if (i3 == prop->values.end())
+                    {
+                        // the number of extra info
+                        uint8_t count = 1;
+                        bytesOfWritten = stream.write(&count, sizeof(count));
+                        totalBytes += bytesOfWritten;
+
+                        uint32_t extInfo;
+                        if (getUInt(*i2, &extInfo))
+                        {
+                            bytesOfWritten = stream.write(&extInfo, sizeof(extInfo));
+                            totalBytes += bytesOfWritten;
+                        }
+                    }
+                    else
+                    {
+                        // the number of extra info
+                        uint8_t count = 2;
+                        bytesOfWritten = stream.write(&count, sizeof(count));
+                        totalBytes += bytesOfWritten;
+
+                        uint32_t extInfo1, extInfo2;
+                        if (getUInt(*i2, &extInfo1) && getUInt(*i3, &extInfo2))
+                        {
+                            bytesOfWritten = stream.write(&extInfo1, sizeof(extInfo1));
+                            totalBytes += bytesOfWritten;
+
+                            bytesOfWritten = stream.write(&extInfo2, sizeof(extInfo2));
+                            totalBytes += bytesOfWritten;
+                        }
+                    }
+                }
+                else if (def.extraType == BT_REAL)
+                {
+                    if (i3 == prop->values.end() && def.elementCount == 1)
+                    {
+                        // the number of extra info
+                        uint8_t count = 1;
+                        bytesOfWritten = stream.write(&count, sizeof(count));
+                        totalBytes += bytesOfWritten;
+
+                        float32_t extInfo;
+                        if (getSingle(*i2, &extInfo))
+                        {
+                            bytesOfWritten = stream.write(&extInfo, sizeof(extInfo));
+                            totalBytes += bytesOfWritten;
+                        }
+                    }
+                    else
+                    {
+                        // the number of extra info
+                        uint8_t count = 1;
+                        bytesOfWritten = stream.write(&count, sizeof(count));
+                        totalBytes += bytesOfWritten;
+
+                        float32_t extInfo1, extInfo2;
+                        if (getSingle(*i2, &extInfo1) && getSingle(*i3, &extInfo2))
+                        {
+                            bytesOfWritten = stream.write(&extInfo1, sizeof(extInfo1));
+                            totalBytes += bytesOfWritten;
+
+                            bytesOfWritten = stream.write(&extInfo2, sizeof(extInfo2));
+                            totalBytes += bytesOfWritten;
+                        }
+                    }
+                }
             }
             else
             {
