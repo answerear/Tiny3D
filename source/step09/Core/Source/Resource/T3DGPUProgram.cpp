@@ -19,6 +19,7 @@
 
 
 #include "Resource/T3DGPUProgram.h"
+#include "T3DErrorDef.h"
 
 
 namespace Tiny3D
@@ -74,6 +75,114 @@ namespace Tiny3D
     Resource::Type GPUProgram::getType() const
     {
         return E_RT_GPUPROGRAM;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUProgram::addShader(ShaderPtr shader)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            Shader::ShaderType type = shader->getShaderType();
+
+            auto r = mShaders.insert(ShadersValue(type, shader));
+            if (!r.second)
+            {
+                ret = T3D_ERR_GPU_DUPLICATED_STAGE;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Duplicated stage of shader !");
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUProgram::removeShader(Shader::ShaderType type)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            auto itr = mShaders.find(type);
+            if (itr == mShaders.end())
+            {
+                ret = T3D_ERR_GPU_NONEXISTENT;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "The type [%d] of shader is nonexistent !", type);
+                break;
+            }
+
+            mShaders.erase(itr);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUProgram::removeShader(const String &name)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            bool found = false;
+            auto itr = mShaders.begin();
+            while (itr != mShaders.end())
+            {
+                ShaderPtr shader = itr->second;
+                if (shader->getName() == name)
+                {
+                    mShaders.erase(itr);
+                    found = true;
+                    break;
+                }
+
+                ++itr;
+            }
+
+            if (!found)
+            {
+                ret = T3D_ERR_GPU_NONEXISTENT;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "The name [%s] of shader is nonexistent !", name.c_str());
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderPtr GPUProgram::getVertexShader() const
+    {
+        return mShaders.at(Shader::E_ST_VERTEX_SHADER);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderPtr GPUProgram::getPixelShader() const
+    {
+        return mShaders.at(Shader::E_ST_PIXEL_SHADER);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUProgram::cloneProperties(GPUProgramPtr newObj) const
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            newObj->mShaders = mShaders;
+        } while (0);
+
+        return ret;
     }
 }
 

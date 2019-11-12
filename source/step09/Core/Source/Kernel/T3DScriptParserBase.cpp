@@ -21,6 +21,7 @@
 #include "Kernel/T3DScriptParserBase.h"
 #include "Kernel/T3DScriptParser.h"
 #include "T3DErrorDef.h"
+#include <sstream>
 
 
 namespace Tiny3D
@@ -29,6 +30,8 @@ namespace Tiny3D
 
     ScriptParserBase::ScriptParserBase()
         : mText(nullptr)
+        , mTextLen(0)
+        , mNameSuffix(0)
     {
         const size_t MAX_STR_SIZE = 1024;
         mText = new char[MAX_STR_SIZE];
@@ -181,5 +184,17 @@ namespace Tiny3D
         } while (0);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    String ScriptParserBase::generateName(const String &prefix)
+    {
+        std::stringstream ss;
+        ss.width(3);
+        ss.fill('0');
+        ss << prefix << "_Noname#" << mNameSuffix;
+        mNameSuffix++;
+        return ss.str();
     }
 }

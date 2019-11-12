@@ -39,6 +39,7 @@ namespace Tiny3D
     D3D11VertexShader::D3D11VertexShader(const String &name, 
         const String &content)
         : D3D11Shader(name, content)
+        , mD3DVertexShader(nullptr)
     {
 
     }
@@ -61,7 +62,37 @@ namespace Tiny3D
 
     TResult D3D11VertexShader::compile()
     {
-        return D3D11Shader::compile("vert_main", "vs_5_0");
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            ret = D3D11Shader::compile("main", "vs_5_0");
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            if (mD3DVertexShader == nullptr)
+            {
+                // 创建 ID3D11VertexShader 对象
+                ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+
+                HRESULT hr = S_OK;
+                hr = pD3DDevice->CreateVertexShader(mContent, mContentLength,
+                    nullptr, &mD3DVertexShader);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_CREATE_VERTEX_SHADER;
+                    T3D_LOG_ERROR(
+                        LOG_TAG_D3D11RENDERER,
+                        "Create ID3D11VertexShader for shader file (%s) failed ! \
+                        Error : %d", getName().c_str(), hr);
+                    break;
+                }
+            }            
+        } while (0);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -78,24 +109,6 @@ namespace Tiny3D
             {
                 break;
             }
-
-            // 创建 ID3D11VertexShader 对象
-            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
-
-            HRESULT hr = S_OK;
-            hr = pD3DDevice->CreateVertexShader(mContent, mContentLength, 
-                nullptr, &mD3DVertexShader);
-            if (FAILED(hr))
-            {
-                ret = T3D_ERR_D3D11_CREATE_VERTEX_SHADER;
-                T3D_LOG_ERROR(
-                    LOG_TAG_D3D11RENDERER, 
-                    "Create ID3D11VertexShader for shader file (%s) failed ! \
-                    Error : %d", getName().c_str(), hr);
-                break;
-            }
-
-            ret = T3D_OK;
         } while (0);
 
         return ret;

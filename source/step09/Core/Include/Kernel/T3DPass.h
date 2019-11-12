@@ -36,16 +36,23 @@ namespace Tiny3D
     {
     public:
         /** 创建 Pass 对象 */
-        static PassPtr create();
+        static PassPtr create(const String &name, Technique *tech);
 
         /** 析构函数 */
         virtual ~Pass();
 
+        /**
+         * @brief 獲取 Pass 名稱
+         */
+        const String &getName() const { return mName; }
+
     protected:
         /** 构造函数 */
-        Pass();
+        Pass(const String &name, Technique *tech);
 
-        String      mName;      /**< Pass名称 */
+    protected:
+        Technique   *mParent;   /**< 擁有該 Pass 對象的 Technique 對象 */
+        String      mName;      /**< Pass 名稱 */
 
         //---------------------------------------
         // Command : ambient

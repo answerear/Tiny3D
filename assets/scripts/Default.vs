@@ -1,9 +1,9 @@
-cbuffer type_type_Globals_VP : register(b0, space0)
+cbuffer type_type_Globals_VP : register(b0)
 {
     column_major float4x4 type_Globals_VP_Globals_ViewProj : packoffset(c0);
 };
 
-cbuffer type_type_Globals_M : register(b1, space0)
+cbuffer type_type_Globals_M : register(b1)
 {
     column_major float4x4 type_Globals_M_Globals_Model : packoffset(c0);
 };

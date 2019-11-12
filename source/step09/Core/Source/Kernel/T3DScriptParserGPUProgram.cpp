@@ -21,6 +21,7 @@
 #include "Kernel/T3DScriptParserGPUProgram.h"
 #include "Kernel/T3DScriptParser.h"
 #include "Resource/T3DGPUProgram.h"
+#include "Resource/T3DGPUProgramManager.h"
 #include "T3DErrorDef.h"
 
 
@@ -101,6 +102,70 @@ namespace Tiny3D
                     break;
                 }
             }
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            Shader::ShaderType shaderType = Shader::E_ST_VERTEX_SHADER;
+            size_t len = mSource.find_last_of('.');
+            String title =
+                (len != String::npos ? mSource.substr(0, len) : mSource);
+            String source = title + "." + mStage;
+
+            if (mStage == "vs")
+            {
+                // vertex shader
+                shaderType = Shader::E_ST_VERTEX_SHADER;
+            }
+            else if (mStage == "ps")
+            {
+                // fragment shader
+                shaderType = Shader::E_ST_PIXEL_SHADER;
+
+            }
+            else if (mStage == "gs")
+            {
+                // geometry shader
+            }
+            else if (mStage == "ds")
+            {
+
+            }
+            else if (mStage == "cs")
+            {
+
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid property of GPU program !");
+                break;
+            }
+
+            // 创建对应平台的 shader 对象
+            ShaderPtr shader = T3D_SHADER_MGR.loadShader(shaderType, source);
+            if (shader == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Create vertex shader for %s failed !", source.c_str());
+                break;
+            }
+
+            ret = shader->compile();
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            ret = program->addShader(shader);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
         } while (0);
 
         return ret;
@@ -135,6 +200,7 @@ namespace Tiny3D
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read source of GPU program failed !");
                     }
+                    mSource = source;
                 }
                 break;
             case E_OP_TARGET:
@@ -145,6 +211,7 @@ namespace Tiny3D
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read target of GPU program failed !");
                     }
+                    mTarget = target;
                 }
                 break;
             case E_OP_ENTRY_POINT:
@@ -155,6 +222,7 @@ namespace Tiny3D
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read entry_point of GPU program failed !");
                     }
+                    mEntry = entry;
                 }
                 break;
             case E_OP_STAGE:
@@ -165,6 +233,7 @@ namespace Tiny3D
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read stage of GPU program failed !");
                     }
+                    mStage = stage;
                 }
                 break;
             default:
@@ -180,8 +249,6 @@ namespace Tiny3D
             {
                 break;
             }
-
-            // TODO
         } while (0);
 
         return ret;

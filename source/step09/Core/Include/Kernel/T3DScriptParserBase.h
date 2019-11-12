@@ -403,8 +403,13 @@ namespace Tiny3D
         /** 解析一个矩阵 */
         TResult parseMatrix(DataStream &stream, Matrix4 &m);
 
+        /** 給無名對象生成一個名字 */
+        String generateName(const String &prefix);
+
         char    *mText;     /**< 用于存放读取字符串，避免重复申请内存，只在不够的时候动态扩展大小 */
         size_t  mTextLen;   /**< 用户存放读取字符串的缓冲区大小 */
+
+        size_t  mNameSuffix;    /**< 用於生成無名對象的名字 */
     };
 }
 

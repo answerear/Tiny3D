@@ -37,8 +37,6 @@ namespace Tiny3D
 
     D3D11GPUProgram::D3D11GPUProgram(const String &name)
         : GPUProgram(name)
-        , mVertexShader(nullptr)
-        , mPixelShader(nullptr)
         , mHasLinked(false)
     {
 
@@ -48,27 +46,36 @@ namespace Tiny3D
 
     D3D11GPUProgram::~D3D11GPUProgram()
     {
-        mVertexShader = nullptr;
-        mPixelShader = nullptr;
+
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11GPUProgram::link(ShaderPtr vertexShader, ShaderPtr pixelShader)
+    TResult D3D11GPUProgram::link(bool force /* = false */)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            if (!vertexShader->hasCompiled() || !pixelShader->hasCompiled())
+            auto itr = mShaders.begin();
+            while (itr != mShaders.end())
             {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Shader has not compiled !");
-                ret = T3D_ERR_D3D11_SHADER_NOT_COMPILED;
+                ShaderPtr shader = itr->second;
+
+                if (!shader->hasCompiled())
+                {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Shader has not compiled !");
+                    ret = T3D_ERR_D3D11_SHADER_NOT_COMPILED;
+                    break;
+                }
+                ++itr;
+            }
+
+            if (ret != T3D_OK)
+            {
                 break;
             }
 
-            mVertexShader = vertexShader;
-            mPixelShader = pixelShader;
             mHasLinked = true;
         } while (0);
 
@@ -105,8 +112,38 @@ namespace Tiny3D
     ResourcePtr D3D11GPUProgram::clone() const
     {
         D3D11GPUProgramPtr program = create(getName());
-        program->mVertexShader = mVertexShader;
-        program->mPixelShader = mPixelShader;
+
+        TResult ret = cloneProperties(program);
+        if (ret != T3D_OK)
+        {
+            program = nullptr;
+        }
+
         return program;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11GPUProgram::cloneProperties(GPUProgramPtr newObj) const
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            ret = GPUProgram::cloneProperties(newObj);
+            if (ret != T3D_OK)
+            {
+                ret = T3D_ERR_RES_CLONE;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Clone GPU program proterties failed !");
+                break;
+            }
+
+            D3D11GPUProgramPtr program 
+                = smart_pointer_cast<D3D11GPUProgram>(newObj);
+            program->mHasLinked = mHasLinked;
+        } while (0);
+
+        return ret;
     }
 }

@@ -50,6 +50,12 @@ namespace Tiny3D
         /** 解析 GPU Program 对象的属性 */
         TResult parseProperties(
             DataStream &stream, GPUProgram *program, uint32_t version);
+
+    protected:
+        String  mSource;
+        String  mTarget;
+        String  mEntry;
+        String  mStage;
     };
 
     /**

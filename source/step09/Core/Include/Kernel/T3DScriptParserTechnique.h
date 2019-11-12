@@ -71,6 +71,9 @@ namespace Tiny3D
         /** 解析 Technique 的 gpu_device_rule 属性 */
         TResult parseGPUDeviceRule(
             DataStream &stream, Technique *tech, uint32_t version);
+
+    protected:
+        
     };
 }
 

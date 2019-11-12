@@ -31,23 +31,75 @@ namespace Tiny3D
     class T3D_ENGINE_API Technique : public Object
     {
     public:
-        /** 创建 Technique 对象 */
-        static TechniquePtr create();
+        /** 創建 Technique 對象 */
+        static TechniquePtr create(const String &name, Material *material);
 
-        /** 析构函数 */
+        /** 析構函數 */
         virtual ~Technique();
 
+        /**
+         * @brief 獲取 Technique 的名稱
+         */
+        const String &getName() const { return mName; }
+
+        /**
+         * @brief 獲取擁有該 Technique 對象的材質對象
+         */
+        Material *getMaterial() const { return mParent; }
+
+        /**
+         * @brief 新增一個 Pass 對象
+         * @param [in] pass : 新增的 Pass 對象
+         * @return 調用成功返回 T3D_OK
+         */
+        TResult addPass(PassPtr pass);
+
+        /**
+         * @brief 移除指定名稱的 Pass 對象
+         * @param [in] name : Pass 對象名稱
+         * @return 調用成功返回 T3D_OK
+         */
+        TResult removePass(const String &name);
+
+        /**
+         * @brief 移除指定索引的 Pass 對象
+         * @param [in] index : 索引
+         * @return 調用成功返回 T3D_OK
+         */
+        TResult removePass(size_t index);
+
+        /**
+         * @brief 獲取指定名稱的 Pass 對象
+         * @param [in] name : Pass 名稱
+         * @return 調用成功返回 Pass 對象，否則返回 nullptr
+         */
+        PassPtr getPass(const String &name) const;
+
+        /**
+         * @brief 獲取指定索引的 Pass 對象
+         * @param [in] index : Pass 對象所在索引
+         * @return 調用成功返回 Pass 對象，否則返回 nullptr
+         */
+        PassPtr getPass(size_t index) const;
+
+        /**
+         * @brief 獲取所有 Pass 對象
+         */
+        const Passes &getPasses() const { return mPasses; }
+
+        /**
+         * @brief 獲取 Pass 對象數量
+         */
+        size_t getPassCount() const { return mPasses.size(); }
+
     protected:
-        /** 构造函数 */
-        Technique();
+        /** 構造函數 */
+        Technique(const String &name, Material *material);
 
-        typedef TArray<Pass*>   Passes;
-
+    protected:
         Material    *mParent;
-
-        Passes      mPasses;
-
         String      mName;
+        Passes      mPasses;
 
         //---------------------------------------
         // Command : lod_index

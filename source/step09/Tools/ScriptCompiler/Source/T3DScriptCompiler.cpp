@@ -1642,7 +1642,7 @@ namespace Tiny3D
             {
                 size_t len = source.find_last_of('.');
                 String title = len != String::npos ? source.substr(0, len) : source;
-                String outpath = mOutDir + Dir::getNativeSeparator() + title + "_" + language + "." + stage;
+                String outpath = mOutDir + Dir::getNativeSeparator() + title + "." + stage;
 
                 FileDataStream outfile;
 

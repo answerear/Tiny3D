@@ -23,6 +23,7 @@
 #include "Resource/T3DArchiveManager.h"
 #include "Kernel/T3DAgent.h"
 #include "Kernel/T3DScriptParser.h"
+#include "Kernel/T3DTechnique.h"
 #include "T3DErrorDef.h"
 
 
@@ -70,9 +71,9 @@ namespace Tiny3D
         {
             if (E_MT_DEFAULT == mMaterialType)
             {
-                // 默认类型，从文件加载
+                // 默認類型，從文件加載
 
-                // 加载材质文件
+                // 加載材質文件
                 ArchivePtr archive = T3D_AGENT.getAssetsArchive(mName);
                 if (archive == nullptr)
                 {
@@ -94,7 +95,7 @@ namespace Tiny3D
                     break;
                 }
 
-                // 交给脚本解析器解析
+                // 交給腳本解析器解析
                 ret = ScriptParser::getInstance().parse(stream, this);
                 if (ret != T3D_OK)
                 {
@@ -105,7 +106,7 @@ namespace Tiny3D
             }
             else if (E_MT_MANUAL == mMaterialType)
             {
-                // 手动创建，不从文件加载
+                // 手動創建，不從文件加載
             }
             else
             {
@@ -130,5 +131,108 @@ namespace Tiny3D
     ResourcePtr Material::clone() const
     {
         return Material::create(mName, mMaterialType);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Material::addTechnique(TechniquePtr tech)
+    {
+        mTechniques.push_back(tech);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Material::removeTechnique(const String &name)
+    {
+        TResult ret = T3D_ERR_NOT_FOUND;
+
+        auto itr = mTechniques.begin();
+
+        while (itr != mTechniques.end())
+        {
+            TechniquePtr &tech = *itr;
+            if (name == tech->getName())
+            {
+                mTechniques.erase(itr);
+                ret = T3D_OK;
+                break;
+            }
+
+            ++itr;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Material::removeTechnique(size_t index)
+    {
+        TResult ret = T3D_ERR_NOT_FOUND;
+
+        size_t i = 0;
+        auto itr = mTechniques.begin();
+
+        while (itr != mTechniques.end())
+        {
+            if (i == index)
+            {
+                mTechniques.erase(itr);
+                ret = T3D_OK;
+                break;
+            }
+
+            ++i;
+            ++itr;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TechniquePtr Material::getTechnique(const String &name) const
+    {
+        TechniquePtr tech;
+        auto itr = mTechniques.begin();
+
+        while (itr != mTechniques.end())
+        {
+            const TechniquePtr &t = *itr;
+            if (name == tech->getName())
+            {
+                tech = t;
+                break;
+            }
+
+            ++itr;
+        }
+
+        return tech;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TechniquePtr Material::getTechnique(size_t index) const
+    {
+        TechniquePtr tech;
+
+        size_t i = 0;
+        auto itr = mTechniques.begin();
+
+        while (itr != mTechniques.end())
+        {
+            if (i == index)
+            {
+                tech = *itr;
+                break;
+            }
+
+            ++i;
+            ++itr;
+        }
+
+        return tech;
     }
 }

@@ -24,16 +24,18 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    PassPtr Pass::create()
+    PassPtr Pass::create(const String &name, Technique *tech)
     {
-        PassPtr pass = new Pass();
+        PassPtr pass = new Pass(name, tech);
         pass->release();
         return pass;
     }
 
     //--------------------------------------------------------------------------
 
-    Pass::Pass()
+    Pass::Pass(const String &name, Technique *tech)
+        : mParent(tech)
+        , mName(name)
     {
 
     }

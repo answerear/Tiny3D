@@ -21,7 +21,7 @@
 
 
 // For debug
-// "F:\Workspace\MyGame\Tiny3D\steps\assets\scripts\Builtin.material" -t hlsl -m 500
+// "F:\Workspace\MyGame\Tiny3D\steps\assets\scripts\Builtin.material" -t hlsl -m 50
 
 int main(int argc, char *argv[])
 {

@@ -28,51 +28,89 @@
 namespace Tiny3D
 {
     /**
-     * @brief 材质资源
+     * @brief 材質資源
      */
     class T3D_ENGINE_API Material : public Resource
     {
     public:
         /**
-         * @brief 材质类型
+         * @brief 材質來源類型
          */
         enum MaterialType
         {
-            E_MT_DEFAULT = 0,   /**< 默认是从资源加载的材质 */
-            E_MT_MANUAL,        /**< 由调用者创建的材质 */
+            E_MT_DEFAULT = 0,   /**< 默認是從資源文件加載資源 */
+            E_MT_MANUAL,        /**< 由調用者自己創建 */
         };
 
-        /** 创建 Material 对象 */
+        /** 創建 Material 对象 */
         static MaterialPtr create(const String &name, MaterialType type);
 
-        /** 析构函数 */
+        /** 析構函數 */
         virtual ~Material();
 
-        /** 重写 Resource::getType() */
+        /** 重寫 Resource::getType() */
         virtual Type getType() const override;
 
-        /** 获取材质名称 */
+        /** 獲取材質名稱 */
         const String &getMaterialName() const { return mMaterialName; }
 
-        /** 设置材质名称 */
+        /** 設置材質名稱 */
         void setMaterialName(const String &name) { mMaterialName = name; }
 
+        /**
+         * @brief 新增一個 Technique 對象到材質中
+         * @param [in] tech : 新創建的 Technique 對象
+         * @return 創建成功返回 T3D_OK
+         */
+        TResult addTechnique(TechniquePtr tech);
+
+        /**
+         * @brief 根據名稱移除一個 Technique 對象
+         */
+        TResult removeTechnique(const String &name);
+
+        /**
+         * @brief 根據索引移除一個 Technique 對象
+         */
+        TResult removeTechnique(size_t index);
+
+        /**
+         * @brief 根據名稱獲取 Technique 對象
+         */
+        TechniquePtr getTechnique(const String &name) const;
+
+        /**
+         * @brief 根據索引獲取 Technique 對象
+         */
+        TechniquePtr getTechnique(size_t index) const;
+
+        /**
+         * @brief 獲取所有 Technique 對象
+         */
+        const Techniques &getTechniques() const { return mTechniques; }
+
+        /**
+         * @brief 獲取材質中 Technique 對象數量
+         */
+        size_t getTechniqueCount() const { return mTechniques.size(); }
+
     protected:
-        /** 构造函数 */
+        /** 構造函數 */
         Material(const String &name, MaterialType type);
 
-        /** 重写 Resource::load() */
+        /** 重寫 Resource::load() */
         virtual TResult load() override;
 
-        /** 重写 Resource::unlaod() */
+        /** 重寫 Resource::unlaod() */
         virtual TResult unload() override;
 
-        /** 重写 Resource::clone() */
+        /** 重寫 Resource::clone() */
         virtual ResourcePtr clone() const override;
 
     protected:
-        MaterialType        mMaterialType;      /**< 材质资源类型 */
-        String              mMaterialName;      /**< 材质名称 */
+        MaterialType        mMaterialType;      /**< 材質資源類型 */
+        String              mMaterialName;      /**< 材質名稱 */
+        Techniques          mTechniques;        /**< 材質下的 Technique 對象 */
     };
 }
 

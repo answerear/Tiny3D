@@ -39,7 +39,8 @@ namespace Tiny3D
          * @param [in] content : 着色器内容，可以为空
          * @return 返回一个新建的D3D11着色器对象
          */
-        static D3D11VertexShaderPtr create(const String &name, const String &content);
+        static D3D11VertexShaderPtr create(
+            const String &name, const String &content);
 
         /**
          * @brief 析构函数

@@ -64,7 +64,7 @@ namespace Tiny3D
 
             // 编译
             HRESULT hr = S_OK;
-            char szMsg[256];
+            char szMsg[256] = { 0 };
 
             UINT unShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 #ifdef T3D_DEBUG
@@ -75,13 +75,13 @@ namespace Tiny3D
             ID3DBlob *pError = nullptr;
 
             hr = D3DCompile(mContent, mContentLength, szMsg, nullptr, 
-                D3D_COMPILE_STANDARD_FILE_INCLUDE, entry.c_str(), model.c_str(), 
+                nullptr, entry.c_str(), model.c_str(), 
                 0, 0, &pCode, &pError);
             if (FAILED(hr))
             {
                 ret = T3D_ERR_D3D11_SHADER_COMPILED;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Compile shader [%s] \
-                    failed ! - %s", mName.c_str(), 
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
+                    "Compile shader [%s] failed ! - %s", mName.c_str(), 
                     (const char *)pError->GetBufferPointer());
 
                 D3D_SAFE_RELEASE(pCode);
@@ -138,7 +138,7 @@ namespace Tiny3D
         {
             // 读取文件内容
             const String &name = getName();
-            ArchivePtr archive = T3D_AGENT.getMainAssetsArchive(name);
+            ArchivePtr archive = T3D_AGENT.getAssetsArchive(name);
             if (archive == nullptr)
             {
                 ret = T3D_ERR_FILE_NOT_EXIST;
@@ -163,8 +163,9 @@ namespace Tiny3D
 
             mContentLength = bufSize;
             T3D_SAFE_DELETE_ARRAY(mContent);
-            mContent = new char[bufSize];
+            mContent = new char[bufSize+1];
             memcpy(mContent, buffer, bufSize);
+            mContent[bufSize] = 0;
 
             ret = T3D_OK;
         } while (0);

@@ -73,7 +73,31 @@ namespace Tiny3D
             String name;
             ret = parseString(stream, name);
 
-            TechniquePtr tech = Technique::create();
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read the name of technique failed !");
+                break;
+            }
+
+            if (name.empty())
+            {
+                name = generateName("Technique");
+            }
+
+            TechniquePtr tech = Technique::create(name, material);
+            if (tech == nullptr)
+            {
+                break;
+            }
+
+            ret = material->addTechnique(tech);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Add technique [%s] for material failed !", name.c_str());
+                break;
+            }
 
             uint16_t type = E_NT_UNKNOWN;
             uint16_t i = 0;

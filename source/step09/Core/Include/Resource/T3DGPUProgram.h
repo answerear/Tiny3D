@@ -96,19 +96,59 @@ namespace Tiny3D
 
         /**
          * @brief 把着色器链接成一个GPU程序
+         * @param [in] force : 是否強制重新連接
+         * @return 調用成功返回 true
          */
-        virtual TResult link(ShaderPtr vertexShader, ShaderPtr pixelShader) = 0;
+        virtual TResult link(bool force = false) = 0;
 
         /**
          * @brief 是否链接成GPU程序
          */
         virtual bool hasLinked() const = 0;
 
+        /**
+         * @brief 添加一個shader
+         */
+        TResult addShader(ShaderPtr shader);
+
+        /**
+         * @brief 移除一個shader
+         */
+        TResult removeShader(const String &name);
+
+        /**
+         * @brief 移除一個shader
+         */
+        TResult removeShader(Shader::ShaderType type);
+
+        /**
+         * @brief 获取頂點著色器對象
+         */
+        ShaderPtr getVertexShader() const;
+
+        /**
+         * @brief 获取片段著色器對象
+         */
+        ShaderPtr getPixelShader() const;
+
     protected:
         /**
          * @brief 构造函数
          */
         GPUProgram(const String &name);
+
+        /**
+         * @brief 克隆属性
+         */
+        virtual TResult cloneProperties(GPUProgramPtr newObj) const;
+
+    protected:
+        typedef TMap<Shader::ShaderType, ShaderPtr> Shaders;
+        typedef Shaders::iterator                   ShadersItr;
+        typedef Shaders::const_iterator             ShadersConstItr;
+        typedef Shaders::value_type                 ShadersValue;
+
+        Shaders mShaders;   /**< 所有的著色器程序 */
     };
 }
 

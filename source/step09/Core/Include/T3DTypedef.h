@@ -127,9 +127,17 @@ namespace Tiny3D
     typedef Renderers::const_iterator       RenderersConstItr;
     typedef Renderers::value_type           RenderersValue;
 
-    typedef std::list<NodePtr>              Children;
+    typedef TList<NodePtr>                  Children;
     typedef Children::iterator              ChildrenItr;
     typedef Children::const_iterator        ChildrenConstItr;
+
+    typedef TList<TechniquePtr>             Techniques;
+    typedef Techniques::iterator            TechniquesItr;
+    typedef Techniques::const_iterator      TechniquesConstItr;
+
+    typedef TList<Pass*>                    Passes;
+    typedef Passes::iterator                PassesItr;
+    typedef Passes::const_iterator          PassesConstItr;
 }
 
 

@@ -49,29 +49,12 @@ namespace Tiny3D
         /**
          * @brief 重写 GPUProgram::link() 接口
          */
-        virtual TResult link(ShaderPtr vertexShader, 
-            ShaderPtr pixelShader) override;
+        virtual TResult link(bool force = false) override;
 
         /**
          * @brief 重写 GPUProgram::hasLinked() 接口
          */
         virtual bool hasLinked() const override;
-
-        /**
-         * @brief 获取顶点着色器对象
-         */
-        D3D11VertexShaderPtr getVertexShader() const
-        {
-            return mVertexShader;
-        }
-
-        /**
-         * @brief 获取像素着色器对象
-         */
-        D3D11PixelShaderPtr getPixelShader() const
-        {
-            return mPixelShader;
-        }
 
     protected:
         /**
@@ -94,9 +77,12 @@ namespace Tiny3D
          */
         virtual ResourcePtr clone() const override;
 
+        /**
+         * @brief 重寫 GPUProgram::cloneProperties() 接口
+         */
+        virtual TResult cloneProperties(GPUProgramPtr newObj) const override;
+
     protected:
-        D3D11VertexShaderPtr    mVertexShader;  /**< 顶点着色器对象 */
-        D3D11PixelShaderPtr     mPixelShader;   /**< 像素着色器对象 */
         bool                    mHasLinked;     /**< 是否链接标记 */
     };
 }

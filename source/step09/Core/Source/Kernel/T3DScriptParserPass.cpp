@@ -72,8 +72,23 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read the name of pass failed !");
+                break;
+            }
 
-            PassPtr pass = Pass::create();
+            if (name.empty())
+            {
+                name = generateName("Pass");
+            }
+
+            PassPtr pass = Pass::create(name, tech);
+            if (pass == nullptr)
+            {
+                break;
+            }
 
             uint16_t type = E_NT_UNKNOWN;
             uint16_t i = 0;
