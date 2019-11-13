@@ -52,6 +52,8 @@ namespace Tiny3D
         T3D_ERR_RES_INVALID_CONTENT     = T3D_ERR_CORE + 0x00A5, /**< 無效文件內容 */
         T3D_ERR_RES_INVALID_PROPERTY    = T3D_ERR_CORE + 0x00A6, /**< 無效屬性 */
         T3D_ERR_RES_CLONE               = T3D_ERR_CORE + 0x00A7, /**< 克隆資源屬性失敗 */
+        T3D_ERR_RES_INVALID_SHADER      = T3D_ERR_CORE + 0x00A8, /**< 無效的 Shader */
+        T3D_ERR_RES_DUPLICATED          = T3D_ERR_CORE + 0x00A9, /**< 重複資源 */
 
         T3D_ERR_RENDER_CREATE_WINDOW    = T3D_ERR_CORE + 0x00C0, /**< 创建渲染窗口失败 */
 

@@ -138,6 +138,11 @@ namespace Tiny3D
     typedef TList<Pass*>                    Passes;
     typedef Passes::iterator                PassesItr;
     typedef Passes::const_iterator          PassesConstItr;
+
+    typedef TMap<String, ShaderPtr>         Shaders;
+    typedef Shaders::iterator               ShadersItr;
+    typedef Shaders::const_iterator         ShadersConstItr;
+    typedef Shaders::value_type             ShadersValue;
 }
 
 

@@ -1478,6 +1478,8 @@ namespace Tiny3D
         mIds["sampler_ref"] = ID_SAMPLER_REF;
         mIds["thread_groups"] = ID_THREAD_GROUPS;
         mIds["render_custom"] = ID_RENDER_CUSTOM;
+
+        mIds["gpu_program_ref"] = ID_GPU_PROGRAM_REF;
     }
 
     void ScriptCompiler::getFileName(const String &filepath, String &path, String &name) const

@@ -23,6 +23,7 @@
 
 
 #include "Resource/T3DResource.h"
+#include "Resource/T3DGPUProgram.h"
 
 
 namespace Tiny3D
@@ -110,6 +111,7 @@ namespace Tiny3D
     protected:
         MaterialType        mMaterialType;      /**< 材質資源類型 */
         String              mMaterialName;      /**< 材質名稱 */
+
         Techniques          mTechniques;        /**< 材質下的 Technique 對象 */
     };
 }

@@ -21,6 +21,8 @@
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveManager.h"
+#include "Resource/T3DGPUProgram.h"
+#include "Resource/T3DGPUProgramManager.h"
 #include "Kernel/T3DAgent.h"
 #include "Kernel/T3DScriptParser.h"
 #include "Kernel/T3DTechnique.h"
@@ -67,7 +69,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        do 
+        do
         {
             if (E_MT_DEFAULT == mMaterialType)
             {
@@ -79,7 +81,7 @@ namespace Tiny3D
                 {
                     ret = T3D_ERR_IMG_NOT_FOUND;
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                        "Could not find the archive for file %s !", 
+                        "Could not find the archive for file %s !",
                         mName.c_str());
                     break;
                 }
@@ -90,7 +92,7 @@ namespace Tiny3D
                 if (ret != T3D_OK)
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                        "Read material content failed from file %s ! ", 
+                        "Read material content failed from file %s ! ",
                         mName.c_str());
                     break;
                 }
@@ -123,6 +125,8 @@ namespace Tiny3D
 
     TResult Material::unload()
     {
+        mTechniques.clear();
+
         return Resource::unload();
     }
 
@@ -130,7 +134,11 @@ namespace Tiny3D
 
     ResourcePtr Material::clone() const
     {
-        return Material::create(mName, mMaterialType);
+        MaterialPtr material = Material::create(mName, mMaterialType);
+
+        material->mTechniques = mTechniques;
+
+        return material;
     }
 
     //--------------------------------------------------------------------------
@@ -235,4 +243,7 @@ namespace Tiny3D
 
         return tech;
     }
+
+    //--------------------------------------------------------------------------
+
 }

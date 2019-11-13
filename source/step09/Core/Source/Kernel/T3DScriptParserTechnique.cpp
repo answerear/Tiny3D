@@ -88,6 +88,8 @@ namespace Tiny3D
             TechniquePtr tech = Technique::create(name, material);
             if (tech == nullptr)
             {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Create technique [%s] object failed !", name.c_str());
                 break;
             }
 

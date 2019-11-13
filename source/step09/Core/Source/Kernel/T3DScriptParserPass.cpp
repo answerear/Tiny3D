@@ -87,6 +87,8 @@ namespace Tiny3D
             PassPtr pass = Pass::create(name, tech);
             if (pass == nullptr)
             {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Create pass [%s] object failed !", name.c_str());
                 break;
             }
 
