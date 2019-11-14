@@ -51,6 +51,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(ScriptParserSampler);
     T3D_DECLARE_SMART_PTR(ScriptParserGPUProgram);
     T3D_DECLARE_SMART_PTR(ScriptParserGPUProgramRef);
+    T3D_DECLARE_SMART_PTR(ScriptParserGPUProgramEx);
+    T3D_DECLARE_SMART_PTR(ScriptParserGPUProgramRefEx);
 
     T3D_DECLARE_SMART_PTR(HardwareBuffer);
     T3D_DECLARE_SMART_PTR(HardwareIndexBuffer);
@@ -139,10 +141,10 @@ namespace Tiny3D
     typedef Passes::iterator                PassesItr;
     typedef Passes::const_iterator          PassesConstItr;
 
-    typedef TMap<String, ShaderPtr>         Shaders;
-    typedef Shaders::iterator               ShadersItr;
-    typedef Shaders::const_iterator         ShadersConstItr;
-    typedef Shaders::value_type             ShadersValue;
+    typedef TMap<String, GPUProgramPtr>     GPUPrograms;
+    typedef GPUPrograms::iterator           GPUProgramsItr;
+    typedef GPUPrograms::const_iterator     GPUProgramsConstItr;
+    typedef GPUPrograms::value_type         GPUProgramsValue;
 }
 
 

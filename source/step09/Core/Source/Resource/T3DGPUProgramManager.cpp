@@ -66,8 +66,19 @@ namespace Tiny3D
     ShaderPtr ShaderManager::loadShader(Shader::ShaderType shaderType, 
         const String &name)
     {
-        return smart_pointer_cast<Shader>(ResourceManager::load(name, 1, 
-            shaderType));
+        ShaderPtr shader = smart_pointer_cast<Shader>(ResourceManager::load(
+            name, 1, shaderType));
+
+        if (shader != nullptr)
+        {
+            TResult ret = shader->compile();
+            if (ret != T3D_OK)
+            {
+                shader = nullptr;
+            }
+        }
+
+        return shader;
     }
 
     //--------------------------------------------------------------------------
@@ -75,8 +86,19 @@ namespace Tiny3D
     ShaderPtr ShaderManager::loadShader(Shader::ShaderType shaderType, 
         const String &name, const String &content)
     {
-        return smart_pointer_cast<Shader>(ResourceManager::load(name, 2, 
-            shaderType, content.c_str()));
+        ShaderPtr shader = smart_pointer_cast<Shader>(ResourceManager::load(
+            name, 2, shaderType, content.c_str()));
+
+        if (shader != nullptr)
+        {
+            TResult ret = shader->compile();
+            if (ret != T3D_OK)
+            {
+                shader = nullptr;
+            }
+        }
+
+        return shader;
     }
 
     //--------------------------------------------------------------------------

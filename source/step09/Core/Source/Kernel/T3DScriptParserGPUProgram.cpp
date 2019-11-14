@@ -22,6 +22,8 @@
 #include "Kernel/T3DScriptParser.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramManager.h"
+#include "Resource/T3DMaterial.h"
+#include "Kernel/T3DPass.h"
 #include "T3DErrorDef.h"
 
 
@@ -70,6 +72,20 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read the name of shader failed !");
+                break;
+            }
+
+            if (name.empty())
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid name of shader ! It must not be empty !");
+                break;
+            }
 
             uint16_t type = E_NT_UNKNOWN;
             uint16_t i = 0;
@@ -145,22 +161,8 @@ namespace Tiny3D
                 break;
             }
 
-            // 创建对应平台的 shader 对象
-            ShaderPtr shader = T3D_SHADER_MGR.loadShader(shaderType, source);
-            if (shader == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Create vertex shader for %s failed !", source.c_str());
-                break;
-            }
-
-            ret = shader->compile();
-            if (ret != T3D_OK)
-            {
-                break;
-            }
-
-            ret = program->addShader(shader);
+            ShaderPtr shader;
+            ret = program->addShader(source, shaderType, shader);
             if (ret != T3D_OK)
             {
                 break;
@@ -733,5 +735,207 @@ namespace Tiny3D
         T3D_SAFE_DELETE_ARRAY(extra);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ScriptParserGPUProgramExPtr ScriptParserGPUProgramEx::create()
+    {
+        ScriptParserGPUProgramExPtr parser = new ScriptParserGPUProgramEx();
+        parser->release();
+        return parser;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ScriptParserGPUProgramEx::ScriptParserGPUProgramEx()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    ScriptParserGPUProgramEx::~ScriptParserGPUProgramEx()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ScriptParserGPUProgramEx::parseObject(
+        DataStream &stream, Object *object, uint32_t version)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            size_t bytesOfRead = 0;
+
+            // 属性数量
+            uint16_t count = 0;
+            bytesOfRead = stream.read(&count, sizeof(count));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(count),
+                "Read the number of children of gpu_program failed !");
+
+            // 名称
+            String name;
+            ret = parseString(stream, name);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read the name of gpu_program failed !");
+                break;
+            }
+
+            if (name.empty())
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid name of gpu_program ! This must be a real name !");
+                break;
+            }
+
+            Material *material = static_cast<Material*>(object);
+            GPUProgramPtr program;
+            ret = material->addGPUProgram(name, program);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Add GPUProgram object failed !");
+                break;
+            }
+
+            uint16_t type = E_NT_UNKNOWN;
+            uint16_t i = 0;
+
+            for (i = 0; i < count; ++i)
+            {
+                // Type
+                bytesOfRead = stream.read(&type, sizeof(type));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
+                    "Read the type of gpu_program failed !");
+
+                if (type == E_NT_PROPERTY)
+                {
+                    ret = parseProperties(stream, program, version);
+                }
+                else if (type == E_NT_OBJECT)
+                {
+                    ret = parseObjects(stream, program, version);
+                }
+                else
+                {
+                    ret = T3D_ERR_RES_INVALID_OBJECT;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid object type in gpu_program script !");
+                    break;
+                }
+
+                if (ret != T3D_OK)
+                {
+                    break;
+                }
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ScriptParserGPUProgramEx::parseProperties(
+        DataStream &stream, GPUProgram *program, uint32_t version)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ScriptParserGPUProgramRefExPtr ScriptParserGPUProgramRefEx::create()
+    {
+        ScriptParserGPUProgramRefExPtr parser = new ScriptParserGPUProgramRefEx();
+        parser->release();
+        return parser;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ScriptParserGPUProgramRefEx::ScriptParserGPUProgramRefEx()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    ScriptParserGPUProgramRefEx::~ScriptParserGPUProgramRefEx()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ScriptParserGPUProgramRefEx::parseObject(
+        DataStream &stream, Object *object, uint32_t version)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            size_t bytesOfRead = 0;
+
+            ShaderParam *param = static_cast<ShaderParam*>(object);
+
+            // 属性数量
+            uint16_t count = 0;
+            bytesOfRead = stream.read(&count, sizeof(count));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(count),
+                "Read the number of children of gpu_program_ref failed !");
+
+            // 名称
+            String name;
+            ret = parseString(stream, name);
+
+            uint16_t type = E_NT_UNKNOWN;
+            uint16_t i = 0;
+
+            for (i = 0; i < count; ++i)
+            {
+                // Type
+                bytesOfRead = stream.read(&type, sizeof(type));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
+                    "Read the type of gpu_program_ref failed !");
+
+                if (type == E_NT_PROPERTY)
+                {
+                    ret = parseProperties(stream, param, version);
+                }
+                else if (type == E_NT_OBJECT)
+                {
+                    ret = parseObjects(stream, param, version);
+                }
+                else
+                {
+                    ret = T3D_ERR_RES_INVALID_OBJECT;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid object type in gpu_program_ref script !");
+                    break;
+                }
+
+                if (ret != T3D_OK)
+                {
+                    break;
+                }
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ScriptParserGPUProgramRefEx::parseProperties(
+        DataStream &stream, ShaderParam *param, uint32_t version)
+    {
+        return T3D_OK;
     }
 }

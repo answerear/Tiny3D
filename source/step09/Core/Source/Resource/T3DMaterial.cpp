@@ -127,6 +127,18 @@ namespace Tiny3D
     {
         mTechniques.clear();
 
+        // 卸載所有 GPUProgram 對象
+        auto itr = mGPUPrograms.begin();
+
+        while (itr != mGPUPrograms.end())
+        {
+            auto program = itr->second;
+            T3D_GPU_PROGRAM_MGR.unloadGPUProgram(program);
+            ++itr;
+        }
+
+        mGPUPrograms.clear();
+
         return Resource::unload();
     }
 
@@ -143,10 +155,25 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Material::addTechnique(TechniquePtr tech)
+    TResult Material::addTechnique(const String &name, TechniquePtr &tech)
     {
-        mTechniques.push_back(tech);
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            tech = Technique::create(name, this);
+            if (tech == nullptr)
+            {
+                ret = T3D_ERR_RES_CREATE_TECHNIQUE;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Create technique [%s] object failed !", name.c_str());
+                break;
+            }
+
+            mTechniques.push_back(tech);
+        } while (0);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -246,4 +273,40 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Material::addGPUProgram(const String &name, GPUProgramPtr &program)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            program = T3D_GPU_PROGRAM_MGR.loadGPUProgram(name);
+            if (program == nullptr)
+            {
+                ret = T3D_ERR_RES_CREATE_GPUPROGRAM;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Create GPUProgram [%s] object failed !", name.c_str());
+                break;
+            }
+
+            mGPUPrograms.insert(GPUProgramsValue(name, program));
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Material::removeGPUProgram(const String &name)
+    {
+        TResult ret = T3D_OK;
+        mGPUPrograms.erase(name);
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GPUProgramPtr Material::getGPUProgram(const String &name) const
+    {
+        return mGPUPrograms.at(name);
+    }
 }

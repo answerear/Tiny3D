@@ -19,6 +19,7 @@
 
 
 #include "Resource/T3DGPUProgram.h"
+#include "Resource/T3DGPUProgramManager.h"
 #include "T3DErrorDef.h"
 
 
@@ -79,13 +80,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GPUProgram::addShader(ShaderPtr shader)
+    TResult GPUProgram::addShader(
+        const String &name, Shader::ShaderType type, ShaderPtr &shader)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            Shader::ShaderType type = shader->getShaderType();
+            // 创建对应平台的 shader 对象
+            shader = T3D_SHADER_MGR.loadShader(type, name);
+            if (shader == nullptr)
+            {
+                ret = T3D_ERR_RES_CREATE_SHADER;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Create vertex shader for %s failed !", name.c_str());
+                break;
+            }
 
             auto r = mShaders.insert(ShadersValue(type, shader));
             if (!r.second)

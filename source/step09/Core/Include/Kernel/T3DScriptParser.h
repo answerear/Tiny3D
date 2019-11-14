@@ -68,6 +68,8 @@ namespace Tiny3D
         ScriptParserSamplerPtr          mSamplerParser;
         ScriptParserGPUProgramPtr       mGPUParser;
         ScriptParserGPUProgramRefPtr    mGPURefParser;
+        ScriptParserGPUProgramExPtr     mGPUParserEx;
+        ScriptParserGPUProgramRefExPtr  mGPURefParserEx;
     };
 }
 

@@ -89,35 +89,45 @@ namespace Tiny3D
     class T3D_ENGINE_API GPUProgram : public Resource
     {
     public:
+        typedef TMap<Shader::ShaderType, ShaderPtr> Shaders;
+        typedef Shaders::iterator                   ShadersItr;
+        typedef Shaders::const_iterator             ShadersConstItr;
+        typedef Shaders::value_type                 ShadersValue;
+
         /**
-         * @brief 获取资源类型，重写基类 Resource::getType() 接口
+         * @brief 獲取資源類型，重寫基類 Resource::getType() 接口
          */
         virtual Type getType() const override;
 
         /**
-         * @brief 把着色器链接成一个GPU程序
-         * @param [in] force : 是否強制重新連接
+         * @brief 把所有著色器程序鏈接成一個 GPU 程序
+         * @param [in] force : 是否強制重新鏈接
          * @return 調用成功返回 true
          */
         virtual TResult link(bool force = false) = 0;
 
         /**
-         * @brief 是否链接成GPU程序
+         * @brief 是否鏈接成GPU程序
          */
         virtual bool hasLinked() const = 0;
 
         /**
-         * @brief 添加一個shader
+         * @brief 新增 shader
+         * @param [in] name : Shader 名稱
+         * @param [in] type : Shader 類型
+         * @param [in][out] shader : 返回新增的 Shader 對象
+         * @return 調用成功返回 T3D_OK
          */
-        TResult addShader(ShaderPtr shader);
+        TResult addShader(
+            const String &name, Shader::ShaderType type, ShaderPtr &shader);
 
         /**
-         * @brief 移除一個shader
+         * @brief 根據名稱移除 shader
          */
         TResult removeShader(const String &name);
 
         /**
-         * @brief 移除一個shader
+         * @brief 根據類型移除 shader
          */
         TResult removeShader(Shader::ShaderType type);
 
@@ -133,7 +143,7 @@ namespace Tiny3D
 
     protected:
         /**
-         * @brief 构造函数
+         * @brief 構造函數
          */
         GPUProgram(const String &name);
 
@@ -143,11 +153,6 @@ namespace Tiny3D
         virtual TResult cloneProperties(GPUProgramPtr newObj) const;
 
     protected:
-        typedef TMap<Shader::ShaderType, ShaderPtr> Shaders;
-        typedef Shaders::iterator                   ShadersItr;
-        typedef Shaders::const_iterator             ShadersConstItr;
-        typedef Shaders::value_type                 ShadersValue;
-
         Shaders mShaders;   /**< 所有的著色器程序 */
     };
 }

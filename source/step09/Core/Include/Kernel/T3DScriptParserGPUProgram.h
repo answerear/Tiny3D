@@ -28,26 +28,26 @@
 namespace Tiny3D
 {
     /**
-     * @brief GPU 程序对象脚本解析器
+     * @brief GPU 程序對象腳本解析器
      */
     class ScriptParserGPUProgram : public ScriptParserBase
     {
     public:
-        /** 创建对象 */
+        /** 創建對象 */
         static ScriptParserGPUProgramPtr create();
 
-        /** 析构函数 */
+        /** 析構函數 */
         virtual ~ScriptParserGPUProgram();
         
-        /** 重写基类 ScriptParserBase::parseObject 接口 */
+        /** 重寫基類 ScriptParserBase::parseObject 接口 */
         virtual TResult parseObject(
             DataStream &stream, Object *object, uint32_t version) override;
 
     protected:
-        /** 构造函数 */
+        /** 構造函數 */
         ScriptParserGPUProgram();
 
-        /** 解析 GPU Program 对象的属性 */
+        /** 解析 GPU Program 對象屬性  */
         TResult parseProperties(
             DataStream &stream, GPUProgram *program, uint32_t version);
 
@@ -59,34 +59,34 @@ namespace Tiny3D
     };
 
     /**
-     * @brief GPU 程序引用对象脚本解析器
+     * @brief GPU 程序引用對象腳本解析器
      */
     class ScriptParserGPUProgramRef : public ScriptParserBase
     {
     public:
-        /** 创建对象 */
+        /** 創建對象 */
         static ScriptParserGPUProgramRefPtr create();
 
-        /** 析构函数 */
+        /** 析構函數 */
         virtual ~ScriptParserGPUProgramRef();
 
-        /** 重写基类 ScriptParserBase::parseObject 接口 */
+        /** 重寫基類 ScriptParserBase::parseObject 接口 */
         virtual TResult parseObject(
             DataStream &stream, Object *object, uint32_t version) override;
 
     protected:
-        /** 构造函数 */
+        /** 構造函數 */
         ScriptParserGPUProgramRef();
 
-        /** 解析 GPU Program 引用子对象属性 */
+        /** 解析 GPU Program 引用對象屬性 */
         TResult parseProperties(
             DataStream &stream, ShaderParam *param, uint32_t version);
 
-        /** 解析 GPU Program 引用的 shared_params_ref 属性 */
+        /** 解析 GPU Program 引用的 shared_params_ref 屬性 */
         TResult parseSharedParamsRef(
             DataStream &stream, ShaderParam *param, uint32_t version);
 
-        /** 解析 GPU Program 引用的 param_indexed 属性 */
+        /** 解析 GPU Program 引用的 param_indexed 屬性 */
         TResult parseParamIndexed(
             DataStream &stream, ShaderParam *param, uint32_t version);
 
@@ -94,12 +94,62 @@ namespace Tiny3D
         TResult parseParamNamed(
             DataStream &stream, ShaderParam *param, uint32_t version);
 
-        /** 解析 GPU Program 引用的 param_indexed_auto 属性 */
+        /** 解析 GPU Program 引用的 param_indexed_auto 屬性 */
         TResult parseParamIndexedAuto(
             DataStream &stream, ShaderParam *param, uint32_t version);
 
         /** 解析 GPU Program 引用的 param_named_auto 屬性 */
         TResult parseParamNamedAuto(
+            DataStream &stream, ShaderParam *param, uint32_t version);
+    };
+
+    /**
+     * @brief gpu_program 對象腳本解析器
+     */
+    class ScriptParserGPUProgramEx : public ScriptParserBase
+    {
+    public:
+        /** 創建對象 */
+        static ScriptParserGPUProgramExPtr create();
+
+        /** 析構函數 */
+        virtual ~ScriptParserGPUProgramEx();
+
+        /** 重寫基類 ScriptParserBase::parseObject 接口 */
+        virtual TResult parseObject(
+            DataStream &stream, Object *object, uint32_t version);
+
+    protected:
+        /** 構造函數 */
+        ScriptParserGPUProgramEx();
+
+        /** 解析 gpu_program 對象屬性 */
+        TResult parseProperties(
+            DataStream &stream, GPUProgram *program, uint32_t version);
+    };
+
+    /**
+     * @brief gpu_program_ref 對象腳本解析器
+     */
+    class ScriptParserGPUProgramRefEx : public ScriptParserBase
+    {
+    public:
+        /** 創建對象 */
+        static ScriptParserGPUProgramRefExPtr create();
+
+        /** 析構函數 */
+        virtual ~ScriptParserGPUProgramRefEx();
+
+        /** 重寫基類 ScriptParserBase::parseObject 接口 */
+        virtual TResult parseObject(
+            DataStream &stream, Object *object, uint32_t version);
+
+    protected:
+        /** 構造函數 */
+        ScriptParserGPUProgramRefEx();
+
+        /** 解析 gpu_program_ref 對象屬性 */
+        TResult parseProperties(
             DataStream &stream, ShaderParam *param, uint32_t version);
     };
 }

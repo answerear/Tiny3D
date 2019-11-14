@@ -211,6 +211,9 @@ namespace Tiny3D
         size_t translateParamIndexed(PropertyAbstractNode *prop, DataStream &stream);
         size_t translateParamIndexedAuto(PropertyAbstractNode *prop, DataStream &stream);
 
+        size_t translateGPUProgramEx(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj);
+        size_t translateGPUProgramRefEx(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj);
+
         void constructBuiltinConstantMap();
 
         typedef std::map<String, BuiltinConstantDefinition> BuiltinConstantMap;

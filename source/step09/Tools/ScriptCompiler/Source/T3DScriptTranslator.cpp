@@ -520,7 +520,7 @@ namespace Tiny3D
             }
         }
 
-        return bytesOfWritten;
+        return totalBytes;
     }
 
     size_t MaterialTranslator::translateLODValues(PropertyAbstractNode *prop, DataStream &stream)
@@ -5403,6 +5403,12 @@ namespace Tiny3D
         case ID_COMPUTE_PROGRAM:
             totalBytes = translateGPUProgram(compiler, stream, obj);
             break;
+        case ID_GPU_PROGRAM:
+            totalBytes = translateGPUProgramEx(compiler, stream, obj);
+            break;
+        case ID_GPU_PROGRAM_REF:
+            totalBytes = translateGPUProgramRefEx(compiler, stream, obj);
+            break;
         default:
             break;
         }
@@ -5931,6 +5937,98 @@ namespace Tiny3D
         if (!compiler->translate(obj, source, target, stage, entry))
         {
             totalBytes = 0;
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t GPUProgramTranslator::translateGPUProgramEx(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        // 对象头数据
+        bytesOfWritten = translateObjectHeader(obj, stream);
+        totalBytes += bytesOfWritten;
+
+        // Set the properties for the material
+        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        {
+            if ((*i)->type == ANT_PROPERTY)
+            {
+                PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
+
+                // Type
+                uint16_t type = (*i)->type;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
+
+                // ID
+                uint16_t id = prop->id;
+                bytesOfWritten = stream.write(&id, sizeof(id));
+                totalBytes += bytesOfWritten;
+
+                // 属性
+                switch (prop->id)
+                {
+                default:
+                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
+                        "token \"" + prop->name + "\" is not recognized");
+                }
+            }
+            else if ((*i)->type == ANT_OBJECT)
+            {
+                bytesOfWritten = processNode(compiler, stream, *i);
+                totalBytes += bytesOfWritten;
+            }
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t GPUProgramTranslator::translateGPUProgramRefEx(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        // 对象头数据
+        bytesOfWritten = translateObjectHeader(obj, stream);
+        totalBytes += bytesOfWritten;
+
+        // Set the properties for the material
+        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        {
+            if ((*i)->type == ANT_PROPERTY)
+            {
+                PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
+
+                // Type
+                uint16_t type = (*i)->type;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
+
+                // ID
+                uint16_t id = prop->id;
+                bytesOfWritten = stream.write(&id, sizeof(id));
+                totalBytes += bytesOfWritten;
+
+                // 属性
+                switch (prop->id)
+                {
+                default:
+                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
+                        "token \"" + prop->name + "\" is not recognized");
+                }
+            }
+            else if ((*i)->type == ANT_OBJECT)
+            {
+                bytesOfWritten = processNode(compiler, stream, *i);
+                totalBytes += bytesOfWritten;
+            }
         }
 
         return totalBytes;

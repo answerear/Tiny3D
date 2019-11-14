@@ -196,8 +196,8 @@ namespace Tiny3D
             E_OP_TRILINEAR,
             E_OP_ANISOTROPIC,
             E_OP_CMPTEST,
-            E_OP_ON,
-            E_OP_OFF,
+//             E_OP_ON,
+//             E_OP_OFF,
             E_OP_CMPFUNC,
             E_OP_MAX_ANISOTROPY,
             E_OP_MIPMAP_BIAS,
@@ -344,6 +344,8 @@ namespace Tiny3D
             E_OP_THREAD_GROUPS,
             E_OP_RENDER_CUSTOM,
 
+            E_OP_GPU_PROGRAM,
+            E_OP_GPU_PROGRAM_REF,
 
             E_OP_END_BUILTIN_IDS
         };

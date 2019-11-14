@@ -63,7 +63,7 @@ namespace Tiny3D
          * @param [in] tech : 新創建的 Technique 對象
          * @return 創建成功返回 T3D_OK
          */
-        TResult addTechnique(TechniquePtr tech);
+        TResult addTechnique(const String &name, TechniquePtr &tech);
 
         /**
          * @brief 根據名稱移除一個 Technique 對象
@@ -86,14 +86,39 @@ namespace Tiny3D
         TechniquePtr getTechnique(size_t index) const;
 
         /**
+         * @brief 獲取材質中 Technique 對象數量
+         */
+        size_t getTechniqueCount() const { return mTechniques.size(); }
+
+        /**
          * @brief 獲取所有 Technique 對象
          */
         const Techniques &getTechniques() const { return mTechniques; }
 
         /**
-         * @brief 獲取材質中 Technique 對象數量
+         * @brief 新增一個 GPUProgram 對象到材質中
          */
-        size_t getTechniqueCount() const { return mTechniques.size(); }
+        TResult addGPUProgram(const String &name, GPUProgramPtr &program);
+
+        /**
+         * @brief 根據名稱移除一個 GPUProgram 對象
+         */
+        TResult removeGPUProgram(const String &name);
+
+        /**
+         * @brief 根據名稱獲取 GPUProgram 對象
+         */
+        GPUProgramPtr getGPUProgram(const String &name) const;
+
+        /**
+         * @brief 獲取材質中 GPUProgram 對象數量
+         */
+        size_t getGPUProgramCount() const { return mGPUPrograms.size(); }
+
+        /**
+         * @brief 獲取所有 GPUProgram 對象
+         */
+        const GPUPrograms getGPUPrograms() const { return mGPUPrograms; }
 
     protected:
         /** 構造函數 */
@@ -109,10 +134,11 @@ namespace Tiny3D
         virtual ResourcePtr clone() const override;
 
     protected:
-        MaterialType        mMaterialType;      /**< 材質資源類型 */
-        String              mMaterialName;      /**< 材質名稱 */
+        MaterialType    mMaterialType;  /**< 材質資源類型 */
+        String          mMaterialName;  /**< 材質名稱 */
 
-        Techniques          mTechniques;        /**< 材質下的 Technique 對象 */
+        Techniques      mTechniques;    /**< 材質下的 Technique 對象 */
+        GPUPrograms     mGPUPrograms;   /**< 材質擁有的 GPUProgram 對象*/
     };
 }
 

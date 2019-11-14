@@ -58,6 +58,8 @@ namespace Tiny3D
         mSamplerParser = ScriptParserSampler::create();
         mGPUParser = ScriptParserGPUProgram::create();
         mGPURefParser = ScriptParserGPUProgramRef::create();
+        mGPUParserEx = ScriptParserGPUProgramEx::create();
+        mGPURefParserEx = ScriptParserGPUProgramRefEx::create();
     }
 
     //--------------------------------------------------------------------------
@@ -113,6 +115,12 @@ namespace Tiny3D
         case E_OP_SHADOW_CASTER_VERTEX_PROGRAM_REF:
         case E_OP_SHADOW_CASTER_FRAGMENT_PROGRAM_REF:
             parser = mGPURefParser;
+            break;
+        case E_OP_GPU_PROGRAM:
+            parser = mGPUParserEx;
+            break;
+        case E_OP_GPU_PROGRAM_REF:
+            parser = mGPURefParserEx;
             break;
         }
 

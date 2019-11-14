@@ -399,6 +399,7 @@ namespace Tiny3D
         ID_THREAD_GROUPS,
         ID_RENDER_CUSTOM,
 
+        ID_GPU_PROGRAM,
         ID_GPU_PROGRAM_REF,
 
         ID_END_BUILTIN_IDS

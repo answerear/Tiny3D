@@ -1051,7 +1051,7 @@ namespace Tiny3D
 
             switch (type)
             {
-            case E_OP_OFF:
+            case E_BV_OFF:
             case E_OP_SPHERICAL:
             case E_OP_PLANAR:
             case E_OP_CUBIC_REFLECTION:

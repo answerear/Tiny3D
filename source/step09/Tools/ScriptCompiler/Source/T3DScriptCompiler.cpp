@@ -124,6 +124,11 @@ namespace Tiny3D
             {
                 translator = mGPUTransltor;
             }
+            else if (obj->id == ID_GPU_PROGRAM
+                || obj->id == ID_GPU_PROGRAM_REF)
+            {
+                translator = mGPUTransltor;
+            }
         }
         else if (node->type == ANT_PROPERTY)
         {
@@ -1105,6 +1110,8 @@ namespace Tiny3D
                     break;
                 }
 
+                T3D_ASSERT(size == stream.tell() - sizeof(header));
+
                 header.fileSize += size;
             }
 
@@ -1479,6 +1486,7 @@ namespace Tiny3D
         mIds["thread_groups"] = ID_THREAD_GROUPS;
         mIds["render_custom"] = ID_RENDER_CUSTOM;
 
+        mIds["gpu_program"] = ID_GPU_PROGRAM;
         mIds["gpu_program_ref"] = ID_GPU_PROGRAM_REF;
     }
 
