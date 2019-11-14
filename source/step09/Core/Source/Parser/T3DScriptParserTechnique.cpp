@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DScriptParserTechnique.h"
-#include "Kernel/T3DScriptParser.h"
+#include "Parser/T3DScriptParserTechnique.h"
+#include "Parser/T3DScriptParser.h"
 #include "Resource/T3DMaterial.h"
 #include "Kernel/T3DTechnique.h"
 #include "T3DErrorDef.h"

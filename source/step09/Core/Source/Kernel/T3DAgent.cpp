@@ -22,7 +22,7 @@
 #include "Kernel/T3DAgent.h"
 #include "Kernel/T3DPlugin.h"
 #include "Kernel/T3DConfigFile.h"
-#include "Kernel/T3DScriptParser.h"
+#include "Parser/T3DScriptParser.h"
 
 #include "ImageCodec/T3DImageCodec.h"
 

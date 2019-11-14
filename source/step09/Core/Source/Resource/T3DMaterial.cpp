@@ -24,7 +24,7 @@
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramManager.h"
 #include "Kernel/T3DAgent.h"
-#include "Kernel/T3DScriptParser.h"
+#include "Parser/T3DScriptParser.h"
 #include "Kernel/T3DTechnique.h"
 #include "T3DErrorDef.h"
 

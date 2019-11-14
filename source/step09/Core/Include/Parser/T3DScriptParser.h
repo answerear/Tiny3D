@@ -22,7 +22,7 @@
 #define __T3D_SCRIPT_PARSER_H__
 
 
-#include "Kernel/T3DScriptParserBase.h"
+#include "Parser/T3DScriptParserBase.h"
 
 
 namespace Tiny3D

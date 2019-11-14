@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DScriptParserGPUProgram.h"
-#include "Kernel/T3DScriptParser.h"
+#include "Parser/T3DScriptParserGPUProgram.h"
+#include "Parser/T3DScriptParser.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramManager.h"
 #include "Resource/T3DMaterial.h"

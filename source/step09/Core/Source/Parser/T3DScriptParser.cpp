@@ -17,14 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Kernel/T3DScriptParser.h"
+#include "Parser/T3DScriptParser.h"
 #include "T3DErrorDef.h"
-#include "Kernel/T3DScriptParserMaterial.h"
-#include "Kernel/T3DScriptParserTechnique.h"
-#include "Kernel/T3DScriptParserPass.h"
-#include "Kernel/T3DScriptParserTextureUnit.h"
-#include "Kernel/T3DScriptParserSampler.h"
-#include "Kernel/T3DScriptParserGPUProgram.h"
+#include "Parser/T3DScriptParserMaterial.h"
+#include "Parser/T3DScriptParserTechnique.h"
+#include "Parser/T3DScriptParserPass.h"
+#include "Parser/T3DScriptParserTextureUnit.h"
+#include "Parser/T3DScriptParserSampler.h"
+#include "Parser/T3DScriptParserGPUProgram.h"
 
 
 namespace Tiny3D

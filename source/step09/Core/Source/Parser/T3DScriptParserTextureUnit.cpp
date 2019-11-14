@@ -18,9 +18,9 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DScriptParserTextureUnit.h"
-#include "Kernel/T3DScriptParser.h"
-#include "Kernel/T3DScriptParserSampler.h"
+#include "Parser/T3DScriptParserTextureUnit.h"
+#include "Parser/T3DScriptParser.h"
+#include "Parser/T3DScriptParserSampler.h"
 #include "Kernel/T3DPass.h"
 #include "Kernel/T3DTextureUnit.h"
 #include "T3DErrorDef.h"
