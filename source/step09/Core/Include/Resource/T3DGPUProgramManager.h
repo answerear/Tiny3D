@@ -79,7 +79,7 @@ namespace Tiny3D
          * @brief 卸载着色器资源
          * @param [in] shader : 需要卸载的着色器对象
          */
-        virtual void unloadShader(ShaderPtr &shader);
+        virtual TResult unloadShader(ShaderPtr shader);
 
     protected:
         /**
@@ -135,7 +135,7 @@ namespace Tiny3D
          * @brief 卸载GPU程序
          * @param [in] program : 需要卸载的GPU程序对象
          */
-        virtual void unloadGPUProgram(GPUProgramPtr &program);
+        virtual TResult unloadGPUProgram(GPUProgramPtr program);
 
     protected:
         /**

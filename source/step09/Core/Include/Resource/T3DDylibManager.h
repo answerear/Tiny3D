@@ -28,36 +28,34 @@
 
 namespace Tiny3D
 {
+    /** 動態庫資源管理器 */
     class T3D_ENGINE_API DylibManager 
         : public Singleton<DylibManager>
         , public ResourceManager
     {
     public:
-        /**
-         * @brief 创建动态库管理器对象
-         */
+        /** 創建動態庫管理器對象 */
         static DylibManagerPtr create();
 
+        /** 析構函數 */
         virtual ~DylibManager();
 
+        /** 加載動態庫 */
         virtual DylibPtr loadDylib(const String &name);
 
-        virtual void unloadDylib(DylibPtr &dylib);
+        /** 卸載動態庫 */
+        virtual TResult unloadDylib(DylibPtr dylib);
 
     protected:
-        /**
-         */
+        /** 構造函數 */
         DylibManager();
 
-        /**
-        * @brief 创建具体资源对象，具体子类实现该方法
-        * @param [in] strName : 资源名称
-        * @param [in] argc : 资源创建带的参数列表大小
-        * @param [in] args : 参数列表
-        */
-        virtual ResourcePtr create(const String &strName, 
-            int32_t argc, va_list args) override;
+        /** @brief 重寫基類 Resource::create() 接口 */
+        virtual ResourcePtr create(
+            const String &strName, int32_t argc, va_list args) override;
     };
+
+    #define T3D_DYLIB_MGR   (DylibManager::getInstance())
 }
 
 

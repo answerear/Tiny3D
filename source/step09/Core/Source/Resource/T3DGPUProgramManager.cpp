@@ -103,9 +103,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ShaderManager::unloadShader(ShaderPtr &shader)
+    TResult ShaderManager::unloadShader(ShaderPtr shader)
     {
-        unload((ResourcePtr &)shader);
+        return unload(shader);
     }
 
     //--------------------------------------------------------------------------
@@ -182,9 +182,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void GPUProgramManager::unloadGPUProgram(GPUProgramPtr &program)
+    TResult GPUProgramManager::unloadGPUProgram(GPUProgramPtr program)
     {
-        unload((ResourcePtr &)program);
+        return unload(program);
     }
 
     //--------------------------------------------------------------------------

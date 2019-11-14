@@ -30,69 +30,74 @@ namespace Tiny3D
     class ArchiveCreator;
 
     /**
-     * @brief 档案系统资源管理器
+     * @brief 檔案系統資源管理器
      */
     class T3D_ENGINE_API ArchiveManager 
         : public Singleton<ArchiveManager>
         , public ResourceManager
     {
     public:
-        /** 创建 ArchiveManager 对象 */
+        /** 創建 ArchiveManager 對象 */
         static ArchiveManagerPtr create();
 
-        /** 析构函数 */
+        /** 析構函數 */
         virtual ~ArchiveManager();
 
         /**
-         * @brief 加载档案系统对象
+         * @brief 記載檔案系統對象
          */
         virtual ArchivePtr loadArchive(const String &name, 
             const String &archiveType);
 
         /**
-         * @brief 卸载档案系统对象
+         * @brief 卸載檔案系統對象
          */
-        virtual void unloadArchive(ArchivePtr archive);
+        virtual TResult unloadArchive(ArchivePtr archive);
 
         /**
-         * @brief 添加档案对象创建器
+         * @brief 重寫 ResourceManager::unloadAllResources() 接口
          */
-        void addArchiveCreator(ArchiveCreator *creator);
+        virtual TResult unloadAllResources() override;
 
         /**
-         * @brief 移除档案对象创建器
+         * @brief 添加檔案對象創建器
          */
-        void removeArchiveCreator(const String &name);
+        TResult addArchiveCreator(ArchiveCreator *creator);
 
         /**
-         * @brief 移除所有档案对象创建器
+         * @brief 移除檔案對象創建器
          */
-        void removeAllArchiveCreator();
+        TResult removeArchiveCreator(const String &name);
 
         /**
-         * @brief 获取指定名称档案管理器对象
-         * @param [in] name : 档案名称
-         * @param [in] path : 相对档案的路径
-         * @param [in][out] archive : 返回的档案对象
-         * @return 找到则返回true
+         * @brief 移除所有檔案對象創建器
+         */
+        TResult removeAllArchiveCreator();
+
+        /**
+         * @brief 根據名稱獲取檔案對象
+         * @param [in] name : 檔案名稱
+         * @param [in] path : 相對檔案的路徑
+         * @param [in][out] archive : 返回的檔案對象
+         * @return 找到則返回 true
          */
         bool getArchive(const String &name, const String &path, 
             ArchivePtr &archive);
 
         /**
-         * @brief 根据指定文件名从缓存中找到档案管理对象
+         * @brief 根據名稱獲取檔案對象
          * @param [in] filename : 文件名
-         * @param [in][out] archive : 返回的档案对象
-         * @return 找到则返回true
+         * @param [in][out] archive : 返回的檔案對象
+         * @return 找到則返回true
          */
         bool getArchive(const String &filename, ArchivePtr &archive);
 
     protected:
-        /** 构造函数 */
+        /** 構造函數 */
         ArchiveManager();
 
         /** 
-         * @brief 重写 Resource::create() 接口 
+         * @brief 重寫 Resource::create() 接口 
          */
         virtual ResourcePtr create(const String &name, int32_t argc, 
             va_list args) override;
@@ -107,9 +112,9 @@ namespace Tiny3D
         typedef Archives::const_iterator        ArchivesConstItr;
         typedef Archives::value_type            ArchivesValue;
 
-        Creators    mCreators;      /**< 档案创建器 */
-        Archives    mArchives;      /**< 缓存的档案对象 */
-        Archives    mArchivesCache; /**< 用于加速查找文件的缓存 */
+        Creators    mCreators;      /**< 檔案創建器 */
+        Archives    mArchives;      /**< 緩存的檔案對象 */
+        Archives    mArchivesCache; /**< 用於加速查找文件的緩存 */
     };
 
     #define T3D_ARCHIVE_MGR     ArchiveManager::getInstance()

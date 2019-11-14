@@ -84,11 +84,12 @@ namespace Tiny3D
                 name = generateName("Pass");
             }
 
-            PassPtr pass = Pass::create(name, tech);
-            if (pass == nullptr)
+            PassPtr pass;
+            ret = tech->addPass(name, pass);
+            if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Create pass [%s] object failed !", name.c_str());
+                    "Add pass [%s] to technique failed !", name.c_str());
                 break;
             }
 

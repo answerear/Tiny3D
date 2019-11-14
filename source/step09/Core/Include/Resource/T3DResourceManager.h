@@ -29,59 +29,60 @@ namespace Tiny3D
     class T3D_ENGINE_API ResourceManager : public Object
     {
     public:
-        /** 析构函数 */
+        /** 析構函數 */
         virtual ~ResourceManager();
 
-        static ID toID(const String &name);
-
-        /** 从文件加载资源到内存 */
+        /** 從文件加載資源到內存並生成資源對象 */
         virtual ResourcePtr load(const String &name, int32_t argc, ...);
 
-        /** 从内存中卸载资源 */
-        virtual void unload(ResourcePtr &res);
+        /** 從內存中卸載資源 */
+        virtual TResult unload(ResourcePtr res);
 
-        /** 把当前资源管理器里所有不使用资源从内存中卸载掉 */
-        virtual void unloadUnused();
+        /** 卸載所有資源，慎用 ！*/
+        virtual TResult unloadAllResources();
 
-        /** 
-         * @brief 从源资源克隆一份新资源出来
-         * @param [in] src : 源资源对象
-         * @return 返回一个新的跟源资源对象相同内容的对象
-         * @remarks 所有的 Resource 派生类都需要实现 Resource::clone() 接口。
-         *      本接口将会调用 Resource::clone() 接口来实现具体的克隆逻辑。
-         */
-        ResourcePtr clone(const ResourcePtr &src);
+        /** 把當前資源管理裡所有不適用資源從內存中卸載掉 */
+        virtual TResult unloadUnused();
 
         /** 
-         * @brief 根据资源名称获取对应资源对象 
-         * @param [in] name : 资源名称
-         * @param [in] cloneID : 克隆出来的资源需填写该参数，否则用默认值0
-         * @return 返回查询的资源对象，如果返回NULL_PTR则没有该资源
+         * @brief 從源資源克隆 一份新資源出來
+         * @param [in] src : 源資源對象
+         * @return 返回一個新的與源資源對象相同內容的對象
+         * @remarks 所有的 Resource 派生類都需要實現 Resource::clone() 接口。
+         *      本接口將會調用 Resource::clone() 接口來實現具體的克隆邏輯。
          */
-        ResourcePtr getResource(const String &name, ID cloneID = 0) const;
+        ResourcePtr clone(ResourcePtr src);
 
-        /**
-         * @brief 根据资源名称获取会所有同名的资源对象，原资源和克隆资源都返回
-         * @param [in] name : 资源名称
-         * @param [in][out] resources : 返回的资源对象列表
-         * @return 有对应名称的资源则返回true，否则返回false。
+        /** 
+         * @brief 根據資源名稱獲取對應資源對象
+         * @param [in] name : 資源名稱
+         * @param [in] cloneID : 傳入該參數直接用該ID查找，默認自動找非克隆對象
+         * @return 返回查詢的資源對象，如果返回 NULL_PTR 則表示沒有該資源。
          */
-        bool getResources(const String &name, TList<ResourcePtr> &resources) const;
+        ResourcePtr getResource(
+            const String &name, ID cloneID = T3D_INVALID_ID) const;
 
     protected:
-        /** 构造函数 */
+        /** 構造函數 */
         ResourceManager();
 
         /** 
-         * @brief 创建具体资源对象，具体子类实现该方法
-         * @param [in] strName : 资源名称
-         * @param [in] argc : 资源创建带的参数列表大小
-         * @param [in] args : 参数列表
+         * @brief 創建具體資源對象，具體子類實現該方法
+         * @param [in] strName : 資源名稱
+         * @param [in] argc : 資源創建帶的參數列表大小
+         * @param [in] args : 參數列表
          */
-        virtual ResourcePtr create(const String &strName, int32_t argc, va_list args) = 0;
+        virtual ResourcePtr create(
+            const String &strName, int32_t argc, va_list args) = 0;
 
-        /** 根据名称计算资源 hash 值，作为其ID */
-        static uint32_t hash(const char *str);
+        /** 根據名稱計算資源 hash 值，作為其ID */
+        uint32_t hash(const char *str) const;
+
+        /** 根據名稱生成ID */
+        ID toID(const String &name) const;
+
+        /** 根據名稱生成克隆對象 ID */
+        ID toCloneID(const String &name, ID cloneID) const;
 
     protected:
         typedef TMap<ID, ResourcePtr>       Resources;
@@ -94,8 +95,8 @@ namespace Tiny3D
         typedef ResourcesMap::const_iterator    ResourcesMapConstItr;
         typedef ResourcesMap::value_type        ResourcesMapValue;
 
-        ResourcesMap    mResourcesCache;    /**< 资源对象池 */
-        ID              mCloneID;           /**< 克隆ID */
+        Resources   mResourcesCache;    /**< 資源對象池 */
+        ID          mCloneID;           /**< 克隆ID */
     };
 }
 

@@ -29,11 +29,11 @@
 
 namespace Tiny3D
 {
-    #define T3D_CHECK_READ_CONTENT(rd, sz, msg)    \
+    #define T3D_CHECK_READ_CONTENT(rd, sz, fmt, ...)    \
         if (rd != sz)  \
         {   \
             ret = T3D_ERR_RES_INVALID_CONTENT;  \
-            T3D_LOG_ERROR(LOG_TAG_RESOURCE, msg);   \
+            T3D_LOG_ERROR(LOG_TAG_RESOURCE, fmt, ##__VA_ARGS__);   \
             break;  \
         }
 

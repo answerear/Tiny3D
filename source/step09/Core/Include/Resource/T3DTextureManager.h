@@ -82,7 +82,7 @@ namespace Tiny3D
          * @param [in] texture : 要卸载的纹理资源对象
          * @return void
          */
-        virtual void unloadTexture(TexturePtr &texture);
+        virtual TResult unloadTexture(TexturePtr texture);
 
     protected:
         /**

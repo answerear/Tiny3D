@@ -31,6 +31,10 @@ namespace Tiny3D
     class T3D_ENGINE_API Technique : public Object
     {
     public:
+        typedef TList<Pass*>                    Passes;
+        typedef Passes::iterator                PassesItr;
+        typedef Passes::const_iterator          PassesConstItr;
+
         /** 創建 Technique 對象 */
         static TechniquePtr create(const String &name, Material *material);
 
@@ -49,10 +53,11 @@ namespace Tiny3D
 
         /**
          * @brief 新增一個 Pass 對象
-         * @param [in] pass : 新增的 Pass 對象
+         * @param [in] name : 新增的 Pass 對象名稱
+         * @param [in][out] pass : 返回新增的 Pass 對象
          * @return 調用成功返回 T3D_OK
          */
-        TResult addPass(PassPtr pass);
+        TResult addPass(const String &name, PassPtr &pass);
 
         /**
          * @brief 移除指定名稱的 Pass 對象

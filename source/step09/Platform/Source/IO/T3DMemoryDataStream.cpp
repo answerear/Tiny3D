@@ -132,7 +132,7 @@ namespace Tiny3D
 
     bool MemoryDataStream::eof() const
     {
-        return (m_lCurPos == m_lSize - 1);
+        return (m_lCurPos == m_lSize);
     }
 
     size_t MemoryDataStream::read(uint8_t *&pData)

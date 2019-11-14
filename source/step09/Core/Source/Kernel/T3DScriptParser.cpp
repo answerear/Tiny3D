@@ -171,7 +171,7 @@ namespace Tiny3D
             uint16_t type = 0;
             bytesOfRead = stream.read(&type, sizeof(type));
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type), 
-                "Read object type failed !");
+                "Read object type [%d] failed !", type);
 
             if (type != E_NT_OBJECT)
             {

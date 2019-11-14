@@ -39,6 +39,7 @@ namespace Tiny3D
     D3D11PixelShader::D3D11PixelShader(const String &name,
         const String &content)
         : D3D11Shader(name, content)
+        , mD3DPixelShader(nullptr)
     {
 
     }

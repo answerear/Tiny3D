@@ -82,7 +82,16 @@ namespace Tiny3D
         mActiveRenderer = nullptr;
         mDefaultWindow = nullptr;
 
+        mMaterialMgr->unloadAllResources();
+        mGPUProgramMgr->unloadAllResources();
+        mShaderMgr->unloadAllResources();
+        mTextureMgr->unloadAllResources();
+        mArchiveMgr->unloadAllResources();
+
         unloadPlugins();
+
+        mDylibMgr->unloadAllResources();
+        
 
         mShaderMgr = nullptr;
         mGPUProgramMgr = nullptr;
@@ -90,6 +99,7 @@ namespace Tiny3D
         mTextureMgr = nullptr;
         mDylibMgr = nullptr;
         mArchiveMgr = nullptr;
+
         mImageCodec = nullptr;
 
         T3D_SAFE_DELETE(mEventMgr);

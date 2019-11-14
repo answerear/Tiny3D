@@ -61,9 +61,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void MaterialManager::unloadMaterial(MaterialPtr &material)
+    TResult MaterialManager::unloadMaterial(MaterialPtr material)
     {
-        unload((ResourcePtr &)material);
+        return unload(material);
     }
 
     //--------------------------------------------------------------------------

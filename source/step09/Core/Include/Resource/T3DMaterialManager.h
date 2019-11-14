@@ -62,7 +62,7 @@ namespace Tiny3D
          * @param [in] material : 要卸载的材质资源对象
          * @return void
          */
-        virtual void unloadMaterial(MaterialPtr &material);
+        virtual TResult unloadMaterial(MaterialPtr material);
 
     protected:
         /**

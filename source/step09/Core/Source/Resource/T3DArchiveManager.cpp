@@ -43,6 +43,8 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     ArchiveManager::~ArchiveManager()
     {
 
@@ -64,23 +66,49 @@ namespace Tiny3D
         return archive;
     }
 
-    void ArchiveManager::unloadArchive(ArchivePtr archive)
+    //--------------------------------------------------------------------------
+
+    TResult ArchiveManager::unloadArchive(ArchivePtr archive)
     {
-        // 先清理缓存
+        TResult ret = T3D_OK;
+
+        // 清理加速缓存
         auto itr = mArchivesCache.begin();
 
         while (itr != mArchivesCache.end())
         {
             auto i = itr++;
-            mArchivesCache.erase(i);
+            if (itr->second->getID() == archive->getID())
+            {
+                mArchivesCache.erase(i);
+            }
         }
 
-        unload((ResourcePtr &)archive);
+        // 清理普通緩存
+        mArchives.erase(archive->getName());
+
+        return unload(archive);
     }
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ArchiveManager::create(const String &name, int32_t argc, va_list args)
+    TResult ArchiveManager::unloadAllResources()
+    {
+        TResult ret = T3D_OK;
+
+        // 清理整個加速緩存
+        mArchivesCache.clear();
+
+        // 清理普通緩存
+        mArchives.clear();
+
+        return ResourceManager::unloadAllResources();
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr ArchiveManager::create(
+        const String &name, int32_t argc, va_list args)
     {
         ArchivePtr res;
         if (argc == 1)
@@ -101,24 +129,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ArchiveManager::addArchiveCreator(ArchiveCreator *creator)
+    TResult ArchiveManager::addArchiveCreator(ArchiveCreator *creator)
     {
         mCreators.insert(CreatorsValue(creator->getType(), creator));
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    void ArchiveManager::removeArchiveCreator(const String &name)
+    TResult ArchiveManager::removeArchiveCreator(const String &name)
     {
         auto itr = mCreators.find(name);
         mCreators.erase(itr);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    void ArchiveManager::removeAllArchiveCreator()
+    TResult ArchiveManager::removeAllArchiveCreator()
     {
         mCreators.clear();
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -136,7 +167,7 @@ namespace Tiny3D
                 archive = itr->second;
                 found = true;
 
-                // 放入缓存，提升下次获取同一个文件的性能
+                // 放入緩存，提升下次獲取同一個文件的性能
                 mArchivesCache.insert(ArchivesValue(path, archive));
             }
         }
@@ -150,17 +181,17 @@ namespace Tiny3D
     {
         bool found = false;
 
-        // 先从缓存中查找
+        // 從緩存中查找
         auto i = mArchivesCache.find(filename);
         if (i != mArchivesCache.end())
         {
-            // 文件在缓存中存在，直接返回对应的对象
+            // 文件在緩存中存在，直接返回對應的對象
             archive = i->second;
             found = true;
         }
         else
         {
-            // 文件缓存中不存在，到档案系统找
+            // 文件緩存中不存在，到檔案系統找
             auto itr = mArchives.begin();
 
             while (itr != mArchives.end())
@@ -170,7 +201,7 @@ namespace Tiny3D
                     archive = itr->second;
                     found = true;
 
-                    // 放入缓存，提升下次获取同一个文件的性能
+                    // 放入緩存，提升下次獲取同一個文件的性能
                     mArchivesCache.insert(ArchivesValue(filename, archive));
                     break;
                 }

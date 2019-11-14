@@ -34,6 +34,15 @@ namespace Tiny3D
     class T3D_ENGINE_API Material : public Resource
     {
     public:
+        typedef TList<TechniquePtr>             Techniques;
+        typedef Techniques::iterator            TechniquesItr;
+        typedef Techniques::const_iterator      TechniquesConstItr;
+
+        typedef TMap<String, GPUProgramPtr>     GPUPrograms;
+        typedef GPUPrograms::iterator           GPUProgramsItr;
+        typedef GPUPrograms::const_iterator     GPUProgramsConstItr;
+        typedef GPUPrograms::value_type         GPUProgramsValue;
+
         /**
          * @brief 材質來源類型
          */

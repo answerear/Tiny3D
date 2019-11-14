@@ -132,19 +132,6 @@ namespace Tiny3D
     typedef TList<NodePtr>                  Children;
     typedef Children::iterator              ChildrenItr;
     typedef Children::const_iterator        ChildrenConstItr;
-
-    typedef TList<TechniquePtr>             Techniques;
-    typedef Techniques::iterator            TechniquesItr;
-    typedef Techniques::const_iterator      TechniquesConstItr;
-
-    typedef TList<Pass*>                    Passes;
-    typedef Passes::iterator                PassesItr;
-    typedef Passes::const_iterator          PassesConstItr;
-
-    typedef TMap<String, GPUProgramPtr>     GPUPrograms;
-    typedef GPUPrograms::iterator           GPUProgramsItr;
-    typedef GPUPrograms::const_iterator     GPUProgramsConstItr;
-    typedef GPUPrograms::value_type         GPUProgramsValue;
 }
 
 

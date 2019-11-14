@@ -24,7 +24,11 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(DylibManager);
+
+    //--------------------------------------------------------------------------
 
     DylibManagerPtr DylibManager::create()
     {
@@ -33,28 +37,39 @@ namespace Tiny3D
         return mgr;
     }
 
+    //--------------------------------------------------------------------------
+
     DylibManager::DylibManager()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     DylibManager::~DylibManager()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     DylibPtr DylibManager::loadDylib(const String &name)
     {
         return smart_pointer_cast<Dylib>(ResourceManager::load(name, 0));
     }
 
-    ResourcePtr DylibManager::create(const String &name, int32_t argc, va_list args)
+    //--------------------------------------------------------------------------
+
+    ResourcePtr DylibManager::create(
+        const String &name, int32_t argc, va_list args)
     {
         return Dylib::create(name);
     }
 
-    void DylibManager::unloadDylib(DylibPtr &dylib)
+    //--------------------------------------------------------------------------
+
+    TResult DylibManager::unloadDylib(DylibPtr dylib)
     {
-        unload((ResourcePtr &)dylib);
+        return unload(dylib);
     }
 }

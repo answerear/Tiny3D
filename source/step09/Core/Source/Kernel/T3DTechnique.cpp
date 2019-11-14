@@ -20,6 +20,7 @@
 
 #include "Kernel/T3DTechnique.h"
 #include "Kernel/T3DPass.h"
+#include "T3DErrorDef.h"
 
 
 namespace Tiny3D
@@ -53,10 +54,24 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Technique::addPass(PassPtr pass)
+    TResult Technique::addPass(const String &name, PassPtr &pass)
     {
         TResult ret = T3D_OK;
-        mPasses.push_back(pass);
+
+        do 
+        {
+            pass = Pass::create(name, this);
+            if (pass == nullptr)
+            {
+                ret = T3D_ERR_RES_CREATE_PASS;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Create pass [%s] object failed !", name.c_str());
+                break;
+            }
+
+            mPasses.push_back(pass);
+        } while (0);
+        
         return ret;
     }
 

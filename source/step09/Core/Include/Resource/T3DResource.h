@@ -33,91 +33,100 @@ namespace Tiny3D
         friend class ResourceManager;
 
     public:
-        /** 资源类型枚举 */
+        /** 資源類型枚舉 */
         enum Type
         {
-            E_RT_UNKNOWN = 0,
-            E_RT_DYLIB,         /**< 动态库 */
-            E_RT_ARCHIVE,       /**< 文件档案系统 */
-            E_RT_MATERIAL,      /**< 材质 */
-            E_RT_TEXTURE,       /**< 纹理 */
-            E_RT_SHADER,        /**< 着色器 */
+            E_RT_UNKNOWN = 0,   /**< 未知類型資源 */
+            E_RT_DYLIB,         /**< 動態庫 */
+            E_RT_ARCHIVE,       /**< 文件檔案系統 */
+            E_RT_MATERIAL,      /**< 材質 */
+            E_RT_TEXTURE,       /**< 紋理 */
+            E_RT_SHADER,        /**< 著色器 */
             E_RT_GPUPROGRAM,    /**< GPU程序 */
         };
 
-        /** 析构函数 */
+        /** 構造函數 */
         virtual ~Resource();
 
-        /** 获取资源类型 */
+        /** 獲取資源類型 */
         virtual Type getType() const = 0;
 
-        /** 获取资源唯一ID */
+        /** 獲取資源唯一ID */
         ID getID() const
         {
             return mID;
         }
         
-        /** 获取克隆资源唯一ID，当该资源是从其他资源克隆出来时，该ID才有效 */
+        /** 獲取克隆資源唯一ID，當該資源是從其他資源克隆出來試，該ID才有效 */
         ID getCloneID() const
         {
             return mCloneID;
         }
 
-        /** 是否克隆资源 */
+        /** 是否克隆資源 */
         bool isCloned() const
         {
             return (mCloneID != T3D_INVALID_ID);
         }
 
-        /** 获取资源大小 */
+        /** 獲取資源大小 */
         size_t getSize() const
         {
             return mSize;
         }
 
-        /** 获取资源名称 */
+        /** 獲取資源名稱 */
         const String &getName() const
         {
             return mName;
         }
 
-        /** 获取资源是否加载 */
+        /** 獲取資源是否加載 */
         bool isLoaded() const
         {
             return mIsLoaded;
         }
 
+        /** 獲取資源引用計數 */
+        uint32_t resReferCount() const
+        {
+            return mResReferCount;
+        }
+
     protected:
         /** 
-         * @brief 构造函数
-         * @remarks 本类不能直接实例化，所以只能隐藏构造函数 
+         * @brief 構造函數
+         * @remarks 本類不能直接實例化，所以只能隱藏構造函數
          */
         Resource(const String &name);
 
         /** 
-         * @brief 加载资源
-         * @remarks 每种类型资源需要各自实现其加载逻辑，资源只有加载后才能使用
+         * @brief 加載資源
+         * @remarks 每種類型資源需要各自實現其加載邏輯，資源只有加載後才能使用
          */
         virtual TResult load() = 0;
 
         /** 
-         * @brief 卸载资源
-         * @remarks 每种类型资源需要各自实现其卸载逻辑，资源卸载后就不能再使用了
+         * @brief 卸載資源
+         * @remarks 每種類型資源需要各自實現其卸載邏輯，資源卸載後就不能再使用了
          */
         virtual TResult unload();
 
         /** 
-         * @brief 克隆资源
-         * @remarks 每种类型资源需要各自实现其克隆逻辑，克隆出一个新资源对象
+         * @brief 克隆資源
+         * @remarks 每種類型資源需要各自實現其克隆邏輯，克隆出一個新資源對象
          */
         virtual ResourcePtr clone() const = 0;
 
+    private:
+        uint32_t    mResReferCount; /**< 資源自身的引用計數 */
+
     protected:
-        ID      mID;        /**< 资源ID */
-        ID      mCloneID;   /**< 如果资源是从其他资源克隆出来的，该ID才有效 */
-        size_t  mSize;      /**< 资源大小 */
-        bool    mIsLoaded;  /**< 资源是否加载标记 */
-        String  mName;      /**< 资源名称 */
+        ID      mID;        /**< 資源ID */
+        ID      mCloneID;   /**< 如果資源是從其他資源克隆出來的，該ID才有效 */
+        size_t  mSize;      /**< 資源大小 */
+        bool    mIsLoaded;  /**< 資源是否加載標記 */
+        String  mName;      /**< 資源名稱 */
     };
 }
 

@@ -24,7 +24,10 @@
 namespace Tiny3D
 {
     Resource::Resource(const String &strName)
-        : mSize(0)
+        : mResReferCount(1)
+        , mID(T3D_INVALID_ID)
+        , mCloneID(T3D_INVALID_ID)
+        , mSize(0)
         , mIsLoaded(false)
         , mName(strName)
     {
@@ -34,11 +37,15 @@ namespace Tiny3D
     Resource::~Resource()
     {
         if (mIsLoaded)
+        {
             unload();
+        }
     }
 
     TResult Resource::unload()
     {
+        mResReferCount = 0;
+        mIsLoaded = false;
         return T3D_OK;
     }
 }
