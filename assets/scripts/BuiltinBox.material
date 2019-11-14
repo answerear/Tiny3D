@@ -1,0 +1,40 @@
+material Builtin/Box
+{
+	technique box
+	{
+		pass box
+		{
+			lighting off
+			
+			gpu_program_ref BuiltinBox.hlsl
+			{
+				vertex_program_ref Builtin/VS
+				{
+				
+				}
+			
+				fragment_program_ref Builtin/PS
+				{
+				}
+			}
+		}
+	}
+	
+	gpu_program BuiltinBox.hlsl
+	{
+		vertex_program Builtin/VS
+		{
+			source BuiltinBox.hlsl
+			entry_point VS
+			stage vs
+		}
+
+		fragment_program Builtin/PS
+		{
+			source BuiltinBox.hlsl
+			entry_point PS
+			stage ps
+		}
+	}
+}
+

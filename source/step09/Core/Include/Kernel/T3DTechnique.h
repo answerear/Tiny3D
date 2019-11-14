@@ -31,7 +31,7 @@ namespace Tiny3D
     class T3D_ENGINE_API Technique : public Object
     {
     public:
-        typedef TList<Pass*>                    Passes;
+        typedef TList<PassPtr>                    Passes;
         typedef Passes::iterator                PassesItr;
         typedef Passes::const_iterator          PassesConstItr;
 

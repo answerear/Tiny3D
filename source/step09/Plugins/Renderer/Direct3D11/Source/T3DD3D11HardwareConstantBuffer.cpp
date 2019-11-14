@@ -31,16 +31,16 @@ namespace Tiny3D
         size_t bufSize, const void *buffer, Usage usage, bool useSystemMemory, 
         bool useShadowBuffer)
     {
-        D3D11HardwareConstantBufferPtr ibo = new D3D11HardwareConstantBuffer(
+        D3D11HardwareConstantBufferPtr cbo = new D3D11HardwareConstantBuffer(
             bufSize, usage, useSystemMemory, useShadowBuffer);
-        ibo->release();
+        cbo->release();
 
-        if (ibo->init(buffer) != T3D_OK)
+        if (cbo->init(buffer) != T3D_OK)
         {
-            ibo = nullptr;
+            cbo = nullptr;
         }
 
-        return ibo;
+        return cbo;
     }
 
     //--------------------------------------------------------------------------
