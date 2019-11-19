@@ -42,7 +42,9 @@ if (WIN32)
 
     set(SDL2LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")
 
-    set(CMAKE_CXX_FLAGS "-std=c++11")
+	set(CMAKE_SYSTEM_VERSION 10.0.17763)
+	set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION 10.0.17763.0)
+#    set(CMAKE_CXX_FLAGS "-std=c++11")
 elseif (ANDROID)
     # Android
     message(STATUS "Platform : Android")
