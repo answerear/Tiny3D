@@ -40,14 +40,18 @@ namespace Tiny3D
         /**
          * @brief 转换成对应格式，写到数据流对象中
          */
-        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) = 0;
+        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, 
+            const AbstractNodePtr &node) = 0;
 
     protected:
-        size_t processNode(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node);
+        size_t processNode(ScriptCompiler *compiler, DataStream &stream, 
+            const AbstractNodePtr &node);
 
-        size_t translateObjectHeader(ObjectAbstractNode *obj, DataStream &stream);
+        size_t translateObjectHeader(
+            ObjectAbstractNode *obj, DataStream &stream);
 
-        AbstractNodeList::const_iterator getNodeAt(const AbstractNodeList &nodes, int index);
+        AbstractNodeList::const_iterator getNodeAt(
+            const AbstractNodeList &nodes, int index);
 
         bool getBoolean(const AbstractNodePtr &node, bool *result);
         bool getString(const AbstractNodePtr &node, String *result);
@@ -56,10 +60,15 @@ namespace Tiny3D
         bool getInt(const AbstractNodePtr &node, int32_t *result);
         bool getUInt(const AbstractNodePtr &node, uint32_t *result);
         bool getHex(const AbstractNodePtr &node, uint32_t *result);
-        bool getColor(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, ColorARGB *result, int32_t maxEntries = 4);
-        bool getMatrix4(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, Matrix4 *m);
-        bool getInts(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, int *vals, int count);
-        bool getSingles(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, float *vals, int count);
+        bool getColor(AbstractNodeList::const_iterator i, 
+            AbstractNodeList::const_iterator end, ColorARGB *result, 
+            int32_t maxEntries = 4);
+        bool getMatrix4(AbstractNodeList::const_iterator i, 
+            AbstractNodeList::const_iterator end, Matrix4 *m);
+        bool getInts(AbstractNodeList::const_iterator i, 
+            AbstractNodeList::const_iterator end, int *vals, int count);
+        bool getSingles(AbstractNodeList::const_iterator i, 
+            AbstractNodeList::const_iterator end, float *vals, int count);
         BuiltinType getBuiltinType(const String &name);
 
         size_t writeString(const String &str, DataStream &stream);
@@ -72,14 +81,20 @@ namespace Tiny3D
     class MaterialTranslator : public ScriptTranslator
     {
     public:
-        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
+        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, 
+            const AbstractNodePtr &node) override;
 
     protected:
-        size_t translateLODValues(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateLODStrategy(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateReceiveShadow(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateTransparentCastsShadow(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateSetTextuerAlias(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateLODValues(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateLODStrategy(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateReceiveShadow(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateTransparentCastsShadow(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateSetTextuerAlias(
+            PropertyAbstractNode *prop, DataStream &stream);
     };
 
     //--------------------------------------------------------------------------
@@ -87,15 +102,22 @@ namespace Tiny3D
     class TechniqueTranslator : public ScriptTranslator
     {
     public:
-        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
+        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, 
+            const AbstractNodePtr &node) override;
 
     protected:
-        size_t translateScheme(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateLODIndex(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateShadowCasterMaterial(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateShadowReceiveMaterial(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateGPUVendorRule(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateGPUDeviceRule(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateScheme(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateLODIndex(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateShadowCasterMaterial(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateShadowReceiveMaterial(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateGPUVendorRule(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateGPUDeviceRule(
+            PropertyAbstractNode *prop, DataStream &stream);
     };
 
     //--------------------------------------------------------------------------
@@ -103,46 +125,84 @@ namespace Tiny3D
     class PassTranslator : public ScriptTranslator
     {
     public:
-        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
+        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, 
+            const AbstractNodePtr &node) override;
 
     protected:
-        size_t translateAmbient(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateDiffuse(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateSpecular(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateEmissive(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateSceneBlend(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateSeparateSceneBlend(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateSceneBlendOp(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateSeparateSceneBlendOp(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateDepthCheck(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateDepthWrite(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateDepthBias(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateDepthFunc(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateIterationDepthBias(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateAlphaRejection(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateAlphaToCoverage(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateLightScissor(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateLightClipPlanes(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateTransparentSorting(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateIlluminationStage(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateCullHardware(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateCullSoftware(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateNormalizeNormals(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateLighting(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateShading(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translatePolygonMode(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translatePolygonModeOverridable(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateFogOverride(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateColorWrite(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateMaxLights(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateStartLight(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateLightMask(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateIteration(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translatePointSize(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translatePointSprites(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translatePointSizeAttenuation(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translatePointSizeMin(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translatePointSizeMax(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateAmbient(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateDiffuse(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateSpecular(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateEmissive(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateSceneBlend(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateSeparateSceneBlend(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateSceneBlendOp(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateSeparateSceneBlendOp(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateDepthCheck(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateDepthWrite(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateDepthBias(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateDepthFunc(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateIterationDepthBias(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateAlphaRejection(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateAlphaToCoverage(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateLightScissor(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateLightClipPlanes(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateTransparentSorting(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateIlluminationStage(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateCullHardware(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateCullSoftware(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateNormalizeNormals(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateLighting(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateShading(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translatePolygonMode(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translatePolygonModeOverridable(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateFogOverride(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateColorWrite(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateMaxLights(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateStartLight(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateLightMask(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateIteration(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translatePointSize(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translatePointSprites(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translatePointSizeAttenuation(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translatePointSizeMin(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translatePointSizeMax(
+            PropertyAbstractNode *prop, DataStream &stream);
     };
 
     //--------------------------------------------------------------------------
@@ -150,29 +210,52 @@ namespace Tiny3D
     class TextureUnitTranslator : public ScriptTranslator
     {
     public:
-        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
+        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, 
+            const AbstractNodePtr &node) override;
 
     protected:
-        size_t translateSamplerRef(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateTextureAlias(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateTexture(ScriptCompiler *compiler, PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateAnimTexture(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateCubicTexture(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateTexCoordSet(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateColorOp(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateColorOpEx(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateColorOpMultiPassFallback(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateAlphaOpEx(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateEnvMap(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateScroll(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateScrollAnim(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateRotate(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateRotateAnim(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateScale(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateWaveXform(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateTransform(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateBindingType(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateContentType(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateSamplerRef(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateTextureAlias(
+            PropertyAbstractNode *prop, DataStream &stream);
+
+        size_t translateTexture(ScriptCompiler *compiler, 
+            PropertyAbstractNode *prop, DataStream &stream);
+
+        size_t translateAnimTexture(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateCubicTexture(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateTexCoordSet(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateColorOp(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateColorOpEx(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateColorOpMultiPassFallback(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateAlphaOpEx(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateEnvMap(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateScroll(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateScrollAnim(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateRotate(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateRotateAnim(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateScale(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateWaveXform(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateTransform(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateBindingType(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateContentType(
+            PropertyAbstractNode *prop, DataStream &stream);
     };
 
     //--------------------------------------------------------------------------
@@ -180,18 +263,27 @@ namespace Tiny3D
     class SamplerTranslator : public ScriptTranslator
     {
     public:
-        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
+        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, 
+            const AbstractNodePtr &node) override;
 
-        size_t translateSamplerParams(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateSamplerParams(
+            PropertyAbstractNode *prop, DataStream &stream);
 
     protected:
-        size_t translateTexAddressMode(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateTexBorderColor(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateFiltering(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateCompareTest(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateCompareFunc(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateMaxAnisotropy(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateMipmapBias(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateTexAddressMode(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateTexBorderColor(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateFiltering(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateCompareTest(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateCompareFunc(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateMaxAnisotropy(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateMipmapBias(
+            PropertyAbstractNode *prop, DataStream &stream);
     };
 
     //--------------------------------------------------------------------------
@@ -201,18 +293,39 @@ namespace Tiny3D
     public:
         GPUProgramTranslator();
 
-        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node) override;
+        virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, 
+            const AbstractNodePtr &node) override;
 
     protected:
-        size_t translateGPUProgram(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj);
+        size_t translateGPUProgram(ScriptCompiler *compiler, 
+            DataStream &stream, ObjectAbstractNode *obj);
 
-        size_t translateGPUProgramRef(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj);
-        size_t translateSharedParamRef(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateParamIndexed(PropertyAbstractNode *prop, DataStream &stream);
-        size_t translateParamIndexedAuto(PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateGPUProgramRef(ScriptCompiler *compiler, 
+            DataStream &stream, ObjectAbstractNode *obj);
 
-        size_t translateGPUProgramEx(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj);
-        size_t translateGPUProgramRefEx(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj);
+        size_t translateShader(ScriptCompiler* compiler,
+            DataStream& stream, ObjectAbstractNode* obj);
+
+        size_t translateGPUCBuffer(ScriptCompiler *compiler, 
+            DataStream& stream, ObjectAbstractNode *obj);
+
+        size_t translateGPUCBufferRef(ScriptCompiler* compiler, 
+            DataStream& stream, ObjectAbstractNode *obj);
+
+        size_t translateSharedParamRef(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateParamIndexed(
+            PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateParamIndexedAuto(
+            PropertyAbstractNode *prop, DataStream &stream);
+
+        size_t translateCBuffer(
+            PropertyAbstractNode* prop, DataStream& stream);
+
+//         size_t translateGPUProgramEx(ScriptCompiler *compiler, 
+//             DataStream &stream, ObjectAbstractNode *obj);
+//         size_t translateGPUProgramRefEx(ScriptCompiler *compiler, 
+//             DataStream &stream, ObjectAbstractNode *obj);
 
         void constructBuiltinConstantMap();
 

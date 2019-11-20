@@ -28,26 +28,53 @@
 namespace Tiny3D
 {
     /**
-     * @brief GPU 程序對象腳本解析器
+     * @class   ScriptParserShader
+     * @brief   vertex_program、fragment_program等腳本對象解析器
      */
-    class ScriptParserGPUProgram : public ScriptParserBase
+    class ScriptParserShader : public ScriptParserBase
     {
     public:
-        /** 創建對象 */
-        static ScriptParserGPUProgramPtr create();
+        /**
+         * @fn  static ScriptParserShaderPtr ScriptParserShader::create();
+         * @brief   創建解析器對象
+         * @returns 調用成功返回新建對象.
+         */
+        static ScriptParserShaderPtr create();
 
-        /** 析構函數 */
-        virtual ~ScriptParserGPUProgram();
+        /**
+         * @fn  virtual ScriptParserShader::~ScriptParserShader();
+         * @brief   析構函數
+         */
+        virtual ~ScriptParserShader();
         
-        /** 重寫基類 ScriptParserBase::parseObject 接口 */
+        /**
+         * @fn  virtual TResult ScriptParserShader::parseObject(
+         *      DataStream &stream, Object *object, uint32_t version) override;
+         * @brief   重寫基類 ScriptParserBase::parseObject 接口
+         * @param [in,out]  stream  需要解析的輸入數據流對象.
+         * @param [in,out]  object  父對象.
+         * @param           version 輸入數據格式版本號.
+         * @returns 調用成功返回 T3D_OK.
+         */
         virtual TResult parseObject(
             DataStream &stream, Object *object, uint32_t version) override;
 
     protected:
-        /** 構造函數 */
-        ScriptParserGPUProgram();
+        /**
+         * @fn  ScriptParserShader::ScriptParserShader();
+         * @brief   默認構造函數
+         */
+        ScriptParserShader();
 
-        /** 解析 GPU Program 對象屬性  */
+        /**
+         * @fn  TResult ScriptParserShader::parseProperties(
+         *      DataStream &stream, GPUProgram *program, uint32_t version);
+         * @brief   解析 Shader 對象屬性
+         * @param [in,out]  stream  需要解析的輸入數據流對象.
+         * @param [in,out]  program 父對象.
+         * @param           version 輸入數據格式版本號.
+         * @returns 調用成功返回 T3D_OK.
+         */
         TResult parseProperties(
             DataStream &stream, GPUProgram *program, uint32_t version);
 
@@ -59,98 +86,274 @@ namespace Tiny3D
     };
 
     /**
-     * @brief GPU 程序引用對象腳本解析器
+     * @class   ScriptParserGPUProgram
+     * @brief   gpu_program 腳本對象解析器
+     */
+    class ScriptParserGPUProgram : public ScriptParserBase
+    {
+    public:
+        /**
+         * @fn  static ScriptParserGPUProgramPtr 
+         *      ScriptParserGPUProgram::create();
+         * @brief   創建 ScriptParserGPUProgram 對象
+         * @returns 調用成功返回新建對象.
+         */
+        static ScriptParserGPUProgramPtr create();
+
+        /**
+         * @fn  virtual ScriptParserGPUProgram::~ScriptParserGPUProgram();
+         * @brief   析構函數
+         */
+        virtual ~ScriptParserGPUProgram();
+
+        /**
+         * @fn  virtual TResult ScriptParserGPUProgram::parseObject(
+         *      DataStream& stream, Object* object, uint32_t version) override;
+         * @brief   重寫基類 ScriptParserBase::parseObject 接口
+         * @param [in,out]  stream  需要解析的輸入數據流對象.
+         * @param [in,out]  object  父對象.
+         * @param           version 輸入數據格式版本號.
+         * @returns A TResult.
+         */
+        virtual TResult parseObject(
+            DataStream& stream, Object* object, uint32_t version) override;
+
+    protected:
+        /**
+         * @fn  ScriptParserGPUProgram::ScriptParserGPUProgram();
+         * @brief   默認構造函數
+         */
+        ScriptParserGPUProgram();
+
+        /**
+         * @fn  TResult ScriptParserGPUProgram::parseProperties(
+         *      DataStream& stream, GPUProgram* program, uint32_t version);
+         * @brief   解析 GPU Program 對象屬性
+         * @param [in,out]  stream  需要解析的輸入數據流對象.
+         * @param [in,out]  program 父對象.
+         * @param           version 輸入數據格式版本號.
+         * @returns 調用成功返回 T3D_OK.
+         */
+        TResult parseProperties(
+            DataStream& stream, GPUProgram* program, uint32_t version);
+    };
+
+    /**
+     * @class   ScriptParserGPUProgramRef
+     * @brief   gpu_program_ref 腳本對象解析器
      */
     class ScriptParserGPUProgramRef : public ScriptParserBase
     {
     public:
-        /** 創建對象 */
+        /**
+         * @fn  static ScriptParserGPUProgramRefPtr 
+         *      ScriptParserGPUProgramRef::create();
+         * @brief   創建對象
+         * @returns 調用成功返回新建對象.
+         */
         static ScriptParserGPUProgramRefPtr create();
 
-        /** 析構函數 */
+        /**
+         * @fn  virtual ScriptParserGPUProgramRef::~ScriptParserGPUProgramRef();
+         * @brief   析構函數
+         */
         virtual ~ScriptParserGPUProgramRef();
 
-        /** 重寫基類 ScriptParserBase::parseObject 接口 */
+        /**
+         * @fn  virtual TResult ScriptParserGPUProgramRef::parseObject(
+         *      DataStream &stream, Object *object, uint32_t version) override;
+         * @brief   重寫基類 ScriptParserBase::parseObject 接口
+         * @param [in,out]  stream  需要解析的輸入數據流對象.
+         * @param [in,out]  program 父對象.
+         * @param           version 輸入數據格式版本號.
+         * @returns 調用成功返回 T3D_OK.
+         */
         virtual TResult parseObject(
             DataStream &stream, Object *object, uint32_t version) override;
 
     protected:
-        /** 構造函數 */
+        /**
+         * @fn  ScriptParserGPUProgramRef::ScriptParserGPUProgramRef();
+         * @brief   構造函數
+         */
         ScriptParserGPUProgramRef();
 
-        /** 解析 GPU Program 引用對象屬性 */
+        /**
+         * @fn  TResult ScriptParserGPUProgramRef::parseProperties(
+         *      DataStream& stream, ShaderParam* param, uint32_t version);
+         * @brief   解析 GPU Program 引用對象屬性
+         * @param [in,out]  stream  需要解析的輸入數據流對象.
+         * @param [in,out]  program 父對象.
+         * @param           version 輸入數據格式版本號.
+         * @returns 調用成功返回 T3D_OK.
+         */
         TResult parseProperties(
-            DataStream &stream, ShaderParam *param, uint32_t version);
-
-        /** 解析 GPU Program 引用的 shared_params_ref 屬性 */
-        TResult parseSharedParamsRef(
-            DataStream &stream, ShaderParam *param, uint32_t version);
-
-        /** 解析 GPU Program 引用的 param_indexed 屬性 */
-        TResult parseParamIndexed(
-            DataStream &stream, ShaderParam *param, uint32_t version);
-
-        /** 解析 GPU Program 引用的 param_named 屬性 */
-        TResult parseParamNamed(
-            DataStream &stream, ShaderParam *param, uint32_t version);
-
-        /** 解析 GPU Program 引用的 param_indexed_auto 屬性 */
-        TResult parseParamIndexedAuto(
-            DataStream &stream, ShaderParam *param, uint32_t version);
-
-        /** 解析 GPU Program 引用的 param_named_auto 屬性 */
-        TResult parseParamNamedAuto(
-            DataStream &stream, ShaderParam *param, uint32_t version);
+            DataStream& stream, ShaderParam* param, uint32_t version);
     };
 
     /**
-     * @brief gpu_program 對象腳本解析器
+     * @class   ScriptParserGPUCBuffer
+     * @brief   gpu_cbuffer 腳本對象解析器.
      */
-    class ScriptParserGPUProgramEx : public ScriptParserBase
+    class ScriptParserGPUCBuffer : public ScriptParserBase
     {
     public:
-        /** 創建對象 */
-        static ScriptParserGPUProgramExPtr create();
+        /**
+         * @fn  static ScriptParserGPUCBufferPtr ScriptParserGPUCBuffer::create();
+         * @brief   Creates a new ScriptParserGPUCBufferPtr
+         * @returns A ScriptParserGPUCBufferPtr.
+         */
+        static ScriptParserGPUCBufferPtr create();
 
-        /** 析構函數 */
-        virtual ~ScriptParserGPUProgramEx();
+        /**
+         * @fn  virtual ScriptParserGPUCBuffer::~ScriptParserGPUCBuffer();
+         * @brief   Destructor
+         */
+        virtual ~ScriptParserGPUCBuffer();
 
-        /** 重寫基類 ScriptParserBase::parseObject 接口 */
+        /**
+         * @fn  virtual TResult ScriptParserGPUCBuffer::parseObject(
+         *      DataStream& stream, Object* object, uint32_t version) override;
+         * @brief   Parse object
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  object  If non-null, the object.
+         * @param           version The version.
+         * @returns A TResult.
+         */
+        virtual TResult parseObject(
+            DataStream& stream, Object* object, uint32_t version) override;
+
+    protected:
+        /**
+         * @fn  ScriptParserGPUCBuffer::ScriptParserGPUCBuffer();
+         * @brief   Default constructor
+         */
+        ScriptParserGPUCBuffer();
+
+        /**
+         * @fn  TResult ScriptParserGPUCBuffer::parseProperties(
+         *      DataStream& stream, ShaderParam* param, uint32_t version);
+         * @brief   解析 GPU Program 引用對象屬性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  param   If non-null, the parameter.
+         * @param           version The version.
+         * @returns A TResult.
+         */
+        TResult parseProperties(
+            DataStream& stream, ShaderParam *param, uint32_t version);
+
+        /**
+         * @fn  TResult ScriptParserGPUCBuffer::parseSharedParamsRef(
+         *      DataStream& stream, ShaderParam* param, uint32_t version);
+         * @brief   解析 GPU Program 引用的 shared_params_ref 屬性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  param   If non-null, the parameter.
+         * @param           version The version.
+         * @returns A TResult.
+         */
+        TResult parseSharedParamsRef(
+            DataStream& stream, ShaderParam* param, uint32_t version);
+
+        /**
+         * @fn  TResult ScriptParserGPUCBuffer::parseParamIndexed(
+         *      DataStream& stream, ShaderParam* param, uint32_t version);
+         * @brief   解析 GPU Program 引用的 param_indexed 屬性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  param   If non-null, the parameter.
+         * @param           version The version.
+         * @returns A TResult.
+         */
+        TResult parseParamIndexed(
+            DataStream& stream, ShaderParam *param, uint32_t version);
+
+        /**
+         * @fn  TResult ScriptParserGPUCBuffer::parseParamNamed(
+         *      DataStream& stream, ShaderParam* param, uint32_t version);
+         * @brief   解析 GPU Program 引用的 param_named 屬性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  param   If non-null, the parameter.
+         * @param           version The version.
+         * @returns A TResult.
+         */
+        TResult parseParamNamed(
+            DataStream& stream, ShaderParam *param, uint32_t version);
+
+        /**
+         * @fn  TResult ScriptParserGPUCBuffer::parseParamIndexedAuto(
+         *      DataStream& stream, ShaderParam* param, uint32_t version);
+         * @brief   解析 GPU Program 引用的 param_indexed_auto 屬性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  param   If non-null, the parameter.
+         * @param           version The version.
+         * @returns A TResult.
+         */
+        TResult parseParamIndexedAuto(
+            DataStream& stream, ShaderParam *param, uint32_t version);
+
+        /**
+         * @fn  TResult ScriptParserGPUCBuffer::parseParamNamedAuto(
+         *      DataStream& stream, ShaderParam* param, uint32_t version);
+         * @brief   解析 GPU Program 引用的 param_named_auto 屬性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  param   If non-null, the parameter.
+         * @param           version The version.
+         * @returns A TResult.
+         */
+        TResult parseParamNamedAuto(
+            DataStream& stream, ShaderParam *param, uint32_t version);
+    };
+
+    /**
+     * @class   ScriptParserGPUProgramEx
+     * @brief   gpu_cbuffer_ref 腳本對象解析器
+     */
+    class ScriptParserGPUCBufferRef : public ScriptParserBase
+    {
+    public:
+        /**
+         * @fn  static ScriptParserGPUCBufferRefPtr 
+         *      ScriptParserGPUCBufferRef::create();
+         * @brief   創建對象
+         * @returns A ScriptParserGPUCBufferRefPtr.
+         */
+        static ScriptParserGPUCBufferRefPtr create();
+
+        /**
+         * @fn  virtual ScriptParserGPUCBufferRef::~ScriptParserGPUCBufferRef();
+         * @brief   析構函數
+         */
+        virtual ~ScriptParserGPUCBufferRef();
+
+        /**
+         * @fn  virtual TResult ScriptParserGPUCBufferRef::parseObject(
+         *      DataStream &stream, Object *object, uint32_t version);
+         * @brief   重寫基類 ScriptParserBase::parseObject 接口
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  object  If non-null, the object.
+         * @param           version The version.
+         * @returns A TResult.
+         */
         virtual TResult parseObject(
             DataStream &stream, Object *object, uint32_t version);
 
     protected:
-        /** 構造函數 */
-        ScriptParserGPUProgramEx();
+        /**
+         * @fn  ScriptParserGPUCBufferRef::ScriptParserGPUCBufferRef();
+         * @brief   構造函數
+         */
+        ScriptParserGPUCBufferRef();
 
-        /** 解析 gpu_program 對象屬性 */
+        /**
+         * @fn  TResult ScriptParserGPUCBufferRef::parseProperties(
+         *      DataStream &stream, GPUProgram *program, uint32_t version);
+         * @brief   解析 gpu_program 對象屬性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  program If non-null, the program.
+         * @param           version The version.
+         * @returns A TResult.
+         */
         TResult parseProperties(
             DataStream &stream, GPUProgram *program, uint32_t version);
-    };
-
-    /**
-     * @brief gpu_program_ref 對象腳本解析器
-     */
-    class ScriptParserGPUProgramRefEx : public ScriptParserBase
-    {
-    public:
-        /** 創建對象 */
-        static ScriptParserGPUProgramRefExPtr create();
-
-        /** 析構函數 */
-        virtual ~ScriptParserGPUProgramRefEx();
-
-        /** 重寫基類 ScriptParserBase::parseObject 接口 */
-        virtual TResult parseObject(
-            DataStream &stream, Object *object, uint32_t version);
-
-    protected:
-        /** 構造函數 */
-        ScriptParserGPUProgramRefEx();
-
-        /** 解析 gpu_program_ref 對象屬性 */
-        TResult parseProperties(
-            DataStream &stream, ShaderParam *param, uint32_t version);
     };
 }
 

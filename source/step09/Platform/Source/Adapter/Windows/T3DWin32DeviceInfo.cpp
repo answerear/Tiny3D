@@ -607,7 +607,7 @@ namespace Tiny3D
         return mCPUCores;
     }
 
-    uint32_t Win32DeviceInfo::getSystemRAM() const
+    uint64_t Win32DeviceInfo::getSystemRAM() const
     {
         return mSystemRAM;
     }
@@ -734,7 +734,7 @@ namespace Tiny3D
             char			szBuffer[MAX_COMMAND_SIZE + 1] = { 0 }; // 放置命令行结果的输出缓冲区
             String			strBuffer;
             unsigned long	count = 0;
-            long			ipos = 0;
+            size_t			ipos = 0;
 
             memset(&pi, 0, sizeof(pi));
             memset(&si, 0, sizeof(si));

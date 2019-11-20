@@ -28,7 +28,7 @@
 namespace Tiny3D
 {
     /**
-     * @brief 着色器程序参数
+     * @brief GPU
      */
     class T3D_ENGINE_API ShaderParam : public Object
     {

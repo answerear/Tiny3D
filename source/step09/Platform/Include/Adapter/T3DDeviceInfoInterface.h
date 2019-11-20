@@ -33,67 +33,67 @@ namespace Tiny3D
 
     public:
         /**
-         * @brief 获取平台类型
+         * @brief 獲取平台類型
          */
         virtual uint32_t getPlatform() const = 0;
 
         /**
-         * @brief 获取软件版本号字符串
+         * @brief 獲取軟件版本號字符串
          */
         virtual const String &getSoftwareVersion() const = 0;
 
         /**
-         * @brief 设置软件版本号字符串
+         * @brief 設置軟件版本號字符串
          */
         virtual void setSoftwareVersion(const char *version) = 0;
 
         /**
-         * @brief 获取操作系统版本号字符串
+         * @brief 獲取操作系統版本號字符串
          */
         virtual const String &getOSVersion() const = 0;
 
         /**
-         * @brief 获取设备机型版本信息字符串
+         * @brief 獲取設備機型版本信息字符串
          */
         virtual const String &getDeviceVersion() const = 0;
 
         /**
-         * @brief 获取屏幕宽度.
+         * @brief 獲取屏幕寬度
          */
         virtual int32_t getScreenWidth() const = 0;
 
         /**
-         * @brief 获取屏幕高度.
+         * @brief 獲取屏幕高度
          */
         virtual int32_t getScreenHeight() const = 0;
 
         /**
-         * @brief 获取屏幕像素密度.
+         * @brief 獲取屏幕像素密度
          */
         virtual float getScreenDPI() const = 0;
 
         /**
-         * @brief 获取CPU类型信息.
+         * @brief 獲取CPU類型信息
          */
         virtual const String &getCPUType() const = 0;
 
         /**
-         * @brief 获取CPU架构
+         * @brief 獲取CPU架構
          */
         virtual const String &getCPUArchitecture() const = 0;
 
         /**
-         * @brief 获取CPU核数.
+         * @brief 獲取CPU核數
          */
         virtual int32_t getCPUCores() const = 0;
 
         /**
-         * @brief 获取系统内存总数.
+         * @brief 獲取系統內存總數
          */
-        virtual uint32_t getSystemRAM() const = 0;
+        virtual uint64_t getSystemRAM() const = 0;
 
         /**
-         * @brief 获取设备ID.
+         * @brief 獲取設備ID
          */
         virtual const String &getDeviceID() const = 0;
     };

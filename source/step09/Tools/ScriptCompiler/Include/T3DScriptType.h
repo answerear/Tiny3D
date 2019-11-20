@@ -402,6 +402,10 @@ namespace Tiny3D
         ID_GPU_PROGRAM,
         ID_GPU_PROGRAM_REF,
 
+        ID_GPU_CBUFFER,
+        ID_GPU_CBUFFER_REF,
+        ID_CBUFFER,
+
         ID_END_BUILTIN_IDS
     };
 

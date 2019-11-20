@@ -53,77 +53,77 @@ namespace Tiny3D
         virtual ~DeviceInfo();
 
         /**
-         * @brief 获取平台类型
+         * @brief 獲取平台類型
          */
         uint32_t getPlatform() const;
 
         /**
-         * @brief 获取平台类型字符串
+         * @brief 獲取平台類型字符串
          */
         String getPlatformString() const;
 
         /**
-         * @brief 获取软件版本号字符串
+         * @brief 獲取軟件版本號字符串
          */
         String getSoftwareVersion() const;
 
         /**
-         * @brief 设置软件版本号字符串
+         * @brief 設置軟件版本號字符串
          */
         void setSoftwareVersion(const char *version);
 
         /**
-         * @brief 获取操作系统版本号字符串
+         * @brief 獲取操作系統版本號字符串
          */
         String getOSVersion() const;
 
         /**
-         * @brief 获取设备机型版本信息字符串
+         * @brief 獲取設備機型版本信息字符串
          */
         String getDeviceVersion() const;
 
         /**
-         * @brief 获取系统详细信息
+         * @brief 獲取系統詳細信息
          */
         String getSystemInfo() const;
 
         /**
-         * @brief 获取屏幕宽度.
+         * @brief 獲取屏幕寬度.
          */
         int32_t getScreenWidth() const;
 
         /**
-         * @brief 获取屏幕高度.
+         * @brief 獲取屏幕高度.
          */
         int32_t getScreenHeight() const;
 
         /**
-         * @brief 获取屏幕像素密度.
+         * @brief 獲取屏幕像素密度.
          */
         float getScreenDPI() const;
 
         /**
-         * @brief 获取CPU类型信息.
+         * @brief 獲取CPU類型信息
          */
         String getCPUType() const;
 
         /**
-         * @brief 获取CPU架构
+         * @brief 獲取CPU架構
          */
         String getCPUArchitecture() const;
 
         /**
-         * @brief 获取CPU核数
+         * @brief 獲取CPU核數
          */
         int32_t getCPUCores() const;
 
         /**
-         * @brief 获取系统内存总数.
+         * @brief 獲取系統內存總數.
          */
-        uint32_t getSystemRAM() const;
+        uint64_t getSystemRAM() const;
         
         /**
-         * @brief 获取设备ID.
+         * @brief 獲取設備ID.
          */
         String getDeviceID() const;
 

@@ -56,10 +56,11 @@ namespace Tiny3D
         mPassParser = ScriptParserPass::create();
         mTexUnitParser = ScriptParserTextureUnit::create();
         mSamplerParser = ScriptParserSampler::create();
+        mShaderParser = ScriptParserShader::create();
         mGPUParser = ScriptParserGPUProgram::create();
         mGPURefParser = ScriptParserGPUProgramRef::create();
-        mGPUParserEx = ScriptParserGPUProgramEx::create();
-        mGPURefParserEx = ScriptParserGPUProgramRefEx::create();
+        mCBufferParser = ScriptParserGPUCBuffer::create();
+        mCBufferRefParser = ScriptParserGPUCBufferRef::create();
     }
 
     //--------------------------------------------------------------------------
@@ -104,7 +105,7 @@ namespace Tiny3D
         case E_OP_TESSELLATION_HULL_PROGRAM:
         case E_OP_TESSELLATION_DOMAIN_PROGRAM:
         case E_OP_COMPUTE_PROGRAM:
-            parser = mGPUParser;
+            parser = mShaderParser;
             break;
         case E_OP_VERTEX_PROGRAM_REF:
         case E_OP_FRAGMENT_PROGRAM_REF:
@@ -114,13 +115,20 @@ namespace Tiny3D
         case E_OP_COMPUTE_PROGRAM_REF:
         case E_OP_SHADOW_CASTER_VERTEX_PROGRAM_REF:
         case E_OP_SHADOW_CASTER_FRAGMENT_PROGRAM_REF:
-            parser = mGPURefParser;
+            T3D_ASSERT(0);  // 暫時不可能跑到這裡
+            parser = nullptr;
             break;
         case E_OP_GPU_PROGRAM:
-            parser = mGPUParserEx;
+            parser = mGPUParser;
             break;
         case E_OP_GPU_PROGRAM_REF:
-            parser = mGPURefParserEx;
+            parser = mGPURefParser;
+            break;
+        case E_OP_GPU_CBUFFER:
+            parser = mCBufferParser;
+            break;
+        case E_OP_GPU_CBUFFER_REF:
+            parser = mCBufferRefParser;
             break;
         }
 

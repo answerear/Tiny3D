@@ -125,7 +125,9 @@ namespace Tiny3D
                 translator = mGPUTransltor;
             }
             else if (obj->id == ID_GPU_PROGRAM
-                || obj->id == ID_GPU_PROGRAM_REF)
+                || obj->id == ID_GPU_PROGRAM_REF
+                || obj->id == ID_GPU_CBUFFER
+                || obj->id == ID_GPU_CBUFFER_REF)
             {
                 translator = mGPUTransltor;
             }
@@ -1110,8 +1112,6 @@ namespace Tiny3D
                     break;
                 }
 
-                T3D_ASSERT(size == stream.tell() - sizeof(header));
-
                 header.fileSize += size;
             }
 
@@ -1119,6 +1119,8 @@ namespace Tiny3D
             {
                 break;
             }
+
+            T3D_ASSERT(header.fileSize == stream.tell());
 
             stream.seek(0, false);
             stream.write(&header, sizeof(header));
@@ -1488,6 +1490,10 @@ namespace Tiny3D
 
         mIds["gpu_program"] = ID_GPU_PROGRAM;
         mIds["gpu_program_ref"] = ID_GPU_PROGRAM_REF;
+
+        mIds["gpu_cbuffer"] = ID_GPU_CBUFFER;
+        mIds["gpu_cbuffer_ref"] = ID_GPU_CBUFFER_REF;
+        mIds["cbuffer"] = ID_CBUFFER;
     }
 
     void ScriptCompiler::getFileName(const String &filepath, String &path, String &name) const

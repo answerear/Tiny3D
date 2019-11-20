@@ -92,7 +92,7 @@ namespace Tiny3D
         /**
          * @brief 获取内存信息.
          */
-        virtual uint32_t getSystemRAM() const override;
+        virtual uint64_t getSystemRAM() const override;
 
         /**
          * @brief 获取设备ID.
@@ -142,7 +142,7 @@ namespace Tiny3D
         String      mCPUArchitecture;
         String      mDeviceID;
         int32_t     mCPUCores;
-        uint32_t    mSystemRAM;
+        uint64_t    mSystemRAM;
         int32_t     mScreenWidth;
         int32_t     mScreenHeight;
         float       mScreenDPI;

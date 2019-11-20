@@ -223,7 +223,7 @@ namespace Tiny3D
         return 1;
     }
 
-    uint32_t DeviceInfo::getSystemRAM() const
+    uint64_t DeviceInfo::getSystemRAM() const
     {
         if (mDeviceInfo != nullptr)
         {

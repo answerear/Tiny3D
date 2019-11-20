@@ -5393,7 +5393,11 @@ namespace Tiny3D
         case ID_COMPUTE_PROGRAM_REF:
         case ID_SHADOW_CASTER_VERTEX_PROGRAM_REF:
         case ID_SHADOW_CASTER_FRAGMENT_PROGRAM_REF:
-            totalBytes = translateGPUProgramRef(compiler, stream, obj);
+            {
+                ScriptError::printError(CERR_UNEXPECTEDTOKEN, 
+                    obj->name, obj->file, obj->line,
+                    "token \"" + obj->name + "\" has not supported !");
+            }
             break;
         case ID_FRAGMENT_PROGRAM:
         case ID_VERTEX_PROGRAM:
@@ -5401,13 +5405,19 @@ namespace Tiny3D
         case ID_TESSELLATION_HULL_PROGRAM:
         case ID_TESSELLATION_DOMAIN_PROGRAM:
         case ID_COMPUTE_PROGRAM:
-            totalBytes = translateGPUProgram(compiler, stream, obj);
+            totalBytes = translateShader(compiler, stream, obj);
             break;
         case ID_GPU_PROGRAM:
-            totalBytes = translateGPUProgramEx(compiler, stream, obj);
+            totalBytes = translateGPUProgram(compiler, stream, obj);
             break;
         case ID_GPU_PROGRAM_REF:
-            totalBytes = translateGPUProgramRefEx(compiler, stream, obj);
+            totalBytes = translateGPUProgramRef(compiler, stream, obj);
+            break;
+        case ID_GPU_CBUFFER:
+            totalBytes = translateGPUCBuffer(compiler, stream, obj);
+            break;
+        case ID_GPU_CBUFFER_REF:
+            totalBytes = translateGPUCBufferRef(compiler, stream, obj);
             break;
         default:
             break;
@@ -5418,7 +5428,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateGPUProgramRef(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
+    size_t GPUProgramTranslator::translateGPUCBuffer(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
     {
         size_t bytesOfWritten = 0;
         size_t totalBytes = 0;
@@ -5833,7 +5843,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateGPUProgram(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
+    size_t GPUProgramTranslator::translateShader(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
     {
         size_t bytesOfWritten = 0;
         size_t totalBytes = 0;
@@ -5944,7 +5954,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateGPUProgramEx(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
+    size_t GPUProgramTranslator::translateGPUProgram(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
     {
         size_t bytesOfWritten = 0;
         size_t totalBytes = 0;
@@ -5990,7 +6000,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateGPUProgramRefEx(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
+    size_t GPUProgramTranslator::translateGPUProgramRef(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
     {
         size_t bytesOfWritten = 0;
         size_t totalBytes = 0;
@@ -6029,6 +6039,88 @@ namespace Tiny3D
                 bytesOfWritten = processNode(compiler, stream, *i);
                 totalBytes += bytesOfWritten;
             }
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t GPUProgramTranslator::translateGPUCBufferRef(
+        ScriptCompiler* compiler, DataStream& stream, ObjectAbstractNode* obj)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        // 对象头数据
+        bytesOfWritten = translateObjectHeader(obj, stream);
+        totalBytes += bytesOfWritten;
+
+        // Set the properties for the material
+        for (AbstractNodeList::iterator i = obj->children.begin(); 
+            i != obj->children.end(); 
+            ++i)
+        {
+            if ((*i)->type == ANT_PROPERTY)
+            {
+                PropertyAbstractNode* prop 
+                    = reinterpret_cast<PropertyAbstractNode*>((*i).get());
+
+                // Type
+                uint16_t type = (*i)->type;
+                bytesOfWritten = stream.write(&type, sizeof(type));
+                totalBytes += bytesOfWritten;
+
+                // ID
+                uint16_t id = prop->id;
+                bytesOfWritten = stream.write(&id, sizeof(id));
+                totalBytes += bytesOfWritten;
+
+                // 属性
+                switch (prop->id)
+                {
+                case ID_CBUFFER:
+                    bytesOfWritten = translateSharedParamRef(prop, stream);
+                    totalBytes += bytesOfWritten;
+                    break;
+                default:
+                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, 
+                        prop->name, prop->file, prop->line,
+                        "token \"" + prop->name + "\" is not recognized");
+                }
+            }
+        }
+
+        return totalBytes;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t GPUProgramTranslator::translateCBuffer(
+        PropertyAbstractNode* prop, DataStream& stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.size() != 1)
+        {
+            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                prop->name, prop->file, prop->line,
+                "constant buffer requires a single parameter");
+            return 0;
+        }
+
+        uint32_t slot = 0;
+        if (!getUInt(*(prop->values.begin()), &slot))
+        {
+            bytesOfWritten = stream.write(&slot, sizeof(slot));
+            totalBytes += bytesOfWritten;
+        }
+        else
+        {
+            ScriptError::printError(CERR_INVALIDPARAMETERS,
+                prop->name, prop->file, prop->line,
+                "constant buffer slot require a integer number !");
         }
 
         return totalBytes;
