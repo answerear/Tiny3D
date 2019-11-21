@@ -86,6 +86,8 @@ namespace Tiny3D
     class ShaderManager;
     class GPUProgram;
     class GPUProgramManager;
+    class GPUConstBuffer;
+    class GPUConstBufferManager;
 
     class HardwareBuffer;
     class HardwareIndexBuffer;

@@ -43,6 +43,7 @@ namespace Tiny3D
             E_RT_TEXTURE,       /**< 紋理 */
             E_RT_SHADER,        /**< 著色器 */
             E_RT_GPUPROGRAM,    /**< GPU程序 */
+            E_RT_GPUCBUFFER,    /**< GPU 常量緩衝區 */
         };
 
         /** 構造函數 */
