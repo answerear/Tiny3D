@@ -28,27 +28,147 @@
 namespace Tiny3D
 {
     /**
-     * @brief GPU
+     * @class   GPUConstBufferRef
+     * @brief   GPU 常量緩衝區引用類.
      */
-    class T3D_ENGINE_API ShaderParam : public Object
+    class T3D_ENGINE_API GPUConstBufferRef : public Object
     {
     public:
-        static ShaderParamPtr create();
+        /**
+         * @fn  static GPUConstBufferRefPtr GPUConstBufferRef::create(
+         *      const String &name, uint32_t slot);
+         * @brief   Creates a new GPUConstBufferRefPtr
+         * @param   name    The name.
+         * @param   slot    The slot.
+         * @returns A GPUConstBufferRefPtr.
+         */
+        static GPUConstBufferRefPtr create(const String &name, uint32_t slot);
 
-        virtual ~ShaderParam();
+        /**
+         * @fn  virtual GPUConstBufferRef::~GPUConstBufferRef();
+         * @brief   Destructor
+         */
+        virtual ~GPUConstBufferRef();
+
+        /**
+         * @fn  const String& GPUConstBufferRef::getName() const
+         * @brief   Gets the name
+         * @returns The name.
+         */
+        const String& getName() const { return mName; }
+
+        /**
+         * @fn  uint32_t GPUConstBufferRef::getSlot() const
+         * @brief   Gets the slot
+         * @returns The slot.
+         */
+        uint32_t getSlot() const { return mSlot; }
 
     protected:
-        ShaderParam();
+        /**
+         * @fn  GPUConstBufferRef::GPUConstBufferRef(const String &name, 
+         *      uint32_t slot);
+         * @brief   Default constructor
+         * @param   name    The name.
+         * @param   slot    The slot.
+         */
+        GPUConstBufferRef(const String &name, uint32_t slot);
+
+    protected:
+        String      mName;
+        uint32_t    mSlot;
     };
 
     /**
-     * @brief 着色器程序
+     * @class   GPUProgramRef
+     * @brief   A 3D engine api.
+     */
+    class T3D_ENGINE_API GPUProgramRef : public Object
+    {
+    public:
+        typedef TList<GPUConstBufferRefPtr>     BufferRefList;
+        typedef BufferRefList::iterator         BufferRefListItr;
+        typedef BufferRefList::const_iterator   BufferRefListConstItr;
+
+        /**
+         * @fn  static GPUProgramRefPtr GPUProgramRef::create();
+         * @brief   Creates a new GPUProgramRefPtr
+         * @returns A GPUProgramRefPtr.
+         */
+        static GPUProgramRefPtr create(const String &name);
+
+        /**
+         * @fn  virtual GPUProgramRef::~GPUProgramRef();
+         * @brief   Destructor
+         */
+        virtual ~GPUProgramRef();
+
+        /**
+         * @fn  TResult GPUProgramRef::addConstBufferRef(const String& name, 
+         *      uint32_t slot, GPUConstBufferRefPtr& buffer);
+         * @brief   Adds a constant buffer reference
+         * @param   name    The name.
+         * @param   slot    The slot.
+         * @param   buffer  The buffer.
+         * @returns A TResult.
+         */
+        TResult addConstBufferRef(const String& name, uint32_t slot,
+            GPUConstBufferRefPtr &buffer);
+
+        /**
+         * @fn  TResult GPUProgramRef::removeConstBufferRef(const String& name);
+         * @brief   Removes the constant buffer reference described by name
+         * @param   name    The name.
+         * @returns A TResult.
+         */
+        TResult removeConstBufferRef(const String& name);
+
+        /**
+         * @fn  BufferRefList GPUProgramRef::getBufferRefList() const
+         * @brief   Gets buffer reference list
+         * @returns The buffer reference list.
+         */
+        BufferRefList getBufferRefList() const { return mBuffers; }
+
+        /**
+         * @fn  GPUConstBufferRefPtr GPUProgramRef::getBufferRef(uint32_t slot);
+         * @brief   Gets buffer reference
+         * @param   slot    The slot.
+         * @returns The buffer reference.
+         */
+        GPUConstBufferRefPtr getBufferRef(uint32_t slot) const;
+
+        /**
+         * @fn  GPUConstBufferRefPtr GPUProgramRef::getBufferRef(
+         *      const String& name);
+         * @brief   Gets buffer reference
+         * @param   name    The name.
+         * @returns The buffer reference.
+         */
+        GPUConstBufferRefPtr getBufferRef(const String& name) const;
+
+    protected:
+        /**
+         * @fn  GPUProgramRef::GPUProgramRef();
+         * @brief   Default constructor
+         */
+        GPUProgramRef(const String &name);
+
+    protected:
+        String          mName;      /**< The name */
+        BufferRefList   mBuffers;   /**< The buffers */
+    };
+
+    /**
+     * @class   Shader
+     * @brief   着色器程序
      */
     class T3D_ENGINE_API Shader : public Resource
     {
     public:
         /**
-         * @brief 着色器类型
+         * @enum    ShaderType
+         * @brief   着色器类型
          */
         enum ShaderType
         {
@@ -57,28 +177,38 @@ namespace Tiny3D
         };
 
         /**
-         * @brief 获取资源类型，重写基类 Resource::getType() 接口
+         * @fn  virtual Type Shader::getType() const override;
+         * @brief   获取资源类型，重写基类 Resource::getType() 接口
+         * @returns The type.
          */
         virtual Type getType() const override;
 
         /**
-         * @brief 获取着色器类型
+         * @fn  virtual ShaderType Shader::getShaderType() const = 0;
+         * @brief   获取着色器类型
+         * @returns The shader type.
          */
         virtual ShaderType getShaderType() const = 0;
 
         /**
-         * @brief 编译着色器程序
+         * @fn  virtual TResult Shader::compile() = 0;
+         * @brief   编译着色器程序
+         * @returns A TResult.
          */
         virtual TResult compile() = 0;
 
         /**
-         * @brief 是否已经编译过
+         * @fn  virtual bool Shader::hasCompiled() const = 0;
+         * @brief   是否已经编译过
+         * @returns True if compiled, false if not.
          */
         virtual bool hasCompiled() const = 0;
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  Shader::Shader(const String &name);
+         * @brief   构造函数
+         * @param   name    The name.
          */
         Shader(const String &name);
     };
@@ -95,14 +225,17 @@ namespace Tiny3D
         typedef Shaders::value_type                 ShadersValue;
 
         /**
-         * @brief 獲取資源類型，重寫基類 Resource::getType() 接口
+         * @fn  virtual Type GPUProgram::getType() const override;
+         * @brief   獲取資源類型，重寫基類 Resource::getType() 接口
+         * @returns The type.
          */
         virtual Type getType() const override;
 
         /**
-         * @brief 把所有著色器程序鏈接成一個 GPU 程序
-         * @param [in] force : 是否強制重新鏈接
-         * @return 調用成功返回 true
+         * @fn  virtual TResult GPUProgram::link(bool force = false) = 0;
+         * @brief   把所有著色器程序鏈接成一個 GPU 程序
+         * @param [in]  force   (Optional) : 是否強制重新鏈接.
+         * @returns 調用成功返回 true.
          */
         virtual TResult link(bool force = false) = 0;
 
@@ -112,43 +245,60 @@ namespace Tiny3D
         virtual bool hasLinked() const = 0;
 
         /**
-         * @brief 新增 shader
-         * @param [in] name : Shader 名稱
-         * @param [in] type : Shader 類型
-         * @param [in][out] shader : 返回新增的 Shader 對象
-         * @return 調用成功返回 T3D_OK
+         * @fn  TResult GPUProgram::addShader(const String &name, 
+         *      Shader::ShaderType type, ShaderPtr &shader);
+         * @brief   新增 shader
+         * @param [in]  name    : Shader 名稱.
+         * @param [in]  type    : Shader 類型.
+         * @param [in]  shader  shader : 返回新增的 Shader 對象.
+         * @returns 調用成功返回 T3D_OK.
          */
         TResult addShader(
             const String &name, Shader::ShaderType type, ShaderPtr &shader);
 
         /**
-         * @brief 根據名稱移除 shader
+         * @fn  TResult GPUProgram::removeShader(const String &name);
+         * @brief   根據名稱移除 shader
+         * @param   name    The name.
+         * @returns A TResult.
          */
         TResult removeShader(const String &name);
 
         /**
-         * @brief 根據類型移除 shader
+         * @fn  TResult GPUProgram::removeShader(Shader::ShaderType type);
+         * @brief   根據類型移除 shader
+         * @param   type    The type.
+         * @returns A TResult.
          */
         TResult removeShader(Shader::ShaderType type);
 
         /**
-         * @brief 获取頂點著色器對象
+         * @fn  ShaderPtr GPUProgram::getVertexShader() const;
+         * @brief   获取頂點著色器對象
+         * @returns The vertex shader.
          */
         ShaderPtr getVertexShader() const;
 
         /**
-         * @brief 获取片段著色器對象
+         * @fn  ShaderPtr GPUProgram::getPixelShader() const;
+         * @brief   获取片段著色器對象
+         * @returns The pixel shader.
          */
         ShaderPtr getPixelShader() const;
 
     protected:
         /**
-         * @brief 構造函數
+         * @fn  GPUProgram::GPUProgram(const String &name);
+         * @brief   構造函數
+         * @param   name    The name.
          */
         GPUProgram(const String &name);
 
         /**
-         * @brief 克隆属性
+         * @fn  virtual TResult GPUProgram::cloneProperties(GPUProgramPtr newObj) const;
+         * @brief   克隆属性
+         * @param   newObj  The new object.
+         * @returns A TResult.
          */
         virtual TResult cloneProperties(GPUProgramPtr newObj) const;
 

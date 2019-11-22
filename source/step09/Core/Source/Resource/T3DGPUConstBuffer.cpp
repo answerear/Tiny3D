@@ -26,24 +26,23 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    GPUConstBufferPtr GPUConstBuffer::create(const String& name, size_t bufSize, 
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+    GPUConstBufferPtr GPUConstBuffer::create(const String& name)
     {
-        GPUConstBufferPtr mgr = new GPUConstBuffer(name, bufSize, usage,
-            useSystemMemory, useShadowBuffer);
+        GPUConstBufferPtr mgr = new GPUConstBuffer(name);
         mgr->release();
         return mgr;
     }
 
     //--------------------------------------------------------------------------
 
-    GPUConstBuffer::GPUConstBuffer(const String& name, size_t bufSize, 
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+    GPUConstBuffer::GPUConstBuffer(const String& name)
         : Resource(name)
-        , mBufSize(bufSize)
-        , mUsage(usage)
-        , mUseSystemMemory(useSystemMemory)
-        , mUseShadowBuffer(useShadowBuffer)
+        , mBufSize(0)
+        , mBuffer(nullptr)
+        , mUsage(HardwareBuffer::E_HBU_DYNAMIC)
+        , mUseSystemMemory(false)
+        , mUseShadowBuffer(false)
+        , mBufferImpl(nullptr)
     {
 
     }
@@ -64,11 +63,37 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GPUConstBuffer::load()
+    TResult GPUConstBuffer::initWithData(size_t bufSize, const void* buffer,
+        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
     {
         TResult ret = T3D_OK;
 
+        do 
+        {
+            mBufferImpl = T3D_HARDWARE_BUFFER_MGR.createConstantBuffer(
+                bufSize, buffer, usage, useSystemMemory, useShadowBuffer);
+            if (mBufferImpl == nullptr)
+            {
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+
+            mBufSize = bufSize;
+            mBuffer = buffer;
+            mUsage = usage;
+            mUseSystemMemory = useSystemMemory;
+            mUseShadowBuffer = useShadowBuffer;
+        } while (0);
+
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUConstBuffer::load()
+    {
+        // Do nothing here.
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -77,6 +102,8 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        mBufferImpl = nullptr;
+
         return ret;
     }
 
@@ -84,13 +111,24 @@ namespace Tiny3D
 
     ResourcePtr GPUConstBuffer::clone() const
     {
-        GPUConstBufferPtr buffer = GPUConstBuffer::create(mName, mBufSize,
-            mUsage, mUseSystemMemory, mUseShadowBuffer);
+        GPUConstBufferPtr buffer;
 
-        if (buffer != nullptr)
+        do 
         {
-            buffer->load();
-        }
+            buffer = GPUConstBuffer::create(mName);
+
+            if (buffer != nullptr)
+            {
+                TResult ret = buffer->initWithData(mBufSize, mBuffer, 
+                    mUsage, mUseSystemMemory, mUseShadowBuffer);
+
+                if (ret != T3D_OK)
+                {
+                    buffer = nullptr;
+                    break;
+                }
+            }
+        } while (0);
 
         return buffer;
     }

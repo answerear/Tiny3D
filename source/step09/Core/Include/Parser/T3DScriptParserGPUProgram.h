@@ -188,7 +188,7 @@ namespace Tiny3D
          * @returns 調用成功返回 T3D_OK.
          */
         TResult parseProperties(
-            DataStream& stream, ShaderParam* param, uint32_t version);
+            DataStream &stream, GPUProgramRef *param, uint32_t version);
     };
 
     /**
@@ -240,7 +240,7 @@ namespace Tiny3D
          * @returns A TResult.
          */
         TResult parseProperties(
-            DataStream& stream, ShaderParam *param, uint32_t version);
+            DataStream& stream, GPUConstBuffer *param, uint32_t version);
 
         /**
          * @fn  TResult ScriptParserGPUCBuffer::parseSharedParamsRef(
@@ -252,7 +252,7 @@ namespace Tiny3D
          * @returns A TResult.
          */
         TResult parseSharedParamsRef(
-            DataStream& stream, ShaderParam* param, uint32_t version);
+            DataStream& stream, GPUConstBuffer *param, uint32_t version);
 
         /**
          * @fn  TResult ScriptParserGPUCBuffer::parseParamIndexed(
@@ -264,7 +264,7 @@ namespace Tiny3D
          * @returns A TResult.
          */
         TResult parseParamIndexed(
-            DataStream& stream, ShaderParam *param, uint32_t version);
+            DataStream& stream, GPUConstBuffer *param, uint32_t version);
 
         /**
          * @fn  TResult ScriptParserGPUCBuffer::parseParamNamed(
@@ -276,7 +276,7 @@ namespace Tiny3D
          * @returns A TResult.
          */
         TResult parseParamNamed(
-            DataStream& stream, ShaderParam *param, uint32_t version);
+            DataStream& stream, GPUConstBuffer *param, uint32_t version);
 
         /**
          * @fn  TResult ScriptParserGPUCBuffer::parseParamIndexedAuto(
@@ -288,7 +288,7 @@ namespace Tiny3D
          * @returns A TResult.
          */
         TResult parseParamIndexedAuto(
-            DataStream& stream, ShaderParam *param, uint32_t version);
+            DataStream& stream, GPUConstBuffer *param, uint32_t version);
 
         /**
          * @fn  TResult ScriptParserGPUCBuffer::parseParamNamedAuto(
@@ -300,7 +300,7 @@ namespace Tiny3D
          * @returns A TResult.
          */
         TResult parseParamNamedAuto(
-            DataStream& stream, ShaderParam *param, uint32_t version);
+            DataStream& stream, GPUConstBuffer *param, uint32_t version);
     };
 
     /**

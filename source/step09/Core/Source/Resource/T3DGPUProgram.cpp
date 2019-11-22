@@ -27,23 +27,26 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ShaderParamPtr ShaderParam::create()
+    GPUConstBufferRefPtr GPUConstBufferRef::create(const String& name,
+        uint32_t slot)
     {
-        ShaderParamPtr param = new ShaderParam();
-        param->release();
-        return param;
+        GPUConstBufferRefPtr buffer = new GPUConstBufferRef(name, slot);
+        buffer->release();
+        return buffer;
     }
 
     //--------------------------------------------------------------------------
 
-    ShaderParam::ShaderParam()
+    GPUConstBufferRef::GPUConstBufferRef(const String &name, uint32_t slot)
+        : mName(name)
+        , mSlot(slot)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    ShaderParam::~ShaderParam()
+    GPUConstBufferRef::~GPUConstBufferRef()
     {
 
     }
@@ -54,6 +57,66 @@ namespace Tiny3D
         : Resource(name)
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    GPUProgramRefPtr GPUProgramRef::create(const String& name)
+    {
+        GPUProgramRefPtr program = new GPUProgramRef(name);
+        program->release();
+        return program;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GPUProgramRef::GPUProgramRef(const String& name)
+        : mName(name)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    GPUProgramRef::~GPUProgramRef()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUProgramRef::addConstBufferRef(const String& name, uint32_t slot, 
+        GPUConstBufferRefPtr &buffer)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUProgramRef::removeConstBufferRef(const String& name)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GPUConstBufferRefPtr GPUProgramRef::getBufferRef(const String& name) const
+    {
+        GPUConstBufferRefPtr buffer;
+
+        return buffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GPUConstBufferRefPtr GPUProgramRef::getBufferRef(uint32_t slot) const
+    {
+        GPUConstBufferRefPtr buffer;
+        return buffer;
     }
 
     //--------------------------------------------------------------------------

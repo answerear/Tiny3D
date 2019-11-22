@@ -39,41 +39,32 @@ namespace Tiny3D
     public:
         /**
          * @fn  static HardwareConstantBufferPtr create();
-         * @brief   Creates a new HardwareConstantBufferPtr
-         * @returns A HardwareConstantBufferPtr.
+         * @brief   創建一個緩衝區資源管理器對象
+         * @returns 調用成功返回新建的緩衝區資源管理器對象.
          */
         static GPUConstBufferManagerPtr create();
 
         /**
          * @fn  virtual ~GPUConstBufferManager();
-         * @brief   Destructor
+         * @brief   析構函數
          */
         virtual ~GPUConstBufferManager();
 
         /**
-         * @fn  virtual HardwareConstantBufferPtr loadBuffer(
-         *      const String &name, size_t bufSize, 
-         *      HardwareBuffer::Usage usage, bool useSystemMemory, 
-         *      bool useShadowBuffer);
-         * @brief   Loads a buffer
-         * @param   name            The name.
-         * @param   bufSize         Size of the buffer.
-         * @param   usage           The usage.
-         * @param   useSystemMemory True to use system memory.
-         * @param   useShadowBuffer True to use shadow buffer.
-         * @returns The buffer.
+         * @fn  virtual GPUConstBufferPtr loadBuffer(const String &name);
+         * @brief   加載緩衝區資源
+         * @param   name    緩衝區資源名稱.
+         * @returns 調用成功返回緩衝區資源對象.
          */
-        virtual GPUConstBufferPtr loadBuffer(const String &name,
-            size_t bufSize, HardwareBuffer::Usage usage,
-            bool useSystemMemory, bool useShadowBuffer);
+        virtual GPUConstBufferPtr loadBuffer(const String &name);
 
         /**
-         * @fn  virtual TResult unloadBuffer(MaterialPtr material);
-         * @brief   Unload buffer
-         * @param   material    The material.
-         * @returns A TResult.
+         * @fn  virtual TResult unloadBuffer(GPUConstBufferPtr buffer);
+         * @brief   卸載緩衝區資源
+         * @param   buffer  緩衝區資源對象.
+         * @returns 調用成功返回 T3D_OK.
          */
-        virtual TResult unloadBuffer(GPUConstBufferPtr material);
+        virtual TResult unloadBuffer(GPUConstBufferPtr buffer);
 
     protected:
         /**
@@ -82,15 +73,20 @@ namespace Tiny3D
         GPUConstBufferManager();
 
         /**
-         * @brief 重写基类接口，实现创建材质对象
-         * @see ResourcePtr Resource::create(const String &name, int32_t argc,
-         *      va_list args)
+         * @fn  virtual ResourcePtr create(const String &name, int32_t argc, va_list args) override;
+         * @brief   重写基类接口，实现创建材质对象
+         * @param   name    資源名稱.
+         * @param   argc    創建需要的參數數量.
+         * @param   args    創建需要的參數列表.
+         * @returns 調用成功返回新建的資源對象.
+         * @sa  ResourcePtr Resource::create(const String &amp;name, 
+         *      int32_t argc, va_list args)
          */
         virtual ResourcePtr create(const String &name, int32_t argc, 
             va_list args) override;
     };
 
-    #define T3D_CONST_BUFFER_MGR        (GPUConstBufferManager::getInstance())
+    #define T3D_GPU_CONST_BUFFER_MGR    (GPUConstBufferManager::getInstance())
 }
 
 

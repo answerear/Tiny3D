@@ -22,6 +22,8 @@
 #include "Parser/T3DScriptParser.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramManager.h"
+#include "Resource/T3DGPUConstBuffer.h"
+#include "Resource/T3DGPUConstBufferManager.h"
 #include "Resource/T3DMaterial.h"
 #include "Kernel/T3DPass.h"
 #include "T3DErrorDef.h"
@@ -408,7 +410,7 @@ namespace Tiny3D
         {
             size_t bytesOfRead = 0;
 
-            ShaderParam *param = static_cast<ShaderParam*>(object);
+            Material* material = static_cast<Material*>(object);
 
             // 属性数量
             uint16_t count = 0;
@@ -419,6 +421,8 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
+
+            GPUProgramRefPtr program;
 
             uint16_t type = E_NT_UNKNOWN;
             uint16_t i = 0;
@@ -432,11 +436,11 @@ namespace Tiny3D
 
                 if (type == E_NT_PROPERTY)
                 {
-                    ret = parseProperties(stream, param, version);
+                    ret = parseProperties(stream, program, version);
                 }
                 else if (type == E_NT_OBJECT)
                 {
-                    ret = parseObjects(stream, param, version);
+                    ret = parseObjects(stream, program, version);
                 }
                 else
                 {
@@ -459,7 +463,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserGPUProgramRef::parseProperties(
-        DataStream &stream, ShaderParam *param, uint32_t version)
+        DataStream &stream, GPUProgramRef *param, uint32_t version)
     {
         TResult ret = T3D_OK;
         return ret;
@@ -499,7 +503,7 @@ namespace Tiny3D
         {
             size_t bytesOfRead = 0;
 
-            ShaderParam *param;
+            GPUConstBuffer *param;
 
             // 属性数量
             uint16_t count = 0;
@@ -550,7 +554,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserGPUCBuffer::parseProperties(
-        DataStream& stream, ShaderParam *param, uint32_t version)
+        DataStream& stream, GPUConstBuffer *param, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -562,7 +566,7 @@ namespace Tiny3D
             uint16_t id;
             bytesOfRead = stream.read(&id, sizeof(id));
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(id),
-                "Read ID of property of gpu_cbuffer_ref failed !");
+                "Read ID of property of gpu_cbuffer failed !");
 
             switch (id)
             {
@@ -585,7 +589,7 @@ namespace Tiny3D
                 {
                     ret = T3D_ERR_RES_INVALID_PROPERTY;
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                        "Invalid property of gpu_cbuffer_ref !");
+                        "Invalid property of gpu_cbuffer !");
                 }
                 break;
             }
@@ -597,7 +601,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserGPUCBuffer::parseSharedParamsRef(
-        DataStream &stream, ShaderParam *param, uint32_t version)
+        DataStream &stream, GPUConstBuffer *param, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -619,7 +623,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserGPUCBuffer::parseParamIndexed(
-        DataStream &stream, ShaderParam *param, uint32_t version)
+        DataStream &stream, GPUConstBuffer *param, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -691,7 +695,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserGPUCBuffer::parseParamNamed(
-        DataStream &stream, ShaderParam *param, uint32_t version)
+        DataStream &stream, GPUConstBuffer *param, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -767,7 +771,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserGPUCBuffer::parseParamIndexedAuto(
-        DataStream &stream, ShaderParam *param, uint32_t version)
+        DataStream &stream, GPUConstBuffer *param, uint32_t version)
     {
         TResult ret = T3D_OK;
         void *extra = nullptr;
@@ -855,7 +859,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserGPUCBuffer::parseParamNamedAuto(
-        DataStream &stream, ShaderParam *param, uint32_t version)
+        DataStream &stream, GPUConstBuffer *param, uint32_t version)
     {
         TResult ret = T3D_OK;
 

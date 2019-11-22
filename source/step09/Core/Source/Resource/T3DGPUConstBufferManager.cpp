@@ -52,12 +52,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    GPUConstBufferPtr GPUConstBufferManager::loadBuffer(const String &name, 
-        size_t bufSize, HardwareBuffer::Usage usage, 
-        bool useSystemMemory, bool useShadowBuffer)
+    GPUConstBufferPtr GPUConstBufferManager::loadBuffer(const String &name)
     {
-        return smart_pointer_cast<GPUConstBuffer>(ResourceManager::load(name, 
-            bufSize, usage, useSystemMemory, useShadowBuffer));
+        return smart_pointer_cast<GPUConstBuffer>(
+            ResourceManager::load(name, 0));
     }
 
     //--------------------------------------------------------------------------
@@ -72,13 +70,7 @@ namespace Tiny3D
     ResourcePtr GPUConstBufferManager::create(const String &name, int32_t argc,
         va_list args)
     {
-        GPUConstBufferPtr buffer;
-
-        if (argc == 1)
-        {
-            
-        }
-
+        GPUConstBufferPtr buffer = GPUConstBuffer::create(name);
         return buffer;
     }
 }

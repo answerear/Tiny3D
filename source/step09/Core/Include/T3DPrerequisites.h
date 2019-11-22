@@ -98,7 +98,8 @@ namespace Tiny3D
     class VertexDeclaration;
 
     class Shader;
-    class ShaderParam;
+    class GPUProgramRef;
+    class GPUConstBufferRef;
 
     class Technique;
     class Pass;

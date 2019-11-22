@@ -36,20 +36,13 @@ namespace Tiny3D
     {
     public:
         /**
-         * @fn  static GPUConstBufferPtr GPUConstBuffer::create(
-         *      const String& name, size_t bufSize, HardwareBuffer::Usage usage,
-         *      bool useSystemMemory, bool useShadowBuffer);
+         * @fn  static GPUConstBufferPtr 
+         *      GPUConstBuffer::create(const String& name);
          * @brief   創建一個新的常量緩衝區資源對象
-         * @param   name    The name.
-         * @param   bufSize Size of the buffer.
-         * @param   usage   The usage.
-         * @param   useSystemMemory True to use system memory.
-         * @param   useShadowBuffer True to use shadow buffer.
-         * @returns A GPUConstBufferPtr.
+         * @param   name    資源名稱.
+         * @returns 調用成功返回一個新建對象.
          */
-        static GPUConstBufferPtr create(const String& name, size_t bufSize,
-            HardwareBuffer::Usage usage, bool useSystemMemory, 
-            bool useShadowBuffer);
+        static GPUConstBufferPtr create(const String& name);
 
         /**
          * @fn  virtual GPUConstBuffer::~GPUConstBuffer();
@@ -65,6 +58,22 @@ namespace Tiny3D
         virtual Type getType() const override;
 
         /**
+         * @fn  virtual TResult GPUConstBuffer::initWithData(size_t bufSize, 
+         *      const void* buffer, HardwareBuffer::Usage usage, 
+         *      bool useSystemMemory, bool useShadowBuffer);
+         * @brief   用數據初始化硬件常量緩衝區
+         * @param   bufSize 緩衝區大小.
+         * @param   buffer  緩衝區數據.
+         * @param   usage   緩衝區用法.
+         * @param   useSystemMemory 是否使用系統內存.
+         * @param   useShadowBuffer 是否使用影子緩衝區加速訪問.
+         * @returns 調用成功返回T3D_OK.
+         */
+        virtual TResult initWithData(size_t bufSize, const void* buffer, 
+            HardwareBuffer::Usage usage, bool useSystemMemory, 
+            bool useShadowBuffer);
+
+        /**
          * @fn  HardwareConstantBufferPtr GPUConstBuffer::getBufferImpl() const;
          * @brief   獲取具體跟平台有關的對象
          * @returns 返回具體跟平台有關的對象.
@@ -73,19 +82,11 @@ namespace Tiny3D
 
     protected:
         /**
-         * @fn  GPUConstBuffer::GPUConstBuffer(const String& name, 
-         *      size_t bufSize, HardwareBuffer::Usage usage, 
-         *      bool useSystemMemory, bool useShadowBuffer);
+         * @fn  GPUConstBuffer::GPUConstBuffer(const String& name);
          * @brief   構造函數
          * @param   name    資源名稱.
-         * @param   bufSize 緩衝區大小.
-         * @param   usage   緩衝區用法.
-         * @param   useSystemMemory 是否使用系統內存.
-         * @param   useShadowBuffer 是否使用影子緩衝區加速訪問.
          */
-        GPUConstBuffer(const String& name, size_t bufSize,
-            HardwareBuffer::Usage usage, bool useSystemMemory, 
-            bool useShadowBuffer);
+        GPUConstBuffer(const String& name);
 
         /**
          * @fn  virtual TResult GPUConstBuffer::load() override;
@@ -109,11 +110,12 @@ namespace Tiny3D
         virtual ResourcePtr clone() const override;
 
     protected:
-        size_t                      mBufSize;
-        HardwareBuffer::Usage       mUsage;
-        bool                        mUseSystemMemory;
-        bool                        mUseShadowBuffer;
-        HardwareConstantBufferPtr   mBufferImpl;    /**< 具體實現類 */
+        size_t                      mBufSize;           /**< 緩衝區大小 */
+        const void                  *mBuffer;           /**< 緩衝區數據 */
+        HardwareBuffer::Usage       mUsage;             /**< 緩衝區用法 */
+        bool                        mUseSystemMemory;   /**< 是否使用系統內存 */
+        bool                        mUseShadowBuffer;   /**< 是否使用影子內存 */
+        HardwareConstantBufferPtr   mBufferImpl;        /**< 具體實現類 */
     };
 }
 
