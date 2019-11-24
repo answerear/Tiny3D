@@ -75,8 +75,8 @@ namespace Tiny3D
         GPUConstBufferRef(const String &name, uint32_t slot);
 
     protected:
-        String      mName;
-        uint32_t    mSlot;
+        String      mName;  /**< The name */
+        uint32_t    mSlot;  /**< The slot */
     };
 
     /**
@@ -102,6 +102,13 @@ namespace Tiny3D
          * @brief   Destructor
          */
         virtual ~GPUProgramRef();
+
+        /**
+         * @fn  const String GPUProgramRef::&getName() const
+         * @brief   Gets the name
+         * @returns The name.
+         */
+        const String &getName() const { return mName; }
 
         /**
          * @fn  TResult GPUProgramRef::addConstBufferRef(const String& name, 
@@ -146,6 +153,13 @@ namespace Tiny3D
          * @returns The buffer reference.
          */
         GPUConstBufferRefPtr getBufferRef(const String& name) const;
+
+        /**
+         * @fn  size_t GPUProgramRef::getBufferRefCount() const;
+         * @brief   Gets buffer reference count
+         * @returns The buffer reference count.
+         */
+        size_t getBufferRefCount() const;
 
     protected:
         /**

@@ -59,8 +59,8 @@ namespace Tiny3D
         mShaderParser = ScriptParserShader::create();
         mGPUParser = ScriptParserGPUProgram::create();
         mGPURefParser = ScriptParserGPUProgramRef::create();
-        mCBufferParser = ScriptParserGPUCBuffer::create();
-        mCBufferRefParser = ScriptParserGPUCBufferRef::create();
+        mCBufferParser = ScriptParserGPUContBuffer::create();
+        mCBufferRefParser = ScriptParserGPUContBufferRef::create();
     }
 
     //--------------------------------------------------------------------------

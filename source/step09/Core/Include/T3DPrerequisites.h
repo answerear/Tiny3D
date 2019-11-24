@@ -68,8 +68,8 @@ namespace Tiny3D
     class ScriptParserGPUProgram;
     class ScriptParserGPUProgramRef;
     class ScriptParserShader;
-    class ScriptParserGPUCBuffer;
-    class ScriptParserGPUCBufferRef;
+    class ScriptParserGPUContBuffer;
+    class ScriptParserGPUContBufferRef;
 
     class Resource;
     class ResourceManager;

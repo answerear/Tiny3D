@@ -43,8 +43,14 @@ namespace Tiny3D
         typedef GPUPrograms::const_iterator     GPUProgramsConstItr;
         typedef GPUPrograms::value_type         GPUProgramsValue;
 
+        typedef TMap<String, GPUConstBufferPtr> GPUConstBuffers;
+        typedef GPUConstBuffers::iterator       GPUConstBuffersItr;
+        typedef GPUConstBuffers::const_iterator GPUConstBuffersConstITr;
+        typedef GPUConstBuffers::value_type     GPUConstBuffersValue;
+
         /**
-         * @brief 材質來源類型
+         * @enum    MaterialType
+         * @brief   材質來源類型
          */
         enum MaterialType
         {
@@ -52,94 +58,212 @@ namespace Tiny3D
             E_MT_MANUAL,        /**< 由調用者自己創建 */
         };
 
-        /** 創建 Material 对象 */
+        /**
+         * @fn  static MaterialPtr Material::create(const String &name, 
+         *      MaterialType type);
+         * @brief   創建 Material 对象
+         * @param   name    The name.
+         * @param   type    The type.
+         * @returns A MaterialPtr.
+         */
         static MaterialPtr create(const String &name, MaterialType type);
 
-        /** 析構函數 */
+        /**
+         * @fn  virtual Material::~Material();
+         * @brief   析構函數
+         */
         virtual ~Material();
 
-        /** 重寫 Resource::getType() */
+        /**
+         * @fn  virtual Type Material::getType() const override;
+         * @brief   重寫 Resource::getType()
+         * @returns The type.
+         */
         virtual Type getType() const override;
 
-        /** 獲取材質名稱 */
+        /**
+         * @fn  const String Material::&getMaterialName() const
+         * @brief   獲取材質名稱
+         * @returns The material name.
+         */
         const String &getMaterialName() const { return mMaterialName; }
 
-        /** 設置材質名稱 */
+        /**
+         * @fn  void Material::setMaterialName(const String &name)
+         * @brief   設置材質名稱
+         * @param   name    The name.
+         */
         void setMaterialName(const String &name) { mMaterialName = name; }
 
         /**
-         * @brief 新增一個 Technique 對象到材質中
-         * @param [in] tech : 新創建的 Technique 對象
-         * @return 創建成功返回 T3D_OK
+         * @fn  TResult Material::addTechnique(const String &name, 
+         *      TechniquePtr &tech);
+         * @brief   新增一個 Technique 對象到材質中
+         * @param       name    The name.
+         * @param [in]  tech    : 新創建的 Technique 對象.
+         * @returns 創建成功返回 T3D_OK.
          */
         TResult addTechnique(const String &name, TechniquePtr &tech);
 
         /**
-         * @brief 根據名稱移除一個 Technique 對象
+         * @fn  TResult Material::removeTechnique(const String &name);
+         * @brief   根據名稱移除一個 Technique 對象
+         * @param   name    The name.
+         * @returns A TResult.
          */
         TResult removeTechnique(const String &name);
 
         /**
-         * @brief 根據索引移除一個 Technique 對象
+         * @fn  TResult Material::removeTechnique(size_t index);
+         * @brief   根據索引移除一個 Technique 對象
+         * @param   index   Zero-based index of the.
+         * @returns A TResult.
          */
         TResult removeTechnique(size_t index);
 
         /**
-         * @brief 根據名稱獲取 Technique 對象
+         * @fn  TechniquePtr Material::getTechnique(const String &name) const;
+         * @brief   根據名稱獲取 Technique 對象
+         * @param   name    The name.
+         * @returns The technique.
          */
         TechniquePtr getTechnique(const String &name) const;
 
         /**
-         * @brief 根據索引獲取 Technique 對象
+         * @fn  TechniquePtr Material::getTechnique(size_t index) const;
+         * @brief   根據索引獲取 Technique 對象
+         * @param   index   Zero-based index of the.
+         * @returns The technique.
          */
         TechniquePtr getTechnique(size_t index) const;
 
         /**
-         * @brief 獲取材質中 Technique 對象數量
+         * @fn  size_t Material::getTechniqueCount() const
+         * @brief   獲取材質中 Technique 對象數量
+         * @returns The technique count.
          */
         size_t getTechniqueCount() const { return mTechniques.size(); }
 
         /**
-         * @brief 獲取所有 Technique 對象
+         * @fn  const Techniques Material::&getTechniques() const
+         * @brief   獲取所有 Technique 對象
+         * @returns The techniques.
          */
         const Techniques &getTechniques() const { return mTechniques; }
 
         /**
-         * @brief 新增一個 GPUProgram 對象到材質中
+         * @fn  TResult Material::addGPUProgram(const String &name, 
+         *      GPUProgramPtr &program);
+         * @brief   新增一個 GPUProgram 對象到材質中
+         * @param           name    The name.
+         * @param [in,out]  program The program.
+         * @returns A TResult.
          */
         TResult addGPUProgram(const String &name, GPUProgramPtr &program);
 
         /**
-         * @brief 根據名稱移除一個 GPUProgram 對象
+         * @fn  TResult Material::removeGPUProgram(const String &name);
+         * @brief   根據名稱移除一個 GPUProgram 對象
+         * @param   name    The name.
+         * @returns A TResult.
          */
         TResult removeGPUProgram(const String &name);
 
         /**
-         * @brief 根據名稱獲取 GPUProgram 對象
+         * @fn  GPUProgramPtr Material::getGPUProgram(const String &name) const;
+         * @brief   根據名稱獲取 GPUProgram 對象
+         * @param   name    The name.
+         * @returns The GPU program.
          */
         GPUProgramPtr getGPUProgram(const String &name) const;
 
         /**
-         * @brief 獲取材質中 GPUProgram 對象數量
+         * @fn  size_t Material::getGPUProgramCount() const
+         * @brief   獲取材質中 GPUProgram 對象數量
+         * @returns The GPU program count.
          */
         size_t getGPUProgramCount() const { return mGPUPrograms.size(); }
 
         /**
-         * @brief 獲取所有 GPUProgram 對象
+         * @fn  const GPUPrograms Material::getGPUPrograms() const
+         * @brief   獲取所有 GPUProgram 對象
+         * @returns The GPU programs.
          */
         const GPUPrograms getGPUPrograms() const { return mGPUPrograms; }
 
+        /**
+         * @fn  TResult Material::addGPUConstBuffer(const String &name, 
+         *      GPUConstBufferPtr &buffer);
+         * @brief   Adds a GPU constant buffer to 'buffer'
+         * @param   name    The name.
+         * @param   buffer  The buffer.
+         * @returns A TResult.
+         */
+        TResult addGPUConstBuffer(const String &name, 
+            GPUConstBufferPtr &buffer);
+
+        /**
+         * @fn  TResult Material::removeGPUConstBuffer(const String &name);
+         * @brief   Removes the GPU constant buffer described by name
+         * @param   name    The name.
+         * @returns A TResult.
+         */
+        TResult removeGPUConstBuffer(const String &name);
+
+        /**
+         * @fn  GPUConstBufferPtr 
+         *      Material::getGPUConstBuffer(const String &name) const;
+         * @brief   Gets GPU constant buffer
+         * @param   name    The name.
+         * @returns The GPU constant buffer.
+         */
+        GPUConstBufferPtr getGPUConstBuffer(const String &name) const;
+
+        /**
+         * @fn  size_t Material::getGPUConstBufferCount() const
+         * @brief   Gets GPU constant buffer count
+         * @returns The GPU constant buffer count.
+         */
+        size_t getGPUConstBufferCount() const { return mConstBuffers.size(); }
+
+        /**
+         * @fn  const GPUConstBuffers Material::getGPUConstBuffers() const
+         * @brief   Gets GPU constant buffers
+         * @returns The GPU constant buffers.
+         */
+        const GPUConstBuffers getGPUConstBuffers() const 
+        { 
+            return mConstBuffers; 
+        }
+
     protected:
-        /** 構造函數 */
+        /**
+         * @fn  Material::Material(const String &name, MaterialType type);
+         * @brief   構造函數
+         * @param   name    The name.
+         * @param   type    The type.
+         */
         Material(const String &name, MaterialType type);
 
-        /** 重寫 Resource::load() */
+        /**
+         * @fn  virtual TResult Material::load() override;
+         * @brief   重寫 Resource::load()
+         * @returns A TResult.
+         */
         virtual TResult load() override;
 
-        /** 重寫 Resource::unlaod() */
+        /**
+         * @fn  virtual TResult Material::unload() override;
+         * @brief   重寫 Resource::unlaod()
+         * @returns A TResult.
+         */
         virtual TResult unload() override;
 
-        /** 重寫 Resource::clone() */
+        /**
+         * @fn  virtual ResourcePtr Material::clone() const override;
+         * @brief   重寫 Resource::clone()
+         * @returns A copy of this object.
+         */
         virtual ResourcePtr clone() const override;
 
     protected:
@@ -148,6 +272,7 @@ namespace Tiny3D
 
         Techniques      mTechniques;    /**< 材質下的 Technique 對象 */
         GPUPrograms     mGPUPrograms;   /**< 材質擁有的 GPUProgram 對象*/
+        GPUConstBuffers mConstBuffers;  /**< The constant buffers */
     };
 }
 

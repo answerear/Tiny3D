@@ -54,8 +54,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(ScriptParserGPUProgram);
     T3D_DECLARE_SMART_PTR(ScriptParserGPUProgramRef);
     T3D_DECLARE_SMART_PTR(ScriptParserShader);
-    T3D_DECLARE_SMART_PTR(ScriptParserGPUCBuffer);
-    T3D_DECLARE_SMART_PTR(ScriptParserGPUCBufferRef);
+    T3D_DECLARE_SMART_PTR(ScriptParserGPUContBuffer);
+    T3D_DECLARE_SMART_PTR(ScriptParserGPUContBufferRef);
 
     T3D_DECLARE_SMART_PTR(HardwareBuffer);
     T3D_DECLARE_SMART_PTR(HardwareIndexBuffer);

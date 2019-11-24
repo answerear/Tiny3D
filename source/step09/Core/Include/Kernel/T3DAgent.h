@@ -331,12 +331,13 @@ namespace Tiny3D
 
         RenderWindowPtr         mDefaultWindow;     /**< 默认渲染窗口 */
 
-        ArchiveManagerPtr       mArchiveMgr;        /**< 档案管理对象 */
-        DylibManagerPtr         mDylibMgr;          /**< 动态库管理对象 */
-        MaterialManagerPtr      mMaterialMgr;       /**< 材质资源管理对象 */
-        TextureManagerPtr       mTextureMgr;        /**< 纹理资源管理对象 */
-        ShaderManagerPtr        mShaderMgr;         /**< 着色器管理对象 */
-        GPUProgramManagerPtr    mGPUProgramMgr;     /**< GPU程序管理对象 */
+        ArchiveManagerPtr           mArchiveMgr;        /**< 档案管理对象 */
+        DylibManagerPtr             mDylibMgr;          /**< 动态库管理对象 */
+        MaterialManagerPtr          mMaterialMgr;       /**< 材质资源管理对象 */
+        TextureManagerPtr           mTextureMgr;        /**< 纹理资源管理对象 */
+        ShaderManagerPtr            mShaderMgr;         /**< 着色器管理对象 */
+        GPUProgramManagerPtr        mGPUProgramMgr;     /**< GPU程序管理对象 */
+        GPUConstBufferManagerPtr    mGPUConstBufferMgr; /**< Manager for GPU constant buffer */
 
         ImageCodecPtr           mImageCodec;        /**< 图像编解码器对象 */
 

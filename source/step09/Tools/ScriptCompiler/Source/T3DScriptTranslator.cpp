@@ -5827,6 +5827,12 @@ namespace Tiny3D
                         }
                     }
                 }
+                else
+                {
+                    uint8_t count = 0;
+                    bytesOfWritten = stream.write(&count, sizeof(count));
+                    totalBytes += bytesOfWritten;
+                }
             }
             else
             {
@@ -6079,8 +6085,8 @@ namespace Tiny3D
                 // 属性
                 switch (prop->id)
                 {
-                case ID_CBUFFER:
-                    bytesOfWritten = translateSharedParamRef(prop, stream);
+                case ID_CBUFFER_SLOT:
+                    bytesOfWritten = translateCBuffer(prop, stream);
                     totalBytes += bytesOfWritten;
                     break;
                 default:
@@ -6106,12 +6112,12 @@ namespace Tiny3D
         {
             ScriptError::printError(CERR_INVALIDPARAMETERS, 
                 prop->name, prop->file, prop->line,
-                "constant buffer requires a single parameter");
+                "Constant buffer requires a single parameter");
             return 0;
         }
 
         uint32_t slot = 0;
-        if (!getUInt(*(prop->values.begin()), &slot))
+        if (getUInt(prop->values.front(), &slot))
         {
             bytesOfWritten = stream.write(&slot, sizeof(slot));
             totalBytes += bytesOfWritten;
@@ -6120,7 +6126,8 @@ namespace Tiny3D
         {
             ScriptError::printError(CERR_INVALIDPARAMETERS,
                 prop->name, prop->file, prop->line,
-                "constant buffer slot require a integer number !");
+                "Constant buffer slot require a integer number !");
+            totalBytes = 0;
         }
 
         return totalBytes;

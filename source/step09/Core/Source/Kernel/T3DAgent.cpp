@@ -38,6 +38,8 @@
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramCreator.h"
 #include "Resource/T3DGPUProgramManager.h"
+#include "Resource/T3DGPUConstBuffer.h"
+#include "Resource/T3DGPUConstBufferManager.h"
 
 #include "Memory/T3DObjectTracer.h"
 
@@ -67,6 +69,7 @@ namespace Tiny3D
         , mDylibMgr(nullptr)
         , mShaderMgr(nullptr)
         , mGPUProgramMgr(nullptr)
+        , mGPUConstBufferMgr(nullptr)
         , mImageCodec(nullptr)
         , mActiveRenderer(nullptr)
         , mSceneMgr(nullptr)
@@ -83,6 +86,7 @@ namespace Tiny3D
         mDefaultWindow = nullptr;
 
         mMaterialMgr->unloadAllResources();
+        mGPUConstBufferMgr->unloadAllResources();
         mGPUProgramMgr->unloadAllResources();
         mShaderMgr->unloadAllResources();
         mTextureMgr->unloadAllResources();
@@ -91,9 +95,9 @@ namespace Tiny3D
         unloadPlugins();
 
         mDylibMgr->unloadAllResources();
-        
 
         mShaderMgr = nullptr;
+        mGPUConstBufferMgr = nullptr;
         mGPUProgramMgr = nullptr;
         mMaterialMgr = nullptr;
         mTextureMgr = nullptr;
@@ -809,6 +813,7 @@ namespace Tiny3D
         mDylibMgr = DylibManager::create();
         mTextureMgr = TextureManager::create();
         mShaderMgr = ShaderManager::create();
+        mGPUConstBufferMgr = GPUConstBufferManager::create();
         mGPUProgramMgr = GPUProgramManager::create();
         mMaterialMgr = MaterialManager::create();
 

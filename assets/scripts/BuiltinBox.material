@@ -72,12 +72,12 @@ material Builtin/Box
 			{
 				gpu_cbuffer_ref Builtin/UpdatePerObject
 				{
-					cbuffer	0
+					slot 0
 				}
 				
 				gpu_cbuffer_ref Builtin/UpdatePerFrame
 				{
-					cbuffer 1
+					slot 1
 				}
 			}
 		}

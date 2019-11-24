@@ -28,6 +28,8 @@
 #include "Kernel/T3DBlendMode.h"
 #include "Kernel/T3DCommon.h"
 #include "SceneGraph/T3DSGLight.h"
+#include "Resource/T3DGPUProgram.h"
+#include "Resource/T3DGPUConstBuffer.h"
 
 
 namespace Tiny3D
@@ -35,22 +37,86 @@ namespace Tiny3D
     class T3D_ENGINE_API Pass : public Object
     {
     public:
-        /** 创建 Pass 对象 */
+        typedef TArray<GPUConstBufferPtr>       GPUConstBuffers;
+        typedef GPUConstBuffers::iterator       GPUConstBuffersItr;
+        typedef GPUConstBuffers::const_iterator GPUConstBuffersConstItr;
+
+        /**
+         * @fn  static PassPtr Pass::create(const String &name, 
+         *      Technique *tech);
+         * @brief   创建 Pass 对象
+         * @param           name    The name.
+         * @param [in,out]  tech    If non-null, the technology.
+         * @returns A PassPtr.
+         */
         static PassPtr create(const String &name, Technique *tech);
 
-        /** 析构函数 */
+        /**
+         * @fn  virtual Pass::~Pass();
+         * @brief   析构函数
+         */
         virtual ~Pass();
 
         /**
-         * @brief 獲取 Pass 名稱
+         * @fn  const String Pass::&getName() const
+         * @brief   獲取 Pass 名稱
+         * @returns The name.
          */
         const String &getName() const { return mName; }
 
+        /**
+         * @fn  TResult Pass::setGPUProgram(GPUProgramRefPtr program);
+         * @brief   Sets program reference
+         * @param   program The program.
+         * @returns A TResult.
+         */
+        TResult setGPUProgram(GPUProgramRefPtr program);
+
+        /**
+         * @fn  GPUProgramPtr Pass::getGPUProgram() const;
+         * @brief   Gets GPU program
+         * @returns The GPU program.
+         */
+        GPUProgramPtr getGPUProgram() const { return mGPUProgram; }
+
+        /**
+         * @fn  GPUConstBuffers Pass::getGPUConstBuffers() const;
+         * @brief   Gets GPU constant buffers
+         * @returns The GPU constant buffers.
+         */
+        GPUConstBuffers getGPUConstBuffers() const { return mConstBuffers; }
+
+        /**
+         * @fn  GPUConstBufferPtr Pass::getGPUConstBuffer(uint32_t slot) const;
+         * @brief   Gets GPU constant buffer
+         * @param   slot    The slot.
+         * @returns The GPU constant buffer.
+         */
+        GPUConstBufferPtr getGPUConstBuffer(uint32_t slot) const
+        {
+            return mConstBuffers[slot];
+        }
+
+        /**
+         * @fn  size_t Pass::getGPUConstBufferCount() const;
+         * @brief   Gets GPU constant buffer count
+         * @returns The GPU constant buffer count.
+         */
+        size_t getGPUConstBufferCount() const { return mConstBuffers.size(); }
+
     protected:
-        /** 构造函数 */
+        /**
+         * @fn  Pass::Pass(const String &name, Technique *tech);
+         * @brief   构造函数
+         * @param           name    The name.
+         * @param [in,out]  tech    If non-null, the technology.
+         */
         Pass(const String &name, Technique *tech);
 
     protected:
+        GPUProgramPtr   mGPUProgram;    /**< The GPU program */
+        GPUConstBuffers mConstBuffers;  /**< The constant buffers */
+
         Technique   *mParent;   /**< 擁有該 Pass 對象的 Technique 對象 */
         String      mName;      /**< Pass 名稱 */
 
@@ -157,53 +223,53 @@ namespace Tiny3D
         //---------------------------------------
         // Command : alpha_to_coverage
         // Usage : alpha_to_coverage <on|off>
-        bool            mAlpha2CoverageEnabled; /// 是否开启A2C
+        bool            mAlpha2CoverageEnabled; /**< / 是否开启A2C */
 
         //---------------------------------------
         // Command : light_scissor
         // Usage : light_scissor <on|off>
-        bool    mLightScissor;                  /// 是否开启光照裁剪
+        bool    mLightScissor;  /**< / 是否开启光照裁剪 */
 
         //---------------------------------------
         // Command : light_clip_planes
         // Usage : light_clip_planes <on|off>
-        bool    mLightClipPlanes;               /// 是否开启光照裁剪平面
+        bool    mLightClipPlanes;   /**< / 是否开启光照裁剪平面 */
 
         //---------------------------------------
         // Command : lighting
         // Usage : lighting <on|off>
-        bool    mLightingEnabled;               /// 是否打开光照
+        bool    mLightingEnabled;   /**< / 是否打开光照 */
 
         //---------------------------------------
         // Command : normalize_normals
         // Usage : normalize_normals <on|off>
-        bool    mNormalizeNormals;              /// 是否规范化法向量
+        bool    mNormalizeNormals;  /**< / 是否规范化法向量 */
 
         //---------------------------------------
         // Command : transparent_sorting
         // Usage : transparent_sorting <on|off|force>
-        bool    mTransparentSorting;            /// 是否半透明纹理排序
-        bool    mTransparentSortingForced;      /// 是否强制半透明纹理排序
+        bool    mTransparentSorting;    /**< / 是否半透明纹理排序 */
+        bool    mTransparentSortingForced;  /**< / 是否强制半透明纹理排序 */
 
         //---------------------------------------
         // Command : color_write
         // Usage : color_write <on|off>
-        bool    mColorWrite;                    /// 是否写颜色值
+        bool    mColorWrite;    /**< / 是否写颜色值 */
 
         //---------------------------------------
         // Command : polygon_mode_overrideable
         // Usage : polygon_mode_overrideable <true|false>
-        bool    mPolygonModeOverrideable;       /// 是否覆盖当前pass的多边形渲染模式
+        bool    mPolygonModeOverrideable;   /**< / 是否覆盖当前pass的多边形渲染模式 */
 
         //---------------------------------------
         // Command : cull_hardware
         // Usage : cull_hardware <clockwise|anticlockwise|none>
-        CullingMode         mCullMode;          /// 背面剔除顶点的顺序
+        CullingMode         mCullMode;  /**< / 背面剔除顶点的顺序 */
 
         //---------------------------------------
         // Command : cull_software
         // Usage : cull_software <back|front|none>
-        ManualCullingMode   mManualCullMode;    /// 软件剔除朝向面
+        ManualCullingMode   mManualCullMode;    /**< / 软件剔除朝向面 */
 
         //---------------------------------------
         // Command : illumination_stage
@@ -213,17 +279,17 @@ namespace Tiny3D
         //---------------------------------------
         // Command : shading
         // Usage : shading <flat|gouraud|phong>
-        ShadeMode           mShadeMode;         /// 着色模式
+        ShadeMode           mShadeMode; /**< / 着色模式 */
 
         //---------------------------------------
         // Command : polygon_mode
         // Usage : polygon_mode <solid|wireframe|points>
-        PolygonMode         mPolygonMode;       /// 多边形渲染模式
+        PolygonMode         mPolygonMode;   /**< / 多边形渲染模式 */
 
         //---------------------------------------
         // Command : fog_override
         // Usage : fog_override <true|false> [<type> <color> <density> <start> <end>]
-        bool        mFogOverride;       /// 当前pass是否覆盖场景的雾效果设置
+        bool        mFogOverride;   /**< / 当前pass是否覆盖场景的雾效果设置 */
         FogMode     mFogMode;
         ColorARGB   mFogColor;
         Real        mFogStart;

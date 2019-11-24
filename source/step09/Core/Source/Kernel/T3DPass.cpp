@@ -18,6 +18,8 @@
  ******************************************************************************/
 
 #include "Kernel/T3DPass.h"
+#include "Resource/T3DGPUProgramManager.h"
+#include "Resource/T3DGPUConstBufferManager.h"
 
 
 namespace Tiny3D
@@ -46,4 +48,59 @@ namespace Tiny3D
     {
 
     }
+
+    //--------------------------------------------------------------------------
+
+    TResult Pass::setGPUProgram(GPUProgramRefPtr program)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            mGPUProgram 
+                = T3D_GPU_PROGRAM_MGR.loadGPUProgram(program->getName());
+            if (mGPUProgram == nullptr)
+            {
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load GPU Program [%s] failed !",
+                    program->getName().c_str());
+                break;
+            }
+
+            auto list = program->getBufferRefList();
+            mConstBuffers.resize(list.size());
+
+            auto itr = list.begin();
+
+            while (itr != list.end())
+            {
+                GPUConstBufferRefPtr bufferRef = *itr;
+                GPUConstBufferPtr buffer 
+                    = T3D_GPU_CONST_BUFFER_MGR.loadBuffer(bufferRef->getName());
+                if (buffer == nullptr)
+                {
+                    ret = T3D_ERR_RES_LOAD_FAILED;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Load GPU constant buffer [%s] failed !",
+                        bufferRef->getName());
+                    break;
+                }
+
+                if (bufferRef->getSlot() >= mConstBuffers.size())
+                {
+                    ret = T3D_ERR_OUT_OF_BOUND;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Constant buffer reference is out of bound !");
+                    break;
+                }
+                mConstBuffers[bufferRef->getSlot()] = buffer;
+                ++itr;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
 }

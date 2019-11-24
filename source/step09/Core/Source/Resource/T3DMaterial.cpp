@@ -23,6 +23,8 @@
 #include "Resource/T3DArchiveManager.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramManager.h"
+#include "Resource/T3DGPUConstBuffer.h"
+#include "REsource/T3DGPUConstBufferManager.h"
 #include "Kernel/T3DAgent.h"
 #include "Parser/T3DScriptParser.h"
 #include "Kernel/T3DTechnique.h"
@@ -308,5 +310,45 @@ namespace Tiny3D
     GPUProgramPtr Material::getGPUProgram(const String &name) const
     {
         return mGPUPrograms.at(name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Material::addGPUConstBuffer(const String &name, 
+        GPUConstBufferPtr &buffer)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            buffer = T3D_GPU_CONST_BUFFER_MGR.loadBuffer(name);
+            if (buffer == nullptr)
+            {
+                ret = T3D_ERR_RES_CREATE_GPUCBUFFER;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Create GPUConstBuffer [%s] object failed !", name.c_str());
+                break;
+            }
+
+            mConstBuffers.insert(GPUConstBuffersValue(name, buffer));
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Material::removeGPUConstBuffer(const String &name)
+    {
+        TResult ret = T3D_OK;
+        mConstBuffers.erase(name);
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GPUConstBufferPtr Material::getGPUConstBuffer(const String &name) const
+    {
+        return mConstBuffers.at(name);
     }
 }

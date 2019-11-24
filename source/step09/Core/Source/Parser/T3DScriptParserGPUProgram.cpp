@@ -319,10 +319,26 @@ namespace Tiny3D
             }
 
             GPUProgramPtr program;
-            ret = material->addGPUProgram(name, program);
-            if (ret != T3D_OK)
+            if (material != nullptr)
             {
-                break;
+                // belongs to material
+                ret = material->addGPUProgram(name, program);
+                if (ret != T3D_OK)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                // global
+                program = T3D_GPU_PROGRAM_MGR.loadGPUProgram(name);
+                if (program == nullptr)
+                {
+                    ret = T3D_ERR_RES_CREATE_GPUPROGRAM;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Create GPU Program [%s] failed !", name.c_str());
+                    break;
+                }
             }
 
             uint16_t type = E_NT_UNKNOWN;
@@ -410,7 +426,7 @@ namespace Tiny3D
         {
             size_t bytesOfRead = 0;
 
-            Material* material = static_cast<Material*>(object);
+            Pass *pass = static_cast<Pass*>(object);
 
             // 属性数量
             uint16_t count = 0;
@@ -421,8 +437,22 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read the name of gpu_program_ref failed !");
+                break;
+            }
 
-            GPUProgramRefPtr program;
+            if (name.empty())
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid name of gpu_program_ref ! It must not be empty !");
+                break;
+            }
+
+            GPUProgramRefPtr program = GPUProgramRef::create(name);
 
             uint16_t type = E_NT_UNKNOWN;
             uint16_t i = 0;
@@ -455,6 +485,8 @@ namespace Tiny3D
                     break;
                 }
             }
+
+            pass->setGPUProgram(program);
         } while (0);
 
         return ret;
@@ -471,30 +503,30 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ScriptParserGPUCBufferPtr ScriptParserGPUCBuffer::create()
+    ScriptParserGPUContBufferPtr ScriptParserGPUContBuffer::create()
     {
-        ScriptParserGPUCBufferPtr parser = new ScriptParserGPUCBuffer();
+        ScriptParserGPUContBufferPtr parser = new ScriptParserGPUContBuffer();
         parser->release();
         return parser;
     }
 
     //--------------------------------------------------------------------------
 
-    ScriptParserGPUCBuffer::ScriptParserGPUCBuffer()
+    ScriptParserGPUContBuffer::ScriptParserGPUContBuffer()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    ScriptParserGPUCBuffer::~ScriptParserGPUCBuffer()
+    ScriptParserGPUContBuffer::~ScriptParserGPUContBuffer()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserGPUCBuffer::parseObject(
+    TResult ScriptParserGPUContBuffer::parseObject(
         DataStream& stream, Object* object, uint32_t version)
     {
         TResult ret = T3D_OK;
@@ -503,7 +535,7 @@ namespace Tiny3D
         {
             size_t bytesOfRead = 0;
 
-            GPUConstBuffer *param;
+            Material *material = static_cast<Material*>(object);
 
             // 属性数量
             uint16_t count = 0;
@@ -514,6 +546,45 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read the name of gpu_cbuffer failed !");
+                break;
+            }
+
+            if (name.empty())
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid name of gpu_cbuffer ! It must not be empty !");
+                break;
+            }
+
+            GPUConstBufferPtr buffer;
+
+            if (material != nullptr)
+            {
+                // belongs to material
+                ret = material->addGPUConstBuffer(name, buffer);
+                if (ret != T3D_OK)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                // global
+                buffer = T3D_GPU_CONST_BUFFER_MGR.loadBuffer(name);
+                if (buffer == nullptr)
+                {
+                    ret = T3D_ERR_RES_CREATE_GPUCBUFFER;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Create GPU constant buffer [%s] failed !", 
+                        name.c_str());
+                    break;
+                }
+            }
 
             uint16_t type = E_NT_UNKNOWN;
             uint16_t i = 0;
@@ -527,11 +598,11 @@ namespace Tiny3D
 
                 if (type == E_NT_PROPERTY)
                 {
-                    ret = parseProperties(stream, param, version);
+                    ret = parseProperties(stream, buffer, version);
                 }
                 else if (type == E_NT_OBJECT)
                 {
-                    ret = parseObjects(stream, param, version);
+                    ret = parseObjects(stream, buffer, version);
                 }
                 else
                 {
@@ -553,8 +624,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserGPUCBuffer::parseProperties(
-        DataStream& stream, GPUConstBuffer *param, uint32_t version)
+    TResult ScriptParserGPUContBuffer::parseProperties(
+        DataStream& stream, GPUConstBuffer *buffer, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -571,19 +642,19 @@ namespace Tiny3D
             switch (id)
             {
             case E_OP_SHARED_PARAMS_REF:
-                ret = parseSharedParamsRef(stream, param, version);
+                ret = parseSharedParamsRef(stream, buffer, version);
                 break;
             case E_OP_PARAM_INDEXED:
-                ret = parseParamIndexed(stream, param, version);
+                ret = parseParamIndexed(stream, buffer, version);
                 break;
             case E_OP_PARAM_NAMED:
-                ret = parseParamNamed(stream, param, version);
+                ret = parseParamNamed(stream, buffer, version);
                 break;
             case E_OP_PARAM_INDEXED_AUTO:
-                ret = parseParamIndexedAuto(stream, param, version);
+                ret = parseParamIndexedAuto(stream, buffer, version);
                 break;
             case E_OP_PARAM_NAMED_AUTO:
-                ret = parseParamNamedAuto(stream, param, version);
+                ret = parseParamNamedAuto(stream, buffer, version);
                 break;
             default:
                 {
@@ -600,8 +671,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserGPUCBuffer::parseSharedParamsRef(
-        DataStream &stream, GPUConstBuffer *param, uint32_t version)
+    TResult ScriptParserGPUContBuffer::parseSharedParamsRef(
+        DataStream &stream, GPUConstBuffer *buffer, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -622,8 +693,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserGPUCBuffer::parseParamIndexed(
-        DataStream &stream, GPUConstBuffer *param, uint32_t version)
+    TResult ScriptParserGPUContBuffer::parseParamIndexed(
+        DataStream &stream, GPUConstBuffer *buffer, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -694,8 +765,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserGPUCBuffer::parseParamNamed(
-        DataStream &stream, GPUConstBuffer *param, uint32_t version)
+    TResult ScriptParserGPUContBuffer::parseParamNamed(
+        DataStream &stream, GPUConstBuffer *buffer, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -770,8 +841,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserGPUCBuffer::parseParamIndexedAuto(
-        DataStream &stream, GPUConstBuffer *param, uint32_t version)
+    TResult ScriptParserGPUContBuffer::parseParamIndexedAuto(
+        DataStream &stream, GPUConstBuffer *buffer, uint32_t version)
     {
         TResult ret = T3D_OK;
         void *extra = nullptr;
@@ -817,36 +888,39 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(extraCount),
                 "Read the number of extra data of param_indexed_auto failed !");
 
-            size_t typeSize = 0;
-
-            switch (extraType)
+            if (extraCount > 0)
             {
-            case E_BT_REAL:
-                extra = new float32_t[extraCount];
-                typeSize = sizeof(float32_t);
-                break;
-            case E_BT_INT:
-                extra = new int32_t[extraCount];
-                typeSize = sizeof(int32_t);
-                break;
-            default:
+                size_t typeSize = 0;
+
+                switch (extraType)
                 {
-                    ret = T3D_ERR_RES_INVALID_PROPERTY;
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                        "Invalid property of param_indexed !");
+                case E_BT_REAL:
+                    extra = new float32_t[extraCount];
+                    typeSize = sizeof(float32_t);
+                    break;
+                case E_BT_INT:
+                    extra = new int32_t[extraCount];
+                    typeSize = sizeof(int32_t);
+                    break;
+                default:
+                    {
+                        ret = T3D_ERR_RES_INVALID_PROPERTY;
+                        T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                            "Invalid property of param_indexed !");
+                    }
+                    break;
                 }
-                break;
-            }
 
-            if (ret != T3D_OK)
-            {
-                break;
-            }
+                if (ret != T3D_OK)
+                {
+                    break;
+                }
 
-            // extra data
-            bytesOfRead = stream.read(extra, extraCount * typeSize);
-            T3D_CHECK_READ_CONTENT(bytesOfRead, extraCount * typeSize,
-                "Read extra data of param_indexed failed !");
+                // extra data
+                bytesOfRead = stream.read(extra, extraCount * typeSize);
+                T3D_CHECK_READ_CONTENT(bytesOfRead, extraCount * typeSize,
+                    "Read extra data of param_indexed failed !");
+            }
 
             // TODO
         } while (0);
@@ -858,8 +932,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserGPUCBuffer::parseParamNamedAuto(
-        DataStream &stream, GPUConstBuffer *param, uint32_t version)
+    TResult ScriptParserGPUContBuffer::parseParamNamedAuto(
+        DataStream &stream, GPUConstBuffer *buffer, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -951,30 +1025,30 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ScriptParserGPUCBufferRefPtr ScriptParserGPUCBufferRef::create()
+    ScriptParserGPUContBufferRefPtr ScriptParserGPUContBufferRef::create()
     {
-        ScriptParserGPUCBufferRefPtr parser = new ScriptParserGPUCBufferRef();
+        ScriptParserGPUContBufferRefPtr parser = new ScriptParserGPUContBufferRef();
         parser->release();
         return parser;
     }
 
     //--------------------------------------------------------------------------
 
-    ScriptParserGPUCBufferRef::ScriptParserGPUCBufferRef()
+    ScriptParserGPUContBufferRef::ScriptParserGPUContBufferRef()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    ScriptParserGPUCBufferRef::~ScriptParserGPUCBufferRef()
+    ScriptParserGPUContBufferRef::~ScriptParserGPUContBufferRef()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserGPUCBufferRef::parseObject(
+    TResult ScriptParserGPUContBufferRef::parseObject(
         DataStream &stream, Object *object, uint32_t version)
     {
         TResult ret = T3D_OK;
@@ -1003,19 +1077,11 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_RES_INVALID_PROPERTY;
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid name of gpu_cbuffer_ref ! This must be a real name !");
+                    "Invalid name of gpu_cbuffer_ref ! It must not be empty !");
                 break;
             }
 
-            Material *material = static_cast<Material*>(object);
-            GPUProgramPtr program;
-            ret = material->addGPUProgram(name, program);
-            if (ret != T3D_OK)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Add GPUProgram object failed !");
-                break;
-            }
+            GPUProgramRef *programRef = static_cast<GPUProgramRef*>(object);
 
             uint16_t type = E_NT_UNKNOWN;
             uint16_t i = 0;
@@ -1029,11 +1095,11 @@ namespace Tiny3D
 
                 if (type == E_NT_PROPERTY)
                 {
-                    ret = parseProperties(stream, program, version);
+                    ret = parseProperties(stream, programRef, version);
                 }
                 else if (type == E_NT_OBJECT)
                 {
-                    ret = parseObjects(stream, program, version);
+                    ret = parseObjects(stream, programRef, version);
                 }
                 else
                 {
@@ -1048,6 +1114,13 @@ namespace Tiny3D
                     break;
                 }
             }
+
+            GPUConstBufferRefPtr bufferRef;
+            ret = programRef->addConstBufferRef(name, mSlot, bufferRef);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
         } while (0);
 
         return ret;
@@ -1055,9 +1128,52 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserGPUCBufferRef::parseProperties(
-        DataStream &stream, GPUProgram *program, uint32_t version)
+    TResult ScriptParserGPUContBufferRef::parseProperties(
+        DataStream &stream, GPUProgramRef *program, uint32_t version)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do
+        {
+            size_t bytesOfRead = 0;
+
+            // ID
+            uint16_t id;
+            bytesOfRead = stream.read(&id, sizeof(id));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(id),
+                "Read ID of property of GPU program failed !");
+
+            String source, target, entry, stage;
+
+            switch (id)
+            {
+            case E_OP_CBUFFER_SLOT:
+                {
+                    uint32_t slot = 0;
+                    bytesOfRead = stream.read(&slot, sizeof(slot));
+                    if (ret != T3D_OK)
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                            "Read slot of gpu_cbuffer_ref failed !");
+                    }
+                    mSlot = slot;
+                }
+                break;
+            default:
+                {
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid property of gpu_cbuffer_ref !");
+                }
+                break;
+            }
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+        } while (0);
+
+        return ret;
     }
 }
