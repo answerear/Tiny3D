@@ -35,7 +35,23 @@ namespace Tiny3D
     class T3D_ENGINE_API GPUConstBuffer : public Resource
     {
     public:
-        
+        /**
+         * @enum    DataType
+         * @brief   Values that represent data types
+         */
+        enum class DataType : uint8_t
+        {
+            NONE = 0,   /**< An enum constant representing the none option */
+            REAL,       /**< An enum constant representing the real option */
+            INT,        /**< An enum constant representing the int option */
+            MATRIX4,    /**< An enum constant representing the matrix 4 option */
+            VECTOR4,    /**< An enum constant representing the vector 4 option */
+        };
+
+        typedef TList<DataType>                 DataTypeList;
+        typedef DataTypeList::iterator          DataTypeListItr;
+        typedef DataTypeList::const_iterator    DataTypeListConstItr;
+
         /**
          * @fn  static GPUConstBufferPtr 
          *      GPUConstBuffer::create(const String& name);
@@ -74,9 +90,43 @@ namespace Tiny3D
             HardwareBuffer::Usage usage, bool useSystemMemory, 
             bool useShadowBuffer);
 
-        TResult addDataDeclaration();
+        /**
+         * @fn  TResult GPUConstBuffer::addDataDeclaration(DataType type);
+         * @brief   Adds a data declaration
+         * @param   type    The type.
+         * @returns A TResult.
+         */
+        TResult addDataDeclaration(DataType type);
 
-        TResult removeDataDeclaration();
+        /**
+         * @fn  TResult GPUConstBuffer::removeDataDeclaration(size_t index);
+         * @brief   Removes the data declaration described by index
+         * @param   index   Zero-based index of the.
+         * @returns A TResult.
+         */
+        TResult removeDataDeclaration(size_t index);
+
+        /**
+         * @fn  size_t GPUConstBuffer::getDataSize() const;
+         * @brief   Gets data size
+         * @returns The data size.
+         */
+        size_t getDataSize() const;
+
+        /**
+         * @fn  DataType GPUConstBuffer::getDataType(size_t index) const;
+         * @brief   Gets data type
+         * @param   index   Zero-based index of the.
+         * @returns The data type.
+         */
+        DataType getDataType(size_t index) const;
+
+        /**
+         * @fn  const DataTypeList GPUConstBuffer::&getDataTypeList() const;
+         * @brief   Gets data type list
+         * @returns The data type list.
+         */
+        const DataTypeList &getDataTypeList() const;
 
         /**
          * @fn  HardwareConstantBufferPtr GPUConstBuffer::getBufferImpl() const;
@@ -121,6 +171,8 @@ namespace Tiny3D
         bool                        mUseSystemMemory;   /**< 是否使用系統內存 */
         bool                        mUseShadowBuffer;   /**< 是否使用影子內存 */
         HardwareConstantBufferPtr   mBufferImpl;        /**< 具體實現類 */
+
+        DataTypeList                mDataTypes;         /**< List of types of the data */
     };
 }
 

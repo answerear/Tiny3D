@@ -352,8 +352,8 @@ namespace Tiny3D
     Matrix4 D3D11Renderer::makeViewportMatrix(ViewportPtr viewport)
     {
         Matrix4 mat(false);
-        mat[0][0] = viewport->getActualWidth() * REAL_HALF;
-        mat[1][1] = -viewport->getActualHeight() * REAL_HALF;
+        mat[0][0] = Real(viewport->getActualWidth()) * REAL_HALF;
+        mat[1][1] = -Real(viewport->getActualHeight()) * REAL_HALF;
         mat[2][2] = REAL_ONE;
         mat[3][3] = REAL_ONE;
         mat[0][3] = viewport->getActualLeft() 
@@ -520,12 +520,12 @@ namespace Tiny3D
             }
 
             D3D11_VIEWPORT vp;
-            vp.TopLeftX = viewport->getActualLeft();
-            vp.TopLeftY = viewport->getActualTop();
-            vp.Width = viewport->getActualWidth();
-            vp.Height = viewport->getActualHeight();
+            vp.TopLeftX = float(viewport->getActualLeft());
+            vp.TopLeftY = float(viewport->getActualTop());
+            vp.Width = float(viewport->getActualWidth());
+            vp.Height = float(viewport->getActualHeight());
             vp.MinDepth = 0.0f;
-            vp.MaxDepth = 1.0;
+            vp.MaxDepth = 1.0f;
 
             mD3DDeviceContext->RSSetViewports(1, &vp);
 
