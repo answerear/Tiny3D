@@ -31,7 +31,7 @@ namespace Tiny3D
     class T3D_UTILS_API Variant
     {
     public:
-        enum Type
+        enum class Type : size_t
         {
             E_NONE = 0,
             E_BOOL,         /**< bool */
@@ -158,7 +158,7 @@ namespace Tiny3D
         Type valueType() const;
 
         /** 获取类型大小 */
-        int32_t valueSize() const;
+        size_t valueSize() const;
 
         static VariantArray   INVALID_ARRAY;    /**< 无效数组 */
         static VariantList    INVALID_LIST;     /**< 无效链表 */
@@ -176,7 +176,7 @@ namespace Tiny3D
 
     protected:
         Type        mType;      /**< 数值类型 */
-        int32_t     mValueSize; /**< */
+        size_t      mValueSize; /**< */
 
         union
         {

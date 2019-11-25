@@ -207,7 +207,7 @@ namespace Tiny3D
         {
             char        magic[4];       /// 文件标识
             uint32_t    version;        /// 文件版本号
-            uint32_t    fileSize;       /// 文件大小
+            size_t      fileSize;       /// 文件大小
         };
 
     public:

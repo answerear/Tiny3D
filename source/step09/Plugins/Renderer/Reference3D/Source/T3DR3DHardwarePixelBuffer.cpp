@@ -310,11 +310,11 @@ namespace Tiny3D
         do
         {
             // 借助 Image 对象来复制图像数据
-            int32_t bpp = Image::getBPP(mFormat);
+            size_t bpp = Image::getBPP(mFormat);
 
             // 源数据构建源图像
             Image srcImage;
-            int32_t pitch
+            size_t pitch
                 = Image::calcPitch(mLockedRect.width(), mLockedRect.height());
             ret = srcImage.load(mLockedBuffer, mLockedRect.width(),
                 mLockedRect.height(), bpp, pitch,

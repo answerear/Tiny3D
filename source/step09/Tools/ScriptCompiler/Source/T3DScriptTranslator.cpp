@@ -337,7 +337,7 @@ namespace Tiny3D
         size_t bytesOfWritten = 0;
         size_t totalBytes = 0;
 
-        uint16_t len = str.length();
+        uint16_t len = (uint16_t)str.length();
         if (len > 0)
         {
             bytesOfWritten = stream.write(&len, sizeof(len));
@@ -529,7 +529,7 @@ namespace Tiny3D
         size_t bytesOfWritten = 0;
         
         // LOD数量
-        uint16_t len = prop->values.size();
+        uint16_t len = (uint16_t)prop->values.size();
         bytesOfWritten = stream.write(&len, sizeof(len));
         totalBytes += bytesOfWritten;
         // LOD值
@@ -2636,7 +2636,7 @@ namespace Tiny3D
                 totalBytes += bytesOfWritten;
 
                 ColorARGB clr = ColorARGB::WHITE;
-                float32_t dens = 0.001, start = 0.0f, end = 1.0f;
+                float32_t dens = 0.001f, start = 0.0f, end = 1.0f;
 
                 // type
                 if (i1 != prop->values.end())
@@ -3291,8 +3291,6 @@ namespace Tiny3D
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
 
-        Real fval;
-        uint32_t uival;
         String sval;
 
         // Set the properties for the material
@@ -3713,7 +3711,7 @@ namespace Tiny3D
                 totalBytes += bytesOfWritten;
 
                 // number of frames
-                uint16_t frames = prop->values.size() - 1;
+                uint16_t frames = (uint16_t)prop->values.size() - 1;
                 bytesOfWritten = stream.write(&frames, sizeof(frames));
                 totalBytes += bytesOfWritten;
 
@@ -4656,7 +4654,7 @@ namespace Tiny3D
 
                         if (prop->values.size() >= 3)
                         {
-                            uint16_t argc = prop->values.size() - 1;
+                            uint16_t argc = (uint16_t)prop->values.size() - 1;
                             bytesOfWritten = stream.write(&argc, sizeof(argc));
                             totalBytes += bytesOfWritten;
 
@@ -4842,7 +4840,7 @@ namespace Tiny3D
                 i2 = getNodeAt(prop->values, 2);
 
             // number of arguments
-            uint16_t argc = prop->values.size();
+            uint16_t argc = (uint16_t)prop->values.size();
             bytesOfWritten = stream.write(&argc, sizeof(argc));
             totalBytes += bytesOfWritten;
 
@@ -5987,12 +5985,12 @@ namespace Tiny3D
                 totalBytes += bytesOfWritten;
 
                 // 属性
-                switch (prop->id)
-                {
-                default:
-                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
-                        "token \"" + prop->name + "\" is not recognized");
-                }
+//                 switch (prop->id)
+//                 {
+//                 default:
+//                     ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
+//                         "token \"" + prop->name + "\" is not recognized");
+//                 }
             }
             else if ((*i)->type == ANT_OBJECT)
             {
@@ -6033,12 +6031,12 @@ namespace Tiny3D
                 totalBytes += bytesOfWritten;
 
                 // 属性
-                switch (prop->id)
-                {
-                default:
-                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
-                        "token \"" + prop->name + "\" is not recognized");
-                }
+//                 switch (prop->id)
+//                 {
+//                 default:
+//                     ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
+//                         "token \"" + prop->name + "\" is not recognized");
+//                 }
             }
             else if ((*i)->type == ANT_OBJECT)
             {

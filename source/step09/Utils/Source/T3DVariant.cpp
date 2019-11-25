@@ -33,44 +33,44 @@ namespace Tiny3D
 
         switch (mType)
         {
-        case E_BOOL:
-        case E_INT8:
-        case E_UINT8:
-        case E_INT16:
-        case E_UINT16:
-        case E_INT32:
-        case E_UINT32:
-        case E_INT64:
-        case E_UINT64:
-        case E_LONG:
-        case E_ULONG:
-        case E_FLOAT32:
-        case E_FLOAT64:
-        case E_FIX32:
-        case E_FIX64:
-        case E_CHAR:
-        case E_WCHAR:
+        case Type::E_BOOL:
+        case Type::E_INT8:
+        case Type::E_UINT8:
+        case Type::E_INT16:
+        case Type::E_UINT16:
+        case Type::E_INT32:
+        case Type::E_UINT32:
+        case Type::E_INT64:
+        case Type::E_UINT64:
+        case Type::E_LONG:
+        case Type::E_ULONG:
+        case Type::E_FLOAT32:
+        case Type::E_FLOAT64:
+        case Type::E_FIX32:
+        case Type::E_FIX64:
+        case Type::E_CHAR:
+        case Type::E_WCHAR:
             {
                 memcpy(mValue, other.mValue, mValueSize);
             }
             break;
-        case E_STRING:
+        case Type::E_STRING:
             {
                 mStrValue = new char[mValueSize];
                 memcpy(mStrValue, other.mStrValue, mValueSize);
             }
             break;
-        case E_ARRAY:
+        case Type::E_ARRAY:
             {
                 mArrayValue = new VariantArray(*other.mArrayValue);
             }
             break;
-        case E_LIST:
+        case Type::E_LIST:
             {
                 mListValue = new VariantList(*other.mListValue);
             }
             break;
-        case E_MAP:
+        case Type::E_MAP:
             {
                 mMapValue = new VariantMap(*other.mMapValue);
             }
@@ -84,25 +84,25 @@ namespace Tiny3D
     {
         switch (mType)
         {
-        case E_STRING:
+        case Type::E_STRING:
             {
                 delete[]mStrValue;
                 mStrValue = nullptr;
             }
             break;
-        case E_ARRAY:
+        case Type::E_ARRAY:
             {
                 delete mArrayValue;
                 mArrayValue = nullptr;
             }
             break;
-        case E_LIST:
+        case Type::E_LIST:
             {
                 delete mListValue;
                 mListValue = nullptr;
             }
             break;
-        case E_MAP:
+        case Type::E_MAP:
             {
                 delete mMapValue;
                 mMapValue = nullptr;
@@ -120,12 +120,12 @@ namespace Tiny3D
         int32_t ret = 0;
         if (mType == other.mType)
         {
-            if (mType == E_STRING)
+            if (mType == Type::E_STRING)
             {
-                int32_t size = std::max(mValueSize, other.mValueSize);
+                size_t size = std::max(mValueSize, other.mValueSize);
                 ret = strncmp(mStrValue, other.mStrValue, size);
             }
-            else if (mType == E_ARRAY)
+            else if (mType == Type::E_ARRAY)
             {
                 if (*mArrayValue < *other.mArrayValue)
                     ret = -1;
@@ -134,7 +134,7 @@ namespace Tiny3D
                 else
                     ret = 0;
             }
-            else if (mType == E_LIST)
+            else if (mType == Type::E_LIST)
             {
                 if (*mListValue < *other.mListValue)
                     ret = -1;
@@ -143,7 +143,7 @@ namespace Tiny3D
                 else
                     ret = 0;
             }
-            else if (mType == E_MAP)
+            else if (mType == Type::E_MAP)
             {
                 if (*mMapValue < *other.mMapValue)
                     ret = -1;
@@ -159,8 +159,10 @@ namespace Tiny3D
         }
         else
         {
-            ret = (mType - other.mType);
+            ret = (static_cast<int32_t>(mType) 
+                - static_cast<int32_t>(other.mType));
         }
+
         return ret;
     }
 }

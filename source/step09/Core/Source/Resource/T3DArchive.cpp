@@ -36,6 +36,6 @@ namespace Tiny3D
 
     Resource::Type Archive::getType() const
     {
-        return E_RT_ARCHIVE;
+        return Type::E_RT_ARCHIVE;
     }
 }

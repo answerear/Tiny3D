@@ -178,16 +178,16 @@ namespace Tiny3D
 
         uint8_t *fb = mFramebuffer;
         size_t fbSize = mFramebufferSize;
-        size_t pitch = mPitch;
-        size_t bytesPerPixel = mBytesPerPixel;
+        int32_t pitch = (int32_t)mPitch;
+        int32_t bytesPerPixel = (int32_t)mBytesPerPixel;
 
-        int32_t w = mWidth;
-        int32_t h = mHeight;
+        int32_t w = (int32_t)mWidth;
+        int32_t h = (int32_t)mHeight;
 
-        int32_t x1 = start.x;
-        int32_t y1 = start.y;
-        int32_t x2 = end.x;
-        int32_t y2 = end.y;
+        int32_t x1 = (int32_t)start.x;
+        int32_t y1 = (int32_t)start.y;
+        int32_t x2 = (int32_t)end.x;
+        int32_t y2 = (int32_t)end.y;
 
         int32_t dx = x2 - x1;
         int32_t dy = y2 - y1;

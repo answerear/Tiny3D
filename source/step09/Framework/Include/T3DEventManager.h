@@ -320,7 +320,7 @@ namespace Tiny3D
         uint32_t        mMaxHandlingDuration;       /// 处理事件持续最大时间
         int64_t         mStartHandleTime;           /// 开始处理事件时间
         uint32_t        mMaxCallStackLevel;         /// 处理事件嵌套调用栈层级
-        int32_t         mCurrentCallStack;          /// 当前栈深度
+        uint32_t        mCurrentCallStack;          /// 当前栈深度
 
         HandleEventMode mHandlingMode;              /// 被打断后续事件处理方式
 

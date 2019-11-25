@@ -37,14 +37,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    int32_t Image::calcPitch(int32_t width, int32_t bpp)
+    size_t Image::calcPitch(size_t width, size_t bpp)
     {
         return (width * (bpp / 8) + 3) & ~3;
     }
 
-    int32_t Image::getBPP(PixelFormat format)
+    size_t Image::getBPP(PixelFormat format)
     {
-        int32_t bpp = 0;
+        size_t bpp = 0;
 
         switch (format)
         {
@@ -189,8 +189,8 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult Image::load(uint8_t *data, int32_t width, int32_t height, 
-        int32_t bpp, int32_t pitch, PixelFormat format, 
+    TResult Image::load(uint8_t *data, size_t width, size_t height,
+        size_t bpp, size_t pitch, PixelFormat format,
         bool copySource /* = false */)
     {
         TResult ret = T3D_OK;
@@ -325,7 +325,7 @@ namespace Tiny3D
         return false;
     }
 
-    int32_t Image::calcPitch() const
+    size_t Image::calcPitch() const
     {
         return Image::calcPitch(mWidth, mBPP);//(mWidth * (mBPP / 8) + 3) & ~3;
     }
@@ -376,7 +376,7 @@ namespace Tiny3D
         }
     }
 
-    int32_t Image::getBytesPerPixel() const
+    size_t Image::getBytesPerPixel() const
     {
         return (mBPP >> 3);
     }

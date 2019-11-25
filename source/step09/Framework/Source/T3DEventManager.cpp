@@ -599,7 +599,7 @@ namespace Tiny3D
             mEventHandlers.push_back(handler);
         }
 
-        return new _TINSTANCE(handler, slot);
+        return new _TINSTANCE(handler, (int32_t)slot);
     }
 
     TResult EventManager::unregisterHandler(TINSTANCE instance)

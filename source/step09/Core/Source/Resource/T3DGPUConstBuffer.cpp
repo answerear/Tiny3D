@@ -58,7 +58,7 @@ namespace Tiny3D
 
     Resource::Type GPUConstBuffer::getType() const
     {
-        return E_RT_GPUCBUFFER;
+        return Type::E_RT_GPUCBUFFER;
     }
 
     //--------------------------------------------------------------------------

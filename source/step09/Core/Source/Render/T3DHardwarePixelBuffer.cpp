@@ -33,7 +33,7 @@ namespace Tiny3D
         , mPitch(0)
         , mFormat(format)
     {
-        int32_t bpp = Image::getBPP(mFormat);
+        size_t bpp = Image::getBPP(mFormat);
         mPitch = Image::calcPitch(mWidth, bpp);
         mBufferSize = mPitch * mHeight;
     }
@@ -122,7 +122,7 @@ namespace Tiny3D
                 rtDst = *dstRect;
             }
 
-            int32_t dstPitch = dst->getPitch();
+            size_t dstPitch = dst->getPitch();
             dstData = (uint8_t *)dst->lock(HardwareBuffer::E_HBL_WRITE_ONLY);
             if (dstData == nullptr)
             {
@@ -131,7 +131,7 @@ namespace Tiny3D
                 break;
             }
 
-            int32_t srcPitch = mPitch;
+            size_t srcPitch = mPitch;
             srcData = (uint8_t *)lock(HardwareBuffer::E_HBL_READ_ONLY);
             if (srcData == nullptr)
             {

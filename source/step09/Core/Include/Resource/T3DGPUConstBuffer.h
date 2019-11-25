@@ -35,6 +35,7 @@ namespace Tiny3D
     class T3D_ENGINE_API GPUConstBuffer : public Resource
     {
     public:
+        
         /**
          * @fn  static GPUConstBufferPtr 
          *      GPUConstBuffer::create(const String& name);
@@ -72,6 +73,10 @@ namespace Tiny3D
         virtual TResult initWithData(size_t bufSize, const void* buffer, 
             HardwareBuffer::Usage usage, bool useSystemMemory, 
             bool useShadowBuffer);
+
+        TResult addDataDeclaration();
+
+        TResult removeDataDeclaration();
 
         /**
          * @fn  HardwareConstantBufferPtr GPUConstBuffer::getBufferImpl() const;

@@ -103,12 +103,12 @@ namespace Tiny3D
         /**
          * @brief 返回像素缓冲宽度
          */
-        uint32_t getWidth() const { return mWidth; }
+        size_t getWidth() const { return mWidth; }
 
         /**
          * @brief 返回像素缓冲高度
          */
-        uint32_t getHeight() const { return mHeight; }
+        size_t getHeight() const { return mHeight; }
 
         /**
          * @brief 获取像素缓冲的pitch

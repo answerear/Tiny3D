@@ -75,13 +75,13 @@ namespace Tiny3D
 
     void Viewport::updateDimensions()
     {
-        int32_t nWidth = mRenderTarget->getWidth();
-        int32_t nHeight = mRenderTarget->getHeight();
+        size_t nWidth = mRenderTarget->getWidth();
+        size_t nHeight = mRenderTarget->getHeight();
 
-        mActualLeft = int32_t(nWidth * mLeft);
-        mActualTop = int32_t(nHeight * mTop);
-        mActualWidth = int32_t(nWidth * mWidth);
-        mActualHeight = int32_t(nHeight * mHeight);
+        mActualLeft = size_t(nWidth * mLeft);
+        mActualTop = size_t(nHeight * mTop);
+        mActualWidth = size_t(nWidth * mWidth);
+        mActualHeight = size_t(nHeight * mHeight);
 
         RendererPtr renderer = T3D_AGENT.getActiveRenderer();
         mMatrix = renderer->makeViewportMatrix(this);

@@ -73,8 +73,8 @@ namespace Tiny3D
                 << "|" << tag
                 << "|" << content
                 <<"\n";
-            mContentSize = ss.str().length();
-            mContentSize = (mContentSize > sizeof(mContent) - 1 
+            mContentSize = (uint32_t)ss.str().length();
+            mContentSize = (uint32_t)(mContentSize > sizeof(mContent) - 1 
                 ? sizeof(mContent) - 1 : ss.str().length());
             memcpy(mContent, ss.str().c_str(), mContentSize);
             mContent[mContentSize] = 0;

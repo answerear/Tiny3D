@@ -62,22 +62,22 @@ namespace Tiny3D
         return mHeight * mPitch;
     }
 
-    inline int32_t Image::getWidth() const
+    inline size_t Image::getWidth() const
     {
         return mWidth;
     }
 
-    inline int32_t Image::getHeight() const
+    inline size_t Image::getHeight() const
     {
         return mHeight;
     }
 
-    inline int32_t Image::getPitch() const
+    inline size_t Image::getPitch() const
     {
         return mPitch;
     }
 
-    inline int32_t Image::getBPP() const
+    inline size_t Image::getBPP() const
     {
         return mBPP;
     }

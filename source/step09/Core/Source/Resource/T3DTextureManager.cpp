@@ -39,6 +39,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TextureManager::TextureManager()
+        : mDefaultMipMaps(1)
     {
 
     }
@@ -82,9 +83,9 @@ namespace Tiny3D
 
         if (argc == 6)
         {
-            int32_t width = va_arg(args, int32_t);
-            int32_t height = va_arg(args, int32_t);
-            int32_t numMipMaps = va_arg(args, int32_t);
+            size_t width = va_arg(args, size_t);
+            size_t height = va_arg(args, size_t);
+            size_t numMipMaps = va_arg(args, size_t);
             PixelFormat format = va_arg(args, PixelFormat);
             Texture::TexUsage texUsage = va_arg(args, Texture::TexUsage);
             TextureType texType = va_arg(args, TextureType);

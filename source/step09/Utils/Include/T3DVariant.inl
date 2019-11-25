@@ -24,20 +24,20 @@ namespace Tiny3D
 
     inline bool Variant::isValid() const
     {
-        return (mType != E_NONE);
+        return (mType != Type::E_NONE);
     }
 
     //--------------------------------------------------------------------------
 
     inline Variant::Variant()
-        : mType(E_NONE)
+        : mType(Type::E_NONE)
         , mValueSize(0)
     {
         memset(mValue, 0, sizeof(mValue));
     }
 
     inline Variant::Variant(bool value)
-        : mType(E_BOOL)
+        : mType(Type::E_BOOL)
         , mValueSize(sizeof(bool))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -45,7 +45,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(int8_t value)
-        : mType(E_INT8)
+        : mType(Type::E_INT8)
         , mValueSize(sizeof(int8_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -53,7 +53,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(uint8_t value)
-        : mType(E_UINT8)
+        : mType(Type::E_UINT8)
         , mValueSize(sizeof(uint8_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -61,7 +61,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(int16_t value)
-        : mType(E_INT16)
+        : mType(Type::E_INT16)
         , mValueSize(sizeof(int16_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -69,7 +69,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(uint16_t value)
-        : mType(E_UINT16)
+        : mType(Type::E_UINT16)
         , mValueSize(sizeof(uint16_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -77,7 +77,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(int32_t value)
-        : mType(E_INT32)
+        : mType(Type::E_INT32)
         , mValueSize(sizeof(int32_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -85,7 +85,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(uint32_t value)
-        : mType(E_UINT32)
+        : mType(Type::E_UINT32)
         , mValueSize(sizeof(uint32_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -93,7 +93,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(int64_t value)
-        : mType(E_INT64)
+        : mType(Type::E_INT64)
         , mValueSize(sizeof(int64_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -101,7 +101,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(uint64_t value)
-        : mType(E_UINT64)
+        : mType(Type::E_UINT64)
         , mValueSize(sizeof(uint64_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -109,7 +109,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(float32_t value)
-        : mType(E_FLOAT32)
+        : mType(Type::E_FLOAT32)
         , mValueSize(sizeof(float32_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -117,7 +117,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(float64_t value)
-        : mType(E_FLOAT64)
+        : mType(Type::E_FLOAT64)
         , mValueSize(sizeof(float64_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -125,7 +125,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(const fix32_t &value)
-        : mType(E_FIX32)
+        : mType(Type::E_FIX32)
         , mValueSize(sizeof(fix32_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -133,7 +133,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(const fix64_t &value)
-        : mType(E_FIX64)
+        : mType(Type::E_FIX64)
         , mValueSize(sizeof(fix64_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -141,7 +141,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(char value)
-        : mType(E_CHAR)
+        : mType(Type::E_CHAR)
         , mValueSize(sizeof(char))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -149,7 +149,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(wchar_t value)
-        : mType(E_WCHAR)
+        : mType(Type::E_WCHAR)
         , mValueSize(sizeof(wchar_t))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -157,7 +157,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(const char *value)
-        : mType(E_STRING)
+        : mType(Type::E_STRING)
         , mValueSize(0)
     {
         memset(mValue, 0, sizeof(mValue));
@@ -169,7 +169,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(const String &value)
-        : mType(E_STRING)
+        : mType(Type::E_STRING)
         , mValueSize(0)
     {
         memset(mValue, 0, sizeof(mValue));
@@ -180,7 +180,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(const VariantArray &value)
-        : mType(E_ARRAY)
+        : mType(Type::E_ARRAY)
         , mValueSize(sizeof(VariantArray))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -188,7 +188,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(const VariantList &value)
-        : mType(E_LIST)
+        : mType(Type::E_LIST)
         , mValueSize(sizeof(VariantList))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -196,7 +196,7 @@ namespace Tiny3D
     }
 
     inline Variant::Variant(const VariantMap &value)
-        : mType(E_MAP)
+        : mType(Type::E_MAP)
         , mValueSize(sizeof(VariantMap))
     {
         memset(mValue, 0, sizeof(mValue));
@@ -228,7 +228,7 @@ namespace Tiny3D
     inline void Variant::setBool(bool value)
     {
         releaseMemory();
-        mType = E_BOOL;
+        mType = Type::E_BOOL;
         mValueSize = sizeof(bool);
         mBoolValue = value;
     }
@@ -236,7 +236,7 @@ namespace Tiny3D
     inline void Variant::setInt8(int8_t value)
     {
         releaseMemory();
-        mType = E_INT8;
+        mType = Type::E_INT8;
         mValueSize = sizeof(int8_t);
         mInt8Value = value;
     }
@@ -244,7 +244,7 @@ namespace Tiny3D
     inline void Variant::setUInt8(uint8_t value)
     {
         releaseMemory();
-        mType = E_UINT8;
+        mType = Type::E_UINT8;
         mValueSize = sizeof(uint8_t);
         mUInt8Value = value;
     }
@@ -252,7 +252,7 @@ namespace Tiny3D
     inline void Variant::setInt16(int16_t value)
     {
         releaseMemory();
-        mType = E_INT16;
+        mType = Type::E_INT16;
         mValueSize = sizeof(int16_t);
         mInt16Value = value;
     }
@@ -260,7 +260,7 @@ namespace Tiny3D
     inline void Variant::setUInt16(uint16_t value)
     {
         releaseMemory();
-        mType = E_UINT16;
+        mType = Type::E_UINT16;
         mValueSize = sizeof(uint16_t);
         mUInt16Value = value;
     }
@@ -268,7 +268,7 @@ namespace Tiny3D
     inline void Variant::setInt32(int32_t value)
     {
         releaseMemory();
-        mType = E_INT32;
+        mType = Type::E_INT32;
         mValueSize = sizeof(int32_t);
         mInt32Value = value;
     }
@@ -276,7 +276,7 @@ namespace Tiny3D
     inline void Variant::setUInt32(uint32_t value)
     {
         releaseMemory();
-        mType = E_UINT32;
+        mType = Type::E_UINT32;
         mValueSize = sizeof(uint32_t);
         mUInt32Value = value;
     }
@@ -284,7 +284,7 @@ namespace Tiny3D
     inline void Variant::setInt64(int64_t value)
     {
         releaseMemory();
-        mType = E_INT64;
+        mType = Type::E_INT64;
         mValueSize = sizeof(int64_t);
         mInt64Value = value;
     }
@@ -292,7 +292,7 @@ namespace Tiny3D
     inline void Variant::setUInt64(uint64_t value)
     {
         releaseMemory();
-        mType = E_UINT64;
+        mType = Type::E_UINT64;
         mValueSize = sizeof(uint64_t);
         mUInt64Value = value;
     }
@@ -300,7 +300,7 @@ namespace Tiny3D
     inline void Variant::setLong(long_t value)
     {
         releaseMemory();
-        mType = E_LONG;
+        mType = Type::E_LONG;
         mValueSize = sizeof(long_t);
         mLongValue = value;
     }
@@ -308,7 +308,7 @@ namespace Tiny3D
     inline void Variant::setULong(ulong_t value)
     {
         releaseMemory();
-        mType = E_ULONG;
+        mType = Type::E_ULONG;
         mValueSize = sizeof(ulong_t);
         mULongValue = value;
     }
@@ -316,7 +316,7 @@ namespace Tiny3D
     inline void Variant::setFloat32(float32_t value)
     {
         releaseMemory();
-        mType = E_FLOAT32;
+        mType = Type::E_FLOAT32;
         mValueSize = sizeof(float32_t);
         mFloat32Value = value;
     }
@@ -324,7 +324,7 @@ namespace Tiny3D
     inline void Variant::setFloat64(float64_t value)
     {
         releaseMemory();
-        mType = E_FLOAT64;
+        mType = Type::E_FLOAT64;
         mValueSize = sizeof(float64_t);
         mFloat64Value = value;
     }
@@ -332,7 +332,7 @@ namespace Tiny3D
     inline void Variant::setFix32(const fix32_t &value)
     {
         releaseMemory();
-        mType = E_FIX32;
+        mType = Type::E_FIX32;
         mValueSize = sizeof(fix32_t);
         mFix32Value = value;
     }
@@ -340,7 +340,7 @@ namespace Tiny3D
     inline void Variant::setFix64(const fix64_t &value)
     {
         releaseMemory();
-        mType = E_FIX64;
+        mType = Type::E_FIX64;
         mValueSize = sizeof(fix64_t);
         mFix64Value = value;
     }
@@ -348,7 +348,7 @@ namespace Tiny3D
     inline void Variant::setChar(char value)
     {
         releaseMemory();
-        mType = E_CHAR;
+        mType = Type::E_CHAR;
         mValueSize = sizeof(char);
         mCharValue = value;
     }
@@ -356,7 +356,7 @@ namespace Tiny3D
     inline void Variant::setWChar(wchar_t value)
     {
         releaseMemory();
-        mType = E_WCHAR;
+        mType = Type::E_WCHAR;
         mValueSize = sizeof(wchar_t);
         mWCharValue = value;
     }
@@ -364,7 +364,7 @@ namespace Tiny3D
     inline void Variant::setString(const String &value)
     {
         releaseMemory();
-        mType = E_STRING;
+        mType = Type::E_STRING;
         mValueSize = (value.length() > 0 ? value.length() + 1 : 1);
         mStrValue = new char[mValueSize];
         memcpy(mStrValue, value.c_str(), mValueSize - 1);
@@ -373,10 +373,10 @@ namespace Tiny3D
 
     inline void Variant::setArray(const VariantArray &value)
     {
-        if (mType != E_ARRAY)
+        if (mType != Type::E_ARRAY)
         {
             releaseMemory();
-            mType = E_ARRAY;
+            mType = Type::E_ARRAY;
             mValueSize = sizeof(VariantArray);
             mArrayValue = new VariantArray(value);
         }
@@ -388,10 +388,10 @@ namespace Tiny3D
 
     inline void Variant::setList(const VariantList &value)
     {
-        if (mType != E_LIST)
+        if (mType != Type::E_LIST)
         {
             releaseMemory();
-            mType = E_LIST;
+            mType = Type::E_LIST;
             mValueSize = sizeof(VariantList);
             mListValue = new VariantList(value);
         }
@@ -403,10 +403,10 @@ namespace Tiny3D
 
     inline void Variant::setMap(const VariantMap &value)
     {
-        if (mType != E_MAP)
+        if (mType != Type::E_MAP)
         {
             releaseMemory();
-            mType = E_MAP;
+            mType = Type::E_MAP;
             mValueSize = sizeof(VariantMap);
             mMapValue = new VariantMap(value);
         }
@@ -421,15 +421,15 @@ namespace Tiny3D
 
     inline bool Variant::isNumber() const
     {
-        return (E_INT8 == mType || E_UINT8 == mType
-            || E_INT16 == mType || E_UINT16 == mType
-            || E_INT32 == mType || E_UINT32 == mType
-            || E_INT64 == mType || E_UINT64 == mType
-            || E_LONG == mType || E_ULONG == mType
-            || E_FLOAT32 == mType || E_FLOAT64 == mType
-            || E_FIX32 == mType || E_FIX64 == mType
-            || E_CHAR == mType || E_WCHAR == mType
-            || E_BOOL == mType);
+        return (Type::E_INT8 == mType || Type::E_UINT8 == mType
+            || Type::E_INT16 == mType || Type::E_UINT16 == mType
+            || Type::E_INT32 == mType || Type::E_UINT32 == mType
+            || Type::E_INT64 == mType || Type::E_UINT64 == mType
+            || Type::E_LONG == mType || Type::E_ULONG == mType
+            || Type::E_FLOAT32 == mType || Type::E_FLOAT64 == mType
+            || Type::E_FIX32 == mType || Type::E_FIX64 == mType
+            || Type::E_CHAR == mType || Type::E_WCHAR == mType
+            || Type::E_BOOL == mType);
     }
 
     //--------------------------------------------------------------------------
@@ -729,7 +729,7 @@ namespace Tiny3D
         String val;
         bool ret = false;
 
-        if (E_STRING == mType)
+        if (Type::E_STRING == mType)
         {
             val.assign(mStrValue);
             ret = true;
@@ -743,7 +743,7 @@ namespace Tiny3D
 
     inline const VariantArray &Variant::arrayValue(bool *ok /* = nullptr */) const
     {
-        if (E_ARRAY == mType)
+        if (Type::E_ARRAY == mType)
         {
             if (ok != nullptr)
                 *ok = true;
@@ -759,7 +759,7 @@ namespace Tiny3D
 
     inline const VariantList &Variant::listValue(bool *ok /* = nullptr */) const
     {
-        if (E_LIST == mType)
+        if (Type::E_LIST == mType)
         {
             if (ok != nullptr)
                 *ok = true;
@@ -775,7 +775,7 @@ namespace Tiny3D
 
     inline const VariantMap &Variant::mapValue(bool *ok /* = nullptr */) const
     {
-        if (E_MAP == mType)
+        if (Type::E_MAP == mType)
         {
             if (ok != nullptr)
                 *ok = true;
@@ -791,7 +791,7 @@ namespace Tiny3D
 
     inline VariantArray &Variant::arrayValue(bool *ok /* = nullptr */)
     {
-        if (E_ARRAY == mType)
+        if (Type::E_ARRAY == mType)
         {
             if (ok != nullptr)
                 *ok = true;
@@ -807,7 +807,7 @@ namespace Tiny3D
 
     inline VariantList &Variant::listValue(bool *ok /* = nullptr */)
     {
-        if (E_LIST == mType)
+        if (Type::E_LIST == mType)
         {
             if (ok != nullptr)
                 *ok = true;
@@ -823,7 +823,7 @@ namespace Tiny3D
 
     inline VariantMap &Variant::mapValue(bool *ok /* = nullptr */)
     {
-        if (E_MAP == mType)
+        if (Type::E_MAP == mType)
         {
             if (ok != nullptr)
                 *ok = true;
@@ -876,7 +876,7 @@ namespace Tiny3D
         return mType;
     }
 
-    inline int32_t Variant::valueSize() const
+    inline size_t Variant::valueSize() const
     {
         return mValueSize;
     }

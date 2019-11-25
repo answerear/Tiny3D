@@ -34,7 +34,7 @@ namespace Tiny3D
 
     public:
         /** 資源類型枚舉 */
-        enum Type
+        enum class Type : size_t
         {
             E_RT_UNKNOWN = 0,   /**< 未知類型資源 */
             E_RT_DYLIB,         /**< 動態庫 */

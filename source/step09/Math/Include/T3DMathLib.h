@@ -99,13 +99,13 @@ typedef TDegree<Real>       Degree;
 typedef TRadian<Real>       Radian;
 typedef TMath<Real>         Math;
 
-typedef TSize<long_t>       Size;
+typedef TSize<size_t>       Size;
 typedef TSize<Real>         RealSize;
 
-typedef TPoint<long_t>      Point;
+typedef TPoint<size_t>      Point;
 typedef TPoint<Real>        RealPoint;
 
-typedef TRect<long_t>       Rect;
+typedef TRect<size_t>       Rect;
 typedef TRect<Real>         RealRect;
 
 typedef TVector2<Real>      Vector2;

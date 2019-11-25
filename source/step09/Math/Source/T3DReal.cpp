@@ -28,7 +28,7 @@ namespace Tiny3D
     const float32_t TReal<float32_t>::MINUS_ONE = -1.0f;
     const float32_t TReal<float32_t>::INF = std::numeric_limits<float32_t>::infinity();
     const float32_t TReal<float32_t>::MINUS_INF = -std::numeric_limits<float32_t>::infinity();
-    const float32_t TReal<float32_t>::EPSILON = 1e-5;
+    const float32_t TReal<float32_t>::EPSILON = 1e-5f;
 
     const float64_t TReal<float64_t>::ZERO = 0.0;
     const float64_t TReal<float64_t>::ONE = 1.0;

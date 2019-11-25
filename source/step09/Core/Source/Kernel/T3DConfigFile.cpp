@@ -555,7 +555,7 @@ namespace Tiny3D
             tinyxml2::XMLElement *child = nullptr;
             tinyxml2::XMLText *text = nullptr;
 
-            if (value.valueType() == Variant::E_BOOL)
+            if (value.valueType() == Variant::Type::E_BOOL)
             {
                 bool val = value.boolValue();
 
@@ -566,16 +566,16 @@ namespace Tiny3D
 
                 root->LinkEndChild(child);
             }
-            else if (value.valueType() == Variant::E_INT8
-                || value.valueType() == Variant::E_UINT8
-                || value.valueType() == Variant::E_INT16
-                || value.valueType() == Variant::E_UINT16
-                || value.valueType() == Variant::E_INT32
-                || value.valueType() == Variant::E_UINT32
-                || value.valueType() == Variant::E_INT64
-                || value.valueType() == Variant::E_UINT64
-                || value.valueType() == Variant::E_LONG
-                || value.valueType() == Variant::E_ULONG)
+            else if (value.valueType() == Variant::Type::E_INT8
+                || value.valueType() == Variant::Type::E_UINT8
+                || value.valueType() == Variant::Type::E_INT16
+                || value.valueType() == Variant::Type::E_UINT16
+                || value.valueType() == Variant::Type::E_INT32
+                || value.valueType() == Variant::Type::E_UINT32
+                || value.valueType() == Variant::Type::E_INT64
+                || value.valueType() == Variant::Type::E_UINT64
+                || value.valueType() == Variant::Type::E_LONG
+                || value.valueType() == Variant::Type::E_ULONG)
             {
                 long_t val = value.longValue();
                 child = doc.NewElement(TAG_NAME_INTEGER);
@@ -587,10 +587,10 @@ namespace Tiny3D
                 child->LinkEndChild(text);
                 root->LinkEndChild(child);
             }
-            else if (value.valueType() == Variant::E_FLOAT32
-                || value.valueType() == Variant::E_FLOAT64
-                || value.valueType() == Variant::E_FIX32
-                || value.valueType() == Variant::E_FIX64)
+            else if (value.valueType() == Variant::Type::E_FLOAT32
+                || value.valueType() == Variant::Type::E_FLOAT64
+                || value.valueType() == Variant::Type::E_FIX32
+                || value.valueType() == Variant::Type::E_FIX64)
             {
                 Real val = value.float32Value();
                 child = doc.NewElement(TAG_NAME_REAL);
@@ -600,7 +600,7 @@ namespace Tiny3D
                 child->LinkEndChild(text);
                 root->LinkEndChild(child);
             }
-            else if (value.valueType() == Variant::E_STRING)
+            else if (value.valueType() == Variant::Type::E_STRING)
             {
                 String val = value.stringValue();
                 child = doc.NewElement(TAG_NAME_STRING);
@@ -608,7 +608,7 @@ namespace Tiny3D
                 child->LinkEndChild(text);
                 root->LinkEndChild(child);
             }
-            else if (value.valueType() == Variant::E_ARRAY)
+            else if (value.valueType() == Variant::Type::E_ARRAY)
             {
                 const VariantArray &val = value.arrayValue();
                 child = doc.NewElement(TAG_NAME_ARRAY);
@@ -618,7 +618,7 @@ namespace Tiny3D
                 else
                     break;
             }
-            else if (value.valueType() == Variant::E_LIST)
+            else if (value.valueType() == Variant::Type::E_LIST)
             {
                 const VariantList &val = value.listValue();
                 child = doc.NewElement(TAG_NAME_ARRAY);
@@ -628,7 +628,7 @@ namespace Tiny3D
                 else
                     break;
             }
-            else if (value.valueType() == Variant::E_MAP)
+            else if (value.valueType() == Variant::Type::E_MAP)
             {
                 const VariantMap &val = value.mapValue();
                 child = doc.NewElement(TAG_NAME_DICT);

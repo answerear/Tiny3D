@@ -72,7 +72,7 @@ namespace Tiny3D
 
     Resource::Type Texture::getType() const
     {
-        return E_RT_TEXTURE;
+        return Type::E_RT_TEXTURE;
     }
 
     //--------------------------------------------------------------------------

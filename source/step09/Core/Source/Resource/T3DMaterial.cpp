@@ -62,7 +62,7 @@ namespace Tiny3D
 
     Resource::Type Material::getType() const
     {
-        return E_RT_MATERIAL;
+        return Type::E_RT_MATERIAL;
     }
 
     //--------------------------------------------------------------------------

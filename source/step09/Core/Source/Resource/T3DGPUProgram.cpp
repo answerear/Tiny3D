@@ -123,7 +123,7 @@ namespace Tiny3D
 
     Resource::Type Shader::getType() const
     {
-        return E_RT_SHADER;
+        return Type::E_RT_SHADER;
     }
 
     //--------------------------------------------------------------------------
@@ -138,7 +138,7 @@ namespace Tiny3D
 
     Resource::Type GPUProgram::getType() const
     {
-        return E_RT_GPUPROGRAM;
+        return Type::E_RT_GPUPROGRAM;
     }
 
     //--------------------------------------------------------------------------

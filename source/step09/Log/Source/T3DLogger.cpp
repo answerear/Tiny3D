@@ -369,7 +369,7 @@ namespace Tiny3D
     String Logger::getFileName(const String &path) const
     {
         String name;
-        int32_t pos = path.rfind("\\");
+        size_t pos = path.rfind("\\");
         if (pos == String::npos)
         {
             pos = path.rfind("/");

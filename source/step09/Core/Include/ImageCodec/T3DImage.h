@@ -125,8 +125,8 @@ namespace Tiny3D
          * @param [in] copySource : 是否深拷贝一份数据到内部维护
          * @return 调用成功返回 T3D_OK
          */
-        TResult load(uint8_t *data, int32_t width, int32_t height, int32_t bpp, 
-            int32_t pitch, PixelFormat format, bool copySource = false);
+        TResult load(uint8_t *data, size_t width, size_t height, size_t bpp,
+            size_t pitch, PixelFormat format, bool copySource = false);
 
         /**
          * @brief 把图像保存到文件中
@@ -227,22 +227,22 @@ namespace Tiny3D
         /**
          * @brief 返回图像宽度
          */
-        int32_t getWidth() const;
+        size_t getWidth() const;
 
         /**
          * @brief 返回图像高度
          */
-        int32_t getHeight() const;
+        size_t getHeight() const;
 
         /**
          * @brief 返回图像跨度
          */
-        int32_t getPitch() const;
+        size_t getPitch() const;
 
         /**
          * @brief 返回图像色深
          */
-        int32_t getBPP() const;
+        size_t getBPP() const;
 
         /**
          * @brief 返回图像像素格式
@@ -273,30 +273,30 @@ namespace Tiny3D
         /**
          * @brief 根据色深计算图像行跨度
          */
-        static int32_t calcPitch(int32_t width, int32_t bpp);
+        static size_t calcPitch(size_t width, size_t bpp);
 
         /**
          * @brief 根据图像像素格式获取色深
          */
-        static int32_t getBPP(PixelFormat format);
+        static size_t getBPP(PixelFormat format);
 
         /**
          * @brief 获取当前像素格式下一个像素占用的字节数
          */
-        int32_t getBytesPerPixel() const;
+        size_t getBytesPerPixel() const;
 
     protected:
         /**
          * @brief 计算图像行跨度
          */
-        int32_t calcPitch() const;
+        size_t calcPitch() const;
 
     private:
         uint32_t    mSourceType;        /**< 图像数据源类型 */
-        int32_t     mWidth;             /**< 图像宽度 */
-        int32_t     mHeight;            /**< 图像高度 */
-        int32_t     mBPP;               /**< 图像色深 */
-        int32_t     mPitch;             /**< 图像行跨度 */
+        size_t      mWidth;             /**< 图像宽度 */
+        size_t      mHeight;            /**< 图像高度 */
+        size_t      mBPP;               /**< 图像色深 */
+        size_t      mPitch;             /**< 图像行跨度 */
 
         PixelFormat mFormat;            /**< 图像像素格式 */
 

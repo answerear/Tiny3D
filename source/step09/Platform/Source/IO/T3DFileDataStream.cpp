@@ -152,14 +152,14 @@ namespace Tiny3D
         {
             if (relative)
             {
-                if (fseek(m_pFileHandle, lPos, SEEK_CUR) == 0)
+                if (fseek(m_pFileHandle, (long)lPos, SEEK_CUR) == 0)
                 {
                     ret = true;
                 }
             }
             else
             {
-                if (fseek(m_pFileHandle, lPos, SEEK_SET) == 0)
+                if (fseek(m_pFileHandle, (long)lPos, SEEK_SET) == 0)
                 {
                     ret = true;
                 }
@@ -190,7 +190,7 @@ namespace Tiny3D
                 long_t lPos = ftell(m_pFileHandle);
                 fseek(m_pFileHandle, 0, SEEK_END);
                 m_lSize = ftell(m_pFileHandle);
-                fseek(m_pFileHandle, lPos, SEEK_SET);
+                fseek(m_pFileHandle, (long)lPos, SEEK_SET);
             }
         }
 
@@ -203,8 +203,8 @@ namespace Tiny3D
 
         if (m_pFileHandle != nullptr)
         {
-            uint32_t unPos = ftell(m_pFileHandle);
-            uint32_t unSize = size();
+            long unPos = ftell(m_pFileHandle);
+            long unSize = (long)size();
             bEnd = (unPos == unSize);
         }
 
