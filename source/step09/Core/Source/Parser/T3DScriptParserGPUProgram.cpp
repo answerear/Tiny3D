@@ -869,6 +869,14 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
                 "Read elemente type of param_indexed_auto failed !");
 
+            if (type != E_BT_REAL && type != E_BT_INT)
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid data type of param_indexed_auto !");
+                break;
+            }
+
             // the number of elements
             uint8_t count = 0;
             bytesOfRead = stream.read(&count, sizeof(count));
@@ -923,6 +931,8 @@ namespace Tiny3D
             }
 
             // TODO
+            ret = buffer->addDataDeclaration(
+                (GPUConstBuffer::BuiltinType)type, count);
         } while (0);
 
         T3D_SAFE_DELETE_ARRAY(extra);
@@ -1035,6 +1045,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     ScriptParserGPUContBufferRef::ScriptParserGPUContBufferRef()
+        : mSlot(0)
     {
 
     }

@@ -23,6 +23,7 @@
 
 
 #include "Parser/T3DScriptParserBase.h"
+#include "Resource/T3DGPUConstBuffer.h"
 
 
 namespace Tiny3D
@@ -198,6 +199,174 @@ namespace Tiny3D
     class ScriptParserGPUContBuffer : public ScriptParserBase
     {
     public:
+        /**
+     * @enum    BuiltinConstant
+     * @brief   Values that represent built-in constants
+     */
+        enum class BuiltinConstant : uint16_t
+        {
+            WORLD_MATRIX,   /**< 模型的世界變換矩陣 */
+            INVERSE_WORLD_MATRIX,   /**< 世界變換矩陣逆矩陣 */
+            TRANSPOSE_WORLD_MATRIX, /**< 世界變換矩陣的轉置矩陣 */
+            INVERSE_TRANSPOSE_WORLD_MATRIX, /**<  */
+
+            WORLD_MATRIX_ARRAY_3x4,
+            WORLD_MATRIX_ARRAY,
+            WORLD_DUALQUATERNION_ARRAY_2x4,
+            WORLD_SCALE_SHEAR_MATRIX_ARRAY_3x4,
+
+            VIEW_MATRIX,
+            INVERSE_VIEW_MATRIX,
+            TRANSPOSE_VIEW_MATRIX,
+            INVERSE_TRANSPOSE_VIEW_MATRIX,
+
+            PROJECTION_MATRIX,
+            INVERSE_PROJECTION_MATRIX,
+            TRANSPOSE_PROJECTION_MATRIX,
+            INVERSE_TRANSPOSE_PROJECTION_MATRIX,
+
+            VIEWPROJ_MATRIX,
+            INVERSE_VIEWPROJ_MATRIX,
+            TRANSPOSE_VIEWPROJ_MATRIX,
+            INVERSE_TRANSPOSE_VIEWPROJ_MATRIX,
+
+            WORLDVIEW_MATRIX,
+            INVERSE_WORLDVIEW_MATRIX,
+            TRANSPOSE_WORLDVIEW_MATRIX,
+            INVERSE_TRANSPOSE_WORLDVIEW_MATRIX,
+
+            WORLDVIEWPROJ_MATRIX,
+            INVERSE_WORLDVIEWPROJ_MATRIX,
+            TRANSPOSE_WORLDVIEWPROJ_MATRIX,
+            INVERSE_TRANSPOSE_WORLDVIEWPROJ_MATRIX,
+
+            RENDER_TARGET_FLIPPING,
+
+            VERTEX_WINDING,
+
+            FOG_COLOUR,
+            FOG_PARAMS,
+            SURFACE_AMBIENT_COLOUR,
+            SURFACE_DIFFUSE_COLOUR,
+            SURFACE_SPECULAR_COLOUR,
+            SURFACE_EMISSIVE_COLOUR,
+            SURFACE_SHININESS,
+            SURFACE_ALPHA_REJECTION_VALUE,
+
+            LIGHT_COUNT,
+
+            AMBIENT_LIGHT_COLOUR,
+            LIGHT_DIFFUSE_COLOUR,
+            LIGHT_SPECULAR_COLOUR,
+            LIGHT_ATTENUATION,
+            SPOTLIGHT_PARAMS,
+            LIGHT_POSITION,
+            LIGHT_POSITION_OBJECT_SPACE,
+            LIGHT_POSITION_VIEW_SPACE,
+            LIGHT_DIRECTION,
+            LIGHT_DIRECTION_OBJECT_SPACE,
+            LIGHT_DIRECTION_VIEW_SPACE,
+            LIGHT_DISTANCE_OBJECT_SPACE,
+            LIGHT_POWER_SCALE,
+            LIGHT_DIFFUSE_COLOUR_POWER_SCALED,
+            LIGHT_SPECULAR_COLOUR_POWER_SCALED,
+            LIGHT_DIFFUSE_COLOUR_ARRAY,
+            LIGHT_SPECULAR_COLOUR_ARRAY,
+            LIGHT_DIFFUSE_COLOUR_POWER_SCALED_ARRAY,
+            LIGHT_SPECULAR_COLOUR_POWER_SCALED_ARRAY,
+            LIGHT_ATTENUATION_ARRAY,
+            LIGHT_POSITION_ARRAY,
+            LIGHT_POSITION_OBJECT_SPACE_ARRAY,
+            LIGHT_POSITION_VIEW_SPACE_ARRAY,
+            LIGHT_DIRECTION_ARRAY,
+            LIGHT_DIRECTION_OBJECT_SPACE_ARRAY,
+            LIGHT_DIRECTION_VIEW_SPACE_ARRAY,
+            LIGHT_DISTANCE_OBJECT_SPACE_ARRAY,
+            LIGHT_POWER_SCALE_ARRAY,
+            SPOTLIGHT_PARAMS_ARRAY,
+
+            DERIVED_AMBIENT_LIGHT_COLOUR,
+            DERIVED_SCENE_COLOUR,
+            DERIVED_LIGHT_DIFFUSE_COLOUR,
+            DERIVED_LIGHT_SPECULAR_COLOUR,
+
+            DERIVED_LIGHT_DIFFUSE_COLOUR_ARRAY,
+            DERIVED_LIGHT_SPECULAR_COLOUR_ARRAY,
+            LIGHT_NUMBER,
+            LIGHT_CASTS_SHADOWS,
+            LIGHT_CASTS_SHADOWS_ARRAY,
+
+
+            SHADOW_EXTRUSION_DISTANCE,
+            CAMERA_POSITION,
+            CAMERA_POSITION_OBJECT_SPACE,
+            TEXTURE_VIEWPROJ_MATRIX,
+            TEXTURE_VIEWPROJ_MATRIX_ARRAY,
+            TEXTURE_WORLDVIEWPROJ_MATRIX,
+            TEXTURE_WORLDVIEWPROJ_MATRIX_ARRAY,
+            SPOTLIGHT_VIEWPROJ_MATRIX,
+            SPOTLIGHT_VIEWPROJ_MATRIX_ARRAY,
+            SPOTLIGHT_WORLDVIEWPROJ_MATRIX,
+            SPOTLIGHT_WORLDVIEWPROJ_MATRIX_ARRAY,
+            CUSTOM,
+            TIME,
+            TIME_0_X,
+            COSTIME_0_X,
+            SINTIME_0_X,
+            TANTIME_0_X,
+            TIME_0_X_PACKED,
+            TIME_0_1,
+            COSTIME_0_1,
+            SINTIME_0_1,
+            TANTIME_0_1,
+            TIME_0_1_PACKED,
+            TIME_0_2PI,
+            COSTIME_0_2PI,
+            SINTIME_0_2PI,
+            TANTIME_0_2PI,
+            TIME_0_2PI_PACKED,
+            FRAME_TIME,
+            FPS,
+            VIEWPORT_WIDTH,
+            VIEWPORT_HEIGHT,
+            INVERSE_VIEWPORT_WIDTH,
+            INVERSE_VIEWPORT_HEIGHT,
+            VIEWPORT_SIZE,
+
+            VIEW_DIRECTION,
+            VIEW_SIDE_VECTOR,
+            VIEW_UP_VECTOR,
+            FOV,
+            NEAR_CLIP_DISTANCE,
+            FAR_CLIP_DISTANCE,
+
+            PASS_NUMBER,
+            PASS_ITERATION_NUMBER,
+
+            ANIMATION_PARAMETRIC,
+
+            TEXEL_OFFSETS,
+
+            SCENE_DEPTH_RANGE,
+
+            SHADOW_SCENE_DEPTH_RANGE,
+
+            SHADOW_SCENE_DEPTH_RANGE_ARRAY,
+
+            SHADOW_COLOUR,
+            TEXTURE_SIZE,
+            INVERSE_TEXTURE_SIZE,
+            PACKED_TEXTURE_SIZE,
+
+            TEXTURE_MATRIX,
+
+            LOD_CAMERA_POSITION,
+            LOD_CAMERA_POSITION_OBJECT_SPACE,
+            LIGHT_CUSTOM,
+
+            UNKNOWN = 999
+        };
+
         /**
          * @fn  static ScriptParserGPUContBufferPtr 
          *      ScriptParserGPUContBuffer::create();

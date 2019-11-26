@@ -36,21 +36,34 @@ namespace Tiny3D
     {
     public:
         /**
-         * @enum    DataType
-         * @brief   Values that represent data types
+         * @enum    BuiltinType
+         * @brief   GPU常量緩衝區中可使用的數據類型
          */
-        enum class DataType : uint8_t
+        enum class BuiltinType : uint8_t
         {
-            NONE = 0,   /**< An enum constant representing the none option */
-            REAL,       /**< An enum constant representing the real option */
-            INT,        /**< An enum constant representing the int option */
-            MATRIX4,    /**< An enum constant representing the matrix 4 option */
-            VECTOR4,    /**< An enum constant representing the vector 4 option */
+            NONE = 0,   /**< 未定義 */
+            REAL,       /**< 實數型 */
+            INT,        /**< 整型 */
+            VECTOR4,    /**< 4D向量 */
+            MATRIX4x4,  /**< 4x4矩陣 */
+            MATRIX4x3,  /**< 4x3矩陣 */
         };
 
-        typedef TList<DataType>                 DataTypeList;
-        typedef DataTypeList::iterator          DataTypeListItr;
-        typedef DataTypeList::const_iterator    DataTypeListConstItr;
+        /**
+         * @struct  DataDeclaration
+         * @brief   A data type.
+         */
+        struct DataDeclaration
+        {
+            DataDeclaration() :type(BuiltinType::NONE), count(0) {}
+
+            BuiltinType type;
+            uint8_t     count;
+        };
+
+        typedef TList<DataDeclaration>          DataDeclList;
+        typedef DataDeclList::iterator          DataTypeListItr;
+        typedef DataDeclList::const_iterator    DataTypeListConstItr;
 
         /**
          * @fn  static GPUConstBufferPtr 
@@ -91,42 +104,50 @@ namespace Tiny3D
             bool useShadowBuffer);
 
         /**
-         * @fn  TResult GPUConstBuffer::addDataDeclaration(DataType type);
-         * @brief   Adds a data declaration
-         * @param   type    The type.
-         * @returns A TResult.
+         * @fn  TResult GPUConstBuffer::addDataDeclaration(
+         *      BuiltinType type, uint8_t count);
+         * @brief   添加一個數據類型聲明
+         * @param   type    數據類型枚舉.
+         * @param   count   數據數量.
+         * @returns 調用成功返回 T3D_OK.
+         * @sa  enum BuiltinType
          */
-        TResult addDataDeclaration(DataType type);
+        TResult addDataDeclaration(BuiltinType type, uint8_t count);
 
         /**
          * @fn  TResult GPUConstBuffer::removeDataDeclaration(size_t index);
-         * @brief   Removes the data declaration described by index
-         * @param   index   Zero-based index of the.
-         * @returns A TResult.
+         * @brief   根據索引移除一個數據類型聲明
+         * @param   index   位置索引.
+         * @returns 調用成功返回 T3D_OK.
          */
         TResult removeDataDeclaration(size_t index);
 
         /**
-         * @fn  size_t GPUConstBuffer::getDataSize() const;
-         * @brief   Gets data size
-         * @returns The data size.
+         * @fn  size_t GPUConstBuffer::getBufferSize() const;
+         * @brief   獲取緩衝區的字節數大小
+         * @returns 返回緩衝區的字節數大小.
          */
-        size_t getDataSize() const;
+        size_t getBufferSize() const 
+        { 
+            if (!mHasData)
+                return mBufSize * 4;
+            return mBufSize; 
+        }
 
         /**
-         * @fn  DataType GPUConstBuffer::getDataType(size_t index) const;
-         * @brief   Gets data type
-         * @param   index   Zero-based index of the.
-         * @returns The data type.
+         * @fn  DataDeclaration GPUConstBuffer::getDataType(size_t index) const;
+         * @brief   根據索引獲取對應的索引位置的數據類型
+         * @param   index   索引位置.
+         * @returns 返回對應索引位置的數據聲明.
          */
-        DataType getDataType(size_t index) const;
+        DataDeclaration getDataDeclaration(size_t index) const;
 
         /**
          * @fn  const DataTypeList GPUConstBuffer::&getDataTypeList() const;
-         * @brief   Gets data type list
-         * @returns The data type list.
+         * @brief   獲取數據類型列表
+         * @returns 返回數據類型列表.
          */
-        const DataTypeList &getDataTypeList() const;
+        const DataDeclList& getDataDeclList() const { return mDataDeclList; }
 
         /**
          * @fn  HardwareConstantBufferPtr GPUConstBuffer::getBufferImpl() const;
@@ -170,9 +191,10 @@ namespace Tiny3D
         HardwareBuffer::Usage       mUsage;             /**< 緩衝區用法 */
         bool                        mUseSystemMemory;   /**< 是否使用系統內存 */
         bool                        mUseShadowBuffer;   /**< 是否使用影子內存 */
+        bool                        mHasData;           /**< 是否初始化數據 */
         HardwareConstantBufferPtr   mBufferImpl;        /**< 具體實現類 */
 
-        DataTypeList                mDataTypes;         /**< List of types of the data */
+        DataDeclList                mDataDeclList;      /**< 數據聲明列表 */
     };
 }
 

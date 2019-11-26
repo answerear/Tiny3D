@@ -59,6 +59,8 @@ namespace Tiny3D
         T3D_ERR_RES_CREATE_SHADER       = T3D_ERR_CORE + 0x00AC, /**< 創建 Shader 失敗 */
         T3D_ERR_RES_CREATE_PASS         = T3D_ERR_CORE + 0x00AD, /**< 創建 Pass 失敗 */
         T3D_ERR_RES_CREATE_GPUCBUFFER   = T3D_ERR_CORE + 0x00AE, /**< 創建 GPUConstBuffer 失敗 */
+        T3D_ERR_RES_INVALID_PARAM       = T3D_ERR_CORE + 0x00AF, /**< An enum constant representing the 3D Error Resource invalid Parameter option */
+        T3D_ERR_RES_ALREADY_INIT        = T3D_ERR_CORE + 0x00B0, /**< An enum constant representing the 3D Error Resource already Initialize option */
 
         T3D_ERR_RENDER_CREATE_WINDOW    = T3D_ERR_CORE + 0x00C0, /**< 创建渲染窗口失败 */
 
