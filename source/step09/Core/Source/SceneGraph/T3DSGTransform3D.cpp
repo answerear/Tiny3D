@@ -57,7 +57,7 @@ namespace Tiny3D
 
     Node::Type SGTransform3D::getNodeType() const
     {
-        return E_NT_TRANSFORM3D;
+        return Type::TRANSFORM3D;
     }
 
     //--------------------------------------------------------------------------

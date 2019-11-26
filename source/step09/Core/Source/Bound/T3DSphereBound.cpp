@@ -54,7 +54,7 @@ namespace Tiny3D
 
     Bound::Type SphereBound::getType() const
     {
-        return E_BT_SPHERE;
+        return Type::SPHERE;
     }
 
     //--------------------------------------------------------------------------

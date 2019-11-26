@@ -74,7 +74,7 @@ namespace Tiny3D
         static TexturePtr create(const String &name, size_t mipmaps, 
             size_t texWidth = 0, size_t texHeight = 0, 
             TexUsage texUsage = E_TU_DEFAULT, TextureType texType = E_TEX_TYPE_2D,
-            PixelFormat format = E_PF_A8R8G8B8);
+            PixelFormat format = PixelFormat::E_PF_A8R8G8B8);
 
         /** 
          * @brief 析构函数 

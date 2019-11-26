@@ -101,7 +101,7 @@ namespace Tiny3D
         {
             // 指示器或者线框渲染，渲染模式需要改成线框模式
             renderMode = renderer->getPolygonMode();
-            renderer->setPolygonMode(E_PM_WIREFRAME);
+            renderer->setPolygonMode(PolygonMode::WIREFRAME);
         }
 
         if (RenderQueue::E_GRPID_LIGHT != groupID)

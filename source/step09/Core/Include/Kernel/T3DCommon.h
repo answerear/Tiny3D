@@ -31,103 +31,103 @@ namespace Tiny3D
     /**
      * @brief 比较函数，用于深度缓冲测试和模板缓冲测试
      */
-    enum CompareFunction
+    enum class CompareFunction : uint32_t
     {
-        E_CMPF_ALWAYS_FAIL,
-        E_CMPF_ALWAYS_PASS,
-        E_CMPF_LESS,
-        E_CMPF_LESS_EQUAL,
-        E_CMPF_EQUAL,
-        E_CMPF_NOT_EQUAL,
-        E_CMPF_GREATER_EQUAL,
-        E_CMPF_GREATER
+        ALWAYS_FAIL,
+        ALWAYS_PASS,
+        LESS,
+        LESS_EQUAL,
+        EQUAL,
+        NOT_EQUAL,
+        GREATER_EQUAL,
+        GREATER
     };
 
-    enum TrackVertexColorType
+    enum class TrackVertexColorType : uint32_t
     {
-        E_TVCT_NONE     = 0x0,
-        E_TVCT_AMBIENT  = 0x1,
-        E_TVCT_DIFFUSE  = 0x2,
-        E_TVCT_SPECULAR = 0x4,
-        E_TVCT_EMISSIVE = 0x8
+        NONE     = 0x0,
+        AMBIENT  = 0x1,
+        DIFFUSE  = 0x2,
+        SPECULAR = 0x4,
+        EMISSIVE = 0x8
     };
 
     /**
      * @brief 背面剔除模式
      */
-    enum CullingMode
+    enum class CullingMode : uint32_t
     {
-        E_CULL_NONE = 0,        /**< 不做消隐面剔除 */
-        E_CULL_CLOCKWISE,       /**< 按照顶点顺时针顺序的消隐面剔除 */
-        E_CULL_ANTICLOCKWISE,   /**< 按照顶点逆时针顺序的消隐面剔除 */
-        E_CULL_MAX
+        NONE = 0,        /**< 不做消隐面剔除 */
+        CLOCKWISE,       /**< 按照顶点顺时针顺序的消隐面剔除 */
+        ANTICLOCKWISE,   /**< 按照顶点逆时针顺序的消隐面剔除 */
+        MAX
     };
 
-    enum ManualCullingMode
+    enum class ManualCullingMode : uint32_t
     {
-        E_MANUAL_CULL_NONE,
-        E_MANUAL_CULL_BACK,
-        E_MANUAL_CULL_FRONT
+        NONE,
+        BACK,
+        FRONT
     };
 
-    enum ShadeMode
+    enum class ShadeMode : uint32_t
     {
-        E_SM_FLAT,
-        E_SM_GOURAUD,
-        E_SM_PHONG
+        FLAT,
+        GOURAUD,
+        PHONG
     };
 
     /**
      * @brief 多边形渲染模式
      */
-    enum PolygonMode
+    enum class PolygonMode : uint32_t
     {
-        E_PM_NONE,
-        E_PM_POINT,             /**< 顶点模式 */
-        E_PM_WIREFRAME,         /**< 线框模式 */
-        E_PM_SOLID,             /**< 着色模式 */
-        E_PM_MAX
+        NONE,
+        POINT,             /**< 顶点模式 */
+        WIREFRAME,         /**< 线框模式 */
+        SOLID,             /**< 着色模式 */
+        MAX
     };
 
-    enum IlluminationStage
+    enum class IlluminationStage : uint32_t
     {
-        E_IS_UNKNOWN,
-        E_IS_AMBIENT,
-        E_IS_PER_LIGHT,
-        E_IS_DECAL
+        UNKNOWN,
+        AMBIENT,
+        PER_LIGHT,
+        DECAL
     };
 
-    enum FogMode
+    enum class FogMode : uint32_t
     {
-        E_FOG_NONE,
-        E_FOG_EXP,
-        E_FOG_EXP2,
-        E_FOG_LINEAR
+        NONE,
+        EXP,
+        EXP2,
+        LINEAR
     };
 
-    enum FilterType
+    enum class FilterType : uint32_t
     {
-        E_FT_MIN,
-        E_FT_MAG,
-        E_FT_MIP
+        MIN,
+        MAG,
+        MIP
     };
 
-    enum FilterOptions
+    enum class FilterOptions : uint32_t
     {
-        E_FO_NONE,
-        E_FO_POINT,
-        E_FO_LINEAR,
-        E_FO_ANISOTROPIC
+        NONE,
+        POINT,
+        LINEAR,
+        ANISOTROPIC
     };
 
-    enum WaveformType
+    enum class WaveformType : uint32_t
     {
-        E_WFT_SINE,
-        E_WFT_TRIANGLE,
-        E_WFT_SQUARE,
-        E_WFT_SAWTOOTH,
-        E_WFT_INVERSE_SAWTOOTH,
-        E_WFT_PWM
+        SINE,
+        TRIANGLE,
+        SQUARE,
+        SAWTOOTH,
+        INVERSE_SAWTOOTH,
+        PWM
     };
 }
 

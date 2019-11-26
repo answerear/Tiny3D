@@ -24,16 +24,16 @@
 
 namespace Tiny3D
 {
-    const uint32_t Image::FILETYPE_RAW = ImageCodecBase::E_FT_RAW;
-    const uint32_t Image::FILETYPE_BMP = ImageCodecBase::E_FT_BMP;
-    const uint32_t Image::FILETYPE_PNG = ImageCodecBase::E_FT_PNG;
-    const uint32_t Image::FILETYPE_TGA = ImageCodecBase::E_FT_TARGA;
-    const uint32_t Image::FILETYPE_JPG = ImageCodecBase::E_FT_JPEG;
-    const uint32_t Image::FILETYPE_DDS = ImageCodecBase::E_FT_DDS;
-    const uint32_t Image::FILETYPE_PVRTC = ImageCodecBase::E_FT_PVRTC;
-    const uint32_t Image::FILETYPE_ASTC = ImageCodecBase::E_FT_ASTC;
-    const uint32_t Image::FILETYPE_ETC1 = ImageCodecBase::E_FT_ETC1;
-    const uint32_t Image::FILETYPE_ETC2 = ImageCodecBase::E_FT_ETC2;
+    const uint32_t Image::FILETYPE_RAW = (uint32_t)ImageCodecBase::FileType::RAW;
+    const uint32_t Image::FILETYPE_BMP = (uint32_t)ImageCodecBase::FileType::BMP;
+    const uint32_t Image::FILETYPE_PNG = (uint32_t)ImageCodecBase::FileType::PNG;
+    const uint32_t Image::FILETYPE_TGA = (uint32_t)ImageCodecBase::FileType::TARGA;
+    const uint32_t Image::FILETYPE_JPG = (uint32_t)ImageCodecBase::FileType::JPEG;
+    const uint32_t Image::FILETYPE_DDS = (uint32_t)ImageCodecBase::FileType::DDS;
+    const uint32_t Image::FILETYPE_PVRTC = (uint32_t)ImageCodecBase::FileType::PVRTC;
+    const uint32_t Image::FILETYPE_ASTC = (uint32_t)ImageCodecBase::FileType::ASTC;
+    const uint32_t Image::FILETYPE_ETC1 = (uint32_t)ImageCodecBase::FileType::ETC1;
+    const uint32_t Image::FILETYPE_ETC2 = (uint32_t)ImageCodecBase::FileType::ETC2;
 
     //--------------------------------------------------------------------------
 
@@ -48,22 +48,22 @@ namespace Tiny3D
 
         switch (format)
         {
-        case E_PF_PALETTE8:
+        case PixelFormat::E_PF_PALETTE8:
             bpp = 8;
             break;
-        case E_PF_R5G6B5:
-        case E_PF_A1R5G5B5:
-        case E_PF_A4R4G4B4:
+        case PixelFormat::E_PF_R5G6B5:
+        case PixelFormat::E_PF_A1R5G5B5:
+        case PixelFormat::E_PF_A4R4G4B4:
             bpp = 16;
             break;
-        case E_PF_R8G8B8:
-        case E_PF_B8G8R8:
+        case PixelFormat::E_PF_R8G8B8:
+        case PixelFormat::E_PF_B8G8R8:
             bpp = 24;
             break;
-        case E_PF_A8R8G8B8:
-        case E_PF_B8G8R8A8:
-        case E_PF_X8R8G8B8:
-        case E_PF_B8G8R8X8:
+        case PixelFormat::E_PF_A8R8G8B8:
+        case PixelFormat::E_PF_B8G8R8A8:
+        case PixelFormat::E_PF_X8R8G8B8:
+        case PixelFormat::E_PF_B8G8R8X8:
             bpp = 32;
             break;
         default:
@@ -81,7 +81,7 @@ namespace Tiny3D
         , mHeight(0)
         , mBPP(0)
         , mPitch(0)
-        , mFormat(E_PF_A8R8G8B8)
+        , mFormat(PixelFormat::E_PF_A8R8G8B8)
         , mHasAlpha(false)
         , mIsPreMulti(false)
         , mIsDataExternal(false)
@@ -287,7 +287,7 @@ namespace Tiny3D
         }
         else
         {
-            ret = T3D_IMAGE_CODEC.copy(image, srcRect, *this, dstRect, filter);
+            ret = T3D_IMAGE_CODEC.copy(image, srcRect, *this, dstRect, (uint32_t)filter);
         }
 
         return ret;
@@ -335,7 +335,7 @@ namespace Tiny3D
     {
         switch (mFormat)
         {
-        case E_PF_A1R5G5B5:
+        case PixelFormat::E_PF_A1R5G5B5:
         {
             redMask = Color4::RGB555_RED_MASK;
             greenMask = Color4::RGB555_GREEN_MASK;
@@ -343,7 +343,7 @@ namespace Tiny3D
             alphaMask = Color4::RGB555_ALPHA_MASK;
         }
         break;
-        case E_PF_R5G6B5:
+        case PixelFormat::E_PF_R5G6B5:
         {
             redMask = Color4::RGB565_RED_MASK;
             greenMask = Color4::RGB565_GREEN_MASK;
@@ -351,7 +351,7 @@ namespace Tiny3D
             alphaMask = 0;
         }
         break;
-        case E_PF_A4R4G4B4:
+        case PixelFormat::E_PF_A4R4G4B4:
         {
             redMask = Color4::RGB444_RED_MASK;
             greenMask = Color4::RGB444_GREEN_MASK;
@@ -359,17 +359,17 @@ namespace Tiny3D
             alphaMask = Color4::RGB444_ALPHA_MASK;
         }
         break;
-        case E_PF_R8G8B8:
+        case PixelFormat::E_PF_R8G8B8:
             break;
-        case E_PF_B8G8R8:
+        case PixelFormat::E_PF_B8G8R8:
             break;
-        case E_PF_A8R8G8B8:
+        case PixelFormat::E_PF_A8R8G8B8:
             break;
-        case E_PF_B8G8R8A8:
+        case PixelFormat::E_PF_B8G8R8A8:
             break;
-        case E_PF_X8R8G8B8:
+        case PixelFormat::E_PF_X8R8G8B8:
             break;
-        case E_PF_B8G8R8X8:
+        case PixelFormat::E_PF_B8G8R8X8:
             break;
         default:
             break;

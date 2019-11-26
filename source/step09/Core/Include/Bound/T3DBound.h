@@ -41,13 +41,13 @@ namespace Tiny3D
         /**
          * @brief 碰撞体类型
          */
-        enum Type
+        enum class Type : uint8_t
         {
-            E_BT_NONE = 0,      /**< 未知碰撞体类型 */
-            E_BT_SPHERE,        /**< 球包围体碰撞体 */
-            E_BT_AABB,          /**< 轴对齐包围盒碰撞体 */
-            E_BT_OBB,           /**< 有向包围盒碰撞体 */
-            E_BT_FRUSTUM,       /**< 视锥体碰撞体 */
+            NONE = 0,       /**< 未知碰撞体类型 */
+            SPHERE,         /**< 球包围体碰撞体 */
+            AABB,           /**< 轴对齐包围盒碰撞体 */
+            OBB,            /**< 有向包围盒碰撞体 */
+            FRUSTUM,        /**< 视锥体碰撞体 */
         };
 
         /**

@@ -31,49 +31,49 @@ namespace Tiny3D
     /**
      * @brief 纹理混合类型
      */
-    enum LayerBlendType
+    enum class LayerBlendType : uint32_t
     {
-        E_LBT_COLOR,
-        E_LBT_ALPHA
+        COLOR,
+        ALPHA
     };
 
     /**
      * @brief 纹理混合操作
      */
-    enum LayerBlendOperation
+    enum class LayerBlendOperation : uint32_t
     {
-        E_LBO_REPLACE,      /// 用纹理覆盖所有
-        E_LBO_ADD,          /// 把颜色分量叠加
-        E_LBO_MODULATE,     /// 把颜色分量相乘
-        E_LBO_ALPHA_BLEND   /// 根据纹理alpha通道叠加
+        REPLACE,      /// 用纹理覆盖所有
+        ADD,          /// 把颜色分量叠加
+        MODULATE,     /// 把颜色分量相乘
+        ALPHA_BLEND   /// 根据纹理alpha通道叠加
     };
 
-    enum LayerBlendOperationEx
+    enum class LayerBlendOperationEx : uint32_t
     {
-        E_LBX_SOURCE1,
-        E_LBX_SOURCE2,
-        E_LBX_MODULATE,
-        E_LBX_MODULATE_X2,
-        E_LBX_MODULATE_X4,
-        E_LBX_ADD,
-        E_LBX_ADD_SIGNED,
-        E_LBX_ADD_SMOOTH,
-        E_LBX_SUBTRACT,
-        E_LBX_BLEND_DIFFUSE_ALPHA,
-        E_LBX_BLEND_TEXTURE_ALPHA,
-        E_LBX_BLEND_CURRENT_ALPHA,
-        E_LBX_BLEND_MANUAL,
-        E_LBX_DOTPRODUCT,
-        E_LBX_BLEND_DIFFUSE_COLOR
+        SOURCE1,
+        SOURCE2,
+        MODULATE,
+        MODULATE_X2,
+        MODULATE_X4,
+        ADD,
+        ADD_SIGNED,
+        ADD_SMOOTH,
+        SUBTRACT,
+        BLEND_DIFFUSE_ALPHA,
+        BLEND_TEXTURE_ALPHA,
+        BLEND_CURRENT_ALPHA,
+        BLEND_MANUAL,
+        DOTPRODUCT,
+        BLEND_DIFFUSE_COLOR
     };
 
-    enum LayerBlendSource
+    enum class LayerBlendSource : uint32_t
     {
-        E_LBS_CURRENT,
-        E_LBS_TEXTURE,
-        E_LBS_DIFFUSE,
-        E_LBS_SPECULAR,
-        E_LBS_MANUAL
+        CURRENT,
+        TEXTURE,
+        DIFFUSE,
+        SPECULAR,
+        MANUAL
     };
 
     class T3D_ENGINE_API LayerBlendModeEx
@@ -94,7 +94,7 @@ namespace Tiny3D
         {
             if (blendType != other.blendType) return false;
 
-            if (blendType == E_LBT_COLOR)
+            if (blendType == LayerBlendType::COLOR)
             {
 
                 if (operation == other.operation &&
@@ -131,51 +131,51 @@ namespace Tiny3D
     /**
      * @brief 混合类型
      */
-    enum BlendType
+    enum class BlendType : uint32_t
     {
         /// 使用纹理上的alpha值来做混合计算，相当于：
         /// C_result = C_src * A_src + C_dst * (1 - A_src)
-        E_BT_TRANSPARENT_ALPHA,
+        TRANSPARENT_ALPHA,
         /// 使用纹理上的颜色值来做混合计算，相当于：
         /// C_result = C_src * C_src + C_dst * (1 - C_src)
-        E_BT_TRANSPARENT_COLOR,
+        TRANSPARENT_COLOR,
         /// 把纹理颜色值直接叠加到现在渲染目标中的颜色值，相当于：
         /// C_result = C_src + C_dst
-        E_BT_ADD,
+        ADD,
         /// 直接把纹理颜色值跟渲染目标中的颜色值相乘，相当于：
         /// C_result = C_src * C_dst
-        E_BT_MODULATE,
+        MODULATE,
         /// 默认方式，直接用纹理颜色代替渲染目标的颜色
-        E_BT_REPLACE,
+        REPLACE,
     };
 
     /**
      * @brief 混合因子
      */
-    enum BlendFactor
+    enum class BlendFactor : uint32_t
     {
-        E_BF_ONE,                     /// 1.0
-        E_BF_ZERO,                    /// 0.0
-        E_BF_DEST_COLOR,              /// C_dst
-        E_BF_SOURCE_COLOR,            /// C_src
-        E_BF_ONE_MINUS_DEST_COLOR,    /// 1 - C_dst
-        E_BF_ONE_MINUS_SOURCE_COLOR,  /// 1 - C_src
-        E_BF_DEST_ALPHA,              /// A_dst
-        E_BF_SOURCE_ALPHA,            /// A_src
-        E_BF_ONE_MINUS_DEST_ALPHA,    /// 1 - A_dst
-        E_BF_ONE_MINUS_SOURCE_ALPHA   /// 1 - A_src
+        ONE,                     /// 1.0
+        ZERO,                    /// 0.0
+        DEST_COLOR,              /// C_dst
+        SOURCE_COLOR,            /// C_src
+        ONE_MINUS_DEST_COLOR,    /// 1 - C_dst
+        ONE_MINUS_SOURCE_COLOR,  /// 1 - C_src
+        DEST_ALPHA,              /// A_dst
+        SOURCE_ALPHA,            /// A_src
+        ONE_MINUS_DEST_ALPHA,    /// 1 - A_dst
+        ONE_MINUS_SOURCE_ALPHA   /// 1 - A_src
     };
 
     /**
      * @brief 混合操作
      */
-    enum BlendOperation
+    enum class BlendOperation : uint32_t
     {
-        E_BO_ADD,                 /// C_result = C_src * F_src + C_dst * F_dst
-        E_BO_SUBTRACT,            /// C_result = C_src * F_src - C_dst * F_dst
-        E_BO_REVERSE_SUBTRACT,    /// C_result = C_dst * F_dst - C_src * F_src
-        E_BO_MIN,                 /// 
-        E_BO_MAX
+        ADD,                 /// C_result = C_src * F_src + C_dst * F_dst
+        SUBTRACT,            /// C_result = C_src * F_src - C_dst * F_dst
+        REVERSE_SUBTRACT,    /// C_result = C_dst * F_dst - C_src * F_src
+        MIN,                 /// 
+        MAX
     };
 }
 

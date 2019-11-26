@@ -140,7 +140,7 @@ namespace Tiny3D
 
     ImageCodecBase::FileType FreeImageCodec::getFileType() const
     {
-        return E_FT_IMG;
+        return FileType::IMG;
     }
 
     TResult FreeImageCodec::encode(uint8_t *&data, size_t &size, 
@@ -249,7 +249,7 @@ namespace Tiny3D
 
             FREE_IMAGE_TYPE imageType = FreeImage_GetImageType(dib);
             FREE_IMAGE_COLOR_TYPE colorType = FreeImage_GetColorType(dib);
-            PixelFormat eFormat = E_PF_A8R8G8B8;
+            PixelFormat eFormat = PixelFormat::E_PF_A8R8G8B8;
 
             switch (imageType)
             {
@@ -326,29 +326,29 @@ namespace Tiny3D
                 {
                 case 8:
                     {
-                        eFormat = E_PF_PALETTE8;
+                        eFormat = PixelFormat::E_PF_PALETTE8;
                     }
                     break;
                 case 16:
                     {
                         if (FreeImage_GetGreenMask(dib) == FI16_565_GREEN_MASK)
                         {
-                            eFormat = E_PF_R5G6B5;
+                            eFormat = PixelFormat::E_PF_R5G6B5;
                         }
                         else
                         {
-                            eFormat = E_PF_A1R5G5B5;
+                            eFormat = PixelFormat::E_PF_A1R5G5B5;
                         }
                     }
                     break;
                 case 24:
                     {
-                        eFormat = E_PF_R8G8B8;
+                        eFormat = PixelFormat::E_PF_R8G8B8;
                     }
                     break;
                 case 32:
                     {
-                        eFormat = E_PF_A8R8G8B8;
+                        eFormat = PixelFormat::E_PF_A8R8G8B8;
                         hasAlpha = true;
                     }
                     break;
@@ -357,7 +357,7 @@ namespace Tiny3D
                 int32_t y = 0;
                 uint8_t *pDst = dst;
 
-                if (type == E_FT_DDS)
+                if (type == FileType::DDS)
                 {
                     // DDS要翻转一次，因为DDS原点在左上角
                     for (y = 0; y < height; ++y)

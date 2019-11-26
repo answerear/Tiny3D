@@ -64,25 +64,25 @@ namespace Tiny3D
 
         switch (bound->getType())
         {
-        case E_BT_SPHERE:
+        case Type::SPHERE:
             {
                 SphereBoundPtr sphere = smart_pointer_cast<SphereBound>(bound);
                 ret = testSphere(sphere->getSphere());
             }
             break;
-        case E_BT_AABB:
+        case Type::AABB:
             {
                 AabbBoundPtr aabb = smart_pointer_cast<AabbBound>(bound);
                 ret = testAabb(aabb->getAlignAxisBox());
             }
             break;
-        case E_BT_OBB:
+        case Type::OBB:
             {
                 ObbBoundPtr obb = smart_pointer_cast<ObbBound>(bound);
                 ret = testObb(obb->getObb());
             }
             break;
-        case E_BT_FRUSTUM:
+        case Type::FRUSTUM:
             {
                 FrustumBoundPtr frustum
                     = smart_pointer_cast<FrustumBound>(bound);

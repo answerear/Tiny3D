@@ -181,7 +181,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type), 
                 "Read object type [%d] failed !", type);
 
-            if (type != E_NT_OBJECT)
+            if (type != OBJECT)
             {
                 // 错误类型，这里需要对象
                 ret = T3D_ERR_RES_INVALID_OBJECT;

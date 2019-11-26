@@ -85,7 +85,7 @@ namespace Tiny3D
 
     Node::Type SGCamera::getNodeType() const
     {
-        return E_NT_CAMERA;
+        return Type::CAMERA;
     }
 
     //--------------------------------------------------------------------------

@@ -47,27 +47,27 @@ namespace Tiny3D
         /**
         * @brief 结点类型
         */
-        enum Type
+        enum class Type : uint32_t
         {
-            E_NT_UNKNOWN = 0,       /**< 未知结点类型 */
+            UNKNOWN = 0,       /**< 未知结点类型 */
 
-            E_NT_TRANSFORM3D,       /**< 3D变换结点 */
-            E_NT_TRANSFORM2D,       /**< 2D变换结点 */
-            E_NT_BONE,              /**< 骨骼变换结点 */
+            TRANSFORM3D,       /**< 3D变换结点 */
+            TRANSFORM2D,       /**< 2D变换结点 */
+            BONE,              /**< 骨骼变换结点 */
 
-            E_NT_CAMERA,            /**< 相机结点 */
-            E_NT_MODEL,             /**< 模型结点 */
+            CAMERA,            /**< 相机结点 */
+            MODEL,             /**< 模型结点 */
 
-            E_NT_LIGHT,             /**< 灯光结点 */
-            E_NT_GEOMETRY,          /**< 几何物体结点 */
-            E_NT_MESH,              /**< 网格结点 */
-            E_NT_SPHERE,            /**< 球型物体结点 */
-            E_NT_BOX,               /**< 立方体结点 */
-            E_NT_SKELETON,          /**< 可渲染的骨骼结点 */
-            E_NT_AXIS,              /**< 坐标轴结点 */
-            E_NT_QUAD,              /**< 四边形结点 */
-            E_NT_SPRITE,            /**< 精灵结点 */
-            E_NT_TEXT2D,            /**< 2D文本结点 */
+            LIGHT,             /**< 灯光结点 */
+            GEOMETRY,          /**< 几何物体结点 */
+            MESH,              /**< 网格结点 */
+            SPHERE,            /**< 球型物体结点 */
+            BOX,               /**< 立方体结点 */
+            SKELETON,          /**< 可渲染的骨骼结点 */
+            AXIS,              /**< 坐标轴结点 */
+            QUAD,              /**< 四边形结点 */
+            SPRITE,            /**< 精灵结点 */
+            TEXT2D,            /**< 2D文本结点 */
         };
 
         /**

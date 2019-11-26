@@ -69,7 +69,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult encode(const String &name, const Image &image, 
-            ImageCodecBase::FileType type = ImageCodecBase::E_FT_PNG);
+            ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
 
         /**
          * @brief 编码到数据流对象
@@ -79,7 +79,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult encode(DataStream &stream, const Image &image, 
-            ImageCodecBase::FileType type = ImageCodecBase::E_FT_PNG);
+            ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
 
         /**
          * @brief 编码到数据缓冲
@@ -89,7 +89,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult encode(uint8_t *&data, size_t &size, const Image &image, 
-            ImageCodecBase::FileType type = ImageCodecBase::E_FT_PNG);
+            ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
 
         /**
          * @brief 把指定文件读取并解码到图像对象中
@@ -99,7 +99,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult decode(const String &name, Image &image, 
-            ImageCodecBase::FileType type = ImageCodecBase::E_FT_UNKNOWN);
+            ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
 
         /**
          * @brief 把数据流对象中的数据解码到图像对象中
@@ -109,7 +109,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult decode(DataStream &stream, Image &image, 
-            ImageCodecBase::FileType type = ImageCodecBase::E_FT_UNKNOWN);
+            ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
 
         /**
          * @brief 把数据缓冲中的数据解码到图像对象中
@@ -119,7 +119,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         TResult decode(uint8_t *data, size_t size, Image &image, 
-            ImageCodecBase::FileType type = ImageCodecBase::E_FT_UNKNOWN);
+            ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
 
         /**
          * @brief 颠倒图像

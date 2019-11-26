@@ -52,7 +52,7 @@ namespace Tiny3D
 
     Bound::Type ObbBound::getType() const
     {
-        return E_BT_OBB;
+        return Type::OBB;
     }
 
     //--------------------------------------------------------------------------

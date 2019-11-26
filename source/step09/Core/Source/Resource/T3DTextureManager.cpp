@@ -59,14 +59,14 @@ namespace Tiny3D
         TextureType texType /* = Texture::E_TEX_TYPE_2D */)
     {
         return smart_pointer_cast<Texture>(ResourceManager::load(
-            name, 6, -1,  -1, mipmaps, E_PF_A8R8G8B8, texUsage, texType));
+            name, 6, -1,  -1, mipmaps, PixelFormat::E_PF_A8R8G8B8, texUsage, texType));
     }
 
     //--------------------------------------------------------------------------
 
     TexturePtr TextureManager::loadTexture(const String &name, size_t width, 
         size_t height, size_t mipmaps /* = -1 */, 
-        PixelFormat format /* = E_PF_A8R8G8B8 */, 
+        PixelFormat format /* = PixelFormat::E_PF_A8R8G8B8 */, 
         Texture::TexUsage texUsage /* = Texture::E_TU_BLANK */, 
         TextureType texType /* = Texture::E_TEX_TYPE_2D */)
     {

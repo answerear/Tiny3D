@@ -40,52 +40,52 @@ namespace Tiny3D
         /**
         * @brief 支持的图像类型
         */
-        enum FileType
+        enum class FileType : uint32_t
         {
-            E_FT_UNKNOWN = -1,      /**< 未知图像类型 */
-            E_FT_BMP = 0,           /**< Bitmap */
-            E_FT_ICO = 1,           /**< Windows 图标  */
-            E_FT_JPEG = 2,          /**< JPEG */
-            E_FT_JNG = 3,           /**< JNG */
-            E_FT_KOALA = 4,
-            E_FT_LBM = 5,
-            E_FT_IFF = E_FT_LBM,
-            E_FT_MNG = 6,
-            E_FT_PBM = 7,
-            E_FT_PBMRAW = 8,
-            E_FT_PCD = 9,
-            E_FT_PCX = 10,
-            E_FT_PGM = 11,
-            E_FT_PGMRAW = 12,
-            E_FT_PNG = 13,
-            E_FT_PPM = 14,
-            E_FT_PPMRAW = 15,
-            E_FT_RAS = 16,
-            E_FT_TARGA = 17,
-            E_FT_TIFF = 18,
-            E_FT_WBMP = 19,
-            E_FT_PSD = 20,
-            E_FT_CUT = 21,
-            E_FT_XBM = 22,
-            E_FT_XPM = 23,
-            E_FT_DDS = 24,
-            E_FT_GIF = 25,
-            E_FT_HDR = 26,
-            E_FT_FAXG3 = 27,
-            E_FT_SGI = 28,
-            E_FT_EXR = 29,
-            E_FT_J2K = 30,
-            E_FT_JP2 = 31,
-            E_FT_PFM = 32,
-            E_FT_PICT = 33,
-            E_FT_RAW = 34,
-            E_FT_WEBP = 35,
-            E_FT_JXR = 36,
-            E_FT_IMG = 37,
-            E_FT_PVRTC = 38,
-            E_FT_ASTC = 39,
-            E_FT_ETC1 = 40,
-            E_FT_ETC2 = 41,
+            UNKNOWN = 0xFFFFFFFF,      /**< 未知图像类型 */
+            BMP = 0,           /**< Bitmap */
+            ICO = 1,           /**< Windows 图标  */
+            JPEG = 2,          /**< JPEG */
+            JNG = 3,           /**< JNG */
+            KOALA = 4,
+            LBM = 5,
+            IFF = LBM,
+            MNG = 6,
+            PBM = 7,
+            PBMRAW = 8,
+            PCD = 9,
+            PCX = 10,
+            PGM = 11,
+            PGMRAW = 12,
+            PNG = 13,
+            PPM = 14,
+            PPMRAW = 15,
+            RAS = 16,
+            TARGA = 17,
+            TIFF = 18,
+            WBMP = 19,
+            PSD = 20,
+            CUT = 21,
+            XBM = 22,
+            XPM = 23,
+            DDS = 24,
+            GIF = 25,
+            HDR = 26,
+            FAXG3 = 27,
+            SGI = 28,
+            EXR = 29,
+            J2K = 30,
+            JP2 = 31,
+            PFM = 32,
+            PICT = 33,
+            RAW = 34,
+            WEBP = 35,
+            JXR = 36,
+            IMG = 37,
+            PVRTC = 38,
+            ASTC = 39,
+            ETC1 = 40,
+            ETC2 = 41,
             MAX_TYPE_SUPPORTED,
         };
 

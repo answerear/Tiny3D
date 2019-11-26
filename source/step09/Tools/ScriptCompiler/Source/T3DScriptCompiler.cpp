@@ -1163,17 +1163,17 @@ namespace Tiny3D
             E_PF_B8G8R8X8,
         };
 
-        mPixelFormat["PF_UNKNOWN"] = E_PF_UNKNOWN;
-        mPixelFormat["PF_PALETTE8"] = E_PF_PALETTE8;
-        mPixelFormat["PF_R5G6B5"] = E_PF_R5G6B5;
-        mPixelFormat["PF_A1R5G5B5"] = E_PF_A1R5G5B5;
-        mPixelFormat["PF_A4R4G4B4"] = E_PF_A4R4G4B4;
-        mPixelFormat["PF_R8G8B8"] = E_PF_R8G8B8;
-        mPixelFormat["PF_B8G8R8"] = E_PF_B8G8R8;
-        mPixelFormat["PF_A8R8G8B8"] = E_PF_A8R8G8B8;
-        mPixelFormat["PF_B8G8R8A8"] = E_PF_B8G8R8A8;
-        mPixelFormat["PF_X8R8G8B8"] = E_PF_X8R8G8B8;
-        mPixelFormat["PF_B8G8R8X8"] = E_PF_B8G8R8X8;
+        mPixelFormat["PF_UNKNOWN"] = PixelFormat::E_PF_UNKNOWN;
+        mPixelFormat["PF_PALETTE8"] = PixelFormat::E_PF_PALETTE8;
+        mPixelFormat["PF_R5G6B5"] = PixelFormat::E_PF_R5G6B5;
+        mPixelFormat["PF_A1R5G5B5"] = PixelFormat::E_PF_A1R5G5B5;
+        mPixelFormat["PF_A4R4G4B4"] = PixelFormat::E_PF_A4R4G4B4;
+        mPixelFormat["PF_R8G8B8"] = PixelFormat::E_PF_R8G8B8;
+        mPixelFormat["PF_B8G8R8"] = PixelFormat::E_PF_B8G8R8;
+        mPixelFormat["PF_A8R8G8B8"] = PixelFormat::E_PF_A8R8G8B8;
+        mPixelFormat["PF_B8G8R8A8"] = PixelFormat::E_PF_B8G8R8A8;
+        mPixelFormat["PF_X8R8G8B8"] = PixelFormat::E_PF_X8R8G8B8;
+        mPixelFormat["PF_B8G8R8X8"] = PixelFormat::E_PF_B8G8R8X8;
     }
 
     //--------------------------------------------------------------------------

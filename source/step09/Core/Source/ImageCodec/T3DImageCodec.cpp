@@ -75,7 +75,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ImageCodec::encode(const String &name, const Image &image,
-        ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_PNG */)
+        ImageCodecBase::FileType type /* = ImageCodecBase::FileType::PNG */)
     {
         TResult ret = T3D_OK;
 
@@ -108,7 +108,7 @@ namespace Tiny3D
     }
 
     TResult ImageCodec::encode(DataStream &stream, const Image &image,
-        ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_PNG */)
+        ImageCodecBase::FileType type /* = ImageCodecBase::PNG */)
     {
         TResult ret = T3D_OK;
 
@@ -136,7 +136,7 @@ namespace Tiny3D
     }
 
     TResult ImageCodec::encode(uint8_t *&data, size_t &size, const Image &image,
-        ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_PNG */)
+        ImageCodecBase::FileType type /* = ImageCodecBase::FileType::PNG */)
     {
         TResult ret = T3D_OK;
 
@@ -159,7 +159,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ImageCodec::decode(const String &name, Image &image,
-        ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_UNKNOWN */)
+        ImageCodecBase::FileType type /* = ImageCodecBase::FileType::UNKNOWN */)
     {
         TResult ret = T3D_OK;
 
@@ -191,7 +191,7 @@ namespace Tiny3D
     }
 
     TResult ImageCodec::decode(DataStream &stream, Image &image, 
-        ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_UNKNOWN */)
+        ImageCodecBase::FileType type /* = ImageCodecBase::FileType::UNKNOWN */)
     {
         TResult ret = T3D_OK;
 
@@ -214,7 +214,7 @@ namespace Tiny3D
     }
 
     TResult ImageCodec::decode(uint8_t *data, size_t size, Image &image,
-        ImageCodecBase::FileType type /* = ImageCodecBase::E_FT_UNKNOWN */)
+        ImageCodecBase::FileType type /* = ImageCodecBase::FileType::UNKNOWN */)
     {
         TResult ret = T3D_OK;
 
@@ -388,7 +388,7 @@ namespace Tiny3D
     {
         ImageCodecBasePtr codec;
 
-        if (type != ImageCodecBase::E_FT_UNKNOWN)
+        if (type != ImageCodecBase::FileType::UNKNOWN)
         {
             auto itr = mCodecMap.find(type);
             if (itr != mCodecMap.end())

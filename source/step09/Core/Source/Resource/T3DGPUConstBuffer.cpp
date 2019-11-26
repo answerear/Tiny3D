@@ -39,7 +39,7 @@ namespace Tiny3D
         : Resource(name)
         , mBufSize(0)
         , mBuffer(nullptr)
-        , mUsage(HardwareBuffer::E_HBU_DYNAMIC)
+        , mUsage(HardwareBuffer::Usage::E_HBU_DYNAMIC)
         , mUseSystemMemory(false)
         , mUseShadowBuffer(false)
         , mHasData(false)

@@ -38,7 +38,7 @@ namespace Tiny3D
         /**
          * @brief 缓冲区用法
          */
-        enum Usage
+        enum Usage : uint32_t
         {
             /**< 静态缓存，数据放置在显存中，对于静态缓存读写数据是很慢的。
                 一般用于创建后就不更新的数据 */

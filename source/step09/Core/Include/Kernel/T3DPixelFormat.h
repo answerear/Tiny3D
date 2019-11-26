@@ -27,7 +27,7 @@
 
 namespace Tiny3D
 {
-    enum PixelFormat
+    enum class PixelFormat : uint32_t
     {
         E_PF_UNKNOWN = 0,
         E_PF_PALETTE8,

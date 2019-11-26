@@ -84,7 +84,7 @@ namespace Tiny3D
 
     Node::Type SGBox::getNodeType() const
     {
-        return E_NT_BOX;
+        return Type::BOX;
     }
 
     //--------------------------------------------------------------------------
@@ -143,8 +143,8 @@ namespace Tiny3D
             // 创建VBO
             HardwareVertexBufferPtr vbo
                 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(sizeof(BoxVertex),
-                    MAX_VERTICES, vertices, HardwareVertexBuffer::E_HBU_STATIC,
-                    false, false);
+                    MAX_VERTICES, vertices, 
+                    HardwareVertexBuffer::Usage::E_HBU_STATIC, false, false);
             if (vbo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -168,7 +168,7 @@ namespace Tiny3D
             HardwareIndexBufferPtr ibo
                 = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(
                     HardwareIndexBuffer::E_IT_16BITS, MAX_INDICES, indices,
-                    HardwareIndexBuffer::E_HBU_STATIC, false, false);
+                    HardwareIndexBuffer::Usage::E_HBU_STATIC, false, false);
             if (ibo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;

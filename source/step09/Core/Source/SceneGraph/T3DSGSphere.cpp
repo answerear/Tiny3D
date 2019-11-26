@@ -92,7 +92,7 @@ namespace Tiny3D
 
     Node::Type SGSphere::getNodeType() const
     {
-        return E_NT_SPHERE;
+        return Type::SPHERE;
     }
 
     //--------------------------------------------------------------------------
@@ -153,7 +153,7 @@ namespace Tiny3D
             HardwareVertexBufferPtr vbo
                 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(
                     sizeof(SphereVertex), MAX_VERTICES, vertices,
-                    HardwareVertexBuffer::E_HBU_STATIC, false, false);
+                    HardwareVertexBuffer::Usage::E_HBU_STATIC, false, false);
             if (vbo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -177,7 +177,7 @@ namespace Tiny3D
             HardwareIndexBufferPtr ibo
                 = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(
                     HardwareIndexBuffer::E_IT_16BITS, MAX_INDICES, indices,
-                    HardwareIndexBuffer::E_HBU_STATIC, false, false);
+                    HardwareIndexBuffer::Usage::E_HBU_STATIC, false, false);
             if (ibo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;

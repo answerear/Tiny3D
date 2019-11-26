@@ -33,7 +33,7 @@ namespace Tiny3D
         size_t texWidth /* = 0 */, size_t texHeight /* = 0 */,
         TexUsage texUsage /* = E_TU_DEFAULT */,
         TextureType texType /* = E_TEX_TYPE_2D */,
-        PixelFormat format /* = E_PF_A8R8G8B8 */)
+        PixelFormat format /* = PixelFormat::E_PF_A8R8G8B8 */)
     {
         TexturePtr texture = new Texture(name, mipmaps, texWidth, texHeight, 
             texUsage, texType, format);
@@ -127,7 +127,7 @@ namespace Tiny3D
                 // 创建硬件缓冲区
                 mPBO = T3D_HARDWARE_BUFFER_MGR.createPixelBuffer(mTexWidth, 
                     mTexHeight, mFormat, image.getData(), 
-                    HardwareBuffer::E_HBU_DYNAMIC, false, false);
+                    HardwareBuffer::Usage::E_HBU_DYNAMIC, false, false);
 
                 if (mPBO == nullptr)
                 {
@@ -149,8 +149,8 @@ namespace Tiny3D
             {
                 // 创建硬件缓冲区
                 mPBO = T3D_HARDWARE_BUFFER_MGR.createPixelBuffer(mTexWidth, 
-                    mTexHeight, mFormat, nullptr, HardwareBuffer::E_HBU_DYNAMIC, 
-                    false, false);
+                    mTexHeight, mFormat, nullptr, 
+                    HardwareBuffer::Usage::E_HBU_DYNAMIC, false, false);
 
                 if (mPBO == nullptr)
                 {

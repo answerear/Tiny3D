@@ -364,22 +364,22 @@ namespace Tiny3D
             E_BV_NO = 2
         };
 
-        enum BuiltinType
+        enum class BuiltinType : uint8_t
         {
-            E_BT_NONE = 0,
-            E_BT_REAL,
-            E_BT_INT,
+            NONE = 0,
+            REAL,
+            INT,
         };
 
         enum NodeType
         {
-            E_NT_UNKNOWN,
-            E_NT_ATOM,
-            E_NT_OBJECT,
-            E_NT_PROPERTY,
-            E_NT_IMPORT,
-            E_NT_VARIABLE_SET,
-            E_NT_VARIABLE_ACCESS
+            UNKNOWN,
+            ATOM,
+            OBJECT,
+            PROPERTY,
+            IMPORT,
+            VARIABLE_SET,
+            VARIABLE_ACCESS
         };
 
     public:

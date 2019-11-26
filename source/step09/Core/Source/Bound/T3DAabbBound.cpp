@@ -52,7 +52,7 @@ namespace Tiny3D
 
     Bound::Type AabbBound::getType() const
     {
-        return E_BT_AABB;
+        return Type::AABB;
     }
 
     //--------------------------------------------------------------------------

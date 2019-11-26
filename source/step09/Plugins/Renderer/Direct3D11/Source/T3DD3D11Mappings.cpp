@@ -115,17 +115,17 @@ namespace Tiny3D
 
         switch (usage)
         {
-        case HardwareBuffer::E_HBU_STATIC:
+        case HardwareBuffer::Usage::E_HBU_STATIC:
             d3dusage = D3D11_USAGE_IMMUTABLE;
             break;
-        case HardwareBuffer::E_HBU_DYNAMIC:
+        case HardwareBuffer::Usage::E_HBU_DYNAMIC:
             d3dusage = D3D11_USAGE_DYNAMIC;
             break;
-        case HardwareBuffer::E_HBU_WRITE_ONLY:
+        case HardwareBuffer::Usage::E_HBU_WRITE_ONLY:
             break;
-        case HardwareBuffer::E_HBU_STATIC_WRITE_ONLY:
+        case HardwareBuffer::Usage::E_HBU_STATIC_WRITE_ONLY:
             break;
-        case HardwareBuffer::E_HBU_DYNAMIC_WRITE_ONLY:
+        case HardwareBuffer::Usage::E_HBU_DYNAMIC_WRITE_ONLY:
             break;
         }
 

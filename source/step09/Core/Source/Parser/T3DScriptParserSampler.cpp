@@ -72,7 +72,7 @@ namespace Tiny3D
             String name;
             ret = parseString(stream, name);
 
-            uint16_t type = E_NT_UNKNOWN;
+            uint16_t type = UNKNOWN;
             uint16_t i = 0;
 
             for (i = 0; i < count; ++i)
@@ -82,11 +82,11 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
                     "Read the type of property of sampler failed !");
 
-                if (type == E_NT_PROPERTY)
+                if (type == PROPERTY)
                 {
                     ret = parseProperties(stream, unit, version);
                 }
-                else if (type == E_NT_OBJECT)
+                else if (type == OBJECT)
                 {
                     ret = parseObjects(stream, unit, version);
                 }

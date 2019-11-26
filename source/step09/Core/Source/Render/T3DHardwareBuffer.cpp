@@ -36,14 +36,14 @@ namespace Tiny3D
         , mIsLocked(false)
         , mIsShadowBufferDirty(false)
     {
-        if (useShadowBuffer && usage == E_HBU_DYNAMIC)
+        if (useShadowBuffer && usage == Usage::E_HBU_DYNAMIC)
         {
             // 使用了影子缓存，则直接动态只读的硬件缓存，影子缓存用于提升其性能
-            mUsage = E_HBU_DYNAMIC_WRITE_ONLY;
+            mUsage = Usage::E_HBU_DYNAMIC_WRITE_ONLY;
         }
-        else if (useShadowBuffer && usage == E_HBU_STATIC)
+        else if (useShadowBuffer && usage == Usage::E_HBU_STATIC)
         {
-            mUsage = E_HBU_STATIC_WRITE_ONLY;
+            mUsage = Usage::E_HBU_STATIC_WRITE_ONLY;
         }
     }
 

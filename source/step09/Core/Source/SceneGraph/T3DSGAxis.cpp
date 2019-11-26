@@ -144,8 +144,8 @@ namespace Tiny3D
             // 创建VBO
             HardwareVertexBufferPtr vbo
                 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(sizeof(AxisVertex),
-                    MAX_VERTICES, vertices, HardwareVertexBuffer::E_HBU_STATIC, 
-                    false, false);
+                    MAX_VERTICES, vertices, 
+                    HardwareVertexBuffer::Usage::E_HBU_STATIC, false, false);
             if (vbo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -189,7 +189,7 @@ namespace Tiny3D
 
     Node::Type SGAxis::getNodeType() const
     {
-        return E_NT_AXIS;
+        return Type::AXIS;
     }
 
     //--------------------------------------------------------------------------

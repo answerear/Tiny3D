@@ -53,7 +53,7 @@ namespace Tiny3D
 
     Bound::Type FrustumBound::getType() const
     {
-        return E_BT_FRUSTUM;
+        return Type::FRUSTUM;
     }
 
     //--------------------------------------------------------------------------

@@ -45,7 +45,7 @@ namespace Tiny3D
         static const uint32_t FILETYPE_ETC1;
         static const uint32_t FILETYPE_ETC2;
 
-        enum Filter
+        enum class Filter : uint32_t
         {
             /**< Box, pulse, Fourier window, 1st order (constant) b-spline */
             E_FILTER_BOX = 0,
@@ -178,7 +178,7 @@ namespace Tiny3D
          * @note 当自动缩放时，会导致性能下降
          */
         TResult copy(const Image &image, const Rect *srcRect = nullptr,
-            const Rect *dstRect = nullptr, Filter filter = E_FILTER_BILINEAR);
+            const Rect *dstRect = nullptr, Filter filter = Filter::E_FILTER_BILINEAR);
 
         /**
          * @brief 转成目标像素格式的图像

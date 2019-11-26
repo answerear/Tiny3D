@@ -197,7 +197,7 @@ namespace Tiny3D
         {
             if (E_HBL_READ_ONLY == options)
             {
-                if (!(mUsage & E_HBU_WRITE_ONLY))
+                if (!(mUsage & Usage::E_HBU_WRITE_ONLY))
                 {
                     ret = lockBuffer(rect, lockedPitch);
 

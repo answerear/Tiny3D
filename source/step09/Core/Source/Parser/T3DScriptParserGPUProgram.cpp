@@ -89,7 +89,7 @@ namespace Tiny3D
                 break;
             }
 
-            uint16_t type = E_NT_UNKNOWN;
+            uint16_t type = UNKNOWN;
             uint16_t i = 0;
 
             for (i = 0; i < count; ++i)
@@ -99,11 +99,11 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
                     "Read the type of property of shader failed !");
 
-                if (type == E_NT_PROPERTY)
+                if (type == PROPERTY)
                 {
                     ret = parseProperties(stream, program, version);
                 }
-                else if (type == E_NT_OBJECT)
+                else if (type == OBJECT)
                 {
                     ret = parseObjects(stream, program, version);
                 }
@@ -341,7 +341,7 @@ namespace Tiny3D
                 }
             }
 
-            uint16_t type = E_NT_UNKNOWN;
+            uint16_t type = UNKNOWN;
             uint16_t i = 0;
 
             for (i = 0; i < count; ++i)
@@ -351,11 +351,11 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
                     "Read the type of property of gpu_program failed !");
 
-                if (type == E_NT_PROPERTY)
+                if (type == PROPERTY)
                 {
                     ret = parseProperties(stream, program, version);
                 }
-                else if (type == E_NT_OBJECT)
+                else if (type == OBJECT)
                 {
                     ret = parseObjects(stream, program, version);
                 }
@@ -454,7 +454,7 @@ namespace Tiny3D
 
             GPUProgramRefPtr program = GPUProgramRef::create(name);
 
-            uint16_t type = E_NT_UNKNOWN;
+            uint16_t type = UNKNOWN;
             uint16_t i = 0;
 
             for (i = 0; i < count; ++i)
@@ -464,11 +464,11 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
                     "Read the type of property of gpu_program_ref failed !");
 
-                if (type == E_NT_PROPERTY)
+                if (type == PROPERTY)
                 {
                     ret = parseProperties(stream, program, version);
                 }
-                else if (type == E_NT_OBJECT)
+                else if (type == OBJECT)
                 {
                     ret = parseObjects(stream, program, version);
                 }
@@ -586,7 +586,7 @@ namespace Tiny3D
                 }
             }
 
-            uint16_t type = E_NT_UNKNOWN;
+            uint16_t type = UNKNOWN;
             uint16_t i = 0;
 
             for (i = 0; i < count; ++i)
@@ -596,11 +596,11 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
                     "Read the type of property of gpu_cbuffer failed !");
 
-                if (type == E_NT_PROPERTY)
+                if (type == PROPERTY)
                 {
                     ret = parseProperties(stream, buffer, version);
                 }
-                else if (type == E_NT_OBJECT)
+                else if (type == OBJECT)
                 {
                     ret = parseObjects(stream, buffer, version);
                 }
@@ -728,11 +728,11 @@ namespace Tiny3D
 
             switch (bt)
             {
-            case E_BT_REAL:
+            case BuiltinType::REAL:
                 values = new float32_t[count];
                 typeSize = sizeof(float32_t);
                 break;
-            case E_BT_INT:
+            case BuiltinType::INT:
                 values = new int32_t[count];
                 typeSize = sizeof(int32_t);
                 break;
@@ -804,11 +804,11 @@ namespace Tiny3D
 
             switch (bt)
             {
-            case E_BT_REAL:
+            case BuiltinType::REAL:
                 values = new float32_t[count];
                 typeSize = sizeof(float32_t);
                 break;
-            case E_BT_INT:
+            case BuiltinType::INT:
                 values = new int32_t[count];
                 typeSize = sizeof(int32_t);
                 break;
@@ -869,7 +869,8 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
                 "Read elemente type of param_indexed_auto failed !");
 
-            if (type != E_BT_REAL && type != E_BT_INT)
+            if ((BuiltinType)type != BuiltinType::REAL 
+                && (BuiltinType)type != BuiltinType::INT)
             {
                 ret = T3D_ERR_RES_INVALID_PROPERTY;
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
@@ -900,13 +901,13 @@ namespace Tiny3D
             {
                 size_t typeSize = 0;
 
-                switch (extraType)
+                switch ((BuiltinType)extraType)
                 {
-                case E_BT_REAL:
+                case BuiltinType::REAL:
                     extra = new float32_t[extraCount];
                     typeSize = sizeof(float32_t);
                     break;
-                case E_BT_INT:
+                case BuiltinType::INT:
                     extra = new int32_t[extraCount];
                     typeSize = sizeof(int32_t);
                     break;
@@ -996,13 +997,13 @@ namespace Tiny3D
 
             size_t typeSize = 0;
 
-            switch (extraType)
+            switch ((BuiltinType)extraType)
             {
-            case E_BT_REAL:
+            case BuiltinType::REAL:
                 extra = new float32_t[extraCount];
                 typeSize = sizeof(float32_t);
                 break;
-            case E_BT_INT:
+            case BuiltinType::INT:
                 extra = new int32_t[extraCount];
                 typeSize = sizeof(int32_t);
                 break;
@@ -1094,7 +1095,7 @@ namespace Tiny3D
 
             GPUProgramRef *programRef = static_cast<GPUProgramRef*>(object);
 
-            uint16_t type = E_NT_UNKNOWN;
+            uint16_t type = UNKNOWN;
             uint16_t i = 0;
 
             for (i = 0; i < count; ++i)
@@ -1104,11 +1105,11 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(type),
                     "Read the type of gpu_cbuffer_ref failed !");
 
-                if (type == E_NT_PROPERTY)
+                if (type == PROPERTY)
                 {
                     ret = parseProperties(stream, programRef, version);
                 }
-                else if (type == E_NT_OBJECT)
+                else if (type == OBJECT)
                 {
                     ret = parseObjects(stream, programRef, version);
                 }

@@ -207,22 +207,22 @@ namespace Tiny3D
 
             switch (image.getFormat())
             {
-            case E_PF_PALETTE8:
+            case PixelFormat::E_PF_PALETTE8:
                 icon.format = Window::PIXEL_FORMAT_INDEX8;
                 break;
-            case E_PF_A1R5G5B5:
+            case PixelFormat::E_PF_A1R5G5B5:
                 icon.format = Window::PIXEL_FORMAT_ARGB1555;
                 break;
-            case E_PF_A4R4G4B4:
+            case PixelFormat::E_PF_A4R4G4B4:
                 icon.format = Window::PIXEL_FORMAT_ARGB4444;
                 break;
-            case E_PF_R5G6B5:
+            case PixelFormat::E_PF_R5G6B5:
                 icon.format = Window::PIXEL_FORMAT_RGB565;
                 break;
-            case E_PF_R8G8B8:
+            case PixelFormat::E_PF_R8G8B8:
                 icon.format = Window::PIXEL_FORMAT_RGB24;
                 break;
-            case E_PF_A8R8G8B8:
+            case PixelFormat::E_PF_A8R8G8B8:
                 icon.format = Window::PIXEL_FORMAT_ARGB8888;
                 break;
             default:

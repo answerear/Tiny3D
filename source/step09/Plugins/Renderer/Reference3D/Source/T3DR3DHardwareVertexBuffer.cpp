@@ -60,7 +60,7 @@ namespace Tiny3D
     size_t R3DHardwareVertexBuffer::readData(size_t offset, size_t size,
         void *dst)
     {
-        if (mUsage & E_HBU_WRITE_ONLY)
+        if (mUsage & Usage::E_HBU_WRITE_ONLY)
         {
             // 只写缓冲区，无法读取
             return 0;

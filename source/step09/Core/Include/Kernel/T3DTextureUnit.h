@@ -37,77 +37,77 @@ namespace Tiny3D
     class T3D_ENGINE_API TextureUnit : public Object
     {
     public:
-        enum TextureAddressMode
+        enum class TextureAddressMode : uint32_t
         {
-            E_TAM_UNKNOWN = 0,
-            E_TAM_WRAP,
-            E_TAM_MIRROR,
-            E_TAM_CLAMP,
-            E_TAM_BORDER,
+            UNKNOWN = 0,
+            WRAP,
+            MIRROR,
+            CLAMP,
+            BORDER,
         };
 
         /**
          * @brief 描述纹理绑定到渲染流水线中可编程流水线阶段上
          */
-        enum BindingType
+        enum class BindingType : uint32_t
         {
-            E_BT_FRAGMENT = 0,
-            E_BT_VERTEX,
-            E_BT_GEOMETRY,
-            E_BT_TESSELATION_HULL,
-            E_BT_TESSELATION_DOMAIN,
-            E_BT_COMPUTE
+            FRAGMENT = 0,
+            VERTEX,
+            GEOMETRY,
+            TESSELATION_HULL,
+            TESSELATION_DOMAIN,
+            COMPUTE
         };
 
         /**
          * @brief 描述纹理内容的标识
          */
-        enum ContentType
+        enum class ContentType : uint32_t
         {
-            E_CONTENT_NAMED = 0,    /// 通过名字标识纹理
-            E_CONTENT_SHADOW,       /// 阴影纹理
+            NAMED = 0,    /// 通过名字标识纹理
+            SHADOW,       /// 阴影纹理
         };
 
         /**
          * @brief 纹理效果
          * @remakrs 可编程渲染管线下无效，可以使用 vertex/fragment shader 实现
          */
-        enum EffectType
+        enum class EffectType : uint32_t
         {
-            E_ET_ENVIRONMENT_MAP = 0,   /// 环境映射
-            E_ET_PROJECTIVE_TEXTURE,    /// 投影纹理映射
-            E_ET_UVSCROLL,
-            E_ET_USCROLL,
-            E_ET_VSCROLL,
-            E_ET_ROTATE,
-            E_ET_TRANSFORM
+            ENVIRONMENT_MAP = 0,   /// 环境映射
+            PROJECTIVE_TEXTURE,    /// 投影纹理映射
+            UVSCROLL,
+            USCROLL,
+            VSCROLL,
+            ROTATE,
+            TRANSFORM
         };
 
-        enum EnvMapType
+        enum class EnvMapType : uint32_t
         {
-            E_ENV_PLANAR = 0,
-            E_ENV_CURVED,
-            E_ENV_REFLECTION,
-            E_ENV_NORMAL
+            PLANAR = 0,
+            CURVED,
+            REFLECTION,
+            NORMAL
         };
 
-        enum TransformType
+        enum class TransformType : uint32_t
         {
-            E_TT_TRANSLATE_U = 0,
-            E_TT_TRANSLATE_V,
-            E_TT_SCALE_U,
-            E_TT_SCALE_V,
-            E_TT_ROTATE
+            TRANSLATE_U = 0,
+            TRANSLATE_V,
+            SCALE_U,
+            SCALE_V,
+            ROTATE
         };
 
-        enum TextureCubeFace
+        enum class TextureCubeFace : uint32_t
         {
-            E_TCF_FRONT = 0,
-            E_TCF_BACK,
-            E_TCF_LEFT,
-            E_TCF_RIGHT,
-            E_TCF_UP,
-            E_TCF_DOWN
+            FRONT = 0,
+            BACK,
+            LEFT,
+            RIGHT,
+            UP,
+            DOWN
         };
 
         struct UVWAddressMode
