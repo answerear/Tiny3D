@@ -125,8 +125,9 @@ namespace Tiny3D
     {
         if (mWindow != nullptr)
         {
-            mWindow->setWindowIcon(icon.pixels, icon.width, icon.height, 
-                icon.depth, icon.pitch, icon.format);
+            mWindow->setWindowIcon(icon.pixels, (int32_t)icon.width, 
+                (int32_t)icon.height, (int32_t)icon.depth, (int32_t)icon.pitch, 
+                icon.format);
         }
     }
 

@@ -48,8 +48,8 @@ bool Drawing3DApp::applicationDidFinishLaunching()
     SGCameraPtr camera = T3D_SCENE_MGR.createCamera(root);
     camera->lookAt(Vector3(0.0f, 4.0f, 8.0f), Vector3::ZERO, Vector3::UNIT_Y);
     camera->setProjectionType(SGCamera::E_PT_PERSPECTIVE);
-    Real w = renderWindow->getWidth();
-    Real h = renderWindow->getHeight();
+    Real w = Real(renderWindow->getWidth());
+    Real h = Real(renderWindow->getHeight());
     Real aspect = w / h;
     Radian fovY(Math::PI * REAL_HALF);
     camera->setPerspectiveParams(fovY, aspect, 0.5f, 1000.0f);

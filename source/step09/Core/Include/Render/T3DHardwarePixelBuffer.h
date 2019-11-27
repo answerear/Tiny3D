@@ -41,15 +41,17 @@ namespace Tiny3D
         virtual ~HardwarePixelBuffer();
 
         /**
-         * @brief 获取硬件缓冲区数据
-         * @param [in] rect : 要获取数据的区域
-         * @param [in] options : 获取数据选项
-         * @param [out] lockedPitch : 返回锁定区域的pitch
-         * @return 返回锁定的硬件数据地址
-         * @see enum LockOptions
+         * @fn  virtual void HardwarePixelBuffer::*lock(const Rect &rect, 
+         *      LockOptions options, size_t &lockedPitch);
+         * @brief   获取硬件缓冲区数据
+         * @param [in]  rect    : 要获取数据的区域.
+         * @param [in]  options : 获取数据选项.
+         * @param [out] lockedPitch : 返回锁定区域的pitch.
+         * @returns 返回锁定的硬件数据地址.
+         * @sa  enum LockOptions
          */
         virtual void *lock(const Rect &rect, LockOptions options, 
-            int32_t &lockedPitch);
+            size_t &lockedPitch);
 
         /**
          * @brief 获取硬件缓冲区数据
@@ -143,7 +145,7 @@ namespace Tiny3D
          * @see enum LockOptions
          */
         virtual void *lockImpl(const Rect &rect, LockOptions options,
-            int32_t &lockedPitch) = 0;
+            size_t &lockedPitch) = 0;
 
         /**
          * @brief 从父类继承而来，对于像素缓冲区来说，本接口没有意义，

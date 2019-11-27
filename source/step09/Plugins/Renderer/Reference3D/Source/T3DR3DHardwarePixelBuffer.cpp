@@ -71,21 +71,21 @@ namespace Tiny3D
 
         do
         {
-            int32_t bpp = Image::getBPP(mFormat);
+            size_t bpp = Image::getBPP(mFormat);
             Image temp;
-            int32_t dstPitch = 0;
+            size_t dstPitch = 0;
             Rect rtDst;
 
             if (dstRect == nullptr)
             {
-                dst = (uint8_t *)lock(E_HBL_DISCARD);
+                dst = (uint8_t *)lock(LockOptions::DISCARD);
                 dstPitch = mPitch;
                 rtDst = Rect(0, 0, mWidth - 1, mHeight - 1);
             }
             else
             {
                 rtDst = *dstRect;
-                dst = (uint8_t *)lock(rtDst, E_HBL_WRITE_ONLY, dstPitch);
+                dst = (uint8_t *)lock(rtDst, LockOptions::WRITE_ONLY, dstPitch);
             }
 
             // 临时构造一个图像对象，用于复制数据
@@ -133,14 +133,14 @@ namespace Tiny3D
 
         do
         {
-            int32_t bpp = Image::getBPP(mFormat);
+            size_t bpp = Image::getBPP(mFormat);
             Image temp;
-            int32_t srcPitch = 0;
+            size_t srcPitch = 0;
             Rect rtSrc;
 
             if (srcRect == nullptr)
             {
-                src = (uint8_t *)lock(E_HBL_READ_ONLY);
+                src = (uint8_t *)lock(LockOptions::READ_ONLY);
                 srcPitch = mPitch;
                 rtSrc = Rect(0, 0, mWidth - 1, mHeight - 1);
             }
@@ -181,7 +181,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     void *R3DHardwarePixelBuffer::lockImpl(const Rect &rect,
-        LockOptions options, int32_t &lockedPitch)
+        LockOptions options, size_t &lockedPitch)
     {
         if (rect.left < 0 || rect.right < 0
             || rect.right >= getWidth() || rect.bottom >= getHeight())
@@ -195,7 +195,7 @@ namespace Tiny3D
 
         do 
         {
-            if (E_HBL_READ_ONLY == options)
+            if (LockOptions::READ_ONLY == options)
             {
                 if (!(mUsage & Usage::E_HBU_WRITE_ONLY))
                 {
@@ -258,14 +258,14 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult R3DHardwarePixelBuffer::lockBuffer(const Rect &rect,
-        int32_t &lockedPitch)
+        size_t &lockedPitch)
     {
         TResult ret = T3D_OK;
 
         do 
         {
             // 借助 Image 对象来复制图像数据
-            int32_t bpp = Image::getBPP(mFormat);
+            size_t bpp = Image::getBPP(mFormat);
 
             // 源数据构建源图像
             Image srcImage;
@@ -279,7 +279,7 @@ namespace Tiny3D
 
             // 目标数据构建目标图像
             Image dstImage;
-            int32_t pitch
+            size_t pitch
                 = Image::calcPitch(rect.width(), rect.height());
             ret = dstImage.load(mLockedBuffer, (int32_t)rect.width(),
                 (int32_t)rect.height(), bpp, pitch, mFormat);

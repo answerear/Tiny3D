@@ -57,13 +57,13 @@ namespace Tiny3D
         /**
          * @brief 锁定缓冲区选项
          */
-        enum LockOptions
+        enum class LockOptions : uint32_t
         {
-            E_HBL_NORMAL = 0,                   /**< 普通方式，能读写缓冲区 */
-            E_HBL_DISCARD,                      /**< 缓冲区数据会被丢弃 */
-            E_HBL_NO_OVERWRITE,                 /**< 不要覆盖缓冲区数据 */
-            E_HBL_READ_ONLY,                    /**< 只读缓冲区 */
-            E_HBL_WRITE_ONLY = E_HBL_DISCARD,   /**< 只写缓冲区 */
+            NORMAL = 0,                   /**< 普通方式，能读写缓冲区 */
+            DISCARD,                      /**< 缓冲区数据会被丢弃 */
+            NO_OVERWRITE,                 /**< 不要覆盖缓冲区数据 */
+            READ_ONLY,                    /**< 只读缓冲区 */
+            WRITE_ONLY = DISCARD,   /**< 只写缓冲区 */
         };
 
         /**

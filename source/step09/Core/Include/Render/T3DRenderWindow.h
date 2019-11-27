@@ -32,11 +32,11 @@ namespace Tiny3D
      */
     struct RenderWindowCreateParam
     {
-        long_t  windowLeft;     /**< 窗口横向坐标位置，全屏窗口忽略该参数 */
-        long_t  windowTop;      /**< 窗口纵向坐标位置，全屏窗口忽略该参数 */
-        long_t  windowWidth;    /**< 窗口宽度 */
-        long_t  windowHeight;   /**< 窗口高度 */
-        long_t  colorDepth;     /**< 窗口色深 */
+        int32_t windowLeft;     /**< 窗口横向坐标位置，全屏窗口忽略该参数 */
+        int32_t windowTop;      /**< 窗口纵向坐标位置，全屏窗口忽略该参数 */
+        int32_t windowWidth;    /**< 窗口宽度 */
+        int32_t windowHeight;   /**< 窗口高度 */
+        int32_t colorDepth;     /**< 窗口色深 */
         String  windowTitle;    /**< 窗口标题 */
         String  iconPath;       /**< 图标文件路径 */
         bool    fullscreen;     /**< 是否全屏，终端平台忽略该参数 */

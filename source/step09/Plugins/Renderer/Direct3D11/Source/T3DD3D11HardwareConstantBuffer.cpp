@@ -83,7 +83,7 @@ namespace Tiny3D
 
         do 
         {
-            void *src = lock(offset, size, HardwareBuffer::E_HBL_READ_ONLY);
+            void *src = lock(offset, size, LockOptions::READ_ONLY);
             if (src == nullptr)
             {
                 break;
@@ -108,7 +108,7 @@ namespace Tiny3D
         do 
         {
             void *dst = lock(offset, size, discardWholeBuffer 
-                ? HardwareBuffer::E_HBL_DISCARD : HardwareBuffer::E_HBL_NORMAL);
+                ? LockOptions::DISCARD : LockOptions::NORMAL);
             if (dst == nullptr)
             {
                 break;

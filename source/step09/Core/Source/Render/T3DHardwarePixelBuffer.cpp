@@ -44,7 +44,7 @@ namespace Tiny3D
     }
 
     void *HardwarePixelBuffer::lock(const Rect &rect, LockOptions options, 
-        int32_t &lockedPitch)
+        size_t &lockedPitch)
     {
         T3D_ASSERT(!isLocked());
 
@@ -57,7 +57,7 @@ namespace Tiny3D
         }
         else if (mUseShadowBuffer)
         {
-            if (options != E_HBL_READ_ONLY)
+            if (options != LockOptions::READ_ONLY)
             {
                 // 不是只读，那就可能会被改变，
                 // 等会解锁时用影子buffer更新硬件buffer
@@ -88,7 +88,7 @@ namespace Tiny3D
 
     void *HardwarePixelBuffer::lock(LockOptions options)
     {
-        int32_t lockedPitch = 0;
+        size_t lockedPitch = 0;
         return lock(Rect(0, 0, mWidth - 1, mHeight - 1), options, lockedPitch);
     }
 
@@ -123,7 +123,7 @@ namespace Tiny3D
             }
 
             size_t dstPitch = dst->getPitch();
-            dstData = (uint8_t *)dst->lock(HardwareBuffer::E_HBL_WRITE_ONLY);
+            dstData = (uint8_t *)dst->lock(LockOptions::WRITE_ONLY);
             if (dstData == nullptr)
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
@@ -132,7 +132,7 @@ namespace Tiny3D
             }
 
             size_t srcPitch = mPitch;
-            srcData = (uint8_t *)lock(HardwareBuffer::E_HBL_READ_ONLY);
+            srcData = (uint8_t *)lock(LockOptions::READ_ONLY);
             if (srcData == nullptr)
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,

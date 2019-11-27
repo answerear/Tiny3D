@@ -114,7 +114,7 @@ namespace Tiny3D
 
         do 
         {
-            FIMEMORY* fiMem = FreeImage_OpenMemory(data, size);
+            FIMEMORY* fiMem = FreeImage_OpenMemory(data, (DWORD)size);
             if (fiMem == nullptr)
             {
                 ret = false;
@@ -123,7 +123,7 @@ namespace Tiny3D
             }
 
             FREE_IMAGE_FORMAT fif 
-                = FreeImage_GetFileTypeFromMemory(fiMem, size);
+                = FreeImage_GetFileTypeFromMemory(fiMem, (DWORD)size);
             FreeImage_CloseMemory(fiMem);
 
             type = (FileType)fif;
@@ -157,9 +157,9 @@ namespace Tiny3D
             image.getColorMask(redMask, greenMask, blueMask, alphaMask);
 
             dib = FreeImage_ConvertFromRawBitsEx(FALSE, (BYTE*)image.getData(), 
-                FIT_BITMAP, image.getWidth(), image.getHeight(), 
-                image.getPitch(), image.getBPP(), redMask, greenMask, blueMask, 
-                TRUE);
+                FIT_BITMAP, (int32_t)image.getWidth(), (int32_t)image.getHeight(), 
+                (int32_t)image.getPitch(), (uint32_t)image.getBPP(), 
+                redMask, greenMask, blueMask, TRUE);
             if (dib == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -225,7 +225,7 @@ namespace Tiny3D
 
         do 
         {
-            stream = FreeImage_OpenMemory(data, size);
+            stream = FreeImage_OpenMemory(data, (DWORD)size);
             if (stream == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -315,11 +315,11 @@ namespace Tiny3D
                 bool hasAlpha = false;
                 bool isPreMulti = false;
 
-                int32_t srcPitch = FreeImage_GetPitch(dib);
+                uint32_t srcPitch = FreeImage_GetPitch(dib);
                 uint8_t *src = FreeImage_GetBits(dib);
 
-                int32_t dstPitch = srcPitch;
-                size_t imageSize = dstPitch * height;
+                uint32_t dstPitch = srcPitch;
+                size_t imageSize = (size_t)dstPitch * height;
                 uint8_t *dst = new uint8_t[imageSize];
 
                 switch (bpp)
@@ -354,7 +354,7 @@ namespace Tiny3D
                     break;
                 }
 
-                int32_t y = 0;
+                uint32_t y = 0;
                 uint8_t *pDst = dst;
 
                 if (type == FileType::DDS)
@@ -423,9 +423,9 @@ namespace Tiny3D
             image.getColorMask(redMask, greenMask, blueMask, alphaMask);
 
             dib = FreeImage_ConvertFromRawBitsEx(FALSE, image.getData(), 
-                FIT_BITMAP, image.getWidth(), image.getHeight(), 
-                image.getPitch(), image.getBPP(), redMask, greenMask, blueMask, 
-                FALSE);
+                FIT_BITMAP, (int32_t)image.getWidth(), (int32_t)image.getHeight(),
+                (int32_t)image.getPitch(), (uint32_t)image.getBPP(), 
+                redMask, greenMask, blueMask, FALSE);
 
             if (dib == nullptr)
             {
@@ -469,9 +469,9 @@ namespace Tiny3D
             image.getColorMask(redMask, greenMask, blueMask, alphaMask);
 
             dib = FreeImage_ConvertFromRawBitsEx(FALSE, image.getData(), 
-                FIT_BITMAP, image.getWidth(), image.getHeight(), 
-                image.getPitch(), image.getBPP(), redMask, greenMask, blueMask, 
-                FALSE);
+                FIT_BITMAP, (int32_t)image.getWidth(), (int32_t)image.getHeight(), 
+                (int32_t)image.getPitch(), (uint32_t)image.getBPP(),
+                redMask, greenMask, blueMask, FALSE);
 
             if (dib == nullptr)
             {
@@ -516,9 +516,9 @@ namespace Tiny3D
             image.getColorMask(redMask, greenMask, blueMask, alphaMask);
 
             dib = FreeImage_ConvertFromRawBitsEx(FALSE, image.getData(), 
-                FIT_BITMAP, image.getWidth(), image.getHeight(), 
-                image.getPitch(), image.getBPP(), redMask, greenMask, blueMask, 
-                FALSE);
+                FIT_BITMAP, (int32_t)image.getWidth(), (int32_t)image.getHeight(),
+                (int32_t)image.getPitch(), (uint32_t)image.getBPP(),
+                redMask, greenMask, blueMask, FALSE);
 
             if (dib == nullptr)
             {
@@ -637,10 +637,10 @@ namespace Tiny3D
                 const uint8_t *src = srcData;
                 uint8_t *dst = dstData;
 
-                int32_t pitch 
+                size_t pitch 
                     = std::min(srcImage.getPitch(), dstImage.getPitch());
 
-                int32_t y = 0;
+                size_t y = 0;
                 for (y = 0; y < rtSrc.height(); ++y)
                 {
                     memcpy(dst, src, pitch);
@@ -657,8 +657,8 @@ namespace Tiny3D
                 // 把源数据读到FreeImage里面，让FreeImage来处理
                 dib = FreeImage_ConvertFromRawBitsEx(FALSE, 
                     (uint8_t*)srcImage.getData(), FIT_BITMAP,
-                    srcImage.getWidth(), srcImage.getWidth(), 
-                    srcImage.getPitch(), srcImage.getBPP(),
+                    (int32_t)srcImage.getWidth(), (int32_t)srcImage.getWidth(),
+                    (int32_t)srcImage.getPitch(), (uint32_t)srcImage.getBPP(),
                     redMask, greenMask, blueMask, TRUE);
 
                 if (dib == nullptr)
@@ -670,8 +670,8 @@ namespace Tiny3D
                 }
 
                 // 缩放
-                newdib = FreeImage_Rescale(dib, rtDst.width(), rtDst.height(), 
-                    (FREE_IMAGE_FILTER)filter);
+                newdib = FreeImage_Rescale(dib, (int32_t)rtDst.width(), 
+                    (int32_t)rtDst.height(), (FREE_IMAGE_FILTER)filter);
                 if (newdib == nullptr)
                 {
                     ret = T3D_ERR_CODEC_SCALE;
@@ -681,13 +681,13 @@ namespace Tiny3D
                 }
 
                 // 把转好的数据复制到目标图像上
-                int32_t srcBPP = FreeImage_GetBPP(newdib);
+                uint32_t srcBPP = FreeImage_GetBPP(newdib);
                 T3D_ASSERT(srcBPP == srcImage.getBPP());
 
-                int32_t srcPitch = FreeImage_GetPitch(newdib);
+                uint32_t srcPitch = FreeImage_GetPitch(newdib);
                 uint8_t *srcData = FreeImage_GetBits(newdib);
 
-                int32_t dstPitch = dstImage.getPitch();
+                uint32_t dstPitch = (uint32_t)dstImage.getPitch();
                 uint8_t *dstData = dstImage.getData() 
                     + rtDst.top * dstPitch 
                     + rtDst.left * dstImage.getBytesPerPixel();

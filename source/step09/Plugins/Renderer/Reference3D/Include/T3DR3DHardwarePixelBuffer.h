@@ -69,7 +69,7 @@ namespace Tiny3D
         * @brief 获取锁定硬件缓冲区不同渲染器实现接口。 实现基类接口
         */
         virtual void *lockImpl(const Rect &rect, LockOptions options,
-            int32_t &lockedPitch) override;
+            size_t &lockedPitch) override;
 
         /**
         * @brief 解锁缓冲区的具体实现接口，实现基类接口
@@ -83,7 +83,7 @@ namespace Tiny3D
          * @param [in] lockedPitch : 锁定缓冲区的行跨度
          * @return 调用成功返回 T3D_OK
          */
-        TResult lockBuffer(const Rect &rect, int32_t &lockedPitch);
+        TResult lockBuffer(const Rect &rect, size_t &lockedPitch);
 
         /**
          * @brief 解锁缓冲区，把返回出去的锁定缓冲区的数据回写到正是的缓冲区中

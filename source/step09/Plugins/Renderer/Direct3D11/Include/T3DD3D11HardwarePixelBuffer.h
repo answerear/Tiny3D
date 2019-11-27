@@ -74,7 +74,7 @@ namespace Tiny3D
          * @brief 获取锁定硬件缓冲区不同渲染器实现接口。 实现基类接口
          */
         virtual void *lockImpl(const Rect &rect, LockOptions options,
-            int32_t &lockedPitch) override;
+            size_t &lockedPitch) override;
 
         /**
          * @brief 解锁缓冲区的具体实现接口，实现基类接口

@@ -80,10 +80,10 @@ namespace Tiny3D
         struct WindowIcon
         {
             void*       pixels;     /**< 像素数据 */
-            int32_t     width;      /**< 图标宽度 */
-            int32_t     height;     /**< 图标高度 */
-            int32_t     depth;      /**< 颜色色深 */
-            int32_t     pitch;      /**< 图像跨度 */
+            size_t      width;      /**< 图标宽度 */
+            size_t      height;     /**< 图标高度 */
+            size_t      depth;      /**< 颜色色深 */
+            size_t      pitch;      /**< 图像跨度 */
             uint32_t    format;     /**< 像素格式 */
         };
 

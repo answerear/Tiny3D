@@ -193,7 +193,7 @@ namespace Tiny3D
             uint64_t contentSize = fileInfo.uncompressed_size;
             uchar_t *content = new uchar_t[contentSize];
 
-            zret = unzReadCurrentFile(mZipFile, content, contentSize);
+            zret = unzReadCurrentFile(mZipFile, content, (uint32_t)contentSize);
             if (zret < 0)
             {
                 unzCloseCurrentFile(mZipFile);

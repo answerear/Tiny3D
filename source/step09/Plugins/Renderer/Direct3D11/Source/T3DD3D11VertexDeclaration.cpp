@@ -164,10 +164,10 @@ namespace Tiny3D
                     const VertexAttribute &attrib = *itr;
                     desc[i].SemanticName 
                         = D3D11Mappings::get(attrib.getSemantic());
-                    desc[i].SemanticIndex = attrib.getSemanticIndex();
+                    desc[i].SemanticIndex = (UINT)attrib.getSemanticIndex();
                     desc[i].Format = D3D11Mappings::get(attrib.getType());
-                    desc[i].InputSlot = attrib.getStream();
-                    desc[i].AlignedByteOffset = attrib.getOffset();
+                    desc[i].InputSlot = (UINT)attrib.getStream();
+                    desc[i].AlignedByteOffset = (UINT)attrib.getOffset();
                     desc[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
                     desc[i].InstanceDataStepRate = 0;
                     ++itr;
@@ -183,7 +183,7 @@ namespace Tiny3D
                 vertexShader->getBytecode(bytecode, bytecodeLength);
 
                 HRESULT hr = S_OK;
-                hr = pD3DDevice->CreateInputLayout(desc, nNumElements,
+                hr = pD3DDevice->CreateInputLayout(desc, (UINT)nNumElements,
                     bytecode, bytecodeLength, &mD3DInputLayout);
                 if (FAILED(hr))
                 {

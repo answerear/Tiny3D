@@ -80,7 +80,7 @@ namespace Tiny3D
             D3D11_BUFFER_DESC desc;
             memset(&desc, 0, sizeof(desc));
             desc.Usage;
-            desc.ByteWidth = mVertexSize;
+            desc.ByteWidth = (uint32_t)mVertexSize;
             desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
             desc.CPUAccessFlags = 0;
 
@@ -109,7 +109,7 @@ namespace Tiny3D
 
         do 
         {
-            void *src = lock(offset, size, HardwareBuffer::E_HBL_READ_ONLY);
+            void *src = lock(offset, size, LockOptions::READ_ONLY);
 
             if (src == nullptr)
             {
@@ -135,7 +135,7 @@ namespace Tiny3D
         do 
         {
             void *dst = lock(offset, size, discardWholeBuffer 
-                ? HardwareBuffer::E_HBL_DISCARD : HardwareBuffer::E_HBL_NORMAL);
+                ? LockOptions::DISCARD : LockOptions::NORMAL);
 
             if (dst == nullptr)
             {

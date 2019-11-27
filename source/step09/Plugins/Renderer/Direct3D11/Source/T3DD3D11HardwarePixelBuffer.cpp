@@ -84,21 +84,22 @@ namespace Tiny3D
 
         do
         {
-            int32_t bpp = Image::getBPP(mFormat);
+            size_t bpp = Image::getBPP(mFormat);
             Image temp;
-            int32_t dstPitch = 0;
+            size_t dstPitch = 0;
             Rect rtDst;
 
             if (dstRect == nullptr)
             {
-                dst = (uint8_t *)lock(E_HBL_DISCARD);
+                dst = (uint8_t *)lock(LockOptions::DISCARD);
                 dstPitch = mPitch;
                 rtDst = Rect(0, 0, mWidth - 1, mHeight - 1);
             }
             else
             {
                 rtDst = *dstRect;
-                dst = (uint8_t *)lock(rtDst, E_HBL_WRITE_ONLY, dstPitch);
+                dst = (uint8_t *)lock(rtDst, LockOptions::WRITE_ONLY, 
+                    dstPitch);
             }
 
             // 临时构造一个图像对象，用于复制数据
@@ -146,14 +147,14 @@ namespace Tiny3D
 
         do
         {
-            int32_t bpp = Image::getBPP(mFormat);
+            size_t bpp = Image::getBPP(mFormat);
             Image temp;
-            int32_t srcPitch = 0;
+            size_t srcPitch = 0;
             Rect rtSrc;
 
             if (srcRect == nullptr)
             {
-                src = (uint8_t *)lock(E_HBL_READ_ONLY);
+                src = (uint8_t *)lock(LockOptions::READ_ONLY);
                 srcPitch = mPitch;
                 rtSrc = Rect(0, 0, mWidth - 1, mHeight - 1);
             }
@@ -194,7 +195,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     void *D3D11HardwarePixelBuffer::lockImpl(const Rect &rect,
-        LockOptions options, int32_t &lockedPitch)
+        LockOptions options, size_t &lockedPitch)
     {
         if (rect.left < 0 || rect.right < 0
             || rect.right >= getWidth() || rect.bottom >= getHeight())

@@ -323,12 +323,12 @@ namespace Tiny3D
 
     Matrix4 R3DRenderer::makeViewportMatrix(ViewportPtr viewport)
     {
-        Real m00 = viewport->getActualWidth() * REAL_HALF;
-        Real m11 = -viewport->getActualHeight() * REAL_HALF;
+        Real m00 = Real(viewport->getActualWidth()) * REAL_HALF;
+        Real m11 = -Real(viewport->getActualHeight()) * REAL_HALF;
         Real m22 = REAL_ONE;
         Real m33 = REAL_ONE;
-        Real m03 = viewport->getActualLeft() + viewport->getActualWidth() * REAL_HALF;
-        Real m13 = viewport->getActualTop() + viewport->getActualHeight() * REAL_HALF;
+        Real m03 = Real(viewport->getActualLeft()) + Real(viewport->getActualWidth()) * REAL_HALF;
+        Real m13 = Real(viewport->getActualTop()) + Real(viewport->getActualHeight()) * REAL_HALF;
         Real m23 = REAL_ONE;
         return Matrix4(
             m00,   0,   0, m03,
@@ -488,7 +488,8 @@ namespace Tiny3D
         {
             auto ibo = vao->getIndexBuffer();
             indexCount = ibo->getIndexCount();
-            indices = (uint8_t*)ibo->lock(HardwareBuffer::E_HBL_READ_ONLY);
+            indices = (uint8_t*)ibo->lock(
+                HardwareBuffer::LockOptions::READ_ONLY);
             is16Bits = (ibo->getIndexType()==HardwareIndexBuffer::E_IT_16BITS);
         }
 
@@ -621,7 +622,8 @@ namespace Tiny3D
             auto vbo = vao->getVertexBuffer(0);
 
             BufferInfo info;
-            info.buffer = (uint8_t*)vbo->lock(HardwareBuffer::E_HBL_READ_ONLY);
+            info.buffer = (uint8_t*)vbo->lock(
+                HardwareBuffer::LockOptions::READ_ONLY);
             info.vertexSize = vbo->getVertexSize();
             info.vertexCount = vbo->getVertexCount();
             if (info.vertexCount != vertexCount)
@@ -906,7 +908,7 @@ namespace Tiny3D
         for (i = 0; i < vertexCount; ++i)
         {
             Vector4 pos = matViewport * vertices[i].pos;
-            Point pt(pos.x(), pos.y());
+            Point pt(size_t(pos.x()), size_t(pos.y()));
             mFramebuffer->drawPoint(pt, vertices[i].diffuse);
         }
 
@@ -932,7 +934,7 @@ namespace Tiny3D
             {
                 const Vertex &vertex = vertices[index[i]];
                 Vector4 pos = matViewport * vertex.pos;
-                Point pt(pos.x(), pos.y());
+                Point pt(size_t(pos.x()), size_t(pos.y()));
                 mFramebuffer->drawPoint(pt, vertex.diffuse);
             }
         }
@@ -944,7 +946,7 @@ namespace Tiny3D
             {
                 const Vertex &vertex = vertices[index[i]];
                 Vector4 pos = matViewport * vertex.pos;
-                Point pt(pos.x(), pos.y());
+                Point pt(size_t(pos.x()), size_t(pos.y()));
                 mFramebuffer->drawPoint(pt, vertex.diffuse);
             }
         }

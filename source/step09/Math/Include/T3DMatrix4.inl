@@ -147,27 +147,27 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline const T *TMatrix4<T>::operator [](int32_t row) const
+    inline const T *TMatrix4<T>::operator [](size_t row) const
     {
-        T3D_ASSERT(row >= 0 && row < 4);
+        T3D_ASSERT(row < 4);
         return m4x4[row];
     }
 
     template <typename T>
-    inline T *TMatrix4<T>::operator [](int32_t row)
+    inline T *TMatrix4<T>::operator [](size_t row)
     {
-        T3D_ASSERT(row >= 0 && row < 4);
+        T3D_ASSERT(row < 4);
         return m4x4[row];
     }
 
     template <typename T>
-    inline T TMatrix4<T>::operator ()(int32_t row, int32_t col) const
+    inline T TMatrix4<T>::operator ()(size_t row, size_t col) const
     {
         return m4x4[row][col];
     }
 
     template <typename T>
-    inline T &TMatrix4<T>::operator ()(int32_t row, int32_t col)
+    inline T &TMatrix4<T>::operator ()(size_t row, size_t col)
     {
         return m4x4[row][col];
     }

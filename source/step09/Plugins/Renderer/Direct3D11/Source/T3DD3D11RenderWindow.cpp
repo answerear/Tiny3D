@@ -283,7 +283,7 @@ namespace Tiny3D
                 uMSAAQuality = uNumQuality - 1;
             }
 
-            ret = createSwapChain(mWidth, mHeight, param.fullscreen, 
+            ret = createSwapChain((UINT)mWidth, (UINT)mHeight, param.fullscreen, 
                 uMSAACount, uMSAAQuality, format);
             if (ret != T3D_OK)
             {
@@ -296,7 +296,7 @@ namespace Tiny3D
                 break;
             }
 
-            ret = createDepthStencilView(mWidth, mHeight, 
+            ret = createDepthStencilView((UINT)mWidth, (UINT)mHeight, 
                 uMSAACount, uMSAAQuality);
             if (ret != T3D_OK)
             {
@@ -334,8 +334,8 @@ namespace Tiny3D
 
             DXGI_SWAP_CHAIN_DESC desc;
 
-            desc.BufferDesc.Width = mWidth;
-            desc.BufferDesc.Height = mHeight;
+            desc.BufferDesc.Width = (UINT)mWidth;
+            desc.BufferDesc.Height = (UINT)mHeight;
             desc.BufferDesc.RefreshRate.Numerator = 60;
             desc.BufferDesc.RefreshRate.Denominator = 1;
             desc.BufferDesc.Format = format;

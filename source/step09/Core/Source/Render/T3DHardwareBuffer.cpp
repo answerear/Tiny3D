@@ -66,7 +66,7 @@ namespace Tiny3D
         }
         else if (mUseShadowBuffer)
         {
-            if (options != E_HBL_READ_ONLY)
+            if (options != LockOptions::READ_ONLY)
             {
                 // 不是只读，那就可能会被改变，
                 // 等会解锁时用影子buffer更新硬件buffer
@@ -151,7 +151,8 @@ namespace Tiny3D
 
         size_t s = 0;
 
-        const void *src = srcBuffer->lock(srcOffset, size, E_HBL_READ_ONLY);
+        const void *src = srcBuffer->lock(srcOffset, size, 
+            LockOptions::READ_ONLY);
         if (src != nullptr)
         {
             s = writeData(dstOffset, size, src, discardWholeBuffer);
@@ -176,7 +177,7 @@ namespace Tiny3D
         if (mUseShadowBuffer && mIsShadowBufferDirty)
         {
             const void *src = mShadowBuffer->lock(mLockOffset, mLockSize, 
-                E_HBL_READ_ONLY);
+                LockOptions::READ_ONLY);
 
             if (src != nullptr)
             {
@@ -184,11 +185,11 @@ namespace Tiny3D
 
                 if (mLockOffset == 0 && mLockSize == mBufferSize)
                 {
-                    options = E_HBL_DISCARD;
+                    options = LockOptions::DISCARD;
                 }
                 else
                 {
-                    options = E_HBL_NORMAL;
+                    options = LockOptions::NORMAL;
                 }
 
                 void *dst = lockImpl(mLockOffset, mLockSize, options);

@@ -64,12 +64,12 @@ namespace Tiny3D
         operator T *();
 
         /// 根据获取矩阵对应行的元素值.
-        const T *operator [](int32_t row) const;
-        T *operator [](int32_t row);
+        const T *operator [](size_t row) const;
+        T *operator [](size_t row);
 
         /// 通过指定行和列获取对应的元素.
-        T operator ()(int32_t row, int32_t col) const;
-        T &operator ()(int32_t row, int32_t col);
+        T operator ()(size_t row, size_t col) const;
+        T &operator ()(size_t row, size_t col);
 
         /// 重载赋值运算符，相同类型对象赋值.
         TMatrix4 &operator =(const TMatrix4 &other);
@@ -154,11 +154,11 @@ namespace Tiny3D
         TVector3<T> extractTranslation() const;
 
         /// 通过一个3-D位移向量、一个3-D缩放向量和一个旋转四元数构造矩阵.
-        void makeTransform(const TVector3<T> &position, const TVector3<T> &scale, 
-            const TQuaternion<T> &orientation);
+        void makeTransform(const TVector3<T> &position, 
+            const TVector3<T> &scale, const TQuaternion<T> &orientation);
         /// 通过一个3-D位移向量、一个3-D缩放向量和一个旋转四元数构造逆矩阵.
-        void makeInverseTransform(const TVector3<T> &position, const TVector3<T> &scale, 
-            const TQuaternion<T> &orientation);
+        void makeInverseTransform(const TVector3<T> &position, 
+            const TVector3<T> &scale, const TQuaternion<T> &orientation);
 
         /// 通过指定的一个3-D向量构造位移矩阵.
         void makeTranslate(const TVector3<T> &position);

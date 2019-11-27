@@ -44,6 +44,8 @@ if (WIN32)
 
 	set(CMAKE_SYSTEM_VERSION 10.0.17763)
 	set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION 10.0.17763.0)
+
+	add_compile_options(/wd4996)
 #    set(CMAKE_CXX_FLAGS "-std=c++11")
 elseif (ANDROID)
     # Android
