@@ -50,6 +50,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Renderer::clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil)
+    {
+        if (mRenderTarget != nullptr)
+        {
+            mRenderTarget->clear(color, clearFlags, depth, stencil);
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Renderer::render()
     {
         auto itr = mRenderTargets.begin();

@@ -196,7 +196,7 @@ namespace Tiny3D
         uint32_t    mClearFlags;    /**< 清除标记 */
         Real        mClearZ;        /**< 用于清除的 z-buffer 值 */
 
-        ColorRGB     mBkgndColor;    /**< 背景颜色 */
+        ColorRGB    mBkgndColor;    /**< 背景颜色 */
 
         Matrix4     mMatrix;        /**< 视口变换矩阵 */
     };

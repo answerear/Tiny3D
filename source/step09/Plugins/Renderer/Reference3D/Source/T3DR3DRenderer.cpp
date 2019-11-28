@@ -119,43 +119,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult R3DRenderer::beginRender(size_t count, Rect *rects,
-        uint32_t clearFlags, const ColorRGB &color, Real z,
-        uint32_t stencil)
-    {
-        if (mRenderTarget == nullptr)
-        {
-            T3D_LOG_ERROR(LOG_TAG_R3DRENDERER, "Invalid render target !");
-            return T3D_ERR_R3D_INVALID_TARGET;
-        }
-
-        // 生成framebuffer对象，用于当前一帧的渲染
-        mFramebuffer = R3DFramebuffer::create(mRenderTarget);
-
-        if (clearFlags & E_CLEAR_TARGET)
-        {
-            // 清除背景
-            mFramebuffer->fill(color, count, rects);
-        }
-        
-        if (clearFlags & E_CLEAR_ZBUFFER)
-        {
-
-        }
-
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult R3DRenderer::endRender()
-    {
-        mFramebuffer = nullptr;
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
     bool R3DRenderer::queryCapability(Capability cap) const
     {
         return false;

@@ -48,7 +48,10 @@ namespace Tiny3D
         , mActualTop(0)
         , mActualWidth(0)
         , mActualHeight(0)
+        , mClearFlags(0)
+        , mClearZ(1.0f)
         , mBkgndColor(0, 0, 0)
+        , mMatrix(false)
     {
         updateDimensions();
     }

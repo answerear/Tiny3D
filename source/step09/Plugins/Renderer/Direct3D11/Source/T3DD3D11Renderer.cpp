@@ -154,37 +154,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::beginRender(size_t count, Rect *rects,
-        uint32_t clearFlags, const ColorRGB &color, Real z, uint32_t stencil)
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            const float colors[4] = {color.red(), color.green(), color.blue(), 1.0f};
-//             mD3DDeviceContext->ClearRenderTargetView(mRTView, colors);
-//             mD3DDeviceContext->ClearDepthStencilView(mDSView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Renderer::endRender()
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
     bool D3D11Renderer::queryCapability(Capability cap) const
     {
         return false;

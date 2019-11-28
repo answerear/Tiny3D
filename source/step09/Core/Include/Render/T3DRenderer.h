@@ -72,7 +72,8 @@ namespace Tiny3D
         };
 
         /**
-         * @breif 设置变换矩阵状态
+         * @enum    TransformState
+         * @brief   设置变换矩阵状态
          */
         enum TransformState
         {
@@ -171,24 +172,17 @@ namespace Tiny3D
         RenderTargetPtr getRenderTarget(const String &name);
 
         /**
-         * @brief 开始渲染
-         * @param [in] count : 清除矩形区域的数量
-         * @param [in] pRects : 矩形区域数组
-         * @param [in] clearFlags : 清除标记
-         * @param [in] color : 用于清除的背景颜色
-         * @param [in] z : 用于清除的深度值
-         * @param [in] stencil : 用于清除模板缓冲的值
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult Renderer::clear(const ColorRGB &color, 
+         *      uint32_t clearFlags, Real depth, uint32_t stencil);
+         * @brief   Clears this object to its blank/initial state
+         * @param   color       The color.
+         * @param   clearFlags  The clear flags.
+         * @param   depth       The depth.
+         * @param   stencil     The stencil.
+         * @returns A TResult.
          */
-        virtual TResult beginRender(size_t count, Rect *rects,
-            uint32_t clearFlags, const ColorRGB &color, Real z,
-            uint32_t stencil) = 0;
-
-        /**
-         * @brief 结束渲染
-         * @return 调用成功返回 T3D_OK
-         */
-        virtual TResult endRender() = 0;
+        virtual TResult clear(const ColorRGB &color, uint32_t clearFlags,
+            Real depth, uint32_t stencil);
 
         /**
          * @brief 查询渲染器能力

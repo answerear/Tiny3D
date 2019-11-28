@@ -162,6 +162,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult R3DRenderWindow::destroy()
     {
         TResult ret = T3D_OK;
@@ -204,6 +206,14 @@ namespace Tiny3D
         } while (0);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void R3DRenderWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, 
+        Real depth, uint32_t stencil)
+    {
+
     }
 }
 

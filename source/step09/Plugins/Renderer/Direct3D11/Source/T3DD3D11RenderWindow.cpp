@@ -181,6 +181,35 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+    void D3D11RenderWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, 
+        Real depth, uint32_t stencil)
+    {
+        do 
+        {
+            if (mD3DRTView == nullptr)
+            {
+                break;
+            }
+
+            if (mD3DDSView == nullptr)
+            {
+                break;
+            }
+
+            ID3D11DeviceContext *pD3DContext 
+                = D3D11_RENDERER.getD3DDeviceContext();
+            const float clr[4] = 
+            { clrFill.red(), clrFill.green(), clrFill.blue(), 1.0f };
+            pD3DContext->ClearRenderTargetView(mD3DRTView, clr);
+            pD3DContext->ClearDepthStencilView(mD3DDSView, 
+                D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depth, stencil);
+        } while (0);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult D3D11RenderWindow::loadIcon(const String &iconPath)
     {
         TResult ret = T3D_OK;

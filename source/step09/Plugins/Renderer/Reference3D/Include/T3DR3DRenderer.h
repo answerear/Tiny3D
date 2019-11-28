@@ -63,26 +63,6 @@ namespace Tiny3D
             const RenderWindowCreateParamEx &paramEx) override;
 
         /**
-        * @brief 开始渲染
-        * @param [in] count : 清除矩形区域的数量
-        * @param [in] rects : 矩形区域数组
-        * @param [in] clearFlags : 清除标记
-        * @param [in] color : 用于清除的背景颜色
-        * @param [in] z : 用于清除的深度值
-        * @param [in] stencil : 用于清除模板缓冲的值
-        * @return 调用成功返回 T3D_OK
-        */
-        virtual TResult beginRender(size_t count, Rect *rects,
-            uint32_t clearFlags, const ColorRGB &color, Real z,
-            uint32_t stencil) override;
-
-        /**
-         * @brief 结束渲染
-         * @return 调用成功返回 T3D_OK
-         */
-        virtual TResult endRender() override;
-
-        /**
          * @brief 查询渲染器能力
          * @param [in] cap : 能力枚举值
          * @return 具备cap对应的能力则返回true，否则返回false

@@ -100,6 +100,18 @@ namespace Tiny3D
         void setActive(bool active);
 
         /**
+         * @fn  virtual void RenderTarget::clear(const ColorRGB &clrFill, 
+         *      uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
+         * @brief   Clears this object to its blank/initial state
+         * @param   clrFill     The color fill.
+         * @param   clearFlags  The clear flags.
+         * @param   depth       The depth.
+         * @param   stencil     The stencil.
+         */
+        virtual void clear(const ColorRGB &clrFill, uint32_t clearFlags, 
+            Real depth, uint32_t stencil) = 0;
+
+        /**
          * @brief 渲染
          */
         virtual void render();

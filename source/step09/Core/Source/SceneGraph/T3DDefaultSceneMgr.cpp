@@ -129,7 +129,7 @@ namespace Tiny3D
 
         // 清空渲染队列
         mRenderQueue->clear();
-        
+
         SGCameraPtr camera = viewport->getCamera();
 
         // 做视锥体裁剪
@@ -139,10 +139,10 @@ namespace Tiny3D
         Point pos(viewport->getActualLeft(), viewport->getActualTop());
         Size size(viewport->getActualWidth(), viewport->getActualHeight());
         Rect rect(pos, size);
-        renderer->beginRender(1, &rect, viewport->getClearFlags(),
-            viewport->getBkgndColor(), viewport->getClearZ(), 0);
+        
+        renderer->clear(viewport->getBkgndColor(), viewport->getClearFlags(),
+            viewport->getClearZ(), 0);
         mRenderQueue->render(renderer);
-        renderer->endRender();
 
         return ret;
     }

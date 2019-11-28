@@ -68,6 +68,18 @@ namespace Tiny3D
          */
         virtual TResult swapBuffers() override;
 
+        /**
+         * @fn  virtual void D3D11RenderWindow::clear(const ColorRGB &clrFill, 
+         *      uint32_t clearFlags, Real depth, uint32_t stencil) override;
+         * @brief   Clears this object to its blank/initial state
+         * @param   clrFill     The color fill.
+         * @param   clearFlags  The clear flags.
+         * @param   depth       The depth.
+         * @param   stencil     The stencil.
+         */
+        virtual void clear(const ColorRGB &clrFill, uint32_t clearFlags, 
+            Real depth, uint32_t stencil) override;
+
     protected:
         D3D11RenderWindow(const String &name);
 
