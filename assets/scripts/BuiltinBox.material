@@ -21,6 +21,13 @@ gpu_cbuffer Builtin/UpdatePerObject
 	param_indexed_auto 44 inverse_transpose_worldviewproj_matrix
 }
 
+// built-in constant buffer for updating per object 
+gpu_cbuffer UpdatePerObject
+{
+	// about world matrix
+	param_indexed_auto 0 world_matrix
+}
+
 // built-in constant buffer for updating per frame
 gpu_cbuffer Builtin/UpdatePerFrame
 {
@@ -73,11 +80,6 @@ material Builtin/Box
 				gpu_cbuffer_ref Builtin/UpdatePerObject
 				{
 					slot 0
-				}
-				
-				gpu_cbuffer_ref Builtin/UpdatePerFrame
-				{
-					slot 1
 				}
 			}
 		}

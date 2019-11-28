@@ -27,40 +27,52 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   D3D11Renderer
+     * @brief   A D3D11 renderer.
+     */
     class D3D11Renderer 
         : public Renderer
         , public Singleton<D3D11Renderer>
     {
     public:
         /**
-         * @brief 创建一个D3D9Renderer对象
+         * @fn  static D3D11RendererPtr create();
+         * @brief   创建一个D3D9Renderer对象
+         * @returns A D3D11RendererPtr.
          */
         static D3D11RendererPtr create();
 
         /**
-         * @brief 析构函数
+         * @fn  virtual ~D3D11Renderer();
+         * @brief   析构函数
          */
         virtual ~D3D11Renderer();
 
         /**
-         * @brief 初始化渲染器
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult init() override;
+         * @brief   初始化渲染器
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult init() override;
 
         /**
-         * @brief 销毁渲染器
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult destroy() override;
+         * @brief   销毁渲染器
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult destroy() override;
 
         /**
-         * @brief 创建渲染窗口
-         * @param [in] name : 用于标识窗口的名称，不需要跟窗口标题栏相同
-         * @param [in] param : 创建渲染窗口必要数据
-         * @param [in] paramEx : 创建渲染窗口额外数据
-         * @return 调用成功返回一个渲染窗口对象，失败返回nullptr
-         * @remarks 具体渲染系统实现本接口以创建渲染系统相关的渲染窗口对象
+         * @fn  virtual RenderWindowPtr createRenderWindow( const String &name, 
+         *      const RenderWindowCreateParam &param, 
+         *      const RenderWindowCreateParamEx &paramEx) override;
+         * @brief   创建渲染窗口
+         * @param [in]  name    : 用于标识窗口的名称，不需要跟窗口标题栏相同.
+         * @param [in]  param   : 创建渲染窗口必要数据.
+         * @param [in]  paramEx : 创建渲染窗口额外数据.
+         * @returns 调用成功返回一个渲染窗口对象，失败返回nullptr.
+         * @remarks 具体渲染系统实现本接口以创建渲染系统相关的渲染窗口对象.
          */
         virtual RenderWindowPtr createRenderWindow(
             const String &name,
@@ -68,98 +80,101 @@ namespace Tiny3D
             const RenderWindowCreateParamEx &paramEx) override;
 
         /**
-         * @brief 开始渲染
-         * @param [in] count : 清除矩形区域的数量
-         * @param [in] rects : 矩形区域数组
-         * @param [in] clearFlags : 清除标记
-         * @param [in] color : 用于清除的背景颜色
-         *  @param [in] z : 用于清除的深度值
-         * @param [in] stencil : 用于清除模板缓冲的值
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult beginRender(size_t count, Rect *rects, 
+         *      uint32_t clearFlags, const ColorRGB &color, Real z, 
+         *      uint32_t stencil) override;
+         * @brief   开始渲染
+         * @param [in]  count       : 清除矩形区域的数量.
+         * @param [in]  rects       : 矩形区域数组.
+         * @param [in]  clearFlags  : 清除标记.
+         * @param [in]  color       : 用于清除的背景颜色.
+         * @param [in]  z           : 用于清除的深度值.
+         * @param [in]  stencil     : 用于清除模板缓冲的值.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult beginRender(size_t count, Rect *rects,
             uint32_t clearFlags, const ColorRGB &color, Real z,
             uint32_t stencil) override;
 
         /**
-         * @brief 结束渲染
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult endRender() override;
+         * @brief   结束渲染
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult endRender() override;
 
         /**
-         * @brief 查询渲染器能力
-         * @param [in] cap : 能力枚举值
-         * @return 具备cap对应的能力则返回true，否则返回false
-         * @see Renderer::Capability
+         * @fn  virtual bool queryCapability(Capability cap) const override;
+         * @brief   查询渲染器能力
+         * @param [in]  cap : 能力枚举值.
+         * @returns 具备cap对应的能力则返回true，否则返回false.
+         * @sa  Renderer::Capability
          */
         virtual bool queryCapability(Capability cap) const override;
 
         /**
-         * @brief 设置变换矩阵
-         * @param [in] state : 变换矩阵类型
-         * @param [in] mat : 变换矩阵
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult setTransform(TransformState state, 
+         *      const Matrix4 &mat) override;
+         * @brief   设置变换矩阵
+         * @param [in]  state   : 变换矩阵类型.
+         * @param [in]  mat     : 变换矩阵.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult setTransform(TransformState state,
             const Matrix4 &mat) override;
 
         /**
-         * @brief 获取对应类型的变换矩阵
-         * @param [in] state : 变换矩阵类型
-         * @return 返回对应类型的变换矩阵
+         * @fn  virtual const Matrix4 &getTransform(
+         *      TransformState state) const override;
+         * @brief   获取对应类型的变换矩阵
+         * @param [in]  state   : 变换矩阵类型.
+         * @returns 返回对应类型的变换矩阵.
          */
         virtual const Matrix4 &getTransform(
             TransformState state) const override;
 
         /**
-         * @brief 获取透视投影矩阵
-         * @param [in] fovY : top和bottom的夹角
-         * @param [in] aspect : 宽高比
-         * @param [in] nearDist : 观察空间的近平面
-         * @param [in] farDist : 观察空间的远平面
-         * @return 返回一个平台相关的透视投影矩阵
-         * @remarks 因为投影矩阵在不同渲染平台在NDC坐标系里z轴上会有的范围，
-         *      因此，这里矩阵的获取通过不同渲染平台直接计算出来，屏蔽差异。
-         *      Direct3D : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
-         *      Open GL : x∈[-1, 1], y∈[-1, 1], z∈[-1, 1]
-         *      Vulkan : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
-         *      Metal : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
-         *      Reference3D : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
+         * @fn  virtual Matrix4 perspective(const Radian &amp;fovY, Real aspect,
+         *  Real nearDist, Real farDist) override;
+         * @brief   获取透视投影矩阵
+         * @param [in]  fovY        : top 和 bottom 的夹角.
+         * @param [in]  aspect      : 宽高比.
+         * @param [in]  nearDist    : 观察空间的近平面.
+         * @param [in]  farDist     : 观察空间的远平面.
+         * @returns 返回一个平台相关的透视投影矩阵.
          */
         virtual Matrix4 perspective(const Radian &fovY, Real aspect,
             Real nearDist, Real farDist) override;
 
         /**
-         * @brief 获取正交投影矩阵
-         * @param [in] width : 投影平面宽度
-         * @param [in] height : 投影平面高度
-         * @param [in] nearDist : 观察空间的近平面
-         * @param [in] farDist : 观察空间的远平面
-         * @return 返回一个平台相关的正交投影矩阵
-         * @remarks 因为投影矩阵在不同渲染平台在NDC坐标系里z轴上会有不同的w范围，
-         *      因此，这里矩阵的获取通过不同渲染平台直接计算出来，屏蔽差异。
-         *      Direct3D : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
-         *      Open GL : x∈[-1, 1], y∈[-1, 1], z∈[-1, 1]
-         *      Vulkan : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
-         *      Metal : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
-         *      Reference3D : x∈[-1, 1], y∈[-1, 1], z∈[0, 1]
+         * @fn  virtual Matrix4 orthographic(Real width, Real height, 
+         *      Real nearDist, Real farDist) override;
+         * @brief   获取正交投影矩阵
+         * @param [in]  width       : 投影平面宽度.
+         * @param [in]  height      : 投影平面高度.
+         * @param [in]  nearDist    : 观察空间的近平面.
+         * @param [in]  farDist     : 观察空间的远平面.
+         * @returns 返回一个平台相关的正交投影矩阵.
          */
         virtual Matrix4 orthographic(Real width, Real height,
             Real nearDist, Real farDist) override;
 
         /**
-         * @brief 根据视口生成渲染器相关的视口变换矩阵
-         * @param [in] viewport : 视口对象
-         * @return 返回的视口变换矩阵
+         * @fn  virtual Matrix4 
+         *      makeViewportMatrix(ViewportPtr viewport) override;
+         * @brief   根据视口生成渲染器相关的视口变换矩阵
+         * @param [in]  viewport    : 视口对象.
+         * @returns 返回的视口变换矩阵.
          */
         virtual Matrix4 makeViewportMatrix(ViewportPtr viewport) override;
 
         /**
-         * @brief 更新视锥体的多个平面
-         * @param [in] m : 投影变换矩阵和观察矩阵的连接，即 (M_proj * M_view)
-         * @param [in][out] frustum : 需要更新的视锥体
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult updateFrustum(const Matrix4 &m, 
+         *      FrustumBoundPtr bound) override;
+         * @brief   更新视锥体的多个平面
+         * @param [in]  m       : 投影变换矩阵和观察矩阵的连接， 即 (M_proj * M_view)
+         * @param [in]  bound   frustum : 需要更新的视锥体.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult updateFrustum(const Matrix4 &m,
             FrustumBoundPtr bound) override;
@@ -246,16 +261,19 @@ namespace Tiny3D
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  D3D11Renderer();
+         * @brief   构造函数
          */
         D3D11Renderer();
 
     protected:
-        HINSTANCE               mInstance;
+        HINSTANCE               mInstance;          /**< The instance */
         ID3D11Device            *mD3DDevice;        /**< D3D11 设备对象 */
         ID3D11DeviceContext     *mD3DDeviceContext; /**< D3D11 设备上下文对象 */
         ID3D11RenderTargetView  *mRTView;           /**< D3D11 渲染目标视图 */
         ID3D11DepthStencilView  *mDSView;           /**< D3D11 深度模板缓冲视图*/
+
+        HardwareBufferManagerPtr    mHardwareBufferMgr; /**< Manager for hardware buffer */
     };
 
     #define D3D11_RENDERER      (D3D11Renderer::getInstance())

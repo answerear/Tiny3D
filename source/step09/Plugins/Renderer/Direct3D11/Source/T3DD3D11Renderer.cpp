@@ -20,6 +20,7 @@
 
 #include "T3DD3D11Renderer.h"
 #include "T3DD3D11RenderWindow.h"
+#include "T3DD3D11HardwareBufferManager.h"
 
 
 namespace Tiny3D
@@ -43,6 +44,8 @@ namespace Tiny3D
         : mInstance(nullptr)
         , mD3DDevice(nullptr)
         , mD3DDeviceContext(nullptr)
+        , mRTView(nullptr)
+        , mDSView(nullptr)
     {
         mName = Renderer::DIRECT3D11;
     }
@@ -62,6 +65,10 @@ namespace Tiny3D
 
         do 
         {
+            D3D11HardwareBufferManagerPtr mgr 
+                = D3D11HardwareBufferManager::create();
+            mHardwareBufferMgr = HardwareBufferManager::create(mgr);
+
             HRESULT hr = S_OK;
 
             // device flags
@@ -104,6 +111,8 @@ namespace Tiny3D
 
         do 
         {
+            mHardwareBufferMgr = nullptr;
+
             D3D_SAFE_RELEASE(mD3DDeviceContext);
             D3D_SAFE_RELEASE(mD3DDevice);
         } while (0);
@@ -153,8 +162,8 @@ namespace Tiny3D
         do 
         {
             const float colors[4] = {color.red(), color.green(), color.blue(), 1.0f};
-            mD3DDeviceContext->ClearRenderTargetView(mRTView, colors);
-            mD3DDeviceContext->ClearDepthStencilView(mDSView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+//             mD3DDeviceContext->ClearRenderTargetView(mRTView, colors);
+//             mD3DDeviceContext->ClearDepthStencilView(mDSView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
         } while (0);
 
