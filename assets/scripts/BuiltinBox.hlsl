@@ -26,6 +26,9 @@ VertexOut VS(VertexIn vin)
 	//vout.PosH = mul(float4(vin.PosL, 1.0f), gWorldViewProj);
 	vout.PosH = mul(TINY3D_MATRIX_MVP, float4(vin.PosL, 1.0f));
 	
+	float4 pos = mul(TINY3D_MATRIX_V, float4(vin.PosL, 1.0f));
+	vout.PosH += pos;
+	
 	// Just pass vertex color into the pixel shader.
     vout.Color = vin.Color;
     

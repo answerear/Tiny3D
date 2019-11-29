@@ -1,17 +1,29 @@
 cbuffer type_cbPerObject : register(b0)
 {
-    column_major float4x4 cbPerObject_TINY3D_MATRIX_M : packoffset(c0);
-    column_major float4x4 cbPerObject_TINY3D_MATRIX_I_M : packoffset(c4);
-    column_major float4x4 cbPerObject_TINY3D_MATRIX_T_M : packoffset(c8);
-    column_major float4x4 cbPerObject_TINY3D_MATRIX_IT_M : packoffset(c12);
-    column_major float4x4 cbPerObject_TINY3D_MATRIX_MV : packoffset(c16);
-    column_major float4x4 cbPerObject_TINY3D_MATRIX_I_MV : packoffset(c20);
-    column_major float4x4 cbPerObject_TINY3D_MATRIX_T_MV : packoffset(c24);
-    column_major float4x4 cbPerObject_TINY3D_MATRIX_IT_MV : packoffset(c28);
-    column_major float4x4 cbPerObject_TINY3D_MATRIX_MVP : packoffset(c32);
-    column_major float4x4 cbPerObject_TINY3D_MATRIX_I_MVP : packoffset(c36);
-    column_major float4x4 cbPerObject_TINY3D_MATRIX_T_MVP : packoffset(c40);
-    column_major float4x4 cbPerObject_TINY3D_MATRIX_IT_MVP : packoffset(c44);
+    row_major float4x4 cbPerObject_TINY3D_MATRIX_M : packoffset(c0);
+    row_major float4x4 cbPerObject_TINY3D_MATRIX_I_M : packoffset(c4);
+    row_major float4x4 cbPerObject_TINY3D_MATRIX_T_M : packoffset(c8);
+    row_major float4x4 cbPerObject_TINY3D_MATRIX_IT_M : packoffset(c12);
+    row_major float4x4 cbPerObject_TINY3D_MATRIX_MV : packoffset(c16);
+    row_major float4x4 cbPerObject_TINY3D_MATRIX_I_MV : packoffset(c20);
+    row_major float4x4 cbPerObject_TINY3D_MATRIX_T_MV : packoffset(c24);
+    row_major float4x4 cbPerObject_TINY3D_MATRIX_IT_MV : packoffset(c28);
+    row_major float4x4 cbPerObject_TINY3D_MATRIX_MVP : packoffset(c32);
+    row_major float4x4 cbPerObject_TINY3D_MATRIX_I_MVP : packoffset(c36);
+    row_major float4x4 cbPerObject_TINY3D_MATRIX_T_MVP : packoffset(c40);
+    row_major float4x4 cbPerObject_TINY3D_MATRIX_IT_MVP : packoffset(c44);
+};
+
+cbuffer type_cbPerFrame : register(b1)
+{
+    row_major float4x4 cbPerFrame_TINY3D_MATRIX_V : packoffset(c0);
+    row_major float4x4 cbPerFrame_TINY3D_MATRIX_I_V : packoffset(c4);
+    row_major float4x4 cbPerFrame_TINY3D_MATRIX_T_V : packoffset(c8);
+    row_major float4x4 cbPerFrame_TINY3D_MATRIX_IT_V : packoffset(c12);
+    row_major float4x4 cbPerFrame_TINY3D_MATRIX_VP : packoffset(c16);
+    row_major float4x4 cbPerFrame_TINY3D_MATRIX_I_VP : packoffset(c20);
+    row_major float4x4 cbPerFrame_TINY3D_MATRIX_T_VP : packoffset(c24);
+    row_major float4x4 cbPerFrame_TINY3D_MATRIX_IT_VP : packoffset(c28);
 };
 
 
@@ -34,7 +46,8 @@ struct SPIRV_Cross_Output
 
 void vert_main()
 {
-    gl_Position = mul(cbPerObject_TINY3D_MATRIX_MVP, float4(in_var_POSITION, 1.0f));
+    float4 _34 = float4(in_var_POSITION, 1.0f);
+    gl_Position = mul(cbPerObject_TINY3D_MATRIX_MVP, _34) + mul(cbPerFrame_TINY3D_MATRIX_V, _34);
     out_var_COLOR = in_var_COLOR;
 }
 

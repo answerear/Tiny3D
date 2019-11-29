@@ -1654,7 +1654,11 @@ namespace Tiny3D
             sourceDesc.source = content.c_str();
             sourceDesc.fileName = inpath.c_str();
 
-            const auto result = Compiler::Compile(sourceDesc, {}, targetDesc);
+            Compiler::Options opt;
+//             opt.disableOptimizations = true;
+            opt.packMatricesInRowMajor = false;
+//             opt.optimizationLevel = 0;
+            const auto result = Compiler::Compile(sourceDesc, opt, targetDesc);
 
             if (result.errorWarningMsg != nullptr)
             {
