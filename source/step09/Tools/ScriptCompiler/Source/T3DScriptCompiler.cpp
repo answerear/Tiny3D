@@ -1543,7 +1543,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool ScriptCompiler::translate(ObjectAbstractNode *obj,
-        const String &source, const String &target, const String &stage, 
+        const String &source, const String &target,  const String &stage, 
         const String &entry)
     {
         bool ret = false;
@@ -1652,6 +1652,7 @@ namespace Tiny3D
             infile.close();
 
             sourceDesc.source = content.c_str();
+            sourceDesc.fileName = inpath.c_str();
 
             const auto result = Compiler::Compile(sourceDesc, {}, targetDesc);
 
