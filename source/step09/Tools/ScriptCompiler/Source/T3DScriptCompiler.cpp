@@ -34,8 +34,16 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     ScriptCompiler::ScriptCompiler()
-        : mLexer(nullptr)
+        : mMaterialTranslator(nullptr)
+        , mTechniqueTranslator(nullptr)
+        , mPassTranslator(nullptr)
+        , mTexUnitTranslator(nullptr)
+        , mSamplerTranslator(nullptr)
+        , mGPUTransltor(nullptr)
+        , mLexer(nullptr)
         , mParser(nullptr)
+        , mOptimizationLevel(0)
+        , mEnableDebugInfo(true)
     {
         mLexer = new ScriptLexer();
         mParser = new ScriptParser(this);
@@ -203,6 +211,8 @@ namespace Tiny3D
         printf("      -p : Set the directory of the project. If this options is set, all input files in the list will be relative path.");
         printf("      -d : Set the directory of output files. If \'-p\' is set, this path will be relative to the project path.");
         printf("      -l : Set the link file and link all script binary file (*.tsc) to one file. Default is not linking.");
+        printf("      -On : n is the optimization level from 0 to 3.");
+        printf("      -D : Translate high level shader language to target shader language with debug information.");
     }
 
     //--------------------------------------------------------------------------
@@ -318,6 +328,14 @@ namespace Tiny3D
                     ++i;
                     mShaderModel = argv[i];
                 }
+                else if (stricmp(argv[i], "-O") == 0)
+                {
+                    opt.optimizeLevel = atoi(argv[i] + 2);
+                }
+                else if (stricmp(argv[i], "-D") == 0)
+                {
+                    opt.enableDebugInfo = true;
+                }
                 else
                 {
                     // 输入文件列表
@@ -392,6 +410,18 @@ namespace Tiny3D
                     outDir = path;
                     mOutDir = path;
                 }
+
+                // 如果优化开启，则忽略调试信息，自动关闭调试信息
+                if (opt.optimizeLevel != 0)
+                {
+                    mEnableDebugInfo = false;
+                }
+                else
+                {
+                    mEnableDebugInfo = opt.enableDebugInfo;
+                }
+
+                mOptimizationLevel = opt.optimizeLevel;
 
                 ret = compile(input, output);
                 if (!ret)
@@ -1655,9 +1685,9 @@ namespace Tiny3D
             sourceDesc.fileName = inpath.c_str();
 
             Compiler::Options opt;
-//             opt.disableOptimizations = true;
             opt.packMatricesInRowMajor = false;
-//             opt.optimizationLevel = 0;
+            opt.optimizationLevel = mOptimizationLevel;
+            opt.enableDebugInfo = mEnableDebugInfo;
             const auto result = Compiler::Compile(sourceDesc, opt, targetDesc);
 
             if (result.errorWarningMsg != nullptr)

@@ -1,19 +1,19 @@
 cbuffer cbPerObject : register(b0)
 {
-	row_major float4x4 TINY3D_MATRIX_M;
-	row_major float4x4 TINY3D_MATRIX_I_M;
-	row_major float4x4 TINY3D_MATRIX_T_M;
-	row_major float4x4 TINY3D_MATRIX_IT_M;
+	float4x4 TINY3D_MATRIX_M;
+	float4x4 TINY3D_MATRIX_I_M;
+	float4x4 TINY3D_MATRIX_T_M;
+	float4x4 TINY3D_MATRIX_IT_M;
 	
-	row_major float4x4 TINY3D_MATRIX_MV;
-	row_major float4x4 TINY3D_MATRIX_I_MV;
-	row_major float4x4 TINY3D_MATRIX_T_MV;
-	row_major float4x4 TINY3D_MATRIX_IT_MV;
+	float4x4 TINY3D_MATRIX_MV;
+	float4x4 TINY3D_MATRIX_I_MV;
+	float4x4 TINY3D_MATRIX_T_MV;
+	float4x4 TINY3D_MATRIX_IT_MV;
 	
-	row_major float4x4 TINY3D_MATRIX_MVP;
-	row_major float4x4 TINY3D_MATRIX_I_MVP;
-	row_major float4x4 TINY3D_MATRIX_T_MVP;
-	row_major float4x4 TINY3D_MATRIX_IT_MVP;
+	float4x4 TINY3D_MATRIX_MVP;
+	float4x4 TINY3D_MATRIX_I_MVP;
+	float4x4 TINY3D_MATRIX_T_MVP;
+	float4x4 TINY3D_MATRIX_IT_MVP;
 };
 
 cbuffer cbPerFrame : register(b1)

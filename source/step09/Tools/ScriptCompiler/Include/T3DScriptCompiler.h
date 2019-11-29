@@ -55,6 +55,8 @@ namespace Tiny3D
 
             Options()
                 : options(OPT_PRINT_HELP)
+                , optimizeLevel(0)
+                , enableDebugInfo(false)
             {
 
             }
@@ -84,12 +86,14 @@ namespace Tiny3D
                 return (OPT_PROJECT_DIR & options) == OPT_PROJECT_DIR;
             }
 
-            uint32_t    options;    /// 编译选项
-            StringList  inFiles;    /// 输入文件列表
-            String      projDir;    /// 工程目录
-            String      outDir;     /// 输出文件夹路径
-            String      outFile;    /// 连接输出成一个文件时使用的文件名
-            String      target;     /// 目标输出平台
+            uint32_t    options;        /**< 编译选项 */
+            uint32_t    optimizeLevel;  /**< 优化级别，0 to 3 */
+            bool        enableDebugInfo;/**< HLSL转换到目标平台着色器语言时是否输出调试信息 */
+            StringList  inFiles;        /**< 输入文件列表 */
+            String      projDir;        /**< 工程目录 */
+            String      outDir;         /**< 输出文件夹路径 */
+            String      outFile;        /**< 连接输出成一个文件时使用的文件名 */
+            String      target;         /**< 目标输出平台 */
         };
 
     public:
@@ -239,6 +243,9 @@ namespace Tiny3D
         String                  mTarget;
         String                  mProjDir;   /**< 当前编译文件路径 */
         String                  mOutDir;
+
+        uint32_t                mOptimizationLevel;
+        bool                    mEnableDebugInfo;
     };
 }
 

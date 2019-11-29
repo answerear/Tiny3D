@@ -1,3 +1,15 @@
+struct VertexIn
+{
+    float3 PosL;
+    float4 Color;
+};
+
+struct VertexOut
+{
+    float4 PosH;
+    float4 Color;
+};
+
 cbuffer type_cbPerObject : register(b0)
 {
     row_major float4x4 cbPerObject_TINY3D_MATRIX_M : packoffset(c0);
@@ -26,6 +38,14 @@ cbuffer type_cbPerFrame : register(b1)
     row_major float4x4 cbPerFrame_TINY3D_MATRIX_IT_VP : packoffset(c28);
 };
 
+cbuffer type_cbRarely : register(b2)
+{
+    row_major float4x4 cbRarely_TINY3D_MATRIX_P : packoffset(c0);
+    row_major float4x4 cbRarely_TINY3D_MATRIX_I_P : packoffset(c4);
+    row_major float4x4 cbRarely_TINY3D_MATRIX_T_P : packoffset(c8);
+    row_major float4x4 cbRarely_TINY3D_MATRIX_IT_P : packoffset(c12);
+};
+
 
 static float4 gl_Position;
 static float3 in_var_POSITION;
@@ -44,11 +64,21 @@ struct SPIRV_Cross_Output
     float4 gl_Position : SV_Position;
 };
 
+VertexOut src_VS(VertexIn vin)
+{
+    VertexOut vout;
+    vout.PosH = mul(cbPerObject_TINY3D_MATRIX_MVP, float4(vin.PosL, 1.0f));
+    vout.Color = vin.Color;
+    return vout;
+}
+
 void vert_main()
 {
-    float4 _34 = float4(in_var_POSITION, 1.0f);
-    gl_Position = mul(cbPerObject_TINY3D_MATRIX_MVP, _34) + mul(cbPerFrame_TINY3D_MATRIX_V, _34);
-    out_var_COLOR = in_var_COLOR;
+    VertexIn _35 = { in_var_POSITION, in_var_COLOR };
+    VertexIn param_var_vin = _35;
+    VertexOut _37 = src_VS(param_var_vin);
+    gl_Position = _37.PosH;
+    out_var_COLOR = _37.Color;
 }
 
 SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
