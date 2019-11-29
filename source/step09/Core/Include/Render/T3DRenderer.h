@@ -54,7 +54,7 @@ namespace Tiny3D
             E_CAP_RENDER_TO_TARGET = 0,     /**< 是否支持渲染到 surface */
             E_CAP_HARDWARE_TRANSFORM,       /**< 是否支持硬件变换 */
             E_CAP_MULTI_TEXTURE,            /**< 是否支持多重纹理 */
-            E_CAP_MIP_MAP,                  /**< 是否支持 Mip Map */
+            E_CAP_MIP_MAP,                  /**< 是否支持 Mipmap */
             E_CAP_STENCIL_BUFFER,           /**< 是否支持 stencil buffer */
             E_CAP_VERTEX_SHADER_1_1,        /**< 是否支持 1.1 版本顶点着色器 */
             E_CAP_VERTEX_SHADER_2_0,        /**< 是否支持 2.0 版本顶点着色器 */
@@ -75,12 +75,12 @@ namespace Tiny3D
          * @enum    TransformState
          * @brief   设置变换矩阵状态
          */
-        enum TransformState
+        enum TransformState : uint32_t
         {
-            E_TS_VIEW = 0,      /**< 视口变换矩阵 */
-            E_TS_WORLD,         /**< 世界变换矩阵 */
-            E_TS_PROJECTION,    /**< 投影变换矩阵 */
-            E_TS_MAX
+            VIEW = 0,      /**< 视口变换矩阵 */
+            WORLD,         /**< 世界变换矩阵 */
+            PROJECTION,    /**< 投影变换矩阵 */
+            MAX
         };
 
         /**

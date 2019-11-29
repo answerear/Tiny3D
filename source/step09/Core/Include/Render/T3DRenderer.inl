@@ -27,17 +27,17 @@ namespace Tiny3D
 
     inline TResult Renderer::setViewTransform(const Matrix4 &mat)
     {
-        return setTransform(E_TS_VIEW, mat);
+        return setTransform(TransformState::VIEW, mat);
     }
 
     inline TResult Renderer::setWorldTransform(const Matrix4 &mat)
     {
-        return setTransform(E_TS_WORLD, mat);
+        return setTransform(TransformState::WORLD, mat);
     }
 
     inline TResult Renderer::setProjectionTransform(const Matrix4 &mat)
     {
-        return setTransform(E_TS_PROJECTION, mat);
+        return setTransform(TransformState::PROJECTION, mat);
     }
 
 

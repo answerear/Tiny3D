@@ -66,7 +66,7 @@ namespace Tiny3D
 
         size_t i = 0;
 
-        for (i = 0; i < E_TS_MAX; ++i)
+        for (i = 0; i < MAX; ++i)
         {
             mMatrices[i].makeIdentity();
         }
@@ -460,10 +460,11 @@ namespace Tiny3D
 
         do 
         {
-            mMV = mMatrices[E_TS_VIEW] * mMatrices[E_TS_WORLD];
-            mMVP = mMatrices[E_TS_PROJECTION]
-                * mMatrices[E_TS_VIEW]
-                * mMatrices[E_TS_WORLD];
+            mMV = mMatrices[TransformState::VIEW] 
+                * mMatrices[TransformState::WORLD];
+            mMVP = mMatrices[TransformState::PROJECTION]
+                * mMatrices[TransformState::VIEW]
+                * mMatrices[TransformState::WORLD];
 
             auto vbo = vao->getVertexBuffer(0);
             size_t vertexCount = vbo->getVertexCount();

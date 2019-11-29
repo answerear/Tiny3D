@@ -37,17 +37,21 @@ gpu_cbuffer Builtin/UpdatePerFrame
 	param_indexed_auto 8 transpose_view_matrix
 	param_indexed_auto 12 inverse_transpose_view_matrix
 	
-	// about projection matrix
-	param_indexed_auto 16 projection_matrix
-	param_indexed_auto 20 inverse_projection_matrix
-	param_indexed_auto 24 transpose_projection_matrix
-	param_indexed_auto 28 inverse_transpose_projection_matrix
-	
 	// about view * projection matrix
 	param_indexed_auto 32 viewproj_matrix
 	param_indexed_auto 36 inverse_viewproj_matrix
 	param_indexed_auto 40 transpose_viewproj_matrix
 	param_indexed_auto 44 inverse_transpose_viewproj_matrix
+}
+
+// built-in constant buffer for updating rarely
+gpu_cbuffer Builtin/UpdateRarely
+{
+	// about projection matrix
+	param_indexed_auto 16 projection_matrix
+	param_indexed_auto 20 inverse_projection_matrix
+	param_indexed_auto 24 transpose_projection_matrix
+	param_indexed_auto 28 inverse_transpose_projection_matrix
 }
 
 gpu_program BuiltinBox.hlsl
@@ -80,6 +84,16 @@ material Builtin/Box
 				gpu_cbuffer_ref Builtin/UpdatePerObject
 				{
 					slot 0
+				}
+				
+				gpu_cbuffer_ref Builtin/UpdatePerFrame
+				{
+					slot 1
+				}
+				
+				gpu_cbuffer_ref Builtin/UpdateRarely
+				{
+					slot 2
 				}
 			}
 		}

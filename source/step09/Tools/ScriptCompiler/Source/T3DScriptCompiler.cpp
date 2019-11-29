@@ -1104,8 +1104,15 @@ namespace Tiny3D
                 ScriptTranslator *translator = getTranslator(*i);
                 
                 if (translator)
+                {
                     size = translator->translate(this, stream, *i);
-                
+                }
+                else
+                {
+                    ret = false;
+                    break;
+                }
+
                 if (size == 0)
                 {
                     ret = false;

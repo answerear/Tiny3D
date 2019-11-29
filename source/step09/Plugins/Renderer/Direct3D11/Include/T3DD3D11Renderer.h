@@ -64,6 +64,13 @@ namespace Tiny3D
         virtual TResult destroy() override;
 
         /**
+         * @fn  virtual TResult render() override;
+         * @brief   Renders this object
+         * @returns A TResult.
+         */
+        virtual TResult render() override;
+
+        /**
          * @fn  virtual RenderWindowPtr createRenderWindow( const String &name, 
          *      const RenderWindowCreateParam &param, 
          *      const RenderWindowCreateParamEx &paramEx) override;
@@ -225,16 +232,6 @@ namespace Tiny3D
             return mD3DDeviceContext;
         }
 
-        void setD3DRTView(ID3D11RenderTargetView *D3DRTView)
-        {
-            mRTView = D3DRTView;
-        }
-
-        void setD3DDSView(ID3D11DepthStencilView *D3DDSView)
-        {
-            mDSView = D3DDSView;
-        }
-
     protected:
         /**
          * @fn  D3D11Renderer();
@@ -242,19 +239,76 @@ namespace Tiny3D
          */
         D3D11Renderer();
 
+        /**
+         * @fn  TResult initBuiltInGPUConstBuffer();
+         * @brief   Initializes the built in GPU constant buffer
+         * @returns A TResult.
+         */
+        TResult initBuiltInGPUConstBuffer();
+
     protected:
-        HINSTANCE               mInstance;          /**< The instance */
-        ID3D11Device            *mD3DDevice;        /**< D3D11 设备对象 */
-        ID3D11DeviceContext     *mD3DDeviceContext; /**< D3D11 设备上下文对象 */
-        ID3D11RenderTargetView  *mRTView;           /**< D3D11 渲染目标视图 */
-        ID3D11DepthStencilView  *mDSView;           /**< D3D11 深度模板缓冲视图*/
+        struct GPUConstUpdatePerObject
+        {
+            GPUConstUpdatePerObject() {}
+
+            Matrix4 mWorldMatrix;               /**< The world matrix */
+            Matrix4 mInverseWorldM;             /**< The inverse world matrix */
+            Matrix4 mTransposeWorldM;           /**< The transpose world matrix */
+            Matrix4 mInverseTransposeWorldM;    /**< The inverse transpose world matrix */
+
+            Matrix4 mWorldViewMatrix;           /**< The world view matrix */
+            Matrix4 mInverseWorldViewM;         /**< The inverse world view m */
+            Matrix4 mTransposeWorldViewM;       /**< The transpose world view m */
+            Matrix4 mInverseTransposeWorldViewM;/**< The inverse transpose world view m */
+
+            Matrix4 mWorldViewProjMatrix;               /**< The world view project matrix */
+            Matrix4 mInverseWorldViewProjM;             /**< The inverse world view project m */
+            Matrix4 mTransposeWorldViewProjM;           /**< The transpose world view project m */
+            Matrix4 mInverseTransposeWorldViewProjM;    /**< The inverse transpose world view project m */
+        };
+
+        struct GPUConstUpdatePerFrame
+        {
+            GPUConstUpdatePerFrame() {}
+
+            Matrix4 mViewMatrix;                /**< The view matrix */
+            Matrix4 mInverseViewM;              /**< The inverse view matrix */
+            Matrix4 mTransposeViewM;            /**< The transpose view matrix */
+            Matrix4 mInverseTransposeViewM;     /**< The inverse transpose view matrix */
+
+            Matrix4 mViewProjMatrix;            /**< The view project matrix */
+            Matrix4 mInverseViewProjM;          /**< The inverse view project m */
+            Matrix4 mTransposeViewProjM;        /**< The transpose view project m */
+            Matrix4 mInverseTransposeViewProjM; /**< The inverse transpose view project m */
+        };
+
+        struct GPUConstUpdateRarely
+        {
+            GPUConstUpdateRarely() {}
+
+            Matrix4 mProjMatrix;                /**< The project matrix */
+            Matrix4 mInverseProjM;              /**< The inverse project m */
+            Matrix4 mTransposeProjM;            /**< The transpose project m */
+            Matrix4 mInverseTransposeProjM;     /**< The inverse transpose project m */
+        };
+
+        HINSTANCE                   mInstance;          /**< The instance */
+        ID3D11Device                *mD3DDevice;        /**< D3D11 设备对象 */
+        ID3D11DeviceContext         *mD3DDeviceContext; /**< D3D11 设备上下文对象 */
 
         HardwareBufferManagerPtr    mHardwareBufferMgr; /**< Manager for hardware buffer */
+
+        GPUConstUpdatePerObject     mGPUConstUpdateObject;
+        GPUConstUpdatePerFrame      mGPUConstUpdateFrame;
+        GPUConstUpdateRarely        mGPUConstUpdateRarely;
+
+        bool    mIsWorldMatrixDirty;
+        bool    mIsViewMatrixDirty;
+        bool    mIsProjMatrixDirty;
     };
 
     #define D3D11_RENDERER      (D3D11Renderer::getInstance())
 }
-
 
 
 #endif  /*__T3D_D3D11_RENDERER_H__*/

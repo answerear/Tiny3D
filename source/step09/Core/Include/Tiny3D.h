@@ -53,6 +53,8 @@
 #include <Resource/T3DGPUProgram.h>
 #include <Resource/T3DGPUProgramCreator.h>
 #include <Resource/T3DGPUProgramManager.h>
+#include <Resource/T3DGPUConstBuffer.h>
+#include <Resource/T3DGPUConstBufferManager.h>
 #include <Resource/T3DTexture.h>
 #include <Resource/T3DTextureManager.h>
 #include <Resource/T3DMaterial.h>

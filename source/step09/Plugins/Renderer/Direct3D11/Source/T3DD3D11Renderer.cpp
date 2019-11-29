@@ -44,8 +44,9 @@ namespace Tiny3D
         : mInstance(nullptr)
         , mD3DDevice(nullptr)
         , mD3DDeviceContext(nullptr)
-        , mRTView(nullptr)
-        , mDSView(nullptr)
+        , mIsWorldMatrixDirty(false)
+        , mIsViewMatrixDirty(false)
+        , mIsProjMatrixDirty(false)
     {
         mName = Renderer::DIRECT3D11;
     }
@@ -96,8 +97,6 @@ namespace Tiny3D
             {
                 break;
             }
-
-
         } while (0);
 
         return ret;
@@ -115,6 +114,26 @@ namespace Tiny3D
 
             D3D_SAFE_RELEASE(mD3DDeviceContext);
             D3D_SAFE_RELEASE(mD3DDevice);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Renderer::render()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            // Calculate all matrices about view.
+            if (mIsViewMatrixDirty)
+            {
+            }
+            
+            // Calculate all matrices about projection.
+            ret = Renderer::render();
         } while (0);
 
         return ret;
@@ -167,7 +186,33 @@ namespace Tiny3D
 
         do 
         {
-            
+            switch (state)
+            {
+            case TransformState::VIEW:
+                {
+                    mGPUConstUpdateFrame.mViewMatrix = mat;
+                    mIsViewMatrixDirty = true;
+                }
+                break;
+            case TransformState::WORLD:
+                {
+                    mGPUConstUpdateObject.mWorldMatrix = mat;
+                    mIsWorldMatrixDirty = true;
+                }
+                break;
+            case TransformState::PROJECTION:
+                {
+                    mGPUConstUpdateRarely.mProjMatrix = mat;
+                    mIsProjMatrixDirty = true;
+                }
+                break;
+            default:
+                {
+                    ret = T3D_ERR_INVALID_PARAM;
+                    T3D_LOG_ERROR(LOG_TAG_RENDER, "Invalid transform state !");
+                }
+                break;
+            }
         } while (0);
 
         return ret;
@@ -177,8 +222,18 @@ namespace Tiny3D
 
     const Matrix4 &D3D11Renderer::getTransform(TransformState state) const
     {
-        
-
+        switch (state)
+        {
+        case TransformState::VIEW:
+            return mGPUConstUpdateFrame.mViewMatrix;
+            break;
+        case TransformState::WORLD:
+            return mGPUConstUpdateObject.mWorldMatrix;
+            break;
+        case TransformState::PROJECTION:
+            return mGPUConstUpdateRarely.mProjMatrix;
+            break;
+        }
 
         return Matrix4::IDENTITY;
     }

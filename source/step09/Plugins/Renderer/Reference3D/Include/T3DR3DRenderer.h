@@ -262,7 +262,7 @@ namespace Tiny3D
 
         FrustumBoundPtr             mFrustumBound;          /**< 视锥包围对象 */
 
-        Matrix4 mMatrices[E_TS_MAX];    /**< 各种变换矩阵 */
+        Matrix4 mMatrices[MAX];    /**< 各种变换矩阵 */
         Matrix4 mMV;                    /**< 模型变换和视图变换的连接结果 */
         Matrix4 mMVP;                   /**< 模型矩阵、视图变换和投影变换连接结果 */
     };
