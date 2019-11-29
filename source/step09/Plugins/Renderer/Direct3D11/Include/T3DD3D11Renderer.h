@@ -96,27 +96,6 @@ namespace Tiny3D
         virtual bool queryCapability(Capability cap) const override;
 
         /**
-         * @fn  virtual TResult setTransform(TransformState state, 
-         *      const Matrix4 &mat) override;
-         * @brief   设置变换矩阵
-         * @param [in]  state   : 变换矩阵类型.
-         * @param [in]  mat     : 变换矩阵.
-         * @returns 调用成功返回 T3D_OK.
-         */
-        virtual TResult setTransform(TransformState state,
-            const Matrix4 &mat) override;
-
-        /**
-         * @fn  virtual const Matrix4 &getTransform(
-         *      TransformState state) const override;
-         * @brief   获取对应类型的变换矩阵
-         * @param [in]  state   : 变换矩阵类型.
-         * @returns 返回对应类型的变换矩阵.
-         */
-        virtual const Matrix4 &getTransform(
-            TransformState state) const override;
-
-        /**
          * @fn  virtual Matrix4 perspective(const Radian &amp;fovY, Real aspect,
          *  Real nearDist, Real farDist) override;
          * @brief   获取透视投影矩阵
@@ -247,64 +226,11 @@ namespace Tiny3D
         TResult initBuiltInGPUConstBuffer();
 
     protected:
-        struct GPUConstUpdatePerObject
-        {
-            GPUConstUpdatePerObject() {}
-
-            Matrix4 mWorldMatrix;               /**< The world matrix */
-            Matrix4 mInverseWorldM;             /**< The inverse world matrix */
-            Matrix4 mTransposeWorldM;           /**< The transpose world matrix */
-            Matrix4 mInverseTransposeWorldM;    /**< The inverse transpose world matrix */
-
-            Matrix4 mWorldViewMatrix;           /**< The world view matrix */
-            Matrix4 mInverseWorldViewM;         /**< The inverse world view m */
-            Matrix4 mTransposeWorldViewM;       /**< The transpose world view m */
-            Matrix4 mInverseTransposeWorldViewM;/**< The inverse transpose world view m */
-
-            Matrix4 mWorldViewProjMatrix;               /**< The world view project matrix */
-            Matrix4 mInverseWorldViewProjM;             /**< The inverse world view project m */
-            Matrix4 mTransposeWorldViewProjM;           /**< The transpose world view project m */
-            Matrix4 mInverseTransposeWorldViewProjM;    /**< The inverse transpose world view project m */
-        };
-
-        struct GPUConstUpdatePerFrame
-        {
-            GPUConstUpdatePerFrame() {}
-
-            Matrix4 mViewMatrix;                /**< The view matrix */
-            Matrix4 mInverseViewM;              /**< The inverse view matrix */
-            Matrix4 mTransposeViewM;            /**< The transpose view matrix */
-            Matrix4 mInverseTransposeViewM;     /**< The inverse transpose view matrix */
-
-            Matrix4 mViewProjMatrix;            /**< The view project matrix */
-            Matrix4 mInverseViewProjM;          /**< The inverse view project m */
-            Matrix4 mTransposeViewProjM;        /**< The transpose view project m */
-            Matrix4 mInverseTransposeViewProjM; /**< The inverse transpose view project m */
-        };
-
-        struct GPUConstUpdateRarely
-        {
-            GPUConstUpdateRarely() {}
-
-            Matrix4 mProjMatrix;                /**< The project matrix */
-            Matrix4 mInverseProjM;              /**< The inverse project m */
-            Matrix4 mTransposeProjM;            /**< The transpose project m */
-            Matrix4 mInverseTransposeProjM;     /**< The inverse transpose project m */
-        };
-
         HINSTANCE                   mInstance;          /**< The instance */
         ID3D11Device                *mD3DDevice;        /**< D3D11 设备对象 */
         ID3D11DeviceContext         *mD3DDeviceContext; /**< D3D11 设备上下文对象 */
 
         HardwareBufferManagerPtr    mHardwareBufferMgr; /**< Manager for hardware buffer */
-
-        GPUConstUpdatePerObject     mGPUConstUpdateObject;
-        GPUConstUpdatePerFrame      mGPUConstUpdateFrame;
-        GPUConstUpdateRarely        mGPUConstUpdateRarely;
-
-        bool    mIsWorldMatrixDirty;
-        bool    mIsViewMatrixDirty;
-        bool    mIsProjMatrixDirty;
     };
 
     #define D3D11_RENDERER      (D3D11Renderer::getInstance())

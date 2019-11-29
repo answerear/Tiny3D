@@ -199,7 +199,7 @@ namespace Tiny3D
          * @return 调用成功返回 T3D_OK
          */
         virtual TResult setTransform(TransformState state, 
-            const Matrix4 &mat) = 0;
+            const Matrix4 &mat);
 
         /**
          * @brief 设置视图变换矩阵
@@ -227,7 +227,7 @@ namespace Tiny3D
          * @param [in] state : 变换矩阵类型
          * @return 返回对应类型的变换矩阵
          */
-        virtual const Matrix4 &getTransform(TransformState state) const = 0;
+        virtual const Matrix4 &getTransform(TransformState state) const;
 
         /**
          * @brief 获取透视投影矩阵
@@ -357,10 +357,70 @@ namespace Tiny3D
             HardwareIndexBufferPtr ibo) = 0;
 
     protected:
+        /**
+         * @fn  TResult Renderer::loadBuiltinGPUConstant();
+         * @brief   Initializes the built-in GPU constant buffer
+         * @returns A TResult.
+         */
+        TResult loadBuiltinGPUConstant();
+
+        /**
+         * @fn  TResult Renderer::loadBuiltinGPUProgram();
+         * @brief   Loads built-in GPU program
+         * @returns The built-in GPU program.
+         */
+        TResult loadBuiltinGPUProgram();
+
+    protected:
         typedef TMap<String, RenderTargetPtr>       RenderTargetList;
         typedef RenderTargetList::iterator          RenderTargetListItr;
         typedef RenderTargetList::const_iterator    RenderTargetListConstItr;
         typedef RenderTargetList::value_type        RenderTargetListValue;
+
+        struct GPUConstUpdatePerObject
+        {
+            GPUConstUpdatePerObject() {}
+
+            Matrix4 mWorldMatrix;               /**< The world matrix */
+            Matrix4 mInverseWorldM;             /**< The inverse world matrix */
+            Matrix4 mTransposeWorldM;           /**< The transpose world matrix */
+            Matrix4 mInverseTransposeWorldM;    /**< The inverse transpose world matrix */
+
+            Matrix4 mWorldViewMatrix;           /**< The world view matrix */
+            Matrix4 mInverseWorldViewM;         /**< The inverse world view m */
+            Matrix4 mTransposeWorldViewM;       /**< The transpose world view m */
+            Matrix4 mInverseTransposeWorldViewM;/**< The inverse transpose world view m */
+
+            Matrix4 mWorldViewProjMatrix;               /**< The world view project matrix */
+            Matrix4 mInverseWorldViewProjM;             /**< The inverse world view project m */
+            Matrix4 mTransposeWorldViewProjM;           /**< The transpose world view project m */
+            Matrix4 mInverseTransposeWorldViewProjM;    /**< The inverse transpose world view project m */
+        };
+
+        struct GPUConstUpdatePerFrame
+        {
+            GPUConstUpdatePerFrame() {}
+
+            Matrix4 mViewMatrix;                /**< The view matrix */
+            Matrix4 mInverseViewM;              /**< The inverse view matrix */
+            Matrix4 mTransposeViewM;            /**< The transpose view matrix */
+            Matrix4 mInverseTransposeViewM;     /**< The inverse transpose view matrix */
+
+            Matrix4 mViewProjMatrix;            /**< The view project matrix */
+            Matrix4 mInverseViewProjM;          /**< The inverse view project m */
+            Matrix4 mTransposeViewProjM;        /**< The transpose view project m */
+            Matrix4 mInverseTransposeViewProjM; /**< The inverse transpose view project m */
+        };
+
+        struct GPUConstUpdateRarely
+        {
+            GPUConstUpdateRarely() {}
+
+            Matrix4 mProjMatrix;                /**< The project matrix */
+            Matrix4 mInverseProjM;              /**< The inverse project m */
+            Matrix4 mTransposeProjM;            /**< The transpose project m */
+            Matrix4 mInverseTransposeProjM;     /**< The inverse transpose project m */
+        };
 
         String              mName;              /**< 渲染器名称 */
 
@@ -372,6 +432,18 @@ namespace Tiny3D
 
         CullingMode         mCullingMode;       /**< 裁剪模式 */
         PolygonMode         mPolygonMode;       /**< 多边形渲染模式 */
+
+        GPUConstBufferPtr           mGPUBufferUpdateObject;
+        GPUConstBufferPtr           mGPUBufferUpdateFrame;
+        GPUConstBufferPtr           mGPUBufferUpdateRarely;
+
+        GPUConstUpdatePerObject     mGPUConstUpdateObject;
+        GPUConstUpdatePerFrame      mGPUConstUpdateFrame;
+        GPUConstUpdateRarely        mGPUConstUpdateRarely;
+
+        bool    mIsWorldMatrixDirty;
+        bool    mIsViewMatrixDirty;
+        bool    mIsProjMatrixDirty;
     };
 }
 

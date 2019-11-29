@@ -49,6 +49,8 @@ namespace Tiny3D
         /** 解析数据流到material对象中 */
         TResult parse(DataStream &stream, Object *material);
 
+        TResult parse(DataStream &stream);
+
         /** 获取对应操作码的对象脚本解析器 */
         ScriptParserBase *getObjectParser(uint16_t opcode);
 

@@ -19,6 +19,8 @@
 
 
 #include "Render/T3DRenderer.h"
+#include "Resource/T3DGPUConstBuffer.h"
+#include "Resource/T3DGPUConstBufferManager.h"
 
 
 namespace Tiny3D
@@ -39,6 +41,9 @@ namespace Tiny3D
         , mViewport(nullptr)
         , mCullingMode(CullingMode::NONE)
         , mPolygonMode(PolygonMode::SOLID)
+        , mIsWorldMatrixDirty(false)
+        , mIsViewMatrixDirty(false)
+        , mIsProjMatrixDirty(false)
     {
 
     }
@@ -50,7 +55,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Renderer::clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil)
+    TResult Renderer::clear(const ColorRGB &color, uint32_t clearFlags, 
+        Real depth, uint32_t stencil)
     {
         if (mRenderTarget != nullptr)
         {
@@ -97,6 +103,8 @@ namespace Tiny3D
         return T3D_ERR_DUPLICATED_ITEM;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Renderer::detachRenderTarget(const String &name)
     {
         auto itr = mRenderTargets.find(name);
@@ -110,6 +118,8 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
     RenderTargetPtr Renderer::getRenderTarget(const String &name)
     {
         RenderTargetListItr itr = mRenderTargets.find(name);
@@ -120,5 +130,91 @@ namespace Tiny3D
         }
 
         return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Renderer::setTransform(TransformState state, const Matrix4 &mat)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            switch (state)
+            {
+            case TransformState::VIEW:
+                {
+                    mGPUConstUpdateFrame.mViewMatrix = mat;
+                    mIsViewMatrixDirty = true;
+                }
+                break;
+            case TransformState::WORLD:
+                {
+                    mGPUConstUpdateObject.mWorldMatrix = mat;
+                    mIsWorldMatrixDirty = true;
+                }
+                break;
+            case TransformState::PROJECTION:
+                {
+                    mGPUConstUpdateRarely.mProjMatrix = mat;
+                    mIsProjMatrixDirty = true;
+                }
+                break;
+            default:
+                {
+                    ret = T3D_ERR_INVALID_PARAM;
+                    T3D_LOG_ERROR(LOG_TAG_RENDER, "Invalid transform state !");
+                }
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const Matrix4 &Renderer::getTransform(TransformState state) const
+    {
+        switch (state)
+        {
+        case TransformState::VIEW:
+            return mGPUConstUpdateFrame.mViewMatrix;
+            break;
+        case TransformState::WORLD:
+            return mGPUConstUpdateObject.mWorldMatrix;
+            break;
+        case TransformState::PROJECTION:
+            return mGPUConstUpdateRarely.mProjMatrix;
+            break;
+        }
+
+        return Matrix4::IDENTITY;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Renderer::loadBuiltinGPUConstant()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Renderer::loadBuiltinGPUProgram()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+        } while (0);
+
+        return ret;
     }
 }

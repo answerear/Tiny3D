@@ -166,6 +166,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ScriptParser::parse(DataStream &stream)
+    {
+        return parse(stream, nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ScriptParser::parseObject(
         DataStream &stream, Object *object, uint32_t version)
     {
@@ -186,7 +193,7 @@ namespace Tiny3D
                 // 错误类型，这里需要对象
                 ret = T3D_ERR_RES_INVALID_OBJECT;
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid object ! Here need material object !");
+                    "Invalid object ! Here need an object !");
                 break;
             }
 
@@ -201,7 +208,7 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_RES_INVALID_OBJECT;
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid op code ! Here need Material op code !");
+                    "Invalid op code ! Here need op code of object !");
                 break;
             }
 

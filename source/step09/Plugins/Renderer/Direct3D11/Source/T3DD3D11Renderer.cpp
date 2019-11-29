@@ -44,9 +44,6 @@ namespace Tiny3D
         : mInstance(nullptr)
         , mD3DDevice(nullptr)
         , mD3DDeviceContext(nullptr)
-        , mIsWorldMatrixDirty(false)
-        , mIsViewMatrixDirty(false)
-        , mIsProjMatrixDirty(false)
     {
         mName = Renderer::DIRECT3D11;
     }
@@ -127,12 +124,6 @@ namespace Tiny3D
 
         do 
         {
-            // Calculate all matrices about view.
-            if (mIsViewMatrixDirty)
-            {
-            }
-            
-            // Calculate all matrices about projection.
             ret = Renderer::render();
         } while (0);
 
@@ -176,66 +167,6 @@ namespace Tiny3D
     bool D3D11Renderer::queryCapability(Capability cap) const
     {
         return false;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Renderer::setTransform(TransformState state, const Matrix4 &mat)
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            switch (state)
-            {
-            case TransformState::VIEW:
-                {
-                    mGPUConstUpdateFrame.mViewMatrix = mat;
-                    mIsViewMatrixDirty = true;
-                }
-                break;
-            case TransformState::WORLD:
-                {
-                    mGPUConstUpdateObject.mWorldMatrix = mat;
-                    mIsWorldMatrixDirty = true;
-                }
-                break;
-            case TransformState::PROJECTION:
-                {
-                    mGPUConstUpdateRarely.mProjMatrix = mat;
-                    mIsProjMatrixDirty = true;
-                }
-                break;
-            default:
-                {
-                    ret = T3D_ERR_INVALID_PARAM;
-                    T3D_LOG_ERROR(LOG_TAG_RENDER, "Invalid transform state !");
-                }
-                break;
-            }
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    const Matrix4 &D3D11Renderer::getTransform(TransformState state) const
-    {
-        switch (state)
-        {
-        case TransformState::VIEW:
-            return mGPUConstUpdateFrame.mViewMatrix;
-            break;
-        case TransformState::WORLD:
-            return mGPUConstUpdateObject.mWorldMatrix;
-            break;
-        case TransformState::PROJECTION:
-            return mGPUConstUpdateRarely.mProjMatrix;
-            break;
-        }
-
-        return Matrix4::IDENTITY;
     }
 
     //--------------------------------------------------------------------------
