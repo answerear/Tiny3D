@@ -244,17 +244,17 @@ namespace Tiny3D
 
             while (i < argc)
             {
-                if (stricmp(argv[i], "-h") == 0)
+                if (strcmp(argv[i], "-h") == 0)
                 {
                     // 打印帮助信息
                     opt.options = Options::OPT_PRINT_HELP;
                 }
-                else if (stricmp(argv[i], "-v") == 0)
+                else if (strcmp(argv[i], "-v") == 0)
                 {
                     // 打印版本号
                     opt.options = Options::OPT_PRINT_VERSION;
                 }
-                else if (stricmp(argv[i], "-p") == 0)
+                else if (strcmp(argv[i], "-p") == 0)
                 {
                     // 设置工程目录
                     opt.options |= Options::OPT_PROJECT_DIR;
@@ -270,7 +270,7 @@ namespace Tiny3D
                     ++i;
                     opt.projDir = argv[i];
                 }
-                else if (stricmp(argv[i], "-l") == 0)
+                else if (strcmp(argv[i], "-l") == 0)
                 {
                     // 设置输出文件名
                     opt.options |= Options::OPT_LINK;
@@ -286,7 +286,7 @@ namespace Tiny3D
                     ++i;
                     opt.outFile = argv[i];
                 }
-                else if (stricmp(argv[i], "-d") == 0)
+                else if (strcmp(argv[i], "-d") == 0)
                 {
                     // 设置输出文件夹
                     opt.options |= Options::OPT_OUTPUT_DIR;
@@ -302,7 +302,7 @@ namespace Tiny3D
                     ++i;
                     opt.outDir = argv[i];
                 }
-                else if (stricmp(argv[i], "-t") == 0)
+                else if (strcmp(argv[i], "-t") == 0)
                 {
                     if (argc - 1 == i)
                     {
@@ -316,7 +316,7 @@ namespace Tiny3D
                     opt.target = argv[i];
                     mTarget = opt.target;
                 }
-                else if (stricmp(argv[i], "-m") == 0)
+                else if (strcmp(argv[i], "-m") == 0)
                 {
                     if (argc - 1 == i)
                     {
@@ -329,11 +329,11 @@ namespace Tiny3D
                     ++i;
                     mShaderModel = argv[i];
                 }
-                else if (stricmp(argv[i], "-O") == 0)
+                else if (strncmp(argv[i], "-O", 2) == 0)
                 {
                     opt.optimizeLevel = atoi(argv[i] + 2);
                 }
-                else if (stricmp(argv[i], "-D") == 0)
+                else if (strcmp(argv[i], "-D") == 0)
                 {
                     opt.enableDebugInfo = true;
                 }
