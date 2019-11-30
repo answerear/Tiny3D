@@ -31,14 +31,6 @@ namespace Tiny3D
         : public Singleton<ScriptParser>
         , public ScriptParserBase
     {
-    protected:
-        struct TSCFileHeader
-        {
-            char        magic[4];   /**< 文件魔数，用于标识文件 */
-            uint32_t    version;    /**< 文件版本号 */
-            size_t      filesize;   /**< 文件大小 */
-        };
-
     public:
         /** 创建对象 */
         static ScriptParserPtr create();

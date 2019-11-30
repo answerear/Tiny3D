@@ -129,6 +129,22 @@ namespace Tiny3D
         INVERSE_SAWTOOTH,
         PWM
     };
+
+    enum FileSubType : uint32_t
+    {
+        E_FST_SCRIPT = 0x00000001,
+    };
+
+
+    #define T3D_MAGIC                   "T3D"
+
+    struct T3DFileHeader
+    {
+        char        magic[4];   /**< 文件魔数，用于标识文件 */
+        uint32_t    subtype;    /**< The subtype */
+        uint32_t    version;    /**< 文件版本号 */
+        size_t      filesize;   /**< 文件大小 */
+    };
 }
 
 

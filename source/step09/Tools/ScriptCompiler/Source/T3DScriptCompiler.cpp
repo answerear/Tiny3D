@@ -29,7 +29,8 @@ namespace Tiny3D
 {
     #define SCC_VERSION_00000100            0x00000100
     #define SCC_CURRENT_VERSION             SCC_VERSION_00000100
-    #define SCC_MAGIC                       "TSC"
+    #define T3D_MAGIC                       "T3D"
+    #define T3D_FILE_SUBTYPE_SCC            0x00000001
 
     //--------------------------------------------------------------------------
 
@@ -1117,9 +1118,10 @@ namespace Tiny3D
             MemoryDataStream stream(10*1024*1024);
 
             // 写文件头
-            TSCFileHeader header;
-            memcpy(header.magic, SCC_MAGIC, 3);
+            T3DFileHeader header;
+            memcpy(header.magic, T3D_MAGIC, 3);
             header.magic[3] = 0;
+            header.subtype = T3D_FILE_SUBTYPE_SCC;
             header.version = SCC_CURRENT_VERSION;
             header.fileSize = sizeof(header);
             stream.write(&header, sizeof(header));

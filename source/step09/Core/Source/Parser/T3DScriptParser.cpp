@@ -18,6 +18,7 @@
  ******************************************************************************/
 
 #include "Parser/T3DScriptParser.h"
+#include "Kernel/T3DCommon.h"
 #include "T3DErrorDef.h"
 #include "Parser/T3DScriptParserMaterial.h"
 #include "Parser/T3DScriptParserTechnique.h"
@@ -31,7 +32,6 @@ namespace Tiny3D
 {
     #define T3D_TSC_VERSION_00000100            0x00000100
     #define T3D_TSC_CURRENT_VERSION             T3D_TSC_VERSION_00000100
-    #define T3D_TSC_MAGIC                       "TSC"
 
     //--------------------------------------------------------------------------
 
@@ -144,14 +144,21 @@ namespace Tiny3D
         do 
         {
             // 读取文件头
-            TSCFileHeader header;
+            T3DFileHeader header;
             stream.read(&header, sizeof(header));
 
-            if (stricmp(header.magic, T3D_TSC_MAGIC) != 0)
+            if (stricmp(header.magic, T3D_MAGIC) != 0)
             {
                 // 非法的文件类型
                 ret = T3D_ERR_RES_INVALID_FILETYPE;
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid file type !");
+                break;
+            }
+
+            if (header.subtype != FileSubType::E_FST_SCRIPT)
+            {
+                ret = T3D_ERR_RES_INVALID_FILETYPE;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid file subtype !");
                 break;
             }
 

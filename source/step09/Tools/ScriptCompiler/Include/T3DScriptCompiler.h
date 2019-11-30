@@ -207,9 +207,10 @@ namespace Tiny3D
         void initPixelFormat();
 
     protected:
-        struct TSCFileHeader
+        struct T3DFileHeader
         {
             char        magic[4];       /// 文件标识
+            uint32_t    subtype;
             uint32_t    version;        /// 文件版本号
             size_t      fileSize;       /// 文件大小
         };
