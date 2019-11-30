@@ -19,8 +19,8 @@
 
 
 #include "Render/T3DRenderer.h"
-#include "Resource/T3DGPUConstBuffer.h"
 #include "Resource/T3DGPUConstBufferManager.h"
+#include "Resource/T3DGPUProgramManager.h"
 
 
 namespace Tiny3D
@@ -194,25 +194,86 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Renderer::loadBuiltinGPUConstant()
+    TResult Renderer::postInit()
     {
         TResult ret = T3D_OK;
 
         do 
         {
-        } while (0);
+            ret = T3D_GPU_CONST_BUFFER_MGR.loadBuiltInResources();
+            if (ret != T3D_OK)
+            {
+                break;
+            }
 
-        return ret;
-    }
+            ret = T3D_GPU_PROGRAM_MGR.loadBuiltInResources();
+            if (ret != T3D_OK)
+            {
+                break;
+            }
 
-    //--------------------------------------------------------------------------
+            mGPUBufferUpdateObject = smart_pointer_cast<GPUConstBuffer>(
+                T3D_GPU_CONST_BUFFER_MGR.getResource("Builtin/UpdatePerObject"));
+            size_t size = mGPUBufferUpdateObject->getBufferSize();
+            if (size != sizeof(mGPUConstUpdateObject))
+            {
+                ret = T3D_ERR_INVALID_SIZE;
+                T3D_LOG_ERROR(LOG_TAG_RENDER, 
+                    "The size of data is not the same as the size of buffer !");
+                break;
+            }
 
-    TResult Renderer::loadBuiltinGPUProgram()
-    {
-        TResult ret = T3D_OK;
+            mGPUBufferUpdateFrame = smart_pointer_cast<GPUConstBuffer>(
+                T3D_GPU_CONST_BUFFER_MGR.getResource("Builtin/UpdatePerFrame"));
+            size = mGPUBufferUpdateObject->getBufferSize();
+            if (size != sizeof(mGPUConstUpdateObject))
+            {
+                ret = T3D_ERR_INVALID_SIZE;
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "The size of data is not the same as the size of buffer !");
+                break;
+            }
 
-        do 
-        {
+            mGPUBufferUpdateRarely = smart_pointer_cast<GPUConstBuffer>(
+                T3D_GPU_CONST_BUFFER_MGR.getResource("Builtin/UpdateRarely"));
+            size = mGPUBufferUpdateObject->getBufferSize();
+            if (size != sizeof(mGPUConstUpdateObject))
+            {
+                ret = T3D_ERR_INVALID_SIZE;
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "The size of data is not the same as the size of buffer !");
+                break;
+            }
+
+            ret = mGPUBufferUpdateObject->initWithData(
+                sizeof(mGPUConstUpdateObject), &mGPUConstUpdateObject, 
+                HardwareBuffer::Usage::E_HBU_WRITE_ONLY, false, false);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "Initialize GPU built-in constant buffer with data failed !");
+                break;
+            }
+
+            ret = mGPUBufferUpdateFrame->initWithData(
+                sizeof(mGPUConstUpdateFrame), &mGPUConstUpdateFrame,
+                HardwareBuffer::Usage::E_HBU_WRITE_ONLY, false, false);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "Initialize GPU built-in constant buffer with data failed !");
+                break;
+            }
+
+            ret = mGPUBufferUpdateRarely->initWithData(
+                sizeof(mGPUConstUpdateRarely), &mGPUConstUpdateRarely,
+                HardwareBuffer::Usage::E_HBU_WRITE_ONLY, false, false);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "Initialize GPU built-in constant buffer with data failed !");
+                break;
+            }
         } while (0);
 
         return ret;

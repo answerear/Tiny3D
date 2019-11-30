@@ -66,6 +66,8 @@ namespace Tiny3D
         ScriptParserGPUContBufferPtr    mCBufferParser;
         ScriptParserGPUContBufferRefPtr mCBufferRefParser;
     };
+
+    #define T3D_SCRIPT_PARSER   (ScriptParser::getInstance())
 }
 
 

@@ -71,7 +71,7 @@ namespace Tiny3D
 
         do 
         {
-            if (!mHasData)
+            if (mHasData)
             {
                 ret = T3D_ERR_RES_ALREADY_INIT;
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
@@ -79,7 +79,7 @@ namespace Tiny3D
                 break;
             }
 
-            if ((bufSize & 0xF) == 0)
+            if ((bufSize & 0xF) != 0)
             {
                 // GPU常量緩衝需要128位(16字節)對齊
                 ret = T3D_ERR_RES_INVALID_PARAM;
@@ -88,7 +88,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (bufSize == mBufSize * 4)
+            if (bufSize != mBufSize * 4)
             {
                 // 輸入的大小應該跟數據類型定義的大小匹配
                 ret = T3D_ERR_RES_INVALID_PARAM;

@@ -19,6 +19,9 @@
 
 
 #include "Resource/T3DGPUConstBufferManager.h"
+#include "Parser/T3DScriptParser.h"
+#include "Resource/T3DArchive.h"
+#include "Kernel/T3DAgent.h"
 
 
 namespace Tiny3D
@@ -72,5 +75,49 @@ namespace Tiny3D
     {
         GPUConstBufferPtr buffer = GPUConstBuffer::create(name);
         return buffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUConstBufferManager::loadBuiltInResources()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            // 加載文件
+            String name("BuiltinConstant.t3b");
+            ArchivePtr archive = T3D_AGENT.getAssetsArchive(name);
+            if (archive == nullptr)
+            {
+                ret = T3D_ERR_IMG_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Could not find the archive for file %s !",
+                    name.c_str());
+                break;
+            }
+
+            String path = T3D_AGENT.getMainAssetsPath(name);
+            MemoryDataStream stream;
+            ret = archive->read(path, stream);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read constant content failed from file %s ! ",
+                    name.c_str());
+                break;
+            }
+
+            // 交給腳本解析器解析
+            ret = ScriptParser::getInstance().parse(stream);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Could not parse constant file %s !", name);
+                break;
+            }
+        } while (0);
+
+        return ret;
     }
 }

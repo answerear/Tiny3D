@@ -66,6 +66,13 @@ namespace Tiny3D
          */
         virtual TResult unloadBuffer(GPUConstBufferPtr buffer);
 
+        /**
+         * @fn  TResult loadBuiltInResources();
+         * @brief   Loads built in constant buffer
+         * @returns The built in constant buffer.
+         */
+        TResult loadBuiltInResources();
+
     protected:
         /**
          * @brief 构造函数

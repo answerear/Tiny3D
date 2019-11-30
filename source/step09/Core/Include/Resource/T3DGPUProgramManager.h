@@ -137,6 +137,13 @@ namespace Tiny3D
          */
         virtual TResult unloadGPUProgram(GPUProgramPtr program);
 
+        /**
+         * @fn  TResult loadBuiltInResources();
+         * @brief   Loads built in resources
+         * @returns The built in resources.
+         */
+        TResult loadBuiltInResources();
+
     protected:
         /**
          * @brief 构造函数

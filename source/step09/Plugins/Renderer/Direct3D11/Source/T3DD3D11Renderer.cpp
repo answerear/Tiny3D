@@ -94,6 +94,12 @@ namespace Tiny3D
             {
                 break;
             }
+
+            ret = postInit();
+            if (ret != T3D_OK)
+            {
+                break;
+            }
         } while (0);
 
         return ret;

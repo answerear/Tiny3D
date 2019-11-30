@@ -21,6 +21,10 @@
 #include "Resource/T3DGPUProgramManager.h"
 #include "Resource/T3DGPUProgramCreator.h"
 #include "Resource/T3DGPUProgram.h"
+#include "Resource/T3DArchive.h"
+#include "Parser/T3DScriptParser.h"
+#include "Kernel/T3DAgent.h"
+#include "T3DErrorDef.h"
 
 
 namespace Tiny3D
@@ -199,6 +203,50 @@ namespace Tiny3D
 
         GPUProgramPtr program = mCreator->createObject(1, name.c_str());
         return program;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUProgramManager::loadBuiltInResources()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            // 加載文件
+            String name("BuiltinProgram.t3b");
+            ArchivePtr archive = T3D_AGENT.getAssetsArchive(name);
+            if (archive == nullptr)
+            {
+                ret = T3D_ERR_IMG_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Could not find the archive for file %s !",
+                    name.c_str());
+                break;
+            }
+
+            String path = T3D_AGENT.getMainAssetsPath(name);
+            MemoryDataStream stream;
+            ret = archive->read(path, stream);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read constant GPU program failed from file %s ! ",
+                    name.c_str());
+                break;
+            }
+
+            // 交給腳本解析器解析
+            ret = ScriptParser::getInstance().parse(stream);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Could not parse GPU program file %s !", name);
+                break;
+            }
+        } while (0);
+
+        return ret;
     }
 }
 

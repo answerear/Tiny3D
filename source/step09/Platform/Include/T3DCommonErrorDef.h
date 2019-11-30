@@ -42,6 +42,7 @@ namespace Tiny3D
         T3D_ERR_SYS_NOT_INIT        = 0x00000009,   /**< 系统没有初始化 */
         T3D_ERR_INVALID_ID          = 0x0000000A,   /**< 无效ID */
         T3D_ERR_INVALID_PARAM       = 0x0000000B,   /**< 错误参数 */
+        T3D_ERR_INVALID_SIZE        = 0x0000000C,   /**< 错误大小 */
     };
 };
 

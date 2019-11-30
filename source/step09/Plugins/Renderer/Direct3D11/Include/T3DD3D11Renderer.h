@@ -218,13 +218,6 @@ namespace Tiny3D
          */
         D3D11Renderer();
 
-        /**
-         * @fn  TResult initBuiltInGPUConstBuffer();
-         * @brief   Initializes the built in GPU constant buffer
-         * @returns A TResult.
-         */
-        TResult initBuiltInGPUConstBuffer();
-
     protected:
         HINSTANCE                   mInstance;          /**< The instance */
         ID3D11Device                *mD3DDevice;        /**< D3D11 设备对象 */

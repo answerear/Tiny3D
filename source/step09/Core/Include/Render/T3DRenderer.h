@@ -358,18 +358,11 @@ namespace Tiny3D
 
     protected:
         /**
-         * @fn  TResult Renderer::loadBuiltinGPUConstant();
-         * @brief   Initializes the built-in GPU constant buffer
+         * @fn  virtual TResult Renderer::postInit();
+         * @brief   Posts the initialize
          * @returns A TResult.
          */
-        TResult loadBuiltinGPUConstant();
-
-        /**
-         * @fn  TResult Renderer::loadBuiltinGPUProgram();
-         * @brief   Loads built-in GPU program
-         * @returns The built-in GPU program.
-         */
-        TResult loadBuiltinGPUProgram();
+        virtual TResult postInit();
 
     protected:
         typedef TMap<String, RenderTargetPtr>       RenderTargetList;
