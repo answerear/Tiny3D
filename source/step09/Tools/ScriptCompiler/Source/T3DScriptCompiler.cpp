@@ -401,13 +401,13 @@ namespace Tiny3D
                 String output;
                 if (opt.hasOutputDir())
                 {
-                    output = opt.outDir + "/" + title + ".tsc";
+                    output = opt.outDir + "/" + title + ".t3b";
                     outDir = opt.outDir;
                     mOutDir = outDir;
                 }
                 else
                 {
-                    output = path + "/" + title + ".tsc";
+                    output = path + "/" + title + ".t3b";
                     outDir = path;
                     mOutDir = path;
                 }
