@@ -27,10 +27,10 @@ namespace Tiny3D
 
     R3DHardwareVertexBufferPtr R3DHardwareVertexBuffer::create(
         size_t vertexSize, size_t vertexCount, const void *vertices, 
-        Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        Usage usage, uint32_t mode)
     {
         R3DHardwareVertexBufferPtr vb = new R3DHardwareVertexBuffer(vertexSize,
-            vertexCount, vertices, usage, useSystemMemory, useShadowBuffer);
+            vertexCount, vertices, usage, mode);
         vb->release();
         return vb;
     }
@@ -38,10 +38,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     R3DHardwareVertexBuffer::R3DHardwareVertexBuffer(size_t vertexSize, 
-        size_t vertexCount, const void *vertices, Usage usage, 
-        bool useSystemMemory, bool useShadowBuffer)
-        : HardwareVertexBuffer(vertexSize, vertexCount, usage, useSystemMemory,
-            useSystemMemory)
+        size_t vertexCount, const void *vertices, Usage usage, uint32_t mode)
+        : HardwareVertexBuffer(vertexSize, vertexCount, usage, mode)
         , mBuffer(nullptr)
     {
         mBuffer = new uint8_t[mBufferSize];
@@ -60,7 +58,7 @@ namespace Tiny3D
     size_t R3DHardwareVertexBuffer::readData(size_t offset, size_t size,
         void *dst)
     {
-        if (mUsage & Usage::E_HBU_WRITE_ONLY)
+        if (mUsage == Usage::STATIC)
         {
             // 只写缓冲区，无法读取
             return 0;

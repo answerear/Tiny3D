@@ -37,6 +37,8 @@ namespace Tiny3D
         return mgr;
     }
 
+    //--------------------------------------------------------------------------
+
     HardwareBufferManager::HardwareBufferManager(
         HardwareBufferManagerBase *impl)
         : mImpl(impl)
@@ -44,49 +46,61 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     HardwareBufferManager::~HardwareBufferManager()
     {
         mImpl = nullptr;
     }
 
+    //--------------------------------------------------------------------------
+
     HardwareVertexBufferPtr HardwareBufferManager::createVertexBuffer(
         size_t vertexSize, size_t vertexCount, const void *vertices,
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        HardwareBuffer::Usage usage, uint32_t mode)
     {
         return mImpl->createVertexBuffer(vertexSize, vertexCount, vertices, 
-            usage, useSystemMemory, useShadowBuffer);
+            usage, mode);
     }
+
+    //--------------------------------------------------------------------------
 
     HardwareIndexBufferPtr HardwareBufferManager::createIndexBuffer(
         HardwareIndexBuffer::Type indexType, size_t indexCount, 
-        const void *indices, HardwareBuffer::Usage usage, bool useSystemMemory, 
-        bool useShadowBuffer)
+        const void *indices, HardwareBuffer::Usage usage, uint32_t mode)
     {
         return mImpl->createIndexBuffer(indexType, indexCount, indices, usage, 
-            useSystemMemory, useShadowBuffer);
+            mode);
     }
+
+    //--------------------------------------------------------------------------
 
     HardwarePixelBufferPtr HardwareBufferManager::createPixelBuffer(
         size_t width, size_t height, PixelFormat format, const void *pixels,
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        HardwareBuffer::Usage usage, uint32_t mode)
     {
         return mImpl->createPixelBuffer(width, height, format, pixels, usage, 
-            useSystemMemory, useShadowBuffer);
+            mode);
     }
+
+    //--------------------------------------------------------------------------
 
     HardwareConstantBufferPtr HardwareBufferManager::createConstantBuffer(
         size_t bufSize, const void *buffer, HardwareBuffer::Usage usage,
-        bool useSystemMemory, bool useShadowBuffer)
+        uint32_t mode)
     {
-        return mImpl->createConstantBuffer(bufSize, buffer, usage, 
-            useSystemMemory, useShadowBuffer);
+        return mImpl->createConstantBuffer(bufSize, buffer, usage, mode);
     }
+
+    //--------------------------------------------------------------------------
 
     VertexArrayObjectPtr HardwareBufferManager::createVertexArrayObject(
         bool useIndices)
     {
         return mImpl->createVertexArrayObject(useIndices);
     }
+
+    //--------------------------------------------------------------------------
 
     VertexDeclarationPtr HardwareBufferManager::createVertexDeclaration(
         ShaderPtr vertexShader)

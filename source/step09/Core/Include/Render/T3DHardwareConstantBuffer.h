@@ -34,17 +34,14 @@ namespace Tiny3D
     {
     protected:
         /**
-         * @brief 构造函数
-         * @param [in] bufSize : 缓冲区大小
-         * @param [in] usage : 缓冲区使用方式
-         * @param [in] useSystemMemory : 是否使用系统内存
-         * @param [in] useShadowBuffer : 是否使用影子缓存
+         * @fn  HardwareConstantBuffer::HardwareConstantBuffer(size_t bufSize, 
+         *      Usage usage, uint32_t mode);
+         * @brief   构造函数
+         * @param [in]  bufSize 缓冲区大小.
+         * @param [in]  usage   缓冲区使用方式.
+         * @param [in]  mode    缓冲区访问方式.
          */
-        HardwareConstantBuffer(
-            size_t bufSize,
-            HardwareBuffer::Usage usage, 
-            bool useSystemMemory,
-            bool useShadowBuffer);
+        HardwareConstantBuffer(size_t bufSize, Usage usage, uint32_t mode);
     };
 }
 

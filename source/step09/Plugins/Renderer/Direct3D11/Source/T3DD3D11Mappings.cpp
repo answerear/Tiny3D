@@ -40,29 +40,29 @@ namespace Tiny3D
     {
         switch (semantic)
         {
-        case VertexAttribute::E_VAS_POSITION:
+        case VertexAttribute::Semantic::E_VAS_POSITION:
             return POSITION;
             break;
-        case VertexAttribute::E_VAS_BLENDWEIGHT:
+        case VertexAttribute::Semantic::E_VAS_BLENDWEIGHT:
             return BLENDWEIGHT;
             break;
-        case VertexAttribute::E_VAS_BLENDINDICES:
+        case VertexAttribute::Semantic::E_VAS_BLENDINDICES:
             return BLENDINDICES;
             break;
-        case VertexAttribute::E_VAS_NORMAL:
+        case VertexAttribute::Semantic::E_VAS_NORMAL:
             return NORMAL;
             break;
-        case VertexAttribute::E_VAS_DIFFUSE:
-        case VertexAttribute::E_VAS_SPECULAR:
+        case VertexAttribute::Semantic::E_VAS_DIFFUSE:
+        case VertexAttribute::Semantic::E_VAS_SPECULAR:
             return COLOR;
             break;
-        case VertexAttribute::E_VAS_TEXCOORD:
+        case VertexAttribute::Semantic::E_VAS_TEXCOORD:
             return TEXCOORD;
             break;
-        case VertexAttribute::E_VAS_TANGENT:
+        case VertexAttribute::Semantic::E_VAS_TANGENT:
             return TANGENT;
             break;
-        case VertexAttribute::E_VAS_BINORMAL:
+        case VertexAttribute::Semantic::E_VAS_BINORMAL:
             return BINORMAL;
             break;
         }
@@ -78,28 +78,28 @@ namespace Tiny3D
 
         switch (type)
         {
-        case VertexAttribute::E_VAT_COLOR:
+        case VertexAttribute::Type::E_VAT_COLOR:
             d3dformat = DXGI_FORMAT_R32G32B32A32_FLOAT;
             break;
-        case VertexAttribute::E_VAT_FLOAT1:
+        case VertexAttribute::Type::E_VAT_FLOAT1:
             d3dformat = DXGI_FORMAT_R32_FLOAT;
             break;
-        case VertexAttribute::E_VAT_FLOAT2:
+        case VertexAttribute::Type::E_VAT_FLOAT2:
             d3dformat = DXGI_FORMAT_R32G32_FLOAT;
             break;
-        case VertexAttribute::E_VAT_FLOAT3:
+        case VertexAttribute::Type::E_VAT_FLOAT3:
             d3dformat = DXGI_FORMAT_R32G32B32_FLOAT;
             break;
-        case VertexAttribute::E_VAT_FLOAT4:
+        case VertexAttribute::Type::E_VAT_FLOAT4:
             d3dformat = DXGI_FORMAT_R32G32B32A32_FLOAT;
             break;
-        case VertexAttribute::E_VAT_SHORT2:
+        case VertexAttribute::Type::E_VAT_SHORT2:
             d3dformat = DXGI_FORMAT_R16G16_SINT;
             break;
-        case VertexAttribute::E_VAT_SHORT4:
+        case VertexAttribute::Type::E_VAT_SHORT4:
             d3dformat = DXGI_FORMAT_R16G16B16A16_SINT;
             break;
-        case VertexAttribute::E_VAT_UBYTE4:
+        case VertexAttribute::Type::E_VAT_UBYTE4:
             d3dformat = DXGI_FORMAT_R8G8B8A8_UINT;
             break;
         }
@@ -115,17 +115,11 @@ namespace Tiny3D
 
         switch (usage)
         {
-        case HardwareBuffer::Usage::E_HBU_STATIC:
+        case HardwareBuffer::Usage::STATIC:
             d3dusage = D3D11_USAGE_IMMUTABLE;
             break;
-        case HardwareBuffer::Usage::E_HBU_DYNAMIC:
+        case HardwareBuffer::Usage::DYNAMIC:
             d3dusage = D3D11_USAGE_DYNAMIC;
-            break;
-        case HardwareBuffer::Usage::E_HBU_WRITE_ONLY:
-            break;
-        case HardwareBuffer::Usage::E_HBU_STATIC_WRITE_ONLY:
-            break;
-        case HardwareBuffer::Usage::E_HBU_DYNAMIC_WRITE_ONLY:
             break;
         }
 

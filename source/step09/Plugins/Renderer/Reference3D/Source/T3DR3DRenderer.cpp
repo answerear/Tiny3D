@@ -452,8 +452,9 @@ namespace Tiny3D
             auto ibo = vao->getIndexBuffer();
             indexCount = ibo->getIndexCount();
             indices = (uint8_t*)ibo->lock(
-                HardwareBuffer::LockOptions::READ_ONLY);
-            is16Bits = (ibo->getIndexType()==HardwareIndexBuffer::E_IT_16BITS);
+                HardwareBuffer::LockOptions::READ);
+            is16Bits 
+                = (ibo->getIndexType()==HardwareIndexBuffer::Type::E_IT_16BITS);
         }
 
         Vertex *vertices = nullptr;
@@ -587,7 +588,7 @@ namespace Tiny3D
 
             BufferInfo info;
             info.buffer = (uint8_t*)vbo->lock(
-                HardwareBuffer::LockOptions::READ_ONLY);
+                HardwareBuffer::LockOptions::READ);
             info.vertexSize = vbo->getVertexSize();
             info.vertexCount = vbo->getVertexCount();
             if (info.vertexCount != vertexCount)
@@ -644,22 +645,22 @@ namespace Tiny3D
 
         switch (attr.getSemantic())
         {
-        case VertexAttribute::E_VAS_POSITION:
+        case VertexAttribute::Semantic::E_VAS_POSITION:
             dstOffset = 0;
             needTransform = true;
             break;
-        case VertexAttribute::E_VAS_NORMAL:
+        case VertexAttribute::Semantic::E_VAS_NORMAL:
             dstOffset = sizeof(Vector4);
             needTransform = true;
             break;
-        case VertexAttribute::E_VAS_DIFFUSE:
+        case VertexAttribute::Semantic::E_VAS_DIFFUSE:
             dstOffset = sizeof(Vector4) + sizeof(Vector4) + sizeof(Vector2);
             break;
-        case VertexAttribute::E_VAS_SPECULAR:
+        case VertexAttribute::Semantic::E_VAS_SPECULAR:
             dstOffset = sizeof(Vector4) + sizeof(Vector4) + sizeof(Vector2)
                 + sizeof(ColorRGB);
             break;
-        case VertexAttribute::E_VAS_TEXCOORD:
+        case VertexAttribute::Semantic::E_VAS_TEXCOORD:
             dstOffset = sizeof(Vector4) + sizeof(Vector4);
             break;
         }
@@ -670,13 +671,13 @@ namespace Tiny3D
         {
             size_t offset = start + srcOffset;
 
-            if (VertexAttribute::E_VAS_POSITION == attr.getSemantic())
+            if (VertexAttribute::Semantic::E_VAS_POSITION == attr.getSemantic())
             {
                 memcpy(&vertices[i].pos, &buffer[offset], sizeof(Real) * 3);
                 vertices[i].pos.w() = REAL_ONE;
                 vertices[i].pos = mMVP * vertices[i].pos;
             }
-            else if (VertexAttribute::E_VAS_NORMAL == attr.getSemantic())
+            else if (VertexAttribute::Semantic::E_VAS_NORMAL == attr.getSemantic())
             {
                 memcpy(&vertices[i].normal, &buffer[offset], sizeof(Real) * 3);
                 vertices[i].normal.w() = REAL_ZERO;

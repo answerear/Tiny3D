@@ -30,10 +30,14 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     HardwareBufferManagerBase::~HardwareBufferManagerBase()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     VertexDeclarationPtr HardwareBufferManagerBase::createVertexDeclaration(
         ShaderPtr vertexShader)

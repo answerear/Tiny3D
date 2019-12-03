@@ -29,10 +29,10 @@ namespace Tiny3D
 
     D3D11HardwareIndexBufferPtr D3D11HardwareIndexBuffer::create(
         Type indexType, size_t indexCount, const void *indices, 
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        HardwareBuffer::Usage usage, uint32_t mode)
     {
-        D3D11HardwareIndexBufferPtr ibo = new D3D11HardwareIndexBuffer(indexType, 
-            indexCount, usage, useSystemMemory, useShadowBuffer);
+        D3D11HardwareIndexBufferPtr ibo = new D3D11HardwareIndexBuffer(
+            indexType, indexCount, usage, mode);
         ibo->release();
 
         if (ibo->init(indices) != T3D_OK)
@@ -46,10 +46,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     D3D11HardwareIndexBuffer::D3D11HardwareIndexBuffer(Type indexType,
-        size_t indexCount, HardwareBuffer::Usage usage, bool useSystemMemory,
-        bool useShadowBuffer)
-        : HardwareIndexBuffer(indexType, indexCount, usage, useSystemMemory, 
-            useShadowBuffer)
+        size_t indexCount, HardwareBuffer::Usage usage, uint32_t mode)
+        : HardwareIndexBuffer(indexType, indexCount, usage, mode)
     {
 
     }
@@ -83,7 +81,7 @@ namespace Tiny3D
 
         do 
         {
-            void *src = lock(offset, size, LockOptions::READ_ONLY);
+            void *src = lock(offset, size, LockOptions::READ);
             if (src == nullptr)
             {
                 break;
@@ -108,7 +106,7 @@ namespace Tiny3D
         do 
         {
             void *dst = lock(offset, size, discardWholeBuffer 
-                ? LockOptions::DISCARD : LockOptions::NORMAL);
+                ? LockOptions::WRITE_DISCARD : LockOptions::WRITE);
             if (dst == nullptr)
             {
                 break;

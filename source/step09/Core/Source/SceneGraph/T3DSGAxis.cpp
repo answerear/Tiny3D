@@ -135,17 +135,18 @@ namespace Tiny3D
             }
 
             decl->addAttribute(VertexAttribute(0, 0, 
-                VertexAttribute::E_VAT_FLOAT3,
-                VertexAttribute::E_VAS_POSITION, 0));
+                VertexAttribute::Type::E_VAT_FLOAT3,
+                VertexAttribute::Semantic::E_VAS_POSITION, 0));
             decl->addAttribute(VertexAttribute(0, sizeof(Vector3),
-                VertexAttribute::E_VAT_COLOR, 
-                VertexAttribute::E_VAS_DIFFUSE, 0));
+                VertexAttribute::Type::E_VAT_COLOR, 
+                VertexAttribute::Semantic::E_VAS_DIFFUSE, 0));
 
             // 创建VBO
             HardwareVertexBufferPtr vbo
                 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(sizeof(AxisVertex),
                     MAX_VERTICES, vertices, 
-                    HardwareVertexBuffer::Usage::E_HBU_STATIC, false, false);
+                    HardwareBuffer::Usage::STATIC, 
+                    HardwareBuffer::AccessMode::CPU_WRITE);
             if (vbo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;

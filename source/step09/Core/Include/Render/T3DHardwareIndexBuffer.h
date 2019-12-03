@@ -28,53 +28,64 @@
 namespace Tiny3D
 {
     /**
-     * @brief 索引缓冲区
+     * @class   HardwareIndexBuffer
+     * @brief   索引缓冲区
+     * @sa  class HardwareBuffer
      */
     class T3D_ENGINE_API HardwareIndexBuffer : public HardwareBuffer
     {
     public:
         /**
-         * @brief 索引大小类型
+         * @enum    Type
+         * @brief   索引大小类型
          */
-        enum Type
+        enum class Type : uint32_t
         {
             E_IT_16BITS = 0,    /**< 16位索引 */
             E_IT_32BITS,        /**< 32位索引 */
         };
 
         /**
-         * @brief 析构函数
+         * @fn  virtual HardwareIndexBuffer::~HardwareIndexBuffer();
+         * @brief   析构函数
          */
         virtual ~HardwareIndexBuffer();
 
         /**
-         * @brief 获取索引类型
+         * @fn  Type HardwareIndexBuffer::getIndexType() const
+         * @brief   获取索引类型
+         * @returns 返回索引类型.
          */
         Type getIndexType() const { return mType; }
 
         /**
-         * @brief 获取索引大小
+         * @fn  size_t HardwareIndexBuffer::getIndexSize() const
+         * @brief   获取索引大小
+         * @returns 返回索引大小.
          */
         size_t getIndexSize() const { return mIndexSize; }
 
         /**
-         * @brief 获取索引数量
+         * @fn  size_t HardwareIndexBuffer::getIndexCount() const
+         * @brief   获取索引数量
+         * @returns 返回索引数量.
          */
         size_t getIndexCount() const { return mIndexCount; }
 
     protected:
         /**
-         * @brief 构造函数
-         * @param [in] indexType : 索引类型
-         * @param [in] indexCount : 索引数量
-         * @param [in] usage : 缓冲区使用方式
-         * @param [in] useSystemMemory : 是否使用系统内存
-         * @param [in] useShadowBuffer : 是否使用影子缓存
+         * @fn  HardwareIndexBuffer::HardwareIndexBuffer(Type indexType, 
+         *      size_t indexCount, HardwareBuffer::Usage usage, uint32_t mode);
+         * @brief   构造函数
+         * @param [in]  indexType   索引类型.
+         * @param [in]  indexCount  索引数量.
+         * @param [in]  usage       缓冲区使用方式.
+         * @param [in]  mode        缓冲区访问方式.
          */
-        HardwareIndexBuffer(Type indexType, size_t indexCount, 
-            HardwareBuffer::Usage usage, bool useSystemMemory, 
-            bool useShadowBuffer);
+        HardwareIndexBuffer(Type indexType, size_t indexCount, Usage usage, 
+            uint32_t mode);
 
+    protected:
         Type    mType;          /**< 索引类型，是16位还是32位 */
         size_t  mIndexSize;     /**< 索引大小 */
         size_t  mIndexCount;    /**< 索引数量 */

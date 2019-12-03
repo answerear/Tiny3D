@@ -39,9 +39,8 @@ namespace Tiny3D
         : Resource(name)
         , mBufSize(0)
         , mBuffer(nullptr)
-        , mUsage(HardwareBuffer::Usage::E_HBU_DYNAMIC)
-        , mUseSystemMemory(false)
-        , mUseShadowBuffer(false)
+        , mUsage(HardwareBuffer::Usage::STATIC)
+        , mAccessMode(0)
         , mHasData(false)
         , mBufferImpl(nullptr)
     {
@@ -65,7 +64,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult GPUConstBuffer::initWithData(size_t bufSize, const void* buffer,
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        HardwareBuffer::Usage usage, uint32_t mode)
     {
         TResult ret = T3D_OK;
 
@@ -97,8 +96,8 @@ namespace Tiny3D
                 break;
             }
 
-            mBufferImpl = T3D_HARDWARE_BUFFER_MGR.createConstantBuffer(
-                bufSize, buffer, usage, useSystemMemory, useShadowBuffer);
+            mBufferImpl = T3D_HARDWARE_BUFFER_MGR.createConstantBuffer(bufSize, 
+                buffer, usage, mode);
             if (mBufferImpl == nullptr)
             {
                 ret = T3D_ERR_RES_LOAD_FAILED;
@@ -108,8 +107,7 @@ namespace Tiny3D
             mBufSize = bufSize;
             mBuffer = buffer;
             mUsage = usage;
-            mUseSystemMemory = useSystemMemory;
-            mUseShadowBuffer = useShadowBuffer;
+            mAccessMode = mode;
             mHasData = true;
         } while (0);
 
@@ -150,8 +148,8 @@ namespace Tiny3D
 
             if (buffer != nullptr)
             {
-                TResult ret = buffer->initWithData(mBufSize, mBuffer, 
-                    mUsage, mUseSystemMemory, mUseShadowBuffer);
+                TResult ret = buffer->initWithData(mBufSize, mBuffer,  mUsage, 
+                    mAccessMode);
 
                 if (ret != T3D_OK)
                 {

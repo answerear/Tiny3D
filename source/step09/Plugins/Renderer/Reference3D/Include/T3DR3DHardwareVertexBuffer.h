@@ -38,7 +38,7 @@ namespace Tiny3D
          */
         static R3DHardwareVertexBufferPtr create(size_t vertexSize, 
             size_t vertexCount, const void *vertices, Usage usage, 
-            bool useSystemMemory, bool useShadowBuffer);
+            uint32_t mode);
 
         /**
          * @brief 析构函数
@@ -65,8 +65,7 @@ namespace Tiny3D
          * @brief 构造函数
          */
         R3DHardwareVertexBuffer(size_t vertexSize, size_t vertexCount, 
-            const void *vertices, Usage usage, bool useSystemMemory, 
-            bool useShadowBuffer);
+            const void *vertices, Usage usage, uint32_t mode);
 
         /**
          * @brief 锁定缓冲区的具体实现接口，实现基类接口

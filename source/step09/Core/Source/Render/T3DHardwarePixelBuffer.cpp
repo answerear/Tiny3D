@@ -24,10 +24,11 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     HardwarePixelBuffer::HardwarePixelBuffer(size_t width, size_t height,
-        PixelFormat format, Usage usage, bool useSystemMemory, 
-        bool useShadowBuffer)
-        : HardwareBuffer(usage, useSystemMemory, useShadowBuffer)
+        PixelFormat format, Usage usage, uint32_t mode)
+        : HardwareBuffer(usage, mode)
         , mWidth(width)
         , mHeight(height)
         , mPitch(0)
@@ -38,10 +39,14 @@ namespace Tiny3D
         mBufferSize = mPitch * mHeight;
     }
 
+    //--------------------------------------------------------------------------
+
     HardwarePixelBuffer::~HardwarePixelBuffer()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     void *HardwarePixelBuffer::lock(const Rect &rect, LockOptions options, 
         size_t &lockedPitch)
@@ -50,47 +55,38 @@ namespace Tiny3D
 
         void *buffer = nullptr;
 
-        if (rect.left < 0 || rect.right >= mWidth
-            || rect.top < 0 || rect.bottom >= mHeight)
+        do 
         {
-            // 越界了 :(
-        }
-        else if (mUseShadowBuffer)
-        {
-            if (options != LockOptions::READ_ONLY)
+            if (rect.left < 0 || rect.right >= mWidth
+                || rect.top < 0 || rect.bottom >= mHeight)
             {
-                // 不是只读，那就可能会被改变，
-                // 等会解锁时用影子buffer更新硬件buffer
-                mIsShadowBufferDirty = true;
+                // 越界了 :(
+                break;
             }
 
-            buffer = smart_pointer_cast<HardwarePixelBuffer>
-                (mShadowBuffer)->lock(rect, options, lockedPitch);
-        }
-        else
-        {
-            // 没有影子buffer，调用实际锁接口
+            // 调用实际锁接口
             buffer = lockImpl(rect, options, lockedPitch);
-
             if (buffer != nullptr)
             {
-                mIsLocked = true;
+                break;
             }
-        }
 
-        if (buffer != nullptr)
-        {
+            mIsLocked = true;
             mLockSize = lockedPitch * rect.height();
-        }
+        } while (0);
 
         return buffer;
     }
+
+    //--------------------------------------------------------------------------
 
     void *HardwarePixelBuffer::lock(LockOptions options)
     {
         size_t lockedPitch = 0;
         return lock(Rect(0, 0, mWidth - 1, mHeight - 1), options, lockedPitch);
     }
+
+    //--------------------------------------------------------------------------
 
     TResult HardwarePixelBuffer::copyTo(HardwarePixelBufferPtr dst, 
         Rect *dstRect/* = nullptr*/, Rect *srcRect/* = nullptr*/)
@@ -123,7 +119,7 @@ namespace Tiny3D
             }
 
             size_t dstPitch = dst->getPitch();
-            dstData = (uint8_t *)dst->lock(LockOptions::WRITE_ONLY);
+            dstData = (uint8_t *)dst->lock(LockOptions::WRITE);
             if (dstData == nullptr)
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
@@ -132,7 +128,7 @@ namespace Tiny3D
             }
 
             size_t srcPitch = mPitch;
-            srcData = (uint8_t *)lock(LockOptions::READ_ONLY);
+            srcData = (uint8_t *)lock(LockOptions::READ);
             if (srcData == nullptr)
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
@@ -196,12 +192,16 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     size_t HardwarePixelBuffer::readData(size_t offset, size_t size, void *dst)
     {
         T3D_LOG_ERROR(LOG_TAG_RENDER, "Reading a byte range is not implemented.\
             Use readImage.");
         return false;
     }
+
+    //--------------------------------------------------------------------------
 
     size_t HardwarePixelBuffer::writeData(size_t offset, size_t size, 
         const void *src, bool discardWholeBuffer)
@@ -210,6 +210,8 @@ namespace Tiny3D
             Use writeImage.");
         return false;
     }
+
+    //--------------------------------------------------------------------------
 
     void *HardwarePixelBuffer::lockImpl(size_t offset, size_t size, 
         LockOptions options)

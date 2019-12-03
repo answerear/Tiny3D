@@ -247,7 +247,8 @@ namespace Tiny3D
 
             ret = mGPUBufferUpdateObject->initWithData(
                 sizeof(mGPUConstUpdateObject), &mGPUConstUpdateObject, 
-                HardwareBuffer::Usage::E_HBU_WRITE_ONLY, false, false);
+                HardwareBuffer::Usage::STREAM, 
+                HardwareBuffer::AccessMode::CPU_WRITE);
             if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
@@ -257,7 +258,8 @@ namespace Tiny3D
 
             ret = mGPUBufferUpdateFrame->initWithData(
                 sizeof(mGPUConstUpdateFrame), &mGPUConstUpdateFrame,
-                HardwareBuffer::Usage::E_HBU_WRITE_ONLY, false, false);
+                HardwareBuffer::Usage::STREAM, 
+                HardwareBuffer::AccessMode::CPU_WRITE);
             if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
@@ -267,7 +269,8 @@ namespace Tiny3D
 
             ret = mGPUBufferUpdateRarely->initWithData(
                 sizeof(mGPUConstUpdateRarely), &mGPUConstUpdateRarely,
-                HardwareBuffer::Usage::E_HBU_WRITE_ONLY, false, false);
+                HardwareBuffer::Usage::STREAM, 
+                HardwareBuffer::AccessMode::CPU_WRITE);
             if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,

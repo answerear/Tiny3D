@@ -38,7 +38,7 @@ namespace Tiny3D
          */
         static R3DHardwareIndexBufferPtr create(Type indexType, 
             size_t indexCount, const void *indices, HardwareBuffer::Usage usage, 
-            bool useSystemMemory, bool useShadowBuffer);
+            uint32_t mode);
 
         /**
          * @brief 析构函数
@@ -65,8 +65,7 @@ namespace Tiny3D
          * @brief 构造函数
          */
         R3DHardwareIndexBuffer(Type indexType, size_t indexCount, 
-            const void *indices, HardwareBuffer::Usage usage, 
-            bool useSystemMemory, bool useShadowBuffer);
+            const void *indices, HardwareBuffer::Usage usage, uint32_t mode);
 
         /**
          * @brief 锁定缓冲区的具体实现接口，实现基类接口

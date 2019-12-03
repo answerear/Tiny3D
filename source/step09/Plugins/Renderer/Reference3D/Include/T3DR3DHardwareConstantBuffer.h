@@ -34,11 +34,10 @@ namespace Tiny3D
     {
     public:
         /**
-         * @brief 创建 Direct X 11 渲染器相关的常量缓冲区对象
+         * @brief 创建 Reference3D 渲染器相关的常量缓冲区对象
          */
         static R3DHardwareConstantBufferPtr create(size_t bufSize,
-            const void *buffer, Usage usage, bool useSystemMemory, 
-            bool useShadowBuffer);
+            const void *buffer, Usage usage, uint32_t mode);
 
         /**
          * @brief 析构函数
@@ -65,7 +64,7 @@ namespace Tiny3D
         * @brief 构造函数
         */
         R3DHardwareConstantBuffer(size_t bufSize, const void *buffer, 
-            Usage usage, bool useSystemMemory, bool useShadowBuffer);
+            Usage usage, uint32_t mode);
 
         /**
          * @brief 锁定缓冲区的具体实现接口，实现基类接口

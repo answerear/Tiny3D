@@ -30,10 +30,10 @@ namespace Tiny3D
 
     D3D11HardwareVertexBufferPtr D3D11HardwareVertexBuffer::create(
         size_t vertexSize, size_t vertexCount, const void *vertices, 
-        Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        Usage usage, uint32_t mode)
     {
         D3D11HardwareVertexBufferPtr vb = new D3D11HardwareVertexBuffer(
-            vertexSize, vertexCount, usage, useSystemMemory, useShadowBuffer);
+            vertexSize, vertexCount, usage, mode);
         vb->release();
         if (vb->init(vertices) != T3D_OK)
         {
@@ -45,10 +45,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     D3D11HardwareVertexBuffer::D3D11HardwareVertexBuffer(size_t vertexSize,
-        size_t vertexCount, Usage usage, bool useSystemMemory,
-        bool useShadowBuffer)
-        : HardwareVertexBuffer(vertexSize, vertexCount, usage, useSystemMemory,
-            useSystemMemory)
+        size_t vertexCount, Usage usage, uint32_t mode)
+        : HardwareVertexBuffer(vertexSize, vertexCount, usage, mode)
         , mD3DBuffer(nullptr)
     {
     }
@@ -109,7 +107,7 @@ namespace Tiny3D
 
         do 
         {
-            void *src = lock(offset, size, LockOptions::READ_ONLY);
+            void *src = lock(offset, size, LockOptions::READ);
 
             if (src == nullptr)
             {
@@ -135,7 +133,7 @@ namespace Tiny3D
         do 
         {
             void *dst = lock(offset, size, discardWholeBuffer 
-                ? LockOptions::DISCARD : LockOptions::NORMAL);
+                ? LockOptions::WRITE_DISCARD : LockOptions::WRITE);
 
             if (dst == nullptr)
             {

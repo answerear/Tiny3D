@@ -56,41 +56,39 @@ namespace Tiny3D
 
     HardwareVertexBufferPtr R3DHardwareBufferManager::createVertexBuffer(
         size_t vertexSize, size_t vertexCount, const void *vertices, 
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        HardwareBuffer::Usage usage, uint32_t mode)
     {
         return R3DHardwareVertexBuffer::create(vertexSize, vertexCount, 
-            vertices, usage, useSystemMemory, useShadowBuffer);
+            vertices, usage, mode);
     }
 
     //--------------------------------------------------------------------------
 
     HardwareIndexBufferPtr R3DHardwareBufferManager::createIndexBuffer(
         HardwareIndexBuffer::Type indexType, size_t indexCount, 
-        const void *indices, HardwareBuffer::Usage usage, bool useSystemMemory, 
-        bool useShadowBuffer)
+        const void *indices, HardwareBuffer::Usage usage, uint32_t mode)
     {
         return R3DHardwareIndexBuffer::create(indexType, indexCount, indices,
-            usage, useSystemMemory, useShadowBuffer);
+            usage, mode);
     }
 
     //--------------------------------------------------------------------------
 
     HardwarePixelBufferPtr R3DHardwareBufferManager::createPixelBuffer(
         size_t width, size_t height, PixelFormat format, const void *pixels,
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        HardwareBuffer::Usage usage, uint32_t mode)
     {
         return R3DHardwarePixelBuffer::create(width, height, format, pixels, 
-            usage, useSystemMemory, useShadowBuffer);
+            usage, mode);
     }
 
     //--------------------------------------------------------------------------
 
     HardwareConstantBufferPtr R3DHardwareBufferManager::createConstantBuffer(
         size_t bufSize, const void *buffer, HardwareBuffer::Usage usage,
-        bool useSystemMemory, bool useShadowBuffer)
+        uint32_t mode)
     {
-        return R3DHardwareConstantBuffer::create(bufSize, buffer, usage,
-            useSystemMemory, useShadowBuffer);
+        return R3DHardwareConstantBuffer::create(bufSize, buffer, usage, mode);
     }
 
     //--------------------------------------------------------------------------

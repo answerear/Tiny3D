@@ -27,10 +27,9 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    HardwareVertexBuffer::HardwareVertexBuffer(size_t vertexSize, 
-        size_t vertexCount, Usage usage, bool useSystemMemory, 
-        bool useShadowBuffer)
-        : HardwareBuffer(usage, useSystemMemory, useShadowBuffer)
+    HardwareVertexBuffer::HardwareVertexBuffer(size_t vertexSize,
+        size_t vertexCount, Usage usage, uint32_t mode)
+        : HardwareBuffer(usage, mode)
         , mVertexCount(vertexCount)
         , mVertexSize(vertexSize)
     {
@@ -45,13 +44,15 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     VertexAttribute::VertexAttribute()
-        : mType(E_VAT_FLOAT3)
-        , mSemantic(E_VAS_POSITION)
+        : mType(Type::E_VAT_FLOAT3)
+        , mSemantic(Semantic::E_VAS_POSITION)
         , mOffset(0)
         , mStream(0)
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     VertexAttribute::VertexAttribute(size_t stream, size_t offset, Type type, 
         Semantic semantic, size_t semanticIndex /* = 0 */)
@@ -64,95 +65,99 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     VertexAttribute::~VertexAttribute()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     size_t VertexAttribute::getSize() const
     {
         size_t s = 0;
         switch (mType)
         {
-        case E_VAT_FLOAT1:
+        case Type::E_VAT_FLOAT1:
             s = sizeof(float);
             break;
-        case E_VAT_FLOAT2:
+        case Type::E_VAT_FLOAT2:
             s = sizeof(float) * 2;
             break;
-        case E_VAT_FLOAT3:
+        case Type::E_VAT_FLOAT3:
             s = sizeof(float) * 3;
             break;
-        case E_VAT_FLOAT4:
+        case Type::E_VAT_FLOAT4:
             s = sizeof(float) * 4;
             break;
-        case E_VAT_COLOR:
+        case Type::E_VAT_COLOR:
             s = sizeof(uint32_t);
             break;
-        case E_VAT_BYTE4:
-        case E_VAT_BYTE4_NORM:
+        case Type::E_VAT_BYTE4:
+        case Type::E_VAT_BYTE4_NORM:
             s = sizeof(int8_t);
             break;
-        case E_VAT_UBYTE4:
-        case E_VAT_UBYTE4_NORM:
+        case Type::E_VAT_UBYTE4:
+        case Type::E_VAT_UBYTE4_NORM:
             s = sizeof(uint8_t) * 4;
             break;
-        case E_VAT_SHORT2:
-        case E_VAT_SHORT2_NORM:
+        case Type::E_VAT_SHORT2:
+        case Type::E_VAT_SHORT2_NORM:
             s = sizeof(int16_t) * 2;
             break;
-        case E_VAT_SHORT4:
-        case E_VAT_SHORT4_NORM:
+        case Type::E_VAT_SHORT4:
+        case Type::E_VAT_SHORT4_NORM:
             s = sizeof(int16_t) * 4;
             break;
-        case E_VAT_USHORT2:
-        case E_VAT_USHORT2_NORM:
+        case Type::E_VAT_USHORT2:
+        case Type::E_VAT_USHORT2_NORM:
             s = sizeof(uint16_t) * 2;
             break;
-        case E_VAT_USHORT4:
-        case E_VAT_USHORT4_NORM:
+        case Type::E_VAT_USHORT4:
+        case Type::E_VAT_USHORT4_NORM:
             s = sizeof(uint16_t) * 4;
             break;
-        case E_VAT_DOUBLE1:
+        case Type::E_VAT_DOUBLE1:
             s = sizeof(double);
             break;
-        case E_VAT_DOUBLE2:
+        case Type::E_VAT_DOUBLE2:
             s = sizeof(double) * 2;
             break;
-        case E_VAT_DOUBLE3:
+        case Type::E_VAT_DOUBLE3:
             s = sizeof(double) * 3;
             break;
-        case E_VAT_DOUBLE4:
+        case Type::E_VAT_DOUBLE4:
             s = sizeof(double) * 4;
             break;
-        case E_VAT_INT1:
+        case Type::E_VAT_INT1:
             s = sizeof(int32_t);
             break;
-        case E_VAT_INT2:
+        case Type::E_VAT_INT2:
             s = sizeof(int32_t) * 2;
             break;
-        case E_VAT_INT3:
+        case Type::E_VAT_INT3:
             s = sizeof(int32_t) * 3;
             break;
-        case E_VAT_INT4:
+        case Type::E_VAT_INT4:
             s = sizeof(int32_t) * 4;
             break;
-        case E_VAT_UINT1:
+        case Type::E_VAT_UINT1:
             s = sizeof(uint32_t);
             break;
-        case E_VAT_UINT2:
+        case Type::E_VAT_UINT2:
             s = sizeof(uint32_t) * 2;
             break;
-        case E_VAT_UINT3:
+        case Type::E_VAT_UINT3:
             s = sizeof(uint32_t) * 3;
             break;
-        case E_VAT_UINT4:
+        case Type::E_VAT_UINT4:
             s = sizeof(uint32_t) * 4;
             break;
-        case E_VAT_FLOAT16_2:
+        case Type::E_VAT_FLOAT16_2:
             s = sizeof(float);
             break;
-        case E_VAT_FLOAT16_4:
+        case Type::E_VAT_FLOAT16_4:
             s = sizeof(float) * 2;
             break;
         }
@@ -169,16 +174,22 @@ namespace Tiny3D
         return decl;
     }
 
+    //--------------------------------------------------------------------------
+
     VertexDeclaration::VertexDeclaration(ShaderPtr vertexShader)
         : mVertexShader(vertexShader)
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     VertexDeclaration::~VertexDeclaration()
     {
         mVertexShader = nullptr;
     }
+
+    //--------------------------------------------------------------------------
 
     const VertexAttribute &VertexDeclaration::getAttribute(size_t index) const
     {
@@ -198,6 +209,8 @@ namespace Tiny3D
         return *itr;
     }
 
+    //--------------------------------------------------------------------------
+
     const VertexAttribute &VertexDeclaration::addAttribute(size_t stream, 
         size_t offset, VertexAttribute::Type type, 
         VertexAttribute::Semantic semantic, size_t semanticIndex)
@@ -207,6 +220,8 @@ namespace Tiny3D
         mVertexAttributes.push_back(element);
         return mVertexAttributes.back();
     }
+
+    //--------------------------------------------------------------------------
 
     const VertexAttribute &VertexDeclaration::insertAttribute(size_t pos, 
         size_t stream, size_t offset, VertexAttribute::Type type, 
@@ -229,12 +244,16 @@ namespace Tiny3D
         return *itr;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult VertexDeclaration::addAttribute(
         const VertexAttribute &vertexAttribute)
     {
         mVertexAttributes.push_back(vertexAttribute);
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult VertexDeclaration::insertAttribute(size_t pos, 
         const VertexAttribute &vertexAttribute)
@@ -256,6 +275,8 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult VertexDeclaration::removeAttribute(size_t pos)
     {
         if (pos >= mVertexAttributes.size())
@@ -275,6 +296,8 @@ namespace Tiny3D
         mVertexAttributes.erase(itr);
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult VertexDeclaration::removeAttribute(
         VertexAttribute::Semantic semantic, size_t sematicIndex)
@@ -296,11 +319,15 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult VertexDeclaration::removeAllAttributes()
     {
         mVertexAttributes.clear();
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult VertexDeclaration::updateAttribute(size_t pos, size_t stream, 
         size_t offset, VertexAttribute::Type type, 
@@ -325,6 +352,8 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
     const VertexAttribute *VertexDeclaration::findAttributeBySemantic(
         VertexAttribute::Semantic semantic, size_t semanticIndex) const
     {
@@ -343,6 +372,8 @@ namespace Tiny3D
         return nullptr;
     }
 
+    //--------------------------------------------------------------------------
+
     size_t VertexDeclaration::getVertexSize(size_t source) const
     {
         size_t s = 0;
@@ -359,6 +390,8 @@ namespace Tiny3D
 
         return s;
     }
+
+    //--------------------------------------------------------------------------
 
     VertexDeclarationPtr VertexDeclaration::clone() const
     {

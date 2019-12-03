@@ -126,8 +126,10 @@ namespace Tiny3D
 
                 // 创建硬件缓冲区
                 mPBO = T3D_HARDWARE_BUFFER_MGR.createPixelBuffer(mTexWidth, 
-                    mTexHeight, mFormat, image.getData(), 
-                    HardwareBuffer::Usage::E_HBU_DYNAMIC, false, false);
+                    mTexHeight, mFormat, image.getData(),
+                    HardwareBuffer::Usage::DYNAMIC,
+                    HardwareBuffer::AccessMode::CPU_READ
+                    | HardwareBuffer::AccessMode::CPU_WRITE);
 
                 if (mPBO == nullptr)
                 {
@@ -150,7 +152,9 @@ namespace Tiny3D
                 // 创建硬件缓冲区
                 mPBO = T3D_HARDWARE_BUFFER_MGR.createPixelBuffer(mTexWidth, 
                     mTexHeight, mFormat, nullptr, 
-                    HardwareBuffer::Usage::E_HBU_DYNAMIC, false, false);
+                    HardwareBuffer::Usage::DYNAMIC, 
+                    HardwareBuffer::AccessMode::CPU_READ
+                    | HardwareBuffer::AccessMode::CPU_WRITE);
 
                 if (mPBO == nullptr)
                 {

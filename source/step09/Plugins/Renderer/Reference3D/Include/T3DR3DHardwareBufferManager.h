@@ -47,8 +47,7 @@ namespace Tiny3D
          */
         virtual HardwareVertexBufferPtr createVertexBuffer(size_t vertexSize,
             size_t vertexCount, const void *vertices, 
-            HardwareBuffer::Usage usage, bool useSystemMemory, 
-            bool useShadowBuffer) override;
+            HardwareBuffer::Usage usage, uint32_t mode) override;
 
         /**
          * @brief 创建索引缓冲区
@@ -58,7 +57,7 @@ namespace Tiny3D
         virtual HardwareIndexBufferPtr createIndexBuffer(
             HardwareIndexBuffer::Type indexType, size_t indexCount,
             const void *indices, HardwareBuffer::Usage usage,
-            bool useSystemMemory, bool useShadowBuffer) override;
+            uint32_t mode) override;
 
         /**
          * @brief 创建像素缓冲区
@@ -67,8 +66,7 @@ namespace Tiny3D
          */
         virtual HardwarePixelBufferPtr createPixelBuffer(size_t width,
             size_t height, PixelFormat format, const void *pixels, 
-            HardwareBuffer::Usage usage, bool useSystemMemory, 
-            bool useShadowBuffer) override;
+            HardwareBuffer::Usage usage, uint32_t mode) override;
 
         /**
          * @brief 创建常量缓冲区
@@ -77,7 +75,7 @@ namespace Tiny3D
          */
         virtual HardwareConstantBufferPtr createConstantBuffer(
             size_t bufSize, const void *buffer, HardwareBuffer::Usage usage,
-            bool useSystemMemory, bool useShadowBuffer) override;
+            uint32_t mode) override;
 
         /**
          * @brief 创建顶点数组对象

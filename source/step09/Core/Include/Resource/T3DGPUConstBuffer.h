@@ -89,19 +89,16 @@ namespace Tiny3D
 
         /**
          * @fn  virtual TResult GPUConstBuffer::initWithData(size_t bufSize, 
-         *      const void* buffer, HardwareBuffer::Usage usage, 
-         *      bool useSystemMemory, bool useShadowBuffer);
+         *      const void* buffer, HardwareBuffer::Usage usage, uint32_t mode);
          * @brief   用數據初始化硬件常量緩衝區
          * @param   bufSize 緩衝區大小.
          * @param   buffer  緩衝區數據.
          * @param   usage   緩衝區用法.
-         * @param   useSystemMemory 是否使用系統內存.
-         * @param   useShadowBuffer 是否使用影子緩衝區加速訪問.
+         * @param   mode    缓冲区访问方式.
          * @returns 調用成功返回T3D_OK.
          */
         virtual TResult initWithData(size_t bufSize, const void* buffer, 
-            HardwareBuffer::Usage usage, bool useSystemMemory, 
-            bool useShadowBuffer);
+            HardwareBuffer::Usage usage, uint32_t mode);
 
         /**
          * @fn  TResult GPUConstBuffer::addDataDeclaration(
@@ -189,8 +186,7 @@ namespace Tiny3D
         size_t                      mBufSize;           /**< 緩衝區大小 */
         const void                  *mBuffer;           /**< 緩衝區數據 */
         HardwareBuffer::Usage       mUsage;             /**< 緩衝區用法 */
-        bool                        mUseSystemMemory;   /**< 是否使用系統內存 */
-        bool                        mUseShadowBuffer;   /**< 是否使用影子內存 */
+        uint32_t                    mAccessMode;        /**< 缓冲区访问方式 */
         bool                        mHasData;           /**< 是否初始化數據 */
         HardwareConstantBufferPtr   mBufferImpl;        /**< 具體實現類 */
 

@@ -29,10 +29,10 @@ namespace Tiny3D
 
     D3D11HardwarePixelBufferPtr D3D11HardwarePixelBuffer::create(size_t width,
         size_t height, PixelFormat format, const void *pixels, Usage usage, 
-        bool useSystemMemory, bool useShadowBuffer)
+        uint32_t mode)
     {
         D3D11HardwarePixelBufferPtr pb = new D3D11HardwarePixelBuffer(width, 
-            height, format, usage, useSystemMemory, useShadowBuffer);
+            height, format, usage, mode);
         pb->release();
 
         if (pb->init(pixels) != T3D_OK)
@@ -46,10 +46,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     D3D11HardwarePixelBuffer::D3D11HardwarePixelBuffer(size_t width,
-        size_t height, PixelFormat format, Usage usage, bool useSystemMemory,
-        bool useShadowBuffer)
-        : HardwarePixelBuffer(width, height, format, usage, useSystemMemory,
-            useShadowBuffer)
+        size_t height, PixelFormat format, Usage usage, uint32_t mode)
+        : HardwarePixelBuffer(width, height, format, usage, mode)
     {
     }
 
@@ -91,14 +89,14 @@ namespace Tiny3D
 
             if (dstRect == nullptr)
             {
-                dst = (uint8_t *)lock(LockOptions::DISCARD);
+                dst = (uint8_t *)lock(LockOptions::WRITE_DISCARD);
                 dstPitch = mPitch;
                 rtDst = Rect(0, 0, mWidth - 1, mHeight - 1);
             }
             else
             {
                 rtDst = *dstRect;
-                dst = (uint8_t *)lock(rtDst, LockOptions::WRITE_ONLY, 
+                dst = (uint8_t *)lock(rtDst, LockOptions::WRITE, 
                     dstPitch);
             }
 
@@ -154,7 +152,7 @@ namespace Tiny3D
 
             if (srcRect == nullptr)
             {
-                src = (uint8_t *)lock(LockOptions::READ_ONLY);
+                src = (uint8_t *)lock(LockOptions::READ);
                 srcPitch = mPitch;
                 rtSrc = Rect(0, 0, mWidth - 1, mHeight - 1);
             }

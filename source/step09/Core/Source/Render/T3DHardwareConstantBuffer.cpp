@@ -24,8 +24,8 @@
 namespace Tiny3D
 {
     HardwareConstantBuffer::HardwareConstantBuffer(size_t bufSize,
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
-        : HardwareBuffer(usage, useSystemMemory, useShadowBuffer)
+        HardwareBuffer::Usage usage, uint32_t mode)
+        : HardwareBuffer(usage, mode)
     {
         mBufferSize = bufSize;
     }

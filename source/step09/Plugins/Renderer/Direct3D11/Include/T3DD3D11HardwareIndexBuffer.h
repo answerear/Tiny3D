@@ -35,23 +35,18 @@ namespace Tiny3D
     {
     public:
         /**
-         * @fn  static D3D11HardwareIndexBufferPtr
-         *  D3D11HardwareIndexBuffer::create(Type indexType,
-         *  size_t indexCount, const void *indices,
-         *  HardwareBuffer::Usage usage, bool useSystemMemory,
-         *  bool useShadowBuffer);
+         * @fn  static D3D11HardwareIndexBufferPtr D3D11HardwareIndexBuffer::create(Type indexType, size_t indexCount, const void *indices, HardwareBuffer::Usage usage, uint32_t mode);
          * @brief   创建 Direct3D9 渲染器相关的索引缓冲区对象
-         * @param   indexType       Type of the index.
-         * @param   indexCount      Number of indexes.
-         * @param   indices         The indices.
-         * @param   usage           The usage.
-         * @param   useSystemMemory True to use system memory.
-         * @param   useShadowBuffer True to use shadow buffer.
-         * @returns A D3D11HardwareIndexBufferPtr.
+         * @param [in]  indexType   索引类型.
+         * @param [in]  indexCount  索引数量.
+         * @param [in]  indices     索引数据.
+         * @param [in]  usage       缓冲区使用方式.
+         * @param [in]  mode        缓冲区访问方式.
+         * @returns 返回 DirectX 11 相关的 GPU 索引缓冲区对象.
          */
         static D3D11HardwareIndexBufferPtr create(Type indexType,
             size_t indexCount, const void *indices, HardwareBuffer::Usage usage,
-            bool useSystemMemory, bool useShadowBuffer);
+            uint32_t mode);
 
         /**
          * @fn  virtual D3D11HardwareIndexBuffer::~D3D11HardwareIndexBuffer();
@@ -62,13 +57,13 @@ namespace Tiny3D
         /**
          * @fn  virtual size_t D3D11HardwareIndexBuffer::readData(size_t offset, 
          *      size_t size, void *dst) override;
-         * @brief   从缓冲区读取数据出来，实现基类接口
-         * @param           offset  The offset.
-         * @param           size    The size.
-         * @param [in,out]  dst     If non-null, destination for the.
-         * @returns The data.
-         * @sa  size_t HardwareVertexBuffer::readData(size_t offset,
-         *      size_t size, void *dst)
+         * @brief   从缓冲区读取数据出来。 实现基类接口
+         * @param [in]  offset  要读取的相对缓冲区首地址的偏移位置.
+         * @param [in]  size    要读取缓冲区大小.
+         * @param [in]  dst     存储返回读取到数据的缓冲区首地址.
+         * @returns 返回读取的字节数.
+         * @sa  size_t HardwareBuffer::readData(size_t offset, size_t size, 
+         *      void *dst)
          */
         virtual size_t readData(size_t offset, size_t size, void *dst) override;
 
@@ -76,14 +71,14 @@ namespace Tiny3D
          * @fn  virtual size_t D3D11HardwareIndexBuffer::writeData(
          *      size_t offset, size_t size, const void *src, 
          *      bool discardWholeBuffer = false) override;
-         * @brief   向缓冲区写数据，实现基类接口
-         * @param   offset              The offset.
-         * @param   size                The size.
-         * @param   src                 Source for the.
-         * @param   discardWholeBuffer  (Optional) True to discard whole buffer.
-         * @returns A size_t.
-         * @sa  size_t HardwareVertexBuffer::writeData(size_t offset,
-         *      size_t size, const void *src, bool discardWholeBuffer)
+         * @brief   向缓冲区写数据。 实现基类接口
+         * @param [in]  offset              要写入的相对缓冲区首地址的偏移位置.
+         * @param [in]  size                要写入缓冲区大小.
+         * @param [in]  src                 写入的数据地址.
+         * @param [in]  discardWholeBuffer  是否丢弃原有数据，默认不丢弃.
+         * @returns 返回写入的字节数.
+         * @sa  size_t HardwareBuffer::writeData(size_t offset, size_t size, 
+         *      const void *src, bool discardWholeBuffer)
          */
         virtual size_t writeData(size_t offset, size_t size, const void *src,
             bool discardWholeBuffer = false) override;
@@ -94,22 +89,20 @@ namespace Tiny3D
          *      Type indexType, size_t indexCount, HardwareBuffer::Usage usage, 
          *      bool useSystemMemory, bool useShadowBuffer);
          * @brief   构造函数
-         * @param   indexType       Type of the index.
-         * @param   indexCount      Number of indexes.
-         * @param   usage           The usage.
-         * @param   useSystemMemory True to use system memory.
-         * @param   useShadowBuffer True to use shadow buffer.
+         * @param [in]  indexType   索引类型.
+         * @param [in]  indexCount  索引数量.
+         * @param [in]  usage       缓冲区使用方式.
+         * @param [in]  mode        缓冲区访问方式.
          */
         D3D11HardwareIndexBuffer(Type indexType, size_t indexCount,
-            HardwareBuffer::Usage usage, bool useSystemMemory,
-            bool useShadowBuffer);
+            HardwareBuffer::Usage usage, uint32_t mode);
 
         /**
          * @fn  virtual TResult 
          *      D3D11HardwareIndexBuffer::init(const void *indices);
          * @brief   初始化对象
-         * @param   indices The indices.
-         * @returns A TResult.
+         * @param [in]  indices 索引数据.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult init(const void *indices);
 
@@ -117,11 +110,11 @@ namespace Tiny3D
          * @fn  virtual void D3D11HardwareIndexBuffer::*lockImpl(size_t offset, 
          *      size_t size, LockOptions options) override;
          * @brief   锁定缓冲区的具体实现接口，实现基类接口
-         * @param   offset  The offset.
-         * @param   size    The size.
-         * @param   options Options for controlling the operation.
-         * @returns Null if it fails, else a pointer to a void.
-         * @sa  void *HardwareVertexBuffer::lockImpl(size_t offset, size_t size,
+         * @param [in]  offset  锁定区域相对缓冲区开始偏移位置.
+         * @param [in]  size    锁定区域大小.
+         * @param [in]  options 锁定选项.
+         * @returns 返回锁定缓冲区区域首地址.
+         * @sa  void *HardwareBuffer::lockImpl(size_t offset, size_t size,
          *      LockOptions options)
          */
         virtual void *lockImpl(size_t offset, size_t size,
@@ -130,8 +123,8 @@ namespace Tiny3D
         /**
          * @fn  virtual TResult D3D11HardwareIndexBuffer::unlockImpl() override;
          * @brief   解锁缓冲区的具体实现接口，实现基类接口
-         * @returns A TResult.
-         * @sa  TResult HardwareVertexBuffer::unlockImpl()
+         * @returns 成功调用返回 T3D_OK.
+         * @sa  TResult HardwareBuffer::unlockImpl()
          */
         virtual TResult unlockImpl() override;
 

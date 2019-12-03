@@ -28,11 +28,10 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     D3D11HardwareConstantBufferPtr D3D11HardwareConstantBuffer::create(
-        size_t bufSize, const void *buffer, Usage usage, bool useSystemMemory, 
-        bool useShadowBuffer)
+        size_t bufSize, const void *buffer, Usage usage, uint32_t mode)
     {
         D3D11HardwareConstantBufferPtr cbo = new D3D11HardwareConstantBuffer(
-            bufSize, usage, useSystemMemory, useShadowBuffer);
+            bufSize, usage, mode);
         cbo->release();
 
         if (cbo->init(buffer) != T3D_OK)
@@ -46,10 +45,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     D3D11HardwareConstantBuffer::D3D11HardwareConstantBuffer(
-        size_t bufSize, HardwareBuffer::Usage usage, bool useSystemMemory,
-        bool useShadowBuffer)
-        : HardwareConstantBuffer(bufSize, usage, useSystemMemory,
-            useShadowBuffer)
+        size_t bufSize, HardwareBuffer::Usage usage, uint32_t mode)
+        : HardwareConstantBuffer(bufSize, usage, mode)
     {
 
     }
@@ -83,7 +80,7 @@ namespace Tiny3D
 
         do 
         {
-            void *src = lock(offset, size, LockOptions::READ_ONLY);
+            void *src = lock(offset, size, LockOptions::READ);
             if (src == nullptr)
             {
                 break;
@@ -108,7 +105,7 @@ namespace Tiny3D
         do 
         {
             void *dst = lock(offset, size, discardWholeBuffer 
-                ? LockOptions::DISCARD : LockOptions::NORMAL);
+                ? LockOptions::WRITE_DISCARD : LockOptions::WRITE);
             if (dst == nullptr)
             {
                 break;

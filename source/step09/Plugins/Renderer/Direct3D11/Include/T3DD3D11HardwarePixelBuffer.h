@@ -28,57 +28,112 @@
 namespace Tiny3D
 {
     /**
-     * @brief DirectX 11 渲染器相关的像素缓冲区类
+     * @class   D3D11HardwarePixelBuffer
+     * @brief   DirectX 11 渲染器相关的像素缓冲区类
      */
     class D3D11HardwarePixelBuffer : public HardwarePixelBuffer
     {
     public:
         /**
-         * @brief 创建 Direct3D9 渲染器相关的像素缓冲区对象
+         * @fn  static D3D11HardwarePixelBufferPtr 
+         *      D3D11HardwarePixelBuffer::create(size_t width, size_t height, 
+         *      PixelFormat format, const void *pixels, Usage usage, 
+         *      uint32_t mode);
+         * @brief   创建 DirectX 11 渲染器相关的像素缓冲区对象
+         * @param [in]  width   像素缓冲区宽度.
+         * @param [in]  height  像素缓冲区高度.
+         * @param [in]  format  像素缓冲区格式.
+         * @param [in]  pixels  像素数据.
+         * @param [in]  usage   缓冲区用途.
+         * @param [in]  mode    缓冲区访问方式.
+         * @returns 返回一个 GPU 像素缓冲区对象.
          */
         static D3D11HardwarePixelBufferPtr create(size_t width, size_t height,
-            PixelFormat format, const void *pixels, Usage usage, 
-            bool useSystemMemory, bool useShadowBuffer);
+            PixelFormat format, const void *pixels, Usage usage, uint32_t mode);
 
         /**
-         * @brief 析构函数
+         * @fn  virtual D3D11HardwarePixelBuffer::~D3D11HardwarePixelBuffer();
+         * @brief   析构函数
          */
         virtual ~D3D11HardwarePixelBuffer();
 
         /**
-         * @brief 按照源区域从image读取数据到目标区域。 实现基类接口
+         * @fn  virtual TResult D3D11HardwarePixelBuffer::readImage(
+         *      const Image &image, Rect *srcRect = nullptr, 
+         *      Rect *dstRect = nullptr) override;
+         * @brief   按照源区域从image读取数据到目标区域。 实现基类接口
+         * @param [in]  image   要读取的图像对象.
+         * @param [in]  srcRect 源数据区域，默认为nullptr的时候，
+         *    表示整个源目标区域，会自动缩放匹配目标区域.
+         * @param [in]  dstRect 目标数据区域，默认为nullptr的时候，
+         *    表示整个目标区域，会自动缩放匹配源区域.
+         * @returns 调用成功返回 T3D_OK.
+         * @sa  TResult HardwarePixelBuffer::readImage(const Image &image, 
+         *      Rect *srcRect = nullptr, Rect *dstRect = nullptr)
          */
         virtual TResult readImage(const Image &image, Rect *srcRect = nullptr,
             Rect *dstRect = nullptr) override;
 
         /**
-         * @brief 把指定源区域范围数据写到image的目标区域。 实现基类接口
+         * @fn  virtual TResult D3D11HardwarePixelBuffer::writeImage(
+         *      Image &image, Rect *dstRect = nullptr, 
+         *      Rect *srcRect = nullptr) override;
+         * @brief   把指定源区域范围数据写到image的目标区域。 实现基类接口
+         * @param [in]  image   要写入的图像对象.
+         * @param [in]  dstRect 目标区域，默认为nullptr的时候，
+         *    表示整个目标区域，会自动缩放匹配源区域.
+         * @param [in]  srcRect 源区域，默认为nullptr的时候，
+         *    表示整个源目标区域，会自动缩放匹配目标区域.
+         * @returns 调用成功返回 T3D_OK.
+         * @sa  TResult HardwarePixelBuffer::writeImage(Image &image, 
+         *      Rect *dstRect = nullptr, Rect *srcRect = nullptr)
          */
         virtual TResult writeImage(Image &image, Rect *dstRect = nullptr,
             Rect *srcRect = nullptr) override;
 
     protected:
         /**
-        * @brief 构造函数
-        */
+         * @fn  D3D11HardwarePixelBuffer::D3D11HardwarePixelBuffer(size_t width, 
+         *      size_t height, PixelFormat format, Usage usage, uint32_t mode);
+         * @brief   构造函数
+         * @param [in]  width   像素缓冲区宽度.
+         * @param [in]  height  像素缓冲区高度.
+         * @param [in]  format  像素缓冲区格式.
+         * @param [in]  usage   缓冲区用途.
+         * @param [in]  mode    缓冲区访问方式.
+         */
         D3D11HardwarePixelBuffer(size_t width, size_t height,
-            PixelFormat format, Usage usage, bool useSystemMemory,
-            bool useShadowBuffer);
+            PixelFormat format, Usage usage, uint32_t mode);
 
         /**
-         * @brief 初始化对象
+         * @fn  virtual TResult D3D11HardwarePixelBuffer::init(
+         *      const void *pixels);
+         * @brief   初始化对象
+         * @param [in]  pixels  像素数据.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult init(const void *pixels);
 
         /**
-         * @brief 获取锁定硬件缓冲区不同渲染器实现接口。 实现基类接口
+         * @fn  virtual void D3D11HardwarePixelBuffer::*lockImpl(
+         *      const Rect &rect, LockOptions options, 
+         *      size_t &lockedPitch) override;
+         * @brief   获取锁定硬件缓冲区不同渲染器实现接口。 实现基类接口
+         * @param [in]      rect        要获取数据的区域.
+         * @param [in]      options     获取数据选项.
+         * @param [in, out] lockedPitch 返回锁定区域的行跨度.
+         * @returns 返回锁定的硬件数据地址.
+         * @sa  void *HardwarePixelBuffer::lockImpl(const Rect &rect, 
+         *      LockOptions options, size_t &lockedPitch)
          */
         virtual void *lockImpl(const Rect &rect, LockOptions options,
             size_t &lockedPitch) override;
 
         /**
-         * @brief 解锁缓冲区的具体实现接口，实现基类接口
-         * @see TResult HardwareVertexBuffer::unlockImpl()
+         * @fn  virtual TResult D3D11HardwarePixelBuffer::unlockImpl() override;
+         * @brief   解锁缓冲区的具体实现接口
+         * @returns 成功调用返回 T3D_OK.
+         * @sa  TResult HardwarePixelBuffer::unlockImpl()
          */
         virtual TResult unlockImpl() override;
 

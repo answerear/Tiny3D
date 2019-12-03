@@ -30,183 +30,218 @@
 namespace Tiny3D
 {
     /**
-     * @brief GPU 硬件缓冲区类，用于存储传递给GPU的数据缓冲区
+     * @class   HardwareBuffer
+     * @brief   GPU 硬件缓冲区，用于 CPU 和 GPU 之间数据传递
      */
     class T3D_ENGINE_API HardwareBuffer : public Object
     {
     public:
         /**
-         * @brief 缓冲区用法
+         * @enum    Usage
+         * @brief   緩衝區用法
          */
-        enum Usage : uint32_t
+        enum class Usage : uint32_t
         {
-            /**< 静态缓存，数据放置在显存中，对于静态缓存读写数据是很慢的。
-                一般用于创建后就不更新的数据 */
-            E_HBU_STATIC = (1 << 0),
-            /**< 动态缓存，数据存放在AGP内存中，这种数据能很快的更新 */
-            E_HBU_DYNAMIC = (1 << 1),
-            /**< 应用程序只能写缓存。 它允许驱动程序分配最适合的内存地址作为写
-                缓存。 注意如果从创建好的这种缓存中读数据，将会返回错误信息。 */
-            E_HBU_WRITE_ONLY = (1 << 2),
-            /**< 联合E_HBU_STATIC和E_HBU_WRITE_ONLY */
-            E_HBU_STATIC_WRITE_ONLY = (E_HBU_STATIC | E_HBU_WRITE_ONLY),
-            /**< 联合E_HBU_DYNAMIC和E_HBU_WRITE_ONLY */
-            E_HBU_DYNAMIC_WRITE_ONLY = (E_HBU_DYNAMIC | E_HBU_WRITE_ONLY),
+            STATIC = 0,     /**< 數據在初始化设置后不能被修改 */
+            DYNAMIC,        /**< 數據會被頻繁修改 */
+            STREAM,         /**< 数据每帧都会被修改 */
         };
 
         /**
-         * @brief 锁定缓冲区选项
+         * @enum    AccessMode
+         * @brief   緩衝區訪問方式
+         */
+        enum AccessMode : uint32_t
+        {
+            CPU_WRITE = (1 << 0),   /**< CPU寫數據，GPU讀數據 */
+            CPU_READ = (1 << 1),    /**< CPU讀數據，GPU寫數據 */
+            GPU_COPY = (1 << 2)     /**< 從GPU讀數據，作為另一个GPU操作數據源 */
+        };
+
+        /**
+         * @enum    LockOptions
+         * @brief   缓冲区锁定访问标签
+         * @remarks 对应的锁定选项需要跟创建资源的标签结合使用，具体如下：
+         *  - READ 使用该选项时，该资源在创建的时候必须绑定 AccessMode::CPU_READ 标签。
+         *  - WRITE 该资源在创建的时候必须绑定 AccessMode::CPU_WRITE 标签
+         *  - READ_WRITE 该资源在创建的时候必须绑定 AccessMode::CPU_READ 和 AccessMode::CPU_WRITE 标签
+         *  - WRITE_DISCARD 该资源在创建的时候必须绑定 AccessMode::CPU_ACCESS_WRITE 和 Usage::DYNAMIC 标签
+         *  - WRITE_NO_OVERWRITE 该值只能用于顶点/索引缓冲区。 该资源在创建的时候需要有 AccessMode::CPU_WRITE 标签.
          */
         enum class LockOptions : uint32_t
         {
-            NORMAL = 0,                   /**< 普通方式，能读写缓冲区 */
-            DISCARD,                      /**< 缓冲区数据会被丢弃 */
-            NO_OVERWRITE,                 /**< 不要覆盖缓冲区数据 */
-            READ_ONLY,                    /**< 只读缓冲区 */
-            WRITE_ONLY = DISCARD,   /**< 只写缓冲区 */
+            READ = 0,           /**< 映射到内存的资源用于读取 */
+            WRITE,              /**< 映射到内存的资源用于写入 */
+            READ_WRITE,         /**< 映射到内存的资源用于读写 */
+            WRITE_DISCARD,      /**< 映射到内存的资源用于写入，之前的资源数据将会被抛弃 */
+            WRITE_NO_OVERWRITE  /**< 映射到内存的资源用于写入，但不能复写已经存在的资源 */
         };
 
         /**
-         * @brief 析构函数
+         * @fn  virtual HardwareBuffer::~HardwareBuffer();
+         * @brief   析构函数
          */
         virtual ~HardwareBuffer();
 
         /**
-         * @brief 锁定缓冲区
-         * @param [in] offset : 锁定区域相对缓冲区开始的偏移位置
-         * @param [in] size : 锁定缓冲区大小
-         * @param [in] options : 锁定选项
-         * @return 成功返回锁定区域首地址，否则返回nullptr。
-         * @remarks 一般要读写缓冲区，需要先调用本接口
+         * @fn  void HardwareBuffer::*lock(size_t offset, size_t size, 
+         *      LockOptions options);
+         * @brief   CPU锁定GPU缓冲区，访问其数据
+         * @param [in]  offset  锁定区域相对缓冲区开始的偏移位置.
+         * @param [in]  size    锁定缓冲区大小.
+         * @param [in]  options 锁定选项.
+         * @returns 成功返回锁定区域首地址，否则返回nullptr。.
+         * @remarks 调用后要使用unlock解锁，重新让GPU获得访问数据权限.
+         * @sa  enum class LockOptions
+         * @sa  TResult HardwareBuffer::unlock()
+         *
+         * 
          */
         void *lock(size_t offset, size_t size, LockOptions options);
 
         /**
-         * @brief 锁定整个缓冲区
-         * @return 成功返回锁定区域首地址，否则返回nullptr。
-         * @remarks 一般读写缓冲区，需要先调用本接口
+         * @fn  virtual void HardwareBuffer::*lock(LockOptions options);
+         * @brief   CPU锁定GPU缓冲区，访问其数据
+         * @param [in]  options 锁定方式选项.
+         * @returns 成功返回锁定区域首地址，否则返回nullptr.
+         * @remarks  调用后要使用unlock解锁，重新让GPU获得访问数据权限.
+         * @sa  enum class LockOptions
+         * @sa  TResult HardwareBuffer::unlock()
          */
         virtual void *lock(LockOptions options);
 
         /**
-         * @brief 解锁缓冲区
-         * @return 成功调用返回 T3D_OK
-         * @remarks 一般读写完缓冲区，需要调用本接口，否则数据无法传输到GPU上
+         * @fn  TResult HardwareBuffer::unlock();
+         * @brief   解锁缓冲区
+         * @returns 成功调用返回 T3D_OK.
+         * @sa  void *HardwareBuffer::lock(size_t offset, size_t size, 
+         *      LockOptions options)
+         * @sa  void *HardwareBuffer::lock(LockOptions options)
          */
         TResult unlock();
 
         /**
-         * @brief 从缓冲区读取数据出来
-         * @param [in] offset : 要读取的相对缓冲区首地址的偏移位置
-         * @param [in] size : 要读取缓冲区大小
-         * @param [in][out] dst : 存储返回读取到数据的缓冲区首地址
-         * @return 返回读取的字节数
-         * @remarks 具体的渲染系统子类需要实现该接口
+         * @fn  virtual size_t HardwareBuffer::readData(size_t offset, size_t size, void *dst) = 0;
+         * @brief   从缓冲区读取数据出来
+         * @param [in]  offset  要读取的相对缓冲区首地址的偏移位置.
+         * @param [in]  size    要读取缓冲区大小.
+         * @param [in]  dst     存储返回读取到数据的缓冲区首地址.
+         * @returns 返回读取的字节数.
+         * @remarks 具体的渲染系统子类需要实现该接口.
          */
         virtual size_t readData(size_t offset, size_t size, void *dst) = 0;
 
         /**
-         * @brief 向缓冲区写数据
-         * @param [in] offset : 要写入的相对缓冲区首地址的偏移位置
-         * @param [in] size : 要写入缓冲区大小
-         * @param [in] src : 写入的数据地址
-         * @param [in] discardWholeBuffer : 是否直接丢弃硬件缓冲区，重建新缓冲区
-         * @return 返回写入的字节数
-         * @remarks 具体的渲染系统子类需要实现该接口
+         * @fn  virtual size_t HardwareBuffer::writeData(size_t offset, 
+         *      size_t size, const void *src, 
+         *      bool discardWholeBuffer = false) = 0;
+         * @brief   向缓冲区写数据
+         * @param [in]  offset              要写入的相对缓冲区首地址的偏移位置.
+         * @param [in]  size                要写入缓冲区大小.
+         * @param [in]  src                 写入的数据地址.
+         * @param [in]  discardWholeBuffer  是否丢弃原有数据，默认不丢弃.
+         * @returns 返回写入的字节数.
+         * @remarks 具体的渲染系统子类需要实现该接口.
          */
         virtual size_t writeData(size_t offset, size_t size, const void *src,
             bool discardWholeBuffer = false) = 0;
 
         /**
-         * @brief 从源缓冲区复制数据到本缓冲区里
-         * @param [in] srcBuffer : 源缓冲区对象
-         * @param [in] srcOffset : 源缓冲区偏移位置
-         * @param [in] dstOffset : 目标缓冲区偏移位置
-         * @param [in] size : 要复制的数据大小
-         * @param [in] discardWholeBuffer : 是否丢弃原来硬件缓冲区，重建新缓冲区
-         * @return 返回复制的字节数
+         * @fn  virtual size_t HardwareBuffer::copyData(
+         *      HardwareBufferPtr srcBuffer, size_t srcOffset, size_t dstOffset, 
+         *      size_t size, bool discardWholeBuffer = false);
+         * @brief   从源缓冲区复制数据到本缓冲区里
+         * @param [in]  srcBuffer           源缓冲区对象.
+         * @param [in]  srcOffset           源缓冲区偏移位置.
+         * @param [in]  dstOffset           目标缓冲区偏移位置.
+         * @param [in]  size                要复制的数据大小.
+         * @param [in]  discardWholeBuffer  是否丢弃原有数据，默认不丢弃.
+         * @returns 返回复制的字节数.
          */
         virtual size_t copyData(HardwareBufferPtr srcBuffer, size_t srcOffset,
             size_t dstOffset, size_t size, bool discardWholeBuffer = false);
 
         /**
-         * @brief 从源缓冲区全部复制数据到本缓冲区
-         * @param [in] srcBuffer : 源缓冲区
-         * @return 返回复制的字节数
+         * @fn  virtual size_t HardwareBuffer::copyData(
+         *      HardwareBufferPtr srcBuffer);
+         * @brief   从源缓冲区全部复制数据到本缓冲区
+         * @param [in]  srcBuffer   源缓冲区.
+         * @returns 返回复制的字节数.
          */
         virtual size_t copyData(HardwareBufferPtr srcBuffer);
 
         /**
-         * @brief 获取缓冲区大小
+         * @fn  size_t HardwareBuffer::getBufferSize() const
+         * @brief   获取缓冲区大小
+         * @returns 返回缓冲区字节数大小.
          */
         size_t getBufferSize() const { return mBufferSize; }
 
         /**
-         * @brief 获取缓冲区用法
+         * @fn  Usage HardwareBuffer::getUsage() const
+         * @brief   获取缓冲区用法
+         * @returns 返回缓冲区用法.
          */
         Usage getUsage() const { return mUsage; }
 
         /**
-         * @brief 获取是否使用系统内存
+         * @fn  AccessMode HardwareBuffer::getAccessMode() const
+         * @brief   获取缓冲区访问方式
+         * @returns 返回缓冲区访问方式.
+         * @sa  enum AccessMode
          */
-        bool isSystemMemory() const { return mUseSystemMemory; }
+        uint32_t getAccessMode() const { return mAccessMode; }
 
         /**
-         * @brief 获取是否使用影子缓存
-         */
-        bool hasShadowBuffer() const { return mUseShadowBuffer; }
-
-        /**
-         * @brief 获取缓存是否被锁
+         * @fn  bool HardwareBuffer::isLocked() const
+         * @brief   获取缓存是否被锁
+         * @returns 返回锁定状态.
+         * @sa  enum class LockOptions
+         * @sa  void *HardwareBuffer::lock(size_t offset, size_t size, 
+         *      LockOptions options)
+         * @sa  void *HardwareBuffer::lock(LockOptions options)
          */
         bool isLocked() const { return mIsLocked; }
 
     protected:
         /**
-         * @brief 构造函数
-         * @param [in] usage : 缓冲区用法
-         * @param [in] isSystemMemory : 是否系统内存
-         * @param [in] useShadowBuffer : 是否使用影子缓存
+         * @fn  HardwareBuffer::HardwareBuffer(Usage usage, AccessMode mode);
+         * @brief   构造函数
+         * @param [in]  usage 缓冲区用法.
+         * @param [in]  mode 缓冲区访问模式.
          */
-        HardwareBuffer(Usage usage, bool useSystemMemory, bool useShadowBuffer);
+        HardwareBuffer(Usage usage, uint32_t mode);
 
         /**
-         * @brief 锁定缓冲区的具体实现接口
-         * @param [in] offset : 锁定区域相对缓冲区开始偏移位置
-         * @param [in] size : 锁定区域大小
-         * @param [in] options : 锁定选项
-         * @return 返回锁定缓冲区区域首地址
-         * @remarks 具体的渲染系统子类需要实现该接口
+         * @fn  virtual void HardwareBuffer::*lockImpl(size_t offset, 
+         *      size_t size, LockOptions options) = 0;
+         * @brief   锁定缓冲区的具体实现接口
+         * @param [in]  offset  锁定区域相对缓冲区开始偏移位置.
+         * @param [in]  size    锁定区域大小.
+         * @param [in]  options 锁定选项.
+         * @returns 返回锁定缓冲区区域首地址.
+         * @remarks 具体的渲染系统子类需要实现该接口.
          */
         virtual void *lockImpl(size_t offset, size_t size, 
             LockOptions options) = 0;
 
         /**
-         * @brief 解锁缓冲区的具体实现接口
-         * @return 成功调用返回 T3D_OK
-         * @remarks 具体的渲染系统子类需要实现该接口
+         * @fn  virtual TResult HardwareBuffer::unlockImpl() = 0;
+         * @brief   解锁缓冲区的具体实现接口
+         * @returns 成功调用返回 T3D_OK.
+         * @remarks 具体的渲染系统子类需要实现该接口.
          */
         virtual TResult unlockImpl() = 0;
 
-        /**
-         * @brief 从影子缓存更新数据到硬件缓冲区
-         * @return 调用成功返回 T3D_OK
-         */
-        virtual TResult updateFromShadow();
-
     protected:
-        size_t  mBufferSize;            /**< 缓冲区大小 */
-        size_t  mLockSize;              /**< 锁缓存大小 */
-        size_t  mLockOffset;            /**< 锁缓存起始偏移 */
+        size_t      mBufferSize;        /**< 缓冲区大小 */
+        size_t      mLockSize;          /**< 锁缓存大小 */
+        size_t      mLockOffset;        /**< 锁缓存起始偏移 */
 
-        Usage   mUsage;                 /**< 缓冲区用法类型 */
+        Usage       mUsage;             /**< 缓冲区用法类型 */
+        uint32_t    mAccessMode;        /**< 缓冲区访问方式 */
 
-        HardwareBufferPtr   mShadowBuffer;  /**< 影子缓存，提高读写效率 */
-
-        bool    mUseSystemMemory;       /**< 是否使用系统内存 */
-        bool    mUseShadowBuffer;       /**< 是否使用影子缓存 */
-        bool    mIsLocked;              /**< 硬件缓存是否被锁 */
-        bool    mIsShadowBufferDirty;   /**< 影子缓存是否需要更新 */
+        bool        mIsLocked;          /**< 硬件缓存是否被锁 */
     };
 }
 

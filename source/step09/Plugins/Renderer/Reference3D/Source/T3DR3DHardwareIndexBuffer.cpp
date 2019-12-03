@@ -27,10 +27,10 @@ namespace Tiny3D
 
     R3DHardwareIndexBufferPtr R3DHardwareIndexBuffer::create(Type indexType,
         size_t indexCount, const void *indices, HardwareBuffer::Usage usage, 
-        bool useSystemMemory, bool useShadowBuffer)
+        uint32_t mode)
     {
         R3DHardwareIndexBufferPtr ib = new R3DHardwareIndexBuffer(indexType,
-            indexCount, indices, usage, useSystemMemory, useShadowBuffer);
+            indexCount, indices, usage, mode);
         ib->release();
         return ib;
     }
@@ -39,9 +39,8 @@ namespace Tiny3D
 
     R3DHardwareIndexBuffer::R3DHardwareIndexBuffer(Type indexType,
         size_t indexCount, const void *indices, HardwareBuffer::Usage usage, 
-        bool useSystemMemory, bool useShadowBuffer)
-        : HardwareIndexBuffer(indexType, indexCount, usage, useSystemMemory, 
-            useShadowBuffer)
+        uint32_t mode)
+        : HardwareIndexBuffer(indexType, indexCount, usage, mode)
         , mBuffer(nullptr)
     {
         mBuffer = new uint8_t[mBufferSize];
@@ -60,7 +59,7 @@ namespace Tiny3D
     size_t R3DHardwareIndexBuffer::readData(size_t offset, size_t size,
         void *dst)
     {
-        if (mUsage & Usage::E_HBU_WRITE_ONLY)
+        if (mUsage == Usage::STATIC)
         {
             // 只写缓冲区，无法读取
             return 0;

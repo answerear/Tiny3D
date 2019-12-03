@@ -28,37 +28,45 @@
 namespace Tiny3D
 {
     /**
-     * @brief 顶点缓冲区
+     * @class   HardwareVertexBuffer
+     * @brief   顶点缓冲区
+     * @sa  class HardwareBuffer
      */
     class T3D_ENGINE_API HardwareVertexBuffer : public HardwareBuffer
     {
     public:
         /**
-         * @brief 析构函数
+         * @fn  virtual HardwareVertexBuffer::~HardwareVertexBuffer();
+         * @brief   析构函数
          */
         virtual ~HardwareVertexBuffer();
 
         /**
-         * @brief 获取当个顶点的字节数大小
+         * @fn  size_t HardwareVertexBuffer::getVertexSize() const
+         * @brief   获取当个顶点的字节数大小
+         * @returns 返回顶点大小.
          */
         size_t getVertexSize() const { return mVertexSize; }
 
         /**
-         * @brief 获取顶点数
+         * @fn  size_t HardwareVertexBuffer::getVertexCount() const
+         * @brief   获取顶点数
+         * @returns 返回定点数.
          */
         size_t getVertexCount() const { return mVertexCount; }
 
     protected:
         /**
-         * @brief 构造函数
-         * @param [in] vertexSize : 顶点字节数大小
-         * @param [in] vertexCount : 顶点数量
-         * @param [in] usage : 缓冲区用法
-         * @param [in] useSystemMemory : 是否使用系统内存
-         * @param [in] useShadowBuffer : 是否使用影子缓存
+         * @fn  HardwareVertexBuffer::HardwareVertexBuffer(size_t vertexSize, 
+         *      size_t vertexCount, Usage usage, uint32_t mode);
+         * @brief   构造函数
+         * @param [in]  vertexSize  顶点字节数大小.
+         * @param [in]  vertexCount 顶点数量.
+         * @param [in]  usage       缓冲区用法.
+         * @param [in]  mode        缓冲区访问方式.
          */
-        HardwareVertexBuffer(size_t vertexSize, size_t vertexCount, Usage usage, 
-            bool useSystemMemory, bool useShadowBuffer);
+        HardwareVertexBuffer(size_t vertexSize, size_t vertexCount, Usage usage,
+            uint32_t mode);
 
     protected:
         size_t  mVertexCount;       /**< 顶点数量 */
@@ -67,19 +75,23 @@ namespace Tiny3D
 
 
     /**
-     * @brief 顶点属性
+     * @class   VertexAttribute
+     * @brief   顶点属性
      */
     class T3D_ENGINE_API VertexAttribute
     {
     public:
-        /**< 顶点属性类型 */
-        enum Type
+        /**
+         * @enum    Type
+         * @brief   顶点属性类型
+         */
+        enum class Type : uint32_t
         {
-            E_VAT_FLOAT1 = 0,
-            E_VAT_FLOAT2 = 1,
-            E_VAT_FLOAT3 = 2,
-            E_VAT_FLOAT4 = 3,
-            E_VAT_COLOR = 4,
+            E_VAT_FLOAT1 = 0,   /**< 1 float */
+            E_VAT_FLOAT2 = 1,   /**< 2 float tuple */
+            E_VAT_FLOAT3 = 2,   /**< 3 float tuple */
+            E_VAT_FLOAT4 = 3,   /**< 4 float tuple */
+            E_VAT_COLOR = 4,    /**< color type */
             E_VAT_BYTE4 = 5,
             E_VAT_BYTE4_NORM = 6,
             E_VAT_UBYTE4 = 7,
@@ -108,8 +120,11 @@ namespace Tiny3D
             E_VAT_FLOAT16_4 = 30,
         };
 
-        /**< 顶点语法解释 */
-        enum Semantic
+        /**
+         * @enum    Semantic
+         * @brief   顶点语义解释
+         */
+        enum class Semantic : uint32_t
         {
             E_VAS_POSITION = 0,     /**< 位置 */
             E_VAS_BLENDWEIGHT = 1,  /**< 骨骼混合权重 */
@@ -123,67 +138,84 @@ namespace Tiny3D
         };
 
         /**
-         * @brief 默认构造函数
+         * @fn  VertexAttribute::VertexAttribute();
+         * @brief   默认构造函数
          */
         VertexAttribute();
 
         /**
-         * @brief 构造函数
-         * @param [in] stream : 数据流索引
-         * @param [in] offset : 相对当前顶点起始位置的偏移
-         * @param [in] type : 顶点数据类型
-         * @param [in] semantic : 顶点语法解释
-         * @param [in] semanticIndex : 语义索引
+         * @fn  VertexAttribute::VertexAttribute(size_t stream, size_t offset, 
+         *      Type type, Semantic semantic, size_t semanticIndex);
+         * @brief   构造函数
+         * @param [in]  stream          数据流索引.
+         * @param [in]  offset          相对当前顶点起始位置的偏移.
+         * @param [in]  type            顶点数据类型.
+         * @param [in]  semantic        顶点语义解释.
+         * @param [in]  semanticIndex   语义索引.
          */
         VertexAttribute(size_t stream, size_t offset, Type type,
             Semantic semantic, size_t semanticIndex);
 
         /**
-         * @brief 析构函数
+         * @fn  virtual VertexAttribute::~VertexAttribute();
+         * @brief   析构函数
          */
         virtual ~VertexAttribute();
 
         /**
-         * @brief 获取数据流索引
+         * @fn  size_t VertexAttribute::getStream() const
+         * @brief   获取数据流索引
+         * @returns 返回数据流索引.
          */
         size_t getStream() const { return mStream; }
 
         /**
-         * @brief 获取顶点相对一个顶点数据起点的偏移位置
+         * @fn  size_t VertexAttribute::getOffset() const
+         * @brief   获取顶点相对一个顶点数据起点的偏移位置
+         * @returns 返回偏移值.
          */
         size_t getOffset() const { return mOffset; }
 
         /**
-         * @brief 获取顶点数据类型
+         * @fn  Type VertexAttribute::getType() const
+         * @brief   获取顶点数据类型
+         * @returns 返回顶点数据类型.
          */
         Type getType() const { return mType; }
 
         /**
-         * @brief 获取顶点语法解释
+         * @fn  Semantic VertexAttribute::getSemantic() const
+         * @brief   获取顶点语义解释
+         * @returns 返回顶点语义解释.
          */
         Semantic getSemantic() const { return mSemantic; }
 
         /**
-         * @brief 获取顶点语义索引
+         * @fn  size_t VertexAttribute::getSemanticIndex() const
+         * @brief   获取顶点语义索引
+         * @returns 返回顶点语义索引.
          */
         size_t getSemanticIndex() const { return mSemanticIndex; }
 
         /**
-         * @brief 获取顶点数据字节大小
+         * @fn  size_t VertexAttribute::getSize() const;
+         * @brief   获取顶点数据字节大小
+         * @returns 返回顶点数据字节大小.
          */
         size_t getSize() const;
 
     protected:
         Type        mType;          /**< 顶点属性数据类型 */
         Semantic    mSemantic;      /**< 顶点属性语义 */
-        size_t      mOffset;        /**< 这个顶点属性定义的在顶点缓存中的起始点偏移值 */
+        size_t      mOffset;        /**< 顶点属性定义的在顶点缓存中的偏移值 */
         size_t      mStream;        /**< 对应定义的顶点缓存索引 */
         size_t      mSemanticIndex; /**< 顶点语义索引 */
     };
 
 
     /**
-     * @brief 顶点声明
+     * @class   VertexDeclaration
+     * @brief   顶点声明
      */
     class T3D_ENGINE_API VertexDeclaration : public Object
     {
@@ -193,25 +225,31 @@ namespace Tiny3D
         typedef VertexAttriList::const_iterator     VertexAttriListConstItr;
 
         /**
-         * @brief 创建顶点声明对象
+         * @fn  static VertexDeclarationPtr VertexDeclaration::create(
+         *      ShaderPtr vertexShader);
+         * @brief   创建顶点声明对象
+         * @param [in]  vertexShader    对应的顶点着色器对象.
+         * @returns 返回一个顶点声明对象.
          */
         static VertexDeclarationPtr create(ShaderPtr vertexShader);
 
         /**
-         * @brief 析构函数
+         * @fn  virtual VertexDeclaration::~VertexDeclaration();
+         * @brief   析构函数
          */
         virtual ~VertexDeclaration();
 
         /**
-         * @brief 获取顶点属性数量
+         * @fn  size_t VertexDeclaration::getAttributeCount() const
+         * @brief   获取顶点属性数量
+         * @returns 返回顶点属性数量.
          */
-        size_t getAttributeCount() const 
-        { 
-            return mVertexAttributes.size(); 
-        }
+        size_t getAttributeCount() const  {  return mVertexAttributes.size(); }
 
         /**
-         * @brief 获取顶点属性列表
+         * @fn  const VertexAttriList VertexDeclaration::&getAttributes() const
+         * @brief   获取顶点属性列表
+         * @returns 返回顶点属性列表.
          */
         const VertexAttriList &getAttributes() const
         { 
@@ -219,116 +257,149 @@ namespace Tiny3D
         }
 
         /**
-         * @brief 获取顶点属性
-         * @param [in] index : 顶点属性数组中的索引
-         * @return 返回顶点属性
+         * @fn  const VertexAttribute VertexDeclaration::&getAttribute(
+         *      size_t index) const;
+         * @brief   获取顶点属性
+         * @param [in]  index   顶点属性数组中的索引.
+         * @returns 返回顶点属性.
          */
         const VertexAttribute &getAttribute(size_t index) const;
 
         /**
-         * @brief 新增一个顶点属性
-         * @param [in] stream : 数据流索引
-         * @param [in] offset : 相对一个顶点数据开始位置的偏移
-         * @param [in] type : 顶点数据类型
-         * @param [in] semantic : 顶点语法解释
-         * @param [in] semanticIndex : 顶点语义索引
-         * @return 返回一个新的顶点属性
+         * @fn  virtual const VertexAttribute VertexDeclaration::&addAttribute(
+         *      size_t stream, size_t offset, VertexAttribute::Type type, 
+         *      VertexAttribute::Semantic semantic, size_t semanticIndex);
+         * @brief   新增一个顶点属性
+         * @param [in]  stream          数据流索引.
+         * @param [in]  offset          相对一个顶点数据开始位置的偏移.
+         * @param [in]  type            顶点数据类型.
+         * @param [in]  semantic        顶点语义解释.
+         * @param [in]  semanticIndex   顶点语义索引.
+         * @returns 返回一个新的顶点属性.
          */
         virtual const VertexAttribute &addAttribute(size_t stream, 
             size_t offset, VertexAttribute::Type type, 
             VertexAttribute::Semantic semantic, size_t semanticIndex);
 
         /**
-         * @brief 新增插入一个顶点属性
-         * @param [in] pos : 插入位置
-         * @param [in] stream : 数据流索引
-         * @param [in] offset : 相对一个顶点数据开始位置的偏移
-         * @param [in] type : 顶点数据类型
-         * @param [in] semantic : 顶点语法解释
-         * @param [in] semanticIndex : 顶点语义索引
-         * @return 返回一个新的顶点属性
+         * @fn  virtual const VertexAttribute 
+         *      VertexDeclaration::&insertAttribute(size_t pos, size_t stream, 
+         *      size_t offset, VertexAttribute::Type type, 
+         *      VertexAttribute::Semantic semantic, size_t semanticIndex);
+         * @brief   新增插入一个顶点属性
+         * @param [in]  pos             插入位置.
+         * @param [in]  stream          数据流索引.
+         * @param [in]  offset          相对一个顶点数据开始位置的偏移.
+         * @param [in]  type            顶点数据类型.
+         * @param [in]  semantic        顶点语义解释.
+         * @param [in]  semanticIndex   顶点语义索引.
+         * @returns 返回一个新的顶点属性.
          */
         virtual const VertexAttribute &insertAttribute(size_t pos, 
             size_t stream, size_t offset, VertexAttribute::Type type, 
             VertexAttribute::Semantic semantic, size_t semanticIndex);
 
         /**
-         * @brief 添加一个顶点属性
-         * @param [in] vertexAttribute : 顶点属性对象
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult VertexDeclaration::addAttribute(
+         *      const VertexAttribute &vertexAttribute);
+         * @brief   添加一个顶点属性
+         * @param [in]  vertexAttribute 顶点属性对象.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult addAttribute(const VertexAttribute &vertexAttribute);
 
         /**
-         * @brief 插入一个顶点属性
-         * @param [in] pos : 插入的位置
-         * @param [in] vertexAttribute : 顶点属性对象
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult VertexDeclaration::insertAttribute(size_t pos, 
+         *      const VertexAttribute &vertexAttribute);
+         * @brief   插入一个顶点属性
+         * @param [in]  pos             插入的位置.
+         * @param [in]  vertexAttribute 顶点属性对象.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult insertAttribute(size_t pos, 
             const VertexAttribute &vertexAttribute);
 
         /**
-         * @brief 移除指定位置的顶点属性
-         * @param [in] pos : 数组位置
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult VertexDeclaration::removeAttribute(size_t pos);
+         * @brief   移除指定位置的顶点属性
+         * @param [in]  pos 数组位置.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult removeAttribute(size_t pos);
 
         /**
-         * @brief 移除对应语法解释的顶点属性
-         * @param [in] semantic : 语法解释
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult VertexDeclaration::removeAttribute(
+         *      VertexAttribute::Semantic semantic, size_t semanticIndex);
+         * @brief   移除对应语义解释的顶点属性
+         * @param [in]  semantic        语义解释.
+         * @param       semanticIndex   Zero-based index of the semantic.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult removeAttribute(VertexAttribute::Semantic semantic,
             size_t semanticIndex);
 
         /**
-         * @brief 移除所有顶点属性
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult VertexDeclaration::removeAllAttributes();
+         * @brief   移除所有顶点属性
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult removeAllAttributes();
 
         /**
-         * @brief 更新顶点属性
-         * @param [in] pos : 更新对应位置的顶点属性
-         * @param [in] stream : 数据流索引
-         * @param [in] type : 顶点数据类型
-         * @param [in] semantic : 顶点语法解释
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult VertexDeclaration::updateAttribute(size_t pos, 
+         *      size_t stream, size_t offset, VertexAttribute::Type type, 
+         *      VertexAttribute::Semantic semantic, size_t semanticIndex);
+         * @brief   更新顶点属性
+         * @param [in]  pos             更新对应位置的顶点属性.
+         * @param [in]  stream          数据流索引.
+         * @param [in]  offset          The offset.
+         * @param [in]  type            顶点数据类型.
+         * @param [in]  semantic        顶点语义解释.
+         * @param [in]  semanticIndex   语义索引.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult updateAttribute(size_t pos, size_t stream, 
             size_t offset, VertexAttribute::Type type, 
             VertexAttribute::Semantic semantic, size_t semanticIndex);
 
         /**
-         * @brief 根据语法解释查找对应顶点属性对象
-         * @param [in] semantic : 语法解释枚举
-         * @return 查找成功返回对应的顶点属性对象，失败返回nullptr
+         * @fn  virtual const VertexAttribute 
+         *      VertexDeclaration::*findAttributeBySemantic(
+         *      VertexAttribute::Semantic semantic, size_t semanticIndex) const;
+         * @brief   根据语义解释查找对应顶点属性对象
+         * @param [in]  semantic        语义解释枚举.
+         * @param [in]  semanticIndex   顶点语义索引.
+         * @returns 查找成功返回对应的顶点属性对象，失败返回nullptr.
          */
         virtual const VertexAttribute *findAttributeBySemantic(
             VertexAttribute::Semantic semantic, size_t semanticIndex) const;
          
         /**
-         * @brief 获取顶点字节大小
-         * @param [in] source : 数据流索引
-         * @return 返回字节大小
+         * @fn  virtual size_t VertexDeclaration::getVertexSize(
+         *      size_t source) const;
+         * @brief   获取顶点字节大小
+         * @param [in]  source  数据流索引.
+         * @returns 返回字节大小.
          */
         virtual size_t getVertexSize(size_t source) const;
 
         /**
-         * @brief 克隆一个顶点声明对象
-         * @return 返回一个新的顶点声明对象
-         * @remarks 具体的渲染系统子类需要实现该接口
+         * @fn  virtual VertexDeclarationPtr VertexDeclaration::clone() const;
+         * @brief   克隆一个顶点声明对象
+         * @returns 返回一个新的顶点声明对象.
+         * @remarks 具体的渲染系统子类需要实现该接口.
          */
         virtual VertexDeclarationPtr clone() const;
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  VertexDeclaration::VertexDeclaration(ShaderPtr vertexShader);
+         * @brief   构造函数
+         * @param [in]  vertexShader    对应的顶点着色器对象.
          */
         VertexDeclaration(ShaderPtr vertexShader);
 
+    protected:
         ShaderPtr       mVertexShader;      /**< 跟顶点声明关联的着色器对象 */
         VertexAttriList mVertexAttributes;  /**< 顶点属性列表 */
     };

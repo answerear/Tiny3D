@@ -28,10 +28,10 @@ namespace Tiny3D
 
     R3DHardwarePixelBufferPtr R3DHardwarePixelBuffer::create(size_t width,
         size_t height, PixelFormat format, const void *pixels, Usage usage, 
-        bool useSystemMemory, bool useShadowBuffer)
+        uint32_t mode)
     {
         R3DHardwarePixelBufferPtr pb = new R3DHardwarePixelBuffer(width, height,
-            format, pixels, usage, useSystemMemory, useShadowBuffer);
+            format, pixels, usage, mode);
         pb->release();
         return pb;
     }
@@ -39,10 +39,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     R3DHardwarePixelBuffer::R3DHardwarePixelBuffer(size_t width, size_t height, 
-        PixelFormat format, const void *pixels, Usage usage, 
-        bool useSystemMemory, bool useShadowBuffer)
-        : HardwarePixelBuffer(width, height, format, usage, useSystemMemory, 
-            useShadowBuffer)
+        PixelFormat format, const void *pixels, Usage usage, uint32_t mode)
+        : HardwarePixelBuffer(width, height, format, usage, mode)
         , mBuffer(nullptr)
         , mLockedBuffer(nullptr)
         , mNeedWriteBack(false)
@@ -78,14 +76,14 @@ namespace Tiny3D
 
             if (dstRect == nullptr)
             {
-                dst = (uint8_t *)lock(LockOptions::DISCARD);
+                dst = (uint8_t *)lock(LockOptions::WRITE_DISCARD);
                 dstPitch = mPitch;
                 rtDst = Rect(0, 0, mWidth - 1, mHeight - 1);
             }
             else
             {
                 rtDst = *dstRect;
-                dst = (uint8_t *)lock(rtDst, LockOptions::WRITE_ONLY, dstPitch);
+                dst = (uint8_t *)lock(rtDst, LockOptions::WRITE, dstPitch);
             }
 
             // 临时构造一个图像对象，用于复制数据
@@ -140,7 +138,7 @@ namespace Tiny3D
 
             if (srcRect == nullptr)
             {
-                src = (uint8_t *)lock(LockOptions::READ_ONLY);
+                src = (uint8_t *)lock(LockOptions::READ);
                 srcPitch = mPitch;
                 rtSrc = Rect(0, 0, mWidth - 1, mHeight - 1);
             }
@@ -195,9 +193,9 @@ namespace Tiny3D
 
         do 
         {
-            if (LockOptions::READ_ONLY == options)
+            if (LockOptions::READ == options)
             {
-                if (!(mUsage & Usage::E_HBU_WRITE_ONLY))
+                if (mUsage != Usage::STATIC)
                 {
                     ret = lockBuffer(rect, lockedPitch);
 

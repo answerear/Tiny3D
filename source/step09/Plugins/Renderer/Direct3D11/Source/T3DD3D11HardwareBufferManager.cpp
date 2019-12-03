@@ -56,41 +56,40 @@ namespace Tiny3D
 
     HardwareVertexBufferPtr D3D11HardwareBufferManager::createVertexBuffer(
         size_t vertexSize, size_t vertexCount, const void *vertices,
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        HardwareBuffer::Usage usage, uint32_t mode)
     {
         return D3D11HardwareVertexBuffer::create(vertexSize, vertexCount, 
-            vertices, usage, useSystemMemory, useShadowBuffer);
+            vertices, usage, mode);
     }
 
     //--------------------------------------------------------------------------
 
     HardwareIndexBufferPtr D3D11HardwareBufferManager::createIndexBuffer(
         HardwareIndexBuffer::Type indexType, size_t indexCount, 
-        const void *indices, HardwareBuffer::Usage usage, bool useSystemMemory, 
-        bool useShadowBuffer)
+        const void *indices, HardwareBuffer::Usage usage, uint32_t mode)
     {
         return D3D11HardwareIndexBuffer::create(indexType, indexCount, indices,
-            usage, useSystemMemory, useShadowBuffer);
+            usage, mode);
     }
 
     //--------------------------------------------------------------------------
 
     HardwarePixelBufferPtr D3D11HardwareBufferManager::createPixelBuffer(
         size_t width, size_t height, PixelFormat format, const void *pixels,
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        HardwareBuffer::Usage usage, uint32_t mode)
     {
         return D3D11HardwarePixelBuffer::create(width, height, format, pixels, 
-            usage, useSystemMemory, useShadowBuffer);
+            usage, mode);
     }
 
     //--------------------------------------------------------------------------
 
     HardwareConstantBufferPtr D3D11HardwareBufferManager::createConstantBuffer(
         size_t bufSize, const void *buffer,
-        HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer)
+        HardwareBuffer::Usage usage, uint32_t mode)
     {
         return D3D11HardwareConstantBuffer::create(bufSize, buffer, usage,
-            useSystemMemory, useShadowBuffer);
+            mode);
     }
 
     //--------------------------------------------------------------------------

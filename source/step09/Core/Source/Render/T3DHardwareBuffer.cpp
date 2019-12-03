@@ -25,31 +25,22 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    HardwareBuffer::HardwareBuffer(Usage usage, bool useSystemMemory, 
-        bool useShadowBuffer)
+    HardwareBuffer::HardwareBuffer(Usage usage, uint32_t mode)
         : mBufferSize(0)
         , mLockSize(0)
         , mLockOffset(0)
         , mUsage(usage)
-        , mUseSystemMemory(useSystemMemory)
-        , mUseShadowBuffer(useShadowBuffer)
+        , mAccessMode(mode)
         , mIsLocked(false)
-        , mIsShadowBufferDirty(false)
     {
-        if (useShadowBuffer && usage == Usage::E_HBU_DYNAMIC)
-        {
-            // 使用了影子缓存，则直接动态只读的硬件缓存，影子缓存用于提升其性能
-            mUsage = Usage::E_HBU_DYNAMIC_WRITE_ONLY;
-        }
-        else if (useShadowBuffer && usage == Usage::E_HBU_STATIC)
-        {
-            mUsage = Usage::E_HBU_STATIC_WRITE_ONLY;
-        }
+
     }
+
+    //--------------------------------------------------------------------------
 
     HardwareBuffer::~HardwareBuffer()
     {
-        mShadowBuffer = nullptr;
+
     }
 
     //--------------------------------------------------------------------------
@@ -60,36 +51,24 @@ namespace Tiny3D
 
         void *buffer = nullptr;
 
-        if ((offset + size) > mBufferSize)
+        do 
         {
-            // 越界了 :(
-        }
-        else if (mUseShadowBuffer)
-        {
-            if (options != LockOptions::READ_ONLY)
+            if (offset + size > mBufferSize)
             {
-                // 不是只读，那就可能会被改变，
-                // 等会解锁时用影子buffer更新硬件buffer
-                mIsShadowBufferDirty = true;
+                // 越界了 :(
+                break;
             }
 
-            buffer = mShadowBuffer->lock(offset, size, options);
-        }
-        else
-        {
-            // 没有影子buffer，调用实际锁接口
             buffer = lockImpl(offset, size, options);
-            if (buffer != nullptr)
+            if (buffer == nullptr)
             {
-                mIsLocked = true;
+                break;
             }
-        }
 
-        if (buffer != nullptr)
-        {
+            mIsLocked = true;
             mLockOffset = offset;
             mLockSize = size;
-        }
+        } while (0);
 
         return buffer;
     }
@@ -111,26 +90,15 @@ namespace Tiny3D
 
         do 
         {
-            if (mUseShadowBuffer && mShadowBuffer->isLocked())
+            ret = unlockImpl();
+            if (ret != T3D_OK)
             {
-                ret = mShadowBuffer->unlock();
-                if (ret != T3D_OK)
-                {
-                    break;
-                }
-
-                updateFromShadow();
+                break;
             }
-            else
-            {
-                ret = unlockImpl();
-                if (ret != T3D_OK)
-                {
-                    break;
-                }
 
-                mIsLocked = false;
-            }
+            mIsLocked = false;
+            mLockOffset = 0;
+            mLockSize = 0;
         } while (0);
 
         return ret;
@@ -142,70 +110,35 @@ namespace Tiny3D
         size_t srcOffset, size_t dstOffset, size_t size, 
         bool discardWholeBuffer /* = false */)
     {
-        if (srcBuffer == nullptr)
+        size_t len = 0;
+
+        do 
         {
-            T3D_LOG_ERROR(LOG_TAG_RENDER, 
-                "Copy data failed ! Source buffer is nullptr !");
-            return 0;
-        }
+            if (srcBuffer == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "Copy data failed ! Source buffer is nullptr !");
+                break;
+            }
 
-        size_t s = 0;
+            const void *src = srcBuffer->lock(srcOffset, size,
+                LockOptions::READ);
+            if (src != nullptr)
+            {
+                len = writeData(dstOffset, size, src, discardWholeBuffer);
+                srcBuffer->unlock();
+            }
+        } while (0);
 
-        const void *src = srcBuffer->lock(srcOffset, size, 
-            LockOptions::READ_ONLY);
-        if (src != nullptr)
-        {
-            s = writeData(dstOffset, size, src, discardWholeBuffer);
-            srcBuffer->unlock();
-        }
-
-        return s;
+        return len;
     }
+
+    //--------------------------------------------------------------------------
 
     size_t HardwareBuffer::copyData(HardwareBufferPtr srcBuffer)
     {
         size_t size = std::min(getBufferSize(), srcBuffer->getBufferSize());
         return copyData(srcBuffer, 0, 0, size, true);
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult HardwareBuffer::updateFromShadow()
-    {
-        TResult ret = T3D_OK;
-
-        if (mUseShadowBuffer && mIsShadowBufferDirty)
-        {
-            const void *src = mShadowBuffer->lock(mLockOffset, mLockSize, 
-                LockOptions::READ_ONLY);
-
-            if (src != nullptr)
-            {
-                LockOptions options;
-
-                if (mLockOffset == 0 && mLockSize == mBufferSize)
-                {
-                    options = LockOptions::DISCARD;
-                }
-                else
-                {
-                    options = LockOptions::NORMAL;
-                }
-
-                void *dst = lockImpl(mLockOffset, mLockSize, options);
-
-                if (dst != nullptr)
-                {
-                    memcpy(dst, src, mLockSize);
-                    ret = unlockImpl();
-                }
-
-                ret = mShadowBuffer->unlock();
-                mIsShadowBufferDirty = false;
-            }
-        }
-
-        return ret;
     }
 }
 
