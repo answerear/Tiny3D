@@ -109,21 +109,139 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    D3D11_USAGE D3D11Mappings::get(HardwareBuffer::Usage usage)
+    TResult D3D11Mappings::get(HardwareBuffer::Usage usage, uint32_t mode, 
+        D3D11_USAGE &d3dUsage, uint32_t &d3dAccessFlag)
     {
-        D3D11_USAGE d3dusage;
+        TResult ret = T3D_OK;
 
-        switch (usage)
+        do 
         {
-        case HardwareBuffer::Usage::STATIC:
-            d3dusage = D3D11_USAGE_IMMUTABLE;
+            switch (usage)
+            {
+            case HardwareBuffer::Usage::STATIC:
+                {
+                    if (mode == HardwareBuffer::AccessMode::CPU_NONE)
+                    {
+                        // 静态缓冲，CPU不可读写，只能初始化时候设置数据
+                        d3dUsage = D3D11_USAGE_IMMUTABLE;
+                        d3dAccessFlag = 0;
+                    }
+                    else if (mode == HardwareBuffer::AccessMode::CPU_WRITE)
+                    {
+                        d3dUsage = D3D11_USAGE_DEFAULT;
+                        d3dAccessFlag = D3D11_CPU_ACCESS_WRITE;
+                    }
+                    else
+                    {
+                        // 其他 CPU 访问标签在这里都是非法
+                        ret = T3D_ERR_INVALID_PARAM;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                            "Usage is STATIC, so access mode must be CPU_NONE "
+                            "or CPU_WRITE !");
+                    }
+                }
+                break;
+            case HardwareBuffer::Usage::DYNAMIC:
+            case HardwareBuffer::Usage::STREAM:
+                {
+                    if (mode == HardwareBuffer::AccessMode::CPU_NONE)
+                    {
+                        // CPU不读也不写，这里建议使用STATIC性能更好
+                        d3dUsage = D3D11_USAGE_DEFAULT;
+                        d3dAccessFlag = 0;
+                        T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER,
+                            "Usage is DYNAMIC, but CPU access mode is CPU_NONE."
+                            " Here suggests STATIC instead of DYNAMIC !");
+                    }
+                    else if ((mode == (HardwareBuffer::AccessMode::CPU_READ
+                        | HardwareBuffer::AccessMode::CPU_WRITE)))
+                    {
+                        // CPU读写，GPU读写
+                        d3dUsage = D3D11_USAGE_STAGING;
+                        d3dAccessFlag
+                            = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+                    }
+                    else if (mode == HardwareBuffer::AccessMode::CPU_READ)
+                    {
+                        // CPU读，GPU读写
+                        d3dUsage = D3D11_USAGE_STAGING;
+                        d3dAccessFlag = D3D11_CPU_ACCESS_READ;
+                    }
+                    else if (mode == HardwareBuffer::AccessMode::CPU_WRITE)
+                    {
+                        // CPU写，GPU读
+                        d3dUsage = D3D11_USAGE_DYNAMIC;
+                        d3dAccessFlag = D3D11_CPU_ACCESS_WRITE;
+                    }
+                    else if (mode == HardwareBuffer::AccessMode::GPU_COPY)
+                    {
+                        // CPU读写，GPU读写
+                        d3dUsage = D3D11_USAGE_STAGING;
+                        d3dAccessFlag 
+                            = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+                    }
+                    else
+                    {
+                        // 无效 CPU 访问方式参数
+                        ret = T3D_ERR_INVALID_PARAM;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                            "Invalid CPU access mode parameter !");
+                    }
+                }
+                break;
+            default:
+                {
+                    ret = T3D_ERR_INVALID_PARAM;
+                }
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11_MAP D3D11Mappings::get(HardwareBuffer::LockOptions options)
+    {
+        D3D11_MAP d3dOpt = D3D11_MAP_READ;
+
+        switch (options)
+        {
+        case HardwareBuffer::LockOptions::READ:
+            {
+                d3dOpt = D3D11_MAP_READ;
+            }
             break;
-        case HardwareBuffer::Usage::DYNAMIC:
-            d3dusage = D3D11_USAGE_DYNAMIC;
+        case HardwareBuffer::LockOptions::WRITE:
+            {
+                d3dOpt = D3D11_MAP_WRITE;
+            }
+            break;
+        case HardwareBuffer::LockOptions::READ_WRITE:
+            {
+                d3dOpt = D3D11_MAP_READ_WRITE;
+            }
+            break;
+        case HardwareBuffer::LockOptions::WRITE_DISCARD:
+            {
+                d3dOpt = D3D11_MAP_WRITE_DISCARD;
+            }
+            break;
+        case HardwareBuffer::LockOptions::WRITE_NO_OVERWRITE:
+            {
+                d3dOpt = D3D11_MAP_WRITE_NO_OVERWRITE;
+            }
+            break;
+        default:
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Invalid LockOptions !");
+            }
             break;
         }
 
-        return d3dusage;
+        return d3dOpt;
     }
 }
 

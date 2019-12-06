@@ -35,7 +35,10 @@ namespace Tiny3D
     {
     public:
         /**
-         * @fn  static D3D11HardwareIndexBufferPtr D3D11HardwareIndexBuffer::create(Type indexType, size_t indexCount, const void *indices, HardwareBuffer::Usage usage, uint32_t mode);
+         * @fn  static D3D11HardwareIndexBufferPtr 
+         *      D3D11HardwareIndexBuffer::create(Type indexType, 
+         *      size_t indexCount, const void *indices, 
+         *      HardwareBuffer::Usage usage, uint32_t mode);
          * @brief   创建 Direct3D9 渲染器相关的索引缓冲区对象
          * @param [in]  indexType   索引类型.
          * @param [in]  indexCount  索引数量.
@@ -129,6 +132,7 @@ namespace Tiny3D
         virtual TResult unlockImpl() override;
 
     protected:
+        D3D11HardwareBufferPtr  mBufferImpl;    /**< D3D11 Buffer 具体实现 */
     };
 }
 

@@ -89,7 +89,7 @@ namespace Tiny3D
                         Error : %d", getName().c_str(), hr);
                     break;
                 }
-            }            
+            }
         } while (0);
 
         return ret;

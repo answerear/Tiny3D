@@ -53,6 +53,7 @@ namespace Tiny3D
          */
         enum AccessMode : uint32_t
         {
+            CPU_NONE = 0,           /**< CPU 不访问 */
             CPU_WRITE = (1 << 0),   /**< CPU寫數據，GPU讀數據 */
             CPU_READ = (1 << 1),    /**< CPU讀數據，GPU寫數據 */
             GPU_COPY = (1 << 2)     /**< 從GPU讀數據，作為另一个GPU操作數據源 */

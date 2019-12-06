@@ -1,0 +1,321 @@
+﻿/***********************************************D3D11HardwareBuffer********************************
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * Copyright (C) 2015-2019  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
+
+#include "T3DD3D11HardwareBuffer.h"
+#include "T3DD3D11Renderer.h"
+#include "T3DD3D11Mappings.h"
+#include "T3DD3D11Error.h"
+
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    D3D11HardwareBufferPtr D3D11HardwareBuffer::create(BufferType type, 
+        size_t dataSize, const void *data, Usage usage, uint32_t mode)
+    {
+        D3D11HardwareBufferPtr vb 
+            = new D3D11HardwareBuffer(usage, mode);
+        vb->release();
+        if (vb->init(type, dataSize, data) != T3D_OK)
+        {
+            vb = nullptr;
+        }
+        return vb;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11HardwareBuffer::D3D11HardwareBuffer(Usage usage, 
+        uint32_t mode)
+        : HardwareBuffer(usage, mode)
+        , mD3DBuffer(nullptr)
+        , mStageBuffer(nullptr)
+    {
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11HardwareBuffer::~D3D11HardwareBuffer()
+    {
+        D3D_SAFE_RELEASE(mD3DBuffer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11HardwareBuffer::init(BufferType type, size_t dataSize, 
+        const void *data)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            D3D11_USAGE d3dUsage;
+            uint32_t d3dAccess = 0;
+
+            ret = D3D11Mappings::get(mUsage, mAccessMode, d3dUsage, d3dAccess);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            // 初始化数据
+            D3D11_SUBRESOURCE_DATA d3dData;
+            memset(&d3dData, 0, sizeof(d3dData));
+
+            if (data != nullptr)
+            {
+                d3dData.pSysMem = data;
+            }
+
+            uint32_t bindFlags = D3D11_BIND_VERTEX_BUFFER;
+            switch (type)
+            {
+            case BufferType::VERTEX:
+                bindFlags = D3D11_BIND_VERTEX_BUFFER;
+                break;
+            case BufferType::INDEX:
+                bindFlags = D3D11_BIND_INDEX_BUFFER;
+                break;
+            case BufferType::CONSTANT:
+                bindFlags = D3D11_BIND_CONSTANT_BUFFER;
+                break;
+            default:
+                {
+                    ret = T3D_ERR_INVALID_PARAM;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                        "Invalid buffer type for D3D11HardwareBuffer !");
+                }
+                break;
+            }
+
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            if (mUsage == Usage::STREAM)
+                bindFlags |= D3D11_BIND_STREAM_OUTPUT;
+
+            // 创建 ID3D11Buffer
+            D3D11_BUFFER_DESC desc;
+            memset(&desc, 0, sizeof(desc));
+            desc.Usage = d3dUsage;
+            desc.ByteWidth = (UINT)mBufferSize;
+            desc.BindFlags = bindFlags;
+            desc.CPUAccessFlags = d3dAccess;
+
+            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+            HRESULT hr = S_OK;
+            hr = pD3DDevice->CreateBuffer(&desc, &d3dData, &mD3DBuffer);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CREATE_BUFFER;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
+                    "Create vertex buffer failed ! DX ERROR [%d]", hr);
+                break;
+            }
+
+            if (d3dUsage == D3D11_USAGE_DEFAULT
+                && d3dAccess == D3D11_CPU_ACCESS_WRITE)
+            {
+                // 需要借助 stage 缓冲区更新 default 缓冲区
+                mStageBuffer = D3D11HardwareBuffer::create(type, dataSize, data,
+                    Usage::STREAM, AccessMode::GPU_COPY);
+
+                if (mStageBuffer == nullptr)
+                {
+                    // 出错了，没有创建出来 :(
+                    ret = T3D_ERR_D3D11_CREATE_BUFFER;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                        "Create staging buffer for default updating failed !");
+                    break;
+                }
+            }
+        } while (0);
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t D3D11HardwareBuffer::readData(size_t offset, size_t size,
+        void *dst)
+    {
+        size_t bytesOfRead = 0;
+
+        do 
+        {
+            // 锁定 GPU 缓冲区，准备读数据
+            void *src = lock(offset, size, LockOptions::READ);
+            if (src == nullptr)
+            {
+                // 出错了:(
+                break;
+            }
+
+            // 读数据
+            memcpy(dst, src, size);
+            bytesOfRead = size;
+
+            // 解锁，把访问权还给 GPU
+            unlock();
+        } while (0);
+
+        return bytesOfRead;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t D3D11HardwareBuffer::writeData(size_t offset, size_t size,
+        const void *src, bool discardWholeBuffer /* = false */)
+    {
+        size_t bytesOfWritten = 0;
+
+        do 
+        {
+            // 锁定 GPU 缓冲区，准备写数据
+            void *dst = lock(offset, size, discardWholeBuffer 
+                ? LockOptions::WRITE_DISCARD : LockOptions::WRITE_NO_OVERWRITE);
+            if (dst == nullptr)
+            {
+                //  出错了:(
+                break;
+            }
+
+            // 写数据
+            memcpy(dst, src, size);
+            bytesOfWritten = size;
+
+            // 解锁，把访问权还给 GPU
+            unlock();
+        } while (0);
+
+        return bytesOfWritten;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void *D3D11HardwareBuffer::lockImpl(size_t offset, size_t size,
+        LockOptions options)
+    {
+        char *pLockedData = nullptr;
+
+        do 
+        {
+            TResult ret = checkLockOptions(options);
+            if (ret != T3D_OK)
+            {
+                break;
+            }
+
+            uint32_t d3dMap = D3D11Mappings::get(options);
+
+            if (mStageBuffer != nullptr)
+            {
+                // 提供 Stage Buffer 出来给操作，解锁时再 copy 回去 Default
+                // 
+            }
+            else
+            {
+
+            }
+        } while (0);
+
+        return pLockedData;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11HardwareBuffer::unlockImpl()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11HardwareBuffer::checkLockOptions(LockOptions options)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (mUsage == Usage::STATIC)
+            {
+                // 静态缓冲
+                // 1. CPU 不读写
+                // 2. CPU 只写
+                if (mAccessMode == AccessMode::CPU_WRITE
+                    && (options == LockOptions::WRITE
+                        || options == LockOptions::WRITE_DISCARD
+                        || options == LockOptions::WRITE_NO_OVERWRITE))
+                {
+                    // CPU 只写
+                    break;
+                }
+                else
+                {
+                    ret = T3D_ERR_INVALID_PARAM;
+                }
+            }
+            else if (mUsage == Usage::DYNAMIC || mUsage == Usage::STREAM)
+            {
+                // 动态缓冲
+                // 1. CPU 不读写
+                // 2. CPU 读写
+                // 3. CPU 只写
+                // 4. CPU 只读
+                // 4. GPU之间传送数据
+                if ((mAccessMode == (AccessMode::CPU_READ | AccessMode::CPU_WRITE))
+                    || (mAccessMode == AccessMode::CPU_WRITE)
+                    || (mAccessMode == AccessMode::CPU_READ)
+                    || (mAccessMode == AccessMode::GPU_COPY))
+                {
+                    // CPU 读写
+                    // CPU 只写
+                    // CPU 只读
+                    // GPU之间传送数据
+                    break;
+                }
+                else
+                {
+                    ret = T3D_ERR_INVALID_PARAM;
+                }
+            }
+            else
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+            }
+
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                "Usage [%d], AccessMode [%d] and LockOptions isn't "
+                "correspondent with LockOptions [%d]!",
+                mUsage, mAccessMode, options);
+        } while (0);
+
+        return ret;
+    }
+}

@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_HARDWARE_VERTEX_BUFFER_H__
-#define __T3D_D3D11_HARDWARE_VERTEX_BUFFER_H__
+#ifndef __T3D_D3D11_HARDWARE_BUFFER_H__
+#define __T3D_D3D11_HARDWARE_BUFFER_H__
 
 
 #include "T3DD3D11Prerequisites.h"
@@ -28,34 +28,43 @@
 namespace Tiny3D
 {
     /**
-     * @class   D3D11HardwareVertexBuffer
-     * @brief   DirectX 11 渲染器相關的頂點緩沖類
+     * @class   D3D11HardwareBuffer
+     * @brief   DirectX 11 渲染器相關的緩沖類
      */
-    class D3D11HardwareVertexBuffer : public HardwareVertexBuffer
+    class D3D11HardwareBuffer : public HardwareBuffer
     {
     public:
         /**
-         * @fn  static D3D11HardwareVertexBufferPtr
-         *      D3D11HardwareVertexBuffer::create(size_t vertexSize,
-         *      size_t vertexCount, const void *vertices, Usage usage,
+         * @enum    BufferType
+         * @brief   缓冲区类型
+         */
+        enum class BufferType : uint32_t
+        {
+            VERTEX = 0,  /**< 顶点缓冲区 */
+            INDEX,       /**< 索引缓冲区 */
+            CONSTANT,    /**< 常量缓冲区 */
+        };
+
+        /**
+         * @fn  static D3D11HardwareBufferPtr D3D11HardwareBuffer::create(
+         *      BufferType type, size_t dataSize, const void *data, Usage usage, 
          *      uint32_t mode);
          * @brief   創建 DirectX 11 渲染器相關的頂點緩沖對象
-         * @param [in]  vertexSize  頂點字節數大小.
-         * @param [in]  vertexCount 頂點數量.
-         * @param [in]  vertices    頂點數據.
+         * @param [in]  type        缓冲区类型.
+         * @param [in]  dataSize    数据大小.
+         * @param [in]  data        缓冲区初始化用的数据.
          * @param [in]  usage       緩沖區用法.
          * @param [in]  mode        緩沖區訪問方式.
-         * @returns 返回一個 DirectX 11 頂點緩沖區對象.
+         * @returns 返回一個 DirectX 11 緩沖區對象.
          */
-        static D3D11HardwareVertexBufferPtr create(size_t vertexSize,
-            size_t vertexCount, const void *vertices, Usage usage,
-            uint32_t mode);
+        static D3D11HardwareBufferPtr create(BufferType type, size_t dataSize, 
+            const void *data, Usage usage, uint32_t mode);
 
         /**
          * @fn  virtual D3D11HardwareVertexBuffer::~D3D11HardwareVertexBuffer();
          * @brief   析構函數
          */
-        virtual ~D3D11HardwareVertexBuffer();
+        virtual ~D3D11HardwareBuffer();
 
         /**
          * @fn  virtual size_t D3D11HardwareVertexBuffer::readData(
@@ -86,29 +95,6 @@ namespace Tiny3D
         virtual size_t writeData(size_t offset, size_t size, const void *src,
             bool discardWholeBuffer = false) override;
 
-    protected:
-        /**
-         * @fn  D3D11HardwareVertexBuffer::D3D11HardwareVertexBuffer(
-         *      size_t vertexSize, size_t vertexCount, Usage usage,
-         *      uint32_t mode);
-         * @brief   構造函數
-         * @param [in]  vertexSize  頂點字節數大小.
-         * @param [in]  vertexCount 頂點數量.
-         * @param [in]  usage       緩沖區用法.
-         * @param [in]  mode        緩沖區訪問方式.
-         */
-        D3D11HardwareVertexBuffer(size_t vertexSize, size_t vertexCount,
-            Usage usage, uint32_t mode);
-
-        /**
-         * @fn  virtual TResult D3D11HardwareVertexBuffer::init(
-         *      const void *vertices);
-         * @brief   初始化對象
-         * @param [in]  vertices    頂點數據.
-         * @returns 調用成功返回 T3D_OK.
-         */
-        virtual TResult init(const void *vertices);
-
         /**
          * @fn  virtual void D3D11HardwareVertexBuffer::*lockImpl(size_t offset,
          *      size_t size, LockOptions options) override;
@@ -132,10 +118,40 @@ namespace Tiny3D
         virtual TResult unlockImpl() override;
 
     protected:
-        D3D11HardwareBufferPtr  mBufferImpl;    /**< D3D11 Buffer 具体实现 */
+        /**
+         * @fn  D3D11HardwareBuffer::D3D11HardwareBuffer(size_t bufSize, 
+         *      Usage usage, uint32_t mode);
+         * @brief   構造函數
+         * @param [in]  usage   緩沖區用法.
+         * @param [in]  mode    緩沖區訪問方式.
+         */
+        D3D11HardwareBuffer(Usage usage, uint32_t mode);
+
+        /**
+         * @fn  virtual TResult D3D11HardwareBuffer::init(BufferType type, 
+         *      size_t dataSize, const void *data);
+         * @brief   初始化對象
+         * @param [in]  type        缓冲区类型.
+         * @param [in]  dataSize    数据大小.
+         * @param [in]  data        缓冲区數據.
+         * @returns 調用成功返回 T3D_OK.
+         */
+        virtual TResult init(BufferType type, size_t dataSize, const void *data);
+
+        /**
+         * @fn  TResult D3D11HardwareBuffer::check(LockOptions opt);
+         * @brief   检查缓冲区使用方式、访问方式和锁定方式是否一致
+         * @param [in]  options 锁定选项.
+         * @returns 三者一致返回 T3D_OK.
+         */
+        TResult checkLockOptions(LockOptions options);
+
+    protected:
+        ID3D11Buffer            *mD3DBuffer;    /**< D3D11 緩沖區對象 */
+        D3D11HardwareBufferPtr  mStageBuffer;   /**< 给 D3D11_USAGE_DEFAULT 更新用 */
     };
 }
 
 
-#endif  /*__T3D_D3D11_HARDWARE_VERTEX_BUFFER_H__*/
+#endif  /*__T3D_D3D11_HARDWARE_BUFFER_H__*/
 

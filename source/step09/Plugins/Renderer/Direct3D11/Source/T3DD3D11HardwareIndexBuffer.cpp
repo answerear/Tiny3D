@@ -19,6 +19,7 @@
 
 
 #include "T3DD3D11HardwareIndexBuffer.h"
+#include "T3DD3D11HardwareBuffer.h"
 #include "T3DD3D11Mappings.h"
 #include "T3DD3D11Renderer.h"
 

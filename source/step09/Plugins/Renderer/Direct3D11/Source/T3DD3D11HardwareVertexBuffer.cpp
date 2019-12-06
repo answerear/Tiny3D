@@ -19,8 +19,7 @@
 
 
 #include "T3DD3D11HardwareVertexBuffer.h"
-#include "T3DD3D11Renderer.h"
-#include "T3DD3D11Mappings.h"
+#include "T3DD3D11HardwareBuffer.h"
 #include "T3DD3D11Error.h"
 
 
@@ -47,7 +46,7 @@ namespace Tiny3D
     D3D11HardwareVertexBuffer::D3D11HardwareVertexBuffer(size_t vertexSize,
         size_t vertexCount, Usage usage, uint32_t mode)
         : HardwareVertexBuffer(vertexSize, vertexCount, usage, mode)
-        , mD3DBuffer(nullptr)
+        , mBufferImpl(nullptr)
     {
     }
 
@@ -55,45 +54,24 @@ namespace Tiny3D
 
     D3D11HardwareVertexBuffer::~D3D11HardwareVertexBuffer()
     {
-        D3D_SAFE_RELEASE(mD3DBuffer);
+        mBufferImpl = nullptr;
     }
 
     //--------------------------------------------------------------------------
 
     TResult D3D11HardwareVertexBuffer::init(const void *vertices)
     {
-        TResult ret = T3D_ERR_FAIL;
+        TResult ret = T3D_OK;
 
         do 
         {
-            // 初始化数据
-            D3D11_SUBRESOURCE_DATA data;
-            memset(&data, 0, sizeof(data));
-
-            if (vertices != nullptr)
+            mBufferImpl = D3D11HardwareBuffer::create(
+                D3D11HardwareBuffer::BufferType::VERTEX, mBufferSize, vertices,
+                mUsage, mAccessMode);
+            if (mBufferImpl == nullptr)
             {
-                data.pSysMem = vertices;
-            }            
-
-            D3D11_BUFFER_DESC desc;
-            memset(&desc, 0, sizeof(desc));
-            desc.Usage;
-            desc.ByteWidth = (uint32_t)mVertexSize;
-            desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-            desc.CPUAccessFlags = 0;
-
-            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
-            HRESULT hr = S_OK;
-            hr = pD3DDevice->CreateBuffer(&desc, &data, &mD3DBuffer);
-            if (FAILED(hr))
-            {
-                ret = T3D_ERR_D3D11_CREATE_BUFFER;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create vertex buffer \
-                    failed ! DX ERROR [%d]", hr);
                 break;
             }
-
-            ret = T3D_OK;
         } while (0);
         return ret;
     }
@@ -103,24 +81,9 @@ namespace Tiny3D
     size_t D3D11HardwareVertexBuffer::readData(size_t offset, size_t size,
         void *dst)
     {
-        size_t bytesOfRead = 0;
-
-        do 
-        {
-            void *src = lock(offset, size, LockOptions::READ);
-
-            if (src == nullptr)
-            {
-                break;
-            }
-
-            memcpy(dst, src, size);
-            bytesOfRead = size;
-
-            unlock();
-        } while (0);
-
-        return bytesOfRead;
+        if (mBufferImpl == nullptr)
+            return 0;
+        return mBufferImpl->readData(offset, size, dst);
     }
 
     //--------------------------------------------------------------------------
@@ -128,25 +91,9 @@ namespace Tiny3D
     size_t D3D11HardwareVertexBuffer::writeData(size_t offset, size_t size,
         const void *src, bool discardWholeBuffer /* = false */)
     {
-        size_t bytesOfWritten = 0;
-
-        do 
-        {
-            void *dst = lock(offset, size, discardWholeBuffer 
-                ? LockOptions::WRITE_DISCARD : LockOptions::WRITE);
-
-            if (dst == nullptr)
-            {
-                break;
-            }
-
-            memcpy(dst, src, size);
-            bytesOfWritten = size;
-
-            unlock();
-        } while (0);
-
-        return bytesOfWritten;
+        if (mBufferImpl == nullptr)
+            return 0;
+        return mBufferImpl->writeData(offset, size, src, discardWholeBuffer);
     }
 
     //--------------------------------------------------------------------------
@@ -154,27 +101,17 @@ namespace Tiny3D
     void *D3D11HardwareVertexBuffer::lockImpl(size_t offset, size_t size,
         LockOptions options)
     {
-        char *pLockedData = nullptr;
-
-        do 
-        {
-            
-        } while (0);
-
-        return pLockedData;
+        if (mBufferImpl == nullptr)
+            return nullptr;
+        return mBufferImpl->lockImpl(offset, size, options);
     }
 
     //--------------------------------------------------------------------------
 
     TResult D3D11HardwareVertexBuffer::unlockImpl()
     {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            
-        } while (0);
-
-        return ret;
+        if (mBufferImpl == nullptr)
+            return T3D_ERR_D3D11_CREATE_BUFFER;
+        return mBufferImpl->unlockImpl();
     }
 }

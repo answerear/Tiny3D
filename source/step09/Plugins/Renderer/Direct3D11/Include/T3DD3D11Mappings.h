@@ -28,24 +28,61 @@
 namespace Tiny3D
 {
     /**
-     * @brief Tiny3D 和 DirectX 11 之间常量的映射转换
+     * @class   D3D11Mappings
+     * @brief   Tiny3D 和 DirectX 11 之间常量的映射转换
      */
     class D3D11Mappings
     {
     public:
-        static const char * const POSITION;
-        static const char * const BLENDWEIGHT;
-        static const char * const BLENDINDICES;
-        static const char * const NORMAL;
-        static const char * const COLOR;
-        static const char * const TEXCOORD;
-        static const char * const TANGENT;
-        static const char * const BINORMAL;
+        static const char * const POSITION;     /**< The position */
+        static const char * const BLENDWEIGHT;  /**< The blendweight */
+        static const char * const BLENDINDICES; /**< The blendindices */
+        static const char * const NORMAL;       /**< The normal */
+        static const char * const COLOR;        /**< The color */
+        static const char * const TEXCOORD;     /**< The texcoord */
+        static const char * const TANGENT;      /**< The tangent */
+        static const char * const BINORMAL;     /**< The binormal */
 
+        /**
+         * @fn  static const char D3D11Mappings::*get(
+         *      VertexAttribute::Semantic semantic);
+         * @brief   把 Tiny3D 的语义定义转换成 D3D11 的语义名称
+         * @param [in]  semantic    Tiny3D 语义.
+         * @returns 调用成功返回 D3D11 对应的语义名称.
+         * @sa  enum class VertexAttribute::Semantic
+         */
         static const char *get(VertexAttribute::Semantic semantic);
-        static DXGI_FORMAT get(VertexAttribute::Type type);
-        static D3D11_USAGE get(HardwareBuffer::Usage usage);
 
+        /**
+         * @fn  static DXGI_FORMAT D3D11Mappings::get(
+         *      VertexAttribute::Type type);
+         * @brief   把 Tiny3D 的顶点数据类型转换成 D3D11 的顶点数据类型
+         * @param [in]  type    Tiny3D 顶点数据类型.
+         * @returns 调用成功返回 D3D11 对应的顶点数据类型.
+         * @sa  enum class VertexAttribute::Type
+         */
+        static DXGI_FORMAT get(VertexAttribute::Type type);
+
+        /**
+         * @fn  static TResult D3D11Mappings::get(HardwareBuffer::Usage usage, 
+         *      uint32_t mode, D3D11_USAGE &d3dUsage, uint32_t &d3dAccessFlag);
+         * @brief   把 Tiny3D 的缓冲区用法和CPU访问权限转换成 D3D11 对应的值
+         * @param [in]      usage           Tiny3D 的用法.
+         * @param [in]      mode            Tiny3D 的访问方式.
+         * @param [in, out] d3dUsage        返回的 D3D11 的用法.
+         * @param [in, out] d3dAccessFlag   返回的 D3D11 的访问方式.
+         * @returns 调用成功返回 T3D_OK.
+         */
+        static TResult get(HardwareBuffer::Usage usage, uint32_t mode,
+            D3D11_USAGE &d3dUsage, uint32_t &d3dAccessFlag);
+        /**
+         * @fn  static D3D11_MAP D3D11Mappings::get(
+         *      HardwareBuffer::LockOptions options);
+         * @brief   把 Tiny3D 映射缓冲区标签转换成 D3D11 对应的值
+         * @param [in]  options Tiny3D 锁定标签.
+         * @returns 返回 D3D11 对应的映射标签.
+         */
+        static D3D11_MAP get(HardwareBuffer::LockOptions options);
     };
 }
 
