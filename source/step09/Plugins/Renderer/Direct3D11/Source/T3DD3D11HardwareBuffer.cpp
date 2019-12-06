@@ -29,16 +29,17 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     D3D11HardwareBufferPtr D3D11HardwareBuffer::create(BufferType type, 
-        size_t dataSize, const void *data, Usage usage, uint32_t mode)
+        size_t dataSize, const void *data, Usage usage, uint32_t mode, 
+        bool streamOut)
     {
-        D3D11HardwareBufferPtr vb 
+        D3D11HardwareBufferPtr buffer 
             = new D3D11HardwareBuffer(usage, mode);
-        vb->release();
-        if (vb->init(type, dataSize, data) != T3D_OK)
+        buffer->release();
+        if (buffer->init(type, dataSize, data, streamOut) != T3D_OK)
         {
-            vb = nullptr;
+            buffer = nullptr;
         }
-        return vb;
+        return buffer;
     }
 
     //--------------------------------------------------------------------------
@@ -61,7 +62,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult D3D11HardwareBuffer::init(BufferType type, size_t dataSize, 
-        const void *data)
+        const void *data, bool streamOut)
     {
         TResult ret = T3D_OK;
 
@@ -85,25 +86,29 @@ namespace Tiny3D
                 d3dData.pSysMem = data;
             }
 
-            uint32_t bindFlags = D3D11_BIND_VERTEX_BUFFER;
-            switch (type)
+            uint32_t bindFlags = 0;
+
+            if (d3dUsage != D3D11_USAGE_STAGING)
             {
-            case BufferType::VERTEX:
-                bindFlags = D3D11_BIND_VERTEX_BUFFER;
-                break;
-            case BufferType::INDEX:
-                bindFlags = D3D11_BIND_INDEX_BUFFER;
-                break;
-            case BufferType::CONSTANT:
-                bindFlags = D3D11_BIND_CONSTANT_BUFFER;
-                break;
-            default:
+                switch (type)
                 {
-                    ret = T3D_ERR_INVALID_PARAM;
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-                        "Invalid buffer type for D3D11HardwareBuffer !");
+                case BufferType::VERTEX:
+                    bindFlags = D3D11_BIND_VERTEX_BUFFER;
+                    break;
+                case BufferType::INDEX:
+                    bindFlags = D3D11_BIND_INDEX_BUFFER;
+                    break;
+                case BufferType::CONSTANT:
+                    bindFlags = D3D11_BIND_CONSTANT_BUFFER;
+                    break;
+                default:
+                    {
+                        ret = T3D_ERR_INVALID_PARAM;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                            "Invalid buffer type for D3D11HardwareBuffer !");
+                    }
+                    break;
                 }
-                break;
             }
 
             if (ret != T3D_OK)
@@ -111,14 +116,14 @@ namespace Tiny3D
                 break;
             }
 
-            if (mUsage == Usage::STREAM)
+            if (streamOut)
                 bindFlags |= D3D11_BIND_STREAM_OUTPUT;
 
             // 创建 ID3D11Buffer
             D3D11_BUFFER_DESC desc;
             memset(&desc, 0, sizeof(desc));
             desc.Usage = d3dUsage;
-            desc.ByteWidth = (UINT)mBufferSize;
+            desc.ByteWidth = (UINT)dataSize;
             desc.BindFlags = bindFlags;
             desc.CPUAccessFlags = d3dAccess;
 
@@ -129,16 +134,16 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_D3D11_CREATE_BUFFER;
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
-                    "Create vertex buffer failed ! DX ERROR [%d]", hr);
+                    "Create ID3DBuffer object failed ! DX ERROR [%d]", hr);
                 break;
             }
 
-            if (d3dUsage == D3D11_USAGE_DEFAULT
-                && d3dAccess == D3D11_CPU_ACCESS_WRITE)
+            if (mUsage == Usage::STATIC
+                && mAccessMode == AccessMode::CPU_WRITE)
             {
                 // 需要借助 stage 缓冲区更新 default 缓冲区
                 mStageBuffer = D3D11HardwareBuffer::create(type, dataSize, data,
-                    Usage::STREAM, AccessMode::GPU_COPY);
+                    Usage::STREAM, AccessMode::GPU_COPY, streamOut);
 
                 if (mStageBuffer == nullptr)
                 {
@@ -149,6 +154,8 @@ namespace Tiny3D
                     break;
                 }
             }
+
+            mBufferSize = dataSize;
         } while (0);
         return ret;
     }
@@ -212,10 +219,48 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    size_t D3D11HardwareBuffer::copyData(HardwareBufferPtr srcBuffer, 
+        size_t srcOffset, size_t dstOffset, size_t size, 
+        bool discardWholeBuffer)
+    {
+        size_t sizeOfCopied = 0;
+
+        if (srcOffset == 0 && dstOffset == 0
+            && size == mBufferSize && mBufferSize == srcBuffer->getBufferSize())
+        {
+            ID3D11DeviceContext *pContext = D3D11_RENDERER.getD3DDeviceContext();
+            D3D11HardwareBufferPtr src 
+                = smart_pointer_cast<D3D11HardwareBuffer>(srcBuffer);
+            pContext->CopyResource(mD3DBuffer, src->getD3DBuffer());
+            sizeOfCopied = size;
+        }
+        else
+        {
+            D3D11_BOX srcBox;
+            srcBox.left = (UINT)srcOffset;
+            srcBox.right = (UINT)(srcOffset + size);
+            srcBox.top = 0;
+            srcBox.bottom = 0;
+            srcBox.front = 0;
+            srcBox.back = 1;
+
+            ID3D11DeviceContext *pContext = D3D11_RENDERER.getD3DDeviceContext();
+            D3D11HardwareBufferPtr src
+                = smart_pointer_cast<D3D11HardwareBuffer>(srcBuffer);
+            pContext->CopySubresourceRegion(mD3DBuffer, 0, (UINT)dstOffset, 0, 0,
+                src->getD3DBuffer(), 0, &srcBox);
+            sizeOfCopied = size;
+        }
+
+        return sizeOfCopied;
+    }
+
+    //--------------------------------------------------------------------------
+
     void *D3D11HardwareBuffer::lockImpl(size_t offset, size_t size,
         LockOptions options)
     {
-        char *pLockedData = nullptr;
+        uint8_t *pLockedData = nullptr;
 
         do 
         {
@@ -225,16 +270,28 @@ namespace Tiny3D
                 break;
             }
 
-            uint32_t d3dMap = D3D11Mappings::get(options);
+            ID3D11DeviceContext *pContext = D3D11_RENDERER.getD3DDeviceContext();
+
+            D3D11_MAP d3dMapType = D3D11Mappings::get(options);
+            D3D11_MAPPED_SUBRESOURCE d3dMappedData;
 
             if (mStageBuffer != nullptr)
             {
-                // 提供 Stage Buffer 出来给操作，解锁时再 copy 回去 Default
-                // 
+                // 先操作 Stage Buffer ，解锁时再 copy 回去 Default
+                pLockedData = (uint8_t*)mStageBuffer->lock(offset, size, options);
             }
             else
             {
+                HRESULT hr = S_OK;
+                hr = pContext->Map(mD3DBuffer, 0, d3dMapType, 0, &d3dMappedData);
+                if (FAILED(hr))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                        "Mapped D3D11 buffer failed ! DX ERROR[%d]", hr);
+                    break;
+                }
 
+                pLockedData = (uint8_t*)d3dMappedData.pData + offset;
             }
         } while (0);
 
@@ -249,7 +306,22 @@ namespace Tiny3D
 
         do 
         {
-            
+            if (mStageBuffer != nullptr)
+            {
+                ret = mStageBuffer->unlock();
+                if (ret != T3D_OK)
+                {
+                    break;
+                }
+
+                HardwareBuffer::copyData(mStageBuffer);
+            }
+            else
+            {
+                ID3D11DeviceContext *pContext 
+                    = D3D11_RENDERER.getD3DDeviceContext();
+                pContext->Unmap(mD3DBuffer, 0);
+            }
         } while (0);
 
         return ret;

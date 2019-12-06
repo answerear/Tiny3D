@@ -126,6 +126,9 @@ namespace Tiny3D
          * @sa  TResult HardwareBuffer::unlockImpl()
          */
         virtual TResult unlockImpl() override;
+
+    protected:
+        D3D11HardwareBufferPtr  mBufferImpl;    /**< D3D11 Buffer 具体实现 */
     };
 }
 

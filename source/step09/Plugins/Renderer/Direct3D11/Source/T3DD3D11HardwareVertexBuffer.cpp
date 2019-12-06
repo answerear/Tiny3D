@@ -67,12 +67,16 @@ namespace Tiny3D
         {
             mBufferImpl = D3D11HardwareBuffer::create(
                 D3D11HardwareBuffer::BufferType::VERTEX, mBufferSize, vertices,
-                mUsage, mAccessMode);
+                mUsage, mAccessMode, false);
             if (mBufferImpl == nullptr)
             {
+                ret = T3D_ERR_D3D11_CREATE_BUFFER;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create vertex buffer failed !");
                 break;
             }
         } while (0);
+
         return ret;
     }
 
@@ -101,8 +105,6 @@ namespace Tiny3D
     void *D3D11HardwareVertexBuffer::lockImpl(size_t offset, size_t size,
         LockOptions options)
     {
-        if (mBufferImpl == nullptr)
-            return nullptr;
         return mBufferImpl->lockImpl(offset, size, options);
     }
 
@@ -110,8 +112,6 @@ namespace Tiny3D
 
     TResult D3D11HardwareVertexBuffer::unlockImpl()
     {
-        if (mBufferImpl == nullptr)
-            return T3D_ERR_D3D11_CREATE_BUFFER;
         return mBufferImpl->unlockImpl();
     }
 }

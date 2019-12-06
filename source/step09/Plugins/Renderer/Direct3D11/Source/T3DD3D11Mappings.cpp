@@ -129,7 +129,7 @@ namespace Tiny3D
                     else if (mode == HardwareBuffer::AccessMode::CPU_WRITE)
                     {
                         d3dUsage = D3D11_USAGE_DEFAULT;
-                        d3dAccessFlag = D3D11_CPU_ACCESS_WRITE;
+                        d3dAccessFlag = 0;
                     }
                     else
                     {

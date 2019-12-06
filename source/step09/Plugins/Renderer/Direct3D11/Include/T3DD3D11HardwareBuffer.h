@@ -47,18 +47,19 @@ namespace Tiny3D
 
         /**
          * @fn  static D3D11HardwareBufferPtr D3D11HardwareBuffer::create(
-         *      BufferType type, size_t dataSize, const void *data, Usage usage, 
-         *      uint32_t mode);
+         *      BufferType type, size_t dataSize, const void *data, 
+         *      Usage usage, uint32_t mode, bool streamOut);
          * @brief   創建 DirectX 11 渲染器相關的頂點緩沖對象
          * @param [in]  type        缓冲区类型.
          * @param [in]  dataSize    数据大小.
          * @param [in]  data        缓冲区初始化用的数据.
          * @param [in]  usage       緩沖區用法.
          * @param [in]  mode        緩沖區訪問方式.
+         * @param [in]  streamOut   是否绑定到流输出阶段.
          * @returns 返回一個 DirectX 11 緩沖區對象.
          */
         static D3D11HardwareBufferPtr create(BufferType type, size_t dataSize, 
-            const void *data, Usage usage, uint32_t mode);
+            const void *data, Usage usage, uint32_t mode, bool streamOut);
 
         /**
          * @fn  virtual D3D11HardwareVertexBuffer::~D3D11HardwareVertexBuffer();
@@ -96,6 +97,24 @@ namespace Tiny3D
             bool discardWholeBuffer = false) override;
 
         /**
+         * @fn  virtual size_t D3D11HardwareBuffer::copyData(
+         *      HardwareBufferPtr srcBuffer, size_t srcOffset, size_t dstOffset, 
+         *      size_t size, bool discardWholeBuffer) override;
+         * @brief   复制数据，实现基类接口
+         * @param [in]  srcBuffer           源缓冲区对象.
+         * @param [in]  srcOffset           源数据偏移.
+         * @param [in]  dstOffset           目标数据偏移.
+         * @param [in]  size                数据大小.
+         * @param [in]  discardWholeBuffer  是否丟棄原有數據，默認不丟棄.
+         * @returns 调用成功返回复制的字节数.
+         * @sa  size_t HardwareBuffer::copyData(HardwareBufferPtr srcBuffer,
+         *      size_t srcOffset, size_t dstOffset, size_t size,
+         *      bool discardWholeBuffer = false)
+         */
+        virtual size_t copyData(HardwareBufferPtr srcBuffer, size_t srcOffset, 
+            size_t dstOffset, size_t size, bool discardWholeBuffer) override;
+
+        /**
          * @fn  virtual void D3D11HardwareVertexBuffer::*lockImpl(size_t offset,
          *      size_t size, LockOptions options) override;
          * @brief   鎖定緩沖區的具體實現接口，實現基類接口
@@ -117,6 +136,13 @@ namespace Tiny3D
          */
         virtual TResult unlockImpl() override;
 
+        /**
+         * @fn  ID3D11Buffer D3D11HardwareBuffer::*getD3DBuffer()
+         * @brief   获取 ID3D11Buffer 对象
+         * @returns 返回 ID3D11Buffer 对象.
+         */
+        ID3D11Buffer *getD3DBuffer() { return mD3DBuffer; }
+
     protected:
         /**
          * @fn  D3D11HardwareBuffer::D3D11HardwareBuffer(size_t bufSize, 
@@ -129,14 +155,16 @@ namespace Tiny3D
 
         /**
          * @fn  virtual TResult D3D11HardwareBuffer::init(BufferType type, 
-         *      size_t dataSize, const void *data);
+         *      size_t dataSize, const void *data, bool streamOut);
          * @brief   初始化對象
          * @param [in]  type        缓冲区类型.
          * @param [in]  dataSize    数据大小.
          * @param [in]  data        缓冲区數據.
+         * @param [in]  streamOut   是否绑定到流输出阶段.
          * @returns 調用成功返回 T3D_OK.
          */
-        virtual TResult init(BufferType type, size_t dataSize, const void *data);
+        virtual TResult init(BufferType type, size_t dataSize, const void *data,
+            bool streamOut);
 
         /**
          * @fn  TResult D3D11HardwareBuffer::check(LockOptions opt);
