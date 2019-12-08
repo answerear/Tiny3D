@@ -145,7 +145,7 @@ namespace Tiny3D
                 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(sizeof(BoxVertex),
                     MAX_VERTICES, vertices, 
                     HardwareBuffer::Usage::STATIC,
-                    HardwareBuffer::AccessMode::CPU_WRITE);
+                    HardwareBuffer::AccessMode::CPU_NONE);
             if (vbo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
