@@ -112,7 +112,7 @@ namespace Tiny3D
             while (itr != mRenderables.end())
             {
                 MaterialPtr material = itr->first;
-                renderer->setMaterial(material);
+//                 renderer->setMaterial(material);
 
                 RenderableList &renderables = itr->second;
 

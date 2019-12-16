@@ -277,6 +277,17 @@ namespace Tiny3D
                     "Initialize GPU built-in constant buffer with data failed !");
                 break;
             }
+
+            // 设置内置常量缓冲区
+            setConstantBuffer(0, mGPUBufferUpdateObject->getBufferImpl());
+            setConstantBuffer(1, mGPUBufferUpdateFrame->getBufferImpl());
+            setConstantBuffer(2, mGPUBufferUpdateRarely->getBufferImpl());
+
+            // 设置默认多边形渲染方式
+            setPolygonMode(PolygonMode::SOLID);
+
+            // 设置默认背面剔除顺序
+            setCullingMode(CullingMode::ANTICLOCKWISE);
         } while (0);
 
         return ret;

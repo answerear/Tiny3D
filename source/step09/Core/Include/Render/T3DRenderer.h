@@ -31,12 +31,13 @@
 namespace Tiny3D
 {
     /**
-     * @brief 渲染器抽象类，负责提供抽象渲染接口，具体渲染器实现这些接口
+     * @class   Renderer
+     * @brief   渲染器抽象类，负责提供抽象渲染接口，具体渲染器实现这些接口
      */
     class T3D_ENGINE_API Renderer : public Object
     {
     public:
-        static const char * const REFERENCE3D;  /**< Tiny3D自带的软渲染器 */
+        static const char * const REFERENCE3D;  /**< The reference 3D */
         static const char * const DIRECT3D9;    /**< Direct3D9 渲染器 */
         static const char * const DIRECT3D11;   /**< Direct3D11 渲染器 */
         static const char * const DIRECT3D12;   /**< Direct3D12 渲染器 */
@@ -47,9 +48,10 @@ namespace Tiny3D
         static const char * const METAL;        /**< Metal 渲染器 */
 
         /**
-         * @brief 渲染器能力值
+         * @enum    Capability
+         * @brief   渲染器能力值
          */
-        enum Capability
+        enum Capability : uint32_t
         {
             E_CAP_RENDER_TO_TARGET = 0,     /**< 是否支持渲染到 surface */
             E_CAP_HARDWARE_TRANSFORM,       /**< 是否支持硬件变换 */
@@ -84,7 +86,8 @@ namespace Tiny3D
         };
 
         /**
-         * @brief 渲染图元类型
+         * @enum    PrimitiveType
+         * @brief   渲染图元类型
          */
         enum PrimitiveType
         {
@@ -97,6 +100,10 @@ namespace Tiny3D
             E_PT_MAX
         };
 
+        /**
+         * @enum    ClearFlags
+         * @brief   Values that represent clear flags
+         */
         enum ClearFlags
         {
             E_CLEAR_STENCIL = 0,
@@ -105,45 +112,56 @@ namespace Tiny3D
         };
 
         /**
-         * @brief 构造函数
+         * @fn  Renderer::Renderer();
+         * @brief   构造函数
          */
         Renderer();
 
         /**
-         * @brief 析构函数
+         * @fn  virtual Renderer::~Renderer();
+         * @brief   析构函数
          */
         virtual ~Renderer();
 
         /**
-         * @brief 初始化渲染器
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult Renderer::init() = 0;
+         * @brief   初始化渲染器
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult init() = 0;
 
         /**
-         * @brief 销毁渲染器
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult Renderer::destroy() = 0;
+         * @brief   销毁渲染器
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult destroy() = 0;
 
         /**
-         * @brief 获取渲染器名称
+         * @fn  const String Renderer::&getName() const;
+         * @brief   获取渲染器名称
+         * @returns The name.
          */
         const String &getName() const;
 
         /**
-         * @brief 渲染一帧
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult Renderer::render();
+         * @brief   渲染一帧
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult render();
 
         /**
-         * @brief 创建渲染窗口
-         * @param [in] name : 用于标识窗口的名称，不需要跟窗口标题栏相同
-         * @param [in] param : 创建渲染窗口必要数据
-         * @param [in] paramEx : 创建渲染窗口额外数据
-         * @return 调用成功返回一个渲染窗口对象，失败返回nullptr
-         * @remarks 具体渲染系统实现本接口以创建渲染系统相关的渲染窗口对象
+         * @fn  virtual RenderWindowPtr Renderer::createRenderWindow(
+         *      const String &name, const RenderWindowCreateParam &param, 
+         *      const RenderWindowCreateParamEx &paramEx) = 0;
+         * @brief   创建渲染窗口
+         * @param [in]  name    : 用于标识窗口的名称，不需要跟窗口标题栏相同.
+         * @param [in]  param   : 创建渲染窗口必要数据.
+         * @param [in]  paramEx : 创建渲染窗口额外数据.
+         * @returns 调用成功返回一个渲染窗口对象，失败返回nullptr.
+         *
+         * ### remarks  具体渲染系统实现本接口以创建渲染系统相关的渲染窗口对象.
          */
         virtual RenderWindowPtr createRenderWindow(
             const String &name,
@@ -151,23 +169,27 @@ namespace Tiny3D
             const RenderWindowCreateParamEx &paramEx) = 0;
 
         /**
-         * @brief 关联渲染目标到渲染器上
-         * @param [in] target : 渲染目标
-         * @return 成功返回 T3D_OK
+         * @fn  virtual TResult 
+         *      Renderer::attachRenderTarget(RenderTargetPtr target);
+         * @brief   关联渲染目标到渲染器上
+         * @param [in]  target  : 渲染目标.
+         * @returns 成功返回 T3D_OK.
          */
         virtual TResult attachRenderTarget(RenderTargetPtr target);
 
         /**
-         * @brief 从渲染器上分离渲染目标
-         * @param [in] name : 渲染目标名称
-         * @return 成功返回 T3D_OK
+         * @fn  virtual TResult Renderer::detachRenderTarget(const String &name);
+         * @brief   从渲染器上分离渲染目标
+         * @param [in]  name    : 渲染目标名称.
+         * @returns 成功返回 T3D_OK.
          */
         virtual TResult detachRenderTarget(const String &name);
 
         /**
-         * @brief 获取渲染器上绑定的渲染目标
-         * @param [in] name : 渲染目标名称
-         * @return 成功返回渲染目标对象
+         * @fn  RenderTargetPtr Renderer::getRenderTarget(const String &name);
+         * @brief   获取渲染器上绑定的渲染目标
+         * @param [in]  name    : 渲染目标名称.
+         * @returns 成功返回渲染目标对象.
          */
         RenderTargetPtr getRenderTarget(const String &name);
 
@@ -185,47 +207,55 @@ namespace Tiny3D
             Real depth, uint32_t stencil);
 
         /**
-         * @brief 查询渲染器能力
-         * @param [in] cap : 能力枚举值
-         * @return 具备cap对应的能力则返回true，否则返回false
-         * @see Renderer::Capability
+         * @fn  virtual bool Renderer::queryCapability(Capability cap) const = 0;
+         * @brief   查询渲染器能力
+         * @param [in]  cap : 能力枚举值.
+         * @returns 具备cap对应的能力则返回true，否则返回false.
+         * @sa  Renderer::Capability
          */
         virtual bool queryCapability(Capability cap) const = 0;
 
         /**
-         * @brief 设置变换矩阵
-         * @param [in] state : 变换矩阵类型
-         * @param [in] mat : 变换矩阵
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult Renderer::setTransform(TransformState state, 
+         *      const Matrix4 &mat);
+         * @brief   设置变换矩阵
+         * @param [in]  state   : 变换矩阵类型.
+         * @param [in]  mat     : 变换矩阵.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult setTransform(TransformState state, 
             const Matrix4 &mat);
 
         /**
-         * @brief 设置视图变换矩阵
-         * @param [in] mat : 变换矩阵
-         * @return 调用成功返回 T3D_OK
+         * @fn  TResult Renderer::setViewTransform(const Matrix4 &mat);
+         * @brief   设置视图变换矩阵
+         * @param [in]  mat : 变换矩阵.
+         * @returns 调用成功返回 T3D_OK.
          */
         TResult setViewTransform(const Matrix4 &mat);
 
         /**
-         * @brief 设置世界变换矩阵
-         * @param [in] mat : 变换矩阵
-         * @return 调用成功返回 T3D_OK
+         * @fn  TResult Renderer::setWorldTransform(const Matrix4 &mat);
+         * @brief   设置世界变换矩阵
+         * @param [in]  mat : 变换矩阵.
+         * @returns 调用成功返回 T3D_OK.
          */
         TResult setWorldTransform(const Matrix4 &mat);
 
         /**
-         * @brief 设置投影变换矩阵
-         * @param [in] mat : 变换矩阵
-         * @return 调用成功返回 T3D_OK
+         * @fn  TResult Renderer::setProjectionTransform(const Matrix4 &mat);
+         * @brief   设置投影变换矩阵
+         * @param [in]  mat : 变换矩阵.
+         * @returns 调用成功返回 T3D_OK.
          */
         TResult setProjectionTransform(const Matrix4 &mat);
 
         /**
-         * @brief 获取对应类型的变换矩阵
-         * @param [in] state : 变换矩阵类型
-         * @return 返回对应类型的变换矩阵
+         * @fn  virtual const Matrix4 &
+         *      Renderer::getTransform(TransformState state) const;
+         * @brief   获取对应类型的变换矩阵
+         * @param [in]  state   : 变换矩阵类型.
+         * @returns 返回对应类型的变换矩阵.
          */
         virtual const Matrix4 &getTransform(TransformState state) const;
 
@@ -291,7 +321,7 @@ namespace Tiny3D
         /**
          * @brief 获取裁剪模式
          */
-        virtual CullingMode getCullingMode() const;
+        CullingMode getCullingMode() const;
 
         /**
          * @brief 设置渲染模式
@@ -304,7 +334,7 @@ namespace Tiny3D
         /**
          * @brief 获取渲染模式
          */
-        virtual PolygonMode getPolygonMode() const;
+        PolygonMode getPolygonMode() const;
 
         /**
          * @brief 设置渲染视口
@@ -315,13 +345,44 @@ namespace Tiny3D
         /**
          * @brief 获取渲染视口
          */
-        virtual ViewportPtr getViewport() const;
+        ViewportPtr getViewport() const;
 
         /**
-         * @brief 设置渲染材质
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult Renderer::setConstantBuffer(size_t slot, 
+         *      HardwareConstantBufferPtr buffer) = 0;
+         * @brief   设置当前渲染对象在 GPU 程序中使用的常量缓冲区对象
+         * @param [in]  slot    常量缓冲区槽索引.
+         * @param [in]  buffer  常量缓冲区对象.
+         * @returns 调用成功返回 T3D_OK.
+         * @remarks 具体渲染平台实现类需要实现本接口
          */
-        virtual TResult setMaterial(MaterialPtr material) = 0;
+        virtual TResult setConstantBuffer(size_t slot, 
+            HardwareConstantBufferPtr buffer) = 0;
+
+        /**
+         * @fn  virtual HardwareConstantBufferPtr 
+         *      Renderer::getConstantBuffer(size_t slot) const;
+         * @brief   获取指定槽的常量缓冲区对象
+         * @param [in]  slot    指定槽索引.
+         * @returns 调用成功返回常量缓冲区对象，否则返回nullptr.
+         */
+        HardwareConstantBufferPtr getConstantBuffer(size_t slot) const;
+
+        /**
+         * @fn  virtual TResult 
+         *      Renderer::setGPUProgram(GPUProgramPtr program) = 0;
+         * @brief   设置当前渲染对象用的 GPU 程序对象
+         * @param [in]  program GPU 程序对象.
+         * @returns 调用成功返回 T3D_OK.
+         */
+        virtual TResult setGPUProgram(GPUProgramPtr program) = 0;
+
+        /**
+         * @fn  virtual GPUProgramPtr Renderer::getGPUProgram() const;
+         * @brief   Gets GPU program
+         * @returns The GPU program.
+         */
+        GPUProgramPtr getGPUProgram() const;
 
         /**
          * @brief 绘制顶点数组
@@ -329,32 +390,6 @@ namespace Tiny3D
          * @return 调动成功返回 T3D_OK
          */
         virtual TResult drawVertexArray(VertexArrayObjectPtr vao) = 0;
-
-        /**
-         * @brief 绘制顶点列表
-         * @param [in] priType : 图元类型
-         * @param [in] decl : 顶点声明
-         * @param [in] vbo : 顶点缓冲
-         * @param [in] startIdx : 顶点缓冲区的起始位置
-         * @param [in] priCount : 图元数量
-         * @return 调用成功返回 T3D_OK
-         */
-        virtual TResult drawVertexList(PrimitiveType priType, 
-            VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo) = 0;
-
-        /**
-         * @brief 绘制索引列表
-         * @param [in] priType : 图元类型
-         * @param [in] decl : 顶点声明
-         * @param [in] vbo : 顶点缓冲
-         * @param [in] ibo : 索引缓冲
-         * @param [in] startIdx : 顶点索引起始位置偏移
-         * @param [in] priCount : 图元数量
-         * @return 调用成功返回 T3D_OK
-         */
-        virtual TResult drawIndexList(PrimitiveType priType,
-            VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo, 
-            HardwareIndexBufferPtr ibo) = 0;
 
     protected:
         /**
@@ -370,19 +405,23 @@ namespace Tiny3D
         typedef RenderTargetList::const_iterator    RenderTargetListConstItr;
         typedef RenderTargetList::value_type        RenderTargetListValue;
 
+        typedef TArray<HardwareConstantBufferPtr>   ConstantBufferList;
+        typedef ConstantBufferList::iterator        ConstantBufferListItr;
+        typedef ConstantBufferList::const_iterator  ConstantBufferListConstItr;
+
         struct GPUConstUpdatePerObject
         {
             GPUConstUpdatePerObject() {}
 
-            Matrix4 mWorldMatrix;               /**< The world matrix */
-            Matrix4 mInverseWorldM;             /**< The inverse world matrix */
-            Matrix4 mTransposeWorldM;           /**< The transpose world matrix */
-            Matrix4 mInverseTransposeWorldM;    /**< The inverse transpose world matrix */
+            Matrix4 mWorldMatrix;                       /**< The world matrix */
+            Matrix4 mInverseWorldM;                     /**< The inverse world matrix */
+            Matrix4 mTransposeWorldM;                   /**< The transpose world matrix */
+            Matrix4 mInverseTransposeWorldM;            /**< The inverse transpose world matrix */
 
-            Matrix4 mWorldViewMatrix;           /**< The world view matrix */
-            Matrix4 mInverseWorldViewM;         /**< The inverse world view m */
-            Matrix4 mTransposeWorldViewM;       /**< The transpose world view m */
-            Matrix4 mInverseTransposeWorldViewM;/**< The inverse transpose world view m */
+            Matrix4 mWorldViewMatrix;                   /**< The world view matrix */
+            Matrix4 mInverseWorldViewM;                 /**< The inverse world view m */
+            Matrix4 mTransposeWorldViewM;               /**< The transpose world view m */
+            Matrix4 mInverseTransposeWorldViewM;        /**< The inverse transpose world view m */
 
             Matrix4 mWorldViewProjMatrix;               /**< The world view project matrix */
             Matrix4 mInverseWorldViewProjM;             /**< The inverse world view project m */
@@ -426,17 +465,20 @@ namespace Tiny3D
         CullingMode         mCullingMode;       /**< 裁剪模式 */
         PolygonMode         mPolygonMode;       /**< 多边形渲染模式 */
 
-        GPUConstBufferPtr           mGPUBufferUpdateObject;
-        GPUConstBufferPtr           mGPUBufferUpdateFrame;
-        GPUConstBufferPtr           mGPUBufferUpdateRarely;
+        GPUConstBufferPtr           mGPUBufferUpdateObject; /**< 每个对象都更新的GPU常量缓冲 */
+        GPUConstBufferPtr           mGPUBufferUpdateFrame;  /**< 每帧都更新的GPU常量缓冲 */
+        GPUConstBufferPtr           mGPUBufferUpdateRarely; /**< 很少更新的GPU常量缓冲 */
 
-        GPUConstUpdatePerObject     mGPUConstUpdateObject;
-        GPUConstUpdatePerFrame      mGPUConstUpdateFrame;
-        GPUConstUpdateRarely        mGPUConstUpdateRarely;
+        GPUConstUpdatePerObject     mGPUConstUpdateObject;  /**< 对应每个对象都更新的GPU常量缓冲数据 */
+        GPUConstUpdatePerFrame      mGPUConstUpdateFrame;   /**< 对应每帧都更新的GPU常量缓冲数据 */
+        GPUConstUpdateRarely        mGPUConstUpdateRarely;  /**< 对应很少更新的GPU常量缓冲 */
 
-        bool    mIsWorldMatrixDirty;
-        bool    mIsViewMatrixDirty;
-        bool    mIsProjMatrixDirty;
+        bool    mIsWorldMatrixDirty;    /**< 世界变换矩阵是否更新标识 */
+        bool    mIsViewMatrixDirty;     /**< 视图变换矩阵是否更新标识 */
+        bool    mIsProjMatrixDirty;     /**< 投影变换矩阵是否更新标识 */
+
+        ConstantBufferList  mConstBuffers;      /**< 外部传入的常量缓冲区对象 */
+        GPUProgramPtr       mGPUProgram;        /**< 当前渲染用GPU程序 */
     };
 }
 

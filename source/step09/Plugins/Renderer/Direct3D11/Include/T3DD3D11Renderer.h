@@ -163,10 +163,23 @@ namespace Tiny3D
         virtual TResult setViewport(ViewportPtr viewport) override;
 
         /**
-         * @brief 设置渲染材质
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult setConstantBuffer(size_t slot, 
+         *      HardwareConstantBufferPtr buffer) override;
+         * @brief   Sets constant buffer
+         * @param [in]  slot    The slot.
+         * @param [in]  buffer  The buffer.
+         * @returns A TResult.
          */
-        virtual TResult setMaterial(MaterialPtr material) override;
+        virtual TResult setConstantBuffer(size_t slot, 
+            HardwareConstantBufferPtr buffer) override;
+
+        /**
+         * @fn  virtual TResult setGPUProgram(GPUProgramPtr program) override;
+         * @brief   Sets GPU program
+         * @param   program The program.
+         * @returns A TResult.
+         */
+        virtual TResult setGPUProgram(GPUProgramPtr program) override;
 
         /**
          * @brief 绘制顶点数组
@@ -174,32 +187,6 @@ namespace Tiny3D
          * @return 调动成功返回 T3D_OK
          */
         virtual TResult drawVertexArray(VertexArrayObjectPtr vao) override;
-
-        /**
-         * @brief 绘制顶点列表
-         * @param [in] priType : 图元类型
-         * @param [in] decl : 顶点声明
-         * @param [in] vbo : 顶点缓冲
-         * @param [in] startIdx : 顶点缓冲区的起始位置
-         * @param [in] priCount : 图元数量
-         * @return 调用成功返回 T3D_OK
-         */
-        virtual TResult drawVertexList(PrimitiveType priType,
-            VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo) override;
-
-        /**
-         * @brief 绘制索引列表
-         * @param [in] priType : 图元类型
-         * @param [in] decl : 顶点声明
-         * @param [in] vbo : 顶点缓冲
-         * @param [in] ibo : 索引缓冲
-         * @param [in] startIdx : 顶点索引起始位置偏移
-         * @param [in] priCount : 图元数量
-         * @return 调用成功返回 T3D_OK
-         */
-        virtual TResult drawIndexList(PrimitiveType priType,
-            VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo,
-            HardwareIndexBufferPtr ibo) override;
 
         ID3D11Device *getD3DDevice()
         {

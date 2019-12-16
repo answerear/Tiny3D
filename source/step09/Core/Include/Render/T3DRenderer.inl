@@ -20,40 +20,68 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     inline const String &Renderer::getName() const
     {
         return mName;
     }
+
+    //--------------------------------------------------------------------------
 
     inline TResult Renderer::setViewTransform(const Matrix4 &mat)
     {
         return setTransform(TransformState::VIEW, mat);
     }
 
+    //--------------------------------------------------------------------------
+
     inline TResult Renderer::setWorldTransform(const Matrix4 &mat)
     {
         return setTransform(TransformState::WORLD, mat);
     }
+
+    //--------------------------------------------------------------------------
 
     inline TResult Renderer::setProjectionTransform(const Matrix4 &mat)
     {
         return setTransform(TransformState::PROJECTION, mat);
     }
 
+    //--------------------------------------------------------------------------
 
     inline ViewportPtr Renderer::getViewport() const
     {
         return mViewport;
     }
 
+    //--------------------------------------------------------------------------
+
     inline CullingMode Renderer::getCullingMode() const
     {
         return mCullingMode;
     }
 
+    //--------------------------------------------------------------------------
+
     inline PolygonMode Renderer::getPolygonMode() const
     {
         return mPolygonMode;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline HardwareConstantBufferPtr Renderer::getConstantBuffer(size_t slot) const
+    {
+        T3D_ASSERT(slot < mConstBuffers.size());
+        return mConstBuffers[slot];
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline GPUProgramPtr Renderer::getGPUProgram() const
+    {
+        return mGPUProgram;
     }
 }
 

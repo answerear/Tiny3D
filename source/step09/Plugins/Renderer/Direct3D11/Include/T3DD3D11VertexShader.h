@@ -57,6 +57,13 @@ namespace Tiny3D
          */
         virtual TResult compile() override;
 
+        /**
+         * @fn  ID3D11VertexShader D3D11VertexShader::*getD3DShader() const
+         * @brief   Gets d 3D shader
+         * @returns Null if it fails, else the d 3D shader.
+         */
+        ID3D11VertexShader *getD3DShader() const { return mD3DVertexShader; }
+
     protected:
         /**
          * @brief 构造函数

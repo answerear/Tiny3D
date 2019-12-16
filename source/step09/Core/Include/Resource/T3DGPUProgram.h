@@ -159,7 +159,7 @@ namespace Tiny3D
          * @brief   Gets buffer reference count
          * @returns The buffer reference count.
          */
-        size_t getBufferRefCount() const;
+        size_t getBufferRefCount() const { return mBuffers.size(); }
 
     protected:
         /**

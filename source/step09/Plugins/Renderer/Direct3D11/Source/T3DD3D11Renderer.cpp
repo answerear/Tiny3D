@@ -21,6 +21,8 @@
 #include "T3DD3D11Renderer.h"
 #include "T3DD3D11RenderWindow.h"
 #include "T3DD3D11HardwareBufferManager.h"
+#include "T3DD3D11GPUProgram.h"
+#include "T3DD3D11HardwareConstantBuffer.h"
 
 
 namespace Tiny3D
@@ -440,11 +442,7 @@ namespace Tiny3D
 
         do 
         {
-            if (mode == mCullingMode)
-            {
-                // 相同模式就不切换了
-                break;
-            }
+            
 
             mCullingMode = mode;
 
@@ -461,11 +459,7 @@ namespace Tiny3D
 
         do 
         {
-            if (mode == mPolygonMode)
-            {
-                // 相同模式就不切换了
-                break;
-            }
+            
 
 
             mPolygonMode = mode;
@@ -507,9 +501,44 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::setMaterial(MaterialPtr material)
+    TResult D3D11Renderer::setConstantBuffer(size_t slot,
+        HardwareConstantBufferPtr buffer)
     {
         TResult ret = T3D_OK;
+
+        do 
+        {
+            D3D11HardwareConstantBufferPtr d3dBuffer 
+                = smart_pointer_cast<D3D11HardwareConstantBuffer>(buffer);
+            mD3DDeviceContext->VSSetConstantBuffers((UINT)slot, 1, 
+                (ID3D11Buffer * const *)d3dBuffer->getD3DBuffer());
+
+            mD3DDeviceContext->PSSetConstantBuffers((UINT)slot, 1,
+                (ID3D11Buffer * const *)d3dBuffer->getD3DBuffer());
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Renderer::setGPUProgram(GPUProgramPtr program)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            // Vertex Shader
+            D3D11VertexShaderPtr vshader 
+                = smart_pointer_cast<D3D11VertexShader>(
+                    program->getVertexShader());
+            mD3DDeviceContext->VSSetShader(vshader->getD3DShader(), nullptr, 0);
+
+            // Pixel Shader
+            D3D11PixelShaderPtr fshader = smart_pointer_cast<D3D11PixelShader>(
+                program->getPixelShader());
+            mD3DDeviceContext->PSSetShader(fshader->getD3DShader(), nullptr, 0);
+        } while (0);
 
         return ret;
     }
@@ -524,27 +553,6 @@ namespace Tiny3D
         {
             
         } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Renderer::drawVertexList(PrimitiveType priType,
-        VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo)
-    {
-        TResult ret = T3D_OK;
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Renderer::drawIndexList(PrimitiveType priType,
-        VertexDeclarationPtr decl, HardwareVertexBufferPtr vbo,
-        HardwareIndexBufferPtr ibo)
-    {
-        TResult ret = T3D_OK;
 
         return ret;
     }
