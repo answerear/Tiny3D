@@ -104,6 +104,35 @@ namespace Tiny3D
          */
         virtual bool isIndicesUsed() const override;
 
+        /**
+         * @fn  ID3D11Buffer * const 
+         *      *D3D11VertexArrayObject::getD3D11BufferArray()
+         * @brief   获取 ID3D11Buffer 对象数组
+         * @returns 返回 ID3D11Buffer 对象数组.
+         */
+        ID3D11Buffer * const *getD3D11Buffers() { return mD3D11Buffers; }
+
+        /**
+         * @fn  UINT *D3D11VertexArrayObject::getD3D11BufferStride()
+         * @brief   获取 ID3D11Buffer 每个缓冲区的顶点步长
+         * @returns 返回 ID3D11Buffer 每个缓冲区的顶点步长.
+         */
+        UINT *getD3D11BufferStrides() { return mD3D11BufferStrides; }
+
+        /**
+         * @fn  UINT D3D11VertexArrayObject::*getD3D11BufferOffsets()
+         * @brief   获取 ID3D11Buffer 每个缓冲区的偏移
+         * @returns 返回 ID3D11Buffer 每个缓冲区的偏移.
+         */
+        UINT *getD3D11BufferOffsets() { return mD3D11BufferOffsets; }
+
+        /**
+         * @fn  size_t D3D11VertexArrayObject::getVertexCount() const;
+         * @brief   获取顶点数量
+         * @returns 返回顶点数量.
+         */
+        size_t getVertexCount() const;
+
     protected:
         /**
          * @brief 构造函数
@@ -121,7 +150,11 @@ namespace Tiny3D
         VBOList                 mVBOList;       /**< 顶点缓冲区对象集合 */
         HardwareIndexBufferPtr  mIBO;           /**< *索引缓冲区对象 */
 
-        bool    mUseIndices;                    /**< 是否使用索引缓冲 */
+        bool            mUseIndices;            /**< 是否使用索引缓冲 */
+
+        ID3D11Buffer    **mD3D11Buffers;        /**< D3D11Buffer 数组 */
+        UINT            *mD3D11BufferStrides;   /**< 每个缓冲区的顶点步长 */
+        UINT            *mD3D11BufferOffsets;   /**< 每个缓冲区的偏移 */
     };
 }
 

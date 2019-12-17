@@ -23,7 +23,11 @@
 #include "T3DD3D11HardwareBufferManager.h"
 #include "T3DD3D11GPUProgram.h"
 #include "T3DD3D11HardwareConstantBuffer.h"
-
+#include "T3DD3D11Mappings.h"
+#include "T3DD3D11VertexArrayObject.h"
+#include "T3DD3D11HardwareVertexBuffer.h"
+#include "T3DD3D11HardwareIndexBuffer.h"
+#include "T3DD3D11VertexDeclaration.h"
 
 namespace Tiny3D
 {
@@ -46,6 +50,8 @@ namespace Tiny3D
         : mInstance(nullptr)
         , mD3DDevice(nullptr)
         , mD3DDeviceContext(nullptr)
+        , mD3DRState(nullptr)
+        , mIsRSStateDirty(false)
     {
         mName = Renderer::DIRECT3D11;
     }
@@ -94,8 +100,14 @@ namespace Tiny3D
                 &mD3DDevice, &level, &mD3DDeviceContext);
             if (FAILED(hr))
             {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create ID3D11Device object failed ! DX ERROR : %d", hr);
                 break;
             }
+
+            // Raster State
+            setD3D11RasterzierState();
 
             ret = postInit();
             if (ret != T3D_OK)
@@ -438,35 +450,18 @@ namespace Tiny3D
 
     TResult D3D11Renderer::setCullingMode(CullingMode mode)
     {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            
-
-            mCullingMode = mode;
-
-        } while (0);
-
-        return ret;
+        mCullingMode = mode;
+        mIsRSStateDirty = true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
     TResult D3D11Renderer::setPolygonMode(PolygonMode mode)
     {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            
-
-
-            mPolygonMode = mode;
-
-        } while (0);
-
-        return ret;
+        mPolygonMode = mode;
+        mIsRSStateDirty = true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -477,12 +472,6 @@ namespace Tiny3D
 
         do 
         {
-            if (viewport == mViewport)
-            {
-                // 视口相同就不切换了
-                break;
-            }
-
             D3D11_VIEWPORT vp;
             vp.TopLeftX = float(viewport->getActualLeft());
             vp.TopLeftY = float(viewport->getActualTop());
@@ -551,7 +540,88 @@ namespace Tiny3D
 
         do 
         {
+            D3D11VertexArrayObjectPtr d3dVAO 
+                = smart_pointer_cast<D3D11VertexArrayObject>(vao);
+
+            if (mIsRSStateDirty)
+            {
+                // 更新光栅化状态
+                setD3D11RasterzierState();
+                mIsRSStateDirty = false;
+            }
+
+            // 设置图元
+            PrimitiveType primitive = vao->getPrimitiveType();
+            D3D11_PRIMITIVE_TOPOLOGY topology = D3D11Mappings::get(primitive);
+            mD3DDeviceContext->IASetPrimitiveTopology(topology);
+
+            // 顶点布局
+            D3D11VertexDeclarationPtr decl = smart_pointer_cast<D3D11VertexDeclaration>(vao->getVertexDeclaration());
+            ID3D11InputLayout *d3dLayout = decl->getD3DInputLayout();
+            mD3DDeviceContext->IASetInputLayout(d3dLayout);
+
+            // 顶点缓冲
+            UINT numberOfBuffers = (UINT)d3dVAO->getVertexBufferCount();
+            ID3D11Buffer * const * buffers = d3dVAO->getD3D11Buffers();
+            UINT *strides = d3dVAO->getD3D11BufferStrides();
+            UINT *offsets = d3dVAO->getD3D11BufferOffsets();
+            mD3DDeviceContext->IASetVertexBuffers(0, numberOfBuffers,
+                buffers, strides, offsets);
+
+            if (vao->isIndicesUsed())
+            {
+                // 索引缓冲区
+                D3D11HardwareIndexBufferPtr ibo = smart_pointer_cast<D3D11HardwareIndexBuffer>(vao->getIndexBuffer());
+                ID3D11Buffer *d3dBuffer = ibo->getD3D11Buffer();
+                DXGI_FORMAT idxFormat = D3D11Mappings::get(ibo->getIndexType());
+                mD3DDeviceContext->IASetIndexBuffer(d3dBuffer, idxFormat, 0);
+
+                // 绘制
+                mD3DDeviceContext->DrawIndexed((UINT)ibo->getIndexCount(), 0, 0);
+            }
+            else
+            {
+                // 绘制
+                mD3DDeviceContext->Draw((UINT)d3dVAO->getVertexCount(), 0);
+            }
             
+        } while (0);
+
+        return ret;
+    }
+
+    TResult D3D11Renderer::setD3D11RasterzierState()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            D3D_SAFE_RELEASE(mD3DRState);
+
+            HRESULT hr = S_OK;
+
+            D3D11_RASTERIZER_DESC desc;
+            desc.FillMode = D3D11Mappings::get(mPolygonMode);
+            desc.CullMode = D3D11Mappings::get(mCullingMode);
+            desc.FrontCounterClockwise = TRUE;
+            desc.DepthBias = 0;
+            desc.SlopeScaledDepthBias = 0.0f;
+            desc.DepthBiasClamp = 0.0f;
+            desc.DepthClipEnable = TRUE;
+            desc.ScissorEnable = FALSE;
+            desc.MultisampleEnable = FALSE;
+            desc.AntialiasedLineEnable = FALSE;
+            hr = mD3DDevice->CreateRasterizerState(&desc, &mD3DRState);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create ID3D11RasterizerState object failed ! DX ERROR : %d",
+                    hr);
+                break;
+            }
+
+            mD3DDeviceContext->RSSetState(mD3DRState);
         } while (0);
 
         return ret;

@@ -144,7 +144,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ID3D11InputLayout *D3D11VertexDeclaration::getInputLayout()
+    ID3D11InputLayout *D3D11VertexDeclaration::getD3DInputLayout()
     {
         if (mIsDirty)
         {

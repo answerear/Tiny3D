@@ -41,6 +41,7 @@ namespace Tiny3D
         T3D_ERR_D3D11_CREATE_INPUT_LAYOUT,               /**< 创建输入布局失败 */
         T3D_ERR_D3D11_CREATE_BUFFER,                     /**< 创建缓冲区失败 */
         T3D_ERR_D3D11_LOCK_BUFFER,                       /**< 锁定缓冲区失败 */
+        T3D_ERR_D3D11_MISMATCH_CALLING,                  /**< 接口调用不配对 */
     };
 }
 

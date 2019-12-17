@@ -44,6 +44,22 @@ namespace Tiny3D
         static const char * const BINORMAL;     /**< The binormal */
 
         /**
+         * @fn  static D3D11_FILL_MODE D3D11Mappings::get(PolygonMode mode);
+         * @brief   把 Tiny3D 的多边形渲染模式转换成 D3D11 的多边形渲染模式
+         * @param [in]  mode    Tiny3D 多边形渲染模式.
+         * @returns 返回 D3D11 定义的多边形渲染模式.
+         */
+        static D3D11_FILL_MODE get(PolygonMode mode);
+
+        /**
+         * @fn  static D3D11_CULL_MODE D3D11Mappings::get(CullingMode mode);
+         * @brief   把 Tiny3D 的面剔除模式转换成 D3D11 面剔除模式
+         * @param [in]  mode    Tiny3D 面剔除模式.
+         * @returns 返回 D3D11 定义的面剔除模式.
+         */
+        static D3D11_CULL_MODE get(CullingMode mode);
+
+        /**
          * @fn  static const char D3D11Mappings::*get(
          *      VertexAttribute::Semantic semantic);
          * @brief   把 Tiny3D 的语义定义转换成 D3D11 的语义名称
@@ -62,6 +78,24 @@ namespace Tiny3D
          * @sa  enum class VertexAttribute::Type
          */
         static DXGI_FORMAT get(VertexAttribute::Type type);
+
+        /**
+         * @fn  static D3D11_PRIMITIVE_TOPOLOGY D3D11Mappings::get(
+         *      Renderer::PrimitiveType primitive);
+         * @brief   把 Tiny3D 的渲染图元类型转换成 D3D11 的图元类型
+         * @param [in]  primitive   Tiny3D 的渲染图元类型.
+         * @returns 返回 D3D11 渲染图元类型.
+         */
+        static D3D11_PRIMITIVE_TOPOLOGY get(Renderer::PrimitiveType primitive);
+
+        /**
+         * @fn  static DXGI_FORMAT D3D11Mappings::get(
+         *      HardwareIndexBuffer::Type idxType);
+         * @brief   把 Tiny3D 的索引类型转换成 D3D11 的索引类型
+         * @param [in]  idxType Tiny3d 的索引类型.
+         * @returns 返回 D3D11 索引类型.
+         */
+        static DXGI_FORMAT get(HardwareIndexBuffer::Type idxType);
 
         /**
          * @fn  static TResult D3D11Mappings::get(HardwareBuffer::Usage usage, 

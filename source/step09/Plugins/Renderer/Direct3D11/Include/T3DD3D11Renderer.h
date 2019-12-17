@@ -205,12 +205,21 @@ namespace Tiny3D
          */
         D3D11Renderer();
 
+        /**
+         * @fn  TResult setD3D11RasterzierState();
+         * @brief   Sets d 016`11 rasterzier state
+         * @returns A TResult.
+         */
+        TResult setD3D11RasterzierState();
+
     protected:
         HINSTANCE                   mInstance;          /**< The instance */
         ID3D11Device                *mD3DDevice;        /**< D3D11 设备对象 */
         ID3D11DeviceContext         *mD3DDeviceContext; /**< D3D11 设备上下文对象 */
-
+        ID3D11RasterizerState       *mD3DRState;        /**< D3D11 光栅化状态 */
         HardwareBufferManagerPtr    mHardwareBufferMgr; /**< Manager for hardware buffer */
+
+        bool        mIsRSStateDirty;    /**< 光栅化状态是否有改变标识 */
     };
 
     #define D3D11_RENDERER      (D3D11Renderer::getInstance())

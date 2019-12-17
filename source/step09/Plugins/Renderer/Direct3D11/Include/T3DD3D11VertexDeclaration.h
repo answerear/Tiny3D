@@ -117,7 +117,7 @@ namespace Tiny3D
         /**
          * @brief 获取 D3D11 顶点输入布局对象
          */
-        ID3D11InputLayout *getInputLayout();
+        ID3D11InputLayout *getD3DInputLayout();
 
     protected:
         /**

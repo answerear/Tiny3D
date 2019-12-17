@@ -19,6 +19,8 @@
 
 
 #include "T3DD3D11VertexArrayObject.h"
+#include "T3DD3D11HardwareVertexBuffer.h"
+#include "T3DD3D11Error.h"
 
 
 namespace Tiny3D
@@ -39,6 +41,9 @@ namespace Tiny3D
         , mDecl(nullptr)
         , mIBO(nullptr)
         , mUseIndices(useIndices)
+        , mD3D11Buffers(nullptr)
+        , mD3D11BufferStrides(nullptr)
+        , mD3D11BufferOffsets(nullptr)
     {
 
     }
@@ -47,13 +52,18 @@ namespace Tiny3D
 
     D3D11VertexArrayObject::~D3D11VertexArrayObject()
     {
-
+        T3D_SAFE_DELETE_ARRAY(mD3D11Buffers);
+        T3D_SAFE_DELETE_ARRAY(mD3D11BufferStrides);
+        T3D_SAFE_DELETE_ARRAY(mD3D11BufferOffsets);
     }
 
     //--------------------------------------------------------------------------
 
     TResult D3D11VertexArrayObject::beginBinding()
     {
+        T3D_SAFE_DELETE_ARRAY(mD3D11Buffers);
+        T3D_SAFE_DELETE_ARRAY(mD3D11BufferStrides);
+        T3D_SAFE_DELETE_ARRAY(mD3D11BufferOffsets);
         return T3D_OK;
     }
 
@@ -61,6 +71,37 @@ namespace Tiny3D
 
     TResult D3D11VertexArrayObject::endBinding()
     {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (mD3D11Buffers != nullptr)
+            {
+                ret = T3D_ERR_D3D11_MISMATCH_CALLING;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Mismatch calling ! It should call beginBinding() first !");
+                break;
+            }
+
+            // 构造 ID3D11Buffer 对象数组、顶点步长数组、顶点偏移数组
+            mD3D11Buffers = new ID3D11Buffer*[mVBOList.size()];
+            mD3D11BufferStrides = new UINT[mVBOList.size()];
+            mD3D11BufferOffsets = new UINT[mVBOList.size()];
+
+            size_t i = 0;
+            auto itr = mVBOList.begin();
+
+            while (itr != mVBOList.end())
+            {
+                D3D11HardwareVertexBufferPtr vbo =
+                    smart_pointer_cast<D3D11HardwareVertexBuffer>(*itr);
+                mD3D11Buffers[i] = vbo->getD3D11Buffer();
+                mD3D11BufferStrides[i] = (UINT)vbo->getVertexSize();
+                mD3D11BufferOffsets[i] = 0;
+                ++itr;
+            }
+        } while (0);
+
         return T3D_OK;
     }
 
@@ -157,5 +198,12 @@ namespace Tiny3D
     bool D3D11VertexArrayObject::isIndicesUsed() const
     {
         return mUseIndices;
+    }
+
+    //--------------------------------------------------------------------------
+
+    size_t D3D11VertexArrayObject::getVertexCount() const
+    {
+        return mVBOList.front()->getVertexCount();
     }
 }

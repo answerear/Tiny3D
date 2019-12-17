@@ -36,6 +36,48 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    D3D11_FILL_MODE D3D11Mappings::get(PolygonMode mode)
+    {
+        D3D11_FILL_MODE d3dMode = D3D11_FILL_SOLID;
+
+        switch (mode)
+        {
+        case PolygonMode::POINT:
+        case PolygonMode::WIREFRAME:
+            d3dMode = D3D11_FILL_WIREFRAME;
+            break;
+        default:
+            d3dMode = D3D11_FILL_SOLID;
+            break;
+        }
+
+        return d3dMode;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11_CULL_MODE D3D11Mappings::get(CullingMode mode)
+    {
+        D3D11_CULL_MODE d3dMode = D3D11_CULL_NONE;
+
+        switch (mode)
+        {
+        case CullingMode::CLOCKWISE:
+            d3dMode = D3D11_CULL_BACK;
+            break;
+        case CullingMode::ANTICLOCKWISE:
+            d3dMode = D3D11_CULL_FRONT;
+            break;
+        default:
+            d3dMode = D3D11_CULL_NONE;
+            break;
+        }
+
+        return d3dMode;
+    }
+
+    //--------------------------------------------------------------------------
+
     const char *D3D11Mappings::get(VertexAttribute::Semantic semantic)
     {
         switch (semantic)
@@ -105,6 +147,59 @@ namespace Tiny3D
         }
 
         return d3dformat;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11_PRIMITIVE_TOPOLOGY D3D11Mappings::get(Renderer::PrimitiveType primitive)
+    {
+        D3D11_PRIMITIVE_TOPOLOGY d3dPrimitive;
+
+        switch (primitive)
+        {
+        case Renderer::PrimitiveType::E_PT_POINT_LIST:
+            d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+            break;
+        case Renderer::PrimitiveType::E_PT_LINE_LIST:
+            d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+            break;
+        case Renderer::PrimitiveType::E_PT_LINE_STRIP:
+            d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
+            break;
+        case Renderer::PrimitiveType::E_PT_TRIANGLE_LIST:
+            d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+            break;
+        case Renderer::PrimitiveType::E_PT_TRIANGLE_STRIP:
+            d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+            break;
+        default:
+            d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+            break;
+        }
+
+        return d3dPrimitive;
+    }
+
+    //--------------------------------------------------------------------------
+
+    DXGI_FORMAT D3D11Mappings::get(HardwareIndexBuffer::Type idxType)
+    {
+        DXGI_FORMAT d3dFormat;
+
+        switch (idxType)
+        {
+        case HardwareIndexBuffer::Type::E_IT_16BITS:
+            d3dFormat = DXGI_FORMAT_R16_UINT;
+            break;
+        case HardwareIndexBuffer::Type::E_IT_32BITS:
+            d3dFormat = DXGI_FORMAT_R32_UINT;
+            break;
+        default:
+            d3dFormat = DXGI_FORMAT_R16_UINT;
+            break;
+        }
+
+        return d3dFormat;
     }
 
     //--------------------------------------------------------------------------

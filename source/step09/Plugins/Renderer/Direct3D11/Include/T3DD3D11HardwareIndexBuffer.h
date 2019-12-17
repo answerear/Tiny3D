@@ -23,6 +23,7 @@
 
 
 #include "T3DD3D11Prerequisites.h"
+#include "T3DD3D11HardwareBuffer.h"
 
 
 namespace Tiny3D
@@ -85,6 +86,13 @@ namespace Tiny3D
          */
         virtual size_t writeData(size_t offset, size_t size, const void *src,
             bool discardWholeBuffer = false) override;
+
+        /**
+         * @fn  ID3D11Buffer D3D11HardwareVertexBuffer::*getD3D11Buffer()
+         * @brief   获取 ID3D11Buffer 对象
+         * @returns 返回 ID3D11Buffer 对象.
+         */
+        ID3D11Buffer *getD3D11Buffer() { return mBufferImpl->getD3DBuffer(); }
 
     protected:
         /**
