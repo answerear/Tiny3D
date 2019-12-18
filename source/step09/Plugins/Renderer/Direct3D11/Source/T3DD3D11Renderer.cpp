@@ -543,6 +543,24 @@ namespace Tiny3D
             D3D11VertexArrayObjectPtr d3dVAO 
                 = smart_pointer_cast<D3D11VertexArrayObject>(vao);
 
+            if (mIsViewMatrixDirty)
+            {
+                updateBufferPerFrame();
+                mIsViewMatrixDirty = false;
+            }
+
+            if (mIsProjMatrixDirty)
+            {
+                updateBufferRarely();
+                mIsProjMatrixDirty = false;
+            }
+
+            if (mIsWorldMatrixDirty)
+            {
+                updateBufferPerObject();
+                mIsWorldMatrixDirty = false;
+            }
+
             if (mIsRSStateDirty)
             {
                 // 更新光栅化状态

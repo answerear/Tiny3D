@@ -278,16 +278,82 @@ namespace Tiny3D
                 break;
             }
 
-            // 设置内置常量缓冲区
-            setConstantBuffer(0, mGPUBufferUpdateObject->getBufferImpl());
-            setConstantBuffer(1, mGPUBufferUpdateFrame->getBufferImpl());
-            setConstantBuffer(2, mGPUBufferUpdateRarely->getBufferImpl());
-
             // 设置默认多边形渲染方式
             setPolygonMode(PolygonMode::SOLID);
 
             // 设置默认背面剔除顺序
             setCullingMode(CullingMode::ANTICLOCKWISE);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Renderer::updateBufferPerObject()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            const Matrix4 &M = mGPUConstUpdateObject.mWorldMatrix;
+            const Matrix4 &V = mGPUConstUpdateFrame.mViewMatrix;
+            const Matrix4 &P = mGPUConstUpdateRarely.mProjMatrix;
+
+            mGPUConstUpdateObject.mInverseWorldM = M.inverse();
+            mGPUConstUpdateObject.mTransposeWorldM = M.transpose();
+            mGPUConstUpdateObject.mInverseTransposeWorldM 
+                = mGPUConstUpdateObject.mInverseWorldM.transpose();
+
+            Matrix4 &MV = mGPUConstUpdateObject.mWorldViewMatrix;
+
+            MV = V * M;
+            mGPUConstUpdateObject.mInverseWorldViewM = MV.inverse();
+            mGPUConstUpdateObject.mTransposeWorldM = MV.transpose();
+            mGPUConstUpdateObject.mInverseTransposeWorldViewM
+                = mGPUConstUpdateObject.mInverseWorldViewM.transpose();
+
+            Matrix4 &MVP = mGPUConstUpdateObject.mWorldViewProjMatrix;
+            MVP = P * V * M;
+            mGPUConstUpdateObject.mInverseWorldViewProjM = MVP.inverse();
+            mGPUConstUpdateObject.mTransposeWorldViewProjM = MVP.transpose();
+            mGPUConstUpdateObject.mInverseTransposeWorldViewProjM
+                = mGPUConstUpdateObject.mInverseWorldViewProjM.transpose();
+
+            size_t bytesOfWritten = 0;
+            bytesOfWritten = mGPUBufferUpdateObject->getBufferImpl()->writeData(
+                0, sizeof(mGPUConstUpdateObject), &mGPUBufferUpdateObject);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Renderer::updateBufferPerFrame()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            const Matrix4 &M = mGPUConstUpdateObject.mWorldMatrix;
+            const Matrix4 &V = mGPUConstUpdateFrame.mViewMatrix;
+            const Matrix4 &P = mGPUConstUpdateRarely.mProjMatrix;
+
+
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Renderer::updateBufferRarely()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
         } while (0);
 
         return ret;

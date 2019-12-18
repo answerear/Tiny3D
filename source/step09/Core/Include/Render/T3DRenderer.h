@@ -399,6 +399,27 @@ namespace Tiny3D
          */
         virtual TResult postInit();
 
+        /**
+         * @fn  TResult Renderer::updateBufferPerObject();
+         * @brief   Updates the buffer per object
+         * @return  A TResult.
+         */
+        TResult updateBufferPerObject();
+
+        /**
+         * @fn  TResult Renderer::updateBufferPerFrame();
+         * @brief   Updates the buffer per frame
+         * @return  A TResult.
+         */
+        TResult updateBufferPerFrame();
+
+        /**
+         * @fn  TResult Renderer::updateBufferRarely();
+         * @brief   Updates the buffer rarely
+         * @return  A TResult.
+         */
+        TResult updateBufferRarely();
+
     protected:
         typedef TMap<String, RenderTargetPtr>       RenderTargetList;
         typedef RenderTargetList::iterator          RenderTargetListItr;

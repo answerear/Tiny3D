@@ -47,7 +47,7 @@ namespace Tiny3D
          * @brief   创建 Pass 对象
          * @param           name    The name.
          * @param [in,out]  tech    If non-null, the technology.
-         * @returns A PassPtr.
+         * @return  A PassPtr.
          */
         static PassPtr create(const String &name, Technique *tech);
 
@@ -87,10 +87,10 @@ namespace Tiny3D
         GPUConstBuffers getGPUConstBuffers() const { return mConstBuffers; }
 
         /**
-         * @fn  GPUConstBufferPtr Pass::getGPUConstBuffer(uint32_t slot) const;
+         * @fn  GPUConstBufferPtr Pass::getGPUConstBuffer(uint32_t slot) const
          * @brief   Gets GPU constant buffer
          * @param   slot    The slot.
-         * @returns The GPU constant buffer.
+         * @return  The GPU constant buffer.
          */
         GPUConstBufferPtr getGPUConstBuffer(uint32_t slot) const
         {
