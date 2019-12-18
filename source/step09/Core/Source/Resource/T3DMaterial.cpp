@@ -255,19 +255,24 @@ namespace Tiny3D
     {
         TechniquePtr tech;
 
-        size_t i = 0;
-        auto itr = mTechniques.begin();
+//         size_t i = 0;
+//         auto itr = mTechniques.begin();
+// 
+//         while (itr != mTechniques.end())
+//         {
+//             if (i == index)
+//             {
+//                 tech = *itr;
+//                 break;
+//             }
+// 
+//             ++i;
+//             ++itr;
+//         }
 
-        while (itr != mTechniques.end())
+        if (index < mTechniques.size())
         {
-            if (i == index)
-            {
-                tech = *itr;
-                break;
-            }
-
-            ++i;
-            ++itr;
+            tech = mTechniques[index];
         }
 
         return tech;

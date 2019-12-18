@@ -27,7 +27,8 @@
 #include "Bound/T3DObbBound.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramManager.h"
-
+#include "Resource/T3DMaterial.h"
+#include "Resource/T3DMaterialManager.h"
 
 namespace Tiny3D
 {
@@ -38,13 +39,13 @@ namespace Tiny3D
     {
         BoxVertex()
             : position(Vector3::ZERO)
-            , diffuse(Color4::WHITE.A8R8G8B8())
+            , diffuse(ColorARGB::WHITE)
         {
 
         }
 
         Vector3     position;
-        uint32_t    diffuse;
+        ColorARGB   diffuse;
     };
 
     //--------------------------------------------------------------------------
@@ -120,11 +121,13 @@ namespace Tiny3D
                 break;
             }
 
-            ShaderPtr vertexShader;
+            // 材质
+            mMaterial = T3D_MATERIAL_MGR.loadMaterial("BuiltinBox.t3b",
+                Material::E_MT_DEFAULT);
 
             // 创建顶点声明
             VertexDeclarationPtr decl
-                = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration(vertexShader);
+                = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
             if (decl == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -154,17 +157,6 @@ namespace Tiny3D
                 break;
             }
 
-            // 写顶点数据
-//             size_t size = sizeof(BoxVertex) * MAX_VERTICES;
-//             size_t bytesOfWritten = vbo->writeData(0, size, vertices);
-//             if (bytesOfWritten != size)
-//             {
-//                 ret = T3D_ERR_HW_BUFFER_WRITE;
-//                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SGBox \
-//                     failed !");
-//                 break;
-//             }
-
             // 创建IBO
             HardwareIndexBufferPtr ibo
                 = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(
@@ -179,21 +171,10 @@ namespace Tiny3D
                 break;
             }
 
-            // 写索引数据
-//             size = sizeof(uint16_t) * MAX_INDICES;
-//             bytesOfWritten = ibo->writeData(0, size, indices);
-//             if (bytesOfWritten != size)
-//             {
-//                 ret = T3D_ERR_HW_BUFFER_WRITE;
-//                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write indices data for SGBox \
-//                     failed !");
-//                 break;
-//             }
-
             mVAO->setVertexDeclaration(decl);
             mVAO->addVertexBuffer(vbo);
             mVAO->setIndexBuffer(ibo);
-            mVAO->setPrimitiveType(Renderer::E_PT_TRIANGLE_LIST);
+            mVAO->setPrimitiveType(Renderer::PrimitiveType::E_PT_TRIANGLE_LIST);
 
             mVAO->endBinding();
 
@@ -231,7 +212,7 @@ namespace Tiny3D
         BoxVertex *vert = (BoxVertex *)vertices;
 
         Vector3 offset;
-        uint32_t color = Color4::WHITE.A8R8G8B8();
+        ColorARGB color = ColorARGB::WHITE;
 
 
         // V0
@@ -373,7 +354,7 @@ namespace Tiny3D
 
     MaterialPtr SGBox::getMaterial() const
     {
-        return nullptr;
+        return mMaterial;
     }
 
     //--------------------------------------------------------------------------

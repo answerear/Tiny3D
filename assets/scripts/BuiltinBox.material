@@ -7,7 +7,7 @@ material Builtin/Box
 		{
 			lighting off
 			
-			gpu_program_ref BuiltinBox.hlsl
+			gpu_program_ref Builtin/NoTexture
 			{
 				gpu_cbuffer_ref Builtin/UpdatePerObject
 				{

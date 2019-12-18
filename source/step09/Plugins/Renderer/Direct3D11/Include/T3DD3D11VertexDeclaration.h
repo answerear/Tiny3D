@@ -36,7 +36,7 @@ namespace Tiny3D
         /**
          * @brief 创建 DirectX 11 渲染器相关的顶点声明对象
          */
-        static D3D11VertexDeclarationPtr create(ShaderPtr vertexShader);
+        static D3D11VertexDeclarationPtr create();
 
         /**
          * @brief 析构函数
@@ -117,13 +117,13 @@ namespace Tiny3D
         /**
          * @brief 获取 D3D11 顶点输入布局对象
          */
-        ID3D11InputLayout *getD3DInputLayout();
+        ID3D11InputLayout *getD3DInputLayout(D3D11VertexShaderPtr shader);
 
     protected:
         /**
          * @brief 构造函数
          */
-        D3D11VertexDeclaration(ShaderPtr vertexShader);
+        D3D11VertexDeclaration();
 
     protected:
         ID3D11InputLayout   *mD3DInputLayout;    /**< D3D11 输入布局 */

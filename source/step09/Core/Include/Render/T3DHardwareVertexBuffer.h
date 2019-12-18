@@ -225,13 +225,11 @@ namespace Tiny3D
         typedef VertexAttriList::const_iterator     VertexAttriListConstItr;
 
         /**
-         * @fn  static VertexDeclarationPtr VertexDeclaration::create(
-         *      ShaderPtr vertexShader);
+         * @fn  static VertexDeclarationPtr VertexDeclaration::create();
          * @brief   创建顶点声明对象
-         * @param [in]  vertexShader    对应的顶点着色器对象.
          * @returns 返回一个顶点声明对象.
          */
-        static VertexDeclarationPtr create(ShaderPtr vertexShader);
+        static VertexDeclarationPtr create();
 
         /**
          * @fn  virtual VertexDeclaration::~VertexDeclaration();
@@ -393,14 +391,12 @@ namespace Tiny3D
 
     protected:
         /**
-         * @fn  VertexDeclaration::VertexDeclaration(ShaderPtr vertexShader);
+         * @fn  VertexDeclaration::VertexDeclaration();
          * @brief   构造函数
-         * @param [in]  vertexShader    对应的顶点着色器对象.
          */
-        VertexDeclaration(ShaderPtr vertexShader);
+        VertexDeclaration();
 
     protected:
-        ShaderPtr       mVertexShader;      /**< 跟顶点声明关联的着色器对象 */
         VertexAttriList mVertexAttributes;  /**< 顶点属性列表 */
     };
 }

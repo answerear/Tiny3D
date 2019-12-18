@@ -167,17 +167,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    VertexDeclarationPtr VertexDeclaration::create(ShaderPtr vertexShader)
+    VertexDeclarationPtr VertexDeclaration::create()
     {
-        VertexDeclarationPtr decl = new VertexDeclaration(vertexShader);
+        VertexDeclarationPtr decl = new VertexDeclaration();
         decl->release();
         return decl;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexDeclaration::VertexDeclaration(ShaderPtr vertexShader)
-        : mVertexShader(vertexShader)
+    VertexDeclaration::VertexDeclaration()
     {
 
     }
@@ -186,7 +185,7 @@ namespace Tiny3D
 
     VertexDeclaration::~VertexDeclaration()
     {
-        mVertexShader = nullptr;
+
     }
 
     //--------------------------------------------------------------------------
@@ -396,7 +395,7 @@ namespace Tiny3D
     VertexDeclarationPtr VertexDeclaration::clone() const
     {
         VertexDeclarationPtr decl 
-            = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration(mVertexShader);
+            = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
         VertexAttriListConstItr itr = mVertexAttributes.begin();
 
         while (itr != mVertexAttributes.end())

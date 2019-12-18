@@ -8,14 +8,14 @@
 
 struct VertexIn
 {
-	float3 PosL  : POSITION;
-    float4 Color : COLOR;
+	float3 PosL  : POSITION0;
+    float4 Color : COLOR0;
 };
 
 struct VertexOut
 {
 	float4 PosH  : SV_POSITION;
-    float4 Color : COLOR;
+    float4 Color : COLOR0;
 };
 
 VertexOut VS(VertexIn vin)

@@ -129,11 +129,9 @@ namespace Tiny3D
                 break;
             }
 
-            ShaderPtr vertexShader;
-
             // 创建顶点声明
             VertexDeclarationPtr decl
-                = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration(vertexShader);
+                = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
             if (decl == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -202,7 +200,7 @@ namespace Tiny3D
             mVAO->setVertexDeclaration(decl);
             mVAO->addVertexBuffer(vbo);
             mVAO->setIndexBuffer(ibo);
-            mVAO->setPrimitiveType(Renderer::E_PT_TRIANGLE_LIST);
+            mVAO->setPrimitiveType(Renderer::PrimitiveType::E_PT_TRIANGLE_LIST);
 
             mVAO->endBinding();
 

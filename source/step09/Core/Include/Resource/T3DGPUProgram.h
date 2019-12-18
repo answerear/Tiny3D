@@ -86,7 +86,7 @@ namespace Tiny3D
     class T3D_ENGINE_API GPUProgramRef : public Object
     {
     public:
-        typedef TList<GPUConstBufferRefPtr>     BufferRefList;
+        typedef TArray<GPUConstBufferRefPtr>    BufferRefList;
         typedef BufferRefList::iterator         BufferRefListItr;
         typedef BufferRefList::const_iterator   BufferRefListConstItr;
 

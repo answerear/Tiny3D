@@ -24,6 +24,9 @@
 #include "Render/T3DHardwareIndexBuffer.h"
 #include "SceneGraph/T3DSGRenderable.h"
 #include "SceneGraph/T3DSGCamera.h"
+#include "Kernel/T3DTechnique.h"
+#include "Kernel/T3DPass.h"
+#include "Resource/T3DGPUProgram.h"
 
 
 namespace Tiny3D
@@ -112,6 +115,11 @@ namespace Tiny3D
             while (itr != mRenderables.end())
             {
                 MaterialPtr material = itr->first;
+                TechniquePtr tech = material->getTechnique(0);
+                PassPtr pass = tech->getPass(0);
+
+                GPUProgramPtr program = pass->getGPUProgram();
+                renderer->setGPUProgram(program);
 
                 RenderableList &renderables = itr->second;
 
@@ -162,27 +170,27 @@ namespace Tiny3D
 
         switch (priType)
         {
-        case Renderer::E_PT_POINT_LIST:
+        case Renderer::PrimitiveType::E_PT_POINT_LIST:
             primCount = (useIndex ? indexCount : vertexCount);
             break;
 
-        case Renderer::E_PT_LINE_LIST:
+        case Renderer::PrimitiveType::E_PT_LINE_LIST:
             primCount = (useIndex ? indexCount : vertexCount) / 2;
             break;
 
-        case Renderer::E_PT_LINE_STRIP:
+        case Renderer::PrimitiveType::E_PT_LINE_STRIP:
             primCount = (useIndex ? indexCount : vertexCount) - 1;
             break;
 
-        case Renderer::E_PT_TRIANGLE_LIST:
+        case Renderer::PrimitiveType::E_PT_TRIANGLE_LIST:
             primCount = (useIndex ? indexCount : vertexCount) / 3;
             break;
 
-        case Renderer::E_PT_TRIANGLE_STRIP:
+        case Renderer::PrimitiveType::E_PT_TRIANGLE_STRIP:
             primCount = (useIndex ? indexCount : vertexCount) - 2;
             break;
 
-        case Renderer::E_PT_TRIANGLE_FAN:
+        case Renderer::PrimitiveType::E_PT_TRIANGLE_FAN:
             primCount = (useIndex ? indexCount : vertexCount) - 2;
             break;
         }

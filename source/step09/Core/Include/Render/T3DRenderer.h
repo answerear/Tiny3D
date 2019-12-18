@@ -77,7 +77,7 @@ namespace Tiny3D
          * @enum    TransformState
          * @brief   设置变换矩阵状态
          */
-        enum TransformState : uint32_t
+        enum class TransformState : uint32_t
         {
             VIEW = 0,      /**< 视口变换矩阵 */
             WORLD,         /**< 世界变换矩阵 */
@@ -89,7 +89,7 @@ namespace Tiny3D
          * @enum    PrimitiveType
          * @brief   渲染图元类型
          */
-        enum PrimitiveType
+        enum class PrimitiveType : uint32_t
         {
             E_PT_POINT_LIST = 0,    /**< 点列表图元 */
             E_PT_LINE_LIST,         /**< 线列表图元 */
@@ -104,7 +104,7 @@ namespace Tiny3D
          * @enum    ClearFlags
          * @brief   Values that represent clear flags
          */
-        enum ClearFlags
+        enum ClearFlags : uint32_t
         {
             E_CLEAR_STENCIL = 0,
             E_CLEAR_TARGET,

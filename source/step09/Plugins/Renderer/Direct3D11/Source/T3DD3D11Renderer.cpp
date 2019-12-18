@@ -517,6 +517,8 @@ namespace Tiny3D
 
         do 
         {
+            mGPUProgram = program;
+
             // Vertex Shader
             D3D11VertexShaderPtr vshader 
                 = smart_pointer_cast<D3D11VertexShader>(
@@ -575,7 +577,8 @@ namespace Tiny3D
 
             // 顶点布局
             D3D11VertexDeclarationPtr decl = smart_pointer_cast<D3D11VertexDeclaration>(vao->getVertexDeclaration());
-            ID3D11InputLayout *d3dLayout = decl->getD3DInputLayout();
+            D3D11VertexShaderPtr vshader = smart_pointer_cast<D3D11VertexShader>(mGPUProgram->getVertexShader());
+            ID3D11InputLayout *d3dLayout = decl->getD3DInputLayout(vshader);
             mD3DDeviceContext->IASetInputLayout(d3dLayout);
 
             // 顶点缓冲

@@ -90,6 +90,12 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        do 
+        {
+            buffer = GPUConstBufferRef::create(name, slot);
+            mBuffers.push_back(buffer);
+        } while (0);
+
         return ret;
     }
 
@@ -98,6 +104,18 @@ namespace Tiny3D
     TResult GPUProgramRef::removeConstBufferRef(const String& name)
     {
         TResult ret = T3D_OK;
+
+        auto itr = mBuffers.begin();
+        while (itr != mBuffers.end())
+        {
+            if ((*itr)->getName() == name)
+            {
+                mBuffers.erase(itr);
+                break;
+            }
+
+            ++itr;
+        }
 
         return ret;
     }
@@ -108,6 +126,18 @@ namespace Tiny3D
     {
         GPUConstBufferRefPtr buffer;
 
+        auto itr = mBuffers.begin();
+        while (itr != mBuffers.end())
+        {
+            if ((*itr)->getName() == name)
+            {
+                buffer = *itr;
+                break;
+            }
+
+            ++itr;
+        }
+
         return buffer;
     }
 
@@ -116,6 +146,16 @@ namespace Tiny3D
     GPUConstBufferRefPtr GPUProgramRef::getBufferRef(uint32_t slot) const
     {
         GPUConstBufferRefPtr buffer;
+
+        do 
+        {
+            if (slot >= mBuffers.size())
+            {
+                break;
+            }
+
+            buffer = mBuffers[slot];
+        } while (0);
         return buffer;
     }
 

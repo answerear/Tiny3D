@@ -37,7 +37,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     D3D11VertexArrayObject::D3D11VertexArrayObject(bool useIndices)
-        : mPrimitiveType(Renderer::E_PT_TRIANGLE_LIST)
+        : mPrimitiveType(Renderer::PrimitiveType::E_PT_TRIANGLE_LIST)
         , mDecl(nullptr)
         , mIBO(nullptr)
         , mUseIndices(useIndices)

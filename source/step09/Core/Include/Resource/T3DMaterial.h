@@ -34,7 +34,7 @@ namespace Tiny3D
     class T3D_ENGINE_API Material : public Resource
     {
     public:
-        typedef TList<TechniquePtr>             Techniques;
+        typedef TArray<TechniquePtr>            Techniques;
         typedef Techniques::iterator            TechniquesItr;
         typedef Techniques::const_iterator      TechniquesConstItr;
 

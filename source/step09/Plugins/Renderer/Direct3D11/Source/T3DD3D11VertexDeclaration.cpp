@@ -28,19 +28,17 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    D3D11VertexDeclarationPtr D3D11VertexDeclaration::create(
-        ShaderPtr vertexShader)
+    D3D11VertexDeclarationPtr D3D11VertexDeclaration::create()
     {
-        D3D11VertexDeclarationPtr decl 
-            = new D3D11VertexDeclaration(vertexShader);
+        D3D11VertexDeclarationPtr decl = new D3D11VertexDeclaration();
         decl->release();
         return decl;
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11VertexDeclaration::D3D11VertexDeclaration(ShaderPtr vertexShader)
-        : VertexDeclaration(vertexShader)
+    D3D11VertexDeclaration::D3D11VertexDeclaration()
+        : VertexDeclaration()
         , mD3DInputLayout(nullptr)
         , mIsDirty(false)
     {
@@ -144,7 +142,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ID3D11InputLayout *D3D11VertexDeclaration::getD3DInputLayout()
+    ID3D11InputLayout *D3D11VertexDeclaration::getD3DInputLayout(
+        D3D11VertexShaderPtr shader)
     {
         if (mIsDirty)
         {
@@ -170,17 +169,15 @@ namespace Tiny3D
                     desc[i].AlignedByteOffset = (UINT)attrib.getOffset();
                     desc[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
                     desc[i].InstanceDataStepRate = 0;
+                    ++i;
                     ++itr;
                 }
 
                 ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
 
-                D3D11VertexShaderPtr vertexShader =
-                    smart_pointer_cast<D3D11VertexShader>(mVertexShader);
-
                 const char *bytecode = nullptr;
                 size_t bytecodeLength = 0;
-                vertexShader->getBytecode(bytecode, bytecodeLength);
+                shader->getBytecode(bytecode, bytecodeLength);
 
                 HRESULT hr = S_OK;
                 hr = pD3DDevice->CreateInputLayout(desc, (UINT)nNumElements,

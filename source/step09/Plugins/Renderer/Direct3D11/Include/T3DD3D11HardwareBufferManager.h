@@ -155,18 +155,15 @@ namespace Tiny3D
 
         /**
          * @fn  virtual VertexDeclarationPtr 
-         *      D3D11HardwareBufferManager::createVertexDeclaration(
-         *      ShaderPtr vertexShader) override;
+         *      D3D11HardwareBufferManager::createVertexDeclaration() override;
          * @brief   创建顶点声明
          * @param [in]  vertexShader    顶点着色器.
          * @returns 返回一个渲染系统对应的顶点声明对象.
          * @remarks  继承自 HardwareBufferManagerBase.
          * @sa  VertexDeclarationPtr 
-         *      HardwareBufferManagerBase::createVertexDeclaration(
-         *      ShaderPtr vertexShader)
+         *      HardwareBufferManagerBase::createVertexDeclaration()
          */
-        virtual VertexDeclarationPtr createVertexDeclaration(
-            ShaderPtr vertexShader) override;
+        virtual VertexDeclarationPtr createVertexDeclaration() override;
 
     protected:
         /**

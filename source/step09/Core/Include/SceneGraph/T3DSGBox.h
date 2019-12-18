@@ -124,6 +124,7 @@ namespace Tiny3D
         Vector3                 mExtent;        /**< 沿3个轴方向上的长度 */
         VertexArrayObjectPtr    mVAO;           /**< 渲染用的VAO */
         ObbBoundPtr             mBound;         /**< 有向碰撞体 */
+        MaterialPtr             mMaterial;      /**< 材质 */
     };
 }
 

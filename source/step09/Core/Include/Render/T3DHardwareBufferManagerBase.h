@@ -132,14 +132,12 @@ namespace Tiny3D
 
         /**
          * @fn  virtual VertexDeclarationPtr 
-         *      HardwareBufferManagerBase::createVertexDeclaration(
-         *      ShaderPtr vertexShader);
+         *      HardwareBufferManagerBase::createVertexDeclaration();
          * @brief   创建顶点声明对象
          * @param [in]  vertexShader    顶点着色器.
          * @returns 返回一个渲染系统对应的顶点声明对象.
          */
-        virtual VertexDeclarationPtr createVertexDeclaration(
-            ShaderPtr vertexShader);
+        virtual VertexDeclarationPtr createVertexDeclaration();
 
     protected:
         /**

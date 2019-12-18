@@ -152,18 +152,15 @@ namespace Tiny3D
             bool useIndices) override;
 
         /**
-         * @fn  virtual VertexDeclarationPtr createVertexDeclaration(
-         *      ShaderPtr vertexShader) override;
+         * @fn  virtual VertexDeclarationPtr createVertexDeclaration() override;
          * @brief   创建顶点声明
          * @param [in]  vertexShader    顶点着色器.
          * @returns 返回一个渲染系统对应的顶点声明对象.
          * @sa  VertexDeclarationPtr 
-         *      HardwareBufferManagerBase::createVertexDeclaration(
-         *      ShaderPtr vertexShader)
+         *      HardwareBufferManagerBase::createVertexDeclaration()
          * @remarks 继承自 HardwareBufferManagerBase.
          */
-        virtual VertexDeclarationPtr createVertexDeclaration(
-            ShaderPtr vertexShader) override;
+        virtual VertexDeclarationPtr createVertexDeclaration() override;
 
     protected:
         /**

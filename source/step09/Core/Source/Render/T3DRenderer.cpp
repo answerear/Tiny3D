@@ -323,6 +323,12 @@ namespace Tiny3D
             size_t bytesOfWritten = 0;
             bytesOfWritten = mGPUBufferUpdateObject->getBufferImpl()->writeData(
                 0, sizeof(mGPUConstUpdateObject), &mGPUBufferUpdateObject);
+
+            if (bytesOfWritten == 0)
+            {
+                ret = T3D_ERR_HW_BUFFER_WRITE;
+                break;
+            }
         } while (0);
 
         return ret;
@@ -340,7 +346,26 @@ namespace Tiny3D
             const Matrix4 &V = mGPUConstUpdateFrame.mViewMatrix;
             const Matrix4 &P = mGPUConstUpdateRarely.mProjMatrix;
 
+            mGPUConstUpdateFrame.mInverseViewM = V.inverse();
+            mGPUConstUpdateFrame.mTransposeViewM = V.transpose();
+            mGPUConstUpdateFrame.mInverseTransposeViewM
+                = mGPUConstUpdateFrame.mInverseViewM.transpose();
 
+            Matrix4 &VP = mGPUConstUpdateFrame.mViewProjMatrix;
+            mGPUConstUpdateFrame.mInverseViewProjM = VP.inverse();
+            mGPUConstUpdateFrame.mTransposeViewProjM = VP.transpose();
+            mGPUConstUpdateFrame.mInverseTransposeViewProjM
+                = mGPUConstUpdateFrame.mInverseViewProjM.transpose();
+
+            size_t bytesOfWritten = 0;
+            bytesOfWritten = mGPUBufferUpdateFrame->getBufferImpl()->writeData(
+                0, sizeof(mGPUConstUpdateFrame), &mGPUBufferUpdateFrame);
+
+            if (bytesOfWritten == 0)
+            {
+                ret = T3D_ERR_HW_BUFFER_WRITE;
+                break;
+            }
         } while (0);
 
         return ret;
@@ -354,6 +379,22 @@ namespace Tiny3D
 
         do 
         {
+            const Matrix4 &P = mGPUConstUpdateRarely.mProjMatrix;
+
+            mGPUConstUpdateRarely.mInverseProjM = P.inverse();
+            mGPUConstUpdateRarely.mTransposeProjM = P.transpose();
+            mGPUConstUpdateRarely.mInverseTransposeProjM
+                = mGPUConstUpdateRarely.mInverseProjM.transpose();
+
+            size_t bytesOfWritten = 0;
+            bytesOfWritten = mGPUBufferUpdateRarely->getBufferImpl()->writeData(
+                0, sizeof(mGPUBufferUpdateRarely), &mGPUBufferUpdateRarely);
+
+            if (bytesOfWritten == 0)
+            {
+                ret = T3D_ERR_HW_BUFFER_WRITE;
+                break;
+            }
         } while (0);
 
         return ret;
