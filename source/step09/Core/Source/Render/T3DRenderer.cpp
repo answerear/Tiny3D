@@ -258,7 +258,7 @@ namespace Tiny3D
 
             ret = mGPUBufferUpdateFrame->initWithData(
                 sizeof(mGPUConstUpdateFrame), &mGPUConstUpdateFrame,
-                HardwareBuffer::Usage::STREAM,
+                HardwareBuffer::Usage::DYNAMIC,
                 HardwareBuffer::AccessMode::CPU_WRITE);
             if (ret != T3D_OK)
             {
@@ -269,7 +269,7 @@ namespace Tiny3D
 
             ret = mGPUBufferUpdateRarely->initWithData(
                 sizeof(mGPUConstUpdateRarely), &mGPUConstUpdateRarely,
-                HardwareBuffer::Usage::DYNAMIC, 
+                HardwareBuffer::Usage::STATIC,
                 HardwareBuffer::AccessMode::CPU_WRITE);
             if (ret != T3D_OK)
             {
@@ -282,7 +282,7 @@ namespace Tiny3D
             setPolygonMode(PolygonMode::SOLID);
 
             // 设置默认背面剔除顺序
-            setCullingMode(CullingMode::NONE);
+            setCullingMode(CullingMode::CLOCKWISE);
 
             // 绑定常量缓冲区
             setConstantBuffer(0, mGPUBufferUpdateObject->getBufferImpl());

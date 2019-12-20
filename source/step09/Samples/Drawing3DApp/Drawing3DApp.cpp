@@ -64,7 +64,7 @@ bool Drawing3DApp::applicationDidFinishLaunching()
     // Ïä×Ó
     Vector3 extent(1.0f, 1.0f, 1.0f);
     SGBoxPtr box = T3D_SCENE_MGR.createBox(Vector3::ZERO, extent, root);
-//     box->setPosition(Vector3(-4.0f, 0.0f, -2.0f));
+    box->setPosition(Vector3(-4.0f, 0.0f, -2.0f));
     box->setCameraMask(OBJ_MASK_SCENE);
 //     box->setScaling(Vector3(100, 100, 100));
 
