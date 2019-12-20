@@ -275,8 +275,8 @@ namespace Tiny3D
         indices[3] = 1, indices[4] = 3, indices[5] = 2;
 
         // Back
-        indices[6] = 4, indices[7] = 5, indices[8] = 7;
-        indices[9] = 4, indices[10] = 7, indices[11] = 6;
+        indices[6] = 4, indices[7] = 5, indices[8] = 6;
+        indices[9] = 5, indices[10] = 7, indices[11] = 6;
 
         // Left
         indices[12] = 0, indices[13] = 6, indices[14] = 7;
@@ -287,8 +287,8 @@ namespace Tiny3D
         indices[21] = 3, indices[22] = 5, indices[23] = 4;
 
         // Top
-        indices[24] = 0, indices[25] = 2, indices[26] = 6;
-        indices[27] = 2, indices[28] = 4, indices[29] = 6;
+        indices[24] = 0, indices[25] = 2, indices[26] = 4;
+        indices[27] = 0, indices[28] = 4, indices[29] = 6;
 
         // Bottom
         indices[30] = 1, indices[31] = 7, indices[32] = 3;
