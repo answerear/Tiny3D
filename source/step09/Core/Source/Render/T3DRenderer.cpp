@@ -247,7 +247,7 @@ namespace Tiny3D
 
             ret = mGPUBufferUpdateObject->initWithData(
                 sizeof(mGPUConstUpdateObject), &mGPUConstUpdateObject, 
-                HardwareBuffer::Usage::DYNAMIC,
+                HardwareBuffer::Usage::STREAM,
                 HardwareBuffer::AccessMode::CPU_WRITE);
             if (ret != T3D_OK)
             {
@@ -258,7 +258,7 @@ namespace Tiny3D
 
             ret = mGPUBufferUpdateFrame->initWithData(
                 sizeof(mGPUConstUpdateFrame), &mGPUConstUpdateFrame,
-                HardwareBuffer::Usage::DYNAMIC,
+                HardwareBuffer::Usage::STREAM,
                 HardwareBuffer::AccessMode::CPU_WRITE);
             if (ret != T3D_OK)
             {
@@ -327,7 +327,7 @@ namespace Tiny3D
 
             size_t bytesOfWritten = 0;
             bytesOfWritten = mGPUBufferUpdateObject->getBufferImpl()->writeData(
-                0, sizeof(mGPUConstUpdateObject), &mGPUBufferUpdateObject);
+                0, sizeof(mGPUConstUpdateObject), &mGPUConstUpdateObject);
 
             if (bytesOfWritten == 0)
             {
@@ -364,7 +364,7 @@ namespace Tiny3D
 
             size_t bytesOfWritten = 0;
             bytesOfWritten = mGPUBufferUpdateFrame->getBufferImpl()->writeData(
-                0, sizeof(mGPUConstUpdateFrame), &mGPUBufferUpdateFrame);
+                0, sizeof(mGPUConstUpdateFrame), &mGPUConstUpdateFrame);
 
             if (bytesOfWritten == 0)
             {
@@ -393,7 +393,7 @@ namespace Tiny3D
 
             size_t bytesOfWritten = 0;
             bytesOfWritten = mGPUBufferUpdateRarely->getBufferImpl()->writeData(
-                0, sizeof(mGPUBufferUpdateRarely), &mGPUBufferUpdateRarely);
+                0, sizeof(mGPUConstUpdateRarely), &mGPUConstUpdateRarely);
 
             if (bytesOfWritten == 0)
             {

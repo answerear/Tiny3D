@@ -546,23 +546,24 @@ namespace Tiny3D
             D3D11VertexArrayObjectPtr d3dVAO 
                 = smart_pointer_cast<D3D11VertexArrayObject>(vao);
 
-            if (mIsViewMatrixDirty)
+            if (mIsViewMatrixDirty || mIsProjMatrixDirty)
             {
                 updateBufferPerFrame();
-                mIsViewMatrixDirty = false;
             }
 
             if (mIsProjMatrixDirty)
             {
                 updateBufferRarely();
-                mIsProjMatrixDirty = false;
             }
 
-            if (mIsWorldMatrixDirty)
+            if (mIsWorldMatrixDirty || mIsViewMatrixDirty || mIsProjMatrixDirty)
             {
                 updateBufferPerObject();
-                mIsWorldMatrixDirty = false;
             }
+
+            mIsWorldMatrixDirty = false;
+            mIsViewMatrixDirty = false;
+            mIsProjMatrixDirty = false;
 
             if (mIsRSStateDirty)
             {
