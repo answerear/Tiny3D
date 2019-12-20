@@ -1668,6 +1668,8 @@ namespace Tiny3D
                 break;
             }
 
+            T3D_LOG_INFO(LOG_TAG, "%s translating to %s for %s stage ...", filename.c_str(), language.c_str(), stage.c_str());
+
             // Read source file content
             String inpath = mProjDir + Dir::getNativeSeparator() + source;
 
@@ -1695,7 +1697,7 @@ namespace Tiny3D
             if (result.errorWarningMsg != nullptr)
             {
                 const char* msg = reinterpret_cast<const char*>(result.errorWarningMsg->Data());
-                T3D_LOG_ERROR("Compiler", "Error or warning form shader compiler: ", std::string(msg, msg + result.errorWarningMsg->Size()).c_str());
+                T3D_LOG_ERROR("Compiler", "Error or warning from shader compiler: %s", std::string(msg, msg + result.errorWarningMsg->Size()).c_str());
             }
 
             if (result.target != nullptr)
@@ -1714,7 +1716,19 @@ namespace Tiny3D
                     break;
                 }
 
-                outfile.write((void*)result.target->Data(), result.target->Size());
+                if (language == "hlsl")
+                {
+                    // ShaderConductor 有 bug，没有把 hlsl 的 Semantic 记录下来 写回去，
+                    // 所以这里做一次替换，以修复转出来的 hlsl 错误的 Semantic 修饰
+                    String content((const char *)result.target->Data(), result.target->Size());
+                    fixSpirVCrossForHLSLSemantics(content);
+                    outfile.write((void*)content.c_str(), content.length());
+                }
+                else
+                {
+                    outfile.write((void*)result.target->Data(), result.target->Size());
+                }
+
                 outfile.close();
             }
 
@@ -1722,9 +1736,36 @@ namespace Tiny3D
             DestroyBlob(result.target);
 
             ret = true;
+
+            T3D_LOG_INFO(LOG_TAG, "%s translating done !", filename.c_str());
         } while (0);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ScriptCompiler::fixSpirVCrossForHLSLSemantics(String &content)
+    {
+        String::size_type p0 = 0;
+        while (1)
+        {
+            String::size_type startPos = content.find(" : TEXCOORD", p0);
+            if (startPos == String::npos)
+                break;
+
+            String::size_type endPos = content.find_first_of(';', startPos);
+            if (endPos == String::npos)
+                break;
+
+            String::size_type p1 = content.rfind('_', startPos);
+            if (p1 == String::npos)
+                break;
+
+            String semantic = content.substr(p1 + 1, startPos - p1 - 1);
+            content.replace(startPos + 3, endPos - startPos - 3, semantic);
+            p0 = endPos + 1;
+        }
     }
 }
 

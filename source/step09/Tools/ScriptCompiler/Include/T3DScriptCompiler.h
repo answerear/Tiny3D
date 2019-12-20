@@ -206,6 +206,9 @@ namespace Tiny3D
         // 初始化像素格式
         void initPixelFormat();
 
+        // 修正 SpirV-Cross 转成 HLSL 语义字段错误的 bug
+        void fixSpirVCrossForHLSLSemantics(String &content);
+
     protected:
         struct T3DFileHeader
         {

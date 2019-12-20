@@ -42,12 +42,12 @@ cbuffer type_cbRarely : register(b2)
 
 
 static float4 gl_FragCoord;
-static float4 in_var_COLOR0;
+static float4 in_var_COLOR;
 static float4 out_var_SV_Target;
 
 struct SPIRV_Cross_Input
 {
-    float4 in_var_COLOR0 : TEXCOORD0;
+    float4 in_var_COLOR : COLOR;
     float4 gl_FragCoord : SV_Position;
 };
 
@@ -56,33 +56,22 @@ struct SPIRV_Cross_Output
     float4 out_var_SV_Target : SV_Target0;
 };
 
-#line 75 "C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\source\step09\vs2015-x64\..\..\..\assets\scripts\\BuiltinBox.hlsl"
 float4 src_PS(VertexOut pin)
 {
-#line 77 "C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\source\step09\vs2015-x64\..\..\..\assets\scripts\\BuiltinBox.hlsl"
-#line 77 "C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\source\step09\vs2015-x64\..\..\..\assets\scripts\\BuiltinBox.hlsl"
-#line 77 "C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\source\step09\vs2015-x64\..\..\..\assets\scripts\\BuiltinBox.hlsl"
     return pin.Color;
 }
 
-#line 75 "C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\source\step09\vs2015-x64\..\..\..\assets\scripts\\BuiltinBox.hlsl"
 void frag_main()
 {
-#line 75 "C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\source\step09\vs2015-x64\..\..\..\assets\scripts\\BuiltinBox.hlsl"
-#line 57 "C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\source\step09\vs2015-x64\..\..\..\assets\scripts\\BuiltinBox.hlsl"
-#line 58 "C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\source\step09\vs2015-x64\..\..\..\assets\scripts\\BuiltinBox.hlsl"
-#line 75 "C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\source\step09\vs2015-x64\..\..\..\assets\scripts\\BuiltinBox.hlsl"
-    VertexOut _30 = { gl_FragCoord, in_var_COLOR0 };
-    VertexOut param_var_pin = _30;
-#line 75 "C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\source\step09\vs2015-x64\..\..\..\assets\scripts\\BuiltinBox.hlsl"
-#line 75 "C:\Users\aaronwang\workspace\projects\private\Tiny3D\steps\source\step09\vs2015-x64\..\..\..\assets\scripts\\BuiltinBox.hlsl"
+    VertexOut _29 = { gl_FragCoord, in_var_COLOR };
+    VertexOut param_var_pin = _29;
     out_var_SV_Target = src_PS(param_var_pin);
 }
 
 SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 {
     gl_FragCoord = stage_input.gl_FragCoord;
-    in_var_COLOR0 = stage_input.in_var_COLOR0;
+    in_var_COLOR = stage_input.in_var_COLOR;
     frag_main();
     SPIRV_Cross_Output stage_output;
     stage_output.out_var_SV_Target = out_var_SV_Target;

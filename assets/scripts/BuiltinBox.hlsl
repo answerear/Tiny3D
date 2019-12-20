@@ -8,14 +8,14 @@
 
 struct VertexIn
 {
-	float3 PosL  : POSITION0;
-    float4 Color : COLOR0;
+	float4 PosL  : POSITION;
+    float4 Color : COLOR;
 };
 
 struct VertexOut
 {
 	float4 PosH  : SV_POSITION;
-    float4 Color : COLOR0;
+    float4 Color : COLOR;
 };
 
 VertexOut VS(VertexIn vin)
@@ -24,7 +24,7 @@ VertexOut VS(VertexIn vin)
 	
 	// Transform to homogeneous clip space.
 	//vout.PosH = mul(float4(vin.PosL, 1.0f), gWorldViewProj);
-	vout.PosH = mul(TINY3D_MATRIX_MVP, float4(vin.PosL, 1.0f));
+	vout.PosH = mul(TINY3D_MATRIX_MVP, vin.PosL);
 	
 	// Just pass vertex color into the pixel shader.
     vout.Color = vin.Color;
