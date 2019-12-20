@@ -1,6 +1,6 @@
 struct VertexIn
 {
-    float4 PosL;
+    float3 PosL;
     float4 Color;
 };
 
@@ -48,13 +48,13 @@ cbuffer type_cbRarely : register(b2)
 
 
 static float4 gl_Position;
-static float4 in_var_POSITION;
+static float3 in_var_POSITION;
 static float4 in_var_COLOR;
 static float4 out_var_COLOR;
 
 struct SPIRV_Cross_Input
 {
-    float4 in_var_POSITION : POSITION;
+    float3 in_var_POSITION : POSITION;
     float4 in_var_COLOR : COLOR;
 };
 
@@ -67,18 +67,18 @@ struct SPIRV_Cross_Output
 VertexOut src_VS(VertexIn vin)
 {
     VertexOut vout;
-    vout.PosH = mul(cbPerObject_TINY3D_MATRIX_MVP, vin.PosL);
+    vout.PosH = mul(cbPerObject_TINY3D_MATRIX_MVP, float4(vin.PosL, 1.0f));
     vout.Color = vin.Color;
     return vout;
 }
 
 void vert_main()
 {
-    VertexIn _32 = { in_var_POSITION, in_var_COLOR };
-    VertexIn param_var_vin = _32;
-    VertexOut _34 = src_VS(param_var_vin);
-    gl_Position = _34.PosH;
-    out_var_COLOR = _34.Color;
+    VertexIn _35 = { in_var_POSITION, in_var_COLOR };
+    VertexIn param_var_vin = _35;
+    VertexOut _37 = src_VS(param_var_vin);
+    gl_Position = _37.PosH;
+    out_var_COLOR = _37.Color;
 }
 
 SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)

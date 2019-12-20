@@ -76,7 +76,7 @@ namespace Tiny3D
 
             hr = D3DCompile(mContent, mContentLength, szMsg, nullptr, 
                 nullptr, entry.c_str(), model.c_str(), 
-                0, 0, &pCode, &pError);
+                unShaderFlags, 0, &pCode, &pError);
             if (FAILED(hr))
             {
                 ret = T3D_ERR_D3D11_SHADER_COMPILED;

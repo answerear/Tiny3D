@@ -499,11 +499,12 @@ namespace Tiny3D
         {
             D3D11HardwareConstantBufferPtr d3dBuffer 
                 = smart_pointer_cast<D3D11HardwareConstantBuffer>(buffer);
+            ID3D11Buffer *pBuffer = d3dBuffer->getD3DBuffer();
             mD3DDeviceContext->VSSetConstantBuffers((UINT)slot, 1, 
-                (ID3D11Buffer * const *)d3dBuffer->getD3DBuffer());
+                (ID3D11Buffer * const *)&pBuffer);
 
             mD3DDeviceContext->PSSetConstantBuffers((UINT)slot, 1,
-                (ID3D11Buffer * const *)d3dBuffer->getD3DBuffer());
+                (ID3D11Buffer * const *)&pBuffer);
         } while (0);
 
         return ret;

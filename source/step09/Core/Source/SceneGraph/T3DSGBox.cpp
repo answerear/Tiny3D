@@ -162,7 +162,7 @@ namespace Tiny3D
                 = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(
                     HardwareIndexBuffer::Type::E_IT_16BITS, MAX_INDICES, 
                     indices, HardwareBuffer::Usage::STATIC, 
-                    HardwareBuffer::AccessMode::CPU_WRITE);
+                    HardwareBuffer::AccessMode::CPU_NONE);
             if (ibo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -214,18 +214,17 @@ namespace Tiny3D
         Vector3 offset;
         ColorARGB color = ColorARGB::WHITE;
 
-
         // V0
         offset[0] = -mExtent[0];
-        offset[1] =  mExtent[1];
-        offset[2] =  mExtent[2];
+        offset[1] = mExtent[1];
+        offset[2] = mExtent[2];
         vert[0].position = mCenter + offset;
         vert[0].diffuse = color;
 
         // V1
         offset[0] = -mExtent[0];
         offset[1] = -mExtent[1];
-        offset[2] =  mExtent[2];
+        offset[2] = mExtent[2];
         vert[1].position = mCenter + offset;
         vert[1].diffuse = color;
 
@@ -237,21 +236,21 @@ namespace Tiny3D
         vert[2].diffuse = color;
 
         // V3
-        offset[0] =  mExtent[0];
+        offset[0] = mExtent[0];
         offset[1] = -mExtent[1];
-        offset[2] =  mExtent[2];
+        offset[2] = mExtent[2];
         vert[3].position = mCenter + offset;
         vert[3].diffuse = color;
 
         // V4
-        offset[0] =  mExtent[0];
-        offset[1] =  mExtent[1];
+        offset[0] = mExtent[0];
+        offset[1] = mExtent[1];
         offset[2] = -mExtent[2];
         vert[4].position = mCenter + offset;
         vert[4].diffuse = color;
 
         // V5
-        offset[0] =  mExtent[0];
+        offset[0] = mExtent[0];
         offset[1] = -mExtent[1];
         offset[2] = -mExtent[2];
         vert[5].position = mCenter + offset;
@@ -259,7 +258,7 @@ namespace Tiny3D
 
         // V6
         offset[0] = -mExtent[0];
-        offset[1] =  mExtent[1];
+        offset[1] = mExtent[1];
         offset[2] = -mExtent[2];
         vert[6].position = mCenter + offset;
         vert[6].diffuse = color;
@@ -276,8 +275,8 @@ namespace Tiny3D
         indices[3] = 1, indices[4] = 3, indices[5] = 2;
 
         // Back
-        indices[6] = 4, indices[7] = 5, indices[8] = 6;
-        indices[9] = 5, indices[10] = 7, indices[11] = 6;
+        indices[6] = 4, indices[7] = 5, indices[8] = 7;
+        indices[9] = 4, indices[10] = 7, indices[11] = 6;
 
         // Left
         indices[12] = 0, indices[13] = 6, indices[14] = 7;
