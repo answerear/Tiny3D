@@ -393,7 +393,7 @@ namespace Tiny3D
 
             size_t bytesOfWritten = 0;
             bytesOfWritten = mGPUBufferUpdateRarely->getBufferImpl()->writeData(
-                0, sizeof(mGPUConstUpdateRarely), &mGPUConstUpdateRarely);
+                0, sizeof(mGPUConstUpdateRarely), &mGPUConstUpdateRarely, true);
 
             if (bytesOfWritten == 0)
             {

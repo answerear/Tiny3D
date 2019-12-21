@@ -138,6 +138,8 @@ namespace Tiny3D
                 break;
             }
 
+            mD3DUsage = d3dUsage;
+
             if (mUsage == Usage::STATIC
                 && mAccessMode == AccessMode::CPU_WRITE)
             {
@@ -198,8 +200,20 @@ namespace Tiny3D
         do 
         {
             // 锁定 GPU 缓冲区，准备写数据
-            void *dst = lock(offset, size, discardWholeBuffer 
-                ? LockOptions::WRITE_DISCARD : LockOptions::WRITE_NO_OVERWRITE);
+            LockOptions lockOpt;
+            if (discardWholeBuffer)
+            {
+                if (mD3DUsage != D3D11_USAGE_STAGING)
+                    lockOpt = LockOptions::WRITE_DISCARD;
+                else
+                    lockOpt = LockOptions::WRITE;
+            }
+            else
+            {
+                lockOpt = LockOptions::WRITE_NO_OVERWRITE;
+            }
+
+            void *dst = lock(offset, size, lockOpt);
             if (dst == nullptr)
             {
                 //  出错了:(
@@ -278,6 +292,8 @@ namespace Tiny3D
             if (mStageBuffer != nullptr)
             {
                 // 先操作 Stage Buffer ，解锁时再 copy 回去 Default
+                if (options == LockOptions::WRITE_DISCARD)
+                    options = LockOptions::WRITE;
                 pLockedData = (uint8_t*)mStageBuffer->lock(offset, size, options);
             }
             else

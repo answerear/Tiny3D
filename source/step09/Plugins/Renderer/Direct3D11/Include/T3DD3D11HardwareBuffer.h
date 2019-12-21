@@ -177,6 +177,7 @@ namespace Tiny3D
     protected:
         ID3D11Buffer            *mD3DBuffer;    /**< D3D11 緩沖區對象 */
         D3D11HardwareBufferPtr  mStageBuffer;   /**< 给 D3D11_USAGE_DEFAULT 更新用 */
+        D3D11_USAGE             mD3DUsage;      /**< D3D11 缓冲区用法 */
     };
 }
 
