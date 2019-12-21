@@ -687,8 +687,8 @@ namespace Tiny3D
                 "Read source2 of color_op_ex failed !");
 
             float32_t manualBlend = 0.0f;
-            ColorARGB arg1 = ColorARGB::WHITE;
-            ColorARGB arg2 = ColorARGB::WHITE;
+            ColorRGBA arg1 = ColorRGBA::WHITE;
+            ColorRGBA arg2 = ColorRGBA::WHITE;
 
             switch (op)
             {
@@ -912,8 +912,8 @@ namespace Tiny3D
                 "Read source2 of alpha_op_ex failed !");
 
             float32_t manualBlend = 0.0f;
-            ColorARGB arg1 = ColorARGB::WHITE;
-            ColorARGB arg2 = ColorARGB::WHITE;
+            ColorRGBA arg1 = ColorRGBA::WHITE;
+            ColorRGBA arg2 = ColorRGBA::WHITE;
 
             switch (op)
             {

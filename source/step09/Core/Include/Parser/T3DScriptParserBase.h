@@ -404,7 +404,7 @@ namespace Tiny3D
         TResult parseString(DataStream &stream, String &str);
 
         /** 解析一个颜色值 */
-        TResult parseColor(DataStream &stream, ColorARGB &color);
+        TResult parseColor(DataStream &stream, ColorRGBA &color);
 
         /** 解析一个矩阵 */
         TResult parseMatrix(DataStream &stream, Matrix4 &m);

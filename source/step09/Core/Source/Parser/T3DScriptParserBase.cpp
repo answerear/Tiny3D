@@ -121,7 +121,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserBase::parseColor(DataStream &stream, ColorARGB &color)
+    TResult ScriptParserBase::parseColor(DataStream &stream, ColorRGBA &color)
     {
         TResult ret = T3D_OK;
 

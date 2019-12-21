@@ -84,8 +84,8 @@ namespace Tiny3D
         LayerBlendSource        source1;
         LayerBlendSource        source2;
 
-        ColorARGB               colorArg1;
-        ColorARGB               colorArg2;
+        ColorRGBA               colorArg1;
+        ColorRGBA               colorArg2;
         Real                    alphaArg1;
         Real                    alphaArg2;
         Real                    factor;

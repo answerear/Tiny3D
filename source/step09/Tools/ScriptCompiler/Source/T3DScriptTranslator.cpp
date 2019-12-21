@@ -193,7 +193,7 @@ namespace Tiny3D
         return !(*end);
     }
 
-    bool ScriptTranslator::getColor(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, ColorARGB *result, int32_t maxEntries /* = 4 */)
+    bool ScriptTranslator::getColor(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, ColorRGBA *result, int32_t maxEntries /* = 4 */)
     {
         int32_t n = 0;
         while (i != end && n < maxEntries)
@@ -356,7 +356,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t ScriptTranslator::writeColor(const ColorARGB &clr, DataStream &stream)
+    size_t ScriptTranslator::writeColor(const ColorRGBA &clr, DataStream &stream)
     {
         size_t bytesOfWritten = 0;
         size_t totalBytes = 0;
@@ -1347,7 +1347,7 @@ namespace Tiny3D
                 totalBytes += bytesOfWritten;
 
                 // ambient
-                ColorARGB val = ColorARGB::WHITE;
+                ColorRGBA val = ColorRGBA::WHITE;
                 if (getColor(prop->values.begin(), prop->values.end(), &val))
                 {
                     bytesOfWritten = writeColor(val, stream);
@@ -1396,7 +1396,7 @@ namespace Tiny3D
                 totalBytes += bytesOfWritten;
 
                 // diffuse
-                ColorARGB val = ColorARGB::WHITE;
+                ColorRGBA val = ColorRGBA::WHITE;
                 if (getColor(prop->values.begin(), prop->values.end(), &val))
                 {
                     bytesOfWritten = writeColor(val, stream);
@@ -1470,7 +1470,7 @@ namespace Tiny3D
                     AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
                         i1 = getNodeAt(prop->values, 1),
                         i2 = getNodeAt(prop->values, 2);
-                    ColorARGB val(0.0f, 0.0f, 0.0f, 1.0f);
+                    ColorRGBA val(0.0f, 0.0f, 0.0f, 1.0f);
                     if (getSingle(*i0, &val.red()) && getSingle(*i1, &val.green()) && getSingle(*i2, &val.blue()))
                     {
                         if (prop->values.size() == 4)
@@ -1568,7 +1568,7 @@ namespace Tiny3D
                 totalBytes += bytesOfWritten;
 
                 // emissive
-                ColorARGB val(0.0f, 0.0f, 0.0f, 1.0f);
+                ColorRGBA val(0.0f, 0.0f, 0.0f, 1.0f);
                 if (getColor(prop->values.begin(), prop->values.end(), &val))
                 {
                     bytesOfWritten = writeColor(val, stream);
@@ -2635,7 +2635,7 @@ namespace Tiny3D
                 bytesOfWritten = stream.write(&val, sizeof(val));
                 totalBytes += bytesOfWritten;
 
-                ColorARGB clr = ColorARGB::WHITE;
+                ColorRGBA clr = ColorRGBA::WHITE;
                 float32_t dens = 0.001f, start = 0.0f, end = 1.0f;
 
                 // type
@@ -3993,7 +3993,7 @@ namespace Tiny3D
             if (atom0->id == ID_BLEND_MANUAL)
                 j++;
 
-            ColorARGB arg1 = ColorARGB::WHITE, arg2 = ColorARGB::WHITE;
+            ColorRGBA arg1 = ColorRGBA::WHITE, arg2 = ColorRGBA::WHITE;
 
             if (atom1->id == ID_SRC_MANUAL)
             {
@@ -4928,7 +4928,7 @@ namespace Tiny3D
         }
         else
         {
-            ColorARGB val;
+            ColorRGBA val;
             if (getColor(prop->values.begin(), prop->values.end(), &val))
             {
                 bytesOfWritten = writeColor(val, stream);

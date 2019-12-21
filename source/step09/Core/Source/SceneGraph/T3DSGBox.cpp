@@ -40,13 +40,13 @@ namespace Tiny3D
     {
         BoxVertex()
             : position(Vector3::ZERO)
-            , diffuse(ColorARGB::WHITE)
+            , diffuse(ColorRGBA::WHITE)
         {
 
         }
 
         Vector3     position;
-        ColorARGB   diffuse;
+        ColorRGBA   diffuse;
     };
 
     //--------------------------------------------------------------------------
@@ -215,7 +215,7 @@ namespace Tiny3D
         BoxVertex *vert = (BoxVertex *)vertices;
 
         Vector3 offset;
-        ColorARGB color = ColorARGB::BLUE;
+        ColorRGBA color = ColorRGBA::BLUE;
 
         // V0
         offset[0] = -mExtent[0];

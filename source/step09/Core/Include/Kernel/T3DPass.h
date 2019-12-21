@@ -124,26 +124,26 @@ namespace Tiny3D
         // Command : ambient
         // Usage : ambient <red> <green> <blue> [<alpha>]|vertexColor
         // Parameters : vertexColor 存储在 mTracking
-        ColorARGB   mAmbient;
+        ColorRGBA   mAmbient;
 
         //---------------------------------------
         // Command : diffuse
         // Usage : diffuse <red> <green> <blue> [<alpha>]|vertexColor
         // Parameters : vertexColor 存储在 mTracking
-        ColorARGB   mDiffuse;
+        ColorRGBA   mDiffuse;
 
         //---------------------------------------
         // Command : specular
         // Usage : specular <red> <green> <blue> [<alpha>]|vertexColor <shininess>
         // Parameters : vertexColor 存储在 mTracking
-        ColorARGB   mSpecular;
+        ColorRGBA   mSpecular;
         Real        mShininess;
 
         //---------------------------------------
         // Command : emissive
         // Usage : emissive <red> <green> <blue> [<alpha>]|vertexColor
         // Parameters : vertexColor 存储在 mTracking
-        ColorARGB   mEmissive;
+        ColorRGBA   mEmissive;
 
         TrackVertexColorType    mTracking;
 
@@ -291,7 +291,7 @@ namespace Tiny3D
         // Usage : fog_override <true|false> [<type> <color> <density> <start> <end>]
         bool        mFogOverride;   /**< / 当前pass是否覆盖场景的雾效果设置 */
         FogMode     mFogMode;
-        ColorARGB   mFogColor;
+        ColorRGBA   mFogColor;
         Real        mFogStart;
         Real        mFogEnd;
         Real        mFogDensity;

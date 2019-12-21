@@ -61,7 +61,7 @@ namespace Tiny3D
         bool getUInt(const AbstractNodePtr &node, uint32_t *result);
         bool getHex(const AbstractNodePtr &node, uint32_t *result);
         bool getColor(AbstractNodeList::const_iterator i, 
-            AbstractNodeList::const_iterator end, ColorARGB *result, 
+            AbstractNodeList::const_iterator end, ColorRGBA *result, 
             int32_t maxEntries = 4);
         bool getMatrix4(AbstractNodeList::const_iterator i, 
             AbstractNodeList::const_iterator end, Matrix4 *m);
@@ -72,7 +72,7 @@ namespace Tiny3D
         BuiltinType getBuiltinType(const String &name);
 
         size_t writeString(const String &str, DataStream &stream);
-        size_t writeColor(const ColorARGB &clr, DataStream &stream);
+        size_t writeColor(const ColorRGBA &clr, DataStream &stream);
         size_t writeMatrix4(const Matrix4 &m, DataStream &stream);
     };
 

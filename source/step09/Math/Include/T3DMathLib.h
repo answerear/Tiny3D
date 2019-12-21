@@ -30,6 +30,7 @@
 #include "T3DColor4.h"
 #include "T3DColorRGB.h"
 #include "T3DColorARGB.h"
+#include "T3DColorRGBA.h"
 #include "T3DRect.h"
 #include "T3DVector2.h"
 #include "T3DVector3.h"

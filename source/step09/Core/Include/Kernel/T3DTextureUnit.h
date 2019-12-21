@@ -208,7 +208,7 @@ namespace Tiny3D
         //---------------------------------------
         // Command : tex_border_color
         // Usage : tex_border_color <red> <green> <blue> [<alpha>]
-        ColorARGB   mBorderColor;       /// border 模式下的边缘颜色
+        ColorRGBA   mBorderColor;       /// border 模式下的边缘颜色
 
         //---------------------------------------
         // Command : filtering

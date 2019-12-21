@@ -298,7 +298,7 @@ namespace Tiny3D
             else if (id == 0)
             {
                 // 非顶点颜色，ambient
-                ColorARGB color;
+                ColorRGBA color;
                 ret = parseColor(stream, color);
                 if (ret != T3D_OK)
                 {
@@ -346,7 +346,7 @@ namespace Tiny3D
             else if (id == 0)
             {
                 // 非顶点颜色，diffuse
-                ColorARGB color;
+                ColorRGBA color;
                 ret = parseColor(stream, color);
                 if (ret != T3D_OK)
                 {
@@ -400,7 +400,7 @@ namespace Tiny3D
             else if (id == 0)
             {
                 // 非顶点颜色，specular
-                ColorARGB color;
+                ColorRGBA color;
                 ret = parseColor(stream, color);
                 if (ret != T3D_OK)
                 {
@@ -454,7 +454,7 @@ namespace Tiny3D
             else if (id == 0)
             {
                 // 非顶点颜色，emissive
-                ColorARGB color;
+                ColorRGBA color;
                 ret = parseColor(stream, color);
                 if (ret != T3D_OK)
                 {
@@ -1320,7 +1320,7 @@ namespace Tiny3D
                     "Read type value of fog_override failed !");
 
                 // color
-                ColorARGB color;
+                ColorRGBA color;
                 ret = parseColor(stream, color);
                 if (ret != T3D_OK)
                 {

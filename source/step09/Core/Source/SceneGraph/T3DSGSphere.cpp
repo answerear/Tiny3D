@@ -45,7 +45,7 @@ namespace Tiny3D
         }
 
         Vector3     position;
-        ColorARGB   color;
+        ColorRGBA   color;
     };
 
     //--------------------------------------------------------------------------
@@ -208,7 +208,7 @@ namespace Tiny3D
     {
         SphereVertex *vert = (SphereVertex *)vertices;
 
-        const ColorARGB &color = ColorARGB::WHITE;
+        const ColorRGBA &color = ColorRGBA::WHITE;
 
         Radian alphaStep(Real(2.0) * Math::PI / MAX_STACKS);
         Radian betaStep(Math::PI / MAX_SLICES);

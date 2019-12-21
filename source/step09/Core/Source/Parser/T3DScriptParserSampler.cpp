@@ -219,7 +219,7 @@ namespace Tiny3D
 
         do
         {
-            ColorARGB color;
+            ColorRGBA color;
             ret = parseColor(stream, color);
             if (ret != T3D_OK)
             {
