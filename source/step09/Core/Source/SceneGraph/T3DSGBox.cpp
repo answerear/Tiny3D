@@ -30,6 +30,7 @@
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DMaterialManager.h"
 
+
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
@@ -106,6 +107,11 @@ namespace Tiny3D
 
         do 
         {
+            // 材质
+            mMaterial = T3D_MATERIAL_MGR.loadMaterial("BuiltinBox.t3b",
+                Material::E_MT_DEFAULT);
+
+            // 创建 VAO
             mVAO = T3D_HARDWARE_BUFFER_MGR.createVertexArrayObject(true);
             if (mVAO == nullptr)
             {
@@ -114,16 +120,13 @@ namespace Tiny3D
                 break;
             }
 
+            // 绑定 VAO
             ret = mVAO->beginBinding();
             if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for SGBox failed !");
                 break;
             }
-
-            // 材质
-            mMaterial = T3D_MATERIAL_MGR.loadMaterial("BuiltinBox.t3b",
-                Material::E_MT_DEFAULT);
 
             // 创建顶点声明
             VertexDeclarationPtr decl
@@ -212,7 +215,7 @@ namespace Tiny3D
         BoxVertex *vert = (BoxVertex *)vertices;
 
         Vector3 offset;
-        ColorARGB color = ColorARGB::WHITE;
+        ColorARGB color = ColorARGB::BLUE;
 
         // V0
         offset[0] = -mExtent[0];

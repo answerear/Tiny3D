@@ -607,7 +607,6 @@ namespace Tiny3D
                 // 绘制
                 mD3DDeviceContext->Draw((UINT)d3dVAO->getVertexCount(), 0);
             }
-            
         } while (0);
 
         return ret;

@@ -27,6 +27,8 @@
 #include "Bound/T3DSphereBound.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramManager.h"
+#include "Resource/T3DMaterial.h"
+#include "Resource/T3DMaterialManager.h"
 
 
 namespace Tiny3D
@@ -112,6 +114,11 @@ namespace Tiny3D
 
         do 
         {
+            // 材质
+            mMaterial = T3D_MATERIAL_MGR.loadMaterial("BuiltinBox.t3b",
+                Material::E_MT_DEFAULT);
+
+            // 创建 VAO
             mVAO = T3D_HARDWARE_BUFFER_MGR.createVertexArrayObject(true);
             if (mVAO == nullptr)
             {
@@ -121,6 +128,7 @@ namespace Tiny3D
                 break;
             }
 
+            // 绑定 VAO
             ret = mVAO->beginBinding();
             if (ret != T3D_OK)
             {
@@ -152,7 +160,7 @@ namespace Tiny3D
                 = T3D_HARDWARE_BUFFER_MGR.createVertexBuffer(
                     sizeof(SphereVertex), MAX_VERTICES, vertices,
                     HardwareVertexBuffer::Usage::STATIC, 
-                    HardwareBuffer::AccessMode::CPU_WRITE);
+                    HardwareBuffer::AccessMode::CPU_NONE);
             if (vbo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -161,23 +169,12 @@ namespace Tiny3D
                 break;
             }
 
-            // 写顶点数据
-//             size_t size = sizeof(SphereVertex) * MAX_VERTICES;
-//             size_t bytesOfWritten = vbo->writeData(0, size, vertices);
-//             if (bytesOfWritten != size)
-//             {
-//                 ret = T3D_ERR_HW_BUFFER_WRITE;
-//                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SGSphere \
-//                     failed !");
-//                 break;
-//             }
-
             // 创建IBO
             HardwareIndexBufferPtr ibo
                 = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(
                     HardwareIndexBuffer::Type::E_IT_16BITS, MAX_INDICES, indices,
                     HardwareBuffer::Usage::STATIC, 
-                    HardwareBuffer::AccessMode::CPU_WRITE);
+                    HardwareBuffer::AccessMode::CPU_NONE);
             if (ibo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -185,17 +182,6 @@ namespace Tiny3D
                     failed !");
                 break;
             }
-
-            // 写索引数据
-//             size = sizeof(uint16_t) * MAX_INDICES;
-//             bytesOfWritten = ibo->writeData(0, size, indices);
-//             if (bytesOfWritten != size)
-//             {
-//                 ret = T3D_ERR_HW_BUFFER_WRITE;
-//                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write indices data for SGSphere \
-//                     failed !");
-//                 break;
-//             }
 
             mVAO->setVertexDeclaration(decl);
             mVAO->addVertexBuffer(vbo);
@@ -336,7 +322,7 @@ namespace Tiny3D
 
     MaterialPtr SGSphere::getMaterial() const
     {
-        return nullptr;
+        return mMaterial;
     }
 
     //--------------------------------------------------------------------------

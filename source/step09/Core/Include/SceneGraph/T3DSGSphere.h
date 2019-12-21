@@ -121,5 +121,7 @@ namespace Tiny3D
 
         VertexArrayObjectPtr    mVAO;       /**< 渲染用的VAO */
         SphereBoundPtr          mBound;     /**< 碰撞体 */
+
+        MaterialPtr             mMaterial;      /**< 材质 */
     };
 }
