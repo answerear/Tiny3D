@@ -125,7 +125,10 @@ namespace Tiny3D
         RendererPtr renderer = T3D_AGENT.getActiveRenderer();
 
         // 设置当前视口
-        renderer->setViewport(viewport);
+        if (renderer->getViewport() != viewport)
+        {
+            renderer->setViewport(viewport);
+        }
 
         // 清空渲染队列
         mRenderQueue->clear();

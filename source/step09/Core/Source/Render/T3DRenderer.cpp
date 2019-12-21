@@ -327,7 +327,7 @@ namespace Tiny3D
 
             size_t bytesOfWritten = 0;
             bytesOfWritten = mGPUBufferUpdateObject->getBufferImpl()->writeData(
-                0, sizeof(mGPUConstUpdateObject), &mGPUConstUpdateObject);
+                0, sizeof(mGPUConstUpdateObject), &mGPUConstUpdateObject, true);
 
             if (bytesOfWritten == 0)
             {
@@ -364,7 +364,7 @@ namespace Tiny3D
 
             size_t bytesOfWritten = 0;
             bytesOfWritten = mGPUBufferUpdateFrame->getBufferImpl()->writeData(
-                0, sizeof(mGPUConstUpdateFrame), &mGPUConstUpdateFrame);
+                0, sizeof(mGPUConstUpdateFrame), &mGPUConstUpdateFrame, true);
 
             if (bytesOfWritten == 0)
             {

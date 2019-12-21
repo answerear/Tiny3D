@@ -543,6 +543,13 @@ namespace Tiny3D
 
         do 
         {
+            if (mIsRSStateDirty)
+            {
+                // 更新光栅化状态
+                setD3D11RasterzierState();
+                mIsRSStateDirty = false;
+            }
+
             D3D11VertexArrayObjectPtr d3dVAO 
                 = smart_pointer_cast<D3D11VertexArrayObject>(vao);
 
@@ -564,13 +571,6 @@ namespace Tiny3D
             mIsWorldMatrixDirty = false;
             mIsViewMatrixDirty = false;
             mIsProjMatrixDirty = false;
-
-            if (mIsRSStateDirty)
-            {
-                // 更新光栅化状态
-                setD3D11RasterzierState();
-                mIsRSStateDirty = false;
-            }
 
             // 设置图元
             PrimitiveType primitive = vao->getPrimitiveType();
