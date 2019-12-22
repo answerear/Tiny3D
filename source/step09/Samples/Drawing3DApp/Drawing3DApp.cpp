@@ -53,7 +53,6 @@ bool Drawing3DApp::applicationDidFinishLaunching()
     Real aspect = w / h;
     Radian fovY(Math::PI * REAL_HALF);
     camera->setPerspectiveParams(fovY, aspect, 0.5f, 1000.0f);
-    camera->setOrthographicParams(w, h, 0.5f, 1000.0f);
     camera->setObjectMask(OBJ_MASK_SCENE);
 
     // йс©з
