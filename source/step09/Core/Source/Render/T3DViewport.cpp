@@ -20,14 +20,14 @@
 
 #include "Render/T3DViewport.h"
 #include "Render/T3DRenderTarget.h"
-#include "SceneGraph/T3DSGCamera.h"
-#include "SceneGraph/T3DSceneManager.h"
+#include "Scene/T3DSceneCamera.h"
+#include "Scene/T3DSceneManager.h"
 #include "Kernel/T3DAgent.h"
 
 
 namespace Tiny3D
 {
-    ViewportPtr Viewport::create(SGCameraPtr camera, RenderTargetPtr target,
+    ViewportPtr Viewport::create(SceneCameraPtr camera, RenderTargetPtr target,
         Real left, Real top, Real width, Real height, long_t nZOrder)
     {
         ViewportPtr viewport = new Viewport(camera, target, left, top, 
@@ -36,7 +36,7 @@ namespace Tiny3D
         return viewport;
     }
 
-    Viewport::Viewport(SGCameraPtr camera, RenderTargetPtr target,
+    Viewport::Viewport(SceneCameraPtr camera, RenderTargetPtr target,
         Real left, Real top, Real width, Real height, long_t zOrder)
         : mCamera(camera)
         , mRenderTarget(target)

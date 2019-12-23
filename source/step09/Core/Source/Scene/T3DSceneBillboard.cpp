@@ -18,68 +18,46 @@
  ******************************************************************************/
 
 
+#include "Scene/T3DSceneBillboard.h"
+
+
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline ID Bound::getID() const
+    SceneBillboardPtr SceneBillboard::create(ID uID /* = E_NID_AUTOMATIC */)
     {
-        return mID;
+        SceneBillboardPtr billboard = new SceneBillboard(uID);
+        billboard->release();
+        return billboard;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void Bound::setGroupID(ID groupID)
+    SceneBillboard::SceneBillboard(ID uID /* = E_NID_AUTOMATIC */)
+        : SceneRenderable(uID)
     {
-        mGroupID = groupID;
+
     }
 
     //--------------------------------------------------------------------------
 
-    inline ID Bound::getGroupID() const
+    SceneBillboard::~SceneBillboard()
     {
-        return mGroupID;
+
     }
 
     //--------------------------------------------------------------------------
 
-    inline const Sphere &Bound::getSphere() const
+    MaterialPtr SceneBillboard::getMaterial() const
     {
-        return mSphere;
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    inline SceneNodePtr Bound::getNode() const
+    VertexArrayObjectPtr SceneBillboard::getVertexArrayObject() const
     {
-        return mNode;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline void Bound::setCollisionSource(bool isSource)
-    {
-        mIsCollisionSource = isSource;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline bool Bound::isCollisionSource() const
-    {
-        return mIsCollisionSource;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline void Bound::setEnabled(bool isEnabled)
-    {
-        mIsEnabled = isEnabled;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline bool Bound::isEnabled() const
-    {
-        return mIsEnabled;
+        return nullptr;
     }
 }

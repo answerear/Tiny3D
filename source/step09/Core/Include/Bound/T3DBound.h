@@ -27,7 +27,7 @@
 #include "Kernel/T3DObject.h"
 #include "Kernel/T3DTransform.h"
 #include "Memory/T3DSmartPtr.h"
-#include "SceneGraph/T3DSGNode.h"
+#include "Scene/T3DSceneNode.h"
 
 
 namespace Tiny3D
@@ -100,7 +100,7 @@ namespace Tiny3D
         /**
          * @brief 获取包含当前碰撞体对应的场景结点
          */
-        SGNodePtr getNode() const;
+        SceneNodePtr getNode() const;
 
         /**
          * @brief 设置碰撞相交检测源，源对象发起检测，非源对象是被动检测
@@ -127,7 +127,7 @@ namespace Tiny3D
          * @brief 获取可渲染对象，用于渲染该碰撞体
          * @return 返回可渲染对象
          */
-        virtual SGRenderablePtr getRenderable() = 0;
+        virtual SceneRenderablePtr getRenderable() = 0;
 
         /**
          * @brief 克隆碰撞体对象
@@ -146,7 +146,7 @@ namespace Tiny3D
          * @param [in] node : 碰撞体所属的场景结点
          * @param [in] uID : 碰撞体唯一标识
          */
-        Bound(SGNode *node, ID uID = E_BID_AUTOMATIC);
+        Bound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
          * @brief 检测与球体碰撞体相交
@@ -184,7 +184,7 @@ namespace Tiny3D
         Sphere      mSphere;            /**< 用于快速检测相交性的球体 */
 
     private:
-        SGNode      *mNode;             /**< 包含碰撞体的结点对象 */
+        SceneNode      *mNode;             /**< 包含碰撞体的结点对象 */
         ID          mID;                /**< 碰撞体ID */
         ID          mGroupID;           /**< 碰撞体分组ID */
         bool        mIsMovable;         /**< 是否可移动碰撞体 */

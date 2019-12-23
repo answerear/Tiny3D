@@ -22,64 +22,50 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline ID Bound::getID() const
+    inline void SceneNode::setUserData(void *data)
     {
-        return mID;
+        mUserData = data;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void Bound::setGroupID(ID groupID)
+    inline void *SceneNode::getUserData() const
     {
-        mGroupID = groupID;
+        return mUserData;
     }
 
     //--------------------------------------------------------------------------
 
-    inline ID Bound::getGroupID() const
+    inline void SceneNode::setUserObject(ObjectPtr object)
     {
-        return mGroupID;
+        mUserObject = object;
     }
 
     //--------------------------------------------------------------------------
 
-    inline const Sphere &Bound::getSphere() const
+    inline ObjectPtr SceneNode::getUserObject() const
     {
-        return mSphere;
+        return mUserObject;
     }
 
     //--------------------------------------------------------------------------
 
-    inline SceneNodePtr Bound::getNode() const
+    inline bool SceneNode::isVisible() const
     {
-        return mNode;
+        return mIsVisible;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void Bound::setCollisionSource(bool isSource)
-    {
-        mIsCollisionSource = isSource;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline bool Bound::isCollisionSource() const
-    {
-        return mIsCollisionSource;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline void Bound::setEnabled(bool isEnabled)
-    {
-        mIsEnabled = isEnabled;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline bool Bound::isEnabled() const
+    inline bool SceneNode::isEnabled() const
     {
         return mIsEnabled;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline uint32_t SceneNode::getCameraMask() const
+    {
+        return mCameraMask;
     }
 }

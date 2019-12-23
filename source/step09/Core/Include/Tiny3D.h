@@ -89,19 +89,19 @@
 #include <Bound/T3DFrustumBound.h>
 
 // Scene Graph
-#include <SceneGraph/T3DSGNode.h>
-#include <SceneGraph/T3DSceneManager.h>
-#include <SceneGraph/T3DSGAxis.h>
-#include <SceneGraph/T3DSGBillboard.h>
-#include <SceneGraph/T3DSGBox.h>
-#include <SceneGraph/T3DSGCamera.h>
-#include <SceneGraph/T3DSGLight.h>
-#include <SceneGraph/T3DSGMesh.h>
-#include <SceneGraph/T3DSGModel.h>
-#include <SceneGraph/T3DSGQuad.h>
-#include <SceneGraph/T3DSGRenderable.h>
-#include <SceneGraph/T3DSGSphere.h>
-#include <SceneGraph/T3DSGTransform3D.h>
+#include <Scene/T3DSceneNode.h>
+#include <Scene/T3DSceneManager.h>
+#include <Scene/T3DSceneAxis.h>
+#include <Scene/T3DSceneBillboard.h>
+#include <Scene/T3DSceneBox.h>
+#include <Scene/T3DSceneCamera.h>
+#include <Scene/T3DSceneLight.h>
+#include <Scene/T3DSceneMesh.h>
+#include <Scene/T3DSceneModel.h>
+#include <Scene/T3DSceneQuad.h>
+#include <Scene/T3DSceneRenderable.h>
+#include <Scene/T3DSceneSphere.h>
+#include <Scene/T3DSceneTransform3D.h>
 
 
 #endif  /*__TINY3D_H__*/

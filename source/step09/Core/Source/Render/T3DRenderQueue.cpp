@@ -22,8 +22,8 @@
 #include "Render/T3DVertexArrayObject.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Render/T3DHardwareIndexBuffer.h"
-#include "SceneGraph/T3DSGRenderable.h"
-#include "SceneGraph/T3DSGCamera.h"
+#include "Scene/T3DSceneRenderable.h"
+#include "Scene/T3DSceneCamera.h"
 #include "Kernel/T3DTechnique.h"
 #include "Kernel/T3DPass.h"
 #include "Resource/T3DGPUProgram.h"
@@ -56,7 +56,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult RenderGroup::addRenderable(SGRenderablePtr renderable)
+    TResult RenderGroup::addRenderable(SceneRenderablePtr renderable)
     {
         MaterialPtr material = renderable->getMaterial();
 
@@ -97,7 +97,7 @@ namespace Tiny3D
             return T3D_OK;
         }
 
-        SGCameraPtr camera = vp->getCamera();
+        SceneCameraPtr camera = vp->getCamera();
 
         if (RenderQueue::E_GRPID_INDICATOR == groupID
             || RenderQueue::E_GRPID_WIREFRAME == groupID)
@@ -127,7 +127,7 @@ namespace Tiny3D
 
                 while (i != renderables.end())
                 {
-                    SGRenderablePtr renderable = *i;
+                    SceneRenderablePtr renderable = *i;
 
                     // 设置渲染物体的世界变换
                     const Transform &xform 
@@ -223,7 +223,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult RenderQueue::addRenderable(GroupID groupID, 
-        SGRenderablePtr renderable)
+        SceneRenderablePtr renderable)
     {
         RenderableGroupItr itr = mGroups.find(groupID);
 

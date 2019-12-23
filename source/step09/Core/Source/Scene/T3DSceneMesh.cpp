@@ -18,68 +18,46 @@
  ******************************************************************************/
 
 
+#include "Scene/T3DSceneMesh.h"
+
+
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline ID Bound::getID() const
+    SceneMeshPtr SceneMesh::create(ID uID /* = E_NID_AUTOMATIC */)
     {
-        return mID;
+        SceneMeshPtr mesh = new SceneMesh(uID);
+        mesh->release();
+        return mesh;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void Bound::setGroupID(ID groupID)
+    SceneMesh::SceneMesh(ID uID /* = E_NID_AUTOMATIC */)
+        : SceneRenderable(uID)
     {
-        mGroupID = groupID;
+
     }
 
     //--------------------------------------------------------------------------
 
-    inline ID Bound::getGroupID() const
+    SceneMesh::~SceneMesh()
     {
-        return mGroupID;
+
     }
 
     //--------------------------------------------------------------------------
 
-    inline const Sphere &Bound::getSphere() const
+    MaterialPtr SceneMesh::getMaterial() const
     {
-        return mSphere;
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    inline SceneNodePtr Bound::getNode() const
+    VertexArrayObjectPtr SceneMesh::getVertexArrayObject() const
     {
-        return mNode;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline void Bound::setCollisionSource(bool isSource)
-    {
-        mIsCollisionSource = isSource;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline bool Bound::isCollisionSource() const
-    {
-        return mIsCollisionSource;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline void Bound::setEnabled(bool isEnabled)
-    {
-        mIsEnabled = isEnabled;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline bool Bound::isEnabled() const
-    {
-        return mIsEnabled;
+        return nullptr;
     }
 }

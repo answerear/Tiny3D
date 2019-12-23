@@ -55,7 +55,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ViewportPtr RenderTarget::addViewport(SGCameraPtr camera, long_t zOrder,
+    ViewportPtr RenderTarget::addViewport(SceneCameraPtr camera, long_t zOrder,
         Real left, Real top, Real width, Real height)
     {
         ViewportPtr viewport;
@@ -71,6 +71,8 @@ namespace Tiny3D
 
         return viewport;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult RenderTarget::removeViewport(long_t nZOrder)
     {
@@ -93,6 +95,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult RenderTarget::removeAllViewports()
     {

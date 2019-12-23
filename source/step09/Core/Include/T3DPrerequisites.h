@@ -134,23 +134,23 @@ namespace Tiny3D
     class SceneManager;
     class DefaultSceneMgr;
 
-    class SGNode;
+    class SceneNode;
 
-    class SGTransform3D;
+    class SceneTransform3D;
     class SGBone;
 
-    class SGCamera;
-    class SGLight;
-    class SGModel;
+    class SceneCamera;
+    class SceneLight;
+    class SceneModel;
 
-    class SGRenderable;
-    class SGMesh;
+    class SceneRenderable;
+    class SceneMesh;
     class SGTerrain;
-    class SGBillboard;
-    class SGQuad;
-    class SGBox;
-    class SGAxis;
-    class SGSphere;
+    class SceneBillboard;
+    class SceneQuad;
+    class SceneBox;
+    class SceneAxis;
+    class SceneSphere;
 
     class SGTransform2D;
     class SGText2D;

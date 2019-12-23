@@ -19,14 +19,14 @@
 
 
 #include "Bound/T3DAabbBound.h"
-#include "SceneGraph/T3DSGBox.h"
+#include "Scene/T3DSceneBox.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    AabbBoundPtr AabbBound::create(SGNode *node, ID uID /* = E_BID_AUTOMATIC */)
+    AabbBoundPtr AabbBound::create(SceneNode *node, ID uID /* = E_BID_AUTOMATIC */)
     {
         AabbBoundPtr bound = new AabbBound(node, uID);
         bound->release();
@@ -35,7 +35,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    AabbBound::AabbBound(SGNode *node, ID uID /* = E_BID_AUTOMATIC */)
+    AabbBound::AabbBound(SceneNode *node, ID uID /* = E_BID_AUTOMATIC */)
         : Bound(node, uID)
     {
 
@@ -75,7 +75,7 @@ namespace Tiny3D
         aabbBound->mAabb = mAabb;
         aabbBound->mOriginalAabb = mOriginalAabb;
         aabbBound->mRenderable 
-            = smart_pointer_cast<SGBox>(mRenderable->clone());
+            = smart_pointer_cast<SceneBox>(mRenderable->clone());
     }
 
     //--------------------------------------------------------------------------
@@ -89,7 +89,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SGRenderablePtr AabbBound::getRenderable()
+    SceneRenderablePtr AabbBound::getRenderable()
     {
         return mRenderable;
     }

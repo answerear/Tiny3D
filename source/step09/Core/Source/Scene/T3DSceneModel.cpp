@@ -18,68 +18,32 @@
  ******************************************************************************/
 
 
+#include "Scene/T3DSceneModel.h"
+
+
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline ID Bound::getID() const
+    SceneModelPtr SceneModel::create(ID uID /* = E_NID_AUTOMATIC */)
     {
-        return mID;
+        SceneModelPtr model = new SceneModel(uID);
+        model->release();
+        return model;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void Bound::setGroupID(ID groupID)
+    SceneModel::SceneModel(ID uID /* = E_NID_AUTOMATIC */)
+        : SceneTransform3D(uID)
     {
-        mGroupID = groupID;
+
     }
 
     //--------------------------------------------------------------------------
 
-    inline ID Bound::getGroupID() const
+    SceneModel::~SceneModel()
     {
-        return mGroupID;
-    }
 
-    //--------------------------------------------------------------------------
-
-    inline const Sphere &Bound::getSphere() const
-    {
-        return mSphere;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline SceneNodePtr Bound::getNode() const
-    {
-        return mNode;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline void Bound::setCollisionSource(bool isSource)
-    {
-        mIsCollisionSource = isSource;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline bool Bound::isCollisionSource() const
-    {
-        return mIsCollisionSource;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline void Bound::setEnabled(bool isEnabled)
-    {
-        mIsEnabled = isEnabled;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline bool Bound::isEnabled() const
-    {
-        return mIsEnabled;
     }
 }

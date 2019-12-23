@@ -27,7 +27,7 @@
 #include "T3DObject.h"
 #include "Kernel/T3DBlendMode.h"
 #include "Kernel/T3DCommon.h"
-#include "SceneGraph/T3DSGLight.h"
+#include "Scene/T3DSceneLight.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUConstBuffer.h"
 
@@ -313,7 +313,7 @@ namespace Tiny3D
         //  #2 iteration <number> [per_light> [lightType]]
         //  #3 iteration <number> [<per_n_lights> <num_lights> [lightType]]
         uint16_t            mLightsPerIteration;
-        SGLight::LightType  mOnlyLightType;
+        SceneLight::LightType  mOnlyLightType;
         bool                mIteratePerLight;
         bool                mRunOnlyForOneLightType;
 

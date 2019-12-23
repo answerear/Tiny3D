@@ -19,14 +19,14 @@
 
 
 #include "Bound/T3DFrustumBound.h"
-#include "SceneGraph/T3DSGBox.h"
+#include "Scene/T3DSceneBox.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    FrustumBoundPtr FrustumBound::create(SGNode *node, 
+    FrustumBoundPtr FrustumBound::create(SceneNode *node, 
         ID uID /* = E_BID_AUTOMATIC */)
     {
         FrustumBoundPtr bound = new FrustumBound(node, uID);
@@ -36,7 +36,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    FrustumBound::FrustumBound(SGNode *node, ID uID /* = E_BID_AUTOMATIC */)
+    FrustumBound::FrustumBound(SceneNode *node, ID uID /* = E_BID_AUTOMATIC */)
         : Bound(node, uID)
     {
 
@@ -74,7 +74,7 @@ namespace Tiny3D
         FrustumBoundPtr newBound = smart_pointer_cast<FrustumBound>(bound);
         newBound->mFrustum = mFrustum;
         newBound->mOriginalFrustum = mOriginalFrustum;
-        newBound->mRenderable = smart_pointer_cast<SGBox>(mRenderable->clone());
+        newBound->mRenderable = smart_pointer_cast<SceneBox>(mRenderable->clone());
     }
 
     //--------------------------------------------------------------------------
@@ -101,7 +101,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SGRenderablePtr FrustumBound::getRenderable()
+    SceneRenderablePtr FrustumBound::getRenderable()
     {
         return mRenderable;
     }

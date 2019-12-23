@@ -45,8 +45,8 @@
 
 #include "Render/T3DRenderer.h"
 
-#include "SceneGraph/T3DSceneManager.h"
-#include "SceneGraph/T3DDefaultSceneMgr.h"
+#include "Scene/T3DSceneManager.h"
+#include "Scene/T3DDefaultSceneMgr.h"
 
 
 namespace Tiny3D

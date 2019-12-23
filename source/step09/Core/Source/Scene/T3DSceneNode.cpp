@@ -18,68 +18,111 @@
  ******************************************************************************/
 
 
+#include "Scene/T3DSceneNode.h"
+#include "Scene/T3DSceneCamera.h"
+
+
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline ID Bound::getID() const
+    SceneNode::SceneNode(ID uID /* = E_NID_AUTOMATIC */)
+        : Node(uID)
+        , mCameraMask(0)
+        , mUserData(nullptr)
+        , mUserObject(nullptr)
+        , mIsVisible(true)
+        , mIsEnabled(true)
     {
-        return mID;
+
     }
 
     //--------------------------------------------------------------------------
 
-    inline void Bound::setGroupID(ID groupID)
+    SceneNode::~SceneNode()
     {
-        mGroupID = groupID;
+
     }
 
     //--------------------------------------------------------------------------
 
-    inline ID Bound::getGroupID() const
+    void SceneNode::updateTransform()
     {
-        return mGroupID;
+        
     }
 
     //--------------------------------------------------------------------------
 
-    inline const Sphere &Bound::getSphere() const
+    void SceneNode::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
     {
-        return mSphere;
+        
     }
 
     //--------------------------------------------------------------------------
 
-    inline SceneNodePtr Bound::getNode() const
+    TResult SceneNode::cloneProperties(NodePtr node) const
     {
-        return mNode;
+        TResult ret = Node::cloneProperties(node);
+
+        if (ret == T3D_OK)
+        {
+            SceneNodePtr newNode = smart_pointer_cast<SceneNode>(node);
+            newNode->mUserData = mUserData;
+            newNode->mUserObject = mUserObject;
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void Bound::setCollisionSource(bool isSource)
+    void SceneNode::setVisible(bool visible)
     {
-        mIsCollisionSource = isSource;
+        mIsVisible = visible;
     }
 
     //--------------------------------------------------------------------------
 
-    inline bool Bound::isCollisionSource() const
+    void SceneNode::setEnabled(bool enabled)
     {
-        return mIsCollisionSource;
+        mIsEnabled = enabled;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void Bound::setEnabled(bool isEnabled)
+    void SceneNode::visit()
     {
-        mIsEnabled = isEnabled;
+        // 先调用更新
+        if (isEnabled())
+        {
+            updateTransform();
+
+            // 再遍历子结点
+            NodePtr node = getFirstChild();
+
+            while (node != nullptr)
+            {
+                SceneNodePtr child = smart_pointer_cast<SceneNode>(node);
+                child->visit();
+                node = node->getNextSibling();
+            }
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    inline bool Bound::isEnabled() const
+    void SceneNode::setCameraMask(uint32_t mask)
     {
-        return mIsEnabled;
+        if (mask != mCameraMask)
+            mCameraMask = mask;
+
+        NodePtr node = getFirstChild();
+
+        while (node != nullptr)
+        {
+            SceneNodePtr child = smart_pointer_cast<SceneNode>(node);
+            child->setCameraMask(mask);
+            node = node->getNextSibling();
+        }
     }
 }

@@ -125,7 +125,7 @@ namespace Tiny3D
          * @param [in] width : 视口宽度占渲染目标区域的比例值
          * @param [in] height : 视口高度占渲染目标区域的比例值
          */
-        ViewportPtr addViewport(SGCameraPtr camera, long_t zOrder, 
+        ViewportPtr addViewport(SceneCameraPtr camera, long_t zOrder, 
             Real left, Real top, Real width, Real height);
 
         /**

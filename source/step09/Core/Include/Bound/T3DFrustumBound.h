@@ -36,7 +36,7 @@ namespace Tiny3D
          * @param [in] uID : 碰撞体ID
          * @return 返回一个Frustum碰撞体对象
          */
-        static FrustumBoundPtr create(SGNode *node, ID uID = E_BID_AUTOMATIC);
+        static FrustumBoundPtr create(SceneNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
          * @brief 析构函数
@@ -75,9 +75,9 @@ namespace Tiny3D
 
         /**
          * @brief 实现基类接口
-         * @see SGRenderablePtr Bound::getRenderable()
+         * @see SceneRenderablePtr Bound::getRenderable()
          */
-        virtual SGRenderablePtr getRenderable() override;
+        virtual SceneRenderablePtr getRenderable() override;
 
         /**
          * @brief 实现基类接口
@@ -91,7 +91,7 @@ namespace Tiny3D
          * @param [in] node : 碰撞体所在的结点对象
          * @param [in] uID : 碰撞体ID
          */
-        FrustumBound(SGNode *node, ID uID = E_BID_AUTOMATIC);
+        FrustumBound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
          * @brief 实现基类接口
@@ -126,7 +126,7 @@ namespace Tiny3D
     protected:
         Frustum     mFrustum;           /**< 可变换的视锥体对象 */
         Frustum     mOriginalFrustum;   /**< 不参与变换的原始视锥体 */
-        SGBoxPtr    mRenderable;        /**< 用于渲染碰撞体的可渲染对象 */
+        SceneBoxPtr    mRenderable;        /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 

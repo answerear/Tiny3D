@@ -30,7 +30,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Bound::Bound(SGNode *node, ID uID)
+    Bound::Bound(SceneNode *node, ID uID)
         : mNode(node)
         , mID(E_BID_INVALID)
         , mGroupID(E_BID_INVALID)

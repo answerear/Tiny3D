@@ -49,7 +49,7 @@ namespace Tiny3D
          * @param [in] renderable : 可渲染对象
          * @return 成功返回 T3D_OK
          */
-        TResult addRenderable(SGRenderablePtr renderable);
+        TResult addRenderable(SceneRenderablePtr renderable);
 
         /**
          * @brief 清空分组里的渲染对象
@@ -78,7 +78,7 @@ namespace Tiny3D
         size_t calcPrimitiveCount(VertexArrayObjectPtr vao) const;
 
     protected:
-        typedef TList<SGRenderablePtr>              RenderableList;
+        typedef TList<SceneRenderablePtr>              RenderableList;
         typedef RenderableList::iterator                RenderableListItr;
         typedef RenderableList::const_iterator          RenderableListConstItr;
 
@@ -133,7 +133,7 @@ namespace Tiny3D
          * @return 成功返回 T3D_OK
          * @see enum GroupID
          */
-        TResult addRenderable(GroupID groupID, SGRenderablePtr renderable);
+        TResult addRenderable(GroupID groupID, SceneRenderablePtr renderable);
 
         /**
          * @brief 清空渲染队列

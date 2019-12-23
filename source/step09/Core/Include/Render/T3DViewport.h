@@ -44,7 +44,7 @@ namespace Tiny3D
          * @param [in] height : 视口高度占渲染目标区域的比例值
          * @param [in] zOrder : 视口深度序列值
          */
-        static ViewportPtr create(SGCameraPtr camera, RenderTargetPtr target, 
+        static ViewportPtr create(SceneCameraPtr camera, RenderTargetPtr target, 
             Real left, Real top, Real width, Real height, long_t zOrder);
 
         /**
@@ -55,7 +55,7 @@ namespace Tiny3D
         /**
          * @brief 获取观察视口对应的相机
          */
-        SGCameraPtr getCamera() const;
+        SceneCameraPtr getCamera() const;
 
         /**
          * @brief 渲染
@@ -171,7 +171,7 @@ namespace Tiny3D
          * @param [in] height : 视口高度占渲染目标区域的比例值
          * @param [in] zOrder : 视口深度序列值
          */
-        Viewport(SGCameraPtr camera, RenderTargetPtr target, Real left, 
+        Viewport(SceneCameraPtr camera, RenderTargetPtr target, Real left, 
             Real top, Real width, Real height, long_t zOrder);
 
         /**
@@ -180,7 +180,7 @@ namespace Tiny3D
         void updateDimensions();
 
     protected:
-        SGCameraPtr         mCamera;        /**< 关联本视口对应的相机 */
+        SceneCameraPtr         mCamera;        /**< 关联本视口对应的相机 */
         RenderTarget        *mRenderTarget; /**< 关联本视口对应的渲染目标 */
 
         Real        mLeft;          /**< 视口左边在渲染目标区域的相对位置 */

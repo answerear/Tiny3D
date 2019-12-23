@@ -20,7 +20,7 @@
 
 namespace Tiny3D
 {
-    inline SGCameraPtr Viewport::getCamera() const
+    inline SceneCameraPtr Viewport::getCamera() const
     {
         return mCamera;
     }

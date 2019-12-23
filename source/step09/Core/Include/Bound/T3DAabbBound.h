@@ -39,7 +39,7 @@ namespace Tiny3D
          * @param [in] uID : 碰撞体ID
          * @return 返回一个AABB碰撞体对象
          */
-        static AabbBoundPtr create(SGNode *node, ID uID = E_BID_AUTOMATIC);
+        static AabbBoundPtr create(SceneNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
          * @brief 析构函数
@@ -74,9 +74,9 @@ namespace Tiny3D
 
         /**
          * @brief 实现基类接口
-         * @see SGRenderablePtr Bound::getRenderable()
+         * @see SceneRenderablePtr Bound::getRenderable()
          */
-        virtual SGRenderablePtr getRenderable() override;
+        virtual SceneRenderablePtr getRenderable() override;
 
         /**
          * @brief 实现基类接口
@@ -90,7 +90,7 @@ namespace Tiny3D
          * @param [in] node : 碰撞体所在的结点对象
          * @param [in] uID : 碰撞体ID
          */
-        AabbBound(SGNode *node, ID uID = E_BID_AUTOMATIC);
+        AabbBound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
          * @brief 实现基类接口
@@ -125,7 +125,7 @@ namespace Tiny3D
     protected:
         Aabb        mAabb;          /**< 实时变换的AABB */
         Aabb        mOriginalAabb;  /**< 不参与变换的原始AABB */
-        SGBoxPtr    mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
+        SceneBoxPtr    mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 

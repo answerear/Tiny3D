@@ -39,7 +39,7 @@ namespace Tiny3D
          * @param [in] uID : 碰撞体ID
          * @return 返回一个新的球体碰撞体对象
          */
-        static SphereBoundPtr create(SGNode *node, ID uID = E_BID_AUTOMATIC);
+        static SphereBoundPtr create(SceneNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
          * @brief 析构函数
@@ -66,9 +66,9 @@ namespace Tiny3D
 
         /**
          * @brief 实现基类接口
-         * @see SGRenderablePtr Bound::getRenderable()
+         * @see SceneRenderablePtr Bound::getRenderable()
          */
-        virtual SGRenderablePtr getRenderable() override;
+        virtual SceneRenderablePtr getRenderable() override;
 
         /**
          * @brief 实现基类接口
@@ -82,7 +82,7 @@ namespace Tiny3D
          * @param [in] node : 碰撞体所在的结点对象
          * @param [in] uID : 碰撞体ID
          */
-        SphereBound(SGNode *node, ID uID = E_BID_AUTOMATIC);
+        SphereBound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
          * @brief 实现基类接口
@@ -116,7 +116,7 @@ namespace Tiny3D
 
     private:
         Sphere          mOriginalSphere;/**< 原始球体 */
-        SGSpherePtr     mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
+        SceneSpherePtr     mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 

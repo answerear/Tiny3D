@@ -19,14 +19,14 @@
 
 
 #include "Bound/T3DSphereBound.h"
-#include "SceneGraph/T3DSGSphere.h"
+#include "Scene/T3DSceneSphere.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SphereBoundPtr SphereBound::create(SGNode *node, 
+    SphereBoundPtr SphereBound::create(SceneNode *node, 
         ID uID /* = E_BID_AUTOMATIC */)
     {
         SphereBoundPtr bound = new SphereBound(node, uID);
@@ -36,7 +36,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SphereBound::SphereBound(SGNode *node, ID uID /* = E_BID_AUTOMATIC */)
+    SphereBound::SphereBound(SceneNode *node, ID uID /* = E_BID_AUTOMATIC */)
         : Bound(node, uID)
         , mRenderable(nullptr)
     {
@@ -75,7 +75,7 @@ namespace Tiny3D
         SphereBoundPtr sphereBound = smart_pointer_cast<SphereBound>(bound);
         sphereBound->mOriginalSphere = mOriginalSphere;
         sphereBound->mRenderable 
-            = smart_pointer_cast<SGSphere>(mRenderable->clone());
+            = smart_pointer_cast<SceneSphere>(mRenderable->clone());
     }
 
     //--------------------------------------------------------------------------
@@ -91,7 +91,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SGRenderablePtr SphereBound::getRenderable()
+    SceneRenderablePtr SphereBound::getRenderable()
     {
         return mRenderable;
     }
