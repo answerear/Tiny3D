@@ -70,8 +70,8 @@ namespace Tiny3D
             {
                 // 窗口已经创建
                 ret = T3D_ERR_D3D11_WINDOW_ALREADY;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Render window already \
-                     created !");
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
+                    "Render window already created !");
                 break;
             }
 
@@ -106,8 +106,8 @@ namespace Tiny3D
                     param.windowWidth, param.windowHeight, flags);
                 if (ret != T3D_OK)
                 {
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create native window\
-                        failed !");
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
+                        "Create native window failed !");
                     break;
                 }
             }
@@ -226,8 +226,8 @@ namespace Tiny3D
             ret = image.load(iconPath);
             if (ret != T3D_OK)
             {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Load icon image [%s] \
-                    failed !", iconPath.c_str());
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
+                    "Load icon image [%s] failed !", iconPath.c_str());
                 break;
             }
 
@@ -266,8 +266,8 @@ namespace Tiny3D
             if (ret != T3D_OK)
             {
                 ret = T3D_ERR_D3D11_UNSUPPORT_FORMAT_ICON;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Do not support icon [%s] \
-                    format !", iconPath.c_str());
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
+                    "Do not support icon [%s] format !", iconPath.c_str());
                 break;
             }
 
