@@ -70,18 +70,18 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    inline HardwareConstantBufferPtr Renderer::getConstantBuffer(size_t slot) const
-    {
-        T3D_ASSERT(slot < mConstBuffers.size());
-        return mConstBuffers[slot];
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline GPUProgramPtr Renderer::getGPUProgram() const
-    {
-        return mGPUProgram;
-    }
+// 
+//     inline HardwareConstantBufferPtr Renderer::getConstantBuffer(size_t slot) const
+//     {
+//         T3D_ASSERT(slot < mConstBuffers.size());
+//         return mConstBuffers[slot];
+//     }
+// 
+//     //--------------------------------------------------------------------------
+// 
+//     inline GPUProgramPtr Renderer::getGPUProgram() const
+//     {
+//         return mGPUProgram;
+//     }
 }
 

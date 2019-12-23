@@ -119,7 +119,7 @@ namespace Tiny3D
                 PassPtr pass = tech->getPass(0);
 
                 GPUProgramPtr program = pass->getGPUProgram();
-                renderer->setGPUProgram(program);
+                renderer->bindGPUProgram(program);
 
                 RenderableList &renderables = itr->second;
 
@@ -136,8 +136,7 @@ namespace Tiny3D
                     renderer->setWorldTransform(m);
 
                     // 根据VAO数据渲染
-                    renderer->drawVertexArray(
-                        renderable->getVertexArrayObject());
+                    renderer->renderObject(renderable->getVertexArrayObject());
 
                     ++i;
                 }

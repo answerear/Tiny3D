@@ -68,7 +68,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Renderer::render()
+    TResult Renderer::renderAllTargets()
     {
         auto itr = mRenderTargets.begin();
 
@@ -284,10 +284,6 @@ namespace Tiny3D
             // 设置默认背面剔除顺序
             setCullingMode(CullingMode::CLOCKWISE);
 
-            // 绑定常量缓冲区
-            setConstantBuffer(0, mGPUBufferUpdateObject->getBufferImpl());
-            setConstantBuffer(1, mGPUBufferUpdateFrame->getBufferImpl());
-            setConstantBuffer(2, mGPUBufferUpdateRarely->getBufferImpl());
         } while (0);
 
         return ret;

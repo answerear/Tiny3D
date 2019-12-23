@@ -107,7 +107,7 @@ namespace Tiny3D
             }
 
             // Raster State
-            setD3D11RasterzierState();
+            initD3DRasterzierState();
 
             ret = postInit();
             if (ret != T3D_OK)
@@ -129,6 +129,7 @@ namespace Tiny3D
         {
             mHardwareBufferMgr = nullptr;
 
+            D3D_SAFE_RELEASE(mD3DRState);
             D3D_SAFE_RELEASE(mD3DDeviceContext);
             D3D_SAFE_RELEASE(mD3DDevice);
         } while (0);
@@ -138,13 +139,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::render()
+    TResult D3D11Renderer::renderAllTargets()
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            ret = Renderer::render();
+            // 绑定内置常量缓冲区
+            bindGPUConstantBuffer(0, mGPUBufferUpdateObject->getBufferImpl());
+            bindGPUConstantBuffer(1, mGPUBufferUpdateFrame->getBufferImpl());
+            bindGPUConstantBuffer(2, mGPUBufferUpdateRarely->getBufferImpl());
+
+            ret = Renderer::renderAllTargets();
+
+            // 清理 GPU 程序对象
+            mBoundGPUProgram = nullptr;
         } while (0);
 
         return ret;
@@ -165,8 +174,8 @@ namespace Tiny3D
             window = D3D11RenderWindow::create(name);
             if (window == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create render window \
-                    failed !");
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
+                    "Create render window failed !");
                 break;
             }
 
@@ -450,6 +459,7 @@ namespace Tiny3D
 
     TResult D3D11Renderer::setCullingMode(CullingMode mode)
     {
+        mD3DRSDesc.CullMode = D3D11Mappings::get(mode);
         mCullingMode = mode;
         mIsRSStateDirty = true;
         return T3D_OK;
@@ -459,6 +469,7 @@ namespace Tiny3D
 
     TResult D3D11Renderer::setPolygonMode(PolygonMode mode)
     {
+        mD3DRSDesc.FillMode = D3D11Mappings::get(mode);
         mPolygonMode = mode;
         mIsRSStateDirty = true;
         return T3D_OK;
@@ -490,7 +501,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::setConstantBuffer(size_t slot,
+    TResult D3D11Renderer::bindGPUConstantBuffer(size_t slot,
         HardwareConstantBufferPtr buffer)
     {
         TResult ret = T3D_OK;
@@ -512,14 +523,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::setGPUProgram(GPUProgramPtr program)
+    TResult D3D11Renderer::bindGPUProgram(GPUProgramPtr program)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            mGPUProgram = program;
-
             // Vertex Shader
             D3D11VertexShaderPtr vshader 
                 = smart_pointer_cast<D3D11VertexShader>(
@@ -530,6 +539,8 @@ namespace Tiny3D
             D3D11PixelShaderPtr fshader = smart_pointer_cast<D3D11PixelShader>(
                 program->getPixelShader());
             mD3DDeviceContext->PSSetShader(fshader->getD3DShader(), nullptr, 0);
+
+            mBoundGPUProgram = program;
         } while (0);
 
         return ret;
@@ -537,40 +548,44 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::drawVertexArray(VertexArrayObjectPtr vao)
+    TResult D3D11Renderer::renderObject(VertexArrayObjectPtr vao)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            if (mIsRSStateDirty)
+            // 按需更新 GPU 常量缓冲区内容
+            if (mIsWorldMatrixDirty || mIsViewMatrixDirty || mIsProjMatrixDirty)
             {
-                // 更新光栅化状态
-                setD3D11RasterzierState();
-                mIsRSStateDirty = false;
+                // 更新每个对象都可能需要更新的缓冲区
+                updateBufferPerObject();
             }
-
-            D3D11VertexArrayObjectPtr d3dVAO 
-                = smart_pointer_cast<D3D11VertexArrayObject>(vao);
 
             if (mIsViewMatrixDirty || mIsProjMatrixDirty)
             {
+                // 更新每帧都可能需要更新的缓冲区
                 updateBufferPerFrame();
             }
 
             if (mIsProjMatrixDirty)
             {
+                // 更新很少需要跟新的缓冲区
                 updateBufferRarely();
-            }
-
-            if (mIsWorldMatrixDirty || mIsViewMatrixDirty || mIsProjMatrixDirty)
-            {
-                updateBufferPerObject();
             }
 
             mIsWorldMatrixDirty = false;
             mIsViewMatrixDirty = false;
             mIsProjMatrixDirty = false;
+
+            // 按需更新光栅化状态
+            if (mIsRSStateDirty)
+            {
+                updateD3DRasterizerState();
+                mIsRSStateDirty = false;
+            }
+
+            D3D11VertexArrayObjectPtr d3dVAO 
+                = smart_pointer_cast<D3D11VertexArrayObject>(vao);
 
             // 设置图元
             PrimitiveType primitive = vao->getPrimitiveType();
@@ -579,7 +594,7 @@ namespace Tiny3D
 
             // 顶点布局
             D3D11VertexDeclarationPtr decl = smart_pointer_cast<D3D11VertexDeclaration>(vao->getVertexDeclaration());
-            D3D11VertexShaderPtr vshader = smart_pointer_cast<D3D11VertexShader>(mGPUProgram->getVertexShader());
+            D3D11VertexShaderPtr vshader = smart_pointer_cast<D3D11VertexShader>(mBoundGPUProgram->getVertexShader());
             ID3D11InputLayout *d3dLayout = decl->getD3DInputLayout(vshader);
             mD3DDeviceContext->IASetInputLayout(d3dLayout);
 
@@ -612,7 +627,9 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult D3D11Renderer::setD3D11RasterzierState()
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Renderer::initD3DRasterzierState()
     {
         TResult ret = T3D_OK;
 
@@ -622,18 +639,47 @@ namespace Tiny3D
 
             HRESULT hr = S_OK;
 
-            D3D11_RASTERIZER_DESC desc;
-            desc.FillMode = D3D11Mappings::get(mPolygonMode);
-            desc.CullMode = D3D11Mappings::get(mCullingMode);
-            desc.FrontCounterClockwise = TRUE;
-            desc.DepthBias = 0;
-            desc.SlopeScaledDepthBias = 0.0f;
-            desc.DepthBiasClamp = 0.0f;
-            desc.DepthClipEnable = TRUE;
-            desc.ScissorEnable = FALSE;
-            desc.MultisampleEnable = FALSE;
-            desc.AntialiasedLineEnable = FALSE;
-            hr = mD3DDevice->CreateRasterizerState(&desc, &mD3DRState);
+            memset(&mD3DRSDesc, 0, sizeof(mD3DRSDesc));
+            mD3DRSDesc.FillMode = D3D11Mappings::get(mPolygonMode);
+            mD3DRSDesc.CullMode = D3D11Mappings::get(mCullingMode);
+            mD3DRSDesc.FrontCounterClockwise = TRUE;
+            mD3DRSDesc.DepthBias = 0;
+            mD3DRSDesc.SlopeScaledDepthBias = 0.0f;
+            mD3DRSDesc.DepthBiasClamp = 0.0f;
+            mD3DRSDesc.DepthClipEnable = TRUE;
+            mD3DRSDesc.ScissorEnable = FALSE;
+            mD3DRSDesc.MultisampleEnable = FALSE;
+            mD3DRSDesc.AntialiasedLineEnable = FALSE;
+
+            hr = mD3DDevice->CreateRasterizerState(&mD3DRSDesc, &mD3DRState);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create ID3D11RasterizerState object failed ! DX ERROR : %d",
+                    hr);
+                break;
+            }
+
+            mD3DDeviceContext->RSSetState(mD3DRState);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Renderer::updateD3DRasterizerState()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            D3D_SAFE_RELEASE(mD3DRState);
+
+            HRESULT hr = S_OK;
+
+            hr = mD3DDevice->CreateRasterizerState(&mD3DRSDesc, &mD3DRState);
             if (FAILED(hr))
             {
                 ret = T3D_ERR_D3D11_CREATE_FAILED;

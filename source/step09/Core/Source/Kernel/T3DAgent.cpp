@@ -369,7 +369,7 @@ namespace Tiny3D
     {
         if (mActiveRenderer != nullptr)
         {
-            mActiveRenderer->render();
+            mActiveRenderer->renderAllTargets();
         }
     }
 

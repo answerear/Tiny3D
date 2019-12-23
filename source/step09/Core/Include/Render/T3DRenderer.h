@@ -145,11 +145,11 @@ namespace Tiny3D
         const String &getName() const;
 
         /**
-         * @fn  virtual TResult Renderer::render();
+         * @fn  virtual TResult Renderer::renderAllTargets();
          * @brief   渲染一帧
-         * @returns 调用成功返回 T3D_OK.
+         * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult render();
+        virtual TResult renderAllTargets();
 
         /**
          * @fn  virtual RenderWindowPtr Renderer::createRenderWindow(
@@ -337,59 +337,51 @@ namespace Tiny3D
         PolygonMode getPolygonMode() const;
 
         /**
-         * @brief 设置渲染视口
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult Renderer::setViewport(ViewportPtr viewport) = 0;
+         * @brief   设置渲染视口
+         * @param   viewport    The viewport.
+         * @return  调用成功返回 T3D_OK.
          */
         virtual TResult setViewport(ViewportPtr viewport) = 0;
 
         /**
-         * @brief 获取渲染视口
+         * @fn  ViewportPtr Renderer::getViewport() const;
+         * @brief   获取渲染视口
+         * @return  The viewport.
          */
         ViewportPtr getViewport() const;
 
         /**
-         * @fn  virtual TResult Renderer::setConstantBuffer(size_t slot, 
+         * @fn  virtual TResult 
+         *      Renderer::bindGPUProgram(GPUProgramPtr program) = 0;
+         * @brief   绑定渲染需要的 GPU 程序对象
+         * @param [in]  program GPU 程序对象.
+         * @return  调用成功返回 T3D_OK.
+         * @remarks 具体渲染平台实现类需要实现本接口.
+         */
+        virtual TResult bindGPUProgram(GPUProgramPtr program) = 0;
+
+        /**
+         * @fn  virtual TResult Renderer::bindGPUConstantBuffer(size_t slot, 
          *      HardwareConstantBufferPtr buffer) = 0;
-         * @brief   设置当前渲染对象在 GPU 程序中使用的常量缓冲区对象
+         * @brief   绑定渲染需要的 GPU 常量缓冲区
          * @param [in]  slot    常量缓冲区槽索引.
          * @param [in]  buffer  常量缓冲区对象.
-         * @returns 调用成功返回 T3D_OK.
-         * @remarks 具体渲染平台实现类需要实现本接口
+         * @return  调用成功返回 T3D_OK.
+         * @remarks 具体渲染平台实现类需要实现本接口.
          */
-        virtual TResult setConstantBuffer(size_t slot, 
+        virtual TResult bindGPUConstantBuffer(size_t slot, 
             HardwareConstantBufferPtr buffer) = 0;
 
         /**
-         * @fn  virtual HardwareConstantBufferPtr 
-         *      Renderer::getConstantBuffer(size_t slot) const;
-         * @brief   获取指定槽的常量缓冲区对象
-         * @param [in]  slot    指定槽索引.
-         * @returns 调用成功返回常量缓冲区对象，否则返回nullptr.
-         */
-        HardwareConstantBufferPtr getConstantBuffer(size_t slot) const;
-
-        /**
          * @fn  virtual TResult 
-         *      Renderer::setGPUProgram(GPUProgramPtr program) = 0;
-         * @brief   设置当前渲染对象用的 GPU 程序对象
-         * @param [in]  program GPU 程序对象.
-         * @returns 调用成功返回 T3D_OK.
+         *      Renderer::renderObject(VertexArrayObjectPtr vao) = 0;
+         * @brief   渲染对象
+         * @param [in]  vao VAO 对象.
+         * @return  调用成功返回 T3D_OK.
+         * @remarks  具体渲染平台实现类需要实现本接口.
          */
-        virtual TResult setGPUProgram(GPUProgramPtr program) = 0;
-
-        /**
-         * @fn  virtual GPUProgramPtr Renderer::getGPUProgram() const;
-         * @brief   Gets GPU program
-         * @returns The GPU program.
-         */
-        GPUProgramPtr getGPUProgram() const;
-
-        /**
-         * @brief 绘制顶点数组
-         * @param [in] vao : 顶点数组对象
-         * @return 调动成功返回 T3D_OK
-         */
-        virtual TResult drawVertexArray(VertexArrayObjectPtr vao) = 0;
+        virtual TResult renderObject(VertexArrayObjectPtr vao) = 0;
 
     protected:
         /**
@@ -475,16 +467,6 @@ namespace Tiny3D
             Matrix4 mInverseTransposeProjM;     /**< The inverse transpose project m */
         };
 
-        String              mName;              /**< 渲染器名称 */
-
-        RenderTargetList    mRenderTargets;     /**< 渲染目标列表 */
-
-        RenderTargetPtr     mRenderTarget;      /**< 当前渲染目标 */
-
-        ViewportPtr         mViewport;          /**< 当前渲染视口对象 */
-
-        CullingMode         mCullingMode;       /**< 裁剪模式 */
-        PolygonMode         mPolygonMode;       /**< 多边形渲染模式 */
 
         GPUConstBufferPtr           mGPUBufferUpdateObject; /**< 每个对象都更新的GPU常量缓冲 */
         GPUConstBufferPtr           mGPUBufferUpdateFrame;  /**< 每帧都更新的GPU常量缓冲 */
@@ -498,8 +480,16 @@ namespace Tiny3D
         bool    mIsViewMatrixDirty;     /**< 视图变换矩阵是否更新标识 */
         bool    mIsProjMatrixDirty;     /**< 投影变换矩阵是否更新标识 */
 
-        ConstantBufferList  mConstBuffers;      /**< 外部传入的常量缓冲区对象 */
-        GPUProgramPtr       mGPUProgram;        /**< 当前渲染用GPU程序 */
+        String              mName;              /**< 渲染器名称 */
+
+        RenderTargetList    mRenderTargets;     /**< 渲染目标列表 */
+
+        RenderTargetPtr     mRenderTarget;      /**< 当前渲染目标 */
+
+        ViewportPtr         mViewport;          /**< 当前渲染视口对象 */
+
+        CullingMode         mCullingMode;       /**< 面剔除模式 */
+        PolygonMode         mPolygonMode;       /**< 多边形渲染模式 */
     };
 }
 

@@ -29,7 +29,7 @@ namespace Tiny3D
 {
     /**
      * @class   D3D11Renderer
-     * @brief   A D3D11 renderer.
+     * @brief   D3D11 渲染器.
      */
     class D3D11Renderer 
         : public Renderer
@@ -38,8 +38,8 @@ namespace Tiny3D
     public:
         /**
          * @fn  static D3D11RendererPtr create();
-         * @brief   创建一个D3D9Renderer对象
-         * @returns A D3D11RendererPtr.
+         * @brief   创建一个D3D11Renderer对象
+         * @returns 返回一个新建对象.
          */
         static D3D11RendererPtr create();
 
@@ -64,11 +64,11 @@ namespace Tiny3D
         virtual TResult destroy() override;
 
         /**
-         * @fn  virtual TResult render() override;
-         * @brief   Renders this object
-         * @returns A TResult.
+         * @fn  virtual TResult renderAllTarget() override;
+         * @brief   渲染一帧
+         * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult render() override;
+        virtual TResult renderAllTargets() override;
 
         /**
          * @fn  virtual RenderWindowPtr createRenderWindow( const String &name, 
@@ -142,51 +142,56 @@ namespace Tiny3D
             FrustumBoundPtr bound) override;
 
         /**
-         * @brief 设置裁剪模式
-         * @param [in] mode : 裁剪模式
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult setCullingMode(CullingMode mode) override;
+         * @brief   设置裁剪模式
+         * @param [in]  mode    : 裁剪模式.
+         * @return  调用成功返回 T3D_OK.
          */
         virtual TResult setCullingMode(CullingMode mode) override;
 
         /**
-         * @brief 设置渲染模式
-         * @param [in] mode : 渲染模式
-         * @return 成功返回 T3D_OK
-         * @see enum PolygonMode
+         * @fn  virtual TResult setPolygonMode(PolygonMode mode) override;
+         * @brief   设置渲染模式
+         * @param [in]  mode    : 渲染模式.
+         * @return  成功返回 T3D_OK.
+         * @sa  enum PolygonMode
          */
         virtual TResult setPolygonMode(PolygonMode mode) override;
 
         /**
-         * @brief 设置渲染视口
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult setViewport(ViewportPtr viewport) override;
+         * @brief   设置渲染视口
+         * @param   viewport    The viewport.
+         * @return  调用成功返回 T3D_OK.
          */
         virtual TResult setViewport(ViewportPtr viewport) override;
 
         /**
-         * @fn  virtual TResult setConstantBuffer(size_t slot, 
-         *      HardwareConstantBufferPtr buffer) override;
-         * @brief   Sets constant buffer
-         * @param [in]  slot    The slot.
-         * @param [in]  buffer  The buffer.
-         * @returns A TResult.
+         * @fn  virtual TResult bindGPUProgram(GPUProgramPtr program) override;
+         * @brief   绑定渲染需要的 GPU 程序对象
+         * @param [in]  program GPU 程序对象.
+         * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult setConstantBuffer(size_t slot, 
+        virtual TResult bindGPUProgram(GPUProgramPtr program) override;
+
+        /**
+         * @fn  virtual TResult bindGPUConstantBuffer(size_t slot, 
+         *      HardwareConstantBufferPtr buffer) override;
+         * @brief   绑定渲染需要的 GPU 常量缓冲区
+         * @param [in]  slot    常量缓冲区槽索引.
+         * @param [in]  buffer  常量缓冲区对象.
+         * @return  调用成功返回 T3D_OK.
+         */
+        virtual TResult bindGPUConstantBuffer(size_t slot, 
             HardwareConstantBufferPtr buffer) override;
 
         /**
-         * @fn  virtual TResult setGPUProgram(GPUProgramPtr program) override;
-         * @brief   Sets GPU program
-         * @param   program The program.
-         * @returns A TResult.
+         * @fn  virtual TResult renderObject(VertexArrayObjectPtr vao) override;
+         * @brief   渲染对象
+         * @param [in]  vao VAO 对象.
+         * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult setGPUProgram(GPUProgramPtr program) override;
-
-        /**
-         * @brief 绘制顶点数组
-         * @param [in] vao : 顶点数组对象
-         * @return 调动成功返回 T3D_OK
-         */
-        virtual TResult drawVertexArray(VertexArrayObjectPtr vao) override;
+        virtual TResult renderObject(VertexArrayObjectPtr vao) override;
 
         ID3D11Device *getD3DDevice()
         {
@@ -206,18 +211,31 @@ namespace Tiny3D
         D3D11Renderer();
 
         /**
-         * @fn  TResult setD3D11RasterzierState();
-         * @brief   Sets d 016`11 rasterzier state
-         * @returns A TResult.
+         * @fn  TResult initD3DRasterzierState();
+         * @brief   初始化光栅化状态
+         * @return  调用成功返回 T3D_OK.
          */
-        TResult setD3D11RasterzierState();
+        TResult initD3DRasterzierState();
+
+        /**
+         * @fn  TResult updateD3DRasterizerState();
+         * @brief   更新光栅化状态
+         * @return  调用成功返回 T3D_OK.
+         */
+        TResult updateD3DRasterizerState();
 
     protected:
         HINSTANCE                   mInstance;          /**< The instance */
+
         ID3D11Device                *mD3DDevice;        /**< D3D11 设备对象 */
-        ID3D11DeviceContext         *mD3DDeviceContext; /**< D3D11 设备上下文对象 */
+        ID3D11DeviceContext         *mD3DDeviceContext; /**< D3D11 上下文对象 */
         ID3D11RasterizerState       *mD3DRState;        /**< D3D11 光栅化状态 */
-        HardwareBufferManagerPtr    mHardwareBufferMgr; /**< Manager for hardware buffer */
+
+        D3D11_RASTERIZER_DESC       mD3DRSDesc;         /**< D3D11 光栅化状态描述结构 */
+
+        HardwareBufferManagerPtr    mHardwareBufferMgr; /**< 缓冲区管理对象 */
+
+        GPUProgramPtr               mBoundGPUProgram;   /**< GPU 程序对象 */
 
         bool        mIsRSStateDirty;    /**< 光栅化状态是否有改变标识 */
     };
