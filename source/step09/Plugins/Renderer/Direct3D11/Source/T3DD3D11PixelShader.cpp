@@ -48,7 +48,7 @@ namespace Tiny3D
 
     D3D11PixelShader::~D3D11PixelShader()
     {
-
+        D3D_SAFE_RELEASE(mD3DPixelShader);
     }
 
     //--------------------------------------------------------------------------

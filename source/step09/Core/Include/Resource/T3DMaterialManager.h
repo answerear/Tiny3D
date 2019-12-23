@@ -29,7 +29,8 @@
 namespace Tiny3D
 {
     /**
-     * @brief 材质资源管理器
+     * @class   MaterialManager
+     * @brief   材质资源管理器
      */
     class T3D_ENGINE_API MaterialManager
         : public Singleton<MaterialManager>
@@ -37,46 +38,61 @@ namespace Tiny3D
     {
     public:
         /**
-         * @brief 创建材质管理器对象
-         * @return 返回一个材质管理器对象
+         * @fn  static MaterialManagerPtr create();
+         * @brief   创建材质管理器对象
+         * @return  返回一个材质管理器对象.
          */
         static MaterialManagerPtr create();
 
         /**
-         * @brief 析构函数
+         * @fn  virtual ~MaterialManager();
+         * @brief   析构函数
          */
         virtual ~MaterialManager();
 
         /**
-         * @brief 加载材质
-         * @param [in] name : 材质资源名称
-         * @param [in] matType : 材质类型
-         * @return 返回一个新建材质对象
-         * @see enum Material::MaterialType
+         * @fn  virtual MaterialPtr loadMaterial(const String &name, 
+         *      Material::MaterialType matType);
+         * @brief   加载材质
+         * @param [in]  name    : 材质资源名称.
+         * @param [in]  matType : 材质类型.
+         * @return  返回一个新建材质对象.
+         * @sa  enum Material::MaterialType
          */
         virtual MaterialPtr loadMaterial(const String &name, 
             Material::MaterialType matType);
 
         /**
-         * @brief 卸载材质资源
-         * @param [in] material : 要卸载的材质资源对象
-         * @return void
+         * @fn  virtual TResult unloadMaterial(MaterialPtr material);
+         * @brief   卸载材质资源
+         * @param [in]  material    : 要卸载的材质资源对象.
+         * @return  void.
          */
         virtual TResult unloadMaterial(MaterialPtr material);
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  MaterialManager();
+         * @brief   构造函数
          */
         MaterialManager();
 
         /**
-         * @brief 重写基类接口，实现创建材质对象
-         * @see ResourcePtr Resource::create(const String &name, int32_t argc,
-         *      va_list args)
+         * @fn  virtual ResourcePtr create(const String &name, int32_t argc, 
+         *      va_list args) override;
+         * @brief   重写基类接口，实现创建材质对象
+         * @param [in]  name    资源名称.
+         * @param [in]  argc    传入的参数数量.
+         * @param [in]  args    参数列表.
+         * @return  返回新建资源对象.
+         * @sa  ResourcePtr Resource::create(const String &amp;name, 
+         *      int32_t argc, va_list args)
          */
         virtual ResourcePtr create(const String &name, int32_t argc, 
             va_list args) override;
+
+    protected:
+
     };
 
     #define T3D_MATERIAL_MGR        (MaterialManager::getInstance())

@@ -50,6 +50,11 @@ namespace Tiny3D
 
     D3D11RenderWindow::~D3D11RenderWindow()
     {
+        D3D_SAFE_RELEASE(mD3DSwapChain);
+        D3D_SAFE_RELEASE(mD3DRTView);
+        D3D_SAFE_RELEASE(mD3DDSView);
+
+        T3D_SAFE_DELETE(mWindow);
     }
 
     //--------------------------------------------------------------------------

@@ -48,7 +48,7 @@ namespace Tiny3D
 
     D3D11VertexShader::~D3D11VertexShader()
     {
-
+        D3D_SAFE_RELEASE(mD3DVertexShader);
     }
 
     //--------------------------------------------------------------------------
