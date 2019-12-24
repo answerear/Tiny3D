@@ -38,10 +38,10 @@ namespace Tiny3D
         /**
          * @brief 结点ID
          */
-        enum NodeID
+        enum NodeID : ID
         {
-            E_NID_AUTOMATIC = -1,   /**< 自动生成ID */
-            E_NID_INVALID = 0,      /**< 无效ID */
+            E_NID_AUTOMATIC = 0xFFFFFFFF,   /**< 自动生成ID */
+            E_NID_INVALID = 0,              /**< 无效ID */
         };
 
         /**

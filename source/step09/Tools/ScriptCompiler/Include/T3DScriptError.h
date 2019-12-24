@@ -29,7 +29,7 @@ namespace Tiny3D
     /**
      * @brief 编译错误码
      */
-    enum ErrorCode
+    enum ErrorCode : uint32_t
     {
         CERR_STRINGEXPECTED,
         CERR_NUMBEREXPECTED,

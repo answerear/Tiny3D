@@ -122,13 +122,13 @@ namespace Tiny3D
     {
         switch (option)
         {
-        case E_BUILD_WELZL:
+        case BuildOption::WELZL:
             buildByWelzl(points, count);
             break;
-        case E_BUILD_RITTER:
+        case BuildOption::RITTER:
             buildByRitter(points, count);
             break;
-        case E_BUILD_AVERAGE:
+        case BuildOption::AVERAGE:
             buildByAverage(points, count);
             break;
         default:

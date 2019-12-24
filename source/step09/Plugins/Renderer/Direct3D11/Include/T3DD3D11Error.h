@@ -27,7 +27,7 @@
 
 namespace Tiny3D
 {
-    enum R3DErrorCode
+    enum R3DErrorCode : int32_t
     {
         T3D_ERR_D3D11_WINDOW_ALREADY = T3D_ERR_RENDERER, /**< 窗口已经创建 */
         T3D_ERR_D3D11_UNSUPPORT_FORMAT_ICON,             /**< 不支持的图标文件格式 */

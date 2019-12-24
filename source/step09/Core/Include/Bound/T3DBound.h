@@ -53,10 +53,10 @@ namespace Tiny3D
         /**
          * @brief 碰撞体ID
          */
-        enum BoundID
+        enum BoundID : ID
         {
-            E_BID_AUTOMATIC = -1,   /**< 自动生成ID */
-            E_BID_INVALID = 0,      /**< 无效ID */
+            E_BID_AUTOMATIC = 0xFFFFFFFF,   /**< 自动生成ID */
+            E_BID_INVALID = 0,              /**< 无效ID */
         };
 
         /**
