@@ -184,10 +184,10 @@ namespace Tiny3D
          * @enum    ShaderType
          * @brief   着色器类型
          */
-        enum ShaderType
+        enum class ShaderType : uint32_t
         {
-            E_ST_VERTEX_SHADER = 0, /**< 顶点着色器 */
-            E_ST_PIXEL_SHADER,      /**< 像素着色器 */
+            VERTEX_SHADER = 0, /**< 顶点着色器 */
+            PIXEL_SHADER,      /**< 像素着色器 */
         };
 
         /**

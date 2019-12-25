@@ -55,7 +55,7 @@ namespace Tiny3D
 
     Shader::ShaderType D3D11PixelShader::getShaderType() const
     {
-        return Shader::E_ST_PIXEL_SHADER;
+        return ShaderType::PIXEL_SHADER;
     }
 
     //--------------------------------------------------------------------------

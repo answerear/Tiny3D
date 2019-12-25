@@ -126,7 +126,7 @@ namespace Tiny3D
                 break;
             }
 
-            Shader::ShaderType shaderType = Shader::E_ST_VERTEX_SHADER;
+            Shader::ShaderType shaderType = Shader::ShaderType::VERTEX_SHADER;
             size_t len = mSource.find_last_of('.');
             String title =
                 (len != String::npos ? mSource.substr(0, len) : mSource);
@@ -135,12 +135,12 @@ namespace Tiny3D
             if (mStage == "vs")
             {
                 // vertex shader
-                shaderType = Shader::E_ST_VERTEX_SHADER;
+                shaderType = Shader::ShaderType::VERTEX_SHADER;
             }
             else if (mStage == "ps")
             {
                 // fragment shader
-                shaderType = Shader::E_ST_PIXEL_SHADER;
+                shaderType = Shader::ShaderType::PIXEL_SHADER;
 
             }
             else if (mStage == "gs")

@@ -56,11 +56,11 @@ namespace Tiny3D
 
         ShaderPtr shader;
 
-        if (shaderType == Shader::E_ST_VERTEX_SHADER)
+        if (shaderType == Shader::ShaderType::VERTEX_SHADER)
         {
             shader = D3D11VertexShader::create(name, content);
         }
-        else if (shaderType == Shader::E_ST_PIXEL_SHADER)
+        else if (shaderType == Shader::ShaderType::PIXEL_SHADER)
         {
             shader = D3D11PixelShader::create(name, content);
         }

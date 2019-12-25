@@ -75,10 +75,13 @@ namespace Tiny3D
 
         if (shader != nullptr)
         {
-            TResult ret = shader->compile();
-            if (ret != T3D_OK)
+            if (!shader->hasCompiled())
             {
-                shader = nullptr;
+                TResult ret = shader->compile();
+                if (ret != T3D_OK)
+                {
+                    shader = nullptr;
+                }
             }
         }
 
@@ -95,10 +98,13 @@ namespace Tiny3D
 
         if (shader != nullptr)
         {
-            TResult ret = shader->compile();
-            if (ret != T3D_OK)
+            if (!shader->hasCompiled())
             {
-                shader = nullptr;
+                TResult ret = shader->compile();
+                if (ret != T3D_OK)
+                {
+                    shader = nullptr;
+                }
             }
         }
 

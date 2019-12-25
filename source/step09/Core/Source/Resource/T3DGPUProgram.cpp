@@ -274,14 +274,14 @@ namespace Tiny3D
 
     ShaderPtr GPUProgram::getVertexShader() const
     {
-        return mShaders.at(Shader::E_ST_VERTEX_SHADER);
+        return mShaders.at(Shader::ShaderType::VERTEX_SHADER);
     }
 
     //--------------------------------------------------------------------------
 
     ShaderPtr GPUProgram::getPixelShader() const
     {
-        return mShaders.at(Shader::E_ST_PIXEL_SHADER);
+        return mShaders.at(Shader::ShaderType::PIXEL_SHADER);
     }
 
     //--------------------------------------------------------------------------

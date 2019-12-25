@@ -42,7 +42,7 @@ namespace Tiny3D
         TWO_SIDED_STENCIL,          /**< 支持前后两面模板缓冲独立更新方式 */
         WRAP_STENCIL,               /**< 支持 wrap 模板缓冲值 */
         HWSTENCIL,                  /**< 支持硬件模板缓冲 */
-
+        HW_GAMMA,                   /**< 硬件 Gamma 校正*/
         HWOCCLUSION,                /**< 支持硬件遮挡查询 */
         HWRENDER_TO_VERTEX_BUFFER,  /**< 支持渲染到顶点缓冲 */
         HWRENDER_TO_TEXTURE,        /**< 支持硬件渲染到纹理 */
@@ -58,7 +58,13 @@ namespace Tiny3D
         POINT_EXTENDED_PARAMETERS,  /**< 支持点精灵需要的参数 */
         VERTEX_TEXTURE_FETCH,       /**< 支持顶点纹理拾取 */
         MIPMAP_LOD_BIAS,            /**< 支持 mipmap LOD 偏差 */
-        MRT_DIFFERENT_BIT_DEPTHS,   /**< 支持多渲染目标有不同的深度值 */
+        MRT_DIFFERENT_BIT_DEPTHS,   /**< 支持多渲染目标有不同色深 */
+        ALPHA_TO_COVERAGE,          /**< 支持 A2C */
+
+        RTT_MAIN_DEPTHBUFFER_ATTACHABLE,        /**< 支持主的深度缓冲给渲染到纹理使用 */
+        RTT_DEPTHBUFFER_RESOLUTION_LESSEQUAL,   /**< 支持宽高小于渲染到纹理的深度缓冲关联到渲染到纹理上使用 */
+
+        VERTEX_BUFFER_INSTANCE_DATA,
 
         VERTEX_SHADER,              /**< 支持顶点着色器 */
         PIXEL_SHADER,               /**< 支持像素着色器 */
