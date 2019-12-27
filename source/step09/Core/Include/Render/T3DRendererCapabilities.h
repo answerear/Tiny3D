@@ -29,6 +29,13 @@
 
 namespace Tiny3D
 {
+    enum CapabilitiesCategory : uint8_t
+    {
+        COMMON = 0,
+        COMMON_2,
+        COMMON_3,
+
+    };
 
     enum Capabilities : uint32_t
     {
@@ -44,12 +51,15 @@ namespace Tiny3D
         HWSTENCIL,                  /**< 支持硬件模板缓冲 */
         HW_GAMMA,                   /**< 硬件 Gamma 校正*/
         HWOCCLUSION,                /**< 支持硬件遮挡查询 */
+        HWOCCLUSION_ASYNCHRONOUS,   /**< 支持异步硬件遮挡查询 */
         HWRENDER_TO_VERTEX_BUFFER,  /**< 支持渲染到顶点缓冲 */
         HWRENDER_TO_TEXTURE,        /**< 支持硬件渲染到纹理 */
+        HWRENDER_TO_TEXTURE_3D,     /**< 支持硬件渲染到体积纹理 */
         TEXTURE_FLOAT,              /**< 支持浮点纹理和渲染目标 */
         NON_POWER_OF_2_TEXTURES,    /**< 支持非2幂尺寸的纹理 */
         TEXTURE_3D,                 /**< 支持体积纹理 */
-        
+        TEXTURE_1D,                 /**< 支持1维纹理 */
+
         USER_CLIP_PLANES,           /**< 支持用户定义裁剪平面 */
         VERTEX_FORMAT_UBYTE4,       /**< 支持顶点使用 UBYTE4 格式 */
         
@@ -64,11 +74,16 @@ namespace Tiny3D
         RTT_MAIN_DEPTHBUFFER_ATTACHABLE,        /**< 支持主的深度缓冲给渲染到纹理使用 */
         RTT_DEPTHBUFFER_RESOLUTION_LESSEQUAL,   /**< 支持宽高小于渲染到纹理的深度缓冲关联到渲染到纹理上使用 */
 
-        VERTEX_BUFFER_INSTANCE_DATA,
+        VERTEX_BUFFER_INSTANCE_DATA,    /**< 支持顶点缓冲存储实例化数据 */
+        CAN_GET_COMPILED_SHADER_BUFFER, /**< 支持获取编译后着色器缓冲数据 */
+        SHADER_SUBROUTINE,          /**< 支持动态链接着色器或者着色器函数 */
 
-        VERTEX_SHADER,              /**< 支持顶点着色器 */
-        PIXEL_SHADER,               /**< 支持像素着色器 */
-        GEOMETRY_SHADER,            /**< 支持几何着色器 */
+        VERTEX_SHADER,              /**< 支持 Vertex Shader */
+        PIXEL_SHADER,               /**< 支持 Pixel Shader */
+        GEOMETRY_SHADER,            /**< 支持 Geometry Shader */
+        TESSELLATION_HULL_SHADER,   /**< 支持 Tessellation Hull Shader */
+        TESSELLATION_DOMAIN_SHADER, /**< 支持 Tessellation Domain Shader */
+        COMPUTE_SHADER,             /**< 支持 Compute Shader */
 
         TEXTURE_COMPRESSION,        /**< 支持纹理压缩 */
         TEXTURE_COMPRESSION_DXT,    /**< 支持 DXT (MS DirectX) 纹理压缩 */
