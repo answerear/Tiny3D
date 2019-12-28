@@ -25,8 +25,42 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    String RendererCapabilities::GPUVendorStrings[GPUVendor::GPU_VENDOR_COUNT];
+
+    //--------------------------------------------------------------------------
+
+    RendererCapabilities::RendererCapabilities()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
     RendererCapabilities::~RendererCapabilities()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RendererCapabilities::initVendorStrings()
+    {
+        if (GPUVendorStrings[0].empty())
+        {
+            // Always lower case!
+            GPUVendorStrings[GPUVendor::UNKNOWN] = "unknown";
+            GPUVendorStrings[GPUVendor::NVIDIA] = "nvidia";
+            GPUVendorStrings[GPUVendor::AMD] = "amd";
+            GPUVendorStrings[GPUVendor::INTEL] = "intel";
+            GPUVendorStrings[GPUVendor::IMAGINATION_TECHNOLOGIES] = "imagination technologies";
+            GPUVendorStrings[GPUVendor::APPLE] = "apple";    // iOS Simulator
+            GPUVendorStrings[GPUVendor::NOKIA] = "nokia";
+            GPUVendorStrings[GPUVendor::MS_SOFTWARE] = "microsoft"; // Microsoft software device
+            GPUVendorStrings[GPUVendor::MS_WARP] = "ms warp";
+            GPUVendorStrings[GPUVendor::ARM] = "arm";
+            GPUVendorStrings[GPUVendor::QUALCOMM] = "qualcomm";
+            GPUVendorStrings[GPUVendor::MOZILLA] = "mozilla";
+            GPUVendorStrings[GPUVendor::WEBKIT] = "webkit";
+        }
     }
 }
