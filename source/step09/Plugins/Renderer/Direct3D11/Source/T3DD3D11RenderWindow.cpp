@@ -169,7 +169,7 @@ namespace Tiny3D
 
     TResult D3D11RenderWindow::swapBuffers()
     {
-        TResult ret = T3D_ERR_FAIL;
+        TResult ret = T3D_OK;
 
         do
         {
@@ -177,10 +177,11 @@ namespace Tiny3D
             hr = mD3DSwapChain->Present(0, 0);
             if (FAILED(hr))
             {
+                ret = T3D_ERR_D3D11_PRESENT;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Present failed ! DX ERROR [%d]", hr);
                 break;
             }
-
-            ret = T3D_OK;
         } while (0);
 
         return ret;
@@ -283,7 +284,7 @@ namespace Tiny3D
         const RenderWindowCreateParam &param, 
         const RenderWindowCreateParamEx &paramEx)
     {
-        TResult ret = T3D_ERR_FAIL;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -311,6 +312,10 @@ namespace Tiny3D
                     uMSAACount, &uNumQuality);
                 if (FAILED(hr))
                 {
+                    ret = T3D_ERR_D3D11_CHECK_MULTISAMPLE;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                        "Check multiple sample quality levels failed ! "
+                        "DX ERROR [%d]", hr);
                     break;
                 }
 
@@ -321,12 +326,16 @@ namespace Tiny3D
                 uMSAACount, uMSAAQuality, format);
             if (ret != T3D_OK)
             {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create swap chain failed !");
                 break;
             }
 
             ret = createRenderTargetView();
             if (ret != T3D_OK)
             {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create render target view failed !");
                 break;
             }
 
@@ -334,6 +343,8 @@ namespace Tiny3D
                 uMSAACount, uMSAAQuality);
             if (ret != T3D_OK)
             {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create depth and stencil view failed !");
                 break;
             }
 
@@ -341,7 +352,6 @@ namespace Tiny3D
                 = D3D11_RENDERER.getD3DDeviceContext();
             pD3DContext->OMSetRenderTargets(1, &mD3DRTView, mD3DDSView);
 
-            ret = T3D_OK;
         } while (0);
 
         return ret;
@@ -352,7 +362,7 @@ namespace Tiny3D
     TResult D3D11RenderWindow::createSwapChain(UINT uWidth, UINT uHeight, 
         bool bFullscreen, UINT uMSAACount, UINT uMSAAQuality, DXGI_FORMAT format)
     {
-        TResult ret = T3D_ERR_FAIL;
+        TResult ret = T3D_OK;
 
         IDXGIDevice *pDXGIDevice = nullptr;
         IDXGIAdapter *pDXGIAdapter = nullptr;
@@ -393,6 +403,10 @@ namespace Tiny3D
                 (void **)&pDXGIDevice);
             if (FAILED(hr))
             {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Query interface for IDXGIDevice failed ! DX ERROR [%d]",
+                    hr);
                 break;
             }
 
@@ -400,6 +414,9 @@ namespace Tiny3D
                 (void **)&pDXGIAdapter);
             if (FAILED(hr))
             {
+                ret = T3D_ERR_D3D11_GET_INTERFACE;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Get COM for IDXGIAdapter failed ! DX ERROR [%d]", hr);
                 break;
             }
 
@@ -407,6 +424,9 @@ namespace Tiny3D
                 (void **)&pDXGIFactory);
             if (FAILED(hr))
             {
+                ret = T3D_ERR_D3D11_GET_INTERFACE;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Get COM for IDXGIFactory failed ! DX ERROR [%d]", hr);
                 break;
             }
 
@@ -414,10 +434,11 @@ namespace Tiny3D
                 &mD3DSwapChain);
             if (FAILED(hr))
             {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create swap chain failed ! DX ERROR [%d]", hr);
                 break;
             }
-
-            ret = T3D_OK;
         } while (0);
 
         D3D_SAFE_RELEASE(pDXGIFactory);
@@ -431,7 +452,7 @@ namespace Tiny3D
 
     TResult D3D11RenderWindow::createRenderTargetView()
     {
-        TResult ret = T3D_ERR_FAIL;
+        TResult ret = T3D_OK;
 
         ID3D11Texture2D *pD3DBackBuffer = nullptr;
 
@@ -443,6 +464,9 @@ namespace Tiny3D
                 reinterpret_cast<void **>(&pD3DBackBuffer));
             if (FAILED(hr))
             {
+                ret = T3D_ERR_D3D11_GET_INTERFACE;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Get COM for ID3D11Texture2D failed ! DX ERROR [%d]", hr);
                 break;
             }
 
@@ -450,10 +474,11 @@ namespace Tiny3D
                 &mD3DRTView);
             if (FAILED(hr))
             {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create render target view failed ! DX ERROR [%d]", hr);
                 break;
             }
-
-            ret = T3D_OK;
         } while (0);
 
         D3D_SAFE_RELEASE(pD3DBackBuffer);
@@ -466,7 +491,7 @@ namespace Tiny3D
     TResult D3D11RenderWindow::createDepthStencilView(UINT uWidth, UINT uHeight,
         UINT uMSAACount, UINT uMSAAQuality)
     {
-        TResult ret = T3D_ERR_FAIL;
+        TResult ret = T3D_OK;
 
         ID3D11Texture2D *pD3DTexture = nullptr;
 
@@ -493,16 +518,20 @@ namespace Tiny3D
             hr = pD3DDevice->CreateTexture2D(&desc, nullptr, &pD3DTexture);
             if (FAILED(hr))
             {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create texture 2D failed ! DX ERROR [%d]", hr);
                 break;
             }
 
             hr = pD3DDevice->CreateDepthStencilView(pD3DTexture, 0, &mD3DDSView);
             if (FAILED(hr))
             {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create depth stencil view failed ! DX ERROR [%d]", hr);
                 break;
             }
-
-            ret = T3D_OK;
         } while (0);
 
         D3D_SAFE_RELEASE(pD3DTexture);

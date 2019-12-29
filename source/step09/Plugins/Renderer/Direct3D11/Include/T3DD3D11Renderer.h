@@ -209,11 +209,11 @@ namespace Tiny3D
         D3D11Renderer();
 
         /**
-         * @fn  TResult initD3DRasterzierState();
+         * @fn  TResult initD3DRasterizerState();
          * @brief   初始化光栅化状态
          * @return  调用成功返回 T3D_OK.
          */
-        TResult initD3DRasterzierState();
+        TResult initD3DRasterizerState();
 
         /**
          * @fn  TResult updateD3DRasterizerState();
@@ -234,6 +234,8 @@ namespace Tiny3D
         HardwareBufferManagerPtr    mHardwareBufferMgr; /**< 缓冲区管理对象 */
 
         GPUProgramPtr               mBoundGPUProgram;   /**< GPU 程序对象 */
+
+        DriverVersion               mDriverVersion;     /**< 驱动版本号 */
 
         bool        mIsRSStateDirty;    /**< 光栅化状态是否有改变标识 */
     };

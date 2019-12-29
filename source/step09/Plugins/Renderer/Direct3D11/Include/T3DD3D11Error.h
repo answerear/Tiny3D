@@ -42,6 +42,10 @@ namespace Tiny3D
         T3D_ERR_D3D11_CREATE_BUFFER,                     /**< 创建缓冲区失败 */
         T3D_ERR_D3D11_LOCK_BUFFER,                       /**< 锁定缓冲区失败 */
         T3D_ERR_D3D11_MISMATCH_CALLING,                  /**< 接口调用不配对 */
+        T3D_ERR_D3D11_CHECK_MULTISAMPLE,                 /**< 获取 Multiple Sample Quality 失败 */
+        T3D_ERR_D3D11_PRESENT,                           /**< Present 失败 */
+        T3D_ERR_D3D11_GET_INTERFACE,                     /**< 获取 COM 对象失败 */
+        T3D_ERR_D3D11_CHECK_INTERFACE_SUPPORT,           /**< 获取 D3D 版本失败 */
     };
 }
 
