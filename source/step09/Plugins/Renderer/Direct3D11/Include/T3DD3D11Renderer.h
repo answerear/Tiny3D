@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
+ * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -84,16 +84,14 @@ namespace Tiny3D
         virtual RenderWindowPtr createRenderWindow(
             const String &name,
             const RenderWindowCreateParam &param,
-            const RenderWindowCreateParamEx &paramEx) override;
+            const RenderWindowCreateParamEx &paramEx) const override;
 
         /**
-         * @fn  virtual bool queryCapability(Capability cap) const override;
-         * @brief   查询渲染器能力
-         * @param [in]  cap : 能力枚举值.
-         * @returns 具备cap对应的能力则返回true，否则返回false.
-         * @sa  Renderer::Capability
+         * @brief   创建渲染器能力组
+         * @returns 调用成功返回一个渲染平台相关的渲染器能力组对象
+         * @remarks 具体渲染系统实现本接口
          */
-        virtual bool queryCapability(Capability cap) const override;
+        virtual RendererCapabilitiesPtr createRendererCapabilities() const override;
 
         /**
          * @fn  virtual Matrix4 perspective(const Radian &amp;fovY, Real aspect,

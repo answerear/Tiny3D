@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
+ * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -160,13 +160,19 @@ namespace Tiny3D
          * @param [in]  param   : 创建渲染窗口必要数据.
          * @param [in]  paramEx : 创建渲染窗口额外数据.
          * @returns 调用成功返回一个渲染窗口对象，失败返回nullptr.
-         *
-         * ### remarks  具体渲染系统实现本接口以创建渲染系统相关的渲染窗口对象.
+         * @remarks 具体渲染系统实现本接口以创建渲染系统相关的渲染窗口对象.
          */
         virtual RenderWindowPtr createRenderWindow(
             const String &name,
             const RenderWindowCreateParam &param,
-            const RenderWindowCreateParamEx &paramEx) = 0;
+            const RenderWindowCreateParamEx &paramEx) const = 0;
+
+        /**
+         * @brief   创建渲染器能力组
+         * @returns 调用成功返回一个渲染平台相关的渲染器能力组对象
+         * @remarks 具体渲染系统实现本接口
+         */
+        virtual RendererCapabilitiesPtr createRendererCapabilities() const = 0;
 
         /**
          * @fn  virtual TResult 
@@ -205,15 +211,6 @@ namespace Tiny3D
          */
         virtual TResult clear(const ColorRGB &color, uint32_t clearFlags,
             Real depth, uint32_t stencil);
-
-        /**
-         * @fn  virtual bool Renderer::queryCapability(Capability cap) const = 0;
-         * @brief   查询渲染器能力
-         * @param [in]  cap : 能力枚举值.
-         * @returns 具备cap对应的能力则返回true，否则返回false.
-         * @sa  Renderer::Capability
-         */
-        virtual bool queryCapability(Capability cap) const = 0;
 
         /**
          * @fn  virtual TResult Renderer::setTransform(TransformState state, 

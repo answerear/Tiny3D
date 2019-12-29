@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
+ * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -84,6 +84,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Viewport);
 
     T3D_DECLARE_SMART_PTR(Renderer);
+    T3D_DECLARE_SMART_PTR(RendererCapabilities);
 
     T3D_DECLARE_SMART_PTR(RenderGroup);
     T3D_DECLARE_SMART_PTR(RenderQueue);
@@ -107,7 +108,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(SceneNode);
 
     T3D_DECLARE_SMART_PTR(SceneTransform3D);
-    T3D_DECLARE_SMART_PTR(SGBone);
+    T3D_DECLARE_SMART_PTR(Bone);
 
     T3D_DECLARE_SMART_PTR(SceneCamera);
     T3D_DECLARE_SMART_PTR(SceneLight);
@@ -115,16 +116,16 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(SceneRenderable);
     T3D_DECLARE_SMART_PTR(SceneMesh);
-    T3D_DECLARE_SMART_PTR(SGTerrain);
+    T3D_DECLARE_SMART_PTR(SceneTerrain);
     T3D_DECLARE_SMART_PTR(SceneBillboard);
     T3D_DECLARE_SMART_PTR(SceneQuad);
     T3D_DECLARE_SMART_PTR(SceneBox);
     T3D_DECLARE_SMART_PTR(SceneAxis);
     T3D_DECLARE_SMART_PTR(SceneSphere);
 
-    T3D_DECLARE_SMART_PTR(SGTransform2D);
-    T3D_DECLARE_SMART_PTR(SGSprite);
-    T3D_DECLARE_SMART_PTR(SGText2D);
+    T3D_DECLARE_SMART_PTR(SceneTransform2D);
+    T3D_DECLARE_SMART_PTR(SceneSprite);
+    T3D_DECLARE_SMART_PTR(SceneText2D);
 
     typedef VariantMap                      Settings;
 

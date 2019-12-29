@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
+ * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,5 +23,40 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
 
+    D3D11CapabilitiesPtr D3D11Capabilities::create()
+    {
+        D3D11CapabilitiesPtr cap = new D3D11Capabilities();
+        if (cap == nullptr || cap->init() != T3D_OK)
+        {
+            cap = nullptr;
+        }
+        return cap;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11Capabilities::D3D11Capabilities()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11Capabilities::~D3D11Capabilities()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Capabilities::init()
+    {
+        TResult ret = T3D_OK;
+
+        mCategoryRelevant[CapabilitiesCategory::DIRECTX] = true;
+
+        return ret;
+    }
 }

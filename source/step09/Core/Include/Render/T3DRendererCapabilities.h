@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
+ * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -204,6 +204,10 @@ namespace Tiny3D
     class T3D_ENGINE_API RendererCapabilities : public Object
     {
     public:
+        static GPUVendor vendorFromString(const String &str);
+
+        static String vendorToString(GPUVendor vendor);
+
         virtual ~RendererCapabilities();
 
         const DriverVersion &getDriverVersion() const;
@@ -276,6 +280,8 @@ namespace Tiny3D
 
     protected:
         RendererCapabilities();
+
+        virtual TResult init() = 0;
 
         void setCapabiliy(Capabilities cap);
 

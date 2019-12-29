@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
+ * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,13 +28,24 @@
 namespace Tiny3D
 {
     /**
-     * @class   HardwareBuffer
-     * @brief   GPU 硬件缓冲区，用于 CPU 和 GPU 之间数据传递
+     * @class   D3D11Capabilities
+     * @brief   DirectX 11 渲染器渲染能力组
      */
-    class T3D_ENGINE_API D3D11Capabilities : public RendererCapabilities
+    class D3D11Capabilities : public RendererCapabilities
     {
     public:
-        
+        /**
+         * @brief   创建一个 D3D11 渲染器相关能力组对象
+         * @returns 调用成功返回新建 D3D11 能力组对象
+         */
+        static D3D11CapabilitiesPtr create();
+
+        virtual ~D3D11Capabilities();
+
+    protected:
+        D3D11Capabilities();
+
+        virtual TResult init() override;
     };
 }
 

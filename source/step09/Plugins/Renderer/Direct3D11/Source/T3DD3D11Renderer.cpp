@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
+ * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 #include "T3DD3D11HardwareVertexBuffer.h"
 #include "T3DD3D11HardwareIndexBuffer.h"
 #include "T3DD3D11VertexDeclaration.h"
+#include "T3DD3D11Capabilities.h"
 
 namespace Tiny3D
 {
@@ -163,7 +164,7 @@ namespace Tiny3D
 
     RenderWindowPtr D3D11Renderer::createRenderWindow(const String &name,
         const RenderWindowCreateParam &param,
-        const RenderWindowCreateParamEx &paramEx)
+        const RenderWindowCreateParamEx &paramEx) const
     {
         TResult ret = T3D_OK;
 
@@ -193,9 +194,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool D3D11Renderer::queryCapability(Capability cap) const
+    RendererCapabilitiesPtr D3D11Renderer::createRendererCapabilities() const
     {
-        return false;
+        RendererCapabilitiesPtr cap = D3D11Capabilities::create();
+        return cap;
     }
 
     //--------------------------------------------------------------------------

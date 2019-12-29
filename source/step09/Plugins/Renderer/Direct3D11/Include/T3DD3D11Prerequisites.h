@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
+ * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -47,6 +47,7 @@ namespace Tiny3D
     #define LOG_TAG_D3D11RENDERER        "D3D11Renderer"
 
     class D3D11Renderer;
+    class D3D11Capabilities;
     class D3D11RenderWindow;
     class D3D11HardwareBufferManager;
     class D3D11HardwareBuffer;
@@ -64,6 +65,7 @@ namespace Tiny3D
     class D3D11GPUProgramCreator;
 
     T3D_DECLARE_SMART_PTR(D3D11Renderer);
+    T3D_DECLARE_SMART_PTR(D3D11Capabilities);
     T3D_DECLARE_SMART_PTR(D3D11RenderWindow);
     T3D_DECLARE_SMART_PTR(D3D11HardwareBufferManager);
     T3D_DECLARE_SMART_PTR(D3D11HardwareBuffer);
