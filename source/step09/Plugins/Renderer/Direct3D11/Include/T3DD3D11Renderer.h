@@ -219,6 +219,20 @@ namespace Tiny3D
          */
         const String &getDeviceName() const { return mDeviceName; }
 
+        /**
+         * @fn  uint32_t getVendorID() const
+         * @brief   获取设备制造商 ID
+         * @return  返回设备制造商 ID.
+         */
+        uint32_t getVendorID() const { return mVendorID; }
+
+        /**
+         * @fn  D3D_FEATURE_LEVEL getFeatureLevel() const
+         * @brief   获取 D3D 特性级别
+         * @return  返回 D3D 特性级别.
+         */
+        D3D_FEATURE_LEVEL getFeatureLevel() const { return mFeatureLevel; }
+
     protected:
         /**
          * @fn  D3D11Renderer();
@@ -254,6 +268,8 @@ namespace Tiny3D
         ID3D11DeviceContext         *mD3DDeviceContext; /**< D3D11 上下文对象 */
         ID3D11RasterizerState       *mD3DRState;        /**< D3D11 光栅化状态 */
 
+        D3D_FEATURE_LEVEL           mFeatureLevel;      /**< D3D 特性级别 */
+
         D3D11_RASTERIZER_DESC       mD3DRSDesc;         /**< D3D11 光栅化状态描述结构 */
 
         HardwareBufferManagerPtr    mHardwareBufferMgr; /**< 缓冲区管理对象 */
@@ -262,6 +278,7 @@ namespace Tiny3D
 
         DriverVersion               mDriverVersion;     /**< 驱动版本号 */
         String                      mDeviceName;        /**< 设备名称 */
+        uint32_t                    mVendorID;          /**< GPU 制造商ID */
 
         bool        mIsRSStateDirty;    /**< 光栅化状态是否有改变标识 */
     };

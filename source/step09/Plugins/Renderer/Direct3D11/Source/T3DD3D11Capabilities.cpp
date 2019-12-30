@@ -56,9 +56,25 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+
         mDriverVersion = D3D11_RENDERER.getDriverVersion();
         mDeviceName = D3D11_RENDERER.getDeviceName();
         mRendererName = D3D11_RENDERER.getName();
+
+        setCapability(Capabilities::PRIMITIVE_RESTART);
+        setCapability(Capabilities::ANISOTROPY);
+
+        D3D_FEATURE_LEVEL featureLevel = D3D11_RENDERER.getFeatureLevel();
+
+        uint32_t fmtSupport;
+        HRESULT hr = S_OK;
+        hr = pD3DDevice->CheckFormatSupport(DXGI_FORMAT_R32_UINT, &fmtSupport);
+        if (featureLevel >= D3D_FEATURE_LEVEL_9_2 || SUCCEEDED(hr)
+            && 0 != (fmtSupport & D3D11_FORMAT_SUPPORT_IA_INDEX_BUFFER))
+        {
+            setCapability(Capabilities::INDEX_32BITS);
+        }
 
         mCategoryRelevant[CapabilitiesCategory::DIRECTX] = true;
 

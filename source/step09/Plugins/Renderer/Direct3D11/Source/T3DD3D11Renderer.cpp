@@ -52,9 +52,12 @@ namespace Tiny3D
         , mD3DDevice(nullptr)
         , mD3DDeviceContext(nullptr)
         , mD3DRState(nullptr)
+        , mFeatureLevel(D3D_FEATURE_LEVEL_9_3)
+        , mVendorID(0)
         , mIsRSStateDirty(false)
     {
         mName = Renderer::DIRECT3D11;
+        memset(&mD3DRSDesc, 0, sizeof(mD3DRSDesc));
     }
 
     //--------------------------------------------------------------------------
@@ -106,6 +109,8 @@ namespace Tiny3D
                     "Create ID3D11Device object failed ! DX ERROR : %d", hr);
                 break;
             }
+
+            mFeatureLevel = level;
 
             // Raster State
             ret = initD3DRasterizerState();
@@ -764,7 +769,7 @@ namespace Tiny3D
             mDriverVersion.release = HIWORD(driverVersion.LowPart);
             mDriverVersion.build = LOWORD(driverVersion.LowPart);
 
-            // 获取驱动描述
+            // 获取 GPU 信息
             DXGI_ADAPTER_DESC desc;
             hr = pDXGIAdapter->GetDesc(&desc);
             if (FAILED(hr))
@@ -775,12 +780,17 @@ namespace Tiny3D
                 break;
             }
 
+            // 获取 GPU 名称
             char text[sizeof(desc.Description)+1];
             wcstombs(text, desc.Description, sizeof(text) - 1);
             String str(text);
             StringUtil::trim(str);
             mDeviceName = str;
 
+            // 获取 GPU 制造商 ID
+            mVendorID = desc.VendorId;
+
+            // 构造信息并且输出
             std::stringstream ss;
             uint64_t high = desc.AdapterLuid.HighPart;
             uint64_t low = desc.AdapterLuid.LowPart;
