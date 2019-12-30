@@ -58,6 +58,7 @@ namespace Tiny3D
 
         mDriverVersion = D3D11_RENDERER.getDriverVersion();
         mDeviceName = D3D11_RENDERER.getDeviceName();
+        mRendererName = D3D11_RENDERER.getName();
 
         mCategoryRelevant[CapabilitiesCategory::DIRECTX] = true;
 

@@ -145,27 +145,24 @@ namespace Tiny3D
         std::stringstream ss;
 
         // OS Version
-        ss << "Operating System : " << getOSVersion() << "\n";
+        ss << "Operating System : " << getOSVersion() << std::endl;
         // Device Version
-        ss << "Device Version : " << getDeviceVersion() << "\n";
+        ss << "Device Version : " << getDeviceVersion() << std::endl;
         // Device ID
-        ss << "Device ID : " << getDeviceID() << "\n";
+        ss << "Device ID : " << getDeviceID() << std::endl;
         // CPU Type
-        ss << "CPU Type : " << getCPUType() << "\n";
+        ss << "CPU Type : " << getCPUType() << std::endl;
         // CPU Architecture
-        ss << "CPU Architecture : " << getCPUArchitecture() << "\n";
+        ss << "CPU Architecture : " << getCPUArchitecture() << std::endl;
         // CPU Cores
-        ss << "CPU Cores : " << getCPUCores() << "\n";
+        ss << "CPU Cores : " << getCPUCores() << std::endl;
         // System RAM
-        ss << "System RAM : " << getSystemRAM() << "MB\n";
+        ss << "System RAM : " << getSystemRAM() << "MB" << std::endl;
         // Screen size & DPI
-        ss << "Screen Size : " << getScreenWidth() << "x" << getScreenHeight() << "\n";
-        ss << "Screen DPI : " << getScreenDPI() << "\n";
+        ss << "Screen Size : " << getScreenWidth() << "x" << getScreenHeight() << std::endl;
+        ss << "Screen DPI : " << getScreenDPI() << std::endl;
 
-        String str = ss.str();
-//         size_t len = str.length();
-//         const char *txt = str.c_str();
-        return str;
+        return ss.str();
     }
 
     int32_t DeviceInfo::getScreenWidth() const

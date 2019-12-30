@@ -788,15 +788,16 @@ namespace Tiny3D
             size_t VRAM = ((desc.DedicatedVideoMemory >> 10) >> 10);
             size_t SRAM = ((desc.DedicatedSystemMemory >> 10) >> 10);
             size_t SSRAM = ((desc.SharedSystemMemory >> 10) >> 10);
-            ss << "Adapter Name : " << mDeviceName << "\n";
-            ss << "Adapter LUID : " << luid << "\n";
-            ss << "Vendor ID : " << desc.VendorId << "\n";
-            ss << "Device ID : " << desc.DeviceId << "\n";
-            ss << "Subsystem ID : " << desc.SubSysId << "\n";
-            ss << "Revision : " << desc.Revision << "\n";
-            ss << "Video RAM : " << VRAM << "MB\n";
-            ss << "System RAM : " << SRAM << "MB\n";
-            ss << "Shared System RAM :" << SSRAM << "MB\n";
+            ss << "Renderer Name : " << getName() << std::endl;
+            ss << "Adapter Name : " << mDeviceName << std::endl;
+            ss << "Adapter LUID : " << luid << std::endl;
+            ss << "Vendor ID : " << desc.VendorId << std::endl;
+            ss << "Device ID : " << desc.DeviceId << std::endl;
+            ss << "Subsystem ID : " << desc.SubSysId << std::endl;
+            ss << "Revision : " << desc.Revision << std::endl;
+            ss << "Video RAM : " << VRAM << "MB" << std::endl;
+            ss << "System RAM : " << SRAM << "MB" << std::endl;
+            ss << "Shared System RAM :" << SSRAM << "MB" << std::endl;
             T3D_LOG_INFO(LOG_TAG_D3D11RENDERER, 
                 "Display Adapter Information : \n%s", ss.str().c_str());
         } while (0);

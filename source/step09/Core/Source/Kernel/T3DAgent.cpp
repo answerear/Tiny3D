@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#include <sstream>
 #include "T3DErrorDef.h"
 
 #include "Kernel/T3DAgent.h"
@@ -51,6 +52,14 @@
 
 namespace Tiny3D
 {
+    #define T3D_VERSION_0_0_0_1_STR         "0.0.0.1"
+    #define T3D_VERSION_0_0_0_1_VAL         0x00000001
+    #define T3D_VERSION_0_0_0_1_NAME        "Scorpius"
+
+    #define T3D_VERSION_STR                 T3D_VERSION_0_0_0_1_STR
+    #define T3D_VERSION_VAL                 T3D_VERSION_0_0_0_1_VAL
+    #define T3D_VERSION_NAME                T3D_VERSION_0_0_0_1_NAME
+
     typedef TResult (*DLL_START_PLUGIN)(void);
     typedef TResult (*DLL_STOP_PLUGIN)(void);
 
@@ -77,6 +86,8 @@ namespace Tiny3D
         , mIsRunning(false)
     {
     }
+
+    //--------------------------------------------------------------------------
 
     Agent::~Agent()
     {
@@ -113,6 +124,27 @@ namespace Tiny3D
 
         mLogger->shutdown();
         T3D_SAFE_DELETE(mLogger);
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint32_t Agent::getVersion() const
+    {
+        return T3D_VERSION_VAL;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const char *Agent::getVersionString() const
+    {
+        return T3D_VERSION_STR;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const char *Agent::getVersionName() const
+    {
+        return T3D_VERSION_NAME;
     }
 
     //--------------------------------------------------------------------------
@@ -260,8 +292,12 @@ namespace Tiny3D
             // 垂直同步
             paramEx["VSync"] = settings["VSync"];
 
-            window = mActiveRenderer->createRenderWindow(
-                param.windowTitle, param, paramEx);
+            std::stringstream ss;
+            ss << "Tiny3D " << getVersionName() << "(" << getVersionString();
+            ss << ")" << " - " << param.windowTitle;
+            param.windowTitle = ss.str();
+            window = mActiveRenderer->createRenderWindow(param.windowTitle, 
+                param, paramEx);
             if (window == nullptr)
             {
                 ret = T3D_ERR_RENDER_CREATE_WINDOW;
@@ -380,6 +416,8 @@ namespace Tiny3D
         T3D_LOG_ENTER_FOREGROUND();
     }
 
+    //--------------------------------------------------------------------------
+
     void Agent::appDidEnterBackground()
     {
         T3D_LOG_ENTER_BACKGROUND();
@@ -434,6 +472,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Agent::uninstallPlugin(Plugin *plugin)
     {
@@ -528,6 +568,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Agent::unloadPlugin(const String &name)
     {
         T3D_LOG_INFO(LOG_TAG_ENGINE, "Unload plugin %s ...", name.c_str());
@@ -576,6 +618,8 @@ namespace Tiny3D
         mArchiveMgr->addArchiveCreator(creator);
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Agent::removeArchiveCreator(ArchiveCreator *creator)
     {
@@ -651,6 +695,8 @@ namespace Tiny3D
         return mImageCodec->addImageCodec(type, codec);
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Agent::removeImageCodec(ImageCodecBase::FileType type)
     {
         return mImageCodec->removeImageCodec(type);
@@ -663,6 +709,8 @@ namespace Tiny3D
         renderers.clear();
         renderers = mRenderers;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Agent::setActiveRenderer(RendererPtr renderer)
     {
@@ -686,6 +734,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     RendererPtr Agent::getActiveRenderer() const
     {
         return mActiveRenderer;
@@ -705,6 +755,8 @@ namespace Tiny3D
         return T3D_ERR_DUPLICATED_ITEM;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Agent::removeRenderer(RendererPtr renderer)
     {
         auto itr = mRenderers.find(renderer->getName());
@@ -718,6 +770,8 @@ namespace Tiny3D
 
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     RendererPtr Agent::getRenderer(const String &name) const
     {
@@ -779,7 +833,9 @@ namespace Tiny3D
             ret = mLogger->startup(1000, "Agent", true, true);
         }
 
-        T3D_LOG_INFO(LOG_TAG_ENGINE, "Start Tiny3D ...... version %s",
+        T3D_LOG_INFO(LOG_TAG_ENGINE, 
+            "Start Tiny3D - %s(%s) ...... version %s",
+            getVersionName(), getVersionString(),
             T3D_DEVICE_INFO.getSoftwareVersion().c_str());
 
         T3D_LOG_INFO(LOG_TAG_ENGINE, "System Information : \n%s",
@@ -903,6 +959,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Agent::unloadPlugins()
     {

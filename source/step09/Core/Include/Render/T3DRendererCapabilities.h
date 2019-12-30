@@ -29,11 +29,19 @@
 
 namespace Tiny3D
 {
+    /**
+     * @def CAPS_CATEGORY_SIZE
+     * @brief   A macro that defines Capabilities category size
+     */
     #define CAPS_CATEGORY_SIZE      4
     #define CAPS_BITSHIFT           (32 - CAPS_CATEGORY_SIZE)
     #define CAPS_CATEGORY_MASK      (((1 << CAPS_CATEGORY_SIZE) - 1) << CAPS_BITSHIFT)
     #define CAPS_VALUE(cat, val)    ((cat << CAPS_BITSHIFT) | (1 << val))
 
+    /**
+     * @enum    CapabilitiesCategory
+     * @brief   能力值分组
+     */
     enum CapabilitiesCategory : uint8_t
     {
         COMMON_1 = 0,   /**< 通用组1 */
@@ -43,9 +51,13 @@ namespace Tiny3D
         OPENGLES,       /**< OpenGL ES */
         VULKAN,         /**< Vulkan */
         METAL,          /**< Metal */
-        CATEGORY_COUNT
+        CATEGORY_COUNT  /**< 分组数量 */
     };
 
+    /**
+     * @enum    Capabilities
+     * @brief   能力值
+     */
     enum Capabilities : uint32_t
     {
         /**< 支持通过在索引缓冲中指定 -1 来启动新的渲染命令，在 Geometry Shader 中使用 */
@@ -150,29 +162,46 @@ namespace Tiny3D
         
     };
 
+    /**
+     * @enum    GPUVendor
+     * @brief   GPU 提供商枚举值
+     */
     enum GPUVendor : uint32_t
     {
-        UNKNOWN = 0,
-        NVIDIA,     /**< 英伟达 */
-        AMD,        /**< AMD */
-        INTEL,      /**< 英特尔 */
+        UNKNOWN = 0,        /**< 未知设备提供商 */
+        NVIDIA,             /**< 英伟达 */
+        AMD,                /**< AMD */
+        INTEL,              /**< 英特尔 */
         IMAGINATION_TECHNOLOGIES,   /**< Imagination Technologies */
-        APPLE,      /**< 苹果软渲染 */
-        NOKIA,      /**< 诺基亚 */
-        MS_SOFTWARE,/**< 微软软渲染 */
-        MS_WARP,    /**< 微软的高性能软光栅化 WARP (Windows Advanced Rasterization Platform) */
-        ARM,        /**< Mali */
-        QUALCOMM,   /**< 高通 */
-        MOZILLA,    /**< WebGL 基于 Mozilla/Firefox 核浏览器 */
-        WEBKIT,     /**< WebGL 基于 WebKit/Chrome 核浏览器 */
-        GPU_VENDOR_COUNT
+        APPLE,              /**< 苹果软渲染 */
+        NOKIA,              /**< 诺基亚 */
+        MS_SOFTWARE,        /**< 微软软渲染 */
+        MS_WARP,            /**< 微软的高性能软光栅化 WARP (Windows Advanced Rasterization Platform) */
+        ARM,                /**< Mali */
+        QUALCOMM,           /**< 高通 */
+        MOZILLA,            /**< WebGL 基于 Mozilla/Firefox 核浏览器 */
+        WEBKIT,             /**< WebGL 基于 WebKit/Chrome 核浏览器 */
+        GPU_VENDOR_COUNT    /**< 设备提供商数量 */
     };
 
+    /**
+     * @struct  DriverVersion
+     * @brief   驱动版本号.
+     */
     struct T3D_ENGINE_API DriverVersion
     {
+        /**
+         * @fn  DriverVersion()
+         * @brief   默认构造函数
+         */
         DriverVersion() : major(0), minor(0), release(0), build(0)
         {}
 
+        /**
+         * @fn  String toString() const
+         * @brief   把版本号转换成字符串
+         * @return  返回一个字符串类型的版本号.
+         */
         String toString() const
         {
             std::stringstream ss;
@@ -180,6 +209,11 @@ namespace Tiny3D
             return ss.str();
         }
 
+        /**
+         * @fn  void fromString(const String &str)
+         * @brief   从字符串设置版本号
+         * @param [in]  str 字符串类型版本号.
+         */
         void fromString(const String &str)
         {
             StringArray tokens = StringUtil::split(str, ".");
@@ -195,107 +229,328 @@ namespace Tiny3D
             }
         }
 
-        int32_t major;
-        int32_t minor;
-        int32_t release;
-        int32_t build;
+        int32_t major;      /**< 主版本号 */
+        int32_t minor;      /**< 次版本号 */
+        int32_t release;    /**< 发布号 */
+        int32_t build;      /**< 构建号 */
     };
 
+    /**
+     * @class   RendererCapabilities
+     * @brief   渲染器能力值组.
+     */
     class T3D_ENGINE_API RendererCapabilities : public Object
     {
     public:
+        /**
+         * @fn  static GPUVendor RendererCapabilities::vendorFromString(
+         *      const String &str);
+         * @brief   Vendor from string
+         * @param   str The string.
+         * @return  A GPUVendor.
+         */
         static GPUVendor vendorFromString(const String &str);
 
+        /**
+         * @fn  static String 
+         *      RendererCapabilities::vendorToString(GPUVendor vendor);
+         * @brief   Vendor to string
+         * @param   vendor  The vendor.
+         * @return  A String.
+         */
         static String vendorToString(GPUVendor vendor);
 
+        /**
+         * @fn  virtual RendererCapabilities::~RendererCapabilities();
+         * @brief   Destructor
+         */
         virtual ~RendererCapabilities();
 
+        /**
+         * @fn  const DriverVersion 
+         *      RendererCapabilities::&getDriverVersion() const;
+         * @brief   Gets driver version
+         * @return  The driver version.
+         */
         const DriverVersion &getDriverVersion() const;
 
+        /**
+         * @fn  GPUVendor RendererCapabilities::getVendor() const;
+         * @brief   Gets the vendor
+         * @return  The vendor.
+         */
         GPUVendor getVendor() const;
 
+        /**
+         * @fn  const String RendererCapabilities::&getDeviceName() const;
+         * @brief   Gets device name
+         * @return  The device name.
+         */
         const String &getDeviceName() const;
 
+        /**
+         * @fn  const String RendererCapabilities::&getRendererName() const;
+         * @brief   Gets renderer name
+         * @return  The renderer name.
+         */
         const String &getRendererName() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getNumTextureUnits() const;
+         * @brief   Gets number texture units
+         * @return  The number texture units.
+         */
         uint16_t getNumTextureUnits() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getNumVertexTextureUnits() const;
+         * @brief   Gets number vertex texture units
+         * @return  The number vertex texture units.
+         */
         uint16_t getNumVertexTextureUnits() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getStencilBufferBitDepth() const;
+         * @brief   Gets stencil buffer bit depth
+         * @return  The stencil buffer bit depth.
+         */
         uint16_t getStencilBufferBitDepth() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getNumVertexBlendMatrices() const;
+         * @brief   Gets number vertex blend matrices
+         * @return  The number vertex blend matrices.
+         */
         uint16_t getNumVertexBlendMatrices() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getNumMultiRenderTargets() const;
+         * @brief   Gets number multi render targets
+         * @return  The number multi render targets.
+         */
         uint16_t getNumMultiRenderTargets() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getNumVertexAttributes() const;
+         * @brief   Gets number vertex attributes
+         * @return  The number vertex attributes.
+         */
         uint16_t getNumVertexAttributes() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getVSConstantFloatCount() const;
+         * @brief   Gets vs constant float count
+         * @return  The vs constant float count.
+         */
         uint16_t getVSConstantFloatCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getVSConstantIntCount() const;
+         * @brief   Gets vs constant int count
+         * @return  The vs constant int count.
+         */
         uint16_t getVSConstantIntCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getVSConstantBoolCount() const;
+         * @brief   Gets vs constant bool count
+         * @return  The vs constant bool count.
+         */
         uint16_t getVSConstantBoolCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getGSConstantFloatCount() const;
+         * @brief   Gets gs constant float count
+         * @return  The gs constant float count.
+         */
         uint16_t getGSConstantFloatCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getGSConstantIntCount() const;
+         * @brief   Gets gs constant int count
+         * @return  The gs constant int count.
+         */
         uint16_t getGSConstantIntCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getGSConstantBoolCount() const;
+         * @brief   Gets gs constant bool count
+         * @return  The gs constant bool count.
+         */
         uint16_t getGSConstantBoolCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getPSConstantFloatCount() const;
+         * @brief   Gets ps constant float count
+         * @return  The ps constant float count.
+         */
         uint16_t getPSConstantFloatCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getPSConstantIntCount() const;
+         * @brief   Gets ps constant int count
+         * @return  The ps constant int count.
+         */
         uint16_t getPSConstantIntCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getPSConstantBoolCount() const;
+         * @brief   Gets ps constant bool count
+         * @return  The ps constant bool count.
+         */
         uint16_t getPSConstantBoolCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getHSConstantFloatCount() const;
+         * @brief   Gets hs constant float count
+         * @return  The hs constant float count.
+         */
         uint16_t getHSConstantFloatCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getHSConstantIntCount() const;
+         * @brief   Gets hs constant int count
+         * @return  The hs constant int count.
+         */
         uint16_t getHSConstantIntCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getHSConstantBoolCount() const;
+         * @brief   Gets hs constant bool count
+         * @return  The hs constant bool count.
+         */
         uint16_t getHSConstantBoolCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getDSConstantFloatCount() const;
+         * @brief   Gets ds constant float count
+         * @return  The ds constant float count.
+         */
         uint16_t getDSConstantFloatCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getDSConstantIntCount() const;
+         * @brief   Gets ds constant int count
+         * @return  The ds constant int count.
+         */
         uint16_t getDSConstantIntCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getDSConstantBoolCount() const;
+         * @brief   Gets ds constant bool count
+         * @return  The ds constant bool count.
+         */
         uint16_t getDSConstantBoolCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getCSConstantFloatCount() const;
+         * @brief   Gets create structure constant float count
+         * @return  The create structure constant float count.
+         */
         uint16_t getCSConstantFloatCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getCSConstantIntCount() const;
+         * @brief   Gets create structure constant int count
+         * @return  The create structure constant int count.
+         */
         uint16_t getCSConstantIntCount() const;
 
+        /**
+         * @fn  uint16_t RendererCapabilities::getCSConstantBoolCount() const;
+         * @brief   Gets create structure constant bool count
+         * @return  The create structure constant bool count.
+         */
         uint16_t getCSConstantBoolCount() const;
 
+        /**
+         * @fn  int32_t RendererCapabilities::getGSNumOutputVertices() const;
+         * @brief   Gets gs number output vertices
+         * @return  The gs number output vertices.
+         */
         int32_t getGSNumOutputVertices() const;
 
+        /**
+         * @fn  Real RendererCapabilities::getMaxPointSize() const;
+         * @brief   Gets maximum point size
+         * @return  The maximum point size.
+         */
         Real getMaxPointSize() const;
 
+        /**
+         * @fn  Real RendererCapabilities::getMaxAnisotropy() const;
+         * @brief   Gets maximum anisotropy
+         * @return  The maximum anisotropy.
+         */
         Real getMaxAnisotropy() const;
 
+        /**
+         * @fn  bool RendererCapabilities::isNPOTLimited() const;
+         * @brief   Query if this object is npot limited
+         * @return  True if npot limited, false if not.
+         */
         bool isNPOTLimited() const;
 
+        /**
+         * @fn  bool RendererCapabilities::hasCapabilities(
+         *      Capabilities cap) const;
+         * @brief   Query if 'cap' has capabilities
+         * @param   cap The capability.
+         * @return  True if capabilities, false if not.
+         */
         bool hasCapabilities(Capabilities cap) const;
 
+        /**
+         * @fn  bool RendererCapabilities::isCapabilityRendererSpecific(
+         *      Capabilities cap) const;
+         * @brief   Query if 'cap' is capability renderer specific
+         * @param   cap The capability.
+         * @return  True if capability renderer specific, false if not.
+         */
         bool isCapabilityRendererSpecific(Capabilities cap) const;
 
     protected:
+        /**
+         * @fn  RendererCapabilities::RendererCapabilities();
+         * @brief   Default constructor
+         */
         RendererCapabilities();
 
+        /**
+         * @fn  virtual TResult RendererCapabilities::init() = 0;
+         * @brief   Initializes this object
+         * @return  A TResult.
+         */
         virtual TResult init() = 0;
 
-        void setCapabiliy(Capabilities cap);
+        /**
+         * @fn  void RendererCapabilities::setCapabiliy(Capabilities cap);
+         * @brief   Sets a capability
+         * @param   cap The capability.
+         */
+        void setCapability(Capabilities cap);
 
+        /**
+         * @fn  void RendererCapabilities::unsetCapability(Capabilities cap);
+         * @brief   Unset capability
+         * @param   cap The capability.
+         */
         void unsetCapability(Capabilities cap);
 
+        /**
+         * @fn  static void RendererCapabilities::initVendorStrings();
+         * @brief   Initializes the vendor strings
+         */
         static void initVendorStrings();
 
-        static String GPUVendorStrings[GPU_VENDOR_COUNT];
+    protected:
+        static String GPUVendorStrings[GPU_VENDOR_COUNT];   /**< GPU提供商字符串列表 */
 
         DriverVersion   mDriverVersion;     /**< 驱动版本号 */
         GPUVendor       mVendor;            /**< GPU 厂商 */
 
-        String      mDeviceName;        /**< 设备名称 */
-        String      mRendererName;      /**< 渲染器名称 */
+        String      mDeviceName;            /**< 设备名称 */
+        String      mRendererName;          /**< 渲染器名称 */
 
         uint16_t    mNumTextureUnits;       /**< 可用纹理单元数量 */
         uint16_t    mNumVertexTextureUnits; /**< 顶点纹理单元数量 */

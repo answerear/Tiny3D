@@ -48,6 +48,27 @@ namespace Tiny3D
         virtual ~Agent();
 
         /**
+         * @fn  uint32_t Agent::getVersion() const;
+         * @brief   获取版本号
+         * @return  返回整数型版本号.
+         */
+        uint32_t getVersion() const;
+
+        /**
+         * @fn  const char Agent::*getVersionString() const;
+         * @brief   获取版本号字符串
+         * @return  返回字符串型版本号.
+         */
+        const char *getVersionString() const;
+
+        /**
+         * @fn  const char Agent::*getVersionName() const;
+         * @brief   获取版本号别名
+         * @return  返回版本号别名.
+         */
+        const char *getVersionName() const;
+
+        /**
          * @brief 初始化引擎
          * @param [in] appPath : 应用程序路径
          * @param [in] autoCreateWindow : 是否创建渲染窗口

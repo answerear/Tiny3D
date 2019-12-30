@@ -272,7 +272,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void RendererCapabilities::setCapabiliy(Capabilities cap)
+    inline void RendererCapabilities::setCapability(Capabilities cap)
     {
         int index = (CAPS_CATEGORY_MASK & cap) >> CAPS_BITSHIFT;
         mCapabilities[index] |= (cap & ~CAPS_CATEGORY_MASK);
