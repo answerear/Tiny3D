@@ -27,6 +27,10 @@
 #include <d3dcompiler.h>
 
 
+#include <algorithm>
+#undef min
+
+
 #if defined D3D11RENDERER_EXPORT
     #define T3D_D3D11RENDERER_API        T3D_EXPORT_API
 #else

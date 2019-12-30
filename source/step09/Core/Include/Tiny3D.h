@@ -25,6 +25,7 @@
 #include <T3DPrerequisites.h>
 #include <T3DErrorDef.h>
 #include <T3DTypedef.h>
+#include <T3DConfig.h>
 
 // Kernel
 #include <Kernel/T3DCommon.h>

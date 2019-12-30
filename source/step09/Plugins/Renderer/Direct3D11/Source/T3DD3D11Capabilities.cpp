@@ -18,6 +18,7 @@
  ******************************************************************************/
 
 
+#include "T3DD3D11Prerequisites.h"
 #include "T3DD3D11Capabilities.h"
 #include "T3DD3D11Renderer.h"
 
@@ -61,6 +62,23 @@ namespace Tiny3D
         mDriverVersion = D3D11_RENDERER.getDriverVersion();
         mDeviceName = D3D11_RENDERER.getDeviceName();
         mRendererName = D3D11_RENDERER.getName();
+
+        mNumTextureUnits = 16;
+        mNumVertexTextureUnits = 4;
+        mStencilBufferBitDepth = 8;
+
+#ifdef D3D_FEATURE_LEVEL_9_3
+        int numMultiRenderTargets = (mFeatureLevel > D3D_FEATURE_LEVEL_9_3) ? D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT :      // 8
+            (mFeatureLevel == D3D_FEATURE_LEVEL_9_3) ? 4/*D3D_FL9_3_SIMULTANEOUS_RENDER_TARGET_COUNT*/ :    // 4
+            1/*D3D_FL9_1_SIMULTANEOUS_RENDER_TARGET_COUNT*/;
+#else
+        int numMultiRenderTargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;     // 8
+#endif
+
+        mNumMultiRenderTargets = std::min(numMultiRenderTargets, 
+            (int)T3D_MAX_MULTIPLE_RENDER_TARGETS);
+
+//         mNumVertexAttributes = ;
 
         setCapability(Capabilities::PRIMITIVE_RESTART);
         setCapability(Capabilities::ANISOTROPY);

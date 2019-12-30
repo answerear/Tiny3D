@@ -20,6 +20,7 @@
 #ifndef __T3D_PREREQUISITES_H__
 #define __T3D_PREREQUISITES_H__
 
+
 #include "T3DMacro.h"
 
 #if defined T3DCORE_EXPORT
@@ -39,6 +40,9 @@
 #include <SDL_main.h>
 #else
 #endif
+
+#include <algorithm>
+#undef min
 
 namespace Tiny3D
 {
