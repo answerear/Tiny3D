@@ -19,6 +19,7 @@
 
 
 #include "T3DD3D11Capabilities.h"
+#include "T3DD3D11Renderer.h"
 
 
 namespace Tiny3D
@@ -54,6 +55,9 @@ namespace Tiny3D
     TResult D3D11Capabilities::init()
     {
         TResult ret = T3D_OK;
+
+        mDriverVersion = D3D11_RENDERER.getDriverVersion();
+        mDeviceName = D3D11_RENDERER.getDeviceName();
 
         mCategoryRelevant[CapabilitiesCategory::DIRECTX] = true;
 

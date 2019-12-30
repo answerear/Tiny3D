@@ -29,7 +29,7 @@ namespace Tiny3D
 {
     /**
      * @class   D3D11Renderer
-     * @brief   D3D11 渲染器.
+     * @brief   DirectX 11 渲染器.
      */
     class D3D11Renderer 
         : public Renderer
@@ -191,15 +191,33 @@ namespace Tiny3D
          */
         virtual TResult renderObject(VertexArrayObjectPtr vao) override;
 
-        ID3D11Device *getD3DDevice()
-        {
-            return mD3DDevice;
-        }
+        /**
+         * @fn  ID3D11Device *getD3DDevice()
+         * @brief   获取 ID3D11Device 对象
+         * @return  返回 ID3D11Device 对象.
+         */
+        ID3D11Device *getD3DDevice() { return mD3DDevice; }
 
-        ID3D11DeviceContext *getD3DDeviceContext()
-        {
-            return mD3DDeviceContext;
-        }
+        /**
+         * @fn  ID3D11DeviceContext *getD3DDeviceContext()
+         * @brief   获取 ID3D11DeviceContext 对象
+         * @return  返回 ID3D11DeviceContext 对象.
+         */
+        ID3D11DeviceContext *getD3DDeviceContext() { return mD3DDeviceContext; }
+
+        /**
+         * @fn  DriverVersion getDriverVersion() const
+         * @brief   获取驱动版本号
+         * @return  返回驱动版本号.
+         */
+        const DriverVersion &getDriverVersion() const { return mDriverVersion; }
+
+        /**
+         * @fn  const String &getDeviceName() const
+         * @brief   获取设备名称
+         * @return  返回设备名称.
+         */
+        const String &getDeviceName() const { return mDeviceName; }
 
     protected:
         /**
@@ -223,7 +241,9 @@ namespace Tiny3D
         TResult updateD3DRasterizerState();
 
         /**
+         * @fn  TResult collectInformation();
          * @brief   收集驱动、开发商等信息
+         * @return  调用成功返回 T3D_OK.
          */
         TResult collectInformation();
 
@@ -241,6 +261,7 @@ namespace Tiny3D
         GPUProgramPtr               mBoundGPUProgram;   /**< GPU 程序对象 */
 
         DriverVersion               mDriverVersion;     /**< 驱动版本号 */
+        String                      mDeviceName;        /**< 设备名称 */
 
         bool        mIsRSStateDirty;    /**< 光栅化状态是否有改变标识 */
     };

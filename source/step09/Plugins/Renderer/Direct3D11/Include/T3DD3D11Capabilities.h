@@ -40,11 +40,24 @@ namespace Tiny3D
          */
         static D3D11CapabilitiesPtr create();
 
+        /**
+         * @fn  virtual D3D11Capabilities::~D3D11Capabilities();
+         * @brief   Destructor
+         */
         virtual ~D3D11Capabilities();
 
     protected:
+        /**
+         * @fn  D3D11Capabilities::D3D11Capabilities();
+         * @brief   Default constructor
+         */
         D3D11Capabilities();
 
+        /**
+         * @fn  virtual TResult D3D11Capabilities::init() override;
+         * @brief   Initializes this object
+         * @return  A TResult.
+         */
         virtual TResult init() override;
     };
 }

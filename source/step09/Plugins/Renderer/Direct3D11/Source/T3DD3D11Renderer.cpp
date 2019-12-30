@@ -775,7 +775,30 @@ namespace Tiny3D
                 break;
             }
 
-            desc.Description;
+            char text[sizeof(desc.Description)+1];
+            wcstombs(text, desc.Description, sizeof(text) - 1);
+            String str(text);
+            StringUtil::trim(str);
+            mDeviceName = str;
+
+            std::stringstream ss;
+            uint64_t high = desc.AdapterLuid.HighPart;
+            uint64_t low = desc.AdapterLuid.LowPart;
+            uint64_t luid = (high << 32) | (low & 0x00000000FFFFFFFFLL);
+            size_t VRAM = ((desc.DedicatedVideoMemory >> 10) >> 10);
+            size_t SRAM = ((desc.DedicatedSystemMemory >> 10) >> 10);
+            size_t SSRAM = ((desc.SharedSystemMemory >> 10) >> 10);
+            ss << "Adapter Name : " << mDeviceName << "\n";
+            ss << "Adapter LUID : " << luid << "\n";
+            ss << "Vendor ID : " << desc.VendorId << "\n";
+            ss << "Device ID : " << desc.DeviceId << "\n";
+            ss << "Subsystem ID : " << desc.SubSysId << "\n";
+            ss << "Revision : " << desc.Revision << "\n";
+            ss << "Video RAM : " << VRAM << "MB\n";
+            ss << "System RAM : " << SRAM << "MB\n";
+            ss << "Shared System RAM :" << SSRAM << "MB\n";
+            T3D_LOG_INFO(LOG_TAG_D3D11RENDERER, 
+                "Display Adapter Information : \n%s", ss.str().c_str());
         } while (0);
 
         D3D_SAFE_RELEASE(pDXGIAdapter);
