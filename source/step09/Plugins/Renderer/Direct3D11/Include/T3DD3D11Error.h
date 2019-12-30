@@ -46,6 +46,7 @@ namespace Tiny3D
         T3D_ERR_D3D11_PRESENT,                           /**< Present 失败 */
         T3D_ERR_D3D11_GET_INTERFACE,                     /**< 获取 COM 对象失败 */
         T3D_ERR_D3D11_CHECK_INTERFACE_SUPPORT,           /**< 获取 D3D 版本失败 */
+        T3D_ERR_D3D11_GET_DRIVER_DESC,                   /**< 获取驱动描述失败 */
     };
 }
 

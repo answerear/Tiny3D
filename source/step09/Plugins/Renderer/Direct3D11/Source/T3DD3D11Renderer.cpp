@@ -70,9 +70,6 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        IDXGIDevice *pDXGIDevice = nullptr;
-        IDXGIAdapter *pDXGIAdapter = nullptr;
-
         do 
         {
             D3D11HardwareBufferManagerPtr mgr 
@@ -119,42 +116,14 @@ namespace Tiny3D
                 break;
             }
 
-            hr = mD3DDevice->QueryInterface(__uuidof(IDXGIDevice),
-                (void **)&pDXGIDevice);
-            if (FAILED(hr))
+            // 收集硬件和驱动信息
+            ret = collectInformation();
+            if (ret != T3D_OK)
             {
-                ret = T3D_ERR_D3D11_CREATE_FAILED;
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-                    "Query interface for IDXGIDevice failed ! DX ERROR [%d]",
-                    hr);
+                    "Collect information failed !");
                 break;
             }
-
-            hr = pDXGIDevice->GetParent(__uuidof(IDXGIAdapter),
-                (void **)&pDXGIAdapter);
-            if (FAILED(hr))
-            {
-                ret = T3D_ERR_D3D11_GET_INTERFACE;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-                    "Get COM for IDXGIAdapter failed ! DX ERROR [%d]", hr);
-                break;
-            }
-
-            LARGE_INTEGER driverVersion;
-            hr = pDXGIAdapter->CheckInterfaceSupport(__uuidof(ID3D10Device),
-                &driverVersion);
-            if (FAILED(hr))
-            {
-                ret = T3D_ERR_D3D11_CHECK_INTERFACE_SUPPORT;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-                    "Check interface support failed ! DX ERROR [%d]", hr);
-                break;
-            }
-
-            mDriverVersion.major = HIWORD(driverVersion.HighPart);
-            mDriverVersion.minor = LOWORD(driverVersion.HighPart);
-            mDriverVersion.release = HIWORD(driverVersion.LowPart);
-            mDriverVersion.build = LOWORD(driverVersion.LowPart);
 
             ret = postInit();
             if (ret != T3D_OK)
@@ -164,9 +133,6 @@ namespace Tiny3D
                 break;
             }
         } while (0);
-
-        D3D_SAFE_RELEASE(pDXGIAdapter);
-        D3D_SAFE_RELEASE(pDXGIDevice);
 
         return ret;
     }
@@ -744,6 +710,76 @@ namespace Tiny3D
 
             mD3DDeviceContext->RSSetState(mD3DRState);
         } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Renderer::collectInformation()
+    {
+        TResult ret = T3D_OK;
+
+        IDXGIDevice *pDXGIDevice = nullptr;
+        IDXGIAdapter *pDXGIAdapter = nullptr;
+
+        do 
+        {
+            HRESULT hr = S_OK;
+            hr = mD3DDevice->QueryInterface(__uuidof(IDXGIDevice),
+                (void **)&pDXGIDevice);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Query interface for IDXGIDevice failed ! DX ERROR [%d]",
+                    hr);
+                break;
+            }
+
+            hr = pDXGIDevice->GetParent(__uuidof(IDXGIAdapter),
+                (void **)&pDXGIAdapter);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_GET_INTERFACE;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Get COM for IDXGIAdapter failed ! DX ERROR [%d]", hr);
+                break;
+            }
+
+            // 获取驱动版本号
+            LARGE_INTEGER driverVersion;
+            hr = pDXGIAdapter->CheckInterfaceSupport(__uuidof(ID3D10Device),
+                &driverVersion);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CHECK_INTERFACE_SUPPORT;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Check interface support failed ! DX ERROR [%d]", hr);
+                break;
+            }
+
+            mDriverVersion.major = HIWORD(driverVersion.HighPart);
+            mDriverVersion.minor = LOWORD(driverVersion.HighPart);
+            mDriverVersion.release = HIWORD(driverVersion.LowPart);
+            mDriverVersion.build = LOWORD(driverVersion.LowPart);
+
+            // 获取驱动描述
+            DXGI_ADAPTER_DESC desc;
+            hr = pDXGIAdapter->GetDesc(&desc);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_GET_DRIVER_DESC;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Get adapter description failed ! DX ERROR [%d]", hr);
+                break;
+            }
+
+            desc.Description;
+        } while (0);
+
+        D3D_SAFE_RELEASE(pDXGIAdapter);
+        D3D_SAFE_RELEASE(pDXGIDevice);
 
         return ret;
     }

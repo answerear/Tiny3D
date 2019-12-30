@@ -222,6 +222,11 @@ namespace Tiny3D
          */
         TResult updateD3DRasterizerState();
 
+        /**
+         * @brief   收集驱动、开发商等信息
+         */
+        TResult collectInformation();
+
     protected:
         HINSTANCE                   mInstance;          /**< The instance */
 
