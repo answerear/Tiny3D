@@ -76,6 +76,11 @@ namespace Tiny3D
             setCapability(Capabilities::INDEX_32BITS);
         }
 
+        if (featureLevel >= D3D_FEATURE_LEVEL_10_0)
+        {
+            setCapability(Capabilities::TWO_SIDED_STENCIL);
+        }
+
         mCategoryRelevant[CapabilitiesCategory::DIRECTX] = true;
 
         return ret;
