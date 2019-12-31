@@ -240,39 +240,48 @@ namespace Tiny3D
         /**
          * @fn  Material::Material(const String &name, MaterialType type);
          * @brief   構造函數
-         * @param   name    The name.
-         * @param   type    The type.
+         * @param [in]  name    材质资源名称.
+         * @param [in]  type    材质资源来源类型.
          */
         Material(const String &name, MaterialType type);
 
         /**
          * @fn  virtual TResult Material::load() override;
          * @brief   重寫 Resource::load()
-         * @returns A TResult.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult load() override;
 
         /**
          * @fn  virtual TResult Material::unload() override;
          * @brief   重寫 Resource::unlaod()
-         * @returns A TResult.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult unload() override;
 
         /**
          * @fn  virtual ResourcePtr Material::clone() const override;
          * @brief   重寫 Resource::clone()
-         * @returns A copy of this object.
+         * @returns 调用成功返回一个新的材质对象.
          */
         virtual ResourcePtr clone() const override;
+
+        /**
+         * @brief   编译材质脚本
+         * @returns 调用成功返回 T3D_OK
+         */
+        TResult compile();
 
     protected:
         MaterialType    mMaterialType;  /**< 材質資源類型 */
         String          mMaterialName;  /**< 材質名稱 */
 
-        Techniques      mTechniques;    /**< 材質下的 Technique 對象 */
-        GPUPrograms     mGPUPrograms;   /**< 材質擁有的 GPUProgram 對象*/
-        GPUConstBuffers mConstBuffers;  /**< The constant buffers */
+        Techniques      mTechniques;            /**< 材質中所有的 Technique 對象 */
+        Techniques      mSupportedTechniques;   /**< 材质中支持的 Technique 对象 */
+        GPUPrograms     mGPUPrograms;           /**< 材質擁有的 GPUProgram 對象*/
+        GPUConstBuffers mConstBuffers;          /**< The constant buffers */
+
+        bool            mHasCompiled;   /**< 材质编译标识 */
     };
 }
 

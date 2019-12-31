@@ -42,6 +42,12 @@ namespace Tiny3D
         virtual ~Technique();
 
         /**
+         * @brief   编译
+         * @returns 调用成功返回 T3D_OK.
+         */
+        TResult compile();
+
+        /**
          * @brief 獲取 Technique 的名稱
          */
         const String &getName() const { return mName; }
@@ -101,6 +107,11 @@ namespace Tiny3D
         /** 構造函數 */
         Technique(const String &name, Material *material);
 
+        /**
+         * @brief   检查硬件是否支持本 Technique
+         */
+        bool checkHardwareSupport();
+
     protected:
         Material    *mParent;
         String      mName;
@@ -112,6 +123,8 @@ namespace Tiny3D
         uint16_t    mLodIndex;
 
         uint16_t    mSchemeIndex;
+
+        bool        mIsSupported;   /**< GPU 是否支持本 Technique */
     };
 }
 

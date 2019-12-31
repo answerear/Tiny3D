@@ -54,6 +54,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Technique::compile()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Technique::checkHardwareSupport()
+    {
+        bool ret = false;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Technique::addPass(const String &name, PassPtr &pass)
     {
         TResult ret = T3D_OK;

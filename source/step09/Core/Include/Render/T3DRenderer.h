@@ -175,6 +175,14 @@ namespace Tiny3D
         virtual RendererCapabilitiesPtr createRendererCapabilities() const = 0;
 
         /**
+         * @brief 获取渲染器能力值对象
+         */
+        RendererCapabilitiesPtr getRendererCapabilities() const 
+        { 
+            return mCapabilities; 
+        }
+
+        /**
          * @fn  virtual TResult 
          *      Renderer::attachRenderTarget(RenderTargetPtr target);
          * @brief   关联渲染目标到渲染器上

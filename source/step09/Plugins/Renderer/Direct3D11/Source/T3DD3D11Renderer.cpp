@@ -52,7 +52,7 @@ namespace Tiny3D
         , mD3DDevice(nullptr)
         , mD3DDeviceContext(nullptr)
         , mD3DRState(nullptr)
-        , mFeatureLevel(D3D_FEATURE_LEVEL_9_3)
+        , mFeatureLevel(D3D_FEATURE_LEVEL_10_0)
         , mVendorID(0)
         , mIsRSStateDirty(false)
     {

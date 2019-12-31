@@ -47,6 +47,7 @@ namespace Tiny3D
     Material::Material(const String &name, MaterialType type)
         : Resource(name)
         , mMaterialType(type)
+        , mHasCompiled(false)
     {
 
     }
@@ -104,8 +105,20 @@ namespace Tiny3D
                 if (ret != T3D_OK)
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                        "Could not parse material file %s !", mName);
+                        "Could not parse material file %s !", mName.c_str());
                     break;
+                }
+
+                if (!mHasCompiled)
+                {
+                    // 脚本没编译，编译
+                    ret = compile();
+                    if (ret != T3D_OK)
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                            "Compile material %s failed !", mName.c_str());
+                        break;
+                    }
                 }
             }
             else if (E_MT_MANUAL == mMaterialType)
@@ -355,5 +368,24 @@ namespace Tiny3D
     GPUConstBufferPtr Material::getGPUConstBuffer(const String &name) const
     {
         return mConstBuffers.at(name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Material::compile()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            auto i = mTechniques.begin(), iend = mTechniques.end();
+            for (i = mTechniques.begin(); i != iend; ++i)
+            {
+                TechniquePtr tech = *i;
+                
+            }
+        } while (0);
+
+        return ret;
     }
 }
