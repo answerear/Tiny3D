@@ -88,15 +88,13 @@ namespace Tiny3D
 #endif
 
             // features level
-            const UINT numLevels = 6;
+            const UINT numLevels = 4;
             D3D_FEATURE_LEVEL featureLevels[numLevels] =
             {
+                D3D_FEATURE_LEVEL_11_1,
                 D3D_FEATURE_LEVEL_11_0,
                 D3D_FEATURE_LEVEL_10_1,
                 D3D_FEATURE_LEVEL_10_0,
-                D3D_FEATURE_LEVEL_9_3,
-                D3D_FEATURE_LEVEL_9_2,
-                D3D_FEATURE_LEVEL_9_1
             };
 
             D3D_FEATURE_LEVEL level;
