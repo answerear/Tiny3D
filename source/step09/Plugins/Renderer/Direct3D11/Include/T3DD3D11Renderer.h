@@ -84,7 +84,7 @@ namespace Tiny3D
         virtual RenderWindowPtr createRenderWindow(
             const String &name,
             const RenderWindowCreateParam &param,
-            const RenderWindowCreateParamEx &paramEx) const override;
+            const RenderWindowCreateParamEx &paramEx) override;
 
         /**
          * @brief   创建渲染器能力组

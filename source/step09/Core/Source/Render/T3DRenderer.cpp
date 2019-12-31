@@ -19,6 +19,7 @@
 
 
 #include "Render/T3DRenderer.h"
+#include "Render/T3DRendererCapabilities.h"
 #include "Resource/T3DGPUConstBufferManager.h"
 #include "Resource/T3DGPUProgramManager.h"
 
@@ -37,13 +38,18 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Renderer::Renderer()
-        : mRenderTarget(nullptr)
-        , mViewport(nullptr)
-        , mCullingMode(CullingMode::NONE)
-        , mPolygonMode(PolygonMode::SOLID)
+        : mGPUBufferUpdateObject(nullptr)
+        , mGPUBufferUpdateFrame(nullptr)
+        , mGPUBufferUpdateRarely(nullptr)
         , mIsWorldMatrixDirty(false)
         , mIsViewMatrixDirty(false)
         , mIsProjMatrixDirty(false)
+        , mPrimaryWindow(nullptr)
+        , mRenderTarget(nullptr)
+        , mViewport(nullptr)
+        , mCullingMode(CullingMode::NONE)
+        , mPolygonMode(PolygonMode::SOLID)
+        
     {
 
     }

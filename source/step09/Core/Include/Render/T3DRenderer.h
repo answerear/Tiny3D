@@ -165,7 +165,7 @@ namespace Tiny3D
         virtual RenderWindowPtr createRenderWindow(
             const String &name,
             const RenderWindowCreateParam &param,
-            const RenderWindowCreateParamEx &paramEx) const = 0;
+            const RenderWindowCreateParamEx &paramEx) = 0;
 
         /**
          * @brief   创建渲染器能力组
@@ -477,16 +477,18 @@ namespace Tiny3D
         bool    mIsViewMatrixDirty;     /**< 视图变换矩阵是否更新标识 */
         bool    mIsProjMatrixDirty;     /**< 投影变换矩阵是否更新标识 */
 
-        String              mName;              /**< 渲染器名称 */
+        String                  mName;              /**< 渲染器名称 */
 
-        RenderTargetList    mRenderTargets;     /**< 渲染目标列表 */
+        RenderTargetList        mRenderTargets;     /**< 渲染目标列表 */
 
-        RenderTargetPtr     mRenderTarget;      /**< 当前渲染目标 */
+        RendererCapabilitiesPtr mCapabilities;      /**< 渲染能力值 */
+        RenderWindowPtr         mPrimaryWindow;     /**< 主窗口 */
+        RenderTargetPtr         mRenderTarget;      /**< 当前渲染目标 */
+        
+        ViewportPtr             mViewport;          /**< 当前渲染视口对象 */
 
-        ViewportPtr         mViewport;          /**< 当前渲染视口对象 */
-
-        CullingMode         mCullingMode;       /**< 面剔除模式 */
-        PolygonMode         mPolygonMode;       /**< 多边形渲染模式 */
+        CullingMode             mCullingMode;       /**< 面剔除模式 */
+        PolygonMode             mPolygonMode;       /**< 多边形渲染模式 */
     };
 }
 

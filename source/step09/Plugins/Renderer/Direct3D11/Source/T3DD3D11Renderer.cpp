@@ -150,6 +150,9 @@ namespace Tiny3D
 
         do 
         {
+            mRenderTarget = nullptr;
+            mCapabilities = nullptr;
+            mPrimaryWindow = nullptr;
             mHardwareBufferMgr = nullptr;
 
             D3D_SAFE_RELEASE(mD3DRState);
@@ -186,7 +189,7 @@ namespace Tiny3D
 
     RenderWindowPtr D3D11Renderer::createRenderWindow(const String &name,
         const RenderWindowCreateParam &param,
-        const RenderWindowCreateParamEx &paramEx) const
+        const RenderWindowCreateParamEx &paramEx)
     {
         TResult ret = T3D_OK;
 
@@ -209,6 +212,16 @@ namespace Tiny3D
                 window = nullptr;
                 break;
             }
+
+            if (mPrimaryWindow == nullptr)
+            {
+                mPrimaryWindow = window;
+                mCapabilities = createRendererCapabilities();
+            }
+            else
+            {
+
+            }
         } while (0);
 
         return window;
@@ -218,8 +231,7 @@ namespace Tiny3D
 
     RendererCapabilitiesPtr D3D11Renderer::createRendererCapabilities() const
     {
-        RendererCapabilitiesPtr cap = D3D11Capabilities::create();
-        return cap;
+        return D3D11Capabilities::create();
     }
 
     //--------------------------------------------------------------------------
