@@ -66,7 +66,17 @@ namespace Tiny3D
 
         do 
         {
-            ret = D3D11Shader::compile("main", "vs_5_0");
+            D3D_FEATURE_LEVEL featureLevel = D3D11_RENDERER.getFeatureLevel();
+
+            if (featureLevel >= D3D_FEATURE_LEVEL_11_0)
+            {
+                ret = D3D11Shader::compile("main", "vs_5_0");
+            }
+            else
+            {
+                ret = D3D11Shader::compile("main", "vs_4_0");
+            }
+
             if (ret != T3D_OK)
             {
                 break;
@@ -85,8 +95,8 @@ namespace Tiny3D
                     ret = T3D_ERR_D3D11_CREATE_VERTEX_SHADER;
                     T3D_LOG_ERROR(
                         LOG_TAG_D3D11RENDERER,
-                        "Create ID3D11VertexShader for shader file (%s) failed ! \
-                        Error : %d", getName().c_str(), hr);
+                        "Create ID3D11VertexShader for shader file (%s) failed !"
+                        "DX ERROR [%d]", getName().c_str(), hr);
                     break;
                 }
             }

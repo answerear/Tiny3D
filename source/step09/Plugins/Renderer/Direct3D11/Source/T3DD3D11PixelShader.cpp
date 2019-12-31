@@ -66,7 +66,17 @@ namespace Tiny3D
 
         do 
         {
-            ret = D3D11Shader::compile("main", "ps_5_0");
+            D3D_FEATURE_LEVEL featureLevel = D3D11_RENDERER.getFeatureLevel();
+
+            if (featureLevel >= D3D_FEATURE_LEVEL_11_0)
+            {
+                ret = D3D11Shader::compile("main", "ps_5_0");
+            }
+            else
+            {
+                ret = D3D11Shader::compile("main", "ps_4_0");
+            }
+
             if (ret != T3D_OK)
             {
                 break;

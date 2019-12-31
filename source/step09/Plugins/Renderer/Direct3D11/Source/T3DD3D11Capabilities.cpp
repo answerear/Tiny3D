@@ -78,7 +78,7 @@ namespace Tiny3D
             (mFeatureLevel == D3D_FEATURE_LEVEL_9_3) ? 4/*D3D_FL9_3_SIMULTANEOUS_RENDER_TARGET_COUNT*/ :    // 4
             1/*D3D_FL9_1_SIMULTANEOUS_RENDER_TARGET_COUNT*/;
 #else
-        int numMultiRenderTargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;     // 8
+        int numMultiRenderTargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; // 8
 #endif
 
         mNumMultiRenderTargets = std::min(numMultiRenderTargets, 

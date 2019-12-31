@@ -247,7 +247,7 @@ namespace Tiny3D
             if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Could not parse GPU program file %s !", name);
+                    "Could not parse GPU program file %s !", name.c_str());
                 break;
             }
         } while (0);
