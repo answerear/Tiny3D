@@ -245,60 +245,60 @@ namespace Tiny3D
         /**
          * @fn  static GPUVendor RendererCapabilities::vendorFromString(
          *      const String &str);
-         * @brief   Vendor from string
-         * @param   str The string.
-         * @return  A GPUVendor.
+         * @brief   把字符串设备提供商名称转成枚举值
+         * @param [in]  str 字符串.
+         * @return  返回设备提供商枚举值.
          */
         static GPUVendor vendorFromString(const String &str);
 
         /**
          * @fn  static String 
          *      RendererCapabilities::vendorToString(GPUVendor vendor);
-         * @brief   Vendor to string
-         * @param   vendor  The vendor.
-         * @return  A String.
+         * @brief   把枚举值设备提供商转成设备提供商名称
+         * @param [in]  vendor  设备提供商枚举值.
+         * @return  返回设备提供商名称.
          */
         static String vendorToString(GPUVendor vendor);
 
         /**
          * @fn  virtual RendererCapabilities::~RendererCapabilities();
-         * @brief   Destructor
+         * @brief   析构函数
          */
         virtual ~RendererCapabilities();
 
         /**
          * @fn  const DriverVersion 
          *      RendererCapabilities::&getDriverVersion() const;
-         * @brief   Gets driver version
-         * @return  The driver version.
+         * @brief   获取驱动版本号
+         * @return  返回驱动版本号.
          */
         const DriverVersion &getDriverVersion() const;
 
         /**
          * @fn  GPUVendor RendererCapabilities::getVendor() const;
-         * @brief   Gets the vendor
-         * @return  The vendor.
+         * @brief   获取设备提供商枚举值
+         * @return  返回设备提供商枚举值.
          */
         GPUVendor getVendor() const;
 
         /**
          * @fn  const String RendererCapabilities::&getDeviceName() const;
-         * @brief   Gets device name
-         * @return  The device name.
+         * @brief   获取显示适配器名称
+         * @return  返回显示适配器名称.
          */
         const String &getDeviceName() const;
 
         /**
          * @fn  const String RendererCapabilities::&getRendererName() const;
-         * @brief   Gets renderer name
-         * @return  The renderer name.
+         * @brief   获取渲染器名称
+         * @return  返回渲染器名称.
          */
         const String &getRendererName() const;
 
         /**
          * @fn  uint16_t RendererCapabilities::getNumTextureUnits() const;
-         * @brief   Gets number texture units
-         * @return  The number texture units.
+         * @brief   获取纹理单元数量上限
+         * @return  返回纹理单元数量上限.
          */
         uint16_t getNumTextureUnits() const;
 
