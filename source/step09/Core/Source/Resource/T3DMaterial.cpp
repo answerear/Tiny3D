@@ -382,7 +382,9 @@ namespace Tiny3D
             for (i = mTechniques.begin(); i != iend; ++i)
             {
                 TechniquePtr tech = *i;
-                
+                ret = tech->compile();
+                if (ret == T3D_OK)
+                    mSupportedTechniques.push_back(tech);
             }
         } while (0);
 

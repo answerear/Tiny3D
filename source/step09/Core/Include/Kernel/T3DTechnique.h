@@ -31,7 +31,7 @@ namespace Tiny3D
     class T3D_ENGINE_API Technique : public Object
     {
     public:
-        typedef TList<PassPtr>                    Passes;
+        typedef TArray<PassPtr>                 Passes;
         typedef Passes::iterator                PassesItr;
         typedef Passes::const_iterator          PassesConstItr;
 
@@ -50,12 +50,12 @@ namespace Tiny3D
         /**
          * @brief 獲取 Technique 的名稱
          */
-        const String &getName() const { return mName; }
+        const String &getName() const;
 
         /**
          * @brief 獲取擁有該 Technique 對象的材質對象
          */
-        Material *getMaterial() const { return mParent; }
+        Material *getMaterial() const;
 
         /**
          * @brief 新增一個 Pass 對象
@@ -96,12 +96,12 @@ namespace Tiny3D
         /**
          * @brief 獲取所有 Pass 對象
          */
-        const Passes &getPasses() const { return mPasses; }
+        const Passes &getPasses() const;
 
         /**
          * @brief 獲取 Pass 對象數量
          */
-        size_t getPassCount() const { return mPasses.size(); }
+        size_t getPassCount() const;
 
     protected:
         /** 構造函數 */
@@ -127,6 +127,9 @@ namespace Tiny3D
         bool        mIsSupported;   /**< GPU 是否支持本 Technique */
     };
 }
+
+
+#include "T3DTechnique.inl"
 
 
 #endif  /*__T3D_TECHNIQUE_H__*/

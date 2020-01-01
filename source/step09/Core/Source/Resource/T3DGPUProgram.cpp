@@ -171,7 +171,7 @@ namespace Tiny3D
     GPUProgram::GPUProgram(const String &name)
         : Resource(name)
     {
-
+        mShaders.resize(Shader::ShaderType::MAX_SHADERS, nullptr);
     }
 
     //--------------------------------------------------------------------------
@@ -179,6 +179,30 @@ namespace Tiny3D
     Resource::Type GPUProgram::getType() const
     {
         return Type::E_RT_GPUPROGRAM;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUProgram::compile(bool force /* = false */)
+    {
+        TResult ret = T3D_OK;
+
+        for (auto i = mShaders.begin(); i != mShaders.end(); ++i)
+        {
+            ShaderPtr shader = *i;
+            if (shader != nullptr)
+            {
+                ret = shader->compile();
+                if (ret != T3D_OK)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Compile shader [%s] failed !", shader->getName().c_str());
+                    break;
+                }
+            }
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -200,13 +224,14 @@ namespace Tiny3D
                 break;
             }
 
-            auto r = mShaders.insert(ShadersValue(type, shader));
-            if (!r.second)
-            {
-                ret = T3D_ERR_GPU_DUPLICATED_STAGE;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Duplicated stage of shader !");
-                break;
-            }
+            mShaders[type] = shader;
+//             auto r = mShaders.insert(ShadersValue(type, shader));
+//             if (!r.second)
+//             {
+//                 ret = T3D_ERR_GPU_DUPLICATED_STAGE;
+//                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Duplicated stage of shader !");
+//                 break;
+//             }
         } while (0);
 
         return ret;
@@ -220,16 +245,17 @@ namespace Tiny3D
 
         do 
         {
-            auto itr = mShaders.find(type);
-            if (itr == mShaders.end())
-            {
-                ret = T3D_ERR_GPU_NONEXISTENT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "The type [%d] of shader is nonexistent !", type);
-                break;
-            }
-
-            mShaders.erase(itr);
+//             auto itr = mShaders.find(type);
+//             if (itr == mShaders.end())
+//             {
+//                 ret = T3D_ERR_GPU_NONEXISTENT;
+//                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+//                     "The type [%d] of shader is nonexistent !", type);
+//                 break;
+//             }
+// 
+//             mShaders.erase(itr);
+            mShaders[type] = nullptr;
         } while (0);
 
         return ret;
@@ -247,7 +273,7 @@ namespace Tiny3D
             auto itr = mShaders.begin();
             while (itr != mShaders.end())
             {
-                ShaderPtr shader = itr->second;
+                ShaderPtr shader = *itr;
                 if (shader->getName() == name)
                 {
                     mShaders.erase(itr);
@@ -268,20 +294,6 @@ namespace Tiny3D
         } while (0);
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    ShaderPtr GPUProgram::getVertexShader() const
-    {
-        return mShaders.at(Shader::ShaderType::VERTEX_SHADER);
-    }
-
-    //--------------------------------------------------------------------------
-
-    ShaderPtr GPUProgram::getPixelShader() const
-    {
-        return mShaders.at(Shader::ShaderType::PIXEL_SHADER);
     }
 
     //--------------------------------------------------------------------------

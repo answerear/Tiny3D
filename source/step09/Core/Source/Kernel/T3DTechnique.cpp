@@ -19,8 +19,11 @@
 
 
 #include "Kernel/T3DTechnique.h"
+#include "Kernel/T3DAgent.h"
 #include "Kernel/T3DPass.h"
 #include "T3DErrorDef.h"
+#include "Render/T3DRenderer.h"
+#include "Render/T3DRendererCapabilities.h"
 
 
 namespace Tiny3D
@@ -60,6 +63,39 @@ namespace Tiny3D
 
         do 
         {
+            RendererPtr renderer = T3D_AGENT.getActiveRenderer();
+            RendererCapabilitiesPtr caps = renderer->getRendererCapabilities();
+            size_t numTexUnits = caps->getNumTextureUnits();
+
+            for (auto i = mPasses.begin(); i != mPasses.end(); ++i)
+            {
+                PassPtr pass = *i;
+
+                // 检测纹理单元是否超过硬件限制
+                size_t numTexUnitsRequested = pass->getTextureUnitsCount();
+                if (!pass->hasPixelShader())
+                {
+                    if (numTexUnitsRequested > numTexUnits)
+                    {
+                        ret = T3D_ERR_RES_COMPILED;
+                        T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Pass %s : "
+                            "Too many texture units for current hardware !",
+                            pass->getName().c_str());
+                        break;
+                    }
+                }
+
+                // 编译 Pass 的 GPU 程序
+                GPUProgramPtr program = pass->getGPUProgram();
+                ret = program->compile();
+                if (ret != T3D_OK)
+                    break;
+
+                // 链接 Pass 的 GPU 程序
+                ret = program->link();
+                if (ret != T3D_OK)
+                    break;
+            }
         } while (0);
 
         return ret;
@@ -126,21 +162,26 @@ namespace Tiny3D
     {
         TResult ret = T3D_ERR_NOT_FOUND;
 
-        size_t i = 0;
-        auto itr = mPasses.begin();
+        if (index >= mPasses.size())
+            return ret;
 
-        while (itr != mPasses.end())
-        {
-            if (i == index)
-            {
-                mPasses.erase(itr);
-                ret = T3D_OK;
-                break;
-            }
+        mPasses.erase(mPasses.begin() + index);
 
-            ++i;
-            ++itr;
-        }
+//         size_t i = 0;
+//         auto itr = mPasses.begin();
+// 
+//         while (itr != mPasses.end())
+//         {
+//             if (i == index)
+//             {
+//                 mPasses.erase(itr);
+//                 ret = T3D_OK;
+//                 break;
+//             }
+// 
+//             ++i;
+//             ++itr;
+//         }
 
         return ret;
     }
@@ -161,30 +202,6 @@ namespace Tiny3D
                 break;
             }
 
-            ++itr;
-        }
-
-        return pass;
-    }
-
-    //--------------------------------------------------------------------------
-
-    PassPtr Technique::getPass(size_t index) const
-    {
-        PassPtr pass;
-
-        size_t i = 0;
-        auto itr = mPasses.begin();
-
-        while (itr != mPasses.end())
-        {
-            if (i == index)
-            {
-                pass = *itr;
-                break;
-            }
-
-            ++i;
             ++itr;
         }
 

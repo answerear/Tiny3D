@@ -41,13 +41,17 @@ namespace Tiny3D
         typedef GPUConstBuffers::iterator       GPUConstBuffersItr;
         typedef GPUConstBuffers::const_iterator GPUConstBuffersConstItr;
 
+        typedef TArray<TextureUnitPtr>          TextureUnits;
+        typedef TextureUnits::iterator          TextureUnitsItr;
+        typedef TextureUnits::const_iterator    TextureUnitsConstItr;
+
         /**
          * @fn  static PassPtr Pass::create(const String &name, 
          *      Technique *tech);
          * @brief   创建 Pass 对象
-         * @param           name    The name.
-         * @param [in,out]  tech    If non-null, the technology.
-         * @return  A PassPtr.
+         * @param [in]  name    Pass 名称.
+         * @param [in]  tech    Pass 所属的 Technique 对象.
+         * @return  调用成功返回一个 Pass 对象.
          */
         static PassPtr create(const String &name, Technique *tech);
 
@@ -60,31 +64,31 @@ namespace Tiny3D
         /**
          * @fn  const String Pass::&getName() const
          * @brief   獲取 Pass 名稱
-         * @returns The name.
+         * @returns 返回 Pass 名称.
          */
-        const String &getName() const { return mName; }
+        const String &getName() const;
 
         /**
          * @fn  TResult Pass::setGPUProgram(GPUProgramRefPtr program);
-         * @brief   Sets program reference
-         * @param   program The program.
-         * @returns A TResult.
+         * @brief   设置 Pass 使用的 GPU 程序对象
+         * @param [in]  program GPU 程序对象.
+         * @returns 调用成功返回 T3D_OK.
          */
         TResult setGPUProgram(GPUProgramRefPtr program);
 
         /**
          * @fn  GPUProgramPtr Pass::getGPUProgram() const;
-         * @brief   Gets GPU program
-         * @returns The GPU program.
+         * @brief   获取 GPU 程序对象
+         * @returns 返回 GPU 程序对象.
          */
-        GPUProgramPtr getGPUProgram() const { return mGPUProgram; }
+        GPUProgramPtr getGPUProgram() const;
 
         /**
          * @fn  GPUConstBuffers Pass::getGPUConstBuffers() const;
-         * @brief   Gets GPU constant buffers
-         * @returns The GPU constant buffers.
+         * @brief   获取 GPU 程序绑定的所有常量缓冲区对象
+         * @returns 返回 GPU 程序绑定的所有常量缓冲区对象.
          */
-        GPUConstBuffers getGPUConstBuffers() const { return mConstBuffers; }
+        GPUConstBuffers getGPUConstBuffers() const;
 
         /**
          * @fn  GPUConstBufferPtr Pass::getGPUConstBuffer(uint32_t slot) const
@@ -92,30 +96,63 @@ namespace Tiny3D
          * @param   slot    The slot.
          * @return  The GPU constant buffer.
          */
-        GPUConstBufferPtr getGPUConstBuffer(uint32_t slot) const
-        {
-            return mConstBuffers[slot];
-        }
+        GPUConstBufferPtr getGPUConstBuffer(uint32_t slot) const;
 
         /**
          * @fn  size_t Pass::getGPUConstBufferCount() const;
          * @brief   Gets GPU constant buffer count
          * @returns The GPU constant buffer count.
          */
-        size_t getGPUConstBufferCount() const { return mConstBuffers.size(); }
+        size_t getGPUConstBufferCount() const;
+
+        /**
+         * @brief   获取纹理单元数量
+         */
+        size_t getTextureUnitsCount() const;
+
+        /**
+         * @brief   是否有顶点着色器
+         */
+        bool hasVertexShader() const;
+
+        /**
+         * @brief   是否有像素着色器
+         */
+        bool hasPixelShader() const;
+
+        /**
+         * @brief   是否有几何着色器
+         */
+        bool hasGeometryShader() const;
+
+        /**
+         * @brief   是否有计算着色器
+         */
+        bool hasComputeShader() const;
+
+        /**
+         * @brief   是否有细分曲面控制着色器
+         */
+        bool hasHullShader() const;
+
+        /**
+         * @brief   是否有细分曲面计算着色器
+         */
+        bool hasDomainShader() const;
 
     protected:
         /**
          * @fn  Pass::Pass(const String &name, Technique *tech);
          * @brief   构造函数
-         * @param           name    The name.
-         * @param [in,out]  tech    If non-null, the technology.
+         * @param [in]  name    The name.
+         * @param [in]  tech    If non-null, the technology.
          */
         Pass(const String &name, Technique *tech);
 
     protected:
-        GPUProgramPtr   mGPUProgram;    /**< The GPU program */
-        GPUConstBuffers mConstBuffers;  /**< The constant buffers */
+        GPUProgramPtr   mGPUProgram;    /**< 绑定到当前 Pass 的 GPU 程序对象 */
+        GPUConstBuffers mConstBuffers;  /**< 常量缓冲区对象集合 */
+        TextureUnits    mTextureUnits;  /**< TextureUnit 对象集合 */
 
         Technique   *mParent;   /**< 擁有該 Pass 對象的 Technique 對象 */
         String      mName;      /**< Pass 名稱 */
@@ -348,6 +385,9 @@ namespace Tiny3D
         Real        mPointMaxSize;
     };
 }
+
+
+#include "T3DPass.inl"
 
 
 #endif  /*__T3D_PASS_H__*/

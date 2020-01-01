@@ -55,7 +55,7 @@ namespace Tiny3D
         /**
          * @brief 重写 Shader::compile() 接口
          */
-        virtual TResult compile() override;
+        virtual TResult compile(bool force = false) override;
 
         /**
          * @fn  ID3D11VertexShader D3D11VertexShader::*getD3DShader() const

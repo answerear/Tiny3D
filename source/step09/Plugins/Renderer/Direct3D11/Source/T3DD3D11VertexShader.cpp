@@ -60,7 +60,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11VertexShader::compile()
+    TResult D3D11VertexShader::compile(bool force /* = false */)
     {
         TResult ret = T3D_OK;
 

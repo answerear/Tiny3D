@@ -184,10 +184,15 @@ namespace Tiny3D
          * @enum    ShaderType
          * @brief   着色器类型
          */
-        enum class ShaderType : uint32_t
+        enum ShaderType : uint32_t
         {
-            VERTEX_SHADER = 0, /**< 顶点着色器 */
-            PIXEL_SHADER,      /**< 像素着色器 */
+            VERTEX_SHADER = 0,  /**< 顶点着色器 */
+            HULL_SHADER,        /**< 曲面细分控制着色器 */
+            DOMAIN_SHADER,      /**< 曲面细分计算着色器 */
+            GEOMETRY_SHADER,    /**< 几何着色器 */
+            PIXEL_SHADER,       /**< 像素着色器 */
+            COMPUTE_SHADER,     /**< 计算着色器 */
+            MAX_SHADERS,
         };
 
         /**
@@ -207,9 +212,10 @@ namespace Tiny3D
         /**
          * @fn  virtual TResult Shader::compile() = 0;
          * @brief   编译着色器程序
-         * @returns A TResult.
+         * @param [in]  force : 是否强制重新编译，默认强制
+         * @returns 编译成功返回 T3D_OK.
          */
-        virtual TResult compile() = 0;
+        virtual TResult compile(bool force = false) = 0;
 
         /**
          * @fn  virtual bool Shader::hasCompiled() const = 0;
@@ -233,10 +239,10 @@ namespace Tiny3D
     class T3D_ENGINE_API GPUProgram : public Resource
     {
     public:
-        typedef TMap<Shader::ShaderType, ShaderPtr> Shaders;
-        typedef Shaders::iterator                   ShadersItr;
-        typedef Shaders::const_iterator             ShadersConstItr;
-        typedef Shaders::value_type                 ShadersValue;
+        typedef TArray<ShaderPtr>           Shaders;
+        typedef Shaders::iterator           ShadersItr;
+        typedef Shaders::const_iterator     ShadersConstItr;
+        typedef Shaders::value_type         ShadersValue;
 
         /**
          * @fn  virtual Type GPUProgram::getType() const override;
@@ -244,6 +250,13 @@ namespace Tiny3D
          * @returns The type.
          */
         virtual Type getType() const override;
+
+        /**
+         * @brief   编译所有着色器程序
+         * @param [in]  force   : 是否强制重新编译所有着色器程序
+         * @returns 调用成功返回 T3D_OK.
+         */
+        TResult compile(bool force = false);
 
         /**
          * @fn  virtual TResult GPUProgram::link(bool force = false) = 0;
@@ -300,6 +313,26 @@ namespace Tiny3D
          */
         ShaderPtr getPixelShader() const;
 
+        /**
+         * @brief   获取几何着色器对象
+         */
+        ShaderPtr getGeometryShader() const;
+
+        /**
+         * @brief   获取曲面细分控制着色器对象
+         */
+        ShaderPtr getHullShader() const;
+
+        /**
+         * @brief   获取曲面细分计算着色器对象
+         */
+        ShaderPtr getDomainShader() const;
+
+        /**
+         * @brief   获取计算着色器对象
+         */
+        ShaderPtr getComputeShader() const;
+
     protected:
         /**
          * @fn  GPUProgram::GPUProgram(const String &name);
@@ -320,6 +353,9 @@ namespace Tiny3D
         Shaders mShaders;   /**< 所有的著色器程序 */
     };
 }
+
+
+#include "T3DGPUProgram.inl"
 
 
 #endif  /*__T3D_GPU_PROGRAM_H__*/

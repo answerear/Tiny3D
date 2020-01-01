@@ -57,18 +57,22 @@ namespace Tiny3D
 
         do 
         {
-            auto itr = mShaders.begin();
-            while (itr != mShaders.end())
+            if (mHasLinked)
+                break;
+
+            for (auto i = mShaders.begin(); i != mShaders.end(); ++i)
             {
-                ShaderPtr shader = itr->second;
+                ShaderPtr shader = *i;
+                if (shader == nullptr)
+                    continue;
 
                 if (!shader->hasCompiled())
                 {
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Shader has not compiled !");
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
+                        "Shader has not compiled !");
                     ret = T3D_ERR_D3D11_SHADER_NOT_COMPILED;
                     break;
                 }
-                ++itr;
             }
 
             if (ret != T3D_OK)
