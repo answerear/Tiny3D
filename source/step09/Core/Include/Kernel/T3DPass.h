@@ -140,6 +140,331 @@ namespace Tiny3D
          */
         bool hasDomainShader() const;
 
+        /**
+         * @brief   获取环境光颜色
+         */
+        const ColorRGBA &getAmbient() const;
+
+        /**
+         * @brief   设置环境光颜色
+         */
+        void setAmbient(const ColorRGBA &color);
+
+        /**
+         * @brief   设置环境光颜色
+         */
+        void setAmbient(Real red, Real green, Real blue);
+
+        /**
+         * @brief   获取漫反射光颜色
+         */
+        const ColorRGBA &getDiffuse() const;
+
+        /**
+         * @brief   设置漫反射光颜色
+         */
+        void setDiffuse(const ColorRGBA &color);
+
+        /**
+         * @brief   设置漫反射光颜色
+         */
+        void setDiffuse(Real red, Real green, Real blue);
+
+        /**
+         * @brief   获取镜面反射光颜色
+         */
+        const ColorRGBA &getSpecular() const;
+
+        /**
+         * @brief   设置镜面反射光颜色
+         */
+        void setSpecular(const ColorRGBA &color);
+
+        /**
+         * @brief   设置镜面反射光颜色
+         */
+        void setSpecular(Real red, Real green, Real blue);
+
+        /**
+         * @brief   获取镜面反射的亮度
+         */
+        Real getShininess() const;
+
+        /**
+         * @brief   设置镜面反射的亮度
+         */
+        void setShininess(Real value);
+
+        /**
+         * @brief   获取自发光颜色
+         */
+        const ColorRGBA &getEmissive() const;
+
+        /**
+         * @brief   设置自发光颜色
+         */
+        void setEmissive(const ColorRGBA &color);
+
+        /**
+         * @brief   设置自发光颜色
+         */
+        void setEmissive(Real red, Real green, Real blue);
+
+        /**
+         * @brief   获取顶点颜色用于光的类型
+         */
+        TrackVertexColorType getVertexColorTracking() const;
+
+        /**
+         * @brief   设置顶点颜色用于光的类型
+         */
+        void setVertexColorTracking(TrackVertexColorType tracking);
+
+        /**
+         * @brief   获取源混合因子
+         */
+        BlendFactor getSourceBlendFactor() const;
+
+        /**
+         * @brief   获取目标混合因子
+         */
+        BlendFactor getDestBlendFactor() const;
+
+        /**
+         * @brief   获取 alpha 源混合因子
+         */
+        BlendFactor getSourceBlendFactorAlpha() const;
+
+        /**
+         * @brief   获取 alpha 目标混合因子
+         */
+        BlendFactor getDestBlendFactorAlpha() const;
+
+        /**
+         * @brief   设置混合类型
+         */
+        void setSceneBlending(BlendType bt);
+
+        /**
+         * @brief   设置混合因子
+         */
+        void setSceneBlending(BlendFactor src, BlendFactor dst);
+
+        /**
+         * @brief   分别设置混合类型
+         */
+        void setSeparateSceneBlending(BlendType bt, BlendType bta);
+
+        /**
+         * @brief   分别设置混合因子
+         */
+        void setSeparateSceneBlending(BlendFactor src, BlendFactor dst, 
+            BlendFactor srcAlpha, BlendFactor dstAlpha);
+
+        /**
+         * @brief   获取混合操作
+         */
+        BlendOperation getSceneBlendingOperation() const;
+
+        /**
+         * @brief   获取 Alpha 混合操作
+         */
+        BlendOperation getSceneBlendingOperationAlpha() const;
+
+        /**
+         * @brief   设置混合操作
+         */
+        void setSceneBlendingOperation(BlendOperation op);
+
+        /**
+         * @brief   分别设置颜色部分和 Alpha 部分混合操作
+         */
+        void setSeparateSceneBlendingOperation(BlendOperation op, 
+            BlendOperation alphaOp);
+
+        /**
+         * @brief   获取是否开启深度检测
+         */
+        bool isDepthCheckEnabled() const;
+
+        /**
+         * @brief   设置是否开启深度检测
+         */
+        void setDepthCheckEnabled(bool enabled);
+
+        /**
+         * @brief   获取是否写深度值
+         */
+        bool isDepthWriteEnabled() const;
+
+        /**
+         * @brief   设置是否写深度值
+         */
+        void setDepthWriteEnabled(bool enabled);
+
+        /**
+         * @brief   获取深度比较函数
+         */
+        CompareFunction getDepthFunction() const;
+
+        /**
+         * @brief   设置深度比较函数
+         */
+        void setDepthFunction(CompareFunction func);
+
+        /**
+         * @brief   获取深度偏移常量
+         */
+        Real getDepthBiasConstant() const;
+
+        /**
+         * @brief   获取深度坡度偏移
+         */
+        Real getDepthBiasSlopeScale() const;
+
+        /**
+         * @brief   设置深度偏移常量和坡度偏移
+         * @remarks $$finalBias = maxSlope * slopeScaleBias + constantBias$$
+         */
+        void setDepthBias(Real constantBias, Real slopeScaleBias = 0.0f);
+
+        /**
+         * @brief   获取深度迭代偏移
+         */
+        Real getDepthBiasPerIteration() const;
+
+        /**
+         * @brief   设置深度迭代偏移
+         * @remarks $$finalBias = constantBias + biasPerIteration * iteration$$
+         */
+        void setDepthBiasPerIteration(Real biasPerIteration);
+
+        CompareFunction getAlphaRejectFunction() const;
+
+        void setAlphaRejectFunction(CompareFunction func);
+
+        uint8_t getAlphaRejectValue() const;
+
+        void setAlphaRejectValue(uint8_t val);
+
+        bool isAlphaToCoverageEnabled() const;
+
+        void setAlphaToCoverageEnabled(bool enabled);
+
+        void setAlphaRejectSettings(CompareFunction func, uint8_t val, 
+            bool alphaToCoverageEnabled = false);
+
+        bool isLightScissoringEnabled() const;
+
+        void setLightScissoringEnabled(bool enabled);
+
+        bool isLightClipPlanesEnabled() const;
+
+        void setLightClipPlanesEnabled(bool enabled);
+
+        bool isLightEnabled() const;
+
+        void setLightEnabled(bool enabled);
+
+        bool isNormalizeNormalsEnabled() const;
+
+        void setNormalizeNormalsEnabled(bool enabled);
+
+        bool isTransparentSortingEnabled() const;
+
+        void setTransparentSortingEnabled(bool enabled);
+
+        bool isTransparentSortingForced() const;
+
+        void setTransparentSortingForced(bool enabled);
+
+        bool isColorWriteEnabled() const;
+
+        void setColorWriteEnabled(bool enabled);
+
+        bool isPolygonModeOverrideable() const;
+
+        void setPolygonModeOverrideable(bool overrideable);
+
+        CullingMode getCullingMode() const;
+
+        void setCullingMode(CullingMode mode);
+
+        ManualCullingMode getManualCullingMode() const;
+
+        void setManualCullingMode(ManualCullingMode mode);
+
+        IlluminationStage getIlluminationStage() const;
+
+        void setIlluminationStage(IlluminationStage stage);
+
+        ShadingMode getShadingMode() const;
+
+        void setShadingMode(ShadingMode mode);
+
+        PolygonMode getPolygonMode() const;
+
+        void setPolygonMode(PolygonMode mode);
+
+        bool isFogOverrideable() const;
+
+        FogMode getFogMode() const;
+
+        const ColorRGBA &getFogColor() const;
+
+        Real getFogStart() const;
+
+        Real getFogEnd() const;
+
+        Real getFogDensity() const;
+
+        void setFog(bool overrideable, FogMode mode = FogMode::NONE, 
+            const ColorRGBA &color = ColorRGBA::WHITE, Real density = 0.001f, 
+            Real linearStart = 0.0f, Real linearEnd = 1.0f);
+
+        uint16_t getStartLight() const;
+
+        void setStartLight(uint16_t startLight);
+
+        uint16_t getLightCountPerIteration() const;
+
+        void setLightCountPerIteration(uint16_t val);
+
+        SceneLight::LightType getOnlyLightType() const;
+
+        bool isIteratePerLight() const;
+
+        bool isRunOnlyForOneLightType() const;
+
+        void setIteratePerLight(bool enabled, bool onlyForOneLightType = true,
+            SceneLight::LightType lightType = SceneLight::LightType::E_LT_POINT);
+
+        bool isPointSpritesEnabled() const;
+
+        void setPointSpritesEnabled(bool enabled);
+
+        Real getPointSize() const;
+
+        void setPointSize(Real val);
+
+        bool isPointAttenuationEnabled() const;
+
+        Real getPointAttenuationConstant() const;
+
+        Real getPointAttenuationLinear() const;
+
+        Real getPointAttenuationQuadratic() const;
+
+        void setPointAttenuation(bool enabled, Real constant = 0.0f, Real linear = 1.0f, Real quadratic = 0.0f);
+
+        Real getPointMinSize() const;
+
+        void setPointMinSize(Real val);
+
+        Real getPointMaxSize() const;
+
+        void setPointMaxSize(Real val);
+
     protected:
         /**
          * @fn  Pass::Pass(const String &name, Technique *tech);
@@ -291,22 +616,22 @@ namespace Tiny3D
         //---------------------------------------
         // Command : color_write
         // Usage : color_write <on|off>
-        bool    mColorWrite;    /**< / 是否写颜色值 */
+        bool    mColorWrite;    /**< 是否写颜色值 */
 
         //---------------------------------------
         // Command : polygon_mode_overrideable
         // Usage : polygon_mode_overrideable <true|false>
-        bool    mPolygonModeOverrideable;   /**< / 是否覆盖当前pass的多边形渲染模式 */
+        bool    mPolygonModeOverrideable;   /**< 是否覆盖当前pass的多边形渲染模式 */
 
         //---------------------------------------
         // Command : cull_hardware
         // Usage : cull_hardware <clockwise|anticlockwise|none>
-        CullingMode         mCullMode;  /**< / 背面剔除顶点的顺序 */
+        CullingMode         mCullMode;  /**< 背面剔除顶点的顺序 */
 
         //---------------------------------------
         // Command : cull_software
         // Usage : cull_software <back|front|none>
-        ManualCullingMode   mManualCullMode;    /**< / 软件剔除朝向面 */
+        ManualCullingMode   mManualCullMode;    /**< 软件剔除朝向面 */
 
         //---------------------------------------
         // Command : illumination_stage
@@ -316,17 +641,17 @@ namespace Tiny3D
         //---------------------------------------
         // Command : shading
         // Usage : shading <flat|gouraud|phong>
-        ShadeMode           mShadeMode; /**< / 着色模式 */
+        ShadingMode           mShadingMode; /**< 着色模式 */
 
         //---------------------------------------
         // Command : polygon_mode
         // Usage : polygon_mode <solid|wireframe|points>
-        PolygonMode         mPolygonMode;   /**< / 多边形渲染模式 */
+        PolygonMode         mPolygonMode;   /**< 多边形渲染模式 */
 
         //---------------------------------------
         // Command : fog_override
         // Usage : fog_override <true|false> [<type> <color> <density> <start> <end>]
-        bool        mFogOverride;   /**< / 当前pass是否覆盖场景的雾效果设置 */
+        bool        mFogOverride;   /**< 当前pass是否覆盖场景的雾效果设置 */
         FogMode     mFogMode;
         ColorRGBA   mFogColor;
         Real        mFogStart;
@@ -349,10 +674,10 @@ namespace Tiny3D
         //  #1 iteration <once|once_per_light> [lightType]
         //  #2 iteration <number> [per_light> [lightType]]
         //  #3 iteration <number> [<per_n_lights> <num_lights> [lightType]]
-        uint16_t            mLightsPerIteration;
-        SceneLight::LightType  mOnlyLightType;
-        bool                mIteratePerLight;
-        bool                mRunOnlyForOneLightType;
+        uint16_t                mLightsPerIteration;
+        SceneLight::LightType   mOnlyLightType;
+        bool                    mIteratePerLight;
+        bool                    mRunOnlyForOneLightType;
 
         //---------------------------------------
         // Command : point_sprites

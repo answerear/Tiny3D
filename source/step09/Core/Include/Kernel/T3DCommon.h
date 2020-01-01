@@ -70,7 +70,7 @@ namespace Tiny3D
         FRONT
     };
 
-    enum class ShadeMode : uint32_t
+    enum class ShadingMode : uint32_t
     {
         FLAT,
         GOURAUD,

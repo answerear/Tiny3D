@@ -175,7 +175,7 @@ namespace Tiny3D
         virtual RendererCapabilitiesPtr createRendererCapabilities() const = 0;
 
         /**
-         * @brief 获取渲染器能力值对象
+         * @brief   获取渲染器能力值对象
          */
         RendererCapabilitiesPtr getRendererCapabilities() const 
         { 
