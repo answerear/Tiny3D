@@ -107,11 +107,6 @@ namespace Tiny3D
         /** 構造函數 */
         Technique(const String &name, Material *material);
 
-        /**
-         * @brief   检查硬件是否支持本 Technique
-         */
-        bool checkHardwareSupport();
-
     protected:
         Material    *mParent;
         String      mName;

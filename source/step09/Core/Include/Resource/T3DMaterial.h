@@ -152,6 +152,11 @@ namespace Tiny3D
         const Techniques &getTechniques() const { return mTechniques; }
 
         /**
+         * @brief   获取最合适的 Technique 对象
+         */
+        TechniquePtr getBestTechnique() { return mSupportedTechniques[0]; }
+
+        /**
          * @fn  TResult Material::addGPUProgram(const String &name, 
          *      GPUProgramPtr &program);
          * @brief   新增一個 GPUProgram 對象到材質中

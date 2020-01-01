@@ -386,6 +386,8 @@ namespace Tiny3D
                 if (ret == T3D_OK)
                     mSupportedTechniques.push_back(tech);
             }
+
+            ret = T3D_OK;
         } while (0);
 
         return ret;

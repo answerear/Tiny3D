@@ -44,6 +44,7 @@ namespace Tiny3D
         , mName(name)
         , mLodIndex(0)
         , mSchemeIndex(0)
+        , mIsSupported(false)
     {
 
     }
@@ -95,17 +96,10 @@ namespace Tiny3D
                 ret = program->link();
                 if (ret != T3D_OK)
                     break;
+
+                mIsSupported = true;
             }
         } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool Technique::checkHardwareSupport()
-    {
-        bool ret = false;
 
         return ret;
     }

@@ -115,30 +115,36 @@ namespace Tiny3D
             while (itr != mRenderables.end())
             {
                 MaterialPtr material = itr->first;
-                TechniquePtr tech = material->getTechnique(0);
-                PassPtr pass = tech->getPass(0);
+                TechniquePtr tech = material->getBestTechnique();
 
-                GPUProgramPtr program = pass->getGPUProgram();
-                renderer->bindGPUProgram(program);
-
-                RenderableList &renderables = itr->second;
-
-                RenderableListItr i = renderables.begin();
-
-                while (i != renderables.end())
+                // 渲染该 Technique 下所有 Pass
+                size_t idx = 0;
+                for (idx = 0; idx < tech->getPassCount(); ++idx)
                 {
-                    SceneRenderablePtr renderable = *i;
+                    PassPtr pass = tech->getPass(idx);
 
-                    // 设置渲染物体的世界变换
-                    const Transform &xform 
-                        = renderable->getLocalToWorldTransform();
-                    const Matrix4 &m = xform.getAffineMatrix();
-                    renderer->setWorldTransform(m);
+                    GPUProgramPtr program = pass->getGPUProgram();
+                    renderer->bindGPUProgram(program);
 
-                    // 根据VAO数据渲染
-                    renderer->renderObject(renderable->getVertexArrayObject());
+                    RenderableList &renderables = itr->second;
 
-                    ++i;
+                    RenderableListItr i = renderables.begin();
+
+                    while (i != renderables.end())
+                    {
+                        SceneRenderablePtr renderable = *i;
+
+                        // 设置渲染物体的世界变换
+                        const Transform &xform
+                            = renderable->getLocalToWorldTransform();
+                        const Matrix4 &m = xform.getAffineMatrix();
+                        renderer->setWorldTransform(m);
+
+                        // 根据VAO数据渲染
+                        renderer->renderObject(renderable->getVertexArrayObject());
+
+                        ++i;
+                    }
                 }
 
                 ++itr;
