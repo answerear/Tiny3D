@@ -25,6 +25,9 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Kernel/T3DObject.h"
+#include "Kernel/T3DBlendMode.h"
+#include "Kernel/T3DCommon.h"
+#include "Scene/T3DSceneLight.h"
 
 
 namespace Tiny3D
@@ -412,6 +415,29 @@ namespace Tiny3D
         /** 給無名對象生成一個名字 */
         String generateName(const String &prefix);
 
+        BlendType toBlendType(uint16_t type) const;
+
+        BlendFactor toBlendFactor(uint16_t factor) const;
+
+        BlendOperation toBlendOperation(uint16_t op) const;
+
+        CompareFunction toCompareFunction(uint16_t func) const;
+
+        IlluminationStage toIlluminationStage(uint16_t stage) const;
+
+        CullingMode toCullingMode(uint16_t mode) const;
+
+        ManualCullingMode toManualCullingMode(uint16_t mode) const;
+
+        ShadingMode toShadingMode(uint16_t mode) const;
+
+        PolygonMode toPolygonMode(uint16_t mode) const;
+
+        FogMode toFogMode(uint16_t mode) const;
+
+        SceneLight::LightType toLightType(uint16_t type) const;
+
+    protected:
         char    *mText;     /**< 用于存放读取字符串，避免重复申请内存，只在不够的时候动态扩展大小 */
         size_t  mTextLen;   /**< 用户存放读取字符串的缓冲区大小 */
 

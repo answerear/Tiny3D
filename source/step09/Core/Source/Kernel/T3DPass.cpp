@@ -45,7 +45,7 @@ namespace Tiny3D
         , mSpecular(ColorRGBA::BLACK)
         , mShininess(0.0f)
         , mEmissive(ColorRGBA::BLACK)
-        , mTracking(TrackVertexColorType::NONE)
+        , mTracking(TrackVertexColor::NONE)
         , mDepthCheck(true)
         , mDepthWrite(true)
         , mDepthFunc(CompareFunction::LESS_EQUAL)

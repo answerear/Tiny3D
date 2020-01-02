@@ -25,12 +25,12 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "T3DObject.h"
+#include "Kernel/T3DAgent.h"
 #include "Kernel/T3DBlendMode.h"
 #include "Kernel/T3DCommon.h"
 #include "Scene/T3DSceneLight.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUConstBuffer.h"
-#include "Kernel/T3DAgent.h"
 #include "Render/T3DRenderer.h"
 #include "Render/T3DRendererCapabilities.h"
 
@@ -436,6 +436,10 @@ namespace Tiny3D
         uint16_t getStartLight() const;
 
         void setStartLight(uint16_t startLight);
+
+        uint16_t getMaxLights() const;
+
+        void setMaxLights(uint16_t lights);
 
         uint16_t getLightCountPerIteration() const;
 

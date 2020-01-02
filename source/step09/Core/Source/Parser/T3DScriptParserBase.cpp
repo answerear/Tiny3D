@@ -197,4 +197,86 @@ namespace Tiny3D
         mNameSuffix++;
         return ss.str();
     }
+
+    //--------------------------------------------------------------------------
+
+    BlendType ScriptParserBase::toBlendType(uint16_t type) const
+    {
+        BlendType bt;
+
+        switch (type)
+        {
+        case E_OP_ADD:
+            bt = BlendType::ADD;
+            break;
+        case E_OP_MODULATE:
+            bt = BlendType::MODULATE;
+            break;
+        case E_OP_COLOUR_BLEND:
+            bt = BlendType::TRANSPARENT_COLOR;
+            break;
+        }
+
+        return bt;
+    }
+
+    BlendFactor ScriptParserBase::toBlendFactor(uint16_t factor) const
+    {
+        BlendFactor bf;
+        return bf;
+    }
+
+    BlendOperation ScriptParserBase::toBlendOperation(uint16_t op) const
+    {
+        BlendOperation bo;
+        return bo;
+    }
+
+    CompareFunction ScriptParserBase::toCompareFunction(uint16_t func) const
+    {
+        CompareFunction cf;
+        return cf;
+    }
+
+    IlluminationStage ScriptParserBase::toIlluminationStage(uint16_t stage) const
+    {
+        IlluminationStage is;
+        return is;
+    }
+
+    CullingMode ScriptParserBase::toCullingMode(uint16_t mode) const
+    {
+        CullingMode cm;
+        return cm;
+    }
+
+    ManualCullingMode ScriptParserBase::toManualCullingMode(uint16_t mode) const
+    {
+        ManualCullingMode cm;
+        return cm;
+    }
+
+    ShadingMode ScriptParserBase::toShadingMode(uint16_t mode) const
+    {
+        ShadingMode sm;
+        return sm;
+    }
+
+    PolygonMode ScriptParserBase::toPolygonMode(uint16_t mode) const
+    {
+        PolygonMode pm;
+        return pm;
+    }
+
+    FogMode ScriptParserBase::toFogMode(uint16_t mode) const
+    {
+        FogMode fm;
+        return fm;
+    }
+
+    SceneLight::LightType ScriptParserBase::toLightType(uint16_t type) const
+    {
+        SceneLight::LightType lt;
+        return lt;
+    }
 }

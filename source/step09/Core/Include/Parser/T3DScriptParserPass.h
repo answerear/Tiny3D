@@ -97,7 +97,7 @@ namespace Tiny3D
             DataStream &stream, Pass *pass, uint32_t version);
 
         /** 解析 Pass 的 iteration_depth_bias 属性 */
-        TResult parseInterationDepthBias(
+        TResult parseIterationDepthBias(
             DataStream &stream, Pass *pass, uint32_t version);
 
         /** 解析 Pass 的 alpha_rejection 属性 */

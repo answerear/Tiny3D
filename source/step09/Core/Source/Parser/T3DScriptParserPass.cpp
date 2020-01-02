@@ -185,7 +185,7 @@ namespace Tiny3D
                 ret = parseDepthFunc(stream, pass, version);
                 break;
             case E_OP_ITERATION_DEPTH_BIAS:
-                ret = parseInterationDepthBias(stream, pass, version);
+                ret = parseIterationDepthBias(stream, pass, version);
                 break;
             case E_OP_ALPHA_REJECTION:
                 ret = parseAlphaRejection(stream, pass, version);
@@ -292,8 +292,9 @@ namespace Tiny3D
             if (id == E_OP_VERTEXCOLOUR)
             {
                 // 顶点颜色
-
-                // TODO
+                TrackVertexColorType tracking = pass->getVertexColorTracking();
+                tracking |= TrackVertexColor::AMBIENT;
+                pass->setVertexColorTracking(tracking);
             }
             else if (id == 0)
             {
@@ -307,7 +308,7 @@ namespace Tiny3D
                     break;
                 }
 
-                // TODO
+                pass->setAmbient(color);
             }
             else
             {
@@ -340,8 +341,9 @@ namespace Tiny3D
             if (id == E_OP_VERTEXCOLOUR)
             {
                 // 顶点颜色
-
-                // TODO
+                TrackVertexColorType tracking = pass->getVertexColorTracking();
+                tracking |= TrackVertexColor::DIFFUSE;
+                pass->setVertexColorTracking(tracking);
             }
             else if (id == 0)
             {
@@ -355,7 +357,7 @@ namespace Tiny3D
                     break;
                 }
 
-                // TODO
+                pass->setDiffuse(color);
             }
             else
             {
@@ -395,7 +397,11 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(shininess),
                     "Read shininess of specular in pass failed !");
 
-                // TODO
+                TrackVertexColorType tracking = pass->getVertexColorTracking();
+                tracking |= TrackVertexColor::SPECULAR;
+                pass->setVertexColorTracking(tracking);
+
+                pass->setShininess(shininess);
             }
             else if (id == 0)
             {
@@ -415,7 +421,8 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(shininess),
                     "Read shininess of specular in pass failed !");
 
-                // TODO
+                pass->setSpecular(color);
+                pass->setShininess(shininess);
             }
             else
             {
@@ -448,8 +455,9 @@ namespace Tiny3D
             if (id == E_OP_VERTEXCOLOUR)
             {
                 // 顶点颜色
-
-                // TODO
+                TrackVertexColorType tracking = pass->getVertexColorTracking();
+                tracking |= TrackVertexColor::EMISSIVE;
+                pass->setVertexColorTracking(tracking);
             }
             else if (id == 0)
             {
@@ -463,7 +471,7 @@ namespace Tiny3D
                     break;
                 }
 
-                // TODO
+                pass->setEmissive(color);
             }
             else
             {
@@ -501,12 +509,15 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op1),
                     "Read scene_blend second argument failed !");
 
-                // TODO
+                BlendFactor src = toBlendFactor(op0);
+                BlendFactor dst = toBlendFactor(op1);
+                pass->setSceneBlending(src, dst);
             }
             else if (op0 == E_OP_ADD || op0 == E_OP_MODULATE
                 || op0 == E_OP_COLOUR_BLEND || op0 == E_OP_ALPHA_BLEND)
             {
-                // TODO
+                BlendType bt = toBlendType(op0);
+                pass->setSceneBlending(bt);
             }
             else
             {
@@ -557,7 +568,11 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op3),
                     "Read separate_scene_blend fourth argument failed !");
 
-                // TODO
+                BlendFactor bf0 = toBlendFactor(op0);
+                BlendFactor bf1 = toBlendFactor(op1);
+                BlendFactor bf2 = toBlendFactor(op2);
+                BlendFactor bf3 = toBlendFactor(op3);
+                pass->setSeparateSceneBlending(bf0, bf1, bf2, bf3);
             }
             else if (op0 == E_OP_ADD || op0 == E_OP_MODULATE
                 || op0 == E_OP_COLOUR_BLEND || op0 == E_OP_ALPHA_BLEND)
@@ -568,7 +583,9 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(op1),
                     "Read separate_scene_blend second argument failed !");
 
-                // TODO
+                BlendType bt0 = toBlendType(op0);
+                BlendType bt1 = toBlendType(op1);
+                pass->setSeparateSceneBlending(bt0, bt1);
             }
             else
             {
@@ -603,7 +620,8 @@ namespace Tiny3D
                 || op == E_OP_REVERSE_SUBTRACT
                 || op == E_OP_MIN || op == E_OP_MAX)
             {
-                // TODO
+                BlendOperation bo = toBlendOperation(op);
+                pass->setSceneBlendingOperation(bo);
             }
             else
             {
@@ -647,7 +665,9 @@ namespace Tiny3D
                 || op1 == E_OP_REVERSE_SUBTRACT
                 || op1 == E_OP_MIN || op1 == E_OP_MAX))
             {
-                // TODO
+                BlendOperation bo0 = toBlendOperation(op0);
+                BlendOperation bo1 = toBlendOperation(op1);
+                pass->setSeparateSceneBlendingOperation(bo0, bo1);
             }
             else
             {
@@ -678,7 +698,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
                 "Read depth_check failed !");
 
-            // TODO
+            pass->setDepthCheckEnabled(enabled);
         } while (0);
 
         return ret;
@@ -701,7 +721,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
                 "Read depth_write failed !");
 
-            // TODO
+            pass->setDepthWriteEnabled(enabled);
         } while (0);
 
         return ret;
@@ -732,7 +752,8 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
                     "Read the values of depth_bias failed !");
 
-                // TODO
+                Real slopeScaleBias = 0.0f;
+                pass->setDepthBias(val, slopeScaleBias);
             }
             else if (argc == 2)
             {
@@ -745,6 +766,8 @@ namespace Tiny3D
                 bytesOfRead = stream.read(&val1, sizeof(val1));
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val1),
                     "Read the values of depth_bias failed !");
+
+                pass->setDepthBias(val0, val1);
             }
             else
             {
@@ -786,7 +809,8 @@ namespace Tiny3D
             case E_OP_GREATER_EQUAL:
             case E_OP_GREATER:
                 {
-                    // TODO
+                    CompareFunction f = toCompareFunction(func);
+                    pass->setDepthFunction(f);
                 }
                 break;
             default:
@@ -805,7 +829,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserPass::parseInterationDepthBias(
+    TResult ScriptParserPass::parseIterationDepthBias(
         DataStream &stream, Pass *pass, uint32_t version)
     {
         TResult ret = T3D_OK;
@@ -820,7 +844,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val), 
                 "Read iteration_depth_bias failed !");
 
-            // TODO
+            pass->setDepthBiasPerIteration(val);
         } while (0);
 
         return ret;
@@ -862,7 +886,8 @@ namespace Tiny3D
                     case E_OP_GREATER_EQUAL:
                     case E_OP_GREATER:
                         {
-                            // TODO
+                            CompareFunction f = toCompareFunction(func);
+                            pass->setAlphaRejectFunction(f);
                         }
                         break;
                     default:
@@ -881,7 +906,8 @@ namespace Tiny3D
                     T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
                         "Read value of alpha_rejection failed !");
 
-                    // TODO
+                    CompareFunction f = toCompareFunction(func);
+                    pass->setAlphaRejectSettings(f, (uint8_t)val);
                 }
             }
             else
@@ -913,7 +939,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
                 "Read alpha_to_coverage failed !");
 
-            // TODO
+            pass->setAlphaToCoverageEnabled(enabled);
         } while (0);
 
         return ret;
@@ -936,7 +962,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
                 "Read light_scissor failed !");
 
-            // TODO
+            pass->setLightScissoringEnabled(enabled);
         } while (0);
 
         return ret;
@@ -959,7 +985,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
                 "Read light_clip_planes failed !");
 
-            // TODO
+            pass->setLightClipPlanesEnabled(enabled);
         } while (0);
 
         return ret;
@@ -982,9 +1008,16 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
                 "Read transparent_sorting failed !");
 
-            if (val == 0 || val == 1 || val == 2)
+            if (val == 0 || val == 1)
             {
-                // TODO
+                bool enabled = (bool)val;
+                pass->setTransparentSortingEnabled(enabled);
+                pass->setTransparentSortingForced(false);
+            }
+            else if (val == 2)
+            {
+                pass->setTransparentSortingEnabled(true);
+                pass->setTransparentSortingForced(true);
             }
             else
             {
@@ -1021,7 +1054,8 @@ namespace Tiny3D
             case E_OP_PER_LIGHT:
             case E_OP_DECAL:
                 {
-                    // TODO
+                    IlluminationStage is = toIlluminationStage(stage);
+                    pass->setIlluminationStage(is);
                 }
                 break;
             default:
@@ -1049,18 +1083,19 @@ namespace Tiny3D
             size_t bytesOfRead = 0;
 
             // culling mode
-            uint16_t culling = 0;
-            bytesOfRead = stream.read(&culling, sizeof(culling));
-            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(culling),
+            uint16_t mode = 0;
+            bytesOfRead = stream.read(&mode, sizeof(mode));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(mode),
                 "Read cull_hardware failed !");
 
-            switch (culling)
+            switch (mode)
             {
             case E_OP_CLOCKWISE:
             case E_OP_ANTICLOCKWISE:
             case E_OP_NONE:
                 {
-                    // TODO
+                    CullingMode m = toCullingMode(mode);
+                    pass->setCullingMode(m);
                 }
                 break;
             default:
@@ -1099,7 +1134,8 @@ namespace Tiny3D
             case E_OP_BACK:
             case E_OP_NONE:
                 {
-                    // TODO
+                    ManualCullingMode mode = toManualCullingMode(culling);
+                    pass->setManualCullingMode(mode);
                 }
                 break;
             default:
@@ -1132,7 +1168,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
                 "Read normalize_normals failed !");
 
-            // TODO
+            pass->setNormalizeNormalsEnabled(enabled);
         } while (0);
 
         return ret;
@@ -1184,7 +1220,8 @@ namespace Tiny3D
             case E_OP_GOURAUD:
             case E_OP_PHONG:
                 {
-                    // TODO
+                    ShadingMode mode = toShadingMode(shading);
+                    pass->setShadingMode(mode);
                 }
                 break;
             default:
@@ -1223,7 +1260,8 @@ namespace Tiny3D
             case E_OP_POINTS:
             case E_OP_WIREFRAME:
                 {
-                    // TODO
+                    PolygonMode m = toPolygonMode(mode);
+                    pass->setPolygonMode(m);
                 }
                 break;
             default:
@@ -1256,7 +1294,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
                 "Read polygon_mode_overrideable failed !");
 
-            // TODO
+            pass->setPolygonModeOverrideable(enabled);
         } while (0);
 
         return ret;
@@ -1295,6 +1333,8 @@ namespace Tiny3D
                         the number of arguments must be six !");
                     break;
                 }
+
+                pass->setFog(false);
             }
             else if (argc == 8)
             {
@@ -1354,7 +1394,8 @@ namespace Tiny3D
                 case E_OP_EXP:
                 case E_OP_EXP2:
                     {
-                        // TODO
+                        FogMode mode = toFogMode(type);
+                        pass->setFog(true, mode, color, density, start, end);
                     }
                     break;
                 default:
@@ -1395,7 +1436,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
                 "Read color_write failed !");
 
-            // TODO
+            pass->setColorWriteEnabled(true);
         } while (0);
 
         return ret;
@@ -1418,7 +1459,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
                 "Read max_lights failed !");
 
-            // TODO
+            pass->setMaxLights((uint16_t)val);
         } while (0);
 
         return ret;
@@ -1441,7 +1482,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
                 "Read start_light failed !");
 
-            // TODO
+            pass->setStartLight((uint16_t)val);
         } while (0);
 
         return ret;
@@ -1465,6 +1506,7 @@ namespace Tiny3D
                 "Read light_mask failed !");
 
             // TODO
+            // Deprecated
         } while (0);
 
         return ret;
@@ -1498,8 +1540,7 @@ namespace Tiny3D
                 if (flag == E_OP_ONCE)
                 {
                     // once
-
-                    // TODO
+                    pass->setIteratePerLight(false);
                 }
                 else if (flag == E_OP_ONCE_PER_LIGHT)
                 {
@@ -1514,18 +1555,23 @@ namespace Tiny3D
                     switch (type)
                     {
                     case 0:
+                        {
+                            pass->setIteratePerLight(true, false);
+                        }
+                        break;
                     case E_OP_POINT:
                     case E_OP_DIRECTIONAL:
                     case E_OP_SPOT:
                         {
-                            // TODO
+                            SceneLight::LightType lt = toLightType(type);
+                            pass->setIteratePerLight(true, true, lt);
                         }
                         break;
                     default:
                         {
                             ret = T3D_ERR_RES_INVALID_PROPERTY;
                             T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                                "Invalid value of iteration as once_per_light !");
+                                "Invalid value of light type as once_per_light !");
                         }
                         break;
                     }
@@ -1562,7 +1608,29 @@ namespace Tiny3D
                             break;
                         }
 
-                        // TODO
+                        switch (type)
+                        {
+                        case 0:
+                            {
+                                pass->setIteratePerLight(true, false);
+                            }
+                            break;
+                        case E_OP_POINT:
+                        case E_OP_DIRECTIONAL:
+                        case E_OP_SPOT:
+                            {
+                                SceneLight::LightType lt = toLightType(type);
+                                pass->setIteratePerLight(true, true, lt);
+                            }
+                            break;
+                        default:
+                            {
+                                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                                    "Invalid value of light type !");
+                            }
+                            break;
+                        }
                     }
                     else if (argc == 4)
                     {
@@ -1592,7 +1660,31 @@ namespace Tiny3D
                             break;
                         }
 
-                        // TODO
+                        pass->setLightCountPerIteration((uint16_t)numOfLights);
+
+                        switch (type)
+                        {
+                        case 0:
+                            {
+                                pass->setIteratePerLight(true, false);
+                            }
+                            break;
+                        case E_OP_POINT:
+                        case E_OP_DIRECTIONAL:
+                        case E_OP_SPOT:
+                            {
+                                SceneLight::LightType lt = toLightType(type);
+                                pass->setIteratePerLight(true, true, lt);
+                            }
+                            break;
+                        default:
+                            {
+                                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                                    "Invalid value of light type !");
+                            }
+                            break;
+                        }
                     }
                 }
                 else
@@ -1632,7 +1724,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
                 "Read point_size failed !");
 
-            // TODO
+            pass->setPointSize(val);
         } while (0);
 
         return ret;
@@ -1655,7 +1747,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
                 "Read point_sprites failed !");
 
-            // TODO
+            pass->setPointSpritesEnabled(enabled);
         } while (0);
 
         return ret;
@@ -1694,7 +1786,7 @@ namespace Tiny3D
                     break;
                 }
 
-                // TODO
+                pass->setPointAttenuation(false);
             }
             else if (argc == 4)
             {
@@ -1730,7 +1822,7 @@ namespace Tiny3D
                     break;
                 }
 
-                // TODO
+                pass->setPointAttenuation(enabled, constant, linear, quadratic);
             }
             else
             {
@@ -1761,7 +1853,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
                 "Read point_size_min failed !");
 
-            // TODO
+            pass->setPointMinSize(val);
         } while (0);
 
         return ret;
@@ -1784,7 +1876,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
                 "Read point_size_max failed !");
 
-            // TODO
+            pass->setPointMaxSize(val);
         } while (0);
 
         return ret;

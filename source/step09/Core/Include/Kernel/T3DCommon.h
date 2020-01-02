@@ -43,7 +43,8 @@ namespace Tiny3D
         GREATER
     };
 
-    enum class TrackVertexColorType : uint32_t
+    typedef uint32_t TrackVertexColorType;
+    enum TrackVertexColor : uint32_t
     {
         NONE     = 0x0,
         AMBIENT  = 0x1,

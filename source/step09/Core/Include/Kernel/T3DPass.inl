@@ -766,6 +766,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    inline uint16_t Pass::getMaxLights() const
+    {
+        return mMaxLights;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void Pass::setMaxLights(uint16_t lights)
+    {
+        mMaxLights = lights;
+    }
+
+    //--------------------------------------------------------------------------
+
     inline uint16_t Pass::getLightCountPerIteration() const
     {
         return mLightsPerIteration;
