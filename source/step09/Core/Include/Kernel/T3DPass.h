@@ -455,7 +455,8 @@ namespace Tiny3D
 
         Real getPointAttenuationQuadratic() const;
 
-        void setPointAttenuation(bool enabled, Real constant = 0.0f, Real linear = 1.0f, Real quadratic = 0.0f);
+        void setPointAttenuation(bool enabled, Real constant = 0.0f, 
+            Real linear = 1.0f, Real quadratic = 0.0f);
 
         Real getPointMinSize() const;
 

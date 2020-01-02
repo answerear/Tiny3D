@@ -177,7 +177,7 @@ namespace Tiny3D
 
     inline Real Pass::getShininess() const
     {
-
+        return mShininess;
     }
 
     //--------------------------------------------------------------------------
@@ -217,347 +217,605 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void setVertexColorTracking(TrackVertexColorType tracking);
+    inline void Pass::setVertexColorTracking(TrackVertexColorType tracking)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    BlendFactor getSourceBlendFactor() const;
+    inline BlendFactor Pass::getSourceBlendFactor() const
+    {
+        return mSrcBlendFactor;
+    }
 
     //--------------------------------------------------------------------------
 
-    BlendFactor getDestBlendFactor() const;
+    inline BlendFactor Pass::getDestBlendFactor() const
+    {
+        return mDstBlendFactor;
+    }
 
     //--------------------------------------------------------------------------
 
-    BlendFactor getSourceBlendFactorAlpha() const;
+    inline BlendFactor Pass::getSourceBlendFactorAlpha() const
+    {
+        return mSrcBlendFactorAlpha;
+    }
 
     //--------------------------------------------------------------------------
 
-    BlendFactor getDestBlendFactorAlpha() const;
+    inline BlendFactor Pass::getDestBlendFactorAlpha() const
+    {
+        return mDstBlendFactorAlpha;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setSceneBlending(BlendType bt)
+    {
 
-    void setSceneBlending(BlendType bt);
+    }
 
     //--------------------------------------------------------------------------
 
-    void setSceneBlending(BlendFactor src, BlendFactor dst);
+    inline void Pass::setSceneBlending(BlendFactor src, BlendFactor dst)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
+
+    inline void Pass::setSeparateSceneBlending(BlendType bt, BlendType bta)
+    {
 
-    void setSeparateSceneBlending(BlendType bt, BlendType bta);
+    }
 
     //--------------------------------------------------------------------------
 
-    void setSeparateSceneBlending(BlendFactor src, BlendFactor dst,
-        BlendFactor srcAlpha, BlendFactor dstAlpha);
+    inline void Pass::setSeparateSceneBlending(BlendFactor src, BlendFactor dst,
+        BlendFactor srcAlpha, BlendFactor dstAlpha)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    BlendOperation getSceneBlendingOperation() const;
+    inline BlendOperation Pass::getSceneBlendingOperation() const
+    {
+        return mBlendOperation;
+    }
 
     //--------------------------------------------------------------------------
 
-    BlendOperation getSceneBlendingOperationAlpha() const;
+    inline BlendOperation Pass::getSceneBlendingOperationAlpha() const
+    {
+        return mAlphaBlendOperation;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setSceneBlendingOperation(BlendOperation op)
+    {
 
-    void setSceneBlendingOperation(BlendOperation op);
+    }
 
     //--------------------------------------------------------------------------
 
-    void setSeparateSceneBlendingOperation(BlendOperation op,
-        BlendOperation alphaOp);
+    inline void Pass::setSeparateSceneBlendingOperation(BlendOperation op,
+        BlendOperation alphaOp)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    bool isDepthCheckEnabled() const;
+    inline bool Pass::isDepthCheckEnabled() const
+    {
+        return mDepthCheck;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setDepthCheckEnabled(bool enabled);
+    inline void Pass::setDepthCheckEnabled(bool enabled)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    bool isDepthWriteEnabled() const;
+    inline bool Pass::isDepthWriteEnabled() const
+    {
+        return mDepthWrite;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setDepthWriteEnabled(bool enabled)
+    {
 
-    void setDepthWriteEnabled(bool enabled);
+    }
 
     //--------------------------------------------------------------------------
 
-    CompareFunction getDepthFunction() const;
+    inline CompareFunction Pass::getDepthFunction() const
+    {
+        return mDepthFunc;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setDepthFunction(CompareFunction func);
+    inline void Pass::setDepthFunction(CompareFunction func)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    Real getDepthBiasConstant() const;
+    inline Real Pass::getDepthBiasConstant() const
+    {
+        return mDepthBiasConstant;
+    }
 
     //--------------------------------------------------------------------------
 
-    Real getDepthBiasSlopeScale() const;
+    inline Real Pass::getDepthBiasSlopeScale() const
+    {
+        return mDepthBiasSlopeScale;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setDepthBias(Real constantBias, 
+        Real slopeScaleBias/* = 0.0f*/)
+    {
 
-    void setDepthBias(Real constantBias, Real slopeScaleBias = 0.0f);
+    }
 
     //--------------------------------------------------------------------------
 
-    Real getDepthBiasPerIteration() const;
+    inline Real Pass::getDepthBiasPerIteration() const
+    {
+        return mDepthBiasPerIteration;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setDepthBiasPerIteration(Real biasPerIteration);
+    inline void Pass::setDepthBiasPerIteration(Real biasPerIteration)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    CompareFunction getAlphaRejectFunction() const;
+    inline CompareFunction Pass::getAlphaRejectFunction() const
+    {
+        return mAlphaRejectFunc;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setAlphaRejectFunction(CompareFunction func);
+    inline void Pass::setAlphaRejectFunction(CompareFunction func)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    uint8_t getAlphaRejectValue() const;
+    inline uint8_t Pass::getAlphaRejectValue() const
+    {
+        return mAlphaRejectVal;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setAlphaRejectValue(uint8_t val)
+    {
 
-    void setAlphaRejectValue(uint8_t val);
+    }
 
     //--------------------------------------------------------------------------
 
-    bool isAlphaToCoverageEnabled() const;
+    inline bool Pass::isAlphaToCoverageEnabled() const
+    {
+        return mAlpha2CoverageEnabled;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setAlphaToCoverageEnabled(bool enabled);
+    inline void Pass::setAlphaToCoverageEnabled(bool enabled)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
+
+    inline void Pass::setAlphaRejectSettings(CompareFunction func, uint8_t val,
+        bool alphaToCoverageEnabled/* = false*/)
+    {
 
-    void setAlphaRejectSettings(CompareFunction func, uint8_t val,
-        bool alphaToCoverageEnabled = false);
+    }
 
     //--------------------------------------------------------------------------
 
-    bool isLightScissoringEnabled() const;
+    inline bool Pass::isLightScissoringEnabled() const
+    {
+        return mLightScissor;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setLightScissoringEnabled(bool enabled);
+    inline void Pass::setLightScissoringEnabled(bool enabled)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    bool isLightClipPlanesEnabled() const;
+    inline bool Pass::isLightClipPlanesEnabled() const
+    {
+        return mLightClipPlanes;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setLightClipPlanesEnabled(bool enabled);
+    inline void Pass::setLightClipPlanesEnabled(bool enabled)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    bool isLightEnabled() const;
+    inline bool Pass::isLightEnabled() const
+    {
+        return mLightingEnabled;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setLightEnabled(bool enabled)
+    {
 
-    void setLightEnabled(bool enabled);
+    }
 
     //--------------------------------------------------------------------------
 
-    bool isNormalizeNormalsEnabled() const;
+    inline bool Pass::isNormalizeNormalsEnabled() const
+    {
+        return mNormalizeNormals;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setNormalizeNormalsEnabled(bool enabled);
+    inline void Pass::setNormalizeNormalsEnabled(bool enabled)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    bool isTransparentSortingEnabled() const;
+    inline bool Pass::isTransparentSortingEnabled() const
+    {
+        return mTransparentSorting;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setTransparentSortingEnabled(bool enabled)
+    {
 
-    void setTransparentSortingEnabled(bool enabled);
+    }
 
     //--------------------------------------------------------------------------
 
-    bool isTransparentSortingForced() const;
+    inline bool Pass::isTransparentSortingForced() const
+    {
+        return mTransparentSortingForced;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setTransparentSortingForced(bool enabled);
+    inline void Pass::setTransparentSortingForced(bool enabled)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    bool isColorWriteEnabled() const;
+    inline bool Pass::isColorWriteEnabled() const
+    {
+        return mColorWrite;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setColorWriteEnabled(bool enabled)
+    {
 
-    void setColorWriteEnabled(bool enabled);
+    }
 
     //--------------------------------------------------------------------------
 
-    bool isPolygonModeOverrideable() const;
+    inline bool Pass::isPolygonModeOverrideable() const
+    {
+        return mPolygonModeOverrideable;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setPolygonModeOverrideable(bool overrideable);
+    inline void Pass::setPolygonModeOverrideable(bool overrideable)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    CullingMode getCullingMode() const;
+    inline CullingMode Pass::getCullingMode() const
+    {
+        return mCullMode;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setCullingMode(CullingMode mode)
+    {
 
-    void setCullingMode(CullingMode mode);
+    }
 
     //--------------------------------------------------------------------------
 
-    ManualCullingMode getManualCullingMode() const;
+    inline ManualCullingMode Pass::getManualCullingMode() const
+    {
+        return mManualCullMode;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setManualCullingMode(ManualCullingMode mode);
+    inline void Pass::setManualCullingMode(ManualCullingMode mode)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    IlluminationStage getIlluminationStage() const;
+    inline IlluminationStage Pass::getIlluminationStage() const
+    {
+        return mIlluminationStage;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setIlluminationStage(IlluminationStage stage);
+    inline void Pass::setIlluminationStage(IlluminationStage stage)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    ShadingMode getShadingMode() const;
+    inline ShadingMode Pass::getShadingMode() const
+    {
+        return mShadingMode;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setShadingMode(ShadingMode mode)
+    {
 
-    void setShadingMode(ShadingMode mode);
+    }
 
     //--------------------------------------------------------------------------
 
-    PolygonMode getPolygonMode() const;
+    inline PolygonMode Pass::getPolygonMode() const
+    {
+        return mPolygonMode;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setPolygonMode(PolygonMode mode);
+    inline void Pass::setPolygonMode(PolygonMode mode)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    bool isFogOverrideable() const;
+    inline bool Pass::isFogOverrideable() const
+    {
+        return mFogOverride;
+    }
 
     //--------------------------------------------------------------------------
 
-    FogMode getFogMode() const;
+    inline FogMode Pass::getFogMode() const
+    {
+        return mFogMode;
+    }
 
     //--------------------------------------------------------------------------
 
-    const ColorRGBA &getFogColor() const;
+    inline const ColorRGBA &Pass::getFogColor() const
+    {
+        return mFogColor;
+    }
 
     //--------------------------------------------------------------------------
 
-    Real getFogStart() const;
+    inline Real Pass::getFogStart() const
+    {
+        return mFogStart;
+    }
 
     //--------------------------------------------------------------------------
 
-    Real getFogEnd() const;
+    inline Real Pass::getFogEnd() const
+    {
+        return mFogEnd;
+    }
 
     //--------------------------------------------------------------------------
 
-    Real getFogDensity() const;
+    inline Real Pass::getFogDensity() const
+    {
+        return mFogDensity;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setFog(bool overrideable, FogMode mode/* = FogMode::NONE*/,
+        const ColorRGBA &color/* = ColorRGBA::WHITE*/, Real density/* = 0.001f*/,
+        Real linearStart/* = 0.0f*/, Real linearEnd/* = 1.0f*/)
+    {
 
-    void setFog(bool overrideable, FogMode mode = FogMode::NONE,
-        const ColorRGBA &color = ColorRGBA::WHITE, Real density = 0.001f,
-        Real linearStart = 0.0f, Real linearEnd = 1.0f);
+    }
 
     //--------------------------------------------------------------------------
 
-    uint16_t getStartLight() const;
+    inline uint16_t Pass::getStartLight() const
+    {
+        return mStartLight;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setStartLight(uint16_t startLight);
+    inline void Pass::setStartLight(uint16_t startLight)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    uint16_t getLightCountPerIteration() const;
+    inline uint16_t Pass::getLightCountPerIteration() const
+    {
+        return mLightsPerIteration;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setLightCountPerIteration(uint16_t val);
+    inline void Pass::setLightCountPerIteration(uint16_t val)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    SceneLight::LightType getOnlyLightType() const;
+    inline SceneLight::LightType Pass::getOnlyLightType() const
+    {
+        return mOnlyLightType;
+    }
 
     //--------------------------------------------------------------------------
 
-    bool isIteratePerLight() const;
+    inline bool Pass::isIteratePerLight() const
+    {
+        return mIteratePerLight;
+    }
 
     //--------------------------------------------------------------------------
 
-    bool isRunOnlyForOneLightType() const;
+    inline bool Pass::isRunOnlyForOneLightType() const
+    {
+        return mRunOnlyForOneLightType;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setIteratePerLight(bool enabled, 
+        bool onlyForOneLightType/* = true*/,
+        SceneLight::LightType lightType/* = SceneLight::LightType::E_LT_POINT*/)
+    {
 
-    void setIteratePerLight(bool enabled, bool onlyForOneLightType = true,
-        SceneLight::LightType lightType = SceneLight::LightType::E_LT_POINT);
+    }
 
     //--------------------------------------------------------------------------
 
-    bool isPointSpritesEnabled() const;
+    inline bool Pass::isPointSpritesEnabled() const
+    {
+        return mPointSpritesEnabled;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setPointSpritesEnabled(bool enabled);
+    inline void Pass::setPointSpritesEnabled(bool enabled)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    Real getPointSize() const;
+    inline Real Pass::getPointSize() const
+    {
+        return mPointSize;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setPointSize(Real val)
+    {
 
-    void setPointSize(Real val);
+    }
 
     //--------------------------------------------------------------------------
 
-    bool isPointAttenuationEnabled() const;
+    inline bool Pass::isPointAttenuationEnabled() const
+    {
+        return mPointAttenuationEnabled;
+    }
 
     //--------------------------------------------------------------------------
 
-    Real getPointAttenuationConstant() const;
+    inline Real Pass::getPointAttenuationConstant() const
+    {
+        return mPointAttenuationCoeffs[0];
+    }
 
     //--------------------------------------------------------------------------
 
-    Real getPointAttenuationLinear() const;
+    inline Real Pass::getPointAttenuationLinear() const
+    {
+        return mPointAttenuationCoeffs[1];
+    }
 
     //--------------------------------------------------------------------------
 
-    Real getPointAttenuationQuadratic() const;
+    inline Real Pass::getPointAttenuationQuadratic() const
+    {
+        return mPointAttenuationCoeffs[2];
+    }
 
     //--------------------------------------------------------------------------
 
-    void setPointAttenuation(bool enabled, Real constant = 0.0f, Real linear = 1.0f, Real quadratic = 0.0f);
+    inline void Pass::setPointAttenuation(bool enabled, Real constant/* = 0.0f*/,
+        Real linear/* = 1.0f*/, Real quadratic/* = 0.0f*/)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    Real getPointMinSize() const;
+    inline Real Pass::getPointMinSize() const
+    {
+        return mPointMinSize;
+    }
 
     //--------------------------------------------------------------------------
 
-    void setPointMinSize(Real val);
+    inline void Pass::setPointMinSize(Real val)
+    {
 
+    }
+
     //--------------------------------------------------------------------------
 
-    Real getPointMaxSize() const;
+    inline Real Pass::getPointMaxSize() const
+    {
+        return mPointMaxSize;
+    }
 
     //--------------------------------------------------------------------------
+
+    inline void Pass::setPointMaxSize(Real val)
+    {
 
-    void setPointMaxSize(Real val);
+    }
 }
