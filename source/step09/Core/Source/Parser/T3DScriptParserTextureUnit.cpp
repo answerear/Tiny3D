@@ -73,8 +73,27 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read the name of texture unit failed !");
+                break;
+            }
 
-            TextureUnitPtr unit = TextureUnit::create();
+            if (name.empty())
+            {
+                name = generateName("TextureUnit");
+            }
+
+            TextureUnitPtr unit;
+            ret = pass->addTextureUnit(name, unit);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Add texture unit [%s] to pass failed !", 
+                    name.c_str());
+                break;
+            }
 
             uint16_t type = UNKNOWN;
             uint16_t i = 0;

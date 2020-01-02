@@ -57,6 +57,34 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    inline TResult Pass::removeTextureUnit(size_t index)
+    {
+        TResult ret = T3D_ERR_NOT_FOUND;
+
+        if (index >= mTextureUnits.size())
+            return ret;
+
+        mTextureUnits.erase(mTextureUnits.begin() + index);
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline TextureUnitPtr Pass::getTextureUnit(size_t index) const
+    {
+        T3D_ASSERT(index < mTextureUnits.size());
+        return mTextureUnits[index];
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline const Pass::TextureUnits &Pass::getTextureUnits() const
+    {
+        return mTextureUnits;
+    }
+
+    //--------------------------------------------------------------------------
+
     inline size_t Pass::getTextureUnitsCount() const
     {
         return mTextureUnits.size();

@@ -32,8 +32,6 @@
 
 namespace Tiny3D
 {
-    
-
     class T3D_ENGINE_API TextureUnit : public Object
     {
     public:
@@ -129,14 +127,16 @@ namespace Tiny3D
 
     public:
         /** 创建 TextureUnit 对象 */
-        static TextureUnitPtr create();
+        static TextureUnitPtr create(const String &name, Pass *pass);
 
         /** 析构函数 */
         virtual ~TextureUnit();
 
+        const String &getName() const;
+
     protected:
         /** 构造函数 */
-        TextureUnit();
+        TextureUnit(const String &name, Pass *pass);
 
         typedef TMultimap<EffectType, TextureEffect>    EffectMap;
         typedef EffectMap::iterator                     EffectMapItr;
@@ -304,6 +304,9 @@ namespace Tiny3D
         Matrix4             mTexMatrix;
     };
 }
+
+
+#include "T3DTextureUnit.inl"
 
 
 #endif  /*__T3D_TEXTURE_UNIT_H__*/

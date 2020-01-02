@@ -18,7 +18,9 @@
  ******************************************************************************/
 
 #include "Kernel/T3DPass.h"
+#include "Kernel/T3DTextureUnit.h"
 #include "T3DConfig.h"
+#include "T3DErrorDef.h"
 #include "Resource/T3DGPUProgramManager.h"
 #include "Resource/T3DGPUConstBufferManager.h"
 
@@ -146,6 +148,74 @@ namespace Tiny3D
         } while (0);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Pass::addTextureUnit(const String &name, TextureUnitPtr &unit)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            unit = TextureUnit::create(name, this);
+            if (unit == nullptr)
+            {
+                ret = T3D_ERR_RES_CREATE_TEX_UNIT;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Create texture unit [%s] object failed !", name.c_str());
+                break;
+            }
+
+            mTextureUnits.push_back(unit);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Pass::removeTextureUnit(const String &name)
+    {
+        TResult ret = T3D_ERR_NOT_FOUND;
+
+        auto itr = mTextureUnits.begin();
+        while (itr != mTextureUnits.end())
+        {
+            TextureUnitPtr unit = *itr;
+            if (name == unit->getName())
+            {
+                mTextureUnits.erase(itr);
+                ret = T3D_OK;
+                break;
+            }
+
+            ++itr;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TextureUnitPtr Pass::getTextureUnit(const String &name) const
+    {
+        TextureUnitPtr texUnit;
+
+        auto itr = mTextureUnits.begin();
+        while (itr != mTextureUnits.end())
+        {
+            const TextureUnitPtr &unit = *itr;
+            if (name == unit->getName())
+            {
+                texUnit = unit;
+                break;
+            }
+
+            ++itr;
+        }
+
+        return texUnit;
     }
 
     //--------------------------------------------------------------------------

@@ -107,6 +107,18 @@ namespace Tiny3D
          */
         size_t getGPUConstBufferCount() const;
 
+        TResult addTextureUnit(const String &name, TextureUnitPtr &unit);
+
+        TResult removeTextureUnit(const String &name);
+
+        TResult removeTextureUnit(size_t index);
+
+        TextureUnitPtr getTextureUnit(const String &name) const;
+
+        TextureUnitPtr getTextureUnit(size_t index) const;
+
+        const TextureUnits &getTextureUnits() const;
+
         /**
          * @brief   获取纹理单元数量
          */

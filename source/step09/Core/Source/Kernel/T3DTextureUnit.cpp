@@ -19,22 +19,25 @@
 
 
 #include "Kernel/T3DTextureUnit.h"
+#include "Kernel/T3DPass.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TextureUnitPtr TextureUnit::create()
+    TextureUnitPtr TextureUnit::create(const String &name, Pass *pass)
     {
-        TextureUnitPtr unit = new TextureUnit();
+        TextureUnitPtr unit = new TextureUnit(name, pass);
         unit->release();
         return unit;
     }
 
     //--------------------------------------------------------------------------
 
-    TextureUnit::TextureUnit()
+    TextureUnit::TextureUnit(const String &name, Pass *pass)
+        : mParent(pass)
+        , mName(name)
     {
 
     }
