@@ -18,6 +18,7 @@
  ******************************************************************************/
 
 #include "Kernel/T3DPass.h"
+#include "T3DConfig.h"
 #include "Resource/T3DGPUProgramManager.h"
 #include "Resource/T3DGPUConstBufferManager.h"
 
@@ -36,8 +37,54 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Pass::Pass(const String &name, Technique *tech)
-        : mParent(tech)
+        : mGPUProgram(nullptr)
+        , mParent(tech)
         , mName(name)
+        , mAmbient(ColorRGBA::WHITE)
+        , mDiffuse(ColorRGBA::WHITE)
+        , mSpecular(ColorRGBA::BLACK)
+        , mShininess(0.0f)
+        , mEmissive(ColorRGBA::BLACK)
+        , mTracking(TrackVertexColorType::NONE)
+        , mDepthCheck(true)
+        , mDepthWrite(true)
+        , mDepthFunc(CompareFunction::LESS_EQUAL)
+        , mDepthBiasConstant(0.0f)
+        , mDepthBiasSlopeScale(0.0f)
+        , mDepthBiasPerIteration(0.0f)
+        , mAlphaRejectFunc(CompareFunction::ALWAYS_PASS)
+        , mAlphaRejectVal(0)
+        , mAlpha2CoverageEnabled(false)
+        , mLightScissoring(false)
+        , mLightClipPlanes(false)
+        , mLightingEnabled(true)
+        , mNormalizeNormals(false)
+        , mTransparentSorting(true)
+        , mTransparentSortingForced(false)
+        , mPolygonModeOverrideable(true)
+        , mCullMode(CullingMode::CLOCKWISE)
+        , mManualCullMode(ManualCullingMode::BACK)
+        , mIlluminationStage(IlluminationStage::UNKNOWN)
+        , mShadingMode(ShadingMode::GOURAUD)
+        , mPolygonMode(PolygonMode::SOLID)
+        , mFogOverride(false)
+        , mFogMode(FogMode::NONE)
+        , mFogColor(ColorRGBA::WHITE)
+        , mFogStart(0.0f)
+        , mFogEnd(1.0f)
+        , mFogDensity(0.01f)
+        , mStartLight(0)
+        , mMaxLights(T3D_MAX_SIMULTANEOUS_LIGHTS)
+        , mLightsPerIteration(1)
+        , mOnlyLightType(SceneLight::E_LT_POINT)
+        , mIteratePerLight(false)
+        , mRunOnlyForOneLightType(false)
+        , mPointSpritesEnabled(false)
+        , mPointSize(1.0f)
+        , mPointAttenuationEnabled(false)
+        , mPointAttenuationCoeffs(1.0f, 0.0f, 0.0f)
+        , mPointMinSize(0.0f)
+        , mPointMaxSize(0.0f)
     {
 
     }
@@ -103,4 +150,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Pass::getBlendFlags(BlendType type, BlendFactor &source, BlendFactor &dest)
+    {
+        switch (type)
+        {
+        case BlendType::TRANSPARENT_ALPHA:
+            source = BlendFactor::SOURCE_ALPHA;
+            dest = BlendFactor::ONE_MINUS_SOURCE_ALPHA;
+            return;
+        case BlendType::TRANSPARENT_COLOR:
+            source = BlendFactor::SOURCE_COLOR;
+            dest = BlendFactor::ONE_MINUS_SOURCE_COLOR;
+            return;
+        case BlendType::MODULATE:
+            source = BlendFactor::DEST_COLOR;
+            dest = BlendFactor::ZERO;
+            return;
+        case BlendType::ADD:
+            source = BlendFactor::ONE;
+            dest = BlendFactor::ONE;
+            return;
+        case BlendType::REPLACE:
+            source = BlendFactor::ONE;
+            dest = BlendFactor::ZERO;
+            return;
+        }
+
+        // Default to BlendType::REPLACE
+
+        source = BlendFactor::ONE;
+        dest = BlendFactor::ZERO;
+    }
 }

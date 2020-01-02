@@ -27,6 +27,8 @@
 namespace Tiny3D
 {
     #define T3D_MAX_MULTIPLE_RENDER_TARGETS     8
+
+    #define T3D_MAX_SIMULTANEOUS_LIGHTS         8
 }
 
 

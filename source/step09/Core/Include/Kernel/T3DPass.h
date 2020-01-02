@@ -30,6 +30,9 @@
 #include "Scene/T3DSceneLight.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUConstBuffer.h"
+#include "Kernel/T3DAgent.h"
+#include "Render/T3DRenderer.h"
+#include "Render/T3DRendererCapabilities.h"
 
 
 namespace Tiny3D
@@ -168,7 +171,7 @@ namespace Tiny3D
         /**
          * @brief   设置漫反射光颜色
          */
-        void setDiffuse(Real red, Real green, Real blue);
+        void setDiffuse(Real red, Real green, Real blue, Real alpha);
 
         /**
          * @brief   获取镜面反射光颜色
@@ -183,7 +186,7 @@ namespace Tiny3D
         /**
          * @brief   设置镜面反射光颜色
          */
-        void setSpecular(Real red, Real green, Real blue);
+        void setSpecular(Real red, Real green, Real blue, Real alpha);
 
         /**
          * @brief   获取镜面反射的亮度
@@ -281,6 +284,10 @@ namespace Tiny3D
          */
         void setSeparateSceneBlendingOperation(BlendOperation op, 
             BlendOperation alphaOp);
+
+        const BlendState &getBlendState() const;
+
+        bool isTransparent() const;
 
         /**
          * @brief   获取是否开启深度检测
@@ -382,9 +389,13 @@ namespace Tiny3D
 
         void setColorWriteEnabled(bool enabled);
 
+        void isColorWriteEnabled(bool &red, bool &green, bool &blue, bool &alpha);
+
+        void setColorWriteEnabled(bool red, bool green, bool blue, bool alpha);
+
         bool isPolygonModeOverrideable() const;
 
-        void setPolygonModeOverrideable(bool overrideable);
+        void setPolygonModeOverrideable(bool enabled);
 
         CullingMode getCullingMode() const;
 
@@ -475,6 +486,9 @@ namespace Tiny3D
          */
         Pass(const String &name, Technique *tech);
 
+        void getBlendFlags(BlendType type, BlendFactor &source, 
+            BlendFactor &dest);
+
     protected:
         GPUProgramPtr   mGPUProgram;    /**< 绑定到当前 Pass 的 GPU 程序对象 */
         GPUConstBuffers mConstBuffers;  /**< 常量缓冲区对象集合 */
@@ -516,8 +530,8 @@ namespace Tiny3D
         //  #1 scene_blend <add|modulate|alpha_blend|color_blend>
         //  #2 scene_blend <src_factor> <dest_factor>
         // Parameters : 区分scene_blend和separate_scene_blend，存储在 mSeparateBlend
-        BlendFactor mSrcBlendFactor;
-        BlendFactor mDstBlendFactor;
+//         BlendFactor mSrcBlendFactor;
+//         BlendFactor mDstBlendFactor;
 
         //---------------------------------------
         // Command : separate_scene_blend
@@ -528,15 +542,15 @@ namespace Tiny3D
         //  #1 color_src_factor 存储在 mSrcBlendFactor
         //  #2 color_dest_factor 存储在 mDstBlendFactor
         //  #3 区分scene_blend和separate_scene_blend，存储在 mSeparateBlend
-        BlendFactor mSrcBlendFactorAlpha;
-        BlendFactor mDstBlendFactorAlpha;
+//         BlendFactor mSrcBlendFactorAlpha;
+//         BlendFactor mDstBlendFactorAlpha;
 
         //---------------------------------------
         // Command : scene_blend_op
         // Usage : scene_blend_op <add|subtract|reverse_subtract|min|max>
         // Parameters : 
         //  #1 区分scene_blend_op和separate_scene_blend_op，存储在 mSeparateBlendOperation
-        BlendOperation  mBlendOperation;
+//         BlendOperation  mBlendOperation;
 
         //---------------------------------------
         // Command : separate_scene_blend_op
@@ -544,10 +558,12 @@ namespace Tiny3D
         // Parameters : 
         //  #1 colorOp 存储在 mBlendOperation
         //  #2 区分scene_blend和separate_scene_blend，存储在 mSeparateBlend
-        BlendOperation  mAlphaBlendOperation;
+//         BlendOperation  mAlphaBlendOperation;
 
-        bool    mSeparateBlend;
-        bool    mSeparateBlendOperation;
+//         bool    mSeparateBlend;
+//         bool    mSeparateBlendOperation;
+
+        BlendState  mBlendState;
 
         //---------------------------------------
         // Command : depth_check
@@ -586,38 +602,39 @@ namespace Tiny3D
         //---------------------------------------
         // Command : alpha_to_coverage
         // Usage : alpha_to_coverage <on|off>
-        bool            mAlpha2CoverageEnabled; /**< / 是否开启A2C */
+        bool            mAlpha2CoverageEnabled; /**< 是否开启A2C */
 
         //---------------------------------------
         // Command : light_scissor
         // Usage : light_scissor <on|off>
-        bool    mLightScissor;  /**< / 是否开启光照裁剪 */
+        bool    mLightScissoring;  /**< 是否开启光照裁剪 */
 
         //---------------------------------------
         // Command : light_clip_planes
         // Usage : light_clip_planes <on|off>
-        bool    mLightClipPlanes;   /**< / 是否开启光照裁剪平面 */
+        bool    mLightClipPlanes;   /**< 是否开启光照裁剪平面 */
 
         //---------------------------------------
         // Command : lighting
         // Usage : lighting <on|off>
-        bool    mLightingEnabled;   /**< / 是否打开光照 */
+        bool    mLightingEnabled;   /**< 是否打开光照 */
 
         //---------------------------------------
         // Command : normalize_normals
         // Usage : normalize_normals <on|off>
-        bool    mNormalizeNormals;  /**< / 是否规范化法向量 */
+        bool    mNormalizeNormals;  /**< 是否规范化法向量 */
 
         //---------------------------------------
         // Command : transparent_sorting
         // Usage : transparent_sorting <on|off|force>
-        bool    mTransparentSorting;    /**< / 是否半透明纹理排序 */
-        bool    mTransparentSortingForced;  /**< / 是否强制半透明纹理排序 */
+        bool    mTransparentSorting;    /**< 是否半透明纹理排序 */
+        bool    mTransparentSortingForced;  /**< 是否强制半透明纹理排序 */
 
         //---------------------------------------
         // Command : color_write
         // Usage : color_write <on|off>
-        bool    mColorWrite;    /**< 是否写颜色值 */
+        // 存储在 mBlendState 中
+//         bool    mColorWrite;    /**< 是否写颜色值 */
 
         //---------------------------------------
         // Command : polygon_mode_overrideable
@@ -667,7 +684,7 @@ namespace Tiny3D
         //---------------------------------------
         // Command : max_lights
         // Usage : max_lights <number>
-        uint16_t    mMaxLights;
+        uint16_t    mMaxLights;     /**< 当前 pass 最大光数量 */
 
         //---------------------------------------
         // Command : iteration
@@ -698,7 +715,7 @@ namespace Tiny3D
         //  #2 linear 存储在 mPointAttenuationCoeffs[1]
         //  #3 quadratic 存储在 mPointAttenuationCoeffs[2]
         bool        mPointAttenuationEnabled;
-        Real        mPointAttenuationCoeffs[3];
+        Vector3     mPointAttenuationCoeffs;
 
         //---------------------------------------
         // Command : point_size_min

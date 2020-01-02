@@ -121,14 +121,16 @@ namespace Tiny3D
 
     inline void Pass::setAmbient(const ColorRGBA &color)
     {
-
+        mAmbient = color;
     }
 
     //--------------------------------------------------------------------------
 
     inline void Pass::setAmbient(Real red, Real green, Real blue)
     {
-
+        mAmbient.red() = red;
+        mAmbient.green() = green;
+        mAmbient.blue() = blue;
     }
 
     //--------------------------------------------------------------------------
@@ -142,14 +144,17 @@ namespace Tiny3D
 
     inline void Pass::setDiffuse(const ColorRGBA &color)
     {
-
+        mDiffuse = color;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void Pass::setDiffuse(Real red, Real green, Real blue)
+    inline void Pass::setDiffuse(Real red, Real green, Real blue, Real alpha)
     {
-
+        mDiffuse.red() = red;
+        mDiffuse.green() = green;
+        mDiffuse.blue() = blue;
+        mDiffuse.alpha() = alpha;
     }
 
     //--------------------------------------------------------------------------
@@ -163,14 +168,17 @@ namespace Tiny3D
 
     inline void Pass::setSpecular(const ColorRGBA &color)
     {
-
+        mSpecular = color;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void Pass::setSpecular(Real red, Real green, Real blue)
+    inline void Pass::setSpecular(Real red, Real green, Real blue, Real alpha)
     {
-
+        mSpecular.red() = red;
+        mSpecular.green() = green;
+        mSpecular.blue() = blue;
+        mSpecular.alpha() = alpha;
     }
 
     //--------------------------------------------------------------------------
@@ -184,7 +192,7 @@ namespace Tiny3D
 
     inline void Pass::setShininess(Real value)
     {
-
+        mShininess = value;
     }
 
     //--------------------------------------------------------------------------
@@ -205,7 +213,9 @@ namespace Tiny3D
 
     inline void Pass::setEmissive(Real red, Real green, Real blue)
     {
-
+        mEmissive.red() = red;
+        mEmissive.green() = green;
+        mEmissive.blue() = blue;
     }
 
     //--------------------------------------------------------------------------
@@ -219,56 +229,54 @@ namespace Tiny3D
 
     inline void Pass::setVertexColorTracking(TrackVertexColorType tracking)
     {
-
+        mTracking = tracking;
     }
 
     //--------------------------------------------------------------------------
 
     inline BlendFactor Pass::getSourceBlendFactor() const
     {
-        return mSrcBlendFactor;
+        return mBlendState.sourceFactor;//mSrcBlendFactor;
     }
 
     //--------------------------------------------------------------------------
 
     inline BlendFactor Pass::getDestBlendFactor() const
     {
-        return mDstBlendFactor;
+        return mBlendState.destFactor;//mDstBlendFactor;
     }
 
     //--------------------------------------------------------------------------
 
     inline BlendFactor Pass::getSourceBlendFactorAlpha() const
     {
-        return mSrcBlendFactorAlpha;
+        return mBlendState.sourceFactorAlpha;//mSrcBlendFactorAlpha;
     }
 
     //--------------------------------------------------------------------------
 
     inline BlendFactor Pass::getDestBlendFactorAlpha() const
     {
-        return mDstBlendFactorAlpha;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline void Pass::setSceneBlending(BlendType bt)
-    {
-
+        return mBlendState.destFactorAlpha;//mDstBlendFactorAlpha;
     }
 
     //--------------------------------------------------------------------------
 
     inline void Pass::setSceneBlending(BlendFactor src, BlendFactor dst)
     {
-
+        mBlendState.sourceFactor = src;
+        mBlendState.sourceFactorAlpha = src;
+        mBlendState.destFactor = dst;
+        mBlendState.destFactorAlpha = dst;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void Pass::setSeparateSceneBlending(BlendType bt, BlendType bta)
+    inline void Pass::setSceneBlending(BlendType bt)
     {
-
+        BlendFactor source, dest;
+        getBlendFlags(bt, source, dest);
+        setSceneBlending(source, dest);
     }
 
     //--------------------------------------------------------------------------
@@ -276,28 +284,45 @@ namespace Tiny3D
     inline void Pass::setSeparateSceneBlending(BlendFactor src, BlendFactor dst,
         BlendFactor srcAlpha, BlendFactor dstAlpha)
     {
+        mBlendState.sourceFactor = src;
+        mBlendState.sourceFactorAlpha = srcAlpha;
+        mBlendState.destFactor = dst;
+        mBlendState.destFactorAlpha = dstAlpha;
+    }
 
+    //--------------------------------------------------------------------------
+
+    inline void Pass::setSeparateSceneBlending(BlendType bt, BlendType bta)
+    {
+        BlendFactor src, dst;
+        getBlendFlags(bt, src, dst);
+
+        BlendFactor srcAlpha, dstAlpha;
+        getBlendFlags(bta, srcAlpha, dstAlpha);
+
+        setSeparateSceneBlending(src, dst, srcAlpha, dstAlpha);
     }
 
     //--------------------------------------------------------------------------
 
     inline BlendOperation Pass::getSceneBlendingOperation() const
     {
-        return mBlendOperation;
+        return mBlendState.operation;//mBlendOperation;
     }
 
     //--------------------------------------------------------------------------
 
     inline BlendOperation Pass::getSceneBlendingOperationAlpha() const
     {
-        return mAlphaBlendOperation;
+        return mBlendState.alphaOperation;//mAlphaBlendOperation;
     }
 
     //--------------------------------------------------------------------------
 
     inline void Pass::setSceneBlendingOperation(BlendOperation op)
     {
-
+        mBlendState.operation = op;
+        mBlendState.alphaOperation = op;
     }
 
     //--------------------------------------------------------------------------
@@ -305,7 +330,26 @@ namespace Tiny3D
     inline void Pass::setSeparateSceneBlendingOperation(BlendOperation op,
         BlendOperation alphaOp)
     {
+        mBlendState.operation = op;
+        mBlendState.alphaOperation = alphaOp;
+    }
 
+    //--------------------------------------------------------------------------
+
+    inline const BlendState &Pass::getBlendState() const
+    {
+        return mBlendState;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline bool Pass::isTransparent() const
+    {
+        return (mBlendState.destFactor == BlendFactor::ZERO
+            && mBlendState.sourceFactor != BlendFactor::DEST_COLOR 
+            && mBlendState.sourceFactor != BlendFactor::ONE_MINUS_DEST_COLOR 
+            && mBlendState.sourceFactor != BlendFactor::DEST_ALPHA 
+            && mBlendState.sourceFactor != BlendFactor::ONE_MINUS_DEST_ALPHA);
     }
 
     //--------------------------------------------------------------------------
@@ -319,7 +363,7 @@ namespace Tiny3D
 
     inline void Pass::setDepthCheckEnabled(bool enabled)
     {
-
+        mDepthCheck = enabled;
     }
 
     //--------------------------------------------------------------------------
@@ -333,7 +377,7 @@ namespace Tiny3D
 
     inline void Pass::setDepthWriteEnabled(bool enabled)
     {
-
+        mDepthWrite = enabled;
     }
 
     //--------------------------------------------------------------------------
@@ -347,7 +391,7 @@ namespace Tiny3D
 
     inline void Pass::setDepthFunction(CompareFunction func)
     {
-
+        mDepthFunc = func;
     }
 
     //--------------------------------------------------------------------------
@@ -369,7 +413,8 @@ namespace Tiny3D
     inline void Pass::setDepthBias(Real constantBias, 
         Real slopeScaleBias/* = 0.0f*/)
     {
-
+        mDepthBiasConstant = constantBias;
+        mDepthBiasSlopeScale = slopeScaleBias;
     }
 
     //--------------------------------------------------------------------------
@@ -383,7 +428,7 @@ namespace Tiny3D
 
     inline void Pass::setDepthBiasPerIteration(Real biasPerIteration)
     {
-
+        mDepthBiasPerIteration = biasPerIteration;
     }
 
     //--------------------------------------------------------------------------
@@ -397,7 +442,7 @@ namespace Tiny3D
 
     inline void Pass::setAlphaRejectFunction(CompareFunction func)
     {
-
+        mAlphaRejectFunc = func;
     }
 
     //--------------------------------------------------------------------------
@@ -411,7 +456,7 @@ namespace Tiny3D
 
     inline void Pass::setAlphaRejectValue(uint8_t val)
     {
-
+        mAlphaRejectVal = val;
     }
 
     //--------------------------------------------------------------------------
@@ -425,7 +470,7 @@ namespace Tiny3D
 
     inline void Pass::setAlphaToCoverageEnabled(bool enabled)
     {
-
+        mAlpha2CoverageEnabled = enabled;
     }
 
     //--------------------------------------------------------------------------
@@ -433,21 +478,23 @@ namespace Tiny3D
     inline void Pass::setAlphaRejectSettings(CompareFunction func, uint8_t val,
         bool alphaToCoverageEnabled/* = false*/)
     {
-
+        mAlphaRejectFunc = func;
+        mAlphaRejectVal = val;
+        mAlpha2CoverageEnabled = alphaToCoverageEnabled;
     }
 
     //--------------------------------------------------------------------------
 
     inline bool Pass::isLightScissoringEnabled() const
     {
-        return mLightScissor;
+        return mLightScissoring;
     }
 
     //--------------------------------------------------------------------------
 
     inline void Pass::setLightScissoringEnabled(bool enabled)
     {
-
+        mLightScissoring = enabled;
     }
 
     //--------------------------------------------------------------------------
@@ -461,7 +508,7 @@ namespace Tiny3D
 
     inline void Pass::setLightClipPlanesEnabled(bool enabled)
     {
-
+        mLightClipPlanes = enabled;
     }
 
     //--------------------------------------------------------------------------
@@ -475,7 +522,7 @@ namespace Tiny3D
 
     inline void Pass::setLightEnabled(bool enabled)
     {
-
+        mLightingEnabled = enabled;
     }
 
     //--------------------------------------------------------------------------
@@ -489,7 +536,7 @@ namespace Tiny3D
 
     inline void Pass::setNormalizeNormalsEnabled(bool enabled)
     {
-
+        mNormalizeNormals = enabled;
     }
 
     //--------------------------------------------------------------------------
@@ -503,7 +550,7 @@ namespace Tiny3D
 
     inline void Pass::setTransparentSortingEnabled(bool enabled)
     {
-
+        mTransparentSorting = enabled;
     }
 
     //--------------------------------------------------------------------------
@@ -517,21 +564,47 @@ namespace Tiny3D
 
     inline void Pass::setTransparentSortingForced(bool enabled)
     {
-
+        mTransparentSortingForced = enabled;
     }
 
     //--------------------------------------------------------------------------
 
     inline bool Pass::isColorWriteEnabled() const
     {
-        return mColorWrite;
+        return (mBlendState.writeR || mBlendState.writeG || mBlendState.writeB
+            || mBlendState.writeA);//mColorWrite;
     }
 
     //--------------------------------------------------------------------------
 
     inline void Pass::setColorWriteEnabled(bool enabled)
     {
+        mBlendState.writeR = enabled;
+        mBlendState.writeG = enabled;
+        mBlendState.writeB = enabled;
+        mBlendState.writeA = enabled;
+    }
 
+    //--------------------------------------------------------------------------
+
+    inline void Pass::isColorWriteEnabled(bool &red, bool &green, bool &blue, 
+        bool &alpha)
+    {
+        red = mBlendState.writeR;
+        green = mBlendState.writeG;
+        blue = mBlendState.writeB;
+        alpha = mBlendState.writeA;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void Pass::setColorWriteEnabled(bool red, bool green, bool blue,
+        bool alpha)
+    {
+        mBlendState.writeR = red;
+        mBlendState.writeG = green;
+        mBlendState.writeB = blue;
+        mBlendState.writeA = alpha;
     }
 
     //--------------------------------------------------------------------------
@@ -543,9 +616,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void Pass::setPolygonModeOverrideable(bool overrideable)
+    inline void Pass::setPolygonModeOverrideable(bool enabled)
     {
-
+        mPolygonModeOverrideable = enabled;
     }
 
     //--------------------------------------------------------------------------
@@ -559,7 +632,7 @@ namespace Tiny3D
 
     inline void Pass::setCullingMode(CullingMode mode)
     {
-
+        mCullMode = mode;
     }
 
     //--------------------------------------------------------------------------
@@ -573,7 +646,7 @@ namespace Tiny3D
 
     inline void Pass::setManualCullingMode(ManualCullingMode mode)
     {
-
+        mManualCullMode = mode;
     }
 
     //--------------------------------------------------------------------------
@@ -587,7 +660,7 @@ namespace Tiny3D
 
     inline void Pass::setIlluminationStage(IlluminationStage stage)
     {
-
+        mIlluminationStage = stage;
     }
 
     //--------------------------------------------------------------------------
@@ -601,7 +674,7 @@ namespace Tiny3D
 
     inline void Pass::setShadingMode(ShadingMode mode)
     {
-
+        mShadingMode = mode;
     }
 
     //--------------------------------------------------------------------------
@@ -615,7 +688,7 @@ namespace Tiny3D
 
     inline void Pass::setPolygonMode(PolygonMode mode)
     {
-
+        mPolygonMode = mode;
     }
 
     //--------------------------------------------------------------------------
@@ -666,7 +739,15 @@ namespace Tiny3D
         const ColorRGBA &color/* = ColorRGBA::WHITE*/, Real density/* = 0.001f*/,
         Real linearStart/* = 0.0f*/, Real linearEnd/* = 1.0f*/)
     {
-
+        mFogOverride = overrideable;
+        if (overrideable)
+        {
+            mFogMode = mode;
+            mFogColor = color;
+            mFogDensity = density;
+            mFogStart = linearStart;
+            mFogEnd = linearEnd;
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -680,7 +761,7 @@ namespace Tiny3D
 
     inline void Pass::setStartLight(uint16_t startLight)
     {
-
+        mStartLight = startLight;
     }
 
     //--------------------------------------------------------------------------
@@ -694,7 +775,7 @@ namespace Tiny3D
 
     inline void Pass::setLightCountPerIteration(uint16_t val)
     {
-
+        mLightsPerIteration = val;
     }
 
     //--------------------------------------------------------------------------
@@ -724,7 +805,9 @@ namespace Tiny3D
         bool onlyForOneLightType/* = true*/,
         SceneLight::LightType lightType/* = SceneLight::LightType::E_LT_POINT*/)
     {
-
+        mIteratePerLight = enabled;
+        mRunOnlyForOneLightType = onlyForOneLightType;
+        mOnlyLightType = lightType;
     }
 
     //--------------------------------------------------------------------------
@@ -738,7 +821,11 @@ namespace Tiny3D
 
     inline void Pass::setPointSpritesEnabled(bool enabled)
     {
+        RendererCapabilitiesPtr caps = T3D_AGENT.getActiveRenderer()->getRendererCapabilities();
+        if (!caps->hasCapabilities(Capabilities::POINT_SPRITES))
+            return;
 
+        mPointSpritesEnabled = enabled;
     }
 
     //--------------------------------------------------------------------------
@@ -752,7 +839,7 @@ namespace Tiny3D
 
     inline void Pass::setPointSize(Real val)
     {
-
+        mPointSize = val;
     }
 
     //--------------------------------------------------------------------------
@@ -788,7 +875,10 @@ namespace Tiny3D
     inline void Pass::setPointAttenuation(bool enabled, Real constant/* = 0.0f*/,
         Real linear/* = 1.0f*/, Real quadratic/* = 0.0f*/)
     {
-
+        mPointAttenuationEnabled = enabled;
+        mPointAttenuationCoeffs[0] = enabled ? constant : 1.0f;
+        mPointAttenuationCoeffs[1] = enabled ? linear : 0.0f;
+        mPointAttenuationCoeffs[2] = enabled ? quadratic : 0.0f;
     }
 
     //--------------------------------------------------------------------------
@@ -802,7 +892,7 @@ namespace Tiny3D
 
     inline void Pass::setPointMinSize(Real val)
     {
-
+        mPointMinSize = val;
     }
 
     //--------------------------------------------------------------------------
@@ -816,6 +906,6 @@ namespace Tiny3D
 
     inline void Pass::setPointMaxSize(Real val)
     {
-
+        mPointMaxSize = val;
     }
 }

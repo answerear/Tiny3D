@@ -177,6 +177,43 @@ namespace Tiny3D
         MIN,                 /// 
         MAX
     };
+
+    struct T3D_ENGINE_API BlendState
+    {
+        bool    writeR;
+        bool    writeG;
+        bool    writeB;
+        bool    writeA;
+
+        BlendFactor sourceFactor;
+        BlendFactor destFactor;
+        BlendFactor sourceFactorAlpha;
+        BlendFactor destFactorAlpha;
+
+        BlendOperation  operation;
+        BlendOperation  alphaOperation;
+
+        BlendState()
+            : writeR(true)
+            , writeG(true)
+            , writeB(true)
+            , writeA(true)
+            , sourceFactor(BlendFactor::ONE)
+            , destFactor(BlendFactor::ZERO)
+            , sourceFactorAlpha(BlendFactor::ONE)
+            , destFactorAlpha(BlendFactor::ZERO)
+            , operation(BlendOperation::ADD)
+            , alphaOperation(BlendOperation::ADD)
+        {}
+
+        bool isBlendingEnabled() const
+        {
+            return !(sourceFactor == BlendFactor::ONE
+                && destFactor == BlendFactor::ZERO
+                && sourceFactorAlpha == BlendFactor::ONE
+                && destFactorAlpha == BlendFactor::ZERO);
+        }
+    };
 }
 
 
