@@ -435,7 +435,7 @@ namespace Tiny3D
 
         FogMode toFogMode(uint16_t mode) const;
 
-        SceneLight::LightType toLightType(uint16_t type) const;
+        LightType toLightType(uint16_t type) const;
 
     protected:
         char    *mText;     /**< 用于存放读取字符串，避免重复申请内存，只在不够的时候动态扩展大小 */

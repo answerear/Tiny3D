@@ -514,7 +514,8 @@ namespace Tiny3D
                 pass->setSceneBlending(src, dst);
             }
             else if (op0 == E_OP_ADD || op0 == E_OP_MODULATE
-                || op0 == E_OP_COLOUR_BLEND || op0 == E_OP_ALPHA_BLEND)
+                || op0 == E_OP_COLOUR_BLEND || op0 == E_OP_ALPHA_BLEND
+                || op0 == E_OP_REPLACE)
             {
                 BlendType bt = toBlendType(op0);
                 pass->setSceneBlending(bt);
@@ -1010,7 +1011,7 @@ namespace Tiny3D
 
             if (val == 0 || val == 1)
             {
-                bool enabled = (bool)val;
+                bool enabled = (val == 1);
                 pass->setTransparentSortingEnabled(enabled);
                 pass->setTransparentSortingForced(false);
             }
@@ -1563,7 +1564,7 @@ namespace Tiny3D
                     case E_OP_DIRECTIONAL:
                     case E_OP_SPOT:
                         {
-                            SceneLight::LightType lt = toLightType(type);
+                            LightType lt = toLightType(type);
                             pass->setIteratePerLight(true, true, lt);
                         }
                         break;
@@ -1619,7 +1620,7 @@ namespace Tiny3D
                         case E_OP_DIRECTIONAL:
                         case E_OP_SPOT:
                             {
-                                SceneLight::LightType lt = toLightType(type);
+                                LightType lt = toLightType(type);
                                 pass->setIteratePerLight(true, true, lt);
                             }
                             break;
@@ -1673,7 +1674,7 @@ namespace Tiny3D
                         case E_OP_DIRECTIONAL:
                         case E_OP_SPOT:
                             {
-                                SceneLight::LightType lt = toLightType(type);
+                                LightType lt = toLightType(type);
                                 pass->setIteratePerLight(true, true, lt);
                             }
                             break;

@@ -28,7 +28,6 @@
 #include "Kernel/T3DAgent.h"
 #include "Kernel/T3DBlendMode.h"
 #include "Kernel/T3DCommon.h"
-#include "Scene/T3DSceneLight.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUConstBuffer.h"
 #include "Render/T3DRenderer.h"
@@ -445,14 +444,14 @@ namespace Tiny3D
 
         void setLightCountPerIteration(uint16_t val);
 
-        SceneLight::LightType getOnlyLightType() const;
+        LightType getOnlyLightType() const;
 
         bool isIteratePerLight() const;
 
         bool isRunOnlyForOneLightType() const;
 
         void setIteratePerLight(bool enabled, bool onlyForOneLightType = true,
-            SceneLight::LightType lightType = SceneLight::LightType::E_LT_POINT);
+            LightType lightType = LightType::POINT);
 
         bool isPointSpritesEnabled() const;
 
@@ -697,7 +696,7 @@ namespace Tiny3D
         //  #2 iteration <number> [per_light> [lightType]]
         //  #3 iteration <number> [<per_n_lights> <num_lights> [lightType]]
         uint16_t                mLightsPerIteration;
-        SceneLight::LightType   mOnlyLightType;
+        LightType               mOnlyLightType;
         bool                    mIteratePerLight;
         bool                    mRunOnlyForOneLightType;
 

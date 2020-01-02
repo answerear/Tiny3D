@@ -794,7 +794,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline SceneLight::LightType Pass::getOnlyLightType() const
+    inline LightType Pass::getOnlyLightType() const
     {
         return mOnlyLightType;
     }
@@ -817,7 +817,7 @@ namespace Tiny3D
 
     inline void Pass::setIteratePerLight(bool enabled, 
         bool onlyForOneLightType/* = true*/,
-        SceneLight::LightType lightType/* = SceneLight::LightType::E_LT_POINT*/)
+        LightType lightType/* = LightType::E_LT_POINT*/)
     {
         mIteratePerLight = enabled;
         mRunOnlyForOneLightType = onlyForOneLightType;

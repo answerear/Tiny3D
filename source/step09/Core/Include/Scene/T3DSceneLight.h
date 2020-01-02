@@ -30,13 +30,6 @@ namespace Tiny3D
     class T3D_ENGINE_API SceneLight : public SceneTransform3D
     {
     public:
-        enum LightType
-        {
-            E_LT_POINT = 0,
-            E_LT_DIRECTIONAL,
-            E_LT_SPOTLIGHT
-        };
-
         static SceneLightPtr create(ID uID = E_NID_AUTOMATIC);
 
         virtual ~SceneLight();

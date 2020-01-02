@@ -215,6 +215,12 @@ namespace Tiny3D
         case E_OP_COLOUR_BLEND:
             bt = BlendType::TRANSPARENT_COLOR;
             break;
+        case E_OP_ALPHA_BLEND:
+            bt = BlendType::TRANSPARENT_ALPHA;
+            break;
+        case E_OP_REPLACE:
+            bt = BlendType::REPLACE;
+            break;
         }
 
         return bt;
@@ -223,60 +229,246 @@ namespace Tiny3D
     BlendFactor ScriptParserBase::toBlendFactor(uint16_t factor) const
     {
         BlendFactor bf;
+
+        switch (factor)
+        {
+        case E_OP_ONE:
+            bf = BlendFactor::ONE;
+            break;
+        case E_OP_ZERO:
+            bf = BlendFactor::ZERO;
+            break;
+        case E_OP_DEST_COLOUR:
+            bf = BlendFactor::DEST_COLOR;
+            break;
+        case E_OP_SRC_COLOUR:
+            bf = BlendFactor::SOURCE_COLOR;
+            break;
+        case E_OP_ONE_MINUS_DEST_COLOUR:
+            bf = BlendFactor::DEST_COLOR;
+            break;
+        case E_OP_ONE_MINUS_SRC_COLOUR:
+            bf = BlendFactor::ONE_MINUS_SOURCE_COLOR;
+            break;
+        case E_OP_DEST_ALPHA:
+            bf = BlendFactor::DEST_ALPHA;
+            break;
+        case E_OP_SRC_ALPHA:
+            bf = BlendFactor::SOURCE_ALPHA;
+            break;
+        case E_OP_ONE_MINUS_DEST_ALPHA:
+            bf = BlendFactor::ONE_MINUS_DEST_ALPHA;
+            break;
+        case E_OP_ONE_MINUS_SRC_ALPHA:
+            bf = BlendFactor::ONE_MINUS_SOURCE_ALPHA;
+            break;
+        }
+
         return bf;
     }
 
     BlendOperation ScriptParserBase::toBlendOperation(uint16_t op) const
     {
         BlendOperation bo;
+
+        switch (op)
+        {
+        case E_OP_ADD:
+            bo = BlendOperation::ADD;
+            break;
+        case E_OP_SUBTRACT:
+            bo = BlendOperation::SUBTRACT;
+            break;
+        case E_OP_REVERSE_SUBTRACT:
+            bo = BlendOperation::REVERSE_SUBTRACT;
+            break;
+        case E_OP_MIN:
+            bo = BlendOperation::MIN;
+            break;
+        case E_OP_MAX:
+            bo = BlendOperation::MAX;
+            break;
+        }
+
         return bo;
     }
 
     CompareFunction ScriptParserBase::toCompareFunction(uint16_t func) const
     {
         CompareFunction cf;
+
+        switch (func)
+        {
+        case E_OP_ALWAYS_FAIL:
+            cf = CompareFunction::ALWAYS_FAIL;
+            break;
+        case E_OP_ALWAYS_PASS:
+            cf = CompareFunction::ALWAYS_PASS;
+            break;
+        case E_OP_LESS:
+            cf = CompareFunction::LESS;
+            break;
+        case E_OP_LESS_EQUAL:
+            cf = CompareFunction::LESS_EQUAL;
+            break;
+        case E_OP_EQUAL:
+            cf = CompareFunction::EQUAL;
+            break;
+        case E_OP_NOT_EQUAL:
+            cf = CompareFunction::NOT_EQUAL;
+            break;
+        case E_OP_GREATER_EQUAL:
+            cf = CompareFunction::GREATER_EQUAL;
+            break;
+        case E_OP_GREATER:
+            cf = CompareFunction::GREATER;
+            break;
+        }
+
         return cf;
     }
 
     IlluminationStage ScriptParserBase::toIlluminationStage(uint16_t stage) const
     {
         IlluminationStage is;
+
+        switch (stage)
+        {
+        case E_OP_AMBIENT:
+            is = IlluminationStage::AMBIENT;
+            break;
+        case E_OP_PER_LIGHT:
+            is = IlluminationStage::PER_LIGHT;
+            break;
+        case E_OP_DECAL:
+            is = IlluminationStage::DECAL;
+            break;
+        default:
+            is = IlluminationStage::UNKNOWN;
+        }
+
         return is;
     }
 
     CullingMode ScriptParserBase::toCullingMode(uint16_t mode) const
     {
         CullingMode cm;
+
+        switch (mode)
+        {
+        case E_OP_CLOCKWISE:
+            cm = CullingMode::CLOCKWISE;
+            break;
+        case E_OP_ANTICLOCKWISE:
+            cm = CullingMode::ANTICLOCKWISE;
+            break;
+        case E_OP_NONE:
+            cm = CullingMode::NONE;
+            break;
+        }
+
         return cm;
     }
 
     ManualCullingMode ScriptParserBase::toManualCullingMode(uint16_t mode) const
     {
         ManualCullingMode cm;
+
+        switch (mode)
+        {
+        case E_OP_FRONT:
+            cm = ManualCullingMode::FRONT;
+            break;
+        case E_OP_BACK:
+            cm = ManualCullingMode::BACK;
+            break;
+        case E_OP_NONE:
+            cm = ManualCullingMode::NONE;
+            break;
+        }
+
         return cm;
     }
 
     ShadingMode ScriptParserBase::toShadingMode(uint16_t mode) const
     {
         ShadingMode sm;
+
+        switch (mode)
+        {
+        case E_OP_FLAT:
+            sm = ShadingMode::FLAT;
+            break;
+        case E_OP_GOURAUD:
+            sm = ShadingMode::GOURAUD;
+            break;
+        case E_OP_PHONG:
+            sm = ShadingMode::PHONG;
+        }
+
         return sm;
     }
 
     PolygonMode ScriptParserBase::toPolygonMode(uint16_t mode) const
     {
         PolygonMode pm;
+
+        switch (mode)
+        {
+        case E_OP_SOLID:
+            pm = PolygonMode::SOLID;
+            break;
+        case E_OP_POINTS:
+            pm = PolygonMode::POINT;
+            break;
+        case E_OP_WIREFRAME:
+            pm = PolygonMode::WIREFRAME;
+            break;
+        }
+
         return pm;
     }
 
     FogMode ScriptParserBase::toFogMode(uint16_t mode) const
     {
         FogMode fm;
+
+        switch (mode)
+        {
+        case E_OP_NONE:
+            fm = FogMode::NONE;
+            break;
+        case E_OP_LINEAR:
+            fm = FogMode::LINEAR;
+            break;
+        case E_OP_EXP:
+            fm = FogMode::EXP;
+            break;
+        case E_OP_EXP2:
+            fm = FogMode::EXP2;
+            break;
+        }
+
         return fm;
     }
 
-    SceneLight::LightType ScriptParserBase::toLightType(uint16_t type) const
+    LightType ScriptParserBase::toLightType(uint16_t type) const
     {
-        SceneLight::LightType lt;
+        LightType lt;
+
+        switch (type)
+        {
+        case E_OP_POINT:
+            lt = LightType::POINT;
+            break;
+        case E_OP_DIRECTIONAL:
+            lt = LightType::DIRECTIONAL;
+            break;
+        case E_OP_SPOT:
+            lt = LightType::SPOTLIGHT;
+            break;
+        }
+
         return lt;
     }
 }

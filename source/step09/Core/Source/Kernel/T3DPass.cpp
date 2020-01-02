@@ -76,7 +76,7 @@ namespace Tiny3D
         , mStartLight(0)
         , mMaxLights(T3D_MAX_SIMULTANEOUS_LIGHTS)
         , mLightsPerIteration(1)
-        , mOnlyLightType(SceneLight::E_LT_POINT)
+        , mOnlyLightType(LightType::POINT)
         , mIteratePerLight(false)
         , mRunOnlyForOneLightType(false)
         , mPointSpritesEnabled(false)
@@ -175,8 +175,6 @@ namespace Tiny3D
             dest = BlendFactor::ZERO;
             return;
         }
-
-        // Default to BlendType::REPLACE
 
         source = BlendFactor::ONE;
         dest = BlendFactor::ZERO;

@@ -28,6 +28,13 @@
 
 namespace Tiny3D
 {
+    enum class LightType : uint32_t
+    {
+        POINT = 0,
+        DIRECTIONAL,
+        SPOTLIGHT
+    };
+
     /**
      * @brief 比较函数，用于深度缓冲测试和模板缓冲测试
      */
