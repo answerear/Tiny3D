@@ -117,6 +117,13 @@ namespace Tiny3D
          * @returns 返回 D3D11 对应的映射标签.
          */
         static D3D11_MAP get(HardwareBuffer::LockOptions options);
+
+        /**
+         * @brief   把 Tiny3D 纹理格式转换成 D3D11 对应的值
+         * @param [in]  format  Tiny3D 纹理格式.
+         * @returns 返回 D3D11 对应的纹理格式.
+         */
+        static DXGI_FORMAT get(PixelFormat format);
     };
 }
 

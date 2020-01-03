@@ -338,5 +338,40 @@ namespace Tiny3D
 
         return d3dOpt;
     }
+
+    //--------------------------------------------------------------------------
+
+    DXGI_FORMAT D3D11Mappings::get(PixelFormat format)
+    {
+        DXGI_FORMAT fmt;
+
+        switch (format)
+        {
+        case PixelFormat::E_PF_PALETTE8:
+            
+            break;
+        case PixelFormat::E_PF_R5G6B5:
+
+            break;
+        case PixelFormat::E_PF_A1R5G5B5:
+            break;
+        case PixelFormat::E_PF_A4R4G4B4:
+            break;
+        case PixelFormat::E_PF_R8G8B8:
+            break;
+        case PixelFormat::E_PF_B8G8R8:
+            break;
+        case PixelFormat::E_PF_A8R8G8B8:
+            break;
+        case PixelFormat::E_PF_B8G8R8A8:
+            break;
+        case PixelFormat::E_PF_X8R8G8B8:
+            break;
+        case PixelFormat::E_PF_B8G8R8X8:
+            break;
+        }
+
+        return fmt;
+    }
 }
 

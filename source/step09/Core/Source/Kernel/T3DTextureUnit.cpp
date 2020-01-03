@@ -20,6 +20,8 @@
 
 #include "Kernel/T3DTextureUnit.h"
 #include "Kernel/T3DPass.h"
+#include "Resource/T3DTexture.h"
+#include "Resource/T3DTextureManager.h"
 
 
 namespace Tiny3D
@@ -38,6 +40,7 @@ namespace Tiny3D
     TextureUnit::TextureUnit(const String &name, Pass *pass)
         : mParent(pass)
         , mName(name)
+        , mCurrentFrame(0)
     {
 
     }
@@ -47,5 +50,38 @@ namespace Tiny3D
     TextureUnit::~TextureUnit()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    const String &TextureUnit::getTextureName() const
+    {
+        if (mCurrentFrame < mFrames.size() && mFrames[mCurrentFrame] != nullptr)
+        {
+            return mFrames[mCurrentFrame]->getName();
+        }
+
+        return BLANKSTRING;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void TextureUnit::setTextureName(const String &name)
+    {
+        do 
+        {
+            TexturePtr texture = T3D_TEXTURE_MGR.loadTexture(name);
+            if (texture == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Load texture [%s] for texture unit failed !", 
+                    name.c_str());
+                break;
+            }
+
+            mFrames.resize(1);
+            mFrames[0] = texture;
+            mCurrentFrame = 0;
+        } while (0);
     }
 }

@@ -11,10 +11,10 @@ message(STATUS "Generating project : ${BIN_NAME}")
 
 
 if (MSVC)
-	# Add definition only for Windows.
-	if (TINY3D_BUILD_SHARED_LIBS)
-		add_definitions(-D${LIB_NAME_TOUPPER}_EXPORT -D_USRDLL)
-	endif (TINY3D_BUILD_SHARED_LIBS)
+    # Add definition only for Windows.
+    if (TINY3D_BUILD_SHARED_LIBS)
+        add_definitions(-D${LIB_NAME_TOUPPER}_EXPORT -D_USRDLL)
+    endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
 
@@ -32,7 +32,7 @@ include_directories(
     "${TINY3D_PLATFORM_DIR}/Include"
     "${TINY3D_MATH_DIR}/Include"
     "${TINY3D_LOG_DIR}/Include"
-	"${TINY3D_UTILS_DIR}/Include"
+    "${TINY3D_UTILS_DIR}/Include"
     "${TINY3D_FRAMEWORK_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source"
@@ -97,7 +97,7 @@ if (TINY3D_OS_WINDOWS)
             ${LIB_NAME}
             LINK_PRIVATE T3DPlatform
             LINK_PRIVATE T3DLog
-			LINK_PRIVATE T3DUtils
+            LINK_PRIVATE T3DUtils
             LINK_PRIVATE T3DFramework
             LINK_PRIVATE T3DMath
             LINK_PRIVATE legacy_stdio_definitions
@@ -110,7 +110,7 @@ if (TINY3D_OS_WINDOWS)
             ${LIB_NAME}
             LINK_PRIVATE T3DPlatform
             LINK_PRIVATE T3DLog
-			LINK_PRIVATE T3DUtils
+            LINK_PRIVATE T3DUtils
             LINK_PRIVATE T3DFramework
             LINK_PRIVATE T3DMath
             LINK_PRIVATE ${SDL2_LIBRARY}
@@ -154,12 +154,16 @@ if (TINY3D_OS_WINDOWS)
         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Windows/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Tiny3D.cfg
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/icon
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/icon
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/scripts
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/scripts
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/scripts
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/textures
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/textures
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/icon ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/icon
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/icon ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/icon
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/scripts ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/scripts
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/scripts ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/scripts
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/scripts ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/scripts
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/textures ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/textures
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/textures ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/textures
         )
 elseif (TINY3D_OS_MACOSX)
     # Mac OS X
@@ -168,7 +172,7 @@ elseif (TINY3D_OS_MACOSX)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
-		LINK_PRIVATE T3DUtils
+        LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DMath
         LINK_PRIVATE ${SDL2_LIBRARY}
@@ -181,7 +185,7 @@ elseif (TINY3D_OS_LINUX)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
-		LINK_PRIVATE T3DUtils
+        LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DMath
         LINK_PRIVATE ${SDL2_LIBRARY}
@@ -194,10 +198,13 @@ elseif (TINY3D_OS_LINUX)
         COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/lib${BIN_NAME}.so" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lib${BIN_NAME}.so"
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/icon
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/icon
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/scripts
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/scripts
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/scripts
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/textures
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/textures
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/icon ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets/icon
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/scripts ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets/scripts
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/scripts ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets/scripts
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets/textures ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets/textures
         )
 elseif (TINY3D_OS_IOS)
     # iOS
@@ -213,7 +220,7 @@ elseif (TINY3D_OS_IOS)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
-		LINK_PRIVATE T3DUtils
+        LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DMath
         )
@@ -223,7 +230,7 @@ elseif (TINY3D_OS_ANDROID)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
-		LINK_PRIVATE T3DUtils
+        LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DMath
         LINK_PRIVATE ${SDL2_BINARY}
@@ -237,8 +244,10 @@ elseif (TINY3D_OS_ANDROID)
         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Android/Tiny3D.cfg ${ANDROID_ASSETS_DIR}/Tiny3D.cfg
         COMMAND ${CMAKE_COMMAND} -E make_directory ${ANDROID_ASSETS_DIR}/icon
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../Assets/Icon ${ANDROID_ASSETS_DIR}/icon
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${ANDROID_ASSETS_DIR}/scripts
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PORJECT_SOURCE_DIR}/../../Assets/scripts ${ANDROID_ASSETS_DIR}/scripts
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${ANDROID_ASSETS_DIR}/scripts
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PORJECT_SOURCE_DIR}/../../Assets/scripts ${ANDROID_ASSETS_DIR}/scripts
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${ANDROID_ASSETS_DIR}/textures
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PORJECT_SOURCE_DIR}/../../Assets/textures ${ANDROID_ASSETS_DIR}/textures
     #   COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Tiny3D.cfg
     #   #COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../assets
         )

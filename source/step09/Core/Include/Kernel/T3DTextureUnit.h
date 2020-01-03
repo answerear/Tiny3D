@@ -134,6 +134,10 @@ namespace Tiny3D
 
         const String &getName() const;
 
+        const String &getTextureName() const;
+
+        void setTextureName(const String &name);
+
     protected:
         /** 构造函数 */
         TextureUnit(const String &name, Pass *pass);
@@ -142,6 +146,10 @@ namespace Tiny3D
         typedef EffectMap::iterator                     EffectMapItr;
         typedef EffectMap::const_iterator               EffectMapConstItr;
         typedef EffectMap::value_type                   EffectMapValue;
+
+        typedef TArray<TexturePtr>                      Textures;
+        typedef Textures::iterator                      TexturesItr;
+        typedef Textures::const_iterator                TexturesConstItr;
 
         Pass        *mParent;           /// 当前纹理单元所属的pass对象
 
@@ -171,7 +179,8 @@ namespace Tiny3D
         //  #2 anim_texture <frame1> <frame2> ... <duration>
         uint16_t    mCurrentFrame;      /// 当前帧计数
         Real        mAnimDuration;      /// 动画持续时长
-        StringArray mFrames;
+//         StringArray mFrames;
+        Textures    mFrames;
 
         //---------------------------------------
         // Command : cubic_texture

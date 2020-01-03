@@ -29,10 +29,10 @@ namespace Tiny3D
 
     D3D11HardwarePixelBufferPtr D3D11HardwarePixelBuffer::create(size_t width,
         size_t height, PixelFormat format, const void *pixels, Usage usage, 
-        uint32_t mode)
+        uint32_t mode, size_t mipmaps)
     {
         D3D11HardwarePixelBufferPtr pb = new D3D11HardwarePixelBuffer(width, 
-            height, format, usage, mode);
+            height, format, usage, mode, mipmaps);
         pb->release();
 
         if (pb->init(pixels) != T3D_OK)
@@ -46,8 +46,9 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     D3D11HardwarePixelBuffer::D3D11HardwarePixelBuffer(size_t width,
-        size_t height, PixelFormat format, Usage usage, uint32_t mode)
-        : HardwarePixelBuffer(width, height, format, usage, mode)
+        size_t height, PixelFormat format, Usage usage, uint32_t mode, 
+        size_t mipmaps)
+        : HardwarePixelBuffer(width, height, format, usage, mode, mipmaps)
     {
     }
 
@@ -65,7 +66,12 @@ namespace Tiny3D
 
         do 
         {
-            
+            D3D11_TEXTURE2D_DESC desc;
+            desc.Width = mWidth;
+            desc.Height = mHeight;
+            desc.MipLevels = mMipmaps;
+            desc.ArraySize = 1;
+            desc.Format = D3D11Mappings::get(mFormat);
         } while (0);
 
         return ret;

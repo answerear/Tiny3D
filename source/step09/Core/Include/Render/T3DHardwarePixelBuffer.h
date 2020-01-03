@@ -140,6 +140,12 @@ namespace Tiny3D
         size_t getPitch() const { return mPitch; }
 
         /**
+         * @brief   获取像素缓冲区的 mipmaps 级别数
+         * @returns 返回像素缓冲区的 mipmaps 级别数
+         */
+        size_t getMipmaps() const { return mMipmaps; }
+
+        /**
          * @fn  PixelFormat HardwarePixelBuffer::getFormat() const
          * @brief   获取像素缓冲区的像素格式
          * @returns 返回像素缓冲区的像素格式.
@@ -158,7 +164,7 @@ namespace Tiny3D
          * @param [in]  mode    缓冲区访问方式.
          */
         HardwarePixelBuffer(size_t width, size_t height, PixelFormat format,
-            Usage usage, uint32_t mode);
+            Usage usage, uint32_t mode, size_t mipmaps);
 
     private:
         /**
@@ -229,6 +235,7 @@ namespace Tiny3D
         size_t      mWidth;     /**< 像素缓冲区的宽度 */
         size_t      mHeight;    /**< 像素缓冲区的高度 */
         size_t      mPitch;     /**< 像素缓冲区的行跨度 */
+        size_t      mMipmaps;   /**< mipmaps level */
         PixelFormat mFormat;    /**< 像素缓冲区的格式 */
     };
 }

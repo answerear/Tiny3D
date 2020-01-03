@@ -320,7 +320,7 @@ namespace Tiny3D
                 if (ret != T3D_OK)
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                        "Read the number of texture failed !");
+                        "Read the name of texture failed !");
                     break;
                 }
 
@@ -371,6 +371,8 @@ namespace Tiny3D
                 {
                     break;
                 }
+
+                unit->setTextureName(name);
             }
             else
             {

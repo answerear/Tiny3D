@@ -116,7 +116,7 @@ namespace Tiny3D
          */
         virtual HardwarePixelBufferPtr createPixelBuffer(size_t width,
             size_t height, PixelFormat format, const void *pixels, 
-            HardwareBuffer::Usage usage, uint32_t mode) override;
+            HardwareBuffer::Usage usage, uint32_t mode, size_t mipmaps) override;
 
         /**
          * @fn  virtual HardwareConstantBufferPtr 

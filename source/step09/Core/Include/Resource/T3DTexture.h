@@ -61,7 +61,7 @@ namespace Tiny3D
         /** 
          * @brief 创建 Texture 对象
          * @param [in] name : 纹理资源名称
-         * @param [in] mpimaps : 纹理的 mipmap 层级数量
+         * @param [in] mipmaps : 纹理的 mipmap 层级数量
          * @param [in] texWidth : 纹理宽度，默认从文件读取
          * @param [in] texHeight : 纹理高度，默认从文件读取
          * @param [in] texUsage : 纹理用途，默认是从图片加载直接用于渲染的
@@ -73,7 +73,8 @@ namespace Tiny3D
          */
         static TexturePtr create(const String &name, size_t mipmaps, 
             size_t texWidth = 0, size_t texHeight = 0, 
-            TexUsage texUsage = E_TU_DEFAULT, TextureType texType = E_TEX_TYPE_2D,
+            TexUsage texUsage = E_TU_DEFAULT, 
+            TextureType texType = E_TEX_TYPE_2D,
             PixelFormat format = PixelFormat::E_PF_A8R8G8B8);
 
         /** 
@@ -164,7 +165,7 @@ namespace Tiny3D
         virtual TResult unload() override;
 
     protected:
-        TextureType                 mTexType;       /**< 纹理类型 */
+        TextureType             mTexType;       /**< 纹理类型 */
         TexUsage                mTexUsage;      /**< 纹理用途 */
 
         size_t                  mMipmaps;       /**< 纹理LOD层数 */

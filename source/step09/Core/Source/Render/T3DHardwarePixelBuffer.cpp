@@ -27,12 +27,13 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     HardwarePixelBuffer::HardwarePixelBuffer(size_t width, size_t height,
-        PixelFormat format, Usage usage, uint32_t mode)
+        PixelFormat format, Usage usage, uint32_t mode, size_t mipmaps)
         : HardwareBuffer(usage, mode)
         , mWidth(width)
         , mHeight(height)
         , mPitch(0)
         , mFormat(format)
+        , mMipmaps(mipmaps)
     {
         size_t bpp = Image::getBPP(mFormat);
         mPitch = Image::calcPitch(mWidth, bpp);

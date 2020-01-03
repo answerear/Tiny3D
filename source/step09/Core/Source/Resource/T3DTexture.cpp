@@ -129,7 +129,7 @@ namespace Tiny3D
                     mTexHeight, mFormat, image.getData(),
                     HardwareBuffer::Usage::DYNAMIC,
                     HardwareBuffer::AccessMode::CPU_READ
-                    | HardwareBuffer::AccessMode::CPU_WRITE);
+                    | HardwareBuffer::AccessMode::CPU_WRITE, 1);
 
                 if (mPBO == nullptr)
                 {
@@ -154,7 +154,7 @@ namespace Tiny3D
                     mTexHeight, mFormat, nullptr, 
                     HardwareBuffer::Usage::DYNAMIC, 
                     HardwareBuffer::AccessMode::CPU_READ
-                    | HardwareBuffer::AccessMode::CPU_WRITE);
+                    | HardwareBuffer::AccessMode::CPU_WRITE, 1);
 
                 if (mPBO == nullptr)
                 {

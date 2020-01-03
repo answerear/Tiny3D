@@ -28,6 +28,8 @@
 
 namespace Tiny3D
 {
+    const String BLANKSTRING;
+
     enum class LightType : uint32_t
     {
         POINT = 0,

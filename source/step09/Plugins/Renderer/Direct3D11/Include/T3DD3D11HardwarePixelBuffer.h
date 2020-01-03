@@ -49,7 +49,8 @@ namespace Tiny3D
          * @returns 返回一个 GPU 像素缓冲区对象.
          */
         static D3D11HardwarePixelBufferPtr create(size_t width, size_t height,
-            PixelFormat format, const void *pixels, Usage usage, uint32_t mode);
+            PixelFormat format, const void *pixels, Usage usage, uint32_t mode,
+            size_t mipmaps);
 
         /**
          * @fn  virtual D3D11HardwarePixelBuffer::~D3D11HardwarePixelBuffer();
@@ -103,7 +104,7 @@ namespace Tiny3D
          * @param [in]  mode    缓冲区访问方式.
          */
         D3D11HardwarePixelBuffer(size_t width, size_t height,
-            PixelFormat format, Usage usage, uint32_t mode);
+            PixelFormat format, Usage usage, uint32_t mode, size_t mipmaps);
 
         /**
          * @fn  virtual TResult D3D11HardwarePixelBuffer::init(

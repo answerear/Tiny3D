@@ -76,10 +76,10 @@ namespace Tiny3D
 
     HardwarePixelBufferPtr D3D11HardwareBufferManager::createPixelBuffer(
         size_t width, size_t height, PixelFormat format, const void *pixels,
-        HardwareBuffer::Usage usage, uint32_t mode)
+        HardwareBuffer::Usage usage, uint32_t mode, size_t mipmaps)
     {
         return D3D11HardwarePixelBuffer::create(width, height, format, pixels, 
-            usage, mode);
+            usage, mode, mipmaps);
     }
 
     //--------------------------------------------------------------------------

@@ -24,6 +24,11 @@ material Builtin/Box
 					slot 2
 				}
 			}
+			
+			texture_unit
+			{
+				texture blocks.png
+			}
 		}
 	}
 }
