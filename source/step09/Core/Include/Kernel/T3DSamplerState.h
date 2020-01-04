@@ -21,13 +21,18 @@
 #ifndef __T3D_SAMPLER_STATE_H__
 #define __T3D_SAMPLER_STATE_H__
 
+
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "T3DObject.h"
+#include "Kernel/T3DObject.h"
+#include "Kernel/T3DCommon.h"
 
 
 namespace Tiny3D
 {
+    /**
+     * @brief 采样状态
+     */
     class T3D_ENGINE_API SamplerState : public Object
     {
     public:
@@ -35,8 +40,52 @@ namespace Tiny3D
 
         virtual ~SamplerState();
 
+        const UVWAddressMode &getAddressMode() const;
+
+        void setAddressMode(const UVWAddressMode &uvw);
+
+        void setAddressMode(TextureAddressMode u, TextureAddressMode v,
+            TextureAddressMode w);
+
+        void setAddressMode(TextureAddressMode mode);
+
+        const ColorRGBA &getBorderColor() const;
+
+        void setBorderColor(const ColorRGBA &color);
+
+        FilterOptions getFilter(FilterType type);
+
+        void setFilter(FilterOptions opt, FilterType type);
+
+        void setFilter(FilterOptions minFilter, FilterOptions magFilter,
+            FilterOptions mipFilter);
+
+        void setFilter(FilterType type);
+
+        CompareFunction getCompareFunction() const;
+
+        void setCompareFunction(CompareFunction func);
+
+        uint32_t getAnisotropy() const;
+
+        void setAnisotropy(uint32_t aniso);
+
+        Real getMipmapBias() const;
+
+        void setMipmapBias(Real bias);
+
     protected:
         SamplerState();
+
+    protected:
+        UVWAddressMode  mAddressMode;
+        ColorRGBA       mBorderColor;
+        FilterOptions   mMinFilter;
+        FilterOptions   mMagFilter;
+        FilterOptions   mMipFilter;
+        CompareFunction mCompareFunc;
+        uint32_t        mAnisotropy;
+        Real            mMipmapBias;
     };
 }
 

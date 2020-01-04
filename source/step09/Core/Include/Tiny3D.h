@@ -40,7 +40,7 @@
 #include <Kernel/T3DTechnique.h>
 #include <Kernel/T3DPass.h>
 #include <Kernel/T3DTextureUnit.h>
-
+#include <Kernel/T3DSamplerState.h>
 
 // Memory
 #include <Memory/T3DSmartPtr.h>

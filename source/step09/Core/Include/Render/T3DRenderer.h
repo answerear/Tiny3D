@@ -48,32 +48,6 @@ namespace Tiny3D
         static const char * const METAL;        /**< Metal 渲染器 */
 
         /**
-         * @enum    Capability
-         * @brief   渲染器能力值
-         */
-        enum Capability : uint32_t
-        {
-            E_CAP_RENDER_TO_TARGET = 0,     /**< 是否支持渲染到 surface */
-            E_CAP_HARDWARE_TRANSFORM,       /**< 是否支持硬件变换 */
-            E_CAP_MULTI_TEXTURE,            /**< 是否支持多重纹理 */
-            E_CAP_MIP_MAP,                  /**< 是否支持 Mipmap */
-            E_CAP_STENCIL_BUFFER,           /**< 是否支持 stencil buffer */
-            E_CAP_VERTEX_SHADER_1_1,        /**< 是否支持 1.1 版本顶点着色器 */
-            E_CAP_VERTEX_SHADER_2_0,        /**< 是否支持 2.0 版本顶点着色器 */
-            E_CAP_VERTEX_SHADER_3_0,        /**< 是否支持 3.0 版本顶点着色器 */
-            E_CAP_PIXEL_SHADER_1_1,         /**< 是否支持 1.1 版本片段着色器 */
-            E_CAP_PIXEL_SHADER_1_2,         /**< 是否支持 1.2 版本片段着色器 */
-            E_CAP_PIXEL_SHADER_1_3,         /**< 是否支持 1.3 版本片段着色器 */
-            E_CAP_PIXEL_SHADER_1_4,         /**< 是否支持 1.4 版本片段着色器 */
-            E_CAP_PIXEL_SHADER_2_0,         /**< 是否支持 2.0 版本片段着色器 */
-            E_CAP_PIXEL_SHADER_3_0,         /**< 是否支持 3.0 版本片段着色器 */
-            E_CAP_TEXTURE_NSQUARE,          /**< 是否支持非正方形纹理 */
-            E_CAP_TEXTURE_NPOT,             /**< 是否支持非 2 次幂纹理 */
-            E_CAP_FRAMEBUFFER,              /**< 是否支持帧缓冲 */
-            E_CAP_MAX
-        };
-
-        /**
          * @enum    TransformState
          * @brief   设置变换矩阵状态
          */

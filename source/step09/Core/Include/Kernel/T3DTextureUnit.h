@@ -35,15 +35,6 @@ namespace Tiny3D
     class T3D_ENGINE_API TextureUnit : public Object
     {
     public:
-        enum class TextureAddressMode : uint32_t
-        {
-            UNKNOWN = 0,
-            WRAP,
-            MIRROR,
-            CLAMP,
-            BORDER,
-        };
-
         /**
          * @brief 描述纹理绑定到渲染流水线中可编程流水线阶段上
          */
@@ -106,11 +97,6 @@ namespace Tiny3D
             RIGHT,
             UP,
             DOWN
-        };
-
-        struct UVWAddressMode
-        {
-            TextureAddressMode u, v, w;
         };
 
         struct TextureEffect

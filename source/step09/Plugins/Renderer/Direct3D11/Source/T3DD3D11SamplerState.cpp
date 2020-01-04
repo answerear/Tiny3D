@@ -18,16 +18,31 @@
  ******************************************************************************/
 
 
-#include "Render/T3DHardwareSamplerState.h"
+#include "T3DD3D11SamplerState.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    HardwareSamplerState::~HardwareSamplerState()
+    D3D11SamplerStatePtr D3D11SamplerState::create()
+    {
+        D3D11SamplerStatePtr sampler = new D3D11SamplerState();
+        sampler->release();
+        return sampler;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11SamplerState::D3D11SamplerState()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11SamplerState::~D3D11SamplerState()
     {
 
     }
 }
-

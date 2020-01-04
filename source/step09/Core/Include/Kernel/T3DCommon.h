@@ -130,6 +130,20 @@ namespace Tiny3D
         ANISOTROPIC
     };
 
+    enum class TextureAddressMode : uint32_t
+    {
+        UNKNOWN = 0,
+        WRAP,
+        MIRROR,
+        CLAMP,
+        BORDER,
+    };
+
+    struct UVWAddressMode
+    {
+        TextureAddressMode u, v, w;
+    };
+
     enum class WaveformType : uint32_t
     {
         SINE,

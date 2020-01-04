@@ -18,26 +18,26 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_HARDWARE_SAMPLER_STATE_H__
-#define __T3D_HARDWARE_SAMPLER_STATE_H__
+#ifndef __T3D_D3D11_SAMPLER_STATE_H__
+#define __T3D_D3D11_SAMPLER_STATE_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
-#include "Kernel/T3DObject.h"
+#include "T3DD3D11Prerequisites.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * @brief 硬件采样状态
-     */
-    class T3D_ENGINE_API HardwareSamplerState : public Object
+    class D3D11SamplerState : public SamplerState
     {
+    public:
+        static D3D11SamplerStatePtr create();
+
+        virtual ~D3D11SamplerState();
+
     protected:
-        virtual ~HardwareSamplerState();
+        D3D11SamplerState();
     };
 }
 
 
-#endif  /*__T3D_HARDWARE_SAMPLER_STATE_H__*/
+#endif  /*__T3D_D3D11_SAMPLER_STATE_H__*/
