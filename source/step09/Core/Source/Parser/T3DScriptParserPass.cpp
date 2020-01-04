@@ -84,6 +84,12 @@ namespace Tiny3D
                 name = generateName("Pass");
             }
 
+            // MD5
+            uint8_t hash[16];
+            bytesOfRead = stream.read(hash, sizeof(hash));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, 16,
+                "Read hash of pass failed !");
+
             PassPtr pass;
             ret = tech->addPass(name, pass);
             if (ret != T3D_OK)

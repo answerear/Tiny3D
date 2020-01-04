@@ -71,6 +71,23 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
+            if (ret != T3D_OK)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read the name of sampler failed !");
+                break;
+            }
+
+            if (name.empty())
+            {
+                name = generateName("Sampler");
+            }
+
+            // MD5
+            uint8_t hash[16];
+            bytesOfRead = stream.read(hash, sizeof(hash));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, 16,
+                "Read hash of sampler failed !");
 
             uint16_t type = UNKNOWN;
             uint16_t i = 0;

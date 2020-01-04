@@ -95,6 +95,12 @@ namespace Tiny3D
                 break;
             }
 
+            // MD5
+            uint8_t hash[16];
+            bytesOfRead = stream.read(hash, sizeof(hash));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, 16,
+                "Read hash of texture unit failed !");
+
             uint16_t type = UNKNOWN;
             uint16_t i = 0;
 

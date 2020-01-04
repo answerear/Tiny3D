@@ -76,6 +76,10 @@ namespace Tiny3D
         // 名称
         bytesOfWritten = writeString(obj->name, stream);
         totalBytes += bytesOfWritten;
+        // 16位 MD5
+        uint8_t digest[16];
+        bytesOfWritten = stream.write(digest, sizeof(digest));
+        totalBytes += bytesOfWritten;
 
         return totalBytes;
     }
@@ -455,6 +459,11 @@ namespace Tiny3D
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
 
+        size_t headerSize = bytesOfWritten;
+        long_t current = stream.tell();
+        long_t start = current;
+        current -= 16;
+
         // 属性
         for (auto i = obj->children.begin(); i != obj->children.end(); ++i)
         {
@@ -518,6 +527,24 @@ namespace Tiny3D
                 bytesOfWritten = processNode(compiler, stream, *i);
                 totalBytes += bytesOfWritten;
             }
+        }
+
+        if (totalBytes > 0)
+        {
+            // 计算 MD5
+            uint8_t *content;
+            stream.read(content);
+            content += start;
+            size_t contentSize = totalBytes - headerSize;
+            MD5 md5;
+            md5.update((const void*)content, contentSize);
+            const uint8_t *digest = md5.digest();
+
+            // 跳转到文件头位置，写回 MD5
+            long_t pos = stream.tell();
+            stream.seek(current, false);
+            stream.write((void*)digest, 16);
+            stream.seek(pos, false);
         }
 
         return totalBytes;
@@ -707,6 +734,11 @@ namespace Tiny3D
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
 
+        size_t headerSize = bytesOfWritten;
+        long_t current = stream.tell();
+        long_t start = current;
+        current -= 16;
+
         for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
@@ -773,6 +805,24 @@ namespace Tiny3D
                 bytesOfWritten = processNode(compiler, stream, *i);
                 totalBytes += bytesOfWritten;
             }
+        }
+
+        if (totalBytes > 0)
+        {
+            // 计算 MD5
+            uint8_t *content;
+            stream.read(content);
+            content += start;
+            size_t contentSize = totalBytes - headerSize;
+            MD5 md5;
+            md5.update((const void*)content, contentSize);
+            const uint8_t *digest = md5.digest();
+
+            // 跳转到文件头位置，写回 MD5
+            long_t pos = stream.tell();
+            stream.seek(current, false);
+            stream.write((void*)digest, 16);
+            stream.seek(pos, false);
         }
 
         return totalBytes;
@@ -1058,6 +1108,11 @@ namespace Tiny3D
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
 
+        size_t headerSize = bytesOfWritten;
+        long_t current = stream.tell();
+        long_t start = current;
+        current -= 16;
+
         // Set the properties for the material
         for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
         {
@@ -1310,6 +1365,24 @@ namespace Tiny3D
                 bytesOfWritten = processNode(compiler, stream, *i);
                 totalBytes += bytesOfWritten;
             }
+        }
+
+        if (totalBytes > 0)
+        {
+            // 计算 MD5
+            uint8_t *content;
+            stream.read(content);
+            content += start;
+            size_t contentSize = totalBytes - headerSize;
+            MD5 md5;
+            md5.update((const void*)content, contentSize);
+            const uint8_t *digest = md5.digest();
+
+            // 跳转到文件头位置，写回 MD5
+            long_t pos = stream.tell();
+            stream.seek(current, false);
+            stream.write((void*)digest, 16);
+            stream.seek(pos, false);
         }
 
         return totalBytes;
@@ -3291,6 +3364,11 @@ namespace Tiny3D
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
 
+        size_t headerSize = bytesOfWritten;
+        long_t current = stream.tell();
+        long_t start = current;
+        current -= 16;
+
         String sval;
 
         // Set the properties for the material
@@ -3459,6 +3537,24 @@ namespace Tiny3D
             }
         }
     
+        if (totalBytes > 0)
+        {
+            // 计算 MD5
+            uint8_t *content;
+            stream.read(content);
+            content += start;
+            size_t contentSize = totalBytes - headerSize;
+            MD5 md5;
+            md5.update((const void*)content, contentSize);
+            const uint8_t *digest = md5.digest();
+
+            // 跳转到文件头位置，写回 MD5
+            long_t pos = stream.tell();
+            stream.seek(current, false);
+            stream.write((void*)digest, 16);
+            stream.seek(pos, false);
+        }
+
         return totalBytes;
     }
 
@@ -4717,6 +4813,11 @@ namespace Tiny3D
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
 
+        size_t headerSize = bytesOfWritten;
+        long_t current = stream.tell();
+        long_t start = current;
+        current -= 16;
+
         // Set the properties for the material
         for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
         {
@@ -4757,6 +4858,24 @@ namespace Tiny3D
                 bytesOfWritten = processNode(compiler, stream, *i);
                 totalBytes += bytesOfWritten;
             }
+        }
+
+        if (totalBytes > 0)
+        {
+            // 计算 MD5
+            uint8_t *content;
+            stream.read(content);
+            content += start;
+            size_t contentSize = totalBytes - headerSize;
+            MD5 md5;
+            md5.update((const void*)content, contentSize);
+            const uint8_t *digest = md5.digest();
+
+            // 跳转到文件头位置，写回 MD5
+            long_t pos = stream.tell();
+            stream.seek(current, false);
+            stream.write((void*)digest, 16);
+            stream.seek(pos, false);
         }
 
         return totalBytes;
@@ -5435,6 +5554,11 @@ namespace Tiny3D
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
 
+        size_t headerSize = bytesOfWritten;
+        long_t current = stream.tell();
+        long_t start = current;
+        current -= 16;
+
         // Set the properties for the material
         for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
         {
@@ -5474,6 +5598,24 @@ namespace Tiny3D
                         "token \"" + prop->name + "\" is not recognized");
                 }
             }
+        }
+
+        if (totalBytes > 0)
+        {
+            // 计算 MD5
+            uint8_t *content;
+            stream.read(content);
+            content += start;
+            size_t contentSize = totalBytes - headerSize;
+            MD5 md5;
+            md5.update((const void*)content, contentSize);
+            const uint8_t *digest = md5.digest();
+
+            // 跳转到文件头位置，写回 MD5
+            long_t pos = stream.tell();
+            stream.seek(current, false);
+            stream.write((void*)digest, 16);
+            stream.seek(pos, false);
         }
 
         return totalBytes;
@@ -5856,6 +5998,11 @@ namespace Tiny3D
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
 
+        size_t headerSize = bytesOfWritten;
+        long_t current = stream.tell();
+        long_t start = current;
+        current -= 16;
+
         String source, target, entry, stage;
 
         // Set the properties for the material
@@ -5953,6 +6100,24 @@ namespace Tiny3D
             totalBytes = 0;
         }
 
+        if (totalBytes > 0)
+        {
+            // 计算 MD5
+            uint8_t *content;
+            stream.read(content);
+            content += start;
+            size_t contentSize = totalBytes - headerSize;
+            MD5 md5;
+            md5.update((const void*)content, contentSize);
+            const uint8_t *digest = md5.digest();
+
+            // 跳转到文件头位置，写回 MD5
+            long_t pos = stream.tell();
+            stream.seek(current, false);
+            stream.write((void*)digest, 16);
+            stream.seek(pos, false);
+        }
+
         return totalBytes;
     }
 
@@ -5966,6 +6131,11 @@ namespace Tiny3D
         // 对象头数据
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
+
+        size_t headerSize = bytesOfWritten;
+        long_t current = stream.tell();
+        long_t start = current;
+        current -= 16;
 
         // Set the properties for the material
         for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
@@ -5997,6 +6167,24 @@ namespace Tiny3D
                 bytesOfWritten = processNode(compiler, stream, *i);
                 totalBytes += bytesOfWritten;
             }
+        }
+
+        if (totalBytes > 0)
+        {
+            // 计算 MD5
+            uint8_t *content;
+            stream.read(content);
+            content += start;
+            size_t contentSize = totalBytes - headerSize;
+            MD5 md5;
+            md5.update((const void*)content, contentSize);
+            const uint8_t *digest = md5.digest();
+
+            // 跳转到文件头位置，写回 MD5
+            long_t pos = stream.tell();
+            stream.seek(current, false);
+            stream.write((void*)digest, 16);
+            stream.seek(pos, false);
         }
 
         return totalBytes;
@@ -6013,6 +6201,11 @@ namespace Tiny3D
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
 
+        size_t headerSize = bytesOfWritten;
+        long_t current = stream.tell();
+        long_t start = current;
+        current -= 16;
+
         // Set the properties for the material
         for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
         {
@@ -6045,6 +6238,24 @@ namespace Tiny3D
             }
         }
 
+        if (totalBytes > 0)
+        {
+            // 计算 MD5
+            uint8_t *content;
+            stream.read(content);
+            content += start;
+            size_t contentSize = totalBytes - headerSize;
+            MD5 md5;
+            md5.update((const void*)content, contentSize);
+            const uint8_t *digest = md5.digest();
+
+            // 跳转到文件头位置，写回 MD5
+            long_t pos = stream.tell();
+            stream.seek(current, false);
+            stream.write((void*)digest, 16);
+            stream.seek(pos, false);
+        }
+
         return totalBytes;
     }
 
@@ -6059,6 +6270,11 @@ namespace Tiny3D
         // 对象头数据
         bytesOfWritten = translateObjectHeader(obj, stream);
         totalBytes += bytesOfWritten;
+
+        size_t headerSize = bytesOfWritten;
+        long_t current = stream.tell();
+        long_t start = current;
+        current -= 16;
 
         // Set the properties for the material
         for (AbstractNodeList::iterator i = obj->children.begin(); 
@@ -6093,6 +6309,24 @@ namespace Tiny3D
                         "token \"" + prop->name + "\" is not recognized");
                 }
             }
+        }
+
+        if (totalBytes > 0)
+        {
+            // 计算 MD5
+            uint8_t *content;
+            stream.read(content);
+            content += start;
+            size_t contentSize = totalBytes - headerSize;
+            MD5 md5;
+            md5.update((const void*)content, contentSize);
+            const uint8_t *digest = md5.digest();
+
+            // 跳转到文件头位置，写回 MD5
+            long_t pos = stream.tell();
+            stream.seek(current, false);
+            stream.write((void*)digest, 16);
+            stream.seek(pos, false);
         }
 
         return totalBytes;
