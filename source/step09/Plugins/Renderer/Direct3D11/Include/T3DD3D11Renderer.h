@@ -184,6 +184,13 @@ namespace Tiny3D
             HardwareConstantBufferPtr buffer) override;
 
         /**
+         * @brief   绑定渲染纹理
+         * @param [in]  texture 纹理单元对象
+         * @returns 调用成功返回 T3D_OK.
+         */
+        virtual TResult bindTexture(TextureUnitPtr unit) override;
+
+        /**
          * @fn  virtual TResult renderObject(VertexArrayObjectPtr vao) override;
          * @brief   渲染对象
          * @param [in]  vao VAO 对象.
@@ -274,7 +281,7 @@ namespace Tiny3D
 
         HardwareBufferManagerPtr    mHardwareBufferMgr; /**< 缓冲区管理对象 */
 
-        GPUProgramPtr               mBoundGPUProgram;   /**< GPU 程序对象 */
+        GPUProgramPtr               mBoundGPUProgram;   /**< 渲染用的 GPU 程序对象 */
 
         DriverVersion               mDriverVersion;     /**< 驱动版本号 */
         String                      mDeviceName;        /**< 设备名称 */

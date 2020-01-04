@@ -27,6 +27,7 @@
 #include "T3DD3D11VertexArrayObject.h"
 #include "T3DD3D11HardwareVertexBuffer.h"
 #include "T3DD3D11HardwareIndexBuffer.h"
+#include "T3DD3D11HardwarePixelBuffer.h"
 #include "T3DD3D11VertexDeclaration.h"
 #include "T3DD3D11Capabilities.h"
 
@@ -577,6 +578,29 @@ namespace Tiny3D
             mD3DDeviceContext->PSSetShader(fshader->getD3DShader(), nullptr, 0);
 
             mBoundGPUProgram = program;
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Renderer::bindTexture(TextureUnitPtr unit)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            TexturePtr texture = unit->getTexture();
+            D3D11HardwarePixelBufferPtr pbo 
+                = smart_pointer_cast<D3D11HardwarePixelBuffer>(
+                    texture->getPixelBuffer());
+
+            ID3D11ShaderResourceView *pD3DSRView = pbo->getD3DSRView();
+            mD3DDeviceContext->PSSetShaderResources(0, 1, 
+                (ID3D11ShaderResourceView * const *)&pD3DSRView);
+
+
         } while (0);
 
         return ret;

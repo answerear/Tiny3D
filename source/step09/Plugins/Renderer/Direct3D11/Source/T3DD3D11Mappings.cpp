@@ -358,10 +358,12 @@ namespace Tiny3D
         case PixelFormat::E_PF_A4R4G4B4:
             break;
         case PixelFormat::E_PF_R8G8B8:
+            
             break;
         case PixelFormat::E_PF_B8G8R8:
             break;
         case PixelFormat::E_PF_A8R8G8B8:
+            fmt = DXGI_FORMAT_R8G8B8A8_UNORM;
             break;
         case PixelFormat::E_PF_B8G8R8A8:
             break;

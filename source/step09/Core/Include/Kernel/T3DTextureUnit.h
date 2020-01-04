@@ -138,6 +138,8 @@ namespace Tiny3D
 
         void setTextureName(const String &name);
 
+        TexturePtr getTexture();
+
     protected:
         /** 构造函数 */
         TextureUnit(const String &name, Pass *pass);

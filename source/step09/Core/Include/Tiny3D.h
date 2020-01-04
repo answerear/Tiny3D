@@ -37,8 +37,10 @@
 #include <Kernel/T3DPixelFormat.h>
 #include <Kernel/T3DNode.h>
 #include <Kernel/T3DBlendMode.h>
-#include <Kernel/T3DPass.h>
 #include <Kernel/T3DTechnique.h>
+#include <Kernel/T3DPass.h>
+#include <Kernel/T3DTextureUnit.h>
+
 
 // Memory
 #include <Memory/T3DSmartPtr.h>

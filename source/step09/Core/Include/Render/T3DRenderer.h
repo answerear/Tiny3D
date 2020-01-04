@@ -379,6 +379,14 @@ namespace Tiny3D
             HardwareConstantBufferPtr buffer) = 0;
 
         /**
+         * @brief   绑定渲染纹理
+         * @param [in]  texture 纹理单元对象
+         * @returns 调用成功返回 T3D_OK.
+         * @remarks 具体渲染平台实现类需要实现本接口.
+         */
+        virtual TResult bindTexture(TextureUnitPtr unit) = 0;
+
+        /**
          * @fn  virtual TResult 
          *      Renderer::renderObject(VertexArrayObjectPtr vao) = 0;
          * @brief   渲染对象

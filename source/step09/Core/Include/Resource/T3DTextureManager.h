@@ -56,7 +56,9 @@ namespace Tiny3D
          * @return 返回新建的纹理对象
          */
         virtual TexturePtr loadTexture(const String &name, 
-            size_t mipmaps = -1, 
+            HardwareBuffer::Usage usage = HardwareBuffer::Usage::STATIC, 
+            uint32_t access = HardwareBuffer::AccessMode::CPU_NONE, 
+            size_t mipmaps = 1, 
             Texture::TexUsage texUsage = Texture::E_TU_DEFAULT, 
             TextureType texType = E_TEX_TYPE_2D);
 
@@ -72,7 +74,10 @@ namespace Tiny3D
          * @return 返回新建的纹理对象
          */
         virtual TexturePtr loadTexture(const String &name, size_t width, 
-            size_t height, size_t mipmaps = -1, 
+            size_t height, 
+            HardwareBuffer::Usage usage = HardwareBuffer::Usage::STATIC,
+            uint32_t access = HardwareBuffer::AccessMode::CPU_NONE, 
+            size_t mipmaps = 1,
             PixelFormat format = PixelFormat::E_PF_A8R8G8B8, 
             Texture::TexUsage texUsage = Texture::E_TU_BLANK, 
             TextureType texType = E_TEX_TYPE_2D);

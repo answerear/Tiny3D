@@ -18,20 +18,31 @@
  ******************************************************************************/
 
 
+#include "Kernel/T3DSamplerState.h"
+
+
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline const String &TextureUnit::getName() const
+    SamplerStatePtr SamplerState::create()
     {
-        return mName;
+        SamplerStatePtr sampler = new SamplerState();
+        sampler->release();
+        return sampler;
     }
 
     //--------------------------------------------------------------------------
 
-    inline TexturePtr TextureUnit::getTexture()
+    SamplerState::SamplerState()
     {
-        T3D_ASSERT(mCurrentFrame < mFrames.size());
-        return mFrames[mCurrentFrame];
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    SamplerState::~SamplerState()
+    {
+
     }
 }

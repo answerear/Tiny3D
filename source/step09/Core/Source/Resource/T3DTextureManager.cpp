@@ -54,24 +54,32 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TexturePtr TextureManager::loadTexture(const String &name, 
-        size_t mipmaps /* = -1 */, 
+        HardwareBuffer::Usage usage /* = HardwareBuffer::Usage::STATIC */, 
+        uint32_t access /* = HardwareBuffer::AccessMode::CPU_NONE */, 
+        size_t mipmaps /* = 1 */, 
         Texture::TexUsage texUsage /* = Texture::E_TU_DEFAULT */, 
-        TextureType texType /* = Texture::E_TEX_TYPE_2D */)
+        TextureType texType /* = E_TEX_TYPE_2D */)
     {
         return smart_pointer_cast<Texture>(ResourceManager::load(
-            name, 6, -1,  -1, mipmaps, PixelFormat::E_PF_A8R8G8B8, texUsage, texType));
+            name, 8, 0, 0, usage, access, mipmaps, PixelFormat::E_PF_A8R8G8B8, 
+            texUsage, texType));
     }
 
     //--------------------------------------------------------------------------
 
-    TexturePtr TextureManager::loadTexture(const String &name, size_t width, 
-        size_t height, size_t mipmaps /* = -1 */, 
+    TexturePtr TextureManager::loadTexture(const String &name, 
+        size_t width, 
+        size_t height, 
+        HardwareBuffer::Usage usage /* = HardwareBuffer::Usage::STATIC */,
+        uint32_t access /* = HardwareBuffer::AccessMode::CPU_NONE */, 
+        size_t mipmaps /* = 1 */,
         PixelFormat format /* = PixelFormat::E_PF_A8R8G8B8 */, 
         Texture::TexUsage texUsage /* = Texture::E_TU_BLANK */, 
         TextureType texType /* = Texture::E_TEX_TYPE_2D */)
     {
         return smart_pointer_cast<Texture>(ResourceManager::load(
-            name, 6, width, height, mipmaps, format, texUsage, texType));
+            name, 8, width, height, usage, access, mipmaps, format, texUsage, 
+            texType));
     }
 
     //--------------------------------------------------------------------------
@@ -81,17 +89,19 @@ namespace Tiny3D
     {
         ResourcePtr res;
 
-        if (argc == 6)
+        if (argc == 8)
         {
             size_t width = va_arg(args, size_t);
             size_t height = va_arg(args, size_t);
+            HardwareBuffer::Usage usage = va_arg(args, HardwareBuffer::Usage);
+            uint32_t access = va_arg(args, uint32_t);
             size_t numMipMaps = va_arg(args, size_t);
             PixelFormat format = va_arg(args, PixelFormat);
             Texture::TexUsage texUsage = va_arg(args, Texture::TexUsage);
             TextureType texType = va_arg(args, TextureType);
             numMipMaps = (numMipMaps == -1 ? mDefaultMipMaps : numMipMaps);
-            res = Texture::create(
-                name, numMipMaps, width, height, texUsage, texType, format);
+            res = Texture::create(name, usage, access, numMipMaps, 
+                width, height, texUsage, texType, format);
         }
 
         return res;

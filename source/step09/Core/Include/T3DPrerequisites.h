@@ -98,16 +98,17 @@ namespace Tiny3D
     class HardwarePixelBuffer;
     class HardwareVertexBuffer;
     class HardwareConstantBuffer;
+    class HardwareSamplerState;
     class VertexAttribute;
     class VertexDeclaration;
 
-    class Shader;
     class GPUProgramRef;
     class GPUConstBufferRef;
 
     class Technique;
     class Pass;
     class TextureUnit;
+    class SamplerState;
 
     class VertexArrayObject;
 

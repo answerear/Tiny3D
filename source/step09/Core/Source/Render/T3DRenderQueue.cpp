@@ -26,6 +26,7 @@
 #include "Scene/T3DSceneCamera.h"
 #include "Kernel/T3DTechnique.h"
 #include "Kernel/T3DPass.h"
+#include "Kernel/T3DTextureUnit.h"
 #include "Resource/T3DGPUProgram.h"
 
 
@@ -125,6 +126,9 @@ namespace Tiny3D
 
                     GPUProgramPtr program = pass->getGPUProgram();
                     renderer->bindGPUProgram(program);
+
+                    TextureUnitPtr unit = pass->getTextureUnit(0);
+                    renderer->bindTexture(unit);
 
                     RenderableList &renderables = itr->second;
 

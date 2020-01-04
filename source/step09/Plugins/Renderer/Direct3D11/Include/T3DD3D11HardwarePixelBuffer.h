@@ -92,6 +92,16 @@ namespace Tiny3D
         virtual TResult writeImage(Image &image, Rect *dstRect = nullptr,
             Rect *srcRect = nullptr) override;
 
+        /**
+         * @brief   获取 ID3D11Texture2D 对象
+         */
+        ID3D11Texture2D *getD3DTexture() { return mD3DTexture2D; }
+
+        /**
+         * @brief   获取 ID3D11ShaderResourceView 对象
+         */
+        ID3D11ShaderResourceView *getD3DSRView() { return mD3DSRView; }
+
     protected:
         /**
          * @fn  D3D11HardwarePixelBuffer::D3D11HardwarePixelBuffer(size_t width, 
@@ -139,6 +149,8 @@ namespace Tiny3D
         virtual TResult unlockImpl() override;
 
     protected:
+        ID3D11Texture2D             *mD3DTexture2D;
+        ID3D11ShaderResourceView    *mD3DSRView;
     };
 }
 

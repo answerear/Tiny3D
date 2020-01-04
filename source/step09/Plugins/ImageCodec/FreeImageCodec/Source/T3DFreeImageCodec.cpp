@@ -275,7 +275,7 @@ namespace Tiny3D
                         || colorType == FIC_PALETTE || colorType == FIC_CMYK)
                     {
                         FIBITMAP *newBitmap = nullptr;
-                        if (FreeImage_IsTransparent(dib))
+//                         if (FreeImage_IsTransparent(dib))
                         {
                             // 把带透明通道，转成32位
                             newBitmap = FreeImage_ConvertTo32Bits(dib);
@@ -287,18 +287,18 @@ namespace Tiny3D
                                 break;
                             }
                         }
-                        else
-                        {
-                            // 不带透明通道，直接转成24位
-                            newBitmap = FreeImage_ConvertTo24Bits(dib);
-                            if (newBitmap == nullptr)
-                            {
-                                ret = T3D_ERR_CODEC_CONVERT_TO_24BIT;
-                                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
-                                    "Convert to 24 bits failed !");
-                                break;
-                            }
-                        }
+//                         else
+//                         {
+//                             // 不带透明通道，直接转成24位
+//                             newBitmap = FreeImage_ConvertTo24Bits(dib);
+//                             if (newBitmap == nullptr)
+//                             {
+//                                 ret = T3D_ERR_CODEC_CONVERT_TO_24BIT;
+//                                 T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
+//                                     "Convert to 24 bits failed !");
+//                                 break;
+//                             }
+//                         }
 
                         FreeImage_Unload(dib);
                         dib = newBitmap;

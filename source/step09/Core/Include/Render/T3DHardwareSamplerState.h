@@ -18,20 +18,26 @@
  ******************************************************************************/
 
 
+#ifndef __T3D_HARDWARE_SAMPLER_STATE_H__
+#define __T3D_HARDWARE_SAMPLER_STATE_H__
+
+
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
+#include "Kernel/T3DObject.h"
+
+
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    inline const String &TextureUnit::getName() const
+    /**
+     * @brief 硬件采样状态
+     */
+    class T3D_ENGINE_API HardwareSamplerState : public Object
     {
-        return mName;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline TexturePtr TextureUnit::getTexture()
-    {
-        T3D_ASSERT(mCurrentFrame < mFrames.size());
-        return mFrames[mCurrentFrame];
-    }
+    protected:
+        virtual ~HardwareSamplerState();
+    };
 }
+
+
+#endif  /*__T3D_HARDWARE_SAMPLER_STATE_H__*/

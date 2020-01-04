@@ -21,6 +21,7 @@
 #include "T3DD3D11HardwarePixelBuffer.h"
 #include "T3DD3D11Mappings.h"
 #include "T3DD3D11Renderer.h"
+#include "T3DD3D11Error.h"
 
 
 namespace Tiny3D
@@ -49,6 +50,8 @@ namespace Tiny3D
         size_t height, PixelFormat format, Usage usage, uint32_t mode, 
         size_t mipmaps)
         : HardwarePixelBuffer(width, height, format, usage, mode, mipmaps)
+        , mD3DTexture2D(nullptr)
+        , mD3DSRView(nullptr)
     {
     }
 
@@ -56,6 +59,8 @@ namespace Tiny3D
 
     D3D11HardwarePixelBuffer::~D3D11HardwarePixelBuffer()
     {
+        D3D_SAFE_RELEASE(mD3DSRView);
+        D3D_SAFE_RELEASE(mD3DTexture2D);
     }
 
     //--------------------------------------------------------------------------
@@ -66,12 +71,62 @@ namespace Tiny3D
 
         do 
         {
-            D3D11_TEXTURE2D_DESC desc;
-            desc.Width = mWidth;
-            desc.Height = mHeight;
-            desc.MipLevels = mMipmaps;
-            desc.ArraySize = 1;
-            desc.Format = D3D11Mappings::get(mFormat);
+            D3D11_USAGE d3dUsage;
+            uint32_t d3dAccessFlag;
+            D3D11Mappings::get(mUsage, mAccessMode, d3dUsage, d3dAccessFlag);
+
+            DXGI_FORMAT d3dFmt = D3D11Mappings::get(mFormat);
+
+            D3D11_TEXTURE2D_DESC d3dDesc;
+            d3dDesc.Width = (UINT)mWidth;
+            d3dDesc.Height = (UINT)mHeight;
+            d3dDesc.MipLevels = (UINT)mMipmaps;
+            d3dDesc.ArraySize = 1;
+            d3dDesc.Format = d3dFmt;
+            d3dDesc.SampleDesc.Count = 1;
+            d3dDesc.SampleDesc.Quality = 0;
+            d3dDesc.Usage = d3dUsage;
+            d3dDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+            d3dDesc.CPUAccessFlags = d3dAccessFlag;
+            d3dDesc.MiscFlags = 0;
+
+            D3D11_SUBRESOURCE_DATA d3dData;
+            d3dData.pSysMem = pixels;
+            d3dData.SysMemPitch = (UINT)Image::calcPitch(mWidth, 32);
+            d3dData.SysMemSlicePitch = 0;
+
+            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+            HRESULT hr = pD3DDevice->CreateTexture2D(&d3dDesc, &d3dData,
+                &mD3DTexture2D);
+            if (FAILED(hr))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create texture 2D failed ! DX ERROR [%d]", hr);
+                ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
+                break;
+            }
+
+            D3D11_SHADER_RESOURCE_VIEW_DESC d3dResDesc;
+            d3dResDesc.Format = d3dFmt;
+            d3dResDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+            d3dResDesc.Texture2D.MipLevels = (UINT)mMipmaps;
+            d3dResDesc.Texture2D.MostDetailedMip = 0;
+            hr = pD3DDevice->CreateShaderResourceView(mD3DTexture2D, 
+                &d3dResDesc, &mD3DSRView);
+            if (FAILED(hr))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create shader resource view failed ! DX ERROR [%d]", hr);
+                ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
+                break;
+            }
+
+//             if (mMipmaps != 1)
+//             {
+//                 ID3D11DeviceContext *pD3DContext 
+//                     = D3D11_RENDERER.getD3DDeviceContext();
+//                 pD3DContext->GenerateMips(mD3DSRView);
+//             }
         } while (0);
 
         return ret;

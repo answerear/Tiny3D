@@ -29,23 +29,23 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TexturePtr Texture::create(const String &name, size_t mipmaps,
-        size_t texWidth /* = 0 */, size_t texHeight /* = 0 */,
-        TexUsage texUsage /* = E_TU_DEFAULT */,
-        TextureType texType /* = E_TEX_TYPE_2D */,
+    TexturePtr Texture::create(const String &name, HardwareBuffer::Usage usage, 
+        uint32_t access, size_t mipmaps, size_t texWidth /* = 0 */, 
+        size_t texHeight /* = 0 */, TexUsage texUsage /* = E_TU_DEFAULT */, 
+        TextureType texType /* = E_TEX_TYPE_2D */, 
         PixelFormat format /* = PixelFormat::E_PF_A8R8G8B8 */)
     {
-        TexturePtr texture = new Texture(name, mipmaps, texWidth, texHeight, 
-            texUsage, texType, format);
+        TexturePtr texture = new Texture(name, usage, access, mipmaps, 
+            texWidth, texHeight, texUsage, texType, format);
         texture->release();
         return texture;
     }
 
-    //--------------------------------------------------------------------------
+    //----------------------------------------------------------------- ---------
 
-    Texture::Texture(const String &name, size_t mipmaps, size_t texWidth, 
-        size_t texHeight, TexUsage texUsage, TextureType texType, 
-        PixelFormat format)
+    Texture::Texture(const String &name, HardwareBuffer::Usage usage, 
+        uint32_t access, size_t mipmaps, size_t texWidth, size_t texHeight, 
+        TexUsage texUsage, TextureType texType, PixelFormat format)
         : Resource(name)
         , mTexType(texType)
         , mTexUsage(texUsage)
@@ -56,6 +56,8 @@ namespace Tiny3D
         , mImgHeight(texHeight)
         , mFormat(format)
         , mHasAlpha(false)
+        , mUsage(usage)
+        , mAccessMode(access)
         , mPBO(nullptr)
     {
 
@@ -79,8 +81,8 @@ namespace Tiny3D
 
     ResourcePtr Texture::clone() const
     {
-        TexturePtr texture = Texture::create(mName, mMipmaps, mTexWidth,
-            mTexHeight, mTexUsage, mTexType, mFormat);
+        TexturePtr texture = Texture::create(mName, mUsage, mAccessMode, 
+            mMipmaps, mTexWidth, mTexHeight, mTexUsage, mTexType, mFormat);
 
         if (texture != nullptr)
         {
@@ -114,53 +116,40 @@ namespace Tiny3D
                     break;
                 }
 
-                if (mTexWidth == -1)
+                if (mTexWidth == 0)
                 {
                     mTexWidth = image.getWidth();
                 }
 
-                if (mTexHeight == -1)
+                if (mTexHeight == 0)
                 {
                     mTexHeight = image.getHeight();
                 }
 
                 // 创建硬件缓冲区
                 mPBO = T3D_HARDWARE_BUFFER_MGR.createPixelBuffer(mTexWidth, 
-                    mTexHeight, mFormat, image.getData(),
-                    HardwareBuffer::Usage::DYNAMIC,
-                    HardwareBuffer::AccessMode::CPU_READ
-                    | HardwareBuffer::AccessMode::CPU_WRITE, 1);
+                    mTexHeight, mFormat, image.getData(), mUsage, mAccessMode, 
+                    mMipmaps);
 
                 if (mPBO == nullptr)
                 {
                     ret = T3D_ERR_INVALID_POINTER;
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Create pixel buffer \
-                        failed !");
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Create pixel buffer "
+                        "failed !");
                     break;
                 }
-
-//                 // 复制纹理数据到硬件缓冲区
-//                 ret = mPBO->readImage(image);
-//                 if (ret != T3D_OK)
-//                 {
-//                     T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Read image data failed !");
-//                     break;
-//                 }
             }
             else
             {
                 // 创建硬件缓冲区
                 mPBO = T3D_HARDWARE_BUFFER_MGR.createPixelBuffer(mTexWidth, 
-                    mTexHeight, mFormat, nullptr, 
-                    HardwareBuffer::Usage::DYNAMIC, 
-                    HardwareBuffer::AccessMode::CPU_READ
-                    | HardwareBuffer::AccessMode::CPU_WRITE, 1);
+                    mTexHeight, mFormat, nullptr, mUsage, mAccessMode, mMipmaps);
 
                 if (mPBO == nullptr)
                 {
                     ret = T3D_ERR_INVALID_POINTER;
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Create pixel buffer \
-                        failed !");
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Create pixel buffer "
+                        "failed !");
                     break;
                 }
             }

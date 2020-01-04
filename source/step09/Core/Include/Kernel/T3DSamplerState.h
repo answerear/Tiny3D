@@ -18,20 +18,30 @@
  ******************************************************************************/
 
 
+#ifndef __T3D_SAMPLER_STATE_H__
+#define __T3D_SAMPLER_STATE_H__
+
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
+#include "T3DObject.h"
+
+
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    inline const String &TextureUnit::getName() const
+    class T3D_ENGINE_API SamplerState : public Object
     {
-        return mName;
-    }
+    public:
+        static SamplerStatePtr create();
 
-    //--------------------------------------------------------------------------
+        virtual ~SamplerState();
 
-    inline TexturePtr TextureUnit::getTexture()
-    {
-        T3D_ASSERT(mCurrentFrame < mFrames.size());
-        return mFrames[mCurrentFrame];
-    }
+    protected:
+        SamplerState();
+    };
 }
+
+
+#include "T3DSamplerState.inl"
+
+
+#endif  /*__T3D_SAMPLER_STATE_H__*/

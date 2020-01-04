@@ -18,20 +18,16 @@
  ******************************************************************************/
 
 
+#include "Render/T3DHardwareSamplerState.h"
+
+
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline const String &TextureUnit::getName() const
+    HardwareSamplerState::~HardwareSamplerState()
     {
-        return mName;
-    }
 
-    //--------------------------------------------------------------------------
-
-    inline TexturePtr TextureUnit::getTexture()
-    {
-        T3D_ASSERT(mCurrentFrame < mFrames.size());
-        return mFrames[mCurrentFrame];
     }
 }
+

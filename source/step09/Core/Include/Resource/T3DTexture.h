@@ -61,6 +61,8 @@ namespace Tiny3D
         /** 
          * @brief 创建 Texture 对象
          * @param [in] name : 纹理资源名称
+         * @param [in] usage : 硬件缓冲区使用方法
+         * @param [in] access : CPU 访问硬件缓冲区的权限
          * @param [in] mipmaps : 纹理的 mipmap 层级数量
          * @param [in] texWidth : 纹理宽度，默认从文件读取
          * @param [in] texHeight : 纹理高度，默认从文件读取
@@ -71,7 +73,8 @@ namespace Tiny3D
          * @see enum TexUsage
          * @see enum TexType
          */
-        static TexturePtr create(const String &name, size_t mipmaps, 
+        static TexturePtr create(const String &name,
+            HardwareBuffer::Usage usage, uint32_t access, size_t mipmaps, 
             size_t texWidth = 0, size_t texHeight = 0, 
             TexUsage texUsage = E_TU_DEFAULT, 
             TextureType texType = E_TEX_TYPE_2D,
@@ -154,9 +157,9 @@ namespace Tiny3D
 
     protected:
         /** 构造函数 */
-        Texture(const String &name, size_t mipmaps, size_t texWidth, 
-            size_t texHeight, TexUsage texUsage, TextureType texType, 
-            PixelFormat format);
+        Texture(const String &name, HardwareBuffer::Usage usage,
+            uint32_t access, size_t mipmaps, size_t texWidth, size_t texHeight, 
+            TexUsage texUsage, TextureType texType, PixelFormat format);
 
         /** 重写 Resource::load() */
         virtual TResult load() override;
@@ -179,6 +182,8 @@ namespace Tiny3D
 
         bool                    mHasAlpha;      /**< 是否有 Alpha 通道 */
 
+        HardwareBuffer::Usage   mUsage;         /**< 硬件缓冲区使用方法 */
+        uint32_t                mAccessMode;    /**< CPU 访问硬件缓冲方式 */
         HardwarePixelBufferPtr  mPBO;           /**< 像素数据对象 */
     };
 }
