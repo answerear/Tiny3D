@@ -18,27 +18,31 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SAMPLER_STATE_H__
-#define __T3D_SAMPLER_STATE_H__
+#ifndef __T3D_SAMPLER_H__
+#define __T3D_SAMPLER_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
-#include "Kernel/T3DObject.h"
+#include "T3DResource.h"
+#include "Kernel/T3DCreator.h"
 #include "Kernel/T3DCommon.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @brief 采样状态
+     * @brief 采样器
      */
-    class T3D_ENGINE_API SamplerState : public Object
+    class T3D_ENGINE_API Sampler : public Resource
     {
     public:
-        static SamplerStatePtr create();
+        virtual ~Sampler();
 
-        virtual ~SamplerState();
+        /**
+         * @fn  virtual Type Sampler::getType() const override;
+         * @brief   获取资源类型，重写基类 Resource::getType() 接口
+         * @returns The type.
+         */
+        virtual Type getType() const override;
 
         const UVWAddressMode &getAddressMode() const;
 
@@ -75,7 +79,16 @@ namespace Tiny3D
         void setMipmapBias(Real bias);
 
     protected:
-        SamplerState();
+        Sampler(const String &name);
+
+        /**
+         * @fn  virtual TResult Sampler::cloneProperties(
+         *      SamplerPtr newObj) const;
+         * @brief   克隆属性
+         * @param   newObj  The new object.
+         * @returns A TResult.
+         */
+        virtual TResult cloneProperties(SamplerPtr newObj) const;
 
     protected:
         UVWAddressMode  mAddressMode;
@@ -86,11 +99,17 @@ namespace Tiny3D
         CompareFunction mCompareFunc;
         uint32_t        mAnisotropy;
         Real            mMipmapBias;
+        bool            mIsDirty;
+    };
+
+    class T3D_ENGINE_API SamplerCreator : public Creator<Sampler>
+    {
+        T3D_DECLARE_INTERFACE(SamplerCreator);
     };
 }
 
 
-#include "T3DSamplerState.inl"
+#include "T3DSampler.inl"
 
 
-#endif  /*__T3D_SAMPLER_STATE_H__*/
+#endif  /*__T3D_SAMPLER_H__*/

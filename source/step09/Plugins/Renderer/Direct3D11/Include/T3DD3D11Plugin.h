@@ -70,6 +70,7 @@ namespace Tiny3D
         RendererPtr             mRenderer;
         D3D11ShaderCreator      *mShaderCreator;
         D3D11GPUProgramCreator  *mGPUCreator;
+        D3D11SamplerCreator     *mSamplerCreator;
     };
 }
 

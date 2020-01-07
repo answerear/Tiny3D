@@ -18,80 +18,85 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DTextureUnit.h"
-#include "Kernel/T3DPass.h"
-#include "Resource/T3DTexture.h"
-#include "Resource/T3DTextureManager.h"
-#include "Resource/T3DSampler.h"
-#include "Resource/T3DSamplerManager.h"
+#include "T3DD3D11Sampler.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TextureUnitPtr TextureUnit::create(const String &name, Pass *pass)
+    const char * const D3D11SamplerCreator::SAMPLER_TYPE = "Sampler";
+
+    //--------------------------------------------------------------------------
+
+    String D3D11SamplerCreator::getType() const
     {
-        TextureUnitPtr unit = new TextureUnit(name, pass);
-        unit->release();
-        return unit;
+        return SAMPLER_TYPE;
     }
 
     //--------------------------------------------------------------------------
 
-    TextureUnit::TextureUnit(const String &name, Pass *pass)
-        : mParent(pass)
-        , mName(name)
-        , mSampler(nullptr)
-        , mCurrentFrame(0)
+    SamplerPtr D3D11SamplerCreator::createObject(int32_t argc, ...) const
+    {
+        va_list params;
+        va_start(params, argc);
+        String name = va_arg(params, char *);
+        va_end(params);
+        return D3D11Sampler::create(name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11SamplerPtr D3D11Sampler::create(const String &name)
+    {
+        D3D11SamplerPtr sampler = new D3D11Sampler(name);
+        sampler->release();
+        return sampler;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11Sampler::D3D11Sampler(const String &name)
+        : Sampler(name)
+        , mD3DSampler(nullptr)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    TextureUnit::~TextureUnit()
+    D3D11Sampler::~D3D11Sampler()
     {
-
+        D3D_SAFE_RELEASE(mD3DSampler);
     }
 
     //--------------------------------------------------------------------------
 
-    void TextureUnit::setSampler(const String &name)
+    TResult D3D11Sampler::load()
     {
-        mSampler = T3D_SAMPLER_MGR.loadSampler(name);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    const String &TextureUnit::getTextureName() const
+    TResult D3D11Sampler::unload()
     {
-        if (mCurrentFrame < mFrames.size() && mFrames[mCurrentFrame] != nullptr)
+        D3D_SAFE_RELEASE(mD3DSampler);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr D3D11Sampler::clone() const
+    {
+        D3D11SamplerPtr sampler = D3D11Sampler::create(getName());
+
+        TResult ret = cloneProperties(sampler);
+        if (ret != T3D_OK)
         {
-            return mFrames[mCurrentFrame]->getName();
+            sampler = nullptr;
         }
 
-        return BLANKSTRING;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void TextureUnit::setTextureName(const String &name)
-    {
-        do 
-        {
-            TexturePtr texture = T3D_TEXTURE_MGR.loadTexture(name);
-            if (texture == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Load texture [%s] for texture unit failed !", 
-                    name.c_str());
-                break;
-            }
-
-            mFrames.resize(1);
-            mFrames[0] = texture;
-            mCurrentFrame = 0;
-        } while (0);
+        return sampler;
     }
 }

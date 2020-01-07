@@ -40,7 +40,6 @@
 #include <Kernel/T3DTechnique.h>
 #include <Kernel/T3DPass.h>
 #include <Kernel/T3DTextureUnit.h>
-#include <Kernel/T3DSamplerState.h>
 
 // Memory
 #include <Memory/T3DSmartPtr.h>
@@ -62,6 +61,8 @@
 #include <Resource/T3DTextureManager.h>
 #include <Resource/T3DMaterial.h>
 #include <Resource/T3DMaterialManager.h>
+#include <Resource/T3DSampler.h>
+#include <Resource/T3DSamplerManager.h>
 
 
 // ImageCodec

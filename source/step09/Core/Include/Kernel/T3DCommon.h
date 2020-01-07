@@ -142,6 +142,12 @@ namespace Tiny3D
     struct UVWAddressMode
     {
         TextureAddressMode u, v, w;
+
+        UVWAddressMode()
+            : u(TextureAddressMode::CLAMP)
+            , v(TextureAddressMode::CLAMP)
+            , w(TextureAddressMode::CLAMP)
+        {}
     };
 
     enum class WaveformType : uint32_t

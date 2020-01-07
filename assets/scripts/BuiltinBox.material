@@ -1,4 +1,14 @@
 
+sampler Builtin/Sampler
+{
+	tex_address_mode clamp clamp
+	tex_border_colour 1.0 1.0 1.0 1.0
+	filtering anisotropic anisotropic anisotropic
+	max_anisotropy 1
+	mipmap_bias 0
+	compare_func always_fail
+}
+
 material Builtin/Box
 {
 	technique box
@@ -28,6 +38,7 @@ material Builtin/Box
 			texture_unit
 			{
 				texture blocks.png
+				sampler_ref Builtin/Sampler
 			}
 		}
 	}

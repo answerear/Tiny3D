@@ -29,6 +29,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    inline SamplerPtr TextureUnit::getSampler()
+    {
+        return mSampler;
+    }
+
+    //--------------------------------------------------------------------------
+
     inline TexturePtr TextureUnit::getTexture()
     {
         T3D_ASSERT(mCurrentFrame < mFrames.size());

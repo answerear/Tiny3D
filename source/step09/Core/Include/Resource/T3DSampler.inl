@@ -22,52 +22,80 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline const UVWAddressMode &SamplerState::getAddressMode() const
+    inline const UVWAddressMode &Sampler::getAddressMode() const
     {
         return mAddressMode;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SamplerState::setAddressMode(const UVWAddressMode &uvw)
+    inline void Sampler::setAddressMode(const UVWAddressMode &uvw)
     {
-        mAddressMode = uvw;
+        if (mAddressMode.u != uvw.u || mAddressMode.v != uvw.v
+            || mAddressMode.w != uvw.w)
+        {
+            mAddressMode = uvw;
+            mIsDirty = true;
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SamplerState::setAddressMode(TextureAddressMode u,
+    inline void Sampler::setAddressMode(TextureAddressMode u,
         TextureAddressMode v, TextureAddressMode w)
     {
-        mAddressMode.u = u;
-        mAddressMode.v = v;
-        mAddressMode.w = w;
+        if (mAddressMode.u != u)
+        {
+            mAddressMode.u = u;
+            mIsDirty = true;
+        }
+
+        if (mAddressMode.v != v)
+        {
+            mAddressMode.v = v;
+            mIsDirty = true;
+        }
+
+        if (mAddressMode.w != w)
+        {
+            mAddressMode.w = w;
+            mIsDirty = true;
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SamplerState::setAddressMode(TextureAddressMode mode)
+    inline void Sampler::setAddressMode(TextureAddressMode mode)
     {
-        mAddressMode.u = mAddressMode.v = mAddressMode.w = mode;
+        if (mAddressMode.u != mode || mAddressMode.v != mode 
+            || mAddressMode.w != mode)
+        {
+            mAddressMode.u = mAddressMode.v = mAddressMode.w = mode;
+            mIsDirty = true;
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    inline const ColorRGBA &SamplerState::getBorderColor() const
+    inline const ColorRGBA &Sampler::getBorderColor() const
     {
         return mBorderColor;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SamplerState::setBorderColor(const ColorRGBA &color)
+    inline void Sampler::setBorderColor(const ColorRGBA &color)
     {
-        mBorderColor = color;
+        if (color != mBorderColor)
+        {
+            mBorderColor = color;
+            mIsDirty = true;
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    inline FilterOptions SamplerState::getFilter(FilterType type)
+    inline FilterOptions Sampler::getFilter(FilterType type)
     {
         FilterOptions opt = FilterOptions::NONE;
         if (type == FilterType::MIN)
@@ -81,78 +109,125 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SamplerState::setFilter(FilterOptions opt, FilterType type)
+    inline void Sampler::setFilter(FilterOptions opt, FilterType type)
     {
-        if (type == FilterType::MIN)
+        if (type == FilterType::MIN && mMinFilter != opt)
+        {
             mMinFilter = opt;
-        else if (type == FilterType::MAG)
+            mIsDirty = true;
+        }
+        else if (type == FilterType::MAG && mMagFilter != opt)
+        {
             mMagFilter = opt;
+            mIsDirty = true;
+        }
         else if (type == FilterType::MIP)
+        {
             mMipFilter = opt;
+            mIsDirty = true;
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SamplerState::setFilter(FilterOptions minFilter,
+    inline void Sampler::setFilter(FilterOptions minFilter,
         FilterOptions magFilter, FilterOptions mipFilter)
     {
-        mMinFilter = minFilter;
-        mMagFilter = magFilter;
-        mMipFilter = mipFilter;
+        if (mMinFilter != minFilter)
+        {
+            mMinFilter = minFilter;
+            mIsDirty = true;
+        }
+
+        if (mMagFilter != mMagFilter)
+        {
+            mMagFilter = magFilter;
+            mIsDirty = true;
+        }
+
+        if (mMipFilter != mMinFilter)
+        {
+            mMipFilter = mipFilter;
+            mIsDirty = true;
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SamplerState::setFilter(FilterType type)
+    inline void Sampler::setFilter(FilterType type)
     {
-        if (type == FilterType::MIN)
+        if (type == FilterType::MIN 
+            && mMinFilter != FilterOptions::ANISOTROPIC)
+        {
             mMinFilter = FilterOptions::ANISOTROPIC;
-        else if (type == FilterType::MAG)
+            mIsDirty = true;
+        }
+        else if (type == FilterType::MAG 
+            && mMagFilter != FilterOptions::ANISOTROPIC)
+        {
             mMagFilter = FilterOptions::ANISOTROPIC;
-        else if (type == FilterType::MIP)
+            mIsDirty = true;
+        }
+        else if (type == FilterType::MIP
+            && mMipFilter != FilterOptions::ANISOTROPIC)
+        {
             mMipFilter = FilterOptions::ANISOTROPIC;
+            mIsDirty = true;
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    inline CompareFunction SamplerState::getCompareFunction() const
+    inline CompareFunction Sampler::getCompareFunction() const
     {
         return mCompareFunc;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SamplerState::setCompareFunction(CompareFunction func)
+    inline void Sampler::setCompareFunction(CompareFunction func)
     {
-        mCompareFunc = func;
+        if (mCompareFunc != func)
+        {
+            mCompareFunc = func;
+            mIsDirty = true;
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint32_t SamplerState::getAnisotropy() const
+    inline uint32_t Sampler::getAnisotropy() const
     {
         return mAnisotropy;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SamplerState::setAnisotropy(uint32_t aniso)
+    inline void Sampler::setAnisotropy(uint32_t aniso)
     {
-        mAnisotropy = aniso;
+        if (aniso != mAnisotropy)
+        {
+            mAnisotropy = aniso;
+            mIsDirty = true;
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    inline Real SamplerState::getMipmapBias() const
+    inline Real Sampler::getMipmapBias() const
     {
         return mMipmapBias;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SamplerState::setMipmapBias(Real bias)
+    inline void Sampler::setMipmapBias(Real bias)
     {
-        mMipmapBias = bias;
+        if (bias != mMipmapBias)
+        {
+            mMipmapBias = bias;
+            mIsDirty = true;
+        }
     }
 }
 

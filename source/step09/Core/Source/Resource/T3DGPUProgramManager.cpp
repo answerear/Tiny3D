@@ -70,22 +70,8 @@ namespace Tiny3D
     ShaderPtr ShaderManager::loadShader(Shader::ShaderType shaderType, 
         const String &name)
     {
-        ShaderPtr shader = smart_pointer_cast<Shader>(ResourceManager::load(
-            name, 1, shaderType));
-
-//         if (shader != nullptr)
-//         {
-//             if (!shader->hasCompiled())
-//             {
-//                 TResult ret = shader->compile();
-//                 if (ret != T3D_OK)
-//                 {
-//                     shader = nullptr;
-//                 }
-//             }
-//         }
-
-        return shader;
+        return smart_pointer_cast<Shader>(ResourceManager::load(name, 
+            1, shaderType));
     }
 
     //--------------------------------------------------------------------------
@@ -93,22 +79,8 @@ namespace Tiny3D
     ShaderPtr ShaderManager::loadShader(Shader::ShaderType shaderType, 
         const String &name, const String &content)
     {
-        ShaderPtr shader = smart_pointer_cast<Shader>(ResourceManager::load(
-            name, 2, shaderType, content.c_str()));
-
-//         if (shader != nullptr)
-//         {
-//             if (!shader->hasCompiled())
-//             {
-//                 TResult ret = shader->compile();
-//                 if (ret != T3D_OK)
-//                 {
-//                     shader = nullptr;
-//                 }
-//             }
-//         }
-
-        return shader;
+        return smart_pointer_cast<Shader>(ResourceManager::load(name, 
+            2, shaderType, content.c_str()));
     }
 
     //--------------------------------------------------------------------------
@@ -139,7 +111,8 @@ namespace Tiny3D
             {
                 Shader::ShaderType shaderType = va_arg(args, Shader::ShaderType);
                 String content = va_arg(args, char *);
-                shader = mCreator->createObject(3, shaderType, name.c_str(), content.c_str());
+                shader = mCreator->createObject(3, shaderType, name.c_str(), 
+                    content.c_str());
             }
         } while (0);        
 
@@ -243,7 +216,7 @@ namespace Tiny3D
             }
 
             // 交給腳本解析器解析
-            ret = ScriptParser::getInstance().parse(stream);
+            ret = T3D_SCRIPT_PARSER.parse(stream);
             if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,

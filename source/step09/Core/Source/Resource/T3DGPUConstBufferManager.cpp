@@ -109,7 +109,7 @@ namespace Tiny3D
             }
 
             // 交給腳本解析器解析
-            ret = ScriptParser::getInstance().parse(stream);
+            ret = T3D_SCRIPT_PARSER.parse(stream);
             if (ret != T3D_OK)
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,

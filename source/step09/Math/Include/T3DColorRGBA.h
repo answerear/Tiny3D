@@ -96,6 +96,11 @@ namespace Tiny3D
                 && mBlue == other.mBlue);
         }
 
+        bool operator !=(const ColorRGBA &other) const
+        {
+            return !operator ==(other);
+        }
+
         float32_t alpha() const   { return mAlpha; }
         float32_t &alpha()        { return mAlpha; }
 

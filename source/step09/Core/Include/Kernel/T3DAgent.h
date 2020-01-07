@@ -357,8 +357,9 @@ namespace Tiny3D
         MaterialManagerPtr          mMaterialMgr;       /**< 材质资源管理对象 */
         TextureManagerPtr           mTextureMgr;        /**< 纹理资源管理对象 */
         ShaderManagerPtr            mShaderMgr;         /**< 着色器管理对象 */
-        GPUProgramManagerPtr        mGPUProgramMgr;     /**< GPU程序管理对象 */
-        GPUConstBufferManagerPtr    mGPUConstBufferMgr; /**< Manager for GPU constant buffer */
+        GPUProgramManagerPtr        mGPUProgramMgr;     /**< GPU 程序管理对象 */
+        GPUConstBufferManagerPtr    mGPUConstBufferMgr; /**< GPU 常量缓冲区管理对象 */
+        SamplerManagerPtr           mSamplerMgr;        /**< 采样器管理对象 */
 
         ImageCodecPtr           mImageCodec;        /**< 图像编解码器对象 */
 

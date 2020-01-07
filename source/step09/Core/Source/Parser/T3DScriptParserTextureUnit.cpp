@@ -157,30 +157,30 @@ namespace Tiny3D
 
             switch (id)
             {
-            case E_OP_TEX_ADDRESS_MODE:
-            case E_OP_TEX_BORDER_COLOUR:
-            case E_OP_FILTERING:
-            case E_OP_CMPTEST:
-            case E_OP_CMPFUNC:
-            case E_OP_COMP_FUNC:
-            case E_OP_MAX_ANISOTROPY:
-            case E_OP_MIPMAP_BIAS:
-                {
-                    ScriptParserBase *parser
-                        = ScriptParser::getInstance().getObjectParser(id);
-                    if (parser == nullptr)
-                    {
-                        ret = T3D_ERR_RES_INVALID_OBJECT;
-                        T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                            "Invalid object in texture unit !");
-                        break;
-                    }
-
-                    ScriptParserSampler *sampler 
-                        = static_cast<ScriptParserSampler*>(parser);
-                    ret = sampler->parseSamplerParams(stream, unit, version);
-                }
-                break;
+//             case E_OP_TEX_ADDRESS_MODE:
+//             case E_OP_TEX_BORDER_COLOUR:
+//             case E_OP_FILTERING:
+//             case E_OP_CMPTEST:
+//             case E_OP_CMPFUNC:
+//             case E_OP_COMP_FUNC:
+//             case E_OP_MAX_ANISOTROPY:
+//             case E_OP_MIPMAP_BIAS:
+//                 {
+//                     ScriptParserBase *parser
+//                         = T3D_SCRIPT_PARSER.getObjectParser(id);
+//                     if (parser == nullptr)
+//                     {
+//                         ret = T3D_ERR_RES_INVALID_OBJECT;
+//                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+//                             "Invalid object in texture unit !");
+//                         break;
+//                     }
+// 
+//                     ScriptParserSampler *sampler 
+//                         = static_cast<ScriptParserSampler*>(parser);
+//                     ret = sampler->parseSamplerParams(stream, unit, version);
+//                 }
+//                 break;
             case E_OP_SAMPLER_REF:
                 ret = parseSamplerRef(stream, unit, version);
                 break;

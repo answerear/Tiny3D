@@ -21,6 +21,7 @@
 #include "T3DD3D11Plugin.h"
 #include "T3DD3D11Renderer.h"
 #include "T3DD3D11GPUProgramCreator.h"
+#include "T3DD3D11Sampler.h"
 
 
 namespace Tiny3D
@@ -30,6 +31,9 @@ namespace Tiny3D
     D3D11Plugin::D3D11Plugin()
         : mName("D3D11Renderer")
         , mRenderer(nullptr)
+        , mShaderCreator(nullptr)
+        , mGPUCreator(nullptr)
+        , mSamplerCreator(nullptr)
     {
 
     }
@@ -68,9 +72,11 @@ namespace Tiny3D
 
             mShaderCreator = new D3D11ShaderCreator();
             mGPUCreator = new D3D11GPUProgramCreator();
+            mSamplerCreator = new D3D11SamplerCreator();
 
             T3D_SHADER_MGR.setShaderCreator(mShaderCreator);
             T3D_GPU_PROGRAM_MGR.setGPUProgramCreator(mGPUCreator);
+            T3D_SAMPLER_MGR.setSamplerCreator(mSamplerCreator);
         } while (0);
 
         return ret;
@@ -110,9 +116,11 @@ namespace Tiny3D
 
             T3D_SHADER_MGR.setShaderCreator(nullptr);
             T3D_GPU_PROGRAM_MGR.setGPUProgramCreator(nullptr);
+            T3D_SAMPLER_MGR.setSamplerCreator(nullptr);
 
             delete mShaderCreator;
             delete mGPUCreator;
+            delete mSamplerCreator;
 
             mRenderer = nullptr;
         } while (0);

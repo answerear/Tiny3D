@@ -92,6 +92,8 @@ namespace Tiny3D
     class GPUProgramManager;
     class GPUConstBuffer;
     class GPUConstBufferManager;
+    class Sampler;
+    class SamplerManager;
 
     class HardwareBuffer;
     class HardwareIndexBuffer;
@@ -107,7 +109,6 @@ namespace Tiny3D
     class Technique;
     class Pass;
     class TextureUnit;
-    class SamplerState;
 
     class VertexArrayObject;
 

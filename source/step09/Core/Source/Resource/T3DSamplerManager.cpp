@@ -18,11 +18,6 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DTextureUnit.h"
-#include "Kernel/T3DPass.h"
-#include "Resource/T3DTexture.h"
-#include "Resource/T3DTextureManager.h"
-#include "Resource/T3DSampler.h"
 #include "Resource/T3DSamplerManager.h"
 
 
@@ -30,68 +25,66 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TextureUnitPtr TextureUnit::create(const String &name, Pass *pass)
+    T3D_INIT_SINGLETON(SamplerManager);
+
+    //--------------------------------------------------------------------------
+
+    SamplerManagerPtr SamplerManager::create()
     {
-        TextureUnitPtr unit = new TextureUnit(name, pass);
-        unit->release();
-        return unit;
+        SamplerManagerPtr mgr = new SamplerManager();
+        mgr->release();
+        return mgr;
     }
 
     //--------------------------------------------------------------------------
 
-    TextureUnit::TextureUnit(const String &name, Pass *pass)
-        : mParent(pass)
-        , mName(name)
-        , mSampler(nullptr)
-        , mCurrentFrame(0)
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    TextureUnit::~TextureUnit()
+    SamplerManager::SamplerManager()
+        : ResourceManager()
+        , mCreator(nullptr)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    void TextureUnit::setSampler(const String &name)
+    SamplerManager::~SamplerManager()
     {
-        mSampler = T3D_SAMPLER_MGR.loadSampler(name);
+
     }
 
     //--------------------------------------------------------------------------
 
-    const String &TextureUnit::getTextureName() const
+    void SamplerManager::setSamplerCreator(SamplerCreator *creator)
     {
-        if (mCurrentFrame < mFrames.size() && mFrames[mCurrentFrame] != nullptr)
+        mCreator = creator;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SamplerPtr SamplerManager::loadSampler(const String &name)
+    {
+        return smart_pointer_cast<Sampler>(ResourceManager::load(name, 0));
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr SamplerManager::create(const String &name, int32_t argc, 
+        va_list args)
+    {
+        ResourcePtr res;
+
+        if (argc == 0)
         {
-            return mFrames[mCurrentFrame]->getName();
+            res = mCreator->createObject(1, name.c_str());
         }
 
-        return BLANKSTRING;
+        return res;
     }
 
     //--------------------------------------------------------------------------
 
-    void TextureUnit::setTextureName(const String &name)
+    TResult SamplerManager::unloadSampler(SamplerPtr sampler)
     {
-        do 
-        {
-            TexturePtr texture = T3D_TEXTURE_MGR.loadTexture(name);
-            if (texture == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Load texture [%s] for texture unit failed !", 
-                    name.c_str());
-                break;
-            }
-
-            mFrames.resize(1);
-            mFrames[0] = texture;
-            mCurrentFrame = 0;
-        } while (0);
+        return unload(sampler);
     }
 }

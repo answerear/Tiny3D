@@ -44,6 +44,7 @@ namespace Tiny3D
             E_RT_SHADER,        /**< 著色器 */
             E_RT_GPUPROGRAM,    /**< GPU程序 */
             E_RT_GPUCBUFFER,    /**< GPU 常量緩衝區 */
+            E_RT_SAMPLER,       /**< 采样器 */
         };
 
         /** 構造函數 */

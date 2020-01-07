@@ -89,6 +89,9 @@ namespace Tiny3D
         case E_OP_TEXTURE_UNIT:
             parser = mTexUnitParser;
             break;
+        case E_OP_SAMPLER:
+            parser = mSamplerParser;
+            break;
         case E_OP_TEX_ADDRESS_MODE:
         case E_OP_TEX_BORDER_COLOUR:
         case E_OP_FILTERING:

@@ -22,6 +22,9 @@
 #include "Parser/T3DScriptParser.h"
 #include "Kernel/T3DTextureUnit.h"
 #include "T3DErrorDef.h"
+#include "Resource/T3DSampler.h"
+#include "Resource/T3DSamplerManager.h"
+#include "Resource/T3DMaterial.h"
 
 
 namespace Tiny3D
@@ -60,7 +63,7 @@ namespace Tiny3D
         {
             size_t bytesOfRead = 0;
 
-            TextureUnit *unit = static_cast<TextureUnit*>(object);
+//             TextureUnit *unit = static_cast<TextureUnit*>(object);
 
             // 属性数量
             uint16_t count = 0;
@@ -89,6 +92,8 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, 16,
                 "Read hash of sampler failed !");
 
+            SamplerPtr sampler = T3D_SAMPLER_MGR.loadSampler(name);
+
             uint16_t type = UNKNOWN;
             uint16_t i = 0;
 
@@ -101,11 +106,11 @@ namespace Tiny3D
 
                 if (type == PROPERTY)
                 {
-                    ret = parseProperties(stream, unit, version);
+                    ret = parseProperties(stream, sampler, version);
                 }
                 else if (type == OBJECT)
                 {
-                    ret = parseObjects(stream, unit, version);
+                    ret = parseObjects(stream, sampler, version);
                 }
                 else
                 {
@@ -128,7 +133,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseProperties(
-        DataStream &stream, TextureUnit *unit, uint32_t version)
+        DataStream &stream, Sampler *sampler, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -145,30 +150,30 @@ namespace Tiny3D
             switch (id)
             {
             case E_OP_TEX_ADDRESS_MODE:
-                ret = parseTexAddressMode(stream, unit, version);
+                ret = parseTexAddressMode(stream, sampler, version);
                 break;
             case E_OP_TEX_BORDER_COLOUR:
-                ret = parseTexBorderColor(stream, unit, version);
+                ret = parseTexBorderColor(stream, sampler, version);
                 break;
             case E_OP_FILTERING:
-                ret = parseFiltering(stream, unit, version);
+                ret = parseFiltering(stream, sampler, version);
                 break;
             case E_OP_CMPTEST:
-                ret = parseCompareTest(stream, unit, version);
+                ret = parseCompareTest(stream, sampler, version);
                 break;
             case E_OP_CMPFUNC:
-                ret = parseCompareFunc(stream, unit, version);
+                ret = parseCompareFunc(stream, sampler, version);
                 break;
             case E_OP_MAX_ANISOTROPY:
-                ret = parseMaxAnisotropy(stream, unit, version);
+                ret = parseMaxAnisotropy(stream, sampler, version);
                 break;
             case E_OP_MIPMAP_BIAS:
-                ret = parseMipmapBias(stream, unit, version);
+                ret = parseMipmapBias(stream, sampler, version);
                 break;
             default:
                 ret = T3D_ERR_RES_INVALID_PROPERTY;
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid property of texture unit !");
+                    "Invalid property of sampler !");
                 break;
             }
         } while (0);
@@ -178,17 +183,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserSampler::parseSamplerParams(
-        DataStream &stream, Object *object, uint32_t version)
-    {
-        TextureUnit *unit = static_cast<TextureUnit*>(object);
-
-        return parseProperties(stream, unit, version);
-    }
+//     TResult ScriptParserSampler::parseSamplerParams(
+//         DataStream &stream, Object *object, uint32_t version)
+//     {
+//         TextureUnit *unit = static_cast<TextureUnit*>(object);
+// 
+//         return parseProperties(stream, unit, version);
+//     }
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptParserSampler::parseTexAddressMode(DataStream &stream, TextureUnit *unit, uint32_t version)
+    TResult ScriptParserSampler::parseTexAddressMode(
+        DataStream &stream, Sampler *sampler, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -230,7 +236,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseTexBorderColor(
-        DataStream &stream, TextureUnit *unit, uint32_t version)
+        DataStream &stream, Sampler *sample, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -254,7 +260,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseFiltering(
-        DataStream &stream, TextureUnit *unit, uint32_t version)
+        DataStream &stream, Sampler *sample, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -357,7 +363,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseCompareTest(
-        DataStream &stream, TextureUnit *unit, uint32_t version)
+        DataStream &stream, Sampler *sample, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -380,7 +386,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseCompareFunc(
-        DataStream &stream, TextureUnit *unit, uint32_t version)
+        DataStream &stream, Sampler *sample, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -424,7 +430,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseMaxAnisotropy(
-        DataStream &stream, TextureUnit *unit, uint32_t version)
+        DataStream &stream, Sampler *sample, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -447,7 +453,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseMipmapBias(
-        DataStream &stream, TextureUnit *unit, uint32_t version)
+        DataStream &stream, Sampler *sample, uint32_t version)
     {
         TResult ret = T3D_OK;
 

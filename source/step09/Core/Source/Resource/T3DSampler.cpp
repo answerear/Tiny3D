@@ -18,31 +18,62 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11SamplerState.h"
+#include "Resource/T3DSampler.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    D3D11SamplerStatePtr D3D11SamplerState::create()
+    Sampler::Sampler(const String &name)
+        : Resource(name)
+        , mAddressMode()
+        , mBorderColor(ColorRGBA::WHITE)
+        , mMinFilter(FilterOptions::LINEAR)
+        , mMagFilter(FilterOptions::LINEAR)
+        , mMipFilter(FilterOptions::LINEAR)
+        , mCompareFunc(CompareFunction::ALWAYS_FAIL)
+        , mAnisotropy(1)
+        , mMipmapBias(0.0f)
+        , mIsDirty(true)
     {
-        D3D11SamplerStatePtr sampler = new D3D11SamplerState();
-        sampler->release();
-        return sampler;
+
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11SamplerState::D3D11SamplerState()
+    Sampler::~Sampler()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11SamplerState::~D3D11SamplerState()
+    Resource::Type Sampler::getType() const
     {
+        return Type::E_RT_SAMPLER;
+    }
 
+    //--------------------------------------------------------------------------
+
+    TResult Sampler::cloneProperties(SamplerPtr newObj) const
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            newObj->mAddressMode = mAddressMode;
+            newObj->mBorderColor = mBorderColor;
+            newObj->mMinFilter = mMinFilter;
+            newObj->mMagFilter = mMagFilter;
+            newObj->mMipFilter = mMipFilter;
+            newObj->mCompareFunc = mCompareFunc;
+            newObj->mAnisotropy = mAnisotropy;
+            newObj->mMipmapBias = mMipmapBias;
+            newObj->mIsDirty = true;
+        } while (0);
+
+        return ret;
     }
 }
+

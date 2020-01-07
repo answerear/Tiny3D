@@ -120,6 +120,10 @@ namespace Tiny3D
 
         const String &getName() const;
 
+        void setSampler(const String &name);
+
+        SamplerPtr getSampler();
+
         const String &getTextureName() const;
 
         void setTextureName(const String &name);
@@ -139,9 +143,11 @@ namespace Tiny3D
         typedef Textures::iterator                      TexturesItr;
         typedef Textures::const_iterator                TexturesConstItr;
 
-        Pass        *mParent;           /// 当前纹理单元所属的pass对象
+        Pass        *mParent;           /**< 当前纹理单元所属的pass对象 */
 
-        String      mName;              /// 纹理单元名称
+        String      mName;              /**< 纹理单元名称 */
+
+        SamplerPtr  mSampler;           /**< 纹理采样器对象 */
 
         //---------------------------------------
         // Command : texture_alias
@@ -150,7 +156,7 @@ namespace Tiny3D
 
         //---------------------------------------
         // Command : texture
-        // Usage : texture <texturename> [<type>] [umlimited|numMipmaps] [alpha] [<PixelFormat>] [gamma]
+        // Usage : texture <texturename> [<type>] [unlimited|numMipmaps] [alpha] [<PixelFormat>] [gamma]
         // Parameters : 
         //  #1 texturename 存放在 mFrames 中
         TextureType mTextureType;       /// 纹理类型

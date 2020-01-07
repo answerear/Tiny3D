@@ -324,6 +324,12 @@ namespace Tiny3D
                 break;
             }
 
+            // MD5
+            uint8_t hash[16];
+            bytesOfRead = stream.read(hash, sizeof(hash));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, 16,
+                "Read hash of GPU program failed !");
+
             GPUProgramPtr program;
             if (material != nullptr)
             {
@@ -346,12 +352,6 @@ namespace Tiny3D
                     break;
                 }
             }
-
-            // MD5
-            uint8_t hash[16];
-            bytesOfRead = stream.read(hash, sizeof(hash));
-            T3D_CHECK_READ_CONTENT(bytesOfRead, 16,
-                "Read hash of GPU program failed !");
 
             uint16_t type = UNKNOWN;
             uint16_t i = 0;
@@ -579,6 +579,12 @@ namespace Tiny3D
                 break;
             }
 
+            // MD5
+            uint8_t hash[16];
+            bytesOfRead = stream.read(hash, sizeof(hash));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, 16,
+                "Read hash of GPU constant buffer failed !");
+
             GPUConstBufferPtr buffer;
 
             if (material != nullptr)
@@ -603,12 +609,6 @@ namespace Tiny3D
                     break;
                 }
             }
-
-            // MD5
-            uint8_t hash[16];
-            bytesOfRead = stream.read(hash, sizeof(hash));
-            T3D_CHECK_READ_CONTENT(bytesOfRead, 16,
-                "Read hash of GPU constant buffer failed !");
 
             uint16_t type = UNKNOWN;
             uint16_t i = 0;

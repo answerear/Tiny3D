@@ -342,7 +342,8 @@ namespace Tiny3D
         GPUProgram(const String &name);
 
         /**
-         * @fn  virtual TResult GPUProgram::cloneProperties(GPUProgramPtr newObj) const;
+         * @fn  virtual TResult GPUProgram::cloneProperties(
+         *      GPUProgramPtr newObj) const;
          * @brief   克隆属性
          * @param   newObj  The new object.
          * @returns A TResult.
