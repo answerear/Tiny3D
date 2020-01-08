@@ -19,6 +19,8 @@
 
 
 #include "T3DD3D11Sampler.h"
+#include "T3DD3D11Mappings.h"
+#include "T3DD3D11Renderer.h"
 
 
 namespace Tiny3D
@@ -98,5 +100,43 @@ namespace Tiny3D
         }
 
         return sampler;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID3D11SamplerState *D3D11Sampler::getD3DSamplerState()
+    {
+        if (mIsDirty)
+        {
+            D3D_SAFE_RELEASE(mD3DSampler);
+
+            D3D11_SAMPLER_DESC d3dDesc;
+            d3dDesc.AddressU = D3D11Mappings::get(mAddressMode.u);
+            d3dDesc.AddressV = D3D11Mappings::get(mAddressMode.v);
+            d3dDesc.AddressW = D3D11Mappings::get(mAddressMode.w);
+            d3dDesc.Filter = D3D11Mappings::get(mMinFilter, mMagFilter, mMipFilter);
+            d3dDesc.MipLODBias = mMipmapBias;
+            d3dDesc.BorderColor[0] = mBorderColor.red();
+            d3dDesc.BorderColor[1] = mBorderColor.green();
+            d3dDesc.BorderColor[2] = mBorderColor.blue();
+            d3dDesc.BorderColor[3] = mBorderColor.alpha();
+            d3dDesc.ComparisonFunc = D3D11Mappings::get(mCompareFunc);
+            d3dDesc.MaxAnisotropy = mAnisotropy;
+            d3dDesc.MinLOD = 0;
+            d3dDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+            HRESULT hr = S_OK;
+            hr = pD3DDevice->CreateSamplerState(&d3dDesc, &mD3DSampler);
+            if (FAILED(hr))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create D3D11 Sampler State failed ! DX ERROR [%d]", hr);
+            }
+
+            mIsDirty = false;
+        }
+
+        return mD3DSampler;
     }
 }

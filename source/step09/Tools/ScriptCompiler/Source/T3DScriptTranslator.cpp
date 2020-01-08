@@ -4843,6 +4843,7 @@ namespace Tiny3D
                 case ID_FILTERING:
                 case ID_CMPTEST:
                 case ID_CMPFUNC:
+                case ID_COMP_FUNC:
                 case ID_MAX_ANISOTROPY:
                 case ID_MIPMAP_BIAS:
                     bytesOfWritten = translateSamplerParams(prop, stream);
@@ -5278,8 +5279,8 @@ namespace Tiny3D
         }
         else if (prop->values.size() == 1)
         {
-            float32_t val;
-            if (getSingle(prop->values.front(), &val))
+            uint32_t val;
+            if (getUInt(prop->values.front(), &val))
             {
                 bytesOfWritten = stream.write(&val, sizeof(val));
                 totalBytes += bytesOfWritten;

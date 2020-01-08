@@ -19,6 +19,7 @@
 
 
 #include "T3DD3D11Mappings.h"
+#include "T3DD3D11Renderer.h"
 
 
 namespace Tiny3D
@@ -374,6 +375,110 @@ namespace Tiny3D
         }
 
         return fmt;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11_FILTER D3D11Mappings::get(FilterOptions min, FilterOptions mag,
+        FilterOptions mip, bool comparison /* = false */)
+    {
+        if (min == FilterOptions::ANISOTROPIC 
+            || mag == FilterOptions::ANISOTROPIC 
+            || mip == FilterOptions::ANISOTROPIC)
+            return comparison ? D3D11_FILTER_COMPARISON_ANISOTROPIC : D3D11_FILTER_ANISOTROPIC;
+
+        // FilterOptions::FilterOptions::NONE is not supported
+#define MERGE_FOR_SWITCH(_comparison_, _min_ , _mag_, _mip_ ) \
+    ((_comparison_ ? 8 : 0) | (_min_ == FilterOptions::LINEAR ? 4 : 0) | (_mag_ == FilterOptions::LINEAR ? 2 : 0) | (_mip_ == FilterOptions::LINEAR ? 1 : 0))
+
+        switch ((MERGE_FOR_SWITCH(comparison, min, mag, mip)))
+        {
+        case MERGE_FOR_SWITCH(true, FilterOptions::POINT, FilterOptions::POINT, FilterOptions::POINT):
+            return D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+        case MERGE_FOR_SWITCH(true, FilterOptions::POINT, FilterOptions::POINT, FilterOptions::LINEAR):
+            return D3D11_FILTER_COMPARISON_MIN_MAG_POINT_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(true, FilterOptions::POINT, FilterOptions::LINEAR, FilterOptions::POINT):
+            return D3D11_FILTER_COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT;
+        case MERGE_FOR_SWITCH(true, FilterOptions::POINT, FilterOptions::LINEAR, FilterOptions::LINEAR):
+            return D3D11_FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(true, FilterOptions::LINEAR, FilterOptions::POINT, FilterOptions::POINT):
+            return D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT;
+        case MERGE_FOR_SWITCH(true, FilterOptions::LINEAR, FilterOptions::POINT, FilterOptions::LINEAR):
+            return D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(true, FilterOptions::LINEAR, FilterOptions::LINEAR, FilterOptions::POINT):
+            return D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+        case MERGE_FOR_SWITCH(true, FilterOptions::LINEAR, FilterOptions::LINEAR, FilterOptions::LINEAR):
+            return D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(false, FilterOptions::POINT, FilterOptions::POINT, FilterOptions::POINT):
+            return D3D11_FILTER_MIN_MAG_MIP_POINT;
+        case MERGE_FOR_SWITCH(false, FilterOptions::POINT, FilterOptions::POINT, FilterOptions::LINEAR):
+            return D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(false, FilterOptions::POINT, FilterOptions::LINEAR, FilterOptions::POINT):
+            return D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
+        case MERGE_FOR_SWITCH(false, FilterOptions::POINT, FilterOptions::LINEAR, FilterOptions::LINEAR):
+            return D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(false, FilterOptions::LINEAR, FilterOptions::POINT, FilterOptions::POINT):
+            return D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
+        case MERGE_FOR_SWITCH(false, FilterOptions::LINEAR, FilterOptions::POINT, FilterOptions::LINEAR):
+            return D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(false, FilterOptions::LINEAR, FilterOptions::LINEAR, FilterOptions::POINT):
+            return D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+        case MERGE_FOR_SWITCH(false, FilterOptions::LINEAR, FilterOptions::LINEAR, FilterOptions::LINEAR):
+            return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        }
+
+#undef MERGE_FOR_SWITCH
+
+        return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11_TEXTURE_ADDRESS_MODE D3D11Mappings::get(TextureAddressMode mode)
+    {
+        if (D3D11_RENDERER.getFeatureLevel() == D3D_FEATURE_LEVEL_9_1)
+            return D3D11_TEXTURE_ADDRESS_WRAP;
+
+        switch (mode)
+        {
+        case TextureAddressMode::WRAP:
+            return D3D11_TEXTURE_ADDRESS_WRAP;
+        case TextureAddressMode::MIRROR:
+            return D3D11_TEXTURE_ADDRESS_MIRROR;
+        case TextureAddressMode::CLAMP:
+            return D3D11_TEXTURE_ADDRESS_CLAMP;
+        case TextureAddressMode::BORDER:
+            return D3D11_TEXTURE_ADDRESS_BORDER;
+        }
+
+        return D3D11_TEXTURE_ADDRESS_WRAP;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11_COMPARISON_FUNC D3D11Mappings::get(CompareFunction func)
+    {
+        switch (func)
+        {
+        case CompareFunction::ALWAYS_FAIL:
+            return D3D11_COMPARISON_NEVER;
+        case CompareFunction::ALWAYS_PASS:
+            return D3D11_COMPARISON_ALWAYS;
+        case CompareFunction::LESS:
+            return D3D11_COMPARISON_LESS;
+        case CompareFunction::LESS_EQUAL:
+            return D3D11_COMPARISON_LESS_EQUAL;
+        case CompareFunction::EQUAL:
+            return D3D11_COMPARISON_EQUAL;
+        case CompareFunction::NOT_EQUAL:
+            return D3D11_COMPARISON_NOT_EQUAL;
+        case CompareFunction::GREATER_EQUAL:
+            return D3D11_COMPARISON_GREATER_EQUAL;
+        case CompareFunction::GREATER:
+            return D3D11_COMPARISON_GREATER;
+        };
+
+        return D3D11_COMPARISON_ALWAYS;
     }
 }
 

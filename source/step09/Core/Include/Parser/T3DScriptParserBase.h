@@ -42,7 +42,7 @@ namespace Tiny3D
 
     /**
      * @class   ScriptParserBase
-     * @brief   A 3D engine api.
+     * @brief   脚本解析器基类.
      */
     class T3D_ENGINE_API ScriptParserBase : public Object
     {
@@ -363,10 +363,10 @@ namespace Tiny3D
         };
 
         /**
-         * @enum    BuiltInValue
-         * @brief   Values that represent built in values
+         * @enum    BuiltinValue
+         * @brief   内置类型值枚举
          */
-        enum BuiltInValue
+        enum BuiltinValue
         {
             E_BV_ON = 1,
             E_BV_OFF = 2,
@@ -378,28 +378,28 @@ namespace Tiny3D
 
         /**
          * @enum    BuiltinType
-         * @brief   Values that represent builtin types
+         * @brief   内置类型枚举
          */
         enum class BuiltinType : uint8_t
         {
-            NONE = 0,
-            REAL,
-            INT,
+            NONE = 0,   /**< 无类型 */
+            REAL,       /**< 实数类型 */
+            INT,        /**< 整数类型 */
         };
 
         /**
          * @enum    NodeType
-         * @brief   Values that represent node types
+         * @brief   脚本结点类型枚举
          */
         enum NodeType
         {
-            UNKNOWN,
-            ATOM,
-            OBJECT,
-            PROPERTY,
-            IMPORT,
-            VARIABLE_SET,
-            VARIABLE_ACCESS
+            UNKNOWN,        /**< 未知结点 */
+            ATOM,           /**< 原子结点，数值、字符串等值 */
+            OBJECT,         /**< 对象结点 */
+            PROPERTY,       /**< 属性结点 */
+            IMPORT,         /**< 导入结点 */
+            VARIABLE_SET,   /**< 变量定义结点 */
+            VARIABLE_ACCESS /**< 变量访问结点 */
         };
 
     public:
@@ -413,15 +413,14 @@ namespace Tiny3D
          * @fn  virtual TResult ScriptParserBase::parseObject(
          *      DataStream &stream, Object *object, uint32_t version) = 0;
          * @brief   解析数据流到object对象中
-         * @param [in,out]  stream  The stream.
-         * @param [in,out]  object  If non-null, the object.
-         * @param           version The version.
-         * @return  A TResult.
+         * @param [in,out]  stream  数据流对象.
+         * @param [in,out]  object  脚本解析出来对应的对象.
+         * @param [in]      version 版本号.
+         * @returns 调用成功返回 T3D_OK.
+         * @remarks 各子类脚本解析器需要实现本接口，以解析具体格式.
          */
         virtual TResult parseObject(
-            DataStream &stream, 
-            Object *object, 
-            uint32_t version) = 0;
+            DataStream &stream, Object *object, uint32_t version) = 0;
 
     protected:
         /**
@@ -434,10 +433,10 @@ namespace Tiny3D
          * @fn  virtual TResult ScriptParserBase::parseObjects(
          *      DataStream &stream, Object *object, uint32_t version);
          * @brief   解析子对象
-         * @param [in,out]  stream  The stream.
-         * @param [in,out]  object  If non-null, the object.
-         * @param           version The version.
-         * @return  A TResult.
+         * @param [in,out]  stream  数据流对象.
+         * @param [in,out]  object  脚本解析出来对应的对象.
+         * @param [in]      version 版本号.
+         * @returns 调用成功返回 T3D_OK.
          */
         virtual TResult parseObjects(
             DataStream &stream, Object *object, uint32_t version);
@@ -446,9 +445,9 @@ namespace Tiny3D
          * @fn  TResult ScriptParserBase::parseString(
          *      DataStream &stream, String &str);
          * @brief   解析一个字符串
-         * @param [in,out]  stream  The stream.
-         * @param [in,out]  str     The string.
-         * @return  A TResult.
+         * @param [in,out]  stream  数据流对象.
+         * @param [in,out]  str     解析出来的字符串.
+         * @returns 调用成功返回 T3D_OK.
          */
         TResult parseString(DataStream &stream, String &str);
 
@@ -456,9 +455,9 @@ namespace Tiny3D
          * @fn  TResult ScriptParserBase::parseColor(
          *      DataStream &stream, ColorRGBA &color);
          * @brief   解析一个颜色值
-         * @param [in,out]  stream  The stream.
-         * @param [in,out]  color   The color.
-         * @return  A TResult.
+         * @param [in,out]  stream  数据流对象.
+         * @param [in,out]  color   解析出来的颜色值.
+         * @returns 调用成功返回 T3D_OK.
          */
         TResult parseColor(DataStream &stream, ColorRGBA &color);
 
@@ -466,17 +465,17 @@ namespace Tiny3D
          * @fn  TResult ScriptParserBase::parseMatrix(
          *      DataStream &stream, Matrix4 &m);
          * @brief   解析一个矩阵
-         * @param [in,out]  stream  The stream.
-         * @param [in,out]  m       A Matrix4 to process.
-         * @return  A TResult.
+         * @param [in,out]  stream  数据流对象.
+         * @param [in,out]  m       解析出来的矩阵.
+         * @returns 调用成功返回 T3D_OK.
          */
         TResult parseMatrix(DataStream &stream, Matrix4 &m);
 
         /**
          * @fn  String ScriptParserBase::generateName(const String &prefix);
          * @brief   給無名對象生成一個名字
-         * @param   prefix  The prefix.
-         * @return  The name.
+         * @param [in]  prefix  名字前缀.
+         * @returns 返回一个名字.
          */
         String generateName(const String &prefix);
 
@@ -575,6 +574,17 @@ namespace Tiny3D
          * @return  Type as a LightType.
          */
         LightType toLightType(uint16_t type) const;
+
+        /**
+         * @fn  TextureAddressMode ScriptParserBase::toTexAddressMode(
+         *      uint16_t tam) const;
+         * @brief   
+         * @param [in]  tam : 纹理寻址模式
+         * @returns 
+         */
+        TextureAddressMode toTexAddressMode(uint16_t tam) const;
+
+        FilterOptions toFilterOptions(uint16_t filter) const;
 
     protected:
         char    *mText;     /**< 用于存放读取字符串，避免重复申请内存，只在不够的时候动态扩展大小 */

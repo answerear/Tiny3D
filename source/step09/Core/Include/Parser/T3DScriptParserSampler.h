@@ -76,7 +76,7 @@ namespace Tiny3D
          * @return  A TResult.
          */
         TResult parseProperties(
-            DataStream &stream, Sampler *sample, uint32_t version);
+            DataStream &stream, Sampler *sampler, uint32_t version);
 
         /**
          * @fn  TResult ScriptParserSampler::parseTexAddressMode( 
@@ -88,7 +88,7 @@ namespace Tiny3D
          * @return  A TResult.
          */
         TResult parseTexAddressMode(
-            DataStream &stream, Sampler *sample, uint32_t version);
+            DataStream &stream, Sampler *sampler, uint32_t version);
 
         /**
          * @fn  TResult ScriptParserSampler::parseTexBorderColor( 
@@ -100,7 +100,7 @@ namespace Tiny3D
          * @return  A TResult.
          */
         TResult parseTexBorderColor(
-            DataStream &stream, Sampler *sample, uint32_t version);
+            DataStream &stream, Sampler *sampler, uint32_t version);
 
         /**
          * @fn  TResult ScriptParserSampler::parseFiltering( 
@@ -112,7 +112,7 @@ namespace Tiny3D
          * @return  A TResult.
          */
         TResult parseFiltering(
-            DataStream &stream, Sampler *sample, uint32_t version);
+            DataStream &stream, Sampler *sampler, uint32_t version);
 
         /**
          * @fn  TResult ScriptParserSampler::parseCompareTest( 
@@ -124,7 +124,7 @@ namespace Tiny3D
          * @return  A TResult.
          */
         TResult parseCompareTest(
-            DataStream &stream, Sampler *sample, uint32_t version);
+            DataStream &stream, Sampler *sampler, uint32_t version);
 
         /**
          * @fn  TResult ScriptParserSampler::parseCompareFunc( 
@@ -136,7 +136,7 @@ namespace Tiny3D
          * @return  A TResult.
          */
         TResult parseCompareFunc(
-            DataStream &stream, Sampler *sample, uint32_t version);
+            DataStream &stream, Sampler *sampler, uint32_t version);
 
         /**
          * @fn  TResult ScriptParserSampler::parseMaxAnisotropy( 
@@ -148,7 +148,7 @@ namespace Tiny3D
          * @return  A TResult.
          */
         TResult parseMaxAnisotropy(
-            DataStream &stream, Sampler *sample, uint32_t version);
+            DataStream &stream, Sampler *sampler, uint32_t version);
 
         /**
          * @fn  TResult ScriptParserSampler::parseMipmapBias( 
@@ -160,7 +160,7 @@ namespace Tiny3D
          * @return  A TResult.
          */
         TResult parseMipmapBias(
-            DataStream &stream, Sampler *sample, uint32_t version);
+            DataStream &stream, Sampler *sampler, uint32_t version);
     };
 }
 

@@ -68,9 +68,9 @@ bool Drawing3DApp::applicationDidFinishLaunching()
 //     box->setScaling(Vector3(100, 100, 100));
 
     // Çò
-    SceneSpherePtr sphere = T3D_SCENE_MGR.createSphere(Vector3::ZERO, 1.0f, root);
-    sphere->setPosition(Vector3(2.0f, 0.0f, 0.0f));
-    sphere->setCameraMask(OBJ_MASK_SCENE);
+//     SceneSpherePtr sphere = T3D_SCENE_MGR.createSphere(Vector3::ZERO, 1.0f, root);
+//     sphere->setPosition(Vector3(2.0f, 0.0f, 0.0f));
+//     sphere->setCameraMask(OBJ_MASK_SCENE);
 
     // ¿Õ¼äËÄ±ßĞÎ
     

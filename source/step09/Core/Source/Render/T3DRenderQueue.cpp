@@ -100,13 +100,13 @@ namespace Tiny3D
 
         SceneCameraPtr camera = vp->getCamera();
 
-        if (RenderQueue::E_GRPID_INDICATOR == groupID
-            || RenderQueue::E_GRPID_WIREFRAME == groupID)
-        {
-            // 指示器或者线框渲染，渲染模式需要改成线框模式
-            renderMode = renderer->getPolygonMode();
-            renderer->setPolygonMode(PolygonMode::WIREFRAME);
-        }
+//         if (RenderQueue::E_GRPID_INDICATOR == groupID
+//             || RenderQueue::E_GRPID_WIREFRAME == groupID)
+//         {
+//             // 指示器或者线框渲染，渲染模式需要改成线框模式
+//             renderMode = renderer->getPolygonMode();
+//             renderer->setPolygonMode(PolygonMode::WIREFRAME);
+//         }
 
         if (RenderQueue::E_GRPID_LIGHT != groupID)
         {
@@ -155,12 +155,12 @@ namespace Tiny3D
             }
         }
 
-        if (RenderQueue::E_GRPID_INDICATOR == groupID
-            || RenderQueue::E_GRPID_WIREFRAME == groupID)
-        {
-            // 恢复渲染模式
-            renderer->setPolygonMode(renderMode);
-        }
+//         if (RenderQueue::E_GRPID_INDICATOR == groupID
+//             || RenderQueue::E_GRPID_WIREFRAME == groupID)
+//         {
+//             // 恢复渲染模式
+//             renderer->setPolygonMode(renderMode);
+//         }
 
         return T3D_OK;
     }

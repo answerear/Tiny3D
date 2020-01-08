@@ -271,7 +271,7 @@ namespace Tiny3D
                 break;
             }
 
-            // TODO
+            unit->setSampler(name);
         } while (0);
 
         return ret;

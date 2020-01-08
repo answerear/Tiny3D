@@ -229,5 +229,23 @@ namespace Tiny3D
             mIsDirty = true;
         }
     }
+
+    //--------------------------------------------------------------------------
+
+    inline bool Sampler::isCompareEnabled() const
+    {
+        return mCompareEnabled;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void Sampler::setCompareEnabled(bool enabled)
+    {
+        if (enabled != mCompareEnabled)
+        {
+            mCompareEnabled = enabled;
+            mIsDirty = true;
+        }
+    }
 }
 

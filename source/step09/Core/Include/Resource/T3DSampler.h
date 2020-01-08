@@ -167,6 +167,10 @@ namespace Tiny3D
          */
         void setMipmapBias(Real bias);
 
+        bool isCompareEnabled() const;
+
+        void setCompareEnabled(bool enabled);
+
     protected:
         /**
          * @fn  Sampler::Sampler(const String &name);
@@ -193,6 +197,7 @@ namespace Tiny3D
         CompareFunction mCompareFunc;   /**< The compare function */
         uint32_t        mAnisotropy;    /**< The anisotropy */
         Real            mMipmapBias;    /**< The mipmap bias */
+        bool            mCompareEnabled;/**< True if compare enabled */
         bool            mIsDirty;       /**< True if is dirty, false if not */
     };
 

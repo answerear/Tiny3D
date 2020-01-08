@@ -30,7 +30,7 @@ namespace Tiny3D
     class IFactory;
 
     /**
-     * @class VSystem
+     * @class System
      * @brief 系统类.
      * @note 该类对一些全局的单例创建和释放，为上层提供框架层和系统层统一接口.
      */

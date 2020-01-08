@@ -30,6 +30,8 @@
 #include "T3DD3D11HardwarePixelBuffer.h"
 #include "T3DD3D11VertexDeclaration.h"
 #include "T3DD3D11Capabilities.h"
+#include "T3DD3D11Sampler.h"
+
 
 namespace Tiny3D
 {
@@ -600,7 +602,11 @@ namespace Tiny3D
             mD3DDeviceContext->PSSetShaderResources(0, 1, 
                 (ID3D11ShaderResourceView * const *)&pD3DSRView);
 
-
+            D3D11SamplerPtr sampler 
+                = smart_pointer_cast<D3D11Sampler>(unit->getSampler());
+            ID3D11SamplerState *pSampler = sampler->getD3DSamplerState();
+            mD3DDeviceContext->PSSetSamplers(0, 1,
+                (ID3D11SamplerState * const *)&pSampler);
         } while (0);
 
         return ret;

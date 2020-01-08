@@ -162,6 +162,7 @@ namespace Tiny3D
                 ret = parseCompareTest(stream, sampler, version);
                 break;
             case E_OP_CMPFUNC:
+            case E_OP_COMP_FUNC:
                 ret = parseCompareFunc(stream, sampler, version);
                 break;
             case E_OP_MAX_ANISOTROPY:
@@ -227,7 +228,27 @@ namespace Tiny3D
                 break;
             }
 
-            // TODO
+            if (argc == 1)
+            {
+                // u = v = w
+                TextureAddressMode mode = toTexAddressMode(type[0]);
+                sampler->setAddressMode(mode);
+            }
+            else if (argc == 2)
+            {
+                // u & v
+                TextureAddressMode u = toTexAddressMode(type[0]);
+                TextureAddressMode v = toTexAddressMode(type[1]);
+                sampler->setAddressMode(u, v, TextureAddressMode::WRAP);
+            }
+            else if (argc == 3)
+            {
+                // u, v, w
+                TextureAddressMode u = toTexAddressMode(type[0]);
+                TextureAddressMode v = toTexAddressMode(type[1]);
+                TextureAddressMode w = toTexAddressMode(type[2]);
+                sampler->setAddressMode(u, v, w);
+            }
         } while (0);
 
         return ret;
@@ -236,7 +257,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseTexBorderColor(
-        DataStream &stream, Sampler *sample, uint32_t version)
+        DataStream &stream, Sampler *sampler, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -251,7 +272,7 @@ namespace Tiny3D
                 break;
             }
 
-            // TODO
+            sampler->setBorderColor(color);
         } while (0);
 
         return ret;
@@ -260,7 +281,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseFiltering(
-        DataStream &stream, Sampler *sample, uint32_t version)
+        DataStream &stream, Sampler *sampler, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -282,20 +303,50 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(mode),
                     "Read mode of filtering failed !");
 
-                // TODO
+                FilterOptions min, mag, mip;
+
+                switch (mode)
+                {
+                case E_OP_NONE:
+                    min = FilterOptions::POINT;
+                    mag = FilterOptions::POINT;
+                    mip = FilterOptions::NONE;
+                    break;
+                case E_OP_BILINEAR:
+                    min = FilterOptions::LINEAR;
+                    mag = FilterOptions::LINEAR;
+                    mip = FilterOptions::POINT;
+                case E_OP_TRILINEAR:
+                    min = FilterOptions::LINEAR;
+                    mag = FilterOptions::LINEAR;
+                    mip = FilterOptions::LINEAR;
+                    break;
+                case E_OP_ANISOTROPIC:
+                    min = FilterOptions::ANISOTROPIC;
+                    mag = FilterOptions::ANISOTROPIC;
+                    mip = FilterOptions::LINEAR;
+                    break;
+                default:
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Invalid sampler filtering value !");
+                    ret = T3D_ERR_RES_INVALID_PROPERTY;
+                    break;
+                }
+
+                sampler->setFilter(min, mag, mip);
             }
             else if (argc == 3)
             {
                 // minification
-                uint16_t minification = 0;
-                bytesOfRead = stream.read(&minification, sizeof(minification));
-                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(minification),
+                uint16_t min = 0;
+                bytesOfRead = stream.read(&min, sizeof(min));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(min),
                     "Read minification of filtering failed !");
 
                 // magnification
-                uint16_t magnification = 0;
-                bytesOfRead = stream.read(&magnification, sizeof(magnification));
-                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(magnification),
+                uint16_t mag = 0;
+                bytesOfRead = stream.read(&mag, sizeof(mag));
+                T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(mag),
                     "Read magnification of filtering failed !");
 
                 // mip
@@ -304,12 +355,12 @@ namespace Tiny3D
                 T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(mip),
                     "Read mip of filtering failed !");
 
-                if (minification == E_OP_NONE || minification == E_OP_LINEAR
-                    || minification == E_OP_BILINEAR
-                    || minification == E_OP_TRILINEAR
-                    || minification == E_OP_ANISOTROPIC)
+                FilterOptions minOpt, magOpt, mipOpt;
+
+                if (min == E_OP_POINT || min == E_OP_LINEAR
+                    || min == E_OP_ANISOTROPIC)
                 {
-                    // TODO
+                    minOpt = toFilterOptions(min);
                 }
                 else
                 {
@@ -319,12 +370,10 @@ namespace Tiny3D
                     break;
                 }
 
-                if (magnification == E_OP_NONE || magnification == E_OP_LINEAR
-                    || magnification == E_OP_BILINEAR
-                    || magnification == E_OP_TRILINEAR
-                    || magnification == E_OP_ANISOTROPIC)
+                if (mag == E_OP_POINT || mag == E_OP_LINEAR
+                    || mag == E_OP_ANISOTROPIC)
                 {
-                    // TODO
+                    magOpt = toFilterOptions(mag);
                 }
                 else
                 {
@@ -334,11 +383,10 @@ namespace Tiny3D
                     break;
                 }
 
-                if (mip == E_OP_NONE || mip == E_OP_LINEAR
-                    || mip == E_OP_BILINEAR || mip == E_OP_TRILINEAR
+                if (mip == E_OP_POINT || mip == E_OP_LINEAR
                     || mip == E_OP_ANISOTROPIC)
                 {
-                    // TODO
+                    mipOpt = toFilterOptions(mip);
                 }
                 else
                 {
@@ -347,6 +395,8 @@ namespace Tiny3D
                         "Invalid mip of filtering !");
                     break;
                 }
+
+                sampler->setFilter(minOpt, magOpt, mipOpt);
             }
             else
             {
@@ -363,7 +413,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseCompareTest(
-        DataStream &stream, Sampler *sample, uint32_t version)
+        DataStream &stream, Sampler *sampler, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -372,12 +422,12 @@ namespace Tiny3D
             size_t bytesOfRead = 0;
 
             // enabled flag
-            bool val = false;
-            bytesOfRead = stream.read(&val, sizeof(val));
-            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
+            bool enabled = false;
+            bytesOfRead = stream.read(&enabled, sizeof(enabled));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(enabled),
                 "Read value of cmp_test failed !");
 
-            // TODO
+            sampler->setCompareEnabled(enabled);
         } while (0);
 
         return ret;
@@ -386,7 +436,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseCompareFunc(
-        DataStream &stream, Sampler *sample, uint32_t version)
+        DataStream &stream, Sampler *sampler, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -411,7 +461,8 @@ namespace Tiny3D
             case E_OP_GREATER_EQUAL:
             case E_OP_GREATER:
                 {
-                    // TODO
+                    CompareFunction func = toCompareFunction(val);
+                    sampler->setCompareFunction(func);
                 }
                 break;
             default:
@@ -430,7 +481,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseMaxAnisotropy(
-        DataStream &stream, Sampler *sample, uint32_t version)
+        DataStream &stream, Sampler *sampler, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -439,12 +490,12 @@ namespace Tiny3D
             size_t bytesOfRead = 0;
 
             // value
-            float32_t val;
+            uint32_t val;
             bytesOfRead = stream.read(&val, sizeof(val));
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
                 "Read value of max_anisotropy failed !");
 
-            // TODO
+            sampler->setAnisotropy(val);
         } while (0);
 
         return ret;
@@ -453,7 +504,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult ScriptParserSampler::parseMipmapBias(
-        DataStream &stream, Sampler *sample, uint32_t version)
+        DataStream &stream, Sampler *sampler, uint32_t version)
     {
         TResult ret = T3D_OK;
 
@@ -467,7 +518,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(val),
                 "Read value of mipmap_bias failed !");
 
-            // TODO
+            sampler->setMipmapBias(val);
         } while (0);
 
         return ret;

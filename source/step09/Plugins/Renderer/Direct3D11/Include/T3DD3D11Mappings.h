@@ -124,6 +124,30 @@ namespace Tiny3D
          * @returns 返回 D3D11 对应的纹理格式.
          */
         static DXGI_FORMAT get(PixelFormat format);
+
+        /**
+         * @brief   把 Tiny3D 的过滤方式转换成 D3D11 对应的值
+         * @param [in]  minFilter   Tiny3D 纹理缩小过滤方式.
+         * @param [in]  magFilter   Tiny3D 纹理放大过滤方式.
+         * @param [in]  mipFilter   Tiny3D 纹理 mipmaps 过滤方式.
+         * @returns 返回 D3D11 对应的纹理过滤方式.
+         */
+        static D3D11_FILTER get(FilterOptions min, FilterOptions mag,
+            FilterOptions mip, bool comparison = false);
+
+        /**
+         * @brief   把 Tiny3D 的纹理寻址方式转换成 D3D11 对应的值
+         * @param [in]  mode    Tiny3D 纹理寻址方式
+         * @returns 返回 D3D11 对应的纹理寻址方式.
+         */
+        static D3D11_TEXTURE_ADDRESS_MODE get(TextureAddressMode mode);
+
+        /**
+         * @brief   把 Tiny3D 的比较函数转换成 D3D11 比较函数
+         * @param [in] func     Tiny3D 比较函数
+         * @returns 返回 D3D11 对应的比较函数值
+         */
+        static D3D11_COMPARISON_FUNC get(CompareFunction func);
     };
 }
 

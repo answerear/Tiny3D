@@ -6,7 +6,7 @@ sampler Builtin/Sampler
 	filtering anisotropic anisotropic anisotropic
 	max_anisotropy 1
 	mipmap_bias 0
-	compare_func always_fail
+	comp_func always_fail
 }
 
 material Builtin/Box

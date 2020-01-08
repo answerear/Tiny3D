@@ -225,6 +225,8 @@ namespace Tiny3D
         return bt;
     }
 
+    //--------------------------------------------------------------------------
+
     BlendFactor ScriptParserBase::toBlendFactor(uint16_t factor) const
     {
         BlendFactor bf;
@@ -266,6 +268,8 @@ namespace Tiny3D
         return bf;
     }
 
+    //--------------------------------------------------------------------------
+
     BlendOperation ScriptParserBase::toBlendOperation(uint16_t op) const
     {
         BlendOperation bo;
@@ -291,6 +295,8 @@ namespace Tiny3D
 
         return bo;
     }
+
+    //--------------------------------------------------------------------------
 
     CompareFunction ScriptParserBase::toCompareFunction(uint16_t func) const
     {
@@ -327,6 +333,8 @@ namespace Tiny3D
         return cf;
     }
 
+    //--------------------------------------------------------------------------
+
     IlluminationStage ScriptParserBase::toIlluminationStage(uint16_t stage) const
     {
         IlluminationStage is;
@@ -349,6 +357,8 @@ namespace Tiny3D
         return is;
     }
 
+    //--------------------------------------------------------------------------
+
     CullingMode ScriptParserBase::toCullingMode(uint16_t mode) const
     {
         CullingMode cm;
@@ -368,6 +378,8 @@ namespace Tiny3D
 
         return cm;
     }
+
+    //--------------------------------------------------------------------------
 
     ManualCullingMode ScriptParserBase::toManualCullingMode(uint16_t mode) const
     {
@@ -389,6 +401,8 @@ namespace Tiny3D
         return cm;
     }
 
+    //--------------------------------------------------------------------------
+
     ShadingMode ScriptParserBase::toShadingMode(uint16_t mode) const
     {
         ShadingMode sm;
@@ -407,6 +421,8 @@ namespace Tiny3D
 
         return sm;
     }
+
+    //--------------------------------------------------------------------------
 
     PolygonMode ScriptParserBase::toPolygonMode(uint16_t mode) const
     {
@@ -427,6 +443,8 @@ namespace Tiny3D
 
         return pm;
     }
+
+    //--------------------------------------------------------------------------
 
     FogMode ScriptParserBase::toFogMode(uint16_t mode) const
     {
@@ -451,6 +469,8 @@ namespace Tiny3D
         return fm;
     }
 
+    //--------------------------------------------------------------------------
+
     LightType ScriptParserBase::toLightType(uint16_t type) const
     {
         LightType lt;
@@ -469,5 +489,57 @@ namespace Tiny3D
         }
 
         return lt;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TextureAddressMode ScriptParserBase::toTexAddressMode(uint16_t tam) const
+    {
+        TextureAddressMode mode;
+
+        switch (tam)
+        {
+        case E_OP_WRAP:
+            mode = TextureAddressMode::WRAP;
+            break;
+        case E_OP_CLAMP:
+            mode = TextureAddressMode::CLAMP;
+            break;
+        case E_OP_BORDER:
+            mode = TextureAddressMode::BORDER;
+            break;
+        case E_OP_MIRROR:
+            mode = TextureAddressMode::MIRROR;
+            break;
+        default:
+            mode = TextureAddressMode::UNKNOWN;
+            break;
+        }
+
+        return mode;
+    }
+
+    //--------------------------------------------------------------------------
+
+    FilterOptions ScriptParserBase::toFilterOptions(uint16_t filter) const
+    {
+        FilterOptions opt;
+
+        switch (filter)
+        {
+        case E_OP_POINT:
+            opt = FilterOptions::POINT;
+            break;
+        case E_OP_LINEAR:
+            opt = FilterOptions::LINEAR;
+            break;
+        case E_OP_ANISOTROPIC:
+            opt = FilterOptions::ANISOTROPIC;
+            break;
+        default:
+            break;
+        }
+
+        return opt;
     }
 }

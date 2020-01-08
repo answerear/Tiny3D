@@ -409,7 +409,7 @@ namespace Tiny3D
         ID_END_BUILTIN_IDS
     };
 
-    enum BuiltInValue
+    enum BuiltinValue
     {
         ID_ON = 1,
         ID_OFF = 2,
