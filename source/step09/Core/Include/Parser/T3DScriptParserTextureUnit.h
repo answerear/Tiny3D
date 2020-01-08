@@ -27,104 +27,295 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   ScriptParserTextureUnit
+     * @brief   A script parser texture unit.
+     */
     class ScriptParserTextureUnit : public ScriptParserBase
     {
     public:
-        /** 创建对象 */
+        /**
+         * @fn  static ScriptParserTextureUnitPtr 
+         *      ScriptParserTextureUnit::create();
+         * @brief   创建对象
+         * @return  A ScriptParserTextureUnitPtr.
+         */
         static ScriptParserTextureUnitPtr create();
 
-        /** 析构函数 */
+        /**
+         * @fn  ScriptParserTextureUnit::~ScriptParserTextureUnit();
+         * @brief   析构函数
+         */
         ~ScriptParserTextureUnit();
 
-        /** 重写基类 ScriptParserBase::parseObject 接口 */
+        /**
+         * @fn  virtual TResult ScriptParserTextureUnit::parseObject( 
+         *      DataStream &stream, Object *object, uint32_t version) override;
+         * @brief   重写基类 ScriptParserBase::parseObject 接口
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  object  If non-null, the object.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         virtual TResult parseObject(
             DataStream &stream, Object *object, uint32_t version) override;
 
     protected:
-        /** 构造函数 */
+        /**
+         * @fn  ScriptParserTextureUnit::ScriptParserTextureUnit();
+         * @brief   构造函数
+         */
         ScriptParserTextureUnit();
 
-        /** 解析 TextureUnit 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseProperties( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseProperties(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 sampler_ref 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseSamplerRef( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 sampler_ref 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseSamplerRef(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 texture_alias 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseTextureAlias( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 texture_alias 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseTextureAlias(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 texture 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseTexture( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 texture 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseTexture(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 anim_texture 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseAnimTexture( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 anim_texture 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseAnimTexture(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 cubic_texture 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseCubicTexture( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 cubic_texture 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseCubicTexture(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 tex_coord_set 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseTexCoordSet( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 tex_coord_set 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseTexCoordSet(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 color_op 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseColorOp( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 color_op 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseColorOp(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 color_op_ex 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseColorOpEx( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 color_op_ex 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseColorOpEx(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 color_op_multipass_fallback 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseColorOpMultipassFallback( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 color_op_multipass_fallback 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseColorOpMultipassFallback(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 alpha_op_ex 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseAlphaOpEx( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 alpha_op_ex 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseAlphaOpEx(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 env_map 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseEnvMap( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 env_map 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseEnvMap(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 scroll 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseScroll( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 scroll 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseScroll(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 scroll_anim 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseScrollAnim( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 scroll_anim 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseScrollAnim(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 rotate 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseRotate( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 rotate 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseRotate(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 rotate_anim 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseRotateAnim( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 rotate_anim 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseRotateAnim(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 scale 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseScale( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 scale 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseScale(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 wave_xform 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseWaveXform( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 wave_xform 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseWaveXform(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 transform 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseTransform( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 transform 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseTransform(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 binding_type 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseBindingType( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 binding_type 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseBindingType(
             DataStream &stream, TextureUnit *unit, uint32_t version);
 
-        /** 解析 TextureUnit 的 content_type 属性 */
+        /**
+         * @fn  TResult ScriptParserTextureUnit::parseContentType( 
+         *      DataStream &stream, TextureUnit *unit, uint32_t version);
+         * @brief   解析 TextureUnit 的 content_type 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  unit    If non-null, the unit.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseContentType(
             DataStream &stream, TextureUnit *unit, uint32_t version);
     };

@@ -27,17 +27,28 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   Creator
+     * @brief   A creator.
+     * @tparam  T   Generic type parameter.
+     */
     template <typename T>
     class Creator
     {
     public:
         /**
-         * @brief 获取字符串表示的对象类型
+         * @fn  virtual String Creator::getType() const = 0;
+         * @brief   获取字符串表示的对象类型
+         * @return  The type.
          */
         virtual String getType() const = 0;
 
         /**
-         * @brief 创建具体对象
+         * @fn  virtual SmartPtr<T> Creator::createObject(int32_t argc, ...) const = 0;
+         * @brief   创建具体对象
+         * @param   argc    The argc.
+         * @param   ...     Variable arguments providing additional information.
+         * @return  The new object.
          */
         virtual SmartPtr<T> createObject(int32_t argc, ...) const = 0;
     };

@@ -29,7 +29,8 @@
 namespace Tiny3D
 {
     /**
-     * @brief 采样器资源管理器
+     * @class   SamplerManager
+     * @brief   采样器资源管理器
      */
     class T3D_ENGINE_API SamplerManager
         : public Singleton<SamplerManager>
@@ -37,44 +38,58 @@ namespace Tiny3D
     {
     public:
         /**
-         * @brief 创建采样器管理器对象
+         * @fn  static SamplerManagerPtr create();
+         * @brief   创建采样器管理器对象
+         * @return  A SamplerManagerPtr.
          */
         static SamplerManagerPtr create();
 
         /**
-         * @brief 析构函数
+         * @fn  virtual ~SamplerManager();
+         * @brief   析构函数
          */
         virtual ~SamplerManager();
 
         /**
-         * @brief 设置采样器创建器
+         * @fn  void setSamplerCreator(SamplerCreator *creator);
+         * @brief   设置采样器创建器
+         * @param [in,out]  creator If non-null, the creator.
          */
         void setSamplerCreator(SamplerCreator *creator);
 
         /**
-         * @brief 加载采样器资源
-         * @param [in] name : 采样器资源名称
-         * @return 返回新建的纹理对象
+         * @fn  virtual SamplerPtr loadSampler(const String &name);
+         * @brief   加载采样器资源
+         * @param [in]  name    : 采样器资源名称.
+         * @return  返回新建的纹理对象.
          */
         virtual SamplerPtr loadSampler(const String &name);
 
         /**
-         * @brief 卸载采样器资源
-         * @param [in] texture : 要卸载的采样器资源对象
-         * @return void
+         * @fn  virtual TResult unloadSampler(SamplerPtr texture);
+         * @brief   卸载采样器资源
+         * @param [in]  texture : 要卸载的采样器资源对象.
+         * @return  void.
          */
         virtual TResult unloadSampler(SamplerPtr texture);
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  SamplerManager();
+         * @brief   构造函数
          */
         SamplerManager();
 
         /**
-         * @brief 重写基类接口，实现创建采样器对象
-         * @see ResourcePtr Resource::create(const String &name, int32_t argc,
-         *      va_list args)
+         * @fn  virtual ResourcePtr create(const String &name, 
+         *      int32_t argc, va_list args) override;
+         * @brief   重写基类接口，实现创建采样器对象
+         * @param   name    The name.
+         * @param   argc    The argc.
+         * @param   args    The arguments.
+         * @return  A ResourcePtr.
+         * @sa  ResourcePtr Resource::create(const String &amp;name, int32_t argc,
+         *  va_list args)
          */
         virtual ResourcePtr create(const String &name, int32_t argc,
             va_list args) override;

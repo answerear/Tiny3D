@@ -34,7 +34,6 @@
 #include <Kernel/T3DCreator.h>
 #include <Kernel/T3DObject.h>
 #include <Kernel/T3DPlugin.h>
-#include <Kernel/T3DPixelFormat.h>
 #include <Kernel/T3DNode.h>
 #include <Kernel/T3DBlendMode.h>
 #include <Kernel/T3DTechnique.h>

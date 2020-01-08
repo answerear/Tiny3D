@@ -28,6 +28,10 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   ArchiveCreator
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API ArchiveCreator : public Creator<Archive>
     {
         T3D_DECLARE_INTERFACE(ArchiveCreator);

@@ -28,38 +28,48 @@
 namespace Tiny3D
 {
     /**
-     * @brief 有向包围盒碰撞体
+     * @class   ObbBound
+     * @brief   有向包围盒碰撞体
      */
     class T3D_ENGINE_API ObbBound : public Bound
     {
     public:
         /**
-         * @brief 创建OBB碰撞体对象
-         * @param [in] node : 碰撞体所在的结点对象
-         * @param [in] uID : 碰撞体ID
-         * @return 返回一个OBB碰撞体对象
+         * @fn  static ObbBoundPtr ObbBound::create(SceneNode *node, 
+         *      ID uID = E_BID_AUTOMATIC);
+         * @brief   创建OBB碰撞体对象
+         * @param [in]  node    : 碰撞体所在的结点对象.
+         * @param [in]  uID     (Optional) : 碰撞体ID.
+         * @return  返回一个OBB碰撞体对象.
          */
         static ObbBoundPtr create(SceneNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
-         * @brief 析构函数
+         * @fn  virtual ObbBound::~ObbBound();
+         * @brief   析构函数
          */
         virtual ~ObbBound();
 
         /**
-         * @brief 实现基类接口
-         * @see Bound::Type Bound::getType() const
+         * @fn  virtual Type ObbBound::getType() const override;
+         * @brief   实现基类接口
+         * @return  The type.
+         * @sa  Bound::Type Bound::getType() const
          */
         virtual Type getType() const override;
 
         /**
-         * @brief 实现基类接口
-         * @see BoundPtr Bound::clone() const
+         * @fn  virtual BoundPtr ObbBound::clone() const override;
+         * @brief   实现基类接口
+         * @return  A copy of this object.
+         * @sa  BoundPtr Bound::clone() const
          */
         virtual BoundPtr clone() const override;
 
         /**
-         * @brief 获取有向包围盒对象
+         * @fn  const Obb ObbBound::&getObb() const
+         * @brief   获取有向包围盒对象
+         * @return  The obb.
          */
         const Obb &getObb() const
         {
@@ -67,75 +77,110 @@ namespace Tiny3D
         }
 
         /**
-         * @brief 设置碰撞体中心
+         * @fn  void ObbBound::setCenter(const Vector3 &center);
+         * @brief   设置碰撞体中心
+         * @param   center  The center.
          */
         void setCenter(const Vector3 &center);
 
         /**
-         * @brief 设置碰撞体的三个轴
+         * @fn  void ObbBound::setAxis(const Vector3 &axis0, 
+         *      const Vector3 &axis1, const Vector3 &axis2);
+         * @brief   设置碰撞体的三个轴
+         * @param   axis0   The axis 0.
+         * @param   axis1   The first axis.
+         * @param   axis2   The second axis.
          */
         void setAxis(const Vector3 &axis0, const Vector3 &axis1,
             const Vector3 &axis2);
 
         /**
-         * @brief 设置碰撞体在三个轴上的延伸长度
+         * @fn  void ObbBound::setExtent(Real extent0, Real extent1, 
+         *      Real extent2);
+         * @brief   设置碰撞体在三个轴上的延伸长度
+         * @param   extent0 The extent 0.
+         * @param   extent1 The first extent.
+         * @param   extent2 The second extent.
          */
         void setExtent(Real extent0, Real extent1, Real extent2);
 
         /**
-         * @brief 实现基类接口
-         * @see SceneRenderablePtr Bound::getRenderable()
+         * @fn  virtual SceneRenderablePtr ObbBound::getRenderable() override;
+         * @brief   实现基类接口
+         * @return  The renderable.
+         * @sa  SceneRenderablePtr Bound::getRenderable()
          */
         virtual SceneRenderablePtr getRenderable() override;
 
         /**
-         * @brief 实现基类接口
-         * @see void Bound::updateBound(const Transform &xform)
+         * @fn  virtual void ObbBound::updateBound(
+         *      const Transform &xform) override;
+         * @brief   实现基类接口
+         * @param   xform   The transform.
+         * @sa  void Bound::updateBound(const Transform &amp;xform)
          */
         virtual void updateBound(const Transform &xform) override;
 
     protected:
         /**
-         * @brief 构造函数
-         * @param [in] node : 碰撞体所在的结点对象
-         * @param [in] uID : 碰撞体ID
+         * @fn  ObbBound::ObbBound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
+         * @brief   构造函数
+         * @param [in]  node    : 碰撞体所在的结点对象.
+         * @param [in]  uID     (Optional) : 碰撞体ID.
          */
         ObbBound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
-         * @brief 实现基类接口
-         * @see bool Bound::testSphere(const Spher &sphere) const
+         * @fn  virtual bool ObbBound::testSphere(
+         *      const Sphere &sphere) const override;
+         * @brief   实现基类接口
+         * @param   sphere  The sphere.
+         * @return  True if the test passes, false if the test fails.
+         * @sa  bool Bound::testSphere(const Spher &amp;sphere) const
          */
         virtual bool testSphere(const Sphere &sphere) const override;
 
         /**
-         * @brief 实现基类接口
-         * @see bool Bound::testAabb(const Aabb &aabb) const
+         * @fn  virtual bool ObbBound::testAabb(const Aabb &aabb) const override;
+         * @brief   实现基类接口
+         * @param   aabb    The aabb.
+         * @return  True if the test passes, false if the test fails.
+         * @sa  bool Bound::testAabb(const Aabb &amp;aabb) const
          */
         virtual bool testAabb(const Aabb &aabb) const override;
 
         /**
-         * @brief 实现基类接口
-         * @see bool Bound::testObb(const Obb &obb) const
+         * @fn  virtual bool ObbBound::testObb(const Obb &obb) const override;
+         * @brief   实现基类接口
+         * @param   obb The obb.
+         * @return  True if the test passes, false if the test fails.
+         * @sa  bool Bound::testObb(const Obb &amp;obb) const
          */
         virtual bool testObb(const Obb &obb) const override;
 
         /**
-         * @brief 实现基类接口
-         * @see bool Bound::testFrustum(const Frustum &frustum) const
+         * @fn  virtual bool ObbBound::testFrustum(
+         *      const Frustum &frustum) const override;
+         * @brief   实现基类接口
+         * @param   frustum The frustum.
+         * @return  True if the test passes, false if the test fails.
+         * @sa  bool Bound::testFrustum(const Frustum &amp;frustum) const
          */
         virtual bool testFrustum(const Frustum &frustum) const override;
 
         /**
-         * @brief 实现基类接口
-         * @see void Bound::cloneProperties(BoundPtr bound) const
+         * @fn  virtual void ObbBound::cloneProperties(
+         *      BoundPtr bound) const override;
+         * @brief   实现基类接口
+         * @param   bound   The bound.
+         * @sa  void Bound::cloneProperties(BoundPtr bound) const
          */
         virtual void cloneProperties(BoundPtr bound) const override;
 
     protected:
         Obb         mObb;           /**< 实时变换的OBB */
         Obb         mOriginalObb;   /**< 不参与变换的原始OBB */
-        SceneBoxPtr    mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
+        SceneBoxPtr mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 

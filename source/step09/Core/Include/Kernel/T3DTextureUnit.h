@@ -32,11 +32,16 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   TextureUnit
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API TextureUnit : public Object
     {
     public:
         /**
-         * @brief 描述纹理绑定到渲染流水线中可编程流水线阶段上
+         * @enum    BindingType
+         * @brief   描述纹理绑定到渲染流水线中可编程流水线阶段上
          */
         enum class BindingType : uint32_t
         {
@@ -49,7 +54,8 @@ namespace Tiny3D
         };
 
         /**
-         * @brief 描述纹理内容的标识
+         * @enum    ContentType
+         * @brief   描述纹理内容的标识
          */
         enum class ContentType : uint32_t
         {
@@ -58,8 +64,9 @@ namespace Tiny3D
         };
 
         /**
-         * @brief 纹理效果
-         * @remakrs 可编程渲染管线下无效，可以使用 vertex/fragment shader 实现
+         * @enum    EffectType
+         * @brief   纹理效果
+         * @remarks 可编程渲染管线下无效，可以使用 vertex/fragment shader 实现
          */
         enum class EffectType : uint32_t
         {
@@ -72,6 +79,10 @@ namespace Tiny3D
             TRANSFORM
         };
 
+        /**
+         * @enum    EnvMapType
+         * @brief   Values that represent Environment map types
+         */
         enum class EnvMapType : uint32_t
         {
             PLANAR = 0,
@@ -80,6 +91,10 @@ namespace Tiny3D
             NORMAL
         };
 
+        /**
+         * @enum    TransformType
+         * @brief   Values that represent transform types
+         */
         enum class TransformType : uint32_t
         {
             TRANSLATE_U = 0,
@@ -89,6 +104,10 @@ namespace Tiny3D
             ROTATE
         };
 
+        /**
+         * @enum    TextureCubeFace
+         * @brief   Values that represent texture cube faces
+         */
         enum class TextureCubeFace : uint32_t
         {
             FRONT = 0,
@@ -99,6 +118,10 @@ namespace Tiny3D
             DOWN
         };
 
+        /**
+         * @struct  TextureEffect
+         * @brief   A texture effect.
+         */
         struct TextureEffect
         {
             EffectType      type;
@@ -112,26 +135,71 @@ namespace Tiny3D
         };
 
     public:
-        /** 创建 TextureUnit 对象 */
+        /**
+         * @fn  static TextureUnitPtr TextureUnit::create(const String &name, 
+         *      Pass *pass);
+         * @brief   创建 TextureUnit 对象
+         * @param           name    The name.
+         * @param [in,out]  pass    If non-null, the pass.
+         * @return  A TextureUnitPtr.
+         */
         static TextureUnitPtr create(const String &name, Pass *pass);
 
-        /** 析构函数 */
+        /**
+         * @fn  virtual TextureUnit::~TextureUnit();
+         * @brief   析构函数
+         */
         virtual ~TextureUnit();
 
+        /**
+         * @fn  const String TextureUnit::&getName() const;
+         * @brief   Gets the name
+         * @return  The name.
+         */
         const String &getName() const;
 
+        /**
+         * @fn  void TextureUnit::setSampler(const String &name);
+         * @brief   Sets a sampler
+         * @param   name    The name.
+         */
         void setSampler(const String &name);
 
+        /**
+         * @fn  SamplerPtr TextureUnit::getSampler();
+         * @brief   Gets the sampler
+         * @return  The sampler.
+         */
         SamplerPtr getSampler();
 
+        /**
+         * @fn  const String TextureUnit::&getTextureName() const;
+         * @brief   Gets texture name
+         * @return  The texture name.
+         */
         const String &getTextureName() const;
 
+        /**
+         * @fn  void TextureUnit::setTextureName(const String &name);
+         * @brief   Sets texture name
+         * @param   name    The name.
+         */
         void setTextureName(const String &name);
 
+        /**
+         * @fn  TexturePtr TextureUnit::getTexture();
+         * @brief   Gets the texture
+         * @return  The texture.
+         */
         TexturePtr getTexture();
 
     protected:
-        /** 构造函数 */
+        /**
+         * @fn  TextureUnit::TextureUnit(const String &name, Pass *pass);
+         * @brief   构造函数
+         * @param           name    The name.
+         * @param [in,out]  pass    If non-null, the pass.
+         */
         TextureUnit(const String &name, Pass *pass);
 
         typedef TMultimap<EffectType, TextureEffect>    EffectMap;
@@ -152,7 +220,7 @@ namespace Tiny3D
         //---------------------------------------
         // Command : texture_alias
         // Usage : texture_alias <name>
-        String      mNameAlias;         /// 纹理单元别名
+        String      mNameAlias;         /**< 纹理单元别名 */
 
         //---------------------------------------
         // Command : texture

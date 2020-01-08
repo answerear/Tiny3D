@@ -23,7 +23,7 @@
 
 
 #include "Render/T3DHardwareBuffer.h"
-#include "Kernel/T3DPixelFormat.h"
+#include "Kernel/T3DCommon.h"
 #include "ImageCodec/T3DImage.h"
 
 

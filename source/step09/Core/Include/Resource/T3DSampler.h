@@ -30,7 +30,8 @@
 namespace Tiny3D
 {
     /**
-     * @brief 采样器
+     * @class   Sampler
+     * @brief   采样器
      */
     class T3D_ENGINE_API Sampler : public Resource
     {
@@ -40,45 +41,138 @@ namespace Tiny3D
         /**
          * @fn  virtual Type Sampler::getType() const override;
          * @brief   获取资源类型，重写基类 Resource::getType() 接口
-         * @returns The type.
+         * @return  The type.
          */
         virtual Type getType() const override;
 
+        /**
+         * @fn  const UVWAddressMode Sampler::&getAddressMode() const;
+         * @brief   Gets address mode
+         * @return  The address mode.
+         */
         const UVWAddressMode &getAddressMode() const;
 
+        /**
+         * @fn  void Sampler::setAddressMode(const UVWAddressMode &uvw);
+         * @brief   Sets address mode
+         * @param   uvw The uvw.
+         */
         void setAddressMode(const UVWAddressMode &uvw);
 
+        /**
+         * @fn  void Sampler::setAddressMode(TextureAddressMode u, 
+         *      TextureAddressMode v, TextureAddressMode w);
+         * @brief   Sets address mode
+         * @param   u   A TextureAddressMode to process.
+         * @param   v   A TextureAddressMode to process.
+         * @param   w   A TextureAddressMode to process.
+         */
         void setAddressMode(TextureAddressMode u, TextureAddressMode v,
             TextureAddressMode w);
 
+        /**
+         * @fn  void Sampler::setAddressMode(TextureAddressMode mode);
+         * @brief   Sets address mode
+         * @param   mode    The mode.
+         */
         void setAddressMode(TextureAddressMode mode);
 
+        /**
+         * @fn  const ColorRGBA Sampler::&getBorderColor() const;
+         * @brief   Gets border color
+         * @return  The border color.
+         */
         const ColorRGBA &getBorderColor() const;
 
+        /**
+         * @fn  void Sampler::setBorderColor(const ColorRGBA &color);
+         * @brief   Sets border color
+         * @param   color   The color.
+         */
         void setBorderColor(const ColorRGBA &color);
 
+        /**
+         * @fn  FilterOptions Sampler::getFilter(FilterType type);
+         * @brief   Gets a filter
+         * @param   type    The type.
+         * @return  The filter.
+         */
         FilterOptions getFilter(FilterType type);
 
+        /**
+         * @fn  void Sampler::setFilter(FilterOptions opt, FilterType type);
+         * @brief   Sets a filter
+         * @param   opt     The option.
+         * @param   type    The type.
+         */
         void setFilter(FilterOptions opt, FilterType type);
 
+        /**
+         * @fn  void Sampler::setFilter(FilterOptions minFilter, 
+         *      FilterOptions magFilter, FilterOptions mipFilter);
+         * @brief   Sets a filter
+         * @param   minFilter   A filter specifying the minimum.
+         * @param   magFilter   A filter specifying the magnitude.
+         * @param   mipFilter   A filter specifying the mip.
+         */
         void setFilter(FilterOptions minFilter, FilterOptions magFilter,
             FilterOptions mipFilter);
 
+        /**
+         * @fn  void Sampler::setFilter(FilterType type);
+         * @brief   Sets a filter
+         * @param   type    The type.
+         */
         void setFilter(FilterType type);
 
+        /**
+         * @fn  CompareFunction Sampler::getCompareFunction() const;
+         * @brief   Gets compare function
+         * @return  The compare function.
+         */
         CompareFunction getCompareFunction() const;
 
+        /**
+         * @fn  void Sampler::setCompareFunction(CompareFunction func);
+         * @brief   Sets compare function
+         * @param   func    The function.
+         */
         void setCompareFunction(CompareFunction func);
 
+        /**
+         * @fn  uint32_t Sampler::getAnisotropy() const;
+         * @brief   Gets the anisotropy
+         * @return  The anisotropy.
+         */
         uint32_t getAnisotropy() const;
 
+        /**
+         * @fn  void Sampler::setAnisotropy(uint32_t aniso);
+         * @brief   Sets an anisotropy
+         * @param   aniso   The aniso.
+         */
         void setAnisotropy(uint32_t aniso);
 
+        /**
+         * @fn  Real Sampler::getMipmapBias() const;
+         * @brief   Gets mipmap bias
+         * @return  The mipmap bias.
+         */
         Real getMipmapBias() const;
 
+        /**
+         * @fn  void Sampler::setMipmapBias(Real bias);
+         * @brief   Sets mipmap bias
+         * @param   bias    The bias.
+         */
         void setMipmapBias(Real bias);
 
     protected:
+        /**
+         * @fn  Sampler::Sampler(const String &name);
+         * @brief   Constructor
+         * @param   name    The name.
+         */
         Sampler(const String &name);
 
         /**
@@ -91,17 +185,21 @@ namespace Tiny3D
         virtual TResult cloneProperties(SamplerPtr newObj) const;
 
     protected:
-        UVWAddressMode  mAddressMode;
-        ColorRGBA       mBorderColor;
-        FilterOptions   mMinFilter;
-        FilterOptions   mMagFilter;
-        FilterOptions   mMipFilter;
-        CompareFunction mCompareFunc;
-        uint32_t        mAnisotropy;
-        Real            mMipmapBias;
-        bool            mIsDirty;
+        UVWAddressMode  mAddressMode;   /**< The address mode */
+        ColorRGBA       mBorderColor;   /**< The border color */
+        FilterOptions   mMinFilter;     /**< A filter specifying the minimum */
+        FilterOptions   mMagFilter;     /**< A filter specifying the magnitude */
+        FilterOptions   mMipFilter;     /**< A filter specifying the mip */
+        CompareFunction mCompareFunc;   /**< The compare function */
+        uint32_t        mAnisotropy;    /**< The anisotropy */
+        Real            mMipmapBias;    /**< The mipmap bias */
+        bool            mIsDirty;       /**< True if is dirty, false if not */
     };
 
+    /**
+     * @class   SamplerCreator
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API SamplerCreator : public Creator<Sampler>
     {
         T3D_DECLARE_INTERFACE(SamplerCreator);

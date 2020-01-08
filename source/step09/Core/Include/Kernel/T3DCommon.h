@@ -30,6 +30,29 @@ namespace Tiny3D
 {
     const String BLANKSTRING;
 
+    /**
+     * @enum    PixelFormat
+     * @brief   Values that represent pixel formats
+     */
+    enum class PixelFormat : uint32_t
+    {
+        E_PF_UNKNOWN = 0,
+        E_PF_PALETTE8,
+        E_PF_R5G6B5,
+        E_PF_A1R5G5B5,
+        E_PF_A4R4G4B4,
+        E_PF_R8G8B8,
+        E_PF_B8G8R8,
+        E_PF_A8R8G8B8,
+        E_PF_B8G8R8A8,
+        E_PF_X8R8G8B8,
+        E_PF_B8G8R8X8,
+    };
+
+    /**
+     * @enum    LightType
+     * @brief   Values that represent light types
+     */
     enum class LightType : uint32_t
     {
         POINT = 0,
@@ -38,7 +61,8 @@ namespace Tiny3D
     };
 
     /**
-     * @brief 比较函数，用于深度缓冲测试和模板缓冲测试
+     * @enum    CompareFunction
+     * @brief   比较函数，用于深度缓冲测试和模板缓冲测试
      */
     enum class CompareFunction : uint32_t
     {
@@ -52,7 +76,16 @@ namespace Tiny3D
         GREATER
     };
 
+    /**
+     * @typedef uint32_t TrackVertexColorType
+     * @brief   Defines an alias representing type of the track vertex color
+     */
     typedef uint32_t TrackVertexColorType;
+
+    /**
+     * @enum    TrackVertexColor
+     * @brief   Values that represent track vertex colors
+     */
     enum TrackVertexColor : uint32_t
     {
         NONE     = 0x0,
@@ -63,7 +96,8 @@ namespace Tiny3D
     };
 
     /**
-     * @brief 背面剔除模式
+     * @enum    CullingMode
+     * @brief   背面剔除模式
      */
     enum class CullingMode : uint32_t
     {
@@ -73,6 +107,10 @@ namespace Tiny3D
         MAX
     };
 
+    /**
+     * @enum    ManualCullingMode
+     * @brief   Values that represent manual culling modes
+     */
     enum class ManualCullingMode : uint32_t
     {
         NONE,
@@ -80,6 +118,10 @@ namespace Tiny3D
         FRONT
     };
 
+    /**
+     * @enum    ShadingMode
+     * @brief   Values that represent shading modes
+     */
     enum class ShadingMode : uint32_t
     {
         FLAT,
@@ -99,6 +141,10 @@ namespace Tiny3D
         MAX
     };
 
+    /**
+     * @enum    IlluminationStage
+     * @brief   Values that represent illumination stages
+     */
     enum class IlluminationStage : uint32_t
     {
         UNKNOWN,
@@ -107,6 +153,10 @@ namespace Tiny3D
         DECAL
     };
 
+    /**
+     * @enum    FogMode
+     * @brief   Values that represent fog modes
+     */
     enum class FogMode : uint32_t
     {
         NONE,
@@ -115,6 +165,10 @@ namespace Tiny3D
         LINEAR
     };
 
+    /**
+     * @enum    FilterType
+     * @brief   Values that represent filter types
+     */
     enum class FilterType : uint32_t
     {
         MIN,
@@ -122,6 +176,10 @@ namespace Tiny3D
         MIP
     };
 
+    /**
+     * @enum    FilterOptions
+     * @brief   Values that represent filter options
+     */
     enum class FilterOptions : uint32_t
     {
         NONE,
@@ -130,6 +188,10 @@ namespace Tiny3D
         ANISOTROPIC
     };
 
+    /**
+     * @enum    TextureAddressMode
+     * @brief   Values that represent texture address modes
+     */
     enum class TextureAddressMode : uint32_t
     {
         UNKNOWN = 0,
@@ -139,6 +201,10 @@ namespace Tiny3D
         BORDER,
     };
 
+    /**
+     * @struct  UVWAddressMode
+     * @brief   An uvw address mode.
+     */
     struct UVWAddressMode
     {
         TextureAddressMode u, v, w;
@@ -150,6 +216,10 @@ namespace Tiny3D
         {}
     };
 
+    /**
+     * @enum    WaveformType
+     * @brief   Values that represent waveform types
+     */
     enum class WaveformType : uint32_t
     {
         SINE,
@@ -160,6 +230,10 @@ namespace Tiny3D
         PWM
     };
 
+    /**
+     * @enum    FileSubType
+     * @brief   Values that represent file sub types
+     */
     enum FileSubType : uint32_t
     {
         E_FST_SCRIPT = 0x00000001,
@@ -168,6 +242,10 @@ namespace Tiny3D
 
     #define T3D_MAGIC                   "T3D"
 
+    /**
+     * @struct  T3DFileHeader
+     * @brief   A 3D file header.
+     */
     struct T3DFileHeader
     {
         char        magic[4];   /**< 文件魔数，用于标识文件 */

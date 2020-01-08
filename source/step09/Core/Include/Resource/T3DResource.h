@@ -28,12 +28,19 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   Resource
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API Resource : public Object
     {
         friend class ResourceManager;
 
     public:
-        /** 資源類型枚舉 */
+        /**
+         * @enum    Type
+         * @brief   資源類型枚舉
+         */
         enum class Type : size_t
         {
             E_RT_UNKNOWN = 0,   /**< 未知類型資源 */
@@ -47,76 +54,119 @@ namespace Tiny3D
             E_RT_SAMPLER,       /**< 采样器 */
         };
 
-        /** 構造函數 */
+        /**
+         * @fn  virtual Resource::~Resource();
+         * @brief   構造函數
+         */
         virtual ~Resource();
 
-        /** 獲取資源類型 */
+        /**
+         * @fn  virtual Type Resource::getType() const = 0;
+         * @brief   獲取資源類型
+         * @return  The type.
+         */
         virtual Type getType() const = 0;
 
-        /** 獲取資源唯一ID */
+        /**
+         * @fn  ID Resource::getID() const
+         * @brief   獲取資源唯一ID
+         * @return  The identifier.
+         */
         ID getID() const
         {
             return mID;
         }
         
-        /** 獲取克隆資源唯一ID，當該資源是從其他資源克隆出來試，該ID才有效 */
+        /**
+         * @fn  ID Resource::getCloneID() const
+         * @brief   獲取克隆資源唯一ID，當該資源是從其他資源克隆出來試，該ID才有效
+         * @return  The clone identifier.
+         */
         ID getCloneID() const
         {
             return mCloneID;
         }
 
-        /** 是否克隆資源 */
+        /**
+         * @fn  bool Resource::isCloned() const
+         * @brief   是否克隆資源
+         * @return  True if cloned, false if not.
+         */
         bool isCloned() const
         {
             return (mCloneID != T3D_INVALID_ID);
         }
 
-        /** 獲取資源大小 */
+        /**
+         * @fn  size_t Resource::getSize() const
+         * @brief   獲取資源大小
+         * @return  The size.
+         */
         size_t getSize() const
         {
             return mSize;
         }
 
-        /** 獲取資源名稱 */
+        /**
+         * @fn  const String Resource::&getName() const
+         * @brief   獲取資源名稱
+         * @return  The name.
+         */
         const String &getName() const
         {
             return mName;
         }
 
-        /** 獲取資源是否加載 */
+        /**
+         * @fn  bool Resource::isLoaded() const
+         * @brief   獲取資源是否加載
+         * @return  True if loaded, false if not.
+         */
         bool isLoaded() const
         {
             return mIsLoaded;
         }
 
-        /** 獲取資源引用計數 */
+        /**
+         * @fn  uint32_t Resource::resReferCount() const
+         * @brief   獲取資源引用計數
+         * @return  An uint32_t.
+         */
         uint32_t resReferCount() const
         {
             return mResReferCount;
         }
 
     protected:
-        /** 
-         * @brief 構造函數
-         * @remarks 本類不能直接實例化，所以只能隱藏構造函數
+        /**
+         * @fn  Resource::Resource(const String &name);
+         * @brief   構造函數
+         * @param   name    The name.
+         * @remarks 本類不能直接實例化，所以只能隱藏構造函數.
          */
         Resource(const String &name);
 
-        /** 
-         * @brief 加載資源
-         * @remarks 每種類型資源需要各自實現其加載邏輯，資源只有加載後才能使用
+        /**
+         * @fn  virtual TResult Resource::load() = 0;
+         * @brief   加載資源
+         * @return  A TResult.
+         * @remarks 每種類型資源需要各自實現其加載邏輯，資源只有加載後才能使用.
          */
         virtual TResult load() = 0;
 
-        /** 
-         * @brief 卸載資源
-         * @remarks 每種類型資源需要各自實現其卸載邏輯，資源卸載後就不能再使用了
+        /**
+         * @fn  virtual TResult Resource::unload();
+         * @brief   卸載資源
+         * @return  A TResult.
+         * @remarks 每種類型資源需要各自實現其卸載邏輯，資源卸載後就不能再使用了.
          */
         virtual TResult unload();
 
-        /** 
-         * @brief 克隆資源
-         * @remarks 每種類型資源需要各自實現其克隆邏輯，克隆出一個新資源對象
+        /**
+         * @fn  virtual ResourcePtr Resource::clone() const = 0;
+         * @brief   克隆資源
+         * @return  A copy of this object.
+         * @remarks  每種類型資源需要各自實現其克隆邏輯，克隆出一個新資源對象.
          */
         virtual ResourcePtr clone() const = 0;
 

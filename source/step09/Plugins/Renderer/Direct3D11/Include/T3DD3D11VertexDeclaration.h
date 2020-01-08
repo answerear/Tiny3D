@@ -28,106 +28,158 @@
 namespace Tiny3D
 {
     /**
-     * @brief DirectX 11 渲染器相关的顶点声明类
+     * @class   D3D11VertexDeclaration
+     * @brief   DirectX 11 渲染器相关的顶点声明类
      */
     class D3D11VertexDeclaration : public VertexDeclaration
     {
     public:
         /**
-         * @brief 创建 DirectX 11 渲染器相关的顶点声明对象
+         * @fn  static D3D11VertexDeclarationPtr D3D11VertexDeclaration::create();
+         * @brief   创建 DirectX 11 渲染器相关的顶点声明对象
+         * @return  A D3D11VertexDeclarationPtr.
          */
         static D3D11VertexDeclarationPtr create();
 
         /**
-         * @brief 析构函数
+         * @fn  virtual D3D11VertexDeclaration::~D3D11VertexDeclaration();
+         * @brief   析构函数
          */
         virtual ~D3D11VertexDeclaration();
 
         /**
-         * @brief 重写 VertexDeclaration::addAttribute() 接口
+         * @fn  virtual const VertexAttribute 
+         *      D3D11VertexDeclaration::&addAttribute(size_t stream, 
+         *      size_t offset, VertexAttribute::Type type, 
+         *      VertexAttribute::Semantic semantic, 
+         *      size_t semanticIndex) override;
+         * @brief   重写 VertexDeclaration::addAttribute() 接口
+         * @param   stream          The stream.
+         * @param   offset          The offset.
+         * @param   type            The type.
+         * @param   semantic        The semantic.
+         * @param   semanticIndex   Zero-based index of the semantic.
+         * @return  A reference to a const VertexAttribute.
          */
         virtual const VertexAttribute &addAttribute(size_t stream,
             size_t offset, VertexAttribute::Type type,
             VertexAttribute::Semantic semantic, size_t semanticIndex) override;
 
         /**
-         * @brief 重写 VertexDeclaration::insertAttribute() 接口
+         * @fn  virtual const VertexAttribute 
+         *      D3D11VertexDeclaration::&insertAttribute(size_t pos, 
+         *      size_t stream, size_t offset, VertexAttribute::Type type, 
+         *      VertexAttribute::Semantic semantic, 
+         *      size_t semanticIndex) override;
+         * @brief   重写 VertexDeclaration::insertAttribute() 接口
+         * @param   pos             The position.
+         * @param   stream          The stream.
+         * @param   offset          The offset.
+         * @param   type            The type.
+         * @param   semantic        The semantic.
+         * @param   semanticIndex   Zero-based index of the semantic.
+         * @return  A reference to a const VertexAttribute.
          */
         virtual const VertexAttribute &insertAttribute(size_t pos,
             size_t stream, size_t offset, VertexAttribute::Type type,
             VertexAttribute::Semantic semantic, size_t semanticIndex) override;
 
         /**
-         * @brief 添加一个顶点属性
-         * @param [in] vertexAttribute : 顶点属性对象
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult D3D11VertexDeclaration::addAttribute(
+         *      const VertexAttribute &vertexAttribute) override;
+         * @brief   添加一个顶点属性
+         * @param [in]  vertexAttribute : 顶点属性对象.
+         * @return  调用成功返回 T3D_OK.
          */
         virtual TResult addAttribute(
             const VertexAttribute &vertexAttribute) override;
 
         /**
-         * @brief 插入一个顶点属性
-         * @param [in] pos : 插入的位置
-         * @param [in] vertexAttribute : 顶点属性对象
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult D3D11VertexDeclaration::insertAttribute(
+         *      size_t pos, const VertexAttribute &vertexAttribute) override;
+         * @brief   插入一个顶点属性
+         * @param [in]  pos             : 插入的位置.
+         * @param [in]  vertexAttribute : 顶点属性对象.
+         * @return  调用成功返回 T3D_OK.
          */
         virtual TResult insertAttribute(size_t pos,
             const VertexAttribute &vertexAttribute) override;
 
         /**
-         * @brief 移除指定位置的顶点属性
-         * @param [in] pos : 数组位置
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult 
+         *      D3D11VertexDeclaration::removeAttribute(size_t pos) override;
+         * @brief   移除指定位置的顶点属性
+         * @param [in]  pos : 数组位置.
+         * @return  调用成功返回 T3D_OK.
          */
         virtual TResult removeAttribute(size_t pos) override;
 
         /**
-         * @brief 移除对应语法解释的顶点属性
-         * @param [in] semantic : 语法解释
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult D3D11VertexDeclaration::removeAttribute(
+         *      VertexAttribute::Semantic semantic, 
+         *      size_t semanticIndex) override;
+         * @brief   移除对应语法解释的顶点属性
+         * @param [in]  semantic        : 语法解释.
+         * @param       semanticIndex   Zero-based index of the semantic.
+         * @return  调用成功返回 T3D_OK.
          */
         virtual TResult removeAttribute(
             VertexAttribute::Semantic semantic, size_t semanticIndex) override;
 
         /**
-         * @brief 移除所有顶点属性
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult 
+         *      D3D11VertexDeclaration::removeAllAttributes() override;
+         * @brief   移除所有顶点属性
+         * @return  调用成功返回 T3D_OK.
          */
         virtual TResult removeAllAttributes() override;
 
         /**
-         * @brief 更新顶点属性
-         * @param [in] pos : 更新对应位置的顶点属性
-         * @param [in] stream : 数据流索引
-         * @param [in] type : 顶点数据类型
-         * @param [in] semantic : 顶点语法解释
-         * @return 调用成功返回 T3D_OK
+         * @fn  virtual TResult D3D11VertexDeclaration::updateAttribute(
+         *      size_t pos, size_t stream, size_t offset, 
+         *      VertexAttribute::Type type, VertexAttribute::Semantic semantic, 
+         *      size_t semanticIndex) override;
+         * @brief   更新顶点属性
+         * @param [in]  pos             : 更新对应位置的顶点属性.
+         * @param [in]  stream          : 数据流索引.
+         * @param       offset          The offset.
+         * @param [in]  type            : 顶点数据类型.
+         * @param [in]  semantic        : 顶点语法解释.
+         * @param       semanticIndex   Zero-based index of the semantic.
+         * @return  调用成功返回 T3D_OK.
          */
         virtual TResult updateAttribute(size_t pos, size_t stream,
             size_t offset, VertexAttribute::Type type,
             VertexAttribute::Semantic semantic, size_t semanticIndex) override;
 
         /**
-         * @brief 克隆一个顶点声明对象
-         * @return 返回一个新的顶点声明对象
-         * @remarks 具体的渲染系统子类需要实现该接口
+         * @fn  virtual VertexDeclarationPtr 
+         *      D3D11VertexDeclaration::clone() const override;
+         * @brief   克隆一个顶点声明对象
+         * @return  返回一个新的顶点声明对象.
+         * @remarks  具体的渲染系统子类需要实现该接口.
          */
         virtual VertexDeclarationPtr clone() const override;
 
         /**
-         * @brief 获取 D3D11 顶点输入布局对象
+         * @fn  ID3D11InputLayout D3D11VertexDeclaration::*getD3DInputLayout(
+         *      D3D11VertexShaderPtr shader);
+         * @brief   获取 D3D11 顶点输入布局对象
+         * @param   shader  The shader.
+         * @return  Null if it fails, else the d 3D input layout.
          */
         ID3D11InputLayout *getD3DInputLayout(D3D11VertexShaderPtr shader);
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  D3D11VertexDeclaration::D3D11VertexDeclaration();
+         * @brief   构造函数
          */
         D3D11VertexDeclaration();
 
     protected:
-        ID3D11InputLayout   *mD3DInputLayout;    /**< D3D11 输入布局 */
-        bool                mIsDirty;
+        ID3D11InputLayout   *mD3DInputLayout;   /**< D3D11 输入布局 */
+        bool                mIsDirty;           /**< True if is dirty, false if not */
     };
 }
 

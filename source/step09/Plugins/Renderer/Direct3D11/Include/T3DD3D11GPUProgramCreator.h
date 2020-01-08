@@ -28,39 +28,55 @@
 namespace Tiny3D
 {
     /**
-     * @brief DirectX 11 着色器生成器
+     * @class   D3D11ShaderCreator
+     * @brief   DirectX 11 着色器生成器
      */
     class D3D11ShaderCreator : public ShaderCreator
     {
     public:
-        static const char * const SHADER_TYPE;
+        static const char * const SHADER_TYPE;  /**< Type of the shader */
 
         /**
-         * @brief 重写ShaderCreator::getType() 接口
+         * @fn  virtual String D3D11ShaderCreator::getType() const override;
+         * @brief   重写ShaderCreator::getType() 接口
+         * @return  The type.
          */
         virtual String getType() const override;
 
         /**
-         * @brief 重写ShaderCreator::createObject() 接口
+         * @fn  virtual ShaderPtr D3D11ShaderCreator::createObject(
+         *      int32_t argc, ...) const override;
+         * @brief   重写ShaderCreator::createObject() 接口
+         * @param   argc    The argc.
+         * @param   ...     Variable arguments providing additional information.
+         * @return  The new object.
          */
         virtual ShaderPtr createObject(int32_t argc, ...) const override;
     };
 
     /**
-     * @brief DirectX 11 GPU程序生成器
+     * @class   D3D11GPUProgramCreator
+     * @brief   DirectX 11 GPU程序生成器
      */
     class D3D11GPUProgramCreator : public GPUProgramCreator
     {
     public:
-        static const char * const GPUPROGRAM_TYPE;
+        static const char * const GPUPROGRAM_TYPE;  /**< Type of the gpuprogram */
 
         /**
-         * @brief 重写ShaderCreator::getType() 接口
+         * @fn  virtual String D3D11GPUProgramCreator::getType() const override;
+         * @brief   重写ShaderCreator::getType() 接口
+         * @return  The type.
          */
         virtual String getType() const override;
 
         /**
-         * @brief 重写ShaderCreator::createObject() 接口
+         * @fn  virtual GPUProgramPtr D3D11GPUProgramCreator::createObject(
+         *      int32_t argc, ...) const override;
+         * @brief   重写ShaderCreator::createObject() 接口
+         * @param   argc    The argc.
+         * @param   ...     Variable arguments providing additional information.
+         * @return  The new object.
          */
         virtual GPUProgramPtr createObject(int32_t argc, ...) const override;
     };

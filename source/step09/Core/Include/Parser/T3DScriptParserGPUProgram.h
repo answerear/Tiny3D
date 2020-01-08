@@ -80,10 +80,10 @@ namespace Tiny3D
             DataStream &stream, GPUProgram *program, uint32_t version);
 
     protected:
-        String  mSource;
-        String  mTarget;
-        String  mEntry;
-        String  mStage;
+        String  mSource;    /**< 源码文件名称 */
+        String  mTarget;    /**< 转换目标平台着色器 */
+        String  mEntry;     /**< 着色器程序入口函数 */
+        String  mStage;     /**< 着色器绑定渲染流水线阶段 */
     };
 
     /**

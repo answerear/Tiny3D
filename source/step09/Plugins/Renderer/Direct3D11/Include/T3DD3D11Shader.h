@@ -29,26 +29,32 @@
 namespace Tiny3D
 {
     /**
-     * @brief DirectX 11 着色器
+     * @class   D3D11Shader
+     * @brief   DirectX 11 着色器
      */
     class D3D11Shader : public Shader
     {
     public:
         /**
-         * @brief 析构函数
+         * @fn  virtual D3D11Shader::~D3D11Shader();
+         * @brief   析构函数
          */
         virtual ~D3D11Shader();
 
         /**
-         * @brief 重写 Shader::hasCompiled() 接口
+         * @fn  virtual bool D3D11Shader::hasCompiled() const override;
+         * @brief   重写 Shader::hasCompiled() 接口
+         * @return  True if compiled, false if not.
          */
         virtual bool hasCompiled() const override;
 
         /**
-         * @brief 获取编译后的字节码
-         * @param [in][out] bytecode : 字节码二进制数据
-         * @param [in][out] bytecodeLength : 字节码长度
-         * @return 调用成功返回T3D_OK
+         * @fn  TResult D3D11Shader::getBytecode(const char *&bytecode, 
+         *      size_t &bytecodeLength)
+         * @brief   获取编译后的字节码
+         * @param [in]  bytecode        bytecode : 字节码二进制数据.
+         * @param [in]  bytecodeLength  bytecodeLength : 字节码长度.
+         * @return  调用成功返回T3D_OK.
          */
         TResult getBytecode(const char *&bytecode, size_t &bytecodeLength)
         {
@@ -61,26 +67,37 @@ namespace Tiny3D
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  D3D11Shader::D3D11Shader(const String &name, 
+         *      const String &content);
+         * @brief   构造函数
+         * @param   name    The name.
+         * @param   content The content.
          */
         D3D11Shader(const String &name, const String &content);
 
         /**
-         * @brief 克隆属性
+         * @fn  virtual TResult D3D11Shader::cloneProperties(
+         *      D3D11ShaderPtr shader) const;
+         * @brief   克隆属性
+         * @param   shader  The shader.
+         * @return  A TResult.
          */
         virtual TResult cloneProperties(D3D11ShaderPtr shader) const;
 
         /**
-         * @brief 编译着色器
-         * @param [in] entry : 入口函数名称
-         * @param [in] model : 着色器版本
-         * @return 调用成功返回 T3D_OK
+         * @fn  TResult D3D11Shader::compile(const String &entry, 
+         *      const String &model);
+         * @brief   编译着色器
+         * @param [in]  entry   : 入口函数名称.
+         * @param [in]  model   : 着色器版本.
+         * @return  调用成功返回 T3D_OK.
          */
         TResult compile(const String &entry, const String &model);
 
         /**
-         * @brief 加载 shader 源码内容
-         * @return 调用成功返回 T3D_OK
+         * @fn  TResult D3D11Shader::loadContent();
+         * @brief   加载 shader 源码内容
+         * @return  调用成功返回 T3D_OK.
          */
         TResult loadContent();
 

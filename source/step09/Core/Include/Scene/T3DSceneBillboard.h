@@ -27,6 +27,10 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   SceneBillboard
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API SceneBillboard : public SceneRenderable
     {
     public:

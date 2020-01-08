@@ -27,56 +27,138 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   ScriptParserSampler
+     * @brief   A script parser sampler.
+     */
     class ScriptParserSampler : public ScriptParserBase
     {
     public:
-        /** 创建对象 */
+        /**
+         * @fn  static ScriptParserSamplerPtr ScriptParserSampler::create();
+         * @brief   创建对象
+         * @return  A ScriptParserSamplerPtr.
+         */
         static ScriptParserSamplerPtr create();
 
-        /** 析构函数 */
+        /**
+         * @fn  virtual ScriptParserSampler::~ScriptParserSampler();
+         * @brief   析构函数
+         */
         virtual ~ScriptParserSampler();
 
-        /** 重写基类 ScriptParserBase::parseObject 接口 */
+        /**
+         * @fn  virtual TResult ScriptParserSampler::parseObject(
+         *      DataStream &stream, Object *object, uint32_t version) override;
+         * @brief   重写基类 ScriptParserBase::parseObject 接口
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  object  If non-null, the object.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         virtual TResult parseObject(
             DataStream &stream, Object *object, uint32_t version) override;
 
-        /** 解析 sampler 属性 */
-//         TResult parseSamplerParams(
-//             DataStream &stream, Object *object, uint32_t version);
-
     protected:
-        /** 构造函数 */
+        /**
+         * @fn  ScriptParserSampler::ScriptParserSampler();
+         * @brief   构造函数
+         */
         ScriptParserSampler();
 
-        /** 解析 Sampler 属性 */
+        /**
+         * @fn  TResult ScriptParserSampler::parseProperties( 
+         *      DataStream &stream, Sampler *sample, uint32_t version);
+         * @brief   解析 Sampler 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  sample  If non-null, the sample.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseProperties(
             DataStream &stream, Sampler *sample, uint32_t version);
 
-        /** 解析 tex_address_mode 属性 */
+        /**
+         * @fn  TResult ScriptParserSampler::parseTexAddressMode( 
+         *      DataStream &stream, Sampler *sample, uint32_t version);
+         * @brief   解析 tex_address_mode 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  sample  If non-null, the sample.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseTexAddressMode(
             DataStream &stream, Sampler *sample, uint32_t version);
 
-        /** 解析 tex_border_color 属性 */
+        /**
+         * @fn  TResult ScriptParserSampler::parseTexBorderColor( 
+         *      DataStream &stream, Sampler *sample, uint32_t version);
+         * @brief   解析 tex_border_color 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  sample  If non-null, the sample.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseTexBorderColor(
             DataStream &stream, Sampler *sample, uint32_t version);
 
-        /** 解析 filtering 属性 */
+        /**
+         * @fn  TResult ScriptParserSampler::parseFiltering( 
+         *      DataStream &stream, Sampler *sample, uint32_t version);
+         * @brief   解析 filtering 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  sample  If non-null, the sample.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseFiltering(
             DataStream &stream, Sampler *sample, uint32_t version);
 
-        /** 解析 cmp_test 属性 */
+        /**
+         * @fn  TResult ScriptParserSampler::parseCompareTest( 
+         *      DataStream &stream, Sampler *sample, uint32_t version);
+         * @brief   解析 cmp_test 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  sample  If non-null, the sample.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseCompareTest(
             DataStream &stream, Sampler *sample, uint32_t version);
 
-        /** 解析 cmp_func 属性 */
+        /**
+         * @fn  TResult ScriptParserSampler::parseCompareFunc( 
+         *      DataStream &stream, Sampler *sample, uint32_t version);
+         * @brief   解析 cmp_func 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  sample  If non-null, the sample.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseCompareFunc(
             DataStream &stream, Sampler *sample, uint32_t version);
 
-        /** 解析 max_anisotropy 属性 */
+        /**
+         * @fn  TResult ScriptParserSampler::parseMaxAnisotropy( 
+         *      DataStream &stream, Sampler *sample, uint32_t version);
+         * @brief   解析 max_anisotropy 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  sample  If non-null, the sample.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseMaxAnisotropy(
             DataStream &stream, Sampler *sample, uint32_t version);
 
-        /** 解析 mipmap_bias 属性 */
+        /**
+         * @fn  TResult ScriptParserSampler::parseMipmapBias( 
+         *      DataStream &stream, Sampler *sample, uint32_t version);
+         * @brief   解析 mipmap_bias 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  sample  If non-null, the sample.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseMipmapBias(
             DataStream &stream, Sampler *sample, uint32_t version);
     };

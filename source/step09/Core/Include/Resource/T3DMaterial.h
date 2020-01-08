@@ -29,7 +29,8 @@
 namespace Tiny3D
 {
     /**
-     * @brief 材質資源
+     * @class   Material
+     * @brief   材質資源
      */
     class T3D_ENGINE_API Material : public Resource
     {
@@ -152,7 +153,9 @@ namespace Tiny3D
         const Techniques &getTechniques() const { return mTechniques; }
 
         /**
+         * @fn  TechniquePtr Material::getBestTechnique()
          * @brief   获取最合适的 Technique 对象
+         * @return  The best technique.
          */
         TechniquePtr getBestTechnique() { return mSupportedTechniques[0]; }
 
@@ -272,8 +275,9 @@ namespace Tiny3D
         virtual ResourcePtr clone() const override;
 
         /**
+         * @fn  TResult Material::compile();
          * @brief   编译材质脚本
-         * @returns 调用成功返回 T3D_OK
+         * @return  调用成功返回 T3D_OK.
          */
         TResult compile();
 

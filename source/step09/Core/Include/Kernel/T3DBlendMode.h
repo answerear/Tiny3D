@@ -29,7 +29,8 @@
 namespace Tiny3D
 {
     /**
-     * @brief 纹理混合类型
+     * @enum    LayerBlendType
+     * @brief   纹理混合类型
      */
     enum class LayerBlendType : uint32_t
     {
@@ -38,7 +39,8 @@ namespace Tiny3D
     };
 
     /**
-     * @brief 纹理混合操作
+     * @enum    LayerBlendOperation
+     * @brief   纹理混合操作
      */
     enum class LayerBlendOperation : uint32_t
     {
@@ -48,6 +50,10 @@ namespace Tiny3D
         ALPHA_BLEND   /// 根据纹理alpha通道叠加
     };
 
+    /**
+     * @enum    LayerBlendOperationEx
+     * @brief   Values that represent layer blend operation Exceptions
+     */
     enum class LayerBlendOperationEx : uint32_t
     {
         SOURCE1,
@@ -67,6 +73,10 @@ namespace Tiny3D
         BLEND_DIFFUSE_COLOR
     };
 
+    /**
+     * @enum    LayerBlendSource
+     * @brief   Values that represent layer blend sources
+     */
     enum class LayerBlendSource : uint32_t
     {
         CURRENT,
@@ -76,6 +86,10 @@ namespace Tiny3D
         MANUAL
     };
 
+    /**
+     * @class   LayerBlendModeEx
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API LayerBlendModeEx
     {
     public:
@@ -129,7 +143,8 @@ namespace Tiny3D
     };
 
     /**
-     * @brief 混合类型
+     * @enum    BlendType
+     * @brief   混合类型
      */
     enum class BlendType : uint32_t
     {
@@ -150,7 +165,8 @@ namespace Tiny3D
     };
 
     /**
-     * @brief 混合因子
+     * @enum    BlendFactor
+     * @brief   混合因子
      */
     enum class BlendFactor : uint32_t
     {
@@ -167,7 +183,8 @@ namespace Tiny3D
     };
 
     /**
-     * @brief 混合操作
+     * @enum    BlendOperation
+     * @brief   混合操作
      */
     enum class BlendOperation : uint32_t
     {
@@ -178,6 +195,10 @@ namespace Tiny3D
         MAX
     };
 
+    /**
+     * @struct  BlendState
+     * @brief   A 3D engine api.
+     */
     struct T3D_ENGINE_API BlendState
     {
         bool    writeR;

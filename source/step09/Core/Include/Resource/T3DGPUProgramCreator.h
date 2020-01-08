@@ -28,11 +28,19 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   ShaderCreator
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API ShaderCreator : public Creator<Shader>
     {
         T3D_DECLARE_INTERFACE(ShaderCreator);
     };
 
+    /**
+     * @class   GPUProgramCreator
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API GPUProgramCreator : public Creator<GPUProgram>
     {
         T3D_DECLARE_INTERFACE(GPUProgramCreator);

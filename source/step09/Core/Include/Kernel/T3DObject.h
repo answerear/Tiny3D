@@ -28,33 +28,41 @@
 namespace Tiny3D
 {
     /**
-     * @brief 引擎所有对象基类
+     * @class   Object
+     * @brief   引擎所有对象基类
      */
     class T3D_ENGINE_API Object
     {
     public:
         /**
-         * @brief 构造函数
+         * @fn  Object::Object();
+         * @brief   构造函数
          */
         Object();
 
         /**
-         * @brief 析构函数
+         * @fn  virtual Object::~Object();
+         * @brief   析构函数
          */
         virtual ~Object();
 
         /**
-         * @brief 持有对象，让对象引用计数加一
+         * @fn  Object Object::*acquire();
+         * @brief   持有对象，让对象引用计数加一
+         * @return  Null if it fails, else a pointer to an Object.
          */
         Object *acquire();
 
         /**
-         * @brief 释放对象，让对象引用计数减一
+         * @fn  void Object::release();
+         * @brief   释放对象，让对象引用计数减一
          */
         void release();
 
         /**
-         * @brief 返回对象当前引用计数
+         * @fn  uint32_t Object::referCount() const
+         * @brief   返回对象当前引用计数
+         * @return  An uint32_t.
          */
         uint32_t referCount() const
         {

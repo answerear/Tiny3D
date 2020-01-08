@@ -28,29 +28,60 @@
 
 namespace Tiny3D
 {
-    /** 動態庫資源管理器 */
+    /**
+     * @class   DylibManager
+     * @brief   動態庫資源管理器
+     */
     class T3D_ENGINE_API DylibManager 
         : public Singleton<DylibManager>
         , public ResourceManager
     {
     public:
-        /** 創建動態庫管理器對象 */
+        /**
+         * @fn  static DylibManagerPtr create();
+         * @brief   創建動態庫管理器對象
+         * @return  A DylibManagerPtr.
+         */
         static DylibManagerPtr create();
 
-        /** 析構函數 */
+        /**
+         * @fn  virtual ~DylibManager();
+         * @brief   析構函數
+         */
         virtual ~DylibManager();
 
-        /** 加載動態庫 */
+        /**
+         * @fn  virtual DylibPtr loadDylib(const String &name);
+         * @brief   加載動態庫
+         * @param   name    The name.
+         * @return  The dylib.
+         */
         virtual DylibPtr loadDylib(const String &name);
 
-        /** 卸載動態庫 */
+        /**
+         * @fn  virtual TResult unloadDylib(DylibPtr dylib);
+         * @brief   卸載動態庫
+         * @param   dylib   The dylib.
+         * @return  A TResult.
+         */
         virtual TResult unloadDylib(DylibPtr dylib);
 
     protected:
-        /** 構造函數 */
+        /**
+         * @fn  DylibManager();
+         * @brief   構造函數
+         */
         DylibManager();
 
-        /** @brief 重寫基類 Resource::create() 接口 */
+        /**
+         * @fn  virtual ResourcePtr create( const String &strName, 
+         *      int32_t argc, va_list args) override;
+         * @brief   重寫基類 Resource::create() 接口
+         * @param   strName The name.
+         * @param   argc    The argc.
+         * @param   args    The arguments.
+         * @return  A ResourcePtr.
+         */
         virtual ResourcePtr create(
             const String &strName, int32_t argc, va_list args) override;
     };

@@ -28,13 +28,15 @@
 namespace Tiny3D
 {
     /**
-     * @brief 坐标轴场景渲染类型，用于渲染三个坐标轴
+     * @class   SceneAxis
+     * @brief   坐标轴场景渲染类型，用于渲染三个坐标轴
      */
     class T3D_ENGINE_API SceneAxis : public SceneRenderable
     {
     public:
         /**
-         * @brief 坐标类型
+         * @enum    Axis
+         * @brief   坐标类型
          */
         enum Axis
         {
@@ -44,94 +46,120 @@ namespace Tiny3D
         };
 
         /**
-         * @brief 创建坐标轴场景渲染对象
-         * @param [in] X : X轴的长度
-         * @param [in] Y : Y轴的长度
-         * @param [in] Z : Z轴的长度
-         * @param [in] uID : 结点ID，默认自动生成
-         * @return 返回一个坐标轴场景渲染对象
+         * @fn  static SceneAxisPtr SceneAxis::create(Real X, Real Y, Real Z, 
+         *      ID uID = E_NID_AUTOMATIC);
+         * @brief   创建坐标轴场景渲染对象
+         * @param [in]  X   : X轴的长度.
+         * @param [in]  Y   : Y轴的长度.
+         * @param [in]  Z   : Z轴的长度.
+         * @param [in]  uID (Optional) : 结点ID，默认自动生成.
+         * @return  返回一个坐标轴场景渲染对象.
          */
         static SceneAxisPtr create(Real X, Real Y, Real Z, 
             ID uID = E_NID_AUTOMATIC);
 
         /**
-         * @brief 析构函数
+         * @fn  virtual SceneAxis::~SceneAxis();
+         * @brief   析构函数
          */
         virtual ~SceneAxis();
 
         /**
-         * @brief 重写基类接口，返回当前结点类型
-         * @see Node::Type Node::getNodeType() const
+         * @fn  virtual Type SceneAxis::getNodeType() const override;
+         * @brief   重写基类接口，返回当前结点类型
+         * @return  The node type.
+         * @sa  Node::Type Node::getNodeType() const
          */
         virtual Type getNodeType() const override;
 
         /**
-         * @brief 重写基类接口，实现当前结点的克隆功能
-         * @see NodePr Node::clone() const
+         * @fn  virtual NodePtr SceneAxis::clone() const override;
+         * @brief   重写基类接口，实现当前结点的克隆功能
+         * @return  A copy of this object.
+         * @sa  NodePr Node::clone() const
          */
         virtual NodePtr clone() const override;
 
         /**
-         * @brief 获取坐标轴长度
-         * @return 返回坐标轴长度
-         * @see void setAxisLength(Axis axis, Real length)
-         * @see enum Axis
+         * @fn  Real SceneAxis::getAxisLength(Axis axis) const;
+         * @brief   获取坐标轴长度
+         * @param   axis    The axis.
+         * @return  返回坐标轴长度.
+         * @sa  void setAxisLength(Axis axis, Real length)
+         * @sa  enum Axis
          */
         Real getAxisLength(Axis axis) const;
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  SceneAxis::SceneAxis(ID uID = E_NID_AUTOMATIC);
+         * @brief   构造函数
+         * @param   uID (Optional) The identifier.
          */
         SceneAxis(ID uID = E_NID_AUTOMATIC);
 
         /**
-         * @brief 初始化
-         * @param [in] X : X轴的长度
-         * @param [in] Y : Y轴的长度
-         * @param [in] Z : Z轴的长度
-         * @return 成功返回 T3D_OK
+         * @fn  virtual TResult SceneAxis::init(Real X, Real Y, Real Z);
+         * @brief   初始化
+         * @param [in]  X   : X轴的长度.
+         * @param [in]  Y   : Y轴的长度.
+         * @param [in]  Z   : Z轴的长度.
+         * @return  成功返回 T3D_OK.
          */
         virtual TResult init(Real X, Real Y, Real Z);
 
         /**
-         * @brief 重写基类接口，实现当前结点的属性克隆功能
-         * @see TResult Node::cloneProperties(NodePtr node)
+         * @fn  virtual TResult SceneAxis::cloneProperties(NodePtr node) 
+         *      const override;
+         * @brief   重写基类接口，实现当前结点的属性克隆功能
+         * @param   node    The node.
+         * @return  A TResult.
+         * @sa  TResult Node::cloneProperties(NodePtr node)
          */
         virtual TResult cloneProperties(NodePtr node) const override;
 
         /**
-         * @brief 重写基类接口，实现结点的自身变换
-         * @see void SceneNode::updateTransform()
+         * @fn  virtual void SceneAxis::updateTransform() override;
+         * @brief   重写基类接口，实现结点的自身变换
+         * @sa  void SceneNode::updateTransform()
          */
         virtual void updateTransform() override;
 
         /**
-         * @brief 重写基类接口，实现结点的视锥体裁剪逻辑
-         * @see void SceneNode::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+         * @fn  virtual void SceneAxis::frustumCulling(BoundPtr bound, 
+         *      RenderQueuePtr queue) override;
+         * @brief   重写基类接口，实现结点的视锥体裁剪逻辑
+         * @param   bound   The bound.
+         * @param   queue   The queue.
+         * @sa  void SceneNode::frustumCulling(BoundPtr bound, 
+         *      RenderQueuePtr queue)
          */
-        virtual void frustumCulling(BoundPtr bound, 
-            RenderQueuePtr queue) override;
+        virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) override;
 
         /**
-         * @brief 重写基类接口，实现获取渲染用的材质
-         * @see MaterialPtr SceneRenderable::getMaterial() const
+         * @fn  virtual MaterialPtr SceneAxis::getMaterial() const override;
+         * @brief   重写基类接口，实现获取渲染用的材质
+         * @return  The material.
+         * @sa  MaterialPtr SceneRenderable::getMaterial() const
          */
         virtual MaterialPtr getMaterial() const override;
 
         /**
-         * @brief 重写基类接口，实现获取VAO对象
-         * @see VertexArrayObjectPtr SceneRenderable::getVertexArrrayObject() const
+         * @fn  virtual VertexArrayObjectPtr SceneAxis::getVertexArrayObject() 
+         *      const override;
+         * @brief   重写基类接口，实现获取VAO对象
+         * @return  The vertex array object.
+         * @sa  VertexArrayObjectPtr SceneRenderable::getVertexArrrayObject() const
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
     private:
-        Real                    mAxisX;         /**< X轴长度 */
-        Real                    mAxisY;         /**< Y轴长度 */
-        Real                    mAxisZ;         /**< Z轴长度 */
+        Real                    mAxisX; /**< X轴长度 */
+        Real                    mAxisY; /**< Y轴长度 */
+        Real                    mAxisZ; /**< Z轴长度 */
 
-        VertexArrayObjectPtr    mVAO;           /**< 渲染用的VAO */
-        SphereBoundPtr          mBound;         /**< 碰撞体 */
+        VertexArrayObjectPtr    mVAO;   /**< 渲染用的VAO */
+        SphereBoundPtr          mBound; /**< 碰撞体 */
     };
 }
 

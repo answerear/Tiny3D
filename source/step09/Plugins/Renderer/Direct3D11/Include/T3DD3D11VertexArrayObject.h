@@ -28,114 +28,160 @@
 namespace Tiny3D
 {
     /**
-     * @brief Direct3D9 渲染器相关的VAO类
+     * @class   D3D11VertexArrayObject
+     * @brief   Direct3D9 渲染器相关的VAO类
      */
     class D3D11VertexArrayObject : public VertexArrayObject
     {
     public:
         /**
-         * @brief 创建 Direct3D9 渲染器相关的 VAO 对象
+         * @fn  static D3D11VertexArrayObjectPtr 
+         *      D3D11VertexArrayObject::create(bool useIndices);
+         * @brief   创建 Direct3D9 渲染器相关的 VAO 对象
+         * @param   useIndices  True to use indices.
+         * @return  A D3D11VertexArrayObjectPtr.
          */
         static D3D11VertexArrayObjectPtr create(bool useIndices);
 
         /**
-         * @brief 析构函数
+         * @fn  virtual D3D11VertexArrayObject::~D3D11VertexArrayObject();
+         * @brief   析构函数
          */
         virtual ~D3D11VertexArrayObject();
 
         /**
-         * @brief 开始绑定VAO，实现基类接口
+         * @fn  virtual TResult D3D11VertexArrayObject::beginBinding() override;
+         * @brief   开始绑定VAO，实现基类接口
+         * @return  A TResult.
          */
         virtual TResult beginBinding() override;
 
         /**
-         * @brief 结束绑定VAO，实现基类接口
+         * @fn  virtual TResult D3D11VertexArrayObject::endBinding() override;
+         * @brief   结束绑定VAO，实现基类接口
+         * @return  A TResult.
          */
         virtual TResult endBinding() override;
 
         /**
-         * @brief 设置绘制图元类型，实现基类接口
+         * @fn  virtual TResult D3D11VertexArrayObject::setPrimitiveType(
+         *      Renderer::PrimitiveType priType) override;
+         * @brief   设置绘制图元类型，实现基类接口
+         * @param   priType Type of the pri.
+         * @return  A TResult.
          */
         virtual TResult setPrimitiveType(
             Renderer::PrimitiveType priType) override;
 
         /**
-         * @brief 获取渲染图元类型，实现基类接口
+         * @fn  virtual Renderer::PrimitiveType 
+         *      D3D11VertexArrayObject::getPrimitiveType() const override;
+         * @brief   获取渲染图元类型，实现基类接口
+         * @return  The primitive type.
          */
         virtual Renderer::PrimitiveType getPrimitiveType() const override;
 
         /**
-         * @brief 设置顶点声明，实现基类接口
+         * @fn  virtual TResult D3D11VertexArrayObject::setVertexDeclaration(
+         *      VertexDeclarationPtr decl) override;
+         * @brief   设置顶点声明，实现基类接口
+         * @param   decl    The declaration.
+         * @return  A TResult.
          */
         virtual TResult setVertexDeclaration(VertexDeclarationPtr decl) override;
 
         /**
-         * @brief 获取顶点声明，实现基类接口
+         * @fn  virtual VertexDeclarationPtr 
+         *      D3D11VertexArrayObject::getVertexDeclaration() const override;
+         * @brief   获取顶点声明，实现基类接口
+         * @return  The vertex declaration.
          */
         virtual VertexDeclarationPtr getVertexDeclaration() const override;
 
         /**
-         * @brief 添加顶点缓冲区对象，实现基类接口
+         * @fn  virtual TResult D3D11VertexArrayObject::addVertexBuffer(
+         *      HardwareVertexBufferPtr vbo) override;
+         * @brief   添加顶点缓冲区对象，实现基类接口
+         * @param   vbo The vbo.
+         * @return  A TResult.
          */
         virtual TResult addVertexBuffer(HardwareVertexBufferPtr vbo) override;
 
         /**
-         * @brief 获取顶点缓冲区对象数量，实现基类接口
+         * @fn  virtual size_t 
+         *      D3D11VertexArrayObject::getVertexBufferCount() const override;
+         * @brief   获取顶点缓冲区对象数量，实现基类接口
+         * @return  The vertex buffer count.
          */
         virtual size_t getVertexBufferCount() const override;
 
         /**
-         * @brief 获取顶点缓冲区对象，实现基类接口
+         * @fn  virtual HardwareVertexBufferPtr 
+         *      D3D11VertexArrayObject::getVertexBuffer(size_t idx) const override;
+         * @brief   获取顶点缓冲区对象，实现基类接口
+         * @param   idx Zero-based index of the.
+         * @return  The vertex buffer.
          */
         virtual HardwareVertexBufferPtr getVertexBuffer(size_t idx) const override;
 
         /**
-         * @brief 设置索引缓冲对象，实现基类接口
+         * @fn  virtual TResult D3D11VertexArrayObject::setIndexBuffer(
+         *      HardwareIndexBufferPtr ibo) override;
+         * @brief   设置索引缓冲对象，实现基类接口
+         * @param   ibo The ibo.
+         * @return  A TResult.
          */
         virtual TResult setIndexBuffer(HardwareIndexBufferPtr ibo) override;
 
         /**
-         * @brief 获取索引缓冲对象，实现基类接口
+         * @fn  virtual HardwareIndexBufferPtr 
+         *      D3D11VertexArrayObject::getIndexBuffer() const override;
+         * @brief   获取索引缓冲对象，实现基类接口
+         * @return  The index buffer.
          */
         virtual HardwareIndexBufferPtr getIndexBuffer() const override;
 
         /**
-         * @brief 获取是否使用索引缓冲区，实现基类接口
+         * @fn  virtual bool 
+         *      D3D11VertexArrayObject::isIndicesUsed() const override;
+         * @brief   获取是否使用索引缓冲区，实现基类接口
+         * @return  True if indices used, false if not.
          */
         virtual bool isIndicesUsed() const override;
 
         /**
-         * @fn  ID3D11Buffer * const 
-         *      *D3D11VertexArrayObject::getD3D11BufferArray()
+         * @fn  ID3D11Buffer * const D3D11VertexArrayObject::*getD3D11Buffers()
          * @brief   获取 ID3D11Buffer 对象数组
-         * @returns 返回 ID3D11Buffer 对象数组.
+         * @return  返回 ID3D11Buffer 对象数组.
          */
         ID3D11Buffer * const *getD3D11Buffers() { return mD3D11Buffers; }
 
         /**
-         * @fn  UINT *D3D11VertexArrayObject::getD3D11BufferStride()
+         * @fn  UINT D3D11VertexArrayObject::*getD3D11BufferStrides()
          * @brief   获取 ID3D11Buffer 每个缓冲区的顶点步长
-         * @returns 返回 ID3D11Buffer 每个缓冲区的顶点步长.
+         * @return  返回 ID3D11Buffer 每个缓冲区的顶点步长.
          */
         UINT *getD3D11BufferStrides() { return mD3D11BufferStrides; }
 
         /**
          * @fn  UINT D3D11VertexArrayObject::*getD3D11BufferOffsets()
          * @brief   获取 ID3D11Buffer 每个缓冲区的偏移
-         * @returns 返回 ID3D11Buffer 每个缓冲区的偏移.
+         * @return  返回 ID3D11Buffer 每个缓冲区的偏移.
          */
         UINT *getD3D11BufferOffsets() { return mD3D11BufferOffsets; }
 
         /**
          * @fn  size_t D3D11VertexArrayObject::getVertexCount() const;
          * @brief   获取顶点数量
-         * @returns 返回顶点数量.
+         * @return  返回顶点数量.
          */
         size_t getVertexCount() const;
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  D3D11VertexArrayObject::D3D11VertexArrayObject(bool useIndices);
+         * @brief   构造函数
+         * @param   useIndices  True to use indices.
          */
         D3D11VertexArrayObject(bool useIndices);
 

@@ -26,7 +26,7 @@
 #include "T3DTypedef.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Render/T3DHardwareIndexBuffer.h"
-#include "Kernel/T3DPixelFormat.h"
+#include "Kernel/T3DCommon.h"
 
 
 namespace Tiny3D

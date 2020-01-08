@@ -27,6 +27,10 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   D3D11RenderWindow
+     * @brief   DirectX 11 渲染窗口.
+     */
     class D3D11RenderWindow : public RenderWindow
     {
     public:
@@ -38,33 +42,39 @@ namespace Tiny3D
         static D3D11RenderWindowPtr create(const String &name);
 
         /**
-         * @brief 析构函数
+         * @fn  virtual D3D11RenderWindow::~D3D11RenderWindow();
+         * @brief   析构函数
          */
         virtual ~D3D11RenderWindow();
 
         /**
-         * @brief 创建渲染窗口实体
-         * @param [in] param : 渲染窗口需要必要参数
-         * @param [in] paramEx : 渲染窗口需要的额外参数，不同平台的额外信息可以
-         *                      通过这里传递
-         * @return 调用成功返回 T3D_OK
-         * @remarks 具体渲染系统子类实现本接口
+         * @fn  virtual TResult D3D11RenderWindow::create(
+         *      const RenderWindowCreateParam &param, 
+         *      const RenderWindowCreateParamEx &paramEx) override;
+         * @brief   创建渲染窗口实体
+         * @param [in]  param   : 渲染窗口需要必要参数.
+         * @param [in]  paramEx : 渲染窗口需要的额外参数，不同平台的额外信息可以
+         *   通过这里传递.
+         * @return  调用成功返回 T3D_OK.
+         * @remarks  具体渲染系统子类实现本接口.
          */
         virtual TResult create(
             const RenderWindowCreateParam &param,
             const RenderWindowCreateParamEx &paramEx) override;
 
         /**
-         * @brief 销毁窗口
-         * @return 调用成功返回 T3D_OK
-         * @remarks 具体渲染系统子类实现本接口
+         * @fn  virtual TResult D3D11RenderWindow::destroy() override;
+         * @brief   销毁窗口
+         * @return  调用成功返回 T3D_OK.
+         * @remarks  具体渲染系统子类实现本接口.
          */
         virtual TResult destroy() override;
 
         /**
-         * @brief 双缓冲中交换离屏缓存到显示缓存，显示出图像
-         * @return 调用成功返回 T3D_OK
-         * @remarks 具体渲染系统子类实现本接口
+         * @fn  virtual TResult D3D11RenderWindow::swapBuffers() override;
+         * @brief   双缓冲中交换离屏缓存到显示缓存，显示出图像
+         * @return  调用成功返回 T3D_OK.
+         * @remarks  具体渲染系统子类实现本接口.
          */
         virtual TResult swapBuffers() override;
 
@@ -81,43 +91,76 @@ namespace Tiny3D
             Real depth, uint32_t stencil) override;
 
     protected:
+        /**
+         * @fn  D3D11RenderWindow::D3D11RenderWindow(const String &name);
+         * @brief   Constructor
+         * @param   name    The name.
+         */
         D3D11RenderWindow(const String &name);
 
         /**
-         * @brief 加载图标
+         * @fn  TResult D3D11RenderWindow::loadIcon(const String &iconPath);
+         * @brief   加载图标
+         * @param   iconPath    Full pathname of the icon file.
+         * @return  The icon.
          */
         TResult loadIcon(const String &iconPath);
 
         /**
-         * @brief 建立 D3D11 相关环境
+         * @fn  TResult D3D11RenderWindow::setupD3D11Environment(
+         *      const RenderWindowCreateParam &param, 
+         *      const RenderWindowCreateParamEx &paramEx);
+         * @brief   建立 D3D11 相关环境
+         * @param   param   The parameter.
+         * @param   paramEx The parameter exception.
+         * @return  A TResult.
          */
         TResult setupD3D11Environment(
             const RenderWindowCreateParam &param,
             const RenderWindowCreateParamEx &paramEx);
 
         /**
-         * @brief 创建 D3D11 交换链
+         * @fn  TResult D3D11RenderWindow::createSwapChain(UINT uWidth, 
+         *      UINT uHeight, bool bFullscreen, UINT uMSAACount, 
+         *      UINT uMSAAQuality, DXGI_FORMAT format);
+         * @brief   创建 D3D11 交换链
+         * @param   uWidth          The width.
+         * @param   uHeight         The height.
+         * @param   bFullscreen     True to fullscreen.
+         * @param   uMSAACount      Number of msaas.
+         * @param   uMSAAQuality    The msaa quality.
+         * @param   format          Describes the format to use.
+         * @return  The new swap chain.
          */
         TResult createSwapChain(UINT uWidth, UINT uHeight, bool bFullscreen,
             UINT uMSAACount, UINT uMSAAQuality, DXGI_FORMAT format);
 
         /**
-         * @brief 创建渲染目标视图
+         * @fn  TResult D3D11RenderWindow::createRenderTargetView();
+         * @brief   创建渲染目标视图
+         * @return  The new render target view.
          */
         TResult createRenderTargetView();
 
         /**
-         * @brief 创建深度和模板缓冲区视图
+         * @fn  TResult D3D11RenderWindow::createDepthStencilView(UINT uWidth, 
+         *      UINT uHeight, UINT uMSAACount, UINT uMSAAQuality);
+         * @brief   创建深度和模板缓冲区视图
+         * @param   uWidth          The width.
+         * @param   uHeight         The height.
+         * @param   uMSAACount      Number of msaas.
+         * @param   uMSAAQuality    The msaa quality.
+         * @return  The new depth stencil view.
          */
         TResult createDepthStencilView(UINT uWidth, UINT uHeight,
             UINT uMSAACount, UINT uMSAAQuality);
 
     protected:
-        Window          *mWindow;
+        Window                  *mWindow;       /**< The window */
 
-        IDXGISwapChain          *mD3DSwapChain;
-        ID3D11RenderTargetView  *mD3DRTView;
-        ID3D11DepthStencilView  *mD3DDSView;
+        IDXGISwapChain          *mD3DSwapChain; /**< The d 3D swap chain */
+        ID3D11RenderTargetView  *mD3DRTView;    /**< The d 3D right view */
+        ID3D11DepthStencilView  *mD3DDSView;    /**< The d 3D ds view */
     };
 }
 

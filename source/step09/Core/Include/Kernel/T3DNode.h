@@ -30,13 +30,15 @@
 namespace Tiny3D
 {
     /**
-     * @brief 树形结构结点类
+     * @class   Node
+     * @brief   树形结构结点类
      */
     class T3D_ENGINE_API Node : public Object
     {
     public:
         /**
-         * @brief 结点ID
+         * @enum    NodeID
+         * @brief   结点ID
          */
         enum NodeID : ID
         {
@@ -45,8 +47,9 @@ namespace Tiny3D
         };
 
         /**
-        * @brief 结点类型
-        */
+         * @enum    Type
+         * @brief   结点类型
+         */
         enum class Type : uint32_t
         {
             UNKNOWN = 0,       /**< 未知结点类型 */
@@ -71,67 +74,72 @@ namespace Tiny3D
         };
 
         /**
-         * @brief 析构函数
+         * @fn  virtual Node::~Node();
+         * @brief   析构函数
          */
         virtual ~Node();
 
         /**
-         * @brief 返回结点类型
-         * @return 返回结点类型
-         * @see enum Type
-         * @note 每个派生类都要实现本接口，以返回具体的类型，如果不实现，
-         *      则无法实例化对象了
+         * @fn  virtual Type Node::getNodeType() const = 0;
+         * @brief   返回结点类型
+         * @return  返回结点类型.
+         * @sa  enum Type
+         *  @note 每个派生类都要实现本接口，以返回具体的类型，如果不实现，
+         *  则无法实例化对象了
          */
         virtual Type getNodeType() const = 0;
 
         /**
-        * @brief 返回结点全局唯一标识ID
-        * @return 返回结点ID
-        * @see enum ID
-        */
+         * @fn  ID Node::getNodeID() const;
+         * @brief   返回结点全局唯一标识ID
+         * @return  返回结点ID.
+         * @sa  enum ID
+         */
         ID getNodeID() const;
 
         /**
-         * @brief 设置结点名称
-         * @param [in] name : 结点名称
-         * @return void
-         * @see const String &getName() const
+         * @fn  void Node::setName(const String &name);
+         * @brief   设置结点名称
+         * @param [in]  name    : 结点名称.
+         * @sa  const String &amp;getName() const
+         *
+         * ### return   void.
          */
         void setName(const String &name);
 
         /**
-         * @brief 获取结点名称
-         * @return 返回结点名称
-         * @see void setName(const String &name)
+         * @fn  const String Node::&getName() const;
+         * @brief   获取结点名称
+         * @return  返回结点名称.
+         * @sa  void setName(const String &amp;name)
          */
         const String &getName() const;
 
         /**
-         * @brief 添加一个子结点
-         * @param [in] node : 子结点对象
-         * @return 调用成功返回 T3D_OK
-         * @see TResult removeChild(const NodePtr &node, bool cleanup)
-         * @see TResult removeChild(uint32_t nodeID, bool cleanup)
+         * @fn  virtual TResult Node::addChild(NodePtr node);
+         * @brief   添加一个子结点
+         * @param [in]  node    : 子结点对象.
+         * @return  调用成功返回 T3D_OK.
+         * @sa  TResult removeChild(const NodePtr &amp;node, bool cleanup)
+         * @sa  TResult removeChild(uint32_t nodeID, bool cleanup)
          */
         virtual TResult addChild(NodePtr node);
 
         /**
-         * @brief 移除一个子结点
-         * @param [in] node : 子结点对象
-         * @param [in] cleanup : 是否删除子结点，true表示删除，
-         *      false表示仅仅移除而并不删除子结点
-         * @return 调用成功返回 T3D_OK
-         * @see TResult removeChild(uint32_t nodeID)
+         * @fn  virtual TResult Node::removeChild(NodePtr node);
+         * @brief   移除一个子结点
+         * @param [in]  node    : 子结点对象.
+         * @return  调用成功返回 T3D_OK.
+         * @sa  TResult removeChild(uint32_t nodeID)
          */
         virtual TResult removeChild(NodePtr node);
 
         /**
-         * @brief 移除一个子结点
-         * @param [in] nodeID : 结点唯一标识ID
-         * @param [in] cleanup : 是否删除子结点，true表示删除，
-         *      false表示仅仅移除而并不删除子结点
-         * @return 调用成功返回 T3D_OK
-         * @see TResult removeChild(const NodePtr &node)
+         * @fn  virtual TResult Node::removeChild(uint32_t nodeID);
+         * @brief   移除一个子结点
+         * @param [in]  nodeID  : 结点唯一标识ID.
+         * @return  调用成功返回 T3D_OK.
+         * @sa  TResult removeChild(const NodePtr &amp;node)
          */
         virtual TResult removeChild(uint32_t nodeID);
 

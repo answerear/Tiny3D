@@ -30,74 +30,110 @@ namespace Tiny3D
     class ArchiveCreator;
 
     /**
-     * @brief 檔案系統資源管理器
+     * @class   ArchiveManager
+     * @brief   檔案系統資源管理器
      */
     class T3D_ENGINE_API ArchiveManager 
         : public Singleton<ArchiveManager>
         , public ResourceManager
     {
     public:
-        /** 創建 ArchiveManager 對象 */
+        /**
+         * @fn  static ArchiveManagerPtr create();
+         * @brief   創建 ArchiveManager 對象
+         * @return  An ArchiveManagerPtr.
+         */
         static ArchiveManagerPtr create();
 
-        /** 析構函數 */
+        /**
+         * @fn  virtual ~ArchiveManager();
+         * @brief   析構函數
+         */
         virtual ~ArchiveManager();
 
         /**
-         * @brief 記載檔案系統對象
+         * @fn  virtual ArchivePtr loadArchive(const String &name, 
+         *      const String &archiveType);
+         * @brief   記載檔案系統對象
+         * @param   name        The name.
+         * @param   archiveType Type of the archive.
+         * @return  The archive.
          */
         virtual ArchivePtr loadArchive(const String &name, 
             const String &archiveType);
 
         /**
-         * @brief 卸載檔案系統對象
+         * @fn  virtual TResult unloadArchive(ArchivePtr archive);
+         * @brief   卸載檔案系統對象
+         * @param   archive The archive.
+         * @return  A TResult.
          */
         virtual TResult unloadArchive(ArchivePtr archive);
 
         /**
-         * @brief 重寫 ResourceManager::unloadAllResources() 接口
+         * @fn  virtual TResult unloadAllResources() override;
+         * @brief   重寫 ResourceManager::unloadAllResources() 接口
+         * @return  A TResult.
          */
         virtual TResult unloadAllResources() override;
 
         /**
-         * @brief 添加檔案對象創建器
+         * @fn  TResult addArchiveCreator(ArchiveCreator *creator);
+         * @brief   添加檔案對象創建器
+         * @param [in,out]  creator If non-null, the creator.
+         * @return  A TResult.
          */
         TResult addArchiveCreator(ArchiveCreator *creator);
 
         /**
-         * @brief 移除檔案對象創建器
+         * @fn  TResult removeArchiveCreator(const String &name);
+         * @brief   移除檔案對象創建器
+         * @param   name    The name.
+         * @return  A TResult.
          */
         TResult removeArchiveCreator(const String &name);
 
         /**
-         * @brief 移除所有檔案對象創建器
+         * @fn  TResult removeAllArchiveCreator();
+         * @brief   移除所有檔案對象創建器
+         * @return  A TResult.
          */
         TResult removeAllArchiveCreator();
 
         /**
-         * @brief 根據名稱獲取檔案對象
-         * @param [in] name : 檔案名稱
-         * @param [in] path : 相對檔案的路徑
-         * @param [in][out] archive : 返回的檔案對象
-         * @return 找到則返回 true
+         * @fn  bool getArchive(const String &name, const String &path, ArchivePtr &archive);
+         * @brief   根據名稱獲取檔案對象
+         * @param [in]  name    : 檔案名稱.
+         * @param [in]  path    : 相對檔案的路徑.
+         * @param [in]  archive archive : 返回的檔案對象.
+         * @return  找到則返回 true.
          */
         bool getArchive(const String &name, const String &path, 
             ArchivePtr &archive);
 
         /**
-         * @brief 根據名稱獲取檔案對象
-         * @param [in] filename : 文件名
-         * @param [in][out] archive : 返回的檔案對象
-         * @return 找到則返回true
+         * @fn  bool getArchive(const String &filename, ArchivePtr &archive);
+         * @brief   根據名稱獲取檔案對象
+         * @param [in]  filename    : 文件名.
+         * @param [in]  archive     archive : 返回的檔案對象.
+         * @return  找到則返回true.
          */
         bool getArchive(const String &filename, ArchivePtr &archive);
 
     protected:
-        /** 構造函數 */
+        /**
+         * @fn  ArchiveManager();
+         * @brief   構造函數
+         */
         ArchiveManager();
 
-        /** 
-         * @brief 重寫 Resource::create() 接口 
+        /**
+         * @fn  virtual ResourcePtr create(const String &name, int32_t argc, va_list args) override;
+         * @brief   重寫 Resource::create() 接口
+         * @param   name    The name.
+         * @param   argc    The argc.
+         * @param   args    The arguments.
+         * @return  A ResourcePtr.
          */
         virtual ResourcePtr create(const String &name, int32_t argc, 
             va_list args) override;

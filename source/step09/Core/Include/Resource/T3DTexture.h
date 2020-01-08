@@ -23,14 +23,15 @@
 
 
 #include "Resource/T3DResource.h"
-#include "Kernel/T3DPixelFormat.h"
+#include "Kernel/T3DCommon.h"
 #include "Render/T3DHardwarePixelBuffer.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @brief 纹理类型
+     * @enum    TextureType
+     * @brief   纹理类型
      */
     enum TextureType
     {
@@ -43,13 +44,15 @@ namespace Tiny3D
     };
 
     /**
-     * @brief 纹理资源
+     * @class   T3D_ENGINE_API
+     * @brief   纹理资源
      */
     class T3D_ENGINE_API Texture : public Resource
     {
     public:
         /**
-         * @brief 纹理用途
+         * @enum    TexUsage
+         * @brief   纹理用途
          */
         enum TexUsage
         {
@@ -58,20 +61,26 @@ namespace Tiny3D
             E_TU_BLANK,             /**< 空白纹理 */
         };
 
-        /** 
-         * @brief 创建 Texture 对象
-         * @param [in] name : 纹理资源名称
-         * @param [in] usage : 硬件缓冲区使用方法
-         * @param [in] access : CPU 访问硬件缓冲区的权限
-         * @param [in] mipmaps : 纹理的 mipmap 层级数量
-         * @param [in] texWidth : 纹理宽度，默认从文件读取
-         * @param [in] texHeight : 纹理高度，默认从文件读取
-         * @param [in] texUsage : 纹理用途，默认是从图片加载直接用于渲染的
-         * @param [in] texType : 纹理类型，默认是2D纹理
-         * @param [in] format : 纹理像素格式，默认是A8R8G8B8
-         * @return 返回一个 Texture 对象
-         * @see enum TexUsage
-         * @see enum TexType
+        /**
+         * @fn  static TexturePtr Texture::create(const String &name, 
+         *      HardwareBuffer::Usage usage, uint32_t access, size_t mipmaps, 
+         *      size_t texWidth = 0, size_t texHeight = 0, 
+         *      TexUsage texUsage = E_TU_DEFAULT, 
+         *      TextureType texType = E_TEX_TYPE_2D, 
+         *      PixelFormat format = PixelFormat::E_PF_A8R8G8B8);
+         * @brief   创建 Texture 对象
+         * @param [in]  name        : 纹理资源名称.
+         * @param [in]  usage       : 硬件缓冲区使用方法.
+         * @param [in]  access      : CPU 访问硬件缓冲区的权限.
+         * @param [in]  mipmaps     : 纹理的 mipmap 层级数量.
+         * @param [in]  texWidth    (Optional) : 纹理宽度，默认从文件读取.
+         * @param [in]  texHeight   (Optional) : 纹理高度，默认从文件读取.
+         * @param [in]  texUsage    (Optional) : 纹理用途，默认是从图片加载直接用于渲染的.
+         * @param [in]  texType     (Optional) : 纹理类型，默认是2D纹理.
+         * @param [in]  format      (Optional) : 纹理像素格式，默认是A8R8G8B8.
+         * @return  返回一个 Texture 对象.
+         * @sa  enum TexUsage
+         * @sa  enum TexType
          */
         static TexturePtr create(const String &name,
             HardwareBuffer::Usage usage, uint32_t access, size_t mipmaps, 
@@ -80,91 +89,146 @@ namespace Tiny3D
             TextureType texType = E_TEX_TYPE_2D,
             PixelFormat format = PixelFormat::E_PF_A8R8G8B8);
 
-        /** 
-         * @brief 析构函数 
+        /**
+         * @fn  virtual Texture::~Texture();
+         * @brief   析构函数
          */
         virtual ~Texture();
 
-        /** 重写 Resource::getType() */
+        /**
+         * @fn  virtual Type Texture::getType() const override;
+         * @brief   重写 Resource::getType()
+         * @return  The type.
+         */
         virtual Type getType() const override;
 
-        /** 重写 Resource::clone() */
+        /**
+         * @fn  virtual ResourcePtr Texture::clone() const override;
+         * @brief   重写 Resource::clone()
+         * @return  A copy of this object.
+         */
         virtual ResourcePtr clone() const override;
 
         /**
-         * @brief 获取纹理类型
+         * @fn  TextureType Texture::getTexType() const
+         * @brief   获取纹理类型
+         * @return  The tex type.
          */
         TextureType getTexType() const { return mTexType; }
 
         /**
-         * @brief 获取纹理层级
+         * @fn  size_t Texture::getMipMaps() const
+         * @brief   获取纹理层级
+         * @return  The mip maps.
          */
         size_t getMipMaps() const { return mMipmaps; }
 
         /**
-         * @brief 获取纹理宽度
+         * @fn  size_t Texture::getTexWidth() const
+         * @brief   获取纹理宽度
+         * @return  The tex width.
          */
         size_t getTexWidth() const { return mTexWidth; }
 
         /**
-         * @brief 获取纹理高度
+         * @fn  size_t Texture::getTexHeight() const
+         * @brief   获取纹理高度
+         * @return  The tex height.
          */
         size_t getTexHeight() const { return mTexHeight; }
 
         /**
-         * @brief 获取原图宽度
+         * @fn  size_t Texture::getOriginalWidth() const
+         * @brief   获取原图宽度
+         * @return  The original width.
          */
         size_t getOriginalWidth() const { return mImgWidth; }
 
         /**
-         * @brief 获取原图高度
+         * @fn  size_t Texture::getOriginalHeight() const
+         * @brief   获取原图高度
+         * @return  The original height.
          */
         size_t getOriginalHeight() const { return mImgHeight; }
 
         /**
-         * @brief 获取纹理像素格式
+         * @fn  PixelFormat Texture::getPixelFormat() const
+         * @brief   获取纹理像素格式
+         * @return  The pixel format.
          */
         PixelFormat getPixelFormat() const { return mFormat; }
 
         /**
-         * @brief 获取是否带Alpha通道
+         * @fn  bool Texture::hasAlpha() const
+         * @brief   获取是否带Alpha通道
+         * @return  True if alpha, false if not.
          */
         bool hasAlpha() const { return mHasAlpha; }
 
         /**
-         * @brief 获取像素缓冲对象
+         * @fn  HardwarePixelBufferPtr Texture::getPixelBuffer() const
+         * @brief   获取像素缓冲对象
+         * @return  The pixel buffer.
          */
         HardwarePixelBufferPtr getPixelBuffer() const { return mPBO; }
 
         /**
-         * @brief 保存到文件
-         * @param [in] path : 文件名和路径
-         * @param [in] fileType : 文件类型
+         * @fn  TResult Texture::saveToFile(const String &path, 
+         *      uint32_t fileType) const;
+         * @brief   保存到文件
+         * @param [in]  path        : 文件名和路径.
+         * @param [in]  fileType    : 文件类型.
+         * @return  A TResult.
          */
         TResult saveToFile(const String &path, uint32_t fileType) const;
 
         /**
-         * @brief 从源纹理复制纹理数据过来
-         * @param [in] texture : 目标纹理
-         * @param [in] dstRect : 指定目标纹理区域，默认nullptr为复制到整个纹理上
-         * @param [in] srcRect : 指定源纹理区域，默认nullptr为整个纹理复制
-         * @return 调用成功返回 T3D_OK
-         * @remarks 如果源纹理区域和目标纹理区域不一致，则会自动做缩放处理，
-         *      但是这个会导致性能有一定程序的下降
+         * @fn  TResult Texture::copyTo(TexturePtr texture, 
+         *      Rect *dstRect = nullptr, Rect *srcRect = nullptr);
+         * @brief   从源纹理复制纹理数据过来
+         * @param [in]  texture : 目标纹理.
+         * @param [in]  dstRect : 指定目标纹理区域，默认nullptr为复制到整个纹理上.
+         * @param [in]  srcRect : 指定源纹理区域，默认nullptr为整个纹理复制.
+         * @return  调用成功返回 T3D_OK.
+         * @remarks  如果源纹理区域和目标纹理区域不一致，则会自动做缩放处理，
+         *           但是这个会导致性能有一定程序的下降.
          */
         TResult copyTo(TexturePtr texture, Rect *dstRect = nullptr, 
             Rect *srcRect = nullptr);
 
     protected:
-        /** 构造函数 */
+        /**
+         * @fn  Texture::Texture(const String &name, 
+         *      HardwareBuffer::Usage usage, uint32_t access, size_t mipmaps, 
+         *      size_t texWidth, size_t texHeight, TexUsage texUsage, 
+         *      TextureType texType, PixelFormat format);
+         * @brief   构造函数
+         * @param   name        The name.
+         * @param   usage       The usage.
+         * @param   access      The access.
+         * @param   mipmaps     The mipmaps.
+         * @param   texWidth    Width of the tex.
+         * @param   texHeight   Height of the tex.
+         * @param   texUsage    The tex usage.
+         * @param   texType     Type of the tex.
+         * @param   format      Describes the format to use.
+         */
         Texture(const String &name, HardwareBuffer::Usage usage,
             uint32_t access, size_t mipmaps, size_t texWidth, size_t texHeight, 
             TexUsage texUsage, TextureType texType, PixelFormat format);
 
-        /** 重写 Resource::load() */
+        /**
+         * @fn  virtual TResult Texture::load() override;
+         * @brief   重写 Resource::load()
+         * @return  A TResult.
+         */
         virtual TResult load() override;
 
-        /** 重写 Resource::unlaod() */
+        /**
+         * @fn  virtual TResult Texture::unload() override;
+         * @brief   重写 Resource::unlaod()
+         * @return  A TResult.
+         */
         virtual TResult unload() override;
 
     protected:

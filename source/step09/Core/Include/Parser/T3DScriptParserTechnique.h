@@ -27,13 +27,24 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   ScriptParserTechnique
+     * @brief   A script parser technique.
+     */
     class ScriptParserTechnique : public ScriptParserBase
     {
     public:
-        /** 创建对象 */
+        /**
+         * @fn  static ScriptParserTechniquePtr ScriptParserTechnique::create();
+         * @brief   创建对象
+         * @return  A ScriptParserTechniquePtr.
+         */
         static ScriptParserTechniquePtr create();
 
-        /** 析构函数 */
+        /**
+         * @fn  virtual ScriptParserTechnique::~ScriptParserTechnique();
+         * @brief   析构函数
+         */
         virtual ~ScriptParserTechnique();
 
         /** 重写基类 ScriptParserBase::parseObject 接口 */
@@ -41,34 +52,93 @@ namespace Tiny3D
             DataStream &stream, Object *object, uint32_t version) override;
 
     protected:
-        /** 构造函数 */
+        /**
+         * @fn  ScriptParserTechnique::ScriptParserTechnique();
+         * @brief   构造函数
+         */
         ScriptParserTechnique();
 
-        /** 解析 Technique 属性 */
+        /**
+         * @fn  TResult ScriptParserTechnique::parseProperties( 
+         *      DataStream &stream, Technique *tech, uint32_t version);
+         * @brief   解析 Technique 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  tech    If non-null, the technology.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseProperties(
             DataStream &stream, Technique *tech, uint32_t version);
 
-        /** 解析 Technique 的 scheme 属性 */
+        /**
+         * @fn  TResult ScriptParserTechnique::parseScheme( 
+         *      DataStream &stream, Technique *tech, uint32_t version);
+         * @brief   解析 Technique 的 scheme 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  tech    If non-null, the technology.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseScheme(
             DataStream &stream, Technique *tech, uint32_t version);
 
-        /** 解析 Technique 的 lod_index 属性 */
+        /**
+         * @fn  TResult ScriptParserTechnique::parseLODIndex( 
+         *      DataStream &stream, Technique *tech, uint32_t version);
+         * @brief   解析 Technique 的 lod_index 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  tech    If non-null, the technology.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseLODIndex(
             DataStream &stream, Technique *tech, uint32_t version);
 
-        /** 解析 Technique 的 shadow_caster_material 属性 */
+        /**
+         * @fn  TResult ScriptParserTechnique::parseShadowCasterMaterial( 
+         *      DataStream &stream, Technique *tech, uint32_t version);
+         * @brief   解析 Technique 的 shadow_caster_material 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  tech    If non-null, the technology.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseShadowCasterMaterial(
             DataStream &stream, Technique *tech, uint32_t version);
 
-        /** 解析 Technique 的 shadow_receiver_material 属性 */
+        /**
+         * @fn  TResult ScriptParserTechnique::parseShadowReceiverMaterial( 
+         *      DataStream &stream, Technique *tech, uint32_t version);
+         * @brief   解析 Technique 的 shadow_receiver_material 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  tech    If non-null, the technology.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseShadowReceiverMaterial(
             DataStream &stream, Technique *tech, uint32_t version);
 
-        /** 解析 Technique 的 gpu_vendor_rule 属性 */
+        /**
+         * @fn  TResult ScriptParserTechnique::parseGPUVendorRule( 
+         *      DataStream &stream, Technique *tech, uint32_t version);
+         * @brief   解析 Technique 的 gpu_vendor_rule 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  tech    If non-null, the technology.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseGPUVendorRule(
             DataStream &stream, Technique *tech, uint32_t version);
 
-        /** 解析 Technique 的 gpu_device_rule 属性 */
+        /**
+         * @fn  TResult ScriptParserTechnique::parseGPUDeviceRule( 
+         *      DataStream &stream, Technique *tech, uint32_t version);
+         * @brief   解析 Technique 的 gpu_device_rule 属性
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  tech    If non-null, the technology.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         TResult parseGPUDeviceRule(
             DataStream &stream, Technique *tech, uint32_t version);
 

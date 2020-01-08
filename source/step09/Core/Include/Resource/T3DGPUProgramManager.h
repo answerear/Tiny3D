@@ -34,7 +34,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     /**
-     * @brief 着色器资源管理器
+     * @class   ShaderManager
+     * @brief   着色器资源管理器
      */
     class T3D_ENGINE_API ShaderManager
         : public Singleton<ShaderManager>
@@ -42,53 +43,71 @@ namespace Tiny3D
     {
     public:
         /**
-         * @brief 创建着色器管理器对象
+         * @fn  static ShaderManagerPtr create();
+         * @brief   创建着色器管理器对象
+         * @return  A ShaderManagerPtr.
          */
         static ShaderManagerPtr create();
 
         /**
-         * @brief 析构函数
+         * @fn  virtual ~ShaderManager();
+         * @brief   析构函数
          */
         virtual ~ShaderManager();
 
         /**
-         * @brief 设置着色器创建器
+         * @fn  void setShaderCreator(ShaderCreator *creator);
+         * @brief   设置着色器创建器
+         * @param [in,out]  creator If non-null, the creator.
          */
         void setShaderCreator(ShaderCreator *creator);
 
         /**
-         * @brief 加载着色器资源
-         * @param [in] shaderType : 着色器类型
-         * @param [in] name : 着色器资源名称
-         * @return 返回一个着色器对象
+         * @fn  virtual ShaderPtr loadShader(Shader::ShaderType shaderType, 
+         *      const String &name);
+         * @brief   加载着色器资源
+         * @param [in]  shaderType  : 着色器类型.
+         * @param [in]  name        : 着色器资源名称.
+         * @return  返回一个着色器对象.
          */
         virtual ShaderPtr loadShader(Shader::ShaderType shaderType, 
             const String &name);
 
         /**
-         * @brief 加载着色器资源
-         * @param [in] shaderType : 着色器类型
-         * @param [in] name : 着色器名称
-         * @param [in] content : 着色器程序内容
-         * @return 返回一个着色器对象
+         * @fn  virtual ShaderPtr loadShader(Shader::ShaderType shaderType, 
+         *      const String &name, const String &content);
+         * @brief   加载着色器资源
+         * @param [in]  shaderType  : 着色器类型.
+         * @param [in]  name        : 着色器名称.
+         * @param [in]  content     : 着色器程序内容.
+         * @return  返回一个着色器对象.
          */
         virtual ShaderPtr loadShader(Shader::ShaderType shaderType, 
             const String &name, const String &content);
 
         /**
-         * @brief 卸载着色器资源
-         * @param [in] shader : 需要卸载的着色器对象
+         * @fn  virtual TResult unloadShader(ShaderPtr shader);
+         * @brief   卸载着色器资源
+         * @param [in]  shader  : 需要卸载的着色器对象.
+         * @return  A TResult.
          */
         virtual TResult unloadShader(ShaderPtr shader);
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  ShaderManager();
+         * @brief   构造函数
          */
         ShaderManager();
 
         /**
-         * @brief 重写 Resource::create() 接口
+         * @fn  virtual ResourcePtr create(const String &name, 
+         *      int32_t argc, va_list args) override;
+         * @brief   重写 Resource::create() 接口
+         * @param   name    The name.
+         * @param   argc    The argc.
+         * @param   args    The arguments.
+         * @return  A ResourcePtr.
          */
         virtual ResourcePtr create(const String &name, int32_t argc,
             va_list args) override;
@@ -102,7 +121,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     /**
-     * @brief GPU程序资源管理器
+     * @class   GPUProgramManager
+     * @brief   GPU程序资源管理器
      */
     class T3D_ENGINE_API GPUProgramManager 
         : public Singleton<GPUProgramManager>
@@ -110,48 +130,63 @@ namespace Tiny3D
     {
     public:
         /**
-         * @brief 创建 GPU 程序资源管理器对象
+         * @fn  static GPUProgramManagerPtr create();
+         * @brief   创建 GPU 程序资源管理器对象
+         * @return  A GPUProgramManagerPtr.
          */
         static GPUProgramManagerPtr create();
 
         /**
-         * @brief 析构函数
+         * @fn  virtual ~GPUProgramManager();
+         * @brief   析构函数
          */
         virtual ~GPUProgramManager();
 
         /**
-         * @brief 设置GPU程序创建器
+         * @fn  void setGPUProgramCreator(GPUProgramCreator *creator);
+         * @brief   设置GPU程序创建器
+         * @param [in,out]  creator If non-null, the creator.
          */
         void setGPUProgramCreator(GPUProgramCreator *creator);
 
         /**
-         * @brief 加载GPU程序
-         * @param [in] name : GPU程序名称
-         * @return 返回一个新建的GPU程序对象
+         * @fn  virtual GPUProgramPtr loadGPUProgram(const String &name);
+         * @brief   加载GPU程序
+         * @param [in]  name    : GPU程序名称.
+         * @return  返回一个新建的GPU程序对象.
          */
         virtual GPUProgramPtr loadGPUProgram(const String &name);
 
         /**
-         * @brief 卸载GPU程序
-         * @param [in] program : 需要卸载的GPU程序对象
+         * @fn  virtual TResult unloadGPUProgram(GPUProgramPtr program);
+         * @brief   卸载GPU程序
+         * @param [in]  program : 需要卸载的GPU程序对象.
+         * @return  A TResult.
          */
         virtual TResult unloadGPUProgram(GPUProgramPtr program);
 
         /**
          * @fn  TResult loadBuiltInResources();
          * @brief   Loads built in resources
-         * @returns The built in resources.
+         * @return  The built in resources.
          */
         TResult loadBuiltInResources();
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  GPUProgramManager();
+         * @brief   构造函数
          */
         GPUProgramManager();
 
         /**
-         * @brief 重写 Resource::create() 接口
+         * @fn  virtual ResourcePtr create(const String &name, 
+         *      int32_t argc, va_list args) override;
+         * @brief   重写 Resource::create() 接口
+         * @param   name    The name.
+         * @param   argc    The argc.
+         * @param   args    The arguments.
+         * @return  A ResourcePtr.
          */
         virtual ResourcePtr create(const String &name, int32_t argc,
             va_list args) override;

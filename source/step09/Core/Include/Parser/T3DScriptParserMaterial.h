@@ -27,44 +27,114 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   ScriptParserMaterial
+     * @brief   A script parser material.
+     */
     class ScriptParserMaterial : public ScriptParserBase
     {
     public:
-        /** 创建对象 */
+        /**
+         * @fn  static ScriptParserMaterialPtr ScriptParserMaterial::create();
+         * @brief   创建对象
+         * @return  A ScriptParserMaterialPtr.
+         */
         static ScriptParserMaterialPtr create();
 
-        /** 析构函数 */
+        /**
+         * @fn  virtual ScriptParserMaterial::~ScriptParserMaterial();
+         * @brief   析构函数
+         */
         virtual ~ScriptParserMaterial();
 
-        /** 重写基类 ScriptParserBase::parseObject 接口 */
+        /**
+         * @fn  virtual TResult ScriptParserMaterial::parseObject(
+         *      DataStream &stream, Object *object, uint32_t version) override;
+         * @brief   重写基类 ScriptParserBase::parseObject 接口
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  object  If non-null, the object.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         virtual TResult parseObject(
             DataStream &stream, Object *object, uint32_t version) override;
 
     protected:
-        /** 构造函数 */
+        /**
+         * @fn  ScriptParserMaterial::ScriptParserMaterial();
+         * @brief   构造函数
+         */
         ScriptParserMaterial();
 
-        /** 解析 Material 对象属性 */
+        /**
+         * @fn  TResult ScriptParserMaterial::parseProperties(
+         *      DataStream &stream, Material *material, uint32_t version);
+         * @brief   解析 Material 对象属性
+         * @param [in,out]  stream      The stream.
+         * @param [in,out]  material    If non-null, the material.
+         * @param           version     The version.
+         * @return  A TResult.
+         */
         TResult parseProperties(
             DataStream &stream, Material *material, uint32_t version);
 
-        /** 解析 Material 的 lod_values 属性*/
+        /**
+         * @fn  TResult ScriptParserMaterial::parseLODValus(
+         *      DataStream &stream, Material *material, uint32_t version);
+         * @brief   解析 Material 的 lod_values 属性
+         * @param [in,out]  stream      The stream.
+         * @param [in,out]  material    If non-null, the material.
+         * @param           version     The version.
+         * @return  A TResult.
+         */
         TResult parseLODValus(
             DataStream &stream, Material *material, uint32_t version);
 
-        /** 解析 Material 的 lod_strategy 属性 */
+        /**
+         * @fn  TResult ScriptParserMaterial::parseLODStrategy(
+         *      DataStream &stream, Material *material, uint32_t version);
+         * @brief   解析 Material 的 lod_strategy 属性
+         * @param [in,out]  stream      The stream.
+         * @param [in,out]  material    If non-null, the material.
+         * @param           version     The version.
+         * @return  A TResult.
+         */
         TResult parseLODStrategy(
             DataStream &stream, Material *material, uint32_t version);
 
-        /** 解析 Material 的 receive_shadows 属性 */
+        /**
+         * @fn  TResult ScriptParserMaterial::parseReceiveShadows(
+         *      DataStream &stream, Material *material, uint32_t version);
+         * @brief   解析 Material 的 receive_shadows 属性
+         * @param [in,out]  stream      The stream.
+         * @param [in,out]  material    If non-null, the material.
+         * @param           version     The version.
+         * @return  A TResult.
+         */
         TResult parseReceiveShadows(
             DataStream &stream, Material *material, uint32_t version);
 
-        /** 解析 Material 的 transparency_casts_shadows 属性 */
+        /**
+         * @fn  TResult ScriptParserMaterial::parseTransparencyCastsShadows(
+         *      DataStream &stream, Material *material, uint32_t version);
+         * @brief   解析 Material 的 transparency_casts_shadows 属性
+         * @param [in,out]  stream      The stream.
+         * @param [in,out]  material    If non-null, the material.
+         * @param           version     The version.
+         * @return  A TResult.
+         */
         TResult parseTransparencyCastsShadows(
             DataStream &stream, Material *material, uint32_t version);
 
-        /** 解析 Material 的 set_texture_alias 属性 */
+        /**
+         * @fn  TResult ScriptParserMaterial::parseSetTextureAlias(
+         *      DataStream &stream, Material *material, uint32_t version);
+         * @brief   解析 Material 的 set_texture_alias 属性
+         * @param [in,out]  stream      The stream.
+         * @param [in,out]  material    If non-null, the material.
+         * @param           version     The version.
+         * @return  A TResult.
+         */
         TResult parseSetTextureAlias(
             DataStream &stream, Material *material, uint32_t version);
     };

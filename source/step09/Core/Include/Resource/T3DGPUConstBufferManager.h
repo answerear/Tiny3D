@@ -80,7 +80,8 @@ namespace Tiny3D
         GPUConstBufferManager();
 
         /**
-         * @fn  virtual ResourcePtr create(const String &name, int32_t argc, va_list args) override;
+         * @fn  virtual ResourcePtr create(const String &name, 
+         *      int32_t argc, va_list args) override;
          * @brief   重写基类接口，实现创建材质对象
          * @param   name    資源名稱.
          * @param   argc    創建需要的參數數量.

@@ -28,60 +28,81 @@
 namespace Tiny3D
 {
     /**
-     * @brief DirectX 11 顶点着色器
+     * @class   D3D11VertexShader
+     * @brief   DirectX 11 顶点着色器
      */
     class D3D11VertexShader : public D3D11Shader
     {
     public:
         /**
-         * @brief 创建 D3D11VertexShader 对象
-         * @param [in] name : Shader 名称
-         * @param [in] content : 着色器内容，可以为空
-         * @return 返回一个新建的D3D11着色器对象
+         * @fn  static D3D11VertexShaderPtr D3D11VertexShader::create( 
+         *      const String &name, const String &content);
+         * @brief   创建 D3D11VertexShader 对象
+         * @param [in]  name    : Shader 名称.
+         * @param [in]  content : 着色器内容，可以为空.
+         * @return  返回一个新建的D3D11着色器对象.
          */
         static D3D11VertexShaderPtr create(
             const String &name, const String &content);
 
         /**
-         * @brief 析构函数
+         * @fn  virtual D3D11VertexShader::~D3D11VertexShader();
+         * @brief   析构函数
          */
         virtual ~D3D11VertexShader();
 
         /**
-         * @brief 重写 Shader::getShaderType() 接口
+         * @fn  virtual ShaderType 
+         *      D3D11VertexShader::getShaderType() const override;
+         * @brief   重写 Shader::getShaderType() 接口
+         * @return  The shader type.
          */
         virtual ShaderType getShaderType() const override;
 
         /**
-         * @brief 重写 Shader::compile() 接口
+         * @fn  virtual TResult D3D11VertexShader::compile(
+         *      bool force = false) override;
+         * @brief   重写 Shader::compile() 接口
+         * @param   force   (Optional) True to force.
+         * @return  A TResult.
          */
         virtual TResult compile(bool force = false) override;
 
         /**
          * @fn  ID3D11VertexShader D3D11VertexShader::*getD3DShader() const
          * @brief   Gets d 3D shader
-         * @returns Null if it fails, else the d 3D shader.
+         * @return  Null if it fails, else the d 3D shader.
          */
         ID3D11VertexShader *getD3DShader() const { return mD3DVertexShader; }
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  D3D11VertexShader::D3D11VertexShader(const String &name, 
+         *      const String &content);
+         * @brief   构造函数
+         * @param   name    The name.
+         * @param   content The content.
          */
         D3D11VertexShader(const String &name, const String &content);
 
         /**
-         * @brief 重写 Resource::load() 接口
+         * @fn  virtual TResult D3D11VertexShader::load() override;
+         * @brief   重写 Resource::load() 接口
+         * @return  A TResult.
          */
         virtual TResult load() override;
 
         /**
-         * @brief 重写 Resource::unload() 接口
+         * @fn  virtual TResult D3D11VertexShader::unload() override;
+         * @brief   重写 Resource::unload() 接口
+         * @return  A TResult.
          */
         virtual TResult unload() override;
 
         /**
-         * @brief 重写 Resource::clone() 接口
+         * @fn  virtual ResourcePtr D3D11VertexShader::clone() const override;
+         * @brief   重写 Resource::clone() 接口
+         * @return  A copy of this object.
          */
         virtual ResourcePtr clone() const override;
 

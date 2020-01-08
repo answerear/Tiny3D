@@ -40,11 +40,16 @@ namespace Tiny3D
             break;  \
         }
 
+    /**
+     * @class   ScriptParserBase
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API ScriptParserBase : public Object
     {
     protected:
         /**
-         * @brief 操作码
+         * @enum    OpCode
+         * @brief   操作码
          */
         enum OpCode
         {
@@ -357,6 +362,10 @@ namespace Tiny3D
             E_OP_END_BUILTIN_IDS
         };
 
+        /**
+         * @enum    BuiltInValue
+         * @brief   Values that represent built in values
+         */
         enum BuiltInValue
         {
             E_BV_ON = 1,
@@ -367,6 +376,10 @@ namespace Tiny3D
             E_BV_NO = 2
         };
 
+        /**
+         * @enum    BuiltinType
+         * @brief   Values that represent builtin types
+         */
         enum class BuiltinType : uint8_t
         {
             NONE = 0,
@@ -374,6 +387,10 @@ namespace Tiny3D
             INT,
         };
 
+        /**
+         * @enum    NodeType
+         * @brief   Values that represent node types
+         */
         enum NodeType
         {
             UNKNOWN,
@@ -386,55 +403,177 @@ namespace Tiny3D
         };
 
     public:
-        /** 析构函数 */
+        /**
+         * @fn  virtual ScriptParserBase::~ScriptParserBase();
+         * @brief   析构函数
+         */
         virtual ~ScriptParserBase();
 
-        /** 解析数据流到object对象中 */
+        /**
+         * @fn  virtual TResult ScriptParserBase::parseObject(
+         *      DataStream &stream, Object *object, uint32_t version) = 0;
+         * @brief   解析数据流到object对象中
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  object  If non-null, the object.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         virtual TResult parseObject(
             DataStream &stream, 
             Object *object, 
             uint32_t version) = 0;
 
     protected:
-        /** 构造函数 */
+        /**
+         * @fn  ScriptParserBase::ScriptParserBase();
+         * @brief   构造函数
+         */
         ScriptParserBase();
 
-        /** 解析子对象 */
+        /**
+         * @fn  virtual TResult ScriptParserBase::parseObjects(
+         *      DataStream &stream, Object *object, uint32_t version);
+         * @brief   解析子对象
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  object  If non-null, the object.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         virtual TResult parseObjects(
             DataStream &stream, Object *object, uint32_t version);
 
-        /** 解析一个字符串 */
+        /**
+         * @fn  TResult ScriptParserBase::parseString(
+         *      DataStream &stream, String &str);
+         * @brief   解析一个字符串
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  str     The string.
+         * @return  A TResult.
+         */
         TResult parseString(DataStream &stream, String &str);
 
-        /** 解析一个颜色值 */
+        /**
+         * @fn  TResult ScriptParserBase::parseColor(
+         *      DataStream &stream, ColorRGBA &color);
+         * @brief   解析一个颜色值
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  color   The color.
+         * @return  A TResult.
+         */
         TResult parseColor(DataStream &stream, ColorRGBA &color);
 
-        /** 解析一个矩阵 */
+        /**
+         * @fn  TResult ScriptParserBase::parseMatrix(
+         *      DataStream &stream, Matrix4 &m);
+         * @brief   解析一个矩阵
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  m       A Matrix4 to process.
+         * @return  A TResult.
+         */
         TResult parseMatrix(DataStream &stream, Matrix4 &m);
 
-        /** 給無名對象生成一個名字 */
+        /**
+         * @fn  String ScriptParserBase::generateName(const String &prefix);
+         * @brief   給無名對象生成一個名字
+         * @param   prefix  The prefix.
+         * @return  The name.
+         */
         String generateName(const String &prefix);
 
+        /**
+         * @fn  BlendType ScriptParserBase::toBlendType(uint16_t type) const;
+         * @brief   Converts a type to a blend type
+         * @param   type    The type.
+         * @return  Type as a BlendType.
+         */
         BlendType toBlendType(uint16_t type) const;
 
+        /**
+         * @fn  BlendFactor ScriptParserBase::toBlendFactor(
+         *      uint16_t factor) const;
+         * @brief   Converts a factor to a blend factor
+         * @param   factor  The factor.
+         * @return  Factor as a BlendFactor.
+         */
         BlendFactor toBlendFactor(uint16_t factor) const;
 
+        /**
+         * @fn  BlendOperation ScriptParserBase::toBlendOperation(
+         *      uint16_t op) const;
+         * @brief   Converts an op to a blend operation
+         * @param   op  The operation.
+         * @return  Op as a BlendOperation.
+         */
         BlendOperation toBlendOperation(uint16_t op) const;
 
+        /**
+         * @fn  CompareFunction ScriptParserBase::toCompareFunction(
+         *      uint16_t func) const;
+         * @brief   Converts a func to a compare function
+         * @param   func    The function.
+         * @return  Func as a CompareFunction.
+         */
         CompareFunction toCompareFunction(uint16_t func) const;
 
+        /**
+         * @fn  IlluminationStage ScriptParserBase::toIlluminationStage(
+         *      uint16_t stage) const;
+         * @brief   Converts a stage to an illumination stage
+         * @param   stage   The stage.
+         * @return  Stage as an IlluminationStage.
+         */
         IlluminationStage toIlluminationStage(uint16_t stage) const;
 
+        /**
+         * @fn  CullingMode ScriptParserBase::toCullingMode(
+         *      uint16_t mode) const;
+         * @brief   Converts a mode to a culling mode
+         * @param   mode    The mode.
+         * @return  Mode as a CullingMode.
+         */
         CullingMode toCullingMode(uint16_t mode) const;
 
+        /**
+         * @fn  ManualCullingMode ScriptParserBase::toManualCullingMode(
+         *      uint16_t mode) const;
+         * @brief   Converts a mode to a manual culling mode
+         * @param   mode    The mode.
+         * @return  Mode as a ManualCullingMode.
+         */
         ManualCullingMode toManualCullingMode(uint16_t mode) const;
 
+        /**
+         * @fn  ShadingMode ScriptParserBase::toShadingMode(
+         *      uint16_t mode) const;
+         * @brief   Converts a mode to a shading mode
+         * @param   mode    The mode.
+         * @return  Mode as a ShadingMode.
+         */
         ShadingMode toShadingMode(uint16_t mode) const;
 
+        /**
+         * @fn  PolygonMode ScriptParserBase::toPolygonMode(
+         *      uint16_t mode) const;
+         * @brief   Converts a mode to a polygon mode
+         * @param   mode    The mode.
+         * @return  Mode as a PolygonMode.
+         */
         PolygonMode toPolygonMode(uint16_t mode) const;
 
+        /**
+         * @fn  FogMode ScriptParserBase::toFogMode(uint16_t mode) const;
+         * @brief   Converts a mode to a fog mode
+         * @param   mode    The mode.
+         * @return  Mode as a FogMode.
+         */
         FogMode toFogMode(uint16_t mode) const;
 
+        /**
+         * @fn  LightType ScriptParserBase::toLightType(uint16_t type) const;
+         * @brief   Converts a type to a light type
+         * @param   type    The type.
+         * @return  Type as a LightType.
+         */
         LightType toLightType(uint16_t type) const;
 
     protected:

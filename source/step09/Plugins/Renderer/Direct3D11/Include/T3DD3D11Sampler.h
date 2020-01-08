@@ -27,31 +27,68 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   D3D11SamplerCreator
+     * @brief   DirectX 11 sampler creator.
+     */
     class D3D11SamplerCreator : public SamplerCreator
     {
-        static const char * const SAMPLER_TYPE;
+    public:
+        static const char * const SAMPLER_TYPE; /**< Type of the sampler */
 
         /**
-         * @brief 重写ShaderCreator::getType() 接口
+         * @fn  virtual String D3D11SamplerCreator::getType() const override;
+         * @brief   重写ShaderCreator::getType() 接口
+         * @return  The type.
          */
         virtual String getType() const override;
 
         /**
-         * @brief 重写ShaderCreator::createObject() 接口
+         * @fn  virtual SamplerPtr D3D11SamplerCreator::createObject(
+         *      int32_t argc, ...) const override;
+         * @brief   重写ShaderCreator::createObject() 接口
+         * @param   argc    The argc.
+         * @param   ...     Variable arguments providing additional information.
+         * @return  The new object.
          */
         virtual SamplerPtr createObject(int32_t argc, ...) const override;
     };
 
+
+    /**
+     * @class   D3D11Sampler
+     * @brief   DirectX 11 sampler.
+     */
     class D3D11Sampler : public Sampler
     {
     public:
+        /**
+         * @fn  static D3D11SamplerPtr D3D11Sampler::create(const String &name);
+         * @brief   Creates a new D3D11SamplerPtr
+         * @param   name    The name.
+         * @return  A D3D11SamplerPtr.
+         */
         static D3D11SamplerPtr create(const String &name);
 
+        /**
+         * @fn  virtual D3D11Sampler::~D3D11Sampler();
+         * @brief   Destructor
+         */
         virtual ~D3D11Sampler();
 
+        /**
+         * @fn  ID3D11SamplerState D3D11Sampler::*getD3DSamplerState()
+         * @brief   Gets d 3D sampler state
+         * @return  Null if it fails, else the d 3D sampler state.
+         */
         ID3D11SamplerState *getD3DSamplerState() { return mD3DSampler; }
 
     protected:
+        /**
+         * @fn  D3D11Sampler::D3D11Sampler(const String &name);
+         * @brief   Constructor
+         * @param   name    The name.
+         */
         D3D11Sampler(const String &name);
 
         /**
@@ -76,7 +113,7 @@ namespace Tiny3D
         virtual ResourcePtr clone() const override;
 
     protected:
-        ID3D11SamplerState  *mD3DSampler;
+        ID3D11SamplerState  *mD3DSampler;   /**< The d 3D sampler */
     };
 }
 

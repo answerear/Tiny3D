@@ -93,12 +93,17 @@ namespace Tiny3D
             Rect *srcRect = nullptr) override;
 
         /**
+         * @fn  ID3D11Texture2D D3D11HardwarePixelBuffer::*getD3DTexture()
          * @brief   获取 ID3D11Texture2D 对象
+         * @return  Null if it fails, else the d 3D texture.
          */
         ID3D11Texture2D *getD3DTexture() { return mD3DTexture2D; }
 
         /**
+         * @fn  ID3D11ShaderResourceView 
+         *      D3D11HardwarePixelBuffer::*getD3DSRView()
          * @brief   获取 ID3D11ShaderResourceView 对象
+         * @return  Null if it fails, else the d 3D sr view.
          */
         ID3D11ShaderResourceView *getD3DSRView() { return mD3DSRView; }
 

@@ -28,38 +28,48 @@
 namespace Tiny3D
 {
     /**
-     * @brief 轴对齐碰撞体
+     * @class   AabbBound
+     * @brief   轴对齐碰撞体
      */
     class T3D_ENGINE_API AabbBound : public Bound
     {
     public:
         /**
-         * @brief 创建AABB碰撞体对象
-         * @param [in] node : 碰撞体所在的结点对象
-         * @param [in] uID : 碰撞体ID
-         * @return 返回一个AABB碰撞体对象
+         * @fn  static AabbBoundPtr AabbBound::create(SceneNode *node, 
+         *      ID uID = E_BID_AUTOMATIC);
+         * @brief   创建AABB碰撞体对象
+         * @param [in]  node    : 碰撞体所在的结点对象.
+         * @param [in]  uID     (Optional) : 碰撞体ID.
+         * @return  返回一个AABB碰撞体对象.
          */
         static AabbBoundPtr create(SceneNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
-         * @brief 析构函数
+         * @fn  virtual AabbBound::~AabbBound();
+         * @brief   析构函数
          */
         virtual ~AabbBound();
 
         /**
-         * @brief 实现基类接口
-         * @see Bound::Type Bound::getType() const
+         * @fn  virtual Type AabbBound::getType() const override;
+         * @brief   实现基类接口
+         * @return  The type.
+         * @sa  Bound::Type Bound::getType() const
          */
         virtual Type getType() const override;
 
         /**
-         * @brief 实现基类接口
-         * @see BoundPtr Bound::clone() const
+         * @fn  virtual BoundPtr AabbBound::clone() const override;
+         * @brief   实现基类接口
+         * @return  A copy of this object.
+         * @sa  BoundPtr Bound::clone() const
          */
         virtual BoundPtr clone() const override;
 
         /**
-         * @brief 获取轴对齐包围盒对象
+         * @fn  const Aabb AabbBound::&getAlignAxisBox() const
+         * @brief   获取轴对齐包围盒对象
+         * @return  The align axis box.
          */
         const Aabb &getAlignAxisBox() const 
         { 
@@ -67,65 +77,95 @@ namespace Tiny3D
         }
 
         /**
-         * @brief 设置包围体需要的一些参数
+         * @fn  void AabbBound::setParams(Real minX, Real maxX, Real minY, 
+         *      Real maxY, Real minZ, Real maxZ);
+         * @brief   设置包围体需要的一些参数
+         * @param   minX    The minimum x coordinate.
+         * @param   maxX    The maximum x coordinate.
+         * @param   minY    The minimum y coordinate.
+         * @param   maxY    The maximum y coordinate.
+         * @param   minZ    The minimum z coordinate.
+         * @param   maxZ    The maximum z coordinate.
          */
         void setParams(Real minX, Real maxX, Real minY, Real maxY, 
             Real minZ, Real maxZ);
 
         /**
-         * @brief 实现基类接口
-         * @see SceneRenderablePtr Bound::getRenderable()
+         * @fn  virtual SceneRenderablePtr AabbBound::getRenderable() override;
+         * @brief   实现基类接口
+         * @return  The renderable.
+         * @sa  SceneRenderablePtr Bound::getRenderable()
          */
         virtual SceneRenderablePtr getRenderable() override;
 
         /**
-         * @brief 实现基类接口
-         * @see void Bound::updateBound(const Transform &xform)
+         * @fn  virtual void AabbBound::updateBound(
+         *      const Transform &xform) override;
+         * @brief   实现基类接口
+         * @param   xform   The transform.
+         * @sa  void Bound::updateBound(const Transform &amp;xform)
          */
         virtual void updateBound(const Transform &xform) override;
 
     protected:
         /**
-         * @brief 构造函数
-         * @param [in] node : 碰撞体所在的结点对象
-         * @param [in] uID : 碰撞体ID
+         * @fn  AabbBound::AabbBound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
+         * @brief   构造函数
+         * @param [in]  node    : 碰撞体所在的结点对象.
+         * @param [in]  uID     (Optional) : 碰撞体ID.
          */
         AabbBound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
 
         /**
-         * @brief 实现基类接口
-         * @see bool Bound::testSphere(const Spher &sphere) const
+         * @fn  virtual bool AabbBound::testSphere(
+         *      const Sphere &sphere) const override;
+         * @brief   实现基类接口
+         * @param   sphere  The sphere.
+         * @return  True if the test passes, false if the test fails.
+         * @sa  bool Bound::testSphere(const Spher &amp;sphere) const
          */
         virtual bool testSphere(const Sphere &sphere) const override;
 
         /**
-         * @brief 实现基类接口
-         * @see bool Bound::testAabb(const Aabb &aabb) const
+         * @fn  virtual bool AabbBound::testAabb(
+         *      const Aabb &aabb) const override;
+         * @brief   实现基类接口
+         * @param   aabb    The aabb.
+         * @return  True if the test passes, false if the test fails.
+         * @sa  bool Bound::testAabb(const Aabb &amp;aabb) const
          */
         virtual bool testAabb(const Aabb &aabb) const override;
 
         /**
-         * @brief 实现基类接口
-         * @see bool Bound::testObb(const Obb &obb) const
+         * @fn  virtual bool AabbBound::testObb(const Obb &obb) const override;
+         * @brief   实现基类接口
+         * @param   obb The obb.
+         * @return  True if the test passes, false if the test fails.
+         * @sa  bool Bound::testObb(const Obb &amp;obb) const
          */
         virtual bool testObb(const Obb &obb) const override;
 
         /**
-         * @brief 实现基类接口
-         * @see bool Bound::testFrustum(const Frustum &frustum) const
+         * @fn  virtual bool AabbBound::testFrustum(const Frustum &frustum) const override;
+         * @brief   实现基类接口
+         * @param   frustum The frustum.
+         * @return  True if the test passes, false if the test fails.
+         * @sa  bool Bound::testFrustum(const Frustum &amp;frustum) const
          */
         virtual bool testFrustum(const Frustum &frustum) const override;
 
         /**
-         * @brief 实现基类接口
-         * @see void Bound::cloneProperties(BoundPtr bound) const
+         * @fn  virtual void AabbBound::cloneProperties(BoundPtr bound) const override;
+         * @brief   实现基类接口
+         * @param   bound   The bound.
+         * @sa  void Bound::cloneProperties(BoundPtr bound) const
          */
         virtual void cloneProperties(BoundPtr bound) const override;
 
     protected:
         Aabb        mAabb;          /**< 实时变换的AABB */
         Aabb        mOriginalAabb;  /**< 不参与变换的原始AABB */
-        SceneBoxPtr    mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
+        SceneBoxPtr mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 

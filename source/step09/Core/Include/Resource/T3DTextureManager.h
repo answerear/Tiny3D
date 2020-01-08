@@ -30,30 +30,42 @@
 namespace Tiny3D
 {
     /**
-     * @brief 纹理资源管理器
+     * @class   TextureManager
+     * @brief   纹理资源管理器
      */
     class T3D_ENGINE_API TextureManager
         : public Singleton<TextureManager>
         , public ResourceManager
     {
     public:
-        /** 
-         * @brief 创建纹理管理器对象
+        /**
+         * @fn  static TextureManagerPtr create();
+         * @brief   创建纹理管理器对象
+         * @return  A TextureManagerPtr.
          */
         static TextureManagerPtr create();
 
-        /** 
-         * @brief 析构函数 
+        /**
+         * @fn  virtual ~TextureManager();
+         * @brief   析构函数
          */
         virtual ~TextureManager();
 
         /**
-         * @brief 加载纹理资源
-         * @param [in] name : 纹理资源名称
-         * @param [in] mipmaps : 纹理层级数量，默认是图片中的数量
-         * @param [in] texUsage : 纹理用途，默认是从图片加载
-         * @param [in] texType : 纹理类型，默认是2D纹理
-         * @return 返回新建的纹理对象
+         * @fn  virtual TexturePtr loadTexture(const String &name, 
+         *      HardwareBuffer::Usage usage = HardwareBuffer::Usage::STATIC, 
+         *      uint32_t access = HardwareBuffer::AccessMode::CPU_NONE, 
+         *      size_t mipmaps = 1, 
+         *      Texture::TexUsage texUsage = Texture::E_TU_DEFAULT, 
+         *      TextureType texType = E_TEX_TYPE_2D);
+         * @brief   加载纹理资源
+         * @param [in]  name        : 纹理资源名称.
+         * @param       usage       (Optional) The usage.
+         * @param       access      (Optional) The access.
+         * @param [in]  mipmaps     (Optional) : 纹理层级数量，默认是图片中的数量.
+         * @param [in]  texUsage    (Optional) : 纹理用途，默认是从图片加载.
+         * @param [in]  texType     (Optional) : 纹理类型，默认是2D纹理.
+         * @return  返回新建的纹理对象.
          */
         virtual TexturePtr loadTexture(const String &name, 
             HardwareBuffer::Usage usage = HardwareBuffer::Usage::STATIC, 
@@ -63,15 +75,25 @@ namespace Tiny3D
             TextureType texType = E_TEX_TYPE_2D);
 
         /**
-         * @brief 加载纹理资源
-         * @param [in] name : 纹理资源名称
-         * @param [in] width : 纹理宽度
-         * @param [in] height : 纹理高度
-         * @param [in] mipmaps : 纹理层级数量，默认是图片中的数量
-         * @param [in] format : 纹理像素格式，默认A8R8G8B8
-         * @param [in] texUsage : 纹理用途，默认是从图片加载
-         * @param [in] texType : 纹理类型，默认是2D纹理
-         * @return 返回新建的纹理对象
+         * @fn  virtual TexturePtr loadTexture(const String &name, 
+         *      size_t width, size_t height, 
+         *      HardwareBuffer::Usage usage = HardwareBuffer::Usage::STATIC, 
+         *      uint32_t access = HardwareBuffer::AccessMode::CPU_NONE, 
+         *      size_t mipmaps = 1, 
+         *      PixelFormat format = PixelFormat::E_PF_A8R8G8B8, 
+         *      Texture::TexUsage texUsage = Texture::E_TU_BLANK, 
+         *      TextureType texType = E_TEX_TYPE_2D);
+         * @brief   加载纹理资源
+         * @param [in]  name        : 纹理资源名称.
+         * @param [in]  width       : 纹理宽度.
+         * @param [in]  height      : 纹理高度.
+         * @param       usage       (Optional) The usage.
+         * @param       access      (Optional) The access.
+         * @param [in]  mipmaps     (Optional) : 纹理层级数量，默认是图片中的数量.
+         * @param [in]  format      (Optional) : 纹理像素格式，默认A8R8G8B8.
+         * @param [in]  texUsage    (Optional) : 纹理用途，默认是从图片加载.
+         * @param [in]  texType     (Optional) : 纹理类型，默认是2D纹理.
+         * @return  返回新建的纹理对象.
          */
         virtual TexturePtr loadTexture(const String &name, size_t width, 
             size_t height, 
@@ -83,22 +105,30 @@ namespace Tiny3D
             TextureType texType = E_TEX_TYPE_2D);
 
         /**
-         * @brief 卸载纹理资源
-         * @param [in] texture : 要卸载的纹理资源对象
-         * @return void
+         * @fn  virtual TResult unloadTexture(TexturePtr texture);
+         * @brief   卸载纹理资源
+         * @param [in]  texture : 要卸载的纹理资源对象.
+         * @return  void.
          */
         virtual TResult unloadTexture(TexturePtr texture);
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  TextureManager();
+         * @brief   构造函数
          */
         TextureManager();
 
         /**
-         * @brief 重写基类接口，实现创建纹理对象
-         * @see ResourcePtr Resource::create(const String &name, int32_t argc,
-         *      va_list args)
+         * @fn  virtual ResourcePtr create(const String &name, int32_t argc, 
+         *      va_list args) override;
+         * @brief   重写基类接口，实现创建纹理对象
+         * @param   name    The name.
+         * @param   argc    The argc.
+         * @param   args    The arguments.
+         * @return  A ResourcePtr.
+         * @sa  ResourcePtr Resource::create(const String &amp;name, int32_t argc,
+         *  va_list args)
          */
         virtual ResourcePtr create(const String &name, int32_t argc,
             va_list args) override;

@@ -28,56 +28,72 @@
 namespace Tiny3D
 {
     /**
-     * @brief 档案类，用于档案文件的组织管理，隔离文件系统、zip压缩文件的实现细节
+     * @class   Archive
+     * @brief   档案类，用于档案文件的组织管理，隔离文件系统、zip压缩文件的实现细节
      */
     class T3D_ENGINE_API Archive : public Resource
     {
     public:
-        /** 析构函数 */
+        /**
+         * @fn  virtual Archive::~Archive();
+         * @brief   析构函数
+         */
         virtual ~Archive();
 
         /**
-         * @brief 获取资源类型，重写基类 Resource::getType() 接口
+         * @fn  virtual Type Archive::getType() const override;
+         * @brief   获取资源类型，重写基类 Resource::getType() 接口
+         * @return  The type.
          */
         virtual Type getType() const override;
 
         /**
-         * @brief 获取档案结构类型
+         * @fn  virtual String Archive::getArchiveType() const = 0;
+         * @brief   获取档案结构类型
+         * @return  The archive type.
          */
         virtual String getArchiveType() const = 0;
 
         /**
-         * @brief 获取档案位置
+         * @fn  virtual String Archive::getLocation() const = 0;
+         * @brief   获取档案位置
+         * @return  The location.
          */
         virtual String getLocation() const = 0;
 
         /**
-         * @brief 指定文件是否在档案结构里
-         * @param [in] name : 文件名称
-         * @return 存在就返回true，否则返回false。
+         * @fn  virtual bool Archive::exists(const String &name) const = 0;
+         * @brief   指定文件是否在档案结构里
+         * @param [in]  name    : 文件名称.
+         * @return  存在就返回true，否则返回false。.
          */
         virtual bool exists(const String &name) const = 0;
 
         /**
-         * @brief 从档案读取指定文件到数据流中
-         * @param [in] name : 文件名称
-         * @param [in][out] stream : 数据流
-         * @return 读成功返回T3D_OK
+         * @fn  virtual TResult Archive::read(const String &name, 
+         *      MemoryDataStream &stream) = 0;
+         * @brief   从档案读取指定文件到数据流中
+         * @param [in]  name    : 文件名称.
+         * @param [in]  stream  stream : 数据流.
+         * @return  读成功返回T3D_OK.
          */
         virtual TResult read(const String &name, MemoryDataStream &stream) = 0;
 
         /**
-         * @brief 写数据流到档案里的指定文件中
-         * @param [in] name : 文件名称
-         * @param [in] stream : 数据流
-         * @return 写成功返回T3D_OK
+         * @fn  virtual TResult Archive::write(const String &name, 
+         *      const MemoryDataStream &stream) = 0;
+         * @brief   写数据流到档案里的指定文件中
+         * @param [in]  name    : 文件名称.
+         * @param [in]  stream  : 数据流.
+         * @return  写成功返回T3D_OK.
          */
         virtual TResult write(const String &name, const MemoryDataStream &stream) = 0;
 
     protected:
         /**
-         * @brief 构造函数
-         * @param [in] name : 资源名称，一般使用档案路径作为名称
+         * @fn  Archive::Archive(const String &name);
+         * @brief   构造函数
+         * @param [in]  name    : 资源名称，一般使用档案路径作为名称.
          */
         Archive(const String &name);
     };

@@ -27,44 +27,83 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   ScriptParser
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API ScriptParser 
         : public Singleton<ScriptParser>
         , public ScriptParserBase
     {
     public:
-        /** 创建对象 */
+        /**
+         * @fn  static ScriptParserPtr create();
+         * @brief   创建对象
+         * @return  A ScriptParserPtr.
+         */
         static ScriptParserPtr create();
 
-        /** 析构函数 */
+        /**
+         * @fn  virtual ~ScriptParser();
+         * @brief   析构函数
+         */
         virtual ~ScriptParser();
 
-        /** 解析数据流到material对象中 */
+        /**
+         * @fn  TResult parse(DataStream &stream, Object *material);
+         * @brief   解析数据流到material对象中
+         * @param [in,out]  stream      The stream.
+         * @param [in,out]  material    If non-null, the material.
+         * @return  A TResult.
+         */
         TResult parse(DataStream &stream, Object *material);
 
+        /**
+         * @fn  TResult parse(DataStream &stream);
+         * @brief   Parses the given stream
+         * @param [in,out]  stream  The stream.
+         * @return  A TResult.
+         */
         TResult parse(DataStream &stream);
 
-        /** 获取对应操作码的对象脚本解析器 */
+        /**
+         * @fn  ScriptParserBase *getObjectParser(uint16_t opcode);
+         * @brief   获取对应操作码的对象脚本解析器
+         * @param   opcode  The opcode.
+         * @return  Null if it fails, else the object parser.
+         */
         ScriptParserBase *getObjectParser(uint16_t opcode);
 
     protected:
-        /** 构造函数 */
+        /**
+         * @fn  ScriptParser();
+         * @brief   构造函数
+         */
         ScriptParser();
 
-        /** 重写基类 ScriptParserBase::parseObject 接口 */
+        /**
+         * @fn  virtual TResult parseObject( DataStream &stream, 
+         *      Object *object, uint32_t version) override;
+         * @brief   重写基类 ScriptParserBase::parseObject 接口
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  object  If non-null, the object.
+         * @param           version The version.
+         * @return  A TResult.
+         */
         virtual TResult parseObject(
             DataStream &stream, Object *object, uint32_t version) override;
 
     protected:
-        ScriptParserMaterialPtr         mMaterialParser;
-        ScriptParserTechniquePtr        mTechParser;
-        ScriptParserPassPtr             mPassParser;
-        ScriptParserTextureUnitPtr      mTexUnitParser;
-        ScriptParserSamplerPtr          mSamplerParser;
-        ScriptParserShaderPtr           mShaderParser;
-        ScriptParserGPUProgramPtr       mGPUParser;
-        ScriptParserGPUProgramRefPtr    mGPURefParser;
-        ScriptParserGPUContBufferPtr    mCBufferParser;
-        ScriptParserGPUContBufferRefPtr mCBufferRefParser;
+        ScriptParserMaterialPtr         mMaterialParser;    /**< The material parser */
+        ScriptParserTechniquePtr        mTechParser;        /**< The technology parser */
+        ScriptParserPassPtr             mPassParser;        /**< The pass parser */
+        ScriptParserTextureUnitPtr      mTexUnitParser;     /**< The tex unit parser */
+        ScriptParserSamplerPtr          mSamplerParser;     /**< The sampler parser */
+        ScriptParserShaderPtr           mShaderParser;      /**< The shader parser */
+        ScriptParserGPUProgramPtr       mGPUParser;         /**< The GPU parser */
+        ScriptParserGPUProgramRefPtr    mGPURefParser;      /**< The GPU reference parser */
+        ScriptParserGPUContBufferPtr    mCBufferParser;     /**< The c buffer parser */
+        ScriptParserGPUContBufferRefPtr mCBufferRefParser;  /**< The c buffer reference parser */
     };
 
     #define T3D_SCRIPT_PARSER   (ScriptParser::getInstance())
