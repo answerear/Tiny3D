@@ -193,7 +193,7 @@ namespace Tiny3D
         do 
         {
             // 加載文件
-            String name("BuiltinProgram.t3b");
+            String name("builtin/program/BuiltinProgram.t3b");
             ArchivePtr archive = T3D_AGENT.getAssetsArchive(name);
             if (archive == nullptr)
             {

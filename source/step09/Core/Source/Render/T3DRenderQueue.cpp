@@ -59,22 +59,31 @@ namespace Tiny3D
 
     TResult RenderGroup::addRenderable(SceneRenderablePtr renderable)
     {
-        MaterialPtr material = renderable->getMaterial();
+        TResult ret = T3D_OK;
 
-        auto itr = mRenderables.find(material);
+        do 
+        {
+            MaterialPtr material = renderable->getMaterial();
+            if (material == nullptr)
+            {
+                break;
+            }
 
-        if (itr != mRenderables.end())
-        {
-            // 有相同的材质，放到相同材质渲染对象列表
-            RenderableList &renderables = itr->second;
-            renderables.push_back(renderable);
-        }
-        else
-        {
-            // 没有相同材质，新增一个材质渲染对象列表
-            RenderableList renderables(1, renderable);
-            mRenderables.insert(RenderablesValue(material, renderables));
-        }
+            auto itr = mRenderables.find(material);
+
+            if (itr != mRenderables.end())
+            {
+                // 有相同的材质，放到相同材质渲染对象列表
+                RenderableList &renderables = itr->second;
+                renderables.push_back(renderable);
+            }
+            else
+            {
+                // 没有相同材质，新增一个材质渲染对象列表
+                RenderableList renderables(1, renderable);
+                mRenderables.insert(RenderablesValue(material, renderables));
+            }
+        } while (0);
 
         return T3D_OK;
     }
@@ -123,6 +132,8 @@ namespace Tiny3D
                 for (idx = 0; idx < tech->getPassCount(); ++idx)
                 {
                     PassPtr pass = tech->getPass(idx);
+
+                    renderer->setPolygonMode(pass->getPolygonMode());
 
                     GPUProgramPtr program = pass->getGPUProgram();
                     renderer->bindGPUProgram(program);

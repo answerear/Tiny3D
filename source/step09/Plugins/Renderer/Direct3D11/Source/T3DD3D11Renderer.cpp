@@ -593,20 +593,29 @@ namespace Tiny3D
 
         do 
         {
-            TexturePtr texture = unit->getTexture();
-            D3D11HardwarePixelBufferPtr pbo 
-                = smart_pointer_cast<D3D11HardwarePixelBuffer>(
-                    texture->getPixelBuffer());
+            if (unit == nullptr)
+                break;
 
-            ID3D11ShaderResourceView *pD3DSRView = pbo->getD3DSRView();
-            mD3DDeviceContext->PSSetShaderResources(0, 1, 
-                (ID3D11ShaderResourceView * const *)&pD3DSRView);
+            TexturePtr texture = unit->getTexture();
+            if (texture != nullptr)
+            {
+                D3D11HardwarePixelBufferPtr pbo
+                    = smart_pointer_cast<D3D11HardwarePixelBuffer>(
+                        texture->getPixelBuffer());
+
+                ID3D11ShaderResourceView *pD3DSRView = pbo->getD3DSRView();
+                mD3DDeviceContext->PSSetShaderResources(0, 1,
+                    (ID3D11ShaderResourceView *const *)&pD3DSRView);
+            }
 
             D3D11SamplerPtr sampler 
                 = smart_pointer_cast<D3D11Sampler>(unit->getSampler());
-            ID3D11SamplerState *pSampler = sampler->getD3DSamplerState();
-            mD3DDeviceContext->PSSetSamplers(0, 1,
-                (ID3D11SamplerState * const *)&pSampler);
+            if (sampler != nullptr)
+            {
+                ID3D11SamplerState *pSampler = sampler->getD3DSamplerState();
+                mD3DDeviceContext->PSSetSamplers(0, 1,
+                    (ID3D11SamplerState *const *)&pSampler);
+            }
         } while (0);
 
         return ret;

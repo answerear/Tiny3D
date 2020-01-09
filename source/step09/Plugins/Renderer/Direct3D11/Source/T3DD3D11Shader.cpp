@@ -142,8 +142,8 @@ namespace Tiny3D
             if (archive == nullptr)
             {
                 ret = T3D_ERR_FILE_NOT_EXIST;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Could not find the \
-                    archive for shader file %s !", name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Could not find the "
+                    "archive for shader file %s !", name.c_str());
                 break;
             }
 

@@ -72,8 +72,9 @@ namespace Tiny3D
 
     inline TextureUnitPtr Pass::getTextureUnit(size_t index) const
     {
-        T3D_ASSERT(index < mTextureUnits.size());
-        return mTextureUnits[index];
+        if (index < mTextureUnits.size())
+            return mTextureUnits[index];
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------

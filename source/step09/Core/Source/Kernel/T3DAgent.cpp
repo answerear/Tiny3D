@@ -1018,6 +1018,15 @@ namespace Tiny3D
                 archive = mArchiveMgr->loadArchive(subpath, achiveType);
                 ++itr;
             }
+
+            // 加入内置资源路径
+            String subpath = path + Dir::getNativeSeparator() + "builtin";
+            String archiveType = "FileSystem";
+            archive = mArchiveMgr->loadArchive(subpath, archiveType);
+
+            subpath = path + Dir::getNativeSeparator() + "builtin/program";
+            archiveType = "FileSystem";
+            archive = mArchiveMgr->loadArchive(subpath, archiveType);
 #endif
         } while (0);
 

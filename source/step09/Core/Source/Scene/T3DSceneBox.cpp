@@ -41,14 +41,12 @@ namespace Tiny3D
         BoxVertex()
             : position(Vector3::ZERO)
             , diffuse(ColorRGBA::WHITE)
-            , uv(Vector2::ZERO)
         {
 
         }
 
         Vector3     position;
         ColorRGBA   diffuse;
-        Vector2     uv;
     };
 
     //--------------------------------------------------------------------------
@@ -110,7 +108,7 @@ namespace Tiny3D
         do 
         {
             // 材质
-            mMaterial = T3D_MATERIAL_MGR.loadMaterial("BuiltinBox.t3b",
+            mMaterial = T3D_MATERIAL_MGR.loadMaterial("builtin/materials/BuiltinNoTexture.t3b",
                 Material::E_MT_DEFAULT);
 
             // 创建 VAO
@@ -147,9 +145,6 @@ namespace Tiny3D
             decl->addAttribute(VertexAttribute(0, sizeof(Vector3),
                 VertexAttribute::Type::E_VAT_COLOR,
                 VertexAttribute::Semantic::E_VAS_DIFFUSE, 0));
-            decl->addAttribute(VertexAttribute(0, sizeof(Vector3) + sizeof(ColorRGBA),
-                VertexAttribute::Type::E_VAT_FLOAT2,
-                VertexAttribute::Semantic::E_VAS_TEXCOORD, 0));
 
             // 创建VBO
             HardwareVertexBufferPtr vbo
@@ -228,7 +223,6 @@ namespace Tiny3D
         offset[2] = mExtent[2];
         vert[0].position = mCenter + offset;
         vert[0].diffuse = color;
-        vert[0].uv = Vector2(0, 0);
 
         // V1
         offset[0] = -mExtent[0];
@@ -236,7 +230,6 @@ namespace Tiny3D
         offset[2] = mExtent[2];
         vert[1].position = mCenter + offset;
         vert[1].diffuse = color;
-        vert[1].uv = Vector2(0, 1);
 
         // V2
         offset[0] = mExtent[0];
@@ -244,7 +237,6 @@ namespace Tiny3D
         offset[2] = mExtent[2];
         vert[2].position = mCenter + offset;
         vert[2].diffuse = color;
-        vert[2].uv = Vector2(1, 0);
 
         // V3
         offset[0] = mExtent[0];
@@ -252,7 +244,6 @@ namespace Tiny3D
         offset[2] = mExtent[2];
         vert[3].position = mCenter + offset;
         vert[3].diffuse = color;
-        vert[3].uv = Vector2(1, 1);
 
         // V4
         offset[0] = mExtent[0];
@@ -260,7 +251,6 @@ namespace Tiny3D
         offset[2] = -mExtent[2];
         vert[4].position = mCenter + offset;
         vert[4].diffuse = color;
-        vert[4].uv = Vector2(1, 1);
 
         // V5
         offset[0] = mExtent[0];
@@ -268,7 +258,6 @@ namespace Tiny3D
         offset[2] = -mExtent[2];
         vert[5].position = mCenter + offset;
         vert[5].diffuse = color;
-        vert[5].uv = Vector2(1, 0);
 
         // V6
         offset[0] = -mExtent[0];
@@ -276,7 +265,6 @@ namespace Tiny3D
         offset[2] = -mExtent[2];
         vert[6].position = mCenter + offset;
         vert[6].diffuse = color;
-        vert[6].uv = Vector2(1, 1);
 
         // V7
         offset[0] = -mExtent[0];
@@ -284,7 +272,6 @@ namespace Tiny3D
         offset[2] = -mExtent[2];
         vert[7].position = mCenter + offset;
         vert[7].diffuse = color;
-        vert[7].uv = Vector2(1, 0);
 
         // Front face
         indices[0] = 0, indices[1] = 1, indices[2] = 2;

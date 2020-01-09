@@ -23,6 +23,8 @@
 // For debug
 // "$(SolutionDir)..\..\..\assets\scripts\BuiltinBox.material" -t hlsl -m 50
 // BuiltinBox.material BuiltinConstant.constant BuiltinProgram.program -t hlsl -m 50 -O3 -p $(SolutionDir)..\..\..\assets\scripts\
+// materials/BuiltinNoTexture.material program/BuiltinConstant.constant program/BuiltinProgram.program -t hlsl -m 50 -O3 -p $(SolutionDir)..\..\..\assets\builtin
+
 
 int main(int argc, char *argv[])
 {

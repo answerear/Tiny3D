@@ -6166,6 +6166,14 @@ namespace Tiny3D
             else if ((*i)->type == ANT_OBJECT)
             {
                 bytesOfWritten = processNode(compiler, stream, *i);
+
+                if (bytesOfWritten == 0)
+                {
+                    // 出错了
+                    totalBytes = 0;
+                    break;
+                }
+
                 totalBytes += bytesOfWritten;
             }
         }

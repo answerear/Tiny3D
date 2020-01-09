@@ -1677,6 +1677,8 @@ namespace Tiny3D
 
             if (!infile.open(inpath.c_str(), FileDataStream::E_MODE_READ_ONLY|FileDataStream::E_MODE_TEXT))
             {
+                T3D_LOG_ERROR("Compiler",
+                    "Invalid shader file path [%s] ! ", inpath.c_str());
                 break;
             }
 
