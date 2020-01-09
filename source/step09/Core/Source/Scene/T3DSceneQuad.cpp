@@ -180,17 +180,6 @@ namespace Tiny3D
                 break;
             }
 
-            // 写顶点数据
-//             size_t size = sizeof(QuadVertex) * VI_MAX_VERTICES;
-//             size_t bytesOfWritten = vbo->writeData(0, size, vertices);
-//             if (bytesOfWritten != size)
-//             {
-//                 ret = T3D_ERR_HW_BUFFER_WRITE;
-//                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SceneQuad \
-//                     failed !");
-//                 break;
-//             }
-
             // 创建IBO
             HardwareIndexBufferPtr ibo
                 = T3D_HARDWARE_BUFFER_MGR.createIndexBuffer(
@@ -204,17 +193,6 @@ namespace Tiny3D
                     failed !");
                 break;
             }
-
-            // 写索引数据
-//             size = sizeof(uint16_t) * MAX_INDICES;
-//             bytesOfWritten = ibo->writeData(0, size, indices);
-//             if (bytesOfWritten != size)
-//             {
-//                 ret = T3D_ERR_HW_BUFFER_WRITE;
-//                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write indices data for SceneQuad \
-//                     failed !");
-//                 break;
-//             }
 
             mVAO->setVertexDeclaration(decl);
             mVAO->addVertexBuffer(vbo);
