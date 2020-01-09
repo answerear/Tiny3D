@@ -215,7 +215,7 @@ namespace Tiny3D
         BoxVertex *vert = (BoxVertex *)vertices;
 
         Vector3 offset;
-        ColorRGBA color = ColorRGBA::BLUE;
+        ColorRGBA color = ColorRGBA::WHITE;
 
         // V0
         offset[0] = -mExtent[0];
