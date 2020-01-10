@@ -30,6 +30,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(Technique, Object);
+
+    //--------------------------------------------------------------------------
+
     TechniquePtr Technique::create(const String &name, Material *material)
     {
         TechniquePtr tech = new Technique(name, material);

@@ -23,6 +23,8 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     void Transform::applyTransform(const Transform &xform,
         const Vector3 &translation, const Quaternion &orientation,
         const Vector3 &scaling)
@@ -34,6 +36,8 @@ namespace Tiny3D
         mTranslation = xform.getTranslation() + mTranslation;
         makeAffineMatrix();
     }
+
+    //--------------------------------------------------------------------------
 
     void Transform::applyTransform(const Transform &xform1,
         const Transform &xform2)

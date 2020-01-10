@@ -23,6 +23,7 @@
 
 
 #include "T3DPrerequisites.h"
+#include "Kernel/T3DRTTI.h"
 
 
 namespace Tiny3D
@@ -33,6 +34,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Object
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  Object::Object();

@@ -30,6 +30,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(TextureUnit, Object);
+
+    //--------------------------------------------------------------------------
+
     TextureUnitPtr TextureUnit::create(const String &name, Pass *pass)
     {
         TextureUnitPtr unit = new TextureUnit(name, pass);

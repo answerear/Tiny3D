@@ -18,20 +18,24 @@
  ******************************************************************************/
 
 
-#include "ImageCodec/T3DImageCodecBase.h"
+#include "Kernel/T3DComponent.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(ImageCodecBase, Object);
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(Component, Object);
 
     //--------------------------------------------------------------------------
 
-    ImageCodecBase::~ImageCodecBase()
+    Component::Component()
     {
+    }
 
+    //--------------------------------------------------------------------------
+
+    Component::~Component()
+    {
     }
 }
-

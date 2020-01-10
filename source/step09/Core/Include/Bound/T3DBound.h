@@ -38,6 +38,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Bound : public Object
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @enum    Type

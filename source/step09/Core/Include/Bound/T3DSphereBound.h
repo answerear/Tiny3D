@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class SphereBound : public Bound
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static SphereBoundPtr SphereBound::create(SceneNode *node, 

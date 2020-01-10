@@ -24,6 +24,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(Image, Object);
+
+    //--------------------------------------------------------------------------
+
     const uint32_t Image::FILETYPE_RAW = (uint32_t)ImageCodecBase::FileType::RAW;
     const uint32_t Image::FILETYPE_BMP = (uint32_t)ImageCodecBase::FileType::BMP;
     const uint32_t Image::FILETYPE_PNG = (uint32_t)ImageCodecBase::FileType::PNG;

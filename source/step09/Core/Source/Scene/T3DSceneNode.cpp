@@ -29,8 +29,6 @@ namespace Tiny3D
     SceneNode::SceneNode(ID uID /* = E_NID_AUTOMATIC */)
         : Node(uID)
         , mCameraMask(0)
-        , mUserData(nullptr)
-        , mUserObject(nullptr)
         , mIsVisible(true)
         , mIsEnabled(true)
     {
@@ -67,8 +65,6 @@ namespace Tiny3D
         if (ret == T3D_OK)
         {
             SceneNodePtr newNode = smart_pointer_cast<SceneNode>(node);
-            newNode->mUserData = mUserData;
-            newNode->mUserObject = mUserObject;
         }
 
         return ret;

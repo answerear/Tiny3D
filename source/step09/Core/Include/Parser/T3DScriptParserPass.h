@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class ScriptParserPass : public ScriptParserBase
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static ScriptParserPassPtr ScriptParserPass::create();

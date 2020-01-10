@@ -17,21 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
-#include "ImageCodec/T3DImageCodecBase.h"
+#include "Kernel/T3DPlugin.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(ImageCodecBase, Object);
-
-    //--------------------------------------------------------------------------
-
-    ImageCodecBase::~ImageCodecBase()
-    {
-
-    }
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(Plugin, Object);
 }
-

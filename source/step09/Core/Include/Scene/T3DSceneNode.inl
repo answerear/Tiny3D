@@ -22,34 +22,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline void SceneNode::setUserData(void *data)
-    {
-        mUserData = data;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline void *SceneNode::getUserData() const
-    {
-        return mUserData;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline void SceneNode::setUserObject(ObjectPtr object)
-    {
-        mUserObject = object;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline ObjectPtr SceneNode::getUserObject() const
-    {
-        return mUserObject;
-    }
-
-    //--------------------------------------------------------------------------
-
     inline bool SceneNode::isVisible() const
     {
         return mIsVisible;

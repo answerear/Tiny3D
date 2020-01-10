@@ -26,6 +26,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(SphereBound, Bound);
+
+    //--------------------------------------------------------------------------
+
     SphereBoundPtr SphereBound::create(SceneNode *node, 
         ID uID /* = E_BID_AUTOMATIC */)
     {

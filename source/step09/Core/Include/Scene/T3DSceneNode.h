@@ -23,6 +23,7 @@
 
 
 #include "Kernel/T3DNode.h"
+#include "Kernel/T3DComponent.h"
 
 
 namespace Tiny3D
@@ -39,50 +40,6 @@ namespace Tiny3D
          * @brief 析构函数
          */
         virtual ~SceneNode();
-
-        /**
-         * @brief 设置用户数据
-         * @param [in] data : 用户数据
-         * @return void
-         * @note 该数据可以是用户设置的任何整型甚至内存地址，
-         *      具体由使用者自己定义和解析
-         * @see void *getUserData() const
-         * @see void setUserData(ObjectPtr object)
-         * @see ObjectPtr getUserObject() const
-         */
-        void setUserData(void *data);
-
-        /**
-         * @brief 获取用户数据
-         * @return 返回用户数据
-         * @note 返回的数据是由用户通过setUserData设置的数据，
-         *      具体由使用者自己定义和解析
-         * @see void setUserData(uint64_t data)
-         */
-        void *getUserData() const;
-
-        /**
-         * @brief 设置用户数据对象
-         * @param [in] object : 对象指针
-         * @return void
-         * @note 该对象是Object类的任何派生类的指针，具体由使用者自己定义和解析
-         * @see void setUserData(uint64_t data)
-         * @see uint64_t getUserData() const
-         * @see ObjectPtr getUserObject() const
-         */
-        void setUserObject(ObjectPtr object);
-
-        /**
-         * @brief 获取用户数据对象
-         * @return 获取用户数据对象
-         * @note 返回的数据对象是由用户通过setUserObject设置的对象，
-         *       具体由使用者自己定义和解析
-         * @see void setUserData(uint64_t data)
-         * @see uint64_t getUserData()
-         * @see void setUserObject(ObjectPtr &object)
-         * @see ObjectPtr getUserObject() const
-        */
-        ObjectPtr getUserObject() const;
 
         /**
          * @brief 设置结点是否可见
@@ -179,9 +136,6 @@ namespace Tiny3D
         uint32_t    mCameraMask;    /**< 相机掩码 */
 
     private:
-        void        *mUserData;     /**< 保存用户数据 */
-        ObjectPtr   mUserObject;    /**< 保存用户数据对象 */
-
         bool        mIsVisible;     /**< 结点可见性 */
         bool        mIsEnabled;     /**< 结点可用性 */
     };

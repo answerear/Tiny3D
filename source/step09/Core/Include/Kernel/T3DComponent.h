@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_PLUGIN_H__
-#define __T3D_PLUGIN_H__
+#ifndef __T3D_COMPONENT_H__
+#define __T3D_COMPONENT_H__
 
 
 #include "T3DPrerequisites.h"
@@ -30,52 +30,27 @@
 namespace Tiny3D
 {
     /**
-     * @class   Plugin
-     * @brief   插件基类，所有插件均需从此类派生并实现其接口
+     * @class   Component
+     * @brief   组件类
      */
-    class T3D_ENGINE_API Plugin : public Object
+    class T3D_ENGINE_API Component : Object
     {
         T3D_DECLARE_CLASS();
 
-        T3D_DECLARE_INTERFACE(Plugin);
-
     public:
         /**
-         * @fn  virtual const String Plugin::&getName() const = 0;
-         * @brief   获取插件名称
-         * @return  The name.
+         * @fn  Component::Component();
+         * @brief   构造函数
          */
-        virtual const String &getName() const = 0;
+        Component();
 
         /**
-         * @fn  virtual TResult Plugin::install() = 0;
-         * @brief   安装插件
-         * @return  A TResult.
+         * @fn  virtual Component::~Component();
+         * @brief   析构函数
          */
-        virtual TResult install() = 0;
-
-        /**
-         * @fn  virtual TResult Plugin::startup() = 0;
-         * @brief   启动插件
-         * @return  A TResult.
-         */
-        virtual TResult startup() = 0;
-
-        /**
-         * @fn  virtual TResult Plugin::shutdown() = 0;
-         * @brief   关闭插件
-         * @return  A TResult.
-         */
-        virtual TResult shutdown() = 0;
-
-        /**
-         * @fn  virtual TResult Plugin::uninstall() = 0;
-         * @brief   卸载插件
-         * @return  A TResult.
-         */
-        virtual TResult uninstall() = 0;
+        virtual ~Component();
     };
 }
 
 
-#endif  /*__T3D_PLUGIN_H__*/
+#endif  /*__T3D_COMPONENT_H__*/

@@ -43,6 +43,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Pass : public Object
     {
+        T3D_DECLARE_CLASS();
+
     public:
         typedef TArray<GPUConstBufferPtr>       GPUConstBuffers;
         typedef GPUConstBuffers::iterator       GPUConstBuffersItr;
