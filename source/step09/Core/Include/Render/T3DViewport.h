@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Viewport : public Object
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @brief 创建视口对象

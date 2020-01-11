@@ -25,6 +25,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(HardwareIndexBuffer, HardwareBuffer);
+
+    //--------------------------------------------------------------------------
+
     HardwareIndexBuffer::HardwareIndexBuffer(Type indexType, size_t indexCount,
         HardwareBuffer::Usage usage, uint32_t mode)
         : HardwareBuffer(usage, mode)

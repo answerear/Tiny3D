@@ -27,6 +27,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(Viewport, Object);
+
+    //--------------------------------------------------------------------------
+
     ViewportPtr Viewport::create(SceneCameraPtr camera, RenderTargetPtr target,
         Real left, Real top, Real width, Real height, long_t nZOrder)
     {
@@ -35,6 +41,8 @@ namespace Tiny3D
         viewport->release();
         return viewport;
     }
+
+    //--------------------------------------------------------------------------
 
     Viewport::Viewport(SceneCameraPtr camera, RenderTargetPtr target,
         Real left, Real top, Real width, Real height, long_t zOrder)
@@ -56,15 +64,21 @@ namespace Tiny3D
         updateDimensions();
     }
 
+    //--------------------------------------------------------------------------
+
     Viewport::~Viewport()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     void Viewport::render()
     {
         T3D_SCENE_MGR.render(this);
     }
+
+    //--------------------------------------------------------------------------
 
     void Viewport::setDimensions(Real left, Real top, Real width, Real height)
     {
@@ -75,6 +89,8 @@ namespace Tiny3D
 
         updateDimensions();
     }
+
+    //--------------------------------------------------------------------------
 
     void Viewport::updateDimensions()
     {

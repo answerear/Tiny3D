@@ -34,6 +34,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(RenderGroup, Object);
+
+    //--------------------------------------------------------------------------
+
     RenderGroupPtr RenderGroup::create()
     {
         RenderGroupPtr group = new RenderGroup();

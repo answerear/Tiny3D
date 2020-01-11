@@ -54,6 +54,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API RenderWindow : public RenderTarget
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @brief 析构函数

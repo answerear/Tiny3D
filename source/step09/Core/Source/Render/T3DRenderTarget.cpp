@@ -25,6 +25,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(RenderTarget, Object);
+
+    //--------------------------------------------------------------------------
+
     RenderTarget::RenderTarget(const String &name)
         : mWidth(0)
         , mHeight(0)

@@ -25,6 +25,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(HardwareBuffer, Object);
+
+    //--------------------------------------------------------------------------
+
     HardwareBuffer::HardwareBuffer(Usage usage, uint32_t mode)
         : mBufferSize(0)
         , mLockSize(0)

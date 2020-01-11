@@ -23,26 +23,40 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(RenderWindow, RenderTarget);
+
+    //--------------------------------------------------------------------------
+
     RenderWindow::RenderWindow(const String &name)
         : RenderTarget(name)
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     RenderWindow::~RenderWindow()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     RenderTarget::Type RenderWindow::getType() const
     {
         return E_RT_WINDOW;
     }
 
+    //--------------------------------------------------------------------------
+
     bool RenderWindow::isFullscreen() const
     {
         return true;
     }
+
+    //--------------------------------------------------------------------------
 
     void RenderWindow::render()
     {

@@ -25,6 +25,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(HardwareBufferManager, HardwareBufferManagerBase);
+
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(HardwareBufferManager);
 
     //--------------------------------------------------------------------------
