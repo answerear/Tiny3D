@@ -22,8 +22,9 @@
 #define __T3D_RESOURCE_H__
 
 
-#include "Kernel/T3DObject.h"
+#include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "Kernel/T3DObject.h"
 
 
 namespace Tiny3D
@@ -35,6 +36,8 @@ namespace Tiny3D
     class T3D_ENGINE_API Resource : public Object
     {
         friend class ResourceManager;
+
+        T3D_DECLARE_CLASS();
 
     public:
         /**

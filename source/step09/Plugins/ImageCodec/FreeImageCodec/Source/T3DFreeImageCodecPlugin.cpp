@@ -24,6 +24,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(FreeImageCodecPlugin, Plugin);
+
+    //--------------------------------------------------------------------------
+
     FreeImageCodecPlugin::FreeImageCodecPlugin()
         : mName("FreeImageCodec")
         , mImageCodec(nullptr)
@@ -31,15 +37,21 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     FreeImageCodecPlugin::~FreeImageCodecPlugin()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     const String &FreeImageCodecPlugin::getName() const
     {
         return mName;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FreeImageCodecPlugin::install()
     {
@@ -85,11 +97,15 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult FreeImageCodecPlugin::startup()
     {
         TResult ret = T3D_OK;
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FreeImageCodecPlugin::shutdown()
     {
@@ -97,6 +113,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FreeImageCodecPlugin::uninstall()
     {

@@ -35,6 +35,7 @@ namespace Tiny3D
     class T3D_ENGINE_API ArchiveCreator : public Creator<Archive>
     {
         T3D_DECLARE_INTERFACE(ArchiveCreator);
+        T3D_DECLARE_CLASS();
     };
 }
 

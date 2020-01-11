@@ -26,10 +26,16 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(ZipArchiveCreator, ArchiveCreator);
+
+    //--------------------------------------------------------------------------
+
     String ZipArchiveCreator::getType() const
     {
         return ZipArchive::ARCHIVE_TYPE;
     }
+
+    //--------------------------------------------------------------------------
 
     ArchivePtr ZipArchiveCreator::createObject(int32_t argc, ...) const
     {

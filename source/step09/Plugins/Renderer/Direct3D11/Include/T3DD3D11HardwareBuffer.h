@@ -33,6 +33,7 @@ namespace Tiny3D
      */
     class D3D11HardwareBuffer : public HardwareBuffer
     {
+
     public:
         /**
          * @enum    BufferType

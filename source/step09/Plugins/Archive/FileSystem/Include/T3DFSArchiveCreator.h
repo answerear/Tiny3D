@@ -32,6 +32,8 @@ namespace Tiny3D
      */
     class FileSystemArchiveCreator : public ArchiveCreator
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @brief 重写 ArchieveCreator::getType() 接口

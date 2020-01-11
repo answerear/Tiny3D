@@ -23,6 +23,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(FileSystemArchive, Archive);
+
+    //--------------------------------------------------------------------------
+
     const char * const FileSystemArchive::ARCHIVE_TYPE = "FileSystem";
 
     //--------------------------------------------------------------------------
@@ -42,6 +48,8 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     FileSystemArchive::~FileSystemArchive()
     {
         clearFileStreamCache();
@@ -55,11 +63,15 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult FileSystemArchive::unload()
     {
         clearFileStreamCache();
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     ResourcePtr FileSystemArchive::clone() const
     {
@@ -74,16 +86,22 @@ namespace Tiny3D
         return ARCHIVE_TYPE;
     }
 
+    //--------------------------------------------------------------------------
+
     String FileSystemArchive::getLocation() const
     {
         return getName();
     }
+
+    //--------------------------------------------------------------------------
 
     bool FileSystemArchive::exists(const String &name) const
     {
         String path = getLocation() + Dir::getNativeSeparator() + name;
         return Dir::exists(path);
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FileSystemArchive::read(const String &name, 
         MemoryDataStream &stream)
@@ -127,6 +145,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FileSystemArchive::write(const String &name, 
         const MemoryDataStream &stream)
@@ -227,6 +247,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void FileSystemArchive::initFileStreamCache()
     {
         size_t i = 0;
@@ -236,6 +258,8 @@ namespace Tiny3D
             mFileStreamPool.push_back(fs);
         }
     }
+
+    //--------------------------------------------------------------------------
 
     void FileSystemArchive::clearFileStreamCache()
     {

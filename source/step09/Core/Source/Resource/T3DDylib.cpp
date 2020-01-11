@@ -54,6 +54,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(Dylib, Resource);
+
+    //--------------------------------------------------------------------------
+
     DylibPtr Dylib::create(const String &name)
     {
         DylibPtr dylib = new Dylib(name);
@@ -61,26 +67,36 @@ namespace Tiny3D
         return dylib;
     }
 
+    //--------------------------------------------------------------------------
+
     Dylib::Dylib(const String &name)
         : Resource(name)
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     Dylib::~Dylib()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     Resource::Type Dylib::getType() const
     {
         return Type::E_RT_DYLIB;
     }
 
+    //--------------------------------------------------------------------------
+
     void *Dylib::getSymbol(const String &name) const
     {
         return DYLIB_GETSYM(mHandle, name.c_str());
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Dylib::load()
     {
@@ -114,6 +130,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Dylib::unload()
     {
         if (mIsLoaded)
@@ -124,6 +142,8 @@ namespace Tiny3D
 
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     ResourcePtr Dylib::clone() const
     {

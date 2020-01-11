@@ -26,10 +26,16 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(FileSystemArchiveCreator, ArchiveCreator);
+
+    //--------------------------------------------------------------------------
+
     String FileSystemArchiveCreator::getType() const
     {
         return FileSystemArchive::ARCHIVE_TYPE;
     }
+
+    //--------------------------------------------------------------------------
 
     ArchivePtr FileSystemArchiveCreator::createObject(int32_t argc, ...) const
     {

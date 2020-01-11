@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class D3D11ShaderCreator : public ShaderCreator
     {
+        T3D_DECLARE_CLASS();
+
     public:
         static const char * const SHADER_TYPE;  /**< Type of the shader */
 
@@ -60,6 +62,8 @@ namespace Tiny3D
      */
     class D3D11GPUProgramCreator : public GPUProgramCreator
     {
+        T3D_DECLARE_CLASS();
+
     public:
         static const char * const GPUPROGRAM_TYPE;  /**< Type of the gpuprogram */
 

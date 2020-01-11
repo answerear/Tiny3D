@@ -24,6 +24,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(FileSystemArchivePlugin, Plugin);
+
+    //--------------------------------------------------------------------------
+
     FileSystemArchivePlugin::FileSystemArchivePlugin()
         : mName("FileSystemArchive")
         , mFSCreator(nullptr)
@@ -31,15 +37,21 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     FileSystemArchivePlugin::~FileSystemArchivePlugin()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     const String &FileSystemArchivePlugin::getName() const
     {
         return mName;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FileSystemArchivePlugin::install()
     {
@@ -51,6 +63,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult FileSystemArchivePlugin::startup()
     {
         TResult ret = T3D_OK;
@@ -58,12 +72,16 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult FileSystemArchivePlugin::shutdown()
     {
         TResult ret = T3D_OK;
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FileSystemArchivePlugin::uninstall()
     {

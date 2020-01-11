@@ -28,6 +28,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(FreeImageCodec, ImageCodecBase);
+
+    //--------------------------------------------------------------------------
+
     void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message)
     {
         if (fif != FIF_UNKNOWN)
@@ -100,12 +104,16 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult FreeImageCodec::shutdown()
     {
         TResult ret = T3D_OK;
         FreeImage_DeInitialise();
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     bool FreeImageCodec::isSupportedType(uint8_t *data, size_t size, 
         FileType &type) const
@@ -138,10 +146,14 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     ImageCodecBase::FileType FreeImageCodec::getFileType() const
     {
         return FileType::IMG;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FreeImageCodec::encode(uint8_t *&data, size_t &size, 
         const Image &image, FileType type)
@@ -214,6 +226,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FreeImageCodec::decode(uint8_t *data, size_t size, Image &image, 
         FileType type)

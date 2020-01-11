@@ -18,44 +18,13 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DResource.h"
+#include "Kernel/T3DObject.h"
+#include "Memory/T3DSmartPtr.h"
+#include "Resource/T3DGPUProgramCreator.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(Resource, Object);
-
-    //--------------------------------------------------------------------------
-
-    Resource::Resource(const String &strName)
-        : mResReferCount(1)
-        , mID(T3D_INVALID_ID)
-        , mCloneID(T3D_INVALID_ID)
-        , mSize(0)
-        , mIsLoaded(false)
-        , mName(strName)
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    Resource::~Resource()
-    {
-        if (mIsLoaded)
-        {
-            unload();
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Resource::unload()
-    {
-        mResReferCount = 0;
-        mIsLoaded = false;
-        return T3D_OK;
-    }
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(ShaderCreator);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(GPUProgramCreator);
 }

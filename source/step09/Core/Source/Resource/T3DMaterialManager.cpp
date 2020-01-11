@@ -26,6 +26,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(MaterialManager);
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(MaterialManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 

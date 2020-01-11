@@ -24,6 +24,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(ZipArchivePlugin, Plugin);
+
+    //--------------------------------------------------------------------------
+
     ZipArchivePlugin::ZipArchivePlugin()
         : mName("ZipArchive")
         , mZipCreator(nullptr)
@@ -31,15 +37,21 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     ZipArchivePlugin::~ZipArchivePlugin()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     const String &ZipArchivePlugin::getName() const
     {
         return mName;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult ZipArchivePlugin::install()
     {
@@ -51,6 +63,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult ZipArchivePlugin::startup()
     {
         TResult ret = T3D_OK;
@@ -58,12 +72,16 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult ZipArchivePlugin::shutdown()
     {
         TResult ret = T3D_OK;
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult ZipArchivePlugin::uninstall()
     {

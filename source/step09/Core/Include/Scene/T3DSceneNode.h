@@ -34,6 +34,7 @@ namespace Tiny3D
     class T3D_ENGINE_API SceneNode : public Node
     {
         T3D_DISABLE_COPY(SceneNode);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

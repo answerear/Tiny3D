@@ -27,6 +27,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(ZipArchive, Archive);
+
+    //--------------------------------------------------------------------------
+
     const char * const ZipArchive::ARCHIVE_TYPE = "Zip";
 
     //--------------------------------------------------------------------------
@@ -46,6 +50,8 @@ namespace Tiny3D
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     ZipArchive::~ZipArchive()
     {
@@ -76,6 +82,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult ZipArchive::unload()
     {
         if (mZipFile != nullptr)
@@ -86,6 +94,8 @@ namespace Tiny3D
         
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     ResourcePtr ZipArchive::clone() const
     {
@@ -100,10 +110,14 @@ namespace Tiny3D
         return ARCHIVE_TYPE;
     }
 
+    //--------------------------------------------------------------------------
+
     String ZipArchive::getLocation() const
     {
         return mName;
     }
+
+    //--------------------------------------------------------------------------
 
     bool ZipArchive::exists(const String &name) const
     {
@@ -136,6 +150,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult ZipArchive::read(const String &name, MemoryDataStream &stream)
     {
@@ -210,6 +226,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult ZipArchive::write(const String &name, 
         const MemoryDataStream &stream)

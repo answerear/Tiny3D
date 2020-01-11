@@ -21,3 +21,9 @@
 #include "Kernel/T3DObject.h"
 #include "Memory/T3DSmartPtr.h"
 #include "Resource/T3DArchiveCreator.h"
+
+
+namespace Tiny3D
+{
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(ArchiveCreator);
+}

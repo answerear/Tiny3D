@@ -27,6 +27,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(D3D11Capabilities, RendererCapabilities);
+
+    //--------------------------------------------------------------------------
+
     D3D11CapabilitiesPtr D3D11Capabilities::create()
     {
         D3D11CapabilitiesPtr cap = new D3D11Capabilities();
