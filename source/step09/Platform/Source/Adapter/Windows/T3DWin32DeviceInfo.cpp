@@ -32,6 +32,12 @@ namespace Tiny3D
     #define __USE_CPUID_FOR_DEVICE_ID__                 0
     #define __USE_MAINBOARD_UUID_FOR_DEVICE_ID__        1
 
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(Win32DeviceInfo, IDeviceInfo);
+
+    //--------------------------------------------------------------------------
+
     Win32DeviceInfo::Win32DeviceInfo()
         : mSWVersion()
         , mOSVersion()
@@ -47,10 +53,14 @@ namespace Tiny3D
         collectSystemInfo();
     }
 
+    //--------------------------------------------------------------------------
+
     Win32DeviceInfo::~Win32DeviceInfo()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     void Win32DeviceInfo::collectSystemInfo()
     {
@@ -69,6 +79,8 @@ namespace Tiny3D
         // 收集屏幕信息
         collectScreenInfo();
     }
+
+    //--------------------------------------------------------------------------
 
     void Win32DeviceInfo::collectOSInfo()
     {
@@ -189,6 +201,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Win32DeviceInfo::collectCPUInfo()
     {
         SYSTEM_INFO info;
@@ -294,6 +308,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Win32DeviceInfo::collectRAMInfo()
     {
         if (mSystemRAM == 0)
@@ -304,6 +320,8 @@ namespace Tiny3D
             mSystemRAM = statex.ullTotalPhys / (1024 * 1024);
         }
     }
+
+    //--------------------------------------------------------------------------
 
     void Win32DeviceInfo::collectDeviceInfo()
     {
@@ -336,6 +354,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Win32DeviceInfo::collectScreenInfo()
     {
         mScreenWidth = ::GetSystemMetrics(SM_CXSCREEN);
@@ -350,25 +370,35 @@ namespace Tiny3D
         mScreenDPI = (float)fDPIX;
     }
 
+    //--------------------------------------------------------------------------
+
     uint32_t Win32DeviceInfo::getPlatform() const
     {
         return E_PLATFORM_WIN32;
     }
+
+    //--------------------------------------------------------------------------
 
     const String &Win32DeviceInfo::getSoftwareVersion() const
     {
         return mSWVersion;
     }
 
+    //--------------------------------------------------------------------------
+
     void Win32DeviceInfo::setSoftwareVersion(const char *version)
     {
         mSWVersion = version;
     }
 
+    //--------------------------------------------------------------------------
+
     const String &Win32DeviceInfo::getOSVersion() const
     {
         return mOSVersion;
     }
+
+    //--------------------------------------------------------------------------
 
     String Win32DeviceInfo::getOSInfo() const
     {
@@ -572,51 +602,70 @@ namespace Tiny3D
         return version;
     }
 
+    //--------------------------------------------------------------------------
+
     const String &Win32DeviceInfo::getDeviceVersion() const
     {
         return mHWVersion;
     }
+
+    //--------------------------------------------------------------------------
 
     int32_t Win32DeviceInfo::getScreenWidth() const
     {
         return mScreenWidth;
     }
 
+    //--------------------------------------------------------------------------
+
     int32_t Win32DeviceInfo::getScreenHeight() const
     {
         return mScreenHeight;
     }
+
+    //--------------------------------------------------------------------------
 
     float Win32DeviceInfo::getScreenDPI() const
     {
         return mScreenDPI;
     }
 
+    //--------------------------------------------------------------------------
+
     const String &Win32DeviceInfo::getCPUType() const
     {
         return mCPUType;
     }
+
+    //--------------------------------------------------------------------------
 
     const String &Win32DeviceInfo::getCPUArchitecture() const
     {
         return mCPUArchitecture;
     }
 
+    //--------------------------------------------------------------------------
+
     int32_t Win32DeviceInfo::getCPUCores() const
     {
         return mCPUCores;
     }
+
+    //--------------------------------------------------------------------------
 
     uint64_t Win32DeviceInfo::getSystemRAM() const
     {
         return mSystemRAM;
     }
 
+    //--------------------------------------------------------------------------
+
     const String &Win32DeviceInfo::getDeviceID() const
     {
         return mDeviceID;
     }
 
+    //--------------------------------------------------------------------------
 
     String Win32DeviceInfo::getMacAddress() const
     {
@@ -681,6 +730,8 @@ namespace Tiny3D
         return macdress;
     }
 
+    //--------------------------------------------------------------------------
+
     String Win32DeviceInfo::getCPUID() const
     {
         unsigned long s1 = 0;
@@ -712,6 +763,8 @@ namespace Tiny3D
         sprintf(buf, "%08X%08X%08X%08X", s1, s2, s3, s4);
         return buf;
     }
+
+    //--------------------------------------------------------------------------
 
     String Win32DeviceInfo::getMainboardUUID() const
     {

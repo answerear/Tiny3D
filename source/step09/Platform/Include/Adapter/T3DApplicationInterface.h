@@ -25,15 +25,17 @@
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
+#include "T3DRTTI.h"
 
 
 namespace Tiny3D
 {
     class T3D_PLATFORM_API IApplication
     {
-    public:
         T3D_DECLARE_INTERFACE(IApplication);
+        T3D_DECLARE_CLASS();
 
+    public:
         /**
          * @brief 初始化应用程序
          * @return 调用成功返回T3D_OK

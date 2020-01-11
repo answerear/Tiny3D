@@ -27,7 +27,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(Application);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(Application);
+
+    //--------------------------------------------------------------------------
 
     Application::Application()
         : mSystem(new System())
@@ -35,11 +40,15 @@ namespace Tiny3D
         mApp = T3D_PLATFORM_FACTORY.createPlatformApplication();
     }
 
+    //--------------------------------------------------------------------------
+
     Application::~Application()
     {
         T3D_SAFE_DELETE(mApp);
         T3D_SAFE_DELETE(mSystem);
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Application::init()
     {
@@ -65,6 +74,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     bool Application::pollEvents()
     {
         bool ret = false;
@@ -83,6 +94,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void Application::release()
     {
         if (mApp != nullptr)
@@ -90,6 +103,8 @@ namespace Tiny3D
             mApp->release();
         }
     }
+
+    //--------------------------------------------------------------------------
 
     void *Application::getNativeAppObject()
     {

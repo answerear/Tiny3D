@@ -22,6 +22,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(FileDataStream, DataStream);
+
+    //--------------------------------------------------------------------------
+
     FileDataStream::FileDataStream()
         : m_pFileHandle(nullptr)
         , m_lSize(0)
@@ -30,6 +36,8 @@ namespace Tiny3D
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     FileDataStream::~FileDataStream()
     {
@@ -40,6 +48,8 @@ namespace Tiny3D
             close();
         }
     }
+
+    //--------------------------------------------------------------------------
 
     bool FileDataStream::open(const char *szFileName, uint32_t unMode)
     {
@@ -112,6 +122,8 @@ namespace Tiny3D
         m_bIsOpened = false;
     }
 
+    //--------------------------------------------------------------------------
+
     size_t FileDataStream::read(void *pBuffer, size_t nSize)
     {
         size_t nBytesOfRead = 0;
@@ -123,6 +135,8 @@ namespace Tiny3D
 
         return nBytesOfRead;
     }
+
+    //--------------------------------------------------------------------------
 
     size_t FileDataStream::write(void *pBuffer, size_t nSize)
     {
@@ -136,6 +150,8 @@ namespace Tiny3D
         return nBytesOfWritten;
     }
 
+    //--------------------------------------------------------------------------
+
     void FileDataStream::flush()
     {
         if (m_pFileHandle != nullptr)
@@ -143,6 +159,8 @@ namespace Tiny3D
             fflush(m_pFileHandle);
         }
     }
+
+    //--------------------------------------------------------------------------
 
     bool FileDataStream::seek(long_t lPos, bool relative)
     {
@@ -169,6 +187,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     long_t FileDataStream::tell() const
     {
         long_t lPos = 0;
@@ -180,6 +200,8 @@ namespace Tiny3D
 
         return lPos;
     }
+
+    //--------------------------------------------------------------------------
 
     long_t FileDataStream::size() const
     {
@@ -197,6 +219,8 @@ namespace Tiny3D
         return m_lSize;
     }
 
+    //--------------------------------------------------------------------------
+
     bool FileDataStream::eof() const
     {
         bool bEnd = true;
@@ -210,6 +234,8 @@ namespace Tiny3D
 
         return bEnd;
     }
+
+    //--------------------------------------------------------------------------
 
     size_t FileDataStream::read(uint8_t *&pData)
     {

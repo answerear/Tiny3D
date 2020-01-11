@@ -28,7 +28,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(System);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(System);
+
+    //--------------------------------------------------------------------------
 
     System::System()
         : mPlatformFactory(nullptr)
@@ -42,6 +47,8 @@ namespace Tiny3D
         mTimerMgr = new TimerManager();
     }
 
+    //--------------------------------------------------------------------------
+
     System::~System()
     {
         T3D_SAFE_DELETE(mTimerMgr);
@@ -49,6 +56,8 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mConsole);
         T3D_SAFE_DELETE(mPlatformFactory);
     }
+
+    //--------------------------------------------------------------------------
 
     int32_t System::init()
     {
@@ -71,6 +80,8 @@ namespace Tiny3D
         
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     void System::poll()
     {

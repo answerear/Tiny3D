@@ -23,7 +23,7 @@
 
 #include "T3DType.h"
 #include "T3DMacro.h"
-
+#include "T3DRTTI.h"
 
 namespace Tiny3D
 {
@@ -31,9 +31,10 @@ namespace Tiny3D
      * @class T3DConsoleAdapterInterface
      * @brief Interface class
      */
-    class IConsole
+    class T3D_PLATFORM_API IConsole
     {
         T3D_DECLARE_INTERFACE(IConsole);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

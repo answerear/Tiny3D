@@ -68,7 +68,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(Agent);
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(Agent, Object)
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(Agent)
 
     //--------------------------------------------------------------------------
 

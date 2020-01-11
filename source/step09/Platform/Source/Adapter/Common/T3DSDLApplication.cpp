@@ -25,6 +25,8 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     static int AppEventWatcher(void *userdata, SDL_Event *event)
     {
         switch (event->type)
@@ -53,16 +55,26 @@ namespace Tiny3D
         
         return 0;
     }
+
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(SDLApplication, IApplication);
     
+    //--------------------------------------------------------------------------
+
     SDLApplication::SDLApplication()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     SDLApplication::~SDLApplication()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     TResult SDLApplication::init()
     {
@@ -90,6 +102,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     bool SDLApplication::pollEvents()
     {
         bool ret = true;
@@ -110,10 +124,14 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void SDLApplication::release()
     {
         SDL_Quit();
     }
+
+    //--------------------------------------------------------------------------
 
     void *SDLApplication::getNativeAppObject()
     {

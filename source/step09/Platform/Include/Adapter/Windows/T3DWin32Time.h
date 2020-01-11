@@ -28,6 +28,8 @@ namespace Tiny3D
 {
     class Win32Time : public ITime
     {
+        T3D_DECLARE_CLASS();
+
     public:
         Win32Time();
         virtual ~Win32Time();

@@ -22,7 +22,8 @@
 #define __T3D_RTTI_H__
 
 
-#include "T3DPrerequisites.h"
+#include "T3DPlatformPrerequisites.h"
+#include "T3DMacro.h"
 
 
 namespace Tiny3D
@@ -31,7 +32,7 @@ namespace Tiny3D
      * @class   RTTI
      * @brief   用于运行时动态类型检查机制 
      */
-    class T3D_ENGINE_API RTTI
+    class T3D_PLATFORM_API RTTI
     {
         T3D_DISABLE_COPY(RTTI);
 

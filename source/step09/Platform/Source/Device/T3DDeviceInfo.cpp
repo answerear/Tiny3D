@@ -27,7 +27,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(DeviceInfo);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(DeviceInfo);
+
+    //--------------------------------------------------------------------------
 
     const uint32_t DeviceInfo::PLATFORM_UNKNOWN = E_PLATFORM_UNKNOWN;
     const uint32_t DeviceInfo::PLATFORM_WINDOWS = E_PLATFORM_WIN32;
@@ -43,16 +48,22 @@ namespace Tiny3D
     const char* DeviceInfo::iOS = "iOS";
     const char* DeviceInfo::Android = "Android";
 
+    //--------------------------------------------------------------------------
+
     DeviceInfo::DeviceInfo()
         : mDeviceInfo(nullptr)
     {
         mDeviceInfo = T3D_PLATFORM_FACTORY.createPlatformDeviceInfo();
     }
 
+    //--------------------------------------------------------------------------
+
     DeviceInfo::~DeviceInfo()
     {
         T3D_SAFE_DELETE(mDeviceInfo);
     }
+
+    //--------------------------------------------------------------------------
 
     uint32_t DeviceInfo::getPlatform() const
     {
@@ -65,6 +76,8 @@ namespace Tiny3D
 
         return unPlatform;
     }
+
+    //--------------------------------------------------------------------------
 
     String DeviceInfo::getPlatformString() const
     {
@@ -105,6 +118,8 @@ namespace Tiny3D
         return strPlatform;
     }
 
+    //--------------------------------------------------------------------------
+
     String DeviceInfo::getSoftwareVersion() const
     {
         if (mDeviceInfo != nullptr)
@@ -114,6 +129,8 @@ namespace Tiny3D
         return "";
     }
 
+    //--------------------------------------------------------------------------
+
     void DeviceInfo::setSoftwareVersion(const char *version)
     {
         if (mDeviceInfo != nullptr)
@@ -121,6 +138,8 @@ namespace Tiny3D
             mDeviceInfo->setSoftwareVersion(version);
         }
     }
+
+    //--------------------------------------------------------------------------
 
     String DeviceInfo::getOSVersion() const
     {
@@ -131,6 +150,8 @@ namespace Tiny3D
         return "";
     }
 
+    //--------------------------------------------------------------------------
+
     String DeviceInfo::getDeviceVersion() const
     {
         if (mDeviceInfo != nullptr)
@@ -139,6 +160,8 @@ namespace Tiny3D
         }
         return "";
     }
+
+    //--------------------------------------------------------------------------
 
     String DeviceInfo::getSystemInfo() const
     {
@@ -165,6 +188,8 @@ namespace Tiny3D
         return ss.str();
     }
 
+    //--------------------------------------------------------------------------
+
     int32_t DeviceInfo::getScreenWidth() const
     {
         if (mDeviceInfo != nullptr)
@@ -173,6 +198,8 @@ namespace Tiny3D
         }
         return 0;
     }
+
+    //--------------------------------------------------------------------------
 
     int32_t DeviceInfo::getScreenHeight() const
     {
@@ -183,6 +210,8 @@ namespace Tiny3D
         return 0;
     }
 
+    //--------------------------------------------------------------------------
+
     float DeviceInfo::getScreenDPI() const
     {
         if (mDeviceInfo != nullptr)
@@ -192,6 +221,8 @@ namespace Tiny3D
         return 0.0f;
     }
 
+    //--------------------------------------------------------------------------
+
     String DeviceInfo::getCPUType() const
     {
         if (mDeviceInfo != nullptr)
@@ -200,6 +231,8 @@ namespace Tiny3D
         }
         return "";
     }
+
+    //--------------------------------------------------------------------------
 
     String DeviceInfo::getCPUArchitecture() const
     {
@@ -211,6 +244,8 @@ namespace Tiny3D
         return "";
     }
 
+    //--------------------------------------------------------------------------
+
     int32_t DeviceInfo::getCPUCores() const
     {
         if (mDeviceInfo != nullptr)
@@ -220,6 +255,8 @@ namespace Tiny3D
         return 1;
     }
 
+    //--------------------------------------------------------------------------
+
     uint64_t DeviceInfo::getSystemRAM() const
     {
         if (mDeviceInfo != nullptr)
@@ -228,6 +265,8 @@ namespace Tiny3D
         }
         return 0;
     }
+
+    //--------------------------------------------------------------------------
 
     String DeviceInfo::getDeviceID() const
     {

@@ -27,7 +27,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(EventManager);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(EventManager);
+
+    //--------------------------------------------------------------------------
 
     const TINSTANCE EventManager::INVALID_INSTANCE = nullptr;
     const TINSTANCE EventManager::BROADCAST_INSTANCE = (const TINSTANCE)-1;
@@ -109,6 +114,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventManager::broadcastEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
     {
@@ -159,6 +166,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventManager::multicastEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
@@ -224,6 +233,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventManager::singlecastEvent(EventID evid, EventParam *param,
         TINSTANCE receiver, TINSTANCE sender)
@@ -312,6 +323,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventManager::pushBroadcastEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
     {
@@ -348,6 +361,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventManager::pushMulticastEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
@@ -387,6 +402,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventManager::pushSinglecastEvent(EventID evid, EventParam *param,
         TINSTANCE receiver, TINSTANCE sender)
@@ -435,6 +452,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     bool EventManager::isValidHandler(EventHandler *handler)
     {
@@ -507,10 +526,14 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void EventManager::pauseDispatching()
     {
         mIsDispatchPaused = true;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventManager::resumeDispatching(bool dispatchImmdiately)
     {
@@ -602,6 +625,8 @@ namespace Tiny3D
         return new _TINSTANCE(handler, (int32_t)slot);
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventManager::unregisterHandler(TINSTANCE instance)
     {
         TResult ret = T3D_ERR_FWK_INVALID_INSTANCE;
@@ -625,6 +650,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventManager::registerEvent(EventID evid, TINSTANCE instance)
     {
@@ -659,6 +686,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventManager::unregisterEvent(EventID evid, TINSTANCE instance)
     {
         TResult ret = T3D_ERR_FWK_INVALID_INSTANCE;
@@ -684,6 +713,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     void EventManager::clearEventQueue()
     {

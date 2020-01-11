@@ -32,6 +32,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(Win32Dir, IDir);
+
+    //--------------------------------------------------------------------------
+
     Win32Dir::Win32Dir()
         : m_hFindFile(INVALID_HANDLE_VALUE)
         , m_bExtractName(false)
@@ -39,10 +45,14 @@ namespace Tiny3D
         memset(&m_FindFileData, 0, sizeof(m_FindFileData));
     }
 
+    //--------------------------------------------------------------------------
+
     Win32Dir::~Win32Dir()
     {
         close();
     }
+
+    //--------------------------------------------------------------------------
 
     bool Win32Dir::findFile(const String &strPath)
     {
@@ -64,6 +74,8 @@ namespace Tiny3D
         return (m_hFindFile != INVALID_HANDLE_VALUE);
     }
 
+    //--------------------------------------------------------------------------
+
     bool Win32Dir::findNextFile()
     {
         BOOL bResult = FALSE;
@@ -77,6 +89,8 @@ namespace Tiny3D
         return (bResult == TRUE);
     }
 
+    //--------------------------------------------------------------------------
+
     void Win32Dir::close()
     {
         if (m_hFindFile != nullptr)
@@ -89,6 +103,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     String Win32Dir::getRoot() const
     {
         if (m_hFindFile == INVALID_HANDLE_VALUE)
@@ -96,6 +112,8 @@ namespace Tiny3D
 
         return m_strRoot;
     }
+
+    //--------------------------------------------------------------------------
 
     String Win32Dir::getFileName() const
     {
@@ -116,6 +134,8 @@ namespace Tiny3D
 
         return m_strName;
     }
+
+    //--------------------------------------------------------------------------
 
     String Win32Dir::getFilePath() const
     {
@@ -138,6 +158,8 @@ namespace Tiny3D
         return m_strRoot + strPath;
     }
 
+    //--------------------------------------------------------------------------
+
     String Win32Dir::getFileTitle() const
     {
         if (m_hFindFile == INVALID_HANDLE_VALUE)
@@ -158,6 +180,8 @@ namespace Tiny3D
         return m_strTitle;
     }
 
+    //--------------------------------------------------------------------------
+
     UINT Win32Dir::getLength() const
     {
         if (m_hFindFile == INVALID_HANDLE_VALUE)
@@ -165,6 +189,8 @@ namespace Tiny3D
 
         return m_FindFileData.nFileSizeLow;
     }
+
+    //--------------------------------------------------------------------------
 
     bool Win32Dir::isDots() const
     {
@@ -186,10 +212,14 @@ namespace Tiny3D
         return ((m_FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (m_strName == "." || m_strName == ".."));
     }
 
+    //--------------------------------------------------------------------------
+
     bool Win32Dir::isDirectory() const
     {
         return (m_hFindFile != INVALID_HANDLE_VALUE && (m_FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY));
     }
+
+    //--------------------------------------------------------------------------
 
     long_t Win32Dir::getCreationTime() const
     {
@@ -212,6 +242,8 @@ namespace Tiny3D
         return 0;
     }
 
+    //--------------------------------------------------------------------------
+
     long_t Win32Dir::getLastAccessTime() const
     {
         if (m_hFindFile == INVALID_HANDLE_VALUE)
@@ -232,6 +264,8 @@ namespace Tiny3D
 
         return 0;
     }
+
+    //--------------------------------------------------------------------------
 
     long_t Win32Dir::getLastWriteTime() const
     {
@@ -255,6 +289,8 @@ namespace Tiny3D
         return 0;
     }
 
+    //--------------------------------------------------------------------------
+
     bool Win32Dir::makeDir(const String &strDir)
     {
         if (strDir.empty() || strDir == "")
@@ -262,6 +298,8 @@ namespace Tiny3D
 
         return (mkdir(strDir.c_str()) == 0);
     }
+
+    //--------------------------------------------------------------------------
 
     bool Win32Dir::removeDir(const String &strDir)
     {
@@ -271,6 +309,8 @@ namespace Tiny3D
         return (rmdir(strDir.c_str()) == 0);
     }
 
+    //--------------------------------------------------------------------------
+
     bool Win32Dir::remove(const String &strFileName)
     {
         if (strFileName.empty() || strFileName == "")
@@ -279,15 +319,21 @@ namespace Tiny3D
         return (::remove(strFileName.c_str()) == 0);
     }
 
+    //--------------------------------------------------------------------------
+
     bool Win32Dir::exists(const String &strPath) const
     {
         return (::access(strPath.c_str(), 0) == 0);
     }
 
+    //--------------------------------------------------------------------------
+
     String Win32Dir::getCachePath() const
     {
         return getAppPath() + "\\Caches";
     }
+
+    //--------------------------------------------------------------------------
 
     String Win32Dir::getAppPath() const
     {
@@ -311,20 +357,28 @@ namespace Tiny3D
         return String(szBuf);
     }
 
+    //--------------------------------------------------------------------------
+
     String Win32Dir::getWritablePath() const
     {
         return getAppPath() + "\\Save";
     }
+
+    //--------------------------------------------------------------------------
 
     String Win32Dir::getLibraryPath() const
     {
         return getAppPath();
     }
 
+    //--------------------------------------------------------------------------
+
     char Win32Dir::getNativeSeparator() const
     {
         return '\\';
     }
+
+    //--------------------------------------------------------------------------
 
     bool Win32Dir::extractRoot(const String &strFilePath, String &strRoot)
     {
@@ -350,6 +404,8 @@ namespace Tiny3D
 
         return bResult;
     }
+
+    //--------------------------------------------------------------------------
 
     bool Win32Dir::extractFileName(const String &strFilePath, String &strName, String &strTitle) const
     {

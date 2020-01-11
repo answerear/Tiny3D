@@ -25,9 +25,16 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(Console);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(Console);
+
+    //--------------------------------------------------------------------------
 
     const uint32_t Console::MAX_CONTENT_SIZE = 4096;
+
+    //--------------------------------------------------------------------------
 
     Console::Console()
         : mConsole(nullptr)
@@ -35,10 +42,14 @@ namespace Tiny3D
         mConsole = T3D_PLATFORM_FACTORY.createPlatformConsole();
     }
 
+    //--------------------------------------------------------------------------
+
     Console::~Console()
     {
         T3D_SAFE_DELETE(mConsole);
     }
+
+    //--------------------------------------------------------------------------
 
     void Console::print(const char *pszFmt, ...)
     {

@@ -24,15 +24,17 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "T3DRTTI.h"
 
 
 namespace Tiny3D
 {
-    class ITime
+    class T3D_PLATFORM_API ITime
     {
-    public:
         T3D_DECLARE_INTERFACE(ITime);
+        T3D_DECLARE_CLASS();
 
+    public:
         virtual int64_t currentSecsSinceEpoch() = 0;
 
         virtual int64_t currentMSecsSinceEpoch() = 0;

@@ -27,7 +27,15 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_BASECLASS_1(TimerService, ITimerService);
+
+    //--------------------------------------------------------------------------
+
     const ID ITimerService::INVALID_TIMER_ID = T3D_INVALID_ID;
+
+    //--------------------------------------------------------------------------
 
     TimerService::TimerService()
         : mTimerID(0)
@@ -39,6 +47,8 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     TimerService::~TimerService()
     {
         // 设置线程退出，等待线程结束，才析构
@@ -48,6 +58,8 @@ namespace Tiny3D
             mPollThread.join();
         }
     }
+
+    //--------------------------------------------------------------------------
 
     ID TimerService::startTimer(uint32_t interval, bool repeat,
         ITimerListener *listener)
@@ -75,6 +87,8 @@ namespace Tiny3D
 
         return timerID;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult TimerService::stopTimer(uint32_t timerID)
     {
@@ -110,6 +124,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult TimerService::init()
     {
         TResult ret = T3D_OK;
@@ -117,6 +133,8 @@ namespace Tiny3D
         mPollThread = TThread(std::bind(&TimerService::update, this));
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     void TimerService::update()
     {
@@ -166,6 +184,8 @@ namespace Tiny3D
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
+
+    //--------------------------------------------------------------------------
 
     TResult TimerService::pollEvents()
     {

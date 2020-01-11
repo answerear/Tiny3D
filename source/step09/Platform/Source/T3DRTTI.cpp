@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DRTTI.h"
+#include "T3DRTTI.h"
 
 
 namespace Tiny3D

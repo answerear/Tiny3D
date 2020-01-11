@@ -24,6 +24,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(DataStream);
+
+    //--------------------------------------------------------------------------
+
     String DataStream::readLine(bool trim)
     {
         char c;
@@ -53,6 +59,8 @@ namespace Tiny3D
         return str;
     }
 
+    //--------------------------------------------------------------------------
+
     size_t DataStream::writeLine(const String &strLine)
     {
         size_t bytesOfWritten = 0;
@@ -71,11 +79,15 @@ namespace Tiny3D
         return bytesOfWritten;
     }
 
+    //--------------------------------------------------------------------------
+
     DataStream &DataStream::operator<<(bool val)
     {
         write(&val, sizeof(val));
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator<<(int8_t val)
     {
@@ -83,11 +95,15 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+
     DataStream &DataStream::operator<<(uint8_t val)
     {
         write(&val, sizeof(val));
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator<<(int16_t val)
     {
@@ -95,11 +111,15 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+
     DataStream &DataStream::operator<<(uint16_t val)
     {
         write(&val, sizeof(val));
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator<<(int32_t val)
     {
@@ -107,11 +127,15 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+
     DataStream &DataStream::operator<<(uint32_t val)
     {
         write(&val, sizeof(val));
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator<<(int64_t val)
     {
@@ -119,11 +143,15 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+
     DataStream &DataStream::operator<<(uint64_t val)
     {
         write(&val, sizeof(val));
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator<<(float val)
     {
@@ -131,11 +159,15 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+
     DataStream &DataStream::operator<<(double val)
     {
         write(&val, sizeof(val));
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator<<(const char *s)
     {
@@ -146,6 +178,8 @@ namespace Tiny3D
         }
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator<<(const String &s)
     {
@@ -159,6 +193,7 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator>>(bool &val)
     {
@@ -166,11 +201,15 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+
     DataStream &DataStream::operator>>(int8_t &val)
     {
         read(&val, sizeof(val));
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator>>(uint8_t &val)
     {
@@ -178,11 +217,15 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+
     DataStream &DataStream::operator>>(int16_t &val)
     {
         read(&val, sizeof(val));
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator>>(uint16_t &val)
     {
@@ -190,11 +233,15 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+
     DataStream &DataStream::operator>>(int32_t &val)
     {
         read(&val, sizeof(val));
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator>>(uint32_t &val)
     {
@@ -202,11 +249,15 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+
     DataStream &DataStream::operator>>(int64_t &val)
     {
         read(&val, sizeof(val));
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator>>(uint64_t &val)
     {
@@ -214,17 +265,23 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+
     DataStream &DataStream::operator>>(float &val)
     {
         read(&val, sizeof(val));
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+
     DataStream &DataStream::operator>>(double &val)
     {
         read(&val, sizeof(val));
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator>>(char *&s)
     {
@@ -247,6 +304,8 @@ namespace Tiny3D
 
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     DataStream &DataStream::operator>>(String &s)
     {

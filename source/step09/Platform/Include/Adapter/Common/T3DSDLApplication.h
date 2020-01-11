@@ -28,6 +28,8 @@ namespace Tiny3D
 {
     class SDLApplication : public IApplication
     {
+        T3D_DECLARE_CLASS();
+
     public:
         SDLApplication();
         virtual ~SDLApplication();

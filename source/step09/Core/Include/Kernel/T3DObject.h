@@ -23,7 +23,6 @@
 
 
 #include "T3DPrerequisites.h"
-#include "Kernel/T3DRTTI.h"
 
 
 namespace Tiny3D

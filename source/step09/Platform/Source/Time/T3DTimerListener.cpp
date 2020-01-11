@@ -17,8 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#include "Time/T3DTimerListener.h"
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(ITimerListener);
+}
+
 

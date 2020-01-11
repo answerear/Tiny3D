@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
@@ -17,36 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DLogTask.h"
-
+#include "Adapter/T3DApplicationInterface.h"
+#include "Adapter/T3DConsoleInterface.h"
+#include "Adapter/T3DDeviceInfoInterface.h"
+#include "Adapter/T3DDirInterface.h"
+#include "Adapter/T3DFactoryInterface.h"
+#include "Adapter/T3DTimeInterface.h"
+#include "Adapter/T3DTimerInterface.h"
+#include "Adapter/T3DWindowInterface.h"
 
 namespace Tiny3D
 {
-    T3D_IMPLEMENT_CLASS_NO_BASECLASS(LogTask);
-
-    ////////////////////////////////////////////////////////////////////////////
-    // LogTaskCheckExpired
-
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(LogTaskCheckExpired, LogTask);
-
-    LogTaskCheckExpired::LogTaskCheckExpired(uint32_t unExpired)
-        : mExpired(unExpired)
-    {
-
-    }
-
-    LogTask::Type LogTaskCheckExpired::getType() const
-    {
-        return E_TYPE_CHECK_EXPIRED;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    // LogTaskFlushCache
-
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(LogTaskFlushCache, LogTask);
-
-    LogTask::Type LogTaskFlushCache::getType() const
-    {
-        return E_TYPE_FLUSH_CACHE;
-    }
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(IApplication);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(IConsole);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(IDeviceInfo);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(IDir);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(IFactory);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(ITime);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(ITimerService);
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(IWindow);
 }

@@ -22,11 +22,19 @@
 #include "Adapter/T3DTimeInterface.h"
 #include "T3DSystem.h"
 #include "Adapter/T3DFactoryInterface.h"
-// #include <sys/timeb.h>
+
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_NO_BASECLASS(DateTime);
+
+    //--------------------------------------------------------------------------
+
     ITime *DateTime::mTime = nullptr;
+
+    //--------------------------------------------------------------------------
 
     DateTime::DateTime()
         : mYear(0)
@@ -40,6 +48,8 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     DateTime::DateTime(int32_t year, int32_t month, int32_t day, 
         int32_t hour, int32_t minute, int32_t second, int32_t millisecond)
         : mYear(year)
@@ -52,6 +62,8 @@ namespace Tiny3D
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     int64_t DateTime::toMSecsSinceEpoch() const
     {
@@ -69,6 +81,8 @@ namespace Tiny3D
         return time;
     }
 
+    //--------------------------------------------------------------------------
+
     String DateTime::toString() const
     {
         char text[128];
@@ -79,25 +93,27 @@ namespace Tiny3D
         return s;
     }
 
+    //--------------------------------------------------------------------------
+
     String DateTime::timeToString(TimeFormat eFormat) const
     {
         char text[128];
         switch (eFormat)
         {
-        case TF_HH_MM_SS_XXX:
+        case TimeFormat::HH_MM_SS_XXX:
             snprintf(text, 128, "%02d:%02d:%02d.%03d", 
                 mHour, mMinute, mSecond, mMillisecond);
             break;
 
-        case TF_HH_MM_SS:
+        case TimeFormat::HH_MM_SS:
             snprintf(text, 128, "%02d:%02d:%02d", mHour, mMinute, mSecond);
             break;
 
-        case TF_HH_MM:
+        case TimeFormat::HH_MM:
             snprintf(text, 128, "%02d:%02d", mHour, mMinute);
             break;
 
-        case TF_HHMMSS:
+        case TimeFormat::HHMMSS:
             snprintf(text, 128, "%02d%02d%02d", mHour, mMinute, mSecond);
             break;
 
@@ -111,23 +127,25 @@ namespace Tiny3D
         return s;
     }
 
+    //--------------------------------------------------------------------------
+
     String DateTime::dateToString(DateFormat eFormat) const
     {
         char text[128];
         switch (eFormat)
         {
-        case DF_YY_MM_DD:
+        case DateFormat::YY_MM_DD:
             snprintf(text, 128, "%d-%02d-%02d", mYear, mMonth, mDay);
             break;
 
-        case DF_MM_DD:
+        case DateFormat::MM_DD:
             snprintf(text, 128, "%02d-%02d", mMonth, mDay);
             break;
 
-        case DF_YY_MM:
+        case DateFormat::YY_MM:
             snprintf(text, 128, "%d-%02d", mYear, mMonth);
             break;
-        case DF_YYMMDD:
+        case DateFormat::YYMMDD:
             snprintf(text, 128, "%d%02d%02d", mYear, mMonth, mDay);
             break;
         default:
@@ -138,6 +156,8 @@ namespace Tiny3D
         String s(text);
         return s;
     }
+
+    //--------------------------------------------------------------------------
 
     bool DateTime::operator ==(const DateTime &other) const
     {
@@ -150,6 +170,8 @@ namespace Tiny3D
             && other.mMillisecond == mMinute);
     }
 
+    //--------------------------------------------------------------------------
+
     bool DateTime::operator !=(const DateTime &other) const
     {
         return (other.mYear != mYear 
@@ -160,6 +182,8 @@ namespace Tiny3D
             || other.mSecond != mSecond 
             || other.mMillisecond != mMinute);
     }
+
+    //--------------------------------------------------------------------------
 
     bool DateTime::operator <(const DateTime &other) const
     {
@@ -181,10 +205,14 @@ namespace Tiny3D
                 && mMillisecond < other.mMillisecond));
     }
 
+    //--------------------------------------------------------------------------
+
     bool DateTime::operator <=(const DateTime &other) const
     {
         return (*this < other || *this == other);
     }
+
+    //--------------------------------------------------------------------------
 
     bool DateTime::operator >(const DateTime &other) const
     {
@@ -206,10 +234,14 @@ namespace Tiny3D
                 && mMillisecond > other.mMillisecond));
     }
 
+    //--------------------------------------------------------------------------
+
     bool DateTime::operator >=(const DateTime &other) const
     {
         return (*this > other || *this == other);
     }
+
+    //--------------------------------------------------------------------------
 
     DateTime DateTime::currentDateTime()
     {
@@ -226,6 +258,8 @@ namespace Tiny3D
             t->tm_hour, t->tm_min, t->tm_sec, millisecond);
     }
 
+    //--------------------------------------------------------------------------
+
     DateTime DateTime::currentDateTimeUTC()
     {
 //         timeb timebuffer;
@@ -239,6 +273,8 @@ namespace Tiny3D
             t->tm_hour, t->tm_min, t->tm_sec, millisecond);
     }
 
+    //--------------------------------------------------------------------------
+
     int64_t DateTime::currentSecsSinceEpoch()
     {
 //         timeb timebuffer;
@@ -247,6 +283,8 @@ namespace Tiny3D
 //         return time;
         return getTime()->currentSecsSinceEpoch();
     }
+
+    //--------------------------------------------------------------------------
 
     int64_t DateTime::currentMSecsSinceEpoch()
     {
@@ -259,6 +297,8 @@ namespace Tiny3D
         return getTime()->currentMSecsSinceEpoch();
     }
 
+    //--------------------------------------------------------------------------
+
     DateTime DateTime::fromMSecsSinceEpoch(int64_t msecs)
     {
         time_t s = msecs / 1000;
@@ -268,6 +308,8 @@ namespace Tiny3D
             t->tm_hour, t->tm_min, t->tm_sec, ms);
     }
 
+    //--------------------------------------------------------------------------
+
     DateTime DateTime::fromSecsSinceEpoch(int64_t sces)
     {
         time_t s = sces;
@@ -275,6 +317,8 @@ namespace Tiny3D
         return DateTime(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, 
             t->tm_hour, t->tm_min, t->tm_sec, 0);
     }
+
+    //--------------------------------------------------------------------------
 
     ITime *DateTime::getTime()
     {

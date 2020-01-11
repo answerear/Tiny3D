@@ -33,9 +33,7 @@ namespace Tiny3D
      * @class   Agent
      * @brief   引擎入口类
      */
-    class T3D_ENGINE_API Agent 
-        : public Object
-        , public Singleton<Agent>
+    class T3D_ENGINE_API Agent : public Singleton<Agent>
     {
         T3D_DISABLE_COPY(Agent);
         T3D_DECLARE_CLASS();
