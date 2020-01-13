@@ -17,16 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_UTILS_H__
-#define __T3D_UTILS_H__
+
+#ifndef __T3D_CLASS_H__
+#define __T3D_CLASS_H__
 
 
-#include <T3DStringUtil.h>
-#include <T3DStringConverter.h>
-#include <T3DVariant.h>
-#include <T3DFix32.h>
-#include <T3DFix64.h>
-#include <T3DMD5.h>
+#include "T3DPlatformPrerequisites.h"
+#include "T3DType.h"
+#include "T3DMacro.h"
 
 
-#endif  /*__T3D_UTILS_H__*/
+namespace Tiny3D
+{
+    
+}
+
+
+#endif  /*__T3D_CLASS_H__*/

@@ -19,7 +19,7 @@
 
 
 #include "T3DStringConverter.h"
-#include "T3DString.h"
+#include "T3DStringUtil.h"
 #include <sstream>
 
 

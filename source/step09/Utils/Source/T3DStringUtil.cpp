@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DString.h"
+#include "T3DStringUtil.h"
 
 
 namespace Tiny3D
