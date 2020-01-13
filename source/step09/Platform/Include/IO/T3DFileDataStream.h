@@ -36,7 +36,7 @@ namespace Tiny3D
     class T3D_PLATFORM_API FileDataStream : public DataStream
     {
         T3D_DISABLE_COPY(FileDataStream);
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(FileDataStream, DataStream);
 
     public:
         /**

@@ -29,10 +29,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(Texture, Resource);
-
-    //--------------------------------------------------------------------------
-
     TexturePtr Texture::create(const String &name, HardwareBuffer::Usage usage, 
         uint32_t access, size_t mipmaps, size_t texWidth /* = 0 */, 
         size_t texHeight /* = 0 */, TexUsage texUsage /* = E_TU_DEFAULT */, 

@@ -28,10 +28,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(Renderer, Object);
-
-    //--------------------------------------------------------------------------
-
     const char * const Renderer::REFERENCE3D = "Reference3D";
     const char * const Renderer::DIRECT3D9 = "Direct3D9";
     const char * const Renderer::DIRECT3D11 = "Direct3D11";

@@ -30,7 +30,7 @@ namespace Tiny3D
     {
         friend class EventManager;
 
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(EventHandler, NullClass);
 
     public:
         /**

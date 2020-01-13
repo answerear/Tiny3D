@@ -37,7 +37,7 @@ namespace Tiny3D
         : public Singleton<ArchiveManager>
         , public ResourceManager
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(ArchiveManager, ResourceManager);
 
     public:
         /**

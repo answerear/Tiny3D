@@ -24,7 +24,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DSingleton.h"
 #include "T3DPlatformErrorDef.h"
-#include "T3DRTTI.h"
+#include "T3DClass.h"
 
 
 namespace Tiny3D
@@ -36,7 +36,7 @@ namespace Tiny3D
     {
         friend class System;
 
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(TimerManager, NullClass);
 
     private:
         /**

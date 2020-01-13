@@ -36,7 +36,7 @@ namespace Tiny3D
         : public Singleton<MaterialManager>
         , public ResourceManager
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(MaterialManager, ResourceManager);
 
     public:
         /**

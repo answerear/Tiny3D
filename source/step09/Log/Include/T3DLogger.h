@@ -34,7 +34,7 @@ namespace Tiny3D
         , public ITimerListener
     {
         T3D_DISABLE_COPY(Logger);
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(Logger, ITimerListener);
 
     public:
         enum Level

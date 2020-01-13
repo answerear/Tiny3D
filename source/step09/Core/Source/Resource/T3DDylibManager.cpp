@@ -27,7 +27,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(DylibManager);
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(DylibManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 

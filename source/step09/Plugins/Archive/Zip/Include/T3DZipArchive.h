@@ -32,7 +32,7 @@ namespace Tiny3D
      */
     class ZipArchive : public Archive
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(ZipArchive, Archive);
 
     public:
         static const char * const ARCHIVE_TYPE; /**< 档案类型 */

@@ -241,7 +241,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API RendererCapabilities : public Object
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(RendererCapabilities, Object);
 
     public:
         /**

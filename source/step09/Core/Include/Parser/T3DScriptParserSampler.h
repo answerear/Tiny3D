@@ -33,7 +33,7 @@ namespace Tiny3D
      */
     class ScriptParserSampler : public ScriptParserBase
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(ScriptParserSampler, ScriptParserBase);
 
     public:
         /**

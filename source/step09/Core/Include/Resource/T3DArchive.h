@@ -33,7 +33,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Archive : public Resource
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(Archive, Resource);
 
     public:
         /**

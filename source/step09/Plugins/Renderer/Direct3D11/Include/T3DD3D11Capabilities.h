@@ -33,7 +33,7 @@ namespace Tiny3D
      */
     class D3D11Capabilities : public RendererCapabilities
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(D3D11Capabilities, RendererCapabilities);
 
     public:
         /**

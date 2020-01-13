@@ -33,7 +33,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API FrustumBound : public Bound
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(FrustumBound, Bound);
 
     public:
         /**

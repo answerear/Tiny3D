@@ -32,7 +32,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API HardwareConstantBuffer : public HardwareBuffer
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(HardwareConstantBuffer, HardwareBuffer);
 
     protected:
         /**

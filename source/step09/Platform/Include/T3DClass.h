@@ -29,7 +29,27 @@
 
 namespace Tiny3D
 {
-    
+    class T3D_PLATFORM_API Class
+    {
+    public:
+        Class(const char *name);
+        Class(const char *name, const Class *super);
+    };
+
+    class T3D_PLATFORM_API NullClass
+    {
+
+    };
+
+    #define T3D_CLASS(className, superClass)
+
+    #define T3D_PROPERTY()
+
+    #define T3D_FIELD()
+
+    #define T3D_STATIC_METHOD()
+
+    #define T3D_METHOD()
 }
 
 

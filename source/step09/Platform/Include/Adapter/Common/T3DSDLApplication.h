@@ -28,7 +28,7 @@ namespace Tiny3D
 {
     class SDLApplication : public IApplication
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(SDLApplication, IApplication);
 
     public:
         SDLApplication();

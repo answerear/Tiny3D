@@ -32,7 +32,7 @@ namespace Tiny3D
      */
     class FreeImageCodecPlugin : public Plugin
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(FreeImageCodecPlugin, Plugin);
 
     public:
         /**

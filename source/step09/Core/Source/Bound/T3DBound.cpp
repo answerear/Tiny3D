@@ -30,10 +30,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(Bound, Object);
-
-    //--------------------------------------------------------------------------
-
     Bound::Bound(SceneNode *node, ID uID)
         : mNode(node)
         , mID(E_BID_INVALID)

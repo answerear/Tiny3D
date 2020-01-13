@@ -34,10 +34,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(Win32DeviceInfo, IDeviceInfo);
-
-    //--------------------------------------------------------------------------
-
     Win32DeviceInfo::Win32DeviceInfo()
         : mSWVersion()
         , mOSVersion()

@@ -25,6 +25,4 @@
 
 namespace Tiny3D
 {
-    T3D_IMPLEMENT_CLASS_NO_BASECLASS(ShaderCreator);
-    T3D_IMPLEMENT_CLASS_NO_BASECLASS(GPUProgramCreator);
 }

@@ -30,7 +30,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(EventManager);
-    T3D_IMPLEMENT_CLASS_NO_BASECLASS(EventManager);
 
     //--------------------------------------------------------------------------
 

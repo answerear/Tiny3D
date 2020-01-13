@@ -30,7 +30,7 @@ namespace Tiny3D
     class SDLDesktopWindow : public IWindow
     {
         T3D_DISABLE_COPY(SDLDesktopWindow);
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(SDLDesktopWindow, IWindow);
 
     public:
         SDLDesktopWindow();

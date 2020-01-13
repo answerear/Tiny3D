@@ -32,7 +32,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(ShaderManager);
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(ShaderManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 
@@ -124,7 +123,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(GPUProgramManager);
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(GPUProgramManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 

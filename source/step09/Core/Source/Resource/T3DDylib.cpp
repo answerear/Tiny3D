@@ -56,10 +56,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(Dylib, Resource);
-
-    //--------------------------------------------------------------------------
-
     DylibPtr Dylib::create(const String &name)
     {
         DylibPtr dylib = new Dylib(name);

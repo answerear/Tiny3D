@@ -23,7 +23,7 @@
 
 #include "T3DSingleton.h"
 #include "T3DPlatformPrerequisites.h"
-#include "T3DRTTI.h"
+#include "T3DClass.h"
 
 
 namespace Tiny3D
@@ -33,7 +33,7 @@ namespace Tiny3D
     class T3D_PLATFORM_API DeviceInfo : public Singleton<DeviceInfo>
     {
         T3D_DISABLE_COPY(DeviceInfo);
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(DeviceInfo, NullClass);
 
     public:
         static const uint32_t PLATFORM_UNKNOWN;

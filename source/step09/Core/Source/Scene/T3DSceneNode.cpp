@@ -26,10 +26,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(SceneNode, Node);
-
-    //--------------------------------------------------------------------------
-
     SceneNode::SceneNode(ID uID /* = E_NID_AUTOMATIC */)
         : Node(uID)
         , mCameraMask(0)

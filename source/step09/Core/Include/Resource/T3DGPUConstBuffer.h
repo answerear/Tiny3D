@@ -34,7 +34,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API GPUConstBuffer : public Resource
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(GPUConstBuffer, Resource);
 
     public:
         /**

@@ -26,10 +26,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(GPUConstBuffer, Resource);
-
-    //--------------------------------------------------------------------------
-
     GPUConstBufferPtr GPUConstBuffer::create(const String& name)
     {
         GPUConstBufferPtr mgr = new GPUConstBuffer(name);

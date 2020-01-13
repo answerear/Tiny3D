@@ -28,7 +28,7 @@ namespace Tiny3D
 {
     class Win32Factory : public IFactory
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(Win32Factory, IFactory);
 
     public:
         Win32Factory();

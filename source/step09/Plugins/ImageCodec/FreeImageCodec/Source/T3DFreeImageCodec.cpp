@@ -28,10 +28,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(FreeImageCodec, ImageCodecBase);
-
-    //--------------------------------------------------------------------------
-
     void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message)
     {
         if (fif != FIF_UNKNOWN)

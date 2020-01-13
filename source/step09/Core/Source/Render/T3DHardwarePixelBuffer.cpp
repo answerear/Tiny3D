@@ -26,10 +26,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(HardwarePixelBuffer, HardwareBuffer);
-
-    //--------------------------------------------------------------------------
-
     HardwarePixelBuffer::HardwarePixelBuffer(size_t width, size_t height,
         PixelFormat format, Usage usage, uint32_t mode, size_t mipmaps)
         : HardwareBuffer(usage, mode)

@@ -34,7 +34,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API RenderTarget : public Object
     {
-        T3D_DECLARE_CLASS();
+        T3D_CLASS(RenderTarget, Object);
 
     public:
         /**

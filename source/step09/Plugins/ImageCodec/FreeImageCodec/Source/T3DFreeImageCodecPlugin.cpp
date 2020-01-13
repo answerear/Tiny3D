@@ -26,10 +26,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(FreeImageCodecPlugin, Plugin);
-
-    //--------------------------------------------------------------------------
-
     FreeImageCodecPlugin::FreeImageCodecPlugin()
         : mName("FreeImageCodec")
         , mImageCodec(nullptr)

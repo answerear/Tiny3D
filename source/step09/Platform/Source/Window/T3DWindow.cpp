@@ -30,10 +30,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_NO_BASECLASS(Window);
-
-    //--------------------------------------------------------------------------
-
     const uint32_t Window::WINDOW_FULLSCREEN = SDL_WINDOW_FULLSCREEN;
     const uint32_t Window::WINDOW_FULLSCREEN_DESKTOP = SDL_WINDOW_FULLSCREEN_DESKTOP;
     const uint32_t Window::WINDOW_OPENGL = SDL_WINDOW_OPENGL;

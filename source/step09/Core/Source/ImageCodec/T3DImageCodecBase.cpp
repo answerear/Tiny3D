@@ -25,10 +25,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASECLASS_1(ImageCodecBase, Object);
-
-    //--------------------------------------------------------------------------
-
     ImageCodecBase::~ImageCodecBase()
     {
 
