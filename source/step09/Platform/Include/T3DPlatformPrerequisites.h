@@ -41,6 +41,14 @@ namespace Tiny3D
     class DataStream;
     class FileDataStream;
     class MemoryDataStream;
+
+    class Class;
+    class Field;
+    class StaticField;
+    class Property;
+    class Method;
+    class StaticMethod;
+    class ConstructorMethod;
 }
  
 

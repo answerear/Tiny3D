@@ -37,7 +37,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API ImageCodecBase : public Object
     {
-        T3D_CLASS(ImageCodecBase, Object);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

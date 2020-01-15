@@ -23,7 +23,7 @@
 
 #include "T3DType.h"
 #include "T3DMacro.h"
-#include "T3DClass.h"
+#include "Reflection/T3DReflection.h"
 #include <vector>
 
 

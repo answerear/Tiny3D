@@ -32,7 +32,7 @@ namespace Tiny3D
      */
     class FileSystemArchiveCreator : public ArchiveCreator
     {
-        T3D_CLASS(FileSystemArchiveCreator, ArchiveCreator);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

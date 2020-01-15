@@ -33,7 +33,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API ObbBound : public Bound
     {
-        T3D_CLASS(ObbBound, Bound);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

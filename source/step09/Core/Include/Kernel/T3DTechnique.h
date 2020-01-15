@@ -34,7 +34,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Technique : public Object
     {
-        T3D_CLASS(Technique, Object);
+        T3D_DECLARE_CLASS();
 
     public:
         typedef TArray<PassPtr>                 Passes;

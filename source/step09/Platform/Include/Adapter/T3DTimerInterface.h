@@ -24,7 +24,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
-#include "T3DClass.h"
+#include "Reflection/T3DReflection.h"
 
 
 namespace Tiny3D

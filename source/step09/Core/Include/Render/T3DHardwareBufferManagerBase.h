@@ -37,7 +37,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API HardwareBufferManagerBase : public Object
     {
-        T3D_CLASS(HardwareBufferManagerBase, Object);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

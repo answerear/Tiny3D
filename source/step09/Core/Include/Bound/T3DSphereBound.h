@@ -33,7 +33,7 @@ namespace Tiny3D
      */
     class SphereBound : public Bound
     {
-        T3D_CLASS(SphereBound, Bound);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

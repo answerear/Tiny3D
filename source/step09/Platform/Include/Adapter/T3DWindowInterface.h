@@ -25,7 +25,7 @@
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "Window/T3DSysWMInfo.h"
-#include "T3DClass.h"
+#include "Reflection/T3DReflection.h"
 
 
 namespace Tiny3D

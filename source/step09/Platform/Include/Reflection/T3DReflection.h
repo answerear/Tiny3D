@@ -18,30 +18,29 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_CLASS_H__
-#define __T3D_CLASS_H__
+#ifndef __T3D_REFLECTION_H__
+#define __T3D_REFLECTION_H__
 
 
-#include "T3DPlatformPrerequisites.h"
-#include "T3DType.h"
-#include "T3DMacro.h"
+#include "Reflection/T3DClass.h"
+#include "Reflection/T3DField.h"
+#include "Reflection/T3DProperty.h"
+#include "Reflection/T3DMethod.h"
 
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API Class
-    {
-    public:
-        Class(const char *name);
-        Class(const char *name, const Class *super);
-    };
+    #define T3D_DECLARE_CLASS()
 
-    class T3D_PLATFORM_API NullClass
-    {
-
-    };
-
-    #define T3D_CLASS(className, superClass)
+    #define T3D_IMPLEMENT_CLASS_NO_BASE(cls)
+    #define T3D_IMPLEMENT_CLASS_BASE_1(cls, base)
+    #define T3D_IMPLEMENT_CLASS_BASE_2(cls, base1, base2)
+    #define T3D_IMPLEMENT_CLASS_BASE_3(cls, base1, base2, base3)
+    #define T3D_IMPLEMENT_CLASS_BASE_4(cls, base1, base2, base3, base4)
+    #define T3D_IMPLEMENT_CLASS_BASE_5(cls, base1, base2, base3, base4, base5)
+    #define T3D_IMPLEMENT_CLASS_BASE_6(cls, base1, base2, base3, base4, base5, base6)
+    #define T3D_IMPLEMENT_CLASS_BASE_7(cls, base1, base2, base3, base4, base5, base6, base7)
+    #define T3D_IMPLEMENT_CLASS_BASE_8(cls, base1, base2, base3, base4, base5, base6, base7, base8)
 
     #define T3D_PROPERTY()
 
@@ -53,4 +52,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_CLASS_H__*/
+#endif  /*__T3D_REFLECTION_H__*/

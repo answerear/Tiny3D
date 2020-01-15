@@ -25,7 +25,7 @@
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
-#include "T3DClass.h"
+#include "Reflection/T3DReflection.h"
 
 
 namespace Tiny3D
@@ -33,7 +33,7 @@ namespace Tiny3D
     class T3D_PLATFORM_API IApplication
     {
         T3D_DECLARE_INTERFACE(IApplication);
-        T3D_CLASS(IApplication, NullClass);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

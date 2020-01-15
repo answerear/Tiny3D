@@ -34,7 +34,7 @@ namespace Tiny3D
      */
     class FileSystemArchivePlugin : public Plugin
     {
-        T3D_CLASS(FileSystemArchivePlugin, Plugin);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

@@ -32,7 +32,7 @@ namespace Tiny3D
      */
     class FreeImageCodec : public ImageCodecBase
     {
-        T3D_CLASS(FreeImageCodec, ImageCodecBase);
+        T3D_DECLARE_CLASS();
 
     public:
         typedef TArray<ImageCodecBase::FileType>    FileTypeList;

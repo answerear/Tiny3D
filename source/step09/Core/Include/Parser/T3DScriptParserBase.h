@@ -46,7 +46,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API ScriptParserBase : public Object
     {
-        T3D_CLASS(ScriptParserBase, Object);
+        T3D_DECLARE_CLASS();
 
     protected:
         /**
