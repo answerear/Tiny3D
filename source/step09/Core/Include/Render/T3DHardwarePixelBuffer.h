@@ -36,7 +36,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API HardwarePixelBuffer : public HardwareBuffer
     {
-        T3D_CLASS(HardwarePixelBuffer, HardwareBuffer);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

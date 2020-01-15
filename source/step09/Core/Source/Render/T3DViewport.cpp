@@ -29,6 +29,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASE_1(Viewport, Object);
+
+    //--------------------------------------------------------------------------
+
     ViewportPtr Viewport::create(SceneCameraPtr camera, RenderTargetPtr target,
         Real left, Real top, Real width, Real height, long_t nZOrder)
     {

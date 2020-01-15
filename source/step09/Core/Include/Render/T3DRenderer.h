@@ -36,7 +36,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Renderer : public Object
     {
-        T3D_CLASS(Renderer, Object);
+        T3D_DECLARE_CLASS();
 
     public:
         static const char * const REFERENCE3D;  /**< The reference 3D */

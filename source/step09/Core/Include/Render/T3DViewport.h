@@ -33,7 +33,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Viewport : public Object
     {
-        T3D_CLASS(Viewport, Object);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

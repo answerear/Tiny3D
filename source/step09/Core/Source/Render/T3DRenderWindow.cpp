@@ -25,6 +25,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASE_1(RenderWindow, RenderTarget);
+
+    //--------------------------------------------------------------------------
+
     RenderWindow::RenderWindow(const String &name)
         : RenderTarget(name)
     {

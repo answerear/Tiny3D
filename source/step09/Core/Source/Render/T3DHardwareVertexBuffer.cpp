@@ -27,6 +27,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASE_1(HardwareVertexBuffer, HardwareBuffer);
+
+    //--------------------------------------------------------------------------
+
     HardwareVertexBuffer::HardwareVertexBuffer(size_t vertexSize,
         size_t vertexCount, Usage usage, uint32_t mode)
         : HardwareBuffer(usage, mode)
