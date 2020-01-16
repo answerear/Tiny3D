@@ -29,7 +29,7 @@ namespace Tiny3D
     class T3D_FRAMEWORK_API EventParam
     {
         T3D_DECLARE_INTERFACE(EventParam);
-        T3D_CLASS(EventParam, NullClass);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

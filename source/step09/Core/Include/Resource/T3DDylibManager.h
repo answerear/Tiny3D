@@ -36,7 +36,7 @@ namespace Tiny3D
         : public Singleton<DylibManager>
         , public ResourceManager
     {
-        T3D_CLASS(DylibManager, ResourceManager);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

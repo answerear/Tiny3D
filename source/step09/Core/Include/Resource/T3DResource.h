@@ -37,7 +37,7 @@ namespace Tiny3D
     {
         friend class ResourceManager;
 
-        T3D_CLASS(Resource, Object);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

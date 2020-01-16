@@ -36,7 +36,7 @@ namespace Tiny3D
     {
         friend class System;
 
-        T3D_CLASS(TimerManager, NullClass);
+        T3D_DECLARE_CLASS();
 
     private:
         /**

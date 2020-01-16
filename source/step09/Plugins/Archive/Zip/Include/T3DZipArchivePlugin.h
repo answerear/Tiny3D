@@ -29,7 +29,7 @@ namespace Tiny3D
 {
     class ZipArchivePlugin : public Plugin
     {
-        T3D_CLASS(ZipArchivePlugin, Plugin);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

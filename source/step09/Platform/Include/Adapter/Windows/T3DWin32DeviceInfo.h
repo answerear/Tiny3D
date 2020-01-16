@@ -29,7 +29,7 @@ namespace Tiny3D
     class Win32DeviceInfo : public IDeviceInfo
     {
         T3D_DISABLE_COPY(Win32DeviceInfo);
-        T3D_CLASS(Win32DeviceInfo, IDeviceInfo);
+        T3D_DECLARE_CLASS();
 
     public:
         Win32DeviceInfo();

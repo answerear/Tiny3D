@@ -37,7 +37,7 @@ namespace Tiny3D
     class IWindow
     {
         T3D_DECLARE_INTERFACE(IWindow);
-        T3D_CLASS(IWindow, NullClass);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

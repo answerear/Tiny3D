@@ -31,7 +31,7 @@ namespace Tiny3D
     class T3D_PLATFORM_API IDeviceInfo
     {
         T3D_DECLARE_INTERFACE(IDeviceInfo);
-        T3D_CLASS(IDeviceInfo, NullClass);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

@@ -33,7 +33,7 @@ namespace Tiny3D
     class T3D_PLATFORM_API DeviceInfo : public Singleton<DeviceInfo>
     {
         T3D_DISABLE_COPY(DeviceInfo);
-        T3D_CLASS(DeviceInfo, NullClass);
+        T3D_DECLARE_CLASS();
 
     public:
         static const uint32_t PLATFORM_UNKNOWN;

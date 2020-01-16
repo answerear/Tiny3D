@@ -33,7 +33,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Dylib : public Resource
     {
-        T3D_CLASS(Dylib, Resource);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

@@ -32,7 +32,7 @@ namespace Tiny3D
     class T3D_PLATFORM_API ITimerListener
     {
         T3D_DECLARE_INTERFACE(ITimerListener);
-        T3D_CLASS(ITimerListener, NullClass);
+        T3D_DECLARE_CLASS();
 
     public:
         virtual void onTimer(ID timerID, int32_t dt) = 0;

@@ -34,7 +34,7 @@ namespace Tiny3D
     class T3D_PLATFORM_API ITimerService
     {
         T3D_DECLARE_INTERFACE(ITimerService);
-        T3D_CLASS(ITimerService, NullClass);
+        T3D_DECLARE_CLASS();
 
     public:
         static const ID INVALID_TIMER_ID;   /**< 无效定时器ID */

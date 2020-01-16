@@ -37,7 +37,7 @@ namespace Tiny3D
     */
     class T3D_PLATFORM_API DateTime
     {
-        T3D_CLASS(DateTime, NullClass);
+        T3D_DECLARE_CLASS();
 
     public:
         enum class TimeFormat : uint32_t

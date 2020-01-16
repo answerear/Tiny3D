@@ -27,6 +27,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_BASE_1(ResourceManager, Object);
+
+    //--------------------------------------------------------------------------
+
     ResourceManager::ResourceManager()
         : mCloneID(T3D_INVALID_ID)
     {

@@ -32,7 +32,7 @@ namespace Tiny3D
         friend class EventHandler;
 
         T3D_DISABLE_COPY(EventManager);
-        T3D_CLASS(EventManager, NullClass);
+        T3D_DECLARE_CLASS();
 
         /** 事件项 */
         struct EventItem

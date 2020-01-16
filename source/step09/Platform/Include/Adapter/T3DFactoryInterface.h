@@ -54,7 +54,7 @@ namespace Tiny3D
     class IFactory
     {
         T3D_DECLARE_INTERFACE(IFactory);
-        T3D_CLASS(IFactory, NullClass);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

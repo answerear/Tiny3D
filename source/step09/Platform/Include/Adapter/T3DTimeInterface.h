@@ -32,7 +32,7 @@ namespace Tiny3D
     class T3D_PLATFORM_API ITime
     {
         T3D_DECLARE_INTERFACE(ITime);
-        T3D_CLASS(ITime, NullClass);
+        T3D_DECLARE_CLASS();
 
     public:
         virtual int64_t currentSecsSinceEpoch() = 0;

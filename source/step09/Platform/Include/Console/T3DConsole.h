@@ -33,7 +33,7 @@ namespace Tiny3D
     class T3D_PLATFORM_API Console : public Singleton<Console>
     {
         T3D_DISABLE_COPY(Console);
-        T3D_CLASS(Console, NullClass);
+        T3D_DECLARE_CLASS();
 
     public:
         static const uint32_t MAX_CONTENT_SIZE;

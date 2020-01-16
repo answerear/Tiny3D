@@ -33,7 +33,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API SceneAxis : public SceneRenderable
     {
-        T3D_CLASS(SceneAxis, SceneRenderable);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

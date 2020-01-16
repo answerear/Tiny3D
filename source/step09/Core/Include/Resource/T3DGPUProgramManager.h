@@ -41,7 +41,7 @@ namespace Tiny3D
         : public Singleton<ShaderManager>
         , public ResourceManager
     {
-        T3D_CLASS(ShaderManager, ResourceManager);
+        T3D_DECLARE_CLASS();
 
     public:
         /**
@@ -130,7 +130,7 @@ namespace Tiny3D
         : public Singleton<GPUProgramManager>
         , public ResourceManager
     {
-        T3D_CLASS(GPUProgramManager, ResourceManager);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

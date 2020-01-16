@@ -35,7 +35,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Sampler : public Resource
     {
-        T3D_CLASS(Sampler, Resource);
+        T3D_DECLARE_CLASS();
 
     public:
         virtual ~Sampler();

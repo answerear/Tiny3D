@@ -26,6 +26,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(SamplerManager);
+    T3D_IMPLEMENT_CLASS_BASE_1(SamplerManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 

@@ -36,7 +36,7 @@ namespace Tiny3D
     class IDir
     {
         T3D_DECLARE_INTERFACE(IDir);
-        T3D_CLASS(IDir, NullClass);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

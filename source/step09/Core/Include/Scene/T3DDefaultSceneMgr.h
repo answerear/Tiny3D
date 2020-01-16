@@ -37,7 +37,7 @@ namespace Tiny3D
         : public SceneManagerBase
         , public Singleton<DefaultSceneMgr>
     {
-        T3D_CLASS(DefaultSceneMgr, SceneManagerBase);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

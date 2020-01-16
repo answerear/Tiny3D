@@ -34,7 +34,8 @@ namespace Tiny3D
 
     class T3D_PLATFORM_API Application : public Singleton<Application>
     {
-        T3D_CLASS(Application, NullClass);
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * Constructor
