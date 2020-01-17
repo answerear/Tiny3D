@@ -18,23 +18,22 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_FIELD_H__
-#define __T3D_FIELD_H__
+#ifndef __T3D_METHOD_H__
+#define __T3D_METHOD_H__
 
 
-#include "Reflection/T3DMember.h"
+#include "T3DPlatformPrerequisites.h"
+#include "T3DType.h"
+#include "T3DMacro.h"
 
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API Field : public MemberBase
+    class T3D_PLATFORM_API Method
     {
-        T3D_DISABLE_COPY(Field);
-
-    public:
-
+        T3D_DISABLE_COPY(Method);
     };
 }
 
 
-#endif  /*__T3D_FIELD_H__*/
+#endif  /*__T3D_METHOD_H__*/

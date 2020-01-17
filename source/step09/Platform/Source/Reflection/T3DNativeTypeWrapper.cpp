@@ -18,23 +18,23 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_FIELD_H__
-#define __T3D_FIELD_H__
-
-
-#include "Reflection/T3DMember.h"
+#include "Reflection/T3DNativeTypeWrapper.h"
 
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API Field : public MemberBase
-    {
-        T3D_DISABLE_COPY(Field);
+    //--------------------------------------------------------------------------
 
-    public:
-
-    };
+    T3D_IMPLEMENT_CLASS_NO_BASE(Int8);
+    T3D_IMPLEMENT_CLASS_NO_BASE(UInt8);
+    T3D_IMPLEMENT_CLASS_NO_BASE(Int16);
+    T3D_IMPLEMENT_CLASS_NO_BASE(UInt16);
+    T3D_IMPLEMENT_CLASS_NO_BASE(Int32);
+    T3D_IMPLEMENT_CLASS_NO_BASE(UInt32);
+    T3D_IMPLEMENT_CLASS_NO_BASE(Int64);
+    T3D_IMPLEMENT_CLASS_NO_BASE(UInt64);
+    T3D_IMPLEMENT_CLASS_NO_BASE(Float32);
+    T3D_IMPLEMENT_CLASS_NO_BASE(Float64);
+    T3D_IMPLEMENT_CLASS_NO_BASE(Boolean);
 }
 
-
-#endif  /*__T3D_FIELD_H__*/

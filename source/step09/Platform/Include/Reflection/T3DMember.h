@@ -18,23 +18,43 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_FIELD_H__
-#define __T3D_FIELD_H__
+#ifndef __T3D_MEMBER_H__
+#define __T3D_MEMBER_H__
 
 
-#include "Reflection/T3DMember.h"
+#include "T3DPlatformPrerequisites.h"
+#include "T3DType.h"
+#include "T3DMacro.h"
+#include "Reflection/T3DClass.h"
 
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API Field : public MemberBase
+    class Class;
+
+    class T3D_PLATFORM_API MemberBase
     {
-        T3D_DISABLE_COPY(Field);
+        T3D_DISABLE_COPY(Member);
 
     public:
+        const Class &getClass() const { return *mClass; }
 
+        const AccessType getAccess() const { return mAccess; }
+
+        const char *getType() const { return mType.c_str(); }
+
+        const char *getName() const { return mName.c_str(); }
+
+    protected:
+        MemberBase(const Class *cls, AccessType access, const char *type, const char *name);
+
+    private:
+        const Class *mClass;    /**< 所属的类 */
+        AccessType mAccess;     /**< 访问权限 */
+        std::string mType;      /**< 成员类型 */
+        std::string mName;      /**< 成员名称 */
     };
 }
 
 
-#endif  /*__T3D_FIELD_H__*/
+#endif  /*__T3D_MEMBER_H__*/
