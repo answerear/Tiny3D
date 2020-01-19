@@ -30,17 +30,55 @@
 
 namespace Tiny3D
 {
-    #define T3D_DECLARE_CLASS()
+    #define T3D_DECLARE_CLASS() \
+        public: \
+            static const Class *getStaticClass() { return &msClass; } \
+            virtual const Class *getClass() const { return &msClass; } \
+        private: \
+            static const Class msClass;
 
-    #define T3D_IMPLEMENT_CLASS_NO_BASE(cls)
-    #define T3D_IMPLEMENT_CLASS_BASE_1(cls, base)
-    #define T3D_IMPLEMENT_CLASS_BASE_2(cls, base1, base2)
-    #define T3D_IMPLEMENT_CLASS_BASE_3(cls, base1, base2, base3)
-    #define T3D_IMPLEMENT_CLASS_BASE_4(cls, base1, base2, base3, base4)
-    #define T3D_IMPLEMENT_CLASS_BASE_5(cls, base1, base2, base3, base4, base5)
-    #define T3D_IMPLEMENT_CLASS_BASE_6(cls, base1, base2, base3, base4, base5, base6)
-    #define T3D_IMPLEMENT_CLASS_BASE_7(cls, base1, base2, base3, base4, base5, base6, base7)
-    #define T3D_IMPLEMENT_CLASS_BASE_8(cls, base1, base2, base3, base4, base5, base6, base7, base8)
+    #define T3D_IMPLEMENT_CLASS_NO_BASE(cls) \
+        const Class cls::msClass(#cls, sizeof(cls));
+
+    #define T3D_IMPLEMENT_CLASS_BASE_1(cls, base) \
+        const Class cls::msClass(#cls, sizeof(cls), base::getStaticClass());
+
+    #define T3D_IMPLEMENT_CLASS_BASE_2(cls, base1, base2) \
+        const Class cls::msClass(#cls, sizeof(cls), base1::getStaticClass(), \
+            base2::getStaticClass());
+
+    #define T3D_IMPLEMENT_CLASS_BASE_3(cls, base1, base2, base3) \
+        const Class cls::msClass(#cls, sizeof(cls), base1::getStaticClass(), \
+            base2::getStaticClass(), base3::getStaticClass());
+
+    #define T3D_IMPLEMENT_CLASS_BASE_4(cls, base1, base2, base3, base4) \
+        const Class cls::msClass(#cls, sizeof(cls), base1::getStaticClass(), \
+            base2::getStaticClass(), base3::getStaticClass(), \
+            base4::getStaticClass());
+
+    #define T3D_IMPLEMENT_CLASS_BASE_5(cls, base1, base2, base3, base4, base5) \
+        const Class cls::msClass(#cls, sizeof(cls), base1::getStaticClass(), \
+            base2::getStaticClass(), base3::getStaticClass(), \
+            base4::getStaticClass(), base5::getStaticClass());
+
+    #define T3D_IMPLEMENT_CLASS_BASE_6(cls, base1, base2, base3, base4, base5, base6) \
+        const Class cls::msClass(#cls, sizeof(cls), base1::getStaticClass(), \
+            base2::getStaticClass(), base3::getStaticClass(), \
+            base4::getStaticClass(), base5::getStaticClass(), \
+            base6::getStaticClass());
+
+    #define T3D_IMPLEMENT_CLASS_BASE_7(cls, base1, base2, base3, base4, base5, base6, base7) \
+        const Class cls::msClass(#cls, sizeof(cls), base1::getStaticClass(), \
+            base2::getStaticClass(), base3::getStaticClass(), \
+            base4::getStaticClass(), base5::getStaticClass(), \
+            base6::getStaticClass(), base7::getStaticClass());
+
+    #define T3D_IMPLEMENT_CLASS_BASE_8(cls, base1, base2, base3, base4, base5, base6, base7, base8) \
+        const Class cls::msClass(#cls, sizeof(cls), base1::getStaticClass(), \
+            base2::getStaticClass(), base3::getStaticClass(), \
+            base4::getStaticClass(), base5::getStaticClass(), \
+            base6::getStaticClass(), base7::getStaticClass(), \
+            base8::getStaticClass());
 
     #define T3D_PROPERTY()
 

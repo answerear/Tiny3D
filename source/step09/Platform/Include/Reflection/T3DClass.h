@@ -26,7 +26,6 @@
 #include "T3DType.h"
 #include "T3DMacro.h"
 
-
 namespace Tiny3D
 {
     class __callable__;
@@ -65,108 +64,6 @@ namespace Tiny3D
         static const Class *getClass(const std::string &name);
 
         /**
-         * @fn  Class::Class(const char *name, size_t s, const Class *base);
-         * @brief   Constructor
-         * @param   name    The name.
-         * @param   s       A size_t to process.
-         * @param   base    The base.
-         */
-        Class(const char *name, size_t s, const Class *base);
-
-        /**
-         * @fn  Class::Class(const char *name, size_t s, const Class *base0, 
-         *      const Class *base1);
-         * @brief   Constructor
-         * @param   name    The name.
-         * @param   s       A size_t to process.
-         * @param   base0   The base 0.
-         * @param   base1   The first base.
-         */
-        Class(const char *name, size_t s, const Class *base0, 
-            const Class *base1);
-
-        /**
-         * @fn  Class::Class(const char *name, size_t s, const Class *base0, 
-         *      const Class *base1, const Class *base2);
-         * @brief   Constructor
-         * @param   name    The name.
-         * @param   s       A size_t to process.
-         * @param   base0   The base 0.
-         * @param   base1   The first base.
-         * @param   base2   The second base.
-         */
-        Class(const char *name, size_t s, const Class *base0, 
-            const Class *base1, const Class *base2);
-
-        /**
-         * @fn  Class::Class(const char *name, size_t s, const Class *base0, 
-         *      const Class *base1, const Class *base2, const Class *base3);
-         * @brief   Constructor
-         * @param   name    The name.
-         * @param   s       A size_t to process.
-         * @param   base0   The base 0.
-         * @param   base1   The first base.
-         * @param   base2   The second base.
-         * @param   base3   The third base.
-         */
-        Class(const char *name, size_t s, const Class *base0, 
-            const Class *base1, const Class *base2, const Class *base3);
-
-        /**
-         * @fn  Class::Class(const char *name, size_t s, const Class *base0, 
-         *      const Class *base1, const Class *base2, const Class *base3, 
-         *      const Class *base4);
-         * @brief   Constructor
-         * @param   name    The name.
-         * @param   s       A size_t to process.
-         * @param   base0   The base 0.
-         * @param   base1   The first base.
-         * @param   base2   The second base.
-         * @param   base3   The third base.
-         * @param   base4   The fourth base.
-         */
-        Class(const char *name, size_t s, const Class *base0, 
-            const Class *base1, const Class *base2, const Class *base3,
-            const Class *base4);
-
-        /**
-         * @fn  Class::Class(const char *name, size_t s, const Class *base0, 
-         *      const Class *base1, const Class *base2, const Class *base3, 
-         *      const Class *base4, const Class *base5);
-         * @brief   Constructor
-         * @param   name    The name.
-         * @param   s       A size_t to process.
-         * @param   base0   The base 0.
-         * @param   base1   The first base.
-         * @param   base2   The second base.
-         * @param   base3   The third base.
-         * @param   base4   The fourth base.
-         * @param   base5   The fifth base.
-         */
-        Class(const char *name, size_t s, const Class *base0, 
-            const Class *base1, const Class *base2, const Class *base3,
-            const Class *base4, const Class *base5);
-
-        /**
-         * @fn  Class::Class(const char *name, size_t s, const Class *base0, 
-         *      const Class *base1, const Class *base2, const Class *base3, 
-         *      const Class *base4, const Class *base5, const Class *base6);
-         * @brief   Constructor
-         * @param   name    The name.
-         * @param   s       A size_t to process.
-         * @param   base0   The base 0.
-         * @param   base1   The first base.
-         * @param   base2   The second base.
-         * @param   base3   The third base.
-         * @param   base4   The fourth base.
-         * @param   base5   The fifth base.
-         * @param   base6   The base 6.
-         */
-        Class(const char *name, size_t s, const Class *base0, 
-            const Class *base1, const Class *base2, const Class *base3,
-            const Class *base4, const Class *base5, const Class *base6);
-
-        /**
          * @fn  Class::Class(const char *name, size_t s, const Class *base0, 
          *      const Class *base1, const Class *base2, const Class *base3, 
          *      const Class *base4, const Class *base5, const Class *base6, 
@@ -183,10 +80,11 @@ namespace Tiny3D
          * @param   base6   The base 6.
          * @param   base7   The base 7.
          */
-        Class(const char *name, size_t s, const Class *base0, 
-            const Class *base1, const Class *base2, const Class *base3, 
-            const Class *base4, const Class *base5, const Class *base6, 
-            const Class *base7);
+        Class(const char *name, size_t s, const Class *base0 = nullptr, 
+            const Class *base1 = nullptr, const Class *base2 = nullptr, 
+            const Class *base3 = nullptr, const Class *base4 = nullptr, 
+            const Class *base5 = nullptr, const Class *base6 = nullptr,
+            const Class *base7 = nullptr);
 
         /**
          * @fn  size_t Class::getBaseClassCount() const;

@@ -19,3 +19,9 @@
 
 
 #include "Reflection/T3DClass.h"
+
+
+namespace Tiny3D
+{
+
+}

@@ -18,22 +18,17 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_METHOD_H__
-#define __T3D_METHOD_H__
-
-
-#include "T3DPlatformPrerequisites.h"
-#include "T3DType.h"
-#include "T3DMacro.h"
+#include "Reflection/T3DMember.h"
 
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API Method
+    MemberBase::MemberBase(const Class *owner, AccessType access, const char *type, const char *name)
+        : mOwner(owner)
+        , mAccess(access)
+        , mType(type)
+        , mName(name)
     {
-        T3D_DISABLE_COPY(Method);
-    };
+
+    }
 }
-
-
-#endif  /*__T3D_METHOD_H__*/

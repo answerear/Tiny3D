@@ -22,16 +22,46 @@
 #define __T3D_METHOD_H__
 
 
-#include "T3DPlatformPrerequisites.h"
-#include "T3DType.h"
-#include "T3DMacro.h"
+#include "Reflection/T3DMember.h"
 
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API Method
+    class T3D_PLATFORM_API __callable__
     {
-        T3D_DISABLE_COPY(Method);
+    public:
+        typedef std::vector<const Class *> arg_list_type;
+        virtual ~__callable__() {}
+
+        virtual int get_args_count() const = 0;
+        virtual const arg_list_type &get_args() const = 0;
+        virtual const Class *get_ret_type() const = 0;
+    };
+
+    class T3D_PLATFORM_API MethodBase : public MemberBase
+    {
+        T3D_DISABLE_COPY(MethodBase);
+
+        friend class Class;
+
+    public:
+        virtual ~MethodBase();
+
+        const char *getID() const;
+
+        const char *getSignature() const;
+
+        const char *getArgs() const;
+
+        int getArgsCount() const;
+
+        const Class *getRuturnClass() const;
+
+    private:
+        const char  *mID;
+        const char  *mArgs;
+        const char  *mLongID;
+        bool        mOwnCB;
     };
 }
 

@@ -32,25 +32,59 @@ namespace Tiny3D
 {
     class Class;
 
+    /**
+     * @class   MemberBase
+     * @brief   A 3D platform api.
+     */
     class T3D_PLATFORM_API MemberBase
     {
-        T3D_DISABLE_COPY(Member);
+        T3D_DISABLE_COPY(MemberBase);
 
     public:
-        const Class &getClass() const { return *mClass; }
+        /**
+         * @fn  const Class MemberBase::&getClass() const
+         * @brief   Gets the class
+         * @return  The class.
+         */
+        const Class &getOwner() const { return *mOwner; }
 
-        const AccessType getAccess() const { return mAccess; }
+        /**
+         * @fn  const AccessType MemberBase::getAccess() const
+         * @brief   Gets the access
+         * @return  The access.
+         */
+        AccessType getAccess() const { return mAccess; }
 
+        /**
+         * @fn  const char MemberBase::*getType() const
+         * @brief   Gets the type
+         * @return  Null if it fails, else the type.
+         */
         const char *getType() const { return mType.c_str(); }
 
+        /**
+         * @fn  const char MemberBase::*getName() const
+         * @brief   Gets the name
+         * @return  Null if it fails, else the name.
+         */
         const char *getName() const { return mName.c_str(); }
 
     protected:
-        MemberBase(const Class *cls, AccessType access, const char *type, const char *name);
+        /**
+         * @fn  MemberBase::MemberBase(const Class *owner, AccessType access, 
+         *      const char *type, const char *name);
+         * @brief   Constructor
+         * @param   owner   The owner.
+         * @param   access  The access.
+         * @param   type    The type.
+         * @param   name    The name.
+         */
+        MemberBase(const Class *owner, AccessType access, const char *type, 
+            const char *name);
 
     private:
-        const Class *mClass;    /**< 所属的类 */
-        AccessType mAccess;     /**< 访问权限 */
+        const Class *mOwner;    /**< 成员所属的类 */
+        AccessType  mAccess;    /**< 访问权限 */
         std::string mType;      /**< 成员类型 */
         std::string mName;      /**< 成员名称 */
     };

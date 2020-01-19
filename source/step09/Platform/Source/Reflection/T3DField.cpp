@@ -19,3 +19,29 @@
 
 
 #include "Reflection/T3DField.h"
+
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    Field::Field(uint32_t offset, const Class *cls, const Class *owner, 
+        AccessType access, const char *type, const char *name)
+        : MemberBase(owner, access, type, name)
+        , mClass(cls)
+        , mOffset(offset)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    StaticField::StaticField(void *address, const Class *cls, const Class *owner,
+        AccessType access, const char *type, const char *name)
+        : MemberBase(owner, access, type, name)
+        , mClass(cls)
+        , mAddress(address)
+    {
+
+    }
+}
