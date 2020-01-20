@@ -100,15 +100,7 @@ namespace Tiny3D
     #define __PARAM_PTR__(N)     & __PARAM__(N)
     #define __NOT_VIRTUAL__
 
-
-
-    //calculates the offset of a field
-    #define __OFFSET__(C, M) \
-        ((unsigned long)(&((const C *)1024)->M)-1024)
-
-
     class Class;
-
 
     class T3D_PLATFORM_API __callable__
     {
@@ -121,14 +113,19 @@ namespace Tiny3D
         virtual const Class *get_ret_type() const = 0;
     };
 
+    //calculates the offset of a field
+    #define __OFFSET__(C, M) \
+        ((unsigned long)(&((const C *)1024)->M)-1024)
+
     // parameter for generating 
     #define __TYPE_INFO_ARG__(N)  this->args_list.push_back((__TYPE_ARG__(N))::getStaticClass())
 
     //callable that implements the argument capturing and reporting
     #define __CALLABLE__ARGS(N) \
         template <int args_size __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
-        struct __callable_args##N##__ : public __callable__ \
+        class __callable_args##N##__ : public __callable__ \
         { \
+        public: \
             const Class *ret_type; \
 	        arg_list_type args_list; \
             __callable_args##N##__(const Class *ret_id) : ret_type(ret_id), args_list() \
@@ -143,9 +140,10 @@ namespace Tiny3D
 
     //callable class macro with return type
     #define __CALLABLE__(N) \
-        template <class R, class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
-        struct __callable##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        template <typename R, typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        class __callable##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
         { \
+        public: \
             typedef R (C::*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)); \
             MethodType method; \
             __callable##N##__(MethodType m) \
@@ -161,9 +159,10 @@ namespace Tiny3D
 
     //callable class macro with return type and const type
     #define __CALLABLE_CONST__(N) \
-        template <class R, class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
-        struct __callable_const##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        template <typename R, typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        class __callable_const##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
         { \
+        public: \
             typedef R (C::*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const; \
             MethodType method; \
             __callable_const##N##__(MethodType m) \
@@ -179,9 +178,10 @@ namespace Tiny3D
 
     //callable class macro with void return type
     #define __CALLABLE_VOID__(N) \
-        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
-        struct __callable_void##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        template <typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        class __callable_void##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
         { \
+        public: \
             typedef void (C::*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)); \
             MethodType method; \
             __callable_void##N##__(MethodType m) \
@@ -197,9 +197,10 @@ namespace Tiny3D
 
     //callable class macro with void return type and const type
     #define __CALLABLE_CONST_VOID__(N) \
-        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
-        struct __callable_const_void##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        template <typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        class __callable_const_void##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
         { \
+        public: \
             typedef void (C::*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const; \
             MethodType method; \
             __callable_const_void##N##__(MethodType m) \
@@ -215,9 +216,10 @@ namespace Tiny3D
 
     //static callable class macro with return type
     #define __STATIC_CALLABLE__(N) \
-        template <class R __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
-        struct __static_callable##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        template <typename R __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        class __static_callable##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
         { \
+        public: \
             typedef R (*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)); \
             MethodType method; \
             __static_callable##N##__(MethodType m) \
@@ -233,9 +235,11 @@ namespace Tiny3D
     //void version
     #define __STATIC_CALLABLE_VOID__(N) \
         __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __TEMPLATE_DECLARE_BEGIN__, __TEMPLATE_END__) \
-        struct __static_callable_void##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > {\
-            typedef void (*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__));\
-            MethodType method;\
+        class __static_callable_void##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        { \
+        public: \
+            typedef void (*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)); \
+            MethodType method; \
             __static_callable_void##N##__(MethodType m) \
                 : __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) >(nullptr) \
                 , method(m) \
@@ -414,7 +418,7 @@ namespace Tiny3D
 
     //macro of a inline method that accepts a method pointer and creates a callable for it
     #define __CREATE_CALLABLE__(N) \
-        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        template <typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         static inline __callable##N##__<R, C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         *create(R (C::*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__))) \
         { \
@@ -424,7 +428,7 @@ namespace Tiny3D
 
     //macro of a inline method that accepts a method pointer and creates a const callable for it
     #define __CREATE_CALLABLE_CONST__(N) \
-        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        template <typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         static inline __callable_const##N##__<R, C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         *create(R (C::*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const) \
         { \
@@ -434,7 +438,7 @@ namespace Tiny3D
 
     //void version
     #define __CREATE_CALLABLE_VOID__(N) \
-        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        template <typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         static inline __callable_void##N##__<C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         *create(void (C::*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__))) \
         { \
@@ -444,7 +448,7 @@ namespace Tiny3D
 
     //const void version
     #define __CREATE_CALLABLE_CONST_VOID__(N) \
-        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        template <typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         static inline __callable_const_void##N##__<C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         *create(void (C::*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const) \
         { \
@@ -454,7 +458,7 @@ namespace Tiny3D
 
     //macro to create a static callable
     #define __CREATE_STATIC_CALLABLE__(N) \
-        template <class R1 __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        template <typename R1 __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         static inline __static_callable##N##__<R1 __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         *create(R1 (*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__))) \
         { \
@@ -473,8 +477,8 @@ namespace Tiny3D
 
 
     //factory method for non-voids
-    template <class R> 
-    struct __callable_factory__ 
+    template <typename R> 
+    class __callable_factory__ 
     {
         __CREATE_CALLABLE__(0)
         __CREATE_CALLABLE__(1)
@@ -571,7 +575,7 @@ namespace Tiny3D
 
 
     //factory method for static non-voids
-    template <class R> 
+    template <typename R>
     struct __static_callable_factory__ 
     {
         __CREATE_STATIC_CALLABLE__(0)
@@ -628,7 +632,7 @@ namespace Tiny3D
 
     //callable generator
     #define __CALLABLE_GENERATOR__(N) \
-        template <class R, class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        template <typename R, typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         inline __callable__ *__create_callable__(R (C::*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__))) \
         { \
             return __callable_factory__<R>::create(method); \
@@ -637,7 +641,7 @@ namespace Tiny3D
 
     //const callable generator
     #define __CALLABLE_GENERATOR_CONST__(N) \
-        template <class R, class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        template <typename R, typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         inline __callable__ *__create_callable__(R (C::*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const) \
         { \
             return __callable_factory__<R>::create(method); \
@@ -646,7 +650,7 @@ namespace Tiny3D
 
     //static callable generator
     #define __STATIC_CALLABLE_GENERATOR__(N) \
-        template <class R __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        template <typename R __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         inline __callable__ *__create_static_callable__(R (*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__))) \
         { \
             return __static_callable_factory__<R>::create(method); \
@@ -721,23 +725,112 @@ namespace Tiny3D
 
     //static new instance generator
     #define __NEWINSTANCE_CALLER__(CNAME, N) \
-        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        template <typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
         static C *__new_instance__(__REPEAT(N, __ARG__, __COMMA__, __NOTHING__, __NOTHING__)) \
         { \
             return new CNAME (__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
         }
 
     #define __NEWINSTANCE_PTR_CALLER__(CNAME, N) \
-        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        template <typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         static C *__new_instance_ptr__(void* ptr __REPEAT(N, __ARG__, __COMMA__, __COMMA__, __NOTHING__)) \
         { \
             return new (ptr) CNAME (__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
         } \
-        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        template <typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         static C * (*__create_new_instance_ptr__(C* (*) (__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)))) \
         (void * __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)) \
         { \
             return  & __new_instance_ptr__<C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)>; \
+        }
+
+    //macro that defines an 'invoke' method with a return type
+    #define __INVOKE__(N) \
+        template <typename R, typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        void invoke(R &result, C *object __REPEAT(N, __ARG__, __COMMA__, __COMMA__, __NOTHING__)) const \
+        { \
+            if (getAccess() != AccessType::PUBLIC) return; \
+            typedef const __callable##N##__<R, C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> CallableType1; \
+            typedef const __callable_const##N##__<R, C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> CallableType2; \
+            CallableType1 *cb1 = dynamic_cast<CallableType1 *>(m_callable);\
+            if (cb1 != nullptr) \
+            { \
+                result = cb1->invoke(object __REPEAT(N, __PARAM__, __COMMA__, __COMMA__, __NOTHING__)); \
+                return; \
+            } \
+            CallableType2 *cb2 = dynamic_cast<CallableType2 *>(m_callable); \
+            if (cb2 != nullptr) \
+            { \
+                result = cb2->invoke(object __REPEAT(N, __PARAM__, __COMMA__, __COMMA__, __NOTHING__)); \
+                return; \
+            } \
+        }
+
+
+    //macro that defines an 'invoke' method without a return type
+    #define __INVOKE_VOID__(N) \
+        template <typename C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        void invokeVoid(C *object __REPEAT(N, __ARG__, __COMMA__, __COMMA__, __NOTHING__)) const \
+        { \
+            if (getAccess() != AccessType::PUBLIC) return; \
+            typedef const __callable_void##N##__<C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> CallableType1; \
+            typedef const __callable_const_void##N##__<C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> CallableType2; \
+            CallableType1 *cb1 = dynamic_cast<CallableType1 *>(m_callable);\
+            if (cb1 != nullptr) \
+            { \
+                cb1->invoke(object __REPEAT(N, __PARAM__, __COMMA__, __COMMA__, __NOTHING__)); \
+                return; \
+            } \
+            CallableType2 *cb2 = dynamic_cast<CallableType2 *>(m_callable); \
+            if (cb2 != nullptr) \
+            { \
+                cb2->invoke(object __REPEAT(N, __PARAM__, __COMMA__, __COMMA__, __NOTHING__)); \
+                return; \
+            } \
+        }
+
+
+
+    //static invoke non-void method
+    #define __STATIC_INVOKE__(N, METHOD_NAME, CALLABLE) \
+        template <typename R __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        void METHOD_NAME(R &result __REPEAT(N, __ARG__, __COMMA__, __COMMA__, __NOTHING__)) const \
+        { \
+            if (getAccess() != AccessType::PUBLIC) return; \
+            typedef const __static_callable##N##__<R __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> CallableType; \
+            CallableType *cb = dynamic_cast<CallableType *>(CALLABLE); \
+            if (cb != nullptr) \
+            { \
+                result = cb->invoke(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
+                return; \
+            } \
+        }
+
+    //static invoke non-void method
+    #define __CONSTRUCTOR_PLACEMENT_INVOKE__(N) \
+        template <typename R __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        void invokePlacement(R &result, void* ptr __REPEAT(N, __ARG__, __COMMA__, __COMMA__, __NOTHING__)) const \
+        { \
+            if (m_placement_callable == 0) return; \
+            this->_invoke_placement(result, ptr __REPEAT(N, __PARAM__, __COMMA__, __COMMA__, __NOTHING__)); \
+        }
+
+    //static invoke void method with 0 params
+    #define __STATIC_INVOKE_VOID__0 __STATIC_INVOKE_VOID__(0)
+
+    //static invoke void method
+    #define __STATIC_INVOKE_VOID__(N)\
+        __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __TEMPLATE_DECLARE_BEGIN__, __TEMPLATE_END__) \
+        void invokeVoid(__REPEAT(N, __ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const \
+        { \
+            if (getAccess() != AccessType::PUBLIC) return; \
+            typedef const __static_callable_void##N##__ __REPEAT(N, __TYPE_ARG__, __COMMA__, __TEMPLATE_BEGIN__, __TEMPLATE_END__) CallableType; \
+            CallableType *cb = dynamic_cast<CallableType *>(m_callable); \
+            if (cb != nullptr) \
+            { \
+                cb->invoke(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
+                return; \
+            } \
         }
 
 }
