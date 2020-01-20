@@ -27,17 +27,10 @@
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API __callable__
-    {
-    public:
-        typedef std::vector<const Class *> arg_list_type;
-        virtual ~__callable__() {}
-
-        virtual int get_args_count() const = 0;
-        virtual const arg_list_type &get_args() const = 0;
-        virtual const Class *get_ret_type() const = 0;
-    };
-
+    /**
+     * @class   MethodBase
+     * @brief   A 3D platform api.
+     */
     class T3D_PLATFORM_API MethodBase : public MemberBase
     {
         T3D_DISABLE_COPY(MethodBase);
@@ -45,23 +38,128 @@ namespace Tiny3D
         friend class Class;
 
     public:
+        /**
+         * @fn  virtual MethodBase::~MethodBase();
+         * @brief   Destructor
+         */
         virtual ~MethodBase();
 
-        const char *getID() const;
+        /**
+         * @fn  const char MethodBase::*getID() const
+         * @brief   Gets the identifier
+         * @return  Null if it fails, else the identifier.
+         */
+        const char *getID() const { return mID.c_str(); }
 
-        const char *getSignature() const;
+        /**
+         * @fn  const char MethodBase::*getSignature() const
+         * @brief   Gets the signature
+         * @return  Null if it fails, else the signature.
+         */
+        const char *getSignature() const { return mSignature.c_str(); }
 
-        const char *getArgs() const;
+        /**
+         * @fn  const char MethodBase::*getArgs() const
+         * @brief   Gets the arguments
+         * @return  Null if it fails, else the arguments.
+         */
+        const char *getArgs() const { return mArgs.c_str(); }
 
+        /**
+         * @fn  int MethodBase::getArgsCount() const;
+         * @brief   Gets arguments count
+         * @return  The arguments count.
+         */
         int getArgsCount() const;
 
+        /**
+         * @fn  const Class MethodBase::*getRuturnClass() const;
+         * @brief   Gets ruturn class
+         * @return  Null if it fails, else the ruturn class.
+         */
         const Class *getRuturnClass() const;
 
+    protected:
+        /**
+         * @fn  MethodBase::MethodBase(const Class *owner, AccessType access, 
+         *      const char *type, const char *name, const char *args);
+         * @brief   Constructor
+         * @param   owner   The owner.
+         * @param   access  The access.
+         * @param   type    The type.
+         * @param   name    The name.
+         * @param   args    The arguments.
+         */
+        MethodBase(const Class *owner, AccessType access, const char *type, 
+            const char *name, const char *args);
+
+        /**
+         * @fn  virtual std::string 
+         *      MethodBase::getPrefix(const Class *retType) const;
+         * @brief   Gets a prefix
+         * @param   retType Type of the ret.
+         * @return  The prefix.
+         */
+        virtual std::string getPrefix(const Class *retType) const;
+
     private:
-        const char  *mID;
-        const char  *mArgs;
-        const char  *mLongID;
-        bool        mOwnCB;
+        /**
+         * @fn  void MethodBase::set_callable(__callable__ *cb);
+         * @brief   Sets a callable
+         * @param [in,out]  cb  If non-null, the cb.
+         */
+        void set_callable(__callable__ *cb);
+
+    protected:
+        __callable__ *mCallable;    /**< The callable */
+
+    private:
+        std::string mID;        /**< The identifier */
+        std::string mArgs;      /**< The arguments */
+        std::string mSignature; /**< The signature */
+        bool        mOwnCB;     /**< True to own cb */
+    };
+
+
+    /**
+     * @class   Method
+     * @brief   A 3D platform api.
+     */
+    class T3D_PLATFORM_API Method : public MethodBase
+    {
+        friend class Class;
+        friend struct __register_method__;
+
+    public:
+        /**
+         * @fn  virtual Method::~Method();
+         * @brief   Destructor
+         */
+        virtual ~Method();
+
+        /**
+         * @fn  bool Method::isVirtual() const;
+         * @brief   Query if this object is virtual
+         * @return  True if virtual, false if not.
+         */
+        bool isVirtual() const;
+
+    private:
+        /**
+         * @fn  Method::Method(const Class *cls, AccessType access, 
+         *      const char *type, const char *name, const char *args, bool virt);
+         * @brief   Constructor
+         * @param   cls     The cls.
+         * @param   access  The access.
+         * @param   type    The type.
+         * @param   name    The name.
+         * @param   args    The arguments.
+         * @param   virt    True to virt.
+         */
+        Method(const Class *cls, AccessType access, const char *type, 
+            const char *name, const char *args, bool virt);
+
+        bool mIsVirtual;    /**< True if is virtual, false if not */
     };
 }
 

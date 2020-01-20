@@ -86,6 +86,8 @@ namespace Tiny3D
             const Class *base5 = nullptr, const Class *base6 = nullptr,
             const Class *base7 = nullptr);
 
+        const char *getName() const;
+
         /**
          * @fn  size_t Class::getBaseClassCount() const;
          * @brief   Gets base class count

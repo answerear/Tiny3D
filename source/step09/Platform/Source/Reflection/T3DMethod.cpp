@@ -19,3 +19,88 @@
 
 
 #include "Reflection/T3DMethod.h"
+#include "Reflection/T3DReflectionMacro.h"
+#include "Reflection/T3DClass.h"
+
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    MethodBase::MethodBase(const Class *owner, AccessType access, const char *type, const char *name, const char *args)
+        : MemberBase(owner, access, type, name)
+        , mCallable(nullptr)
+        , mID(name)
+        , mArgs(args)
+        , mSignature(name)
+        , mOwnCB(false)
+    {
+        mID += args;
+    }
+
+    //--------------------------------------------------------------------------
+
+    int MethodBase::getArgsCount() const 
+    {
+        return mCallable->get_args_count();
+    }
+
+    //--------------------------------------------------------------------------
+
+    const Class *MethodBase::getRuturnClass() const
+    {
+        return mCallable->get_ret_type();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void MethodBase::set_callable(__callable__ *cb)
+    {
+        typedef __callable__::arg_list_type arglist;
+
+        if (mOwnCB)
+            delete mCallable;
+
+        mCallable = cb;
+
+        if (cb != nullptr)
+        {
+            mID = getName();
+            mSignature = getPrefix(cb->get_ret_type());
+            mSignature += '(';
+
+            if (cb->get_args_count() == 0)
+            {
+                mID += "__";
+                mID += "void";
+            }
+            else
+            {
+                const arglist &list = cb->get_args();
+                auto i = list.begin();
+                bool notfirst = false;
+                while (i != list.end())
+                {
+                    const Class *cls = *i++;
+                    mID += "__";
+                    mID += cls->getName();
+                    if (notfirst)
+                        mSignature += ", ";
+                    mSignature += cls->getName();
+                    notfirst = true;
+                }
+            }
+
+            mSignature += ')';
+        }
+
+        mOwnCB = true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    std::string MethodBase::getPrefix(const Class *retType) const
+    {
+        return std::string(retType->getName()) + ' ' + getOwner().getName() + "::" + getName();
+    }
+}

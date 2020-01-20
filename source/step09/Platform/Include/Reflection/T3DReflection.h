@@ -26,6 +26,7 @@
 #include "Reflection/T3DField.h"
 #include "Reflection/T3DProperty.h"
 #include "Reflection/T3DMethod.h"
+#include "Reflection/T3DReflectionMacro.h"
 
 
 namespace Tiny3D

@@ -29,111 +29,716 @@
 
 namespace Tiny3D
 {
-    #define REF_JOIN(X, Y)  X##Y
+    //joins
+    #define REF_JOIN( X, Y ) REF_DO_JOIN( X, Y )
+    #define REF_DO_JOIN( X, Y ) REF_DO_JOIN2(X,Y)
+    #define REF_DO_JOIN2( X, Y ) X##Y
+
+    #define __IF0(E)
+    #define __IF1(E)      _##E
+    #define __IF2(E)      _##E
+    #define __IF3(E)      _##E
+    #define __IF4(E)      _##E
+    #define __IF5(E)      _##E
+    #define __IF6(E)      _##E
+    #define __IF7(E)      _##E
+    #define __IF8(E)      _##E
+    #define __IF9(E)      _##E
+    #define __IF10(E)      _##E
+    #define __IF11(E)      _##E
+    #define __IF12(E)      _##E
+    #define __IF13(E)      _##E
+    #define __IF14(E)      _##E
+    #define __IF15(E)      _##E
+    #define __IF16(E)      _##E
+    #define __IF17(E)      _##E
+    #define __IF18(E)      _##E
+    #define __IF19(E)      _##E
+    #define __IF20(E)      _##E
+    #define __IF(N,E)      __IF##N(E)
+
+
 
     //repeaters
     #define __REPEAT0(M, C, S)         
-    #define __REPEAT1(M, C, S)         S M(1)
-    #define __REPEAT2(M, C, S)         __REPEAT1(M, C, S)  C M(2)
-    #define __REPEAT3(M, C, S)         __REPEAT2(M, C, S)  C M(3)
-    #define __REPEAT4(M, C, S)         __REPEAT3(M, C, S)  C M(4)
-    #define __REPEAT5(M, C, S)         __REPEAT4(M, C, S)  C M(5)
-    #define __REPEAT6(M, C, S)         __REPEAT5(M, C, S)  C M(6)
-    #define __REPEAT7(M, C, S)         __REPEAT6(M, C, S)  C M(7)
-    #define __REPEAT8(M, C, S)         __REPEAT7(M, C, S)  C M(8)
-    #define __REPEAT9(M, C, S)         __REPEAT8(M, C, S)  C M(9)
-    #define __REPEAT10(M, C, S)        __REPEAT9(M, C, S)  C M(10)
-    #define __REPEAT11(M, C, S)        __REPEAT10(M, C, S) C M(11)
-    #define __REPEAT12(M, C, S)        __REPEAT11(M, C, S) C M(12)
-    #define __REPEAT13(M, C, S)        __REPEAT12(M, C, S) C M(13)
-    #define __REPEAT14(M, C, S)        __REPEAT13(M, C, S) C M(14)
-    #define __REPEAT15(M, C, S)        __REPEAT14(M, C, S) C M(15)
-    #define __REPEAT16(M, C, S)        __REPEAT15(M, C, S) C M(16)
-    #define __REPEAT17(M, C, S)        __REPEAT16(M, C, S) C M(17)
-    #define __REPEAT18(M, C, S)        __REPEAT17(M, C, S) C M(18)
-    #define __REPEAT19(M, C, S)        __REPEAT18(M, C, S) C M(19)
-    #define __REPEAT20(M, C, S)        __REPEAT19(M, C, S) C M(20)
-    #define __REPEAT(N, M, C, S)       __REPEAT##N(M, C, S)
+    #define __REPEAT1(M, C, S)      _##S M(1)
+    #define __REPEAT2(M, C, S)         __REPEAT1(M, C, S)  _##C M(2)
+    #define __REPEAT3(M, C, S)         __REPEAT2(M, C, S)  _##C M(3)
+    #define __REPEAT4(M, C, S)         __REPEAT3(M, C, S)  _##C M(4)
+    #define __REPEAT5(M, C, S)         __REPEAT4(M, C, S)  _##C M(5)
+    #define __REPEAT6(M, C, S)         __REPEAT5(M, C, S)  _##C M(6)
+    #define __REPEAT7(M, C, S)         __REPEAT6(M, C, S)  _##C M(7)
+    #define __REPEAT8(M, C, S)         __REPEAT7(M, C, S)  _##C M(8)
+    #define __REPEAT9(M, C, S)         __REPEAT8(M, C, S)  _##C M(9)
+    #define __REPEAT10(M, C, S)        __REPEAT9(M, C, S)  _##C M(10)
+    #define __REPEAT11(M, C, S)        __REPEAT10(M, C, S) _##C M(11)
+    #define __REPEAT12(M, C, S)        __REPEAT11(M, C, S) _##C M(12)
+    #define __REPEAT13(M, C, S)        __REPEAT12(M, C, S) _##C M(13)
+    #define __REPEAT14(M, C, S)        __REPEAT13(M, C, S) _##C M(14)
+    #define __REPEAT15(M, C, S)        __REPEAT14(M, C, S) _##C M(15)
+    #define __REPEAT16(M, C, S)        __REPEAT15(M, C, S) _##C M(16)
+    #define __REPEAT17(M, C, S)        __REPEAT16(M, C, S) _##C M(17)
+    #define __REPEAT18(M, C, S)        __REPEAT17(M, C, S) _##C M(18)
+    #define __REPEAT19(M, C, S)        __REPEAT18(M, C, S) _##C M(19)
+    #define __REPEAT20(M, C, S)        __REPEAT19(M, C, S) _##C M(20)
+    #define __REPEAT(N, M, C, S, E)     __REPEAT##N(M, C, S) __IF##N(E)
 
 
     //various defs needed for parameters
     #define __MAX_PARAMS__       20
-    #define __NOTHING__          
-    #define __COMMA__            ,
+    #define ___NOTHING__          
+    #define ___COMMA__            ,
+    #define ___SEMICOLON__        ;
+    #define ___TEMPLATE_DECLARE_BEGIN__   template <
+    #define ___TEMPLATE_BEGIN__   <
+    #define ___TEMPLATE_END__     >
     #define __TEMPLATE_ARG__(N)  class T##N
     #define __TYPE_ARG__(N)      T##N 
     #define __ARG__(N)           T##N t##N
+    #define __ARG_PTR__(N)       T##N* t##N
     #define __PARAM__(N)         t##N
+    #define __PARAM_PTR__(N)     & __PARAM__(N)
     #define __NOT_VIRTUAL__
+
 
 
     //calculates the offset of a field
     #define __OFFSET__(C, M) \
-            ((unsigned long)(&((const C *)0)->M))
+        ((unsigned long)(&((const C *)1024)->M)-1024)
+
+
+    class Class;
+
+
+    class T3D_PLATFORM_API __callable__
+    {
+    public:
+        typedef std::vector<const Class *> arg_list_type;
+        virtual ~__callable__() {}
+
+        virtual int get_args_count() const = 0;
+        virtual const arg_list_type &get_args() const = 0;
+        virtual const Class *get_ret_type() const = 0;
+    };
+
+    // parameter for generating 
+    #define __TYPE_INFO_ARG__(N)  this->args_list.push_back((__TYPE_ARG__(N))::getStaticClass())
+
+    //callable that implements the argument capturing and reporting
+    #define __CALLABLE__ARGS(N) \
+        template <int args_size __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        struct __callable_args##N##__ : public __callable__ \
+        { \
+            const Class *ret_type; \
+	        arg_list_type args_list; \
+            __callable_args##N##__(const Class *ret_id) : ret_type(ret_id), args_list() \
+            {   \
+	            __REPEAT(N, __TYPE_INFO_ARG__, __SEMICOLON__, __NOTHING__, __NOTHING__); \
+	        };\
+	        virtual int get_args_count () const override { return args_size; } \
+	        virtual const arg_list_type &get_args() const override { return args_list; } \
+            virtual const Class *get_ret_type() const override { return ret_type; } \
+        }
+
 
     //callable class macro with return type
-    #define __CALLABLE__(N)\
-        template <class R, class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__)> struct __callable##N##__ : public __callable__ {\
-            typedef R (C::*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__));\
-            MethodType method;\
-            __callable##N##__(MethodType m) : method(m) {\
-            }\
-            R invoke(C *object __REPEAT(N, __ARG__, __COMMA__, __COMMA__)) const {\
-                return (object->*method)(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__));\
-            }\
+    #define __CALLABLE__(N) \
+        template <class R, class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        struct __callable##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        { \
+            typedef R (C::*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)); \
+            MethodType method; \
+            __callable##N##__(MethodType m) \
+                : __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) >(R::getStaticClass()) \
+                , method(m) \
+            {} \
+            R invoke(C *object __REPEAT(N, __ARG__, __COMMA__, __COMMA__, __NOTHING__)) const \
+            { \
+                return (object->*method)(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
+            } \
         };
 
 
     //callable class macro with return type and const type
-    #define __CALLABLE_CONST__(N)\
-        template <class R, class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__)> struct __callable_const##N##__ : public __callable__ {\
-            typedef R (C::*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__)) const;\
-            MethodType method;\
-            __callable_const##N##__(MethodType m) : method(m) {\
-            }\
-            R invoke(C *object __REPEAT(N, __ARG__, __COMMA__, __COMMA__)) const {\
-                return (object->*method)(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__));\
-            }\
+    #define __CALLABLE_CONST__(N) \
+        template <class R, class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        struct __callable_const##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        { \
+            typedef R (C::*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const; \
+            MethodType method; \
+            __callable_const##N##__(MethodType m) \
+                : __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) >(R::getStaticClass()) \
+                , method(m) \
+            {} \
+            R invoke(C *object __REPEAT(N, __ARG__, __COMMA__, __COMMA__, __NOTHING__)) const \
+            { \
+                return (object->*method)(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
+            } \
         };
 
 
     //callable class macro with void return type
-    #define __CALLABLE_VOID__(N)\
-        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__)> struct __callable_void##N##__ : public __callable__ {\
-            typedef void (C::*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__));\
-            MethodType method;\
-            __callable_void##N##__(MethodType m) : method(m) {\
-            }\
-            void invoke(C *object __REPEAT(N, __ARG__, __COMMA__, __COMMA__)) const {\
-                (object->*method)(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__));\
-            }\
+    #define __CALLABLE_VOID__(N) \
+        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        struct __callable_void##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        { \
+            typedef void (C::*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)); \
+            MethodType method; \
+            __callable_void##N##__(MethodType m) \
+                : __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) >(nullptr) \
+                , method(m) \
+            {} \
+            void invoke(C *object __REPEAT(N, __ARG__, __COMMA__, __COMMA__, __NOTHING__)) const \
+            { \
+                (object->*method)(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
+            } \
         };
 
 
     //callable class macro with void return type and const type
-    #define __CALLABLE_CONST_VOID__(N)\
-        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__)> struct __callable_const_void##N##__ : public __callable__ {\
-            typedef void (C::*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__)) const;\
-            MethodType method;\
-            __callable_const_void##N##__(MethodType m) : method(m) {\
-            }\
-            void invoke(C *object __REPEAT(N, __ARG__, __COMMA__, __COMMA__)) const {\
-                (object->*method)(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__));\
-            }\
+    #define __CALLABLE_CONST_VOID__(N) \
+        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        struct __callable_const_void##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        { \
+            typedef void (C::*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const; \
+            MethodType method; \
+            __callable_const_void##N##__(MethodType m) \
+                : __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) >(nullptr) \
+                , method(m) \
+            {} \
+            void invoke(C *object __REPEAT(N, __ARG__, __COMMA__, __COMMA__, __NOTHING__)) const \
+            { \
+                (object->*method)(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
+            } \
         };
 
 
     //static callable class macro with return type
-    #define __STATIC_CALLABLE__(N)\
-        template <class R __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__)> struct __static_callable##N##__ : public __callable__ {\
-            typedef R (*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__));\
-            MethodType method;\
-            __static_callable##N##__(MethodType m) : method(m) {\
-            }\
-            R invoke(__REPEAT(N, __ARG__, __COMMA__, __NOTHING__)) const {\
-                return (*method)(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__));\
-            }\
+    #define __STATIC_CALLABLE__(N) \
+        template <class R __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        struct __static_callable##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        { \
+            typedef R (*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)); \
+            MethodType method; \
+            __static_callable##N##__(MethodType m) \
+                : __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) >(R::getStaticClass()) \
+                , method(m) \
+            {} \
+            R invoke(__REPEAT(N, __ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const \
+            { \
+                return (*method)(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
+            } \
         };
+
+    //void version
+    #define __STATIC_CALLABLE_VOID__(N) \
+        __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __TEMPLATE_DECLARE_BEGIN__, __TEMPLATE_END__) \
+        struct __static_callable_void##N##__ : public __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > {\
+            typedef void (*MethodType)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__));\
+            MethodType method;\
+            __static_callable_void##N##__(MethodType m) \
+                : __callable_args##N##__<N __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__) >(nullptr) \
+                , method(m) \
+            {} \
+            void invoke(__REPEAT(N, __ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const \
+            { \
+                (*method)(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
+            } \
+        };
+
+
+    //define callables
+    __CALLABLE__ARGS(0);
+    __CALLABLE__ARGS(1);
+    __CALLABLE__ARGS(2);
+    __CALLABLE__ARGS(3);
+    __CALLABLE__ARGS(4);
+    __CALLABLE__ARGS(5);
+    __CALLABLE__ARGS(6);
+    __CALLABLE__ARGS(7);
+    __CALLABLE__ARGS(8);
+    __CALLABLE__ARGS(9);
+    __CALLABLE__ARGS(10);
+    __CALLABLE__ARGS(11);
+    __CALLABLE__ARGS(12);
+    __CALLABLE__ARGS(13);
+    __CALLABLE__ARGS(14);
+    __CALLABLE__ARGS(15);
+    __CALLABLE__ARGS(16);
+    __CALLABLE__ARGS(17);
+    __CALLABLE__ARGS(18);
+    __CALLABLE__ARGS(19);
+    __CALLABLE__ARGS(20);
+
+
+    //define callables
+    __CALLABLE__(0);
+    __CALLABLE__(1);
+    __CALLABLE__(2);
+    __CALLABLE__(3);
+    __CALLABLE__(4);
+    __CALLABLE__(5);
+    __CALLABLE__(6);
+    __CALLABLE__(7);
+    __CALLABLE__(8);
+    __CALLABLE__(9);
+    __CALLABLE__(10);
+    __CALLABLE__(11);
+    __CALLABLE__(12);
+    __CALLABLE__(13);
+    __CALLABLE__(14);
+    __CALLABLE__(15);
+    __CALLABLE__(16);
+    __CALLABLE__(17);
+    __CALLABLE__(18);
+    __CALLABLE__(19);
+    __CALLABLE__(20);
+
+
+    //define const callables
+    __CALLABLE_CONST__(0);
+    __CALLABLE_CONST__(1);
+    __CALLABLE_CONST__(2);
+    __CALLABLE_CONST__(3);
+    __CALLABLE_CONST__(4);
+    __CALLABLE_CONST__(5);
+    __CALLABLE_CONST__(6);
+    __CALLABLE_CONST__(7);
+    __CALLABLE_CONST__(8);
+    __CALLABLE_CONST__(9);
+    __CALLABLE_CONST__(10);
+    __CALLABLE_CONST__(11);
+    __CALLABLE_CONST__(12);
+    __CALLABLE_CONST__(13);
+    __CALLABLE_CONST__(14);
+    __CALLABLE_CONST__(15);
+    __CALLABLE_CONST__(16);
+    __CALLABLE_CONST__(17);
+    __CALLABLE_CONST__(18);
+    __CALLABLE_CONST__(19);
+    __CALLABLE_CONST__(20);
+
+
+    //define void callables
+    __CALLABLE_VOID__(0);
+    __CALLABLE_VOID__(1);
+    __CALLABLE_VOID__(2);
+    __CALLABLE_VOID__(3);
+    __CALLABLE_VOID__(4);
+    __CALLABLE_VOID__(5);
+    __CALLABLE_VOID__(6);
+    __CALLABLE_VOID__(7);
+    __CALLABLE_VOID__(8);
+    __CALLABLE_VOID__(9);
+    __CALLABLE_VOID__(10);
+    __CALLABLE_VOID__(11);
+    __CALLABLE_VOID__(12);
+    __CALLABLE_VOID__(13);
+    __CALLABLE_VOID__(14);
+    __CALLABLE_VOID__(15);
+    __CALLABLE_VOID__(16);
+    __CALLABLE_VOID__(17);
+    __CALLABLE_VOID__(18);
+    __CALLABLE_VOID__(19);
+    __CALLABLE_VOID__(20);
+
+
+    //define const void callables
+    __CALLABLE_CONST_VOID__(0);
+    __CALLABLE_CONST_VOID__(1);
+    __CALLABLE_CONST_VOID__(2);
+    __CALLABLE_CONST_VOID__(3);
+    __CALLABLE_CONST_VOID__(4);
+    __CALLABLE_CONST_VOID__(5);
+    __CALLABLE_CONST_VOID__(6);
+    __CALLABLE_CONST_VOID__(7);
+    __CALLABLE_CONST_VOID__(8);
+    __CALLABLE_CONST_VOID__(9);
+    __CALLABLE_CONST_VOID__(10);
+    __CALLABLE_CONST_VOID__(11);
+    __CALLABLE_CONST_VOID__(12);
+    __CALLABLE_CONST_VOID__(13);
+    __CALLABLE_CONST_VOID__(14);
+    __CALLABLE_CONST_VOID__(15);
+    __CALLABLE_CONST_VOID__(16);
+    __CALLABLE_CONST_VOID__(17);
+    __CALLABLE_CONST_VOID__(18);
+    __CALLABLE_CONST_VOID__(19);
+    __CALLABLE_CONST_VOID__(20);
+
+
+    //static callable classes
+    __STATIC_CALLABLE__(0)
+    __STATIC_CALLABLE__(1)
+    __STATIC_CALLABLE__(2)
+    __STATIC_CALLABLE__(3)
+    __STATIC_CALLABLE__(4)
+    __STATIC_CALLABLE__(5)
+    __STATIC_CALLABLE__(6)
+    __STATIC_CALLABLE__(7)
+    __STATIC_CALLABLE__(8)
+    __STATIC_CALLABLE__(9)
+    __STATIC_CALLABLE__(10)
+    __STATIC_CALLABLE__(11)
+    __STATIC_CALLABLE__(12)
+    __STATIC_CALLABLE__(13)
+    __STATIC_CALLABLE__(14)
+    __STATIC_CALLABLE__(15)
+    __STATIC_CALLABLE__(16)
+    __STATIC_CALLABLE__(17)
+    __STATIC_CALLABLE__(18)
+    __STATIC_CALLABLE__(19)
+    __STATIC_CALLABLE__(20)
+    __STATIC_CALLABLE_VOID__(0)
+    __STATIC_CALLABLE_VOID__(1)
+    __STATIC_CALLABLE_VOID__(2)
+    __STATIC_CALLABLE_VOID__(3)
+    __STATIC_CALLABLE_VOID__(4)
+    __STATIC_CALLABLE_VOID__(5)
+    __STATIC_CALLABLE_VOID__(6)
+    __STATIC_CALLABLE_VOID__(7)
+    __STATIC_CALLABLE_VOID__(8)
+    __STATIC_CALLABLE_VOID__(9)
+    __STATIC_CALLABLE_VOID__(10)
+    __STATIC_CALLABLE_VOID__(11)
+    __STATIC_CALLABLE_VOID__(12)
+    __STATIC_CALLABLE_VOID__(13)
+    __STATIC_CALLABLE_VOID__(14)
+    __STATIC_CALLABLE_VOID__(15)
+    __STATIC_CALLABLE_VOID__(16)
+    __STATIC_CALLABLE_VOID__(17)
+    __STATIC_CALLABLE_VOID__(18)
+    __STATIC_CALLABLE_VOID__(19)
+    __STATIC_CALLABLE_VOID__(20)
+
+
+    //macro of a inline method that accepts a method pointer and creates a callable for it
+    #define __CREATE_CALLABLE__(N) \
+        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        static inline __callable##N##__<R, C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        *create(R (C::*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__))) \
+        { \
+            return new __callable##N##__<R, C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)>(method); \
+        }
+
+
+    //macro of a inline method that accepts a method pointer and creates a const callable for it
+    #define __CREATE_CALLABLE_CONST__(N) \
+        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        static inline __callable_const##N##__<R, C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        *create(R (C::*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const) \
+        { \
+            return new __callable_const##N##__<R, C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)>(method); \
+        }
+
+
+    //void version
+    #define __CREATE_CALLABLE_VOID__(N) \
+        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        static inline __callable_void##N##__<C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        *create(void (C::*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__))) \
+        { \
+            return new __callable_void##N##__<C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)>(method); \
+        }
+
+
+    //const void version
+    #define __CREATE_CALLABLE_CONST_VOID__(N) \
+        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        static inline __callable_const_void##N##__<C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        *create(void (C::*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const) \
+        { \
+            return new __callable_const_void##N##__<C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)>(method); \
+        }
+
+
+    //macro to create a static callable
+    #define __CREATE_STATIC_CALLABLE__(N) \
+        template <class R1 __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        static inline __static_callable##N##__<R1 __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        *create(R1 (*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__))) \
+        { \
+            return new __static_callable##N##__<R1 __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)>(method); \
+        }
+
+
+    //void version
+    #define __CREATE_STATIC_CALLABLE_VOID__(N) \
+        __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __TEMPLATE_DECLARE_BEGIN__, __TEMPLATE_END__) \
+        static inline __static_callable_void##N##__ __REPEAT(N, __TYPE_ARG__, __COMMA__, __TEMPLATE_BEGIN__, __TEMPLATE_END__) \
+        *create(void (*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__))) \
+        { \
+            return new __static_callable_void##N##__ __REPEAT(N, __TYPE_ARG__, __COMMA__, __TEMPLATE_BEGIN__, __TEMPLATE_END__)(method); \
+        }
+
+
+    //factory method for non-voids
+    template <class R> 
+    struct __callable_factory__ 
+    {
+        __CREATE_CALLABLE__(0)
+        __CREATE_CALLABLE__(1)
+        __CREATE_CALLABLE__(2)
+        __CREATE_CALLABLE__(3)
+        __CREATE_CALLABLE__(4)
+        __CREATE_CALLABLE__(5)
+        __CREATE_CALLABLE__(6)
+        __CREATE_CALLABLE__(7)
+        __CREATE_CALLABLE__(8)
+        __CREATE_CALLABLE__(9)
+        __CREATE_CALLABLE__(10)
+        __CREATE_CALLABLE__(11)
+        __CREATE_CALLABLE__(12)
+        __CREATE_CALLABLE__(13)
+        __CREATE_CALLABLE__(14)
+        __CREATE_CALLABLE__(15)
+        __CREATE_CALLABLE__(16)
+        __CREATE_CALLABLE__(17)
+        __CREATE_CALLABLE__(18)
+        __CREATE_CALLABLE__(19)
+        __CREATE_CALLABLE__(20)
+        __CREATE_CALLABLE_CONST__(0)
+        __CREATE_CALLABLE_CONST__(1)
+        __CREATE_CALLABLE_CONST__(2)
+        __CREATE_CALLABLE_CONST__(3)
+        __CREATE_CALLABLE_CONST__(4)
+        __CREATE_CALLABLE_CONST__(5)
+        __CREATE_CALLABLE_CONST__(6)
+        __CREATE_CALLABLE_CONST__(7)
+        __CREATE_CALLABLE_CONST__(8)
+        __CREATE_CALLABLE_CONST__(9)
+        __CREATE_CALLABLE_CONST__(10)
+        __CREATE_CALLABLE_CONST__(11)
+        __CREATE_CALLABLE_CONST__(12)
+        __CREATE_CALLABLE_CONST__(13)
+        __CREATE_CALLABLE_CONST__(14)
+        __CREATE_CALLABLE_CONST__(15)
+        __CREATE_CALLABLE_CONST__(16)
+        __CREATE_CALLABLE_CONST__(17)
+        __CREATE_CALLABLE_CONST__(18)
+        __CREATE_CALLABLE_CONST__(19)
+        __CREATE_CALLABLE_CONST__(20)
+    };
+
+
+    //factory method for non-voids
+    template <> 
+    struct __callable_factory__<void> 
+    {
+        __CREATE_CALLABLE_VOID__(0)
+        __CREATE_CALLABLE_VOID__(1)
+        __CREATE_CALLABLE_VOID__(2)
+        __CREATE_CALLABLE_VOID__(3)
+        __CREATE_CALLABLE_VOID__(4)
+        __CREATE_CALLABLE_VOID__(5)
+        __CREATE_CALLABLE_VOID__(6)
+        __CREATE_CALLABLE_VOID__(7)
+        __CREATE_CALLABLE_VOID__(8)
+        __CREATE_CALLABLE_VOID__(9)
+        __CREATE_CALLABLE_VOID__(10)
+        __CREATE_CALLABLE_VOID__(11)
+        __CREATE_CALLABLE_VOID__(12)
+        __CREATE_CALLABLE_VOID__(13)
+        __CREATE_CALLABLE_VOID__(14)
+        __CREATE_CALLABLE_VOID__(15)
+        __CREATE_CALLABLE_VOID__(16)
+        __CREATE_CALLABLE_VOID__(17)
+        __CREATE_CALLABLE_VOID__(18)
+        __CREATE_CALLABLE_VOID__(19)
+        __CREATE_CALLABLE_VOID__(20)
+        __CREATE_CALLABLE_CONST_VOID__(0)
+        __CREATE_CALLABLE_CONST_VOID__(1)
+        __CREATE_CALLABLE_CONST_VOID__(2)
+        __CREATE_CALLABLE_CONST_VOID__(3)
+        __CREATE_CALLABLE_CONST_VOID__(4)
+        __CREATE_CALLABLE_CONST_VOID__(5)
+        __CREATE_CALLABLE_CONST_VOID__(6)
+        __CREATE_CALLABLE_CONST_VOID__(7)
+        __CREATE_CALLABLE_CONST_VOID__(8)
+        __CREATE_CALLABLE_CONST_VOID__(9)
+        __CREATE_CALLABLE_CONST_VOID__(10)
+        __CREATE_CALLABLE_CONST_VOID__(11)
+        __CREATE_CALLABLE_CONST_VOID__(12)
+        __CREATE_CALLABLE_CONST_VOID__(13)
+        __CREATE_CALLABLE_CONST_VOID__(14)
+        __CREATE_CALLABLE_CONST_VOID__(15)
+        __CREATE_CALLABLE_CONST_VOID__(16)
+        __CREATE_CALLABLE_CONST_VOID__(17)
+        __CREATE_CALLABLE_CONST_VOID__(18)
+        __CREATE_CALLABLE_CONST_VOID__(19)
+        __CREATE_CALLABLE_CONST_VOID__(20)
+    };
+
+
+    //factory method for static non-voids
+    template <class R> 
+    struct __static_callable_factory__ 
+    {
+        __CREATE_STATIC_CALLABLE__(0)
+        __CREATE_STATIC_CALLABLE__(1)
+        __CREATE_STATIC_CALLABLE__(2)
+        __CREATE_STATIC_CALLABLE__(3)
+        __CREATE_STATIC_CALLABLE__(4)
+        __CREATE_STATIC_CALLABLE__(5)
+        __CREATE_STATIC_CALLABLE__(6)
+        __CREATE_STATIC_CALLABLE__(7)
+        __CREATE_STATIC_CALLABLE__(8)
+        __CREATE_STATIC_CALLABLE__(9)
+        __CREATE_STATIC_CALLABLE__(10)
+        __CREATE_STATIC_CALLABLE__(11)
+        __CREATE_STATIC_CALLABLE__(12)
+        __CREATE_STATIC_CALLABLE__(13)
+        __CREATE_STATIC_CALLABLE__(14)
+        __CREATE_STATIC_CALLABLE__(15)
+        __CREATE_STATIC_CALLABLE__(16)
+        __CREATE_STATIC_CALLABLE__(17)
+        __CREATE_STATIC_CALLABLE__(18)
+        __CREATE_STATIC_CALLABLE__(19)
+        __CREATE_STATIC_CALLABLE__(20)
+    };
+
+
+    //factory method for static voids
+    template <> 
+    struct __static_callable_factory__<void> 
+    {
+        __CREATE_STATIC_CALLABLE_VOID__(0)
+        __CREATE_STATIC_CALLABLE_VOID__(1)
+        __CREATE_STATIC_CALLABLE_VOID__(2)
+        __CREATE_STATIC_CALLABLE_VOID__(3)
+        __CREATE_STATIC_CALLABLE_VOID__(4)
+        __CREATE_STATIC_CALLABLE_VOID__(5)
+        __CREATE_STATIC_CALLABLE_VOID__(6)
+        __CREATE_STATIC_CALLABLE_VOID__(7)
+        __CREATE_STATIC_CALLABLE_VOID__(8)
+        __CREATE_STATIC_CALLABLE_VOID__(9)
+        __CREATE_STATIC_CALLABLE_VOID__(10)
+        __CREATE_STATIC_CALLABLE_VOID__(11)
+        __CREATE_STATIC_CALLABLE_VOID__(12)
+        __CREATE_STATIC_CALLABLE_VOID__(13)
+        __CREATE_STATIC_CALLABLE_VOID__(14)
+        __CREATE_STATIC_CALLABLE_VOID__(15)
+        __CREATE_STATIC_CALLABLE_VOID__(16)
+        __CREATE_STATIC_CALLABLE_VOID__(17)
+        __CREATE_STATIC_CALLABLE_VOID__(18)
+        __CREATE_STATIC_CALLABLE_VOID__(19)
+        __CREATE_STATIC_CALLABLE_VOID__(20)
+    };
+
+
+    //callable generator
+    #define __CALLABLE_GENERATOR__(N) \
+        template <class R, class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        inline __callable__ *__create_callable__(R (C::*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__))) \
+        { \
+            return __callable_factory__<R>::create(method); \
+        }
+
+
+    //const callable generator
+    #define __CALLABLE_GENERATOR_CONST__(N) \
+        template <class R, class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        inline __callable__ *__create_callable__(R (C::*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)) const) \
+        { \
+            return __callable_factory__<R>::create(method); \
+        }
+
+
+    //static callable generator
+    #define __STATIC_CALLABLE_GENERATOR__(N) \
+        template <class R __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        inline __callable__ *__create_static_callable__(R (*method)(__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__))) \
+        { \
+            return __static_callable_factory__<R>::create(method); \
+        }
+
+
+    //generators
+    __CALLABLE_GENERATOR__(0)
+    __CALLABLE_GENERATOR__(1)
+    __CALLABLE_GENERATOR__(2)
+    __CALLABLE_GENERATOR__(3)
+    __CALLABLE_GENERATOR__(4)
+    __CALLABLE_GENERATOR__(5)
+    __CALLABLE_GENERATOR__(6)
+    __CALLABLE_GENERATOR__(7)
+    __CALLABLE_GENERATOR__(8)
+    __CALLABLE_GENERATOR__(9)
+    __CALLABLE_GENERATOR__(10)
+    __CALLABLE_GENERATOR__(11)
+    __CALLABLE_GENERATOR__(12)
+    __CALLABLE_GENERATOR__(13)
+    __CALLABLE_GENERATOR__(14)
+    __CALLABLE_GENERATOR__(15)
+    __CALLABLE_GENERATOR__(16)
+    __CALLABLE_GENERATOR__(17)
+    __CALLABLE_GENERATOR__(18)
+    __CALLABLE_GENERATOR__(19)
+    __CALLABLE_GENERATOR__(20)
+    __CALLABLE_GENERATOR_CONST__(0)
+    __CALLABLE_GENERATOR_CONST__(1)
+    __CALLABLE_GENERATOR_CONST__(2)
+    __CALLABLE_GENERATOR_CONST__(3)
+    __CALLABLE_GENERATOR_CONST__(4)
+    __CALLABLE_GENERATOR_CONST__(5)
+    __CALLABLE_GENERATOR_CONST__(6)
+    __CALLABLE_GENERATOR_CONST__(7)
+    __CALLABLE_GENERATOR_CONST__(8)
+    __CALLABLE_GENERATOR_CONST__(9)
+    __CALLABLE_GENERATOR_CONST__(10)
+    __CALLABLE_GENERATOR_CONST__(11)
+    __CALLABLE_GENERATOR_CONST__(12)
+    __CALLABLE_GENERATOR_CONST__(13)
+    __CALLABLE_GENERATOR_CONST__(14)
+    __CALLABLE_GENERATOR_CONST__(15)
+    __CALLABLE_GENERATOR_CONST__(16)
+    __CALLABLE_GENERATOR_CONST__(17)
+    __CALLABLE_GENERATOR_CONST__(18)
+    __CALLABLE_GENERATOR_CONST__(19)
+    __CALLABLE_GENERATOR_CONST__(20)
+    __STATIC_CALLABLE_GENERATOR__(0)
+    __STATIC_CALLABLE_GENERATOR__(1)
+    __STATIC_CALLABLE_GENERATOR__(2)
+    __STATIC_CALLABLE_GENERATOR__(3)
+    __STATIC_CALLABLE_GENERATOR__(4)
+    __STATIC_CALLABLE_GENERATOR__(5)
+    __STATIC_CALLABLE_GENERATOR__(6)
+    __STATIC_CALLABLE_GENERATOR__(7)
+    __STATIC_CALLABLE_GENERATOR__(8)
+    __STATIC_CALLABLE_GENERATOR__(9)
+    __STATIC_CALLABLE_GENERATOR__(10)
+    __STATIC_CALLABLE_GENERATOR__(11)
+    __STATIC_CALLABLE_GENERATOR__(12)
+    __STATIC_CALLABLE_GENERATOR__(13)
+    __STATIC_CALLABLE_GENERATOR__(14)
+    __STATIC_CALLABLE_GENERATOR__(15)
+    __STATIC_CALLABLE_GENERATOR__(16)
+    __STATIC_CALLABLE_GENERATOR__(17)
+    __STATIC_CALLABLE_GENERATOR__(18)
+    __STATIC_CALLABLE_GENERATOR__(19)
+    __STATIC_CALLABLE_GENERATOR__(20)
+
+
+    //static new instance generator
+    #define __NEWINSTANCE_CALLER__(CNAME, N) \
+        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__) > \
+        static C *__new_instance__(__REPEAT(N, __ARG__, __COMMA__, __NOTHING__, __NOTHING__)) \
+        { \
+            return new CNAME (__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
+        }
+
+    #define __NEWINSTANCE_PTR_CALLER__(CNAME, N) \
+        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        static C *__new_instance_ptr__(void* ptr __REPEAT(N, __ARG__, __COMMA__, __COMMA__, __NOTHING__)) \
+        { \
+            return new (ptr) CNAME (__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
+        } \
+        template <class C __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
+        static C * (*__create_new_instance_ptr__(C* (*) (__REPEAT(N, __TYPE_ARG__, __COMMA__, __NOTHING__, __NOTHING__)))) \
+        (void * __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)) \
+        { \
+            return  & __new_instance_ptr__<C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)>; \
+        }
 
 }
 
