@@ -19,3 +19,25 @@
 
 
 #include "Reflection/T3DProperty.h"
+
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    Property::Property(const Class *owner, const char *type, const char *name, 
+        const Class *cls)
+        : MemberBase(owner, AccessType::PUBLIC, type, name)
+        , mHandler(0)
+        , mClass(cls)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    Property::~Property()
+    {
+        T3D_SAFE_DELETE(mHandler);
+    }
+}

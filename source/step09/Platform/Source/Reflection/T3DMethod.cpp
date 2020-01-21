@@ -59,7 +59,9 @@ namespace Tiny3D
         typedef __callable__::arg_list_type arglist;
 
         if (mOwnCB)
-            delete mCallable;
+        {
+            T3D_SAFE_DELETE(mCallable);
+        }
 
         mCallable = cb;
 
@@ -102,5 +104,56 @@ namespace Tiny3D
     std::string MethodBase::getPrefix(const Class *retType) const
     {
         return std::string(retType->getName()) + ' ' + getOwner().getName() + "::" + getName();
+    }
+
+    //--------------------------------------------------------------------------
+
+    Method::Method(const Class *owner, AccessType access, const char *type,
+        const char *name, const char *args, bool virt)
+        : MethodBase(owner, access, type, name, args)
+        , mIsVirtual(virt)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    Method::~Method()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    StaticMethod::StaticMethod(const Class *owner, AccessType access, const char *type, const char *name, const char *args)
+        : MethodBase(owner, access, type, name, args)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    std::string StaticMethod::getPrefix(const Class *retType) const 
+    {
+        return std::string("static ") + MethodBase::getPrefix(retType);
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    ConstructorMethod::ConstructorMethod(const Class *owner, AccessType access,
+        const char *type, const char *name, const char *args,
+        __callable__ *callable)
+        : StaticMethod(owner, access, type, name, args)
+        , mPlacementCallable(callable)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    std::string ConstructorMethod::getPrefix(const Class *retType) const
+    {
+        return getOwner().getName() + std::string("::") + getName();
     }
 }

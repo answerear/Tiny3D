@@ -752,13 +752,13 @@ namespace Tiny3D
             if (getAccess() != AccessType::PUBLIC) return; \
             typedef const __callable##N##__<R, C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> CallableType1; \
             typedef const __callable_const##N##__<R, C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> CallableType2; \
-            CallableType1 *cb1 = dynamic_cast<CallableType1 *>(m_callable);\
+            CallableType1 *cb1 = dynamic_cast<CallableType1 *>(mCallable);\
             if (cb1 != nullptr) \
             { \
                 result = cb1->invoke(object __REPEAT(N, __PARAM__, __COMMA__, __COMMA__, __NOTHING__)); \
                 return; \
             } \
-            CallableType2 *cb2 = dynamic_cast<CallableType2 *>(m_callable); \
+            CallableType2 *cb2 = dynamic_cast<CallableType2 *>(mCallable); \
             if (cb2 != nullptr) \
             { \
                 result = cb2->invoke(object __REPEAT(N, __PARAM__, __COMMA__, __COMMA__, __NOTHING__)); \
@@ -775,13 +775,13 @@ namespace Tiny3D
             if (getAccess() != AccessType::PUBLIC) return; \
             typedef const __callable_void##N##__<C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> CallableType1; \
             typedef const __callable_const_void##N##__<C __REPEAT(N, __TYPE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> CallableType2; \
-            CallableType1 *cb1 = dynamic_cast<CallableType1 *>(m_callable);\
+            CallableType1 *cb1 = dynamic_cast<CallableType1 *>(mCallable);\
             if (cb1 != nullptr) \
             { \
                 cb1->invoke(object __REPEAT(N, __PARAM__, __COMMA__, __COMMA__, __NOTHING__)); \
                 return; \
             } \
-            CallableType2 *cb2 = dynamic_cast<CallableType2 *>(m_callable); \
+            CallableType2 *cb2 = dynamic_cast<CallableType2 *>(mCallable); \
             if (cb2 != nullptr) \
             { \
                 cb2->invoke(object __REPEAT(N, __PARAM__, __COMMA__, __COMMA__, __NOTHING__)); \
@@ -811,7 +811,7 @@ namespace Tiny3D
         template <typename R __REPEAT(N, __TEMPLATE_ARG__, __COMMA__, __COMMA__, __NOTHING__)> \
         void invokePlacement(R &result, void* ptr __REPEAT(N, __ARG__, __COMMA__, __COMMA__, __NOTHING__)) const \
         { \
-            if (m_placement_callable == 0) return; \
+            if (mPlacementCallable == 0) return; \
             this->_invoke_placement(result, ptr __REPEAT(N, __PARAM__, __COMMA__, __COMMA__, __NOTHING__)); \
         }
 
@@ -825,7 +825,7 @@ namespace Tiny3D
         { \
             if (getAccess() != AccessType::PUBLIC) return; \
             typedef const __static_callable_void##N##__ __REPEAT(N, __TYPE_ARG__, __COMMA__, __TEMPLATE_BEGIN__, __TEMPLATE_END__) CallableType; \
-            CallableType *cb = dynamic_cast<CallableType *>(m_callable); \
+            CallableType *cb = dynamic_cast<CallableType *>(mCallable); \
             if (cb != nullptr) \
             { \
                 cb->invoke(__REPEAT(N, __PARAM__, __COMMA__, __NOTHING__, __NOTHING__)); \
@@ -833,6 +833,66 @@ namespace Tiny3D
             } \
         }
 
+    //property handler base
+    class T3D_PLATFORM_API __property_base__
+    {
+    public:
+        virtual ~__property_base__()
+        {
+        }
+    };
+
+
+    //property handler
+    template <typename T>
+    class __property_handler__ : public __property_base__
+    {
+    public:
+        //get
+        virtual T get(const void *object) const = 0;
+
+        //set
+        virtual void set(void *object, T value) const = 0;
+    };
+
+
+    //property handler class
+    template <typename C, typename T>
+    class __property__ : public __property_handler__<T>
+    {
+    public:
+        //type of getters/setters
+        typedef T(C::*Getter)() const;
+        typedef void (C::*Setter)(T);
+
+        //pointer to member getters/setters
+        Getter getter;
+        Setter setter;
+
+        //default constructor
+        __property__(Getter g, Setter s) : getter(g), setter(s)
+        {}
+
+        //get
+        virtual T get(const void *object) const
+        {
+            const C *o = (const C *)(object);
+            return (o->*getter)();
+        }
+
+        //set
+        virtual void set(void *object, T value) const
+        {
+            C *o = (C *)(object);
+            (o->*setter)(value);
+        }
+    };
+
+    template <typename C, typename T>
+    __property_base__* __create_property__(T(C::*Getter)() const, void (C::*Setter)(T))
+    {
+        return new __property__<C, T>(Getter, Setter);
+    }
 }
 
 

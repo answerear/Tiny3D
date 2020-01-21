@@ -63,7 +63,7 @@ namespace Tiny3D
                 return;
             // 对象类型跟 Field 所属的类类型不一致
             const Class *cls = Object::getStaticClass();
-            if (cls == nullptr || !getClass().isDerived(*cls))
+            if (cls == nullptr || !getOwner().isDerived(*cls))
                 return;
             // 值类型跟 Field 类型不一致
             if (Value::getStaticClass() != mClass)
@@ -88,7 +88,7 @@ namespace Tiny3D
                 return;
             // 对象类型跟 Field 所属的类类型不一致
             const Class *cls = Object::getStaticClass();
-            if (cls == nullptr || !getCalss.isDerived(*cls))
+            if (cls == nullptr || !getOwner().isDerived(*cls))
                 return;
             // 值类型跟 Field 类型不一致
             if (Value::getStaticClass() != mClass)

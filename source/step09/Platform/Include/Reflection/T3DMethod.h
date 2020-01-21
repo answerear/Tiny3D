@@ -143,7 +143,7 @@ namespace Tiny3D
          * @brief   Query if this object is virtual
          * @return  True if virtual, false if not.
          */
-        bool isVirtual() const;
+        bool isVirtual() const { return mIsVirtual; }
 
         __INVOKE__(0)
         __INVOKE__(1)
@@ -167,13 +167,6 @@ namespace Tiny3D
         __INVOKE__(19)
         __INVOKE__(20)
 
-        /** invokes a method that 'returns' void
-        @param object object to execute the method of
-        @param t1...tn parameters of the invocation
-        @exception IllegalAccessError if the method is not public
-        @exception TypeMismatchError if the method has different arguments than
-        the ones passed to it
-        */
         __INVOKE_VOID__(0)
         __INVOKE_VOID__(1)
         __INVOKE_VOID__(2)
@@ -211,6 +204,152 @@ namespace Tiny3D
             const char *name, const char *args, bool virt);
 
         bool mIsVirtual;    /**< True if is virtual, false if not */
+    };
+
+    /**
+     * @class   StaticMethod
+     * @brief   A 3D platform api.
+     */
+    class T3D_PLATFORM_API StaticMethod : public MethodBase
+    {
+        friend class Class;
+        friend struct __register_static_method__;
+
+    public:
+        /**   
+         * @brief invokes the non-void method
+         * @param result optional variable to store the result (if the method is non-void)
+         * @param t1...tn parameters of the invocation
+         */
+        __STATIC_INVOKE__(0, invoke, mCallable)
+        __STATIC_INVOKE__(1, invoke, mCallable)
+        __STATIC_INVOKE__(2, invoke, mCallable)
+        __STATIC_INVOKE__(3, invoke, mCallable)
+        __STATIC_INVOKE__(4, invoke, mCallable)
+        __STATIC_INVOKE__(5, invoke, mCallable)
+        __STATIC_INVOKE__(6, invoke, mCallable)
+        __STATIC_INVOKE__(7, invoke, mCallable)
+        __STATIC_INVOKE__(8, invoke, mCallable)
+        __STATIC_INVOKE__(9, invoke, mCallable)
+        __STATIC_INVOKE__(10, invoke, mCallable)
+        __STATIC_INVOKE__(11, invoke, mCallable)
+        __STATIC_INVOKE__(12, invoke, mCallable)
+        __STATIC_INVOKE__(13, invoke, mCallable)
+        __STATIC_INVOKE__(14, invoke, mCallable)
+        __STATIC_INVOKE__(15, invoke, mCallable)
+        __STATIC_INVOKE__(16, invoke, mCallable)
+        __STATIC_INVOKE__(17, invoke, mCallable)
+        __STATIC_INVOKE__(18, invoke, mCallable)
+        __STATIC_INVOKE__(19, invoke, mCallable)
+        __STATIC_INVOKE__(20, invoke, mCallable)
+
+        /**   
+            * @brief invokes the void method
+            * @param t1...tn parameters of the invocation
+            */
+        __STATIC_INVOKE_VOID__(0)
+        __STATIC_INVOKE_VOID__(1)
+        __STATIC_INVOKE_VOID__(2)
+        __STATIC_INVOKE_VOID__(3)
+        __STATIC_INVOKE_VOID__(4)
+        __STATIC_INVOKE_VOID__(5)
+        __STATIC_INVOKE_VOID__(6)
+        __STATIC_INVOKE_VOID__(7)
+        __STATIC_INVOKE_VOID__(8)
+        __STATIC_INVOKE_VOID__(9)
+        __STATIC_INVOKE_VOID__(10)
+        __STATIC_INVOKE_VOID__(11)
+        __STATIC_INVOKE_VOID__(12)
+        __STATIC_INVOKE_VOID__(13)
+        __STATIC_INVOKE_VOID__(14)
+        __STATIC_INVOKE_VOID__(15)
+        __STATIC_INVOKE_VOID__(16)
+        __STATIC_INVOKE_VOID__(17)
+        __STATIC_INVOKE_VOID__(18)
+        __STATIC_INVOKE_VOID__(19)
+        __STATIC_INVOKE_VOID__(20)
+
+    protected:
+        /**
+         * @fn  StaticMethod::StaticMethod(const Class *owner, 
+         *      AccessType access, const char *type, const char *name, 
+         *      const char *args);
+         * @brief   Constructor
+         * @param   owner   The owner.
+         * @param   access  The access.
+         * @param   type    The type.
+         * @param   name    The name.
+         * @param   args    The arguments.
+         */
+        StaticMethod(const Class *owner, AccessType access, const char *type, 
+            const char *name, const char *args);
+
+        /**
+         * @fn  std::string StaticMethod::getPrefix(const Class *retType) const;
+         * @brief   Gets a prefix
+         * @param   retType Type of the ret.
+         * @return  The prefix.
+         */
+        std::string getPrefix(const Class *retType) const;
+    };
+
+    class T3D_PLATFORM_API ConstructorMethod : public StaticMethod
+    {
+        friend struct __register_constructor_method__;
+
+    public:
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(0)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(1)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(2)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(3)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(4)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(5)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(6)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(7)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(8)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(9)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(10)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(11)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(12)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(13)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(14)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(15)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(16)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(17)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(18)
+        __CONSTRUCTOR_PLACEMENT_INVOKE__(19)
+
+    protected:
+        std::string getPrefix(const Class *retType) const;
+
+    private:
+        __STATIC_INVOKE__(0, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(1, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(2, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(3, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(4, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(5, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(6, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(7, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(8, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(9, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(10, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(11, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(12, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(13, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(14, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(15, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(16, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(17, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(18, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(19, _invoke_placement, m_placement_callable)
+        __STATIC_INVOKE__(20, _invoke_placement, m_placement_callable)
+
+        ConstructorMethod(const Class *owner, AccessType access, 
+            const char *type, const char *name, const char *args, 
+            __callable__ *callable);
+
+        __callable__ *mPlacementCallable;
     };
 }
 

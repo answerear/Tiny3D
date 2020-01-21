@@ -80,20 +80,25 @@ namespace Tiny3D
          * @param   base6   The base 6.
          * @param   base7   The base 7.
          */
-        Class(const char *name, size_t s, const Class *base0 = nullptr, 
-            const Class *base1 = nullptr, const Class *base2 = nullptr, 
-            const Class *base3 = nullptr, const Class *base4 = nullptr, 
-            const Class *base5 = nullptr, const Class *base6 = nullptr,
-            const Class *base7 = nullptr);
+        Class(const char *name, size_t s, size_t baseCount, 
+            const Class *base0 = nullptr, const Class *base1 = nullptr, 
+            const Class *base2 = nullptr, const Class *base3 = nullptr, 
+            const Class *base4 = nullptr, const Class *base5 = nullptr, 
+            const Class *base6 = nullptr, const Class *base7 = nullptr);
 
-        const char *getName() const;
+        /**
+         * @fn  const char Class::*getName() const;
+         * @brief   Gets the name
+         * @return  Null if it fails, else the name.
+         */
+        const char *getName() const { return mName; }
 
         /**
          * @fn  size_t Class::getBaseClassCount() const;
          * @brief   Gets base class count
          * @return  The base class count.
          */
-        size_t getBaseClassCount() const;
+        size_t getBaseClassCount() const { return mBaseClassCount; }
 
         /**
          * @fn  const Class Class::*getBaseClass(size_t idx) const;
@@ -101,87 +106,99 @@ namespace Tiny3D
          * @param   idx Zero-based index of the.
          * @return  Null if it fails, else the base class.
          */
-        const Class *getBaseClass(size_t idx) const;
-
-        /**
-         * @fn  bool Class::isBase() const;
-         * @brief   Query if this object is base
-         * @return  True if base, false if not.
-         */
-        bool isBase() const;
+        const Class *getBaseClass(size_t idx) const
+        {
+            T3D_ASSERT(idx < mBaseClassCount && idx < sizeof(mBaseClasses));
+            return mBaseClasses[idx];
+        }
 
         /**
          * @fn  size_t Class::getSize() const;
-         * @brief   Gets the size
-         * @return  The size.
+         * @brief   获取类内存大小
+         * @return  返回类内存大小.
          */
-        size_t getSize() const;
+        size_t getSize() const { return mSize; }
+
+        /**
+         * @fn  bool Class::hasBase() const
+         * @brief   查询是否有基类
+         * @return  True if base, false if not.
+         */
+        bool hasBase() const { return mBaseClassCount == 0; }
+
+        /**
+         * @fn  bool Class::isBase(const Class *cls) const;
+         * @brief   查询自己是否 cls 的基类
+         * @param   cls The cls.
+         * @return  True if base, false if not.
+         */
+        bool isBaseOf(const Class *cls) const;
+
+        /**
+         * @fn  bool Class::isSuper(const Class *cls) const;
+         * @brief   查询自己是否 cls 的父类
+         * @param   cls The cls.
+         * @return  True if super, false if not.
+         */
+        bool isSuperOf(const Class *cls) const;
 
         /**
          * @fn  bool Class::isSameAs(const Class *cls) const;
-         * @brief   Query if 'cls' is same as
+         * @brief   查询自己是否与 cls 类型一致
          * @param   cls The cls.
          * @return  True if same as, false if not.
          */
-        bool isSameAs(const Class *cls) const;
+        bool isSameAs(const Class *cls) const { return cls == this; }
 
         /**
          * @fn  bool Class::isKindOf(const Class *cls) const;
-         * @brief   Is kind of the given cls
+         * @brief   查询自己是否与 cls 一致或者是 cls 子类
          * @param   cls The cls.
          * @return  True if kind of, false if not.
          */
         bool isKindOf(const Class *cls) const;
 
         /**
-         * @fn  bool Class::isDerived(const Class *cls) const;
-         * @brief   Query if 'cls' is derived
-         * @param   cls The cls.
-         * @return  True if derived, false if not.
-         */
-        bool isDerived(const Class *cls) const;
-
-        /**
          * @fn  const FieldMap Class::&getFields() const;
          * @brief   Gets the fields
          * @return  The fields.
          */
-        const FieldMap &getFields() const;
+        const FieldMap &getFields() const { return mFields; }
 
         /**
          * @fn  const StaticFieldMap Class::&getStaticFields() const;
          * @brief   Gets static fields
          * @return  The static fields.
          */
-        const StaticFieldMap &getStaticFields() const;
+        const StaticFieldMap &getStaticFields() const { return mStaticFields; }
 
         /**
          * @fn  const MethodMap Class::&getMethods() const;
          * @brief   Gets the methods
          * @return  The methods.
          */
-        const MethodMap &getMethods() const;
+        const MethodMap &getMethods() const { return mMethods; }
 
         /**
          * @fn  const StaticMethodMap Class::&getStaticMethods() const;
          * @brief   Gets static methods
          * @return  The static methods.
          */
-        const StaticMethodMap &getStaticMethods() const;
+        const StaticMethodMap &getStaticMethods() const { return mStaticMethods; }
 
         /**
          * @fn  const PropertyMap Class::&getProperties() const;
          * @brief   Gets the properties
          * @return  The properties.
          */
-        const PropertyMap &getProperties() const;
+        const PropertyMap &getProperties() const { return mProperties; }
 
         /**
          * @fn  const ConstructorMap Class::&getConstructors() const;
          * @brief   Gets the constructors
          * @return  The constructors.
          */
-        const ConstructorMap &getConstructors() const;
+        const ConstructorMap &getConstructors() const { return mConstructorMethods; }
 
         /**
          * @fn  const Field Class::&getField(const char *name, bool searchBase = true) const;
@@ -241,6 +258,13 @@ namespace Tiny3D
          * @return  True if default constructor, false if not.
          */
         bool hasDefaultConstructor() const;
+
+        /**
+         * @fn  void Class::*newInstance() const;
+         * @brief   Creates a new instance
+         * @return  Null if it fails, else a pointer to a void.
+         */
+        void *newInstance() const;
 
     protected:
         /**
