@@ -833,66 +833,7 @@ namespace Tiny3D
             } \
         }
 
-    //property handler base
-    class T3D_PLATFORM_API __property_base__
-    {
-    public:
-        virtual ~__property_base__()
-        {
-        }
-    };
-
-
-    //property handler
-    template <typename T>
-    class __property_handler__ : public __property_base__
-    {
-    public:
-        //get
-        virtual T get(const void *object) const = 0;
-
-        //set
-        virtual void set(void *object, T value) const = 0;
-    };
-
-
-    //property handler class
-    template <typename C, typename T>
-    class __property__ : public __property_handler__<T>
-    {
-    public:
-        //type of getters/setters
-        typedef T(C::*Getter)() const;
-        typedef void (C::*Setter)(T);
-
-        //pointer to member getters/setters
-        Getter getter;
-        Setter setter;
-
-        //default constructor
-        __property__(Getter g, Setter s) : getter(g), setter(s)
-        {}
-
-        //get
-        virtual T get(const void *object) const
-        {
-            const C *o = (const C *)(object);
-            return (o->*getter)();
-        }
-
-        //set
-        virtual void set(void *object, T value) const
-        {
-            C *o = (C *)(object);
-            (o->*setter)(value);
-        }
-    };
-
-    template <typename C, typename T>
-    __property_base__* __create_property__(T(C::*Getter)() const, void (C::*Setter)(T))
-    {
-        return new __property__<C, T>(Getter, Setter);
-    }
+    
 }
 
 

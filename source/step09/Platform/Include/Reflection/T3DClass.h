@@ -47,13 +47,26 @@ namespace Tiny3D
         T3D_DISABLE_COPY(Class);
 
     public:
-        typedef std::map<std::string, Class*> ClassMap;
-        typedef std::map<std::string, Field*> FieldMap;
+        typedef std::map<std::string, Class*>   ClassMap;
+        typedef ClassMap::value_type            ClassMapValue;
+
+        typedef std::map<std::string, Field*>   FieldMap;
+        typedef FieldMap::value_type            FieldMapValue;
+
         typedef std::map<std::string, StaticField*> StaticFieldMap;
-        typedef std::map<std::string, Method*> MethodMap;
-        typedef std::map<std::string, StaticMethod*> StaticMethodMap;
-        typedef std::map<std::string, ConstructorMethod*> ConstructorMap;
-        typedef std::map<std::string, Property*> PropertyMap;
+        typedef StaticFieldMap::value_type          StaticFieldMapValue;
+
+        typedef std::map<std::string, Method*>  MethodMap;
+        typedef MethodMap::value_type           MethodMapValue;
+
+        typedef std::map<std::string, StaticMethod*>    StaticMethodMap;
+        typedef StaticMethodMap::value_type             StaticMethodMapValue;
+
+        typedef std::map<std::string, ConstructorMethod*>   ConstructorMap;
+        typedef ConstructorMap::value_type                  ConstructorMapValue;
+
+        typedef std::map<std::string, Property*>    PropertyMap;
+        typedef PropertyMap::value_type             PropertyMapValue;
 
         /**
          * @fn  static const Class Class::*getClass(const std::string &name);
@@ -207,7 +220,7 @@ namespace Tiny3D
          * @param   searchBase  (Optional) True to search base.
          * @return  The field.
          */
-        const Field &getField(const char *name, bool searchBase = true) const;
+        const Field *getField(const char *name, bool searchBase = true) const;
 
         /**
          * @fn  const StaticField Class::&getStaticField(const char *name, bool searchBase = true) const;
@@ -216,7 +229,7 @@ namespace Tiny3D
          * @param   searchBase  (Optional) True to search base.
          * @return  The static field.
          */
-        const StaticField &getStaticField(const char *name, bool searchBase = true) const;
+        const StaticField *getStaticField(const char *name, bool searchBase = true) const;
 
         /**
          * @fn  const Method Class::&getMethod(const char *name, bool searchBase = true) const;
@@ -225,7 +238,7 @@ namespace Tiny3D
          * @param   searchBase  (Optional) True to search base.
          * @return  The method.
          */
-        const Method &getMethod(const char *name, bool searchBase = true) const;
+        const Method *getMethod(const char *name, bool searchBase = true) const;
 
         /**
          * @fn  const StaticMethod Class::&getStaticMethod(const char *name, bool searchBase = true) const;
@@ -234,14 +247,14 @@ namespace Tiny3D
          * @param   searchBase  (Optional) True to search base.
          * @return  The static method.
          */
-        const StaticMethod &getStaticMethod(const char *name, bool searchBase = true) const;
+        const StaticMethod *getStaticMethod(const char *name, bool searchBase = true) const;
 
         /**
          * @fn  const ConstructorMethod Class::&getDefaultConstructor() const;
          * @brief   Gets default constructor
          * @return  The default constructor.
          */
-        const ConstructorMethod &getDefaultConstructor() const;
+        const ConstructorMethod *getDefaultConstructor() const;
 
         /**
          * @fn  const Property Class::&getProperty(const char *name, bool searchBase = true) const;
@@ -250,14 +263,14 @@ namespace Tiny3D
          * @param   searchBase  (Optional) True to search base.
          * @return  The property.
          */
-        const Property &getProperty(const char *name, bool searchBase = true) const;
+        const Property *getProperty(const char *name, bool searchBase = true) const;
 
         /**
          * @fn  bool Class::hasDefaultConstructor() const;
          * @brief   Query if this object has default constructor
          * @return  True if default constructor, false if not.
          */
-        bool hasDefaultConstructor() const;
+        bool hasDefaultConstructor() const { return defaultConstructor() != nullptr; }
 
         /**
          * @fn  void Class::*newInstance() const;
@@ -272,7 +285,7 @@ namespace Tiny3D
          * @brief   Default constructor
          * @return  A reference to a const ConstructorMethod.
          */
-        const ConstructorMethod &defaultConstructor() const;
+        const ConstructorMethod *defaultConstructor() const;
 
     private:
         /**
@@ -345,6 +358,59 @@ namespace Tiny3D
         StaticMethodMap mStaticMethods;         /**< The static methods */
         ConstructorMap  mConstructorMethods;    /**< The constructor methods */
         PropertyMap     mProperties;            /**< The properties */
+    };
+
+    //internal class for registering a field
+    struct T3D_PLATFORM_API __register_field__ 
+    {
+        __register_field__(unsigned long offset, const Class *cls, 
+            const Class *owner, AccessType access, const char *type, 
+            const char *name);
+
+    };
+
+
+    //internal class for registering a static field
+    struct T3D_PLATFORM_API __register_static_field__ 
+    {
+        __register_static_field__(void *address, const Class *cls, 
+            const Class *owner, AccessType access, const char *type, 
+            const char *name);
+
+    };
+
+
+    //internal class for registering a method
+    struct T3D_PLATFORM_API __register_method__
+    {
+        __register_method__(__callable__ *cb, const Class *owner, 
+            AccessType access, const char *type, const char *name, 
+            const char *args, const char *virt);
+    };
+
+
+    //internal class for registering a static method
+    struct T3D_PLATFORM_API __register_static_method__
+    {
+        __register_static_method__(__callable__ *cb, const Class *owner, 
+            AccessType access, const char *type, const char *name, 
+            const char *args);
+    };
+
+    //internal class for registering a constructor method
+    struct T3D_PLATFORM_API __register_constructor_method__
+    {
+        __register_constructor_method__(__callable__ *cb, 
+            __callable__ *placement_cb, const Class *owner, AccessType access, 
+            const char *type, const char *name, const char *args);
+    };
+
+
+    //internal class for registering a property
+    struct T3D_PLATFORM_API __register_property__
+    {
+        __register_property__(__property_base__ *handler, const Class *owner, 
+            const char *type, const char *name, const Class *cls);
     };
 }
 

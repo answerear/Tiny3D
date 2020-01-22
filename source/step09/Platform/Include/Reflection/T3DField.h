@@ -36,7 +36,7 @@ namespace Tiny3D
         T3D_DISABLE_COPY(Field);
 
         friend class Class;
-        friend struct __resiter_field__;
+        friend struct __register_field__;
 
     public:
         /**

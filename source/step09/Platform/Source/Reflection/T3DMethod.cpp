@@ -38,6 +38,14 @@ namespace Tiny3D
         mID += args;
     }
 
+    MethodBase::~MethodBase()
+    {
+        if (mOwnCB)
+        {
+            T3D_SAFE_DELETE(mCallable);
+        }
+    }
+
     //--------------------------------------------------------------------------
 
     int MethodBase::getArgsCount() const 
