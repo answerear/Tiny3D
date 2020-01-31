@@ -84,13 +84,27 @@ namespace Tiny3D
             base5::getStaticClass(), base6::getStaticClass(), \
             base7::getStaticClass(), base8::getStaticClass());
 
-    #define T3D_PROPERTY()
+    #define T3D_REFLECT_CLASS(cls) \
+        private: \
+            __CREATE_OBJECT__(cls);
 
-    #define T3D_FIELD()
+    #define T3D_PROPERTY(type, name) __PROPERTY__(type, name)
 
-    #define T3D_STATIC_METHOD()
+    #define T3D_FIELD(access, type, name) __FIELD_LINE__(access, type, name, __LINE__)
 
-    #define T3D_METHOD()
+    #define T3D_STATIC_FIELD(access, type, name) __STATIC_FIELD_LINE__(access, type, name, __LINE__)
+
+    #define T3D_STATIC_METHOD(access, ret_type, name, args) __STATIC_METHOD_LINE__(access, ret_type, name, args, __LINE__)
+    #define T3D_STATIC_METHOD_N(access, ret_type, name, args, num) __STATIC_METHOD_LINE__(access, ret_type, name, args, num)
+
+    #define T3D_METHOD(access, ret_type, name, args) __METHOD_LINE__(access, __NOT_VIRTUAL__, ret_type, name, args, __LINE__)
+    #define T3D_METHOD_N(access, ret_type, name, args, num) __METHOD_LINE__(access, __NOT_VIRTUAL__, ret_type, name, args, num)
+
+    #define T3D_VIRTUAL_METHOD(access, ret_type, name, args) __METHOD_LINE__(access, virtual, ret_type, name, args, __LINE__)
+    #define T3D_VRITUAL_METHOD_N(access, ret_type, name, args, num) __METHOD_LINE__(access, virtual, ret_type, name, args, num)
+
+    #define T3D_CONSTRUCTOR(access, cls, args)  __CONSTRUCTOR_LINE__(access, cls*, cls, args, __LINE__)
+    #define T3D_CONSTRUCTOR_N(access, cls, args, num) __CONSTRUCTOR_LINE__(access, cls*, cls, args, num)
 }
 
 

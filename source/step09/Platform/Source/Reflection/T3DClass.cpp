@@ -32,6 +32,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    const Class* Class::getClass(const std::string &name)
+    {
+        auto itr = msClasses.find(name);
+        if (itr == msClasses.end())
+            return nullptr;
+        return itr->second;
+    }
+
+    //--------------------------------------------------------------------------
+
     Class::Class(const char *name, size_t s, size_t baseCount, 
         const Class *base0 /* = nullptr */, const Class *base1 /* = nullptr */, 
         const Class *base2 /* = nullptr */, const Class *base3 /* = nullptr */, 
@@ -49,6 +59,8 @@ namespace Tiny3D
         mBaseClasses[5] = base5;
         mBaseClasses[6] = base6;
         mBaseClasses[7] = base7;
+
+        msClasses[name] = this;
     }
 
     //--------------------------------------------------------------------------
@@ -322,7 +334,8 @@ namespace Tiny3D
     void Class::addConstructor(ConstructorMethod *method, __callable__ *cb)
     {
         method->set_callable(cb);
-        mConstructorMethods.insert(ConstructorMapValue(method->getName(), method));
+        mConstructorMethods.insert(ConstructorMapValue(method->getName(), 
+            method));
     }
 
     //--------------------------------------------------------------------------
@@ -343,24 +356,29 @@ namespace Tiny3D
         (const_cast<Class *>(owner))->addField(field);
     }
 
+    //--------------------------------------------------------------------------
 
     __register_static_field__::__register_static_field__(
         void *address, const Class *cls, const Class *owner, AccessType access, 
         const char *type, const char *name) 
     {
-        StaticField*  field = new StaticField(address, cls, owner, access, type, name);
+        StaticField*  field = new StaticField(address, cls, owner, access, type, 
+            name);
         (const_cast<Class *>(owner))->addStaticField(field);
     }
 
+    //--------------------------------------------------------------------------
 
     __register_method__::__register_method__(
         __callable__ *cb, const Class *owner, AccessType access, 
         const char *type, const char *name, const char *args, const char *virt) 
     {
-        Method* method = new Method(owner, access, type, name, args, virt[0] == 'v');
+        Method* method = new Method(owner, access, type, name, args, 
+            virt[0] == 'v');
         (const_cast<Class *>(owner))->addMethod(method, cb);
     }
 
+    //--------------------------------------------------------------------------
 
     __register_static_method__::__register_static_method__(
         __callable__ *cb, const Class *owner, AccessType access, 
@@ -370,14 +388,18 @@ namespace Tiny3D
         (const_cast<Class *>(owner))->addStaticMethod(method, cb);
     }
 
+    //--------------------------------------------------------------------------
 
     __register_constructor_method__::__register_constructor_method__(
         __callable__ *cb, __callable__ *placement_cb, const Class *owner, 
         AccessType access, const char *type, const char *name, const char *args) 
     {
-        ConstructorMethod* method = new ConstructorMethod(owner, access, type, name, args, placement_cb);
+        ConstructorMethod* method = new ConstructorMethod(owner, access, type, 
+            name, args, placement_cb);
         (const_cast<Class *>(owner))->addConstructor(method, cb);
     }
+
+    //--------------------------------------------------------------------------
 
     __register_property__::__register_property__(
         __property_base__ *handler, const Class *owner, const char *type, 

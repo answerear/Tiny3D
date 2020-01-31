@@ -833,7 +833,279 @@ namespace Tiny3D
             } \
         }
 
-    
+    #define ACCESS_public        Access::PUBLIC
+    #define ACCESS_protected     Access::PROTECTED
+    #define ACCESS_private       Access::PRIVATE
+
+    #define __CREATE_OBJECT__(CLASS_NAME)  \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,0); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,1); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,2); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,3); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,4); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,5); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,6); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,7); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,8); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,9); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,10); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,11); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,12); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,13); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,14); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,15); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,16); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,17); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,18); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,19); \
+        __NEWINSTANCE_CALLER__(CLASS_NAME,20); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,0); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,1); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,2); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,3); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,4); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,5); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,6); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,7); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,8); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,9); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,10); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,11); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,12); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,13); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,14); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,15); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,16); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,17); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,18); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,19); \
+        __NEWINSTANCE_PTR_CALLER__(CLASS_NAME,20); \
+
+
+    #define __PROPERTY__(TYPE, NAME) \
+        private: \
+            template <typename T> \
+            class REF_JOIN(__property__, NAME) \
+            { \
+            public: \
+                typedef REF_JOIN(__property__, NAME) <T> Type; \
+                REF_JOIN(__property__, NAME)<T>() \
+                { \
+                    static __register_property__ reg(__create_property__<ClassType, T>(&ClassType::get_##NAME, &ClassType::set_##NAME), getStaticClass(), #TYPE, #NAME, TYPE::getCalssStatic()); \
+                } \
+                inline TYPE get() const \
+                { \
+                    return owner()->get_##NAME(); \
+                } \
+                inline void set(TYPE value) \
+                { \
+                    owner()->set_##NAME(value); \
+                } \
+                inline operator TYPE () const \
+                { \
+                    return get(); \
+                } \
+                inline bool operator == (TYPE value) const \
+                { \
+                    return get() == value; \
+                } \
+                inline bool operator != (TYPE value) const \
+                { \
+                    return get() != value; \
+                } \
+                inline bool operator < (TYPE value) const \
+                { \
+                    return get() < value; \
+                } \
+                inline bool operator > (TYPE value) const \
+                { \
+                    return get() > value; \
+                } \
+                inline bool operator <= (TYPE value) const \
+                { \
+                    return get() <= value; \
+                } \
+                inline bool operator >= (TYPE value) const \
+                { \
+                    return get() >= value; \
+                } \
+                inline Type &operator = (TYPE value) \
+                { \
+                    set(value); \
+                    return *this; \
+                } \
+                inline Type &operator = (const Type &prop) \
+                { \
+                    if (&prop != this) set(prop.get()); \
+                    return *this; \
+                } \
+                inline Type &operator += (TYPE value) \
+                { \
+                    set(get() + value); \
+                    return *this; \
+                } \
+                inline Type &operator -= (TYPE value) \
+                { \
+                    set(get() - value); \
+                    return *this; \
+                } \
+                inline Type &operator *= (TYPE value) \
+                { \
+                    set(get() * value);\
+                    return *this;\
+                } \
+                inline Type &operator /= (TYPE value) \
+                { \
+                    set(get() / value); \
+                    return *this; \
+                } \
+                inline Type &operator %= (TYPE value) \
+                { \
+                    set(get() % value); \
+                    return *this; \
+                } \
+                inline Type &operator <<= (int bits) \
+                { \
+                    set(get() << bits); \
+                    return *this; \
+                } \
+                inline Type &operator >>= (int bits) \
+                { \
+                    set(get() >> bits); \
+                    return *this; \
+                } \
+                inline Type &operator &= (TYPE value) \
+                { \
+                    set(get() & value); \
+                    return *this; \
+                } \
+                inline Type &operator |= (TYPE value) \
+                { \
+                    set(get() | value); \
+                    return *this; \
+                } \
+                inline Type &operator ^= (TYPE value) \
+                { \
+                    set(get() ^ value); \
+                    return *this; \
+                } \
+                inline TYPE operator ~() \
+                { \
+                    return ~get(); \
+                } \
+                inline TYPE operator ++() \
+                { \
+                    TYPE val = get(); \
+                    set(val + 1); \
+                    return val; \
+                } \
+                inline TYPE operator ++(int i) \
+                { \
+                    TYPE val = get(); \
+                    set(val + 1); \
+                    return get(); \
+                } \
+                inline TYPE operator --() \
+                { \
+                    TYPE val = get(); \
+                    set(val - 1); \
+                    return val; \
+                } \
+                inline TYPE operator --(int i) \
+                { \
+                    TYPE val = get(); \
+                    set(val - 1); \
+                    return get(); \
+                } \
+            private: \
+                ClassType *owner() \
+                { \
+                    return (ClassType *)(((const char *)this) - __OFFSET__(ClassType, NAME)); \
+                } \
+                const ClassType *owner() const \
+                { \
+                    return (const ClassType *)(((const char *)this) - __OFFSET__(ClassType, NAME)); \
+                } \
+            }; \
+            friend class REF_JOIN(__property__,NAME)< TYPE >; \
+        public: \
+            REF_JOIN(__property__,NAME)< TYPE > NAME;
+
+
+    #define __FIELD_LINE__(ACCESS_ATTR, FIELD_TYPE, FIELD_NAME, LINE) \
+        private: \
+            struct REF_JOIN(__field_##FIELD_NAME##__, LINE) \
+            { \
+                REF_JOIN(__field_##FIELD_NAME##__, LINE)() \
+                { \
+                    static __register_field__ reg(__OFFSET__(ClassType, FIELD_NAME), FIELD_TYPE::getStaticClass(), getStaticClass(), ACCESS_##ACCESS_ATTR, #FIELD_TYPE, #FIELD_NAME); \
+                } \
+            } REF_JOIN(__field_##FIELD_NAME##__, LINE); \
+            friend struct REF_JOIN(__field_##FIELD_NAME##__, LINE); \
+        ACCESS_ATTR: \
+            FIELD_TYPE FIELD_NAME;
+
+
+    #define __STATIC_FIELD_LINE__(ACCESS_ATTR, FIELD_TYPE, FIELD_NAME, LINE) \
+        private: \
+            struct REF_JOIN(__static_field_##FIELD_NAME##__, LINE) \
+            { \
+                REF_JOIN(__static_field_##FIELD_NAME##__, LINE)() \
+                { \
+                    static __register_static_field__ reg((void *)&FIELD_NAME, FIELD_TYPE::getStaticClass(), getStaticClass(), ACCESS_##ACCESS_ATTR, #FIELD_TYPE, #FIELD_NAME); \
+                } \
+            } REF_JOIN(__static_field_##FIELD_NAME##__, LINE); \
+            friend struct REF_JOIN(__static_field_##FIELD_NAME##__, LINE); \
+        ACCESS_ATTR: \
+            static FIELD_TYPE FIELD_NAME;
+
+
+    #define __METHOD_LINE__(ACCESS_ATTR, VIRTUAL, RETURN_TYPE, METHOD_NAME, METHOD_ARGS, LINE) \
+        private: \
+            struct REF_JOIN(__method_##METHOD_NAME##__,LINE) \
+            { \
+                REF_JOIN(__method_##METHOD_NAME##__,LINE) () \
+                { \
+                    typedef RETURN_TYPE (ClassType::*method_ptr_type) METHOD_ARGS; \
+                    method_ptr_type method_ptr = & ClassType::METHOD_NAME; \
+                    static __register_method__ reg(__create_callable__(method_ptr), getStaticClass(), ACCESS_##ACCESS_ATTR, #RETURN_TYPE, #METHOD_NAME, #METHOD_ARGS, #VIRTUAL); \
+                } \
+            } REF_JOIN(__method_##METHOD_NAME##__,LINE); \
+            friend struct REF_JOIN(__method_##METHOD_NAME##__,LINE); \
+        ACCESS_ATTR: \
+            VIRTUAL RETURN_TYPE METHOD_NAME METHOD_ARGS;
+
+    #define __STATIC_METHOD_LINE__(ACCESS_ATTR, RETURN_TYPE, METHOD_NAME, METHOD_ARGS, LINE) \
+        private: \
+            struct REF_JOIN(__static_method_##METHOD_NAME##__,LINE) \
+            { \
+                REF_JOIN(__static_method_##METHOD_NAME##__,LINE)() \
+                { \
+                    typedef RETURN_TYPE (* method_fun_ptr) METHOD_ARGS; \
+                    method_fun_ptr fun_ptr = & ClassType::METHOD_NAME ; \
+                    static __register_static_method__ reg(__create_static_callable__(fun_ptr), getStaticClass(), ACCESS_##ACCESS_ATTR, #RETURN_TYPE, #METHOD_NAME, #METHOD_ARGS); \
+                } \
+            } REF_JOIN(__static_method_##METHOD_NAME##__,LINE); \
+            friend struct REF_JOIN(__static_method_##METHOD_NAME##__,LINE); \
+        ACCESS_ATTR: \
+            static RETURN_TYPE METHOD_NAME METHOD_ARGS;
+
+
+    #define __CONSTRUCTOR_LINE__(ACCESS_ATTR, RETURN_TYPE, CLASS_NAME, METHOD_ARGS, LINE) \
+        private: \
+            struct REF_JOIN(__constructor_##CLASS_NAME##__,LINE) \
+            { \
+                REF_JOIN(__constructor_##CLASS_NAME##__,LINE) () \
+                { \
+                    typedef RETURN_TYPE (*new_instance_fun_ptr) METHOD_ARGS; \
+                    new_instance_fun_ptr fun_ptr = & ClassType :: __new_instance__; \
+                    static __register_constructor_method__ reg(__create_static_callable__(fun_ptr), __create_static_callable__(__create_new_instance_ptr__(fun_ptr)), getStaticClass(), ACCESS_##ACCESS_ATTR, #RETURN_TYPE, #CLASS_NAME, #METHOD_ARGS); \
+                } \
+            } REF_JOIN(__constructor_##CLASS_NAME##__,LINE); \
+            friend struct REF_JOIN(__constructor_##CLASS_NAME##__,LINE); \
+        ACCESS_ATTR: \
+            CLASS_NAME METHOD_ARGS;
+
 }
 
 

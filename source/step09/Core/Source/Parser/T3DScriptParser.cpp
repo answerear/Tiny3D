@@ -36,7 +36,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(ScriptParser);
-    T3D_IMPLEMENT_CLASS_BASE_1(ScriptParserBase, ScriptParser);
+    T3D_IMPLEMENT_CLASS_BASE_1(ScriptParser, ScriptParserBase);
 
     //--------------------------------------------------------------------------
 
