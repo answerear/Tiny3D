@@ -25,15 +25,3 @@
 #include "Adapter/T3DTimeInterface.h"
 #include "Adapter/T3DTimerInterface.h"
 #include "Adapter/T3DWindowInterface.h"
-
-namespace Tiny3D
-{
-    T3D_IMPLEMENT_CLASS_NO_BASE(IApplication);
-    T3D_IMPLEMENT_CLASS_NO_BASE(IConsole);
-    T3D_IMPLEMENT_CLASS_NO_BASE(IDeviceInfo);
-    T3D_IMPLEMENT_CLASS_NO_BASE(IDir);
-    T3D_IMPLEMENT_CLASS_NO_BASE(IFactory);
-    T3D_IMPLEMENT_CLASS_NO_BASE(ITime);
-    T3D_IMPLEMENT_CLASS_NO_BASE(ITimerService);
-    T3D_IMPLEMENT_CLASS_NO_BASE(IWindow);
-}

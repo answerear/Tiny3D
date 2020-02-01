@@ -30,7 +30,6 @@ namespace Tiny3D
     class Win32Dir : public IDir
     {
         T3D_DISABLE_COPY(Win32Dir);
-        T3D_DECLARE_CLASS();
 
     public:
         Win32Dir();

@@ -35,8 +35,6 @@ namespace Tiny3D
      */
     class D3D11GPUProgram : public GPUProgram
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @brief 创建 D3D11GPUProgram 对象

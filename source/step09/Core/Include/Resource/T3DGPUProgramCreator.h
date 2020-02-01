@@ -36,7 +36,6 @@ namespace Tiny3D
     class T3D_ENGINE_API ShaderCreator : public Creator<Shader>
     {
         T3D_DECLARE_INTERFACE(ShaderCreator);
-        T3D_DECLARE_CLASS();
     };
 
     /**
@@ -46,7 +45,6 @@ namespace Tiny3D
     class T3D_ENGINE_API GPUProgramCreator : public Creator<GPUProgram>
     {
         T3D_DECLARE_INTERFACE(GPUProgramCreator);
-        T3D_DECLARE_CLASS();
     };
 }
 

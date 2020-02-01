@@ -35,8 +35,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API HardwareBuffer : public Object
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @enum    Usage

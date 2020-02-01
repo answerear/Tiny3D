@@ -37,8 +37,6 @@ namespace Tiny3D
         : public Singleton<TextureManager>
         , public ResourceManager
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  static TextureManagerPtr create();

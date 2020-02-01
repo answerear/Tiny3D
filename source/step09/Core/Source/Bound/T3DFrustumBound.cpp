@@ -26,10 +26,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASE_1(FrustumBound, Bound);
-
-    //--------------------------------------------------------------------------
-
     FrustumBoundPtr FrustumBound::create(SceneNode *node, 
         ID uID /* = E_BID_AUTOMATIC */)
     {

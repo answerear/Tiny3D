@@ -22,12 +22,8 @@
 
 namespace Tiny3D
 {
-    T3D_IMPLEMENT_CLASS_NO_BASE(LogTask);
-
     ////////////////////////////////////////////////////////////////////////////
     // LogTaskCheckExpired
-
-    T3D_IMPLEMENT_CLASS_BASE_1(LogTaskCheckExpired, LogTask);
 
     LogTaskCheckExpired::LogTaskCheckExpired(uint32_t unExpired)
         : mExpired(unExpired)
@@ -42,8 +38,6 @@ namespace Tiny3D
 
     ////////////////////////////////////////////////////////////////////////////
     // LogTaskFlushCache
-
-    T3D_IMPLEMENT_CLASS_BASE_1(LogTaskFlushCache, LogTask);
 
     LogTask::Type LogTaskFlushCache::getType() const
     {

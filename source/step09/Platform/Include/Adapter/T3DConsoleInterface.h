@@ -21,9 +21,9 @@
 #define __T3D_CONSOLE_INTERFACE_H__
 
 
+#include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
-#include "Reflection/T3DReflection.h"
 
 
 namespace Tiny3D
@@ -32,10 +32,9 @@ namespace Tiny3D
      * @class T3DConsoleAdapterInterface
      * @brief Interface class
      */
-    class T3D_PLATFORM_API IConsole
+    class IConsole
     {
         T3D_DECLARE_INTERFACE(IConsole);
-        T3D_DECLARE_CLASS();
 
     public:
         /**

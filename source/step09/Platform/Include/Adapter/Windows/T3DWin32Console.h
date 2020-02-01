@@ -29,7 +29,6 @@ namespace Tiny3D
     class Win32Console : public IConsole
     {
         T3D_DISABLE_COPY(Win32Console);
-        T3D_DECLARE_CLASS();
 
     public:
         Win32Console();

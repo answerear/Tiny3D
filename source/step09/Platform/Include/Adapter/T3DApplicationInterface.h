@@ -22,18 +22,16 @@
 #define __T3D_APPLICATION_INTERFACE_H__
 
 
+#include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
-#include "T3DPlatformPrerequisites.h"
-#include "Reflection/T3DReflection.h"
 
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API IApplication
+    class IApplication
     {
         T3D_DECLARE_INTERFACE(IApplication);
-        T3D_DECLARE_CLASS();
 
     public:
         /**

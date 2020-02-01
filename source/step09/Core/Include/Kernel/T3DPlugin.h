@@ -36,7 +36,6 @@ namespace Tiny3D
     class T3D_ENGINE_API Plugin : public Object
     {
         T3D_DECLARE_INTERFACE(Plugin);
-        T3D_DECLARE_CLASS();
 
     public:
         /**

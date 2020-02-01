@@ -28,10 +28,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASE_1(ScriptParserMaterial, ScriptParserBase);
-
-    //--------------------------------------------------------------------------
-
     ScriptParserMaterialPtr ScriptParserMaterial::create()
     {
         ScriptParserMaterialPtr parser = new ScriptParserMaterial();

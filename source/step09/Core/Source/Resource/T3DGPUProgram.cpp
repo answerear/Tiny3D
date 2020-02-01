@@ -27,10 +27,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASE_1(GPUConstBufferRef, Object);
-
-    //--------------------------------------------------------------------------
-
     GPUConstBufferRefPtr GPUConstBufferRef::create(const String& name,
         uint32_t slot)
     {
@@ -54,10 +50,6 @@ namespace Tiny3D
     {
 
     }
-
-    //--------------------------------------------------------------------------
-
-    T3D_IMPLEMENT_CLASS_BASE_1(GPUProgramRef, Object);
 
     //--------------------------------------------------------------------------
 
@@ -161,10 +153,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASE_1(Shader, Resource);
-
-    //--------------------------------------------------------------------------
-
     Shader::Shader(const String &name)
         : Resource(name)
     {
@@ -177,10 +165,6 @@ namespace Tiny3D
     {
         return Type::E_RT_SHADER;
     }
-
-    //--------------------------------------------------------------------------
-
-    T3D_IMPLEMENT_CLASS_BASE_1(GPUProgram, Resource);
 
     //--------------------------------------------------------------------------
 

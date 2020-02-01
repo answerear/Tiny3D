@@ -37,8 +37,6 @@ namespace Tiny3D
     {
         friend class ResourceManager;
 
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @enum    Type

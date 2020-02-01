@@ -34,8 +34,6 @@ namespace Tiny3D
      */
     class FileSystemArchivePlugin : public Plugin
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @brief 默认构造函数

@@ -23,7 +23,6 @@
 
 #include "T3DSingleton.h"
 #include "T3DPlatformPrerequisites.h"
-#include "Reflection/T3DReflection.h"
 
 
 namespace Tiny3D
@@ -33,7 +32,6 @@ namespace Tiny3D
     class T3D_PLATFORM_API Console : public Singleton<Console>
     {
         T3D_DISABLE_COPY(Console);
-        T3D_DECLARE_CLASS();
 
     public:
         static const uint32_t MAX_CONTENT_SIZE;

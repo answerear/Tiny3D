@@ -35,8 +35,6 @@ namespace Tiny3D
         : public Singleton<ScriptParser>
         , public ScriptParserBase
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  static ScriptParserPtr create();

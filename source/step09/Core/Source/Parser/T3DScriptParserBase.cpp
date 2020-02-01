@@ -28,10 +28,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASE_1(ScriptParserBase, Object);
-
-    //--------------------------------------------------------------------------
-
     ScriptParserBase::ScriptParserBase()
         : mText(nullptr)
         , mTextLen(0)

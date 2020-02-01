@@ -33,8 +33,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API RenderGroup : public Object
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @brief 创建渲染分组

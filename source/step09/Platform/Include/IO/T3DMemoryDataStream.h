@@ -33,8 +33,6 @@ namespace Tiny3D
      */
     class T3D_PLATFORM_API MemoryDataStream : public DataStream
     {
-        T3D_DECLARE_CLASS();
-
     public:
         static const uint32_t MEMORY_BUFFER_SIZE;   /**< 默认内存流大小 */
 

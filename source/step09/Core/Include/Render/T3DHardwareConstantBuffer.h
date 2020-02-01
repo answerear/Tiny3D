@@ -32,8 +32,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API HardwareConstantBuffer : public HardwareBuffer
     {
-        T3D_DECLARE_CLASS();
-
     protected:
         /**
          * @fn  HardwareConstantBuffer::HardwareConstantBuffer(size_t bufSize, 

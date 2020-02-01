@@ -26,10 +26,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASE_1(D3D11GPUProgram, GPUProgram);
-
-    //--------------------------------------------------------------------------
-
     D3D11GPUProgramPtr D3D11GPUProgram::create(const String &name)
     {
         D3D11GPUProgramPtr program = new D3D11GPUProgram(name);

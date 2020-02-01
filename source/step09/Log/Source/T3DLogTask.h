@@ -30,8 +30,6 @@ namespace Tiny3D
 
     class LogTask
     {
-        T3D_DECLARE_CLASS();
-
     public:
         enum Type
         {
@@ -48,8 +46,6 @@ namespace Tiny3D
 
     class LogTaskCheckExpired : public LogTask
     {
-        T3D_DECLARE_CLASS();
-
     public:
         LogTaskCheckExpired(uint32_t unExpired);
 
@@ -66,8 +62,6 @@ namespace Tiny3D
 
     class LogTaskFlushCache : public LogTask
     {
-        T3D_DECLARE_CLASS();
-
     public:
         LogTaskFlushCache(size_t nCacheSize)
             : mItemCache(nCacheSize)

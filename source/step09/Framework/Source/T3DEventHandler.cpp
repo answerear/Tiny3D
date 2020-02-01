@@ -27,10 +27,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_NO_BASE(EventHandler);
-
-    //--------------------------------------------------------------------------
-
     EventHandler::EventHandler(bool canAutoRegister /* = true */)
         : mInstance(T3D_INVALID_INSTANCE)
     {

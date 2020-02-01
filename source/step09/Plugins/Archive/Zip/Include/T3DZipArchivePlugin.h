@@ -29,8 +29,6 @@ namespace Tiny3D
 {
     class ZipArchivePlugin : public Plugin
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @brief 默认构造函数

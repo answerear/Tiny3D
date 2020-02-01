@@ -34,8 +34,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API RenderTarget : public Object
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @brief 渲染目标类型

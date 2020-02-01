@@ -21,9 +21,9 @@
 #define __T3D_DIR_INTERFACE_H__
 
 
+#include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
-#include "Reflection/T3DReflection.h"
 
 
 namespace Tiny3D
@@ -36,7 +36,6 @@ namespace Tiny3D
     class IDir
     {
         T3D_DECLARE_INTERFACE(IDir);
-        T3D_DECLARE_CLASS();
 
     public:
         /**

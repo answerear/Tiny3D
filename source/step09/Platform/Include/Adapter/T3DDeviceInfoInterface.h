@@ -21,17 +21,16 @@
 #define __T3D_DEVICE_INFO_INTERFACE_H__
 
 
+#include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
-#include "Reflection/T3DReflection.h"
 
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API IDeviceInfo
+    class IDeviceInfo
     {
         T3D_DECLARE_INTERFACE(IDeviceInfo);
-        T3D_DECLARE_CLASS();
 
     public:
         /**

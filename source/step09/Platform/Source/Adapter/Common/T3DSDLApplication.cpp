@@ -27,10 +27,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASE_1(SDLApplication, IApplication);
-
-    //--------------------------------------------------------------------------
-
     static int AppEventWatcher(void *userdata, SDL_Event *event)
     {
         switch (event->type)

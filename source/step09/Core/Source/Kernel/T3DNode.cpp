@@ -25,10 +25,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASE_1(Node, Object);
-
-    //--------------------------------------------------------------------------
-
     Node::Node(ID uID /* = E_NID_AUTOMATIC */)
         : mID(E_NID_INVALID)
         , mName()

@@ -28,7 +28,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(ArchiveManager);
-    T3D_IMPLEMENT_CLASS_BASE_1(ArchiveManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 

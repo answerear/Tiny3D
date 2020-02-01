@@ -33,8 +33,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Dylib : public Resource
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  static DylibPtr Dylib::create(const String &name);

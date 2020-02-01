@@ -36,8 +36,6 @@ namespace Tiny3D
         : public HardwareBufferManagerBase
         , public Singleton<HardwareBufferManager>
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  static HardwareBufferManagerPtr create(

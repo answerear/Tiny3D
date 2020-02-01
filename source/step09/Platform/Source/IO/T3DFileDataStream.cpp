@@ -24,10 +24,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASE_1(FileDataStream, DataStream);
-
-    //--------------------------------------------------------------------------
-
     FileDataStream::FileDataStream()
         : m_pFileHandle(nullptr)
         , m_lSize(0)

@@ -38,8 +38,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API TextureUnit : public Object
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @enum    BindingType

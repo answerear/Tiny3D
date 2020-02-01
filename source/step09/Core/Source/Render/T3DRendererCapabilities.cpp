@@ -25,10 +25,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASE_1(RendererCapabilities, Object);
-
-    //--------------------------------------------------------------------------
-
     String RendererCapabilities::GPUVendorStrings[GPUVendor::GPU_VENDOR_COUNT];
 
     //--------------------------------------------------------------------------

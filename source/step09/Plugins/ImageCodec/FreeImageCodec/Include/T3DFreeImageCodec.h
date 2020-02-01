@@ -32,8 +32,6 @@ namespace Tiny3D
      */
     class FreeImageCodec : public ImageCodecBase
     {
-        T3D_DECLARE_CLASS();
-
     public:
         typedef TArray<ImageCodecBase::FileType>    FileTypeList;
         typedef FileTypeList::iterator              FileTypeListItr;

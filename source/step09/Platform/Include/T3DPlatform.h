@@ -37,6 +37,5 @@
 #include <IO/T3DDir.h>
 #include <Console/T3DConsole.h>
 #include <Device/T3DDeviceInfo.h>
-#include <Reflection/T3DReflection.h>
 
 #endif  /*__T3D_PLATFORM_H__*/

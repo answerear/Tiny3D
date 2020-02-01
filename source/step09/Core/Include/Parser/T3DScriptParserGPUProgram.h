@@ -34,8 +34,6 @@ namespace Tiny3D
      */
     class ScriptParserShader : public ScriptParserBase
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  static ScriptParserShaderPtr ScriptParserShader::create();

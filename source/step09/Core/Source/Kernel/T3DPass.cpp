@@ -29,10 +29,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_BASE_1(Pass, Object);
-
-    //--------------------------------------------------------------------------
-
     PassPtr Pass::create(const String &name, Technique *tech)
     {
         PassPtr pass = new Pass(name, tech);

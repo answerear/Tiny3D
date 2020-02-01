@@ -19,9 +19,5 @@
 
 #include "Time/T3DTimerListener.h"
 
-namespace Tiny3D
-{
-    T3D_IMPLEMENT_CLASS_NO_BASE(ITimerListener);
-}
 
 

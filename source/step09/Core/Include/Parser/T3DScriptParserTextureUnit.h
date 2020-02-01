@@ -33,8 +33,6 @@ namespace Tiny3D
      */
     class ScriptParserTextureUnit : public ScriptParserBase
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  static ScriptParserTextureUnitPtr 
