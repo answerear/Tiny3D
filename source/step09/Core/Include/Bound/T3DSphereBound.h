@@ -74,12 +74,12 @@ namespace Tiny3D
         void setParams(const Vector3 &center, Real radius);
 
         /**
-         * @fn  virtual SceneRenderablePtr SphereBound::getRenderable() override;
+         * @fn  virtual RenderablePtr SphereBound::getRenderable() override;
          * @brief   实现基类接口
          * @return  The renderable.
-         * @sa  SceneRenderablePtr Bound::getRenderable()
+         * @sa  RenderablePtr Bound::getRenderable()
          */
-        virtual SceneRenderablePtr getRenderable() override;
+        virtual RenderablePtr getRenderable() override;
 
         /**
          * @fn  virtual void SphereBound::updateBound(
@@ -150,7 +150,7 @@ namespace Tiny3D
 
     private:
         Sphere          mOriginalSphere;/**< 原始球体 */
-        SceneSpherePtr  mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
+        GlobePtr  mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 

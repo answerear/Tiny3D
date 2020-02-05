@@ -18,10 +18,10 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SCENE_SPHERE_H__
-#define __T3D_SCENE_SPHERE_H__
+#ifndef __T3D_GLOBE_H__
+#define __T3D_GLOBE_H__
 
-#include "Scene/T3DSceneRenderable.h"
+#include "Component/T3DRenderable.h"
 
 
 namespace Tiny3D
@@ -29,7 +29,7 @@ namespace Tiny3D
     /**
      * @brief 可渲染球体
      */
-    class T3D_ENGINE_API SceneSphere : public SceneRenderable
+    class T3D_ENGINE_API Globe : public Renderable
     {
     public:
         /**
@@ -39,13 +39,13 @@ namespace Tiny3D
          * @param [in] uID : 结点ID，默认自动生成
          * @return 返回一个可渲染球体对象
          */
-        static SceneSpherePtr create(const Vector3 &center, Real radius, 
+        static GlobePtr create(const Vector3 &center, Real radius, 
             ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 析构函数
          */
-        virtual ~SceneSphere();
+        virtual ~Globe();
 
         /**
          * @brief 重写基类接口，实现获取结点类型
@@ -73,7 +73,7 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        SceneSphere(ID uID = E_CID_AUTOMATIC);
+        Globe(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 初始化对象
@@ -104,13 +104,13 @@ namespace Tiny3D
 
         /**
          * @brief 重写基类接口，获取渲染材质对象
-         * @see MaterialPtr SceneRenderable::getMaterial() const
+         * @see MaterialPtr Renderable::getMaterial() const
          */
         virtual MaterialPtr getMaterial() const override;
 
         /**
          * @brief 重写基类接口，获取渲染VAO数据对象
-         * @see VertexArrayObjectPtr SceneRenderable::getVertexArrayObject() const
+         * @see VertexArrayObjectPtr Renderable::getVertexArrayObject() const
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
@@ -130,4 +130,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_SCENE_SPHERE_H__*/
+#endif  /*__T3D_GLOBE_H__*/

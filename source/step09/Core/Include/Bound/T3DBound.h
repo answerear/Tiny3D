@@ -143,11 +143,11 @@ namespace Tiny3D
         bool isEnabled() const;
 
         /**
-         * @fn  virtual SceneRenderablePtr Bound::getRenderable() = 0;
+         * @fn  virtual RenderablePtr Bound::getRenderable() = 0;
          * @brief   获取可渲染对象，用于渲染该碰撞体
          * @return  返回可渲染对象.
          */
-        virtual SceneRenderablePtr getRenderable() = 0;
+        virtual RenderablePtr getRenderable() = 0;
 
         /**
          * @fn  virtual BoundPtr Bound::clone() const = 0;

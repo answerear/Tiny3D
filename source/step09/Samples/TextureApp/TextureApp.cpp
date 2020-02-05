@@ -45,9 +45,9 @@ bool TextureApp::applicationDidFinishLaunching()
     RenderWindowPtr renderWindow = T3D_AGENT.getDefaultRenderWindow();
 
     // Ïà»ú
-//     SceneCameraPtr camera = T3D_SCENE_MGR.createCamera(root);
+//     CameraPtr camera = T3D_SCENE_MGR.createCamera(root);
 //     camera->lookAt(Vector3(0.0f, 4.0f, 8.0f), Vector3::ZERO, Vector3::UNIT_Y);
-//     camera->setProjectionType(SceneCamera::E_PT_PERSPECTIVE);
+//     camera->setProjectionType(Camera::E_PT_PERSPECTIVE);
 //     Real w = Real(renderWindow->getWidth());
 //     Real h = Real(renderWindow->getHeight());
 //     Real aspect = w / h;
@@ -62,13 +62,13 @@ bool TextureApp::applicationDidFinishLaunching()
 
     // Ïä×Ó
 //     Vector3 extent(1.0f, 1.0f, 1.0f);
-//     SceneBoxPtr box = T3D_SCENE_MGR.createBox(Vector3::ZERO, extent, root);
+//     CubePtr box = T3D_SCENE_MGR.createBox(Vector3::ZERO, extent, root);
 //     box->setPosition(Vector3(-4.0f, 0.0f, -2.0f));
 //     box->setCameraMask(OBJ_MASK_SCENE);
 //     box->setScaling(Vector3(100, 100, 100));
 
     // Çò
-//     SceneSpherePtr sphere = T3D_SCENE_MGR.createSphere(Vector3::ZERO, 1.0f, root);
+//     GlobePtr sphere = T3D_SCENE_MGR.createSphere(Vector3::ZERO, 1.0f, root);
 //     sphere->setPosition(Vector3(2.0f, 0.0f, 0.0f));
 //     sphere->setCameraMask(OBJ_MASK_SCENE);
 

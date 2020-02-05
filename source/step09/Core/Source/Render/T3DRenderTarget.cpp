@@ -55,7 +55,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ViewportPtr RenderTarget::addViewport(SceneCameraPtr camera, long_t zOrder,
+    ViewportPtr RenderTarget::addViewport(CameraPtr camera, long_t zOrder,
         Real left, Real top, Real width, Real height)
     {
         ViewportPtr viewport;

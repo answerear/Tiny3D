@@ -18,49 +18,69 @@
  ******************************************************************************/
 
 
-#include "Scene/T3DSceneRenderable.h"
-#include "Scene/T3DSceneNode.h"
+#include "Component/T3DLight.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SceneRenderable::SceneRenderable(ID uID /* = E_CID_AUTOMATIC */)
-        : Component(uID)
-        , mPrev(nullptr)
-        , mNext(nullptr)
+    LightPtr Light::create(ID uID /* = E_CID_AUTOMATIC */)
+    {
+        LightPtr light = new Light(uID);
+        light->release();
+        return light;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Light::Light(ID uID /* = E_CID_AUTOMATIC */)
+        : Transform3D(uID)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    SceneRenderable::~SceneRenderable()
+    Light::~Light()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    TResult SceneRenderable::cloneProperties(ComponentPtr newObj) const
+    const String &Light::getType() const
     {
-        TResult ret = Component::cloneProperties(newObj);
+        static const String name = "Light";
+        return name;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ComponentPtr Light::clone() const
+    {
+        LightPtr newObj = Light::create();
+        TResult ret = cloneProperties(newObj);
+
+        if (ret != T3D_OK)
+        {
+            newObj = nullptr;
+        }
+
+        return newObj;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Light::cloneProperties(ComponentPtr newObj) const
+    {
+        TResult ret = Transform3D::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SceneRenderablePtr obj = smart_pointer_cast<SceneRenderable>(newObj);
+
         }
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void SceneRenderable::onAttachSceneNode(SceneNode *node)
-    {
-        Component::onAttachSceneNode(node);
-
-        updateBound();
     }
 }

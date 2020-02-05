@@ -105,12 +105,12 @@ namespace Tiny3D
         void setExtent(Real extent0, Real extent1, Real extent2);
 
         /**
-         * @fn  virtual SceneRenderablePtr ObbBound::getRenderable() override;
+         * @fn  virtual RenderablePtr ObbBound::getRenderable() override;
          * @brief   实现基类接口
          * @return  The renderable.
-         * @sa  SceneRenderablePtr Bound::getRenderable()
+         * @sa  RenderablePtr Bound::getRenderable()
          */
-        virtual SceneRenderablePtr getRenderable() override;
+        virtual RenderablePtr getRenderable() override;
 
         /**
          * @fn  virtual void ObbBound::updateBound(
@@ -180,7 +180,7 @@ namespace Tiny3D
     protected:
         Obb         mObb;           /**< 实时变换的OBB */
         Obb         mOriginalObb;   /**< 不参与变换的原始OBB */
-        SceneBoxPtr mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
+        CubePtr mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 

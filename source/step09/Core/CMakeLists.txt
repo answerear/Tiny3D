@@ -61,6 +61,7 @@ set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .h
 set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .inl)
 set_project_files(Include\\\\Parser ${CMAKE_CURRENT_SOURCE_DIR}/Include/Parser/ .h)
 set_project_files(Include\\\\Component ${CMAKE_CURRENT_SOURCE_DIR}/Include/Component/ .h)
+set_project_files(Include\\\\Component ${CMAKE_CURRENT_SOURCE_DIR}/Include/Component/ .inl)
 
 # Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)

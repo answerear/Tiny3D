@@ -127,19 +127,19 @@ namespace Tiny3D
 
         void removeAllComponents();
 
-        virtual SceneTransform3DPtr addTransform();
+        virtual Transform3DPtr addTransform();
 
-        virtual SceneRenderablePtr addRenderable(const String &type);
+        virtual RenderablePtr addRenderable(const String &type);
 
-        SceneTransform3D *getTransform3D() const { return mTransform3D; }
+        Transform3D *getTransform3D() const { return mTransform3D; }
 
-        SceneRenderable *getRenderable() const { return mRenderable; }
+        Renderable *getRenderable() const { return mRenderable; }
 
-        virtual SceneCameraPtr addCamera();
+        virtual CameraPtr addCamera();
 
-        virtual SceneBoxPtr addCube(const Vector3 &center, const Vector3 &extent);
+        virtual CubePtr addCube(const Vector3 &center, const Vector3 &extent);
 
-        virtual SceneSpherePtr addSphere(const Vector3 &center, Real radius);
+        virtual GlobePtr addSphere(const Vector3 &center, Real radius);
 
     protected:
         /**
@@ -176,8 +176,8 @@ namespace Tiny3D
         uint32_t    mCameraMask;    /**< 相机掩码 */
 
         Components          mComponents;
-        SceneTransform3D    *mTransform3D;
-        SceneRenderable     *mRenderable;
+        Transform3D    *mTransform3D;
+        Renderable     *mRenderable;
     };
 }
 

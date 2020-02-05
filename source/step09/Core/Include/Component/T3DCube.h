@@ -18,59 +18,35 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SCENE_QUAD_H__
-#define __T3D_SCENE_QUAD_H__
+#ifndef __T3D_CUBE_H__
+#define __T3D_CUBE_H__
 
 
-#include "Scene/T3DSceneRenderable.h"
+#include "Component/T3DRenderable.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @brief 可渲染四边形
+     * @brief 可渲染的方盒子结点
      */
-    class T3D_ENGINE_API SceneQuad : public SceneRenderable
+    class T3D_ENGINE_API Cube : public Renderable
     {
     public:
-        /** 顶点位置 */
-        enum VertexIndex
-        {
-            VI_TOP_LEFT = 0,
-            VI_TOP_RIGHT,
-            VI_BOTTOM_LEFT,
-            VI_BOTTOM_RIGHT,
-            VI_MAX_VERTICES
-        };
-
         /**
-         * @brief 顶点信息
-         */
-        struct Vertex
-        {
-            Vector3     position;   /**< 顶点位置 */
-            Vector2     uv;         /**< UV坐标 */
-        };
-
-        struct Quad
-        {
-            Vertex  vertices[VI_MAX_VERTICES];
-        };
-
-        /**
-         * @brief 创建可渲染空间四边形对象
-         * @param [in] quad : 空间四边形数据
-         * @param [in] materialName : 材质名称
+         * @brief 创建长方体渲染对象
+         * @param [in] center : 长方体的中心点
+         * @param [in] extent : 长方体沿轴的6个方向长度
          * @param [in] uID : 结点ID，默认自动生成
-         * @return 返回一个可渲染空间四边形对象
+         * @return 返回新建的长方体渲染对象
          */
-        static SceneQuadPtr create(const Quad &quad, const String &materialName,
+        static CubePtr create(const Vector3 &center, const Vector3 &extent,
             ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 析构函数
          */
-        virtual ~SceneQuad();
+        virtual ~Cube();
 
         /**
          * @brief 重写基类接口，实现获取结点类型
@@ -85,54 +61,28 @@ namespace Tiny3D
         virtual ComponentPtr clone() const override;
 
         /**
-         * @brief 设置空间四边形四个顶点的本地坐标
+         * @brief 获取长方体中心
          */
-        void setVertexPos(size_t idx, const Vector3 &pos)
-        {
-            T3D_ASSERT(idx < VI_MAX_VERTICES);
-            mQuad.vertices[idx].position = pos;
-        }
+        const Vector3 &getCenter() const { return mCenter; }
 
         /**
-         * @brief 获取空间四边形四个顶点的本地坐标
+         * @brief 获取三个轴方向上的长度
          */
-        const Vector3 &getVertexPos(size_t idx) const
-        {
-            T3D_ASSERT(idx < VI_MAX_VERTICES);
-            return mQuad.vertices[idx].position;
-        }
-
-        /**
-         * @brief 设置空间四边形四个顶点的UV坐标
-         */
-        void setVertexUV(size_t idx, const Vector2 &uv)
-        {
-            T3D_ASSERT(idx < VI_MAX_VERTICES);
-            mQuad.vertices[idx].uv = uv;
-        }
-
-        /**
-         * @brief 获取空间四边形四个顶点的UV坐标
-         */
-        const Vector2 &getVertexUV(size_t idx) const
-        {
-            T3D_ASSERT(idx < VI_MAX_VERTICES);
-            return mQuad.vertices[idx].uv;
-        }
+        const Vector3 &getExtent() const { return mExtent; }
 
     protected:
         /**
          * @brief 构造函数
          */
-        SceneQuad(ID uID = E_CID_AUTOMATIC);
-            
+        Cube(ID uID = E_CID_AUTOMATIC);
+
         /**
          * @brief 初始化对象
-         * @param [in] quad : 空间四边形
-         * @param [in] materialName : 材质名称
+         * @param [in] center : 长方体的中心点
+         * @param [in] extent : 长方体沿轴的6个方向长度
          * @return 成功返回 T3D_OK
          */
-        virtual TResult init(const Quad &quad, const String &materialName);
+        virtual TResult init(const Vector3 &center, const Vector3 &extent);
 
         /**
          * @brief 重写基类接口，实现克隆对象属性
@@ -141,34 +91,42 @@ namespace Tiny3D
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         /**
+         * @brief 重写基类接口，实现结点的自身变换
+         * @see void SceneNode::updateTransform()
+         */
+        virtual void updateBound() override;
+
+        /**
          * @brief 重写基类接口，实现结点的视锥体裁剪逻辑
          * @see void SceneNode::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
          */
         virtual void frustumCulling(BoundPtr bound,
             RenderQueuePtr queue) override;
 
-        virtual void updateBound() override;
-
         /**
          * @brief 重写基类接口，获取渲染材质对象
-         * @see MaterialPtr SceneRenderable::getMaterial() const
+         * @see MaterialPtr Renderable::getMaterial() const
          */
         virtual MaterialPtr getMaterial() const override;
 
         /**
          * @brief 重写基类接口，获取渲染VAO数据对象
-         * @see VertexArrayObjectPtr SceneRenderable::getVertexArrayObject() const
+         * @see VertexArrayObjectPtr Renderable::getVertexArrayObject() const
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
-    protected:
-        Quad    mQuad;                          /**< 原始数据 */
-        Vector3 mWorldQuad[VI_MAX_VERTICES];    /**< 变换成世界坐标的顶点 */
+    private:
+        void setupBox(void *vertices, size_t vertexCount,  uint16_t *indices, 
+            size_t indexCount);
 
-        MaterialPtr             mMaterial;      /**< 渲染用的材质 */
+    protected:
+        Vector3                 mCenter;        /**< 长方体的中心 */
+        Vector3                 mExtent;        /**< 沿3个轴方向上的长度 */
         VertexArrayObjectPtr    mVAO;           /**< 渲染用的VAO */
+        ObbBoundPtr             mBound;         /**< 有向碰撞体 */
+        MaterialPtr             mMaterial;      /**< 材质 */
     };
 }
 
 
-#endif  /*__T3D_SCENE_QUAD_H__*/
+#endif  /*__T3D_CUBE_H__*/

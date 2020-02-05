@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#include "Scene/T3DSceneSphere.h"
-#include "Scene/T3DSceneTransform3D.h"
+#include "Component/T3DGlobe.h"
+#include "Component/T3DTransform3D.h"
 #include "Render/T3DRenderQueue.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
@@ -58,10 +58,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneSpherePtr SceneSphere::create(const Vector3 &center, Real radius, 
+    GlobePtr Globe::create(const Vector3 &center, Real radius, 
         ID uID /* = E_CID_AUTOMATIC */)
     {
-        SceneSpherePtr sphere = new SceneSphere(uID);
+        GlobePtr sphere = new Globe(uID);
         sphere->release();
 
         if (sphere->init(center, radius) != T3D_OK)
@@ -74,8 +74,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneSphere::SceneSphere(ID uID /* = E_CID_AUTOMATIC */)
-        : SceneRenderable(uID)
+    Globe::Globe(ID uID /* = E_CID_AUTOMATIC */)
+        : Renderable(uID)
         , mCenter(Vector3::ZERO)
         , mRadius(REAL_ONE)
         , mVAO(nullptr)
@@ -86,22 +86,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneSphere::~SceneSphere()
+    Globe::~Globe()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    const String &SceneSphere::getType() const
+    const String &Globe::getType() const
     {
-        static const String name = "SceneSphere";
+        static const String name = "Globe";
         return name;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult SceneSphere::init(const Vector3 &center, Real radius)
+    TResult Globe::init(const Vector3 &center, Real radius)
     {
         TResult ret = T3D_OK;
 
@@ -125,7 +125,7 @@ namespace Tiny3D
             if (mVAO == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create VAO for SceneSphere \
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create VAO for Globe \
                     failed !");
                 break;
             }
@@ -134,7 +134,7 @@ namespace Tiny3D
             ret = mVAO->beginBinding();
             if (ret != T3D_OK)
             {
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for SceneSphere \
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for Globe \
                     failed !");
                 break;
             }
@@ -146,7 +146,7 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_INVALID_POINTER;
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex declaration for \
-                    SceneSphere failed !");
+                    Globe failed !");
                 break;
             }
 
@@ -167,7 +167,7 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_INVALID_POINTER;
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex buffer for \
-                    SceneSphere failed !");
+                    Globe failed !");
                 break;
             }
 
@@ -180,7 +180,7 @@ namespace Tiny3D
             if (ibo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create index buffer for SceneSphere \
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create index buffer for Globe \
                     failed !");
                 break;
             }
@@ -203,7 +203,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneSphere::setupSphere(void *vertices, size_t vertexCount,
+    void Globe::setupSphere(void *vertices, size_t vertexCount,
         uint16_t *indices, size_t indexCount)
     {
         SphereVertex *vert = (SphereVertex *)vertices;
@@ -267,9 +267,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ComponentPtr SceneSphere::clone() const
+    ComponentPtr Globe::clone() const
     {
-        SceneSpherePtr sphere = new SceneSphere();
+        GlobePtr sphere = new Globe();
         sphere->release();
 
         if (cloneProperties(sphere) != T3D_OK)
@@ -282,13 +282,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneSphere::cloneProperties(ComponentPtr newObj) const
+    TResult Globe::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = SceneRenderable::cloneProperties(newObj);
+        TResult ret = Renderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SceneSpherePtr sphere = smart_pointer_cast<SceneSphere>(newObj);
+            GlobePtr sphere = smart_pointer_cast<Globe>(newObj);
             ret = sphere->init(mCenter, mRadius);
         }
 
@@ -297,15 +297,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneSphere::updateBound()
+    void Globe::updateBound()
     {
-        SceneTransform3DPtr xform = getSceneNode()->getTransform3D();
+        Transform3DPtr xform = getSceneNode()->getTransform3D();
         mBound->updateBound(xform->getLocalToWorldTransform());
     }
 
     //--------------------------------------------------------------------------
 
-    void SceneSphere::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+    void Globe::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
     {
         if (bound->test(mBound))
         {
@@ -316,14 +316,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr SceneSphere::getMaterial() const
+    MaterialPtr Globe::getMaterial() const
     {
         return mMaterial;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr SceneSphere::getVertexArrayObject() const
+    VertexArrayObjectPtr Globe::getVertexArrayObject() const
     {
         return mVAO;
     }

@@ -91,12 +91,12 @@ namespace Tiny3D
             Real minZ, Real maxZ);
 
         /**
-         * @fn  virtual SceneRenderablePtr AabbBound::getRenderable() override;
+         * @fn  virtual RenderablePtr AabbBound::getRenderable() override;
          * @brief   实现基类接口
          * @return  The renderable.
-         * @sa  SceneRenderablePtr Bound::getRenderable()
+         * @sa  RenderablePtr Bound::getRenderable()
          */
-        virtual SceneRenderablePtr getRenderable() override;
+        virtual RenderablePtr getRenderable() override;
 
         /**
          * @fn  virtual void AabbBound::updateBound(
@@ -165,7 +165,7 @@ namespace Tiny3D
     protected:
         Aabb        mAabb;          /**< 实时变换的AABB */
         Aabb        mOriginalAabb;  /**< 不参与变换的原始AABB */
-        SceneBoxPtr mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
+        CubePtr mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 

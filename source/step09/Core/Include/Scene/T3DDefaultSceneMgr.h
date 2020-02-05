@@ -84,13 +84,13 @@ namespace Tiny3D
         virtual SceneNodePtr getRoot() const override;
 
         /**
-         * @fn  virtual SceneTransform3DPtr createTransform3D(
+         * @fn  virtual Transform3DPtr createTransform3D(
          *      SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) override;
          * @brief   实现基类接口
          * @param   parent  The parent.
          * @param   uID     (Optional) The identifier.
          * @return  The new transform 3D.
-         * @sa  SceneTransform3DPtr SceneManagerBase::createTransform3D(
+         * @sa  Transform3DPtr SceneManagerBase::createTransform3D(
          *      SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC)
          */
         virtual SceneNodePtr createSceneNode(SceneNodePtr parent,
@@ -98,20 +98,20 @@ namespace Tiny3D
             ID uID = Node::E_NID_AUTOMATIC) override;
 
         /**
-         * @fn  TResult addRenderable(SceneRenderablePtr renderable);
+         * @fn  TResult addRenderable(RenderablePtr renderable);
          * @brief   添加可渲染对象到对应相机队列，用于视锥体剔除
          * @param [in]  renderable  : 可渲染对象.
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult addRenderable(SceneRenderablePtr renderable) override;
+        virtual TResult addRenderable(RenderablePtr renderable) override;
 
         /**
-         * @fn  TResult removeRenderable(SceneRenderablePtr renderable);
+         * @fn  TResult removeRenderable(RenderablePtr renderable);
          * @brief   根据camera mask来移除可渲染对象
          * @param [in]  renderable  : 可渲染对象.
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult removeRenderable(SceneRenderablePtr renderable) override;
+        virtual TResult removeRenderable(RenderablePtr renderable) override;
 
     protected:
         /**
@@ -121,12 +121,12 @@ namespace Tiny3D
         DefaultSceneMgr();
 
         /**
-         * @fn  TResult frustumCulling(SceneCameraPtr camera);
+         * @fn  TResult frustumCulling(CameraPtr camera);
          * @brief   Frustum culling
          * @param   camera  The camera.
          * @return  A TResult.
          */
-        TResult frustumCulling(SceneCameraPtr camera);
+        TResult frustumCulling(CameraPtr camera);
 
     protected:
         /**
@@ -142,8 +142,8 @@ namespace Tiny3D
             {}
 
             size_t              count;  /**< Number of  */
-            SceneRenderablePtr  first;  /**< The first */
-            SceneRenderablePtr  last;   /**< The last */
+            RenderablePtr  first;  /**< The first */
+            RenderablePtr  last;   /**< The last */
         };
 
         typedef TArray<Slot>                Renderables;

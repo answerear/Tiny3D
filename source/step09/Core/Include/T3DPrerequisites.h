@@ -146,21 +146,21 @@ namespace Tiny3D
 
     class SceneNode;
 
-    class SceneTransform3D;
+    class Transform3D;
     class Bone;
 
-    class SceneCamera;
-    class SceneLight;
+    class Camera;
+    class Light;
     class SceneModel;
 
-    class SceneRenderable;
-    class SceneMesh;
+    class Renderable;
+    class Mesh;
     class SceneTerrain;
-    class SceneBillboard;
-    class SceneQuad;
-    class SceneBox;
-    class SceneAxis;
-    class SceneSphere;
+    class Billboard;
+    class Quad;
+    class Cube;
+    class Axis;
+    class Globe;
 
     class SceneTransform2D;
     class SceneText2D;

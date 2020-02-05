@@ -18,11 +18,11 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SCENE_CAMERA_H__
-#define __T3D_SCENE_CAMERA_H__
+#ifndef __T3D_CAMERA_H__
+#define __T3D_CAMERA_H__
 
 
-#include "Scene/T3DSceneTransform3D.h"
+#include "Component/T3DTransform3D.h"
 #include "Bound/T3DBound.h"
 
 
@@ -31,7 +31,7 @@ namespace Tiny3D
     /**
      * @brief 场景相机结点类
      */
-    class T3D_ENGINE_API SceneCamera : public SceneTransform3D
+    class T3D_ENGINE_API Camera : public Transform3D
     {
     public:
         /**
@@ -48,12 +48,12 @@ namespace Tiny3D
          * @param [in] uID : 结点ID，默认自动生成
          * @return 返回一个相机结点对象
          */
-        static SceneCameraPtr create(ID uID = E_CID_AUTOMATIC);
+        static CameraPtr create(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 析构函数
          */
-        virtual ~SceneCamera();
+        virtual ~Camera();
 
         /**
          * @brief 重写基类接口
@@ -179,7 +179,7 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        SceneCamera(ID uID = E_CID_AUTOMATIC);
+        Camera(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 初始化对象
@@ -219,7 +219,7 @@ namespace Tiny3D
 }
 
 
-#include "T3DSceneCamera.inl"
+#include "T3DCamera.inl"
 
 
-#endif  /*__T3D_SCENE_CAMERA_H__*/
+#endif  /*__T3D_CAMERA_H__*/

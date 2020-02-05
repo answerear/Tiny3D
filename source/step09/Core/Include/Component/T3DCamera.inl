@@ -22,28 +22,28 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline void SceneCamera::setObjectMask(uint32_t mask)
+    inline void Camera::setObjectMask(uint32_t mask)
     {
         mObjectMask = mask;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint32_t SceneCamera::getObjectMask() const
+    inline uint32_t Camera::getObjectMask() const
     {
         return mObjectMask;
     }
 
     //--------------------------------------------------------------------------
 
-    inline BoundPtr SceneCamera::getBound() const
+    inline BoundPtr Camera::getBound() const
     {
         return mBound;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SceneCamera::setProjectionType(ProjectionType type)
+    inline void Camera::setProjectionType(ProjectionType type)
     {
         if (mProjType != type)
         {
@@ -54,14 +54,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline SceneCamera::ProjectionType SceneCamera::getProjectionType() const
+    inline Camera::ProjectionType Camera::getProjectionType() const
     {
         return mProjType;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SceneCamera::setPerspectiveParams(const Radian &fovY, Real aspect,
+    inline void Camera::setPerspectiveParams(const Radian &fovY, Real aspect,
         Real nearDist, Real farDist)
     {
         if (mFovY != fovY)
@@ -91,7 +91,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SceneCamera::setOrthographicParams(Real width, Real height,
+    inline void Camera::setOrthographicParams(Real width, Real height,
         Real nearDist, Real farDist)
     {
         if (width != mWidth)
@@ -121,28 +121,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline Real SceneCamera::getAspectRatio() const
+    inline Real Camera::getAspectRatio() const
     {
         return mAspectRatio;
     }
 
     //--------------------------------------------------------------------------
 
-    inline const Radian &SceneCamera::getFovY() const
+    inline const Radian &Camera::getFovY() const
     {
         return mFovY;
     }
 
     //--------------------------------------------------------------------------
 
-    inline Real SceneCamera::getNearPlaneDistance() const
+    inline Real Camera::getNearPlaneDistance() const
     {
         return mNear;
     }
 
     //--------------------------------------------------------------------------
 
-    inline Real SceneCamera::getFarPlaneDistance() const
+    inline Real Camera::getFarPlaneDistance() const
     {
         return mFar;
     }

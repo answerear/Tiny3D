@@ -18,40 +18,33 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SCENE_MESH_H__
-#define __T3D_SCENE_MESH_H__
+#ifndef __T3D_LIGHT_H__
+#define __T3D_LIGHT_H__
 
 
-#include "Scene/T3DSceneRenderable.h"
+#include "Component/T3DTransform3D.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SceneMesh : public SceneRenderable
+    class T3D_ENGINE_API Light : public Transform3D
     {
     public:
-        static SceneMeshPtr create(ID uID = E_CID_AUTOMATIC);
+        static LightPtr create(ID uID = E_CID_AUTOMATIC);
 
-        virtual ~SceneMesh();
+        virtual ~Light();
 
         virtual const String &getType() const override;
 
     protected:
-        SceneMesh(ID uID = E_CID_AUTOMATIC);
+        Light(ID uID = E_CID_AUTOMATIC);
 
         virtual ComponentPtr clone() const override;
 
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
-        virtual MaterialPtr getMaterial() const override;
-
-        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
-
-        virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) override;
-
-        virtual void updateBound() override;
     };
 }
 
 
-#endif  /*__T3D_SCENE_MESH_H__*/
+#endif  /*__T3D_LIGHT_H__*/

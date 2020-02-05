@@ -23,7 +23,7 @@
 
 
 #include "Scene/T3DSceneNode.h"
-#include "Scene/T3DSceneQuad.h"
+#include "Component/T3DQuad.h"
 
 
 namespace Tiny3D
@@ -66,20 +66,20 @@ namespace Tiny3D
             bool autoAddTransform = true, ID uID = Node::E_NID_AUTOMATIC) = 0;
 
         /**
-         * @fn  TResult addRenderable(SceneRenderablePtr renderable);
+         * @fn  TResult addRenderable(RenderablePtr renderable);
          * @brief   添加可渲染对象到对应相机队列，用于视锥体剔除
          * @param [in]  renderable  : 可渲染对象.
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult addRenderable(SceneRenderablePtr renderable) = 0;
+        virtual TResult addRenderable(RenderablePtr renderable) = 0;
 
         /**
-         * @fn  TResult removeRenderable(SceneRenderablePtr renderable);
+         * @fn  TResult removeRenderable(RenderablePtr renderable);
          * @brief   根据camera mask来移除可渲染对象
          * @param [in]  renderable  : 可渲染对象.
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult removeRenderable(SceneRenderablePtr renderable) = 0;
+        virtual TResult removeRenderable(RenderablePtr renderable) = 0;
 
     protected:
         /**

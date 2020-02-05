@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 
-#include "Scene/T3DSceneTransform3D.h"
+#include "Component/T3DTransform3D.h"
 #include "Scene/T3DSceneNode.h"
 
 
@@ -26,16 +26,16 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SceneTransform3DPtr SceneTransform3D::create(ID uID /* = E_CID_AUTOMATIC */)
+    Transform3DPtr Transform3D::create(ID uID /* = E_CID_AUTOMATIC */)
     {
-        SceneTransform3DPtr node = new SceneTransform3D(uID);
+        Transform3DPtr node = new Transform3D(uID);
         node->release();
         return node;
     }
 
     //--------------------------------------------------------------------------
 
-    SceneTransform3D::SceneTransform3D(ID uID /* = E_CID_AUTOMATIC */)
+    Transform3D::Transform3D(ID uID /* = E_CID_AUTOMATIC */)
         : Component(uID)
         , mPosition(Vector3::ZERO)
         , mOrientation(Quaternion::IDENTITY)
@@ -49,22 +49,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneTransform3D::~SceneTransform3D()
+    Transform3D::~Transform3D()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    const String &SceneTransform3D::getType() const
+    const String &Transform3D::getType() const
     {
-        static const String name = "SceneTransform3D";
+        static const String name = "Transform3D";
         return name;
     }
 
     //--------------------------------------------------------------------------
 
-    void SceneTransform3D::setLocalMatrix(const Matrix4 &m)
+    void Transform3D::setLocalMatrix(const Matrix4 &m)
     {
         m.decomposition(mPosition, mScaling, mOrientation);
         setDirty(true, true);
@@ -72,7 +72,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const Transform &SceneTransform3D::getLocalToWorldTransform() const
+    const Transform &Transform3D::getLocalToWorldTransform() const
     {
         if (isDirty())
         {
@@ -86,7 +86,7 @@ namespace Tiny3D
 
             if (node != nullptr)
             {
-                SceneTransform3DPtr xform = node->getTransform3D();
+                Transform3DPtr xform = node->getTransform3D();
                 const Transform &transform = xform->getLocalToWorldTransform();
                 mWorldTransform.applyTransform(transform, mPosition, 
                     mOrientation, mScaling);
@@ -107,7 +107,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneTransform3D::setDirty(bool isDirty, bool recursive /* = false */)
+    void Transform3D::setDirty(bool isDirty, bool recursive /* = false */)
     {
         mIsDirty = isDirty;
 
@@ -118,7 +118,7 @@ namespace Tiny3D
             while (child != nullptr)
             {
                 SceneNodePtr node = smart_pointer_cast<SceneNode>(child);
-                SceneTransform3DPtr xform = node->getTransform3D();
+                Transform3DPtr xform = node->getTransform3D();
                 xform->setDirty(isDirty, recursive);
                 child = child->getNextSibling();
             }
@@ -127,9 +127,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ComponentPtr SceneTransform3D::clone() const
+    ComponentPtr Transform3D::clone() const
     {
-        SceneTransform3DPtr newObj = create();
+        Transform3DPtr newObj = create();
         if (cloneProperties(newObj) != T3D_OK)
         {
             newObj = nullptr;
@@ -138,7 +138,7 @@ namespace Tiny3D
     }
     //--------------------------------------------------------------------------
 
-    void SceneTransform3D::onAttachSceneNode(SceneNode *node)
+    void Transform3D::onAttachSceneNode(SceneNode *node)
     {
         Component::onAttachSceneNode(node);
 
@@ -147,27 +147,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneTransform3D::onDetachSceneNode(SceneNode *node)
+    void Transform3D::onDetachSceneNode(SceneNode *node)
     {
         Component::onDetachSceneNode(node);
     }
 
     //--------------------------------------------------------------------------
 
-    void SceneTransform3D::updateTransform()
+    void Transform3D::updateTransform()
     {
         getLocalToWorldTransform();
     }
 
     //--------------------------------------------------------------------------
 
-    TResult SceneTransform3D::cloneProperties(ComponentPtr newObj) const
+    TResult Transform3D::cloneProperties(ComponentPtr newObj) const
     {
         TResult ret = Component::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SceneTransform3DPtr obj = smart_pointer_cast<SceneTransform3D>(newObj);
+            Transform3DPtr obj = smart_pointer_cast<Transform3D>(newObj);
             obj->mPosition = mPosition;
             obj->mOrientation = mOrientation;
             obj->mScaling = mScaling;

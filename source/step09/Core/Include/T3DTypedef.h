@@ -111,21 +111,21 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(SceneNode);
 
-    T3D_DECLARE_SMART_PTR(SceneTransform3D);
+    T3D_DECLARE_SMART_PTR(Transform3D);
     T3D_DECLARE_SMART_PTR(Bone);
 
-    T3D_DECLARE_SMART_PTR(SceneCamera);
-    T3D_DECLARE_SMART_PTR(SceneLight);
+    T3D_DECLARE_SMART_PTR(Camera);
+    T3D_DECLARE_SMART_PTR(Light);
     T3D_DECLARE_SMART_PTR(SceneModel);
 
-    T3D_DECLARE_SMART_PTR(SceneRenderable);
-    T3D_DECLARE_SMART_PTR(SceneMesh);
+    T3D_DECLARE_SMART_PTR(Renderable);
+    T3D_DECLARE_SMART_PTR(Mesh);
     T3D_DECLARE_SMART_PTR(SceneTerrain);
-    T3D_DECLARE_SMART_PTR(SceneBillboard);
-    T3D_DECLARE_SMART_PTR(SceneQuad);
-    T3D_DECLARE_SMART_PTR(SceneBox);
-    T3D_DECLARE_SMART_PTR(SceneAxis);
-    T3D_DECLARE_SMART_PTR(SceneSphere);
+    T3D_DECLARE_SMART_PTR(Billboard);
+    T3D_DECLARE_SMART_PTR(Quad);
+    T3D_DECLARE_SMART_PTR(Cube);
+    T3D_DECLARE_SMART_PTR(Axis);
+    T3D_DECLARE_SMART_PTR(Globe);
 
     T3D_DECLARE_SMART_PTR(SceneTransform2D);
     T3D_DECLARE_SMART_PTR(SceneSprite);

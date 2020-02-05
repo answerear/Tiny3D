@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 
-#include "Scene/T3DSceneQuad.h"
+#include "Component/T3DQuad.h"
 #include "Render/T3DRenderQueue.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
@@ -52,10 +52,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneQuadPtr SceneQuad::create(const Quad &quad, const String &materialName,
+    QuadPtr Quad::create(const QuadData &quad, const String &materialName,
         ID uID /* = E_CID_AUTOMATIC */)
     {
-        SceneQuadPtr q = new SceneQuad(uID);
+        QuadPtr q = new Quad(uID);
         q->release();
 
         if (q->init(quad, materialName) != T3D_OK)
@@ -68,8 +68,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneQuad::SceneQuad(ID uID /* = E_CID_AUTOMATIC */)
-        : SceneRenderable(uID)
+    Quad::Quad(ID uID /* = E_CID_AUTOMATIC */)
+        : Renderable(uID)
         , mMaterial(nullptr)
         , mVAO(nullptr)
     {
@@ -78,22 +78,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneQuad::~SceneQuad()
+    Quad::~Quad()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    const String &SceneQuad::getType() const
+    const String &Quad::getType() const
     {
-        static const String name = "SceneQuad";
+        static const String name = "Quad";
         return name;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult SceneQuad::init(const Quad &quad, const String &materialName)
+    TResult Quad::init(const QuadData &quad, const String &materialName)
     {
         TResult ret = T3D_OK;
 
@@ -134,14 +134,14 @@ namespace Tiny3D
             if (mVAO == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create VAO for SceneQuad failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create VAO for Quad failed !");
                 break;
             }
 
             ret = mVAO->beginBinding();
             if (ret != T3D_OK)
             {
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for SceneQuad failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for Quad failed !");
                 break;
             }
 
@@ -152,7 +152,7 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_INVALID_POINTER;
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex declaration for \
-                    SceneQuad failed !");
+                    Quad failed !");
                 break;
             }
 
@@ -177,7 +177,7 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_INVALID_POINTER;
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex buffer for \
-                    SceneQuad failed !");
+                    Quad failed !");
                 break;
             }
 
@@ -190,7 +190,7 @@ namespace Tiny3D
             if (ibo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create index buffer for SceneQuad \
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create index buffer for Quad \
                     failed !");
                 break;
             }
@@ -211,9 +211,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ComponentPtr SceneQuad::clone() const
+    ComponentPtr Quad::clone() const
     {
-        SceneQuadPtr quad = new SceneQuad();
+        QuadPtr quad = new Quad();
         quad->release();
 
         if (cloneProperties(quad) != T3D_OK)
@@ -226,13 +226,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneQuad::cloneProperties(ComponentPtr newObj) const
+    TResult Quad::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = SceneRenderable::cloneProperties(newObj);
+        TResult ret = Renderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SceneQuadPtr quad = smart_pointer_cast<SceneQuad>(newObj);
+            QuadPtr quad = smart_pointer_cast<Quad>(newObj);
             ret = quad->init(mQuad, mMaterial->getName());
         }
 
@@ -241,7 +241,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneQuad::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+    void Quad::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
     {
         FrustumBoundPtr frustumBound = smart_pointer_cast<FrustumBound>(bound);
 
@@ -264,21 +264,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneQuad::updateBound()
+    void Quad::updateBound()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr SceneQuad::getMaterial() const
+    MaterialPtr Quad::getMaterial() const
     {
         return mMaterial;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr SceneQuad::getVertexArrayObject() const
+    VertexArrayObjectPtr Quad::getVertexArrayObject() const
     {
         return mVAO;
     }

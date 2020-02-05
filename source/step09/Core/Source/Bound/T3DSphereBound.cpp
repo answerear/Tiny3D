@@ -19,7 +19,7 @@
 
 
 #include "Bound/T3DSphereBound.h"
-#include "Scene/T3DSceneSphere.h"
+#include "Component/T3DGlobe.h"
 
 
 namespace Tiny3D
@@ -74,7 +74,7 @@ namespace Tiny3D
         SphereBoundPtr sphereBound = smart_pointer_cast<SphereBound>(bound);
         sphereBound->mOriginalSphere = mOriginalSphere;
         sphereBound->mRenderable 
-            = smart_pointer_cast<SceneSphere>(mRenderable->clone());
+            = smart_pointer_cast<Globe>(mRenderable->clone());
     }
 
     //--------------------------------------------------------------------------
@@ -90,7 +90,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneRenderablePtr SphereBound::getRenderable()
+    RenderablePtr SphereBound::getRenderable()
     {
         return mRenderable;
     }

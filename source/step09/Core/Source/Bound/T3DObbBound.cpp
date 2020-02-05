@@ -19,7 +19,7 @@
 
 
 #include "Bound/T3DObbBound.h"
-#include "Scene/T3DSceneBox.h"
+#include "Component/T3DCube.h"
 
 
 namespace Tiny3D
@@ -73,7 +73,7 @@ namespace Tiny3D
         ObbBoundPtr newBound = smart_pointer_cast<ObbBound>(bound);
         newBound->mObb = mObb;
         newBound->mOriginalObb = mOriginalObb;
-        newBound->mRenderable = smart_pointer_cast<SceneBox>(mRenderable->clone());
+        newBound->mRenderable = smart_pointer_cast<Cube>(mRenderable->clone());
     }
 
     //--------------------------------------------------------------------------
@@ -108,7 +108,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneRenderablePtr ObbBound::getRenderable()
+    RenderablePtr ObbBound::getRenderable()
     {
         return mRenderable;
     }

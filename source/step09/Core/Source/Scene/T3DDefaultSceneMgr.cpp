@@ -21,16 +21,15 @@
 #include "Scene/T3DDefaultSceneMgr.h"
 #include "Render/T3DRenderQueue.h"
 #include "Render/T3DViewport.h"
-#include "Scene/T3DSceneTransform3D.h"
-#include "Scene/T3DSceneCamera.h"
-#include "Scene/T3DSceneLight.h"
-#include "Scene/T3DSceneModel.h"
-#include "Scene/T3DSceneMesh.h"
-#include "Scene/T3DSceneAxis.h"
-#include "Scene/T3DSceneBillboard.h"
-#include "Scene/T3DSceneQuad.h"
-#include "Scene/T3DSceneBox.h"
-#include "Scene/T3DSceneSphere.h"
+#include "Component/T3DTransform3D.h"
+#include "Component/T3DCamera.h"
+#include "Component/T3DLight.h"
+#include "Component/T3DMesh.h"
+#include "Component/T3DAxis.h"
+#include "Component/T3DBillboard.h"
+#include "Component/T3DQuad.h"
+#include "Component/T3DCube.h"
+#include "Component/T3DGlobe.h"
 #include "Kernel/T3DAgent.h"
 
 
@@ -135,7 +134,7 @@ namespace Tiny3D
         // 清空渲染队列
         mRenderQueue->clear();
 
-        SceneCameraPtr camera = viewport->getCamera();
+        CameraPtr camera = viewport->getCamera();
 
         // 做视锥体裁剪
         frustumCulling(camera);
@@ -154,7 +153,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult DefaultSceneMgr::frustumCulling(SceneCameraPtr camera)
+    TResult DefaultSceneMgr::frustumCulling(CameraPtr camera)
     {
         TResult ret = T3D_OK;
 
@@ -174,7 +173,7 @@ namespace Tiny3D
 
                 Slot &slot = mRenderables[i];
                 
-                SceneRenderablePtr renderable = slot.first;
+                RenderablePtr renderable = slot.first;
                 while (renderable != nullptr)
                 {
                     if (renderable->getSceneNode()->isEnabled() 
@@ -220,7 +219,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult DefaultSceneMgr::addRenderable(SceneRenderablePtr renderable)
+    TResult DefaultSceneMgr::addRenderable(RenderablePtr renderable)
     {
         TResult ret = T3D_OK;
 
@@ -263,7 +262,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult DefaultSceneMgr::removeRenderable(SceneRenderablePtr renderable)
+    TResult DefaultSceneMgr::removeRenderable(RenderablePtr renderable)
     {
         TResult ret = T3D_OK;
 

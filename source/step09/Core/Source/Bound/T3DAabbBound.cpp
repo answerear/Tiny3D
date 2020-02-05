@@ -19,7 +19,7 @@
 
 
 #include "Bound/T3DAabbBound.h"
-#include "Scene/T3DSceneBox.h"
+#include "Component/T3DCube.h"
 
 
 namespace Tiny3D
@@ -75,7 +75,7 @@ namespace Tiny3D
         aabbBound->mAabb = mAabb;
         aabbBound->mOriginalAabb = mOriginalAabb;
         aabbBound->mRenderable 
-            = smart_pointer_cast<SceneBox>(mRenderable->clone());
+            = smart_pointer_cast<Cube>(mRenderable->clone());
     }
 
     //--------------------------------------------------------------------------
@@ -89,7 +89,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneRenderablePtr AabbBound::getRenderable()
+    RenderablePtr AabbBound::getRenderable()
     {
         return mRenderable;
     }

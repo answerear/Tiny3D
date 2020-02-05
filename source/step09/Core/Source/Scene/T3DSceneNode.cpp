@@ -19,13 +19,13 @@
 
 
 #include "Scene/T3DSceneNode.h"
-#include "Scene/T3DSceneCamera.h"
-#include "Scene/T3DSceneBox.h"
-#include "Scene/T3DSceneSphere.h"
+#include "Component/T3DCamera.h"
+#include "Component/T3DCube.h"
+#include "Component/T3DGlobe.h"
 #include "Kernel/T3DAgent.h"
 #include "Component/T3DComponent.h"
 #include "Component/T3DComponentCreator.h"
-#include "Scene/T3DSceneRenderable.h"
+#include "Component/T3DRenderable.h"
 #include "Scene/T3DSceneManager.h"
 
 
@@ -265,13 +265,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneTransform3DPtr SceneNode::addTransform()
+    Transform3DPtr SceneNode::addTransform()
     {
-        ComponentPtr component = createComponent(1, "SceneTransform3D");
+        ComponentPtr component = createComponent(1, "Transform3D");
 
         if (component != nullptr)
         {
-            mTransform3D = smart_pointer_cast<SceneTransform3D>(component);
+            mTransform3D = smart_pointer_cast<Transform3D>(component);
             component->onAttachSceneNode(this);
         }
 
@@ -280,13 +280,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneRenderablePtr SceneNode::addRenderable(const String &type)
+    RenderablePtr SceneNode::addRenderable(const String &type)
     {
         ComponentPtr component = createComponent(1, type.c_str());
 
         if (component != nullptr)
         {
-            mRenderable = smart_pointer_cast<SceneRenderable>(component);
+            mRenderable = smart_pointer_cast<Renderable>(component);
             component->onAttachSceneNode(this);
         }
 
@@ -295,7 +295,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneCameraPtr SceneNode::addCamera()
+    CameraPtr SceneNode::addCamera()
     {
         if (mTransform3D != nullptr)
         {
@@ -303,20 +303,20 @@ namespace Tiny3D
             mTransform3D = nullptr;
         }
 
-        ComponentPtr component = createComponent(1, "SceneCamera");
+        ComponentPtr component = createComponent(1, "Camera");
 
         if (component != nullptr)
         {
-            mTransform3D = smart_pointer_cast<SceneTransform3D>(component);
+            mTransform3D = smart_pointer_cast<Transform3D>(component);
             component->onAttachSceneNode(this);
         }
 
-        return smart_pointer_cast<SceneCamera>(component);
+        return smart_pointer_cast<Camera>(component);
     }
 
     //--------------------------------------------------------------------------
 
-    SceneBoxPtr SceneNode::addCube(const Vector3 &center, const Vector3 &extent)
+    CubePtr SceneNode::addCube(const Vector3 &center, const Vector3 &extent)
     {
         if (mRenderable != nullptr)
         {
@@ -324,20 +324,20 @@ namespace Tiny3D
             mRenderable = nullptr;
         }
 
-        ComponentPtr component = createComponent(3, "SceneBox", &center, &extent);
+        ComponentPtr component = createComponent(3, "Cube", &center, &extent);
 
         if (component != nullptr)
         {
-            mRenderable = smart_pointer_cast<SceneRenderable>(component);
+            mRenderable = smart_pointer_cast<Renderable>(component);
             component->onAttachSceneNode(this);
         }
 
-        return smart_pointer_cast<SceneBox>(component);
+        return smart_pointer_cast<Cube>(component);
     }
 
     //--------------------------------------------------------------------------
 
-    SceneSpherePtr SceneNode::addSphere(const Vector3 &center, Real radius)
+    GlobePtr SceneNode::addSphere(const Vector3 &center, Real radius)
     {
         if (mRenderable != nullptr)
         {
@@ -345,15 +345,15 @@ namespace Tiny3D
             mRenderable = nullptr;
         }
 
-        ComponentPtr component = createComponent(3, "SceneSphere", &center, &radius);
+        ComponentPtr component = createComponent(3, "Globe", &center, &radius);
 
         if (component != nullptr)
         {
-            mRenderable = smart_pointer_cast<SceneRenderable>(component);
+            mRenderable = smart_pointer_cast<Renderable>(component);
             component->onAttachSceneNode(this);
         }
 
-        return smart_pointer_cast<SceneSphere>(component);
+        return smart_pointer_cast<Globe>(component);
     }
 
     //--------------------------------------------------------------------------

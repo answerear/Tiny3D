@@ -95,13 +95,13 @@ namespace Tiny3D
         void setFrustumFaces(Plane *plane, size_t planeCount);
 
         /**
-         * @fn  virtual SceneRenderablePtr 
+         * @fn  virtual RenderablePtr 
          *      FrustumBound::getRenderable() override;
          * @brief   实现基类接口
          * @return  The renderable.
-         * @sa  SceneRenderablePtr Bound::getRenderable()
+         * @sa  RenderablePtr Bound::getRenderable()
          */
-        virtual SceneRenderablePtr getRenderable() override;
+        virtual RenderablePtr getRenderable() override;
 
         /**
          * @fn  virtual void FrustumBound::updateBound(
@@ -174,7 +174,7 @@ namespace Tiny3D
     protected:
         Frustum     mFrustum;           /**< 可变换的视锥体对象 */
         Frustum     mOriginalFrustum;   /**< 不参与变换的原始视锥体 */
-        SceneBoxPtr mRenderable;        /**< 用于渲染碰撞体的可渲染对象 */
+        CubePtr mRenderable;        /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 

@@ -27,7 +27,7 @@
 #include "Kernel/T3DObject.h"
 #include "Kernel/T3DBlendMode.h"
 #include "Kernel/T3DCommon.h"
-#include "Scene/T3DSceneLight.h"
+#include "Component/T3DLight.h"
 
 
 namespace Tiny3D

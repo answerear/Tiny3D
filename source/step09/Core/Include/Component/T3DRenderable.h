@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SCENE_RENDERABLE_H__
-#define __T3D_SCENE_RENDERABLE_H__
+#ifndef __T3D_RENDERABLE_H__
+#define __T3D_RENDERABLE_H__
 
 
 #include "Component/T3DComponent.h"
@@ -33,7 +33,7 @@ namespace Tiny3D
     /**
      * @brief 场景中 3D 可渲染对象基类，用于渲染 3D 物体
      */
-    class T3D_ENGINE_API SceneRenderable : public Component
+    class T3D_ENGINE_API Renderable : public Component
     {
         friend class DefaultSceneMgr;
 
@@ -41,7 +41,7 @@ namespace Tiny3D
         /**
          * @brief 析构函数
          */
-        virtual ~SceneRenderable();
+        virtual ~Renderable();
 
         /**
          * @brief 获取渲染使用的材质
@@ -63,17 +63,17 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        SceneRenderable(ID uID = E_CID_AUTOMATIC);
+        Renderable(ID uID = E_CID_AUTOMATIC);
 
         virtual TResult cloneProperties(ComponentPtr newObj) const;
 
         virtual void onAttachSceneNode(SceneNode *node) override;
 
     private:
-        SceneRenderablePtr     mPrev;      /**< 前一个可渲染对象 */
-        SceneRenderablePtr     mNext;      /**< 下一个可渲染对象 */
+        RenderablePtr     mPrev;      /**< 前一个可渲染对象 */
+        RenderablePtr     mNext;      /**< 下一个可渲染对象 */
     };
 }
 
 
-#endif
+#endif  /*__T3D_RENDERABLE_H__*/

@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SCENE_TRANSFORM3D_H__
-#define __T3D_SCENE_TRANSFORM3D_H__
+#ifndef __T3D_TRANSFORM3D_H__
+#define __T3D_TRANSFORM3D_H__
 
 
 #include "Component/T3DComponent.h"
@@ -31,7 +31,7 @@ namespace Tiny3D
     /**
      * @brief 带变换属性的场景树结点
      */
-    class T3D_ENGINE_API SceneTransform3D : public Component
+    class T3D_ENGINE_API Transform3D : public Component
     {
     public:
         /**
@@ -39,12 +39,12 @@ namespace Tiny3D
          * @param [in] unID : 结点唯一标识，默认是自动生成
          * @return 返回一个3D变换结点对象
          */
-        static SceneTransform3DPtr create(ID uID = E_CID_AUTOMATIC);
+        static Transform3DPtr create(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 析构函数
          */
-        virtual ~SceneTransform3D();
+        virtual ~Transform3D();
 
         /**
          * @brief 从父类继承来重写接口，获取结点类型
@@ -305,7 +305,7 @@ namespace Tiny3D
          * @brief 默认构造函数
          * @param [in] uID : 结点唯一标识，默认是自动生成
          */
-        SceneTransform3D(ID uID = E_CID_AUTOMATIC);
+        Transform3D(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 从父类继承，重写以响应结点挂到父结点的通知事件
@@ -340,7 +340,7 @@ namespace Tiny3D
 }
 
 
-#include "T3DSceneTransform3D.inl"
+#include "T3DTransform3D.inl"
 
 
-#endif  /*__T3D_SCENE_TRANSFORM3D_H__*/
+#endif  /*__T3D_TRANSFORM3D_H__*/

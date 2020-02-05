@@ -18,27 +18,27 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SCENE_AXIS_H__
-#define __T3D_SCENE_AXIS_H__
+#ifndef __T3D_AXIS_H__
+#define __T3D_AXIS_H__
 
 
-#include "Scene/T3DSceneRenderable.h"
+#include "Component/T3DRenderable.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @class   SceneAxis
+     * @class   Axis
      * @brief   坐标轴场景渲染类型，用于渲染三个坐标轴
      */
-    class T3D_ENGINE_API SceneAxis : public SceneRenderable
+    class T3D_ENGINE_API Axis : public Renderable
     {
     public:
         /**
          * @enum    Axis
          * @brief   坐标类型
          */
-        enum Axis
+        enum class Type : uint32_t
         {
             AXIS_X = 0, /**< X轴 */
             AXIS_Y,     /**< Y轴 */
@@ -46,7 +46,7 @@ namespace Tiny3D
         };
 
         /**
-         * @fn  static SceneAxisPtr SceneAxis::create(Real X, Real Y, Real Z, 
+         * @fn  static AxisPtr Axis::create(Real X, Real Y, Real Z, 
          *      ID uID = E_NID_AUTOMATIC);
          * @brief   创建坐标轴场景渲染对象
          * @param [in]  X   : X轴的长度.
@@ -55,17 +55,17 @@ namespace Tiny3D
          * @param [in]  uID (Optional) : 结点ID，默认自动生成.
          * @return  返回一个坐标轴场景渲染对象.
          */
-        static SceneAxisPtr create(Real X, Real Y, Real Z, 
+        static AxisPtr create(Real X, Real Y, Real Z, 
             ID uID = E_CID_AUTOMATIC);
 
         /**
-         * @fn  virtual SceneAxis::~SceneAxis();
+         * @fn  virtual Axis::~Axis();
          * @brief   析构函数
          */
-        virtual ~SceneAxis();
+        virtual ~Axis();
 
         /**
-         * @fn  virtual Type SceneAxis::getNodeType() const override;
+         * @fn  virtual Type Axis::getNodeType() const override;
          * @brief   重写基类接口，返回当前结点类型
          * @return  The node type.
          * @sa  Node::Type Node::getNodeType() const
@@ -73,7 +73,7 @@ namespace Tiny3D
         virtual const String &getType() const override;
 
         /**
-         * @fn  virtual NodePtr SceneAxis::clone() const override;
+         * @fn  virtual NodePtr Axis::clone() const override;
          * @brief   重写基类接口，实现当前结点的克隆功能
          * @return  A copy of this object.
          * @sa  NodePr Node::clone() const
@@ -81,25 +81,25 @@ namespace Tiny3D
         virtual ComponentPtr clone() const override;
 
         /**
-         * @fn  Real SceneAxis::getAxisLength(Axis axis) const;
+         * @fn  Real Axis::getAxisLength(Axis axis) const;
          * @brief   获取坐标轴长度
          * @param   axis    The axis.
          * @return  返回坐标轴长度.
          * @sa  void setAxisLength(Axis axis, Real length)
          * @sa  enum Axis
          */
-        Real getAxisLength(Axis axis) const;
+        Real getAxisLength(Axis::Type axis) const;
 
     protected:
         /**
-         * @fn  SceneAxis::SceneAxis(ID uID = E_NID_AUTOMATIC);
+         * @fn  Axis::Axis(ID uID = E_NID_AUTOMATIC);
          * @brief   构造函数
          * @param   uID (Optional) The identifier.
          */
-        SceneAxis(ID uID = E_CID_AUTOMATIC);
+        Axis(ID uID = E_CID_AUTOMATIC);
 
         /**
-         * @fn  virtual TResult SceneAxis::init(Real X, Real Y, Real Z);
+         * @fn  virtual TResult Axis::init(Real X, Real Y, Real Z);
          * @brief   初始化
          * @param [in]  X   : X轴的长度.
          * @param [in]  Y   : Y轴的长度.
@@ -109,7 +109,7 @@ namespace Tiny3D
         virtual TResult init(Real X, Real Y, Real Z);
 
         /**
-         * @fn  virtual TResult SceneAxis::cloneProperties(NodePtr node) 
+         * @fn  virtual TResult Axis::cloneProperties(NodePtr node) 
          *      const override;
          * @brief   重写基类接口，实现当前结点的属性克隆功能
          * @param   node    The node.
@@ -119,14 +119,14 @@ namespace Tiny3D
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         /**
-         * @fn  virtual void SceneAxis::updateTransform() override;
+         * @fn  virtual void Axis::updateTransform() override;
          * @brief   重写基类接口，实现结点的自身变换
          * @sa  void SceneNode::updateTransform()
          */
         virtual void updateBound() override;
 
         /**
-         * @fn  virtual void SceneAxis::frustumCulling(BoundPtr bound, 
+         * @fn  virtual void Axis::frustumCulling(BoundPtr bound, 
          *      RenderQueuePtr queue) override;
          * @brief   重写基类接口，实现结点的视锥体裁剪逻辑
          * @param   bound   The bound.
@@ -137,19 +137,19 @@ namespace Tiny3D
         virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) override;
 
         /**
-         * @fn  virtual MaterialPtr SceneAxis::getMaterial() const override;
+         * @fn  virtual MaterialPtr Axis::getMaterial() const override;
          * @brief   重写基类接口，实现获取渲染用的材质
          * @return  The material.
-         * @sa  MaterialPtr SceneRenderable::getMaterial() const
+         * @sa  MaterialPtr Renderable::getMaterial() const
          */
         virtual MaterialPtr getMaterial() const override;
 
         /**
-         * @fn  virtual VertexArrayObjectPtr SceneAxis::getVertexArrayObject() 
+         * @fn  virtual VertexArrayObjectPtr Axis::getVertexArrayObject() 
          *      const override;
          * @brief   重写基类接口，实现获取VAO对象
          * @return  The vertex array object.
-         * @sa  VertexArrayObjectPtr SceneRenderable::getVertexArrrayObject() const
+         * @sa  VertexArrayObjectPtr Renderable::getVertexArrrayObject() const
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
@@ -164,4 +164,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_SCENE_AXIS_H__*/
+#endif  /*__T3D_AXIS_H__*/

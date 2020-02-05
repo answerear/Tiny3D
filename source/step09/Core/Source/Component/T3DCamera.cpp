@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#include "Scene/T3DSceneCamera.h"
-#include "Scene/T3DSceneTransform3D.h"
+#include "Component/T3DCamera.h"
+#include "Component/T3DTransform3D.h"
 #include "Scene/T3DSceneNode.h"
 #include "Render/T3DViewport.h"
 #include "Render/T3DRenderer.h"
@@ -31,9 +31,9 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SceneCameraPtr SceneCamera::create(ID uID /* = E_CID_AUTOMATIC */)
+    CameraPtr Camera::create(ID uID /* = E_CID_AUTOMATIC */)
     {
-        SceneCameraPtr camera = new SceneCamera(uID);
+        CameraPtr camera = new Camera(uID);
         camera->release();
 
         if (camera->init() != T3D_OK)
@@ -46,8 +46,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneCamera::SceneCamera(ID uID /* = E_CID_AUTOMATIC */)
-        : SceneTransform3D(uID)
+    Camera::Camera(ID uID /* = E_CID_AUTOMATIC */)
+        : Transform3D(uID)
         , mBound(nullptr)
         , mProjType(E_PT_PERSPECTIVE)
         , mObjectMask(0)
@@ -67,14 +67,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneCamera::~SceneCamera()
+    Camera::~Camera()
     {
         mBound = nullptr;
     }
     
     //--------------------------------------------------------------------------
 
-    TResult SceneCamera::init()
+    TResult Camera::init()
     {
         TResult ret = T3D_OK;
 
@@ -85,15 +85,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const String &SceneCamera::getType() const
+    const String &Camera::getType() const
     {
-        static const String name = "SceneCamera";
+        static const String name = "Camera";
         return name;
     }
 
     //--------------------------------------------------------------------------
 
-    void SceneCamera::lookAt(const Vector3 &pos, const Vector3 &obj, 
+    void Camera::lookAt(const Vector3 &pos, const Vector3 &obj, 
         const Vector3 &up)
     {
         Vector3 N = obj - pos;
@@ -120,15 +120,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneCamera::setDirty(bool isDirty, bool recursive /* = false */)
+    void Camera::setDirty(bool isDirty, bool recursive /* = false */)
     {
-        SceneTransform3D::setDirty(isDirty, recursive);
+        Transform3D::setDirty(isDirty, recursive);
         mIsViewDirty = isDirty;
     }
 
     //--------------------------------------------------------------------------
 
-    const Matrix4 &SceneCamera::getViewMatrix() const
+    const Matrix4 &Camera::getViewMatrix() const
     {
         if (mIsViewDirty)
         {
@@ -170,7 +170,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const Matrix4 &SceneCamera::getProjectionMatrix() const
+    const Matrix4 &Camera::getProjectionMatrix() const
     {
         if (mIsFrustumDirty)
         {
@@ -203,9 +203,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ComponentPtr SceneCamera::clone() const
+    ComponentPtr Camera::clone() const
     {
-        SceneCameraPtr camera = create();
+        CameraPtr camera = create();
         
         if (cloneProperties(camera) != T3D_OK)
         {
@@ -217,13 +217,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneCamera::cloneProperties(ComponentPtr newObj) const
+    TResult Camera::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = SceneTransform3D::cloneProperties(newObj);
+        TResult ret = Transform3D::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SceneCameraPtr camera = smart_pointer_cast<SceneCamera>(newObj);
+            CameraPtr camera = smart_pointer_cast<Camera>(newObj);
             camera->mProjType = mProjType;
             camera->mObjectMask = mObjectMask;
             camera->mFovY = mFovY;
@@ -241,7 +241,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneCamera::updateTransform()
+    void Camera::updateTransform()
     {
         bool isViewDirty = mIsViewDirty;
         bool isFrustumDirty = mIsFrustumDirty;
@@ -259,6 +259,6 @@ namespace Tiny3D
             renderer->updateFrustum(M, bound);
         }
 
-        SceneTransform3D::updateTransform();
+        Transform3D::updateTransform();
     }
 }

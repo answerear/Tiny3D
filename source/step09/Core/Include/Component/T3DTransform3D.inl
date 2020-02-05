@@ -22,7 +22,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::setPosition(const Vector3 &pos)
+    inline void Transform3D::setPosition(const Vector3 &pos)
     {
         if (pos != mPosition)
         {
@@ -33,7 +33,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::setPosition(Real x, Real y, Real z)
+    inline void Transform3D::setPosition(Real x, Real y, Real z)
     {
         Vector3 pos(x, y, z);
         setPosition(pos);
@@ -41,14 +41,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline const Vector3 &SceneTransform3D::getPosition() const
+    inline const Vector3 &Transform3D::getPosition() const
     {
         return mPosition;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::setOrientation(const Quaternion &orientation)
+    inline void Transform3D::setOrientation(const Quaternion &orientation)
     {
         if (orientation != mOrientation)
         {
@@ -59,7 +59,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::setOrientation(Real w, Real x, Real y, Real z)
+    inline void Transform3D::setOrientation(Real w, Real x, Real y, Real z)
     {
         Quaternion q(w, x, y, z);
         setOrientation(q);
@@ -67,7 +67,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::setOrientation(const Radian &radian,
+    inline void Transform3D::setOrientation(const Radian &radian,
         const Vector3 &axis)
     {
         Quaternion q(radian, axis);
@@ -76,14 +76,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline const Quaternion &SceneTransform3D::getOrientation() const
+    inline const Quaternion &Transform3D::getOrientation() const
     {
         return mOrientation;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::setScaling(const Vector3 &scaling)
+    inline void Transform3D::setScaling(const Vector3 &scaling)
     {
         if (scaling != mScaling)
         {
@@ -94,7 +94,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::setScaling(Real x, Real y, Real z)
+    inline void Transform3D::setScaling(Real x, Real y, Real z)
     {
         Vector3 scaling(x, y, z);
         setScaling(scaling);
@@ -102,14 +102,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline const Vector3 &SceneTransform3D::getScaling() const
+    inline const Vector3 &Transform3D::getScaling() const
     {
         return mScaling;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::translate(const Vector3 &offset)
+    inline void Transform3D::translate(const Vector3 &offset)
     {
         if (offset != Vector3::ZERO)
         {
@@ -120,14 +120,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::translate(Real x, Real y, Real z)
+    inline void Transform3D::translate(Real x, Real y, Real z)
     {
         translate(Vector3(x, y, z));
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::translate(const Vector3 &dir, Real step)
+    inline void Transform3D::translate(const Vector3 &dir, Real step)
     {
         Vector3 offset = dir * step;
         translate(offset);
@@ -135,7 +135,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::rotate(const Quaternion &orientation)
+    inline void Transform3D::rotate(const Quaternion &orientation)
     {
         if (orientation != Quaternion::IDENTITY)
         {
@@ -146,7 +146,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::rotate(const Vector3 &axis, 
+    inline void Transform3D::rotate(const Vector3 &axis, 
         const Radian &radians)
     {
         Quaternion q;
@@ -156,7 +156,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::rotate(const Vector3 &axis,
+    inline void Transform3D::rotate(const Vector3 &axis,
         const Degree &degrees)
     {
         rotate(axis, Radian(degrees));
@@ -164,49 +164,49 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::pitch(const Degree &degrees)
+    inline void Transform3D::pitch(const Degree &degrees)
     {
         rotate(Vector3::UNIT_X, degrees);
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::yaw(const Degree &degrees)
+    inline void Transform3D::yaw(const Degree &degrees)
     {
         rotate(Vector3::UNIT_Y, degrees);
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::roll(const Degree &degrees)
+    inline void Transform3D::roll(const Degree &degrees)
     {
         rotate(Vector3::UNIT_Z, degrees);
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::pitch(const Radian &radians)
+    inline void Transform3D::pitch(const Radian &radians)
     {
         rotate(Vector3::UNIT_X, radians);
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::yaw(const Radian &radians)
+    inline void Transform3D::yaw(const Radian &radians)
     {
         rotate(Vector3::UNIT_Y, radians);
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::roll(const Radian &radians)
+    inline void Transform3D::roll(const Radian &radians)
     {
         rotate(Vector3::UNIT_Z, radians);
     }
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::scale(const Vector3 &scaling)
+    inline void Transform3D::scale(const Vector3 &scaling)
     {
         if (scaling != mScaling)
         {
@@ -217,21 +217,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void SceneTransform3D::scale(Real x, Real y, Real z)
+    inline void Transform3D::scale(Real x, Real y, Real z)
     {
         scale(Vector3(x, y, z));
     }
 
     //--------------------------------------------------------------------------
 
-    inline Transform SceneTransform3D::getLocalTransform() const
+    inline Transform Transform3D::getLocalTransform() const
     {
         return Transform(mPosition, mScaling, mOrientation);
     }
 
     //--------------------------------------------------------------------------
 
-    inline bool SceneTransform3D::isDirty() const
+    inline bool Transform3D::isDirty() const
     {
         return mIsDirty;
     }

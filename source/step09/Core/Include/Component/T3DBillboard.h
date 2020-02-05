@@ -18,33 +18,44 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SCENE_LIGHT_H__
-#define __T3D_SCENE_LIGHT_H__
+#ifndef __T3D_BILLBOARD_H__
+#define __T3D_BILLBOARD_H__
 
 
-#include "Scene/T3DSceneTransform3D.h"
+#include "Component/T3DRenderable.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SceneLight : public SceneTransform3D
+    /**
+     * @class   Billboard
+     * @brief   A 3D engine api.
+     */
+    class T3D_ENGINE_API Billboard : public Renderable
     {
     public:
-        static SceneLightPtr create(ID uID = E_CID_AUTOMATIC);
+        static BillboardPtr create(ID uID = E_CID_AUTOMATIC);
 
-        virtual ~SceneLight();
+        virtual ~Billboard();
 
         virtual const String &getType() const override;
 
     protected:
-        SceneLight(ID uID = E_CID_AUTOMATIC);
+        Billboard(ID uID = E_CID_AUTOMATIC);
 
         virtual ComponentPtr clone() const override;
 
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
+        virtual MaterialPtr getMaterial() const override;
+
+        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
+
+        virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) override;
+
+        virtual void updateBound() override;
     };
 }
 
 
-#endif  /*__T3D_SCENE_LIGHT_H__*/
+#endif  /*__T3D_BILLBOARD_H__*/

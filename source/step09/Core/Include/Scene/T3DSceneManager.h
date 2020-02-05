@@ -64,27 +64,27 @@ namespace Tiny3D
 
         /**
          * @brief 实现基类接口
-         * @see SceneTransform3DPtr SceneManagerBase::createTransform3D(
+         * @see Transform3DPtr SceneManagerBase::createTransform3D(
          *      SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC)
          */
         virtual SceneNodePtr createSceneNode(SceneNodePtr parent,
             bool autoAddTransform = true, ID uID = Node::E_NID_AUTOMATIC) override;
 
         /**
-         * @fn  TResult addRenderable(SceneRenderablePtr renderable);
+         * @fn  TResult addRenderable(RenderablePtr renderable);
          * @brief   添加可渲染对象到对应相机队列，用于视锥体剔除
          * @param [in]  renderable  : 可渲染对象.
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult addRenderable(SceneRenderablePtr renderable) override;
+        virtual TResult addRenderable(RenderablePtr renderable) override;
 
         /**
-         * @fn  TResult removeRenderable(SceneRenderablePtr renderable);
+         * @fn  TResult removeRenderable(RenderablePtr renderable);
          * @brief   根据camera mask来移除可渲染对象
          * @param [in]  renderable  : 可渲染对象.
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult removeRenderable(SceneRenderablePtr renderable) override;
+        virtual TResult removeRenderable(RenderablePtr renderable) override;
 
     protected:
         SceneManager(SceneManagerBase *impl);

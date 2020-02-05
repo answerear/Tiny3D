@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#include "Scene/T3DSceneBox.h"
-#include "Scene/T3DSceneTransform3D.h"
+#include "Component/T3DCube.h"
+#include "Component/T3DTransform3D.h"
 #include "Render/T3DRenderQueue.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
@@ -52,10 +52,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneBoxPtr SceneBox::create(const Vector3 &center, const Vector3 &extent,
+    CubePtr Cube::create(const Vector3 &center, const Vector3 &extent,
         ID uID /* = E_CID_AUTOMATIC */)
     {
-        SceneBoxPtr box = new SceneBox(uID);
+        CubePtr box = new Cube(uID);
         box->release();
         
         if (box->init(center, extent) != T3D_OK)
@@ -68,8 +68,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneBox::SceneBox(ID uID /* = E_CID_AUTOMATIC */)
-        : SceneRenderable(uID)
+    Cube::Cube(ID uID /* = E_CID_AUTOMATIC */)
+        : Renderable(uID)
         , mVAO(nullptr)
         , mBound(nullptr)
     {
@@ -78,22 +78,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneBox::~SceneBox()
+    Cube::~Cube()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    const String &SceneBox::getType() const
+    const String &Cube::getType() const
     {
-        static const String name = "SceneBox";
+        static const String name = "Cube";
         return name;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult SceneBox::init(const Vector3 &center, const Vector3 &extent)
+    TResult Cube::init(const Vector3 &center, const Vector3 &extent)
     {
         TResult ret = T3D_OK;
 
@@ -118,7 +118,7 @@ namespace Tiny3D
             if (mVAO == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create VAO for SceneBox failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create VAO for Cube failed !");
                 break;
             }
 
@@ -126,7 +126,7 @@ namespace Tiny3D
             ret = mVAO->beginBinding();
             if (ret != T3D_OK)
             {
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for SceneBox failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for Cube failed !");
                 break;
             }
 
@@ -137,7 +137,7 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_INVALID_POINTER;
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex declaration for \
-                    SceneBox failed !");
+                    Cube failed !");
                 break;
             }
 
@@ -158,7 +158,7 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_INVALID_POINTER;
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex buffer for \
-                    SceneBox failed !");
+                    Cube failed !");
                 break;
             }
 
@@ -171,7 +171,7 @@ namespace Tiny3D
             if (ibo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create index buffer for SceneBox \
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create index buffer for Cube \
                     failed !");
                 break;
             }
@@ -195,7 +195,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneBox::setupBox(void *vertices, size_t vertexCount, uint16_t *indices, 
+    void Cube::setupBox(void *vertices, size_t vertexCount, uint16_t *indices, 
         size_t indexCount)
     {
         // 
@@ -299,9 +299,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ComponentPtr SceneBox::clone() const
+    ComponentPtr Cube::clone() const
     {
-        SceneBoxPtr box = new SceneBox();
+        CubePtr box = new Cube();
         box->release();
 
         if (cloneProperties(box) != T3D_OK)
@@ -314,13 +314,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneBox::cloneProperties(ComponentPtr newObj) const
+    TResult Cube::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = SceneRenderable::cloneProperties(newObj);
+        TResult ret = Renderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SceneBoxPtr box = smart_pointer_cast<SceneBox>(newObj);
+            CubePtr box = smart_pointer_cast<Cube>(newObj);
             ret = box->init(mCenter, mExtent);
         }
 
@@ -329,16 +329,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneBox::updateBound()
+    void Cube::updateBound()
     {
         // 更新碰撞体
-        SceneTransform3DPtr xform = getSceneNode()->getTransform3D();
+        Transform3DPtr xform = getSceneNode()->getTransform3D();
         mBound->updateBound(xform->getLocalToWorldTransform());
     }
 
     //--------------------------------------------------------------------------
 
-    void SceneBox::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+    void Cube::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
     {
         if (bound->test(mBound))
         {
@@ -349,14 +349,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr SceneBox::getMaterial() const
+    MaterialPtr Cube::getMaterial() const
     {
         return mMaterial;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr SceneBox::getVertexArrayObject() const
+    VertexArrayObjectPtr Cube::getVertexArrayObject() const
     {
         return mVAO;
     }

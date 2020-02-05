@@ -22,10 +22,10 @@
 #include "Memory/T3DSmartPtr.h"
 #include "Component/T3DComponentCreator.h"
 #include "T3DErrorDef.h"
-#include "Scene/T3DSceneTransform3D.h"
-#include "Scene/T3DSceneCamera.h"
-#include "Scene/T3DSceneBox.h"
-#include "Scene/T3DSceneSphere.h"
+#include "Component/T3DTransform3D.h"
+#include "Component/T3DCamera.h"
+#include "Component/T3DCube.h"
+#include "Component/T3DGlobe.h"
 
 namespace Tiny3D
 {
@@ -72,25 +72,25 @@ namespace Tiny3D
 
             String type = va_arg(args, const char *);
 
-            if (type == "SceneTransform3D")
+            if (type == "Transform3D")
             {
-                component = SceneTransform3D::create();
+                component = Transform3D::create();
             }
-            else if (type == "SceneCamera")
+            else if (type == "Camera")
             {
-                component = SceneCamera::create();
+                component = Camera::create();
             }
-            else if (type == "SceneBox")
+            else if (type == "Cube")
             {
                 Vector3 *center = va_arg(args, Vector3 *);
                 Vector3 *extent = va_arg(args, Vector3 *);
-                component = SceneBox::create(*center, *extent);
+                component = Cube::create(*center, *extent);
             }
-            else if (type == "SceneSphere")
+            else if (type == "Globe")
             {
                 Vector3 *center = va_arg(args, Vector3 *);
                 Real *radius = va_arg(args, Real *);
-                component = SceneSphere::create(*center, *radius);
+                component = Globe::create(*center, *radius);
             }
 
             va_end(params);

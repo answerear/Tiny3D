@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#include "Scene/T3DSceneAxis.h"
-#include "Scene/T3DSceneTransform3D.h"
+#include "Component/T3DAxis.h"
+#include "Component/T3DTransform3D.h"
 #include "Render/T3DRenderQueue.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
@@ -50,10 +50,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneAxisPtr SceneAxis::create(Real X, Real Y, Real Z, 
+    AxisPtr Axis::create(Real X, Real Y, Real Z, 
         ID uID /* = E_NID_AUTOMATIC */)
     {
-        SceneAxisPtr axis = new SceneAxis(uID);
+        AxisPtr axis = new Axis(uID);
         axis->release();
 
         if (axis->init(X, Y, Z) != T3D_OK)
@@ -66,8 +66,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneAxis::SceneAxis(ID uID /* = E_NID_AUTOMATIC */)
-        : SceneRenderable(uID)
+    Axis::Axis(ID uID /* = E_NID_AUTOMATIC */)
+        : Renderable(uID)
         , mVAO(nullptr)
         , mBound(nullptr)
     {
@@ -76,14 +76,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneAxis::~SceneAxis()
+    Axis::~Axis()
     {
         mVAO = nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult SceneAxis::init(Real X, Real Y, Real Z)
+    TResult Axis::init(Real X, Real Y, Real Z)
     {
         TResult ret = T3D_OK;
 
@@ -111,14 +111,14 @@ namespace Tiny3D
             if (mVAO == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create VAO for SceneAxis failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create VAO for Axis failed !");
                 break;
             }
 
             ret = mVAO->beginBinding();
             if (ret != T3D_OK)
             {
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for SceneAxis failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for Axis failed !");
                 break;
             }
 
@@ -129,7 +129,7 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_INVALID_POINTER;
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex declaration for \
-                    SceneAxis failed !");
+                    Axis failed !");
                 break;
             }
 
@@ -150,7 +150,7 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_INVALID_POINTER;
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex buffer for \
-                    SceneAxis failed !");
+                    Axis failed !");
                 break;
             }
 
@@ -174,27 +174,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const String &SceneAxis::getType() const
+    const String &Axis::getType() const
     {
-        static const String name = "SceneAxis";
+        static const String name = "Axis";
         return name;
     }
 
     //--------------------------------------------------------------------------
 
-    Real SceneAxis::getAxisLength(Axis axis) const
+    Real Axis::getAxisLength(Axis::Type axis) const
     {
         Real length = 0.0f;
 
         switch (axis)
         {
-        case AXIS_X:
+        case Type::AXIS_X:
             length = mAxisX;
             break;
-        case AXIS_Y:
+        case Type::AXIS_Y:
             length = mAxisY;
             break;
-        case AXIS_Z:
+        case Type::AXIS_Z:
             length = mAxisZ;
             break;
         default:
@@ -206,9 +206,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ComponentPtr SceneAxis::clone() const
+    ComponentPtr Axis::clone() const
     {
-        SceneAxisPtr axis = new SceneAxis();
+        AxisPtr axis = new Axis();
         axis->release();
 
         if (cloneProperties(axis) != T3D_OK)
@@ -221,15 +221,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneAxis::cloneProperties(ComponentPtr newObj) const
+    TResult Axis::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = SceneRenderable::cloneProperties(newObj);
+        TResult ret = Renderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SceneAxisPtr axis = smart_pointer_cast<SceneAxis>(newObj);
-            ret = axis->init(getAxisLength(AXIS_X), getAxisLength(AXIS_Y),
-                getAxisLength(AXIS_Z));
+            AxisPtr axis = smart_pointer_cast<Axis>(newObj);
+            ret = axis->init(getAxisLength(Type::AXIS_X), 
+                getAxisLength(Type::AXIS_Y),
+                getAxisLength(Type::AXIS_Z));
         }
 
         return ret;
@@ -237,16 +238,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneAxis::updateBound()
+    void Axis::updateBound()
     {
         // 更新碰撞体
-        SceneTransform3DPtr xform = getSceneNode()->getTransform3D();
+        Transform3DPtr xform = getSceneNode()->getTransform3D();
         mBound->updateBound(xform->getLocalToWorldTransform());
     }
 
     //--------------------------------------------------------------------------
 
-    void SceneAxis::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+    void Axis::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
     {
         if (bound->test(mBound))
         {
@@ -257,14 +258,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr SceneAxis::getMaterial() const
+    MaterialPtr Axis::getMaterial() const
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr SceneAxis::getVertexArrayObject() const
+    VertexArrayObjectPtr Axis::getVertexArrayObject() const
     {
         return mVAO;
     }

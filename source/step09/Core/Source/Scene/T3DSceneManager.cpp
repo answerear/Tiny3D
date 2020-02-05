@@ -19,16 +19,7 @@
 
 
 #include "Scene/T3DSceneManager.h"
-#include "Scene/T3DSceneTransform3D.h"
-#include "Scene/T3DSceneCamera.h"
-#include "Scene/T3DSceneLight.h"
-#include "Scene/T3DSceneModel.h"
-#include "Scene/T3DSceneMesh.h"
-#include "Scene/T3DSceneAxis.h"
-#include "Scene/T3DSceneQuad.h"
-#include "Scene/T3DSceneBillboard.h"
-#include "Scene/T3DSceneBox.h"
-#include "Scene/T3DSceneSphere.h"
+#include "Scene/T3DSceneNode.h"
 
 
 namespace Tiny3D
@@ -114,7 +105,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneManager::addRenderable(SceneRenderablePtr renderable)
+    TResult SceneManager::addRenderable(RenderablePtr renderable)
     {
         if (mImpl != nullptr)
         {
@@ -126,7 +117,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneManager::removeRenderable(SceneRenderablePtr renderable)
+    TResult SceneManager::removeRenderable(RenderablePtr renderable)
     {
         if (mImpl != nullptr)
         {

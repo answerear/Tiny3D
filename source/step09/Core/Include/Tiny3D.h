@@ -95,20 +95,20 @@
 // Scene Graph
 #include <Scene/T3DSceneNode.h>
 #include <Scene/T3DSceneManager.h>
-#include <Scene/T3DSceneAxis.h>
-#include <Scene/T3DSceneBillboard.h>
-#include <Scene/T3DSceneBox.h>
-#include <Scene/T3DSceneCamera.h>
-#include <Scene/T3DSceneLight.h>
-#include <Scene/T3DSceneMesh.h>
-#include <Scene/T3DSceneModel.h>
-#include <Scene/T3DSceneQuad.h>
-#include <Scene/T3DSceneRenderable.h>
-#include <Scene/T3DSceneSphere.h>
-#include <Scene/T3DSceneTransform3D.h>
 
 // Component
 #include <Component/T3DComponent.h>
 #include <Component/T3DComponentCreator.h>
+#include <Component/T3DAxis.h>
+#include <Component/T3DBillboard.h>
+#include <Component/T3DCube.h>
+#include <Component/T3DCamera.h>
+#include <Component/T3DLight.h>
+#include <Component/T3DMesh.h>
+#include <Component/T3DQuad.h>
+#include <Component/T3DRenderable.h>
+#include <Component/T3DGlobe.h>
+#include <Component/T3DTransform3D.h>
+
 
 #endif  /*__TINY3D_H__*/

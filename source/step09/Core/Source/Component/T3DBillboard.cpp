@@ -18,48 +18,49 @@
  ******************************************************************************/
 
 
-#include "Scene/T3DSceneMesh.h"
+#include "Component/T3DBillboard.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SceneMeshPtr SceneMesh::create(ID uID /* = E_CID_AUTOMATIC */)
+    BillboardPtr Billboard::create(ID uID /* = E_CID_AUTOMATIC */)
     {
-        SceneMeshPtr mesh = new SceneMesh(uID);
-        mesh->release();
-        return mesh;
+        BillboardPtr billboard = new Billboard(uID);
+        billboard->release();
+        return billboard;
     }
 
     //--------------------------------------------------------------------------
 
-    SceneMesh::SceneMesh(ID uID /* = E_CID_AUTOMATIC */)
-        : SceneRenderable(uID)
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneMesh::~SceneMesh()
+    Billboard::Billboard(ID uID /* = E_CID_AUTOMATIC */)
+        : Renderable(uID)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    const String &SceneMesh::getType() const
+    Billboard::~Billboard()
     {
-        static const String name = "SceneMesh";
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    const String &Billboard::getType() const
+    {
+        static const String name = "Billboard";
         return name;
     }
 
     //--------------------------------------------------------------------------
 
-    ComponentPtr SceneMesh::clone() const
+    ComponentPtr Billboard::clone() const
     {
-        SceneMeshPtr newObj = SceneMesh::create();
+        BillboardPtr newObj = Billboard::create();
+
         TResult ret = cloneProperties(newObj);
 
         if (ret != T3D_OK)
@@ -72,9 +73,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneMesh::cloneProperties(ComponentPtr newObj) const
+    TResult Billboard::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = SceneRenderable::cloneProperties(newObj);
+        TResult ret = Renderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
@@ -86,28 +87,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr SceneMesh::getMaterial() const
+    MaterialPtr Billboard::getMaterial() const
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr SceneMesh::getVertexArrayObject() const
+    VertexArrayObjectPtr Billboard::getVertexArrayObject() const
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    void SceneMesh::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+    void Billboard::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    void SceneMesh::updateBound()
+    void Billboard::updateBound()
     {
 
     }

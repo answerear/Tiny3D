@@ -47,9 +47,9 @@ bool GeometryApp::applicationDidFinishLaunching()
     // Ïà»ú
     SceneNodePtr node = T3D_SCENE_MGR.createSceneNode(root, false);
 
-    SceneCameraPtr camera = node->addCamera();
+    CameraPtr camera = node->addCamera();
     camera->lookAt(Vector3(0.0f, 4.0f, 8.0f), Vector3::ZERO, Vector3::UNIT_Y);
-    camera->setProjectionType(SceneCamera::E_PT_PERSPECTIVE);
+    camera->setProjectionType(Camera::E_PT_PERSPECTIVE);
     Real w = Real(renderWindow->getWidth());
     Real h = Real(renderWindow->getHeight());
     Real aspect = w / h;
@@ -65,14 +65,14 @@ bool GeometryApp::applicationDidFinishLaunching()
     // Ïä×Ó
     node = T3D_SCENE_MGR.createSceneNode(root);
     Vector3 extent(1.0f, 1.0f, 1.0f);
-    SceneBoxPtr cube = node->addCube(Vector3::ZERO, extent);
+    CubePtr cube = node->addCube(Vector3::ZERO, extent);
     node->getTransform3D()->setPosition(Vector3(-4.0f, 0.0f, -2.0f));
     node->setCameraMask(OBJ_MASK_SCENE);
 //     box->setScaling(Vector3(100, 100, 100));
 
     // Çò
     node = T3D_SCENE_MGR.createSceneNode(root);
-    SceneSpherePtr sphere = node->addSphere(Vector3::ZERO, 1.0f);
+    GlobePtr sphere = node->addSphere(Vector3::ZERO, 1.0f);
     node->getTransform3D()->setPosition(Vector3(2.0f, 0.0f, 0.0f));
     node->setCameraMask(OBJ_MASK_SCENE);
 
