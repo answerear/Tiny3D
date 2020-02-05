@@ -19,6 +19,7 @@
 
 
 #include "Scene/T3DSceneBox.h"
+#include "Scene/T3DSceneTransform3D.h"
 #include "Render/T3DRenderQueue.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
@@ -52,7 +53,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     SceneBoxPtr SceneBox::create(const Vector3 &center, const Vector3 &extent,
-        ID uID /* = E_NID_AUTOMATIC */)
+        ID uID /* = E_CID_AUTOMATIC */)
     {
         SceneBoxPtr box = new SceneBox(uID);
         box->release();
@@ -67,7 +68,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneBox::SceneBox(ID uID /* = E_NID_AUTOMATIC */)
+    SceneBox::SceneBox(ID uID /* = E_CID_AUTOMATIC */)
         : SceneRenderable(uID)
         , mVAO(nullptr)
         , mBound(nullptr)
@@ -84,9 +85,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Node::Type SceneBox::getNodeType() const
+    const String &SceneBox::getType() const
     {
-        return Type::BOX;
+        static const String name = "SceneBox";
+        return name;
     }
 
     //--------------------------------------------------------------------------
@@ -182,13 +184,10 @@ namespace Tiny3D
             mVAO->endBinding();
 
             // 构建碰撞体
-            mBound = ObbBound::create(this);
+            mBound = ObbBound::create();
             mBound->setCenter(center);
             mBound->setAxis(Vector3::UNIT_X * mExtent[0],
                 Vector3::UNIT_Y * mExtent[1], Vector3::UNIT_Z * mExtent[2]);
-
-            // 需要刷新碰撞体的世界变换
-            setDirty(true);
         } while (0);
 
         return ret;
@@ -300,7 +299,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    NodePtr SceneBox::clone() const
+    ComponentPtr SceneBox::clone() const
     {
         SceneBoxPtr box = new SceneBox();
         box->release();
@@ -315,13 +314,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneBox::cloneProperties(NodePtr node) const
+    TResult SceneBox::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = SceneRenderable::cloneProperties(node);
+        TResult ret = SceneRenderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SceneBoxPtr box = smart_pointer_cast<SceneBox>(node);
+            SceneBoxPtr box = smart_pointer_cast<SceneBox>(newObj);
             ret = box->init(mCenter, mExtent);
         }
 
@@ -330,15 +329,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneBox::updateTransform()
+    void SceneBox::updateBound()
     {
         // 更新碰撞体
-        if (isDirty())
-        {
-            mBound->updateBound(getLocalToWorldTransform());
-        }
-
-        SceneRenderable::updateTransform();
+        SceneTransform3DPtr xform = getSceneNode()->getTransform3D();
+        mBound->updateBound(xform->getLocalToWorldTransform());
     }
 
     //--------------------------------------------------------------------------

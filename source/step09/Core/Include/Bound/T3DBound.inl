@@ -50,13 +50,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline SceneNodePtr Bound::getNode() const
-    {
-        return mNode;
-    }
-
-    //--------------------------------------------------------------------------
-
     inline void Bound::setCollisionSource(bool isSource)
     {
         mIsCollisionSource = isSource;

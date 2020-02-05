@@ -93,8 +93,10 @@ namespace Tiny3D
 
         mRenderQueue = RenderQueue::create();
 
-        mRoot = SceneTransform3D::create();
+        mRoot = SceneNode::create();
         mRoot->setName("Root");
+
+        ComponentPtr component = mRoot->addTransform();
 
         // 预分配32个槽给存放要剔除的可渲染对象
         mRenderables.resize(32, Slot());
@@ -175,7 +177,8 @@ namespace Tiny3D
                 SceneRenderablePtr renderable = slot.first;
                 while (renderable != nullptr)
                 {
-                    if (renderable->isEnabled() && renderable->isVisible())
+                    if (renderable->getSceneNode()->isEnabled() 
+                        && renderable->getSceneNode()->isVisible())
                     {
                         renderable->frustumCulling(bound, mRenderQueue);
                     }
@@ -197,151 +200,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneTransform3DPtr DefaultSceneMgr::createTransform3D(SceneNodePtr parent,
-        ID uID /* = Node::E_NID_AUTOMATIC */)
+    SceneNodePtr DefaultSceneMgr::createSceneNode(SceneNodePtr parent, 
+        bool autoAddTransform /* = true */, ID uID /* = Node::E_NID_AUTOMATIC */)
     {
-        SceneTransform3DPtr node = SceneTransform3D::create(uID);
+        SceneNodePtr node = SceneNode::create(uID);
 
         if (parent != nullptr)
         {
             parent->addChild(node);
         }
 
-        return node;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneCameraPtr DefaultSceneMgr::createCamera(SceneNodePtr parent,
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        SceneCameraPtr node = SceneCamera::create(uID);
-
-        if (parent != nullptr)
+        if (autoAddTransform && node != nullptr)
         {
-            parent->addChild(node);
-        }
-
-        return node;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneLightPtr DefaultSceneMgr::createLight(SceneNodePtr parent, 
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        SceneLightPtr node = SceneLight::create(uID);
-
-        if (parent != nullptr)
-        {
-            parent->addChild(node);
-        }
-
-        return node;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneModelPtr DefaultSceneMgr::createModel(SceneNodePtr parent, 
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        SceneModelPtr node = SceneModel::create(uID);
-
-        if (parent != nullptr)
-        {
-            parent->addChild(node);
-        }
-
-        return node;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneMeshPtr DefaultSceneMgr::createMesh(SceneNodePtr parent, 
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        SceneMeshPtr node = SceneMesh::create(uID);
-
-        if (parent != nullptr)
-        {
-            parent->addChild(node);
-        }
-
-        return node;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneAxisPtr DefaultSceneMgr::createAxis(Real X, Real Y, Real Z, 
-        SceneNodePtr parent, ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        SceneAxisPtr node = SceneAxis::create(X, Y, Z, uID);
-
-        if (parent != nullptr)
-        {
-            parent->addChild(node);
-        }
-
-        return node;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneQuadPtr DefaultSceneMgr::createQuad(const SceneQuad::Quad &quad, 
-        const String &materialName, SceneNodePtr parent, 
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        SceneQuadPtr node = SceneQuad::create(quad, materialName, uID);
-
-        if (parent != nullptr)
-        {
-            parent->addChild(node);
-        }
-
-        return node;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneBillboardPtr DefaultSceneMgr::createBillboard(SceneNodePtr parent, 
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        SceneBillboardPtr node = SceneBillboard::create(uID);
-
-        if (parent != nullptr)
-        {
-            parent->addChild(node);
-        }
-
-        return node;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneBoxPtr DefaultSceneMgr::createBox(const Vector3 &center, 
-        const Vector3 &extent, SceneNodePtr parent, 
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        SceneBoxPtr node = SceneBox::create(center, extent, uID);
-
-        if (parent != nullptr)
-        {
-            parent->addChild(node);
-        }
-
-        return node;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneSpherePtr DefaultSceneMgr::createSphere(const Vector3 &center, 
-        Real radius, SceneNodePtr parent, ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        SceneSpherePtr node = SceneSphere::create(center, radius, uID);
-
-        if (parent != nullptr)
-        {
-            parent->addChild(node);
+            node->addTransform();
         }
 
         return node;
@@ -355,14 +226,14 @@ namespace Tiny3D
 
         do 
         {
-            uint32_t mask = renderable->getCameraMask() - 1;
+            uint32_t mask = renderable->getSceneNode()->getCameraMask() - 1;
 
             if (mask >= sizeof(mask))
             {
                 // 最多支持32个，这里已经越界了
                 ret = T3D_ERR_OUT_OF_BOUND;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Culling renderable mask is \
-                    out of bound !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, 
+                    "Culling renderable mask is out of bound !");
                 break;
             }
 
@@ -398,14 +269,14 @@ namespace Tiny3D
 
         do 
         {
-            uint32_t mask = renderable->getCameraMask() - 1;
+            uint32_t mask = renderable->getSceneNode()->getCameraMask() - 1;
 
             if (mask >= sizeof(mask))
             {
                 // 最多支持32个，这里已经越界了
                 ret = T3D_ERR_OUT_OF_BOUND;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Culling renderable mask is \
-                    out of bound !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, 
+                    "Culling renderable mask is out of bound !");
                 break;
             }
 

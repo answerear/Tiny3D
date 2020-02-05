@@ -42,7 +42,7 @@ namespace Tiny3D
          * @param [in]  uID     (Optional) : 碰撞体ID.
          * @return  返回一个Frustum碰撞体对象.
          */
-        static FrustumBoundPtr create(SceneNode *node, ID uID = E_BID_AUTOMATIC);
+        static FrustumBoundPtr create(ID uID = E_BID_AUTOMATIC);
 
         /**
          * @fn  virtual FrustumBound::~FrustumBound();
@@ -120,7 +120,7 @@ namespace Tiny3D
          * @param [in]  node    : 碰撞体所在的结点对象.
          * @param [in]  uID     (Optional) : 碰撞体ID.
          */
-        FrustumBound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
+        FrustumBound(ID uID = E_BID_AUTOMATIC);
 
         /**
          * @fn  virtual bool FrustumBound::testSphere(

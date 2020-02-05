@@ -26,17 +26,17 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    AabbBoundPtr AabbBound::create(SceneNode *node, ID uID /* = E_BID_AUTOMATIC */)
+    AabbBoundPtr AabbBound::create(ID uID /* = E_BID_AUTOMATIC */)
     {
-        AabbBoundPtr bound = new AabbBound(node, uID);
+        AabbBoundPtr bound = new AabbBound(uID);
         bound->release();
         return bound;
     }
 
     //--------------------------------------------------------------------------
 
-    AabbBound::AabbBound(SceneNode *node, ID uID /* = E_BID_AUTOMATIC */)
-        : Bound(node, uID)
+    AabbBound::AabbBound(ID uID /* = E_BID_AUTOMATIC */)
+        : Bound(uID)
     {
 
     }
@@ -59,7 +59,7 @@ namespace Tiny3D
 
     BoundPtr AabbBound::clone() const
     {
-        AabbBoundPtr bound = AabbBound::create(getNode());
+        AabbBoundPtr bound = AabbBound::create();
         cloneProperties(bound);
         return bound;
     }

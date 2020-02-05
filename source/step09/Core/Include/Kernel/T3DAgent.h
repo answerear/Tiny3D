@@ -322,6 +322,10 @@ namespace Tiny3D
          */
         const String &getPluginsPath() const { return mPluginsPath; }
 
+        void setComponentCreator(ComponentCreator *creator);
+
+        ComponentCreatorPtr getComponentCreator() const;
+
     protected:
         /**
          * @fn  TResult Agent::initApplication();
@@ -433,6 +437,7 @@ namespace Tiny3D
         SceneManagerPtr         mSceneMgr;
 
         ScriptParserPtr         mScriptParser;
+        ComponentCreatorPtr     mComponentCreator;
 
         Plugins                 mPlugins;           /**< 安装的插件列表 */
         Dylibs                  mDylibs;            /**< 加载的动态库列表 */

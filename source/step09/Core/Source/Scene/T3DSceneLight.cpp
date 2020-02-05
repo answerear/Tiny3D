@@ -25,7 +25,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SceneLightPtr SceneLight::create(ID uID /* = E_NID_AUTOMATIC */)
+    SceneLightPtr SceneLight::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         SceneLightPtr light = new SceneLight(uID);
         light->release();
@@ -34,7 +34,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneLight::SceneLight(ID uID /* = E_NID_AUTOMATIC */)
+    SceneLight::SceneLight(ID uID /* = E_CID_AUTOMATIC */)
         : SceneTransform3D(uID)
     {
 
@@ -45,5 +45,42 @@ namespace Tiny3D
     SceneLight::~SceneLight()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    const String &SceneLight::getType() const
+    {
+        static const String name = "SceneLight";
+        return name;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ComponentPtr SceneLight::clone() const
+    {
+        SceneLightPtr newObj = SceneLight::create();
+        TResult ret = cloneProperties(newObj);
+
+        if (ret != T3D_OK)
+        {
+            newObj = nullptr;
+        }
+
+        return newObj;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SceneLight::cloneProperties(ComponentPtr newObj) const
+    {
+        TResult ret = SceneTransform3D::cloneProperties(newObj);
+
+        if (ret == T3D_OK)
+        {
+
+        }
+
+        return ret;
     }
 }

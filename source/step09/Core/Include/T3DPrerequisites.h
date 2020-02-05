@@ -54,6 +54,7 @@ namespace Tiny3D
     #define LOG_TAG_IMAGE_CODEC         "ImageCodec"
     #define LOG_TAG_SCENE               "Scene"
     #define LOG_TAG_RESOURCE            "Resource"
+    #define LOG_TAG_COMPONENT           "Component"
 
     class Object;
     class ObjectTracer;
@@ -64,6 +65,7 @@ namespace Tiny3D
     class Variant;
 
     class Component;
+    class ComponentCreator;
 
     class ScriptParser;
     class ScriptParserMaterial;

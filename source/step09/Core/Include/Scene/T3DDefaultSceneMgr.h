@@ -93,139 +93,9 @@ namespace Tiny3D
          * @sa  SceneTransform3DPtr SceneManagerBase::createTransform3D(
          *      SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC)
          */
-        virtual SceneTransform3DPtr createTransform3D(SceneNodePtr parent,
+        virtual SceneNodePtr createSceneNode(SceneNodePtr parent,
+            bool autoAddTransform = true, 
             ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @fn  virtual SceneCameraPtr createCamera(SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC) override;
-         * @brief   实现基类接口
-         * @param   parent  The parent.
-         * @param   uID     (Optional) The identifier.
-         * @return  The new camera.
-         * @sa  SceneCameraPtr SceneManagerBase::createCamera(
-         *      SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneCameraPtr createCamera(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @fn  virtual SceneLightPtr createLight(SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC) override;
-         * @brief   实现基类接口
-         * @param   parent  The parent.
-         * @param   uID     (Optional) The identifier.
-         * @return  The new light.
-         * @sa  SceneLightPtr SceneManagerBase::createLight(SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneLightPtr createLight(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @fn  virtual SceneModelPtr createModel(SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC) override;
-         * @brief   实现基类接口
-         * @param   parent  The parent.
-         * @param   uID     (Optional) The identifier.
-         * @return  The new model.
-         * @sa  SceneModelPtr SceneManagerBase::createModel(SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneModelPtr createModel(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @fn  virtual SceneMeshPtr createMesh(SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC) override;
-         * @brief   实现基类接口
-         * @param   parent  The parent.
-         * @param   uID     (Optional) The identifier.
-         * @return  The new mesh.
-         * @sa  SceneMeshPtr SceneManagerBase::createMesh(SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneMeshPtr createMesh(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @fn  virtual SceneAxisPtr createAxis(Real X, Real Y, Real Z, 
-         *      SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) override;
-         * @brief   实现基类接口
-         * @param   X       A Real to process.
-         * @param   Y       A Real to process.
-         * @param   Z       A Real to process.
-         * @param   parent  The parent.
-         * @param   uID     (Optional) The identifier.
-         * @return  The new axis.
-         * @sa  SceneAxisPtr SceneManagerBase::createAxis(SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneAxisPtr createAxis(Real X, Real Y, Real Z, 
-            SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @fn  virtual SceneQuadPtr createQuad(const SceneQuad::Quad &quad, 
-         *      const String &materialName, SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC) override;
-         * @brief   实现基类接口
-         * @param   quad            The quad.
-         * @param   materialName    Name of the material.
-         * @param   parent          The parent.
-         * @param   uID             (Optional) The identifier.
-         * @return  The new quad.
-         * @sa  SceneQuadPtr SceneManagerBase::createQuad(SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneQuadPtr createQuad(const SceneQuad::Quad &quad,
-            const String &materialName, SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @fn  virtual SceneBillboardPtr createBillboard(SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC) override;
-         * @brief   实现基类接口
-         * @param   parent  The parent.
-         * @param   uID     (Optional) The identifier.
-         * @return  The new billboard.
-         * @sa  SceneBillboardPtr SceneManagerBase::createBillboard(
-         *      SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneBillboardPtr createBillboard(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @fn  virtual SceneBoxPtr createBox(const Vector3 &center, 
-         *      const Vector3 &extent, SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC) override;
-         * @brief   实现基类接口
-         * @param   center  The center.
-         * @param   extent  The extent.
-         * @param   parent  The parent.
-         * @param   uID     (Optional) The identifier.
-         * @return  The new box.
-         * @sa  SceneBoxPtr SceneManagerBase::createBox(SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneBoxPtr createBox(const Vector3 &center, 
-            const Vector3 &extent, SceneNodePtr parent, 
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @fn  virtual SceneSpherePtr createSphere(const Vector3 &center, 
-         *      Real radius, SceneNodePtr parent, 
-         *      ID uID = Node::E_NID_AUTOMATIC) override;
-         * @brief   实现基类接口
-         * @param   center  The center.
-         * @param   radius  The radius.
-         * @param   parent  The parent.
-         * @param   uID     (Optional) The identifier.
-         * @return  The new sphere.
-         * @sa  SceneSpherePtr SceneManagerBase::createSphere(
-         *      SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneSpherePtr createSphere(const Vector3 &center, Real radius,
-            SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) override;
 
         /**
          * @fn  TResult addRenderable(SceneRenderablePtr renderable);
@@ -233,7 +103,7 @@ namespace Tiny3D
          * @param [in]  renderable  : 可渲染对象.
          * @return  调用成功返回 T3D_OK.
          */
-        TResult addRenderable(SceneRenderablePtr renderable);
+        virtual TResult addRenderable(SceneRenderablePtr renderable) override;
 
         /**
          * @fn  TResult removeRenderable(SceneRenderablePtr renderable);
@@ -241,7 +111,7 @@ namespace Tiny3D
          * @param [in]  renderable  : 可渲染对象.
          * @return  调用成功返回 T3D_OK.
          */
-        TResult removeRenderable(SceneRenderablePtr renderable);
+        virtual TResult removeRenderable(SceneRenderablePtr renderable) override;
 
     protected:
         /**

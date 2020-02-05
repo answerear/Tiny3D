@@ -67,81 +67,24 @@ namespace Tiny3D
          * @see SceneTransform3DPtr SceneManagerBase::createTransform3D(
          *      SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC)
          */
-        virtual SceneTransform3DPtr createTransform3D(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
+        virtual SceneNodePtr createSceneNode(SceneNodePtr parent,
+            bool autoAddTransform = true, ID uID = Node::E_NID_AUTOMATIC) override;
 
         /**
-         * @brief 实现基类接口
-         * @see SceneCameraPtr SceneManagerBase::createCamera(SceneNodePtr parent,
-         *      ID uID = Node::E_NID_AUTOMATIC)
+         * @fn  TResult addRenderable(SceneRenderablePtr renderable);
+         * @brief   添加可渲染对象到对应相机队列，用于视锥体剔除
+         * @param [in]  renderable  : 可渲染对象.
+         * @return  调用成功返回 T3D_OK.
          */
-        virtual SceneCameraPtr createCamera(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
+        virtual TResult addRenderable(SceneRenderablePtr renderable) override;
 
         /**
-         * @brief 实现基类接口
-         * @see SceneLightPtr SceneManagerBase::createLight(SceneNodePtr parent,
-         *      ID uID = Node::E_NID_AUTOMATIC)
+         * @fn  TResult removeRenderable(SceneRenderablePtr renderable);
+         * @brief   根据camera mask来移除可渲染对象
+         * @param [in]  renderable  : 可渲染对象.
+         * @return  调用成功返回 T3D_OK.
          */
-        virtual SceneLightPtr createLight(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @brief 实现基类接口
-         * @see SceneModelPtr SceneManagerBase::createModel(SceneNodePtr parent,
-         *      ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneModelPtr createModel(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @brief 实现基类接口
-         * @see SceneMeshPtr SceneManagerBase::createMesh(SceneNodePtr parent,
-         *      ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneMeshPtr createMesh(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @brief 实现基类接口
-         * @see SceneAxisPtr SceneManagerBase::createAxis(SceneNodePtr parent,
-         *      ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneAxisPtr createAxis(Real X, Real Y, Real Z, SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @brief 实现基类接口
-         * @see SceneQuadPtr SceneManagerBase::createQuad(SceneNodePtr parent,
-         *      ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneQuadPtr createQuad(const SceneQuad::Quad &quad,
-            const String &materialName, SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @brief 实现基类接口
-         * @see SceneBillboardPtr SceneManagerBase::createBillboard(
-         *      SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneBillboardPtr createBillboard(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @brief 实现基类接口
-         * @see SceneBoxPtr SceneManagerBase::createBox(SceneNodePtr parent,
-         *      ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneBoxPtr createBox(const Vector3 &center, const Vector3 &extent,
-            SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) override;
-
-        /**
-         * @brief 实现基类接口
-         * @see SceneSpherePtr SceneManagerBase::createSphere(SceneNodePtr parent,
-         *      ID uID = Node::E_NID_AUTOMATIC)
-         */
-        virtual SceneSpherePtr createSphere(const Vector3 &center, Real radius,
-            SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) override;
+        virtual TResult removeRenderable(SceneRenderablePtr renderable) override;
 
     protected:
         SceneManager(SceneManagerBase *impl);

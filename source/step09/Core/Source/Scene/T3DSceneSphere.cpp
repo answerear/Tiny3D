@@ -19,6 +19,7 @@
 
 
 #include "Scene/T3DSceneSphere.h"
+#include "Scene/T3DSceneTransform3D.h"
 #include "Render/T3DRenderQueue.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
@@ -58,7 +59,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     SceneSpherePtr SceneSphere::create(const Vector3 &center, Real radius, 
-        ID uID /* = E_NID_AUTOMATIC */)
+        ID uID /* = E_CID_AUTOMATIC */)
     {
         SceneSpherePtr sphere = new SceneSphere(uID);
         sphere->release();
@@ -73,7 +74,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneSphere::SceneSphere(ID uID /* = E_NID_AUTOMATIC */)
+    SceneSphere::SceneSphere(ID uID /* = E_CID_AUTOMATIC */)
         : SceneRenderable(uID)
         , mCenter(Vector3::ZERO)
         , mRadius(REAL_ONE)
@@ -92,9 +93,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Node::Type SceneSphere::getNodeType() const
+    const String &SceneSphere::getType() const
     {
-        return Type::SPHERE;
+        static const String name = "SceneSphere";
+        return name;
     }
 
     //--------------------------------------------------------------------------
@@ -191,11 +193,9 @@ namespace Tiny3D
             mVAO->endBinding();
 
             // 构建碰撞体
-            mBound = SphereBound::create(this);
+            mBound = SphereBound::create();
             mBound->setParams(mCenter, mRadius);
 
-            // 需要刷新碰撞体的世界变换
-            setDirty(true);
         } while (0);
 
         return ret;
@@ -267,7 +267,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    NodePtr SceneSphere::clone() const
+    ComponentPtr SceneSphere::clone() const
     {
         SceneSpherePtr sphere = new SceneSphere();
         sphere->release();
@@ -282,13 +282,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneSphere::cloneProperties(NodePtr node) const
+    TResult SceneSphere::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = SceneRenderable::cloneProperties(node);
+        TResult ret = SceneRenderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SceneSpherePtr sphere = smart_pointer_cast<SceneSphere>(node);
+            SceneSpherePtr sphere = smart_pointer_cast<SceneSphere>(newObj);
             ret = sphere->init(mCenter, mRadius);
         }
 
@@ -297,14 +297,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneSphere::updateTransform()
+    void SceneSphere::updateBound()
     {
-        if (isDirty())
-        {
-            mBound->updateBound(getLocalToWorldTransform());
-        }
-
-        SceneRenderable::updateTransform();
+        SceneTransform3DPtr xform = getSceneNode()->getTransform3D();
+        mBound->updateBound(xform->getLocalToWorldTransform());
     }
 
     //--------------------------------------------------------------------------

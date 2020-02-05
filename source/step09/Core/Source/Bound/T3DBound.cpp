@@ -30,9 +30,8 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Bound::Bound(SceneNode *node, ID uID)
-        : mNode(node)
-        , mID(E_BID_INVALID)
+    Bound::Bound(ID uID)
+        : mID(E_BID_INVALID)
         , mGroupID(E_BID_INVALID)
         , mIsMovable(false)
         , mIsCollisionSource(false)
@@ -53,7 +52,6 @@ namespace Tiny3D
 
     Bound::~Bound()
     {
-        mNode = nullptr;
     }
 
     //--------------------------------------------------------------------------
@@ -101,7 +99,6 @@ namespace Tiny3D
     void Bound::cloneProperties(BoundPtr bound) const
     {
         bound->mSphere = mSphere;
-        bound->mNode = mNode;
         bound->mID = mID;
         bound->mGroupID = mGroupID;
         bound->mIsMovable = mIsMovable;

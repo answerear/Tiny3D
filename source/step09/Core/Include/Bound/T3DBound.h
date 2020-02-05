@@ -43,7 +43,7 @@ namespace Tiny3D
          * @enum    Type
          * @brief   碰撞体类型
          */
-        enum class Type : uint8_t
+        enum class Type : uint32_t
         {
             NONE = 0,       /**< 未知碰撞体类型 */
             SPHERE,         /**< 球包围体碰撞体 */
@@ -115,13 +115,6 @@ namespace Tiny3D
         virtual bool test(BoundPtr bound) const;
 
         /**
-         * @fn  SceneNodePtr Bound::getNode() const;
-         * @brief   获取包含当前碰撞体对应的场景结点
-         * @return  The node.
-         */
-        SceneNodePtr getNode() const;
-
-        /**
          * @fn  void Bound::setCollisionSource(bool isSource);
          * @brief   设置碰撞相交检测源，源对象发起检测，非源对象是被动检测
          * @param [in]  isSource    : true 表示源对象.
@@ -177,7 +170,7 @@ namespace Tiny3D
          * @param [in]  node    : 碰撞体所属的场景结点.
          * @param [in]  uID     (Optional) : 碰撞体唯一标识.
          */
-        Bound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
+        Bound(ID uID = E_BID_AUTOMATIC);
 
         /**
          * @fn  virtual bool Bound::testSphere(const Sphere &sphere) const = 0;
@@ -235,7 +228,6 @@ namespace Tiny3D
         Sphere      mSphere;            /**< 用于快速检测相交性的球体 */
 
     private:
-        SceneNode   *mNode;             /**< 包含碰撞体的结点对象 */
         ID          mID;                /**< 碰撞体ID */
         ID          mGroupID;           /**< 碰撞体分组ID */
         bool        mIsMovable;         /**< 是否可移动碰撞体 */

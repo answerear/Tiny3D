@@ -19,6 +19,7 @@
 
 
 #include "Scene/T3DSceneAxis.h"
+#include "Scene/T3DSceneTransform3D.h"
 #include "Render/T3DRenderQueue.h"
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
@@ -153,16 +154,6 @@ namespace Tiny3D
                 break;
             }
 
-//             size_t size = sizeof(AxisVertex) * MAX_VERTICES;
-//             size_t bytesOfWritten = vbo->writeData(0, size, vertices);
-//             if (bytesOfWritten != size)
-//             {
-//                 ret = T3D_ERR_HW_BUFFER_WRITE;
-//                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Write vertices data for SceneAxis \
-//                     failed !");
-//                 break;
-//             }
-
             mVAO->setVertexDeclaration(decl);
             mVAO->addVertexBuffer(vbo);
             mVAO->setPrimitiveType(Renderer::PrimitiveType::E_PT_LINE_LIST);
@@ -174,11 +165,8 @@ namespace Tiny3D
             radius = Math::min(radius, X);
             radius = Math::min(radius, Y);
             radius = Math::min(radius, Z);
-            mBound = SphereBound::create(this);
+            mBound = SphereBound::create();
             mBound->setParams(Vector3::ZERO, radius);
-
-            // 需要刷新碰撞体的世界变换
-            setDirty(true);
         } while (0);
 
         return ret;
@@ -186,9 +174,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Node::Type SceneAxis::getNodeType() const
+    const String &SceneAxis::getType() const
     {
-        return Type::AXIS;
+        static const String name = "SceneAxis";
+        return name;
     }
 
     //--------------------------------------------------------------------------
@@ -217,7 +206,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    NodePtr SceneAxis::clone() const
+    ComponentPtr SceneAxis::clone() const
     {
         SceneAxisPtr axis = new SceneAxis();
         axis->release();
@@ -232,13 +221,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneAxis::cloneProperties(NodePtr node) const
+    TResult SceneAxis::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = SceneRenderable::cloneProperties(node);
+        TResult ret = SceneRenderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SceneAxisPtr axis = smart_pointer_cast<SceneAxis>(node);
+            SceneAxisPtr axis = smart_pointer_cast<SceneAxis>(newObj);
             ret = axis->init(getAxisLength(AXIS_X), getAxisLength(AXIS_Y),
                 getAxisLength(AXIS_Z));
         }
@@ -248,15 +237,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneAxis::updateTransform()
+    void SceneAxis::updateBound()
     {
         // 更新碰撞体
-        if (isDirty())
-        {
-            mBound->updateBound(getLocalToWorldTransform());
-        }
-
-        SceneRenderable::updateTransform();
+        SceneTransform3DPtr xform = getSceneNode()->getTransform3D();
+        mBound->updateBound(xform->getLocalToWorldTransform());
     }
 
     //--------------------------------------------------------------------------

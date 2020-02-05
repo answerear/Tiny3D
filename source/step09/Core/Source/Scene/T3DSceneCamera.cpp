@@ -19,8 +19,8 @@
 
 
 #include "Scene/T3DSceneCamera.h"
-#include "Scene/T3DSceneManager.h"
 #include "Scene/T3DSceneTransform3D.h"
+#include "Scene/T3DSceneNode.h"
 #include "Render/T3DViewport.h"
 #include "Render/T3DRenderer.h"
 #include "Kernel/T3DAgent.h"
@@ -31,7 +31,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SceneCameraPtr SceneCamera::create(ID uID /* = E_NID_AUTOMATIC */)
+    SceneCameraPtr SceneCamera::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         SceneCameraPtr camera = new SceneCamera(uID);
         camera->release();
@@ -46,13 +46,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneCamera::SceneCamera(ID uID /* = E_NID_AUTOMATIC */)
+    SceneCamera::SceneCamera(ID uID /* = E_CID_AUTOMATIC */)
         : SceneTransform3D(uID)
         , mBound(nullptr)
         , mProjType(E_PT_PERSPECTIVE)
         , mObjectMask(0)
         , mFovY(Math::PI * REAL_HALF)
         , mAspectRatio(16.0f/9.0f)
+        , mWidth(REAL_ZERO)
+        , mHeight(REAL_ZERO)
         , mNear(REAL_ZERO)
         , mFar(REAL_ZERO)
         , mViewMatrix(false)
@@ -76,16 +78,17 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        mBound = FrustumBound::create(this);
+        mBound = FrustumBound::create();
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    Node::Type SceneCamera::getNodeType() const
+    const String &SceneCamera::getType() const
     {
-        return Type::CAMERA;
+        static const String name = "SceneCamera";
+        return name;
     }
 
     //--------------------------------------------------------------------------
@@ -200,7 +203,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    NodePtr SceneCamera::clone() const
+    ComponentPtr SceneCamera::clone() const
     {
         SceneCameraPtr camera = create();
         
@@ -214,13 +217,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneCamera::cloneProperties(NodePtr node) const
+    TResult SceneCamera::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = SceneNode::cloneProperties(node);
+        TResult ret = SceneTransform3D::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SceneCameraPtr camera = smart_pointer_cast<SceneCamera>(node);
+            SceneCameraPtr camera = smart_pointer_cast<SceneCamera>(newObj);
             camera->mProjType = mProjType;
             camera->mObjectMask = mObjectMask;
             camera->mFovY = mFovY;

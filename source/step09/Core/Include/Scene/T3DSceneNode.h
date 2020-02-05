@@ -23,7 +23,6 @@
 
 
 #include "Kernel/T3DNode.h"
-#include "Kernel/T3DComponent.h"
 
 
 namespace Tiny3D
@@ -36,10 +35,16 @@ namespace Tiny3D
         T3D_DISABLE_COPY(SceneNode);
 
     public:
+        static SceneNodePtr create(ID uID = E_NID_AUTOMATIC);
+
         /**
          * @brief 析构函数
          */
         virtual ~SceneNode();
+
+        virtual Node::Type getNodeType() const override;
+
+        virtual NodePtr clone() const override;
 
         /**
          * @brief 设置结点是否可见
@@ -107,6 +112,35 @@ namespace Tiny3D
          */
         virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue);
 
+        typedef TMap<String, ComponentPtr>  Components;
+        typedef Components::iterator        ComponentsItr;
+        typedef Components::const_iterator  ComponentsConstItr;
+        typedef Components::value_type      ComponentsValue;
+
+        ComponentPtr addComponent(const String &type);
+
+        ComponentPtr getComponent(const String &type) const;
+
+        const Components &getComponents() const { return mComponents; }
+
+        void removeComponent(const String &type);
+
+        void removeAllComponents();
+
+        virtual SceneTransform3DPtr addTransform();
+
+        virtual SceneRenderablePtr addRenderable(const String &type);
+
+        SceneTransform3D *getTransform3D() const { return mTransform3D; }
+
+        SceneRenderable *getRenderable() const { return mRenderable; }
+
+        virtual SceneCameraPtr addCamera();
+
+        virtual SceneBoxPtr addCube(const Vector3 &center, const Vector3 &extent);
+
+        virtual SceneSpherePtr addSphere(const Vector3 &center, Real radius);
+
     protected:
         /**
          * @brief 默认构造函数
@@ -122,7 +156,7 @@ namespace Tiny3D
          * @return void
          * @note 派生类重写本函数以实现具体的变换更新策略
          */
-        virtual void updateTransform();
+        virtual void update();
 
         /**
          * @brief 克隆结点属性
@@ -132,12 +166,18 @@ namespace Tiny3D
          */
         virtual TResult cloneProperties(NodePtr node) const override;
 
-    protected:
-        uint32_t    mCameraMask;    /**< 相机掩码 */
+        ComponentPtr createComponent(int32_t argc, ...);
+
+        void removeComponent(Component *component);
 
     private:
         bool        mIsVisible;     /**< 结点可见性 */
         bool        mIsEnabled;     /**< 结点可用性 */
+        uint32_t    mCameraMask;    /**< 相机掩码 */
+
+        Components          mComponents;
+        SceneTransform3D    *mTransform3D;
+        SceneRenderable     *mRenderable;
     };
 }
 

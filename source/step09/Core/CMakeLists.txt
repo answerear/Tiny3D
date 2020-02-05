@@ -60,6 +60,7 @@ set_project_files(Include\\\\Scene ${CMAKE_CURRENT_SOURCE_DIR}/Include/Scene/ .i
 set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .h)
 set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .inl)
 set_project_files(Include\\\\Parser ${CMAKE_CURRENT_SOURCE_DIR}/Include/Parser/ .h)
+set_project_files(Include\\\\Component ${CMAKE_CURRENT_SOURCE_DIR}/Include/Component/ .h)
 
 # Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
@@ -71,6 +72,7 @@ set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageC
 set_project_files(Source\\\\Scene ${CMAKE_CURRENT_SOURCE_DIR}/Source/Scene/ .cpp)
 set_project_files(Source\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Source/Bound/ .cpp)
 set_project_files(Source\\\\Parser ${CMAKE_CURRENT_SOURCE_DIR}/Source/Parser/ .cpp)
+set_project_files(Source\\\\Component ${CMAKE_CURRENT_SOURCE_DIR}/Source/Component/ .cpp)
 
 # tinyxml2
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)

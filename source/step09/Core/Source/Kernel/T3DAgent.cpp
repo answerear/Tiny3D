@@ -51,6 +51,7 @@
 #include "Scene/T3DSceneManager.h"
 #include "Scene/T3DDefaultSceneMgr.h"
 
+#include "Component/T3DComponentCreator.h"
 
 namespace Tiny3D
 {
@@ -86,6 +87,7 @@ namespace Tiny3D
         , mActiveRenderer(nullptr)
         , mSceneMgr(nullptr)
         , mScriptParser(nullptr)
+        , mComponentCreator(nullptr)
         , mIsRunning(false)
     {
     }
@@ -94,6 +96,7 @@ namespace Tiny3D
 
     Agent::~Agent()
     {
+        mComponentCreator = nullptr;
         mScriptParser = nullptr;
         mSceneMgr = nullptr;
         mActiveRenderer = nullptr;
@@ -802,6 +805,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Agent::setComponentCreator(ComponentCreator *creator)
+    {
+        mComponentCreator = creator;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ComponentCreatorPtr Agent::getComponentCreator() const
+    {
+        return mComponentCreator;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Agent::initApplication()
     {
         TResult ret = T3D_OK;
@@ -879,6 +896,7 @@ namespace Tiny3D
         mMaterialMgr = MaterialManager::create();
         mSamplerMgr = SamplerManager::create();
 
+        mComponentCreator = ComponentCreator::create();
         mScriptParser = ScriptParser::create();
 
         return T3D_OK;

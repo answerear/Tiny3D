@@ -45,20 +45,20 @@ bool TextureApp::applicationDidFinishLaunching()
     RenderWindowPtr renderWindow = T3D_AGENT.getDefaultRenderWindow();
 
     // 相机
-    SceneCameraPtr camera = T3D_SCENE_MGR.createCamera(root);
-    camera->lookAt(Vector3(0.0f, 4.0f, 8.0f), Vector3::ZERO, Vector3::UNIT_Y);
-    camera->setProjectionType(SceneCamera::E_PT_PERSPECTIVE);
-    Real w = Real(renderWindow->getWidth());
-    Real h = Real(renderWindow->getHeight());
-    Real aspect = w / h;
-    Radian fovY(Math::PI * REAL_HALF);
-    camera->setPerspectiveParams(fovY, aspect, 0.5f, 1000.0f);
-    camera->setObjectMask(OBJ_MASK_SCENE);
-
-    // 视口
-    ViewportPtr viewport = renderWindow->addViewport(camera, 1, 
-        REAL_ZERO, REAL_ZERO, REAL_ONE, REAL_ONE);
-    viewport->setBkgndColor(ColorRGB::BLACK);
+//     SceneCameraPtr camera = T3D_SCENE_MGR.createCamera(root);
+//     camera->lookAt(Vector3(0.0f, 4.0f, 8.0f), Vector3::ZERO, Vector3::UNIT_Y);
+//     camera->setProjectionType(SceneCamera::E_PT_PERSPECTIVE);
+//     Real w = Real(renderWindow->getWidth());
+//     Real h = Real(renderWindow->getHeight());
+//     Real aspect = w / h;
+//     Radian fovY(Math::PI * REAL_HALF);
+//     camera->setPerspectiveParams(fovY, aspect, 0.5f, 1000.0f);
+//     camera->setObjectMask(OBJ_MASK_SCENE);
+// 
+//     // 视口
+//     ViewportPtr viewport = renderWindow->addViewport(camera, 1, 
+//         REAL_ZERO, REAL_ZERO, REAL_ONE, REAL_ONE);
+//     viewport->setBkgndColor(ColorRGB::BLACK);
 
     // 箱子
 //     Vector3 extent(1.0f, 1.0f, 1.0f);

@@ -107,5 +107,8 @@
 #include <Scene/T3DSceneSphere.h>
 #include <Scene/T3DSceneTransform3D.h>
 
+// Component
+#include <Component/T3DComponent.h>
+#include <Component/T3DComponentCreator.h>
 
 #endif  /*__TINY3D_H__*/

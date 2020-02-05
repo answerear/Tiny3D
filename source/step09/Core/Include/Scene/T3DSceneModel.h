@@ -27,16 +27,16 @@
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SceneModel : public SceneTransform3D
-    {
-    public:
-        static SceneModelPtr create(ID uID = E_NID_AUTOMATIC);
-
-        virtual ~SceneModel();
-
-    protected:
-        SceneModel(ID uID = E_NID_AUTOMATIC);
-    };
+//     class T3D_ENGINE_API SceneModel : public SceneTransform3D
+//     {
+//     public:
+//         static SceneModelPtr create(ID uID = E_NID_AUTOMATIC);
+// 
+//         virtual ~SceneModel();
+// 
+//     protected:
+//         SceneModel(ID uID = E_NID_AUTOMATIC);
+//     };
 }
 
 

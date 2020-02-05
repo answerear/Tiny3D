@@ -62,125 +62,24 @@ namespace Tiny3D
          */
         virtual SceneNodePtr getRoot() const = 0;
 
-        /**
-         * @brief 创建一个3D变换结点
-         * @param [in] parent : 父结点
-         * @param [in] uID : 结点ID，默认自动生成ID
-         * @return 返回一个3D变换结点
-         * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
-         *      并进行场景管理。
-         */
-        virtual SceneTransform3DPtr createTransform3D(SceneNodePtr parent, 
-            ID uID = Node::E_NID_AUTOMATIC) = 0;
+        virtual SceneNodePtr createSceneNode(SceneNodePtr parent, 
+            bool autoAddTransform = true, ID uID = Node::E_NID_AUTOMATIC) = 0;
 
         /**
-         * @brief 创建一个相机结点
-         * @param [in] parent : 父结点
-         * @param [in] uID : 结点ID，默认自动生成ID
-         * @return 返回一个相机结点
-         * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
-         *      并进行场景管理。
+         * @fn  TResult addRenderable(SceneRenderablePtr renderable);
+         * @brief   添加可渲染对象到对应相机队列，用于视锥体剔除
+         * @param [in]  renderable  : 可渲染对象.
+         * @return  调用成功返回 T3D_OK.
          */
-        virtual SceneCameraPtr createCamera(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) = 0;
+        virtual TResult addRenderable(SceneRenderablePtr renderable) = 0;
 
         /**
-         * @brief 创建一个光源结点
-         * @param [in] parent : 父结点
-         * @param [in] uID : 结点ID，默认自动生成ID
-         * @return 返回一个光源结点
-         * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
-         *      并进行场景管理。
+         * @fn  TResult removeRenderable(SceneRenderablePtr renderable);
+         * @brief   根据camera mask来移除可渲染对象
+         * @param [in]  renderable  : 可渲染对象.
+         * @return  调用成功返回 T3D_OK.
          */
-        virtual SceneLightPtr createLight(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) = 0;
-
-        /**
-         * @brief 创建一个模型结点
-         * @param [in] parent : 父结点
-         * @param [in] uID : 结点ID，默认自动生成ID
-         * @return 返回一个模型结点
-         * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
-         *      并进行场景管理。
-         */
-        virtual SceneModelPtr createModel(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) = 0;
-
-        /**
-         * @brief 创建一个可渲染网格结点
-         * @param [in] parent : 父结点
-         * @param [in] uID : 结点ID，默认自动生成ID
-         * @return 返回一个可渲染网格结点
-         * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
-         *      并进行场景管理。
-         */
-        virtual SceneMeshPtr createMesh(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) = 0;
-
-        /**
-         * @brief 创建一个可渲染坐标轴结点 
-         * @param [in] X : X轴长度
-         * @param [in] Y : Y轴长度
-         * @param [in] Z : Z轴长度
-         * @param [in] parent : 父结点
-         * @param [in] uID : 结点ID，默认自动生成ID
-         * @return 返回一个可渲染坐标轴结点
-         * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
-         *      并进行场景管理。
-         */
-        virtual SceneAxisPtr createAxis(Real X, Real Y, Real Z, SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) = 0;
-
-        /**
-         * @brief 创建一个可渲染的四边形结点
-         * @param [in] quad : 空间四边形顶点数据
-         * @param [in] materialName : 材质名称
-         * @param [in] parent : 父结点
-         * @param [in] uID : 结点ID，默认自动生成ID
-         * @return 返回一个可渲染的四边形结点
-         * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
-         *      并进行场景管理。
-         */
-        virtual SceneQuadPtr createQuad(const SceneQuad::Quad &quad,
-            const String &materialName, SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) = 0;
-
-        /**
-         * @brief 创建一个可渲染的公告板结点
-         * @param [in] parent : 父结点
-         * @param [in] uID : 结点ID，默认自动生成ID
-         * @return 返回一个可渲染的公告板结点
-         * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
-         *      并进行场景管理。
-         */
-        virtual SceneBillboardPtr createBillboard(SceneNodePtr parent,
-            ID uID = Node::E_NID_AUTOMATIC) = 0;
-
-        /**
-         * @brief 创建一个可渲染立方体结点
-         * @param [in] center : 立方体中心
-         * @param [in] extent : 立方体三个轴方向上的长度
-         * @param [in] parent : 父结点
-         * @param [in] uID : 结点ID，默认自动生成ID
-         * @return 返回一个可渲染立方体结点
-         * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
-         *      并进行场景管理。
-         */
-        virtual SceneBoxPtr createBox(const Vector3 &center, const Vector3 &extent,
-            SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) = 0;
-
-        /**
-         * @brief 创建一个可渲染球体结点
-         * @param [in] center : 球心
-         * @param [in] radius : 球半径
-         * @param [in] parent : 父结点
-         * @param [in] uID : 结点ID，默认自动生成ID
-         * @return 返回一个可渲染球体结点
-         * @remarks 场景插件实现本接口，可以在创建同时构建自己的场景管理关系
-         *      并进行场景管理。
-         */
-        virtual SceneSpherePtr createSphere(const Vector3 &center, Real radius,
-            SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC) = 0;
+        virtual TResult removeRenderable(SceneRenderablePtr renderable) = 0;
 
     protected:
         /**

@@ -150,8 +150,7 @@ namespace Tiny3D
                         SceneRenderablePtr renderable = *i;
 
                         // 设置渲染物体的世界变换
-                        const Transform &xform
-                            = renderable->getLocalToWorldTransform();
+                        const Transform &xform = renderable->getSceneNode()->getTransform3D()->getLocalToWorldTransform();
                         const Matrix4 &m = xform.getAffineMatrix();
                         renderer->setWorldTransform(m);
 

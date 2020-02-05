@@ -42,7 +42,7 @@ namespace Tiny3D
          * @param [in]  uID     (Optional) : 碰撞体ID.
          * @return  返回一个OBB碰撞体对象.
          */
-        static ObbBoundPtr create(SceneNode *node, ID uID = E_BID_AUTOMATIC);
+        static ObbBoundPtr create(ID uID = E_BID_AUTOMATIC);
 
         /**
          * @fn  virtual ObbBound::~ObbBound();
@@ -128,7 +128,7 @@ namespace Tiny3D
          * @param [in]  node    : 碰撞体所在的结点对象.
          * @param [in]  uID     (Optional) : 碰撞体ID.
          */
-        ObbBound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
+        ObbBound(ID uID = E_BID_AUTOMATIC);
 
         /**
          * @fn  virtual bool ObbBound::testSphere(

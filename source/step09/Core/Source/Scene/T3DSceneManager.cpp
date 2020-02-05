@@ -101,12 +101,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneTransform3DPtr SceneManager::createTransform3D(SceneNodePtr parent, 
-        ID uID /* = Node::E_NID_AUTOMATIC */)
+    SceneNodePtr SceneManager::createSceneNode(SceneNodePtr parent, 
+        bool autoAddTransform /* = true */, ID uID /* = Node::E_NID_AUTOMATIC */)
     {
         if (mImpl != nullptr)
         {
-            return mImpl->createTransform3D(parent, uID);
+            return mImpl->createSceneNode(parent, autoAddTransform, uID);
         }
 
         return nullptr;
@@ -114,120 +114,25 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneCameraPtr SceneManager::createCamera(SceneNodePtr parent,
-        ID uID /* = Node::E_NID_AUTOMATIC */)
+    TResult SceneManager::addRenderable(SceneRenderablePtr renderable)
     {
         if (mImpl != nullptr)
         {
-            return mImpl->createCamera(parent, uID);
+            return mImpl->addRenderable(renderable);
         }
 
-        return nullptr;
+        return T3D_ERR_SYS_NOT_INIT;
     }
 
     //--------------------------------------------------------------------------
 
-    SceneLightPtr SceneManager::createLight(SceneNodePtr parent,
-        ID uID /* = Node::E_NID_AUTOMATIC */)
+    TResult SceneManager::removeRenderable(SceneRenderablePtr renderable)
     {
         if (mImpl != nullptr)
         {
-            return mImpl->createLight(parent, uID);
+            return mImpl->removeRenderable(renderable);
         }
 
-        return nullptr;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneModelPtr SceneManager::createModel(SceneNodePtr parent,
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        if (mImpl != nullptr)
-        {
-            return mImpl->createModel(parent, uID);
-        }
-
-        return nullptr;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneMeshPtr SceneManager::createMesh(SceneNodePtr parent,
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        if (mImpl != nullptr)
-        {
-            return mImpl->createMesh(parent, uID);
-        }
-
-        return nullptr;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneAxisPtr SceneManager::createAxis(Real X, Real Y, Real Z, SceneNodePtr parent,
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        if (mImpl != nullptr)
-        {
-            return mImpl->createAxis(X, Y, Z, parent, uID);
-        }
-
-        return nullptr;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneQuadPtr SceneManager::createQuad(const SceneQuad::Quad &quad,
-        const String &materialName, SceneNodePtr parent,
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        if (mImpl != nullptr)
-        {
-            return mImpl->createQuad(quad, materialName, parent, uID);
-        }
-
-        return nullptr;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneBillboardPtr SceneManager::createBillboard(SceneNodePtr parent,
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        if (mImpl != nullptr)
-        {
-            return mImpl->createBillboard(parent, uID);
-        }
-
-        return nullptr;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneBoxPtr SceneManager::createBox(const Vector3 &center, 
-        const Vector3 &extent, SceneNodePtr parent, 
-        ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        if (mImpl != nullptr)
-        {
-            return mImpl->createBox(center, extent, parent, uID);
-        }
-
-        return nullptr;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneSpherePtr SceneManager::createSphere(const Vector3 &center, Real radius,
-        SceneNodePtr parent, ID uID /* = Node::E_NID_AUTOMATIC */)
-    {
-        if (mImpl != nullptr)
-        {
-            return mImpl->createSphere(center, radius, parent, uID);
-        }
-
-        return nullptr;
+        return T3D_ERR_SYS_NOT_INIT;
     }
 }

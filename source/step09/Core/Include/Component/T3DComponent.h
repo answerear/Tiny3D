@@ -33,20 +33,53 @@ namespace Tiny3D
      * @class   Component
      * @brief   组件类
      */
-    class T3D_ENGINE_API Component : Object
+    class T3D_ENGINE_API Component : public Object
     {
+        friend class SceneNode;
+
+        T3D_DISABLE_COPY(Component);
+
     public:
-        /**
-         * @fn  Component::Component();
-         * @brief   构造函数
-         */
-        Component();
+        enum ComponentID : uint32_t
+        {
+            E_CID_AUTOMATIC = 0xFFFFFFFF,   /**< 自动生成ID */
+            E_CID_INVALID = 0,              /**< 无效ID */
+        };
 
         /**
          * @fn  virtual Component::~Component();
          * @brief   析构函数
          */
         virtual ~Component();
+
+        virtual const String &getType() const = 0;
+
+        virtual ComponentPtr clone() const = 0;
+
+        ID getID() const { return mID; }
+
+        SceneNode *getSceneNode() const { return mSceneNode; }
+
+    protected:
+        /**
+         * @fn  Component::Component();
+         * @brief   构造函数
+         */
+        Component(ID uID = E_CID_AUTOMATIC);
+
+        ID makeGlobalID() const;
+
+        virtual TResult cloneProperties(ComponentPtr newObj) const;
+
+        virtual void onAttachSceneNode(SceneNode *node);
+
+        virtual void onDetachSceneNode(SceneNode *node);
+
+        virtual void update();
+
+    protected:
+        ID          mID;
+        SceneNode   *mSceneNode;
     };
 }
 

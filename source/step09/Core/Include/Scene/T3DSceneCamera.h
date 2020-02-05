@@ -48,7 +48,7 @@ namespace Tiny3D
          * @param [in] uID : 结点ID，默认自动生成
          * @return 返回一个相机结点对象
          */
-        static SceneCameraPtr create(ID uID = E_NID_AUTOMATIC);
+        static SceneCameraPtr create(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 析构函数
@@ -59,13 +59,13 @@ namespace Tiny3D
          * @brief 重写基类接口
          * @see Node::Type Node::getNodeType() const
          */
-        virtual Type getNodeType() const override;
+        virtual const String &getType() const override;
 
         /**
          * @brief 重写基类接口
          * @see NodePtr Node::clone() const
          */
-        virtual NodePtr clone() const override;
+        virtual ComponentPtr clone() const override;
 
         /**
          * @brief 专门提供给挂相机结点的3D变换结点使用，用于构建UVN相机.
@@ -179,7 +179,7 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        SceneCamera(ID uID = E_NID_AUTOMATIC);
+        SceneCamera(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 初始化对象
@@ -189,7 +189,7 @@ namespace Tiny3D
         /**
          * @brief 实现基类接口
          */
-        virtual TResult cloneProperties(NodePtr node) const override;
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         /**
          * @brief 实现基类接口

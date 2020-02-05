@@ -34,16 +34,26 @@ namespace Tiny3D
     class T3D_ENGINE_API SceneBillboard : public SceneRenderable
     {
     public:
-        static SceneBillboardPtr create(ID uID = E_NID_AUTOMATIC);
+        static SceneBillboardPtr create(ID uID = E_CID_AUTOMATIC);
 
         virtual ~SceneBillboard();
 
+        virtual const String &getType() const override;
+
     protected:
-        SceneBillboard(ID uID = E_NID_AUTOMATIC);
+        SceneBillboard(ID uID = E_CID_AUTOMATIC);
+
+        virtual ComponentPtr clone() const override;
+
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         virtual MaterialPtr getMaterial() const override;
 
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
+
+        virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) override;
+
+        virtual void updateBound() override;
     };
 }
 

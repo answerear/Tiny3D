@@ -22,7 +22,7 @@
 #define __T3D_SCENE_RENDERABLE_H__
 
 
-#include "Scene/T3DSceneTransform3D.h"
+#include "Component/T3DComponent.h"
 #include "Render/T3DRenderer.h"
 #include "Render/T3DVertexArrayObject.h"
 #include "Resource/T3DMaterial.h"
@@ -33,7 +33,7 @@ namespace Tiny3D
     /**
      * @brief 场景中 3D 可渲染对象基类，用于渲染 3D 物体
      */
-    class T3D_ENGINE_API SceneRenderable : public SceneTransform3D
+    class T3D_ENGINE_API SceneRenderable : public Component
     {
         friend class DefaultSceneMgr;
 
@@ -55,26 +55,19 @@ namespace Tiny3D
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const = 0;
 
-        /**
-         * @brief 设置相机渲染掩码
-         */
-        virtual void setCameraMask(uint32_t mask) override;
+        virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) = 0;
 
-        /**
-         * @brief 响应挂到父结点上的事件
-         */
-        virtual void onAttachParent(NodePtr parent) override;
-
-        /**
-         * @brief 响应从父结点拿下来的事件
-         */
-        virtual void onDetachParent(NodePtr parent) override;
+        virtual void updateBound() = 0;
 
     protected:
         /**
          * @brief 构造函数
          */
-        SceneRenderable(ID uID = E_NID_AUTOMATIC);
+        SceneRenderable(ID uID = E_CID_AUTOMATIC);
+
+        virtual TResult cloneProperties(ComponentPtr newObj) const;
+
+        virtual void onAttachSceneNode(SceneNode *node) override;
 
     private:
         SceneRenderablePtr     mPrev;      /**< 前一个可渲染对象 */

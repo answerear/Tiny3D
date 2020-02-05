@@ -56,7 +56,7 @@ namespace Tiny3D
          * @return  返回一个坐标轴场景渲染对象.
          */
         static SceneAxisPtr create(Real X, Real Y, Real Z, 
-            ID uID = E_NID_AUTOMATIC);
+            ID uID = E_CID_AUTOMATIC);
 
         /**
          * @fn  virtual SceneAxis::~SceneAxis();
@@ -70,7 +70,7 @@ namespace Tiny3D
          * @return  The node type.
          * @sa  Node::Type Node::getNodeType() const
          */
-        virtual Type getNodeType() const override;
+        virtual const String &getType() const override;
 
         /**
          * @fn  virtual NodePtr SceneAxis::clone() const override;
@@ -78,7 +78,7 @@ namespace Tiny3D
          * @return  A copy of this object.
          * @sa  NodePr Node::clone() const
          */
-        virtual NodePtr clone() const override;
+        virtual ComponentPtr clone() const override;
 
         /**
          * @fn  Real SceneAxis::getAxisLength(Axis axis) const;
@@ -96,7 +96,7 @@ namespace Tiny3D
          * @brief   构造函数
          * @param   uID (Optional) The identifier.
          */
-        SceneAxis(ID uID = E_NID_AUTOMATIC);
+        SceneAxis(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @fn  virtual TResult SceneAxis::init(Real X, Real Y, Real Z);
@@ -116,14 +116,14 @@ namespace Tiny3D
          * @return  A TResult.
          * @sa  TResult Node::cloneProperties(NodePtr node)
          */
-        virtual TResult cloneProperties(NodePtr node) const override;
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         /**
          * @fn  virtual void SceneAxis::updateTransform() override;
          * @brief   重写基类接口，实现结点的自身变换
          * @sa  void SceneNode::updateTransform()
          */
-        virtual void updateTransform() override;
+        virtual void updateBound() override;
 
         /**
          * @fn  virtual void SceneAxis::frustumCulling(BoundPtr bound, 

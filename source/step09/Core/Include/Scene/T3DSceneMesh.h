@@ -30,16 +30,26 @@ namespace Tiny3D
     class T3D_ENGINE_API SceneMesh : public SceneRenderable
     {
     public:
-        static SceneMeshPtr create(ID uID = E_NID_AUTOMATIC);
+        static SceneMeshPtr create(ID uID = E_CID_AUTOMATIC);
 
         virtual ~SceneMesh();
 
+        virtual const String &getType() const override;
+
     protected:
-        SceneMesh(ID uID = E_NID_AUTOMATIC);
+        SceneMesh(ID uID = E_CID_AUTOMATIC);
+
+        virtual ComponentPtr clone() const override;
+
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         virtual MaterialPtr getMaterial() const override;
 
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
+
+        virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) override;
+
+        virtual void updateBound() override;
     };
 }
 

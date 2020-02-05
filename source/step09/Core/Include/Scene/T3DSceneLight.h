@@ -30,12 +30,19 @@ namespace Tiny3D
     class T3D_ENGINE_API SceneLight : public SceneTransform3D
     {
     public:
-        static SceneLightPtr create(ID uID = E_NID_AUTOMATIC);
+        static SceneLightPtr create(ID uID = E_CID_AUTOMATIC);
 
         virtual ~SceneLight();
 
+        virtual const String &getType() const override;
+
     protected:
-        SceneLight(ID uID = E_NID_AUTOMATIC);
+        SceneLight(ID uID = E_CID_AUTOMATIC);
+
+        virtual ComponentPtr clone() const override;
+
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+
     };
 }
 

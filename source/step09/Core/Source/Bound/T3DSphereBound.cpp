@@ -26,18 +26,17 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SphereBoundPtr SphereBound::create(SceneNode *node, 
-        ID uID /* = E_BID_AUTOMATIC */)
+    SphereBoundPtr SphereBound::create(ID uID /* = E_BID_AUTOMATIC */)
     {
-        SphereBoundPtr bound = new SphereBound(node, uID);
+        SphereBoundPtr bound = new SphereBound(uID);
         bound->release();
         return bound;
     }
 
     //--------------------------------------------------------------------------
 
-    SphereBound::SphereBound(SceneNode *node, ID uID /* = E_BID_AUTOMATIC */)
-        : Bound(node, uID)
+    SphereBound::SphereBound(ID uID /* = E_BID_AUTOMATIC */)
+        : Bound(uID)
         , mRenderable(nullptr)
     {
 
@@ -61,7 +60,7 @@ namespace Tiny3D
 
     BoundPtr SphereBound::clone() const
     {
-        SphereBoundPtr bound = SphereBound::create(getNode());
+        SphereBoundPtr bound = SphereBound::create();
         cloneProperties(bound);
         return bound;
     }

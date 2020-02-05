@@ -26,17 +26,17 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ObbBoundPtr ObbBound::create(SceneNode *node, ID uID /* = E_BID_AUTOMATIC */)
+    ObbBoundPtr ObbBound::create(ID uID /* = E_BID_AUTOMATIC */)
     {
-        ObbBoundPtr bound = new ObbBound(node, uID);
+        ObbBoundPtr bound = new ObbBound(uID);
         bound->release();
         return bound;
     }
 
     //--------------------------------------------------------------------------
 
-    ObbBound::ObbBound(SceneNode *node, ID uID /* = E_BID_AUTOMATIC */)
-        : Bound(node, uID)
+    ObbBound::ObbBound(ID uID /* = E_BID_AUTOMATIC */)
+        : Bound(uID)
     {
 
     }
@@ -59,7 +59,7 @@ namespace Tiny3D
 
     BoundPtr ObbBound::clone() const
     {
-        ObbBoundPtr bound = ObbBound::create(getNode());
+        ObbBoundPtr bound = ObbBound::create();
         cloneProperties(bound);
         return bound;
     }

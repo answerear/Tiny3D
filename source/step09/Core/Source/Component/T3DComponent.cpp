@@ -18,96 +18,68 @@
  ******************************************************************************/
 
 
-#include "Scene/T3DSceneMesh.h"
+#include "Component/T3DComponent.h"
+#include "Scene/T3DSceneNode.h"
+#include "Memory/T3DSmartPtr.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SceneMeshPtr SceneMesh::create(ID uID /* = E_CID_AUTOMATIC */)
+    ID Component::makeGlobalID() const
     {
-        SceneMeshPtr mesh = new SceneMesh(uID);
-        mesh->release();
-        return mesh;
+        static ID uID = 0;
+        return ++uID;
     }
 
     //--------------------------------------------------------------------------
 
-    SceneMesh::SceneMesh(ID uID /* = E_CID_AUTOMATIC */)
-        : SceneRenderable(uID)
+    Component::Component(ID uID /* = E_CID_AUTOMATIC */)
+        : mID(E_CID_INVALID)
+        , mSceneNode(nullptr)
     {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneMesh::~SceneMesh()
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    const String &SceneMesh::getType() const
-    {
-        static const String name = "SceneMesh";
-        return name;
-    }
-
-    //--------------------------------------------------------------------------
-
-    ComponentPtr SceneMesh::clone() const
-    {
-        SceneMeshPtr newObj = SceneMesh::create();
-        TResult ret = cloneProperties(newObj);
-
-        if (ret != T3D_OK)
+        if (uID != E_CID_AUTOMATIC)
         {
-            newObj = nullptr;
+            mID = uID;
         }
-
-        return newObj;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult SceneMesh::cloneProperties(ComponentPtr newObj) const
-    {
-        TResult ret = SceneRenderable::cloneProperties(newObj);
-
-        if (ret == T3D_OK)
+        else
         {
-
+            mID = makeGlobalID();
         }
-
-        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr SceneMesh::getMaterial() const
+    Component::~Component()
     {
-        return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr SceneMesh::getVertexArrayObject() const
+    TResult Component::cloneProperties(ComponentPtr newObj) const
     {
-        return nullptr;
+        newObj->mSceneNode = mSceneNode;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    void SceneMesh::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+    void Component::onAttachSceneNode(SceneNode *node)
     {
-
+        mSceneNode = node;
     }
 
     //--------------------------------------------------------------------------
 
-    void SceneMesh::updateBound()
+    void Component::onDetachSceneNode(SceneNode *node)
+    {
+        mSceneNode = nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Component::update()
     {
 
     }

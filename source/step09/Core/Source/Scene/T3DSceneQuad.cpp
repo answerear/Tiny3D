@@ -53,7 +53,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     SceneQuadPtr SceneQuad::create(const Quad &quad, const String &materialName,
-        ID uID /* = E_NID_AUTOMATIC */)
+        ID uID /* = E_CID_AUTOMATIC */)
     {
         SceneQuadPtr q = new SceneQuad(uID);
         q->release();
@@ -68,7 +68,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneQuad::SceneQuad(ID uID /* = E_NID_AUTOMATIC */)
+    SceneQuad::SceneQuad(ID uID /* = E_CID_AUTOMATIC */)
         : SceneRenderable(uID)
         , mMaterial(nullptr)
         , mVAO(nullptr)
@@ -85,9 +85,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Node::Type SceneQuad::getNodeType() const
+    const String &SceneQuad::getType() const
     {
-        return Type::QUAD;
+        static const String name = "SceneQuad";
+        return name;
     }
 
     //--------------------------------------------------------------------------
@@ -202,7 +203,7 @@ namespace Tiny3D
             mVAO->endBinding();
 
             // 需要刷新碰撞体的世界变换
-            setDirty(true);
+//             setDirty(true);
         } while (0);
 
         return ret;
@@ -210,7 +211,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    NodePtr SceneQuad::clone() const
+    ComponentPtr SceneQuad::clone() const
     {
         SceneQuadPtr quad = new SceneQuad();
         quad->release();
@@ -225,37 +226,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneQuad::cloneProperties(NodePtr node) const
+    TResult SceneQuad::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = SceneRenderable::cloneProperties(node);
+        TResult ret = SceneRenderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SceneQuadPtr quad = smart_pointer_cast<SceneQuad>(node);
+            SceneQuadPtr quad = smart_pointer_cast<SceneQuad>(newObj);
             ret = quad->init(mQuad, mMaterial->getName());
         }
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void SceneQuad::updateTransform()
-    {
-        // 更新四个顶点
-        if (isDirty())
-        {
-            const Transform &xform = getLocalToWorldTransform();
-            const Matrix4 &m = xform.getAffineMatrix();
-
-            size_t i = 0;
-            for (i = 0; i < VI_MAX_VERTICES; ++i)
-            {
-                mWorldQuad[i] = m * mQuad.vertices[i].position;
-            }
-        }
-
-        SceneRenderable::updateTransform();
     }
 
     //--------------------------------------------------------------------------
@@ -279,6 +260,13 @@ namespace Tiny3D
         {
             queue->addRenderable(RenderQueue::E_GRPID_SOLID, this);
         }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SceneQuad::updateBound()
+    {
+
     }
 
     //--------------------------------------------------------------------------

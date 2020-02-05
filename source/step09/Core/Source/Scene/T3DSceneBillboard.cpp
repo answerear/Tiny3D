@@ -25,7 +25,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SceneBillboardPtr SceneBillboard::create(ID uID /* = E_NID_AUTOMATIC */)
+    SceneBillboardPtr SceneBillboard::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         SceneBillboardPtr billboard = new SceneBillboard(uID);
         billboard->release();
@@ -34,7 +34,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SceneBillboard::SceneBillboard(ID uID /* = E_NID_AUTOMATIC */)
+    SceneBillboard::SceneBillboard(ID uID /* = E_CID_AUTOMATIC */)
         : SceneRenderable(uID)
     {
 
@@ -49,6 +49,44 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    const String &SceneBillboard::getType() const
+    {
+        static const String name = "SceneBillboard";
+        return name;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ComponentPtr SceneBillboard::clone() const
+    {
+        SceneBillboardPtr newObj = SceneBillboard::create();
+
+        TResult ret = cloneProperties(newObj);
+
+        if (ret != T3D_OK)
+        {
+            newObj = nullptr;
+        }
+
+        return newObj;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SceneBillboard::cloneProperties(ComponentPtr newObj) const
+    {
+        TResult ret = SceneRenderable::cloneProperties(newObj);
+
+        if (ret == T3D_OK)
+        {
+
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     MaterialPtr SceneBillboard::getMaterial() const
     {
         return nullptr;
@@ -59,5 +97,19 @@ namespace Tiny3D
     VertexArrayObjectPtr SceneBillboard::getVertexArrayObject() const
     {
         return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SceneBillboard::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SceneBillboard::updateBound()
+    {
+
     }
 }

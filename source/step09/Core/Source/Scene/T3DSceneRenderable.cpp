@@ -19,15 +19,15 @@
 
 
 #include "Scene/T3DSceneRenderable.h"
-#include "Scene/T3DDefaultSceneMgr.h"
+#include "Scene/T3DSceneNode.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SceneRenderable::SceneRenderable(ID uID /* = E_NID_AUTOMATIC */)
-        : SceneTransform3D(uID)
+    SceneRenderable::SceneRenderable(ID uID /* = E_CID_AUTOMATIC */)
+        : Component(uID)
         , mPrev(nullptr)
         , mNext(nullptr)
     {
@@ -43,59 +43,24 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneRenderable::setCameraMask(uint32_t mask)
+    TResult SceneRenderable::cloneProperties(ComponentPtr newObj) const
     {
-        if (mCameraMask == 0)
+        TResult ret = Component::cloneProperties(newObj);
+
+        if (ret == T3D_OK)
         {
-            // 之前没有设置过，直接添加到默认场景里面
-            mCameraMask = mask;
-
-            if (getParent() != nullptr)
-            {
-                DefaultSceneMgr::getInstance().addRenderable(this);
-            }
+            SceneRenderablePtr obj = smart_pointer_cast<SceneRenderable>(newObj);
         }
-        else if (mCameraMask != mask)
-        {
-            if (getParent() != nullptr)
-            {
-                DefaultSceneMgr::getInstance().removeRenderable(this);
-                mCameraMask = mask;
-                DefaultSceneMgr::getInstance().addRenderable(this);
 
-                NodePtr node = getFirstChild();
-
-                while (node != nullptr)
-                {
-                    SceneNodePtr child = smart_pointer_cast<SceneNode>(node);
-                    child->setCameraMask(mask);
-                    node = node->getNextSibling();
-                }
-            }
-            else
-            {
-                mCameraMask = mask;
-            }
-        }
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    void SceneRenderable::onAttachParent(NodePtr parent)
+    void SceneRenderable::onAttachSceneNode(SceneNode *node)
     {
-        if (getCameraMask() != 0)
-        {
-            DefaultSceneMgr::getInstance().addRenderable(this);
-        }
-    }
+        Component::onAttachSceneNode(node);
 
-    //--------------------------------------------------------------------------
-
-    void SceneRenderable::onDetachParent(NodePtr parent)
-    {
-        if (getCameraMask() != 0)
-        {
-            DefaultSceneMgr::getInstance().removeRenderable(this);
-        }
+        updateBound();
     }
 }

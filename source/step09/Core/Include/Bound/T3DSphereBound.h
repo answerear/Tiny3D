@@ -42,7 +42,7 @@ namespace Tiny3D
          * @param [in]  uID     (Optional) : 碰撞体ID.
          * @return  返回一个新的球体碰撞体对象.
          */
-        static SphereBoundPtr create(SceneNode *node, ID uID = E_BID_AUTOMATIC);
+        static SphereBoundPtr create(ID uID = E_BID_AUTOMATIC);
 
         /**
          * @fn  virtual SphereBound::~SphereBound();
@@ -98,7 +98,7 @@ namespace Tiny3D
          * @param [in]  node    : 碰撞体所在的结点对象.
          * @param [in]  uID     (Optional) : 碰撞体ID.
          */
-        SphereBound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
+        SphereBound(ID uID = E_BID_AUTOMATIC);
 
         /**
          * @fn  virtual bool SphereBound::testSphere(

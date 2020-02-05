@@ -23,27 +23,27 @@
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    SceneModelPtr SceneModel::create(ID uID /* = E_NID_AUTOMATIC */)
-    {
-        SceneModelPtr model = new SceneModel(uID);
-        model->release();
-        return model;
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneModel::SceneModel(ID uID /* = E_NID_AUTOMATIC */)
-        : SceneTransform3D(uID)
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    SceneModel::~SceneModel()
-    {
-
-    }
+//     //--------------------------------------------------------------------------
+// 
+//     SceneModelPtr SceneModel::create(ID uID /* = E_NID_AUTOMATIC */)
+//     {
+//         SceneModelPtr model = new SceneModel(uID);
+//         model->release();
+//         return model;
+//     }
+// 
+//     //--------------------------------------------------------------------------
+// 
+//     SceneModel::SceneModel(ID uID /* = E_NID_AUTOMATIC */)
+//         : SceneTransform3D(uID)
+//     {
+// 
+//     }
+// 
+//     //--------------------------------------------------------------------------
+// 
+//     SceneModel::~SceneModel()
+//     {
+// 
+//     }
 }

@@ -22,7 +22,7 @@
 #define __T3D_SCENE_TRANSFORM3D_H__
 
 
-#include "Scene/T3DSceneNode.h"
+#include "Component/T3DComponent.h"
 #include "Kernel/T3DTransform.h"
 
 
@@ -31,7 +31,7 @@ namespace Tiny3D
     /**
      * @brief 带变换属性的场景树结点
      */
-    class T3D_ENGINE_API SceneTransform3D : public SceneNode
+    class T3D_ENGINE_API SceneTransform3D : public Component
     {
     public:
         /**
@@ -39,7 +39,7 @@ namespace Tiny3D
          * @param [in] unID : 结点唯一标识，默认是自动生成
          * @return 返回一个3D变换结点对象
          */
-        static SceneTransform3DPtr create(ID uID = E_NID_AUTOMATIC);
+        static SceneTransform3DPtr create(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 析构函数
@@ -50,7 +50,7 @@ namespace Tiny3D
          * @brief 从父类继承来重写接口，获取结点类型
          * @return 返回结点类型
          */
-        virtual Type getNodeType() const override;
+        virtual const String &getType() const override;
 
         /**
          * @brief 设置在父结点空间坐标系下的位置
@@ -272,6 +272,12 @@ namespace Tiny3D
         Transform getLocalTransform() const;
 
         /**
+         * @brief 从父类继承，重写实现更新变换操作
+         * @return void
+         */
+        virtual void updateTransform();
+
+        /**
          * @brief 设置结点是否需要重绘、重新计算标记
          * @param [in] isDirty : 结点数据是否脏了标记
          * @param [in] recursive : 是否需要递归所有子节点都设置上该标记，
@@ -292,41 +298,35 @@ namespace Tiny3D
          * @brief 从父类继承，重写父类克隆方法，以实现本类对象的复制操作
          * @return 返回一个新的3D变换结点对象
          */
-        virtual NodePtr clone() const override;
+        virtual ComponentPtr clone() const override;
 
     protected:
         /**
          * @brief 默认构造函数
          * @param [in] uID : 结点唯一标识，默认是自动生成
          */
-        SceneTransform3D(ID uID = E_NID_AUTOMATIC);
+        SceneTransform3D(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 从父类继承，重写以响应结点挂到父结点的通知事件
          * @param [in] parent : 父结点对象
          * @return void
          */
-        virtual void onAttachParent(NodePtr parent) override;
+        virtual void onAttachSceneNode(SceneNode *node) override;
 
         /**
          * @brief 从父类继承，重写以响应结点从父结点拿走的通知事件
          * @param [in] parent : 父结点对象
          * @return void
          */
-        virtual void onDetachParent(NodePtr parent) override;
-
-        /**
-         * @brief 从父类继承，重写实现更新变换操作
-         * @return void
-         */
-        virtual void updateTransform() override;
+        virtual void onDetachSceneNode(SceneNode *node) override;
 
         /**
          * @brief 从父类继承，重写实现3D变换对象属性数据的复制
          * @param [in] node : 新的结点对象
          * @return void
          */
-        virtual TResult cloneProperties(NodePtr node) const override;
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
     private:
         Vector3     mPosition;          /**< 父节点坐标系下的局部位置 */

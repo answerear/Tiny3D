@@ -41,7 +41,7 @@ namespace Tiny3D
          * @return 返回新建的长方体渲染对象
          */
         static SceneBoxPtr create(const Vector3 &center, const Vector3 &extent,
-            ID uID = E_NID_AUTOMATIC);
+            ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 析构函数
@@ -52,13 +52,13 @@ namespace Tiny3D
          * @brief 重写基类接口，实现获取结点类型
          * @see Node::Type Node::getNodeType() const
          */
-        virtual Type getNodeType() const override;
+        virtual const String &getType() const override;
 
         /**
          * @brief 重写基类接口，实现克隆对象功能
          * @see NodePtr Node::clone() const
          */
-        virtual NodePtr clone() const override;
+        virtual ComponentPtr clone() const override;
 
         /**
          * @brief 获取长方体中心
@@ -74,7 +74,7 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        SceneBox(ID uID = E_NID_AUTOMATIC);
+        SceneBox(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 初始化对象
@@ -88,13 +88,13 @@ namespace Tiny3D
          * @brief 重写基类接口，实现克隆对象属性
          * @see TResult Node::cloneProperties(NodePtr node) const
          */
-        virtual TResult cloneProperties(NodePtr node) const override;
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         /**
          * @brief 重写基类接口，实现结点的自身变换
          * @see void SceneNode::updateTransform()
          */
-        virtual void updateTransform() override;
+        virtual void updateBound() override;
 
         /**
          * @brief 重写基类接口，实现结点的视锥体裁剪逻辑

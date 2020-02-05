@@ -45,7 +45,9 @@ bool GeometryApp::applicationDidFinishLaunching()
     RenderWindowPtr renderWindow = T3D_AGENT.getDefaultRenderWindow();
 
     // 相机
-    SceneCameraPtr camera = T3D_SCENE_MGR.createCamera(root);
+    SceneNodePtr node = T3D_SCENE_MGR.createSceneNode(root, false);
+
+    SceneCameraPtr camera = node->addCamera();
     camera->lookAt(Vector3(0.0f, 4.0f, 8.0f), Vector3::ZERO, Vector3::UNIT_Y);
     camera->setProjectionType(SceneCamera::E_PT_PERSPECTIVE);
     Real w = Real(renderWindow->getWidth());
@@ -61,16 +63,18 @@ bool GeometryApp::applicationDidFinishLaunching()
     viewport->setBkgndColor(ColorRGB::BLACK);
 
     // 箱子
+    node = T3D_SCENE_MGR.createSceneNode(root);
     Vector3 extent(1.0f, 1.0f, 1.0f);
-    SceneBoxPtr box = T3D_SCENE_MGR.createBox(Vector3::ZERO, extent, root);
-    box->setPosition(Vector3(-4.0f, 0.0f, -2.0f));
-    box->setCameraMask(OBJ_MASK_SCENE);
+    SceneBoxPtr cube = node->addCube(Vector3::ZERO, extent);
+    node->getTransform3D()->setPosition(Vector3(-4.0f, 0.0f, -2.0f));
+    node->setCameraMask(OBJ_MASK_SCENE);
 //     box->setScaling(Vector3(100, 100, 100));
 
     // 球
-    SceneSpherePtr sphere = T3D_SCENE_MGR.createSphere(Vector3::ZERO, 1.0f, root);
-    sphere->setPosition(Vector3(2.0f, 0.0f, 0.0f));
-    sphere->setCameraMask(OBJ_MASK_SCENE);
+    node = T3D_SCENE_MGR.createSceneNode(root);
+    SceneSpherePtr sphere = node->addSphere(Vector3::ZERO, 1.0f);
+    node->getTransform3D()->setPosition(Vector3(2.0f, 0.0f, 0.0f));
+    node->setCameraMask(OBJ_MASK_SCENE);
 
     // 空间四边形
     

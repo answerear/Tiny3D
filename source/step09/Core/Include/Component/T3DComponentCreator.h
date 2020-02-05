@@ -18,20 +18,33 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DComponent.h"
+#ifndef __T3D_COMPONENT_CREATOR_H__
+#define __T3D_COMPONENT_CREATOR_H__
+
+
+#include "Kernel/T3DCreator.h"
+#include "Component/T3DComponent.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    Component::Component()
+    class T3D_ENGINE_API ComponentCreator 
+        : public Creator<Component>
+        , public Object
     {
-    }
+    public:
+        static ComponentCreatorPtr create();
 
-    //--------------------------------------------------------------------------
+        virtual ~ComponentCreator();
 
-    Component::~Component()
-    {
-    }
+        virtual String getType() const override;
+
+        virtual ComponentPtr createObject(int32_t argc, ...) const override;
+
+    protected:
+        ComponentCreator();
+    };
 }
+
+
+#endif  /*__T3D_COMPONENT_CREATOR_H__*/

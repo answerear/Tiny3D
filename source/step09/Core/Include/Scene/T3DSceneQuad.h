@@ -65,7 +65,7 @@ namespace Tiny3D
          * @return 返回一个可渲染空间四边形对象
          */
         static SceneQuadPtr create(const Quad &quad, const String &materialName,
-            ID uID = E_NID_AUTOMATIC);
+            ID uID = E_CID_AUTOMATIC);
 
         /**
          * @brief 析构函数
@@ -76,13 +76,13 @@ namespace Tiny3D
          * @brief 重写基类接口，实现获取结点类型
          * @see Node::Type Node::getNodeType() const
          */
-        virtual Type getNodeType() const override;
+        virtual const String &getType() const override;
 
         /**
          * @brief 重写基类接口，实现克隆对象功能
          * @see NodePtr Node::clone() const
          */
-        virtual NodePtr clone() const override;
+        virtual ComponentPtr clone() const override;
 
         /**
          * @brief 设置空间四边形四个顶点的本地坐标
@@ -124,7 +124,7 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        SceneQuad(ID uID = E_NID_AUTOMATIC);
+        SceneQuad(ID uID = E_CID_AUTOMATIC);
             
         /**
          * @brief 初始化对象
@@ -138,13 +138,7 @@ namespace Tiny3D
          * @brief 重写基类接口，实现克隆对象属性
          * @see TResult Node::cloneProperties(NodePtr node) const
          */
-        virtual TResult cloneProperties(NodePtr node) const override;
-
-        /**
-         * @brief 重写基类接口，实现结点的自身变换
-         * @see void SceneNode::updateTransform()
-         */
-        virtual void updateTransform() override;
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         /**
          * @brief 重写基类接口，实现结点的视锥体裁剪逻辑
@@ -152,6 +146,8 @@ namespace Tiny3D
          */
         virtual void frustumCulling(BoundPtr bound,
             RenderQueuePtr queue) override;
+
+        virtual void updateBound() override;
 
         /**
          * @brief 重写基类接口，获取渲染材质对象

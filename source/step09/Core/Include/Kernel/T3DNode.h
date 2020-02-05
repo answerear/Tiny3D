@@ -53,24 +53,7 @@ namespace Tiny3D
         enum class Type : uint32_t
         {
             UNKNOWN = 0,       /**< 未知结点类型 */
-
-            TRANSFORM3D,       /**< 3D变换结点 */
-            TRANSFORM2D,       /**< 2D变换结点 */
-            BONE,              /**< 骨骼变换结点 */
-
-            CAMERA,            /**< 相机结点 */
-            MODEL,             /**< 模型结点 */
-
-            LIGHT,             /**< 灯光结点 */
-            GEOMETRY,          /**< 几何物体结点 */
-            MESH,              /**< 网格结点 */
-            SPHERE,            /**< 球型物体结点 */
-            BOX,               /**< 立方体结点 */
-            SKELETON,          /**< 可渲染的骨骼结点 */
-            AXIS,              /**< 坐标轴结点 */
-            QUAD,              /**< 四边形结点 */
-            SPRITE,            /**< 精灵结点 */
-            TEXT2D,            /**< 2D文本结点 */
+            SCENE_NODE,        /**< 场景结点 */
         };
 
         /**
