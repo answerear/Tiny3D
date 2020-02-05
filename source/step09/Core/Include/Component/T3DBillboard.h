@@ -34,25 +34,79 @@ namespace Tiny3D
     class T3D_ENGINE_API Billboard : public Renderable
     {
     public:
+        /**
+         * @fn  static BillboardPtr Billboard::create(ID uID = E_CID_AUTOMATIC);
+         * @brief   Creates a new BillboardPtr
+         * @param   uID (Optional) The identifier.
+         * @return  A BillboardPtr.
+         */
         static BillboardPtr create(ID uID = E_CID_AUTOMATIC);
 
+        /**
+         * @fn  virtual Billboard::~Billboard();
+         * @brief   Destructor
+         */
         virtual ~Billboard();
 
+        /**
+         * @fn  virtual const String Billboard::&getType() const override;
+         * @brief   Gets the type
+         * @return  The type.
+         */
         virtual const String &getType() const override;
 
     protected:
+        /**
+         * @fn  Billboard::Billboard(ID uID = E_CID_AUTOMATIC);
+         * @brief   Constructor
+         * @param   uID (Optional) The identifier.
+         */
         Billboard(ID uID = E_CID_AUTOMATIC);
 
+        /**
+         * @fn  virtual ComponentPtr Billboard::clone() const override;
+         * @brief   Makes a deep copy of this object
+         * @return  A copy of this object.
+         */
         virtual ComponentPtr clone() const override;
 
+        /**
+         * @fn  virtual TResult 
+         *      Billboard::cloneProperties(ComponentPtr newObj) const override;
+         * @brief   Initializes this object from the given properties
+         * @param   newObj  The new object.
+         * @return  A TResult.
+         */
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
+        /**
+         * @fn  virtual MaterialPtr Billboard::getMaterial() const override;
+         * @brief   Gets the material
+         * @return  The material.
+         */
         virtual MaterialPtr getMaterial() const override;
 
+        /**
+         * @fn  virtual VertexArrayObjectPtr 
+         *      Billboard::getVertexArrayObject() const override;
+         * @brief   Gets vertex array object
+         * @return  The vertex array object.
+         */
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
+        /**
+         * @fn  virtual void Billboard::frustumCulling(BoundPtr bound, 
+         *      RenderQueuePtr queue) override;
+         * @brief   Frustum culling
+         * @param   bound   The bound.
+         * @param   queue   The queue.
+         */
         virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) override;
 
+        /**
+         * @fn  virtual void Billboard::updateBound() override;
+         * @brief   Updates the bound
+         */
         virtual void updateBound() override;
     };
 }
