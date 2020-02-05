@@ -57,7 +57,7 @@ namespace Tiny3D
 
     SceneNode::~SceneNode()
     {
-
+        removeAllComponents();
     }
 
     //--------------------------------------------------------------------------
@@ -267,6 +267,9 @@ namespace Tiny3D
 
     Transform3DPtr SceneNode::addTransform()
     {
+        if (mTransform3D != nullptr)
+            return mTransform3D;
+
         ComponentPtr component = createComponent(1, "Transform3D");
 
         if (component != nullptr)
@@ -282,11 +285,15 @@ namespace Tiny3D
 
     RenderablePtr SceneNode::addRenderable(const String &type)
     {
+        if (mRenderable != nullptr)
+            return mRenderable;
+
         ComponentPtr component = createComponent(1, type.c_str());
 
         if (component != nullptr)
         {
             mRenderable = smart_pointer_cast<Renderable>(component);
+            T3D_SCENE_MGR.addRenderable(mRenderable);
             component->onAttachSceneNode(this);
         }
 
@@ -365,7 +372,6 @@ namespace Tiny3D
         if (component != nullptr)
         {
             component->onAttachSceneNode(this);
-
         }
 
         return component;
@@ -427,6 +433,17 @@ namespace Tiny3D
         if (itr != mComponents.end())
         {
             ComponentPtr component = itr->second;
+
+            if (component == mRenderable)
+            {
+                T3D_SCENE_MGR.removeRenderable(mRenderable);
+                mRenderable = nullptr;
+            }
+            else if (component == mTransform3D)
+            {
+                mTransform3D = nullptr;
+            }
+
             component->onDetachSceneNode(this);
             mComponents.erase(itr);
         }
@@ -440,6 +457,11 @@ namespace Tiny3D
 
         while (itr != mComponents.end())
         {
+            if (itr->second == mRenderable)
+            {
+                T3D_SCENE_MGR.removeRenderable(mRenderable);
+            }
+
             itr->second->onDetachSceneNode(this);
             ++itr;
         }
@@ -456,6 +478,11 @@ namespace Tiny3D
         {
             if (itr->second == component)
             {
+                if (itr->second == mRenderable)
+                {
+                    T3D_SCENE_MGR.removeRenderable(mRenderable);
+                }
+
                 component->onDetachSceneNode(this);
                 mComponents.erase(itr);
                 break;

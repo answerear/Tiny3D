@@ -105,7 +105,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneManager::addRenderable(RenderablePtr renderable)
+    TResult SceneManager::addRenderable(Renderable *renderable)
     {
         if (mImpl != nullptr)
         {
@@ -117,7 +117,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneManager::removeRenderable(RenderablePtr renderable)
+    TResult SceneManager::removeRenderable(Renderable *renderable)
     {
         if (mImpl != nullptr)
         {

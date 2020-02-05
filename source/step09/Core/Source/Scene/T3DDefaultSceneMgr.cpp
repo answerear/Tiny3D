@@ -95,7 +95,7 @@ namespace Tiny3D
         mRoot = SceneNode::create();
         mRoot->setName("Root");
 
-        ComponentPtr component = mRoot->addTransform();
+        mRoot->addTransform();
 
         // 预分配32个槽给存放要剔除的可渲染对象
         mRenderables.resize(32, Slot());
@@ -219,7 +219,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult DefaultSceneMgr::addRenderable(RenderablePtr renderable)
+    TResult DefaultSceneMgr::addRenderable(Renderable *renderable)
     {
         TResult ret = T3D_OK;
 
@@ -262,7 +262,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult DefaultSceneMgr::removeRenderable(RenderablePtr renderable)
+    TResult DefaultSceneMgr::removeRenderable(Renderable *renderable)
     {
         TResult ret = T3D_OK;
 

@@ -103,7 +103,7 @@ namespace Tiny3D
          * @param [in]  renderable  : 可渲染对象.
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult addRenderable(RenderablePtr renderable) override;
+        virtual TResult addRenderable(Renderable *renderable) override;
 
         /**
          * @fn  TResult removeRenderable(RenderablePtr renderable);
@@ -111,7 +111,7 @@ namespace Tiny3D
          * @param [in]  renderable  : 可渲染对象.
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult removeRenderable(RenderablePtr renderable) override;
+        virtual TResult removeRenderable(Renderable *renderable) override;
 
     protected:
         /**

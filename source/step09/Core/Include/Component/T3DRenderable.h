@@ -70,8 +70,8 @@ namespace Tiny3D
         virtual void onAttachSceneNode(SceneNode *node) override;
 
     private:
-        RenderablePtr     mPrev;      /**< 前一个可渲染对象 */
-        RenderablePtr     mNext;      /**< 下一个可渲染对象 */
+        Renderable  *mPrev;      /**< 前一个可渲染对象 */
+        Renderable  *mNext;      /**< 下一个可渲染对象 */
     };
 }
 

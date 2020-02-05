@@ -80,7 +80,7 @@ namespace Tiny3D
 
     Cube::~Cube()
     {
-
+        T3D_MATERIAL_MGR.unloadMaterial(mMaterial);
     }
 
     //--------------------------------------------------------------------------
@@ -136,8 +136,8 @@ namespace Tiny3D
             if (decl == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex declaration for \
-                    Cube failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, 
+                    "Create vertex declaration for Cube failed !");
                 break;
             }
 
@@ -157,8 +157,8 @@ namespace Tiny3D
             if (vbo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex buffer for \
-                    Cube failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, 
+                    "Create vertex buffer for Cube failed !");
                 break;
             }
 
@@ -171,8 +171,8 @@ namespace Tiny3D
             if (ibo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create index buffer for Cube \
-                    failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, 
+                    "Create index buffer for Cube failed !");
                 break;
             }
 

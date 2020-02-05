@@ -88,7 +88,7 @@ namespace Tiny3D
 
     Globe::~Globe()
     {
-
+        T3D_MATERIAL_MGR.unloadMaterial(mMaterial);
     }
 
     //--------------------------------------------------------------------------
@@ -125,8 +125,7 @@ namespace Tiny3D
             if (mVAO == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create VAO for Globe \
-                    failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create VAO for Globe failed !");
                 break;
             }
 
@@ -134,8 +133,7 @@ namespace Tiny3D
             ret = mVAO->beginBinding();
             if (ret != T3D_OK)
             {
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for Globe \
-                    failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for Globe failed !");
                 break;
             }
 
@@ -145,8 +143,8 @@ namespace Tiny3D
             if (decl == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex declaration for \
-                    Globe failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, 
+                    "Create vertex declaration for Globe failed !");
                 break;
             }
 
@@ -166,8 +164,8 @@ namespace Tiny3D
             if (vbo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create vertex buffer for \
-                    Globe failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, 
+                    "Create vertex buffer for Globe failed !");
                 break;
             }
 
@@ -180,8 +178,8 @@ namespace Tiny3D
             if (ibo == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_SCENE, "Create index buffer for Globe \
-                    failed !");
+                T3D_LOG_ERROR(LOG_TAG_SCENE, 
+                    "Create index buffer for Globe failed !");
                 break;
             }
 
