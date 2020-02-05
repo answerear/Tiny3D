@@ -28,20 +28,50 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   ComponentCreator
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API ComponentCreator 
         : public Creator<Component>
         , public Object
     {
     public:
+        /**
+         * @fn  static ComponentCreatorPtr create();
+         * @brief   Creates a new ComponentCreatorPtr
+         * @return  A ComponentCreatorPtr.
+         */
         static ComponentCreatorPtr create();
 
+        /**
+         * @fn  virtual ~ComponentCreator();
+         * @brief   Destructor
+         */
         virtual ~ComponentCreator();
 
+        /**
+         * @fn  virtual String getType() const override;
+         * @brief   Gets the type
+         * @return  The type.
+         */
         virtual String getType() const override;
 
+        /**
+         * @fn  virtual ComponentPtr 
+         *      createObject(int32_t argc, ...) const override;
+         * @brief   Creates an object
+         * @param   argc    The argc.
+         * @param   ...     Variable arguments providing additional information.
+         * @return  The new object.
+         */
         virtual ComponentPtr createObject(int32_t argc, ...) const override;
 
     protected:
+        /**
+         * @fn  ComponentCreator();
+         * @brief   Default constructor
+         */
         ComponentCreator();
     };
 }

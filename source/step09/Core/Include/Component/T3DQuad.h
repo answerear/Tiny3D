@@ -28,12 +28,16 @@
 namespace Tiny3D
 {
     /**
-     * @brief 可渲染四边形
+     * @class   Quad
+     * @brief   可渲染四边形
      */
     class T3D_ENGINE_API Quad : public Renderable
     {
     public:
-        /** 顶点位置 */
+        /**
+         * @enum    VertexIndex
+         * @brief   顶点位置
+         */
         enum VertexIndex
         {
             VI_TOP_LEFT = 0,
@@ -44,7 +48,8 @@ namespace Tiny3D
         };
 
         /**
-         * @brief 顶点信息
+         * @struct  Vertex
+         * @brief   顶点信息
          */
         struct Vertex
         {
@@ -52,40 +57,54 @@ namespace Tiny3D
             Vector2     uv;         /**< UV坐标 */
         };
 
+        /**
+         * @struct  QuadData
+         * @brief   A quad data.
+         */
         struct QuadData
         {
             Vertex  vertices[VI_MAX_VERTICES];
         };
 
         /**
-         * @brief 创建可渲染空间四边形对象
-         * @param [in] quad : 空间四边形数据
-         * @param [in] materialName : 材质名称
-         * @param [in] uID : 结点ID，默认自动生成
-         * @return 返回一个可渲染空间四边形对象
+         * @fn  static QuadPtr Quad::create(const QuadData &quad, 
+         *      const String &materialName, ID uID = E_CID_AUTOMATIC);
+         * @brief   创建可渲染空间四边形对象
+         * @param [in]  quad            : 空间四边形数据.
+         * @param [in]  materialName    : 材质名称.
+         * @param [in]  uID             (Optional) : 结点ID，默认自动生成.
+         * @return  返回一个可渲染空间四边形对象.
          */
         static QuadPtr create(const QuadData &quad, const String &materialName,
             ID uID = E_CID_AUTOMATIC);
 
         /**
-         * @brief 析构函数
+         * @fn  virtual Quad::~Quad();
+         * @brief   析构函数
          */
         virtual ~Quad();
 
         /**
-         * @brief 重写基类接口，实现获取结点类型
-         * @see Node::Type Node::getNodeType() const
+         * @fn  virtual const String Quad::&getType() const override;
+         * @brief   重写基类接口，实现获取结点类型
+         * @return  The type.
+         * @sa  Node::Type Node::getNodeType() const
          */
         virtual const String &getType() const override;
 
         /**
-         * @brief 重写基类接口，实现克隆对象功能
-         * @see NodePtr Node::clone() const
+         * @fn  virtual ComponentPtr Quad::clone() const override;
+         * @brief   重写基类接口，实现克隆对象功能
+         * @return  A copy of this object.
+         * @sa  NodePtr Node::clone() const
          */
         virtual ComponentPtr clone() const override;
 
         /**
-         * @brief 设置空间四边形四个顶点的本地坐标
+         * @fn  void Quad::setVertexPos(size_t idx, const Vector3 &pos)
+         * @brief   设置空间四边形四个顶点的本地坐标
+         * @param   idx Zero-based index of the.
+         * @param   pos The position.
          */
         void setVertexPos(size_t idx, const Vector3 &pos)
         {
@@ -94,7 +113,10 @@ namespace Tiny3D
         }
 
         /**
-         * @brief 获取空间四边形四个顶点的本地坐标
+         * @fn  const Vector3 Quad::&getVertexPos(size_t idx) const
+         * @brief   获取空间四边形四个顶点的本地坐标
+         * @param   idx Zero-based index of the.
+         * @return  The vertex position.
          */
         const Vector3 &getVertexPos(size_t idx) const
         {
@@ -103,7 +125,10 @@ namespace Tiny3D
         }
 
         /**
-         * @brief 设置空间四边形四个顶点的UV坐标
+         * @fn  void Quad::setVertexUV(size_t idx, const Vector2 &uv)
+         * @brief   设置空间四边形四个顶点的UV坐标
+         * @param   idx Zero-based index of the.
+         * @param   uv  The uv.
          */
         void setVertexUV(size_t idx, const Vector2 &uv)
         {
@@ -112,7 +137,10 @@ namespace Tiny3D
         }
 
         /**
-         * @brief 获取空间四边形四个顶点的UV坐标
+         * @fn  const Vector2 Quad::&getVertexUV(size_t idx) const
+         * @brief   获取空间四边形四个顶点的UV坐标
+         * @param   idx Zero-based index of the.
+         * @return  The vertex uv.
          */
         const Vector2 &getVertexUV(size_t idx) const
         {
@@ -122,42 +150,63 @@ namespace Tiny3D
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  Quad::Quad(ID uID = E_CID_AUTOMATIC);
+         * @brief   构造函数
+         * @param   uID (Optional) The identifier.
          */
         Quad(ID uID = E_CID_AUTOMATIC);
             
         /**
-         * @brief 初始化对象
-         * @param [in] quad : 空间四边形
-         * @param [in] materialName : 材质名称
-         * @return 成功返回 T3D_OK
+         * @fn  virtual TResult Quad::init(const QuadData &quad, 
+         *      const String &materialName);
+         * @brief   初始化对象
+         * @param [in]  quad            : 空间四边形.
+         * @param [in]  materialName    : 材质名称.
+         * @return  成功返回 T3D_OK.
          */
         virtual TResult init(const QuadData &quad, const String &materialName);
 
         /**
-         * @brief 重写基类接口，实现克隆对象属性
-         * @see TResult Node::cloneProperties(NodePtr node) const
+         * @fn  virtual TResult 
+         *      Quad::cloneProperties(ComponentPtr newObj) const override;
+         * @brief   重写基类接口，实现克隆对象属性
+         * @param   newObj  The new object.
+         * @return  A TResult.
+         * @sa  TResult Node::cloneProperties(NodePtr node) const
          */
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         /**
-         * @brief 重写基类接口，实现结点的视锥体裁剪逻辑
-         * @see void SceneNode::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
+         * @fn  virtual void Quad::frustumCulling(BoundPtr bound, 
+         *      RenderQueuePtr queue) override;
+         * @brief   重写基类接口，实现结点的视锥体裁剪逻辑
+         * @param   bound   The bound.
+         * @param   queue   The queue.
+         * @sa  void SceneNode::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
          */
         virtual void frustumCulling(BoundPtr bound,
             RenderQueuePtr queue) override;
 
+        /**
+         * @fn  virtual void Quad::updateBound() override;
+         * @brief   Updates the bound
+         */
         virtual void updateBound() override;
 
         /**
-         * @brief 重写基类接口，获取渲染材质对象
-         * @see MaterialPtr Renderable::getMaterial() const
+         * @fn  virtual MaterialPtr Quad::getMaterial() const override;
+         * @brief   重写基类接口，获取渲染材质对象
+         * @return  The material.
+         * @sa  MaterialPtr Renderable::getMaterial() const
          */
         virtual MaterialPtr getMaterial() const override;
 
         /**
-         * @brief 重写基类接口，获取渲染VAO数据对象
-         * @see VertexArrayObjectPtr Renderable::getVertexArrayObject() const
+         * @fn  virtual VertexArrayObjectPtr 
+         *      Quad::getVertexArrayObject() const override;
+         * @brief   重写基类接口，获取渲染VAO数据对象
+         * @return  The vertex array object.
+         * @sa  VertexArrayObjectPtr Renderable::getVertexArrayObject() const
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
@@ -165,8 +214,8 @@ namespace Tiny3D
         QuadData    mQuad;                          /**< 原始数据 */
         Vector3     mWorldQuad[VI_MAX_VERTICES];    /**< 变换成世界坐标的顶点 */
 
-        MaterialPtr             mMaterial;      /**< 渲染用的材质 */
-        VertexArrayObjectPtr    mVAO;           /**< 渲染用的VAO */
+        MaterialPtr             mMaterial;          /**< 渲染用的材质 */
+        VertexArrayObjectPtr    mVAO;               /**< 渲染用的VAO */
     };
 }
 

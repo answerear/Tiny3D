@@ -40,6 +40,10 @@ namespace Tiny3D
         T3D_DISABLE_COPY(Component);
 
     public:
+        /**
+         * @enum    ComponentID
+         * @brief   Values that represent component Identifiers
+         */
         enum ComponentID : uint32_t
         {
             E_CID_AUTOMATIC = 0xFFFFFFFF,   /**< 自动生成ID */
@@ -52,12 +56,32 @@ namespace Tiny3D
          */
         virtual ~Component();
 
+        /**
+         * @fn  virtual const String Component::&getType() const = 0;
+         * @brief   Gets the type
+         * @return  The type.
+         */
         virtual const String &getType() const = 0;
 
+        /**
+         * @fn  virtual ComponentPtr Component::clone() const = 0;
+         * @brief   Makes a deep copy of this object
+         * @return  A copy of this object.
+         */
         virtual ComponentPtr clone() const = 0;
 
+        /**
+         * @fn  ID Component::getID() const
+         * @brief   Gets the identifier
+         * @return  The identifier.
+         */
         ID getID() const { return mID; }
 
+        /**
+         * @fn  SceneNode Component::*getSceneNode() const
+         * @brief   Gets scene node
+         * @return  Null if it fails, else the scene node.
+         */
         SceneNode *getSceneNode() const { return mSceneNode; }
 
     protected:
@@ -67,19 +91,45 @@ namespace Tiny3D
          */
         Component(ID uID = E_CID_AUTOMATIC);
 
+        /**
+         * @fn  ID Component::makeGlobalID() const;
+         * @brief   Makes global identifier
+         * @return  An ID.
+         */
         ID makeGlobalID() const;
 
+        /**
+         * @fn  virtual TResult 
+         *      Component::cloneProperties(ComponentPtr newObj) const;
+         * @brief   Initializes this object from the given properties
+         * @param   newObj  The new object.
+         * @return  A TResult.
+         */
         virtual TResult cloneProperties(ComponentPtr newObj) const;
 
+        /**
+         * @fn  virtual void Component::onAttachSceneNode(SceneNode *node);
+         * @brief   Executes the attach scene node action
+         * @param [in,out]  node    If non-null, the node.
+         */
         virtual void onAttachSceneNode(SceneNode *node);
 
+        /**
+         * @fn  virtual void Component::onDetachSceneNode(SceneNode *node);
+         * @brief   Executes the detach scene node action
+         * @param [in,out]  node    If non-null, the node.
+         */
         virtual void onDetachSceneNode(SceneNode *node);
 
+        /**
+         * @fn  virtual void Component::update();
+         * @brief   Updates this object
+         */
         virtual void update();
 
     protected:
-        ID          mID;
-        SceneNode   *mSceneNode;
+        ID          mID;            /**< The identifier */
+        SceneNode   *mSceneNode;    /**< The scene node */
     };
 }
 

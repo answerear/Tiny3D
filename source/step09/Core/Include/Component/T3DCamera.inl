@@ -43,7 +43,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void Camera::setProjectionType(ProjectionType type)
+    inline void Camera::setProjectionType(Type type)
     {
         if (mProjType != type)
         {
@@ -54,7 +54,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline Camera::ProjectionType Camera::getProjectionType() const
+    inline Camera::Type Camera::getProjectionType() const
     {
         return mProjType;
     }

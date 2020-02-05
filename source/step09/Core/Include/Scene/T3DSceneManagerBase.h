@@ -29,39 +29,56 @@
 namespace Tiny3D
 {
     /**
-     * @brief 场景管理基类
-     * @remarks 可以根据不同场景管理算法实现各自的场景插件
+     * @class   SceneManagerBase
+     * @brief   场景管理基类
+     * @remarks 可以根据不同场景管理算法实现各自的场景插件.
      */
     class T3D_ENGINE_API SceneManagerBase : public Object
     {
     public:
         /**
-         * @brief 析构函数
+         * @fn  virtual SceneManagerBase::~SceneManagerBase();
+         * @brief   析构函数
          */
         virtual ~SceneManagerBase();
 
         /**
-         * @brief 更新场景树
-         * @return 调用成功返回 T3D_OK
-         * @remarks 场景插件实现本接口，实现自己的更新逻辑
+         * @fn  virtual TResult SceneManagerBase::update() = 0;
+         * @brief   更新场景树
+         * @return  调用成功返回 T3D_OK.
+         * @remarks 场景插件实现本接口，实现自己的更新逻辑.
          */
         virtual TResult update() = 0;
 
         /**
-         * @brief 渲染场景
-         * @param [in] viewport : 渲染的视口对象
-         * @return 调用成功返回 T3D_OK
-         * @remarks 场景插件实现本接口，实现自己的渲染逻辑
+         * @fn  virtual TResult 
+         *      SceneManagerBase::render(ViewportPtr viewport) = 0;
+         * @brief   渲染场景
+         * @param [in]  viewport    : 渲染的视口对象.
+         * @return  调用成功返回 T3D_OK.
+         * @remarks 场景插件实现本接口，实现自己的渲染逻辑.
          */
         virtual TResult render(ViewportPtr viewport) = 0;
 
         /**
-         * @brief 获取场景根结点
-         * @return 返回场景根结点对象
-         * @remarks 场景插件实现本接口，实现自己的更新和渲染逻辑
+         * @fn  virtual SceneNodePtr SceneManagerBase::getRoot() const = 0;
+         * @brief   获取场景根结点
+         * @return  返回场景根结点对象.
+         * @remarks 场景插件实现本接口，实现自己的更新和渲染逻辑.
          */
         virtual SceneNodePtr getRoot() const = 0;
 
+        /**
+         * @fn  virtual SceneNodePtr SceneManagerBase::createSceneNode(
+         *      SceneNodePtr parent, bool autoAddTransform = true, ID 
+         *      uID = Node::E_NID_AUTOMATIC) = 0;
+         * @brief   Creates scene node
+         * @param   parent              The parent.
+         * @param   autoAddTransform    (Optional) True to automatically add
+         *  transform.
+         * @param   uID                 (Optional) The identifier.
+         * @return  The new scene node.
+         */
         virtual SceneNodePtr createSceneNode(SceneNodePtr parent, 
             bool autoAddTransform = true, ID uID = Node::E_NID_AUTOMATIC) = 0;
 
@@ -83,7 +100,8 @@ namespace Tiny3D
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  SceneManagerBase::SceneManagerBase();
+         * @brief   构造函数
          */
         SceneManagerBase();
     };

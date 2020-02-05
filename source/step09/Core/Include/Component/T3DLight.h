@@ -27,22 +27,57 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   Light
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API Light : public Transform3D
     {
     public:
+        /**
+         * @fn  static LightPtr Light::create(ID uID = E_CID_AUTOMATIC);
+         * @brief   Creates a new LightPtr
+         * @param   uID (Optional) The identifier.
+         * @return  A LightPtr.
+         */
         static LightPtr create(ID uID = E_CID_AUTOMATIC);
 
+        /**
+         * @fn  virtual Light::~Light();
+         * @brief   Destructor
+         */
         virtual ~Light();
 
+        /**
+         * @fn  virtual const String Light::&getType() const override;
+         * @brief   Gets the type
+         * @return  The type.
+         */
         virtual const String &getType() const override;
 
     protected:
+        /**
+         * @fn  Light::Light(ID uID = E_CID_AUTOMATIC);
+         * @brief   Constructor
+         * @param   uID (Optional) The identifier.
+         */
         Light(ID uID = E_CID_AUTOMATIC);
 
+        /**
+         * @fn  virtual ComponentPtr Light::clone() const override;
+         * @brief   Makes a deep copy of this object
+         * @return  A copy of this object.
+         */
         virtual ComponentPtr clone() const override;
 
+        /**
+         * @fn  virtual TResult 
+         *      Light::cloneProperties(ComponentPtr newObj) const override;
+         * @brief   Initializes this object from the given properties
+         * @param   newObj  The new object.
+         * @return  A TResult.
+         */
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
-
     };
 }
 

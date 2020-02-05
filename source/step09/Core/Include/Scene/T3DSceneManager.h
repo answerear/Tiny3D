@@ -27,44 +27,65 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   SceneManager
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API SceneManager 
         : public SceneManagerBase
         , public Singleton<SceneManager>
     {
     public:
         /**
-         * @brief 创建场景管理器对象
-         * @param [in] impl : 场景管理器具体实现的对象
-         * @return 返回一个场景管理器对象
+         * @fn  static SceneManagerPtr create(SceneManagerBase *impl);
+         * @brief   创建场景管理器对象
+         * @param [in]  impl    : 场景管理器具体实现的对象.
+         * @return  返回一个场景管理器对象.
          */
         static SceneManagerPtr create(SceneManagerBase *impl);
 
         /**
-         * @brief 析构函数
+         * @fn  virtual ~SceneManager();
+         * @brief   析构函数
          */
         virtual ~SceneManager();
 
         /**
-         * @brief 更新场景树，实现基类接口
-         * @see TResult SceneManagerBase::update()
+         * @fn  virtual TResult update() override;
+         * @brief   更新场景树，实现基类接口
+         * @return  A TResult.
+         * @sa  TResult SceneManagerBase::update()
          */
         virtual TResult update() override;
 
         /**
-         * @brief 实现基类接口
-         * @see TResult SceneManagerBase::render(ViewportPtr viewport)
+         * @fn  virtual TResult render(ViewportPtr viewport) override;
+         * @brief   实现基类接口
+         * @param   viewport    The viewport.
+         * @return  A TResult.
+         * @sa  TResult SceneManagerBase::render(ViewportPtr viewport)
          */
         virtual TResult render(ViewportPtr viewport) override;
 
         /**
-         * @brief 实现基类接口
-         * @see SceneNodePtr SceneManagerBase::getRoot() const
+         * @fn  virtual SceneNodePtr getRoot() const override;
+         * @brief   实现基类接口
+         * @return  The root.
+         * @sa  SceneNodePtr SceneManagerBase::getRoot() const
          */
         virtual SceneNodePtr getRoot() const override;
 
         /**
-         * @brief 实现基类接口
-         * @see Transform3DPtr SceneManagerBase::createTransform3D(
+         * @fn  virtual SceneNodePtr createSceneNode(SceneNodePtr parent, 
+         *      bool autoAddTransform = true, 
+         *      ID uID = Node::E_NID_AUTOMATIC) override;
+         * @brief   实现基类接口
+         * @param   parent              The parent.
+         * @param   autoAddTransform    (Optional) True to automatically add
+         *  transform.
+         * @param   uID                 (Optional) The identifier.
+         * @return  The new scene node.
+         * @sa  Transform3DPtr SceneManagerBase::createTransform3D(
          *      SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC)
          */
         virtual SceneNodePtr createSceneNode(SceneNodePtr parent,
@@ -87,8 +108,14 @@ namespace Tiny3D
         virtual TResult removeRenderable(Renderable *renderable) override;
 
     protected:
+        /**
+         * @fn  SceneManager(SceneManagerBase *impl);
+         * @brief   Constructor
+         * @param [in,out]  impl    If non-null, the implementation.
+         */
         SceneManager(SceneManagerBase *impl);
 
+    protected:
         SceneManagerBasePtr     mImpl;  /**< 具体场景管理器对象 */
     };
 

@@ -27,28 +27,86 @@
 
 namespace Tiny3D
 {
+    /**
+     * @class   Mesh
+     * @brief   A 3D engine api.
+     */
     class T3D_ENGINE_API Mesh : public Renderable
     {
     public:
+        /**
+         * @fn  static MeshPtr Mesh::create(ID uID = E_CID_AUTOMATIC);
+         * @brief   Creates a new MeshPtr
+         * @param   uID (Optional) The identifier.
+         * @return  A MeshPtr.
+         */
         static MeshPtr create(ID uID = E_CID_AUTOMATIC);
 
+        /**
+         * @fn  virtual Mesh::~Mesh();
+         * @brief   Destructor
+         */
         virtual ~Mesh();
 
+        /**
+         * @fn  virtual const String Mesh::&getType() const override;
+         * @brief   Gets the type
+         * @return  The type.
+         */
         virtual const String &getType() const override;
 
     protected:
+        /**
+         * @fn  Mesh::Mesh(ID uID = E_CID_AUTOMATIC);
+         * @brief   Constructor
+         * @param   uID (Optional) The identifier.
+         */
         Mesh(ID uID = E_CID_AUTOMATIC);
 
+        /**
+         * @fn  virtual ComponentPtr Mesh::clone() const override;
+         * @brief   Makes a deep copy of this object
+         * @return  A copy of this object.
+         */
         virtual ComponentPtr clone() const override;
 
+        /**
+         * @fn  virtual TResult 
+         *      Mesh::cloneProperties(ComponentPtr newObj) const override;
+         * @brief   Initializes this object from the given properties
+         * @param   newObj  The new object.
+         * @return  A TResult.
+         */
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
+        /**
+         * @fn  virtual MaterialPtr Mesh::getMaterial() const override;
+         * @brief   Gets the material
+         * @return  The material.
+         */
         virtual MaterialPtr getMaterial() const override;
 
+        /**
+         * @fn  virtual VertexArrayObjectPtr 
+         *      Mesh::getVertexArrayObject() const override;
+         * @brief   Gets vertex array object
+         * @return  The vertex array object.
+         */
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
+        /**
+         * @fn  virtual void Mesh::frustumCulling(BoundPtr bound, 
+         *      RenderQueuePtr queue) override;
+         * @brief   Frustum culling
+         * @param   bound   The bound.
+         * @param   queue   The queue.
+         */
         virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) override;
 
+        /**
+         * @fn  virtual void Mesh::updateBound() override;
+         * @brief   Updates the bound
+         */
         virtual void updateBound() override;
     };
 }

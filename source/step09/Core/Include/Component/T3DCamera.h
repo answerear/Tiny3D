@@ -29,177 +29,216 @@
 namespace Tiny3D
 {
     /**
-     * @brief 场景相机结点类
+     * @class   Camera
+     * @brief   场景相机结点类
      */
     class T3D_ENGINE_API Camera : public Transform3D
     {
     public:
         /**
-         * @brief 投影类型
+         * @enum    Type
+         * @brief   投影类型
          */
-        enum ProjectionType
+        enum class Type : uint32_t
         {
-            E_PT_ORTHOGRAPHIC = 0,      /**< 正交投影矩阵 */
-            E_PT_PERSPECTIVE,           /**< 透视投影矩阵 */
+            ORTHOGRAPHIC = 0,      /**< 正交投影矩阵 */
+            PERSPECTIVE,           /**< 透视投影矩阵 */
         };
 
         /**
-         * @brief 创建相机结点对象
-         * @param [in] uID : 结点ID，默认自动生成
-         * @return 返回一个相机结点对象
+         * @fn  static CameraPtr Camera::create(ID uID = E_CID_AUTOMATIC);
+         * @brief   创建相机结点对象
+         * @param [in]  uID (Optional) : 结点ID，默认自动生成.
+         * @return  返回一个相机结点对象.
          */
         static CameraPtr create(ID uID = E_CID_AUTOMATIC);
 
         /**
-         * @brief 析构函数
+         * @fn  virtual Camera::~Camera();
+         * @brief   析构函数
          */
         virtual ~Camera();
 
         /**
-         * @brief 重写基类接口
-         * @see Node::Type Node::getNodeType() const
+         * @fn  virtual const String Camera::&getType() const override;
+         * @brief   重写基类接口
+         * @return  The type.
+         * @sa  Node::Type Node::getNodeType() const
          */
         virtual const String &getType() const override;
 
         /**
-         * @brief 重写基类接口
-         * @see NodePtr Node::clone() const
+         * @fn  virtual ComponentPtr Camera::clone() const override;
+         * @brief   重写基类接口
+         * @return  A copy of this object.
+         * @sa  NodePtr Node::clone() const
          */
         virtual ComponentPtr clone() const override;
 
         /**
-         * @brief 专门提供给挂相机结点的3D变换结点使用，用于构建UVN相机.
-         * @param [in] pos : 相机位置
-         * @param [in] obj : 相机观察物体位置
-         * @param [in] up : 上方向向量
-         * @return void
-         * @note UVN相机通过此接口可以构造一个变换矩阵出来
+         * @fn  void Camera::lookAt(const Vector3 &pos, const Vector3 &obj, 
+         *      const Vector3 &up);
+         * @brief   专门提供给挂相机结点的3D变换结点使用，用于构建UVN相机.
+         * @param [in]  pos : 相机位置.
+         * @param [in]  obj : 相机观察物体位置.
+         * @param [in]  up  : 上方向向量.
+         * @note UVN相机通过此接口可以构造一个变换矩阵出来.
          */
         void lookAt(const Vector3 &pos, const Vector3 &obj, const Vector3 &up);
 
         /**
-         * @brief 设置相机能看见的场景结点掩码
-         * @remarks 掩码可以通过“或”操作，设置多个掩码，只要场景结点中的相机掩码
-         *      CameraMask 设置的跟本相机中其中一个掩码一致的，均能渲染到本相机
-         *      对应的视口中。
-         * @see uint32_t getObjectMask() const
+         * @fn  void Camera::setObjectMask(uint32_t mask);
+         * @brief   设置相机能看见的场景结点掩码
+         * @param   mask    The mask.
+         * @sa  uint32_t getObjectMask() const
+         * @remarks 掩码可以通过“或”操作，设置多个掩码，只要场景结点中的相机掩码 
+         *          CameraMask 设置的跟本相机中其中一个掩码一致的，
+         *          均能渲染到本相机对应的视口中。.
          */
         void setObjectMask(uint32_t mask);
 
         /**
-         * @brief 获取相机能看见的场景结点掩码
-         * @see void setObjectMask(uint32_t mask)
+         * @fn  uint32_t Camera::getObjectMask() const;
+         * @brief   获取相机能看见的场景结点掩码
+         * @return  The object mask.
+         * @sa  void setObjectMask(uint32_t mask)
          */
         uint32_t getObjectMask() const;
 
         /**
-         * @brief 设置投影类型
-         * @param [in] type : 投影类型
-         * @return void
-         * @see enum ProjectionType
+         * @fn  void Camera::setProjectionType(Type type);
+         * @brief   设置投影类型
+         * @param [in]  type    : 投影类型.
+         * @sa  enum Type
          */
-        void setProjectionType(ProjectionType type);
+        void setProjectionType(Type type);
 
         /**
-         * @brief 获取投影类型
-         * @return 返回投影类型
-         * @see enum ProjectionType
+         * @fn  Type Camera::getProjectionType() const;
+         * @brief   获取投影类型
+         * @return  返回投影类型.
+         * @sa  enum Type
          */
-        ProjectionType getProjectionType() const;
+        Type getProjectionType() const;
 
         /**
-         * @brief 设置透视投影变换需要的参数
-         * @param [in] fovY : top和bottom的夹角
-         * @param [in] aspect : 投影平面宽高比
-         * @param [in] nearDist : 近平面距离
-         * @param [in] farDist : 远平面距离
+         * @fn  void Camera::setPerspectiveParams(const Radian &fovY, 
+         *      Real aspect, Real nearDist, Real farDist);
+         * @brief   设置透视投影变换需要的参数
+         * @param [in]  fovY        : top和bottom的夹角.
+         * @param [in]  aspect      : 投影平面宽高比.
+         * @param [in]  nearDist    : 近平面距离.
+         * @param [in]  farDist     : 远平面距离.
          */
         void setPerspectiveParams(const Radian &fovY, Real aspect,
             Real nearDist, Real farDist);
 
         /**
-         * @brief 设置正交投影变换需要的参数
-         * @param [in] width : 视口宽度
-         * @param [in] height : 视口高度
-         * @param [in] nearDist : 近平面距离
-         * @param [in] farDist : 远平面距离
+         * @fn  void Camera::setOrthographicParams(Real width, Real height, 
+         *      Real nearDist, Real farDist);
+         * @brief   设置正交投影变换需要的参数
+         * @param [in]  width       : 视口宽度.
+         * @param [in]  height      : 视口高度.
+         * @param [in]  nearDist    : 近平面距离.
+         * @param [in]  farDist     : 远平面距离.
          */
         void setOrthographicParams(Real width, Real height, Real nearDist,
             Real farDist);
 
         /**
-         * @brief 获取宽高比
-         * @return 返回宽高比
+         * @fn  Real Camera::getAspectRatio() const;
+         * @brief   获取宽高比
+         * @return  返回宽高比.
          */
         Real getAspectRatio() const;
 
         /**
-         * @brief 获取纵向视角大小
-         * @return 返回纵向视角大小
+         * @fn  const Radian Camera::&getFovY() const;
+         * @brief   获取纵向视角大小
+         * @return  返回纵向视角大小.
          */
         const Radian &getFovY() const;
 
         /**
-         * @brief 获取近平面距离
-         * @return 返回近平面距离
+         * @fn  Real Camera::getNearPlaneDistance() const;
+         * @brief   获取近平面距离
+         * @return  返回近平面距离.
          */
         Real getNearPlaneDistance() const;
 
         /**
-         * @brief 获取远平面距离
-         * @return 返回远平面距离
+         * @fn  Real Camera::getFarPlaneDistance() const;
+         * @brief   获取远平面距离
+         * @return  返回远平面距离.
          */
         Real getFarPlaneDistance() const;
 
         /**
-         * @brief 获取相机的视锥体碰撞体
-         * @return 返回相机关联的视锥体碰撞体 
+         * @fn  BoundPtr Camera::getBound() const;
+         * @brief   获取相机的视锥体碰撞体
+         * @return  返回相机关联的视锥体碰撞体.
          */
         BoundPtr getBound() const;
 
         /**
-         * @brief 获取观察空间变换矩阵
-         * @return 返回观察空间变换矩阵
+         * @fn  const Matrix4 Camera::&getViewMatrix() const;
+         * @brief   获取观察空间变换矩阵
+         * @return  返回观察空间变换矩阵.
          */
         const Matrix4 &getViewMatrix() const;
 
         /**
-         * @brief 获取投影变换矩阵
-         * @return 返回投影变换矩阵
+         * @fn  const Matrix4 Camera::&getProjectionMatrix() const;
+         * @brief   获取投影变换矩阵
+         * @return  返回投影变换矩阵.
          */
         const Matrix4 &getProjectionMatrix() const;
         
         /**
-         * @brief 重写基类接口
-         * @see void SceneNode::setDirty(bool isDirty, bool recursive = false)
+         * @fn  virtual void Camera::setDirty(bool isDirty, 
+         *      bool recursive = false) override;
+         * @brief   重写基类接口
+         * @param   isDirty     True if is dirty, false if not.
+         * @param   recursive   (Optional) True to process recursively, false to
+         *  process locally only.
+         * @sa  void SceneNode::setDirty(bool isDirty, bool recursive = false)
          */
         virtual void setDirty(bool isDirty, bool recursive = false) override;
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  Camera::Camera(ID uID = E_CID_AUTOMATIC);
+         * @brief   构造函数
+         * @param   uID (Optional) The identifier.
          */
         Camera(ID uID = E_CID_AUTOMATIC);
 
         /**
-         * @brief 初始化对象
+         * @fn  virtual TResult Camera::init();
+         * @brief   初始化对象
+         * @return  A TResult.
          */
         virtual TResult init();
 
         /**
-         * @brief 实现基类接口
+         * @fn  virtual TResult 
+         *      Camera::cloneProperties(ComponentPtr newObj) const override;
+         * @brief   实现基类接口
+         * @param   newObj  The new object.
+         * @return  A TResult.
          */
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         /**
-         * @brief 实现基类接口
+         * @fn  virtual void Camera::updateTransform() override;
+         * @brief   实现基类接口
          */
         virtual void updateTransform() override;
 
     protected:
         BoundPtr        mBound;         /**< 视锥体碰撞体 */
 
-        ProjectionType  mProjType;      /**< 投影类型 */
+        Type            mProjType;      /**< 投影类型 */
 
         uint32_t        mObjectMask;    /**< 相机看到的物体掩码 */
 

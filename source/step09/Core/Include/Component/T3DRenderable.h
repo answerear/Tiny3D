@@ -31,7 +31,8 @@
 namespace Tiny3D
 {
     /**
-     * @brief 场景中 3D 可渲染对象基类，用于渲染 3D 物体
+     * @class   Renderable
+     * @brief   场景中 3D 可渲染对象基类，用于渲染 3D 物体
      */
     class T3D_ENGINE_API Renderable : public Component
     {
@@ -39,34 +40,64 @@ namespace Tiny3D
 
     public:
         /**
-         * @brief 析构函数
+         * @fn  virtual Renderable::~Renderable();
+         * @brief   析构函数
          */
         virtual ~Renderable();
 
         /**
-         * @brief 获取渲染使用的材质
-         * @return 返回渲染用的材质对象
+         * @fn  virtual MaterialPtr Renderable::getMaterial() const = 0;
+         * @brief   获取渲染使用的材质
+         * @return  返回渲染用的材质对象.
          */
         virtual MaterialPtr getMaterial() const = 0;
 
         /**
-         * @brief 获取渲染使用的VAO对象
-         * @return 返回渲染数据的VAO对象
+         * @fn  virtual VertexArrayObjectPtr 
+         *      Renderable::getVertexArrayObject() const = 0;
+         * @brief   获取渲染使用的VAO对象
+         * @return  返回渲染数据的VAO对象.
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const = 0;
 
+        /**
+         * @fn  virtual void Renderable::frustumCulling(BoundPtr bound, 
+         *      RenderQueuePtr queue) = 0;
+         * @brief   Frustum culling
+         * @param   bound   The bound.
+         * @param   queue   The queue.
+         */
         virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) = 0;
 
+        /**
+         * @fn  virtual void Renderable::updateBound() = 0;
+         * @brief   Updates the bound
+         */
         virtual void updateBound() = 0;
 
     protected:
         /**
-         * @brief 构造函数
+         * @fn  Renderable::Renderable(ID uID = E_CID_AUTOMATIC);
+         * @brief   构造函数
+         * @param   uID (Optional) The identifier.
          */
         Renderable(ID uID = E_CID_AUTOMATIC);
 
+        /**
+         * @fn  virtual TResult 
+         *      Renderable::cloneProperties(ComponentPtr newObj) const;
+         * @brief   Initializes this object from the given properties
+         * @param   newObj  The new object.
+         * @return  A TResult.
+         */
         virtual TResult cloneProperties(ComponentPtr newObj) const;
 
+        /**
+         * @fn  virtual void 
+         *      Renderable::onAttachSceneNode(SceneNode *node) override;
+         * @brief   Executes the attach scene node action
+         * @param [in,out]  node    If non-null, the node.
+         */
         virtual void onAttachSceneNode(SceneNode *node) override;
 
     private:

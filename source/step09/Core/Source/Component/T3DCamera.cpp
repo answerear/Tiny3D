@@ -49,7 +49,7 @@ namespace Tiny3D
     Camera::Camera(ID uID /* = E_CID_AUTOMATIC */)
         : Transform3D(uID)
         , mBound(nullptr)
-        , mProjType(E_PT_PERSPECTIVE)
+        , mProjType(Type::PERSPECTIVE)
         , mObjectMask(0)
         , mFovY(Math::PI * REAL_HALF)
         , mAspectRatio(16.0f/9.0f)
@@ -178,13 +178,13 @@ namespace Tiny3D
 
             switch (mProjType)
             {
-            case E_PT_ORTHOGRAPHIC:
+            case Type::ORTHOGRAPHIC:
                 {
                     mProjMatrix = renderer->orthographic(mWidth, mHeight, 
                         mNear, mFar);
                 }
                 break;
-            case E_PT_PERSPECTIVE:
+            case Type::PERSPECTIVE:
             default:
                 {
                     mProjMatrix = renderer->perspective(mFovY, mAspectRatio, 

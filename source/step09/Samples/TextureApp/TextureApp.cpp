@@ -47,7 +47,7 @@ bool TextureApp::applicationDidFinishLaunching()
     // Па»ъ
 //     CameraPtr camera = T3D_SCENE_MGR.createCamera(root);
 //     camera->lookAt(Vector3(0.0f, 4.0f, 8.0f), Vector3::ZERO, Vector3::UNIT_Y);
-//     camera->setProjectionType(Camera::E_PT_PERSPECTIVE);
+//     camera->setProjectionType(Camera::Type::PERSPECTIVE);
 //     Real w = Real(renderWindow->getWidth());
 //     Real h = Real(renderWindow->getHeight());
 //     Real aspect = w / h;
