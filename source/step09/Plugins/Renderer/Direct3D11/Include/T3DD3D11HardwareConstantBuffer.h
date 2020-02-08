@@ -34,6 +34,8 @@ namespace Tiny3D
      */
     class D3D11HardwareConstantBuffer : public HardwareConstantBuffer
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static D3D11HardwareConstantBufferPtr 

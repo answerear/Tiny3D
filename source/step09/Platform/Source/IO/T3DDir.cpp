@@ -37,6 +37,8 @@ namespace Tiny3D
 
     char Dir::NATIVE_SEPARATOR = 0;
 
+    T3D_IMPLEMENT_CLASS_0(Dir);
+
     //--------------------------------------------------------------------------
 
     Dir::Dir()

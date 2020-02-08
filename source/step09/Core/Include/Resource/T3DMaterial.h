@@ -34,6 +34,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Material : public Resource
     {
+        T3D_DECLARE_CLASS();
+
     public:
         typedef TArray<TechniquePtr>            Techniques;
         typedef Techniques::iterator            TechniquesItr;

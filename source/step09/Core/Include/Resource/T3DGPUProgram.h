@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API GPUConstBufferRef : public Object
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static GPUConstBufferRefPtr GPUConstBufferRef::create(
@@ -85,6 +87,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API GPUProgramRef : public Object
     {
+        T3D_DECLARE_CLASS();
+
     public:
         typedef TArray<GPUConstBufferRefPtr>    BufferRefList;
         typedef BufferRefList::iterator         BufferRefListItr;
@@ -179,6 +183,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Shader : public Resource
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @enum    ShaderType
@@ -238,6 +244,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API GPUProgram : public Resource
     {
+        T3D_DECLARE_CLASS();
+
     public:
         typedef TArray<ShaderPtr>           Shaders;
         typedef Shaders::iterator           ShadersItr;

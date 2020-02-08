@@ -29,6 +29,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(GPUConstBufferManager);
+    T3D_IMPLEMENT_CLASS_1(GPUConstBufferManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 

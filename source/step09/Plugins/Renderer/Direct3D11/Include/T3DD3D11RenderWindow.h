@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class D3D11RenderWindow : public RenderWindow
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @brief 创建渲染窗口对象

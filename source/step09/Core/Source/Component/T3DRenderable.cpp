@@ -26,6 +26,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(Renderable, Component);
+
+    //--------------------------------------------------------------------------
+
     Renderable::Renderable(ID uID /* = E_CID_AUTOMATIC */)
         : Component(uID)
         , mPrev(nullptr)

@@ -24,6 +24,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "T3DClass.h"
 
 
 namespace Tiny3D
@@ -35,6 +36,7 @@ namespace Tiny3D
     class IConsole
     {
         T3D_DECLARE_INTERFACE(IConsole);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

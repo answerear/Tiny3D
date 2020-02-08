@@ -28,6 +28,8 @@ namespace Tiny3D
 {
     class Win32Factory : public IFactory
     {
+        T3D_DECLARE_CLASS();
+
     public:
         Win32Factory();
         virtual ~Win32Factory();

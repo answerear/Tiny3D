@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Cube : public Renderable
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static CubePtr Cube::create(const Vector3 &center, 
@@ -51,14 +53,6 @@ namespace Tiny3D
          * @brief   析构函数
          */
         virtual ~Cube();
-
-        /**
-         * @fn  virtual const String Cube::&getType() const override;
-         * @brief   重写基类接口，实现获取结点类型
-         * @return  The type.
-         * @sa  Node::Type Node::getNodeType() const
-         */
-        virtual const String &getType() const override;
 
         /**
          * @fn  virtual ComponentPtr Cube::clone() const override;

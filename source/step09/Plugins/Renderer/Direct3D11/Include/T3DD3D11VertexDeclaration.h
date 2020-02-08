@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class D3D11VertexDeclaration : public VertexDeclaration
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static D3D11VertexDeclarationPtr D3D11VertexDeclaration::create();

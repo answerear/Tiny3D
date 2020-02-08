@@ -23,22 +23,34 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_0(Object);
+
+    //--------------------------------------------------------------------------
+
     Object::Object()
         : mReferCount(1)
     {
         ObjectTracer::getInstance().addObject(this);
     }
 
+    //--------------------------------------------------------------------------
+
     Object::~Object()
     {
         ObjectTracer::getInstance().removeObject(this);
     }
+
+    //--------------------------------------------------------------------------
 
     Object *Object::acquire()
     {
         ++mReferCount;
         return this;
     }
+
+    //--------------------------------------------------------------------------
 
     void Object::release()
     {

@@ -34,6 +34,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(RenderGroup, Object);
+
+    //--------------------------------------------------------------------------
+
     RenderGroupPtr RenderGroup::create()
     {
         RenderGroupPtr group = new RenderGroup();
@@ -216,6 +220,10 @@ namespace Tiny3D
 
         return primCount;
     }
+
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(RenderQueue, Object);
 
     //--------------------------------------------------------------------------
 

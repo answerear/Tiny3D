@@ -25,6 +25,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(Billboard, Renderable);
+
+    //--------------------------------------------------------------------------
+
     BillboardPtr Billboard::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         BillboardPtr billboard = new Billboard(uID);
@@ -45,14 +49,6 @@ namespace Tiny3D
     Billboard::~Billboard()
     {
 
-    }
-
-    //--------------------------------------------------------------------------
-
-    const String &Billboard::getType() const
-    {
-        static const String name = "Billboard";
-        return name;
     }
 
     //--------------------------------------------------------------------------

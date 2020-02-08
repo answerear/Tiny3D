@@ -241,6 +241,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API RendererCapabilities : public Object
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static GPUVendor RendererCapabilities::vendorFromString(

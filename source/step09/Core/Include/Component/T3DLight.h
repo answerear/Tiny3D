@@ -31,8 +31,9 @@ namespace Tiny3D
      * @class   Light
      * @brief   A 3D engine api.
      */
-    class T3D_ENGINE_API Light : public Transform3D
+    class T3D_ENGINE_API Light : public Component
     {
+        T3D_DECLARE_CLASS();
     public:
         /**
          * @fn  static LightPtr Light::create(ID uID = E_CID_AUTOMATIC);
@@ -47,13 +48,6 @@ namespace Tiny3D
          * @brief   Destructor
          */
         virtual ~Light();
-
-        /**
-         * @fn  virtual const String Light::&getType() const override;
-         * @brief   Gets the type
-         * @return  The type.
-         */
-        virtual const String &getType() const override;
 
     protected:
         /**

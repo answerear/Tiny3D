@@ -36,6 +36,8 @@ namespace Tiny3D
         : public Singleton<GPUConstBufferManager>
         , public ResourceManager
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static HardwareConstantBufferPtr create();

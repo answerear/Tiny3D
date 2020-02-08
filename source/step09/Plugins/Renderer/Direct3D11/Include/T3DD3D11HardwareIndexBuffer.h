@@ -34,6 +34,8 @@ namespace Tiny3D
      */
     class D3D11HardwareIndexBuffer : public HardwareIndexBuffer
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static D3D11HardwareIndexBufferPtr 

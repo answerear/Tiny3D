@@ -29,6 +29,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(D3D11HardwareConstantBuffer, HardwareConstantBuffer);
+
+    //--------------------------------------------------------------------------
+
     D3D11HardwareConstantBufferPtr D3D11HardwareConstantBuffer::create(
         size_t bufSize, const void *buffer, Usage usage, uint32_t mode)
     {

@@ -31,6 +31,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(Camera, Component);
+
+    //--------------------------------------------------------------------------
+
     CameraPtr Camera::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         CameraPtr camera = new Camera(uID);
@@ -81,14 +85,6 @@ namespace Tiny3D
         mBound = FrustumBound::create();
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    const String &Camera::getType() const
-    {
-        static const String name = "Camera";
-        return name;
     }
 
     //--------------------------------------------------------------------------

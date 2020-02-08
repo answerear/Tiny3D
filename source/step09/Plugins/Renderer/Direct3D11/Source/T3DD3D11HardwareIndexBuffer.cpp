@@ -27,6 +27,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(D3D11HardwareIndexBuffer, HardwareIndexBuffer);
+
+    //--------------------------------------------------------------------------
+
     D3D11HardwareIndexBufferPtr D3D11HardwareIndexBuffer::create(
         Type indexType, size_t indexCount, const void *indices, 
         HardwareBuffer::Usage usage, uint32_t mode)

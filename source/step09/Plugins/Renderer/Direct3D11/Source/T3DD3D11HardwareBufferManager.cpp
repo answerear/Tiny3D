@@ -31,6 +31,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(D3D11HardwareBufferManager, HardwareBufferManagerBase);
+
+    //--------------------------------------------------------------------------
+
     D3D11HardwareBufferManagerPtr D3D11HardwareBufferManager::create()
     {
         D3D11HardwareBufferManagerPtr mgr = new D3D11HardwareBufferManager();

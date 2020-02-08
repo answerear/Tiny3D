@@ -86,9 +86,6 @@ namespace Tiny3D
 
     void SceneNode::update()
     {
-        if (!isEnabled())
-            return;
-
         bool isDirty = false;
 
         if (mTransform3D != nullptr)
@@ -151,7 +148,7 @@ namespace Tiny3D
 
             if (mRenderable != nullptr)
             {
-                component = newNode->addRenderable(mRenderable->getType());
+                component = newNode->addRenderable(mRenderable->getClass()->getName());
             }
 
             auto itr = mComponents.begin();
@@ -396,7 +393,7 @@ namespace Tiny3D
                 break;
             }
 
-            auto ret = mComponents.insert(ComponentsValue(component->getType(), component));
+            auto ret = mComponents.insert(ComponentsValue(component->getClass()->getName(), component));
 
             if (!ret.second)
             {

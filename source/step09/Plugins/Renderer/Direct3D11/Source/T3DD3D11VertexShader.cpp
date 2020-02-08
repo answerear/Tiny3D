@@ -26,6 +26,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(D3D11VertexShader, D3D11Shader);
+
+    //--------------------------------------------------------------------------
+
     D3D11VertexShaderPtr D3D11VertexShader::create(const String &name, 
         const String &content)
     {

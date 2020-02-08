@@ -28,6 +28,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(D3D11VertexDeclaration, VertexDeclaration);
+
+    //--------------------------------------------------------------------------
+
     D3D11VertexDeclarationPtr D3D11VertexDeclaration::create()
     {
         D3D11VertexDeclarationPtr decl = new D3D11VertexDeclaration();

@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Mesh : public Renderable
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static MeshPtr Mesh::create(ID uID = E_CID_AUTOMATIC);
@@ -47,13 +49,6 @@ namespace Tiny3D
          * @brief   Destructor
          */
         virtual ~Mesh();
-
-        /**
-         * @fn  virtual const String Mesh::&getType() const override;
-         * @brief   Gets the type
-         * @return  The type.
-         */
-        virtual const String &getType() const override;
 
     protected:
         /**

@@ -29,6 +29,8 @@ namespace Tiny3D
 {
     class D3D11Plugin : public Plugin
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @brief 默认构造函数

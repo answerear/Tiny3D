@@ -25,6 +25,11 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(Sampler, Resource);
+    T3D_IMPLEMENT_CLASS_0(SamplerCreator);
+
+    //--------------------------------------------------------------------------
+
     Sampler::Sampler(const String &name)
         : Resource(name)
         , mAddressMode()

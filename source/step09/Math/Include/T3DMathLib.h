@@ -21,59 +21,59 @@
 #define __T3D_MATH_LIB_H__
 
 
-#include "T3DMathPrerequisites.h"
+#include <T3DMathPrerequisites.h>
 
-#include "T3DReal.h"
-#include "T3DDegree.h"
-#include "T3DRadian.h"
-#include "T3DMath.h"
-#include "T3DColor4.h"
-#include "T3DColorRGB.h"
-#include "T3DColorARGB.h"
-#include "T3DColorRGBA.h"
-#include "T3DRect.h"
-#include "T3DVector2.h"
-#include "T3DVector3.h"
-#include "T3DVector4.h"
-#include "T3DMatrix2.h"
-#include "T3DMatrix3.h"
-#include "T3DQuaternion.h"
-#include "T3DMatrix4.h"
-#include "T3DRay.h"
-#include "T3DPlane.h"
-#include "T3DTriangle.h"
-#include "T3DSphere.h"
-#include "T3DAabb.h"
-#include "T3DObb.h"
-#include "T3DFrustum.h"
+#include <T3DReal.h>
+#include <T3DDegree.h>
+#include <T3DRadian.h>
+#include <T3DMath.h>
+#include <T3DColor4.h>
+#include <T3DColorRGB.h>
+#include <T3DColorARGB.h>
+#include <T3DColorRGBA.h>
+#include <T3DRect.h>
+#include <T3DVector2.h>
+#include <T3DVector3.h>
+#include <T3DVector4.h>
+#include <T3DMatrix2.h>
+#include <T3DMatrix3.h>
+#include <T3DQuaternion.h>
+#include <T3DMatrix4.h>
+#include <T3DRay.h>
+#include <T3DPlane.h>
+#include <T3DTriangle.h>
+#include <T3DSphere.h>
+#include <T3DAabb.h>
+#include <T3DObb.h>
+#include <T3DFrustum.h>
 
-#include "T3DIntrRayTriangle.h"
-#include "T3DIntrRayPlane.h"
-#include "T3DIntrRaySphere.h"
-#include "T3DIntrRayAabb.h"
-#include "T3DIntrRayObb.h"
+#include <T3DIntrRayTriangle.h>
+#include <T3DIntrRayPlane.h>
+#include <T3DIntrRaySphere.h>
+#include <T3DIntrRayAabb.h>
+#include <T3DIntrRayObb.h>
 
-#include "T3DIntrSphereTriangle.h"
-#include "T3DIntrSpherePlane.h"
-#include "T3DIntrSphereSphere.h"
-#include "T3DIntrSphereObb.h"
-#include "T3DIntrSphereAabb.h"
+#include <T3DIntrSphereTriangle.h>
+#include <T3DIntrSpherePlane.h>
+#include <T3DIntrSphereSphere.h>
+#include <T3DIntrSphereObb.h>
+#include <T3DIntrSphereAabb.h>
 
-#include "T3DIntrAabbPlane.h"
-#include "T3DIntrAabbAabb.h"
-#include "T3DIntrAabbObb.h"
+#include <T3DIntrAabbPlane.h>
+#include <T3DIntrAabbAabb.h>
+#include <T3DIntrAabbObb.h>
 
-#include "T3DIntrObbPlane.h"
-#include "T3DIntrObbObb.h"
+#include <T3DIntrObbPlane.h>
+#include <T3DIntrObbObb.h>
 
-#include "T3DIntrFrustumAabb.h"
-#include "T3DIntrFrustumObb.h"
-#include "T3DIntrFrustumSphere.h"
+#include <T3DIntrFrustumAabb.h>
+#include <T3DIntrFrustumObb.h>
+#include <T3DIntrFrustumSphere.h>
 
-#include "T3DIntrPointSphere.h"
-#include "T3DIntrPointAabb.h"
-#include "T3DIntrPointObb.h"
-#include "T3DIntrPointFrustum.h"
+#include <T3DIntrPointSphere.h>
+#include <T3DIntrPointAabb.h>
+#include <T3DIntrPointObb.h>
+#include <T3DIntrPointFrustum.h>
 
 
 namespace Tiny3D

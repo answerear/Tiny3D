@@ -25,6 +25,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(SceneManagerBase, Object);
+
+    //--------------------------------------------------------------------------
+
     SceneManagerBase::SceneManagerBase()
     {
 

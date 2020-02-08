@@ -27,6 +27,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(Component, Object);
+
+    //--------------------------------------------------------------------------
+
     ID Component::makeGlobalID() const
     {
         static ID uID = 0;

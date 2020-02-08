@@ -38,6 +38,8 @@ namespace Tiny3D
     {
         friend class DefaultSceneMgr;
 
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  virtual Renderable::~Renderable();

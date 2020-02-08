@@ -36,6 +36,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(Globe, Renderable);
+
+    //--------------------------------------------------------------------------
+
     struct SphereVertex
     {
         SphereVertex()
@@ -89,14 +93,6 @@ namespace Tiny3D
     Globe::~Globe()
     {
         T3D_MATERIAL_MGR.unloadMaterial(mMaterial);
-    }
-
-    //--------------------------------------------------------------------------
-
-    const String &Globe::getType() const
-    {
-        static const String name = "Globe";
-        return name;
     }
 
     //--------------------------------------------------------------------------

@@ -27,6 +27,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(D3D11HardwareVertexBuffer, HardwareVertexBuffer);
+
+    //--------------------------------------------------------------------------
+
     D3D11HardwareVertexBufferPtr D3D11HardwareVertexBuffer::create(
         size_t vertexSize, size_t vertexCount, const void *vertices, 
         Usage usage, uint32_t mode)

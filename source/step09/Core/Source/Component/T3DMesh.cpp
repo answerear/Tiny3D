@@ -25,6 +25,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(Mesh, Renderable);
+
+    //--------------------------------------------------------------------------
+
     MeshPtr Mesh::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         MeshPtr mesh = new Mesh(uID);
@@ -45,14 +49,6 @@ namespace Tiny3D
     Mesh::~Mesh()
     {
 
-    }
-
-    //--------------------------------------------------------------------------
-
-    const String &Mesh::getType() const
-    {
-        static const String name = "Mesh";
-        return name;
     }
 
     //--------------------------------------------------------------------------

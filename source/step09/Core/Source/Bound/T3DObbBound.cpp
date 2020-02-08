@@ -26,6 +26,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(ObbBound, Bound);
+
+    //--------------------------------------------------------------------------
+
     ObbBoundPtr ObbBound::create(ID uID /* = E_BID_AUTOMATIC */)
     {
         ObbBoundPtr bound = new ObbBound(uID);

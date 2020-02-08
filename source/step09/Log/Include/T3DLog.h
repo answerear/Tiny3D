@@ -21,8 +21,8 @@
 #define __T3D_LOG_H__
 
 
-#include "T3DLogger.h"
-#include "T3DLogErrorDef.h"
+#include <T3DLogger.h>
+#include <T3DLogErrorDef.h>
 
 #define __T3D_OPEN_LOG__
 

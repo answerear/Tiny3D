@@ -30,6 +30,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(Bound, Object);
+
+    //--------------------------------------------------------------------------
+
     Bound::Bound(ID uID)
         : mID(E_BID_INVALID)
         , mGroupID(E_BID_INVALID)

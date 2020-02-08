@@ -36,6 +36,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API VertexArrayObject : public Object
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @brief 构造函数

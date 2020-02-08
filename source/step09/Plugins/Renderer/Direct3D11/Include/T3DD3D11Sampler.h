@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class D3D11SamplerCreator : public SamplerCreator
     {
+        T3D_DECLARE_CLASS();
+
     public:
         static const char * const SAMPLER_TYPE; /**< Sampler 创建器类型 */
 
@@ -64,6 +66,8 @@ namespace Tiny3D
      */
     class D3D11Sampler : public Sampler
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static D3D11SamplerPtr D3D11Sampler::create(const String &name);

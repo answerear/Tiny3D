@@ -34,6 +34,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Camera : public Transform3D
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @enum    Type
@@ -58,14 +60,6 @@ namespace Tiny3D
          * @brief   析构函数
          */
         virtual ~Camera();
-
-        /**
-         * @fn  virtual const String Camera::&getType() const override;
-         * @brief   重写基类接口
-         * @return  The type.
-         * @sa  Node::Type Node::getNodeType() const
-         */
-        virtual const String &getType() const override;
 
         /**
          * @fn  virtual ComponentPtr Camera::clone() const override;

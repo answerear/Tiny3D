@@ -36,6 +36,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(Cube, Renderable);
+
+    //--------------------------------------------------------------------------
+
     /** 长方体顶点数据格式 */
     struct BoxVertex
     {
@@ -81,14 +85,6 @@ namespace Tiny3D
     Cube::~Cube()
     {
         T3D_MATERIAL_MGR.unloadMaterial(mMaterial);
-    }
-
-    //--------------------------------------------------------------------------
-
-    const String &Cube::getType() const
-    {
-        static const String name = "Cube";
-        return name;
     }
 
     //--------------------------------------------------------------------------

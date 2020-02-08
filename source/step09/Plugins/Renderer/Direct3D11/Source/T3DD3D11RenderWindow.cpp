@@ -27,6 +27,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(D3D11RenderWindow, RenderWindow);
+
+    //--------------------------------------------------------------------------
+
     D3D11RenderWindowPtr D3D11RenderWindow::create(const String &name)
     {
         D3D11RenderWindowPtr window = new D3D11RenderWindow(name);

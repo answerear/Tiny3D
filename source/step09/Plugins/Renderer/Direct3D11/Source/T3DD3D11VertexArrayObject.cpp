@@ -27,6 +27,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(D3D11VertexArrayObject, VertexArrayObject);
+
+    //--------------------------------------------------------------------------
+
     D3D11VertexArrayObjectPtr D3D11VertexArrayObject::create(bool useIndices)
     {
         D3D11VertexArrayObjectPtr vao = new D3D11VertexArrayObject(useIndices);

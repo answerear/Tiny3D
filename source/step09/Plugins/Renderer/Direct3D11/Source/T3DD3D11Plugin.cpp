@@ -28,6 +28,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(D3D11Plugin, Plugin);
+
+    //--------------------------------------------------------------------------
+
     D3D11Plugin::D3D11Plugin()
         : mName("D3D11Renderer")
         , mRenderer(nullptr)

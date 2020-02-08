@@ -27,6 +27,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(VertexArrayObject, Object);
+
+    //--------------------------------------------------------------------------
+
     VertexArrayObject::VertexArrayObject()
         : mPrimitiveCount(0)
         , mIsDirty(false)

@@ -34,6 +34,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Transform3D : public Component
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static Transform3DPtr 
@@ -49,13 +51,6 @@ namespace Tiny3D
          * @brief   析构函数
          */
         virtual ~Transform3D();
-
-        /**
-         * @fn  virtual const String Transform3D::&getType() const override;
-         * @brief   从父类继承来重写接口，获取结点类型
-         * @return  返回结点类型.
-         */
-        virtual const String &getType() const override;
 
         /**
          * @fn  void Transform3D::setPosition(const Vector3 &pos);

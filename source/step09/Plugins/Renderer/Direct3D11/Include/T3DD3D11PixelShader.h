@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class D3D11PixelShader : public D3D11Shader
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static D3D11PixelShaderPtr D3D11PixelShader::create(

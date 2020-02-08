@@ -28,6 +28,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(D3D11HardwareBuffer, HardwareBuffer);
+
+    //--------------------------------------------------------------------------
+
     D3D11HardwareBufferPtr D3D11HardwareBuffer::create(BufferType type, 
         size_t dataSize, const void *data, Usage usage, uint32_t mode, 
         bool streamOut)

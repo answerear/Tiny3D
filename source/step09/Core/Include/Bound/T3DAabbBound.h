@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API AabbBound : public Bound
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static AabbBoundPtr AabbBound::create(SceneNode *node, 

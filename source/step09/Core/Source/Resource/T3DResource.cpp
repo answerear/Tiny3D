@@ -25,6 +25,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(Resource, Object);
+
+    //--------------------------------------------------------------------------
+
     Resource::Resource(const String &strName)
         : mResReferCount(1)
         , mID(T3D_INVALID_ID)

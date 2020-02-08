@@ -34,6 +34,8 @@ namespace Tiny3D
      */
     class D3D11Shader : public Shader
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  virtual D3D11Shader::~D3D11Shader();

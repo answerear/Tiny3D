@@ -35,6 +35,8 @@ namespace Tiny3D
         : public Renderer
         , public Singleton<D3D11Renderer>
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static D3D11RendererPtr create();

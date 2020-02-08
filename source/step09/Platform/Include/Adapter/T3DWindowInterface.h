@@ -25,7 +25,7 @@
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "Window/T3DSysWMInfo.h"
-
+#include "T3DClass.h"
 
 namespace Tiny3D
 {
@@ -36,6 +36,7 @@ namespace Tiny3D
     class IWindow
     {
         T3D_DECLARE_INTERFACE(IWindow);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

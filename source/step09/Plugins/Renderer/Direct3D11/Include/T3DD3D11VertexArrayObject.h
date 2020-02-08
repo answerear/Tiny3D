@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class D3D11VertexArrayObject : public VertexArrayObject
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static D3D11VertexArrayObjectPtr 

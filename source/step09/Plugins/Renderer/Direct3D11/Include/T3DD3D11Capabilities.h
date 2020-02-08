@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class D3D11Capabilities : public RendererCapabilities
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @brief   创建一个 D3D11 渲染器相关能力组对象

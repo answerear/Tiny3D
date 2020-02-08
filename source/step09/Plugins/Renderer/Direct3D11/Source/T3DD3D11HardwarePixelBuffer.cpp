@@ -28,6 +28,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(D3D11HardwarePixelBuffer, HardwarePixelBuffer);
+
+    //--------------------------------------------------------------------------
+
     D3D11HardwarePixelBufferPtr D3D11HardwarePixelBuffer::create(size_t width,
         size_t height, PixelFormat format, const void *pixels, Usage usage, 
         uint32_t mode, size_t mipmaps)

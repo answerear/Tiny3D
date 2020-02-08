@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Quad : public Renderable
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @enum    VertexIndex
@@ -83,14 +85,6 @@ namespace Tiny3D
          * @brief   析构函数
          */
         virtual ~Quad();
-
-        /**
-         * @fn  virtual const String Quad::&getType() const override;
-         * @brief   重写基类接口，实现获取结点类型
-         * @return  The type.
-         * @sa  Node::Type Node::getNodeType() const
-         */
-        virtual const String &getType() const override;
 
         /**
          * @fn  virtual ComponentPtr Quad::clone() const override;

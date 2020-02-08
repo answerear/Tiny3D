@@ -20,3 +20,7 @@
 #include "Kernel/T3DPlugin.h"
 
 
+namespace Tiny3D
+{
+    T3D_IMPLEMENT_CLASS_1(Plugin, Object);
+}

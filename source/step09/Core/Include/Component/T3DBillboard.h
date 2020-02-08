@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Billboard : public Renderable
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static BillboardPtr Billboard::create(ID uID = E_CID_AUTOMATIC);
@@ -47,13 +49,6 @@ namespace Tiny3D
          * @brief   Destructor
          */
         virtual ~Billboard();
-
-        /**
-         * @fn  virtual const String Billboard::&getType() const override;
-         * @brief   Gets the type
-         * @return  The type.
-         */
-        virtual const String &getType() const override;
 
     protected:
         /**

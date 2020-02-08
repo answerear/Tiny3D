@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Axis : public Renderable
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @enum    Axis
@@ -63,14 +65,6 @@ namespace Tiny3D
          * @brief   析构函数
          */
         virtual ~Axis();
-
-        /**
-         * @fn  virtual Type Axis::getNodeType() const override;
-         * @brief   重写基类接口，返回当前结点类型
-         * @return  The node type.
-         * @sa  Node::Type Node::getNodeType() const
-         */
-        virtual const String &getType() const override;
 
         /**
          * @fn  virtual NodePtr Axis::clone() const override;

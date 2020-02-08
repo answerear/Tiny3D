@@ -50,6 +50,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(DefaultSceneMgr);
+    T3D_IMPLEMENT_CLASS_1(DefaultSceneMgr, SceneManagerBase);
 
     //--------------------------------------------------------------------------
 

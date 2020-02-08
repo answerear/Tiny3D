@@ -26,6 +26,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(FileSystemArchivePlugin, Plugin);
+
+    //--------------------------------------------------------------------------
+
     FileSystemArchivePlugin::FileSystemArchivePlugin()
         : mName("FileSystemArchive")
         , mFSCreator(nullptr)

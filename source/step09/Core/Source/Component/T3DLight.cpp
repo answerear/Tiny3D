@@ -25,6 +25,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(Light, Component);
+
+    //--------------------------------------------------------------------------
+
     LightPtr Light::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         LightPtr light = new Light(uID);
@@ -35,7 +39,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Light::Light(ID uID /* = E_CID_AUTOMATIC */)
-        : Transform3D(uID)
+        : Component(uID)
     {
 
     }
@@ -45,14 +49,6 @@ namespace Tiny3D
     Light::~Light()
     {
 
-    }
-
-    //--------------------------------------------------------------------------
-
-    const String &Light::getType() const
-    {
-        static const String name = "Light";
-        return name;
     }
 
     //--------------------------------------------------------------------------
@@ -74,7 +70,7 @@ namespace Tiny3D
 
     TResult Light::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = Transform3D::cloneProperties(newObj);
+        TResult ret = Component::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {

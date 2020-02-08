@@ -25,6 +25,7 @@
 #include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
 #include "Window/T3DSysWMInfo.h"
+#include "T3DClass.h"
 
 
 namespace Tiny3D
@@ -34,6 +35,7 @@ namespace Tiny3D
     class T3D_PLATFORM_API Window
     {
         T3D_DISABLE_COPY(Window);
+        T3D_DECLARE_CLASS();
 
     public:
         static const uint32_t WINDOW_FULLSCREEN;            /**< 全屏窗口 */

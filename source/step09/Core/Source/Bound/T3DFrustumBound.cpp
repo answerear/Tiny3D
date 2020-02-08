@@ -26,6 +26,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(FrustumBound, Bound);
+
+    //--------------------------------------------------------------------------
+
     FrustumBoundPtr FrustumBound::create(ID uID /* = E_BID_AUTOMATIC */)
     {
         FrustumBoundPtr bound = new FrustumBound(uID);

@@ -20,3 +20,8 @@
 #include "T3DEventParam.h"
 
 
+namespace Tiny3D
+{
+    T3D_IMPLEMENT_CLASS_0(EventParam);
+
+}

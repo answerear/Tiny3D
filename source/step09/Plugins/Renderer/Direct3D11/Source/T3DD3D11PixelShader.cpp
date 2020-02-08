@@ -26,6 +26,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(D3D11PixelShader, D3D11Shader);
+
+    //--------------------------------------------------------------------------
+
     D3D11PixelShaderPtr D3D11PixelShader::create(const String &name, 
         const String &content)
     {

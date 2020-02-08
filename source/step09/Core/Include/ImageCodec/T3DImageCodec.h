@@ -36,6 +36,8 @@ namespace Tiny3D
         : public Singleton<ImageCodec>
         , public Object
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static ImageCodecPtr create();

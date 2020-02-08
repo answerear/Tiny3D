@@ -32,6 +32,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Globe : public Renderable
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static GlobePtr Globe::create(const Vector3 &center, 
@@ -50,14 +52,6 @@ namespace Tiny3D
          * @brief   析构函数
          */
         virtual ~Globe();
-
-        /**
-         * @fn  virtual const String Globe::&getType() const override;
-         * @brief   重写基类接口，实现获取结点类型
-         * @return  The type.
-         * @sa  Node::Type Node::getNodeType() const
-         */
-        virtual const String &getType() const override;
 
         /**
          * @fn  virtual ComponentPtr Globe::clone() const override;

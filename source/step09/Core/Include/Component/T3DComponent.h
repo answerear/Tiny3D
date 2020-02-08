@@ -38,6 +38,7 @@ namespace Tiny3D
         friend class SceneNode;
 
         T3D_DISABLE_COPY(Component);
+        T3D_DECLARE_CLASS();
 
     public:
         /**
@@ -55,13 +56,6 @@ namespace Tiny3D
          * @brief   析构函数
          */
         virtual ~Component();
-
-        /**
-         * @fn  virtual const String Component::&getType() const = 0;
-         * @brief   Gets the type
-         * @return  The type.
-         */
-        virtual const String &getType() const = 0;
 
         /**
          * @fn  virtual ComponentPtr Component::clone() const = 0;

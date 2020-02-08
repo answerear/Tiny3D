@@ -37,6 +37,8 @@ namespace Tiny3D
     {
         friend class ImageCodecBase;
 
+        T3D_DECLARE_CLASS();
+
     public:
         static const uint32_t FILETYPE_RAW;     /**< The filetype raw */
         static const uint32_t FILETYPE_PNG;     /**< The filetype PNG */

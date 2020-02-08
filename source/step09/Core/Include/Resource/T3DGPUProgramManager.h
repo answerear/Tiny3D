@@ -41,6 +41,8 @@ namespace Tiny3D
         : public Singleton<ShaderManager>
         , public ResourceManager
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static ShaderManagerPtr create();
@@ -128,6 +130,8 @@ namespace Tiny3D
         : public Singleton<GPUProgramManager>
         , public ResourceManager
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * @fn  static GPUProgramManagerPtr create();

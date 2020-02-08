@@ -25,6 +25,8 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(MemoryDataStream, DataStream);
+
     const uint32_t MemoryDataStream::MEMORY_BUFFER_SIZE = 2 * 1024;
 
     //--------------------------------------------------------------------------

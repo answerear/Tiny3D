@@ -26,6 +26,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(Transform3D, Component);
+
+    //--------------------------------------------------------------------------
+
     Transform3DPtr Transform3D::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         Transform3DPtr node = new Transform3D(uID);
@@ -52,14 +56,6 @@ namespace Tiny3D
     Transform3D::~Transform3D()
     {
 
-    }
-
-    //--------------------------------------------------------------------------
-
-    const String &Transform3D::getType() const
-    {
-        static const String name = "Transform3D";
-        return name;
     }
 
     //--------------------------------------------------------------------------
