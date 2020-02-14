@@ -96,7 +96,7 @@ namespace Tiny3D
         mRoot = SceneNode::create();
         mRoot->setName("Root");
 
-        mRoot->addTransform();
+        mRoot->addComponent(T3D_CLASS(Transform3D));
 
         // 预分配32个槽给存放要剔除的可渲染对象
         mRenderables.resize(32, Slot());
@@ -201,18 +201,18 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     SceneNodePtr DefaultSceneMgr::createSceneNode(SceneNodePtr parent, 
-        bool autoAddTransform /* = true */, ID uID /* = Node::E_NID_AUTOMATIC */)
+        ID uID /* = Node::E_NID_AUTOMATIC */)
     {
         SceneNodePtr node = SceneNode::create(uID);
 
-        if (parent != nullptr)
+        if (node != nullptr)
         {
-            parent->addChild(node);
-        }
+            if (parent != nullptr)
+            {
+                parent->addChild(node);
+            }
 
-        if (autoAddTransform && node != nullptr)
-        {
-            node->addTransform();
+            node->addComponent(T3D_CLASS(Transform3D));
         }
 
         return node;

@@ -81,8 +81,8 @@ namespace Tiny3D
          * @param   uID                 (Optional) The identifier.
          * @return  The new scene node.
          */
-        virtual SceneNodePtr createSceneNode(SceneNodePtr parent, 
-            bool autoAddTransform = true, ID uID = Node::E_NID_AUTOMATIC) = 0;
+        virtual SceneNodePtr createSceneNode(SceneNodePtr parent,
+            ID uID = Node::E_NID_AUTOMATIC) = 0;
 
         /**
          * @fn  TResult addRenderable(RenderablePtr renderable);

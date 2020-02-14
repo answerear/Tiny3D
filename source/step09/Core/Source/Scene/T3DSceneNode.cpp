@@ -33,6 +33,19 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    #define COMPONENT_ORDER_ID_INVALID      0x00000000L
+    #define COMPONENT_ORDER_ID_SCRIPT       0x00000001L
+    #define COMPONENT_ORDER_ID_TRANSFORM    0x00000100L
+    #define COMPONENT_ORDER_ID_CAMERA       (COMPONENT_ORDER_ID_TRANSFORM+1)
+    #define COMPONENT_ORDER_ID_RENDERABLE   (COMPONENT_ORDER_ID_CAMERA+1)
+    #define COMPONENT_ORDER_ID_COLLIDER     (COMPONENT_ORDER_ID_RENDERABLE+1)
+
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(SceneNode, Node);
+
+    //--------------------------------------------------------------------------
+
     SceneNodePtr SceneNode::create(ID uID /* = E_NID_AUTOMATIC */)
     {
         SceneNodePtr node = new SceneNode(uID);
@@ -46,6 +59,7 @@ namespace Tiny3D
         : Node(uID)
         , mIsVisible(true)
         , mIsEnabled(true)
+        , mIsDirty(true)
         , mCameraMask(0)
         , mTransform3D(nullptr)
         , mRenderable(nullptr)
@@ -84,37 +98,50 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult SceneNode::cloneProperties(NodePtr node) const
+    {
+        TResult ret = Node::cloneProperties(node);
+
+        if (ret == T3D_OK)
+        {
+            SceneNodePtr newNode = smart_pointer_cast<SceneNode>(node);
+            newNode->mIsEnabled = mIsEnabled;
+            newNode->mIsVisible = mIsVisible;
+
+            //             ComponentPtr component;
+            //             if (mTransform3D != nullptr)
+            //             {
+            //                 component = newNode->addTransform();
+            //             }
+            // 
+            //             if (mRenderable != nullptr)
+            //             {
+            //                 component = newNode->addRenderable(mRenderable->getClass()->getName());
+            //             }
+            // 
+            //             auto itr = mComponents.begin();
+            // 
+            //             while (itr != mComponents.end())
+            //             {
+            //                 if (itr->second != mTransform3D && itr->second != mRenderable)
+            //                     component = itr->second->clone();
+            //             }
+        }
+
+        return ret;
+    }
+
+
+    //--------------------------------------------------------------------------
+
     void SceneNode::update()
     {
-        bool isDirty = false;
+        auto itr = mComponentQueue.begin();
 
-        if (mTransform3D != nullptr)
+        while (itr != mComponentQueue.end())
         {
-            // 先更新 RTS 
-            isDirty = mTransform3D->isDirty();
-            mTransform3D->updateTransform();
-        }
-
-        // 更新所有组件
-        auto itr = mComponents.begin();
-
-        while (itr != mComponents.end())
-        {
-            auto component = itr->second;
-            component->update();
+            itr->second->update();
             ++itr;
-        }
-
-        // 以防组件又去更新了 RTS，所以这里再获取一遍 RTS 是否有更新
-        if (!isDirty && mTransform3D != nullptr)
-        {
-            isDirty = mTransform3D->isDirty();
-        }
-
-        // RTS 有更新，需要更新可渲染对象的包围体
-        if (mRenderable != nullptr && isDirty)
-        {
-            mRenderable->updateBound();
         }
     }
 
@@ -128,40 +155,6 @@ namespace Tiny3D
         }
     }
 
-    //--------------------------------------------------------------------------
-
-    TResult SceneNode::cloneProperties(NodePtr node) const
-    {
-        TResult ret = Node::cloneProperties(node);
-
-        if (ret == T3D_OK)
-        {
-            SceneNodePtr newNode = smart_pointer_cast<SceneNode>(node);
-            newNode->mIsEnabled = mIsEnabled;
-            newNode->mIsVisible = mIsVisible;
-
-            ComponentPtr component;
-            if (mTransform3D != nullptr)
-            {
-                component = newNode->addTransform();
-            }
-
-            if (mRenderable != nullptr)
-            {
-                component = newNode->addRenderable(mRenderable->getClass()->getName());
-            }
-
-            auto itr = mComponents.begin();
-
-            while (itr != mComponents.end())
-            {
-                if (itr->second != mTransform3D && itr->second != mRenderable)
-                    component = itr->second->clone();
-            }
-        }
-
-        return ret;
-    }
 
     //--------------------------------------------------------------------------
 
@@ -262,156 +255,109 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Transform3DPtr SceneNode::addTransform()
+    uint32_t SceneNode::getComponentOrder(const Class *cls) const
     {
-        if (mTransform3D != nullptr)
-            return mTransform3D;
+        uint32_t orderID = 0;
 
-        ComponentPtr component = createComponent(1, "Transform3D");
-
-        if (component != nullptr)
+        if (cls->isKindOf(T3D_CLASS(Transform3D)))
         {
-            mTransform3D = smart_pointer_cast<Transform3D>(component);
-            component->onAttachSceneNode(this);
+            orderID = COMPONENT_ORDER_ID_TRANSFORM;
+        }
+        else if (cls->isKindOf(T3D_CLASS(Camera)))
+        {
+            orderID = COMPONENT_ORDER_ID_CAMERA;
+        }
+        else if (cls->isKindOf(T3D_CLASS(Renderable)))
+        {
+            orderID = COMPONENT_ORDER_ID_RENDERABLE;
         }
 
-        return mTransform3D;
+        return orderID;
     }
 
     //--------------------------------------------------------------------------
 
-    RenderablePtr SceneNode::addRenderable(const String &type)
-    {
-        if (mRenderable != nullptr)
-            return mRenderable;
-
-        ComponentPtr component = createComponent(1, type.c_str());
-
-        if (component != nullptr)
-        {
-            mRenderable = smart_pointer_cast<Renderable>(component);
-            T3D_SCENE_MGR.addRenderable(mRenderable);
-            component->onAttachSceneNode(this);
-        }
-
-        return mRenderable;
-    }
-
-    //--------------------------------------------------------------------------
-
-    CameraPtr SceneNode::addCamera()
-    {
-        if (mTransform3D != nullptr)
-        {
-            removeComponent(mTransform3D);
-            mTransform3D = nullptr;
-        }
-
-        ComponentPtr component = createComponent(1, "Camera");
-
-        if (component != nullptr)
-        {
-            mTransform3D = smart_pointer_cast<Transform3D>(component);
-            component->onAttachSceneNode(this);
-        }
-
-        return smart_pointer_cast<Camera>(component);
-    }
-
-    //--------------------------------------------------------------------------
-
-    CubePtr SceneNode::addCube(const Vector3 &center, const Vector3 &extent)
-    {
-        if (mRenderable != nullptr)
-        {
-            removeComponent(mRenderable);
-            mRenderable = nullptr;
-        }
-
-        ComponentPtr component = createComponent(3, "Cube", &center, &extent);
-
-        if (component != nullptr)
-        {
-            mRenderable = smart_pointer_cast<Renderable>(component);
-            component->onAttachSceneNode(this);
-        }
-
-        return smart_pointer_cast<Cube>(component);
-    }
-
-    //--------------------------------------------------------------------------
-
-    GlobePtr SceneNode::addSphere(const Vector3 &center, Real radius)
-    {
-        if (mRenderable != nullptr)
-        {
-            removeComponent(mRenderable);
-            mRenderable = nullptr;
-        }
-
-        ComponentPtr component = createComponent(3, "Globe", &center, &radius);
-
-        if (component != nullptr)
-        {
-            mRenderable = smart_pointer_cast<Renderable>(component);
-            component->onAttachSceneNode(this);
-        }
-
-        return smart_pointer_cast<Globe>(component);
-    }
-
-    //--------------------------------------------------------------------------
-
-    ComponentPtr SceneNode::addComponent(const String &type)
-    {
-        ComponentPtr component = createComponent(1, type.c_str());
-
-        if (component != nullptr)
-        {
-            component->onAttachSceneNode(this);
-        }
-
-        return component;
-    }
-
-    //--------------------------------------------------------------------------
-
-    ComponentPtr SceneNode::createComponent(int32_t argc, ...)
+    ComponentPtr SceneNode::addComponent(const Class *cls, ...)
     {
         ComponentPtr component;
 
-        do
+        do 
         {
+            // 获取组件执行顺序
+            uint32_t order = getComponentOrder(cls);
+
+            if (COMPONENT_ORDER_ID_INVALID == order)
+            {
+                T3D_LOG_ERROR(LOG_TAG_COMPONENT, "Invalid component order !");
+                break;
+            }
+
+            // 看看是否有同样功能的组件
+            auto itr = mComponentQueue.find(order);
+            if (itr != mComponentQueue.end())
+            {
+                T3D_LOG_ERROR(LOG_TAG_COMPONENT,
+                    "Duplicated component for class %s", cls->getName());
+                break;
+            }
+
+            // 创建组件对象
             ComponentCreatorPtr creator = T3D_AGENT.getComponentCreator();
             va_list args;
-            va_start(args, argc);
-            component = creator->createObject(argc, args);
+            va_start(args, cls);
+            component = creator->createObject(1, cls, args);
             va_end(args);
 
             if (component == nullptr)
             {
+                T3D_LOG_ERROR(LOG_TAG_COMPONENT, "Create component failed !");
                 break;
             }
 
-            auto ret = mComponents.insert(ComponentsValue(component->getClass()->getName(), component));
+            // 根据顺序插入执行队列
+            auto ret0 = mComponentQueue.insert(ComponentQueueValue(order, component));
+            if (!ret0.second)
+            {
+                component = nullptr;
+                T3D_LOG_ERROR(LOG_TAG_COMPONENT, 
+                    "Insert component executing queue failed !");
+                break;
+            }
 
+            // 缓存组件
+            auto ret = mComponents.insert(ComponentsValue(cls->getName(), component));
             if (!ret.second)
             {
                 component = nullptr;
+                T3D_LOG_ERROR(LOG_TAG_COMPONENT, "Cache component failed !");
                 break;
             }
 
+            // 记录下几个特殊组件，方便后续快速访问，不用每次查字典
+            if (COMPONENT_ORDER_ID_TRANSFORM == order)
+            {
+                mTransform3D = smart_pointer_cast<Transform3D>(component);
+            }
+            else if (COMPONENT_ORDER_ID_RENDERABLE == order)
+            {
+                mRenderable = smart_pointer_cast<Renderable>(component);
+            }
         } while (0);
+
+        if (component != nullptr)
+        {
+            component->onAttachSceneNode(this);
+        }
 
         return component;
     }
 
     //--------------------------------------------------------------------------
 
-    ComponentPtr SceneNode::getComponent(const String &type) const
+    ComponentPtr SceneNode::getComponent(const Class *cls) const
     {
         ComponentPtr component;
-        auto itr = mComponents.find(type);
+        auto itr = mComponents.find(cls->getName());
 
         if (itr != mComponents.end())
         {
@@ -423,9 +369,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SceneNode::removeComponent(const String &type)
+    void SceneNode::removeComponent(const Class *cls)
     {
-        auto itr = mComponents.find(type);
+        auto itr = mComponents.find(cls->getName());
 
         if (itr != mComponents.end())
         {
@@ -464,28 +410,5 @@ namespace Tiny3D
         }
 
         mComponents.clear();
-    }
-
-    //--------------------------------------------------------------------------
-
-    void SceneNode::removeComponent(Component *component)
-    {
-        auto itr = mComponents.begin();
-        while (itr != mComponents.end())
-        {
-            if (itr->second == component)
-            {
-                if (itr->second == mRenderable)
-                {
-                    T3D_SCENE_MGR.removeRenderable(mRenderable);
-                }
-
-                component->onDetachSceneNode(this);
-                mComponents.erase(itr);
-                break;
-            }
-
-            ++itr;
-        }
     }
 }

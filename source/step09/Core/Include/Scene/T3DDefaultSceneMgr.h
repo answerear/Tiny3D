@@ -96,7 +96,6 @@ namespace Tiny3D
          *      SceneNodePtr parent, ID uID = Node::E_NID_AUTOMATIC)
          */
         virtual SceneNodePtr createSceneNode(SceneNodePtr parent,
-            bool autoAddTransform = true, 
             ID uID = Node::E_NID_AUTOMATIC) override;
 
         /**

@@ -68,34 +68,34 @@ namespace Tiny3D
         {
             va_list params;
             va_start(params, argc);
+            const Class *cls = va_arg(params, const Class *);
             va_list args = va_arg(params, va_list);
 
-            String type = va_arg(args, const char *);
-
-            if (type == "Transform3D")
+            if (cls == T3D_CLASS(Transform3D))
             {
                 component = Transform3D::create();
             }
-            else if (type == "Camera")
+            else if (cls == T3D_CLASS(Camera))
             {
                 component = Camera::create();
             }
-            else if (type == "Cube")
+            else if (cls == T3D_CLASS(Cube))
             {
-                Vector3 *center = va_arg(args, Vector3 *);
-                Vector3 *extent = va_arg(args, Vector3 *);
-                component = Cube::create(*center, *extent);
+                Vector3 center = va_arg(args, Vector3);
+                Vector3 extent = va_arg(args, Vector3);
+                component = Cube::create(center, extent);
             }
-            else if (type == "Globe")
+            else if (cls == T3D_CLASS(Globe))
             {
-                Vector3 *center = va_arg(args, Vector3 *);
-                Real *radius = va_arg(args, Real *);
-                component = Globe::create(*center, *radius);
+                Vector3 center = va_arg(args, Vector3);
+                Real *radius = va_arg(args, Real*);
+                component = Globe::create(center, *radius);
             }
 
             va_end(params);
 
         } while (0);
+
         return component;
     }
 }

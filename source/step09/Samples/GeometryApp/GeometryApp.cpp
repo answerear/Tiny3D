@@ -45,9 +45,9 @@ bool GeometryApp::applicationDidFinishLaunching()
     RenderWindowPtr renderWindow = T3D_AGENT.getDefaultRenderWindow();
 
     // Ïà»ú
-    SceneNodePtr node = T3D_SCENE_MGR.createSceneNode(root, false);
+    SceneNodePtr node = T3D_SCENE_MGR.createSceneNode(root);
 
-    CameraPtr camera = node->addCamera();
+    CameraPtr camera = smart_pointer_cast<Camera>(node->addComponent(T3D_CLASS(Camera)));
     camera->lookAt(Vector3(0.0f, 4.0f, 8.0f), Vector3::ZERO, Vector3::UNIT_Y);
     camera->setProjectionType(Camera::Type::PERSPECTIVE);
     Real w = Real(renderWindow->getWidth());
@@ -65,14 +65,15 @@ bool GeometryApp::applicationDidFinishLaunching()
     // Ïä×Ó
     node = T3D_SCENE_MGR.createSceneNode(root);
     Vector3 extent(1.0f, 1.0f, 1.0f);
-    CubePtr cube = node->addCube(Vector3::ZERO, extent);
+    CubePtr cube = smart_pointer_cast<Cube>(node->addComponent(T3D_CLASS(Cube), Vector3::ZERO, extent));
     node->getTransform3D()->setPosition(Vector3(-4.0f, 0.0f, -2.0f));
     node->setCameraMask(OBJ_MASK_SCENE);
 //     box->setScaling(Vector3(100, 100, 100));
 
     // Çò
     node = T3D_SCENE_MGR.createSceneNode(root);
-    GlobePtr sphere = node->addSphere(Vector3::ZERO, 1.0f);
+    Real radius(1.0f);
+    GlobePtr sphere = smart_pointer_cast<Globe>(node->addComponent(T3D_CLASS(Globe), Vector3::ZERO, &radius));
     node->getTransform3D()->setPosition(Vector3(2.0f, 0.0f, 0.0f));
     node->setCameraMask(OBJ_MASK_SCENE);
 

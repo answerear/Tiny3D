@@ -22,6 +22,7 @@
 #define __T3D_CAMERA_H__
 
 
+#include "Component/T3DComponent.h"
 #include "Component/T3DTransform3D.h"
 #include "Bound/T3DBound.h"
 
@@ -32,7 +33,9 @@ namespace Tiny3D
      * @class   Camera
      * @brief   场景相机结点类
      */
-    class T3D_ENGINE_API Camera : public Transform3D
+    class T3D_ENGINE_API Camera 
+        : public Component
+        , public ITransformListener
     {
         T3D_DECLARE_CLASS();
 
@@ -187,17 +190,12 @@ namespace Tiny3D
          * @return  返回投影变换矩阵.
          */
         const Matrix4 &getProjectionMatrix() const;
-        
+
         /**
-         * @fn  virtual void Camera::setDirty(bool isDirty, 
-         *      bool recursive = false) override;
-         * @brief   重写基类接口
-         * @param   isDirty     True if is dirty, false if not.
-         * @param   recursive   (Optional) True to process recursively, false to
-         *  process locally only.
-         * @sa  void SceneNode::setDirty(bool isDirty, bool recursive = false)
+         * @fn  virtual void Camera::updateTransform() override;
+         * @brief   实现基类接口
          */
-        virtual void setDirty(bool isDirty, bool recursive = false) override;
+        virtual void update() override;
 
     protected:
         /**
@@ -223,11 +221,7 @@ namespace Tiny3D
          */
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
-        /**
-         * @fn  virtual void Camera::updateTransform() override;
-         * @brief   实现基类接口
-         */
-        virtual void updateTransform() override;
+        virtual void updateTransform(const Transform3D *xform) override;
 
     protected:
         BoundPtr        mBound;         /**< 视锥体碰撞体 */

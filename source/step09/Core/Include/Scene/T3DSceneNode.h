@@ -34,6 +34,7 @@ namespace Tiny3D
     class T3D_ENGINE_API SceneNode : public Node
     {
         T3D_DISABLE_COPY(SceneNode);
+        T3D_DECLARE_CLASS();
 
     public:
         /**
@@ -137,18 +138,13 @@ namespace Tiny3D
          */
         virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue);
 
-        typedef TMap<String, ComponentPtr>  Components;
-        typedef Components::iterator        ComponentsItr;
-        typedef Components::const_iterator  ComponentsConstItr;
-        typedef Components::value_type      ComponentsValue;
-
         /**
          * @fn  ComponentPtr SceneNode::addComponent(const String &type);
          * @brief   Adds a component
          * @param   type    The type.
          * @return  A ComponentPtr.
          */
-        ComponentPtr addComponent(const String &type);
+        ComponentPtr addComponent(const Class *cls, ...);
 
         /**
          * @fn  ComponentPtr SceneNode::getComponent(const String &type) const;
@@ -156,7 +152,25 @@ namespace Tiny3D
          * @param   type    The type.
          * @return  The component.
          */
-        ComponentPtr getComponent(const String &type) const;
+        ComponentPtr getComponent(const Class *cls) const;
+
+        /**
+         * @fn  void SceneNode::removeComponent(const String &type);
+         * @brief   Removes the component described by type
+         * @param   type    The type.
+         */
+        void removeComponent(const Class *cls);
+
+        /**
+         * @fn  void SceneNode::removeAllComponents();
+         * @brief   Removes all components
+         */
+        void removeAllComponents();
+
+        typedef TMap<String, ComponentPtr>  Components;
+        typedef Components::iterator        ComponentsItr;
+        typedef Components::const_iterator  ComponentsConstItr;
+        typedef Components::value_type      ComponentsValue;
 
         /**
          * @fn  const Components SceneNode::&getComponents() const
@@ -165,74 +179,9 @@ namespace Tiny3D
          */
         const Components &getComponents() const { return mComponents; }
 
-        /**
-         * @fn  void SceneNode::removeComponent(const String &type);
-         * @brief   Removes the component described by type
-         * @param   type    The type.
-         */
-        void removeComponent(const String &type);
-
-        /**
-         * @fn  void SceneNode::removeAllComponents();
-         * @brief   Removes all components
-         */
-        void removeAllComponents();
-
-        /**
-         * @fn  virtual Transform3DPtr SceneNode::addTransform();
-         * @brief   Adds transform
-         * @return  A Transform3DPtr.
-         */
-        virtual Transform3DPtr addTransform();
-
-        /**
-         * @fn  virtual RenderablePtr SceneNode::addRenderable(const String &type);
-         * @brief   Adds a renderable
-         * @param   type    The type.
-         * @return  A RenderablePtr.
-         */
-        virtual RenderablePtr addRenderable(const String &type);
-
-        /**
-         * @fn  Transform3D SceneNode::*getTransform3D() const
-         * @brief   Gets transform 3D
-         * @return  Null if it fails, else the transform 3D.
-         */
         Transform3D *getTransform3D() const { return mTransform3D; }
 
-        /**
-         * @fn  Renderable SceneNode::*getRenderable() const
-         * @brief   Gets the renderable
-         * @return  Null if it fails, else the renderable.
-         */
         Renderable *getRenderable() const { return mRenderable; }
-
-        /**
-         * @fn  virtual CameraPtr SceneNode::addCamera();
-         * @brief   Adds camera
-         * @return  A CameraPtr.
-         */
-        virtual CameraPtr addCamera();
-
-        /**
-         * @fn  virtual CubePtr SceneNode::addCube(const Vector3 &center, 
-         *      const Vector3 &extent);
-         * @brief   Adds a cube to 'extent'
-         * @param   center  The center.
-         * @param   extent  The extent.
-         * @return  A CubePtr.
-         */
-        virtual CubePtr addCube(const Vector3 &center, const Vector3 &extent);
-
-        /**
-         * @fn  virtual GlobePtr SceneNode::addSphere(const Vector3 &center, 
-         *      Real radius);
-         * @brief   Adds a sphere to 'radius'
-         * @param   center  The center.
-         * @param   radius  The radius.
-         * @return  A GlobePtr.
-         */
-        virtual GlobePtr addSphere(const Vector3 &center, Real radius);
 
     protected:
         /**
@@ -263,30 +212,23 @@ namespace Tiny3D
          */
         virtual TResult cloneProperties(NodePtr node) const override;
 
-        /**
-         * @fn  ComponentPtr SceneNode::createComponent(int32_t argc, ...);
-         * @brief   Creates a component
-         * @param   argc    The argc.
-         * @param   ...     Variable arguments providing additional information.
-         * @return  The new component.
-         */
-        ComponentPtr createComponent(int32_t argc, ...);
-
-        /**
-         * @fn  void SceneNode::removeComponent(Component *component);
-         * @brief   Removes the component described by component
-         * @param [in,out]  component   If non-null, the component.
-         */
-        void removeComponent(Component *component);
+        virtual uint32_t getComponentOrder(const Class *cls) const;
 
     private:
+        typedef TMap<uint32_t, Component*>      ComponentQueue;
+        typedef ComponentQueue::iterator        ComponentQueueItr;
+        typedef ComponentQueue::const_iterator  ComponentQueueConstItr;
+        typedef ComponentQueue::value_type      ComponentQueueValue;
+
         bool        mIsVisible;     /**< 结点可见性 */
         bool        mIsEnabled;     /**< 结点可用性 */
+        bool        mIsDirty;
         uint32_t    mCameraMask;    /**< 相机掩码 */
 
-        Components  mComponents;    /**< The components */
-        Transform3D *mTransform3D;  /**< The transform 3D */
-        Renderable  *mRenderable;   /**< The renderable */
+        ComponentQueue  mComponentQueue;/**< The components */
+        Components      mComponents;    /**< */
+        Transform3D     *mTransform3D;  /**< The transform 3D */
+        Renderable      *mRenderable;   /**< The renderable */
     };
 }
 

@@ -29,6 +29,18 @@
 namespace Tiny3D
 {
     /**
+     * @bfrief 变换监听者
+     */
+    class T3D_ENGINE_API ITransformListener
+    {
+        T3D_DECLARE_INTERFACE(ITransformListener);
+        T3D_DECLARE_CLASS();
+
+    public:
+        virtual void updateTransform(const Transform3D *xform) = 0;
+    };
+
+    /**
      * @class   Transform3D
      * @brief   带变换属性的场景树结点
      */
@@ -284,7 +296,7 @@ namespace Tiny3D
          * @fn  virtual void Transform3D::updateTransform();
          * @brief   从父类继承，重写实现更新变换操作
          */
-        virtual void updateTransform();
+        virtual void update();
 
         /**
          * @fn  virtual void Transform3D::setDirty(bool isDirty, 
@@ -304,6 +316,10 @@ namespace Tiny3D
          * @sa  void setDirty(bool isDirty, bool recursive)
          */
         bool isDirty() const;
+
+        void addListener(ITransformListener *listener);
+
+        void removeListner(ITransformListener *listener);
 
         /**
          * @fn  virtual ComponentPtr Transform3D::clone() const override;
@@ -347,10 +363,19 @@ namespace Tiny3D
          */
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
+        void notifyListener() const;
+
+    protected:
+        typedef TList<ITransformListener *>     Listeners;
+        typedef Listeners::iterator             ListenersItr;
+        typedef Listeners::const_iterator       ListenersConstItr;
+
+        Listeners           mListeners;     /**< 变换更新监听者对象 */
+
     private:
-        Vector3     mPosition;          /**< 父节点坐标系下的局部位置 */
-        Quaternion  mOrientation;       /**< 父节点坐标系下的局部朝向 */
-        Vector3     mScaling;           /**< 父节点坐标系下的局部大小 */
+        Vector3             mPosition;      /**< 父节点坐标系下的局部位置 */
+        Quaternion          mOrientation;   /**< 父节点坐标系下的局部朝向 */
+        Vector3             mScaling;       /**< 父节点坐标系下的局部大小 */
 
         mutable Transform   mWorldTransform;/**< 从局部到世界的变换对象 */
 

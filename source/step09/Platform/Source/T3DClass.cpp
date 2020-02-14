@@ -50,18 +50,24 @@ namespace Tiny3D
         if (cls == nullptr || !cls->hasBase())
             return false;
 
+        bool ret = false;
+
         for (size_t i = 0; i < cls->getBaseClassCount(); ++i)
         {
-            for (const Class *c = cls->getBaseClass(i);
-                c != nullptr;
-                c = c->getBaseClass(i))
+            const Class *c = cls->getBaseClass(i);
+
+            if (c == this)
             {
-                if (c == this)
-                    return true;
+                ret = true;
+                break;
+            }
+            else
+            {
+                ret = isBaseOf(c);
             }
         }
 
-        return false;
+        return ret;
     }
 
     //--------------------------------------------------------------------------

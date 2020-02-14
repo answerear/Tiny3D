@@ -51,7 +51,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Camera::Camera(ID uID /* = E_CID_AUTOMATIC */)
-        : Transform3D(uID)
+        : Component(uID)
         , mBound(nullptr)
         , mProjType(Type::PERSPECTIVE)
         , mObjectMask(0)
@@ -63,8 +63,8 @@ namespace Tiny3D
         , mFar(REAL_ZERO)
         , mViewMatrix(false)
         , mProjMatrix(false)
-        , mIsViewDirty(false)
-        , mIsFrustumDirty(false)
+        , mIsViewDirty(true)
+        , mIsFrustumDirty(true)
     {
 
     }
@@ -92,6 +92,11 @@ namespace Tiny3D
     void Camera::lookAt(const Vector3 &pos, const Vector3 &obj, 
         const Vector3 &up)
     {
+        SceneNode *node = getSceneNode();
+        T3D_ASSERT(node->getTransform3D() != nullptr);
+
+        Transform3D *xform = node->getTransform3D();
+
         Vector3 N = obj - pos;
         N.normalize();
         Vector3 V = up;
@@ -101,7 +106,7 @@ namespace Tiny3D
         V = U.cross(N);
         V.normalize();
 
-        setPosition(pos);
+        xform->setPosition(pos);
 
         Matrix3 mat;
         mat.setColumn(0, U);
@@ -109,23 +114,19 @@ namespace Tiny3D
         mat.setColumn(2, -N);
         Quaternion orientation;
         orientation.fromRotationMatrix(mat);
-        setOrientation(orientation);
+        xform->setOrientation(orientation);
 
-        setScaling(Vector3::UNIT_SCALE);
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Camera::setDirty(bool isDirty, bool recursive /* = false */)
-    {
-        Transform3D::setDirty(isDirty, recursive);
-        mIsViewDirty = isDirty;
+        xform->setScaling(Vector3::UNIT_SCALE);
     }
 
     //--------------------------------------------------------------------------
 
     const Matrix4 &Camera::getViewMatrix() const
     {
+        SceneNode *node = getSceneNode();
+        Transform3D *xform = node->getTransform3D();
+        const Transform &transform = xform->getLocalToWorldTransform();
+
         if (mIsViewDirty)
         {
             // 视图矩阵推导：
@@ -138,7 +139,6 @@ namespace Tiny3D
             // 得 C(-1) = (T * R * S) (-1) = S(-1) * R(-1) * T(-1)
             // 
 
-            const Transform &transform = getLocalToWorldTransform();
             // 旋转矩阵
             Matrix4 R = transform.getOrientation();
             // 旋转矩阵是正交矩阵，正交矩阵的逆矩阵是其转置矩阵
@@ -215,7 +215,7 @@ namespace Tiny3D
 
     TResult Camera::cloneProperties(ComponentPtr newObj) const
     {
-        TResult ret = Transform3D::cloneProperties(newObj);
+        TResult ret = Component::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
@@ -237,7 +237,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Camera::updateTransform()
+    void Camera::update()
     {
         bool isViewDirty = mIsViewDirty;
         bool isFrustumDirty = mIsFrustumDirty;
@@ -254,7 +254,12 @@ namespace Tiny3D
             FrustumBoundPtr bound = smart_pointer_cast<FrustumBound>(mBound);
             renderer->updateFrustum(M, bound);
         }
+    }
 
-        Transform3D::updateTransform();
+    //--------------------------------------------------------------------------
+
+    void Camera::updateTransform(const Transform3D *xform)
+    {
+        mIsViewDirty = true;
     }
 }

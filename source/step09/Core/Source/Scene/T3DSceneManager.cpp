@@ -96,11 +96,11 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     SceneNodePtr SceneManager::createSceneNode(SceneNodePtr parent, 
-        bool autoAddTransform /* = true */, ID uID /* = Node::E_NID_AUTOMATIC */)
+        ID uID /* = Node::E_NID_AUTOMATIC */)
     {
         if (mImpl != nullptr)
         {
-            return mImpl->createSceneNode(parent, autoAddTransform, uID);
+            return mImpl->createSceneNode(parent, uID);
         }
 
         return nullptr;

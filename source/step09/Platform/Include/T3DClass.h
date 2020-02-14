@@ -61,7 +61,7 @@ namespace Tiny3D
             return mBaseClasses[idx];
         }
 
-        bool hasBase() const { return mBaseClassesCount == 0; }
+        bool hasBase() const { return mBaseClassesCount != 0; }
 
         /**
          * @brief 查询自己是否 cls 的基类
@@ -144,6 +144,7 @@ namespace Tiny3D
         return TYPE::getStaticClass()->isKindOf(obj.getClass());
     }
 
+    #define T3D_CLASS(cls)  cls::getStaticClass()
 
     #define T3D_DECLARE_CLASS() \
         public: \

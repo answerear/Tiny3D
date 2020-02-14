@@ -26,6 +26,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_0(ITransformListener);
+
+    //--------------------------------------------------------------------------
+
     T3D_IMPLEMENT_CLASS_1(Transform3D, Component);
 
     //--------------------------------------------------------------------------
@@ -96,6 +100,8 @@ namespace Tiny3D
             }
 
             mIsDirty = false;
+
+            notifyListener();
         }
 
         return mWorldTransform;
@@ -103,20 +109,56 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Transform3D::addListener(ITransformListener *listener)
+    {
+        mListeners.push_back(listener);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Transform3D::removeListner(ITransformListener *listener)
+    {
+        auto itr = std::find(mListeners.begin(), mListeners.end(), listener);
+
+        if (itr != mListeners.end())
+        {
+            mListeners.erase(itr);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Transform3D::notifyListener() const
+    {
+        auto itr = mListeners.begin();
+
+        while (itr != mListeners.end())
+        {
+            ITransformListener *listener = *itr;
+            listener->updateTransform(this);
+            ++itr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     void Transform3D::setDirty(bool isDirty, bool recursive /* = false */)
     {
-        mIsDirty = isDirty;
-
-        if (recursive)
+        if (mIsDirty != isDirty)
         {
-            SceneNode *node = getSceneNode();
-            NodePtr child = node->getFirstChild();
-            while (child != nullptr)
+            mIsDirty = isDirty;
+
+            if (recursive)
             {
-                SceneNodePtr node = smart_pointer_cast<SceneNode>(child);
-                Transform3DPtr xform = node->getTransform3D();
-                xform->setDirty(isDirty, recursive);
-                child = child->getNextSibling();
+                SceneNode *node = getSceneNode();
+                NodePtr child = node->getFirstChild();
+                while (child != nullptr)
+                {
+                    SceneNodePtr node = smart_pointer_cast<SceneNode>(child);
+                    Transform3DPtr xform = node->getTransform3D();
+                    xform->setDirty(isDirty, recursive);
+                    child = child->getNextSibling();
+                }
             }
         }
     }
@@ -150,7 +192,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Transform3D::updateTransform()
+    void Transform3D::update()
     {
         getLocalToWorldTransform();
     }
