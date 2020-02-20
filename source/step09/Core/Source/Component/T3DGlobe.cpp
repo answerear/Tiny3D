@@ -25,7 +25,6 @@
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Render/T3DHardwareIndexBuffer.h"
 #include "Render/T3DVertexArrayObject.h"
-#include "Bound/T3DSphereBound.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramManager.h"
 #include "Resource/T3DMaterial.h"
@@ -83,7 +82,6 @@ namespace Tiny3D
         , mCenter(Vector3::ZERO)
         , mRadius(REAL_ONE)
         , mVAO(nullptr)
-        , mBound(nullptr)
     {
 
     }
@@ -185,11 +183,6 @@ namespace Tiny3D
             mVAO->setPrimitiveType(Renderer::PrimitiveType::E_PT_TRIANGLE_LIST);
 
             mVAO->endBinding();
-
-            // 构建碰撞体
-            mBound = SphereBound::create();
-            mBound->setParams(mCenter, mRadius);
-
         } while (0);
 
         return ret;
@@ -287,25 +280,6 @@ namespace Tiny3D
         }
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Globe::updateBound()
-    {
-        Transform3DPtr xform = getSceneNode()->getTransform3D();
-        mBound->updateBound(xform->getLocalToWorldTransform());
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Globe::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
-    {
-        if (bound->test(mBound))
-        {
-            // 在视锥体内，放进去渲染队列，准备渲染
-            queue->addRenderable(RenderQueue::E_GRPID_WIREFRAME, this);
-        }
     }
 
     //--------------------------------------------------------------------------

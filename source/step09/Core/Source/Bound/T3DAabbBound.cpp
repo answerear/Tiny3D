@@ -20,6 +20,7 @@
 
 #include "Bound/T3DAabbBound.h"
 #include "Component/T3DCube.h"
+#include "Scene/T3DSceneNode.h"
 
 
 namespace Tiny3D
@@ -30,7 +31,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    AabbBoundPtr AabbBound::create(ID uID /* = E_BID_AUTOMATIC */)
+    AabbBoundPtr AabbBound::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         AabbBoundPtr bound = new AabbBound(uID);
         bound->release();
@@ -39,7 +40,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    AabbBound::AabbBound(ID uID /* = E_BID_AUTOMATIC */)
+    AabbBound::AabbBound(ID uID /* = E_CID_AUTOMATIC */)
         : Bound(uID)
     {
 
@@ -61,25 +62,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    BoundPtr AabbBound::clone() const
+    ComponentPtr AabbBound::clone() const
     {
         AabbBoundPtr bound = AabbBound::create();
-        cloneProperties(bound);
+        TResult ret = cloneProperties(bound);
+
+        if (ret != T3D_OK)
+        {
+            bound = nullptr;
+        }
+
         return bound;
     }
 
     //--------------------------------------------------------------------------
 
-    void AabbBound::cloneProperties(BoundPtr bound) const
+    TResult AabbBound::cloneProperties(ComponentPtr bound) const
     {
-        Bound::cloneProperties(bound);
+        TResult ret = Bound::cloneProperties(bound);
 
-        AabbBoundPtr aabbBound = smart_pointer_cast<AabbBound>(bound);
+        if (ret == T3D_OK)
+        {
+            AabbBoundPtr aabbBound = smart_pointer_cast<AabbBound>(bound);
+            aabbBound->mAabb = mAabb;
+            aabbBound->mOriginalAabb = mOriginalAabb;
+            aabbBound->mRenderable
+                = smart_pointer_cast<Cube>(mRenderable->clone());
+        }
 
-        aabbBound->mAabb = mAabb;
-        aabbBound->mOriginalAabb = mOriginalAabb;
-        aabbBound->mRenderable 
-            = smart_pointer_cast<Cube>(mRenderable->clone());
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -132,7 +143,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void AabbBound::updateBound(const Transform &transform)
+    void AabbBound::update()
     {
         // 这里不用传统的变换8个顶点，然后逐个比较获取最大x,y,z来重新设置AABB
         // 这里使用快速变换的方法，减少矩阵变换带来的开销，原理如下：
@@ -158,114 +169,121 @@ namespace Tiny3D
         //      如 m00 < 0时，则当px = max_x时，则px * m00最小
         // 同理，可以根据最小值计算方法计算最大值，并且如此类推，计算p'y'和p'z'
 
-        const Vector3 &translate = transform.getTranslation();
-        const Matrix4 &M = transform.getAffineMatrix();
+        if (mIsDirty)
+        {
+            Transform3D *xform = getSceneNode()->getTransform3D();
+            const Transform &transform = xform->getLocalToWorldTransform();
+            const Vector3 &translate = transform.getTranslation();
+            const Matrix4 &M = transform.getAffineMatrix();
 
-        Vector3 vMin = translate;
-        Vector3 vMax = translate;
+            Vector3 vMin = translate;
+            Vector3 vMax = translate;
 
-        // Calculate min x & max x
-        if (M[0][0] > Real(0.0))
-        {
-            vMin.x() += M[0][0] * mOriginalAabb.getMinX();
-            vMax.x() += M[0][0] * mOriginalAabb.getMaxX();
-        }
-        else
-        {
-            vMin.x() += M[0][0] * mOriginalAabb.getMaxX();
-            vMax.x() += M[0][0] * mOriginalAabb.getMinX();
-        }
+            // Calculate min x & max x
+            if (M[0][0] > Real(0.0))
+            {
+                vMin.x() += M[0][0] * mOriginalAabb.getMinX();
+                vMax.x() += M[0][0] * mOriginalAabb.getMaxX();
+            }
+            else
+            {
+                vMin.x() += M[0][0] * mOriginalAabb.getMaxX();
+                vMax.x() += M[0][0] * mOriginalAabb.getMinX();
+            }
 
-        if (M[0][1] > Real(0.0))
-        {
-            vMin.x() += M[0][1] * mOriginalAabb.getMinY();
-            vMax.x() += M[0][1] * mOriginalAabb.getMaxY();
-        }
-        else
-        {
-            vMin.x() += M[0][1] * mOriginalAabb.getMaxY();
-            vMax.x() += M[0][1] * mOriginalAabb.getMinY();
-        }
+            if (M[0][1] > Real(0.0))
+            {
+                vMin.x() += M[0][1] * mOriginalAabb.getMinY();
+                vMax.x() += M[0][1] * mOriginalAabb.getMaxY();
+            }
+            else
+            {
+                vMin.x() += M[0][1] * mOriginalAabb.getMaxY();
+                vMax.x() += M[0][1] * mOriginalAabb.getMinY();
+            }
 
-        if (M[0][2] > Real(0.0))
-        {
-            vMin.x() += M[0][2] * mOriginalAabb.getMinZ();
-            vMax.x() += M[0][2] * mOriginalAabb.getMaxZ();
-        }
-        else
-        {
-            vMin.x() += M[0][2] * mOriginalAabb.getMaxZ();
-            vMax.x() += M[0][2] * mOriginalAabb.getMinZ();
-        }
+            if (M[0][2] > Real(0.0))
+            {
+                vMin.x() += M[0][2] * mOriginalAabb.getMinZ();
+                vMax.x() += M[0][2] * mOriginalAabb.getMaxZ();
+            }
+            else
+            {
+                vMin.x() += M[0][2] * mOriginalAabb.getMaxZ();
+                vMax.x() += M[0][2] * mOriginalAabb.getMinZ();
+            }
 
-        // Calculate min y & max y
-        if (M[1][0] > Real(0.0))
-        {
-            vMin.y() += M[1][0] * mOriginalAabb.getMinX();
-            vMax.y() += M[1][0] * mOriginalAabb.getMaxX();
-        }
-        else
-        {
-            vMin.y() += M[1][0] * mOriginalAabb.getMaxX();
-            vMax.y() += M[1][0] * mOriginalAabb.getMinX();
-        }
+            // Calculate min y & max y
+            if (M[1][0] > Real(0.0))
+            {
+                vMin.y() += M[1][0] * mOriginalAabb.getMinX();
+                vMax.y() += M[1][0] * mOriginalAabb.getMaxX();
+            }
+            else
+            {
+                vMin.y() += M[1][0] * mOriginalAabb.getMaxX();
+                vMax.y() += M[1][0] * mOriginalAabb.getMinX();
+            }
 
-        if (M[1][1] > Real(0.0))
-        {
-            vMin.y() += M[1][1] * mOriginalAabb.getMinY();
-            vMax.y() += M[1][1] * mOriginalAabb.getMaxY();
-        }
-        else
-        {
-            vMin.y() += M[1][1] * mOriginalAabb.getMaxY();
-            vMax.y() += M[1][1] * mOriginalAabb.getMinY();
-        }
+            if (M[1][1] > Real(0.0))
+            {
+                vMin.y() += M[1][1] * mOriginalAabb.getMinY();
+                vMax.y() += M[1][1] * mOriginalAabb.getMaxY();
+            }
+            else
+            {
+                vMin.y() += M[1][1] * mOriginalAabb.getMaxY();
+                vMax.y() += M[1][1] * mOriginalAabb.getMinY();
+            }
 
-        if (M[1][2] > Real(0.0))
-        {
-            vMin.y() += M[1][2] * mOriginalAabb.getMinZ();
-            vMax.y() += M[1][2] * mOriginalAabb.getMaxZ();
-        }
-        else
-        {
-            vMin.y() += M[1][2] * mOriginalAabb.getMaxZ();
-            vMax.y() += M[1][2] * mOriginalAabb.getMinZ();
-        }
+            if (M[1][2] > Real(0.0))
+            {
+                vMin.y() += M[1][2] * mOriginalAabb.getMinZ();
+                vMax.y() += M[1][2] * mOriginalAabb.getMaxZ();
+            }
+            else
+            {
+                vMin.y() += M[1][2] * mOriginalAabb.getMaxZ();
+                vMax.y() += M[1][2] * mOriginalAabb.getMinZ();
+            }
 
-        // Calculate min z & max z
-        if (M[2][0] > Real(0.0))
-        {
-            vMin.z() += M[2][0] * mOriginalAabb.getMinX();
-            vMax.z() += M[2][0] * mOriginalAabb.getMaxX();
-        }
-        else
-        {
-            vMin.z() += M[2][0] * mOriginalAabb.getMaxX();
-            vMax.z() += M[2][0] * mOriginalAabb.getMinX();
-        }
+            // Calculate min z & max z
+            if (M[2][0] > Real(0.0))
+            {
+                vMin.z() += M[2][0] * mOriginalAabb.getMinX();
+                vMax.z() += M[2][0] * mOriginalAabb.getMaxX();
+            }
+            else
+            {
+                vMin.z() += M[2][0] * mOriginalAabb.getMaxX();
+                vMax.z() += M[2][0] * mOriginalAabb.getMinX();
+            }
 
-        if (M[2][1] > Real(0.0))
-        {
-            vMin.z() += M[2][1] * mOriginalAabb.getMinY();
-            vMax.z() += M[2][1] * mOriginalAabb.getMaxY();
-        }
-        else
-        {
-            vMin.z() += M[2][1] * mOriginalAabb.getMaxY();
-            vMax.z() += M[2][1] * mOriginalAabb.getMinY();
-        }
+            if (M[2][1] > Real(0.0))
+            {
+                vMin.z() += M[2][1] * mOriginalAabb.getMinY();
+                vMax.z() += M[2][1] * mOriginalAabb.getMaxY();
+            }
+            else
+            {
+                vMin.z() += M[2][1] * mOriginalAabb.getMaxY();
+                vMax.z() += M[2][1] * mOriginalAabb.getMinY();
+            }
 
-        if (M[2][2] > Real(0.0))
-        {
-            vMin.z() += M[2][2] * mOriginalAabb.getMinZ();
-            vMax.z() += M[2][2] * mOriginalAabb.getMaxZ();
-        }
-        else
-        {
-            vMin.z() += M[2][2] * mOriginalAabb.getMaxZ();
-            vMax.z() += M[2][2] * mOriginalAabb.getMinZ();
-        }
+            if (M[2][2] > Real(0.0))
+            {
+                vMin.z() += M[2][2] * mOriginalAabb.getMinZ();
+                vMax.z() += M[2][2] * mOriginalAabb.getMaxZ();
+            }
+            else
+            {
+                vMin.z() += M[2][2] * mOriginalAabb.getMaxZ();
+                vMax.z() += M[2][2] * mOriginalAabb.getMinZ();
+            }
 
-        mAabb.setParam(vMin, vMax);
+            mAabb.setParam(vMin, vMax);
+
+            mIsDirty = false;
+        }
     }
 }

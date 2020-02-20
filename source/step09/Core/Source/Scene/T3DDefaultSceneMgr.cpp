@@ -99,7 +99,7 @@ namespace Tiny3D
         mRoot->addComponent(T3D_CLASS(Transform3D));
 
         // 预分配32个槽给存放要剔除的可渲染对象
-        mRenderables.resize(32, Slot());
+        mSceneNodes.resize(32, Slot());
 
         return ret;
     }
@@ -172,18 +172,17 @@ namespace Tiny3D
             {
                 idx++;
 
-                Slot &slot = mRenderables[i];
+                Slot &slot = mSceneNodes[i];
                 
-                RenderablePtr renderable = slot.first;
-                while (renderable != nullptr)
+                SceneNodePtr node = slot.first;
+                while (node != nullptr)
                 {
-                    if (renderable->getSceneNode()->isEnabled() 
-                        && renderable->getSceneNode()->isVisible())
+                    if (node->isEnabled() && node->isVisible())
                     {
-                        renderable->frustumCulling(bound, mRenderQueue);
+                        node->frustumCulling(bound, mRenderQueue);
                     }
 
-                    renderable = renderable->mNext;
+                    node = node->mNext;
                 }
             }
         }
@@ -220,13 +219,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult DefaultSceneMgr::addRenderable(Renderable *renderable)
+    TResult DefaultSceneMgr::addSceneNode(SceneNode *node)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            uint32_t mask = renderable->getSceneNode()->getCameraMask() - 1;
+            uint32_t mask = node->getCameraMask() - 1;
 
             if (mask >= sizeof(mask))
             {
@@ -237,22 +236,22 @@ namespace Tiny3D
                 break;
             }
 
-            Slot &slot = mRenderables[mask];
+            Slot &slot = mSceneNodes[mask];
 
             if (slot.first == nullptr)
             {
                 // 空链表
-                slot.first = renderable;
-                slot.last = renderable;
-                renderable->mPrev = renderable->mNext = nullptr;
+                slot.first = node;
+                slot.last = node;
+                node->mPrev = node->mNext = nullptr;
             }
             else
             {
                 // 非空链表，插入最后
-                slot.last->mNext = renderable;
-                renderable->mPrev = slot.last;
-                renderable->mNext = nullptr;
-                slot.last = renderable;
+                slot.last->mNext = node;
+                node->mPrev = slot.last;
+                node->mNext = nullptr;
+                slot.last = node;
             }
 
             slot.count++;
@@ -263,13 +262,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult DefaultSceneMgr::removeRenderable(Renderable *renderable)
+    TResult DefaultSceneMgr::removeSceneNode(SceneNode *node)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            uint32_t mask = renderable->getSceneNode()->getCameraMask() - 1;
+            uint32_t mask = node->getCameraMask() - 1;
 
             if (mask >= sizeof(mask))
             {
@@ -280,12 +279,12 @@ namespace Tiny3D
                 break;
             }
 
-            if (renderable->mPrev != nullptr)
-                renderable->mPrev->mNext = renderable->mNext;
-            if (renderable->mNext != nullptr)
-                renderable->mNext->mPrev = renderable->mPrev;
+            if (node->mPrev != nullptr)
+                node->mPrev->mNext = node->mNext;
+            if (node->mNext != nullptr)
+                node->mNext->mPrev = node->mPrev;
 
-            Slot &slot = mRenderables[mask];
+            Slot &slot = mSceneNodes[mask];
             slot.count--;
 
             if (slot.count == 0)

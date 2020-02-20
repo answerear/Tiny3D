@@ -28,7 +28,6 @@
 #include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramManager.h"
-#include "Bound/T3DFrustumBound.h"
 
 
 namespace Tiny3D
@@ -233,36 +232,6 @@ namespace Tiny3D
         }
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Quad::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
-    {
-        FrustumBoundPtr frustumBound = smart_pointer_cast<FrustumBound>(bound);
-
-        IntrPointFrustum intr;
-        bool intersect = true;
-        size_t i = 0;
-
-        for (i = 0; i < VI_MAX_VERTICES; ++i)
-        {
-            intr.setFrustum(&frustumBound->getFrustum());
-            intr.setPoint(&mWorldQuad[i]);
-            intersect = intersect & intr.test();
-        }
-
-        if (intersect)
-        {
-            queue->addRenderable(RenderQueue::E_GRPID_SOLID, this);
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Quad::updateBound()
-    {
-
     }
 
     //--------------------------------------------------------------------------

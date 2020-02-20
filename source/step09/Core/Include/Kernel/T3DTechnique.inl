@@ -29,6 +29,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    inline uint32_t Technique::getRenderQueue() const
+    {
+        return mRenderQueue;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void Technique::setRenderQueue(uint32_t queue)
+    {
+        mRenderQueue = queue;
+    }
+
+    //--------------------------------------------------------------------------
+
     inline Material *Technique::getMaterial() const
     { 
         return mParent; 

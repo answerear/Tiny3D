@@ -94,18 +94,4 @@ namespace Tiny3D
     {
         return nullptr;
     }
-
-    //--------------------------------------------------------------------------
-
-    void Billboard::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Billboard::updateBound()
-    {
-
-    }
 }

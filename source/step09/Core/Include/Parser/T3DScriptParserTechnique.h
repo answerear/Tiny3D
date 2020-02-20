@@ -96,6 +96,9 @@ namespace Tiny3D
         TResult parseLODIndex(
             DataStream &stream, Technique *tech, uint32_t version);
 
+        TResult parseRenderQueue(
+            DataStream &stream, Technique *tech, uint32_t version);
+
         /**
          * @fn  TResult ScriptParserTechnique::parseShadowCasterMaterial( 
          *      DataStream &stream, Technique *tech, uint32_t version);

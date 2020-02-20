@@ -24,10 +24,9 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "Kernel/T3DObject.h"
-#include "Kernel/T3DTransform.h"
 #include "Memory/T3DSmartPtr.h"
-#include "Scene/T3DSceneNode.h"
+#include "Component/T3DComponent.h"
+#include "Component/T3DTransform3D.h"
 
 
 namespace Tiny3D
@@ -36,7 +35,9 @@ namespace Tiny3D
      * @class   Bound
      * @brief   碰撞体基类
      */
-    class T3D_ENGINE_API Bound : public Object
+    class T3D_ENGINE_API Bound 
+        : public Component
+        , public ITransformListener
     {
         T3D_DECLARE_CLASS();
 
@@ -55,16 +56,6 @@ namespace Tiny3D
         };
 
         /**
-         * @enum    BoundID
-         * @brief   碰撞体ID
-         */
-        enum BoundID : ID
-        {
-            E_BID_AUTOMATIC = 0xFFFFFFFF,   /**< 自动生成ID */
-            E_BID_INVALID = 0,              /**< 无效ID */
-        };
-
-        /**
          * @fn  virtual Bound::~Bound();
          * @brief   析构函数
          */
@@ -76,13 +67,6 @@ namespace Tiny3D
          * @return  The type.
          */
         virtual Type getType() const = 0;
-
-        /**
-         * @fn  ID Bound::getID() const;
-         * @brief   获取碰撞体ID
-         * @return  The identifier.
-         */
-        ID getID() const;
 
         /**
          * @fn  void Bound::setGroupID(ID groupID);
@@ -99,14 +83,6 @@ namespace Tiny3D
          * @return  The group identifier.
          */
         ID getGroupID() const;
-
-        /**
-         * @fn  const Sphere Bound::&getSphere() const;
-         * @brief   获取球体对象
-         * @return  The sphere.
-         * @remarks 为加速碰撞检测，所有碰撞体都内置球体用于初步快速的相交检测.
-         */
-        const Sphere &getSphere() const;
 
         /**
          * @fn  virtual bool Bound::test(BoundPtr bound) const;
@@ -151,20 +127,6 @@ namespace Tiny3D
          */
         virtual RenderablePtr getRenderable() = 0;
 
-        /**
-         * @fn  virtual BoundPtr Bound::clone() const = 0;
-         * @brief   克隆碰撞体对象
-         * @return  返回一个新的碰撞体对象.
-         */
-        virtual BoundPtr clone() const = 0;
-
-        /**
-         * @fn  virtual void Bound::updateBound(const Transform &xform) = 0;
-         * @brief   根据变换对象更新碰撞体
-         * @param   xform   The transform.
-         */
-        virtual void updateBound(const Transform &xform) = 0;
-
     protected:
         /**
          * @fn  Bound::Bound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
@@ -172,7 +134,7 @@ namespace Tiny3D
          * @param [in]  node    : 碰撞体所属的场景结点.
          * @param [in]  uID     (Optional) : 碰撞体唯一标识.
          */
-        Bound(ID uID = E_BID_AUTOMATIC);
+        Bound(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @fn  virtual bool Bound::testSphere(const Sphere &sphere) const = 0;
@@ -216,25 +178,18 @@ namespace Tiny3D
          * @brief   克隆属性
          * @param   bound   The bound.
          */
-        virtual void cloneProperties(BoundPtr bound) const;
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+
+        virtual void updateTransform(const Transform3D *xform) override;
 
     private:
-        /**
-         * @fn  ID Bound::makeGlobalID() const;
-         * @brief   Makes global identifier
-         * @return  An ID.
-         */
-        ID makeGlobalID() const;
-
-    protected:
-        Sphere      mSphere;            /**< 用于快速检测相交性的球体 */
-
-    private:
-        ID          mID;                /**< 碰撞体ID */
         ID          mGroupID;           /**< 碰撞体分组ID */
         bool        mIsMovable;         /**< 是否可移动碰撞体 */
         bool        mIsCollisionSource; /**< 是否检测源碰撞体 */
         bool        mIsEnabled;         /**< 是否开启碰撞检测 */
+
+    protected:
+        bool        mIsDirty;           /**< 碰撞体是否需要更新 */
     };
 }
 

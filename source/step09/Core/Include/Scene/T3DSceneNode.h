@@ -33,6 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API SceneNode : public Node
     {
+        friend class DefaultSceneMgr;
+
         T3D_DISABLE_COPY(SceneNode);
         T3D_DECLARE_CLASS();
 
@@ -167,10 +169,10 @@ namespace Tiny3D
          */
         void removeAllComponents();
 
-        typedef TMap<String, ComponentPtr>  Components;
-        typedef Components::iterator        ComponentsItr;
-        typedef Components::const_iterator  ComponentsConstItr;
-        typedef Components::value_type      ComponentsValue;
+        typedef TMap<const Class*, ComponentPtr>    Components;
+        typedef Components::iterator                ComponentsItr;
+        typedef Components::const_iterator          ComponentsConstItr;
+        typedef Components::value_type              ComponentsValue;
 
         /**
          * @fn  const Components SceneNode::&getComponents() const
@@ -228,7 +230,11 @@ namespace Tiny3D
         ComponentQueue  mComponentQueue;/**< The components */
         Components      mComponents;    /**< */
         Transform3D     *mTransform3D;  /**< The transform 3D */
+        Bound           *mCollider;
         Renderable      *mRenderable;   /**< The renderable */
+
+        SceneNode       *mPrev;
+        SceneNode       *mNext;
     };
 }
 

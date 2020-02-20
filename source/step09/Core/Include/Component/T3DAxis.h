@@ -113,24 +113,6 @@ namespace Tiny3D
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         /**
-         * @fn  virtual void Axis::updateTransform() override;
-         * @brief   重写基类接口，实现结点的自身变换
-         * @sa  void SceneNode::updateTransform()
-         */
-        virtual void updateBound() override;
-
-        /**
-         * @fn  virtual void Axis::frustumCulling(BoundPtr bound, 
-         *      RenderQueuePtr queue) override;
-         * @brief   重写基类接口，实现结点的视锥体裁剪逻辑
-         * @param   bound   The bound.
-         * @param   queue   The queue.
-         * @sa  void SceneNode::frustumCulling(BoundPtr bound, 
-         *      RenderQueuePtr queue)
-         */
-        virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) override;
-
-        /**
          * @fn  virtual MaterialPtr Axis::getMaterial() const override;
          * @brief   重写基类接口，实现获取渲染用的材质
          * @return  The material.
@@ -153,7 +135,7 @@ namespace Tiny3D
         Real                    mAxisZ; /**< Z轴长度 */
 
         VertexArrayObjectPtr    mVAO;   /**< 渲染用的VAO */
-        SphereBoundPtr          mBound; /**< 碰撞体 */
+//         SphereBoundPtr          mBound; /**< 碰撞体 */
     };
 }
 

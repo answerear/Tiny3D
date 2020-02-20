@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#include "Bound/T3DBound.h"
 #include "Memory/T3DSmartPtr.h"
+#include "Bound/T3DBound.h"
 #include "Bound/T3DSphereBound.h"
 #include "Bound/T3DAabbBound.h"
 #include "Bound/T3DObbBound.h"
@@ -30,26 +30,18 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Bound, Object);
+    T3D_IMPLEMENT_CLASS_1(Bound, Component);
 
     //--------------------------------------------------------------------------
 
     Bound::Bound(ID uID)
-        : mID(E_BID_INVALID)
-        , mGroupID(E_BID_INVALID)
+        : Component(uID)
+        , mGroupID(E_CID_INVALID)
         , mIsMovable(false)
         , mIsCollisionSource(false)
         , mIsEnabled(false)
+        , mIsDirty(true)
     {
-        if (uID == E_BID_AUTOMATIC)
-        {
-            // 自动生成ID
-            mID = makeGlobalID();
-        }
-        else
-        {
-            mID = uID;
-        }
     }
 
     //--------------------------------------------------------------------------
@@ -100,21 +92,26 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Bound::cloneProperties(BoundPtr bound) const
+    TResult Bound::cloneProperties(ComponentPtr newObj) const
     {
-        bound->mSphere = mSphere;
-        bound->mID = mID;
-        bound->mGroupID = mGroupID;
-        bound->mIsMovable = mIsMovable;
-        bound->mIsCollisionSource = mIsCollisionSource;
-        bound->mIsEnabled = mIsEnabled;
+        TResult ret = Component::cloneProperties(newObj);
+
+        if (ret == T3D_OK)
+        {
+            BoundPtr bound = smart_pointer_cast<Bound>(newObj);
+            bound->mGroupID = mGroupID;
+            bound->mIsMovable = mIsMovable;
+            bound->mIsCollisionSource = mIsCollisionSource;
+            bound->mIsEnabled = mIsEnabled;
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    ID Bound::makeGlobalID() const
+    void Bound::updateTransform(const Transform3D *xform)
     {
-        static ID uID = 0;
-        return ++uID;
+        mIsDirty = true;
     }
 }

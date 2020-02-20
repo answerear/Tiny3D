@@ -88,21 +88,6 @@ namespace Tiny3D
          * @return  The vertex array object.
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
-
-        /**
-         * @fn  virtual void Billboard::frustumCulling(BoundPtr bound, 
-         *      RenderQueuePtr queue) override;
-         * @brief   Frustum culling
-         * @param   bound   The bound.
-         * @param   queue   The queue.
-         */
-        virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) override;
-
-        /**
-         * @fn  virtual void Billboard::updateBound() override;
-         * @brief   Updates the bound
-         */
-        virtual void updateBound() override;
     };
 }
 

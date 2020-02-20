@@ -20,6 +20,7 @@
 
 #include "Bound/T3DObbBound.h"
 #include "Component/T3DCube.h"
+#include "Scene/T3DSceneNode.h"
 
 
 namespace Tiny3D
@@ -30,7 +31,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ObbBoundPtr ObbBound::create(ID uID /* = E_BID_AUTOMATIC */)
+    ObbBoundPtr ObbBound::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         ObbBoundPtr bound = new ObbBound(uID);
         bound->release();
@@ -39,7 +40,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ObbBound::ObbBound(ID uID /* = E_BID_AUTOMATIC */)
+    ObbBound::ObbBound(ID uID /* = E_CID_AUTOMATIC */)
         : Bound(uID)
     {
 
@@ -61,23 +62,34 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    BoundPtr ObbBound::clone() const
+    ComponentPtr ObbBound::clone() const
     {
         ObbBoundPtr bound = ObbBound::create();
-        cloneProperties(bound);
+        TResult ret = cloneProperties(bound);
+
+        if (ret != T3D_OK)
+        {
+            bound = nullptr;
+        }
+
         return bound;
     }
 
     //--------------------------------------------------------------------------
 
-    void ObbBound::cloneProperties(BoundPtr bound) const
+    TResult ObbBound::cloneProperties(ComponentPtr bound) const
     {
-        Bound::cloneProperties(bound);
+        TResult ret = Bound::cloneProperties(bound);
 
-        ObbBoundPtr newBound = smart_pointer_cast<ObbBound>(bound);
-        newBound->mObb = mObb;
-        newBound->mOriginalObb = mOriginalObb;
-        newBound->mRenderable = smart_pointer_cast<Cube>(mRenderable->clone());
+        if (ret == T3D_OK)
+        {
+            ObbBoundPtr newBound = smart_pointer_cast<ObbBound>(bound);
+            newBound->mObb = mObb;
+            newBound->mOriginalObb = mOriginalObb;
+            newBound->mRenderable = smart_pointer_cast<Cube>(mRenderable->clone());
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -151,32 +163,40 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ObbBound::updateBound(const Transform &xform)
+    void ObbBound::update()
     {
-        // 变换中点
-        Vector3 center = xform.getAffineMatrix() * mOriginalObb.getCenter();
+        if (mIsDirty)
+        {
+            Transform3D *transform = getSceneNode()->getTransform3D();
+            const Transform &xform = transform->getLocalToWorldTransform();
 
-        // 变换3个轴
-        Vector3 axis0 = xform.getAffineMatrix() 
-            * (mOriginalObb.getAxis(0) * mOriginalObb.getExtent(0));
-        Vector3 axis1 = xform.getAffineMatrix() 
-            * (mOriginalObb.getAxis(1) * mOriginalObb.getExtent(1));
-        Vector3 axis2 = xform.getAffineMatrix() 
-            * (mOriginalObb.getAxis(2) * mOriginalObb.getExtent(2));
+            // 变换中点
+            Vector3 center = xform.getAffineMatrix() * mOriginalObb.getCenter();
 
-        // 计算三个轴上的长度
-        Real extent0 = axis0.length();
-        Real extent1 = axis1.length();
-        Real extent2 = axis2.length();
+            // 变换3个轴
+            Vector3 axis0 = xform.getAffineMatrix()
+                * (mOriginalObb.getAxis(0) * mOriginalObb.getExtent(0));
+            Vector3 axis1 = xform.getAffineMatrix()
+                * (mOriginalObb.getAxis(1) * mOriginalObb.getExtent(1));
+            Vector3 axis2 = xform.getAffineMatrix()
+                * (mOriginalObb.getAxis(2) * mOriginalObb.getExtent(2));
 
-        axis0 /= extent0;
-        axis1 /= extent1;
-        axis2 /= extent2;
+            // 计算三个轴上的长度
+            Real extent0 = axis0.length();
+            Real extent1 = axis1.length();
+            Real extent2 = axis2.length();
 
-        mObb.setCenter(center);
-        mObb.setAxis(axis0, axis1, axis2);
-        mObb.setExtent(0, extent0);
-        mObb.setExtent(1, extent1);
-        mObb.setExtent(2, extent2);
+            axis0 /= extent0;
+            axis1 /= extent1;
+            axis2 /= extent2;
+
+            mObb.setCenter(center);
+            mObb.setAxis(axis0, axis1, axis2);
+            mObb.setExtent(0, extent0);
+            mObb.setExtent(1, extent1);
+            mObb.setExtent(2, extent2);
+
+            mIsDirty = false;
+        }
     }
 }

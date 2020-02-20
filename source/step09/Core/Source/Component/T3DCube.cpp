@@ -25,7 +25,6 @@
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Render/T3DHardwareIndexBuffer.h"
 #include "Render/T3DVertexArrayObject.h"
-#include "Bound/T3DObbBound.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramManager.h"
 #include "Resource/T3DMaterial.h"
@@ -75,7 +74,6 @@ namespace Tiny3D
     Cube::Cube(ID uID /* = E_CID_AUTOMATIC */)
         : Renderable(uID)
         , mVAO(nullptr)
-        , mBound(nullptr)
     {
 
     }
@@ -178,12 +176,6 @@ namespace Tiny3D
             mVAO->setPrimitiveType(Renderer::PrimitiveType::E_PT_TRIANGLE_LIST);
 
             mVAO->endBinding();
-
-            // 构建碰撞体
-            mBound = ObbBound::create();
-            mBound->setCenter(center);
-            mBound->setAxis(Vector3::UNIT_X * mExtent[0],
-                Vector3::UNIT_Y * mExtent[1], Vector3::UNIT_Z * mExtent[2]);
         } while (0);
 
         return ret;
@@ -321,26 +313,6 @@ namespace Tiny3D
         }
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Cube::updateBound()
-    {
-        // 更新碰撞体
-        Transform3DPtr xform = getSceneNode()->getTransform3D();
-        mBound->updateBound(xform->getLocalToWorldTransform());
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Cube::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
-    {
-        if (bound->test(mBound))
-        {
-            // 在视锥体内，放进去渲染队列，准备渲染
-            queue->addRenderable(RenderQueue::E_GRPID_WIREFRAME, this);
-        }
     }
 
     //--------------------------------------------------------------------------

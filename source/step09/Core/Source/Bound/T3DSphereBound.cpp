@@ -20,6 +20,7 @@
 
 #include "Bound/T3DSphereBound.h"
 #include "Component/T3DGlobe.h"
+#include "Scene/T3DSceneNode.h"
 
 
 namespace Tiny3D
@@ -30,7 +31,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SphereBoundPtr SphereBound::create(ID uID /* = E_BID_AUTOMATIC */)
+    SphereBoundPtr SphereBound::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         SphereBoundPtr bound = new SphereBound(uID);
         bound->release();
@@ -39,7 +40,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SphereBound::SphereBound(ID uID /* = E_BID_AUTOMATIC */)
+    SphereBound::SphereBound(ID uID /* = E_CID_AUTOMATIC */)
         : Bound(uID)
         , mRenderable(nullptr)
     {
@@ -62,23 +63,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    BoundPtr SphereBound::clone() const
+    ComponentPtr SphereBound::clone() const
     {
         SphereBoundPtr bound = SphereBound::create();
-        cloneProperties(bound);
+        TResult ret = cloneProperties(bound);
+
+        if (ret != T3D_OK)
+        {
+            bound = nullptr;
+        }
+
         return bound;
     }
 
     //--------------------------------------------------------------------------
 
-    void SphereBound::cloneProperties(BoundPtr bound) const
+    TResult SphereBound::cloneProperties(ComponentPtr newObj) const
     {
-        Bound::cloneProperties(bound);
+        TResult ret = Bound::cloneProperties(newObj);
 
-        SphereBoundPtr sphereBound = smart_pointer_cast<SphereBound>(bound);
-        sphereBound->mOriginalSphere = mOriginalSphere;
-        sphereBound->mRenderable 
-            = smart_pointer_cast<Globe>(mRenderable->clone());
+        if (ret == T3D_OK)
+        {
+            SphereBoundPtr sphereBound = smart_pointer_cast<SphereBound>(newObj);
+            sphereBound->mOriginalSphere = mOriginalSphere;
+            sphereBound->mSphere = mSphere;
+            sphereBound->mRenderable
+                = smart_pointer_cast<Globe>(mRenderable->clone());
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -133,21 +146,29 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SphereBound::updateBound(const Transform &xform)
+    void SphereBound::update()
     {
-        // 更新变换后用于碰撞检测的球体
-        const Matrix4 &M = xform.getAffineMatrix();
-        Vector3 center = M * mOriginalSphere.getCenter();
+        if (mIsDirty)
+        {
+            Transform3D *transform = getSceneNode()->getTransform3D();
+            const Transform &xform = transform->getLocalToWorldTransform();
 
-        const Vector3 &S = xform.getScaling();
-        Real factor = std::max(std::max(S.x(), S.y()), S.z());
-        Real radius = factor * mOriginalSphere.getRadius();
+            // 更新变换后用于碰撞检测的球体
+            const Matrix4 &M = xform.getAffineMatrix();
+            Vector3 center = M * mOriginalSphere.getCenter();
 
-        mSphere.setCenter(center);
-        mSphere.setRadius(radius);
+            const Vector3 &S = xform.getScaling();
+            Real factor = std::max(std::max(S.x(), S.y()), S.z());
+            Real radius = factor * mOriginalSphere.getRadius();
 
-        // 原始球体，只更新球心位置，不更新半径大小
-        center = M * mOriginalSphere.getCenter();
-        mOriginalSphere.setCenter(center);
+            mSphere.setCenter(center);
+            mSphere.setRadius(radius);
+
+            // 原始球体，只更新球心位置，不更新半径大小
+            center = M * mOriginalSphere.getCenter();
+            mOriginalSphere.setCenter(center);
+
+            mIsDirty = false;
+        }
     }
 }

@@ -31,7 +31,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Camera, Component);
+    T3D_IMPLEMENT_CLASS_2(Camera, Component, ITransformListener);
 
     //--------------------------------------------------------------------------
 

@@ -62,21 +62,6 @@ namespace Tiny3D
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const = 0;
 
-        /**
-         * @fn  virtual void Renderable::frustumCulling(BoundPtr bound, 
-         *      RenderQueuePtr queue) = 0;
-         * @brief   Frustum culling
-         * @param   bound   The bound.
-         * @param   queue   The queue.
-         */
-        virtual void frustumCulling(BoundPtr bound, RenderQueuePtr queue) = 0;
-
-        /**
-         * @fn  virtual void Renderable::updateBound() = 0;
-         * @brief   Updates the bound
-         */
-        virtual void updateBound() = 0;
-
     protected:
         /**
          * @fn  Renderable::Renderable(ID uID = E_CID_AUTOMATIC);
@@ -93,18 +78,6 @@ namespace Tiny3D
          * @return  A TResult.
          */
         virtual TResult cloneProperties(ComponentPtr newObj) const;
-
-        /**
-         * @fn  virtual void 
-         *      Renderable::onAttachSceneNode(SceneNode *node) override;
-         * @brief   Executes the attach scene node action
-         * @param [in,out]  node    If non-null, the node.
-         */
-        virtual void onAttachSceneNode(SceneNode *node) override;
-
-    private:
-        Renderable  *mPrev;      /**< 前一个可渲染对象 */
-        Renderable  *mNext;      /**< 下一个可渲染对象 */
     };
 }
 

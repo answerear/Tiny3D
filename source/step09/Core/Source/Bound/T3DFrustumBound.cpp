@@ -30,7 +30,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    FrustumBoundPtr FrustumBound::create(ID uID /* = E_BID_AUTOMATIC */)
+    FrustumBoundPtr FrustumBound::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         FrustumBoundPtr bound = new FrustumBound(uID);
         bound->release();
@@ -39,7 +39,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    FrustumBound::FrustumBound(ID uID /* = E_BID_AUTOMATIC */)
+    FrustumBound::FrustumBound(ID uID /* = E_CID_AUTOMATIC */)
         : Bound(uID)
     {
 
@@ -61,23 +61,34 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    BoundPtr FrustumBound::clone() const
+    ComponentPtr FrustumBound::clone() const
     {
         FrustumBoundPtr bound = FrustumBound::create();
-        cloneProperties(bound);
+        TResult ret = cloneProperties(bound);
+
+        if (ret != T3D_OK)
+        {
+            bound = nullptr;
+        }
+
         return bound;
     }
 
     //--------------------------------------------------------------------------
 
-    void FrustumBound::cloneProperties(BoundPtr bound) const
+    TResult FrustumBound::cloneProperties(ComponentPtr bound) const
     {
-        Bound::cloneProperties(bound);
+        TResult ret = Bound::cloneProperties(bound);
 
-        FrustumBoundPtr newBound = smart_pointer_cast<FrustumBound>(bound);
-        newBound->mFrustum = mFrustum;
-        newBound->mOriginalFrustum = mOriginalFrustum;
-        newBound->mRenderable = smart_pointer_cast<Cube>(mRenderable->clone());
+        if (ret == T3D_OK)
+        {
+            FrustumBoundPtr newBound = smart_pointer_cast<FrustumBound>(bound);
+            newBound->mFrustum = mFrustum;
+            newBound->mOriginalFrustum = mOriginalFrustum;
+            newBound->mRenderable = smart_pointer_cast<Cube>(mRenderable->clone());
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -143,7 +154,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void FrustumBound::updateBound(const Transform &xform)
+    void FrustumBound::update()
     {
         // 这里就不做变换了，引擎直接通过相机重建frustum
     }

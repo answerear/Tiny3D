@@ -110,6 +110,8 @@ namespace Tiny3D
             PropertyAbstractNode *prop, DataStream &stream);
         size_t translateLODIndex(
             PropertyAbstractNode *prop, DataStream &stream);
+        size_t translateRenderQueue(
+            PropertyAbstractNode *prop, DataStream &stream);
         size_t translateShadowCasterMaterial(
             PropertyAbstractNode *prop, DataStream &stream);
         size_t translateShadowReceiveMaterial(

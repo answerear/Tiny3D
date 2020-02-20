@@ -105,25 +105,6 @@ namespace Tiny3D
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         /**
-         * @fn  virtual void Cube::updateBound() override;
-         * @brief   重写基类接口，实现结点的自身变换
-         * @sa  void SceneNode::updateTransform()
-         */
-        virtual void updateBound() override;
-
-        /**
-         * @fn  virtual void Cube::frustumCulling(BoundPtr bound, 
-         *      RenderQueuePtr queue) override;
-         * @brief   重写基类接口，实现结点的视锥体裁剪逻辑
-         * @param   bound   The bound.
-         * @param   queue   The queue.
-         * @sa  void SceneNode::frustumCulling(BoundPtr bound, 
-         *      RenderQueuePtr queue)
-         */
-        virtual void frustumCulling(BoundPtr bound,
-            RenderQueuePtr queue) override;
-
-        /**
          * @fn  virtual MaterialPtr Cube::getMaterial() const override;
          * @brief   重写基类接口，获取渲染材质对象
          * @return  The material.
@@ -157,7 +138,6 @@ namespace Tiny3D
         Vector3                 mCenter;        /**< 长方体的中心 */
         Vector3                 mExtent;        /**< 沿3个轴方向上的长度 */
         VertexArrayObjectPtr    mVAO;           /**< 渲染用的VAO */
-        ObbBoundPtr             mBound;         /**< 有向碰撞体 */
         MaterialPtr             mMaterial;      /**< 材质 */
     };
 }

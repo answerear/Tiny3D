@@ -44,7 +44,7 @@ namespace Tiny3D
          * @param [in]  uID     (Optional) : 碰撞体ID.
          * @return  返回一个Frustum碰撞体对象.
          */
-        static FrustumBoundPtr create(ID uID = E_BID_AUTOMATIC);
+        static FrustumBoundPtr create(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @fn  virtual FrustumBound::~FrustumBound();
@@ -66,7 +66,7 @@ namespace Tiny3D
          * @return  A copy of this object.
          * @sa  BoundPtr Bound::clone() const
          */
-        virtual BoundPtr clone() const override;
+        virtual ComponentPtr clone() const override;
 
         /**
          * @fn  const Frustum FrustumBound::&getFrustum() const
@@ -112,7 +112,7 @@ namespace Tiny3D
          * @param   xform   The transform.
          * @sa  void Bound::updateBound(const Transform &amp;xform)
          */
-        virtual void updateBound(const Transform &xform) override;
+        virtual void update() override;
 
     protected:
         /**
@@ -122,7 +122,7 @@ namespace Tiny3D
          * @param [in]  node    : 碰撞体所在的结点对象.
          * @param [in]  uID     (Optional) : 碰撞体ID.
          */
-        FrustumBound(ID uID = E_BID_AUTOMATIC);
+        FrustumBound(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @fn  virtual bool FrustumBound::testSphere(
@@ -171,12 +171,12 @@ namespace Tiny3D
          * @param   bound   The bound.
          * @sa  void Bound::cloneProperties(BoundPtr bound) const
          */
-        virtual void cloneProperties(BoundPtr bound) const override;
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
     protected:
         Frustum     mFrustum;           /**< 可变换的视锥体对象 */
         Frustum     mOriginalFrustum;   /**< 不参与变换的原始视锥体 */
-        CubePtr mRenderable;        /**< 用于渲染碰撞体的可渲染对象 */
+        CubePtr     mRenderable;        /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 

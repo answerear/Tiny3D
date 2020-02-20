@@ -104,7 +104,7 @@ namespace Tiny3D
          * @param [in]  renderable  : 可渲染对象.
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult addRenderable(Renderable *renderable) override;
+        virtual TResult addSceneNode(SceneNode *node) override;
 
         /**
          * @fn  TResult removeRenderable(RenderablePtr renderable);
@@ -112,7 +112,7 @@ namespace Tiny3D
          * @param [in]  renderable  : 可渲染对象.
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult removeRenderable(Renderable *renderable) override;
+        virtual TResult removeSceneNode(SceneNode *node) override;
 
     protected:
         /**
@@ -142,18 +142,18 @@ namespace Tiny3D
                 , last(nullptr)
             {}
 
-            size_t              count;  /**< Number of  */
-            RenderablePtr  first;  /**< The first */
-            RenderablePtr  last;   /**< The last */
+            size_t          count;  /**< Number of  */
+            SceneNodePtr    first;  /**< The first */
+            SceneNodePtr    last;   /**< The last */
         };
 
-        typedef TArray<Slot>                Renderables;
-        typedef Renderables::iterator       RenderablesItr;
-        typedef Renderables::const_iterator RenderablesConstItr;
+        typedef TArray<Slot>                SceneNodes;
+        typedef SceneNodes::iterator        RenderablesItr;
+        typedef SceneNodes::const_iterator  RenderablesConstItr;
 
         SceneNodePtr    mRoot;          /**< 根结点 */
         RenderQueuePtr  mRenderQueue;   /**< 渲染队列 */
-        Renderables     mRenderables;   /**< 可渲染对象列表，用于做视锥体剔除 */
+        SceneNodes      mSceneNodes;    /**< 可渲染结点列表，用于做视锥体剔除 */
     };
 }
 

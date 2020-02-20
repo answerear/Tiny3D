@@ -31,7 +31,7 @@ namespace Tiny3D
      * @class   SphereBound
      * @brief   球体碰撞体
      */
-    class SphereBound : public Bound
+    class T3D_ENGINE_API SphereBound : public Bound
     {
         T3D_DECLARE_CLASS();
 
@@ -44,7 +44,7 @@ namespace Tiny3D
          * @param [in]  uID     (Optional) : 碰撞体ID.
          * @return  返回一个新的球体碰撞体对象.
          */
-        static SphereBoundPtr create(ID uID = E_BID_AUTOMATIC);
+        static SphereBoundPtr create(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @fn  virtual SphereBound::~SphereBound();
@@ -65,7 +65,7 @@ namespace Tiny3D
          * @brief   实现基类接口
          * @return  A copy of this object.
          */
-        virtual BoundPtr clone() const override;
+        virtual ComponentPtr clone() const override;
 
         /**
          * @fn  void SphereBound::setParams(const Vector3 &center, Real radius);
@@ -74,6 +74,8 @@ namespace Tiny3D
          * @param [in]  radius  : 球半径.
          */
         void setParams(const Vector3 &center, Real radius);
+
+        const Sphere &getSphere() const { return mSphere; }
 
         /**
          * @fn  virtual RenderablePtr SphereBound::getRenderable() override;
@@ -90,7 +92,7 @@ namespace Tiny3D
          * @param   xform   The transform.
          * @sa  void Bound::updateBound(const Transform &amp;xform)
          */
-        virtual void updateBound(const Transform &xform) override;
+        virtual void update() override;
 
     protected:
         /**
@@ -100,7 +102,7 @@ namespace Tiny3D
          * @param [in]  node    : 碰撞体所在的结点对象.
          * @param [in]  uID     (Optional) : 碰撞体ID.
          */
-        SphereBound(ID uID = E_BID_AUTOMATIC);
+        SphereBound(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @fn  virtual bool SphereBound::testSphere(
@@ -148,11 +150,12 @@ namespace Tiny3D
          * @param   bound   The bound.
          * @sa  void Bound::cloneProperties(BoundPtr bound) const
          */
-        virtual void cloneProperties(BoundPtr bound) const override;
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
     private:
-        Sphere          mOriginalSphere;/**< 原始球体 */
-        GlobePtr  mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
+        Sphere    mOriginalSphere;  /**< 原始球体 */
+        Sphere    mSphere;          /**< 用于快速检测相交性的球体 */
+        GlobePtr  mRenderable;      /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 

@@ -137,7 +137,7 @@ namespace Tiny3D
          * @return 成功返回 T3D_OK
          * @see enum GroupID
          */
-        TResult addRenderable(GroupID groupID, RenderablePtr renderable);
+        TResult addRenderable(uint32_t groupID, RenderablePtr renderable);
 
         /**
          * @brief 清空渲染队列
@@ -158,10 +158,10 @@ namespace Tiny3D
         RenderQueue();
 
     protected:
-        typedef TMap<GroupID, RenderGroupPtr>   RenderableGroup;
-        typedef RenderableGroup::iterator           RenderableGroupItr;
-        typedef RenderableGroup::const_iterator     RenderableGroupConstItr;
-        typedef TPair<GroupID, RenderGroupPtr>  RenderableGroupValue;
+        typedef TMap<uint32_t, RenderGroupPtr>  RenderableGroup;
+        typedef RenderableGroup::iterator       RenderableGroupItr;
+        typedef RenderableGroup::const_iterator RenderableGroupConstItr;
+        typedef TPair<uint32_t, RenderGroupPtr> RenderableGroupValue;
 
         RenderableGroup     mGroups;        /**< 渲染分组 */
     };

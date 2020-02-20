@@ -234,6 +234,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ScriptParserTechnique::parseRenderQueue(
+        DataStream &stream, Technique *tech, uint32_t version)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            size_t bytesOfRead = 0;
+            uint32_t queue = 0;
+            bytesOfRead = stream.read(&queue, sizeof(queue));
+            T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(queue),
+                "Invalid render queue of property of technique !");
+
+            tech->setRenderQueue(queue);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ScriptParserTechnique::parseShadowCasterMaterial(
         DataStream &stream, Technique *tech, uint32_t version)
     {

@@ -1533,6 +1533,8 @@ namespace Tiny3D
         mIds["gpu_cbuffer"] = ID_GPU_CBUFFER;
         mIds["gpu_cbuffer_ref"] = ID_GPU_CBUFFER_REF;
         mIds["slot"] = ID_CBUFFER_SLOT;
+
+        mIds["render_queue"] = ID_RENDER_QUEUE;
     }
 
     void ScriptCompiler::getFileName(const String &filepath, String &path, String &name) const

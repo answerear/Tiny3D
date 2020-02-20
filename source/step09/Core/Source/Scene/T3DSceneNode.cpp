@@ -23,10 +23,13 @@
 #include "Component/T3DCube.h"
 #include "Component/T3DGlobe.h"
 #include "Kernel/T3DAgent.h"
+#include "Kernel/T3DTechnique.h"
 #include "Component/T3DComponent.h"
 #include "Component/T3DComponentCreator.h"
 #include "Component/T3DRenderable.h"
 #include "Scene/T3DSceneManager.h"
+#include "Render/T3DRenderQueue.h"
+
 
 
 namespace Tiny3D
@@ -34,11 +37,14 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     #define COMPONENT_ORDER_ID_INVALID      0x00000000L
-    #define COMPONENT_ORDER_ID_SCRIPT       0x00000001L
+    #define COMPONENT_ORDER_ID_SCRIPT_0     0x00000001L
+
     #define COMPONENT_ORDER_ID_TRANSFORM    0x00000100L
     #define COMPONENT_ORDER_ID_CAMERA       (COMPONENT_ORDER_ID_TRANSFORM+1)
-    #define COMPONENT_ORDER_ID_RENDERABLE   (COMPONENT_ORDER_ID_CAMERA+1)
     #define COMPONENT_ORDER_ID_COLLIDER     (COMPONENT_ORDER_ID_RENDERABLE+1)
+    #define COMPONENT_ORDER_ID_RENDERABLE   (COMPONENT_ORDER_ID_CAMERA+1)
+
+    #define COMPONENT_ORDER_ID_SCRIPT_1     0x00000200L
 
     //--------------------------------------------------------------------------
 
@@ -62,7 +68,10 @@ namespace Tiny3D
         , mIsDirty(true)
         , mCameraMask(0)
         , mTransform3D(nullptr)
+        , mCollider(nullptr)
         , mRenderable(nullptr)
+        , mPrev(nullptr)
+        , mNext(nullptr)
     {
 
     }
@@ -108,24 +117,33 @@ namespace Tiny3D
             newNode->mIsEnabled = mIsEnabled;
             newNode->mIsVisible = mIsVisible;
 
-            //             ComponentPtr component;
-            //             if (mTransform3D != nullptr)
-            //             {
-            //                 component = newNode->addTransform();
-            //             }
-            // 
-            //             if (mRenderable != nullptr)
-            //             {
-            //                 component = newNode->addRenderable(mRenderable->getClass()->getName());
-            //             }
-            // 
-            //             auto itr = mComponents.begin();
-            // 
-            //             while (itr != mComponents.end())
-            //             {
-            //                 if (itr->second != mTransform3D && itr->second != mRenderable)
-            //                     component = itr->second->clone();
-            //             }
+            ComponentPtr component;
+            auto itr = mComponentQueue.begin();
+            while (itr != mComponentQueue.end())
+            {
+                component = itr->second->clone();
+
+                if (component != nullptr)
+                {
+                    newNode->mComponentQueue.insert(ComponentQueueValue(itr->first, component));
+                    newNode->mComponents.insert(ComponentsValue(component->getClass(), component));
+
+                    if (COMPONENT_ORDER_ID_TRANSFORM == itr->first)
+                    {
+                        newNode->mTransform3D = smart_pointer_cast<Transform3D>(component);
+                    }
+                    else if (COMPONENT_ORDER_ID_COLLIDER == itr->first)
+                    {
+                        newNode->mCollider = smart_pointer_cast<Bound>(component);
+                    }
+                    else if (COMPONENT_ORDER_ID_RENDERABLE == itr->first)
+                    {
+                        newNode->mRenderable = smart_pointer_cast<Renderable>(component);
+                    }
+
+                    component->onAttachSceneNode(newNode);
+                }
+            }
         }
 
         return ret;
@@ -149,9 +167,18 @@ namespace Tiny3D
 
     void SceneNode::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
     {
-        if (mRenderable != nullptr)
+        Technique *tech = mRenderable->getMaterial()->getBestTechnique();
+
+        if (mCollider != nullptr)
         {
-            mRenderable->frustumCulling(bound, queue);
+            if (mCollider->test(bound))
+            {
+                queue->addRenderable(tech->getRenderQueue(), mRenderable);
+            }
+        }
+        else
+        {
+            queue->addRenderable(tech->getRenderQueue(), mRenderable);
         }
     }
 
@@ -205,16 +232,16 @@ namespace Tiny3D
 
             if (getParent() != nullptr && mRenderable != nullptr)
             {
-                T3D_SCENE_MGR.addRenderable(mRenderable);
+                T3D_SCENE_MGR.addSceneNode(this);
             }
         }
         else if (mCameraMask != mask)
         {
             if (getParent() != nullptr && mRenderable != nullptr)
             {
-                T3D_SCENE_MGR.removeRenderable(mRenderable);
+                T3D_SCENE_MGR.removeSceneNode(this);
                 mCameraMask = mask;
-                T3D_SCENE_MGR.addRenderable(mRenderable);
+                T3D_SCENE_MGR.addSceneNode(this);
             }
             else
             {
@@ -266,6 +293,10 @@ namespace Tiny3D
         else if (cls->isKindOf(T3D_CLASS(Camera)))
         {
             orderID = COMPONENT_ORDER_ID_CAMERA;
+        }
+        else if (cls->isKindOf(T3D_CLASS(Bound)))
+        {
+            orderID = COMPONENT_ORDER_ID_COLLIDER;
         }
         else if (cls->isKindOf(T3D_CLASS(Renderable)))
         {
@@ -325,7 +356,7 @@ namespace Tiny3D
             }
 
             // 缓存组件
-            auto ret = mComponents.insert(ComponentsValue(cls->getName(), component));
+            auto ret = mComponents.insert(ComponentsValue(cls, component));
             if (!ret.second)
             {
                 component = nullptr;
@@ -338,9 +369,21 @@ namespace Tiny3D
             {
                 mTransform3D = smart_pointer_cast<Transform3D>(component);
             }
+            else if (COMPONENT_ORDER_ID_COLLIDER == order)
+            {
+                mCollider = smart_pointer_cast<Bound>(component);
+            }
             else if (COMPONENT_ORDER_ID_RENDERABLE == order)
             {
                 mRenderable = smart_pointer_cast<Renderable>(component);
+
+                if (mCameraMask != 0)
+                {
+                    if (getParent() != nullptr && mRenderable != nullptr)
+                    {
+                        T3D_SCENE_MGR.addSceneNode(this);
+                    }
+                }
             }
         } while (0);
 
@@ -357,7 +400,7 @@ namespace Tiny3D
     ComponentPtr SceneNode::getComponent(const Class *cls) const
     {
         ComponentPtr component;
-        auto itr = mComponents.find(cls->getName());
+        auto itr = mComponents.find(cls);
 
         if (itr != mComponents.end())
         {
@@ -371,7 +414,7 @@ namespace Tiny3D
 
     void SceneNode::removeComponent(const Class *cls)
     {
-        auto itr = mComponents.find(cls->getName());
+        auto itr = mComponents.find(cls);
 
         if (itr != mComponents.end())
         {
@@ -379,7 +422,7 @@ namespace Tiny3D
 
             if (component == mRenderable)
             {
-                T3D_SCENE_MGR.removeRenderable(mRenderable);
+                T3D_SCENE_MGR.removeSceneNode(this);
                 mRenderable = nullptr;
             }
             else if (component == mTransform3D)
@@ -402,7 +445,7 @@ namespace Tiny3D
         {
             if (itr->second == mRenderable)
             {
-                T3D_SCENE_MGR.removeRenderable(mRenderable);
+                T3D_SCENE_MGR.removeSceneNode(this);
             }
 
             itr->second->onDetachSceneNode(this);

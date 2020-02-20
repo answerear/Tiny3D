@@ -26,6 +26,11 @@
 #include "Component/T3DCamera.h"
 #include "Component/T3DCube.h"
 #include "Component/T3DGlobe.h"
+#include "Bound/T3DAabbBound.h"
+#include "Bound/T3DFrustumBound.h"
+#include "Bound/T3DObbBound.h"
+#include "Bound/T3DSphereBound.h"
+
 
 namespace Tiny3D
 {
@@ -78,6 +83,22 @@ namespace Tiny3D
             else if (cls == T3D_CLASS(Camera))
             {
                 component = Camera::create();
+            }
+            else if (cls == T3D_CLASS(AabbBound))
+            {
+                component = AabbBound::create();
+            }
+            else if (cls == T3D_CLASS(FrustumBound))
+            {
+                component = FrustumBound::create();
+            }
+            else if (cls == T3D_CLASS(ObbBound))
+            {
+                component = ObbBound::create();
+            }
+            else if (cls == T3D_CLASS(SphereBound))
+            {
+                component = SphereBound::create();
             }
             else if (cls == T3D_CLASS(Cube))
             {

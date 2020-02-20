@@ -28,6 +28,7 @@
 #include "Kernel/T3DPass.h"
 #include "Kernel/T3DTextureUnit.h"
 #include "Resource/T3DGPUProgram.h"
+#include "Scene/T3DSceneNode.h"
 
 
 namespace Tiny3D
@@ -250,7 +251,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult RenderQueue::addRenderable(GroupID groupID, 
+    TResult RenderQueue::addRenderable(uint32_t groupID, 
         RenderablePtr renderable)
     {
         RenderableGroupItr itr = mGroups.find(groupID);

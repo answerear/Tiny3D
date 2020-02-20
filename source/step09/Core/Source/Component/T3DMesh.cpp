@@ -93,18 +93,4 @@ namespace Tiny3D
     {
         return nullptr;
     }
-
-    //--------------------------------------------------------------------------
-
-    void Mesh::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Mesh::updateBound()
-    {
-
-    }
 }

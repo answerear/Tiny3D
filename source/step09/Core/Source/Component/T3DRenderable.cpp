@@ -32,8 +32,6 @@ namespace Tiny3D
 
     Renderable::Renderable(ID uID /* = E_CID_AUTOMATIC */)
         : Component(uID)
-        , mPrev(nullptr)
-        , mNext(nullptr)
     {
 
     }
@@ -57,14 +55,5 @@ namespace Tiny3D
         }
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Renderable::onAttachSceneNode(SceneNode *node)
-    {
-        Component::onAttachSceneNode(node);
-
-        updateBound();
     }
 }

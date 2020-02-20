@@ -22,13 +22,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline ID Bound::getID() const
-    {
-        return mID;
-    }
-
-    //--------------------------------------------------------------------------
-
     inline void Bound::setGroupID(ID groupID)
     {
         mGroupID = groupID;
@@ -39,13 +32,6 @@ namespace Tiny3D
     inline ID Bound::getGroupID() const
     {
         return mGroupID;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline const Sphere &Bound::getSphere() const
-    {
-        return mSphere;
     }
 
     //--------------------------------------------------------------------------

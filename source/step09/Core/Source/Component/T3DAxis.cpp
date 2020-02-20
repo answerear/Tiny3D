@@ -25,7 +25,6 @@
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Render/T3DHardwareIndexBuffer.h"
 #include "Render/T3DVertexArrayObject.h"
-#include "Bound/T3DSphereBound.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUProgramManager.h"
 
@@ -73,7 +72,7 @@ namespace Tiny3D
     Axis::Axis(ID uID /* = E_NID_AUTOMATIC */)
         : Renderable(uID)
         , mVAO(nullptr)
-        , mBound(nullptr)
+//         , mBound(nullptr)
     {
 
     }
@@ -165,12 +164,12 @@ namespace Tiny3D
             mVAO->endBinding();
 
             // 构建碰撞球，以三个轴最短边作为半径
-            Real radius = REAL_INF;
-            radius = Math::min(radius, X);
-            radius = Math::min(radius, Y);
-            radius = Math::min(radius, Z);
-            mBound = SphereBound::create();
-            mBound->setParams(Vector3::ZERO, radius);
+//             Real radius = REAL_INF;
+//             radius = Math::min(radius, X);
+//             radius = Math::min(radius, Y);
+//             radius = Math::min(radius, Z);
+//             mBound = SphereBound::create();
+//             mBound->setParams(Vector3::ZERO, radius);
         } while (0);
 
         return ret;
@@ -230,26 +229,6 @@ namespace Tiny3D
         }
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Axis::updateBound()
-    {
-        // 更新碰撞体
-        Transform3DPtr xform = getSceneNode()->getTransform3D();
-        mBound->updateBound(xform->getLocalToWorldTransform());
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Axis::frustumCulling(BoundPtr bound, RenderQueuePtr queue)
-    {
-        if (bound->test(mBound))
-        {
-            // 在视锥体内，放进去渲染队列，准备渲染
-            queue->addRenderable(RenderQueue::E_GRPID_INDICATOR, this);
-        }
     }
 
     //--------------------------------------------------------------------------

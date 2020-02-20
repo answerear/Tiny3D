@@ -48,6 +48,7 @@ namespace Tiny3D
         , mName(name)
         , mLodIndex(0)
         , mSchemeIndex(0)
+        , mRenderQueue(0)
         , mIsSupported(false)
     {
 

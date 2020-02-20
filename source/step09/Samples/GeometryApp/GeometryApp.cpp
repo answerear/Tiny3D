@@ -68,6 +68,10 @@ bool GeometryApp::applicationDidFinishLaunching()
     CubePtr cube = smart_pointer_cast<Cube>(node->addComponent(T3D_CLASS(Cube), Vector3::ZERO, extent));
     node->getTransform3D()->setPosition(Vector3(-4.0f, 0.0f, -2.0f));
     node->setCameraMask(OBJ_MASK_SCENE);
+    ObbBoundPtr b0 = smart_pointer_cast<ObbBound>(node->addComponent(T3D_CLASS(ObbBound)));
+    b0->setCenter(Vector3::ZERO);
+    b0->setAxis(Vector3::UNIT_X * extent[0],
+        Vector3::UNIT_Y * extent[1], Vector3::UNIT_Z * extent[2]);
 //     box->setScaling(Vector3(100, 100, 100));
 
     // Çò
@@ -76,7 +80,8 @@ bool GeometryApp::applicationDidFinishLaunching()
     GlobePtr sphere = smart_pointer_cast<Globe>(node->addComponent(T3D_CLASS(Globe), Vector3::ZERO, &radius));
     node->getTransform3D()->setPosition(Vector3(2.0f, 0.0f, 0.0f));
     node->setCameraMask(OBJ_MASK_SCENE);
-
+    SphereBoundPtr b1 = smart_pointer_cast<SphereBound>(node->addComponent(T3D_CLASS(SphereBound)));
+    b1->setParams(Vector3::ZERO, radius);
     // ¿Õ¼äËÄ±ßÐÎ
     
 

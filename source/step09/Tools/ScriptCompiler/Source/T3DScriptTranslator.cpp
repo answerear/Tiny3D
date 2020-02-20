@@ -770,6 +770,12 @@ namespace Tiny3D
                         totalBytes += bytesOfWritten;
                     }
                     break;
+                case ID_RENDER_QUEUE:
+                    {
+                        bytesOfWritten = translateRenderQueue(prop, stream);
+                        totalBytes += bytesOfWritten;
+                    }
+                    break;
                 case ID_SHADOW_CASTER_MATERIAL:
                     {
                         bytesOfWritten = translateShadowCasterMaterial(prop, stream);
@@ -888,6 +894,39 @@ namespace Tiny3D
             {
                 ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
                     "lod_index cannot accept argument \"" + (*i0)->getValue() + "\"");
+            }
+        }
+
+        return totalBytes;
+    }
+
+    size_t TechniqueTranslator::translateRenderQueue(PropertyAbstractNode *prop, DataStream &stream)
+    {
+        size_t bytesOfWritten = 0;
+        size_t totalBytes = 0;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+                "render_queue only supports 1 argument");
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            uint32_t v = 0;
+            if (getUInt(*i0, &v))
+            {
+                bytesOfWritten = stream.write(&v, sizeof(v));
+                totalBytes += bytesOfWritten;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                    "render_queue cannot accept argument \"" + (*i0)->getValue() + "\"");
             }
         }
 

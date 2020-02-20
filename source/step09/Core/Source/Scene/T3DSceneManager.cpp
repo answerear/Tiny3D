@@ -108,11 +108,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneManager::addRenderable(Renderable *renderable)
+    TResult SceneManager::addSceneNode(SceneNode *node)
     {
         if (mImpl != nullptr)
         {
-            return mImpl->addRenderable(renderable);
+            return mImpl->addSceneNode(node);
         }
 
         return T3D_ERR_SYS_NOT_INIT;
@@ -120,11 +120,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneManager::removeRenderable(Renderable *renderable)
+    TResult SceneManager::removeSceneNode(SceneNode *node)
     {
         if (mImpl != nullptr)
         {
-            return mImpl->removeRenderable(renderable);
+            return mImpl->removeSceneNode(node);
         }
 
         return T3D_ERR_SYS_NOT_INIT;

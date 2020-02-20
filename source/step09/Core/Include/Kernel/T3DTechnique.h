@@ -71,6 +71,10 @@ namespace Tiny3D
          */
         const String &getName() const;
 
+        uint32_t getRenderQueue() const;
+
+        void setRenderQueue(uint32_t queue);
+
         /**
          * @fn  Material Technique::*getMaterial() const;
          * @brief   獲取擁有該 Technique 對象的材質對象
@@ -154,6 +158,7 @@ namespace Tiny3D
 
         uint16_t    mSchemeIndex;   /**< Zero-based index of the scheme */
 
+        uint32_t    mRenderQueue;   /**< index of render queue */
         bool        mIsSupported;   /**< GPU 是否支持本 Technique */
     };
 }

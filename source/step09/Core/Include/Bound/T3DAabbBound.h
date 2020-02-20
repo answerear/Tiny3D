@@ -44,7 +44,7 @@ namespace Tiny3D
          * @param [in]  uID     (Optional) : 碰撞体ID.
          * @return  返回一个AABB碰撞体对象.
          */
-        static AabbBoundPtr create(ID uID = E_BID_AUTOMATIC);
+        static AabbBoundPtr create(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @fn  virtual AabbBound::~AabbBound();
@@ -66,7 +66,7 @@ namespace Tiny3D
          * @return  A copy of this object.
          * @sa  BoundPtr Bound::clone() const
          */
-        virtual BoundPtr clone() const override;
+        virtual ComponentPtr clone() const override;
 
         /**
          * @fn  const Aabb AabbBound::&getAlignAxisBox() const
@@ -100,14 +100,7 @@ namespace Tiny3D
          */
         virtual RenderablePtr getRenderable() override;
 
-        /**
-         * @fn  virtual void AabbBound::updateBound(
-         *      const Transform &xform) override;
-         * @brief   实现基类接口
-         * @param   xform   The transform.
-         * @sa  void Bound::updateBound(const Transform &amp;xform)
-         */
-        virtual void updateBound(const Transform &xform) override;
+        virtual void update() override;
 
     protected:
         /**
@@ -116,7 +109,7 @@ namespace Tiny3D
          * @param [in]  node    : 碰撞体所在的结点对象.
          * @param [in]  uID     (Optional) : 碰撞体ID.
          */
-        AabbBound(ID uID = E_BID_AUTOMATIC);
+        AabbBound(ID uID = E_CID_AUTOMATIC);
 
         /**
          * @fn  virtual bool AabbBound::testSphere(
@@ -162,12 +155,12 @@ namespace Tiny3D
          * @param   bound   The bound.
          * @sa  void Bound::cloneProperties(BoundPtr bound) const
          */
-        virtual void cloneProperties(BoundPtr bound) const override;
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
     protected:
         Aabb        mAabb;          /**< 实时变换的AABB */
         Aabb        mOriginalAabb;  /**< 不参与变换的原始AABB */
-        CubePtr mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
+        CubePtr     mRenderable;    /**< 用于渲染碰撞体的可渲染对象 */
     };
 }
 
