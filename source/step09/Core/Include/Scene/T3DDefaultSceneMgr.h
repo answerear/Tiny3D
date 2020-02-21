@@ -114,6 +114,12 @@ namespace Tiny3D
          */
         virtual TResult removeSceneNode(SceneNode *node) override;
 
+        virtual void setComponentOrder(const Class *cls, uint32_t order) override;
+
+        virtual uint32_t getComponentOrder(const Class *cls) const override;
+
+        virtual const OrderMap &getComponentOrders() const override;
+
     protected:
         /**
          * @fn  DefaultSceneMgr();
@@ -154,6 +160,7 @@ namespace Tiny3D
         SceneNodePtr    mRoot;          /**< 根结点 */
         RenderQueuePtr  mRenderQueue;   /**< 渲染队列 */
         SceneNodes      mSceneNodes;    /**< 可渲染结点列表，用于做视锥体剔除 */
+        OrderMap        mOrders;        /**< */
     };
 }
 

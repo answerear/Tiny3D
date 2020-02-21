@@ -129,4 +129,39 @@ namespace Tiny3D
 
         return T3D_ERR_SYS_NOT_INIT;
     }
+
+    //--------------------------------------------------------------------------
+
+    void SceneManager::setComponentOrder(const Class *cls, uint32_t order)
+    {
+        if (mImpl != nullptr)
+        {
+            mImpl->setComponentOrder(cls, order);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint32_t SceneManager::getComponentOrder(const Class *cls) const
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->getComponentOrder(cls);
+        }
+
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const SceneManager::OrderMap &SceneManager::getComponentOrders() const
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->getComponentOrders();
+        }
+
+        static OrderMap sOrders;
+        return sOrders;
+    }
 }

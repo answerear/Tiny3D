@@ -30,6 +30,15 @@ namespace Tiny3D
 {
     const String BLANKSTRING;
 
+    enum ComponentOrder : uint32_t
+    {
+        INVALID = 0,
+        TRANSFORM = 0x00000100L,
+        CAMERA = TRANSFORM + 1,
+        COLLIDER = CAMERA + 1,
+        RENDERABLE = COLLIDER + 1,
+    };
+
     /**
      * @enum    PixelFormat
      * @brief   Values that represent pixel formats

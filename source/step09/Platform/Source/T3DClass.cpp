@@ -25,6 +25,15 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    Class::Classes Class::msClasses;
+
+    const Class *Class::getClass(const String &name)
+    {
+        return msClasses[name];
+    }
+
+    //--------------------------------------------------------------------------
+
     Class::Class(const char *name, size_t baseCount /* = 0 */, 
         const Class *base1 /* = nullptr */, const Class *base2 /* = nullptr */, 
         const Class *base3 /* = nullptr */, const Class *base4 /* = nullptr */, 
@@ -41,6 +50,8 @@ namespace Tiny3D
         mBaseClasses[5] = base6;
         mBaseClasses[6] = base7;
         mBaseClasses[7] = base8;
+
+        msClasses.insert(ClassesValue(name, this));
     }
 
     //--------------------------------------------------------------------------

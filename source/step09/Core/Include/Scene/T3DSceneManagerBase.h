@@ -38,6 +38,12 @@ namespace Tiny3D
         T3D_DECLARE_CLASS();
 
     public:
+        typedef TMap<const Class *, uint32_t>   OrderMap;
+        typedef OrderMap::iterator              OrderMapItr;
+        typedef OrderMap::const_iterator        OrderMapConstItr;
+        typedef OrderMap::value_type            OrderMapValue;
+
+
         /**
          * @fn  virtual SceneManagerBase::~SceneManagerBase();
          * @brief   析构函数
@@ -99,6 +105,12 @@ namespace Tiny3D
          * @return  调用成功返回 T3D_OK.
          */
         virtual TResult removeSceneNode(SceneNode *node) = 0;
+
+        virtual void setComponentOrder(const Class *cls, uint32_t order) = 0;
+
+        virtual uint32_t getComponentOrder(const Class *cls) const = 0;
+
+        virtual const OrderMap &getComponentOrders() const = 0;
 
     protected:
         /**

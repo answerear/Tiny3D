@@ -23,6 +23,7 @@
 #include "Component/T3DCube.h"
 #include "Component/T3DGlobe.h"
 #include "Kernel/T3DAgent.h"
+#include "Kernel/T3DCommon.h"
 #include "Kernel/T3DTechnique.h"
 #include "Component/T3DComponent.h"
 #include "Component/T3DComponentCreator.h"
@@ -34,18 +35,6 @@
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    #define COMPONENT_ORDER_ID_INVALID      0x00000000L
-    #define COMPONENT_ORDER_ID_SCRIPT_0     0x00000001L
-
-    #define COMPONENT_ORDER_ID_TRANSFORM    0x00000100L
-    #define COMPONENT_ORDER_ID_CAMERA       (COMPONENT_ORDER_ID_TRANSFORM+1)
-    #define COMPONENT_ORDER_ID_COLLIDER     (COMPONENT_ORDER_ID_RENDERABLE+1)
-    #define COMPONENT_ORDER_ID_RENDERABLE   (COMPONENT_ORDER_ID_CAMERA+1)
-
-    #define COMPONENT_ORDER_ID_SCRIPT_1     0x00000200L
-
     //--------------------------------------------------------------------------
 
     T3D_IMPLEMENT_CLASS_1(SceneNode, Node);
@@ -128,21 +117,26 @@ namespace Tiny3D
                     newNode->mComponentQueue.insert(ComponentQueueValue(itr->first, component));
                     newNode->mComponents.insert(ComponentsValue(component->getClass(), component));
 
-                    if (COMPONENT_ORDER_ID_TRANSFORM == itr->first)
+                    if (ComponentOrder::TRANSFORM == itr->first)
                     {
                         newNode->mTransform3D = smart_pointer_cast<Transform3D>(component);
                     }
-                    else if (COMPONENT_ORDER_ID_COLLIDER == itr->first)
+                    else if (ComponentOrder::COLLIDER == itr->first)
                     {
                         newNode->mCollider = smart_pointer_cast<Bound>(component);
                     }
-                    else if (COMPONENT_ORDER_ID_RENDERABLE == itr->first)
+                    else if (ComponentOrder::RENDERABLE == itr->first)
                     {
                         newNode->mRenderable = smart_pointer_cast<Renderable>(component);
                     }
 
                     component->onAttachSceneNode(newNode);
                 }
+            }
+
+            if (mCameraMask != 0)
+            {
+                newNode->setCameraMask(mCameraMask);
             }
         }
 
@@ -284,26 +278,26 @@ namespace Tiny3D
 
     uint32_t SceneNode::getComponentOrder(const Class *cls) const
     {
-        uint32_t orderID = 0;
+        uint32_t order = 0;
 
         if (cls->isKindOf(T3D_CLASS(Transform3D)))
         {
-            orderID = COMPONENT_ORDER_ID_TRANSFORM;
+            order = T3D_SCENE_MGR.getComponentOrder(T3D_CLASS(Transform3D));
         }
         else if (cls->isKindOf(T3D_CLASS(Camera)))
         {
-            orderID = COMPONENT_ORDER_ID_CAMERA;
+            order = T3D_SCENE_MGR.getComponentOrder(T3D_CLASS(Camera));
         }
         else if (cls->isKindOf(T3D_CLASS(Bound)))
         {
-            orderID = COMPONENT_ORDER_ID_COLLIDER;
+            order = T3D_SCENE_MGR.getComponentOrder(T3D_CLASS(Bound));
         }
         else if (cls->isKindOf(T3D_CLASS(Renderable)))
         {
-            orderID = COMPONENT_ORDER_ID_RENDERABLE;
+            order = T3D_SCENE_MGR.getComponentOrder(T3D_CLASS(Renderable));
         }
 
-        return orderID;
+        return order;
     }
 
     //--------------------------------------------------------------------------
@@ -317,7 +311,7 @@ namespace Tiny3D
             // 获取组件执行顺序
             uint32_t order = getComponentOrder(cls);
 
-            if (COMPONENT_ORDER_ID_INVALID == order)
+            if (ComponentOrder::INVALID == order)
             {
                 T3D_LOG_ERROR(LOG_TAG_COMPONENT, "Invalid component order !");
                 break;
@@ -365,15 +359,15 @@ namespace Tiny3D
             }
 
             // 记录下几个特殊组件，方便后续快速访问，不用每次查字典
-            if (COMPONENT_ORDER_ID_TRANSFORM == order)
+            if (ComponentOrder::TRANSFORM == order)
             {
                 mTransform3D = smart_pointer_cast<Transform3D>(component);
             }
-            else if (COMPONENT_ORDER_ID_COLLIDER == order)
+            else if (ComponentOrder::COLLIDER == order)
             {
                 mCollider = smart_pointer_cast<Bound>(component);
             }
-            else if (COMPONENT_ORDER_ID_RENDERABLE == order)
+            else if (ComponentOrder::RENDERABLE == order)
             {
                 mRenderable = smart_pointer_cast<Renderable>(component);
 

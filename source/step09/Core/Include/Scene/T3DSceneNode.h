@@ -214,7 +214,7 @@ namespace Tiny3D
          */
         virtual TResult cloneProperties(NodePtr node) const override;
 
-        virtual uint32_t getComponentOrder(const Class *cls) const;
+        uint32_t getComponentOrder(const Class *cls) const;
 
     private:
         typedef TMap<uint32_t, Component*>      ComponentQueue;

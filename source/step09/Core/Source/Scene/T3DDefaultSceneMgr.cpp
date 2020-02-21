@@ -80,8 +80,12 @@ namespace Tiny3D
 
     DefaultSceneMgr::~DefaultSceneMgr()
     {
-        mRoot->removeAllChildren();
-        mRoot = nullptr;
+        if (mRoot != nullptr)
+        {
+            mRoot->removeAllChildren();
+            mRoot = nullptr;
+        }
+
         mRenderQueue = nullptr;
     }
 
@@ -91,12 +95,13 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        // 设置组件更新顺序
+        setComponentOrder(T3D_CLASS(Transform3D), ComponentOrder::TRANSFORM);
+        setComponentOrder(T3D_CLASS(Camera), ComponentOrder::CAMERA);
+        setComponentOrder(T3D_CLASS(Bound), ComponentOrder::COLLIDER);
+        setComponentOrder(T3D_CLASS(Renderable), ComponentOrder::RENDERABLE);
+
         mRenderQueue = RenderQueue::create();
-
-        mRoot = SceneNode::create();
-        mRoot->setName("Root");
-
-        mRoot->addComponent(T3D_CLASS(Transform3D));
 
         // 预分配32个槽给存放要剔除的可渲染对象
         mSceneNodes.resize(32, Slot());
@@ -202,6 +207,19 @@ namespace Tiny3D
     SceneNodePtr DefaultSceneMgr::createSceneNode(SceneNodePtr parent, 
         ID uID /* = Node::E_NID_AUTOMATIC */)
     {
+        if (mRoot == nullptr)
+        {
+            // 创建根节点
+            mRoot = SceneNode::create();
+            mRoot->setName("Root");
+            mRoot->addComponent(T3D_CLASS(Transform3D));
+        }
+
+        if (parent == nullptr)
+        {
+            parent = mRoot;
+        }
+
         SceneNodePtr node = SceneNode::create(uID);
 
         if (node != nullptr)
@@ -294,6 +312,35 @@ namespace Tiny3D
         } while (0);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void DefaultSceneMgr::setComponentOrder(const Class *cls, uint32_t order)
+    {
+        mOrders.insert(OrderMapValue(cls, order));
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint32_t DefaultSceneMgr::getComponentOrder(const Class *cls) const
+    {
+        uint32_t order = ComponentOrder::INVALID;
+
+        auto itr = mOrders.find(cls);
+        if (itr != mOrders.end())
+        {
+            order = itr->second;
+        }
+
+        return order;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const DefaultSceneMgr::OrderMap &DefaultSceneMgr::getComponentOrders() const
+    {
+        return mOrders;
     }
 }
 

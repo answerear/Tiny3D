@@ -109,6 +109,12 @@ namespace Tiny3D
          */
         virtual TResult removeSceneNode(SceneNode *node) override;
 
+        virtual void setComponentOrder(const Class *cls, uint32_t order) override;
+
+        virtual uint32_t getComponentOrder(const Class *cls) const override;
+
+        virtual const OrderMap &getComponentOrders() const override;
+
     protected:
         /**
          * @fn  SceneManager(SceneManagerBase *impl);

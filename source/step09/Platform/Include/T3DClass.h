@@ -39,6 +39,8 @@ namespace Tiny3D
     public:
         static const size_t MAX_BASE_CLASS_COUNT = 8;
 
+        static const Class *getClass(const String &name);
+
         Class(const char *name, size_t baseCount = 0, 
             const Class *base1 = nullptr, const Class *base2 = nullptr, 
             const Class *base3 = nullptr, const Class *base4 = nullptr, 
@@ -93,6 +95,13 @@ namespace Tiny3D
         const char *mName;
         const Class *mBaseClasses[MAX_BASE_CLASS_COUNT];
         const size_t mBaseClassesCount;
+
+        typedef TMap<String, const Class *> Classes;
+        typedef Classes::iterator           ClassesItr;
+        typedef Classes::const_iterator     ClassesConstItr;
+        typedef Classes::value_type         ClassesValue;
+
+        static Classes  msClasses;
     };
 
 

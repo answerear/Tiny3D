@@ -23,6 +23,7 @@
 #include "Kernel/T3DAgent.h"
 #include "Kernel/T3DPlugin.h"
 #include "Kernel/T3DConfigFile.h"
+#include "Kernel/T3DCommon.h"
 #include "Parser/T3DScriptParser.h"
 
 #include "ImageCodec/T3DImageCodec.h"
@@ -51,7 +52,12 @@
 #include "Scene/T3DSceneManager.h"
 #include "Scene/T3DDefaultSceneMgr.h"
 
+#include "Component/T3DTransform3D.h"
 #include "Component/T3DComponentCreator.h"
+#include "Component/T3DCamera.h"
+#include "Bound/T3DBound.h"
+#include "Component/T3DRenderable.h"
+
 
 namespace Tiny3D
 {
