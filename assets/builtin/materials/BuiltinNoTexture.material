@@ -3,6 +3,8 @@ material Builtin/NoTexture
 {
     technique 0
     {
+        render_queue 2000
+
         pass 0
         {
             polygon_mode wireframe

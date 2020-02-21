@@ -165,6 +165,9 @@ namespace Tiny3D
             case E_OP_LOD_INDEX:
                 ret = parseLODIndex(stream, tech, version);
                 break;
+            case E_OP_RENDER_QUEUE:
+                ret = parseRenderQueue(stream, tech, version);
+                break;
             case E_OP_SHADOW_CASTER_MATERIAL:
                 ret = parseShadowCasterMaterial(stream, tech, version);
                 break;

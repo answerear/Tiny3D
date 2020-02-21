@@ -361,6 +361,8 @@ namespace Tiny3D
             E_OP_GPU_CBUFFER_REF,
             E_OP_CBUFFER_SLOT,
 
+            E_OP_RENDER_QUEUE,
+
             E_OP_END_BUILTIN_IDS
         };
 
