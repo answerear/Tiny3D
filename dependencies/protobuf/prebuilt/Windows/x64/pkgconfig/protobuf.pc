@@ -1,0 +1,11 @@
+prefix=C:/Users/aa/workspace/reference/code/protobuf-cpp-3.11.4/install
+exec_prefix=C:/Users/aa/workspace/reference/code/protobuf-cpp-3.11.4/install
+libdir=C:/Users/aa/workspace/reference/code/protobuf-cpp-3.11.4/install/lib
+includedir=C:/Users/aa/workspace/reference/code/protobuf-cpp-3.11.4/install/include
+
+Name: Protocol Buffers
+Description: Google's Data Interchange Format
+Version: 3.11.4.0
+Libs: -L${libdir} -lprotobuf 
+Cflags: -I${includedir} 
+Conflicts: protobuf-lite
