@@ -98,6 +98,18 @@ namespace Tiny3D
     class GPUConstBufferManager;
     class Sampler;
     class SamplerManager;
+    class Model;
+    class ModelManager;
+
+    class NodeData;
+    class KeyFrameData;
+    class KeyFrameDataT;
+    class KeyFrameDataR;
+    class KeyFrameDataS;
+    class ActionData;
+    class SubMeshData;
+    class VertexData;
+    class MeshData;
 
     class HardwareBuffer;
     class HardwareIndexBuffer;

@@ -62,6 +62,8 @@
 #include <Resource/T3DMaterialManager.h>
 #include <Resource/T3DSampler.h>
 #include <Resource/T3DSamplerManager.h>
+#include <Resource/T3DModel.h>
+#include <Resource/T3DModelManager.h>
 
 
 // ImageCodec

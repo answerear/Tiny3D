@@ -49,6 +49,18 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(GPUConstBufferManager);
     T3D_DECLARE_SMART_PTR(Sampler);
     T3D_DECLARE_SMART_PTR(SamplerManager);
+    T3D_DECLARE_SMART_PTR(Model);
+    T3D_DECLARE_SMART_PTR(ModelManager);
+
+    T3D_DECLARE_SMART_PTR(NodeData);
+    T3D_DECLARE_SMART_PTR(KeyFrameData);
+    T3D_DECLARE_SMART_PTR(KeyFrameDataT);
+    T3D_DECLARE_SMART_PTR(KeyFrameDataR);
+    T3D_DECLARE_SMART_PTR(KeyFrameDataS);
+    T3D_DECLARE_SMART_PTR(ActionData);
+    T3D_DECLARE_SMART_PTR(SubMeshData);
+    T3D_DECLARE_SMART_PTR(VertexData);
+    T3D_DECLARE_SMART_PTR(MeshData);
 
     T3D_DECLARE_SMART_PTR(ScriptParser);
     T3D_DECLARE_SMART_PTR(ScriptParserMaterial);
