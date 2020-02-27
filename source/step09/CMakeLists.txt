@@ -41,11 +41,12 @@ if (WIN32)
     set(TINY3D_OS "Windows" CACHE STRING "OS")
 
     set(SDL2LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")
+    set(PROTOBUF_SUFFIXES "prebuilt/Windows/${MSVC_CXX_ARCHITECTURE_ID}")
 
-	set(CMAKE_SYSTEM_VERSION 10.0.17763)
-	set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION 10.0.17763.0)
+    set(CMAKE_SYSTEM_VERSION 10.0.17763)
+    set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION 10.0.17763.0)
 
-	add_compile_options(/wd4996)
+    add_compile_options(/wd4996)
 #    set(CMAKE_CXX_FLAGS "-std=c++11")
 elseif (ANDROID)
     # Android
@@ -59,7 +60,8 @@ elseif (ANDROID)
     set(TINY3D_OS "Android" CACHE STRING "OS")
 
     set(SDL2LIB_SUFFIXES "prebuilt/Android/${ANDROID_ABI}")
-    
+    set(PROTOBUF_SUFFIXES "prebuilt/Android/${ANDROID_ABI}")
+
     set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
     set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
     set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
@@ -77,6 +79,7 @@ elseif (APPLE AND IOS)
     set(CMAKE_OSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
 
     set(SDL2LIB_SUFFIXES "prebuilt/iOS")
+    set(PROTOBUF_SUFFIXES "prebuilt/iOS")
 
     set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-undefined-var-template")
 elseif (APPLE AND NOT IOS)
@@ -92,6 +95,7 @@ elseif (APPLE AND NOT IOS)
 
     set(CMAKE_MACOSX_RPATH true)
     set(SDL2LIB_SUFFIXES "prebuilt/OSX")
+    set(PROTOBUF_SUFFIXES "prebuilt/OSX")
 
     set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-undefined-var-template")
 elseif (UNIX AND NOT APPLE)
@@ -106,6 +110,7 @@ elseif (UNIX AND NOT APPLE)
     set(TINY3D_OS "Linux" CACHE STRING "OS")
 
     set(SDL2LIB_SUFFIXES "prebuilt/Linux")
+    set(PROTOBUF_SUFFIXES "prebuilt/Linux")
 
     set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wno-undefined-var-template")
 endif (WIN32)
@@ -130,9 +135,9 @@ if (NOT TINY3D_OS_ANDROID)
 endif (NOT TINY3D_OS_ANDROID)
 
 if (TINY3D_OS_DESKTOP)
-	option(TINY3D_BUILD_TOOLS "Build tools" TRUE)
+    option(TINY3D_BUILD_TOOLS "Build tools" TRUE)
 else (TINY3D_OS_DESKTOP)
-	option(TINY3D_BUILD_TOOLS "Build tools" FALSE)
+    option(TINY3D_BUILD_TOOLS "Build tools" FALSE)
 endif (TINY3D_OS_DESKTOP)
 
 # Set all relative directory
@@ -178,9 +183,17 @@ add_definitions(-DT3D_ERR_PLUGINS=0x00010000)
 include(FindPkgMacros)
 include(ProjectCMakeModule)
 
-# Find SDL2 library for all projects.
+# Search SDL2 library for all projects.
 set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/SDL2" CACHE PATH "SDL2 library path")
 find_package(SDL2)
+
+# Search protobuf library for all projects.
+set(PROTOBUF_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/protobuf" CACHE PATH "protobuf library path")
+find_package(protobuf)
+
+# Search rapidjson library for all projects.
+set(RAPIDJASON_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/rapidjson" CACHE PATH "rapidjson library path")
+find_package(rapidjson)
 
 # Project Platform
 add_subdirectory(Platform)
@@ -224,7 +237,7 @@ add_dependencies(T3DFramework T3DLog T3DPlatform)
 add_dependencies(T3DCore T3DMath T3DFramework T3DUtils T3DLog T3DPlatform)
 
 if (TINY3D_BUILD_TOOLS)
-	add_subdirectory(Tools)
+    add_subdirectory(Tools)
 endif(TINY3D_BUILD_TOOLS)
 
 if (TINY3D_BUILD_SAMPLES)
@@ -234,7 +247,7 @@ if (TINY3D_BUILD_SAMPLES)
     add_dependencies(PlatformApp ZipArchive FileSystemArchive FreeImageCodec T3DCore)
     add_dependencies(FrameworkApp ZipArchive FileSystemArchive FreeImageCodec T3DCore)
     add_dependencies(GeometryApp ZipArchive FileSystemArchive FreeImageCodec T3DCore)
-	add_dependencies(TextureApp ZipArchive FileSystemArchive FreeImageCodec T3DCore)
+    add_dependencies(TextureApp ZipArchive FileSystemArchive FreeImageCodec T3DCore)
     if (TINY3D_OS_DESKTOP)
         add_dependencies(TransformationApp T3DMath T3DLog T3DPlatform)
         add_dependencies(IntersectionApp T3DMath T3DLog T3DPlatform)

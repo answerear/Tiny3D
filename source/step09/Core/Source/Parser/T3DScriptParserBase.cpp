@@ -250,7 +250,7 @@ namespace Tiny3D
             bf = BlendFactor::SOURCE_COLOR;
             break;
         case E_OP_ONE_MINUS_DEST_COLOUR:
-            bf = BlendFactor::DEST_COLOR;
+            bf = BlendFactor::ONE_MINUS_DEST_COLOR;
             break;
         case E_OP_ONE_MINUS_SRC_COLOUR:
             bf = BlendFactor::ONE_MINUS_SOURCE_COLOR;
