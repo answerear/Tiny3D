@@ -24,6 +24,7 @@
 #include "T3DScriptPrerequisites.h"
 #include "T3DScriptType.h"
 #include "T3DScriptASTree.h"
+#include "protobuf/MaterialScriptObject.pb.h"
 
 
 namespace Tiny3D
@@ -43,9 +44,17 @@ namespace Tiny3D
         virtual size_t translate(ScriptCompiler *compiler, DataStream &stream, 
             const AbstractNodePtr &node) = 0;
 
+//         virtual bool translate(ScriptCompiler *compiler, 
+//             Script::MaterialSystem::Header *object,
+//             const AbstractNodePtr &node) = 0;
+
     protected:
         size_t processNode(ScriptCompiler *compiler, DataStream &stream, 
             const AbstractNodePtr &node);
+
+//         bool processNode(ScriptCompiler *compiler, 
+//             Script::MaterialSystem::Header *object,
+//             const AbstractNodePtr &node);
 
         size_t translateObjectHeader(
             ObjectAbstractNode *obj, DataStream &stream);

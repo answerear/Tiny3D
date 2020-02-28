@@ -192,7 +192,7 @@ set(PROTOBUF_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/protobuf" CACH
 find_package(protobuf)
 
 # Search rapidjson library for all projects.
-set(RAPIDJASON_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/rapidjson" CACHE PATH "rapidjson library path")
+set(RAPIDJSON_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/rapidjson" CACHE PATH "rapidjson library path")
 find_package(rapidjson)
 
 # Project Platform

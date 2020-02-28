@@ -1,6 +1,6 @@
 syntax = "proto3";
+option optimize_for = LITE_RUNTIME;
 
-import "google/protobuf/any.proto";
 
 package Tiny3D.Script.MaterialSystem;
 
@@ -11,9 +11,7 @@ package Tiny3D.Script.MaterialSystem;
 message Header
 {
     uint32  ID = 1;             // ID. (Required)
-    uint32  numOfChildren = 2;  // Number of children in this object. (Required)
     string  name = 3;           // The name of this object. (Required)
-    bytes   uuid = 4;           // UUID of this object, the length is 16 bytes. (Required)
 }
 
 /**
@@ -65,9 +63,9 @@ message ParamIndexed
 
 message ParamIndexedAuto
 {
-    uint32              index = 1;
-    uint32              value_code = 2;
-    google.protobuf.Any extra_params = 3;
+    uint32  index = 1;
+    uint32  value_code = 2;
+    bytes   extra_params = 3;
 }
 
 message ParamNamed
@@ -80,9 +78,9 @@ message ParamNamed
 
 message ParamNamedAuto
 {
-    string              name = 1;
-    uint32              value_code = 2;
-    google.protobuf.Any extra_params = 3;
+    string  name = 1;
+    uint32  value_code = 2;
+    bytes   extra_params = 3;
 }
 
 message GPUConstantBuffer

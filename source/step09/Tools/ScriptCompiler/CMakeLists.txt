@@ -33,6 +33,7 @@ include_directories(
     "${TINY3D_UTILS_INC_DIR}"
     "${TINY3D_MATH_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
+    "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SHADERCONDUCTOR_INCLUDE_DIR}"
     "${PROTOBUF_INCLUDE_DIR}"
     )
@@ -51,6 +52,10 @@ if (TINY3D_OS_WINDOWS)
     # Setup executable project for Windows.
     set(DXCOMPILER_BINARY "${CMAKE_CURRENT_SOURCE_DIR}/../../../../dependencies/ShaderConductor/${SHADERCONDUCTOR_LIB_SUFFIXES}/dxcompiler.dll")
 
+    # target_compile_options(${LIB_NAME} PRIVATE "/wd4251")
+
+    add_compile_options("/wd4251")
+    
     add_executable(
         ${BIN_NAME} WIN32
         ${SOURCE_FILES}
@@ -63,7 +68,7 @@ if (TINY3D_OS_WINDOWS)
         T3DUtils
         T3DMath
         ${SHADERCONDUCTOR_LIBRARY}
-        ${PROTOBUF_LIBRARY}
+        ${PROTOBUF_LITE_LIBRARY}
         )
 
     # Setup project folder
@@ -76,8 +81,8 @@ if (TINY3D_OS_WINDOWS)
         COMMAND ${CMAKE_COMMAND} -E copy ${SHADERCONDUCTOR_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
         COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
         COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-        COMMAND ${CMAKE_COMMAND} -E copy ${PROTOBUF_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-        COMMAND ${CMAKE_COMMAND} -E copy ${PROTOBUF_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
+        COMMAND ${CMAKE_COMMAND} -E copy ${PROTOBUF_LITE_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
+        COMMAND ${CMAKE_COMMAND} -E copy ${PROTOBUF_LITE_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
         )
 
     # Setup install files and path for Windows.
