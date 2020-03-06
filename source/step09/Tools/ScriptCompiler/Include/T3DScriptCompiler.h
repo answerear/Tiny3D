@@ -29,9 +29,9 @@ namespace Tiny3D
 {
     class ScriptLexer;
     class ScriptParser;
-    class ScriptTranslator;
-    class SamplerTranslator;
-    class GPUProgramTranslator;
+    class ScriptTranslatorNew;
+//     class SamplerTranslator;
+//     class GPUProgramTranslator;
 
     class ScriptCompiler
     {
@@ -126,7 +126,7 @@ namespace Tiny3D
         /**
          * @brief 获取对应结点翻译器
          */
-        ScriptTranslator *getTranslator(const AbstractNodePtr &node) const;
+        ScriptTranslatorNew *getTranslator(const AbstractNodePtr &node) const;
 
     protected:
         /**
@@ -233,12 +233,12 @@ namespace Tiny3D
         ImportRequestMap        mImportRequests;
         AbstractNodeList        mImportTable;
 
-        ScriptTranslator        *mMaterialTranslator;
-        ScriptTranslator        *mTechniqueTranslator;
-        ScriptTranslator        *mPassTranslator;
-        ScriptTranslator        *mTexUnitTranslator;
-        SamplerTranslator       *mSamplerTranslator;
-        GPUProgramTranslator    *mGPUTransltor;
+        ScriptTranslatorNew     *mMaterialTranslator;
+        ScriptTranslatorNew     *mTechniqueTranslator;
+        ScriptTranslatorNew     *mPassTranslator;
+        ScriptTranslatorNew     *mTexUnitTranslator;
+        ScriptTranslatorNew     *mSamplerTranslator;
+        ScriptTranslatorNew     *mGPUTransltor;
 
         ScriptLexer             *mLexer;
         ScriptParser            *mParser;

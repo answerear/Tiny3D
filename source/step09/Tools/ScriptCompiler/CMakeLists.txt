@@ -61,15 +61,27 @@ if (TINY3D_OS_WINDOWS)
         ${SOURCE_FILES}
         )
 
-    target_link_libraries(
-        ${LIB_NAME}
-        T3DPlatform
-        T3DLog
-        T3DUtils
-        T3DMath
-        ${SHADERCONDUCTOR_LIBRARY}
-        ${PROTOBUF_LITE_LIBRARY}
-        )
+    if (CMAKE_BUILD_TYPE MATCHES "Debug")
+        target_link_libraries(
+            ${LIB_NAME}
+            T3DPlatform
+            T3DLog
+            T3DUtils
+            T3DMath
+            ${SHADERCONDUCTOR_LIBRARY}
+            ${PROTOBUF_LITE_LIBRARY_D}
+            )
+    else ()
+        target_link_libraries(
+            ${LIB_NAME}
+            T3DPlatform
+            T3DLog
+            T3DUtils
+            T3DMath
+            ${SHADERCONDUCTOR_LIBRARY}
+            ${PROTOBUF_LITE_LIBRARY}
+            )
+    endif ()
 
     # Setup project folder
     set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Tools")
@@ -81,7 +93,7 @@ if (TINY3D_OS_WINDOWS)
         COMMAND ${CMAKE_COMMAND} -E copy ${SHADERCONDUCTOR_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
         COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
         COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-        COMMAND ${CMAKE_COMMAND} -E copy ${PROTOBUF_LITE_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
+        COMMAND ${CMAKE_COMMAND} -E copy ${PROTOBUF_LITE_BINARY_D} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
         COMMAND ${CMAKE_COMMAND} -E copy ${PROTOBUF_LITE_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
         )
 

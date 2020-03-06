@@ -46,7 +46,7 @@ struct TableStruct_MaterialScriptObject_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[30]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[44]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -58,6 +58,15 @@ namespace MaterialSystem {
 class AlphaRejection;
 class AlphaRejectionDefaultTypeInternal;
 extern AlphaRejectionDefaultTypeInternal _AlphaRejection_default_instance_;
+class AnimTexture;
+class AnimTextureDefaultTypeInternal;
+extern AnimTextureDefaultTypeInternal _AnimTexture_default_instance_;
+class AnimTextureComplex;
+class AnimTextureComplexDefaultTypeInternal;
+extern AnimTextureComplexDefaultTypeInternal _AnimTextureComplex_default_instance_;
+class AnimTextureSimple;
+class AnimTextureSimpleDefaultTypeInternal;
+extern AnimTextureSimpleDefaultTypeInternal _AnimTextureSimple_default_instance_;
 class BlendScene;
 class BlendSceneDefaultTypeInternal;
 extern BlendSceneDefaultTypeInternal _BlendScene_default_instance_;
@@ -67,6 +76,15 @@ extern BlendSceneFactorDefaultTypeInternal _BlendSceneFactor_default_instance_;
 class Color;
 class ColorDefaultTypeInternal;
 extern ColorDefaultTypeInternal _Color_default_instance_;
+class CubicTexture;
+class CubicTextureDefaultTypeInternal;
+extern CubicTextureDefaultTypeInternal _CubicTexture_default_instance_;
+class CubicTextureComplex;
+class CubicTextureComplexDefaultTypeInternal;
+extern CubicTextureComplexDefaultTypeInternal _CubicTextureComplex_default_instance_;
+class CubicTextureSimple;
+class CubicTextureSimpleDefaultTypeInternal;
+extern CubicTextureSimpleDefaultTypeInternal _CubicTextureSimple_default_instance_;
 class DepthBias;
 class DepthBiasDefaultTypeInternal;
 extern DepthBiasDefaultTypeInternal _DepthBias_default_instance_;
@@ -106,24 +124,24 @@ extern LightColorDefaultTypeInternal _LightColor_default_instance_;
 class Material;
 class MaterialDefaultTypeInternal;
 extern MaterialDefaultTypeInternal _Material_default_instance_;
-class ParamIndexed;
-class ParamIndexedDefaultTypeInternal;
-extern ParamIndexedDefaultTypeInternal _ParamIndexed_default_instance_;
-class ParamIndexedAuto;
-class ParamIndexedAutoDefaultTypeInternal;
-extern ParamIndexedAutoDefaultTypeInternal _ParamIndexedAuto_default_instance_;
-class ParamNamed;
-class ParamNamedDefaultTypeInternal;
-extern ParamNamedDefaultTypeInternal _ParamNamed_default_instance_;
-class ParamNamedAuto;
-class ParamNamedAutoDefaultTypeInternal;
-extern ParamNamedAutoDefaultTypeInternal _ParamNamedAuto_default_instance_;
+class Matrix4;
+class Matrix4DefaultTypeInternal;
+extern Matrix4DefaultTypeInternal _Matrix4_default_instance_;
+class Param;
+class ParamDefaultTypeInternal;
+extern ParamDefaultTypeInternal _Param_default_instance_;
+class ParamAuto;
+class ParamAutoDefaultTypeInternal;
+extern ParamAutoDefaultTypeInternal _ParamAuto_default_instance_;
 class Pass;
 class PassDefaultTypeInternal;
 extern PassDefaultTypeInternal _Pass_default_instance_;
 class PointSizeAttenuation;
 class PointSizeAttenuationDefaultTypeInternal;
 extern PointSizeAttenuationDefaultTypeInternal _PointSizeAttenuation_default_instance_;
+class Sampler;
+class SamplerDefaultTypeInternal;
+extern SamplerDefaultTypeInternal _Sampler_default_instance_;
 class SeparateBlendScene;
 class SeparateBlendSceneDefaultTypeInternal;
 extern SeparateBlendSceneDefaultTypeInternal _SeparateBlendScene_default_instance_;
@@ -142,17 +160,47 @@ extern SimpleBlendTypeDefaultTypeInternal _SimpleBlendType_default_instance_;
 class Technique;
 class TechniqueDefaultTypeInternal;
 extern TechniqueDefaultTypeInternal _Technique_default_instance_;
+class TexAddressMode;
+class TexAddressModeDefaultTypeInternal;
+extern TexAddressModeDefaultTypeInternal _TexAddressMode_default_instance_;
+class TexAddressModeComplex;
+class TexAddressModeComplexDefaultTypeInternal;
+extern TexAddressModeComplexDefaultTypeInternal _TexAddressModeComplex_default_instance_;
+class TexAddressModeSimple;
+class TexAddressModeSimpleDefaultTypeInternal;
+extern TexAddressModeSimpleDefaultTypeInternal _TexAddressModeSimple_default_instance_;
+class TexFilter;
+class TexFilterDefaultTypeInternal;
+extern TexFilterDefaultTypeInternal _TexFilter_default_instance_;
+class TexFilterComplex;
+class TexFilterComplexDefaultTypeInternal;
+extern TexFilterComplexDefaultTypeInternal _TexFilterComplex_default_instance_;
+class TexFilterSimple;
+class TexFilterSimpleDefaultTypeInternal;
+extern TexFilterSimpleDefaultTypeInternal _TexFilterSimple_default_instance_;
+class Texture;
+class TextureDefaultTypeInternal;
+extern TextureDefaultTypeInternal _Texture_default_instance_;
 class TextureAlias;
 class TextureAliasDefaultTypeInternal;
 extern TextureAliasDefaultTypeInternal _TextureAlias_default_instance_;
+class TextureUnit;
+class TextureUnitDefaultTypeInternal;
+extern TextureUnitDefaultTypeInternal _TextureUnit_default_instance_;
 }  // namespace MaterialSystem
 }  // namespace Script
 }  // namespace Tiny3D
 PROTOBUF_NAMESPACE_OPEN
 template<> ::Tiny3D::Script::MaterialSystem::AlphaRejection* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::AlphaRejection>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::AnimTexture* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::AnimTexture>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::AnimTextureComplex* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::AnimTextureComplex>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::AnimTextureSimple* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::AnimTextureSimple>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::BlendScene* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::BlendScene>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::BlendSceneFactor* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::BlendSceneFactor>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::Color* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Color>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::CubicTexture* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::CubicTexture>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::CubicTextureComplex* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::CubicTextureComplex>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::CubicTextureSimple* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::CubicTextureSimple>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::DepthBias* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::DepthBias>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::Fog* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Fog>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::GPUConstantBuffer>(Arena*);
@@ -166,19 +214,27 @@ template<> ::Tiny3D::Script::MaterialSystem::Iteration* Arena::CreateMaybeMessag
 template<> ::Tiny3D::Script::MaterialSystem::LODValues* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::LODValues>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::LightColor* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::LightColor>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::Material* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Material>(Arena*);
-template<> ::Tiny3D::Script::MaterialSystem::ParamIndexed* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::ParamIndexed>(Arena*);
-template<> ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::ParamIndexedAuto>(Arena*);
-template<> ::Tiny3D::Script::MaterialSystem::ParamNamed* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::ParamNamed>(Arena*);
-template<> ::Tiny3D::Script::MaterialSystem::ParamNamedAuto* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::ParamNamedAuto>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::Matrix4* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Matrix4>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::Param* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Param>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::ParamAuto* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::ParamAuto>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::Pass* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Pass>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::PointSizeAttenuation* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::PointSizeAttenuation>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::Sampler* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Sampler>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::SeparateBlendScene>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::SeparateSceneBlendOperation* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::SeparateSceneBlendOperation>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::Shader* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Shader>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::SimpleBlendSceneFactor* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::SimpleBlendSceneFactor>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::SimpleBlendType* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::SimpleBlendType>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::Technique* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Technique>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::TexAddressMode* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::TexAddressMode>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::TexAddressModeComplex>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::TexAddressModeSimple>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::TexFilter* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::TexFilter>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::TexFilterComplex* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::TexFilterComplex>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::TexFilterSimple* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::TexFilterSimple>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::Texture* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Texture>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::TextureAlias* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::TextureAlias>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::TextureUnit* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::TextureUnit>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Tiny3D {
 namespace Script {
@@ -206,6 +262,145 @@ inline const std::string& BuiltInType_Name(T enum_t_value) {
 }
 bool BuiltInType_Parse(
     const std::string& name, BuiltInType* value);
+enum TextureAddressMode : int {
+  TAM_NONE = 0,
+  TAM_WRAP = 1,
+  TAM_MIRROR = 2,
+  TAM_BORDER = 3,
+  TAM_CLAMP = 4,
+  TextureAddressMode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  TextureAddressMode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool TextureAddressMode_IsValid(int value);
+constexpr TextureAddressMode TextureAddressMode_MIN = TAM_NONE;
+constexpr TextureAddressMode TextureAddressMode_MAX = TAM_CLAMP;
+constexpr int TextureAddressMode_ARRAYSIZE = TextureAddressMode_MAX + 1;
+
+const std::string& TextureAddressMode_Name(TextureAddressMode value);
+template<typename T>
+inline const std::string& TextureAddressMode_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, TextureAddressMode>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function TextureAddressMode_Name.");
+  return TextureAddressMode_Name(static_cast<TextureAddressMode>(enum_t_value));
+}
+bool TextureAddressMode_Parse(
+    const std::string& name, TextureAddressMode* value);
+enum FilterOption : int {
+  FO_NONE = 0,
+  FO_POINT = 1,
+  FO_LINEAR = 2,
+  FO_ANISOTROPIC = 3,
+  FO_BILINEAR = 4,
+  FO_TRILINEAR = 5,
+  FilterOption_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  FilterOption_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool FilterOption_IsValid(int value);
+constexpr FilterOption FilterOption_MIN = FO_NONE;
+constexpr FilterOption FilterOption_MAX = FO_TRILINEAR;
+constexpr int FilterOption_ARRAYSIZE = FilterOption_MAX + 1;
+
+const std::string& FilterOption_Name(FilterOption value);
+template<typename T>
+inline const std::string& FilterOption_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, FilterOption>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function FilterOption_Name.");
+  return FilterOption_Name(static_cast<FilterOption>(enum_t_value));
+}
+bool FilterOption_Parse(
+    const std::string& name, FilterOption* value);
+enum TextureType : int {
+  TEX_1D = 0,
+  TEX_2D = 1,
+  TEX_3D = 2,
+  TEX_CUBIC = 3,
+  TEX_2D_ARRAY = 4,
+  TextureType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  TextureType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool TextureType_IsValid(int value);
+constexpr TextureType TextureType_MIN = TEX_1D;
+constexpr TextureType TextureType_MAX = TEX_2D_ARRAY;
+constexpr int TextureType_ARRAYSIZE = TextureType_MAX + 1;
+
+const std::string& TextureType_Name(TextureType value);
+template<typename T>
+inline const std::string& TextureType_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, TextureType>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function TextureType_Name.");
+  return TextureType_Name(static_cast<TextureType>(enum_t_value));
+}
+bool TextureType_Parse(
+    const std::string& name, TextureType* value);
+enum CubicTextureMode : int {
+  CTM_COMBINED_UVW = 0,
+  CTM_SEPARATE_UV = 1,
+  CubicTextureMode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  CubicTextureMode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool CubicTextureMode_IsValid(int value);
+constexpr CubicTextureMode CubicTextureMode_MIN = CTM_COMBINED_UVW;
+constexpr CubicTextureMode CubicTextureMode_MAX = CTM_SEPARATE_UV;
+constexpr int CubicTextureMode_ARRAYSIZE = CubicTextureMode_MAX + 1;
+
+const std::string& CubicTextureMode_Name(CubicTextureMode value);
+template<typename T>
+inline const std::string& CubicTextureMode_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, CubicTextureMode>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function CubicTextureMode_Name.");
+  return CubicTextureMode_Name(static_cast<CubicTextureMode>(enum_t_value));
+}
+bool CubicTextureMode_Parse(
+    const std::string& name, CubicTextureMode* value);
+enum BindingType : int {
+  BT_VERTEX = 0,
+  BT_FRAGMENT = 1,
+  BindingType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  BindingType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool BindingType_IsValid(int value);
+constexpr BindingType BindingType_MIN = BT_VERTEX;
+constexpr BindingType BindingType_MAX = BT_FRAGMENT;
+constexpr int BindingType_ARRAYSIZE = BindingType_MAX + 1;
+
+const std::string& BindingType_Name(BindingType value);
+template<typename T>
+inline const std::string& BindingType_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, BindingType>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function BindingType_Name.");
+  return BindingType_Name(static_cast<BindingType>(enum_t_value));
+}
+bool BindingType_Parse(
+    const std::string& name, BindingType* value);
+enum EnvMap : int {
+  EM_OFF = 0,
+  EM_SPHERICAL = 1,
+  EM_PLANAR = 2,
+  EM_CUBIC_REFLECTION = 3,
+  EM_CUBIC_NORMAL = 4,
+  EnvMap_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  EnvMap_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool EnvMap_IsValid(int value);
+constexpr EnvMap EnvMap_MIN = EM_OFF;
+constexpr EnvMap EnvMap_MAX = EM_CUBIC_NORMAL;
+constexpr int EnvMap_ARRAYSIZE = EnvMap_MAX + 1;
+
+const std::string& EnvMap_Name(EnvMap value);
+template<typename T>
+inline const std::string& EnvMap_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, EnvMap>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function EnvMap_Name.");
+  return EnvMap_Name(static_cast<EnvMap>(enum_t_value));
+}
+bool EnvMap_Parse(
+    const std::string& name, EnvMap* value);
 enum BlendType : int {
   BT_ADD = 0,
   BT_MODULATE = 1,
@@ -665,6 +860,279 @@ class Header :
 };
 // -------------------------------------------------------------------
 
+class Color :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Color) */ {
+ public:
+  Color();
+  virtual ~Color();
+
+  Color(const Color& from);
+  Color(Color&& from) noexcept
+    : Color() {
+    *this = ::std::move(from);
+  }
+
+  inline Color& operator=(const Color& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Color& operator=(Color&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const Color& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Color* internal_default_instance() {
+    return reinterpret_cast<const Color*>(
+               &_Color_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  friend void swap(Color& a, Color& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Color* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Color* New() const final {
+    return CreateMaybeMessage<Color>(nullptr);
+  }
+
+  Color* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Color>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const Color& from);
+  void MergeFrom(const Color& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Color* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.Color";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kRFieldNumber = 1,
+    kGFieldNumber = 2,
+    kBFieldNumber = 3,
+    kAFieldNumber = 4,
+  };
+  // float r = 1;
+  void clear_r();
+  float r() const;
+  void set_r(float value);
+  private:
+  float _internal_r() const;
+  void _internal_set_r(float value);
+  public:
+
+  // float g = 2;
+  void clear_g();
+  float g() const;
+  void set_g(float value);
+  private:
+  float _internal_g() const;
+  void _internal_set_g(float value);
+  public:
+
+  // float b = 3;
+  void clear_b();
+  float b() const;
+  void set_b(float value);
+  private:
+  float _internal_b() const;
+  void _internal_set_b(float value);
+  public:
+
+  // float a = 4;
+  void clear_a();
+  float a() const;
+  void set_a(float value);
+  private:
+  float _internal_a() const;
+  void _internal_set_a(float value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.Color)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  float r_;
+  float g_;
+  float b_;
+  float a_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class Matrix4 :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Matrix4) */ {
+ public:
+  Matrix4();
+  virtual ~Matrix4();
+
+  Matrix4(const Matrix4& from);
+  Matrix4(Matrix4&& from) noexcept
+    : Matrix4() {
+    *this = ::std::move(from);
+  }
+
+  inline Matrix4& operator=(const Matrix4& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Matrix4& operator=(Matrix4&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const Matrix4& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Matrix4* internal_default_instance() {
+    return reinterpret_cast<const Matrix4*>(
+               &_Matrix4_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(Matrix4& a, Matrix4& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Matrix4* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Matrix4* New() const final {
+    return CreateMaybeMessage<Matrix4>(nullptr);
+  }
+
+  Matrix4* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Matrix4>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const Matrix4& from);
+  void MergeFrom(const Matrix4& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Matrix4* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.Matrix4";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kValuesFieldNumber = 1,
+  };
+  // repeated float values = 1;
+  int values_size() const;
+  private:
+  int _internal_values_size() const;
+  public:
+  void clear_values();
+  private:
+  float _internal_values(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+      _internal_values() const;
+  void _internal_add_values(float value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+      _internal_mutable_values();
+  public:
+  float values(int index) const;
+  void set_values(int index, float value);
+  void add_values(float value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+      values() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+      mutable_values();
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.Matrix4)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > values_;
+  mutable std::atomic<int> _values_cached_byte_size_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
 class Shader :
     public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Shader) */ {
  public:
@@ -698,7 +1166,7 @@ class Shader :
                &_Shader_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    3;
 
   friend void swap(Shader& a, Shader& b) {
     a.Swap(&b);
@@ -889,7 +1357,7 @@ class GPUProgram :
                &_GPUProgram_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    4;
 
   friend void swap(GPUProgram& a, GPUProgram& b) {
     a.Swap(&b);
@@ -1028,7 +1496,7 @@ class GPUConstantBufferRef :
                &_GPUConstantBufferRef_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    5;
 
   friend void swap(GPUConstantBufferRef& a, GPUConstantBufferRef& b) {
     a.Swap(&b);
@@ -1158,7 +1626,7 @@ class GPUProgramRef :
                &_GPUProgramRef_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    6;
 
   friend void swap(GPUProgramRef& a, GPUProgramRef& b) {
     a.Swap(&b);
@@ -1264,23 +1732,23 @@ class GPUProgramRef :
 };
 // -------------------------------------------------------------------
 
-class ParamIndexed :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.ParamIndexed) */ {
+class Param :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Param) */ {
  public:
-  ParamIndexed();
-  virtual ~ParamIndexed();
+  Param();
+  virtual ~Param();
 
-  ParamIndexed(const ParamIndexed& from);
-  ParamIndexed(ParamIndexed&& from) noexcept
-    : ParamIndexed() {
+  Param(const Param& from);
+  Param(Param&& from) noexcept
+    : Param() {
     *this = ::std::move(from);
   }
 
-  inline ParamIndexed& operator=(const ParamIndexed& from) {
+  inline Param& operator=(const Param& from) {
     CopyFrom(from);
     return *this;
   }
-  inline ParamIndexed& operator=(ParamIndexed&& from) noexcept {
+  inline Param& operator=(Param&& from) noexcept {
     if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -1289,339 +1757,37 @@ class ParamIndexed :
     return *this;
   }
 
-  static const ParamIndexed& default_instance();
+  static const Param& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const ParamIndexed* internal_default_instance() {
-    return reinterpret_cast<const ParamIndexed*>(
-               &_ParamIndexed_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    5;
-
-  friend void swap(ParamIndexed& a, ParamIndexed& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(ParamIndexed* other) {
-    if (other == this) return;
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline ParamIndexed* New() const final {
-    return CreateMaybeMessage<ParamIndexed>(nullptr);
-  }
-
-  ParamIndexed* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<ParamIndexed>(arena);
-  }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
-  void CopyFrom(const ParamIndexed& from);
-  void MergeFrom(const ParamIndexed& from);
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  inline void SharedCtor();
-  inline void SharedDtor();
-  void SetCachedSize(int size) const;
-  void InternalSwap(ParamIndexed* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Tiny3D.Script.MaterialSystem.ParamIndexed";
-  }
-  private:
-  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
-    return nullptr;
-  }
-  inline void* MaybeArenaPtr() const {
-    return nullptr;
-  }
-  public:
-
-  std::string GetTypeName() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kValuesFieldNumber = 4,
-    kIndexFieldNumber = 1,
-    kTypeFieldNumber = 2,
-    kNumValuesFieldNumber = 3,
-  };
-  // repeated float values = 4;
-  int values_size() const;
-  private:
-  int _internal_values_size() const;
-  public:
-  void clear_values();
-  private:
-  float _internal_values(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      _internal_values() const;
-  void _internal_add_values(float value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      _internal_mutable_values();
-  public:
-  float values(int index) const;
-  void set_values(int index, float value);
-  void add_values(float value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      values() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      mutable_values();
-
-  // uint32 index = 1;
-  void clear_index();
-  ::PROTOBUF_NAMESPACE_ID::uint32 index() const;
-  void set_index(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_index() const;
-  void _internal_set_index(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // .Tiny3D.Script.MaterialSystem.BuiltInType type = 2;
-  void clear_type();
-  ::Tiny3D::Script::MaterialSystem::BuiltInType type() const;
-  void set_type(::Tiny3D::Script::MaterialSystem::BuiltInType value);
-  private:
-  ::Tiny3D::Script::MaterialSystem::BuiltInType _internal_type() const;
-  void _internal_set_type(::Tiny3D::Script::MaterialSystem::BuiltInType value);
-  public:
-
-  // uint32 num_values = 3;
-  void clear_num_values();
-  ::PROTOBUF_NAMESPACE_ID::uint32 num_values() const;
-  void set_num_values(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_num_values() const;
-  void _internal_set_num_values(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.ParamIndexed)
- private:
-  class _Internal;
-
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > values_;
-  mutable std::atomic<int> _values_cached_byte_size_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 index_;
-  int type_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 num_values_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_MaterialScriptObject_2eproto;
-};
-// -------------------------------------------------------------------
-
-class ParamIndexedAuto :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.ParamIndexedAuto) */ {
- public:
-  ParamIndexedAuto();
-  virtual ~ParamIndexedAuto();
-
-  ParamIndexedAuto(const ParamIndexedAuto& from);
-  ParamIndexedAuto(ParamIndexedAuto&& from) noexcept
-    : ParamIndexedAuto() {
-    *this = ::std::move(from);
-  }
-
-  inline ParamIndexedAuto& operator=(const ParamIndexedAuto& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline ParamIndexedAuto& operator=(ParamIndexedAuto&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ParamIndexedAuto& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const ParamIndexedAuto* internal_default_instance() {
-    return reinterpret_cast<const ParamIndexedAuto*>(
-               &_ParamIndexedAuto_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    6;
-
-  friend void swap(ParamIndexedAuto& a, ParamIndexedAuto& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(ParamIndexedAuto* other) {
-    if (other == this) return;
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline ParamIndexedAuto* New() const final {
-    return CreateMaybeMessage<ParamIndexedAuto>(nullptr);
-  }
-
-  ParamIndexedAuto* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<ParamIndexedAuto>(arena);
-  }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
-  void CopyFrom(const ParamIndexedAuto& from);
-  void MergeFrom(const ParamIndexedAuto& from);
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  inline void SharedCtor();
-  inline void SharedDtor();
-  void SetCachedSize(int size) const;
-  void InternalSwap(ParamIndexedAuto* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Tiny3D.Script.MaterialSystem.ParamIndexedAuto";
-  }
-  private:
-  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
-    return nullptr;
-  }
-  inline void* MaybeArenaPtr() const {
-    return nullptr;
-  }
-  public:
-
-  std::string GetTypeName() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kExtraParamsFieldNumber = 3,
-    kIndexFieldNumber = 1,
-    kValueCodeFieldNumber = 2,
-  };
-  // bytes extra_params = 3;
-  void clear_extra_params();
-  const std::string& extra_params() const;
-  void set_extra_params(const std::string& value);
-  void set_extra_params(std::string&& value);
-  void set_extra_params(const char* value);
-  void set_extra_params(const void* value, size_t size);
-  std::string* mutable_extra_params();
-  std::string* release_extra_params();
-  void set_allocated_extra_params(std::string* extra_params);
-  private:
-  const std::string& _internal_extra_params() const;
-  void _internal_set_extra_params(const std::string& value);
-  std::string* _internal_mutable_extra_params();
-  public:
-
-  // uint32 index = 1;
-  void clear_index();
-  ::PROTOBUF_NAMESPACE_ID::uint32 index() const;
-  void set_index(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_index() const;
-  void _internal_set_index(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 value_code = 2;
-  void clear_value_code();
-  ::PROTOBUF_NAMESPACE_ID::uint32 value_code() const;
-  void set_value_code(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_value_code() const;
-  void _internal_set_value_code(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.ParamIndexedAuto)
- private:
-  class _Internal;
-
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr extra_params_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 index_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 value_code_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_MaterialScriptObject_2eproto;
-};
-// -------------------------------------------------------------------
-
-class ParamNamed :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.ParamNamed) */ {
- public:
-  ParamNamed();
-  virtual ~ParamNamed();
-
-  ParamNamed(const ParamNamed& from);
-  ParamNamed(ParamNamed&& from) noexcept
-    : ParamNamed() {
-    *this = ::std::move(from);
-  }
-
-  inline ParamNamed& operator=(const ParamNamed& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline ParamNamed& operator=(ParamNamed&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ParamNamed& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const ParamNamed* internal_default_instance() {
-    return reinterpret_cast<const ParamNamed*>(
-               &_ParamNamed_default_instance_);
+  static inline const Param* internal_default_instance() {
+    return reinterpret_cast<const Param*>(
+               &_Param_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     7;
 
-  friend void swap(ParamNamed& a, ParamNamed& b) {
+  friend void swap(Param& a, Param& b) {
     a.Swap(&b);
   }
-  inline void Swap(ParamNamed* other) {
+  inline void Swap(Param* other) {
     if (other == this) return;
     InternalSwap(other);
   }
 
   // implements Message ----------------------------------------------
 
-  inline ParamNamed* New() const final {
-    return CreateMaybeMessage<ParamNamed>(nullptr);
+  inline Param* New() const final {
+    return CreateMaybeMessage<Param>(nullptr);
   }
 
-  ParamNamed* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<ParamNamed>(arena);
+  Param* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Param>(arena);
   }
   void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
     final;
-  void CopyFrom(const ParamNamed& from);
-  void MergeFrom(const ParamNamed& from);
+  void CopyFrom(const Param& from);
+  void MergeFrom(const Param& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -1636,10 +1802,10 @@ class ParamNamed :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const;
-  void InternalSwap(ParamNamed* other);
+  void InternalSwap(Param* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Tiny3D.Script.MaterialSystem.ParamNamed";
+    return "Tiny3D.Script.MaterialSystem.Param";
   }
   private:
   inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
@@ -1657,34 +1823,57 @@ class ParamNamed :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kValuesFieldNumber = 4,
-    kNameFieldNumber = 1,
-    kTypeFieldNumber = 2,
-    kNumValuesFieldNumber = 3,
+    kFvaluesFieldNumber = 4,
+    kIvaluesFieldNumber = 5,
+    kNameFieldNumber = 2,
+    kIndexFieldNumber = 1,
+    kTypeFieldNumber = 3,
   };
-  // repeated float values = 4;
-  int values_size() const;
+  // repeated float fvalues = 4;
+  int fvalues_size() const;
   private:
-  int _internal_values_size() const;
+  int _internal_fvalues_size() const;
   public:
-  void clear_values();
+  void clear_fvalues();
   private:
-  float _internal_values(int index) const;
+  float _internal_fvalues(int index) const;
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      _internal_values() const;
-  void _internal_add_values(float value);
+      _internal_fvalues() const;
+  void _internal_add_fvalues(float value);
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      _internal_mutable_values();
+      _internal_mutable_fvalues();
   public:
-  float values(int index) const;
-  void set_values(int index, float value);
-  void add_values(float value);
+  float fvalues(int index) const;
+  void set_fvalues(int index, float value);
+  void add_fvalues(float value);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      values() const;
+      fvalues() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      mutable_values();
+      mutable_fvalues();
 
-  // string name = 1;
+  // repeated sint32 ivalues = 5;
+  int ivalues_size() const;
+  private:
+  int _internal_ivalues_size() const;
+  public:
+  void clear_ivalues();
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_ivalues(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+      _internal_ivalues() const;
+  void _internal_add_ivalues(::PROTOBUF_NAMESPACE_ID::int32 value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+      _internal_mutable_ivalues();
+  public:
+  ::PROTOBUF_NAMESPACE_ID::int32 ivalues(int index) const;
+  void set_ivalues(int index, ::PROTOBUF_NAMESPACE_ID::int32 value);
+  void add_ivalues(::PROTOBUF_NAMESPACE_ID::int32 value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+      ivalues() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+      mutable_ivalues();
+
+  // string name = 2;
   void clear_name();
   const std::string& name() const;
   void set_name(const std::string& value);
@@ -1700,7 +1889,16 @@ class ParamNamed :
   std::string* _internal_mutable_name();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.BuiltInType type = 2;
+  // uint32 index = 1;
+  void clear_index();
+  ::PROTOBUF_NAMESPACE_ID::uint32 index() const;
+  void set_index(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_index() const;
+  void _internal_set_index(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.BuiltInType type = 3;
   void clear_type();
   ::Tiny3D::Script::MaterialSystem::BuiltInType type() const;
   void set_type(::Tiny3D::Script::MaterialSystem::BuiltInType value);
@@ -1709,47 +1907,40 @@ class ParamNamed :
   void _internal_set_type(::Tiny3D::Script::MaterialSystem::BuiltInType value);
   public:
 
-  // uint32 num_values = 3;
-  void clear_num_values();
-  ::PROTOBUF_NAMESPACE_ID::uint32 num_values() const;
-  void set_num_values(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_num_values() const;
-  void _internal_set_num_values(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.ParamNamed)
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.Param)
  private:
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > values_;
-  mutable std::atomic<int> _values_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > fvalues_;
+  mutable std::atomic<int> _fvalues_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 > ivalues_;
+  mutable std::atomic<int> _ivalues_cached_byte_size_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 index_;
   int type_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 num_values_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
 };
 // -------------------------------------------------------------------
 
-class ParamNamedAuto :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.ParamNamedAuto) */ {
+class ParamAuto :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.ParamAuto) */ {
  public:
-  ParamNamedAuto();
-  virtual ~ParamNamedAuto();
+  ParamAuto();
+  virtual ~ParamAuto();
 
-  ParamNamedAuto(const ParamNamedAuto& from);
-  ParamNamedAuto(ParamNamedAuto&& from) noexcept
-    : ParamNamedAuto() {
+  ParamAuto(const ParamAuto& from);
+  ParamAuto(ParamAuto&& from) noexcept
+    : ParamAuto() {
     *this = ::std::move(from);
   }
 
-  inline ParamNamedAuto& operator=(const ParamNamedAuto& from) {
+  inline ParamAuto& operator=(const ParamAuto& from) {
     CopyFrom(from);
     return *this;
   }
-  inline ParamNamedAuto& operator=(ParamNamedAuto&& from) noexcept {
+  inline ParamAuto& operator=(ParamAuto&& from) noexcept {
     if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -1758,37 +1949,37 @@ class ParamNamedAuto :
     return *this;
   }
 
-  static const ParamNamedAuto& default_instance();
+  static const ParamAuto& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const ParamNamedAuto* internal_default_instance() {
-    return reinterpret_cast<const ParamNamedAuto*>(
-               &_ParamNamedAuto_default_instance_);
+  static inline const ParamAuto* internal_default_instance() {
+    return reinterpret_cast<const ParamAuto*>(
+               &_ParamAuto_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     8;
 
-  friend void swap(ParamNamedAuto& a, ParamNamedAuto& b) {
+  friend void swap(ParamAuto& a, ParamAuto& b) {
     a.Swap(&b);
   }
-  inline void Swap(ParamNamedAuto* other) {
+  inline void Swap(ParamAuto* other) {
     if (other == this) return;
     InternalSwap(other);
   }
 
   // implements Message ----------------------------------------------
 
-  inline ParamNamedAuto* New() const final {
-    return CreateMaybeMessage<ParamNamedAuto>(nullptr);
+  inline ParamAuto* New() const final {
+    return CreateMaybeMessage<ParamAuto>(nullptr);
   }
 
-  ParamNamedAuto* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<ParamNamedAuto>(arena);
+  ParamAuto* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<ParamAuto>(arena);
   }
   void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
     final;
-  void CopyFrom(const ParamNamedAuto& from);
-  void MergeFrom(const ParamNamedAuto& from);
+  void CopyFrom(const ParamAuto& from);
+  void MergeFrom(const ParamAuto& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -1803,10 +1994,10 @@ class ParamNamedAuto :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const;
-  void InternalSwap(ParamNamedAuto* other);
+  void InternalSwap(ParamAuto* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Tiny3D.Script.MaterialSystem.ParamNamedAuto";
+    return "Tiny3D.Script.MaterialSystem.ParamAuto";
   }
   private:
   inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
@@ -1824,11 +2015,57 @@ class ParamNamedAuto :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNameFieldNumber = 1,
-    kExtraParamsFieldNumber = 3,
-    kValueCodeFieldNumber = 2,
+    kFextraParamsFieldNumber = 4,
+    kIextraParamsFieldNumber = 5,
+    kNameFieldNumber = 2,
+    kIndexFieldNumber = 1,
+    kValueCodeFieldNumber = 3,
   };
-  // string name = 1;
+  // repeated float fextra_params = 4;
+  int fextra_params_size() const;
+  private:
+  int _internal_fextra_params_size() const;
+  public:
+  void clear_fextra_params();
+  private:
+  float _internal_fextra_params(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+      _internal_fextra_params() const;
+  void _internal_add_fextra_params(float value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+      _internal_mutable_fextra_params();
+  public:
+  float fextra_params(int index) const;
+  void set_fextra_params(int index, float value);
+  void add_fextra_params(float value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+      fextra_params() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+      mutable_fextra_params();
+
+  // repeated uint32 iextra_params = 5;
+  int iextra_params_size() const;
+  private:
+  int _internal_iextra_params_size() const;
+  public:
+  void clear_iextra_params();
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_iextra_params(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      _internal_iextra_params() const;
+  void _internal_add_iextra_params(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      _internal_mutable_iextra_params();
+  public:
+  ::PROTOBUF_NAMESPACE_ID::uint32 iextra_params(int index) const;
+  void set_iextra_params(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value);
+  void add_iextra_params(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      iextra_params() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      mutable_iextra_params();
+
+  // string name = 2;
   void clear_name();
   const std::string& name() const;
   void set_name(const std::string& value);
@@ -1844,23 +2081,16 @@ class ParamNamedAuto :
   std::string* _internal_mutable_name();
   public:
 
-  // bytes extra_params = 3;
-  void clear_extra_params();
-  const std::string& extra_params() const;
-  void set_extra_params(const std::string& value);
-  void set_extra_params(std::string&& value);
-  void set_extra_params(const char* value);
-  void set_extra_params(const void* value, size_t size);
-  std::string* mutable_extra_params();
-  std::string* release_extra_params();
-  void set_allocated_extra_params(std::string* extra_params);
+  // uint32 index = 1;
+  void clear_index();
+  ::PROTOBUF_NAMESPACE_ID::uint32 index() const;
+  void set_index(::PROTOBUF_NAMESPACE_ID::uint32 value);
   private:
-  const std::string& _internal_extra_params() const;
-  void _internal_set_extra_params(const std::string& value);
-  std::string* _internal_mutable_extra_params();
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_index() const;
+  void _internal_set_index(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 value_code = 2;
+  // uint32 value_code = 3;
   void clear_value_code();
   ::PROTOBUF_NAMESPACE_ID::uint32 value_code() const;
   void set_value_code(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -1869,13 +2099,17 @@ class ParamNamedAuto :
   void _internal_set_value_code(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.ParamNamedAuto)
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.ParamAuto)
  private:
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > fextra_params_;
+  mutable std::atomic<int> _fextra_params_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > iextra_params_;
+  mutable std::atomic<int> _iextra_params_cached_byte_size_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr extra_params_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 index_;
   ::PROTOBUF_NAMESPACE_ID::uint32 value_code_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -1979,76 +2213,76 @@ class GPUConstantBuffer :
     kParamNamedAutoFieldNumber = 5,
     kHeaderFieldNumber = 1,
   };
-  // repeated .Tiny3D.Script.MaterialSystem.ParamIndexed param_indexed = 2;
+  // repeated .Tiny3D.Script.MaterialSystem.Param param_indexed = 2;
   int param_indexed_size() const;
   private:
   int _internal_param_indexed_size() const;
   public:
   void clear_param_indexed();
-  ::Tiny3D::Script::MaterialSystem::ParamIndexed* mutable_param_indexed(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamIndexed >*
+  ::Tiny3D::Script::MaterialSystem::Param* mutable_param_indexed(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param >*
       mutable_param_indexed();
   private:
-  const ::Tiny3D::Script::MaterialSystem::ParamIndexed& _internal_param_indexed(int index) const;
-  ::Tiny3D::Script::MaterialSystem::ParamIndexed* _internal_add_param_indexed();
+  const ::Tiny3D::Script::MaterialSystem::Param& _internal_param_indexed(int index) const;
+  ::Tiny3D::Script::MaterialSystem::Param* _internal_add_param_indexed();
   public:
-  const ::Tiny3D::Script::MaterialSystem::ParamIndexed& param_indexed(int index) const;
-  ::Tiny3D::Script::MaterialSystem::ParamIndexed* add_param_indexed();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamIndexed >&
+  const ::Tiny3D::Script::MaterialSystem::Param& param_indexed(int index) const;
+  ::Tiny3D::Script::MaterialSystem::Param* add_param_indexed();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param >&
       param_indexed() const;
 
-  // repeated .Tiny3D.Script.MaterialSystem.ParamIndexedAuto param_indexed_auto = 3;
+  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_indexed_auto = 3;
   int param_indexed_auto_size() const;
   private:
   int _internal_param_indexed_auto_size() const;
   public:
   void clear_param_indexed_auto();
-  ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto* mutable_param_indexed_auto(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto >*
+  ::Tiny3D::Script::MaterialSystem::ParamAuto* mutable_param_indexed_auto(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto >*
       mutable_param_indexed_auto();
   private:
-  const ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto& _internal_param_indexed_auto(int index) const;
-  ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto* _internal_add_param_indexed_auto();
+  const ::Tiny3D::Script::MaterialSystem::ParamAuto& _internal_param_indexed_auto(int index) const;
+  ::Tiny3D::Script::MaterialSystem::ParamAuto* _internal_add_param_indexed_auto();
   public:
-  const ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto& param_indexed_auto(int index) const;
-  ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto* add_param_indexed_auto();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto >&
+  const ::Tiny3D::Script::MaterialSystem::ParamAuto& param_indexed_auto(int index) const;
+  ::Tiny3D::Script::MaterialSystem::ParamAuto* add_param_indexed_auto();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto >&
       param_indexed_auto() const;
 
-  // repeated .Tiny3D.Script.MaterialSystem.ParamNamed param_named = 4;
+  // repeated .Tiny3D.Script.MaterialSystem.Param param_named = 4;
   int param_named_size() const;
   private:
   int _internal_param_named_size() const;
   public:
   void clear_param_named();
-  ::Tiny3D::Script::MaterialSystem::ParamNamed* mutable_param_named(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamNamed >*
+  ::Tiny3D::Script::MaterialSystem::Param* mutable_param_named(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param >*
       mutable_param_named();
   private:
-  const ::Tiny3D::Script::MaterialSystem::ParamNamed& _internal_param_named(int index) const;
-  ::Tiny3D::Script::MaterialSystem::ParamNamed* _internal_add_param_named();
+  const ::Tiny3D::Script::MaterialSystem::Param& _internal_param_named(int index) const;
+  ::Tiny3D::Script::MaterialSystem::Param* _internal_add_param_named();
   public:
-  const ::Tiny3D::Script::MaterialSystem::ParamNamed& param_named(int index) const;
-  ::Tiny3D::Script::MaterialSystem::ParamNamed* add_param_named();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamNamed >&
+  const ::Tiny3D::Script::MaterialSystem::Param& param_named(int index) const;
+  ::Tiny3D::Script::MaterialSystem::Param* add_param_named();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param >&
       param_named() const;
 
-  // repeated .Tiny3D.Script.MaterialSystem.ParamNamedAuto param_named_auto = 5;
+  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_named_auto = 5;
   int param_named_auto_size() const;
   private:
   int _internal_param_named_auto_size() const;
   public:
   void clear_param_named_auto();
-  ::Tiny3D::Script::MaterialSystem::ParamNamedAuto* mutable_param_named_auto(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamNamedAuto >*
+  ::Tiny3D::Script::MaterialSystem::ParamAuto* mutable_param_named_auto(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto >*
       mutable_param_named_auto();
   private:
-  const ::Tiny3D::Script::MaterialSystem::ParamNamedAuto& _internal_param_named_auto(int index) const;
-  ::Tiny3D::Script::MaterialSystem::ParamNamedAuto* _internal_add_param_named_auto();
+  const ::Tiny3D::Script::MaterialSystem::ParamAuto& _internal_param_named_auto(int index) const;
+  ::Tiny3D::Script::MaterialSystem::ParamAuto* _internal_add_param_named_auto();
   public:
-  const ::Tiny3D::Script::MaterialSystem::ParamNamedAuto& param_named_auto(int index) const;
-  ::Tiny3D::Script::MaterialSystem::ParamNamedAuto* add_param_named_auto();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamNamedAuto >&
+  const ::Tiny3D::Script::MaterialSystem::ParamAuto& param_named_auto(int index) const;
+  ::Tiny3D::Script::MaterialSystem::ParamAuto* add_param_named_auto();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto >&
       param_named_auto() const;
 
   // .Tiny3D.Script.MaterialSystem.Header header = 1;
@@ -2071,33 +2305,33 @@ class GPUConstantBuffer :
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamIndexed > param_indexed_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto > param_indexed_auto_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamNamed > param_named_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamNamedAuto > param_named_auto_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param > param_indexed_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto > param_indexed_auto_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param > param_named_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto > param_named_auto_;
   ::Tiny3D::Script::MaterialSystem::Header* header_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
 };
 // -------------------------------------------------------------------
 
-class Color :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Color) */ {
+class TexAddressModeSimple :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexAddressModeSimple) */ {
  public:
-  Color();
-  virtual ~Color();
+  TexAddressModeSimple();
+  virtual ~TexAddressModeSimple();
 
-  Color(const Color& from);
-  Color(Color&& from) noexcept
-    : Color() {
+  TexAddressModeSimple(const TexAddressModeSimple& from);
+  TexAddressModeSimple(TexAddressModeSimple&& from) noexcept
+    : TexAddressModeSimple() {
     *this = ::std::move(from);
   }
 
-  inline Color& operator=(const Color& from) {
+  inline TexAddressModeSimple& operator=(const TexAddressModeSimple& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Color& operator=(Color&& from) noexcept {
+  inline TexAddressModeSimple& operator=(TexAddressModeSimple&& from) noexcept {
     if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -2106,37 +2340,37 @@ class Color :
     return *this;
   }
 
-  static const Color& default_instance();
+  static const TexAddressModeSimple& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const Color* internal_default_instance() {
-    return reinterpret_cast<const Color*>(
-               &_Color_default_instance_);
+  static inline const TexAddressModeSimple* internal_default_instance() {
+    return reinterpret_cast<const TexAddressModeSimple*>(
+               &_TexAddressModeSimple_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     10;
 
-  friend void swap(Color& a, Color& b) {
+  friend void swap(TexAddressModeSimple& a, TexAddressModeSimple& b) {
     a.Swap(&b);
   }
-  inline void Swap(Color* other) {
+  inline void Swap(TexAddressModeSimple* other) {
     if (other == this) return;
     InternalSwap(other);
   }
 
   // implements Message ----------------------------------------------
 
-  inline Color* New() const final {
-    return CreateMaybeMessage<Color>(nullptr);
+  inline TexAddressModeSimple* New() const final {
+    return CreateMaybeMessage<TexAddressModeSimple>(nullptr);
   }
 
-  Color* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<Color>(arena);
+  TexAddressModeSimple* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<TexAddressModeSimple>(arena);
   }
   void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
     final;
-  void CopyFrom(const Color& from);
-  void MergeFrom(const Color& from);
+  void CopyFrom(const TexAddressModeSimple& from);
+  void MergeFrom(const TexAddressModeSimple& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -2151,10 +2385,10 @@ class Color :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const;
-  void InternalSwap(Color* other);
+  void InternalSwap(TexAddressModeSimple* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Tiny3D.Script.MaterialSystem.Color";
+    return "Tiny3D.Script.MaterialSystem.TexAddressModeSimple";
   }
   private:
   inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
@@ -2172,56 +2406,2278 @@ class Color :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRFieldNumber = 1,
-    kGFieldNumber = 2,
-    kBFieldNumber = 3,
-    kAFieldNumber = 4,
+    kUvwModeFieldNumber = 1,
   };
-  // float r = 1;
-  void clear_r();
-  float r() const;
-  void set_r(float value);
+  // .Tiny3D.Script.MaterialSystem.TextureAddressMode uvw_mode = 1;
+  void clear_uvw_mode();
+  ::Tiny3D::Script::MaterialSystem::TextureAddressMode uvw_mode() const;
+  void set_uvw_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value);
   private:
-  float _internal_r() const;
-  void _internal_set_r(float value);
+  ::Tiny3D::Script::MaterialSystem::TextureAddressMode _internal_uvw_mode() const;
+  void _internal_set_uvw_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value);
   public:
 
-  // float g = 2;
-  void clear_g();
-  float g() const;
-  void set_g(float value);
-  private:
-  float _internal_g() const;
-  void _internal_set_g(float value);
-  public:
-
-  // float b = 3;
-  void clear_b();
-  float b() const;
-  void set_b(float value);
-  private:
-  float _internal_b() const;
-  void _internal_set_b(float value);
-  public:
-
-  // float a = 4;
-  void clear_a();
-  float a() const;
-  void set_a(float value);
-  private:
-  float _internal_a() const;
-  void _internal_set_a(float value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.Color)
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.TexAddressModeSimple)
  private:
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
-  float r_;
-  float g_;
-  float b_;
-  float a_;
+  int uvw_mode_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class TexAddressModeComplex :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexAddressModeComplex) */ {
+ public:
+  TexAddressModeComplex();
+  virtual ~TexAddressModeComplex();
+
+  TexAddressModeComplex(const TexAddressModeComplex& from);
+  TexAddressModeComplex(TexAddressModeComplex&& from) noexcept
+    : TexAddressModeComplex() {
+    *this = ::std::move(from);
+  }
+
+  inline TexAddressModeComplex& operator=(const TexAddressModeComplex& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TexAddressModeComplex& operator=(TexAddressModeComplex&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const TexAddressModeComplex& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const TexAddressModeComplex* internal_default_instance() {
+    return reinterpret_cast<const TexAddressModeComplex*>(
+               &_TexAddressModeComplex_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    11;
+
+  friend void swap(TexAddressModeComplex& a, TexAddressModeComplex& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TexAddressModeComplex* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline TexAddressModeComplex* New() const final {
+    return CreateMaybeMessage<TexAddressModeComplex>(nullptr);
+  }
+
+  TexAddressModeComplex* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<TexAddressModeComplex>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const TexAddressModeComplex& from);
+  void MergeFrom(const TexAddressModeComplex& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(TexAddressModeComplex* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.TexAddressModeComplex";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kUModeFieldNumber = 1,
+    kVModeFieldNumber = 2,
+    kWModeFieldNumber = 3,
+  };
+  // .Tiny3D.Script.MaterialSystem.TextureAddressMode u_mode = 1;
+  void clear_u_mode();
+  ::Tiny3D::Script::MaterialSystem::TextureAddressMode u_mode() const;
+  void set_u_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::TextureAddressMode _internal_u_mode() const;
+  void _internal_set_u_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value);
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.TextureAddressMode v_mode = 2;
+  void clear_v_mode();
+  ::Tiny3D::Script::MaterialSystem::TextureAddressMode v_mode() const;
+  void set_v_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::TextureAddressMode _internal_v_mode() const;
+  void _internal_set_v_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value);
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.TextureAddressMode w_mode = 3;
+  void clear_w_mode();
+  ::Tiny3D::Script::MaterialSystem::TextureAddressMode w_mode() const;
+  void set_w_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::TextureAddressMode _internal_w_mode() const;
+  void _internal_set_w_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.TexAddressModeComplex)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  int u_mode_;
+  int v_mode_;
+  int w_mode_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class TexAddressMode :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexAddressMode) */ {
+ public:
+  TexAddressMode();
+  virtual ~TexAddressMode();
+
+  TexAddressMode(const TexAddressMode& from);
+  TexAddressMode(TexAddressMode&& from) noexcept
+    : TexAddressMode() {
+    *this = ::std::move(from);
+  }
+
+  inline TexAddressMode& operator=(const TexAddressMode& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TexAddressMode& operator=(TexAddressMode&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const TexAddressMode& default_instance();
+
+  enum TexAddresModeOneOfCase {
+    kSimple = 1,
+    kComplex = 2,
+    TEXADDRESMODEONEOF_NOT_SET = 0,
+  };
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const TexAddressMode* internal_default_instance() {
+    return reinterpret_cast<const TexAddressMode*>(
+               &_TexAddressMode_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    12;
+
+  friend void swap(TexAddressMode& a, TexAddressMode& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TexAddressMode* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline TexAddressMode* New() const final {
+    return CreateMaybeMessage<TexAddressMode>(nullptr);
+  }
+
+  TexAddressMode* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<TexAddressMode>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const TexAddressMode& from);
+  void MergeFrom(const TexAddressMode& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(TexAddressMode* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.TexAddressMode";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kSimpleFieldNumber = 1,
+    kComplexFieldNumber = 2,
+  };
+  // .Tiny3D.Script.MaterialSystem.TexAddressModeSimple simple = 1;
+  bool has_simple() const;
+  private:
+  bool _internal_has_simple() const;
+  public:
+  void clear_simple();
+  const ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple& simple() const;
+  ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple* release_simple();
+  ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple* mutable_simple();
+  void set_allocated_simple(::Tiny3D::Script::MaterialSystem::TexAddressModeSimple* simple);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple& _internal_simple() const;
+  ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple* _internal_mutable_simple();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.TexAddressModeComplex complex = 2;
+  bool has_complex() const;
+  private:
+  bool _internal_has_complex() const;
+  public:
+  void clear_complex();
+  const ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex& complex() const;
+  ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex* release_complex();
+  ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex* mutable_complex();
+  void set_allocated_complex(::Tiny3D::Script::MaterialSystem::TexAddressModeComplex* complex);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex& _internal_complex() const;
+  ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex* _internal_mutable_complex();
+  public:
+
+  void clear_TexAddresModeOneOf();
+  TexAddresModeOneOfCase TexAddresModeOneOf_case() const;
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.TexAddressMode)
+ private:
+  class _Internal;
+  void set_has_simple();
+  void set_has_complex();
+
+  inline bool has_TexAddresModeOneOf() const;
+  inline void clear_has_TexAddresModeOneOf();
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  union TexAddresModeOneOfUnion {
+    TexAddresModeOneOfUnion() {}
+    ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple* simple_;
+    ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex* complex_;
+  } TexAddresModeOneOf_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
+
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class TexFilterSimple :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexFilterSimple) */ {
+ public:
+  TexFilterSimple();
+  virtual ~TexFilterSimple();
+
+  TexFilterSimple(const TexFilterSimple& from);
+  TexFilterSimple(TexFilterSimple&& from) noexcept
+    : TexFilterSimple() {
+    *this = ::std::move(from);
+  }
+
+  inline TexFilterSimple& operator=(const TexFilterSimple& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TexFilterSimple& operator=(TexFilterSimple&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const TexFilterSimple& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const TexFilterSimple* internal_default_instance() {
+    return reinterpret_cast<const TexFilterSimple*>(
+               &_TexFilterSimple_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    13;
+
+  friend void swap(TexFilterSimple& a, TexFilterSimple& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TexFilterSimple* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline TexFilterSimple* New() const final {
+    return CreateMaybeMessage<TexFilterSimple>(nullptr);
+  }
+
+  TexFilterSimple* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<TexFilterSimple>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const TexFilterSimple& from);
+  void MergeFrom(const TexFilterSimple& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(TexFilterSimple* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.TexFilterSimple";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kFilterFieldNumber = 1,
+  };
+  // .Tiny3D.Script.MaterialSystem.FilterOption filter = 1;
+  void clear_filter();
+  ::Tiny3D::Script::MaterialSystem::FilterOption filter() const;
+  void set_filter(::Tiny3D::Script::MaterialSystem::FilterOption value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::FilterOption _internal_filter() const;
+  void _internal_set_filter(::Tiny3D::Script::MaterialSystem::FilterOption value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.TexFilterSimple)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  int filter_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class TexFilterComplex :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexFilterComplex) */ {
+ public:
+  TexFilterComplex();
+  virtual ~TexFilterComplex();
+
+  TexFilterComplex(const TexFilterComplex& from);
+  TexFilterComplex(TexFilterComplex&& from) noexcept
+    : TexFilterComplex() {
+    *this = ::std::move(from);
+  }
+
+  inline TexFilterComplex& operator=(const TexFilterComplex& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TexFilterComplex& operator=(TexFilterComplex&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const TexFilterComplex& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const TexFilterComplex* internal_default_instance() {
+    return reinterpret_cast<const TexFilterComplex*>(
+               &_TexFilterComplex_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    14;
+
+  friend void swap(TexFilterComplex& a, TexFilterComplex& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TexFilterComplex* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline TexFilterComplex* New() const final {
+    return CreateMaybeMessage<TexFilterComplex>(nullptr);
+  }
+
+  TexFilterComplex* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<TexFilterComplex>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const TexFilterComplex& from);
+  void MergeFrom(const TexFilterComplex& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(TexFilterComplex* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.TexFilterComplex";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kMinificationFieldNumber = 1,
+    kMagnificationFieldNumber = 2,
+    kMipFieldNumber = 3,
+  };
+  // .Tiny3D.Script.MaterialSystem.FilterOption minification = 1;
+  void clear_minification();
+  ::Tiny3D::Script::MaterialSystem::FilterOption minification() const;
+  void set_minification(::Tiny3D::Script::MaterialSystem::FilterOption value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::FilterOption _internal_minification() const;
+  void _internal_set_minification(::Tiny3D::Script::MaterialSystem::FilterOption value);
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.FilterOption magnification = 2;
+  void clear_magnification();
+  ::Tiny3D::Script::MaterialSystem::FilterOption magnification() const;
+  void set_magnification(::Tiny3D::Script::MaterialSystem::FilterOption value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::FilterOption _internal_magnification() const;
+  void _internal_set_magnification(::Tiny3D::Script::MaterialSystem::FilterOption value);
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.FilterOption mip = 3;
+  void clear_mip();
+  ::Tiny3D::Script::MaterialSystem::FilterOption mip() const;
+  void set_mip(::Tiny3D::Script::MaterialSystem::FilterOption value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::FilterOption _internal_mip() const;
+  void _internal_set_mip(::Tiny3D::Script::MaterialSystem::FilterOption value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.TexFilterComplex)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  int minification_;
+  int magnification_;
+  int mip_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class TexFilter :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexFilter) */ {
+ public:
+  TexFilter();
+  virtual ~TexFilter();
+
+  TexFilter(const TexFilter& from);
+  TexFilter(TexFilter&& from) noexcept
+    : TexFilter() {
+    *this = ::std::move(from);
+  }
+
+  inline TexFilter& operator=(const TexFilter& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TexFilter& operator=(TexFilter&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const TexFilter& default_instance();
+
+  enum TexFilterOneOfCase {
+    kSimple = 1,
+    kComplex = 2,
+    TEXFILTERONEOF_NOT_SET = 0,
+  };
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const TexFilter* internal_default_instance() {
+    return reinterpret_cast<const TexFilter*>(
+               &_TexFilter_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    15;
+
+  friend void swap(TexFilter& a, TexFilter& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TexFilter* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline TexFilter* New() const final {
+    return CreateMaybeMessage<TexFilter>(nullptr);
+  }
+
+  TexFilter* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<TexFilter>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const TexFilter& from);
+  void MergeFrom(const TexFilter& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(TexFilter* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.TexFilter";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kSimpleFieldNumber = 1,
+    kComplexFieldNumber = 2,
+  };
+  // .Tiny3D.Script.MaterialSystem.TexFilterSimple simple = 1;
+  bool has_simple() const;
+  private:
+  bool _internal_has_simple() const;
+  public:
+  void clear_simple();
+  const ::Tiny3D::Script::MaterialSystem::TexFilterSimple& simple() const;
+  ::Tiny3D::Script::MaterialSystem::TexFilterSimple* release_simple();
+  ::Tiny3D::Script::MaterialSystem::TexFilterSimple* mutable_simple();
+  void set_allocated_simple(::Tiny3D::Script::MaterialSystem::TexFilterSimple* simple);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::TexFilterSimple& _internal_simple() const;
+  ::Tiny3D::Script::MaterialSystem::TexFilterSimple* _internal_mutable_simple();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.TexFilterComplex complex = 2;
+  bool has_complex() const;
+  private:
+  bool _internal_has_complex() const;
+  public:
+  void clear_complex();
+  const ::Tiny3D::Script::MaterialSystem::TexFilterComplex& complex() const;
+  ::Tiny3D::Script::MaterialSystem::TexFilterComplex* release_complex();
+  ::Tiny3D::Script::MaterialSystem::TexFilterComplex* mutable_complex();
+  void set_allocated_complex(::Tiny3D::Script::MaterialSystem::TexFilterComplex* complex);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::TexFilterComplex& _internal_complex() const;
+  ::Tiny3D::Script::MaterialSystem::TexFilterComplex* _internal_mutable_complex();
+  public:
+
+  void clear_TexFilterOneOf();
+  TexFilterOneOfCase TexFilterOneOf_case() const;
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.TexFilter)
+ private:
+  class _Internal;
+  void set_has_simple();
+  void set_has_complex();
+
+  inline bool has_TexFilterOneOf() const;
+  inline void clear_has_TexFilterOneOf();
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  union TexFilterOneOfUnion {
+    TexFilterOneOfUnion() {}
+    ::Tiny3D::Script::MaterialSystem::TexFilterSimple* simple_;
+    ::Tiny3D::Script::MaterialSystem::TexFilterComplex* complex_;
+  } TexFilterOneOf_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
+
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class Sampler :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Sampler) */ {
+ public:
+  Sampler();
+  virtual ~Sampler();
+
+  Sampler(const Sampler& from);
+  Sampler(Sampler&& from) noexcept
+    : Sampler() {
+    *this = ::std::move(from);
+  }
+
+  inline Sampler& operator=(const Sampler& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Sampler& operator=(Sampler&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const Sampler& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Sampler* internal_default_instance() {
+    return reinterpret_cast<const Sampler*>(
+               &_Sampler_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    16;
+
+  friend void swap(Sampler& a, Sampler& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Sampler* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Sampler* New() const final {
+    return CreateMaybeMessage<Sampler>(nullptr);
+  }
+
+  Sampler* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Sampler>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const Sampler& from);
+  void MergeFrom(const Sampler& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Sampler* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.Sampler";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kHeaderFieldNumber = 1,
+    kTexAddressModeFieldNumber = 2,
+    kTexBorderColorFieldNumber = 3,
+    kFilteringFieldNumber = 4,
+    kCompareTestFieldNumber = 5,
+    kCompareFuncFieldNumber = 6,
+    kMaxAnisotropyFieldNumber = 7,
+    kMipmapBiasFieldNumber = 8,
+  };
+  // .Tiny3D.Script.MaterialSystem.Header header = 1;
+  bool has_header() const;
+  private:
+  bool _internal_has_header() const;
+  public:
+  void clear_header();
+  const ::Tiny3D::Script::MaterialSystem::Header& header() const;
+  ::Tiny3D::Script::MaterialSystem::Header* release_header();
+  ::Tiny3D::Script::MaterialSystem::Header* mutable_header();
+  void set_allocated_header(::Tiny3D::Script::MaterialSystem::Header* header);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::Header& _internal_header() const;
+  ::Tiny3D::Script::MaterialSystem::Header* _internal_mutable_header();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.TexAddressMode tex_address_mode = 2;
+  bool has_tex_address_mode() const;
+  private:
+  bool _internal_has_tex_address_mode() const;
+  public:
+  void clear_tex_address_mode();
+  const ::Tiny3D::Script::MaterialSystem::TexAddressMode& tex_address_mode() const;
+  ::Tiny3D::Script::MaterialSystem::TexAddressMode* release_tex_address_mode();
+  ::Tiny3D::Script::MaterialSystem::TexAddressMode* mutable_tex_address_mode();
+  void set_allocated_tex_address_mode(::Tiny3D::Script::MaterialSystem::TexAddressMode* tex_address_mode);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::TexAddressMode& _internal_tex_address_mode() const;
+  ::Tiny3D::Script::MaterialSystem::TexAddressMode* _internal_mutable_tex_address_mode();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.Color tex_border_color = 3;
+  bool has_tex_border_color() const;
+  private:
+  bool _internal_has_tex_border_color() const;
+  public:
+  void clear_tex_border_color();
+  const ::Tiny3D::Script::MaterialSystem::Color& tex_border_color() const;
+  ::Tiny3D::Script::MaterialSystem::Color* release_tex_border_color();
+  ::Tiny3D::Script::MaterialSystem::Color* mutable_tex_border_color();
+  void set_allocated_tex_border_color(::Tiny3D::Script::MaterialSystem::Color* tex_border_color);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::Color& _internal_tex_border_color() const;
+  ::Tiny3D::Script::MaterialSystem::Color* _internal_mutable_tex_border_color();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.TexFilter filtering = 4;
+  bool has_filtering() const;
+  private:
+  bool _internal_has_filtering() const;
+  public:
+  void clear_filtering();
+  const ::Tiny3D::Script::MaterialSystem::TexFilter& filtering() const;
+  ::Tiny3D::Script::MaterialSystem::TexFilter* release_filtering();
+  ::Tiny3D::Script::MaterialSystem::TexFilter* mutable_filtering();
+  void set_allocated_filtering(::Tiny3D::Script::MaterialSystem::TexFilter* filtering);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::TexFilter& _internal_filtering() const;
+  ::Tiny3D::Script::MaterialSystem::TexFilter* _internal_mutable_filtering();
+  public:
+
+  // bool compare_test = 5;
+  void clear_compare_test();
+  bool compare_test() const;
+  void set_compare_test(bool value);
+  private:
+  bool _internal_compare_test() const;
+  void _internal_set_compare_test(bool value);
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.CompareFunction compare_func = 6;
+  void clear_compare_func();
+  ::Tiny3D::Script::MaterialSystem::CompareFunction compare_func() const;
+  void set_compare_func(::Tiny3D::Script::MaterialSystem::CompareFunction value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::CompareFunction _internal_compare_func() const;
+  void _internal_set_compare_func(::Tiny3D::Script::MaterialSystem::CompareFunction value);
+  public:
+
+  // uint32 max_anisotropy = 7;
+  void clear_max_anisotropy();
+  ::PROTOBUF_NAMESPACE_ID::uint32 max_anisotropy() const;
+  void set_max_anisotropy(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_max_anisotropy() const;
+  void _internal_set_max_anisotropy(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // float mipmap_bias = 8;
+  void clear_mipmap_bias();
+  float mipmap_bias() const;
+  void set_mipmap_bias(float value);
+  private:
+  float _internal_mipmap_bias() const;
+  void _internal_set_mipmap_bias(float value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.Sampler)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::Tiny3D::Script::MaterialSystem::Header* header_;
+  ::Tiny3D::Script::MaterialSystem::TexAddressMode* tex_address_mode_;
+  ::Tiny3D::Script::MaterialSystem::Color* tex_border_color_;
+  ::Tiny3D::Script::MaterialSystem::TexFilter* filtering_;
+  bool compare_test_;
+  int compare_func_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 max_anisotropy_;
+  float mipmap_bias_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class Texture :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Texture) */ {
+ public:
+  Texture();
+  virtual ~Texture();
+
+  Texture(const Texture& from);
+  Texture(Texture&& from) noexcept
+    : Texture() {
+    *this = ::std::move(from);
+  }
+
+  inline Texture& operator=(const Texture& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Texture& operator=(Texture&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const Texture& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Texture* internal_default_instance() {
+    return reinterpret_cast<const Texture*>(
+               &_Texture_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    17;
+
+  friend void swap(Texture& a, Texture& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Texture* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Texture* New() const final {
+    return CreateMaybeMessage<Texture>(nullptr);
+  }
+
+  Texture* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Texture>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const Texture& from);
+  void MergeFrom(const Texture& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Texture* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.Texture";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kNameFieldNumber = 1,
+    kTypeFieldNumber = 2,
+    kMipmapsFieldNumber = 3,
+    kAlphaFieldNumber = 4,
+    kGammaFieldNumber = 5,
+  };
+  // string name = 1;
+  void clear_name();
+  const std::string& name() const;
+  void set_name(const std::string& value);
+  void set_name(std::string&& value);
+  void set_name(const char* value);
+  void set_name(const char* value, size_t size);
+  std::string* mutable_name();
+  std::string* release_name();
+  void set_allocated_name(std::string* name);
+  private:
+  const std::string& _internal_name() const;
+  void _internal_set_name(const std::string& value);
+  std::string* _internal_mutable_name();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.TextureType type = 2;
+  void clear_type();
+  ::Tiny3D::Script::MaterialSystem::TextureType type() const;
+  void set_type(::Tiny3D::Script::MaterialSystem::TextureType value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::TextureType _internal_type() const;
+  void _internal_set_type(::Tiny3D::Script::MaterialSystem::TextureType value);
+  public:
+
+  // sint32 mipmaps = 3;
+  void clear_mipmaps();
+  ::PROTOBUF_NAMESPACE_ID::int32 mipmaps() const;
+  void set_mipmaps(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_mipmaps() const;
+  void _internal_set_mipmaps(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // bool alpha = 4;
+  void clear_alpha();
+  bool alpha() const;
+  void set_alpha(bool value);
+  private:
+  bool _internal_alpha() const;
+  void _internal_set_alpha(bool value);
+  public:
+
+  // bool gamma = 5;
+  void clear_gamma();
+  bool gamma() const;
+  void set_gamma(bool value);
+  private:
+  bool _internal_gamma() const;
+  void _internal_set_gamma(bool value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.Texture)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+  int type_;
+  ::PROTOBUF_NAMESPACE_ID::int32 mipmaps_;
+  bool alpha_;
+  bool gamma_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class AnimTextureSimple :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.AnimTextureSimple) */ {
+ public:
+  AnimTextureSimple();
+  virtual ~AnimTextureSimple();
+
+  AnimTextureSimple(const AnimTextureSimple& from);
+  AnimTextureSimple(AnimTextureSimple&& from) noexcept
+    : AnimTextureSimple() {
+    *this = ::std::move(from);
+  }
+
+  inline AnimTextureSimple& operator=(const AnimTextureSimple& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline AnimTextureSimple& operator=(AnimTextureSimple&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const AnimTextureSimple& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const AnimTextureSimple* internal_default_instance() {
+    return reinterpret_cast<const AnimTextureSimple*>(
+               &_AnimTextureSimple_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    18;
+
+  friend void swap(AnimTextureSimple& a, AnimTextureSimple& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(AnimTextureSimple* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline AnimTextureSimple* New() const final {
+    return CreateMaybeMessage<AnimTextureSimple>(nullptr);
+  }
+
+  AnimTextureSimple* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<AnimTextureSimple>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const AnimTextureSimple& from);
+  void MergeFrom(const AnimTextureSimple& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(AnimTextureSimple* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.AnimTextureSimple";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kBaseNameFieldNumber = 1,
+    kNumFramesFieldNumber = 2,
+    kDurationFieldNumber = 3,
+  };
+  // string base_name = 1;
+  void clear_base_name();
+  const std::string& base_name() const;
+  void set_base_name(const std::string& value);
+  void set_base_name(std::string&& value);
+  void set_base_name(const char* value);
+  void set_base_name(const char* value, size_t size);
+  std::string* mutable_base_name();
+  std::string* release_base_name();
+  void set_allocated_base_name(std::string* base_name);
+  private:
+  const std::string& _internal_base_name() const;
+  void _internal_set_base_name(const std::string& value);
+  std::string* _internal_mutable_base_name();
+  public:
+
+  // uint32 num_frames = 2;
+  void clear_num_frames();
+  ::PROTOBUF_NAMESPACE_ID::uint32 num_frames() const;
+  void set_num_frames(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_num_frames() const;
+  void _internal_set_num_frames(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // float duration = 3;
+  void clear_duration();
+  float duration() const;
+  void set_duration(float value);
+  private:
+  float _internal_duration() const;
+  void _internal_set_duration(float value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.AnimTextureSimple)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr base_name_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 num_frames_;
+  float duration_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class AnimTextureComplex :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.AnimTextureComplex) */ {
+ public:
+  AnimTextureComplex();
+  virtual ~AnimTextureComplex();
+
+  AnimTextureComplex(const AnimTextureComplex& from);
+  AnimTextureComplex(AnimTextureComplex&& from) noexcept
+    : AnimTextureComplex() {
+    *this = ::std::move(from);
+  }
+
+  inline AnimTextureComplex& operator=(const AnimTextureComplex& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline AnimTextureComplex& operator=(AnimTextureComplex&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const AnimTextureComplex& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const AnimTextureComplex* internal_default_instance() {
+    return reinterpret_cast<const AnimTextureComplex*>(
+               &_AnimTextureComplex_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    19;
+
+  friend void swap(AnimTextureComplex& a, AnimTextureComplex& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(AnimTextureComplex* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline AnimTextureComplex* New() const final {
+    return CreateMaybeMessage<AnimTextureComplex>(nullptr);
+  }
+
+  AnimTextureComplex* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<AnimTextureComplex>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const AnimTextureComplex& from);
+  void MergeFrom(const AnimTextureComplex& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(AnimTextureComplex* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.AnimTextureComplex";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kFramesFieldNumber = 2,
+    kDurationFieldNumber = 1,
+  };
+  // repeated string frames = 2;
+  int frames_size() const;
+  private:
+  int _internal_frames_size() const;
+  public:
+  void clear_frames();
+  const std::string& frames(int index) const;
+  std::string* mutable_frames(int index);
+  void set_frames(int index, const std::string& value);
+  void set_frames(int index, std::string&& value);
+  void set_frames(int index, const char* value);
+  void set_frames(int index, const char* value, size_t size);
+  std::string* add_frames();
+  void add_frames(const std::string& value);
+  void add_frames(std::string&& value);
+  void add_frames(const char* value);
+  void add_frames(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& frames() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_frames();
+  private:
+  const std::string& _internal_frames(int index) const;
+  std::string* _internal_add_frames();
+  public:
+
+  // float duration = 1;
+  void clear_duration();
+  float duration() const;
+  void set_duration(float value);
+  private:
+  float _internal_duration() const;
+  void _internal_set_duration(float value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.AnimTextureComplex)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> frames_;
+  float duration_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class AnimTexture :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.AnimTexture) */ {
+ public:
+  AnimTexture();
+  virtual ~AnimTexture();
+
+  AnimTexture(const AnimTexture& from);
+  AnimTexture(AnimTexture&& from) noexcept
+    : AnimTexture() {
+    *this = ::std::move(from);
+  }
+
+  inline AnimTexture& operator=(const AnimTexture& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline AnimTexture& operator=(AnimTexture&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const AnimTexture& default_instance();
+
+  enum AnimTextureOneOfCase {
+    kSimple = 1,
+    kComplex = 2,
+    ANIMTEXTUREONEOF_NOT_SET = 0,
+  };
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const AnimTexture* internal_default_instance() {
+    return reinterpret_cast<const AnimTexture*>(
+               &_AnimTexture_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    20;
+
+  friend void swap(AnimTexture& a, AnimTexture& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(AnimTexture* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline AnimTexture* New() const final {
+    return CreateMaybeMessage<AnimTexture>(nullptr);
+  }
+
+  AnimTexture* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<AnimTexture>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const AnimTexture& from);
+  void MergeFrom(const AnimTexture& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(AnimTexture* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.AnimTexture";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kSimpleFieldNumber = 1,
+    kComplexFieldNumber = 2,
+  };
+  // .Tiny3D.Script.MaterialSystem.AnimTextureSimple simple = 1;
+  bool has_simple() const;
+  private:
+  bool _internal_has_simple() const;
+  public:
+  void clear_simple();
+  const ::Tiny3D::Script::MaterialSystem::AnimTextureSimple& simple() const;
+  ::Tiny3D::Script::MaterialSystem::AnimTextureSimple* release_simple();
+  ::Tiny3D::Script::MaterialSystem::AnimTextureSimple* mutable_simple();
+  void set_allocated_simple(::Tiny3D::Script::MaterialSystem::AnimTextureSimple* simple);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::AnimTextureSimple& _internal_simple() const;
+  ::Tiny3D::Script::MaterialSystem::AnimTextureSimple* _internal_mutable_simple();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.AnimTextureComplex complex = 2;
+  bool has_complex() const;
+  private:
+  bool _internal_has_complex() const;
+  public:
+  void clear_complex();
+  const ::Tiny3D::Script::MaterialSystem::AnimTextureComplex& complex() const;
+  ::Tiny3D::Script::MaterialSystem::AnimTextureComplex* release_complex();
+  ::Tiny3D::Script::MaterialSystem::AnimTextureComplex* mutable_complex();
+  void set_allocated_complex(::Tiny3D::Script::MaterialSystem::AnimTextureComplex* complex);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::AnimTextureComplex& _internal_complex() const;
+  ::Tiny3D::Script::MaterialSystem::AnimTextureComplex* _internal_mutable_complex();
+  public:
+
+  void clear_AnimTextureOneOf();
+  AnimTextureOneOfCase AnimTextureOneOf_case() const;
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.AnimTexture)
+ private:
+  class _Internal;
+  void set_has_simple();
+  void set_has_complex();
+
+  inline bool has_AnimTextureOneOf() const;
+  inline void clear_has_AnimTextureOneOf();
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  union AnimTextureOneOfUnion {
+    AnimTextureOneOfUnion() {}
+    ::Tiny3D::Script::MaterialSystem::AnimTextureSimple* simple_;
+    ::Tiny3D::Script::MaterialSystem::AnimTextureComplex* complex_;
+  } AnimTextureOneOf_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
+
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class CubicTextureSimple :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CubicTextureSimple) */ {
+ public:
+  CubicTextureSimple();
+  virtual ~CubicTextureSimple();
+
+  CubicTextureSimple(const CubicTextureSimple& from);
+  CubicTextureSimple(CubicTextureSimple&& from) noexcept
+    : CubicTextureSimple() {
+    *this = ::std::move(from);
+  }
+
+  inline CubicTextureSimple& operator=(const CubicTextureSimple& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CubicTextureSimple& operator=(CubicTextureSimple&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const CubicTextureSimple& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const CubicTextureSimple* internal_default_instance() {
+    return reinterpret_cast<const CubicTextureSimple*>(
+               &_CubicTextureSimple_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    21;
+
+  friend void swap(CubicTextureSimple& a, CubicTextureSimple& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(CubicTextureSimple* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline CubicTextureSimple* New() const final {
+    return CreateMaybeMessage<CubicTextureSimple>(nullptr);
+  }
+
+  CubicTextureSimple* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<CubicTextureSimple>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const CubicTextureSimple& from);
+  void MergeFrom(const CubicTextureSimple& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(CubicTextureSimple* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.CubicTextureSimple";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kBaseNameFieldNumber = 1,
+  };
+  // string base_name = 1;
+  void clear_base_name();
+  const std::string& base_name() const;
+  void set_base_name(const std::string& value);
+  void set_base_name(std::string&& value);
+  void set_base_name(const char* value);
+  void set_base_name(const char* value, size_t size);
+  std::string* mutable_base_name();
+  std::string* release_base_name();
+  void set_allocated_base_name(std::string* base_name);
+  private:
+  const std::string& _internal_base_name() const;
+  void _internal_set_base_name(const std::string& value);
+  std::string* _internal_mutable_base_name();
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.CubicTextureSimple)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr base_name_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class CubicTextureComplex :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CubicTextureComplex) */ {
+ public:
+  CubicTextureComplex();
+  virtual ~CubicTextureComplex();
+
+  CubicTextureComplex(const CubicTextureComplex& from);
+  CubicTextureComplex(CubicTextureComplex&& from) noexcept
+    : CubicTextureComplex() {
+    *this = ::std::move(from);
+  }
+
+  inline CubicTextureComplex& operator=(const CubicTextureComplex& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CubicTextureComplex& operator=(CubicTextureComplex&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const CubicTextureComplex& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const CubicTextureComplex* internal_default_instance() {
+    return reinterpret_cast<const CubicTextureComplex*>(
+               &_CubicTextureComplex_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    22;
+
+  friend void swap(CubicTextureComplex& a, CubicTextureComplex& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(CubicTextureComplex* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline CubicTextureComplex* New() const final {
+    return CreateMaybeMessage<CubicTextureComplex>(nullptr);
+  }
+
+  CubicTextureComplex* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<CubicTextureComplex>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const CubicTextureComplex& from);
+  void MergeFrom(const CubicTextureComplex& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(CubicTextureComplex* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.CubicTextureComplex";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kFrontFieldNumber = 1,
+    kBackFieldNumber = 2,
+    kLeftFieldNumber = 3,
+    kRightFieldNumber = 4,
+    kUpFieldNumber = 5,
+    kDownFieldNumber = 6,
+  };
+  // string front = 1;
+  void clear_front();
+  const std::string& front() const;
+  void set_front(const std::string& value);
+  void set_front(std::string&& value);
+  void set_front(const char* value);
+  void set_front(const char* value, size_t size);
+  std::string* mutable_front();
+  std::string* release_front();
+  void set_allocated_front(std::string* front);
+  private:
+  const std::string& _internal_front() const;
+  void _internal_set_front(const std::string& value);
+  std::string* _internal_mutable_front();
+  public:
+
+  // string back = 2;
+  void clear_back();
+  const std::string& back() const;
+  void set_back(const std::string& value);
+  void set_back(std::string&& value);
+  void set_back(const char* value);
+  void set_back(const char* value, size_t size);
+  std::string* mutable_back();
+  std::string* release_back();
+  void set_allocated_back(std::string* back);
+  private:
+  const std::string& _internal_back() const;
+  void _internal_set_back(const std::string& value);
+  std::string* _internal_mutable_back();
+  public:
+
+  // string left = 3;
+  void clear_left();
+  const std::string& left() const;
+  void set_left(const std::string& value);
+  void set_left(std::string&& value);
+  void set_left(const char* value);
+  void set_left(const char* value, size_t size);
+  std::string* mutable_left();
+  std::string* release_left();
+  void set_allocated_left(std::string* left);
+  private:
+  const std::string& _internal_left() const;
+  void _internal_set_left(const std::string& value);
+  std::string* _internal_mutable_left();
+  public:
+
+  // string right = 4;
+  void clear_right();
+  const std::string& right() const;
+  void set_right(const std::string& value);
+  void set_right(std::string&& value);
+  void set_right(const char* value);
+  void set_right(const char* value, size_t size);
+  std::string* mutable_right();
+  std::string* release_right();
+  void set_allocated_right(std::string* right);
+  private:
+  const std::string& _internal_right() const;
+  void _internal_set_right(const std::string& value);
+  std::string* _internal_mutable_right();
+  public:
+
+  // string up = 5;
+  void clear_up();
+  const std::string& up() const;
+  void set_up(const std::string& value);
+  void set_up(std::string&& value);
+  void set_up(const char* value);
+  void set_up(const char* value, size_t size);
+  std::string* mutable_up();
+  std::string* release_up();
+  void set_allocated_up(std::string* up);
+  private:
+  const std::string& _internal_up() const;
+  void _internal_set_up(const std::string& value);
+  std::string* _internal_mutable_up();
+  public:
+
+  // string down = 6;
+  void clear_down();
+  const std::string& down() const;
+  void set_down(const std::string& value);
+  void set_down(std::string&& value);
+  void set_down(const char* value);
+  void set_down(const char* value, size_t size);
+  std::string* mutable_down();
+  std::string* release_down();
+  void set_allocated_down(std::string* down);
+  private:
+  const std::string& _internal_down() const;
+  void _internal_set_down(const std::string& value);
+  std::string* _internal_mutable_down();
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.CubicTextureComplex)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr front_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr back_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr left_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr right_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr up_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr down_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class CubicTexture :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CubicTexture) */ {
+ public:
+  CubicTexture();
+  virtual ~CubicTexture();
+
+  CubicTexture(const CubicTexture& from);
+  CubicTexture(CubicTexture&& from) noexcept
+    : CubicTexture() {
+    *this = ::std::move(from);
+  }
+
+  inline CubicTexture& operator=(const CubicTexture& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CubicTexture& operator=(CubicTexture&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const CubicTexture& default_instance();
+
+  enum CubicTextureOneOfCase {
+    kSimple = 1,
+    kComplex = 2,
+    CUBICTEXTUREONEOF_NOT_SET = 0,
+  };
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const CubicTexture* internal_default_instance() {
+    return reinterpret_cast<const CubicTexture*>(
+               &_CubicTexture_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    23;
+
+  friend void swap(CubicTexture& a, CubicTexture& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(CubicTexture* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline CubicTexture* New() const final {
+    return CreateMaybeMessage<CubicTexture>(nullptr);
+  }
+
+  CubicTexture* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<CubicTexture>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const CubicTexture& from);
+  void MergeFrom(const CubicTexture& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(CubicTexture* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.CubicTexture";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kCubicTextureModeFieldNumber = 3,
+    kSimpleFieldNumber = 1,
+    kComplexFieldNumber = 2,
+  };
+  // .Tiny3D.Script.MaterialSystem.CubicTextureMode cubic_texture_mode = 3;
+  void clear_cubic_texture_mode();
+  ::Tiny3D::Script::MaterialSystem::CubicTextureMode cubic_texture_mode() const;
+  void set_cubic_texture_mode(::Tiny3D::Script::MaterialSystem::CubicTextureMode value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::CubicTextureMode _internal_cubic_texture_mode() const;
+  void _internal_set_cubic_texture_mode(::Tiny3D::Script::MaterialSystem::CubicTextureMode value);
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.CubicTextureSimple simple = 1;
+  bool has_simple() const;
+  private:
+  bool _internal_has_simple() const;
+  public:
+  void clear_simple();
+  const ::Tiny3D::Script::MaterialSystem::CubicTextureSimple& simple() const;
+  ::Tiny3D::Script::MaterialSystem::CubicTextureSimple* release_simple();
+  ::Tiny3D::Script::MaterialSystem::CubicTextureSimple* mutable_simple();
+  void set_allocated_simple(::Tiny3D::Script::MaterialSystem::CubicTextureSimple* simple);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::CubicTextureSimple& _internal_simple() const;
+  ::Tiny3D::Script::MaterialSystem::CubicTextureSimple* _internal_mutable_simple();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.CubicTextureComplex complex = 2;
+  bool has_complex() const;
+  private:
+  bool _internal_has_complex() const;
+  public:
+  void clear_complex();
+  const ::Tiny3D::Script::MaterialSystem::CubicTextureComplex& complex() const;
+  ::Tiny3D::Script::MaterialSystem::CubicTextureComplex* release_complex();
+  ::Tiny3D::Script::MaterialSystem::CubicTextureComplex* mutable_complex();
+  void set_allocated_complex(::Tiny3D::Script::MaterialSystem::CubicTextureComplex* complex);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::CubicTextureComplex& _internal_complex() const;
+  ::Tiny3D::Script::MaterialSystem::CubicTextureComplex* _internal_mutable_complex();
+  public:
+
+  void clear_CubicTextureOneOf();
+  CubicTextureOneOfCase CubicTextureOneOf_case() const;
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.CubicTexture)
+ private:
+  class _Internal;
+  void set_has_simple();
+  void set_has_complex();
+
+  inline bool has_CubicTextureOneOf() const;
+  inline void clear_has_CubicTextureOneOf();
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  int cubic_texture_mode_;
+  union CubicTextureOneOfUnion {
+    CubicTextureOneOfUnion() {}
+    ::Tiny3D::Script::MaterialSystem::CubicTextureSimple* simple_;
+    ::Tiny3D::Script::MaterialSystem::CubicTextureComplex* complex_;
+  } CubicTextureOneOf_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
+
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class TextureUnit :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TextureUnit) */ {
+ public:
+  TextureUnit();
+  virtual ~TextureUnit();
+
+  TextureUnit(const TextureUnit& from);
+  TextureUnit(TextureUnit&& from) noexcept
+    : TextureUnit() {
+    *this = ::std::move(from);
+  }
+
+  inline TextureUnit& operator=(const TextureUnit& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TextureUnit& operator=(TextureUnit&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const TextureUnit& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const TextureUnit* internal_default_instance() {
+    return reinterpret_cast<const TextureUnit*>(
+               &_TextureUnit_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    24;
+
+  friend void swap(TextureUnit& a, TextureUnit& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TextureUnit* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline TextureUnit* New() const final {
+    return CreateMaybeMessage<TextureUnit>(nullptr);
+  }
+
+  TextureUnit* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<TextureUnit>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const TextureUnit& from);
+  void MergeFrom(const TextureUnit& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(TextureUnit* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.TextureUnit";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTextureAliasFieldNumber = 2,
+    kSamplerRefFieldNumber = 10,
+    kHeaderFieldNumber = 1,
+    kTextureFieldNumber = 3,
+    kAnimTextureFieldNumber = 4,
+    kCubicTextureFieldNumber = 5,
+    kSamplerFieldNumber = 9,
+    kBindingTypeFieldNumber = 6,
+    kTexCoordSetFieldNumber = 7,
+    kColorOpFieldNumber = 8,
+  };
+  // string texture_alias = 2;
+  void clear_texture_alias();
+  const std::string& texture_alias() const;
+  void set_texture_alias(const std::string& value);
+  void set_texture_alias(std::string&& value);
+  void set_texture_alias(const char* value);
+  void set_texture_alias(const char* value, size_t size);
+  std::string* mutable_texture_alias();
+  std::string* release_texture_alias();
+  void set_allocated_texture_alias(std::string* texture_alias);
+  private:
+  const std::string& _internal_texture_alias() const;
+  void _internal_set_texture_alias(const std::string& value);
+  std::string* _internal_mutable_texture_alias();
+  public:
+
+  // string sampler_ref = 10;
+  void clear_sampler_ref();
+  const std::string& sampler_ref() const;
+  void set_sampler_ref(const std::string& value);
+  void set_sampler_ref(std::string&& value);
+  void set_sampler_ref(const char* value);
+  void set_sampler_ref(const char* value, size_t size);
+  std::string* mutable_sampler_ref();
+  std::string* release_sampler_ref();
+  void set_allocated_sampler_ref(std::string* sampler_ref);
+  private:
+  const std::string& _internal_sampler_ref() const;
+  void _internal_set_sampler_ref(const std::string& value);
+  std::string* _internal_mutable_sampler_ref();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.Header header = 1;
+  bool has_header() const;
+  private:
+  bool _internal_has_header() const;
+  public:
+  void clear_header();
+  const ::Tiny3D::Script::MaterialSystem::Header& header() const;
+  ::Tiny3D::Script::MaterialSystem::Header* release_header();
+  ::Tiny3D::Script::MaterialSystem::Header* mutable_header();
+  void set_allocated_header(::Tiny3D::Script::MaterialSystem::Header* header);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::Header& _internal_header() const;
+  ::Tiny3D::Script::MaterialSystem::Header* _internal_mutable_header();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.Texture texture = 3;
+  bool has_texture() const;
+  private:
+  bool _internal_has_texture() const;
+  public:
+  void clear_texture();
+  const ::Tiny3D::Script::MaterialSystem::Texture& texture() const;
+  ::Tiny3D::Script::MaterialSystem::Texture* release_texture();
+  ::Tiny3D::Script::MaterialSystem::Texture* mutable_texture();
+  void set_allocated_texture(::Tiny3D::Script::MaterialSystem::Texture* texture);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::Texture& _internal_texture() const;
+  ::Tiny3D::Script::MaterialSystem::Texture* _internal_mutable_texture();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.AnimTexture anim_texture = 4;
+  bool has_anim_texture() const;
+  private:
+  bool _internal_has_anim_texture() const;
+  public:
+  void clear_anim_texture();
+  const ::Tiny3D::Script::MaterialSystem::AnimTexture& anim_texture() const;
+  ::Tiny3D::Script::MaterialSystem::AnimTexture* release_anim_texture();
+  ::Tiny3D::Script::MaterialSystem::AnimTexture* mutable_anim_texture();
+  void set_allocated_anim_texture(::Tiny3D::Script::MaterialSystem::AnimTexture* anim_texture);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::AnimTexture& _internal_anim_texture() const;
+  ::Tiny3D::Script::MaterialSystem::AnimTexture* _internal_mutable_anim_texture();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.CubicTexture cubic_texture = 5;
+  bool has_cubic_texture() const;
+  private:
+  bool _internal_has_cubic_texture() const;
+  public:
+  void clear_cubic_texture();
+  const ::Tiny3D::Script::MaterialSystem::CubicTexture& cubic_texture() const;
+  ::Tiny3D::Script::MaterialSystem::CubicTexture* release_cubic_texture();
+  ::Tiny3D::Script::MaterialSystem::CubicTexture* mutable_cubic_texture();
+  void set_allocated_cubic_texture(::Tiny3D::Script::MaterialSystem::CubicTexture* cubic_texture);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::CubicTexture& _internal_cubic_texture() const;
+  ::Tiny3D::Script::MaterialSystem::CubicTexture* _internal_mutable_cubic_texture();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.Sampler sampler = 9;
+  bool has_sampler() const;
+  private:
+  bool _internal_has_sampler() const;
+  public:
+  void clear_sampler();
+  const ::Tiny3D::Script::MaterialSystem::Sampler& sampler() const;
+  ::Tiny3D::Script::MaterialSystem::Sampler* release_sampler();
+  ::Tiny3D::Script::MaterialSystem::Sampler* mutable_sampler();
+  void set_allocated_sampler(::Tiny3D::Script::MaterialSystem::Sampler* sampler);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::Sampler& _internal_sampler() const;
+  ::Tiny3D::Script::MaterialSystem::Sampler* _internal_mutable_sampler();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.BindingType binding_type = 6;
+  void clear_binding_type();
+  ::Tiny3D::Script::MaterialSystem::BindingType binding_type() const;
+  void set_binding_type(::Tiny3D::Script::MaterialSystem::BindingType value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::BindingType _internal_binding_type() const;
+  void _internal_set_binding_type(::Tiny3D::Script::MaterialSystem::BindingType value);
+  public:
+
+  // uint32 tex_coord_set = 7;
+  void clear_tex_coord_set();
+  ::PROTOBUF_NAMESPACE_ID::uint32 tex_coord_set() const;
+  void set_tex_coord_set(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_tex_coord_set() const;
+  void _internal_set_tex_coord_set(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.BlendType color_op = 8;
+  void clear_color_op();
+  ::Tiny3D::Script::MaterialSystem::BlendType color_op() const;
+  void set_color_op(::Tiny3D::Script::MaterialSystem::BlendType value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::BlendType _internal_color_op() const;
+  void _internal_set_color_op(::Tiny3D::Script::MaterialSystem::BlendType value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.TextureUnit)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr texture_alias_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr sampler_ref_;
+  ::Tiny3D::Script::MaterialSystem::Header* header_;
+  ::Tiny3D::Script::MaterialSystem::Texture* texture_;
+  ::Tiny3D::Script::MaterialSystem::AnimTexture* anim_texture_;
+  ::Tiny3D::Script::MaterialSystem::CubicTexture* cubic_texture_;
+  ::Tiny3D::Script::MaterialSystem::Sampler* sampler_;
+  int binding_type_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 tex_coord_set_;
+  int color_op_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
 };
@@ -2260,7 +4716,7 @@ class LightColor :
                &_LightColor_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    25;
 
   friend void swap(LightColor& a, LightColor& b) {
     a.Swap(&b);
@@ -2390,7 +4846,7 @@ class BlendSceneFactor :
                &_BlendSceneFactor_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    26;
 
   friend void swap(BlendSceneFactor& a, BlendSceneFactor& b) {
     a.Swap(&b);
@@ -2520,7 +4976,7 @@ class BlendScene :
                &_BlendScene_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    27;
 
   friend void swap(BlendScene& a, BlendScene& b) {
     a.Swap(&b);
@@ -2665,7 +5121,7 @@ class SimpleBlendType :
                &_SimpleBlendType_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    28;
 
   friend void swap(SimpleBlendType& a, SimpleBlendType& b) {
     a.Swap(&b);
@@ -2789,7 +5245,7 @@ class SimpleBlendSceneFactor :
                &_SimpleBlendSceneFactor_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    29;
 
   friend void swap(SimpleBlendSceneFactor& a, SimpleBlendSceneFactor& b) {
     a.Swap(&b);
@@ -2941,7 +5397,7 @@ class SeparateBlendScene :
                &_SeparateBlendScene_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    30;
 
   friend void swap(SeparateBlendScene& a, SeparateBlendScene& b) {
     a.Swap(&b);
@@ -3089,7 +5545,7 @@ class SeparateSceneBlendOperation :
                &_SeparateSceneBlendOperation_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    17;
+    31;
 
   friend void swap(SeparateSceneBlendOperation& a, SeparateSceneBlendOperation& b) {
     a.Swap(&b);
@@ -3213,7 +5669,7 @@ class DepthBias :
                &_DepthBias_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    18;
+    32;
 
   friend void swap(DepthBias& a, DepthBias& b) {
     a.Swap(&b);
@@ -3337,7 +5793,7 @@ class AlphaRejection :
                &_AlphaRejection_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    19;
+    33;
 
   friend void swap(AlphaRejection& a, AlphaRejection& b) {
     a.Swap(&b);
@@ -3461,7 +5917,7 @@ class Fog :
                &_Fog_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    20;
+    34;
 
   friend void swap(Fog& a, Fog& b) {
     a.Swap(&b);
@@ -3635,7 +6091,7 @@ class Iteration :
                &_Iteration_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    21;
+    35;
 
   friend void swap(Iteration& a, Iteration& b) {
     a.Swap(&b);
@@ -3781,7 +6237,7 @@ class PointSizeAttenuation :
                &_PointSizeAttenuation_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    22;
+    36;
 
   friend void swap(PointSizeAttenuation& a, PointSizeAttenuation& b) {
     a.Swap(&b);
@@ -3927,7 +6383,7 @@ class Pass :
                &_Pass_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    23;
+    37;
 
   friend void swap(Pass& a, Pass& b) {
     a.Swap(&b);
@@ -3985,46 +6441,81 @@ class Pass :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAmbientFieldNumber = 1,
-    kDiffuseFieldNumber = 2,
-    kSpecularFieldNumber = 3,
-    kEmissiveFieldNumber = 4,
-    kSceneBlendFieldNumber = 6,
-    kSeparateBlendSceneFieldNumber = 7,
-    kSeparateSceneBlendOpFieldNumber = 9,
-    kDepthBiasFieldNumber = 13,
-    kAlphaRejectionFieldNumber = 15,
-    kFogFieldNumber = 28,
-    kIterationFieldNumber = 32,
-    kPointSizeAttenuationFieldNumber = 35,
-    kGpuProgramRefFieldNumber = 38,
-    kShininessFieldNumber = 5,
-    kSceneBlendOpFieldNumber = 8,
-    kDepthFuncFieldNumber = 12,
-    kDepthCheckFieldNumber = 10,
-    kDepthWriteFieldNumber = 11,
-    kAlphaToCoverageFieldNumber = 16,
-    kLightScissorFieldNumber = 17,
-    kIterationDepthBiasFieldNumber = 14,
-    kIlluminationStageFieldNumber = 19,
-    kTransparentSortingFieldNumber = 21,
-    kCullHardwareFieldNumber = 22,
-    kLightClipPlanesFieldNumber = 18,
-    kNormailizeNormalsFieldNumber = 20,
-    kLightingFieldNumber = 24,
-    kPolygonModeOverrideableFieldNumber = 27,
-    kCullSoftwareFieldNumber = 23,
-    kShadingFieldNumber = 25,
-    kPolygonModeFieldNumber = 26,
-    kMaxLightsFieldNumber = 30,
-    kStartLightFieldNumber = 31,
-    kColorWriteFieldNumber = 29,
-    kPointSpritesFieldNumber = 34,
-    kPointSizeFieldNumber = 33,
-    kPointSizeMinFieldNumber = 36,
-    kPointSizeMaxFieldNumber = 37,
+    kTexturesFieldNumber = 40,
+    kHeaderFieldNumber = 1,
+    kAmbientFieldNumber = 2,
+    kDiffuseFieldNumber = 3,
+    kSpecularFieldNumber = 4,
+    kEmissiveFieldNumber = 5,
+    kSceneBlendFieldNumber = 7,
+    kSeparateBlendSceneFieldNumber = 8,
+    kSeparateSceneBlendOpFieldNumber = 10,
+    kDepthBiasFieldNumber = 14,
+    kAlphaRejectionFieldNumber = 16,
+    kFogFieldNumber = 29,
+    kIterationFieldNumber = 33,
+    kPointSizeAttenuationFieldNumber = 36,
+    kGpuProgramRefFieldNumber = 39,
+    kShininessFieldNumber = 6,
+    kSceneBlendOpFieldNumber = 9,
+    kDepthFuncFieldNumber = 13,
+    kDepthCheckFieldNumber = 11,
+    kDepthWriteFieldNumber = 12,
+    kAlphaToCoverageFieldNumber = 17,
+    kLightScissorFieldNumber = 18,
+    kIterationDepthBiasFieldNumber = 15,
+    kIlluminationStageFieldNumber = 20,
+    kTransparentSortingFieldNumber = 22,
+    kCullHardwareFieldNumber = 23,
+    kLightClipPlanesFieldNumber = 19,
+    kNormailizeNormalsFieldNumber = 21,
+    kLightingFieldNumber = 25,
+    kPolygonModeOverrideableFieldNumber = 28,
+    kCullSoftwareFieldNumber = 24,
+    kShadingFieldNumber = 26,
+    kPolygonModeFieldNumber = 27,
+    kMaxLightsFieldNumber = 31,
+    kStartLightFieldNumber = 32,
+    kColorWriteFieldNumber = 30,
+    kPointSpritesFieldNumber = 35,
+    kPointSizeFieldNumber = 34,
+    kPointSizeMinFieldNumber = 37,
+    kPointSizeMaxFieldNumber = 38,
   };
-  // .Tiny3D.Script.MaterialSystem.LightColor ambient = 1;
+  // repeated .Tiny3D.Script.MaterialSystem.TextureUnit textures = 40;
+  int textures_size() const;
+  private:
+  int _internal_textures_size() const;
+  public:
+  void clear_textures();
+  ::Tiny3D::Script::MaterialSystem::TextureUnit* mutable_textures(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::TextureUnit >*
+      mutable_textures();
+  private:
+  const ::Tiny3D::Script::MaterialSystem::TextureUnit& _internal_textures(int index) const;
+  ::Tiny3D::Script::MaterialSystem::TextureUnit* _internal_add_textures();
+  public:
+  const ::Tiny3D::Script::MaterialSystem::TextureUnit& textures(int index) const;
+  ::Tiny3D::Script::MaterialSystem::TextureUnit* add_textures();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::TextureUnit >&
+      textures() const;
+
+  // .Tiny3D.Script.MaterialSystem.Header header = 1;
+  bool has_header() const;
+  private:
+  bool _internal_has_header() const;
+  public:
+  void clear_header();
+  const ::Tiny3D::Script::MaterialSystem::Header& header() const;
+  ::Tiny3D::Script::MaterialSystem::Header* release_header();
+  ::Tiny3D::Script::MaterialSystem::Header* mutable_header();
+  void set_allocated_header(::Tiny3D::Script::MaterialSystem::Header* header);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::Header& _internal_header() const;
+  ::Tiny3D::Script::MaterialSystem::Header* _internal_mutable_header();
+  public:
+
+  // .Tiny3D.Script.MaterialSystem.LightColor ambient = 2;
   bool has_ambient() const;
   private:
   bool _internal_has_ambient() const;
@@ -4039,7 +6530,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::LightColor* _internal_mutable_ambient();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.LightColor diffuse = 2;
+  // .Tiny3D.Script.MaterialSystem.LightColor diffuse = 3;
   bool has_diffuse() const;
   private:
   bool _internal_has_diffuse() const;
@@ -4054,7 +6545,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::LightColor* _internal_mutable_diffuse();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.LightColor specular = 3;
+  // .Tiny3D.Script.MaterialSystem.LightColor specular = 4;
   bool has_specular() const;
   private:
   bool _internal_has_specular() const;
@@ -4069,7 +6560,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::LightColor* _internal_mutable_specular();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.LightColor emissive = 4;
+  // .Tiny3D.Script.MaterialSystem.LightColor emissive = 5;
   bool has_emissive() const;
   private:
   bool _internal_has_emissive() const;
@@ -4084,7 +6575,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::LightColor* _internal_mutable_emissive();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.BlendScene scene_blend = 6;
+  // .Tiny3D.Script.MaterialSystem.BlendScene scene_blend = 7;
   bool has_scene_blend() const;
   private:
   bool _internal_has_scene_blend() const;
@@ -4099,7 +6590,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::BlendScene* _internal_mutable_scene_blend();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_blend_scene = 7;
+  // .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_blend_scene = 8;
   bool has_separate_blend_scene() const;
   private:
   bool _internal_has_separate_blend_scene() const;
@@ -4114,7 +6605,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* _internal_mutable_separate_blend_scene();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.SeparateSceneBlendOperation separate_scene_blend_op = 9;
+  // .Tiny3D.Script.MaterialSystem.SeparateSceneBlendOperation separate_scene_blend_op = 10;
   bool has_separate_scene_blend_op() const;
   private:
   bool _internal_has_separate_scene_blend_op() const;
@@ -4129,7 +6620,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::SeparateSceneBlendOperation* _internal_mutable_separate_scene_blend_op();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.DepthBias depth_bias = 13;
+  // .Tiny3D.Script.MaterialSystem.DepthBias depth_bias = 14;
   bool has_depth_bias() const;
   private:
   bool _internal_has_depth_bias() const;
@@ -4144,7 +6635,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::DepthBias* _internal_mutable_depth_bias();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.AlphaRejection alpha_rejection = 15;
+  // .Tiny3D.Script.MaterialSystem.AlphaRejection alpha_rejection = 16;
   bool has_alpha_rejection() const;
   private:
   bool _internal_has_alpha_rejection() const;
@@ -4159,7 +6650,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::AlphaRejection* _internal_mutable_alpha_rejection();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.Fog fog = 28;
+  // .Tiny3D.Script.MaterialSystem.Fog fog = 29;
   bool has_fog() const;
   private:
   bool _internal_has_fog() const;
@@ -4174,7 +6665,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::Fog* _internal_mutable_fog();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.Iteration iteration = 32;
+  // .Tiny3D.Script.MaterialSystem.Iteration iteration = 33;
   bool has_iteration() const;
   private:
   bool _internal_has_iteration() const;
@@ -4189,7 +6680,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::Iteration* _internal_mutable_iteration();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.PointSizeAttenuation point_size_attenuation = 35;
+  // .Tiny3D.Script.MaterialSystem.PointSizeAttenuation point_size_attenuation = 36;
   bool has_point_size_attenuation() const;
   private:
   bool _internal_has_point_size_attenuation() const;
@@ -4204,7 +6695,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::PointSizeAttenuation* _internal_mutable_point_size_attenuation();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.GPUProgramRef gpu_program_ref = 38;
+  // .Tiny3D.Script.MaterialSystem.GPUProgramRef gpu_program_ref = 39;
   bool has_gpu_program_ref() const;
   private:
   bool _internal_has_gpu_program_ref() const;
@@ -4219,7 +6710,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::GPUProgramRef* _internal_mutable_gpu_program_ref();
   public:
 
-  // float shininess = 5;
+  // float shininess = 6;
   void clear_shininess();
   float shininess() const;
   void set_shininess(float value);
@@ -4228,7 +6719,7 @@ class Pass :
   void _internal_set_shininess(float value);
   public:
 
-  // .Tiny3D.Script.MaterialSystem.BlendOperation scene_blend_op = 8;
+  // .Tiny3D.Script.MaterialSystem.BlendOperation scene_blend_op = 9;
   void clear_scene_blend_op();
   ::Tiny3D::Script::MaterialSystem::BlendOperation scene_blend_op() const;
   void set_scene_blend_op(::Tiny3D::Script::MaterialSystem::BlendOperation value);
@@ -4237,7 +6728,7 @@ class Pass :
   void _internal_set_scene_blend_op(::Tiny3D::Script::MaterialSystem::BlendOperation value);
   public:
 
-  // .Tiny3D.Script.MaterialSystem.CompareFunction depth_func = 12;
+  // .Tiny3D.Script.MaterialSystem.CompareFunction depth_func = 13;
   void clear_depth_func();
   ::Tiny3D::Script::MaterialSystem::CompareFunction depth_func() const;
   void set_depth_func(::Tiny3D::Script::MaterialSystem::CompareFunction value);
@@ -4246,7 +6737,7 @@ class Pass :
   void _internal_set_depth_func(::Tiny3D::Script::MaterialSystem::CompareFunction value);
   public:
 
-  // bool depth_check = 10;
+  // bool depth_check = 11;
   void clear_depth_check();
   bool depth_check() const;
   void set_depth_check(bool value);
@@ -4255,7 +6746,7 @@ class Pass :
   void _internal_set_depth_check(bool value);
   public:
 
-  // bool depth_write = 11;
+  // bool depth_write = 12;
   void clear_depth_write();
   bool depth_write() const;
   void set_depth_write(bool value);
@@ -4264,7 +6755,7 @@ class Pass :
   void _internal_set_depth_write(bool value);
   public:
 
-  // bool alpha_to_coverage = 16;
+  // bool alpha_to_coverage = 17;
   void clear_alpha_to_coverage();
   bool alpha_to_coverage() const;
   void set_alpha_to_coverage(bool value);
@@ -4273,7 +6764,7 @@ class Pass :
   void _internal_set_alpha_to_coverage(bool value);
   public:
 
-  // bool light_scissor = 17;
+  // bool light_scissor = 18;
   void clear_light_scissor();
   bool light_scissor() const;
   void set_light_scissor(bool value);
@@ -4282,7 +6773,7 @@ class Pass :
   void _internal_set_light_scissor(bool value);
   public:
 
-  // float iteration_depth_bias = 14;
+  // float iteration_depth_bias = 15;
   void clear_iteration_depth_bias();
   float iteration_depth_bias() const;
   void set_iteration_depth_bias(float value);
@@ -4291,7 +6782,7 @@ class Pass :
   void _internal_set_iteration_depth_bias(float value);
   public:
 
-  // .Tiny3D.Script.MaterialSystem.IlluminationStage illumination_stage = 19;
+  // .Tiny3D.Script.MaterialSystem.IlluminationStage illumination_stage = 20;
   void clear_illumination_stage();
   ::Tiny3D::Script::MaterialSystem::IlluminationStage illumination_stage() const;
   void set_illumination_stage(::Tiny3D::Script::MaterialSystem::IlluminationStage value);
@@ -4300,7 +6791,7 @@ class Pass :
   void _internal_set_illumination_stage(::Tiny3D::Script::MaterialSystem::IlluminationStage value);
   public:
 
-  // .Tiny3D.Script.MaterialSystem.TransparentSorting transparent_sorting = 21;
+  // .Tiny3D.Script.MaterialSystem.TransparentSorting transparent_sorting = 22;
   void clear_transparent_sorting();
   ::Tiny3D::Script::MaterialSystem::TransparentSorting transparent_sorting() const;
   void set_transparent_sorting(::Tiny3D::Script::MaterialSystem::TransparentSorting value);
@@ -4309,7 +6800,7 @@ class Pass :
   void _internal_set_transparent_sorting(::Tiny3D::Script::MaterialSystem::TransparentSorting value);
   public:
 
-  // .Tiny3D.Script.MaterialSystem.CullHardware cull_hardware = 22;
+  // .Tiny3D.Script.MaterialSystem.CullHardware cull_hardware = 23;
   void clear_cull_hardware();
   ::Tiny3D::Script::MaterialSystem::CullHardware cull_hardware() const;
   void set_cull_hardware(::Tiny3D::Script::MaterialSystem::CullHardware value);
@@ -4318,7 +6809,7 @@ class Pass :
   void _internal_set_cull_hardware(::Tiny3D::Script::MaterialSystem::CullHardware value);
   public:
 
-  // bool light_clip_planes = 18;
+  // bool light_clip_planes = 19;
   void clear_light_clip_planes();
   bool light_clip_planes() const;
   void set_light_clip_planes(bool value);
@@ -4327,7 +6818,7 @@ class Pass :
   void _internal_set_light_clip_planes(bool value);
   public:
 
-  // bool normailize_normals = 20;
+  // bool normailize_normals = 21;
   void clear_normailize_normals();
   bool normailize_normals() const;
   void set_normailize_normals(bool value);
@@ -4336,7 +6827,7 @@ class Pass :
   void _internal_set_normailize_normals(bool value);
   public:
 
-  // bool lighting = 24;
+  // bool lighting = 25;
   void clear_lighting();
   bool lighting() const;
   void set_lighting(bool value);
@@ -4345,7 +6836,7 @@ class Pass :
   void _internal_set_lighting(bool value);
   public:
 
-  // bool polygon_mode_overrideable = 27;
+  // bool polygon_mode_overrideable = 28;
   void clear_polygon_mode_overrideable();
   bool polygon_mode_overrideable() const;
   void set_polygon_mode_overrideable(bool value);
@@ -4354,7 +6845,7 @@ class Pass :
   void _internal_set_polygon_mode_overrideable(bool value);
   public:
 
-  // .Tiny3D.Script.MaterialSystem.CullSoftware cull_software = 23;
+  // .Tiny3D.Script.MaterialSystem.CullSoftware cull_software = 24;
   void clear_cull_software();
   ::Tiny3D::Script::MaterialSystem::CullSoftware cull_software() const;
   void set_cull_software(::Tiny3D::Script::MaterialSystem::CullSoftware value);
@@ -4363,7 +6854,7 @@ class Pass :
   void _internal_set_cull_software(::Tiny3D::Script::MaterialSystem::CullSoftware value);
   public:
 
-  // .Tiny3D.Script.MaterialSystem.ShadingMode shading = 25;
+  // .Tiny3D.Script.MaterialSystem.ShadingMode shading = 26;
   void clear_shading();
   ::Tiny3D::Script::MaterialSystem::ShadingMode shading() const;
   void set_shading(::Tiny3D::Script::MaterialSystem::ShadingMode value);
@@ -4372,7 +6863,7 @@ class Pass :
   void _internal_set_shading(::Tiny3D::Script::MaterialSystem::ShadingMode value);
   public:
 
-  // .Tiny3D.Script.MaterialSystem.PolygonMode polygon_mode = 26;
+  // .Tiny3D.Script.MaterialSystem.PolygonMode polygon_mode = 27;
   void clear_polygon_mode();
   ::Tiny3D::Script::MaterialSystem::PolygonMode polygon_mode() const;
   void set_polygon_mode(::Tiny3D::Script::MaterialSystem::PolygonMode value);
@@ -4381,7 +6872,7 @@ class Pass :
   void _internal_set_polygon_mode(::Tiny3D::Script::MaterialSystem::PolygonMode value);
   public:
 
-  // uint32 max_lights = 30;
+  // uint32 max_lights = 31;
   void clear_max_lights();
   ::PROTOBUF_NAMESPACE_ID::uint32 max_lights() const;
   void set_max_lights(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -4390,7 +6881,7 @@ class Pass :
   void _internal_set_max_lights(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 start_light = 31;
+  // uint32 start_light = 32;
   void clear_start_light();
   ::PROTOBUF_NAMESPACE_ID::uint32 start_light() const;
   void set_start_light(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -4399,7 +6890,7 @@ class Pass :
   void _internal_set_start_light(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // bool color_write = 29;
+  // bool color_write = 30;
   void clear_color_write();
   bool color_write() const;
   void set_color_write(bool value);
@@ -4408,7 +6899,7 @@ class Pass :
   void _internal_set_color_write(bool value);
   public:
 
-  // bool point_sprites = 34;
+  // bool point_sprites = 35;
   void clear_point_sprites();
   bool point_sprites() const;
   void set_point_sprites(bool value);
@@ -4417,7 +6908,7 @@ class Pass :
   void _internal_set_point_sprites(bool value);
   public:
 
-  // float point_size = 33;
+  // float point_size = 34;
   void clear_point_size();
   float point_size() const;
   void set_point_size(float value);
@@ -4426,7 +6917,7 @@ class Pass :
   void _internal_set_point_size(float value);
   public:
 
-  // float point_size_min = 36;
+  // float point_size_min = 37;
   void clear_point_size_min();
   float point_size_min() const;
   void set_point_size_min(float value);
@@ -4435,7 +6926,7 @@ class Pass :
   void _internal_set_point_size_min(float value);
   public:
 
-  // float point_size_max = 37;
+  // float point_size_max = 38;
   void clear_point_size_max();
   float point_size_max() const;
   void set_point_size_max(float value);
@@ -4449,6 +6940,8 @@ class Pass :
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::TextureUnit > textures_;
+  ::Tiny3D::Script::MaterialSystem::Header* header_;
   ::Tiny3D::Script::MaterialSystem::LightColor* ambient_;
   ::Tiny3D::Script::MaterialSystem::LightColor* diffuse_;
   ::Tiny3D::Script::MaterialSystem::LightColor* specular_;
@@ -4525,7 +7018,7 @@ class GPUVendorRule :
                &_GPUVendorRule_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    24;
+    38;
 
   friend void swap(GPUVendorRule& a, GPUVendorRule& b) {
     a.Swap(&b);
@@ -4656,7 +7149,7 @@ class GPUDeviceRule :
                &_GPUDeviceRule_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    25;
+    39;
 
   friend void swap(GPUDeviceRule& a, GPUDeviceRule& b) {
     a.Swap(&b);
@@ -4798,7 +7291,7 @@ class Technique :
                &_Technique_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    26;
+    40;
 
   friend void swap(Technique& a, Technique& b) {
     a.Swap(&b);
@@ -4856,6 +7349,7 @@ class Technique :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kPassesFieldNumber = 9,
     kSchemeFieldNumber = 4,
     kShadowCasterMaterialFieldNumber = 5,
     kShadowReceiverMaterialFieldNumber = 6,
@@ -4865,6 +7359,24 @@ class Technique :
     kRenderQueueFieldNumber = 2,
     kLodIndexFieldNumber = 3,
   };
+  // repeated .Tiny3D.Script.MaterialSystem.Pass passes = 9;
+  int passes_size() const;
+  private:
+  int _internal_passes_size() const;
+  public:
+  void clear_passes();
+  ::Tiny3D::Script::MaterialSystem::Pass* mutable_passes(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Pass >*
+      mutable_passes();
+  private:
+  const ::Tiny3D::Script::MaterialSystem::Pass& _internal_passes(int index) const;
+  ::Tiny3D::Script::MaterialSystem::Pass* _internal_add_passes();
+  public:
+  const ::Tiny3D::Script::MaterialSystem::Pass& passes(int index) const;
+  ::Tiny3D::Script::MaterialSystem::Pass* add_passes();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Pass >&
+      passes() const;
+
   // string scheme = 4;
   void clear_scheme();
   const std::string& scheme() const;
@@ -4981,6 +7493,7 @@ class Technique :
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Pass > passes_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr scheme_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr shadow_caster_material_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr shadow_receiver_material_;
@@ -5027,7 +7540,7 @@ class LODValues :
                &_LODValues_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    27;
+    41;
 
   friend void swap(LODValues& a, LODValues& b) {
     a.Swap(&b);
@@ -5087,7 +7600,6 @@ class LODValues :
   enum : int {
     kValuesFieldNumber = 2,
     kStrategyFieldNumber = 3,
-    kNumberFieldNumber = 1,
   };
   // repeated float values = 2;
   int values_size() const;
@@ -5127,15 +7639,6 @@ class LODValues :
   std::string* _internal_mutable_strategy();
   public:
 
-  // uint32 number = 1;
-  void clear_number();
-  ::PROTOBUF_NAMESPACE_ID::uint32 number() const;
-  void set_number(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_number() const;
-  void _internal_set_number(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.LODValues)
  private:
   class _Internal;
@@ -5144,7 +7647,6 @@ class LODValues :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > values_;
   mutable std::atomic<int> _values_cached_byte_size_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr strategy_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 number_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
 };
@@ -5183,7 +7685,7 @@ class TextureAlias :
                &_TextureAlias_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    28;
+    42;
 
   friend void swap(TextureAlias& a, TextureAlias& b) {
     a.Swap(&b);
@@ -5244,36 +7746,36 @@ class TextureAlias :
     kAliasNameFieldNumber = 1,
     kTextureNameFieldNumber = 2,
   };
-  // string aliasName = 1;
-  void clear_aliasname();
-  const std::string& aliasname() const;
-  void set_aliasname(const std::string& value);
-  void set_aliasname(std::string&& value);
-  void set_aliasname(const char* value);
-  void set_aliasname(const char* value, size_t size);
-  std::string* mutable_aliasname();
-  std::string* release_aliasname();
-  void set_allocated_aliasname(std::string* aliasname);
+  // string alias_name = 1;
+  void clear_alias_name();
+  const std::string& alias_name() const;
+  void set_alias_name(const std::string& value);
+  void set_alias_name(std::string&& value);
+  void set_alias_name(const char* value);
+  void set_alias_name(const char* value, size_t size);
+  std::string* mutable_alias_name();
+  std::string* release_alias_name();
+  void set_allocated_alias_name(std::string* alias_name);
   private:
-  const std::string& _internal_aliasname() const;
-  void _internal_set_aliasname(const std::string& value);
-  std::string* _internal_mutable_aliasname();
+  const std::string& _internal_alias_name() const;
+  void _internal_set_alias_name(const std::string& value);
+  std::string* _internal_mutable_alias_name();
   public:
 
-  // string textureName = 2;
-  void clear_texturename();
-  const std::string& texturename() const;
-  void set_texturename(const std::string& value);
-  void set_texturename(std::string&& value);
-  void set_texturename(const char* value);
-  void set_texturename(const char* value, size_t size);
-  std::string* mutable_texturename();
-  std::string* release_texturename();
-  void set_allocated_texturename(std::string* texturename);
+  // string texture_name = 2;
+  void clear_texture_name();
+  const std::string& texture_name() const;
+  void set_texture_name(const std::string& value);
+  void set_texture_name(std::string&& value);
+  void set_texture_name(const char* value);
+  void set_texture_name(const char* value, size_t size);
+  std::string* mutable_texture_name();
+  std::string* release_texture_name();
+  void set_allocated_texture_name(std::string* texture_name);
   private:
-  const std::string& _internal_texturename() const;
-  void _internal_set_texturename(const std::string& value);
-  std::string* _internal_mutable_texturename();
+  const std::string& _internal_texture_name() const;
+  void _internal_set_texture_name(const std::string& value);
+  std::string* _internal_mutable_texture_name();
   public:
 
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.TextureAlias)
@@ -5281,8 +7783,8 @@ class TextureAlias :
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr aliasname_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr texturename_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr alias_name_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr texture_name_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
 };
@@ -5321,7 +7823,7 @@ class Material :
                &_Material_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    29;
+    43;
 
   friend void swap(Material& a, Material& b) {
     a.Swap(&b);
@@ -5380,6 +7882,8 @@ class Material :
 
   enum : int {
     kTechniquesFieldNumber = 6,
+    kCbuffersFieldNumber = 7,
+    kProgramsFieldNumber = 8,
     kHeaderFieldNumber = 1,
     kValuesFieldNumber = 2,
     kTextureAliasFieldNumber = 5,
@@ -5403,6 +7907,42 @@ class Material :
   ::Tiny3D::Script::MaterialSystem::Technique* add_techniques();
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Technique >&
       techniques() const;
+
+  // repeated .Tiny3D.Script.MaterialSystem.GPUConstantBuffer cbuffers = 7;
+  int cbuffers_size() const;
+  private:
+  int _internal_cbuffers_size() const;
+  public:
+  void clear_cbuffers();
+  ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer* mutable_cbuffers(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer >*
+      mutable_cbuffers();
+  private:
+  const ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer& _internal_cbuffers(int index) const;
+  ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer* _internal_add_cbuffers();
+  public:
+  const ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer& cbuffers(int index) const;
+  ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer* add_cbuffers();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer >&
+      cbuffers() const;
+
+  // repeated .Tiny3D.Script.MaterialSystem.GPUProgram programs = 8;
+  int programs_size() const;
+  private:
+  int _internal_programs_size() const;
+  public:
+  void clear_programs();
+  ::Tiny3D::Script::MaterialSystem::GPUProgram* mutable_programs(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUProgram >*
+      mutable_programs();
+  private:
+  const ::Tiny3D::Script::MaterialSystem::GPUProgram& _internal_programs(int index) const;
+  ::Tiny3D::Script::MaterialSystem::GPUProgram* _internal_add_programs();
+  public:
+  const ::Tiny3D::Script::MaterialSystem::GPUProgram& programs(int index) const;
+  ::Tiny3D::Script::MaterialSystem::GPUProgram* add_programs();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUProgram >&
+      programs() const;
 
   // .Tiny3D.Script.MaterialSystem.Header header = 1;
   bool has_header() const;
@@ -5473,6 +8013,8 @@ class Material :
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Technique > techniques_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer > cbuffers_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUProgram > programs_;
   ::Tiny3D::Script::MaterialSystem::Header* header_;
   ::Tiny3D::Script::MaterialSystem::LODValues* values_;
   ::Tiny3D::Script::MaterialSystem::TextureAlias* texture_alias_;
@@ -5570,6 +8112,141 @@ inline void Header::set_allocated_name(std::string* name) {
   }
   name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name);
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Header.name)
+}
+
+// -------------------------------------------------------------------
+
+// Color
+
+// float r = 1;
+inline void Color::clear_r() {
+  r_ = 0;
+}
+inline float Color::_internal_r() const {
+  return r_;
+}
+inline float Color::r() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Color.r)
+  return _internal_r();
+}
+inline void Color::_internal_set_r(float value) {
+  
+  r_ = value;
+}
+inline void Color::set_r(float value) {
+  _internal_set_r(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Color.r)
+}
+
+// float g = 2;
+inline void Color::clear_g() {
+  g_ = 0;
+}
+inline float Color::_internal_g() const {
+  return g_;
+}
+inline float Color::g() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Color.g)
+  return _internal_g();
+}
+inline void Color::_internal_set_g(float value) {
+  
+  g_ = value;
+}
+inline void Color::set_g(float value) {
+  _internal_set_g(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Color.g)
+}
+
+// float b = 3;
+inline void Color::clear_b() {
+  b_ = 0;
+}
+inline float Color::_internal_b() const {
+  return b_;
+}
+inline float Color::b() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Color.b)
+  return _internal_b();
+}
+inline void Color::_internal_set_b(float value) {
+  
+  b_ = value;
+}
+inline void Color::set_b(float value) {
+  _internal_set_b(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Color.b)
+}
+
+// float a = 4;
+inline void Color::clear_a() {
+  a_ = 0;
+}
+inline float Color::_internal_a() const {
+  return a_;
+}
+inline float Color::a() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Color.a)
+  return _internal_a();
+}
+inline void Color::_internal_set_a(float value) {
+  
+  a_ = value;
+}
+inline void Color::set_a(float value) {
+  _internal_set_a(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Color.a)
+}
+
+// -------------------------------------------------------------------
+
+// Matrix4
+
+// repeated float values = 1;
+inline int Matrix4::_internal_values_size() const {
+  return values_.size();
+}
+inline int Matrix4::values_size() const {
+  return _internal_values_size();
+}
+inline void Matrix4::clear_values() {
+  values_.Clear();
+}
+inline float Matrix4::_internal_values(int index) const {
+  return values_.Get(index);
+}
+inline float Matrix4::values(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Matrix4.values)
+  return _internal_values(index);
+}
+inline void Matrix4::set_values(int index, float value) {
+  values_.Set(index, value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Matrix4.values)
+}
+inline void Matrix4::_internal_add_values(float value) {
+  values_.Add(value);
+}
+inline void Matrix4::add_values(float value) {
+  _internal_add_values(value);
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.Matrix4.values)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+Matrix4::_internal_values() const {
+  return values_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+Matrix4::values() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.Matrix4.values)
+  return _internal_values();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+Matrix4::_internal_mutable_values() {
+  return &values_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+Matrix4::mutable_values() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.Matrix4.values)
+  return _internal_mutable_values();
 }
 
 // -------------------------------------------------------------------
@@ -6168,512 +8845,398 @@ GPUProgramRef::gpu_cbuffer_ref() const {
 
 // -------------------------------------------------------------------
 
-// ParamIndexed
+// Param
 
 // uint32 index = 1;
-inline void ParamIndexed::clear_index() {
+inline void Param::clear_index() {
   index_ = 0u;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamIndexed::_internal_index() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint32 Param::_internal_index() const {
   return index_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamIndexed::index() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamIndexed.index)
+inline ::PROTOBUF_NAMESPACE_ID::uint32 Param::index() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Param.index)
   return _internal_index();
 }
-inline void ParamIndexed::_internal_set_index(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void Param::_internal_set_index(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   
   index_ = value;
 }
-inline void ParamIndexed::set_index(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void Param::set_index(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   _internal_set_index(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamIndexed.index)
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Param.index)
 }
 
-// .Tiny3D.Script.MaterialSystem.BuiltInType type = 2;
-inline void ParamIndexed::clear_type() {
-  type_ = 0;
-}
-inline ::Tiny3D::Script::MaterialSystem::BuiltInType ParamIndexed::_internal_type() const {
-  return static_cast< ::Tiny3D::Script::MaterialSystem::BuiltInType >(type_);
-}
-inline ::Tiny3D::Script::MaterialSystem::BuiltInType ParamIndexed::type() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamIndexed.type)
-  return _internal_type();
-}
-inline void ParamIndexed::_internal_set_type(::Tiny3D::Script::MaterialSystem::BuiltInType value) {
-  
-  type_ = value;
-}
-inline void ParamIndexed::set_type(::Tiny3D::Script::MaterialSystem::BuiltInType value) {
-  _internal_set_type(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamIndexed.type)
-}
-
-// uint32 num_values = 3;
-inline void ParamIndexed::clear_num_values() {
-  num_values_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamIndexed::_internal_num_values() const {
-  return num_values_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamIndexed::num_values() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamIndexed.num_values)
-  return _internal_num_values();
-}
-inline void ParamIndexed::_internal_set_num_values(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  num_values_ = value;
-}
-inline void ParamIndexed::set_num_values(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_num_values(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamIndexed.num_values)
-}
-
-// repeated float values = 4;
-inline int ParamIndexed::_internal_values_size() const {
-  return values_.size();
-}
-inline int ParamIndexed::values_size() const {
-  return _internal_values_size();
-}
-inline void ParamIndexed::clear_values() {
-  values_.Clear();
-}
-inline float ParamIndexed::_internal_values(int index) const {
-  return values_.Get(index);
-}
-inline float ParamIndexed::values(int index) const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamIndexed.values)
-  return _internal_values(index);
-}
-inline void ParamIndexed::set_values(int index, float value) {
-  values_.Set(index, value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamIndexed.values)
-}
-inline void ParamIndexed::_internal_add_values(float value) {
-  values_.Add(value);
-}
-inline void ParamIndexed::add_values(float value) {
-  _internal_add_values(value);
-  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.ParamIndexed.values)
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-ParamIndexed::_internal_values() const {
-  return values_;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-ParamIndexed::values() const {
-  // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.ParamIndexed.values)
-  return _internal_values();
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-ParamIndexed::_internal_mutable_values() {
-  return &values_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-ParamIndexed::mutable_values() {
-  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.ParamIndexed.values)
-  return _internal_mutable_values();
-}
-
-// -------------------------------------------------------------------
-
-// ParamIndexedAuto
-
-// uint32 index = 1;
-inline void ParamIndexedAuto::clear_index() {
-  index_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamIndexedAuto::_internal_index() const {
-  return index_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamIndexedAuto::index() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamIndexedAuto.index)
-  return _internal_index();
-}
-inline void ParamIndexedAuto::_internal_set_index(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  index_ = value;
-}
-inline void ParamIndexedAuto::set_index(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_index(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamIndexedAuto.index)
-}
-
-// uint32 value_code = 2;
-inline void ParamIndexedAuto::clear_value_code() {
-  value_code_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamIndexedAuto::_internal_value_code() const {
-  return value_code_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamIndexedAuto::value_code() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamIndexedAuto.value_code)
-  return _internal_value_code();
-}
-inline void ParamIndexedAuto::_internal_set_value_code(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  value_code_ = value;
-}
-inline void ParamIndexedAuto::set_value_code(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_value_code(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamIndexedAuto.value_code)
-}
-
-// bytes extra_params = 3;
-inline void ParamIndexedAuto::clear_extra_params() {
-  extra_params_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline const std::string& ParamIndexedAuto::extra_params() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamIndexedAuto.extra_params)
-  return _internal_extra_params();
-}
-inline void ParamIndexedAuto::set_extra_params(const std::string& value) {
-  _internal_set_extra_params(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamIndexedAuto.extra_params)
-}
-inline std::string* ParamIndexedAuto::mutable_extra_params() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.ParamIndexedAuto.extra_params)
-  return _internal_mutable_extra_params();
-}
-inline const std::string& ParamIndexedAuto::_internal_extra_params() const {
-  return extra_params_.GetNoArena();
-}
-inline void ParamIndexedAuto::_internal_set_extra_params(const std::string& value) {
-  
-  extra_params_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
-}
-inline void ParamIndexedAuto::set_extra_params(std::string&& value) {
-  
-  extra_params_.SetNoArena(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.ParamIndexedAuto.extra_params)
-}
-inline void ParamIndexedAuto::set_extra_params(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  extra_params_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.ParamIndexedAuto.extra_params)
-}
-inline void ParamIndexedAuto::set_extra_params(const void* value, size_t size) {
-  
-  extra_params_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.ParamIndexedAuto.extra_params)
-}
-inline std::string* ParamIndexedAuto::_internal_mutable_extra_params() {
-  
-  return extra_params_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline std::string* ParamIndexedAuto::release_extra_params() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.ParamIndexedAuto.extra_params)
-  
-  return extra_params_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline void ParamIndexedAuto::set_allocated_extra_params(std::string* extra_params) {
-  if (extra_params != nullptr) {
-    
-  } else {
-    
-  }
-  extra_params_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), extra_params);
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.ParamIndexedAuto.extra_params)
-}
-
-// -------------------------------------------------------------------
-
-// ParamNamed
-
-// string name = 1;
-inline void ParamNamed::clear_name() {
+// string name = 2;
+inline void Param::clear_name() {
   name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline const std::string& ParamNamed::name() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamNamed.name)
+inline const std::string& Param::name() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Param.name)
   return _internal_name();
 }
-inline void ParamNamed::set_name(const std::string& value) {
+inline void Param::set_name(const std::string& value) {
   _internal_set_name(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamNamed.name)
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Param.name)
 }
-inline std::string* ParamNamed::mutable_name() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.ParamNamed.name)
+inline std::string* Param::mutable_name() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Param.name)
   return _internal_mutable_name();
 }
-inline const std::string& ParamNamed::_internal_name() const {
+inline const std::string& Param::_internal_name() const {
   return name_.GetNoArena();
 }
-inline void ParamNamed::_internal_set_name(const std::string& value) {
+inline void Param::_internal_set_name(const std::string& value) {
   
   name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
 }
-inline void ParamNamed::set_name(std::string&& value) {
+inline void Param::set_name(std::string&& value) {
   
   name_.SetNoArena(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.ParamNamed.name)
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.Param.name)
 }
-inline void ParamNamed::set_name(const char* value) {
+inline void Param::set_name(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
   name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.ParamNamed.name)
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.Param.name)
 }
-inline void ParamNamed::set_name(const char* value, size_t size) {
+inline void Param::set_name(const char* value, size_t size) {
   
   name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.ParamNamed.name)
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.Param.name)
 }
-inline std::string* ParamNamed::_internal_mutable_name() {
+inline std::string* Param::_internal_mutable_name() {
   
   return name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline std::string* ParamNamed::release_name() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.ParamNamed.name)
+inline std::string* Param::release_name() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.Param.name)
   
   return name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline void ParamNamed::set_allocated_name(std::string* name) {
+inline void Param::set_allocated_name(std::string* name) {
   if (name != nullptr) {
     
   } else {
     
   }
   name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name);
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.ParamNamed.name)
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Param.name)
 }
 
-// .Tiny3D.Script.MaterialSystem.BuiltInType type = 2;
-inline void ParamNamed::clear_type() {
+// .Tiny3D.Script.MaterialSystem.BuiltInType type = 3;
+inline void Param::clear_type() {
   type_ = 0;
 }
-inline ::Tiny3D::Script::MaterialSystem::BuiltInType ParamNamed::_internal_type() const {
+inline ::Tiny3D::Script::MaterialSystem::BuiltInType Param::_internal_type() const {
   return static_cast< ::Tiny3D::Script::MaterialSystem::BuiltInType >(type_);
 }
-inline ::Tiny3D::Script::MaterialSystem::BuiltInType ParamNamed::type() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamNamed.type)
+inline ::Tiny3D::Script::MaterialSystem::BuiltInType Param::type() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Param.type)
   return _internal_type();
 }
-inline void ParamNamed::_internal_set_type(::Tiny3D::Script::MaterialSystem::BuiltInType value) {
+inline void Param::_internal_set_type(::Tiny3D::Script::MaterialSystem::BuiltInType value) {
   
   type_ = value;
 }
-inline void ParamNamed::set_type(::Tiny3D::Script::MaterialSystem::BuiltInType value) {
+inline void Param::set_type(::Tiny3D::Script::MaterialSystem::BuiltInType value) {
   _internal_set_type(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamNamed.type)
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Param.type)
 }
 
-// uint32 num_values = 3;
-inline void ParamNamed::clear_num_values() {
-  num_values_ = 0u;
+// repeated float fvalues = 4;
+inline int Param::_internal_fvalues_size() const {
+  return fvalues_.size();
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamNamed::_internal_num_values() const {
-  return num_values_;
+inline int Param::fvalues_size() const {
+  return _internal_fvalues_size();
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamNamed::num_values() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamNamed.num_values)
-  return _internal_num_values();
+inline void Param::clear_fvalues() {
+  fvalues_.Clear();
 }
-inline void ParamNamed::_internal_set_num_values(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  num_values_ = value;
+inline float Param::_internal_fvalues(int index) const {
+  return fvalues_.Get(index);
 }
-inline void ParamNamed::set_num_values(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_num_values(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamNamed.num_values)
+inline float Param::fvalues(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Param.fvalues)
+  return _internal_fvalues(index);
+}
+inline void Param::set_fvalues(int index, float value) {
+  fvalues_.Set(index, value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Param.fvalues)
+}
+inline void Param::_internal_add_fvalues(float value) {
+  fvalues_.Add(value);
+}
+inline void Param::add_fvalues(float value) {
+  _internal_add_fvalues(value);
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.Param.fvalues)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+Param::_internal_fvalues() const {
+  return fvalues_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+Param::fvalues() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.Param.fvalues)
+  return _internal_fvalues();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+Param::_internal_mutable_fvalues() {
+  return &fvalues_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+Param::mutable_fvalues() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.Param.fvalues)
+  return _internal_mutable_fvalues();
 }
 
-// repeated float values = 4;
-inline int ParamNamed::_internal_values_size() const {
-  return values_.size();
+// repeated sint32 ivalues = 5;
+inline int Param::_internal_ivalues_size() const {
+  return ivalues_.size();
 }
-inline int ParamNamed::values_size() const {
-  return _internal_values_size();
+inline int Param::ivalues_size() const {
+  return _internal_ivalues_size();
 }
-inline void ParamNamed::clear_values() {
-  values_.Clear();
+inline void Param::clear_ivalues() {
+  ivalues_.Clear();
 }
-inline float ParamNamed::_internal_values(int index) const {
-  return values_.Get(index);
+inline ::PROTOBUF_NAMESPACE_ID::int32 Param::_internal_ivalues(int index) const {
+  return ivalues_.Get(index);
 }
-inline float ParamNamed::values(int index) const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamNamed.values)
-  return _internal_values(index);
+inline ::PROTOBUF_NAMESPACE_ID::int32 Param::ivalues(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Param.ivalues)
+  return _internal_ivalues(index);
 }
-inline void ParamNamed::set_values(int index, float value) {
-  values_.Set(index, value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamNamed.values)
+inline void Param::set_ivalues(int index, ::PROTOBUF_NAMESPACE_ID::int32 value) {
+  ivalues_.Set(index, value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Param.ivalues)
 }
-inline void ParamNamed::_internal_add_values(float value) {
-  values_.Add(value);
+inline void Param::_internal_add_ivalues(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  ivalues_.Add(value);
 }
-inline void ParamNamed::add_values(float value) {
-  _internal_add_values(value);
-  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.ParamNamed.values)
+inline void Param::add_ivalues(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_add_ivalues(value);
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.Param.ivalues)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-ParamNamed::_internal_values() const {
-  return values_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+Param::_internal_ivalues() const {
+  return ivalues_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-ParamNamed::values() const {
-  // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.ParamNamed.values)
-  return _internal_values();
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+Param::ivalues() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.Param.ivalues)
+  return _internal_ivalues();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-ParamNamed::_internal_mutable_values() {
-  return &values_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+Param::_internal_mutable_ivalues() {
+  return &ivalues_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-ParamNamed::mutable_values() {
-  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.ParamNamed.values)
-  return _internal_mutable_values();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+Param::mutable_ivalues() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.Param.ivalues)
+  return _internal_mutable_ivalues();
 }
 
 // -------------------------------------------------------------------
 
-// ParamNamedAuto
+// ParamAuto
 
-// string name = 1;
-inline void ParamNamedAuto::clear_name() {
+// uint32 index = 1;
+inline void ParamAuto::clear_index() {
+  index_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamAuto::_internal_index() const {
+  return index_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamAuto::index() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamAuto.index)
+  return _internal_index();
+}
+inline void ParamAuto::_internal_set_index(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  index_ = value;
+}
+inline void ParamAuto::set_index(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_index(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamAuto.index)
+}
+
+// string name = 2;
+inline void ParamAuto::clear_name() {
   name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline const std::string& ParamNamedAuto::name() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamNamedAuto.name)
+inline const std::string& ParamAuto::name() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamAuto.name)
   return _internal_name();
 }
-inline void ParamNamedAuto::set_name(const std::string& value) {
+inline void ParamAuto::set_name(const std::string& value) {
   _internal_set_name(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamNamedAuto.name)
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamAuto.name)
 }
-inline std::string* ParamNamedAuto::mutable_name() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.ParamNamedAuto.name)
+inline std::string* ParamAuto::mutable_name() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.ParamAuto.name)
   return _internal_mutable_name();
 }
-inline const std::string& ParamNamedAuto::_internal_name() const {
+inline const std::string& ParamAuto::_internal_name() const {
   return name_.GetNoArena();
 }
-inline void ParamNamedAuto::_internal_set_name(const std::string& value) {
+inline void ParamAuto::_internal_set_name(const std::string& value) {
   
   name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
 }
-inline void ParamNamedAuto::set_name(std::string&& value) {
+inline void ParamAuto::set_name(std::string&& value) {
   
   name_.SetNoArena(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.ParamNamedAuto.name)
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.ParamAuto.name)
 }
-inline void ParamNamedAuto::set_name(const char* value) {
+inline void ParamAuto::set_name(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
   name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.ParamNamedAuto.name)
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.ParamAuto.name)
 }
-inline void ParamNamedAuto::set_name(const char* value, size_t size) {
+inline void ParamAuto::set_name(const char* value, size_t size) {
   
   name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.ParamNamedAuto.name)
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.ParamAuto.name)
 }
-inline std::string* ParamNamedAuto::_internal_mutable_name() {
+inline std::string* ParamAuto::_internal_mutable_name() {
   
   return name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline std::string* ParamNamedAuto::release_name() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.ParamNamedAuto.name)
+inline std::string* ParamAuto::release_name() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.ParamAuto.name)
   
   return name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline void ParamNamedAuto::set_allocated_name(std::string* name) {
+inline void ParamAuto::set_allocated_name(std::string* name) {
   if (name != nullptr) {
     
   } else {
     
   }
   name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name);
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.ParamNamedAuto.name)
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.ParamAuto.name)
 }
 
-// uint32 value_code = 2;
-inline void ParamNamedAuto::clear_value_code() {
+// uint32 value_code = 3;
+inline void ParamAuto::clear_value_code() {
   value_code_ = 0u;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamNamedAuto::_internal_value_code() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamAuto::_internal_value_code() const {
   return value_code_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamNamedAuto::value_code() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamNamedAuto.value_code)
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamAuto::value_code() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamAuto.value_code)
   return _internal_value_code();
 }
-inline void ParamNamedAuto::_internal_set_value_code(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void ParamAuto::_internal_set_value_code(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   
   value_code_ = value;
 }
-inline void ParamNamedAuto::set_value_code(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void ParamAuto::set_value_code(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   _internal_set_value_code(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamNamedAuto.value_code)
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamAuto.value_code)
 }
 
-// bytes extra_params = 3;
-inline void ParamNamedAuto::clear_extra_params() {
-  extra_params_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+// repeated float fextra_params = 4;
+inline int ParamAuto::_internal_fextra_params_size() const {
+  return fextra_params_.size();
 }
-inline const std::string& ParamNamedAuto::extra_params() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamNamedAuto.extra_params)
-  return _internal_extra_params();
+inline int ParamAuto::fextra_params_size() const {
+  return _internal_fextra_params_size();
 }
-inline void ParamNamedAuto::set_extra_params(const std::string& value) {
-  _internal_set_extra_params(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamNamedAuto.extra_params)
+inline void ParamAuto::clear_fextra_params() {
+  fextra_params_.Clear();
 }
-inline std::string* ParamNamedAuto::mutable_extra_params() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.ParamNamedAuto.extra_params)
-  return _internal_mutable_extra_params();
+inline float ParamAuto::_internal_fextra_params(int index) const {
+  return fextra_params_.Get(index);
 }
-inline const std::string& ParamNamedAuto::_internal_extra_params() const {
-  return extra_params_.GetNoArena();
+inline float ParamAuto::fextra_params(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamAuto.fextra_params)
+  return _internal_fextra_params(index);
 }
-inline void ParamNamedAuto::_internal_set_extra_params(const std::string& value) {
-  
-  extra_params_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+inline void ParamAuto::set_fextra_params(int index, float value) {
+  fextra_params_.Set(index, value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamAuto.fextra_params)
 }
-inline void ParamNamedAuto::set_extra_params(std::string&& value) {
-  
-  extra_params_.SetNoArena(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.ParamNamedAuto.extra_params)
+inline void ParamAuto::_internal_add_fextra_params(float value) {
+  fextra_params_.Add(value);
 }
-inline void ParamNamedAuto::set_extra_params(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  extra_params_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.ParamNamedAuto.extra_params)
+inline void ParamAuto::add_fextra_params(float value) {
+  _internal_add_fextra_params(value);
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.ParamAuto.fextra_params)
 }
-inline void ParamNamedAuto::set_extra_params(const void* value, size_t size) {
-  
-  extra_params_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.ParamNamedAuto.extra_params)
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+ParamAuto::_internal_fextra_params() const {
+  return fextra_params_;
 }
-inline std::string* ParamNamedAuto::_internal_mutable_extra_params() {
-  
-  return extra_params_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+ParamAuto::fextra_params() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.ParamAuto.fextra_params)
+  return _internal_fextra_params();
 }
-inline std::string* ParamNamedAuto::release_extra_params() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.ParamNamedAuto.extra_params)
-  
-  return extra_params_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+ParamAuto::_internal_mutable_fextra_params() {
+  return &fextra_params_;
 }
-inline void ParamNamedAuto::set_allocated_extra_params(std::string* extra_params) {
-  if (extra_params != nullptr) {
-    
-  } else {
-    
-  }
-  extra_params_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), extra_params);
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.ParamNamedAuto.extra_params)
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+ParamAuto::mutable_fextra_params() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.ParamAuto.fextra_params)
+  return _internal_mutable_fextra_params();
+}
+
+// repeated uint32 iextra_params = 5;
+inline int ParamAuto::_internal_iextra_params_size() const {
+  return iextra_params_.size();
+}
+inline int ParamAuto::iextra_params_size() const {
+  return _internal_iextra_params_size();
+}
+inline void ParamAuto::clear_iextra_params() {
+  iextra_params_.Clear();
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamAuto::_internal_iextra_params(int index) const {
+  return iextra_params_.Get(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ParamAuto::iextra_params(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.ParamAuto.iextra_params)
+  return _internal_iextra_params(index);
+}
+inline void ParamAuto::set_iextra_params(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  iextra_params_.Set(index, value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.ParamAuto.iextra_params)
+}
+inline void ParamAuto::_internal_add_iextra_params(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  iextra_params_.Add(value);
+}
+inline void ParamAuto::add_iextra_params(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_add_iextra_params(value);
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.ParamAuto.iextra_params)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+ParamAuto::_internal_iextra_params() const {
+  return iextra_params_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+ParamAuto::iextra_params() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.ParamAuto.iextra_params)
+  return _internal_iextra_params();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+ParamAuto::_internal_mutable_iextra_params() {
+  return &iextra_params_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+ParamAuto::mutable_iextra_params() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.ParamAuto.iextra_params)
+  return _internal_mutable_iextra_params();
 }
 
 // -------------------------------------------------------------------
@@ -6740,7 +9303,7 @@ inline void GPUConstantBuffer::set_allocated_header(::Tiny3D::Script::MaterialSy
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.header)
 }
 
-// repeated .Tiny3D.Script.MaterialSystem.ParamIndexed param_indexed = 2;
+// repeated .Tiny3D.Script.MaterialSystem.Param param_indexed = 2;
 inline int GPUConstantBuffer::_internal_param_indexed_size() const {
   return param_indexed_.size();
 }
@@ -6750,36 +9313,36 @@ inline int GPUConstantBuffer::param_indexed_size() const {
 inline void GPUConstantBuffer::clear_param_indexed() {
   param_indexed_.Clear();
 }
-inline ::Tiny3D::Script::MaterialSystem::ParamIndexed* GPUConstantBuffer::mutable_param_indexed(int index) {
+inline ::Tiny3D::Script::MaterialSystem::Param* GPUConstantBuffer::mutable_param_indexed(int index) {
   // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_indexed)
   return param_indexed_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamIndexed >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param >*
 GPUConstantBuffer::mutable_param_indexed() {
   // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_indexed)
   return &param_indexed_;
 }
-inline const ::Tiny3D::Script::MaterialSystem::ParamIndexed& GPUConstantBuffer::_internal_param_indexed(int index) const {
+inline const ::Tiny3D::Script::MaterialSystem::Param& GPUConstantBuffer::_internal_param_indexed(int index) const {
   return param_indexed_.Get(index);
 }
-inline const ::Tiny3D::Script::MaterialSystem::ParamIndexed& GPUConstantBuffer::param_indexed(int index) const {
+inline const ::Tiny3D::Script::MaterialSystem::Param& GPUConstantBuffer::param_indexed(int index) const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_indexed)
   return _internal_param_indexed(index);
 }
-inline ::Tiny3D::Script::MaterialSystem::ParamIndexed* GPUConstantBuffer::_internal_add_param_indexed() {
+inline ::Tiny3D::Script::MaterialSystem::Param* GPUConstantBuffer::_internal_add_param_indexed() {
   return param_indexed_.Add();
 }
-inline ::Tiny3D::Script::MaterialSystem::ParamIndexed* GPUConstantBuffer::add_param_indexed() {
+inline ::Tiny3D::Script::MaterialSystem::Param* GPUConstantBuffer::add_param_indexed() {
   // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_indexed)
   return _internal_add_param_indexed();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamIndexed >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param >&
 GPUConstantBuffer::param_indexed() const {
   // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_indexed)
   return param_indexed_;
 }
 
-// repeated .Tiny3D.Script.MaterialSystem.ParamIndexedAuto param_indexed_auto = 3;
+// repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_indexed_auto = 3;
 inline int GPUConstantBuffer::_internal_param_indexed_auto_size() const {
   return param_indexed_auto_.size();
 }
@@ -6789,36 +9352,36 @@ inline int GPUConstantBuffer::param_indexed_auto_size() const {
 inline void GPUConstantBuffer::clear_param_indexed_auto() {
   param_indexed_auto_.Clear();
 }
-inline ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto* GPUConstantBuffer::mutable_param_indexed_auto(int index) {
+inline ::Tiny3D::Script::MaterialSystem::ParamAuto* GPUConstantBuffer::mutable_param_indexed_auto(int index) {
   // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_indexed_auto)
   return param_indexed_auto_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto >*
 GPUConstantBuffer::mutable_param_indexed_auto() {
   // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_indexed_auto)
   return &param_indexed_auto_;
 }
-inline const ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto& GPUConstantBuffer::_internal_param_indexed_auto(int index) const {
+inline const ::Tiny3D::Script::MaterialSystem::ParamAuto& GPUConstantBuffer::_internal_param_indexed_auto(int index) const {
   return param_indexed_auto_.Get(index);
 }
-inline const ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto& GPUConstantBuffer::param_indexed_auto(int index) const {
+inline const ::Tiny3D::Script::MaterialSystem::ParamAuto& GPUConstantBuffer::param_indexed_auto(int index) const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_indexed_auto)
   return _internal_param_indexed_auto(index);
 }
-inline ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto* GPUConstantBuffer::_internal_add_param_indexed_auto() {
+inline ::Tiny3D::Script::MaterialSystem::ParamAuto* GPUConstantBuffer::_internal_add_param_indexed_auto() {
   return param_indexed_auto_.Add();
 }
-inline ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto* GPUConstantBuffer::add_param_indexed_auto() {
+inline ::Tiny3D::Script::MaterialSystem::ParamAuto* GPUConstantBuffer::add_param_indexed_auto() {
   // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_indexed_auto)
   return _internal_add_param_indexed_auto();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamIndexedAuto >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto >&
 GPUConstantBuffer::param_indexed_auto() const {
   // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_indexed_auto)
   return param_indexed_auto_;
 }
 
-// repeated .Tiny3D.Script.MaterialSystem.ParamNamed param_named = 4;
+// repeated .Tiny3D.Script.MaterialSystem.Param param_named = 4;
 inline int GPUConstantBuffer::_internal_param_named_size() const {
   return param_named_.size();
 }
@@ -6828,36 +9391,36 @@ inline int GPUConstantBuffer::param_named_size() const {
 inline void GPUConstantBuffer::clear_param_named() {
   param_named_.Clear();
 }
-inline ::Tiny3D::Script::MaterialSystem::ParamNamed* GPUConstantBuffer::mutable_param_named(int index) {
+inline ::Tiny3D::Script::MaterialSystem::Param* GPUConstantBuffer::mutable_param_named(int index) {
   // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_named)
   return param_named_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamNamed >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param >*
 GPUConstantBuffer::mutable_param_named() {
   // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_named)
   return &param_named_;
 }
-inline const ::Tiny3D::Script::MaterialSystem::ParamNamed& GPUConstantBuffer::_internal_param_named(int index) const {
+inline const ::Tiny3D::Script::MaterialSystem::Param& GPUConstantBuffer::_internal_param_named(int index) const {
   return param_named_.Get(index);
 }
-inline const ::Tiny3D::Script::MaterialSystem::ParamNamed& GPUConstantBuffer::param_named(int index) const {
+inline const ::Tiny3D::Script::MaterialSystem::Param& GPUConstantBuffer::param_named(int index) const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_named)
   return _internal_param_named(index);
 }
-inline ::Tiny3D::Script::MaterialSystem::ParamNamed* GPUConstantBuffer::_internal_add_param_named() {
+inline ::Tiny3D::Script::MaterialSystem::Param* GPUConstantBuffer::_internal_add_param_named() {
   return param_named_.Add();
 }
-inline ::Tiny3D::Script::MaterialSystem::ParamNamed* GPUConstantBuffer::add_param_named() {
+inline ::Tiny3D::Script::MaterialSystem::Param* GPUConstantBuffer::add_param_named() {
   // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_named)
   return _internal_add_param_named();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamNamed >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param >&
 GPUConstantBuffer::param_named() const {
   // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_named)
   return param_named_;
 }
 
-// repeated .Tiny3D.Script.MaterialSystem.ParamNamedAuto param_named_auto = 5;
+// repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_named_auto = 5;
 inline int GPUConstantBuffer::_internal_param_named_auto_size() const {
   return param_named_auto_.size();
 }
@@ -6867,30 +9430,30 @@ inline int GPUConstantBuffer::param_named_auto_size() const {
 inline void GPUConstantBuffer::clear_param_named_auto() {
   param_named_auto_.Clear();
 }
-inline ::Tiny3D::Script::MaterialSystem::ParamNamedAuto* GPUConstantBuffer::mutable_param_named_auto(int index) {
+inline ::Tiny3D::Script::MaterialSystem::ParamAuto* GPUConstantBuffer::mutable_param_named_auto(int index) {
   // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_named_auto)
   return param_named_auto_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamNamedAuto >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto >*
 GPUConstantBuffer::mutable_param_named_auto() {
   // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_named_auto)
   return &param_named_auto_;
 }
-inline const ::Tiny3D::Script::MaterialSystem::ParamNamedAuto& GPUConstantBuffer::_internal_param_named_auto(int index) const {
+inline const ::Tiny3D::Script::MaterialSystem::ParamAuto& GPUConstantBuffer::_internal_param_named_auto(int index) const {
   return param_named_auto_.Get(index);
 }
-inline const ::Tiny3D::Script::MaterialSystem::ParamNamedAuto& GPUConstantBuffer::param_named_auto(int index) const {
+inline const ::Tiny3D::Script::MaterialSystem::ParamAuto& GPUConstantBuffer::param_named_auto(int index) const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_named_auto)
   return _internal_param_named_auto(index);
 }
-inline ::Tiny3D::Script::MaterialSystem::ParamNamedAuto* GPUConstantBuffer::_internal_add_param_named_auto() {
+inline ::Tiny3D::Script::MaterialSystem::ParamAuto* GPUConstantBuffer::_internal_add_param_named_auto() {
   return param_named_auto_.Add();
 }
-inline ::Tiny3D::Script::MaterialSystem::ParamNamedAuto* GPUConstantBuffer::add_param_named_auto() {
+inline ::Tiny3D::Script::MaterialSystem::ParamAuto* GPUConstantBuffer::add_param_named_auto() {
   // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_named_auto)
   return _internal_add_param_named_auto();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamNamedAuto >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto >&
 GPUConstantBuffer::param_named_auto() const {
   // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.param_named_auto)
   return param_named_auto_;
@@ -6898,86 +9461,2232 @@ GPUConstantBuffer::param_named_auto() const {
 
 // -------------------------------------------------------------------
 
-// Color
+// TexAddressModeSimple
 
-// float r = 1;
-inline void Color::clear_r() {
-  r_ = 0;
+// .Tiny3D.Script.MaterialSystem.TextureAddressMode uvw_mode = 1;
+inline void TexAddressModeSimple::clear_uvw_mode() {
+  uvw_mode_ = 0;
 }
-inline float Color::_internal_r() const {
-  return r_;
+inline ::Tiny3D::Script::MaterialSystem::TextureAddressMode TexAddressModeSimple::_internal_uvw_mode() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::TextureAddressMode >(uvw_mode_);
 }
-inline float Color::r() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Color.r)
-  return _internal_r();
+inline ::Tiny3D::Script::MaterialSystem::TextureAddressMode TexAddressModeSimple::uvw_mode() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexAddressModeSimple.uvw_mode)
+  return _internal_uvw_mode();
 }
-inline void Color::_internal_set_r(float value) {
+inline void TexAddressModeSimple::_internal_set_uvw_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value) {
   
-  r_ = value;
+  uvw_mode_ = value;
 }
-inline void Color::set_r(float value) {
-  _internal_set_r(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Color.r)
-}
-
-// float g = 2;
-inline void Color::clear_g() {
-  g_ = 0;
-}
-inline float Color::_internal_g() const {
-  return g_;
-}
-inline float Color::g() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Color.g)
-  return _internal_g();
-}
-inline void Color::_internal_set_g(float value) {
-  
-  g_ = value;
-}
-inline void Color::set_g(float value) {
-  _internal_set_g(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Color.g)
+inline void TexAddressModeSimple::set_uvw_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value) {
+  _internal_set_uvw_mode(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TexAddressModeSimple.uvw_mode)
 }
 
-// float b = 3;
-inline void Color::clear_b() {
-  b_ = 0;
+// -------------------------------------------------------------------
+
+// TexAddressModeComplex
+
+// .Tiny3D.Script.MaterialSystem.TextureAddressMode u_mode = 1;
+inline void TexAddressModeComplex::clear_u_mode() {
+  u_mode_ = 0;
 }
-inline float Color::_internal_b() const {
-  return b_;
+inline ::Tiny3D::Script::MaterialSystem::TextureAddressMode TexAddressModeComplex::_internal_u_mode() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::TextureAddressMode >(u_mode_);
 }
-inline float Color::b() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Color.b)
-  return _internal_b();
+inline ::Tiny3D::Script::MaterialSystem::TextureAddressMode TexAddressModeComplex::u_mode() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexAddressModeComplex.u_mode)
+  return _internal_u_mode();
 }
-inline void Color::_internal_set_b(float value) {
+inline void TexAddressModeComplex::_internal_set_u_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value) {
   
-  b_ = value;
+  u_mode_ = value;
 }
-inline void Color::set_b(float value) {
-  _internal_set_b(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Color.b)
+inline void TexAddressModeComplex::set_u_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value) {
+  _internal_set_u_mode(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TexAddressModeComplex.u_mode)
 }
 
-// float a = 4;
-inline void Color::clear_a() {
-  a_ = 0;
+// .Tiny3D.Script.MaterialSystem.TextureAddressMode v_mode = 2;
+inline void TexAddressModeComplex::clear_v_mode() {
+  v_mode_ = 0;
 }
-inline float Color::_internal_a() const {
-  return a_;
+inline ::Tiny3D::Script::MaterialSystem::TextureAddressMode TexAddressModeComplex::_internal_v_mode() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::TextureAddressMode >(v_mode_);
 }
-inline float Color::a() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Color.a)
-  return _internal_a();
+inline ::Tiny3D::Script::MaterialSystem::TextureAddressMode TexAddressModeComplex::v_mode() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexAddressModeComplex.v_mode)
+  return _internal_v_mode();
 }
-inline void Color::_internal_set_a(float value) {
+inline void TexAddressModeComplex::_internal_set_v_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value) {
   
-  a_ = value;
+  v_mode_ = value;
 }
-inline void Color::set_a(float value) {
-  _internal_set_a(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Color.a)
+inline void TexAddressModeComplex::set_v_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value) {
+  _internal_set_v_mode(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TexAddressModeComplex.v_mode)
+}
+
+// .Tiny3D.Script.MaterialSystem.TextureAddressMode w_mode = 3;
+inline void TexAddressModeComplex::clear_w_mode() {
+  w_mode_ = 0;
+}
+inline ::Tiny3D::Script::MaterialSystem::TextureAddressMode TexAddressModeComplex::_internal_w_mode() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::TextureAddressMode >(w_mode_);
+}
+inline ::Tiny3D::Script::MaterialSystem::TextureAddressMode TexAddressModeComplex::w_mode() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexAddressModeComplex.w_mode)
+  return _internal_w_mode();
+}
+inline void TexAddressModeComplex::_internal_set_w_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value) {
+  
+  w_mode_ = value;
+}
+inline void TexAddressModeComplex::set_w_mode(::Tiny3D::Script::MaterialSystem::TextureAddressMode value) {
+  _internal_set_w_mode(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TexAddressModeComplex.w_mode)
+}
+
+// -------------------------------------------------------------------
+
+// TexAddressMode
+
+// .Tiny3D.Script.MaterialSystem.TexAddressModeSimple simple = 1;
+inline bool TexAddressMode::_internal_has_simple() const {
+  return TexAddresModeOneOf_case() == kSimple;
+}
+inline bool TexAddressMode::has_simple() const {
+  return _internal_has_simple();
+}
+inline void TexAddressMode::set_has_simple() {
+  _oneof_case_[0] = kSimple;
+}
+inline void TexAddressMode::clear_simple() {
+  if (_internal_has_simple()) {
+    delete TexAddresModeOneOf_.simple_;
+    clear_has_TexAddresModeOneOf();
+  }
+}
+inline ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple* TexAddressMode::release_simple() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TexAddressMode.simple)
+  if (_internal_has_simple()) {
+    clear_has_TexAddresModeOneOf();
+      ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple* temp = TexAddresModeOneOf_.simple_;
+    TexAddresModeOneOf_.simple_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple& TexAddressMode::_internal_simple() const {
+  return _internal_has_simple()
+      ? *TexAddresModeOneOf_.simple_
+      : *reinterpret_cast< ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple*>(&::Tiny3D::Script::MaterialSystem::_TexAddressModeSimple_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple& TexAddressMode::simple() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexAddressMode.simple)
+  return _internal_simple();
+}
+inline ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple* TexAddressMode::_internal_mutable_simple() {
+  if (!_internal_has_simple()) {
+    clear_TexAddresModeOneOf();
+    set_has_simple();
+    TexAddresModeOneOf_.simple_ = CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple >(
+        GetArenaNoVirtual());
+  }
+  return TexAddresModeOneOf_.simple_;
+}
+inline ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple* TexAddressMode::mutable_simple() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TexAddressMode.simple)
+  return _internal_mutable_simple();
+}
+
+// .Tiny3D.Script.MaterialSystem.TexAddressModeComplex complex = 2;
+inline bool TexAddressMode::_internal_has_complex() const {
+  return TexAddresModeOneOf_case() == kComplex;
+}
+inline bool TexAddressMode::has_complex() const {
+  return _internal_has_complex();
+}
+inline void TexAddressMode::set_has_complex() {
+  _oneof_case_[0] = kComplex;
+}
+inline void TexAddressMode::clear_complex() {
+  if (_internal_has_complex()) {
+    delete TexAddresModeOneOf_.complex_;
+    clear_has_TexAddresModeOneOf();
+  }
+}
+inline ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex* TexAddressMode::release_complex() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TexAddressMode.complex)
+  if (_internal_has_complex()) {
+    clear_has_TexAddresModeOneOf();
+      ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex* temp = TexAddresModeOneOf_.complex_;
+    TexAddresModeOneOf_.complex_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex& TexAddressMode::_internal_complex() const {
+  return _internal_has_complex()
+      ? *TexAddresModeOneOf_.complex_
+      : *reinterpret_cast< ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex*>(&::Tiny3D::Script::MaterialSystem::_TexAddressModeComplex_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex& TexAddressMode::complex() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexAddressMode.complex)
+  return _internal_complex();
+}
+inline ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex* TexAddressMode::_internal_mutable_complex() {
+  if (!_internal_has_complex()) {
+    clear_TexAddresModeOneOf();
+    set_has_complex();
+    TexAddresModeOneOf_.complex_ = CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex >(
+        GetArenaNoVirtual());
+  }
+  return TexAddresModeOneOf_.complex_;
+}
+inline ::Tiny3D::Script::MaterialSystem::TexAddressModeComplex* TexAddressMode::mutable_complex() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TexAddressMode.complex)
+  return _internal_mutable_complex();
+}
+
+inline bool TexAddressMode::has_TexAddresModeOneOf() const {
+  return TexAddresModeOneOf_case() != TEXADDRESMODEONEOF_NOT_SET;
+}
+inline void TexAddressMode::clear_has_TexAddresModeOneOf() {
+  _oneof_case_[0] = TEXADDRESMODEONEOF_NOT_SET;
+}
+inline TexAddressMode::TexAddresModeOneOfCase TexAddressMode::TexAddresModeOneOf_case() const {
+  return TexAddressMode::TexAddresModeOneOfCase(_oneof_case_[0]);
+}
+// -------------------------------------------------------------------
+
+// TexFilterSimple
+
+// .Tiny3D.Script.MaterialSystem.FilterOption filter = 1;
+inline void TexFilterSimple::clear_filter() {
+  filter_ = 0;
+}
+inline ::Tiny3D::Script::MaterialSystem::FilterOption TexFilterSimple::_internal_filter() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::FilterOption >(filter_);
+}
+inline ::Tiny3D::Script::MaterialSystem::FilterOption TexFilterSimple::filter() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexFilterSimple.filter)
+  return _internal_filter();
+}
+inline void TexFilterSimple::_internal_set_filter(::Tiny3D::Script::MaterialSystem::FilterOption value) {
+  
+  filter_ = value;
+}
+inline void TexFilterSimple::set_filter(::Tiny3D::Script::MaterialSystem::FilterOption value) {
+  _internal_set_filter(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TexFilterSimple.filter)
+}
+
+// -------------------------------------------------------------------
+
+// TexFilterComplex
+
+// .Tiny3D.Script.MaterialSystem.FilterOption minification = 1;
+inline void TexFilterComplex::clear_minification() {
+  minification_ = 0;
+}
+inline ::Tiny3D::Script::MaterialSystem::FilterOption TexFilterComplex::_internal_minification() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::FilterOption >(minification_);
+}
+inline ::Tiny3D::Script::MaterialSystem::FilterOption TexFilterComplex::minification() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexFilterComplex.minification)
+  return _internal_minification();
+}
+inline void TexFilterComplex::_internal_set_minification(::Tiny3D::Script::MaterialSystem::FilterOption value) {
+  
+  minification_ = value;
+}
+inline void TexFilterComplex::set_minification(::Tiny3D::Script::MaterialSystem::FilterOption value) {
+  _internal_set_minification(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TexFilterComplex.minification)
+}
+
+// .Tiny3D.Script.MaterialSystem.FilterOption magnification = 2;
+inline void TexFilterComplex::clear_magnification() {
+  magnification_ = 0;
+}
+inline ::Tiny3D::Script::MaterialSystem::FilterOption TexFilterComplex::_internal_magnification() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::FilterOption >(magnification_);
+}
+inline ::Tiny3D::Script::MaterialSystem::FilterOption TexFilterComplex::magnification() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexFilterComplex.magnification)
+  return _internal_magnification();
+}
+inline void TexFilterComplex::_internal_set_magnification(::Tiny3D::Script::MaterialSystem::FilterOption value) {
+  
+  magnification_ = value;
+}
+inline void TexFilterComplex::set_magnification(::Tiny3D::Script::MaterialSystem::FilterOption value) {
+  _internal_set_magnification(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TexFilterComplex.magnification)
+}
+
+// .Tiny3D.Script.MaterialSystem.FilterOption mip = 3;
+inline void TexFilterComplex::clear_mip() {
+  mip_ = 0;
+}
+inline ::Tiny3D::Script::MaterialSystem::FilterOption TexFilterComplex::_internal_mip() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::FilterOption >(mip_);
+}
+inline ::Tiny3D::Script::MaterialSystem::FilterOption TexFilterComplex::mip() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexFilterComplex.mip)
+  return _internal_mip();
+}
+inline void TexFilterComplex::_internal_set_mip(::Tiny3D::Script::MaterialSystem::FilterOption value) {
+  
+  mip_ = value;
+}
+inline void TexFilterComplex::set_mip(::Tiny3D::Script::MaterialSystem::FilterOption value) {
+  _internal_set_mip(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TexFilterComplex.mip)
+}
+
+// -------------------------------------------------------------------
+
+// TexFilter
+
+// .Tiny3D.Script.MaterialSystem.TexFilterSimple simple = 1;
+inline bool TexFilter::_internal_has_simple() const {
+  return TexFilterOneOf_case() == kSimple;
+}
+inline bool TexFilter::has_simple() const {
+  return _internal_has_simple();
+}
+inline void TexFilter::set_has_simple() {
+  _oneof_case_[0] = kSimple;
+}
+inline void TexFilter::clear_simple() {
+  if (_internal_has_simple()) {
+    delete TexFilterOneOf_.simple_;
+    clear_has_TexFilterOneOf();
+  }
+}
+inline ::Tiny3D::Script::MaterialSystem::TexFilterSimple* TexFilter::release_simple() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TexFilter.simple)
+  if (_internal_has_simple()) {
+    clear_has_TexFilterOneOf();
+      ::Tiny3D::Script::MaterialSystem::TexFilterSimple* temp = TexFilterOneOf_.simple_;
+    TexFilterOneOf_.simple_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Tiny3D::Script::MaterialSystem::TexFilterSimple& TexFilter::_internal_simple() const {
+  return _internal_has_simple()
+      ? *TexFilterOneOf_.simple_
+      : *reinterpret_cast< ::Tiny3D::Script::MaterialSystem::TexFilterSimple*>(&::Tiny3D::Script::MaterialSystem::_TexFilterSimple_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::TexFilterSimple& TexFilter::simple() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexFilter.simple)
+  return _internal_simple();
+}
+inline ::Tiny3D::Script::MaterialSystem::TexFilterSimple* TexFilter::_internal_mutable_simple() {
+  if (!_internal_has_simple()) {
+    clear_TexFilterOneOf();
+    set_has_simple();
+    TexFilterOneOf_.simple_ = CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::TexFilterSimple >(
+        GetArenaNoVirtual());
+  }
+  return TexFilterOneOf_.simple_;
+}
+inline ::Tiny3D::Script::MaterialSystem::TexFilterSimple* TexFilter::mutable_simple() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TexFilter.simple)
+  return _internal_mutable_simple();
+}
+
+// .Tiny3D.Script.MaterialSystem.TexFilterComplex complex = 2;
+inline bool TexFilter::_internal_has_complex() const {
+  return TexFilterOneOf_case() == kComplex;
+}
+inline bool TexFilter::has_complex() const {
+  return _internal_has_complex();
+}
+inline void TexFilter::set_has_complex() {
+  _oneof_case_[0] = kComplex;
+}
+inline void TexFilter::clear_complex() {
+  if (_internal_has_complex()) {
+    delete TexFilterOneOf_.complex_;
+    clear_has_TexFilterOneOf();
+  }
+}
+inline ::Tiny3D::Script::MaterialSystem::TexFilterComplex* TexFilter::release_complex() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TexFilter.complex)
+  if (_internal_has_complex()) {
+    clear_has_TexFilterOneOf();
+      ::Tiny3D::Script::MaterialSystem::TexFilterComplex* temp = TexFilterOneOf_.complex_;
+    TexFilterOneOf_.complex_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Tiny3D::Script::MaterialSystem::TexFilterComplex& TexFilter::_internal_complex() const {
+  return _internal_has_complex()
+      ? *TexFilterOneOf_.complex_
+      : *reinterpret_cast< ::Tiny3D::Script::MaterialSystem::TexFilterComplex*>(&::Tiny3D::Script::MaterialSystem::_TexFilterComplex_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::TexFilterComplex& TexFilter::complex() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexFilter.complex)
+  return _internal_complex();
+}
+inline ::Tiny3D::Script::MaterialSystem::TexFilterComplex* TexFilter::_internal_mutable_complex() {
+  if (!_internal_has_complex()) {
+    clear_TexFilterOneOf();
+    set_has_complex();
+    TexFilterOneOf_.complex_ = CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::TexFilterComplex >(
+        GetArenaNoVirtual());
+  }
+  return TexFilterOneOf_.complex_;
+}
+inline ::Tiny3D::Script::MaterialSystem::TexFilterComplex* TexFilter::mutable_complex() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TexFilter.complex)
+  return _internal_mutable_complex();
+}
+
+inline bool TexFilter::has_TexFilterOneOf() const {
+  return TexFilterOneOf_case() != TEXFILTERONEOF_NOT_SET;
+}
+inline void TexFilter::clear_has_TexFilterOneOf() {
+  _oneof_case_[0] = TEXFILTERONEOF_NOT_SET;
+}
+inline TexFilter::TexFilterOneOfCase TexFilter::TexFilterOneOf_case() const {
+  return TexFilter::TexFilterOneOfCase(_oneof_case_[0]);
+}
+// -------------------------------------------------------------------
+
+// Sampler
+
+// .Tiny3D.Script.MaterialSystem.Header header = 1;
+inline bool Sampler::_internal_has_header() const {
+  return this != internal_default_instance() && header_ != nullptr;
+}
+inline bool Sampler::has_header() const {
+  return _internal_has_header();
+}
+inline void Sampler::clear_header() {
+  if (GetArenaNoVirtual() == nullptr && header_ != nullptr) {
+    delete header_;
+  }
+  header_ = nullptr;
+}
+inline const ::Tiny3D::Script::MaterialSystem::Header& Sampler::_internal_header() const {
+  const ::Tiny3D::Script::MaterialSystem::Header* p = header_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::Header*>(
+      &::Tiny3D::Script::MaterialSystem::_Header_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::Header& Sampler::header() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Sampler.header)
+  return _internal_header();
+}
+inline ::Tiny3D::Script::MaterialSystem::Header* Sampler::release_header() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.Sampler.header)
+  
+  ::Tiny3D::Script::MaterialSystem::Header* temp = header_;
+  header_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::MaterialSystem::Header* Sampler::_internal_mutable_header() {
+  
+  if (header_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Header>(GetArenaNoVirtual());
+    header_ = p;
+  }
+  return header_;
+}
+inline ::Tiny3D::Script::MaterialSystem::Header* Sampler::mutable_header() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Sampler.header)
+  return _internal_mutable_header();
+}
+inline void Sampler::set_allocated_header(::Tiny3D::Script::MaterialSystem::Header* header) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete header_;
+  }
+  if (header) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      header = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, header, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  header_ = header;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Sampler.header)
+}
+
+// .Tiny3D.Script.MaterialSystem.TexAddressMode tex_address_mode = 2;
+inline bool Sampler::_internal_has_tex_address_mode() const {
+  return this != internal_default_instance() && tex_address_mode_ != nullptr;
+}
+inline bool Sampler::has_tex_address_mode() const {
+  return _internal_has_tex_address_mode();
+}
+inline void Sampler::clear_tex_address_mode() {
+  if (GetArenaNoVirtual() == nullptr && tex_address_mode_ != nullptr) {
+    delete tex_address_mode_;
+  }
+  tex_address_mode_ = nullptr;
+}
+inline const ::Tiny3D::Script::MaterialSystem::TexAddressMode& Sampler::_internal_tex_address_mode() const {
+  const ::Tiny3D::Script::MaterialSystem::TexAddressMode* p = tex_address_mode_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::TexAddressMode*>(
+      &::Tiny3D::Script::MaterialSystem::_TexAddressMode_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::TexAddressMode& Sampler::tex_address_mode() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Sampler.tex_address_mode)
+  return _internal_tex_address_mode();
+}
+inline ::Tiny3D::Script::MaterialSystem::TexAddressMode* Sampler::release_tex_address_mode() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.Sampler.tex_address_mode)
+  
+  ::Tiny3D::Script::MaterialSystem::TexAddressMode* temp = tex_address_mode_;
+  tex_address_mode_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::MaterialSystem::TexAddressMode* Sampler::_internal_mutable_tex_address_mode() {
+  
+  if (tex_address_mode_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::TexAddressMode>(GetArenaNoVirtual());
+    tex_address_mode_ = p;
+  }
+  return tex_address_mode_;
+}
+inline ::Tiny3D::Script::MaterialSystem::TexAddressMode* Sampler::mutable_tex_address_mode() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Sampler.tex_address_mode)
+  return _internal_mutable_tex_address_mode();
+}
+inline void Sampler::set_allocated_tex_address_mode(::Tiny3D::Script::MaterialSystem::TexAddressMode* tex_address_mode) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete tex_address_mode_;
+  }
+  if (tex_address_mode) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      tex_address_mode = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, tex_address_mode, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  tex_address_mode_ = tex_address_mode;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Sampler.tex_address_mode)
+}
+
+// .Tiny3D.Script.MaterialSystem.Color tex_border_color = 3;
+inline bool Sampler::_internal_has_tex_border_color() const {
+  return this != internal_default_instance() && tex_border_color_ != nullptr;
+}
+inline bool Sampler::has_tex_border_color() const {
+  return _internal_has_tex_border_color();
+}
+inline void Sampler::clear_tex_border_color() {
+  if (GetArenaNoVirtual() == nullptr && tex_border_color_ != nullptr) {
+    delete tex_border_color_;
+  }
+  tex_border_color_ = nullptr;
+}
+inline const ::Tiny3D::Script::MaterialSystem::Color& Sampler::_internal_tex_border_color() const {
+  const ::Tiny3D::Script::MaterialSystem::Color* p = tex_border_color_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::Color*>(
+      &::Tiny3D::Script::MaterialSystem::_Color_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::Color& Sampler::tex_border_color() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Sampler.tex_border_color)
+  return _internal_tex_border_color();
+}
+inline ::Tiny3D::Script::MaterialSystem::Color* Sampler::release_tex_border_color() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.Sampler.tex_border_color)
+  
+  ::Tiny3D::Script::MaterialSystem::Color* temp = tex_border_color_;
+  tex_border_color_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::MaterialSystem::Color* Sampler::_internal_mutable_tex_border_color() {
+  
+  if (tex_border_color_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Color>(GetArenaNoVirtual());
+    tex_border_color_ = p;
+  }
+  return tex_border_color_;
+}
+inline ::Tiny3D::Script::MaterialSystem::Color* Sampler::mutable_tex_border_color() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Sampler.tex_border_color)
+  return _internal_mutable_tex_border_color();
+}
+inline void Sampler::set_allocated_tex_border_color(::Tiny3D::Script::MaterialSystem::Color* tex_border_color) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete tex_border_color_;
+  }
+  if (tex_border_color) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      tex_border_color = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, tex_border_color, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  tex_border_color_ = tex_border_color;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Sampler.tex_border_color)
+}
+
+// .Tiny3D.Script.MaterialSystem.TexFilter filtering = 4;
+inline bool Sampler::_internal_has_filtering() const {
+  return this != internal_default_instance() && filtering_ != nullptr;
+}
+inline bool Sampler::has_filtering() const {
+  return _internal_has_filtering();
+}
+inline void Sampler::clear_filtering() {
+  if (GetArenaNoVirtual() == nullptr && filtering_ != nullptr) {
+    delete filtering_;
+  }
+  filtering_ = nullptr;
+}
+inline const ::Tiny3D::Script::MaterialSystem::TexFilter& Sampler::_internal_filtering() const {
+  const ::Tiny3D::Script::MaterialSystem::TexFilter* p = filtering_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::TexFilter*>(
+      &::Tiny3D::Script::MaterialSystem::_TexFilter_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::TexFilter& Sampler::filtering() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Sampler.filtering)
+  return _internal_filtering();
+}
+inline ::Tiny3D::Script::MaterialSystem::TexFilter* Sampler::release_filtering() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.Sampler.filtering)
+  
+  ::Tiny3D::Script::MaterialSystem::TexFilter* temp = filtering_;
+  filtering_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::MaterialSystem::TexFilter* Sampler::_internal_mutable_filtering() {
+  
+  if (filtering_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::TexFilter>(GetArenaNoVirtual());
+    filtering_ = p;
+  }
+  return filtering_;
+}
+inline ::Tiny3D::Script::MaterialSystem::TexFilter* Sampler::mutable_filtering() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Sampler.filtering)
+  return _internal_mutable_filtering();
+}
+inline void Sampler::set_allocated_filtering(::Tiny3D::Script::MaterialSystem::TexFilter* filtering) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete filtering_;
+  }
+  if (filtering) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      filtering = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, filtering, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  filtering_ = filtering;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Sampler.filtering)
+}
+
+// bool compare_test = 5;
+inline void Sampler::clear_compare_test() {
+  compare_test_ = false;
+}
+inline bool Sampler::_internal_compare_test() const {
+  return compare_test_;
+}
+inline bool Sampler::compare_test() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Sampler.compare_test)
+  return _internal_compare_test();
+}
+inline void Sampler::_internal_set_compare_test(bool value) {
+  
+  compare_test_ = value;
+}
+inline void Sampler::set_compare_test(bool value) {
+  _internal_set_compare_test(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Sampler.compare_test)
+}
+
+// .Tiny3D.Script.MaterialSystem.CompareFunction compare_func = 6;
+inline void Sampler::clear_compare_func() {
+  compare_func_ = 0;
+}
+inline ::Tiny3D::Script::MaterialSystem::CompareFunction Sampler::_internal_compare_func() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::CompareFunction >(compare_func_);
+}
+inline ::Tiny3D::Script::MaterialSystem::CompareFunction Sampler::compare_func() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Sampler.compare_func)
+  return _internal_compare_func();
+}
+inline void Sampler::_internal_set_compare_func(::Tiny3D::Script::MaterialSystem::CompareFunction value) {
+  
+  compare_func_ = value;
+}
+inline void Sampler::set_compare_func(::Tiny3D::Script::MaterialSystem::CompareFunction value) {
+  _internal_set_compare_func(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Sampler.compare_func)
+}
+
+// uint32 max_anisotropy = 7;
+inline void Sampler::clear_max_anisotropy() {
+  max_anisotropy_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 Sampler::_internal_max_anisotropy() const {
+  return max_anisotropy_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 Sampler::max_anisotropy() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Sampler.max_anisotropy)
+  return _internal_max_anisotropy();
+}
+inline void Sampler::_internal_set_max_anisotropy(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  max_anisotropy_ = value;
+}
+inline void Sampler::set_max_anisotropy(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_max_anisotropy(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Sampler.max_anisotropy)
+}
+
+// float mipmap_bias = 8;
+inline void Sampler::clear_mipmap_bias() {
+  mipmap_bias_ = 0;
+}
+inline float Sampler::_internal_mipmap_bias() const {
+  return mipmap_bias_;
+}
+inline float Sampler::mipmap_bias() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Sampler.mipmap_bias)
+  return _internal_mipmap_bias();
+}
+inline void Sampler::_internal_set_mipmap_bias(float value) {
+  
+  mipmap_bias_ = value;
+}
+inline void Sampler::set_mipmap_bias(float value) {
+  _internal_set_mipmap_bias(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Sampler.mipmap_bias)
+}
+
+// -------------------------------------------------------------------
+
+// Texture
+
+// string name = 1;
+inline void Texture::clear_name() {
+  name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& Texture::name() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Texture.name)
+  return _internal_name();
+}
+inline void Texture::set_name(const std::string& value) {
+  _internal_set_name(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Texture.name)
+}
+inline std::string* Texture::mutable_name() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Texture.name)
+  return _internal_mutable_name();
+}
+inline const std::string& Texture::_internal_name() const {
+  return name_.GetNoArena();
+}
+inline void Texture::_internal_set_name(const std::string& value) {
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void Texture::set_name(std::string&& value) {
+  
+  name_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.Texture.name)
+}
+inline void Texture::set_name(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.Texture.name)
+}
+inline void Texture::set_name(const char* value, size_t size) {
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.Texture.name)
+}
+inline std::string* Texture::_internal_mutable_name() {
+  
+  return name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* Texture::release_name() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.Texture.name)
+  
+  return name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void Texture::set_allocated_name(std::string* name) {
+  if (name != nullptr) {
+    
+  } else {
+    
+  }
+  name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Texture.name)
+}
+
+// .Tiny3D.Script.MaterialSystem.TextureType type = 2;
+inline void Texture::clear_type() {
+  type_ = 0;
+}
+inline ::Tiny3D::Script::MaterialSystem::TextureType Texture::_internal_type() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::TextureType >(type_);
+}
+inline ::Tiny3D::Script::MaterialSystem::TextureType Texture::type() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Texture.type)
+  return _internal_type();
+}
+inline void Texture::_internal_set_type(::Tiny3D::Script::MaterialSystem::TextureType value) {
+  
+  type_ = value;
+}
+inline void Texture::set_type(::Tiny3D::Script::MaterialSystem::TextureType value) {
+  _internal_set_type(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Texture.type)
+}
+
+// sint32 mipmaps = 3;
+inline void Texture::clear_mipmaps() {
+  mipmaps_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 Texture::_internal_mipmaps() const {
+  return mipmaps_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 Texture::mipmaps() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Texture.mipmaps)
+  return _internal_mipmaps();
+}
+inline void Texture::_internal_set_mipmaps(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  mipmaps_ = value;
+}
+inline void Texture::set_mipmaps(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_mipmaps(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Texture.mipmaps)
+}
+
+// bool alpha = 4;
+inline void Texture::clear_alpha() {
+  alpha_ = false;
+}
+inline bool Texture::_internal_alpha() const {
+  return alpha_;
+}
+inline bool Texture::alpha() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Texture.alpha)
+  return _internal_alpha();
+}
+inline void Texture::_internal_set_alpha(bool value) {
+  
+  alpha_ = value;
+}
+inline void Texture::set_alpha(bool value) {
+  _internal_set_alpha(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Texture.alpha)
+}
+
+// bool gamma = 5;
+inline void Texture::clear_gamma() {
+  gamma_ = false;
+}
+inline bool Texture::_internal_gamma() const {
+  return gamma_;
+}
+inline bool Texture::gamma() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Texture.gamma)
+  return _internal_gamma();
+}
+inline void Texture::_internal_set_gamma(bool value) {
+  
+  gamma_ = value;
+}
+inline void Texture::set_gamma(bool value) {
+  _internal_set_gamma(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Texture.gamma)
+}
+
+// -------------------------------------------------------------------
+
+// AnimTextureSimple
+
+// string base_name = 1;
+inline void AnimTextureSimple::clear_base_name() {
+  base_name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& AnimTextureSimple::base_name() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.AnimTextureSimple.base_name)
+  return _internal_base_name();
+}
+inline void AnimTextureSimple::set_base_name(const std::string& value) {
+  _internal_set_base_name(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.AnimTextureSimple.base_name)
+}
+inline std::string* AnimTextureSimple::mutable_base_name() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.AnimTextureSimple.base_name)
+  return _internal_mutable_base_name();
+}
+inline const std::string& AnimTextureSimple::_internal_base_name() const {
+  return base_name_.GetNoArena();
+}
+inline void AnimTextureSimple::_internal_set_base_name(const std::string& value) {
+  
+  base_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void AnimTextureSimple::set_base_name(std::string&& value) {
+  
+  base_name_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.AnimTextureSimple.base_name)
+}
+inline void AnimTextureSimple::set_base_name(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  base_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.AnimTextureSimple.base_name)
+}
+inline void AnimTextureSimple::set_base_name(const char* value, size_t size) {
+  
+  base_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.AnimTextureSimple.base_name)
+}
+inline std::string* AnimTextureSimple::_internal_mutable_base_name() {
+  
+  return base_name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* AnimTextureSimple::release_base_name() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.AnimTextureSimple.base_name)
+  
+  return base_name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void AnimTextureSimple::set_allocated_base_name(std::string* base_name) {
+  if (base_name != nullptr) {
+    
+  } else {
+    
+  }
+  base_name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), base_name);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.AnimTextureSimple.base_name)
+}
+
+// uint32 num_frames = 2;
+inline void AnimTextureSimple::clear_num_frames() {
+  num_frames_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 AnimTextureSimple::_internal_num_frames() const {
+  return num_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 AnimTextureSimple::num_frames() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.AnimTextureSimple.num_frames)
+  return _internal_num_frames();
+}
+inline void AnimTextureSimple::_internal_set_num_frames(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  num_frames_ = value;
+}
+inline void AnimTextureSimple::set_num_frames(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_num_frames(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.AnimTextureSimple.num_frames)
+}
+
+// float duration = 3;
+inline void AnimTextureSimple::clear_duration() {
+  duration_ = 0;
+}
+inline float AnimTextureSimple::_internal_duration() const {
+  return duration_;
+}
+inline float AnimTextureSimple::duration() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.AnimTextureSimple.duration)
+  return _internal_duration();
+}
+inline void AnimTextureSimple::_internal_set_duration(float value) {
+  
+  duration_ = value;
+}
+inline void AnimTextureSimple::set_duration(float value) {
+  _internal_set_duration(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.AnimTextureSimple.duration)
+}
+
+// -------------------------------------------------------------------
+
+// AnimTextureComplex
+
+// float duration = 1;
+inline void AnimTextureComplex::clear_duration() {
+  duration_ = 0;
+}
+inline float AnimTextureComplex::_internal_duration() const {
+  return duration_;
+}
+inline float AnimTextureComplex::duration() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.AnimTextureComplex.duration)
+  return _internal_duration();
+}
+inline void AnimTextureComplex::_internal_set_duration(float value) {
+  
+  duration_ = value;
+}
+inline void AnimTextureComplex::set_duration(float value) {
+  _internal_set_duration(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.AnimTextureComplex.duration)
+}
+
+// repeated string frames = 2;
+inline int AnimTextureComplex::_internal_frames_size() const {
+  return frames_.size();
+}
+inline int AnimTextureComplex::frames_size() const {
+  return _internal_frames_size();
+}
+inline void AnimTextureComplex::clear_frames() {
+  frames_.Clear();
+}
+inline std::string* AnimTextureComplex::add_frames() {
+  // @@protoc_insertion_point(field_add_mutable:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+  return _internal_add_frames();
+}
+inline const std::string& AnimTextureComplex::_internal_frames(int index) const {
+  return frames_.Get(index);
+}
+inline const std::string& AnimTextureComplex::frames(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+  return _internal_frames(index);
+}
+inline std::string* AnimTextureComplex::mutable_frames(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+  return frames_.Mutable(index);
+}
+inline void AnimTextureComplex::set_frames(int index, const std::string& value) {
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+  frames_.Mutable(index)->assign(value);
+}
+inline void AnimTextureComplex::set_frames(int index, std::string&& value) {
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+  frames_.Mutable(index)->assign(std::move(value));
+}
+inline void AnimTextureComplex::set_frames(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  frames_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+}
+inline void AnimTextureComplex::set_frames(int index, const char* value, size_t size) {
+  frames_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+}
+inline std::string* AnimTextureComplex::_internal_add_frames() {
+  return frames_.Add();
+}
+inline void AnimTextureComplex::add_frames(const std::string& value) {
+  frames_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+}
+inline void AnimTextureComplex::add_frames(std::string&& value) {
+  frames_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+}
+inline void AnimTextureComplex::add_frames(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  frames_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+}
+inline void AnimTextureComplex::add_frames(const char* value, size_t size) {
+  frames_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+AnimTextureComplex::frames() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+  return frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+AnimTextureComplex::mutable_frames() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.AnimTextureComplex.frames)
+  return &frames_;
+}
+
+// -------------------------------------------------------------------
+
+// AnimTexture
+
+// .Tiny3D.Script.MaterialSystem.AnimTextureSimple simple = 1;
+inline bool AnimTexture::_internal_has_simple() const {
+  return AnimTextureOneOf_case() == kSimple;
+}
+inline bool AnimTexture::has_simple() const {
+  return _internal_has_simple();
+}
+inline void AnimTexture::set_has_simple() {
+  _oneof_case_[0] = kSimple;
+}
+inline void AnimTexture::clear_simple() {
+  if (_internal_has_simple()) {
+    delete AnimTextureOneOf_.simple_;
+    clear_has_AnimTextureOneOf();
+  }
+}
+inline ::Tiny3D::Script::MaterialSystem::AnimTextureSimple* AnimTexture::release_simple() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.AnimTexture.simple)
+  if (_internal_has_simple()) {
+    clear_has_AnimTextureOneOf();
+      ::Tiny3D::Script::MaterialSystem::AnimTextureSimple* temp = AnimTextureOneOf_.simple_;
+    AnimTextureOneOf_.simple_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Tiny3D::Script::MaterialSystem::AnimTextureSimple& AnimTexture::_internal_simple() const {
+  return _internal_has_simple()
+      ? *AnimTextureOneOf_.simple_
+      : *reinterpret_cast< ::Tiny3D::Script::MaterialSystem::AnimTextureSimple*>(&::Tiny3D::Script::MaterialSystem::_AnimTextureSimple_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::AnimTextureSimple& AnimTexture::simple() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.AnimTexture.simple)
+  return _internal_simple();
+}
+inline ::Tiny3D::Script::MaterialSystem::AnimTextureSimple* AnimTexture::_internal_mutable_simple() {
+  if (!_internal_has_simple()) {
+    clear_AnimTextureOneOf();
+    set_has_simple();
+    AnimTextureOneOf_.simple_ = CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::AnimTextureSimple >(
+        GetArenaNoVirtual());
+  }
+  return AnimTextureOneOf_.simple_;
+}
+inline ::Tiny3D::Script::MaterialSystem::AnimTextureSimple* AnimTexture::mutable_simple() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.AnimTexture.simple)
+  return _internal_mutable_simple();
+}
+
+// .Tiny3D.Script.MaterialSystem.AnimTextureComplex complex = 2;
+inline bool AnimTexture::_internal_has_complex() const {
+  return AnimTextureOneOf_case() == kComplex;
+}
+inline bool AnimTexture::has_complex() const {
+  return _internal_has_complex();
+}
+inline void AnimTexture::set_has_complex() {
+  _oneof_case_[0] = kComplex;
+}
+inline void AnimTexture::clear_complex() {
+  if (_internal_has_complex()) {
+    delete AnimTextureOneOf_.complex_;
+    clear_has_AnimTextureOneOf();
+  }
+}
+inline ::Tiny3D::Script::MaterialSystem::AnimTextureComplex* AnimTexture::release_complex() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.AnimTexture.complex)
+  if (_internal_has_complex()) {
+    clear_has_AnimTextureOneOf();
+      ::Tiny3D::Script::MaterialSystem::AnimTextureComplex* temp = AnimTextureOneOf_.complex_;
+    AnimTextureOneOf_.complex_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Tiny3D::Script::MaterialSystem::AnimTextureComplex& AnimTexture::_internal_complex() const {
+  return _internal_has_complex()
+      ? *AnimTextureOneOf_.complex_
+      : *reinterpret_cast< ::Tiny3D::Script::MaterialSystem::AnimTextureComplex*>(&::Tiny3D::Script::MaterialSystem::_AnimTextureComplex_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::AnimTextureComplex& AnimTexture::complex() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.AnimTexture.complex)
+  return _internal_complex();
+}
+inline ::Tiny3D::Script::MaterialSystem::AnimTextureComplex* AnimTexture::_internal_mutable_complex() {
+  if (!_internal_has_complex()) {
+    clear_AnimTextureOneOf();
+    set_has_complex();
+    AnimTextureOneOf_.complex_ = CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::AnimTextureComplex >(
+        GetArenaNoVirtual());
+  }
+  return AnimTextureOneOf_.complex_;
+}
+inline ::Tiny3D::Script::MaterialSystem::AnimTextureComplex* AnimTexture::mutable_complex() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.AnimTexture.complex)
+  return _internal_mutable_complex();
+}
+
+inline bool AnimTexture::has_AnimTextureOneOf() const {
+  return AnimTextureOneOf_case() != ANIMTEXTUREONEOF_NOT_SET;
+}
+inline void AnimTexture::clear_has_AnimTextureOneOf() {
+  _oneof_case_[0] = ANIMTEXTUREONEOF_NOT_SET;
+}
+inline AnimTexture::AnimTextureOneOfCase AnimTexture::AnimTextureOneOf_case() const {
+  return AnimTexture::AnimTextureOneOfCase(_oneof_case_[0]);
+}
+// -------------------------------------------------------------------
+
+// CubicTextureSimple
+
+// string base_name = 1;
+inline void CubicTextureSimple::clear_base_name() {
+  base_name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& CubicTextureSimple::base_name() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.CubicTextureSimple.base_name)
+  return _internal_base_name();
+}
+inline void CubicTextureSimple::set_base_name(const std::string& value) {
+  _internal_set_base_name(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.CubicTextureSimple.base_name)
+}
+inline std::string* CubicTextureSimple::mutable_base_name() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.CubicTextureSimple.base_name)
+  return _internal_mutable_base_name();
+}
+inline const std::string& CubicTextureSimple::_internal_base_name() const {
+  return base_name_.GetNoArena();
+}
+inline void CubicTextureSimple::_internal_set_base_name(const std::string& value) {
+  
+  base_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void CubicTextureSimple::set_base_name(std::string&& value) {
+  
+  base_name_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.CubicTextureSimple.base_name)
+}
+inline void CubicTextureSimple::set_base_name(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  base_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.CubicTextureSimple.base_name)
+}
+inline void CubicTextureSimple::set_base_name(const char* value, size_t size) {
+  
+  base_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.CubicTextureSimple.base_name)
+}
+inline std::string* CubicTextureSimple::_internal_mutable_base_name() {
+  
+  return base_name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* CubicTextureSimple::release_base_name() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.CubicTextureSimple.base_name)
+  
+  return base_name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void CubicTextureSimple::set_allocated_base_name(std::string* base_name) {
+  if (base_name != nullptr) {
+    
+  } else {
+    
+  }
+  base_name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), base_name);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.CubicTextureSimple.base_name)
+}
+
+// -------------------------------------------------------------------
+
+// CubicTextureComplex
+
+// string front = 1;
+inline void CubicTextureComplex::clear_front() {
+  front_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& CubicTextureComplex::front() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.CubicTextureComplex.front)
+  return _internal_front();
+}
+inline void CubicTextureComplex::set_front(const std::string& value) {
+  _internal_set_front(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.CubicTextureComplex.front)
+}
+inline std::string* CubicTextureComplex::mutable_front() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.CubicTextureComplex.front)
+  return _internal_mutable_front();
+}
+inline const std::string& CubicTextureComplex::_internal_front() const {
+  return front_.GetNoArena();
+}
+inline void CubicTextureComplex::_internal_set_front(const std::string& value) {
+  
+  front_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void CubicTextureComplex::set_front(std::string&& value) {
+  
+  front_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.CubicTextureComplex.front)
+}
+inline void CubicTextureComplex::set_front(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  front_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.CubicTextureComplex.front)
+}
+inline void CubicTextureComplex::set_front(const char* value, size_t size) {
+  
+  front_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.CubicTextureComplex.front)
+}
+inline std::string* CubicTextureComplex::_internal_mutable_front() {
+  
+  return front_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* CubicTextureComplex::release_front() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.CubicTextureComplex.front)
+  
+  return front_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void CubicTextureComplex::set_allocated_front(std::string* front) {
+  if (front != nullptr) {
+    
+  } else {
+    
+  }
+  front_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), front);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.CubicTextureComplex.front)
+}
+
+// string back = 2;
+inline void CubicTextureComplex::clear_back() {
+  back_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& CubicTextureComplex::back() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.CubicTextureComplex.back)
+  return _internal_back();
+}
+inline void CubicTextureComplex::set_back(const std::string& value) {
+  _internal_set_back(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.CubicTextureComplex.back)
+}
+inline std::string* CubicTextureComplex::mutable_back() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.CubicTextureComplex.back)
+  return _internal_mutable_back();
+}
+inline const std::string& CubicTextureComplex::_internal_back() const {
+  return back_.GetNoArena();
+}
+inline void CubicTextureComplex::_internal_set_back(const std::string& value) {
+  
+  back_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void CubicTextureComplex::set_back(std::string&& value) {
+  
+  back_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.CubicTextureComplex.back)
+}
+inline void CubicTextureComplex::set_back(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  back_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.CubicTextureComplex.back)
+}
+inline void CubicTextureComplex::set_back(const char* value, size_t size) {
+  
+  back_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.CubicTextureComplex.back)
+}
+inline std::string* CubicTextureComplex::_internal_mutable_back() {
+  
+  return back_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* CubicTextureComplex::release_back() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.CubicTextureComplex.back)
+  
+  return back_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void CubicTextureComplex::set_allocated_back(std::string* back) {
+  if (back != nullptr) {
+    
+  } else {
+    
+  }
+  back_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), back);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.CubicTextureComplex.back)
+}
+
+// string left = 3;
+inline void CubicTextureComplex::clear_left() {
+  left_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& CubicTextureComplex::left() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.CubicTextureComplex.left)
+  return _internal_left();
+}
+inline void CubicTextureComplex::set_left(const std::string& value) {
+  _internal_set_left(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.CubicTextureComplex.left)
+}
+inline std::string* CubicTextureComplex::mutable_left() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.CubicTextureComplex.left)
+  return _internal_mutable_left();
+}
+inline const std::string& CubicTextureComplex::_internal_left() const {
+  return left_.GetNoArena();
+}
+inline void CubicTextureComplex::_internal_set_left(const std::string& value) {
+  
+  left_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void CubicTextureComplex::set_left(std::string&& value) {
+  
+  left_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.CubicTextureComplex.left)
+}
+inline void CubicTextureComplex::set_left(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  left_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.CubicTextureComplex.left)
+}
+inline void CubicTextureComplex::set_left(const char* value, size_t size) {
+  
+  left_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.CubicTextureComplex.left)
+}
+inline std::string* CubicTextureComplex::_internal_mutable_left() {
+  
+  return left_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* CubicTextureComplex::release_left() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.CubicTextureComplex.left)
+  
+  return left_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void CubicTextureComplex::set_allocated_left(std::string* left) {
+  if (left != nullptr) {
+    
+  } else {
+    
+  }
+  left_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), left);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.CubicTextureComplex.left)
+}
+
+// string right = 4;
+inline void CubicTextureComplex::clear_right() {
+  right_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& CubicTextureComplex::right() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.CubicTextureComplex.right)
+  return _internal_right();
+}
+inline void CubicTextureComplex::set_right(const std::string& value) {
+  _internal_set_right(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.CubicTextureComplex.right)
+}
+inline std::string* CubicTextureComplex::mutable_right() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.CubicTextureComplex.right)
+  return _internal_mutable_right();
+}
+inline const std::string& CubicTextureComplex::_internal_right() const {
+  return right_.GetNoArena();
+}
+inline void CubicTextureComplex::_internal_set_right(const std::string& value) {
+  
+  right_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void CubicTextureComplex::set_right(std::string&& value) {
+  
+  right_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.CubicTextureComplex.right)
+}
+inline void CubicTextureComplex::set_right(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  right_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.CubicTextureComplex.right)
+}
+inline void CubicTextureComplex::set_right(const char* value, size_t size) {
+  
+  right_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.CubicTextureComplex.right)
+}
+inline std::string* CubicTextureComplex::_internal_mutable_right() {
+  
+  return right_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* CubicTextureComplex::release_right() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.CubicTextureComplex.right)
+  
+  return right_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void CubicTextureComplex::set_allocated_right(std::string* right) {
+  if (right != nullptr) {
+    
+  } else {
+    
+  }
+  right_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), right);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.CubicTextureComplex.right)
+}
+
+// string up = 5;
+inline void CubicTextureComplex::clear_up() {
+  up_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& CubicTextureComplex::up() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.CubicTextureComplex.up)
+  return _internal_up();
+}
+inline void CubicTextureComplex::set_up(const std::string& value) {
+  _internal_set_up(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.CubicTextureComplex.up)
+}
+inline std::string* CubicTextureComplex::mutable_up() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.CubicTextureComplex.up)
+  return _internal_mutable_up();
+}
+inline const std::string& CubicTextureComplex::_internal_up() const {
+  return up_.GetNoArena();
+}
+inline void CubicTextureComplex::_internal_set_up(const std::string& value) {
+  
+  up_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void CubicTextureComplex::set_up(std::string&& value) {
+  
+  up_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.CubicTextureComplex.up)
+}
+inline void CubicTextureComplex::set_up(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  up_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.CubicTextureComplex.up)
+}
+inline void CubicTextureComplex::set_up(const char* value, size_t size) {
+  
+  up_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.CubicTextureComplex.up)
+}
+inline std::string* CubicTextureComplex::_internal_mutable_up() {
+  
+  return up_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* CubicTextureComplex::release_up() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.CubicTextureComplex.up)
+  
+  return up_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void CubicTextureComplex::set_allocated_up(std::string* up) {
+  if (up != nullptr) {
+    
+  } else {
+    
+  }
+  up_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), up);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.CubicTextureComplex.up)
+}
+
+// string down = 6;
+inline void CubicTextureComplex::clear_down() {
+  down_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& CubicTextureComplex::down() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.CubicTextureComplex.down)
+  return _internal_down();
+}
+inline void CubicTextureComplex::set_down(const std::string& value) {
+  _internal_set_down(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.CubicTextureComplex.down)
+}
+inline std::string* CubicTextureComplex::mutable_down() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.CubicTextureComplex.down)
+  return _internal_mutable_down();
+}
+inline const std::string& CubicTextureComplex::_internal_down() const {
+  return down_.GetNoArena();
+}
+inline void CubicTextureComplex::_internal_set_down(const std::string& value) {
+  
+  down_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void CubicTextureComplex::set_down(std::string&& value) {
+  
+  down_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.CubicTextureComplex.down)
+}
+inline void CubicTextureComplex::set_down(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  down_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.CubicTextureComplex.down)
+}
+inline void CubicTextureComplex::set_down(const char* value, size_t size) {
+  
+  down_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.CubicTextureComplex.down)
+}
+inline std::string* CubicTextureComplex::_internal_mutable_down() {
+  
+  return down_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* CubicTextureComplex::release_down() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.CubicTextureComplex.down)
+  
+  return down_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void CubicTextureComplex::set_allocated_down(std::string* down) {
+  if (down != nullptr) {
+    
+  } else {
+    
+  }
+  down_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), down);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.CubicTextureComplex.down)
+}
+
+// -------------------------------------------------------------------
+
+// CubicTexture
+
+// .Tiny3D.Script.MaterialSystem.CubicTextureSimple simple = 1;
+inline bool CubicTexture::_internal_has_simple() const {
+  return CubicTextureOneOf_case() == kSimple;
+}
+inline bool CubicTexture::has_simple() const {
+  return _internal_has_simple();
+}
+inline void CubicTexture::set_has_simple() {
+  _oneof_case_[0] = kSimple;
+}
+inline void CubicTexture::clear_simple() {
+  if (_internal_has_simple()) {
+    delete CubicTextureOneOf_.simple_;
+    clear_has_CubicTextureOneOf();
+  }
+}
+inline ::Tiny3D::Script::MaterialSystem::CubicTextureSimple* CubicTexture::release_simple() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.CubicTexture.simple)
+  if (_internal_has_simple()) {
+    clear_has_CubicTextureOneOf();
+      ::Tiny3D::Script::MaterialSystem::CubicTextureSimple* temp = CubicTextureOneOf_.simple_;
+    CubicTextureOneOf_.simple_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Tiny3D::Script::MaterialSystem::CubicTextureSimple& CubicTexture::_internal_simple() const {
+  return _internal_has_simple()
+      ? *CubicTextureOneOf_.simple_
+      : *reinterpret_cast< ::Tiny3D::Script::MaterialSystem::CubicTextureSimple*>(&::Tiny3D::Script::MaterialSystem::_CubicTextureSimple_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::CubicTextureSimple& CubicTexture::simple() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.CubicTexture.simple)
+  return _internal_simple();
+}
+inline ::Tiny3D::Script::MaterialSystem::CubicTextureSimple* CubicTexture::_internal_mutable_simple() {
+  if (!_internal_has_simple()) {
+    clear_CubicTextureOneOf();
+    set_has_simple();
+    CubicTextureOneOf_.simple_ = CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::CubicTextureSimple >(
+        GetArenaNoVirtual());
+  }
+  return CubicTextureOneOf_.simple_;
+}
+inline ::Tiny3D::Script::MaterialSystem::CubicTextureSimple* CubicTexture::mutable_simple() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.CubicTexture.simple)
+  return _internal_mutable_simple();
+}
+
+// .Tiny3D.Script.MaterialSystem.CubicTextureComplex complex = 2;
+inline bool CubicTexture::_internal_has_complex() const {
+  return CubicTextureOneOf_case() == kComplex;
+}
+inline bool CubicTexture::has_complex() const {
+  return _internal_has_complex();
+}
+inline void CubicTexture::set_has_complex() {
+  _oneof_case_[0] = kComplex;
+}
+inline void CubicTexture::clear_complex() {
+  if (_internal_has_complex()) {
+    delete CubicTextureOneOf_.complex_;
+    clear_has_CubicTextureOneOf();
+  }
+}
+inline ::Tiny3D::Script::MaterialSystem::CubicTextureComplex* CubicTexture::release_complex() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.CubicTexture.complex)
+  if (_internal_has_complex()) {
+    clear_has_CubicTextureOneOf();
+      ::Tiny3D::Script::MaterialSystem::CubicTextureComplex* temp = CubicTextureOneOf_.complex_;
+    CubicTextureOneOf_.complex_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Tiny3D::Script::MaterialSystem::CubicTextureComplex& CubicTexture::_internal_complex() const {
+  return _internal_has_complex()
+      ? *CubicTextureOneOf_.complex_
+      : *reinterpret_cast< ::Tiny3D::Script::MaterialSystem::CubicTextureComplex*>(&::Tiny3D::Script::MaterialSystem::_CubicTextureComplex_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::CubicTextureComplex& CubicTexture::complex() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.CubicTexture.complex)
+  return _internal_complex();
+}
+inline ::Tiny3D::Script::MaterialSystem::CubicTextureComplex* CubicTexture::_internal_mutable_complex() {
+  if (!_internal_has_complex()) {
+    clear_CubicTextureOneOf();
+    set_has_complex();
+    CubicTextureOneOf_.complex_ = CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::CubicTextureComplex >(
+        GetArenaNoVirtual());
+  }
+  return CubicTextureOneOf_.complex_;
+}
+inline ::Tiny3D::Script::MaterialSystem::CubicTextureComplex* CubicTexture::mutable_complex() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.CubicTexture.complex)
+  return _internal_mutable_complex();
+}
+
+// .Tiny3D.Script.MaterialSystem.CubicTextureMode cubic_texture_mode = 3;
+inline void CubicTexture::clear_cubic_texture_mode() {
+  cubic_texture_mode_ = 0;
+}
+inline ::Tiny3D::Script::MaterialSystem::CubicTextureMode CubicTexture::_internal_cubic_texture_mode() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::CubicTextureMode >(cubic_texture_mode_);
+}
+inline ::Tiny3D::Script::MaterialSystem::CubicTextureMode CubicTexture::cubic_texture_mode() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.CubicTexture.cubic_texture_mode)
+  return _internal_cubic_texture_mode();
+}
+inline void CubicTexture::_internal_set_cubic_texture_mode(::Tiny3D::Script::MaterialSystem::CubicTextureMode value) {
+  
+  cubic_texture_mode_ = value;
+}
+inline void CubicTexture::set_cubic_texture_mode(::Tiny3D::Script::MaterialSystem::CubicTextureMode value) {
+  _internal_set_cubic_texture_mode(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.CubicTexture.cubic_texture_mode)
+}
+
+inline bool CubicTexture::has_CubicTextureOneOf() const {
+  return CubicTextureOneOf_case() != CUBICTEXTUREONEOF_NOT_SET;
+}
+inline void CubicTexture::clear_has_CubicTextureOneOf() {
+  _oneof_case_[0] = CUBICTEXTUREONEOF_NOT_SET;
+}
+inline CubicTexture::CubicTextureOneOfCase CubicTexture::CubicTextureOneOf_case() const {
+  return CubicTexture::CubicTextureOneOfCase(_oneof_case_[0]);
+}
+// -------------------------------------------------------------------
+
+// TextureUnit
+
+// .Tiny3D.Script.MaterialSystem.Header header = 1;
+inline bool TextureUnit::_internal_has_header() const {
+  return this != internal_default_instance() && header_ != nullptr;
+}
+inline bool TextureUnit::has_header() const {
+  return _internal_has_header();
+}
+inline void TextureUnit::clear_header() {
+  if (GetArenaNoVirtual() == nullptr && header_ != nullptr) {
+    delete header_;
+  }
+  header_ = nullptr;
+}
+inline const ::Tiny3D::Script::MaterialSystem::Header& TextureUnit::_internal_header() const {
+  const ::Tiny3D::Script::MaterialSystem::Header* p = header_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::Header*>(
+      &::Tiny3D::Script::MaterialSystem::_Header_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::Header& TextureUnit::header() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureUnit.header)
+  return _internal_header();
+}
+inline ::Tiny3D::Script::MaterialSystem::Header* TextureUnit::release_header() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TextureUnit.header)
+  
+  ::Tiny3D::Script::MaterialSystem::Header* temp = header_;
+  header_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::MaterialSystem::Header* TextureUnit::_internal_mutable_header() {
+  
+  if (header_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Header>(GetArenaNoVirtual());
+    header_ = p;
+  }
+  return header_;
+}
+inline ::Tiny3D::Script::MaterialSystem::Header* TextureUnit::mutable_header() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TextureUnit.header)
+  return _internal_mutable_header();
+}
+inline void TextureUnit::set_allocated_header(::Tiny3D::Script::MaterialSystem::Header* header) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete header_;
+  }
+  if (header) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      header = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, header, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  header_ = header;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.TextureUnit.header)
+}
+
+// string texture_alias = 2;
+inline void TextureUnit::clear_texture_alias() {
+  texture_alias_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& TextureUnit::texture_alias() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureUnit.texture_alias)
+  return _internal_texture_alias();
+}
+inline void TextureUnit::set_texture_alias(const std::string& value) {
+  _internal_set_texture_alias(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TextureUnit.texture_alias)
+}
+inline std::string* TextureUnit::mutable_texture_alias() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TextureUnit.texture_alias)
+  return _internal_mutable_texture_alias();
+}
+inline const std::string& TextureUnit::_internal_texture_alias() const {
+  return texture_alias_.GetNoArena();
+}
+inline void TextureUnit::_internal_set_texture_alias(const std::string& value) {
+  
+  texture_alias_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void TextureUnit::set_texture_alias(std::string&& value) {
+  
+  texture_alias_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.TextureUnit.texture_alias)
+}
+inline void TextureUnit::set_texture_alias(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  texture_alias_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.TextureUnit.texture_alias)
+}
+inline void TextureUnit::set_texture_alias(const char* value, size_t size) {
+  
+  texture_alias_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.TextureUnit.texture_alias)
+}
+inline std::string* TextureUnit::_internal_mutable_texture_alias() {
+  
+  return texture_alias_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* TextureUnit::release_texture_alias() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TextureUnit.texture_alias)
+  
+  return texture_alias_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void TextureUnit::set_allocated_texture_alias(std::string* texture_alias) {
+  if (texture_alias != nullptr) {
+    
+  } else {
+    
+  }
+  texture_alias_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), texture_alias);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.TextureUnit.texture_alias)
+}
+
+// .Tiny3D.Script.MaterialSystem.Texture texture = 3;
+inline bool TextureUnit::_internal_has_texture() const {
+  return this != internal_default_instance() && texture_ != nullptr;
+}
+inline bool TextureUnit::has_texture() const {
+  return _internal_has_texture();
+}
+inline void TextureUnit::clear_texture() {
+  if (GetArenaNoVirtual() == nullptr && texture_ != nullptr) {
+    delete texture_;
+  }
+  texture_ = nullptr;
+}
+inline const ::Tiny3D::Script::MaterialSystem::Texture& TextureUnit::_internal_texture() const {
+  const ::Tiny3D::Script::MaterialSystem::Texture* p = texture_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::Texture*>(
+      &::Tiny3D::Script::MaterialSystem::_Texture_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::Texture& TextureUnit::texture() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureUnit.texture)
+  return _internal_texture();
+}
+inline ::Tiny3D::Script::MaterialSystem::Texture* TextureUnit::release_texture() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TextureUnit.texture)
+  
+  ::Tiny3D::Script::MaterialSystem::Texture* temp = texture_;
+  texture_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::MaterialSystem::Texture* TextureUnit::_internal_mutable_texture() {
+  
+  if (texture_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Texture>(GetArenaNoVirtual());
+    texture_ = p;
+  }
+  return texture_;
+}
+inline ::Tiny3D::Script::MaterialSystem::Texture* TextureUnit::mutable_texture() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TextureUnit.texture)
+  return _internal_mutable_texture();
+}
+inline void TextureUnit::set_allocated_texture(::Tiny3D::Script::MaterialSystem::Texture* texture) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete texture_;
+  }
+  if (texture) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      texture = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, texture, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  texture_ = texture;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.TextureUnit.texture)
+}
+
+// .Tiny3D.Script.MaterialSystem.AnimTexture anim_texture = 4;
+inline bool TextureUnit::_internal_has_anim_texture() const {
+  return this != internal_default_instance() && anim_texture_ != nullptr;
+}
+inline bool TextureUnit::has_anim_texture() const {
+  return _internal_has_anim_texture();
+}
+inline void TextureUnit::clear_anim_texture() {
+  if (GetArenaNoVirtual() == nullptr && anim_texture_ != nullptr) {
+    delete anim_texture_;
+  }
+  anim_texture_ = nullptr;
+}
+inline const ::Tiny3D::Script::MaterialSystem::AnimTexture& TextureUnit::_internal_anim_texture() const {
+  const ::Tiny3D::Script::MaterialSystem::AnimTexture* p = anim_texture_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::AnimTexture*>(
+      &::Tiny3D::Script::MaterialSystem::_AnimTexture_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::AnimTexture& TextureUnit::anim_texture() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureUnit.anim_texture)
+  return _internal_anim_texture();
+}
+inline ::Tiny3D::Script::MaterialSystem::AnimTexture* TextureUnit::release_anim_texture() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TextureUnit.anim_texture)
+  
+  ::Tiny3D::Script::MaterialSystem::AnimTexture* temp = anim_texture_;
+  anim_texture_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::MaterialSystem::AnimTexture* TextureUnit::_internal_mutable_anim_texture() {
+  
+  if (anim_texture_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::AnimTexture>(GetArenaNoVirtual());
+    anim_texture_ = p;
+  }
+  return anim_texture_;
+}
+inline ::Tiny3D::Script::MaterialSystem::AnimTexture* TextureUnit::mutable_anim_texture() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TextureUnit.anim_texture)
+  return _internal_mutable_anim_texture();
+}
+inline void TextureUnit::set_allocated_anim_texture(::Tiny3D::Script::MaterialSystem::AnimTexture* anim_texture) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete anim_texture_;
+  }
+  if (anim_texture) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      anim_texture = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, anim_texture, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  anim_texture_ = anim_texture;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.TextureUnit.anim_texture)
+}
+
+// .Tiny3D.Script.MaterialSystem.CubicTexture cubic_texture = 5;
+inline bool TextureUnit::_internal_has_cubic_texture() const {
+  return this != internal_default_instance() && cubic_texture_ != nullptr;
+}
+inline bool TextureUnit::has_cubic_texture() const {
+  return _internal_has_cubic_texture();
+}
+inline void TextureUnit::clear_cubic_texture() {
+  if (GetArenaNoVirtual() == nullptr && cubic_texture_ != nullptr) {
+    delete cubic_texture_;
+  }
+  cubic_texture_ = nullptr;
+}
+inline const ::Tiny3D::Script::MaterialSystem::CubicTexture& TextureUnit::_internal_cubic_texture() const {
+  const ::Tiny3D::Script::MaterialSystem::CubicTexture* p = cubic_texture_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::CubicTexture*>(
+      &::Tiny3D::Script::MaterialSystem::_CubicTexture_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::CubicTexture& TextureUnit::cubic_texture() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureUnit.cubic_texture)
+  return _internal_cubic_texture();
+}
+inline ::Tiny3D::Script::MaterialSystem::CubicTexture* TextureUnit::release_cubic_texture() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TextureUnit.cubic_texture)
+  
+  ::Tiny3D::Script::MaterialSystem::CubicTexture* temp = cubic_texture_;
+  cubic_texture_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::MaterialSystem::CubicTexture* TextureUnit::_internal_mutable_cubic_texture() {
+  
+  if (cubic_texture_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::CubicTexture>(GetArenaNoVirtual());
+    cubic_texture_ = p;
+  }
+  return cubic_texture_;
+}
+inline ::Tiny3D::Script::MaterialSystem::CubicTexture* TextureUnit::mutable_cubic_texture() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TextureUnit.cubic_texture)
+  return _internal_mutable_cubic_texture();
+}
+inline void TextureUnit::set_allocated_cubic_texture(::Tiny3D::Script::MaterialSystem::CubicTexture* cubic_texture) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete cubic_texture_;
+  }
+  if (cubic_texture) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      cubic_texture = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, cubic_texture, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  cubic_texture_ = cubic_texture;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.TextureUnit.cubic_texture)
+}
+
+// .Tiny3D.Script.MaterialSystem.BindingType binding_type = 6;
+inline void TextureUnit::clear_binding_type() {
+  binding_type_ = 0;
+}
+inline ::Tiny3D::Script::MaterialSystem::BindingType TextureUnit::_internal_binding_type() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::BindingType >(binding_type_);
+}
+inline ::Tiny3D::Script::MaterialSystem::BindingType TextureUnit::binding_type() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureUnit.binding_type)
+  return _internal_binding_type();
+}
+inline void TextureUnit::_internal_set_binding_type(::Tiny3D::Script::MaterialSystem::BindingType value) {
+  
+  binding_type_ = value;
+}
+inline void TextureUnit::set_binding_type(::Tiny3D::Script::MaterialSystem::BindingType value) {
+  _internal_set_binding_type(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TextureUnit.binding_type)
+}
+
+// uint32 tex_coord_set = 7;
+inline void TextureUnit::clear_tex_coord_set() {
+  tex_coord_set_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 TextureUnit::_internal_tex_coord_set() const {
+  return tex_coord_set_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 TextureUnit::tex_coord_set() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureUnit.tex_coord_set)
+  return _internal_tex_coord_set();
+}
+inline void TextureUnit::_internal_set_tex_coord_set(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  tex_coord_set_ = value;
+}
+inline void TextureUnit::set_tex_coord_set(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_tex_coord_set(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TextureUnit.tex_coord_set)
+}
+
+// .Tiny3D.Script.MaterialSystem.BlendType color_op = 8;
+inline void TextureUnit::clear_color_op() {
+  color_op_ = 0;
+}
+inline ::Tiny3D::Script::MaterialSystem::BlendType TextureUnit::_internal_color_op() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::BlendType >(color_op_);
+}
+inline ::Tiny3D::Script::MaterialSystem::BlendType TextureUnit::color_op() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureUnit.color_op)
+  return _internal_color_op();
+}
+inline void TextureUnit::_internal_set_color_op(::Tiny3D::Script::MaterialSystem::BlendType value) {
+  
+  color_op_ = value;
+}
+inline void TextureUnit::set_color_op(::Tiny3D::Script::MaterialSystem::BlendType value) {
+  _internal_set_color_op(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TextureUnit.color_op)
+}
+
+// .Tiny3D.Script.MaterialSystem.Sampler sampler = 9;
+inline bool TextureUnit::_internal_has_sampler() const {
+  return this != internal_default_instance() && sampler_ != nullptr;
+}
+inline bool TextureUnit::has_sampler() const {
+  return _internal_has_sampler();
+}
+inline void TextureUnit::clear_sampler() {
+  if (GetArenaNoVirtual() == nullptr && sampler_ != nullptr) {
+    delete sampler_;
+  }
+  sampler_ = nullptr;
+}
+inline const ::Tiny3D::Script::MaterialSystem::Sampler& TextureUnit::_internal_sampler() const {
+  const ::Tiny3D::Script::MaterialSystem::Sampler* p = sampler_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::Sampler*>(
+      &::Tiny3D::Script::MaterialSystem::_Sampler_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::Sampler& TextureUnit::sampler() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureUnit.sampler)
+  return _internal_sampler();
+}
+inline ::Tiny3D::Script::MaterialSystem::Sampler* TextureUnit::release_sampler() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TextureUnit.sampler)
+  
+  ::Tiny3D::Script::MaterialSystem::Sampler* temp = sampler_;
+  sampler_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::MaterialSystem::Sampler* TextureUnit::_internal_mutable_sampler() {
+  
+  if (sampler_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Sampler>(GetArenaNoVirtual());
+    sampler_ = p;
+  }
+  return sampler_;
+}
+inline ::Tiny3D::Script::MaterialSystem::Sampler* TextureUnit::mutable_sampler() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TextureUnit.sampler)
+  return _internal_mutable_sampler();
+}
+inline void TextureUnit::set_allocated_sampler(::Tiny3D::Script::MaterialSystem::Sampler* sampler) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete sampler_;
+  }
+  if (sampler) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      sampler = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, sampler, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  sampler_ = sampler;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.TextureUnit.sampler)
+}
+
+// string sampler_ref = 10;
+inline void TextureUnit::clear_sampler_ref() {
+  sampler_ref_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& TextureUnit::sampler_ref() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureUnit.sampler_ref)
+  return _internal_sampler_ref();
+}
+inline void TextureUnit::set_sampler_ref(const std::string& value) {
+  _internal_set_sampler_ref(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TextureUnit.sampler_ref)
+}
+inline std::string* TextureUnit::mutable_sampler_ref() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TextureUnit.sampler_ref)
+  return _internal_mutable_sampler_ref();
+}
+inline const std::string& TextureUnit::_internal_sampler_ref() const {
+  return sampler_ref_.GetNoArena();
+}
+inline void TextureUnit::_internal_set_sampler_ref(const std::string& value) {
+  
+  sampler_ref_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void TextureUnit::set_sampler_ref(std::string&& value) {
+  
+  sampler_ref_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.TextureUnit.sampler_ref)
+}
+inline void TextureUnit::set_sampler_ref(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  sampler_ref_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.TextureUnit.sampler_ref)
+}
+inline void TextureUnit::set_sampler_ref(const char* value, size_t size) {
+  
+  sampler_ref_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.TextureUnit.sampler_ref)
+}
+inline std::string* TextureUnit::_internal_mutable_sampler_ref() {
+  
+  return sampler_ref_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* TextureUnit::release_sampler_ref() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TextureUnit.sampler_ref)
+  
+  return sampler_ref_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void TextureUnit::set_allocated_sampler_ref(std::string* sampler_ref) {
+  if (sampler_ref != nullptr) {
+    
+  } else {
+    
+  }
+  sampler_ref_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), sampler_ref);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.TextureUnit.sampler_ref)
 }
 
 // -------------------------------------------------------------------
@@ -7915,7 +12624,67 @@ inline void PointSizeAttenuation::set_quadratic(float value) {
 
 // Pass
 
-// .Tiny3D.Script.MaterialSystem.LightColor ambient = 1;
+// .Tiny3D.Script.MaterialSystem.Header header = 1;
+inline bool Pass::_internal_has_header() const {
+  return this != internal_default_instance() && header_ != nullptr;
+}
+inline bool Pass::has_header() const {
+  return _internal_has_header();
+}
+inline void Pass::clear_header() {
+  if (GetArenaNoVirtual() == nullptr && header_ != nullptr) {
+    delete header_;
+  }
+  header_ = nullptr;
+}
+inline const ::Tiny3D::Script::MaterialSystem::Header& Pass::_internal_header() const {
+  const ::Tiny3D::Script::MaterialSystem::Header* p = header_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::Header*>(
+      &::Tiny3D::Script::MaterialSystem::_Header_default_instance_);
+}
+inline const ::Tiny3D::Script::MaterialSystem::Header& Pass::header() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Pass.header)
+  return _internal_header();
+}
+inline ::Tiny3D::Script::MaterialSystem::Header* Pass::release_header() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.Pass.header)
+  
+  ::Tiny3D::Script::MaterialSystem::Header* temp = header_;
+  header_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::MaterialSystem::Header* Pass::_internal_mutable_header() {
+  
+  if (header_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Header>(GetArenaNoVirtual());
+    header_ = p;
+  }
+  return header_;
+}
+inline ::Tiny3D::Script::MaterialSystem::Header* Pass::mutable_header() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Pass.header)
+  return _internal_mutable_header();
+}
+inline void Pass::set_allocated_header(::Tiny3D::Script::MaterialSystem::Header* header) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete header_;
+  }
+  if (header) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      header = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, header, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  header_ = header;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.header)
+}
+
+// .Tiny3D.Script.MaterialSystem.LightColor ambient = 2;
 inline bool Pass::_internal_has_ambient() const {
   return this != internal_default_instance() && ambient_ != nullptr;
 }
@@ -7975,7 +12744,7 @@ inline void Pass::set_allocated_ambient(::Tiny3D::Script::MaterialSystem::LightC
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.ambient)
 }
 
-// .Tiny3D.Script.MaterialSystem.LightColor diffuse = 2;
+// .Tiny3D.Script.MaterialSystem.LightColor diffuse = 3;
 inline bool Pass::_internal_has_diffuse() const {
   return this != internal_default_instance() && diffuse_ != nullptr;
 }
@@ -8035,7 +12804,7 @@ inline void Pass::set_allocated_diffuse(::Tiny3D::Script::MaterialSystem::LightC
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.diffuse)
 }
 
-// .Tiny3D.Script.MaterialSystem.LightColor specular = 3;
+// .Tiny3D.Script.MaterialSystem.LightColor specular = 4;
 inline bool Pass::_internal_has_specular() const {
   return this != internal_default_instance() && specular_ != nullptr;
 }
@@ -8095,7 +12864,7 @@ inline void Pass::set_allocated_specular(::Tiny3D::Script::MaterialSystem::Light
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.specular)
 }
 
-// .Tiny3D.Script.MaterialSystem.LightColor emissive = 4;
+// .Tiny3D.Script.MaterialSystem.LightColor emissive = 5;
 inline bool Pass::_internal_has_emissive() const {
   return this != internal_default_instance() && emissive_ != nullptr;
 }
@@ -8155,7 +12924,7 @@ inline void Pass::set_allocated_emissive(::Tiny3D::Script::MaterialSystem::Light
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.emissive)
 }
 
-// float shininess = 5;
+// float shininess = 6;
 inline void Pass::clear_shininess() {
   shininess_ = 0;
 }
@@ -8175,7 +12944,7 @@ inline void Pass::set_shininess(float value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.shininess)
 }
 
-// .Tiny3D.Script.MaterialSystem.BlendScene scene_blend = 6;
+// .Tiny3D.Script.MaterialSystem.BlendScene scene_blend = 7;
 inline bool Pass::_internal_has_scene_blend() const {
   return this != internal_default_instance() && scene_blend_ != nullptr;
 }
@@ -8235,7 +13004,7 @@ inline void Pass::set_allocated_scene_blend(::Tiny3D::Script::MaterialSystem::Bl
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.scene_blend)
 }
 
-// .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_blend_scene = 7;
+// .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_blend_scene = 8;
 inline bool Pass::_internal_has_separate_blend_scene() const {
   return this != internal_default_instance() && separate_blend_scene_ != nullptr;
 }
@@ -8295,7 +13064,7 @@ inline void Pass::set_allocated_separate_blend_scene(::Tiny3D::Script::MaterialS
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.separate_blend_scene)
 }
 
-// .Tiny3D.Script.MaterialSystem.BlendOperation scene_blend_op = 8;
+// .Tiny3D.Script.MaterialSystem.BlendOperation scene_blend_op = 9;
 inline void Pass::clear_scene_blend_op() {
   scene_blend_op_ = 0;
 }
@@ -8315,7 +13084,7 @@ inline void Pass::set_scene_blend_op(::Tiny3D::Script::MaterialSystem::BlendOper
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.scene_blend_op)
 }
 
-// .Tiny3D.Script.MaterialSystem.SeparateSceneBlendOperation separate_scene_blend_op = 9;
+// .Tiny3D.Script.MaterialSystem.SeparateSceneBlendOperation separate_scene_blend_op = 10;
 inline bool Pass::_internal_has_separate_scene_blend_op() const {
   return this != internal_default_instance() && separate_scene_blend_op_ != nullptr;
 }
@@ -8375,7 +13144,7 @@ inline void Pass::set_allocated_separate_scene_blend_op(::Tiny3D::Script::Materi
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.separate_scene_blend_op)
 }
 
-// bool depth_check = 10;
+// bool depth_check = 11;
 inline void Pass::clear_depth_check() {
   depth_check_ = false;
 }
@@ -8395,7 +13164,7 @@ inline void Pass::set_depth_check(bool value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.depth_check)
 }
 
-// bool depth_write = 11;
+// bool depth_write = 12;
 inline void Pass::clear_depth_write() {
   depth_write_ = false;
 }
@@ -8415,7 +13184,7 @@ inline void Pass::set_depth_write(bool value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.depth_write)
 }
 
-// .Tiny3D.Script.MaterialSystem.CompareFunction depth_func = 12;
+// .Tiny3D.Script.MaterialSystem.CompareFunction depth_func = 13;
 inline void Pass::clear_depth_func() {
   depth_func_ = 0;
 }
@@ -8435,7 +13204,7 @@ inline void Pass::set_depth_func(::Tiny3D::Script::MaterialSystem::CompareFuncti
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.depth_func)
 }
 
-// .Tiny3D.Script.MaterialSystem.DepthBias depth_bias = 13;
+// .Tiny3D.Script.MaterialSystem.DepthBias depth_bias = 14;
 inline bool Pass::_internal_has_depth_bias() const {
   return this != internal_default_instance() && depth_bias_ != nullptr;
 }
@@ -8495,7 +13264,7 @@ inline void Pass::set_allocated_depth_bias(::Tiny3D::Script::MaterialSystem::Dep
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.depth_bias)
 }
 
-// float iteration_depth_bias = 14;
+// float iteration_depth_bias = 15;
 inline void Pass::clear_iteration_depth_bias() {
   iteration_depth_bias_ = 0;
 }
@@ -8515,7 +13284,7 @@ inline void Pass::set_iteration_depth_bias(float value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.iteration_depth_bias)
 }
 
-// .Tiny3D.Script.MaterialSystem.AlphaRejection alpha_rejection = 15;
+// .Tiny3D.Script.MaterialSystem.AlphaRejection alpha_rejection = 16;
 inline bool Pass::_internal_has_alpha_rejection() const {
   return this != internal_default_instance() && alpha_rejection_ != nullptr;
 }
@@ -8575,7 +13344,7 @@ inline void Pass::set_allocated_alpha_rejection(::Tiny3D::Script::MaterialSystem
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.alpha_rejection)
 }
 
-// bool alpha_to_coverage = 16;
+// bool alpha_to_coverage = 17;
 inline void Pass::clear_alpha_to_coverage() {
   alpha_to_coverage_ = false;
 }
@@ -8595,7 +13364,7 @@ inline void Pass::set_alpha_to_coverage(bool value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.alpha_to_coverage)
 }
 
-// bool light_scissor = 17;
+// bool light_scissor = 18;
 inline void Pass::clear_light_scissor() {
   light_scissor_ = false;
 }
@@ -8615,7 +13384,7 @@ inline void Pass::set_light_scissor(bool value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.light_scissor)
 }
 
-// bool light_clip_planes = 18;
+// bool light_clip_planes = 19;
 inline void Pass::clear_light_clip_planes() {
   light_clip_planes_ = false;
 }
@@ -8635,7 +13404,7 @@ inline void Pass::set_light_clip_planes(bool value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.light_clip_planes)
 }
 
-// .Tiny3D.Script.MaterialSystem.IlluminationStage illumination_stage = 19;
+// .Tiny3D.Script.MaterialSystem.IlluminationStage illumination_stage = 20;
 inline void Pass::clear_illumination_stage() {
   illumination_stage_ = 0;
 }
@@ -8655,7 +13424,7 @@ inline void Pass::set_illumination_stage(::Tiny3D::Script::MaterialSystem::Illum
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.illumination_stage)
 }
 
-// bool normailize_normals = 20;
+// bool normailize_normals = 21;
 inline void Pass::clear_normailize_normals() {
   normailize_normals_ = false;
 }
@@ -8675,7 +13444,7 @@ inline void Pass::set_normailize_normals(bool value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.normailize_normals)
 }
 
-// .Tiny3D.Script.MaterialSystem.TransparentSorting transparent_sorting = 21;
+// .Tiny3D.Script.MaterialSystem.TransparentSorting transparent_sorting = 22;
 inline void Pass::clear_transparent_sorting() {
   transparent_sorting_ = 0;
 }
@@ -8695,7 +13464,7 @@ inline void Pass::set_transparent_sorting(::Tiny3D::Script::MaterialSystem::Tran
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.transparent_sorting)
 }
 
-// .Tiny3D.Script.MaterialSystem.CullHardware cull_hardware = 22;
+// .Tiny3D.Script.MaterialSystem.CullHardware cull_hardware = 23;
 inline void Pass::clear_cull_hardware() {
   cull_hardware_ = 0;
 }
@@ -8715,7 +13484,7 @@ inline void Pass::set_cull_hardware(::Tiny3D::Script::MaterialSystem::CullHardwa
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.cull_hardware)
 }
 
-// .Tiny3D.Script.MaterialSystem.CullSoftware cull_software = 23;
+// .Tiny3D.Script.MaterialSystem.CullSoftware cull_software = 24;
 inline void Pass::clear_cull_software() {
   cull_software_ = 0;
 }
@@ -8735,7 +13504,7 @@ inline void Pass::set_cull_software(::Tiny3D::Script::MaterialSystem::CullSoftwa
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.cull_software)
 }
 
-// bool lighting = 24;
+// bool lighting = 25;
 inline void Pass::clear_lighting() {
   lighting_ = false;
 }
@@ -8755,7 +13524,7 @@ inline void Pass::set_lighting(bool value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.lighting)
 }
 
-// .Tiny3D.Script.MaterialSystem.ShadingMode shading = 25;
+// .Tiny3D.Script.MaterialSystem.ShadingMode shading = 26;
 inline void Pass::clear_shading() {
   shading_ = 0;
 }
@@ -8775,7 +13544,7 @@ inline void Pass::set_shading(::Tiny3D::Script::MaterialSystem::ShadingMode valu
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.shading)
 }
 
-// .Tiny3D.Script.MaterialSystem.PolygonMode polygon_mode = 26;
+// .Tiny3D.Script.MaterialSystem.PolygonMode polygon_mode = 27;
 inline void Pass::clear_polygon_mode() {
   polygon_mode_ = 0;
 }
@@ -8795,7 +13564,7 @@ inline void Pass::set_polygon_mode(::Tiny3D::Script::MaterialSystem::PolygonMode
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.polygon_mode)
 }
 
-// bool polygon_mode_overrideable = 27;
+// bool polygon_mode_overrideable = 28;
 inline void Pass::clear_polygon_mode_overrideable() {
   polygon_mode_overrideable_ = false;
 }
@@ -8815,7 +13584,7 @@ inline void Pass::set_polygon_mode_overrideable(bool value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.polygon_mode_overrideable)
 }
 
-// .Tiny3D.Script.MaterialSystem.Fog fog = 28;
+// .Tiny3D.Script.MaterialSystem.Fog fog = 29;
 inline bool Pass::_internal_has_fog() const {
   return this != internal_default_instance() && fog_ != nullptr;
 }
@@ -8875,7 +13644,7 @@ inline void Pass::set_allocated_fog(::Tiny3D::Script::MaterialSystem::Fog* fog) 
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.fog)
 }
 
-// bool color_write = 29;
+// bool color_write = 30;
 inline void Pass::clear_color_write() {
   color_write_ = false;
 }
@@ -8895,7 +13664,7 @@ inline void Pass::set_color_write(bool value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.color_write)
 }
 
-// uint32 max_lights = 30;
+// uint32 max_lights = 31;
 inline void Pass::clear_max_lights() {
   max_lights_ = 0u;
 }
@@ -8915,7 +13684,7 @@ inline void Pass::set_max_lights(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.max_lights)
 }
 
-// uint32 start_light = 31;
+// uint32 start_light = 32;
 inline void Pass::clear_start_light() {
   start_light_ = 0u;
 }
@@ -8935,7 +13704,7 @@ inline void Pass::set_start_light(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.start_light)
 }
 
-// .Tiny3D.Script.MaterialSystem.Iteration iteration = 32;
+// .Tiny3D.Script.MaterialSystem.Iteration iteration = 33;
 inline bool Pass::_internal_has_iteration() const {
   return this != internal_default_instance() && iteration_ != nullptr;
 }
@@ -8995,7 +13764,7 @@ inline void Pass::set_allocated_iteration(::Tiny3D::Script::MaterialSystem::Iter
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.iteration)
 }
 
-// float point_size = 33;
+// float point_size = 34;
 inline void Pass::clear_point_size() {
   point_size_ = 0;
 }
@@ -9015,7 +13784,7 @@ inline void Pass::set_point_size(float value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.point_size)
 }
 
-// bool point_sprites = 34;
+// bool point_sprites = 35;
 inline void Pass::clear_point_sprites() {
   point_sprites_ = false;
 }
@@ -9035,7 +13804,7 @@ inline void Pass::set_point_sprites(bool value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.point_sprites)
 }
 
-// .Tiny3D.Script.MaterialSystem.PointSizeAttenuation point_size_attenuation = 35;
+// .Tiny3D.Script.MaterialSystem.PointSizeAttenuation point_size_attenuation = 36;
 inline bool Pass::_internal_has_point_size_attenuation() const {
   return this != internal_default_instance() && point_size_attenuation_ != nullptr;
 }
@@ -9095,7 +13864,7 @@ inline void Pass::set_allocated_point_size_attenuation(::Tiny3D::Script::Materia
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.point_size_attenuation)
 }
 
-// float point_size_min = 36;
+// float point_size_min = 37;
 inline void Pass::clear_point_size_min() {
   point_size_min_ = 0;
 }
@@ -9115,7 +13884,7 @@ inline void Pass::set_point_size_min(float value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.point_size_min)
 }
 
-// float point_size_max = 37;
+// float point_size_max = 38;
 inline void Pass::clear_point_size_max() {
   point_size_max_ = 0;
 }
@@ -9135,7 +13904,7 @@ inline void Pass::set_point_size_max(float value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Pass.point_size_max)
 }
 
-// .Tiny3D.Script.MaterialSystem.GPUProgramRef gpu_program_ref = 38;
+// .Tiny3D.Script.MaterialSystem.GPUProgramRef gpu_program_ref = 39;
 inline bool Pass::_internal_has_gpu_program_ref() const {
   return this != internal_default_instance() && gpu_program_ref_ != nullptr;
 }
@@ -9193,6 +13962,45 @@ inline void Pass::set_allocated_gpu_program_ref(::Tiny3D::Script::MaterialSystem
   }
   gpu_program_ref_ = gpu_program_ref;
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.gpu_program_ref)
+}
+
+// repeated .Tiny3D.Script.MaterialSystem.TextureUnit textures = 40;
+inline int Pass::_internal_textures_size() const {
+  return textures_.size();
+}
+inline int Pass::textures_size() const {
+  return _internal_textures_size();
+}
+inline void Pass::clear_textures() {
+  textures_.Clear();
+}
+inline ::Tiny3D::Script::MaterialSystem::TextureUnit* Pass::mutable_textures(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Pass.textures)
+  return textures_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::TextureUnit >*
+Pass::mutable_textures() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.Pass.textures)
+  return &textures_;
+}
+inline const ::Tiny3D::Script::MaterialSystem::TextureUnit& Pass::_internal_textures(int index) const {
+  return textures_.Get(index);
+}
+inline const ::Tiny3D::Script::MaterialSystem::TextureUnit& Pass::textures(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Pass.textures)
+  return _internal_textures(index);
+}
+inline ::Tiny3D::Script::MaterialSystem::TextureUnit* Pass::_internal_add_textures() {
+  return textures_.Add();
+}
+inline ::Tiny3D::Script::MaterialSystem::TextureUnit* Pass::add_textures() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.Pass.textures)
+  return _internal_add_textures();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::TextureUnit >&
+Pass::textures() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.Pass.textures)
+  return textures_;
 }
 
 // -------------------------------------------------------------------
@@ -9787,29 +14595,48 @@ inline void Technique::set_allocated_gpu_device_rule(::Tiny3D::Script::MaterialS
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Technique.gpu_device_rule)
 }
 
+// repeated .Tiny3D.Script.MaterialSystem.Pass passes = 9;
+inline int Technique::_internal_passes_size() const {
+  return passes_.size();
+}
+inline int Technique::passes_size() const {
+  return _internal_passes_size();
+}
+inline void Technique::clear_passes() {
+  passes_.Clear();
+}
+inline ::Tiny3D::Script::MaterialSystem::Pass* Technique::mutable_passes(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Technique.passes)
+  return passes_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Pass >*
+Technique::mutable_passes() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.Technique.passes)
+  return &passes_;
+}
+inline const ::Tiny3D::Script::MaterialSystem::Pass& Technique::_internal_passes(int index) const {
+  return passes_.Get(index);
+}
+inline const ::Tiny3D::Script::MaterialSystem::Pass& Technique::passes(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Technique.passes)
+  return _internal_passes(index);
+}
+inline ::Tiny3D::Script::MaterialSystem::Pass* Technique::_internal_add_passes() {
+  return passes_.Add();
+}
+inline ::Tiny3D::Script::MaterialSystem::Pass* Technique::add_passes() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.Technique.passes)
+  return _internal_add_passes();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Pass >&
+Technique::passes() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.Technique.passes)
+  return passes_;
+}
+
 // -------------------------------------------------------------------
 
 // LODValues
-
-// uint32 number = 1;
-inline void LODValues::clear_number() {
-  number_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LODValues::_internal_number() const {
-  return number_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LODValues::number() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.LODValues.number)
-  return _internal_number();
-}
-inline void LODValues::_internal_set_number(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  number_ = value;
-}
-inline void LODValues::set_number(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_number(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.LODValues.number)
-}
 
 // repeated float values = 2;
 inline int LODValues::_internal_values_size() const {
@@ -9922,124 +14749,124 @@ inline void LODValues::set_allocated_strategy(std::string* strategy) {
 
 // TextureAlias
 
-// string aliasName = 1;
-inline void TextureAlias::clear_aliasname() {
-  aliasname_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+// string alias_name = 1;
+inline void TextureAlias::clear_alias_name() {
+  alias_name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline const std::string& TextureAlias::aliasname() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureAlias.aliasName)
-  return _internal_aliasname();
+inline const std::string& TextureAlias::alias_name() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureAlias.alias_name)
+  return _internal_alias_name();
 }
-inline void TextureAlias::set_aliasname(const std::string& value) {
-  _internal_set_aliasname(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TextureAlias.aliasName)
+inline void TextureAlias::set_alias_name(const std::string& value) {
+  _internal_set_alias_name(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TextureAlias.alias_name)
 }
-inline std::string* TextureAlias::mutable_aliasname() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TextureAlias.aliasName)
-  return _internal_mutable_aliasname();
+inline std::string* TextureAlias::mutable_alias_name() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TextureAlias.alias_name)
+  return _internal_mutable_alias_name();
 }
-inline const std::string& TextureAlias::_internal_aliasname() const {
-  return aliasname_.GetNoArena();
+inline const std::string& TextureAlias::_internal_alias_name() const {
+  return alias_name_.GetNoArena();
 }
-inline void TextureAlias::_internal_set_aliasname(const std::string& value) {
+inline void TextureAlias::_internal_set_alias_name(const std::string& value) {
   
-  aliasname_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+  alias_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
 }
-inline void TextureAlias::set_aliasname(std::string&& value) {
+inline void TextureAlias::set_alias_name(std::string&& value) {
   
-  aliasname_.SetNoArena(
+  alias_name_.SetNoArena(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.TextureAlias.aliasName)
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.TextureAlias.alias_name)
 }
-inline void TextureAlias::set_aliasname(const char* value) {
+inline void TextureAlias::set_alias_name(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
-  aliasname_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.TextureAlias.aliasName)
+  alias_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.TextureAlias.alias_name)
 }
-inline void TextureAlias::set_aliasname(const char* value, size_t size) {
+inline void TextureAlias::set_alias_name(const char* value, size_t size) {
   
-  aliasname_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+  alias_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.TextureAlias.aliasName)
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.TextureAlias.alias_name)
 }
-inline std::string* TextureAlias::_internal_mutable_aliasname() {
+inline std::string* TextureAlias::_internal_mutable_alias_name() {
   
-  return aliasname_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  return alias_name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline std::string* TextureAlias::release_aliasname() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TextureAlias.aliasName)
+inline std::string* TextureAlias::release_alias_name() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TextureAlias.alias_name)
   
-  return aliasname_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  return alias_name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline void TextureAlias::set_allocated_aliasname(std::string* aliasname) {
-  if (aliasname != nullptr) {
+inline void TextureAlias::set_allocated_alias_name(std::string* alias_name) {
+  if (alias_name != nullptr) {
     
   } else {
     
   }
-  aliasname_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), aliasname);
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.TextureAlias.aliasName)
+  alias_name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), alias_name);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.TextureAlias.alias_name)
 }
 
-// string textureName = 2;
-inline void TextureAlias::clear_texturename() {
-  texturename_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+// string texture_name = 2;
+inline void TextureAlias::clear_texture_name() {
+  texture_name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline const std::string& TextureAlias::texturename() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureAlias.textureName)
-  return _internal_texturename();
+inline const std::string& TextureAlias::texture_name() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TextureAlias.texture_name)
+  return _internal_texture_name();
 }
-inline void TextureAlias::set_texturename(const std::string& value) {
-  _internal_set_texturename(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TextureAlias.textureName)
+inline void TextureAlias::set_texture_name(const std::string& value) {
+  _internal_set_texture_name(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TextureAlias.texture_name)
 }
-inline std::string* TextureAlias::mutable_texturename() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TextureAlias.textureName)
-  return _internal_mutable_texturename();
+inline std::string* TextureAlias::mutable_texture_name() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.TextureAlias.texture_name)
+  return _internal_mutable_texture_name();
 }
-inline const std::string& TextureAlias::_internal_texturename() const {
-  return texturename_.GetNoArena();
+inline const std::string& TextureAlias::_internal_texture_name() const {
+  return texture_name_.GetNoArena();
 }
-inline void TextureAlias::_internal_set_texturename(const std::string& value) {
+inline void TextureAlias::_internal_set_texture_name(const std::string& value) {
   
-  texturename_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+  texture_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
 }
-inline void TextureAlias::set_texturename(std::string&& value) {
+inline void TextureAlias::set_texture_name(std::string&& value) {
   
-  texturename_.SetNoArena(
+  texture_name_.SetNoArena(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.TextureAlias.textureName)
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.MaterialSystem.TextureAlias.texture_name)
 }
-inline void TextureAlias::set_texturename(const char* value) {
+inline void TextureAlias::set_texture_name(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
-  texturename_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.TextureAlias.textureName)
+  texture_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.MaterialSystem.TextureAlias.texture_name)
 }
-inline void TextureAlias::set_texturename(const char* value, size_t size) {
+inline void TextureAlias::set_texture_name(const char* value, size_t size) {
   
-  texturename_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+  texture_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.TextureAlias.textureName)
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.MaterialSystem.TextureAlias.texture_name)
 }
-inline std::string* TextureAlias::_internal_mutable_texturename() {
+inline std::string* TextureAlias::_internal_mutable_texture_name() {
   
-  return texturename_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  return texture_name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline std::string* TextureAlias::release_texturename() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TextureAlias.textureName)
+inline std::string* TextureAlias::release_texture_name() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.TextureAlias.texture_name)
   
-  return texturename_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  return texture_name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline void TextureAlias::set_allocated_texturename(std::string* texturename) {
-  if (texturename != nullptr) {
+inline void TextureAlias::set_allocated_texture_name(std::string* texture_name) {
+  if (texture_name != nullptr) {
     
   } else {
     
   }
-  texturename_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), texturename);
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.TextureAlias.textureName)
+  texture_name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), texture_name);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.TextureAlias.texture_name)
 }
 
 // -------------------------------------------------------------------
@@ -10305,9 +15132,115 @@ Material::techniques() const {
   return techniques_;
 }
 
+// repeated .Tiny3D.Script.MaterialSystem.GPUConstantBuffer cbuffers = 7;
+inline int Material::_internal_cbuffers_size() const {
+  return cbuffers_.size();
+}
+inline int Material::cbuffers_size() const {
+  return _internal_cbuffers_size();
+}
+inline void Material::clear_cbuffers() {
+  cbuffers_.Clear();
+}
+inline ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer* Material::mutable_cbuffers(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Material.cbuffers)
+  return cbuffers_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer >*
+Material::mutable_cbuffers() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.Material.cbuffers)
+  return &cbuffers_;
+}
+inline const ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer& Material::_internal_cbuffers(int index) const {
+  return cbuffers_.Get(index);
+}
+inline const ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer& Material::cbuffers(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Material.cbuffers)
+  return _internal_cbuffers(index);
+}
+inline ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer* Material::_internal_add_cbuffers() {
+  return cbuffers_.Add();
+}
+inline ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer* Material::add_cbuffers() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.Material.cbuffers)
+  return _internal_add_cbuffers();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer >&
+Material::cbuffers() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.Material.cbuffers)
+  return cbuffers_;
+}
+
+// repeated .Tiny3D.Script.MaterialSystem.GPUProgram programs = 8;
+inline int Material::_internal_programs_size() const {
+  return programs_.size();
+}
+inline int Material::programs_size() const {
+  return _internal_programs_size();
+}
+inline void Material::clear_programs() {
+  programs_.Clear();
+}
+inline ::Tiny3D::Script::MaterialSystem::GPUProgram* Material::mutable_programs(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Material.programs)
+  return programs_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUProgram >*
+Material::mutable_programs() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.MaterialSystem.Material.programs)
+  return &programs_;
+}
+inline const ::Tiny3D::Script::MaterialSystem::GPUProgram& Material::_internal_programs(int index) const {
+  return programs_.Get(index);
+}
+inline const ::Tiny3D::Script::MaterialSystem::GPUProgram& Material::programs(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Material.programs)
+  return _internal_programs(index);
+}
+inline ::Tiny3D::Script::MaterialSystem::GPUProgram* Material::_internal_add_programs() {
+  return programs_.Add();
+}
+inline ::Tiny3D::Script::MaterialSystem::GPUProgram* Material::add_programs() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.MaterialSystem.Material.programs)
+  return _internal_add_programs();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUProgram >&
+Material::programs() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.MaterialSystem.Material.programs)
+  return programs_;
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -10376,6 +15309,12 @@ Material::techniques() const {
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::BuiltInType> : ::std::true_type {};
+template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::TextureAddressMode> : ::std::true_type {};
+template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::FilterOption> : ::std::true_type {};
+template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::TextureType> : ::std::true_type {};
+template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::CubicTextureMode> : ::std::true_type {};
+template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::BindingType> : ::std::true_type {};
+template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::EnvMap> : ::std::true_type {};
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::BlendType> : ::std::true_type {};
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::BlendFactor> : ::std::true_type {};
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::BlendOperation> : ::std::true_type {};

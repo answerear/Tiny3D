@@ -22,7 +22,7 @@
 #include "T3DScriptLexer.h"
 #include "T3DScriptParser.h"
 #include "T3DScriptError.h"
-#include "T3DScriptTranslator.h"
+#include "T3DScriptTranslatorNew.h"
 
 
 namespace Tiny3D
@@ -75,19 +75,19 @@ namespace Tiny3D
 
     void ScriptCompiler::initTranslators()
     {
-        mMaterialTranslator = new MaterialTranslator();
-        mTechniqueTranslator = new TechniqueTranslator();
-        mPassTranslator = new PassTranslator();
-        mTexUnitTranslator = new TextureUnitTranslator();
-        mSamplerTranslator = new SamplerTranslator();
-        mGPUTransltor = new GPUProgramTranslator();
+        mMaterialTranslator = new MaterialTranslatorNew();
+        mTechniqueTranslator = new TechniqueTranslatorNew();
+        mPassTranslator = new PassTranslatorNew();
+        mTexUnitTranslator = new TextureUnitTranslatorNew();
+        mSamplerTranslator = new SamplerTranslatorNew();
+        mGPUTransltor = new GPUProgramTranslatorNew();
     }
 
     //--------------------------------------------------------------------------
 
-    ScriptTranslator *ScriptCompiler::getTranslator(const AbstractNodePtr &node) const
+    ScriptTranslatorNew *ScriptCompiler::getTranslator(const AbstractNodePtr &node) const
     {
-        ScriptTranslator *translator = nullptr;
+        ScriptTranslatorNew *translator = nullptr;
 
         if (node->type == ANT_OBJECT)
         {
@@ -1117,6 +1117,10 @@ namespace Tiny3D
         {
             MemoryDataStream stream(10*1024*1024);
 
+            uint8_t *buffer = nullptr;
+            size_t bufSize = 0;
+            stream.getBuffer(buffer, bufSize);
+
             // 写文件头
             T3DFileHeader header;
             memcpy(header.magic, T3D_MAGIC, 3);
@@ -1125,19 +1129,21 @@ namespace Tiny3D
             header.version = SCC_CURRENT_VERSION;
             header.fileSize = sizeof(header);
             stream.write(&header, sizeof(header));
-            size_t size = 0;
             ret = true;
+
+            MaterialSystem::Material material;
 
             for (auto i = ast->begin(); i != ast->end(); ++i)
             {
-                if ((*i)->type == ANT_OBJECT && static_cast<ObjectAbstractNode*>((*i).get())->abstrct)
+                if ((*i)->type == ANT_OBJECT 
+                    && static_cast<ObjectAbstractNode*>((*i).get())->abstrct)
                     continue;
                 
-                ScriptTranslator *translator = getTranslator(*i);
+                ScriptTranslatorNew *translator = getTranslator(*i);
                 
                 if (translator)
                 {
-                    size = translator->translate(this, stream, *i);
+                    ret = translator->translate(this, &material, *i);
                 }
                 else
                 {
@@ -1145,13 +1151,16 @@ namespace Tiny3D
                     break;
                 }
 
-                if (size == 0)
+                if (!ret)
                 {
-                    ret = false;
                     break;
                 }
 
-                header.fileSize += size;
+                ret = material.SerializeToArray(buffer, bufSize);
+                if (!ret)
+                    break;
+
+                header.fileSize += material.ByteSizeLong();
             }
 
             if (!ret)
@@ -1159,23 +1168,17 @@ namespace Tiny3D
                 break;
             }
 
-            T3D_ASSERT(header.fileSize == stream.tell());
-
             stream.seek(0, false);
             stream.write(&header, sizeof(header));
 
             FileDataStream fs;
             if (!fs.open(output.c_str(), FileDataStream::E_MODE_WRITE_ONLY))
             {
+                ret = false;
                 break;
             }
 
-            uint8_t *buffer = nullptr;
-            size_t bufSize = 0;
-            stream.getBuffer(buffer, bufSize);
-
-            size = (header.fileSize > bufSize ? bufSize : header.fileSize);
-            fs.write(buffer, size);
+            fs.write(buffer, header.fileSize);
             fs.close();
 
         } while (0);

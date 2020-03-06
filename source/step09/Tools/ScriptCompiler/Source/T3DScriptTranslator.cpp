@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
+#if 0
 #include "T3DScriptTranslator.h"
 #include "T3DScriptError.h"
 #include "T3DScriptCompiler.h"
@@ -6413,4 +6413,4 @@ namespace Tiny3D
         return totalBytes;
     }
 }
-
+#endif
