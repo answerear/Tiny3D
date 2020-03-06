@@ -1128,8 +1128,10 @@ namespace Tiny3D
             header.subtype = T3D_FILE_SUBTYPE_SCC;
             header.version = SCC_CURRENT_VERSION;
             header.fileSize = sizeof(header);
-            stream.write(&header, sizeof(header));
             ret = true;
+
+            uint8_t *data = buffer + sizeof(header);
+            size_t dataLen = bufSize - sizeof(header);
 
             MaterialSystem::Material material;
 
@@ -1156,11 +1158,14 @@ namespace Tiny3D
                     break;
                 }
 
-                ret = material.SerializeToArray(buffer, bufSize);
+                ret = material.SerializeToArray(data, dataLen);
                 if (!ret)
                     break;
 
-                header.fileSize += material.ByteSizeLong();
+                uint32_t len = (uint32_t)material.ByteSizeLong();
+                header.fileSize += len;
+                data += len;
+                dataLen -= len;
             }
 
             if (!ret)
