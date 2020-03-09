@@ -183,17 +183,22 @@ add_definitions(-DT3D_ERR_PLUGINS=0x00010000)
 include(FindPkgMacros)
 include(ProjectCMakeModule)
 
+
 # Search SDL2 library for all projects.
 set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/SDL2" CACHE PATH "SDL2 library path")
 find_package(SDL2)
 
 # Search protobuf library for all projects.
-set(PROTOBUF_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/protobuf" CACHE PATH "protobuf library path")
-find_package(protobuf)
+#set(PROTOBUF_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/protobuf" CACHE PATH "protobuf library path")
+#find_package(protobuf)
 
 # Search rapidjson library for all projects.
 set(RAPIDJSON_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/rapidjson" CACHE PATH "rapidjson library path")
 find_package(rapidjson)
+
+# Project protobuf
+set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/protobuf/src")
+add_subdirectory(protobuf)
 
 # Project Platform
 add_subdirectory(Platform)
@@ -207,6 +212,7 @@ add_subdirectory(Framework)
 add_subdirectory(Math)
 # Project Core
 add_subdirectory(Core)
+
 
 #foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
 #    string(TOUPPER ${OUTPUTCONFIG} BUILTTYPE)
@@ -234,20 +240,21 @@ add_dependencies(T3DLog T3DPlatform)
 add_dependencies(T3DUtils T3DLog T3DPlatform)
 add_dependencies(T3DMath T3DLog T3DPlatform)
 add_dependencies(T3DFramework T3DLog T3DPlatform)
-add_dependencies(T3DCore T3DMath T3DFramework T3DUtils T3DLog T3DPlatform)
+add_dependencies(T3DCore libprotobuf-lite T3DMath T3DFramework T3DUtils T3DLog T3DPlatform)
 
 if (TINY3D_BUILD_TOOLS)
     add_subdirectory(Tools)
+    add_dependencies(ScriptCompiler libprotobuf-lite)
 endif(TINY3D_BUILD_TOOLS)
 
 if (TINY3D_BUILD_SAMPLES)
     # Build samples. Set all projects of samples.
     add_subdirectory(Samples)
-    add_dependencies(HelloApp ZipArchive FileSystemArchive FreeImageCodec T3DCore)
-    add_dependencies(PlatformApp ZipArchive FileSystemArchive FreeImageCodec T3DCore)
-    add_dependencies(FrameworkApp ZipArchive FileSystemArchive FreeImageCodec T3DCore)
-    add_dependencies(GeometryApp ZipArchive FileSystemArchive FreeImageCodec T3DCore)
-    add_dependencies(TextureApp ZipArchive FileSystemArchive FreeImageCodec T3DCore)
+    add_dependencies(HelloApp T3DCore)
+    add_dependencies(PlatformApp T3DCore)
+    add_dependencies(FrameworkApp T3DCore)
+    add_dependencies(GeometryApp T3DCore)
+    add_dependencies(TextureApp T3DCore)
     if (TINY3D_OS_DESKTOP)
         add_dependencies(TransformationApp T3DMath T3DLog T3DPlatform)
         add_dependencies(IntersectionApp T3DMath T3DLog T3DPlatform)

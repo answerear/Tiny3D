@@ -72,7 +72,8 @@ if (TINY3D_OS_WINDOWS)
             T3DUtils
             T3DMath
             ${SHADERCONDUCTOR_LIBRARY}
-            ${PROTOBUF_LITE_LIBRARY_D}
+            #${PROTOBUF_LITE_LIBRARY_D}
+			libprotobuf-lite
             )
     else ()
         target_link_libraries(
@@ -82,7 +83,8 @@ if (TINY3D_OS_WINDOWS)
             T3DUtils
             T3DMath
             ${SHADERCONDUCTOR_LIBRARY}
-            ${PROTOBUF_LITE_LIBRARY}
+            #${PROTOBUF_LITE_LIBRARY}
+			libprotobuf-lite
             )
     endif ()
 
