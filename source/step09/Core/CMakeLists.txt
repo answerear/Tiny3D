@@ -38,6 +38,7 @@ include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}/Source"
     "${SDL2_INCLUDE_DIR}"
 	"${TINY3D_DEP_DIR}/rapidjson"
+	"${PROTOBUF_INCLUDE_DIR}"
     "${TINY3D_DEP_DIR}/zlib/include"    # only for windows
     )
 
@@ -80,6 +81,10 @@ set_project_files(Source\\\\Component ${CMAKE_CURRENT_SOURCE_DIR}/Source/Compone
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .cpp)
 
+# protobuf source files
+set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/ .pb.h)
+set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/ .pb.cc)
+
 
 # Setup all files for building this project.
 if (TINY3D_BUILD_SHARED_LIBS)
@@ -106,6 +111,7 @@ if (TINY3D_OS_WINDOWS)
             LINK_PRIVATE T3DMath
             LINK_PRIVATE legacy_stdio_definitions
             LINK_PRIVATE ${SDL2_LIBRARY}
+			LINK_PRIVATE libprotobuf-lite
             #LINK_PRIVATE ${FREEIMAGE_LIBRARY}
             )
     else ()
@@ -118,6 +124,7 @@ if (TINY3D_OS_WINDOWS)
             LINK_PRIVATE T3DFramework
             LINK_PRIVATE T3DMath
             LINK_PRIVATE ${SDL2_LIBRARY}
+			LINK_PRIVATE libprotobuf-lite
             #LINK_PRIVATE ${FREEIMAGE_LIBRARY}
             )
     endif ()

@@ -24,8 +24,6 @@ endif (TINY3D_OS_WINDOWS)
     
 find_package(ShaderConductor)
 
-#add_definitions(-DPROTOBUF_USE_DLLS)
-
 # Setup project include files path
 include_directories(
     "${TINY3D_PLATFORM_INC_DIR}"
@@ -55,38 +53,22 @@ if (TINY3D_OS_WINDOWS)
     # target_compile_options(${LIB_NAME} PRIVATE "/wd4251")
 
     add_compile_options("/wd4251")
-
-	#set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-	#set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
     
     add_executable(
         ${BIN_NAME} WIN32
         ${SOURCE_FILES}
         )
 
-    if (CMAKE_BUILD_TYPE MATCHES "Debug")
-        target_link_libraries(
-            ${LIB_NAME}
-            T3DPlatform
-            T3DLog
-            T3DUtils
-            T3DMath
-            ${SHADERCONDUCTOR_LIBRARY}
-            #${PROTOBUF_LITE_LIBRARY_D}
-			libprotobuf-lite
-            )
-    else ()
-        target_link_libraries(
-            ${LIB_NAME}
-            T3DPlatform
-            T3DLog
-            T3DUtils
-            T3DMath
-            ${SHADERCONDUCTOR_LIBRARY}
-            #${PROTOBUF_LITE_LIBRARY}
-			libprotobuf-lite
-            )
-    endif ()
+    target_link_libraries(
+        ${LIB_NAME}
+        T3DPlatform
+        T3DLog
+        T3DUtils
+        T3DMath
+        ${SHADERCONDUCTOR_LIBRARY}
+        #${PROTOBUF_LITE_LIBRARY_D}
+        libprotobuf-lite
+        )
 
     # Setup project folder
     set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Tools")
@@ -98,8 +80,6 @@ if (TINY3D_OS_WINDOWS)
         COMMAND ${CMAKE_COMMAND} -E copy ${SHADERCONDUCTOR_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
         COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
         COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-        #COMMAND ${CMAKE_COMMAND} -E copy ${PROTOBUF_LITE_BINARY_D} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-        #COMMAND ${CMAKE_COMMAND} -E copy ${PROTOBUF_LITE_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
         )
 
     # Setup install files and path for Windows.
