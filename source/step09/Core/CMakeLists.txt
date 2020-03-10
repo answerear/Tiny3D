@@ -15,6 +15,12 @@ if (MSVC)
     if (TINY3D_BUILD_SHARED_LIBS)
         add_definitions(-D${LIB_NAME_TOUPPER}_EXPORT -D_USRDLL)
     endif (TINY3D_BUILD_SHARED_LIBS)
+
+    add_definitions(
+        /wd4244 # 'conversion' conversion from 'type1' to 'type2', possible loss of data
+        /wd4267 # 'var' : conversion from 'size_t' to 'type', possible loss of data
+        /wd4309 # 'conversion' : truncation of constant value
+    )
 endif (MSVC)
 
 
@@ -36,6 +42,7 @@ include_directories(
     "${TINY3D_FRAMEWORK_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source"
+	"${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
 	"${TINY3D_DEP_DIR}/rapidjson"
 	"${PROTOBUF_INCLUDE_DIR}"
@@ -64,6 +71,7 @@ set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .i
 set_project_files(Include\\\\Parser ${CMAKE_CURRENT_SOURCE_DIR}/Include/Parser/ .h)
 set_project_files(Include\\\\Component ${CMAKE_CURRENT_SOURCE_DIR}/Include/Component/ .h)
 set_project_files(Include\\\\Component ${CMAKE_CURRENT_SOURCE_DIR}/Include/Component/ .inl)
+set_project_files(Include\\\\Serializer ${CMAKE_CURRENT_SOURCE_DIR}/Include/Serializer/ .h)
 
 # Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
@@ -76,6 +84,7 @@ set_project_files(Source\\\\Scene ${CMAKE_CURRENT_SOURCE_DIR}/Source/Scene/ .cpp
 set_project_files(Source\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Source/Bound/ .cpp)
 set_project_files(Source\\\\Parser ${CMAKE_CURRENT_SOURCE_DIR}/Source/Parser/ .cpp)
 set_project_files(Source\\\\Component ${CMAKE_CURRENT_SOURCE_DIR}/Source/Component/ .cpp)
+set_project_files(Source\\\\Serializer ${CMAKE_CURRENT_SOURCE_DIR}/Source/Serializer/ .cpp)
 
 # tinyxml2
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)

@@ -35,6 +35,8 @@ if (WIN32)
     add_definitions(-DT3D_OS_DESKTOP)
     add_definitions(-D_HAS_EXCEPTIONS=0)
 
+	add_definitions(/MP)
+
     set(TINY3D_OS_WINDOWS TRUE CACHE STRING "Windows")
     set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
 

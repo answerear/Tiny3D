@@ -10,6 +10,12 @@ set_project_name(ScriptCompiler)
 
 if (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup ")
+
+    add_definitions(
+        /wd4244 # 'conversion' conversion from 'type1' to 'type2', possible loss of data
+        /wd4267 # 'var' : conversion from 'size_t' to 'type', possible loss of data
+        /wd4309 # 'conversion' : truncation of constant value
+    )
 endif (MSVC)
 
 set(SHADERCONDUCTOR_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../../../dependencies/ShaderConductor" CACHE PATH "ShaderConductor library path")

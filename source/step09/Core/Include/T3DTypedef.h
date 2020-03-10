@@ -74,6 +74,13 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(ScriptParserGPUContBuffer);
     T3D_DECLARE_SMART_PTR(ScriptParserGPUContBufferRef);
 
+    T3D_DECLARE_SMART_PTR(MaterialReader);
+    T3D_DECLARE_SMART_PTR(MaterialWriter);
+    T3D_DECLARE_SMART_PTR(BinMaterialReader);
+    T3D_DECLARE_SMART_PTR(BinMaterialWriter);
+    T3D_DECLARE_SMART_PTR(JSONMaterialReader);
+    T3D_DECLARE_SMART_PTR(JSONMaterialWriter);
+
     T3D_DECLARE_SMART_PTR(HardwareBuffer);
     T3D_DECLARE_SMART_PTR(HardwareIndexBuffer);
     T3D_DECLARE_SMART_PTR(HardwarePixelBuffer);
