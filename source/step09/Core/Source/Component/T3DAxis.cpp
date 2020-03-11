@@ -119,7 +119,7 @@ namespace Tiny3D
             }
 
             ret = mVAO->beginBinding();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_SCENE, "Binding VAO for Axis failed !");
                 break;

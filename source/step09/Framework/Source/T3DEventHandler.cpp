@@ -98,7 +98,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_EVENT_MGR.unregisterHandler(mInstance);
 
-        if (ret != T3D_OK)
+        if (T3D_FAILED(ret))
         {
             mInstance = T3D_INVALID_INSTANCE;
         }

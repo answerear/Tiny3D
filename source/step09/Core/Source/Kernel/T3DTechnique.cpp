@@ -94,12 +94,12 @@ namespace Tiny3D
                 // 编译 Pass 的 GPU 程序
                 GPUProgramPtr program = pass->getGPUProgram();
                 ret = program->compile();
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                     break;
 
                 // 链接 Pass 的 GPU 程序
                 ret = program->link();
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                     break;
 
                 mIsSupported = true;

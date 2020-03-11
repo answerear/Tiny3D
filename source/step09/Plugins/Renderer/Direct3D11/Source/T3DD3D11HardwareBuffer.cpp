@@ -76,7 +76,7 @@ namespace Tiny3D
             uint32_t d3dAccess = 0;
 
             ret = D3D11Mappings::get(mUsage, mAccessMode, d3dUsage, d3dAccess);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -115,7 +115,7 @@ namespace Tiny3D
                 }
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -283,7 +283,7 @@ namespace Tiny3D
         do 
         {
             TResult ret = checkLockOptions(options);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -329,7 +329,7 @@ namespace Tiny3D
             if (mStageBuffer != nullptr)
             {
                 ret = mStageBuffer->unlock();
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }

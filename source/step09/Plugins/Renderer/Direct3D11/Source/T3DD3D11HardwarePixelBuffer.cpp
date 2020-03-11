@@ -168,7 +168,7 @@ namespace Tiny3D
             // 临时构造一个图像对象，用于复制数据
             ret = temp.load(dst, rtDst.width(), rtDst.height(), bpp,
                 dstPitch, mFormat);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Load temporary image \
                         for reading image failed !");
@@ -177,7 +177,7 @@ namespace Tiny3D
 
             // 复制图像数据到纹理
             ret = temp.copy(image, srcRect);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Copy temporary image \
                         for reading image failed !");
@@ -224,7 +224,7 @@ namespace Tiny3D
 
             // 临时构造一个图像对象，用于复制数据
             ret = temp.load(src, mWidth, mHeight, bpp, mPitch, mFormat);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Load temporary image \
                         for writing image failed !");
@@ -233,7 +233,7 @@ namespace Tiny3D
 
             // 复制图像数据到纹理
             ret = image.copy(temp, dstRect);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Copy temporary image \
                         for writing image failed !");

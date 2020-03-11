@@ -81,7 +81,7 @@ namespace Tiny3D
                 ret = D3D11Shader::compile("main", "ps_4_0");
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -120,7 +120,7 @@ namespace Tiny3D
         {
             // 读取文件内容
             ret = loadContent();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -159,7 +159,7 @@ namespace Tiny3D
         do
         {
             ret = cloneProperties(shader);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }

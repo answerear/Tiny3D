@@ -59,7 +59,7 @@ namespace Tiny3D
 
         TResult ret = cloneProperties(newObj);
 
-        if (ret != T3D_OK)
+        if (T3D_FAILED(ret))
         {
             newObj = nullptr;
         }

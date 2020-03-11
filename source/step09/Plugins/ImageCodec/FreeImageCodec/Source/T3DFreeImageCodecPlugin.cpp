@@ -69,7 +69,7 @@ namespace Tiny3D
             }
 
             ret = mImageCodec->startup();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, "Startup FreeImageCodec \
                     failed !");
@@ -85,7 +85,7 @@ namespace Tiny3D
             {
                 ImageCodecBase::FileType type = filetypes[i];
                 ret = Agent::getInstance().addImageCodec(type, mImageCodec);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
                         "Install plugin failed !");
@@ -129,7 +129,7 @@ namespace Tiny3D
         {
             ImageCodecBase::FileType type = filetypes[i];
             ret = Agent::getInstance().removeImageCodec(type);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
                     "uninstall plugin failed !");

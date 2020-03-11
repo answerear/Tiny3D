@@ -233,7 +233,7 @@ namespace Tiny3D
          * @param   green   The green.
          * @param   blue    The blue.
          */
-        void setAmbient(Real red, Real green, Real blue);
+        void setAmbient(Real red, Real green, Real blue, Real alpha = 1.0f);
 
         /**
          * @fn  const ColorRGBA Pass::&getDiffuse() const;
@@ -258,7 +258,7 @@ namespace Tiny3D
          * @param   blue    The blue.
          * @param   alpha   The alpha.
          */
-        void setDiffuse(Real red, Real green, Real blue, Real alpha);
+        void setDiffuse(Real red, Real green, Real blue, Real alpha = 1.0f);
 
         /**
          * @fn  const ColorRGBA Pass::&getSpecular() const;
@@ -283,7 +283,7 @@ namespace Tiny3D
          * @param   blue    The blue.
          * @param   alpha   The alpha.
          */
-        void setSpecular(Real red, Real green, Real blue, Real alpha);
+        void setSpecular(Real red, Real green, Real blue, Real alpha = 1.0f);
 
         /**
          * @fn  Real Pass::getShininess() const;
@@ -320,7 +320,7 @@ namespace Tiny3D
          * @param   green   The green.
          * @param   blue    The blue.
          */
-        void setEmissive(Real red, Real green, Real blue);
+        void setEmissive(Real red, Real green, Real blue, Real alpha = 1.0f);
 
         /**
          * @fn  TrackVertexColorType Pass::getVertexColorTracking() const;

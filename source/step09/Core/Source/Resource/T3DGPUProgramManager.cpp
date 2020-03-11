@@ -209,7 +209,7 @@ namespace Tiny3D
             String path = T3D_AGENT.getMainAssetsPath(name);
             MemoryDataStream stream;
             ret = archive->read(path, stream);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read constant GPU program failed from file %s ! ",
@@ -219,7 +219,7 @@ namespace Tiny3D
 
             // 交給腳本解析器解析
             ret = T3D_SCRIPT_PARSER.parse(stream);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Could not parse GPU program file %s !", name.c_str());

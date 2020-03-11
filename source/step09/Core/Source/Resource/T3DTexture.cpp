@@ -91,7 +91,7 @@ namespace Tiny3D
         if (texture != nullptr)
         {
             TResult ret = texture->load();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 texture = nullptr;
             }
@@ -113,7 +113,7 @@ namespace Tiny3D
                 // 加载纹理数据
                 Image image;
                 ret = image.load(mName);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load image %s failed !",
                         mName.c_str());
@@ -187,14 +187,14 @@ namespace Tiny3D
 
             Image image;
             ret = mPBO->writeImage(image);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Write to image failed !");
                 break;
             }
 
             ret = image.save(path, fileType);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Save to file failed !");
                 break;

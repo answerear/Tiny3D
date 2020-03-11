@@ -85,7 +85,7 @@ namespace Tiny3D
     // 注册事件过滤
     #define T3D_EVENT_FILTER(eid)	\
 		        ret = registerEvent(eid);   \
-                if (ret != T3D_OK)  \
+                if (T3D_FAILED(ret))  \
                     break;
 
     // 结束事件过滤

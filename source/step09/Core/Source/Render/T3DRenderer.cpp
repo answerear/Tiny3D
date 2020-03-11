@@ -213,13 +213,13 @@ namespace Tiny3D
         do 
         {
             ret = T3D_GPU_CONST_BUFFER_MGR.loadBuiltInResources();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
 
             ret = T3D_GPU_PROGRAM_MGR.loadBuiltInResources();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -261,7 +261,7 @@ namespace Tiny3D
                 sizeof(mGPUConstUpdateObject), &mGPUConstUpdateObject, 
                 HardwareBuffer::Usage::STREAM,
                 HardwareBuffer::AccessMode::CPU_WRITE);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
                     "Initialize GPU built-in constant buffer with data failed !");
@@ -272,7 +272,7 @@ namespace Tiny3D
                 sizeof(mGPUConstUpdateFrame), &mGPUConstUpdateFrame,
                 HardwareBuffer::Usage::DYNAMIC,
                 HardwareBuffer::AccessMode::CPU_WRITE);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
                     "Initialize GPU built-in constant buffer with data failed !");
@@ -283,7 +283,7 @@ namespace Tiny3D
                 sizeof(mGPUConstUpdateRarely), &mGPUConstUpdateRarely,
                 HardwareBuffer::Usage::STATIC,
                 HardwareBuffer::AccessMode::CPU_WRITE);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
                     "Initialize GPU built-in constant buffer with data failed !");

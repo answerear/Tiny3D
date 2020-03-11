@@ -67,7 +67,7 @@ namespace Tiny3D
         AabbBoundPtr bound = AabbBound::create();
         TResult ret = cloneProperties(bound);
 
-        if (ret != T3D_OK)
+        if (T3D_FAILED(ret))
         {
             bound = nullptr;
         }

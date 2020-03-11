@@ -31,8 +31,12 @@ namespace Tiny3D
         namespace MaterialSystem
         {
             class Material;
+            class Technique;
+            class Pass;
         }
     }
+
+    using namespace Script;
 
     class BinMaterialReader : public MaterialReader
     {
@@ -52,7 +56,128 @@ namespace Tiny3D
         virtual TResult parse(
             const uint8_t *data, size_t size, Material *material) override;
 
-        TResult parseMaterial(Script::MaterialSystem::Material *src, Material *dst);
+        TResult parseMaterial(
+            const MaterialSystem::Material *src, Material *dst);
+
+        TResult parseTechnique(
+            const MaterialSystem::Technique *src, Material *dst);
+
+        TResult parsePass(
+            const MaterialSystem::Pass *src, Technique *dst);
+
+        TResult parseAmbient(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseDiffuse(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseSpecular(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseEmissive(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseSceneBlend(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseSeparateSceneBlend(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseSceneBlendOp(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseSeparateSceneBlendOp(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseDepthCheck(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseDepthWrite(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseDepthFunc(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseDepthBias(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseIterationDepthBias(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseAlphaRejection(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseAlpha2Coverage(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseLightScissor(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseLightClipPlanes(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseIlluminationStage(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseNormalizeNormals(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseTransparentSorting(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseCullHardware(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseCullSoftware(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseLighting(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseShading(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parsePolygonMode(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parsePolygonModeOverridable(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseFog(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseColorWrite(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseMaxLights(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseStartLight(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseIteration(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parsePointSize(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parsePointSprites(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parsePointSizeAttenuation(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parsePointSizeMin(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parsePointSizeMax(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseGPUProgramRef(
+            const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseTextures(
+            const MaterialSystem::Pass *src, Pass *dst);
     };
 }
 

@@ -73,7 +73,7 @@ namespace Tiny3D
             }
             
             ret  = mTimerMgr->init();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
                 break;
             
         } while (0);

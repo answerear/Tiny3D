@@ -152,13 +152,13 @@ namespace Tiny3D
         do
         {
             ret = destroy();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
 
             ret = T3D_IMAGE_CODEC.decode(path, *this);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -177,13 +177,13 @@ namespace Tiny3D
         do 
         {
             ret = destroy();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
 
             ret = T3D_IMAGE_CODEC.decode(stream, *this);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -204,7 +204,7 @@ namespace Tiny3D
         do 
         {
             ret = destroy();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }

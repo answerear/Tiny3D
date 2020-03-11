@@ -79,7 +79,7 @@ namespace Tiny3D
                 }
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -122,7 +122,7 @@ namespace Tiny3D
         D3D11GPUProgramPtr program = create(getName());
 
         TResult ret = cloneProperties(program);
-        if (ret != T3D_OK)
+        if (T3D_FAILED(ret))
         {
             program = nullptr;
         }
@@ -139,7 +139,7 @@ namespace Tiny3D
         do 
         {
             ret = GPUProgram::cloneProperties(newObj);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 ret = T3D_ERR_RES_CLONE;
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,

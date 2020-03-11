@@ -96,7 +96,7 @@ namespace Tiny3D
                 String path = T3D_AGENT.getMainAssetsPath(mName);
                 MemoryDataStream stream;
                 ret = archive->read(path, stream);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read material content failed from file %s ! ",
@@ -106,7 +106,7 @@ namespace Tiny3D
 
                 // 交給腳本解析器解析
                 ret = T3D_SCRIPT_PARSER.parse(stream, this);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Could not parse material file %s !", mName.c_str());
@@ -117,7 +117,7 @@ namespace Tiny3D
                 {
                     // 脚本没编译，编译
                     ret = compile();
-                    if (ret != T3D_OK)
+                    if (T3D_FAILED(ret))
                     {
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Compile material %s failed !", mName.c_str());

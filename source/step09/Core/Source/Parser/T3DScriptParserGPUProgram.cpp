@@ -78,7 +78,7 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read the name of shader failed !");
@@ -125,13 +125,13 @@ namespace Tiny3D
                     break;
                 }
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -175,7 +175,7 @@ namespace Tiny3D
 
             ShaderPtr shader;
             ret = program->addShader(source, shaderType, shader);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -209,7 +209,7 @@ namespace Tiny3D
             case E_OP_SOURCE:
                 {
                     ret = parseString(stream, source);
-                    if (ret != T3D_OK)
+                    if (T3D_FAILED(ret))
                     {
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read source of shader failed !");
@@ -220,7 +220,7 @@ namespace Tiny3D
             case E_OP_TARGET:
                 {
                     ret = parseString(stream, target);
-                    if (ret != T3D_OK)
+                    if (T3D_FAILED(ret))
                     {
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read target of GPU program failed !");
@@ -231,7 +231,7 @@ namespace Tiny3D
             case E_OP_ENTRY_POINT:
                 {
                     ret = parseString(stream, entry);
-                    if (ret != T3D_OK)
+                    if (T3D_FAILED(ret))
                     {
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read entry_point of GPU program failed !");
@@ -242,7 +242,7 @@ namespace Tiny3D
             case E_OP_STAGE:
                 {
                     ret = parseString(stream, stage);
-                    if (ret != T3D_OK)
+                    if (T3D_FAILED(ret))
                     {
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read stage of GPU program failed !");
@@ -259,7 +259,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -313,7 +313,7 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read the name of gpu_program failed !");
@@ -339,7 +339,7 @@ namespace Tiny3D
             {
                 // belongs to material
                 ret = material->addGPUProgram(name, program);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
@@ -383,13 +383,13 @@ namespace Tiny3D
                     break;
                 }
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -453,7 +453,7 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read the name of gpu_program_ref failed !");
@@ -502,7 +502,7 @@ namespace Tiny3D
                     break;
                 }
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
@@ -568,7 +568,7 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read the name of gpu_cbuffer failed !");
@@ -595,7 +595,7 @@ namespace Tiny3D
             {
                 // belongs to material
                 ret = material->addGPUConstBuffer(name, buffer);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
@@ -640,7 +640,7 @@ namespace Tiny3D
                     break;
                 }
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
@@ -773,7 +773,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -807,7 +807,7 @@ namespace Tiny3D
             // name
             String name;
             ret = parseString(stream, name);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read name of param_named failed !");
@@ -849,7 +849,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -948,7 +948,7 @@ namespace Tiny3D
                     break;
                 }
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
@@ -985,7 +985,7 @@ namespace Tiny3D
             // name
             String name;
             ret = parseString(stream, name);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read name of param_named_auto failed !");
@@ -1044,7 +1044,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -1106,7 +1106,7 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read the name of gpu_cbuffer_ref failed !");
@@ -1155,7 +1155,7 @@ namespace Tiny3D
                     break;
                 }
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
@@ -1163,7 +1163,7 @@ namespace Tiny3D
 
             GPUConstBufferRefPtr bufferRef;
             ret = programRef->addConstBufferRef(name, mSlot, bufferRef);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -1197,7 +1197,7 @@ namespace Tiny3D
                 {
                     uint32_t slot = 0;
                     bytesOfRead = stream.read(&slot, sizeof(slot));
-                    if (ret != T3D_OK)
+                    if (T3D_FAILED(ret))
                     {
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read slot of gpu_cbuffer_ref failed !");
@@ -1214,7 +1214,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }

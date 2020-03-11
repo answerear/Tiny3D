@@ -94,7 +94,7 @@ namespace Tiny3D
             }
 
             ret = encode(fs, image, type);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -119,7 +119,7 @@ namespace Tiny3D
             size_t size = 0;
 
             ret = encode(data, size, image, type);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -178,7 +178,7 @@ namespace Tiny3D
             String path = T3D_AGENT.getMainAssetsPath(name);
             MemoryDataStream stream;
             ret = archive->read(path, stream);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_IMAGE_CODEC,
                     "Read image content failed from file %s ! ", name.c_str());

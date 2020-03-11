@@ -77,7 +77,7 @@ namespace Tiny3D
             String name;
             ret = parseString(stream, name);
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read the name of technique failed !");
@@ -91,7 +91,7 @@ namespace Tiny3D
 
             TechniquePtr tech;
             ret = material->addTechnique(name, tech);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Add technique [%s] for material failed !", name.c_str());
@@ -130,7 +130,7 @@ namespace Tiny3D
                     break;
                 }
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
@@ -205,7 +205,7 @@ namespace Tiny3D
             String scheme;
             ret = parseString(stream, scheme);
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
                     "Invalid scheme in technique !");
@@ -267,7 +267,7 @@ namespace Tiny3D
         {
             String matName;
             ret = parseString(stream, matName);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Invalid shadow caster material !");
@@ -289,7 +289,7 @@ namespace Tiny3D
         {
             String matName;
             ret = parseString(stream, matName);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Invalid shadow receiver material !");

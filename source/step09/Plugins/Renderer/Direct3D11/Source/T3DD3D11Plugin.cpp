@@ -68,7 +68,7 @@ namespace Tiny3D
             if (mRenderer != nullptr)
             {
                 ret = T3D_AGENT.addRenderer(mRenderer);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
@@ -113,7 +113,7 @@ namespace Tiny3D
         do
         {
             ret = T3D_AGENT.removeRenderer(mRenderer);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }

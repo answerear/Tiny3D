@@ -155,11 +155,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void Pass::setAmbient(Real red, Real green, Real blue)
+    inline void Pass::setAmbient(Real red, Real green, Real blue, Real alpha)
     {
         mAmbient.red() = red;
         mAmbient.green() = green;
         mAmbient.blue() = blue;
+        mAmbient.alpha() = alpha;
     }
 
     //--------------------------------------------------------------------------
@@ -240,11 +241,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void Pass::setEmissive(Real red, Real green, Real blue)
+    inline void Pass::setEmissive(Real red, Real green, Real blue, Real alpha)
     {
         mEmissive.red() = red;
         mEmissive.green() = green;
         mEmissive.blue() = blue;
+        mEmissive.alpha() = alpha;
     }
 
     //--------------------------------------------------------------------------

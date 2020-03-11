@@ -179,7 +179,7 @@ namespace Tiny3D
                     m[y][x] = val;
                 }
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }

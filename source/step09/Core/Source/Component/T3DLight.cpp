@@ -58,7 +58,7 @@ namespace Tiny3D
         LightPtr newObj = Light::create();
         TResult ret = cloneProperties(newObj);
 
-        if (ret != T3D_OK)
+        if (T3D_FAILED(ret))
         {
             newObj = nullptr;
         }

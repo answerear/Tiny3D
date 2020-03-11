@@ -68,7 +68,7 @@ namespace Tiny3D
         SphereBoundPtr bound = SphereBound::create();
         TResult ret = cloneProperties(bound);
 
-        if (ret != T3D_OK)
+        if (T3D_FAILED(ret))
         {
             bound = nullptr;
         }

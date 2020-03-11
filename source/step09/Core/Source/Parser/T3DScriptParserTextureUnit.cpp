@@ -77,7 +77,7 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read the name of texture unit failed !");
@@ -91,7 +91,7 @@ namespace Tiny3D
 
             TextureUnitPtr unit;
             ret = pass->addTextureUnit(name, unit);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Add texture unit [%s] to pass failed !", 
@@ -131,7 +131,7 @@ namespace Tiny3D
                     break;
                 }
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
@@ -268,7 +268,7 @@ namespace Tiny3D
             // the name of sampler
             String name;
             ret = parseString(stream, name);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read the name of sampler_ref failed !");
@@ -293,7 +293,7 @@ namespace Tiny3D
             // the name of texture alias
             String name;
             ret = parseString(stream, name);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read the name of texture_alias failed !");
@@ -327,7 +327,7 @@ namespace Tiny3D
             {
                 String name;
                 ret = parseString(stream, name);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read the name of texture failed !");
@@ -377,7 +377,7 @@ namespace Tiny3D
                     }
                 }
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
@@ -428,7 +428,7 @@ namespace Tiny3D
                     // name
                     String name;
                     ret = parseString(stream, name);
-                    if (ret != T3D_OK)
+                    if (T3D_FAILED(ret))
                     {
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read name of anim_texture failed !");
@@ -471,7 +471,7 @@ namespace Tiny3D
                     {
                         String name;
                         ret = parseString(stream, name);
-                        if (ret != T3D_OK)
+                        if (T3D_FAILED(ret))
                         {
                             T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                                 "Read name of anim_texture failed !");
@@ -481,7 +481,7 @@ namespace Tiny3D
                         // TODO
                     }
 
-                    if (ret != T3D_OK)
+                    if (T3D_FAILED(ret))
                     {
                         break;
                     }
@@ -530,7 +530,7 @@ namespace Tiny3D
                 // base_name
                 String name;
                 ret = parseString(stream, name);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read name of cubic_texture failed !");
@@ -550,7 +550,7 @@ namespace Tiny3D
                 // front
                 String front;
                 ret = parseString(stream, front);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read front of cubic_texture failed !");
@@ -560,7 +560,7 @@ namespace Tiny3D
                 // back
                 String back;
                 ret = parseString(stream, back);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read back of cubic_texture failed !");
@@ -570,7 +570,7 @@ namespace Tiny3D
                 // left
                 String left;
                 ret = parseString(stream, left);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read left of cubic_texture failed !");
@@ -580,7 +580,7 @@ namespace Tiny3D
                 // right
                 String right;
                 ret = parseString(stream, right);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read right of cubic_texture failed !");
@@ -590,7 +590,7 @@ namespace Tiny3D
                 // up
                 String up;
                 ret = parseString(stream, up);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read up of cubic_texture failed !");
@@ -600,7 +600,7 @@ namespace Tiny3D
                 // down
                 String down;
                 ret = parseString(stream, down);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read down of cubic_texture failed !");
@@ -757,7 +757,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -768,7 +768,7 @@ namespace Tiny3D
                 {
                     // manual_color1
                     ret = parseColor(stream, arg1);
-                    if (ret != T3D_OK)
+                    if (T3D_FAILED(ret))
                     {
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read manual_color1 of color_op_ex failed !");
@@ -792,7 +792,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -803,7 +803,7 @@ namespace Tiny3D
                 {
                     // manual_color1
                     ret = parseColor(stream, arg2);
-                    if (ret != T3D_OK)
+                    if (T3D_FAILED(ret))
                     {
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read manual_color2 of color_op_ex failed !");
@@ -827,7 +827,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -982,7 +982,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -993,7 +993,7 @@ namespace Tiny3D
                 {
                     // manual_color1
                     ret = parseColor(stream, arg1);
-                    if (ret != T3D_OK)
+                    if (T3D_FAILED(ret))
                     {
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read manual_color1 of alpha_op_ex failed !");
@@ -1017,7 +1017,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -1028,7 +1028,7 @@ namespace Tiny3D
                 {
                     // manual_color1
                     ret = parseColor(stream, arg2);
-                    if (ret != T3D_OK)
+                    if (T3D_FAILED(ret))
                     {
                         T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                             "Read manual_color2 of alpha_op_ex failed !");
@@ -1052,7 +1052,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -1301,7 +1301,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -1323,7 +1323,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -1346,7 +1346,7 @@ namespace Tiny3D
             // matrix
             Matrix4 m;
             ret = parseMatrix(stream, m);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read matrix of transform failed !");

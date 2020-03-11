@@ -568,7 +568,7 @@ namespace Tiny3D
 
             if (getBoolean(prop->values.front(), &val))
             {
-                material->set_receive_shadows(val);
+                material->mutable_receive_shadows()->set_value(val);
                 ret = true;
             }
             else
@@ -610,7 +610,7 @@ namespace Tiny3D
 
             if (getBoolean(prop->values.front(), &val))
             {
-                material->set_transparency_casts_shadows(val);
+                material->mutable_transparency_casts_shadows()->set_value(val);
                 ret = true;
             }
             else
@@ -788,7 +788,7 @@ namespace Tiny3D
 
             if (getString(*i0, &scheme))
             {
-                tech->set_scheme(scheme);
+                tech->mutable_scheme()->set_value(scheme);
                 ret = true;
             }
             else
@@ -830,7 +830,7 @@ namespace Tiny3D
 
             if (getUInt(*i0, &v))
             {
-                tech->set_lod_index(v);
+                tech->mutable_lod_index()->set_value(v);
                 ret = true;
             }
             else
@@ -872,7 +872,7 @@ namespace Tiny3D
             uint32_t v = 0;
             if (getUInt(*i0, &v))
             {
-                tech->set_render_queue(v);
+                tech->mutable_render_queue()->set_value(v);
                 ret = true;
             }
             else
@@ -915,7 +915,7 @@ namespace Tiny3D
 
             if (getString(*i0, &matName))
             {
-                tech->set_shadow_caster_material(matName);
+                tech->mutable_shadow_caster_material()->set_value(matName);
                 ret = true;
             }
             else
@@ -958,7 +958,7 @@ namespace Tiny3D
 
             if (getString(*i0, &matName))
             {
-                tech->set_shadow_receiver_material(matName);
+                tech->mutable_shadow_receiver_material()->set_value(matName);
                 ret = true;
             }
             else
@@ -1550,7 +1550,7 @@ namespace Tiny3D
 
                     if (getSingle(prop->values.back(), &shininess))
                     {
-                        pass->set_shininess(shininess);
+                        pass->mutable_shininess()->set_value(shininess);
                         ret = true;
                     }
                     else
@@ -1604,7 +1604,7 @@ namespace Tiny3D
                             float32_t shininess = 0.0f;
                             if (getSingle(*i3, &shininess))
                             {
-                                pass->set_shininess(shininess);
+                                pass->mutable_shininess()->set_value(shininess);
                                 ret = true;
                             }
                             else
@@ -1645,7 +1645,7 @@ namespace Tiny3D
 
                             if (getSingle(*i4, &shininess))
                             {
-                                pass->set_shininess(shininess);
+                                pass->mutable_shininess()->set_value(shininess);
                             }
                             else
                             {
@@ -1982,7 +1982,7 @@ namespace Tiny3D
                 AtomAbstractNode *atom1 = (AtomAbstractNode *)(*i1).get();
 
                 MaterialSystem::SeparateBlendScene *blend
-                    = pass->mutable_separate_blend_scene();
+                    = pass->mutable_separate_scene_blend();
 
                 MaterialSystem::SimpleBlendType *simple
                     = blend->mutable_blend_type();
@@ -2092,7 +2092,7 @@ namespace Tiny3D
                     && atom3->id >= ID_ONE && atom3->id <= ID_ONE_MINUS_SRC_ALPHA)
                 {
                     MaterialSystem::SeparateBlendScene *blend
-                        = pass->mutable_separate_blend_scene();
+                        = pass->mutable_separate_scene_blend();
 
                     MaterialSystem::SimpleBlendSceneFactor *factor
                         = blend->mutable_blend_factor();
@@ -2203,31 +2203,31 @@ namespace Tiny3D
                 {
                 case ID_ADD:
                     {
-                        pass->set_scene_blend_op(Script::MaterialSystem::BO_ADD);
+                        pass->mutable_scene_blend_op()->set_value(Script::MaterialSystem::BO_ADD);
                         ret = true;
                     }
                     break;
                 case ID_SUBTRACT:
                     {
-                        pass->set_scene_blend_op(Script::MaterialSystem::BO_SUBTRACT);
+                        pass->mutable_scene_blend_op()->set_value(Script::MaterialSystem::BO_SUBTRACT);
                         ret = true;
                     }
                     break;
                 case ID_REVERSE_SUBTRACT:
                     {
-                        pass->set_scene_blend_op(Script::MaterialSystem::BO_REVERSE_SUBTRACT);
+                        pass->mutable_scene_blend_op()->set_value(Script::MaterialSystem::BO_REVERSE_SUBTRACT);
                         ret = true;
                     }
                     break;
                 case ID_MIN:
                     {
-                        pass->set_scene_blend_op(Script::MaterialSystem::BO_MIN);
+                        pass->mutable_scene_blend_op()->set_value(Script::MaterialSystem::BO_MIN);
                         ret = true;
                     }
                     break;
                 case ID_MAX:
                     {
-                        pass->set_scene_blend_op(Script::MaterialSystem::BO_MAX);
+                        pass->mutable_scene_blend_op()->set_value(Script::MaterialSystem::BO_MAX);
                         ret = true;
                     }
                     break;
@@ -2414,7 +2414,7 @@ namespace Tiny3D
 
             if (getBoolean(prop->values.front(), &val))
             {
-                pass->set_depth_check(val);
+                pass->mutable_depth_check()->set_value(val);
                 ret = true;
             }
             else
@@ -2456,7 +2456,7 @@ namespace Tiny3D
 
             if (getBoolean(prop->values.front(), &val))
             {
-                pass->set_depth_write(val);
+                pass->mutable_depth_write()->set_value(val);
                 ret = true;
             }
             else
@@ -2554,49 +2554,49 @@ namespace Tiny3D
             {
             case ID_ALWAYS_FAIL:
                 {
-                    pass->set_depth_func(Script::MaterialSystem::CF_ALWAYS_FAIL);
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_ALWAYS_FAIL);
                     ret = true;
                 }
                 break;
             case ID_ALWAYS_PASS:
                 {
-                    pass->set_depth_func(Script::MaterialSystem::CF_ALWAYS_PASS);
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_ALWAYS_PASS);
                     ret = true;
                 }
                 break;
             case ID_LESS:
                 {
-                    pass->set_depth_func(Script::MaterialSystem::CF_LESS);
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_LESS);
                     ret = true;
                 }
                 break;
             case ID_LESS_EQUAL:
                 {
-                    pass->set_depth_func(Script::MaterialSystem::CF_LESS_EQUAL);
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_LESS_EQUAL);
                     ret = true;
                 }
                 break;
             case ID_EQUAL:
                 {
-                    pass->set_depth_func(Script::MaterialSystem::CF_EQUAL);
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_EQUAL);
                     ret = true;
                 }
                 break;
             case ID_NOT_EQUAL:
                 {
-                    pass->set_depth_func(Script::MaterialSystem::CF_NOT_EQUAL);
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_NOT_EQUAL);
                     ret = true;
                 }
                 break;
             case ID_GREATER_EQUAL:
                 {
-                    pass->set_depth_func(Script::MaterialSystem::CF_GREATER_EQUAL);
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_GREATER_EQUAL);
                     ret = true;
                 }
                 break;
             case ID_GREATER:
                 {
-                    pass->set_depth_func(Script::MaterialSystem::CF_GREATER);
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_GREATER);
                     ret = true;
                 }
                 break;
@@ -2640,7 +2640,7 @@ namespace Tiny3D
             float32_t val = 0.0f;
             if (getSingle(prop->values.front(), &val))
             {
-                pass->set_iteration_depth_bias(val);
+                pass->mutable_iteration_depth_bias()->set_value(val);
                 ret = true;
             }
             else
@@ -2790,7 +2790,7 @@ namespace Tiny3D
             bool val = true;
             if (getBoolean(prop->values.front(), &val))
             {
-                pass->set_alpha_to_coverage(val);
+                pass->mutable_alpha_to_coverage()->set_value(val);
                 ret = true;
             }
             else
@@ -2831,7 +2831,7 @@ namespace Tiny3D
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                pass->set_light_scissor(val);
+                pass->mutable_light_scissor()->set_value(val);
                 ret = true;
             }
             else
@@ -2871,7 +2871,7 @@ namespace Tiny3D
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                pass->set_light_clip_planes(val);
+                pass->mutable_light_clip_planes()->set_value(val);
                 ret = true;
             }
             else
@@ -2913,11 +2913,11 @@ namespace Tiny3D
             {
                 if (val)
                 {
-                    pass->set_transparent_sorting(Script::MaterialSystem::TS_ON);
+                    pass->mutable_transparent_sorting()->set_value(Script::MaterialSystem::TS_ON);
                 }
                 else
                 {
-                    pass->set_transparent_sorting(Script::MaterialSystem::TS_OFF);
+                    pass->mutable_transparent_sorting()->set_value(Script::MaterialSystem::TS_OFF);
                 }
 
                 ret = true;
@@ -2927,7 +2927,7 @@ namespace Tiny3D
                 String val2;
                 if (getString(prop->values.front(), &val2) && val2 == "force")
                 {
-                    pass->set_transparent_sorting(Script::MaterialSystem::TS_FORCE);
+                    pass->mutable_transparent_sorting()->set_value(Script::MaterialSystem::TS_FORCE);
                     ret = true;
                 }
                 else
@@ -2975,19 +2975,19 @@ namespace Tiny3D
                 {
                 case ID_AMBIENT:
                     {
-                        pass->set_illumination_stage(Script::MaterialSystem::IS_AMBIENT);
+                        pass->mutable_illumination_stage()->set_stage(Script::MaterialSystem::IS_AMBIENT);
                         ret = true;
                     }
                     break;
                 case ID_PER_LIGHT:
                     {
-                        pass->set_illumination_stage(Script::MaterialSystem::IS_PER_LIGHT);
+                        pass->mutable_illumination_stage()->set_stage(Script::MaterialSystem::IS_PER_LIGHT);
                         ret = true;
                     }
                     break;
                 case ID_DECAL:
                     {
-                        pass->set_illumination_stage(Script::MaterialSystem::IS_DECAL);
+                        pass->mutable_illumination_stage()->set_stage(Script::MaterialSystem::IS_DECAL);
                         ret = true;
                     }
                     break;
@@ -3047,19 +3047,19 @@ namespace Tiny3D
                 {
                 case ID_CLOCKWISE:
                     {
-                        pass->set_cull_hardware(Script::MaterialSystem::CH_CLOCKWISE);
+                        pass->mutable_cull_hardware()->set_value(Script::MaterialSystem::CH_CLOCKWISE);
                         ret = true;
                     }
                     break;
                 case ID_ANTICLOCKWISE:
                     {
-                        pass->set_cull_hardware(Script::MaterialSystem::CH_ANTICLOCKWISE);
+                        pass->mutable_cull_hardware()->set_value(Script::MaterialSystem::CH_ANTICLOCKWISE);
                         ret = true;
                     }
                     break;
                 case ID_NONE:
                     {
-                        pass->set_cull_hardware(Script::MaterialSystem::CH_NONE);
+                        pass->mutable_cull_hardware()->set_value(Script::MaterialSystem::CH_NONE);
                         ret = true;
                     }
                     break;

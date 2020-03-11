@@ -111,7 +111,7 @@ namespace Tiny3D
             }
 
             TResult ret = res->load();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 // 加載失敗
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
@@ -182,7 +182,7 @@ namespace Tiny3D
 
             // 讓資源自己處理卸載事情
             ret = res->unload();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }

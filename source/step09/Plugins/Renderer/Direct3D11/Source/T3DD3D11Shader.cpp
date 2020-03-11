@@ -154,7 +154,7 @@ namespace Tiny3D
             String path = T3D_AGENT.getMainAssetsPath(name);
             MemoryDataStream stream;
             ret = archive->read(path, stream);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Could not read the \
                     shader file %s !", name.c_str());

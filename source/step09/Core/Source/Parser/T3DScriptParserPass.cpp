@@ -76,7 +76,7 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read the name of pass failed !");
@@ -96,7 +96,7 @@ namespace Tiny3D
 
             PassPtr pass;
             ret = tech->addPass(name, pass);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Add pass [%s] to technique failed !", name.c_str());
@@ -129,7 +129,7 @@ namespace Tiny3D
                     break;
                 }
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
@@ -311,7 +311,7 @@ namespace Tiny3D
                 // 非顶点颜色，ambient
                 ColorRGBA color;
                 ret = parseColor(stream, color);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
                         "Read ambient color failed !");
@@ -360,7 +360,7 @@ namespace Tiny3D
                 // 非顶点颜色，diffuse
                 ColorRGBA color;
                 ret = parseColor(stream, color);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read diffuse color failed !");
@@ -418,7 +418,7 @@ namespace Tiny3D
                 // 非顶点颜色，specular
                 ColorRGBA color;
                 ret = parseColor(stream, color);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read diffuse color failed !");
@@ -474,7 +474,7 @@ namespace Tiny3D
                 // 非顶点颜色，emissive
                 ColorRGBA color;
                 ret = parseColor(stream, color);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read diffuse color failed !");
@@ -1373,7 +1373,7 @@ namespace Tiny3D
                 // color
                 ColorRGBA color;
                 ret = parseColor(stream, color);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Read color value of fog_override failed !");

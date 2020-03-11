@@ -86,7 +86,7 @@ namespace Tiny3D
         SceneNodePtr node = SceneNode::create();
         TResult ret = cloneProperties(node);
 
-        if (ret != T3D_OK)
+        if (T3D_FAILED(ret))
         {
             node = nullptr;
         }

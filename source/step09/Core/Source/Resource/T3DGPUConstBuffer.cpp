@@ -155,7 +155,7 @@ namespace Tiny3D
                 TResult ret = buffer->initWithData(mBufSize, mBuffer,  mUsage, 
                     mAccessMode);
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     buffer = nullptr;
                     break;

@@ -72,7 +72,7 @@ namespace Tiny3D
             {
                 // 从档案结构系统中获取文件内容
                 ret = mArchive->read(mFilename, stream);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
                         "Read config file [%s] failed !",
@@ -394,7 +394,7 @@ namespace Tiny3D
             // 构建 XML 格式文件
             tinyxml2::XMLDocument doc;
             ret = buildXML(doc, settings);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -418,7 +418,7 @@ namespace Tiny3D
                 // 保存到档案系统中的文件
                 MemoryDataStream stream((uchar_t*)content, contentSize);
                 ret = mArchive->write(mFilename, stream);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
                         "Write config file [%s] failed !", mFilename.c_str());
@@ -494,7 +494,7 @@ namespace Tiny3D
             root->LinkEndChild(child);
 
             ret = buildXMLVariant(doc, root, value);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
                 break;
 
             ++itr;
@@ -515,7 +515,7 @@ namespace Tiny3D
             const Variant &value = *itr;
 
             ret = buildXMLVariant(doc, root, value);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
                 break;
 
             ++itr;
@@ -536,7 +536,7 @@ namespace Tiny3D
             const Variant &value = *itr;
 
             ret = buildXMLVariant(doc, root, value);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
                 break;
 
             ++itr;

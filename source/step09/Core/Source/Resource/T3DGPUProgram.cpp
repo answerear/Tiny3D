@@ -209,7 +209,7 @@ namespace Tiny3D
             if (shader != nullptr)
             {
                 ret = shader->compile();
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Compile shader [%s] failed !", shader->getName().c_str());

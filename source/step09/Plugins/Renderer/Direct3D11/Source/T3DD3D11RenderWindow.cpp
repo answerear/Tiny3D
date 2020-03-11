@@ -108,7 +108,7 @@ namespace Tiny3D
                 ret = mWindow->create(title.c_str(),
                     param.windowLeft, param.windowTop,
                     param.windowWidth, param.windowHeight, flags);
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
                         "Create native window failed !");
@@ -118,7 +118,7 @@ namespace Tiny3D
 
             // 加载图标
             ret = loadIcon(param.iconPath);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -129,7 +129,7 @@ namespace Tiny3D
             mPitch = Image::calcPitch(mWidth, mColorDepth);
 
             ret = setupD3D11Environment(param, paramEx);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -229,7 +229,7 @@ namespace Tiny3D
             // 加载图标资源
             Image image;
             ret = image.load(iconPath);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
                     "Load icon image [%s] failed !", iconPath.c_str());
@@ -268,7 +268,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 ret = T3D_ERR_D3D11_UNSUPPORT_FORMAT_ICON;
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
@@ -328,7 +328,7 @@ namespace Tiny3D
 
             ret = createSwapChain((UINT)mWidth, (UINT)mHeight, param.fullscreen, 
                 uMSAACount, uMSAAQuality, format);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
                     "Create swap chain failed !");
@@ -336,7 +336,7 @@ namespace Tiny3D
             }
 
             ret = createRenderTargetView();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
                     "Create render target view failed !");
@@ -345,7 +345,7 @@ namespace Tiny3D
 
             ret = createDepthStencilView((UINT)mWidth, (UINT)mHeight, 
                 uMSAACount, uMSAAQuality);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
                     "Create depth and stencil view failed !");

@@ -118,7 +118,7 @@ namespace Tiny3D
 
             // Raster State
             ret = initD3DRasterizerState();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
                     "Initialize D3D11 Rasterizer State failed !");
@@ -127,7 +127,7 @@ namespace Tiny3D
 
             // 收集硬件和驱动信息
             ret = collectInformation();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
                     "Collect information failed !");
@@ -135,7 +135,7 @@ namespace Tiny3D
             }
 
             ret = postInit();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
                     "Post initialize failed !");
@@ -210,7 +210,7 @@ namespace Tiny3D
             }
 
             ret = window->create(param, paramEx);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 window->release();
                 window = nullptr;

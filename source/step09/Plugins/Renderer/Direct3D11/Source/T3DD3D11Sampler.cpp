@@ -102,7 +102,7 @@ namespace Tiny3D
         D3D11SamplerPtr sampler = D3D11Sampler::create(getName());
 
         TResult ret = cloneProperties(sampler);
-        if (ret != T3D_OK)
+        if (T3D_FAILED(ret))
         {
             sampler = nullptr;
         }

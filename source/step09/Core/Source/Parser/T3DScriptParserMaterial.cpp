@@ -75,7 +75,7 @@ namespace Tiny3D
             // 名称
             String name;
             ret = parseString(stream, name);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Read the name of material failed !");
@@ -116,7 +116,7 @@ namespace Tiny3D
                     break;
                 }
 
-                if (ret != T3D_OK)
+                if (T3D_FAILED(ret))
                 {
                     break;
                 }
@@ -221,7 +221,7 @@ namespace Tiny3D
             // LOD strategy
             String strategy;
             ret = parseString(stream, strategy);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -284,7 +284,7 @@ namespace Tiny3D
             String aliasName;
             ret = parseString(stream, aliasName);
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 ret = T3D_ERR_RES_INVALID_CONTENT;
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
@@ -295,7 +295,7 @@ namespace Tiny3D
             String textureName;
             ret = parseString(stream, textureName);
 
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 ret = T3D_ERR_RES_INVALID_CONTENT;
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,

@@ -144,7 +144,7 @@ namespace Tiny3D
             Image srcImage;
             ret = srcImage.load(srcData, mWidth, mHeight, 
                 Image::getBPP(mFormat), srcPitch, mFormat);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
                     "Load source texture to image failed  !");
@@ -154,7 +154,7 @@ namespace Tiny3D
             Image dstImage;
             ret = dstImage.load(dstData, dst->getWidth(), dst->getHeight(), 
                 Image::getBPP(dst->getFormat()), dstPitch, dst->getFormat());
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
                     "Load destination texture to image failed !");
@@ -162,7 +162,7 @@ namespace Tiny3D
             }
 
             ret = dstImage.copy(srcImage, &rtSrc, &rtDst);
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
                     "Copy image from source image failed !");
@@ -173,7 +173,7 @@ namespace Tiny3D
         if (srcData != nullptr)
         {
             ret = unlock();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
                     "Unlock source buffer failed !");
@@ -185,7 +185,7 @@ namespace Tiny3D
         if (dstData != nullptr)
         {
             ret = dst->unlock();
-            if (ret != T3D_OK)
+            if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER,
                     "Unlock destination buffer failed !");
