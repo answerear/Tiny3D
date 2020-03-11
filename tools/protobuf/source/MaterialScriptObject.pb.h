@@ -402,16 +402,16 @@ inline const std::string& EnvMap_Name(T enum_t_value) {
 bool EnvMap_Parse(
     const std::string& name, EnvMap* value);
 enum BlendType : int {
-  BT_ADD = 0,
-  BT_MODULATE = 1,
-  BT_ALPHA_BLEND = 2,
-  BT_COLOR_BLEND = 3,
+  BT_ALPHA_BLEND = 0,
+  BT_COLOR_BLEND = 1,
+  BT_ADD = 2,
+  BT_MODULATE = 3,
   BT_REPLACE = 4,
   BlendType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   BlendType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool BlendType_IsValid(int value);
-constexpr BlendType BlendType_MIN = BT_ADD;
+constexpr BlendType BlendType_MIN = BT_ALPHA_BLEND;
 constexpr BlendType BlendType_MAX = BT_REPLACE;
 constexpr int BlendType_ARRAYSIZE = BlendType_MAX + 1;
 
@@ -6448,7 +6448,7 @@ class Pass :
     kSpecularFieldNumber = 4,
     kEmissiveFieldNumber = 5,
     kSceneBlendFieldNumber = 7,
-    kSeparateBlendSceneFieldNumber = 8,
+    kSeparateSceneBlendFieldNumber = 8,
     kSeparateSceneBlendOpFieldNumber = 10,
     kDepthBiasFieldNumber = 14,
     kAlphaRejectionFieldNumber = 16,
@@ -6590,19 +6590,19 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::BlendScene* _internal_mutable_scene_blend();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_blend_scene = 8;
-  bool has_separate_blend_scene() const;
+  // .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_scene_blend = 8;
+  bool has_separate_scene_blend() const;
   private:
-  bool _internal_has_separate_blend_scene() const;
+  bool _internal_has_separate_scene_blend() const;
   public:
-  void clear_separate_blend_scene();
-  const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene& separate_blend_scene() const;
-  ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* release_separate_blend_scene();
-  ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* mutable_separate_blend_scene();
-  void set_allocated_separate_blend_scene(::Tiny3D::Script::MaterialSystem::SeparateBlendScene* separate_blend_scene);
+  void clear_separate_scene_blend();
+  const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene& separate_scene_blend() const;
+  ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* release_separate_scene_blend();
+  ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* mutable_separate_scene_blend();
+  void set_allocated_separate_scene_blend(::Tiny3D::Script::MaterialSystem::SeparateBlendScene* separate_scene_blend);
   private:
-  const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene& _internal_separate_blend_scene() const;
-  ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* _internal_mutable_separate_blend_scene();
+  const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene& _internal_separate_scene_blend() const;
+  ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* _internal_mutable_separate_scene_blend();
   public:
 
   // .Tiny3D.Script.MaterialSystem.SeparateSceneBlendOperation separate_scene_blend_op = 10;
@@ -6947,7 +6947,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::LightColor* specular_;
   ::Tiny3D::Script::MaterialSystem::LightColor* emissive_;
   ::Tiny3D::Script::MaterialSystem::BlendScene* scene_blend_;
-  ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* separate_blend_scene_;
+  ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* separate_scene_blend_;
   ::Tiny3D::Script::MaterialSystem::SeparateSceneBlendOperation* separate_scene_blend_op_;
   ::Tiny3D::Script::MaterialSystem::DepthBias* depth_bias_;
   ::Tiny3D::Script::MaterialSystem::AlphaRejection* alpha_rejection_;
@@ -13004,64 +13004,64 @@ inline void Pass::set_allocated_scene_blend(::Tiny3D::Script::MaterialSystem::Bl
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.scene_blend)
 }
 
-// .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_blend_scene = 8;
-inline bool Pass::_internal_has_separate_blend_scene() const {
-  return this != internal_default_instance() && separate_blend_scene_ != nullptr;
+// .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_scene_blend = 8;
+inline bool Pass::_internal_has_separate_scene_blend() const {
+  return this != internal_default_instance() && separate_scene_blend_ != nullptr;
 }
-inline bool Pass::has_separate_blend_scene() const {
-  return _internal_has_separate_blend_scene();
+inline bool Pass::has_separate_scene_blend() const {
+  return _internal_has_separate_scene_blend();
 }
-inline void Pass::clear_separate_blend_scene() {
-  if (GetArenaNoVirtual() == nullptr && separate_blend_scene_ != nullptr) {
-    delete separate_blend_scene_;
+inline void Pass::clear_separate_scene_blend() {
+  if (GetArenaNoVirtual() == nullptr && separate_scene_blend_ != nullptr) {
+    delete separate_scene_blend_;
   }
-  separate_blend_scene_ = nullptr;
+  separate_scene_blend_ = nullptr;
 }
-inline const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene& Pass::_internal_separate_blend_scene() const {
-  const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* p = separate_blend_scene_;
+inline const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene& Pass::_internal_separate_scene_blend() const {
+  const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* p = separate_scene_blend_;
   return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene*>(
       &::Tiny3D::Script::MaterialSystem::_SeparateBlendScene_default_instance_);
 }
-inline const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene& Pass::separate_blend_scene() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Pass.separate_blend_scene)
-  return _internal_separate_blend_scene();
+inline const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene& Pass::separate_scene_blend() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Pass.separate_scene_blend)
+  return _internal_separate_scene_blend();
 }
-inline ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* Pass::release_separate_blend_scene() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.Pass.separate_blend_scene)
+inline ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* Pass::release_separate_scene_blend() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.Pass.separate_scene_blend)
   
-  ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* temp = separate_blend_scene_;
-  separate_blend_scene_ = nullptr;
+  ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* temp = separate_scene_blend_;
+  separate_scene_blend_ = nullptr;
   return temp;
 }
-inline ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* Pass::_internal_mutable_separate_blend_scene() {
+inline ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* Pass::_internal_mutable_separate_scene_blend() {
   
-  if (separate_blend_scene_ == nullptr) {
+  if (separate_scene_blend_ == nullptr) {
     auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::SeparateBlendScene>(GetArenaNoVirtual());
-    separate_blend_scene_ = p;
+    separate_scene_blend_ = p;
   }
-  return separate_blend_scene_;
+  return separate_scene_blend_;
 }
-inline ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* Pass::mutable_separate_blend_scene() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Pass.separate_blend_scene)
-  return _internal_mutable_separate_blend_scene();
+inline ::Tiny3D::Script::MaterialSystem::SeparateBlendScene* Pass::mutable_separate_scene_blend() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Pass.separate_scene_blend)
+  return _internal_mutable_separate_scene_blend();
 }
-inline void Pass::set_allocated_separate_blend_scene(::Tiny3D::Script::MaterialSystem::SeparateBlendScene* separate_blend_scene) {
+inline void Pass::set_allocated_separate_scene_blend(::Tiny3D::Script::MaterialSystem::SeparateBlendScene* separate_scene_blend) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   if (message_arena == nullptr) {
-    delete separate_blend_scene_;
+    delete separate_scene_blend_;
   }
-  if (separate_blend_scene) {
+  if (separate_scene_blend) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
     if (message_arena != submessage_arena) {
-      separate_blend_scene = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, separate_blend_scene, submessage_arena);
+      separate_scene_blend = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, separate_scene_blend, submessage_arena);
     }
     
   } else {
     
   }
-  separate_blend_scene_ = separate_blend_scene;
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.separate_blend_scene)
+  separate_scene_blend_ = separate_scene_blend;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.separate_scene_blend)
 }
 
 // .Tiny3D.Script.MaterialSystem.BlendOperation scene_blend_op = 9;

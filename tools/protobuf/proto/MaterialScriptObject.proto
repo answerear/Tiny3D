@@ -298,10 +298,10 @@ message TextureUnit
  */
 enum BlendType
 {
-    BT_ADD = 0;            // The color of the rendering output is added to the scene.
-    BT_MODULATE = 1;       // The color of the rendering output is multiplied with the scene contents. 
-    BT_ALPHA_BLEND = 2;    // The alpha value of the rendering output is used as a mask.
-    BT_COLOR_BLEND = 3;    // Color the scene based on the brightness of the input colours, but don’t darken.
+    BT_ALPHA_BLEND = 0;    // The alpha value of the rendering output is used as a mask.
+    BT_COLOR_BLEND = 1;    // Color the scene based on the brightness of the input colours, but don’t darken.
+    BT_ADD = 2;            // The color of the rendering output is added to the scene.
+    BT_MODULATE = 3;       // The color of the rendering output is multiplied with the scene contents. 
     BT_REPLACE = 4;        // The color of the rendering output is replaced with the source scene contents.
 }
 
@@ -511,7 +511,7 @@ message Pass
     float                       shininess = 6;                  // The color of the specular highlights is determined by the color parameters, 
                                                                 // and the size of the highlights by the separate shininess parameter.
     BlendScene                  scene_blend = 7;                // The kind of blending this pass has with the existing contents of the scene.
-    SeparateBlendScene          separate_blend_scene = 8;       // The operations to perform between the rendered pixel and the frame buffer separately for colour and alpha components.
+    SeparateBlendScene          separate_scene_blend = 8;       // The operations to perform between the rendered pixel and the frame buffer separately for colour and alpha components.
     BlendOperation              scene_blend_op = 9;             // This directive changes the operation which is applied between the two components of the scene blending equation.
     SeparateSceneBlendOperation separate_scene_blend_op = 10;   // This directive is as scene_blend_op, except that you can set the operation for colour and alpha separately.
     bool                        depth_check = 11;               // This pass renders with depth-buffer checking on or not.
@@ -625,6 +625,15 @@ message TextureAlias
     string  texture_name = 2;    // The texture name. (Optional)
 }
 
+message ReceiveShadows
+{
+    bool    value;
+}
+
+message TransparencyCastsShadows
+{
+    bool    value;
+}
 
 /**
  * @brief The script object for material.
@@ -633,8 +642,8 @@ message Material
 {
     Header                      header = 1;                     // The header of object. (Required)
     LODValues                   values = 2;                     // LOD values. (Optional)
-    bool                        receive_shadows = 3;            // This attribute controls whether objects using this material can have shadows cast upon them. (Optional) Default : true
-    bool                        transparency_casts_shadows = 4; // This attribute controls whether transparent materials can cast certain kinds of shadow. (Optional) Default : false
+    ReceiveShadows              receive_shadows = 3;            // This attribute controls whether objects using this material can have shadows cast upon them. (Optional) Default : true
+    TransparencyCastsShadows    transparency_casts_shadows = 4; // This attribute controls whether transparent materials can cast certain kinds of shadow. (Optional) Default : false
     TextureAlias                texture_alias = 5;              // This attribute associates a texture alias with a texture name. (Optional)
     repeated Technique          techniques = 6;                 // The techniques. (Optional)
     repeated GPUConstantBuffer  cbuffers = 7;                   // The constant buffers. (Optional)

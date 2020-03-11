@@ -1355,18 +1355,18 @@ static const char BlendType_names[] =
   "BT_REPLACE";
 
 static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry BlendType_entries[] = {
-  { {BlendType_names + 0, 6}, 0 },
-  { {BlendType_names + 6, 14}, 2 },
-  { {BlendType_names + 20, 14}, 3 },
-  { {BlendType_names + 34, 11}, 1 },
+  { {BlendType_names + 0, 6}, 2 },
+  { {BlendType_names + 6, 14}, 0 },
+  { {BlendType_names + 20, 14}, 1 },
+  { {BlendType_names + 34, 11}, 3 },
   { {BlendType_names + 45, 10}, 4 },
 };
 
 static const int BlendType_entries_by_number[] = {
-  0, // 0 -> BT_ADD
-  3, // 1 -> BT_MODULATE
-  1, // 2 -> BT_ALPHA_BLEND
-  2, // 3 -> BT_COLOR_BLEND
+  1, // 0 -> BT_ALPHA_BLEND
+  2, // 1 -> BT_COLOR_BLEND
+  0, // 2 -> BT_ADD
+  3, // 3 -> BT_MODULATE
   4, // 4 -> BT_REPLACE
 };
 
@@ -11718,7 +11718,7 @@ void Pass::InitAsDefaultInstance() {
       ::Tiny3D::Script::MaterialSystem::LightColor::internal_default_instance());
   ::Tiny3D::Script::MaterialSystem::_Pass_default_instance_._instance.get_mutable()->scene_blend_ = const_cast< ::Tiny3D::Script::MaterialSystem::BlendScene*>(
       ::Tiny3D::Script::MaterialSystem::BlendScene::internal_default_instance());
-  ::Tiny3D::Script::MaterialSystem::_Pass_default_instance_._instance.get_mutable()->separate_blend_scene_ = const_cast< ::Tiny3D::Script::MaterialSystem::SeparateBlendScene*>(
+  ::Tiny3D::Script::MaterialSystem::_Pass_default_instance_._instance.get_mutable()->separate_scene_blend_ = const_cast< ::Tiny3D::Script::MaterialSystem::SeparateBlendScene*>(
       ::Tiny3D::Script::MaterialSystem::SeparateBlendScene::internal_default_instance());
   ::Tiny3D::Script::MaterialSystem::_Pass_default_instance_._instance.get_mutable()->separate_scene_blend_op_ = const_cast< ::Tiny3D::Script::MaterialSystem::SeparateSceneBlendOperation*>(
       ::Tiny3D::Script::MaterialSystem::SeparateSceneBlendOperation::internal_default_instance());
@@ -11743,7 +11743,7 @@ class Pass::_Internal {
   static const ::Tiny3D::Script::MaterialSystem::LightColor& specular(const Pass* msg);
   static const ::Tiny3D::Script::MaterialSystem::LightColor& emissive(const Pass* msg);
   static const ::Tiny3D::Script::MaterialSystem::BlendScene& scene_blend(const Pass* msg);
-  static const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene& separate_blend_scene(const Pass* msg);
+  static const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene& separate_scene_blend(const Pass* msg);
   static const ::Tiny3D::Script::MaterialSystem::SeparateSceneBlendOperation& separate_scene_blend_op(const Pass* msg);
   static const ::Tiny3D::Script::MaterialSystem::DepthBias& depth_bias(const Pass* msg);
   static const ::Tiny3D::Script::MaterialSystem::AlphaRejection& alpha_rejection(const Pass* msg);
@@ -11778,8 +11778,8 @@ Pass::_Internal::scene_blend(const Pass* msg) {
   return *msg->scene_blend_;
 }
 const ::Tiny3D::Script::MaterialSystem::SeparateBlendScene&
-Pass::_Internal::separate_blend_scene(const Pass* msg) {
-  return *msg->separate_blend_scene_;
+Pass::_Internal::separate_scene_blend(const Pass* msg) {
+  return *msg->separate_scene_blend_;
 }
 const ::Tiny3D::Script::MaterialSystem::SeparateSceneBlendOperation&
 Pass::_Internal::separate_scene_blend_op(const Pass* msg) {
@@ -11849,10 +11849,10 @@ Pass::Pass(const Pass& from)
   } else {
     scene_blend_ = nullptr;
   }
-  if (from._internal_has_separate_blend_scene()) {
-    separate_blend_scene_ = new ::Tiny3D::Script::MaterialSystem::SeparateBlendScene(*from.separate_blend_scene_);
+  if (from._internal_has_separate_scene_blend()) {
+    separate_scene_blend_ = new ::Tiny3D::Script::MaterialSystem::SeparateBlendScene(*from.separate_scene_blend_);
   } else {
-    separate_blend_scene_ = nullptr;
+    separate_scene_blend_ = nullptr;
   }
   if (from._internal_has_separate_scene_blend_op()) {
     separate_scene_blend_op_ = new ::Tiny3D::Script::MaterialSystem::SeparateSceneBlendOperation(*from.separate_scene_blend_op_);
@@ -11914,7 +11914,7 @@ void Pass::SharedDtor() {
   if (this != internal_default_instance()) delete specular_;
   if (this != internal_default_instance()) delete emissive_;
   if (this != internal_default_instance()) delete scene_blend_;
-  if (this != internal_default_instance()) delete separate_blend_scene_;
+  if (this != internal_default_instance()) delete separate_scene_blend_;
   if (this != internal_default_instance()) delete separate_scene_blend_op_;
   if (this != internal_default_instance()) delete depth_bias_;
   if (this != internal_default_instance()) delete alpha_rejection_;
@@ -11964,10 +11964,10 @@ void Pass::Clear() {
     delete scene_blend_;
   }
   scene_blend_ = nullptr;
-  if (GetArenaNoVirtual() == nullptr && separate_blend_scene_ != nullptr) {
-    delete separate_blend_scene_;
+  if (GetArenaNoVirtual() == nullptr && separate_scene_blend_ != nullptr) {
+    delete separate_scene_blend_;
   }
-  separate_blend_scene_ = nullptr;
+  separate_scene_blend_ = nullptr;
   if (GetArenaNoVirtual() == nullptr && separate_scene_blend_op_ != nullptr) {
     delete separate_scene_blend_op_;
   }
@@ -12058,10 +12058,10 @@ const char* Pass::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_blend_scene = 8;
+      // .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_scene_blend = 8;
       case 8:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 66)) {
-          ptr = ctx->ParseMessage(_internal_mutable_separate_blend_scene(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_separate_scene_blend(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -12382,12 +12382,12 @@ failure:
         7, _Internal::scene_blend(this), target, stream);
   }
 
-  // .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_blend_scene = 8;
-  if (this->has_separate_blend_scene()) {
+  // .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_scene_blend = 8;
+  if (this->has_separate_scene_blend()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
-        8, _Internal::separate_blend_scene(this), target, stream);
+        8, _Internal::separate_scene_blend(this), target, stream);
   }
 
   // .Tiny3D.Script.MaterialSystem.BlendOperation scene_blend_op = 9;
@@ -12671,11 +12671,11 @@ size_t Pass::ByteSizeLong() const {
         *scene_blend_);
   }
 
-  // .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_blend_scene = 8;
-  if (this->has_separate_blend_scene()) {
+  // .Tiny3D.Script.MaterialSystem.SeparateBlendScene separate_scene_blend = 8;
+  if (this->has_separate_scene_blend()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *separate_blend_scene_);
+        *separate_scene_blend_);
   }
 
   // .Tiny3D.Script.MaterialSystem.SeparateSceneBlendOperation separate_scene_blend_op = 10;
@@ -12904,8 +12904,8 @@ void Pass::MergeFrom(const Pass& from) {
   if (from.has_scene_blend()) {
     _internal_mutable_scene_blend()->::Tiny3D::Script::MaterialSystem::BlendScene::MergeFrom(from._internal_scene_blend());
   }
-  if (from.has_separate_blend_scene()) {
-    _internal_mutable_separate_blend_scene()->::Tiny3D::Script::MaterialSystem::SeparateBlendScene::MergeFrom(from._internal_separate_blend_scene());
+  if (from.has_separate_scene_blend()) {
+    _internal_mutable_separate_scene_blend()->::Tiny3D::Script::MaterialSystem::SeparateBlendScene::MergeFrom(from._internal_separate_scene_blend());
   }
   if (from.has_separate_scene_blend_op()) {
     _internal_mutable_separate_scene_blend_op()->::Tiny3D::Script::MaterialSystem::SeparateSceneBlendOperation::MergeFrom(from._internal_separate_scene_blend_op());
@@ -13026,7 +13026,7 @@ void Pass::InternalSwap(Pass* other) {
   swap(specular_, other->specular_);
   swap(emissive_, other->emissive_);
   swap(scene_blend_, other->scene_blend_);
-  swap(separate_blend_scene_, other->separate_blend_scene_);
+  swap(separate_scene_blend_, other->separate_scene_blend_);
   swap(separate_scene_blend_op_, other->separate_scene_blend_op_);
   swap(depth_bias_, other->depth_bias_);
   swap(alpha_rejection_, other->alpha_rejection_);
