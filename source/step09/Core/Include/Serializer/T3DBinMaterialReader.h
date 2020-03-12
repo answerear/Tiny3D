@@ -33,6 +33,8 @@ namespace Tiny3D
             class Material;
             class Technique;
             class Pass;
+            class GPUConstantBufferRef;
+            class TextureUnit;
         }
     }
 
@@ -178,6 +180,36 @@ namespace Tiny3D
 
         TResult parseTextures(
             const MaterialSystem::Pass *src, Pass *dst);
+
+        TResult parseGPUConstantBufferRef(
+            const MaterialSystem::GPUConstantBufferRef *src, GPUProgramRef *dst);
+
+        TResult parseTextureUnit(
+            const MaterialSystem::TextureUnit *src, Pass *dst);
+
+        TResult parseTextureAlias(
+            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+
+        TResult parseTexture(
+            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+
+        TResult parseAnimTexture(
+            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+
+        TResult parseCubicTexture(
+            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+
+        TResult parseBindingType(
+            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+
+        TResult parseTexCoordSet(
+            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+
+        TResult parseColorOp(
+            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+
+        TResult parseSamplerRef(
+            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
     };
 }
 

@@ -811,6 +811,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    inline void Pass::setPassIterationCount(size_t count)
+    {
+        mPassIterationCount = count;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline size_t Pass::getPassIterationCount() const
+    {
+        return mPassIterationCount;
+    }
+
+    //--------------------------------------------------------------------------
+
     inline uint16_t Pass::getLightCountPerIteration() const
     {
         return mLightsPerIteration;

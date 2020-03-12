@@ -81,6 +81,7 @@ namespace Tiny3D
         , mFogDensity(0.01f)
         , mStartLight(0)
         , mMaxLights(T3D_MAX_SIMULTANEOUS_LIGHTS)
+        , mPassIterationCount(1)
         , mLightsPerIteration(1)
         , mOnlyLightType(LightType::POINT)
         , mIteratePerLight(false)

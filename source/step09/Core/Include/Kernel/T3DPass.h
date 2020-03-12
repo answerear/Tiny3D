@@ -871,6 +871,10 @@ namespace Tiny3D
          */
         void setMaxLights(uint16_t lights);
 
+        void setPassIterationCount(size_t count);
+
+        size_t getPassIterationCount() const;
+
         /**
          * @fn  uint16_t Pass::getLightCountPerIteration() const;
          * @brief   Gets light count per iteration
@@ -1238,6 +1242,7 @@ namespace Tiny3D
         //  #1 iteration <once|once_per_light> [lightType]
         //  #2 iteration <number> [per_light> [lightType]]
         //  #3 iteration <number> [<per_n_lights> <num_lights> [lightType]]
+        size_t                  mPassIterationCount;
         uint16_t                mLightsPerIteration;
         LightType               mOnlyLightType;
         bool                    mIteratePerLight;

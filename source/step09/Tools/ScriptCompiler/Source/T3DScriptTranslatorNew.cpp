@@ -3116,19 +3116,19 @@ namespace Tiny3D
                 {
                 case ID_FRONT:
                     {
-                        pass->set_cull_software(Script::MaterialSystem::CS_FRONT);
+                        pass->mutable_cull_software()->set_value(Script::MaterialSystem::CS_FRONT);
                         ret = true;
                     }
                     break;
                 case ID_BACK:
                     {
-                        pass->set_cull_software(Script::MaterialSystem::CS_BACK);
+                        pass->mutable_cull_software()->set_value(Script::MaterialSystem::CS_BACK);
                         ret = true;
                     }
                     break;
                 case ID_NONE:
                     {
-                        pass->set_cull_software(Script::MaterialSystem::CS_NONE);
+                        pass->mutable_cull_software()->set_value(Script::MaterialSystem::CS_NONE);
                         ret = true;
                     }
                     break;
@@ -3181,7 +3181,7 @@ namespace Tiny3D
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                pass->set_normailize_normals(val);
+                pass->mutable_normailize_normals()->set_value(val);
                 ret = true;
             }
             else
@@ -3221,7 +3221,7 @@ namespace Tiny3D
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                pass->set_lighting(val);
+                pass->mutable_lighting()->set_value(val);
                 ret = true;
             }
             else
@@ -3265,19 +3265,19 @@ namespace Tiny3D
                 {
                 case ID_FLAT:
                     {
-                        pass->set_shading(Script::MaterialSystem::SM_FLAT);
+                        pass->mutable_shading()->set_value(Script::MaterialSystem::SM_FLAT);
                         ret = true;
                     }
                     break;
                 case ID_GOURAUD:
                     {
-                        pass->set_shading(Script::MaterialSystem::SM_GOURAUD);
+                        pass->mutable_shading()->set_value(Script::MaterialSystem::SM_GOURAUD);
                         ret = true;
                     }
                     break;
                 case ID_PHONG:
                     {
-                        pass->set_shading(Script::MaterialSystem::SM_PHONG);
+                        pass->mutable_shading()->set_value(Script::MaterialSystem::SM_PHONG);
                         ret = true;
                     }
                     break;
@@ -3336,19 +3336,19 @@ namespace Tiny3D
                 {
                 case ID_SOLID:
                     {
-                        pass->set_polygon_mode(Script::MaterialSystem::PM_SOLID);
+                        pass->mutable_polygon_mode()->set_value(Script::MaterialSystem::PM_SOLID);
                         ret = true;
                     }
                     break;
                 case ID_POINTS:
                     {
-                        pass->set_polygon_mode(Script::MaterialSystem::PM_POINTS);
+                        pass->mutable_polygon_mode()->set_value(Script::MaterialSystem::PM_POINTS);
                         ret = true;
                     }
                     break;
                 case ID_WIREFRAME:
                     {
-                        pass->set_polygon_mode(Script::MaterialSystem::PM_WIREFRAME);
+                        pass->mutable_polygon_mode()->set_value(Script::MaterialSystem::PM_WIREFRAME);
                         ret = true;
                     }
                     break;
@@ -3402,7 +3402,7 @@ namespace Tiny3D
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                pass->set_polygon_mode_overrideable(val);
+                pass->mutable_polygon_mode_overrideable()->set_value(val);
                 ret = true;
             }
             else
@@ -3448,7 +3448,7 @@ namespace Tiny3D
                 MaterialSystem::Fog *fog = pass->mutable_fog();
 
                 // override
-                fog->set_overridable(val);
+                fog->set_overrideable(val);
 
                 // type
                 if (i1 != prop->values.end())
@@ -3619,7 +3619,7 @@ namespace Tiny3D
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                pass->set_color_write(val);
+                pass->mutable_color_write()->set_value(val);
                 ret = true;
             }
             else
@@ -3659,7 +3659,7 @@ namespace Tiny3D
             uint32_t val = 0;
             if (getUInt(prop->values.front(), &val))
             {
-                pass->set_max_lights(val);
+                pass->mutable_max_lights()->set_value(val);
                 ret = true;
             }
             else
@@ -3699,7 +3699,7 @@ namespace Tiny3D
             uint32_t val = 0;
             if (getUInt(prop->values.front(), &val))
             {
-                pass->set_start_light(val);
+                pass->mutable_start_light()->set_value(val);
                 ret = true;
             }
             else
@@ -3772,13 +3772,14 @@ namespace Tiny3D
                 if (atom->id == ID_ONCE)
                 {
                     // once
-                    iter->set_type(Script::MaterialSystem::IT_ONCE);
+                    iter->mutable_once()->set_type(Script::MaterialSystem::IT_ONCE);
                     ret = true;
                 }
                 else if (atom->id == ID_ONCE_PER_LIGHT)
                 {
                     // once_per_light
-                    iter->set_type(Script::MaterialSystem::IT_ONCE_PER_LIGHT);
+                    auto once_per_light = iter->mutable_once_per_light();
+                    once_per_light->set_type(Script::MaterialSystem::IT_ONCE_PER_LIGHT);
 
                     AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
 
@@ -3789,19 +3790,19 @@ namespace Tiny3D
                         {
                         case ID_POINT:
                             {
-                                iter->set_light_type(Script::MaterialSystem::LT_POINT);
+                                once_per_light->set_light_type(Script::MaterialSystem::LT_POINT);
                                 ret = true;
                             }
                             break;
                         case ID_DIRECTIONAL:
                             {
-                                iter->set_light_type(Script::MaterialSystem::LT_DIRECTIONAL);
+                                once_per_light->set_light_type(Script::MaterialSystem::LT_DIRECTIONAL);
                                 ret = true;
                             }
                             break;
                         case ID_SPOT:
                             {
-                                iter->set_light_type(Script::MaterialSystem::LT_SPOT);
+                                once_per_light->set_light_type(Script::MaterialSystem::LT_SPOT);
                                 ret = true;
                             }
                             break;
@@ -3822,7 +3823,6 @@ namespace Tiny3D
                 {
                     // value of the number
                     uint32_t val = StringConverter::parseUInt32(atom->value);
-                    iter->set_number(val);
                     ret = true;
 
                     AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
@@ -3831,8 +3831,13 @@ namespace Tiny3D
                         atom = (AtomAbstractNode*)(*i1).get();
                         if (atom->id == ID_PER_LIGHT)
                         {
+                            auto per_light = iter->mutable_per_light();
+
+                            // number
+                            per_light->set_number(val);
+
                             // per_light
-                            iter->set_type(Script::MaterialSystem::IT_PER_LIGHT);
+                            per_light->set_type(Script::MaterialSystem::IT_PER_LIGHT);
 
                             // light type
                             AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
@@ -3843,19 +3848,19 @@ namespace Tiny3D
                                 {
                                 case ID_POINT:
                                     {
-                                        iter->set_light_type(Script::MaterialSystem::LT_POINT);
+                                        per_light->set_light_type(Script::MaterialSystem::LT_POINT);
                                         ret = true;
                                     }
                                     break;
                                 case ID_DIRECTIONAL:
                                     {
-                                        iter->set_light_type(Script::MaterialSystem::LT_DIRECTIONAL);
+                                        per_light->set_light_type(Script::MaterialSystem::LT_DIRECTIONAL);
                                         ret = true;
                                     }
                                     break;
                                 case ID_SPOT:
                                     {
-                                        iter->set_light_type(Script::MaterialSystem::LT_SPOT);
+                                        per_light->set_light_type(Script::MaterialSystem::LT_SPOT);
                                         ret = true;
                                     }
                                     break;
@@ -3875,8 +3880,13 @@ namespace Tiny3D
                         }
                         else if (ID_PER_N_LIGHTS)
                         {
+                            auto per_n_lights = iter->mutable_per_n_light();
+
+                            // number
+                            per_n_lights->set_number(val);
+
                             // per_n_lights
-                            iter->set_type(Script::MaterialSystem::IT_PER_N_LIGHTS);
+                            per_n_lights->set_type(Script::MaterialSystem::IT_PER_N_LIGHTS);
 
                             AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
 
@@ -3888,7 +3898,7 @@ namespace Tiny3D
                                 {
                                     // num_lights
                                     uint32_t numLights = StringConverter::parseUInt32(atom->value);
-                                    iter->set_num_lights(numLights);
+                                    per_n_lights->set_num_lights(numLights);
 
                                     // light type
                                     AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
@@ -3900,19 +3910,19 @@ namespace Tiny3D
                                         {
                                         case ID_POINT:
                                             {
-                                                iter->set_light_type(Script::MaterialSystem::LT_POINT);
+                                                per_n_lights->set_light_type(Script::MaterialSystem::LT_POINT);
                                                 ret = true;
                                             }
                                             break;
                                         case ID_DIRECTIONAL:
                                             {
-                                                iter->set_light_type(Script::MaterialSystem::LT_DIRECTIONAL);
+                                                per_n_lights->set_light_type(Script::MaterialSystem::LT_DIRECTIONAL);
                                                 ret = true;
                                             }
                                             break;
                                         case ID_SPOT:
                                             {
-                                                iter->set_light_type(Script::MaterialSystem::LT_SPOT);
+                                                per_n_lights->set_light_type(Script::MaterialSystem::LT_SPOT);
                                                 ret = true;
                                             }
                                             break;
@@ -3947,6 +3957,10 @@ namespace Tiny3D
                                 ret = false;
                             }
                         }
+                    }
+                    else
+                    {
+                        iter->mutable_number()->set_number(val);
                     }
                 }
                 else
@@ -3992,7 +4006,7 @@ namespace Tiny3D
             float32_t val = 0.0f;
             if (getSingle(prop->values.front(), &val))
             {
-                pass->set_point_size(val);
+                pass->mutable_point_size()->set_value(val);
             }
             else
             {
@@ -4031,7 +4045,7 @@ namespace Tiny3D
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                pass->set_point_sprites(val);
+                pass->mutable_point_sprites()->set_value(val);
             }
             else
             {
@@ -4198,7 +4212,7 @@ namespace Tiny3D
             float32_t val = 0.0f;
             if (getSingle(prop->values.front(), &val))
             {
-                pass->set_point_size_min(val);
+                pass->mutable_point_size_min()->set_value(val);
                 ret = true;
             }
             else
@@ -4238,7 +4252,7 @@ namespace Tiny3D
             float32_t val = 0.0f;
             if (getSingle(prop->values.front(), &val))
             {
-                pass->set_point_size_max(val);
+                pass->mutable_point_size_max()->set_value(val);
                 ret = true;
             }
             else
@@ -4280,20 +4294,20 @@ namespace Tiny3D
                 // 属性
                 switch (prop->id)
                 {
-                case ID_TEX_ADDRESS_MODE:
-                case ID_TEX_BORDER_COLOUR:
-                case ID_FILTERING:
-                case ID_CMPTEST:
-                case ID_CMPFUNC:
-                case ID_COMP_FUNC:
-                case ID_MAX_ANISOTROPY:
-                case ID_MIPMAP_BIAS:
-                    {
-                        SamplerTranslatorNew *translator = static_cast<SamplerTranslatorNew *>(compiler->getTranslator(*i));
-                        MaterialSystem::Sampler *sampler = unit->mutable_sampler();
-                        ret = translator->translateSamplerParams(prop, sampler);
-                    }
-                    break;
+//                 case ID_TEX_ADDRESS_MODE:
+//                 case ID_TEX_BORDER_COLOUR:
+//                 case ID_FILTERING:
+//                 case ID_CMPTEST:
+//                 case ID_CMPFUNC:
+//                 case ID_COMP_FUNC:
+//                 case ID_MAX_ANISOTROPY:
+//                 case ID_MIPMAP_BIAS:
+//                     {
+//                         SamplerTranslatorNew *translator = static_cast<SamplerTranslatorNew *>(compiler->getTranslator(*i));
+//                         MaterialSystem::Sampler *sampler = unit->mutable_sampler();
+//                         ret = translator->translateSamplerParams(prop, sampler);
+//                     }
+//                     break;
                 case ID_SAMPLER_REF:
                     {
                         ret = translateSamplerRef(prop, unit);
@@ -4443,7 +4457,7 @@ namespace Tiny3D
             String val;
             if (getString(prop->values.front(), &val))
             {
-                unit->set_sampler_ref(val);
+                unit->mutable_sampler_ref()->set_value(val);
                 ret = true;
             }
             else
@@ -4482,7 +4496,7 @@ namespace Tiny3D
             String val;
             if (getString(prop->values.front(), &val))
             {
-                unit->set_texture_alias(val);
+                unit->mutable_texture_alias()->set_value(val);
                 ret = true;
             }
             else
@@ -4918,7 +4932,7 @@ namespace Tiny3D
 
             if (getUInt(prop->values.front(), &val))
             {
-                unit->set_tex_coord_set(val);
+                unit->mutable_tex_coord_set()->set_value(val);
                 ret = true;
             }
             else
@@ -4961,31 +4975,31 @@ namespace Tiny3D
             {
             case ID_ADD:
                 {
-                    unit->set_color_op(Script::MaterialSystem::BT_ADD);
+                    unit->mutable_color_op()->set_value(Script::MaterialSystem::BT_ADD);
                     ret = true;
                 }
                 break;
             case ID_MODULATE:
                 {
-                    unit->set_color_op(Script::MaterialSystem::BT_MODULATE);
+                    unit->mutable_color_op()->set_value(Script::MaterialSystem::BT_MODULATE);
                     ret = true;
                 }
                 break;
             case ID_COLOUR_BLEND:
                 {
-                    unit->set_color_op(Script::MaterialSystem::BT_COLOR_BLEND);
+                    unit->mutable_color_op()->set_value(Script::MaterialSystem::BT_COLOR_BLEND);
                     ret = true;
                 }
                 break;
             case ID_ALPHA_BLEND:
                 {
-                    unit->set_color_op(Script::MaterialSystem::BT_ALPHA_BLEND);
+                    unit->mutable_color_op()->set_value(Script::MaterialSystem::BT_ALPHA_BLEND);
                     ret = true;
                 }
                 break;
             case ID_REPLACE:
                 {
-                    unit->set_color_op(Script::MaterialSystem::BT_REPLACE);
+                    unit->mutable_color_op()->set_value(Script::MaterialSystem::BT_REPLACE);
                     ret = true;
                 }
                 break;
@@ -5762,13 +5776,13 @@ namespace Tiny3D
             {
             case ID_FRAGMENT:
                 {
-                    unit->set_binding_type(Script::MaterialSystem::BT_FRAGMENT);
+                    unit->mutable_binding_type()->set_value(Script::MaterialSystem::BT_FRAGMENT);
                     ret = true;
                 }
                 break;
             case ID_VERTEX:
                 {
-                    unit->set_binding_type(Script::MaterialSystem::BT_VERTEX);
+                    unit->mutable_binding_type()->set_value(Script::MaterialSystem::BT_VERTEX);
                     ret = true;
                 }
                 break;
@@ -5896,8 +5910,8 @@ namespace Tiny3D
         ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
 
         // 对象头数据
-        MaterialSystem::TextureUnit *unit = (MaterialSystem::TextureUnit *)object;
-        MaterialSystem::Sampler *sampler = unit->mutable_sampler();
+        MaterialSystem::Material *material = (MaterialSystem::Material *)object;
+        MaterialSystem::Sampler *sampler = material->add_samplers();
         MaterialSystem::Header *header = sampler->mutable_header();
         bool ret = translateObjectHeader(obj, header);
         if (!ret)
@@ -6464,7 +6478,7 @@ namespace Tiny3D
             bool val;
             if (getBoolean(prop->values.front(), &val))
             {
-                sampler->set_compare_test(val);
+                sampler->mutable_compare_test()->set_value(val);
                 ret = true;
             }
             else
@@ -6593,7 +6607,7 @@ namespace Tiny3D
             uint32_t val;
             if (getUInt(prop->values.front(), &val))
             {
-                sampler->set_max_anisotropy(val);
+                sampler->mutable_max_anisotropy()->set_value(val);
                 ret = true;
             }
             else
@@ -6633,7 +6647,7 @@ namespace Tiny3D
             float32_t val;
             if (getSingle(prop->values.front(), &val))
             {
-                sampler->set_mipmap_bias(val);
+                sampler->mutable_mipmap_bias()->set_value(val);
                 ret = true;
             }
             else

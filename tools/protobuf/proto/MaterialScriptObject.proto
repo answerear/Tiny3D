@@ -199,10 +199,10 @@ message Sampler
     TexAddressMode  tex_address_mode = 2;   // Defines what happens when texture coordinates exceed 1.0 for this texture layer.
     Color           tex_border_color = 3;   // Sets the border colour of border texture address mode.
     TexFilter       filtering = 4;          // Sets the type of texture filtering used when magnifying or minifying a texture.
-    bool            compare_test = 5;       // Sets the test for comparison on or not.
+    Bool            compare_test = 5;       // Sets the test for comparison on or not.
     CompareFunction compare_func = 6;       // Sets the function for comparison.
-    uint32          max_anisotropy = 7;     // Sets the maximum degree of anisotropy that the renderer will try to compensate for when filtering textures.
-    float           mipmap_bias = 8;        // Sets the bias value applied to the mipmapping calculation.
+    UInt32          max_anisotropy = 7;     // Sets the maximum degree of anisotropy that the renderer will try to compensate for when filtering textures.
+    Float           mipmap_bias = 8;        // Sets the bias value applied to the mipmapping calculation.
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -211,11 +211,13 @@ message Sampler
 
 enum TextureType
 {
-    TEX_1D = 0;
-    TEX_2D = 1;
-    TEX_3D = 2;
-    TEX_CUBIC = 3;
-    TEX_2D_ARRAY = 4;
+    TEX_NONE = 0;
+    TEX_1D = 1;
+    TEX_2D = 2;
+    TEX_3D = 3;
+    TEX_CUBIC = 4;
+    TEX_2D_ARRAY = 5;
+    TEX_2D_RECT = 6;
     
 }
 
@@ -297,19 +299,28 @@ message CubicTexture
     CubicTextureMode    cubic_texture_mode = 3;
 }
 
+message Binding
+{
+    BindingType value = 1;
+}
+
+message ColorOp
+{
+    BlendType   value = 1;
+}
+
 
 message TextureUnit
 {
     Header          header = 1;
-    string          texture_alias = 2;  // Sets the alias name for this texture unit.
+    String          texture_alias = 2;  // Sets the alias name for this texture unit.
     Texture         texture = 3;        // Sets the name of the static texture image this layer will use.
     AnimTexture     anim_texture = 4;   // Sets the images to be used in an animated texture layer.
     CubicTexture    cubic_texture = 5;  // Sets the images used in a cubic texture.
-    BindingType     binding_type = 6;   // Tells this texture unit to bind to either the fragment processing unit or the vertex processing unit.
-    uint32          tex_coord_set = 7;  // Sets which texture coordinate set is to be used for this texture layer.
-    BlendType       color_op = 8;       // Determines how the colour of this texture layer is combined with
-    Sampler         sampler = 9;
-    string          sampler_ref = 10;
+    Binding         binding_type = 6;   // Tells this texture unit to bind to either the fragment processing unit or the vertex processing unit.
+    UInt32          tex_coord_set = 7;  // Sets which texture coordinate set is to be used for this texture layer.
+    ColorOp         color_op = 8;       // Determines how the colour of this texture layer is combined with
+    String          sampler_ref = 9;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -366,9 +377,10 @@ enum CompareFunction
 
 enum IlluminationStage
 {
-    IS_AMBIENT = 0;
-    IS_PER_LIGHT = 1;
-    IS_DECAL = 2;
+    IS_NONE = 0;
+    IS_AMBIENT = 1;
+    IS_PER_LIGHT = 2;
+    IS_DECAL = 3;
 }
 
 enum TransparentSorting
@@ -539,7 +551,7 @@ message Polygon
 
 message Fog
 {
-    bool    overridable = 1;
+    bool    overrideable = 1;
     FogType type = 2;
     Color   color = 3;
     float   density = 4;
@@ -547,12 +559,47 @@ message Fog
     float   end = 6;
 }
 
-message Iteration
+message IterationOnce
 {
     IterationType   type = 1;
-    uint32          number = 2;
+}
+
+message IterationOncePerLight
+{
+    IterationType   type = 1;
+    LightType       light_type = 2;
+}
+
+message IterationNumber
+{
+    uint32  number  = 1;
+}
+
+message IterationPerLight
+{
+    uint32          number  = 1;
+    IterationType   type = 2;
     LightType       light_type = 3;
-    uint32          num_lights = 4;
+}
+
+message IterationPerNLight
+{
+    uint32          number = 1;
+    IterationType   type = 2;
+    uint32          num_lights = 3;
+    LightType       light_type = 4;
+}
+
+message Iteration
+{
+    oneof IterationOneof
+    {
+        IterationOnce           once = 1;
+        IterationOncePerLight   once_per_light = 2;
+        IterationNumber         number = 3;
+        IterationPerLight       per_light = 4;
+        IterationPerNLight      per_n_light = 5;
+    }
 }
 
 message PointSizeAttenuation
@@ -704,6 +751,7 @@ message Material
     repeated Technique          techniques = 6;                 // The techniques. (Optional)
     repeated GPUConstantBuffer  cbuffers = 7;                   // The constant buffers. (Optional)
     repeated GPUProgram         programs = 8;                   // The GPU programs. (Optional)
+    repeated Sampler            samplers = 9;                   // The texture samplers. (Optional)
 }
 
 
