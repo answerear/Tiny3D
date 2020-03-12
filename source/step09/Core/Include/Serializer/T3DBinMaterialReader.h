@@ -35,6 +35,9 @@ namespace Tiny3D
             class Pass;
             class GPUConstantBufferRef;
             class TextureUnit;
+            class Sampler;
+            class GPUConstantBuffer;
+            class GPUProgram;
         }
     }
 
@@ -210,6 +213,30 @@ namespace Tiny3D
 
         TResult parseSamplerRef(
             const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+
+        TResult parseSampler(
+            const MaterialSystem::Sampler *src, Material *dst);
+
+        TResult parseTexAddressMode(
+            const MaterialSystem::Sampler *src, Sampler *dst);
+
+        TResult parseTexBorderColor(
+            const MaterialSystem::Sampler *src, Sampler *dst);
+
+        TResult parseFiltering(
+            const MaterialSystem::Sampler *src, Sampler *dst);
+
+        TResult parseCompareTest(
+            const MaterialSystem::Sampler *src, Sampler *dst);
+
+        TResult parseCompareFunc(
+            const MaterialSystem::Sampler *src, Sampler *dst);
+
+        TResult parseMaxAnisotropy(
+            const MaterialSystem::Sampler *src, Sampler *dst);
+
+        TResult parseMipmapBias(
+            const MaterialSystem::Sampler *src, Sampler *dst);
     };
 }
 

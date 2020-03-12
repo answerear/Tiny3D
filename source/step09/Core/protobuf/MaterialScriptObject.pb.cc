@@ -21,13 +21,13 @@ extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPAC
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Bool_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Color_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ColorOp_MaterialScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_CompareFunc_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_CubicTexture_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_CubicTextureComplex_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_CubicTextureSimple_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_CullingHardware_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_CullingSoftware_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_DepthBias_MaterialScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_DepthFunc_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Float_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Fog_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_GPUConstantBuffer_MaterialScriptObject_2eproto;
@@ -51,7 +51,7 @@ extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPAC
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<23> scc_info_Pass_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_PointSizeAttenuation_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Polygon_MaterialScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<7> scc_info_Sampler_MaterialScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<8> scc_info_Sampler_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_SceneBlendOperation_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_SeparateBlendScene_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_SeparateSceneBlendOperation_MaterialScriptObject_2eproto;
@@ -107,6 +107,10 @@ class StringDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<String> _instance;
 } _String_default_instance_;
+class CompareFuncDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<CompareFunc> _instance;
+} _CompareFunc_default_instance_;
 class ShaderDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Shader> _instance;
@@ -251,10 +255,6 @@ class DepthBiasDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<DepthBias> _instance;
 } _DepthBias_default_instance_;
-class DepthFuncDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<DepthFunc> _instance;
-} _DepthFunc_default_instance_;
 class AlphaRejectionDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<AlphaRejection> _instance;
@@ -494,6 +494,20 @@ static void InitDefaultsscc_info_ColorOp_MaterialScriptObject_2eproto() {
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ColorOp_MaterialScriptObject_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_ColorOp_MaterialScriptObject_2eproto}, {}};
 
+static void InitDefaultsscc_info_CompareFunc_MaterialScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::MaterialSystem::_CompareFunc_default_instance_;
+    new (ptr) ::Tiny3D::Script::MaterialSystem::CompareFunc();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::MaterialSystem::CompareFunc::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_CompareFunc_MaterialScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_CompareFunc_MaterialScriptObject_2eproto}, {}};
+
 static void InitDefaultsscc_info_CubicTexture_MaterialScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -579,20 +593,6 @@ static void InitDefaultsscc_info_DepthBias_MaterialScriptObject_2eproto() {
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_DepthBias_MaterialScriptObject_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_DepthBias_MaterialScriptObject_2eproto}, {}};
-
-static void InitDefaultsscc_info_DepthFunc_MaterialScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::MaterialSystem::_DepthFunc_default_instance_;
-    new (ptr) ::Tiny3D::Script::MaterialSystem::DepthFunc();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::Tiny3D::Script::MaterialSystem::DepthFunc::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_DepthFunc_MaterialScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_DepthFunc_MaterialScriptObject_2eproto}, {}};
 
 static void InitDefaultsscc_info_Float_MaterialScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -960,7 +960,7 @@ static void InitDefaultsscc_info_Pass_MaterialScriptObject_2eproto() {
       &scc_info_SceneBlendOperation_MaterialScriptObject_2eproto.base,
       &scc_info_SeparateSceneBlendOperation_MaterialScriptObject_2eproto.base,
       &scc_info_Bool_MaterialScriptObject_2eproto.base,
-      &scc_info_DepthFunc_MaterialScriptObject_2eproto.base,
+      &scc_info_CompareFunc_MaterialScriptObject_2eproto.base,
       &scc_info_DepthBias_MaterialScriptObject_2eproto.base,
       &scc_info_AlphaRejection_MaterialScriptObject_2eproto.base,
       &scc_info_Illumination_MaterialScriptObject_2eproto.base,
@@ -1015,13 +1015,14 @@ static void InitDefaultsscc_info_Sampler_MaterialScriptObject_2eproto() {
   ::Tiny3D::Script::MaterialSystem::Sampler::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<7> scc_info_Sampler_MaterialScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 7, 0, InitDefaultsscc_info_Sampler_MaterialScriptObject_2eproto}, {
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<8> scc_info_Sampler_MaterialScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 8, 0, InitDefaultsscc_info_Sampler_MaterialScriptObject_2eproto}, {
       &scc_info_Header_MaterialScriptObject_2eproto.base,
       &scc_info_TexAddressMode_MaterialScriptObject_2eproto.base,
       &scc_info_Color_MaterialScriptObject_2eproto.base,
       &scc_info_TexFilter_MaterialScriptObject_2eproto.base,
       &scc_info_Bool_MaterialScriptObject_2eproto.base,
+      &scc_info_CompareFunc_MaterialScriptObject_2eproto.base,
       &scc_info_UInt32_MaterialScriptObject_2eproto.base,
       &scc_info_Float_MaterialScriptObject_2eproto.base,}};
 
@@ -4072,6 +4073,176 @@ void String::InternalSwap(String* other) {
 
 std::string String::GetTypeName() const {
   return "Tiny3D.Script.MaterialSystem.String";
+}
+
+
+// ===================================================================
+
+void CompareFunc::InitAsDefaultInstance() {
+}
+class CompareFunc::_Internal {
+ public:
+};
+
+CompareFunc::CompareFunc()
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.MaterialSystem.CompareFunc)
+}
+CompareFunc::CompareFunc(const CompareFunc& from)
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+      _internal_metadata_(nullptr) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  value_ = from.value_;
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.MaterialSystem.CompareFunc)
+}
+
+void CompareFunc::SharedCtor() {
+  value_ = 0;
+}
+
+CompareFunc::~CompareFunc() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.MaterialSystem.CompareFunc)
+  SharedDtor();
+}
+
+void CompareFunc::SharedDtor() {
+}
+
+void CompareFunc::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const CompareFunc& CompareFunc::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_CompareFunc_MaterialScriptObject_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void CompareFunc::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.MaterialSystem.CompareFunc)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  value_ = 0;
+  _internal_metadata_.Clear();
+}
+
+const char* CompareFunc::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // .Tiny3D.Script.MaterialSystem.CompareFunction value = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+          _internal_set_value(static_cast<::Tiny3D::Script::MaterialSystem::CompareFunction>(val));
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* CompareFunc::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.MaterialSystem.CompareFunc)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // .Tiny3D.Script.MaterialSystem.CompareFunction value = 1;
+  if (this->value() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+      1, this->_internal_value(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
+        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.MaterialSystem.CompareFunc)
+  return target;
+}
+
+size_t CompareFunc::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.MaterialSystem.CompareFunc)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // .Tiny3D.Script.MaterialSystem.CompareFunction value = 1;
+  if (this->value() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_value());
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields().size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void CompareFunc::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const CompareFunc*>(
+      &from));
+}
+
+void CompareFunc::MergeFrom(const CompareFunc& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.MaterialSystem.CompareFunc)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.value() != 0) {
+    _internal_set_value(from._internal_value());
+  }
+}
+
+void CompareFunc::CopyFrom(const CompareFunc& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.MaterialSystem.CompareFunc)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool CompareFunc::IsInitialized() const {
+  return true;
+}
+
+void CompareFunc::InternalSwap(CompareFunc* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(value_, other->value_);
+}
+
+std::string CompareFunc::GetTypeName() const {
+  return "Tiny3D.Script.MaterialSystem.CompareFunc";
 }
 
 
@@ -7374,6 +7545,8 @@ void Sampler::InitAsDefaultInstance() {
       ::Tiny3D::Script::MaterialSystem::TexFilter::internal_default_instance());
   ::Tiny3D::Script::MaterialSystem::_Sampler_default_instance_._instance.get_mutable()->compare_test_ = const_cast< ::Tiny3D::Script::MaterialSystem::Bool*>(
       ::Tiny3D::Script::MaterialSystem::Bool::internal_default_instance());
+  ::Tiny3D::Script::MaterialSystem::_Sampler_default_instance_._instance.get_mutable()->compare_func_ = const_cast< ::Tiny3D::Script::MaterialSystem::CompareFunc*>(
+      ::Tiny3D::Script::MaterialSystem::CompareFunc::internal_default_instance());
   ::Tiny3D::Script::MaterialSystem::_Sampler_default_instance_._instance.get_mutable()->max_anisotropy_ = const_cast< ::Tiny3D::Script::MaterialSystem::UInt32*>(
       ::Tiny3D::Script::MaterialSystem::UInt32::internal_default_instance());
   ::Tiny3D::Script::MaterialSystem::_Sampler_default_instance_._instance.get_mutable()->mipmap_bias_ = const_cast< ::Tiny3D::Script::MaterialSystem::Float*>(
@@ -7386,6 +7559,7 @@ class Sampler::_Internal {
   static const ::Tiny3D::Script::MaterialSystem::Color& tex_border_color(const Sampler* msg);
   static const ::Tiny3D::Script::MaterialSystem::TexFilter& filtering(const Sampler* msg);
   static const ::Tiny3D::Script::MaterialSystem::Bool& compare_test(const Sampler* msg);
+  static const ::Tiny3D::Script::MaterialSystem::CompareFunc& compare_func(const Sampler* msg);
   static const ::Tiny3D::Script::MaterialSystem::UInt32& max_anisotropy(const Sampler* msg);
   static const ::Tiny3D::Script::MaterialSystem::Float& mipmap_bias(const Sampler* msg);
 };
@@ -7409,6 +7583,10 @@ Sampler::_Internal::filtering(const Sampler* msg) {
 const ::Tiny3D::Script::MaterialSystem::Bool&
 Sampler::_Internal::compare_test(const Sampler* msg) {
   return *msg->compare_test_;
+}
+const ::Tiny3D::Script::MaterialSystem::CompareFunc&
+Sampler::_Internal::compare_func(const Sampler* msg) {
+  return *msg->compare_func_;
 }
 const ::Tiny3D::Script::MaterialSystem::UInt32&
 Sampler::_Internal::max_anisotropy(const Sampler* msg) {
@@ -7452,6 +7630,11 @@ Sampler::Sampler(const Sampler& from)
   } else {
     compare_test_ = nullptr;
   }
+  if (from._internal_has_compare_func()) {
+    compare_func_ = new ::Tiny3D::Script::MaterialSystem::CompareFunc(*from.compare_func_);
+  } else {
+    compare_func_ = nullptr;
+  }
   if (from._internal_has_max_anisotropy()) {
     max_anisotropy_ = new ::Tiny3D::Script::MaterialSystem::UInt32(*from.max_anisotropy_);
   } else {
@@ -7462,15 +7645,14 @@ Sampler::Sampler(const Sampler& from)
   } else {
     mipmap_bias_ = nullptr;
   }
-  compare_func_ = from.compare_func_;
   // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.MaterialSystem.Sampler)
 }
 
 void Sampler::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Sampler_MaterialScriptObject_2eproto.base);
   ::memset(&header_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&compare_func_) -
-      reinterpret_cast<char*>(&header_)) + sizeof(compare_func_));
+      reinterpret_cast<char*>(&mipmap_bias_) -
+      reinterpret_cast<char*>(&header_)) + sizeof(mipmap_bias_));
 }
 
 Sampler::~Sampler() {
@@ -7484,6 +7666,7 @@ void Sampler::SharedDtor() {
   if (this != internal_default_instance()) delete tex_border_color_;
   if (this != internal_default_instance()) delete filtering_;
   if (this != internal_default_instance()) delete compare_test_;
+  if (this != internal_default_instance()) delete compare_func_;
   if (this != internal_default_instance()) delete max_anisotropy_;
   if (this != internal_default_instance()) delete mipmap_bias_;
 }
@@ -7523,6 +7706,10 @@ void Sampler::Clear() {
     delete compare_test_;
   }
   compare_test_ = nullptr;
+  if (GetArenaNoVirtual() == nullptr && compare_func_ != nullptr) {
+    delete compare_func_;
+  }
+  compare_func_ = nullptr;
   if (GetArenaNoVirtual() == nullptr && max_anisotropy_ != nullptr) {
     delete max_anisotropy_;
   }
@@ -7531,7 +7718,6 @@ void Sampler::Clear() {
     delete mipmap_bias_;
   }
   mipmap_bias_ = nullptr;
-  compare_func_ = 0;
   _internal_metadata_.Clear();
 }
 
@@ -7577,12 +7763,11 @@ const char* Sampler::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // .Tiny3D.Script.MaterialSystem.CompareFunction compare_func = 6;
+      // .Tiny3D.Script.MaterialSystem.CompareFunc compare_func = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
+          ptr = ctx->ParseMessage(_internal_mutable_compare_func(), ptr);
           CHK_(ptr);
-          _internal_set_compare_func(static_cast<::Tiny3D::Script::MaterialSystem::CompareFunction>(val));
         } else goto handle_unusual;
         continue;
       // .Tiny3D.Script.MaterialSystem.UInt32 max_anisotropy = 7;
@@ -7665,11 +7850,12 @@ failure:
         5, _Internal::compare_test(this), target, stream);
   }
 
-  // .Tiny3D.Script.MaterialSystem.CompareFunction compare_func = 6;
-  if (this->compare_func() != 0) {
+  // .Tiny3D.Script.MaterialSystem.CompareFunc compare_func = 6;
+  if (this->has_compare_func()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
-      6, this->_internal_compare_func(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(
+        6, _Internal::compare_func(this), target, stream);
   }
 
   // .Tiny3D.Script.MaterialSystem.UInt32 max_anisotropy = 7;
@@ -7739,6 +7925,13 @@ size_t Sampler::ByteSizeLong() const {
         *compare_test_);
   }
 
+  // .Tiny3D.Script.MaterialSystem.CompareFunc compare_func = 6;
+  if (this->has_compare_func()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *compare_func_);
+  }
+
   // .Tiny3D.Script.MaterialSystem.UInt32 max_anisotropy = 7;
   if (this->has_max_anisotropy()) {
     total_size += 1 +
@@ -7751,12 +7944,6 @@ size_t Sampler::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *mipmap_bias_);
-  }
-
-  // .Tiny3D.Script.MaterialSystem.CompareFunction compare_func = 6;
-  if (this->compare_func() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_compare_func());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -7795,14 +7982,14 @@ void Sampler::MergeFrom(const Sampler& from) {
   if (from.has_compare_test()) {
     _internal_mutable_compare_test()->::Tiny3D::Script::MaterialSystem::Bool::MergeFrom(from._internal_compare_test());
   }
+  if (from.has_compare_func()) {
+    _internal_mutable_compare_func()->::Tiny3D::Script::MaterialSystem::CompareFunc::MergeFrom(from._internal_compare_func());
+  }
   if (from.has_max_anisotropy()) {
     _internal_mutable_max_anisotropy()->::Tiny3D::Script::MaterialSystem::UInt32::MergeFrom(from._internal_max_anisotropy());
   }
   if (from.has_mipmap_bias()) {
     _internal_mutable_mipmap_bias()->::Tiny3D::Script::MaterialSystem::Float::MergeFrom(from._internal_mipmap_bias());
-  }
-  if (from.compare_func() != 0) {
-    _internal_set_compare_func(from._internal_compare_func());
   }
 }
 
@@ -7825,9 +8012,9 @@ void Sampler::InternalSwap(Sampler* other) {
   swap(tex_border_color_, other->tex_border_color_);
   swap(filtering_, other->filtering_);
   swap(compare_test_, other->compare_test_);
+  swap(compare_func_, other->compare_func_);
   swap(max_anisotropy_, other->max_anisotropy_);
   swap(mipmap_bias_, other->mipmap_bias_);
-  swap(compare_func_, other->compare_func_);
 }
 
 std::string Sampler::GetTypeName() const {
@@ -12566,176 +12753,6 @@ std::string DepthBias::GetTypeName() const {
 
 // ===================================================================
 
-void DepthFunc::InitAsDefaultInstance() {
-}
-class DepthFunc::_Internal {
- public:
-};
-
-DepthFunc::DepthFunc()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:Tiny3D.Script.MaterialSystem.DepthFunc)
-}
-DepthFunc::DepthFunc(const DepthFunc& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  value_ = from.value_;
-  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.MaterialSystem.DepthFunc)
-}
-
-void DepthFunc::SharedCtor() {
-  value_ = 0;
-}
-
-DepthFunc::~DepthFunc() {
-  // @@protoc_insertion_point(destructor:Tiny3D.Script.MaterialSystem.DepthFunc)
-  SharedDtor();
-}
-
-void DepthFunc::SharedDtor() {
-}
-
-void DepthFunc::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const DepthFunc& DepthFunc::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_DepthFunc_MaterialScriptObject_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void DepthFunc::Clear() {
-// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.MaterialSystem.DepthFunc)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  value_ = 0;
-  _internal_metadata_.Clear();
-}
-
-const char* DepthFunc::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // .Tiny3D.Script.MaterialSystem.CompareFunction value = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
-          CHK_(ptr);
-          _internal_set_value(static_cast<::Tiny3D::Script::MaterialSystem::CompareFunction>(val));
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* DepthFunc::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.MaterialSystem.DepthFunc)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // .Tiny3D.Script.MaterialSystem.CompareFunction value = 1;
-  if (this->value() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
-      1, this->_internal_value(), target);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.MaterialSystem.DepthFunc)
-  return target;
-}
-
-size_t DepthFunc::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.MaterialSystem.DepthFunc)
-  size_t total_size = 0;
-
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // .Tiny3D.Script.MaterialSystem.CompareFunction value = 1;
-  if (this->value() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_value());
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
-}
-
-void DepthFunc::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const DepthFunc*>(
-      &from));
-}
-
-void DepthFunc::MergeFrom(const DepthFunc& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.MaterialSystem.DepthFunc)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from.value() != 0) {
-    _internal_set_value(from._internal_value());
-  }
-}
-
-void DepthFunc::CopyFrom(const DepthFunc& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.MaterialSystem.DepthFunc)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool DepthFunc::IsInitialized() const {
-  return true;
-}
-
-void DepthFunc::InternalSwap(DepthFunc* other) {
-  using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(value_, other->value_);
-}
-
-std::string DepthFunc::GetTypeName() const {
-  return "Tiny3D.Script.MaterialSystem.DepthFunc";
-}
-
-
-// ===================================================================
-
 void AlphaRejection::InitAsDefaultInstance() {
 }
 class AlphaRejection::_Internal {
@@ -15984,8 +16001,8 @@ void Pass::InitAsDefaultInstance() {
       ::Tiny3D::Script::MaterialSystem::Bool::internal_default_instance());
   ::Tiny3D::Script::MaterialSystem::_Pass_default_instance_._instance.get_mutable()->depth_write_ = const_cast< ::Tiny3D::Script::MaterialSystem::Bool*>(
       ::Tiny3D::Script::MaterialSystem::Bool::internal_default_instance());
-  ::Tiny3D::Script::MaterialSystem::_Pass_default_instance_._instance.get_mutable()->depth_func_ = const_cast< ::Tiny3D::Script::MaterialSystem::DepthFunc*>(
-      ::Tiny3D::Script::MaterialSystem::DepthFunc::internal_default_instance());
+  ::Tiny3D::Script::MaterialSystem::_Pass_default_instance_._instance.get_mutable()->depth_func_ = const_cast< ::Tiny3D::Script::MaterialSystem::CompareFunc*>(
+      ::Tiny3D::Script::MaterialSystem::CompareFunc::internal_default_instance());
   ::Tiny3D::Script::MaterialSystem::_Pass_default_instance_._instance.get_mutable()->depth_bias_ = const_cast< ::Tiny3D::Script::MaterialSystem::DepthBias*>(
       ::Tiny3D::Script::MaterialSystem::DepthBias::internal_default_instance());
   ::Tiny3D::Script::MaterialSystem::_Pass_default_instance_._instance.get_mutable()->iteration_depth_bias_ = const_cast< ::Tiny3D::Script::MaterialSystem::Float*>(
@@ -16053,7 +16070,7 @@ class Pass::_Internal {
   static const ::Tiny3D::Script::MaterialSystem::SeparateSceneBlendOperation& separate_scene_blend_op(const Pass* msg);
   static const ::Tiny3D::Script::MaterialSystem::Bool& depth_check(const Pass* msg);
   static const ::Tiny3D::Script::MaterialSystem::Bool& depth_write(const Pass* msg);
-  static const ::Tiny3D::Script::MaterialSystem::DepthFunc& depth_func(const Pass* msg);
+  static const ::Tiny3D::Script::MaterialSystem::CompareFunc& depth_func(const Pass* msg);
   static const ::Tiny3D::Script::MaterialSystem::DepthBias& depth_bias(const Pass* msg);
   static const ::Tiny3D::Script::MaterialSystem::Float& iteration_depth_bias(const Pass* msg);
   static const ::Tiny3D::Script::MaterialSystem::AlphaRejection& alpha_rejection(const Pass* msg);
@@ -16130,7 +16147,7 @@ const ::Tiny3D::Script::MaterialSystem::Bool&
 Pass::_Internal::depth_write(const Pass* msg) {
   return *msg->depth_write_;
 }
-const ::Tiny3D::Script::MaterialSystem::DepthFunc&
+const ::Tiny3D::Script::MaterialSystem::CompareFunc&
 Pass::_Internal::depth_func(const Pass* msg) {
   return *msg->depth_func_;
 }
@@ -16309,7 +16326,7 @@ Pass::Pass(const Pass& from)
     depth_write_ = nullptr;
   }
   if (from._internal_has_depth_func()) {
-    depth_func_ = new ::Tiny3D::Script::MaterialSystem::DepthFunc(*from.depth_func_);
+    depth_func_ = new ::Tiny3D::Script::MaterialSystem::CompareFunc(*from.depth_func_);
   } else {
     depth_func_ = nullptr;
   }
@@ -16766,7 +16783,7 @@ const char* Pass::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // .Tiny3D.Script.MaterialSystem.DepthFunc depth_func = 13;
+      // .Tiny3D.Script.MaterialSystem.CompareFunc depth_func = 13;
       case 13:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 106)) {
           ptr = ctx->ParseMessage(_internal_mutable_depth_func(), ptr);
@@ -17089,7 +17106,7 @@ failure:
         12, _Internal::depth_write(this), target, stream);
   }
 
-  // .Tiny3D.Script.MaterialSystem.DepthFunc depth_func = 13;
+  // .Tiny3D.Script.MaterialSystem.CompareFunc depth_func = 13;
   if (this->has_depth_func()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
@@ -17420,7 +17437,7 @@ size_t Pass::ByteSizeLong() const {
         *depth_write_);
   }
 
-  // .Tiny3D.Script.MaterialSystem.DepthFunc depth_func = 13;
+  // .Tiny3D.Script.MaterialSystem.CompareFunc depth_func = 13;
   if (this->has_depth_func()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
@@ -17668,7 +17685,7 @@ void Pass::MergeFrom(const Pass& from) {
     _internal_mutable_depth_write()->::Tiny3D::Script::MaterialSystem::Bool::MergeFrom(from._internal_depth_write());
   }
   if (from.has_depth_func()) {
-    _internal_mutable_depth_func()->::Tiny3D::Script::MaterialSystem::DepthFunc::MergeFrom(from._internal_depth_func());
+    _internal_mutable_depth_func()->::Tiny3D::Script::MaterialSystem::CompareFunc::MergeFrom(from._internal_depth_func());
   }
   if (from.has_depth_bias()) {
     _internal_mutable_depth_bias()->::Tiny3D::Script::MaterialSystem::DepthBias::MergeFrom(from._internal_depth_bias());
@@ -19731,6 +19748,9 @@ template<> PROTOBUF_NOINLINE ::Tiny3D::Script::MaterialSystem::Int32* Arena::Cre
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::MaterialSystem::String* Arena::CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::String >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::MaterialSystem::String >(arena);
 }
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::MaterialSystem::CompareFunc* Arena::CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::CompareFunc >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::MaterialSystem::CompareFunc >(arena);
+}
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::MaterialSystem::Shader* Arena::CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::Shader >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::MaterialSystem::Shader >(arena);
 }
@@ -19829,9 +19849,6 @@ template<> PROTOBUF_NOINLINE ::Tiny3D::Script::MaterialSystem::SeparateSceneBlen
 }
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::MaterialSystem::DepthBias* Arena::CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::DepthBias >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::MaterialSystem::DepthBias >(arena);
-}
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::MaterialSystem::DepthFunc* Arena::CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::DepthFunc >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::MaterialSystem::DepthFunc >(arena);
 }
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::MaterialSystem::AlphaRejection* Arena::CreateMaybeMessage< ::Tiny3D::Script::MaterialSystem::AlphaRejection >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::MaterialSystem::AlphaRejection >(arena);

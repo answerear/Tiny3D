@@ -55,6 +55,11 @@ message String
     string  value = 1;
 }
 
+message CompareFunc
+{
+    CompareFunction value = 1;
+}
+
 //-------------------------------------------------------------------------------------------------
 //                                      GPU program & shader
 //-------------------------------------------------------------------------------------------------
@@ -200,7 +205,7 @@ message Sampler
     Color           tex_border_color = 3;   // Sets the border colour of border texture address mode.
     TexFilter       filtering = 4;          // Sets the type of texture filtering used when magnifying or minifying a texture.
     Bool            compare_test = 5;       // Sets the test for comparison on or not.
-    CompareFunction compare_func = 6;       // Sets the function for comparison.
+    CompareFunc     compare_func = 6;       // Sets the function for comparison.
     UInt32          max_anisotropy = 7;     // Sets the maximum degree of anisotropy that the renderer will try to compensate for when filtering textures.
     Float           mipmap_bias = 8;        // Sets the bias value applied to the mipmapping calculation.
 }
@@ -508,10 +513,6 @@ message DepthBias
     float   slopescale_bias = 2;        // 
 }
 
-message DepthFunc
-{
-    CompareFunction value = 1;
-}
 
 message AlphaRejection
 {
@@ -628,7 +629,7 @@ message Pass
     SeparateSceneBlendOperation separate_scene_blend_op = 10;   // This directive is as scene_blend_op, except that you can set the operation for colour and alpha separately.
     Bool                        depth_check = 11;               // This pass renders with depth-buffer checking on or not.
     Bool                        depth_write = 12;               // This pass renders with depth-buffer writing on or not.
-    DepthFunc                   depth_func = 13;                // The function used to compare depth values when depth checking is on.
+    CompareFunc                 depth_func = 13;                // The function used to compare depth values when depth checking is on.
     DepthBias                   depth_bias = 14;                // The bias applied to the depth value of this pass.
     Float                       iteration_depth_bias = 15;      // An additional bias derived from the number of times a given pass has been iterated.
     AlphaRejection              alpha_rejection = 16;           // The way the pass will have use alpha to totally reject pixels from the pipeline.

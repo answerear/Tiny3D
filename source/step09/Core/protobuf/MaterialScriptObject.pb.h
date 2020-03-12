@@ -85,6 +85,9 @@ extern ColorDefaultTypeInternal _Color_default_instance_;
 class ColorOp;
 class ColorOpDefaultTypeInternal;
 extern ColorOpDefaultTypeInternal _ColorOp_default_instance_;
+class CompareFunc;
+class CompareFuncDefaultTypeInternal;
+extern CompareFuncDefaultTypeInternal _CompareFunc_default_instance_;
 class CubicTexture;
 class CubicTextureDefaultTypeInternal;
 extern CubicTextureDefaultTypeInternal _CubicTexture_default_instance_;
@@ -103,9 +106,6 @@ extern CullingSoftwareDefaultTypeInternal _CullingSoftware_default_instance_;
 class DepthBias;
 class DepthBiasDefaultTypeInternal;
 extern DepthBiasDefaultTypeInternal _DepthBias_default_instance_;
-class DepthFunc;
-class DepthFuncDefaultTypeInternal;
-extern DepthFuncDefaultTypeInternal _DepthFunc_default_instance_;
 class Float;
 class FloatDefaultTypeInternal;
 extern FloatDefaultTypeInternal _Float_default_instance_;
@@ -261,13 +261,13 @@ template<> ::Tiny3D::Script::MaterialSystem::BlendSceneFactor* Arena::CreateMayb
 template<> ::Tiny3D::Script::MaterialSystem::Bool* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Bool>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::Color* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Color>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::ColorOp* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::ColorOp>(Arena*);
+template<> ::Tiny3D::Script::MaterialSystem::CompareFunc* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::CompareFunc>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::CubicTexture* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::CubicTexture>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::CubicTextureComplex* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::CubicTextureComplex>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::CubicTextureSimple* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::CubicTextureSimple>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::CullingHardware* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::CullingHardware>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::CullingSoftware* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::CullingSoftware>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::DepthBias* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::DepthBias>(Arena*);
-template<> ::Tiny3D::Script::MaterialSystem::DepthFunc* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::DepthFunc>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::Float* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Float>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::Fog* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Fog>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::GPUConstantBuffer>(Arena*);
@@ -1788,6 +1788,119 @@ class String :
 };
 // -------------------------------------------------------------------
 
+class CompareFunc :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CompareFunc) */ {
+ public:
+  CompareFunc();
+  virtual ~CompareFunc();
+
+  CompareFunc(const CompareFunc& from);
+  CompareFunc(CompareFunc&& from) noexcept
+    : CompareFunc() {
+    *this = ::std::move(from);
+  }
+
+  inline CompareFunc& operator=(const CompareFunc& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CompareFunc& operator=(CompareFunc&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const CompareFunc& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const CompareFunc* internal_default_instance() {
+    return reinterpret_cast<const CompareFunc*>(
+               &_CompareFunc_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    8;
+
+  friend void swap(CompareFunc& a, CompareFunc& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(CompareFunc* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline CompareFunc* New() const final {
+    return CreateMaybeMessage<CompareFunc>(nullptr);
+  }
+
+  CompareFunc* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<CompareFunc>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const CompareFunc& from);
+  void MergeFrom(const CompareFunc& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(CompareFunc* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.MaterialSystem.CompareFunc";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kValueFieldNumber = 1,
+  };
+  // .Tiny3D.Script.MaterialSystem.CompareFunction value = 1;
+  void clear_value();
+  ::Tiny3D::Script::MaterialSystem::CompareFunction value() const;
+  void set_value(::Tiny3D::Script::MaterialSystem::CompareFunction value);
+  private:
+  ::Tiny3D::Script::MaterialSystem::CompareFunction _internal_value() const;
+  void _internal_set_value(::Tiny3D::Script::MaterialSystem::CompareFunction value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.CompareFunc)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  int value_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_MaterialScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
 class Shader :
     public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Shader) */ {
  public:
@@ -1821,7 +1934,7 @@ class Shader :
                &_Shader_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    9;
 
   friend void swap(Shader& a, Shader& b) {
     a.Swap(&b);
@@ -2012,7 +2125,7 @@ class GPUProgram :
                &_GPUProgram_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    10;
 
   friend void swap(GPUProgram& a, GPUProgram& b) {
     a.Swap(&b);
@@ -2151,7 +2264,7 @@ class GPUConstantBufferRef :
                &_GPUConstantBufferRef_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    11;
 
   friend void swap(GPUConstantBufferRef& a, GPUConstantBufferRef& b) {
     a.Swap(&b);
@@ -2281,7 +2394,7 @@ class GPUProgramRef :
                &_GPUProgramRef_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    12;
 
   friend void swap(GPUProgramRef& a, GPUProgramRef& b) {
     a.Swap(&b);
@@ -2420,7 +2533,7 @@ class Param :
                &_Param_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    13;
 
   friend void swap(Param& a, Param& b) {
     a.Swap(&b);
@@ -2612,7 +2725,7 @@ class ParamAuto :
                &_ParamAuto_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    14;
 
   friend void swap(ParamAuto& a, ParamAuto& b) {
     a.Swap(&b);
@@ -2804,7 +2917,7 @@ class GPUConstantBuffer :
                &_GPUConstantBuffer_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    15;
 
   friend void swap(GPUConstantBuffer& a, GPUConstantBuffer& b) {
     a.Swap(&b);
@@ -3003,7 +3116,7 @@ class TexAddressModeSimple :
                &_TexAddressModeSimple_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    16;
 
   friend void swap(TexAddressModeSimple& a, TexAddressModeSimple& b) {
     a.Swap(&b);
@@ -3116,7 +3229,7 @@ class TexAddressModeComplex :
                &_TexAddressModeComplex_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    17;
 
   friend void swap(TexAddressModeComplex& a, TexAddressModeComplex& b) {
     a.Swap(&b);
@@ -3257,7 +3370,7 @@ class TexAddressMode :
                &_TexAddressMode_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    17;
+    18;
 
   friend void swap(TexAddressMode& a, TexAddressMode& b) {
     a.Swap(&b);
@@ -3405,7 +3518,7 @@ class TexFilterSimple :
                &_TexFilterSimple_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    18;
+    19;
 
   friend void swap(TexFilterSimple& a, TexFilterSimple& b) {
     a.Swap(&b);
@@ -3518,7 +3631,7 @@ class TexFilterComplex :
                &_TexFilterComplex_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    19;
+    20;
 
   friend void swap(TexFilterComplex& a, TexFilterComplex& b) {
     a.Swap(&b);
@@ -3659,7 +3772,7 @@ class TexFilter :
                &_TexFilter_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    20;
+    21;
 
   friend void swap(TexFilter& a, TexFilter& b) {
     a.Swap(&b);
@@ -3807,7 +3920,7 @@ class Sampler :
                &_Sampler_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    21;
+    22;
 
   friend void swap(Sampler& a, Sampler& b) {
     a.Swap(&b);
@@ -3870,9 +3983,9 @@ class Sampler :
     kTexBorderColorFieldNumber = 3,
     kFilteringFieldNumber = 4,
     kCompareTestFieldNumber = 5,
+    kCompareFuncFieldNumber = 6,
     kMaxAnisotropyFieldNumber = 7,
     kMipmapBiasFieldNumber = 8,
-    kCompareFuncFieldNumber = 6,
   };
   // .Tiny3D.Script.MaterialSystem.Header header = 1;
   bool has_header() const;
@@ -3949,6 +4062,21 @@ class Sampler :
   ::Tiny3D::Script::MaterialSystem::Bool* _internal_mutable_compare_test();
   public:
 
+  // .Tiny3D.Script.MaterialSystem.CompareFunc compare_func = 6;
+  bool has_compare_func() const;
+  private:
+  bool _internal_has_compare_func() const;
+  public:
+  void clear_compare_func();
+  const ::Tiny3D::Script::MaterialSystem::CompareFunc& compare_func() const;
+  ::Tiny3D::Script::MaterialSystem::CompareFunc* release_compare_func();
+  ::Tiny3D::Script::MaterialSystem::CompareFunc* mutable_compare_func();
+  void set_allocated_compare_func(::Tiny3D::Script::MaterialSystem::CompareFunc* compare_func);
+  private:
+  const ::Tiny3D::Script::MaterialSystem::CompareFunc& _internal_compare_func() const;
+  ::Tiny3D::Script::MaterialSystem::CompareFunc* _internal_mutable_compare_func();
+  public:
+
   // .Tiny3D.Script.MaterialSystem.UInt32 max_anisotropy = 7;
   bool has_max_anisotropy() const;
   private:
@@ -3979,15 +4107,6 @@ class Sampler :
   ::Tiny3D::Script::MaterialSystem::Float* _internal_mutable_mipmap_bias();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.CompareFunction compare_func = 6;
-  void clear_compare_func();
-  ::Tiny3D::Script::MaterialSystem::CompareFunction compare_func() const;
-  void set_compare_func(::Tiny3D::Script::MaterialSystem::CompareFunction value);
-  private:
-  ::Tiny3D::Script::MaterialSystem::CompareFunction _internal_compare_func() const;
-  void _internal_set_compare_func(::Tiny3D::Script::MaterialSystem::CompareFunction value);
-  public:
-
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.Sampler)
  private:
   class _Internal;
@@ -3998,9 +4117,9 @@ class Sampler :
   ::Tiny3D::Script::MaterialSystem::Color* tex_border_color_;
   ::Tiny3D::Script::MaterialSystem::TexFilter* filtering_;
   ::Tiny3D::Script::MaterialSystem::Bool* compare_test_;
+  ::Tiny3D::Script::MaterialSystem::CompareFunc* compare_func_;
   ::Tiny3D::Script::MaterialSystem::UInt32* max_anisotropy_;
   ::Tiny3D::Script::MaterialSystem::Float* mipmap_bias_;
-  int compare_func_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
 };
@@ -4039,7 +4158,7 @@ class Texture :
                &_Texture_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    22;
+    23;
 
   friend void swap(Texture& a, Texture& b) {
     a.Swap(&b);
@@ -4203,7 +4322,7 @@ class AnimTextureSimple :
                &_AnimTextureSimple_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    23;
+    24;
 
   friend void swap(AnimTextureSimple& a, AnimTextureSimple& b) {
     a.Swap(&b);
@@ -4345,7 +4464,7 @@ class AnimTextureComplex :
                &_AnimTextureComplex_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    24;
+    25;
 
   friend void swap(AnimTextureComplex& a, AnimTextureComplex& b) {
     a.Swap(&b);
@@ -4490,7 +4609,7 @@ class AnimTexture :
                &_AnimTexture_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    25;
+    26;
 
   friend void swap(AnimTexture& a, AnimTexture& b) {
     a.Swap(&b);
@@ -4638,7 +4757,7 @@ class CubicTextureSimple :
                &_CubicTextureSimple_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    26;
+    27;
 
   friend void swap(CubicTextureSimple& a, CubicTextureSimple& b) {
     a.Swap(&b);
@@ -4758,7 +4877,7 @@ class CubicTextureComplex :
                &_CubicTextureComplex_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    27;
+    28;
 
   friend void swap(CubicTextureComplex& a, CubicTextureComplex& b) {
     a.Swap(&b);
@@ -4974,7 +5093,7 @@ class CubicTexture :
                &_CubicTexture_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    28;
+    29;
 
   friend void swap(CubicTexture& a, CubicTexture& b) {
     a.Swap(&b);
@@ -5133,7 +5252,7 @@ class Binding :
                &_Binding_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    29;
+    30;
 
   friend void swap(Binding& a, Binding& b) {
     a.Swap(&b);
@@ -5246,7 +5365,7 @@ class ColorOp :
                &_ColorOp_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    30;
+    31;
 
   friend void swap(ColorOp& a, ColorOp& b) {
     a.Swap(&b);
@@ -5359,7 +5478,7 @@ class TextureUnit :
                &_TextureUnit_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    31;
+    32;
 
   friend void swap(TextureUnit& a, TextureUnit& b) {
     a.Swap(&b);
@@ -5614,7 +5733,7 @@ class LightColor :
                &_LightColor_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    32;
+    33;
 
   friend void swap(LightColor& a, LightColor& b) {
     a.Swap(&b);
@@ -5744,7 +5863,7 @@ class BlendSceneFactor :
                &_BlendSceneFactor_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    33;
+    34;
 
   friend void swap(BlendSceneFactor& a, BlendSceneFactor& b) {
     a.Swap(&b);
@@ -5874,7 +5993,7 @@ class BlendScene :
                &_BlendScene_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    34;
+    35;
 
   friend void swap(BlendScene& a, BlendScene& b) {
     a.Swap(&b);
@@ -6019,7 +6138,7 @@ class SimpleBlendType :
                &_SimpleBlendType_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    35;
+    36;
 
   friend void swap(SimpleBlendType& a, SimpleBlendType& b) {
     a.Swap(&b);
@@ -6143,7 +6262,7 @@ class SimpleBlendSceneFactor :
                &_SimpleBlendSceneFactor_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    36;
+    37;
 
   friend void swap(SimpleBlendSceneFactor& a, SimpleBlendSceneFactor& b) {
     a.Swap(&b);
@@ -6295,7 +6414,7 @@ class SeparateBlendScene :
                &_SeparateBlendScene_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    37;
+    38;
 
   friend void swap(SeparateBlendScene& a, SeparateBlendScene& b) {
     a.Swap(&b);
@@ -6443,7 +6562,7 @@ class SceneBlendOperation :
                &_SceneBlendOperation_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    38;
+    39;
 
   friend void swap(SceneBlendOperation& a, SceneBlendOperation& b) {
     a.Swap(&b);
@@ -6556,7 +6675,7 @@ class SeparateSceneBlendOperation :
                &_SeparateSceneBlendOperation_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    39;
+    40;
 
   friend void swap(SeparateSceneBlendOperation& a, SeparateSceneBlendOperation& b) {
     a.Swap(&b);
@@ -6680,7 +6799,7 @@ class DepthBias :
                &_DepthBias_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    40;
+    41;
 
   friend void swap(DepthBias& a, DepthBias& b) {
     a.Swap(&b);
@@ -6766,119 +6885,6 @@ class DepthBias :
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
   float constant_bias_;
   float slopescale_bias_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_MaterialScriptObject_2eproto;
-};
-// -------------------------------------------------------------------
-
-class DepthFunc :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.DepthFunc) */ {
- public:
-  DepthFunc();
-  virtual ~DepthFunc();
-
-  DepthFunc(const DepthFunc& from);
-  DepthFunc(DepthFunc&& from) noexcept
-    : DepthFunc() {
-    *this = ::std::move(from);
-  }
-
-  inline DepthFunc& operator=(const DepthFunc& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline DepthFunc& operator=(DepthFunc&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const DepthFunc& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const DepthFunc* internal_default_instance() {
-    return reinterpret_cast<const DepthFunc*>(
-               &_DepthFunc_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    41;
-
-  friend void swap(DepthFunc& a, DepthFunc& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(DepthFunc* other) {
-    if (other == this) return;
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline DepthFunc* New() const final {
-    return CreateMaybeMessage<DepthFunc>(nullptr);
-  }
-
-  DepthFunc* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<DepthFunc>(arena);
-  }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
-  void CopyFrom(const DepthFunc& from);
-  void MergeFrom(const DepthFunc& from);
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  inline void SharedCtor();
-  inline void SharedDtor();
-  void SetCachedSize(int size) const;
-  void InternalSwap(DepthFunc* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Tiny3D.Script.MaterialSystem.DepthFunc";
-  }
-  private:
-  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
-    return nullptr;
-  }
-  inline void* MaybeArenaPtr() const {
-    return nullptr;
-  }
-  public:
-
-  std::string GetTypeName() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kValueFieldNumber = 1,
-  };
-  // .Tiny3D.Script.MaterialSystem.CompareFunction value = 1;
-  void clear_value();
-  ::Tiny3D::Script::MaterialSystem::CompareFunction value() const;
-  void set_value(::Tiny3D::Script::MaterialSystem::CompareFunction value);
-  private:
-  ::Tiny3D::Script::MaterialSystem::CompareFunction _internal_value() const;
-  void _internal_set_value(::Tiny3D::Script::MaterialSystem::CompareFunction value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.DepthFunc)
- private:
-  class _Internal;
-
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
-  int value_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
 };
@@ -9178,19 +9184,19 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::Bool* _internal_mutable_depth_write();
   public:
 
-  // .Tiny3D.Script.MaterialSystem.DepthFunc depth_func = 13;
+  // .Tiny3D.Script.MaterialSystem.CompareFunc depth_func = 13;
   bool has_depth_func() const;
   private:
   bool _internal_has_depth_func() const;
   public:
   void clear_depth_func();
-  const ::Tiny3D::Script::MaterialSystem::DepthFunc& depth_func() const;
-  ::Tiny3D::Script::MaterialSystem::DepthFunc* release_depth_func();
-  ::Tiny3D::Script::MaterialSystem::DepthFunc* mutable_depth_func();
-  void set_allocated_depth_func(::Tiny3D::Script::MaterialSystem::DepthFunc* depth_func);
+  const ::Tiny3D::Script::MaterialSystem::CompareFunc& depth_func() const;
+  ::Tiny3D::Script::MaterialSystem::CompareFunc* release_depth_func();
+  ::Tiny3D::Script::MaterialSystem::CompareFunc* mutable_depth_func();
+  void set_allocated_depth_func(::Tiny3D::Script::MaterialSystem::CompareFunc* depth_func);
   private:
-  const ::Tiny3D::Script::MaterialSystem::DepthFunc& _internal_depth_func() const;
-  ::Tiny3D::Script::MaterialSystem::DepthFunc* _internal_mutable_depth_func();
+  const ::Tiny3D::Script::MaterialSystem::CompareFunc& _internal_depth_func() const;
+  ::Tiny3D::Script::MaterialSystem::CompareFunc* _internal_mutable_depth_func();
   public:
 
   // .Tiny3D.Script.MaterialSystem.DepthBias depth_bias = 14;
@@ -9601,7 +9607,7 @@ class Pass :
   ::Tiny3D::Script::MaterialSystem::SeparateSceneBlendOperation* separate_scene_blend_op_;
   ::Tiny3D::Script::MaterialSystem::Bool* depth_check_;
   ::Tiny3D::Script::MaterialSystem::Bool* depth_write_;
-  ::Tiny3D::Script::MaterialSystem::DepthFunc* depth_func_;
+  ::Tiny3D::Script::MaterialSystem::CompareFunc* depth_func_;
   ::Tiny3D::Script::MaterialSystem::DepthBias* depth_bias_;
   ::Tiny3D::Script::MaterialSystem::Float* iteration_depth_bias_;
   ::Tiny3D::Script::MaterialSystem::AlphaRejection* alpha_rejection_;
@@ -11096,6 +11102,30 @@ inline void String::set_allocated_value(std::string* value) {
   }
   value_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.String.value)
+}
+
+// -------------------------------------------------------------------
+
+// CompareFunc
+
+// .Tiny3D.Script.MaterialSystem.CompareFunction value = 1;
+inline void CompareFunc::clear_value() {
+  value_ = 0;
+}
+inline ::Tiny3D::Script::MaterialSystem::CompareFunction CompareFunc::_internal_value() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::CompareFunction >(value_);
+}
+inline ::Tiny3D::Script::MaterialSystem::CompareFunction CompareFunc::value() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.CompareFunc.value)
+  return _internal_value();
+}
+inline void CompareFunc::_internal_set_value(::Tiny3D::Script::MaterialSystem::CompareFunction value) {
+  
+  value_ = value;
+}
+inline void CompareFunc::set_value(::Tiny3D::Script::MaterialSystem::CompareFunction value) {
+  _internal_set_value(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.CompareFunc.value)
 }
 
 // -------------------------------------------------------------------
@@ -13014,24 +13044,64 @@ inline void Sampler::set_allocated_compare_test(::Tiny3D::Script::MaterialSystem
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Sampler.compare_test)
 }
 
-// .Tiny3D.Script.MaterialSystem.CompareFunction compare_func = 6;
+// .Tiny3D.Script.MaterialSystem.CompareFunc compare_func = 6;
+inline bool Sampler::_internal_has_compare_func() const {
+  return this != internal_default_instance() && compare_func_ != nullptr;
+}
+inline bool Sampler::has_compare_func() const {
+  return _internal_has_compare_func();
+}
 inline void Sampler::clear_compare_func() {
-  compare_func_ = 0;
+  if (GetArenaNoVirtual() == nullptr && compare_func_ != nullptr) {
+    delete compare_func_;
+  }
+  compare_func_ = nullptr;
 }
-inline ::Tiny3D::Script::MaterialSystem::CompareFunction Sampler::_internal_compare_func() const {
-  return static_cast< ::Tiny3D::Script::MaterialSystem::CompareFunction >(compare_func_);
+inline const ::Tiny3D::Script::MaterialSystem::CompareFunc& Sampler::_internal_compare_func() const {
+  const ::Tiny3D::Script::MaterialSystem::CompareFunc* p = compare_func_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::CompareFunc*>(
+      &::Tiny3D::Script::MaterialSystem::_CompareFunc_default_instance_);
 }
-inline ::Tiny3D::Script::MaterialSystem::CompareFunction Sampler::compare_func() const {
+inline const ::Tiny3D::Script::MaterialSystem::CompareFunc& Sampler::compare_func() const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Sampler.compare_func)
   return _internal_compare_func();
 }
-inline void Sampler::_internal_set_compare_func(::Tiny3D::Script::MaterialSystem::CompareFunction value) {
+inline ::Tiny3D::Script::MaterialSystem::CompareFunc* Sampler::release_compare_func() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.Sampler.compare_func)
   
-  compare_func_ = value;
+  ::Tiny3D::Script::MaterialSystem::CompareFunc* temp = compare_func_;
+  compare_func_ = nullptr;
+  return temp;
 }
-inline void Sampler::set_compare_func(::Tiny3D::Script::MaterialSystem::CompareFunction value) {
-  _internal_set_compare_func(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.Sampler.compare_func)
+inline ::Tiny3D::Script::MaterialSystem::CompareFunc* Sampler::_internal_mutable_compare_func() {
+  
+  if (compare_func_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::CompareFunc>(GetArenaNoVirtual());
+    compare_func_ = p;
+  }
+  return compare_func_;
+}
+inline ::Tiny3D::Script::MaterialSystem::CompareFunc* Sampler::mutable_compare_func() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Sampler.compare_func)
+  return _internal_mutable_compare_func();
+}
+inline void Sampler::set_allocated_compare_func(::Tiny3D::Script::MaterialSystem::CompareFunc* compare_func) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete compare_func_;
+  }
+  if (compare_func) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      compare_func = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, compare_func, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  compare_func_ = compare_func;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Sampler.compare_func)
 }
 
 // .Tiny3D.Script.MaterialSystem.UInt32 max_anisotropy = 7;
@@ -15347,30 +15417,6 @@ inline void DepthBias::set_slopescale_bias(float value) {
 
 // -------------------------------------------------------------------
 
-// DepthFunc
-
-// .Tiny3D.Script.MaterialSystem.CompareFunction value = 1;
-inline void DepthFunc::clear_value() {
-  value_ = 0;
-}
-inline ::Tiny3D::Script::MaterialSystem::CompareFunction DepthFunc::_internal_value() const {
-  return static_cast< ::Tiny3D::Script::MaterialSystem::CompareFunction >(value_);
-}
-inline ::Tiny3D::Script::MaterialSystem::CompareFunction DepthFunc::value() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.DepthFunc.value)
-  return _internal_value();
-}
-inline void DepthFunc::_internal_set_value(::Tiny3D::Script::MaterialSystem::CompareFunction value) {
-  
-  value_ = value;
-}
-inline void DepthFunc::set_value(::Tiny3D::Script::MaterialSystem::CompareFunction value) {
-  _internal_set_value(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.DepthFunc.value)
-}
-
-// -------------------------------------------------------------------
-
 // AlphaRejection
 
 // .Tiny3D.Script.MaterialSystem.CompareFunction function = 1;
@@ -17032,7 +17078,7 @@ inline void Pass::set_allocated_depth_write(::Tiny3D::Script::MaterialSystem::Bo
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.Pass.depth_write)
 }
 
-// .Tiny3D.Script.MaterialSystem.DepthFunc depth_func = 13;
+// .Tiny3D.Script.MaterialSystem.CompareFunc depth_func = 13;
 inline bool Pass::_internal_has_depth_func() const {
   return this != internal_default_instance() && depth_func_ != nullptr;
 }
@@ -17045,35 +17091,35 @@ inline void Pass::clear_depth_func() {
   }
   depth_func_ = nullptr;
 }
-inline const ::Tiny3D::Script::MaterialSystem::DepthFunc& Pass::_internal_depth_func() const {
-  const ::Tiny3D::Script::MaterialSystem::DepthFunc* p = depth_func_;
-  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::DepthFunc*>(
-      &::Tiny3D::Script::MaterialSystem::_DepthFunc_default_instance_);
+inline const ::Tiny3D::Script::MaterialSystem::CompareFunc& Pass::_internal_depth_func() const {
+  const ::Tiny3D::Script::MaterialSystem::CompareFunc* p = depth_func_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::CompareFunc*>(
+      &::Tiny3D::Script::MaterialSystem::_CompareFunc_default_instance_);
 }
-inline const ::Tiny3D::Script::MaterialSystem::DepthFunc& Pass::depth_func() const {
+inline const ::Tiny3D::Script::MaterialSystem::CompareFunc& Pass::depth_func() const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.Pass.depth_func)
   return _internal_depth_func();
 }
-inline ::Tiny3D::Script::MaterialSystem::DepthFunc* Pass::release_depth_func() {
+inline ::Tiny3D::Script::MaterialSystem::CompareFunc* Pass::release_depth_func() {
   // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.Pass.depth_func)
   
-  ::Tiny3D::Script::MaterialSystem::DepthFunc* temp = depth_func_;
+  ::Tiny3D::Script::MaterialSystem::CompareFunc* temp = depth_func_;
   depth_func_ = nullptr;
   return temp;
 }
-inline ::Tiny3D::Script::MaterialSystem::DepthFunc* Pass::_internal_mutable_depth_func() {
+inline ::Tiny3D::Script::MaterialSystem::CompareFunc* Pass::_internal_mutable_depth_func() {
   
   if (depth_func_ == nullptr) {
-    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::DepthFunc>(GetArenaNoVirtual());
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::CompareFunc>(GetArenaNoVirtual());
     depth_func_ = p;
   }
   return depth_func_;
 }
-inline ::Tiny3D::Script::MaterialSystem::DepthFunc* Pass::mutable_depth_func() {
+inline ::Tiny3D::Script::MaterialSystem::CompareFunc* Pass::mutable_depth_func() {
   // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.Pass.depth_func)
   return _internal_mutable_depth_func();
 }
-inline void Pass::set_allocated_depth_func(::Tiny3D::Script::MaterialSystem::DepthFunc* depth_func) {
+inline void Pass::set_allocated_depth_func(::Tiny3D::Script::MaterialSystem::CompareFunc* depth_func) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   if (message_arena == nullptr) {
     delete depth_func_;

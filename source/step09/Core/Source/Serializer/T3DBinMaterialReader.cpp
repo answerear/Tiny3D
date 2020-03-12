@@ -24,6 +24,8 @@
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUConstBuffer.h"
+#include "Resource/T3DSampler.h"
+#include "Resource/T3DSamplerManager.h"
 #include "Kernel/T3DTechnique.h"
 #include "Kernel/T3DPass.h"
 #include "Kernel/T3DTextureUnit.h"
@@ -169,14 +171,22 @@ namespace Tiny3D
 
             // Techniques
             auto techniques = src->techniques();
-
             for (const MaterialSystem::Technique &tech : techniques)
             {
                 ret = parseTechnique(&tech, dst);
-                if (T3D_FAILED(ret))
-                {
-                    break;
-                }
+                T3D_CHECK_PARSING_RET(ret);
+            }
+
+            // constant buffers
+
+            // GPU programs
+
+            // Samplers
+            auto samplers = src->samplers();
+            for (const MaterialSystem::Sampler &sampler : samplers)
+            {
+                ret = parseSampler(&sampler, dst);
+                T3D_CHECK_PARSING_RET(ret);
             }
         } while (0);
 
@@ -1423,6 +1433,163 @@ namespace Tiny3D
             dst->setSampler(src->sampler_ref().value());
         }
 
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseSampler(
+        const MaterialSystem::Sampler *src, Material *dst)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            // name
+            auto header = src->header();
+            SamplerPtr sampler = T3D_SAMPLER_MGR.loadSampler(header.name());
+            if (sampler == nullptr)
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load sampler [%s] failed !",
+                    header.name().c_str());
+                break;
+            }
+
+            // tex_address_mode
+            ret = parseTexAddressMode(src, sampler);
+            T3D_CHECK_PARSING_RET(ret);
+
+            // tex_border_color
+            ret = parseTexBorderColor(src, sampler);
+            T3D_CHECK_PARSING_RET(ret);
+
+            // filtering
+            ret = parseFiltering(src, sampler);
+            T3D_CHECK_PARSING_RET(ret);
+
+            // compare_test
+            ret = parseCompareTest(src, sampler);
+            T3D_CHECK_PARSING_RET(ret);
+
+            // compare_func
+            ret = parseCompareFunc(src, sampler);
+            T3D_CHECK_PARSING_RET(ret);
+
+            // max_anisotropy
+            ret = parseMaxAnisotropy(src, sampler);
+            T3D_CHECK_PARSING_RET(ret);
+
+            // mipmap_bias
+            ret = parseMipmapBias(src, sampler);
+            T3D_CHECK_PARSING_RET(ret);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseTexAddressMode(
+        const MaterialSystem::Sampler *src, Sampler *dst)
+    {
+        if (src->has_tex_address_mode())
+        {
+            auto mode = src->tex_address_mode();
+
+            if (mode.has_simple())
+            {
+                // simple format
+                auto simple = mode.simple();
+
+                TextureAddressMode uvw = (TextureAddressMode)simple.uvw_mode();
+                dst->setAddressMode(uvw);
+            }
+            else if (mode.has_complex())
+            {
+                // complex format
+                auto complex = mode.complex();
+
+                TextureAddressMode u = (TextureAddressMode)complex.u_mode();
+                TextureAddressMode v = (TextureAddressMode)complex.v_mode();
+                TextureAddressMode w = (TextureAddressMode)complex.w_mode();
+                dst->setAddressMode(u, v, w);
+            }
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseTexBorderColor(
+        const MaterialSystem::Sampler *src, Sampler *dst)
+    {
+        if (src->has_tex_border_color())
+        {
+            auto clr = src->tex_border_color();
+            ColorRGBA color(clr.r(), clr.g(), clr.b(), clr.a());
+            dst->setBorderColor(color);
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseFiltering(
+        const MaterialSystem::Sampler *src, Sampler *dst)
+    {
+        if (src->has_filtering())
+        {
+            auto filter = src->filtering();
+
+            if (filter.has_simple())
+            {
+                // simple format
+                auto simple = filter.simple();
+                FilterType type = (FilterType)simple.filter();
+                dst->setFilter(type);
+            }
+            else if (filter.has_complex())
+            {
+                // complex format
+                auto complex = filter.complex();
+            }
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseCompareTest(
+        const MaterialSystem::Sampler *src, Sampler *dst)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseCompareFunc(
+        const MaterialSystem::Sampler *src, Sampler *dst)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseMaxAnisotropy(
+        const MaterialSystem::Sampler *src, Sampler *dst)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseMipmapBias(
+        const MaterialSystem::Sampler *src, Sampler *dst)
+    {
         return T3D_OK;
     }
 }

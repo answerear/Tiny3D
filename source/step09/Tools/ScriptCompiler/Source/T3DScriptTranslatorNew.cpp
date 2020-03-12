@@ -6521,49 +6521,49 @@ namespace Tiny3D
             {
             case ID_ALWAYS_FAIL:
                 {
-                    sampler->set_compare_func(Script::MaterialSystem::CF_ALWAYS_FAIL);
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_ALWAYS_FAIL);
                     ret = true;
                 }
                 break;
             case ID_ALWAYS_PASS:
                 {
-                    sampler->set_compare_func(Script::MaterialSystem::CF_ALWAYS_PASS);
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_ALWAYS_PASS);
                     ret = true;
                 }
                 break;
             case ID_LESS_EQUAL:
                 {
-                    sampler->set_compare_func(Script::MaterialSystem::CF_LESS_EQUAL);
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_LESS_EQUAL);
                     ret = true;
                 }
                 break;
             case ID_LESS:
                 {
-                    sampler->set_compare_func(Script::MaterialSystem::CF_LESS);
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_LESS);
                     ret = true;
                 }
                 break;
             case ID_EQUAL:
                 {
-                    sampler->set_compare_func(Script::MaterialSystem::CF_EQUAL);
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_EQUAL);
                     ret = true;
                 }
                 break;
             case ID_NOT_EQUAL:
                 {
-                    sampler->set_compare_func(Script::MaterialSystem::CF_NOT_EQUAL);
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_NOT_EQUAL);
                     ret = true;
                 }
                 break;
             case ID_GREATER_EQUAL:
                 {
-                    sampler->set_compare_func(Script::MaterialSystem::CF_GREATER_EQUAL);
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_GREATER_EQUAL);
                     ret = true;
                 }
                 break;
             case ID_GREATER:
                 {
-                    sampler->set_compare_func(Script::MaterialSystem::CF_GREATER);
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_GREATER);
                     ret = true;
                 }
                 break;
