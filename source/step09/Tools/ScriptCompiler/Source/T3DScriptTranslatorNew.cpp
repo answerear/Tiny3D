@@ -6288,25 +6288,25 @@ namespace Tiny3D
                 {
                 case ID_NONE:
                     {
-                        simpler->set_filter(Script::MaterialSystem::FO_NONE);
+                        simpler->set_filter(Script::MaterialSystem::TFO_NONE);
                         ret = true;
                     }
                     break;
                 case ID_BILINEAR:
                     {
-                        simpler->set_filter(Script::MaterialSystem::FO_BILINEAR);
+                        simpler->set_filter(Script::MaterialSystem::TFO_BILINEAR);
                         ret = true;
                     }
                     break;
                 case ID_TRILINEAR:
                     {
-                        simpler->set_filter(Script::MaterialSystem::FO_TRILINEAR);
+                        simpler->set_filter(Script::MaterialSystem::TFO_TRILINEAR);
                         ret = true;
                     }
                     break;
                 case ID_ANISOTROPIC:
                     {
-                        simpler->set_filter(Script::MaterialSystem::FO_ANISOTROPIC);
+                        simpler->set_filter(Script::MaterialSystem::TFO_ANISOTROPIC);
                         ret = true;
                     }
                     break;

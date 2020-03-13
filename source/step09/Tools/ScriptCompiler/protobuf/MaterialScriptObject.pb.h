@@ -366,19 +366,39 @@ inline const std::string& TextureAddressMode_Name(T enum_t_value) {
 }
 bool TextureAddressMode_Parse(
     const std::string& name, TextureAddressMode* value);
+enum FilterType : int {
+  FT_MIN = 0,
+  FT_MAG = 1,
+  FT_MIP = 2,
+  FilterType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  FilterType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool FilterType_IsValid(int value);
+constexpr FilterType FilterType_MIN = FT_MIN;
+constexpr FilterType FilterType_MAX = FT_MIP;
+constexpr int FilterType_ARRAYSIZE = FilterType_MAX + 1;
+
+const std::string& FilterType_Name(FilterType value);
+template<typename T>
+inline const std::string& FilterType_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, FilterType>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function FilterType_Name.");
+  return FilterType_Name(static_cast<FilterType>(enum_t_value));
+}
+bool FilterType_Parse(
+    const std::string& name, FilterType* value);
 enum FilterOption : int {
   FO_NONE = 0,
   FO_POINT = 1,
   FO_LINEAR = 2,
   FO_ANISOTROPIC = 3,
-  FO_BILINEAR = 4,
-  FO_TRILINEAR = 5,
   FilterOption_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   FilterOption_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool FilterOption_IsValid(int value);
 constexpr FilterOption FilterOption_MIN = FO_NONE;
-constexpr FilterOption FilterOption_MAX = FO_TRILINEAR;
+constexpr FilterOption FilterOption_MAX = FO_ANISOTROPIC;
 constexpr int FilterOption_ARRAYSIZE = FilterOption_MAX + 1;
 
 const std::string& FilterOption_Name(FilterOption value);
@@ -391,6 +411,29 @@ inline const std::string& FilterOption_Name(T enum_t_value) {
 }
 bool FilterOption_Parse(
     const std::string& name, FilterOption* value);
+enum TexFilterOptions : int {
+  TFO_NONE = 0,
+  TFO_BILINEAR = 1,
+  TFO_TRILINEAR = 2,
+  TFO_ANISOTROPIC = 3,
+  TexFilterOptions_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  TexFilterOptions_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool TexFilterOptions_IsValid(int value);
+constexpr TexFilterOptions TexFilterOptions_MIN = TFO_NONE;
+constexpr TexFilterOptions TexFilterOptions_MAX = TFO_ANISOTROPIC;
+constexpr int TexFilterOptions_ARRAYSIZE = TexFilterOptions_MAX + 1;
+
+const std::string& TexFilterOptions_Name(TexFilterOptions value);
+template<typename T>
+inline const std::string& TexFilterOptions_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, TexFilterOptions>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function TexFilterOptions_Name.");
+  return TexFilterOptions_Name(static_cast<TexFilterOptions>(enum_t_value));
+}
+bool TexFilterOptions_Parse(
+    const std::string& name, TexFilterOptions* value);
 enum TextureType : int {
   TEX_NONE = 0,
   TEX_1D = 1,
@@ -3578,13 +3621,13 @@ class TexFilterSimple :
   enum : int {
     kFilterFieldNumber = 1,
   };
-  // .Tiny3D.Script.MaterialSystem.FilterOption filter = 1;
+  // .Tiny3D.Script.MaterialSystem.TexFilterOptions filter = 1;
   void clear_filter();
-  ::Tiny3D::Script::MaterialSystem::FilterOption filter() const;
-  void set_filter(::Tiny3D::Script::MaterialSystem::FilterOption value);
+  ::Tiny3D::Script::MaterialSystem::TexFilterOptions filter() const;
+  void set_filter(::Tiny3D::Script::MaterialSystem::TexFilterOptions value);
   private:
-  ::Tiny3D::Script::MaterialSystem::FilterOption _internal_filter() const;
-  void _internal_set_filter(::Tiny3D::Script::MaterialSystem::FilterOption value);
+  ::Tiny3D::Script::MaterialSystem::TexFilterOptions _internal_filter() const;
+  void _internal_set_filter(::Tiny3D::Script::MaterialSystem::TexFilterOptions value);
   public:
 
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.TexFilterSimple)
@@ -12543,22 +12586,22 @@ inline TexAddressMode::TexAddresModeOneOfCase TexAddressMode::TexAddresModeOneOf
 
 // TexFilterSimple
 
-// .Tiny3D.Script.MaterialSystem.FilterOption filter = 1;
+// .Tiny3D.Script.MaterialSystem.TexFilterOptions filter = 1;
 inline void TexFilterSimple::clear_filter() {
   filter_ = 0;
 }
-inline ::Tiny3D::Script::MaterialSystem::FilterOption TexFilterSimple::_internal_filter() const {
-  return static_cast< ::Tiny3D::Script::MaterialSystem::FilterOption >(filter_);
+inline ::Tiny3D::Script::MaterialSystem::TexFilterOptions TexFilterSimple::_internal_filter() const {
+  return static_cast< ::Tiny3D::Script::MaterialSystem::TexFilterOptions >(filter_);
 }
-inline ::Tiny3D::Script::MaterialSystem::FilterOption TexFilterSimple::filter() const {
+inline ::Tiny3D::Script::MaterialSystem::TexFilterOptions TexFilterSimple::filter() const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.TexFilterSimple.filter)
   return _internal_filter();
 }
-inline void TexFilterSimple::_internal_set_filter(::Tiny3D::Script::MaterialSystem::FilterOption value) {
+inline void TexFilterSimple::_internal_set_filter(::Tiny3D::Script::MaterialSystem::TexFilterOptions value) {
   
   filter_ = value;
 }
-inline void TexFilterSimple::set_filter(::Tiny3D::Script::MaterialSystem::FilterOption value) {
+inline void TexFilterSimple::set_filter(::Tiny3D::Script::MaterialSystem::TexFilterOptions value) {
   _internal_set_filter(value);
   // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.TexFilterSimple.filter)
 }
@@ -20283,7 +20326,9 @@ PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::BuiltInType> : ::std::true_type {};
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::TextureAddressMode> : ::std::true_type {};
+template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::FilterType> : ::std::true_type {};
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::FilterOption> : ::std::true_type {};
+template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::TexFilterOptions> : ::std::true_type {};
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::TextureType> : ::std::true_type {};
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::CubicTextureMode> : ::std::true_type {};
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::BindingType> : ::std::true_type {};

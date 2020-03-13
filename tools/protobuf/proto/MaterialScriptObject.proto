@@ -146,14 +146,27 @@ enum TextureAddressMode
     TAM_CLAMP = 4;
 }
 
+enum FilterType
+{
+    FT_MIN = 0;
+    FT_MAG = 1;
+    FT_MIP = 2;
+}
+
 enum FilterOption
 {
     FO_NONE = 0;
     FO_POINT = 1;
     FO_LINEAR = 2;
     FO_ANISOTROPIC = 3;
-    FO_BILINEAR = 4;
-    FO_TRILINEAR = 5;
+}
+
+enum TexFilterOptions
+{
+    TFO_NONE = 0;
+    TFO_BILINEAR = 1;
+    TFO_TRILINEAR = 2;
+    TFO_ANISOTROPIC = 3;
 }
 
 message TexAddressModeSimple
@@ -179,7 +192,7 @@ message TexAddressMode
 
 message TexFilterSimple
 {
-    FilterOption    filter = 1;
+    TexFilterOptions    filter = 1;
 }
 
 message TexFilterComplex

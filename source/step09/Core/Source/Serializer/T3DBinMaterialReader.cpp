@@ -26,6 +26,8 @@
 #include "Resource/T3DGPUConstBuffer.h"
 #include "Resource/T3DSampler.h"
 #include "Resource/T3DSamplerManager.h"
+#include "Resource/T3DGPUConstBuffer.h"
+#include "Resource/T3DGPUConstBufferManager.h"
 #include "Kernel/T3DTechnique.h"
 #include "Kernel/T3DPass.h"
 #include "Kernel/T3DTextureUnit.h"
@@ -178,8 +180,20 @@ namespace Tiny3D
             }
 
             // constant buffers
+            auto cbuffers = src->cbuffers();
+            for (const MaterialSystem::GPUConstantBuffer &cbuf : cbuffers)
+            {
+                ret = parseGPUConstantBuffer(&cbuf, dst);
+                T3D_CHECK_PARSING_RET(ret);
+            }
 
             // GPU programs
+            auto programs = src->programs();
+            for (const MaterialSystem::GPUProgram &program : programs)
+            {
+                ret = parseGPUProgram(&program, dst);
+                T3D_CHECK_PARSING_RET(ret);
+            }
 
             // Samplers
             auto samplers = src->samplers();
@@ -1548,13 +1562,17 @@ namespace Tiny3D
             {
                 // simple format
                 auto simple = filter.simple();
-                FilterType type = (FilterType)simple.filter();
+                TexFilterOptions type = (TexFilterOptions)simple.filter();
                 dst->setFilter(type);
             }
             else if (filter.has_complex())
             {
                 // complex format
                 auto complex = filter.complex();
+                FilterOptions minFilter = (FilterOptions)complex.minification();
+                FilterOptions magFilter = (FilterOptions)complex.magnification();
+                FilterOptions mipFilter = (FilterOptions)complex.mip();
+                dst->setFilter(minFilter, magFilter, mipFilter);
             }
         }
 
@@ -1566,6 +1584,11 @@ namespace Tiny3D
     TResult BinMaterialReader::parseCompareTest(
         const MaterialSystem::Sampler *src, Sampler *dst)
     {
+        if (src->has_compare_test())
+        {
+            dst->setCompareEnabled(src->compare_test().value());
+        }
+
         return T3D_OK;
     }
 
@@ -1574,6 +1597,11 @@ namespace Tiny3D
     TResult BinMaterialReader::parseCompareFunc(
         const MaterialSystem::Sampler *src, Sampler *dst)
     {
+        if (src->has_compare_func())
+        {
+            CompareFunction func = (CompareFunction)src->compare_func().value();
+            dst->setCompareFunction(func);
+        }
         return T3D_OK;
     }
 
@@ -1582,6 +1610,11 @@ namespace Tiny3D
     TResult BinMaterialReader::parseMaxAnisotropy(
         const MaterialSystem::Sampler *src, Sampler *dst)
     {
+        if (src->has_max_anisotropy())
+        {
+            dst->setAnisotropy(src->max_anisotropy().value());
+        }
+
         return T3D_OK;
     }
 
@@ -1590,7 +1623,173 @@ namespace Tiny3D
     TResult BinMaterialReader::parseMipmapBias(
         const MaterialSystem::Sampler *src, Sampler *dst)
     {
+        if (src->has_mipmap_bias())
+        {
+            dst->setMipmapBias(src->mipmap_bias().value());
+        }
+
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseGPUConstantBuffer(
+        const MaterialSystem::GPUConstantBuffer *src, Material *dst)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            // header & name
+            auto header = src->header();
+            GPUConstBufferPtr cbuffer;
+
+            if (dst != nullptr)
+            {
+                // belongs to material
+                ret = dst->addGPUConstBuffer(header.name(), cbuffer);
+                T3D_CHECK_PARSING_RET(ret);
+            }
+            else
+            {
+                // global
+                cbuffer = T3D_GPU_CONST_BUFFER_MGR.loadBuffer(header.name());
+                if (cbuffer == nullptr)
+                {
+                    ret = T3D_ERR_RES_CREATE_GPUCBUFFER;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Create GPU constant buffer [%s] failed !",
+                        header.name().c_str());
+                    break;
+                }
+            }
+
+            // param_indexed
+            auto param_indexed = src->param_indexed();
+            for (const MaterialSystem::Param &param : param_indexed)
+            {
+                ret = parseParam(&param, cbuffer, false);
+                T3D_CHECK_PARSING_RET(ret);
+            }
+
+            T3D_CHECK_PARSING_RET(ret);
+
+            // param_indexed_auto
+            auto param_indexed_auto = src->param_indexed_auto();
+            for (const MaterialSystem::ParamAuto &param : param_indexed_auto)
+            {
+                ret = parseParamAuto(&param, cbuffer, false);
+                T3D_CHECK_PARSING_RET(ret);
+            }
+
+            T3D_CHECK_PARSING_RET(ret);
+
+            // param_named
+            auto param_named = src->param_named();
+            for (const MaterialSystem::Param &param : param_named)
+            {
+                ret = parseParam(&param, cbuffer, true);
+                T3D_CHECK_PARSING_RET(ret);
+            }
+
+            T3D_CHECK_PARSING_RET(ret);
+
+            // param_named_auto
+            auto param_named_auto = src->param_named_auto();
+            for (const MaterialSystem::ParamAuto &param : param_named_auto)
+            {
+                ret = parseParamAuto(&param, cbuffer, true);
+                T3D_CHECK_PARSING_RET(ret);
+            }
+
+            T3D_CHECK_PARSING_RET(ret);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseParam(
+        const MaterialSystem::Param *src, GPUConstBuffer *dst, bool named)
+    {
+        String name;
+        uint32_t index = 0;
+
+        if (named)
+        {
+            // name
+            name = src->name();
+        }
+        else
+        {
+            // index
+            index = src->index();
+        }
+
+        // type
+        auto type = src->type();
+
+        // values
+        if (MaterialSystem::BuiltInType::BT_INT == type)
+        {
+            auto values = src->ivalues();
+            for (uint32_t value : values)
+            {
+
+            }
+        }
+        else if (MaterialSystem::BuiltInType::BT_REAL == type)
+        {
+            auto values = src->fvalues();
+            for (float32_t value : values)
+            {
+
+            }
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseParamAuto(
+        const MaterialSystem::ParamAuto *src, GPUConstBuffer *dst, bool named)
+    {
+        String name;
+        uint32_t index = 0;
+
+        if (named)
+        {
+            // name
+            name = src->name();
+        }
+        else
+        {
+            // index
+            index = src->index();
+        }
+
+        // value_code
+        uint32_t code = src->value_code();
+
+        // extra_params
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseGPUProgram(
+        const MaterialSystem::GPUProgram *src, Material *dst)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+        } while (0);
+
+        return ret;
     }
 }
 

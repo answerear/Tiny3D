@@ -125,7 +125,7 @@ namespace Tiny3D
          * @brief   Sets a filter
          * @param   type    The type.
          */
-        void setFilter(FilterType type);
+        void setFilter(TexFilterOptions type);
 
         /**
          * @fn  CompareFunction Sampler::getCompareFunction() const;

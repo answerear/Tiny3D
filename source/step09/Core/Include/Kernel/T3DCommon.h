@@ -197,6 +197,14 @@ namespace Tiny3D
         ANISOTROPIC
     };
 
+    enum class TexFilterOptions : uint32_t
+    {
+        NONE,
+        BILINEAR,
+        TRILINEAR,
+        ANISOTROPIC
+    };
+
     /**
      * @enum    TextureAddressMode
      * @brief   Values that represent texture address modes

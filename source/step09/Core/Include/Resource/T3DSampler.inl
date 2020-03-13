@@ -154,25 +154,23 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void Sampler::setFilter(FilterType type)
+    inline void Sampler::setFilter(TexFilterOptions type)
     {
-        if (type == FilterType::MIN 
-            && mMinFilter != FilterOptions::ANISOTROPIC)
+        if (type == TexFilterOptions::NONE)
         {
-            mMinFilter = FilterOptions::ANISOTROPIC;
-            mIsDirty = true;
+            setFilter(FilterOptions::POINT, FilterOptions::POINT, FilterOptions::NONE);
         }
-        else if (type == FilterType::MAG 
-            && mMagFilter != FilterOptions::ANISOTROPIC)
+        else if (type == TexFilterOptions::BILINEAR)
         {
-            mMagFilter = FilterOptions::ANISOTROPIC;
-            mIsDirty = true;
-        }
-        else if (type == FilterType::MIP
-            && mMipFilter != FilterOptions::ANISOTROPIC)
+            setFilter(FilterOptions::LINEAR, FilterOptions::LINEAR, FilterOptions::POINT);
+        }   
+        else if (type == TexFilterOptions::TRILINEAR)
         {
-            mMipFilter = FilterOptions::ANISOTROPIC;
-            mIsDirty = true;
+            setFilter(FilterOptions::LINEAR, FilterOptions::LINEAR, FilterOptions::LINEAR);
+        }   
+        else if (type == TexFilterOptions::ANISOTROPIC)
+        {
+            setFilter(FilterOptions::ANISOTROPIC, FilterOptions::ANISOTROPIC, FilterOptions::ANISOTROPIC);
         }
     }
 

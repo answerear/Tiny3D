@@ -38,6 +38,8 @@ namespace Tiny3D
             class Sampler;
             class GPUConstantBuffer;
             class GPUProgram;
+            class Param;
+            class ParamAuto;
         }
     }
 
@@ -237,6 +239,18 @@ namespace Tiny3D
 
         TResult parseMipmapBias(
             const MaterialSystem::Sampler *src, Sampler *dst);
+
+        TResult parseGPUConstantBuffer(
+            const MaterialSystem::GPUConstantBuffer *src, Material *dst);
+
+        TResult parseParam(
+            const MaterialSystem::Param *src, GPUConstBuffer *dst, bool named);
+
+        TResult parseParamAuto(
+            const MaterialSystem::ParamAuto *src, GPUConstBuffer *dst, bool named);
+
+        TResult parseGPUProgram(
+            const MaterialSystem::GPUProgram *src, Material *dst);
     };
 }
 

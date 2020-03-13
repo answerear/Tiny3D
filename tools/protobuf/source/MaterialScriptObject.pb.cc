@@ -1448,46 +1448,93 @@ bool TextureAddressMode_Parse(
   }
   return success;
 }
-bool FilterOption_IsValid(int value) {
+bool FilterType_IsValid(int value) {
   switch (value) {
     case 0:
     case 1:
     case 2:
-    case 3:
-    case 4:
-    case 5:
       return true;
     default:
       return false;
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> FilterOption_strings[6] = {};
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> FilterType_strings[3] = {};
+
+static const char FilterType_names[] =
+  "FT_MAG"
+  "FT_MIN"
+  "FT_MIP";
+
+static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry FilterType_entries[] = {
+  { {FilterType_names + 0, 6}, 1 },
+  { {FilterType_names + 6, 6}, 0 },
+  { {FilterType_names + 12, 6}, 2 },
+};
+
+static const int FilterType_entries_by_number[] = {
+  1, // 0 -> FT_MIN
+  0, // 1 -> FT_MAG
+  2, // 2 -> FT_MIP
+};
+
+const std::string& FilterType_Name(
+    FilterType value) {
+  static const bool dummy =
+      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+          FilterType_entries,
+          FilterType_entries_by_number,
+          3, FilterType_strings);
+  (void) dummy;
+  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
+      FilterType_entries,
+      FilterType_entries_by_number,
+      3, value);
+  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
+                     FilterType_strings[idx].get();
+}
+bool FilterType_Parse(
+    const std::string& name, FilterType* value) {
+  int int_value;
+  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
+      FilterType_entries, 3, name, &int_value);
+  if (success) {
+    *value = static_cast<FilterType>(int_value);
+  }
+  return success;
+}
+bool FilterOption_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return true;
+    default:
+      return false;
+  }
+}
+
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> FilterOption_strings[4] = {};
 
 static const char FilterOption_names[] =
   "FO_ANISOTROPIC"
-  "FO_BILINEAR"
   "FO_LINEAR"
   "FO_NONE"
-  "FO_POINT"
-  "FO_TRILINEAR";
+  "FO_POINT";
 
 static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry FilterOption_entries[] = {
   { {FilterOption_names + 0, 14}, 3 },
-  { {FilterOption_names + 14, 11}, 4 },
-  { {FilterOption_names + 25, 9}, 2 },
-  { {FilterOption_names + 34, 7}, 0 },
-  { {FilterOption_names + 41, 8}, 1 },
-  { {FilterOption_names + 49, 12}, 5 },
+  { {FilterOption_names + 14, 9}, 2 },
+  { {FilterOption_names + 23, 7}, 0 },
+  { {FilterOption_names + 30, 8}, 1 },
 };
 
 static const int FilterOption_entries_by_number[] = {
-  3, // 0 -> FO_NONE
-  4, // 1 -> FO_POINT
-  2, // 2 -> FO_LINEAR
+  2, // 0 -> FO_NONE
+  3, // 1 -> FO_POINT
+  1, // 2 -> FO_LINEAR
   0, // 3 -> FO_ANISOTROPIC
-  1, // 4 -> FO_BILINEAR
-  5, // 5 -> FO_TRILINEAR
 };
 
 const std::string& FilterOption_Name(
@@ -1496,12 +1543,12 @@ const std::string& FilterOption_Name(
       ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
           FilterOption_entries,
           FilterOption_entries_by_number,
-          6, FilterOption_strings);
+          4, FilterOption_strings);
   (void) dummy;
   int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
       FilterOption_entries,
       FilterOption_entries_by_number,
-      6, value);
+      4, value);
   return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
                      FilterOption_strings[idx].get();
 }
@@ -1509,9 +1556,68 @@ bool FilterOption_Parse(
     const std::string& name, FilterOption* value) {
   int int_value;
   bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      FilterOption_entries, 6, name, &int_value);
+      FilterOption_entries, 4, name, &int_value);
   if (success) {
     *value = static_cast<FilterOption>(int_value);
+  }
+  return success;
+}
+bool TexFilterOptions_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return true;
+    default:
+      return false;
+  }
+}
+
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> TexFilterOptions_strings[4] = {};
+
+static const char TexFilterOptions_names[] =
+  "TFO_ANISOTROPIC"
+  "TFO_BILINEAR"
+  "TFO_NONE"
+  "TFO_TRILINEAR";
+
+static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry TexFilterOptions_entries[] = {
+  { {TexFilterOptions_names + 0, 15}, 3 },
+  { {TexFilterOptions_names + 15, 12}, 1 },
+  { {TexFilterOptions_names + 27, 8}, 0 },
+  { {TexFilterOptions_names + 35, 13}, 2 },
+};
+
+static const int TexFilterOptions_entries_by_number[] = {
+  2, // 0 -> TFO_NONE
+  1, // 1 -> TFO_BILINEAR
+  3, // 2 -> TFO_TRILINEAR
+  0, // 3 -> TFO_ANISOTROPIC
+};
+
+const std::string& TexFilterOptions_Name(
+    TexFilterOptions value) {
+  static const bool dummy =
+      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+          TexFilterOptions_entries,
+          TexFilterOptions_entries_by_number,
+          4, TexFilterOptions_strings);
+  (void) dummy;
+  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
+      TexFilterOptions_entries,
+      TexFilterOptions_entries_by_number,
+      4, value);
+  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
+                     TexFilterOptions_strings[idx].get();
+}
+bool TexFilterOptions_Parse(
+    const std::string& name, TexFilterOptions* value) {
+  int int_value;
+  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
+      TexFilterOptions_entries, 4, name, &int_value);
+  if (success) {
+    *value = static_cast<TexFilterOptions>(int_value);
   }
   return success;
 }
@@ -6912,12 +7018,12 @@ const char* TexFilterSimple::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // .Tiny3D.Script.MaterialSystem.FilterOption filter = 1;
+      // .Tiny3D.Script.MaterialSystem.TexFilterOptions filter = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
           ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
-          _internal_set_filter(static_cast<::Tiny3D::Script::MaterialSystem::FilterOption>(val));
+          _internal_set_filter(static_cast<::Tiny3D::Script::MaterialSystem::TexFilterOptions>(val));
         } else goto handle_unusual;
         continue;
       default: {
@@ -6946,7 +7052,7 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // .Tiny3D.Script.MaterialSystem.FilterOption filter = 1;
+  // .Tiny3D.Script.MaterialSystem.TexFilterOptions filter = 1;
   if (this->filter() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
@@ -6969,7 +7075,7 @@ size_t TexFilterSimple::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // .Tiny3D.Script.MaterialSystem.FilterOption filter = 1;
+  // .Tiny3D.Script.MaterialSystem.TexFilterOptions filter = 1;
   if (this->filter() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_filter());
