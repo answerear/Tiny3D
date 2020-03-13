@@ -24,6 +24,7 @@
 
 #include "Resource/T3DResource.h"
 #include "Render/T3DHardwareConstantBuffer.h"
+#include "Kernel/T3DCommon.h"
 
 
 namespace Tiny3D
@@ -51,16 +52,43 @@ namespace Tiny3D
             MATRIX4x3,  /**< 4x3矩陣 */
         };
 
+        class Declaration
+        {
+        public:
+            enum class Type : uint32_t
+            {
+                DECL_DATA = 0,
+                DECL_CODE = 1,
+            };
+
+            T3D_DECLARE_INTERFACE(Declaration);
+
+            virtual Type getType() const = 0;
+        };
+
         /**
          * @struct  DataDeclaration
          * @brief   A data type.
          */
-        struct DataDeclaration
+        class DataDeclaration : public Declaration
         {
-            DataDeclaration() :type(BuiltinType::NONE), count(0) {}
+        public:
+            DataDeclaration() : type(BuiltinType::NONE), count(0) {}
+
+            virtual Type getType() const override { return Type::DECL_DATA; }
 
             BuiltinType type;
             uint8_t     count;
+        };
+
+        class CodeDeclaration : public Declaration
+        {
+        public:
+            CodeDeclaration() : type(BuiltinConstantType::WORLD_MATRIX) {}
+
+            virtual Type getType() const override { return Type::DECL_CODE; }
+
+            BuiltinConstantType type;
         };
 
         typedef TList<DataDeclaration>          DataDeclList;
