@@ -115,9 +115,9 @@ message Param
 
 message ParamAuto
 {
-    uint32  index = 1;
-    string  name = 2;
-    uint32  value_code = 3;
+    uint32          index = 1;
+    string          name = 2;
+    uint32          value_code = 3;
     repeated float  fextra_params = 4;
     repeated uint32 iextra_params = 5;
 }

@@ -40,6 +40,20 @@ namespace Tiny3D
     };
 
     /**
+    * @enum    BuiltinType
+    * @brief   GPU常量緩衝區中可使用的數據類型
+    */
+    enum class BuiltinType : uint32_t
+    {
+        NONE = 0,   /**< 未定義 */
+        REAL,       /**< 實數型 */
+        INT,        /**< 整型 */
+        VECTOR4,    /**< 4D向量 */
+        MATRIX4x4,  /**< 4x4矩陣 */
+        MATRIX4x3,  /**< 4x3矩陣 */
+    };
+
+    /**
      * @enum    PixelFormat
      * @brief   Values that represent pixel formats
      */
@@ -249,6 +263,7 @@ namespace Tiny3D
 
     enum class BuiltinConstantType : uint32_t
     {
+        NONE = 0,
         /// The current world matrix
         WORLD_MATRIX,
         /// The current world matrix, inverted

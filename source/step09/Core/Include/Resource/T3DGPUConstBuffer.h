@@ -29,6 +29,65 @@
 
 namespace Tiny3D
 {
+    class GPUConstantDeclartion;
+    class GPUDataDeclaration;
+    class GPUCodeDeclaration;
+
+    T3D_DECLARE_SMART_PTR(GPUConstantDeclartion);
+    T3D_DECLARE_SMART_PTR(GPUDataDeclaration);
+    T3D_DECLARE_SMART_PTR(GPUCodeDeclaration);
+
+    class GPUConstantDeclartion : public Object
+    {
+        T3D_DECLARE_CLASS();
+
+    public:
+        enum class Type : uint32_t
+        {
+            DATA = 0,
+            CODE = 1,
+        };
+
+        T3D_DECLARE_INTERFACE(GPUConstantDeclartion);
+
+        virtual Type getType() const = 0;
+    };
+
+    /**
+    * @struct  DataDeclaration
+    * @brief   A data type.
+    */
+    class GPUDataDeclaration : public GPUConstantDeclartion
+    {
+        T3D_DECLARE_CLASS();
+
+    public:
+        static GPUDataDeclarationPtr create();
+
+        virtual Type getType() const override { return Type::DATA; }
+
+        BuiltinType type;
+        uint8_t     count;
+
+    protected:
+        GPUDataDeclaration() : type(BuiltinType::NONE), count(0) {}
+    };
+
+    class GPUCodeDeclaration : public GPUConstantDeclartion
+    {
+        T3D_DECLARE_CLASS();
+
+    public:
+        static GPUCodeDeclarationPtr create();
+
+        virtual Type getType() const override { return Type::CODE; }
+
+        BuiltinConstantType code;
+
+    protected:
+        GPUCodeDeclaration() : code(BuiltinConstantType::NONE) {}
+    };
+
     /**
      * @class   GPUConstBuffer
      * @brief   GPU 常量緩衝區代理類，讓常量緩衝區有資源行為，用於資源管理.
@@ -38,62 +97,9 @@ namespace Tiny3D
         T3D_DECLARE_CLASS();
 
     public:
-        /**
-         * @enum    BuiltinType
-         * @brief   GPU常量緩衝區中可使用的數據類型
-         */
-        enum class BuiltinType : uint8_t
-        {
-            NONE = 0,   /**< 未定義 */
-            REAL,       /**< 實數型 */
-            INT,        /**< 整型 */
-            VECTOR4,    /**< 4D向量 */
-            MATRIX4x4,  /**< 4x4矩陣 */
-            MATRIX4x3,  /**< 4x3矩陣 */
-        };
-
-        class Declaration
-        {
-        public:
-            enum class Type : uint32_t
-            {
-                DECL_DATA = 0,
-                DECL_CODE = 1,
-            };
-
-            T3D_DECLARE_INTERFACE(Declaration);
-
-            virtual Type getType() const = 0;
-        };
-
-        /**
-         * @struct  DataDeclaration
-         * @brief   A data type.
-         */
-        class DataDeclaration : public Declaration
-        {
-        public:
-            DataDeclaration() : type(BuiltinType::NONE), count(0) {}
-
-            virtual Type getType() const override { return Type::DECL_DATA; }
-
-            BuiltinType type;
-            uint8_t     count;
-        };
-
-        class CodeDeclaration : public Declaration
-        {
-        public:
-            CodeDeclaration() : type(BuiltinConstantType::WORLD_MATRIX) {}
-
-            virtual Type getType() const override { return Type::DECL_CODE; }
-
-            BuiltinConstantType type;
-        };
-
-        typedef TList<DataDeclaration>          DataDeclList;
-        typedef DataDeclList::iterator          DataTypeListItr;
-        typedef DataDeclList::const_iterator    DataTypeListConstItr;
+        typedef TList<GPUConstantDeclartionPtr> Declarations;
+        typedef Declarations::iterator          DeclarationsItr;
+        typedef Declarations::const_iterator    DeclarationsConstItr;
 
         /**
          * @fn  static GPUConstBufferPtr 
@@ -139,7 +145,9 @@ namespace Tiny3D
          * @returns 調用成功返回 T3D_OK.
          * @sa  enum BuiltinType
          */
-        TResult addDataDeclaration(BuiltinType type, uint8_t count);
+        TResult addDeclaration(BuiltinType type, uint8_t count);
+
+        TResult addDeclaration(BuiltinConstantType code);
 
         /**
          * @fn  TResult GPUConstBuffer::removeDataDeclaration(size_t index);
@@ -147,7 +155,7 @@ namespace Tiny3D
          * @param   index   位置索引.
          * @returns 調用成功返回 T3D_OK.
          */
-        TResult removeDataDeclaration(size_t index);
+        TResult removeDeclaration(size_t index);
 
         /**
          * @fn  size_t GPUConstBuffer::getBufferSize() const;
@@ -167,14 +175,14 @@ namespace Tiny3D
          * @param   index   索引位置.
          * @returns 返回對應索引位置的數據聲明.
          */
-        DataDeclaration getDataDeclaration(size_t index) const;
+        GPUConstantDeclartionPtr getDeclaration(size_t index) const;
 
         /**
          * @fn  const DataTypeList GPUConstBuffer::&getDataTypeList() const;
          * @brief   獲取數據類型列表
          * @returns 返回數據類型列表.
          */
-        const DataDeclList& getDataDeclList() const { return mDataDeclList; }
+        const Declarations& getDeclarations() const { return mDeclarations; }
 
         /**
          * @fn  HardwareConstantBufferPtr GPUConstBuffer::getBufferImpl() const;
@@ -220,7 +228,7 @@ namespace Tiny3D
         bool                        mHasData;           /**< 是否初始化數據 */
         HardwareConstantBufferPtr   mBufferImpl;        /**< 具體實現類 */
 
-        DataDeclList                mDataDeclList;      /**< 數據聲明列表 */
+        Declarations                mDeclarations;      /**< 數據聲明列表 */
     };
 }
 

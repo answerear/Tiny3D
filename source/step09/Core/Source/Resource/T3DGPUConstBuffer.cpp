@@ -26,6 +26,36 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    T3D_IMPLEMENT_CLASS_1(GPUConstantDeclartion, Object);
+
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(GPUDataDeclaration, GPUConstantDeclartion);
+
+    //--------------------------------------------------------------------------
+
+    GPUDataDeclarationPtr GPUDataDeclaration::create()
+    {
+        GPUDataDeclarationPtr decl = new GPUDataDeclaration();
+        decl->release();
+        return decl;
+    }
+
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(GPUCodeDeclaration, GPUConstantDeclartion);
+
+    //--------------------------------------------------------------------------
+
+    GPUCodeDeclarationPtr GPUCodeDeclaration::create()
+    {
+        GPUCodeDeclarationPtr decl = new GPUCodeDeclaration();
+        decl->release();
+        return decl;
+    }
+
+    //--------------------------------------------------------------------------
+
     T3D_IMPLEMENT_CLASS_1(GPUConstBuffer, Resource);
 
     //--------------------------------------------------------------------------
@@ -168,7 +198,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GPUConstBuffer::addDataDeclaration(BuiltinType type, uint8_t count)
+    TResult GPUConstBuffer::addDeclaration(BuiltinType type, uint8_t count)
     {
         TResult ret = T3D_OK;
 
@@ -184,10 +214,10 @@ namespace Tiny3D
 
             }
 
-            DataDeclaration decl;
-            decl.type = type;
-            decl.count = count;
-            mDataDeclList.push_back(decl);
+            GPUDataDeclarationPtr decl = GPUDataDeclaration::create();
+            decl->type = type;
+            decl->count = count;
+            mDeclarations.push_back(decl);
 
             mBufSize += count;
         } while (0);
@@ -197,7 +227,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GPUConstBuffer::removeDataDeclaration(size_t index)
+    TResult GPUConstBuffer::addDeclaration(BuiltinConstantType code)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (mHasData)
+            {
+                // 已經有數據了，不能再添加數據類型聲明
+                ret = T3D_ERR_RES_ALREADY_INIT;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "GPU constant buffer has already initialized with data !");
+                break;
+
+            }
+
+            GPUCodeDeclarationPtr decl = GPUCodeDeclaration::create();
+            decl->code = code;
+            mDeclarations.push_back(decl);
+
+            
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUConstBuffer::removeDeclaration(size_t index)
     {
         TResult ret = T3D_OK;
 
@@ -206,14 +264,14 @@ namespace Tiny3D
             bool found = false;
             size_t i = 0;
 
-            for (auto itr = mDataDeclList.begin(); 
-                itr != mDataDeclList.end(); 
+            for (auto itr = mDeclarations.begin();
+                itr != mDeclarations.end();
                 ++itr)
             {
                 if (i == index)
                 {
                     found = true;
-                    mDataDeclList.erase(itr);
+                    mDeclarations.erase(itr);
                     break;
                 }
 
@@ -232,19 +290,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    GPUConstBuffer::DataDeclaration GPUConstBuffer::getDataDeclaration(
-        size_t index) const
+    GPUConstantDeclartionPtr GPUConstBuffer::getDeclaration(size_t index) const
     {
-        DataDeclaration decl;
+        GPUConstantDeclartionPtr decl;
 
         do 
         {
             bool found = false;
             size_t i = 0;
 
-            for (auto itr = mDataDeclList.begin(); 
-                itr != mDataDeclList.end(); 
-                ++itr)
+            auto itr = mDeclarations.begin(); 
+            while (itr != mDeclarations.end())
             {
                 if (i == index)
                 {
@@ -254,6 +310,7 @@ namespace Tiny3D
                 }
 
                 ++i;
+                ++itr;
             }
         } while (0);
         

@@ -430,6 +430,7 @@ namespace Tiny3D
 
     enum BuiltinConstantType
     {
+        BCT_NONE,
         /// The current world matrix
         BCT_WORLD_MATRIX,
         /// The current world matrix, inverted

@@ -16,10 +16,12 @@ if (MSVC)
         add_definitions(-D${LIB_NAME_TOUPPER}_EXPORT -D_USRDLL)
     endif (TINY3D_BUILD_SHARED_LIBS)
 
+    # Disable some warning for protobuf
     add_definitions(
         /wd4244 # 'conversion' conversion from 'type1' to 'type2', possible loss of data
         /wd4267 # 'var' : conversion from 'size_t' to 'type', possible loss of data
         /wd4309 # 'conversion' : truncation of constant value
+        /wd4800 # 'type' : forcing value to bool 'true' or 'false' (performance warning)
     )
 endif (MSVC)
 

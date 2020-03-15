@@ -960,8 +960,7 @@ namespace Tiny3D
             }
 
             // TODO
-            ret = buffer->addDataDeclaration(
-                (GPUConstBuffer::BuiltinType)type, count);
+            ret = buffer->addDeclaration((Tiny3D::BuiltinType)type, count);
         } while (0);
 
         T3D_SAFE_DELETE_ARRAY(extra);
