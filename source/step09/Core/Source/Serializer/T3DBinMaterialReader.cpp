@@ -50,16 +50,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    BinMaterialReaderPtr BinMaterialReader::create()
+    BinMaterialReaderPtr BinMaterialReader::create(const BuiltinConstantMap &definitions)
     {
-        BinMaterialReaderPtr reader = new BinMaterialReader();
+        BinMaterialReaderPtr reader = new BinMaterialReader(definitions);
         reader->release();
         return reader;
     }
 
     //--------------------------------------------------------------------------
 
-    BinMaterialReader::BinMaterialReader()
+    BinMaterialReader::BinMaterialReader(const BuiltinConstantMap &definitions)
+        : mDefinitions(definitions)
     {
 
     }

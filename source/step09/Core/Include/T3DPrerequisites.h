@@ -79,6 +79,7 @@ namespace Tiny3D
     class ScriptParserGPUContBuffer;
     class ScriptParserGPUContBufferRef;
 
+    class SerializerManager;
     class MaterialReader;
     class MaterialWriter;
     class BinMaterialReader;

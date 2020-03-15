@@ -22,6 +22,7 @@
 
 
 #include "Serializer/T3DMaterialReader.h"
+#include "Kernel/T3DCommon.h"
 
 
 namespace Tiny3D
@@ -51,12 +52,12 @@ namespace Tiny3D
         T3D_DISABLE_COPY(BinMaterialReader);
 
     public:
-        static BinMaterialReaderPtr create();
+        static BinMaterialReaderPtr create(const BuiltinConstantMap &definitions);
 
         virtual ~BinMaterialReader();
 
     protected:
-        BinMaterialReader();
+        BinMaterialReader(const BuiltinConstantMap &definitions);
 
         virtual TResult parse(DataStream &stream, Material *material) override;
 
@@ -251,6 +252,9 @@ namespace Tiny3D
 
         TResult parseGPUProgram(
             const MaterialSystem::GPUProgram *src, Material *dst);
+
+    protected:
+        const BuiltinConstantMap    &mDefinitions;
     };
 }
 

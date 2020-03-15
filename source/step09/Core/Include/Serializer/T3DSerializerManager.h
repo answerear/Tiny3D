@@ -24,6 +24,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Kernel/T3DObject.h"
+#include "Kernel/T3DCommon.h"
 
 
 namespace Tiny3D
@@ -35,11 +36,30 @@ namespace Tiny3D
         T3D_DECLARE_CLASS();
 
     public:
-        void setFileMode();
+        enum class FileMode : uint32_t
+        {
+            FILE_BINARY,
+            FILE_TEXT,
+        };
+
+        static SerializerManagerPtr create();
+
+        void setFileMode(FileMode mode) { mFileMode = mode; }
+
+        FileMode getFileMode() const { return mFileMode; }
 
         MaterialReaderPtr createMaterialReader();
 
         MaterialWriterPtr createMaterialWriter();
+
+    protected:
+        SerializerManager();
+
+        void constructBuiltinConstantMap();
+
+        BuiltinConstantMap  mBuiltinConstantMap;
+
+        FileMode            mFileMode;
     };
 }
 

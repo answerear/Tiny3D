@@ -74,6 +74,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(ScriptParserGPUContBuffer);
     T3D_DECLARE_SMART_PTR(ScriptParserGPUContBufferRef);
 
+    T3D_DECLARE_SMART_PTR(SerializerManager);
     T3D_DECLARE_SMART_PTR(MaterialReader);
     T3D_DECLARE_SMART_PTR(MaterialWriter);
     T3D_DECLARE_SMART_PTR(BinMaterialReader);

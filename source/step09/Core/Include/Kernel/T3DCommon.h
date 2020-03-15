@@ -726,6 +726,46 @@ namespace Tiny3D
         UNKNOWN = 999
     };
 
+    struct BuiltinConstantDefinition
+    {
+        uint8_t             elementCount;
+        BuiltinType         elementType;
+        BuiltinType         extraType;
+
+        BuiltinConstantDefinition()
+            : elementCount(0)
+            , elementType(BuiltinType::NONE)
+            , extraType(BuiltinType::NONE)
+        {}
+
+        BuiltinConstantDefinition(uint8_t c, BuiltinType elementT, BuiltinType extraT)
+            : elementCount(c)
+            , elementType(elementT)
+            , extraType(extraT)
+        {}
+
+        BuiltinConstantDefinition(const BuiltinConstantDefinition &other)
+            : elementCount(other.elementCount)
+            , elementType(other.elementType)
+            , extraType(other.extraType)
+        {}
+
+        BuiltinConstantDefinition &operator =(const BuiltinConstantDefinition &other)
+        {
+            elementCount = other.elementCount;
+            elementType = other.elementType;
+            extraType = other.extraType;
+            return *this;
+        }
+    };
+
+
+    typedef TMap<BuiltinConstantType, BuiltinConstantDefinition>    BuiltinConstantMap;
+    typedef BuiltinConstantMap::iterator        BuiltinConstantMapItr;
+    typedef BuiltinConstantMap::const_iterator  BuiltinConstantMapConstItr;
+    typedef BuiltinConstantMap::value_type      BuiltinConstantMapValue;
+
+
     /**
      * @enum    FileSubType
      * @brief   Values that represent file sub types
