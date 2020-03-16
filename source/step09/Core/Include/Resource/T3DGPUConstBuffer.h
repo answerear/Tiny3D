@@ -29,65 +29,6 @@
 
 namespace Tiny3D
 {
-    class GPUConstantDeclartion;
-    class GPUDataDeclaration;
-    class GPUCodeDeclaration;
-
-    T3D_DECLARE_SMART_PTR(GPUConstantDeclartion);
-    T3D_DECLARE_SMART_PTR(GPUDataDeclaration);
-    T3D_DECLARE_SMART_PTR(GPUCodeDeclaration);
-
-    class GPUConstantDeclartion : public Object
-    {
-        T3D_DECLARE_CLASS();
-
-    public:
-        enum class Type : uint32_t
-        {
-            DATA = 0,
-            CODE = 1,
-        };
-
-        T3D_DECLARE_INTERFACE(GPUConstantDeclartion);
-
-        virtual Type getType() const = 0;
-    };
-
-    /**
-    * @struct  DataDeclaration
-    * @brief   A data type.
-    */
-    class GPUDataDeclaration : public GPUConstantDeclartion
-    {
-        T3D_DECLARE_CLASS();
-
-    public:
-        static GPUDataDeclarationPtr create();
-
-        virtual Type getType() const override { return Type::DATA; }
-
-        BuiltinType type;
-        uint8_t     count;
-
-    protected:
-        GPUDataDeclaration() : type(BuiltinType::NONE), count(0) {}
-    };
-
-    class GPUCodeDeclaration : public GPUConstantDeclartion
-    {
-        T3D_DECLARE_CLASS();
-
-    public:
-        static GPUCodeDeclarationPtr create();
-
-        virtual Type getType() const override { return Type::CODE; }
-
-        BuiltinConstantType code;
-
-    protected:
-        GPUCodeDeclaration() : code(BuiltinConstantType::NONE) {}
-    };
-
     /**
      * @class   GPUConstBuffer
      * @brief   GPU 常量緩衝區代理類，讓常量緩衝區有資源行為，用於資源管理.
@@ -97,7 +38,24 @@ namespace Tiny3D
         T3D_DECLARE_CLASS();
 
     public:
-        typedef TList<GPUConstantDeclartionPtr> Declarations;
+        struct DataDeclaration
+        {
+            DataDeclaration()
+                : code(BuiltinConstantType::NONE)
+                , type(BuiltinType::NONE)
+                , count(0)
+                , extraType(BuiltinType::NONE)
+                , extraCount(0)
+            {}
+
+            BuiltinConstantType code;
+            BuiltinType         type;
+            uint32_t            count;
+            BuiltinType         extraType;
+            uint32_t            extraCount;
+        };
+
+        typedef TList<DataDeclaration>          Declarations;
         typedef Declarations::iterator          DeclarationsItr;
         typedef Declarations::const_iterator    DeclarationsConstItr;
 
@@ -145,9 +103,10 @@ namespace Tiny3D
          * @returns 調用成功返回 T3D_OK.
          * @sa  enum BuiltinType
          */
-        TResult addDeclaration(BuiltinType type, uint8_t count);
+        TResult addDeclaration(BuiltinType type, uint32_t count);
 
-        TResult addDeclaration(BuiltinConstantType code);
+        TResult addDeclaration(BuiltinConstantType code, BuiltinType type,
+            uint32_t count, BuiltinType extraType, uint32_t extraCount);
 
         /**
          * @fn  TResult GPUConstBuffer::removeDataDeclaration(size_t index);
@@ -175,7 +134,7 @@ namespace Tiny3D
          * @param   index   索引位置.
          * @returns 返回對應索引位置的數據聲明.
          */
-        GPUConstantDeclartionPtr getDeclaration(size_t index) const;
+        const DataDeclaration &getDeclaration(size_t index) const;
 
         /**
          * @fn  const DataTypeList GPUConstBuffer::&getDataTypeList() const;

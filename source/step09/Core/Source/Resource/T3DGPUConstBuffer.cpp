@@ -26,36 +26,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(GPUConstantDeclartion, Object);
-
-    //--------------------------------------------------------------------------
-
-    T3D_IMPLEMENT_CLASS_1(GPUDataDeclaration, GPUConstantDeclartion);
-
-    //--------------------------------------------------------------------------
-
-    GPUDataDeclarationPtr GPUDataDeclaration::create()
-    {
-        GPUDataDeclarationPtr decl = new GPUDataDeclaration();
-        decl->release();
-        return decl;
-    }
-
-    //--------------------------------------------------------------------------
-
-    T3D_IMPLEMENT_CLASS_1(GPUCodeDeclaration, GPUConstantDeclartion);
-
-    //--------------------------------------------------------------------------
-
-    GPUCodeDeclarationPtr GPUCodeDeclaration::create()
-    {
-        GPUCodeDeclarationPtr decl = new GPUCodeDeclaration();
-        decl->release();
-        return decl;
-    }
-
-    //--------------------------------------------------------------------------
-
     T3D_IMPLEMENT_CLASS_1(GPUConstBuffer, Resource);
 
     //--------------------------------------------------------------------------
@@ -198,7 +168,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GPUConstBuffer::addDeclaration(BuiltinType type, uint8_t count)
+    TResult GPUConstBuffer::addDeclaration(BuiltinType type, uint32_t count)
     {
         TResult ret = T3D_OK;
 
@@ -214,9 +184,10 @@ namespace Tiny3D
 
             }
 
-            GPUDataDeclarationPtr decl = GPUDataDeclaration::create();
-            decl->type = type;
-            decl->count = count;
+            DataDeclaration decl;
+            decl.code = BuiltinConstantType::NONE;
+            decl.type = type;
+            decl.count = count;
             mDeclarations.push_back(decl);
 
             mBufSize += count;
@@ -227,7 +198,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GPUConstBuffer::addDeclaration(BuiltinConstantType code)
+    TResult GPUConstBuffer::addDeclaration(BuiltinConstantType code, 
+        BuiltinType type, uint32_t count, BuiltinType extraType, 
+        uint32_t extraCount)
     {
         TResult ret = T3D_OK;
 
@@ -243,11 +216,15 @@ namespace Tiny3D
 
             }
 
-            GPUCodeDeclarationPtr decl = GPUCodeDeclaration::create();
-            decl->code = code;
+            DataDeclaration decl;
+            decl.code = code;
+            decl.type = type;
+            decl.count = count;
+            decl.extraType = extraType;
+            decl.extraCount = extraCount;
             mDeclarations.push_back(decl);
-
             
+            mBufSize += count;
         } while (0);
 
         return ret;
@@ -290,9 +267,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    GPUConstantDeclartionPtr GPUConstBuffer::getDeclaration(size_t index) const
+    const GPUConstBuffer::DataDeclaration 
+        &GPUConstBuffer::getDeclaration(size_t index) const
     {
-        GPUConstantDeclartionPtr decl;
+        DataDeclaration decl;
 
         do 
         {
