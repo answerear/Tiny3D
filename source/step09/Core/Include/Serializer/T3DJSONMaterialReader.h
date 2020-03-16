@@ -40,9 +40,6 @@ namespace Tiny3D
         JSONMaterialReader();
 
         virtual TResult parse(DataStream &stream, Material *material) override;
-
-        virtual TResult parse(
-            const uint8_t *data, size_t size, Material *material) override;
     };
 }
 

@@ -66,7 +66,7 @@ namespace Tiny3D
             T3D_CHECK_READ_CONTENT(bytesOfRead, sizeof(opcode),
                 "Read the opcode of property of object failed !");
 
-            ScriptParserBase *parser = T3D_SCRIPT_PARSER.getObjectParser(opcode);
+            ScriptParserBase *parser = ScriptParser::getInstance().getObjectParser(opcode);
             if (parser == nullptr)
             {
                 ret = T3D_ERR_RES_INVALID_OBJECT;

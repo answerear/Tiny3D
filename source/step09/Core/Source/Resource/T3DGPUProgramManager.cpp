@@ -25,6 +25,7 @@
 #include "Parser/T3DScriptParser.h"
 #include "Kernel/T3DAgent.h"
 #include "T3DErrorDef.h"
+#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D
@@ -218,7 +219,8 @@ namespace Tiny3D
             }
 
             // 交給腳本解析器解析
-            ret = T3D_SCRIPT_PARSER.parse(stream);
+//             ret = T3D_SCRIPT_PARSER.parse(stream);
+            ret = T3D_SERIALIZER_MGR.parseMaterial(stream, nullptr);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,

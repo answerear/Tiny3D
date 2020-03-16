@@ -425,6 +425,7 @@ namespace Tiny3D
 
         ArchiveManagerPtr           mArchiveMgr;        /**< 档案管理对象 */
         DylibManagerPtr             mDylibMgr;          /**< 动态库管理对象 */
+        SerializerManagerPtr        mSerialierMgr;      /**< 序列化管理器对象 */
         MaterialManagerPtr          mMaterialMgr;       /**< 材质资源管理对象 */
         TextureManagerPtr           mTextureMgr;        /**< 纹理资源管理对象 */
         ShaderManagerPtr            mShaderMgr;         /**< 着色器管理对象 */

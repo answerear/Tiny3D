@@ -28,6 +28,8 @@
 #include "Resource/T3DSamplerManager.h"
 #include "Resource/T3DGPUConstBuffer.h"
 #include "Resource/T3DGPUConstBufferManager.h"
+#include "Resource/T3DGPUProgram.h"
+#include "Resource/T3DGPUProgramManager.h"
 #include "Kernel/T3DTechnique.h"
 #include "Kernel/T3DPass.h"
 #include "Kernel/T3DTextureUnit.h"
@@ -77,13 +79,11 @@ namespace Tiny3D
     TResult BinMaterialReader::parse(DataStream &stream, Material *material)
     {
         TResult ret = T3D_OK;
-        uint8_t *data = nullptr;
 
         do 
         {
+            uint8_t *data = nullptr;
             size_t size = stream.size();
-            data = new uint8_t[size];
-
             size = stream.read(data);
 
             if (size == 0)
@@ -92,23 +92,6 @@ namespace Tiny3D
                 break;
             }
 
-            ret = parse(data, size, material);
-        } while (0);
-
-        T3D_SAFE_DELETE_ARRAY(data);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult BinMaterialReader::parse(
-        const uint8_t *data, size_t size, Material *material)
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
             // 读取文件头
             T3DFileHeader *header = (T3DFileHeader *)data;
 
@@ -129,7 +112,8 @@ namespace Tiny3D
             }
 
             // 从 proto buffer 解析出来 pb 对象
-            data += sizeof(header);
+            data += sizeof(T3DFileHeader);
+            size -= sizeof(T3DFileHeader);
             MaterialSystem::Material src;
 
             if (!src.ParseFromArray(data, size))
@@ -156,7 +140,9 @@ namespace Tiny3D
         {
             // Material name
             const MaterialSystem::Header &header = src->header();
-            dst->setMaterialName(header.name());
+
+            if (dst != nullptr)
+                dst->setMaterialName(header.name());
 
             // lod_values & lod_strategy
             // auto values = src->values();
@@ -1176,9 +1162,9 @@ namespace Tiny3D
             // name
             auto header = data.header();
             GPUProgramRefPtr program = GPUProgramRef::create(header.name());
-            auto refs = data.gpu_cbuffer_ref();
 
             // GPU constant buffer reference
+            auto refs = data.gpu_cbuffer_ref();
             for (const MaterialSystem::GPUConstantBufferRef &ref : refs)
             {
                 ret = parseGPUConstantBufferRef(&ref, program);
@@ -1731,9 +1717,12 @@ namespace Tiny3D
         // type
         auto type = src->type();
 
+        uint32_t count = 0;
+
         // values
         if (MaterialSystem::BuiltInType::BT_INT == type)
         {
+            count = src->ivalues_size();
             auto values = src->ivalues();
             for (uint32_t value : values)
             {
@@ -1742,11 +1731,17 @@ namespace Tiny3D
         }
         else if (MaterialSystem::BuiltInType::BT_REAL == type)
         {
+            count = src->fvalues_size();
             auto values = src->fvalues();
             for (float32_t value : values)
             {
 
             }
+        }
+
+        if (count > 0)
+        {
+            dst->addDeclaration((BuiltinType)type, count);
         }
 
         return T3D_OK;
@@ -1772,9 +1767,26 @@ namespace Tiny3D
         }
 
         // value_code
-        uint32_t code = src->value_code();
+        BuiltinConstantType code = (BuiltinConstantType)src->value_code();
+
+        uint32_t extraCount = 0;
 
         // extra_params
+        if (src->fextra_params_size() > 0)
+        {
+            extraCount = src->fextra_params_size();
+        }
+        else if (src->iextra_params_size() > 0)
+        {
+            extraCount = src->iextra_params_size();
+        }
+
+        auto itr = mDefinitions.find(code);
+        if (itr != mDefinitions.end())
+        {
+            dst->addDeclaration(code, itr->second.elementType,
+                itr->second.elementCount, itr->second.extraType, extraCount);
+        }
         
         return T3D_OK;
     }
@@ -1788,6 +1800,100 @@ namespace Tiny3D
 
         do 
         {
+            // header & name
+            auto header = src->header();
+            GPUProgramPtr program;
+
+            if (dst != nullptr)
+            {
+                // belongs to material
+                ret = dst->addGPUProgram(header.name(), program);
+                T3D_CHECK_PARSING_RET(ret);
+            }
+            else
+            {
+                // global
+                program = T3D_GPU_PROGRAM_MGR.loadGPUProgram(header.name());
+                if (program == nullptr)
+                {
+                    ret = T3D_ERR_RES_CREATE_GPUPROGRAM;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Create GPU Program [%s] failed !", 
+                        header.name().c_str());
+                    break;
+                }
+            }
+
+            // shaders
+            auto shaders = src->shaders();
+            for (const MaterialSystem::Shader &shader : shaders)
+            {
+                ret = parseShader(&shader, program);
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BinMaterialReader::parseShader(
+        const MaterialSystem::Shader *src, GPUProgram *dst)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            // header & name
+            auto header = src->header();
+
+            // properties
+            const String &source = src->source();
+            const String &target = src->target();
+            const String &entry = src->entry();
+            const String &stage = src->stage();
+
+            Shader::ShaderType shaderType = Shader::ShaderType::VERTEX_SHADER;
+            size_t len = source.find_last_of('.');
+            String title =
+                (len != String::npos ? source.substr(0, len) : source);
+            String filename = title + "." + stage;
+
+            if (stage == "vs")
+            {
+                // vertex shader
+                shaderType = Shader::ShaderType::VERTEX_SHADER;
+            }
+            else if (stage == "ps")
+            {
+                // fragment shader
+                shaderType = Shader::ShaderType::PIXEL_SHADER;
+
+            }
+            else if (stage == "gs")
+            {
+                // geometry shader
+                shaderType = Shader::ShaderType::GEOMETRY_SHADER;
+            }
+            else if (stage == "ds")
+            {
+                shaderType = Shader::ShaderType::DOMAIN_SHADER;
+            }
+            else if (stage == "cs")
+            {
+                shaderType = Shader::ShaderType::COMPUTE_SHADER;
+            }
+            else
+            {
+                ret = T3D_ERR_RES_INVALID_PROPERTY;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid property of GPU program !");
+                break;
+            }
+
+            ShaderPtr shader;
+            ret = dst->addShader(filename, shaderType, shader);
+            T3D_CHECK_PARSING_RET(ret);
         } while (0);
 
         return ret;

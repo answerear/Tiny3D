@@ -62,20 +62,6 @@ namespace Tiny3D
 
         return ret;
     }
-
-    //--------------------------------------------------------------------------
-
-    TResult JSONMaterialReader::parse(
-        const uint8_t *data, size_t size, Material *material)
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-        } while (0);
-
-        return ret;
-    }
 }
 
 

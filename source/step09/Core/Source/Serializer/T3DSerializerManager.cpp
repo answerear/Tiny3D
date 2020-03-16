@@ -45,6 +45,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     SerializerManager::SerializerManager()
+        : mFileMode(FileMode::FILE_BINARY)
     {
         constructBuiltinConstantMap();
     }
@@ -203,7 +204,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MaterialReaderPtr SerializerManager::createMaterialReader()
+    TResult SerializerManager::parseMaterial(
+        DataStream &stream, Material *material)
     {
         MaterialReaderPtr reader;
 
@@ -221,11 +223,22 @@ namespace Tiny3D
             break;
         default:
             {
-                reader = nullptr;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid file mode !");
             }
             break;
         }
 
-        return reader;
+        TResult ret = T3D_OK;
+
+        if (reader != nullptr)
+        {
+            ret = reader->parse(stream, material);
+        }
+        else
+        {
+            ret = T3D_ERR_INVALID_POINTER;
+        }
+
+        return ret;
     }
 }

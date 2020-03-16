@@ -123,8 +123,6 @@ namespace Tiny3D
          */
         size_t getBufferSize() const 
         { 
-            if (!mHasData)
-                return mBufSize * 4;
             return mBufSize; 
         }
 

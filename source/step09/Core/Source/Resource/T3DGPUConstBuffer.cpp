@@ -238,6 +238,14 @@ namespace Tiny3D
 
         do 
         {
+            if (mHasData)
+            {
+                ret = T3D_ERR_RES_ALREADY_INIT;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "GPU constant buffer has already initialized with data !");
+                break;
+            }
+
             bool found = false;
             size_t i = 0;
 
@@ -248,6 +256,7 @@ namespace Tiny3D
                 if (i == index)
                 {
                     found = true;
+                    mBufSize -= itr->count;
                     mDeclarations.erase(itr);
                     break;
                 }
@@ -270,7 +279,7 @@ namespace Tiny3D
     const GPUConstBuffer::DataDeclaration 
         &GPUConstBuffer::getDeclaration(size_t index) const
     {
-        DataDeclaration decl;
+        static DataDeclaration DECL_NULL;
 
         do 
         {
@@ -283,8 +292,7 @@ namespace Tiny3D
                 if (i == index)
                 {
                     found = true;
-                    decl = *itr;
-                    break;
+                    return *itr;
                 }
 
                 ++i;
@@ -292,6 +300,6 @@ namespace Tiny3D
             }
         } while (0);
         
-        return decl;
+        return DECL_NULL;
     }
 }

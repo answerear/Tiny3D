@@ -41,6 +41,7 @@ namespace Tiny3D
             class GPUProgram;
             class Param;
             class ParamAuto;
+            class Shader;
         }
     }
 
@@ -60,9 +61,6 @@ namespace Tiny3D
         BinMaterialReader(const BuiltinConstantMap &definitions);
 
         virtual TResult parse(DataStream &stream, Material *material) override;
-
-        virtual TResult parse(
-            const uint8_t *data, size_t size, Material *material) override;
 
         TResult parseMaterial(
             const MaterialSystem::Material *src, Material *dst);
@@ -252,6 +250,9 @@ namespace Tiny3D
 
         TResult parseGPUProgram(
             const MaterialSystem::GPUProgram *src, Material *dst);
+
+        TResult parseShader(
+            const MaterialSystem::Shader *src, GPUProgram *dst);
 
     protected:
         const BuiltinConstantMap    &mDefinitions;

@@ -48,9 +48,9 @@ namespace Tiny3D
 
         FileMode getFileMode() const { return mFileMode; }
 
-        MaterialReaderPtr createMaterialReader();
+        TResult parseMaterial(DataStream &stream, Material *material);
 
-        MaterialWriterPtr createMaterialWriter();
+        TResult serializeMaterial(DataStream &stream, Material *material);
 
     protected:
         SerializerManager();
@@ -61,6 +61,8 @@ namespace Tiny3D
 
         FileMode            mFileMode;
     };
+
+    #define T3D_SERIALIZER_MGR      (SerializerManager::getInstance())
 }
 
 

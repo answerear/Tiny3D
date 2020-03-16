@@ -52,6 +52,8 @@
 #include "Scene/T3DSceneManager.h"
 #include "Scene/T3DDefaultSceneMgr.h"
 
+#include "Serializer/T3DSerializerManager.h"
+
 #include "Component/T3DTransform3D.h"
 #include "Component/T3DComponentCreator.h"
 #include "Component/T3DCamera.h"
@@ -86,6 +88,7 @@ namespace Tiny3D
         , mDefaultWindow(nullptr)
         , mArchiveMgr(nullptr)
         , mDylibMgr(nullptr)
+        , mSerialierMgr(nullptr)
         , mShaderMgr(nullptr)
         , mGPUProgramMgr(nullptr)
         , mGPUConstBufferMgr(nullptr)
@@ -127,6 +130,7 @@ namespace Tiny3D
         mGPUProgramMgr = nullptr;
         mMaterialMgr = nullptr;
         mTextureMgr = nullptr;
+        mSerialierMgr = nullptr;
         mDylibMgr = nullptr;
         mArchiveMgr = nullptr;
 
@@ -896,6 +900,7 @@ namespace Tiny3D
         mImageCodec = ImageCodec::create();
         mArchiveMgr = ArchiveManager::create();
         mDylibMgr = DylibManager::create();
+        mSerialierMgr = SerializerManager::create();
         mTextureMgr = TextureManager::create();
         mShaderMgr = ShaderManager::create();
         mGPUConstBufferMgr = GPUConstBufferManager::create();

@@ -35,9 +35,6 @@ namespace Tiny3D
 
     public:
         virtual TResult parse(DataStream &stream, Material *material) = 0;
-
-        virtual TResult parse(
-            const uint8_t *data, size_t size, Material *material) = 0;
     };
 }
 
