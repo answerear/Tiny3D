@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#if 0
+
 #include "T3DScriptTranslator.h"
 #include "T3DScriptError.h"
 #include "T3DScriptCompiler.h"
@@ -27,67 +27,64 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    size_t ScriptTranslator::processNode(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node)
+    bool ScriptTranslator::processNode(ScriptCompiler *compiler, 
+        void *object, const AbstractNodePtr &node)
     {
-        if (node->type != ANT_OBJECT)
-            return 0;
+        bool ret = false;
 
-        // Abstract objects are completely skipped
-        ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
-        if (obj->abstrct)
-            return 0;
-
-        // Retrieve the translator to use
-        ScriptTranslator *translator = compiler->getTranslator(node);
-
-        size_t ret = 0;
-
-        if (translator)
+        do 
         {
-            ret = translator->translate(compiler, stream, node);
-        }
-        else
-        {
-            ScriptError::printError(CERR_UNEXPECTEDTOKEN, obj->name, obj->file, obj->line);
-        }
+            if (node->type != ANT_OBJECT)
+            {
+                ret = false;
+                break;
+            }
+
+            // Abstract objects are completely skipped
+            ObjectAbstractNode *obj 
+                = static_cast<ObjectAbstractNode *>(node.get());
+            if (obj->abstrct)
+            {
+                ret = false;
+                break;
+            }
+
+            // Retrieve the translator to use
+            ScriptTranslator *translator = compiler->getTranslator(node);
+
+            if (translator)
+            {
+                ret = translator->translate(compiler, object, node);
+            }
+            else
+            {
+                ScriptError::printError(CERR_UNEXPECTEDTOKEN, 
+                    obj->name, obj->file, obj->line);
+            }
+        } while (0);
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t ScriptTranslator::translateObjectHeader(ObjectAbstractNode *obj, DataStream &stream)
+    bool ScriptTranslator::translateObjectHeader(ObjectAbstractNode *obj,
+        MaterialSystem::Header *header)
     {
-        size_t totalBytes = 0;
-        size_t bytesOfWritten = 0;
-
-        // 类型
-        uint16_t type = (uint16_t)obj->type;
-        bytesOfWritten = stream.write(&type, sizeof(type));
-        totalBytes += bytesOfWritten;
         // ID
-        uint16_t id = (uint16_t)obj->id;
-        bytesOfWritten = stream.write(&id, sizeof(id));
-        totalBytes += bytesOfWritten;
-        // The number of children
-        uint16_t count = (uint16_t)obj->children.size();
-        bytesOfWritten = stream.write(&count, sizeof(count));
-        totalBytes += bytesOfWritten;
-        // 名称
-        bytesOfWritten = writeString(obj->name, stream);
-        totalBytes += bytesOfWritten;
-        // 16位 MD5
-        uint8_t digest[16];
-        bytesOfWritten = stream.write(digest, sizeof(digest));
-        totalBytes += bytesOfWritten;
-
-        return totalBytes;
+        header->set_id(obj->id);
+        // name
+        header->set_name(obj->name);
+        return true;
     }
 
-    AbstractNodeList::const_iterator ScriptTranslator::getNodeAt(const AbstractNodeList &nodes, int index)
+    //--------------------------------------------------------------------------
+
+    AbstractNodeList::const_iterator ScriptTranslator::getNodeAt(
+        const AbstractNodeList &nodes, int32_t index)
     {
         AbstractNodeList::const_iterator i = nodes.begin();
-        int n = 0;
+        int32_t n = 0;
         while (i != nodes.end())
         {
             if (n == index)
@@ -98,7 +95,10 @@ namespace Tiny3D
         return nodes.end();
     }
 
-    bool ScriptTranslator::getBoolean(const AbstractNodePtr &node, bool *result)
+    //--------------------------------------------------------------------------
+
+    bool ScriptTranslator::getBoolean(const AbstractNodePtr &node, 
+        bool *result)
     {
         if (node->type != ANT_ATOM)
             return false;
@@ -118,7 +118,10 @@ namespace Tiny3D
         return true;
     }
 
-    bool ScriptTranslator::getString(const AbstractNodePtr &node, String *result)
+    //--------------------------------------------------------------------------
+
+    bool ScriptTranslator::getString(const AbstractNodePtr &node, 
+        String *result)
     {
         if (node->type != ANT_ATOM)
             return false;
@@ -128,7 +131,10 @@ namespace Tiny3D
         return true;
     }
 
-    bool ScriptTranslator::getSingle(const AbstractNodePtr &node, float32_t *result)
+    //--------------------------------------------------------------------------
+
+    bool ScriptTranslator::getSingle(const AbstractNodePtr &node, 
+        float32_t *result)
     {
         if (node->type != ANT_ATOM)
             return false;
@@ -142,7 +148,10 @@ namespace Tiny3D
         return true;
     }
 
-    bool ScriptTranslator::getDouble(const AbstractNodePtr &node, float64_t *result)
+    //--------------------------------------------------------------------------
+
+    bool ScriptTranslator::getDouble(const AbstractNodePtr &node, 
+        float64_t *result)
     {
         if (node->type != ANT_ATOM)
             return false;
@@ -156,7 +165,10 @@ namespace Tiny3D
         return true;
     }
 
-    bool ScriptTranslator::getInt(const AbstractNodePtr &node, int32_t *result)
+    //--------------------------------------------------------------------------
+
+    bool ScriptTranslator::getInt(const AbstractNodePtr &node, 
+        int32_t *result)
     {
         if (node->type != ANT_ATOM)
             return false;
@@ -170,7 +182,10 @@ namespace Tiny3D
         return true;
     }
 
-    bool ScriptTranslator::getUInt(const AbstractNodePtr &node, uint32_t *result)
+    //--------------------------------------------------------------------------
+
+    bool ScriptTranslator::getUInt(const AbstractNodePtr &node, 
+        uint32_t *result)
     {
         if (node->type != ANT_ATOM)
             return false;
@@ -184,7 +199,10 @@ namespace Tiny3D
         return true;
     }
 
-    bool ScriptTranslator::getHex(const AbstractNodePtr &node, uint32_t *result)
+    //--------------------------------------------------------------------------
+
+    bool ScriptTranslator::getHex(const AbstractNodePtr &node, 
+        uint32_t *result)
     {
         if (node->type != ANT_ATOM)
             return false;
@@ -197,27 +215,35 @@ namespace Tiny3D
         return !(*end);
     }
 
-    bool ScriptTranslator::getColor(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, ColorRGBA *result, int32_t maxEntries /* = 4 */)
+    //--------------------------------------------------------------------------
+
+    bool ScriptTranslator::getColor(AbstractNodeList::const_iterator i, 
+        AbstractNodeList::const_iterator end, MaterialSystem::Color *result, 
+        int32_t maxEntries /* = 4 */)
     {
         int32_t n = 0;
+
+        result->set_a(1.0f);
+
         while (i != end && n < maxEntries)
         {
             float v = 0;
+
             if (getSingle(*i, &v))
             {
                 switch (n)
                 {
                 case 0:
-                    result->red() = v;
+                    result->set_r(v);
                     break;
                 case 1:
-                    result->green() = v;
+                    result->set_g(v);
                     break;
                 case 2:
-                    result->blue() = v;
+                    result->set_b(v);
                     break;
                 case 3:
-                    result->alpha() = v;
+                    result->set_a(v);
                     break;
                 }
             }
@@ -225,25 +251,28 @@ namespace Tiny3D
             {
                 return false;
             }
+
             ++n;
             ++i;
         }
-        // return error if we found less than rgb before end, unless constrained
+
         return (n >= 3 || n == maxEntries);
     }
 
     //--------------------------------------------------------------------------
 
-    bool ScriptTranslator::getMatrix4(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, Matrix4 *m)
+    bool ScriptTranslator::getMatrix4(AbstractNodeList::const_iterator i, 
+        AbstractNodeList::const_iterator end, MaterialSystem::Matrix4 *m)
     {
-        int n = 0;
+        int32_t n = 0;
+
         while (i != end && n < 16)
         {
             if (i != end)
             {
                 float32_t r = 0;
                 if (getSingle(*i, &r))
-                    (*m)[n / 4][n % 4] = r;
+                    m->add_values(r);
                 else
                     return false;
             }
@@ -251,18 +280,22 @@ namespace Tiny3D
             {
                 return false;
             }
+
             ++i;
             ++n;
         }
+
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool ScriptTranslator::getInts(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, int *vals, int count)
+    bool ScriptTranslator::getInts(AbstractNodeList::const_iterator i, 
+        AbstractNodeList::const_iterator end, int32_t *vals, int32_t count)
     {
         bool success = true;
-        int n = 0;
+        int32_t n = 0;
+
         while (n < count)
         {
             if (i != end)
@@ -287,15 +320,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptTranslator::getSingles(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, float *vals, int count)
+    bool ScriptTranslator::getSingles(AbstractNodeList::const_iterator i, 
+        AbstractNodeList::const_iterator end, float32_t *vals, int32_t count)
     {
         bool success = true;
-        int n = 0;
+        int32_t n = 0;
+
         while (n < count)
         {
             if (i != end)
             {
-                float v = 0;
+                float32_t v = 0;
                 if (getSingle(*i, &v))
                     vals[n] = v;
                 else
@@ -336,1232 +371,1196 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t ScriptTranslator::writeString(const String &str, DataStream &stream)
-    {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        uint16_t len = (uint16_t)str.length();
-        if (len > 0)
-        {
-            bytesOfWritten = stream.write(&len, sizeof(len));
-            totalBytes += bytesOfWritten;
-            bytesOfWritten = stream.write((void*)str.c_str(), len);
-            totalBytes += bytesOfWritten;
-        }
-        else if (len == 0)
-        {
-            bytesOfWritten = stream.write(&len, sizeof(len));
-            totalBytes += bytesOfWritten;
-        }
-
-        return totalBytes;
-    }
-
-    //--------------------------------------------------------------------------
-
-    size_t ScriptTranslator::writeColor(const ColorRGBA &clr, DataStream &stream)
-    {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        float32_t component = clr.blue();
-        bytesOfWritten = stream.write(&component, sizeof(component));
-        totalBytes += bytesOfWritten;
-        component = clr.green();
-        bytesOfWritten = stream.write(&component, sizeof(component));
-        totalBytes += bytesOfWritten;
-        component = clr.red();
-        bytesOfWritten = stream.write(&component, sizeof(component));
-        totalBytes += bytesOfWritten;
-        component = clr.alpha();
-        bytesOfWritten = stream.write(&component, sizeof(component));
-        totalBytes += bytesOfWritten;
-
-        return totalBytes;
-    }
-
-    //--------------------------------------------------------------------------
-
-    size_t ScriptTranslator::writeMatrix4(const Matrix4 &m, DataStream &stream)
-    {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        float val = m[0][0];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[0][1];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[0][2];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[0][3];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[1][0];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[1][1];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[1][2];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[1][3];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[2][0];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[2][1];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[2][2];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[2][3];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[3][0];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[3][1];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[3][2];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-        val = m[3][3];
-        bytesOfWritten = stream.write(&val, sizeof(val));
-        totalBytes += bytesOfWritten;
-
-        return totalBytes;
-    }
-
-    //--------------------------------------------------------------------------
-
-    size_t MaterialTranslator::translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node)
+    bool MaterialTranslator::translate(ScriptCompiler *compiler, 
+        void *object, const AbstractNodePtr &node)
     {
         ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
 
         if (obj->name.empty())
         {
-            ScriptError::printError(CERR_OBJECTNAMEEXPECTED, "No name object", obj->file, obj->line);
-            return 0;
+            ScriptError::printError(CERR_OBJECTNAMEEXPECTED, 
+                "No name object", obj->file, obj->line);
+            return false;
         }
 
-        size_t totalBytes = 0;
-        size_t bytesOfWritten = 0;
-
         // 对象头数据
-        bytesOfWritten = translateObjectHeader(obj, stream);
-        totalBytes += bytesOfWritten;
-
-        size_t headerSize = bytesOfWritten;
-        long_t current = stream.tell();
-        long_t start = current;
-        current -= 16;
+        MaterialSystem::Material *material = (MaterialSystem::Material *)object;
+        MaterialSystem::Header *header = material->mutable_header();
+        bool ret = translateObjectHeader(obj, header);
+        if (!ret)
+        {
+            return ret;
+        }
 
         // 属性
         for (auto i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
             {
-                PropertyAbstractNode *prop = static_cast<PropertyAbstractNode*>((*i).get());
-
-                // Type
-                uint16_t type = (*i)->type;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
-
-                // ID
-                uint16_t id = prop->id;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
+                PropertyAbstractNode *prop 
+                    = static_cast<PropertyAbstractNode*>((*i).get());
 
                 // Values
                 switch (prop->id)
                 {
                 case ID_LOD_VALUES:
                     {
-                        bytesOfWritten = translateLODValues(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateLODValues(prop, material);
                     }
                     break;
                 case ID_LOD_STRATEGY:
                     {
-                        bytesOfWritten = translateLODStrategy(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateLODStrategy(prop, material);
                     }
                     break;
                 case ID_RECEIVE_SHADOWS:
                     {
-                        bytesOfWritten = translateReceiveShadow(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateReceiveShadow(prop, material);
                     }
                     break;
                 case ID_TRANSPARENCY_CASTS_SHADOWS:
                     {
-                        bytesOfWritten = translateTransparentCastsShadow(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateTransparentCastsShadow(prop, material);
                     }
                     break;
                 case ID_SET_TEXTURE_ALIAS:
                     {
-                        bytesOfWritten = translateSetTextuerAlias(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateSetTextuerAlias(prop, material);
                     }
                     break;
                 default:
                     {
-                        ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
+                        ScriptError::printError(CERR_UNEXPECTEDTOKEN, 
+                            prop->name, prop->file, prop->line,
                             "token \"" + prop->name + "\" is not recognized");
+                        ret = false;
                     }
                     break;
                 }
             }
             else if ((*i)->type == ANT_OBJECT)
             {
-                bytesOfWritten = processNode(compiler, stream, *i);
-                totalBytes += bytesOfWritten;
+                ret = processNode(compiler, material, *i);
+            }
+
+            if (!ret)
+            {
+                break;
             }
         }
 
-        if (totalBytes > 0)
-        {
-            // 计算 MD5
-            uint8_t *content;
-            stream.read(content);
-            content += start;
-            size_t contentSize = totalBytes - headerSize;
-            MD5 md5;
-            md5.update((const void*)content, contentSize);
-            const uint8_t *digest = md5.digest();
-
-            // 跳转到文件头位置，写回 MD5
-            long_t pos = stream.tell();
-            stream.seek(current, false);
-            stream.write((void*)digest, 16);
-            stream.seek(pos, false);
-        }
-
-        return totalBytes;
+        return ret;
     }
 
-    size_t MaterialTranslator::translateLODValues(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool MaterialTranslator::translateLODValues(
+        PropertyAbstractNode *prop, MaterialSystem::Material *material)
     {
+        bool ret = false;
+
         size_t totalBytes = 0;
         size_t bytesOfWritten = 0;
         
         // LOD数量
         uint16_t len = (uint16_t)prop->values.size();
-        bytesOfWritten = stream.write(&len, sizeof(len));
-        totalBytes += bytesOfWritten;
+
         // LOD值
         if (len > 0)
         {
+            MaterialSystem::LODValues *values = material->mutable_values();
             for (auto j = prop->values.begin(); j != prop->values.end(); ++j)
             {
                 float32_t val;
                 if (getSingle(*j, &val))
                 {
-                    bytesOfWritten = stream.write(&val, sizeof(val));
-                    totalBytes += bytesOfWritten;
+                    values->add_values(val);
+                    ret = true;
                 }
                 else
                 {
-                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_NUMBEREXPECTED, 
+                        prop->name, prop->file, prop->line,
                         "lod_values expects only numbers as arguments");
+                    ret = false;
+                    break;
                 }
             }
         }
         else
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
 
-        return totalBytes;
-    }
-
-    size_t MaterialTranslator::translateLODStrategy(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t totalBytes = 0;
-        size_t bytesOfWritten = 0;
-
-        // LOD Strategy name
-        if (prop->values.empty())
-        {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-        }
-        else if (prop->values.size() > 1)
-        {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                "lod_strategy only supports 1 argument");
-        }
-        else
-        {
-            String strategyName;
-            bool result = getString(prop->values.front(), &strategyName);
-            if (result)
-            {
-                StringUtil::toLowerCase(strategyName);
-                writeString(strategyName, stream);
-            }
-
-            if (!result)
-            {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "lod_strategy argument must be a valid LOD strategy");
-            }
-        }
-
-        return totalBytes;
-    }
-
-    size_t MaterialTranslator::translateReceiveShadow(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t totalBytes = 0;
-        size_t bytesOfWritten = 0;
-
-        if (prop->values.empty())
-        {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-        }
-        else if (prop->values.size() > 1)
-        {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                "receive_shadows only supports 1 argument");
-        }
-        else
-        {
-            bool val = true;
-            if (getBoolean(prop->values.front(), &val))
-            {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
-            }
-            else
-            {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "receive_shadows argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
-            }
-        }
-
-        return totalBytes;
-    }
-
-    size_t MaterialTranslator::translateTransparentCastsShadow(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t totalBytes = 0;
-        size_t bytesOfWritten = 0;
-
-        if (prop->values.empty())
-        {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-        }
-        else if (prop->values.size() > 1)
-        {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                "transparency_casts_shadows only supports 1 argument");
-        }
-        else
-        {
-            bool val = true;
-            if (getBoolean(prop->values.front(), &val))
-            {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
-            }
-            else
-            {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "transparency_casts_shadows argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
-            }
-        }
-
-        return totalBytes;
-    }
-
-    size_t MaterialTranslator::translateSetTextuerAlias(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t totalBytes = 0;
-        size_t bytesOfWritten = 0;
-
-        if (prop->values.empty())
-        {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-        }
-        else if (prop->values.size() > 3)
-        {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                "set_texture_alias only supports 2 arguments");
-        }
-        else
-        {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
-            String name, value;
-            if (getString(*i0, &name) && getString(*i1, &value))
-            {
-                // name
-                bytesOfWritten = writeString(name, stream);
-                totalBytes += bytesOfWritten;
-                // value
-                bytesOfWritten = writeString(value, stream);
-                totalBytes += bytesOfWritten;
-            }
-            else
-            {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "set_texture_alias must have 2 string argument");
-            }
-        }
-
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TechniqueTranslator::translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node)
+    bool MaterialTranslator::translateLODStrategy(
+        PropertyAbstractNode *prop, MaterialSystem::Material *material)
     {
-        ObjectAbstractNode *obj = reinterpret_cast<ObjectAbstractNode*>(node.get());
+        bool ret = false;
 
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        // LOD Strategy name
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "lod_strategy only supports 1 argument");
+            ret = false;
+        }
+        else
+        {
+            String strategyName;
+            ret = getString(prop->values.front(), &strategyName);
+
+            if (ret)
+            {
+                StringUtil::toLowerCase(strategyName);
+                MaterialSystem::LODValues *values = material->mutable_values();
+                values->set_strategy(strategyName);
+                ret = true;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "lod_strategy argument must be a valid LOD strategy");
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool MaterialTranslator::translateReceiveShadow(
+        PropertyAbstractNode *prop, MaterialSystem::Material *material)
+    {
+        bool ret = false;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "receive_shadows only supports 1 argument");
+            ret = false;
+        }
+        else
+        {
+            bool val = true;
+
+            if (getBoolean(prop->values.front(), &val))
+            {
+                material->mutable_receive_shadows()->set_value(val);
+                ret = true;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "receive_shadows argument must be \"true\", \"false\", "
+                    "\"yes\", \"no\", \"on\", or \"off\"");
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool MaterialTranslator::translateTransparentCastsShadow(
+        PropertyAbstractNode *prop, MaterialSystem::Material *material)
+    {
+        bool ret = false;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "transparency_casts_shadows only supports 1 argument");
+            ret = false;
+        }
+        else
+        {
+            bool val = true;
+
+            if (getBoolean(prop->values.front(), &val))
+            {
+                material->mutable_transparency_casts_shadows()->set_value(val);
+                ret = true;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "transparency_casts_shadows argument must be "
+                    "\"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool MaterialTranslator::translateSetTextuerAlias(
+        PropertyAbstractNode *prop, MaterialSystem::Material *material)
+    {
+        bool ret = false;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
+        }
+        else if (prop->values.size() > 3)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "set_texture_alias only supports 2 arguments");
+            ret = false;
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+            String aliasname, texturename;
+
+            if (getString(*i0, &aliasname) && getString(*i1, &texturename))
+            {
+                MaterialSystem::TextureAlias *alias 
+                    = material->mutable_texture_alias();
+                // alias name
+                alias->set_alias_name(aliasname);
+                // texture name
+                alias->set_texture_name(texturename);
+                ret = true;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "set_texture_alias must have 2 string argument");
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool TechniqueTranslator::translate(ScriptCompiler *compiler, 
+        void *object, const AbstractNodePtr &node)
+    {
+        ObjectAbstractNode *obj 
+            = reinterpret_cast<ObjectAbstractNode*>(node.get());
 
         // 对象头数据
-        bytesOfWritten = translateObjectHeader(obj, stream);
-        totalBytes += bytesOfWritten;
+        MaterialSystem::Material *material = (MaterialSystem::Material *)object;
+        MaterialSystem::Technique *tech = material->add_techniques();
+        MaterialSystem::Header *header = tech->mutable_header();
+        bool ret = translateObjectHeader(obj, header);
+        if (!ret)
+        {
+            return ret;
+        }
 
-        size_t headerSize = bytesOfWritten;
-        long_t current = stream.tell();
-        long_t start = current;
-        current -= 16;
-
-        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        for (auto i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
             {
-                PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
-
-                // Type
-                uint16_t type = (*i)->type;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
-
-                // ID
-                uint16_t id = prop->id;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
+                PropertyAbstractNode *prop 
+                    = reinterpret_cast<PropertyAbstractNode*>((*i).get());
 
                 // 属性
                 switch (prop->id)
                 {
                 case ID_SCHEME:
                     {
-                        bytesOfWritten = translateScheme(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateScheme(prop, tech);
                     }
                     break;
                 case ID_LOD_INDEX:
                     {
-                        bytesOfWritten = translateLODIndex(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateLODIndex(prop, tech);
                     }
                     break;
                 case ID_RENDER_QUEUE:
                     {
-                        bytesOfWritten = translateRenderQueue(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateRenderQueue(prop, tech);
                     }
                     break;
                 case ID_SHADOW_CASTER_MATERIAL:
                     {
-                        bytesOfWritten = translateShadowCasterMaterial(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateShadowCasterMaterial(prop, tech);
                     }
                     break;
                 case ID_SHADOW_RECEIVER_MATERIAL:
                     {
-                        bytesOfWritten = translateShadowReceiveMaterial(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateShadowReceiveMaterial(prop, tech);
                     }
                     break;
                 case ID_GPU_VENDOR_RULE:
                     {
-                        bytesOfWritten = translateGPUVendorRule(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateGPUVendorRule(prop, tech);
                     }
                     break;
                 case ID_GPU_DEVICE_RULE:
                     {
-                        bytesOfWritten = translateGPUDeviceRule(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateGPUDeviceRule(prop, tech);
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
-                        "token \"" + prop->name + "\" is not recognized");
+                    {
+                        ScriptError::printError(CERR_UNEXPECTEDTOKEN,
+                            prop->name, prop->file, prop->line,
+                            "token \"" + prop->name + "\" is not recognized");
+                        ret = false;
+                    }
                     break;
                 }
             }
             else if ((*i)->type == ANT_OBJECT)
             {
-                bytesOfWritten = processNode(compiler, stream, *i);
-                totalBytes += bytesOfWritten;
+                ret = processNode(compiler, tech, *i);
+            }
+
+            if (!ret)
+            {
+                break;
             }
         }
 
-        if (totalBytes > 0)
-        {
-            // 计算 MD5
-            uint8_t *content;
-            stream.read(content);
-            content += start;
-            size_t contentSize = totalBytes - headerSize;
-            MD5 md5;
-            md5.update((const void*)content, contentSize);
-            const uint8_t *digest = md5.digest();
-
-            // 跳转到文件头位置，写回 MD5
-            long_t pos = stream.tell();
-            stream.seek(current, false);
-            stream.write((void*)digest, 16);
-            stream.seek(pos, false);
-        }
-
-        return totalBytes;
+        return ret;
     }
 
-    size_t TechniqueTranslator::translateScheme(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool TechniqueTranslator::translateScheme(
+        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "scheme only supports 1 argument");
+            ret = false;
         }
         else
         {
             AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
             String scheme;
+
             if (getString(*i0, &scheme))
             {
-                bytesOfWritten = writeString(scheme, stream);
-                totalBytes += bytesOfWritten;
+                tech->mutable_scheme()->set_value(scheme);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     "scheme must have 1 string argument");
+                ret = false;
             }
         }
 
-        return totalBytes;
-    }
-
-    size_t TechniqueTranslator::translateLODIndex(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        if (prop->values.empty())
-        {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-        }
-        else if (prop->values.size() > 1)
-        {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                "lod_index only supports 1 argument");
-        }
-        else
-        {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
-            uint32_t v = 0;
-            if (getUInt(*i0, &v))
-            {
-                bytesOfWritten = stream.write(&v, sizeof(v));
-                totalBytes += bytesOfWritten;
-            }
-            else
-            {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "lod_index cannot accept argument \"" + (*i0)->getValue() + "\"");
-            }
-        }
-
-        return totalBytes;
-    }
-
-    size_t TechniqueTranslator::translateRenderQueue(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        if (prop->values.empty())
-        {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-        }
-        else if (prop->values.size() > 1)
-        {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                "render_queue only supports 1 argument");
-        }
-        else
-        {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
-            uint32_t v = 0;
-            if (getUInt(*i0, &v))
-            {
-                bytesOfWritten = stream.write(&v, sizeof(v));
-                totalBytes += bytesOfWritten;
-            }
-            else
-            {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "render_queue cannot accept argument \"" + (*i0)->getValue() + "\"");
-            }
-        }
-
-        return totalBytes;
-    }
-
-    size_t TechniqueTranslator::translateShadowCasterMaterial(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        if (prop->values.empty())
-        {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-        }
-        else if (prop->values.size() > 1)
-        {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                "shadow_caster_material only accepts 1 argument");
-        }
-        else
-        {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
-            String matName;
-            if (getString(*i0, &matName))
-            {
-                bytesOfWritten = writeString(matName, stream);
-                totalBytes += bytesOfWritten;
-            }
-            else
-            {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "shadow_caster_material cannot accept argument \"" + (*i0)->getValue() + "\"");
-            }
-        }
-
-        return totalBytes;
-    }
-
-    size_t TechniqueTranslator::translateShadowReceiveMaterial(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        if (prop->values.empty())
-        {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-        }
-        else if (prop->values.size() > 1)
-        {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                "shadow_receiver_material only accepts 1 argument");
-        }
-        else
-        {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
-            String matName;
-            if (getString(*i0, &matName))
-            {
-                bytesOfWritten = writeString(matName, stream);
-                totalBytes += bytesOfWritten;
-            }
-            else
-            {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "shadow_receiver_material cannot accept argument \"" + (*i0)->getValue() + "\"");
-            }
-        }
-
-        return totalBytes;
-    }
-
-    size_t TechniqueTranslator::translateGPUVendorRule(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        if (prop->values.size() < 2)
-        {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
-                "gpu_vendor_rule must have 2 arguments");
-        }
-        else if (prop->values.size() > 2)
-        {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                "gpu_vendor_rule must have 2 arguments");
-        }
-        else
-        {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
-            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
-
-            if ((*i0)->type == ANT_ATOM)
-            {
-                AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get();
-                if (atom0->id == ID_INCLUDE || atom0->id == ID_EXCLUDE)
-                {
-                    // ID
-                    uint16_t id = atom0->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
-                    
-                    String vendor;
-                    if (getString(*i1, &vendor))
-                    {
-                        bytesOfWritten = writeString(vendor, stream);
-                        totalBytes += bytesOfWritten;
-                    }
-                    else
-                    {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            "gpu_vendor_rule cannot accept \"" + (*i1)->getValue() + "\" as second argument");
-                    }
-                }
-                else
-                {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "gpu_vendor_rule cannot accept \"" + (*i0)->getValue() + "\" as first argument");
-                }
-            }
-            else
-            {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "gpu_vendor_rule cannot accept \"" + (*i0)->getValue() + "\" as first argument");
-            }
-
-        }
-
-        return totalBytes;
-    }
-
-    size_t TechniqueTranslator::translateGPUDeviceRule(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        if (prop->values.size() < 2)
-        {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
-                "gpu_device_rule must have at least 2 arguments");
-        }
-        else if (prop->values.size() > 3)
-        {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                "gpu_device_rule must have at most 3 arguments");
-        }
-        else
-        {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
-            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
-
-            if ((*i0)->type == ANT_ATOM)
-            {
-                AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get();
-
-                if (atom0->id == ID_INCLUDE || atom0->id == ID_EXCLUDE)
-                {
-                    // ID
-                    uint16_t id = atom0->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
-
-                    String pattern;
-                    if (getString(*i1, &pattern))
-                    {
-                        bytesOfWritten = writeString(pattern, stream);
-                        totalBytes += bytesOfWritten;
-                    }
-                    else
-                    {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            "gpu_device_rule cannot accept \"" + (*i1)->getValue() + "\" as second argument");
-                    }
-
-                    if (prop->values.size() == 3)
-                    {
-                        AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
-                        bool caseSensitive;
-                        if (getBoolean(*i2, &caseSensitive))
-                        {
-                            bytesOfWritten = stream.write(&caseSensitive, sizeof(caseSensitive));
-                            totalBytes += bytesOfWritten;
-                        }
-                        else
-                        {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                "gpu_device_rule third argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
-                        }
-                    }
-                }
-                else
-                {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "gpu_device_rule cannot accept \"" + (*i0)->getValue() + "\" as first argument");
-                }
-            }
-            else
-            {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "gpu_device_rule cannot accept \"" + (*i0)->getValue() + "\" as first argument");
-            }
-
-        }
-
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t PassTranslator::translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node)
+    bool TechniqueTranslator::translateLODIndex(
+        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
     {
-        ObjectAbstractNode *obj = reinterpret_cast<ObjectAbstractNode*>(node.get());
+        bool ret = false;
 
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "lod_index only supports 1 argument");
+            ret = false;
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            uint32_t v = 0;
+
+            if (getUInt(*i0, &v))
+            {
+                tech->mutable_lod_index()->set_value(v);
+                ret = true;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "lod_index cannot accept argument \"" 
+                    + (*i0)->getValue() + "\"");
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool TechniqueTranslator::translateRenderQueue(
+        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
+    {
+        bool ret = false;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "render_queue only supports 1 argument");
+            ret = false;
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            uint32_t v = 0;
+            if (getUInt(*i0, &v))
+            {
+                tech->mutable_render_queue()->set_value(v);
+                ret = true;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "render_queue cannot accept argument \"" 
+                    + (*i0)->getValue() + "\"");
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool TechniqueTranslator::translateShadowCasterMaterial(
+        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
+    {
+        bool ret = false;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "shadow_caster_material only accepts 1 argument");
+            ret = false;
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            String matName;
+
+            if (getString(*i0, &matName))
+            {
+                tech->mutable_shadow_caster_material()->set_value(matName);
+                ret = true;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "shadow_caster_material cannot accept argument \"" 
+                    + (*i0)->getValue() + "\"");
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool TechniqueTranslator::translateShadowReceiveMaterial(
+        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
+    {
+        bool ret = false;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "shadow_receiver_material only accepts 1 argument");
+            ret = false;
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            String matName;
+
+            if (getString(*i0, &matName))
+            {
+                tech->mutable_shadow_receiver_material()->set_value(matName);
+                ret = true;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "shadow_receiver_material cannot accept argument \"" 
+                    + (*i0)->getValue() + "\"");
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool TechniqueTranslator::translateGPUVendorRule(
+        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
+    {
+        bool ret = false;
+
+        if (prop->values.size() < 2)
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "gpu_vendor_rule must have 2 arguments");
+            ret = false;
+        }
+        else if (prop->values.size() > 2)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "gpu_vendor_rule must have 2 arguments");
+            ret = false;
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+
+            if ((*i0)->type == ANT_ATOM)
+            {
+                AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get();
+
+                if (atom0->id == ID_INCLUDE || atom0->id == ID_EXCLUDE)
+                {
+                    String vendor;
+
+                    if (getString(*i1, &vendor))
+                    {
+                        MaterialSystem::GPUVendorRule *rule 
+                            = tech->mutable_gpu_vendor_rule();
+
+                        if (atom0->id == ID_INCLUDE)
+                        {
+                            rule->set_rule(MaterialSystem::GPURuleType::INCLUDE);
+                        }
+                        else
+                        {
+                            rule->set_rule(MaterialSystem::GPURuleType::EXCLUDE);
+                        }
+
+                        rule->set_vendor_name(vendor);
+                        ret = true;
+                    }
+                    else
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            "gpu_vendor_rule cannot accept \"" 
+                            + (*i1)->getValue() + "\" as second argument");
+                        ret = false;
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        "gpu_vendor_rule cannot accept \"" 
+                        + (*i0)->getValue() + "\" as first argument");
+                    ret = false;
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "gpu_vendor_rule cannot accept \"" 
+                    + (*i0)->getValue() + "\" as first argument");
+                ret = false;
+            }
+
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool TechniqueTranslator::translateGPUDeviceRule(
+        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
+    {
+        bool ret = false;
+
+        if (prop->values.size() < 2)
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "gpu_device_rule must have at least 2 arguments");
+            ret = false;
+        }
+        else if (prop->values.size() > 3)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "gpu_device_rule must have at most 3 arguments");
+            ret = false;
+        }
+        else
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+
+            if ((*i0)->type == ANT_ATOM)
+            {
+                AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get();
+
+                if (atom0->id == ID_INCLUDE || atom0->id == ID_EXCLUDE)
+                {
+                    String pattern;
+                    MaterialSystem::GPUDeviceRule *rule = nullptr;
+
+                    if (getString(*i1, &pattern))
+                    {
+                        rule = tech->mutable_gpu_device_rule();
+
+                        if (atom0->id == ID_INCLUDE)
+                        {
+                            rule->set_rule(MaterialSystem::GPURuleType::INCLUDE);
+                        }
+                        else if (atom0->id == ID_EXCLUDE)
+                        {
+                            rule->set_rule(MaterialSystem::GPURuleType::EXCLUDE);
+                        }
+
+                        rule->set_device_pattern(pattern);
+                        ret = true;
+                    }
+                    else
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            "gpu_device_rule cannot accept \"" 
+                            + (*i1)->getValue() + "\" as second argument");
+                        ret = false;
+                    }
+
+                    if (ret && prop->values.size() == 3)
+                    {
+                        auto i2 = getNodeAt(prop->values, 2);
+                        bool caseSensitive;
+
+                        if (getBoolean(*i2, &caseSensitive))
+                        {
+                            rule->set_case_sensitive(caseSensitive);
+                            ret = true;
+                        }
+                        else
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                prop->name, prop->file, prop->line,
+                                "gpu_device_rule third argument must be "
+                                "\"true\", \"false\", \"yes\", \"no\", \"on\", "
+                                "or \"off\"");
+                            ret = false;
+                        }
+                    }
+                }
+                else
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        "gpu_device_rule cannot accept \"" 
+                        + (*i0)->getValue() + "\" as first argument");
+                    ret = false;
+                }
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "gpu_device_rule cannot accept \"" 
+                    + (*i0)->getValue() + "\" as first argument");
+                ret = false;
+            }
+
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translate(ScriptCompiler *compiler, 
+        void *object, const AbstractNodePtr &node)
+    {
+        ObjectAbstractNode *obj 
+            = reinterpret_cast<ObjectAbstractNode*>(node.get());
 
         // 对象头数据
-        bytesOfWritten = translateObjectHeader(obj, stream);
-        totalBytes += bytesOfWritten;
-
-        size_t headerSize = bytesOfWritten;
-        long_t current = stream.tell();
-        long_t start = current;
-        current -= 16;
+        MaterialSystem::Technique *tech = (MaterialSystem::Technique *)object;
+        MaterialSystem::Pass *pass = tech->add_passes();
+        MaterialSystem::Header *header = pass->mutable_header();
+        bool ret = translateObjectHeader(obj, header);
+        if (!ret)
+        {
+            return ret;
+        }
 
         // Set the properties for the material
-        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        for (auto i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
             {
-                PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
-
-                // Type
-                uint16_t type = (*i)->type;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
-
-                // ID
-                uint16_t id = prop->id;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
+                PropertyAbstractNode *prop 
+                    = reinterpret_cast<PropertyAbstractNode*>((*i).get());
 
                 // 属性
                 switch (prop->id)
                 {
                 case ID_AMBIENT:
                     {
-                        bytesOfWritten = translateAmbient(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateAmbient(prop, pass);
                     }
                     break;
                 case ID_DIFFUSE:
                     {
-                        bytesOfWritten = translateDiffuse(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateDiffuse(prop, pass);
                     }
                     break;
                 case ID_SPECULAR:
                     {
-                        bytesOfWritten = translateSpecular(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateSpecular(prop, pass);
                     }
                     break;
                 case ID_EMISSIVE:
                     {
-                        bytesOfWritten = translateEmissive(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateEmissive(prop, pass);
                     }
                     break;
                 case ID_SCENE_BLEND:
                     {
-                        bytesOfWritten = translateSceneBlend(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateSceneBlend(prop, pass);
                     }
                     break;
                 case ID_SEPARATE_SCENE_BLEND:
                     {
-                        bytesOfWritten = translateSeparateSceneBlend(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateSeparateSceneBlend(prop, pass);
                     }
                     break;
                 case ID_SCENE_BLEND_OP:
                     {
-                        bytesOfWritten = translateSceneBlendOp(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateSceneBlendOp(prop, pass);
                     }
                     break;
                 case ID_SEPARATE_SCENE_BLEND_OP:
                     {
-                        bytesOfWritten = translateSeparateSceneBlendOp(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateSeparateSceneBlendOp(prop, pass);
                     }
                     break;
                 case ID_DEPTH_CHECK:
                     {
-                        bytesOfWritten = translateDepthCheck(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateDepthCheck(prop, pass);
                     }
                     break;
                 case ID_DEPTH_WRITE:
                     {
-                        bytesOfWritten = translateDepthWrite(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateDepthWrite(prop, pass);
                     }
                     break;
                 case ID_DEPTH_BIAS:
                     {
-                        bytesOfWritten = translateDepthBias(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateDepthBias(prop, pass);
                     }
                     break;
                 case ID_DEPTH_FUNC:
                     {
-                        bytesOfWritten = translateDepthFunc(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateDepthFunc(prop, pass);
                     }
                     break;
                 case ID_ITERATION_DEPTH_BIAS:
                     {
-                        bytesOfWritten = translateIterationDepthBias(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateIterationDepthBias(prop, pass);
                     }
                     break;
                 case ID_ALPHA_REJECTION:
                     {
-                        bytesOfWritten = translateAlphaRejection(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateAlphaRejection(prop, pass);
                     }
                     break;
                 case ID_ALPHA_TO_COVERAGE:
                     {
-                        bytesOfWritten = translateAlphaToCoverage(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateAlphaToCoverage(prop, pass);
                     }
                     break;
                 case ID_LIGHT_SCISSOR:
                     {
-                        bytesOfWritten = translateLightScissor(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateLightScissor(prop, pass);
                     }
                     break;
                 case ID_LIGHT_CLIP_PLANES:
                     {
-                        bytesOfWritten = translateLightClipPlanes(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateLightClipPlanes(prop, pass);
                     }
                     break;
                 case ID_TRANSPARENT_SORTING:
                     {
-                        bytesOfWritten = translateTransparentSorting(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateTransparentSorting(prop, pass);
                     }
                     break;
                 case ID_ILLUMINATION_STAGE:
                     {
-                        bytesOfWritten = translateIlluminationStage(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateIlluminationStage(prop, pass);
                     }
                     break;
                 case ID_CULL_HARDWARE:
                     {
-                        bytesOfWritten = translateCullHardware(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateCullHardware(prop, pass);
                     }
                     break;
                 case ID_CULL_SOFTWARE:
                     {
-                        bytesOfWritten = translateCullSoftware(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateCullSoftware(prop, pass);
                     }
                     break;
                 case ID_NORMALISE_NORMALS:
                     {
-                        bytesOfWritten = translateNormalizeNormals(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateNormalizeNormals(prop, pass);
                     }
                     break;
                 case ID_LIGHTING:
                     {
-                        bytesOfWritten = translateLighting(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateLighting(prop, pass);
                     }
                     break;
                 case ID_SHADING:
                     {
-                        bytesOfWritten = translateShading(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateShading(prop, pass);
                     }
                     break;
                 case ID_POLYGON_MODE:
                     {
-                        bytesOfWritten = translatePolygonMode(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translatePolygonMode(prop, pass);
                     }
                     break;
                 case ID_POLYGON_MODE_OVERRIDEABLE:
                     {
-                        bytesOfWritten = translatePolygonModeOverridable(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translatePolygonModeOverridable(prop, pass);
                     }
                     break;
                 case ID_FOG_OVERRIDE:
                     {
-                        bytesOfWritten = translateFogOverride(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateFogOverride(prop, pass);
                     }
                     break;
                 case ID_COLOUR_WRITE:
                     {
-                        bytesOfWritten = translateColorWrite(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateColorWrite(prop, pass);
                     }
                     break;
                 case ID_MAX_LIGHTS:
                     {
-                        bytesOfWritten = translateMaxLights(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateMaxLights(prop, pass);
                     }
                     break;
                 case ID_START_LIGHT:
                     {
-                        bytesOfWritten = translateStartLight(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateStartLight(prop, pass);
                     }
                     break;
                 case ID_LIGHT_MASK:
                     {
-                        bytesOfWritten = translateLightMask(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateLightMask(prop, pass);
                     }
                     break;
                 case ID_ITERATION:
                     {
-                        bytesOfWritten = translateIteration(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateIteration(prop, pass);
                     }
                     break;
                 case ID_POINT_SIZE:
                     {
-                        bytesOfWritten = translatePointSize(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translatePointSize(prop, pass);
                     }
                     break;
                 case ID_POINT_SPRITES:
                     {
-                        bytesOfWritten = translatePointSprites(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translatePointSprites(prop, pass);
                     }
                     break;
                 case ID_POINT_SIZE_ATTENUATION:
                     {
-                        bytesOfWritten = translatePointSizeAttenuation(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translatePointSizeAttenuation(prop, pass);
                     }
                     break;
                 case ID_POINT_SIZE_MIN:
                     {
-                        bytesOfWritten = translatePointSizeMin(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translatePointSizeMin(prop, pass);
                     }
                     break;
                 case ID_POINT_SIZE_MAX:
                     {
-                        bytesOfWritten = translatePointSizeMax(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translatePointSizeMax(prop, pass);
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
-                        "token \"" + prop->name + "\" is not recognized");
+                    {
+                        ScriptError::printError(CERR_UNEXPECTEDTOKEN, 
+                            prop->name, prop->file, prop->line,
+                            "token \"" + prop->name + "\" is not recognized");
+                        ret = false;
+                    }
+                    break;
                 }
             }
             else if ((*i)->type == ANT_OBJECT)
             {
-                bytesOfWritten = processNode(compiler, stream, *i);
-                totalBytes += bytesOfWritten;
+                ret = processNode(compiler, pass, *i);
+            }
+
+            if (!ret)
+            {
+                break;
             }
         }
 
-        if (totalBytes > 0)
-        {
-            // 计算 MD5
-            uint8_t *content;
-            stream.read(content);
-            content += start;
-            size_t contentSize = totalBytes - headerSize;
-            MD5 md5;
-            md5.update((const void*)content, contentSize);
-            const uint8_t *digest = md5.digest();
-
-            // 跳转到文件头位置，写回 MD5
-            long_t pos = stream.tell();
-            stream.seek(current, false);
-            stream.write((void*)digest, 16);
-            stream.seek(pos, false);
-        }
-
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateAmbient(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateAmbient(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 4)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "ambient must have at most 4 parameters");
+            ret = false;
         }
         else
         {
+            MaterialSystem::LightColor *ambient = pass->mutable_ambient();
+
             if (prop->values.front()->type == ANT_ATOM &&
-                ((AtomAbstractNode*)prop->values.front().get())->id == ID_VERTEXCOLOUR)
+                ((AtomAbstractNode*)prop->values.front().get())->id 
+                == ID_VERTEXCOLOUR)
             {
                 // vertex color
-                uint16_t id = ID_VERTEXCOLOUR;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
+                ambient->set_vertex_color(true);
+                ret = true;
             }
             else
             {
                 // not vertex color
-                uint16_t id = 0;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
 
                 // ambient
-                ColorRGBA val = ColorRGBA::WHITE;
-                if (getColor(prop->values.begin(), prop->values.end(), &val))
+                MaterialSystem::Color *val = ambient->mutable_color();
+
+                if (getColor(prop->values.begin(), prop->values.end(), val))
                 {
-                    bytesOfWritten = writeColor(val, stream);
-                    totalBytes += bytesOfWritten;
+                    ret = true;
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "ambient requires 3 or 4 colour arguments, or a \"vertexcolour\" directive");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        "ambient requires 3 or 4 color arguments, or a "
+                        "\"vertexcolor\" directive");
+                    ret = false;
                 }
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateDiffuse(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateDiffuse(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 4)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "diffuse must have at most 4 arguments");
+            ret = false;
         }
         else
         {
+            MaterialSystem::LightColor *diffuse = pass->mutable_diffuse();
+
             if (prop->values.front()->type == ANT_ATOM &&
-                ((AtomAbstractNode*)prop->values.front().get())->id == ID_VERTEXCOLOUR)
+                ((AtomAbstractNode*)prop->values.front().get())->id 
+                == ID_VERTEXCOLOUR)
             {
                 // vertex color
-                uint16_t id = ID_VERTEXCOLOUR;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
+                diffuse->set_vertex_color(true);
+                ret = true;
             }
             else
             {
                 // not vertex color
-                uint16_t id = 0;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
 
                 // diffuse
-                ColorRGBA val = ColorRGBA::WHITE;
-                if (getColor(prop->values.begin(), prop->values.end(), &val))
+                MaterialSystem::Color *val = diffuse->mutable_color();
+
+                if (getColor(prop->values.begin(), prop->values.end(), val))
                 {
-                    bytesOfWritten = writeColor(val, stream);
-                    totalBytes += bytesOfWritten;
+                    ret = true;
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "diffuse requires 3 or 4 colour arguments, or a \"vertexcolour\" directive");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        "diffuse requires 3 or 4 color arguments, or a "
+                        "\"vertex color\" directive");
+                    ret = false;
                 }
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateSpecular(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateSpecular(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 5)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "specular must have at most 5 arguments");
+            ret = false;
         }
         else
         {
             if (prop->values.front()->type == ANT_ATOM &&
-                ((AtomAbstractNode*)prop->values.front().get())->id == ID_VERTEXCOLOUR)
+                ((AtomAbstractNode*)prop->values.front().get())->id 
+                == ID_VERTEXCOLOUR)
             {
                 // vertex color
-                uint16_t id = ID_VERTEXCOLOUR;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
+                MaterialSystem::LightColor *specular = pass->mutable_specular();
+                specular->set_vertex_color(true);
 
                 // shininess
                 if (prop->values.size() >= 2)
                 {
                     float32_t shininess = 0.0f;
+
                     if (getSingle(prop->values.back(), &shininess))
                     {
-                        bytesOfWritten = stream.write(&shininess, sizeof(shininess));
-                        totalBytes += bytesOfWritten;
+                        pass->mutable_shininess()->set_value(shininess);
+                        ret = true;
                     }
                     else
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            "specular does not support \"" + prop->values.back()->getValue() + "\" as its second argument");
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            "specular does not support \"" 
+                            + prop->values.back()->getValue() 
+                            + "\" as its second argument");
+                        ret = false;
                     }
                 }
             }
@@ -1569,559 +1568,984 @@ namespace Tiny3D
             {
                 if (prop->values.size() < 4)
                 {
-                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_NUMBEREXPECTED, 
+                        prop->name, prop->file, prop->line,
                         "specular expects at least 4 arguments");
+                    ret = false;
                 }
                 else
                 {
                     // not vertex color
-                    uint16_t id = 0;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
 
-                    AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
-                        i1 = getNodeAt(prop->values, 1),
-                        i2 = getNodeAt(prop->values, 2);
-                    ColorRGBA val(0.0f, 0.0f, 0.0f, 1.0f);
-                    if (getSingle(*i0, &val.red()) && getSingle(*i1, &val.green()) && getSingle(*i2, &val.blue()))
+                    auto i0 = getNodeAt(prop->values, 0);
+                    auto i1 = getNodeAt(prop->values, 1);
+                    auto i2 = getNodeAt(prop->values, 2);
+                    float32_t r, g, b;
+
+                    if (getSingle(*i0, &r) && getSingle(*i1, &g) 
+                        && getSingle(*i2, &b))
                     {
+                        MaterialSystem::LightColor *specular 
+                            = pass->mutable_specular();
+
+                        MaterialSystem::Color *color
+                            = specular->mutable_color();
+
+                        // specular
+                        color->set_r(r);
+                        color->set_g(g);
+                        color->set_b(b);
+
                         if (prop->values.size() == 4)
                         {
-                            // specular
-                            bytesOfWritten = writeColor(val, stream);
-                            totalBytes += bytesOfWritten;
 
                             // shininess
-                            AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
+                            auto i3 = getNodeAt(prop->values, 3);
                             float32_t shininess = 0.0f;
                             if (getSingle(*i3, &shininess))
                             {
-                                bytesOfWritten = stream.write(&shininess, sizeof(shininess));
-                                totalBytes += bytesOfWritten;
+                                pass->mutable_shininess()->set_value(shininess);
+                                ret = true;
                             }
                             else
                             {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    "specular fourth argument must be a valid number for shininess attribute");
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                    prop->name, prop->file, prop->line,
+                                    "specular fourth argument must be a valid "
+                                    "number for shininess attribute");
+                                ret = false;
                             }
                         }
                         else
                         {
-                            AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
-                            if (!getSingle(*i3, &val.alpha()))
+                            auto i3 = getNodeAt(prop->values, 3);
+                            float32_t a;
+                            if (!getSingle(*i3, &a))
                             {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    "specular fourth argument must be a valid color component value");
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                    prop->name, prop->file, prop->line,
+                                    "specular fourth argument must be a valid "
+                                    "color component value");
+                                ret = false;
                             }
                             else
                             {
-                                // specular
-                                bytesOfWritten = writeColor(val, stream);
-                                totalBytes += bytesOfWritten;
+                                // specular alpha
+                                color->set_a(a);
+                            }
+
+                            if (!ret)
+                            {
+                                return ret;
                             }
 
                             // shininess
-                            AbstractNodeList::const_iterator i4 = getNodeAt(prop->values, 4);
+                            auto i4 = getNodeAt(prop->values, 4);
                             float32_t shininess = 0.0f;
+
                             if (getSingle(*i4, &shininess))
                             {
-                                bytesOfWritten = stream.write(&shininess, sizeof(shininess));
-                                totalBytes += bytesOfWritten;
+                                pass->mutable_shininess()->set_value(shininess);
                             }
                             else
                             {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                    "specular fourth argument must be a valid number for shininess attribute");
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                    prop->name, prop->file, prop->line,
+                                    "specular fourth argument must be a valid "
+                                    "number for shininess attribute");
+                                ret = false;
                             }
                         }
                     }
                     else
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            "specular must have first 3 arguments be a valid colour");
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            "specular must have first 3 arguments be "
+                            "a valid color");
+                        ret = false;
                     }
                 }
 
             }
         }
 
-        return bytesOfWritten;
+        return ret;
     }
 
-    size_t PassTranslator::translateEmissive(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateEmissive(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 4)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "emissive must have at most 4 arguments");
+            ret = false;
         }
         else
         {
+            MaterialSystem::LightColor *emissive = pass->mutable_emissive();
+
             if (prop->values.front()->type == ANT_ATOM &&
-                ((AtomAbstractNode*)prop->values.front().get())->id == ID_VERTEXCOLOUR)
+                ((AtomAbstractNode*)prop->values.front().get())->id 
+                == ID_VERTEXCOLOUR)
             {
                 // vertex color
-                uint16_t id = ID_VERTEXCOLOUR;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
+                emissive->set_vertex_color(true);
+                ret = true;
             }
             else
             {
                 // not vertex color
-                uint16_t id = 0;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
 
                 // emissive
-                ColorRGBA val(0.0f, 0.0f, 0.0f, 1.0f);
-                if (getColor(prop->values.begin(), prop->values.end(), &val))
+                MaterialSystem::Color *color = emissive->mutable_color();
+
+                if (getColor(prop->values.begin(), prop->values.end(), color))
                 {
-                    bytesOfWritten = writeColor(val, stream);
-                    totalBytes += bytesOfWritten;
+                    ret = true;
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "emissive requires 3 or 4 colour arguments, or a \"vertexcolour\" directive");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        "emissive requires 3 or 4 color arguments, or a "
+                        "\"vertexcolor\" directive");
+                    ret = false;
                 }
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateSceneBlend(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateSceneBlend(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 2)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "scene_blend supports at most 2 arguments");
+            ret = false;
         }
         else if (prop->values.size() == 1)
         {
             if (prop->values.front()->type == ANT_ATOM)
             {
-                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                AtomAbstractNode *atom 
+                    = (AtomAbstractNode*)prop->values.front().get();
+
+                MaterialSystem::BlendScene *blend = pass->mutable_scene_blend();
 
                 switch (atom->id)
                 {
                 case ID_ADD:
+                    {
+                        blend->set_blend_type(Script::MaterialSystem::BT_ADD);
+                        ret = true;
+                    }
+                    break;
                 case ID_MODULATE:
+                    {
+                        blend->set_blend_type(Script::MaterialSystem::BT_MODULATE);
+                        ret = true;
+                    }
+                    break;
                 case ID_COLOUR_BLEND:
+                    {
+                        blend->set_blend_type(Script::MaterialSystem::BT_COLOR_BLEND);
+                        ret = true;
+                    }
+                    break;
                 case ID_ALPHA_BLEND:
                     {
-                        uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        blend->set_blend_type(Script::MaterialSystem::BT_ALPHA_BLEND);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "scene_blend does not support \"" + prop->values.front()->getValue() + "\" for argument 1");
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS,
+                            prop->name, prop->file, prop->line,
+                            "scene_blend does not support \""
+                            + prop->values.front()->getValue()
+                            + "\" for argument 1");
+                        ret = false;
+                    }
                     break;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "scene_blend does not support \"" + prop->values.front()->getValue() + "\" for argument 1");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "scene_blend does not support \"" 
+                    + prop->values.front()->getValue() 
+                    + "\" for argument 1");
+                ret = false;
             }
         }
         else
         {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
             AtomAbstractNode *atom0 = (AtomAbstractNode *)(i0->get());
             AtomAbstractNode *atom1 = (AtomAbstractNode *)(i1->get());
+
             if (atom0->id >= ID_ONE && atom0->id <= ID_ONE_MINUS_SRC_ALPHA
                 && atom1->id >= ID_ONE && atom1->id <= ID_ONE_MINUS_SRC_ALPHA)
             {
-                uint16_t id = atom0->id;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
-                id = atom1->id;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
+                MaterialSystem::BlendScene *blend = pass->mutable_scene_blend();
+                auto factor = blend->mutable_blend_factor();
+
+                switch (atom0->id)
+                {
+                case ID_ONE:
+                    {
+                        factor->set_src_factor(MaterialSystem::BF_ONE);
+                    }
+                    break;
+                case ID_ZERO:
+                    {
+                        factor->set_src_factor(MaterialSystem::BF_ZERO);
+                    }
+                    break;
+                case ID_DEST_COLOUR:
+                    {
+                        factor->set_src_factor(MaterialSystem::BF_DEST_COLOR);
+                    }
+                    break;
+                case ID_SRC_COLOUR:
+                    {
+                        factor->set_src_factor(MaterialSystem::BF_SRC_COLOR);
+                    }
+                    break;
+                case ID_ONE_MINUS_DEST_COLOUR:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_DEST_COLOR);
+                    }
+                    break;
+                case ID_ONE_MINUS_SRC_COLOUR:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_SRC_COLOR);
+                    }
+                    break;
+                case ID_DEST_ALPHA:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_DEST_ALPHA);
+                    }
+                    break;
+                case ID_SRC_ALPHA:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_SRC_ALPHA);
+                    }
+                    break;
+                case ID_ONE_MINUS_DEST_ALPHA:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_DEST_ALPHA);
+                    }
+                    break;
+                case ID_ONE_MINUS_SRC_ALPHA:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_SRC_ALPHA);
+                    }
+                    break;
+                }
+
+                switch (atom1->id)
+                {
+                case ID_ONE:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_ONE);
+                    }
+                    break;
+                case ID_ZERO:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_ZERO);
+                    }
+                    break;
+                case ID_DEST_COLOUR:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_DEST_COLOR);
+                    }
+                    break;
+                case ID_SRC_COLOUR:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_SRC_COLOR);
+                    }
+                    break;
+                case ID_ONE_MINUS_DEST_COLOUR:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_DEST_COLOR);
+                    }
+                    break;
+                case ID_ONE_MINUS_SRC_COLOUR:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_SRC_COLOR);
+                    }
+                    break;
+                case ID_DEST_ALPHA:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_DEST_ALPHA);
+                    }
+                    break;
+                case ID_SRC_ALPHA:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_SRC_ALPHA);
+                    }
+                    break;
+                case ID_ONE_MINUS_DEST_ALPHA:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_DEST_ALPHA);
+                    }
+                    break;
+                case ID_ONE_MINUS_SRC_ALPHA:
+                    {
+                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_SRC_ALPHA);
+                    }
+                    break;
+                }
+
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "scene_blend does not support \"" + (*i0)->getValue() + "\" and \"" + (*i1)->getValue() + "\" as arguments");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "scene_blend does not support \"" 
+                    + (*i0)->getValue() + "\" and \"" + (*i1)->getValue() 
+                    + "\" as arguments");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateSeparateSceneBlend(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateSeparateSceneBlend(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() == 3)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "separate_scene_blend must have 2 or 4 arguments");
+            ret = false;
         }
         else if (prop->values.size() > 4)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "separate_scene_blend must have 2 or 4 arguments");
+            ret = false;
         }
         else if (prop->values.size() == 2)
         {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+
             if ((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM)
             {
-                AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
+                AtomAbstractNode *atom0 = (AtomAbstractNode *)(*i0).get();
+                AtomAbstractNode *atom1 = (AtomAbstractNode *)(*i1).get();
+
+                MaterialSystem::SeparateBlendScene *blend
+                    = pass->mutable_separate_scene_blend();
+
+                MaterialSystem::SimpleBlendType *simple
+                    = blend->mutable_blend_type();
 
                 switch (atom0->id)
                 {
                 case ID_ADD:
+                    {
+                        simple->set_color_blend(Script::MaterialSystem::BT_ADD);
+                        ret = true;
+                    }
+                    break;
                 case ID_MODULATE:
+                    {
+                        simple->set_color_blend(Script::MaterialSystem::BT_MODULATE);
+                        ret = true;
+                    }
+                    break;
                 case ID_COLOUR_BLEND:
+                    {
+                        simple->set_color_blend(Script::MaterialSystem::BT_COLOR_BLEND);
+                        ret = true;
+                    }
+                    break;
                 case ID_ALPHA_BLEND:
                     {
-                        uint16_t id = atom0->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        simple->set_color_blend(Script::MaterialSystem::BT_ALPHA_BLEND);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "separate_scene_blend does not support \"" + atom0->value + "\" as argument 1");
-                    return 0;
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            "separate_scene_blend does not support \"" 
+                            + atom0->value + "\" as argument 1");
+                        ret = false;
+                    }
+                    break;
+                }
+
+                if (!ret)
+                {
+                    return ret;
                 }
 
                 switch (atom1->id)
                 {
                 case ID_ADD:
+                    {
+                        simple->set_alpha_blend(Script::MaterialSystem::BT_ADD);
+                        ret = true;
+                    }
                 case ID_MODULATE:
+                    {
+                        simple->set_alpha_blend(Script::MaterialSystem::BT_MODULATE);
+                        ret = true;
+                    }
                 case ID_COLOUR_BLEND:
+                    {
+                        simple->set_alpha_blend(Script::MaterialSystem::BT_COLOR_BLEND);
+                        ret = true;
+                    }
                 case ID_ALPHA_BLEND:
                     {
-                        uint16_t id = atom1->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        simple->set_alpha_blend(Script::MaterialSystem::BT_ALPHA_BLEND);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "separate_scene_blend does not support \"" + atom1->value + "\" as argument 2");
-                    return 0;
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS,
+                            prop->name, prop->file, prop->line,
+                            "separate_scene_blend does not support \""
+                            + atom1->value + "\" as argument 2");
+                        ret = false;
+                    }
+                    break;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "separate_scene_blend does not support \"" + (*i0)->getValue() + "\" as argument 1");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "separate_scene_blend does not support \"" 
+                    + (*i0)->getValue() + "\" as argument 1");
+                ret = false;
             }
         }
         else
         {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1),
-                i2 = getNodeAt(prop->values, 2), i3 = getNodeAt(prop->values, 3);
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+            AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
+            AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
             AtomAbstractNode *atom0 = (AtomAbstractNode *)(i0->get());
             AtomAbstractNode *atom1 = (AtomAbstractNode *)(i1->get());
             AtomAbstractNode *atom2 = (AtomAbstractNode *)(i2->get());
             AtomAbstractNode *atom3 = (AtomAbstractNode *)(i3->get());
-            if ((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM && (*i2)->type == ANT_ATOM && (*i3)->type == ANT_ATOM)
+
+            if ((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM 
+                && (*i2)->type == ANT_ATOM && (*i3)->type == ANT_ATOM)
             {
                 if (atom0->id >= ID_ONE && atom0->id <= ID_ONE_MINUS_SRC_ALPHA
                     && atom1->id >= ID_ONE && atom1->id <= ID_ONE_MINUS_SRC_ALPHA
                     && atom2->id >= ID_ONE && atom2->id <= ID_ONE_MINUS_SRC_ALPHA
                     && atom3->id >= ID_ONE && atom3->id <= ID_ONE_MINUS_SRC_ALPHA)
                 {
-                    uint16_t id = atom0->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
-                    id = atom1->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
-                    id = atom2->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
-                    id = atom3->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
+                    MaterialSystem::SeparateBlendScene *blend
+                        = pass->mutable_separate_scene_blend();
+
+                    MaterialSystem::SimpleBlendSceneFactor *factor
+                        = blend->mutable_blend_factor();
+
+                    switch (atom0->id)
+                    {
+                    case ID_ONE:
+                        {
+                            factor->set_color_src_factor(MaterialSystem::BF_ONE);
+                        }
+                        break;
+                    case ID_ZERO:
+                        {
+                            factor->set_color_src_factor(MaterialSystem::BF_ZERO);
+                        }
+                        break;
+                    case ID_DEST_COLOUR:
+                        {
+                            factor->set_color_src_factor(MaterialSystem::BF_DEST_COLOR);
+                        }
+                        break;
+                    case ID_SRC_COLOUR:
+                        {
+                            factor->set_color_src_factor(MaterialSystem::BF_SRC_COLOR);
+                        }
+                        break;
+                    case ID_ONE_MINUS_DEST_COLOUR:
+                        {
+                            factor->set_color_src_factor(MaterialSystem::BF_ONE_MINUS_DEST_COLOR);
+                        }
+                        break;
+                    case ID_ONE_MINUS_SRC_COLOUR:
+                        {
+                            factor->set_color_src_factor(MaterialSystem::BF_ONE_MINUS_SRC_COLOR);
+                        }
+                        break;
+                    case ID_DEST_ALPHA:
+                        {
+                            factor->set_color_src_factor(MaterialSystem::BF_DEST_ALPHA);
+                        }
+                        break;
+                    case ID_SRC_ALPHA:
+                        {
+                            factor->set_color_src_factor(MaterialSystem::BF_SRC_ALPHA);
+                        }
+                        break;
+                    case ID_ONE_MINUS_DEST_ALPHA:
+                        {
+                            factor->set_color_src_factor(MaterialSystem::BF_ONE_MINUS_DEST_ALPHA);
+                        }
+                        break;
+                    case ID_ONE_MINUS_SRC_ALPHA:
+                        {
+                            factor->set_color_src_factor(MaterialSystem::BF_ONE_MINUS_SRC_ALPHA);
+                        }
+                        break;
+                    }
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "one of the arguments to separate_scene_blend is not a valid scene blend factor directive");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        "one of the arguments to separate_scene_blend is not "
+                        "a valid scene blend factor directive");
+                    ret = false;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "one of the arguments to separate_scene_blend is not a valid scene blend factor directive");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "one of the arguments to separate_scene_blend is not "
+                    "a valid scene blend factor directive");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateSceneBlendOp(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateSceneBlendOp(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "scene_blend_op must have 1 argument");
+            ret = false;
         }
         else
         {
             if (prop->values.front()->type == ANT_ATOM)
             {
                 AtomAbstractNode *atom = reinterpret_cast<AtomAbstractNode*>(prop->values.front().get());
+
                 switch (atom->id)
                 {
                 case ID_ADD:
+                    {
+                        pass->mutable_scene_blend_op()->set_value(Script::MaterialSystem::BO_ADD);
+                        ret = true;
+                    }
+                    break;
                 case ID_SUBTRACT:
+                    {
+                        pass->mutable_scene_blend_op()->set_value(Script::MaterialSystem::BO_SUBTRACT);
+                        ret = true;
+                    }
+                    break;
                 case ID_REVERSE_SUBTRACT:
+                    {
+                        pass->mutable_scene_blend_op()->set_value(Script::MaterialSystem::BO_REVERSE_SUBTRACT);
+                        ret = true;
+                    }
+                    break;
                 case ID_MIN:
+                    {
+                        pass->mutable_scene_blend_op()->set_value(Script::MaterialSystem::BO_MIN);
+                        ret = true;
+                    }
+                    break;
                 case ID_MAX:
                     {
-                        uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        pass->mutable_scene_blend_op()->set_value(Script::MaterialSystem::BO_MAX);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        atom->value + ": unrecognized argument");
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            atom->value + ": unrecognized argument");
+                        ret = false;
+                    }
                     break;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + ": unrecognized argument");
+                ret = false;
             }
         }
 
-        return bytesOfWritten;
+        return ret;
     }
 
-    size_t PassTranslator::translateSeparateSceneBlendOp(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateSeparateSceneBlendOp(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() != 2)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "separate_scene_blend_op must have 2 arguments");
+            ret = false;
         }
         else
         {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+
             if ((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM)
             {
-                AtomAbstractNode *atom0 = reinterpret_cast<AtomAbstractNode*>((*i0).get()),
-                    *atom1 = reinterpret_cast<AtomAbstractNode*>((*i1).get());
+                AtomAbstractNode *atom0 
+                    = reinterpret_cast<AtomAbstractNode *>((*i0).get());
+                AtomAbstractNode *atom1 
+                    = reinterpret_cast<AtomAbstractNode*>((*i1).get());
+
+                MaterialSystem::SeparateSceneBlendOperation *op 
+                    = pass->mutable_separate_scene_blend_op();
 
                 switch (atom0->id)
                 {
                 case ID_ADD:
+                    {
+                        op->set_color_op(Script::MaterialSystem::BO_ADD);
+                        ret = true;
+                    }
+                    break;
                 case ID_SUBTRACT:
+                    {
+                        op->set_color_op(Script::MaterialSystem::BO_SUBTRACT);
+                        ret = true;
+                    }
+                    break;
                 case ID_REVERSE_SUBTRACT:
+                    {
+                        op->set_color_op(Script::MaterialSystem::BO_REVERSE_SUBTRACT);
+                        ret = true;
+                    }
+                    break;
                 case ID_MIN:
+                    {
+                        op->set_color_op(Script::MaterialSystem::BO_MIN);
+                        ret = true;
+                    }
+                    break;
                 case ID_MAX:
                     {
-                        uint16_t id = atom0->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        op->set_color_op(Script::MaterialSystem::BO_MAX);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        atom0->value + ": unrecognized first argument");
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS,
+                            prop->name, prop->file, prop->line,
+                            atom0->value + ": unrecognized first argument");
+                        ret = false;
+                    }
                     break;
+                }
+
+                if (!ret)
+                {
+                    return ret;
                 }
 
                 switch (atom1->id)
                 {
                 case ID_ADD:
+                    {
+                        op->set_alpha_op(Script::MaterialSystem::BO_ADD);
+                        ret = true;
+                    }
+                    break;
                 case ID_SUBTRACT:
+                    {
+                        op->set_alpha_op(Script::MaterialSystem::BO_SUBTRACT);
+                        ret = true;
+                    }
+                    break;
                 case ID_REVERSE_SUBTRACT:
+                    {
+                        op->set_alpha_op(Script::MaterialSystem::BO_REVERSE_SUBTRACT);
+                        ret = true;
+                    }
+                    break;
                 case ID_MIN:
+                    {
+                        op->set_alpha_op(Script::MaterialSystem::BO_MIN);
+                        ret = true;
+                    }
                 case ID_MAX:
                     {
-                        uint16_t id = atom1->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        op->set_alpha_op(Script::MaterialSystem::BO_MAX);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        atom1->value + ": unrecognized second argument");
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS,
+                            prop->name, prop->file, prop->line,
+                            atom1->value + ": unrecognized second argument");
+                        ret = false;
+                    }
                     break;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + ": unrecognized argument");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return false;
     }
 
-    size_t PassTranslator::translateDepthCheck(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateDepthCheck(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "depth_check must have 1 argument");
+            ret = false;
         }
         else
         {
             bool val = true;
+
             if (getBoolean(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_depth_check()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "depth_check third argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "depth_check third argument must be \"true\", \"false\", "
+                    "\"yes\", \"no\", \"on\", or \"off\"");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateDepthWrite(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateDepthWrite(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "depth_write must have 1 argument");
+            ret = false;
         }
         else
         {
             bool val = true;
+
             if (getBoolean(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_depth_write()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "depth_write third argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "depth_write third argument must be \"true\", \"false\", "
+                    "\"yes\", \"no\", \"on\", or \"off\"");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateDepthBias(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateDepthBias(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 2)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "depth_bias must have at most 2 arguments");
+            ret = false;
         }
         else
         {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
             float32_t val0, val1 = 0.0f;
+
             if (getSingle(*i0, &val0))
             {
+                MaterialSystem::DepthBias *bias = pass->mutable_depth_bias();
+
                 if (i1 != prop->values.end() && getSingle(*i1, &val1))
                 {
-                    uint16_t argc = 2;
-                    bytesOfWritten = stream.write(&argc, sizeof(argc));
-                    totalBytes += bytesOfWritten;
-                    bytesOfWritten = stream.write(&val0, sizeof(val0));
-                    totalBytes += bytesOfWritten;
-                    bytesOfWritten = stream.write(&val1, sizeof(val1));
-                    totalBytes += bytesOfWritten;
+                    bias->set_constant_bias(val0);
+                    bias->set_slopescale_bias(val1);
                 }
                 else
                 {
-                    uint16_t argc = 1;
-                    bytesOfWritten = stream.write(&argc, sizeof(argc));
-                    totalBytes += bytesOfWritten;
-                    bytesOfWritten = stream.write(&val0, sizeof(val0));
-                    totalBytes += bytesOfWritten;
+                    bias->set_constant_bias(val0);
                 }
+
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "depth_bias does not support \"" + (*i0)->getValue() + "\" for argument 1");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "depth_bias does not support \"" + (*i0)->getValue() 
+                    + "\" for argument 1");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateDepthFunc(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateDepthFunc(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "depth_func must have 1 argument");
+            ret = false;
         }
         else
         {
@@ -2129,375 +2553,559 @@ namespace Tiny3D
             switch (atom->id)
             {
             case ID_ALWAYS_FAIL:
+                {
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_ALWAYS_FAIL);
+                    ret = true;
+                }
+                break;
             case ID_ALWAYS_PASS:
+                {
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_ALWAYS_PASS);
+                    ret = true;
+                }
+                break;
             case ID_LESS:
+                {
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_LESS);
+                    ret = true;
+                }
+                break;
             case ID_LESS_EQUAL:
+                {
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_LESS_EQUAL);
+                    ret = true;
+                }
+                break;
             case ID_EQUAL:
+                {
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_EQUAL);
+                    ret = true;
+                }
+                break;
             case ID_NOT_EQUAL:
+                {
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_NOT_EQUAL);
+                    ret = true;
+                }
+                break;
             case ID_GREATER_EQUAL:
+                {
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_GREATER_EQUAL);
+                    ret = true;
+                }
+                break;
             case ID_GREATER:
                 {
-                    uint16_t id = atom->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
+                    pass->mutable_depth_func()->set_value(Script::MaterialSystem::CF_GREATER);
+                    ret = true;
                 }
                 break;
             default:
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " is not a valid CompareFunction");
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        prop->values.front()->getValue() 
+                        + " is not a valid CompareFunction");
+                    ret = false;
+                }
                 break;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateIterationDepthBias(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateIterationDepthBias(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "iteration_depth_bias must have 1 argument");
+            ret = false;
         }
         else
         {
             float32_t val = 0.0f;
             if (getSingle(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_iteration_depth_bias()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " is not a valid float value");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() 
+                    + " is not a valid float value");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateAlphaRejection(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateAlphaRejection(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 2)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "alpha_rejection must have at most 2 arguments");
+            ret = false;
         }
         else
         {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
             AtomAbstractNode *atom0 = (AtomAbstractNode*)((*i0).get());
 
-            uint16_t argc = 1;
+            MaterialSystem::AlphaRejection *ar = pass->mutable_alpha_rejection();
+
             uint32_t val = 0;
-
-            if (i1 != prop->values.end())
-            {
-                if (getUInt(*i1, &val))
-                {
-                    argc = 2;
-                }
-                else
-                {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        (*i1)->getValue() + " is not a valid integer");
-                }
-            }
-
-            bytesOfWritten = stream.write(&argc, sizeof(argc));
-            totalBytes += bytesOfWritten;
 
             switch (atom0->id)
             {
             case ID_ALWAYS_FAIL:
+                {
+                    ar->set_function(Script::MaterialSystem::CF_ALWAYS_FAIL);
+                    ret = true;
+                }
+                break;
             case ID_ALWAYS_PASS:
+                {
+                    ar->set_function(Script::MaterialSystem::CF_ALWAYS_PASS);
+                    ret = true;
+                }
+                break;
             case ID_LESS:
+                {
+                    ar->set_function(Script::MaterialSystem::CF_LESS);
+                    ret = true;
+                }
+                break;
             case ID_LESS_EQUAL:
+                {
+                    ar->set_function(Script::MaterialSystem::CF_LESS_EQUAL);
+                    ret = true;
+                }
+                break;
             case ID_EQUAL:
+                {
+                    ar->set_function(Script::MaterialSystem::CF_EQUAL);
+                    ret = true;
+                }
+                break;
             case ID_NOT_EQUAL:
+                {
+                    ar->set_function(Script::MaterialSystem::CF_NOT_EQUAL);
+                    ret = true;
+                }
+                break;
             case ID_GREATER_EQUAL:
+                {
+                    ar->set_function(Script::MaterialSystem::CF_GREATER_EQUAL);
+                    ret = true;
+                }
+                break;
             case ID_GREATER:
                 {
-                    uint16_t id = atom0->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
+                    ar->set_function(Script::MaterialSystem::CF_GREATER);
+                    ret = true;
                 }
                 break;
             default:
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    (*i0)->getValue() + " is not a valid CompareFunction");
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        (*i0)->getValue() + " is not a valid CompareFunction");
+                    ret = false;
+                }
                 break;
             }
 
-            if (argc == 2)
+            if (!ret && i1 != prop->values.end())
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                if (getUInt(*i1, &val))
+                {
+                    ar->set_value(val);
+                }
+                else
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS,
+                        prop->name, prop->file, prop->line,
+                        (*i1)->getValue() + " is not a valid integer");
+                    ret = false;
+                }
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateAlphaToCoverage(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateAlphaToCoverage(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "alpha_to_coverage must have 1 argument");
+            ret = false;
         }
         else
         {
             bool val = true;
             if (getBoolean(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_alpha_to_coverage()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "alpha_to_coverage argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "alpha_to_coverage argument must be \"true\", \"false\", "
+                    "\"yes\", \"no\", \"on\", or \"off\"");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateLightScissor(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateLightScissor(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "light_scissor must have only 1 argument");
+            ret = false;
         }
         else
         {
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_light_scissor()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid boolean");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateLightClipPlanes(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateLightClipPlanes(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "light_clip_planes must have at most 1 argument");
+            ret = false;
         }
         else
         {
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_light_clip_planes()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid boolean");
+                ret = false;
             }
         }
 
-        return bytesOfWritten;
+        return ret;
     }
 
-    size_t PassTranslator::translateTransparentSorting(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateTransparentSorting(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "transparent_sorting must have at most 1 argument");
+            ret = false;
         }
         else
         {
             bool val = true;
             if (getBoolean(prop->values.front(), &val))
             {
-                uint8_t v = val ? 1 : 0;
-                bytesOfWritten = stream.write(&v, sizeof(v));
-                totalBytes += bytesOfWritten;
+                if (val)
+                {
+                    pass->mutable_transparent_sorting()->set_value(Script::MaterialSystem::TS_ON);
+                }
+                else
+                {
+                    pass->mutable_transparent_sorting()->set_value(Script::MaterialSystem::TS_OFF);
+                }
+
+                ret = true;
             }
             else
             {
                 String val2;
                 if (getString(prop->values.front(), &val2) && val2 == "force")
                 {
-                    uint8_t v = 2;
-                    bytesOfWritten = stream.write(&v, sizeof(v));
-                    totalBytes += bytesOfWritten;
+                    pass->mutable_transparent_sorting()->set_value(Script::MaterialSystem::TS_FORCE);
+                    ret = true;
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        prop->values.front()->getValue() + " must be boolean or force");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        prop->values.front()->getValue() 
+                        + " must be boolean or force");
+                    ret = false;
                 }
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateIlluminationStage(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateIlluminationStage(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "illumination_stage must have at most 1 argument");
+            ret = false;
         }
         else
         {
             if (prop->values.front()->type == ANT_ATOM)
             {
-                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                AtomAbstractNode *atom 
+                    = (AtomAbstractNode*)prop->values.front().get();
+
                 switch (atom->id)
                 {
                 case ID_AMBIENT:
+                    {
+                        pass->mutable_illumination_stage()->set_stage(Script::MaterialSystem::IS_AMBIENT);
+                        ret = true;
+                    }
+                    break;
                 case ID_PER_LIGHT:
+                    {
+                        pass->mutable_illumination_stage()->set_stage(Script::MaterialSystem::IS_PER_LIGHT);
+                        ret = true;
+                    }
+                    break;
                 case ID_DECAL:
                     {
-                        uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        pass->mutable_illumination_stage()->set_stage(Script::MaterialSystem::IS_DECAL);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        prop->values.front()->getValue() + " is not a valid IlluminationStage");
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            prop->values.front()->getValue() 
+                            + " is not a valid IlluminationStage");
+                        ret = false;
+                    }
+                    
                     break;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " is not a valid IlluminationStage");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() 
+                    + " is not a valid IlluminationStage");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateCullHardware(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateCullHardware(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "cull_hardware must have at most 1 argument");
+            ret = false;
         }
         else
         {
             if (prop->values.front()->type == ANT_ATOM)
             {
-                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                AtomAbstractNode *atom 
+                    = (AtomAbstractNode*)prop->values.front().get();
+
                 switch (atom->id)
                 {
                 case ID_CLOCKWISE:
+                    {
+                        pass->mutable_cull_hardware()->set_value(Script::MaterialSystem::CH_CLOCKWISE);
+                        ret = true;
+                    }
+                    break;
                 case ID_ANTICLOCKWISE:
+                    {
+                        pass->mutable_cull_hardware()->set_value(Script::MaterialSystem::CH_ANTICLOCKWISE);
+                        ret = true;
+                    }
+                    break;
                 case ID_NONE:
                     {
-                        uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        pass->mutable_cull_hardware()->set_value(Script::MaterialSystem::CH_NONE);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        prop->values.front()->getValue() + " is not a valid CullingMode");
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            prop->values.front()->getValue() 
+                            + " is not a valid CullingMode");
+                        ret = false;
+                    }
                     break;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " is not a valid CullingMode");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() 
+                    + " is not a valid CullingMode");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateCullSoftware(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateCullSoftware(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "cull_software must have at most 1 argument");
+            ret = false;
         }
         else
         {
@@ -2507,107 +3115,146 @@ namespace Tiny3D
                 switch (atom->id)
                 {
                 case ID_FRONT:
+                    {
+                        pass->mutable_cull_software()->set_value(Script::MaterialSystem::CS_FRONT);
+                        ret = true;
+                    }
+                    break;
                 case ID_BACK:
+                    {
+                        pass->mutable_cull_software()->set_value(Script::MaterialSystem::CS_BACK);
+                        ret = true;
+                    }
+                    break;
                 case ID_NONE:
                     {
-                        uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        pass->mutable_cull_software()->set_value(Script::MaterialSystem::CS_NONE);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        prop->values.front()->getValue() + " is not a valid ManualCullingMode");
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            prop->values.front()->getValue() 
+                            + " is not a valid ManualCullingMode");
+                        ret = false;
+                    }
                     break;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " is not a valid ManualCullingMode");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() 
+                    + " is not a valid ManualCullingMode");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateNormalizeNormals(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateNormalizeNormals(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "normalise_normals must have at most 1 argument");
+            ret = false;
         }
         else
         {
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_normailize_normals()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid boolean");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateLighting(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateLighting(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "lighting must have at most 1 argument");
+            ret = false;
         }
         else
         {
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_lighting()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid boolean");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateShading(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateShading(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "shading must have at most 1 argument");
+            ret = false;
         }
         else
         {
@@ -2617,138 +3264,191 @@ namespace Tiny3D
                 switch (atom->id)
                 {
                 case ID_FLAT:
+                    {
+                        pass->mutable_shading()->set_value(Script::MaterialSystem::SM_FLAT);
+                        ret = true;
+                    }
+                    break;
                 case ID_GOURAUD:
+                    {
+                        pass->mutable_shading()->set_value(Script::MaterialSystem::SM_GOURAUD);
+                        ret = true;
+                    }
+                    break;
                 case ID_PHONG:
                     {
-                        uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        pass->mutable_shading()->set_value(Script::MaterialSystem::SM_PHONG);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        prop->values.front()->getValue() + " is not a valid shading mode (flat, gouraud, or phong)");
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            prop->values.front()->getValue() + " is not a valid"
+                            " shading mode (flat, gouraud, or phong)");
+                        ret = false;
+                    }
+                    break;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " is not a valid shading mode (flat, gouraud, or phong)");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() 
+                    + " is not a valid shading mode (flat, gouraud, or phong)");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translatePolygonMode(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translatePolygonMode(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "polygon_mode must have at most 1 argument");
+            ret = false;
         }
         else
         {
             if (prop->values.front()->type == ANT_ATOM)
             {
-                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                AtomAbstractNode *atom 
+                    = (AtomAbstractNode*)prop->values.front().get();
+
                 switch (atom->id)
                 {
                 case ID_SOLID:
+                    {
+                        pass->mutable_polygon_mode()->set_value(Script::MaterialSystem::PM_SOLID);
+                        ret = true;
+                    }
+                    break;
                 case ID_POINTS:
+                    {
+                        pass->mutable_polygon_mode()->set_value(Script::MaterialSystem::PM_POINTS);
+                        ret = true;
+                    }
+                    break;
                 case ID_WIREFRAME:
                     {
-                        uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        pass->mutable_polygon_mode()->set_value(Script::MaterialSystem::PM_WIREFRAME);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        prop->values.front()->getValue() + " is not a valid polygon mode (solid, points, or wireframe)");
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            prop->values.front()->getValue() + " is not a valid"
+                            " polygon mode (solid, points, or wireframe)");
+                        ret = false;
+                    }
+                    
                     break;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " is not a valid polygon mode (solid, points, or wireframe)");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid polygon"
+                    " mode (solid, points, or wireframe)");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translatePolygonModeOverridable(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translatePolygonModeOverridable(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "polygon_mode_overrideable must have at most 1 argument");
+            ret = false;
         }
         else
         {
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_polygon_mode_overrideable()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid boolean");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateFogOverride(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateFogOverride(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 8)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "fog_override must have at most 8 arguments");
+            ret = false;
         }
         else
         {
-            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2);
+            AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+            AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
             bool val = false;
+
             if (getBoolean(prop->values.front(), &val))
             {
-                // number of arguments
-                uint16_t argc = (uint16_t)prop->values.size();
-                bytesOfWritten = stream.write(&argc, sizeof(argc));
-                totalBytes += bytesOfWritten;
+                MaterialSystem::Fog *fog = pass->mutable_fog();
 
                 // override
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
-
-                ColorRGBA clr = ColorRGBA::WHITE;
-                float32_t dens = 0.001f, start = 0.0f, end = 1.0f;
+                fog->set_overrideable(val);
 
                 // type
                 if (i1 != prop->values.end())
@@ -2759,89 +3459,124 @@ namespace Tiny3D
                         switch (atom->id)
                         {
                         case ID_NONE:
+                            {
+                                fog->set_type(Script::MaterialSystem::FT_NONE);
+                                ret = true;
+                            }
+                            break;
                         case ID_LINEAR:
+                            {
+                                fog->set_type(Script::MaterialSystem::FT_LINEAR);
+                                ret = true;
+                            }
+                            break;
                         case ID_EXP:
+                            {
+                                fog->set_type(Script::MaterialSystem::FT_EXP);
+                                ret = true;
+                            }
+                            break;
                         case ID_EXP2:
                             {
-                                uint16_t id = atom->id;
-                                bytesOfWritten = stream.write(&id, sizeof(id));
-                                totalBytes += bytesOfWritten;
+                                fog->set_type(Script::MaterialSystem::FT_EXP2);
+                                ret = true;
                             }
                             break;
                         default:
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                (*i1)->getValue() + " is not a valid FogMode");
+                            {
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                    prop->name, prop->file, prop->line,
+                                    (*i1)->getValue() 
+                                    + " is not a valid FogMode");
+                                ret = false;
+                            }
                             break;
                         }
                     }
                     else
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
                             (*i1)->getValue() + " is not a valid FogMode");
-                        return 0;
+                        ret = false;
                     }
                 }
 
                 // color
-                if (i2 != prop->values.end())
+                if (!ret && i2 != prop->values.end())
                 {
-                    if (!getColor(i2, prop->values.end(), &clr, 3))
+                    MaterialSystem::Color *clr = fog->mutable_color();
+                    if (getColor(i2, prop->values.end(), clr, 3))
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            (*i2)->getValue() + " is not a valid colour");
-                        return 0;
+                        ret = true;
                     }
-
-                    bytesOfWritten = writeColor(clr, stream);
-                    totalBytes += bytesOfWritten;
+                    else
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS,
+                            prop->name, prop->file, prop->line,
+                            (*i2)->getValue() + " is not a valid color");
+                        ret = false;
+                    }
 
                     i2 = getNodeAt(prop->values, 5);
                 }
 
                 // density
-                if (i2 != prop->values.end())
+                if (!ret && i2 != prop->values.end())
                 {
-                    if (!getSingle(*i2, &dens))
+                    float32_t dens;
+                    if (getSingle(*i2, &dens))
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            (*i2)->getValue() + " is not a valid number");
-                        return 0;
+                        fog->set_density(dens);
+                        ret = true;
                     }
-
-                    bytesOfWritten = stream.write(&dens, sizeof(dens));
-                    totalBytes += bytesOfWritten;
+                    else
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            (*i2)->getValue() + " is not a valid number");
+                        ret = false;
+                    }
 
                     ++i2;
                 }
 
                 // start
-                if (i2 != prop->values.end())
+                if (!ret && i2 != prop->values.end())
                 {
-                    if (!getSingle(*i2, &start))
+                    float32_t start;
+                    if (getSingle(*i2, &start))
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            (*i2)->getValue() + " is not a valid number");
-                        return 0;
+                        fog->set_start(start);
+                        ret = true;
                     }
-
-                    bytesOfWritten = stream.write(&start, sizeof(start));
-                    totalBytes += bytesOfWritten;
+                    else
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            (*i2)->getValue() + " is not a valid number");
+                        ret = false;
+                    }
 
                     ++i2;
                 }
 
                 // end
-                if (i2 != prop->values.end())
+                if (!ret && i2 != prop->values.end())
                 {
-                    if (!getSingle(*i2, &end))
+                    float32_t end;
+                    if (getSingle(*i2, &end))
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            (*i2)->getValue() + " is not a valid number");
-                        return 0;
+                        fog->set_end(end);
+                        ret = true;
                     }
-
-                    bytesOfWritten = stream.write(&end, sizeof(end));
-                    totalBytes += bytesOfWritten;
+                    else
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            (*i2)->getValue() + " is not a valid number");
+                        ret = false;
+                    }
 
                     ++i2;
                 }
@@ -2849,146 +3584,180 @@ namespace Tiny3D
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid boolean");
-                return 0;
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateColorWrite(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateColorWrite(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "colour_write must have at most 1 argument");
+            ret = false;
         }
         else
         {
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_color_write()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid boolean");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateMaxLights(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateMaxLights(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "max_lights must have at most 1 argument");
+            ret = false;
         }
         else
         {
             uint32_t val = 0;
             if (getUInt(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_max_lights()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid integer");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translateStartLight(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateStartLight(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "start_light must have at most 1 argument");
+            ret = false;
         }
         else
         {
             uint32_t val = 0;
             if (getUInt(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_start_light()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid integer");
+                ret = false;
             }
         }
 
-        return bytesOfWritten;
+        return ret;
     }
 
-    size_t PassTranslator::translateLightMask(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateLightMask(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else
         {
             uint32_t val = 0;
             if (getUInt(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid integer");
+                ret = false;
             }
         }
 
-        return bytesOfWritten;
+        return ret;
     }
 
-    size_t PassTranslator::translateIteration(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translateIteration(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else
         {
@@ -2996,59 +3765,65 @@ namespace Tiny3D
 
             if ((*i0)->type == ANT_ATOM)
             {
-                // number of argument
-                uint16_t argc = (uint16_t)prop->values.size();
-                bytesOfWritten = stream.write(&argc, sizeof(argc));
-                totalBytes += bytesOfWritten;
-
                 AtomAbstractNode *atom = (AtomAbstractNode*)(*i0).get();
+
+                MaterialSystem::Iteration *iter = pass->mutable_iteration();
+
                 if (atom->id == ID_ONCE)
                 {
                     // once
-                    uint16_t id = atom->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
+                    iter->mutable_once()->set_type(Script::MaterialSystem::IT_ONCE);
+                    ret = true;
                 }
                 else if (atom->id == ID_ONCE_PER_LIGHT)
                 {
                     // once_per_light
-                    uint16_t id = atom->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
+                    auto once_per_light = iter->mutable_once_per_light();
+                    once_per_light->set_type(Script::MaterialSystem::IT_ONCE_PER_LIGHT);
 
                     AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+
                     if (i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
                     {
                         atom = (AtomAbstractNode*)(*i1).get();
                         switch (atom->id)
                         {
                         case ID_POINT:
+                            {
+                                once_per_light->set_light_type(Script::MaterialSystem::LT_POINT);
+                                ret = true;
+                            }
+                            break;
                         case ID_DIRECTIONAL:
+                            {
+                                once_per_light->set_light_type(Script::MaterialSystem::LT_DIRECTIONAL);
+                                ret = true;
+                            }
+                            break;
                         case ID_SPOT:
                             {
-                                id = atom->id;
-                                bytesOfWritten = stream.write(&id, sizeof(id));
-                                totalBytes += bytesOfWritten;
+                                once_per_light->set_light_type(Script::MaterialSystem::LT_SPOT);
+                                ret = true;
                             }
                             break;
                         default:
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                prop->values.front()->getValue() + " is not a valid light type (point, directional, or spot)");
+                            {
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                    prop->name, prop->file, prop->line,
+                                    prop->values.front()->getValue() 
+                                    + " is not a valid light type (point, "
+                                    "directional, or spot)");
+                                ret = false;
+                            }
                             break;
                         }
                     }
                 }
                 else if (StringConverter::isNumber(atom->value))
                 {
-                    // number
-                    uint16_t id = 0;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
-
                     // value of the number
-                    int32_t val = StringConverter::parseInt32(atom->value);
-                    bytesOfWritten = stream.write(&val, sizeof(val));
-                    totalBytes += bytesOfWritten;
+                    uint32_t val = StringConverter::parseUInt32(atom->value);
+                    ret = true;
 
                     AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
                     if (i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
@@ -3056,10 +3831,13 @@ namespace Tiny3D
                         atom = (AtomAbstractNode*)(*i1).get();
                         if (atom->id == ID_PER_LIGHT)
                         {
+                            auto per_light = iter->mutable_per_light();
+
+                            // number
+                            per_light->set_number(val);
+
                             // per_light
-                            id = atom->id;
-                            bytesOfWritten = stream.write(&id, sizeof(id));
-                            totalBytes += bytesOfWritten;
+                            per_light->set_type(Script::MaterialSystem::IT_PER_LIGHT);
 
                             // light type
                             AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
@@ -3069,591 +3847,657 @@ namespace Tiny3D
                                 switch (atom->id)
                                 {
                                 case ID_POINT:
+                                    {
+                                        per_light->set_light_type(Script::MaterialSystem::LT_POINT);
+                                        ret = true;
+                                    }
+                                    break;
                                 case ID_DIRECTIONAL:
+                                    {
+                                        per_light->set_light_type(Script::MaterialSystem::LT_DIRECTIONAL);
+                                        ret = true;
+                                    }
+                                    break;
                                 case ID_SPOT:
                                     {
-                                        id = atom->id;
-                                        bytesOfWritten = stream.write(&id, sizeof(id));
-                                        totalBytes += bytesOfWritten;
+                                        per_light->set_light_type(Script::MaterialSystem::LT_SPOT);
+                                        ret = true;
                                     }
                                     break;
                                 default:
-                                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                        (*i2)->getValue() + " is not a valid light type (point, directional, or spot)");
+                                    {
+                                        ScriptError::printError(
+                                            CERR_INVALIDPARAMETERS, 
+                                            prop->name, prop->file, prop->line,
+                                            (*i2)->getValue() 
+                                            + " is not a valid light type "
+                                            "(point, directional, or spot)");
+                                        ret = false;
+                                    }
                                     break;
                                 }
                             }
                         }
                         else if (ID_PER_N_LIGHTS)
                         {
+                            auto per_n_lights = iter->mutable_per_n_light();
+
+                            // number
+                            per_n_lights->set_number(val);
+
                             // per_n_lights
-                            id = atom->id;
-                            bytesOfWritten = stream.write(&id, sizeof(id));
-                            totalBytes += bytesOfWritten;
+                            per_n_lights->set_type(Script::MaterialSystem::IT_PER_N_LIGHTS);
 
                             AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
+
                             if (i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
                             {
                                 atom = (AtomAbstractNode*)(*i2).get();
+
                                 if (StringConverter::isNumber(atom->value))
                                 {
-                                    // value
-                                    int32_t val = StringConverter::parseInt32(atom->value);
-                                    bytesOfWritten = stream.write(&val, sizeof(val));
-                                    totalBytes += bytesOfWritten;
+                                    // num_lights
+                                    uint32_t numLights = StringConverter::parseUInt32(atom->value);
+                                    per_n_lights->set_num_lights(numLights);
 
                                     // light type
                                     AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
+
                                     if (i3 != prop->values.end() && (*i3)->type == ANT_ATOM)
                                     {
                                         atom = (AtomAbstractNode*)(*i3).get();
                                         switch (atom->id)
                                         {
                                         case ID_POINT:
+                                            {
+                                                per_n_lights->set_light_type(Script::MaterialSystem::LT_POINT);
+                                                ret = true;
+                                            }
+                                            break;
                                         case ID_DIRECTIONAL:
+                                            {
+                                                per_n_lights->set_light_type(Script::MaterialSystem::LT_DIRECTIONAL);
+                                                ret = true;
+                                            }
+                                            break;
                                         case ID_SPOT:
                                             {
-                                                id = atom->id;
-                                                bytesOfWritten = stream.write(&id, sizeof(id));
-                                                totalBytes += bytesOfWritten;
+                                                per_n_lights->set_light_type(Script::MaterialSystem::LT_SPOT);
+                                                ret = true;
                                             }
                                             break;
                                         default:
-                                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                                (*i3)->getValue() + " is not a valid light type (point, directional, or spot)");
+                                            {
+                                                ScriptError::printError(
+                                                    CERR_INVALIDPARAMETERS, 
+                                                    prop->name, prop->file, prop->line,
+                                                    (*i3)->getValue() + 
+                                                    " is not a valid light type "
+                                                    "(point, directional, or spot)");
+                                                ret = false;
+                                            }
                                             break;
                                         }
                                     }
                                 }
                                 else
                                 {
-                                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                                    ScriptError::printError(CERR_NUMBEREXPECTED, 
+                                        prop->name, prop->file, prop->line,
                                         (*i2)->getValue() + " is not a valid number");
+                                    ret = false;
                                 }
                             }
                             else
                             {
-                                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
-                                    prop->values.front()->getValue() + " is not a valid number");
+                                ScriptError::printError(CERR_NUMBEREXPECTED, 
+                                    prop->name, prop->file, prop->line,
+                                    prop->values.front()->getValue() 
+                                    + " is not a valid number");
+                                ret = false;
                             }
                         }
+                    }
+                    else
+                    {
+                        iter->mutable_number()->set_number(val);
                     }
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line);
+                    ret = false;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line);
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translatePointSize(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translatePointSize(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "point_size must have at most 1 argument");
+            ret = false;
         }
         else
         {
             float32_t val = 0.0f;
             if (getSingle(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_point_size()->set_value(val);
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid number");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translatePointSprites(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translatePointSprites(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "point_sprites must have at most 1 argument");
+            ret = false;
         }
         else
         {
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                pass->mutable_point_sprites()->set_value(val);
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid boolean");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
-    size_t PassTranslator::translatePointSizeAttenuation(PropertyAbstractNode *prop, DataStream &stream)
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translatePointSizeAttenuation(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 4)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "point_size_attenuation must have at most 4 arguments");
+            ret = false;
         }
         else
         {
             bool val = false;
             if (getBoolean(prop->values.front(), &val))
             {
-                // number of arguments
-                uint16_t argc = (uint16_t)prop->values.size();
-                bytesOfWritten = stream.write(&argc, sizeof(argc));
-                totalBytes += bytesOfWritten;
-
                 // switch flag
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                MaterialSystem::PointSizeAttenuation *a = pass->mutable_point_size_attenuation();
+                a->set_enable(val);
 
                 if (val)
                 {
-                    AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2),
-                        i3 = getNodeAt(prop->values, 3);
+                    auto i1 = getNodeAt(prop->values, 1);
+                    auto i2 = getNodeAt(prop->values, 2);
+                    auto i3 = getNodeAt(prop->values, 3);
 
                     if (prop->values.size() > 1)
                     {
-                        float32_t constant = 0.0f, linear = 1.0f, quadratic = 0.0f;
+                        float32_t constant, linear, quadratic;
 
                         if (i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
                         {
+                            // constant
                             AtomAbstractNode *atom = (AtomAbstractNode*)(*i1).get();
                             if (StringConverter::isNumber(atom->value))
                             {
                                 constant = StringConverter::parseSingle(atom->value);
-                                bytesOfWritten = stream.write(&constant, sizeof(constant));
-                                totalBytes += bytesOfWritten;
+                                a->set_constant(constant);
+                                ret = true;
                             }
                             else
                             {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                    prop->name, prop->file, prop->line);
+                                ret = false;
                             }
                         }
                         else
                         {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                prop->name, prop->file, prop->line,
                                 (*i1)->getValue() + " is not a valid number");
+                            ret = false;
                         }
 
                         if (i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
                         {
+                            // linear
                             AtomAbstractNode *atom = (AtomAbstractNode*)(*i2).get();
                             if (StringConverter::isNumber(atom->value))
                             {
                                 linear = StringConverter::parseSingle(atom->value);
-                                bytesOfWritten = stream.write(&linear, sizeof(linear));
-                                totalBytes += bytesOfWritten;
+                                a->set_linear(linear);
+                                ret = true;
                             }
                             else
                             {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                                ScriptError::printError(CERR_INVALIDPARAMETERS,
+                                    prop->name, prop->file, prop->line);
+                                ret = false;
                             }
                         }
                         else
                         {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                prop->name, prop->file, prop->line,
                                 (*i2)->getValue() + " is not a valid number");
+                            ret = false;
                         }
 
                         if (i3 != prop->values.end() && (*i3)->type == ANT_ATOM)
                         {
+                            // quadratic
                             AtomAbstractNode *atom = (AtomAbstractNode*)(*i3).get();
                             if (StringConverter::isNumber(atom->value))
                             {
                                 quadratic = StringConverter::parseSingle(atom->value);
-                                bytesOfWritten = stream.write(&quadratic, sizeof(quadratic));
-                                totalBytes += bytesOfWritten;
+                                a->set_quadratic(quadratic);
+                                ret = true;
                             }
                             else
                             {
-                                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                    prop->name, prop->file, prop->line);
+                                ret = false;
                             }
                         }
                         else
                         {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                prop->name, prop->file, prop->line,
                                 (*i3)->getValue() + " is not a valid number");
+                            ret = false;
                         }
                     }
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     prop->values.front()->getValue() + " is not a valid boolean");
+                ret = false;
             }
         }
 
-        return totalBytes;
-    }
-
-    size_t PassTranslator::translatePointSizeMin(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        if (prop->values.empty())
-        {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-        }
-        else if (prop->values.size() > 1)
-        {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                "point_size_min must have at most 1 argument");
-        }
-        else
-        {
-            float32_t val = 0.0f;
-            if (getSingle(prop->values.front(), &val))
-            {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
-            }
-            else
-            {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " is not a valid number");
-            }
-        }
-
-        return totalBytes;
-    }
-
-    size_t PassTranslator::translatePointSizeMax(PropertyAbstractNode *prop, DataStream &stream)
-    {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        if (prop->values.empty())
-        {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
-        }
-        else if (prop->values.size() > 1)
-        {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
-                "point_size_max must have at most 1 argument");
-        }
-        else
-        {
-            float32_t val = 0.0f;
-            if (getSingle(prop->values.front(), &val))
-            {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
-            }
-            else
-            {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " is not a valid number");
-            }
-        }
-
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node)
+    bool PassTranslator::translatePointSizeMin(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+    {
+        bool ret = false;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "point_size_min must have at most 1 argument");
+            ret = false;
+        }
+        else
+        {
+            float32_t val = 0.0f;
+            if (getSingle(prop->values.front(), &val))
+            {
+                pass->mutable_point_size_min()->set_value(val);
+                ret = true;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid number");
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool PassTranslator::translatePointSizeMax(
+        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+    {
+        bool ret = false;
+
+        if (prop->values.empty())
+        {
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
+        }
+        else if (prop->values.size() > 1)
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
+                "point_size_max must have at most 1 argument");
+            ret = false;
+        }
+        else
+        {
+            float32_t val = 0.0f;
+            if (getSingle(prop->values.front(), &val))
+            {
+                pass->mutable_point_size_max()->set_value(val);
+                ret = true;
+            }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid number");
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool TextureUnitTranslator::translate(ScriptCompiler *compiler, 
+        void *object, const AbstractNodePtr &node)
     {
         ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
 
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        // 对象头数据
-        bytesOfWritten = translateObjectHeader(obj, stream);
-        totalBytes += bytesOfWritten;
-
-        size_t headerSize = bytesOfWritten;
-        long_t current = stream.tell();
-        long_t start = current;
-        current -= 16;
-
-        String sval;
+        // 对象头数据a
+        MaterialSystem::Pass *pass = (MaterialSystem::Pass *)object;
+        MaterialSystem::TextureUnit *unit = pass->add_textures();
+        MaterialSystem::Header *header = unit->mutable_header();
+        bool ret = translateObjectHeader(obj, header);
+        if (!ret)
+        {
+            return ret;
+        }
 
         // Set the properties for the material
-        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        for (auto i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
             {
                 PropertyAbstractNode *prop = static_cast<PropertyAbstractNode*>((*i).get());
 
-                // Type
-                uint16_t type = (*i)->type;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
-
-                // ID
-                uint16_t id = prop->id;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
-
                 // 属性
                 switch (prop->id)
                 {
-                case ID_TEX_ADDRESS_MODE:
-                case ID_TEX_BORDER_COLOUR:
-                case ID_FILTERING:
-                case ID_CMPTEST:
-                case ID_CMPFUNC:
-                case ID_COMP_FUNC:
-                case ID_MAX_ANISOTROPY:
-                case ID_MIPMAP_BIAS:
-                    {
-                        SamplerTranslator *translator = static_cast<SamplerTranslator*>(compiler->getTranslator(*i));
-                        bytesOfWritten = translator->translateSamplerParams(prop, stream);
-                        totalBytes += bytesOfWritten;
-                    }
-                    break;
+//                 case ID_TEX_ADDRESS_MODE:
+//                 case ID_TEX_BORDER_COLOUR:
+//                 case ID_FILTERING:
+//                 case ID_CMPTEST:
+//                 case ID_CMPFUNC:
+//                 case ID_COMP_FUNC:
+//                 case ID_MAX_ANISOTROPY:
+//                 case ID_MIPMAP_BIAS:
+//                     {
+//                         SamplerTranslator *translator = static_cast<SamplerTranslator *>(compiler->getTranslator(*i));
+//                         MaterialSystem::Sampler *sampler = unit->mutable_sampler();
+//                         ret = translator->translateSamplerParams(prop, sampler);
+//                     }
+//                     break;
                 case ID_SAMPLER_REF:
                     {
-                        bytesOfWritten = translateSamplerRef(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateSamplerRef(prop, unit);
                     }
                     break;
                 case ID_TEXTURE_ALIAS:
                     {
-                        bytesOfWritten = translateTextureAlias(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateTextureAlias(prop, unit);
                     }
                     break;
                 case ID_TEXTURE:
                     {
-                        bytesOfWritten = translateTexture(compiler, prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateTexture(compiler, prop, unit);
                     }
                     break;
                 case ID_ANIM_TEXTURE:
                     {
-                        bytesOfWritten = translateAnimTexture(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateAnimTexture(prop, unit);
                     }
                     break;
                 case ID_CUBIC_TEXTURE:
                     {
-                        bytesOfWritten = translateCubicTexture(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateCubicTexture(prop, unit);
                     }
                     break;
                 case ID_TEX_COORD_SET:
                     {
-                        bytesOfWritten = translateTexCoordSet(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateTexCoordSet(prop, unit);
                     }
                     break;
                 case ID_COLOUR_OP:
                     {
-                        bytesOfWritten = translateColorOp(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateColorOp(prop, unit);
                     }
                     break;
                 case ID_COLOUR_OP_EX:
                     {
-                        bytesOfWritten = translateColorOpEx(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateColorOpEx(prop, unit);
                     }
                     break;
                 case ID_COLOUR_OP_MULTIPASS_FALLBACK:
                     {
-                        bytesOfWritten = translateColorOpMultiPassFallback(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateColorOpMultiPassFallback(prop, unit);
                     }
                     break;
                 case ID_ALPHA_OP_EX:
                     {
-                        bytesOfWritten = translateAlphaOpEx(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateAlphaOpEx(prop, unit);
                     }
                     break;
                 case ID_ENV_MAP:
                     {
-                        bytesOfWritten = translateEnvMap(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateEnvMap(prop, unit);
                     }
                     break;
                 case ID_SCROLL:
                     {
-                        bytesOfWritten = translateScroll(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateScroll(prop, unit);
                     }
                     break;
                 case ID_SCROLL_ANIM:
                     {
-                        bytesOfWritten = translateScrollAnim(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateScrollAnim(prop, unit);
                     }
                     break;
                 case ID_ROTATE:
                     {
-                        bytesOfWritten = translateRotate(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateRotate(prop, unit);
                     }
                     break;
                 case ID_ROTATE_ANIM:
                     {
-                        bytesOfWritten = translateRotateAnim(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateRotateAnim(prop, unit);
                     }
                     break;
                 case ID_SCALE:
                     {
-                        bytesOfWritten = translateScale(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateScale(prop, unit);
                     }
                     break;
                 case ID_WAVE_XFORM:
                     {
-                        bytesOfWritten = translateWaveXform(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateWaveXform(prop, unit);
                     }
                     break;
                 case ID_TRANSFORM:
                     {
-                        bytesOfWritten = translateTransform(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateTransform(prop, unit);
                     }
                     break;
                 case ID_BINDING_TYPE:
                     {
-                        bytesOfWritten = translateBindingType(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateBindingType(prop, unit);
                     }
                     break;
                 case ID_CONTENT_TYPE:
                     {
-                        bytesOfWritten = translateContentType(prop, stream);
-                        totalBytes += bytesOfWritten;
+                        ret = translateContentType(prop, unit);
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
-                        "token \"" + prop->name + "\" is not recognized");
+                    {
+                        ScriptError::printError(CERR_UNEXPECTEDTOKEN,
+                            prop->name, prop->file, prop->line,
+                            "token \"" + prop->name + "\" is not recognized");
+                        ret = false;
+                    }
+                    break;
                 }
             }
             else if ((*i)->type == ANT_OBJECT)
             {
-                bytesOfWritten = processNode(compiler, stream, *i);
-                totalBytes += bytesOfWritten;
+                ret = processNode(compiler, unit, *i);
+            }
+
+            if (!ret)
+            {
+                break;
             }
         }
-    
-        if (totalBytes > 0)
-        {
-            // 计算 MD5
-            uint8_t *content;
-            stream.read(content);
-            content += start;
-            size_t contentSize = totalBytes - headerSize;
-            MD5 md5;
-            md5.update((const void*)content, contentSize);
-            const uint8_t *digest = md5.digest();
 
-            // 跳转到文件头位置，写回 MD5
-            long_t pos = stream.tell();
-            stream.seek(current, false);
-            stream.write((void*)digest, 16);
-            stream.seek(pos, false);
-        }
-
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateSamplerRef(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateSamplerRef(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "sampler_ref must have at most 1 argument");
+            ret = false;
         }
         else
         {
             String val;
             if (getString(prop->values.front(), &val))
             {
-                bytesOfWritten = writeString(val, stream);
-                totalBytes += bytesOfWritten;
+                unit->mutable_sampler_ref()->set_value(val);
+                ret = true;
             }
             else
             {
                 ScriptError::printError(CERR_REFERENCETOANONEXISTINGOBJECT,
                     prop->name, prop->file, prop->line);
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateTextureAlias(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateTextureAlias(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "texture_alias must have at most 1 argument");
+            ret = false;
         }
         else
         {
             String val;
             if (getString(prop->values.front(), &val))
             {
-                bytesOfWritten = writeString(val, stream);
-                totalBytes += bytesOfWritten;
+                unit->mutable_texture_alias()->set_value(val);
+                ret = true;
             }
             else
             {
@@ -3662,24 +4506,28 @@ namespace Tiny3D
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateTexture(ScriptCompiler *compiler, PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateTexture(ScriptCompiler *compiler, 
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 5)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "texture must have at most 5 arguments");
+            ret = false;
         }
         else
         {
@@ -3687,14 +4535,10 @@ namespace Tiny3D
             String val;
             if (getString(*j, &val))
             {
-                // number of arguments
-                uint16_t argc = (uint16_t)prop->values.size();
-                bytesOfWritten = stream.write(&argc, sizeof(argc));
-                totalBytes += bytesOfWritten;
-
                 // the name of texture
-                bytesOfWritten = writeString(val, stream);
-                totalBytes += bytesOfWritten;
+                MaterialSystem::Texture *texture = unit->mutable_texture();
+                texture->set_name(val);
+                ret = true;
 
                 ++j;
 
@@ -3707,45 +4551,68 @@ namespace Tiny3D
                         switch (atom->id)
                         {
                         case ID_1D:
+                            {
+                                texture->set_type(Script::MaterialSystem::TEX_1D);
+                                ret = true;
+                            }
+                            break;
                         case ID_2D:
+                            {
+                                texture->set_type(Script::MaterialSystem::TEX_2D);
+                                ret = true;
+                            }
+                            break;
                         case ID_3D:
+                            {
+                                texture->set_type(Script::MaterialSystem::TEX_3D);
+                                ret = true;
+                            }
+                            break;
                         case ID_CUBIC:
+                            {
+                                texture->set_type(Script::MaterialSystem::TEX_CUBIC);
+                                ret = true;
+                            }
+                            break;
                         case ID_2DARRAY:
+                            {
+                                texture->set_type(Script::MaterialSystem::TEX_2D_ARRAY);
+                                ret = true;
+                            }
+                            break;
                         case ID_UNLIMITED:
+                            {
+                                texture->set_mipmaps(-1);
+                                ret = true;
+                            }
+                            break;
                         case ID_ALPHA:
+                            {
+                                texture->set_alpha(true);
+                                ret = true;
+                            }
+                            break;
                         case ID_GAMMA:
                             {
-                                uint16_t id = atom->id;
-                                bytesOfWritten = stream.write(&id, sizeof(id));
-                                totalBytes += bytesOfWritten;
+                                texture->set_gamma(true);
+                                ret = true;
                             }
                             break;
                         default:
                             {
                                 if (StringConverter::isNumber(atom->value))
                                 {
-                                    uint16_t mipmaps = StringConverter::parseInt32(atom->value);
-                                    bytesOfWritten = stream.write(&mipmaps, sizeof(mipmaps));
-                                    totalBytes += bytesOfWritten;
+                                    int32_t mipmaps = StringConverter::parseInt32(atom->value);
+                                    texture->set_mipmaps(mipmaps);
+                                    ret = true;
                                 }
                                 else
                                 {
-                                    uint16_t id = ID_PIXELFORMAT;
-                                    bytesOfWritten = stream.write(&id, sizeof(id));
-                                    totalBytes += bytesOfWritten;
-
-                                    auto r = compiler->mPixelFormat.find(atom->value);
-                                    if (r != compiler->mPixelFormat.end())
-                                    {
-                                        uint32_t pf = r->second;
-                                        bytesOfWritten = stream.write(&pf, sizeof(pf));
-                                        totalBytes += bytesOfWritten;
-                                    }
-                                    else
-                                    {
-                                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                            (*j)->getValue() + " is not a supported argument to the texture property");
-                                    }
+                                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                        prop->name, prop->file, prop->line,
+                                        (*j)->getValue() + 
+                                        " is not a supported argument to the texture property");
+                                    ret = false;
                                 }
                             }
                             break;
@@ -3753,52 +4620,63 @@ namespace Tiny3D
                     }
                     else
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            (*j)->getValue() + " is not a supported argument to the texture property");
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            (*j)->getValue() + " is not a supported argument "
+                            "to the texture property");
+                        ret = false;
                     }
+
                     ++j;
+
+                    if (!ret)
+                    {
+                        break;
+                    }
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS,
+                    prop->name, prop->file, prop->line,
                     (*j)->getValue() + " is not a valid texture name");
+                ret = false;
             }   
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateAnimTexture(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateAnimTexture(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.size() < 3)
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else
         {
             AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
 
-            if ((*i1)->type == ANT_ATOM && StringConverter::isNumber(((AtomAbstractNode*)(*i1).get())->value))
+            MaterialSystem::AnimTexture *anim = unit->mutable_anim_texture();
+
+            if ((*i1)->type == ANT_ATOM 
+                && StringConverter::isNumber(((AtomAbstractNode*)(*i1).get())->value))
             {
                 // Short form
 
-                // number of arguments
-                uint16_t argc = (uint16_t)prop->values.size() + 1;
-                bytesOfWritten = stream.write(&argc, sizeof(argc));
-                totalBytes += bytesOfWritten;
-
                 // type for short form
-                uint16_t type = 0;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
+                MaterialSystem::AnimTextureSimple *simple 
+                    = anim->mutable_simple();
 
-                AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i2 = getNodeAt(prop->values, 2);
+                AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+                AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
 
                 if ((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM)
                 {
@@ -3806,106 +4684,104 @@ namespace Tiny3D
                     uint32_t val1;
                     float32_t val2;
 
-                    if (getString(*i0, &val0) && getUInt(*i1, &val1) && getSingle(*i2, &val2))
+                    if (getString(*i0, &val0) && getUInt(*i1, &val1) 
+                        && getSingle(*i2, &val2))
                     {
                         // name
-                        bytesOfWritten = writeString(val0, stream);
-                        totalBytes += bytesOfWritten;
+                        simple->set_base_name(val0);
 
                         // numFrames
-                        uint16_t frames = val1;
-                        bytesOfWritten = stream.write(&frames, sizeof(frames));
-                        totalBytes += bytesOfWritten;
+                        simple->set_num_frames(val1);
 
                         // duration
-                        bytesOfWritten = stream.write(&val2, sizeof(val2));
-                        totalBytes += bytesOfWritten;
+                        simple->set_duration(val2);
+
+                        ret = true;
                     }
                     else
                     {
-                        ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
-                            "anim_texture short form requires a texture name, number of frames, and animation duration");
+                        ScriptError::printError(CERR_NUMBEREXPECTED, 
+                            prop->name, prop->file, prop->line,
+                            "anim_texture short form requires a texture name, "
+                            "number of frames, and animation duration");
+                        ret = false;
                     }
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "anim_texture short form requires a texture name, number of frames, and animation duration");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        "anim_texture short form requires a texture name, "
+                        "number of frames, and animation duration");
+                    ret = false;
                 }
             }
             else
             {
-                // number of arguments
-                uint16_t argc = (uint16_t)prop->values.size() + 1;
-                bytesOfWritten = stream.write(&argc, sizeof(argc));
-                totalBytes += bytesOfWritten;
-
                 // Long form has n number of frames
-                uint16_t type = 1;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
-
-                // number of frames
-                uint16_t frames = (uint16_t)prop->values.size() - 1;
-                bytesOfWritten = stream.write(&frames, sizeof(frames));
-                totalBytes += bytesOfWritten;
+                MaterialSystem::AnimTextureComplex *complex 
+                    = anim->mutable_complex();
 
                 float32_t duration = 0;
-                AbstractNodeList::const_iterator in = getNodeAt(prop->values, static_cast<int>(prop->values.size()) - 1);
+                AbstractNodeList::const_iterator in = getNodeAt(prop->values, 
+                    static_cast<int>(prop->values.size()) - 1);
 
                 if (getSingle(*in, &duration))
                 {
                     // duration
-                    bytesOfWritten = stream.write(&duration, sizeof(duration));
-                    totalBytes += bytesOfWritten;
+                    complex->set_duration(duration);
+                    ret = true;
 
                     // names
                     AbstractNodeList::iterator j = prop->values.begin();
-                    while (j != in)
+                    while (ret && j != in)
                     {
                         if ((*j)->type == ANT_ATOM)
                         {
                             String name = ((AtomAbstractNode*)(*j).get())->value;
-                            bytesOfWritten = writeString(name, stream);
-                            totalBytes += bytesOfWritten;
+                            complex->add_frames(name);
+                            ret = true;
                         }
                         else
                         {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                (*j)->getValue() + " is not supported as a texture name");
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                prop->name, prop->file, prop->line,
+                                (*j)->getValue() 
+                                + " is not supported as a texture name");
+                            ret = false;
                         }
                         ++j;
                     }
                 }
                 else
                 {
-                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
-                        (*in)->getValue() + " is not supported for the duration argument");
+                    ScriptError::printError(CERR_NUMBEREXPECTED, 
+                        prop->name, prop->file, prop->line,
+                        (*in)->getValue() 
+                        + " is not supported for the duration argument");
+                    ret = false;
                 }
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateCubicTexture(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateCubicTexture(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() == 2)
         {
-            // type
-            uint16_t type = (uint16_t)prop->values.size();
-            bytesOfWritten = stream.write(&type, sizeof(type));
-            totalBytes += bytesOfWritten;
-
             AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
                 i1 = getNodeAt(prop->values, 1);
 
@@ -3917,30 +4793,51 @@ namespace Tiny3D
                 String name;
                 if (getString(*i0, &name))
                 {
-                    bytesOfWritten = writeString(name, stream);
-                    totalBytes += bytesOfWritten;
+                    MaterialSystem::CubicTexture *tex 
+                        = unit->mutable_cubic_texture();
+                    MaterialSystem::CubicTextureSimple *simple 
+                        = tex->mutable_simple();
+                    simple->set_base_name(name);
 
-                    uint16_t id = atom1->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
+                    switch (atom1->id)
+                    {
+                    case ID_COMBINED_UVW:
+                        {
+                            tex->set_cubic_texture_mode(Script::MaterialSystem::CTM_COMBINED_UVW);
+                            ret = true;
+                        }
+                        break;
+                    case ID_SEPARATE_UV:
+                        {
+                            tex->set_cubic_texture_mode(Script::MaterialSystem::CTM_SEPARATE_UV);
+                            ret = true;
+                        }
+                        break;
+                    default:
+                        {
+                            ScriptError::printError(CERR_INVALIDPARAMETERS,
+                                prop->name, prop->file, prop->line);
+                            ret = false;
+                        }
+                        break;
+                    }
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line);
+                    ret = false;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line);
+                ret = false;
             }
         }
         else if (prop->values.size() == 7)
         {
-            // type
-            uint16_t type = (uint16_t)prop->values.size();
-            bytesOfWritten = stream.write(&type, sizeof(type));
-            totalBytes += bytesOfWritten;
-
             AbstractNodeList::const_iterator 
                 i0 = getNodeAt(prop->values, 0),
                 i1 = getNodeAt(prop->values, 1),
@@ -3962,117 +4859,190 @@ namespace Tiny3D
                     *atom5 = (AtomAbstractNode*)(*i5).get(),
                     *atom6 = (AtomAbstractNode*)(*i6).get();
 
+                MaterialSystem::CubicTexture *tex = unit->mutable_cubic_texture();
+                MaterialSystem::CubicTextureComplex *complex
+                    = tex->mutable_complex();
+
                 // front
-                bytesOfWritten = writeString(atom0->value, stream);
-                totalBytes += bytesOfWritten;
+                complex->set_front(atom0->value);
                 // back
-                bytesOfWritten = writeString(atom1->value, stream);
-                totalBytes += bytesOfWritten;
+                complex->set_back(atom1->value);
                 // left
-                bytesOfWritten = writeString(atom2->value, stream);
-                totalBytes += bytesOfWritten;
+                complex->set_left(atom2->value);
                 // right
-                bytesOfWritten = writeString(atom3->value, stream);
-                totalBytes += bytesOfWritten;
+                complex->set_right(atom3->value);
                 // up
-                bytesOfWritten = writeString(atom4->value, stream);
-                totalBytes += bytesOfWritten;
+                complex->set_up(atom4->value);
                 // down
-                bytesOfWritten = writeString(atom5->value, stream);
-                totalBytes += bytesOfWritten;
+                complex->set_down(atom5->value);
 
                 // separateUV
-                uint16_t id = (uint16_t)atom6->id;
-                bytesOfWritten = stream.write(&id, id);
-                totalBytes += bytesOfWritten;
+                switch (atom6->id)
+                {
+                case ID_COMBINED_UVW:
+                    {
+                        tex->set_cubic_texture_mode(Script::MaterialSystem::CTM_COMBINED_UVW);
+                        ret = true;
+                    }
+                    break;
+                case ID_SEPARATE_UV:
+                    {
+                        tex->set_cubic_texture_mode(Script::MaterialSystem::CTM_SEPARATE_UV);
+                        ret = true;
+                    }
+                    break;
+                default:
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS,
+                            prop->name, prop->file, prop->line);
+                        ret = false;
+                    }
+                    break;
+                }
             }
 
         }
         else
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "cubic_texture must have at most 7 arguments");
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateTexCoordSet(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateTexCoordSet(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() == 1)
         {
             uint32_t val = 0;
+
             if (getUInt(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                unit->mutable_tex_coord_set()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line);
+                ret = false;
             }
         }
         else
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "tex_coord_set must have only 1 arguments");
+            ret = false;
         }
         
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateColorOp(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateColorOp(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() == 1)
         {
             AtomAbstractNode *atom = (AtomAbstractNode *)(prop->values.front()).get();
             uint16_t id = atom->id;
-            bytesOfWritten = stream.write(&id, sizeof(id));
-            totalBytes += bytesOfWritten;
+            
+            switch (id)
+            {
+            case ID_ADD:
+                {
+                    unit->mutable_color_op()->set_value(Script::MaterialSystem::BT_ADD);
+                    ret = true;
+                }
+                break;
+            case ID_MODULATE:
+                {
+                    unit->mutable_color_op()->set_value(Script::MaterialSystem::BT_MODULATE);
+                    ret = true;
+                }
+                break;
+            case ID_COLOUR_BLEND:
+                {
+                    unit->mutable_color_op()->set_value(Script::MaterialSystem::BT_COLOR_BLEND);
+                    ret = true;
+                }
+                break;
+            case ID_ALPHA_BLEND:
+                {
+                    unit->mutable_color_op()->set_value(Script::MaterialSystem::BT_ALPHA_BLEND);
+                    ret = true;
+                }
+                break;
+            case ID_REPLACE:
+                {
+                    unit->mutable_color_op()->set_value(Script::MaterialSystem::BT_REPLACE);
+                    ret = true;
+                }
+                break;
+            default:
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS,
+                        prop->name, prop->file, prop->line);
+                    ret = false;
+                }
+                break;
+            }
         }
         else
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "colour_op must have only 1 arguments");
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateColorOpEx(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateColorOpEx(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.size() < 3)
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "colour_op_ex must have at least 3 arguments");
+            ret = false;
         }
         else if (prop->values.size() > 10)
         {
-            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                prop->name, prop->file, prop->line,
                 "colour_op_ex must have at most 10 arguments");
+            ret = false;
         }
         else
         {
@@ -4086,18 +5056,12 @@ namespace Tiny3D
 
             // op
             uint16_t id = atom0->id;
-            bytesOfWritten = stream.write(&id, sizeof(id));
-            totalBytes += bytesOfWritten;
 
             // source1
             id = atom1->id;
-            bytesOfWritten = stream.write(&id, sizeof(id));
-            totalBytes += bytesOfWritten;
 
             // source2
             id = atom2->id;
-            bytesOfWritten = stream.write(&id, sizeof(id));
-            totalBytes += bytesOfWritten;
 
             if (atom0->id == ID_BLEND_MANUAL)
             {
@@ -4108,19 +5072,23 @@ namespace Tiny3D
 
                     if (!getSingle(*i3, &manualBlend))
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            (*i3)->getValue() + " is not a valid number argument");
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            (*i3)->getValue() 
+                            + " is not a valid number argument");
+                        ret = false;
                     }
                     else
                     {
-                        bytesOfWritten = stream.write(&manualBlend, sizeof(manualBlend));
-                        totalBytes += bytesOfWritten;
+                        ret = true;
                     }
                 }
                 else
                 {
-                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_NUMBEREXPECTED, 
+                        prop->name, prop->file, prop->line,
                         "fourth argument expected when blend_manual is used");
+                    ret = false;
                 }
             }
             
@@ -4128,27 +5096,30 @@ namespace Tiny3D
             if (atom0->id == ID_BLEND_MANUAL)
                 j++;
 
-            ColorRGBA arg1 = ColorRGBA::WHITE, arg2 = ColorRGBA::WHITE;
+            
 
             if (atom1->id == ID_SRC_MANUAL)
             {
                 if (j != prop->values.end())
                 {
-                    if (!getColor(j, prop->values.end(), &arg1, 3))
-                    {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            "valid colour expected when src_manual is used");
-                    }
-                    else
-                    {
-                        bytesOfWritten = writeColor(arg1, stream);
-                        totalBytes += bytesOfWritten;
-                    }
+//                     if (!getColor(j, prop->values.end(), &arg1, 3))
+//                     {
+//                         ScriptError::printError(CERR_INVALIDPARAMETERS, 
+//                             prop->name, prop->file, prop->line,
+//                             "valid color expected when src_manual is used");
+//                     }
+//                     else
+//                     {
+//                         ret = true;
+//                     }
+                    ret = true;
                 }
                 else
                 {
-                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
-                        "valid colour expected when src_manual is used");
+                    ScriptError::printError(CERR_NUMBEREXPECTED, 
+                        prop->name, prop->file, prop->line,
+                        "valid color expected when src_manual is used");
+                    ret = false;
                 }
             }
 
@@ -4156,51 +5127,54 @@ namespace Tiny3D
             {
                 if (j != prop->values.end())
                 {
-                    if (!getColor(j, prop->values.end(), &arg2, 3))
-                    {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            "valid colour expected when src_manual is used");
-                    }
-                    else
-                    {
-                        bytesOfWritten = writeColor(arg2, stream);
-                        totalBytes += bytesOfWritten;
-                    }
+//                     if (!getColor(j, prop->values.end(), &arg2, 3))
+//                     {
+//                         ScriptError::printError(CERR_INVALIDPARAMETERS, 
+//                             prop->name, prop->file, prop->line,
+//                             "valid color expected when src_manual is used");
+//                     }
+//                     else
+//                     {
+//                         
+// 
+//                     }
+                    ret = true;
                 }
                 else
                 {
-                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
-                        "valid colour expected when src_manual is used");
+                    ScriptError::printError(CERR_NUMBEREXPECTED, 
+                        prop->name, prop->file, prop->line,
+                        "valid color expected when src_manual is used");
+                    ret = false;
                 }
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateColorOpMultiPassFallback(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateColorOpMultiPassFallback(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 2)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "colour_op_multiplass_fallback must have at most 2 arguments");
+            ret = false;
         }
         else if (prop->values.size() == 1)
         {
-            // number of arguments
-            uint16_t argc = (uint16_t)prop->values.size();
-            bytesOfWritten = stream.write(&argc, sizeof(argc));
-            totalBytes += bytesOfWritten;
-
             if (prop->values.front()->type == ANT_ATOM)
             {
                 AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
@@ -4213,60 +5187,64 @@ namespace Tiny3D
                 case ID_REPLACE:
                     {
                         uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "argument must be a valid scene blend type (add, modulate, colour_blend, alpha_blend, or replace)");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        "argument must be a valid scene blend type (add, "
+                        "modulate, colour_blend, alpha_blend, or replace)");
+                    ret = false;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "argument must be a valid scene blend type (add, modulate, colour_blend, alpha_blend, or replace)");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "argument must be a valid scene blend type (add, modulate, "
+                    "colour_blend, alpha_blend, or replace)");
+                ret = false;
             }
         }
         else
         {
             // number of arguments
-            uint16_t argc = (uint16_t)prop->values.size();
-            bytesOfWritten = stream.write(&argc, sizeof(argc));
-            totalBytes += bytesOfWritten;
-
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), 
+                i1 = getNodeAt(prop->values, 1);
             AtomAbstractNode *atom0 = (AtomAbstractNode *)(*i0).get();
             AtomAbstractNode *atom1 = (AtomAbstractNode *)(*i1).get();
             
             uint16_t id = atom0->id;
-            bytesOfWritten = stream.write(&id, sizeof(id));
-            totalBytes += bytesOfWritten;
 
             id = atom1->id;
-            bytesOfWritten = stream.write(&id, sizeof(id));
-            totalBytes += bytesOfWritten;
+
+            ret = true;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateAlphaOpEx(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateAlphaOpEx(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.size() < 3)
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "alpha_op_ex must have at least 3 arguments");
+            ret = false;
         }
         else if (prop->values.size() > 6)
         {
-            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                prop->name, prop->file, prop->line,
                 "alpha_op_ex must have at most 10 arguments");
+            ret = false;
         }
         else
         {
@@ -4280,18 +5258,14 @@ namespace Tiny3D
 
             // op
             uint16_t id = atom0->id;
-            bytesOfWritten = stream.write(&id, sizeof(id));
-            totalBytes += bytesOfWritten;
 
             // source1
             id = atom1->id;
-            bytesOfWritten = stream.write(&id, sizeof(id));
-            totalBytes += bytesOfWritten;
 
             // source2
             id = atom2->id;
-            bytesOfWritten = stream.write(&id, sizeof(id));
-            totalBytes += bytesOfWritten;
+
+            ret = true;
 
             if (atom0->id == ID_BLEND_MANUAL)
             {
@@ -4302,19 +5276,22 @@ namespace Tiny3D
 
                     if (!getSingle(*i3, &manualBlend))
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
                             (*i3)->getValue() + " is not a valid number argument");
+                        ret = false;
                     }
                     else
                     {
-                        bytesOfWritten = stream.write(&manualBlend, sizeof(manualBlend));
-                        totalBytes += bytesOfWritten;
+                        ret = true;
                     }
                 }
                 else
                 {
-                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_NUMBEREXPECTED, 
+                        prop->name, prop->file, prop->line,
                         "fourth argument expected when blend_manual is used");
+                    ret = false;
                 }
             }
 
@@ -4330,20 +5307,23 @@ namespace Tiny3D
                 {
                     if (!getSingle(*j, &arg1))
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            "valid colour expected when src_manual is used");
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            "valid color expected when src_manual is used");
+                        ret = false;
                     }
                     else
                     {
-                        bytesOfWritten = stream.write(&arg1, sizeof(arg1));
-                        totalBytes += bytesOfWritten;
+                        ret = true;
                         ++j;
                     }
                 }
                 else
                 {
-                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
-                        "valid colour expected when src_manual is used");
+                    ScriptError::printError(CERR_NUMBEREXPECTED, 
+                        prop->name, prop->file, prop->line,
+                        "valid color expected when src_manual is used");
+                    ret = false;
                 }
             }
 
@@ -4353,47 +5333,55 @@ namespace Tiny3D
                 {
                     if (!getSingle(*j, &arg2))
                     {
-                        ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                            "valid colour expected when src_manual is used");
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            "valid color expected when src_manual is used");
+                        ret = false;
                     }
                     else
                     {
-                        bytesOfWritten = stream.write(&arg2, sizeof(arg2));
-                        totalBytes += bytesOfWritten;
+                        ret = true;
                     }
                 }
                 else
                 {
-                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
-                        "valid colour expected when src_manual is used");
+                    ScriptError::printError(CERR_NUMBEREXPECTED, 
+                        prop->name, prop->file, prop->line,
+                        "valid color expected when src_manual is used");
+                    ret = false;
                 }
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateEnvMap(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateEnvMap(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 1)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "env_map must have at most 1 argument");
+            ret = false;
         }
         else
         {
             if (prop->values.front()->type == ANT_ATOM)
             {
-                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                AtomAbstractNode *atom 
+                    = (AtomAbstractNode*)prop->values.front().get();
 
                 switch (atom->id)
                 {
@@ -4404,227 +5392,277 @@ namespace Tiny3D
                 case ID_CUBIC_NORMAL:
                     {
                         uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        prop->values.front()->getValue() + " is not a valid argument (must be \"off\", \"spherical\", \"planar\", \"cubic_reflection\", or \"cubic_normal\")");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        prop->values.front()->getValue() + " is not a valid "
+                        "argument (must be \"off\", \"spherical\", \"planar\", "
+                        "\"cubic_reflection\", or \"cubic_normal\")");
+                    ret = false;
                     break;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " is not a valid argument (must be \"off\", \"spherical\", \"planar\", \"cubic_reflection\", or \"cubic_normal\")");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() + " is not a valid "
+                    "argument (must be \"off\", \"spherical\", \"planar\", "
+                    "\"cubic_reflection\", or \"cubic_normal\")");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateScroll(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateScroll(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 2)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "scroll must have at most 2 arguments");
+            ret = false;
         }
         else
         {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), 
+                i1 = getNodeAt(prop->values, 1);
+
             float32_t x, y;
+
             if (getSingle(*i0, &x) && getSingle(*i1, &y))
             {
-                bytesOfWritten = stream.write(&x, sizeof(x));
-                totalBytes += bytesOfWritten;
-                bytesOfWritten = stream.write(&y, sizeof(y));
-                totalBytes += bytesOfWritten;
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    (*i0)->getValue() + " and/or " + (*i1)->getValue() + " is invalid; both must be numbers");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    (*i0)->getValue() + " and/or " + (*i1)->getValue() 
+                    + " is invalid; both must be numbers");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateScrollAnim(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateScrollAnim(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 2)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "scroll_anim must have at most 2 arguments");
+            ret = false;
         }
         else
         {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), 
+                i1 = getNodeAt(prop->values, 1);
+
             float32_t x, y;
+
             if (getSingle(*i0, &x) && getSingle(*i1, &y))
             {
-                bytesOfWritten = stream.write(&x, sizeof(x));
-                totalBytes += bytesOfWritten;
-                bytesOfWritten = stream.write(&y, sizeof(y));
-                totalBytes += bytesOfWritten;
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    (*i0)->getValue() + " and/or " + (*i1)->getValue() + " is invalid; both must be numbers");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    (*i0)->getValue() + " and/or " + (*i1)->getValue() 
+                    + " is invalid; both must be numbers");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateRotate(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateRotate(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() == 1)
         {
             float32_t val;
+
             if (getSingle(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+                ScriptError::printError(CERR_NUMBEREXPECTED, 
+                    prop->name, prop->file, prop->line);
+                ret = false;
             }
         }
         else
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "rotate must have only 1 arguments");
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateRotateAnim(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateRotateAnim(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() == 1)
         {
             float32_t val;
+
             if (getSingle(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+                ScriptError::printError(CERR_NUMBEREXPECTED, 
+                    prop->name, prop->file, prop->line);
+                ret = false;
             }
         }
         else
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "rotate_anim must have only 1 arguments");
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateScale(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateScale(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 2)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "scale must have at most 2 arguments");
+            ret = false;
         }
         else
         {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), 
+                i1 = getNodeAt(prop->values, 1);
+
             float32_t x, y;
+
             if (getSingle(*i0, &x) && getSingle(*i1, &y))
             {
-                bytesOfWritten = stream.write(&x, sizeof(x));
-                totalBytes += bytesOfWritten;
-                bytesOfWritten = stream.write(&y, sizeof(y));
-                totalBytes += bytesOfWritten;
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "first and second arguments must both be valid number values (received " + (*i0)->getValue() + ", " + (*i1)->getValue() + ")");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "first and second arguments must both be valid number "
+                    "values (received " + (*i0)->getValue() + ", " 
+                    + (*i1)->getValue() + ")");
+                ret = false;
             }
         }
-        return totalBytes;
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateWaveXform(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateWaveXform(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 6)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "wave_xform must have at most 6 arguments");
+            ret = false;
         }
         else
         {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1),
-                i2 = getNodeAt(prop->values, 2), i3 = getNodeAt(prop->values, 3),
-                i4 = getNodeAt(prop->values, 4), i5 = getNodeAt(prop->values, 5);
-            if ((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM && (*i2)->type == ANT_ATOM &&
-                (*i3)->type == ANT_ATOM && (*i4)->type == ANT_ATOM && (*i5)->type == ANT_ATOM)
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), 
+                i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2), 
+                i3 = getNodeAt(prop->values, 3), i4 = getNodeAt(prop->values, 4), 
+                i5 = getNodeAt(prop->values, 5);
+
+            if ((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM 
+                && (*i2)->type == ANT_ATOM && (*i3)->type == ANT_ATOM 
+                && (*i4)->type == ANT_ATOM && (*i5)->type == ANT_ATOM)
             {
-                AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
+                AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), 
+                    *atom1 = (AtomAbstractNode*)(*i1).get();
 
                 float32_t base = 0.0f, freq = 0.0f, phase = 0.0f, amp = 0.0f;
 
@@ -4637,13 +5675,16 @@ namespace Tiny3D
                 case ID_ROTATE:
                     {
                         uint16_t id = atom0->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        atom0->value + " is not a valid transform type (must be \"scroll_x\", \"scroll_y\", \"scale_x\", \"scale_y\", or \"rotate\")");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        atom0->value + " is not a valid transform type (must be "
+                        "\"scroll_x\", \"scroll_y\", \"scale_x\", \"scale_y\", "
+                        "or \"rotate\")");
+                    ret = false;
                     break;
                 }
 
@@ -4656,69 +5697,76 @@ namespace Tiny3D
                 case ID_INVERSE_SAWTOOTH:
                     {
                         uint16_t id = atom1->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        atom1->value + " is not a valid waveform type (must be \"sine\", \"triangle\", \"square\", \"sawtooth\", or \"inverse_sawtooth\")");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        atom1->value + " is not a valid waveform type (must be "
+                        "\"sine\", \"triangle\", \"square\", \"sawtooth\", or "
+                        "\"inverse_sawtooth\")");
+                    ret = false;
+                    break;
                 }
 
-                if (!getSingle(*i2, &base) || !getSingle(*i3, &freq) 
+                if (!getSingle(*i2, &base) || !getSingle(*i3, &freq)
                     || !getSingle(*i4, &phase) || !getSingle(*i5, &amp))
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "arguments 3, 4, 5, and 6 must be valid numbers; received " + (*i2)->getValue() + ", " + (*i3)->getValue() + ", " + (*i4)->getValue() + ", " + (*i5)->getValue());
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS,
+                        prop->name, prop->file, prop->line,
+                        "arguments 3, 4, 5, and 6 must be valid numbers; received " 
+                        + (*i2)->getValue() + ", " + (*i3)->getValue() + ", " 
+                        + (*i4)->getValue() + ", " + (*i5)->getValue());
+                    ret = false;
+                }
 
-                bytesOfWritten = stream.write(&base, sizeof(base));
-                totalBytes += bytesOfWritten;
-                bytesOfWritten = stream.write(&freq, sizeof(freq));
-                totalBytes += bytesOfWritten;
-                bytesOfWritten = stream.write(&phase, sizeof(phase));
-                totalBytes += bytesOfWritten;
-                bytesOfWritten = stream.write(&amp, sizeof(amp));
-                totalBytes += bytesOfWritten;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line);
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateTransform(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateTransform(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
-        Matrix4 m;
+        MaterialSystem::Matrix4 m;
         if (getMatrix4(prop->values.begin(), prop->values.end(), &m))
         {
-            bytesOfWritten = writeMatrix4(m, stream);
-            totalBytes += bytesOfWritten;
+            ret = true;
         }
         else
         {
-            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateBindingType(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateBindingType(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() == 1)
         {
@@ -4727,152 +5775,157 @@ namespace Tiny3D
             switch (atom->id)
             {
             case ID_FRAGMENT:
+                {
+                    unit->mutable_binding_type()->set_value(Script::MaterialSystem::BT_FRAGMENT);
+                    ret = true;
+                }
+                break;
             case ID_VERTEX:
                 {
-                    uint16_t id = atom->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
+                    unit->mutable_binding_type()->set_value(Script::MaterialSystem::BT_VERTEX);
+                    ret = true;
                 }
                 break;
             default:
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        atom->value + " is not a valid binding type (must be \"fragment\", \"vertex\")");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        atom->value + " is not a valid binding type (must be "
+                        "\"fragment\", \"vertex\")");
+                    ret = false;
                 }
                 break;
             }
         }
         else
         {
-            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t TextureUnitTranslator::translateContentType(PropertyAbstractNode *prop, DataStream &stream)
+    bool TextureUnitTranslator::translateContentType(
+        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() > 4)
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "content_type must have at most 4 arguments");
+            ret = false;
         }
         else
         {
             if (prop->values.front()->type == ANT_ATOM)
             {
-                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                AtomAbstractNode *atom 
+                    = (AtomAbstractNode*)prop->values.front().get();
+
                 switch (atom->id)
                 {
                 case ID_NAMED:
                 case ID_SHADOW:
                     {
-                        uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        ret = true;
                     }
                     break;
                 case ID_COMPOSITOR:
                     {
                         uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
 
                         if (prop->values.size() >= 3)
                         {
-                            uint16_t argc = (uint16_t)prop->values.size() - 1;
-                            bytesOfWritten = stream.write(&argc, sizeof(argc));
-                            totalBytes += bytesOfWritten;
-
                             String compositorName;
                             getString(*getNodeAt(prop->values, 1), &compositorName);
-                            bytesOfWritten = writeString(compositorName, stream);
-                            totalBytes += bytesOfWritten;
 
                             String textureName;
                             getString(*getNodeAt(prop->values, 2), &textureName);
-                            bytesOfWritten = writeString(textureName, stream);
-                            totalBytes += bytesOfWritten;
 
                             if (prop->values.size() == 4)
                             {
                                 uint32_t mrtIndex;
-                                if (getUInt(*getNodeAt(prop->values, 3), (uint32_t*)&mrtIndex))
+                                if (getUInt(*getNodeAt(prop->values, 3), 
+                                    (uint32_t*)&mrtIndex))
                                 {
-                                    bytesOfWritten = stream.write(&mrtIndex, sizeof(mrtIndex));
-                                    totalBytes += bytesOfWritten;
+                                    ret = true;
                                 }
                                 else
                                 {
-                                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+                                    ScriptError::printError(CERR_NUMBEREXPECTED, 
+                                        prop->name, prop->file, prop->line);
+                                    ret = false;
                                 }
                             }
                         }
                         else
                         {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                                "content_type compositor must have an additional 2 or 3 parameters");
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                prop->name, prop->file, prop->line,
+                                "content_type compositor must have an "
+                                "additional 2 or 3 parameters");
+                            ret = false;
                         }
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        atom->value + " is not a valid content type (must be \"named\" or \"shadow\" or \"compositor\")");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS,
+                        prop->name, prop->file, prop->line,
+                        atom->value + " is not a valid content type (must be "
+                        "\"named\" or \"shadow\" or \"compositor\")");
+                    ret = false;
+                    break;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " is not a valid content type");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() 
+                    + " is not a valid content type");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t SamplerTranslator::translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node)
+    bool SamplerTranslator::translate(ScriptCompiler *compiler, 
+        void *object, const AbstractNodePtr &node)
     {
         ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
 
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
         // 对象头数据
-        bytesOfWritten = translateObjectHeader(obj, stream);
-        totalBytes += bytesOfWritten;
-
-        size_t headerSize = bytesOfWritten;
-        long_t current = stream.tell();
-        long_t start = current;
-        current -= 16;
+        MaterialSystem::Material *material = (MaterialSystem::Material *)object;
+        MaterialSystem::Sampler *sampler = material->add_samplers();
+        MaterialSystem::Header *header = sampler->mutable_header();
+        bool ret = translateObjectHeader(obj, header);
+        if (!ret)
+        {
+            return ret;
+        }
 
         // Set the properties for the material
-        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        for (auto i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
             {
-                PropertyAbstractNode *prop = static_cast<PropertyAbstractNode*>((*i).get());
-
-                // Type
-                uint16_t type = (*i)->type;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
-
-                // ID
-                uint16_t id = prop->id;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
+                PropertyAbstractNode *prop 
+                    = static_cast<PropertyAbstractNode*>((*i).get());
 
                 // 属性
                 switch (prop->id)
@@ -4885,73 +5938,57 @@ namespace Tiny3D
                 case ID_COMP_FUNC:
                 case ID_MAX_ANISOTROPY:
                 case ID_MIPMAP_BIAS:
-                    bytesOfWritten = translateSamplerParams(prop, stream);
-                    totalBytes += bytesOfWritten;
+                    ret = translateSamplerParams(prop, sampler);
                     break;
                 default:
-                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, 
+                        prop->name, prop->file, prop->line,
                         "token \"" + prop->name + "\" is not recognized");
+                    ret = false;
+                    break;
                 }
             }
             else if ((*i)->type == ANT_OBJECT)
             {
-                bytesOfWritten = processNode(compiler, stream, *i);
-                totalBytes += bytesOfWritten;
+                ret = processNode(compiler, sampler, *i);
+            }
+
+            if (!ret)
+            {
+                break;
             }
         }
 
-        if (totalBytes > 0)
-        {
-            // 计算 MD5
-            uint8_t *content;
-            stream.read(content);
-            content += start;
-            size_t contentSize = totalBytes - headerSize;
-            MD5 md5;
-            md5.update((const void*)content, contentSize);
-            const uint8_t *digest = md5.digest();
-
-            // 跳转到文件头位置，写回 MD5
-            long_t pos = stream.tell();
-            stream.seek(current, false);
-            stream.write((void*)digest, 16);
-            stream.seek(pos, false);
-        }
-
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t SamplerTranslator::translateSamplerParams(PropertyAbstractNode *prop, DataStream &stream)
+    bool SamplerTranslator::translateSamplerParams(
+        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         switch (prop->id)
         {
         case ID_TEX_ADDRESS_MODE:
             {
-                bytesOfWritten = translateTexAddressMode(prop, stream);
-                totalBytes += bytesOfWritten;
+                ret = translateTexAddressMode(prop, sampler);
             }
             break;
         case ID_TEX_BORDER_COLOUR:
             {
-                bytesOfWritten = translateTexBorderColor(prop, stream);
-                totalBytes += bytesOfWritten;
+                ret = translateTexBorderColor(prop, sampler);
             }
             break;
         case ID_FILTERING:
             {
-                bytesOfWritten = translateFiltering(prop, stream);
-                totalBytes += bytesOfWritten;
+                ret = translateFiltering(prop, sampler);
             }
             break;
         case ID_CMPTEST:
             {
-                bytesOfWritten = translateCompareTest(prop, stream);
-                totalBytes += bytesOfWritten;
+                ret = translateCompareTest(prop, sampler);
             }
             break;
         case ID_CMPFUNC:
@@ -4960,316 +5997,521 @@ namespace Tiny3D
                 "compare_func. Use comp_func.");
         case ID_COMP_FUNC:
             {
-                bytesOfWritten = translateCompareFunc(prop, stream);
-                totalBytes += bytesOfWritten;
+                ret = translateCompareFunc(prop, sampler);
             }
             break;
         case ID_MAX_ANISOTROPY:
             {
-                bytesOfWritten = translateMaxAnisotropy(prop, stream);
-                totalBytes += bytesOfWritten;
+                ret = translateMaxAnisotropy(prop, sampler);
             }
             break;
         case ID_MIPMAP_BIAS:
             {
-                bytesOfWritten = translateMipmapBias(prop, stream);
-                totalBytes += bytesOfWritten;
+                ret = translateMipmapBias(prop, sampler);
             }
             break;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t SamplerTranslator::translateTexAddressMode(PropertyAbstractNode *prop, DataStream &stream)
+    bool SamplerTranslator::translateTexAddressMode(
+        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
-        else
+        else if (prop->values.size() == 1)
         {
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
-                i1 = getNodeAt(prop->values, 1),
-                i2 = getNodeAt(prop->values, 2);
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
 
-            // number of arguments
-            uint16_t argc = (uint16_t)prop->values.size();
-            bytesOfWritten = stream.write(&argc, sizeof(argc));
-            totalBytes += bytesOfWritten;
+            MaterialSystem::TexAddressMode *mode 
+                = sampler->mutable_tex_address_mode();
+            MaterialSystem::TexAddressModeSimple *simple
+                = mode->mutable_simple();
 
             AtomAbstractNode *atom = (AtomAbstractNode *)(*i0).get();
 
             switch (atom->id)
             {
             case ID_WRAP:
+                {
+                    simple->set_uvw_mode(Script::MaterialSystem::TAM_WRAP);
+                    ret = true;
+                }
+                break;
             case ID_MIRROR:
+                {
+                    simple->set_uvw_mode(Script::MaterialSystem::TAM_MIRROR);
+                    ret = true;
+                }
+                break;
             case ID_CLAMP:
+                {
+                    simple->set_uvw_mode(Script::MaterialSystem::TAM_CLAMP);
+                    ret = true;
+                }
+                break;
             case ID_BORDER:
                 {
-                    uint16_t id = atom->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
+                    simple->set_uvw_mode(Script::MaterialSystem::TAM_BORDER);
+                    ret = true;
                 }
                 break;
             default:
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    atom->getValue() + " not supported as first argument (must be \"wrap\", \"clamp\", \"mirror\", or \"border\")");
+                {
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        atom->getValue() + 
+                        " not supported as first argument (must be \"wrap\", "
+                        "\"clamp\", \"mirror\", or \"border\")");
+                    ret = false;
+                }
+                break;
+            }
+        }
+        else if (prop->values.size() <= 3)
+        {
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
+                i1 = getNodeAt(prop->values, 1),
+                i2 = getNodeAt(prop->values, 2);
+
+            MaterialSystem::TexAddressMode *mode
+                = sampler->mutable_tex_address_mode();
+            MaterialSystem::TexAddressModeComplex *complex
+                = mode->mutable_complex();
+
+            AtomAbstractNode *atom = (AtomAbstractNode *)(*i0).get();
+
+            // u mode
+            switch (atom->id)
+            {
+            case ID_WRAP:
+                {
+                    complex->set_u_mode(Script::MaterialSystem::TAM_WRAP);
+                    ret = true;
+                }
+                break;
+            case ID_MIRROR:
+                {
+                    complex->set_u_mode(Script::MaterialSystem::TAM_MIRROR);
+                    ret = true;
+                }
+                break;
+            case ID_CLAMP:
+                {
+                    complex->set_u_mode(Script::MaterialSystem::TAM_CLAMP);
+                    ret = true;
+                }
+                break;
+            case ID_BORDER:
+                {
+                    complex->set_u_mode(Script::MaterialSystem::TAM_BORDER);
+                    ret = true;
+                }
+                break;
+            default:
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    atom->getValue() 
+                    + " not supported as first argument (must be \"wrap\", "
+                    "\"clamp\", \"mirror\", or \"border\")");
+                ret = false;
                 break;
             }
 
-            if (i1 != prop->values.end())
+            // v mode
+            if (!ret && i1 != prop->values.end())
             {
                 atom = (AtomAbstractNode *)(*i1).get();
 
                 switch (atom->id)
                 {
                 case ID_WRAP:
+                    {
+                        complex->set_v_mode(Script::MaterialSystem::TAM_WRAP);
+                        ret = true;
+                    }
+                    break;
                 case ID_MIRROR:
+                    {
+                        complex->set_v_mode(Script::MaterialSystem::TAM_MIRROR);
+                        ret = true;
+                    }
+                    break;
                 case ID_CLAMP:
+                    {
+                        complex->set_v_mode(Script::MaterialSystem::TAM_CLAMP);
+                        ret = true;
+                    }
+                    break;
                 case ID_BORDER:
                     {
-                        uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        complex->set_v_mode(Script::MaterialSystem::TAM_BORDER);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        atom->getValue() + " not supported as second argument (must be \"wrap\", \"clamp\", \"mirror\", or \"border\")");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS,
+                        prop->name, prop->file, prop->line,
+                        atom->getValue()
+                        + " not supported as first argument (must be \"wrap\", "
+                        "\"clamp\", \"mirror\", or \"border\")");
+                    ret = false;
                     break;
                 }
             }
+            else
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "tex_address_mode long format must have at least 2 arguments");
+                ret = false;
+            }
 
-
-            if (i2 != prop->values.end())
+            if (!ret && i2 != prop->values.end())
             {
                 atom = (AtomAbstractNode *)(*i2).get();
 
                 switch (atom->id)
                 {
                 case ID_WRAP:
+                    {
+                        complex->set_w_mode(Script::MaterialSystem::TAM_WRAP);
+                        ret = true;
+                    }
+                    break;
                 case ID_MIRROR:
+                    {
+                        complex->set_w_mode(Script::MaterialSystem::TAM_MIRROR);
+                        ret = true;
+                    }
+                    break;
                 case ID_CLAMP:
+                    {
+                        complex->set_w_mode(Script::MaterialSystem::TAM_CLAMP);
+                        ret = true;
+                    }
+                    break;
                 case ID_BORDER:
                     {
-                        uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        complex->set_w_mode(Script::MaterialSystem::TAM_BORDER);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        atom->getValue() + " not supported as third argument (must be \"wrap\", \"clamp\", \"mirror\", or \"border\")");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS,
+                        prop->name, prop->file, prop->line,
+                        atom->getValue()
+                        + " not supported as first argument (must be \"wrap\", "
+                        "\"clamp\", \"mirror\", or \"border\")");
+                    ret = false;
                     break;
                 }
             }
         }
+        else
+        {
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED,
+                prop->name, prop->file, prop->line,
+                "tex_address_mode must have at most 3 arguments");
+            ret = false;
+        }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t SamplerTranslator::translateTexBorderColor(PropertyAbstractNode *prop, DataStream &stream)
+    bool SamplerTranslator::translateTexBorderColor(
+        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else
         {
-            ColorRGBA val;
-            if (getColor(prop->values.begin(), prop->values.end(), &val))
+            MaterialSystem::Color *color = sampler->mutable_tex_border_color();
+            if (getColor(prop->values.begin(), prop->values.end(), color))
             {
-                bytesOfWritten = writeColor(val, stream);
-                totalBytes += bytesOfWritten;
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    "tex_border_colour only accepts a colour argument");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "tex_border_colour only accepts a color argument");
+                ret = false;
             }
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t SamplerTranslator::translateFiltering(PropertyAbstractNode *prop, DataStream &stream)
+    bool SamplerTranslator::translateFiltering(
+        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_STRINGEXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() == 1)
         {
             if (prop->values.front()->type == ANT_ATOM)
             {
-                // number of arguments
-                uint16_t argc = (uint16_t)prop->values.size();
-                bytesOfWritten = stream.write(&argc, sizeof(argc));
-                totalBytes += bytesOfWritten;
+                AtomAbstractNode *atom 
+                    = (AtomAbstractNode*)prop->values.front().get();
 
-                AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+                MaterialSystem::TexFilter *filter = sampler->mutable_filtering();
+                MaterialSystem::TexFilterSimple *simpler
+                    = filter->mutable_simple();
 
                 switch (atom->id)
                 {
                 case ID_NONE:
+                    {
+                        simpler->set_filter(Script::MaterialSystem::TFO_NONE);
+                        ret = true;
+                    }
+                    break;
                 case ID_BILINEAR:
+                    {
+                        simpler->set_filter(Script::MaterialSystem::TFO_BILINEAR);
+                        ret = true;
+                    }
+                    break;
                 case ID_TRILINEAR:
+                    {
+                        simpler->set_filter(Script::MaterialSystem::TFO_TRILINEAR);
+                        ret = true;
+                    }
+                    break;
                 case ID_ANISOTROPIC:
                     {
-                        uint16_t id = atom->id;
-                        bytesOfWritten = stream.write(&id, sizeof(id));
-                        totalBytes += bytesOfWritten;
+                        simpler->set_filter(Script::MaterialSystem::TFO_ANISOTROPIC);
+                        ret = true;
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        prop->values.front()->getValue() + " not supported as first argument (must be \"none\", \"bilinear\", \"trilinear\", or \"anisotropic\")");
+                    {
+                        ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                            prop->name, prop->file, prop->line,
+                            prop->values.front()->getValue() 
+                            + " not supported as first argument (must be "
+                            "\"none\", \"bilinear\", \"trilinear\", or "
+                            "\"anisotropic\")");
+                        ret = false;
+                    }
+                    break;
                 }
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " not supported as first argument (must be \"none\", \"bilinear\", \"trilinear\", or \"anisotropic\")");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() 
+                    + " not supported as first argument (must be \"none\", "
+                    "\"bilinear\", \"trilinear\", or \"anisotropic\")");
+                ret = false;
             }
         }
         else if (prop->values.size() == 3)
         {
-            // number of arguments
-            uint16_t argc = (uint16_t)prop->values.size();
-            bytesOfWritten = stream.write(&argc, sizeof(argc));
-            totalBytes += bytesOfWritten;
-
             AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
                 i1 = getNodeAt(prop->values, 1),
                 i2 = getNodeAt(prop->values, 2);
+
+            MaterialSystem::TexFilter *filter = sampler->mutable_filtering();
+            MaterialSystem::TexFilterComplex *complex
+                = filter->mutable_complex();
 
             AtomAbstractNode *atom = (AtomAbstractNode *)(*i0).get();
 
             switch (atom->id)
             {
             case ID_NONE:
+                {
+                    complex->set_magnification(Script::MaterialSystem::FO_NONE);
+                }
+                break;
+            case ID_POINT:
+                {
+                    complex->set_magnification(Script::MaterialSystem::FO_POINT);
+                }
+                break;
             case ID_LINEAR:
-            case ID_BILINEAR:
-            case ID_TRILINEAR:
+                {
+                    complex->set_magnification(Script::MaterialSystem::FO_LINEAR);
+                }
+                break;
             case ID_ANISOTROPIC:
                 {
-                    uint16_t id = atom->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
+                    complex->set_magnification(Script::MaterialSystem::FO_ANISOTROPIC);
                 }
                 break;
             default:
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " not supported as first argument (must be \"none\", \"bilinear\", \"trilinear\", or \"anisotropic\")");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() 
+                    + " not supported as first argument (must be \"none\", "
+                    "\"bilinear\", \"trilinear\", or \"anisotropic\")");
+                ret = false;
+                break;
             }
 
             atom = (AtomAbstractNode *)(*i1).get();
+
             switch (atom->id)
             {
             case ID_NONE:
+                {
+                    complex->set_minification(Script::MaterialSystem::FO_NONE);
+                }
+                break;
+            case ID_POINT:
+                {
+                    complex->set_minification(Script::MaterialSystem::FO_POINT);
+                }
+                break;
             case ID_LINEAR:
-            case ID_BILINEAR:
-            case ID_TRILINEAR:
+                {
+                    complex->set_minification(Script::MaterialSystem::FO_LINEAR);
+                }
+                break;
             case ID_ANISOTROPIC:
                 {
-                    uint16_t id = atom->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
+                    complex->set_minification(Script::MaterialSystem::FO_ANISOTROPIC);
                 }
                 break;
             default:
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " not supported as second argument (must be \"none\", \"bilinear\", \"trilinear\", or \"anisotropic\")");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() 
+                    + " not supported as second argument (must be \"none\", "
+                    "\"bilinear\", \"trilinear\", or \"anisotropic\")");
+                ret = false;
+                break;
             }
 
             atom = (AtomAbstractNode *)(*i2).get();
+
             switch (atom->id)
             {
             case ID_NONE:
+                {
+                    complex->set_mip(Script::MaterialSystem::FO_NONE);
+                    ret = true;
+                }
+                break;
+            case ID_POINT:
+                {
+                    complex->set_mip(Script::MaterialSystem::FO_POINT);
+                    ret = true;
+                }
+                break;
             case ID_LINEAR:
-            case ID_BILINEAR:
-            case ID_TRILINEAR:
+                {
+                    complex->set_mip(Script::MaterialSystem::FO_LINEAR);
+                    ret = true;
+                }
+                break;
             case ID_ANISOTROPIC:
                 {
-                    uint16_t id = atom->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
+                    complex->set_mip(Script::MaterialSystem::FO_ANISOTROPIC);
+                    ret = true;
                 }
                 break;
             default:
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " not supported as third argument (must be \"none\", \"bilinear\", \"trilinear\", or \"anisotropic\")");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() 
+                    + " not supported as third argument (must be \"none\", "
+                    "\"bilinear\", \"trilinear\", or \"anisotropic\")");
+                ret = false;
+                break;
             }
         }
         else
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "filtering must have either 1 or 3 arguments");
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t SamplerTranslator::translateCompareTest(PropertyAbstractNode *prop, DataStream &stream)
+    bool SamplerTranslator::translateCompareTest(
+        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() == 1)
         {
             bool val;
             if (getBoolean(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                sampler->mutable_compare_test()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     "compare_test only accepts a boolean argument");
+                ret = false;
             }
         }
         else
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "compare_test must have only 1 argument");
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t SamplerTranslator::translateCompareFunc(PropertyAbstractNode *prop, DataStream &stream)
+    bool SamplerTranslator::translateCompareFunc(
+        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() == 1)
         {
@@ -5278,99 +6520,153 @@ namespace Tiny3D
             switch (atom->id)
             {
             case ID_ALWAYS_FAIL:
+                {
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_ALWAYS_FAIL);
+                    ret = true;
+                }
+                break;
             case ID_ALWAYS_PASS:
+                {
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_ALWAYS_PASS);
+                    ret = true;
+                }
+                break;
             case ID_LESS_EQUAL:
+                {
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_LESS_EQUAL);
+                    ret = true;
+                }
+                break;
             case ID_LESS:
+                {
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_LESS);
+                    ret = true;
+                }
+                break;
             case ID_EQUAL:
+                {
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_EQUAL);
+                    ret = true;
+                }
+                break;
             case ID_NOT_EQUAL:
+                {
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_NOT_EQUAL);
+                    ret = true;
+                }
+                break;
             case ID_GREATER_EQUAL:
+                {
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_GREATER_EQUAL);
+                    ret = true;
+                }
+                break;
             case ID_GREATER:
                 {
-                    uint16_t id = atom->id;
-                    bytesOfWritten = stream.write(&id, sizeof(id));
-                    totalBytes += bytesOfWritten;
+                    sampler->mutable_compare_func()->set_value(Script::MaterialSystem::CF_GREATER);
+                    ret = true;
                 }
                 break;
             default:
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                    prop->values.front()->getValue() + " not supported as argument (must be \"always_fail\", \"always_pass\", \"less_equal\", \"equal\", \"not_equal\", \"greater_equal\", or \"greater\")");
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    prop->values.front()->getValue() 
+                    + " not supported as argument (must be \"always_fail\", "
+                    "\"always_pass\", \"less_equal\", \"equal\", \"not_equal\","
+                    " \"greater_equal\", or \"greater\")");
+                ret = false;
+                break;
             }
         }
         else
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "comp_func must have only 1 argument");
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t SamplerTranslator::translateMaxAnisotropy(PropertyAbstractNode *prop, DataStream &stream)
+    bool SamplerTranslator::translateMaxAnisotropy(
+        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() == 1)
         {
             uint32_t val;
             if (getUInt(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                sampler->mutable_max_anisotropy()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     "max_anisotropy only accepts a float argument");
+                ret = false;
             }
         }
         else
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "max_anisotropy must have only 1 argument");
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t SamplerTranslator::translateMipmapBias(PropertyAbstractNode *prop, DataStream &stream)
+    bool SamplerTranslator::translateMipmapBias(
+        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.empty())
         {
-            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
         else if (prop->values.size() == 1)
         {
             float32_t val;
             if (getSingle(prop->values.front(), &val))
             {
-                bytesOfWritten = stream.write(&val, sizeof(val));
-                totalBytes += bytesOfWritten;
+                sampler->mutable_mipmap_bias()->set_value(val);
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     "mipmap_bias only accepts a float argument");
+                ret = false;
             }
         }
         else
         {
-            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_FEWERPARAMETERSEXPECTED, 
+                prop->name, prop->file, prop->line,
                 "mipmap_bias must have only 1 argument");
+            ret = false;
         }
 
-        return bytesOfWritten;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -5534,9 +6830,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translate(ScriptCompiler *compiler, DataStream &stream, const AbstractNodePtr &node)
+    bool GPUProgramTranslator::translate(ScriptCompiler *compiler, 
+        void *object, const AbstractNodePtr &node)
     {
-        size_t totalBytes = 0;
+        bool ret = false;
 
         ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
 
@@ -5554,6 +6851,7 @@ namespace Tiny3D
                 ScriptError::printError(CERR_UNEXPECTEDTOKEN, 
                     obj->name, obj->file, obj->line,
                     "token \"" + obj->name + "\" has not supported !");
+                ret = false;
             }
             break;
         case ID_FRAGMENT_PROGRAM:
@@ -5562,177 +6860,198 @@ namespace Tiny3D
         case ID_TESSELLATION_HULL_PROGRAM:
         case ID_TESSELLATION_DOMAIN_PROGRAM:
         case ID_COMPUTE_PROGRAM:
-            totalBytes = translateShader(compiler, stream, obj);
+            ret = translateShader(compiler, object, obj);
             break;
         case ID_GPU_PROGRAM:
-            totalBytes = translateGPUProgram(compiler, stream, obj);
+            ret = translateGPUProgram(compiler, object, obj);
             break;
         case ID_GPU_PROGRAM_REF:
-            totalBytes = translateGPUProgramRef(compiler, stream, obj);
+            ret = translateGPUProgramRef(compiler, object, obj);
             break;
         case ID_GPU_CBUFFER:
-            totalBytes = translateGPUCBuffer(compiler, stream, obj);
+            ret = translateGPUCBuffer(compiler, object, obj);
             break;
         case ID_GPU_CBUFFER_REF:
-            totalBytes = translateGPUCBufferRef(compiler, stream, obj);
+            ret = translateGPUCBufferRef(compiler, object, obj);
             break;
         default:
             break;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateGPUCBuffer(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
+    bool GPUProgramTranslator::translateGPUCBuffer(ScriptCompiler *compiler, 
+        void *object, ObjectAbstractNode *obj)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
         // 对象头数据
-        bytesOfWritten = translateObjectHeader(obj, stream);
-        totalBytes += bytesOfWritten;
+        MaterialSystem::Material *material = (MaterialSystem::Material *)object;
+        MaterialSystem::GPUConstantBuffer *cbuffer = material->add_cbuffers();
+        MaterialSystem::Header *header = cbuffer->mutable_header();
+        bool ret = translateObjectHeader(obj, header);
+        if (!ret)
+        {
+            return ret;
+        }
 
-        size_t headerSize = bytesOfWritten;
-        long_t current = stream.tell();
-        long_t start = current;
-        current -= 16;
+        uint32_t count = 0;
+        uint32_t total = 0;
 
-        // Set the properties for the material
-        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        // Set the properties for the GPU constant buffer
+        for (auto i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
             {
-                PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
-
-                // Type
-                uint16_t type = (*i)->type;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
-
-                // ID
-                uint16_t id = prop->id;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
+                PropertyAbstractNode *prop 
+                    = reinterpret_cast<PropertyAbstractNode*>((*i).get());
 
                 // 属性
                 switch (prop->id)
                 {
                 case ID_SHARED_PARAMS_REF:
-                    bytesOfWritten = translateSharedParamRef(prop, stream);
-                    totalBytes += bytesOfWritten;
+                    ret = translateSharedParamRef(prop, cbuffer);
                     break;
                 case ID_PARAM_INDEXED:
                 case ID_PARAM_NAMED:
-                    bytesOfWritten = translateParamIndexed(prop, stream);
-                    totalBytes += bytesOfWritten;
+                    ret = translateParamIndexed(prop, cbuffer);
                     break;
                 case ID_PARAM_INDEXED_AUTO:
                 case ID_PARAM_NAMED_AUTO:
-                    bytesOfWritten = translateParamIndexedAuto(prop, stream);
-                    totalBytes += bytesOfWritten;
+                    ret = translateParamIndexedAuto(prop, cbuffer, count);
+                    total += count;
                     break;
                 default:
-                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, 
+                        prop->name, prop->file, prop->line,
                         "token \"" + prop->name + "\" is not recognized");
+                    ret = false;
+                    break;
                 }
+            }
+
+            if (!ret)
+            {
+                break;
             }
         }
 
-        if (totalBytes > 0)
+        if (ret)
         {
-            // 计算 MD5
-            uint8_t *content;
-            stream.read(content);
-            content += start;
-            size_t contentSize = totalBytes - headerSize;
-            MD5 md5;
-            md5.update((const void*)content, contentSize);
-            const uint8_t *digest = md5.digest();
+            // 计算buffer总大小，并存储起来
+            uint32_t bufSize = 0;
+            if (cbuffer->param_indexed_size() > 0)
+            {
+                auto param_indexed = cbuffer->param_indexed();
+                for (const MaterialSystem::Param &param : param_indexed)
+                {
+                    bufSize += param.fvalues_size();
+                    bufSize += param.ivalues_size();
+                }
+            }
 
-            // 跳转到文件头位置，写回 MD5
-            long_t pos = stream.tell();
-            stream.seek(current, false);
-            stream.write((void*)digest, 16);
-            stream.seek(pos, false);
+            if (cbuffer->param_named_size() > 0)
+            {
+                auto param_named = cbuffer->param_named();
+                for (const MaterialSystem::Param &param : param_named)
+                {
+                    bufSize += param.fvalues_size();
+                    bufSize += param.ivalues_size();
+                }
+            }
+
+            bufSize += total;
+            bufSize *= 4;
+
+            cbuffer->set_buffer_size(bufSize);
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateSharedParamRef(PropertyAbstractNode *prop, DataStream &stream)
+    bool GPUProgramTranslator::translateSharedParamRef(
+        PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.size() != 1)
         {
-            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                prop->name, prop->file, prop->line,
                 "shared_params_ref requires a single parameter");
-            return 0;
+            ret = false;
         }
-
-        AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
-        if ((*i0)->type != ANT_ATOM)
+        else
         {
-            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                "shared parameter set name expected");
-            return 0;
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+            if ((*i0)->type != ANT_ATOM)
+            {
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
+                    "shared parameter set name expected");
+                ret = false;
+            }
+            else
+            {
+                AtomAbstractNode *atom0 = (AtomAbstractNode *)(*i0).get();
+                ret = true;
+            }
         }
 
-        AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get();
-        uint16_t id = atom0->id;
-        bytesOfWritten = stream.write(&id, sizeof(id));
-        totalBytes += bytesOfWritten;
-
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateParamIndexed(PropertyAbstractNode *prop, DataStream &stream)
+    bool GPUProgramTranslator::translateParamIndexed(
+        PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.size() >= 3)
         {
             bool named = (prop->id == ID_PARAM_NAMED);
-            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1),
+            AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), 
+                i1 = getNodeAt(prop->values, 1),
                 k = getNodeAt(prop->values, 2);
 
             if ((*i0)->type != ANT_ATOM || (*i1)->type != ANT_ATOM)
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     "name or index and parameter type expected");
-                return 0;
+                return false;
             }
 
-            AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
+            AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), 
+                *atom1 = (AtomAbstractNode*)(*i1).get();
             if (!named && !StringConverter::isNumber(atom0->value))
             {
-                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_NUMBEREXPECTED,
+                    prop->name, prop->file, prop->line,
                     "parameter index expected");
-                return 0;
+                return false;
             }
+
+            MaterialSystem::Param *param = nullptr;
 
             String name;
             uint32_t index = 0;
             // Assign the name/index
             if (named)
             {
+                param = cbuffer->add_param_named();
                 name = atom0->value;
-                bytesOfWritten = writeString(name, stream);
-                totalBytes += bytesOfWritten;
+                param->set_name(name);
             }
             else
             {
+                param = cbuffer->add_param_indexed();
                 index = StringConverter::parseInt32(atom0->value);
-                bytesOfWritten = stream.write(&index, sizeof(index));
-                totalBytes += bytesOfWritten;
+                param->set_index(index);
             }
 
             // Determine the type
@@ -5740,39 +7059,27 @@ namespace Tiny3D
             {
                 // Built-in Type
                 BuiltinType type = getBuiltinType(atom1->value);
-                uint8_t t = (uint8_t)type;
-                bytesOfWritten = stream.write(&t, sizeof(t));
-                totalBytes += bytesOfWritten;
-                // The number of elements
-                uint8_t c = 16;
-                bytesOfWritten = stream.write(&c, sizeof(c));
-                totalBytes += bytesOfWritten;
+                param->set_type((MaterialSystem::BuiltInType)type);
 
                 // Value
-                Matrix4 m;
-                if (getMatrix4(k, prop->values.end(), &m))
+                auto fvalues = param->mutable_fvalues();
+                int32_t count = (int32_t)prop->values.size();
+                fvalues->Resize(count, 0.0f);
+
+                if (getSingles(k, prop->values.end(), fvalues->begin(), count))
                 {
-                    bytesOfWritten = writeMatrix4(m, stream);
-                    totalBytes += bytesOfWritten;
+                    ret = true;
                 }
                 else
                 {
-                    ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_NUMBEREXPECTED, 
+                        prop->name, prop->file, prop->line,
                         "incorrect matrix4x4 declaration");
+                    ret = false;
                 }
             }
             else if (atom1->value == "subroutine")
             {
-//                 String s;
-//                 if (getString(*k, &s))
-//                 {
-//                     
-//                 }
-//                 else
-//                 {
-//                     ScriptError::printError(CERR_STRINGEXPECTED, prop->name, prop->file, prop->line,
-//                         "incorrect subroutine declaration");
-//                 }
             }
             else if (atom1->value == "atomic_counter")
             {
@@ -5783,10 +7090,14 @@ namespace Tiny3D
                 bool isValid = true;
                 bool isInteger = false;
                 int32_t count = 0;
-                if (atom1->value.find("float") != String::npos || atom1->value.find("double") != String::npos)
+
+                if (atom1->value.find("float") != String::npos 
+                    || atom1->value.find("double") != String::npos)
                 {
                     if (atom1->value.size() >= 6)
+                    {
                         count = StringConverter::parseInt32(atom1->value.substr(5));
+                    }
                     else
                     {
                         count = 1;
@@ -5795,7 +7106,9 @@ namespace Tiny3D
                 else if (atom1->value.find("int") != String::npos)
                 {
                     if (atom1->value.size() >= 4)
+                    {
                         count = StringConverter::parseInt32(atom1->value.substr(3));
+                    }
                     else
                     {
                         count = 1;
@@ -5805,8 +7118,10 @@ namespace Tiny3D
                 }
                 else
                 {
-                    ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                        "incorrect type specified; only variants of int and float allowed");
+                    ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                        prop->name, prop->file, prop->line,
+                        "incorrect type specified; only variants of int "
+                        "and float allowed");
                     isValid = false;
                 }
 
@@ -5814,162 +7129,151 @@ namespace Tiny3D
                 {
                     // Built-in Type
                     BuiltinType type = getBuiltinType(atom1->value);
-                    uint8_t t = (uint8_t)type;
-                    bytesOfWritten = stream.write(&t, sizeof(t));
-                    totalBytes += bytesOfWritten;
-                    // The number of elements
-                    uint8_t c = (uint8_t)count;
-                    bytesOfWritten = stream.write(&c, sizeof(c));
-                    totalBytes += bytesOfWritten;
+                    param->set_type((MaterialSystem::BuiltInType)type);
 
                     // First, clear out any offending auto constants
-                    int32_t roundedCount = count % 4 != 0 ? count + 4 - (count % 4) : count;
+                    int32_t roundedCount 
+                        = count % 4 != 0 ? count + 4 - (count % 4) : count;
+
                     if (isInteger)
                     {
-                        int32_t *vals = new int32_t[roundedCount];
-                        if (getInts(k, prop->values.end(), vals, roundedCount))
+                        auto vals = param->mutable_ivalues();
+                        if (getInts(k, prop->values.end(), vals->begin(), 
+                            roundedCount))
                         {
-                            bytesOfWritten = stream.write(vals, sizeof(int32_t) * roundedCount);
-                            totalBytes += bytesOfWritten;
+                            ret = true;
                         }
                         else
                         {
-                            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                                prop->name, prop->file, prop->line,
                                 "incorrect integer constant declaration");
+                            ret = false;
                         }
-                        T3D_SAFE_DELETE_ARRAY(vals);
                     }
                     else
                     {
-                        float32_t *vals = new float32_t[roundedCount];
-                        if (getSingles(k, prop->values.end(), vals, roundedCount))
+                        auto vals = param->mutable_fvalues();
+                        if (getSingles(k, prop->values.end(), vals->begin(), 
+                            roundedCount))
                         {
-                            bytesOfWritten = stream.write(vals, sizeof(float32_t) * roundedCount);
-                            totalBytes += bytesOfWritten;
+                            ret = true;
                         }
                         else
                         {
-                            ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                            ScriptError::printError(CERR_NUMBEREXPECTED, 
+                                prop->name, prop->file, prop->line,
                                 "incorrect float constant declaration");
+                            ret = false;
                         }
-                        T3D_SAFE_DELETE_ARRAY(vals);
                     }
                 }
             }
         }
         else
         {
-            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
-                "param_named and param_indexed properties requires at least 3 arguments");
+            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                prop->name, prop->file, prop->line,
+                "param_named and param_indexed properties requires at least "
+                "3 arguments");
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateParamIndexedAuto(PropertyAbstractNode *prop, DataStream &stream)
+    bool GPUProgramTranslator::translateParamIndexedAuto(
+        PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer,
+        uint32_t &count)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
-        bool named = (prop->id == ID_PARAM_NAMED_AUTO);
-        String name;
+        bool ret = false;
 
         if (prop->values.size() >= 2)
         {
+            bool named = (prop->id == ID_PARAM_NAMED_AUTO);
+            String name;
             uint32_t index = 0;
 
             AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
-                i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2), i3 = getNodeAt(prop->values, 3);
+                i1 = getNodeAt(prop->values, 1), 
+                i2 = getNodeAt(prop->values, 2), 
+                i3 = getNodeAt(prop->values, 3);
+
             if ((*i0)->type != ANT_ATOM || (*i1)->type != ANT_ATOM)
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line,
                     "name or index and auto constant type expected");
-                return 0;
+                return false;
             }
 
-            AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
+            AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), 
+                *atom1 = (AtomAbstractNode*)(*i1).get();
+
+            MaterialSystem::ParamAuto *param = nullptr;
+
             if (!named && !StringConverter::isNumber(atom0->value))
             {
-                ScriptError::printError(CERR_NUMBEREXPECTED, prop->name, prop->file, prop->line,
+                ScriptError::printError(CERR_NUMBEREXPECTED, 
+                    prop->name, prop->file, prop->line,
                     "parameter index expected");
-                return 0;
+                return false;
             }
 
             if (named)
             {
+                param = cbuffer->add_param_named_auto();
                 name = atom0->value;
-                bytesOfWritten = writeString(name, stream);
-                totalBytes += bytesOfWritten;
+                param->set_name(name);
             }
             else
             {
+                param = cbuffer->add_param_indexed_auto();
                 index = StringConverter::parseInt32(atom0->value);
-                bytesOfWritten = stream.write(&index, sizeof(index));
-                totalBytes += bytesOfWritten;
+                param->set_index(index);
             }
 
             // Look up the auto constant
             name = atom1->value;
             StringUtil::toLowerCase(name);
             auto itr = mBuiltinConstantMap.find(name);
+
             if (itr != mBuiltinConstantMap.end())
             {
                 const BuiltinConstantDefinition &def = itr->second;
 
-                // Constant
-                uint16_t type = (uint16_t)def.type;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
+                // Constant value code
+                param->set_value_code(def.type);
 
-                // Element type
-                uint8_t elementType = (uint8_t)def.elementType;
-                bytesOfWritten = stream.write(&elementType, sizeof(elementType));
-                totalBytes += bytesOfWritten;
-
-                // The number of elements
-                uint8_t elementCount = def.elementCount;
-                bytesOfWritten = stream.write(&elementCount, sizeof(elementCount));
-                totalBytes += bytesOfWritten;
-
-                // Extra data type
-                uint8_t extraType = (uint8_t)def.extraType;
-                bytesOfWritten = stream.write(&extraType, sizeof(extraType));
-                totalBytes += bytesOfWritten;
+                count = def.elementCount;
 
                 // Extra data
                 if (def.extraType == BT_INT)
                 {
                     if (i3 == prop->values.end())
                     {
-                        // the number of extra info
-                        uint8_t count = 1;
-                        bytesOfWritten = stream.write(&count, sizeof(count));
-                        totalBytes += bytesOfWritten;
-
+                        // only one extra info
                         uint32_t extInfo;
                         if (getUInt(*i2, &extInfo))
                         {
-                            bytesOfWritten = stream.write(&extInfo, sizeof(extInfo));
-                            totalBytes += bytesOfWritten;
+                            param->add_iextra_params(extInfo);
+                            count += 1;
+
                         }
                     }
                     else
                     {
-                        // the number of extra info
-                        uint8_t count = 2;
-                        bytesOfWritten = stream.write(&count, sizeof(count));
-                        totalBytes += bytesOfWritten;
-
+                        // two extra info
                         uint32_t extInfo1, extInfo2;
                         if (getUInt(*i2, &extInfo1) && getUInt(*i3, &extInfo2))
                         {
-                            bytesOfWritten = stream.write(&extInfo1, sizeof(extInfo1));
-                            totalBytes += bytesOfWritten;
-
-                            bytesOfWritten = stream.write(&extInfo2, sizeof(extInfo2));
-                            totalBytes += bytesOfWritten;
+                            // first
+                            param->add_iextra_params(extInfo1);
+                            // second
+                            param->add_iextra_params(extInfo2);
+                            count += 2;
                         }
                     }
                 }
@@ -5977,416 +7281,295 @@ namespace Tiny3D
                 {
                     if (i3 == prop->values.end() && def.elementCount == 1)
                     {
-                        // the number of extra info
-                        uint8_t count = 1;
-                        bytesOfWritten = stream.write(&count, sizeof(count));
-                        totalBytes += bytesOfWritten;
-
                         float32_t extInfo;
                         if (getSingle(*i2, &extInfo))
                         {
-                            bytesOfWritten = stream.write(&extInfo, sizeof(extInfo));
-                            totalBytes += bytesOfWritten;
+                            param->add_fextra_params(extInfo);
+                            count += 1;
                         }
                     }
                     else
                     {
                         // the number of extra info
-                        uint8_t count = 1;
-                        bytesOfWritten = stream.write(&count, sizeof(count));
-                        totalBytes += bytesOfWritten;
-
                         float32_t extInfo1, extInfo2;
-                        if (getSingle(*i2, &extInfo1) && getSingle(*i3, &extInfo2))
+                        if (getSingle(*i2, &extInfo1) 
+                            && getSingle(*i3, &extInfo2))
                         {
-                            bytesOfWritten = stream.write(&extInfo1, sizeof(extInfo1));
-                            totalBytes += bytesOfWritten;
-
-                            bytesOfWritten = stream.write(&extInfo2, sizeof(extInfo2));
-                            totalBytes += bytesOfWritten;
+                            // first
+                            param->add_fextra_params(extInfo1);
+                            // second
+                            param->add_fextra_params(extInfo2);
+                            count += 2;
                         }
                     }
                 }
-                else
-                {
-                    uint8_t count = 0;
-                    bytesOfWritten = stream.write(&count, sizeof(count));
-                    totalBytes += bytesOfWritten;
-                }
+
+                ret = true;
             }
             else
             {
-                ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+                ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                    prop->name, prop->file, prop->line);
+                ret = false;
             }
         }
         else
         {
-            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line);
+            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                prop->name, prop->file, prop->line);
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateShader(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
+    bool GPUProgramTranslator::translateShader(ScriptCompiler *compiler, 
+        void *object, ObjectAbstractNode *obj)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
         // 对象头数据
-        bytesOfWritten = translateObjectHeader(obj, stream);
-        totalBytes += bytesOfWritten;
-
-        size_t headerSize = bytesOfWritten;
-        long_t current = stream.tell();
-        long_t start = current;
-        current -= 16;
+        MaterialSystem::GPUProgram *program 
+            = (MaterialSystem::GPUProgram *)object;
+        MaterialSystem::Shader *shader = program->add_shaders();
+        MaterialSystem::Header *header = shader->mutable_header();
+        bool ret = translateObjectHeader(obj, header);
+        if (!ret)
+        {
+            return ret;
+        }
 
         String source, target, entry, stage;
 
         // Set the properties for the material
-        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        for (auto i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
             {
-                PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
-
-                // Type
-                uint16_t type = (*i)->type;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
-
-                // ID
-                uint16_t id = prop->id;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
-
-                String str;
+                PropertyAbstractNode *prop 
+                    = reinterpret_cast<PropertyAbstractNode*>((*i).get());
 
                 // 属性
                 switch (prop->id)
                 {
                 case ID_SOURCE:
                     {
-                        if (getString(prop->values.front(), &str))
+                        if (getString(prop->values.front(), &source))
                         {
-                            bytesOfWritten = writeString(str, stream);
-                            totalBytes += bytesOfWritten;
-                            source = str;
+                            shader->set_source(source);
+                            ret = true;
                         }
                         else
                         {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                prop->name, prop->file, prop->line,
                                 "source only accept a string argument");
+                            ret = false;
                         }
                     }
                     break;
                 case ID_TARGET:
                     {
-                        if (getString(prop->values.front(), &str))
+                        if (getString(prop->values.front(), &target))
                         {
-                            bytesOfWritten = writeString(str, stream);
-                            totalBytes += bytesOfWritten;
-                            target = str;
+                            shader->set_target(target);
+                            ret = true;
                         }
                         else
                         {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                prop->name, prop->file, prop->line,
                                 "target only accept a string argument");
+                            ret = false;
                         }
                     }
                     break;
                 case ID_ENTRY_POINT:
                     {
-                        if (getString(prop->values.front(), &str))
+                        if (getString(prop->values.front(), &entry))
                         {
-                            bytesOfWritten = writeString(str, stream);
-                            totalBytes += bytesOfWritten;
-                            entry = str;
+                            shader->set_entry(entry);
+                            ret = true;
                         }
                         else
                         {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                prop->name, prop->file, prop->line,
                                 "entry_point only accept a string argument");
+                            ret = false;
                         }
                     }
                     break;
                 case ID_STAGE:
                     {
-                        if (getString(prop->values.front(), &str))
+                        if (getString(prop->values.front(), &stage))
                         {
-                            bytesOfWritten = writeString(str, stream);
-                            totalBytes += bytesOfWritten;
-                            stage = str;
+                            shader->set_stage(stage);
+                            ret = true;
                         }
                         else
                         {
-                            ScriptError::printError(CERR_INVALIDPARAMETERS, prop->name, prop->file, prop->line,
+                            ScriptError::printError(CERR_INVALIDPARAMETERS, 
+                                prop->name, prop->file, prop->line,
                                 "stage only accept a string argument");
+                            ret = false;
                         }
                     }
                     break;
                 default:
-                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
+                    ScriptError::printError(CERR_UNEXPECTEDTOKEN, 
+                        prop->name, prop->file, prop->line,
                         "token \"" + prop->name + "\" is not recognized");
+                    ret = false;
                     break;
                 }
             }
+
+            if (!ret)
+            {
+                break;
+            }
         }
 
-        if (!compiler->translate(obj, source, target, stage, entry))
+        if (ret)
         {
-            totalBytes = 0;
+            ret = compiler->translate(obj, source, target, stage, entry);
         }
 
-        if (totalBytes > 0)
-        {
-            // 计算 MD5
-            uint8_t *content;
-            stream.read(content);
-            content += start;
-            size_t contentSize = totalBytes - headerSize;
-            MD5 md5;
-            md5.update((const void*)content, contentSize);
-            const uint8_t *digest = md5.digest();
-
-            // 跳转到文件头位置，写回 MD5
-            long_t pos = stream.tell();
-            stream.seek(current, false);
-            stream.write((void*)digest, 16);
-            stream.seek(pos, false);
-        }
-
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateGPUProgram(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
+    bool GPUProgramTranslator::translateGPUProgram(ScriptCompiler *compiler, 
+        void *object, ObjectAbstractNode *obj)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
         // 对象头数据
-        bytesOfWritten = translateObjectHeader(obj, stream);
-        totalBytes += bytesOfWritten;
-
-        size_t headerSize = bytesOfWritten;
-        long_t current = stream.tell();
-        long_t start = current;
-        current -= 16;
+        MaterialSystem::Material *material = (MaterialSystem::Material *)object;
+        MaterialSystem::GPUProgram *program = material->add_programs();
+        MaterialSystem::Header *header = program->mutable_header();
+        bool ret = translateObjectHeader(obj, header);
+        if (!ret)
+        {
+            return ret;
+        }
 
         // Set the properties for the material
-        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        for (auto i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
             {
-                PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
+                PropertyAbstractNode *prop 
+                    = reinterpret_cast<PropertyAbstractNode*>((*i).get());
 
-                // Type
-                uint16_t type = (*i)->type;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
-
-                // ID
-                uint16_t id = prop->id;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
-
-                // 属性
-//                 switch (prop->id)
-//                 {
-//                 default:
-//                     ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
-//                         "token \"" + prop->name + "\" is not recognized");
-//                 }
             }
             else if ((*i)->type == ANT_OBJECT)
             {
-                bytesOfWritten = processNode(compiler, stream, *i);
+                ret = processNode(compiler, program, *i);
+            }
 
-                if (bytesOfWritten == 0)
-                {
-                    // 出错了
-                    totalBytes = 0;
-                    break;
-                }
-
-                totalBytes += bytesOfWritten;
+            if (!ret)
+            {
+                break;
             }
         }
 
-        if (totalBytes > 0)
-        {
-            // 计算 MD5
-            uint8_t *content;
-            stream.read(content);
-            content += start;
-            size_t contentSize = totalBytes - headerSize;
-            MD5 md5;
-            md5.update((const void*)content, contentSize);
-            const uint8_t *digest = md5.digest();
-
-            // 跳转到文件头位置，写回 MD5
-            long_t pos = stream.tell();
-            stream.seek(current, false);
-            stream.write((void*)digest, 16);
-            stream.seek(pos, false);
-        }
-
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateGPUProgramRef(ScriptCompiler *compiler, DataStream &stream, ObjectAbstractNode *obj)
+    bool GPUProgramTranslator::translateGPUProgramRef(
+        ScriptCompiler *compiler, void *object, ObjectAbstractNode *obj)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
         // 对象头数据
-        bytesOfWritten = translateObjectHeader(obj, stream);
-        totalBytes += bytesOfWritten;
-
-        size_t headerSize = bytesOfWritten;
-        long_t current = stream.tell();
-        long_t start = current;
-        current -= 16;
+        MaterialSystem::Pass *pass = (MaterialSystem::Pass *)object;
+        MaterialSystem::GPUProgramRef *program 
+            = pass->mutable_gpu_program_ref();
+        MaterialSystem::Header *header = program->mutable_header();
+        bool ret = translateObjectHeader(obj, header);
+        if (!ret)
+        {
+            return ret;
+        }
 
         // Set the properties for the material
-        for (AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+        for (auto i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
             {
-                PropertyAbstractNode *prop = reinterpret_cast<PropertyAbstractNode*>((*i).get());
-
-                // Type
-                uint16_t type = (*i)->type;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
-
-                // ID
-                uint16_t id = prop->id;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
-
-                // 属性
-//                 switch (prop->id)
-//                 {
-//                 default:
-//                     ScriptError::printError(CERR_UNEXPECTEDTOKEN, prop->name, prop->file, prop->line,
-//                         "token \"" + prop->name + "\" is not recognized");
-//                 }
+                PropertyAbstractNode *prop 
+                    = reinterpret_cast<PropertyAbstractNode*>((*i).get());
             }
             else if ((*i)->type == ANT_OBJECT)
             {
-                bytesOfWritten = processNode(compiler, stream, *i);
-                totalBytes += bytesOfWritten;
+                ret = processNode(compiler, program, *i);
+            }
+
+            if (!ret)
+            {
+                break;
             }
         }
 
-        if (totalBytes > 0)
-        {
-            // 计算 MD5
-            uint8_t *content;
-            stream.read(content);
-            content += start;
-            size_t contentSize = totalBytes - headerSize;
-            MD5 md5;
-            md5.update((const void*)content, contentSize);
-            const uint8_t *digest = md5.digest();
-
-            // 跳转到文件头位置，写回 MD5
-            long_t pos = stream.tell();
-            stream.seek(current, false);
-            stream.write((void*)digest, 16);
-            stream.seek(pos, false);
-        }
-
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateGPUCBufferRef(
-        ScriptCompiler* compiler, DataStream& stream, ObjectAbstractNode* obj)
+    bool GPUProgramTranslator::translateGPUCBufferRef(
+        ScriptCompiler *compiler, void *object, ObjectAbstractNode *obj)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
-
         // 对象头数据
-        bytesOfWritten = translateObjectHeader(obj, stream);
-        totalBytes += bytesOfWritten;
-
-        size_t headerSize = bytesOfWritten;
-        long_t current = stream.tell();
-        long_t start = current;
-        current -= 16;
+        MaterialSystem::GPUProgramRef *program 
+            = (MaterialSystem::GPUProgramRef *)object;
+        MaterialSystem::GPUConstantBufferRef *cbuffer 
+            = program->add_gpu_cbuffer_ref();
+        MaterialSystem::Header *header = cbuffer->mutable_header();
+        bool ret = translateObjectHeader(obj, header);
+        if (!ret)
+        {
+            return ret;
+        }
 
         // Set the properties for the material
-        for (AbstractNodeList::iterator i = obj->children.begin(); 
-            i != obj->children.end(); 
-            ++i)
+        for (auto i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
             {
                 PropertyAbstractNode* prop 
                     = reinterpret_cast<PropertyAbstractNode*>((*i).get());
 
-                // Type
-                uint16_t type = (*i)->type;
-                bytesOfWritten = stream.write(&type, sizeof(type));
-                totalBytes += bytesOfWritten;
-
-                // ID
-                uint16_t id = prop->id;
-                bytesOfWritten = stream.write(&id, sizeof(id));
-                totalBytes += bytesOfWritten;
-
                 // 属性
                 switch (prop->id)
                 {
                 case ID_CBUFFER_SLOT:
-                    bytesOfWritten = translateCBuffer(prop, stream);
-                    totalBytes += bytesOfWritten;
+                    ret = translateCBuffer(prop, cbuffer);
                     break;
                 default:
                     ScriptError::printError(CERR_UNEXPECTEDTOKEN, 
                         prop->name, prop->file, prop->line,
                         "token \"" + prop->name + "\" is not recognized");
+                    ret = false;
+                    break;
                 }
+            }
+
+            if (!ret)
+            {
+                break;
             }
         }
 
-        if (totalBytes > 0)
-        {
-            // 计算 MD5
-            uint8_t *content;
-            stream.read(content);
-            content += start;
-            size_t contentSize = totalBytes - headerSize;
-            MD5 md5;
-            md5.update((const void*)content, contentSize);
-            const uint8_t *digest = md5.digest();
-
-            // 跳转到文件头位置，写回 MD5
-            long_t pos = stream.tell();
-            stream.seek(current, false);
-            stream.write((void*)digest, 16);
-            stream.seek(pos, false);
-        }
-
-        return totalBytes;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t GPUProgramTranslator::translateCBuffer(
-        PropertyAbstractNode* prop, DataStream& stream)
+    bool GPUProgramTranslator::translateCBuffer(PropertyAbstractNode* prop, 
+        MaterialSystem::GPUConstantBufferRef *cbuffer)
     {
-        size_t bytesOfWritten = 0;
-        size_t totalBytes = 0;
+        bool ret = false;
 
         if (prop->values.size() != 1)
         {
@@ -6399,18 +7582,18 @@ namespace Tiny3D
         uint32_t slot = 0;
         if (getUInt(prop->values.front(), &slot))
         {
-            bytesOfWritten = stream.write(&slot, sizeof(slot));
-            totalBytes += bytesOfWritten;
+            cbuffer->set_slot(slot);
+            ret = true;
         }
         else
         {
             ScriptError::printError(CERR_INVALIDPARAMETERS,
                 prop->name, prop->file, prop->line,
                 "Constant buffer slot require a integer number !");
-            totalBytes = 0;
+            ret = false;
         }
 
-        return totalBytes;
+        return ret;
     }
 }
-#endif
+

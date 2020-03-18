@@ -22,7 +22,7 @@
 #include "T3DScriptLexer.h"
 #include "T3DScriptParser.h"
 #include "T3DScriptError.h"
-#include "T3DScriptTranslatorNew.h"
+#include "T3DScriptTranslator.h"
 
 
 namespace Tiny3D
@@ -75,19 +75,19 @@ namespace Tiny3D
 
     void ScriptCompiler::initTranslators()
     {
-        mMaterialTranslator = new MaterialTranslatorNew();
-        mTechniqueTranslator = new TechniqueTranslatorNew();
-        mPassTranslator = new PassTranslatorNew();
-        mTexUnitTranslator = new TextureUnitTranslatorNew();
-        mSamplerTranslator = new SamplerTranslatorNew();
-        mGPUTransltor = new GPUProgramTranslatorNew();
+        mMaterialTranslator = new MaterialTranslator();
+        mTechniqueTranslator = new TechniqueTranslator();
+        mPassTranslator = new PassTranslator();
+        mTexUnitTranslator = new TextureUnitTranslator();
+        mSamplerTranslator = new SamplerTranslator();
+        mGPUTransltor = new GPUProgramTranslator();
     }
 
     //--------------------------------------------------------------------------
 
-    ScriptTranslatorNew *ScriptCompiler::getTranslator(const AbstractNodePtr &node) const
+    ScriptTranslator *ScriptCompiler::getTranslator(const AbstractNodePtr &node) const
     {
-        ScriptTranslatorNew *translator = nullptr;
+        ScriptTranslator *translator = nullptr;
 
         if (node->type == ANT_OBJECT)
         {
@@ -1141,7 +1141,7 @@ namespace Tiny3D
                     && static_cast<ObjectAbstractNode*>((*i).get())->abstrct)
                     continue;
                 
-                ScriptTranslatorNew *translator = getTranslator(*i);
+                ScriptTranslator *translator = getTranslator(*i);
                 
                 if (translator)
                 {

@@ -108,6 +108,18 @@ namespace Tiny3D
         TResult addDeclaration(BuiltinType type, uint32_t count, 
             uint8_t *data, size_t dataSize);
 
+        /**
+         * @fn  TResult GPUConstBuffer::addDeclaration(BuiltinConstantType code, 
+         *      BuiltinType type, uint32_t count, BuiltinType extraType, 
+         *      uint32_t extraCount);
+         * @brief   Adds a declaration
+         * @param   code        The code.
+         * @param   type        The type.
+         * @param   count       Number of.
+         * @param   extraType   Type of the extra.
+         * @param   extraCount  Number of extras.
+         * @return  A TResult.
+         */
         TResult addDeclaration(BuiltinConstantType code, BuiltinType type,
             uint32_t count, BuiltinType extraType, uint32_t extraCount);
 
@@ -134,14 +146,48 @@ namespace Tiny3D
          */
         const Declarations& getDeclarations() const { return mDeclarations; }
 
+        /**
+         * @fn  TResult GPUConstBuffer::updateData( BuiltinConstantType code, 
+         *      uint8_t *data, size_t dataSize);
+         * @brief   Updates the data
+         * @param           code        The code.
+         * @param [in,out]  data        If non-null, the data.
+         * @param           dataSize    Size of the data.
+         * @return  A TResult.
+         */
         TResult updateData(
             BuiltinConstantType code, uint8_t *data, size_t dataSize);
 
+        /**
+         * @fn  TResult GPUConstBuffer::updateData(uint8_t *data, 
+         *      size_t dataSize, size_t offset);
+         * @brief   Updates the data
+         * @param [in,out]  data        If non-null, the data.
+         * @param           dataSize    Size of the data.
+         * @param           offset      The offset.
+         * @return  A TResult.
+         */
         TResult updateData(uint8_t *data, size_t dataSize, size_t offset);
 
+        /**
+         * @fn  TResult GPUConstBuffer::flushData(size_t offset, size_t size, 
+         *      const void *buffer, bool discardWholeBuffer = true);
+         * @brief   Flushes the data
+         * @param   offset              The offset.
+         * @param   size                The size.
+         * @param   buffer              The buffer.
+         * @param   discardWholeBuffer  (Optional) True to discard whole buffer.
+         * @return  A TResult.
+         */
         TResult flushData(size_t offset, size_t size, const void *buffer, 
             bool discardWholeBuffer = true);
 
+        /**
+         * @fn  TResult GPUConstBuffer::flushData(bool discardWholeBuffer = true);
+         * @brief   Flushes the data described by discardWholeBuffer
+         * @param   discardWholeBuffer  (Optional) True to discard whole buffer.
+         * @return  A TResult.
+         */
         TResult flushData(bool discardWholeBuffer = true);
         
         /**

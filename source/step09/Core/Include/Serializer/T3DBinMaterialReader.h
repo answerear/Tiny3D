@@ -47,42 +47,135 @@ namespace Tiny3D
 
     using namespace Script;
 
+    /**
+     * @class   BinMaterialReader
+     * @brief   A bin material reader.
+     */
     class BinMaterialReader : public MaterialReader
     {
         T3D_DECLARE_CLASS();
         T3D_DISABLE_COPY(BinMaterialReader);
 
     public:
+        /**
+         * @fn  static BinMaterialReaderPtr BinMaterialReader::create(
+         *      const BuiltinConstantMap &definitions);
+         * @brief   Creates a new BinMaterialReaderPtr
+         * @param   definitions The definitions.
+         * @return  A BinMaterialReaderPtr.
+         */
         static BinMaterialReaderPtr create(const BuiltinConstantMap &definitions);
 
+        /**
+         * @fn  virtual BinMaterialReader::~BinMaterialReader();
+         * @brief   Destructor
+         */
         virtual ~BinMaterialReader();
 
     protected:
+        /**
+         * @fn  BinMaterialReader::BinMaterialReader(
+         *      const BuiltinConstantMap &definitions);
+         * @brief   Constructor
+         * @param   definitions The definitions.
+         */
         BinMaterialReader(const BuiltinConstantMap &definitions);
 
+        /**
+         * @fn  virtual TResult BinMaterialReader::parse(DataStream &stream, 
+         *      Material *material) override;
+         * @brief   Parses
+         * @param [in,out]  stream      The stream.
+         * @param [in,out]  material    If non-null, the material.
+         * @return  A TResult.
+         */
         virtual TResult parse(DataStream &stream, Material *material) override;
 
+        /**
+         * @fn  TResult BinMaterialReader::parseMaterial(
+         *      const MaterialSystem::Material *src, Material *dst);
+         * @brief   Parse material
+         * @param           src Source for the.
+         * @param [in,out]  dst If non-null, destination for the.
+         * @return  A TResult.
+         */
         TResult parseMaterial(
             const MaterialSystem::Material *src, Material *dst);
 
+        /**
+         * @fn  TResult BinMaterialReader::parseTechnique(
+         *      const MaterialSystem::Technique *src, Material *dst);
+         * @brief   Parse technique
+         * @param           src Source for the.
+         * @param [in,out]  dst If non-null, destination for the.
+         * @return  A TResult.
+         */
         TResult parseTechnique(
             const MaterialSystem::Technique *src, Material *dst);
 
+        /**
+         * @fn  TResult BinMaterialReader::parsePass(
+         *      const MaterialSystem::Pass *src, Technique *dst);
+         * @brief   Parse pass
+         * @param           src Source for the.
+         * @param [in,out]  dst If non-null, destination for the.
+         * @return  A TResult.
+         */
         TResult parsePass(
             const MaterialSystem::Pass *src, Technique *dst);
 
+        /**
+         * @fn  TResult BinMaterialReader::parseAmbient(
+         *      const MaterialSystem::Pass *src, Pass *dst);
+         * @brief   Parse ambient
+         * @param           src Source for the.
+         * @param [in,out]  dst If non-null, destination for the.
+         * @return  A TResult.
+         */
         TResult parseAmbient(
             const MaterialSystem::Pass *src, Pass *dst);
 
+        /**
+         * @fn  TResult BinMaterialReader::parseDiffuse(
+         *      const MaterialSystem::Pass *src, Pass *dst);
+         * @brief   Parse diffuse
+         * @param           src Source for the.
+         * @param [in,out]  dst If non-null, destination for the.
+         * @return  A TResult.
+         */
         TResult parseDiffuse(
             const MaterialSystem::Pass *src, Pass *dst);
 
+        /**
+         * @fn  TResult BinMaterialReader::parseSpecular(
+         *      const MaterialSystem::Pass *src, Pass *dst);
+         * @brief   Parse specular
+         * @param           src Source for the.
+         * @param [in,out]  dst If non-null, destination for the.
+         * @return  A TResult.
+         */
         TResult parseSpecular(
             const MaterialSystem::Pass *src, Pass *dst);
 
+        /**
+         * @fn  TResult BinMaterialReader::parseEmissive(
+         *      const MaterialSystem::Pass *src, Pass *dst);
+         * @brief   Parse emissive
+         * @param           src Source for the.
+         * @param [in,out]  dst If non-null, destination for the.
+         * @return  A TResult.
+         */
         TResult parseEmissive(
             const MaterialSystem::Pass *src, Pass *dst);
 
+        /**
+         * @fn  TResult BinMaterialReader::parseSceneBlend(
+         *      const MaterialSystem::Pass *src, Pass *dst);
+         * @brief   Parse scene blend
+         * @param           src Source for the.
+         * @param [in,out]  dst If non-null, destination for the.
+         * @return  A TResult.
+         */
         TResult parseSceneBlend(
             const MaterialSystem::Pass *src, Pass *dst);
 
