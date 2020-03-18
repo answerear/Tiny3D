@@ -24,7 +24,6 @@
 #include "Kernel/T3DPlugin.h"
 #include "Kernel/T3DConfigFile.h"
 #include "Kernel/T3DCommon.h"
-#include "Parser/T3DScriptParser.h"
 
 #include "ImageCodec/T3DImageCodec.h"
 
@@ -96,7 +95,6 @@ namespace Tiny3D
         , mImageCodec(nullptr)
         , mActiveRenderer(nullptr)
         , mSceneMgr(nullptr)
-        , mScriptParser(nullptr)
         , mComponentCreator(nullptr)
         , mIsRunning(false)
     {
@@ -107,7 +105,6 @@ namespace Tiny3D
     Agent::~Agent()
     {
         mComponentCreator = nullptr;
-        mScriptParser = nullptr;
         mSceneMgr = nullptr;
         mActiveRenderer = nullptr;
         mDefaultWindow = nullptr;
@@ -909,7 +906,6 @@ namespace Tiny3D
         mSamplerMgr = SamplerManager::create();
 
         mComponentCreator = ComponentCreator::create();
-        mScriptParser = ScriptParser::create();
 
         return T3D_OK;
     }

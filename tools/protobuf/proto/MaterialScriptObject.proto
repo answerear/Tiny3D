@@ -126,10 +126,11 @@ message ParamAuto
 message GPUConstantBuffer
 {
     Header              header = 1;
-    repeated Param      param_indexed = 2;
-    repeated ParamAuto  param_indexed_auto = 3;
-    repeated Param      param_named = 4;
-    repeated ParamAuto  param_named_auto = 5;
+    uint32              buffer_size = 2;
+    repeated Param      param_indexed = 3;
+    repeated ParamAuto  param_indexed_auto = 4;
+    repeated Param      param_named = 5;
+    repeated ParamAuto  param_named_auto = 6;
 }
 
 

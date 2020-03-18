@@ -67,18 +67,6 @@ namespace Tiny3D
     class Component;
     class ComponentCreator;
 
-    class ScriptParser;
-    class ScriptParserMaterial;
-    class ScriptParserTechnique;
-    class ScriptParserPass;
-    class ScriptParserTextureUnit;
-    class ScriptParserSampler;
-    class ScriptParserGPUProgram;
-    class ScriptParserGPUProgramRef;
-    class ScriptParserShader;
-    class ScriptParserGPUContBuffer;
-    class ScriptParserGPUContBufferRef;
-
     class SerializerManager;
     class MaterialReader;
     class MaterialWriter;

@@ -6002,12 +6002,15 @@ GPUConstantBuffer::GPUConstantBuffer(const GPUConstantBuffer& from)
   } else {
     header_ = nullptr;
   }
+  buffer_size_ = from.buffer_size_;
   // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.MaterialSystem.GPUConstantBuffer)
 }
 
 void GPUConstantBuffer::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_GPUConstantBuffer_MaterialScriptObject_2eproto.base);
-  header_ = nullptr;
+  ::memset(&header_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&buffer_size_) -
+      reinterpret_cast<char*>(&header_)) + sizeof(buffer_size_));
 }
 
 GPUConstantBuffer::~GPUConstantBuffer() {
@@ -6042,6 +6045,7 @@ void GPUConstantBuffer::Clear() {
     delete header_;
   }
   header_ = nullptr;
+  buffer_size_ = 0u;
   _internal_metadata_.Clear();
 }
 
@@ -6059,52 +6063,59 @@ const char* GPUConstantBuffer::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // repeated .Tiny3D.Script.MaterialSystem.Param param_indexed = 2;
+      // uint32 buffer_size = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          buffer_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated .Tiny3D.Script.MaterialSystem.Param param_indexed = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_param_indexed(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
         } else goto handle_unusual;
         continue;
-      // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_indexed_auto = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+      // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_indexed_auto = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           ptr -= 1;
           do {
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_param_indexed_auto(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
         } else goto handle_unusual;
         continue;
-      // repeated .Tiny3D.Script.MaterialSystem.Param param_named = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+      // repeated .Tiny3D.Script.MaterialSystem.Param param_named = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
           ptr -= 1;
           do {
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_param_named(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
         } else goto handle_unusual;
         continue;
-      // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_named_auto = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+      // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_named_auto = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
           ptr -= 1;
           do {
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_param_named_auto(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<50>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -6141,36 +6152,42 @@ failure:
         1, _Internal::header(this), target, stream);
   }
 
-  // repeated .Tiny3D.Script.MaterialSystem.Param param_indexed = 2;
+  // uint32 buffer_size = 2;
+  if (this->buffer_size() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_buffer_size(), target);
+  }
+
+  // repeated .Tiny3D.Script.MaterialSystem.Param param_indexed = 3;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->_internal_param_indexed_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(2, this->_internal_param_indexed(i), target, stream);
+      InternalWriteMessage(3, this->_internal_param_indexed(i), target, stream);
   }
 
-  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_indexed_auto = 3;
+  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_indexed_auto = 4;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->_internal_param_indexed_auto_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(3, this->_internal_param_indexed_auto(i), target, stream);
+      InternalWriteMessage(4, this->_internal_param_indexed_auto(i), target, stream);
   }
 
-  // repeated .Tiny3D.Script.MaterialSystem.Param param_named = 4;
+  // repeated .Tiny3D.Script.MaterialSystem.Param param_named = 5;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->_internal_param_named_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(4, this->_internal_param_named(i), target, stream);
+      InternalWriteMessage(5, this->_internal_param_named(i), target, stream);
   }
 
-  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_named_auto = 5;
+  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_named_auto = 6;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->_internal_param_named_auto_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(5, this->_internal_param_named_auto(i), target, stream);
+      InternalWriteMessage(6, this->_internal_param_named_auto(i), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -6189,28 +6206,28 @@ size_t GPUConstantBuffer::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .Tiny3D.Script.MaterialSystem.Param param_indexed = 2;
+  // repeated .Tiny3D.Script.MaterialSystem.Param param_indexed = 3;
   total_size += 1UL * this->_internal_param_indexed_size();
   for (const auto& msg : this->param_indexed_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_indexed_auto = 3;
+  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_indexed_auto = 4;
   total_size += 1UL * this->_internal_param_indexed_auto_size();
   for (const auto& msg : this->param_indexed_auto_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // repeated .Tiny3D.Script.MaterialSystem.Param param_named = 4;
+  // repeated .Tiny3D.Script.MaterialSystem.Param param_named = 5;
   total_size += 1UL * this->_internal_param_named_size();
   for (const auto& msg : this->param_named_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_named_auto = 5;
+  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_named_auto = 6;
   total_size += 1UL * this->_internal_param_named_auto_size();
   for (const auto& msg : this->param_named_auto_) {
     total_size +=
@@ -6222,6 +6239,13 @@ size_t GPUConstantBuffer::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *header_);
+  }
+
+  // uint32 buffer_size = 2;
+  if (this->buffer_size() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_buffer_size());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -6252,6 +6276,9 @@ void GPUConstantBuffer::MergeFrom(const GPUConstantBuffer& from) {
   if (from.has_header()) {
     _internal_mutable_header()->::Tiny3D::Script::MaterialSystem::Header::MergeFrom(from._internal_header());
   }
+  if (from.buffer_size() != 0) {
+    _internal_set_buffer_size(from._internal_buffer_size());
+  }
 }
 
 void GPUConstantBuffer::CopyFrom(const GPUConstantBuffer& from) {
@@ -6273,6 +6300,7 @@ void GPUConstantBuffer::InternalSwap(GPUConstantBuffer* other) {
   param_named_.InternalSwap(&other->param_named_);
   param_named_auto_.InternalSwap(&other->param_named_auto_);
   swap(header_, other->header_);
+  swap(buffer_size_, other->buffer_size_);
 }
 
 std::string GPUConstantBuffer::GetTypeName() const {

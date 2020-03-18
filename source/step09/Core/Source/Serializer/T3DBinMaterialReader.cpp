@@ -1162,6 +1162,7 @@ namespace Tiny3D
             // name
             auto header = data.header();
             GPUProgramRefPtr program = GPUProgramRef::create(header.name());
+            dst->setGPUProgram(program);
 
             // GPU constant buffer reference
             auto refs = data.gpu_cbuffer_ref();
@@ -1631,16 +1632,18 @@ namespace Tiny3D
             auto header = src->header();
             GPUConstBufferPtr cbuffer;
 
+            uint32_t bufSize = src->buffer_size();
+
             if (dst != nullptr)
             {
                 // belongs to material
-                ret = dst->addGPUConstBuffer(header.name(), cbuffer);
+                ret = dst->addGPUConstBuffer(header.name(), cbuffer, bufSize);
                 T3D_CHECK_PARSING_RET(ret);
             }
             else
             {
                 // global
-                cbuffer = T3D_GPU_CONST_BUFFER_MGR.loadBuffer(header.name());
+                cbuffer = T3D_GPU_CONST_BUFFER_MGR.loadBuffer(header.name(), bufSize);
                 if (cbuffer == nullptr)
                 {
                     ret = T3D_ERR_RES_CREATE_GPUCBUFFER;
@@ -1718,30 +1721,28 @@ namespace Tiny3D
         auto type = src->type();
 
         uint32_t count = 0;
+        uint8_t *data = nullptr;
+        uint32_t dataSize = 0;
 
         // values
         if (MaterialSystem::BuiltInType::BT_INT == type)
         {
             count = src->ivalues_size();
             auto values = src->ivalues();
-            for (uint32_t value : values)
-            {
-
-            }
+            data = (uint8_t*)values.data();
+            dataSize = count * sizeof(uint32_t);
         }
         else if (MaterialSystem::BuiltInType::BT_REAL == type)
         {
             count = src->fvalues_size();
             auto values = src->fvalues();
-            for (float32_t value : values)
-            {
-
-            }
+            data = (uint8_t*)values.data();
+            dataSize = count * sizeof(float32_t);
         }
 
         if (count > 0)
         {
-            dst->addDeclaration((BuiltinType)type, count);
+            dst->addDeclaration((BuiltinType)type, count, data, dataSize);
         }
 
         return T3D_OK;

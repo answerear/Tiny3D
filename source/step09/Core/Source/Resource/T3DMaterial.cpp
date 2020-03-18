@@ -26,7 +26,6 @@
 #include "Resource/T3DGPUConstBuffer.h"
 #include "REsource/T3DGPUConstBufferManager.h"
 #include "Kernel/T3DAgent.h"
-#include "Parser/T3DScriptParser.h"
 #include "Kernel/T3DTechnique.h"
 #include "T3DErrorDef.h"
 #include "Serializer/T3DSerializerManager.h"
@@ -338,14 +337,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Material::addGPUConstBuffer(const String &name, 
-        GPUConstBufferPtr &buffer)
+    TResult Material::addGPUConstBuffer(
+        const String &name, GPUConstBufferPtr &buffer, size_t bufSize)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            buffer = T3D_GPU_CONST_BUFFER_MGR.loadBuffer(name);
+            buffer = T3D_GPU_CONST_BUFFER_MGR.loadBuffer(name, bufSize);
             if (buffer == nullptr)
             {
                 ret = T3D_ERR_RES_CREATE_GPUCBUFFER;

@@ -30,32 +30,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    GPUConstBufferPtr GPUConstBuffer::create(const String& name)
+    GPUConstBufferPtr GPUConstBuffer::create(const String& name, size_t bufSize)
     {
-        GPUConstBufferPtr mgr = new GPUConstBuffer(name);
+        GPUConstBufferPtr mgr = new GPUConstBuffer(name, bufSize);
         mgr->release();
         return mgr;
     }
 
     //--------------------------------------------------------------------------
 
-    GPUConstBuffer::GPUConstBuffer(const String& name)
+    GPUConstBuffer::GPUConstBuffer(const String& name, size_t bufSize)
         : Resource(name)
-        , mBufSize(0)
+        , mBufSize(bufSize)
         , mBuffer(nullptr)
         , mUsage(HardwareBuffer::Usage::STATIC)
         , mAccessMode(0)
         , mHasData(false)
         , mBufferImpl(nullptr)
     {
-
+        if (mBufSize > 0)
+        {
+            mBuffer = new uint8_t[mBufSize];
+        }
     }
 
     //--------------------------------------------------------------------------
 
     GPUConstBuffer::~GPUConstBuffer()
     {
-
+        T3D_SAFE_DELETE_ARRAY(mBuffer);
     }
 
     //--------------------------------------------------------------------------
@@ -67,7 +70,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GPUConstBuffer::initWithData(size_t bufSize, const void* buffer,
+    TResult GPUConstBuffer::initWithData(size_t bufSize, const void *buffer,
         HardwareBuffer::Usage usage, uint32_t mode)
     {
         TResult ret = T3D_OK;
@@ -82,7 +85,7 @@ namespace Tiny3D
                 break;
             }
 
-            if ((bufSize & 0xF) != 0)
+            if ((mBufSize & 0xF) != 0)
             {
                 // GPU常量緩衝需要128位(16字節)對齊
                 ret = T3D_ERR_RES_INVALID_PARAM;
@@ -91,7 +94,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (bufSize != mBufSize * 4)
+            if (bufSize != mBufSize)
             {
                 // 輸入的大小應該跟數據類型定義的大小匹配
                 ret = T3D_ERR_RES_INVALID_PARAM;
@@ -100,16 +103,65 @@ namespace Tiny3D
                 break;
             }
 
-            mBufferImpl = T3D_HARDWARE_BUFFER_MGR.createConstantBuffer(bufSize, 
-                buffer, usage, mode);
+            mBufferImpl = T3D_HARDWARE_BUFFER_MGR.createConstantBuffer(
+                bufSize, buffer, usage, mode);
             if (mBufferImpl == nullptr)
             {
                 ret = T3D_ERR_RES_LOAD_FAILED;
                 break;
             }
 
-            mBufSize = bufSize;
-            mBuffer = buffer;
+            mUsage = usage;
+            mAccessMode = mode;
+            mHasData = true;
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUConstBuffer::initWithData(
+        HardwareBuffer::Usage usage, uint32_t mode)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (mHasData)
+            {
+                ret = T3D_ERR_RES_ALREADY_INIT;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "GPU constant buffer has alreay initialized with data !");
+                break;
+            }
+
+            if ((mBufSize & 0xF) != 0)
+            {
+                // GPU常量緩衝需要128位(16字節)對齊
+                ret = T3D_ERR_RES_INVALID_PARAM;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "GPU constant buffer must be 128 bytes alignment !");
+                break;
+            }
+
+//             if (bufSize != mBufSize * 4)
+//             {
+//                 // 輸入的大小應該跟數據類型定義的大小匹配
+//                 ret = T3D_ERR_RES_INVALID_PARAM;
+//                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+//                     "Input data size must equal the size of data type declaration !");
+//                 break;
+//             }
+
+            mBufferImpl = T3D_HARDWARE_BUFFER_MGR.createConstantBuffer(
+                mBufSize, mBuffer, usage, mode);
+            if (mBufferImpl == nullptr)
+            {
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+
             mUsage = usage;
             mAccessMode = mode;
             mHasData = true;
@@ -148,12 +200,12 @@ namespace Tiny3D
 
         do 
         {
-            buffer = GPUConstBuffer::create(mName);
+            buffer = GPUConstBuffer::create(mName, mBufSize);
 
             if (buffer != nullptr)
             {
-                TResult ret = buffer->initWithData(mBufSize, mBuffer,  mUsage, 
-                    mAccessMode);
+                memcpy(buffer->mBuffer, mBuffer, mBufSize);
+                TResult ret = buffer->initWithData(mUsage, mAccessMode);
 
                 if (T3D_FAILED(ret))
                 {
@@ -168,7 +220,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GPUConstBuffer::addDeclaration(BuiltinType type, uint32_t count)
+    TResult GPUConstBuffer::addDeclaration(BuiltinType type, uint32_t count, 
+        uint8_t *data, size_t dataSize)
     {
         TResult ret = T3D_OK;
 
@@ -184,13 +237,27 @@ namespace Tiny3D
 
             }
 
+            // 计算数据偏移
+            size_t offset = 0;
+            auto itr = mDeclarations.begin();
+            while (itr != mDeclarations.end())
+            {
+                offset += itr->count;
+                offset += itr->extraCount;
+                offset *= 4;
+                ++itr;
+            }
+
             DataDeclaration decl;
             decl.code = BuiltinConstantType::NONE;
             decl.type = type;
             decl.count = count;
             mDeclarations.push_back(decl);
 
-            mBufSize += count;
+            if (mBufSize > 0 && mBuffer != nullptr)
+            {
+                memcpy(mBuffer+offset, data, dataSize);
+            }
         } while (0);
 
         return ret;
@@ -216,6 +283,17 @@ namespace Tiny3D
 
             }
 
+            // 计算数据偏移
+            size_t offset = 0;
+            auto itr = mDeclarations.begin();
+            while (itr != mDeclarations.end())
+            {
+                offset += itr->count;
+                offset += itr->extraCount;
+                offset *= 4;
+                ++itr;
+            }
+
             DataDeclaration decl;
             decl.code = code;
             decl.type = type;
@@ -223,8 +301,8 @@ namespace Tiny3D
             decl.extraType = extraType;
             decl.extraCount = extraCount;
             mDeclarations.push_back(decl);
-            
-            mBufSize += count;
+
+            mSearchOffsets.insert(QuickSearchOffsetsValue(code, offset));
         } while (0);
 
         return ret;
@@ -236,7 +314,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        do 
+        do
         {
             if (mHasData)
             {
@@ -276,17 +354,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const GPUConstBuffer::DataDeclaration 
+    const GPUConstBuffer::DataDeclaration
         &GPUConstBuffer::getDeclaration(size_t index) const
     {
         static DataDeclaration DECL_NULL;
 
-        do 
+        do
         {
             bool found = false;
             size_t i = 0;
 
-            auto itr = mDeclarations.begin(); 
+            auto itr = mDeclarations.begin();
             while (itr != mDeclarations.end())
             {
                 if (i == index)
@@ -299,7 +377,58 @@ namespace Tiny3D
                 ++itr;
             }
         } while (0);
-        
+
         return DECL_NULL;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUConstBuffer::updateData(
+        BuiltinConstantType code, uint8_t *data, size_t dataSize)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            auto itr = mSearchOffsets.find(code);
+
+            if (itr == mSearchOffsets.end())
+            {
+                ret = T3D_ERR_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Counld not find data offset !");
+                break;
+            }
+
+            uint32_t offset = itr->second;
+            if (offset >= mBufSize)
+            {
+                ret = T3D_ERR_OUT_OF_BOUND;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Data offset is out of bound !");
+                break;
+            }
+
+            size_t len = (offset + dataSize < mBufSize) 
+                ? dataSize: (mBufSize - offset);
+            memcpy(mBuffer + offset, data, len);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUConstBuffer::updateData(
+        uint8_t *data, size_t dataSize, size_t offset)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+
+        } while (0);
+
+        return ret;
     }
 }

@@ -6896,7 +6896,10 @@ namespace Tiny3D
             return ret;
         }
 
-        // Set the properties for the material
+        uint32_t count = 0;
+        uint32_t total = 0;
+
+        // Set the properties for the GPU constant buffer
         for (auto i = obj->children.begin(); i != obj->children.end(); ++i)
         {
             if ((*i)->type == ANT_PROPERTY)
@@ -6916,7 +6919,8 @@ namespace Tiny3D
                     break;
                 case ID_PARAM_INDEXED_AUTO:
                 case ID_PARAM_NAMED_AUTO:
-                    ret = translateParamIndexedAuto(prop, cbuffer);
+                    ret = translateParamIndexedAuto(prop, cbuffer, count);
+                    total += count;
                     break;
                 default:
                     ScriptError::printError(CERR_UNEXPECTEDTOKEN, 
@@ -6931,6 +6935,36 @@ namespace Tiny3D
             {
                 break;
             }
+        }
+
+        if (ret)
+        {
+            // 计算buffer总大小，并存储起来
+            uint32_t bufSize = 0;
+            if (cbuffer->param_indexed_size() > 0)
+            {
+                auto param_indexed = cbuffer->param_indexed();
+                for (const MaterialSystem::Param &param : param_indexed)
+                {
+                    bufSize += param.fvalues_size();
+                    bufSize += param.ivalues_size();
+                }
+            }
+
+            if (cbuffer->param_named_size() > 0)
+            {
+                auto param_named = cbuffer->param_named();
+                for (const MaterialSystem::Param &param : param_named)
+                {
+                    bufSize += param.fvalues_size();
+                    bufSize += param.ivalues_size();
+                }
+            }
+
+            bufSize += total;
+            bufSize *= 4;
+
+            cbuffer->set_buffer_size(bufSize);
         }
 
         return ret;
@@ -7151,7 +7185,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool GPUProgramTranslatorNew::translateParamIndexedAuto(
-        PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer)
+        PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer,
+        uint32_t &count)
     {
         bool ret = false;
 
@@ -7212,6 +7247,8 @@ namespace Tiny3D
                 // Constant value code
                 param->set_value_code(def.type);
 
+                count = def.elementCount;
+
                 // Extra data
                 if (def.extraType == BT_INT)
                 {
@@ -7222,6 +7259,8 @@ namespace Tiny3D
                         if (getUInt(*i2, &extInfo))
                         {
                             param->add_iextra_params(extInfo);
+                            count += 1;
+
                         }
                     }
                     else
@@ -7234,6 +7273,7 @@ namespace Tiny3D
                             param->add_iextra_params(extInfo1);
                             // second
                             param->add_iextra_params(extInfo2);
+                            count += 2;
                         }
                     }
                 }
@@ -7245,6 +7285,7 @@ namespace Tiny3D
                         if (getSingle(*i2, &extInfo))
                         {
                             param->add_fextra_params(extInfo);
+                            count += 1;
                         }
                     }
                     else
@@ -7258,6 +7299,7 @@ namespace Tiny3D
                             param->add_fextra_params(extInfo1);
                             // second
                             param->add_fextra_params(extInfo2);
+                            count += 2;
                         }
                     }
                 }
@@ -7483,7 +7525,7 @@ namespace Tiny3D
             = (MaterialSystem::GPUProgramRef *)object;
         MaterialSystem::GPUConstantBufferRef *cbuffer 
             = program->add_gpu_cbuffer_ref();
-        MaterialSystem::Header *header = program->mutable_header();
+        MaterialSystem::Header *header = cbuffer->mutable_header();
         bool ret = translateObjectHeader(obj, header);
         if (!ret)
         {

@@ -70,7 +70,6 @@ set_project_files(Include\\\\Scene ${CMAKE_CURRENT_SOURCE_DIR}/Include/Scene/ .h
 set_project_files(Include\\\\Scene ${CMAKE_CURRENT_SOURCE_DIR}/Include/Scene/ .inl)
 set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .h)
 set_project_files(Include\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Include/Bound/ .inl)
-set_project_files(Include\\\\Parser ${CMAKE_CURRENT_SOURCE_DIR}/Include/Parser/ .h)
 set_project_files(Include\\\\Component ${CMAKE_CURRENT_SOURCE_DIR}/Include/Component/ .h)
 set_project_files(Include\\\\Component ${CMAKE_CURRENT_SOURCE_DIR}/Include/Component/ .inl)
 set_project_files(Include\\\\Serializer ${CMAKE_CURRENT_SOURCE_DIR}/Include/Serializer/ .h)
@@ -84,7 +83,6 @@ set_project_files(Source\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/ .c
 set_project_files(Source\\\\ImageCodec ${CMAKE_CURRENT_SOURCE_DIR}/Source/ImageCodec/ .cpp)
 set_project_files(Source\\\\Scene ${CMAKE_CURRENT_SOURCE_DIR}/Source/Scene/ .cpp)
 set_project_files(Source\\\\Bound ${CMAKE_CURRENT_SOURCE_DIR}/Source/Bound/ .cpp)
-set_project_files(Source\\\\Parser ${CMAKE_CURRENT_SOURCE_DIR}/Source/Parser/ .cpp)
 set_project_files(Source\\\\Component ${CMAKE_CURRENT_SOURCE_DIR}/Source/Component/ .cpp)
 set_project_files(Source\\\\Serializer ${CMAKE_CURRENT_SOURCE_DIR}/Source/Serializer/ .cpp)
 

@@ -22,7 +22,6 @@
 #include "Resource/T3DGPUProgramCreator.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DArchive.h"
-#include "Parser/T3DScriptParser.h"
 #include "Kernel/T3DAgent.h"
 #include "T3DErrorDef.h"
 #include "Serializer/T3DSerializerManager.h"

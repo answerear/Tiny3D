@@ -66,7 +66,7 @@ namespace Tiny3D
          * @param   name    資源名稱.
          * @returns 調用成功返回一個新建對象.
          */
-        static GPUConstBufferPtr create(const String& name);
+        static GPUConstBufferPtr create(const String& name, size_t bufSize);
 
         /**
          * @fn  virtual GPUConstBuffer::~GPUConstBuffer();
@@ -91,8 +91,10 @@ namespace Tiny3D
          * @param   mode    缓冲区访问方式.
          * @returns 調用成功返回T3D_OK.
          */
-        virtual TResult initWithData(size_t bufSize, const void* buffer, 
+        virtual TResult initWithData(size_t bufSize, const void *buffer,
             HardwareBuffer::Usage usage, uint32_t mode);
+
+        virtual TResult initWithData(HardwareBuffer::Usage usage, uint32_t mode);
 
         /**
          * @fn  TResult GPUConstBuffer::addDataDeclaration(
@@ -103,7 +105,8 @@ namespace Tiny3D
          * @returns 調用成功返回 T3D_OK.
          * @sa  enum BuiltinType
          */
-        TResult addDeclaration(BuiltinType type, uint32_t count);
+        TResult addDeclaration(BuiltinType type, uint32_t count, 
+            uint8_t *data, size_t dataSize);
 
         TResult addDeclaration(BuiltinConstantType code, BuiltinType type,
             uint32_t count, BuiltinType extraType, uint32_t extraCount);
@@ -115,16 +118,6 @@ namespace Tiny3D
          * @returns 調用成功返回 T3D_OK.
          */
         TResult removeDeclaration(size_t index);
-
-        /**
-         * @fn  size_t GPUConstBuffer::getBufferSize() const;
-         * @brief   獲取緩衝區的字節數大小
-         * @returns 返回緩衝區的字節數大小.
-         */
-        size_t getBufferSize() const 
-        { 
-            return mBufSize; 
-        }
 
         /**
          * @fn  DataDeclaration GPUConstBuffer::getDataType(size_t index) const;
@@ -141,6 +134,21 @@ namespace Tiny3D
          */
         const Declarations& getDeclarations() const { return mDeclarations; }
 
+        TResult updateData(
+            BuiltinConstantType code, uint8_t *data, size_t dataSize);
+
+        TResult updateData(uint8_t *data, size_t dataSize, size_t offset);
+        
+        /**
+         * @fn  size_t GPUConstBuffer::getBufferSize() const;
+         * @brief   獲取緩衝區的字節數大小
+         * @returns 返回緩衝區的字節數大小.
+         */
+        size_t getBufferSize() const
+        {
+            return mBufSize;
+        }
+
         /**
          * @fn  HardwareConstantBufferPtr GPUConstBuffer::getBufferImpl() const;
          * @brief   獲取具體跟平台有關的對象
@@ -154,7 +162,7 @@ namespace Tiny3D
          * @brief   構造函數
          * @param   name    資源名稱.
          */
-        GPUConstBuffer(const String& name);
+        GPUConstBuffer(const String& name, size_t bufSize);
 
         /**
          * @fn  virtual TResult GPUConstBuffer::load() override;
@@ -178,14 +186,18 @@ namespace Tiny3D
         virtual ResourcePtr clone() const override;
 
     protected:
+        typedef TMap<BuiltinConstantType, uint32_t> QuickSearchOffsets;
+        typedef QuickSearchOffsets::value_type      QuickSearchOffsetsValue;
+
         size_t                      mBufSize;           /**< 緩衝區大小 */
-        const void                  *mBuffer;           /**< 緩衝區數據 */
+        uint8_t                     *mBuffer;           /**< 緩衝區數據 */
         HardwareBuffer::Usage       mUsage;             /**< 緩衝區用法 */
         uint32_t                    mAccessMode;        /**< 缓冲区访问方式 */
         bool                        mHasData;           /**< 是否初始化數據 */
         HardwareConstantBufferPtr   mBufferImpl;        /**< 具體實現類 */
 
         Declarations                mDeclarations;      /**< 數據聲明列表 */
+        QuickSearchOffsets          mSearchOffsets;     /**< 快速搜索偏移 */
     };
 }
 

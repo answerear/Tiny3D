@@ -19,7 +19,6 @@
 
 
 #include "Resource/T3DGPUConstBufferManager.h"
-#include "Parser/T3DScriptParser.h"
 #include "Resource/T3DArchive.h"
 #include "Kernel/T3DAgent.h"
 #include "Serializer/T3DSerializerManager.h"
@@ -57,10 +56,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    GPUConstBufferPtr GPUConstBufferManager::loadBuffer(const String &name)
+    GPUConstBufferPtr GPUConstBufferManager::loadBuffer(
+        const String &name, size_t bufSize)
     {
         return smart_pointer_cast<GPUConstBuffer>(
-            ResourceManager::load(name, 0));
+            ResourceManager::load(name, 1, bufSize));
     }
 
     //--------------------------------------------------------------------------
@@ -75,7 +75,14 @@ namespace Tiny3D
     ResourcePtr GPUConstBufferManager::create(const String &name, int32_t argc,
         va_list args)
     {
-        GPUConstBufferPtr buffer = GPUConstBuffer::create(name);
+        GPUConstBufferPtr buffer;
+
+        if (argc == 1)
+        {
+            size_t bufSize = va_arg(args, size_t);
+            buffer = GPUConstBuffer::create(name, bufSize);
+        }
+        
         return buffer;
     }
 

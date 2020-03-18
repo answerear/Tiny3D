@@ -58,7 +58,7 @@ namespace Tiny3D
          * @param   name    緩衝區資源名稱.
          * @returns 調用成功返回緩衝區資源對象.
          */
-        virtual GPUConstBufferPtr loadBuffer(const String &name);
+        virtual GPUConstBufferPtr loadBuffer(const String &name, size_t bufSize);
 
         /**
          * @fn  virtual TResult unloadBuffer(GPUConstBufferPtr buffer);

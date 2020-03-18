@@ -62,18 +62,6 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(VertexData);
     T3D_DECLARE_SMART_PTR(MeshData);
 
-    T3D_DECLARE_SMART_PTR(ScriptParser);
-    T3D_DECLARE_SMART_PTR(ScriptParserMaterial);
-    T3D_DECLARE_SMART_PTR(ScriptParserTechnique);
-    T3D_DECLARE_SMART_PTR(ScriptParserPass);
-    T3D_DECLARE_SMART_PTR(ScriptParserTextureUnit);
-    T3D_DECLARE_SMART_PTR(ScriptParserSampler);
-    T3D_DECLARE_SMART_PTR(ScriptParserGPUProgram);
-    T3D_DECLARE_SMART_PTR(ScriptParserGPUProgramRef);
-    T3D_DECLARE_SMART_PTR(ScriptParserShader);
-    T3D_DECLARE_SMART_PTR(ScriptParserGPUContBuffer);
-    T3D_DECLARE_SMART_PTR(ScriptParserGPUContBufferRef);
-
     T3D_DECLARE_SMART_PTR(SerializerManager);
     T3D_DECLARE_SMART_PTR(MaterialReader);
     T3D_DECLARE_SMART_PTR(MaterialWriter);

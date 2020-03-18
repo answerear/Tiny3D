@@ -897,7 +897,7 @@ namespace Tiny3D
     {
         BuiltinConstantType type;
         String              name;
-        uint8_t             elementCount;
+        uint32_t            elementCount;
         BuiltinType         elementType;
         BuiltinType         extraType;
 
@@ -908,7 +908,7 @@ namespace Tiny3D
             , extraType(BT_NONE)
         {}
 
-        BuiltinConstantDefinition(BuiltinConstantType t, const String &n, uint8_t c, BuiltinType elementT, BuiltinType extraT)
+        BuiltinConstantDefinition(BuiltinConstantType t, const String &n, uint32_t c, BuiltinType elementT, BuiltinType extraT)
             : type(t)
             , name(n)
             , elementCount(c)

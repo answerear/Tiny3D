@@ -130,7 +130,7 @@ namespace Tiny3D
             {
                 GPUConstBufferRefPtr bufferRef = *itr;
                 GPUConstBufferPtr buffer 
-                    = T3D_GPU_CONST_BUFFER_MGR.loadBuffer(bufferRef->getName());
+                    = T3D_GPU_CONST_BUFFER_MGR.loadBuffer(bufferRef->getName(), 0);
                 if (buffer == nullptr)
                 {
                     ret = T3D_ERR_RES_LOAD_FAILED;

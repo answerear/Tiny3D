@@ -438,7 +438,6 @@ namespace Tiny3D
         RendererPtr             mActiveRenderer;    /**< 当前渲染器对象 */
         SceneManagerPtr         mSceneMgr;
 
-        ScriptParserPtr         mScriptParser;
         ComponentCreatorPtr     mComponentCreator;
 
         Plugins                 mPlugins;           /**< 安装的插件列表 */

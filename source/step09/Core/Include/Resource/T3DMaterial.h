@@ -209,8 +209,8 @@ namespace Tiny3D
          * @param   buffer  The buffer.
          * @returns A TResult.
          */
-        TResult addGPUConstBuffer(const String &name, 
-            GPUConstBufferPtr &buffer);
+        TResult addGPUConstBuffer(
+            const String &name, GPUConstBufferPtr &buffer, size_t bufSize);
 
         /**
          * @fn  TResult Material::removeGPUConstBuffer(const String &name);

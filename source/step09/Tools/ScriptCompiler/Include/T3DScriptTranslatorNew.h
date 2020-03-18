@@ -324,7 +324,8 @@ namespace Tiny3D
         bool translateParamIndexed(
             PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer);
         bool translateParamIndexedAuto(
-            PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer);
+            PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer,
+            uint32_t &count);
 
         bool translateCBuffer(
             PropertyAbstractNode* prop, MaterialSystem::GPUConstantBufferRef *cref);

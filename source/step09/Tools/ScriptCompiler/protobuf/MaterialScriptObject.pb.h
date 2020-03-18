@@ -3018,13 +3018,14 @@ class GPUConstantBuffer :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kParamIndexedFieldNumber = 2,
-    kParamIndexedAutoFieldNumber = 3,
-    kParamNamedFieldNumber = 4,
-    kParamNamedAutoFieldNumber = 5,
+    kParamIndexedFieldNumber = 3,
+    kParamIndexedAutoFieldNumber = 4,
+    kParamNamedFieldNumber = 5,
+    kParamNamedAutoFieldNumber = 6,
     kHeaderFieldNumber = 1,
+    kBufferSizeFieldNumber = 2,
   };
-  // repeated .Tiny3D.Script.MaterialSystem.Param param_indexed = 2;
+  // repeated .Tiny3D.Script.MaterialSystem.Param param_indexed = 3;
   int param_indexed_size() const;
   private:
   int _internal_param_indexed_size() const;
@@ -3042,7 +3043,7 @@ class GPUConstantBuffer :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param >&
       param_indexed() const;
 
-  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_indexed_auto = 3;
+  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_indexed_auto = 4;
   int param_indexed_auto_size() const;
   private:
   int _internal_param_indexed_auto_size() const;
@@ -3060,7 +3061,7 @@ class GPUConstantBuffer :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto >&
       param_indexed_auto() const;
 
-  // repeated .Tiny3D.Script.MaterialSystem.Param param_named = 4;
+  // repeated .Tiny3D.Script.MaterialSystem.Param param_named = 5;
   int param_named_size() const;
   private:
   int _internal_param_named_size() const;
@@ -3078,7 +3079,7 @@ class GPUConstantBuffer :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param >&
       param_named() const;
 
-  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_named_auto = 5;
+  // repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_named_auto = 6;
   int param_named_auto_size() const;
   private:
   int _internal_param_named_auto_size() const;
@@ -3111,6 +3112,15 @@ class GPUConstantBuffer :
   ::Tiny3D::Script::MaterialSystem::Header* _internal_mutable_header();
   public:
 
+  // uint32 buffer_size = 2;
+  void clear_buffer_size();
+  ::PROTOBUF_NAMESPACE_ID::uint32 buffer_size() const;
+  void set_buffer_size(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_buffer_size() const;
+  void _internal_set_buffer_size(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.GPUConstantBuffer)
  private:
   class _Internal;
@@ -3121,6 +3131,7 @@ class GPUConstantBuffer :
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param > param_named_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto > param_named_auto_;
   ::Tiny3D::Script::MaterialSystem::Header* header_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 buffer_size_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
 };
@@ -12225,7 +12236,27 @@ inline void GPUConstantBuffer::set_allocated_header(::Tiny3D::Script::MaterialSy
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.header)
 }
 
-// repeated .Tiny3D.Script.MaterialSystem.Param param_indexed = 2;
+// uint32 buffer_size = 2;
+inline void GPUConstantBuffer::clear_buffer_size() {
+  buffer_size_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 GPUConstantBuffer::_internal_buffer_size() const {
+  return buffer_size_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 GPUConstantBuffer::buffer_size() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.buffer_size)
+  return _internal_buffer_size();
+}
+inline void GPUConstantBuffer::_internal_set_buffer_size(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  buffer_size_ = value;
+}
+inline void GPUConstantBuffer::set_buffer_size(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_buffer_size(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.MaterialSystem.GPUConstantBuffer.buffer_size)
+}
+
+// repeated .Tiny3D.Script.MaterialSystem.Param param_indexed = 3;
 inline int GPUConstantBuffer::_internal_param_indexed_size() const {
   return param_indexed_.size();
 }
@@ -12264,7 +12295,7 @@ GPUConstantBuffer::param_indexed() const {
   return param_indexed_;
 }
 
-// repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_indexed_auto = 3;
+// repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_indexed_auto = 4;
 inline int GPUConstantBuffer::_internal_param_indexed_auto_size() const {
   return param_indexed_auto_.size();
 }
@@ -12303,7 +12334,7 @@ GPUConstantBuffer::param_indexed_auto() const {
   return param_indexed_auto_;
 }
 
-// repeated .Tiny3D.Script.MaterialSystem.Param param_named = 4;
+// repeated .Tiny3D.Script.MaterialSystem.Param param_named = 5;
 inline int GPUConstantBuffer::_internal_param_named_size() const {
   return param_named_.size();
 }
@@ -12342,7 +12373,7 @@ GPUConstantBuffer::param_named() const {
   return param_named_;
 }
 
-// repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_named_auto = 5;
+// repeated .Tiny3D.Script.MaterialSystem.ParamAuto param_named_auto = 6;
 inline int GPUConstantBuffer::_internal_param_named_auto_size() const {
   return param_named_auto_.size();
 }
