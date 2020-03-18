@@ -145,15 +145,6 @@ namespace Tiny3D
                 break;
             }
 
-//             if (bufSize != mBufSize * 4)
-//             {
-//                 // 輸入的大小應該跟數據類型定義的大小匹配
-//                 ret = T3D_ERR_RES_INVALID_PARAM;
-//                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-//                     "Input data size must equal the size of data type declaration !");
-//                 break;
-//             }
-
             mBufferImpl = T3D_HARDWARE_BUFFER_MGR.createConstantBuffer(
                 mBufSize, mBuffer, usage, mode);
             if (mBufferImpl == nullptr)
@@ -426,7 +417,78 @@ namespace Tiny3D
 
         do 
         {
+            if (offset >= mBufSize)
+            {
+                ret = T3D_ERR_OUT_OF_BOUND;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Data offset is out of bound !");
+                break;
+            }
 
+            size_t len = (offset + dataSize < mBufSize) 
+                ? dataSize : (mBufSize - offset);
+            memcpy(mBuffer + offset, data, len);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUConstBuffer::flushData(size_t offset, size_t size, 
+        const void *buffer, bool discardWholeBuffer /* = true */)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (mBufferImpl == nullptr)
+            {
+                ret = T3D_ERR_SYS_NOT_INIT;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, 
+                    "Have not create hardware buffer !");
+                break;
+            }
+
+            size_t bytesOfWritten = mBufferImpl->writeData(
+                offset, size, buffer, discardWholeBuffer);
+
+            if (bytesOfWritten != size)
+            {
+                ret = T3D_ERR_INVALID_SIZE;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Write data failed !");
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GPUConstBuffer::flushData(bool discardWholeBuffer /* = true */)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (mBufferImpl == nullptr)
+            {
+                ret = T3D_ERR_SYS_NOT_INIT;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Have not create hardware buffer !");
+                break;
+            }
+
+            size_t bytesOfWritten = mBufferImpl->writeData(
+                0, mBufSize, mBuffer, discardWholeBuffer);
+
+            if (bytesOfWritten != mBufSize)
+            {
+                ret = T3D_ERR_INVALID_SIZE;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Write data failed !");
+                break;
+            }
         } while (0);
 
         return ret;

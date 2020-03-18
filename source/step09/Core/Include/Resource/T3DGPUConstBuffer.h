@@ -138,6 +138,11 @@ namespace Tiny3D
             BuiltinConstantType code, uint8_t *data, size_t dataSize);
 
         TResult updateData(uint8_t *data, size_t dataSize, size_t offset);
+
+        TResult flushData(size_t offset, size_t size, const void *buffer, 
+            bool discardWholeBuffer = true);
+
+        TResult flushData(bool discardWholeBuffer = true);
         
         /**
          * @fn  size_t GPUConstBuffer::getBufferSize() const;

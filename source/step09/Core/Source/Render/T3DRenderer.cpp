@@ -333,15 +333,18 @@ namespace Tiny3D
             mGPUConstUpdateObject.mInverseTransposeWorldViewProjM
                 = mGPUConstUpdateObject.mInverseWorldViewProjM.transpose();
 
-            size_t bytesOfWritten = 0;
-            bytesOfWritten = mGPUBufferUpdateObject->getBufferImpl()->writeData(
-                0, sizeof(mGPUConstUpdateObject), &mGPUConstUpdateObject, true);
+//             size_t bytesOfWritten = 0;
+//             bytesOfWritten = mGPUBufferUpdateObject->getBufferImpl()->writeData(
+//                 0, sizeof(mGPUConstUpdateObject), &mGPUConstUpdateObject, true);
+// 
+//             if (bytesOfWritten == 0)
+//             {
+//                 ret = T3D_ERR_HW_BUFFER_WRITE;
+//                 break;
+//             }
 
-            if (bytesOfWritten == 0)
-            {
-                ret = T3D_ERR_HW_BUFFER_WRITE;
-                break;
-            }
+            ret = mGPUBufferUpdateObject->flushData(0, 
+                sizeof(mGPUConstUpdateObject), &mGPUConstUpdateObject, true);
         } while (0);
 
         return ret;
@@ -370,15 +373,18 @@ namespace Tiny3D
             mGPUConstUpdateFrame.mInverseTransposeViewProjM
                 = mGPUConstUpdateFrame.mInverseViewProjM.transpose();
 
-            size_t bytesOfWritten = 0;
-            bytesOfWritten = mGPUBufferUpdateFrame->getBufferImpl()->writeData(
-                0, sizeof(mGPUConstUpdateFrame), &mGPUConstUpdateFrame, true);
+//             size_t bytesOfWritten = 0;
+//             bytesOfWritten = mGPUBufferUpdateFrame->getBufferImpl()->writeData(
+//                 0, sizeof(mGPUConstUpdateFrame), &mGPUConstUpdateFrame, true);
+// 
+//             if (bytesOfWritten == 0)
+//             {
+//                 ret = T3D_ERR_HW_BUFFER_WRITE;
+//                 break;
+//             }
 
-            if (bytesOfWritten == 0)
-            {
-                ret = T3D_ERR_HW_BUFFER_WRITE;
-                break;
-            }
+            ret = mGPUBufferUpdateFrame->flushData(0,
+                sizeof(mGPUConstUpdateFrame), &mGPUConstUpdateFrame, true);
         } while (0);
 
         return ret;
@@ -399,15 +405,18 @@ namespace Tiny3D
             mGPUConstUpdateRarely.mInverseTransposeProjM
                 = mGPUConstUpdateRarely.mInverseProjM.transpose();
 
-            size_t bytesOfWritten = 0;
-            bytesOfWritten = mGPUBufferUpdateRarely->getBufferImpl()->writeData(
-                0, sizeof(mGPUConstUpdateRarely), &mGPUConstUpdateRarely, true);
+//             size_t bytesOfWritten = 0;
+//             bytesOfWritten = mGPUBufferUpdateRarely->getBufferImpl()->writeData(
+//                 0, sizeof(mGPUConstUpdateRarely), &mGPUConstUpdateRarely, true);
+// 
+//             if (bytesOfWritten == 0)
+//             {
+//                 ret = T3D_ERR_HW_BUFFER_WRITE;
+//                 break;
+//             }
 
-            if (bytesOfWritten == 0)
-            {
-                ret = T3D_ERR_HW_BUFFER_WRITE;
-                break;
-            }
+            ret = mGPUBufferUpdateRarely->flushData(0, 
+                sizeof(mGPUConstUpdateRarely), &mGPUConstUpdateRarely, true);
         } while (0);
 
         return ret;
