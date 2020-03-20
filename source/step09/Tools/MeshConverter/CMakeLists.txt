@@ -9,7 +9,7 @@ set_project_name(MeshConverter)
 
 
 if (MSVC)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup ")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup ")
 
     # Disable some warning for protobuf
     add_definitions(

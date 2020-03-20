@@ -22,6 +22,7 @@
 
 
 #include <Tiny3D.h>
+#include <fbxsdk.h>
 
 
 #endif  /*__T3D_CONVERTER_PREREQUISITES_H__*/
