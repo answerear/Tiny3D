@@ -17,7 +17,7 @@ set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies")
 
 
 if (TINY3D_OS_DESKTOP)
-	add_subdirectory(ScriptCompiler)
-#	add_subdirectory(MeshConverter)
+    add_subdirectory(ScriptCompiler)
+    add_subdirectory(MeshConverter)
 endif (TINY3D_OS_DESKTOP)
 
