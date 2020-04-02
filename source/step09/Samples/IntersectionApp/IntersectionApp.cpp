@@ -123,7 +123,7 @@ IntersectionApp::~IntersectionApp()
                            Z
 
  ******************************************************************************/
-bool IntersectionApp::applicationDidFinishLaunching()
+bool IntersectionApp::applicationDidFinishLaunching(int argc, char *argv[])
 {
     // 射线和三角形相交检测
     testRayTriangle();

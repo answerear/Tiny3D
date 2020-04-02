@@ -39,7 +39,7 @@ FrameworkApp::~FrameworkApp()
 {
 }
 
-bool FrameworkApp::applicationDidFinishLaunching()
+bool FrameworkApp::applicationDidFinishLaunching(int argc, char *argv[])
 {
     mPlayer = new Player("James");
     mEnemy = new Enemy("Kobe");

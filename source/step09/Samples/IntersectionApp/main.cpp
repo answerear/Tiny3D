@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 {
     Tiny3D::Application *theApp = new IntersectionApp();
     theApp->init();
-    theApp->applicationDidFinishLaunching();
+    theApp->applicationDidFinishLaunching(argc, argv);
     delete theApp;
     return 0;
 }

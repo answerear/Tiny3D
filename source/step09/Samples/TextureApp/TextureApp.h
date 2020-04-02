@@ -31,7 +31,7 @@ public:
     virtual ~TextureApp();
 
 protected:
-    virtual bool applicationDidFinishLaunching() override;
+    virtual bool applicationDidFinishLaunching(int argc, char *argv[]) override;
 
 };
 

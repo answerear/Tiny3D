@@ -33,7 +33,7 @@ namespace Tiny3D
         virtual ~MeshConverterApp();
 
     protected:  // from Tiny3D::Application
-        virtual bool applicationDidFinishLaunching() override;
+        virtual bool applicationDidFinishLaunching(int argc, char *argv[]) override;
 
         virtual void applicationDidEnterBackground() override;
 

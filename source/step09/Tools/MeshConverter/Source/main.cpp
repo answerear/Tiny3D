@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 {
     Tiny3D::Application *theApp = new Tiny3D::MeshConverterApp();
     theApp->init();
-    theApp->applicationDidFinishLaunching();
+    theApp->applicationDidFinishLaunching(argc, argv);
     delete theApp;
     return 0;
 }

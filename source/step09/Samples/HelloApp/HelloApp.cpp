@@ -35,7 +35,7 @@ HelloApp::~HelloApp()
 {
 }
 
-bool HelloApp::applicationDidFinishLaunching()
+bool HelloApp::applicationDidFinishLaunching(int argc, char *argv[])
 {
 //     MaterialPtr material = T3D_MATERIAL_MGR.loadMaterial("BuiltinBox.t3b", Material::E_MT_DEFAULT);
     return true;

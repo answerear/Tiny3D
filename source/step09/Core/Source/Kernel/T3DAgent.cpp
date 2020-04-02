@@ -392,7 +392,7 @@ namespace Tiny3D
     bool Agent::run()
     {
         Application *theApp = Application::getInstancePtr();
-        theApp->applicationDidFinishLaunching();
+        theApp->applicationDidFinishLaunching(0, nullptr);
 
         while (mIsRunning)
         {

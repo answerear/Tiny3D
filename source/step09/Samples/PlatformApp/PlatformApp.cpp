@@ -37,7 +37,7 @@ PlatformApp::~PlatformApp()
 {
 }
 
-bool PlatformApp::applicationDidFinishLaunching()
+bool PlatformApp::applicationDidFinishLaunching(int argc, char *argv[])
 {
     T3D_LOG_INFO(LOG_TAG_APP, "System Information : \n%s", 
         T3D_DEVICE_INFO.getSystemInfo().c_str());

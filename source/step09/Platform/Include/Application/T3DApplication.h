@@ -66,7 +66,7 @@ namespace Tiny3D
 
         void *getNativeAppObject();
 
-        virtual bool applicationDidFinishLaunching() = 0;
+        virtual bool applicationDidFinishLaunching(int argc, char *argv[]) = 0;
 
         virtual void applicationDidEnterBackground() = 0;
 

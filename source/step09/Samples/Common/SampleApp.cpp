@@ -51,7 +51,7 @@ TResult SampleApp::go(const String &appPath)
     return ret;
 }
 
-bool SampleApp::applicationDidFinishLaunching()
+bool SampleApp::applicationDidFinishLaunching(int argc, char *argv[])
 {
     return true;
 }

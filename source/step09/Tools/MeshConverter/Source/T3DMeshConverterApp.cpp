@@ -39,7 +39,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool MeshConverterApp::applicationDidFinishLaunching()
+    bool MeshConverterApp::applicationDidFinishLaunching(int argc, char *argv[])
     {
         return true;
     }
