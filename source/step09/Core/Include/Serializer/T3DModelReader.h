@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_MATERIAL_READER_H__
-#define __T3D_MATERIAL_READER_H__
+#ifndef __T3D_MODEL_READER_H__
+#define __T3D_MODEL_READER_H__
 
 
 #include "T3DPrerequisites.h"
@@ -28,15 +28,15 @@
 
 namespace Tiny3D
 {
-    class MaterialReader : public Object
+    class T3D_ENGINE_API ModelReader : public Object
     {
         T3D_DECLARE_CLASS();
-        T3D_DECLARE_INTERFACE(MaterialReader);
+        T3D_DECLARE_INTERFACE(ModelReader);
 
     public:
-        virtual TResult parse(DataStream &stream, Material *material) = 0;
+        virtual TResult parse(DataStream &stream, Model *model) = 0;
     };
 }
 
 
-#endif    /*__T3D_MATERIAL_READER_H__*/
+#endif  /*__T3D_MODEL_READER_H__*/

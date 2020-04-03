@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_BIN_MODEL_READER_H__
-#define __T3D_BIN_MODEL_READER_H__
+#ifndef __T3D_JSON_MODEL_READER_H__
+#define __T3D_JSON_MODEL_READER_H__
 
 
 #include "Serializer/T3DModelReader.h"
@@ -26,22 +26,22 @@
 
 namespace Tiny3D
 {
-    class BinModelReader : public ModelReader
+    class JSONModelReader : public ModelReader
     {
         T3D_DECLARE_CLASS();
-        T3D_DISABLE_COPY(BinModelReader);
+        T3D_DISABLE_COPY(JSONModelReader);
 
     public:
-        static BinModelReaderPtr create();
+        static JSONModelReaderPtr create();
 
-        virtual ~BinModelReader();
+        virtual ~JSONModelReader();
 
     protected:
-        BinModelReader();
+        JSONModelReader();
 
         virtual TResult parse(DataStream &stream, Model *model) override;
     };
 }
 
 
-#endif    /*__T3D_BIN_MODEL_READER_H__*/
+#endif  /*__T3D_JSON_MODEL_READER_H__*/

@@ -28,7 +28,7 @@
 
 namespace Tiny3D
 {
-    class MaterialReader : public Object
+    class T3D_ENGINE_API MaterialReader : public Object
     {
         T3D_DECLARE_CLASS();
         T3D_DECLARE_INTERFACE(MaterialReader);

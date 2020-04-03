@@ -17,31 +17,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_BIN_MODEL_READER_H__
-#define __T3D_BIN_MODEL_READER_H__
 
-
-#include "Serializer/T3DModelReader.h"
-
+#include "Serializer/T3DJSONModelWriter.h"
 
 namespace Tiny3D
 {
-    class BinModelReader : public ModelReader
+    //--------------------------------------------------------------------------
+    
+    T3D_IMPLEMENT_CLASS_1(JSONModelWriter, ModelWriter);
+
+    //--------------------------------------------------------------------------
+    
+    JSONModelWriterPtr JSONModelWriter::create()
     {
-        T3D_DECLARE_CLASS();
-        T3D_DISABLE_COPY(BinModelReader);
+        JSONModelWriterPtr writer = new JSONModelWriter();
+        writer->release();
+        return writer;
+    }
 
-    public:
-        static BinModelReaderPtr create();
+    //--------------------------------------------------------------------------
+    
+    JSONModelWriter::JSONModelWriter()
+    {
 
-        virtual ~BinModelReader();
+    }
 
-    protected:
-        BinModelReader();
+    //--------------------------------------------------------------------------
 
-        virtual TResult parse(DataStream &stream, Model *model) override;
-    };
+    JSONModelWriter::~JSONModelWriter()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult JSONModelWriter::serialize(DataStream &stream, Model *model)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
 }
-
-
-#endif    /*__T3D_BIN_MODEL_READER_H__*/

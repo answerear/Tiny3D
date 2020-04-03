@@ -23,6 +23,10 @@
 #include "Serializer/T3DBinMaterialWriter.h"
 #include "Serializer/T3DJSONMaterialReader.h"
 #include "Serializer/T3DJSONMaterialWriter.h"
+#include "Serializer/T3DBinModelReader.h"
+#include "Serializer/T3DBinModelWriter.h"
+#include "Serializer/T3DJSONModelReader.h"
+#include "Serializer/T3DJSONModelWriter.h"
 
 
 namespace Tiny3D
@@ -211,19 +215,19 @@ namespace Tiny3D
 
         switch (mFileMode)
         {
-        case Tiny3D::SerializerManager::FileMode::FILE_BINARY:
+        case FileMode::FILE_BINARY:
             {
                 reader = BinMaterialReader::create(mBuiltinConstantMap);
             }
             break;
-        case Tiny3D::SerializerManager::FileMode::FILE_TEXT:
+        case FileMode::FILE_TEXT:
             {
                 reader = JSONMaterialReader::create();
             }
             break;
         default:
             {
-                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid file mode !");
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid file mode of material !");
             }
             break;
         }
@@ -233,6 +237,124 @@ namespace Tiny3D
         if (reader != nullptr)
         {
             ret = reader->parse(stream, material);
+        }
+        else
+        {
+            ret = T3D_ERR_INVALID_POINTER;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SerializerManager::serializeMaterial(
+        DataStream &stream, Material *material)
+    {
+        MaterialWriterPtr writer;
+
+        switch (mFileMode)
+        {
+        case FileMode::FILE_BINARY:
+            {
+                writer = BinMaterialWriter::create();
+            }
+            break;
+        case FileMode::FILE_TEXT:
+            {
+                writer = JSONMaterialWriter::create();
+            }
+            break;
+        default:
+            {
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid file mode of material !");
+            }
+            break;
+        }
+
+        TResult ret = T3D_OK;
+
+        if (writer != nullptr)
+        {
+            ret = writer->serialize(stream, material);
+        }
+        else
+        {
+            ret = T3D_ERR_INVALID_POINTER;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SerializerManager::parseModel(DataStream &stream, Model *model)
+    {
+        ModelReaderPtr reader;
+
+        switch (mFileMode)
+        {
+        case FileMode::FILE_BINARY:
+            {
+                reader = BinModelReader::create();
+            }
+            break;
+        case FileMode::FILE_TEXT:
+            {
+                reader = JSONModelReader::create();
+            }
+            break;
+        default:
+            {
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid file mode of model !");
+            }
+            break;
+        }
+
+        TResult ret = T3D_OK;
+
+        if (reader != nullptr)
+        {
+            ret = reader->parse(stream, model);
+        }
+        else
+        {
+            ret = T3D_ERR_INVALID_POINTER;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SerializerManager::serializeModel(DataStream &stream, Model *model)
+    {
+        ModelWriterPtr writer;
+
+        switch (mFileMode)
+        {
+        case FileMode::FILE_BINARY:
+            {
+                writer = BinModelWriter::create();
+            }
+            break;
+        case FileMode::FILE_TEXT:
+            {
+                writer = JSONModelWriter::create();
+            }
+            break;
+        default:
+            {
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid file mode of model !");
+            }
+            break;
+        }
+
+        TResult ret = T3D_OK;
+
+        if (writer != nullptr)
+        {
+            ret = writer->serialize(stream, model);
         }
         else
         {

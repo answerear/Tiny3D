@@ -69,6 +69,12 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(BinMaterialWriter);
     T3D_DECLARE_SMART_PTR(JSONMaterialReader);
     T3D_DECLARE_SMART_PTR(JSONMaterialWriter);
+    T3D_DECLARE_SMART_PTR(ModelReader);
+    T3D_DECLARE_SMART_PTR(ModelWriter);
+    T3D_DECLARE_SMART_PTR(BinModelReader);
+    T3D_DECLARE_SMART_PTR(BinModelWriter);
+    T3D_DECLARE_SMART_PTR(JSONModelReader);
+    T3D_DECLARE_SMART_PTR(JSONModelWriter);
 
     T3D_DECLARE_SMART_PTR(HardwareBuffer);
     T3D_DECLARE_SMART_PTR(HardwareIndexBuffer);

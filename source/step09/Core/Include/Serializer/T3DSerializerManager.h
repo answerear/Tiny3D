@@ -29,7 +29,7 @@
 
 namespace Tiny3D
 {
-    class SerializerManager 
+    class T3D_ENGINE_API SerializerManager 
         : public Object
         , public Singleton<SerializerManager>
     {
@@ -51,6 +51,10 @@ namespace Tiny3D
         TResult parseMaterial(DataStream &stream, Material *material);
 
         TResult serializeMaterial(DataStream &stream, Material *material);
+
+        TResult parseModel(DataStream &stream, Model *model);
+
+        TResult serializeModel(DataStream &stream, Model *model);
 
     protected:
         SerializerManager();

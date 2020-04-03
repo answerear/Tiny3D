@@ -44,4 +44,4 @@ namespace Tiny3D
 }
 
 
-#endif    /*__T3D_JSON_MATERIAL_WRITER_H__*/
+#endif  /*__T3D_JSON_MATERIAL_WRITER_H__*/

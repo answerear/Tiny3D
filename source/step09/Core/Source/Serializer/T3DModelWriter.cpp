@@ -17,31 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_BIN_MODEL_READER_H__
-#define __T3D_BIN_MODEL_READER_H__
 
-
-#include "Serializer/T3DModelReader.h"
-
+#include "Serializer/T3DModelWriter.h"
 
 namespace Tiny3D
 {
-    class BinModelReader : public ModelReader
-    {
-        T3D_DECLARE_CLASS();
-        T3D_DISABLE_COPY(BinModelReader);
-
-    public:
-        static BinModelReaderPtr create();
-
-        virtual ~BinModelReader();
-
-    protected:
-        BinModelReader();
-
-        virtual TResult parse(DataStream &stream, Model *model) override;
-    };
+    T3D_IMPLEMENT_CLASS_1(ModelWriter, Object);
 }
-
-
-#endif    /*__T3D_BIN_MODEL_READER_H__*/

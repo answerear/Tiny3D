@@ -65,6 +65,13 @@
 #include <Resource/T3DModel.h>
 #include <Resource/T3DModelManager.h>
 
+// Serialize
+#include <Serializer/T3DSerializerManager.h>
+#include <Serializer/T3DMaterialReader.h>
+#include <Serializer/T3DMaterialWriter.h>
+#include <Serializer/T3DModelReader.h>
+#include <Serializer/T3DModelWriter.h>
+
 
 // ImageCodec
 #include <ImageCodec/T3DImageCodec.h>

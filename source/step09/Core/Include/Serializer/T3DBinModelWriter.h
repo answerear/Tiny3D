@@ -17,26 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_MATERIAL_WRITER_H__
-#define __T3D_MATERIAL_WRITER_H__
+#ifndef __T3D_BIN_MODEL_WRITER_H__
+#define __T3D_BIN_MODEL_WRITER_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
-#include "Kernel/T3DObject.h"
+#include "Serializer/T3DModelWriter.h"
 
 
 namespace Tiny3D
 {
-    class MaterialWriter : public Object
+    class BinModelWriter : public ModelWriter
     {
         T3D_DECLARE_CLASS();
-        T3D_DECLARE_INTERFACE(MaterialWriter);
+        T3D_DISABLE_COPY(BinModelWriter);
 
     public:
-        virtual TResult serialize(DataStream &stream, Material *material) = 0;
+        static BinModelWriterPtr create();
+
+        ~BinModelWriter();
+
+    protected:
+        BinModelWriter();
+
+        virtual TResult serialize(DataStream &stream, Model *model) override;
     };
 }
 
 
-#endif    /*__T3D_MATERIAL_WRITER_H__*/
+#endif    /*__T3D_BIN_MODEL_WRITER_H__*/

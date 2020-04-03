@@ -28,7 +28,7 @@
 
 namespace Tiny3D
 {
-    class MaterialWriter : public Object
+    class T3D_ENGINE_API MaterialWriter : public Object
     {
         T3D_DECLARE_CLASS();
         T3D_DECLARE_INTERFACE(MaterialWriter);

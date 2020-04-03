@@ -74,6 +74,12 @@ namespace Tiny3D
     class BinMaterialWriter;
     class JSONMaterialReader;
     class JSONMaterialWriter;
+    class ModelReader;
+    class ModelWriter;
+    class BinModelReader;
+    class BinModelWriter;
+    class JSONModelReader;
+    class JSONModelWriter;
 
     class Resource;
     class ResourceManager;

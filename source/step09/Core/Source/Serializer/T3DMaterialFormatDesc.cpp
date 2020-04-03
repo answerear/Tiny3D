@@ -17,26 +17,5 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_MATERIAL_READER_H__
-#define __T3D_MATERIAL_READER_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
-#include "Kernel/T3DObject.h"
-
-
-namespace Tiny3D
-{
-    class MaterialReader : public Object
-    {
-        T3D_DECLARE_CLASS();
-        T3D_DECLARE_INTERFACE(MaterialReader);
-
-    public:
-        virtual TResult parse(DataStream &stream, Material *material) = 0;
-    };
-}
-
-
-#endif    /*__T3D_MATERIAL_READER_H__*/
