@@ -22,10 +22,14 @@
 
 
 #include "Serializer/T3DModelWriter.h"
+#include "prettywriter.h"
 
 
 namespace Tiny3D
 {
+    typedef rapidjson::StringBuffer JsonStringBuffer;
+    typedef rapidjson::PrettyWriter<JsonStringBuffer> JsonPrettyWriter;
+
     class JSONModelWriter : public ModelWriter
     {
         T3D_DECLARE_CLASS();
@@ -41,7 +45,9 @@ namespace Tiny3D
 
         virtual TResult serialize(DataStream &stream, Model *model) override;
 
-
+        TResult serializeHeader(JsonPrettyWriter &writer, Model *model);
+        TResult serializeModel(JsonPrettyWriter &writer, Model *model);
+        TResult serializeNodes(JsonPrettyWriter &writer, Model *model);
     };
 }
 

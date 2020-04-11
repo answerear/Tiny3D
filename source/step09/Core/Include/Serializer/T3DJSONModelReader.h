@@ -27,9 +27,16 @@
 
 namespace Tiny3D
 {
+    using JsonUTF8 = rapidjson::UTF8<>;
+
+    template <typename Encoding, typename Derived>
+    using JsonReaderHandler = rapidjson::BaseReaderHandler<Encoding, Derived>;
+
+    using JsonSizeType = rapidjson::SizeType;
+
     class JSONModelReader 
         : public ModelReader
-        , public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, JSONModelReader>
+        , public JsonReaderHandler<JsonUTF8, JSONModelReader>
     {
         T3D_DECLARE_CLASS();
         T3D_DISABLE_COPY(JSONModelReader);
@@ -46,13 +53,13 @@ namespace Tiny3D
         bool Int64(int64_t i);
         bool Uint64(uint64_t u);
         bool Double(float64_t f);
-        bool String(const char *str, rapidjson::SizeType length, bool copy);
+        bool String(const char *str, JsonSizeType length, bool copy);
 
         bool StartObject();
-        bool Key(const char *str, rapidjson::SizeType length, bool copy);
-        bool EndObject(rapidjson::SizeType memberCount);
+        bool Key(const char *str, JsonSizeType length, bool copy);
+        bool EndObject(JsonSizeType memberCount);
         bool StartArray();
-        bool EndArray(rapidjson::SizeType elementCount);
+        bool EndArray(JsonSizeType elementCount);
 
     protected:
         JSONModelReader();

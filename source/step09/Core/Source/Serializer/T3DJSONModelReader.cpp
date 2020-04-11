@@ -121,7 +121,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::String(const char *str, rapidjson::SizeType length, bool copy)
+    bool JSONModelReader::String(const char *str, JsonSizeType length, bool copy)
     {
         return true;
     }
@@ -135,14 +135,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::Key(const char *str, rapidjson::SizeType length, bool copy)
+    bool JSONModelReader::Key(const char *str, JsonSizeType length, bool copy)
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::EndObject(rapidjson::SizeType memberCount)
+    bool JSONModelReader::EndObject(JsonSizeType memberCount)
     {
         return true;
     }
@@ -156,7 +156,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::EndArray(rapidjson::SizeType elementCount)
+    bool JSONModelReader::EndArray(JsonSizeType elementCount)
     {
         return true;
     }
