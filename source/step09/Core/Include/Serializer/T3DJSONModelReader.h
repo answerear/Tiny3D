@@ -22,11 +22,14 @@
 
 
 #include "Serializer/T3DModelReader.h"
+#include "reader.h"
 
 
 namespace Tiny3D
 {
-    class JSONModelReader : public ModelReader
+    class JSONModelReader 
+        : public ModelReader
+        , public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, JSONModelReader>
     {
         T3D_DECLARE_CLASS();
         T3D_DISABLE_COPY(JSONModelReader);
@@ -35,6 +38,21 @@ namespace Tiny3D
         static JSONModelReaderPtr create();
 
         virtual ~JSONModelReader();
+
+        bool Null();
+        bool Bool(bool b);
+        bool Int(int32_t i);
+        bool Uint(uint32_t u);
+        bool Int64(int64_t i);
+        bool Uint64(uint64_t u);
+        bool Double(float64_t f);
+        bool String(const char *str, rapidjson::SizeType length, bool copy);
+
+        bool StartObject();
+        bool Key(const char *str, rapidjson::SizeType length, bool copy);
+        bool EndObject(rapidjson::SizeType memberCount);
+        bool StartArray();
+        bool EndArray(rapidjson::SizeType elementCount);
 
     protected:
         JSONModelReader();

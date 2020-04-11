@@ -55,6 +55,109 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        rapidjson::Reader reader;
+
+        uint8_t *data = nullptr;
+        size_t size = stream.read(data);
+        rapidjson::MemoryStream is((const char *)data, size);
+        rapidjson::ParseResult result = reader.Parse(is, *this);
+        if (result.Code() != rapidjson::ParseErrorCode::kParseErrorNone)
+        {
+            ret = T3D_ERR_FAIL;
+            T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Parse model file failed from json !");
+        }
+
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::Null()
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::Bool(bool b)
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::Int(int32_t i)
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::Uint(uint32_t u)
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::Int64(int64_t i)
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::Uint64(uint64_t u)
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::Double(float64_t f)
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::String(const char *str, rapidjson::SizeType length, bool copy)
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::StartObject()
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::Key(const char *str, rapidjson::SizeType length, bool copy)
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::EndObject(rapidjson::SizeType memberCount)
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::StartArray()
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool JSONModelReader::EndArray(rapidjson::SizeType elementCount)
+    {
+        return true;
     }
 }

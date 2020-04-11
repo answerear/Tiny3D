@@ -40,6 +40,8 @@ namespace Tiny3D
         JSONModelWriter();
 
         virtual TResult serialize(DataStream &stream, Model *model) override;
+
+
     };
 }
 

@@ -19,6 +19,8 @@
 
 
 #include "Serializer/T3DJSONModelWriter.h"
+#include "prettywriter.h"
+
 
 namespace Tiny3D
 {
@@ -54,6 +56,13 @@ namespace Tiny3D
     TResult JSONModelWriter::serialize(DataStream &stream, Model *model)
     {
         TResult ret = T3D_OK;
+
+        rapidjson::StringBuffer str;
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(str);
+
+
+
+        stream.write((void*)str.GetString(), str.GetSize());
 
         return ret;
     }
