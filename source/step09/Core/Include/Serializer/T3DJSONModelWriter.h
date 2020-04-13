@@ -27,8 +27,8 @@
 
 namespace Tiny3D
 {
-    typedef rapidjson::StringBuffer JsonStringBuffer;
-    typedef rapidjson::PrettyWriter<JsonStringBuffer> JsonPrettyWriter;
+    using JsonStringBuffer = rapidjson::StringBuffer;
+    using JsonPrettyWriter = rapidjson::PrettyWriter<JsonStringBuffer>;
 
     class JSONModelWriter : public ModelWriter
     {
