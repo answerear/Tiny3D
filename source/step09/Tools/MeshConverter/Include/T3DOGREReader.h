@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_FBX_CONVERTER_H__
-#define __T3D_FBX_CONVERTER_H__
+#ifndef __T3D_OGRE_READER_H__
+#define __T3D_OGRE_READER_H__
 
 
 #include "T3DConverterPrerequisites.h"
@@ -27,12 +27,8 @@
 
 namespace Tiny3D
 {
-    class FBXConverter
-    {
 
-    };
 }
 
 
-#endif  /*__T3D_FBX_CONVERTER_H__*/
-
+#endif  /*__T3D_OGRE_READER_H__*/

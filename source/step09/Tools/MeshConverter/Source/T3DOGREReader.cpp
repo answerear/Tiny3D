@@ -18,11 +18,7 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_OGRE_SERIALIZER_H__
-#define __T3D_OGRE_SERIALIZER_H__
-
-
-#include "T3DConverterPrerequisites.h"
+#include "T3DOGREReader.h"
 
 
 namespace Tiny3D
@@ -30,5 +26,3 @@ namespace Tiny3D
 
 }
 
-
-#endif  /*__T3D_OGRE_SERIALIZER_H__*/

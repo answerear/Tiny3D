@@ -18,11 +18,21 @@
  ******************************************************************************/
 
 
-#include "T3DOGRESerializer.h"
+#ifndef __T3D_MESH_CONVERTER_H__
+#define __T3D_MESH_CONVERTER_H__
+
+
+#include "T3DConverterPrerequisites.h"
 
 
 namespace Tiny3D
 {
+    class MeshConverter
+    {
 
+    };
 }
+
+
+#endif  /*__T3D_MESH_CONVERTER_H__*/
 

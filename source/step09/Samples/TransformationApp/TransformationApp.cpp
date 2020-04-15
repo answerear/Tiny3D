@@ -32,7 +32,7 @@ TransformationApp::~TransformationApp()
 {
 }
 
-bool TransformationApp::applicationDidFinishLaunching(int argc, char *argv[])
+bool TransformationApp::applicationDidFinishLaunching()
 {
     Degree degree;
     Radian radian;

@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 
-#include "T3DMeshConverterApp.h"
+#include "T3DMeshConverter.h"
 
 // For debug
 // "$(SolutionDir)..\..\..\assets\scripts\BuiltinBox.material" -t hlsl -m 50
@@ -28,10 +28,6 @@
 
 int main(int argc, char *argv[])
 {
-    Tiny3D::Application *theApp = new Tiny3D::MeshConverterApp();
-    theApp->init();
-    theApp->applicationDidFinishLaunching(argc, argv);
-    delete theApp;
     return 0;
 }
 

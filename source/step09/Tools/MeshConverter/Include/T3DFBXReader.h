@@ -18,11 +18,21 @@
  ******************************************************************************/
 
 
-#include "T3DFBXSerializer.h"
+#ifndef __T3D_FBX_READER_H__
+#define __T3D_FBX_READER_H__
+
+
+#include "T3DConverterPrerequisites.h"
 
 
 namespace Tiny3D
 {
+    class FBXReader
+    {
 
+    };
 }
+
+
+#endif  /*__T3D_FBX_READER_H__*/
 

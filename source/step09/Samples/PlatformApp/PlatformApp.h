@@ -31,7 +31,7 @@ public:
     virtual ~PlatformApp();
 
 protected:  /// from Tiny3D::Application
-    virtual bool applicationDidFinishLaunching(int argc, char *argv[]) override;
+    virtual bool applicationDidFinishLaunching() override;
 
 protected:  /// from Tiny3D::ITimerListener
     virtual void onTimer(uint32_t timerID, int32_t dt) override;

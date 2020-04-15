@@ -38,7 +38,7 @@ TextureApp::~TextureApp()
 {
 }
 
-bool TextureApp::applicationDidFinishLaunching(int argc, char *argv[])
+bool TextureApp::applicationDidFinishLaunching()
 {
     SceneNodePtr root = T3D_SCENE_MGR.getRoot();
 

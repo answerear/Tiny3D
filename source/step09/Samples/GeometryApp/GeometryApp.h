@@ -31,7 +31,7 @@ public:
     virtual ~GeometryApp();
 
 protected:
-    virtual bool applicationDidFinishLaunching(int argc, char *argv[]) override;
+    virtual bool applicationDidFinishLaunching() override;
 
 };
 

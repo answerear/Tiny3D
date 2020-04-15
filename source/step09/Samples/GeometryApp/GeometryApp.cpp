@@ -38,7 +38,7 @@ GeometryApp::~GeometryApp()
 {
 }
 
-bool GeometryApp::applicationDidFinishLaunching(int argc, char *argv[])
+bool GeometryApp::applicationDidFinishLaunching()
 {
     SceneNodePtr root = T3D_SCENE_MGR.getRoot();
 

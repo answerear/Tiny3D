@@ -18,20 +18,7 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_OGRE_CONVERTER_H__
-#define __T3D_OGRE_CONVERTER_H__
+#include "T3DConverterOptions.h"
 
 
-#include "T3DConverterPrerequisites.h"
 
-
-namespace Tiny3D
-{
-    class OGREConverter
-    {
-
-    };
-}
-
-
-#endif  /*__T3D_OGRE_CONVERTER_H__*/

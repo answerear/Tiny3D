@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_FBX_SERIALIZER_H__
-#define __T3D_FBX_SERIALIZER_H__
+#ifndef __T3D_CONVERTER_COMMAND_H__
+#define __T3D_CONVERTER_COMMAND_H__
 
 
 #include "T3DConverterPrerequisites.h"
@@ -27,12 +27,23 @@
 
 namespace Tiny3D
 {
-    class FBXSerializer
-    {
+    class ConverterOptions;
 
+    class ConverterCommand
+    {
+    public:
+        bool parse(int32_t argc, char *argv[], ConverterOptions &options);
+
+    protected:
+        void printCommand(int argc, char *argv[]) const;
+        void printHelp() const;
+
+        MeshFileType parseFileType(const char *argv) const;
+        BoundType parseBoundType(const char *argv) const;
+        bool parseVertexShared(const char *argv) const;
     };
 }
 
 
-#endif  /*__T3D_FBX_SERIALIZER_H__*/
+#endif  /*__T3D_CONVERTER_COMMAND_H__*/
 

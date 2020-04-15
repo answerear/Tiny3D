@@ -25,5 +25,24 @@
 #include <fbxsdk.h>
 
 
+namespace Tiny3D
+{
+    enum MeshFileType
+    {
+        AUTO = 0,       /**< 根据扩展名自动判断文件格式 */
+        FBX = 0x10,     /**< FBX 格式 */
+        OGRE = 0x20,    /**< OGRE 格式 */
+        T3B = 0x40,     /**< Tiny3D 二进制格式 */
+        T3T = 0x41,     /**< Tiny3D 文本格式 */
+    };
+
+    enum class BoundType : uint32_t
+    {
+        SPHERE = 0,
+        AABB
+    };
+}
+
+
 #endif  /*__T3D_CONVERTER_PREREQUISITES_H__*/
 

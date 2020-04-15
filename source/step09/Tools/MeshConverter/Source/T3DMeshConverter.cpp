@@ -18,10 +18,11 @@
  ******************************************************************************/
 
 
-#include "T3DOGREConverter.h"
+#include "T3DMeshConverter.h"
 
 
 namespace Tiny3D
 {
 
 }
+

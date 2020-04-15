@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 
-#include "T3DFBXConverter.h"
+#include "T3DFBXReader.h"
 
 
 namespace Tiny3D

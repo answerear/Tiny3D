@@ -17,8 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_MESH_CONVERTER_APP_H__
-#define __T3D_MESH_CONVERTER_APP_H__
+
+#ifndef __T3D_CONVERTER_OPTIONS_H__
+#define __T3D_CONVERTER_OPTIONS_H__
 
 
 #include "T3DConverterPrerequisites.h"
@@ -26,25 +27,30 @@
 
 namespace Tiny3D
 {
-    class MeshConverterApp : public Application
+    class ConverterOptions
     {
     public:
-        MeshConverterApp();
-        virtual ~MeshConverterApp();
+        ConverterOptions()
+            : mSrcFileType(MeshFileType::FBX)
+            , mDstFileType(MeshFileType::T3T)
+            , mBoundType(BoundType::AABB)
+            , mHasVertexShared(false)
+            , mVerbose(true)
+        {}
 
-    protected:  // from Tiny3D::Application
-        virtual bool applicationDidFinishLaunching(int argc, char *argv[]) override;
+        String  mSrcPath;
+        String  mDstPath;
+        String  mExtraPath;
 
-        virtual void applicationDidEnterBackground() override;
+        MeshFileType    mSrcFileType;
+        MeshFileType    mDstFileType;
+        BoundType       mBoundType;
 
-        virtual void applicationWillEnterForeground() override;
-
-        virtual void applicationWillTerminate() override;
-
-        virtual void applicationLowMemory() override;
+        bool    mHasVertexShared;
+        bool    mVerbose;
     };
 }
 
 
-#endif  /*__T3D_MESH_CONVERTER_APP_H__*/
+#endif  /*__T3D_CONVERTER_OPTIONS_H__*/
 

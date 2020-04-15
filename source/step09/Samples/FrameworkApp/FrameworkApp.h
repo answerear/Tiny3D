@@ -34,7 +34,7 @@ public:
     virtual ~FrameworkApp();
 
 protected:  /// from Tiny3D::Application
-    virtual bool applicationDidFinishLaunching(int argc, char *argv[]) override;
+    virtual bool applicationDidFinishLaunching() override;
 
     virtual void applicationWillTerminate() override;
 

@@ -34,7 +34,7 @@ public:
     virtual TResult go(const String &appPath);
 
 protected:  /// from Tiny3D::Application
-    virtual bool applicationDidFinishLaunching(int argc, char *argv[]) override;
+    virtual bool applicationDidFinishLaunching() override;
 
     virtual void applicationDidEnterBackground() override;
 
