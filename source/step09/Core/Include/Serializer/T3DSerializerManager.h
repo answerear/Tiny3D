@@ -38,8 +38,8 @@ namespace Tiny3D
     public:
         enum class FileMode : uint32_t
         {
-            FILE_BINARY,
-            FILE_TEXT,
+            BINARY,
+            TEXT,
         };
 
         static SerializerManagerPtr create();

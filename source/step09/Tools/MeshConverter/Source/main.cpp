@@ -28,6 +28,28 @@
 
 int main(int argc, char *argv[])
 {
-    return 0;
+    using namespace Tiny3D;
+
+    System *system = new System();
+
+    Logger *logger = new Logger();
+    logger->startup(1001, "MeshConverter", true, false);
+
+    T3D_LOG_INFO(TAG_MESH_CONVERTER, 
+        "Begin mesh-conv --------------------------------------");
+
+    MeshConverter *converter = new MeshConverter();
+    TResult ret = converter->execute(argc, argv);
+    delete converter;
+
+    T3D_LOG_INFO(TAG_MESH_CONVERTER,
+        "End mesh-conv ----------------------------------------");
+
+    logger->shutdown();
+
+    delete logger;
+    delete system;
+
+    return ret;
 }
 

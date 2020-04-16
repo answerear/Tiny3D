@@ -27,6 +27,8 @@
 
 namespace Tiny3D
 {
+    #define TAG_MESH_CONVERTER      "MeshConverter"
+
     enum MeshFileType
     {
         AUTO = 0,       /**< 根据扩展名自动判断文件格式 */

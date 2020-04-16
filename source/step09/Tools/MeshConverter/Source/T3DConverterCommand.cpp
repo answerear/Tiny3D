@@ -128,11 +128,11 @@ namespace Tiny3D
         printf("Options:\n");
         printf("-?       : Display this help information.\n");
         printf("-i <type>: Set the type of the input file to <type>\n");
-        printf("\t<type> : This type should be \"FBX\" (fbx), \"t3b\" (Tiny3D binary), \"t3t\" (Tiny3D text), \"DAE\" (dae) or \"OGRE\" (mesh).\n");
+        printf("\t<type> : This type should be \"FBX\" (fbx), \"OGRE\" (mesh).\n");
         printf("-o <type>: Set the type of the output file to <type>\n");
-        printf("\t<type> : This type should be \"tmb\" (Tiny3D binary), \"tmt\" (Tiny3D text) or \"t3d\" (both binary and text).\n");
+        printf("\t<type> : This type should be \"t3b\" (Tiny3D binary), \"t3t\" (Tiny3D text).\n");
         printf("-b <type>: Set the type of the bounding box to <type>\n");
-        printf("\t<type> : This type should be \"sphere\" or \"aabb\".\n");
+        printf("\t<type> : This type should be \"sphere\" or \"AABB\".\n");
         printf("-m <type>: This type should control file mode.\n");
         printf("\t<type> : This type should be \"shared\" or \"original\".\n");
         printf("\t              shared - Merge different meshes in one *.fbx file into one model file and all meshes share one vertex buffer.\n");
@@ -143,7 +143,7 @@ namespace Tiny3D
         printf("<input>  : The filename of the file to convert.\n");
         printf("<output> : The filename of the converted file.\n");
         printf("\n");
-        printf("<type>   : FBX, T3B (binary) or T3T (xml).\n");
+        printf("<type>   : FBX, T3B (binary) or T3T (text).\n");
     }
 
     //--------------------------------------------------------------------------

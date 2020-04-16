@@ -29,7 +29,11 @@ namespace Tiny3D
 {
     class MeshConverter
     {
+    public:
+        MeshConverter();
+        virtual ~MeshConverter();
 
+        TResult execute(int32_t argc, char *argv[]);
     };
 }
 

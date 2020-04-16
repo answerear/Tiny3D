@@ -23,6 +23,36 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
 
+    FBXReaderPtr FBXReader::create()
+    {
+        FBXReaderPtr reader = FBXReader::create();
+        reader->release();
+        return reader;
+    }
+
+    //--------------------------------------------------------------------------
+
+    FBXReader::FBXReader()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    FBXReader::~FBXReader()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::parse(DataStream &stream, Model *model)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
 }
 

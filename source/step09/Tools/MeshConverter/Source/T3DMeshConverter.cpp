@@ -19,10 +19,140 @@
 
 
 #include "T3DMeshConverter.h"
+#include "T3DConverterOptions.h"
+#include "T3DConverterCommand.h"
+#include "T3DFBXReader.h"
+#include "T3DOGREReader.h"
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
 
+    MeshConverter::MeshConverter()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    MeshConverter::~MeshConverter()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MeshConverter::execute(int32_t argc, char *argv[])
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            ConverterOptions opts;
+            ConverterCommand cmd;
+
+            bool rt = cmd.parse(argc, argv, opts);
+
+            if (rt)
+            {
+                // 根据输入参数，创建输入文件解析器对象
+                ModelReaderPtr reader;
+
+                switch (opts.mSrcFileType)
+                {
+                case MeshFileType::FBX:
+                    reader = FBXReader::create();
+                    break;
+                case MeshFileType::OGRE:
+                    reader = OGREReader::create();
+                    break;
+                default:
+                    ret = T3D_ERR_RES_INVALID_FILETYPE;
+                    T3D_LOG_ERROR(TAG_MESH_CONVERTER,
+                        "Invalid input file type [%d] !", 
+                        opts.mSrcFileType);
+                    break;
+                }
+
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+
+                // 创建引擎序列化模块模块
+                SerializerManagerPtr mgr = SerializerManager::create();
+                uint32_t flags 
+                    = FileDataStream::E_MODE_WRITE_ONLY
+                    | FileDataStream::E_MODE_TRUNCATE;
+
+                // 根据输入参数，设置输出文件是二进制还是文本
+                switch (opts.mDstFileType)
+                {
+                case MeshFileType::T3B:
+                    mgr->setFileMode(SerializerManager::FileMode::BINARY);
+                    break;
+                case MeshFileType::T3T:
+                    mgr->setFileMode(SerializerManager::FileMode::TEXT);
+                    flags |= FileDataStream::E_MODE_TEXT;
+                    break;
+                default:
+                    ret = T3D_ERR_RES_INVALID_FILETYPE;
+                    T3D_LOG_ERROR(TAG_MESH_CONVERTER, 
+                        "Invalid output file type [%d] !", 
+                        opts.mDstFileType);
+                    break;
+                }
+
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+
+                // 读取输入文件
+                FileDataStream is;
+                rt = is.open(opts.mSrcPath.c_str(), 
+                    FileDataStream::E_MODE_READ_ONLY);
+                if (!rt)
+                {
+                    T3D_LOG_ERROR(TAG_MESH_CONVERTER,
+                        "Invalid input file path [%s] !", 
+                        opts.mSrcPath.c_str());
+                    break;
+                }
+
+                ModelPtr model = Model::create(opts.mSrcPath);
+                ret = reader->parse(is, model);
+                if (T3D_FAILED(ret))
+                {
+                    is.close();
+                    break;
+                }
+
+                is.close();
+
+                // 写到输出文件
+                FileDataStream os;
+                rt = os.open(opts.mDstPath.c_str(), flags);
+                if (!rt)
+                {
+                    T3D_LOG_ERROR(TAG_MESH_CONVERTER,
+                        "Invalid output file path [%s] !", 
+                        opts.mDstPath.c_str());
+                    break;
+                }
+
+                ret = mgr->serializeModel(os, model);
+                if (T3D_FAILED(ret))
+                {
+                    os.close();
+                    break;
+                }
+
+                os.close();
+            }
+        } while (0);
+        return ret;
+    }
 }
 

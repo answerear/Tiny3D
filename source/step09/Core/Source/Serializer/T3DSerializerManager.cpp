@@ -49,7 +49,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     SerializerManager::SerializerManager()
-        : mFileMode(FileMode::FILE_BINARY)
+        : mFileMode(FileMode::BINARY)
     {
         constructBuiltinConstantMap();
     }
@@ -215,12 +215,12 @@ namespace Tiny3D
 
         switch (mFileMode)
         {
-        case FileMode::FILE_BINARY:
+        case FileMode::BINARY:
             {
                 reader = BinMaterialReader::create(mBuiltinConstantMap);
             }
             break;
-        case FileMode::FILE_TEXT:
+        case FileMode::TEXT:
             {
                 reader = JSONMaterialReader::create();
             }
@@ -255,12 +255,12 @@ namespace Tiny3D
 
         switch (mFileMode)
         {
-        case FileMode::FILE_BINARY:
+        case FileMode::BINARY:
             {
                 writer = BinMaterialWriter::create();
             }
             break;
-        case FileMode::FILE_TEXT:
+        case FileMode::TEXT:
             {
                 writer = JSONMaterialWriter::create();
             }
@@ -294,12 +294,12 @@ namespace Tiny3D
 
         switch (mFileMode)
         {
-        case FileMode::FILE_BINARY:
+        case FileMode::BINARY:
             {
                 reader = BinModelReader::create();
             }
             break;
-        case FileMode::FILE_TEXT:
+        case FileMode::TEXT:
             {
                 reader = JSONModelReader::create();
             }
@@ -333,12 +333,12 @@ namespace Tiny3D
 
         switch (mFileMode)
         {
-        case FileMode::FILE_BINARY:
+        case FileMode::BINARY:
             {
                 writer = BinModelWriter::create();
             }
             break;
-        case FileMode::FILE_TEXT:
+        case FileMode::TEXT:
             {
                 writer = JSONModelWriter::create();
             }

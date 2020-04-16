@@ -27,7 +27,22 @@
 
 namespace Tiny3D
 {
+    class OGREReader;
 
+    T3D_DECLARE_SMART_PTR(OGREReader);
+
+    class OGREReader : public ModelReader
+    {
+    public:
+        static OGREReaderPtr create();
+
+        virtual ~OGREReader();
+
+    protected:
+        OGREReader();
+
+        virtual TResult parse(DataStream &stream, Model *model) override;
+    };
 }
 
 

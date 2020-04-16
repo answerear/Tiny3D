@@ -23,6 +23,36 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
 
+    OGREReaderPtr OGREReader::create()
+    {
+        OGREReaderPtr reader = new OGREReader();
+        reader->release();
+        return reader;
+    }
+
+    //--------------------------------------------------------------------------
+
+    OGREReader::OGREReader()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    OGREReader::~OGREReader()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult OGREReader::parse(DataStream &stream, Model *model)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
 }
 

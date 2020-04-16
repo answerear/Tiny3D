@@ -27,9 +27,21 @@
 
 namespace Tiny3D
 {
-    class FBXReader
-    {
+    class FBXReader;
 
+    T3D_DECLARE_SMART_PTR(FBXReader);
+
+    class FBXReader : public ModelReader
+    {
+    public:
+        static FBXReaderPtr create();
+
+        virtual ~FBXReader();
+
+    protected:
+        FBXReader();
+
+        virtual TResult parse(DataStream &stream, Model *model) override;
     };
 }
 
