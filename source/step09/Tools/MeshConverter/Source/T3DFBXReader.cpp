@@ -176,17 +176,33 @@ namespace Tiny3D
                 MCONV_LOG_INFO("Completed converting unit !");
             }
 
-            MCONV_LOG_INFO("Start converting face to triangles ......");
             // 不是三角形为面的mesh，统一转换成三角形为面的mesh
+            MCONV_LOG_INFO("Start converting face to triangles ......");
             FbxGeometryConverter converter(mFbxManager);
             converter.Triangulate(mFbxScene, true);
             MCONV_LOG_INFO("Completed converting face to triangles !");
+
+            ret = parseScene(model);
 
             ret = destroyFbxObjects();
             if (T3D_FAILED(ret))
             {
                 break;
             }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::parseScene(Model *model)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+
         } while (0);
 
         return ret;

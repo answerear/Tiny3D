@@ -46,6 +46,8 @@ namespace Tiny3D
         TResult initFbxObjects();
         TResult destroyFbxObjects();
 
+        TResult parseScene(Model *model);
+
     protected:
         FbxManager  *mFbxManager;
         FbxScene    *mFbxScene;
