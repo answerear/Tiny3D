@@ -18,6 +18,8 @@ if (MSVC)
         /wd4309 # 'conversion' : truncation of constant value
         /wd4800 # 'type' : forcing value to bool 'true' or 'false' (performance warning)
     )
+
+	add_definitions(-DFBXSDK_SHARED)
 endif (MSVC)
 
 set(FBXSDK_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../../../dependencies/fbxsdk" CACHE PATH "FBX SDK library path")
