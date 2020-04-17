@@ -69,8 +69,7 @@ namespace Tiny3D
                     break;
                 default:
                     ret = T3D_ERR_RES_INVALID_FILETYPE;
-                    T3D_LOG_ERROR(TAG_MESH_CONVERTER,
-                        "Invalid input file type [%d] !", 
+                    MCONV_LOG_ERROR("Invalid input file type [%d] !", 
                         opts.mSrcFileType);
                     break;
                 }
@@ -98,8 +97,7 @@ namespace Tiny3D
                     break;
                 default:
                     ret = T3D_ERR_RES_INVALID_FILETYPE;
-                    T3D_LOG_ERROR(TAG_MESH_CONVERTER, 
-                        "Invalid output file type [%d] !", 
+                    MCONV_LOG_ERROR("Invalid output file type [%d] !", 
                         opts.mDstFileType);
                     break;
                 }
@@ -115,8 +113,7 @@ namespace Tiny3D
                     FileDataStream::E_MODE_READ_ONLY);
                 if (!rt)
                 {
-                    T3D_LOG_ERROR(TAG_MESH_CONVERTER,
-                        "Invalid input file path [%s] !", 
+                    MCONV_LOG_ERROR("Invalid input file path [%s] !", 
                         opts.mSrcPath.c_str());
                     break;
                 }
@@ -136,8 +133,7 @@ namespace Tiny3D
                 rt = os.open(opts.mDstPath.c_str(), flags);
                 if (!rt)
                 {
-                    T3D_LOG_ERROR(TAG_MESH_CONVERTER,
-                        "Invalid output file path [%s] !", 
+                    MCONV_LOG_ERROR("Invalid output file path [%s] !", 
                         opts.mDstPath.c_str());
                     break;
                 }

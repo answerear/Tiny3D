@@ -29,6 +29,26 @@ namespace Tiny3D
 {
     #define TAG_MESH_CONVERTER      "MeshConverter"
 
+    #define MCONV_LOG_ERROR(fmt, ...)   \
+        T3D_LOG_ERROR(TAG_MESH_CONVERTER, fmt, ##__VA_ARGS__);  \
+        printf(fmt, ##__VA_ARGS__); \
+        printf("\n");
+
+    #define MCONV_LOG_WARNING(fmt, ...) \
+        T3D_LOG_WARNING(TAG_MESH_CONVERTER, fmt, ##__VA_ARGS__);    \
+        printf(fmt, ##__VA_ARGS__); \
+        printf("\n");
+
+    #define MCONV_LOG_INFO(fmt, ...)    \
+        T3D_LOG_INFO(TAG_MESH_CONVERTER, fmt, ##__VA_ARGS__);   \
+        printf(fmt, ##__VA_ARGS__); \
+        printf("\n");
+
+    #define MCONV_LOG_DEBUG(fmt, ...)   \
+        T3D_LOG_DEBUG(TAG_MESH_CONVERTER, fmt, ##__VA_ARGS__);  \
+        printf(fmt, ##__VA_ARGS__); \
+        printf("\n");
+
     enum MeshFileType
     {
         AUTO = 0,       /**< 根据扩展名自动判断文件格式 */

@@ -35,15 +35,13 @@ int main(int argc, char *argv[])
     Logger *logger = new Logger();
     logger->startup(1001, "MeshConverter", true, false);
 
-    T3D_LOG_INFO(TAG_MESH_CONVERTER, 
-        "Begin mesh-conv --------------------------------------");
+    MCONV_LOG_INFO("Begin mesh-conv --------------------------------------");
 
     MeshConverter *converter = new MeshConverter();
     TResult ret = converter->execute(argc, argv);
     delete converter;
 
-    T3D_LOG_INFO(TAG_MESH_CONVERTER,
-        "End mesh-conv ----------------------------------------");
+    MCONV_LOG_INFO("End mesh-conv ----------------------------------------");
 
     logger->shutdown();
 

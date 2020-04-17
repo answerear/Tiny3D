@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_FBX_READER_H__
-#define __T3D_FBX_READER_H__
+#ifndef __T3D_FBX_DATA_STREAM_H__
+#define __T3D_FBX_DATA_STREAM_H__
 
 
 #include "T3DConverterPrerequisites.h"
@@ -27,31 +27,45 @@
 
 namespace Tiny3D
 {
-    class FBXReader;
-
-    T3D_DECLARE_SMART_PTR(FBXReader);
-
-    class FBXReader : public ModelReader
+    class FbxDataStream : public FbxStream
     {
     public:
-        static FBXReaderPtr create();
+        FbxDataStream(DataStream &stream, FbxManager *manager, bool readable);
 
-        virtual ~FBXReader();
+        virtual ~FbxDataStream();
+
+        virtual EState GetState() override;
+
+        virtual bool Open(void *pStreamData) override;
+
+        virtual bool Close() override;
+
+        virtual bool Flush() override;
+
+        virtual int Write(const void *pData, int size) override;
+
+        virtual int Read(void *pData, int size) const override;
+
+        virtual int GetReaderID() const override;
+
+        virtual int GetWriterID() const override;
+
+        virtual void Seek(const FbxInt64 &pOffset, const FbxFile::ESeekPos &pSeekPos) override;
+
+        virtual long GetPosition() const override;
+
+        virtual void SetPosition(long pPosition) override;
+
+        virtual int GetError() const override;
+
+        virtual void ClearError() override;
 
     protected:
-        FBXReader();
-
-        virtual TResult parse(DataStream &stream, Model *model) override;
-
-        TResult initFbxObjects();
-        TResult destroyFbxObjects();
-
-    protected:
-        FbxManager  *mFbxManager;
-        FbxScene    *mFbxScene;
+        DataStream &mStream;
+        int mReaderID;
+        int mWriterID;
     };
 }
 
 
-#endif  /*__T3D_FBX_READER_H__*/
-
+#endif  /*__T3D_FBX_DATA_STREAM_H__*/
