@@ -30,7 +30,6 @@
  *      },
  *      "model":
  *      {
- *          "id": "body",
  *          "mesh":
  *          {
  *              "id": "body",

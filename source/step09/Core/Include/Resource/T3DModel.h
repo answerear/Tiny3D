@@ -69,6 +69,22 @@ namespace Tiny3D
          */
         virtual Type getType() const override;
 
+        MeshDataList &getMeshes() { return mMeshes; }
+
+        const MeshDataList &getMeshes() const { return mMeshes; }
+
+        BoneDataList &getBones() { return mBones; }
+
+        const BoneDataList &getBones() const { return mBones; }
+
+        AnimationData &getAnimations() { return mAnimations; }
+
+        const AnimationData &getAnimations() const { return mAnimations; }
+
+        NodeDataList &getNodes() { return mNodes; }
+
+        const NodeDataList &getNodes() const { return mNodes; }
+
     protected:
         /**
          * @fn  MeshData::MeshData(const String &name);

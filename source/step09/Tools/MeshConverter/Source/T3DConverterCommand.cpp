@@ -98,6 +98,22 @@ namespace Tiny3D
             const String &srcPath = options.mSrcPath;
             int pos = srcPath.rfind('.');
             options.mDstPath = srcPath.substr(0, pos);
+
+            switch (options.mDstFileType)
+            {
+            case MeshFileType::FBX:
+                options.mDstPath += ".fbx";
+                break;
+            case MeshFileType::OGRE:
+                options.mDstPath += ".mesh";
+                break;
+            case MeshFileType::T3B:
+                options.mDstPath += ".t3b";
+                break;
+            case MeshFileType::T3T:
+                options.mDstPath += ".t3t";
+                break;
+            }
         }
 
         return true;
@@ -143,7 +159,7 @@ namespace Tiny3D
         printf("<input>  : The filename of the file to convert.\n");
         printf("<output> : The filename of the converted file.\n");
         printf("\n");
-        printf("<type>   : FBX, T3B (binary) or T3T (text).\n");
+//         printf("<type>   : FBX, T3B (binary) or T3T (text).\n");
     }
 
     //--------------------------------------------------------------------------

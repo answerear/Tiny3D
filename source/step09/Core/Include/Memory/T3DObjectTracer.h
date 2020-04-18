@@ -34,12 +34,19 @@ namespace Tiny3D
      * @remarks  这里的跟踪当对象数量很大的时候会有一定的性能损耗， 
      *           建议这里在定位完内存问题就关闭掉跟踪.
      */
-    class ObjectTracer : public Singleton<ObjectTracer>
+    class T3D_ENGINE_API ObjectTracer : public Singleton<ObjectTracer>
     {
         friend class Agent;
         friend class Object;
 
     public:
+        /**
+         * @fn  ObjectTracer::ObjectTracer(bool enabled = false);
+         * @brief   默认构造函数
+         * @param [in]  enabled (Optional) : 是否开启内存跟踪功能，默认是关闭的.
+         */
+        ObjectTracer(bool enabled = false);
+
         /**
          * @fn  virtual ObjectTracer::~ObjectTracer();
          * @brief   析构函数
@@ -71,13 +78,6 @@ namespace Tiny3D
         void dumpMemoryInfo(FileDataStream &fs) const;
 
     protected:
-        /**
-         * @fn  ObjectTracer::ObjectTracer(bool enabled = false);
-         * @brief   默认构造函数
-         * @param [in]  enabled (Optional) : 是否开启内存跟踪功能，默认是关闭的.
-         */
-        ObjectTracer(bool enabled = false);
-
         /**
          * @fn  void ObjectTracer::addObject(Object *object)
          * @brief   添加一个对象到内存跟踪器里

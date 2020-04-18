@@ -82,8 +82,7 @@ namespace Tiny3D
                 // 创建引擎序列化模块模块
                 SerializerManagerPtr mgr = SerializerManager::create();
                 uint32_t flags 
-                    = FileDataStream::E_MODE_WRITE_ONLY
-                    | FileDataStream::E_MODE_TRUNCATE;
+                    = FileDataStream::E_MODE_WRITE_ONLY;
 
                 // 根据输入参数，设置输出文件是二进制还是文本
                 switch (opts.mDstFileType)

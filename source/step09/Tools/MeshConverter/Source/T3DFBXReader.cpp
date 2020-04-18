@@ -36,6 +36,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     FBXReader::FBXReader()
+        : mFbxManager(nullptr)
     {
 
     }
@@ -78,16 +79,6 @@ namespace Tiny3D
             FbxString path = FbxGetApplicationDirectory();
             mFbxManager->LoadPluginsDirectory(path.Buffer());
 
-            // Create an FBX scene. 
-            // This object holds most objects imported/exported from/to files.
-            mFbxScene = FbxScene::Create(mFbxManager, "My Scene");
-            if (mFbxScene == nullptr)
-            {
-                MCONV_LOG_ERROR("Unable to create FBX scene !");
-                ret = T3D_ERR_SYS_NOT_INIT;
-                break;
-            }
-
         } while (0);
 
         return ret;
@@ -108,19 +99,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::parse(DataStream &stream, Model *model)
+    TResult FBXReader::importFbxScene(DataStream &stream, FbxScene *pFbxScene)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            // Initialize fbx objects.
-            ret = initFbxObjects();
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
             // Create an fbx importer object.
             FbxImporter *importer = FbxImporter::Create(mFbxManager, "");
             if (importer == nullptr)
@@ -137,58 +121,26 @@ namespace Tiny3D
             if (!bImportStatus)
             {
                 MCONV_LOG_ERROR("Unable to initialize FBX importer !");
-                return false;
+                ret = T3D_ERR_SYS_NOT_INIT;
+                break;
             }
 
             MCONV_LOG_INFO("Initialize FBX importer successfully !");
 
             // Import the scene
-            bool bStatus = importer->Import(mFbxScene);
+            bool bStatus = importer->Import(pFbxScene);
 
             if (!bStatus)
             {
                 MCONV_LOG_ERROR("Import FBX file failed !");
-                return false;
+                ret = T3D_ERR_SYS_NOT_INIT;
+                break;
             }
 
             MCONV_LOG_INFO("Import FBX file successfully !");
 
             // Destroy the importer
             importer->Destroy();
-
-            // 统一切换成OpenGL的右手坐标系和以米为单位的坐标系
-            FbxAxisSystem SceneAxisSystem = mFbxScene->GetGlobalSettings().GetAxisSystem();
-            FbxAxisSystem OurAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
-            if (SceneAxisSystem != OurAxisSystem)
-            {
-                MCONV_LOG_INFO("Start converting axis system to RIGHT HAND ......");
-                OurAxisSystem.ConvertScene(mFbxScene);
-                MCONV_LOG_INFO("Completed converting axis system !");
-            }
-
-            // Convert Unit System to what is used in this example, if needed
-            FbxSystemUnit SceneSystemUnit = mFbxScene->GetGlobalSettings().GetSystemUnit();
-            if (SceneSystemUnit.GetScaleFactor() != 1.0)
-            {
-                MCONV_LOG_INFO("Start converting unit to centimeter ......");
-                //The unit in this example is centimeter.
-                FbxSystemUnit::cm.ConvertScene(mFbxScene);
-                MCONV_LOG_INFO("Completed converting unit !");
-            }
-
-            // 不是三角形为面的mesh，统一转换成三角形为面的mesh
-            MCONV_LOG_INFO("Start converting face to triangles ......");
-            FbxGeometryConverter converter(mFbxManager);
-            converter.Triangulate(mFbxScene, true);
-            MCONV_LOG_INFO("Completed converting face to triangles !");
-
-            ret = parseScene(model);
-
-            ret = destroyFbxObjects();
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
         } while (0);
 
         return ret;
@@ -196,13 +148,106 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::parseScene(Model *model)
+    TResult FBXReader::setupMetricSystem(FbxScene *pFbxScene)
     {
         TResult ret = T3D_OK;
 
         do 
         {
+            // 统一切换成OpenGL的右手坐标系和以米为单位的坐标系
+            FbxAxisSystem SceneAxisSystem = pFbxScene->GetGlobalSettings().GetAxisSystem();
+            FbxAxisSystem OurAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
+            if (SceneAxisSystem != OurAxisSystem)
+            {
+                MCONV_LOG_INFO("Start converting axis system to RIGHT HAND ......");
+                OurAxisSystem.ConvertScene(pFbxScene);
+                MCONV_LOG_INFO("Completed converting axis system !");
+            }
 
+            // Convert Unit System to what is used in this example, if needed
+            FbxSystemUnit SceneSystemUnit = pFbxScene->GetGlobalSettings().GetSystemUnit();
+            if (SceneSystemUnit.GetScaleFactor() != 1.0)
+            {
+                MCONV_LOG_INFO("Start converting unit to centimeter ......");
+                //The unit in this example is centimeter.
+                FbxSystemUnit::cm.ConvertScene(pFbxScene);
+                MCONV_LOG_INFO("Completed converting unit !");
+            }
+
+            // 不是三角形为面的mesh，统一转换成三角形为面的mesh
+            MCONV_LOG_INFO("Start converting face to triangles ......");
+            FbxGeometryConverter converter(mFbxManager);
+            converter.Triangulate(pFbxScene, true);
+            MCONV_LOG_INFO("Completed converting face to triangles !");
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::parse(DataStream &stream, Model *model)
+    {
+        TResult ret = T3D_OK;
+
+        FbxScene *pFbxScene = nullptr;
+
+        do 
+        {
+            // Initialize fbx objects.
+            ret = initFbxObjects();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // Create an FBX scene. 
+            // This object holds most objects imported/exported from/to files.
+            pFbxScene = FbxScene::Create(mFbxManager, "My Scene");
+            if (pFbxScene == nullptr)
+            {
+                MCONV_LOG_ERROR("Unable to create FBX scene !");
+                ret = T3D_ERR_SYS_NOT_INIT;
+                break;
+            }
+
+            // Import data from fbx file.
+            ret = importFbxScene(stream, pFbxScene);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // Setup metric system
+            ret = setupMetricSystem(pFbxScene);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            ret = parseFbxScene(pFbxScene, model);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (0);
+
+        destroyFbxObjects();
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::parseFbxScene(FbxScene *pFbxScene, Model *model)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            String name = pFbxScene->GetName();
+
+            
         } while (0);
 
         return ret;

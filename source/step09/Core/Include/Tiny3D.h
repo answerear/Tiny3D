@@ -42,6 +42,7 @@
 
 // Memory
 #include <Memory/T3DSmartPtr.h>
+#include <Memory/T3DObjectTracer.h>
 
 // Resource
 #include <Resource/T3DArchive.h>

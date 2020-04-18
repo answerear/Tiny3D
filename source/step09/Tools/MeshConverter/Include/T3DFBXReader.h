@@ -46,11 +46,13 @@ namespace Tiny3D
         TResult initFbxObjects();
         TResult destroyFbxObjects();
 
-        TResult parseScene(Model *model);
+        TResult importFbxScene(DataStream &stream, FbxScene *pFbxScene);
+        TResult setupMetricSystem(FbxScene *pFbxScene);
+
+        TResult parseFbxScene(FbxScene *pFbxScene, Model *model);
 
     protected:
         FbxManager  *mFbxManager;
-        FbxScene    *mFbxScene;
     };
 }
 
