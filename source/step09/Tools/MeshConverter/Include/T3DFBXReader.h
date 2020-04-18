@@ -49,10 +49,12 @@ namespace Tiny3D
         TResult importFbxScene(DataStream &stream, FbxScene *pFbxScene);
         TResult setupMetricSystem(FbxScene *pFbxScene);
 
-        TResult parseFbxScene(FbxScene *pFbxScene, Model *model);
+        TResult processFbxScene(FbxScene *pFbxScene, Model *model);
 
+        TResult processFbxNode(FbxNode *pFbxNode);
     protected:
         FbxManager  *mFbxManager;
+        size_t      mTabCount;
     };
 }
 

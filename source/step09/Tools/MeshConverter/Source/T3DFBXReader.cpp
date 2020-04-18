@@ -225,7 +225,7 @@ namespace Tiny3D
                 break;
             }
 
-            ret = parseFbxScene(pFbxScene, model);
+            ret = processFbxScene(pFbxScene, model);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -239,7 +239,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::parseFbxScene(FbxScene *pFbxScene, Model *model)
+    TResult FBXReader::processFbxScene(FbxScene *pFbxScene, Model *model)
     {
         TResult ret = T3D_OK;
 
@@ -247,7 +247,123 @@ namespace Tiny3D
         {
             String name = pFbxScene->GetName();
 
-            
+            FbxNode *pFbxRoot = pFbxScene->GetRootNode();
+
+            mTabCount = 0;
+            processFbxNode(pFbxRoot);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxNode(FbxNode *pFbxNode)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            std::stringstream ss;
+            for (size_t i = 0; i < mTabCount; ++i)
+            {
+                ss << "\t";
+            }
+
+            MCONV_LOG_INFO("%s%s(Node)", ss.str().c_str(), pFbxNode->GetName());
+            MCONV_LOG_INFO("%s{", ss.str().c_str());
+            FbxDouble3 pos = pFbxNode->LclTranslation.Get();
+            MCONV_LOG_INFO("%s\tposition (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
+            FbxDouble3 rotation = pFbxNode->LclRotation.Get();
+            MCONV_LOG_INFO("%s\trotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
+            FbxDouble3 scale = pFbxNode->LclScaling.Get();
+            MCONV_LOG_INFO("%s\tscaling (%f, %f, %f)", ss.str().c_str(), scale[0], scale[1], scale[2]);
+
+            for (size_t i = 0; i < pFbxNode->GetNodeAttributeCount(); ++i)
+            {
+                FbxNodeAttribute *pFbxAttrib = pFbxNode->GetNodeAttributeByIndex(i);
+
+                FbxNodeAttribute::EType type = pFbxAttrib->GetAttributeType();
+
+                switch (type)
+                {
+                case FbxNodeAttribute::EType::eNull:
+                    MCONV_LOG_INFO("%s\tAttribute : eNull", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eMarker:
+                    MCONV_LOG_INFO("%s\tAttribute : eMarker", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eSkeleton:
+                    MCONV_LOG_INFO("%s\tAttribute : eSkeleton", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eMesh:
+                    MCONV_LOG_INFO("%s\tAttribute : eMesh", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eNurbs:
+                    MCONV_LOG_INFO("%s\tAttribute : eNurbs", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::ePatch:
+                    MCONV_LOG_INFO("%s\tAttribute : ePatch", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eCamera:
+                    MCONV_LOG_INFO("%s\tAttribute : eCamera", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eCameraStereo:
+                    MCONV_LOG_INFO("%s\tAttribute : eCameraStereo", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eCameraSwitcher:
+                    MCONV_LOG_INFO("%s\tAttribute : eCameraSwitcher", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eLight:
+                    MCONV_LOG_INFO("%s\tAttribute : eLight", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eOpticalReference:
+                    MCONV_LOG_INFO("%s\tAttribute : eOpticalReference", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eOpticalMarker:
+                    MCONV_LOG_INFO("%s\tAttribute : eOpticalMarker", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eNurbsCurve:
+                    MCONV_LOG_INFO("%s\tAttribute : eNurbsCurve", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eTrimNurbsSurface:
+                    MCONV_LOG_INFO("%s\tAttribute : eTrimNurbsSurface", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eBoundary:
+                    MCONV_LOG_INFO("%s\tAttribute : eBoundary", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eNurbsSurface:
+                    MCONV_LOG_INFO("%s\tAttribute : eNurbsSurface", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eShape:
+                    MCONV_LOG_INFO("%s\tAttribute : eShape", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eLODGroup:
+                    MCONV_LOG_INFO("%s\tAttribute : eLODGroup", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eSubDiv:
+                    MCONV_LOG_INFO("%s\tAttribute : eSubDiv", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eCachedEffect:
+                    MCONV_LOG_INFO("%s\tAttribute : eCachedEffect", ss.str().c_str());
+                    break;
+                case FbxNodeAttribute::EType::eLine:
+                    MCONV_LOG_INFO("%s\tAttribute : eLine", ss.str().c_str());
+                    break;
+                }
+            }
+
+            MCONV_LOG_INFO("%s}", ss.str().c_str());
+
+            mTabCount++;
+
+            for (int32_t i = 0; i < pFbxNode->GetChildCount(); ++i)
+            {
+                FbxNode *pFbxChild = pFbxNode->GetChild(i);
+                processFbxNode(pFbxChild);
+            }
+
+            mTabCount--;
         } while (0);
 
         return ret;
