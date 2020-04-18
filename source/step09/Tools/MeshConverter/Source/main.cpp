@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
     using namespace Tiny3D;
 
     System *system = new System();
+    system->init();
 
     Logger *logger = new Logger();
     logger->startup(1001, "MeshConverter", true, false);
