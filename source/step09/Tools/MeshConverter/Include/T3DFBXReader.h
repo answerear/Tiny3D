@@ -52,6 +52,9 @@ namespace Tiny3D
         TResult processFbxScene(FbxScene *pFbxScene, Model *model);
 
         TResult processFbxNode(FbxNode *pFbxNode);
+
+		void convertMatrix(const FbxAMatrix &src, Matrix4 &dst);
+
     protected:
         FbxManager  *mFbxManager;
         size_t      mTabCount;

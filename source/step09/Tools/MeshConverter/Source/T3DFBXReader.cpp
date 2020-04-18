@@ -278,6 +278,60 @@ namespace Tiny3D
             MCONV_LOG_INFO("%s\trotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
             FbxDouble3 scale = pFbxNode->LclScaling.Get();
             MCONV_LOG_INFO("%s\tscaling (%f, %f, %f)", ss.str().c_str(), scale[0], scale[1], scale[2]);
+//             pos = pFbxNode->GeometricTranslation.Get();
+//             MCONV_LOG_INFO("%s\tgeometry position (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
+//             rotation = pFbxNode->GeometricRotation.Get();
+//             MCONV_LOG_INFO("%s\tgeometry rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
+//             scale = pFbxNode->GeometricScaling.Get();
+//             MCONV_LOG_INFO("%s\tgeometry scaling (%f, %f, %f)", ss.str().c_str(), scale[0], scale[1], scale[2]);
+			pos = pFbxNode->RotationOffset.Get();
+			MCONV_LOG_INFO("%s\trotation offset (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
+			pos = pFbxNode->RotationPivot.Get();
+			MCONV_LOG_INFO("%s\trotation pivot (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
+			rotation = pFbxNode->PreRotation.Get();
+			MCONV_LOG_INFO("%s\tpre-rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
+			rotation = pFbxNode->PostRotation.Get();
+			MCONV_LOG_INFO("%s\tpost-rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
+
+			FbxAMatrix &lFbxLocalMatrix = pFbxNode->EvaluateLocalTransform();
+			Matrix4 mat;
+			convertMatrix(lFbxLocalMatrix, mat);
+
+			Vector3 t;
+			Vector3 s;
+			Quaternion q;
+			mat.decomposition(t, s, q);
+			Matrix3 R;
+			q.toRotationMatrix(R);
+			
+			Radian pitch, yaw, roll;
+
+			EFbxRotationOrder order = pFbxNode->RotationOrder;
+			switch (order)
+			{
+			case eEulerXYZ:
+				R.toEulerAnglesZYX(roll, yaw, pitch);
+				break;
+			case eEulerXZY:
+				R.toEulerAnglesYZX(yaw, roll, pitch);
+				break;
+			case eEulerYZX:
+				R.toEulerAnglesXZY(pitch, roll, yaw);
+				break;
+			case eEulerYXZ:
+				R.toEulerAnglesZXY(roll, pitch, yaw);
+				break;
+			case eEulerZXY:
+				R.toEulerAnglesYXZ(yaw, pitch, roll);
+				break;
+			case eEulerZYX:
+				R.toEulerAnglesXYZ(pitch, yaw, roll);
+				break;
+			case eSphericXYZ:
+				break;
+			}
+
+			MCONV_LOG_INFO("%s\trotation angle (%f, %f, %f)", ss.str().c_str(), pitch.valueDegrees(), yaw.valueDegrees(), roll.valueDegrees());
 
             for (size_t i = 0; i < pFbxNode->GetNodeAttributeCount(); ++i)
             {
@@ -368,5 +422,28 @@ namespace Tiny3D
 
         return ret;
     }
+
+	void FBXReader::convertMatrix(const FbxAMatrix &src, Matrix4 &dst)
+	{
+		dst[0][0] = src[0][0];
+		dst[1][0] = src[0][1];
+		dst[2][0] = src[0][2];
+		dst[3][0] = src[0][3];
+
+		dst[0][1] = src[1][0];
+		dst[1][1] = src[1][1];
+		dst[2][1] = src[1][2];
+		dst[3][1] = src[1][3];
+
+		dst[0][2] = src[2][0];
+		dst[1][2] = src[2][1];
+		dst[2][2] = src[2][2];
+		dst[3][2] = src[2][3];
+
+		dst[0][3] = src[3][0];
+		dst[1][3] = src[3][1];
+		dst[2][3] = src[3][2];
+		dst[3][3] = src[3][3];
+	}
 }
 
