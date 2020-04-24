@@ -52,6 +52,9 @@ namespace Tiny3D
         TResult processFbxScene(FbxScene *pFbxScene, Model *model);
 
         TResult processFbxNode(FbxNode *pFbxNode);
+        TResult processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh);
+        TResult processFbxCamera(FbxNode *pFbxNode);
+        TResult processFbxLight(FbxNode *pFbxNode);
 
 		void convertMatrix(const FbxAMatrix &src, Matrix4 &dst);
 

@@ -273,67 +273,70 @@ namespace Tiny3D
             MCONV_LOG_INFO("%s%s(Node)", ss.str().c_str(), pFbxNode->GetName());
             MCONV_LOG_INFO("%s{", ss.str().c_str());
             FbxDouble3 pos = pFbxNode->LclTranslation.Get();
-            MCONV_LOG_INFO("%s\tposition (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
+            MCONV_LOG_INFO("%s\toriginal position (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
             FbxDouble3 rotation = pFbxNode->LclRotation.Get();
-            MCONV_LOG_INFO("%s\trotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
+            MCONV_LOG_INFO("%s\toriginal rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
             FbxDouble3 scale = pFbxNode->LclScaling.Get();
-            MCONV_LOG_INFO("%s\tscaling (%f, %f, %f)", ss.str().c_str(), scale[0], scale[1], scale[2]);
-//             pos = pFbxNode->GeometricTranslation.Get();
-//             MCONV_LOG_INFO("%s\tgeometry position (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
-//             rotation = pFbxNode->GeometricRotation.Get();
-//             MCONV_LOG_INFO("%s\tgeometry rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
-//             scale = pFbxNode->GeometricScaling.Get();
-//             MCONV_LOG_INFO("%s\tgeometry scaling (%f, %f, %f)", ss.str().c_str(), scale[0], scale[1], scale[2]);
-			pos = pFbxNode->RotationOffset.Get();
-			MCONV_LOG_INFO("%s\trotation offset (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
-			pos = pFbxNode->RotationPivot.Get();
-			MCONV_LOG_INFO("%s\trotation pivot (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
-			rotation = pFbxNode->PreRotation.Get();
-			MCONV_LOG_INFO("%s\tpre-rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
-			rotation = pFbxNode->PostRotation.Get();
-			MCONV_LOG_INFO("%s\tpost-rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
+            MCONV_LOG_INFO("%s\toriginal scaling (%f, %f, %f)", ss.str().c_str(), scale[0], scale[1], scale[2]);
 
-			FbxAMatrix &lFbxLocalMatrix = pFbxNode->EvaluateLocalTransform();
-			Matrix4 mat;
-			convertMatrix(lFbxLocalMatrix, mat);
+            pos = pFbxNode->GeometricTranslation.Get();
+            MCONV_LOG_INFO("%s\tgeometry position (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
+            rotation = pFbxNode->GeometricRotation.Get();
+            MCONV_LOG_INFO("%s\tgeometry rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
+            scale = pFbxNode->GeometricScaling.Get();
+            MCONV_LOG_INFO("%s\tgeometry scaling (%f, %f, %f)", ss.str().c_str(), scale[0], scale[1], scale[2]);
+//             pos = pFbxNode->RotationOffset.Get();
+//             MCONV_LOG_INFO("%s\trotation offset (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
+//             pos = pFbxNode->RotationPivot.Get();
+//             MCONV_LOG_INFO("%s\trotation pivot (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
+//             rotation = pFbxNode->PreRotation.Get();
+//             MCONV_LOG_INFO("%s\tpre-rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
+//             rotation = pFbxNode->PostRotation.Get();
+//             MCONV_LOG_INFO("%s\tpost-rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
 
-			Vector3 t;
-			Vector3 s;
-			Quaternion q;
-			mat.decomposition(t, s, q);
-			Matrix3 R;
-			q.toRotationMatrix(R);
-			
-			Radian pitch, yaw, roll;
+            FbxAMatrix &lFbxLocalMatrix = pFbxNode->EvaluateLocalTransform();
+            Matrix4 mat;
+            convertMatrix(lFbxLocalMatrix, mat);
 
-			EFbxRotationOrder order = pFbxNode->RotationOrder;
-			switch (order)
-			{
-			case eEulerXYZ:
-				R.toEulerAnglesZYX(roll, yaw, pitch);
-				break;
-			case eEulerXZY:
-				R.toEulerAnglesYZX(yaw, roll, pitch);
-				break;
-			case eEulerYZX:
-				R.toEulerAnglesXZY(pitch, roll, yaw);
-				break;
-			case eEulerYXZ:
-				R.toEulerAnglesZXY(roll, pitch, yaw);
-				break;
-			case eEulerZXY:
-				R.toEulerAnglesYXZ(yaw, pitch, roll);
-				break;
-			case eEulerZYX:
-				R.toEulerAnglesXYZ(pitch, yaw, roll);
-				break;
-			case eSphericXYZ:
-				break;
-			}
+            Vector3 t;
+            Vector3 s;
+            Quaternion q;
+            mat.decomposition(t, s, q);
+            Matrix3 R;
+            q.toRotationMatrix(R);
+            
+            Radian pitch, yaw, roll;
 
-			MCONV_LOG_INFO("%s\trotation angle (%f, %f, %f)", ss.str().c_str(), pitch.valueDegrees(), yaw.valueDegrees(), roll.valueDegrees());
+            EFbxRotationOrder order = pFbxNode->RotationOrder;
+            switch (order)
+            {
+            case eEulerXYZ:
+                R.toEulerAnglesZYX(roll, yaw, pitch);
+                break;
+            case eEulerXZY:
+                R.toEulerAnglesYZX(yaw, roll, pitch);
+                break;
+            case eEulerYZX:
+                R.toEulerAnglesXZY(pitch, roll, yaw);
+                break;
+            case eEulerYXZ:
+                R.toEulerAnglesZXY(roll, pitch, yaw);
+                break;
+            case eEulerZXY:
+                R.toEulerAnglesYXZ(yaw, pitch, roll);
+                break;
+            case eEulerZYX:
+                R.toEulerAnglesXYZ(pitch, yaw, roll);
+                break;
+            case eSphericXYZ:
+                break;
+            }
 
-            for (size_t i = 0; i < pFbxNode->GetNodeAttributeCount(); ++i)
+            MCONV_LOG_INFO("%s\tposition (%f, %f, %f)", ss.str().c_str(), t.x(), t.y(), t.z());
+            MCONV_LOG_INFO("%s\trotation (%f, %f, %f)", ss.str().c_str(), pitch.valueDegrees(), yaw.valueDegrees(), roll.valueDegrees());
+            MCONV_LOG_INFO("%s\tscaling (%f, %f, %f)", ss.str().c_str(), s.x(), s.y(), s.z());
+
+            for (int32_t i = 0; i < pFbxNode->GetNodeAttributeCount(); ++i)
             {
                 FbxNodeAttribute *pFbxAttrib = pFbxNode->GetNodeAttributeByIndex(i);
 
@@ -351,7 +354,11 @@ namespace Tiny3D
                     MCONV_LOG_INFO("%s\tAttribute : eSkeleton", ss.str().c_str());
                     break;
                 case FbxNodeAttribute::EType::eMesh:
-                    MCONV_LOG_INFO("%s\tAttribute : eMesh", ss.str().c_str());
+                    {
+                        MCONV_LOG_INFO("%s\tAttribute : eMesh", ss.str().c_str());
+                        FbxMesh *pFbxMesh = (FbxMesh *)pFbxNode->GetNodeAttributeByIndex(i);
+                        ret = processFbxMesh(pFbxNode, pFbxMesh);
+                    }
                     break;
                 case FbxNodeAttribute::EType::eNurbs:
                     MCONV_LOG_INFO("%s\tAttribute : eNurbs", ss.str().c_str());
@@ -423,27 +430,83 @@ namespace Tiny3D
         return ret;
     }
 
-	void FBXReader::convertMatrix(const FbxAMatrix &src, Matrix4 &dst)
-	{
-		dst[0][0] = src[0][0];
-		dst[1][0] = src[0][1];
-		dst[2][0] = src[0][2];
-		dst[3][0] = src[0][3];
+    //--------------------------------------------------------------------------
 
-		dst[0][1] = src[1][0];
-		dst[1][1] = src[1][1];
-		dst[2][1] = src[1][2];
-		dst[3][1] = src[1][3];
+    TResult FBXReader::processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh)
+    {
+        TResult ret = T3D_OK;
 
-		dst[0][2] = src[2][0];
-		dst[1][2] = src[2][1];
-		dst[2][2] = src[2][2];
-		dst[3][2] = src[2][3];
+        do 
+        {
+            int32_t triangleCount = pFbxMesh->GetPolygonCount();
 
-		dst[0][3] = src[3][0];
-		dst[1][3] = src[3][1];
-		dst[2][3] = src[3][2];
-		dst[3][3] = src[3][3];
-	}
+            for (int32_t i = 0; i < triangleCount; ++i)
+            {
+                for (int32_t j = 0; j < 3; ++j)
+                {
+                    int32_t ctrlPointIdx = pFbxMesh->GetPolygonVertex(i, j);
+
+                    // POSITION
+
+                    // COLOR
+
+                    // TEXCOORD
+
+                    // NORMAL
+
+                    // BINORMAL
+
+                    // TANGENT
+
+
+                }
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxCamera(FbxNode *pFbxNode)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxLight(FbxNode *pFbxNode)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FBXReader::convertMatrix(const FbxAMatrix &src, Matrix4 &dst)
+    {
+        dst[0][0] = src[0][0];
+        dst[1][0] = src[0][1];
+        dst[2][0] = src[0][2];
+        dst[3][0] = src[0][3];
+
+        dst[0][1] = src[1][0];
+        dst[1][1] = src[1][1];
+        dst[2][1] = src[1][2];
+        dst[3][1] = src[1][3];
+
+        dst[0][2] = src[2][0];
+        dst[1][2] = src[2][1];
+        dst[2][2] = src[2][2];
+        dst[3][2] = src[2][3];
+
+        dst[0][3] = src[3][0];
+        dst[1][3] = src[3][1];
+        dst[2][3] = src[3][2];
+        dst[3][3] = src[3][3];
+    }
 }
 
