@@ -438,7 +438,83 @@ namespace Tiny3D
 
         do 
         {
+            ret = processFbxMeshAttributes(pFbxMesh);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            ret = processFbxMeshData(pFbxMesh);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxMeshAttributes(FbxMesh *pFbxMesh)
+    {
+        TResult ret = T3D_OK;
+
+        int32_t layers = 0;
+        int32_t i = 0;
+
+        // POSITION
+
+        // COLOR
+        layers = pFbxMesh->GetElementVertexColorCount();
+        for (i = 0; i < layers; ++i)
+        {
+
+        }
+
+        // TEXCOORD
+        layers = pFbxMesh->GetElementUVCount();
+        for (i = 0; i < layers; ++i)
+        {
+
+        }
+
+        // NORMAL
+        layers = pFbxMesh->GetElementNormalCount();
+        for (i = 0; i < layers; ++i)
+        {
+
+        }
+
+        // BINORMAL
+        layers = pFbxMesh->GetElementBinormalCount();
+        for (i = 0; i < layers; ++i)
+        {
+
+        }
+
+        // TANGENT
+        layers = pFbxMesh->GetElementTangentCount();
+        for (i = 0; i < layers; ++i)
+        {
+
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxMeshData(FbxMesh *pFbxMesh)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
             int32_t triangleCount = pFbxMesh->GetPolygonCount();
+
+            int32_t vertexCount = 0;
+            int32_t layers = 0;
 
             for (int32_t i = 0; i < triangleCount; ++i)
             {
@@ -447,21 +523,444 @@ namespace Tiny3D
                     int32_t ctrlPointIdx = pFbxMesh->GetPolygonVertex(i, j);
 
                     // POSITION
+                    Vector3 pos;
+                    ret = readPosition(pFbxMesh, ctrlPointIdx, pos);
+                    if (T3D_FAILED(ret))
+                    {
+                        break;
+                    }
 
                     // COLOR
+                    ColorRGBA color;
+                    int32_t k;
+                    layers = pFbxMesh->GetElementVertexColorCount();
+                    for (k = 0; k < layers; k++)
+                    {
+                        ret = readColor(pFbxMesh, ctrlPointIdx, vertexCount, k, 
+                            color);
+                    };
 
                     // TEXCOORD
+                    Vector2 uv;
+                    layers = pFbxMesh->GetElementUVCount();
+                    for (k = 0; k < layers; k++)
+                    {
+                        int32_t uvIdx = pFbxMesh->GetTextureUVIndex(i, j);
+                        ret = readUV(pFbxMesh, ctrlPointIdx, uvIdx, k, uv);
+                    }
 
                     // NORMAL
+                    Vector3 normal;
+                    layers = pFbxMesh->GetElementNormalCount();
+                    for (k = 0; k < layers; k++)
+                    {
+                        ret = readNormal(pFbxMesh, ctrlPointIdx, vertexCount, k,
+                            normal);
+                    }
 
                     // BINORMAL
+                    Vector3 binormal;
+                    layers = pFbxMesh->GetElementBinormalCount();
+                    for (k = 0; k < layers; k++)
+                    {
+                        ret = readBinormal(pFbxMesh, ctrlPointIdx, vertexCount,
+                            k, binormal);
+                    }
 
                     // TANGENT
+                    Vector3 tangent;
+                    layers = pFbxMesh->GetElementTangentCount();
+                    for (k = 0; k < layers; k++)
+                    {
+                        ret = readTangent(pFbxMesh, ctrlPointIdx, vertexCount,
+                            k, tangent);
+                    }
+                }
 
-
+                if (T3D_FAILED(ret))
+                {
+                    MCONV_LOG_ERROR("Read mesh info failed !");
+                    break;
                 }
             }
         } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::readPosition(FbxMesh *pFbxMesh, int32_t ctrlPointIdx, 
+        Vector3 &pos)
+    {
+        FbxVector4 *pControlPoint = pFbxMesh->GetControlPoints();
+        pos[0] = float32_t(pControlPoint[ctrlPointIdx][0]);
+        pos[1] = float32_t(pControlPoint[ctrlPointIdx][1]);
+        pos[2] = float32_t(pControlPoint[ctrlPointIdx][2]);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::readColor(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
+        int32_t vertexIdx, int32_t layer, ColorRGBA &color)
+    {
+        TResult ret = T3D_OK;
+
+        FbxGeometryElementVertexColor *pVertexColor 
+            = pFbxMesh->GetElementVertexColor(layer);
+
+        if (pVertexColor != nullptr)
+        {
+            switch (pVertexColor->GetMappingMode())
+            {
+            case FbxGeometryElement::eByControlPoint:
+                {
+                    switch (pVertexColor->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            color.red() = Real(pVertexColor->GetDirectArray().GetAt(ctrlPointIdx).mBlue);
+                            color.green() = Real(pVertexColor->GetDirectArray().GetAt(ctrlPointIdx).mGreen);
+                            color.blue() = Real(pVertexColor->GetDirectArray().GetAt(ctrlPointIdx).mRed);
+                            color.alpha() = Real(pVertexColor->GetDirectArray().GetAt(ctrlPointIdx).mAlpha);
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pVertexColor->GetIndexArray().GetAt(ctrlPointIdx);
+                            color.red() = Real(pVertexColor->GetDirectArray().GetAt(idx).mBlue);
+                            color.green() = Real(pVertexColor->GetDirectArray().GetAt(idx).mGreen);
+                            color.blue() = Real(pVertexColor->GetDirectArray().GetAt(idx).mRed);
+                            color.alpha() = Real(pVertexColor->GetDirectArray().GetAt(idx).mAlpha);
+                        }
+                        break;
+                    default:
+                        ret = T3D_ERR_INVALID_PARAM;
+                        break;
+                    }
+                }
+                break;
+            case FbxGeometryElement::eByPolygonVertex:
+                {
+                    switch (pVertexColor->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            color.red() = Real(pVertexColor->GetDirectArray().GetAt(ctrlPointIdx).mBlue);
+                            color.green() = Real(pVertexColor->GetDirectArray().GetAt(ctrlPointIdx).mGreen);
+                            color.blue() = Real(pVertexColor->GetDirectArray().GetAt(ctrlPointIdx).mRed);
+                            color.alpha()= Real(pVertexColor->GetDirectArray().GetAt(ctrlPointIdx).mAlpha);
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pVertexColor->GetIndexArray().GetAt(ctrlPointIdx);
+                            color.red() = Real(pVertexColor->GetDirectArray().GetAt(idx).mBlue);
+                            color.green() = Real(pVertexColor->GetDirectArray().GetAt(idx).mGreen);
+                            color.blue() = Real(pVertexColor->GetDirectArray().GetAt(idx).mRed);
+                            color.alpha() = Real(pVertexColor->GetDirectArray().GetAt(idx).mAlpha);
+                        }
+                        break;
+                    default:
+                        ret = T3D_ERR_INVALID_PARAM;
+                        break;
+                    }
+                }
+                break;
+            default:
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::readUV(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
+        int32_t uvIdx, int32_t layer, Vector2 &uv)
+    {
+        TResult ret = T3D_OK;
+
+        FbxGeometryElementUV *pVertexUV = pFbxMesh->GetElementUV(layer);
+
+        if (pVertexUV != nullptr)
+        {
+            switch (pVertexUV->GetMappingMode())
+            {
+            case FbxGeometryElement::eByControlPoint:
+                {
+                    switch (pVertexUV->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            uv[0] = Real(pVertexUV->GetDirectArray().GetAt(ctrlPointIdx)[0]);
+                            uv[1] = Real(pVertexUV->GetDirectArray().GetAt(ctrlPointIdx)[1]);
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pVertexUV->GetIndexArray().GetAt(ctrlPointIdx);
+                            uv[0] = Real(pVertexUV->GetDirectArray().GetAt(idx)[0]);
+                            uv[1] = Real(pVertexUV->GetDirectArray().GetAt(idx)[1]);
+                        }
+                        break;
+                    default:
+                        ret = T3D_ERR_INVALID_PARAM;
+                        break;
+                    }
+                }
+                break;
+            case FbxGeometryElement::eByPolygonVertex:
+                {
+                    switch (pVertexUV->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            uv[0] = Real(pVertexUV->GetDirectArray().GetAt(uvIdx)[0]);
+                            uv[1] = Real(pVertexUV->GetDirectArray().GetAt(uvIdx)[1]);
+                        }
+                        break;
+                    default:
+                        ret = T3D_ERR_INVALID_PARAM;
+                        break;
+                    }
+                }
+                break;
+            default:
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::readNormal(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
+        int32_t vertexIdx, int32_t layer, Vector3 &normal)
+    {
+        TResult ret = T3D_OK;
+
+        FbxGeometryElementNormal *pNormal = pFbxMesh->GetElementNormal(layer);
+
+        if (pNormal != nullptr)
+        {
+            switch (pNormal->GetMappingMode())
+            {
+            case FbxGeometryElement::eByControlPoint:
+                {
+                    switch (pNormal->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            normal[0] = Real(pNormal->GetDirectArray().GetAt(ctrlPointIdx)[0]);
+                            normal[1] = Real(pNormal->GetDirectArray().GetAt(ctrlPointIdx)[1]);
+                            normal[2] = Real(pNormal->GetDirectArray().GetAt(ctrlPointIdx)[2]);
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pNormal->GetIndexArray().GetAt(ctrlPointIdx);
+                            normal[0] = Real(pNormal->GetDirectArray().GetAt(idx)[0]);
+                            normal[1] = Real(pNormal->GetDirectArray().GetAt(idx)[1]);
+                            normal[2] = Real(pNormal->GetDirectArray().GetAt(idx)[2]);
+                        }
+                        break;
+                    default:
+                        ret = T3D_ERR_INVALID_PARAM;
+                        break;
+                    }
+                }
+                break;
+            case FbxGeometryElement::eByPolygonVertex:
+                {
+                    switch (pNormal->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            normal[0] = Real(pNormal->GetDirectArray().GetAt(vertexIdx)[0]);
+                            normal[1] = Real(pNormal->GetDirectArray().GetAt(vertexIdx)[1]);
+                            normal[2] = Real(pNormal->GetDirectArray().GetAt(vertexIdx)[2]);
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pNormal->GetIndexArray().GetAt(vertexIdx);
+                            normal[0] = Real(pNormal->GetDirectArray().GetAt(idx)[0]);
+                            normal[1] = Real(pNormal->GetDirectArray().GetAt(idx)[1]);
+                            normal[2] = Real(pNormal->GetDirectArray().GetAt(idx)[2]);
+                        }
+                        break;
+                    default:
+                        ret = T3D_ERR_INVALID_PARAM;
+                        break;
+                    }
+                }
+                break;
+            default:
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::readBinormal(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
+        int32_t vertexIdx, int32_t layer, Vector3 &binormal)
+    {
+        TResult ret = T3D_OK;
+
+        FbxGeometryElementBinormal *pBinormal = pFbxMesh->GetElementBinormal(layer);
+
+        if (pBinormal != nullptr)
+        {
+            switch (pBinormal->GetMappingMode())
+            {
+            case FbxGeometryElement::eByControlPoint:
+                {
+                    switch (pBinormal->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            binormal[0] = Real(pBinormal->GetDirectArray().GetAt(ctrlPointIdx)[0]);
+                            binormal[1] = Real(pBinormal->GetDirectArray().GetAt(ctrlPointIdx)[1]);
+                            binormal[2] = Real(pBinormal->GetDirectArray().GetAt(ctrlPointIdx)[2]);
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pBinormal->GetIndexArray().GetAt(ctrlPointIdx);
+                            binormal[0] = Real(pBinormal->GetDirectArray().GetAt(idx)[0]);
+                            binormal[1] = Real(pBinormal->GetDirectArray().GetAt(idx)[1]);
+                            binormal[2] = Real(pBinormal->GetDirectArray().GetAt(idx)[2]);
+                        }
+                        break;
+                    default:
+                        ret = T3D_ERR_INVALID_PARAM;
+                        break;
+                    }
+                }
+                break;
+            case FbxGeometryElement::eByPolygonVertex:
+                {
+                    switch (pBinormal->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            binormal[0] = Real(pBinormal->GetDirectArray().GetAt(vertexIdx)[0]);
+                            binormal[1] = Real(pBinormal->GetDirectArray().GetAt(vertexIdx)[1]);
+                            binormal[2] = Real(pBinormal->GetDirectArray().GetAt(vertexIdx)[2]);
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pBinormal->GetIndexArray().GetAt(vertexIdx);
+                            binormal[0] = Real(pBinormal->GetDirectArray().GetAt(idx)[0]);
+                            binormal[1] = Real(pBinormal->GetDirectArray().GetAt(idx)[1]);
+                            binormal[2] = Real(pBinormal->GetDirectArray().GetAt(idx)[2]);
+                        }
+                        break;
+                    default:
+                        ret = T3D_ERR_INVALID_PARAM;
+                        break;
+                    }
+                }
+                break;
+            default:
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::readTangent(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
+        int32_t vertexIdx, int32_t layer, Vector3 &tangent)
+    {
+        TResult ret = T3D_OK;
+
+        FbxGeometryElementTangent *pTangent = pFbxMesh->GetElementTangent(layer);
+
+        if (pTangent != nullptr)
+        {
+            switch (pTangent->GetMappingMode())
+            {
+            case FbxGeometryElement::eByControlPoint:
+                {
+                    switch (pTangent->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            tangent[0] = Real(pTangent->GetDirectArray().GetAt(ctrlPointIdx)[0]);
+                            tangent[1] = Real(pTangent->GetDirectArray().GetAt(ctrlPointIdx)[1]);
+                            tangent[2] = Real(pTangent->GetDirectArray().GetAt(ctrlPointIdx)[2]);
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pTangent->GetIndexArray().GetAt(ctrlPointIdx);
+                            tangent[0] = Real(pTangent->GetDirectArray().GetAt(idx)[0]);
+                            tangent[1] = Real(pTangent->GetDirectArray().GetAt(idx)[1]);
+                            tangent[2] = Real(pTangent->GetDirectArray().GetAt(idx)[2]);
+                        }
+                        break;
+                    default:
+                        ret = T3D_ERR_INVALID_PARAM;
+                        break;
+                    }
+                }
+                break;
+            case FbxGeometryElement::eByPolygonVertex:
+                {
+                    switch (pTangent->GetReferenceMode())
+                    {
+                    case FbxGeometryElement::eDirect:
+                        {
+                            tangent[0] = Real(pTangent->GetDirectArray().GetAt(vertexIdx)[0]);
+                            tangent[1] = Real(pTangent->GetDirectArray().GetAt(vertexIdx)[1]);
+                            tangent[2] = Real(pTangent->GetDirectArray().GetAt(vertexIdx)[2]);
+                        }
+                        break;
+                    case FbxGeometryElement::eIndex:
+                    case FbxGeometryElement::eIndexToDirect:
+                        {
+                            int idx = pTangent->GetIndexArray().GetAt(vertexIdx);
+                            tangent[0] = Real(pTangent->GetDirectArray().GetAt(idx)[0]);
+                            tangent[1] = Real(pTangent->GetDirectArray().GetAt(idx)[1]);
+                            tangent[2] = Real(pTangent->GetDirectArray().GetAt(idx)[2]);
+                        }
+                        break;
+                    default:
+                        ret = T3D_ERR_INVALID_PARAM;
+                        break;
+                    }
+                }
+                break;
+            default:
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
+        }
 
         return ret;
     }

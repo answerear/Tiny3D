@@ -53,10 +53,25 @@ namespace Tiny3D
 
         TResult processFbxNode(FbxNode *pFbxNode);
         TResult processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh);
+        TResult processFbxMeshAttributes(FbxMesh *pFbxMesh);
+        TResult processFbxMeshData(FbxMesh *pFbxMesh);
         TResult processFbxCamera(FbxNode *pFbxNode);
         TResult processFbxLight(FbxNode *pFbxNode);
 
 		void convertMatrix(const FbxAMatrix &src, Matrix4 &dst);
+
+        TResult readPosition(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
+            Vector3 &pos);
+        TResult readColor(FbxMesh *pFbxMesh, int32_t ctrlPointIdx, 
+            int32_t vertexIdx, int32_t layer, ColorRGBA &color);
+        TResult readUV(FbxMesh *pFbxMesh, int32_t ctrlPointIdx, int32_t uvIdx,
+            int32_t layer, Vector2 &uv);
+        TResult readNormal(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
+            int32_t vertexIdx, int32_t layer, Vector3 &normal);
+        TResult readBinormal(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
+            int32_t vertexIdx, int32_t layer, Vector3 &binormal);
+        TResult readTangent(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
+            int32_t vertexIdx, int32_t layer, Vector3 &tangent);
 
     protected:
         FbxManager  *mFbxManager;
