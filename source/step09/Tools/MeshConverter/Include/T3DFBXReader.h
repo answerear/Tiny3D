@@ -55,6 +55,7 @@ namespace Tiny3D
         TResult processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh);
         TResult processFbxMeshAttributes(FbxMesh *pFbxMesh);
         TResult processFbxMeshData(FbxMesh *pFbxMesh);
+        TResult processFbxMaterial(FbxNode *pFbxNode, FbxMesh *pFbxMesh);
         TResult processFbxCamera(FbxNode *pFbxNode);
         TResult processFbxLight(FbxNode *pFbxNode);
 

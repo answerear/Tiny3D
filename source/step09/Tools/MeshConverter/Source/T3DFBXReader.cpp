@@ -967,6 +967,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult FBXReader::processFbxMaterial(FbxNode *pFbxNode, FbxMesh *pFbxMesh)
+    {
+        TResult ret = T3D_OK;
+
+        int32_t materialCount = pFbxNode->GetMaterialCount();
+
+        int32_t i = 0;
+        for (i = 0; i < materialCount; ++i)
+        {
+            FbxSurfaceMaterial *pFbxMaterial = pFbxNode->GetMaterial(i);
+
+            // Name
+            String name = pFbxMaterial->GetName();
+
+
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult FBXReader::processFbxCamera(FbxNode *pFbxNode)
     {
         TResult ret = T3D_OK;
