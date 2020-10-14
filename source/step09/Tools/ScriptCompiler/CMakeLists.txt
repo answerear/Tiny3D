@@ -78,9 +78,6 @@ if (TINY3D_OS_WINDOWS)
         libprotobuf-lite
         )
 
-    # Setup project folder
-    set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Tools")
-
     add_custom_command(TARGET ${BIN_NAME}
         PRE_LINK
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
@@ -171,3 +168,5 @@ elseif (TINY3D_OS_LINUX)
 endif (TINY3D_OS_WINDOWS)
 
 
+# Setup project folder
+set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Tools")

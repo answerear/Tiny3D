@@ -140,4 +140,9 @@ elseif (TINY3D_OS_ANDROID)
         )
 endif (TINY3D_OS_WINDOWS)
 
+
+# Setup project folder
+set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Kernel")
+
+
 message(STATUS "Generating project : ${BIN_NAME} - done")

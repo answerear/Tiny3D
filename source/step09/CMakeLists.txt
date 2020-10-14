@@ -198,10 +198,14 @@ find_package(SDL2)
 set(RAPIDJSON_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/rapidjson" CACHE PATH "rapidjson library path")
 find_package(rapidjson)
 
+# Third Parties
 # Project protobuf
 set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/protobuf/src")
 add_subdirectory(protobuf)
 
+# Setup project folder
+set_property(TARGET libprotobuf-lite PROPERTY FOLDER "Third_Party")
+	
 # Project Platform
 add_subdirectory(Platform)
 # Project Log
