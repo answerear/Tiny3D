@@ -225,7 +225,15 @@ namespace Tiny3D
                 break;
             }
 
+            // Scene
             ret = processFbxScene(pFbxScene, model);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // Animation
+            ret = processFbxAnimation(pFbxScene);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -1003,6 +1011,309 @@ namespace Tiny3D
         TResult ret = T3D_OK;
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxAnimation(FbxScene *pFbxScene)
+    {
+        TResult ret = T3D_OK;
+
+        int nAnimStackCount = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
+        int i = 0;
+
+        MCONV_LOG_INFO("\n");
+        MCONV_LOG_INFO("Animations (%d)", nAnimStackCount);
+
+        for (i = 0; i < nAnimStackCount; ++i)
+        {
+            FbxAnimStack *pFbxAnimStack = pFbxScene->GetSrcObject<FbxAnimStack>(i);
+            ret = processFbxAnimation(pFbxAnimStack, pFbxScene->GetRootNode(), i);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxAnimation(FbxAnimStack *pFbxAnimStack, FbxNode *pFbxNode, int32_t idx)
+    {
+        TResult ret = T3D_OK;
+
+        String name = pFbxAnimStack->GetName();
+        if (name.empty())
+        {
+            name = "Animation #" + idx;
+        }
+
+        int nAnimLayerCount = pFbxAnimStack->GetMemberCount<FbxAnimLayer>();
+        int i = 0;
+
+        MCONV_LOG_INFO("\tAnimation : %s (%d)", name.c_str(), nAnimLayerCount);
+
+        for (i = 0; i < nAnimLayerCount; ++i)
+        {
+            FbxAnimLayer *pFbxAnimLayer = pFbxAnimStack->GetMember<FbxAnimLayer>(i);
+            ret = processFbxAnimation(pFbxAnimLayer, pFbxNode, i);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxAnimation(FbxAnimLayer *pFbxAnimLayer, FbxNode *pFbxNode, int32_t idx)
+    {
+        TResult ret = T3D_OK;
+
+        String name = pFbxAnimLayer->GetName();
+        if (name.empty())
+        {
+            name = "Animation Clip #" + idx;
+        }
+
+        int nChildrenCount = pFbxNode->GetChildCount();
+        int i = 0;
+
+        MCONV_LOG_INFO("\t\tAnimation Clip (%s) (%s)", pFbxNode->GetName(), name.c_str());
+
+        ret = processFbxAnimationChannels(pFbxAnimLayer, pFbxNode);
+        if (!T3D_FAILED(ret))
+        {
+            for (i = 0; i < nChildrenCount; ++i)
+            {
+                ret = processFbxAnimation(pFbxAnimLayer, pFbxNode->GetChild(i), idx);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxAnimationChannels(FbxAnimLayer *pFbxAnimLayer, FbxNode *pFbxNode)
+    {
+        TResult ret = T3D_OK;
+
+        FbxAnimCurve *pFbxAnimCurve = nullptr;
+
+        do 
+        {
+            // Translation X
+            pFbxAnimCurve = pFbxNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+            if (pFbxAnimCurve != nullptr)
+            {
+                MCONV_LOG_INFO("\t\t\tTranslation X : ");
+                ret = processFbxAnimationCurve(pFbxAnimCurve);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            // Translation Y
+            pFbxAnimCurve = pFbxNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+            if (pFbxAnimCurve != nullptr)
+            {
+                MCONV_LOG_INFO("\t\t\tTranslation Y : ");
+                ret = processFbxAnimationCurve(pFbxAnimCurve);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            // Translation Z
+            pFbxAnimCurve = pFbxNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+            if (pFbxAnimCurve != nullptr)
+            {
+                MCONV_LOG_INFO("\t\t\tTranslation Z : ");
+                ret = processFbxAnimationCurve(pFbxAnimCurve);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            // Rotation X
+            pFbxAnimCurve = pFbxNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+            if (pFbxAnimCurve != nullptr)
+            {
+                MCONV_LOG_INFO("\t\t\tRotation X : ");
+                ret = processFbxAnimationCurve(pFbxAnimCurve);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            // Rotation Y
+            pFbxAnimCurve = pFbxNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+            if (pFbxAnimCurve != nullptr)
+            {
+                MCONV_LOG_INFO("\t\t\tRotation Y : ");
+                ret = processFbxAnimationCurve(pFbxAnimCurve);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            // Rotation Z
+            pFbxAnimCurve = pFbxNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+            if (pFbxAnimCurve != nullptr)
+            {
+                MCONV_LOG_INFO("\t\t\tRotation Z : ");
+                ret = processFbxAnimationCurve(pFbxAnimCurve);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            // Scaling X
+            pFbxAnimCurve = pFbxNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+            if (pFbxAnimCurve != nullptr)
+            {
+                MCONV_LOG_INFO("\t\t\tScaling X : ");
+                ret = processFbxAnimationCurve(pFbxAnimCurve);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            // Scaling Y
+            pFbxAnimCurve = pFbxNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+            if (pFbxAnimCurve != nullptr)
+            {
+                MCONV_LOG_INFO("\t\t\tScaling Y : ");
+                ret = processFbxAnimationCurve(pFbxAnimCurve);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            // Scaling Z
+            pFbxAnimCurve = pFbxNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+            if (pFbxAnimCurve != nullptr)
+            {
+                MCONV_LOG_INFO("\t\t\tScaling Z : ");
+                ret = processFbxAnimationCurve(pFbxAnimCurve);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+        } while (0);
+        
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxAnimationCurve(FbxAnimCurve *pFbxAnimCurve)
+    {
+        TResult ret = T3D_OK;
+
+        static const char* interpolation[] = { "?", "constant", "linear", "cubic" };
+        static const char* constantMode[] = { "?", "Standard", "Next" };
+        static const char* cubicMode[] = { "?", "Auto", "Auto break", "Tcb", "User", "Break", "User break" };
+        static const char* tangentWVMode[] = { "?", "None", "Right", "Next left" };
+
+        int nKeyCount = pFbxAnimCurve->KeyGetCount();
+        int i = 0;
+
+        std::stringstream ss;
+        char szTime[256];
+
+        for (i = 0; i < nKeyCount; ++i)
+        {
+            float value = static_cast<float>(pFbxAnimCurve->KeyGetValue(i));
+            FbxTime fbxTime = pFbxAnimCurve->KeyGetTime(i);
+
+            fbxTime.GetTimeString(szTime, FbxUShort(256));
+
+            ss << "Time : " << szTime << "\t" << "Value : " << value << "\t";
+            ss << "[" << interpolation[InterpolationFlagToIndex(pFbxAnimCurve->KeyGetInterpolation(i))];
+            if ((pFbxAnimCurve->KeyGetInterpolation(i)&FbxAnimCurveDef::eInterpolationConstant) == FbxAnimCurveDef::eInterpolationConstant)
+            {
+                ss << " | " << constantMode[ConstantmodeFlagToIndex(pFbxAnimCurve->KeyGetConstantMode(i))];
+            }
+            else if ((pFbxAnimCurve->KeyGetInterpolation(i) & FbxAnimCurveDef::eInterpolationCubic) == FbxAnimCurveDef::eInterpolationCubic)
+            {
+                ss << " | " << cubicMode[TangentmodeFlagToIndex(pFbxAnimCurve->KeyGetTangentMode(i))];
+                ss << " | " << tangentWVMode[TangentweightFlagToIndex(pFbxAnimCurve->KeyGet(i).GetTangentWeightMode())];
+                ss << " | " << tangentWVMode[TangentVelocityFlagToIndex(pFbxAnimCurve->KeyGet(i).GetTangentVelocityMode())];
+            }
+            ss << "]";
+            MCONV_LOG_INFO("\t\t\t\t%s", ss.str().c_str());
+            ss.str("");
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    int FBXReader::InterpolationFlagToIndex(int flags)
+    {
+        if ((flags & FbxAnimCurveDef::eInterpolationConstant) == FbxAnimCurveDef::eInterpolationConstant) return 1;
+        if ((flags & FbxAnimCurveDef::eInterpolationLinear) == FbxAnimCurveDef::eInterpolationLinear) return 2;
+        if ((flags & FbxAnimCurveDef::eInterpolationCubic) == FbxAnimCurveDef::eInterpolationCubic) return 3;
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    int FBXReader::ConstantmodeFlagToIndex(int flags)
+    {
+        if ((flags & FbxAnimCurveDef::eConstantStandard) == FbxAnimCurveDef::eConstantStandard) return 1;
+        if ((flags & FbxAnimCurveDef::eConstantNext) == FbxAnimCurveDef::eConstantNext) return 2;
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    int FBXReader::TangentmodeFlagToIndex(int flags)
+    {
+        if ((flags & FbxAnimCurveDef::eTangentAuto) == FbxAnimCurveDef::eTangentAuto) return 1;
+        if ((flags & FbxAnimCurveDef::eTangentAutoBreak) == FbxAnimCurveDef::eTangentAutoBreak) return 2;
+        if ((flags & FbxAnimCurveDef::eTangentTCB) == FbxAnimCurveDef::eTangentTCB) return 3;
+        if ((flags & FbxAnimCurveDef::eTangentUser) == FbxAnimCurveDef::eTangentUser) return 4;
+        if ((flags & FbxAnimCurveDef::eTangentGenericBreak) == FbxAnimCurveDef::eTangentGenericBreak) return 5;
+        if ((flags & FbxAnimCurveDef::eTangentBreak) == FbxAnimCurveDef::eTangentBreak) return 6;
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    int FBXReader::TangentweightFlagToIndex(int flags)
+    {
+        if ((flags & FbxAnimCurveDef::eWeightedNone) == FbxAnimCurveDef::eWeightedNone) return 1;
+        if ((flags & FbxAnimCurveDef::eWeightedRight) == FbxAnimCurveDef::eWeightedRight) return 2;
+        if ((flags & FbxAnimCurveDef::eWeightedNextLeft) == FbxAnimCurveDef::eWeightedNextLeft) return 3;
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    int FBXReader::TangentVelocityFlagToIndex(int flags)
+    {
+        if ((flags & FbxAnimCurveDef::eVelocityNone) == FbxAnimCurveDef::eVelocityNone) return 1;
+        if ((flags & FbxAnimCurveDef::eVelocityRight) == FbxAnimCurveDef::eVelocityRight) return 2;
+        if ((flags & FbxAnimCurveDef::eVelocityNextLeft) == FbxAnimCurveDef::eVelocityNextLeft) return 3;
+        return 0;
     }
 
     //--------------------------------------------------------------------------
