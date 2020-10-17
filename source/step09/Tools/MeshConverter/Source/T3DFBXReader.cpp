@@ -232,6 +232,13 @@ namespace Tiny3D
                 break;
             }
 
+            // Bind Pose
+            ret = processFbxBindPose(pFbxScene);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
             // Animation
             ret = processFbxAnimation(pFbxScene);
             if (T3D_FAILED(ret))
@@ -1266,6 +1273,76 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult FBXReader::processFbxBindPose(FbxScene *pFbxScene)
+    {
+        TResult ret = T3D_OK;
+
+        int nPoseCount = pFbxScene->GetPoseCount();
+        int i = 0;
+
+        MCONV_LOG_INFO("\n");
+        MCONV_LOG_INFO("Bind Pose (%d)", nPoseCount);
+
+//         FbxMatrix a(FbxVector4(2, 0, 0, 0), FbxVector4(0, 0, 0, 0), FbxVector4(1, 1, 1));
+//         double a00 = a[0][0];
+//         double a01 = a[0][1];
+//         double a02 = a[0][2];
+//         double a03 = a[0][3];
+//         double a30 = a[3][0];
+// 
+//         FbxAMatrix b(FbxVector4(4, 0, 0, 0), FbxVector4(0, 0, 0, 0), FbxVector4(1, 1, 1));
+//         double b00 = b[0][0];
+//         double b01 = b[0][1];
+//         double b02 = b[0][2];
+//         double b03 = b[0][3];
+//         double b30 = b[3][0];
+
+        for (i = 0; i < nPoseCount; ++i)
+        {
+            FbxPose *pFbxPose = pFbxScene->GetPose(i);
+            String name = pFbxPose->GetName();
+            int nItemCount = pFbxPose->GetCount();
+
+            MCONV_LOG_INFO("Pose Name : %s", name.c_str());
+            MCONV_LOG_INFO("Is a bind pose : %d", pFbxPose->IsBindPose());
+            MCONV_LOG_INFO("Number of item in pose : %d", nItemCount);
+
+            int j = 0;
+            std::stringstream ss;
+            for (j = 0; j < nItemCount; ++j)
+            {
+                name = pFbxPose->GetNodeName(j).GetCurrentName();
+
+                FbxMatrix lMatrix = pFbxPose->GetMatrix(j);
+                Matrix4 m;
+                convertMatrix(lMatrix, m);
+
+                ss << "Item name : " << name;
+
+                if (!pFbxPose->IsBindPose())
+                {
+                    // Rest pose can have local matrix
+                    ss << "    Is local space matrix: " << pFbxPose->IsLocalMatrix(j);
+                }
+                ss << "\nMatrix value: \n";
+
+                for (int k = 0; k < 4; ++k)
+                {
+                    char        lRowValue[1024];
+                    FBXSDK_sprintf(lRowValue, 1024, "%9.4f %9.4f %9.4f %9.4f\n", m[k][0], m[k][1], m[k][2], m[k][3]);
+                    ss << lRowValue;
+                }
+
+                MCONV_LOG_INFO("%s", ss.str().c_str());
+                ss.str("");
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     int FBXReader::InterpolationFlagToIndex(int flags)
     {
         if ((flags & FbxAnimCurveDef::eInterpolationConstant) == FbxAnimCurveDef::eInterpolationConstant) return 1;
@@ -1340,5 +1417,31 @@ namespace Tiny3D
         dst[2][3] = src[3][2];
         dst[3][3] = src[3][3];
     }
+
+    //--------------------------------------------------------------------------
+
+    void FBXReader::convertMatrix(const FbxMatrix &src, Matrix4 &dst)
+    {
+        dst[0][0] = src[0][0];
+        dst[1][0] = src[0][1];
+        dst[2][0] = src[0][2];
+        dst[3][0] = src[0][3];
+
+        dst[0][1] = src[1][0];
+        dst[1][1] = src[1][1];
+        dst[2][1] = src[1][2];
+        dst[3][1] = src[1][3];
+
+        dst[0][2] = src[2][0];
+        dst[1][2] = src[2][1];
+        dst[2][2] = src[2][2];
+        dst[3][2] = src[2][3];
+
+        dst[0][3] = src[3][0];
+        dst[1][3] = src[3][1];
+        dst[2][3] = src[3][2];
+        dst[3][3] = src[3][3];
+    }
+
 }
 

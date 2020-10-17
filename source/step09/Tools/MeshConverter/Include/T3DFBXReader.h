@@ -65,6 +65,8 @@ namespace Tiny3D
         TResult processFbxAnimationChannels(FbxAnimLayer *pFbxAnimLayer, FbxNode *pFbxNode);
         TResult processFbxAnimationCurve(FbxAnimCurve *pFbxAnimCurve);
 
+        TResult processFbxBindPose(FbxScene *pFbxScene);
+
         int InterpolationFlagToIndex(int flags);
         int ConstantmodeFlagToIndex(int flags);
         int TangentmodeFlagToIndex(int flags);
@@ -72,6 +74,7 @@ namespace Tiny3D
         int TangentVelocityFlagToIndex(int flags);
 
 		void convertMatrix(const FbxAMatrix &src, Matrix4 &dst);
+        void convertMatrix(const FbxMatrix &src, Matrix4 &dst);
 
         TResult readPosition(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
             Vector3 &pos);
