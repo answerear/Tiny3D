@@ -45,7 +45,7 @@ namespace Tiny3D
         }
     }
 
-    using namespace Script;
+//     using namespace Script;
 
     /**
      * @class   BinMaterialReader
@@ -93,259 +93,259 @@ namespace Tiny3D
 
         /**
          * @fn  TResult BinMaterialReader::parseMaterial(
-         *      const MaterialSystem::Material *src, Material *dst);
+         *      const Script::MaterialSystem::Material *src, Material *dst);
          * @brief   Parse material
          * @param           src Source for the.
          * @param [in,out]  dst If non-null, destination for the.
          * @return  A TResult.
          */
         TResult parseMaterial(
-            const MaterialSystem::Material *src, Material *dst);
+            const Script::MaterialSystem::Material *src, Material *dst);
 
         /**
          * @fn  TResult BinMaterialReader::parseTechnique(
-         *      const MaterialSystem::Technique *src, Material *dst);
+         *      const Script::MaterialSystem::Technique *src, Material *dst);
          * @brief   Parse technique
          * @param           src Source for the.
          * @param [in,out]  dst If non-null, destination for the.
          * @return  A TResult.
          */
         TResult parseTechnique(
-            const MaterialSystem::Technique *src, Material *dst);
+            const Script::MaterialSystem::Technique *src, Material *dst);
 
         /**
          * @fn  TResult BinMaterialReader::parsePass(
-         *      const MaterialSystem::Pass *src, Technique *dst);
+         *      const Script::MaterialSystem::Pass *src, Technique *dst);
          * @brief   Parse pass
          * @param           src Source for the.
          * @param [in,out]  dst If non-null, destination for the.
          * @return  A TResult.
          */
         TResult parsePass(
-            const MaterialSystem::Pass *src, Technique *dst);
+            const Script::MaterialSystem::Pass *src, Technique *dst);
 
         /**
          * @fn  TResult BinMaterialReader::parseAmbient(
-         *      const MaterialSystem::Pass *src, Pass *dst);
+         *      const Script::MaterialSystem::Pass *src, Pass *dst);
          * @brief   Parse ambient
          * @param           src Source for the.
          * @param [in,out]  dst If non-null, destination for the.
          * @return  A TResult.
          */
         TResult parseAmbient(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         /**
          * @fn  TResult BinMaterialReader::parseDiffuse(
-         *      const MaterialSystem::Pass *src, Pass *dst);
+         *      const Script::MaterialSystem::Pass *src, Pass *dst);
          * @brief   Parse diffuse
          * @param           src Source for the.
          * @param [in,out]  dst If non-null, destination for the.
          * @return  A TResult.
          */
         TResult parseDiffuse(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         /**
          * @fn  TResult BinMaterialReader::parseSpecular(
-         *      const MaterialSystem::Pass *src, Pass *dst);
+         *      const Script::MaterialSystem::Pass *src, Pass *dst);
          * @brief   Parse specular
          * @param           src Source for the.
          * @param [in,out]  dst If non-null, destination for the.
          * @return  A TResult.
          */
         TResult parseSpecular(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         /**
          * @fn  TResult BinMaterialReader::parseEmissive(
-         *      const MaterialSystem::Pass *src, Pass *dst);
+         *      const Script::MaterialSystem::Pass *src, Pass *dst);
          * @brief   Parse emissive
          * @param           src Source for the.
          * @param [in,out]  dst If non-null, destination for the.
          * @return  A TResult.
          */
         TResult parseEmissive(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         /**
          * @fn  TResult BinMaterialReader::parseSceneBlend(
-         *      const MaterialSystem::Pass *src, Pass *dst);
+         *      const Script::MaterialSystem::Pass *src, Pass *dst);
          * @brief   Parse scene blend
          * @param           src Source for the.
          * @param [in,out]  dst If non-null, destination for the.
          * @return  A TResult.
          */
         TResult parseSceneBlend(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseSeparateSceneBlend(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseSceneBlendOp(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseSeparateSceneBlendOp(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseDepthCheck(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseDepthWrite(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseDepthFunc(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseDepthBias(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseIterationDepthBias(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseAlphaRejection(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseAlpha2Coverage(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseLightScissor(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseLightClipPlanes(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseIlluminationStage(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseNormalizeNormals(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseTransparentSorting(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseCullHardware(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseCullSoftware(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseLighting(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseShading(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parsePolygonMode(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parsePolygonModeOverridable(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseFog(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseColorWrite(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseMaxLights(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseStartLight(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseIteration(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parsePointSize(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parsePointSprites(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parsePointSizeAttenuation(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parsePointSizeMin(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parsePointSizeMax(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseGPUProgramRef(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseTextures(
-            const MaterialSystem::Pass *src, Pass *dst);
+            const Script::MaterialSystem::Pass *src, Pass *dst);
 
         TResult parseGPUConstantBufferRef(
-            const MaterialSystem::GPUConstantBufferRef *src, GPUProgramRef *dst);
+            const Script::MaterialSystem::GPUConstantBufferRef *src, GPUProgramRef *dst);
 
         TResult parseTextureUnit(
-            const MaterialSystem::TextureUnit *src, Pass *dst);
+            const Script::MaterialSystem::TextureUnit *src, Pass *dst);
 
         TResult parseTextureAlias(
-            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+            const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst);
 
         TResult parseTexture(
-            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+            const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst);
 
         TResult parseAnimTexture(
-            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+            const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst);
 
         TResult parseCubicTexture(
-            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+            const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst);
 
         TResult parseBindingType(
-            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+            const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst);
 
         TResult parseTexCoordSet(
-            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+            const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst);
 
         TResult parseColorOp(
-            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+            const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst);
 
         TResult parseSamplerRef(
-            const MaterialSystem::TextureUnit *src, TextureUnit *dst);
+            const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst);
 
         TResult parseSampler(
-            const MaterialSystem::Sampler *src, Material *dst);
+            const Script::MaterialSystem::Sampler *src, Material *dst);
 
         TResult parseTexAddressMode(
-            const MaterialSystem::Sampler *src, Sampler *dst);
+            const Script::MaterialSystem::Sampler *src, Sampler *dst);
 
         TResult parseTexBorderColor(
-            const MaterialSystem::Sampler *src, Sampler *dst);
+            const Script::MaterialSystem::Sampler *src, Sampler *dst);
 
         TResult parseFiltering(
-            const MaterialSystem::Sampler *src, Sampler *dst);
+            const Script::MaterialSystem::Sampler *src, Sampler *dst);
 
         TResult parseCompareTest(
-            const MaterialSystem::Sampler *src, Sampler *dst);
+            const Script::MaterialSystem::Sampler *src, Sampler *dst);
 
         TResult parseCompareFunc(
-            const MaterialSystem::Sampler *src, Sampler *dst);
+            const Script::MaterialSystem::Sampler *src, Sampler *dst);
 
         TResult parseMaxAnisotropy(
-            const MaterialSystem::Sampler *src, Sampler *dst);
+            const Script::MaterialSystem::Sampler *src, Sampler *dst);
 
         TResult parseMipmapBias(
-            const MaterialSystem::Sampler *src, Sampler *dst);
+            const Script::MaterialSystem::Sampler *src, Sampler *dst);
 
         TResult parseGPUConstantBuffer(
-            const MaterialSystem::GPUConstantBuffer *src, Material *dst);
+            const Script::MaterialSystem::GPUConstantBuffer *src, Material *dst);
 
         TResult parseParam(
-            const MaterialSystem::Param *src, GPUConstBuffer *dst, bool named);
+            const Script::MaterialSystem::Param *src, GPUConstBuffer *dst, bool named);
 
         TResult parseParamAuto(
-            const MaterialSystem::ParamAuto *src, GPUConstBuffer *dst, bool named);
+            const Script::MaterialSystem::ParamAuto *src, GPUConstBuffer *dst, bool named);
 
         TResult parseGPUProgram(
-            const MaterialSystem::GPUProgram *src, Material *dst);
+            const Script::MaterialSystem::GPUProgram *src, Material *dst);
 
         TResult parseShader(
-            const MaterialSystem::Shader *src, GPUProgram *dst);
+            const Script::MaterialSystem::Shader *src, GPUProgram *dst);
 
     protected:
         const BuiltinConstantMap    &mDefinitions;

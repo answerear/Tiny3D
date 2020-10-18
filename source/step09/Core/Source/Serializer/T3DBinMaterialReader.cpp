@@ -38,7 +38,7 @@
 
 namespace Tiny3D
 {
-    using namespace Script;
+//     using namespace Script;
 
     #define T3D_CHECK_PARSING_RET(ret)    \
         if (T3D_FAILED(ret))    \
@@ -114,7 +114,7 @@ namespace Tiny3D
             // 从 proto buffer 解析出来 pb 对象
             data += sizeof(T3DFileHeader);
             size -= sizeof(T3DFileHeader);
-            MaterialSystem::Material src;
+            Script::MaterialSystem::Material src;
 
             if (!src.ParseFromArray(data, size))
             {
@@ -132,14 +132,14 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseMaterial(
-        const MaterialSystem::Material *src, Material *dst)
+        const Script::MaterialSystem::Material *src, Material *dst)
     {
         TResult ret = T3D_OK;
 
         do 
         {
             // Material name
-            const MaterialSystem::Header &header = src->header();
+            const Script::ObjectHeader &header = src->header();
 
             if (dst != nullptr)
                 dst->setMaterialName(header.name());
@@ -160,7 +160,7 @@ namespace Tiny3D
 
             // Techniques
             auto techniques = src->techniques();
-            for (const MaterialSystem::Technique &tech : techniques)
+            for (const Script::MaterialSystem::Technique &tech : techniques)
             {
                 ret = parseTechnique(&tech, dst);
                 T3D_CHECK_PARSING_RET(ret);
@@ -168,7 +168,7 @@ namespace Tiny3D
 
             // constant buffers
             auto cbuffers = src->cbuffers();
-            for (const MaterialSystem::GPUConstantBuffer &cbuf : cbuffers)
+            for (const Script::MaterialSystem::GPUConstantBuffer &cbuf : cbuffers)
             {
                 ret = parseGPUConstantBuffer(&cbuf, dst);
                 T3D_CHECK_PARSING_RET(ret);
@@ -176,7 +176,7 @@ namespace Tiny3D
 
             // GPU programs
             auto programs = src->programs();
-            for (const MaterialSystem::GPUProgram &program : programs)
+            for (const Script::MaterialSystem::GPUProgram &program : programs)
             {
                 ret = parseGPUProgram(&program, dst);
                 T3D_CHECK_PARSING_RET(ret);
@@ -184,7 +184,7 @@ namespace Tiny3D
 
             // Samplers
             auto samplers = src->samplers();
-            for (const MaterialSystem::Sampler &sampler : samplers)
+            for (const Script::MaterialSystem::Sampler &sampler : samplers)
             {
                 ret = parseSampler(&sampler, dst);
                 T3D_CHECK_PARSING_RET(ret);
@@ -197,14 +197,14 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseTechnique(
-        const MaterialSystem::Technique *src, Material *dst)
+        const Script::MaterialSystem::Technique *src, Material *dst)
     {
         TResult ret = T3D_OK;
 
         do 
         {
             // Technique name
-            const MaterialSystem::Header &header = src->header();
+            const Script::ObjectHeader &header = src->header();
             TechniquePtr tech;
             ret = dst->addTechnique(header.name(), tech);
             if (T3D_FAILED(ret))
@@ -247,7 +247,7 @@ namespace Tiny3D
             // Passes
             auto passes = src->passes();
 
-            for (const MaterialSystem::Pass &pass : passes)
+            for (const Script::MaterialSystem::Pass &pass : passes)
             {
                 ret = parsePass(&pass, tech);
                 T3D_CHECK_PARSING_RET(ret);
@@ -260,14 +260,14 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parsePass(
-        const MaterialSystem::Pass *src, Technique *dst)
+        const Script::MaterialSystem::Pass *src, Technique *dst)
     {
         TResult ret = T3D_OK;
 
         do 
         {
             // Pass name
-            const MaterialSystem::Header &header = src->header();
+            const Script::ObjectHeader &header = src->header();
             PassPtr pass;
             ret = dst->addPass(header.name(), pass);
             T3D_CHECK_PARSING_RET(ret);
@@ -431,7 +431,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseAmbient(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_ambient())
         {
@@ -455,7 +455,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseDiffuse(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_diffuse())
         {
@@ -479,7 +479,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseSpecular(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_specular())
         {
@@ -505,7 +505,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseEmissive(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_emissive())
         {
@@ -529,7 +529,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseSceneBlend(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_scene_blend())
         {
@@ -556,7 +556,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseSeparateSceneBlend(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_separate_scene_blend())
         {
@@ -588,7 +588,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseSceneBlendOp(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_scene_blend_op())
         {
@@ -602,7 +602,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseSeparateSceneBlendOp(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_separate_scene_blend_op())
         {
@@ -618,7 +618,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseDepthCheck(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_depth_check())
         {
@@ -631,7 +631,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseDepthWrite(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_depth_write())
         {
@@ -644,7 +644,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseDepthFunc(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_depth_func())
         {
@@ -658,7 +658,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseDepthBias(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_depth_bias())
         {
@@ -673,7 +673,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseIterationDepthBias(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_iteration_depth_bias())
         {
@@ -686,7 +686,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseAlphaRejection(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_alpha_rejection())
         {
@@ -702,7 +702,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseAlpha2Coverage(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_alpha_to_coverage())
         {
@@ -716,7 +716,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseLightScissor(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_light_scissor())
         {
@@ -730,7 +730,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseLightClipPlanes(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_light_clip_planes())
         {
@@ -744,7 +744,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseIlluminationStage(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_illumination_stage())
         {
@@ -758,7 +758,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseNormalizeNormals(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_normailize_normals())
         {
@@ -772,7 +772,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseTransparentSorting(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         TResult ret = T3D_OK;
 
@@ -780,19 +780,19 @@ namespace Tiny3D
         {
             switch (src->transparent_sorting().value())
             {
-            case MaterialSystem::TransparentSorting::TS_OFF:
+            case Script::MaterialSystem::TransparentSorting::TS_OFF:
                 {
                     dst->setTransparentSortingEnabled(false);
                     dst->setTransparentSortingForced(false);
                 }
                 break;
-            case MaterialSystem::TransparentSorting::TS_ON:
+            case Script::MaterialSystem::TransparentSorting::TS_ON:
                 {
                     dst->setTransparentSortingEnabled(true);
                     dst->setTransparentSortingForced(false);
                 }
                 break;
-            case MaterialSystem::TransparentSorting::TS_FORCE:
+            case Script::MaterialSystem::TransparentSorting::TS_FORCE:
                 {
                     dst->setTransparentSortingEnabled(true);
                     dst->setTransparentSortingForced(true);
@@ -814,7 +814,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseCullHardware(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_cull_hardware())
         {
@@ -828,7 +828,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseCullSoftware(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_cull_software())
         {
@@ -842,7 +842,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseLighting(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_lighting())
         {
@@ -856,7 +856,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseShading(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_shading())
         {
@@ -870,7 +870,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parsePolygonMode(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_polygon_mode())
         {
@@ -884,7 +884,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parsePolygonModeOverridable(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_polygon_mode_overrideable())
         {
@@ -898,7 +898,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseFog(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_fog())
         {
@@ -926,7 +926,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseColorWrite(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_color_write())
         {
@@ -940,7 +940,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseMaxLights(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_max_lights())
         {
@@ -953,7 +953,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseStartLight(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_start_light())
         {
@@ -966,7 +966,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseIteration(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         TResult ret = T3D_OK;
 
@@ -1072,7 +1072,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parsePointSize(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_point_size())
         {
@@ -1085,7 +1085,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parsePointSprites(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_point_sprites())
         {
@@ -1098,7 +1098,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parsePointSizeAttenuation(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_point_size_attenuation())
         {
@@ -1125,7 +1125,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parsePointSizeMin(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_point_size_min())
         {
@@ -1138,7 +1138,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parsePointSizeMax(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         if (src->has_point_size_max())
         {
@@ -1151,7 +1151,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseGPUProgramRef(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         TResult ret = T3D_OK;
 
@@ -1166,7 +1166,7 @@ namespace Tiny3D
 
             // GPU constant buffer reference
             auto refs = data.gpu_cbuffer_ref();
-            for (const MaterialSystem::GPUConstantBufferRef &ref : refs)
+            for (const Script::MaterialSystem::GPUConstantBufferRef &ref : refs)
             {
                 ret = parseGPUConstantBufferRef(&ref, program);
                 T3D_CHECK_PARSING_RET(ret);
@@ -1179,7 +1179,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseGPUConstantBufferRef(
-        const MaterialSystem::GPUConstantBufferRef *src, GPUProgramRef *dst)
+        const Script::MaterialSystem::GPUConstantBufferRef *src, GPUProgramRef *dst)
     {
         TResult ret = T3D_OK;
 
@@ -1202,11 +1202,11 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseTextures(
-        const MaterialSystem::Pass *src, Pass *dst)
+        const Script::MaterialSystem::Pass *src, Pass *dst)
     {
         TResult ret = T3D_OK;
         auto textures = src->textures();
-        for (const MaterialSystem::TextureUnit &unit : textures)
+        for (const Script::MaterialSystem::TextureUnit &unit : textures)
         {
             ret = parseTextureUnit(&unit, dst);
             T3D_CHECK_PARSING_RET(ret);
@@ -1218,7 +1218,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseTextureUnit(
-        const MaterialSystem::TextureUnit *src, Pass *dst)
+        const Script::MaterialSystem::TextureUnit *src, Pass *dst)
     {
         TResult ret = T3D_OK;
 
@@ -1269,7 +1269,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseTextureAlias(
-        const MaterialSystem::TextureUnit *src, TextureUnit *dst)
+        const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst)
     {
         if (src->has_texture_alias())
         {
@@ -1282,7 +1282,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseTexture(
-        const MaterialSystem::TextureUnit *src, TextureUnit *dst)
+        const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst)
     {
         if (src->has_texture())
         {
@@ -1306,7 +1306,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseAnimTexture(
-        const MaterialSystem::TextureUnit *src, TextureUnit *dst)
+        const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst)
     {
         if (src->has_anim_texture())
         {
@@ -1346,7 +1346,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseCubicTexture(
-        const MaterialSystem::TextureUnit *src, TextureUnit *dst)
+        const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst)
     {
         if (src->has_cubic_texture())
         {
@@ -1389,7 +1389,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseBindingType(
-        const MaterialSystem::TextureUnit *src, TextureUnit *dst)
+        const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst)
     {
         if (src->has_binding_type())
         {
@@ -1403,7 +1403,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseTexCoordSet(
-        const MaterialSystem::TextureUnit *src, TextureUnit *dst)
+        const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst)
     {
         if (src->has_tex_coord_set())
         {
@@ -1416,7 +1416,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseColorOp(
-        const MaterialSystem::TextureUnit *src, TextureUnit *dst)
+        const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst)
     {
         if (src->has_color_op())
         {
@@ -1428,7 +1428,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseSamplerRef(
-        const MaterialSystem::TextureUnit *src, TextureUnit *dst)
+        const Script::MaterialSystem::TextureUnit *src, TextureUnit *dst)
     {
         if (src->has_sampler_ref())
         {
@@ -1441,7 +1441,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseSampler(
-        const MaterialSystem::Sampler *src, Material *dst)
+        const Script::MaterialSystem::Sampler *src, Material *dst)
     {
         TResult ret = T3D_OK;
 
@@ -1493,7 +1493,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseTexAddressMode(
-        const MaterialSystem::Sampler *src, Sampler *dst)
+        const Script::MaterialSystem::Sampler *src, Sampler *dst)
     {
         if (src->has_tex_address_mode())
         {
@@ -1525,7 +1525,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseTexBorderColor(
-        const MaterialSystem::Sampler *src, Sampler *dst)
+        const Script::MaterialSystem::Sampler *src, Sampler *dst)
     {
         if (src->has_tex_border_color())
         {
@@ -1540,7 +1540,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseFiltering(
-        const MaterialSystem::Sampler *src, Sampler *dst)
+        const Script::MaterialSystem::Sampler *src, Sampler *dst)
     {
         if (src->has_filtering())
         {
@@ -1570,7 +1570,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseCompareTest(
-        const MaterialSystem::Sampler *src, Sampler *dst)
+        const Script::MaterialSystem::Sampler *src, Sampler *dst)
     {
         if (src->has_compare_test())
         {
@@ -1583,7 +1583,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseCompareFunc(
-        const MaterialSystem::Sampler *src, Sampler *dst)
+        const Script::MaterialSystem::Sampler *src, Sampler *dst)
     {
         if (src->has_compare_func())
         {
@@ -1596,7 +1596,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseMaxAnisotropy(
-        const MaterialSystem::Sampler *src, Sampler *dst)
+        const Script::MaterialSystem::Sampler *src, Sampler *dst)
     {
         if (src->has_max_anisotropy())
         {
@@ -1609,7 +1609,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseMipmapBias(
-        const MaterialSystem::Sampler *src, Sampler *dst)
+        const Script::MaterialSystem::Sampler *src, Sampler *dst)
     {
         if (src->has_mipmap_bias())
         {
@@ -1622,7 +1622,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseGPUConstantBuffer(
-        const MaterialSystem::GPUConstantBuffer *src, Material *dst)
+        const Script::MaterialSystem::GPUConstantBuffer *src, Material *dst)
     {
         TResult ret = T3D_OK;
 
@@ -1656,7 +1656,7 @@ namespace Tiny3D
 
             // param_indexed
             auto param_indexed = src->param_indexed();
-            for (const MaterialSystem::Param &param : param_indexed)
+            for (const Script::MaterialSystem::Param &param : param_indexed)
             {
                 ret = parseParam(&param, cbuffer, false);
                 T3D_CHECK_PARSING_RET(ret);
@@ -1666,7 +1666,7 @@ namespace Tiny3D
 
             // param_indexed_auto
             auto param_indexed_auto = src->param_indexed_auto();
-            for (const MaterialSystem::ParamAuto &param : param_indexed_auto)
+            for (const Script::MaterialSystem::ParamAuto &param : param_indexed_auto)
             {
                 ret = parseParamAuto(&param, cbuffer, false);
                 T3D_CHECK_PARSING_RET(ret);
@@ -1676,7 +1676,7 @@ namespace Tiny3D
 
             // param_named
             auto param_named = src->param_named();
-            for (const MaterialSystem::Param &param : param_named)
+            for (const Script::MaterialSystem::Param &param : param_named)
             {
                 ret = parseParam(&param, cbuffer, true);
                 T3D_CHECK_PARSING_RET(ret);
@@ -1686,7 +1686,7 @@ namespace Tiny3D
 
             // param_named_auto
             auto param_named_auto = src->param_named_auto();
-            for (const MaterialSystem::ParamAuto &param : param_named_auto)
+            for (const Script::MaterialSystem::ParamAuto &param : param_named_auto)
             {
                 ret = parseParamAuto(&param, cbuffer, true);
                 T3D_CHECK_PARSING_RET(ret);
@@ -1701,7 +1701,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseParam(
-        const MaterialSystem::Param *src, GPUConstBuffer *dst, bool named)
+        const Script::MaterialSystem::Param *src, GPUConstBuffer *dst, bool named)
     {
         String name;
         uint32_t index = 0;
@@ -1725,14 +1725,14 @@ namespace Tiny3D
         uint32_t dataSize = 0;
 
         // values
-        if (MaterialSystem::BuiltInType::BT_INT == type)
+        if (Script::MaterialSystem::BuiltInType::BT_INT == type)
         {
             count = src->ivalues_size();
             auto values = src->ivalues();
             data = (uint8_t*)values.data();
             dataSize = count * sizeof(uint32_t);
         }
-        else if (MaterialSystem::BuiltInType::BT_REAL == type)
+        else if (Script::MaterialSystem::BuiltInType::BT_REAL == type)
         {
             count = src->fvalues_size();
             auto values = src->fvalues();
@@ -1751,7 +1751,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseParamAuto(
-        const MaterialSystem::ParamAuto *src, GPUConstBuffer *dst, bool named)
+        const Script::MaterialSystem::ParamAuto *src, GPUConstBuffer *dst, bool named)
     {
         String name;
         uint32_t index = 0;
@@ -1795,7 +1795,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseGPUProgram(
-        const MaterialSystem::GPUProgram *src, Material *dst)
+        const Script::MaterialSystem::GPUProgram *src, Material *dst)
     {
         TResult ret = T3D_OK;
 
@@ -1827,7 +1827,7 @@ namespace Tiny3D
 
             // shaders
             auto shaders = src->shaders();
-            for (const MaterialSystem::Shader &shader : shaders)
+            for (const Script::MaterialSystem::Shader &shader : shaders)
             {
                 ret = parseShader(&shader, program);
             }
@@ -1839,7 +1839,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BinMaterialReader::parseShader(
-        const MaterialSystem::Shader *src, GPUProgram *dst)
+        const Script::MaterialSystem::Shader *src, GPUProgram *dst)
     {
         TResult ret = T3D_OK;
 

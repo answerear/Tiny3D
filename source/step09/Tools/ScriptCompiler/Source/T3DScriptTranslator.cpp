@@ -69,7 +69,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool ScriptTranslator::translateObjectHeader(ObjectAbstractNode *obj,
-        MaterialSystem::Header *header)
+        Script::ObjectHeader *header)
     {
         // ID
         header->set_id(obj->id);
@@ -218,7 +218,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool ScriptTranslator::getColor(AbstractNodeList::const_iterator i, 
-        AbstractNodeList::const_iterator end, MaterialSystem::Color *result, 
+        AbstractNodeList::const_iterator end, Script::Color *result, 
         int32_t maxEntries /* = 4 */)
     {
         int32_t n = 0;
@@ -262,7 +262,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool ScriptTranslator::getMatrix4(AbstractNodeList::const_iterator i, 
-        AbstractNodeList::const_iterator end, MaterialSystem::Matrix4 *m)
+        AbstractNodeList::const_iterator end, Script::Matrix4 *m)
     {
         int32_t n = 0;
 
@@ -384,8 +384,8 @@ namespace Tiny3D
         }
 
         // 对象头数据
-        MaterialSystem::Material *material = (MaterialSystem::Material *)object;
-        MaterialSystem::Header *header = material->mutable_header();
+        Script::MaterialSystem::Material *material = (Script::MaterialSystem::Material *)object;
+        Script::ObjectHeader *header = material->mutable_header();
         bool ret = translateObjectHeader(obj, header);
         if (!ret)
         {
@@ -455,7 +455,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool MaterialTranslator::translateLODValues(
-        PropertyAbstractNode *prop, MaterialSystem::Material *material)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Material *material)
     {
         bool ret = false;
 
@@ -468,7 +468,7 @@ namespace Tiny3D
         // LOD值
         if (len > 0)
         {
-            MaterialSystem::LODValues *values = material->mutable_values();
+            Script::MaterialSystem::LODValues *values = material->mutable_values();
             for (auto j = prop->values.begin(); j != prop->values.end(); ++j)
             {
                 float32_t val;
@@ -500,7 +500,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool MaterialTranslator::translateLODStrategy(
-        PropertyAbstractNode *prop, MaterialSystem::Material *material)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Material *material)
     {
         bool ret = false;
 
@@ -526,7 +526,7 @@ namespace Tiny3D
             if (ret)
             {
                 StringUtil::toLowerCase(strategyName);
-                MaterialSystem::LODValues *values = material->mutable_values();
+                Script::MaterialSystem::LODValues *values = material->mutable_values();
                 values->set_strategy(strategyName);
                 ret = true;
             }
@@ -545,7 +545,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool MaterialTranslator::translateReceiveShadow(
-        PropertyAbstractNode *prop, MaterialSystem::Material *material)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Material *material)
     {
         bool ret = false;
 
@@ -587,7 +587,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool MaterialTranslator::translateTransparentCastsShadow(
-        PropertyAbstractNode *prop, MaterialSystem::Material *material)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Material *material)
     {
         bool ret = false;
 
@@ -629,7 +629,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool MaterialTranslator::translateSetTextuerAlias(
-        PropertyAbstractNode *prop, MaterialSystem::Material *material)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Material *material)
     {
         bool ret = false;
 
@@ -654,7 +654,7 @@ namespace Tiny3D
 
             if (getString(*i0, &aliasname) && getString(*i1, &texturename))
             {
-                MaterialSystem::TextureAlias *alias 
+                Script::MaterialSystem::TextureAlias *alias 
                     = material->mutable_texture_alias();
                 // alias name
                 alias->set_alias_name(aliasname);
@@ -683,9 +683,9 @@ namespace Tiny3D
             = reinterpret_cast<ObjectAbstractNode*>(node.get());
 
         // 对象头数据
-        MaterialSystem::Material *material = (MaterialSystem::Material *)object;
-        MaterialSystem::Technique *tech = material->add_techniques();
-        MaterialSystem::Header *header = tech->mutable_header();
+        Script::MaterialSystem::Material *material = (Script::MaterialSystem::Material *)object;
+        Script::MaterialSystem::Technique *tech = material->add_techniques();
+        Script::ObjectHeader *header = tech->mutable_header();
         bool ret = translateObjectHeader(obj, header);
         if (!ret)
         {
@@ -764,7 +764,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TechniqueTranslator::translateScheme(
-        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech)
     {
         bool ret = false;
 
@@ -806,7 +806,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TechniqueTranslator::translateLODIndex(
-        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech)
     {
         bool ret = false;
 
@@ -849,7 +849,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TechniqueTranslator::translateRenderQueue(
-        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech)
     {
         bool ret = false;
 
@@ -891,7 +891,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TechniqueTranslator::translateShadowCasterMaterial(
-        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech)
     {
         bool ret = false;
 
@@ -934,7 +934,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TechniqueTranslator::translateShadowReceiveMaterial(
-        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech)
     {
         bool ret = false;
 
@@ -977,7 +977,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TechniqueTranslator::translateGPUVendorRule(
-        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech)
     {
         bool ret = false;
 
@@ -1010,16 +1010,16 @@ namespace Tiny3D
 
                     if (getString(*i1, &vendor))
                     {
-                        MaterialSystem::GPUVendorRule *rule 
+                        Script::MaterialSystem::GPUVendorRule *rule 
                             = tech->mutable_gpu_vendor_rule();
 
                         if (atom0->id == ID_INCLUDE)
                         {
-                            rule->set_rule(MaterialSystem::GPURuleType::INCLUDE);
+                            rule->set_rule(Script::MaterialSystem::GPURuleType::INCLUDE);
                         }
                         else
                         {
-                            rule->set_rule(MaterialSystem::GPURuleType::EXCLUDE);
+                            rule->set_rule(Script::MaterialSystem::GPURuleType::EXCLUDE);
                         }
 
                         rule->set_vendor_name(vendor);
@@ -1060,7 +1060,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TechniqueTranslator::translateGPUDeviceRule(
-        PropertyAbstractNode *prop, MaterialSystem::Technique *tech)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech)
     {
         bool ret = false;
 
@@ -1090,7 +1090,7 @@ namespace Tiny3D
                 if (atom0->id == ID_INCLUDE || atom0->id == ID_EXCLUDE)
                 {
                     String pattern;
-                    MaterialSystem::GPUDeviceRule *rule = nullptr;
+                    Script::MaterialSystem::GPUDeviceRule *rule = nullptr;
 
                     if (getString(*i1, &pattern))
                     {
@@ -1098,11 +1098,11 @@ namespace Tiny3D
 
                         if (atom0->id == ID_INCLUDE)
                         {
-                            rule->set_rule(MaterialSystem::GPURuleType::INCLUDE);
+                            rule->set_rule(Script::MaterialSystem::GPURuleType::INCLUDE);
                         }
                         else if (atom0->id == ID_EXCLUDE)
                         {
-                            rule->set_rule(MaterialSystem::GPURuleType::EXCLUDE);
+                            rule->set_rule(Script::MaterialSystem::GPURuleType::EXCLUDE);
                         }
 
                         rule->set_device_pattern(pattern);
@@ -1170,9 +1170,9 @@ namespace Tiny3D
             = reinterpret_cast<ObjectAbstractNode*>(node.get());
 
         // 对象头数据
-        MaterialSystem::Technique *tech = (MaterialSystem::Technique *)object;
-        MaterialSystem::Pass *pass = tech->add_passes();
-        MaterialSystem::Header *header = pass->mutable_header();
+        Script::MaterialSystem::Technique *tech = (Script::MaterialSystem::Technique *)object;
+        Script::MaterialSystem::Pass *pass = tech->add_passes();
+        Script::ObjectHeader *header = pass->mutable_header();
         bool ret = translateObjectHeader(obj, header);
         if (!ret)
         {
@@ -1402,7 +1402,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateAmbient(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -1421,7 +1421,7 @@ namespace Tiny3D
         }
         else
         {
-            MaterialSystem::LightColor *ambient = pass->mutable_ambient();
+            Script::MaterialSystem::LightColor *ambient = pass->mutable_ambient();
 
             if (prop->values.front()->type == ANT_ATOM &&
                 ((AtomAbstractNode*)prop->values.front().get())->id 
@@ -1436,7 +1436,7 @@ namespace Tiny3D
                 // not vertex color
 
                 // ambient
-                MaterialSystem::Color *val = ambient->mutable_color();
+                Script::Color *val = ambient->mutable_color();
 
                 if (getColor(prop->values.begin(), prop->values.end(), val))
                 {
@@ -1459,7 +1459,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateDiffuse(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -1478,7 +1478,7 @@ namespace Tiny3D
         }
         else
         {
-            MaterialSystem::LightColor *diffuse = pass->mutable_diffuse();
+            Script::MaterialSystem::LightColor *diffuse = pass->mutable_diffuse();
 
             if (prop->values.front()->type == ANT_ATOM &&
                 ((AtomAbstractNode*)prop->values.front().get())->id 
@@ -1493,7 +1493,7 @@ namespace Tiny3D
                 // not vertex color
 
                 // diffuse
-                MaterialSystem::Color *val = diffuse->mutable_color();
+                Script::Color *val = diffuse->mutable_color();
 
                 if (getColor(prop->values.begin(), prop->values.end(), val))
                 {
@@ -1516,7 +1516,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateSpecular(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -1540,7 +1540,7 @@ namespace Tiny3D
                 == ID_VERTEXCOLOUR)
             {
                 // vertex color
-                MaterialSystem::LightColor *specular = pass->mutable_specular();
+                Script::MaterialSystem::LightColor *specular = pass->mutable_specular();
                 specular->set_vertex_color(true);
 
                 // shininess
@@ -1585,10 +1585,10 @@ namespace Tiny3D
                     if (getSingle(*i0, &r) && getSingle(*i1, &g) 
                         && getSingle(*i2, &b))
                     {
-                        MaterialSystem::LightColor *specular 
+                        Script::MaterialSystem::LightColor *specular 
                             = pass->mutable_specular();
 
-                        MaterialSystem::Color *color
+                        Script::Color *color
                             = specular->mutable_color();
 
                         // specular
@@ -1676,7 +1676,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateEmissive(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -1695,7 +1695,7 @@ namespace Tiny3D
         }
         else
         {
-            MaterialSystem::LightColor *emissive = pass->mutable_emissive();
+            Script::MaterialSystem::LightColor *emissive = pass->mutable_emissive();
 
             if (prop->values.front()->type == ANT_ATOM &&
                 ((AtomAbstractNode*)prop->values.front().get())->id 
@@ -1710,7 +1710,7 @@ namespace Tiny3D
                 // not vertex color
 
                 // emissive
-                MaterialSystem::Color *color = emissive->mutable_color();
+                Script::Color *color = emissive->mutable_color();
 
                 if (getColor(prop->values.begin(), prop->values.end(), color))
                 {
@@ -1733,7 +1733,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateSceneBlend(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -1757,7 +1757,7 @@ namespace Tiny3D
                 AtomAbstractNode *atom 
                     = (AtomAbstractNode*)prop->values.front().get();
 
-                MaterialSystem::BlendScene *blend = pass->mutable_scene_blend();
+                Script::MaterialSystem::BlendScene *blend = pass->mutable_scene_blend();
 
                 switch (atom->id)
                 {
@@ -1817,59 +1817,59 @@ namespace Tiny3D
             if (atom0->id >= ID_ONE && atom0->id <= ID_ONE_MINUS_SRC_ALPHA
                 && atom1->id >= ID_ONE && atom1->id <= ID_ONE_MINUS_SRC_ALPHA)
             {
-                MaterialSystem::BlendScene *blend = pass->mutable_scene_blend();
+                Script::MaterialSystem::BlendScene *blend = pass->mutable_scene_blend();
                 auto factor = blend->mutable_blend_factor();
 
                 switch (atom0->id)
                 {
                 case ID_ONE:
                     {
-                        factor->set_src_factor(MaterialSystem::BF_ONE);
+                        factor->set_src_factor(Script::MaterialSystem::BF_ONE);
                     }
                     break;
                 case ID_ZERO:
                     {
-                        factor->set_src_factor(MaterialSystem::BF_ZERO);
+                        factor->set_src_factor(Script::MaterialSystem::BF_ZERO);
                     }
                     break;
                 case ID_DEST_COLOUR:
                     {
-                        factor->set_src_factor(MaterialSystem::BF_DEST_COLOR);
+                        factor->set_src_factor(Script::MaterialSystem::BF_DEST_COLOR);
                     }
                     break;
                 case ID_SRC_COLOUR:
                     {
-                        factor->set_src_factor(MaterialSystem::BF_SRC_COLOR);
+                        factor->set_src_factor(Script::MaterialSystem::BF_SRC_COLOR);
                     }
                     break;
                 case ID_ONE_MINUS_DEST_COLOUR:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_DEST_COLOR);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_ONE_MINUS_DEST_COLOR);
                     }
                     break;
                 case ID_ONE_MINUS_SRC_COLOUR:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_SRC_COLOR);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_ONE_MINUS_SRC_COLOR);
                     }
                     break;
                 case ID_DEST_ALPHA:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_DEST_ALPHA);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_DEST_ALPHA);
                     }
                     break;
                 case ID_SRC_ALPHA:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_SRC_ALPHA);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_SRC_ALPHA);
                     }
                     break;
                 case ID_ONE_MINUS_DEST_ALPHA:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_DEST_ALPHA);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_ONE_MINUS_DEST_ALPHA);
                     }
                     break;
                 case ID_ONE_MINUS_SRC_ALPHA:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_SRC_ALPHA);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_ONE_MINUS_SRC_ALPHA);
                     }
                     break;
                 }
@@ -1878,52 +1878,52 @@ namespace Tiny3D
                 {
                 case ID_ONE:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_ONE);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_ONE);
                     }
                     break;
                 case ID_ZERO:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_ZERO);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_ZERO);
                     }
                     break;
                 case ID_DEST_COLOUR:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_DEST_COLOR);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_DEST_COLOR);
                     }
                     break;
                 case ID_SRC_COLOUR:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_SRC_COLOR);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_SRC_COLOR);
                     }
                     break;
                 case ID_ONE_MINUS_DEST_COLOUR:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_DEST_COLOR);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_ONE_MINUS_DEST_COLOR);
                     }
                     break;
                 case ID_ONE_MINUS_SRC_COLOUR:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_SRC_COLOR);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_ONE_MINUS_SRC_COLOR);
                     }
                     break;
                 case ID_DEST_ALPHA:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_DEST_ALPHA);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_DEST_ALPHA);
                     }
                     break;
                 case ID_SRC_ALPHA:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_SRC_ALPHA);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_SRC_ALPHA);
                     }
                     break;
                 case ID_ONE_MINUS_DEST_ALPHA:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_DEST_ALPHA);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_ONE_MINUS_DEST_ALPHA);
                     }
                     break;
                 case ID_ONE_MINUS_SRC_ALPHA:
                     {
-                        factor->set_dest_factor(MaterialSystem::BF_ONE_MINUS_SRC_ALPHA);
+                        factor->set_dest_factor(Script::MaterialSystem::BF_ONE_MINUS_SRC_ALPHA);
                     }
                     break;
                 }
@@ -1947,7 +1947,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateSeparateSceneBlend(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -1981,10 +1981,10 @@ namespace Tiny3D
                 AtomAbstractNode *atom0 = (AtomAbstractNode *)(*i0).get();
                 AtomAbstractNode *atom1 = (AtomAbstractNode *)(*i1).get();
 
-                MaterialSystem::SeparateBlendScene *blend
+                Script::MaterialSystem::SeparateBlendScene *blend
                     = pass->mutable_separate_scene_blend();
 
-                MaterialSystem::SimpleBlendType *simple
+                Script::MaterialSystem::SimpleBlendType *simple
                     = blend->mutable_blend_type();
 
                 switch (atom0->id)
@@ -2091,62 +2091,62 @@ namespace Tiny3D
                     && atom2->id >= ID_ONE && atom2->id <= ID_ONE_MINUS_SRC_ALPHA
                     && atom3->id >= ID_ONE && atom3->id <= ID_ONE_MINUS_SRC_ALPHA)
                 {
-                    MaterialSystem::SeparateBlendScene *blend
+                    Script::MaterialSystem::SeparateBlendScene *blend
                         = pass->mutable_separate_scene_blend();
 
-                    MaterialSystem::SimpleBlendSceneFactor *factor
+                    Script::MaterialSystem::SimpleBlendSceneFactor *factor
                         = blend->mutable_blend_factor();
 
                     switch (atom0->id)
                     {
                     case ID_ONE:
                         {
-                            factor->set_color_src_factor(MaterialSystem::BF_ONE);
+                            factor->set_color_src_factor(Script::MaterialSystem::BF_ONE);
                         }
                         break;
                     case ID_ZERO:
                         {
-                            factor->set_color_src_factor(MaterialSystem::BF_ZERO);
+                            factor->set_color_src_factor(Script::MaterialSystem::BF_ZERO);
                         }
                         break;
                     case ID_DEST_COLOUR:
                         {
-                            factor->set_color_src_factor(MaterialSystem::BF_DEST_COLOR);
+                            factor->set_color_src_factor(Script::MaterialSystem::BF_DEST_COLOR);
                         }
                         break;
                     case ID_SRC_COLOUR:
                         {
-                            factor->set_color_src_factor(MaterialSystem::BF_SRC_COLOR);
+                            factor->set_color_src_factor(Script::MaterialSystem::BF_SRC_COLOR);
                         }
                         break;
                     case ID_ONE_MINUS_DEST_COLOUR:
                         {
-                            factor->set_color_src_factor(MaterialSystem::BF_ONE_MINUS_DEST_COLOR);
+                            factor->set_color_src_factor(Script::MaterialSystem::BF_ONE_MINUS_DEST_COLOR);
                         }
                         break;
                     case ID_ONE_MINUS_SRC_COLOUR:
                         {
-                            factor->set_color_src_factor(MaterialSystem::BF_ONE_MINUS_SRC_COLOR);
+                            factor->set_color_src_factor(Script::MaterialSystem::BF_ONE_MINUS_SRC_COLOR);
                         }
                         break;
                     case ID_DEST_ALPHA:
                         {
-                            factor->set_color_src_factor(MaterialSystem::BF_DEST_ALPHA);
+                            factor->set_color_src_factor(Script::MaterialSystem::BF_DEST_ALPHA);
                         }
                         break;
                     case ID_SRC_ALPHA:
                         {
-                            factor->set_color_src_factor(MaterialSystem::BF_SRC_ALPHA);
+                            factor->set_color_src_factor(Script::MaterialSystem::BF_SRC_ALPHA);
                         }
                         break;
                     case ID_ONE_MINUS_DEST_ALPHA:
                         {
-                            factor->set_color_src_factor(MaterialSystem::BF_ONE_MINUS_DEST_ALPHA);
+                            factor->set_color_src_factor(Script::MaterialSystem::BF_ONE_MINUS_DEST_ALPHA);
                         }
                         break;
                     case ID_ONE_MINUS_SRC_ALPHA:
                         {
-                            factor->set_color_src_factor(MaterialSystem::BF_ONE_MINUS_SRC_ALPHA);
+                            factor->set_color_src_factor(Script::MaterialSystem::BF_ONE_MINUS_SRC_ALPHA);
                         }
                         break;
                     }
@@ -2176,7 +2176,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateSceneBlendOp(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -2256,7 +2256,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateSeparateSceneBlendOp(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -2285,7 +2285,7 @@ namespace Tiny3D
                 AtomAbstractNode *atom1 
                     = reinterpret_cast<AtomAbstractNode*>((*i1).get());
 
-                MaterialSystem::SeparateSceneBlendOperation *op 
+                Script::MaterialSystem::SeparateSceneBlendOperation *op 
                     = pass->mutable_separate_scene_blend_op();
 
                 switch (atom0->id)
@@ -2391,7 +2391,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateDepthCheck(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -2433,7 +2433,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateDepthWrite(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -2475,7 +2475,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateDepthBias(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -2500,7 +2500,7 @@ namespace Tiny3D
 
             if (getSingle(*i0, &val0))
             {
-                MaterialSystem::DepthBias *bias = pass->mutable_depth_bias();
+                Script::MaterialSystem::DepthBias *bias = pass->mutable_depth_bias();
 
                 if (i1 != prop->values.end() && getSingle(*i1, &val1))
                 {
@@ -2530,7 +2530,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateDepthFunc(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -2618,7 +2618,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateIterationDepthBias(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -2659,7 +2659,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateAlphaRejection(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -2682,7 +2682,7 @@ namespace Tiny3D
             AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
             AtomAbstractNode *atom0 = (AtomAbstractNode*)((*i0).get());
 
-            MaterialSystem::AlphaRejection *ar = pass->mutable_alpha_rejection();
+            Script::MaterialSystem::AlphaRejection *ar = pass->mutable_alpha_rejection();
 
             uint32_t val = 0;
 
@@ -2768,7 +2768,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateAlphaToCoverage(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -2809,7 +2809,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateLightScissor(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -2849,7 +2849,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateLightClipPlanes(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -2889,7 +2889,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateTransparentSorting(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -2947,7 +2947,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateIlluminationStage(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3019,7 +3019,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateCullHardware(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3090,7 +3090,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateCullSoftware(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3159,7 +3159,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateNormalizeNormals(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3199,7 +3199,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateLighting(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3239,7 +3239,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateShading(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3308,7 +3308,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translatePolygonMode(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3380,7 +3380,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translatePolygonModeOverridable(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3420,7 +3420,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateFogOverride(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3445,7 +3445,7 @@ namespace Tiny3D
 
             if (getBoolean(prop->values.front(), &val))
             {
-                MaterialSystem::Fog *fog = pass->mutable_fog();
+                Script::MaterialSystem::Fog *fog = pass->mutable_fog();
 
                 // override
                 fog->set_overrideable(val);
@@ -3505,7 +3505,7 @@ namespace Tiny3D
                 // color
                 if (!ret && i2 != prop->values.end())
                 {
-                    MaterialSystem::Color *clr = fog->mutable_color();
+                    Script::Color *clr = fog->mutable_color();
                     if (getColor(i2, prop->values.end(), clr, 3))
                     {
                         ret = true;
@@ -3597,7 +3597,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateColorWrite(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3637,7 +3637,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateMaxLights(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3677,7 +3677,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateStartLight(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3717,7 +3717,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateLightMask(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3749,7 +3749,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translateIteration(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -3767,7 +3767,7 @@ namespace Tiny3D
             {
                 AtomAbstractNode *atom = (AtomAbstractNode*)(*i0).get();
 
-                MaterialSystem::Iteration *iter = pass->mutable_iteration();
+                Script::MaterialSystem::Iteration *iter = pass->mutable_iteration();
 
                 if (atom->id == ID_ONCE)
                 {
@@ -3984,7 +3984,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translatePointSize(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -4023,7 +4023,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translatePointSprites(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -4062,7 +4062,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translatePointSizeAttenuation(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -4085,7 +4085,7 @@ namespace Tiny3D
             if (getBoolean(prop->values.front(), &val))
             {
                 // switch flag
-                MaterialSystem::PointSizeAttenuation *a = pass->mutable_point_size_attenuation();
+                Script::MaterialSystem::PointSizeAttenuation *a = pass->mutable_point_size_attenuation();
                 a->set_enable(val);
 
                 if (val)
@@ -4190,7 +4190,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translatePointSizeMin(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -4230,7 +4230,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool PassTranslator::translatePointSizeMax(
-        PropertyAbstractNode *prop, MaterialSystem::Pass *pass)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass)
     {
         bool ret = false;
 
@@ -4275,9 +4275,9 @@ namespace Tiny3D
         ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
 
         // 对象头数据a
-        MaterialSystem::Pass *pass = (MaterialSystem::Pass *)object;
-        MaterialSystem::TextureUnit *unit = pass->add_textures();
-        MaterialSystem::Header *header = unit->mutable_header();
+        Script::MaterialSystem::Pass *pass = (Script::MaterialSystem::Pass *)object;
+        Script::MaterialSystem::TextureUnit *unit = pass->add_textures();
+        Script::ObjectHeader *header = unit->mutable_header();
         bool ret = translateObjectHeader(obj, header);
         if (!ret)
         {
@@ -4304,7 +4304,7 @@ namespace Tiny3D
 //                 case ID_MIPMAP_BIAS:
 //                     {
 //                         SamplerTranslator *translator = static_cast<SamplerTranslator *>(compiler->getTranslator(*i));
-//                         MaterialSystem::Sampler *sampler = unit->mutable_sampler();
+//                         Script::MaterialSystem::Sampler *sampler = unit->mutable_sampler();
 //                         ret = translator->translateSamplerParams(prop, sampler);
 //                     }
 //                     break;
@@ -4435,7 +4435,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateSamplerRef(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -4474,7 +4474,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateTextureAlias(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -4512,7 +4512,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateTexture(ScriptCompiler *compiler, 
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -4536,7 +4536,7 @@ namespace Tiny3D
             if (getString(*j, &val))
             {
                 // the name of texture
-                MaterialSystem::Texture *texture = unit->mutable_texture();
+                Script::MaterialSystem::Texture *texture = unit->mutable_texture();
                 texture->set_name(val);
                 ret = true;
 
@@ -4650,7 +4650,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateAnimTexture(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -4664,7 +4664,7 @@ namespace Tiny3D
         {
             AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
 
-            MaterialSystem::AnimTexture *anim = unit->mutable_anim_texture();
+            Script::MaterialSystem::AnimTexture *anim = unit->mutable_anim_texture();
 
             if ((*i1)->type == ANT_ATOM 
                 && StringConverter::isNumber(((AtomAbstractNode*)(*i1).get())->value))
@@ -4672,7 +4672,7 @@ namespace Tiny3D
                 // Short form
 
                 // type for short form
-                MaterialSystem::AnimTextureSimple *simple 
+                Script::MaterialSystem::AnimTextureSimple *simple 
                     = anim->mutable_simple();
 
                 AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
@@ -4719,7 +4719,7 @@ namespace Tiny3D
             else
             {
                 // Long form has n number of frames
-                MaterialSystem::AnimTextureComplex *complex 
+                Script::MaterialSystem::AnimTextureComplex *complex 
                     = anim->mutable_complex();
 
                 float32_t duration = 0;
@@ -4770,7 +4770,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateCubicTexture(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -4793,9 +4793,9 @@ namespace Tiny3D
                 String name;
                 if (getString(*i0, &name))
                 {
-                    MaterialSystem::CubicTexture *tex 
+                    Script::MaterialSystem::CubicTexture *tex 
                         = unit->mutable_cubic_texture();
-                    MaterialSystem::CubicTextureSimple *simple 
+                    Script::MaterialSystem::CubicTextureSimple *simple 
                         = tex->mutable_simple();
                     simple->set_base_name(name);
 
@@ -4859,8 +4859,8 @@ namespace Tiny3D
                     *atom5 = (AtomAbstractNode*)(*i5).get(),
                     *atom6 = (AtomAbstractNode*)(*i6).get();
 
-                MaterialSystem::CubicTexture *tex = unit->mutable_cubic_texture();
-                MaterialSystem::CubicTextureComplex *complex
+                Script::MaterialSystem::CubicTexture *tex = unit->mutable_cubic_texture();
+                Script::MaterialSystem::CubicTextureComplex *complex
                     = tex->mutable_complex();
 
                 // front
@@ -4916,7 +4916,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateTexCoordSet(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -4956,7 +4956,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateColorOp(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5026,7 +5026,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateColorOpEx(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5156,7 +5156,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateColorOpMultiPassFallback(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5228,7 +5228,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateAlphaOpEx(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5359,7 +5359,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateEnvMap(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5422,7 +5422,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateScroll(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5466,7 +5466,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateScrollAnim(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5510,7 +5510,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateRotate(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5549,7 +5549,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateRotateAnim(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5588,7 +5588,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateScale(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5633,7 +5633,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateWaveXform(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5736,11 +5736,11 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateTransform(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
-        MaterialSystem::Matrix4 m;
+        Script::Matrix4 m;
         if (getMatrix4(prop->values.begin(), prop->values.end(), &m))
         {
             ret = true;
@@ -5758,7 +5758,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateBindingType(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5810,7 +5810,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool TextureUnitTranslator::translateContentType(
-        PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit)
+        PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit)
     {
         bool ret = false;
 
@@ -5910,9 +5910,9 @@ namespace Tiny3D
         ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
 
         // 对象头数据
-        MaterialSystem::Material *material = (MaterialSystem::Material *)object;
-        MaterialSystem::Sampler *sampler = material->add_samplers();
-        MaterialSystem::Header *header = sampler->mutable_header();
+        Script::MaterialSystem::Material *material = (Script::MaterialSystem::Material *)object;
+        Script::MaterialSystem::Sampler *sampler = material->add_samplers();
+        Script::ObjectHeader *header = sampler->mutable_header();
         bool ret = translateObjectHeader(obj, header);
         if (!ret)
         {
@@ -5965,7 +5965,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool SamplerTranslator::translateSamplerParams(
-        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler)
     {
         bool ret = false;
 
@@ -6018,7 +6018,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool SamplerTranslator::translateTexAddressMode(
-        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler)
     {
         bool ret = false;
 
@@ -6032,9 +6032,9 @@ namespace Tiny3D
         {
             AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
 
-            MaterialSystem::TexAddressMode *mode 
+            Script::MaterialSystem::TexAddressMode *mode 
                 = sampler->mutable_tex_address_mode();
-            MaterialSystem::TexAddressModeSimple *simple
+            Script::MaterialSystem::TexAddressModeSimple *simple
                 = mode->mutable_simple();
 
             AtomAbstractNode *atom = (AtomAbstractNode *)(*i0).get();
@@ -6083,9 +6083,9 @@ namespace Tiny3D
                 i1 = getNodeAt(prop->values, 1),
                 i2 = getNodeAt(prop->values, 2);
 
-            MaterialSystem::TexAddressMode *mode
+            Script::MaterialSystem::TexAddressMode *mode
                 = sampler->mutable_tex_address_mode();
-            MaterialSystem::TexAddressModeComplex *complex
+            Script::MaterialSystem::TexAddressModeComplex *complex
                 = mode->mutable_complex();
 
             AtomAbstractNode *atom = (AtomAbstractNode *)(*i0).get();
@@ -6231,7 +6231,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool SamplerTranslator::translateTexBorderColor(
-        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler)
     {
         bool ret = false;
 
@@ -6243,7 +6243,7 @@ namespace Tiny3D
         }
         else
         {
-            MaterialSystem::Color *color = sampler->mutable_tex_border_color();
+            Script::Color *color = sampler->mutable_tex_border_color();
             if (getColor(prop->values.begin(), prop->values.end(), color))
             {
                 ret = true;
@@ -6263,7 +6263,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool SamplerTranslator::translateFiltering(
-        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler)
     {
         bool ret = false;
 
@@ -6280,8 +6280,8 @@ namespace Tiny3D
                 AtomAbstractNode *atom 
                     = (AtomAbstractNode*)prop->values.front().get();
 
-                MaterialSystem::TexFilter *filter = sampler->mutable_filtering();
-                MaterialSystem::TexFilterSimple *simpler
+                Script::MaterialSystem::TexFilter *filter = sampler->mutable_filtering();
+                Script::MaterialSystem::TexFilterSimple *simpler
                     = filter->mutable_simple();
 
                 switch (atom->id)
@@ -6339,8 +6339,8 @@ namespace Tiny3D
                 i1 = getNodeAt(prop->values, 1),
                 i2 = getNodeAt(prop->values, 2);
 
-            MaterialSystem::TexFilter *filter = sampler->mutable_filtering();
-            MaterialSystem::TexFilterComplex *complex
+            Script::MaterialSystem::TexFilter *filter = sampler->mutable_filtering();
+            Script::MaterialSystem::TexFilterComplex *complex
                 = filter->mutable_complex();
 
             AtomAbstractNode *atom = (AtomAbstractNode *)(*i0).get();
@@ -6463,7 +6463,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool SamplerTranslator::translateCompareTest(
-        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler)
     {
         bool ret = false;
 
@@ -6503,7 +6503,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool SamplerTranslator::translateCompareFunc(
-        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler)
     {
         bool ret = false;
 
@@ -6592,7 +6592,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool SamplerTranslator::translateMaxAnisotropy(
-        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler)
     {
         bool ret = false;
 
@@ -6632,7 +6632,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool SamplerTranslator::translateMipmapBias(
-        PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler)
+        PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler)
     {
         bool ret = false;
 
@@ -6887,9 +6887,9 @@ namespace Tiny3D
         void *object, ObjectAbstractNode *obj)
     {
         // 对象头数据
-        MaterialSystem::Material *material = (MaterialSystem::Material *)object;
-        MaterialSystem::GPUConstantBuffer *cbuffer = material->add_cbuffers();
-        MaterialSystem::Header *header = cbuffer->mutable_header();
+        Script::MaterialSystem::Material *material = (Script::MaterialSystem::Material *)object;
+        Script::MaterialSystem::GPUConstantBuffer *cbuffer = material->add_cbuffers();
+        Script::ObjectHeader *header = cbuffer->mutable_header();
         bool ret = translateObjectHeader(obj, header);
         if (!ret)
         {
@@ -6944,7 +6944,7 @@ namespace Tiny3D
             if (cbuffer->param_indexed_size() > 0)
             {
                 auto param_indexed = cbuffer->param_indexed();
-                for (const MaterialSystem::Param &param : param_indexed)
+                for (const Script::MaterialSystem::Param &param : param_indexed)
                 {
                     bufSize += param.fvalues_size();
                     bufSize += param.ivalues_size();
@@ -6954,7 +6954,7 @@ namespace Tiny3D
             if (cbuffer->param_named_size() > 0)
             {
                 auto param_named = cbuffer->param_named();
-                for (const MaterialSystem::Param &param : param_named)
+                for (const Script::MaterialSystem::Param &param : param_named)
                 {
                     bufSize += param.fvalues_size();
                     bufSize += param.ivalues_size();
@@ -6973,7 +6973,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool GPUProgramTranslator::translateSharedParamRef(
-        PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer)
+        PropertyAbstractNode *prop, Script::MaterialSystem::GPUConstantBuffer *cbuffer)
     {
         bool ret = false;
 
@@ -7007,7 +7007,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool GPUProgramTranslator::translateParamIndexed(
-        PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer)
+        PropertyAbstractNode *prop, Script::MaterialSystem::GPUConstantBuffer *cbuffer)
     {
         bool ret = false;
 
@@ -7036,7 +7036,7 @@ namespace Tiny3D
                 return false;
             }
 
-            MaterialSystem::Param *param = nullptr;
+            Script::MaterialSystem::Param *param = nullptr;
 
             String name;
             uint32_t index = 0;
@@ -7059,7 +7059,7 @@ namespace Tiny3D
             {
                 // Built-in Type
                 BuiltinType type = getBuiltinType(atom1->value);
-                param->set_type((MaterialSystem::BuiltInType)type);
+                param->set_type((Script::MaterialSystem::BuiltInType)type);
 
                 // Value
                 auto fvalues = param->mutable_fvalues();
@@ -7129,7 +7129,7 @@ namespace Tiny3D
                 {
                     // Built-in Type
                     BuiltinType type = getBuiltinType(atom1->value);
-                    param->set_type((MaterialSystem::BuiltInType)type);
+                    param->set_type((Script::MaterialSystem::BuiltInType)type);
 
                     // First, clear out any offending auto constants
                     int32_t roundedCount 
@@ -7185,7 +7185,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool GPUProgramTranslator::translateParamIndexedAuto(
-        PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer,
+        PropertyAbstractNode *prop, Script::MaterialSystem::GPUConstantBuffer *cbuffer,
         uint32_t &count)
     {
         bool ret = false;
@@ -7212,7 +7212,7 @@ namespace Tiny3D
             AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), 
                 *atom1 = (AtomAbstractNode*)(*i1).get();
 
-            MaterialSystem::ParamAuto *param = nullptr;
+            Script::MaterialSystem::ParamAuto *param = nullptr;
 
             if (!named && !StringConverter::isNumber(atom0->value))
             {
@@ -7329,10 +7329,10 @@ namespace Tiny3D
         void *object, ObjectAbstractNode *obj)
     {
         // 对象头数据
-        MaterialSystem::GPUProgram *program 
-            = (MaterialSystem::GPUProgram *)object;
-        MaterialSystem::Shader *shader = program->add_shaders();
-        MaterialSystem::Header *header = shader->mutable_header();
+        Script::MaterialSystem::GPUProgram *program 
+            = (Script::MaterialSystem::GPUProgram *)object;
+        Script::MaterialSystem::Shader *shader = program->add_shaders();
+        Script::ObjectHeader *header = shader->mutable_header();
         bool ret = translateObjectHeader(obj, header);
         if (!ret)
         {
@@ -7445,9 +7445,9 @@ namespace Tiny3D
         void *object, ObjectAbstractNode *obj)
     {
         // 对象头数据
-        MaterialSystem::Material *material = (MaterialSystem::Material *)object;
-        MaterialSystem::GPUProgram *program = material->add_programs();
-        MaterialSystem::Header *header = program->mutable_header();
+        Script::MaterialSystem::Material *material = (Script::MaterialSystem::Material *)object;
+        Script::MaterialSystem::GPUProgram *program = material->add_programs();
+        Script::ObjectHeader *header = program->mutable_header();
         bool ret = translateObjectHeader(obj, header);
         if (!ret)
         {
@@ -7483,10 +7483,10 @@ namespace Tiny3D
         ScriptCompiler *compiler, void *object, ObjectAbstractNode *obj)
     {
         // 对象头数据
-        MaterialSystem::Pass *pass = (MaterialSystem::Pass *)object;
-        MaterialSystem::GPUProgramRef *program 
+        Script::MaterialSystem::Pass *pass = (Script::MaterialSystem::Pass *)object;
+        Script::MaterialSystem::GPUProgramRef *program 
             = pass->mutable_gpu_program_ref();
-        MaterialSystem::Header *header = program->mutable_header();
+        Script::ObjectHeader *header = program->mutable_header();
         bool ret = translateObjectHeader(obj, header);
         if (!ret)
         {
@@ -7521,11 +7521,11 @@ namespace Tiny3D
         ScriptCompiler *compiler, void *object, ObjectAbstractNode *obj)
     {
         // 对象头数据
-        MaterialSystem::GPUProgramRef *program 
-            = (MaterialSystem::GPUProgramRef *)object;
-        MaterialSystem::GPUConstantBufferRef *cbuffer 
+        Script::MaterialSystem::GPUProgramRef *program 
+            = (Script::MaterialSystem::GPUProgramRef *)object;
+        Script::MaterialSystem::GPUConstantBufferRef *cbuffer 
             = program->add_gpu_cbuffer_ref();
-        MaterialSystem::Header *header = cbuffer->mutable_header();
+        Script::ObjectHeader *header = cbuffer->mutable_header();
         bool ret = translateObjectHeader(obj, header);
         if (!ret)
         {
@@ -7567,7 +7567,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool GPUProgramTranslator::translateCBuffer(PropertyAbstractNode* prop, 
-        MaterialSystem::GPUConstantBufferRef *cbuffer)
+        Script::MaterialSystem::GPUConstantBufferRef *cbuffer)
     {
         bool ret = false;
 

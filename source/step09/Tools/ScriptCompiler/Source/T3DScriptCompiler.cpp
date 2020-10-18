@@ -1133,7 +1133,7 @@ namespace Tiny3D
             uint8_t *data = buffer + sizeof(header);
             size_t dataLen = bufSize - sizeof(header);
 
-            MaterialSystem::Material material;
+            Script::MaterialSystem::Material material;
 
             for (auto i = ast->begin(); i != ast->end(); ++i)
             {

@@ -29,6 +29,9 @@
 
 namespace Tiny3D
 {
+    /**
+     * @brief 数据序列化管理器
+     */
     class T3D_ENGINE_API SerializerManager 
         : public Object
         , public Singleton<SerializerManager>

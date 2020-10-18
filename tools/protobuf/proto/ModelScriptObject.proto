@@ -1,0 +1,203 @@
+syntax = "proto3";
+option optimize_for = LITE_RUNTIME;
+
+import public "CommonScriptObject.proto";
+
+package Tiny3D.Script.ModelSystem;
+
+//-------------------------------------------------------------------------------------------------
+//                                      Vertex Buffer
+//-------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Vertex attribute to descript one vertex
+ */
+message VertexAttribute
+{
+    /**
+     * @brief Enumerate the semantic of value in a vertex
+     */
+    enum Semantic
+    {
+        VAS_POSITION = 0;
+        VAS_TEXCOORD = 1;
+        VAS_NORMAL = 2;
+        VAS_TANGENT = 3;
+        VAS_BINORMAL = 4;
+        VAS_DIFFUSE = 5;
+        VAS_SPECULAR = 6;
+        VAS_BLENDINDEX = 7;
+        VAS_BLENDWEIGHT = 8;
+    }
+
+    /**
+     * @brief Enumerate the data type of value in a vertex
+     */
+    enum Type
+    {
+        VAT_FLOAT1 = 0;
+        VAT_FLOAT2 = 1;
+        VAT_FLOAT3 = 2;
+        VAT_FLOAT4 = 3;
+        VAT_COLOR = 4;
+        VAT_BYTE4 = 5;
+        VAT_BYTE4_NORM = 6;
+        VAT_UBYTE4 = 7;
+        VAT_UBYTE4_NORM = 8;
+        VAT_SHORT2 = 9;
+        VAT_SHORT4 = 10;
+        VAT_SHORT2_NORM = 11;
+        VAT_SHORT4_NORM = 12;
+        VAT_USHORT2 = 13;
+        VAT_USHORT4 = 14;
+        VAT_USHORT2_NORM = 15;
+        VAT_USHORT4_NORM = 16;
+        VAT_DOUBLE1 = 17;
+        VAT_DOUBLE2 = 18;
+        VAT_DOUBLE3 = 19;
+        VAT_DOUBLE4 = 20;
+        VAT_INT1 = 21;
+        VAT_INT2 = 22;
+        VAT_INT3 = 23;
+        VAT_INT4 = 24;
+        VAT_UINT1 = 25;
+        VAT_UINT2 = 26;
+        VAT_UINT3 = 27;
+        VAT_UINT4 = 28;
+        VAT_FLOAT16_2 = 29;
+        VAT_FLOAT16_4 = 30;
+    }
+    
+    Semantic    semantic = 1;   // Semantic of value in a vertex
+    Type        type = 2;       // Data type of value in a vertex
+    uint32      size = 3;       // Number of value in a vertex
+}
+
+/**
+ * @brief A structure to store a vertex data
+ */
+message Vertex
+{
+    Vector3 pos = 1;                            // Position of vertex [Required]
+    
+    oneof Extension
+    {
+        repeated Vector2    texcoord = 2;       // UV of vertex [Optional]
+        repeated Vector3    normal = 3;         // Normal of vertex [Optional]
+        repeated Vector3    tangent = 4;        // Tangent of vertex [Optional]
+        repeated Vector3    binormal = 5;       // Binormal of vertex [Optional]
+        repeated Color      diffuse = 6;        // Diffuse of vertex [Optional]
+        repeated Color      specular = 7;       // Specular of vertex [Optional] 
+        repeated uint32     blend_indices = 8;  // blend indices of vertex [Optional]
+        repeated float      blend_weights = 9;  // blend weights of vertex [Optional]
+    }
+}
+
+/**
+ * @brief A structure to store a buffer of vertex
+ */
+message VertexBuffer
+{
+    repeated VertexAttribute    attributes = 1;
+    repeated Vertex             vertices = 2;
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      Index Buffer
+//-------------------------------------------------------------------------------------------------
+
+
+/**
+ * @brief Enumerate all primitive type
+ */
+enum PrimitiveType
+{
+    PT_POINT_LIST = 0;
+    PT_LINE_LIST = 1;
+    PT_LINE_STRIP = 2;
+    PT_TRIANGLE_LIST = 3;
+    PT_TRIANGLE_STRIP = 4;
+    PT_TRIANGLE_FAN = 5;
+}
+
+
+message Sphere
+{
+    Vector3 center = 1;
+    float   radius = 2;
+}
+
+message Aabb
+{
+    float   min_x = 1;
+    float   max_x = 2;
+    float   min_y = 3;
+    float   max_y = 4;
+    float   min_z = 5;
+    float   max_z = 6;
+}
+
+message Obb
+{
+    Vector3             center = 1;
+    repeated Vector3    axis = 2;
+    repeated float      extent = 3;
+}
+
+message Bound
+{
+    enum Type
+    {
+        BT_SPHERE = 0;
+        BT_AABB = 1;
+        BT_OBB = 2;
+    }
+    
+    BoundType   type = 1;
+    
+    oneof ValueOf
+    {
+        Sphere  sphere = 2;
+        Aabb    aabb = 3;
+        Obb     obb = 4;
+    }
+}
+
+message IndexBuffer
+{
+    bool            is_16bit = 1;
+    PrimitiveType   primitive_type = 2;
+    uint32          primitive_count = 3;
+    string          material = 4;
+    Bound           bound = 5;
+    repeated int32  indices = 6;
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      Index Buffer
+//-------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Mesh data
+ */
+message MeshData
+{
+    repeated VertexBuffer   vertex_buffers = 1;
+    repeated IndexBuffer    index_buffers = 2;
+}
+
+
+message SkinMeshData
+{
+    MeshData                mesh = 1;
+    map<string, Matrix4>    offset = 2;
+}
+
+
+
+
+
+
+

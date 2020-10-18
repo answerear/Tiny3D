@@ -1,0 +1,60 @@
+syntax = "proto3";
+option optimize_for = LITE_RUNTIME;
+
+import "CommonScriptObject.proto";
+import "ModelScriptObject.proto";
+
+package Tiny3D.Script.SceneSystem;
+
+
+
+/**
+ * @brief Node in scene graph
+ */
+message Node
+{
+    ObjectHeader        header = 1;     // the header of Node
+    uint32              parent = 2;     // ID of parent node
+    repeated uint32     children = 3;   // ID of children nodes
+    repeated Component  components = 4; // ID components attaching to
+}
+
+/**
+ * @brief Type of component
+ */
+enum ComponentType
+{
+    CT_TRANSFORM = 0;   // Transform
+    CT_MESH = 1;        // Mesh
+}
+
+/**
+ * @brief Component
+ */
+message Component
+{
+    ComponentType   type = 1;
+    oneof ComponentOneOf
+    {
+        Transform   transform = 2;
+        Mesh        mesh = 3;
+    }
+}
+
+/**
+ * @brief Transform
+ */
+message Transform
+{
+    Vector3     position = 2;
+    Vector3     rotation = 3;
+    Vector3     scaling = 4;
+}
+
+/**
+ * @brief Mesh
+ */
+messsage Mesh
+{
+    
+}

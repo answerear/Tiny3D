@@ -21,6 +21,8 @@
 #include "T3DFBXReader.h"
 #include "T3DFBXDataStream.h"
 
+#include <iomanip>
+
 
 namespace Tiny3D
 {
@@ -460,6 +462,12 @@ namespace Tiny3D
             }
 
             ret = processFbxMeshData(pFbxMesh);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            ret = processFbxSkin(pFbxMesh);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -1338,6 +1346,150 @@ namespace Tiny3D
             }
         }
 
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxSkin(FbxGeometry* pFbxGeometry)
+    {
+        TResult ret = T3D_OK;
+
+        int nSkinCount = pFbxGeometry->GetDeformerCount(FbxDeformer::eSkin);
+        int i = 0;
+
+        MCONV_LOG_INFO("Skin (%d) : ", nSkinCount);
+
+        for (i = 0; i < nSkinCount; ++i)
+        {
+            FbxSkin* pFbxSkin = (FbxSkin*)pFbxGeometry->GetDeformer(i, FbxDeformer::eSkin);
+            int nClusterCount = pFbxSkin->GetClusterCount();
+
+            int j = 0;
+            for (j = 0; j < nClusterCount; ++j)
+            {
+                FbxCluster* pFbxCluster = pFbxSkin->GetCluster(j);
+                const char* modes[] = { "Normalize", "Additive", "Total1" };
+
+                if (pFbxCluster->GetLink() != nullptr)
+                {
+                    MCONV_LOG_INFO("\tName : %s", pFbxCluster->GetLink()->GetName());
+                }
+
+                MCONV_LOG_INFO("\tMode : %s", modes[pFbxCluster->GetLinkMode()]);
+
+                int nIndexCount = pFbxCluster->GetControlPointIndicesCount();
+                int* pIndices = pFbxCluster->GetControlPointIndices();
+                double* pWeights = pFbxCluster->GetControlPointWeights();
+
+                int k = 0;
+
+                std::stringstream ss0, ss1;
+                ss0 << "Indices :";
+                ss1 << "Weights :";
+
+                for (k = 0; k < nIndexCount; ++k)
+                {
+                    ss0 << pIndices[k];
+                    ss1 << pWeights[k];
+
+                    if (k < nIndexCount - 1)
+                    {
+                        ss0 << ",";
+                        ss1 << ",";
+                    }
+                }
+
+                MCONV_LOG_INFO("\t%s", ss0.str().c_str());
+                MCONV_LOG_INFO("\t%s", ss1.str().c_str());
+
+                ss0.str("");
+                ss1.str("");
+
+                // Transformation
+                FbxAMatrix lMatrix;
+                Matrix4 m;
+
+                lMatrix = pFbxCluster->GetTransformMatrix(lMatrix);
+                convertMatrix(lMatrix, m);
+
+                Vector3 T, S;
+                Quaternion Q;
+                m.decomposition(T, S, Q);
+
+                ss0 << "Transform Translation: " << std::fixed << std::setprecision(6) << T[0] << ", " << T[1] << ", " << T[2];
+                MCONV_LOG_INFO("\t%s", ss0.str().c_str());
+                ss0.str("");
+
+                Matrix3 R;
+                Q.toRotationMatrix(R);
+                Radian roll, yaw, pitch;
+                R.toEulerAnglesZYX(roll, yaw, pitch);
+
+                ss0 << "Transform Rotation: " << std::fixed << std::setprecision(6) << roll.valueDegrees() << ", " << yaw.valueDegrees() << ", " << pitch.valueDegrees();
+                MCONV_LOG_INFO("\t%s", ss0.str().c_str());
+                ss0.str("");
+
+                ss0 << "Transform Scaling: " << std::fixed << std::setprecision(6) << S[0] << ", " << S[1] << ", " << S[2];
+                MCONV_LOG_INFO("\t%s", ss0.str().c_str());
+                ss0.str("");
+
+                // Link transformation
+                lMatrix = pFbxCluster->GetTransformLinkMatrix(lMatrix);
+                convertMatrix(lMatrix, m);
+
+                m.decomposition(T, S, Q);
+
+//                 FbxAMatrix lGlobalMatrix = pFbxCluster->GetLink()->EvaluateGlobalTransform();
+//                 convertMatrix(lGlobalMatrix, m);
+// 
+//                 Vector3 T0, S0;
+//                 Quaternion Q0;
+//                 m.decomposition(T0, S0, Q0);
+// 
+//                 ss0 << "Transform Link Global Translation: " << std::setprecision(6) << T0[0] << ", " << T0[1] << ", " << T0[2];
+//                 MCONV_LOG_INFO("\t%s", ss0.str().c_str());
+//                 ss0.str("");
+
+                ss0 << "Transform Link Translation: " << std::setprecision(6) << T[0] << ", " << T[1] << ", " << T[2];
+                MCONV_LOG_INFO("\t%s", ss0.str().c_str());
+                ss0.str("");
+
+//                 ss0 << "FBX Transform Link Translation: " << lMatrix.GetT()[0] << ", " << lMatrix.GetT()[1] << ", " << lMatrix.GetT()[2];
+//                 MCONV_LOG_INFO("\t%s", ss0.str().c_str());
+//                 ss0.str("");
+
+                Q.toRotationMatrix(R);
+                R.toEulerAnglesZYX(roll, yaw, pitch);
+
+                ss0 << "Transform Link Rotation: " << roll.valueDegrees() << ", " << yaw.valueDegrees() << ", " << pitch.valueDegrees();
+                MCONV_LOG_INFO("\t%s", ss0.str().c_str());
+                ss0.str("");
+
+                ss0 << "Transform Link Scaling: " << S[0] << ", " << S[1] << ", " << S[2];
+                MCONV_LOG_INFO("\t%s", ss0.str().c_str());
+                ss0.str("");
+
+                MCONV_LOG_INFO("");
+
+                // M(G) : Matrix of Geometry 
+                //  Retrieve from :
+                //  FbxAMatrix GetGeometry(FbxNode* pNode)
+                //  {
+                //      const FbxVector4 lT = pNode->GetGeometricTranslation(FbxNode::eSourcePivot);
+                //      const FbxVector4 lR = pNode->GetGeometricRotation(FbxNode::eSourcePivot);
+                //      const FbxVector4 lS = pNode->GetGeometricScaling(FbxNode::eSourcePivot);
+                //      return FbxAMatrix(lT, lR, lS);
+                //  }
+                // 
+                // M(v) : Matrix of Mesh, 从模型空间变换到世界空间的矩阵
+                //  Retrieve from :
+                //  pFbxCluster->pFbxCluster->GetTransformMatrix(lMatrix);
+                //
+                // 1. 把在 Binding 时刻的顶点，由 Mesh 空间变换到世界空间 M(v) * M(G)
+                // 2. 把在 Binding 时刻的顶点，由世界空间变换到骨骼空间
+            }
+        }
         return ret;
     }
 

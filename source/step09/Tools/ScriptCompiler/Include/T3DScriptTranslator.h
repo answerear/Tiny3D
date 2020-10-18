@@ -31,7 +31,7 @@ namespace Tiny3D
 {
     class ScriptCompiler;
 
-    using namespace Script;
+//     using namespace Script;
 
     //--------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ namespace Tiny3D
             const AbstractNodePtr &node);
 
         bool translateObjectHeader(ObjectAbstractNode *obj, 
-            MaterialSystem::Header *header);
+            Script::ObjectHeader *header);
 
         AbstractNodeList::const_iterator getNodeAt(
             const AbstractNodeList &nodes, int32_t index);
@@ -63,12 +63,12 @@ namespace Tiny3D
 
         bool getColor(AbstractNodeList::const_iterator i, 
             AbstractNodeList::const_iterator end, 
-            MaterialSystem::Color *result, 
+            Script::Color *result, 
             int32_t maxEntries = 4);
 
         bool getMatrix4(AbstractNodeList::const_iterator i, 
             AbstractNodeList::const_iterator end, 
-            MaterialSystem::Matrix4 *m);
+            Script::Matrix4 *m);
 
         bool getInts(AbstractNodeList::const_iterator i, 
             AbstractNodeList::const_iterator end, 
@@ -91,15 +91,15 @@ namespace Tiny3D
 
     protected:
         bool translateLODValues(
-            PropertyAbstractNode *prop, MaterialSystem::Material *material);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Material *material);
         bool translateLODStrategy(
-            PropertyAbstractNode *prop, MaterialSystem::Material *material);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Material *material);
         bool translateReceiveShadow(
-            PropertyAbstractNode *prop, MaterialSystem::Material *material);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Material *material);
         bool translateTransparentCastsShadow(
-            PropertyAbstractNode *prop, MaterialSystem::Material *material);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Material *material);
         bool translateSetTextuerAlias(
-            PropertyAbstractNode *prop, MaterialSystem::Material *material);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Material *material);
     };
 
     //--------------------------------------------------------------------------
@@ -112,19 +112,19 @@ namespace Tiny3D
 
     protected:
         bool translateScheme(
-            PropertyAbstractNode *prop, MaterialSystem::Technique *tech);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech);
         bool translateLODIndex(
-            PropertyAbstractNode *prop, MaterialSystem::Technique *tech);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech);
         bool translateRenderQueue(
-            PropertyAbstractNode *prop, MaterialSystem::Technique *tech);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech);
         bool translateShadowCasterMaterial(
-            PropertyAbstractNode *prop, MaterialSystem::Technique *tech);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech);
         bool translateShadowReceiveMaterial(
-            PropertyAbstractNode *prop, MaterialSystem::Technique *tech);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech);
         bool translateGPUVendorRule(
-            PropertyAbstractNode *prop, MaterialSystem::Technique *tech);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech);
         bool translateGPUDeviceRule(
-            PropertyAbstractNode *prop, MaterialSystem::Technique *tech);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Technique *tech);
     };
 
     //--------------------------------------------------------------------------
@@ -137,79 +137,79 @@ namespace Tiny3D
 
     protected:
         bool translateAmbient(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateDiffuse(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateSpecular(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateEmissive(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateSceneBlend(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateSeparateSceneBlend(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateSceneBlendOp(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateSeparateSceneBlendOp(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateDepthCheck(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateDepthWrite(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateDepthBias(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateDepthFunc(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateIterationDepthBias(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateAlphaRejection(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateAlphaToCoverage(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateLightScissor(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateLightClipPlanes(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateTransparentSorting(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateIlluminationStage(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateCullHardware(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateCullSoftware(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateNormalizeNormals(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateLighting(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateShading(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translatePolygonMode(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translatePolygonModeOverridable(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateFogOverride(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateColorWrite(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateMaxLights(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateStartLight(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateLightMask(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translateIteration(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translatePointSize(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translatePointSprites(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translatePointSizeAttenuation(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translatePointSizeMin(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
         bool translatePointSizeMax(
-            PropertyAbstractNode *prop, MaterialSystem::Pass *pass);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Pass *pass);
     };
 
     //--------------------------------------------------------------------------
@@ -222,47 +222,47 @@ namespace Tiny3D
 
     protected:
         bool translateSamplerRef(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateTextureAlias(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
 
         bool translateTexture(ScriptCompiler *compiler, 
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
 
         bool translateAnimTexture(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateCubicTexture(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateTexCoordSet(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateColorOp(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateColorOpEx(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateColorOpMultiPassFallback(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateAlphaOpEx(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateEnvMap(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateScroll(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateScrollAnim(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateRotate(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateRotateAnim(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateScale(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateWaveXform(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateTransform(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateBindingType(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
         bool translateContentType(
-            PropertyAbstractNode *prop, MaterialSystem::TextureUnit *unit);
+            PropertyAbstractNode *prop, Script::MaterialSystem::TextureUnit *unit);
     };
 
     //--------------------------------------------------------------------------
@@ -274,23 +274,23 @@ namespace Tiny3D
             const AbstractNodePtr &node) override;
 
         bool translateSamplerParams(
-            PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler);
 
     protected:
         bool translateTexAddressMode(
-            PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler);
         bool translateTexBorderColor(
-            PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler);
         bool translateFiltering(
-            PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler);
         bool translateCompareTest(
-            PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler);
         bool translateCompareFunc(
-            PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler);
         bool translateMaxAnisotropy(
-            PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler);
         bool translateMipmapBias(
-            PropertyAbstractNode *prop, MaterialSystem::Sampler *sampler);
+            PropertyAbstractNode *prop, Script::MaterialSystem::Sampler *sampler);
     };
 
     //--------------------------------------------------------------------------
@@ -320,15 +320,15 @@ namespace Tiny3D
             void *object, ObjectAbstractNode *obj);
 
         bool translateSharedParamRef(
-            PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer);
+            PropertyAbstractNode *prop, Script::MaterialSystem::GPUConstantBuffer *cbuffer);
         bool translateParamIndexed(
-            PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer);
+            PropertyAbstractNode *prop, Script::MaterialSystem::GPUConstantBuffer *cbuffer);
         bool translateParamIndexedAuto(
-            PropertyAbstractNode *prop, MaterialSystem::GPUConstantBuffer *cbuffer,
+            PropertyAbstractNode *prop, Script::MaterialSystem::GPUConstantBuffer *cbuffer,
             uint32_t &count);
 
         bool translateCBuffer(
-            PropertyAbstractNode* prop, MaterialSystem::GPUConstantBufferRef *cref);
+            PropertyAbstractNode* prop, Script::MaterialSystem::GPUConstantBufferRef *cref);
 
 //         size_t translateGPUProgramEx(ScriptCompiler *compiler, 
 //             DataStream &stream, ObjectAbstractNode *obj);
