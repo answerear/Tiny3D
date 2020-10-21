@@ -1,7 +1,7 @@
 syntax = "proto3";
 option optimize_for = LITE_RUNTIME;
 
-import public "CommonScriptObject.proto";
+import "CommonScriptObject.proto";
 
 package Tiny3D.Script.ModelSystem;
 
@@ -73,6 +73,7 @@ message VertexAttribute
     uint32      size = 3;       // Number of value in a vertex
 }
 
+
 /**
  * @brief A structure to store a vertex data
  */
@@ -82,14 +83,14 @@ message Vertex
     
     oneof Extension
     {
-        repeated Vector2    texcoord = 2;       // UV of vertex [Optional]
-        repeated Vector3    normal = 3;         // Normal of vertex [Optional]
-        repeated Vector3    tangent = 4;        // Tangent of vertex [Optional]
-        repeated Vector3    binormal = 5;       // Binormal of vertex [Optional]
-        repeated Color      diffuse = 6;        // Diffuse of vertex [Optional]
-        repeated Color      specular = 7;       // Specular of vertex [Optional] 
-        repeated uint32     blend_indices = 8;  // blend indices of vertex [Optional]
-        repeated float      blend_weights = 9;  // blend weights of vertex [Optional]
+        Vector2List         texcoord = 2;       // UV of vertex [Optional]
+        Vector3List         normal = 3;         // Normal of vertex [Optional]
+        Vector3List         tangent = 4;        // Tangent of vertex [Optional]
+        Vector3List         binormal = 5;       // Binormal of vertex [Optional]
+        ColorList           diffuse = 6;        // Diffuse of vertex [Optional]
+        ColorList           specular = 7;       // Specular of vertex [Optional] 
+        UintList            blend_indices = 8;  // blend indices of vertex [Optional]
+        FloatList           blend_weights = 9;  // blend weights of vertex [Optional]
     }
 }
 
@@ -121,13 +122,18 @@ enum PrimitiveType
     PT_TRIANGLE_FAN = 5;
 }
 
-
+/**
+ * @brief A structure to store the data for sphere
+ */
 message Sphere
 {
     Vector3 center = 1;
     float   radius = 2;
 }
 
+/**
+ * @brief A structure to store the data for axis aligned bounding box
+ */
 message Aabb
 {
     float   min_x = 1;
@@ -138,6 +144,9 @@ message Aabb
     float   max_z = 6;
 }
 
+/**
+ * @brief A structure tor store the data for oriented bounding box
+ */
 message Obb
 {
     Vector3             center = 1;
@@ -154,7 +163,7 @@ message Bound
         BT_OBB = 2;
     }
     
-    BoundType   type = 1;
+    Type    type = 1;
     
     oneof ValueOf
     {
@@ -176,7 +185,46 @@ message IndexBuffer
 
 
 //-------------------------------------------------------------------------------------------------
-//                                      Index Buffer
+//                                      Animation Data
+//-------------------------------------------------------------------------------------------------
+
+message KeyframeData
+{
+    float   time = 1;
+    
+    oneof KeyframeOneOf
+    {
+        Vector3     translation = 2;
+        Quaternion  rotation = 3;
+        Vector3     scaling = 4;
+    }
+}
+
+message Keyframe
+{
+    enum Type
+    {
+        KT_TRANSLATION = 0;
+        KT_ROTATION = 1;
+        KT_SCALING = 2;
+    }
+    
+    Type            type = 1;
+    string          bone = 2;
+    repeated Frame  frames = 3;
+}
+
+
+message AnimationClip
+{
+    string              name = 1;
+    float               duration = 2;
+    repeated Keyframe   keyframes = 3;
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      Mesh Data
 //-------------------------------------------------------------------------------------------------
 
 /**
@@ -193,6 +241,7 @@ message SkinMeshData
 {
     MeshData                mesh = 1;
     map<string, Matrix4>    offset = 2;
+    AnimationClip           clips = 3;
 }
 
 

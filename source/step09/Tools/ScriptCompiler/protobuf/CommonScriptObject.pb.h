@@ -45,7 +45,7 @@ struct TableStruct_CommonScriptObject_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[9]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[16]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -59,12 +59,18 @@ extern BoolDefaultTypeInternal _Bool_default_instance_;
 class Color;
 class ColorDefaultTypeInternal;
 extern ColorDefaultTypeInternal _Color_default_instance_;
+class ColorList;
+class ColorListDefaultTypeInternal;
+extern ColorListDefaultTypeInternal _ColorList_default_instance_;
 class FileHeader;
 class FileHeaderDefaultTypeInternal;
 extern FileHeaderDefaultTypeInternal _FileHeader_default_instance_;
 class Float;
 class FloatDefaultTypeInternal;
 extern FloatDefaultTypeInternal _Float_default_instance_;
+class FloatList;
+class FloatListDefaultTypeInternal;
+extern FloatListDefaultTypeInternal _FloatList_default_instance_;
 class Int32;
 class Int32DefaultTypeInternal;
 extern Int32DefaultTypeInternal _Int32_default_instance_;
@@ -80,18 +86,40 @@ extern StringDefaultTypeInternal _String_default_instance_;
 class UInt32;
 class UInt32DefaultTypeInternal;
 extern UInt32DefaultTypeInternal _UInt32_default_instance_;
+class UintList;
+class UintListDefaultTypeInternal;
+extern UintListDefaultTypeInternal _UintList_default_instance_;
+class Vector2;
+class Vector2DefaultTypeInternal;
+extern Vector2DefaultTypeInternal _Vector2_default_instance_;
+class Vector2List;
+class Vector2ListDefaultTypeInternal;
+extern Vector2ListDefaultTypeInternal _Vector2List_default_instance_;
+class Vector3;
+class Vector3DefaultTypeInternal;
+extern Vector3DefaultTypeInternal _Vector3_default_instance_;
+class Vector3List;
+class Vector3ListDefaultTypeInternal;
+extern Vector3ListDefaultTypeInternal _Vector3List_default_instance_;
 }  // namespace Script
 }  // namespace Tiny3D
 PROTOBUF_NAMESPACE_OPEN
 template<> ::Tiny3D::Script::Bool* Arena::CreateMaybeMessage<::Tiny3D::Script::Bool>(Arena*);
 template<> ::Tiny3D::Script::Color* Arena::CreateMaybeMessage<::Tiny3D::Script::Color>(Arena*);
+template<> ::Tiny3D::Script::ColorList* Arena::CreateMaybeMessage<::Tiny3D::Script::ColorList>(Arena*);
 template<> ::Tiny3D::Script::FileHeader* Arena::CreateMaybeMessage<::Tiny3D::Script::FileHeader>(Arena*);
 template<> ::Tiny3D::Script::Float* Arena::CreateMaybeMessage<::Tiny3D::Script::Float>(Arena*);
+template<> ::Tiny3D::Script::FloatList* Arena::CreateMaybeMessage<::Tiny3D::Script::FloatList>(Arena*);
 template<> ::Tiny3D::Script::Int32* Arena::CreateMaybeMessage<::Tiny3D::Script::Int32>(Arena*);
 template<> ::Tiny3D::Script::Matrix4* Arena::CreateMaybeMessage<::Tiny3D::Script::Matrix4>(Arena*);
 template<> ::Tiny3D::Script::ObjectHeader* Arena::CreateMaybeMessage<::Tiny3D::Script::ObjectHeader>(Arena*);
 template<> ::Tiny3D::Script::String* Arena::CreateMaybeMessage<::Tiny3D::Script::String>(Arena*);
 template<> ::Tiny3D::Script::UInt32* Arena::CreateMaybeMessage<::Tiny3D::Script::UInt32>(Arena*);
+template<> ::Tiny3D::Script::UintList* Arena::CreateMaybeMessage<::Tiny3D::Script::UintList>(Arena*);
+template<> ::Tiny3D::Script::Vector2* Arena::CreateMaybeMessage<::Tiny3D::Script::Vector2>(Arena*);
+template<> ::Tiny3D::Script::Vector2List* Arena::CreateMaybeMessage<::Tiny3D::Script::Vector2List>(Arena*);
+template<> ::Tiny3D::Script::Vector3* Arena::CreateMaybeMessage<::Tiny3D::Script::Vector3>(Arena*);
+template<> ::Tiny3D::Script::Vector3List* Arena::CreateMaybeMessage<::Tiny3D::Script::Vector3List>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Tiny3D {
 namespace Script {
@@ -324,10 +352,10 @@ class ObjectHeader :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNameFieldNumber = 3,
+    kNameFieldNumber = 2,
     kIDFieldNumber = 1,
   };
-  // string name = 3;
+  // string name = 2;
   void clear_name();
   const std::string& name() const;
   void set_name(const std::string& value);
@@ -637,6 +665,885 @@ class Matrix4 :
 };
 // -------------------------------------------------------------------
 
+class Vector2 :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.Vector2) */ {
+ public:
+  Vector2();
+  virtual ~Vector2();
+
+  Vector2(const Vector2& from);
+  Vector2(Vector2&& from) noexcept
+    : Vector2() {
+    *this = ::std::move(from);
+  }
+
+  inline Vector2& operator=(const Vector2& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Vector2& operator=(Vector2&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const Vector2& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Vector2* internal_default_instance() {
+    return reinterpret_cast<const Vector2*>(
+               &_Vector2_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  friend void swap(Vector2& a, Vector2& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Vector2* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Vector2* New() const final {
+    return CreateMaybeMessage<Vector2>(nullptr);
+  }
+
+  Vector2* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Vector2>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const Vector2& from);
+  void MergeFrom(const Vector2& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Vector2* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.Vector2";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kXFieldNumber = 1,
+    kYFieldNumber = 2,
+  };
+  // float x = 1;
+  void clear_x();
+  float x() const;
+  void set_x(float value);
+  private:
+  float _internal_x() const;
+  void _internal_set_x(float value);
+  public:
+
+  // float y = 2;
+  void clear_y();
+  float y() const;
+  void set_y(float value);
+  private:
+  float _internal_y() const;
+  void _internal_set_y(float value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.Vector2)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  float x_;
+  float y_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_CommonScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class Vector3 :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.Vector3) */ {
+ public:
+  Vector3();
+  virtual ~Vector3();
+
+  Vector3(const Vector3& from);
+  Vector3(Vector3&& from) noexcept
+    : Vector3() {
+    *this = ::std::move(from);
+  }
+
+  inline Vector3& operator=(const Vector3& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Vector3& operator=(Vector3&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const Vector3& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Vector3* internal_default_instance() {
+    return reinterpret_cast<const Vector3*>(
+               &_Vector3_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(Vector3& a, Vector3& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Vector3* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Vector3* New() const final {
+    return CreateMaybeMessage<Vector3>(nullptr);
+  }
+
+  Vector3* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Vector3>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const Vector3& from);
+  void MergeFrom(const Vector3& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Vector3* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.Vector3";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kXFieldNumber = 1,
+    kYFieldNumber = 2,
+    kZFieldNumber = 3,
+  };
+  // float x = 1;
+  void clear_x();
+  float x() const;
+  void set_x(float value);
+  private:
+  float _internal_x() const;
+  void _internal_set_x(float value);
+  public:
+
+  // float y = 2;
+  void clear_y();
+  float y() const;
+  void set_y(float value);
+  private:
+  float _internal_y() const;
+  void _internal_set_y(float value);
+  public:
+
+  // float z = 3;
+  void clear_z();
+  float z() const;
+  void set_z(float value);
+  private:
+  float _internal_z() const;
+  void _internal_set_z(float value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.Vector3)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  float x_;
+  float y_;
+  float z_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_CommonScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class Vector2List :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.Vector2List) */ {
+ public:
+  Vector2List();
+  virtual ~Vector2List();
+
+  Vector2List(const Vector2List& from);
+  Vector2List(Vector2List&& from) noexcept
+    : Vector2List() {
+    *this = ::std::move(from);
+  }
+
+  inline Vector2List& operator=(const Vector2List& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Vector2List& operator=(Vector2List&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const Vector2List& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Vector2List* internal_default_instance() {
+    return reinterpret_cast<const Vector2List*>(
+               &_Vector2List_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  friend void swap(Vector2List& a, Vector2List& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Vector2List* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Vector2List* New() const final {
+    return CreateMaybeMessage<Vector2List>(nullptr);
+  }
+
+  Vector2List* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Vector2List>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const Vector2List& from);
+  void MergeFrom(const Vector2List& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Vector2List* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.Vector2List";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kValuesFieldNumber = 1,
+  };
+  // repeated .Tiny3D.Script.Vector2 values = 1;
+  int values_size() const;
+  private:
+  int _internal_values_size() const;
+  public:
+  void clear_values();
+  ::Tiny3D::Script::Vector2* mutable_values(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Vector2 >*
+      mutable_values();
+  private:
+  const ::Tiny3D::Script::Vector2& _internal_values(int index) const;
+  ::Tiny3D::Script::Vector2* _internal_add_values();
+  public:
+  const ::Tiny3D::Script::Vector2& values(int index) const;
+  ::Tiny3D::Script::Vector2* add_values();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Vector2 >&
+      values() const;
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.Vector2List)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Vector2 > values_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_CommonScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class Vector3List :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.Vector3List) */ {
+ public:
+  Vector3List();
+  virtual ~Vector3List();
+
+  Vector3List(const Vector3List& from);
+  Vector3List(Vector3List&& from) noexcept
+    : Vector3List() {
+    *this = ::std::move(from);
+  }
+
+  inline Vector3List& operator=(const Vector3List& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Vector3List& operator=(Vector3List&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const Vector3List& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Vector3List* internal_default_instance() {
+    return reinterpret_cast<const Vector3List*>(
+               &_Vector3List_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    7;
+
+  friend void swap(Vector3List& a, Vector3List& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Vector3List* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Vector3List* New() const final {
+    return CreateMaybeMessage<Vector3List>(nullptr);
+  }
+
+  Vector3List* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Vector3List>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const Vector3List& from);
+  void MergeFrom(const Vector3List& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Vector3List* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.Vector3List";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kValuesFieldNumber = 1,
+  };
+  // repeated .Tiny3D.Script.Vector3 values = 1;
+  int values_size() const;
+  private:
+  int _internal_values_size() const;
+  public:
+  void clear_values();
+  ::Tiny3D::Script::Vector3* mutable_values(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Vector3 >*
+      mutable_values();
+  private:
+  const ::Tiny3D::Script::Vector3& _internal_values(int index) const;
+  ::Tiny3D::Script::Vector3* _internal_add_values();
+  public:
+  const ::Tiny3D::Script::Vector3& values(int index) const;
+  ::Tiny3D::Script::Vector3* add_values();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Vector3 >&
+      values() const;
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.Vector3List)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Vector3 > values_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_CommonScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class ColorList :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.ColorList) */ {
+ public:
+  ColorList();
+  virtual ~ColorList();
+
+  ColorList(const ColorList& from);
+  ColorList(ColorList&& from) noexcept
+    : ColorList() {
+    *this = ::std::move(from);
+  }
+
+  inline ColorList& operator=(const ColorList& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ColorList& operator=(ColorList&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ColorList& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const ColorList* internal_default_instance() {
+    return reinterpret_cast<const ColorList*>(
+               &_ColorList_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    8;
+
+  friend void swap(ColorList& a, ColorList& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ColorList* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline ColorList* New() const final {
+    return CreateMaybeMessage<ColorList>(nullptr);
+  }
+
+  ColorList* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<ColorList>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const ColorList& from);
+  void MergeFrom(const ColorList& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(ColorList* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.ColorList";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kValuesFieldNumber = 1,
+  };
+  // repeated .Tiny3D.Script.Color values = 1;
+  int values_size() const;
+  private:
+  int _internal_values_size() const;
+  public:
+  void clear_values();
+  ::Tiny3D::Script::Color* mutable_values(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Color >*
+      mutable_values();
+  private:
+  const ::Tiny3D::Script::Color& _internal_values(int index) const;
+  ::Tiny3D::Script::Color* _internal_add_values();
+  public:
+  const ::Tiny3D::Script::Color& values(int index) const;
+  ::Tiny3D::Script::Color* add_values();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Color >&
+      values() const;
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.ColorList)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Color > values_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_CommonScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class UintList :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.UintList) */ {
+ public:
+  UintList();
+  virtual ~UintList();
+
+  UintList(const UintList& from);
+  UintList(UintList&& from) noexcept
+    : UintList() {
+    *this = ::std::move(from);
+  }
+
+  inline UintList& operator=(const UintList& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline UintList& operator=(UintList&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const UintList& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const UintList* internal_default_instance() {
+    return reinterpret_cast<const UintList*>(
+               &_UintList_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    9;
+
+  friend void swap(UintList& a, UintList& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(UintList* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline UintList* New() const final {
+    return CreateMaybeMessage<UintList>(nullptr);
+  }
+
+  UintList* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<UintList>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const UintList& from);
+  void MergeFrom(const UintList& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(UintList* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.UintList";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kValuesFieldNumber = 1,
+  };
+  // repeated uint32 values = 1;
+  int values_size() const;
+  private:
+  int _internal_values_size() const;
+  public:
+  void clear_values();
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_values(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      _internal_values() const;
+  void _internal_add_values(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      _internal_mutable_values();
+  public:
+  ::PROTOBUF_NAMESPACE_ID::uint32 values(int index) const;
+  void set_values(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value);
+  void add_values(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      values() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      mutable_values();
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.UintList)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > values_;
+  mutable std::atomic<int> _values_cached_byte_size_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_CommonScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class FloatList :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.FloatList) */ {
+ public:
+  FloatList();
+  virtual ~FloatList();
+
+  FloatList(const FloatList& from);
+  FloatList(FloatList&& from) noexcept
+    : FloatList() {
+    *this = ::std::move(from);
+  }
+
+  inline FloatList& operator=(const FloatList& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline FloatList& operator=(FloatList&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const FloatList& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const FloatList* internal_default_instance() {
+    return reinterpret_cast<const FloatList*>(
+               &_FloatList_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    10;
+
+  friend void swap(FloatList& a, FloatList& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(FloatList* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline FloatList* New() const final {
+    return CreateMaybeMessage<FloatList>(nullptr);
+  }
+
+  FloatList* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<FloatList>(arena);
+  }
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+    final;
+  void CopyFrom(const FloatList& from);
+  void MergeFrom(const FloatList& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(FloatList* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.FloatList";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  std::string GetTypeName() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kValuesFieldNumber = 1,
+  };
+  // repeated float values = 1;
+  int values_size() const;
+  private:
+  int _internal_values_size() const;
+  public:
+  void clear_values();
+  private:
+  float _internal_values(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+      _internal_values() const;
+  void _internal_add_values(float value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+      _internal_mutable_values();
+  public:
+  float values(int index) const;
+  void set_values(int index, float value);
+  void add_values(float value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+      values() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+      mutable_values();
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.FloatList)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > values_;
+  mutable std::atomic<int> _values_cached_byte_size_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_CommonScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
 class Bool :
     public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.Bool) */ {
  public:
@@ -670,7 +1577,7 @@ class Bool :
                &_Bool_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    11;
 
   friend void swap(Bool& a, Bool& b) {
     a.Swap(&b);
@@ -783,7 +1690,7 @@ class Float :
                &_Float_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    12;
 
   friend void swap(Float& a, Float& b) {
     a.Swap(&b);
@@ -896,7 +1803,7 @@ class UInt32 :
                &_UInt32_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    13;
 
   friend void swap(UInt32& a, UInt32& b) {
     a.Swap(&b);
@@ -1009,7 +1916,7 @@ class Int32 :
                &_Int32_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    14;
 
   friend void swap(Int32& a, Int32& b) {
     a.Swap(&b);
@@ -1122,7 +2029,7 @@ class String :
                &_String_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    15;
 
   friend void swap(String& a, String& b) {
     a.Swap(&b);
@@ -1302,7 +2209,7 @@ inline void ObjectHeader::set_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.ObjectHeader.ID)
 }
 
-// string name = 3;
+// string name = 2;
 inline void ObjectHeader::clear_name() {
   name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
@@ -1499,6 +2406,345 @@ Matrix4::mutable_values() {
 
 // -------------------------------------------------------------------
 
+// Vector2
+
+// float x = 1;
+inline void Vector2::clear_x() {
+  x_ = 0;
+}
+inline float Vector2::_internal_x() const {
+  return x_;
+}
+inline float Vector2::x() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.Vector2.x)
+  return _internal_x();
+}
+inline void Vector2::_internal_set_x(float value) {
+  
+  x_ = value;
+}
+inline void Vector2::set_x(float value) {
+  _internal_set_x(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.Vector2.x)
+}
+
+// float y = 2;
+inline void Vector2::clear_y() {
+  y_ = 0;
+}
+inline float Vector2::_internal_y() const {
+  return y_;
+}
+inline float Vector2::y() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.Vector2.y)
+  return _internal_y();
+}
+inline void Vector2::_internal_set_y(float value) {
+  
+  y_ = value;
+}
+inline void Vector2::set_y(float value) {
+  _internal_set_y(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.Vector2.y)
+}
+
+// -------------------------------------------------------------------
+
+// Vector3
+
+// float x = 1;
+inline void Vector3::clear_x() {
+  x_ = 0;
+}
+inline float Vector3::_internal_x() const {
+  return x_;
+}
+inline float Vector3::x() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.Vector3.x)
+  return _internal_x();
+}
+inline void Vector3::_internal_set_x(float value) {
+  
+  x_ = value;
+}
+inline void Vector3::set_x(float value) {
+  _internal_set_x(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.Vector3.x)
+}
+
+// float y = 2;
+inline void Vector3::clear_y() {
+  y_ = 0;
+}
+inline float Vector3::_internal_y() const {
+  return y_;
+}
+inline float Vector3::y() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.Vector3.y)
+  return _internal_y();
+}
+inline void Vector3::_internal_set_y(float value) {
+  
+  y_ = value;
+}
+inline void Vector3::set_y(float value) {
+  _internal_set_y(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.Vector3.y)
+}
+
+// float z = 3;
+inline void Vector3::clear_z() {
+  z_ = 0;
+}
+inline float Vector3::_internal_z() const {
+  return z_;
+}
+inline float Vector3::z() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.Vector3.z)
+  return _internal_z();
+}
+inline void Vector3::_internal_set_z(float value) {
+  
+  z_ = value;
+}
+inline void Vector3::set_z(float value) {
+  _internal_set_z(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.Vector3.z)
+}
+
+// -------------------------------------------------------------------
+
+// Vector2List
+
+// repeated .Tiny3D.Script.Vector2 values = 1;
+inline int Vector2List::_internal_values_size() const {
+  return values_.size();
+}
+inline int Vector2List::values_size() const {
+  return _internal_values_size();
+}
+inline void Vector2List::clear_values() {
+  values_.Clear();
+}
+inline ::Tiny3D::Script::Vector2* Vector2List::mutable_values(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.Vector2List.values)
+  return values_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Vector2 >*
+Vector2List::mutable_values() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.Vector2List.values)
+  return &values_;
+}
+inline const ::Tiny3D::Script::Vector2& Vector2List::_internal_values(int index) const {
+  return values_.Get(index);
+}
+inline const ::Tiny3D::Script::Vector2& Vector2List::values(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.Vector2List.values)
+  return _internal_values(index);
+}
+inline ::Tiny3D::Script::Vector2* Vector2List::_internal_add_values() {
+  return values_.Add();
+}
+inline ::Tiny3D::Script::Vector2* Vector2List::add_values() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.Vector2List.values)
+  return _internal_add_values();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Vector2 >&
+Vector2List::values() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.Vector2List.values)
+  return values_;
+}
+
+// -------------------------------------------------------------------
+
+// Vector3List
+
+// repeated .Tiny3D.Script.Vector3 values = 1;
+inline int Vector3List::_internal_values_size() const {
+  return values_.size();
+}
+inline int Vector3List::values_size() const {
+  return _internal_values_size();
+}
+inline void Vector3List::clear_values() {
+  values_.Clear();
+}
+inline ::Tiny3D::Script::Vector3* Vector3List::mutable_values(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.Vector3List.values)
+  return values_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Vector3 >*
+Vector3List::mutable_values() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.Vector3List.values)
+  return &values_;
+}
+inline const ::Tiny3D::Script::Vector3& Vector3List::_internal_values(int index) const {
+  return values_.Get(index);
+}
+inline const ::Tiny3D::Script::Vector3& Vector3List::values(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.Vector3List.values)
+  return _internal_values(index);
+}
+inline ::Tiny3D::Script::Vector3* Vector3List::_internal_add_values() {
+  return values_.Add();
+}
+inline ::Tiny3D::Script::Vector3* Vector3List::add_values() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.Vector3List.values)
+  return _internal_add_values();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Vector3 >&
+Vector3List::values() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.Vector3List.values)
+  return values_;
+}
+
+// -------------------------------------------------------------------
+
+// ColorList
+
+// repeated .Tiny3D.Script.Color values = 1;
+inline int ColorList::_internal_values_size() const {
+  return values_.size();
+}
+inline int ColorList::values_size() const {
+  return _internal_values_size();
+}
+inline void ColorList::clear_values() {
+  values_.Clear();
+}
+inline ::Tiny3D::Script::Color* ColorList::mutable_values(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ColorList.values)
+  return values_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Color >*
+ColorList::mutable_values() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ColorList.values)
+  return &values_;
+}
+inline const ::Tiny3D::Script::Color& ColorList::_internal_values(int index) const {
+  return values_.Get(index);
+}
+inline const ::Tiny3D::Script::Color& ColorList::values(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ColorList.values)
+  return _internal_values(index);
+}
+inline ::Tiny3D::Script::Color* ColorList::_internal_add_values() {
+  return values_.Add();
+}
+inline ::Tiny3D::Script::Color* ColorList::add_values() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.ColorList.values)
+  return _internal_add_values();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::Color >&
+ColorList::values() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.ColorList.values)
+  return values_;
+}
+
+// -------------------------------------------------------------------
+
+// UintList
+
+// repeated uint32 values = 1;
+inline int UintList::_internal_values_size() const {
+  return values_.size();
+}
+inline int UintList::values_size() const {
+  return _internal_values_size();
+}
+inline void UintList::clear_values() {
+  values_.Clear();
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 UintList::_internal_values(int index) const {
+  return values_.Get(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 UintList::values(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.UintList.values)
+  return _internal_values(index);
+}
+inline void UintList::set_values(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  values_.Set(index, value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.UintList.values)
+}
+inline void UintList::_internal_add_values(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  values_.Add(value);
+}
+inline void UintList::add_values(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_add_values(value);
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.UintList.values)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+UintList::_internal_values() const {
+  return values_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+UintList::values() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.UintList.values)
+  return _internal_values();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+UintList::_internal_mutable_values() {
+  return &values_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+UintList::mutable_values() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.UintList.values)
+  return _internal_mutable_values();
+}
+
+// -------------------------------------------------------------------
+
+// FloatList
+
+// repeated float values = 1;
+inline int FloatList::_internal_values_size() const {
+  return values_.size();
+}
+inline int FloatList::values_size() const {
+  return _internal_values_size();
+}
+inline void FloatList::clear_values() {
+  values_.Clear();
+}
+inline float FloatList::_internal_values(int index) const {
+  return values_.Get(index);
+}
+inline float FloatList::values(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.FloatList.values)
+  return _internal_values(index);
+}
+inline void FloatList::set_values(int index, float value) {
+  values_.Set(index, value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.FloatList.values)
+}
+inline void FloatList::_internal_add_values(float value) {
+  values_.Add(value);
+}
+inline void FloatList::add_values(float value) {
+  _internal_add_values(value);
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.FloatList.values)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+FloatList::_internal_values() const {
+  return values_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+FloatList::values() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.FloatList.values)
+  return _internal_values();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+FloatList::_internal_mutable_values() {
+  return &values_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+FloatList::mutable_values() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.FloatList.values)
+  return _internal_mutable_values();
+}
+
+// -------------------------------------------------------------------
+
 // Bool
 
 // bool value = 1;
@@ -1660,6 +2906,20 @@ inline void String::set_allocated_value(std::string* value) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

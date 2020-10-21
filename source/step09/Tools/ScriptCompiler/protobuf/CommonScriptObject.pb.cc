@@ -11,6 +11,9 @@
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
+extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Color_CommonScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Vector2_CommonScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Vector3_CommonScriptObject_2eproto;
 namespace Tiny3D {
 namespace Script {
 class FileHeaderDefaultTypeInternal {
@@ -29,6 +32,34 @@ class Matrix4DefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Matrix4> _instance;
 } _Matrix4_default_instance_;
+class Vector2DefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Vector2> _instance;
+} _Vector2_default_instance_;
+class Vector3DefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Vector3> _instance;
+} _Vector3_default_instance_;
+class Vector2ListDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Vector2List> _instance;
+} _Vector2List_default_instance_;
+class Vector3ListDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Vector3List> _instance;
+} _Vector3List_default_instance_;
+class ColorListDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ColorList> _instance;
+} _ColorList_default_instance_;
+class UintListDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<UintList> _instance;
+} _UintList_default_instance_;
+class FloatListDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FloatList> _instance;
+} _FloatList_default_instance_;
 class BoolDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Bool> _instance;
@@ -79,6 +110,21 @@ static void InitDefaultsscc_info_Color_CommonScriptObject_2eproto() {
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Color_CommonScriptObject_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Color_CommonScriptObject_2eproto}, {}};
 
+static void InitDefaultsscc_info_ColorList_CommonScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::_ColorList_default_instance_;
+    new (ptr) ::Tiny3D::Script::ColorList();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::ColorList::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_ColorList_CommonScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_ColorList_CommonScriptObject_2eproto}, {
+      &scc_info_Color_CommonScriptObject_2eproto.base,}};
+
 static void InitDefaultsscc_info_FileHeader_CommonScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -106,6 +152,20 @@ static void InitDefaultsscc_info_Float_CommonScriptObject_2eproto() {
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Float_CommonScriptObject_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Float_CommonScriptObject_2eproto}, {}};
+
+static void InitDefaultsscc_info_FloatList_CommonScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::_FloatList_default_instance_;
+    new (ptr) ::Tiny3D::Script::FloatList();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::FloatList::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_FloatList_CommonScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_FloatList_CommonScriptObject_2eproto}, {}};
 
 static void InitDefaultsscc_info_Int32_CommonScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -176,6 +236,78 @@ static void InitDefaultsscc_info_UInt32_CommonScriptObject_2eproto() {
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_UInt32_CommonScriptObject_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_UInt32_CommonScriptObject_2eproto}, {}};
+
+static void InitDefaultsscc_info_UintList_CommonScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::_UintList_default_instance_;
+    new (ptr) ::Tiny3D::Script::UintList();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::UintList::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_UintList_CommonScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_UintList_CommonScriptObject_2eproto}, {}};
+
+static void InitDefaultsscc_info_Vector2_CommonScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::_Vector2_default_instance_;
+    new (ptr) ::Tiny3D::Script::Vector2();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::Vector2::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Vector2_CommonScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Vector2_CommonScriptObject_2eproto}, {}};
+
+static void InitDefaultsscc_info_Vector2List_CommonScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::_Vector2List_default_instance_;
+    new (ptr) ::Tiny3D::Script::Vector2List();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::Vector2List::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Vector2List_CommonScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Vector2List_CommonScriptObject_2eproto}, {
+      &scc_info_Vector2_CommonScriptObject_2eproto.base,}};
+
+static void InitDefaultsscc_info_Vector3_CommonScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::_Vector3_default_instance_;
+    new (ptr) ::Tiny3D::Script::Vector3();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::Vector3::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Vector3_CommonScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Vector3_CommonScriptObject_2eproto}, {}};
+
+static void InitDefaultsscc_info_Vector3List_CommonScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::_Vector3List_default_instance_;
+    new (ptr) ::Tiny3D::Script::Vector3List();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::Vector3List::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Vector3List_CommonScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Vector3List_CommonScriptObject_2eproto}, {
+      &scc_info_Vector3_CommonScriptObject_2eproto.base,}};
 
 namespace Tiny3D {
 namespace Script {
@@ -477,9 +609,9 @@ const char* ObjectHeader::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string name = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+      // string name = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_name();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
@@ -518,14 +650,14 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_id(), target);
   }
 
-  // string name = 3;
+  // string name = 2;
   if (this->name().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "Tiny3D.Script.ObjectHeader.name");
     target = stream->WriteStringMaybeAliased(
-        3, this->_internal_name(), target);
+        2, this->_internal_name(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -544,7 +676,7 @@ size_t ObjectHeader::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string name = 3;
+  // string name = 2;
   if (this->name().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
@@ -1024,6 +1156,1296 @@ void Matrix4::InternalSwap(Matrix4* other) {
 
 std::string Matrix4::GetTypeName() const {
   return "Tiny3D.Script.Matrix4";
+}
+
+
+// ===================================================================
+
+void Vector2::InitAsDefaultInstance() {
+}
+class Vector2::_Internal {
+ public:
+};
+
+Vector2::Vector2()
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.Vector2)
+}
+Vector2::Vector2(const Vector2& from)
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+      _internal_metadata_(nullptr) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&x_, &from.x_,
+    static_cast<size_t>(reinterpret_cast<char*>(&y_) -
+    reinterpret_cast<char*>(&x_)) + sizeof(y_));
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.Vector2)
+}
+
+void Vector2::SharedCtor() {
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&y_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(y_));
+}
+
+Vector2::~Vector2() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.Vector2)
+  SharedDtor();
+}
+
+void Vector2::SharedDtor() {
+}
+
+void Vector2::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const Vector2& Vector2::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Vector2_CommonScriptObject_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void Vector2::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.Vector2)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&y_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(y_));
+  _internal_metadata_.Clear();
+}
+
+const char* Vector2::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // float x = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 13)) {
+          x_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      // float y = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 21)) {
+          y_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* Vector2::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.Vector2)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // float x = 1;
+  if (!(this->x() <= 0 && this->x() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(1, this->_internal_x(), target);
+  }
+
+  // float y = 2;
+  if (!(this->y() <= 0 && this->y() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(2, this->_internal_y(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
+        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Vector2)
+  return target;
+}
+
+size_t Vector2::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.Vector2)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // float x = 1;
+  if (!(this->x() <= 0 && this->x() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  // float y = 2;
+  if (!(this->y() <= 0 && this->y() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields().size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void Vector2::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Vector2*>(
+      &from));
+}
+
+void Vector2::MergeFrom(const Vector2& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.Vector2)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!(from.x() <= 0 && from.x() >= 0)) {
+    _internal_set_x(from._internal_x());
+  }
+  if (!(from.y() <= 0 && from.y() >= 0)) {
+    _internal_set_y(from._internal_y());
+  }
+}
+
+void Vector2::CopyFrom(const Vector2& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.Vector2)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Vector2::IsInitialized() const {
+  return true;
+}
+
+void Vector2::InternalSwap(Vector2* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(x_, other->x_);
+  swap(y_, other->y_);
+}
+
+std::string Vector2::GetTypeName() const {
+  return "Tiny3D.Script.Vector2";
+}
+
+
+// ===================================================================
+
+void Vector3::InitAsDefaultInstance() {
+}
+class Vector3::_Internal {
+ public:
+};
+
+Vector3::Vector3()
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.Vector3)
+}
+Vector3::Vector3(const Vector3& from)
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+      _internal_metadata_(nullptr) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&x_, &from.x_,
+    static_cast<size_t>(reinterpret_cast<char*>(&z_) -
+    reinterpret_cast<char*>(&x_)) + sizeof(z_));
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.Vector3)
+}
+
+void Vector3::SharedCtor() {
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&z_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(z_));
+}
+
+Vector3::~Vector3() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.Vector3)
+  SharedDtor();
+}
+
+void Vector3::SharedDtor() {
+}
+
+void Vector3::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const Vector3& Vector3::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Vector3_CommonScriptObject_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void Vector3::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.Vector3)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&z_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(z_));
+  _internal_metadata_.Clear();
+}
+
+const char* Vector3::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // float x = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 13)) {
+          x_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      // float y = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 21)) {
+          y_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      // float z = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 29)) {
+          z_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* Vector3::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.Vector3)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // float x = 1;
+  if (!(this->x() <= 0 && this->x() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(1, this->_internal_x(), target);
+  }
+
+  // float y = 2;
+  if (!(this->y() <= 0 && this->y() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(2, this->_internal_y(), target);
+  }
+
+  // float z = 3;
+  if (!(this->z() <= 0 && this->z() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(3, this->_internal_z(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
+        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Vector3)
+  return target;
+}
+
+size_t Vector3::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.Vector3)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // float x = 1;
+  if (!(this->x() <= 0 && this->x() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  // float y = 2;
+  if (!(this->y() <= 0 && this->y() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  // float z = 3;
+  if (!(this->z() <= 0 && this->z() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields().size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void Vector3::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Vector3*>(
+      &from));
+}
+
+void Vector3::MergeFrom(const Vector3& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.Vector3)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!(from.x() <= 0 && from.x() >= 0)) {
+    _internal_set_x(from._internal_x());
+  }
+  if (!(from.y() <= 0 && from.y() >= 0)) {
+    _internal_set_y(from._internal_y());
+  }
+  if (!(from.z() <= 0 && from.z() >= 0)) {
+    _internal_set_z(from._internal_z());
+  }
+}
+
+void Vector3::CopyFrom(const Vector3& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.Vector3)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Vector3::IsInitialized() const {
+  return true;
+}
+
+void Vector3::InternalSwap(Vector3* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(x_, other->x_);
+  swap(y_, other->y_);
+  swap(z_, other->z_);
+}
+
+std::string Vector3::GetTypeName() const {
+  return "Tiny3D.Script.Vector3";
+}
+
+
+// ===================================================================
+
+void Vector2List::InitAsDefaultInstance() {
+}
+class Vector2List::_Internal {
+ public:
+};
+
+Vector2List::Vector2List()
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.Vector2List)
+}
+Vector2List::Vector2List(const Vector2List& from)
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+      _internal_metadata_(nullptr),
+      values_(from.values_) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.Vector2List)
+}
+
+void Vector2List::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Vector2List_CommonScriptObject_2eproto.base);
+}
+
+Vector2List::~Vector2List() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.Vector2List)
+  SharedDtor();
+}
+
+void Vector2List::SharedDtor() {
+}
+
+void Vector2List::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const Vector2List& Vector2List::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Vector2List_CommonScriptObject_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void Vector2List::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.Vector2List)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  values_.Clear();
+  _internal_metadata_.Clear();
+}
+
+const char* Vector2List::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // repeated .Tiny3D.Script.Vector2 values = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_values(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* Vector2List::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.Vector2List)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // repeated .Tiny3D.Script.Vector2 values = 1;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_values_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(1, this->_internal_values(i), target, stream);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
+        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Vector2List)
+  return target;
+}
+
+size_t Vector2List::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.Vector2List)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated .Tiny3D.Script.Vector2 values = 1;
+  total_size += 1UL * this->_internal_values_size();
+  for (const auto& msg : this->values_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields().size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void Vector2List::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Vector2List*>(
+      &from));
+}
+
+void Vector2List::MergeFrom(const Vector2List& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.Vector2List)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  values_.MergeFrom(from.values_);
+}
+
+void Vector2List::CopyFrom(const Vector2List& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.Vector2List)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Vector2List::IsInitialized() const {
+  return true;
+}
+
+void Vector2List::InternalSwap(Vector2List* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  values_.InternalSwap(&other->values_);
+}
+
+std::string Vector2List::GetTypeName() const {
+  return "Tiny3D.Script.Vector2List";
+}
+
+
+// ===================================================================
+
+void Vector3List::InitAsDefaultInstance() {
+}
+class Vector3List::_Internal {
+ public:
+};
+
+Vector3List::Vector3List()
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.Vector3List)
+}
+Vector3List::Vector3List(const Vector3List& from)
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+      _internal_metadata_(nullptr),
+      values_(from.values_) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.Vector3List)
+}
+
+void Vector3List::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Vector3List_CommonScriptObject_2eproto.base);
+}
+
+Vector3List::~Vector3List() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.Vector3List)
+  SharedDtor();
+}
+
+void Vector3List::SharedDtor() {
+}
+
+void Vector3List::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const Vector3List& Vector3List::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Vector3List_CommonScriptObject_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void Vector3List::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.Vector3List)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  values_.Clear();
+  _internal_metadata_.Clear();
+}
+
+const char* Vector3List::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // repeated .Tiny3D.Script.Vector3 values = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_values(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* Vector3List::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.Vector3List)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // repeated .Tiny3D.Script.Vector3 values = 1;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_values_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(1, this->_internal_values(i), target, stream);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
+        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Vector3List)
+  return target;
+}
+
+size_t Vector3List::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.Vector3List)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated .Tiny3D.Script.Vector3 values = 1;
+  total_size += 1UL * this->_internal_values_size();
+  for (const auto& msg : this->values_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields().size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void Vector3List::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Vector3List*>(
+      &from));
+}
+
+void Vector3List::MergeFrom(const Vector3List& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.Vector3List)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  values_.MergeFrom(from.values_);
+}
+
+void Vector3List::CopyFrom(const Vector3List& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.Vector3List)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Vector3List::IsInitialized() const {
+  return true;
+}
+
+void Vector3List::InternalSwap(Vector3List* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  values_.InternalSwap(&other->values_);
+}
+
+std::string Vector3List::GetTypeName() const {
+  return "Tiny3D.Script.Vector3List";
+}
+
+
+// ===================================================================
+
+void ColorList::InitAsDefaultInstance() {
+}
+class ColorList::_Internal {
+ public:
+};
+
+ColorList::ColorList()
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.ColorList)
+}
+ColorList::ColorList(const ColorList& from)
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+      _internal_metadata_(nullptr),
+      values_(from.values_) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ColorList)
+}
+
+void ColorList::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ColorList_CommonScriptObject_2eproto.base);
+}
+
+ColorList::~ColorList() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.ColorList)
+  SharedDtor();
+}
+
+void ColorList::SharedDtor() {
+}
+
+void ColorList::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const ColorList& ColorList::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_ColorList_CommonScriptObject_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void ColorList::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.ColorList)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  values_.Clear();
+  _internal_metadata_.Clear();
+}
+
+const char* ColorList::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // repeated .Tiny3D.Script.Color values = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_values(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* ColorList::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.ColorList)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // repeated .Tiny3D.Script.Color values = 1;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_values_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(1, this->_internal_values(i), target, stream);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
+        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.ColorList)
+  return target;
+}
+
+size_t ColorList::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.ColorList)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated .Tiny3D.Script.Color values = 1;
+  total_size += 1UL * this->_internal_values_size();
+  for (const auto& msg : this->values_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields().size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void ColorList::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ColorList*>(
+      &from));
+}
+
+void ColorList::MergeFrom(const ColorList& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.ColorList)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  values_.MergeFrom(from.values_);
+}
+
+void ColorList::CopyFrom(const ColorList& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.ColorList)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ColorList::IsInitialized() const {
+  return true;
+}
+
+void ColorList::InternalSwap(ColorList* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  values_.InternalSwap(&other->values_);
+}
+
+std::string ColorList::GetTypeName() const {
+  return "Tiny3D.Script.ColorList";
+}
+
+
+// ===================================================================
+
+void UintList::InitAsDefaultInstance() {
+}
+class UintList::_Internal {
+ public:
+};
+
+UintList::UintList()
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.UintList)
+}
+UintList::UintList(const UintList& from)
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+      _internal_metadata_(nullptr),
+      values_(from.values_) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.UintList)
+}
+
+void UintList::SharedCtor() {
+}
+
+UintList::~UintList() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.UintList)
+  SharedDtor();
+}
+
+void UintList::SharedDtor() {
+}
+
+void UintList::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const UintList& UintList::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_UintList_CommonScriptObject_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void UintList::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.UintList)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  values_.Clear();
+  _internal_metadata_.Clear();
+}
+
+const char* UintList::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // repeated uint32 values = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_values(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8) {
+          _internal_add_values(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* UintList::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.UintList)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // repeated uint32 values = 1;
+  {
+    int byte_size = _values_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteUInt32Packed(
+          1, _internal_values(), byte_size, target);
+    }
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
+        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.UintList)
+  return target;
+}
+
+size_t UintList::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.UintList)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated uint32 values = 1;
+  {
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      UInt32Size(this->values_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _values_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields().size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void UintList::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const UintList*>(
+      &from));
+}
+
+void UintList::MergeFrom(const UintList& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.UintList)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  values_.MergeFrom(from.values_);
+}
+
+void UintList::CopyFrom(const UintList& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.UintList)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool UintList::IsInitialized() const {
+  return true;
+}
+
+void UintList::InternalSwap(UintList* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  values_.InternalSwap(&other->values_);
+}
+
+std::string UintList::GetTypeName() const {
+  return "Tiny3D.Script.UintList";
+}
+
+
+// ===================================================================
+
+void FloatList::InitAsDefaultInstance() {
+}
+class FloatList::_Internal {
+ public:
+};
+
+FloatList::FloatList()
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.FloatList)
+}
+FloatList::FloatList(const FloatList& from)
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+      _internal_metadata_(nullptr),
+      values_(from.values_) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.FloatList)
+}
+
+void FloatList::SharedCtor() {
+}
+
+FloatList::~FloatList() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.FloatList)
+  SharedDtor();
+}
+
+void FloatList::SharedDtor() {
+}
+
+void FloatList::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const FloatList& FloatList::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_FloatList_CommonScriptObject_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void FloatList::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.FloatList)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  values_.Clear();
+  _internal_metadata_.Clear();
+}
+
+const char* FloatList::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // repeated float values = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_values(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 13) {
+          _internal_add_values(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* FloatList::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.FloatList)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // repeated float values = 1;
+  if (this->_internal_values_size() > 0) {
+    target = stream->WriteFixedPacked(1, _internal_values(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
+        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.FloatList)
+  return target;
+}
+
+size_t FloatList::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.FloatList)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated float values = 1;
+  {
+    unsigned int count = static_cast<unsigned int>(this->_internal_values_size());
+    size_t data_size = 4UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _values_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields().size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void FloatList::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const FloatList*>(
+      &from));
+}
+
+void FloatList::MergeFrom(const FloatList& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.FloatList)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  values_.MergeFrom(from.values_);
+}
+
+void FloatList::CopyFrom(const FloatList& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.FloatList)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool FloatList::IsInitialized() const {
+  return true;
+}
+
+void FloatList::InternalSwap(FloatList* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  values_.InternalSwap(&other->values_);
+}
+
+std::string FloatList::GetTypeName() const {
+  return "Tiny3D.Script.FloatList";
 }
 
 
@@ -1896,6 +3318,27 @@ template<> PROTOBUF_NOINLINE ::Tiny3D::Script::Color* Arena::CreateMaybeMessage<
 }
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::Matrix4* Arena::CreateMaybeMessage< ::Tiny3D::Script::Matrix4 >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::Matrix4 >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::Vector2* Arena::CreateMaybeMessage< ::Tiny3D::Script::Vector2 >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::Vector2 >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::Vector3* Arena::CreateMaybeMessage< ::Tiny3D::Script::Vector3 >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::Vector3 >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::Vector2List* Arena::CreateMaybeMessage< ::Tiny3D::Script::Vector2List >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::Vector2List >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::Vector3List* Arena::CreateMaybeMessage< ::Tiny3D::Script::Vector3List >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::Vector3List >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ColorList* Arena::CreateMaybeMessage< ::Tiny3D::Script::ColorList >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::ColorList >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::UintList* Arena::CreateMaybeMessage< ::Tiny3D::Script::UintList >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::UintList >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FloatList* Arena::CreateMaybeMessage< ::Tiny3D::Script::FloatList >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::FloatList >(arena);
 }
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::Bool* Arena::CreateMaybeMessage< ::Tiny3D::Script::Bool >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::Bool >(arena);

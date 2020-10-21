@@ -54,7 +54,8 @@ message Transform
 /**
  * @brief Mesh
  */
-messsage Mesh
+message Mesh
 {
-    
+    uint32  resID = 1;
+    string  mesh_name = 2;
 }

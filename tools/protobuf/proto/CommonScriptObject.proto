@@ -52,6 +52,39 @@ message Vector3
     float   z = 3;
 }
 
+message Quaternion
+{
+    float   w = 1;
+    float   x = 2;
+    float   y = 3;
+    float   z = 4;
+}
+
+message Vector2List
+{
+    repeated Vector2    values = 1;
+}
+
+message Vector3List
+{
+    repeated Vector3    values = 1;
+}
+
+message ColorList
+{
+    repeated Color      values = 1;
+}
+
+message UintList
+{
+    repeated uint32     values = 1;
+}
+
+message FloatList
+{
+    repeated float      values = 1;
+}
+
 message Bool
 {
     bool    value = 1;

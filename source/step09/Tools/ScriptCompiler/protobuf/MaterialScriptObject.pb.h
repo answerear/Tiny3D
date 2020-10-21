@@ -47,7 +47,7 @@ struct TableStruct_MaterialScriptObject_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[57]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[56]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -152,9 +152,6 @@ extern LightColorDefaultTypeInternal _LightColor_default_instance_;
 class Material;
 class MaterialDefaultTypeInternal;
 extern MaterialDefaultTypeInternal _Material_default_instance_;
-class MaterialFile;
-class MaterialFileDefaultTypeInternal;
-extern MaterialFileDefaultTypeInternal _MaterialFile_default_instance_;
 class Param;
 class ParamDefaultTypeInternal;
 extern ParamDefaultTypeInternal _Param_default_instance_;
@@ -263,7 +260,6 @@ template<> ::Tiny3D::Script::MaterialSystem::IterationPerNLight* Arena::CreateMa
 template<> ::Tiny3D::Script::MaterialSystem::LODValues* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::LODValues>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::LightColor* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::LightColor>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::Material* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Material>(Arena*);
-template<> ::Tiny3D::Script::MaterialSystem::MaterialFile* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::MaterialFile>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::Param* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Param>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::ParamAuto* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::ParamAuto>(Arena*);
 template<> ::Tiny3D::Script::MaterialSystem::Pass* Arena::CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Pass>(Arena*);
@@ -828,142 +824,6 @@ bool GPURuleType_Parse(
     const std::string& name, GPURuleType* value);
 // ===================================================================
 
-class MaterialFile :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.MaterialFile) */ {
- public:
-  MaterialFile();
-  virtual ~MaterialFile();
-
-  MaterialFile(const MaterialFile& from);
-  MaterialFile(MaterialFile&& from) noexcept
-    : MaterialFile() {
-    *this = ::std::move(from);
-  }
-
-  inline MaterialFile& operator=(const MaterialFile& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline MaterialFile& operator=(MaterialFile&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const MaterialFile& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const MaterialFile* internal_default_instance() {
-    return reinterpret_cast<const MaterialFile*>(
-               &_MaterialFile_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
-
-  friend void swap(MaterialFile& a, MaterialFile& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(MaterialFile* other) {
-    if (other == this) return;
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline MaterialFile* New() const final {
-    return CreateMaybeMessage<MaterialFile>(nullptr);
-  }
-
-  MaterialFile* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<MaterialFile>(arena);
-  }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
-  void CopyFrom(const MaterialFile& from);
-  void MergeFrom(const MaterialFile& from);
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  inline void SharedCtor();
-  inline void SharedDtor();
-  void SetCachedSize(int size) const;
-  void InternalSwap(MaterialFile* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Tiny3D.Script.MaterialSystem.MaterialFile";
-  }
-  private:
-  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
-    return nullptr;
-  }
-  inline void* MaybeArenaPtr() const {
-    return nullptr;
-  }
-  public:
-
-  std::string GetTypeName() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kHeaderFieldNumber = 1,
-    kMaterialFieldNumber = 2,
-  };
-  // .Tiny3D.Script.FileHeader header = 1;
-  bool has_header() const;
-  private:
-  bool _internal_has_header() const;
-  public:
-  void clear_header();
-  const ::Tiny3D::Script::FileHeader& header() const;
-  ::Tiny3D::Script::FileHeader* release_header();
-  ::Tiny3D::Script::FileHeader* mutable_header();
-  void set_allocated_header(::Tiny3D::Script::FileHeader* header);
-  private:
-  const ::Tiny3D::Script::FileHeader& _internal_header() const;
-  ::Tiny3D::Script::FileHeader* _internal_mutable_header();
-  public:
-
-  // .Tiny3D.Script.MaterialSystem.Material material = 2;
-  bool has_material() const;
-  private:
-  bool _internal_has_material() const;
-  public:
-  void clear_material();
-  const ::Tiny3D::Script::MaterialSystem::Material& material() const;
-  ::Tiny3D::Script::MaterialSystem::Material* release_material();
-  ::Tiny3D::Script::MaterialSystem::Material* mutable_material();
-  void set_allocated_material(::Tiny3D::Script::MaterialSystem::Material* material);
-  private:
-  const ::Tiny3D::Script::MaterialSystem::Material& _internal_material() const;
-  ::Tiny3D::Script::MaterialSystem::Material* _internal_mutable_material();
-  public:
-
-  // @@protoc_insertion_point(class_scope:Tiny3D.Script.MaterialSystem.MaterialFile)
- private:
-  class _Internal;
-
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
-  ::Tiny3D::Script::FileHeader* header_;
-  ::Tiny3D::Script::MaterialSystem::Material* material_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_MaterialScriptObject_2eproto;
-};
-// -------------------------------------------------------------------
-
 class CompareFunc :
     public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CompareFunc) */ {
  public:
@@ -997,7 +857,7 @@ class CompareFunc :
                &_CompareFunc_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    0;
 
   friend void swap(CompareFunc& a, CompareFunc& b) {
     a.Swap(&b);
@@ -1110,7 +970,7 @@ class Shader :
                &_Shader_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    1;
 
   friend void swap(Shader& a, Shader& b) {
     a.Swap(&b);
@@ -1301,7 +1161,7 @@ class GPUProgram :
                &_GPUProgram_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    2;
 
   friend void swap(GPUProgram& a, GPUProgram& b) {
     a.Swap(&b);
@@ -1440,7 +1300,7 @@ class GPUConstantBufferRef :
                &_GPUConstantBufferRef_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    3;
 
   friend void swap(GPUConstantBufferRef& a, GPUConstantBufferRef& b) {
     a.Swap(&b);
@@ -1570,7 +1430,7 @@ class GPUProgramRef :
                &_GPUProgramRef_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    4;
 
   friend void swap(GPUProgramRef& a, GPUProgramRef& b) {
     a.Swap(&b);
@@ -1709,7 +1569,7 @@ class Param :
                &_Param_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    5;
 
   friend void swap(Param& a, Param& b) {
     a.Swap(&b);
@@ -1901,7 +1761,7 @@ class ParamAuto :
                &_ParamAuto_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    6;
 
   friend void swap(ParamAuto& a, ParamAuto& b) {
     a.Swap(&b);
@@ -2093,7 +1953,7 @@ class GPUConstantBuffer :
                &_GPUConstantBuffer_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    7;
 
   friend void swap(GPUConstantBuffer& a, GPUConstantBuffer& b) {
     a.Swap(&b);
@@ -2303,7 +2163,7 @@ class TexAddressModeSimple :
                &_TexAddressModeSimple_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    8;
 
   friend void swap(TexAddressModeSimple& a, TexAddressModeSimple& b) {
     a.Swap(&b);
@@ -2416,7 +2276,7 @@ class TexAddressModeComplex :
                &_TexAddressModeComplex_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    9;
 
   friend void swap(TexAddressModeComplex& a, TexAddressModeComplex& b) {
     a.Swap(&b);
@@ -2557,7 +2417,7 @@ class TexAddressMode :
                &_TexAddressMode_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    10;
 
   friend void swap(TexAddressMode& a, TexAddressMode& b) {
     a.Swap(&b);
@@ -2705,7 +2565,7 @@ class TexFilterSimple :
                &_TexFilterSimple_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    11;
 
   friend void swap(TexFilterSimple& a, TexFilterSimple& b) {
     a.Swap(&b);
@@ -2818,7 +2678,7 @@ class TexFilterComplex :
                &_TexFilterComplex_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    12;
 
   friend void swap(TexFilterComplex& a, TexFilterComplex& b) {
     a.Swap(&b);
@@ -2959,7 +2819,7 @@ class TexFilter :
                &_TexFilter_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    13;
 
   friend void swap(TexFilter& a, TexFilter& b) {
     a.Swap(&b);
@@ -3107,7 +2967,7 @@ class Sampler :
                &_Sampler_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    14;
 
   friend void swap(Sampler& a, Sampler& b) {
     a.Swap(&b);
@@ -3345,7 +3205,7 @@ class Texture :
                &_Texture_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    15;
 
   friend void swap(Texture& a, Texture& b) {
     a.Swap(&b);
@@ -3509,7 +3369,7 @@ class AnimTextureSimple :
                &_AnimTextureSimple_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    17;
+    16;
 
   friend void swap(AnimTextureSimple& a, AnimTextureSimple& b) {
     a.Swap(&b);
@@ -3651,7 +3511,7 @@ class AnimTextureComplex :
                &_AnimTextureComplex_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    18;
+    17;
 
   friend void swap(AnimTextureComplex& a, AnimTextureComplex& b) {
     a.Swap(&b);
@@ -3796,7 +3656,7 @@ class AnimTexture :
                &_AnimTexture_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    19;
+    18;
 
   friend void swap(AnimTexture& a, AnimTexture& b) {
     a.Swap(&b);
@@ -3944,7 +3804,7 @@ class CubicTextureSimple :
                &_CubicTextureSimple_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    20;
+    19;
 
   friend void swap(CubicTextureSimple& a, CubicTextureSimple& b) {
     a.Swap(&b);
@@ -4064,7 +3924,7 @@ class CubicTextureComplex :
                &_CubicTextureComplex_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    21;
+    20;
 
   friend void swap(CubicTextureComplex& a, CubicTextureComplex& b) {
     a.Swap(&b);
@@ -4280,7 +4140,7 @@ class CubicTexture :
                &_CubicTexture_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    22;
+    21;
 
   friend void swap(CubicTexture& a, CubicTexture& b) {
     a.Swap(&b);
@@ -4439,7 +4299,7 @@ class Binding :
                &_Binding_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    23;
+    22;
 
   friend void swap(Binding& a, Binding& b) {
     a.Swap(&b);
@@ -4552,7 +4412,7 @@ class ColorOp :
                &_ColorOp_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    24;
+    23;
 
   friend void swap(ColorOp& a, ColorOp& b) {
     a.Swap(&b);
@@ -4665,7 +4525,7 @@ class TextureUnit :
                &_TextureUnit_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    25;
+    24;
 
   friend void swap(TextureUnit& a, TextureUnit& b) {
     a.Swap(&b);
@@ -4920,7 +4780,7 @@ class LightColor :
                &_LightColor_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    26;
+    25;
 
   friend void swap(LightColor& a, LightColor& b) {
     a.Swap(&b);
@@ -5050,7 +4910,7 @@ class BlendSceneFactor :
                &_BlendSceneFactor_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    27;
+    26;
 
   friend void swap(BlendSceneFactor& a, BlendSceneFactor& b) {
     a.Swap(&b);
@@ -5180,7 +5040,7 @@ class BlendScene :
                &_BlendScene_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    28;
+    27;
 
   friend void swap(BlendScene& a, BlendScene& b) {
     a.Swap(&b);
@@ -5325,7 +5185,7 @@ class SimpleBlendType :
                &_SimpleBlendType_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    29;
+    28;
 
   friend void swap(SimpleBlendType& a, SimpleBlendType& b) {
     a.Swap(&b);
@@ -5449,7 +5309,7 @@ class SimpleBlendSceneFactor :
                &_SimpleBlendSceneFactor_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    30;
+    29;
 
   friend void swap(SimpleBlendSceneFactor& a, SimpleBlendSceneFactor& b) {
     a.Swap(&b);
@@ -5601,7 +5461,7 @@ class SeparateBlendScene :
                &_SeparateBlendScene_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    31;
+    30;
 
   friend void swap(SeparateBlendScene& a, SeparateBlendScene& b) {
     a.Swap(&b);
@@ -5749,7 +5609,7 @@ class SceneBlendOperation :
                &_SceneBlendOperation_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    32;
+    31;
 
   friend void swap(SceneBlendOperation& a, SceneBlendOperation& b) {
     a.Swap(&b);
@@ -5862,7 +5722,7 @@ class SeparateSceneBlendOperation :
                &_SeparateSceneBlendOperation_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    33;
+    32;
 
   friend void swap(SeparateSceneBlendOperation& a, SeparateSceneBlendOperation& b) {
     a.Swap(&b);
@@ -5986,7 +5846,7 @@ class DepthBias :
                &_DepthBias_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    34;
+    33;
 
   friend void swap(DepthBias& a, DepthBias& b) {
     a.Swap(&b);
@@ -6110,7 +5970,7 @@ class AlphaRejection :
                &_AlphaRejection_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    35;
+    34;
 
   friend void swap(AlphaRejection& a, AlphaRejection& b) {
     a.Swap(&b);
@@ -6234,7 +6094,7 @@ class Illumination :
                &_Illumination_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    36;
+    35;
 
   friend void swap(Illumination& a, Illumination& b) {
     a.Swap(&b);
@@ -6347,7 +6207,7 @@ class SortingTransparent :
                &_SortingTransparent_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    37;
+    36;
 
   friend void swap(SortingTransparent& a, SortingTransparent& b) {
     a.Swap(&b);
@@ -6460,7 +6320,7 @@ class CullingHardware :
                &_CullingHardware_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    38;
+    37;
 
   friend void swap(CullingHardware& a, CullingHardware& b) {
     a.Swap(&b);
@@ -6573,7 +6433,7 @@ class CullingSoftware :
                &_CullingSoftware_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    39;
+    38;
 
   friend void swap(CullingSoftware& a, CullingSoftware& b) {
     a.Swap(&b);
@@ -6686,7 +6546,7 @@ class Shading :
                &_Shading_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    40;
+    39;
 
   friend void swap(Shading& a, Shading& b) {
     a.Swap(&b);
@@ -6799,7 +6659,7 @@ class Polygon :
                &_Polygon_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    41;
+    40;
 
   friend void swap(Polygon& a, Polygon& b) {
     a.Swap(&b);
@@ -6912,7 +6772,7 @@ class Fog :
                &_Fog_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    42;
+    41;
 
   friend void swap(Fog& a, Fog& b) {
     a.Swap(&b);
@@ -7086,7 +6946,7 @@ class IterationOnce :
                &_IterationOnce_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    43;
+    42;
 
   friend void swap(IterationOnce& a, IterationOnce& b) {
     a.Swap(&b);
@@ -7199,7 +7059,7 @@ class IterationOncePerLight :
                &_IterationOncePerLight_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    44;
+    43;
 
   friend void swap(IterationOncePerLight& a, IterationOncePerLight& b) {
     a.Swap(&b);
@@ -7323,7 +7183,7 @@ class IterationNumber :
                &_IterationNumber_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    45;
+    44;
 
   friend void swap(IterationNumber& a, IterationNumber& b) {
     a.Swap(&b);
@@ -7436,7 +7296,7 @@ class IterationPerLight :
                &_IterationPerLight_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    46;
+    45;
 
   friend void swap(IterationPerLight& a, IterationPerLight& b) {
     a.Swap(&b);
@@ -7571,7 +7431,7 @@ class IterationPerNLight :
                &_IterationPerNLight_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    47;
+    46;
 
   friend void swap(IterationPerNLight& a, IterationPerNLight& b) {
     a.Swap(&b);
@@ -7726,7 +7586,7 @@ class Iteration :
                &_Iteration_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    48;
+    47;
 
   friend void swap(Iteration& a, Iteration& b) {
     a.Swap(&b);
@@ -7928,7 +7788,7 @@ class PointSizeAttenuation :
                &_PointSizeAttenuation_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    49;
+    48;
 
   friend void swap(PointSizeAttenuation& a, PointSizeAttenuation& b) {
     a.Swap(&b);
@@ -8074,7 +7934,7 @@ class Pass :
                &_Pass_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    50;
+    49;
 
   friend void swap(Pass& a, Pass& b) {
     a.Swap(&b);
@@ -8859,7 +8719,7 @@ class GPUVendorRule :
                &_GPUVendorRule_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    51;
+    50;
 
   friend void swap(GPUVendorRule& a, GPUVendorRule& b) {
     a.Swap(&b);
@@ -8990,7 +8850,7 @@ class GPUDeviceRule :
                &_GPUDeviceRule_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    52;
+    51;
 
   friend void swap(GPUDeviceRule& a, GPUDeviceRule& b) {
     a.Swap(&b);
@@ -9132,7 +8992,7 @@ class Technique :
                &_Technique_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    53;
+    52;
 
   friend void swap(Technique& a, Technique& b) {
     a.Swap(&b);
@@ -9390,7 +9250,7 @@ class LODValues :
                &_LODValues_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    54;
+    53;
 
   friend void swap(LODValues& a, LODValues& b) {
     a.Swap(&b);
@@ -9535,7 +9395,7 @@ class TextureAlias :
                &_TextureAlias_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    55;
+    54;
 
   friend void swap(TextureAlias& a, TextureAlias& b) {
     a.Swap(&b);
@@ -9673,7 +9533,7 @@ class Material :
                &_Material_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    56;
+    55;
 
   friend void swap(Material& a, Material& b) {
     a.Swap(&b);
@@ -9914,124 +9774,6 @@ class Material :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// MaterialFile
-
-// .Tiny3D.Script.FileHeader header = 1;
-inline bool MaterialFile::_internal_has_header() const {
-  return this != internal_default_instance() && header_ != nullptr;
-}
-inline bool MaterialFile::has_header() const {
-  return _internal_has_header();
-}
-inline const ::Tiny3D::Script::FileHeader& MaterialFile::_internal_header() const {
-  const ::Tiny3D::Script::FileHeader* p = header_;
-  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::FileHeader*>(
-      &::Tiny3D::Script::_FileHeader_default_instance_);
-}
-inline const ::Tiny3D::Script::FileHeader& MaterialFile::header() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.MaterialFile.header)
-  return _internal_header();
-}
-inline ::Tiny3D::Script::FileHeader* MaterialFile::release_header() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.MaterialFile.header)
-  
-  ::Tiny3D::Script::FileHeader* temp = header_;
-  header_ = nullptr;
-  return temp;
-}
-inline ::Tiny3D::Script::FileHeader* MaterialFile::_internal_mutable_header() {
-  
-  if (header_ == nullptr) {
-    auto* p = CreateMaybeMessage<::Tiny3D::Script::FileHeader>(GetArenaNoVirtual());
-    header_ = p;
-  }
-  return header_;
-}
-inline ::Tiny3D::Script::FileHeader* MaterialFile::mutable_header() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.MaterialFile.header)
-  return _internal_mutable_header();
-}
-inline void MaterialFile::set_allocated_header(::Tiny3D::Script::FileHeader* header) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  if (message_arena == nullptr) {
-    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(header_);
-  }
-  if (header) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      header = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, header, submessage_arena);
-    }
-    
-  } else {
-    
-  }
-  header_ = header;
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.MaterialFile.header)
-}
-
-// .Tiny3D.Script.MaterialSystem.Material material = 2;
-inline bool MaterialFile::_internal_has_material() const {
-  return this != internal_default_instance() && material_ != nullptr;
-}
-inline bool MaterialFile::has_material() const {
-  return _internal_has_material();
-}
-inline void MaterialFile::clear_material() {
-  if (GetArenaNoVirtual() == nullptr && material_ != nullptr) {
-    delete material_;
-  }
-  material_ = nullptr;
-}
-inline const ::Tiny3D::Script::MaterialSystem::Material& MaterialFile::_internal_material() const {
-  const ::Tiny3D::Script::MaterialSystem::Material* p = material_;
-  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MaterialSystem::Material*>(
-      &::Tiny3D::Script::MaterialSystem::_Material_default_instance_);
-}
-inline const ::Tiny3D::Script::MaterialSystem::Material& MaterialFile::material() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.MaterialSystem.MaterialFile.material)
-  return _internal_material();
-}
-inline ::Tiny3D::Script::MaterialSystem::Material* MaterialFile::release_material() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.MaterialSystem.MaterialFile.material)
-  
-  ::Tiny3D::Script::MaterialSystem::Material* temp = material_;
-  material_ = nullptr;
-  return temp;
-}
-inline ::Tiny3D::Script::MaterialSystem::Material* MaterialFile::_internal_mutable_material() {
-  
-  if (material_ == nullptr) {
-    auto* p = CreateMaybeMessage<::Tiny3D::Script::MaterialSystem::Material>(GetArenaNoVirtual());
-    material_ = p;
-  }
-  return material_;
-}
-inline ::Tiny3D::Script::MaterialSystem::Material* MaterialFile::mutable_material() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.MaterialSystem.MaterialFile.material)
-  return _internal_mutable_material();
-}
-inline void MaterialFile::set_allocated_material(::Tiny3D::Script::MaterialSystem::Material* material) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  if (message_arena == nullptr) {
-    delete material_;
-  }
-  if (material) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      material = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, material, submessage_arena);
-    }
-    
-  } else {
-    
-  }
-  material_ = material;
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.MaterialSystem.MaterialFile.material)
-}
-
-// -------------------------------------------------------------------
-
 // CompareFunc
 
 // .Tiny3D.Script.MaterialSystem.CompareFunction value = 1;
@@ -18834,8 +18576,6 @@ Material::samplers() const {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
