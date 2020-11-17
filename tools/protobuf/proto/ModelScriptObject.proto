@@ -1,5 +1,5 @@
 syntax = "proto3";
-option optimize_for = LITE_RUNTIME;
+//option optimize_for = LITE_RUNTIME;
 
 import "CommonScriptObject.proto";
 
@@ -209,9 +209,9 @@ message Keyframe
         KT_SCALING = 2;
     }
     
-    Type            type = 1;
-    string          bone = 2;
-    repeated Frame  frames = 3;
+    Type                    type = 1;
+    string                  bone = 2;
+    repeated KeyframeData  frames = 3;
 }
 
 

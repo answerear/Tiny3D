@@ -26,11 +26,13 @@
 #include <google/protobuf/generated_message_table_driven.h>
 #include <google/protobuf/generated_message_util.h>
 #include <google/protobuf/inlined_string_field.h>
-#include <google/protobuf/metadata_lite.h>
-#include <google/protobuf/message_lite.h>
+#include <google/protobuf/metadata.h>
+#include <google/protobuf/generated_message_reflection.h>
+#include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
-#include <google/protobuf/generated_enum_util.h>
+#include <google/protobuf/generated_enum_reflection.h>
+#include <google/protobuf/unknown_field_set.h>
 #include "CommonScriptObject.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
@@ -53,6 +55,7 @@ struct TableStruct_MaterialScriptObject_2eproto {
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
   static const ::PROTOBUF_NAMESPACE_ID::uint32 offsets[];
 };
+extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_MaterialScriptObject_2eproto;
 namespace Tiny3D {
 namespace Script {
 namespace MaterialSystem {
@@ -301,16 +304,20 @@ constexpr BuiltInType BuiltInType_MIN = BT_NONE;
 constexpr BuiltInType BuiltInType_MAX = BT_INT;
 constexpr int BuiltInType_ARRAYSIZE = BuiltInType_MAX + 1;
 
-const std::string& BuiltInType_Name(BuiltInType value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* BuiltInType_descriptor();
 template<typename T>
 inline const std::string& BuiltInType_Name(T enum_t_value) {
   static_assert(::std::is_same<T, BuiltInType>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function BuiltInType_Name.");
-  return BuiltInType_Name(static_cast<BuiltInType>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    BuiltInType_descriptor(), enum_t_value);
 }
-bool BuiltInType_Parse(
-    const std::string& name, BuiltInType* value);
+inline bool BuiltInType_Parse(
+    const std::string& name, BuiltInType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<BuiltInType>(
+    BuiltInType_descriptor(), name, value);
+}
 enum TextureAddressMode : int {
   TAM_NONE = 0,
   TAM_WRAP = 1,
@@ -325,16 +332,20 @@ constexpr TextureAddressMode TextureAddressMode_MIN = TAM_NONE;
 constexpr TextureAddressMode TextureAddressMode_MAX = TAM_CLAMP;
 constexpr int TextureAddressMode_ARRAYSIZE = TextureAddressMode_MAX + 1;
 
-const std::string& TextureAddressMode_Name(TextureAddressMode value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TextureAddressMode_descriptor();
 template<typename T>
 inline const std::string& TextureAddressMode_Name(T enum_t_value) {
   static_assert(::std::is_same<T, TextureAddressMode>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function TextureAddressMode_Name.");
-  return TextureAddressMode_Name(static_cast<TextureAddressMode>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    TextureAddressMode_descriptor(), enum_t_value);
 }
-bool TextureAddressMode_Parse(
-    const std::string& name, TextureAddressMode* value);
+inline bool TextureAddressMode_Parse(
+    const std::string& name, TextureAddressMode* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TextureAddressMode>(
+    TextureAddressMode_descriptor(), name, value);
+}
 enum FilterType : int {
   FT_MIN = 0,
   FT_MAG = 1,
@@ -347,16 +358,20 @@ constexpr FilterType FilterType_MIN = FT_MIN;
 constexpr FilterType FilterType_MAX = FT_MIP;
 constexpr int FilterType_ARRAYSIZE = FilterType_MAX + 1;
 
-const std::string& FilterType_Name(FilterType value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FilterType_descriptor();
 template<typename T>
 inline const std::string& FilterType_Name(T enum_t_value) {
   static_assert(::std::is_same<T, FilterType>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function FilterType_Name.");
-  return FilterType_Name(static_cast<FilterType>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    FilterType_descriptor(), enum_t_value);
 }
-bool FilterType_Parse(
-    const std::string& name, FilterType* value);
+inline bool FilterType_Parse(
+    const std::string& name, FilterType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FilterType>(
+    FilterType_descriptor(), name, value);
+}
 enum FilterOption : int {
   FO_NONE = 0,
   FO_POINT = 1,
@@ -370,16 +385,20 @@ constexpr FilterOption FilterOption_MIN = FO_NONE;
 constexpr FilterOption FilterOption_MAX = FO_ANISOTROPIC;
 constexpr int FilterOption_ARRAYSIZE = FilterOption_MAX + 1;
 
-const std::string& FilterOption_Name(FilterOption value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FilterOption_descriptor();
 template<typename T>
 inline const std::string& FilterOption_Name(T enum_t_value) {
   static_assert(::std::is_same<T, FilterOption>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function FilterOption_Name.");
-  return FilterOption_Name(static_cast<FilterOption>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    FilterOption_descriptor(), enum_t_value);
 }
-bool FilterOption_Parse(
-    const std::string& name, FilterOption* value);
+inline bool FilterOption_Parse(
+    const std::string& name, FilterOption* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FilterOption>(
+    FilterOption_descriptor(), name, value);
+}
 enum TexFilterOptions : int {
   TFO_NONE = 0,
   TFO_BILINEAR = 1,
@@ -393,16 +412,20 @@ constexpr TexFilterOptions TexFilterOptions_MIN = TFO_NONE;
 constexpr TexFilterOptions TexFilterOptions_MAX = TFO_ANISOTROPIC;
 constexpr int TexFilterOptions_ARRAYSIZE = TexFilterOptions_MAX + 1;
 
-const std::string& TexFilterOptions_Name(TexFilterOptions value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TexFilterOptions_descriptor();
 template<typename T>
 inline const std::string& TexFilterOptions_Name(T enum_t_value) {
   static_assert(::std::is_same<T, TexFilterOptions>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function TexFilterOptions_Name.");
-  return TexFilterOptions_Name(static_cast<TexFilterOptions>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    TexFilterOptions_descriptor(), enum_t_value);
 }
-bool TexFilterOptions_Parse(
-    const std::string& name, TexFilterOptions* value);
+inline bool TexFilterOptions_Parse(
+    const std::string& name, TexFilterOptions* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TexFilterOptions>(
+    TexFilterOptions_descriptor(), name, value);
+}
 enum TextureType : int {
   TEX_NONE = 0,
   TEX_1D = 1,
@@ -419,16 +442,20 @@ constexpr TextureType TextureType_MIN = TEX_NONE;
 constexpr TextureType TextureType_MAX = TEX_2D_RECT;
 constexpr int TextureType_ARRAYSIZE = TextureType_MAX + 1;
 
-const std::string& TextureType_Name(TextureType value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TextureType_descriptor();
 template<typename T>
 inline const std::string& TextureType_Name(T enum_t_value) {
   static_assert(::std::is_same<T, TextureType>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function TextureType_Name.");
-  return TextureType_Name(static_cast<TextureType>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    TextureType_descriptor(), enum_t_value);
 }
-bool TextureType_Parse(
-    const std::string& name, TextureType* value);
+inline bool TextureType_Parse(
+    const std::string& name, TextureType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TextureType>(
+    TextureType_descriptor(), name, value);
+}
 enum CubicTextureMode : int {
   CTM_COMBINED_UVW = 0,
   CTM_SEPARATE_UV = 1,
@@ -440,16 +467,20 @@ constexpr CubicTextureMode CubicTextureMode_MIN = CTM_COMBINED_UVW;
 constexpr CubicTextureMode CubicTextureMode_MAX = CTM_SEPARATE_UV;
 constexpr int CubicTextureMode_ARRAYSIZE = CubicTextureMode_MAX + 1;
 
-const std::string& CubicTextureMode_Name(CubicTextureMode value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CubicTextureMode_descriptor();
 template<typename T>
 inline const std::string& CubicTextureMode_Name(T enum_t_value) {
   static_assert(::std::is_same<T, CubicTextureMode>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function CubicTextureMode_Name.");
-  return CubicTextureMode_Name(static_cast<CubicTextureMode>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    CubicTextureMode_descriptor(), enum_t_value);
 }
-bool CubicTextureMode_Parse(
-    const std::string& name, CubicTextureMode* value);
+inline bool CubicTextureMode_Parse(
+    const std::string& name, CubicTextureMode* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<CubicTextureMode>(
+    CubicTextureMode_descriptor(), name, value);
+}
 enum BindingType : int {
   BT_VERTEX = 0,
   BT_FRAGMENT = 1,
@@ -461,16 +492,20 @@ constexpr BindingType BindingType_MIN = BT_VERTEX;
 constexpr BindingType BindingType_MAX = BT_FRAGMENT;
 constexpr int BindingType_ARRAYSIZE = BindingType_MAX + 1;
 
-const std::string& BindingType_Name(BindingType value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* BindingType_descriptor();
 template<typename T>
 inline const std::string& BindingType_Name(T enum_t_value) {
   static_assert(::std::is_same<T, BindingType>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function BindingType_Name.");
-  return BindingType_Name(static_cast<BindingType>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    BindingType_descriptor(), enum_t_value);
 }
-bool BindingType_Parse(
-    const std::string& name, BindingType* value);
+inline bool BindingType_Parse(
+    const std::string& name, BindingType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<BindingType>(
+    BindingType_descriptor(), name, value);
+}
 enum EnvMap : int {
   EM_OFF = 0,
   EM_SPHERICAL = 1,
@@ -485,16 +520,20 @@ constexpr EnvMap EnvMap_MIN = EM_OFF;
 constexpr EnvMap EnvMap_MAX = EM_CUBIC_NORMAL;
 constexpr int EnvMap_ARRAYSIZE = EnvMap_MAX + 1;
 
-const std::string& EnvMap_Name(EnvMap value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* EnvMap_descriptor();
 template<typename T>
 inline const std::string& EnvMap_Name(T enum_t_value) {
   static_assert(::std::is_same<T, EnvMap>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function EnvMap_Name.");
-  return EnvMap_Name(static_cast<EnvMap>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    EnvMap_descriptor(), enum_t_value);
 }
-bool EnvMap_Parse(
-    const std::string& name, EnvMap* value);
+inline bool EnvMap_Parse(
+    const std::string& name, EnvMap* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<EnvMap>(
+    EnvMap_descriptor(), name, value);
+}
 enum BlendType : int {
   BT_ALPHA_BLEND = 0,
   BT_COLOR_BLEND = 1,
@@ -509,16 +548,20 @@ constexpr BlendType BlendType_MIN = BT_ALPHA_BLEND;
 constexpr BlendType BlendType_MAX = BT_REPLACE;
 constexpr int BlendType_ARRAYSIZE = BlendType_MAX + 1;
 
-const std::string& BlendType_Name(BlendType value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* BlendType_descriptor();
 template<typename T>
 inline const std::string& BlendType_Name(T enum_t_value) {
   static_assert(::std::is_same<T, BlendType>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function BlendType_Name.");
-  return BlendType_Name(static_cast<BlendType>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    BlendType_descriptor(), enum_t_value);
 }
-bool BlendType_Parse(
-    const std::string& name, BlendType* value);
+inline bool BlendType_Parse(
+    const std::string& name, BlendType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<BlendType>(
+    BlendType_descriptor(), name, value);
+}
 enum BlendFactor : int {
   BF_ONE = 0,
   BF_ZERO = 1,
@@ -538,16 +581,20 @@ constexpr BlendFactor BlendFactor_MIN = BF_ONE;
 constexpr BlendFactor BlendFactor_MAX = BF_ONE_MINUS_SRC_ALPHA;
 constexpr int BlendFactor_ARRAYSIZE = BlendFactor_MAX + 1;
 
-const std::string& BlendFactor_Name(BlendFactor value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* BlendFactor_descriptor();
 template<typename T>
 inline const std::string& BlendFactor_Name(T enum_t_value) {
   static_assert(::std::is_same<T, BlendFactor>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function BlendFactor_Name.");
-  return BlendFactor_Name(static_cast<BlendFactor>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    BlendFactor_descriptor(), enum_t_value);
 }
-bool BlendFactor_Parse(
-    const std::string& name, BlendFactor* value);
+inline bool BlendFactor_Parse(
+    const std::string& name, BlendFactor* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<BlendFactor>(
+    BlendFactor_descriptor(), name, value);
+}
 enum BlendOperation : int {
   BO_ADD = 0,
   BO_SUBTRACT = 1,
@@ -562,16 +609,20 @@ constexpr BlendOperation BlendOperation_MIN = BO_ADD;
 constexpr BlendOperation BlendOperation_MAX = BO_MAX;
 constexpr int BlendOperation_ARRAYSIZE = BlendOperation_MAX + 1;
 
-const std::string& BlendOperation_Name(BlendOperation value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* BlendOperation_descriptor();
 template<typename T>
 inline const std::string& BlendOperation_Name(T enum_t_value) {
   static_assert(::std::is_same<T, BlendOperation>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function BlendOperation_Name.");
-  return BlendOperation_Name(static_cast<BlendOperation>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    BlendOperation_descriptor(), enum_t_value);
 }
-bool BlendOperation_Parse(
-    const std::string& name, BlendOperation* value);
+inline bool BlendOperation_Parse(
+    const std::string& name, BlendOperation* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<BlendOperation>(
+    BlendOperation_descriptor(), name, value);
+}
 enum CompareFunction : int {
   CF_ALWAYS_FAIL = 0,
   CF_ALWAYS_PASS = 1,
@@ -589,16 +640,20 @@ constexpr CompareFunction CompareFunction_MIN = CF_ALWAYS_FAIL;
 constexpr CompareFunction CompareFunction_MAX = CF_GREATER;
 constexpr int CompareFunction_ARRAYSIZE = CompareFunction_MAX + 1;
 
-const std::string& CompareFunction_Name(CompareFunction value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CompareFunction_descriptor();
 template<typename T>
 inline const std::string& CompareFunction_Name(T enum_t_value) {
   static_assert(::std::is_same<T, CompareFunction>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function CompareFunction_Name.");
-  return CompareFunction_Name(static_cast<CompareFunction>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    CompareFunction_descriptor(), enum_t_value);
 }
-bool CompareFunction_Parse(
-    const std::string& name, CompareFunction* value);
+inline bool CompareFunction_Parse(
+    const std::string& name, CompareFunction* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<CompareFunction>(
+    CompareFunction_descriptor(), name, value);
+}
 enum IlluminationStage : int {
   IS_NONE = 0,
   IS_AMBIENT = 1,
@@ -612,16 +667,20 @@ constexpr IlluminationStage IlluminationStage_MIN = IS_NONE;
 constexpr IlluminationStage IlluminationStage_MAX = IS_DECAL;
 constexpr int IlluminationStage_ARRAYSIZE = IlluminationStage_MAX + 1;
 
-const std::string& IlluminationStage_Name(IlluminationStage value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* IlluminationStage_descriptor();
 template<typename T>
 inline const std::string& IlluminationStage_Name(T enum_t_value) {
   static_assert(::std::is_same<T, IlluminationStage>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function IlluminationStage_Name.");
-  return IlluminationStage_Name(static_cast<IlluminationStage>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    IlluminationStage_descriptor(), enum_t_value);
 }
-bool IlluminationStage_Parse(
-    const std::string& name, IlluminationStage* value);
+inline bool IlluminationStage_Parse(
+    const std::string& name, IlluminationStage* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<IlluminationStage>(
+    IlluminationStage_descriptor(), name, value);
+}
 enum TransparentSorting : int {
   TS_OFF = 0,
   TS_ON = 1,
@@ -634,16 +693,20 @@ constexpr TransparentSorting TransparentSorting_MIN = TS_OFF;
 constexpr TransparentSorting TransparentSorting_MAX = TS_FORCE;
 constexpr int TransparentSorting_ARRAYSIZE = TransparentSorting_MAX + 1;
 
-const std::string& TransparentSorting_Name(TransparentSorting value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TransparentSorting_descriptor();
 template<typename T>
 inline const std::string& TransparentSorting_Name(T enum_t_value) {
   static_assert(::std::is_same<T, TransparentSorting>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function TransparentSorting_Name.");
-  return TransparentSorting_Name(static_cast<TransparentSorting>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    TransparentSorting_descriptor(), enum_t_value);
 }
-bool TransparentSorting_Parse(
-    const std::string& name, TransparentSorting* value);
+inline bool TransparentSorting_Parse(
+    const std::string& name, TransparentSorting* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TransparentSorting>(
+    TransparentSorting_descriptor(), name, value);
+}
 enum CullHardware : int {
   CH_NONE = 0,
   CH_CLOCKWISE = 1,
@@ -656,16 +719,20 @@ constexpr CullHardware CullHardware_MIN = CH_NONE;
 constexpr CullHardware CullHardware_MAX = CH_ANTICLOCKWISE;
 constexpr int CullHardware_ARRAYSIZE = CullHardware_MAX + 1;
 
-const std::string& CullHardware_Name(CullHardware value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CullHardware_descriptor();
 template<typename T>
 inline const std::string& CullHardware_Name(T enum_t_value) {
   static_assert(::std::is_same<T, CullHardware>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function CullHardware_Name.");
-  return CullHardware_Name(static_cast<CullHardware>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    CullHardware_descriptor(), enum_t_value);
 }
-bool CullHardware_Parse(
-    const std::string& name, CullHardware* value);
+inline bool CullHardware_Parse(
+    const std::string& name, CullHardware* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<CullHardware>(
+    CullHardware_descriptor(), name, value);
+}
 enum CullSoftware : int {
   CS_NONE = 0,
   CS_BACK = 1,
@@ -678,16 +745,20 @@ constexpr CullSoftware CullSoftware_MIN = CS_NONE;
 constexpr CullSoftware CullSoftware_MAX = CS_FRONT;
 constexpr int CullSoftware_ARRAYSIZE = CullSoftware_MAX + 1;
 
-const std::string& CullSoftware_Name(CullSoftware value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CullSoftware_descriptor();
 template<typename T>
 inline const std::string& CullSoftware_Name(T enum_t_value) {
   static_assert(::std::is_same<T, CullSoftware>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function CullSoftware_Name.");
-  return CullSoftware_Name(static_cast<CullSoftware>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    CullSoftware_descriptor(), enum_t_value);
 }
-bool CullSoftware_Parse(
-    const std::string& name, CullSoftware* value);
+inline bool CullSoftware_Parse(
+    const std::string& name, CullSoftware* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<CullSoftware>(
+    CullSoftware_descriptor(), name, value);
+}
 enum ShadingMode : int {
   SM_FLAT = 0,
   SM_GOURAUD = 1,
@@ -700,16 +771,20 @@ constexpr ShadingMode ShadingMode_MIN = SM_FLAT;
 constexpr ShadingMode ShadingMode_MAX = SM_PHONG;
 constexpr int ShadingMode_ARRAYSIZE = ShadingMode_MAX + 1;
 
-const std::string& ShadingMode_Name(ShadingMode value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ShadingMode_descriptor();
 template<typename T>
 inline const std::string& ShadingMode_Name(T enum_t_value) {
   static_assert(::std::is_same<T, ShadingMode>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function ShadingMode_Name.");
-  return ShadingMode_Name(static_cast<ShadingMode>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    ShadingMode_descriptor(), enum_t_value);
 }
-bool ShadingMode_Parse(
-    const std::string& name, ShadingMode* value);
+inline bool ShadingMode_Parse(
+    const std::string& name, ShadingMode* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ShadingMode>(
+    ShadingMode_descriptor(), name, value);
+}
 enum PolygonMode : int {
   PM_NONE = 0,
   PM_POINTS = 1,
@@ -723,16 +798,20 @@ constexpr PolygonMode PolygonMode_MIN = PM_NONE;
 constexpr PolygonMode PolygonMode_MAX = PM_SOLID;
 constexpr int PolygonMode_ARRAYSIZE = PolygonMode_MAX + 1;
 
-const std::string& PolygonMode_Name(PolygonMode value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* PolygonMode_descriptor();
 template<typename T>
 inline const std::string& PolygonMode_Name(T enum_t_value) {
   static_assert(::std::is_same<T, PolygonMode>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function PolygonMode_Name.");
-  return PolygonMode_Name(static_cast<PolygonMode>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    PolygonMode_descriptor(), enum_t_value);
 }
-bool PolygonMode_Parse(
-    const std::string& name, PolygonMode* value);
+inline bool PolygonMode_Parse(
+    const std::string& name, PolygonMode* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<PolygonMode>(
+    PolygonMode_descriptor(), name, value);
+}
 enum FogType : int {
   FT_NONE = 0,
   FT_EXP = 1,
@@ -746,16 +825,20 @@ constexpr FogType FogType_MIN = FT_NONE;
 constexpr FogType FogType_MAX = FT_LINEAR;
 constexpr int FogType_ARRAYSIZE = FogType_MAX + 1;
 
-const std::string& FogType_Name(FogType value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FogType_descriptor();
 template<typename T>
 inline const std::string& FogType_Name(T enum_t_value) {
   static_assert(::std::is_same<T, FogType>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function FogType_Name.");
-  return FogType_Name(static_cast<FogType>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    FogType_descriptor(), enum_t_value);
 }
-bool FogType_Parse(
-    const std::string& name, FogType* value);
+inline bool FogType_Parse(
+    const std::string& name, FogType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FogType>(
+    FogType_descriptor(), name, value);
+}
 enum IterationType : int {
   IT_ONCE = 0,
   IT_ONCE_PER_LIGHT = 1,
@@ -769,16 +852,20 @@ constexpr IterationType IterationType_MIN = IT_ONCE;
 constexpr IterationType IterationType_MAX = IT_PER_N_LIGHTS;
 constexpr int IterationType_ARRAYSIZE = IterationType_MAX + 1;
 
-const std::string& IterationType_Name(IterationType value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* IterationType_descriptor();
 template<typename T>
 inline const std::string& IterationType_Name(T enum_t_value) {
   static_assert(::std::is_same<T, IterationType>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function IterationType_Name.");
-  return IterationType_Name(static_cast<IterationType>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    IterationType_descriptor(), enum_t_value);
 }
-bool IterationType_Parse(
-    const std::string& name, IterationType* value);
+inline bool IterationType_Parse(
+    const std::string& name, IterationType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<IterationType>(
+    IterationType_descriptor(), name, value);
+}
 enum LightType : int {
   LT_POINT = 0,
   LT_DIRECTIONAL = 1,
@@ -791,16 +878,20 @@ constexpr LightType LightType_MIN = LT_POINT;
 constexpr LightType LightType_MAX = LT_SPOT;
 constexpr int LightType_ARRAYSIZE = LightType_MAX + 1;
 
-const std::string& LightType_Name(LightType value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* LightType_descriptor();
 template<typename T>
 inline const std::string& LightType_Name(T enum_t_value) {
   static_assert(::std::is_same<T, LightType>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function LightType_Name.");
-  return LightType_Name(static_cast<LightType>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    LightType_descriptor(), enum_t_value);
 }
-bool LightType_Parse(
-    const std::string& name, LightType* value);
+inline bool LightType_Parse(
+    const std::string& name, LightType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<LightType>(
+    LightType_descriptor(), name, value);
+}
 enum GPURuleType : int {
   INCLUDE = 0,
   EXCLUDE = 1,
@@ -812,20 +903,24 @@ constexpr GPURuleType GPURuleType_MIN = INCLUDE;
 constexpr GPURuleType GPURuleType_MAX = EXCLUDE;
 constexpr int GPURuleType_ARRAYSIZE = GPURuleType_MAX + 1;
 
-const std::string& GPURuleType_Name(GPURuleType value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* GPURuleType_descriptor();
 template<typename T>
 inline const std::string& GPURuleType_Name(T enum_t_value) {
   static_assert(::std::is_same<T, GPURuleType>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function GPURuleType_Name.");
-  return GPURuleType_Name(static_cast<GPURuleType>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    GPURuleType_descriptor(), enum_t_value);
 }
-bool GPURuleType_Parse(
-    const std::string& name, GPURuleType* value);
+inline bool GPURuleType_Parse(
+    const std::string& name, GPURuleType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<GPURuleType>(
+    GPURuleType_descriptor(), name, value);
+}
 // ===================================================================
 
 class CompareFunc :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CompareFunc) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CompareFunc) */ {
  public:
   CompareFunc();
   virtual ~CompareFunc();
@@ -849,6 +944,15 @@ class CompareFunc :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const CompareFunc& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -876,8 +980,8 @@ class CompareFunc :
   CompareFunc* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<CompareFunc>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const CompareFunc& from);
   void MergeFrom(const CompareFunc& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -887,13 +991,12 @@ class CompareFunc :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(CompareFunc* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -908,7 +1011,14 @@ class CompareFunc :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -930,7 +1040,7 @@ class CompareFunc :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int value_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -938,7 +1048,7 @@ class CompareFunc :
 // -------------------------------------------------------------------
 
 class Shader :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Shader) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Shader) */ {
  public:
   Shader();
   virtual ~Shader();
@@ -962,6 +1072,15 @@ class Shader :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Shader& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -989,8 +1108,8 @@ class Shader :
   Shader* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Shader>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Shader& from);
   void MergeFrom(const Shader& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -1000,13 +1119,12 @@ class Shader :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Shader* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -1021,7 +1139,14 @@ class Shader :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -1117,7 +1242,7 @@ class Shader :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr source_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr target_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr entry_;
@@ -1129,7 +1254,7 @@ class Shader :
 // -------------------------------------------------------------------
 
 class GPUProgram :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.GPUProgram) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.GPUProgram) */ {
  public:
   GPUProgram();
   virtual ~GPUProgram();
@@ -1153,6 +1278,15 @@ class GPUProgram :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const GPUProgram& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -1180,8 +1314,8 @@ class GPUProgram :
   GPUProgram* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<GPUProgram>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const GPUProgram& from);
   void MergeFrom(const GPUProgram& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -1191,13 +1325,12 @@ class GPUProgram :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(GPUProgram* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -1212,7 +1345,14 @@ class GPUProgram :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -1259,7 +1399,7 @@ class GPUProgram :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Shader > shaders_;
   ::Tiny3D::Script::ObjectHeader* header_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -1268,7 +1408,7 @@ class GPUProgram :
 // -------------------------------------------------------------------
 
 class GPUConstantBufferRef :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.GPUConstantBufferRef) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.GPUConstantBufferRef) */ {
  public:
   GPUConstantBufferRef();
   virtual ~GPUConstantBufferRef();
@@ -1292,6 +1432,15 @@ class GPUConstantBufferRef :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const GPUConstantBufferRef& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -1319,8 +1468,8 @@ class GPUConstantBufferRef :
   GPUConstantBufferRef* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<GPUConstantBufferRef>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const GPUConstantBufferRef& from);
   void MergeFrom(const GPUConstantBufferRef& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -1330,13 +1479,12 @@ class GPUConstantBufferRef :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(GPUConstantBufferRef* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -1351,7 +1499,14 @@ class GPUConstantBufferRef :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -1389,7 +1544,7 @@ class GPUConstantBufferRef :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::Tiny3D::Script::ObjectHeader* header_;
   ::PROTOBUF_NAMESPACE_ID::uint32 slot_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -1398,7 +1553,7 @@ class GPUConstantBufferRef :
 // -------------------------------------------------------------------
 
 class GPUProgramRef :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.GPUProgramRef) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.GPUProgramRef) */ {
  public:
   GPUProgramRef();
   virtual ~GPUProgramRef();
@@ -1422,6 +1577,15 @@ class GPUProgramRef :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const GPUProgramRef& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -1449,8 +1613,8 @@ class GPUProgramRef :
   GPUProgramRef* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<GPUProgramRef>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const GPUProgramRef& from);
   void MergeFrom(const GPUProgramRef& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -1460,13 +1624,12 @@ class GPUProgramRef :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(GPUProgramRef* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -1481,7 +1644,14 @@ class GPUProgramRef :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -1528,7 +1698,7 @@ class GPUProgramRef :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUConstantBufferRef > gpu_cbuffer_ref_;
   ::Tiny3D::Script::ObjectHeader* header_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -1537,7 +1707,7 @@ class GPUProgramRef :
 // -------------------------------------------------------------------
 
 class Param :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Param) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Param) */ {
  public:
   Param();
   virtual ~Param();
@@ -1561,6 +1731,15 @@ class Param :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Param& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -1588,8 +1767,8 @@ class Param :
   Param* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Param>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Param& from);
   void MergeFrom(const Param& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -1599,13 +1778,12 @@ class Param :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Param* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -1620,7 +1798,14 @@ class Param :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -1715,7 +1900,7 @@ class Param :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > fvalues_;
   mutable std::atomic<int> _fvalues_cached_byte_size_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 > ivalues_;
@@ -1729,7 +1914,7 @@ class Param :
 // -------------------------------------------------------------------
 
 class ParamAuto :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.ParamAuto) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.ParamAuto) */ {
  public:
   ParamAuto();
   virtual ~ParamAuto();
@@ -1753,6 +1938,15 @@ class ParamAuto :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const ParamAuto& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -1780,8 +1974,8 @@ class ParamAuto :
   ParamAuto* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<ParamAuto>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const ParamAuto& from);
   void MergeFrom(const ParamAuto& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -1791,13 +1985,12 @@ class ParamAuto :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(ParamAuto* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -1812,7 +2005,14 @@ class ParamAuto :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -1907,7 +2107,7 @@ class ParamAuto :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > fextra_params_;
   mutable std::atomic<int> _fextra_params_cached_byte_size_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > iextra_params_;
@@ -1921,7 +2121,7 @@ class ParamAuto :
 // -------------------------------------------------------------------
 
 class GPUConstantBuffer :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.GPUConstantBuffer) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.GPUConstantBuffer) */ {
  public:
   GPUConstantBuffer();
   virtual ~GPUConstantBuffer();
@@ -1945,6 +2145,15 @@ class GPUConstantBuffer :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const GPUConstantBuffer& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -1972,8 +2181,8 @@ class GPUConstantBuffer :
   GPUConstantBuffer* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<GPUConstantBuffer>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const GPUConstantBuffer& from);
   void MergeFrom(const GPUConstantBuffer& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -1983,13 +2192,12 @@ class GPUConstantBuffer :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(GPUConstantBuffer* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -2004,7 +2212,14 @@ class GPUConstantBuffer :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -2118,7 +2333,7 @@ class GPUConstantBuffer :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param > param_indexed_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::ParamAuto > param_indexed_auto_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Param > param_named_;
@@ -2131,7 +2346,7 @@ class GPUConstantBuffer :
 // -------------------------------------------------------------------
 
 class TexAddressModeSimple :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexAddressModeSimple) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexAddressModeSimple) */ {
  public:
   TexAddressModeSimple();
   virtual ~TexAddressModeSimple();
@@ -2155,6 +2370,15 @@ class TexAddressModeSimple :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const TexAddressModeSimple& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -2182,8 +2406,8 @@ class TexAddressModeSimple :
   TexAddressModeSimple* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<TexAddressModeSimple>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const TexAddressModeSimple& from);
   void MergeFrom(const TexAddressModeSimple& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -2193,13 +2417,12 @@ class TexAddressModeSimple :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(TexAddressModeSimple* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -2214,7 +2437,14 @@ class TexAddressModeSimple :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -2236,7 +2466,7 @@ class TexAddressModeSimple :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int uvw_mode_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -2244,7 +2474,7 @@ class TexAddressModeSimple :
 // -------------------------------------------------------------------
 
 class TexAddressModeComplex :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexAddressModeComplex) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexAddressModeComplex) */ {
  public:
   TexAddressModeComplex();
   virtual ~TexAddressModeComplex();
@@ -2268,6 +2498,15 @@ class TexAddressModeComplex :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const TexAddressModeComplex& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -2295,8 +2534,8 @@ class TexAddressModeComplex :
   TexAddressModeComplex* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<TexAddressModeComplex>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const TexAddressModeComplex& from);
   void MergeFrom(const TexAddressModeComplex& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -2306,13 +2545,12 @@ class TexAddressModeComplex :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(TexAddressModeComplex* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -2327,7 +2565,14 @@ class TexAddressModeComplex :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -2369,7 +2614,7 @@ class TexAddressModeComplex :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int u_mode_;
   int v_mode_;
   int w_mode_;
@@ -2379,7 +2624,7 @@ class TexAddressModeComplex :
 // -------------------------------------------------------------------
 
 class TexAddressMode :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexAddressMode) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexAddressMode) */ {
  public:
   TexAddressMode();
   virtual ~TexAddressMode();
@@ -2403,6 +2648,15 @@ class TexAddressMode :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const TexAddressMode& default_instance();
 
   enum TexAddresModeOneOfCase {
@@ -2436,8 +2690,8 @@ class TexAddressMode :
   TexAddressMode* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<TexAddressMode>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const TexAddressMode& from);
   void MergeFrom(const TexAddressMode& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -2447,13 +2701,12 @@ class TexAddressMode :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(TexAddressMode* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -2468,7 +2721,14 @@ class TexAddressMode :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -2519,7 +2779,7 @@ class TexAddressMode :
   inline bool has_TexAddresModeOneOf() const;
   inline void clear_has_TexAddresModeOneOf();
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   union TexAddresModeOneOfUnion {
     TexAddresModeOneOfUnion() {}
     ::Tiny3D::Script::MaterialSystem::TexAddressModeSimple* simple_;
@@ -2533,7 +2793,7 @@ class TexAddressMode :
 // -------------------------------------------------------------------
 
 class TexFilterSimple :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexFilterSimple) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexFilterSimple) */ {
  public:
   TexFilterSimple();
   virtual ~TexFilterSimple();
@@ -2557,6 +2817,15 @@ class TexFilterSimple :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const TexFilterSimple& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -2584,8 +2853,8 @@ class TexFilterSimple :
   TexFilterSimple* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<TexFilterSimple>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const TexFilterSimple& from);
   void MergeFrom(const TexFilterSimple& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -2595,13 +2864,12 @@ class TexFilterSimple :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(TexFilterSimple* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -2616,7 +2884,14 @@ class TexFilterSimple :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -2638,7 +2913,7 @@ class TexFilterSimple :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int filter_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -2646,7 +2921,7 @@ class TexFilterSimple :
 // -------------------------------------------------------------------
 
 class TexFilterComplex :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexFilterComplex) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexFilterComplex) */ {
  public:
   TexFilterComplex();
   virtual ~TexFilterComplex();
@@ -2670,6 +2945,15 @@ class TexFilterComplex :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const TexFilterComplex& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -2697,8 +2981,8 @@ class TexFilterComplex :
   TexFilterComplex* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<TexFilterComplex>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const TexFilterComplex& from);
   void MergeFrom(const TexFilterComplex& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -2708,13 +2992,12 @@ class TexFilterComplex :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(TexFilterComplex* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -2729,7 +3012,14 @@ class TexFilterComplex :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -2771,7 +3061,7 @@ class TexFilterComplex :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int minification_;
   int magnification_;
   int mip_;
@@ -2781,7 +3071,7 @@ class TexFilterComplex :
 // -------------------------------------------------------------------
 
 class TexFilter :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexFilter) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TexFilter) */ {
  public:
   TexFilter();
   virtual ~TexFilter();
@@ -2805,6 +3095,15 @@ class TexFilter :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const TexFilter& default_instance();
 
   enum TexFilterOneOfCase {
@@ -2838,8 +3137,8 @@ class TexFilter :
   TexFilter* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<TexFilter>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const TexFilter& from);
   void MergeFrom(const TexFilter& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -2849,13 +3148,12 @@ class TexFilter :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(TexFilter* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -2870,7 +3168,14 @@ class TexFilter :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -2921,7 +3226,7 @@ class TexFilter :
   inline bool has_TexFilterOneOf() const;
   inline void clear_has_TexFilterOneOf();
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   union TexFilterOneOfUnion {
     TexFilterOneOfUnion() {}
     ::Tiny3D::Script::MaterialSystem::TexFilterSimple* simple_;
@@ -2935,7 +3240,7 @@ class TexFilter :
 // -------------------------------------------------------------------
 
 class Sampler :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Sampler) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Sampler) */ {
  public:
   Sampler();
   virtual ~Sampler();
@@ -2959,6 +3264,15 @@ class Sampler :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Sampler& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -2986,8 +3300,8 @@ class Sampler :
   Sampler* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Sampler>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Sampler& from);
   void MergeFrom(const Sampler& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -2997,13 +3311,12 @@ class Sampler :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Sampler* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -3018,7 +3331,14 @@ class Sampler :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -3158,7 +3478,7 @@ class Sampler :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::Tiny3D::Script::ObjectHeader* header_;
   ::Tiny3D::Script::MaterialSystem::TexAddressMode* tex_address_mode_;
   ::Tiny3D::Script::Color* tex_border_color_;
@@ -3173,7 +3493,7 @@ class Sampler :
 // -------------------------------------------------------------------
 
 class Texture :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Texture) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Texture) */ {
  public:
   Texture();
   virtual ~Texture();
@@ -3197,6 +3517,15 @@ class Texture :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Texture& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -3224,8 +3553,8 @@ class Texture :
   Texture* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Texture>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Texture& from);
   void MergeFrom(const Texture& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -3235,13 +3564,12 @@ class Texture :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Texture* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -3256,7 +3584,14 @@ class Texture :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -3325,7 +3660,7 @@ class Texture :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
   int type_;
   ::PROTOBUF_NAMESPACE_ID::int32 mipmaps_;
@@ -3337,7 +3672,7 @@ class Texture :
 // -------------------------------------------------------------------
 
 class AnimTextureSimple :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.AnimTextureSimple) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.AnimTextureSimple) */ {
  public:
   AnimTextureSimple();
   virtual ~AnimTextureSimple();
@@ -3361,6 +3696,15 @@ class AnimTextureSimple :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const AnimTextureSimple& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -3388,8 +3732,8 @@ class AnimTextureSimple :
   AnimTextureSimple* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<AnimTextureSimple>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const AnimTextureSimple& from);
   void MergeFrom(const AnimTextureSimple& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -3399,13 +3743,12 @@ class AnimTextureSimple :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(AnimTextureSimple* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -3420,7 +3763,14 @@ class AnimTextureSimple :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -3469,7 +3819,7 @@ class AnimTextureSimple :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr base_name_;
   ::PROTOBUF_NAMESPACE_ID::uint32 num_frames_;
   float duration_;
@@ -3479,7 +3829,7 @@ class AnimTextureSimple :
 // -------------------------------------------------------------------
 
 class AnimTextureComplex :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.AnimTextureComplex) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.AnimTextureComplex) */ {
  public:
   AnimTextureComplex();
   virtual ~AnimTextureComplex();
@@ -3503,6 +3853,15 @@ class AnimTextureComplex :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const AnimTextureComplex& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -3530,8 +3889,8 @@ class AnimTextureComplex :
   AnimTextureComplex* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<AnimTextureComplex>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const AnimTextureComplex& from);
   void MergeFrom(const AnimTextureComplex& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -3541,13 +3900,12 @@ class AnimTextureComplex :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(AnimTextureComplex* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -3562,7 +3920,14 @@ class AnimTextureComplex :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -3609,7 +3974,7 @@ class AnimTextureComplex :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> frames_;
   float duration_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -3618,7 +3983,7 @@ class AnimTextureComplex :
 // -------------------------------------------------------------------
 
 class AnimTexture :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.AnimTexture) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.AnimTexture) */ {
  public:
   AnimTexture();
   virtual ~AnimTexture();
@@ -3642,6 +4007,15 @@ class AnimTexture :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const AnimTexture& default_instance();
 
   enum AnimTextureOneOfCase {
@@ -3675,8 +4049,8 @@ class AnimTexture :
   AnimTexture* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<AnimTexture>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const AnimTexture& from);
   void MergeFrom(const AnimTexture& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -3686,13 +4060,12 @@ class AnimTexture :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(AnimTexture* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -3707,7 +4080,14 @@ class AnimTexture :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -3758,7 +4138,7 @@ class AnimTexture :
   inline bool has_AnimTextureOneOf() const;
   inline void clear_has_AnimTextureOneOf();
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   union AnimTextureOneOfUnion {
     AnimTextureOneOfUnion() {}
     ::Tiny3D::Script::MaterialSystem::AnimTextureSimple* simple_;
@@ -3772,7 +4152,7 @@ class AnimTexture :
 // -------------------------------------------------------------------
 
 class CubicTextureSimple :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CubicTextureSimple) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CubicTextureSimple) */ {
  public:
   CubicTextureSimple();
   virtual ~CubicTextureSimple();
@@ -3796,6 +4176,15 @@ class CubicTextureSimple :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const CubicTextureSimple& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -3823,8 +4212,8 @@ class CubicTextureSimple :
   CubicTextureSimple* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<CubicTextureSimple>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const CubicTextureSimple& from);
   void MergeFrom(const CubicTextureSimple& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -3834,13 +4223,12 @@ class CubicTextureSimple :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(CubicTextureSimple* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -3855,7 +4243,14 @@ class CubicTextureSimple :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -3884,7 +4279,7 @@ class CubicTextureSimple :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr base_name_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -3892,7 +4287,7 @@ class CubicTextureSimple :
 // -------------------------------------------------------------------
 
 class CubicTextureComplex :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CubicTextureComplex) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CubicTextureComplex) */ {
  public:
   CubicTextureComplex();
   virtual ~CubicTextureComplex();
@@ -3916,6 +4311,15 @@ class CubicTextureComplex :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const CubicTextureComplex& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -3943,8 +4347,8 @@ class CubicTextureComplex :
   CubicTextureComplex* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<CubicTextureComplex>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const CubicTextureComplex& from);
   void MergeFrom(const CubicTextureComplex& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -3954,13 +4358,12 @@ class CubicTextureComplex :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(CubicTextureComplex* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -3975,7 +4378,14 @@ class CubicTextureComplex :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -4089,7 +4499,7 @@ class CubicTextureComplex :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr front_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr back_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr left_;
@@ -4102,7 +4512,7 @@ class CubicTextureComplex :
 // -------------------------------------------------------------------
 
 class CubicTexture :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CubicTexture) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CubicTexture) */ {
  public:
   CubicTexture();
   virtual ~CubicTexture();
@@ -4126,6 +4536,15 @@ class CubicTexture :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const CubicTexture& default_instance();
 
   enum CubicTextureOneOfCase {
@@ -4159,8 +4578,8 @@ class CubicTexture :
   CubicTexture* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<CubicTexture>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const CubicTexture& from);
   void MergeFrom(const CubicTexture& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -4170,13 +4589,12 @@ class CubicTexture :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(CubicTexture* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -4191,7 +4609,14 @@ class CubicTexture :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -4252,7 +4677,7 @@ class CubicTexture :
   inline bool has_CubicTextureOneOf() const;
   inline void clear_has_CubicTextureOneOf();
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int cubic_texture_mode_;
   union CubicTextureOneOfUnion {
     CubicTextureOneOfUnion() {}
@@ -4267,7 +4692,7 @@ class CubicTexture :
 // -------------------------------------------------------------------
 
 class Binding :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Binding) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Binding) */ {
  public:
   Binding();
   virtual ~Binding();
@@ -4291,6 +4716,15 @@ class Binding :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Binding& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -4318,8 +4752,8 @@ class Binding :
   Binding* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Binding>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Binding& from);
   void MergeFrom(const Binding& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -4329,13 +4763,12 @@ class Binding :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Binding* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -4350,7 +4783,14 @@ class Binding :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -4372,7 +4812,7 @@ class Binding :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int value_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -4380,7 +4820,7 @@ class Binding :
 // -------------------------------------------------------------------
 
 class ColorOp :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.ColorOp) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.ColorOp) */ {
  public:
   ColorOp();
   virtual ~ColorOp();
@@ -4404,6 +4844,15 @@ class ColorOp :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const ColorOp& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -4431,8 +4880,8 @@ class ColorOp :
   ColorOp* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<ColorOp>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const ColorOp& from);
   void MergeFrom(const ColorOp& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -4442,13 +4891,12 @@ class ColorOp :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(ColorOp* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -4463,7 +4911,14 @@ class ColorOp :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -4485,7 +4940,7 @@ class ColorOp :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int value_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -4493,7 +4948,7 @@ class ColorOp :
 // -------------------------------------------------------------------
 
 class TextureUnit :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TextureUnit) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TextureUnit) */ {
  public:
   TextureUnit();
   virtual ~TextureUnit();
@@ -4517,6 +4972,15 @@ class TextureUnit :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const TextureUnit& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -4544,8 +5008,8 @@ class TextureUnit :
   TextureUnit* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<TextureUnit>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const TextureUnit& from);
   void MergeFrom(const TextureUnit& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -4555,13 +5019,12 @@ class TextureUnit :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(TextureUnit* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -4576,7 +5039,14 @@ class TextureUnit :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -4732,7 +5202,7 @@ class TextureUnit :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::Tiny3D::Script::ObjectHeader* header_;
   ::Tiny3D::Script::String* texture_alias_;
   ::Tiny3D::Script::MaterialSystem::Texture* texture_;
@@ -4748,7 +5218,7 @@ class TextureUnit :
 // -------------------------------------------------------------------
 
 class LightColor :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.LightColor) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.LightColor) */ {
  public:
   LightColor();
   virtual ~LightColor();
@@ -4772,6 +5242,15 @@ class LightColor :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const LightColor& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -4799,8 +5278,8 @@ class LightColor :
   LightColor* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<LightColor>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const LightColor& from);
   void MergeFrom(const LightColor& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -4810,13 +5289,12 @@ class LightColor :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(LightColor* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -4831,7 +5309,14 @@ class LightColor :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -4869,7 +5354,7 @@ class LightColor :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::Tiny3D::Script::Color* color_;
   bool vertex_color_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -4878,7 +5363,7 @@ class LightColor :
 // -------------------------------------------------------------------
 
 class BlendSceneFactor :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.BlendSceneFactor) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.BlendSceneFactor) */ {
  public:
   BlendSceneFactor();
   virtual ~BlendSceneFactor();
@@ -4902,6 +5387,15 @@ class BlendSceneFactor :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const BlendSceneFactor& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -4929,8 +5423,8 @@ class BlendSceneFactor :
   BlendSceneFactor* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<BlendSceneFactor>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const BlendSceneFactor& from);
   void MergeFrom(const BlendSceneFactor& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -4940,13 +5434,12 @@ class BlendSceneFactor :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(BlendSceneFactor* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -4961,7 +5454,14 @@ class BlendSceneFactor :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -4993,7 +5493,7 @@ class BlendSceneFactor :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int src_factor_;
   int dest_factor_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -5002,7 +5502,7 @@ class BlendSceneFactor :
 // -------------------------------------------------------------------
 
 class BlendScene :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.BlendScene) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.BlendScene) */ {
  public:
   BlendScene();
   virtual ~BlendScene();
@@ -5026,6 +5526,15 @@ class BlendScene :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const BlendScene& default_instance();
 
   enum BlendSceneOneOfCase {
@@ -5059,8 +5568,8 @@ class BlendScene :
   BlendScene* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<BlendScene>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const BlendScene& from);
   void MergeFrom(const BlendScene& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -5070,13 +5579,12 @@ class BlendScene :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(BlendScene* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -5091,7 +5599,14 @@ class BlendScene :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -5139,7 +5654,7 @@ class BlendScene :
   inline bool has_BlendSceneOneOf() const;
   inline void clear_has_BlendSceneOneOf();
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   union BlendSceneOneOfUnion {
     BlendSceneOneOfUnion() {}
     int blend_type_;
@@ -5153,7 +5668,7 @@ class BlendScene :
 // -------------------------------------------------------------------
 
 class SimpleBlendType :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.SimpleBlendType) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.SimpleBlendType) */ {
  public:
   SimpleBlendType();
   virtual ~SimpleBlendType();
@@ -5177,6 +5692,15 @@ class SimpleBlendType :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const SimpleBlendType& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -5204,8 +5728,8 @@ class SimpleBlendType :
   SimpleBlendType* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<SimpleBlendType>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const SimpleBlendType& from);
   void MergeFrom(const SimpleBlendType& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -5215,13 +5739,12 @@ class SimpleBlendType :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(SimpleBlendType* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -5236,7 +5759,14 @@ class SimpleBlendType :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -5268,7 +5798,7 @@ class SimpleBlendType :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int color_blend_;
   int alpha_blend_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -5277,7 +5807,7 @@ class SimpleBlendType :
 // -------------------------------------------------------------------
 
 class SimpleBlendSceneFactor :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.SimpleBlendSceneFactor) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.SimpleBlendSceneFactor) */ {
  public:
   SimpleBlendSceneFactor();
   virtual ~SimpleBlendSceneFactor();
@@ -5301,6 +5831,15 @@ class SimpleBlendSceneFactor :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const SimpleBlendSceneFactor& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -5328,8 +5867,8 @@ class SimpleBlendSceneFactor :
   SimpleBlendSceneFactor* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<SimpleBlendSceneFactor>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const SimpleBlendSceneFactor& from);
   void MergeFrom(const SimpleBlendSceneFactor& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -5339,13 +5878,12 @@ class SimpleBlendSceneFactor :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(SimpleBlendSceneFactor* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -5360,7 +5898,14 @@ class SimpleBlendSceneFactor :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -5412,7 +5957,7 @@ class SimpleBlendSceneFactor :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int color_src_factor_;
   int color_dest_factor_;
   int alpha_src_factor_;
@@ -5423,7 +5968,7 @@ class SimpleBlendSceneFactor :
 // -------------------------------------------------------------------
 
 class SeparateBlendScene :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.SeparateBlendScene) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.SeparateBlendScene) */ {
  public:
   SeparateBlendScene();
   virtual ~SeparateBlendScene();
@@ -5447,6 +5992,15 @@ class SeparateBlendScene :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const SeparateBlendScene& default_instance();
 
   enum SeparateBlendSceneOneOfCase {
@@ -5480,8 +6034,8 @@ class SeparateBlendScene :
   SeparateBlendScene* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<SeparateBlendScene>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const SeparateBlendScene& from);
   void MergeFrom(const SeparateBlendScene& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -5491,13 +6045,12 @@ class SeparateBlendScene :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(SeparateBlendScene* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -5512,7 +6065,14 @@ class SeparateBlendScene :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -5563,7 +6123,7 @@ class SeparateBlendScene :
   inline bool has_SeparateBlendSceneOneOf() const;
   inline void clear_has_SeparateBlendSceneOneOf();
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   union SeparateBlendSceneOneOfUnion {
     SeparateBlendSceneOneOfUnion() {}
     ::Tiny3D::Script::MaterialSystem::SimpleBlendType* blend_type_;
@@ -5577,7 +6137,7 @@ class SeparateBlendScene :
 // -------------------------------------------------------------------
 
 class SceneBlendOperation :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.SceneBlendOperation) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.SceneBlendOperation) */ {
  public:
   SceneBlendOperation();
   virtual ~SceneBlendOperation();
@@ -5601,6 +6161,15 @@ class SceneBlendOperation :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const SceneBlendOperation& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -5628,8 +6197,8 @@ class SceneBlendOperation :
   SceneBlendOperation* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<SceneBlendOperation>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const SceneBlendOperation& from);
   void MergeFrom(const SceneBlendOperation& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -5639,13 +6208,12 @@ class SceneBlendOperation :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(SceneBlendOperation* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -5660,7 +6228,14 @@ class SceneBlendOperation :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -5682,7 +6257,7 @@ class SceneBlendOperation :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int value_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -5690,7 +6265,7 @@ class SceneBlendOperation :
 // -------------------------------------------------------------------
 
 class SeparateSceneBlendOperation :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.SeparateSceneBlendOperation) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.SeparateSceneBlendOperation) */ {
  public:
   SeparateSceneBlendOperation();
   virtual ~SeparateSceneBlendOperation();
@@ -5714,6 +6289,15 @@ class SeparateSceneBlendOperation :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const SeparateSceneBlendOperation& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -5741,8 +6325,8 @@ class SeparateSceneBlendOperation :
   SeparateSceneBlendOperation* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<SeparateSceneBlendOperation>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const SeparateSceneBlendOperation& from);
   void MergeFrom(const SeparateSceneBlendOperation& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -5752,13 +6336,12 @@ class SeparateSceneBlendOperation :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(SeparateSceneBlendOperation* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -5773,7 +6356,14 @@ class SeparateSceneBlendOperation :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -5805,7 +6395,7 @@ class SeparateSceneBlendOperation :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int color_op_;
   int alpha_op_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -5814,7 +6404,7 @@ class SeparateSceneBlendOperation :
 // -------------------------------------------------------------------
 
 class DepthBias :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.DepthBias) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.DepthBias) */ {
  public:
   DepthBias();
   virtual ~DepthBias();
@@ -5838,6 +6428,15 @@ class DepthBias :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const DepthBias& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -5865,8 +6464,8 @@ class DepthBias :
   DepthBias* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<DepthBias>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const DepthBias& from);
   void MergeFrom(const DepthBias& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -5876,13 +6475,12 @@ class DepthBias :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(DepthBias* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -5897,7 +6495,14 @@ class DepthBias :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -5929,7 +6534,7 @@ class DepthBias :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   float constant_bias_;
   float slopescale_bias_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -5938,7 +6543,7 @@ class DepthBias :
 // -------------------------------------------------------------------
 
 class AlphaRejection :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.AlphaRejection) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.AlphaRejection) */ {
  public:
   AlphaRejection();
   virtual ~AlphaRejection();
@@ -5962,6 +6567,15 @@ class AlphaRejection :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const AlphaRejection& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -5989,8 +6603,8 @@ class AlphaRejection :
   AlphaRejection* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<AlphaRejection>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const AlphaRejection& from);
   void MergeFrom(const AlphaRejection& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -6000,13 +6614,12 @@ class AlphaRejection :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(AlphaRejection* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -6021,7 +6634,14 @@ class AlphaRejection :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -6053,7 +6673,7 @@ class AlphaRejection :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int function_;
   ::PROTOBUF_NAMESPACE_ID::uint32 value_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -6062,7 +6682,7 @@ class AlphaRejection :
 // -------------------------------------------------------------------
 
 class Illumination :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Illumination) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Illumination) */ {
  public:
   Illumination();
   virtual ~Illumination();
@@ -6086,6 +6706,15 @@ class Illumination :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Illumination& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -6113,8 +6742,8 @@ class Illumination :
   Illumination* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Illumination>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Illumination& from);
   void MergeFrom(const Illumination& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -6124,13 +6753,12 @@ class Illumination :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Illumination* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -6145,7 +6773,14 @@ class Illumination :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -6167,7 +6802,7 @@ class Illumination :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int stage_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -6175,7 +6810,7 @@ class Illumination :
 // -------------------------------------------------------------------
 
 class SortingTransparent :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.SortingTransparent) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.SortingTransparent) */ {
  public:
   SortingTransparent();
   virtual ~SortingTransparent();
@@ -6199,6 +6834,15 @@ class SortingTransparent :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const SortingTransparent& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -6226,8 +6870,8 @@ class SortingTransparent :
   SortingTransparent* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<SortingTransparent>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const SortingTransparent& from);
   void MergeFrom(const SortingTransparent& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -6237,13 +6881,12 @@ class SortingTransparent :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(SortingTransparent* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -6258,7 +6901,14 @@ class SortingTransparent :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -6280,7 +6930,7 @@ class SortingTransparent :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int value_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -6288,7 +6938,7 @@ class SortingTransparent :
 // -------------------------------------------------------------------
 
 class CullingHardware :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CullingHardware) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CullingHardware) */ {
  public:
   CullingHardware();
   virtual ~CullingHardware();
@@ -6312,6 +6962,15 @@ class CullingHardware :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const CullingHardware& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -6339,8 +6998,8 @@ class CullingHardware :
   CullingHardware* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<CullingHardware>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const CullingHardware& from);
   void MergeFrom(const CullingHardware& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -6350,13 +7009,12 @@ class CullingHardware :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(CullingHardware* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -6371,7 +7029,14 @@ class CullingHardware :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -6393,7 +7058,7 @@ class CullingHardware :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int value_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -6401,7 +7066,7 @@ class CullingHardware :
 // -------------------------------------------------------------------
 
 class CullingSoftware :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CullingSoftware) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.CullingSoftware) */ {
  public:
   CullingSoftware();
   virtual ~CullingSoftware();
@@ -6425,6 +7090,15 @@ class CullingSoftware :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const CullingSoftware& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -6452,8 +7126,8 @@ class CullingSoftware :
   CullingSoftware* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<CullingSoftware>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const CullingSoftware& from);
   void MergeFrom(const CullingSoftware& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -6463,13 +7137,12 @@ class CullingSoftware :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(CullingSoftware* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -6484,7 +7157,14 @@ class CullingSoftware :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -6506,7 +7186,7 @@ class CullingSoftware :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int value_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -6514,7 +7194,7 @@ class CullingSoftware :
 // -------------------------------------------------------------------
 
 class Shading :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Shading) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Shading) */ {
  public:
   Shading();
   virtual ~Shading();
@@ -6538,6 +7218,15 @@ class Shading :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Shading& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -6565,8 +7254,8 @@ class Shading :
   Shading* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Shading>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Shading& from);
   void MergeFrom(const Shading& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -6576,13 +7265,12 @@ class Shading :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Shading* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -6597,7 +7285,14 @@ class Shading :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -6619,7 +7314,7 @@ class Shading :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int value_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -6627,7 +7322,7 @@ class Shading :
 // -------------------------------------------------------------------
 
 class Polygon :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Polygon) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Polygon) */ {
  public:
   Polygon();
   virtual ~Polygon();
@@ -6651,6 +7346,15 @@ class Polygon :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Polygon& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -6678,8 +7382,8 @@ class Polygon :
   Polygon* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Polygon>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Polygon& from);
   void MergeFrom(const Polygon& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -6689,13 +7393,12 @@ class Polygon :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Polygon* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -6710,7 +7413,14 @@ class Polygon :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -6732,7 +7442,7 @@ class Polygon :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int value_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -6740,7 +7450,7 @@ class Polygon :
 // -------------------------------------------------------------------
 
 class Fog :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Fog) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Fog) */ {
  public:
   Fog();
   virtual ~Fog();
@@ -6764,6 +7474,15 @@ class Fog :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Fog& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -6791,8 +7510,8 @@ class Fog :
   Fog* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Fog>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Fog& from);
   void MergeFrom(const Fog& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -6802,13 +7521,12 @@ class Fog :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Fog* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -6823,7 +7541,14 @@ class Fog :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -6901,7 +7626,7 @@ class Fog :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::Tiny3D::Script::Color* color_;
   bool overrideable_;
   int type_;
@@ -6914,7 +7639,7 @@ class Fog :
 // -------------------------------------------------------------------
 
 class IterationOnce :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.IterationOnce) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.IterationOnce) */ {
  public:
   IterationOnce();
   virtual ~IterationOnce();
@@ -6938,6 +7663,15 @@ class IterationOnce :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const IterationOnce& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -6965,8 +7699,8 @@ class IterationOnce :
   IterationOnce* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<IterationOnce>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const IterationOnce& from);
   void MergeFrom(const IterationOnce& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -6976,13 +7710,12 @@ class IterationOnce :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(IterationOnce* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -6997,7 +7730,14 @@ class IterationOnce :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -7019,7 +7759,7 @@ class IterationOnce :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int type_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -7027,7 +7767,7 @@ class IterationOnce :
 // -------------------------------------------------------------------
 
 class IterationOncePerLight :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.IterationOncePerLight) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.IterationOncePerLight) */ {
  public:
   IterationOncePerLight();
   virtual ~IterationOncePerLight();
@@ -7051,6 +7791,15 @@ class IterationOncePerLight :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const IterationOncePerLight& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -7078,8 +7827,8 @@ class IterationOncePerLight :
   IterationOncePerLight* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<IterationOncePerLight>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const IterationOncePerLight& from);
   void MergeFrom(const IterationOncePerLight& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -7089,13 +7838,12 @@ class IterationOncePerLight :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(IterationOncePerLight* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -7110,7 +7858,14 @@ class IterationOncePerLight :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -7142,7 +7897,7 @@ class IterationOncePerLight :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   int type_;
   int light_type_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -7151,7 +7906,7 @@ class IterationOncePerLight :
 // -------------------------------------------------------------------
 
 class IterationNumber :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.IterationNumber) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.IterationNumber) */ {
  public:
   IterationNumber();
   virtual ~IterationNumber();
@@ -7175,6 +7930,15 @@ class IterationNumber :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const IterationNumber& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -7202,8 +7966,8 @@ class IterationNumber :
   IterationNumber* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<IterationNumber>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const IterationNumber& from);
   void MergeFrom(const IterationNumber& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -7213,13 +7977,12 @@ class IterationNumber :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(IterationNumber* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -7234,7 +7997,14 @@ class IterationNumber :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -7256,7 +8026,7 @@ class IterationNumber :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::uint32 number_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_MaterialScriptObject_2eproto;
@@ -7264,7 +8034,7 @@ class IterationNumber :
 // -------------------------------------------------------------------
 
 class IterationPerLight :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.IterationPerLight) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.IterationPerLight) */ {
  public:
   IterationPerLight();
   virtual ~IterationPerLight();
@@ -7288,6 +8058,15 @@ class IterationPerLight :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const IterationPerLight& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -7315,8 +8094,8 @@ class IterationPerLight :
   IterationPerLight* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<IterationPerLight>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const IterationPerLight& from);
   void MergeFrom(const IterationPerLight& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -7326,13 +8105,12 @@ class IterationPerLight :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(IterationPerLight* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -7347,7 +8125,14 @@ class IterationPerLight :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -7389,7 +8174,7 @@ class IterationPerLight :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::uint32 number_;
   int type_;
   int light_type_;
@@ -7399,7 +8184,7 @@ class IterationPerLight :
 // -------------------------------------------------------------------
 
 class IterationPerNLight :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.IterationPerNLight) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.IterationPerNLight) */ {
  public:
   IterationPerNLight();
   virtual ~IterationPerNLight();
@@ -7423,6 +8208,15 @@ class IterationPerNLight :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const IterationPerNLight& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -7450,8 +8244,8 @@ class IterationPerNLight :
   IterationPerNLight* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<IterationPerNLight>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const IterationPerNLight& from);
   void MergeFrom(const IterationPerNLight& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -7461,13 +8255,12 @@ class IterationPerNLight :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(IterationPerNLight* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -7482,7 +8275,14 @@ class IterationPerNLight :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -7534,7 +8334,7 @@ class IterationPerNLight :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::uint32 number_;
   int type_;
   ::PROTOBUF_NAMESPACE_ID::uint32 num_lights_;
@@ -7545,7 +8345,7 @@ class IterationPerNLight :
 // -------------------------------------------------------------------
 
 class Iteration :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Iteration) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Iteration) */ {
  public:
   Iteration();
   virtual ~Iteration();
@@ -7569,6 +8369,15 @@ class Iteration :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Iteration& default_instance();
 
   enum IterationOneofCase {
@@ -7605,8 +8414,8 @@ class Iteration :
   Iteration* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Iteration>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Iteration& from);
   void MergeFrom(const Iteration& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -7616,13 +8425,12 @@ class Iteration :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Iteration* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -7637,7 +8445,14 @@ class Iteration :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -7739,7 +8554,7 @@ class Iteration :
   inline bool has_IterationOneof() const;
   inline void clear_has_IterationOneof();
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   union IterationOneofUnion {
     IterationOneofUnion() {}
     ::Tiny3D::Script::MaterialSystem::IterationOnce* once_;
@@ -7756,7 +8571,7 @@ class Iteration :
 // -------------------------------------------------------------------
 
 class PointSizeAttenuation :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.PointSizeAttenuation) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.PointSizeAttenuation) */ {
  public:
   PointSizeAttenuation();
   virtual ~PointSizeAttenuation();
@@ -7780,6 +8595,15 @@ class PointSizeAttenuation :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const PointSizeAttenuation& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -7807,8 +8631,8 @@ class PointSizeAttenuation :
   PointSizeAttenuation* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<PointSizeAttenuation>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const PointSizeAttenuation& from);
   void MergeFrom(const PointSizeAttenuation& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -7818,13 +8642,12 @@ class PointSizeAttenuation :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(PointSizeAttenuation* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -7839,7 +8662,14 @@ class PointSizeAttenuation :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -7891,7 +8721,7 @@ class PointSizeAttenuation :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   bool enable_;
   float constant_;
   float linear_;
@@ -7902,7 +8732,7 @@ class PointSizeAttenuation :
 // -------------------------------------------------------------------
 
 class Pass :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Pass) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Pass) */ {
  public:
   Pass();
   virtual ~Pass();
@@ -7926,6 +8756,15 @@ class Pass :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Pass& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -7953,8 +8792,8 @@ class Pass :
   Pass* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Pass>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Pass& from);
   void MergeFrom(const Pass& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -7964,13 +8803,12 @@ class Pass :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Pass* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -7985,7 +8823,14 @@ class Pass :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -8640,7 +9485,7 @@ class Pass :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::TextureUnit > textures_;
   ::Tiny3D::Script::ObjectHeader* header_;
   ::Tiny3D::Script::MaterialSystem::LightColor* ambient_;
@@ -8687,7 +9532,7 @@ class Pass :
 // -------------------------------------------------------------------
 
 class GPUVendorRule :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.GPUVendorRule) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.GPUVendorRule) */ {
  public:
   GPUVendorRule();
   virtual ~GPUVendorRule();
@@ -8711,6 +9556,15 @@ class GPUVendorRule :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const GPUVendorRule& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -8738,8 +9592,8 @@ class GPUVendorRule :
   GPUVendorRule* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<GPUVendorRule>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const GPUVendorRule& from);
   void MergeFrom(const GPUVendorRule& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -8749,13 +9603,12 @@ class GPUVendorRule :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(GPUVendorRule* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -8770,7 +9623,14 @@ class GPUVendorRule :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -8809,7 +9669,7 @@ class GPUVendorRule :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr vendor_name_;
   int rule_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -8818,7 +9678,7 @@ class GPUVendorRule :
 // -------------------------------------------------------------------
 
 class GPUDeviceRule :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.GPUDeviceRule) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.GPUDeviceRule) */ {
  public:
   GPUDeviceRule();
   virtual ~GPUDeviceRule();
@@ -8842,6 +9702,15 @@ class GPUDeviceRule :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const GPUDeviceRule& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -8869,8 +9738,8 @@ class GPUDeviceRule :
   GPUDeviceRule* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<GPUDeviceRule>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const GPUDeviceRule& from);
   void MergeFrom(const GPUDeviceRule& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -8880,13 +9749,12 @@ class GPUDeviceRule :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(GPUDeviceRule* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -8901,7 +9769,14 @@ class GPUDeviceRule :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -8950,7 +9825,7 @@ class GPUDeviceRule :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr device_pattern_;
   int rule_;
   bool case_sensitive_;
@@ -8960,7 +9835,7 @@ class GPUDeviceRule :
 // -------------------------------------------------------------------
 
 class Technique :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Technique) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Technique) */ {
  public:
   Technique();
   virtual ~Technique();
@@ -8984,6 +9859,15 @@ class Technique :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Technique& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -9011,8 +9895,8 @@ class Technique :
   Technique* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Technique>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Technique& from);
   void MergeFrom(const Technique& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -9022,13 +9906,12 @@ class Technique :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Technique* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -9043,7 +9926,14 @@ class Technique :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -9202,7 +10092,7 @@ class Technique :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Pass > passes_;
   ::Tiny3D::Script::ObjectHeader* header_;
   ::Tiny3D::Script::UInt32* render_queue_;
@@ -9218,7 +10108,7 @@ class Technique :
 // -------------------------------------------------------------------
 
 class LODValues :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.LODValues) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.LODValues) */ {
  public:
   LODValues();
   virtual ~LODValues();
@@ -9242,6 +10132,15 @@ class LODValues :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const LODValues& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -9269,8 +10168,8 @@ class LODValues :
   LODValues* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<LODValues>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const LODValues& from);
   void MergeFrom(const LODValues& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -9280,13 +10179,12 @@ class LODValues :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(LODValues* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -9301,7 +10199,14 @@ class LODValues :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -9353,7 +10258,7 @@ class LODValues :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > values_;
   mutable std::atomic<int> _values_cached_byte_size_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr strategy_;
@@ -9363,7 +10268,7 @@ class LODValues :
 // -------------------------------------------------------------------
 
 class TextureAlias :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TextureAlias) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.TextureAlias) */ {
  public:
   TextureAlias();
   virtual ~TextureAlias();
@@ -9387,6 +10292,15 @@ class TextureAlias :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const TextureAlias& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -9414,8 +10328,8 @@ class TextureAlias :
   TextureAlias* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<TextureAlias>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const TextureAlias& from);
   void MergeFrom(const TextureAlias& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -9425,13 +10339,12 @@ class TextureAlias :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(TextureAlias* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -9446,7 +10359,14 @@ class TextureAlias :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -9492,7 +10412,7 @@ class TextureAlias :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr alias_name_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr texture_name_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -9501,7 +10421,7 @@ class TextureAlias :
 // -------------------------------------------------------------------
 
 class Material :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Material) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.MaterialSystem.Material) */ {
  public:
   Material();
   virtual ~Material();
@@ -9525,6 +10445,15 @@ class Material :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
   static const Material& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
@@ -9552,8 +10481,8 @@ class Material :
   Material* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Material>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
-    final;
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void CopyFrom(const Material& from);
   void MergeFrom(const Material& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -9563,13 +10492,12 @@ class Material :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   inline void SharedCtor();
   inline void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Material* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -9584,7 +10512,14 @@ class Material :
   }
   public:
 
-  std::string GetTypeName() const final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_MaterialScriptObject_2eproto);
+    return ::descriptor_table_MaterialScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
 
   // nested types ----------------------------------------------------
 
@@ -9752,7 +10687,7 @@ class Material :
  private:
   class _Internal;
 
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::Technique > techniques_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUConstantBuffer > cbuffers_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::MaterialSystem::GPUProgram > programs_;
@@ -18696,28 +19631,120 @@ Material::samplers() const {
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::BuiltInType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::BuiltInType>() {
+  return ::Tiny3D::Script::MaterialSystem::BuiltInType_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::TextureAddressMode> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::TextureAddressMode>() {
+  return ::Tiny3D::Script::MaterialSystem::TextureAddressMode_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::FilterType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::FilterType>() {
+  return ::Tiny3D::Script::MaterialSystem::FilterType_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::FilterOption> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::FilterOption>() {
+  return ::Tiny3D::Script::MaterialSystem::FilterOption_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::TexFilterOptions> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::TexFilterOptions>() {
+  return ::Tiny3D::Script::MaterialSystem::TexFilterOptions_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::TextureType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::TextureType>() {
+  return ::Tiny3D::Script::MaterialSystem::TextureType_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::CubicTextureMode> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::CubicTextureMode>() {
+  return ::Tiny3D::Script::MaterialSystem::CubicTextureMode_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::BindingType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::BindingType>() {
+  return ::Tiny3D::Script::MaterialSystem::BindingType_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::EnvMap> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::EnvMap>() {
+  return ::Tiny3D::Script::MaterialSystem::EnvMap_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::BlendType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::BlendType>() {
+  return ::Tiny3D::Script::MaterialSystem::BlendType_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::BlendFactor> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::BlendFactor>() {
+  return ::Tiny3D::Script::MaterialSystem::BlendFactor_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::BlendOperation> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::BlendOperation>() {
+  return ::Tiny3D::Script::MaterialSystem::BlendOperation_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::CompareFunction> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::CompareFunction>() {
+  return ::Tiny3D::Script::MaterialSystem::CompareFunction_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::IlluminationStage> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::IlluminationStage>() {
+  return ::Tiny3D::Script::MaterialSystem::IlluminationStage_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::TransparentSorting> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::TransparentSorting>() {
+  return ::Tiny3D::Script::MaterialSystem::TransparentSorting_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::CullHardware> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::CullHardware>() {
+  return ::Tiny3D::Script::MaterialSystem::CullHardware_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::CullSoftware> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::CullSoftware>() {
+  return ::Tiny3D::Script::MaterialSystem::CullSoftware_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::ShadingMode> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::ShadingMode>() {
+  return ::Tiny3D::Script::MaterialSystem::ShadingMode_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::PolygonMode> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::PolygonMode>() {
+  return ::Tiny3D::Script::MaterialSystem::PolygonMode_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::FogType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::FogType>() {
+  return ::Tiny3D::Script::MaterialSystem::FogType_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::IterationType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::IterationType>() {
+  return ::Tiny3D::Script::MaterialSystem::IterationType_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::LightType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::LightType>() {
+  return ::Tiny3D::Script::MaterialSystem::LightType_descriptor();
+}
 template <> struct is_proto_enum< ::Tiny3D::Script::MaterialSystem::GPURuleType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::MaterialSystem::GPURuleType>() {
+  return ::Tiny3D::Script::MaterialSystem::GPURuleType_descriptor();
+}
 
 PROTOBUF_NAMESPACE_CLOSE
 

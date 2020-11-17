@@ -19,6 +19,7 @@ set(libprotobuf_files
   ${protobuf_source_dir}/src/google/protobuf/io/tokenizer.cc
   ${protobuf_source_dir}/src/google/protobuf/map_field.cc
   ${protobuf_source_dir}/src/google/protobuf/message.cc
+  ${protobuf_source_dir}/src/google/protobuf/message_lite.cc
   ${protobuf_source_dir}/src/google/protobuf/reflection_ops.cc
   ${protobuf_source_dir}/src/google/protobuf/service.cc
   ${protobuf_source_dir}/src/google/protobuf/source_context.pb.cc
@@ -72,6 +73,7 @@ set(libprotobuf_includes
   ${protobuf_source_dir}/src/google/protobuf/io/tokenizer.h
   ${protobuf_source_dir}/src/google/protobuf/map_field.h
   ${protobuf_source_dir}/src/google/protobuf/message.h
+  ${protobuf_source_dir}/src/google/protobuf/message_lite.h
   ${protobuf_source_dir}/src/google/protobuf/reflection_ops.h
   ${protobuf_source_dir}/src/google/protobuf/service.h
   ${protobuf_source_dir}/src/google/protobuf/source_context.pb.h

@@ -1,7 +1,7 @@
 syntax = "proto3";
-option optimize_for = LITE_RUNTIME;
+//option optimize_for = LITE_RUNTIME;
 
-import public "CommonScriptObject.proto";
+import "CommonScriptObject.proto";
 
 package Tiny3D.Script.MaterialSystem;
 

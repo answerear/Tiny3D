@@ -8,7 +8,10 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/wire_format_lite.h>
-#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/generated_message_reflection.h>
+#include <google/protobuf/reflection_ops.h>
+#include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Color_CommonScriptObject_2eproto;
@@ -40,6 +43,10 @@ class Vector3DefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Vector3> _instance;
 } _Vector3_default_instance_;
+class QuaternionDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Quaternion> _instance;
+} _Quaternion_default_instance_;
 class Vector2ListDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Vector2List> _instance;
@@ -209,6 +216,20 @@ static void InitDefaultsscc_info_ObjectHeader_CommonScriptObject_2eproto() {
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ObjectHeader_CommonScriptObject_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_ObjectHeader_CommonScriptObject_2eproto}, {}};
 
+static void InitDefaultsscc_info_Quaternion_CommonScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::_Quaternion_default_instance_;
+    new (ptr) ::Tiny3D::Script::Quaternion();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::Quaternion::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Quaternion_CommonScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Quaternion_CommonScriptObject_2eproto}, {}};
+
 static void InitDefaultsscc_info_String_CommonScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -309,6 +330,218 @@ static void InitDefaultsscc_info_Vector3List_CommonScriptObject_2eproto() {
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Vector3List_CommonScriptObject_2eproto}, {
       &scc_info_Vector3_CommonScriptObject_2eproto.base,}};
 
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_CommonScriptObject_2eproto[17];
+static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_CommonScriptObject_2eproto = nullptr;
+static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_CommonScriptObject_2eproto = nullptr;
+
+const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_CommonScriptObject_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileHeader, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileHeader, magic_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileHeader, version_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileHeader, filesize_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ObjectHeader, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ObjectHeader, id_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ObjectHeader, name_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Color, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Color, r_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Color, g_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Color, b_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Color, a_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Matrix4, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Matrix4, values_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Vector2, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Vector2, x_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Vector2, y_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Vector3, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Vector3, x_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Vector3, y_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Vector3, z_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Quaternion, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Quaternion, w_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Quaternion, x_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Quaternion, y_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Quaternion, z_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Vector2List, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Vector2List, values_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Vector3List, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Vector3List, values_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ColorList, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ColorList, values_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::UintList, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::UintList, values_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FloatList, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FloatList, values_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Bool, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Bool, value_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Float, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Float, value_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::UInt32, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::UInt32, value_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Int32, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::Int32, value_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::String, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::String, value_),
+};
+static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  { 0, -1, sizeof(::Tiny3D::Script::FileHeader)},
+  { 8, -1, sizeof(::Tiny3D::Script::ObjectHeader)},
+  { 15, -1, sizeof(::Tiny3D::Script::Color)},
+  { 24, -1, sizeof(::Tiny3D::Script::Matrix4)},
+  { 30, -1, sizeof(::Tiny3D::Script::Vector2)},
+  { 37, -1, sizeof(::Tiny3D::Script::Vector3)},
+  { 45, -1, sizeof(::Tiny3D::Script::Quaternion)},
+  { 54, -1, sizeof(::Tiny3D::Script::Vector2List)},
+  { 60, -1, sizeof(::Tiny3D::Script::Vector3List)},
+  { 66, -1, sizeof(::Tiny3D::Script::ColorList)},
+  { 72, -1, sizeof(::Tiny3D::Script::UintList)},
+  { 78, -1, sizeof(::Tiny3D::Script::FloatList)},
+  { 84, -1, sizeof(::Tiny3D::Script::Bool)},
+  { 90, -1, sizeof(::Tiny3D::Script::Float)},
+  { 96, -1, sizeof(::Tiny3D::Script::UInt32)},
+  { 102, -1, sizeof(::Tiny3D::Script::Int32)},
+  { 108, -1, sizeof(::Tiny3D::Script::String)},
+};
+
+static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_FileHeader_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_ObjectHeader_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_Color_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_Matrix4_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_Vector2_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_Vector3_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_Quaternion_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_Vector2List_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_Vector3List_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_ColorList_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_UintList_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_FloatList_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_Bool_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_Float_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_UInt32_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_Int32_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_String_default_instance_),
+};
+
+const char descriptor_table_protodef_CommonScriptObject_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
+  "\n\030CommonScriptObject.proto\022\rTiny3D.Scrip"
+  "t\">\n\nFileHeader\022\r\n\005magic\030\001 \001(\r\022\017\n\007versio"
+  "n\030\002 \001(\r\022\020\n\010filesize\030\003 \001(\r\"(\n\014ObjectHeade"
+  "r\022\n\n\002ID\030\001 \001(\r\022\014\n\004name\030\002 \001(\t\"3\n\005Color\022\t\n\001"
+  "r\030\001 \001(\002\022\t\n\001g\030\002 \001(\002\022\t\n\001b\030\003 \001(\002\022\t\n\001a\030\004 \001(\002"
+  "\"\031\n\007Matrix4\022\016\n\006values\030\001 \003(\002\"\037\n\007Vector2\022\t"
+  "\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\"*\n\007Vector3\022\t\n\001x\030\001 \001"
+  "(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\"8\n\nQuaternion\022\t"
+  "\n\001w\030\001 \001(\002\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003 \001(\002\022\t\n\001z\030\004 \001"
+  "(\002\"5\n\013Vector2List\022&\n\006values\030\001 \003(\0132\026.Tiny"
+  "3D.Script.Vector2\"5\n\013Vector3List\022&\n\006valu"
+  "es\030\001 \003(\0132\026.Tiny3D.Script.Vector3\"1\n\tColo"
+  "rList\022$\n\006values\030\001 \003(\0132\024.Tiny3D.Script.Co"
+  "lor\"\032\n\010UintList\022\016\n\006values\030\001 \003(\r\"\033\n\tFloat"
+  "List\022\016\n\006values\030\001 \003(\002\"\025\n\004Bool\022\r\n\005value\030\001 "
+  "\001(\010\"\026\n\005Float\022\r\n\005value\030\001 \001(\002\"\027\n\006UInt32\022\r\n"
+  "\005value\030\001 \001(\r\"\026\n\005Int32\022\r\n\005value\030\001 \001(\021\"\027\n\006"
+  "String\022\r\n\005value\030\001 \001(\tb\006proto3"
+  ;
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_CommonScriptObject_2eproto_deps[1] = {
+};
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_CommonScriptObject_2eproto_sccs[17] = {
+  &scc_info_Bool_CommonScriptObject_2eproto.base,
+  &scc_info_Color_CommonScriptObject_2eproto.base,
+  &scc_info_ColorList_CommonScriptObject_2eproto.base,
+  &scc_info_FileHeader_CommonScriptObject_2eproto.base,
+  &scc_info_Float_CommonScriptObject_2eproto.base,
+  &scc_info_FloatList_CommonScriptObject_2eproto.base,
+  &scc_info_Int32_CommonScriptObject_2eproto.base,
+  &scc_info_Matrix4_CommonScriptObject_2eproto.base,
+  &scc_info_ObjectHeader_CommonScriptObject_2eproto.base,
+  &scc_info_Quaternion_CommonScriptObject_2eproto.base,
+  &scc_info_String_CommonScriptObject_2eproto.base,
+  &scc_info_UInt32_CommonScriptObject_2eproto.base,
+  &scc_info_UintList_CommonScriptObject_2eproto.base,
+  &scc_info_Vector2_CommonScriptObject_2eproto.base,
+  &scc_info_Vector2List_CommonScriptObject_2eproto.base,
+  &scc_info_Vector3_CommonScriptObject_2eproto.base,
+  &scc_info_Vector3List_CommonScriptObject_2eproto.base,
+};
+static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_CommonScriptObject_2eproto_once;
+static bool descriptor_table_CommonScriptObject_2eproto_initialized = false;
+const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_CommonScriptObject_2eproto = {
+  &descriptor_table_CommonScriptObject_2eproto_initialized, descriptor_table_protodef_CommonScriptObject_2eproto, "CommonScriptObject.proto", 709,
+  &descriptor_table_CommonScriptObject_2eproto_once, descriptor_table_CommonScriptObject_2eproto_sccs, descriptor_table_CommonScriptObject_2eproto_deps, 17, 0,
+  schemas, file_default_instances, TableStruct_CommonScriptObject_2eproto::offsets,
+  file_level_metadata_CommonScriptObject_2eproto, 17, file_level_enum_descriptors_CommonScriptObject_2eproto, file_level_service_descriptors_CommonScriptObject_2eproto,
+};
+
+// Force running AddDescriptors() at dynamic initialization time.
+static bool dynamic_init_dummy_CommonScriptObject_2eproto = (  ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_CommonScriptObject_2eproto), true);
 namespace Tiny3D {
 namespace Script {
 
@@ -321,12 +554,12 @@ class FileHeader::_Internal {
 };
 
 FileHeader::FileHeader()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.FileHeader)
 }
 FileHeader::FileHeader(const FileHeader& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&magic_, &from.magic_,
@@ -443,8 +676,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.FileHeader)
   return target;
@@ -480,17 +713,27 @@ size_t FileHeader::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void FileHeader::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const FileHeader*>(
-      &from));
+void FileHeader::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.FileHeader)
+  GOOGLE_DCHECK_NE(&from, this);
+  const FileHeader* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<FileHeader>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.FileHeader)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.FileHeader)
+    MergeFrom(*source);
+  }
 }
 
 void FileHeader::MergeFrom(const FileHeader& from) {
@@ -509,6 +752,13 @@ void FileHeader::MergeFrom(const FileHeader& from) {
   if (from.filesize() != 0) {
     _internal_set_filesize(from._internal_filesize());
   }
+}
+
+void FileHeader::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.FileHeader)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void FileHeader::CopyFrom(const FileHeader& from) {
@@ -530,8 +780,8 @@ void FileHeader::InternalSwap(FileHeader* other) {
   swap(filesize_, other->filesize_);
 }
 
-std::string FileHeader::GetTypeName() const {
-  return "Tiny3D.Script.FileHeader";
+::PROTOBUF_NAMESPACE_ID::Metadata FileHeader::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -544,12 +794,12 @@ class ObjectHeader::_Internal {
 };
 
 ObjectHeader::ObjectHeader()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.ObjectHeader)
 }
 ObjectHeader::ObjectHeader(const ObjectHeader& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -614,7 +864,7 @@ const char* ObjectHeader::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_name();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.ObjectHeader.name"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -661,8 +911,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.ObjectHeader)
   return target;
@@ -691,17 +941,27 @@ size_t ObjectHeader::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void ObjectHeader::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ObjectHeader*>(
-      &from));
+void ObjectHeader::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.ObjectHeader)
+  GOOGLE_DCHECK_NE(&from, this);
+  const ObjectHeader* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ObjectHeader>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.ObjectHeader)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.ObjectHeader)
+    MergeFrom(*source);
+  }
 }
 
 void ObjectHeader::MergeFrom(const ObjectHeader& from) {
@@ -718,6 +978,13 @@ void ObjectHeader::MergeFrom(const ObjectHeader& from) {
   if (from.id() != 0) {
     _internal_set_id(from._internal_id());
   }
+}
+
+void ObjectHeader::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.ObjectHeader)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void ObjectHeader::CopyFrom(const ObjectHeader& from) {
@@ -739,8 +1006,8 @@ void ObjectHeader::InternalSwap(ObjectHeader* other) {
   swap(id_, other->id_);
 }
 
-std::string ObjectHeader::GetTypeName() const {
-  return "Tiny3D.Script.ObjectHeader";
+::PROTOBUF_NAMESPACE_ID::Metadata ObjectHeader::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -753,12 +1020,12 @@ class Color::_Internal {
 };
 
 Color::Color()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.Color)
 }
 Color::Color(const Color& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&r_, &from.r_,
@@ -888,8 +1155,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Color)
   return target;
@@ -924,17 +1191,27 @@ size_t Color::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Color::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Color*>(
-      &from));
+void Color::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.Color)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Color* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Color>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.Color)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.Color)
+    MergeFrom(*source);
+  }
 }
 
 void Color::MergeFrom(const Color& from) {
@@ -958,6 +1235,13 @@ void Color::MergeFrom(const Color& from) {
   }
 }
 
+void Color::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.Color)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
 void Color::CopyFrom(const Color& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.Color)
   if (&from == this) return;
@@ -978,8 +1262,8 @@ void Color::InternalSwap(Color* other) {
   swap(a_, other->a_);
 }
 
-std::string Color::GetTypeName() const {
-  return "Tiny3D.Script.Color";
+::PROTOBUF_NAMESPACE_ID::Metadata Color::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -992,12 +1276,12 @@ class Matrix4::_Internal {
 };
 
 Matrix4::Matrix4()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.Matrix4)
 }
 Matrix4::Matrix4(const Matrix4& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
       values_(from.values_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -1083,8 +1367,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Matrix4)
   return target;
@@ -1114,17 +1398,27 @@ size_t Matrix4::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Matrix4::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Matrix4*>(
-      &from));
+void Matrix4::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.Matrix4)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Matrix4* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Matrix4>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.Matrix4)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.Matrix4)
+    MergeFrom(*source);
+  }
 }
 
 void Matrix4::MergeFrom(const Matrix4& from) {
@@ -1135,6 +1429,13 @@ void Matrix4::MergeFrom(const Matrix4& from) {
   (void) cached_has_bits;
 
   values_.MergeFrom(from.values_);
+}
+
+void Matrix4::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.Matrix4)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Matrix4::CopyFrom(const Matrix4& from) {
@@ -1154,8 +1455,8 @@ void Matrix4::InternalSwap(Matrix4* other) {
   values_.InternalSwap(&other->values_);
 }
 
-std::string Matrix4::GetTypeName() const {
-  return "Tiny3D.Script.Matrix4";
+::PROTOBUF_NAMESPACE_ID::Metadata Matrix4::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -1168,12 +1469,12 @@ class Vector2::_Internal {
 };
 
 Vector2::Vector2()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.Vector2)
 }
 Vector2::Vector2(const Vector2& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&x_, &from.x_,
@@ -1277,8 +1578,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Vector2)
   return target;
@@ -1303,17 +1604,27 @@ size_t Vector2::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Vector2::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Vector2*>(
-      &from));
+void Vector2::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.Vector2)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Vector2* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Vector2>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.Vector2)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.Vector2)
+    MergeFrom(*source);
+  }
 }
 
 void Vector2::MergeFrom(const Vector2& from) {
@@ -1329,6 +1640,13 @@ void Vector2::MergeFrom(const Vector2& from) {
   if (!(from.y() <= 0 && from.y() >= 0)) {
     _internal_set_y(from._internal_y());
   }
+}
+
+void Vector2::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.Vector2)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Vector2::CopyFrom(const Vector2& from) {
@@ -1349,8 +1667,8 @@ void Vector2::InternalSwap(Vector2* other) {
   swap(y_, other->y_);
 }
 
-std::string Vector2::GetTypeName() const {
-  return "Tiny3D.Script.Vector2";
+::PROTOBUF_NAMESPACE_ID::Metadata Vector2::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -1363,12 +1681,12 @@ class Vector3::_Internal {
 };
 
 Vector3::Vector3()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.Vector3)
 }
 Vector3::Vector3(const Vector3& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&x_, &from.x_,
@@ -1485,8 +1803,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Vector3)
   return target;
@@ -1516,17 +1834,27 @@ size_t Vector3::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Vector3::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Vector3*>(
-      &from));
+void Vector3::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.Vector3)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Vector3* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Vector3>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.Vector3)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.Vector3)
+    MergeFrom(*source);
+  }
 }
 
 void Vector3::MergeFrom(const Vector3& from) {
@@ -1545,6 +1873,13 @@ void Vector3::MergeFrom(const Vector3& from) {
   if (!(from.z() <= 0 && from.z() >= 0)) {
     _internal_set_z(from._internal_z());
   }
+}
+
+void Vector3::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.Vector3)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Vector3::CopyFrom(const Vector3& from) {
@@ -1566,8 +1901,264 @@ void Vector3::InternalSwap(Vector3* other) {
   swap(z_, other->z_);
 }
 
-std::string Vector3::GetTypeName() const {
-  return "Tiny3D.Script.Vector3";
+::PROTOBUF_NAMESPACE_ID::Metadata Vector3::GetMetadata() const {
+  return GetMetadataStatic();
+}
+
+
+// ===================================================================
+
+void Quaternion::InitAsDefaultInstance() {
+}
+class Quaternion::_Internal {
+ public:
+};
+
+Quaternion::Quaternion()
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.Quaternion)
+}
+Quaternion::Quaternion(const Quaternion& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&w_, &from.w_,
+    static_cast<size_t>(reinterpret_cast<char*>(&z_) -
+    reinterpret_cast<char*>(&w_)) + sizeof(z_));
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.Quaternion)
+}
+
+void Quaternion::SharedCtor() {
+  ::memset(&w_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&z_) -
+      reinterpret_cast<char*>(&w_)) + sizeof(z_));
+}
+
+Quaternion::~Quaternion() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.Quaternion)
+  SharedDtor();
+}
+
+void Quaternion::SharedDtor() {
+}
+
+void Quaternion::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const Quaternion& Quaternion::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Quaternion_CommonScriptObject_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void Quaternion::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.Quaternion)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&w_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&z_) -
+      reinterpret_cast<char*>(&w_)) + sizeof(z_));
+  _internal_metadata_.Clear();
+}
+
+const char* Quaternion::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // float w = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 13)) {
+          w_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      // float x = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 21)) {
+          x_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      // float y = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 29)) {
+          y_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      // float z = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 37)) {
+          z_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* Quaternion::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.Quaternion)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // float w = 1;
+  if (!(this->w() <= 0 && this->w() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(1, this->_internal_w(), target);
+  }
+
+  // float x = 2;
+  if (!(this->x() <= 0 && this->x() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(2, this->_internal_x(), target);
+  }
+
+  // float y = 3;
+  if (!(this->y() <= 0 && this->y() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(3, this->_internal_y(), target);
+  }
+
+  // float z = 4;
+  if (!(this->z() <= 0 && this->z() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(4, this->_internal_z(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Quaternion)
+  return target;
+}
+
+size_t Quaternion::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.Quaternion)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // float w = 1;
+  if (!(this->w() <= 0 && this->w() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  // float x = 2;
+  if (!(this->x() <= 0 && this->x() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  // float y = 3;
+  if (!(this->y() <= 0 && this->y() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  // float z = 4;
+  if (!(this->z() <= 0 && this->z() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void Quaternion::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.Quaternion)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Quaternion* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Quaternion>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.Quaternion)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.Quaternion)
+    MergeFrom(*source);
+  }
+}
+
+void Quaternion::MergeFrom(const Quaternion& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.Quaternion)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!(from.w() <= 0 && from.w() >= 0)) {
+    _internal_set_w(from._internal_w());
+  }
+  if (!(from.x() <= 0 && from.x() >= 0)) {
+    _internal_set_x(from._internal_x());
+  }
+  if (!(from.y() <= 0 && from.y() >= 0)) {
+    _internal_set_y(from._internal_y());
+  }
+  if (!(from.z() <= 0 && from.z() >= 0)) {
+    _internal_set_z(from._internal_z());
+  }
+}
+
+void Quaternion::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.Quaternion)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Quaternion::CopyFrom(const Quaternion& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.Quaternion)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Quaternion::IsInitialized() const {
+  return true;
+}
+
+void Quaternion::InternalSwap(Quaternion* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(w_, other->w_);
+  swap(x_, other->x_);
+  swap(y_, other->y_);
+  swap(z_, other->z_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata Quaternion::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -1580,12 +2171,12 @@ class Vector2List::_Internal {
 };
 
 Vector2List::Vector2List()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.Vector2List)
 }
 Vector2List::Vector2List(const Vector2List& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
       values_(from.values_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -1677,8 +2268,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Vector2List)
   return target;
@@ -1700,17 +2291,27 @@ size_t Vector2List::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Vector2List::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Vector2List*>(
-      &from));
+void Vector2List::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.Vector2List)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Vector2List* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Vector2List>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.Vector2List)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.Vector2List)
+    MergeFrom(*source);
+  }
 }
 
 void Vector2List::MergeFrom(const Vector2List& from) {
@@ -1721,6 +2322,13 @@ void Vector2List::MergeFrom(const Vector2List& from) {
   (void) cached_has_bits;
 
   values_.MergeFrom(from.values_);
+}
+
+void Vector2List::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.Vector2List)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Vector2List::CopyFrom(const Vector2List& from) {
@@ -1740,8 +2348,8 @@ void Vector2List::InternalSwap(Vector2List* other) {
   values_.InternalSwap(&other->values_);
 }
 
-std::string Vector2List::GetTypeName() const {
-  return "Tiny3D.Script.Vector2List";
+::PROTOBUF_NAMESPACE_ID::Metadata Vector2List::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -1754,12 +2362,12 @@ class Vector3List::_Internal {
 };
 
 Vector3List::Vector3List()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.Vector3List)
 }
 Vector3List::Vector3List(const Vector3List& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
       values_(from.values_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -1851,8 +2459,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Vector3List)
   return target;
@@ -1874,17 +2482,27 @@ size_t Vector3List::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Vector3List::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Vector3List*>(
-      &from));
+void Vector3List::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.Vector3List)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Vector3List* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Vector3List>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.Vector3List)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.Vector3List)
+    MergeFrom(*source);
+  }
 }
 
 void Vector3List::MergeFrom(const Vector3List& from) {
@@ -1895,6 +2513,13 @@ void Vector3List::MergeFrom(const Vector3List& from) {
   (void) cached_has_bits;
 
   values_.MergeFrom(from.values_);
+}
+
+void Vector3List::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.Vector3List)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Vector3List::CopyFrom(const Vector3List& from) {
@@ -1914,8 +2539,8 @@ void Vector3List::InternalSwap(Vector3List* other) {
   values_.InternalSwap(&other->values_);
 }
 
-std::string Vector3List::GetTypeName() const {
-  return "Tiny3D.Script.Vector3List";
+::PROTOBUF_NAMESPACE_ID::Metadata Vector3List::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -1928,12 +2553,12 @@ class ColorList::_Internal {
 };
 
 ColorList::ColorList()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.ColorList)
 }
 ColorList::ColorList(const ColorList& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
       values_(from.values_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -2025,8 +2650,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.ColorList)
   return target;
@@ -2048,17 +2673,27 @@ size_t ColorList::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void ColorList::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ColorList*>(
-      &from));
+void ColorList::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.ColorList)
+  GOOGLE_DCHECK_NE(&from, this);
+  const ColorList* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ColorList>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.ColorList)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.ColorList)
+    MergeFrom(*source);
+  }
 }
 
 void ColorList::MergeFrom(const ColorList& from) {
@@ -2069,6 +2704,13 @@ void ColorList::MergeFrom(const ColorList& from) {
   (void) cached_has_bits;
 
   values_.MergeFrom(from.values_);
+}
+
+void ColorList::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.ColorList)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void ColorList::CopyFrom(const ColorList& from) {
@@ -2088,8 +2730,8 @@ void ColorList::InternalSwap(ColorList* other) {
   values_.InternalSwap(&other->values_);
 }
 
-std::string ColorList::GetTypeName() const {
-  return "Tiny3D.Script.ColorList";
+::PROTOBUF_NAMESPACE_ID::Metadata ColorList::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -2102,12 +2744,12 @@ class UintList::_Internal {
 };
 
 UintList::UintList()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.UintList)
 }
 UintList::UintList(const UintList& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
       values_(from.values_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -2197,8 +2839,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.UintList)
   return target;
@@ -2228,17 +2870,27 @@ size_t UintList::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void UintList::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const UintList*>(
-      &from));
+void UintList::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.UintList)
+  GOOGLE_DCHECK_NE(&from, this);
+  const UintList* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<UintList>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.UintList)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.UintList)
+    MergeFrom(*source);
+  }
 }
 
 void UintList::MergeFrom(const UintList& from) {
@@ -2249,6 +2901,13 @@ void UintList::MergeFrom(const UintList& from) {
   (void) cached_has_bits;
 
   values_.MergeFrom(from.values_);
+}
+
+void UintList::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.UintList)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void UintList::CopyFrom(const UintList& from) {
@@ -2268,8 +2927,8 @@ void UintList::InternalSwap(UintList* other) {
   values_.InternalSwap(&other->values_);
 }
 
-std::string UintList::GetTypeName() const {
-  return "Tiny3D.Script.UintList";
+::PROTOBUF_NAMESPACE_ID::Metadata UintList::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -2282,12 +2941,12 @@ class FloatList::_Internal {
 };
 
 FloatList::FloatList()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.FloatList)
 }
 FloatList::FloatList(const FloatList& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
       values_(from.values_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -2373,8 +3032,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.FloatList)
   return target;
@@ -2404,17 +3063,27 @@ size_t FloatList::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void FloatList::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const FloatList*>(
-      &from));
+void FloatList::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.FloatList)
+  GOOGLE_DCHECK_NE(&from, this);
+  const FloatList* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<FloatList>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.FloatList)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.FloatList)
+    MergeFrom(*source);
+  }
 }
 
 void FloatList::MergeFrom(const FloatList& from) {
@@ -2425,6 +3094,13 @@ void FloatList::MergeFrom(const FloatList& from) {
   (void) cached_has_bits;
 
   values_.MergeFrom(from.values_);
+}
+
+void FloatList::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.FloatList)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void FloatList::CopyFrom(const FloatList& from) {
@@ -2444,8 +3120,8 @@ void FloatList::InternalSwap(FloatList* other) {
   values_.InternalSwap(&other->values_);
 }
 
-std::string FloatList::GetTypeName() const {
-  return "Tiny3D.Script.FloatList";
+::PROTOBUF_NAMESPACE_ID::Metadata FloatList::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -2458,12 +3134,12 @@ class Bool::_Internal {
 };
 
 Bool::Bool()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.Bool)
 }
 Bool::Bool(const Bool& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   value_ = from.value_;
@@ -2548,8 +3224,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Bool)
   return target;
@@ -2569,17 +3245,27 @@ size_t Bool::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Bool::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Bool*>(
-      &from));
+void Bool::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.Bool)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Bool* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Bool>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.Bool)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.Bool)
+    MergeFrom(*source);
+  }
 }
 
 void Bool::MergeFrom(const Bool& from) {
@@ -2592,6 +3278,13 @@ void Bool::MergeFrom(const Bool& from) {
   if (from.value() != 0) {
     _internal_set_value(from._internal_value());
   }
+}
+
+void Bool::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.Bool)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Bool::CopyFrom(const Bool& from) {
@@ -2611,8 +3304,8 @@ void Bool::InternalSwap(Bool* other) {
   swap(value_, other->value_);
 }
 
-std::string Bool::GetTypeName() const {
-  return "Tiny3D.Script.Bool";
+::PROTOBUF_NAMESPACE_ID::Metadata Bool::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -2625,12 +3318,12 @@ class Float::_Internal {
 };
 
 Float::Float()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.Float)
 }
 Float::Float(const Float& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   value_ = from.value_;
@@ -2715,8 +3408,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Float)
   return target;
@@ -2736,17 +3429,27 @@ size_t Float::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Float::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Float*>(
-      &from));
+void Float::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.Float)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Float* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Float>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.Float)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.Float)
+    MergeFrom(*source);
+  }
 }
 
 void Float::MergeFrom(const Float& from) {
@@ -2759,6 +3462,13 @@ void Float::MergeFrom(const Float& from) {
   if (!(from.value() <= 0 && from.value() >= 0)) {
     _internal_set_value(from._internal_value());
   }
+}
+
+void Float::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.Float)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Float::CopyFrom(const Float& from) {
@@ -2778,8 +3488,8 @@ void Float::InternalSwap(Float* other) {
   swap(value_, other->value_);
 }
 
-std::string Float::GetTypeName() const {
-  return "Tiny3D.Script.Float";
+::PROTOBUF_NAMESPACE_ID::Metadata Float::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -2792,12 +3502,12 @@ class UInt32::_Internal {
 };
 
 UInt32::UInt32()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.UInt32)
 }
 UInt32::UInt32(const UInt32& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   value_ = from.value_;
@@ -2882,8 +3592,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.UInt32)
   return target;
@@ -2905,17 +3615,27 @@ size_t UInt32::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void UInt32::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const UInt32*>(
-      &from));
+void UInt32::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.UInt32)
+  GOOGLE_DCHECK_NE(&from, this);
+  const UInt32* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<UInt32>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.UInt32)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.UInt32)
+    MergeFrom(*source);
+  }
 }
 
 void UInt32::MergeFrom(const UInt32& from) {
@@ -2928,6 +3648,13 @@ void UInt32::MergeFrom(const UInt32& from) {
   if (from.value() != 0) {
     _internal_set_value(from._internal_value());
   }
+}
+
+void UInt32::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.UInt32)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void UInt32::CopyFrom(const UInt32& from) {
@@ -2947,8 +3674,8 @@ void UInt32::InternalSwap(UInt32* other) {
   swap(value_, other->value_);
 }
 
-std::string UInt32::GetTypeName() const {
-  return "Tiny3D.Script.UInt32";
+::PROTOBUF_NAMESPACE_ID::Metadata UInt32::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -2961,12 +3688,12 @@ class Int32::_Internal {
 };
 
 Int32::Int32()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.Int32)
 }
 Int32::Int32(const Int32& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   value_ = from.value_;
@@ -3051,8 +3778,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.Int32)
   return target;
@@ -3074,17 +3801,27 @@ size_t Int32::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Int32::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Int32*>(
-      &from));
+void Int32::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.Int32)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Int32* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Int32>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.Int32)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.Int32)
+    MergeFrom(*source);
+  }
 }
 
 void Int32::MergeFrom(const Int32& from) {
@@ -3097,6 +3834,13 @@ void Int32::MergeFrom(const Int32& from) {
   if (from.value() != 0) {
     _internal_set_value(from._internal_value());
   }
+}
+
+void Int32::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.Int32)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Int32::CopyFrom(const Int32& from) {
@@ -3116,8 +3860,8 @@ void Int32::InternalSwap(Int32* other) {
   swap(value_, other->value_);
 }
 
-std::string Int32::GetTypeName() const {
-  return "Tiny3D.Script.Int32";
+::PROTOBUF_NAMESPACE_ID::Metadata Int32::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -3130,12 +3874,12 @@ class String::_Internal {
 };
 
 String::String()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.String)
 }
 String::String(const String& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   value_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -3190,7 +3934,7 @@ const char* String::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_value();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.String.value"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -3231,8 +3975,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.String)
   return target;
@@ -3254,17 +3998,27 @@ size_t String::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void String::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const String*>(
-      &from));
+void String::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.String)
+  GOOGLE_DCHECK_NE(&from, this);
+  const String* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<String>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.String)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.String)
+    MergeFrom(*source);
+  }
 }
 
 void String::MergeFrom(const String& from) {
@@ -3278,6 +4032,13 @@ void String::MergeFrom(const String& from) {
 
     value_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.value_);
   }
+}
+
+void String::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.String)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void String::CopyFrom(const String& from) {
@@ -3298,8 +4059,8 @@ void String::InternalSwap(String* other) {
     GetArenaNoVirtual());
 }
 
-std::string String::GetTypeName() const {
-  return "Tiny3D.Script.String";
+::PROTOBUF_NAMESPACE_ID::Metadata String::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -3324,6 +4085,9 @@ template<> PROTOBUF_NOINLINE ::Tiny3D::Script::Vector2* Arena::CreateMaybeMessag
 }
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::Vector3* Arena::CreateMaybeMessage< ::Tiny3D::Script::Vector3 >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::Vector3 >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::Quaternion* Arena::CreateMaybeMessage< ::Tiny3D::Script::Quaternion >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::Quaternion >(arena);
 }
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::Vector2List* Arena::CreateMaybeMessage< ::Tiny3D::Script::Vector2List >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::Vector2List >(arena);

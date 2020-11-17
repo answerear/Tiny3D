@@ -6,7 +6,6 @@
 #-------------------------------------------------------------------------------
 
 
-option (protobuf_BUILD_LITE_LIBRARIES "Build protobuf-lite library" ON)
 
 add_subdirectory(cmake)
 

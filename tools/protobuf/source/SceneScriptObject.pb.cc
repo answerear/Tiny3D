@@ -8,7 +8,10 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/wire_format_lite.h>
-#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/generated_message_reflection.h>
+#include <google/protobuf/reflection_ops.h>
+#include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ObjectHeader_CommonScriptObject_2eproto;
@@ -101,9 +104,107 @@ static void InitDefaultsscc_info_Transform_SceneScriptObject_2eproto() {
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Transform_SceneScriptObject_2eproto}, {
       &scc_info_Vector3_CommonScriptObject_2eproto.base,}};
 
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_SceneScriptObject_2eproto[4];
+static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_SceneScriptObject_2eproto[1];
+static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_SceneScriptObject_2eproto = nullptr;
+
+const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_SceneScriptObject_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Node, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Node, header_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Node, parent_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Node, children_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Node, components_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Component, _internal_metadata_),
+  ~0u,  // no _extensions_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Component, _oneof_case_[0]),
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Component, type_),
+  offsetof(::Tiny3D::Script::SceneSystem::ComponentDefaultTypeInternal, transform_),
+  offsetof(::Tiny3D::Script::SceneSystem::ComponentDefaultTypeInternal, mesh_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Component, ComponentOneOf_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Transform, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Transform, position_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Transform, rotation_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Transform, scaling_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Mesh, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Mesh, resid_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Mesh, mesh_name_),
+};
+static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  { 0, -1, sizeof(::Tiny3D::Script::SceneSystem::Node)},
+  { 9, -1, sizeof(::Tiny3D::Script::SceneSystem::Component)},
+  { 18, -1, sizeof(::Tiny3D::Script::SceneSystem::Transform)},
+  { 26, -1, sizeof(::Tiny3D::Script::SceneSystem::Mesh)},
+};
+
+static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::SceneSystem::_Node_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::SceneSystem::_Component_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::SceneSystem::_Transform_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::SceneSystem::_Mesh_default_instance_),
+};
+
+const char descriptor_table_protodef_SceneScriptObject_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
+  "\n\027SceneScriptObject.proto\022\031Tiny3D.Script"
+  ".SceneSystem\032\030CommonScriptObject.proto\032\027"
+  "ModelScriptObject.proto\"\217\001\n\004Node\022+\n\006head"
+  "er\030\001 \001(\0132\033.Tiny3D.Script.ObjectHeader\022\016\n"
+  "\006parent\030\002 \001(\r\022\020\n\010children\030\003 \003(\r\0228\n\ncompo"
+  "nents\030\004 \003(\0132$.Tiny3D.Script.SceneSystem."
+  "Component\"\301\001\n\tComponent\0226\n\004type\030\001 \001(\0162(."
+  "Tiny3D.Script.SceneSystem.ComponentType\022"
+  "9\n\ttransform\030\002 \001(\0132$.Tiny3D.Script.Scene"
+  "System.TransformH\000\022/\n\004mesh\030\003 \001(\0132\037.Tiny3"
+  "D.Script.SceneSystem.MeshH\000B\020\n\016Component"
+  "OneOf\"\210\001\n\tTransform\022(\n\010position\030\002 \001(\0132\026."
+  "Tiny3D.Script.Vector3\022(\n\010rotation\030\003 \001(\0132"
+  "\026.Tiny3D.Script.Vector3\022\'\n\007scaling\030\004 \001(\013"
+  "2\026.Tiny3D.Script.Vector3\"(\n\004Mesh\022\r\n\005resI"
+  "D\030\001 \001(\r\022\021\n\tmesh_name\030\002 \001(\t*.\n\rComponentT"
+  "ype\022\020\n\014CT_TRANSFORM\020\000\022\013\n\007CT_MESH\020\001b\006prot"
+  "o3"
+  ;
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_SceneScriptObject_2eproto_deps[2] = {
+  &::descriptor_table_CommonScriptObject_2eproto,
+  &::descriptor_table_ModelScriptObject_2eproto,
+};
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_SceneScriptObject_2eproto_sccs[4] = {
+  &scc_info_Component_SceneScriptObject_2eproto.base,
+  &scc_info_Mesh_SceneScriptObject_2eproto.base,
+  &scc_info_Node_SceneScriptObject_2eproto.base,
+  &scc_info_Transform_SceneScriptObject_2eproto.base,
+};
+static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_SceneScriptObject_2eproto_once;
+static bool descriptor_table_SceneScriptObject_2eproto_initialized = false;
+const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_SceneScriptObject_2eproto = {
+  &descriptor_table_SceneScriptObject_2eproto_initialized, descriptor_table_protodef_SceneScriptObject_2eproto, "SceneScriptObject.proto", 682,
+  &descriptor_table_SceneScriptObject_2eproto_once, descriptor_table_SceneScriptObject_2eproto_sccs, descriptor_table_SceneScriptObject_2eproto_deps, 4, 2,
+  schemas, file_default_instances, TableStruct_SceneScriptObject_2eproto::offsets,
+  file_level_metadata_SceneScriptObject_2eproto, 4, file_level_enum_descriptors_SceneScriptObject_2eproto, file_level_service_descriptors_SceneScriptObject_2eproto,
+};
+
+// Force running AddDescriptors() at dynamic initialization time.
+static bool dynamic_init_dummy_SceneScriptObject_2eproto = (  ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_SceneScriptObject_2eproto), true);
 namespace Tiny3D {
 namespace Script {
 namespace SceneSystem {
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ComponentType_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_SceneScriptObject_2eproto);
+  return file_level_enum_descriptors_SceneScriptObject_2eproto[0];
+}
 bool ComponentType_IsValid(int value) {
   switch (value) {
     case 0:
@@ -114,47 +215,6 @@ bool ComponentType_IsValid(int value) {
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> ComponentType_strings[2] = {};
-
-static const char ComponentType_names[] =
-  "CT_MESH"
-  "CT_TRANSFORM";
-
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry ComponentType_entries[] = {
-  { {ComponentType_names + 0, 7}, 1 },
-  { {ComponentType_names + 7, 12}, 0 },
-};
-
-static const int ComponentType_entries_by_number[] = {
-  1, // 0 -> CT_TRANSFORM
-  0, // 1 -> CT_MESH
-};
-
-const std::string& ComponentType_Name(
-    ComponentType value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          ComponentType_entries,
-          ComponentType_entries_by_number,
-          2, ComponentType_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      ComponentType_entries,
-      ComponentType_entries_by_number,
-      2, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     ComponentType_strings[idx].get();
-}
-bool ComponentType_Parse(
-    const std::string& name, ComponentType* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      ComponentType_entries, 2, name, &int_value);
-  if (success) {
-    *value = static_cast<ComponentType>(int_value);
-  }
-  return success;
-}
 
 // ===================================================================
 
@@ -178,12 +238,12 @@ void Node::clear_header() {
   header_ = nullptr;
 }
 Node::Node()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.SceneSystem.Node)
 }
 Node::Node(const Node& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
       children_(from.children_),
       components_(from.components_) {
@@ -339,8 +399,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.SceneSystem.Node)
   return target;
@@ -391,17 +451,27 @@ size_t Node::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Node::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Node*>(
-      &from));
+void Node::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.SceneSystem.Node)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Node* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Node>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.SceneSystem.Node)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.SceneSystem.Node)
+    MergeFrom(*source);
+  }
 }
 
 void Node::MergeFrom(const Node& from) {
@@ -419,6 +489,13 @@ void Node::MergeFrom(const Node& from) {
   if (from.parent() != 0) {
     _internal_set_parent(from._internal_parent());
   }
+}
+
+void Node::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.SceneSystem.Node)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Node::CopyFrom(const Node& from) {
@@ -441,14 +518,18 @@ void Node::InternalSwap(Node* other) {
   swap(parent_, other->parent_);
 }
 
-std::string Node::GetTypeName() const {
-  return "Tiny3D.Script.SceneSystem.Node";
+::PROTOBUF_NAMESPACE_ID::Metadata Node::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
 // ===================================================================
 
 void Component::InitAsDefaultInstance() {
+  ::Tiny3D::Script::SceneSystem::_Component_default_instance_.transform_ = const_cast< ::Tiny3D::Script::SceneSystem::Transform*>(
+      ::Tiny3D::Script::SceneSystem::Transform::internal_default_instance());
+  ::Tiny3D::Script::SceneSystem::_Component_default_instance_.mesh_ = const_cast< ::Tiny3D::Script::SceneSystem::Mesh*>(
+      ::Tiny3D::Script::SceneSystem::Mesh::internal_default_instance());
 }
 class Component::_Internal {
  public:
@@ -493,12 +574,12 @@ void Component::set_allocated_mesh(::Tiny3D::Script::SceneSystem::Mesh* mesh) {
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Component.mesh)
 }
 Component::Component()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.SceneSystem.Component)
 }
 Component::Component(const Component& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   type_ = from.type_;
@@ -654,8 +735,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.SceneSystem.Component)
   return target;
@@ -695,17 +776,27 @@ size_t Component::ByteSizeLong() const {
     }
   }
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Component::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Component*>(
-      &from));
+void Component::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.SceneSystem.Component)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Component* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Component>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.SceneSystem.Component)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.SceneSystem.Component)
+    MergeFrom(*source);
+  }
 }
 
 void Component::MergeFrom(const Component& from) {
@@ -733,6 +824,13 @@ void Component::MergeFrom(const Component& from) {
   }
 }
 
+void Component::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.SceneSystem.Component)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
 void Component::CopyFrom(const Component& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.SceneSystem.Component)
   if (&from == this) return;
@@ -752,8 +850,8 @@ void Component::InternalSwap(Component* other) {
   swap(_oneof_case_[0], other->_oneof_case_[0]);
 }
 
-std::string Component::GetTypeName() const {
-  return "Tiny3D.Script.SceneSystem.Component";
+::PROTOBUF_NAMESPACE_ID::Metadata Component::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -805,12 +903,12 @@ void Transform::clear_scaling() {
   scaling_ = nullptr;
 }
 Transform::Transform()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.SceneSystem.Transform)
 }
 Transform::Transform(const Transform& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   if (from._internal_has_position()) {
@@ -958,8 +1056,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.SceneSystem.Transform)
   return target;
@@ -995,17 +1093,27 @@ size_t Transform::ByteSizeLong() const {
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Transform::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Transform*>(
-      &from));
+void Transform::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.SceneSystem.Transform)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Transform* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Transform>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.SceneSystem.Transform)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.SceneSystem.Transform)
+    MergeFrom(*source);
+  }
 }
 
 void Transform::MergeFrom(const Transform& from) {
@@ -1024,6 +1132,13 @@ void Transform::MergeFrom(const Transform& from) {
   if (from.has_scaling()) {
     _internal_mutable_scaling()->::Tiny3D::Script::Vector3::MergeFrom(from._internal_scaling());
   }
+}
+
+void Transform::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.SceneSystem.Transform)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Transform::CopyFrom(const Transform& from) {
@@ -1045,8 +1160,8 @@ void Transform::InternalSwap(Transform* other) {
   swap(scaling_, other->scaling_);
 }
 
-std::string Transform::GetTypeName() const {
-  return "Tiny3D.Script.SceneSystem.Transform";
+::PROTOBUF_NAMESPACE_ID::Metadata Transform::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 
@@ -1059,18 +1174,26 @@ class Mesh::_Internal {
 };
 
 Mesh::Mesh()
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(), _internal_metadata_(nullptr) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:Tiny3D.Script.SceneSystem.Mesh)
 }
 Mesh::Mesh(const Mesh& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  mesh_name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_mesh_name().empty()) {
+    mesh_name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.mesh_name_);
+  }
+  resid_ = from.resid_;
   // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.SceneSystem.Mesh)
 }
 
 void Mesh::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Mesh_SceneScriptObject_2eproto.base);
+  mesh_name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  resid_ = 0u;
 }
 
 Mesh::~Mesh() {
@@ -1079,6 +1202,7 @@ Mesh::~Mesh() {
 }
 
 void Mesh::SharedDtor() {
+  mesh_name_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void Mesh::SetCachedSize(int size) const {
@@ -1096,6 +1220,8 @@ void Mesh::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  mesh_name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  resid_ = 0u;
   _internal_metadata_.Clear();
 }
 
@@ -1105,6 +1231,25 @@ const char* Mesh::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
+    switch (tag >> 3) {
+      // uint32 resID = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          resid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string mesh_name = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          auto str = _internal_mutable_mesh_name();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.SceneSystem.Mesh.mesh_name"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
         if ((tag & 7) == 4 || tag == 0) {
           ctx->SetLastTag(tag);
           goto success;
@@ -1112,6 +1257,8 @@ const char* Mesh::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
         ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
+      }
+    }  // switch
   }  // while
 success:
   return ptr;
@@ -1127,9 +1274,25 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  // uint32 resID = 1;
+  if (this->resid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_resid(), target);
+  }
+
+  // string mesh_name = 2;
+  if (this->mesh_name().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_mesh_name().data(), static_cast<int>(this->_internal_mesh_name().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "Tiny3D.Script.SceneSystem.Mesh.mesh_name");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_mesh_name(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields().data(),
-        static_cast<int>(_internal_metadata_.unknown_fields().size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.SceneSystem.Mesh)
   return target;
@@ -1143,18 +1306,42 @@ size_t Mesh::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  // string mesh_name = 2;
+  if (this->mesh_name().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_mesh_name());
+  }
+
+  // uint32 resID = 1;
+  if (this->resid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_resid());
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields().size();
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
-void Mesh::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Mesh*>(
-      &from));
+void Mesh::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.SceneSystem.Mesh)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Mesh* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Mesh>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.SceneSystem.Mesh)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.SceneSystem.Mesh)
+    MergeFrom(*source);
+  }
 }
 
 void Mesh::MergeFrom(const Mesh& from) {
@@ -1164,6 +1351,20 @@ void Mesh::MergeFrom(const Mesh& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from.mesh_name().size() > 0) {
+
+    mesh_name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.mesh_name_);
+  }
+  if (from.resid() != 0) {
+    _internal_set_resid(from._internal_resid());
+  }
+}
+
+void Mesh::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.SceneSystem.Mesh)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Mesh::CopyFrom(const Mesh& from) {
@@ -1180,10 +1381,13 @@ bool Mesh::IsInitialized() const {
 void Mesh::InternalSwap(Mesh* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
+  mesh_name_.Swap(&other->mesh_name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  swap(resid_, other->resid_);
 }
 
-std::string Mesh::GetTypeName() const {
-  return "Tiny3D.Script.SceneSystem.Mesh";
+::PROTOBUF_NAMESPACE_ID::Metadata Mesh::GetMetadata() const {
+  return GetMetadataStatic();
 }
 
 

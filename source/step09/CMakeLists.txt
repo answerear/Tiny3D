@@ -200,12 +200,19 @@ find_package(rapidjson)
 
 # Third Parties
 # Project protobuf
+option (protobuf_BUILD_LITE_LIBRARIES "Build protobuf-lite library" OFF)
 set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/protobuf/src")
 add_subdirectory(protobuf)
 
 # Setup project folder
-set_property(TARGET libprotobuf-lite PROPERTY FOLDER "Third_Party")
-	
+if (protobuf_BUILD_LITE_LIBRARIES)
+    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "Third_Party")
+    set (PROTOBUF_LIBRARY libprotobuf-lite)
+else (protobuf_BUILD_LITE_LIBRARIES)
+    set_property(TARGET libprotobuf PROPERTY FOLDER "Third_Party")
+    set (PROTOBUF_LIBRARY libprotobuf)
+endif (protobuf_BUILD_LITE_LIBRARIES)
+
 # Project Platform
 add_subdirectory(Platform)
 # Project Log
@@ -246,11 +253,11 @@ add_dependencies(T3DLog T3DPlatform)
 add_dependencies(T3DUtils T3DLog T3DPlatform)
 add_dependencies(T3DMath T3DLog T3DPlatform)
 add_dependencies(T3DFramework T3DLog T3DPlatform)
-add_dependencies(T3DCore libprotobuf-lite T3DMath T3DFramework T3DUtils T3DLog T3DPlatform)
+add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DPlatform)
 
 if (TINY3D_BUILD_TOOLS)
     add_subdirectory(Tools)
-    add_dependencies(ScriptCompiler libprotobuf-lite)
+    add_dependencies(ScriptCompiler ${PROTOBUF_LIBRARY})
 endif(TINY3D_BUILD_TOOLS)
 
 if (TINY3D_BUILD_SAMPLES)

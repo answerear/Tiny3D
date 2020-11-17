@@ -75,7 +75,7 @@ if (TINY3D_OS_WINDOWS)
         T3DMath
         ${SHADERCONDUCTOR_LIBRARY}
         #${PROTOBUF_LITE_LIBRARY_D}
-        libprotobuf-lite
+        ${PROTOBUF_LIBRARY}
         )
 
     add_custom_command(TARGET ${BIN_NAME}

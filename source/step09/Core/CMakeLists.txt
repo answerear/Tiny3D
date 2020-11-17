@@ -44,10 +44,10 @@ include_directories(
     "${TINY3D_FRAMEWORK_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source"
-	"${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
-	"${TINY3D_DEP_DIR}/rapidjson"
-	"${PROTOBUF_INCLUDE_DIR}"
+    "${TINY3D_DEP_DIR}/rapidjson"
+    "${PROTOBUF_INCLUDE_DIR}"
     "${TINY3D_DEP_DIR}/zlib/include"    # only for windows
     )
 
@@ -120,7 +120,7 @@ if (TINY3D_OS_WINDOWS)
             LINK_PRIVATE T3DMath
             LINK_PRIVATE legacy_stdio_definitions
             LINK_PRIVATE ${SDL2_LIBRARY}
-			LINK_PRIVATE libprotobuf-lite
+            LINK_PRIVATE ${PROTOBUF_LIBRARY}
             #LINK_PRIVATE ${FREEIMAGE_LIBRARY}
             )
     else ()
@@ -133,7 +133,7 @@ if (TINY3D_OS_WINDOWS)
             LINK_PRIVATE T3DFramework
             LINK_PRIVATE T3DMath
             LINK_PRIVATE ${SDL2_LIBRARY}
-			LINK_PRIVATE libprotobuf-lite
+            LINK_PRIVATE ${PROTOBUF_LIBRARY}
             #LINK_PRIVATE ${FREEIMAGE_LIBRARY}
             )
     endif ()
@@ -178,11 +178,11 @@ if (TINY3D_OS_WINDOWS)
         #COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/scripts"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/textures"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/textures"
-		COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/builtin/icon"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/builtin/icon"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/builtin/icon"
-		COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/builtin/program"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/builtin/program"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/builtin/program"
-		COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/builtin/materials"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/builtin/materials"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/builtin/materials"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/icon" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/icon"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/icon" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/icon"
@@ -190,11 +190,11 @@ if (TINY3D_OS_WINDOWS)
         #COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/scripts" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/scripts"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/textures" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/textures"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/textures" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/textures"
-		COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/builtin/icon" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/builtin/icon"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/builtin/icon" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/builtin/icon"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/builtin/icon" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/builtin/icon"
-		COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/builtin/program" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/builtin/program"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/builtin/program" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/builtin/program"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/builtin/program" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/builtin/program"
-		COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/builtin/materials" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/builtin/materials"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/builtin/materials" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/builtin/materials"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../../assets/builtin/materials" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/builtin/materials"
         )
 elseif (TINY3D_OS_MACOSX)

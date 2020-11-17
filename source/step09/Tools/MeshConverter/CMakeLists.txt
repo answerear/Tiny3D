@@ -68,7 +68,7 @@ if (TINY3D_OS_WINDOWS)
 		T3DFramework
         T3DCore
         ${FBXSDK_LIBRARY}
-        libprotobuf-lite
+        ${PROTOBUF_LIBRARY}
         )
 
     add_custom_command(TARGET ${BIN_NAME}

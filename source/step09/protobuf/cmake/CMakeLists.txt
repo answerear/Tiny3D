@@ -236,6 +236,7 @@ endif (protobuf_UNICODE)
 if (protobuf_BUILD_LITE_LIBRARIES)
     include(libprotobuf-lite.cmake)
 else (protobuf_BUILD_LITE_LIBRARIES)
+    include(libprotobuf-lite.cmake)
     include(libprotobuf.cmake)
 endif (protobuf_BUILD_LITE_LIBRARIES)
 
