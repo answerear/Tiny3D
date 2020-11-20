@@ -19,10 +19,6 @@ extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_
 extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Vector3_CommonScriptObject_2eproto;
 namespace Tiny3D {
 namespace Script {
-class FileHeaderDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileHeader> _instance;
-} _FileHeader_default_instance_;
 class ObjectHeaderDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ObjectHeader> _instance;
@@ -131,20 +127,6 @@ static void InitDefaultsscc_info_ColorList_CommonScriptObject_2eproto() {
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_ColorList_CommonScriptObject_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_ColorList_CommonScriptObject_2eproto}, {
       &scc_info_Color_CommonScriptObject_2eproto.base,}};
-
-static void InitDefaultsscc_info_FileHeader_CommonScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::_FileHeader_default_instance_;
-    new (ptr) ::Tiny3D::Script::FileHeader();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::Tiny3D::Script::FileHeader::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_FileHeader_CommonScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_FileHeader_CommonScriptObject_2eproto}, {}};
 
 static void InitDefaultsscc_info_Float_CommonScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -330,19 +312,11 @@ static void InitDefaultsscc_info_Vector3List_CommonScriptObject_2eproto() {
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Vector3List_CommonScriptObject_2eproto}, {
       &scc_info_Vector3_CommonScriptObject_2eproto.base,}};
 
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_CommonScriptObject_2eproto[17];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_CommonScriptObject_2eproto[16];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_CommonScriptObject_2eproto = nullptr;
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_CommonScriptObject_2eproto = nullptr;
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_CommonScriptObject_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileHeader, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileHeader, magic_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileHeader, version_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileHeader, filesize_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ObjectHeader, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -451,27 +425,25 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_CommonScriptObject_2eproto::of
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::String, value_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, sizeof(::Tiny3D::Script::FileHeader)},
-  { 8, -1, sizeof(::Tiny3D::Script::ObjectHeader)},
-  { 15, -1, sizeof(::Tiny3D::Script::Color)},
-  { 24, -1, sizeof(::Tiny3D::Script::Matrix4)},
-  { 30, -1, sizeof(::Tiny3D::Script::Vector2)},
-  { 37, -1, sizeof(::Tiny3D::Script::Vector3)},
-  { 45, -1, sizeof(::Tiny3D::Script::Quaternion)},
-  { 54, -1, sizeof(::Tiny3D::Script::Vector2List)},
-  { 60, -1, sizeof(::Tiny3D::Script::Vector3List)},
-  { 66, -1, sizeof(::Tiny3D::Script::ColorList)},
-  { 72, -1, sizeof(::Tiny3D::Script::UintList)},
-  { 78, -1, sizeof(::Tiny3D::Script::FloatList)},
-  { 84, -1, sizeof(::Tiny3D::Script::Bool)},
-  { 90, -1, sizeof(::Tiny3D::Script::Float)},
-  { 96, -1, sizeof(::Tiny3D::Script::UInt32)},
-  { 102, -1, sizeof(::Tiny3D::Script::Int32)},
-  { 108, -1, sizeof(::Tiny3D::Script::String)},
+  { 0, -1, sizeof(::Tiny3D::Script::ObjectHeader)},
+  { 7, -1, sizeof(::Tiny3D::Script::Color)},
+  { 16, -1, sizeof(::Tiny3D::Script::Matrix4)},
+  { 22, -1, sizeof(::Tiny3D::Script::Vector2)},
+  { 29, -1, sizeof(::Tiny3D::Script::Vector3)},
+  { 37, -1, sizeof(::Tiny3D::Script::Quaternion)},
+  { 46, -1, sizeof(::Tiny3D::Script::Vector2List)},
+  { 52, -1, sizeof(::Tiny3D::Script::Vector3List)},
+  { 58, -1, sizeof(::Tiny3D::Script::ColorList)},
+  { 64, -1, sizeof(::Tiny3D::Script::UintList)},
+  { 70, -1, sizeof(::Tiny3D::Script::FloatList)},
+  { 76, -1, sizeof(::Tiny3D::Script::Bool)},
+  { 82, -1, sizeof(::Tiny3D::Script::Float)},
+  { 88, -1, sizeof(::Tiny3D::Script::UInt32)},
+  { 94, -1, sizeof(::Tiny3D::Script::Int32)},
+  { 100, -1, sizeof(::Tiny3D::Script::String)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_FileHeader_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_ObjectHeader_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_Color_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::_Matrix4_default_instance_),
@@ -492,31 +464,29 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_CommonScriptObject_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\030CommonScriptObject.proto\022\rTiny3D.Scrip"
-  "t\">\n\nFileHeader\022\r\n\005magic\030\001 \001(\r\022\017\n\007versio"
-  "n\030\002 \001(\r\022\020\n\010filesize\030\003 \001(\r\"(\n\014ObjectHeade"
-  "r\022\n\n\002ID\030\001 \001(\r\022\014\n\004name\030\002 \001(\t\"3\n\005Color\022\t\n\001"
-  "r\030\001 \001(\002\022\t\n\001g\030\002 \001(\002\022\t\n\001b\030\003 \001(\002\022\t\n\001a\030\004 \001(\002"
-  "\"\031\n\007Matrix4\022\016\n\006values\030\001 \003(\002\"\037\n\007Vector2\022\t"
-  "\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\"*\n\007Vector3\022\t\n\001x\030\001 \001"
-  "(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\"8\n\nQuaternion\022\t"
-  "\n\001w\030\001 \001(\002\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003 \001(\002\022\t\n\001z\030\004 \001"
-  "(\002\"5\n\013Vector2List\022&\n\006values\030\001 \003(\0132\026.Tiny"
-  "3D.Script.Vector2\"5\n\013Vector3List\022&\n\006valu"
-  "es\030\001 \003(\0132\026.Tiny3D.Script.Vector3\"1\n\tColo"
-  "rList\022$\n\006values\030\001 \003(\0132\024.Tiny3D.Script.Co"
-  "lor\"\032\n\010UintList\022\016\n\006values\030\001 \003(\r\"\033\n\tFloat"
-  "List\022\016\n\006values\030\001 \003(\002\"\025\n\004Bool\022\r\n\005value\030\001 "
-  "\001(\010\"\026\n\005Float\022\r\n\005value\030\001 \001(\002\"\027\n\006UInt32\022\r\n"
-  "\005value\030\001 \001(\r\"\026\n\005Int32\022\r\n\005value\030\001 \001(\021\"\027\n\006"
-  "String\022\r\n\005value\030\001 \001(\tb\006proto3"
+  "t\"(\n\014ObjectHeader\022\n\n\002ID\030\001 \001(\r\022\014\n\004name\030\002 "
+  "\001(\t\"3\n\005Color\022\t\n\001r\030\001 \001(\002\022\t\n\001g\030\002 \001(\002\022\t\n\001b\030"
+  "\003 \001(\002\022\t\n\001a\030\004 \001(\002\"\031\n\007Matrix4\022\016\n\006values\030\001 "
+  "\003(\002\"\037\n\007Vector2\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\"*\n\007"
+  "Vector3\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002"
+  "\"8\n\nQuaternion\022\t\n\001w\030\001 \001(\002\022\t\n\001x\030\002 \001(\002\022\t\n\001"
+  "y\030\003 \001(\002\022\t\n\001z\030\004 \001(\002\"5\n\013Vector2List\022&\n\006val"
+  "ues\030\001 \003(\0132\026.Tiny3D.Script.Vector2\"5\n\013Vec"
+  "tor3List\022&\n\006values\030\001 \003(\0132\026.Tiny3D.Script"
+  ".Vector3\"1\n\tColorList\022$\n\006values\030\001 \003(\0132\024."
+  "Tiny3D.Script.Color\"\032\n\010UintList\022\016\n\006value"
+  "s\030\001 \003(\r\"\033\n\tFloatList\022\016\n\006values\030\001 \003(\002\"\025\n\004"
+  "Bool\022\r\n\005value\030\001 \001(\010\"\026\n\005Float\022\r\n\005value\030\001 "
+  "\001(\002\"\027\n\006UInt32\022\r\n\005value\030\001 \001(\r\"\026\n\005Int32\022\r\n"
+  "\005value\030\001 \001(\021\"\027\n\006String\022\r\n\005value\030\001 \001(\tb\006p"
+  "roto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_CommonScriptObject_2eproto_deps[1] = {
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_CommonScriptObject_2eproto_sccs[17] = {
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_CommonScriptObject_2eproto_sccs[16] = {
   &scc_info_Bool_CommonScriptObject_2eproto.base,
   &scc_info_Color_CommonScriptObject_2eproto.base,
   &scc_info_ColorList_CommonScriptObject_2eproto.base,
-  &scc_info_FileHeader_CommonScriptObject_2eproto.base,
   &scc_info_Float_CommonScriptObject_2eproto.base,
   &scc_info_FloatList_CommonScriptObject_2eproto.base,
   &scc_info_Int32_CommonScriptObject_2eproto.base,
@@ -534,256 +504,16 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Com
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_CommonScriptObject_2eproto_once;
 static bool descriptor_table_CommonScriptObject_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_CommonScriptObject_2eproto = {
-  &descriptor_table_CommonScriptObject_2eproto_initialized, descriptor_table_protodef_CommonScriptObject_2eproto, "CommonScriptObject.proto", 709,
-  &descriptor_table_CommonScriptObject_2eproto_once, descriptor_table_CommonScriptObject_2eproto_sccs, descriptor_table_CommonScriptObject_2eproto_deps, 17, 0,
+  &descriptor_table_CommonScriptObject_2eproto_initialized, descriptor_table_protodef_CommonScriptObject_2eproto, "CommonScriptObject.proto", 645,
+  &descriptor_table_CommonScriptObject_2eproto_once, descriptor_table_CommonScriptObject_2eproto_sccs, descriptor_table_CommonScriptObject_2eproto_deps, 16, 0,
   schemas, file_default_instances, TableStruct_CommonScriptObject_2eproto::offsets,
-  file_level_metadata_CommonScriptObject_2eproto, 17, file_level_enum_descriptors_CommonScriptObject_2eproto, file_level_service_descriptors_CommonScriptObject_2eproto,
+  file_level_metadata_CommonScriptObject_2eproto, 16, file_level_enum_descriptors_CommonScriptObject_2eproto, file_level_service_descriptors_CommonScriptObject_2eproto,
 };
 
 // Force running AddDescriptors() at dynamic initialization time.
 static bool dynamic_init_dummy_CommonScriptObject_2eproto = (  ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_CommonScriptObject_2eproto), true);
 namespace Tiny3D {
 namespace Script {
-
-// ===================================================================
-
-void FileHeader::InitAsDefaultInstance() {
-}
-class FileHeader::_Internal {
- public:
-};
-
-FileHeader::FileHeader()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:Tiny3D.Script.FileHeader)
-}
-FileHeader::FileHeader(const FileHeader& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::memcpy(&magic_, &from.magic_,
-    static_cast<size_t>(reinterpret_cast<char*>(&filesize_) -
-    reinterpret_cast<char*>(&magic_)) + sizeof(filesize_));
-  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.FileHeader)
-}
-
-void FileHeader::SharedCtor() {
-  ::memset(&magic_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&filesize_) -
-      reinterpret_cast<char*>(&magic_)) + sizeof(filesize_));
-}
-
-FileHeader::~FileHeader() {
-  // @@protoc_insertion_point(destructor:Tiny3D.Script.FileHeader)
-  SharedDtor();
-}
-
-void FileHeader::SharedDtor() {
-}
-
-void FileHeader::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const FileHeader& FileHeader::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_FileHeader_CommonScriptObject_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void FileHeader::Clear() {
-// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.FileHeader)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  ::memset(&magic_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&filesize_) -
-      reinterpret_cast<char*>(&magic_)) + sizeof(filesize_));
-  _internal_metadata_.Clear();
-}
-
-const char* FileHeader::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // uint32 magic = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          magic_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // uint32 version = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          version_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // uint32 filesize = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          filesize_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* FileHeader::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.FileHeader)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // uint32 magic = 1;
-  if (this->magic() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_magic(), target);
-  }
-
-  // uint32 version = 2;
-  if (this->version() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_version(), target);
-  }
-
-  // uint32 filesize = 3;
-  if (this->filesize() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_filesize(), target);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.FileHeader)
-  return target;
-}
-
-size_t FileHeader::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.FileHeader)
-  size_t total_size = 0;
-
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // uint32 magic = 1;
-  if (this->magic() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_magic());
-  }
-
-  // uint32 version = 2;
-  if (this->version() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_version());
-  }
-
-  // uint32 filesize = 3;
-  if (this->filesize() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_filesize());
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
-}
-
-void FileHeader::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.FileHeader)
-  GOOGLE_DCHECK_NE(&from, this);
-  const FileHeader* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<FileHeader>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.FileHeader)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.FileHeader)
-    MergeFrom(*source);
-  }
-}
-
-void FileHeader::MergeFrom(const FileHeader& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.FileHeader)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from.magic() != 0) {
-    _internal_set_magic(from._internal_magic());
-  }
-  if (from.version() != 0) {
-    _internal_set_version(from._internal_version());
-  }
-  if (from.filesize() != 0) {
-    _internal_set_filesize(from._internal_filesize());
-  }
-}
-
-void FileHeader::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.FileHeader)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void FileHeader::CopyFrom(const FileHeader& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.FileHeader)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool FileHeader::IsInitialized() const {
-  return true;
-}
-
-void FileHeader::InternalSwap(FileHeader* other) {
-  using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(magic_, other->magic_);
-  swap(version_, other->version_);
-  swap(filesize_, other->filesize_);
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata FileHeader::GetMetadata() const {
-  return GetMetadataStatic();
-}
-
 
 // ===================================================================
 
@@ -4068,9 +3798,6 @@ void String::InternalSwap(String* other) {
 }  // namespace Script
 }  // namespace Tiny3D
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileHeader* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileHeader >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::FileHeader >(arena);
-}
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ObjectHeader* Arena::CreateMaybeMessage< ::Tiny3D::Script::ObjectHeader >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::ObjectHeader >(arena);
 }

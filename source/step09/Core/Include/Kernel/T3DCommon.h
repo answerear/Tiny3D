@@ -776,7 +776,7 @@ namespace Tiny3D
     };
 
 
-    #define T3D_MAGIC                   "T3D"
+    #define T3D_FILE_MAGIC                   "T3D"
 
     /**
      * @struct  T3DFileHeader

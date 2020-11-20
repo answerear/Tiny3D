@@ -39,16 +39,17 @@ include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${FBXSDK_INCLUDE_DIR}"
     "${PROTOBUF_INCLUDE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../protobuf"
     )
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
-set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/ .pb.h)
+set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/ .pb.h)
 
 
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
-set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/ .pb.cc)
+set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/ .pb.cc)
 
 
 if (TINY3D_OS_WINDOWS)

@@ -23,13 +23,13 @@
 #include "T3DScriptParser.h"
 #include "T3DScriptError.h"
 #include "T3DScriptTranslator.h"
-
+#include <google/protobuf/util/json_util.h>
 
 namespace Tiny3D
 {
     #define SCC_VERSION_00000100            0x00000100
     #define SCC_CURRENT_VERSION             SCC_VERSION_00000100
-    #define T3D_MAGIC                       "T3D"
+    #define T3D_FILE_MAGIC                  "T3D"
     #define T3D_FILE_SUBTYPE_SCC            0x00000001
 
     //--------------------------------------------------------------------------
@@ -45,6 +45,7 @@ namespace Tiny3D
         , mParser(nullptr)
         , mOptimizationLevel(0)
         , mEnableDebugInfo(true)
+        , mIsBinary(false)
     {
         mLexer = new ScriptLexer();
         mParser = new ScriptParser(this);
@@ -214,6 +215,7 @@ namespace Tiny3D
         printf("      -l : Set the link file and link all script binary file (*.tsc) to one file. Default is not linking.");
         printf("      -On : n is the optimization level from 0 to 3.");
         printf("      -D : Translate high level shader language to target shader language with debug information.");
+        printf("      -b : Output file in binary file format. Default is json file format.");
     }
 
     //--------------------------------------------------------------------------
@@ -337,6 +339,10 @@ namespace Tiny3D
                 {
                     opt.enableDebugInfo = true;
                 }
+                else if (strcmp(argv[i], "-b") == 0)
+                {
+                    opt.isBinary = true;
+                }
                 else
                 {
                     // 输入文件列表
@@ -401,13 +407,13 @@ namespace Tiny3D
                 String output;
                 if (opt.hasOutputDir())
                 {
-                    output = opt.outDir + "/" + title + ".t3b";
+                    output = opt.outDir + "/" + title + ".t3d";
                     outDir = opt.outDir;
                     mOutDir = outDir;
                 }
                 else
                 {
-                    output = path + "/" + title + ".t3b";
+                    output = path + "/" + title + ".t3d";
                     outDir = path;
                     mOutDir = path;
                 }
@@ -423,6 +429,8 @@ namespace Tiny3D
                 }
 
                 mOptimizationLevel = opt.optimizeLevel;
+
+                mIsBinary = opt.isBinary;
 
                 ret = compile(input, output);
                 if (!ret)
@@ -1121,17 +1129,25 @@ namespace Tiny3D
             size_t bufSize = 0;
             stream.getBuffer(buffer, bufSize);
 
+            uint8_t* data = nullptr;
+            size_t dataLen = 0;
+
             // 写文件头
             T3DFileHeader header;
-            memcpy(header.magic, T3D_MAGIC, 3);
-            header.magic[3] = 0;
-            header.subtype = T3D_FILE_SUBTYPE_SCC;
-            header.version = SCC_CURRENT_VERSION;
-            header.fileSize = sizeof(header);
-            ret = true;
 
-            uint8_t *data = buffer + sizeof(header);
-            size_t dataLen = bufSize - sizeof(header);
+            if (mIsBinary)
+            {
+                memcpy(header.magic, T3D_FILE_MAGIC, 3);
+                header.magic[3] = 0;
+                header.subtype = T3D_FILE_SUBTYPE_SCC;
+                header.version = SCC_CURRENT_VERSION;
+                header.fileSize = sizeof(header);
+
+                data = buffer + sizeof(header);
+                dataLen = bufSize - sizeof(header);
+            }
+            
+            ret = true;
 
             Script::MaterialSystem::Material material;
 
@@ -1158,23 +1174,23 @@ namespace Tiny3D
                     break;
                 }
 
-                ret = material.SerializeToArray(data, dataLen);
-                if (!ret)
-                    break;
+                if (mIsBinary)
+                {
+                    ret = material.SerializeToArray(data, dataLen);
+                    if (!ret)
+                        break;
 
-                uint32_t len = (uint32_t)material.ByteSizeLong();
-                header.fileSize += len;
-                data += len;
-                dataLen -= len;
+                    uint32_t len = (uint32_t)material.ByteSizeLong();
+                    header.fileSize += len;
+                    data += len;
+                    dataLen -= len;
+                }
             }
 
             if (!ret)
             {
                 break;
             }
-
-            stream.seek(0, false);
-            stream.write(&header, sizeof(header));
 
             FileDataStream fs;
             if (!fs.open(output.c_str(), FileDataStream::E_MODE_WRITE_ONLY))
@@ -1183,7 +1199,25 @@ namespace Tiny3D
                 break;
             }
 
-            fs.write(buffer, header.fileSize);
+            if (mIsBinary)
+            {
+                stream.seek(0, false);
+                stream.write(&header, sizeof(header));
+
+                fs.write(buffer, header.fileSize);
+            }
+            else
+            {
+                String str;
+                google::protobuf::util::JsonOptions opts;
+                opts.add_whitespace = true;
+                opts.always_print_enums_as_ints = false;
+                opts.always_print_primitive_fields = true;
+                google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(material, &str, opts);
+
+                fs.write((void*)str.c_str(), str.length());
+            }
+            
             fs.close();
 
         } while (0);

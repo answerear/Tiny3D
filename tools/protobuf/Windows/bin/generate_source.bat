@@ -1,9 +1,10 @@
 @rem generate proto buffer source files.
+@del /Q ..\..\source
 @set input_file=CommonScriptObject.proto MaterialScriptObject.proto ModelScriptObject.proto SceneScriptObject.proto
 .\protoc.exe --proto_path="../../proto" --cpp_out="../../source" %input_file%
 
 @rem copy all generated files to target directory.
-@set tools_dir=..\..\..\..\source\step09\Tools\ScriptCompiler\protobuf\
+@set tools_dir=..\..\..\..\source\step09\Tools\protobuf\
 @set core_dir=..\..\..\..\source\step09\Core\protobuf\
 
 @del /Q %tools_dir%

@@ -95,7 +95,7 @@ namespace Tiny3D
         do 
         {
             // 加載文件
-            String name("builtin/program/BuiltinConstant.t3b");
+            String name("builtin/program/BuiltinConstant.t3d");
             ArchivePtr archive = T3D_AGENT.getAssetsArchive(name);
             if (archive == nullptr)
             {

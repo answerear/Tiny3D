@@ -108,10 +108,10 @@ namespace Tiny3D
                 options.mDstPath += ".mesh";
                 break;
             case MeshFileType::T3B:
-                options.mDstPath += ".t3b";
+                options.mDstPath += ".t3d";
                 break;
             case MeshFileType::T3T:
-                options.mDstPath += ".t3t";
+                options.mDstPath += ".t3d";
                 break;
             }
         }

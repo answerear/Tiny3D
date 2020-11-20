@@ -24,7 +24,7 @@
 #include "T3DScriptPrerequisites.h"
 #include "T3DScriptType.h"
 #include "T3DScriptASTree.h"
-#include "protobuf/MaterialScriptObject.pb.h"
+#include "MaterialScriptObject.pb.h"
 
 
 namespace Tiny3D

@@ -104,7 +104,7 @@ namespace Tiny3D
         do 
         {
             // 材质
-            mMaterial = T3D_MATERIAL_MGR.loadMaterial("builtin/materials/BuiltinNoTexture.t3b",
+            mMaterial = T3D_MATERIAL_MGR.loadMaterial("builtin/materials/BuiltinNoTexture.t3d",
                 Material::E_MT_DEFAULT);
 
             // 创建 VAO

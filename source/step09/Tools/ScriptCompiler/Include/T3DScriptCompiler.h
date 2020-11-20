@@ -57,6 +57,7 @@ namespace Tiny3D
                 : options(OPT_PRINT_HELP)
                 , optimizeLevel(0)
                 , enableDebugInfo(false)
+                , isBinary(false)
             {
 
             }
@@ -89,6 +90,7 @@ namespace Tiny3D
             uint32_t    options;        /**< 编译选项 */
             uint32_t    optimizeLevel;  /**< 优化级别，0 to 3 */
             bool        enableDebugInfo;/**< HLSL转换到目标平台着色器语言时是否输出调试信息 */
+            bool        isBinary;       /**< 是否二进制文件 */
             StringList  inFiles;        /**< 输入文件列表 */
             String      projDir;        /**< 工程目录 */
             String      outDir;         /**< 输出文件夹路径 */
@@ -250,6 +252,7 @@ namespace Tiny3D
 
         uint32_t                mOptimizationLevel;
         bool                    mEnableDebugInfo;
+        bool                    mIsBinary;
     };
 }
 

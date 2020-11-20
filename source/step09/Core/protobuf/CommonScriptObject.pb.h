@@ -47,7 +47,7 @@ struct TableStruct_CommonScriptObject_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[17]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[16]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -65,9 +65,6 @@ extern ColorDefaultTypeInternal _Color_default_instance_;
 class ColorList;
 class ColorListDefaultTypeInternal;
 extern ColorListDefaultTypeInternal _ColorList_default_instance_;
-class FileHeader;
-class FileHeaderDefaultTypeInternal;
-extern FileHeaderDefaultTypeInternal _FileHeader_default_instance_;
 class Float;
 class FloatDefaultTypeInternal;
 extern FloatDefaultTypeInternal _Float_default_instance_;
@@ -113,7 +110,6 @@ PROTOBUF_NAMESPACE_OPEN
 template<> ::Tiny3D::Script::Bool* Arena::CreateMaybeMessage<::Tiny3D::Script::Bool>(Arena*);
 template<> ::Tiny3D::Script::Color* Arena::CreateMaybeMessage<::Tiny3D::Script::Color>(Arena*);
 template<> ::Tiny3D::Script::ColorList* Arena::CreateMaybeMessage<::Tiny3D::Script::ColorList>(Arena*);
-template<> ::Tiny3D::Script::FileHeader* Arena::CreateMaybeMessage<::Tiny3D::Script::FileHeader>(Arena*);
 template<> ::Tiny3D::Script::Float* Arena::CreateMaybeMessage<::Tiny3D::Script::Float>(Arena*);
 template<> ::Tiny3D::Script::FloatList* Arena::CreateMaybeMessage<::Tiny3D::Script::FloatList>(Arena*);
 template<> ::Tiny3D::Script::Int32* Arena::CreateMaybeMessage<::Tiny3D::Script::Int32>(Arena*);
@@ -132,156 +128,6 @@ namespace Tiny3D {
 namespace Script {
 
 // ===================================================================
-
-class FileHeader :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.FileHeader) */ {
- public:
-  FileHeader();
-  virtual ~FileHeader();
-
-  FileHeader(const FileHeader& from);
-  FileHeader(FileHeader&& from) noexcept
-    : FileHeader() {
-    *this = ::std::move(from);
-  }
-
-  inline FileHeader& operator=(const FileHeader& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline FileHeader& operator=(FileHeader&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return GetMetadataStatic().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return GetMetadataStatic().reflection;
-  }
-  static const FileHeader& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const FileHeader* internal_default_instance() {
-    return reinterpret_cast<const FileHeader*>(
-               &_FileHeader_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
-
-  friend void swap(FileHeader& a, FileHeader& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(FileHeader* other) {
-    if (other == this) return;
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline FileHeader* New() const final {
-    return CreateMaybeMessage<FileHeader>(nullptr);
-  }
-
-  FileHeader* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<FileHeader>(arena);
-  }
-  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const FileHeader& from);
-  void MergeFrom(const FileHeader& from);
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  inline void SharedCtor();
-  inline void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(FileHeader* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Tiny3D.Script.FileHeader";
-  }
-  private:
-  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
-    return nullptr;
-  }
-  inline void* MaybeArenaPtr() const {
-    return nullptr;
-  }
-  public:
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-  private:
-  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
-    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_CommonScriptObject_2eproto);
-    return ::descriptor_table_CommonScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
-  }
-
-  public:
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kMagicFieldNumber = 1,
-    kVersionFieldNumber = 2,
-    kFilesizeFieldNumber = 3,
-  };
-  // uint32 magic = 1;
-  void clear_magic();
-  ::PROTOBUF_NAMESPACE_ID::uint32 magic() const;
-  void set_magic(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_magic() const;
-  void _internal_set_magic(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 version = 2;
-  void clear_version();
-  ::PROTOBUF_NAMESPACE_ID::uint32 version() const;
-  void set_version(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_version() const;
-  void _internal_set_version(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 filesize = 3;
-  void clear_filesize();
-  ::PROTOBUF_NAMESPACE_ID::uint32 filesize() const;
-  void set_filesize(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_filesize() const;
-  void _internal_set_filesize(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:Tiny3D.Script.FileHeader)
- private:
-  class _Internal;
-
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 magic_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 version_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 filesize_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_CommonScriptObject_2eproto;
-};
-// -------------------------------------------------------------------
 
 class ObjectHeader :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.ObjectHeader) */ {
@@ -325,7 +171,7 @@ class ObjectHeader :
                &_ObjectHeader_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    0;
 
   friend void swap(ObjectHeader& a, ObjectHeader& b) {
     a.Swap(&b);
@@ -471,7 +317,7 @@ class Color :
                &_Color_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    1;
 
   friend void swap(Color& a, Color& b) {
     a.Swap(&b);
@@ -632,7 +478,7 @@ class Matrix4 :
                &_Matrix4_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    2;
 
   friend void swap(Matrix4& a, Matrix4& b) {
     a.Swap(&b);
@@ -774,7 +620,7 @@ class Vector2 :
                &_Vector2_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    3;
 
   friend void swap(Vector2& a, Vector2& b) {
     a.Swap(&b);
@@ -913,7 +759,7 @@ class Vector3 :
                &_Vector3_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    4;
 
   friend void swap(Vector3& a, Vector3& b) {
     a.Swap(&b);
@@ -1063,7 +909,7 @@ class Quaternion :
                &_Quaternion_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    5;
 
   friend void swap(Quaternion& a, Quaternion& b) {
     a.Swap(&b);
@@ -1224,7 +1070,7 @@ class Vector2List :
                &_Vector2List_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    6;
 
   friend void swap(Vector2List& a, Vector2List& b) {
     a.Swap(&b);
@@ -1361,7 +1207,7 @@ class Vector3List :
                &_Vector3List_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    7;
 
   friend void swap(Vector3List& a, Vector3List& b) {
     a.Swap(&b);
@@ -1498,7 +1344,7 @@ class ColorList :
                &_ColorList_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    8;
 
   friend void swap(ColorList& a, ColorList& b) {
     a.Swap(&b);
@@ -1635,7 +1481,7 @@ class UintList :
                &_UintList_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    9;
 
   friend void swap(UintList& a, UintList& b) {
     a.Swap(&b);
@@ -1777,7 +1623,7 @@ class FloatList :
                &_FloatList_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    10;
 
   friend void swap(FloatList& a, FloatList& b) {
     a.Swap(&b);
@@ -1919,7 +1765,7 @@ class Bool :
                &_Bool_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    11;
 
   friend void swap(Bool& a, Bool& b) {
     a.Swap(&b);
@@ -2047,7 +1893,7 @@ class Float :
                &_Float_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    12;
 
   friend void swap(Float& a, Float& b) {
     a.Swap(&b);
@@ -2175,7 +2021,7 @@ class UInt32 :
                &_UInt32_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    13;
 
   friend void swap(UInt32& a, UInt32& b) {
     a.Swap(&b);
@@ -2303,7 +2149,7 @@ class Int32 :
                &_Int32_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    14;
 
   friend void swap(Int32& a, Int32& b) {
     a.Swap(&b);
@@ -2431,7 +2277,7 @@ class String :
                &_String_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    15;
 
   friend void swap(String& a, String& b) {
     a.Swap(&b);
@@ -2531,70 +2377,6 @@ class String :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// FileHeader
-
-// uint32 magic = 1;
-inline void FileHeader::clear_magic() {
-  magic_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 FileHeader::_internal_magic() const {
-  return magic_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 FileHeader::magic() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.FileHeader.magic)
-  return _internal_magic();
-}
-inline void FileHeader::_internal_set_magic(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  magic_ = value;
-}
-inline void FileHeader::set_magic(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_magic(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.FileHeader.magic)
-}
-
-// uint32 version = 2;
-inline void FileHeader::clear_version() {
-  version_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 FileHeader::_internal_version() const {
-  return version_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 FileHeader::version() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.FileHeader.version)
-  return _internal_version();
-}
-inline void FileHeader::_internal_set_version(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  version_ = value;
-}
-inline void FileHeader::set_version(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_version(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.FileHeader.version)
-}
-
-// uint32 filesize = 3;
-inline void FileHeader::clear_filesize() {
-  filesize_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 FileHeader::_internal_filesize() const {
-  return filesize_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 FileHeader::filesize() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.FileHeader.filesize)
-  return _internal_filesize();
-}
-inline void FileHeader::_internal_set_filesize(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  filesize_ = value;
-}
-inline void FileHeader::set_filesize(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_filesize(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.FileHeader.filesize)
-}
-
-// -------------------------------------------------------------------
-
 // ObjectHeader
 
 // uint32 ID = 1;
@@ -3398,8 +3180,6 @@ inline void String::set_allocated_value(std::string* value) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

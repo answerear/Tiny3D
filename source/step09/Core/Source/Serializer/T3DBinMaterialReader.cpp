@@ -95,7 +95,7 @@ namespace Tiny3D
             // 读取文件头
             T3DFileHeader *header = (T3DFileHeader *)data;
 
-            if (stricmp(header->magic, T3D_MAGIC) != 0)
+            if (stricmp(header->magic, T3D_FILE_MAGIC) != 0)
             {
                 // 非法的文件类型
                 ret = T3D_ERR_RES_INVALID_FILETYPE;
