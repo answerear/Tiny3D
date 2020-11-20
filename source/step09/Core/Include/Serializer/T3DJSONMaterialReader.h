@@ -26,20 +26,28 @@
 
 namespace Tiny3D
 {
-    class JSONMaterialReader : public MaterialReader
+    class JsonMaterialReader : public MaterialReader
     {
+        enum 
+        {
+            kJsonStringSize = 10 * 1024 * 1024
+        };
+
         T3D_DECLARE_CLASS();
-        T3D_DISABLE_COPY(JSONMaterialReader);
+        T3D_DISABLE_COPY(JsonMaterialReader);
 
     public:
-        static JSONMaterialReaderPtr create();
+        static JsonMaterialReaderPtr create(const BuiltinConstantMap& definitions);
 
-        virtual ~JSONMaterialReader();
+        virtual ~JsonMaterialReader();
 
     protected:
-        JSONMaterialReader();
+        JsonMaterialReader(const BuiltinConstantMap& definitions);
 
         virtual TResult parse(DataStream &stream, Material *material) override;
+
+    private:
+        char *mStr;
     };
 }
 

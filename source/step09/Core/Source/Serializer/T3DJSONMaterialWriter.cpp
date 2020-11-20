@@ -25,34 +25,34 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(JSONMaterialWriter, MaterialWriter);
+    T3D_IMPLEMENT_CLASS_1(JsonMaterialWriter, MaterialWriter);
 
     //--------------------------------------------------------------------------
 
-    JSONMaterialWriterPtr JSONMaterialWriter::create()
+    JsonMaterialWriterPtr JsonMaterialWriter::create()
     {
-        JSONMaterialWriterPtr writer = new JSONMaterialWriter();
+        JsonMaterialWriterPtr writer = new JsonMaterialWriter();
         writer->release();
         return writer;
     }
 
     //--------------------------------------------------------------------------
 
-    JSONMaterialWriter::JSONMaterialWriter()
+    JsonMaterialWriter::JsonMaterialWriter()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    JSONMaterialWriter::~JSONMaterialWriter()
+    JsonMaterialWriter::~JsonMaterialWriter()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    TResult JSONMaterialWriter::serialize(DataStream &stream, Material *material)
+    TResult JsonMaterialWriter::serialize(DataStream &stream, Material *material)
     {
         TResult ret = T3D_OK;
 

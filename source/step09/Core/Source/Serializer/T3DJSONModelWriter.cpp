@@ -25,34 +25,34 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
     
-    T3D_IMPLEMENT_CLASS_1(JSONModelWriter, ModelWriter);
+    T3D_IMPLEMENT_CLASS_1(JsonModelWriter, ModelWriter);
 
     //--------------------------------------------------------------------------
     
-    JSONModelWriterPtr JSONModelWriter::create()
+    JsonModelWriterPtr JsonModelWriter::create()
     {
-        JSONModelWriterPtr writer = new JSONModelWriter();
+        JsonModelWriterPtr writer = new JsonModelWriter();
         writer->release();
         return writer;
     }
 
     //--------------------------------------------------------------------------
     
-    JSONModelWriter::JSONModelWriter()
+    JsonModelWriter::JsonModelWriter()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    JSONModelWriter::~JSONModelWriter()
+    JsonModelWriter::~JsonModelWriter()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    TResult JSONModelWriter::serialize(DataStream &stream, Model *model)
+    TResult JsonModelWriter::serialize(DataStream &stream, Model *model)
     {
         TResult ret = T3D_OK;
 
@@ -74,7 +74,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult JSONModelWriter::serializeHeader(JsonPrettyWriter &writer, Model *model)
+    TResult JsonModelWriter::serializeHeader(JsonPrettyWriter &writer, Model *model)
     {
         TResult ret = T3D_OK;
 
@@ -83,7 +83,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult JSONModelWriter::serializeModel(JsonPrettyWriter &writer, Model *model)
+    TResult JsonModelWriter::serializeModel(JsonPrettyWriter &writer, Model *model)
     {
         TResult ret = T3D_OK;
 
@@ -92,7 +92,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult JSONModelWriter::serializeNodes(JsonPrettyWriter &writer, Model *model)
+    TResult JsonModelWriter::serializeNodes(JsonPrettyWriter &writer, Model *model)
     {
         TResult ret = T3D_OK;
 

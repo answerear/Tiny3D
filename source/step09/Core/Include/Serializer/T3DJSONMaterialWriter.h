@@ -26,18 +26,18 @@
 
 namespace Tiny3D
 {
-    class JSONMaterialWriter : public MaterialWriter
+    class JsonMaterialWriter : public MaterialWriter
     {
         T3D_DECLARE_CLASS();
-        T3D_DISABLE_COPY(JSONMaterialWriter);
+        T3D_DISABLE_COPY(JsonMaterialWriter);
 
     public:
-        static JSONMaterialWriterPtr create();
+        static JsonMaterialWriterPtr create();
 
-        virtual ~JSONMaterialWriter();
+        virtual ~JsonMaterialWriter();
 
     protected:
-        JSONMaterialWriter();
+        JsonMaterialWriter();
 
         virtual TResult serialize(DataStream &stream, Material *material) override;
     };

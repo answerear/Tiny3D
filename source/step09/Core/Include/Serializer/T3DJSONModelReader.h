@@ -34,17 +34,17 @@ namespace Tiny3D
 
     using JsonSizeType = rapidjson::SizeType;
 
-    class JSONModelReader 
+    class JsonModelReader 
         : public ModelReader
-        , public JsonReaderHandler<JsonUTF8, JSONModelReader>
+        , public JsonReaderHandler<JsonUTF8, JsonModelReader>
     {
         T3D_DECLARE_CLASS();
-        T3D_DISABLE_COPY(JSONModelReader);
+        T3D_DISABLE_COPY(JsonModelReader);
 
     public:
-        static JSONModelReaderPtr create();
+        static JsonModelReaderPtr create();
 
-        virtual ~JSONModelReader();
+        virtual ~JsonModelReader();
 
         bool Null();
         bool Bool(bool b);
@@ -62,7 +62,7 @@ namespace Tiny3D
         bool EndArray(JsonSizeType elementCount);
 
     protected:
-        JSONModelReader();
+        JsonModelReader();
 
         virtual TResult parse(DataStream &stream, Model *model) override;
     };

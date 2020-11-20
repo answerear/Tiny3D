@@ -30,18 +30,18 @@ namespace Tiny3D
     using JsonStringBuffer = rapidjson::StringBuffer;
     using JsonPrettyWriter = rapidjson::PrettyWriter<JsonStringBuffer>;
 
-    class JSONModelWriter : public ModelWriter
+    class JsonModelWriter : public ModelWriter
     {
         T3D_DECLARE_CLASS();
-        T3D_DISABLE_COPY(JSONModelWriter);
+        T3D_DISABLE_COPY(JsonModelWriter);
 
     public:
-        static JSONModelWriterPtr create();
+        static JsonModelWriterPtr create();
 
-        virtual ~JSONModelWriter();
+        virtual ~JsonModelWriter();
 
     protected:
-        JSONModelWriter();
+        JsonModelWriter();
 
         virtual TResult serialize(DataStream &stream, Model *model) override;
 

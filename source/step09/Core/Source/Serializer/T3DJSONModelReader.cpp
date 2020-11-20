@@ -24,34 +24,34 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(JSONModelReader, ModelReader);
+    T3D_IMPLEMENT_CLASS_1(JsonModelReader, ModelReader);
 
     //--------------------------------------------------------------------------
     
-    JSONModelReaderPtr JSONModelReader::create()
+    JsonModelReaderPtr JsonModelReader::create()
     {
-        JSONModelReaderPtr reader = new JSONModelReader();
+        JsonModelReaderPtr reader = new JsonModelReader();
         reader->release();
         return reader;
     }
 
     //--------------------------------------------------------------------------
     
-    JSONModelReader::JSONModelReader()
+    JsonModelReader::JsonModelReader()
     {
 
     }
 
     //--------------------------------------------------------------------------
     
-    JSONModelReader::~JSONModelReader()
+    JsonModelReader::~JsonModelReader()
     {
 
     }
 
     //--------------------------------------------------------------------------
     
-    TResult JSONModelReader::parse(DataStream &stream, Model *model)
+    TResult JsonModelReader::parse(DataStream &stream, Model *model)
     {
         TResult ret = T3D_OK;
 
@@ -72,91 +72,91 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::Null()
+    bool JsonModelReader::Null()
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::Bool(bool b)
+    bool JsonModelReader::Bool(bool b)
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::Int(int32_t i)
+    bool JsonModelReader::Int(int32_t i)
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::Uint(uint32_t u)
+    bool JsonModelReader::Uint(uint32_t u)
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::Int64(int64_t i)
+    bool JsonModelReader::Int64(int64_t i)
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::Uint64(uint64_t u)
+    bool JsonModelReader::Uint64(uint64_t u)
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::Double(float64_t f)
+    bool JsonModelReader::Double(float64_t f)
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::String(const char *str, JsonSizeType length, bool copy)
+    bool JsonModelReader::String(const char *str, JsonSizeType length, bool copy)
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::StartObject()
+    bool JsonModelReader::StartObject()
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::Key(const char *str, JsonSizeType length, bool copy)
+    bool JsonModelReader::Key(const char *str, JsonSizeType length, bool copy)
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::EndObject(JsonSizeType memberCount)
+    bool JsonModelReader::EndObject(JsonSizeType memberCount)
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::StartArray()
+    bool JsonModelReader::StartArray()
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool JSONModelReader::EndArray(JsonSizeType elementCount)
+    bool JsonModelReader::EndArray(JsonSizeType elementCount)
     {
         return true;
     }

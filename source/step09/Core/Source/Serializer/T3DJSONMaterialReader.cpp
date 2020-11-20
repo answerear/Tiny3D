@@ -19,45 +19,75 @@
 
 
 #include "Serializer/T3DJSONMaterialReader.h"
-
+#include "protobuf/MaterialScriptObject.pb.h"
+#include <google/protobuf/util/json_util.h>
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(JSONMaterialReader, MaterialReader);
+    T3D_IMPLEMENT_CLASS_1(JsonMaterialReader, MaterialReader);
 
     //--------------------------------------------------------------------------
 
-    JSONMaterialReaderPtr JSONMaterialReader::create()
+    JsonMaterialReaderPtr JsonMaterialReader::create(const BuiltinConstantMap& definitions)
     {
-        JSONMaterialReaderPtr reader = new JSONMaterialReader();
+        JsonMaterialReaderPtr reader = new JsonMaterialReader(definitions);
         reader->release();
         return reader;
     }
 
     //--------------------------------------------------------------------------
 
-    JSONMaterialReader::JSONMaterialReader()
+    JsonMaterialReader::JsonMaterialReader(const BuiltinConstantMap& definitions)
+        : MaterialReader(definitions)
+        , mStr(nullptr)
     {
-
+        mStr = new char[kJsonStringSize];
     }
 
     //--------------------------------------------------------------------------
 
-    JSONMaterialReader::~JSONMaterialReader()
+    JsonMaterialReader::~JsonMaterialReader()
     {
-
+        T3D_SAFE_DELETE_ARRAY(mStr);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult JSONMaterialReader::parse(DataStream &stream, Material *material)
+    TResult JsonMaterialReader::parse(DataStream &stream, Material *material)
     {
         TResult ret = T3D_OK;
 
         do 
         {
+            long_t len = stream.size();
+            if (len >= kJsonStringSize)
+            {
+                ret = T3D_ERR_OUT_OF_BOUND;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "The length of json string is out of bound when parsing json material !");
+                break;
+            }
+
+            long_t size = stream.size();
+            stream.read(mStr, size);
+            mStr[size] = 0;
+
+            Script::MaterialSystem::Material src;
+
+            google::protobuf::util::JsonParseOptions opts;
+            opts.ignore_unknown_fields = true;
+            google::protobuf::StringPiece input(mStr);
+            google::protobuf::util::Status status = google::protobuf::util::JsonStringToMessage(input, &src, opts);
+
+            if (!status.ok())
+            {
+                ret = T3D_ERR_FAIL;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Json string to message failed ! Error : %s", status.message().as_string().c_str());
+                break;
+            }
+
+            ret = parseMaterial(&src, material);
         } while (0);
 
         return ret;
