@@ -1,0 +1,12 @@
+{
+ "header": {
+  "magic": "T3D",
+  "type": "Meta",
+  "version": 256
+ },
+ "meta": {
+  "uuid": "812e5efb715f727e378b34c3b536ad89",
+  "name": "BuiltinConstant.t3d",
+  "type": "File"
+ }
+}

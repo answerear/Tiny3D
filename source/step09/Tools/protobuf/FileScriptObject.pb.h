@@ -37,6 +37,7 @@
 #include "MaterialScriptObject.pb.h"
 #include "ModelScriptObject.pb.h"
 #include "SceneScriptObject.pb.h"
+#include "MetaScriptObject.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto
@@ -52,7 +53,7 @@ struct TableStruct_FileScriptObject_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[2]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[3]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -68,12 +69,16 @@ extern FileHeaderDefaultTypeInternal _FileHeader_default_instance_;
 class FileMaterial;
 class FileMaterialDefaultTypeInternal;
 extern FileMaterialDefaultTypeInternal _FileMaterial_default_instance_;
+class FileMeta;
+class FileMetaDefaultTypeInternal;
+extern FileMetaDefaultTypeInternal _FileMeta_default_instance_;
 }  // namespace FileFormat
 }  // namespace Script
 }  // namespace Tiny3D
 PROTOBUF_NAMESPACE_OPEN
 template<> ::Tiny3D::Script::FileFormat::FileHeader* Arena::CreateMaybeMessage<::Tiny3D::Script::FileFormat::FileHeader>(Arena*);
 template<> ::Tiny3D::Script::FileFormat::FileMaterial* Arena::CreateMaybeMessage<::Tiny3D::Script::FileFormat::FileMaterial>(Arena*);
+template<> ::Tiny3D::Script::FileFormat::FileMeta* Arena::CreateMaybeMessage<::Tiny3D::Script::FileFormat::FileMeta>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Tiny3D {
 namespace Script {
@@ -83,12 +88,13 @@ enum FileHeader_FileType : int {
   FileHeader_FileType_Material = 0,
   FileHeader_FileType_Model = 1,
   FileHeader_FileType_Scene = 2,
+  FileHeader_FileType_Meta = 3,
   FileHeader_FileType_FileHeader_FileType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   FileHeader_FileType_FileHeader_FileType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool FileHeader_FileType_IsValid(int value);
 constexpr FileHeader_FileType FileHeader_FileType_FileType_MIN = FileHeader_FileType_Material;
-constexpr FileHeader_FileType FileHeader_FileType_FileType_MAX = FileHeader_FileType_Scene;
+constexpr FileHeader_FileType FileHeader_FileType_FileType_MAX = FileHeader_FileType_Meta;
 constexpr int FileHeader_FileType_FileType_ARRAYSIZE = FileHeader_FileType_FileType_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FileHeader_FileType_descriptor();
@@ -217,6 +223,8 @@ class FileHeader :
     FileHeader_FileType_Model;
   static constexpr FileType Scene =
     FileHeader_FileType_Scene;
+  static constexpr FileType Meta =
+    FileHeader_FileType_Meta;
   static inline bool FileType_IsValid(int value) {
     return FileHeader_FileType_IsValid(value);
   }
@@ -442,6 +450,157 @@ class FileMaterial :
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::Tiny3D::Script::FileFormat::FileHeader* header_;
   ::Tiny3D::Script::MaterialSystem::Material* material_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_FileScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class FileMeta :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.FileFormat.FileMeta) */ {
+ public:
+  FileMeta();
+  virtual ~FileMeta();
+
+  FileMeta(const FileMeta& from);
+  FileMeta(FileMeta&& from) noexcept
+    : FileMeta() {
+    *this = ::std::move(from);
+  }
+
+  inline FileMeta& operator=(const FileMeta& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline FileMeta& operator=(FileMeta&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const FileMeta& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const FileMeta* internal_default_instance() {
+    return reinterpret_cast<const FileMeta*>(
+               &_FileMeta_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(FileMeta& a, FileMeta& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(FileMeta* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline FileMeta* New() const final {
+    return CreateMaybeMessage<FileMeta>(nullptr);
+  }
+
+  FileMeta* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<FileMeta>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const FileMeta& from);
+  void MergeFrom(const FileMeta& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(FileMeta* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.FileFormat.FileMeta";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_FileScriptObject_2eproto);
+    return ::descriptor_table_FileScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kHeaderFieldNumber = 1,
+    kMetaFieldNumber = 2,
+  };
+  // .Tiny3D.Script.FileFormat.FileHeader header = 1;
+  bool has_header() const;
+  private:
+  bool _internal_has_header() const;
+  public:
+  void clear_header();
+  const ::Tiny3D::Script::FileFormat::FileHeader& header() const;
+  ::Tiny3D::Script::FileFormat::FileHeader* release_header();
+  ::Tiny3D::Script::FileFormat::FileHeader* mutable_header();
+  void set_allocated_header(::Tiny3D::Script::FileFormat::FileHeader* header);
+  private:
+  const ::Tiny3D::Script::FileFormat::FileHeader& _internal_header() const;
+  ::Tiny3D::Script::FileFormat::FileHeader* _internal_mutable_header();
+  public:
+
+  // .Tiny3D.Script.MetaSystem.MetaData meta = 2;
+  bool has_meta() const;
+  private:
+  bool _internal_has_meta() const;
+  public:
+  void clear_meta();
+  const ::Tiny3D::Script::MetaSystem::MetaData& meta() const;
+  ::Tiny3D::Script::MetaSystem::MetaData* release_meta();
+  ::Tiny3D::Script::MetaSystem::MetaData* mutable_meta();
+  void set_allocated_meta(::Tiny3D::Script::MetaSystem::MetaData* meta);
+  private:
+  const ::Tiny3D::Script::MetaSystem::MetaData& _internal_meta() const;
+  ::Tiny3D::Script::MetaSystem::MetaData* _internal_mutable_meta();
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.FileFormat.FileMeta)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::Tiny3D::Script::FileFormat::FileHeader* header_;
+  ::Tiny3D::Script::MetaSystem::MetaData* meta_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_FileScriptObject_2eproto;
 };
@@ -674,9 +833,129 @@ inline void FileMaterial::set_allocated_material(::Tiny3D::Script::MaterialSyste
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.FileFormat.FileMaterial.material)
 }
 
+// -------------------------------------------------------------------
+
+// FileMeta
+
+// .Tiny3D.Script.FileFormat.FileHeader header = 1;
+inline bool FileMeta::_internal_has_header() const {
+  return this != internal_default_instance() && header_ != nullptr;
+}
+inline bool FileMeta::has_header() const {
+  return _internal_has_header();
+}
+inline void FileMeta::clear_header() {
+  if (GetArenaNoVirtual() == nullptr && header_ != nullptr) {
+    delete header_;
+  }
+  header_ = nullptr;
+}
+inline const ::Tiny3D::Script::FileFormat::FileHeader& FileMeta::_internal_header() const {
+  const ::Tiny3D::Script::FileFormat::FileHeader* p = header_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::FileFormat::FileHeader*>(
+      &::Tiny3D::Script::FileFormat::_FileHeader_default_instance_);
+}
+inline const ::Tiny3D::Script::FileFormat::FileHeader& FileMeta::header() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.FileFormat.FileMeta.header)
+  return _internal_header();
+}
+inline ::Tiny3D::Script::FileFormat::FileHeader* FileMeta::release_header() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.FileFormat.FileMeta.header)
+  
+  ::Tiny3D::Script::FileFormat::FileHeader* temp = header_;
+  header_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::FileFormat::FileHeader* FileMeta::_internal_mutable_header() {
+  
+  if (header_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::FileFormat::FileHeader>(GetArenaNoVirtual());
+    header_ = p;
+  }
+  return header_;
+}
+inline ::Tiny3D::Script::FileFormat::FileHeader* FileMeta::mutable_header() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.FileFormat.FileMeta.header)
+  return _internal_mutable_header();
+}
+inline void FileMeta::set_allocated_header(::Tiny3D::Script::FileFormat::FileHeader* header) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete header_;
+  }
+  if (header) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      header = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, header, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  header_ = header;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.FileFormat.FileMeta.header)
+}
+
+// .Tiny3D.Script.MetaSystem.MetaData meta = 2;
+inline bool FileMeta::_internal_has_meta() const {
+  return this != internal_default_instance() && meta_ != nullptr;
+}
+inline bool FileMeta::has_meta() const {
+  return _internal_has_meta();
+}
+inline const ::Tiny3D::Script::MetaSystem::MetaData& FileMeta::_internal_meta() const {
+  const ::Tiny3D::Script::MetaSystem::MetaData* p = meta_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::MetaSystem::MetaData*>(
+      &::Tiny3D::Script::MetaSystem::_MetaData_default_instance_);
+}
+inline const ::Tiny3D::Script::MetaSystem::MetaData& FileMeta::meta() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.FileFormat.FileMeta.meta)
+  return _internal_meta();
+}
+inline ::Tiny3D::Script::MetaSystem::MetaData* FileMeta::release_meta() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.FileFormat.FileMeta.meta)
+  
+  ::Tiny3D::Script::MetaSystem::MetaData* temp = meta_;
+  meta_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::MetaSystem::MetaData* FileMeta::_internal_mutable_meta() {
+  
+  if (meta_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::MetaSystem::MetaData>(GetArenaNoVirtual());
+    meta_ = p;
+  }
+  return meta_;
+}
+inline ::Tiny3D::Script::MetaSystem::MetaData* FileMeta::mutable_meta() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.FileFormat.FileMeta.meta)
+  return _internal_mutable_meta();
+}
+inline void FileMeta::set_allocated_meta(::Tiny3D::Script::MetaSystem::MetaData* meta) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(meta_);
+  }
+  if (meta) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      meta = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, meta, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  meta_ = meta;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.FileFormat.FileMeta.meta)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 

@@ -21,10 +21,7 @@
 #include "T3DMeshConverter.h"
 
 // For debug
-// -i FBX -o t3t -b sphere -m shared $(SolutionDir)..\..\..\assets\models\tortoise.fbx 
-// "$(SolutionDir)..\..\..\assets\scripts\BuiltinBox.material" -t hlsl -m 50
-// BuiltinBox.material BuiltinConstant.constant BuiltinProgram.program -t hlsl -m 50 -O3 -p $(SolutionDir)..\..\..\assets\scripts\
-// materials/BuiltinNoTexture.material program/BuiltinConstant.constant program/BuiltinProgram.program -t hlsl -m 50 -O3 -p $(SolutionDir)..\..\..\assets\builtin
+// -i FBX -o txt -b sphere -m shared $(SolutionDir)..\..\..\assets\models\tortoise.fbx 
 
 
 int main(int argc, char *argv[])

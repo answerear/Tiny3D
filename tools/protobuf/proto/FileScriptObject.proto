@@ -5,6 +5,7 @@ import "CommonScriptObject.proto";
 import "MaterialScriptObject.proto";
 import "ModelScriptObject.proto";
 import "SceneScriptObject.proto";
+import "MetaScriptObject.proto";
 
 
 package Tiny3D.Script.FileFormat;
@@ -19,6 +20,7 @@ message FileHeader
         Material = 0;
         Model = 1;
         Scene = 2;
+        Meta = 3;
     }
     
     string      magic = 1;
@@ -34,3 +36,8 @@ message FileMaterial
 }
 
 
+message FileMeta
+{
+    FileHeader          header = 1;
+    MetaSystem.MetaData meta = 2;
+}

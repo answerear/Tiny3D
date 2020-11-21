@@ -49,4 +49,9 @@ namespace Tiny3D
 
         return ss.str();
     }
+
+    String UUID::generate()
+    {
+        return generate(16);
+    }
 }

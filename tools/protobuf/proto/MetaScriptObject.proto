@@ -1,0 +1,22 @@
+syntax = "proto3";
+//option optimize_for = LITE_RUNTIME;
+
+
+package Tiny3D.Script.MetaSystem;
+
+
+message MetaData
+{
+    string uuid = 1;
+    string name = 2;
+    
+    enum FileType
+    {
+        File = 0;
+        Dir = 1;
+    }
+    
+    FileType type = 3;
+}
+
+

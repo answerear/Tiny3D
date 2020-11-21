@@ -1,0 +1,12 @@
+{
+ "header": {
+  "magic": "T3D",
+  "type": "Meta",
+  "version": 256
+ },
+ "meta": {
+  "uuid": "1fadaec60111ead1d8d8ebfd021f4144",
+  "name": "models",
+  "type": "Dir"
+ }
+}

@@ -28,7 +28,9 @@ namespace Tiny3D
 {
     class T3D_UTILS_API UUID
     {
+    public:
         static String generate(uint32_t len);
+        static String generate();
     };
 }
 

@@ -27,6 +27,7 @@
 #include <T3DFix32.h>
 #include <T3DFix64.h>
 #include <T3DMD5.h>
+#include <T3DUUID.h>
 
 
 #endif  /*__T3D_UTILS_H__*/

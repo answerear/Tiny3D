@@ -1,0 +1,12 @@
+{
+ "header": {
+  "magic": "T3D",
+  "type": "Meta",
+  "version": 256
+ },
+ "meta": {
+  "uuid": "99fc2c0582e2cab625afbb2c6a73212c",
+  "name": "Tiny3D.cfg",
+  "type": "File"
+ }
+}

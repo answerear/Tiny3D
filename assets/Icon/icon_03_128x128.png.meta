@@ -1,0 +1,12 @@
+{
+ "header": {
+  "magic": "T3D",
+  "type": "Meta",
+  "version": 256
+ },
+ "meta": {
+  "uuid": "80f3db22d42c91f11000a9f06d13243b",
+  "name": "icon_03_128x128.png",
+  "type": "File"
+ }
+}
