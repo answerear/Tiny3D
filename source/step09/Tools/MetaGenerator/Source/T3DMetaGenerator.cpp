@@ -84,8 +84,8 @@ namespace Tiny3D
                 // directory
                 if (!isClear)
                 {
-                    String& path = dir.getFilePath();
-                    String& name = dir.getFileName();
+                    const String &path = dir.getFilePath();
+                    const String &name = dir.getFileName();
                     generate(path, name, true);
                 }
 
@@ -94,8 +94,8 @@ namespace Tiny3D
             else
             {
                 // file
-                String &path = dir.getFilePath();
-                String &name = dir.getFileName();
+                const String &path = dir.getFilePath();
+                const String &name = dir.getFileName();
                 
                 if (isClear)
                 {
@@ -111,6 +111,16 @@ namespace Tiny3D
                     if (!isMetaFile(name))
                     {
                         generate(path, name, false);
+                    }
+                    else
+                    {
+                        // 有元文件，如果没有资源文件，则删掉元文件
+                        const String& title = dir.getFileTitle();
+                        String path = dir.getRoot() + title;
+                        if (!Dir::exists(path))
+                        {
+                            Dir::remove(dir.getFilePath());
+                        }
                     }
                 }
             }

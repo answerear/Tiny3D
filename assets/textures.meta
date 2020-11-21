@@ -1,0 +1,12 @@
+{
+ "header": {
+  "magic": "T3D",
+  "type": "Meta",
+  "version": 256
+ },
+ "meta": {
+  "uuid": "f99b71b330e998ea47658719352265a3",
+  "name": "textures",
+  "type": "Dir"
+ }
+}
