@@ -10,19 +10,27 @@ import "SceneScriptObject.proto";
 package Tiny3D.Script.FileFormat;
 
 
+
+
 message FileHeader
 {
-    fixed32     magic = 1;
-    fixed32     type = 2;
+    enum FileType
+    {
+        Material = 0;
+        Model = 1;
+        Scene = 2;
+    }
+    
+    string      magic = 1;
+    FileType    type = 2;
     fixed32     version = 3;
-    fixed32     filesize = 4;
 }
 
 
 message FileMaterial
 {
-    FileHeader  header = 1;
-    Material    material = 2;
+    FileHeader              header = 1;
+    MaterialSystem.Material material = 2;
 }
 
 

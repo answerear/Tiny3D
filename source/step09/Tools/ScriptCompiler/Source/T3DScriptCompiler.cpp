@@ -23,6 +23,7 @@
 #include "T3DScriptParser.h"
 #include "T3DScriptError.h"
 #include "T3DScriptTranslator.h"
+#include "FileScriptObject.pb.h"
 #include <google/protobuf/util/json_util.h>
 
 namespace Tiny3D
@@ -1134,6 +1135,9 @@ namespace Tiny3D
 
             // 写文件头
             T3DFileHeader header;
+            Script::FileFormat::FileMaterial file;
+
+            Script::MaterialSystem::Material *material = nullptr;
 
             if (mIsBinary)
             {
@@ -1145,11 +1149,21 @@ namespace Tiny3D
 
                 data = buffer + sizeof(header);
                 dataLen = bufSize - sizeof(header);
+
+                material = new Script::MaterialSystem::Material();
+            }
+            else
+            {
+                Script::FileFormat::FileHeader *fileHeader = file.mutable_header();
+                fileHeader->set_magic(T3D_FILE_MAGIC);
+                fileHeader->set_type(Script::FileFormat::FileHeader::FileType::FileHeader_FileType_Material);
+                fileHeader->set_version(SCC_CURRENT_VERSION);
+
+                material = file.mutable_material();
             }
             
             ret = true;
 
-            Script::MaterialSystem::Material material;
 
             for (auto i = ast->begin(); i != ast->end(); ++i)
             {
@@ -1161,7 +1175,7 @@ namespace Tiny3D
                 
                 if (translator)
                 {
-                    ret = translator->translate(this, &material, *i);
+                    ret = translator->translate(this, material, *i);
                 }
                 else
                 {
@@ -1176,11 +1190,11 @@ namespace Tiny3D
 
                 if (mIsBinary)
                 {
-                    ret = material.SerializeToArray(data, dataLen);
+                    ret = material->SerializeToArray(data, dataLen);
                     if (!ret)
                         break;
 
-                    uint32_t len = (uint32_t)material.ByteSizeLong();
+                    uint32_t len = (uint32_t)material->ByteSizeLong();
                     header.fileSize += len;
                     data += len;
                     dataLen -= len;
@@ -1213,7 +1227,7 @@ namespace Tiny3D
                 opts.add_whitespace = true;
                 opts.always_print_enums_as_ints = false;
                 opts.always_print_primitive_fields = true;
-                google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(material, &str, opts);
+                google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(file, &str, opts);
 
                 fs.write((void*)str.c_str(), str.length());
             }

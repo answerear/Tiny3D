@@ -1,61 +1,68 @@
 {
  "header": {
-  "ID": 3,
-  "name": "Builtin/NoTexture"
+  "magic": "T3D",
+  "type": "Material",
+  "version": 256
  },
- "techniques": [
-  {
-   "header": {
-    "ID": 7,
-    "name": "0"
-   },
-   "renderQueue": {
-    "value": 2000
-   },
-   "passes": [
-    {
-     "header": {
-      "ID": 8,
-      "name": "0"
-     },
-     "polygonMode": {
-      "value": "PM_WIREFRAME"
-     },
-     "gpuProgramRef": {
+ "material": {
+  "header": {
+   "ID": 3,
+   "name": "Builtin/NoTexture"
+  },
+  "techniques": [
+   {
+    "header": {
+     "ID": 7,
+     "name": "0"
+    },
+    "renderQueue": {
+     "value": 2000
+    },
+    "passes": [
+     {
       "header": {
-       "ID": 282,
-       "name": "Builtin/NoTexture"
+       "ID": 8,
+       "name": "0"
       },
-      "gpuCbufferRef": [
-       {
-        "header": {
-         "ID": 284,
-         "name": "Builtin/UpdatePerObject"
-        },
-        "slot": 0
+      "polygonMode": {
+       "value": "PM_WIREFRAME"
+      },
+      "gpuProgramRef": {
+       "header": {
+        "ID": 282,
+        "name": "Builtin/NoTexture"
        },
-       {
-        "header": {
-         "ID": 284,
-         "name": "Builtin/UpdatePerFrame"
+       "gpuCbufferRef": [
+        {
+         "header": {
+          "ID": 284,
+          "name": "Builtin/UpdatePerObject"
+         },
+         "slot": 0
         },
-        "slot": 1
-       },
-       {
-        "header": {
-         "ID": 284,
-         "name": "Builtin/UpdateRarely"
+        {
+         "header": {
+          "ID": 284,
+          "name": "Builtin/UpdatePerFrame"
+         },
+         "slot": 1
         },
-        "slot": 2
-       }
-      ]
-     },
-     "textures": []
-    }
-   ]
-  }
- ],
- "cbuffers": [],
- "programs": [],
- "samplers": []
+        {
+         "header": {
+          "ID": 284,
+          "name": "Builtin/UpdateRarely"
+         },
+         "slot": 2
+        }
+       ]
+      },
+      "textures": []
+     }
+    ]
+   }
+  ],
+  "cbuffers": [],
+  "programs": [],
+  "samplers": []
+ }
 }

@@ -19,8 +19,10 @@
 
 
 #include "Serializer/T3DJSONMaterialReader.h"
-#include "protobuf/MaterialScriptObject.pb.h"
+#include "protobuf/FileScriptObject.pb.h"
 #include <google/protobuf/util/json_util.h>
+#include "T3DErrorDef.h"
+
 
 namespace Tiny3D
 {
@@ -43,7 +45,7 @@ namespace Tiny3D
         : MaterialReader(definitions)
         , mStr(nullptr)
     {
-        mStr = new char[kJsonStringSize];
+        mStr = new char[JSON_STRING_SIZE];
     }
 
     //--------------------------------------------------------------------------
@@ -62,10 +64,11 @@ namespace Tiny3D
         do 
         {
             long_t len = stream.size();
-            if (len >= kJsonStringSize)
+            if (len >= JSON_STRING_SIZE)
             {
                 ret = T3D_ERR_OUT_OF_BOUND;
-                T3D_LOG_ERROR(LOG_TAG_ENGINE, "The length of json string is out of bound when parsing json material !");
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, 
+                    "The length of json string is out of bound when parsing json material !");
                 break;
             }
 
@@ -73,20 +76,32 @@ namespace Tiny3D
             stream.read(mStr, size);
             mStr[size] = 0;
 
-            Script::MaterialSystem::Material src;
+            Script::FileFormat::FileMaterial file;
 
             google::protobuf::util::JsonParseOptions opts;
             opts.ignore_unknown_fields = true;
             google::protobuf::StringPiece input(mStr);
-            google::protobuf::util::Status status = google::protobuf::util::JsonStringToMessage(input, &src, opts);
+            google::protobuf::util::Status status 
+                = google::protobuf::util::JsonStringToMessage(input, &file, opts);
 
             if (!status.ok())
             {
                 ret = T3D_ERR_FAIL;
-                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Json string to message failed ! Error : %s", status.message().as_string().c_str());
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, 
+                    "Json string to message failed ! Error : %s", 
+                    status.message().as_string().c_str());
                 break;
             }
 
+            if (file.header().magic() != T3D_FILE_MAGIC 
+                && file.header().type() != Script::FileFormat::FileHeader_FileType_Material)
+            {
+                ret = T3D_ERR_RES_INVALID_FILETYPE;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid file type !");
+                break;
+            }
+
+            const Script::MaterialSystem::Material &src = file.material();
             ret = parseMaterial(&src, material);
         } while (0);
 

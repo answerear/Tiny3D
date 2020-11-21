@@ -30,7 +30,7 @@ namespace Tiny3D
     {
         enum 
         {
-            kJsonStringSize = 10 * 1024 * 1024
+            JSON_STRING_SIZE = 10 * 1024 * 1024
         };
 
         T3D_DECLARE_CLASS();
