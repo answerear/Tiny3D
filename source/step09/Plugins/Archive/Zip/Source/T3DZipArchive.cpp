@@ -112,6 +112,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ZipArchive::init(const String& assetPath)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     String ZipArchive::getLocation() const
     {
         return mName;

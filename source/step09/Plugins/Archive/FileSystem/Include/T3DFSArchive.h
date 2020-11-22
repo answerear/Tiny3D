@@ -69,6 +69,11 @@ namespace Tiny3D
         virtual ResourcePtr clone() const override;
 
         /**
+         * @brief 重写 Achive::Init(const String &assetPath) 接口
+         */
+        virtual TResult init(const String& assetPath) override;
+
+        /**
          * @brief 重写 Archieve::getLocation() 接口
          */
         virtual String getLocation() const override;

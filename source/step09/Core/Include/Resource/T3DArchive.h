@@ -50,6 +50,14 @@ namespace Tiny3D
         virtual Type getType() const override;
 
         /**
+         * @fn virtual TResult init(const String &assetPath);
+         * @brief   初始化档案系统
+         * @param [in]  assetPath   : 资源根目录
+         * @return  调用成功返回 T3D_OK
+         */
+        virtual TResult init(const String &assetPath) = 0;
+
+        /**
          * @fn  virtual String Archive::getArchiveType() const = 0;
          * @brief   获取档案结构类型
          * @return  The archive type.

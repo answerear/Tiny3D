@@ -19,21 +19,24 @@ message Node
     repeated Component  components = 4; // ID components attaching to
 }
 
-/**
- * @brief Type of component
- */
-enum ComponentType
-{
-    CT_TRANSFORM = 0;   // Transform
-    CT_MESH = 1;        // Mesh
-}
+
 
 /**
  * @brief Component
  */
 message Component
 {
-    ComponentType   type = 1;
+    /**
+     * @brief Type of component
+     */
+    enum Type
+    {
+        Transform = 0;   // Transform
+        Mesh = 1;        // Mesh
+    }
+    
+    Type    type = 1;
+    
     oneof ComponentOneOf
     {
         Transform   transform = 2;
@@ -56,6 +59,6 @@ message Transform
  */
 message Mesh
 {
-    uint32  resID = 1;
+    string  mesh_uuid = 1;
     string  mesh_name = 2;
 }

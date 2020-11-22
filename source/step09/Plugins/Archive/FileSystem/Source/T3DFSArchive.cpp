@@ -95,6 +95,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult FileSystemArchive::init(const String& assetPath)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool FileSystemArchive::exists(const String &name) const
     {
         String path = getLocation() + Dir::getNativeSeparator() + name;
