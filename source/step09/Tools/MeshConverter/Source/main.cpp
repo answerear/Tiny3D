@@ -21,7 +21,7 @@
 #include "T3DMeshConverter.h"
 
 // For debug
-// -i FBX -o txt -b sphere -m shared $(SolutionDir)..\..\..\assets\models\tortoise.fbx 
+// -i FBX -o t3t -b sphere -m shared $(SolutionDir)..\..\..\assets\models\tortoise.fbx 
 
 
 int main(int argc, char *argv[])

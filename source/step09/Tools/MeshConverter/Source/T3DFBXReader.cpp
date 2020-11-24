@@ -353,6 +353,42 @@ namespace Tiny3D
             MCONV_LOG_INFO("%s\trotation (%f, %f, %f)", ss.str().c_str(), pitch.valueDegrees(), yaw.valueDegrees(), roll.valueDegrees());
             MCONV_LOG_INFO("%s\tscaling (%f, %f, %f)", ss.str().c_str(), s.x(), s.y(), s.z());
 
+//             FbxAMatrix &lFbxGlobalMatrix = pFbxNode->EvaluateGlobalTransform();
+//             convertMatrix(lFbxGlobalMatrix, mat);
+// 
+//             mat.decomposition(t, s, q);
+//             q.toRotationMatrix(R);
+// 
+//             order = pFbxNode->RotationOrder;
+//             switch (order)
+//             {
+//             case eEulerXYZ:
+//                 R.toEulerAnglesZYX(roll, yaw, pitch);
+//                 break;
+//             case eEulerXZY:
+//                 R.toEulerAnglesYZX(yaw, roll, pitch);
+//                 break;
+//             case eEulerYZX:
+//                 R.toEulerAnglesXZY(pitch, roll, yaw);
+//                 break;
+//             case eEulerYXZ:
+//                 R.toEulerAnglesZXY(roll, pitch, yaw);
+//                 break;
+//             case eEulerZXY:
+//                 R.toEulerAnglesYXZ(yaw, pitch, roll);
+//                 break;
+//             case eEulerZYX:
+//                 R.toEulerAnglesXYZ(pitch, yaw, roll);
+//                 break;
+//             case eSphericXYZ:
+//                 break;
+//             }
+// 
+//             MCONV_LOG_INFO("%s\world tposition (%f, %f, %f)", ss.str().c_str(), t.x(), t.y(), t.z());
+//             MCONV_LOG_INFO("%s\world trotation (%f, %f, %f)", ss.str().c_str(), pitch.valueDegrees(), yaw.valueDegrees(), roll.valueDegrees());
+//             MCONV_LOG_INFO("%s\world tscaling (%f, %f, %f)", ss.str().c_str(), s.x(), s.y(), s.z());
+
+
             for (int32_t i = 0; i < pFbxNode->GetNodeAttributeCount(); ++i)
             {
                 FbxNodeAttribute *pFbxAttrib = pFbxNode->GetNodeAttributeByIndex(i);
@@ -1438,26 +1474,38 @@ namespace Tiny3D
                 lMatrix = pFbxCluster->GetTransformLinkMatrix(lMatrix);
                 convertMatrix(lMatrix, m);
 
+                //ss0 << "\nMatrix value: \n";
+
+                //for (int k = 0; k < 4; ++k)
+                //{
+                //    char        lRowValue[1024];
+                //    FBXSDK_sprintf(lRowValue, 1024, "%9.4f %9.4f %9.4f %9.4f\n", m[k][0], m[k][1], m[k][2], m[k][3]);
+                //    ss0 << lRowValue;
+                //}
+
+                MCONV_LOG_INFO("%s", ss0.str().c_str());
+                ss0.str("");
+
                 m.decomposition(T, S, Q);
 
-//                 FbxAMatrix lGlobalMatrix = pFbxCluster->GetLink()->EvaluateGlobalTransform();
-//                 convertMatrix(lGlobalMatrix, m);
-// 
-//                 Vector3 T0, S0;
-//                 Quaternion Q0;
-//                 m.decomposition(T0, S0, Q0);
-// 
-//                 ss0 << "Transform Link Global Translation: " << std::setprecision(6) << T0[0] << ", " << T0[1] << ", " << T0[2];
-//                 MCONV_LOG_INFO("\t%s", ss0.str().c_str());
-//                 ss0.str("");
+                //FbxAMatrix lGlobalMatrix = pFbxCluster->GetLink()->EvaluateGlobalTransform();
+                //convertMatrix(lGlobalMatrix, m);
+
+                //Vector3 T0, S0;
+                //Quaternion Q0;
+                //m.decomposition(T0, S0, Q0);
+
+                //ss0 << "Transform Link Global Translation: " << std::setprecision(6) << T0[0] << ", " << T0[1] << ", " << T0[2];
+                //MCONV_LOG_INFO("\t%s", ss0.str().c_str());
+                //ss0.str("");
 
                 ss0 << "Transform Link Translation: " << std::setprecision(6) << T[0] << ", " << T[1] << ", " << T[2];
                 MCONV_LOG_INFO("\t%s", ss0.str().c_str());
                 ss0.str("");
 
-//                 ss0 << "FBX Transform Link Translation: " << lMatrix.GetT()[0] << ", " << lMatrix.GetT()[1] << ", " << lMatrix.GetT()[2];
-//                 MCONV_LOG_INFO("\t%s", ss0.str().c_str());
-//                 ss0.str("");
+                //ss0 << "FBX Transform Link Translation: " << lMatrix.GetT()[0] << ", " << lMatrix.GetT()[1] << ", " << lMatrix.GetT()[2];
+                //MCONV_LOG_INFO("\t%s", ss0.str().c_str());
+                //ss0.str("");
 
                 Q.toRotationMatrix(R);
                 R.toEulerAnglesZYX(roll, yaw, pitch);
@@ -1484,10 +1532,14 @@ namespace Tiny3D
                 // 
                 // M(v) : Matrix of Mesh, 从模型空间变换到世界空间的矩阵
                 //  Retrieve from :
-                //  pFbxCluster->pFbxCluster->GetTransformMatrix(lMatrix);
+                //  pFbxCluster->GetTransformMatrix(lMatrix);
                 //
+                // M(b) : Matrix of Bone in binding poss, binding pose 时，从骨骼空间变换到世界空间的矩阵
+                //  Retrieve from :
+                //  pFbxCluster->GetTransformLinkMatrix(lMatrix);
+                //  
                 // 1. 把在 Binding 时刻的顶点，由 Mesh 空间变换到世界空间 M(v) * M(G)
-                // 2. 把在 Binding 时刻的顶点，由世界空间变换到骨骼空间
+                // 2. 把在 Binding 时刻的顶点，由世界空间变换到骨骼空间 Inverse(M(b)) * M(v) * M(G)
             }
         }
         return ret;
