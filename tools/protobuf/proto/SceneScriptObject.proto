@@ -2,7 +2,7 @@ syntax = "proto3";
 //option optimize_for = LITE_RUNTIME;
 
 import "CommonScriptObject.proto";
-import "ModelScriptObject.proto";
+//import "ModelScriptObject.proto";
 
 package Tiny3D.Script.SceneSystem;
 
@@ -13,10 +13,11 @@ package Tiny3D.Script.SceneSystem;
  */
 message Node
 {
-    ObjectHeader        header = 1;     // the header of Node
-    uint32              parent = 2;     // ID of parent node
-    repeated uint32     children = 3;   // ID of children nodes
-    repeated Component  components = 4; // ID components attaching to
+    string              uuid = 1;       // the uuid for this node
+    string              parent = 2;     // the uuid for parent node
+    repeated string     children = 3;   // the list of uuid for children nodes
+    string              name = 4;       // the name of this node
+    repeated Component  components = 5; // ID components attaching to
 }
 
 
@@ -31,8 +32,9 @@ message Component
      */
     enum Type
     {
-        Transform = 0;   // Transform
-        Mesh = 1;        // Mesh
+        Transform = 0;      // Transform
+        Mesh = 1;           // Mesh
+        SkinnedMesh = 2;    // Skinned Mesh
     }
     
     Type    type = 1;
@@ -41,6 +43,7 @@ message Component
     {
         Transform   transform = 2;
         Mesh        mesh = 3;
+        SkinnedMesh skinned_mesh = 4;
     }
 }
 
@@ -59,6 +62,13 @@ message Transform
  */
 message Mesh
 {
-    string  mesh_uuid = 1;
-    string  mesh_name = 2;
+    string      uuid = 1;
+}
+
+/**
+ * @brief Skinned Mesh
+ */
+message SkinnedMesh
+{
+    string      uuid = 1;
 }

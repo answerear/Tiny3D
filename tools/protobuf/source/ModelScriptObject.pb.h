@@ -86,12 +86,12 @@ extern MeshDataDefaultTypeInternal _MeshData_default_instance_;
 class Obb;
 class ObbDefaultTypeInternal;
 extern ObbDefaultTypeInternal _Obb_default_instance_;
-class SkinMeshData;
-class SkinMeshDataDefaultTypeInternal;
-extern SkinMeshDataDefaultTypeInternal _SkinMeshData_default_instance_;
-class SkinMeshData_OffsetEntry_DoNotUse;
-class SkinMeshData_OffsetEntry_DoNotUseDefaultTypeInternal;
-extern SkinMeshData_OffsetEntry_DoNotUseDefaultTypeInternal _SkinMeshData_OffsetEntry_DoNotUse_default_instance_;
+class SkinnedMeshData;
+class SkinnedMeshDataDefaultTypeInternal;
+extern SkinnedMeshDataDefaultTypeInternal _SkinnedMeshData_default_instance_;
+class SkinnedMeshData_OffsetEntry_DoNotUse;
+class SkinnedMeshData_OffsetEntry_DoNotUseDefaultTypeInternal;
+extern SkinnedMeshData_OffsetEntry_DoNotUseDefaultTypeInternal _SkinnedMeshData_OffsetEntry_DoNotUse_default_instance_;
 class Sphere;
 class SphereDefaultTypeInternal;
 extern SphereDefaultTypeInternal _Sphere_default_instance_;
@@ -116,8 +116,8 @@ template<> ::Tiny3D::Script::ModelSystem::Keyframe* Arena::CreateMaybeMessage<::
 template<> ::Tiny3D::Script::ModelSystem::KeyframeData* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::KeyframeData>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::MeshData* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::MeshData>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Obb* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Obb>(Arena*);
-template<> ::Tiny3D::Script::ModelSystem::SkinMeshData* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::SkinMeshData>(Arena*);
-template<> ::Tiny3D::Script::ModelSystem::SkinMeshData_OffsetEntry_DoNotUse* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::SkinMeshData_OffsetEntry_DoNotUse>(Arena*);
+template<> ::Tiny3D::Script::ModelSystem::SkinnedMeshData* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::SkinnedMeshData>(Arena*);
+template<> ::Tiny3D::Script::ModelSystem::SkinnedMeshData_OffsetEntry_DoNotUse* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::SkinnedMeshData_OffsetEntry_DoNotUse>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Sphere* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Sphere>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Vertex* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Vertex>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::VertexAttribute* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::VertexAttribute>(Arena*);
@@ -2652,10 +2652,11 @@ class MeshData :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kVertexBuffersFieldNumber = 1,
-    kIndexBuffersFieldNumber = 2,
+    kVertexBuffersFieldNumber = 3,
+    kIndexBuffersFieldNumber = 4,
+    kNameFieldNumber = 2,
   };
-  // repeated .Tiny3D.Script.ModelSystem.VertexBuffer vertex_buffers = 1;
+  // repeated .Tiny3D.Script.ModelSystem.VertexBuffer vertex_buffers = 3;
   int vertex_buffers_size() const;
   private:
   int _internal_vertex_buffers_size() const;
@@ -2673,7 +2674,7 @@ class MeshData :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::VertexBuffer >&
       vertex_buffers() const;
 
-  // repeated .Tiny3D.Script.ModelSystem.IndexBuffer index_buffers = 2;
+  // repeated .Tiny3D.Script.ModelSystem.IndexBuffer index_buffers = 4;
   int index_buffers_size() const;
   private:
   int _internal_index_buffers_size() const;
@@ -2691,6 +2692,22 @@ class MeshData :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::IndexBuffer >&
       index_buffers() const;
 
+  // string name = 2;
+  void clear_name();
+  const std::string& name() const;
+  void set_name(const std::string& value);
+  void set_name(std::string&& value);
+  void set_name(const char* value);
+  void set_name(const char* value, size_t size);
+  std::string* mutable_name();
+  std::string* release_name();
+  void set_allocated_name(std::string* name);
+  private:
+  const std::string& _internal_name() const;
+  void _internal_set_name(const std::string& value);
+  std::string* _internal_mutable_name();
+  public:
+
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.ModelSystem.MeshData)
  private:
   class _Internal;
@@ -2698,28 +2715,29 @@ class MeshData :
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::VertexBuffer > vertex_buffers_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::IndexBuffer > index_buffers_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_ModelScriptObject_2eproto;
 };
 // -------------------------------------------------------------------
 
-class SkinMeshData_OffsetEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<SkinMeshData_OffsetEntry_DoNotUse, 
+class SkinnedMeshData_OffsetEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<SkinnedMeshData_OffsetEntry_DoNotUse, 
     std::string, ::Tiny3D::Script::Matrix4,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
     0 > {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<SkinMeshData_OffsetEntry_DoNotUse, 
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<SkinnedMeshData_OffsetEntry_DoNotUse, 
     std::string, ::Tiny3D::Script::Matrix4,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
     0 > SuperType;
-  SkinMeshData_OffsetEntry_DoNotUse();
-  SkinMeshData_OffsetEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  void MergeFrom(const SkinMeshData_OffsetEntry_DoNotUse& other);
-  static const SkinMeshData_OffsetEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const SkinMeshData_OffsetEntry_DoNotUse*>(&_SkinMeshData_OffsetEntry_DoNotUse_default_instance_); }
+  SkinnedMeshData_OffsetEntry_DoNotUse();
+  SkinnedMeshData_OffsetEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  void MergeFrom(const SkinnedMeshData_OffsetEntry_DoNotUse& other);
+  static const SkinnedMeshData_OffsetEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const SkinnedMeshData_OffsetEntry_DoNotUse*>(&_SkinnedMeshData_OffsetEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "Tiny3D.Script.ModelSystem.SkinMeshData.OffsetEntry.key");
+    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "Tiny3D.Script.ModelSystem.SkinnedMeshData.OffsetEntry.key");
  }
   static bool ValidateValue(void*) { return true; }
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& other) final;
@@ -2735,23 +2753,23 @@ public:
 
 // -------------------------------------------------------------------
 
-class SkinMeshData :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.ModelSystem.SkinMeshData) */ {
+class SkinnedMeshData :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.ModelSystem.SkinnedMeshData) */ {
  public:
-  SkinMeshData();
-  virtual ~SkinMeshData();
+  SkinnedMeshData();
+  virtual ~SkinnedMeshData();
 
-  SkinMeshData(const SkinMeshData& from);
-  SkinMeshData(SkinMeshData&& from) noexcept
-    : SkinMeshData() {
+  SkinnedMeshData(const SkinnedMeshData& from);
+  SkinnedMeshData(SkinnedMeshData&& from) noexcept
+    : SkinnedMeshData() {
     *this = ::std::move(from);
   }
 
-  inline SkinMeshData& operator=(const SkinMeshData& from) {
+  inline SkinnedMeshData& operator=(const SkinnedMeshData& from) {
     CopyFrom(from);
     return *this;
   }
-  inline SkinMeshData& operator=(SkinMeshData&& from) noexcept {
+  inline SkinnedMeshData& operator=(SkinnedMeshData&& from) noexcept {
     if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -2769,37 +2787,37 @@ class SkinMeshData :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const SkinMeshData& default_instance();
+  static const SkinnedMeshData& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const SkinMeshData* internal_default_instance() {
-    return reinterpret_cast<const SkinMeshData*>(
-               &_SkinMeshData_default_instance_);
+  static inline const SkinnedMeshData* internal_default_instance() {
+    return reinterpret_cast<const SkinnedMeshData*>(
+               &_SkinnedMeshData_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     13;
 
-  friend void swap(SkinMeshData& a, SkinMeshData& b) {
+  friend void swap(SkinnedMeshData& a, SkinnedMeshData& b) {
     a.Swap(&b);
   }
-  inline void Swap(SkinMeshData* other) {
+  inline void Swap(SkinnedMeshData* other) {
     if (other == this) return;
     InternalSwap(other);
   }
 
   // implements Message ----------------------------------------------
 
-  inline SkinMeshData* New() const final {
-    return CreateMaybeMessage<SkinMeshData>(nullptr);
+  inline SkinnedMeshData* New() const final {
+    return CreateMaybeMessage<SkinnedMeshData>(nullptr);
   }
 
-  SkinMeshData* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<SkinMeshData>(arena);
+  SkinnedMeshData* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<SkinnedMeshData>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const SkinMeshData& from);
-  void MergeFrom(const SkinMeshData& from);
+  void CopyFrom(const SkinnedMeshData& from);
+  void MergeFrom(const SkinnedMeshData& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -2813,10 +2831,10 @@ class SkinMeshData :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(SkinMeshData* other);
+  void InternalSwap(SkinnedMeshData* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Tiny3D.Script.ModelSystem.SkinMeshData";
+    return "Tiny3D.Script.ModelSystem.SkinnedMeshData";
   }
   private:
   inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
@@ -2843,8 +2861,8 @@ class SkinMeshData :
 
   enum : int {
     kOffsetFieldNumber = 2,
-    kMeshFieldNumber = 1,
     kClipsFieldNumber = 3,
+    kMeshFieldNumber = 1,
   };
   // map<string, .Tiny3D.Script.Matrix4> offset = 2;
   int offset_size() const;
@@ -2863,6 +2881,24 @@ class SkinMeshData :
   ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >*
       mutable_offset();
 
+  // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 3;
+  int clips_size() const;
+  private:
+  int _internal_clips_size() const;
+  public:
+  void clear_clips();
+  ::Tiny3D::Script::ModelSystem::AnimationClip* mutable_clips(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::AnimationClip >*
+      mutable_clips();
+  private:
+  const ::Tiny3D::Script::ModelSystem::AnimationClip& _internal_clips(int index) const;
+  ::Tiny3D::Script::ModelSystem::AnimationClip* _internal_add_clips();
+  public:
+  const ::Tiny3D::Script::ModelSystem::AnimationClip& clips(int index) const;
+  ::Tiny3D::Script::ModelSystem::AnimationClip* add_clips();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::AnimationClip >&
+      clips() const;
+
   // .Tiny3D.Script.ModelSystem.MeshData mesh = 1;
   bool has_mesh() const;
   private:
@@ -2878,34 +2914,19 @@ class SkinMeshData :
   ::Tiny3D::Script::ModelSystem::MeshData* _internal_mutable_mesh();
   public:
 
-  // .Tiny3D.Script.ModelSystem.AnimationClip clips = 3;
-  bool has_clips() const;
-  private:
-  bool _internal_has_clips() const;
-  public:
-  void clear_clips();
-  const ::Tiny3D::Script::ModelSystem::AnimationClip& clips() const;
-  ::Tiny3D::Script::ModelSystem::AnimationClip* release_clips();
-  ::Tiny3D::Script::ModelSystem::AnimationClip* mutable_clips();
-  void set_allocated_clips(::Tiny3D::Script::ModelSystem::AnimationClip* clips);
-  private:
-  const ::Tiny3D::Script::ModelSystem::AnimationClip& _internal_clips() const;
-  ::Tiny3D::Script::ModelSystem::AnimationClip* _internal_mutable_clips();
-  public:
-
-  // @@protoc_insertion_point(class_scope:Tiny3D.Script.ModelSystem.SkinMeshData)
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.ModelSystem.SkinnedMeshData)
  private:
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      SkinMeshData_OffsetEntry_DoNotUse,
+      SkinnedMeshData_OffsetEntry_DoNotUse,
       std::string, ::Tiny3D::Script::Matrix4,
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
       0 > offset_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::AnimationClip > clips_;
   ::Tiny3D::Script::ModelSystem::MeshData* mesh_;
-  ::Tiny3D::Script::ModelSystem::AnimationClip* clips_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_ModelScriptObject_2eproto;
 };
@@ -4653,7 +4674,67 @@ AnimationClip::keyframes() const {
 
 // MeshData
 
-// repeated .Tiny3D.Script.ModelSystem.VertexBuffer vertex_buffers = 1;
+// string name = 2;
+inline void MeshData::clear_name() {
+  name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& MeshData::name() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.MeshData.name)
+  return _internal_name();
+}
+inline void MeshData::set_name(const std::string& value) {
+  _internal_set_name(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.MeshData.name)
+}
+inline std::string* MeshData::mutable_name() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.MeshData.name)
+  return _internal_mutable_name();
+}
+inline const std::string& MeshData::_internal_name() const {
+  return name_.GetNoArena();
+}
+inline void MeshData::_internal_set_name(const std::string& value) {
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void MeshData::set_name(std::string&& value) {
+  
+  name_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.ModelSystem.MeshData.name)
+}
+inline void MeshData::set_name(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.ModelSystem.MeshData.name)
+}
+inline void MeshData::set_name(const char* value, size_t size) {
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.ModelSystem.MeshData.name)
+}
+inline std::string* MeshData::_internal_mutable_name() {
+  
+  return name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* MeshData::release_name() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.MeshData.name)
+  
+  return name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void MeshData::set_allocated_name(std::string* name) {
+  if (name != nullptr) {
+    
+  } else {
+    
+  }
+  name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.MeshData.name)
+}
+
+// repeated .Tiny3D.Script.ModelSystem.VertexBuffer vertex_buffers = 3;
 inline int MeshData::_internal_vertex_buffers_size() const {
   return vertex_buffers_.size();
 }
@@ -4692,7 +4773,7 @@ MeshData::vertex_buffers() const {
   return vertex_buffers_;
 }
 
-// repeated .Tiny3D.Script.ModelSystem.IndexBuffer index_buffers = 2;
+// repeated .Tiny3D.Script.ModelSystem.IndexBuffer index_buffers = 4;
 inline int MeshData::_internal_index_buffers_size() const {
   return index_buffers_.size();
 }
@@ -4735,38 +4816,38 @@ MeshData::index_buffers() const {
 
 // -------------------------------------------------------------------
 
-// SkinMeshData
+// SkinnedMeshData
 
 // .Tiny3D.Script.ModelSystem.MeshData mesh = 1;
-inline bool SkinMeshData::_internal_has_mesh() const {
+inline bool SkinnedMeshData::_internal_has_mesh() const {
   return this != internal_default_instance() && mesh_ != nullptr;
 }
-inline bool SkinMeshData::has_mesh() const {
+inline bool SkinnedMeshData::has_mesh() const {
   return _internal_has_mesh();
 }
-inline void SkinMeshData::clear_mesh() {
+inline void SkinnedMeshData::clear_mesh() {
   if (GetArenaNoVirtual() == nullptr && mesh_ != nullptr) {
     delete mesh_;
   }
   mesh_ = nullptr;
 }
-inline const ::Tiny3D::Script::ModelSystem::MeshData& SkinMeshData::_internal_mesh() const {
+inline const ::Tiny3D::Script::ModelSystem::MeshData& SkinnedMeshData::_internal_mesh() const {
   const ::Tiny3D::Script::ModelSystem::MeshData* p = mesh_;
   return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::ModelSystem::MeshData*>(
       &::Tiny3D::Script::ModelSystem::_MeshData_default_instance_);
 }
-inline const ::Tiny3D::Script::ModelSystem::MeshData& SkinMeshData::mesh() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.SkinMeshData.mesh)
+inline const ::Tiny3D::Script::ModelSystem::MeshData& SkinnedMeshData::mesh() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.SkinnedMeshData.mesh)
   return _internal_mesh();
 }
-inline ::Tiny3D::Script::ModelSystem::MeshData* SkinMeshData::release_mesh() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.SkinMeshData.mesh)
+inline ::Tiny3D::Script::ModelSystem::MeshData* SkinnedMeshData::release_mesh() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.SkinnedMeshData.mesh)
   
   ::Tiny3D::Script::ModelSystem::MeshData* temp = mesh_;
   mesh_ = nullptr;
   return temp;
 }
-inline ::Tiny3D::Script::ModelSystem::MeshData* SkinMeshData::_internal_mutable_mesh() {
+inline ::Tiny3D::Script::ModelSystem::MeshData* SkinnedMeshData::_internal_mutable_mesh() {
   
   if (mesh_ == nullptr) {
     auto* p = CreateMaybeMessage<::Tiny3D::Script::ModelSystem::MeshData>(GetArenaNoVirtual());
@@ -4774,11 +4855,11 @@ inline ::Tiny3D::Script::ModelSystem::MeshData* SkinMeshData::_internal_mutable_
   }
   return mesh_;
 }
-inline ::Tiny3D::Script::ModelSystem::MeshData* SkinMeshData::mutable_mesh() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.SkinMeshData.mesh)
+inline ::Tiny3D::Script::ModelSystem::MeshData* SkinnedMeshData::mutable_mesh() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.SkinnedMeshData.mesh)
   return _internal_mutable_mesh();
 }
-inline void SkinMeshData::set_allocated_mesh(::Tiny3D::Script::ModelSystem::MeshData* mesh) {
+inline void SkinnedMeshData::set_allocated_mesh(::Tiny3D::Script::ModelSystem::MeshData* mesh) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   if (message_arena == nullptr) {
     delete mesh_;
@@ -4794,93 +4875,72 @@ inline void SkinMeshData::set_allocated_mesh(::Tiny3D::Script::ModelSystem::Mesh
     
   }
   mesh_ = mesh;
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.SkinMeshData.mesh)
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.SkinnedMeshData.mesh)
 }
 
 // map<string, .Tiny3D.Script.Matrix4> offset = 2;
-inline int SkinMeshData::_internal_offset_size() const {
+inline int SkinnedMeshData::_internal_offset_size() const {
   return offset_.size();
 }
-inline int SkinMeshData::offset_size() const {
+inline int SkinnedMeshData::offset_size() const {
   return _internal_offset_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >&
-SkinMeshData::_internal_offset() const {
+SkinnedMeshData::_internal_offset() const {
   return offset_.GetMap();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >&
-SkinMeshData::offset() const {
-  // @@protoc_insertion_point(field_map:Tiny3D.Script.ModelSystem.SkinMeshData.offset)
+SkinnedMeshData::offset() const {
+  // @@protoc_insertion_point(field_map:Tiny3D.Script.ModelSystem.SkinnedMeshData.offset)
   return _internal_offset();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >*
-SkinMeshData::_internal_mutable_offset() {
+SkinnedMeshData::_internal_mutable_offset() {
   return offset_.MutableMap();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >*
-SkinMeshData::mutable_offset() {
-  // @@protoc_insertion_point(field_mutable_map:Tiny3D.Script.ModelSystem.SkinMeshData.offset)
+SkinnedMeshData::mutable_offset() {
+  // @@protoc_insertion_point(field_mutable_map:Tiny3D.Script.ModelSystem.SkinnedMeshData.offset)
   return _internal_mutable_offset();
 }
 
-// .Tiny3D.Script.ModelSystem.AnimationClip clips = 3;
-inline bool SkinMeshData::_internal_has_clips() const {
-  return this != internal_default_instance() && clips_ != nullptr;
+// repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 3;
+inline int SkinnedMeshData::_internal_clips_size() const {
+  return clips_.size();
 }
-inline bool SkinMeshData::has_clips() const {
-  return _internal_has_clips();
+inline int SkinnedMeshData::clips_size() const {
+  return _internal_clips_size();
 }
-inline void SkinMeshData::clear_clips() {
-  if (GetArenaNoVirtual() == nullptr && clips_ != nullptr) {
-    delete clips_;
-  }
-  clips_ = nullptr;
+inline void SkinnedMeshData::clear_clips() {
+  clips_.Clear();
 }
-inline const ::Tiny3D::Script::ModelSystem::AnimationClip& SkinMeshData::_internal_clips() const {
-  const ::Tiny3D::Script::ModelSystem::AnimationClip* p = clips_;
-  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::ModelSystem::AnimationClip*>(
-      &::Tiny3D::Script::ModelSystem::_AnimationClip_default_instance_);
+inline ::Tiny3D::Script::ModelSystem::AnimationClip* SkinnedMeshData::mutable_clips(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.SkinnedMeshData.clips)
+  return clips_.Mutable(index);
 }
-inline const ::Tiny3D::Script::ModelSystem::AnimationClip& SkinMeshData::clips() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.SkinMeshData.clips)
-  return _internal_clips();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::AnimationClip >*
+SkinnedMeshData::mutable_clips() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.SkinnedMeshData.clips)
+  return &clips_;
 }
-inline ::Tiny3D::Script::ModelSystem::AnimationClip* SkinMeshData::release_clips() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.SkinMeshData.clips)
-  
-  ::Tiny3D::Script::ModelSystem::AnimationClip* temp = clips_;
-  clips_ = nullptr;
-  return temp;
+inline const ::Tiny3D::Script::ModelSystem::AnimationClip& SkinnedMeshData::_internal_clips(int index) const {
+  return clips_.Get(index);
 }
-inline ::Tiny3D::Script::ModelSystem::AnimationClip* SkinMeshData::_internal_mutable_clips() {
-  
-  if (clips_ == nullptr) {
-    auto* p = CreateMaybeMessage<::Tiny3D::Script::ModelSystem::AnimationClip>(GetArenaNoVirtual());
-    clips_ = p;
-  }
+inline const ::Tiny3D::Script::ModelSystem::AnimationClip& SkinnedMeshData::clips(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.SkinnedMeshData.clips)
+  return _internal_clips(index);
+}
+inline ::Tiny3D::Script::ModelSystem::AnimationClip* SkinnedMeshData::_internal_add_clips() {
+  return clips_.Add();
+}
+inline ::Tiny3D::Script::ModelSystem::AnimationClip* SkinnedMeshData::add_clips() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.ModelSystem.SkinnedMeshData.clips)
+  return _internal_add_clips();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::AnimationClip >&
+SkinnedMeshData::clips() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.ModelSystem.SkinnedMeshData.clips)
   return clips_;
-}
-inline ::Tiny3D::Script::ModelSystem::AnimationClip* SkinMeshData::mutable_clips() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.SkinMeshData.clips)
-  return _internal_mutable_clips();
-}
-inline void SkinMeshData::set_allocated_clips(::Tiny3D::Script::ModelSystem::AnimationClip* clips) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  if (message_arena == nullptr) {
-    delete clips_;
-  }
-  if (clips) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      clips = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, clips, submessage_arena);
-    }
-    
-  } else {
-    
-  }
-  clips_ = clips;
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.SkinMeshData.clips)
 }
 
 #ifdef __GNUC__

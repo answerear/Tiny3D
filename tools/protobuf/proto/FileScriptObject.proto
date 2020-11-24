@@ -1,7 +1,7 @@
 syntax = "proto3";
 //option optimize_for = LITE_RUNTIME;
 
-import "CommonScriptObject.proto";
+//import "CommonScriptObject.proto";
 import "MaterialScriptObject.proto";
 import "ModelScriptObject.proto";
 import "SceneScriptObject.proto";
@@ -40,4 +40,13 @@ message FileMeta
 {
     FileHeader          header = 1;
     MetaSystem.MetaData meta = 2;
+}
+
+
+message FileScene
+{
+    FileHeader                      header = 1;
+    repeated SceneSystem.Node       nodes = 2;
+    map<string, ModelSystem.MeshData>           meshes = 3;
+    map<string, ModelSystem.SkinnedMeshData>    skinned_meshes = 4;
 }

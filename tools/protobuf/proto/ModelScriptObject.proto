@@ -232,19 +232,18 @@ message AnimationClip
  */
 message MeshData
 {
-    repeated VertexBuffer   vertex_buffers = 1;
-    repeated IndexBuffer    index_buffers = 2;
+    string                  name = 2;
+    repeated VertexBuffer   vertex_buffers = 3;
+    repeated IndexBuffer    index_buffers = 4;
 }
 
 
-message SkinMeshData
+message SkinnedMeshData
 {
     MeshData                mesh = 1;
     map<string, Matrix4>    offset = 2;
-    AnimationClip           clips = 3;
+    repeated AnimationClip  clips = 3;
 }
-
-
 
 
 

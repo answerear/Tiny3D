@@ -34,7 +34,6 @@
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "CommonScriptObject.pb.h"
-#include "ModelScriptObject.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_SceneScriptObject_2eproto
@@ -50,7 +49,7 @@ struct TableStruct_SceneScriptObject_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[4]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -69,6 +68,9 @@ extern MeshDefaultTypeInternal _Mesh_default_instance_;
 class Node;
 class NodeDefaultTypeInternal;
 extern NodeDefaultTypeInternal _Node_default_instance_;
+class SkinnedMesh;
+class SkinnedMeshDefaultTypeInternal;
+extern SkinnedMeshDefaultTypeInternal _SkinnedMesh_default_instance_;
 class Transform;
 class TransformDefaultTypeInternal;
 extern TransformDefaultTypeInternal _Transform_default_instance_;
@@ -79,36 +81,38 @@ PROTOBUF_NAMESPACE_OPEN
 template<> ::Tiny3D::Script::SceneSystem::Component* Arena::CreateMaybeMessage<::Tiny3D::Script::SceneSystem::Component>(Arena*);
 template<> ::Tiny3D::Script::SceneSystem::Mesh* Arena::CreateMaybeMessage<::Tiny3D::Script::SceneSystem::Mesh>(Arena*);
 template<> ::Tiny3D::Script::SceneSystem::Node* Arena::CreateMaybeMessage<::Tiny3D::Script::SceneSystem::Node>(Arena*);
+template<> ::Tiny3D::Script::SceneSystem::SkinnedMesh* Arena::CreateMaybeMessage<::Tiny3D::Script::SceneSystem::SkinnedMesh>(Arena*);
 template<> ::Tiny3D::Script::SceneSystem::Transform* Arena::CreateMaybeMessage<::Tiny3D::Script::SceneSystem::Transform>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Tiny3D {
 namespace Script {
 namespace SceneSystem {
 
-enum ComponentType : int {
-  CT_TRANSFORM = 0,
-  CT_MESH = 1,
-  ComponentType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
-  ComponentType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+enum Component_Type : int {
+  Component_Type_Transform = 0,
+  Component_Type_Mesh = 1,
+  Component_Type_SkinnedMesh = 2,
+  Component_Type_Component_Type_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  Component_Type_Component_Type_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
-bool ComponentType_IsValid(int value);
-constexpr ComponentType ComponentType_MIN = CT_TRANSFORM;
-constexpr ComponentType ComponentType_MAX = CT_MESH;
-constexpr int ComponentType_ARRAYSIZE = ComponentType_MAX + 1;
+bool Component_Type_IsValid(int value);
+constexpr Component_Type Component_Type_Type_MIN = Component_Type_Transform;
+constexpr Component_Type Component_Type_Type_MAX = Component_Type_SkinnedMesh;
+constexpr int Component_Type_Type_ARRAYSIZE = Component_Type_Type_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ComponentType_descriptor();
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Component_Type_descriptor();
 template<typename T>
-inline const std::string& ComponentType_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, ComponentType>::value ||
+inline const std::string& Component_Type_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, Component_Type>::value ||
     ::std::is_integral<T>::value,
-    "Incorrect type passed to function ComponentType_Name.");
+    "Incorrect type passed to function Component_Type_Name.");
   return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    ComponentType_descriptor(), enum_t_value);
+    Component_Type_descriptor(), enum_t_value);
 }
-inline bool ComponentType_Parse(
-    const std::string& name, ComponentType* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ComponentType>(
-    ComponentType_descriptor(), name, value);
+inline bool Component_Type_Parse(
+    const std::string& name, Component_Type* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Component_Type>(
+    Component_Type_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -219,33 +223,36 @@ class Node :
 
   enum : int {
     kChildrenFieldNumber = 3,
-    kComponentsFieldNumber = 4,
-    kHeaderFieldNumber = 1,
+    kComponentsFieldNumber = 5,
+    kUuidFieldNumber = 1,
     kParentFieldNumber = 2,
+    kNameFieldNumber = 4,
   };
-  // repeated uint32 children = 3;
+  // repeated string children = 3;
   int children_size() const;
   private:
   int _internal_children_size() const;
   public:
   void clear_children();
+  const std::string& children(int index) const;
+  std::string* mutable_children(int index);
+  void set_children(int index, const std::string& value);
+  void set_children(int index, std::string&& value);
+  void set_children(int index, const char* value);
+  void set_children(int index, const char* value, size_t size);
+  std::string* add_children();
+  void add_children(const std::string& value);
+  void add_children(std::string&& value);
+  void add_children(const char* value);
+  void add_children(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& children() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_children();
   private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_children(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
-      _internal_children() const;
-  void _internal_add_children(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
-      _internal_mutable_children();
+  const std::string& _internal_children(int index) const;
+  std::string* _internal_add_children();
   public:
-  ::PROTOBUF_NAMESPACE_ID::uint32 children(int index) const;
-  void set_children(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value);
-  void add_children(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
-      children() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
-      mutable_children();
 
-  // repeated .Tiny3D.Script.SceneSystem.Component components = 4;
+  // repeated .Tiny3D.Script.SceneSystem.Component components = 5;
   int components_size() const;
   private:
   int _internal_components_size() const;
@@ -263,28 +270,52 @@ class Node :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::SceneSystem::Component >&
       components() const;
 
-  // .Tiny3D.Script.ObjectHeader header = 1;
-  bool has_header() const;
+  // string uuid = 1;
+  void clear_uuid();
+  const std::string& uuid() const;
+  void set_uuid(const std::string& value);
+  void set_uuid(std::string&& value);
+  void set_uuid(const char* value);
+  void set_uuid(const char* value, size_t size);
+  std::string* mutable_uuid();
+  std::string* release_uuid();
+  void set_allocated_uuid(std::string* uuid);
   private:
-  bool _internal_has_header() const;
-  public:
-  void clear_header();
-  const ::Tiny3D::Script::ObjectHeader& header() const;
-  ::Tiny3D::Script::ObjectHeader* release_header();
-  ::Tiny3D::Script::ObjectHeader* mutable_header();
-  void set_allocated_header(::Tiny3D::Script::ObjectHeader* header);
-  private:
-  const ::Tiny3D::Script::ObjectHeader& _internal_header() const;
-  ::Tiny3D::Script::ObjectHeader* _internal_mutable_header();
+  const std::string& _internal_uuid() const;
+  void _internal_set_uuid(const std::string& value);
+  std::string* _internal_mutable_uuid();
   public:
 
-  // uint32 parent = 2;
+  // string parent = 2;
   void clear_parent();
-  ::PROTOBUF_NAMESPACE_ID::uint32 parent() const;
-  void set_parent(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  const std::string& parent() const;
+  void set_parent(const std::string& value);
+  void set_parent(std::string&& value);
+  void set_parent(const char* value);
+  void set_parent(const char* value, size_t size);
+  std::string* mutable_parent();
+  std::string* release_parent();
+  void set_allocated_parent(std::string* parent);
   private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_parent() const;
-  void _internal_set_parent(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  const std::string& _internal_parent() const;
+  void _internal_set_parent(const std::string& value);
+  std::string* _internal_mutable_parent();
+  public:
+
+  // string name = 4;
+  void clear_name();
+  const std::string& name() const;
+  void set_name(const std::string& value);
+  void set_name(std::string&& value);
+  void set_name(const char* value);
+  void set_name(const char* value, size_t size);
+  std::string* mutable_name();
+  std::string* release_name();
+  void set_allocated_name(std::string* name);
+  private:
+  const std::string& _internal_name() const;
+  void _internal_set_name(const std::string& value);
+  std::string* _internal_mutable_name();
   public:
 
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.SceneSystem.Node)
@@ -292,11 +323,11 @@ class Node :
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > children_;
-  mutable std::atomic<int> _children_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> children_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::SceneSystem::Component > components_;
-  ::Tiny3D::Script::ObjectHeader* header_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 parent_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr uuid_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr parent_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_SceneScriptObject_2eproto;
 };
@@ -341,6 +372,7 @@ class Component :
   enum ComponentOneOfCase {
     kTransform = 2,
     kMesh = 3,
+    kSkinnedMesh = 4,
     COMPONENTONEOF_NOT_SET = 0,
   };
 
@@ -411,20 +443,53 @@ class Component :
 
   // nested types ----------------------------------------------------
 
+  typedef Component_Type Type;
+  static constexpr Type Transform =
+    Component_Type_Transform;
+  static constexpr Type Mesh =
+    Component_Type_Mesh;
+  static constexpr Type SkinnedMesh =
+    Component_Type_SkinnedMesh;
+  static inline bool Type_IsValid(int value) {
+    return Component_Type_IsValid(value);
+  }
+  static constexpr Type Type_MIN =
+    Component_Type_Type_MIN;
+  static constexpr Type Type_MAX =
+    Component_Type_Type_MAX;
+  static constexpr int Type_ARRAYSIZE =
+    Component_Type_Type_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
+  Type_descriptor() {
+    return Component_Type_descriptor();
+  }
+  template<typename T>
+  static inline const std::string& Type_Name(T enum_t_value) {
+    static_assert(::std::is_same<T, Type>::value ||
+      ::std::is_integral<T>::value,
+      "Incorrect type passed to function Type_Name.");
+    return Component_Type_Name(enum_t_value);
+  }
+  static inline bool Type_Parse(const std::string& name,
+      Type* value) {
+    return Component_Type_Parse(name, value);
+  }
+
   // accessors -------------------------------------------------------
 
   enum : int {
     kTypeFieldNumber = 1,
     kTransformFieldNumber = 2,
     kMeshFieldNumber = 3,
+    kSkinnedMeshFieldNumber = 4,
   };
-  // .Tiny3D.Script.SceneSystem.ComponentType type = 1;
+  // .Tiny3D.Script.SceneSystem.Component.Type type = 1;
   void clear_type();
-  ::Tiny3D::Script::SceneSystem::ComponentType type() const;
-  void set_type(::Tiny3D::Script::SceneSystem::ComponentType value);
+  ::Tiny3D::Script::SceneSystem::Component_Type type() const;
+  void set_type(::Tiny3D::Script::SceneSystem::Component_Type value);
   private:
-  ::Tiny3D::Script::SceneSystem::ComponentType _internal_type() const;
-  void _internal_set_type(::Tiny3D::Script::SceneSystem::ComponentType value);
+  ::Tiny3D::Script::SceneSystem::Component_Type _internal_type() const;
+  void _internal_set_type(::Tiny3D::Script::SceneSystem::Component_Type value);
   public:
 
   // .Tiny3D.Script.SceneSystem.Transform transform = 2;
@@ -457,6 +522,21 @@ class Component :
   ::Tiny3D::Script::SceneSystem::Mesh* _internal_mutable_mesh();
   public:
 
+  // .Tiny3D.Script.SceneSystem.SkinnedMesh skinned_mesh = 4;
+  bool has_skinned_mesh() const;
+  private:
+  bool _internal_has_skinned_mesh() const;
+  public:
+  void clear_skinned_mesh();
+  const ::Tiny3D::Script::SceneSystem::SkinnedMesh& skinned_mesh() const;
+  ::Tiny3D::Script::SceneSystem::SkinnedMesh* release_skinned_mesh();
+  ::Tiny3D::Script::SceneSystem::SkinnedMesh* mutable_skinned_mesh();
+  void set_allocated_skinned_mesh(::Tiny3D::Script::SceneSystem::SkinnedMesh* skinned_mesh);
+  private:
+  const ::Tiny3D::Script::SceneSystem::SkinnedMesh& _internal_skinned_mesh() const;
+  ::Tiny3D::Script::SceneSystem::SkinnedMesh* _internal_mutable_skinned_mesh();
+  public:
+
   void clear_ComponentOneOf();
   ComponentOneOfCase ComponentOneOf_case() const;
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.SceneSystem.Component)
@@ -464,6 +544,7 @@ class Component :
   class _Internal;
   void set_has_transform();
   void set_has_mesh();
+  void set_has_skinned_mesh();
 
   inline bool has_ComponentOneOf() const;
   inline void clear_has_ComponentOneOf();
@@ -474,6 +555,7 @@ class Component :
     ComponentOneOfUnion() {}
     ::Tiny3D::Script::SceneSystem::Transform* transform_;
     ::Tiny3D::Script::SceneSystem::Mesh* mesh_;
+    ::Tiny3D::Script::SceneSystem::SkinnedMesh* skinned_mesh_;
   } ComponentOneOf_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
@@ -756,32 +838,22 @@ class Mesh :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMeshNameFieldNumber = 2,
-    kResIDFieldNumber = 1,
+    kUuidFieldNumber = 1,
   };
-  // string mesh_name = 2;
-  void clear_mesh_name();
-  const std::string& mesh_name() const;
-  void set_mesh_name(const std::string& value);
-  void set_mesh_name(std::string&& value);
-  void set_mesh_name(const char* value);
-  void set_mesh_name(const char* value, size_t size);
-  std::string* mutable_mesh_name();
-  std::string* release_mesh_name();
-  void set_allocated_mesh_name(std::string* mesh_name);
+  // string uuid = 1;
+  void clear_uuid();
+  const std::string& uuid() const;
+  void set_uuid(const std::string& value);
+  void set_uuid(std::string&& value);
+  void set_uuid(const char* value);
+  void set_uuid(const char* value, size_t size);
+  std::string* mutable_uuid();
+  std::string* release_uuid();
+  void set_allocated_uuid(std::string* uuid);
   private:
-  const std::string& _internal_mesh_name() const;
-  void _internal_set_mesh_name(const std::string& value);
-  std::string* _internal_mutable_mesh_name();
-  public:
-
-  // uint32 resID = 1;
-  void clear_resid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 resid() const;
-  void set_resid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_resid() const;
-  void _internal_set_resid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  const std::string& _internal_uuid() const;
+  void _internal_set_uuid(const std::string& value);
+  std::string* _internal_mutable_uuid();
   public:
 
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.SceneSystem.Mesh)
@@ -789,8 +861,142 @@ class Mesh :
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr mesh_name_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 resid_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr uuid_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_SceneScriptObject_2eproto;
+};
+// -------------------------------------------------------------------
+
+class SkinnedMesh :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.SceneSystem.SkinnedMesh) */ {
+ public:
+  SkinnedMesh();
+  virtual ~SkinnedMesh();
+
+  SkinnedMesh(const SkinnedMesh& from);
+  SkinnedMesh(SkinnedMesh&& from) noexcept
+    : SkinnedMesh() {
+    *this = ::std::move(from);
+  }
+
+  inline SkinnedMesh& operator=(const SkinnedMesh& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline SkinnedMesh& operator=(SkinnedMesh&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const SkinnedMesh& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const SkinnedMesh* internal_default_instance() {
+    return reinterpret_cast<const SkinnedMesh*>(
+               &_SkinnedMesh_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  friend void swap(SkinnedMesh& a, SkinnedMesh& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(SkinnedMesh* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline SkinnedMesh* New() const final {
+    return CreateMaybeMessage<SkinnedMesh>(nullptr);
+  }
+
+  SkinnedMesh* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<SkinnedMesh>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const SkinnedMesh& from);
+  void MergeFrom(const SkinnedMesh& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(SkinnedMesh* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.SceneSystem.SkinnedMesh";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_SceneScriptObject_2eproto);
+    return ::descriptor_table_SceneScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kUuidFieldNumber = 1,
+  };
+  // string uuid = 1;
+  void clear_uuid();
+  const std::string& uuid() const;
+  void set_uuid(const std::string& value);
+  void set_uuid(std::string&& value);
+  void set_uuid(const char* value);
+  void set_uuid(const char* value, size_t size);
+  std::string* mutable_uuid();
+  std::string* release_uuid();
+  void set_allocated_uuid(std::string* uuid);
+  private:
+  const std::string& _internal_uuid() const;
+  void _internal_set_uuid(const std::string& value);
+  std::string* _internal_mutable_uuid();
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.SceneSystem.SkinnedMesh)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr uuid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_SceneScriptObject_2eproto;
 };
@@ -805,81 +1011,127 @@ class Mesh :
 #endif  // __GNUC__
 // Node
 
-// .Tiny3D.Script.ObjectHeader header = 1;
-inline bool Node::_internal_has_header() const {
-  return this != internal_default_instance() && header_ != nullptr;
+// string uuid = 1;
+inline void Node::clear_uuid() {
+  uuid_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline bool Node::has_header() const {
-  return _internal_has_header();
+inline const std::string& Node::uuid() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Node.uuid)
+  return _internal_uuid();
 }
-inline const ::Tiny3D::Script::ObjectHeader& Node::_internal_header() const {
-  const ::Tiny3D::Script::ObjectHeader* p = header_;
-  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::ObjectHeader*>(
-      &::Tiny3D::Script::_ObjectHeader_default_instance_);
+inline void Node::set_uuid(const std::string& value) {
+  _internal_set_uuid(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.Node.uuid)
 }
-inline const ::Tiny3D::Script::ObjectHeader& Node::header() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Node.header)
-  return _internal_header();
+inline std::string* Node::mutable_uuid() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Node.uuid)
+  return _internal_mutable_uuid();
 }
-inline ::Tiny3D::Script::ObjectHeader* Node::release_header() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.SceneSystem.Node.header)
+inline const std::string& Node::_internal_uuid() const {
+  return uuid_.GetNoArena();
+}
+inline void Node::_internal_set_uuid(const std::string& value) {
   
-  ::Tiny3D::Script::ObjectHeader* temp = header_;
-  header_ = nullptr;
-  return temp;
+  uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
 }
-inline ::Tiny3D::Script::ObjectHeader* Node::_internal_mutable_header() {
+inline void Node::set_uuid(std::string&& value) {
   
-  if (header_ == nullptr) {
-    auto* p = CreateMaybeMessage<::Tiny3D::Script::ObjectHeader>(GetArenaNoVirtual());
-    header_ = p;
-  }
-  return header_;
+  uuid_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.SceneSystem.Node.uuid)
 }
-inline ::Tiny3D::Script::ObjectHeader* Node::mutable_header() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Node.header)
-  return _internal_mutable_header();
+inline void Node::set_uuid(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.SceneSystem.Node.uuid)
 }
-inline void Node::set_allocated_header(::Tiny3D::Script::ObjectHeader* header) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  if (message_arena == nullptr) {
-    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(header_);
-  }
-  if (header) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      header = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, header, submessage_arena);
-    }
+inline void Node::set_uuid(const char* value, size_t size) {
+  
+  uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.SceneSystem.Node.uuid)
+}
+inline std::string* Node::_internal_mutable_uuid() {
+  
+  return uuid_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* Node::release_uuid() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.SceneSystem.Node.uuid)
+  
+  return uuid_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void Node::set_allocated_uuid(std::string* uuid) {
+  if (uuid != nullptr) {
     
   } else {
     
   }
-  header_ = header;
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Node.header)
+  uuid_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), uuid);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Node.uuid)
 }
 
-// uint32 parent = 2;
+// string parent = 2;
 inline void Node::clear_parent() {
-  parent_ = 0u;
+  parent_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 Node::_internal_parent() const {
-  return parent_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 Node::parent() const {
+inline const std::string& Node::parent() const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Node.parent)
   return _internal_parent();
 }
-inline void Node::_internal_set_parent(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  parent_ = value;
-}
-inline void Node::set_parent(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void Node::set_parent(const std::string& value) {
   _internal_set_parent(value);
   // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.Node.parent)
 }
+inline std::string* Node::mutable_parent() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Node.parent)
+  return _internal_mutable_parent();
+}
+inline const std::string& Node::_internal_parent() const {
+  return parent_.GetNoArena();
+}
+inline void Node::_internal_set_parent(const std::string& value) {
+  
+  parent_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void Node::set_parent(std::string&& value) {
+  
+  parent_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.SceneSystem.Node.parent)
+}
+inline void Node::set_parent(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  parent_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.SceneSystem.Node.parent)
+}
+inline void Node::set_parent(const char* value, size_t size) {
+  
+  parent_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.SceneSystem.Node.parent)
+}
+inline std::string* Node::_internal_mutable_parent() {
+  
+  return parent_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* Node::release_parent() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.SceneSystem.Node.parent)
+  
+  return parent_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void Node::set_allocated_parent(std::string* parent) {
+  if (parent != nullptr) {
+    
+  } else {
+    
+  }
+  parent_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), parent);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Node.parent)
+}
 
-// repeated uint32 children = 3;
+// repeated string children = 3;
 inline int Node::_internal_children_size() const {
   return children_.size();
 }
@@ -889,44 +1141,131 @@ inline int Node::children_size() const {
 inline void Node::clear_children() {
   children_.Clear();
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 Node::_internal_children(int index) const {
+inline std::string* Node::add_children() {
+  // @@protoc_insertion_point(field_add_mutable:Tiny3D.Script.SceneSystem.Node.children)
+  return _internal_add_children();
+}
+inline const std::string& Node::_internal_children(int index) const {
   return children_.Get(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 Node::children(int index) const {
+inline const std::string& Node::children(int index) const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Node.children)
   return _internal_children(index);
 }
-inline void Node::set_children(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  children_.Set(index, value);
+inline std::string* Node::mutable_children(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Node.children)
+  return children_.Mutable(index);
+}
+inline void Node::set_children(int index, const std::string& value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.Node.children)
+  children_.Mutable(index)->assign(value);
 }
-inline void Node::_internal_add_children(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  children_.Add(value);
+inline void Node::set_children(int index, std::string&& value) {
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.Node.children)
+  children_.Mutable(index)->assign(std::move(value));
 }
-inline void Node::add_children(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_add_children(value);
+inline void Node::set_children(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  children_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.SceneSystem.Node.children)
+}
+inline void Node::set_children(int index, const char* value, size_t size) {
+  children_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.SceneSystem.Node.children)
+}
+inline std::string* Node::_internal_add_children() {
+  return children_.Add();
+}
+inline void Node::add_children(const std::string& value) {
+  children_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:Tiny3D.Script.SceneSystem.Node.children)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
-Node::_internal_children() const {
-  return children_;
+inline void Node::add_children(std::string&& value) {
+  children_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.SceneSystem.Node.children)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+inline void Node::add_children(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  children_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:Tiny3D.Script.SceneSystem.Node.children)
+}
+inline void Node::add_children(const char* value, size_t size) {
+  children_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:Tiny3D.Script.SceneSystem.Node.children)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
 Node::children() const {
   // @@protoc_insertion_point(field_list:Tiny3D.Script.SceneSystem.Node.children)
-  return _internal_children();
+  return children_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
-Node::_internal_mutable_children() {
-  return &children_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
 Node::mutable_children() {
   // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.SceneSystem.Node.children)
-  return _internal_mutable_children();
+  return &children_;
 }
 
-// repeated .Tiny3D.Script.SceneSystem.Component components = 4;
+// string name = 4;
+inline void Node::clear_name() {
+  name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& Node::name() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Node.name)
+  return _internal_name();
+}
+inline void Node::set_name(const std::string& value) {
+  _internal_set_name(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.Node.name)
+}
+inline std::string* Node::mutable_name() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Node.name)
+  return _internal_mutable_name();
+}
+inline const std::string& Node::_internal_name() const {
+  return name_.GetNoArena();
+}
+inline void Node::_internal_set_name(const std::string& value) {
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void Node::set_name(std::string&& value) {
+  
+  name_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.SceneSystem.Node.name)
+}
+inline void Node::set_name(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.SceneSystem.Node.name)
+}
+inline void Node::set_name(const char* value, size_t size) {
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.SceneSystem.Node.name)
+}
+inline std::string* Node::_internal_mutable_name() {
+  
+  return name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* Node::release_name() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.SceneSystem.Node.name)
+  
+  return name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void Node::set_allocated_name(std::string* name) {
+  if (name != nullptr) {
+    
+  } else {
+    
+  }
+  name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Node.name)
+}
+
+// repeated .Tiny3D.Script.SceneSystem.Component components = 5;
 inline int Node::_internal_components_size() const {
   return components_.size();
 }
@@ -969,22 +1308,22 @@ Node::components() const {
 
 // Component
 
-// .Tiny3D.Script.SceneSystem.ComponentType type = 1;
+// .Tiny3D.Script.SceneSystem.Component.Type type = 1;
 inline void Component::clear_type() {
   type_ = 0;
 }
-inline ::Tiny3D::Script::SceneSystem::ComponentType Component::_internal_type() const {
-  return static_cast< ::Tiny3D::Script::SceneSystem::ComponentType >(type_);
+inline ::Tiny3D::Script::SceneSystem::Component_Type Component::_internal_type() const {
+  return static_cast< ::Tiny3D::Script::SceneSystem::Component_Type >(type_);
 }
-inline ::Tiny3D::Script::SceneSystem::ComponentType Component::type() const {
+inline ::Tiny3D::Script::SceneSystem::Component_Type Component::type() const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Component.type)
   return _internal_type();
 }
-inline void Component::_internal_set_type(::Tiny3D::Script::SceneSystem::ComponentType value) {
+inline void Component::_internal_set_type(::Tiny3D::Script::SceneSystem::Component_Type value) {
   
   type_ = value;
 }
-inline void Component::set_type(::Tiny3D::Script::SceneSystem::ComponentType value) {
+inline void Component::set_type(::Tiny3D::Script::SceneSystem::Component_Type value) {
   _internal_set_type(value);
   // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.Component.type)
 }
@@ -1087,6 +1426,56 @@ inline ::Tiny3D::Script::SceneSystem::Mesh* Component::_internal_mutable_mesh() 
 inline ::Tiny3D::Script::SceneSystem::Mesh* Component::mutable_mesh() {
   // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Component.mesh)
   return _internal_mutable_mesh();
+}
+
+// .Tiny3D.Script.SceneSystem.SkinnedMesh skinned_mesh = 4;
+inline bool Component::_internal_has_skinned_mesh() const {
+  return ComponentOneOf_case() == kSkinnedMesh;
+}
+inline bool Component::has_skinned_mesh() const {
+  return _internal_has_skinned_mesh();
+}
+inline void Component::set_has_skinned_mesh() {
+  _oneof_case_[0] = kSkinnedMesh;
+}
+inline void Component::clear_skinned_mesh() {
+  if (_internal_has_skinned_mesh()) {
+    delete ComponentOneOf_.skinned_mesh_;
+    clear_has_ComponentOneOf();
+  }
+}
+inline ::Tiny3D::Script::SceneSystem::SkinnedMesh* Component::release_skinned_mesh() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.SceneSystem.Component.skinned_mesh)
+  if (_internal_has_skinned_mesh()) {
+    clear_has_ComponentOneOf();
+      ::Tiny3D::Script::SceneSystem::SkinnedMesh* temp = ComponentOneOf_.skinned_mesh_;
+    ComponentOneOf_.skinned_mesh_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Tiny3D::Script::SceneSystem::SkinnedMesh& Component::_internal_skinned_mesh() const {
+  return _internal_has_skinned_mesh()
+      ? *ComponentOneOf_.skinned_mesh_
+      : *reinterpret_cast< ::Tiny3D::Script::SceneSystem::SkinnedMesh*>(&::Tiny3D::Script::SceneSystem::_SkinnedMesh_default_instance_);
+}
+inline const ::Tiny3D::Script::SceneSystem::SkinnedMesh& Component::skinned_mesh() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Component.skinned_mesh)
+  return _internal_skinned_mesh();
+}
+inline ::Tiny3D::Script::SceneSystem::SkinnedMesh* Component::_internal_mutable_skinned_mesh() {
+  if (!_internal_has_skinned_mesh()) {
+    clear_ComponentOneOf();
+    set_has_skinned_mesh();
+    ComponentOneOf_.skinned_mesh_ = CreateMaybeMessage< ::Tiny3D::Script::SceneSystem::SkinnedMesh >(
+        GetArenaNoVirtual());
+  }
+  return ComponentOneOf_.skinned_mesh_;
+}
+inline ::Tiny3D::Script::SceneSystem::SkinnedMesh* Component::mutable_skinned_mesh() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Component.skinned_mesh)
+  return _internal_mutable_skinned_mesh();
 }
 
 inline bool Component::has_ComponentOneOf() const {
@@ -1268,89 +1657,135 @@ inline void Transform::set_allocated_scaling(::Tiny3D::Script::Vector3* scaling)
 
 // Mesh
 
-// uint32 resID = 1;
-inline void Mesh::clear_resid() {
-  resid_ = 0u;
+// string uuid = 1;
+inline void Mesh::clear_uuid() {
+  uuid_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 Mesh::_internal_resid() const {
-  return resid_;
+inline const std::string& Mesh::uuid() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Mesh.uuid)
+  return _internal_uuid();
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 Mesh::resid() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Mesh.resID)
-  return _internal_resid();
+inline void Mesh::set_uuid(const std::string& value) {
+  _internal_set_uuid(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.Mesh.uuid)
 }
-inline void Mesh::_internal_set_resid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline std::string* Mesh::mutable_uuid() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Mesh.uuid)
+  return _internal_mutable_uuid();
+}
+inline const std::string& Mesh::_internal_uuid() const {
+  return uuid_.GetNoArena();
+}
+inline void Mesh::_internal_set_uuid(const std::string& value) {
   
-  resid_ = value;
+  uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
 }
-inline void Mesh::set_resid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_resid(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.Mesh.resID)
-}
-
-// string mesh_name = 2;
-inline void Mesh::clear_mesh_name() {
-  mesh_name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline const std::string& Mesh::mesh_name() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Mesh.mesh_name)
-  return _internal_mesh_name();
-}
-inline void Mesh::set_mesh_name(const std::string& value) {
-  _internal_set_mesh_name(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.Mesh.mesh_name)
-}
-inline std::string* Mesh::mutable_mesh_name() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Mesh.mesh_name)
-  return _internal_mutable_mesh_name();
-}
-inline const std::string& Mesh::_internal_mesh_name() const {
-  return mesh_name_.GetNoArena();
-}
-inline void Mesh::_internal_set_mesh_name(const std::string& value) {
+inline void Mesh::set_uuid(std::string&& value) {
   
-  mesh_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
-}
-inline void Mesh::set_mesh_name(std::string&& value) {
-  
-  mesh_name_.SetNoArena(
+  uuid_.SetNoArena(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.SceneSystem.Mesh.mesh_name)
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.SceneSystem.Mesh.uuid)
 }
-inline void Mesh::set_mesh_name(const char* value) {
+inline void Mesh::set_uuid(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
-  mesh_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.SceneSystem.Mesh.mesh_name)
+  uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.SceneSystem.Mesh.uuid)
 }
-inline void Mesh::set_mesh_name(const char* value, size_t size) {
+inline void Mesh::set_uuid(const char* value, size_t size) {
   
-  mesh_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+  uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.SceneSystem.Mesh.mesh_name)
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.SceneSystem.Mesh.uuid)
 }
-inline std::string* Mesh::_internal_mutable_mesh_name() {
+inline std::string* Mesh::_internal_mutable_uuid() {
   
-  return mesh_name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  return uuid_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline std::string* Mesh::release_mesh_name() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.SceneSystem.Mesh.mesh_name)
+inline std::string* Mesh::release_uuid() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.SceneSystem.Mesh.uuid)
   
-  return mesh_name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  return uuid_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline void Mesh::set_allocated_mesh_name(std::string* mesh_name) {
-  if (mesh_name != nullptr) {
+inline void Mesh::set_allocated_uuid(std::string* uuid) {
+  if (uuid != nullptr) {
     
   } else {
     
   }
-  mesh_name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), mesh_name);
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Mesh.mesh_name)
+  uuid_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), uuid);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Mesh.uuid)
+}
+
+// -------------------------------------------------------------------
+
+// SkinnedMesh
+
+// string uuid = 1;
+inline void SkinnedMesh::clear_uuid() {
+  uuid_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& SkinnedMesh::uuid() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
+  return _internal_uuid();
+}
+inline void SkinnedMesh::set_uuid(const std::string& value) {
+  _internal_set_uuid(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
+}
+inline std::string* SkinnedMesh::mutable_uuid() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
+  return _internal_mutable_uuid();
+}
+inline const std::string& SkinnedMesh::_internal_uuid() const {
+  return uuid_.GetNoArena();
+}
+inline void SkinnedMesh::_internal_set_uuid(const std::string& value) {
+  
+  uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void SkinnedMesh::set_uuid(std::string&& value) {
+  
+  uuid_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
+}
+inline void SkinnedMesh::set_uuid(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
+}
+inline void SkinnedMesh::set_uuid(const char* value, size_t size) {
+  
+  uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
+}
+inline std::string* SkinnedMesh::_internal_mutable_uuid() {
+  
+  return uuid_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* SkinnedMesh::release_uuid() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
+  
+  return uuid_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void SkinnedMesh::set_allocated_uuid(std::string* uuid) {
+  if (uuid != nullptr) {
+    
+  } else {
+    
+  }
+  uuid_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), uuid);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
 }
 
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -1366,10 +1801,10 @@ inline void Mesh::set_allocated_mesh_name(std::string* mesh_name) {
 
 PROTOBUF_NAMESPACE_OPEN
 
-template <> struct is_proto_enum< ::Tiny3D::Script::SceneSystem::ComponentType> : ::std::true_type {};
+template <> struct is_proto_enum< ::Tiny3D::Script::SceneSystem::Component_Type> : ::std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::SceneSystem::ComponentType>() {
-  return ::Tiny3D::Script::SceneSystem::ComponentType_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::SceneSystem::Component_Type>() {
+  return ::Tiny3D::Script::SceneSystem::Component_Type_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE
