@@ -49,7 +49,7 @@ struct TableStruct_SceneScriptObject_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[4]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -68,9 +68,6 @@ extern MeshDefaultTypeInternal _Mesh_default_instance_;
 class Node;
 class NodeDefaultTypeInternal;
 extern NodeDefaultTypeInternal _Node_default_instance_;
-class SkinnedMesh;
-class SkinnedMeshDefaultTypeInternal;
-extern SkinnedMeshDefaultTypeInternal _SkinnedMesh_default_instance_;
 class Transform;
 class TransformDefaultTypeInternal;
 extern TransformDefaultTypeInternal _Transform_default_instance_;
@@ -81,7 +78,6 @@ PROTOBUF_NAMESPACE_OPEN
 template<> ::Tiny3D::Script::SceneSystem::Component* Arena::CreateMaybeMessage<::Tiny3D::Script::SceneSystem::Component>(Arena*);
 template<> ::Tiny3D::Script::SceneSystem::Mesh* Arena::CreateMaybeMessage<::Tiny3D::Script::SceneSystem::Mesh>(Arena*);
 template<> ::Tiny3D::Script::SceneSystem::Node* Arena::CreateMaybeMessage<::Tiny3D::Script::SceneSystem::Node>(Arena*);
-template<> ::Tiny3D::Script::SceneSystem::SkinnedMesh* Arena::CreateMaybeMessage<::Tiny3D::Script::SceneSystem::SkinnedMesh>(Arena*);
 template<> ::Tiny3D::Script::SceneSystem::Transform* Arena::CreateMaybeMessage<::Tiny3D::Script::SceneSystem::Transform>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Tiny3D {
@@ -90,8 +86,7 @@ namespace SceneSystem {
 
 enum Component_Type : int {
   Component_Type_Transform = 0,
-  Component_Type_Mesh = 1,
-  Component_Type_SkinnedMesh = 2,
+  Component_Type_SkinnedMesh = 1,
   Component_Type_Component_Type_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   Component_Type_Component_Type_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
@@ -372,7 +367,6 @@ class Component :
   enum ComponentOneOfCase {
     kTransform = 2,
     kMesh = 3,
-    kSkinnedMesh = 4,
     COMPONENTONEOF_NOT_SET = 0,
   };
 
@@ -446,8 +440,6 @@ class Component :
   typedef Component_Type Type;
   static constexpr Type Transform =
     Component_Type_Transform;
-  static constexpr Type Mesh =
-    Component_Type_Mesh;
   static constexpr Type SkinnedMesh =
     Component_Type_SkinnedMesh;
   static inline bool Type_IsValid(int value) {
@@ -481,7 +473,6 @@ class Component :
     kTypeFieldNumber = 1,
     kTransformFieldNumber = 2,
     kMeshFieldNumber = 3,
-    kSkinnedMeshFieldNumber = 4,
   };
   // .Tiny3D.Script.SceneSystem.Component.Type type = 1;
   void clear_type();
@@ -522,21 +513,6 @@ class Component :
   ::Tiny3D::Script::SceneSystem::Mesh* _internal_mutable_mesh();
   public:
 
-  // .Tiny3D.Script.SceneSystem.SkinnedMesh skinned_mesh = 4;
-  bool has_skinned_mesh() const;
-  private:
-  bool _internal_has_skinned_mesh() const;
-  public:
-  void clear_skinned_mesh();
-  const ::Tiny3D::Script::SceneSystem::SkinnedMesh& skinned_mesh() const;
-  ::Tiny3D::Script::SceneSystem::SkinnedMesh* release_skinned_mesh();
-  ::Tiny3D::Script::SceneSystem::SkinnedMesh* mutable_skinned_mesh();
-  void set_allocated_skinned_mesh(::Tiny3D::Script::SceneSystem::SkinnedMesh* skinned_mesh);
-  private:
-  const ::Tiny3D::Script::SceneSystem::SkinnedMesh& _internal_skinned_mesh() const;
-  ::Tiny3D::Script::SceneSystem::SkinnedMesh* _internal_mutable_skinned_mesh();
-  public:
-
   void clear_ComponentOneOf();
   ComponentOneOfCase ComponentOneOf_case() const;
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.SceneSystem.Component)
@@ -544,7 +520,6 @@ class Component :
   class _Internal;
   void set_has_transform();
   void set_has_mesh();
-  void set_has_skinned_mesh();
 
   inline bool has_ComponentOneOf() const;
   inline void clear_has_ComponentOneOf();
@@ -555,7 +530,6 @@ class Component :
     ComponentOneOfUnion() {}
     ::Tiny3D::Script::SceneSystem::Transform* transform_;
     ::Tiny3D::Script::SceneSystem::Mesh* mesh_;
-    ::Tiny3D::Script::SceneSystem::SkinnedMesh* skinned_mesh_;
   } ComponentOneOf_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
@@ -670,11 +644,11 @@ class Transform :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kPositionFieldNumber = 2,
-    kRotationFieldNumber = 3,
-    kScalingFieldNumber = 4,
+    kPositionFieldNumber = 1,
+    kRotationFieldNumber = 2,
+    kScalingFieldNumber = 3,
   };
-  // .Tiny3D.Script.Vector3 position = 2;
+  // .Tiny3D.Script.Vector3 position = 1;
   bool has_position() const;
   private:
   bool _internal_has_position() const;
@@ -689,7 +663,7 @@ class Transform :
   ::Tiny3D::Script::Vector3* _internal_mutable_position();
   public:
 
-  // .Tiny3D.Script.Vector3 rotation = 3;
+  // .Tiny3D.Script.Vector3 rotation = 2;
   bool has_rotation() const;
   private:
   bool _internal_has_rotation() const;
@@ -704,7 +678,7 @@ class Transform :
   ::Tiny3D::Script::Vector3* _internal_mutable_rotation();
   public:
 
-  // .Tiny3D.Script.Vector3 scaling = 4;
+  // .Tiny3D.Script.Vector3 scaling = 3;
   bool has_scaling() const;
   private:
   bool _internal_has_scaling() const;
@@ -857,141 +831,6 @@ class Mesh :
   public:
 
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.SceneSystem.Mesh)
- private:
-  class _Internal;
-
-  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr uuid_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_SceneScriptObject_2eproto;
-};
-// -------------------------------------------------------------------
-
-class SkinnedMesh :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.SceneSystem.SkinnedMesh) */ {
- public:
-  SkinnedMesh();
-  virtual ~SkinnedMesh();
-
-  SkinnedMesh(const SkinnedMesh& from);
-  SkinnedMesh(SkinnedMesh&& from) noexcept
-    : SkinnedMesh() {
-    *this = ::std::move(from);
-  }
-
-  inline SkinnedMesh& operator=(const SkinnedMesh& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline SkinnedMesh& operator=(SkinnedMesh&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return GetMetadataStatic().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return GetMetadataStatic().reflection;
-  }
-  static const SkinnedMesh& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const SkinnedMesh* internal_default_instance() {
-    return reinterpret_cast<const SkinnedMesh*>(
-               &_SkinnedMesh_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    4;
-
-  friend void swap(SkinnedMesh& a, SkinnedMesh& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(SkinnedMesh* other) {
-    if (other == this) return;
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline SkinnedMesh* New() const final {
-    return CreateMaybeMessage<SkinnedMesh>(nullptr);
-  }
-
-  SkinnedMesh* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<SkinnedMesh>(arena);
-  }
-  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const SkinnedMesh& from);
-  void MergeFrom(const SkinnedMesh& from);
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  inline void SharedCtor();
-  inline void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(SkinnedMesh* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Tiny3D.Script.SceneSystem.SkinnedMesh";
-  }
-  private:
-  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
-    return nullptr;
-  }
-  inline void* MaybeArenaPtr() const {
-    return nullptr;
-  }
-  public:
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-  private:
-  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
-    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_SceneScriptObject_2eproto);
-    return ::descriptor_table_SceneScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
-  }
-
-  public:
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kUuidFieldNumber = 1,
-  };
-  // string uuid = 1;
-  void clear_uuid();
-  const std::string& uuid() const;
-  void set_uuid(const std::string& value);
-  void set_uuid(std::string&& value);
-  void set_uuid(const char* value);
-  void set_uuid(const char* value, size_t size);
-  std::string* mutable_uuid();
-  std::string* release_uuid();
-  void set_allocated_uuid(std::string* uuid);
-  private:
-  const std::string& _internal_uuid() const;
-  void _internal_set_uuid(const std::string& value);
-  std::string* _internal_mutable_uuid();
-  public:
-
-  // @@protoc_insertion_point(class_scope:Tiny3D.Script.SceneSystem.SkinnedMesh)
  private:
   class _Internal;
 
@@ -1428,56 +1267,6 @@ inline ::Tiny3D::Script::SceneSystem::Mesh* Component::mutable_mesh() {
   return _internal_mutable_mesh();
 }
 
-// .Tiny3D.Script.SceneSystem.SkinnedMesh skinned_mesh = 4;
-inline bool Component::_internal_has_skinned_mesh() const {
-  return ComponentOneOf_case() == kSkinnedMesh;
-}
-inline bool Component::has_skinned_mesh() const {
-  return _internal_has_skinned_mesh();
-}
-inline void Component::set_has_skinned_mesh() {
-  _oneof_case_[0] = kSkinnedMesh;
-}
-inline void Component::clear_skinned_mesh() {
-  if (_internal_has_skinned_mesh()) {
-    delete ComponentOneOf_.skinned_mesh_;
-    clear_has_ComponentOneOf();
-  }
-}
-inline ::Tiny3D::Script::SceneSystem::SkinnedMesh* Component::release_skinned_mesh() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.SceneSystem.Component.skinned_mesh)
-  if (_internal_has_skinned_mesh()) {
-    clear_has_ComponentOneOf();
-      ::Tiny3D::Script::SceneSystem::SkinnedMesh* temp = ComponentOneOf_.skinned_mesh_;
-    ComponentOneOf_.skinned_mesh_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline const ::Tiny3D::Script::SceneSystem::SkinnedMesh& Component::_internal_skinned_mesh() const {
-  return _internal_has_skinned_mesh()
-      ? *ComponentOneOf_.skinned_mesh_
-      : *reinterpret_cast< ::Tiny3D::Script::SceneSystem::SkinnedMesh*>(&::Tiny3D::Script::SceneSystem::_SkinnedMesh_default_instance_);
-}
-inline const ::Tiny3D::Script::SceneSystem::SkinnedMesh& Component::skinned_mesh() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Component.skinned_mesh)
-  return _internal_skinned_mesh();
-}
-inline ::Tiny3D::Script::SceneSystem::SkinnedMesh* Component::_internal_mutable_skinned_mesh() {
-  if (!_internal_has_skinned_mesh()) {
-    clear_ComponentOneOf();
-    set_has_skinned_mesh();
-    ComponentOneOf_.skinned_mesh_ = CreateMaybeMessage< ::Tiny3D::Script::SceneSystem::SkinnedMesh >(
-        GetArenaNoVirtual());
-  }
-  return ComponentOneOf_.skinned_mesh_;
-}
-inline ::Tiny3D::Script::SceneSystem::SkinnedMesh* Component::mutable_skinned_mesh() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Component.skinned_mesh)
-  return _internal_mutable_skinned_mesh();
-}
-
 inline bool Component::has_ComponentOneOf() const {
   return ComponentOneOf_case() != COMPONENTONEOF_NOT_SET;
 }
@@ -1491,7 +1280,7 @@ inline Component::ComponentOneOfCase Component::ComponentOneOf_case() const {
 
 // Transform
 
-// .Tiny3D.Script.Vector3 position = 2;
+// .Tiny3D.Script.Vector3 position = 1;
 inline bool Transform::_internal_has_position() const {
   return this != internal_default_instance() && position_ != nullptr;
 }
@@ -1545,7 +1334,7 @@ inline void Transform::set_allocated_position(::Tiny3D::Script::Vector3* positio
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Transform.position)
 }
 
-// .Tiny3D.Script.Vector3 rotation = 3;
+// .Tiny3D.Script.Vector3 rotation = 2;
 inline bool Transform::_internal_has_rotation() const {
   return this != internal_default_instance() && rotation_ != nullptr;
 }
@@ -1599,7 +1388,7 @@ inline void Transform::set_allocated_rotation(::Tiny3D::Script::Vector3* rotatio
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Transform.rotation)
 }
 
-// .Tiny3D.Script.Vector3 scaling = 4;
+// .Tiny3D.Script.Vector3 scaling = 3;
 inline bool Transform::_internal_has_scaling() const {
   return this != internal_default_instance() && scaling_ != nullptr;
 }
@@ -1717,75 +1506,9 @@ inline void Mesh::set_allocated_uuid(std::string* uuid) {
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Mesh.uuid)
 }
 
-// -------------------------------------------------------------------
-
-// SkinnedMesh
-
-// string uuid = 1;
-inline void SkinnedMesh::clear_uuid() {
-  uuid_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline const std::string& SkinnedMesh::uuid() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
-  return _internal_uuid();
-}
-inline void SkinnedMesh::set_uuid(const std::string& value) {
-  _internal_set_uuid(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
-}
-inline std::string* SkinnedMesh::mutable_uuid() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
-  return _internal_mutable_uuid();
-}
-inline const std::string& SkinnedMesh::_internal_uuid() const {
-  return uuid_.GetNoArena();
-}
-inline void SkinnedMesh::_internal_set_uuid(const std::string& value) {
-  
-  uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
-}
-inline void SkinnedMesh::set_uuid(std::string&& value) {
-  
-  uuid_.SetNoArena(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
-}
-inline void SkinnedMesh::set_uuid(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
-}
-inline void SkinnedMesh::set_uuid(const char* value, size_t size) {
-  
-  uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
-}
-inline std::string* SkinnedMesh::_internal_mutable_uuid() {
-  
-  return uuid_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline std::string* SkinnedMesh::release_uuid() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
-  
-  return uuid_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline void SkinnedMesh::set_allocated_uuid(std::string* uuid) {
-  if (uuid != nullptr) {
-    
-  } else {
-    
-  }
-  uuid_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), uuid);
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.SkinnedMesh.uuid)
-}
-
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

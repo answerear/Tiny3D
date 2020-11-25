@@ -55,7 +55,7 @@ struct TableStruct_FileScriptObject_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[6]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -80,9 +80,6 @@ extern FileSceneDefaultTypeInternal _FileScene_default_instance_;
 class FileScene_MeshesEntry_DoNotUse;
 class FileScene_MeshesEntry_DoNotUseDefaultTypeInternal;
 extern FileScene_MeshesEntry_DoNotUseDefaultTypeInternal _FileScene_MeshesEntry_DoNotUse_default_instance_;
-class FileScene_SkinnedMeshesEntry_DoNotUse;
-class FileScene_SkinnedMeshesEntry_DoNotUseDefaultTypeInternal;
-extern FileScene_SkinnedMeshesEntry_DoNotUseDefaultTypeInternal _FileScene_SkinnedMeshesEntry_DoNotUse_default_instance_;
 }  // namespace FileFormat
 }  // namespace Script
 }  // namespace Tiny3D
@@ -92,7 +89,6 @@ template<> ::Tiny3D::Script::FileFormat::FileMaterial* Arena::CreateMaybeMessage
 template<> ::Tiny3D::Script::FileFormat::FileMeta* Arena::CreateMaybeMessage<::Tiny3D::Script::FileFormat::FileMeta>(Arena*);
 template<> ::Tiny3D::Script::FileFormat::FileScene* Arena::CreateMaybeMessage<::Tiny3D::Script::FileFormat::FileScene>(Arena*);
 template<> ::Tiny3D::Script::FileFormat::FileScene_MeshesEntry_DoNotUse* Arena::CreateMaybeMessage<::Tiny3D::Script::FileFormat::FileScene_MeshesEntry_DoNotUse>(Arena*);
-template<> ::Tiny3D::Script::FileFormat::FileScene_SkinnedMeshesEntry_DoNotUse* Arena::CreateMaybeMessage<::Tiny3D::Script::FileFormat::FileScene_SkinnedMeshesEntry_DoNotUse>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Tiny3D {
 namespace Script {
@@ -652,38 +648,6 @@ public:
 
 // -------------------------------------------------------------------
 
-class FileScene_SkinnedMeshesEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<FileScene_SkinnedMeshesEntry_DoNotUse, 
-    std::string, ::Tiny3D::Script::ModelSystem::SkinnedMeshData,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
-    0 > {
-public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<FileScene_SkinnedMeshesEntry_DoNotUse, 
-    std::string, ::Tiny3D::Script::ModelSystem::SkinnedMeshData,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
-    0 > SuperType;
-  FileScene_SkinnedMeshesEntry_DoNotUse();
-  FileScene_SkinnedMeshesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  void MergeFrom(const FileScene_SkinnedMeshesEntry_DoNotUse& other);
-  static const FileScene_SkinnedMeshesEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const FileScene_SkinnedMeshesEntry_DoNotUse*>(&_FileScene_SkinnedMeshesEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(std::string* s) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "Tiny3D.Script.FileFormat.FileScene.SkinnedMeshesEntry.key");
- }
-  static bool ValidateValue(void*) { return true; }
-  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& other) final;
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-  private:
-  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
-    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_FileScriptObject_2eproto);
-    return ::descriptor_table_FileScriptObject_2eproto.file_level_metadata[4];
-  }
-
-  public:
-};
-
-// -------------------------------------------------------------------
-
 class FileScene :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.FileFormat.FileScene) */ {
  public:
@@ -726,7 +690,7 @@ class FileScene :
                &_FileScene_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    4;
 
   friend void swap(FileScene& a, FileScene& b) {
     a.Swap(&b);
@@ -793,7 +757,6 @@ class FileScene :
   enum : int {
     kNodesFieldNumber = 2,
     kMeshesFieldNumber = 3,
-    kSkinnedMeshesFieldNumber = 4,
     kHeaderFieldNumber = 1,
   };
   // repeated .Tiny3D.Script.SceneSystem.Node nodes = 2;
@@ -831,23 +794,6 @@ class FileScene :
   ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::MeshData >*
       mutable_meshes();
 
-  // map<string, .Tiny3D.Script.ModelSystem.SkinnedMeshData> skinned_meshes = 4;
-  int skinned_meshes_size() const;
-  private:
-  int _internal_skinned_meshes_size() const;
-  public:
-  void clear_skinned_meshes();
-  private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::SkinnedMeshData >&
-      _internal_skinned_meshes() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::SkinnedMeshData >*
-      _internal_mutable_skinned_meshes();
-  public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::SkinnedMeshData >&
-      skinned_meshes() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::SkinnedMeshData >*
-      mutable_skinned_meshes();
-
   // .Tiny3D.Script.FileFormat.FileHeader header = 1;
   bool has_header() const;
   private:
@@ -875,12 +821,6 @@ class FileScene :
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
       0 > meshes_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      FileScene_SkinnedMeshesEntry_DoNotUse,
-      std::string, ::Tiny3D::Script::ModelSystem::SkinnedMeshData,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
-      0 > skinned_meshes_;
   ::Tiny3D::Script::FileFormat::FileHeader* header_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_FileScriptObject_2eproto;
@@ -1236,8 +1176,6 @@ inline void FileMeta::set_allocated_meta(::Tiny3D::Script::MetaSystem::MetaData*
 
 // -------------------------------------------------------------------
 
-// -------------------------------------------------------------------
-
 // FileScene
 
 // .Tiny3D.Script.FileFormat.FileHeader header = 1;
@@ -1362,37 +1300,9 @@ FileScene::mutable_meshes() {
   return _internal_mutable_meshes();
 }
 
-// map<string, .Tiny3D.Script.ModelSystem.SkinnedMeshData> skinned_meshes = 4;
-inline int FileScene::_internal_skinned_meshes_size() const {
-  return skinned_meshes_.size();
-}
-inline int FileScene::skinned_meshes_size() const {
-  return _internal_skinned_meshes_size();
-}
-inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::SkinnedMeshData >&
-FileScene::_internal_skinned_meshes() const {
-  return skinned_meshes_.GetMap();
-}
-inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::SkinnedMeshData >&
-FileScene::skinned_meshes() const {
-  // @@protoc_insertion_point(field_map:Tiny3D.Script.FileFormat.FileScene.skinned_meshes)
-  return _internal_skinned_meshes();
-}
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::SkinnedMeshData >*
-FileScene::_internal_mutable_skinned_meshes() {
-  return skinned_meshes_.MutableMap();
-}
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::SkinnedMeshData >*
-FileScene::mutable_skinned_meshes() {
-  // @@protoc_insertion_point(field_mutable_map:Tiny3D.Script.FileFormat.FileScene.skinned_meshes)
-  return _internal_mutable_skinned_meshes();
-}
-
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

@@ -23,9 +23,8 @@ extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_I
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_IndexBuffer_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Keyframe_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_KeyframeData_ModelScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_MeshData_ModelScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_MeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Obb_ModelScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_SkinnedMeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Sphere_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<6> scc_info_Vertex_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_VertexAttribute_ModelScriptObject_2eproto;
@@ -96,18 +95,14 @@ class AnimationClipDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<AnimationClip> _instance;
 } _AnimationClip_default_instance_;
+class MeshData_OffsetEntry_DoNotUseDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<MeshData_OffsetEntry_DoNotUse> _instance;
+} _MeshData_OffsetEntry_DoNotUse_default_instance_;
 class MeshDataDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<MeshData> _instance;
 } _MeshData_default_instance_;
-class SkinnedMeshData_OffsetEntry_DoNotUseDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<SkinnedMeshData_OffsetEntry_DoNotUse> _instance;
-} _SkinnedMeshData_OffsetEntry_DoNotUse_default_instance_;
-class SkinnedMeshDataDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<SkinnedMeshData> _instance;
-} _SkinnedMeshData_default_instance_;
 }  // namespace ModelSystem
 }  // namespace Script
 }  // namespace Tiny3D
@@ -214,10 +209,26 @@ static void InitDefaultsscc_info_MeshData_ModelScriptObject_2eproto() {
   ::Tiny3D::Script::ModelSystem::MeshData::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_MeshData_ModelScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_MeshData_ModelScriptObject_2eproto}, {
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<4> scc_info_MeshData_ModelScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 4, 0, InitDefaultsscc_info_MeshData_ModelScriptObject_2eproto}, {
       &scc_info_VertexBuffer_ModelScriptObject_2eproto.base,
-      &scc_info_IndexBuffer_ModelScriptObject_2eproto.base,}};
+      &scc_info_IndexBuffer_ModelScriptObject_2eproto.base,
+      &scc_info_MeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto.base,
+      &scc_info_AnimationClip_ModelScriptObject_2eproto.base,}};
+
+static void InitDefaultsscc_info_MeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::ModelSystem::_MeshData_OffsetEntry_DoNotUse_default_instance_;
+    new (ptr) ::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse();
+  }
+  ::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_MeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_MeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto}, {
+      &scc_info_Matrix4_CommonScriptObject_2eproto.base,}};
 
 static void InitDefaultsscc_info_Obb_ModelScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -233,37 +244,6 @@ static void InitDefaultsscc_info_Obb_ModelScriptObject_2eproto() {
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Obb_ModelScriptObject_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Obb_ModelScriptObject_2eproto}, {
       &scc_info_Vector3_CommonScriptObject_2eproto.base,}};
-
-static void InitDefaultsscc_info_SkinnedMeshData_ModelScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::ModelSystem::_SkinnedMeshData_default_instance_;
-    new (ptr) ::Tiny3D::Script::ModelSystem::SkinnedMeshData();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::Tiny3D::Script::ModelSystem::SkinnedMeshData::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_SkinnedMeshData_ModelScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 3, 0, InitDefaultsscc_info_SkinnedMeshData_ModelScriptObject_2eproto}, {
-      &scc_info_MeshData_ModelScriptObject_2eproto.base,
-      &scc_info_SkinnedMeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto.base,
-      &scc_info_AnimationClip_ModelScriptObject_2eproto.base,}};
-
-static void InitDefaultsscc_info_SkinnedMeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::ModelSystem::_SkinnedMeshData_OffsetEntry_DoNotUse_default_instance_;
-    new (ptr) ::Tiny3D::Script::ModelSystem::SkinnedMeshData_OffsetEntry_DoNotUse();
-  }
-  ::Tiny3D::Script::ModelSystem::SkinnedMeshData_OffsetEntry_DoNotUse::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_SkinnedMeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_SkinnedMeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto}, {
-      &scc_info_Matrix4_CommonScriptObject_2eproto.base,}};
 
 static void InitDefaultsscc_info_Sphere_ModelScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -330,7 +310,7 @@ static void InitDefaultsscc_info_VertexBuffer_ModelScriptObject_2eproto() {
       &scc_info_VertexAttribute_ModelScriptObject_2eproto.base,
       &scc_info_Vertex_ModelScriptObject_2eproto.base,}};
 
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_ModelScriptObject_2eproto[14];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_ModelScriptObject_2eproto[13];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_ModelScriptObject_2eproto[5];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_ModelScriptObject_2eproto = nullptr;
 
@@ -438,6 +418,15 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_ModelScriptObject_2eproto::off
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::AnimationClip, name_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::AnimationClip, duration_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::AnimationClip, keyframes_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse, key_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse, value_),
+  0,
+  1,
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -446,23 +435,8 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_ModelScriptObject_2eproto::off
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData, name_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData, vertex_buffers_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData, index_buffers_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::SkinnedMeshData_OffsetEntry_DoNotUse, _has_bits_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::SkinnedMeshData_OffsetEntry_DoNotUse, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::SkinnedMeshData_OffsetEntry_DoNotUse, key_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::SkinnedMeshData_OffsetEntry_DoNotUse, value_),
-  0,
-  1,
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::SkinnedMeshData, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::SkinnedMeshData, mesh_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::SkinnedMeshData, offset_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::SkinnedMeshData, clips_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData, offset_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData, clips_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::Tiny3D::Script::ModelSystem::VertexAttribute)},
@@ -476,9 +450,8 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 77, -1, sizeof(::Tiny3D::Script::ModelSystem::KeyframeData)},
   { 87, -1, sizeof(::Tiny3D::Script::ModelSystem::Keyframe)},
   { 95, -1, sizeof(::Tiny3D::Script::ModelSystem::AnimationClip)},
-  { 103, -1, sizeof(::Tiny3D::Script::ModelSystem::MeshData)},
-  { 111, 118, sizeof(::Tiny3D::Script::ModelSystem::SkinnedMeshData_OffsetEntry_DoNotUse)},
-  { 120, -1, sizeof(::Tiny3D::Script::ModelSystem::SkinnedMeshData)},
+  { 103, 110, sizeof(::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse)},
+  { 112, -1, sizeof(::Tiny3D::Script::ModelSystem::MeshData)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -493,9 +466,8 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_KeyframeData_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Keyframe_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_AnimationClip_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_MeshData_OffsetEntry_DoNotUse_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_MeshData_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_SkinnedMeshData_OffsetEntry_DoNotUse_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_SkinnedMeshData_default_instance_),
 };
 
 const char descriptor_table_protodef_ModelScriptObject_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -568,26 +540,24 @@ const char descriptor_table_protodef_ModelScriptObject_2eproto[] PROTOBUF_SECTIO
   "ATION\020\001\022\016\n\nKT_SCALING\020\002\"g\n\rAnimationClip"
   "\022\014\n\004name\030\001 \001(\t\022\020\n\010duration\030\002 \001(\002\0226\n\tkeyf"
   "rames\030\003 \003(\0132#.Tiny3D.Script.ModelSystem."
-  "Keyframe\"\230\001\n\010MeshData\022\014\n\004name\030\002 \001(\t\022\?\n\016v"
-  "ertex_buffers\030\003 \003(\0132\'.Tiny3D.Script.Mode"
-  "lSystem.VertexBuffer\022=\n\rindex_buffers\030\004 "
+  "Keyframe\"\331\002\n\010MeshData\022\014\n\004name\030\001 \001(\t\022\?\n\016v"
+  "ertex_buffers\030\002 \003(\0132\'.Tiny3D.Script.Mode"
+  "lSystem.VertexBuffer\022=\n\rindex_buffers\030\003 "
   "\003(\0132&.Tiny3D.Script.ModelSystem.IndexBuf"
-  "fer\"\214\002\n\017SkinnedMeshData\0221\n\004mesh\030\001 \001(\0132#."
-  "Tiny3D.Script.ModelSystem.MeshData\022F\n\006of"
-  "fset\030\002 \003(\01326.Tiny3D.Script.ModelSystem.S"
-  "kinnedMeshData.OffsetEntry\0227\n\005clips\030\003 \003("
-  "\0132(.Tiny3D.Script.ModelSystem.AnimationC"
-  "lip\032E\n\013OffsetEntry\022\013\n\003key\030\001 \001(\t\022%\n\005value"
-  "\030\002 \001(\0132\026.Tiny3D.Script.Matrix4:\0028\001*\211\001\n\rP"
-  "rimitiveType\022\021\n\rPT_POINT_LIST\020\000\022\020\n\014PT_LI"
-  "NE_LIST\020\001\022\021\n\rPT_LINE_STRIP\020\002\022\024\n\020PT_TRIAN"
-  "GLE_LIST\020\003\022\025\n\021PT_TRIANGLE_STRIP\020\004\022\023\n\017PT_"
-  "TRIANGLE_FAN\020\005b\006proto3"
+  "fer\022\?\n\006offset\030\004 \003(\0132/.Tiny3D.Script.Mode"
+  "lSystem.MeshData.OffsetEntry\0227\n\005clips\030\005 "
+  "\003(\0132(.Tiny3D.Script.ModelSystem.Animatio"
+  "nClip\032E\n\013OffsetEntry\022\013\n\003key\030\001 \001(\t\022%\n\005val"
+  "ue\030\002 \001(\0132\026.Tiny3D.Script.Matrix4:\0028\001*\211\001\n"
+  "\rPrimitiveType\022\021\n\rPT_POINT_LIST\020\000\022\020\n\014PT_"
+  "LINE_LIST\020\001\022\021\n\rPT_LINE_STRIP\020\002\022\024\n\020PT_TRI"
+  "ANGLE_LIST\020\003\022\025\n\021PT_TRIANGLE_STRIP\020\004\022\023\n\017P"
+  "T_TRIANGLE_FAN\020\005b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_ModelScriptObject_2eproto_deps[1] = {
   &::descriptor_table_CommonScriptObject_2eproto,
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_ModelScriptObject_2eproto_sccs[14] = {
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_ModelScriptObject_2eproto_sccs[13] = {
   &scc_info_Aabb_ModelScriptObject_2eproto.base,
   &scc_info_AnimationClip_ModelScriptObject_2eproto.base,
   &scc_info_Bound_ModelScriptObject_2eproto.base,
@@ -595,9 +565,8 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Mod
   &scc_info_Keyframe_ModelScriptObject_2eproto.base,
   &scc_info_KeyframeData_ModelScriptObject_2eproto.base,
   &scc_info_MeshData_ModelScriptObject_2eproto.base,
+  &scc_info_MeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto.base,
   &scc_info_Obb_ModelScriptObject_2eproto.base,
-  &scc_info_SkinnedMeshData_ModelScriptObject_2eproto.base,
-  &scc_info_SkinnedMeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto.base,
   &scc_info_Sphere_ModelScriptObject_2eproto.base,
   &scc_info_Vertex_ModelScriptObject_2eproto.base,
   &scc_info_VertexAttribute_ModelScriptObject_2eproto.base,
@@ -606,10 +575,10 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Mod
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_ModelScriptObject_2eproto_once;
 static bool descriptor_table_ModelScriptObject_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_ModelScriptObject_2eproto = {
-  &descriptor_table_ModelScriptObject_2eproto_initialized, descriptor_table_protodef_ModelScriptObject_2eproto, "ModelScriptObject.proto", 3342,
-  &descriptor_table_ModelScriptObject_2eproto_once, descriptor_table_ModelScriptObject_2eproto_sccs, descriptor_table_ModelScriptObject_2eproto_deps, 14, 1,
+  &descriptor_table_ModelScriptObject_2eproto_initialized, descriptor_table_protodef_ModelScriptObject_2eproto, "ModelScriptObject.proto", 3264,
+  &descriptor_table_ModelScriptObject_2eproto_once, descriptor_table_ModelScriptObject_2eproto_sccs, descriptor_table_ModelScriptObject_2eproto_deps, 13, 1,
   schemas, file_default_instances, TableStruct_ModelScriptObject_2eproto::offsets,
-  file_level_metadata_ModelScriptObject_2eproto, 14, file_level_enum_descriptors_ModelScriptObject_2eproto, file_level_service_descriptors_ModelScriptObject_2eproto,
+  file_level_metadata_ModelScriptObject_2eproto, 13, file_level_enum_descriptors_ModelScriptObject_2eproto, file_level_service_descriptors_ModelScriptObject_2eproto,
 };
 
 // Force running AddDescriptors() at dynamic initialization time.
@@ -4470,12 +4439,32 @@ void AnimationClip::InternalSwap(AnimationClip* other) {
 
 // ===================================================================
 
+MeshData_OffsetEntry_DoNotUse::MeshData_OffsetEntry_DoNotUse() {}
+MeshData_OffsetEntry_DoNotUse::MeshData_OffsetEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+    : SuperType(arena) {}
+void MeshData_OffsetEntry_DoNotUse::MergeFrom(const MeshData_OffsetEntry_DoNotUse& other) {
+  MergeFromInternal(other);
+}
+::PROTOBUF_NAMESPACE_ID::Metadata MeshData_OffsetEntry_DoNotUse::GetMetadata() const {
+  return GetMetadataStatic();
+}
+void MeshData_OffsetEntry_DoNotUse::MergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::Message& other) {
+  ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom(other);
+}
+
+
+// ===================================================================
+
 void MeshData::InitAsDefaultInstance() {
 }
 class MeshData::_Internal {
  public:
 };
 
+void MeshData::clear_offset() {
+  offset_.Clear();
+}
 MeshData::MeshData()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
@@ -4485,8 +4474,10 @@ MeshData::MeshData(const MeshData& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
       vertex_buffers_(from.vertex_buffers_),
-      index_buffers_(from.index_buffers_) {
+      index_buffers_(from.index_buffers_),
+      clips_(from.clips_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  offset_.MergeFrom(from.offset_);
   name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_name().empty()) {
     name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
@@ -4525,6 +4516,8 @@ void MeshData::Clear() {
 
   vertex_buffers_.Clear();
   index_buffers_.Clear();
+  offset_.Clear();
+  clips_.Clear();
   name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   _internal_metadata_.Clear();
 }
@@ -4536,37 +4529,61 @@ const char* MeshData::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string name = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+      // string name = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_name();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.ModelSystem.MeshData.name"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // repeated .Tiny3D.Script.ModelSystem.VertexBuffer vertex_buffers = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+      // repeated .Tiny3D.Script.ModelSystem.VertexBuffer vertex_buffers = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           ptr -= 1;
           do {
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_vertex_buffers(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else goto handle_unusual;
         continue;
-      // repeated .Tiny3D.Script.ModelSystem.IndexBuffer index_buffers = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+      // repeated .Tiny3D.Script.ModelSystem.IndexBuffer index_buffers = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_index_buffers(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+        } else goto handle_unusual;
+        continue;
+      // map<string, .Tiny3D.Script.Matrix4> offset = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(&offset_, ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
+        } else goto handle_unusual;
+        continue;
+      // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_clips(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -4595,30 +4612,79 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string name = 2;
+  // string name = 1;
   if (this->name().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "Tiny3D.Script.ModelSystem.MeshData.name");
     target = stream->WriteStringMaybeAliased(
-        2, this->_internal_name(), target);
+        1, this->_internal_name(), target);
   }
 
-  // repeated .Tiny3D.Script.ModelSystem.VertexBuffer vertex_buffers = 3;
+  // repeated .Tiny3D.Script.ModelSystem.VertexBuffer vertex_buffers = 2;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->_internal_vertex_buffers_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(3, this->_internal_vertex_buffers(i), target, stream);
+      InternalWriteMessage(2, this->_internal_vertex_buffers(i), target, stream);
   }
 
-  // repeated .Tiny3D.Script.ModelSystem.IndexBuffer index_buffers = 4;
+  // repeated .Tiny3D.Script.ModelSystem.IndexBuffer index_buffers = 3;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->_internal_index_buffers_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(4, this->_internal_index_buffers(i), target, stream);
+      InternalWriteMessage(3, this->_internal_index_buffers(i), target, stream);
+  }
+
+  // map<string, .Tiny3D.Script.Matrix4> offset = 4;
+  if (!this->_internal_offset().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >::const_pointer
+        ConstPtr;
+    typedef ConstPtr SortItem;
+    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
+    struct Utf8Check {
+      static void Check(ConstPtr p) {
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+          p->first.data(), static_cast<int>(p->first.length()),
+          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+          "Tiny3D.Script.ModelSystem.MeshData.OffsetEntry.key");
+      }
+    };
+
+    if (stream->IsSerializationDeterministic() &&
+        this->_internal_offset().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(
+          new SortItem[this->_internal_offset().size()]);
+      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >::size_type size_type;
+      size_type n = 0;
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >::const_iterator
+          it = this->_internal_offset().begin();
+          it != this->_internal_offset().end(); ++it, ++n) {
+        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+      }
+      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+      for (size_type i = 0; i < n; i++) {
+        target = MeshData_OffsetEntry_DoNotUse::Funcs::InternalSerialize(4, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
+        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
+      }
+    } else {
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >::const_iterator
+          it = this->_internal_offset().begin();
+          it != this->_internal_offset().end(); ++it) {
+        target = MeshData_OffsetEntry_DoNotUse::Funcs::InternalSerialize(4, it->first, it->second, target, stream);
+        Utf8Check::Check(&(*it));
+      }
+    }
+  }
+
+  // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 5;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_clips_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(5, this->_internal_clips(i), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -4637,21 +4703,37 @@ size_t MeshData::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .Tiny3D.Script.ModelSystem.VertexBuffer vertex_buffers = 3;
+  // repeated .Tiny3D.Script.ModelSystem.VertexBuffer vertex_buffers = 2;
   total_size += 1UL * this->_internal_vertex_buffers_size();
   for (const auto& msg : this->vertex_buffers_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // repeated .Tiny3D.Script.ModelSystem.IndexBuffer index_buffers = 4;
+  // repeated .Tiny3D.Script.ModelSystem.IndexBuffer index_buffers = 3;
   total_size += 1UL * this->_internal_index_buffers_size();
   for (const auto& msg : this->index_buffers_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // string name = 2;
+  // map<string, .Tiny3D.Script.Matrix4> offset = 4;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_offset_size());
+  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >::const_iterator
+      it = this->_internal_offset().begin();
+      it != this->_internal_offset().end(); ++it) {
+    total_size += MeshData_OffsetEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  }
+
+  // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 5;
+  total_size += 1UL * this->_internal_clips_size();
+  for (const auto& msg : this->clips_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // string name = 1;
   if (this->name().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
@@ -4691,6 +4773,8 @@ void MeshData::MergeFrom(const MeshData& from) {
 
   vertex_buffers_.MergeFrom(from.vertex_buffers_);
   index_buffers_.MergeFrom(from.index_buffers_);
+  offset_.MergeFrom(from.offset_);
+  clips_.MergeFrom(from.clips_);
   if (from.name().size() > 0) {
 
     name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
@@ -4720,332 +4804,13 @@ void MeshData::InternalSwap(MeshData* other) {
   _internal_metadata_.Swap(&other->_internal_metadata_);
   vertex_buffers_.InternalSwap(&other->vertex_buffers_);
   index_buffers_.InternalSwap(&other->index_buffers_);
+  offset_.Swap(&other->offset_);
+  clips_.InternalSwap(&other->clips_);
   name_.Swap(&other->name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MeshData::GetMetadata() const {
-  return GetMetadataStatic();
-}
-
-
-// ===================================================================
-
-SkinnedMeshData_OffsetEntry_DoNotUse::SkinnedMeshData_OffsetEntry_DoNotUse() {}
-SkinnedMeshData_OffsetEntry_DoNotUse::SkinnedMeshData_OffsetEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void SkinnedMeshData_OffsetEntry_DoNotUse::MergeFrom(const SkinnedMeshData_OffsetEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
-::PROTOBUF_NAMESPACE_ID::Metadata SkinnedMeshData_OffsetEntry_DoNotUse::GetMetadata() const {
-  return GetMetadataStatic();
-}
-void SkinnedMeshData_OffsetEntry_DoNotUse::MergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::Message& other) {
-  ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom(other);
-}
-
-
-// ===================================================================
-
-void SkinnedMeshData::InitAsDefaultInstance() {
-  ::Tiny3D::Script::ModelSystem::_SkinnedMeshData_default_instance_._instance.get_mutable()->mesh_ = const_cast< ::Tiny3D::Script::ModelSystem::MeshData*>(
-      ::Tiny3D::Script::ModelSystem::MeshData::internal_default_instance());
-}
-class SkinnedMeshData::_Internal {
- public:
-  static const ::Tiny3D::Script::ModelSystem::MeshData& mesh(const SkinnedMeshData* msg);
-};
-
-const ::Tiny3D::Script::ModelSystem::MeshData&
-SkinnedMeshData::_Internal::mesh(const SkinnedMeshData* msg) {
-  return *msg->mesh_;
-}
-void SkinnedMeshData::clear_offset() {
-  offset_.Clear();
-}
-SkinnedMeshData::SkinnedMeshData()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-}
-SkinnedMeshData::SkinnedMeshData(const SkinnedMeshData& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
-      clips_(from.clips_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  offset_.MergeFrom(from.offset_);
-  if (from._internal_has_mesh()) {
-    mesh_ = new ::Tiny3D::Script::ModelSystem::MeshData(*from.mesh_);
-  } else {
-    mesh_ = nullptr;
-  }
-  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-}
-
-void SkinnedMeshData::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_SkinnedMeshData_ModelScriptObject_2eproto.base);
-  mesh_ = nullptr;
-}
-
-SkinnedMeshData::~SkinnedMeshData() {
-  // @@protoc_insertion_point(destructor:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-  SharedDtor();
-}
-
-void SkinnedMeshData::SharedDtor() {
-  if (this != internal_default_instance()) delete mesh_;
-}
-
-void SkinnedMeshData::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const SkinnedMeshData& SkinnedMeshData::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_SkinnedMeshData_ModelScriptObject_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void SkinnedMeshData::Clear() {
-// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  offset_.Clear();
-  clips_.Clear();
-  if (GetArenaNoVirtual() == nullptr && mesh_ != nullptr) {
-    delete mesh_;
-  }
-  mesh_ = nullptr;
-  _internal_metadata_.Clear();
-}
-
-const char* SkinnedMeshData::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // .Tiny3D.Script.ModelSystem.MeshData mesh = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ctx->ParseMessage(_internal_mutable_mesh(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // map<string, .Tiny3D.Script.Matrix4> offset = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            ptr = ctx->ParseMessage(&offset_, ptr);
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
-        } else goto handle_unusual;
-        continue;
-      // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_clips(), ptr);
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* SkinnedMeshData::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // .Tiny3D.Script.ModelSystem.MeshData mesh = 1;
-  if (this->has_mesh()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::mesh(this), target, stream);
-  }
-
-  // map<string, .Tiny3D.Script.Matrix4> offset = 2;
-  if (!this->_internal_offset().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >::const_pointer
-        ConstPtr;
-    typedef ConstPtr SortItem;
-    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
-    struct Utf8Check {
-      static void Check(ConstPtr p) {
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-          p->first.data(), static_cast<int>(p->first.length()),
-          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-          "Tiny3D.Script.ModelSystem.SkinnedMeshData.OffsetEntry.key");
-      }
-    };
-
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_offset().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_offset().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >::size_type size_type;
-      size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >::const_iterator
-          it = this->_internal_offset().begin();
-          it != this->_internal_offset().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
-        target = SkinnedMeshData_OffsetEntry_DoNotUse::Funcs::InternalSerialize(2, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
-        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
-      }
-    } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >::const_iterator
-          it = this->_internal_offset().begin();
-          it != this->_internal_offset().end(); ++it) {
-        target = SkinnedMeshData_OffsetEntry_DoNotUse::Funcs::InternalSerialize(2, it->first, it->second, target, stream);
-        Utf8Check::Check(&(*it));
-      }
-    }
-  }
-
-  // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 3;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_clips_size()); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(3, this->_internal_clips(i), target, stream);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-  return target;
-}
-
-size_t SkinnedMeshData::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-  size_t total_size = 0;
-
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // map<string, .Tiny3D.Script.Matrix4> offset = 2;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_offset_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >::const_iterator
-      it = this->_internal_offset().begin();
-      it != this->_internal_offset().end(); ++it) {
-    total_size += SkinnedMeshData_OffsetEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
-  }
-
-  // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 3;
-  total_size += 1UL * this->_internal_clips_size();
-  for (const auto& msg : this->clips_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
-  }
-
-  // .Tiny3D.Script.ModelSystem.MeshData mesh = 1;
-  if (this->has_mesh()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *mesh_);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
-}
-
-void SkinnedMeshData::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-  GOOGLE_DCHECK_NE(&from, this);
-  const SkinnedMeshData* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<SkinnedMeshData>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-    MergeFrom(*source);
-  }
-}
-
-void SkinnedMeshData::MergeFrom(const SkinnedMeshData& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  offset_.MergeFrom(from.offset_);
-  clips_.MergeFrom(from.clips_);
-  if (from.has_mesh()) {
-    _internal_mutable_mesh()->::Tiny3D::Script::ModelSystem::MeshData::MergeFrom(from._internal_mesh());
-  }
-}
-
-void SkinnedMeshData::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SkinnedMeshData::CopyFrom(const SkinnedMeshData& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.ModelSystem.SkinnedMeshData)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SkinnedMeshData::IsInitialized() const {
-  return true;
-}
-
-void SkinnedMeshData::InternalSwap(SkinnedMeshData* other) {
-  using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  offset_.Swap(&other->offset_);
-  clips_.InternalSwap(&other->clips_);
-  swap(mesh_, other->mesh_);
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata SkinnedMeshData::GetMetadata() const {
   return GetMetadataStatic();
 }
 
@@ -5088,14 +4853,11 @@ template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::Keyframe* Arena::Cre
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::AnimationClip* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::AnimationClip >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::AnimationClip >(arena);
 }
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse >(arena);
+}
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::MeshData* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::MeshData >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::MeshData >(arena);
-}
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::SkinnedMeshData_OffsetEntry_DoNotUse* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::SkinnedMeshData_OffsetEntry_DoNotUse >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::SkinnedMeshData_OffsetEntry_DoNotUse >(arena);
-}
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::SkinnedMeshData* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::SkinnedMeshData >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::SkinnedMeshData >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

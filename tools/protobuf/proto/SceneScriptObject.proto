@@ -33,8 +33,7 @@ message Component
     enum Type
     {
         Transform = 0;      // Transform
-        Mesh = 1;           // Mesh
-        SkinnedMesh = 2;    // Skinned Mesh
+        SkinnedMesh = 1;    // Skinned Mesh
     }
     
     Type    type = 1;
@@ -43,7 +42,6 @@ message Component
     {
         Transform   transform = 2;
         Mesh        mesh = 3;
-        SkinnedMesh skinned_mesh = 4;
     }
 }
 
@@ -52,23 +50,15 @@ message Component
  */
 message Transform
 {
-    Vector3     position = 2;
-    Vector3     rotation = 3;
-    Vector3     scaling = 4;
-}
-
-/**
- * @brief Mesh
- */
-message Mesh
-{
-    string      uuid = 1;
+    Vector3     position = 1;
+    Vector3     rotation = 2;
+    Vector3     scaling = 3;
 }
 
 /**
  * @brief Skinned Mesh
  */
-message SkinnedMesh
+message Mesh
 {
     string      uuid = 1;
 }

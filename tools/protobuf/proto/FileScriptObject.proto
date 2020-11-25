@@ -11,8 +11,6 @@ import "MetaScriptObject.proto";
 package Tiny3D.Script.FileFormat;
 
 
-
-
 message FileHeader
 {
     enum FileType
@@ -45,8 +43,7 @@ message FileMeta
 
 message FileScene
 {
-    FileHeader                      header = 1;
-    repeated SceneSystem.Node       nodes = 2;
-    map<string, ModelSystem.MeshData>           meshes = 3;
-    map<string, ModelSystem.SkinnedMeshData>    skinned_meshes = 4;
+    FileHeader                          header = 1;
+    repeated SceneSystem.Node           nodes = 2;
+    map<string, ModelSystem.MeshData>   meshes = 3;
 }

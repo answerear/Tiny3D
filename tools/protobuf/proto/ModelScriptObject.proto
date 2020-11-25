@@ -211,7 +211,7 @@ message Keyframe
     
     Type                    type = 1;
     string                  bone = 2;
-    repeated KeyframeData  frames = 3;
+    repeated KeyframeData   frames = 3;
 }
 
 
@@ -232,17 +232,11 @@ message AnimationClip
  */
 message MeshData
 {
-    string                  name = 2;
-    repeated VertexBuffer   vertex_buffers = 3;
-    repeated IndexBuffer    index_buffers = 4;
-}
-
-
-message SkinnedMeshData
-{
-    MeshData                mesh = 1;
-    map<string, Matrix4>    offset = 2;
-    repeated AnimationClip  clips = 3;
+    string                  name = 1;
+    repeated VertexBuffer   vertex_buffers = 2;
+    repeated IndexBuffer    index_buffers = 3;
+    map<string, Matrix4>    offset = 4;
+    repeated AnimationClip  clips = 5;
 }
 
 
