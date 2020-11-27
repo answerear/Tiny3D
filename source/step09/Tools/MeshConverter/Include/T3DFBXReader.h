@@ -23,6 +23,7 @@
 
 
 #include "T3DConverterPrerequisites.h"
+#include "FileScriptObject.pb.h"
 
 
 namespace Tiny3D
@@ -49,12 +50,12 @@ namespace Tiny3D
         TResult importFbxScene(DataStream &stream, FbxScene *pFbxScene);
         TResult setupMetricSystem(FbxScene *pFbxScene);
 
-        TResult processFbxScene(FbxScene *pFbxScene, Model *model);
+        TResult processFbxScene(FbxScene *pFbxScene, FileModel *model);
 
-        TResult processFbxNode(FbxNode *pFbxNode);
-        TResult processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh);
-        TResult processFbxMeshAttributes(FbxMesh *pFbxMesh);
-        TResult processFbxMeshData(FbxMesh *pFbxMesh);
+        TResult processFbxNode(FbxNode *pFbxNode, FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode);
+        TResult processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh, FileModel *model);
+        TResult processFbxMeshAttributes(FbxMesh *pFbxMesh, Script::ModelSystem::MeshData *pMesh);
+        TResult processFbxMeshData(FbxMesh *pFbxMesh, Script::ModelSystem::MeshData *pMesh);
         TResult processFbxMaterial(FbxNode *pFbxNode, FbxMesh *pFbxMesh);
         TResult processFbxCamera(FbxNode *pFbxNode);
         TResult processFbxLight(FbxNode *pFbxNode);

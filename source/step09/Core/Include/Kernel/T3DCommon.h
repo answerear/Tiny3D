@@ -770,13 +770,22 @@ namespace Tiny3D
      * @enum    FileSubType
      * @brief   Values that represent file sub types
      */
-    enum FileSubType : uint32_t
-    {
-        E_FST_SCRIPT = 0x00000001,
-    };
-
+    //enum FileSubType : uint32_t
+    //{
+    //    E_FST_SCRIPT = 0x00000001,
+    //};
 
     #define T3D_FILE_MAGIC                   "T3D"
+
+    #define T3D_FILE_SCC_VERSION_00000100   0x00000100
+    #define T3D_FILE_SCC_VERSION            T3D_FILE_SCC_VERSION_00000100
+
+    #define T3D_FILE_MDL_VERSION_00000100   0x00000100
+    #define T3D_FILE_MDL_VERSION            T3D_FILE_MDL_VERSION_00000100
+
+    #define T3D_FILE_SUBTYPE_SCC            0x00000001
+    #define T3D_FILE_SUBTYPE_MDL            0x00000002
+    #define T3D_FILE_SUBTYPE_SCN            0x00000003
 
     /**
      * @struct  T3DFileHeader

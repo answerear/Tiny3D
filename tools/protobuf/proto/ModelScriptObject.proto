@@ -35,37 +35,12 @@ message VertexAttribute
      */
     enum Type
     {
-        VAT_FLOAT1 = 0;
-        VAT_FLOAT2 = 1;
-        VAT_FLOAT3 = 2;
-        VAT_FLOAT4 = 3;
-        VAT_COLOR = 4;
-        VAT_BYTE4 = 5;
-        VAT_BYTE4_NORM = 6;
-        VAT_UBYTE4 = 7;
-        VAT_UBYTE4_NORM = 8;
-        VAT_SHORT2 = 9;
-        VAT_SHORT4 = 10;
-        VAT_SHORT2_NORM = 11;
-        VAT_SHORT4_NORM = 12;
-        VAT_USHORT2 = 13;
-        VAT_USHORT4 = 14;
-        VAT_USHORT2_NORM = 15;
-        VAT_USHORT4_NORM = 16;
-        VAT_DOUBLE1 = 17;
-        VAT_DOUBLE2 = 18;
-        VAT_DOUBLE3 = 19;
-        VAT_DOUBLE4 = 20;
-        VAT_INT1 = 21;
-        VAT_INT2 = 22;
-        VAT_INT3 = 23;
-        VAT_INT4 = 24;
-        VAT_UINT1 = 25;
-        VAT_UINT2 = 26;
-        VAT_UINT3 = 27;
-        VAT_UINT4 = 28;
-        VAT_FLOAT16_2 = 29;
-        VAT_FLOAT16_4 = 30;
+        VAT_FLOAT = 0;
+        VAT_DOUBLE = 1;
+        VAT_INT8 = 2;
+        VAT_INT16 = 3;
+        VAT_INT32 = 4;
+        VAT_INT64 = 5;
     }
     
     Semantic    semantic = 1;   // Semantic of value in a vertex

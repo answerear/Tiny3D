@@ -28,6 +28,16 @@
 
 namespace Tiny3D
 {
+    namespace Script
+    {
+        namespace FileFormat
+        {
+            class FileModel;
+        }
+    }
+
+    using FileModel = Script::FileFormat::FileModel;
+
     /**
      * @class   Archive
      * @brief   档案类，用于档案文件的组织管理，隔离文件系统、zip压缩文件的实现细节
@@ -37,23 +47,6 @@ namespace Tiny3D
         T3D_DECLARE_CLASS();
 
     public:
-        typedef TArray<MeshDataPtr>             MeshDataList;
-        typedef MeshDataList::iterator          MeshDataListItr;
-        typedef MeshDataList::const_iterator    MeshDataListConstItr;
-
-        typedef TArray<NodeDataPtr>             BoneDataList;
-        typedef BoneDataList::iterator          BoneDataListItr;
-        typedef BoneDataList::const_iterator    BoneDataListConstItr;
-
-        typedef TArray<NodeDataPtr>             NodeDataList;
-        typedef NodeDataList::iterator          NodeDataListItr;
-        typedef NodeDataList::const_iterator    NodeDataListConstItr;
-
-        typedef TMap<String, ActionDataPtr>     AnimationData;
-        typedef AnimationData::iterator         AnimationItr;
-        typedef AnimationData::const_iterator   AnimationConstItr;
-        typedef AnimationData::value_type       AnimationValue;
-
         static ModelPtr create(const String &name);
 
         /**
@@ -69,21 +62,10 @@ namespace Tiny3D
          */
         virtual Type getType() const override;
 
-        MeshDataList &getMeshes() { return mMeshes; }
-
-        const MeshDataList &getMeshes() const { return mMeshes; }
-
-        BoneDataList &getBones() { return mBones; }
-
-        const BoneDataList &getBones() const { return mBones; }
-
-        AnimationData &getAnimations() { return mAnimations; }
-
-        const AnimationData &getAnimations() const { return mAnimations; }
-
-        NodeDataList &getNodes() { return mNodes; }
-
-        const NodeDataList &getNodes() const { return mNodes; }
+        FileModel *getModelData() const 
+        { 
+            return mModelData;
+        }
 
     protected:
         /**
@@ -100,11 +82,7 @@ namespace Tiny3D
         virtual ResourcePtr clone() const override;
 
     protected:
-        bool            mIsVertexShared;    /**< 所有 mesh 是否共享顶点数据 */
-        MeshDataList    mMeshes;            /**< 网格数据列表 */
-        BoneDataList    mBones;             /**< 骨骼数据列表 */
-        AnimationData   mAnimations;        /**< 动画数据列表 */
-        NodeDataList    mNodes;             /**< 变换数据列表 */
+        FileModel   *mModelData;
     };
 }
 

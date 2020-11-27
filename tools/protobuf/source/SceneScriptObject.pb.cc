@@ -113,10 +113,10 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_SceneScriptObject_2eproto::off
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Node, uuid_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Node, parent_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Node, children_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Node, name_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Node, components_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Node, parent_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Node, children_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::SceneSystem::Component, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -158,10 +158,10 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_SceneScriptObject_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\027SceneScriptObject.proto\022\031Tiny3D.Script"
   ".SceneSystem\032\030CommonScriptObject.proto\"~"
-  "\n\004Node\022\014\n\004uuid\030\001 \001(\t\022\016\n\006parent\030\002 \001(\t\022\020\n\010"
-  "children\030\003 \003(\t\022\014\n\004name\030\004 \001(\t\0228\n\ncomponen"
-  "ts\030\005 \003(\0132$.Tiny3D.Script.SceneSystem.Com"
-  "ponent\"\352\001\n\tComponent\0227\n\004type\030\001 \001(\0162).Tin"
+  "\n\004Node\022\014\n\004uuid\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\0228\n\nco"
+  "mponents\030\003 \003(\0132$.Tiny3D.Script.SceneSyst"
+  "em.Component\022\016\n\006parent\030\004 \001(\t\022\020\n\010children"
+  "\030\005 \003(\t\"\352\001\n\tComponent\0227\n\004type\030\001 \001(\0162).Tin"
   "y3D.Script.SceneSystem.Component.Type\0229\n"
   "\ttransform\030\002 \001(\0132$.Tiny3D.Script.SceneSy"
   "stem.TransformH\000\022/\n\004mesh\030\003 \001(\0132\037.Tiny3D."
@@ -234,20 +234,20 @@ Node::Node()
 Node::Node(const Node& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
-      children_(from.children_),
-      components_(from.components_) {
+      components_(from.components_),
+      children_(from.children_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   uuid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_uuid().empty()) {
     uuid_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.uuid_);
   }
-  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_parent().empty()) {
-    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
-  }
   name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_name().empty()) {
     name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
+  }
+  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_parent().empty()) {
+    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
   }
   // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.SceneSystem.Node)
 }
@@ -255,8 +255,8 @@ Node::Node(const Node& from)
 void Node::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Node_SceneScriptObject_2eproto.base);
   uuid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 Node::~Node() {
@@ -266,8 +266,8 @@ Node::~Node() {
 
 void Node::SharedDtor() {
   uuid_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  parent_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   name_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  parent_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void Node::SetCachedSize(int size) const {
@@ -285,11 +285,11 @@ void Node::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  children_.Clear();
   components_.Clear();
+  children_.Clear();
   uuid_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  parent_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  parent_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   _internal_metadata_.Clear();
 }
 
@@ -309,45 +309,45 @@ const char* Node::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string parent = 2;
+      // string name = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          auto str = _internal_mutable_parent();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.SceneSystem.Node.parent"));
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // repeated string children = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            auto str = _internal_add_children();
-            ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-            CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.SceneSystem.Node.children"));
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
-        } else goto handle_unusual;
-        continue;
-      // string name = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           auto str = _internal_mutable_name();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.SceneSystem.Node.name"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // repeated .Tiny3D.Script.SceneSystem.Component components = 5;
+      // repeated .Tiny3D.Script.SceneSystem.Component components = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_components(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+        } else goto handle_unusual;
+        continue;
+      // string parent = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          auto str = _internal_mutable_parent();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.SceneSystem.Node.parent"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated string children = 5;
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
           ptr -= 1;
           do {
             ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_components(), ptr);
+            auto str = _internal_add_children();
+            ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.SceneSystem.Node.children"));
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
@@ -389,42 +389,42 @@ failure:
         1, this->_internal_uuid(), target);
   }
 
-  // string parent = 2;
-  if (this->parent().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_parent().data(), static_cast<int>(this->_internal_parent().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "Tiny3D.Script.SceneSystem.Node.parent");
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_parent(), target);
-  }
-
-  // repeated string children = 3;
-  for (int i = 0, n = this->_internal_children_size(); i < n; i++) {
-    const auto& s = this->_internal_children(i);
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      s.data(), static_cast<int>(s.length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "Tiny3D.Script.SceneSystem.Node.children");
-    target = stream->WriteString(3, s, target);
-  }
-
-  // string name = 4;
+  // string name = 2;
   if (this->name().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "Tiny3D.Script.SceneSystem.Node.name");
     target = stream->WriteStringMaybeAliased(
-        4, this->_internal_name(), target);
+        2, this->_internal_name(), target);
   }
 
-  // repeated .Tiny3D.Script.SceneSystem.Component components = 5;
+  // repeated .Tiny3D.Script.SceneSystem.Component components = 3;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->_internal_components_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(5, this->_internal_components(i), target, stream);
+      InternalWriteMessage(3, this->_internal_components(i), target, stream);
+  }
+
+  // string parent = 4;
+  if (this->parent().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_parent().data(), static_cast<int>(this->_internal_parent().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "Tiny3D.Script.SceneSystem.Node.parent");
+    target = stream->WriteStringMaybeAliased(
+        4, this->_internal_parent(), target);
+  }
+
+  // repeated string children = 5;
+  for (int i = 0, n = this->_internal_children_size(); i < n; i++) {
+    const auto& s = this->_internal_children(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "Tiny3D.Script.SceneSystem.Node.children");
+    target = stream->WriteString(5, s, target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -443,19 +443,19 @@ size_t Node::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated string children = 3;
+  // repeated .Tiny3D.Script.SceneSystem.Component components = 3;
+  total_size += 1UL * this->_internal_components_size();
+  for (const auto& msg : this->components_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // repeated string children = 5;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(children_.size());
   for (int i = 0, n = children_.size(); i < n; i++) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
       children_.Get(i));
-  }
-
-  // repeated .Tiny3D.Script.SceneSystem.Component components = 5;
-  total_size += 1UL * this->_internal_components_size();
-  for (const auto& msg : this->components_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // string uuid = 1;
@@ -465,18 +465,18 @@ size_t Node::ByteSizeLong() const {
         this->_internal_uuid());
   }
 
-  // string parent = 2;
-  if (this->parent().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_parent());
-  }
-
-  // string name = 4;
+  // string name = 2;
   if (this->name().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_name());
+  }
+
+  // string parent = 4;
+  if (this->parent().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_parent());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -510,19 +510,19 @@ void Node::MergeFrom(const Node& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  children_.MergeFrom(from.children_);
   components_.MergeFrom(from.components_);
+  children_.MergeFrom(from.children_);
   if (from.uuid().size() > 0) {
 
     uuid_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.uuid_);
   }
-  if (from.parent().size() > 0) {
-
-    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
-  }
   if (from.name().size() > 0) {
 
     name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
+  }
+  if (from.parent().size() > 0) {
+
+    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
   }
 }
 
@@ -547,13 +547,13 @@ bool Node::IsInitialized() const {
 void Node::InternalSwap(Node* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  children_.InternalSwap(&other->children_);
   components_.InternalSwap(&other->components_);
+  children_.InternalSwap(&other->children_);
   uuid_.Swap(&other->uuid_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
-  parent_.Swap(&other->parent_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
   name_.Swap(&other->name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  parent_.Swap(&other->parent_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
 }
 

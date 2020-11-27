@@ -79,6 +79,9 @@ namespace Tiny3D
                     break;
                 }
 
+                ModelManagerPtr modelMgr = ModelManager::create();
+
+
                 // 创建引擎序列化模块模块
                 SerializerManagerPtr mgr = SerializerManager::create();
                 uint32_t flags 
@@ -117,7 +120,8 @@ namespace Tiny3D
                     break;
                 }
 
-                ModelPtr model = Model::create(opts.mSrcPath);
+                //ModelPtr model = Model::create(opts.mSrcPath);
+                ModelPtr model = modelMgr->loadModel(opts.mSrcPath);
                 ret = reader->parse(is, model);
                 if (T3D_FAILED(ret))
                 {
@@ -145,6 +149,8 @@ namespace Tiny3D
                 }
 
                 os.close();
+
+                modelMgr->unloadModel(model);
             }
         } while (0);
         return ret;

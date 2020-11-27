@@ -14,10 +14,10 @@ package Tiny3D.Script.SceneSystem;
 message Node
 {
     string              uuid = 1;       // the uuid for this node
-    string              parent = 2;     // the uuid for parent node
-    repeated string     children = 3;   // the list of uuid for children nodes
-    string              name = 4;       // the name of this node
-    repeated Component  components = 5; // ID components attaching to
+    string              name = 2;       // the name of this node
+    repeated Component  components = 3; // ID components attaching to
+    string              parent = 4;     // the uuid for parent node
+    repeated string     children = 5;   // the list of uuid for children nodes
 }
 
 

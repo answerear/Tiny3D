@@ -217,13 +217,31 @@ class Node :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kChildrenFieldNumber = 3,
-    kComponentsFieldNumber = 5,
+    kComponentsFieldNumber = 3,
+    kChildrenFieldNumber = 5,
     kUuidFieldNumber = 1,
-    kParentFieldNumber = 2,
-    kNameFieldNumber = 4,
+    kNameFieldNumber = 2,
+    kParentFieldNumber = 4,
   };
-  // repeated string children = 3;
+  // repeated .Tiny3D.Script.SceneSystem.Component components = 3;
+  int components_size() const;
+  private:
+  int _internal_components_size() const;
+  public:
+  void clear_components();
+  ::Tiny3D::Script::SceneSystem::Component* mutable_components(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::SceneSystem::Component >*
+      mutable_components();
+  private:
+  const ::Tiny3D::Script::SceneSystem::Component& _internal_components(int index) const;
+  ::Tiny3D::Script::SceneSystem::Component* _internal_add_components();
+  public:
+  const ::Tiny3D::Script::SceneSystem::Component& components(int index) const;
+  ::Tiny3D::Script::SceneSystem::Component* add_components();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::SceneSystem::Component >&
+      components() const;
+
+  // repeated string children = 5;
   int children_size() const;
   private:
   int _internal_children_size() const;
@@ -247,24 +265,6 @@ class Node :
   std::string* _internal_add_children();
   public:
 
-  // repeated .Tiny3D.Script.SceneSystem.Component components = 5;
-  int components_size() const;
-  private:
-  int _internal_components_size() const;
-  public:
-  void clear_components();
-  ::Tiny3D::Script::SceneSystem::Component* mutable_components(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::SceneSystem::Component >*
-      mutable_components();
-  private:
-  const ::Tiny3D::Script::SceneSystem::Component& _internal_components(int index) const;
-  ::Tiny3D::Script::SceneSystem::Component* _internal_add_components();
-  public:
-  const ::Tiny3D::Script::SceneSystem::Component& components(int index) const;
-  ::Tiny3D::Script::SceneSystem::Component* add_components();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::SceneSystem::Component >&
-      components() const;
-
   // string uuid = 1;
   void clear_uuid();
   const std::string& uuid() const;
@@ -281,23 +281,7 @@ class Node :
   std::string* _internal_mutable_uuid();
   public:
 
-  // string parent = 2;
-  void clear_parent();
-  const std::string& parent() const;
-  void set_parent(const std::string& value);
-  void set_parent(std::string&& value);
-  void set_parent(const char* value);
-  void set_parent(const char* value, size_t size);
-  std::string* mutable_parent();
-  std::string* release_parent();
-  void set_allocated_parent(std::string* parent);
-  private:
-  const std::string& _internal_parent() const;
-  void _internal_set_parent(const std::string& value);
-  std::string* _internal_mutable_parent();
-  public:
-
-  // string name = 4;
+  // string name = 2;
   void clear_name();
   const std::string& name() const;
   void set_name(const std::string& value);
@@ -313,16 +297,32 @@ class Node :
   std::string* _internal_mutable_name();
   public:
 
+  // string parent = 4;
+  void clear_parent();
+  const std::string& parent() const;
+  void set_parent(const std::string& value);
+  void set_parent(std::string&& value);
+  void set_parent(const char* value);
+  void set_parent(const char* value, size_t size);
+  std::string* mutable_parent();
+  std::string* release_parent();
+  void set_allocated_parent(std::string* parent);
+  private:
+  const std::string& _internal_parent() const;
+  void _internal_set_parent(const std::string& value);
+  std::string* _internal_mutable_parent();
+  public:
+
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.SceneSystem.Node)
  private:
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> children_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::SceneSystem::Component > components_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> children_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr uuid_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr parent_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr parent_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_SceneScriptObject_2eproto;
 };
@@ -910,7 +910,106 @@ inline void Node::set_allocated_uuid(std::string* uuid) {
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Node.uuid)
 }
 
-// string parent = 2;
+// string name = 2;
+inline void Node::clear_name() {
+  name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& Node::name() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Node.name)
+  return _internal_name();
+}
+inline void Node::set_name(const std::string& value) {
+  _internal_set_name(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.Node.name)
+}
+inline std::string* Node::mutable_name() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Node.name)
+  return _internal_mutable_name();
+}
+inline const std::string& Node::_internal_name() const {
+  return name_.GetNoArena();
+}
+inline void Node::_internal_set_name(const std::string& value) {
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void Node::set_name(std::string&& value) {
+  
+  name_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.SceneSystem.Node.name)
+}
+inline void Node::set_name(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.SceneSystem.Node.name)
+}
+inline void Node::set_name(const char* value, size_t size) {
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.SceneSystem.Node.name)
+}
+inline std::string* Node::_internal_mutable_name() {
+  
+  return name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* Node::release_name() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.SceneSystem.Node.name)
+  
+  return name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void Node::set_allocated_name(std::string* name) {
+  if (name != nullptr) {
+    
+  } else {
+    
+  }
+  name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Node.name)
+}
+
+// repeated .Tiny3D.Script.SceneSystem.Component components = 3;
+inline int Node::_internal_components_size() const {
+  return components_.size();
+}
+inline int Node::components_size() const {
+  return _internal_components_size();
+}
+inline void Node::clear_components() {
+  components_.Clear();
+}
+inline ::Tiny3D::Script::SceneSystem::Component* Node::mutable_components(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Node.components)
+  return components_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::SceneSystem::Component >*
+Node::mutable_components() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.SceneSystem.Node.components)
+  return &components_;
+}
+inline const ::Tiny3D::Script::SceneSystem::Component& Node::_internal_components(int index) const {
+  return components_.Get(index);
+}
+inline const ::Tiny3D::Script::SceneSystem::Component& Node::components(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Node.components)
+  return _internal_components(index);
+}
+inline ::Tiny3D::Script::SceneSystem::Component* Node::_internal_add_components() {
+  return components_.Add();
+}
+inline ::Tiny3D::Script::SceneSystem::Component* Node::add_components() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.SceneSystem.Node.components)
+  return _internal_add_components();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::SceneSystem::Component >&
+Node::components() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.SceneSystem.Node.components)
+  return components_;
+}
+
+// string parent = 4;
 inline void Node::clear_parent() {
   parent_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
@@ -970,7 +1069,7 @@ inline void Node::set_allocated_parent(std::string* parent) {
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Node.parent)
 }
 
-// repeated string children = 3;
+// repeated string children = 5;
 inline int Node::_internal_children_size() const {
   return children_.size();
 }
@@ -1042,105 +1141,6 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
 Node::mutable_children() {
   // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.SceneSystem.Node.children)
   return &children_;
-}
-
-// string name = 4;
-inline void Node::clear_name() {
-  name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline const std::string& Node::name() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Node.name)
-  return _internal_name();
-}
-inline void Node::set_name(const std::string& value) {
-  _internal_set_name(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.SceneSystem.Node.name)
-}
-inline std::string* Node::mutable_name() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Node.name)
-  return _internal_mutable_name();
-}
-inline const std::string& Node::_internal_name() const {
-  return name_.GetNoArena();
-}
-inline void Node::_internal_set_name(const std::string& value) {
-  
-  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
-}
-inline void Node::set_name(std::string&& value) {
-  
-  name_.SetNoArena(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.SceneSystem.Node.name)
-}
-inline void Node::set_name(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.SceneSystem.Node.name)
-}
-inline void Node::set_name(const char* value, size_t size) {
-  
-  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.SceneSystem.Node.name)
-}
-inline std::string* Node::_internal_mutable_name() {
-  
-  return name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline std::string* Node::release_name() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.SceneSystem.Node.name)
-  
-  return name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline void Node::set_allocated_name(std::string* name) {
-  if (name != nullptr) {
-    
-  } else {
-    
-  }
-  name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name);
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.SceneSystem.Node.name)
-}
-
-// repeated .Tiny3D.Script.SceneSystem.Component components = 5;
-inline int Node::_internal_components_size() const {
-  return components_.size();
-}
-inline int Node::components_size() const {
-  return _internal_components_size();
-}
-inline void Node::clear_components() {
-  components_.Clear();
-}
-inline ::Tiny3D::Script::SceneSystem::Component* Node::mutable_components(int index) {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.SceneSystem.Node.components)
-  return components_.Mutable(index);
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::SceneSystem::Component >*
-Node::mutable_components() {
-  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.SceneSystem.Node.components)
-  return &components_;
-}
-inline const ::Tiny3D::Script::SceneSystem::Component& Node::_internal_components(int index) const {
-  return components_.Get(index);
-}
-inline const ::Tiny3D::Script::SceneSystem::Component& Node::components(int index) const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.SceneSystem.Node.components)
-  return _internal_components(index);
-}
-inline ::Tiny3D::Script::SceneSystem::Component* Node::_internal_add_components() {
-  return components_.Add();
-}
-inline ::Tiny3D::Script::SceneSystem::Component* Node::add_components() {
-  // @@protoc_insertion_point(field_add:Tiny3D.Script.SceneSystem.Node.components)
-  return _internal_add_components();
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::SceneSystem::Component >&
-Node::components() const {
-  // @@protoc_insertion_point(field_list:Tiny3D.Script.SceneSystem.Node.components)
-  return components_;
 }
 
 // -------------------------------------------------------------------

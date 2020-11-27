@@ -472,8 +472,8 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_ModelScriptObject_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\027ModelScriptObject.proto\022\031Tiny3D.Script"
-  ".ModelSystem\032\030CommonScriptObject.proto\"\353"
-  "\006\n\017VertexAttribute\022E\n\010semantic\030\001 \001(\01623.T"
+  ".ModelSystem\032\030CommonScriptObject.proto\"\267"
+  "\003\n\017VertexAttribute\022E\n\010semantic\030\001 \001(\01623.T"
   "iny3D.Script.ModelSystem.VertexAttribute"
   ".Semantic\022=\n\004type\030\002 \001(\0162/.Tiny3D.Script."
   "ModelSystem.VertexAttribute.Type\022\014\n\004size"
@@ -481,78 +481,67 @@ const char descriptor_table_protodef_ModelScriptObject_2eproto[] PROTOBUF_SECTIO
   "\014VAS_TEXCOORD\020\001\022\016\n\nVAS_NORMAL\020\002\022\017\n\013VAS_T"
   "ANGENT\020\003\022\020\n\014VAS_BINORMAL\020\004\022\017\n\013VAS_DIFFUS"
   "E\020\005\022\020\n\014VAS_SPECULAR\020\006\022\022\n\016VAS_BLENDINDEX\020"
-  "\007\022\023\n\017VAS_BLENDWEIGHT\020\010\"\223\004\n\004Type\022\016\n\nVAT_F"
-  "LOAT1\020\000\022\016\n\nVAT_FLOAT2\020\001\022\016\n\nVAT_FLOAT3\020\002\022"
-  "\016\n\nVAT_FLOAT4\020\003\022\r\n\tVAT_COLOR\020\004\022\r\n\tVAT_BY"
-  "TE4\020\005\022\022\n\016VAT_BYTE4_NORM\020\006\022\016\n\nVAT_UBYTE4\020"
-  "\007\022\023\n\017VAT_UBYTE4_NORM\020\010\022\016\n\nVAT_SHORT2\020\t\022\016"
-  "\n\nVAT_SHORT4\020\n\022\023\n\017VAT_SHORT2_NORM\020\013\022\023\n\017V"
-  "AT_SHORT4_NORM\020\014\022\017\n\013VAT_USHORT2\020\r\022\017\n\013VAT"
-  "_USHORT4\020\016\022\024\n\020VAT_USHORT2_NORM\020\017\022\024\n\020VAT_"
-  "USHORT4_NORM\020\020\022\017\n\013VAT_DOUBLE1\020\021\022\017\n\013VAT_D"
-  "OUBLE2\020\022\022\017\n\013VAT_DOUBLE3\020\023\022\017\n\013VAT_DOUBLE4"
-  "\020\024\022\014\n\010VAT_INT1\020\025\022\014\n\010VAT_INT2\020\026\022\014\n\010VAT_IN"
-  "T3\020\027\022\014\n\010VAT_INT4\020\030\022\r\n\tVAT_UINT1\020\031\022\r\n\tVAT"
-  "_UINT2\020\032\022\r\n\tVAT_UINT3\020\033\022\r\n\tVAT_UINT4\020\034\022\021"
-  "\n\rVAT_FLOAT16_2\020\035\022\021\n\rVAT_FLOAT16_4\020\036\"\267\003\n"
-  "\006Vertex\022#\n\003pos\030\001 \001(\0132\026.Tiny3D.Script.Vec"
-  "tor3\022.\n\010texcoord\030\002 \001(\0132\032.Tiny3D.Script.V"
-  "ector2ListH\000\022,\n\006normal\030\003 \001(\0132\032.Tiny3D.Sc"
-  "ript.Vector3ListH\000\022-\n\007tangent\030\004 \001(\0132\032.Ti"
-  "ny3D.Script.Vector3ListH\000\022.\n\010binormal\030\005 "
-  "\001(\0132\032.Tiny3D.Script.Vector3ListH\000\022+\n\007dif"
-  "fuse\030\006 \001(\0132\030.Tiny3D.Script.ColorListH\000\022,"
-  "\n\010specular\030\007 \001(\0132\030.Tiny3D.Script.ColorLi"
-  "stH\000\0220\n\rblend_indices\030\010 \001(\0132\027.Tiny3D.Scr"
-  "ipt.UintListH\000\0221\n\rblend_weights\030\t \001(\0132\030."
-  "Tiny3D.Script.FloatListH\000B\013\n\tExtension\"\203"
-  "\001\n\014VertexBuffer\022>\n\nattributes\030\001 \003(\0132*.Ti"
-  "ny3D.Script.ModelSystem.VertexAttribute\022"
-  "3\n\010vertices\030\002 \003(\0132!.Tiny3D.Script.ModelS"
-  "ystem.Vertex\"@\n\006Sphere\022&\n\006center\030\001 \001(\0132\026"
-  ".Tiny3D.Script.Vector3\022\016\n\006radius\030\002 \001(\002\"`"
-  "\n\004Aabb\022\r\n\005min_x\030\001 \001(\002\022\r\n\005max_x\030\002 \001(\002\022\r\n\005"
-  "min_y\030\003 \001(\002\022\r\n\005max_y\030\004 \001(\002\022\r\n\005min_z\030\005 \001("
-  "\002\022\r\n\005max_z\030\006 \001(\002\"c\n\003Obb\022&\n\006center\030\001 \001(\0132"
-  "\026.Tiny3D.Script.Vector3\022$\n\004axis\030\002 \003(\0132\026."
-  "Tiny3D.Script.Vector3\022\016\n\006extent\030\003 \003(\002\"\214\002"
-  "\n\005Bound\0223\n\004type\030\001 \001(\0162%.Tiny3D.Script.Mo"
-  "delSystem.Bound.Type\0223\n\006sphere\030\002 \001(\0132!.T"
-  "iny3D.Script.ModelSystem.SphereH\000\022/\n\004aab"
-  "b\030\003 \001(\0132\037.Tiny3D.Script.ModelSystem.Aabb"
-  "H\000\022-\n\003obb\030\004 \001(\0132\036.Tiny3D.Script.ModelSys"
-  "tem.ObbH\000\".\n\004Type\022\r\n\tBT_SPHERE\020\000\022\013\n\007BT_A"
-  "ABB\020\001\022\n\n\006BT_OBB\020\002B\t\n\007ValueOf\"\316\001\n\013IndexBu"
-  "ffer\022\020\n\010is_16bit\030\001 \001(\010\022@\n\016primitive_type"
-  "\030\002 \001(\0162(.Tiny3D.Script.ModelSystem.Primi"
-  "tiveType\022\027\n\017primitive_count\030\003 \001(\r\022\020\n\010mat"
-  "erial\030\004 \001(\t\022/\n\005bound\030\005 \001(\0132 .Tiny3D.Scri"
-  "pt.ModelSystem.Bound\022\017\n\007indices\030\006 \003(\005\"\266\001"
-  "\n\014KeyframeData\022\014\n\004time\030\001 \001(\002\022-\n\013translat"
-  "ion\030\002 \001(\0132\026.Tiny3D.Script.Vector3H\000\022-\n\010r"
-  "otation\030\003 \001(\0132\031.Tiny3D.Script.Quaternion"
-  "H\000\022)\n\007scaling\030\004 \001(\0132\026.Tiny3D.Script.Vect"
-  "or3H\000B\017\n\rKeyframeOneOf\"\306\001\n\010Keyframe\0226\n\004t"
-  "ype\030\001 \001(\0162(.Tiny3D.Script.ModelSystem.Ke"
-  "yframe.Type\022\014\n\004bone\030\002 \001(\t\0227\n\006frames\030\003 \003("
-  "\0132\'.Tiny3D.Script.ModelSystem.KeyframeDa"
-  "ta\";\n\004Type\022\022\n\016KT_TRANSLATION\020\000\022\017\n\013KT_ROT"
-  "ATION\020\001\022\016\n\nKT_SCALING\020\002\"g\n\rAnimationClip"
-  "\022\014\n\004name\030\001 \001(\t\022\020\n\010duration\030\002 \001(\002\0226\n\tkeyf"
-  "rames\030\003 \003(\0132#.Tiny3D.Script.ModelSystem."
-  "Keyframe\"\331\002\n\010MeshData\022\014\n\004name\030\001 \001(\t\022\?\n\016v"
-  "ertex_buffers\030\002 \003(\0132\'.Tiny3D.Script.Mode"
-  "lSystem.VertexBuffer\022=\n\rindex_buffers\030\003 "
-  "\003(\0132&.Tiny3D.Script.ModelSystem.IndexBuf"
-  "fer\022\?\n\006offset\030\004 \003(\0132/.Tiny3D.Script.Mode"
-  "lSystem.MeshData.OffsetEntry\0227\n\005clips\030\005 "
-  "\003(\0132(.Tiny3D.Script.ModelSystem.Animatio"
-  "nClip\032E\n\013OffsetEntry\022\013\n\003key\030\001 \001(\t\022%\n\005val"
-  "ue\030\002 \001(\0132\026.Tiny3D.Script.Matrix4:\0028\001*\211\001\n"
-  "\rPrimitiveType\022\021\n\rPT_POINT_LIST\020\000\022\020\n\014PT_"
-  "LINE_LIST\020\001\022\021\n\rPT_LINE_STRIP\020\002\022\024\n\020PT_TRI"
-  "ANGLE_LIST\020\003\022\025\n\021PT_TRIANGLE_STRIP\020\004\022\023\n\017P"
-  "T_TRIANGLE_FAN\020\005b\006proto3"
+  "\007\022\023\n\017VAS_BLENDWEIGHT\020\010\"`\n\004Type\022\r\n\tVAT_FL"
+  "OAT\020\000\022\016\n\nVAT_DOUBLE\020\001\022\014\n\010VAT_INT8\020\002\022\r\n\tV"
+  "AT_INT16\020\003\022\r\n\tVAT_INT32\020\004\022\r\n\tVAT_INT64\020\005"
+  "\"\267\003\n\006Vertex\022#\n\003pos\030\001 \001(\0132\026.Tiny3D.Script"
+  ".Vector3\022.\n\010texcoord\030\002 \001(\0132\032.Tiny3D.Scri"
+  "pt.Vector2ListH\000\022,\n\006normal\030\003 \001(\0132\032.Tiny3"
+  "D.Script.Vector3ListH\000\022-\n\007tangent\030\004 \001(\0132"
+  "\032.Tiny3D.Script.Vector3ListH\000\022.\n\010binorma"
+  "l\030\005 \001(\0132\032.Tiny3D.Script.Vector3ListH\000\022+\n"
+  "\007diffuse\030\006 \001(\0132\030.Tiny3D.Script.ColorList"
+  "H\000\022,\n\010specular\030\007 \001(\0132\030.Tiny3D.Script.Col"
+  "orListH\000\0220\n\rblend_indices\030\010 \001(\0132\027.Tiny3D"
+  ".Script.UintListH\000\0221\n\rblend_weights\030\t \001("
+  "\0132\030.Tiny3D.Script.FloatListH\000B\013\n\tExtensi"
+  "on\"\203\001\n\014VertexBuffer\022>\n\nattributes\030\001 \003(\0132"
+  "*.Tiny3D.Script.ModelSystem.VertexAttrib"
+  "ute\0223\n\010vertices\030\002 \003(\0132!.Tiny3D.Script.Mo"
+  "delSystem.Vertex\"@\n\006Sphere\022&\n\006center\030\001 \001"
+  "(\0132\026.Tiny3D.Script.Vector3\022\016\n\006radius\030\002 \001"
+  "(\002\"`\n\004Aabb\022\r\n\005min_x\030\001 \001(\002\022\r\n\005max_x\030\002 \001(\002"
+  "\022\r\n\005min_y\030\003 \001(\002\022\r\n\005max_y\030\004 \001(\002\022\r\n\005min_z\030"
+  "\005 \001(\002\022\r\n\005max_z\030\006 \001(\002\"c\n\003Obb\022&\n\006center\030\001 "
+  "\001(\0132\026.Tiny3D.Script.Vector3\022$\n\004axis\030\002 \003("
+  "\0132\026.Tiny3D.Script.Vector3\022\016\n\006extent\030\003 \003("
+  "\002\"\214\002\n\005Bound\0223\n\004type\030\001 \001(\0162%.Tiny3D.Scrip"
+  "t.ModelSystem.Bound.Type\0223\n\006sphere\030\002 \001(\013"
+  "2!.Tiny3D.Script.ModelSystem.SphereH\000\022/\n"
+  "\004aabb\030\003 \001(\0132\037.Tiny3D.Script.ModelSystem."
+  "AabbH\000\022-\n\003obb\030\004 \001(\0132\036.Tiny3D.Script.Mode"
+  "lSystem.ObbH\000\".\n\004Type\022\r\n\tBT_SPHERE\020\000\022\013\n\007"
+  "BT_AABB\020\001\022\n\n\006BT_OBB\020\002B\t\n\007ValueOf\"\316\001\n\013Ind"
+  "exBuffer\022\020\n\010is_16bit\030\001 \001(\010\022@\n\016primitive_"
+  "type\030\002 \001(\0162(.Tiny3D.Script.ModelSystem.P"
+  "rimitiveType\022\027\n\017primitive_count\030\003 \001(\r\022\020\n"
+  "\010material\030\004 \001(\t\022/\n\005bound\030\005 \001(\0132 .Tiny3D."
+  "Script.ModelSystem.Bound\022\017\n\007indices\030\006 \003("
+  "\005\"\266\001\n\014KeyframeData\022\014\n\004time\030\001 \001(\002\022-\n\013tran"
+  "slation\030\002 \001(\0132\026.Tiny3D.Script.Vector3H\000\022"
+  "-\n\010rotation\030\003 \001(\0132\031.Tiny3D.Script.Quater"
+  "nionH\000\022)\n\007scaling\030\004 \001(\0132\026.Tiny3D.Script."
+  "Vector3H\000B\017\n\rKeyframeOneOf\"\306\001\n\010Keyframe\022"
+  "6\n\004type\030\001 \001(\0162(.Tiny3D.Script.ModelSyste"
+  "m.Keyframe.Type\022\014\n\004bone\030\002 \001(\t\0227\n\006frames\030"
+  "\003 \003(\0132\'.Tiny3D.Script.ModelSystem.Keyfra"
+  "meData\";\n\004Type\022\022\n\016KT_TRANSLATION\020\000\022\017\n\013KT"
+  "_ROTATION\020\001\022\016\n\nKT_SCALING\020\002\"g\n\rAnimation"
+  "Clip\022\014\n\004name\030\001 \001(\t\022\020\n\010duration\030\002 \001(\002\0226\n\t"
+  "keyframes\030\003 \003(\0132#.Tiny3D.Script.ModelSys"
+  "tem.Keyframe\"\331\002\n\010MeshData\022\014\n\004name\030\001 \001(\t\022"
+  "\?\n\016vertex_buffers\030\002 \003(\0132\'.Tiny3D.Script."
+  "ModelSystem.VertexBuffer\022=\n\rindex_buffer"
+  "s\030\003 \003(\0132&.Tiny3D.Script.ModelSystem.Inde"
+  "xBuffer\022\?\n\006offset\030\004 \003(\0132/.Tiny3D.Script."
+  "ModelSystem.MeshData.OffsetEntry\0227\n\005clip"
+  "s\030\005 \003(\0132(.Tiny3D.Script.ModelSystem.Anim"
+  "ationClip\032E\n\013OffsetEntry\022\013\n\003key\030\001 \001(\t\022%\n"
+  "\005value\030\002 \001(\0132\026.Tiny3D.Script.Matrix4:\0028\001"
+  "*\211\001\n\rPrimitiveType\022\021\n\rPT_POINT_LIST\020\000\022\020\n"
+  "\014PT_LINE_LIST\020\001\022\021\n\rPT_LINE_STRIP\020\002\022\024\n\020PT"
+  "_TRIANGLE_LIST\020\003\022\025\n\021PT_TRIANGLE_STRIP\020\004\022"
+  "\023\n\017PT_TRIANGLE_FAN\020\005b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_ModelScriptObject_2eproto_deps[1] = {
   &::descriptor_table_CommonScriptObject_2eproto,
@@ -575,7 +564,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Mod
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_ModelScriptObject_2eproto_once;
 static bool descriptor_table_ModelScriptObject_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_ModelScriptObject_2eproto = {
-  &descriptor_table_ModelScriptObject_2eproto_initialized, descriptor_table_protodef_ModelScriptObject_2eproto, "ModelScriptObject.proto", 3264,
+  &descriptor_table_ModelScriptObject_2eproto_initialized, descriptor_table_protodef_ModelScriptObject_2eproto, "ModelScriptObject.proto", 2828,
   &descriptor_table_ModelScriptObject_2eproto_once, descriptor_table_ModelScriptObject_2eproto_sccs, descriptor_table_ModelScriptObject_2eproto_deps, 13, 1,
   schemas, file_default_instances, TableStruct_ModelScriptObject_2eproto::offsets,
   file_level_metadata_ModelScriptObject_2eproto, 13, file_level_enum_descriptors_ModelScriptObject_2eproto, file_level_service_descriptors_ModelScriptObject_2eproto,
@@ -633,31 +622,6 @@ bool VertexAttribute_Type_IsValid(int value) {
     case 3:
     case 4:
     case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-    case 10:
-    case 11:
-    case 12:
-    case 13:
-    case 14:
-    case 15:
-    case 16:
-    case 17:
-    case 18:
-    case 19:
-    case 20:
-    case 21:
-    case 22:
-    case 23:
-    case 24:
-    case 25:
-    case 26:
-    case 27:
-    case 28:
-    case 29:
-    case 30:
       return true;
     default:
       return false;
@@ -665,37 +629,12 @@ bool VertexAttribute_Type_IsValid(int value) {
 }
 
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-constexpr VertexAttribute_Type VertexAttribute::VAT_FLOAT1;
-constexpr VertexAttribute_Type VertexAttribute::VAT_FLOAT2;
-constexpr VertexAttribute_Type VertexAttribute::VAT_FLOAT3;
-constexpr VertexAttribute_Type VertexAttribute::VAT_FLOAT4;
-constexpr VertexAttribute_Type VertexAttribute::VAT_COLOR;
-constexpr VertexAttribute_Type VertexAttribute::VAT_BYTE4;
-constexpr VertexAttribute_Type VertexAttribute::VAT_BYTE4_NORM;
-constexpr VertexAttribute_Type VertexAttribute::VAT_UBYTE4;
-constexpr VertexAttribute_Type VertexAttribute::VAT_UBYTE4_NORM;
-constexpr VertexAttribute_Type VertexAttribute::VAT_SHORT2;
-constexpr VertexAttribute_Type VertexAttribute::VAT_SHORT4;
-constexpr VertexAttribute_Type VertexAttribute::VAT_SHORT2_NORM;
-constexpr VertexAttribute_Type VertexAttribute::VAT_SHORT4_NORM;
-constexpr VertexAttribute_Type VertexAttribute::VAT_USHORT2;
-constexpr VertexAttribute_Type VertexAttribute::VAT_USHORT4;
-constexpr VertexAttribute_Type VertexAttribute::VAT_USHORT2_NORM;
-constexpr VertexAttribute_Type VertexAttribute::VAT_USHORT4_NORM;
-constexpr VertexAttribute_Type VertexAttribute::VAT_DOUBLE1;
-constexpr VertexAttribute_Type VertexAttribute::VAT_DOUBLE2;
-constexpr VertexAttribute_Type VertexAttribute::VAT_DOUBLE3;
-constexpr VertexAttribute_Type VertexAttribute::VAT_DOUBLE4;
-constexpr VertexAttribute_Type VertexAttribute::VAT_INT1;
-constexpr VertexAttribute_Type VertexAttribute::VAT_INT2;
-constexpr VertexAttribute_Type VertexAttribute::VAT_INT3;
-constexpr VertexAttribute_Type VertexAttribute::VAT_INT4;
-constexpr VertexAttribute_Type VertexAttribute::VAT_UINT1;
-constexpr VertexAttribute_Type VertexAttribute::VAT_UINT2;
-constexpr VertexAttribute_Type VertexAttribute::VAT_UINT3;
-constexpr VertexAttribute_Type VertexAttribute::VAT_UINT4;
-constexpr VertexAttribute_Type VertexAttribute::VAT_FLOAT16_2;
-constexpr VertexAttribute_Type VertexAttribute::VAT_FLOAT16_4;
+constexpr VertexAttribute_Type VertexAttribute::VAT_FLOAT;
+constexpr VertexAttribute_Type VertexAttribute::VAT_DOUBLE;
+constexpr VertexAttribute_Type VertexAttribute::VAT_INT8;
+constexpr VertexAttribute_Type VertexAttribute::VAT_INT16;
+constexpr VertexAttribute_Type VertexAttribute::VAT_INT32;
+constexpr VertexAttribute_Type VertexAttribute::VAT_INT64;
 constexpr VertexAttribute_Type VertexAttribute::Type_MIN;
 constexpr VertexAttribute_Type VertexAttribute::Type_MAX;
 constexpr int VertexAttribute::Type_ARRAYSIZE;

@@ -19,6 +19,9 @@
 
 
 #include "Serializer/T3DJSONModelWriter.h"
+#include "Resource/T3DModel.h"
+#include "protobuf/FileScriptObject.pb.h"
+#include <google/protobuf/util/json_util.h>
 
 
 namespace Tiny3D
@@ -56,18 +59,16 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        JsonStringBuffer str;
-        JsonPrettyWriter writer(str);
+        Script::FileFormat::FileModel *data = model->getModelData();
 
-        writer.StartObject();
+        String str;
+        google::protobuf::util::JsonOptions opts;
+        opts.add_whitespace = true;
+        opts.always_print_enums_as_ints = false;
+        opts.always_print_primitive_fields = true;
+        google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(*data, &str, opts);
 
-        serializeHeader(writer, model);
-        serializeModel(writer, model);
-        serializeNodes(writer, model);
-
-        writer.EndObject();
-
-        stream.write((void*)str.GetString(), str.GetSize());
+        stream.write((void*)str.c_str(), str.length());
 
         return ret;
     }

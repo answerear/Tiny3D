@@ -156,43 +156,18 @@ inline bool VertexAttribute_Semantic_Parse(
     VertexAttribute_Semantic_descriptor(), name, value);
 }
 enum VertexAttribute_Type : int {
-  VertexAttribute_Type_VAT_FLOAT1 = 0,
-  VertexAttribute_Type_VAT_FLOAT2 = 1,
-  VertexAttribute_Type_VAT_FLOAT3 = 2,
-  VertexAttribute_Type_VAT_FLOAT4 = 3,
-  VertexAttribute_Type_VAT_COLOR = 4,
-  VertexAttribute_Type_VAT_BYTE4 = 5,
-  VertexAttribute_Type_VAT_BYTE4_NORM = 6,
-  VertexAttribute_Type_VAT_UBYTE4 = 7,
-  VertexAttribute_Type_VAT_UBYTE4_NORM = 8,
-  VertexAttribute_Type_VAT_SHORT2 = 9,
-  VertexAttribute_Type_VAT_SHORT4 = 10,
-  VertexAttribute_Type_VAT_SHORT2_NORM = 11,
-  VertexAttribute_Type_VAT_SHORT4_NORM = 12,
-  VertexAttribute_Type_VAT_USHORT2 = 13,
-  VertexAttribute_Type_VAT_USHORT4 = 14,
-  VertexAttribute_Type_VAT_USHORT2_NORM = 15,
-  VertexAttribute_Type_VAT_USHORT4_NORM = 16,
-  VertexAttribute_Type_VAT_DOUBLE1 = 17,
-  VertexAttribute_Type_VAT_DOUBLE2 = 18,
-  VertexAttribute_Type_VAT_DOUBLE3 = 19,
-  VertexAttribute_Type_VAT_DOUBLE4 = 20,
-  VertexAttribute_Type_VAT_INT1 = 21,
-  VertexAttribute_Type_VAT_INT2 = 22,
-  VertexAttribute_Type_VAT_INT3 = 23,
-  VertexAttribute_Type_VAT_INT4 = 24,
-  VertexAttribute_Type_VAT_UINT1 = 25,
-  VertexAttribute_Type_VAT_UINT2 = 26,
-  VertexAttribute_Type_VAT_UINT3 = 27,
-  VertexAttribute_Type_VAT_UINT4 = 28,
-  VertexAttribute_Type_VAT_FLOAT16_2 = 29,
-  VertexAttribute_Type_VAT_FLOAT16_4 = 30,
+  VertexAttribute_Type_VAT_FLOAT = 0,
+  VertexAttribute_Type_VAT_DOUBLE = 1,
+  VertexAttribute_Type_VAT_INT8 = 2,
+  VertexAttribute_Type_VAT_INT16 = 3,
+  VertexAttribute_Type_VAT_INT32 = 4,
+  VertexAttribute_Type_VAT_INT64 = 5,
   VertexAttribute_Type_VertexAttribute_Type_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   VertexAttribute_Type_VertexAttribute_Type_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool VertexAttribute_Type_IsValid(int value);
-constexpr VertexAttribute_Type VertexAttribute_Type_Type_MIN = VertexAttribute_Type_VAT_FLOAT1;
-constexpr VertexAttribute_Type VertexAttribute_Type_Type_MAX = VertexAttribute_Type_VAT_FLOAT16_4;
+constexpr VertexAttribute_Type VertexAttribute_Type_Type_MIN = VertexAttribute_Type_VAT_FLOAT;
+constexpr VertexAttribute_Type VertexAttribute_Type_Type_MAX = VertexAttribute_Type_VAT_INT64;
 constexpr int VertexAttribute_Type_Type_ARRAYSIZE = VertexAttribute_Type_Type_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* VertexAttribute_Type_descriptor();
@@ -440,68 +415,18 @@ class VertexAttribute :
   }
 
   typedef VertexAttribute_Type Type;
-  static constexpr Type VAT_FLOAT1 =
-    VertexAttribute_Type_VAT_FLOAT1;
-  static constexpr Type VAT_FLOAT2 =
-    VertexAttribute_Type_VAT_FLOAT2;
-  static constexpr Type VAT_FLOAT3 =
-    VertexAttribute_Type_VAT_FLOAT3;
-  static constexpr Type VAT_FLOAT4 =
-    VertexAttribute_Type_VAT_FLOAT4;
-  static constexpr Type VAT_COLOR =
-    VertexAttribute_Type_VAT_COLOR;
-  static constexpr Type VAT_BYTE4 =
-    VertexAttribute_Type_VAT_BYTE4;
-  static constexpr Type VAT_BYTE4_NORM =
-    VertexAttribute_Type_VAT_BYTE4_NORM;
-  static constexpr Type VAT_UBYTE4 =
-    VertexAttribute_Type_VAT_UBYTE4;
-  static constexpr Type VAT_UBYTE4_NORM =
-    VertexAttribute_Type_VAT_UBYTE4_NORM;
-  static constexpr Type VAT_SHORT2 =
-    VertexAttribute_Type_VAT_SHORT2;
-  static constexpr Type VAT_SHORT4 =
-    VertexAttribute_Type_VAT_SHORT4;
-  static constexpr Type VAT_SHORT2_NORM =
-    VertexAttribute_Type_VAT_SHORT2_NORM;
-  static constexpr Type VAT_SHORT4_NORM =
-    VertexAttribute_Type_VAT_SHORT4_NORM;
-  static constexpr Type VAT_USHORT2 =
-    VertexAttribute_Type_VAT_USHORT2;
-  static constexpr Type VAT_USHORT4 =
-    VertexAttribute_Type_VAT_USHORT4;
-  static constexpr Type VAT_USHORT2_NORM =
-    VertexAttribute_Type_VAT_USHORT2_NORM;
-  static constexpr Type VAT_USHORT4_NORM =
-    VertexAttribute_Type_VAT_USHORT4_NORM;
-  static constexpr Type VAT_DOUBLE1 =
-    VertexAttribute_Type_VAT_DOUBLE1;
-  static constexpr Type VAT_DOUBLE2 =
-    VertexAttribute_Type_VAT_DOUBLE2;
-  static constexpr Type VAT_DOUBLE3 =
-    VertexAttribute_Type_VAT_DOUBLE3;
-  static constexpr Type VAT_DOUBLE4 =
-    VertexAttribute_Type_VAT_DOUBLE4;
-  static constexpr Type VAT_INT1 =
-    VertexAttribute_Type_VAT_INT1;
-  static constexpr Type VAT_INT2 =
-    VertexAttribute_Type_VAT_INT2;
-  static constexpr Type VAT_INT3 =
-    VertexAttribute_Type_VAT_INT3;
-  static constexpr Type VAT_INT4 =
-    VertexAttribute_Type_VAT_INT4;
-  static constexpr Type VAT_UINT1 =
-    VertexAttribute_Type_VAT_UINT1;
-  static constexpr Type VAT_UINT2 =
-    VertexAttribute_Type_VAT_UINT2;
-  static constexpr Type VAT_UINT3 =
-    VertexAttribute_Type_VAT_UINT3;
-  static constexpr Type VAT_UINT4 =
-    VertexAttribute_Type_VAT_UINT4;
-  static constexpr Type VAT_FLOAT16_2 =
-    VertexAttribute_Type_VAT_FLOAT16_2;
-  static constexpr Type VAT_FLOAT16_4 =
-    VertexAttribute_Type_VAT_FLOAT16_4;
+  static constexpr Type VAT_FLOAT =
+    VertexAttribute_Type_VAT_FLOAT;
+  static constexpr Type VAT_DOUBLE =
+    VertexAttribute_Type_VAT_DOUBLE;
+  static constexpr Type VAT_INT8 =
+    VertexAttribute_Type_VAT_INT8;
+  static constexpr Type VAT_INT16 =
+    VertexAttribute_Type_VAT_INT16;
+  static constexpr Type VAT_INT32 =
+    VertexAttribute_Type_VAT_INT32;
+  static constexpr Type VAT_INT64 =
+    VertexAttribute_Type_VAT_INT64;
   static inline bool Type_IsValid(int value) {
     return VertexAttribute_Type_IsValid(value);
   }

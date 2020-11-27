@@ -19,6 +19,7 @@
 
 
 #include "Resource/T3DModel.h"
+#include "protobuf/FileScriptObject.pb.h"
 
 
 namespace Tiny3D
@@ -62,6 +63,7 @@ namespace Tiny3D
 
     TResult Model::load()
     {
+        mModelData = new FileModel();
         return T3D_OK;
     }
 
@@ -69,6 +71,7 @@ namespace Tiny3D
 
     TResult Model::unload()
     {
+        T3D_SAFE_DELETE(mModelData);
         return Resource::unload();
     }
 
@@ -76,8 +79,8 @@ namespace Tiny3D
 
     ResourcePtr Model::clone() const
     {
-        ModelPtr mesh = Model::create(mName);
-        return mesh;
+        ModelPtr model = Model::create(mName);
+        return model;
     }
 
 }

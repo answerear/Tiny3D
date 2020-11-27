@@ -82,7 +82,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (header->subtype != FileSubType::E_FST_SCRIPT)
+            if (header->subtype != T3D_FILE_SUBTYPE_SCC)
             {
                 // 非法材质脚本类型
                 ret = T3D_ERR_RES_INVALID_FILETYPE;

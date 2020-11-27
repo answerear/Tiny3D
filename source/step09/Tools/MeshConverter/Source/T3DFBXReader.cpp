@@ -20,7 +20,6 @@
 
 #include "T3DFBXReader.h"
 #include "T3DFBXDataStream.h"
-
 #include <iomanip>
 
 
@@ -196,6 +195,13 @@ namespace Tiny3D
 
         do 
         {
+            // 文件头
+            FileModel *data = model->getModelData();
+            Script::FileFormat::FileHeader *header = data->mutable_header();
+            header->set_magic(T3D_FILE_MAGIC);
+            header->set_version(T3D_FILE_MDL_VERSION);
+            header->set_type(Script::FileFormat::FileHeader_FileType_Model);
+
             // Initialize fbx objects.
             ret = initFbxObjects();
             if (T3D_FAILED(ret))
@@ -228,7 +234,7 @@ namespace Tiny3D
             }
 
             // Scene
-            ret = processFbxScene(pFbxScene, model);
+            ret = processFbxScene(pFbxScene, data);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -256,7 +262,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxScene(FbxScene *pFbxScene, Model *model)
+    TResult FBXReader::processFbxScene(FbxScene *pFbxScene, FileModel *model)
     {
         TResult ret = T3D_OK;
 
@@ -267,20 +273,44 @@ namespace Tiny3D
             FbxNode *pFbxRoot = pFbxScene->GetRootNode();
 
             mTabCount = 0;
-            processFbxNode(pFbxRoot);
+            Script::SceneSystem::Node *pNode = nullptr;
+            processFbxNode(pFbxRoot, model, nullptr, pNode);
         } while (0);
 
         return ret;
     }
 
+    float precision(float value)
+    {
+        return (float)((std::ceil((double)value * 1000000)) / 1000000);
+    }
+
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxNode(FbxNode *pFbxNode)
+    TResult FBXReader::processFbxNode(FbxNode *pFbxNode, FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode)
     {
         TResult ret = T3D_OK;
 
         do 
         {
+            // 新建一个 node
+            String uuid = UUID::generate();
+            auto nodes = model->mutable_nodes();
+            auto rval = nodes->insert({ uuid, Script::SceneSystem::Node() });
+            pNode = &rval.first->second;
+            pNode->set_uuid(uuid);
+            pNode->set_name(pFbxNode->GetName());
+
+            // set parent of this node
+            if (parent != nullptr)
+            {
+                pNode->set_parent(parent->uuid());
+            }
+            else
+            {
+                pNode->set_parent("");
+            }
+
             std::stringstream ss;
             for (size_t i = 0; i < mTabCount; ++i)
             {
@@ -289,27 +319,6 @@ namespace Tiny3D
 
             MCONV_LOG_INFO("%s%s(Node)", ss.str().c_str(), pFbxNode->GetName());
             MCONV_LOG_INFO("%s{", ss.str().c_str());
-            FbxDouble3 pos = pFbxNode->LclTranslation.Get();
-            MCONV_LOG_INFO("%s\toriginal position (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
-            FbxDouble3 rotation = pFbxNode->LclRotation.Get();
-            MCONV_LOG_INFO("%s\toriginal rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
-            FbxDouble3 scale = pFbxNode->LclScaling.Get();
-            MCONV_LOG_INFO("%s\toriginal scaling (%f, %f, %f)", ss.str().c_str(), scale[0], scale[1], scale[2]);
-
-            pos = pFbxNode->GeometricTranslation.Get();
-            MCONV_LOG_INFO("%s\tgeometry position (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
-            rotation = pFbxNode->GeometricRotation.Get();
-            MCONV_LOG_INFO("%s\tgeometry rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
-            scale = pFbxNode->GeometricScaling.Get();
-            MCONV_LOG_INFO("%s\tgeometry scaling (%f, %f, %f)", ss.str().c_str(), scale[0], scale[1], scale[2]);
-//             pos = pFbxNode->RotationOffset.Get();
-//             MCONV_LOG_INFO("%s\trotation offset (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
-//             pos = pFbxNode->RotationPivot.Get();
-//             MCONV_LOG_INFO("%s\trotation pivot (%f, %f, %f)", ss.str().c_str(), pos[0], pos[1], pos[2]);
-//             rotation = pFbxNode->PreRotation.Get();
-//             MCONV_LOG_INFO("%s\tpre-rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
-//             rotation = pFbxNode->PostRotation.Get();
-//             MCONV_LOG_INFO("%s\tpost-rotation (%f, %f, %f)", ss.str().c_str(), rotation[0], rotation[1], rotation[2]);
 
             FbxAMatrix &lFbxLocalMatrix = pFbxNode->EvaluateLocalTransform();
             Matrix4 mat;
@@ -349,45 +358,30 @@ namespace Tiny3D
                 break;
             }
 
+            // Transform
+            auto components = pNode->mutable_components();
+            auto component = components->Add();
+            component->set_type(Script::SceneSystem::Component_Type_Transform);
+            auto transform = component->mutable_transform();
+            // position
+            auto pos = transform->mutable_position();
+            pos->set_x(t.x());
+            pos->set_y(t.y());
+            pos->set_z(t.z());
+            // rotation
+            auto euler = transform->mutable_rotation();
+            euler->set_x(pitch.valueDegrees());
+            euler->set_y(yaw.valueDegrees());
+            euler->set_z(roll.valueDegrees());
+            // scaling
+            auto scaling = transform->mutable_scaling();
+            scaling->set_x(s.x());
+            scaling->set_y(s.y());
+            scaling->set_z(s.z());
+
             MCONV_LOG_INFO("%s\tposition (%f, %f, %f)", ss.str().c_str(), t.x(), t.y(), t.z());
             MCONV_LOG_INFO("%s\trotation (%f, %f, %f)", ss.str().c_str(), pitch.valueDegrees(), yaw.valueDegrees(), roll.valueDegrees());
             MCONV_LOG_INFO("%s\tscaling (%f, %f, %f)", ss.str().c_str(), s.x(), s.y(), s.z());
-
-//             FbxAMatrix &lFbxGlobalMatrix = pFbxNode->EvaluateGlobalTransform();
-//             convertMatrix(lFbxGlobalMatrix, mat);
-// 
-//             mat.decomposition(t, s, q);
-//             q.toRotationMatrix(R);
-// 
-//             order = pFbxNode->RotationOrder;
-//             switch (order)
-//             {
-//             case eEulerXYZ:
-//                 R.toEulerAnglesZYX(roll, yaw, pitch);
-//                 break;
-//             case eEulerXZY:
-//                 R.toEulerAnglesYZX(yaw, roll, pitch);
-//                 break;
-//             case eEulerYZX:
-//                 R.toEulerAnglesXZY(pitch, roll, yaw);
-//                 break;
-//             case eEulerYXZ:
-//                 R.toEulerAnglesZXY(roll, pitch, yaw);
-//                 break;
-//             case eEulerZXY:
-//                 R.toEulerAnglesYXZ(yaw, pitch, roll);
-//                 break;
-//             case eEulerZYX:
-//                 R.toEulerAnglesXYZ(pitch, yaw, roll);
-//                 break;
-//             case eSphericXYZ:
-//                 break;
-//             }
-// 
-//             MCONV_LOG_INFO("%s\world tposition (%f, %f, %f)", ss.str().c_str(), t.x(), t.y(), t.z());
-//             MCONV_LOG_INFO("%s\world trotation (%f, %f, %f)", ss.str().c_str(), pitch.valueDegrees(), yaw.valueDegrees(), roll.valueDegrees());
-//             MCONV_LOG_INFO("%s\world tscaling (%f, %f, %f)", ss.str().c_str(), s.x(), s.y(), s.z());
-
 
             for (int32_t i = 0; i < pFbxNode->GetNodeAttributeCount(); ++i)
             {
@@ -410,7 +404,7 @@ namespace Tiny3D
                     {
                         MCONV_LOG_INFO("%s\tAttribute : eMesh", ss.str().c_str());
                         FbxMesh *pFbxMesh = (FbxMesh *)pFbxNode->GetNodeAttributeByIndex(i);
-                        ret = processFbxMesh(pFbxNode, pFbxMesh);
+                        ret = processFbxMesh(pFbxNode, pFbxMesh, model);
                     }
                     break;
                 case FbxNodeAttribute::EType::eNurbs:
@@ -474,7 +468,9 @@ namespace Tiny3D
             for (int32_t i = 0; i < pFbxNode->GetChildCount(); ++i)
             {
                 FbxNode *pFbxChild = pFbxNode->GetChild(i);
-                processFbxNode(pFbxChild);
+                Script::SceneSystem::Node *pChild = nullptr;
+                processFbxNode(pFbxChild, model, pNode, pChild);
+                pNode->add_children(pChild->uuid());
             }
 
             mTabCount--;
@@ -485,19 +481,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh)
+    TResult FBXReader::processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh, FileModel *model)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            ret = processFbxMeshAttributes(pFbxMesh);
+            // generate a mesh
+            auto meshes = model->mutable_meshes();
+            String uuid = UUID::generate();
+            auto rval = meshes->insert({ uuid, Script::ModelSystem::MeshData() });
+            Script::ModelSystem::MeshData *pMesh = &rval.first->second;
+            pMesh->set_name(pFbxNode->GetName());
+
+            // attributes of vertex in this mesh
+            ret = processFbxMeshAttributes(pFbxMesh, pMesh);
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            ret = processFbxMeshData(pFbxMesh);
+            // vertices and indices data
+            ret = processFbxMeshData(pFbxMesh, pMesh);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -515,48 +520,95 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxMeshAttributes(FbxMesh *pFbxMesh)
+    static Script::ModelSystem::VertexAttribute *getAttribute(
+        google::protobuf::RepeatedPtrField<Script::ModelSystem::VertexBuffer> *vbs, 
+        google::protobuf::RepeatedPtrField<Script::ModelSystem::VertexAttribute> *attributes,
+        int idx)
+    {
+        Script::ModelSystem::VertexAttribute *attr = nullptr;
+
+        if (vbs->size() > idx)
+        {
+            attr = attributes->Add();
+        }
+        else
+        {
+            auto vbo = &vbs->at(idx);
+            attributes = vbo->mutable_attributes();
+            attr = attributes->Add();
+        }
+
+        return attr;
+    }
+
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxMeshAttributes(FbxMesh *pFbxMesh, Script::ModelSystem::MeshData *pMesh)
     {
         TResult ret = T3D_OK;
 
         int32_t layers = 0;
         int32_t i = 0;
 
+        auto vbs = pMesh->mutable_vertex_buffers();
+        auto vbo = vbs->Add();
+        auto attributes = vbo->mutable_attributes();
+
         // POSITION
+        auto attr = attributes->Add();
+        attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_POSITION);
+        attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
+        attr->set_size(3);
 
         // COLOR
         layers = pFbxMesh->GetElementVertexColorCount();
         for (i = 0; i < layers; ++i)
         {
-
+            attr = getAttribute(vbs, attributes, i);
+            attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_DIFFUSE);
+            attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
+            attr->set_size(4);
         }
 
         // TEXCOORD
         layers = pFbxMesh->GetElementUVCount();
         for (i = 0; i < layers; ++i)
         {
-
+            attr = getAttribute(vbs, attributes, i);
+            attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_TEXCOORD);
+            attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
+            attr->set_size(2);
         }
 
         // NORMAL
         layers = pFbxMesh->GetElementNormalCount();
         for (i = 0; i < layers; ++i)
         {
-
+            attr = getAttribute(vbs, attributes, i);
+            attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_NORMAL);
+            attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
+            attr->set_size(3);
         }
 
         // BINORMAL
         layers = pFbxMesh->GetElementBinormalCount();
         for (i = 0; i < layers; ++i)
         {
-
+            attr = getAttribute(vbs, attributes, i);
+            attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_BINORMAL);
+            attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
+            attr->set_size(3);
         }
 
         // TANGENT
         layers = pFbxMesh->GetElementTangentCount();
         for (i = 0; i < layers; ++i)
         {
-
+            attr = getAttribute(vbs, attributes, i);
+            attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_TANGENT);
+            attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
+            attr->set_size(3);
         }
 
         return ret;
@@ -564,12 +616,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxMeshData(FbxMesh *pFbxMesh)
+    TResult FBXReader::processFbxMeshData(FbxMesh *pFbxMesh, Script::ModelSystem::MeshData *pMesh)
     {
         TResult ret = T3D_OK;
 
         do 
         {
+            auto vbs = pMesh->mutable_vertex_buffers();
+            auto vbo = &vbs->at(0);
+
+            FbxVector4 *pPoints = pFbxMesh->GetControlPoints();
+            int32_t nPointsCount = pFbxMesh->GetControlPointsCount();
+
+            for (int32_t i = 0; i < nPointsCount; ++i)
+            {
+                FbxVector4 pos = pPoints[i];
+                auto v = vbo->add_vertices();
+                auto pos3 = v->mutable_pos();
+                pos3->set_x(pos[0]);
+                pos3->set_y(pos[1]);
+                pos3->set_z(pos[2]);
+            }
+
             int32_t triangleCount = pFbxMesh->GetPolygonCount();
 
             int32_t vertexCount = 0;
